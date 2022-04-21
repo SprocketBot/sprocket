@@ -1,0 +1,44 @@
+{
+  "transport": {
+    "url": "",
+    "core_queue": "dev-core",
+    "bot_queue": "dev-bot",
+    "analytics_queue": "dev-analytics",
+    "matchmaking_queue": "dev-matchmaking",
+    "events_queue":  "dev-events",
+    "events_application_key": "sprocket-core"
+  },
+  "logger": {
+    "levels": true
+  },
+  "db": {
+    "host": "",
+    "port": "",
+    "username": "",
+    "database": "",
+    "enable_logs": false
+  },
+  "minio": {
+    "endPoint": "",
+    "bucketNames": {
+      "replays": ""
+    }
+  },
+  "celery": {
+    "broker": "",
+    "backend": "",
+    "queue": "dev-celery-default"
+  },
+  "redis": {
+    "port": 0,
+    "host": "",
+    "prefix": ""
+  },
+  "gql": {
+    "playground": false
+  },
+  "auth": {
+    "redirect_url": "http://localhost:3001/google/redirect",
+    "jwt_expiry": "1800s"
+  }
+}

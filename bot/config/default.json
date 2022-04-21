@@ -1,0 +1,17 @@
+{
+  "bot": {
+    "prefix": "."
+  },
+  "transport": {
+    "url": "",
+    "core_queue": "dev-core",
+    "bot_queue": "dev-bot",
+    "analytics_queue": "dev-analytics"
+  },
+  "gql": {
+    "url": "http://localhost:3001/graphql"
+  },
+  "logger": {
+    "levels": true
+  }
+}

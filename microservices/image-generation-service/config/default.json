@@ -1,0 +1,8 @@
+{
+  "transport": {
+    "url": ""
+  },
+  "logger": {
+    "levels": true
+  }
+}
