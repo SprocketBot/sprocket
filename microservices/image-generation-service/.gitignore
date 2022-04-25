@@ -103,4 +103,9 @@ dist
 # TernJS port file
 .tern-port
 
-*.iml
+.idea
+/config/development.json
+/config/production.json
+results/
+coverage.xml
+reports/

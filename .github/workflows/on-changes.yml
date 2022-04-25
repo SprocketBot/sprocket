@@ -1,0 +1,51 @@
+name: on-changes
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+      - dev
+
+jobs:
+  discord_bot:
+    name: "Build Services"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory:
+          - [discord-bot, ./clients/discord-bot]
+          - [web, ./clients/web]
+          - [core, ./core]
+          - [image-generation-service, ./microservices/image-generation-service]
+          - [matchmaking-service, ./microservices/matchmaking-service]
+          # - [replay-parse-service, ./microservices/replay-parse-service]
+          - [server-analytics-service, ./microservices/server-analytics-service]
+
+    steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      - name: Check if there are changes in this project
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          base: ${{ github.ref }}
+          list-files: none
+          filters: |
+            change:
+              ${{ matrix.directory[1] }}**
+      
+      - name: Build project
+        uses: ./.github/reusable_workflows/build_container
+        with:
+          build_directory: ${{ matrix.directory[1] }}
+          docker_image: ${{ matrix.directory[0] }}
+          docker_tag: ${{steps.extract_branch.outputs.branch}}
+          docker_username: ${{ secrets.docker_username }}
+          docker_access_token: ${{ secrets.docker_access_token }}

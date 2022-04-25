@@ -1,0 +1,65 @@
+name: Deploy Sprocket
+description: Connects to the VPN, and uses Pulumi to update the sprocket platform.
+
+inputs:
+  pulumi_cloud_url:
+    description: "Pulumi backend url (i.e. S3)"
+    required: true
+
+  pulumi_stack_name:
+    description: "Which Pulumi Stack to deploy"
+    required: true
+  
+  ssh_user:
+    description: "SSH User for Remote Docker Socket"
+    required: true
+
+  ssh_key:
+    description: "Private SSH Key for Remote Docker Socket"
+    required: true
+  
+  manager_node_hostname:
+    description: "Tailwind machine name of manager node, used to auto-detect ip address"
+    required: true
+
+  tailscale_ephemeral_authkey:
+    description: "Used to temporarily connect to the tailscale cluster"
+    required: true
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Check out the infrastructure repository
+      uses: actions/checkout@v2
+      with:
+        path: infrastructure
+        repository: SprocketBot/sprocket-infra
+
+    - name: Tailscale
+      uses: tailscale/github-action@v1
+      with:
+        authkey: ${{ inputs.tailscale_ephemeral_authkey }} 
+    
+    - name: Extract Manager Node ip
+      id: manager_node_ip
+      run: echo "::set-output name=ip::$(tailscale status | grep ${{ inputs.manager_node_hostname }} | awk '{print $1}')\n"
+      shell: bash
+
+    - name: Connect to remote docker socket
+      uses: pcjun97/action-setup-docker-host-ssh@v1
+      with:
+        host: ${{ steps.manager_node_ip.outputs.ip }}
+        port: 22
+        user: ${{ inputs.ssh_user }}
+        key: ${{ inputs.ssh_key }}
+
+    - name: Pulumi Up
+      uses: pulumi/actions@v3
+      env: 
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+      with:
+        command: up
+        stack-name: ${{ inputs.pulumi_stack_name }}
+        work-dir: ./infrastructure/platform/applications
+        cloud-url: ${{ inputs.pulumi_cloud_url }}

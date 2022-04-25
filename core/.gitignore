@@ -103,4 +103,13 @@ dist
 # TernJS port file
 .tern-port
 
-*.iml
+.idea
+.vscode
+/config/development.json
+/config/production.json
+results/
+coverage.xml
+reports/
+secret/
+
+gql-client/gql-client.ts

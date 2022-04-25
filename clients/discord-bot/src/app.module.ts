@@ -1,0 +1,17 @@
+import {Module} from "@nestjs/common";
+import {GqlModule, GqlService} from "@sprocketbot/common";
+
+import {AdministratorCommandsModule} from "./administrator-commands/administrator-commands.module";
+import {DiscordModule} from "./discord/discord.module";
+import {EmbedModule} from "./embed/embed.module";
+import {EmbedService} from "./embed/embed.service";
+import {GlobalModule} from "./global.module";
+import {MarshalModule} from "./marshal";
+import {MemberCommandsModule} from "./member-commands/member-commands.module";
+
+
+@Module({
+    imports: [GlobalModule, GqlModule, MarshalModule, MemberCommandsModule, AdministratorCommandsModule, DiscordModule, EmbedModule],
+    providers: [GlobalModule, GqlService, EmbedService],
+})
+export class AppModule {}

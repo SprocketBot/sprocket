@@ -1,0 +1,83 @@
+import {Injectable} from "@nestjs/common";
+import {InjectRepository} from "@nestjs/typeorm";
+import {Repository} from "typeorm";
+import type {FindManyOptions} from "typeorm/find-options/FindManyOptions";
+
+import type {IrrelevantFields} from "../../database";
+import {Organization, OrganizationProfile} from "../../database";
+
+@Injectable()
+export class OrganizationService {
+    constructor(
+        @InjectRepository(Organization) private organizationRepository: Repository<Organization>,
+        @InjectRepository(OrganizationProfile) private organizationProfileRepository: Repository<OrganizationProfile>,
+    ) {}
+
+    /**
+     * Creates an Organization with a given profile.
+     * @param organizationProfile The profile to give the newly created organization.
+     * @returns A promise that resolves to the newly created organization.
+     */
+    async createOrganization(organizationProfile: Omit<OrganizationProfile, IrrelevantFields | "id" | "organization">): Promise<Organization> {
+        const profile = this.organizationProfileRepository.create(organizationProfile);
+        const organization = this.organizationRepository.create({organizationProfile: profile});
+        
+        await this.organizationProfileRepository.save(organization.organizationProfile);
+        await this.organizationRepository.save(organization);
+        return organization;
+    }
+
+    /**
+     * Finds an Organization by its id and fails if not found.
+     * @param id The id of the organization to find.
+     * @retusn The organization with the given id, if found.
+     */
+    async getOrganizationById(id: number): Promise<Organization> {
+        return this.organizationRepository.findOneOrFail(id);
+    }
+    
+    /**
+     * Finds Organizations that match a given query.
+     * @param query A query to search for matching Organzations.
+     * @returns An array containg Organizations matching the given query.
+     */
+    async getOrganizations(query: FindManyOptions<OrganizationProfile>): Promise<Organization[]> {
+        const organizationProfiles = await this.organizationProfileRepository.find(query);
+        return organizationProfiles.map(op => op.organization);
+    }
+
+    /**
+     * Updates the OrganizationProfile of an Organization with a given id.
+     * @param organizationId The id of the organization's profile to update.
+     * @param data The fields and values on the OrganizationProfile to update.
+     * @returns The updated OrganizationProfile.
+     */
+    async updateOrganizationProfile(organizationId: number, data: Omit<Partial<OrganizationProfile>, "organization">): Promise<OrganizationProfile> {
+        let {organizationProfile} = await this.organizationRepository.findOneOrFail(
+            organizationId,
+            {relations: ["organizationProfile"] },
+        );
+        organizationProfile = this.organizationProfileRepository.merge(organizationProfile, data);
+        await this.organizationProfileRepository.save(organizationProfile);
+        return organizationProfile;
+    }
+
+    /**
+     * Deletes an Organization with a given id from the database.
+     * @param id The id of the Organization to delete.
+     * @returns The deleted Organization.
+     */
+    async deleteOrganization(id: number): Promise<Organization> {
+        const toDelete = await this.organizationRepository.findOneOrFail(id, {
+            relations: ["organizationProfile"],
+        });
+        await this.organizationRepository.delete({id});
+        await this.organizationProfileRepository.delete({id: toDelete.organizationProfile.id});
+        return toDelete;
+    }
+
+    async getOrganizationProfileForOrganization(organizationId: number): Promise<OrganizationProfile> {
+        const org = await this.organizationRepository.findOneOrFail(organizationId, {relations: ["organizationProfile"] });
+        return org.organizationProfile;
+    }
+}
