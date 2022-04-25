@@ -1,0 +1,85 @@
+import {Controller} from "@nestjs/common";
+import {MessagePattern, Payload} from "@nestjs/microservices";
+import type {Scrim, ScrimMetrics} from "@sprocketbot/common";
+import {MatchmakingEndpoint, MatchmakingSchemas} from "@sprocketbot/common";
+
+import {ScrimService} from "./scrim.service";
+import {ScrimCrudService} from "./scrim-crud/scrim-crud.service";
+import {ScrimMetricsService} from "./scrim-metrics/scrim-metrics.service";
+
+@Controller("scrim")
+export class ScrimController {
+    constructor(
+        private readonly scrimCrudService: ScrimCrudService,
+        private readonly scrimService: ScrimService,
+        private readonly scrimMetricsService: ScrimMetricsService,
+    ) {
+    }
+
+    @MessagePattern(MatchmakingEndpoint.CreateScrim)
+    async createScrim(@Payload() payload: unknown): Promise<Scrim> {
+        const data = MatchmakingSchemas.CreateScrim.input.parse(payload);
+        // TODO: Permissions Checks (Must be a Player for the requested game)
+        return this.scrimService.createScrim(data.author, data.settings, data.gameMode, data.createGroup);
+    }
+
+    @MessagePattern(MatchmakingEndpoint.GetAllScrims)
+    async getAllScrims(): Promise<Scrim[]> {
+        // TODO: Permissions Checks (Must be a Player for the requested game)
+        return this.scrimCrudService.getAllScrims();
+    }
+
+    @MessagePattern(MatchmakingEndpoint.GetScrim)
+    async getScrim(@Payload() payload: unknown): Promise<Scrim> {
+        const data = MatchmakingSchemas.GetScrim.input.parse(payload);
+        const scrim = await this.scrimCrudService.getScrim(data);
+        if (scrim) return scrim;
+        // TODO: Permissions Checks (Must be a Player for the requested game)
+        throw new Error("Not Found!");
+    }
+
+    @MessagePattern(MatchmakingEndpoint.JoinScrim)
+    async joinScrim(@Payload() payload: unknown): Promise<boolean> {
+        const data = MatchmakingSchemas.JoinScrim.input.parse(payload);
+        // TODO: Permissions Checks (Must be a Player for the requested game)
+        return this.scrimService.joinScrim(data.scrimId, data.player, data.group);
+    }
+
+    @MessagePattern(MatchmakingEndpoint.LeaveScrim)
+    async leaveScrim(@Payload() payload: unknown): Promise<boolean> {
+        const data = MatchmakingSchemas.LeaveScrim.input.parse(payload);
+        // TODO: Permissions Checks (Must be a Player for the requested game)
+        return this.scrimService.leaveScrim(data.scrimId, data.player);
+    }
+
+    @MessagePattern(MatchmakingEndpoint.CheckInToScrim)
+    async checkIn(@Payload() payload: unknown): Promise<boolean> {
+        const data = MatchmakingSchemas.CheckInToScrim.input.parse(payload);
+        // TODO: Permissions Checks (Must be a Player for the requested game)
+        return this.scrimService.checkIn(data.scrimId, data.player);
+    }
+
+    @MessagePattern(MatchmakingEndpoint.EndScrim)
+    async endScrim(@Payload() payload: unknown): Promise<Scrim> {
+        const data = MatchmakingSchemas.EndScrim.input.parse(payload);
+        return this.scrimService.endScrim(data.scrimId, data.player);
+    }
+
+    @MessagePattern(MatchmakingEndpoint.RatifyScrim)
+    async ratifyScrim(@Payload() payload: unknown): Promise<Scrim> {
+        const data = MatchmakingSchemas.RatifyScrim.input.parse(payload);
+        return this.scrimService.ratifyScrim(data.scrimId, data.player);
+    }
+
+    @MessagePattern(MatchmakingEndpoint.GetScrimMetrics)
+    async getScrimMetrics(): Promise<ScrimMetrics> {
+        return this.scrimMetricsService.getScrimMetrics();
+    }
+
+    @MessagePattern(MatchmakingEndpoint.GetScrimByPlayer)
+    async getScrimByPlayer(@Payload() payload: unknown): Promise<Scrim | null> {
+        const data = MatchmakingSchemas.GetScrimByPlayer.input.parse(payload);
+        return this.scrimCrudService.getScrimByPlayer(data);
+    }
+
+}
