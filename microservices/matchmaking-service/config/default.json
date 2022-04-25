@@ -1,0 +1,23 @@
+{
+  "transport": {
+    "url": "",
+    "matchmaking_queue": "dev-matchmaking",
+    "core_queue": "dev-core",
+    "bot_queue": "dev-bot",
+    "analytics_queue": "dev-analytics",
+    "events_queue": "dev-events",
+    "events_application_key": "matchmaking-service"
+  },
+  "logger": {
+    "levels": true
+  },
+  "gql": {
+    "url": "http://localhost:3001"
+  },
+  "redis": {
+    "port": 0,
+    "host": "",
+    "prefix": "dev"
+  }
+}
+  
