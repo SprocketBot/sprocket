@@ -109,3 +109,13 @@ dist
 results/
 coverage.xml
 reports/
+tmp/output/
+
+secret/
+
+*.png
+
+*.svg
+
+fonts/*
+!fonts/fonts.conf

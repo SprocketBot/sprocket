@@ -14,9 +14,10 @@
     "baseUrl": "./",
     "incremental": true,
     "moduleResolution": "node",
-    "lib": ["es2017", "esnext.asynciterable"],
+    "lib": ["es2017", "esnext.asynciterable", "dom", "dom.iterable"],
     "strictNullChecks": true,
-    "strict": true
+    "strict": true,
+    "typeRoots": ["node_modules/@types"]
   },
   "include": ["src/**/*", "src/*"]
 }

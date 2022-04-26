@@ -6,10 +6,11 @@ import {AppModule} from "./app.module";
 
 async function bootstrap(): Promise<void> {
     const app = await NestFactory.createMicroservice(AppModule, {
-        transport: Transport.NATS,
+        transport: Transport.RMQ,
         logger: config.get("logger.levels"),
         options: {
-            url: config.get("transport.url"),
+            urls: [config.get("transport.url")],
+            queue: config.has("transport.queue") && config.get("transport.queue"),
         },
     });
     app.listen(() => {

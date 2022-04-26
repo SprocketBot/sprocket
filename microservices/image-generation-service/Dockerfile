@@ -1,15 +1,13 @@
-FROM node:14-alpine AS base
+FROM node:16-alpine AS base
 
 WORKDIR /app
 
-COPY package.json package-lock.json tsconfig.json tsconfig.build.json jest.config.js ./
+COPY package.json package-lock.json tsconfig.json tsconfig.build.json ./
 COPY config config
+COPY fonts fonts
 COPY src src
 
 RUN npm ci
-
-FROM base AS test_image
-ENTRYPOINT npm run test
 
 FROM base AS app_image
 RUN npm i @nestjs/cli
