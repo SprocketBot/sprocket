@@ -14,9 +14,6 @@ export const config = {
     logger: {
         get levels(): boolean | string { return _config.get<boolean | string>("logger.levels") },
     },
-    gql: {
-        get url(): string { return _config.get<string>("gql.url") },
-    },
     cache: {
         get port(): number { return _config.get<number>("cache.port") },
         get host(): string { return _config.get<string>("cache.host") },

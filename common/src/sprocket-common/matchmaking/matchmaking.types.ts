@@ -2,7 +2,6 @@ import type {z} from "zod";
 
 import type {ResponseStatus} from "../../global.types";
 import * as Schemas from "./schemas";
-import {CompleteScrim_Request, CompleteScrim_Response} from "./schemas/scrim/CompleteScrim.schema";
 
 
 export enum MatchmakingEndpoint {
@@ -19,6 +18,7 @@ export enum MatchmakingEndpoint {
     EndScrim = "EndScrim",
     CompleteScrim = "CompleteScrim",
     GetScrimBySubmissionId = "GetScrimBySubmissionId",
+    RatifyScrim = "RatifyScrim",
 
     // Validation
     ValidateReplays = "ValidateReplays",
@@ -67,14 +67,17 @@ export const MatchmakingSchemas = {
         output: Schemas.EndScrim_Response,
     },
     [MatchmakingEndpoint.CompleteScrim]: {
-        input: CompleteScrim_Request,
-        output: CompleteScrim_Response,
+        input: Schemas.CompleteScrim_Request,
+        output: Schemas.CompleteScrim_Response,
     },
     [MatchmakingEndpoint.GetScrimBySubmissionId]: {
         input: Schemas.GetScrimBySubmissionId_Request,
         output: Schemas.GetScrimBySubmissionId_Response,
     },
-
+    [MatchmakingEndpoint.RatifyScrim]: {
+        input: Schemas.RatifyScrim_Request,
+        output: Schemas.RatifyScrim_Response
+    },
     // Validation
     [MatchmakingEndpoint.ValidateReplays]: {
         input: Schemas.ValidateReplays_Request,

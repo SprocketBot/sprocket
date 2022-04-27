@@ -12,7 +12,8 @@ export class PronounsService {
     constructor(
         @InjectRepository(Pronouns) private pronounsRepository: Repository<Pronouns>,
         private organizationService: OrganizationService,
-    ) {}
+    ) {
+    }
 
     async createPronouns(organizationId: number, pronouns: Omit<Pronouns, IrrelevantFields | "organization" | "id">): Promise<Pronouns> {
         const organization = await this.organizationService.getOrganizationById(organizationId);
@@ -36,15 +37,15 @@ export class PronounsService {
     }
 
     // TODO type this
-    async getPronouns(query: {organizationId: number;}): Promise<Pronouns[]> {
-        const organization = await this.organizationService.getOrganizationById(query.organizationId);
-        const pronouns = await this.pronounsRepository.find({organization});
+    async getPronouns(query: { organization: { id: number } }): Promise<Pronouns[]> {
+        const organization = await this.organizationService.getOrganizationById(query.organization.id);
+        const pronouns = await this.pronounsRepository.find({organization: { id: organization.id } });
         return pronouns;
     }
 
     async deletePronouns(id: number): Promise<Pronouns> {
         const toDelete = await this.pronounsRepository.findOneOrFail(id);
-        await this.pronounsRepository.softDelete(toDelete);
+        await this.pronounsRepository.softDelete({ id: toDelete.id });
         return toDelete;
     }
 }

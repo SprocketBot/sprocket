@@ -9,6 +9,18 @@ inputs:
   pulumi_stack_name:
     description: "Which Pulumi Stack to deploy"
     required: true
+
+  pulumi_config_passphrase:
+    description: "Passphrase used to encrypt pulumi secrets"
+    required: true
+
+  pulumi_aws_access_key:
+    description: "AWS Access Key for Pulumi Backend"
+    required: true
+
+  pulumi_aws_secret_key:
+    description: "AWS Secret Key for Pulumi Backend"
+    required: true  
   
   ssh_user:
     description: "SSH User for Remote Docker Socket"
@@ -57,7 +69,9 @@ runs:
     - name: Pulumi Up
       uses: pulumi/actions@v3
       env: 
-          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          PULUMI_CONFIG_PASSPHRASE: ${{ inputs.pulumi_config_passphrase }}
+          AWS_ACCESS_KEY_ID: ${{ input.pulumi_aws_access_key }}
+          AWS_SECRET_ACCESS_KEY: ${{ input.pulumi_aws_secret_key }}
       with:
         command: up
         stack-name: ${{ inputs.pulumi_stack_name }}

@@ -9,3 +9,5 @@ export * from "./GetScrimMetrics.schema";
 export * from "./JoinScrim.schema";
 export * from "./LeaveScrim.schema";
 export * from "./QueueStatus.schema";
+export * from "./CompleteScrim.schema"
+export * from "./RatifyScrim.schema"
