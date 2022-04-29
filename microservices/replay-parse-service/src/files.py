@@ -3,10 +3,18 @@ import json
 from minio import Minio
 from config import config
 
+# Load minio secretKey from file
+S3_SECRET_FILE = open("../secret/s3-secret", "r")
+S3_SECRET = S3_SECRET_FILE.read()
+if len(S3_SECRET.strip()) == 0:
+    print("Missing required secret: 'secret/s3-secret'`")
+    exit(1)
+S3_SECRET_FILE.close()
+
 client = Minio(
     config["minio"]["hostname"],
     access_key=config["minio"]["accessKey"],
-    secret_key=config["minio"]["secretKey"],
+    secret_key=S3_SECRET,
 )
 
 BUCKET = config["minio"]["bucket"]

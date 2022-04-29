@@ -12,8 +12,7 @@
         "hostname": "",
         "bucket": "",
         "parsed_object_prefix": "",
-        "accessKey": "",
-        "secretKey": ""
+        "accessKey": ""
     },
     "tempDir": ""
 }
