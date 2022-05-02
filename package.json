@@ -1,10 +1,10 @@
 {
   "name": "@sprocketbot/workspaces",
   "workspaces": [
-    "clients/web",
-    "clients/discord-bot",
     "common",
     "core",
+    "clients/web",
+    "clients/discord-bot",
     "microservices/image-generation-service",
     "microservices/matchmaking-service",
     "microservices/server-analytics-service"
