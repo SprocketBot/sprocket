@@ -2,7 +2,7 @@ import {Column, Entity, Index, PrimaryGeneratedColumn} from "typeorm";
 
 @Index("league_branding_pkey", ["id"], {unique: true})
 @Index("league_branding_league_unique", ["league"], {unique: true})
-@Entity("league_branding", {schema: "public"})
+@Entity("league_branding", {schema: "mledb"})
 export class LeagueBranding {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

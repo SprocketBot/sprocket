@@ -3,7 +3,7 @@ import {Team} from "./Team.model";
 
 @Index("team_branding_pkey", ["id"], {unique: true})
 @Index("team_branding_team_name_unique", ["teamName"], {unique: true})
-@Entity("team_branding", {schema: "public"})
+@Entity("team_branding", {schema: "mledb"})
 export class TeamBranding {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

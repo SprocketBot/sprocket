@@ -6,7 +6,7 @@ import {Scrim} from "./Scrim.model";
 @Index("eligibility_data_player_id_scrim_id", ["playerId", "scrimId"], {
     unique: true,
 })
-@Entity("eligibility_data", {schema: "public"})
+@Entity("eligibility_data", {schema: "mledb"})
 export class EligibilityData {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

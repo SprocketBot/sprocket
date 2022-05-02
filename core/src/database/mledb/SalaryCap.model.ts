@@ -2,7 +2,7 @@ import {Column, Entity, Index, PrimaryGeneratedColumn} from "typeorm";
 
 @Index("salary_cap_pkey", ["id"], {unique: true})
 @Index("salary_cap_league_unique", ["league"], {unique: true})
-@Entity("salary_cap", {schema: "public"})
+@Entity("salary_cap", {schema: "mledb"})
 export class SalaryCap {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

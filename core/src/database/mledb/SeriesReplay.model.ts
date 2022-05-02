@@ -10,7 +10,7 @@ import {Map} from "./enums/Map.enum"
     unique: true,
 })
 @Index("series_replay_pkey", ["id"], {unique: true})
-@Entity("series_replay", {schema: "public"})
+@Entity("series_replay", {schema: "mledb"})
 export class SeriesReplay {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

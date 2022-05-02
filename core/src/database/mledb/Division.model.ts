@@ -3,7 +3,7 @@ import {Team} from "./Team.model";
 import {Conference} from "./enums/Conference.enum";
 
 @Index("division_pkey", ["name"], {unique: true})
-@Entity("division", {schema: "public"})
+@Entity("division", {schema: "mledb"})
 export class Division {
     @Column("character varying", {primary: true, name: "name", length: 255})
     name: string;

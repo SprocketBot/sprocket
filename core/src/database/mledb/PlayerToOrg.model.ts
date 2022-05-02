@@ -2,7 +2,7 @@ import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,} f
 import {Player} from "./Player.model";
 
 @Index("player_to_org_pkey", ["id"], {unique: true})
-@Entity("player_to_org", {schema: "public"})
+@Entity("player_to_org", {schema: "mledb"})
 export class PlayerToOrg {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

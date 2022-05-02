@@ -20,7 +20,7 @@ import {Player} from "./Player.model";
     ["standardAssistantGeneralManagerId"],
     {unique: true}
 )
-@Entity("team", {schema: "public"})
+@Entity("team", {schema: "mledb"})
 export class Team {
     @Column("character varying", {primary: true, name: "name", length: 255})
     name: string;

@@ -8,7 +8,7 @@ import {SeriesReplay} from "./SeriesReplay.model";
     unique: true,
 })
 @Index("elo_data_previous_node_id_unique", ["previousNodeId"], {unique: true})
-@Entity("elo_data", {schema: "public"})
+@Entity("elo_data", {schema: "mledb"})
 export class EloData {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

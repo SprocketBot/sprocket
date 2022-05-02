@@ -7,7 +7,7 @@ import {Season} from "./Season.model";
     ["league", "pick", "round", "seasonSeasonNumber"],
     {unique: true}
 )
-@Entity("draft_order", {schema: "public"})
+@Entity("draft_order", {schema: "mledb"})
 export class DraftOrder {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

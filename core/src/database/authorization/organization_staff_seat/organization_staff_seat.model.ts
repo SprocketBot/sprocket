@@ -4,7 +4,7 @@ import {Entity, ManyToOne} from "typeorm";
 import {BaseModel} from "../../base-model";
 import {Member} from "../../organization/member";
 import {OrganizationStaffPosition} from "../organization_staff_position";
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class OrganizationStaffSeat extends BaseModel {
     @ManyToOne(() => Member, {nullable: true})

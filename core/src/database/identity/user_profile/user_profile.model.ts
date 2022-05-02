@@ -6,7 +6,7 @@ import {
 import {BaseModel} from "../../base-model";
 import {User} from "../user/user.model";
 
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class UserProfile extends BaseModel {
     @OneToOne(() => User, user => user.userProfile)

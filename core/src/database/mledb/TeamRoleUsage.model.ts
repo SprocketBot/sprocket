@@ -3,7 +3,7 @@ import {Series} from "./Series.model";
 import {Role} from "./enums/Role.enum"
 
 @Index("team_role_usage_pkey", ["id"], {unique: true})
-@Entity("team_role_usage", {schema: "public"})
+@Entity("team_role_usage", {schema: "mledb"})
 export class TeamRoleUsage {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

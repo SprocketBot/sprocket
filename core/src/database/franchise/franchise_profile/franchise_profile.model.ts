@@ -5,7 +5,7 @@ import {
 
 import {BaseModel} from "../../base-model";
 import {Franchise} from "../franchise";
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class FranchiseProfile extends BaseModel {
     @Column()

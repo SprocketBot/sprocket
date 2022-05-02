@@ -6,7 +6,7 @@ import {
 import {BaseModel} from "../../base-model";
 import {Player} from "../../franchise/player";
 import {MatchParent} from "../match_parent";
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class EligibilityData extends BaseModel {
     @ManyToOne(() => MatchParent)

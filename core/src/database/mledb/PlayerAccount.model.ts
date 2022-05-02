@@ -9,7 +9,7 @@ import {PsyonixApiResult} from "./PsyonixApiResult.model";
     {unique: true}
 )
 @Index("player_account_tracker_unique", ["tracker"], {unique: true})
-@Entity("player_account", {schema: "public"})
+@Entity("player_account", {schema: "mledb"})
 export class PlayerAccount {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

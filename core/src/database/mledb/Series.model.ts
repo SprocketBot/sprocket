@@ -13,7 +13,7 @@ import {Mode} from "./enums/Mode.enum";
 )
 @Index("series_pkey", ["id"], {unique: true})
 @Index("series_scrim_id_unique", ["scrimId"], {unique: true})
-@Entity("series", {schema: "public"})
+@Entity("series", {schema: "mledb"})
 export class Series {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

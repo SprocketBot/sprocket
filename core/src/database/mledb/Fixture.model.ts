@@ -8,7 +8,7 @@ import {Series} from "./Series.model";
     {unique: true}
 )
 @Index("fixture_pkey", ["id"], {unique: true})
-@Entity("fixture", {schema: "public"})
+@Entity("fixture", {schema: "mledb"})
 export class Fixture {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

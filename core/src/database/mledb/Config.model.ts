@@ -2,7 +2,7 @@ import {Column, Entity, Index, PrimaryGeneratedColumn} from "typeorm";
 
 @Index("config_pkey", ["id"], {unique: true})
 @Index("config_key_unique", ["key"], {unique: true})
-@Entity("config", {schema: "public"})
+@Entity("config", {schema: "mledb"})
 export class Config {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

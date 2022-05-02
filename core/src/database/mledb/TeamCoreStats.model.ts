@@ -2,7 +2,7 @@ import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,} f
 import {SeriesReplay} from "./SeriesReplay.model";
 
 @Index("team_core_stats_pkey", ["id"], {unique: true})
-@Entity("team_core_stats", {schema: "public"})
+@Entity("team_core_stats", {schema: "mledb"})
 export class TeamCoreStats {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

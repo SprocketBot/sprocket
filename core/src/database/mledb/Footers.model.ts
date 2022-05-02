@@ -1,7 +1,7 @@
 import {Column, Entity, Index, PrimaryGeneratedColumn} from "typeorm";
 
 @Index("footers_pkey", ["id"], {unique: true})
-@Entity("footers", {schema: "public"})
+@Entity("footers", {schema: "mledb"})
 export class Footers {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

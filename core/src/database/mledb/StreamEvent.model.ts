@@ -4,7 +4,7 @@ import {EventFormat} from "./enums/EventFormat";
 
 @Index("stream_event_pkey", ["id"], {unique: true})
 @Index("stream_event_series_id_unique", ["seriesId"], {unique: true})
-@Entity("stream_event", {schema: "public"})
+@Entity("stream_event", {schema: "mledb"})
 export class StreamEvent {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

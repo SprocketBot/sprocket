@@ -6,7 +6,7 @@ import {
 import {BaseModel} from "../../base-model";
 import {FranchiseStaffAppointment} from "../../franchise/franchise_staff_appointment";
 import {FranchiseStaffRole} from "../franchise_staff_role";
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class FranchiseStaffSeat extends BaseModel {
     @ManyToOne(() => FranchiseStaffRole)

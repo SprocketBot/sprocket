@@ -4,7 +4,7 @@ import {Player} from "./Player.model";
 import {Series} from "./Series.model";
 
 @Index("scrim_pkey", ["id"], {unique: true})
-@Entity("scrim", {schema: "public"})
+@Entity("scrim", {schema: "mledb"})
 export class Scrim {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

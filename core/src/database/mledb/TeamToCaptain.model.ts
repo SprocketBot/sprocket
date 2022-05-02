@@ -6,7 +6,7 @@ import {Player} from "./Player.model";
     unique: true,
 })
 @Index("team_to_captain_player_id_unique", ["playerId"], {unique: true})
-@Entity("team_to_captain", {schema: "public"})
+@Entity("team_to_captain", {schema: "mledb"})
 export class TeamToCaptain {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

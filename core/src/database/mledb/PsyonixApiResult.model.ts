@@ -2,7 +2,7 @@ import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,} f
 import {PlayerAccount} from "./PlayerAccount.model";
 
 @Index("psyonix_api_result_pkey", ["id"], {unique: true})
-@Entity("psyonix_api_result", {schema: "public"})
+@Entity("psyonix_api_result", {schema: "mledb"})
 export class PsyonixApiResult {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;
