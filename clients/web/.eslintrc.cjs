@@ -13,7 +13,8 @@ module.exports = {
 	parserOptions: {
 		ecmaVersion: 12,
 		project: ["tsconfig.json"],
-		extraFileExtensions: [".svelte"]
+		extraFileExtensions: [".svelte"],
+		tsconfigRootDir: __dirname,
 	},
 	plugins: [
 		"svelte3",
