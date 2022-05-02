@@ -1,5 +1,18 @@
 {
   "name": "@sprocketbot/workspaces",
+  "description": "Sprocket is a platform primarily used to manage and automate organized Esports leagues, one such example being Minor League Esports (https://mlesports.gg).",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SprocketBot/sprocket.git"
+  },
+  "homepage": "https://github.com/SprocketBot/sprocket#readme",
+  "bugs": {
+    "url": "https://github.com/SprocketBot/sprocket/issues"
+  },
+  "license": "MIT",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "workspaces": [
     "common",
     "core",
