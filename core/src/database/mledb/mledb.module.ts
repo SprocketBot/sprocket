@@ -60,7 +60,7 @@ export const mledbEntities = [
     TeamToCaptain
 ]
 
-const ormModule = TypeOrmModule.forFeature();
+const ormModule = TypeOrmModule.forFeature(mledbEntities);
 
 @Module({
     imports: [
