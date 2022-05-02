@@ -3,27 +3,26 @@ import {TypeOrmModule} from "@nestjs/typeorm";
 import {readFileSync} from "fs";
 
 import {config} from "../util/config";
-// import {AuthorizationModule} from "./authorization/authorization.module";
-// import {ConfigurationModule} from "./configuration/configuration.module";
-// import {DraftModule} from "./draft/draft.module";
-// import {FranchiseModule} from "./franchise/franchise.module";
-// import {GameModule} from "./game/game.module";
-// import {IdentityModule} from "./identity/identity.module";
-// import {OrganizationModule} from "./organization/organization.module";
-// import {SchedulingModule} from "./scheduling/scheduling.module";
+import {AuthorizationModule} from "./authorization/authorization.module";
+import {ConfigurationModule} from "./configuration/configuration.module";
+import {DraftModule} from "./draft/draft.module";
+import {FranchiseModule} from "./franchise/franchise.module";
+import {GameModule} from "./game/game.module";
+import {IdentityModule} from "./identity/identity.module";
+import {OrganizationModule} from "./organization/organization.module";
+import {SchedulingModule} from "./scheduling/scheduling.module";
 import { MledbModule } from './mledb/mledb.module';
 
 const modules = [
-    // AuthorizationModule,
-    // ConfigurationModule,
-    // DraftModule,
-    // FranchiseModule,
-    // GameModule,
-    // IdentityModule,
-    // OrganizationModule,
-    // SchedulingModule,
+    AuthorizationModule,
+    ConfigurationModule,
+    DraftModule,
+    FranchiseModule,
+    GameModule,
+    IdentityModule,
+    OrganizationModule,
+    SchedulingModule,
     MledbModule,
-    // ServiceNotificationsModule,
     TypeOrmModule.forRoot({
         type: "postgres",
         host: config.db.host,
