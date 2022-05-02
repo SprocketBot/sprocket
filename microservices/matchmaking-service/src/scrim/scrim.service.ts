@@ -189,7 +189,7 @@ export class ScrimService {
         await this.scrimCrudService.updateScrimStatus(scrimId, scrim.status);
         
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
-            name: "scrimRatiying",
+            name: "scrimRatifying",
             tags: [
                 ["scrimId", scrim.id],
             ],
