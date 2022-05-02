@@ -20,7 +20,7 @@ module.exports = {
     "@typescript-eslint",
     "simple-import-sort"
   ],
-  ignorePatterns: [".eslintrc.js", "jest.config.js", "commitlint.config.js", "coverage/*", "*.json", "Dockerfile"],
+  ignorePatterns: ["*.cjs", ".eslintrc.js", "jest.config.js", "commitlint.config.js", "coverage/*", "*.json", "Dockerfile"],
   rules: {
     // Configure import sorting since eslint sort-imports doesn't autofix
     "simple-import-sort/imports": "error",
