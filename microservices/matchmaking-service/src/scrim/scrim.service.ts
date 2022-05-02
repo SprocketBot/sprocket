@@ -4,7 +4,7 @@ import type {
     Scrim, ScrimGameMode, ScrimPlayer, ScrimSettings,
 } from "@sprocketbot/common";
 import {
-    EventTopic, ScrimStatus,
+    AnalyticsEndpoint, AnalyticsService, EventTopic, ScrimStatus,
 } from "@sprocketbot/common";
 
 import {EventProxyService} from "./event-proxy/event-proxy.service";
@@ -21,6 +21,7 @@ export class ScrimService {
         private readonly eventsService: EventProxyService,
         private readonly scrimLogicService: ScrimLogicService,
         private readonly scrimGroupService: ScrimGroupService,
+        protected readonly analyticsService: AnalyticsService,
     ) {}
 
     async createScrim(author: ScrimPlayer, settings: ScrimSettings, gameMode: ScrimGameMode, createGroup: boolean): Promise<Scrim> {
@@ -44,6 +45,15 @@ export class ScrimService {
 
         await this.eventsService.publish(EventTopic.ScrimCreated, scrim, scrim.id);
 
+        this.analyticsService.send(AnalyticsEndpoint.Analytics, {
+            name: "scrimCreated",
+            tags: [
+                ["scrimId", scrim.id],
+                ["submissionGroupId", scrim.submissionGroupId ?? ""],
+                ["authorId", `${author.id}`],
+            ],
+        }).catch(err => { this.logger.error(err) });
+
         return scrim;
     }
 
@@ -66,13 +76,31 @@ export class ScrimService {
         await this.scrimCrudService.addPlayerToScrim(scrimId, player);
         scrim.players.push(player);
 
+        this.analyticsService.send(AnalyticsEndpoint.Analytics, {
+            name: "scrimJoined",
+            tags: [
+                ["scrimId", scrim.id],
+                ["playerId", `${player.id}`],
+            ],
+        }).catch(err => { this.logger.error(err) });
+
         if (scrim.settings.teamSize * scrim.settings.teamCount === scrim.players.length) {
             await this.scrimLogicService.popScrim(scrim);
+
+            this.analyticsService.send(AnalyticsEndpoint.Analytics, {
+                name: "scrimPopped",
+                tags: [
+                    ["scrimId", scrim.id],
+                    ["submissionGroupId", scrim.submissionGroupId ?? ""],
+                ],
+            }).catch(err => { this.logger.error(err) });
+
             return true;
         }
 
         // Flush Changes
         await this.eventsService.publish(EventTopic.ScrimUpdated, scrim, scrimId);
+
         return true;
     }
 
@@ -97,6 +125,15 @@ export class ScrimService {
         await this.scrimCrudService.removePlayerFromScrim(scrimId, player);
         await this.eventsService.publish(EventTopic.ScrimUpdated, scrim, scrimId);
         // refetch it
+
+        this.analyticsService.send(AnalyticsEndpoint.Analytics, {
+            name: "scrimLeft",
+            tags: [
+                ["scrimId", scrim.id],
+                ["playerId", `${player.id}`],
+            ],
+        }).catch(err => { this.logger.error(err) });
+
         return true;
     }
 
@@ -148,10 +185,15 @@ export class ScrimService {
             throw new RpcException("Scrim is not ready to be ended");
         }
 
-        
-
         scrim.status = ScrimStatus.RATIFYING;
         await this.scrimCrudService.updateScrimStatus(scrimId, scrim.status);
+        
+        this.analyticsService.send(AnalyticsEndpoint.Analytics, {
+            name: "scrimRatiying",
+            tags: [
+                ["scrimId", scrim.id],
+            ],
+        }).catch(err => { this.logger.error(err) });
 
         return scrim;
     }
@@ -173,6 +215,13 @@ export class ScrimService {
         await this.scrimCrudService.removeScrim(scrimId);
         scrim.status = ScrimStatus.COMPLETE;
         await this.eventsService.publish(EventTopic.ScrimComplete, scrim, scrim.id);
+
+        this.analyticsService.send(AnalyticsEndpoint.Analytics, {
+            name: "scrimRatified",
+            tags: [
+                ["scrimId", scrim.id],
+            ],
+        }).catch(err => { this.logger.error(err) });
 
         return scrim;
     }
