@@ -86,15 +86,6 @@ export class ScrimService {
 
         if (scrim.settings.teamSize * scrim.settings.teamCount === scrim.players.length) {
             await this.scrimLogicService.popScrim(scrim);
-
-            this.analyticsService.send(AnalyticsEndpoint.Analytics, {
-                name: "scrimPopped",
-                tags: [
-                    ["scrimId", scrim.id],
-                    ["submissionGroupId", scrim.submissionGroupId ?? ""],
-                ],
-            }).catch(err => { this.logger.error(err) });
-
             return true;
         }
 
