@@ -12,7 +12,8 @@
   "license": "MIT",
   "scripts": {
     "postinstall": "npm run build",
-    "build": "npm run build --workspace=common"
+    "build": "npm run build --workspace=common",
+    "lint": "eslint"
   },
   "workspaces": [
     "common",
@@ -26,6 +27,14 @@
   "devDependencies": {
     "@commitlint/cli": "^16.2.4",
     "@commitlint/config-conventional": "^16.2.4",
+    "@typescript-eslint/eslint-plugin": "^5.21.0",
+    "@typescript-eslint/parser": "^5.21.0",
+    "eslint": "^8.14.0",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "eslint-plugin-svelte3": "^3.4.1",
     "husky": "^7.0.4"
+  },
+  "lint-staged": {
+    "*": "./lint.ts"
   }
 }

@@ -8,7 +8,7 @@
     "preview": "svelte-kit preview",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
-    "lint": "eslint --ignore-path .gitignore src --fix",
+    "lint": "eslint",
     "test": "jest",
     "test:watch": "jest --watch"
   },
