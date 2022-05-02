@@ -1,5 +1,5 @@
 import {Column, Entity, Index, OneToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {Team} from "./Team";
+import {Team} from "./Team.model";
 
 @Index("team_branding_pkey", ["id"], {unique: true})
 @Index("team_branding_team_name_unique", ["teamName"], {unique: true})

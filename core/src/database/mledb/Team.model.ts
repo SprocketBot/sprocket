@@ -1,7 +1,7 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, OneToOne,} from "typeorm";
-import {TeamBranding} from "./TeamBranding";
-import {Division} from "./Division";
-import {Player} from "./Player";
+import {TeamBranding} from "./TeamBranding.model";
+import {Division} from "./Division.model";
+import {Player} from "./Player.model";
 
 @Index("team_branding_id_unique", ["brandingId"], {unique: true})
 @Index(

@@ -1,7 +1,7 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {PlayerStats} from "./PlayerStats";
-import {Player} from "./Player";
-import {SeriesReplay} from "./SeriesReplay";
+import {PlayerStats} from "./PlayerStats.model";
+import {Player} from "./Player.model";
+import {SeriesReplay} from "./SeriesReplay.model";
 
 @Index("player_stats_core_pkey", ["id"], {unique: true})
 @Entity("player_stats_core", {schema: "public"})
@@ -56,7 +56,7 @@ export class PlayerStatsCore {
     @Column("boolean", {name: "mvp"})
     mvp: boolean;
 
-    @Column("real", {name: "mvpr", precision: 24})
+    @Column("real", {name: "mvpr"})
     mvpr: number;
 
     @OneToOne(() => PlayerStats, (playerStats) => playerStats.coreStats)

@@ -1,6 +1,6 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {Player} from "./Player";
-import {Scrim} from "./Scrim";
+import {Player} from "./Player.model";
+import {Scrim} from "./Scrim.model";
 
 @Index("eligibility_data_pkey", ["id"], {unique: true})
 @Index("eligibility_data_player_id_scrim_id", ["playerId", "scrimId"], {

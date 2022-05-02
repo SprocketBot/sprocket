@@ -1,5 +1,5 @@
 import {Column, Entity, Index, OneToMany} from "typeorm";
-import {Team} from "./Team";
+import {Team} from "./Team.model";
 import {Conference} from "./enums/Conference.enum";
 
 @Index("division_pkey", ["name"], {unique: true})

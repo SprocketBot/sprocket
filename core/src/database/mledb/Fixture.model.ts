@@ -1,6 +1,6 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn,} from "typeorm";
-import {Match} from "./Match";
-import {Series} from "./Series";
+import {Match} from "./Match.model";
+import {Series} from "./Series.model";
 
 @Index(
     "fixture_home_name_away_name_match_id_unique",

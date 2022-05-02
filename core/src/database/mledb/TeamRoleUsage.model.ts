@@ -1,5 +1,5 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {Series} from "./Series";
+import {Series} from "./Series.model";
 import {Role} from "./enums/Role.enum"
 
 @Index("team_role_usage_pkey", ["id"], {unique: true})

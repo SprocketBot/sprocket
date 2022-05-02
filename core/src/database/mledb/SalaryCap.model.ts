@@ -1,9 +1,9 @@
-import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {Player} from "./Player";
+import {Column, Entity, Index, PrimaryGeneratedColumn} from "typeorm";
 
-@Index("player_to_org_pkey", ["id"], {unique: true})
-@Entity("player_to_org", {schema: "public"})
-export class PlayerToOrg {
+@Index("salary_cap_pkey", ["id"], {unique: true})
+@Index("salary_cap_league_unique", ["league"], {unique: true})
+@Entity("salary_cap", {schema: "public"})
+export class SalaryCap {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;
 
@@ -33,12 +33,9 @@ export class PlayerToOrg {
     })
     updatedAt: Date;
 
-    @Column("integer", {name: "org_team"})
-    orgTeam: number;
+    @Column("character varying", {name: "league", unique: true, length: 255})
+    league: string;
 
-    @ManyToOne(() => Player, (player) => player.playerToOrgs, {
-        onUpdate: "CASCADE",
-    })
-    @JoinColumn([{name: "player_id", referencedColumnName: "id"}])
-    player: Player;
+    @Column("real", {name: "max_salary"})
+    maxSalary: number;
 }

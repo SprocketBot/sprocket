@@ -1,9 +1,9 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {Fixture} from "./Fixture";
-import {Scrim} from "./Scrim";
-import {SeriesReplay} from "./SeriesReplay";
-import {StreamEvent} from "./StreamEvent";
-import {TeamRoleUsage} from "./TeamRoleUsage";
+import {Fixture} from "./Fixture.model";
+import {Scrim} from "./Scrim.model";
+import {SeriesReplay} from "./SeriesReplay.model";
+import {StreamEvent} from "./StreamEvent.model";
+import {TeamRoleUsage} from "./TeamRoleUsage.model";
 import {Mode} from "./enums/Mode.enum";
 
 @Index(

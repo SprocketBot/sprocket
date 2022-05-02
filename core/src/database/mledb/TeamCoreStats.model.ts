@@ -1,5 +1,5 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {SeriesReplay} from "./SeriesReplay";
+import {SeriesReplay} from "./SeriesReplay.model";
 
 @Index("team_core_stats_pkey", ["id"], {unique: true})
 @Entity("team_core_stats", {schema: "public"})

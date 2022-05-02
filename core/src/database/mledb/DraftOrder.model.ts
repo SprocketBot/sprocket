@@ -1,5 +1,5 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {Season} from "./Season";
+import {Season} from "./Season.model";
 
 @Index("draft_order_pkey", ["id"], {unique: true})
 @Index(

@@ -1,6 +1,6 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn,} from "typeorm";
-import {Player} from "./Player";
-import {PsyonixApiResult} from "./PsyonixApiResult";
+import {Player} from "./Player.model";
+import {PsyonixApiResult} from "./PsyonixApiResult.model";
 
 @Index("player_account_pkey", ["id"], {unique: true})
 @Index(

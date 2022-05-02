@@ -1,7 +1,7 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {EligibilityData} from "./EligibilityData";
-import {Player} from "./Player";
-import {Series} from "./Series";
+import {EligibilityData} from "./EligibilityData.model";
+import {Player} from "./Player.model";
+import {Series} from "./Series.model";
 
 @Index("scrim_pkey", ["id"], {unique: true})
 @Entity("scrim", {schema: "public"})

@@ -1,5 +1,5 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {PlayerAccount} from "./PlayerAccount";
+import {PlayerAccount} from "./PlayerAccount.model";
 
 @Index("psyonix_api_result_pkey", ["id"], {unique: true})
 @Entity("psyonix_api_result", {schema: "public"})

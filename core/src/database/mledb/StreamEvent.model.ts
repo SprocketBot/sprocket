@@ -1,5 +1,5 @@
 import {Column, Entity, Index, JoinColumn, OneToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {Series} from "./Series";
+import {Series} from "./Series.model";
 import {EventFormat} from "./enums/EventFormat";
 
 @Index("stream_event_pkey", ["id"], {unique: true})

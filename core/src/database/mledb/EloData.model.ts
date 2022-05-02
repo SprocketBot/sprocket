@@ -1,6 +1,6 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {Player} from "./Player";
-import {SeriesReplay} from "./SeriesReplay";
+import {Player} from "./Player.model";
+import {SeriesReplay} from "./SeriesReplay.model";
 
 @Index("elo_data_pkey", ["id"], {unique: true})
 @Index("elo_data_next_node_id_unique", ["nextNodeId"], {unique: true})
@@ -45,7 +45,7 @@ export class EloData {
     @Column("integer", {name: "replay_id", nullable: true, unique: true})
     replayId: number | null;
 
-    @Column("real", {name: "elo", precision: 24})
+    @Column("real", {name: "elo"})
     elo: number;
 
     @Column("integer", {name: "previous_node_id", nullable: true, unique: true})

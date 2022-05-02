@@ -1,9 +1,9 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn,} from "typeorm";
-import {EloData} from "./EloData";
-import {PlayerStats} from "./PlayerStats";
-import {PlayerStatsCore} from "./PlayerStatsCore";
-import {Series} from "./Series";
-import {TeamCoreStats} from "./TeamCoreStats";
+import {EloData} from "./EloData.model";
+import {PlayerStats} from "./PlayerStats.model";
+import {PlayerStatsCore} from "./PlayerStatsCore.model";
+import {Series} from "./Series.model";
+import {TeamCoreStats} from "./TeamCoreStats.model";
 import {Map} from "./enums/Map.enum"
 
 @Index("series_replay_match_guid_unique", ["duration", "matchGuid"], {

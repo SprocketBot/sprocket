@@ -1,5 +1,5 @@
 import {Column, Entity, Index, JoinColumn, OneToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {Player} from "./Player";
+import {Player} from "./Player.model";
 
 @Index("team_to_captain_pkey", ["id"], {unique: true})
 @Index("team_to_captain_team_name_league_unique", ["league", "teamName"], {

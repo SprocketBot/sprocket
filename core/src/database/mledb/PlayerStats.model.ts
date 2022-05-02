@@ -1,7 +1,7 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {PlayerStatsCore} from "./PlayerStatsCore";
-import {Player} from "./Player";
-import {SeriesReplay} from "./SeriesReplay";
+import {PlayerStatsCore} from "./PlayerStatsCore.model";
+import {Player} from "./Player.model";
+import {SeriesReplay} from "./SeriesReplay.model";
 
 @Index("player_stats_core_stats_id_unique", ["coreStatsId"], {unique: true})
 @Index("player_stats_pkey", ["id"], {unique: true})

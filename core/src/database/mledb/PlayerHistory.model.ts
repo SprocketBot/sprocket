@@ -42,7 +42,7 @@ export class PlayerHistory {
     @Column("character varying", {name: "name", length: 255})
     name: string;
 
-    @Column("real", {name: "salary", precision: 24, default: () => "'-1.0'"})
+    @Column("real", {name: "salary", default: () => "'-1.0'"})
     salary: number;
 
     @Column("character varying", {

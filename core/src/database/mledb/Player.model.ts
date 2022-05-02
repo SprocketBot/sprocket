@@ -1,13 +1,13 @@
 import {Column, Entity, Index, OneToMany, OneToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {EligibilityData} from "./EligibilityData";
-import {EloData} from "./EloData";
-import {PlayerAccount} from "./PlayerAccount";
-import {PlayerStats} from "./PlayerStats";
-import {PlayerStatsCore} from "./PlayerStatsCore";
-import {PlayerToOrg} from "./PlayerToOrg";
-import {Scrim} from "./Scrim";
-import {Team} from "./Team";
-import {TeamToCaptain} from "./TeamToCaptain";
+import {EligibilityData} from "./EligibilityData.model";
+import {EloData} from "./EloData.model";
+import {PlayerAccount} from "./PlayerAccount.model";
+import {PlayerStats} from "./PlayerStats.model";
+import {PlayerStatsCore} from "./PlayerStatsCore.model";
+import {PlayerToOrg} from "./PlayerToOrg.model";
+import {Scrim} from "./Scrim.model";
+import {Team} from "./Team.model";
+import {TeamToCaptain} from "./TeamToCaptain.model";
 import {ModePreference} from "./enums/ModePreference.enum";
 import {Role} from "./enums/Role.enum";
 import {Timezone} from "./enums/Timezone.enum";
@@ -53,7 +53,7 @@ export class Player {
     @Column("character varying", {name: "name", unique: true, length: 255})
     name: string;
 
-    @Column("real", {name: "salary", precision: 24, default: () => "'-1.0'"})
+    @Column("real", {name: "salary", default: () => "'-1.0'"})
     salary: number;
 
     @Column("character varying", {

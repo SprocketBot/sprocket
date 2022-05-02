@@ -1,6 +1,6 @@
 import {Column, Entity, Index, OneToMany, PrimaryGeneratedColumn,} from "typeorm";
-import {DraftOrder} from "./DraftOrder";
-import {Match} from "./Match";
+import {DraftOrder} from "./DraftOrder.model";
+import {Match} from "./Match.model";
 
 @Index("season_pkey", ["seasonNumber"], {unique: true})
 @Entity("season", {schema: "public"})

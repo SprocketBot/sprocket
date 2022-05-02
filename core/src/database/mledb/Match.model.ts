@@ -1,6 +1,6 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn,} from "typeorm";
-import {Fixture} from "./Fixture";
-import {Season} from "./Season";
+import {Fixture} from "./Fixture.model";
+import {Season} from "./Season.model";
 
 @Index("match_pkey", ["id"], {unique: true})
 @Index("match_season_match_number_unique", ["matchNumber", "season"], {
