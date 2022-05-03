@@ -55,13 +55,13 @@ runs:
         ssh-key: ${{ inputs.infra_deploy_key }}
 
     - name: Tailscale
-      uses: tailscale/github-action@v1
+      uses: tailscale/github-action@main
       with:
-        authkey: ${{ inputs.tailscale_ephemeral_authkey }} 
+        authkey: ${{ inputs.tailscale_ephemeral_authkey }}
     
     - name: Extract Manager Node ip
       id: manager_node_ip
-      run: echo "::set-output name=ip::$(tailscale status | grep ${{ inputs.manager_node_hostname }} | awk '{print $1}')\n"
+      run: echo "::set-output name=ip::$(sudo tailscale status | grep ${{ inputs.manager_node_hostname }} | awk '{print $1}')\n"
       shell: bash
 
     - name: Connect to remote docker socket
