@@ -78,6 +78,7 @@ runs:
           PULUMI_CONFIG_PASSPHRASE: ${{ inputs.pulumi_config_passphrase }}
           AWS_ACCESS_KEY_ID: ${{ inputs.pulumi_aws_access_key }}
           AWS_SECRET_ACCESS_KEY: ${{ inputs.pulumi_aws_secret_key }}
+          AWS_REGION: nyc3
       with:
         command: up
         stack-name: ${{ inputs.pulumi_stack_name }}
