@@ -12,8 +12,7 @@
   "license": "MIT",
   "scripts": {
     "postinstall": "npm run build",
-    "build": "npm run build --workspace=common",
-    "lint": "lint-workspaces"
+    "build": "npm run build --workspace=common"
   },
   "workspaces": [
     "common",
@@ -28,9 +27,10 @@
     "@commitlint/cli": "^16.2.4",
     "@commitlint/config-conventional": "^16.2.4",
     "@sprocketbot/lint-workspaces": "^1.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.21.0",
+    "@typescript-eslint/eslint-plugin": "^5.22.0",
     "@typescript-eslint/parser": "^5.21.0",
     "eslint": "^8.14.0",
+    "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "eslint-plugin-svelte3": "^3.4.1",
     "husky": "^7.0.4"
