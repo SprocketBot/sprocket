@@ -70,5 +70,5 @@ const ormModule = TypeOrmModule.forFeature(mledbEntities);
         ormModule
     ]
 })
-export class MLE_MledbModule {
+export class MledbModule {
 }

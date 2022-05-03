@@ -8,5 +8,6 @@ COPY common common
 COPY core core
 COPY microservices microservices
 
-
 RUN npm i -g @nestjs/cli && npm i
+
+RUN npm run build --workspace=common
