@@ -9,4 +9,4 @@ COPY core core
 COPY microservices microservices
 
 
-RUN npm i -g @nestjs/cli && npm ci
+RUN npm i -g @nestjs/cli && npm i
