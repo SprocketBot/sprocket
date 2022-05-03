@@ -43,8 +43,8 @@ runs:
         path: /tmp
 
     - name: Load image
-      run: |
-        docker load --input /tmp/core.tar
+      shell: sh
+      run: docker load --input /tmp/core.tar
 
     - name: Build And Push Image
       uses: docker/build-push-action@v2
