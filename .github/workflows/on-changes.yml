@@ -28,7 +28,7 @@ jobs:
         with:
           context: .
           file: ./dockerfiles/node.Dockerfile
-          tags: sprocket-core:local
+          tags: local/sprocket:temp
           outputs: type=docker,dest=/tmp/core.tar
 
       - name: Upload artifact
