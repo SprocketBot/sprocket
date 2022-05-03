@@ -88,3 +88,26 @@ jobs:
           docker_username: ${{ secrets.docker_username }}
           docker_access_token: ${{ secrets.docker_access_token }}
           discord_webhook: ${{ secrets.discord_webhook }}
+
+  deploy_via_pulumi:
+    name: "Deploy via Pulumi"
+    runs-on: ubuntu-latest
+    needs:
+      - build_microservices
+    steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+      - name: Deploy Sprocket
+        uses: ./.github/reusable_workflows/pulumi_up
+        with:
+          pulumi_cloud_url: ${{ secrets.pulumi_cloud_url }}
+          pulumi_stack_name: ${{ steps.extract_branch.outputs.branch }}
+          pulumi_config_passphrase: ${{ secrets.pulumi_config_passphrase }}
+          pulumi_aws_access_key: ${{ secrets.pulumi_s3_access_key }}
+          pulumi_aws_secret_key: ${{ secrets.pulumi_s3_secret_key }}
+          ssh_user: ${{ secrets.pulumi_ssh_user }}
+          ssh_key: ${{ secrets.pulumi_ssh_key }}
+          manager_node_hostname: ${{ secrets.manager_node_hostname }}
+          tailscale_ephemeral_authkey: ${{ secrets.tailscale_ephemeral_authkey }}

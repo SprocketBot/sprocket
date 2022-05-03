@@ -52,4 +52,5 @@ runs:
       if: startsWith( inputs.discord_webhook, 'https' )
       with:
         webhook: ${{ inputs.discord_webhook }}
+        title: Built ${{ inputs.docker_image }}:${{ inputs.docker_tag }}
         
