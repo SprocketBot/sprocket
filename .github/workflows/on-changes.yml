@@ -1,4 +1,4 @@
-name: on-changes
+name: "Autobuild Docker Containers"
 
 on:
   push:
@@ -6,11 +6,53 @@ on:
       - main
       - staging
       - dev
+      - fix/auto-deploys
 
 jobs:
-  discord_bot:
-    name: "Build Services"
+#  publish_common_if_needed:
+#    name: "Publish Common to npm"
+#    steps:
+#      - uses: actions/setup-node@v3
+#        with:
+#        node-version: '16.x'
+#        registry-url: 'https://registry.npmjs.org'
+#      - run: npm i && npm run build
+#      - run: npm version patch
+#      - run: npm publish
+#    env:
+#      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  build_core_image:
+    name: "Build base docker image"
     runs-on: ubuntu-latest
+    steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      - name: Build and export
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          image: ./dockerfiles/node.Dockerfile
+          tags: sprocket-core:local
+          outputs: type=docker,dest=/tmp/core.tar
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: sprocket-core
+          path: /tmp/core.tar
+
+  build_microservices:
+    name: "Build Node Services"
+    runs-on: ubuntu-latest
+    needs:
+      - build_base_image
     strategy:
       matrix:
         directory:
