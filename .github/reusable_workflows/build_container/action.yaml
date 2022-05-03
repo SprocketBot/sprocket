@@ -44,7 +44,9 @@ runs:
 
     - name: Load image
       shell: sh
-      run: docker load --input /tmp/core.tar
+      run: |
+        docker load --input /tmp/core.tar;
+        docker images;
 
     - name: Build And Push Image
       uses: docker/build-push-action@v2

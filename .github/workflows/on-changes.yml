@@ -8,19 +8,6 @@ on:
       - dev
 
 jobs:
-  #  publish_common_if_needed:
-  #    name: "Publish Common to npm"
-  #    steps:
-  #      - uses: actions/setup-node@v3
-  #        with:
-  #        node-version: '16.x'
-  #        registry-url: 'https://registry.npmjs.org'
-  #      - run: npm i && npm run build
-  #      - run: npm version patch
-  #      - run: npm publish
-  #    env:
-  #      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
   build_core_image:
     name: "Build base docker image"
     runs-on: ubuntu-latest
