@@ -29,7 +29,8 @@ jobs:
           context: .
           file: ./dockerfiles/node.Dockerfile
           tags: local/sprocket:temp
-          outputs: type=docker,dest=/tmp/core.tar
+          cache-to: type=local,dest=/tmp/core.tar
+#          outputs: type=docker,dest=/tmp/core.tar
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2

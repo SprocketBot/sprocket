@@ -52,6 +52,7 @@ runs:
       uses: docker/build-push-action@v2
       with:
         context: ${{ inputs.build_directory }}
+        cache-from: type=local,src=/tmp/core.tar
         file: ${{ inputs.build_directory }}/Dockerfile
         target: app_image
         push: true
