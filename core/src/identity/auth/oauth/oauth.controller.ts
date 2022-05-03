@@ -6,6 +6,7 @@ import {Request as Req} from "express";
 import type {User} from "src/database";
 
 import {GoogleAuthGuard} from "./google-auth.guard";
+import {DiscordAuthGuard} from "./discord-auth.guard";
 import {JwtAuthGuard} from "./jwt-auth.guard";
 import {OauthService} from "./oauth.service";
 import {Roles} from "./roles.decorator";
@@ -36,10 +37,14 @@ export class OauthController {
         return "Your JWT works! Nice. ";
     }
 
-    @Get()
     @Get("google")
     @UseGuards(GoogleAuthGuard)
     async googleAuth(): Promise<void> {}
+
+    @Get()
+    @Get("discord")
+    @UseGuards(DiscordAuthGuard)
+    async discordAuth(): Promise<void> {}
 
     /* eslint-disable*/
     @Get("google/redirect")
@@ -55,4 +60,17 @@ export class OauthController {
         return this.authService.login(payload);
     }
     /* eslint-enable */
+
+    @Get("discord/redirect")
+    @UseGuards(DiscordAuthGuard)
+    async discordAuthRedirect(@Request() req: Req): Promise<AccessToken> {
+        const ourUser = req["user"] as User;
+        const payload: AuthPayload = {
+            sub: ourUser.id, username: req["username"], userId: ourUser.id,
+        };
+        console.log("On discord login: ");
+        console.log(payload);
+        console.log(req["user"]);
+        return this.authService.login(payload);
+    }
 }

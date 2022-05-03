@@ -12,14 +12,14 @@
     "levels": true
   },
   "db": {
-    "host": "",
-    "port": "",
-    "username": "",
-    "database": "",
+    "host": "spr.ocket.cloud",
+    "port": "30000",
+    "username": "sprocket_dev",
+    "database": "sprocket_dev",
     "enable_logs": false
   },
   "minio": {
-    "endPoint": "",
+    "endPoint": "nyc3.digitaloceanspaces.com",
     "bucketNames": {
       "replays": ""
     }
@@ -39,6 +39,9 @@
   },
   "auth": {
     "redirect_url": "http://localhost:3001/google/redirect",
-    "jwt_expiry": "1800s"
+    "jwt_expiry": "1800s",
+    "discordClientID" : "1",
+    "discordSecret": "2",
+    "discordCallbackURL": "https://yourmom.com/redirect"
   }
 }

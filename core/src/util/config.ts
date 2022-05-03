@@ -41,6 +41,9 @@ export const config = {
     auth: {
         get redirect_url(): string { return _config.get<string>("auth.redirect_url") },
         get jwt_expiry(): string { return _config.get<string>("auth.jwt_expiry") },
+        get discordClientId(): string { return _config.get<string>("auth.redirect_url") },
+        get discordSecret(): string { return _config.get<string>("auth.redirect_url") },
+        get discordCallbackURL(): string { return _config.get<string>("auth.redirect_url") },
     },
     redis: {
         get port(): string { return _config.get<string>("redis.port") },
