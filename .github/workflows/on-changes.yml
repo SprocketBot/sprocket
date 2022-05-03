@@ -6,7 +6,6 @@ on:
       - main
       - staging
       - dev
-      - fix/auto-deploys
 
 jobs:
   #  publish_common_if_needed:
