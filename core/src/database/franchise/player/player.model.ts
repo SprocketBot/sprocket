@@ -7,7 +7,7 @@ import {BaseModel} from "../../base-model";
 import {Member} from "../../organization/member";
 import {GameSkillGroup} from "../game_skill_group";
 import {RosterSlot} from "../roster_slot";
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class Player extends BaseModel {
     @ManyToOne(() => Member)

@@ -7,7 +7,7 @@ import {BaseModel} from "../../base-model";
 import {Game} from "../../game/game";
 import {ScheduleFixture} from "../schedule_fixture";
 import {ScheduleGroupType} from "../schedule_group_type";
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class ScheduleGroup extends BaseModel {
     @Column()

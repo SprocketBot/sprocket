@@ -4,7 +4,7 @@ import {Entity, ManyToOne} from "typeorm";
 import {BaseModel} from "../../base-model";
 import {Action} from "../action";
 import {PermissionBearer} from "../permission_bearer";
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class Permission extends BaseModel {
     @ManyToOne(() => Action)

@@ -3,7 +3,7 @@ import {Column, Entity} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class Action extends BaseModel {
     @Column()

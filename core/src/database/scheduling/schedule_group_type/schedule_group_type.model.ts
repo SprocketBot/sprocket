@@ -6,7 +6,7 @@ import {
 import {BaseModel} from "../../base-model";
 import {Organization} from "../../organization/organization";
 import {ScheduleGroup} from "../schedule_group";
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class ScheduleGroupType extends BaseModel {
     @ManyToOne(() => Organization)

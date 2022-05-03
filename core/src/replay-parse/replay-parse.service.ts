@@ -16,6 +16,7 @@ import {read} from "../util/read";
 import {REPLAY_EXT, ReplayParsePubSub} from "./replay-parse.constants";
 import type {ParseReplayResult, ParseReplaysTasks} from "./replay-parse.types";
 import {ReplaySubmissionService} from "./replay-submission";
+import {Readable} from "stream";
 
 @Injectable()
 export class ReplayParseService {
@@ -58,7 +59,7 @@ export class ReplayParseService {
         return this.celeryService.runSync(Task.ParseReplay, {replayObjectPath});
     }
 
-    async parseReplays(streams: ReadStream[], submissionId: string, player: ScrimPlayer): Promise<string[]> {
+    async parseReplays(streams: Readable[], submissionId: string, player: ScrimPlayer): Promise<string[]> {
         if (await this.submissionService.submissionExists(submissionId)) throw new Error(`A submission already exists for this submissionId`); // TODO under what conditions should a re-submission be allowed?
 
         const cantCreateReason = await this.submissionService.canCreateSubmission(submissionId, player.id);

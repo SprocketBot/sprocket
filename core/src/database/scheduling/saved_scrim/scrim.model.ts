@@ -6,7 +6,7 @@ import {
 import {BaseModel} from "../../base-model";
 import {MatchParent} from "../match_parent/match_parent.model";
 
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class ScrimMeta extends BaseModel {
     @JoinColumn()
