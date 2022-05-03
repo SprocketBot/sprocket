@@ -61,7 +61,7 @@ runs:
     
     - name: Extract Manager Node ip
       id: manager_node_ip
-      run: echo "::set-output name=ip::$(sudo tailscale status | grep ${{ inputs.manager_node_hostname }} | awk '{print $1}')\n"
+      run: echo "::set-output name=ip::$(sudo tailscale status | grep ${{ inputs.manager_node_hostname }} | awk '{print $1}')"
       shell: bash
 
     - name: Connect to remote docker socket
