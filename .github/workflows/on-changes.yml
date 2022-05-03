@@ -9,18 +9,18 @@ on:
       - fix/auto-deploys
 
 jobs:
-#  publish_common_if_needed:
-#    name: "Publish Common to npm"
-#    steps:
-#      - uses: actions/setup-node@v3
-#        with:
-#        node-version: '16.x'
-#        registry-url: 'https://registry.npmjs.org'
-#      - run: npm i && npm run build
-#      - run: npm version patch
-#      - run: npm publish
-#    env:
-#      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+  #  publish_common_if_needed:
+  #    name: "Publish Common to npm"
+  #    steps:
+  #      - uses: actions/setup-node@v3
+  #        with:
+  #        node-version: '16.x'
+  #        registry-url: 'https://registry.npmjs.org'
+  #      - run: npm i && npm run build
+  #      - run: npm version patch
+  #      - run: npm publish
+  #    env:
+  #      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   build_core_image:
     name: "Build base docker image"
@@ -33,6 +33,9 @@ jobs:
 
       - name: Check out the repo
         uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
 
       - name: Build and export
         uses: docker/build-push-action@v2
@@ -56,13 +59,13 @@ jobs:
     strategy:
       matrix:
         directory:
-          - [discord-bot, ./clients/discord-bot]
-          - [web, ./clients/web]
-          - [core, ./core]
-          - [image-generation-service, ./microservices/image-generation-service]
-          - [matchmaking-service, ./microservices/matchmaking-service]
+          - [ discord-bot, ./clients/discord-bot ]
+          - [ web, ./clients/web ]
+          - [ core, ./core ]
+          - [ image-generation-service, ./microservices/image-generation-service ]
+          - [ matchmaking-service, ./microservices/matchmaking-service ]
           # - [replay-parse-service, ./microservices/replay-parse-service]
-          - [server-analytics-service, ./microservices/server-analytics-service]
+          - [ server-analytics-service, ./microservices/server-analytics-service ]
 
     steps:
       - name: Extract branch name
@@ -82,7 +85,7 @@ jobs:
           filters: |
             change:
               ${{ matrix.directory[1] }}**
-      
+
       - name: Build project
         uses: ./.github/reusable_workflows/build_container
         with:
