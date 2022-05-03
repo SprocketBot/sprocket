@@ -1,9 +1,9 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn,} from "typeorm";
-import {EloData} from "./EloData.model";
-import {PlayerStats} from "./PlayerStats.model";
-import {PlayerStatsCore} from "./PlayerStatsCore.model";
-import {Series} from "./Series.model";
-import {TeamCoreStats} from "./TeamCoreStats.model";
+import {MLE_EloData} from "./EloData.model";
+import {MLE_PlayerStats} from "./PlayerStats.model";
+import {MLE_PlayerStatsCore} from "./PlayerStatsCore.model";
+import {MLE_Series} from "./Series.model";
+import {MLE_TeamCoreStats} from "./TeamCoreStats.model";
 import {Map} from "./enums/Map.enum"
 
 @Index("series_replay_match_guid_unique", ["duration", "matchGuid"], {
@@ -11,7 +11,7 @@ import {Map} from "./enums/Map.enum"
 })
 @Index("series_replay_pkey", ["id"], {unique: true})
 @Entity("series_replay", {schema: "mledb"})
-export class SeriesReplay {
+export class MLE_SeriesReplay {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;
 
@@ -87,21 +87,21 @@ export class SeriesReplay {
     @Column("boolean", {name: "is_dummy", default: () => "false"})
     isDummy: boolean;
 
-    @OneToMany(() => EloData, (eloData) => eloData.replay)
-    eloData: EloData[];
+    @OneToMany(() => MLE_EloData, (eloData) => eloData.replay)
+    eloData: MLE_EloData[];
 
-    @OneToMany(() => PlayerStats, (playerStats) => playerStats.replay)
-    playerStats: PlayerStats[];
+    @OneToMany(() => MLE_PlayerStats, (playerStats) => playerStats.replay)
+    playerStats: MLE_PlayerStats[];
 
-    @OneToMany(() => PlayerStatsCore, (playerStatsCore) => playerStatsCore.replay)
-    playerStatsCores: PlayerStatsCore[];
+    @OneToMany(() => MLE_PlayerStatsCore, (playerStatsCore) => playerStatsCore.replay)
+    playerStatsCores: MLE_PlayerStatsCore[];
 
-    @ManyToOne(() => Series, (series) => series.seriesReplays, {
+    @ManyToOne(() => MLE_Series, (series) => series.seriesReplays, {
         onUpdate: "CASCADE",
     })
     @JoinColumn([{name: "series_id", referencedColumnName: "id"}])
-    series: Series;
+    series: MLE_Series;
 
-    @OneToMany(() => TeamCoreStats, (teamCoreStats) => teamCoreStats.replay)
-    teamCoreStats: TeamCoreStats[];
+    @OneToMany(() => MLE_TeamCoreStats, (teamCoreStats) => teamCoreStats.replay)
+    teamCoreStats: MLE_TeamCoreStats[];
 }

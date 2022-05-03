@@ -1,9 +1,9 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {Fixture} from "./Fixture.model";
-import {Scrim} from "./Scrim.model";
-import {SeriesReplay} from "./SeriesReplay.model";
-import {StreamEvent} from "./StreamEvent.model";
-import {TeamRoleUsage} from "./TeamRoleUsage.model";
+import {MLE_Fixture} from "./Fixture.model";
+import {MLE_Scrim} from "./Scrim.model";
+import {MLE_SeriesReplay} from "./SeriesReplay.model";
+import {MLE_StreamEvent} from "./StreamEvent.model";
+import {MLE_TeamRoleUsage} from "./TeamRoleUsage.model";
 import {Mode} from "./enums/Mode.enum";
 
 @Index(
@@ -14,7 +14,7 @@ import {Mode} from "./enums/Mode.enum";
 @Index("series_pkey", ["id"], {unique: true})
 @Index("series_scrim_id_unique", ["scrimId"], {unique: true})
 @Entity("series", {schema: "mledb"})
-export class Series {
+export class MLE_Series {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;
 
@@ -83,26 +83,26 @@ export class Series {
     })
     streamEventMessageId: string | null;
 
-    @ManyToOne(() => Fixture, (fixture) => fixture.series, {
+    @ManyToOne(() => MLE_Fixture, (fixture) => fixture.series, {
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
     })
     @JoinColumn([{name: "fixture_id", referencedColumnName: "id"}])
-    fixture: Fixture;
+    fixture: MLE_Fixture;
 
-    @OneToOne(() => Scrim, (scrim) => scrim.series, {
+    @OneToOne(() => MLE_Scrim, (scrim) => scrim.series, {
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
     })
     @JoinColumn([{name: "scrim_id", referencedColumnName: "id"}])
-    scrim: Scrim;
+    scrim: MLE_Scrim;
 
-    @OneToMany(() => SeriesReplay, (seriesReplay) => seriesReplay.series)
-    seriesReplays: SeriesReplay[];
+    @OneToMany(() => MLE_SeriesReplay, (seriesReplay) => seriesReplay.series)
+    seriesReplays: MLE_SeriesReplay[];
 
-    @OneToOne(() => StreamEvent, (streamEvent) => streamEvent.series)
-    streamEvent: StreamEvent;
+    @OneToOne(() => MLE_StreamEvent, (streamEvent) => streamEvent.series)
+    streamEvent: MLE_StreamEvent;
 
-    @OneToMany(() => TeamRoleUsage, (teamRoleUsage) => teamRoleUsage.series)
-    teamRoleUsages: TeamRoleUsage[];
+    @OneToMany(() => MLE_TeamRoleUsage, (teamRoleUsage) => teamRoleUsage.series)
+    teamRoleUsages: MLE_TeamRoleUsage[];
 }

@@ -1,6 +1,6 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {Player} from "./Player.model";
-import {SeriesReplay} from "./SeriesReplay.model";
+import {MLE_Player} from "./Player.model";
+import {MLE_SeriesReplay} from "./SeriesReplay.model";
 
 @Index("elo_data_pkey", ["id"], {unique: true})
 @Index("elo_data_next_node_id_unique", ["nextNodeId"], {unique: true})
@@ -9,7 +9,7 @@ import {SeriesReplay} from "./SeriesReplay.model";
 })
 @Index("elo_data_previous_node_id_unique", ["previousNodeId"], {unique: true})
 @Entity("elo_data", {schema: "mledb"})
-export class EloData {
+export class MLE_EloData {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;
 
@@ -60,34 +60,28 @@ export class EloData {
     @Column("character varying", {name: "league", nullable: true, length: 255})
     league: string | null;
 
-    @OneToOne(() => EloData, (eloData) => eloData.eloData, {
+    @OneToOne(() => MLE_EloData, (eloData) => eloData.previousNode, {
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
     })
     @JoinColumn([{name: "next_node_id", referencedColumnName: "id"}])
-    nextNode: EloData;
+    nextNode: MLE_EloData;
 
-    @OneToOne(() => EloData, (eloData) => eloData.nextNode)
-    eloData: EloData;
-
-    @ManyToOne(() => Player, (player) => player.eloData, {onUpdate: "CASCADE"})
-    @JoinColumn([{name: "player_id", referencedColumnName: "id"}])
-    player: Player;
-
-    @OneToOne(() => EloData, (eloData) => eloData.eloData2, {
+    @OneToOne(() => MLE_EloData, (eloData) => eloData.nextNode, {
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
     })
     @JoinColumn([{name: "previous_node_id", referencedColumnName: "id"}])
-    previousNode: EloData;
+    previousNode: MLE_EloData;
 
-    @OneToOne(() => EloData, (eloData) => eloData.previousNode)
-    eloData2: EloData;
-
-    @ManyToOne(() => SeriesReplay, (seriesReplay) => seriesReplay.eloData, {
+    @ManyToOne(() => MLE_SeriesReplay, (seriesReplay) => seriesReplay.eloData, {
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
     })
     @JoinColumn([{name: "replay_id", referencedColumnName: "id"}])
-    replay: SeriesReplay;
+    replay: MLE_SeriesReplay;
+
+    @ManyToOne(() => MLE_Player, {onUpdate: "CASCADE"})
+    @JoinColumn([{name: "player_id", referencedColumnName: "id"}])
+    player: MLE_Player;
 }

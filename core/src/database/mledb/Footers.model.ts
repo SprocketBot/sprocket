@@ -2,7 +2,7 @@ import {Column, Entity, Index, PrimaryGeneratedColumn} from "typeorm";
 
 @Index("footers_pkey", ["id"], {unique: true})
 @Entity("footers", {schema: "mledb"})
-export class Footers {
+export class MLE_Footers {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;
 

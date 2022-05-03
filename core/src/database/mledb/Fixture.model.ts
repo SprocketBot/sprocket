@@ -1,6 +1,7 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn,} from "typeorm";
-import {Match} from "./Match.model";
-import {Series} from "./Series.model";
+import {MLE_Match} from "./Match.model";
+import {MLE_Series} from "./Series.model";
+import {MLE_Team} from "./Team.model";
 
 @Index(
     "fixture_home_name_away_name_match_id_unique",
@@ -9,7 +10,7 @@ import {Series} from "./Series.model";
 )
 @Index("fixture_pkey", ["id"], {unique: true})
 @Entity("fixture", {schema: "mledb"})
-export class Fixture {
+export class MLE_Fixture {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;
 
@@ -55,10 +56,10 @@ export class Fixture {
     })
     channelId: string;
 
-    @ManyToOne(() => Match, (match) => match.fixtures, {onUpdate: "CASCADE"})
+    @ManyToOne(() => MLE_Match, (match) => match.fixtures, {onUpdate: "CASCADE"})
     @JoinColumn([{name: "match_id", referencedColumnName: "id"}])
-    match: Match;
+    match: MLE_Match;
 
-    @OneToMany(() => Series, (series) => series.fixture)
-    series: Series[];
+    @OneToMany(() => MLE_Series, (series) => series.fixture)
+    series: MLE_Series[];
 }

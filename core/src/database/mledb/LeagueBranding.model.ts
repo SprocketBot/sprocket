@@ -1,9 +1,10 @@
 import {Column, Entity, Index, PrimaryGeneratedColumn} from "typeorm";
+import {League} from "./enums/League.enum";
 
 @Index("league_branding_pkey", ["id"], {unique: true})
 @Index("league_branding_league_unique", ["league"], {unique: true})
 @Entity("league_branding", {schema: "mledb"})
-export class LeagueBranding {
+export class MLE_LeagueBranding {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;
 
@@ -34,7 +35,7 @@ export class LeagueBranding {
     updatedAt: Date;
 
     @Column("character varying", {name: "league", unique: true, length: 255})
-    league: string;
+    league: League;
 
     @Column("character varying", {name: "color", length: 255})
     color: string;

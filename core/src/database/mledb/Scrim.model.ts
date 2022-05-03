@@ -1,11 +1,11 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {EligibilityData} from "./EligibilityData.model";
-import {Player} from "./Player.model";
-import {Series} from "./Series.model";
+import {MLE_EligibilityData} from "./EligibilityData.model";
+import {MLE_Player} from "./Player.model";
+import {MLE_Series} from "./Series.model";
 
 @Index("scrim_pkey", ["id"], {unique: true})
 @Entity("scrim", {schema: "mledb"})
-export class Scrim {
+export class MLE_Scrim {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;
 
@@ -44,17 +44,17 @@ export class Scrim {
     @Column("integer", {name: "base_scrim_points"})
     baseScrimPoints: number;
 
-    @OneToMany(() => EligibilityData, (eligibilityData) => eligibilityData.scrim)
-    eligibilityData: EligibilityData[];
+    @OneToMany(() => MLE_EligibilityData, (eligibilityData) => eligibilityData.scrim)
+    eligibilityData: MLE_EligibilityData[];
 
-    @ManyToOne(() => Player, (player) => player.scrims, {onUpdate: "CASCADE"})
+    @ManyToOne(() => MLE_Player, {onUpdate: "CASCADE"})
     @JoinColumn([{name: "author_id", referencedColumnName: "id"}])
-    author: Player;
+    author: MLE_Player;
 
-    @ManyToOne(() => Player, (player) => player.scrims2, {onUpdate: "CASCADE"})
+    @ManyToOne(() => MLE_Player, {onUpdate: "CASCADE"})
     @JoinColumn([{name: "host_id", referencedColumnName: "id"}])
-    host: Player;
+    host: MLE_Player;
 
-    @OneToOne(() => Series, (series) => series.scrim)
-    series: Series;
+    @OneToOne(() => MLE_Series, (series) => series.scrim)
+    series: MLE_Series;
 }

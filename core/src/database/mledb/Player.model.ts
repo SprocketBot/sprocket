@@ -1,13 +1,6 @@
-import {Column, Entity, Index, OneToMany, OneToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {EligibilityData} from "./EligibilityData.model";
-import {EloData} from "./EloData.model";
-import {PlayerAccount} from "./PlayerAccount.model";
-import {PlayerStats} from "./PlayerStats.model";
-import {PlayerStatsCore} from "./PlayerStatsCore.model";
-import {PlayerToOrg} from "./PlayerToOrg.model";
-import {Scrim} from "./Scrim.model";
-import {Team} from "./Team.model";
-import {TeamToCaptain} from "./TeamToCaptain.model";
+import {Column, Entity, Index, OneToMany, PrimaryGeneratedColumn,} from "typeorm";
+import {MLE_PlayerAccount} from "./PlayerAccount.model";
+import {MLE_PlayerToOrg} from "./PlayerToOrg.model";
 import {ModePreference} from "./enums/ModePreference.enum";
 import {Role} from "./enums/Role.enum";
 import {Timezone} from "./enums/Timezone.enum";
@@ -17,7 +10,7 @@ import {League} from "./enums/League.enum";
 @Index("player_mleid_index", ["mleid"], {})
 @Index("player_name_unique", ["name"], {unique: true})
 @Entity("player", {schema: "mledb"})
-export class Player {
+export class MLE_Player {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;
 
@@ -103,45 +96,9 @@ export class Player {
     @Column("boolean", {name: "suspended", default: () => "false"})
     suspended: boolean;
 
-    @OneToMany(() => EligibilityData, (eligibilityData) => eligibilityData.player)
-    eligibilityData: EligibilityData[];
+    @OneToMany(() => MLE_PlayerAccount, (playerAccount) => playerAccount.player)
+    accounts: MLE_PlayerAccount[];
 
-    @OneToMany(() => EloData, (eloData) => eloData.player)
-    eloData: EloData[];
-
-    @OneToMany(() => PlayerAccount, (playerAccount) => playerAccount.player)
-    playerAccounts: PlayerAccount[];
-
-    @OneToMany(() => PlayerStats, (playerStats) => playerStats.player)
-    playerStats: PlayerStats[];
-
-    @OneToMany(() => PlayerStatsCore, (playerStatsCore) => playerStatsCore.player)
-    playerStatsCores: PlayerStatsCore[];
-
-    @OneToMany(() => PlayerToOrg, (playerToOrg) => playerToOrg.player)
-    playerToOrgs: PlayerToOrg[];
-
-    @OneToMany(() => Scrim, (scrim) => scrim.author)
-    scrims: Scrim[];
-
-    @OneToMany(() => Scrim, (scrim) => scrim.host)
-    scrims2: Scrim[];
-
-    @OneToOne(() => Team, (team) => team.doublesAssistantGeneralManager)
-    team: Team;
-
-    @OneToOne(() => Team, (team) => team.franchiseManager)
-    team2: Team;
-
-    @OneToOne(() => Team, (team) => team.generalManager)
-    team3: Team;
-
-    @OneToOne(() => Team, (team) => team.prSupport)
-    team4: Team;
-
-    @OneToOne(() => Team, (team) => team.standardAssistantGeneralManager)
-    team5: Team;
-
-    @OneToOne(() => TeamToCaptain, (teamToCaptain) => teamToCaptain.player)
-    teamToCaptain: TeamToCaptain;
+    @OneToMany(() => MLE_PlayerToOrg, (playerToOrg) => playerToOrg.player)
+    playerOrgs: MLE_PlayerToOrg[];
 }

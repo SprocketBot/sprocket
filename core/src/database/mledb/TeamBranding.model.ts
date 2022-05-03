@@ -1,10 +1,10 @@
 import {Column, Entity, Index, OneToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {Team} from "./Team.model";
+import {MLE_Team} from "./Team.model";
 
 @Index("team_branding_pkey", ["id"], {unique: true})
 @Index("team_branding_team_name_unique", ["teamName"], {unique: true})
 @Entity("team_branding", {schema: "mledb"})
-export class TeamBranding {
+export class MLE_TeamBranding {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;
 
@@ -53,6 +53,6 @@ export class TeamBranding {
     })
     discordEmojiId: string | null;
 
-    @OneToOne(() => Team, (team) => team.branding)
-    team: Team;
+    @OneToOne(() => MLE_Team, (team) => team.branding)
+    team: MLE_Team;
 }

@@ -1,6 +1,6 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn,} from "typeorm";
-import {Player} from "./Player.model";
-import {PsyonixApiResult} from "./PsyonixApiResult.model";
+import {MLE_Player} from "./Player.model";
+import {MLE_PsyonixApiResult} from "./PsyonixApiResult.model";
 
 @Index("player_account_pkey", ["id"], {unique: true})
 @Index(
@@ -10,7 +10,7 @@ import {PsyonixApiResult} from "./PsyonixApiResult.model";
 )
 @Index("player_account_tracker_unique", ["tracker"], {unique: true})
 @Entity("player_account", {schema: "mledb"})
-export class PlayerAccount {
+export class MLE_PlayerAccount {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;
 
@@ -59,15 +59,9 @@ export class PlayerAccount {
     })
     platformId: string | null;
 
-    @ManyToOne(() => Player, (player) => player.playerAccounts, {
+    @ManyToOne(() => MLE_Player, (player) => player.accounts, {
         onUpdate: "CASCADE",
     })
     @JoinColumn([{name: "player_id", referencedColumnName: "id"}])
-    player: Player;
-
-    @OneToMany(
-        () => PsyonixApiResult,
-        (psyonixApiResult) => psyonixApiResult.playerAccount
-    )
-    psyonixApiResults: PsyonixApiResult[];
+    player: MLE_Player;
 }

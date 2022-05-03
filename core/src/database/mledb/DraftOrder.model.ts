@@ -1,5 +1,5 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {Season} from "./Season.model";
+import {MLE_Season} from "./Season.model";
 
 @Index("draft_order_pkey", ["id"], {unique: true})
 @Index(
@@ -8,7 +8,7 @@ import {Season} from "./Season.model";
     {unique: true}
 )
 @Entity("draft_order", {schema: "mledb"})
-export class DraftOrder {
+export class MLE_DraftOrder {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;
 
@@ -56,11 +56,11 @@ export class DraftOrder {
     @Column("integer", {name: "pick", unique: true})
     pick: number;
 
-    @ManyToOne(() => Season, (season) => season.draftOrders, {
+    @ManyToOne(() => MLE_Season, (season) => season.draftOrders, {
         onUpdate: "CASCADE",
     })
     @JoinColumn([
         {name: "season_season_number", referencedColumnName: "seasonNumber"},
     ])
-    seasonSeasonNumber2: Season;
+    seasonSeasonNumber2: MLE_Season;
 }

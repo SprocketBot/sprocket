@@ -1,10 +1,10 @@
 import {Column, Entity, Index, OneToMany, PrimaryGeneratedColumn,} from "typeorm";
-import {DraftOrder} from "./DraftOrder.model";
-import {Match} from "./Match.model";
+import {MLE_DraftOrder} from "./DraftOrder.model";
+import {MLE_Match} from "./Match.model";
 
 @Index("season_pkey", ["seasonNumber"], {unique: true})
 @Entity("season", {schema: "mledb"})
-export class Season {
+export class MLE_Season {
     @PrimaryGeneratedColumn({type: "integer", name: "season_number"})
     seasonNumber: number;
 
@@ -46,9 +46,9 @@ export class Season {
     @Column("integer", {name: "week_length", default: () => "7"})
     weekLength: number;
 
-    @OneToMany(() => DraftOrder, (draftOrder) => draftOrder.seasonSeasonNumber2)
-    draftOrders: DraftOrder[];
+    @OneToMany(() => MLE_DraftOrder, (draftOrder) => draftOrder.seasonSeasonNumber2)
+    draftOrders: MLE_DraftOrder[];
 
-    @OneToMany(() => Match, (match) => match.season2)
-    matches: Match[];
+    @OneToMany(() => MLE_Match, (match) => match.season)
+    matches: MLE_Match[];
 }

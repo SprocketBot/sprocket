@@ -1,13 +1,13 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn,} from "typeorm";
-import {Fixture} from "./Fixture.model";
-import {Season} from "./Season.model";
+import {MLE_Fixture} from "./Fixture.model";
+import {MLE_Season} from "./Season.model";
 
 @Index("match_pkey", ["id"], {unique: true})
 @Index("match_season_match_number_unique", ["matchNumber", "season"], {
     unique: true,
 })
 @Entity("match", {schema: "mledb"})
-export class Match {
+export class MLE_Match {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;
 
@@ -46,8 +46,6 @@ export class Match {
     @Column("boolean", {name: "is_double_header"})
     isDoubleHeader: boolean;
 
-    @Column("integer", {name: "season", unique: true})
-    season: number;
 
     @Column("integer", {name: "match_number", unique: true})
     matchNumber: number;
@@ -59,10 +57,10 @@ export class Match {
     })
     map: string;
 
-    @OneToMany(() => Fixture, (fixture) => fixture.match)
-    fixtures: Fixture[];
+    @OneToMany(() => MLE_Fixture, (fixture) => fixture.match)
+    fixtures: MLE_Fixture[];
 
-    @ManyToOne(() => Season, (season) => season.matches, {onUpdate: "CASCADE"})
+    @ManyToOne(() => MLE_Season, (season) => season.matches, {onUpdate: "CASCADE"})
     @JoinColumn([{name: "season", referencedColumnName: "seasonNumber"}])
-    season2: Season;
+    season: MLE_Season;
 }

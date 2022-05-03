@@ -1,13 +1,13 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {Player} from "./Player.model";
-import {Scrim} from "./Scrim.model";
+import {MLE_Player} from "./Player.model";
+import {MLE_Scrim} from "./Scrim.model";
 
 @Index("eligibility_data_pkey", ["id"], {unique: true})
 @Index("eligibility_data_player_id_scrim_id", ["playerId", "scrimId"], {
     unique: true,
 })
 @Entity("eligibility_data", {schema: "mledb"})
-export class EligibilityData {
+export class MLE_EligibilityData {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;
 
@@ -46,15 +46,15 @@ export class EligibilityData {
     @Column("integer", {name: "scrim_points"})
     scrimPoints: number;
 
-    @ManyToOne(() => Player, (player) => player.eligibilityData, {
+    @ManyToOne(() => MLE_Player, {
         onUpdate: "CASCADE",
     })
     @JoinColumn([{name: "player_id", referencedColumnName: "id"}])
-    player: Player;
+    player: MLE_Player;
 
-    @ManyToOne(() => Scrim, (scrim) => scrim.eligibilityData, {
+    @ManyToOne(() => MLE_Scrim, (scrim) => scrim.eligibilityData, {
         onUpdate: "CASCADE",
     })
     @JoinColumn([{name: "scrim_id", referencedColumnName: "id"}])
-    scrim: Scrim;
+    scrim: MLE_Scrim;
 }

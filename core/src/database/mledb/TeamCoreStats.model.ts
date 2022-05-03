@@ -1,9 +1,9 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {SeriesReplay} from "./SeriesReplay.model";
+import {MLE_SeriesReplay} from "./SeriesReplay.model";
 
 @Index("team_core_stats_pkey", ["id"], {unique: true})
 @Entity("team_core_stats", {schema: "mledb"})
-export class TeamCoreStats {
+export class MLE_TeamCoreStats {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;
 
@@ -55,9 +55,9 @@ export class TeamCoreStats {
     @Column("integer", {name: "time_in_side", nullable: true})
     timeInSide: number | null;
 
-    @ManyToOne(() => SeriesReplay, (seriesReplay) => seriesReplay.teamCoreStats, {
+    @ManyToOne(() => MLE_SeriesReplay, (seriesReplay) => seriesReplay.teamCoreStats, {
         onUpdate: "CASCADE",
     })
     @JoinColumn([{name: "replay_id", referencedColumnName: "id"}])
-    replay: SeriesReplay;
+    replay: MLE_SeriesReplay;
 }

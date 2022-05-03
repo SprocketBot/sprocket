@@ -1,11 +1,11 @@
 import {Column, Entity, Index, JoinColumn, OneToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {Series} from "./Series.model";
+import {MLE_Series} from "./Series.model";
 import {EventFormat} from "./enums/EventFormat";
 
 @Index("stream_event_pkey", ["id"], {unique: true})
 @Index("stream_event_series_id_unique", ["seriesId"], {unique: true})
 @Entity("stream_event", {schema: "mledb"})
-export class StreamEvent {
+export class MLE_StreamEvent {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;
 
@@ -57,10 +57,10 @@ export class StreamEvent {
     })
     discordId: string | null;
 
-    @OneToOne(() => Series, (series) => series.streamEvent, {
+    @OneToOne(() => MLE_Series, (series) => series.streamEvent, {
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
     })
     @JoinColumn([{name: "series_id", referencedColumnName: "id"}])
-    series: Series;
+    series: MLE_Series;
 }

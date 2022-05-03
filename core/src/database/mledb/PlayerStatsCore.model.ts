@@ -1,11 +1,11 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {PlayerStats} from "./PlayerStats.model";
-import {Player} from "./Player.model";
-import {SeriesReplay} from "./SeriesReplay.model";
+import {MLE_PlayerStats} from "./PlayerStats.model";
+import {MLE_Player} from "./Player.model";
+import {MLE_SeriesReplay} from "./SeriesReplay.model";
 
 @Index("player_stats_core_pkey", ["id"], {unique: true})
 @Entity("player_stats_core", {schema: "mledb"})
-export class PlayerStatsCore {
+export class MLE_PlayerStatsCore {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;
 
@@ -59,21 +59,21 @@ export class PlayerStatsCore {
     @Column("real", {name: "mvpr"})
     mvpr: number;
 
-    @OneToOne(() => PlayerStats, (playerStats) => playerStats.coreStats)
-    playerStats: PlayerStats;
+    @OneToOne(() => MLE_PlayerStats, (playerStats) => playerStats.coreStats)
+    playerStats: MLE_PlayerStats;
 
-    @ManyToOne(() => Player, (player) => player.playerStatsCores, {
+    @ManyToOne(() => MLE_Player, {
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
     })
     @JoinColumn([{name: "player_id", referencedColumnName: "id"}])
-    player: Player;
+    player: MLE_Player;
 
     @ManyToOne(
-        () => SeriesReplay,
+        () => MLE_SeriesReplay,
         (seriesReplay) => seriesReplay.playerStatsCores,
         {onUpdate: "CASCADE"}
     )
     @JoinColumn([{name: "replay_id", referencedColumnName: "id"}])
-    replay: SeriesReplay;
+    replay: MLE_SeriesReplay;
 }
