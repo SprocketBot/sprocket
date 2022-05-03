@@ -1,3 +1,4 @@
-FROM local/sprocket:temp AS app_image
+ARG BASE_IMAGE
+FROM $BASE_IMAGE AS app_image
 RUN npm run build --workspace=microservices/image-generation-service
 ENTRYPOINT node /app/microservices/image-generation-service/dist/main.js

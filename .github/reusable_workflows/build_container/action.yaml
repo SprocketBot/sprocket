@@ -51,8 +51,9 @@ runs:
     - name: Build And Push Image
       uses: docker/build-push-action@v2
       with:
+        args:
+          BASE_IMAGE: ${{ inputs.docker_username }}/monorepo-core:${{ inputs.docker_tag }}
         context: ${{ inputs.build_directory }}
-        cache-from: type=local,src=/tmp/core.tar
         file: ${{ inputs.build_directory }}/Dockerfile
         target: app_image
         push: true

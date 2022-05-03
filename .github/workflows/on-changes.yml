@@ -28,9 +28,9 @@ jobs:
         with:
           context: .
           file: ./dockerfiles/node.Dockerfile
-          tags: local/sprocket:temp
-          cache-to: type=local,dest=/tmp/core.tar
-#          outputs: type=docker,dest=/tmp/core.tar
+          tags: ${{ secrets.docker_username }}/monorepo-core:${{ steps.extract_branch.outputs.branch }}
+          push: true
+          platforms: linux/amd64
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
@@ -81,3 +81,4 @@ jobs:
           docker_tag: ${{steps.extract_branch.outputs.branch}}
           docker_username: ${{ secrets.docker_username }}
           docker_access_token: ${{ secrets.docker_access_token }}
+          discord_webhook: ${{ secrets.discord_webhook }}
