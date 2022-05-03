@@ -6,7 +6,7 @@ import {
 import {BaseModel} from "../../base-model";
 import {FranchiseGroupProfile} from "../franchise_group_profile";
 import {FranchiseGroupType} from "../franchise_group_type";
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class FranchiseGroup extends BaseModel {
     @ManyToOne(() => FranchiseGroup, {nullable: true})

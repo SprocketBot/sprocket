@@ -7,7 +7,7 @@ import {BaseModel} from "../../base-model";
 import {GameFeature} from "../game_feature";
 import {GameMode} from "../game_mode";
 import {Platform} from "../platform";
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class Game extends BaseModel {
     @Column()

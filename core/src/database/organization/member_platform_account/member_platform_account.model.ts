@@ -6,7 +6,7 @@ import {
 import {BaseModel} from "../../base-model";
 import {Platform} from "../../game/platform";
 import {Member} from "../member";
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class MemberPlatformAccount extends BaseModel {
     @ManyToOne(() => Member)

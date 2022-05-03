@@ -8,7 +8,7 @@ import {Player} from "../../franchise";
 import {MemberPlatformAccount} from "../member_platform_account";
 import {MemberProfile} from "../member_profile";
 import {Organization} from "../organization";
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class Member extends BaseModel {
     @OneToMany(() => MemberPlatformAccount, mpa => mpa.member)

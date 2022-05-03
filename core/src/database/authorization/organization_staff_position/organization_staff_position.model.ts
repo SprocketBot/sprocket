@@ -7,7 +7,7 @@ import {BaseModel} from "../../base-model";
 import {OrganizationStaffRole} from "../organization_staff_role";
 import {OrganizationStaffTeam} from "../organization_staff_team";
 import {PermissionBearer} from "../permission_bearer";
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class OrganizationStaffPosition extends BaseModel {
     @ManyToOne(() => OrganizationStaffRole)

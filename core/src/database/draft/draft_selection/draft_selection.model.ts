@@ -6,7 +6,7 @@ import {
 import {BaseModel} from "../../base-model";
 import {Player} from "../../franchise/player";
 import {DraftPick} from "../draft_pick";
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class DraftSelection extends BaseModel {
     @OneToOne(() => DraftPick)

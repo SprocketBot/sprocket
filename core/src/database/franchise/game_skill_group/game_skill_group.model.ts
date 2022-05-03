@@ -8,7 +8,7 @@ import {GameSkillGroupProfile} from "../game_skill_group_profile";
 import {Player} from "../player";
 import {RosterRoleUseLimits} from "../roster_role_use_limits";
 import {Team} from "../team";
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class GameSkillGroup extends BaseModel {
     @Column()

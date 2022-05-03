@@ -6,7 +6,7 @@ import {
 import {BaseModel} from "../../base-model";
 import {Organization} from "../../organization/organization";
 import {OrganizationConfigurationKey} from "../organization_configuration_key";
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class OrganizationConfigurationValue extends BaseModel {
     @Column()
