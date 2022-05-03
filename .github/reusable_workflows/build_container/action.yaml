@@ -36,22 +36,11 @@ runs:
     - name: Check out the repo
       uses: actions/checkout@v2
 
-    - name: Download artifact
-      uses: actions/download-artifact@v2
-      with:
-        name: sprocket-core
-        path: /tmp
-
-    - name: Load image
-      shell: sh
-      run: |
-        docker load --input /tmp/core.tar;
-        docker images;
-
     - name: Build And Push Image
       uses: docker/build-push-action@v2
       with:
-        build-args: BASE_IMAGE=${{ inputs.docker_username }}/monorepo-core:${{ inputs.docker_tag }}
+        build-args: |
+          BASE_IMAGE=${{ inputs.docker_username }}/monorepo-core:${{ inputs.docker_tag }}
         context: ${{ inputs.build_directory }}
         file: ${{ inputs.build_directory }}/Dockerfile
         target: app_image
