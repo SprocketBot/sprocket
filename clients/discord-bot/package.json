@@ -9,7 +9,7 @@
     "debug": "nest start --watch --debug",
     "test": "NODE_ENV=test jest --coverage",
     "test:watch": "NODE_ENV=test jest --watch",
-    "lint": "eslint --fix src"
+    "lint": "eslint"
   },
   "repository": {
     "type": "git",
@@ -44,11 +44,6 @@
     "@types/config": "^0.0.38",
     "@types/jest": "^26.0.23",
     "@types/node": "^15.14.9",
-    "@typescript-eslint/eslint-plugin": "^4.27.0",
-    "@typescript-eslint/parser": "^4.27.0",
-    "eslint": "^7.28.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-simple-import-sort": "^7.0.0",
     "typescript": "^4.3.2"
   }
 }

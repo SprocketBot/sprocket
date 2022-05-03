@@ -1,9 +1,8 @@
 module.exports = {
   env: {
-    browser: true,
     es2021: true,
     jest: true,
-    node: true
+    node: true,
   },
   extends: [
     "eslint:recommended",
@@ -21,7 +20,7 @@ module.exports = {
     "@typescript-eslint",
     "simple-import-sort"
   ],
-  ignorePatterns: [".eslintrc.js", "jest.config.js", "commitlint.config.js", "config/*", "coverage/*", "fonts/*"],
+  ignorePatterns: ["*.cjs", ".eslintrc.js", "jest.config.js", "ormconfig.js", "scripts/*", "*.json"],
   rules: {
     // Configure import sorting since eslint sort-imports doesn't autofix
     "simple-import-sort/imports": "error",
@@ -196,9 +195,7 @@ module.exports = {
     "block-spacing": ["error", "always"],                                      /* ( f) disallow or enforce spaces inside of blocks after opening block and before closing block */
     "brace-style": "off",                                                      /* ( f) enforce consistent brace style for blocks */ // Disabled in favor of typescript-eslint rule below
     "camelcase": "off",                                                        /* (  ) enforce camelcase naming convention */
-    "capitalized-comments": ["error", "always", {                              /* ( f) enforce or disallow capitalization of the first letter of a comment */
-      "ignoreConsecutiveComments": true
-    }],
+    "capitalized-comments": "off",                                             /* ( f) enforce or disallow capitalization of the first letter of a comment */
     "comma-dangle": "off",                                                     /* ( f) require or disallow trailing commas */ // Disabled in favor of typescript-eslint rule below
     "comma-spacing": "off",                                                    /* ( f) enforce consistent spacing before and after commas */ // Disabled in favor of typescript-eslint rule below
     "comma-style": "error",                                                    /* ( f) enforce consistent comma style */
@@ -237,7 +234,7 @@ module.exports = {
     "max-params": "off",                                                       /* (  ) enforce a maximum number of parameters in function definitions */
     "max-statements": "off",                                                   /* (  ) enforce a maximum number of statements allowed in function blocks */
     "max-statements-per-line": "off",                                          /* (  ) enforce a maximum number of statements allowed per line */
-    "multiline-comment-style": ["error", "starred-block"],                     /* ( f) enforce a particular style for multiline comments */
+    "multiline-comment-style": "off",                                          /* ( f) enforce a particular style for multiline comments */
     "multiline-ternary": ["error", "always-multiline"],                        /* ( f) enforce newlines between operands of ternary expressions */
     "new-cap": "off",                                                          /* (  ) require constructor names to begin with a capital letter */ // Turned off because this gets mad on decorators
     "new-parens": ["error", "always"],                                         /* ( f) enforce or disallow parentheses when invoking a constructor with no arguments */
@@ -523,7 +520,14 @@ module.exports = {
       "ImportDeclaration": "first",
       "flatTernaryExpressions": false,
       "offsetTernaryExpressions": true,
-      "ignoreComments": false
+      "ignoreComments": false,
+      // Ignore parameters with decorators, this rule improperly indents them
+      // https://github.com/typescript-eslint/typescript-eslint/issues/1824#issuecomment-957559729
+      "ignoredNodes": [
+        "FunctionExpression > .params[decorators.length > 0]",
+        "FunctionExpression > .params > :matches(Decorator, :not(:first-child))",
+        "ClassBody.body > PropertyDefinition[decorators.length > 0] > .key"
+      ]
     }],
     "@typescript-eslint/init-declarations": "off",                             /* (   ) require or disallow initialization in variable declarations */
     "@typescript-eslint/keyword-spacing": ["error", {                          /* ( f ) Enforce consistent spacing before and after keywords */

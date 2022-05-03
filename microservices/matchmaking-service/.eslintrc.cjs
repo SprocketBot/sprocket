@@ -1,8 +1,8 @@
 module.exports = {
   env: {
+    browser: true,
     es2021: true,
-    jest: true,
-    node: true,
+    jest: true
   },
   extends: [
     "eslint:recommended",
@@ -20,7 +20,7 @@ module.exports = {
     "@typescript-eslint",
     "simple-import-sort"
   ],
-  ignorePatterns: [".eslintrc.js", "jest.config.js", "ormconfig.js", "scripts/*", "*.json"],
+  ignorePatterns: ["*.cjs", ".eslintrc.js", "jest.config.js", "ormconfig.js", "scripts/*", "*.json"],
   rules: {
     // Configure import sorting since eslint sort-imports doesn't autofix
     "simple-import-sort/imports": "error",
@@ -520,14 +520,7 @@ module.exports = {
       "ImportDeclaration": "first",
       "flatTernaryExpressions": false,
       "offsetTernaryExpressions": true,
-      "ignoreComments": false,
-      // Ignore parameters with decorators, this rule improperly indents them
-      // https://github.com/typescript-eslint/typescript-eslint/issues/1824#issuecomment-957559729
-      "ignoredNodes": [
-        "FunctionExpression > .params[decorators.length > 0]",
-        "FunctionExpression > .params > :matches(Decorator, :not(:first-child))",
-        "ClassBody.body > PropertyDefinition[decorators.length > 0] > .key"
-      ]
+      "ignoreComments": false
     }],
     "@typescript-eslint/init-declarations": "off",                             /* (   ) require or disallow initialization in variable declarations */
     "@typescript-eslint/keyword-spacing": ["error", {                          /* ( f ) Enforce consistent spacing before and after keywords */
