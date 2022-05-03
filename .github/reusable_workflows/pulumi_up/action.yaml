@@ -73,7 +73,7 @@ runs:
         key: ${{ inputs.ssh_key }}
 
     - name: Install Infra Dependencies
-      run: cd ./infrastructure/platform && npm install && cd ../global && npm install
+      run: cd /home/runner/work/sprocket/sprocket/infrastructure/platform && npm install && cd ../global && npm install
       shell: bash
 
     - name: Pulumi Up
