@@ -38,6 +38,10 @@ inputs:
     description: "Used to temporarily connect to the tailscale cluster"
     required: true
 
+  infra_deploy_key:
+    description: "Used to clone the infrastructure repository"
+    required: true
+
 runs:
   using: "composite"
 
@@ -47,6 +51,8 @@ runs:
       with:
         path: infrastructure
         repository: SprocketBot/sprocket-infra
+        ref: main
+        ssh-key: ${{ inputs.infra_deploy_key }}
 
     - name: Tailscale
       uses: tailscale/github-action@v1

@@ -80,6 +80,7 @@ jobs:
               ${{ matrix.directory[1] }}**
 
       - name: Build project
+        if: steps.changes.outputs.change == 'true'
         uses: ./.github/reusable_workflows/build_container
         with:
           build_directory: ${{ matrix.directory[1] }}
@@ -115,3 +116,4 @@ jobs:
           ssh_key: ${{ secrets.pulumi_ssh_key }}
           manager_node_hostname: ${{ secrets.manager_node_hostname }}
           tailscale_ephemeral_authkey: ${{ secrets.tailscale_ephemeral_authkey }}
+          deploy_key: ${{ secrets.infra_deploy_key }}
