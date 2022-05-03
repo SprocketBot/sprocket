@@ -72,6 +72,10 @@ runs:
         user: ${{ inputs.ssh_user }}
         key: ${{ inputs.ssh_key }}
 
+    - name: Install Infra Dependencies
+      run: cd ./infrastructure/application && npm install && cd ../global && npm install
+      shell: bash
+
     - name: Pulumi Up
       uses: pulumi/actions@v3
       env: 
