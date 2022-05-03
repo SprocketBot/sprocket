@@ -52,7 +52,7 @@ jobs:
     name: "Build Node Services"
     runs-on: ubuntu-latest
     needs:
-      - build_base_image
+      - build_core_image
     strategy:
       matrix:
         directory:
