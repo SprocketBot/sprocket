@@ -81,5 +81,5 @@ runs:
       with:
         command: up
         stack-name: ${{ inputs.pulumi_stack_name }}
-        work-dir: ./infrastructure/platform/applications
+        work-dir: ./infrastructure/platform
         cloud-url: ${{ inputs.pulumi_cloud_url }}
