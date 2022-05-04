@@ -11,7 +11,7 @@ import {GameModule} from "./game/game.module";
 import {IdentityModule} from "./identity/identity.module";
 import {OrganizationModule} from "./organization/organization.module";
 import {SchedulingModule} from "./scheduling/scheduling.module";
-// import {ServiceNotificationsModule} from "./service-notifications/service-notifications.module";
+import { MledbModule } from './mledb/mledb.module';
 
 const modules = [
     AuthorizationModule,
@@ -22,7 +22,7 @@ const modules = [
     IdentityModule,
     OrganizationModule,
     SchedulingModule,
-    // ServiceNotificationsModule,
+    MledbModule,
     TypeOrmModule.forRoot({
         type: "postgres",
         host: config.db.host,

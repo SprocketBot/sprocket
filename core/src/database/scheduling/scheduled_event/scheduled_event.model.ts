@@ -8,7 +8,7 @@ import {Game} from "../../game/game";
 import {GameMode} from "../../game/game_mode";
 import {Member} from "../../organization/member";
 import {MatchParent} from "../match_parent";
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class ScheduledEvent extends BaseModel {
     @Column()

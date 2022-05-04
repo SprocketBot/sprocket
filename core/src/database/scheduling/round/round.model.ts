@@ -7,7 +7,7 @@ import {
 import {BaseModel} from "../../base-model";
 import {Invalidation} from "../invalidation/invalidation.model";
 import {Match} from "../match/match.model";
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class Round extends BaseModel {
     @Column()

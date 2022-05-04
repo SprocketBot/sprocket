@@ -5,7 +5,7 @@ import {
 
 import {BaseModel} from "../../base-model";
 import {PermissionBearer} from "../permission_bearer";
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class OrganizationStaffTeam extends BaseModel {
     @Column()

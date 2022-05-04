@@ -8,7 +8,7 @@ import {FranchiseGroupAssignment} from "../franchise_group_assignment";
 import {FranchiseLeadershipAppointment} from "../franchise_leadership_appointment";
 import {FranchiseProfile} from "../franchise_profile";
 import {FranchiseStaffAppointment} from "../franchise_staff_appointment";
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class Franchise extends BaseModel {
     @OneToOne(() => FranchiseProfile)

@@ -7,7 +7,7 @@ import {BaseModel} from "../../base-model";
 import {Game} from "../../game/game";
 import {Organization} from "../../organization/organization";
 import {GameSkillGroup} from "../game_skill_group";
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class RosterRole extends BaseModel {
     @Column()

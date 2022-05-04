@@ -9,7 +9,7 @@ import {UserRolesType} from "../roles/user_roles_type.enum";
 import {UserAuthenticationAccount} from "../user_authentication_account";
 import {UserProfile} from "../user_profile";
 
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class User extends BaseModel {
     @OneToMany(() => UserAuthenticationAccount, uaa => uaa.user)

@@ -5,7 +5,7 @@ import {
 
 import {BaseModel} from "../../base-model";
 import {Organization} from "../organization";
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class OrganizationMottos extends BaseModel {
     @ManyToOne(() => Organization)

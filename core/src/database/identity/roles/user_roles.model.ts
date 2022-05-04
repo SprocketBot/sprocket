@@ -6,7 +6,7 @@ import {
 import {BaseModel} from "../../base-model";
 import {UserRolesType} from "./user_roles_type.enum";
 
-@Entity()
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class UserRoles extends BaseModel {
     @Column({

@@ -1,0 +1,5 @@
+export enum StreamType {
+    COMPETITIVE = "COMPETITIVE",
+    FRIENDLY = "FRIENDLY",
+    TOURNAMENT = "TOURNAMENT",
+}
