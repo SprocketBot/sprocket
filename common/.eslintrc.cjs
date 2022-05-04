@@ -2,7 +2,8 @@ module.exports = {
   env: {
     browser: true,
     es2021: true,
-    jest: true
+    jest: true,
+    node: true
   },
   extends: [
     "eslint:recommended",
@@ -20,7 +21,7 @@ module.exports = {
     "@typescript-eslint",
     "simple-import-sort"
   ],
-  ignorePatterns: [".eslintrc.js", "jest.config.js", "ormconfig.js", "scripts/*", "*.json"],
+  ignorePatterns: ["*.cjs", ".eslintrc.js", "jest.config.js", "ormconfig.js", "scripts/*", "*.json"],
   rules: {
     // Configure import sorting since eslint sort-imports doesn't autofix
     "simple-import-sort/imports": "error",
