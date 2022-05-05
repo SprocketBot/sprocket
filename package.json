@@ -12,7 +12,8 @@
   "license": "MIT",
   "scripts": {
     "postinstall": "npm run build",
-    "build": "npm run build --workspace=common"
+    "build": "npm run build --workspaces --if-available",
+    "build:common": "npm run build --workspace=common"
   },
   "workspaces": [
     "common",

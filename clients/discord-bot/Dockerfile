@@ -1,17 +1,7 @@
-FROM node:16-alpine AS base
+ARG BASE_IMAGE
+FROM $BASE_IMAGE AS test_image
+ENTRYPOINT npm run test --workspace=clients/discord-bot
 
-WORKDIR /app
-
-COPY package.json package-lock.json tsconfig.json tsconfig.build.json jest.config.js ./
-COPY config config
-COPY src src
-
-RUN npm ci --ignore-scripts
-
-FROM base AS test_image
-ENTRYPOINT npm run test
-
-FROM base AS app_image
-RUN npm i @nestjs/cli
-RUN npm run build
-ENTRYPOINT node dist/main.js
+FROM $BASE_IMAGE AS app_image
+RUN npm run build --workspace=clients/discord-bot
+ENTRYPOINT node /app/clients/discord-bot/dist/main.js

@@ -1,4 +1,4 @@
-name: on-changes
+name: "Autobuild Docker Containers"
 
 on:
   push:
@@ -8,19 +8,57 @@ on:
       - dev
 
 jobs:
-  discord_bot:
-    name: "Build Services"
+  build_core_image:
+    name: "Build base docker image"
     runs-on: ubuntu-latest
+    steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.docker_username }}
+          password: ${{ secrets.docker_access_token }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build and export
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./dockerfiles/node.Dockerfile
+          tags: ${{ secrets.docker_username }}/monorepo-core:${{ steps.extract_branch.outputs.branch }}
+          push: true
+          platforms: linux/amd64
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: sprocket-core
+          path: /tmp/core.tar
+
+  build_microservices:
+    name: "Build Node Services"
+    runs-on: ubuntu-latest
+    needs:
+      - build_core_image
     strategy:
       matrix:
         directory:
-          - [discord-bot, ./clients/discord-bot]
-          - [web, ./clients/web]
-          - [core, ./core]
-          - [image-generation-service, ./microservices/image-generation-service]
-          - [matchmaking-service, ./microservices/matchmaking-service]
+          - [ discord-bot, ./clients/discord-bot ]
+          - [ web, ./clients/web ]
+          - [ core, ./core ]
+          - [ image-generation-service, ./microservices/image-generation-service ]
+          - [ matchmaking-service, ./microservices/matchmaking-service ]
           # - [replay-parse-service, ./microservices/replay-parse-service]
-          - [server-analytics-service, ./microservices/server-analytics-service]
+          - [ server-analytics-service, ./microservices/server-analytics-service ]
 
     steps:
       - name: Extract branch name
@@ -40,8 +78,9 @@ jobs:
           filters: |
             change:
               ${{ matrix.directory[1] }}**
-      
+
       - name: Build project
+        if: steps.changes.outputs.change == 'true'
         uses: ./.github/reusable_workflows/build_container
         with:
           build_directory: ${{ matrix.directory[1] }}
@@ -49,3 +88,32 @@ jobs:
           docker_tag: ${{steps.extract_branch.outputs.branch}}
           docker_username: ${{ secrets.docker_username }}
           docker_access_token: ${{ secrets.docker_access_token }}
+          discord_webhook: ${{ secrets.discord_webhook }}
+
+  deploy_via_pulumi:
+    name: "Deploy via Pulumi"
+    runs-on: ubuntu-latest
+    needs:
+      - build_microservices
+    steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      - name: Deploy Sprocket
+        uses: ./.github/reusable_workflows/pulumi_up
+        with:
+          pulumi_cloud_url: ${{ secrets.pulumi_cloud_url }}
+          pulumi_stack_name: ${{ steps.extract_branch.outputs.branch }}
+          pulumi_config_passphrase: ${{ secrets.pulumi_config_passphrase }}
+          pulumi_aws_access_key: ${{ secrets.pulumi_s3_access_key }}
+          pulumi_aws_secret_key: ${{ secrets.pulumi_s3_secret_key }}
+          ssh_user: ${{ secrets.pulumi_ssh_user }}
+          ssh_key: ${{ secrets.pulumi_ssh_key }}
+          manager_node_hostname: ${{ secrets.manager_node_hostname }}
+          tailscale_ephemeral_authkey: ${{ secrets.tailscale_ephemeral_authkey }}
+          infra_deploy_key: ${{ secrets.infra_deploy_key }}
