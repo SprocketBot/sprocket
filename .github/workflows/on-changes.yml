@@ -77,7 +77,7 @@ jobs:
           list-files: none
           filters: |
             change:
-              ${{ matrix.directory[1] }}**
+              ${{ matrix.directory[1] }}/**
 
       - name: Build project
         if: steps.changes.outputs.change == 'true'
