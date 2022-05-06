@@ -2,6 +2,7 @@ export * from "./approval";
 export * from "./member";
 export * from "./member_platform_account";
 export * from "./member_profile";
+export * from "./member_restriction";
 export * from "./organization";
 export * from "./organization_mottos";
 export * from "./organization_profile";

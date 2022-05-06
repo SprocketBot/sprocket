@@ -1,0 +1,26 @@
+import {Field, ObjectType} from "@nestjs/graphql";
+import {
+    Column, Entity, OneToOne,
+} from "typeorm";
+
+import {BaseModel} from "../../base-model";
+import {Member} from "../member/member.model";
+import {MemberRestrictionType} from "./member_restriction_type.enum";
+@Entity({schema: "sprocket"})
+@ObjectType()
+export class MemberRestriction extends BaseModel {
+    @Column({
+        type: "enum",
+        enum: MemberRestrictionType,
+    })
+    @Field(() => MemberRestrictionType)
+    type: MemberRestrictionType;
+
+    @Column()
+    @Field(() => Date)
+    expiration: Date;
+
+    @OneToOne(() => Member)
+    @Field(() => Member)
+    member: Member;
+}
