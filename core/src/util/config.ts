@@ -39,11 +39,11 @@ export const config = {
         get password(): string { return _config.get<string>("cache.password") },
     },
     auth: {
-        get redirect_url(): string { return _config.get<string>("auth.redirect_url") },
+        get googleClientID(): string {return _config.get<string>("auth.googleClientID")},
+        get googleCallbackURL(): string { return _config.get<string>("auth.googleCallbackURL") },
         get jwt_expiry(): string { return _config.get<string>("auth.jwt_expiry") },
-        get discordClientId(): string { return _config.get<string>("auth.redirect_url") },
-        get discordSecret(): string { return _config.get<string>("auth.redirect_url") },
-        get discordCallbackURL(): string { return _config.get<string>("auth.redirect_url") },
+        get discordClientId(): string { return _config.get<string>("auth.discordClientID") },
+        get discordCallbackURL(): string { return _config.get<string>("auth.discordCallbackURL") },
     },
     redis: {
         get port(): string { return _config.get<string>("redis.port") },

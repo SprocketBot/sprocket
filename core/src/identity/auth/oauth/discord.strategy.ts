@@ -1,6 +1,8 @@
 import {Injectable} from "@nestjs/common";
 import {PassportStrategy} from "@nestjs/passport";
-import {Profile, Strategy} from "passport-discord";
+import {readFileSync} from "fs";
+import type {Profile} from "passport-discord";
+import {Strategy} from "passport-discord";
 import {UserAuthenticationAccountType} from "src/database";
 import {User} from "src/database/identity/user/user.model";
 import {UserService} from "src/identity/user/user.service";
@@ -15,19 +17,25 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
     constructor(private readonly userService: UserService) {
         super({
             clientID: config.auth.discordClientId,
-            clientSecret: config.auth.discordSecret,
+            clientSecret: readFileSync("./secret/discord-secret.txt").toString(),
             callbackURL: config.auth.discordCallbackURL,
             scope: ["identify", "email", "guilds", "guilds.members.read"],
         });
+        console.log("Client ID: ", config.auth.discordClientId);
+        console.log("Callback URL: ", config.auth.discordCallbackURL);
     }
 
     async validate(
-        accessToken: string, 
-        refreshToken: string, 
-        profile: Profile, 
-        done: Done): Promise<User | undefined> {
+        accessToken: string,
+        refreshToken: string,
+        profile: Profile,
+        done: Done,
+    ): Promise<User | undefined> {
         
-        const {id: discordId, email, discriminator, username, avatar } = profile;
+        console.log("Validatig Discord OAuth call.");
+        const {
+            id: discordId, email, discriminator, username, avatar,
+        } = profile;
 
         // First, check if the user already exists
         const queryResult = await this.userService.getUsers({where: {email: email} });

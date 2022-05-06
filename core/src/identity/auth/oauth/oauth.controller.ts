@@ -61,6 +61,7 @@ export class OauthController {
     }
     /* eslint-enable */
 
+    @Get("login")
     @Get("discord/redirect")
     @UseGuards(DiscordAuthGuard)
     async discordAuthRedirect(@Request() req: Req): Promise<AccessToken> {

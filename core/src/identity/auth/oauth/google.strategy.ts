@@ -15,9 +15,9 @@ export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
 
     constructor(private readonly userService: UserService) {
         super({
-            clientID: readFileSync("./secret/googleClientId.txt").toString(),
+            clientID: config.auth.googleClientID,
             clientSecret: readFileSync("./secret/googleSecret.txt").toString(),
-            callbackURL: config.auth.redirect_url,
+            callbackURL: config.auth.googleCallbackURL,
             scope: ["email", "profile"],
         });
     }

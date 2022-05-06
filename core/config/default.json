@@ -1,6 +1,6 @@
 {
   "transport": {
-    "url": "",
+    "url": "amqps://rabbitMq.dev.spr.ocket.cloud:80",
     "core_queue": "dev-core",
     "bot_queue": "dev-bot",
     "analytics_queue": "dev-analytics",
@@ -21,27 +21,27 @@
   "minio": {
     "endPoint": "nyc3.digitaloceanspaces.com",
     "bucketNames": {
-      "replays": ""
+      "replays": "sprocket"
     }
   },
   "celery": {
-    "broker": "",
-    "backend": "",
-    "queue": "dev-celery-default"
+    "broker": "amqps://rabbitMq.dev.spr.ocket.cloud:80",
+    "backend": "rediss://redis.dev.spr.ocket.cloud:80",
+    "queue": "legacy-import-celery-default"
   },
   "redis": {
-    "port": 0,
-    "host": "",
+    "port": 80,
+    "host": "redis.dev.spr.ocket.cloud",
     "prefix": ""
   },
   "gql": {
     "playground": false
   },
   "auth": {
-    "redirect_url": "http://localhost:3001/google/redirect",
+    "googleClientID": "869216731013-f9k3g59nh92e41bra8qbin43mjta7g1d.apps.googleusercontent.com",
+    "googleCallbackURL": "http://localhost:3001/google/redirect",
     "jwt_expiry": "1800s",
-    "discordClientID" : "1",
-    "discordSecret": "2",
-    "discordCallbackURL": "https://yourmom.com/redirect"
+    "discordClientID" : "846086564479631372",
+    "discordCallbackURL": "http://localhost:3001/login"
   }
 }
