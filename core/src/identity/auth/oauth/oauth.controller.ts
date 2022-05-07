@@ -54,7 +54,7 @@ export class OauthController {
     async googleAuthRedirect(@Request() req: Req): Promise<AccessToken> {
         const ourUser = req["user"] as User;
         const payload: AuthPayload = {
-            sub: "{ourUser.id}", username: req["username"], userId: ourUser.id,
+            sub: `${ourUser.id}`, username: req["username"], userId: ourUser.id,
         };
         console.log("On login: ");
         console.log(payload);
