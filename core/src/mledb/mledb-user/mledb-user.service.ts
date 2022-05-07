@@ -1,16 +1,13 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
+import {MLE_Player} from "src/database/mledb/Player.model";
 import {Repository} from "typeorm";
-import type {FindManyOptions} from "typeorm/find-options/FindManyOptions";
-
-import {IrrelevantFields, Player} from "../../database";
 @Injectable()
 export class MledbUserService {
-    constructor(
-        @InjectRepository(Player) private playerRepository: Repository<Player>,
-    ) {}
+    constructor(@InjectRepository(MLE_Player) private playerRepository: Repository<MLE_Player>) {}
 
-    async getUserByDiscordId(discordId: string): Promise<Player> {
-        return this.playerRepository.find({where: {discordId: discordId}})[0];
+    async getUserByDiscordId(id: string): Promise<MLE_Player> {
+        const players = await this.playerRepository.find({where: {discordId: id} });
+        return players[0];
     }
 }

@@ -4,7 +4,7 @@ import {
 } from "@nestjs/common";
 import {Request as Req} from "express";
 import type {User} from "src/database";
-import { MledbUserService } from "src/mledb/mledb-user/mledb-user.service";
+import {MledbUserService} from "src/mledb/mledb-user/mledb-user.service";
 
 import {GoogleAuthGuard} from "./google-auth.guard";
 import {JwtAuthGuard} from "./jwt-auth.guard";
@@ -53,7 +53,7 @@ export class OauthController {
         console.log("On login: ");
         console.log(payload);
         console.log(req["user"]);
-        const player = this.mledbUserService.getUserByDiscordId("myDiscordId");
+        const player = await this.mledbUserService.getUserByDiscordId("104751301690204160");
         console.log(player);
         return this.authService.login(payload);
     }
