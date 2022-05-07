@@ -3,13 +3,15 @@ import {PassportStrategy} from "@nestjs/passport";
 import {readFileSync} from "fs";
 import type {Profile} from "passport-discord";
 import {Strategy} from "passport-discord";
+import type {
+    IrrelevantFields,
+    UserAuthenticationAccount,
+    UserProfile,
+} from "src/database";
 import {UserAuthenticationAccountType} from "src/database";
 import {User} from "src/database/identity/user/user.model";
 import {UserService} from "src/identity/user/user.service";
-import type { IrrelevantFields } from "src/database";
-import type { UserProfile } from "src/database";
-import type { UserAuthenticationAccount } from "src/database";
-import {config} from "../../../util/config";
+import {config} from "src/util/config";
 
 export type Done = (err: string, user: User) => void;
 
@@ -39,7 +41,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
             id: discordId, email, discriminator, username, avatar,
         } = profile;
 
-        const mleGuild = profile.guilds.find(obj => obj.id == '172404472637685760');
+        const mleGuild = profile.guilds.find(obj => obj.id == "172404472637685760");
 
         if (mleGuild.length === 0) {
             console.log("Nope, sucka");
@@ -54,8 +56,8 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         if (queryResult.length === 0) {
             const userProfile: Omit<UserProfile, IrrelevantFields | "id" | "user"> = {
                 description: "Discord user",
-                email: email,
-                firstName: username,
+                email: email as string,
+                firstName: username as string,
                 lastName: "",
             };
 

@@ -6,9 +6,9 @@ import {Strategy} from "passport-google-oauth20";
 import {UserAuthenticationAccountType} from "src/database";
 import {User} from "src/database/identity/user/user.model";
 import {UserService} from "src/identity/user/user.service";
+import {config} from "src/util/config";
 
-import {config} from "../../../util/config";
-import type {GoogleProfileType} from "./types/profile.type";
+import type {GoogleProfileType} from "../types/profile.type";
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, "google") {

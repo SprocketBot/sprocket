@@ -8,12 +8,12 @@ import {UserAuthenticationAccountType} from "src/database";
 import {UserService} from "src/identity/user/user.service";
 import {MledbUserService} from "src/mledb/mledb-user/mledb-user.service";
 
-import {DiscordAuthGuard} from "./discord-auth.guard";
-import {GoogleAuthGuard} from "./google-auth.guard";
-import {JwtAuthGuard} from "./jwt-auth.guard";
+import {DiscordAuthGuard} from "./guards/discord-auth.guard";
+import {GoogleAuthGuard} from "./guards/google-auth.guard";
+import {JwtAuthGuard} from "./guards/jwt-auth.guard";
+import {RolesGuard} from "./guards/roles.guard";
 import {OauthService} from "./oauth.service";
 import {Roles} from "./roles.decorator";
-import {RolesGuard} from "./roles.guard";
 import type {AccessToken} from "./types/accesstoken.type";
 import type {AuthPayload} from "./types/payload.type";
 
@@ -84,7 +84,7 @@ export class OauthController {
             const player = await this.mledbUserService.getUserByDiscordId(discordAccount.accountId);
             const orgs = await this.mledbUserService.getUserOrgs(player);
             const payload = {
-                sub: discordAccount ? discordAccount.accountId : "{ourUser.id}",
+                sub: discordAccount.accountId,
                 username: userProfile.email,
                 userId: ourUser.id,
                 orgs: orgs,

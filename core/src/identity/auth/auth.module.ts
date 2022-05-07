@@ -9,11 +9,11 @@ import {AnonymousAuthService} from "./anonymous-auth/anonymous-auth.service";
 import {AuthModuleResolver} from "./auth.mod.resolver";
 import {GqlJwtGuard} from "./gql-auth-guard/gql-jwt-guard";
 import {JwtConstants} from "./oauth/constants";
-import {DiscordStrategy} from "./oauth/discord.strategy";
-import {GoogleStrategy} from "./oauth/google.strategy";
 import {OauthController} from "./oauth/oauth.controller";
-import {JwtStrategy} from "./oauth/oauth.jwt.strategy";
 import {OauthService} from "./oauth/oauth.service";
+import {DiscordStrategy} from "./oauth/strategies/discord.strategy";
+import {GoogleStrategy} from "./oauth/strategies/google.strategy";
+import {JwtStrategy} from "./oauth/strategies/oauth.jwt.strategy";
 
 @Module({
     imports: [
