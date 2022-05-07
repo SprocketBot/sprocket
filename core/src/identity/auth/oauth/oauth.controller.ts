@@ -3,10 +3,11 @@ import {
     UseGuards,
 } from "@nestjs/common";
 import {Request as Req} from "express";
-import type {User} from "src/database";
+import {User, UserAuthenticationAccountType} from "src/database";
+import {UserService} from "src/identity/user/user.service";
 
-import {GoogleAuthGuard} from "./google-auth.guard";
 import {DiscordAuthGuard} from "./discord-auth.guard";
+import {GoogleAuthGuard} from "./google-auth.guard";
 import {JwtAuthGuard} from "./jwt-auth.guard";
 import {OauthService} from "./oauth.service";
 import {Roles} from "./roles.decorator";
@@ -16,7 +17,7 @@ import type {AuthPayload} from "./types/payload.type";
 
 @Controller()
 export class OauthController {
-    constructor(private authService: OauthService) {}
+    constructor(private authService: OauthService, private userService: UserService) {}
 
     @Get("rolesTest")
     @UseGuards(RolesGuard)
@@ -65,13 +66,17 @@ export class OauthController {
     @Get("discord/redirect")
     @UseGuards(DiscordAuthGuard)
     async discordAuthRedirect(@Request() req: Req): Promise<AccessToken> {
-        const ourUser = req["user"] as User;
+        const ourUser = req.user as User;
+        const userProfile = await this.userService.getUserProfileForUser(ourUser.id);
+        const authAccounts = await this.userService.getUserAuthenticationAccountsForUser(ourUser.id);
+        console.log(authAccounts);
+        const discordAccount = authAccounts.find(obj => obj.accountType === UserAuthenticationAccountType.DISCORD);
+        console.log(discordAccount);
         const payload: AuthPayload = {
-            sub: ourUser.id, username: req["username"], userId: ourUser.id,
+            sub: (discordAccount ? discordAccount.id : ourUser.id), username: userProfile.email, userId: ourUser.id,
         };
         console.log("On discord login: ");
         console.log(payload);
-        console.log(req["user"]);
         return this.authService.login(payload);
     }
 }
