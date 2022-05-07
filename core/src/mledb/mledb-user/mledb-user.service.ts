@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {MLE_Player} from "src/database/mledb/Player.model";
-import { MLE_PlayerToOrg } from "src/database/mledb/PlayerToOrg.model";
+import {MLE_PlayerToOrg} from "src/database/mledb/PlayerToOrg.model";
 import {Repository} from "typeorm";
 @Injectable()
 export class MledbUserService {
@@ -16,7 +16,7 @@ export class MledbUserService {
     }
 
     async getUserOrgs(user: MLE_Player): Promise<MLE_PlayerToOrg[]> {
-        const playerToOrgs = await this.playerToOrgRepository.find({where: {playerId: user.id}});
+        const playerToOrgs = await this.playerToOrgRepository.find({where: {id: user.id} });
         return playerToOrgs;
     }
 }
