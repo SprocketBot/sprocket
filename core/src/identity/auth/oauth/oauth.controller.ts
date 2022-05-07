@@ -4,6 +4,7 @@ import {
 } from "@nestjs/common";
 import {Request as Req} from "express";
 import type {User} from "src/database";
+import { MledbUserService } from "src/mledb/mledb-user/mledb-user.service";
 
 import {GoogleAuthGuard} from "./google-auth.guard";
 import {JwtAuthGuard} from "./jwt-auth.guard";
@@ -15,7 +16,7 @@ import type {AuthPayload} from "./types/payload.type";
 
 @Controller()
 export class OauthController {
-    constructor(private authService: OauthService) {}
+    constructor(private authService: OauthService, private mledbUserService: MledbUserService) {}
 
     @Get("rolesTest")
     @UseGuards(RolesGuard)
@@ -52,6 +53,8 @@ export class OauthController {
         console.log("On login: ");
         console.log(payload);
         console.log(req["user"]);
+        const player = this.mledbUserService.getUserByDiscordId("myDiscordId");
+        console.log(player);
         return this.authService.login(payload);
     }
     /* eslint-enable */
