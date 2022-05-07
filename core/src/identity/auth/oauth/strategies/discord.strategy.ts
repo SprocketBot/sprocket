@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {PassportStrategy} from "@nestjs/passport";
 import {readFileSync} from "fs";
-import type {Profile} from "passport-discord";
+import type {GuildInfo, Profile} from "passport-discord";
 import {Strategy} from "passport-discord";
 import type {
     IrrelevantFields,
@@ -14,7 +14,7 @@ import {UserService} from "src/identity/user/user.service";
 import {config} from "src/util/config";
 
 export type Done = (err: string, user: User) => void;
-
+const mleGuildId = "172404472637685760";
 @Injectable()
 export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
 
@@ -34,10 +34,12 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         done: Done,
     ): Promise<User | undefined> {
 
-        const mleGuild = profile.guilds.find(obj => obj.id == "172404472637685760");
+        const guilds: GuildInfo[] = profile.guilds as GuildInfo[];
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const mleGuild: GuildInfo | undefined = guilds.find(guild => guild.id === mleGuildId);
 
         let user = new User();
-        if (mleGuild.length === 0) {
+        if (!mleGuild) {
             // This user is not in MLE, abort.
             return user;
         }
@@ -56,22 +58,19 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
 
             const authAcct: Omit<UserAuthenticationAccount, IrrelevantFields | "id" | "user"> = {
                 accountType: UserAuthenticationAccountType.DISCORD,
-                accountId: profile.discordId as string,
+                accountId: profile.id as string,
                 oauthToken: accessToken,
             };
             user = await this.userService.createUser(userProfile, [authAcct]);
         } else {
             // Else, return the one we found
             user = queryResult[0];
-            let discordAccount: UserAuthenticationAccount | undefined;
             const authAccounts = await this.userService.getUserAuthenticationAccountsForUser(user.id);
-            if (authAccounts) {
-                discordAccount = authAccounts.find(obj => obj.accountType === UserAuthenticationAccountType.DISCORD);
-            }
+            const discordAccount = authAccounts.find(obj => obj.accountType === UserAuthenticationAccountType.DISCORD);
             if (!discordAccount) {
                 const authAcct: Omit<UserAuthenticationAccount, IrrelevantFields | "id" | "user"> = {
                     accountType: UserAuthenticationAccountType.DISCORD,
-                    accountId: profile.discordId as string,
+                    accountId: profile.id as string,
                     oauthToken: accessToken,
                 };
                 user = await this.userService.addAuthenticationAccounts(user.id, [authAcct]);
