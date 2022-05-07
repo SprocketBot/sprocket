@@ -14,6 +14,7 @@ import {ReplayParseModule} from "./replay-parse/replay-parse.module";
 import {SchedulingModule} from "./scheduling/scheduling.module";
 import {ScrimModule} from "./scrim/scrim.module";
 import {config} from "./util/config";
+import { MledbModule } from './mledb/mledb.module';
 
 
 @Module({
@@ -45,6 +46,7 @@ import {config} from "./util/config";
         ScrimModule,
         AuthModule,
         SchedulingModule,
+        MledbModule,
     ],
     providers: [UserService],
 })

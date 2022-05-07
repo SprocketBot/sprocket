@@ -1,6 +1,7 @@
 import {Module} from "@nestjs/common";
 import {JwtModule} from "@nestjs/jwt";
 import {PassportModule} from "@nestjs/passport";
+import { MledbModule } from "src/mledb/mledb.module";
 
 import {config} from "../../util/config";
 import {IdentityModule} from "../identity.module";
@@ -22,6 +23,7 @@ import {OauthService} from "./oauth/oauth.service";
             secret: JwtConstants.secret,
             signOptions: {expiresIn: config.auth.jwt_expiry},
         }),
+        MledbModule,
     ],
     providers: [
         AuthModuleResolver,

@@ -5,6 +5,7 @@ import {
 import {Request as Req} from "express";
 import {User, UserAuthenticationAccountType} from "src/database";
 import {UserService} from "src/identity/user/user.service";
+import {MledbUserService} from "src/mledb/mledb-user/mledb-user.service";
 
 import {DiscordAuthGuard} from "./discord-auth.guard";
 import {GoogleAuthGuard} from "./google-auth.guard";
@@ -17,7 +18,7 @@ import type {AuthPayload} from "./types/payload.type";
 
 @Controller()
 export class OauthController {
-    constructor(private authService: OauthService, private userService: UserService) {}
+    constructor(private authService: OauthService, private userService: UserService, private mledbUserService: MledbUserService) {}
 
     @Get("rolesTest")
     @UseGuards(RolesGuard)
@@ -58,6 +59,10 @@ export class OauthController {
         console.log("On login: ");
         console.log(payload);
         console.log(req["user"]);
+        const player = await this.mledbUserService.getUserByDiscordId("104751301690204160");
+        const orgs = await this.mledbUserService.getUserOrgs(player);
+        console.log(player);
+        console.log(orgs);
         return this.authService.login(payload);
     }
     /* eslint-enable */
