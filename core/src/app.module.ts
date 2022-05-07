@@ -9,12 +9,12 @@ import {GameModule} from "./game/game.module";
 import {AuthModule} from "./identity/auth/auth.module";
 import {IdentityModule} from "./identity/identity.module";
 import {UserService} from "./identity/user/user.service";
+import {MledbInterfaceModule} from "./mledb/mledb-interface.module";
 import {OrganizationModule} from "./organization/organization.module";
 import {ReplayParseModule} from "./replay-parse/replay-parse.module";
 import {SchedulingModule} from "./scheduling/scheduling.module";
 import {ScrimModule} from "./scrim/scrim.module";
 import {config} from "./util/config";
-import { MledbModule } from './mledb/mledb.module';
 
 
 @Module({
@@ -46,7 +46,7 @@ import { MledbModule } from './mledb/mledb.module';
         ScrimModule,
         AuthModule,
         SchedulingModule,
-        MledbModule,
+        MledbInterfaceModule,
     ],
     providers: [UserService],
 })
