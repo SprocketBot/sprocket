@@ -3,7 +3,8 @@ import {
     UseGuards,
 } from "@nestjs/common";
 import {Request as Req} from "express";
-import {User, UserAuthenticationAccountType} from "src/database";
+import type {User, UserAuthenticationAccount} from "src/database";
+import {UserAuthenticationAccountType} from "src/database";
 import {UserService} from "src/identity/user/user.service";
 import {MledbUserService} from "src/mledb/mledb-user/mledb-user.service";
 
@@ -18,7 +19,11 @@ import type {AuthPayload} from "./types/payload.type";
 
 @Controller()
 export class OauthController {
-    constructor(private authService: OauthService, private userService: UserService, private mledbUserService: MledbUserService) {}
+    constructor(
+        private authService: OauthService,
+        private userService: UserService,
+        private mledbUserService: MledbUserService,
+    ) {}
 
     @Get("rolesTest")
     @UseGuards(RolesGuard)
@@ -73,15 +78,24 @@ export class OauthController {
     async discordAuthRedirect(@Request() req: Req): Promise<AccessToken> {
         const ourUser = req.user as User;
         const userProfile = await this.userService.getUserProfileForUser(ourUser.id);
-        const authAccounts = await this.userService.getUserAuthenticationAccountsForUser(ourUser.id);
-        console.log(authAccounts);
+        const authAccounts: UserAuthenticationAccount[] = await this.userService.getUserAuthenticationAccountsForUser(ourUser.id);
         const discordAccount = authAccounts.find(obj => obj.accountType === UserAuthenticationAccountType.DISCORD);
-        console.log(discordAccount);
-        const payload: AuthPayload = {
-            sub: (discordAccount ? discordAccount.accountId : "{ourUser.id}"), username: userProfile.email, userId: ourUser.id,
+        if (discordAccount) {
+            const player = await this.mledbUserService.getUserByDiscordId(discordAccount.accountId);
+            const orgs = await this.mledbUserService.getUserOrgs(player);
+            const payload = {
+                sub: discordAccount ? discordAccount.accountId : "{ourUser.id}",
+                username: userProfile.email,
+                userId: ourUser.id,
+                orgs: orgs,
+            };
+            console.log("On discord login: ");
+            console.log(payload);
+            return this.authService.loginDiscord(payload);
+        }
+        return {
+            access_token: "Invalid user",
         };
-        console.log("On discord login: ");
-        console.log(payload);
-        return this.authService.login(payload);
+
     }
 }
