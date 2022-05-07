@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { MledbService } from './mledb/mledb.service';
+import { MledbUserService } from './mledb-user/mledb-user.service';
 
 @Module({
-  providers: [MledbService]
+  providers: [MledbUserService]
 })
 export class MledbModule {}
