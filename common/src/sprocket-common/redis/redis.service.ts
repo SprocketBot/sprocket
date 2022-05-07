@@ -19,7 +19,8 @@ export class RedisService {
             password: config.redis.password,
             lazyConnect: true,
             tls: {
-                host: config.redis.host
+                host: config.redis.host,
+                servername: config.redis.host
             }
         });
         this.logger.log(`Connecting to redis @ ${config.redis.host}`);

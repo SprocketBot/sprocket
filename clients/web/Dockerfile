@@ -1,16 +1,8 @@
-FROM node:16-alpine AS base
+ARG BASE_IMAGE
+FROM $BASE_IMAGE AS test_image
+ENTRYPOINT npm run test --workspace=clients/web
 
-WORKDIR /app
-
-COPY package.json package-lock.json tsconfig.json svelte.config.js tailwind.config.cjs postcss.config.cjs ./
-COPY src src
-COPY static static
-
-RUN npm ci --ignore-scripts
-
-FROM base AS test_image
-ENTRYPOINT npm run test
-
-FROM base AS app_image
-RUN cp src/config.template.json src/config.json && npm run build
-ENTRYPOINT node /app/build/index.js
+FROM $BASE_IMAGE AS app_image
+RUN cp ./clients/web/src/config.template.json ./clients/web/src/config.json
+RUN npm run build --workspace=clients/web
+ENTRYPOINT node /app/clients/web/build/index.js
