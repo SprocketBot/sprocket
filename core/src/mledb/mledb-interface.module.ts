@@ -16,4 +16,4 @@ import {MledbUserService} from "./mledb-user/mledb-user.service";
     providers: [MledbUserService],
     exports: [MledbUserService],
 })
-export class MledbModule {}
+export class MledbInterfaceModule {}
