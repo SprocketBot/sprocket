@@ -53,24 +53,16 @@ export class OauthController {
     @UseGuards(DiscordAuthGuard)
     async discordAuth(): Promise<void> {}
 
-    /* eslint-disable*/
     @Get("google/redirect")
     @UseGuards(GoogleAuthGuard)
     async googleAuthRedirect(@Request() req: Req): Promise<AccessToken> {
-        const ourUser = req["user"] as User;
+        const ourUser = req.user as User;
+        const userProfile = await this.userService.getUserProfileForUser(ourUser.id);
         const payload: AuthPayload = {
-            sub: `${ourUser.id}`, username: req["username"], userId: ourUser.id,
+            sub: `${ourUser.id}`, username: userProfile.email, userId: ourUser.id,
         };
-        console.log("On login: ");
-        console.log(payload);
-        console.log(req["user"]);
-        const player = await this.mledbUserService.getUserByDiscordId("104751301690204160");
-        const orgs = await this.mledbUserService.getUserOrgs(player);
-        console.log(player);
-        console.log(orgs);
         return this.authService.login(payload);
     }
-    /* eslint-enable */
 
     @Get("login")
     @Get("discord/redirect")
@@ -82,20 +74,18 @@ export class OauthController {
         const discordAccount = authAccounts.find(obj => obj.accountType === UserAuthenticationAccountType.DISCORD);
         if (discordAccount) {
             const player = await this.mledbUserService.getUserByDiscordId(discordAccount.accountId);
-            const orgs = await this.mledbUserService.getUserOrgs(player);
+            const player_to_orgs = await this.mledbUserService.getUserOrgs(player);
+            const orgs = player_to_orgs.map(pto => pto.orgTeam);
             const payload = {
                 sub: discordAccount.accountId,
                 username: userProfile.email,
                 userId: ourUser.id,
                 orgs: orgs,
             };
-            console.log("On discord login: ");
-            console.log(payload);
             return this.authService.loginDiscord(payload);
         }
         return {
             access_token: "Invalid user",
         };
-
     }
 }
