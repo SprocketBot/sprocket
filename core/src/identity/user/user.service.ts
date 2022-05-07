@@ -7,7 +7,7 @@ import type {IrrelevantFields} from "../../database";
 import {
     User, UserAuthenticationAccount, UserProfile,
 } from "../../database";
-import { UserAuthenticationAccountResolver } from "../user-authentication-account/user-authentication-account.resolver";
+
 @Injectable()
 export class UserService {
     constructor(
@@ -49,6 +49,8 @@ export class UserService {
         const authAccts = authenticationAccounts.map(acct => this.userAuthAcctRepository.create(acct));
         const user = await this.userRepository.findOneOrFail(id);
         user.authenticationAccounts = authAccts;
+        authenticationAccounts.map(async acct => this.userAuthAcctRepository.save(acct));
+        await this.userRepository.save(user);
         return user;
     }
 
@@ -60,7 +62,7 @@ export class UserService {
      * for the user.
      */
     async getUserAuthenticationAccountsForUser(userId: number): Promise<UserAuthenticationAccount[]> {
-        const authAccounts = await this.userAuthAcctRepository.find({where: {id: userId} });// , {relations: ["user"] });
+        const authAccounts = await this.userAuthAcctRepository.find({where: {id: userId} });
         return authAccounts;
     }
 

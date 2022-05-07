@@ -53,7 +53,7 @@ export class OauthController {
     async googleAuthRedirect(@Request() req: Req): Promise<AccessToken> {
         const ourUser = req["user"] as User;
         const payload: AuthPayload = {
-            sub: ourUser.id, username: req["username"], userId: ourUser.id,
+            sub: "{ourUser.id}", username: req["username"], userId: ourUser.id,
         };
         console.log("On login: ");
         console.log(payload);
@@ -73,7 +73,7 @@ export class OauthController {
         const discordAccount = authAccounts.find(obj => obj.accountType === UserAuthenticationAccountType.DISCORD);
         console.log(discordAccount);
         const payload: AuthPayload = {
-            sub: (discordAccount ? discordAccount.id : ourUser.id), username: userProfile.email, userId: ourUser.id,
+            sub: (discordAccount ? discordAccount.accountId : "{ourUser.id}"), username: userProfile.email, userId: ourUser.id,
         };
         console.log("On discord login: ");
         console.log(payload);

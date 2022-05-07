@@ -69,20 +69,30 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
             // Else, return the one we found
             user = queryResult[0];
             let discordAccount: UserAuthenticationAccount | undefined;
-            if (user.authenticationAccounts) {
-                discordAccount = user.authenticationAccounts.find(obj => obj.accountType === UserAuthenticationAccountType.DISCORD);
+            const authAccounts = await this.userService.getUserAuthenticationAccountsForUser(user.id);
+            if (authAccounts) {
+                discordAccount = authAccounts.find(obj => obj.accountType === UserAuthenticationAccountType.DISCORD);
+                console.log("Checking for a discord acccount.");
+            } else {
+                console.log("No auth accounts for this user.");
             }
             if (!discordAccount) {
+                console.log("Adding discord account to user: ", user);
                 const authAcct: Omit<UserAuthenticationAccount, IrrelevantFields | "id" | "user"> = {
                     accountType: UserAuthenticationAccountType.DISCORD,
                     accountId: discordId as string,
                     oauthToken: accessToken,
                 };
                 user = await this.userService.addAuthenticationAccounts(user.id, [authAcct]);
+                console.log("Account to be added: ", authAcct);
+                console.log("After adding auth account: ", user);
+            } else {
+                console.log("Discord account already exists?");
             }
         }
 
         done("", user);
+        console.log("Done validating user.");
         return user;
     }
 }
