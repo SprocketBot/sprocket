@@ -54,7 +54,9 @@ export class OauthController {
         console.log(payload);
         console.log(req["user"]);
         const player = await this.mledbUserService.getUserByDiscordId("104751301690204160");
+        const orgs = await this.mledbUserService.getUserOrgs(player);
         console.log(player);
+        console.log(orgs);
         return this.authService.login(payload);
     }
     /* eslint-enable */
