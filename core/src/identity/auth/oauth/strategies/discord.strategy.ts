@@ -25,8 +25,6 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
             callbackURL: config.auth.discordCallbackURL,
             scope: ["identify", "email", "guilds", "guilds.members.read"],
         });
-        console.log("Client ID: ", config.auth.discordClientId);
-        console.log("Callback URL: ", config.auth.discordCallbackURL);
     }
 
     async validate(
@@ -35,35 +33,30 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         profile: Profile,
         done: Done,
     ): Promise<User | undefined> {
-        
-        console.log("Validating Discord OAuth call.");
-        const {
-            id: discordId, email, discriminator, username, avatar,
-        } = profile;
 
         const mleGuild = profile.guilds.find(obj => obj.id == "172404472637685760");
 
-        if (mleGuild.length === 0) {
-            console.log("Nope, sucka");
-        } else {
-            console.log("This person is a member of MLE.");
-        }
-        // First, check if the user already exists
-        const queryResult = await this.userService.getUsers({where: {email: email} });
-
         let user = new User();
+        if (mleGuild.length === 0) {
+            // This user is not in MLE, abort.
+            return user;
+        }
+
+        // First, check if the user already exists
+        const queryResult = await this.userService.getUsers({where: {email: profile.email as string} });
+
         // If no users returned from query, create a new one
         if (queryResult.length === 0) {
             const userProfile: Omit<UserProfile, IrrelevantFields | "id" | "user"> = {
                 description: "Discord user",
-                email: email as string,
-                firstName: username as string,
+                email: profile.email as string,
+                firstName: profile.username as string,
                 lastName: "",
             };
 
             const authAcct: Omit<UserAuthenticationAccount, IrrelevantFields | "id" | "user"> = {
                 accountType: UserAuthenticationAccountType.DISCORD,
-                accountId: discordId as string,
+                accountId: profile.discordId as string,
                 oauthToken: accessToken,
             };
             user = await this.userService.createUser(userProfile, [authAcct]);
@@ -74,27 +67,18 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
             const authAccounts = await this.userService.getUserAuthenticationAccountsForUser(user.id);
             if (authAccounts) {
                 discordAccount = authAccounts.find(obj => obj.accountType === UserAuthenticationAccountType.DISCORD);
-                console.log("Checking for a discord acccount.");
-            } else {
-                console.log("No auth accounts for this user.");
             }
             if (!discordAccount) {
-                console.log("Adding discord account to user: ", user);
                 const authAcct: Omit<UserAuthenticationAccount, IrrelevantFields | "id" | "user"> = {
                     accountType: UserAuthenticationAccountType.DISCORD,
-                    accountId: discordId as string,
+                    accountId: profile.discordId as string,
                     oauthToken: accessToken,
                 };
                 user = await this.userService.addAuthenticationAccounts(user.id, [authAcct]);
-                console.log("Account to be added: ", authAcct);
-                console.log("After adding auth account: ", user);
-            } else {
-                console.log("Discord account already exists?");
             }
         }
 
         done("", user);
-        console.log("Done validating user.");
         return user;
     }
 }
