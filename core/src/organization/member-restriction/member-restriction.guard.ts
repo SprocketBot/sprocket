@@ -2,7 +2,7 @@ import type {CanActivate, ExecutionContext} from "@nestjs/common";
 import {Injectable} from "@nestjs/common";
 import {GqlExecutionContext} from "@nestjs/graphql";
 import {GraphQLError} from "graphql";
-import {MoreThan} from "typeorm";
+import {IsNull, MoreThan} from "typeorm";
 
 import {MemberRestrictionType} from "../../database";
 import type {UserPayload} from "../../identity/auth/oauth/types/userpayload.type";
@@ -27,11 +27,19 @@ export abstract class MemberRestrictionGuard implements CanActivate {
         if (!member) return false;
 
         const restrictions = await this.memberRestrictionService.getMemberRestrictions({
-            where: {
-                type: this.type,
-                expiration: MoreThan(new Date()),
-                member: {id: member.id},
-            },
+            where: [
+                {
+                    type: this.type,
+                    expiration: MoreThan(new Date()),
+                    manualExpiration: IsNull(),
+                    member: {id: member.id},
+                },
+                {
+                    type: this.type,
+                    manualExpiration: MoreThan(new Date()),
+                    member: {id: member.id},
+                },
+            ],
         });
 
         if (restrictions.length) {

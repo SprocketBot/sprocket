@@ -20,6 +20,10 @@ export class MemberRestriction extends BaseModel {
     @Field(() => Date)
     expiration: Date;
 
+    @Column({nullable: true})
+    @Field(() => Date, {nullable: true})
+    manualExpiration?: Date;
+
     @OneToOne(() => Member)
     @Field(() => Member)
     member: Member;
