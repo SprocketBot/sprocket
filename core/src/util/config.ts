@@ -39,13 +39,17 @@ export const config = {
         get password(): string { return _config.get<string>("cache.password") },
     },
     auth: {
-        get googleClientID(): string {return _config.get<string>("auth.googleClientID")},
-        get googleSecret(): string {return _config.get<string>("auth.googleSecret")},
-        get googleCallbackURL(): string { return _config.get<string>("auth.googleCallbackURL") },
+        google: {
+            get clientId(): string {return readFileSync("./secret/googleClientId.txt").toString()},
+            get secret(): string {return readFileSync("./secret/googleSecret.txt").toString()},
+            get callbackUrl(): string { return _config.get<string>("auth.googleCallbackURL") }
+        },
+        discord: {
+            get clientId(): string { return readFileSync("./secret/discord-client.txt").toString() },
+            get secret(): string { return readFileSync("./secret/discord-secret.txt").toString() },
+            get callbackURL(): string { return _config.get<string>("auth.discordCallbackURL") },
+        },
         get jwt_expiry(): string { return _config.get<string>("auth.jwt_expiry") },
-        get discordClientId(): string { return _config.get<string>("auth.discordClientID") },
-        get discordSecret(): string { return _config.get<string>("auth.discordSecret")},
-        get discordCallbackURL(): string { return _config.get<string>("auth.discordCallbackURL") },
     },
     redis: {
         get port(): string { return _config.get<string>("redis.port") },
