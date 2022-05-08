@@ -7,7 +7,7 @@ import {IsNull, MoreThan} from "typeorm";
 import {MemberRestrictionType} from "../../database";
 import type {UserPayload} from "../../identity/auth/oauth/types/userpayload.type";
 import {MemberService} from "../member/member.service";
-import {MemberRestrictionService} from "./member-restriction.service";
+import {MemberRestrictionService} from ".";
 
 @Injectable()
 export abstract class MemberRestrictionGuard implements CanActivate {

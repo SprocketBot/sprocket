@@ -15,7 +15,7 @@ import {GameModeService} from "../game/game-mode/game-mode.service";
 import {CurrentUser} from "../identity/auth/current-user.decorator";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard/gql-jwt-guard";
 import {UserPayload} from "../identity/auth/oauth/types/userpayload.type";
-import {QueueBanGuard} from "../organization/member-restriction/member-restriction.guard";
+import {QueueBanGuard} from "../organization/member-restriction";
 import {MatchService} from "../scheduling/match/match.service";
 import {RoundService} from "../scheduling/round/round.service";
 import {ScrimPubSub} from "./constants";
