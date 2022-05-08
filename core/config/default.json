@@ -1,12 +1,12 @@
 {
   "transport": {
     "url": "",
-    "core_queue": "dev-core",
-    "bot_queue": "dev-bot",
-    "analytics_queue": "dev-analytics",
-    "matchmaking_queue": "dev-matchmaking",
-    "events_queue":  "dev-events",
-    "events_application_key": "sprocket-core"
+    "core_queue": "",
+    "bot_queue": "",
+    "analytics_queue": "",
+    "matchmaking_queue": "",
+    "events_queue":  "",
+    "events_application_key": ""
   },
   "logger": {
     "levels": true
@@ -27,10 +27,10 @@
   "celery": {
     "broker": "",
     "backend": "",
-    "queue": "dev-celery-default"
+    "queue": ""
   },
   "redis": {
-    "port": 0,
+    "port": 80,
     "host": "",
     "prefix": ""
   },
@@ -38,7 +38,12 @@
     "playground": false
   },
   "auth": {
-    "redirect_url": "http://localhost:3001/google/redirect",
-    "jwt_expiry": "1800s"
+    "googleClientID": "",
+    "googleSecret" : "",
+    "googleCallbackURL": "",
+    "jwt_expiry": "",
+    "discordClientID" : "",
+    "discordSecret" : "",
+    "discordCallbackURL": ""
   }
 }

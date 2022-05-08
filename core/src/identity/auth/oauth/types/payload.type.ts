@@ -1,5 +1,5 @@
 export class AuthPayload {
-    sub: number;
+    sub: string;
 
     username: string;
 

@@ -15,8 +15,8 @@ export class MledbUserService {
         return players[0];
     }
 
-    async getUserOrgs(user: MLE_Player): Promise<MLE_PlayerToOrg[]> {
-        const playerToOrgs = await this.playerToOrgRepository.find({where: {id: user.id} });
+    async getUserOrgs(player: MLE_Player): Promise<MLE_PlayerToOrg[]> {
+        const playerToOrgs = await this.playerToOrgRepository.find({relations: ["player"], where: {player: player} });
         return playerToOrgs;
     }
 }

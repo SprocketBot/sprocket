@@ -7,7 +7,7 @@ import {BaseModel} from "../../base-model";
 import {User} from "../user/user.model";
 import {UserAuthenticationAccountType} from "./user_authentication_account_type.enum";
 
-@Entity({ schema: "sprocket" })
+@Entity({schema: "sprocket"})
 @Unique("UserAccounts", ["accountId", "accountType"])
 @ObjectType()
 export class UserAuthenticationAccount extends BaseModel {

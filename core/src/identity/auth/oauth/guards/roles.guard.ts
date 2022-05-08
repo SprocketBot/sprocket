@@ -6,7 +6,7 @@ import {AuthGuard} from "@nestjs/passport";
 import {Request as Req} from "express";
 import {UserService} from "src/identity/user/user.service";
 
-import type {AuthPayload} from "./types/payload.type";
+import type {AuthPayload} from "../types/payload.type";
 
 @Injectable()
 export class RolesGuard extends AuthGuard("jwt") {
@@ -47,7 +47,7 @@ export class RolesGuard extends AuthGuard("jwt") {
         const token = this.fromHeaderOrQueryString(request);
         const jwtPayload: AuthPayload = this.jwtService.decode(token) as AuthPayload;
         if (jwtPayload.sub && super.canActivate(context) as boolean) {
-            const ourUser = await this.userService.getUserById(jwtPayload.sub);
+            const ourUser = await this.userService.getUserById(jwtPayload.userId);
             return this.matchRoles(roles, ourUser.type);
         }
         return false;

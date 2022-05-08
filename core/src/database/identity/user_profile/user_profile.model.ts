@@ -17,16 +17,20 @@ export class UserProfile extends BaseModel {
     @Field(() => String)
     email: string;
 
-    @Column()
+    @Column({ default: "Sprocket User" })
     @Field(() => String)
-    firstName: string;
+    displayName: string;
 
-    @Column()
-    @Field(() => String)
-    lastName: string;
+    @Column({ nullable: true })
+    @Field(() => String, { nullable: true })
+    firstName?: string;
 
-    @Column({default: ""})
+    @Column({ nullable: true })
+    @Field(() => String, { nullable: true })
+    lastName?: string;
+
+    @Column({nullable: true})
     @Field(() => String)
-    description: string;
+    description?: string;
 
 }
