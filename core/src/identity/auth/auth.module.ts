@@ -1,6 +1,7 @@
 import {Module} from "@nestjs/common";
 import {JwtModule} from "@nestjs/jwt";
 import {PassportModule} from "@nestjs/passport";
+import { AnalyticsModule } from "@sprocketbot/common";
 import {MledbInterfaceModule} from "src/mledb/mledb-interface.module";
 
 import {config} from "../../util/config";
@@ -24,6 +25,7 @@ import {JwtStrategy} from "./oauth/strategies/oauth.jwt.strategy";
             signOptions: {expiresIn: config.auth.jwt_expiry},
         }),
         MledbInterfaceModule,
+        AnalyticsModule
     ],
     providers: [
         AuthModuleResolver,
