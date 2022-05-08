@@ -3,15 +3,15 @@ import {PassportStrategy} from "@nestjs/passport";
 import {readFileSync} from "fs";
 import type {GuildInfo, Profile} from "passport-discord";
 import {Strategy} from "passport-discord";
-import type {IrrelevantFields, UserAuthenticationAccount, UserProfile,} from "src/database";
-import {UserAuthenticationAccountType} from "src/database";
-import {User} from "src/database/identity/user/user.model";
-import {UserService} from "src/identity/user/user.service";
-import {config} from "src/util/config";
+import type {IrrelevantFields, UserAuthenticationAccount, UserProfile,} from "../../../../database";
+import {UserAuthenticationAccountType} from "../../../../database";
+import {User} from "../../../../database/identity/user/user.model";
+import {UserService} from "../../../../identity/user/user.service";
+import {config} from "../../../../util/config";
 import {AnalyticsEndpoint, AnalyticsService} from "@sprocketbot/common";
 
 export type Done = (err: string, user: User) => void;
-const mleGuildId = "172404472637685760";
+const MLE_GUILD_ID = "172404472637685760";
 
 @Injectable()
 export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
@@ -22,7 +22,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
                 private readonly analyticsService: AnalyticsService) {
         super({
             clientID: config.auth.discordClientId,
-            clientSecret: readFileSync("./secret/discord-secret.txt").toString(),
+            clientSecret: config.auth.discordSecret,
             callbackURL: config.auth.discordCallbackURL,
             scope: ["identify", "email", "guilds", "guilds.members.read"],
         });
@@ -37,12 +37,12 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
 
         const guilds: GuildInfo[] = profile.guilds as GuildInfo[];
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const mleGuild: GuildInfo | undefined = guilds.find(guild => guild.id === mleGuildId);
+        const mleGuild: GuildInfo | undefined = guilds.find(guild => guild.id === MLE_GUILD_ID);
 
         let user = new User();
         if (!mleGuild) {
             // This user is not in MLE, abort.
-            return user;
+            return undefined;
         }
 
         // First, check if the user already exists

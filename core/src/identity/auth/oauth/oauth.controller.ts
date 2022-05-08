@@ -1,12 +1,12 @@
 import {
-    Controller, Get, Request,
+    Controller, ForbiddenException, Get, Request,
     UseGuards,
 } from "@nestjs/common";
 import {Request as Req} from "express";
-import type {User, UserAuthenticationAccount} from "src/database";
-import {UserAuthenticationAccountType} from "src/database";
-import {UserService} from "src/identity/user/user.service";
-import {MledbUserService} from "src/mledb/mledb-user/mledb-user.service";
+import type {User, UserAuthenticationAccount} from "../../../database";
+import {UserAuthenticationAccountType} from "../../../database";
+import {UserService} from "../../../identity/user/user.service";
+import {MledbUserService} from "../../../mledb/mledb-user/mledb-user.service";
 
 import {DiscordAuthGuard} from "./guards/discord-auth.guard";
 import {GoogleAuthGuard} from "./guards/google-auth.guard";
@@ -48,7 +48,6 @@ export class OauthController {
     @UseGuards(GoogleAuthGuard)
     async googleAuth(): Promise<void> {}
 
-    @Get()
     @Get("discord")
     @UseGuards(DiscordAuthGuard)
     async discordAuth(): Promise<void> {}
@@ -59,7 +58,7 @@ export class OauthController {
         const ourUser = req.user as User;
         const userProfile = await this.userService.getUserProfileForUser(ourUser.id);
         const payload: AuthPayload = {
-            sub: `${ourUser.id}`, username: userProfile.email, userId: ourUser.id,
+            sub: ourUser.id.toString(), username: userProfile.email, userId: ourUser.id,
         };
         return this.authService.login(payload);
     }
@@ -84,8 +83,6 @@ export class OauthController {
             };
             return this.authService.loginDiscord(payload);
         }
-        return {
-            access_token: "Invalid user",
-        };
+        throw new ForbiddenException;    
     }
 }

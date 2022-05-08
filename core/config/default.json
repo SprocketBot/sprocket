@@ -1,47 +1,49 @@
 {
   "transport": {
-    "url": "amqps://rabbitMq.dev.spr.ocket.cloud:80",
-    "core_queue": "dev-core",
-    "bot_queue": "dev-bot",
-    "analytics_queue": "dev-analytics",
-    "matchmaking_queue": "dev-matchmaking",
-    "events_queue":  "dev-events",
-    "events_application_key": "sprocket-core"
+    "url": "",
+    "core_queue": "",
+    "bot_queue": "",
+    "analytics_queue": "",
+    "matchmaking_queue": "",
+    "events_queue":  "",
+    "events_application_key": ""
   },
   "logger": {
     "levels": true
   },
   "db": {
-    "host": "spr.ocket.cloud",
-    "port": "30000",
-    "username": "sprocket_dev",
-    "database": "sprocket_dev",
+    "host": "",
+    "port": "",
+    "username": "",
+    "database": "",
     "enable_logs": false
   },
   "minio": {
-    "endPoint": "nyc3.digitaloceanspaces.com",
+    "endPoint": "",
     "bucketNames": {
-      "replays": "sprocket"
+      "replays": ""
     }
   },
   "celery": {
-    "broker": "amqps://rabbitMq.dev.spr.ocket.cloud:80",
-    "backend": "rediss://redis.dev.spr.ocket.cloud:80",
-    "queue": "legacy-import-celery-default"
+    "broker": "",
+    "backend": "",
+    "queue": ""
   },
   "redis": {
     "port": 80,
-    "host": "redis.dev.spr.ocket.cloud",
+    "host": "",
     "prefix": ""
   },
   "gql": {
     "playground": false
   },
   "auth": {
-    "googleClientID": "869216731013-f9k3g59nh92e41bra8qbin43mjta7g1d.apps.googleusercontent.com",
-    "googleCallbackURL": "http://localhost:3001/google/redirect",
-    "jwt_expiry": "1800s",
-    "discordClientID" : "846086564479631372",
-    "discordCallbackURL": "http://localhost:3001/login"
+    "googleClientID": "",
+    "googleSecret" : "",
+    "googleCallbackURL": "",
+    "jwt_expiry": "",
+    "discordClientID" : "",
+    "discordSecret" : "",
+    "discordCallbackURL": ""
   }
 }

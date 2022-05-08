@@ -1,6 +1,5 @@
 import {Injectable} from "@nestjs/common";
 import {PassportStrategy} from "@nestjs/passport";
-import {readFileSync} from "fs";
 import type {VerifyCallback} from "passport-google-oauth20";
 import {Strategy} from "passport-google-oauth20";
 import {UserAuthenticationAccountType} from "src/database";
@@ -16,7 +15,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
     constructor(private readonly userService: UserService) {
         super({
             clientID: config.auth.googleClientID,
-            clientSecret: readFileSync("./secret/googleSecret.txt").toString(),
+            clientSecret: config.auth.googleSecret,
             callbackURL: config.auth.googleCallbackURL,
             scope: ["email", "profile"],
         });

@@ -40,9 +40,11 @@ export const config = {
     },
     auth: {
         get googleClientID(): string {return _config.get<string>("auth.googleClientID")},
+        get googleSecret(): string {return _config.get<string>("auth.googleSecret")},
         get googleCallbackURL(): string { return _config.get<string>("auth.googleCallbackURL") },
         get jwt_expiry(): string { return _config.get<string>("auth.jwt_expiry") },
         get discordClientId(): string { return _config.get<string>("auth.discordClientID") },
+        get discordSecret(): string { return _config.get<string>("auth.discordSecret")},
         get discordCallbackURL(): string { return _config.get<string>("auth.discordCallbackURL") },
     },
     redis: {
