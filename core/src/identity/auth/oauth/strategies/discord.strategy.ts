@@ -51,10 +51,8 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         // If no users returned from query, create a new one
         if (queryResult.length === 0) {
             const userProfile: Omit<UserProfile, IrrelevantFields | "id" | "user"> = {
-                description: "Discord user",
                 email: profile.email as string,
-                firstName: profile.username as string,
-                lastName: "",
+                displayName: profile.username as string,
             };
 
             const authAcct: Omit<UserAuthenticationAccount, IrrelevantFields | "id" | "user"> = {

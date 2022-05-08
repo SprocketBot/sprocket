@@ -30,8 +30,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
         // If no users returned from query, create a new one
         if (queryResult.length === 0) {
             const userProfile = {
-                description: "",
                 email: profile.emails[0].value,
+                displayName: `${profile.name.givenName} ${profile.name.familyName.charAt(0)}`,
                 firstName: profile.name.givenName,
                 lastName: profile.name.familyName,
             };
