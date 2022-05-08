@@ -9,6 +9,7 @@ import {GameModule} from "./game/game.module";
 import {AuthModule} from "./identity/auth/auth.module";
 import {IdentityModule} from "./identity/identity.module";
 import {UserService} from "./identity/user/user.service";
+import {MledbInterfaceModule} from "./mledb/mledb-interface.module";
 import {OrganizationModule} from "./organization/organization.module";
 import {ReplayParseModule} from "./replay-parse/replay-parse.module";
 import {SchedulingModule} from "./scheduling/scheduling.module";
@@ -45,6 +46,7 @@ import {config} from "./util/config";
         ScrimModule,
         AuthModule,
         SchedulingModule,
+        MledbInterfaceModule,
     ],
     providers: [UserService],
 })
