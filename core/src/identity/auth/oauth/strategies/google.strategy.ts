@@ -1,23 +1,22 @@
 import {Injectable} from "@nestjs/common";
 import {PassportStrategy} from "@nestjs/passport";
-import {readFileSync} from "fs";
 import type {VerifyCallback} from "passport-google-oauth20";
 import {Strategy} from "passport-google-oauth20";
 import {UserAuthenticationAccountType} from "src/database";
 import {User} from "src/database/identity/user/user.model";
 import {UserService} from "src/identity/user/user.service";
+import {config} from "src/util/config";
 
-import {config} from "../../../util/config";
-import type {GoogleProfileType} from "./types/profile.type";
+import type {GoogleProfileType} from "../types/profile.type";
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
 
     constructor(private readonly userService: UserService) {
         super({
-            clientID: readFileSync("./secret/googleClientId.txt").toString(),
-            clientSecret: readFileSync("./secret/googleSecret.txt").toString(),
-            callbackURL: config.auth.redirect_url,
+            clientID: config.auth.googleClientID,
+            clientSecret: config.auth.googleSecret,
+            callbackURL: config.auth.googleCallbackURL,
             scope: ["email", "profile"],
         });
     }
@@ -30,8 +29,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
         // If no users returned from query, create a new one
         if (queryResult.length === 0) {
             const userProfile = {
-                description: "",
                 email: profile.emails[0].value,
+                displayName: `${profile.name.givenName} ${profile.name.familyName.charAt(0)}`,
                 firstName: profile.name.givenName,
                 lastName: profile.name.familyName,
             };

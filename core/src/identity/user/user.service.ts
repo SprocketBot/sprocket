@@ -7,6 +7,7 @@ import type {IrrelevantFields} from "../../database";
 import {
     User, UserAuthenticationAccount, UserProfile,
 } from "../../database";
+
 @Injectable()
 export class UserService {
     constructor(
@@ -32,6 +33,37 @@ export class UserService {
         await this.userProfileRepository.save(user.userProfile);
         await this.userRepository.save(user);
         return user;
+    }
+
+    /**
+     * Adds authentication accounts to a user with a given id
+     * @param id The id of the user to modify
+     * @param authenticationAccounts An array of authentication accounts to add
+     * to the user
+     * @returns A promise that resolves to the newly created user.
+     */
+    async addAuthenticationAccounts(
+        id: number,
+        authenticationAccounts: Array<Omit<UserAuthenticationAccount, IrrelevantFields | "id" | "user">>,
+    ): Promise<User> {
+        const authAccts = authenticationAccounts.map(acct => this.userAuthAcctRepository.create(acct));
+        const user = await this.userRepository.findOneOrFail(id);
+        user.authenticationAccounts = authAccts;
+        authenticationAccounts.map(async acct => this.userAuthAcctRepository.save(acct));
+        await this.userRepository.save(user);
+        return user;
+    }
+
+    /**
+     * Finds the authentication accounts associated with a user
+     * @param id The id of the user to find
+     * to the user
+     * @returns A promise that resolves to the array of authentication accounts
+     * for the user.
+     */
+    async getUserAuthenticationAccountsForUser(userId: number): Promise<UserAuthenticationAccount[]> {
+        const authAccounts = await this.userAuthAcctRepository.find({where: {id: userId} });
+        return authAccounts;
     }
 
     /**

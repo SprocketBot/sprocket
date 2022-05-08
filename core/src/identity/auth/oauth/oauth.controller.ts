@@ -1,22 +1,29 @@
 import {
-    Controller, Get, Request,
+    Controller, ForbiddenException, Get, Request,
     UseGuards,
 } from "@nestjs/common";
 import {Request as Req} from "express";
-import type {User} from "src/database";
-import {MledbUserService} from "src/mledb/mledb-user/mledb-user.service";
+import type {User, UserAuthenticationAccount} from "../../../database";
+import {UserAuthenticationAccountType} from "../../../database";
+import {UserService} from "../../../identity/user/user.service";
+import {MledbUserService} from "../../../mledb/mledb-user/mledb-user.service";
 
-import {GoogleAuthGuard} from "./google-auth.guard";
-import {JwtAuthGuard} from "./jwt-auth.guard";
+import {DiscordAuthGuard} from "./guards/discord-auth.guard";
+import {GoogleAuthGuard} from "./guards/google-auth.guard";
+import {JwtAuthGuard} from "./guards/jwt-auth.guard";
+import {RolesGuard} from "./guards/roles.guard";
 import {OauthService} from "./oauth.service";
 import {Roles} from "./roles.decorator";
-import {RolesGuard} from "./roles.guard";
 import type {AccessToken} from "./types/accesstoken.type";
 import type {AuthPayload} from "./types/payload.type";
 
 @Controller()
 export class OauthController {
-    constructor(private authService: OauthService, private mledbUserService: MledbUserService) {}
+    constructor(
+        private authService: OauthService,
+        private userService: UserService,
+        private mledbUserService: MledbUserService,
+    ) {}
 
     @Get("rolesTest")
     @UseGuards(RolesGuard)
@@ -37,27 +44,45 @@ export class OauthController {
         return "Your JWT works! Nice. ";
     }
 
-    @Get()
     @Get("google")
     @UseGuards(GoogleAuthGuard)
     async googleAuth(): Promise<void> {}
 
-    /* eslint-disable*/
+    @Get("discord")
+    @UseGuards(DiscordAuthGuard)
+    async discordAuth(): Promise<void> {}
+
     @Get("google/redirect")
     @UseGuards(GoogleAuthGuard)
     async googleAuthRedirect(@Request() req: Req): Promise<AccessToken> {
-        const ourUser = req["user"] as User;
+        const ourUser = req.user as User;
+        const userProfile = await this.userService.getUserProfileForUser(ourUser.id);
         const payload: AuthPayload = {
-            sub: ourUser.id, username: req["username"], userId: ourUser.id,
+            sub: ourUser.id.toString(), username: userProfile.email, userId: ourUser.id,
         };
-        console.log("On login: ");
-        console.log(payload);
-        console.log(req["user"]);
-        const player = await this.mledbUserService.getUserByDiscordId("104751301690204160");
-        const orgs = await this.mledbUserService.getUserOrgs(player);
-        console.log(player);
-        console.log(orgs);
         return this.authService.login(payload);
     }
-    /* eslint-enable */
+
+    @Get("login")
+    @Get("discord/redirect")
+    @UseGuards(DiscordAuthGuard)
+    async discordAuthRedirect(@Request() req: Req): Promise<AccessToken> {
+        const ourUser = req.user as User;
+        const userProfile = await this.userService.getUserProfileForUser(ourUser.id);
+        const authAccounts: UserAuthenticationAccount[] = await this.userService.getUserAuthenticationAccountsForUser(ourUser.id);
+        const discordAccount = authAccounts.find(obj => obj.accountType === UserAuthenticationAccountType.DISCORD);
+        if (discordAccount) {
+            const player = await this.mledbUserService.getUserByDiscordId(discordAccount.accountId);
+            const player_to_orgs = await this.mledbUserService.getUserOrgs(player);
+            const orgs = player_to_orgs.map(pto => pto.orgTeam);
+            const payload = {
+                sub: discordAccount.accountId,
+                username: userProfile.email,
+                userId: ourUser.id,
+                orgs: orgs,
+            };
+            return this.authService.loginDiscord(payload);
+        }
+        throw new ForbiddenException;    
+    }
 }

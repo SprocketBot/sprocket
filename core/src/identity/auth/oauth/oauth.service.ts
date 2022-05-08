@@ -14,4 +14,11 @@ export class OauthService {
             access_token: this.jwtService.sign(payload),
         };
     }
+
+    async loginDiscord(user): Promise<AccessToken> {
+
+        return {
+            access_token: this.jwtService.sign(user),
+        };
+    }
 }
