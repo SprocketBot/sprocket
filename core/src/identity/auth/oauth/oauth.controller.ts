@@ -83,6 +83,6 @@ export class OauthController {
             };
             return this.authService.loginDiscord(payload);
         }
-        throw new ForbiddenException;    
+        throw new ForbiddenException();
     }
 }
