@@ -51,7 +51,7 @@ export abstract class MemberRestrictionGuard implements CanActivate {
 }
 
 export class QueueBanGuard extends MemberRestrictionGuard {
-    readonly type: MemberRestrictionType = MemberRestrictionType.SCRIM_BAN;
+    readonly type: MemberRestrictionType = MemberRestrictionType.QUEUE_BAN;
 
     readonly failureResponse = "You're queue banned until you're not...sorry.";
 }

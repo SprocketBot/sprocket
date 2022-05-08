@@ -1,7 +1,7 @@
 import {registerEnumType} from "@nestjs/graphql";
 
 export enum MemberRestrictionType {
-    SCRIM_BAN = "SCRIM_BAN",
+    QUEUE_BAN = "QUEUE_BAN",
 }
 
 registerEnumType(MemberRestrictionType, {
