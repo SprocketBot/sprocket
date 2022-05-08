@@ -4,4 +4,6 @@ export class AuthPayload {
     username: string;
 
     userId: number;
+
+    currentOrganizationId?: number;
 }

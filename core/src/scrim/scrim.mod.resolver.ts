@@ -10,13 +10,14 @@ import type {
 } from "@sprocketbot/common";
 import {RedisService, ScrimStatus} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
-import {RoundService} from "src/scheduling/round/round.service";
 
 import {GameModeService} from "../game/game-mode/game-mode.service";
 import {CurrentUser} from "../identity/auth/current-user.decorator";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard/gql-jwt-guard";
 import {UserPayload} from "../identity/auth/oauth/types/userpayload.type";
+import {QueueBanGuard} from "../organization/member-restriction/member-restriction.guard";
 import {MatchService} from "../scheduling/match/match.service";
+import {RoundService} from "../scheduling/round/round.service";
 import {ScrimPubSub} from "./constants";
 import {ScrimService} from "./scrim.service";
 import {
@@ -90,6 +91,7 @@ export class ScrimModuleResolver {
      */
 
     @Mutation(() => Scrim)
+    @UseGuards(QueueBanGuard)
     async createScrim(
         @CurrentUser() user: UserPayload,
         @Args("data") data: CreateScrimInput,
@@ -111,6 +113,7 @@ export class ScrimModuleResolver {
     }
 
     @Mutation(() => Boolean)
+    @UseGuards(QueueBanGuard)
     async joinScrim(
         @Args("scrimId") scrimId: string,
         @CurrentUser() user: UserPayload,

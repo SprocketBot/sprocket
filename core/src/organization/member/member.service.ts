@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
+import type {FindManyOptions, FindOneOptions} from "typeorm";
 import {Repository} from "typeorm";
-import type {FindManyOptions} from "typeorm/find-options/FindManyOptions";
 
 import type {IrrelevantFields} from "../../database";
 import {
@@ -35,6 +35,10 @@ export class MemberService {
         await this.memberRepository.save(member);
 
         return member;
+    }
+
+    async getMember(query: FindOneOptions<Member>): Promise<Member> {
+        return this.memberRepository.findOneOrFail(query);
     }
 
     async getMemberById(id: number): Promise<Member> {

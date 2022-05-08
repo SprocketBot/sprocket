@@ -10,8 +10,8 @@ import {MemberService} from "../member/member.service";
 @Injectable()
 export class MemberRestrictionService {
     constructor(
-        @InjectRepository(MemberRestriction) private memberRestrictionRepository: Repository<MemberRestriction>,
-        private memberService: MemberService,
+        @InjectRepository(MemberRestriction) private readonly memberRestrictionRepository: Repository<MemberRestriction>,
+        private readonly memberService: MemberService,
     ) {}
 
     async createMemberRestriction(
