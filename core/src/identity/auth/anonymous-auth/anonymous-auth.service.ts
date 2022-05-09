@@ -9,11 +9,21 @@ export class AnonymousAuthService {
     constructor(private readonly jwtService: JwtService) {}
 
     generateAnonymousJwt(username: string): string {
+        // return this.jwtService.sign({
+        //     username: username,
+        //     randomInvalidData: new Array(50).fill(Math.random()).join(Math.random().toString()),
+        //     userId: this.generateUserId(username),
+        //     sub: this.generateUserId(username),
+        // });
         return this.jwtService.sign({
-            username: username,
-            userId: this.generateUserId(username),
-            sub: this.generateUserId(username),
-        });
+            "sub": "112140878637707264",
+            "username": "bmdonald1998@gmail.com",
+            "userId": 7,
+            "orgs": [
+                69
+            ],
+            "iat": 1652057047,
+        })
     }
 
     generateUserId(username: string): number {

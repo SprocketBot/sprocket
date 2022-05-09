@@ -1,12 +1,11 @@
 <script lang="ts">
     import type {CurrentScrim} from "$lib/api";
-import Portal from "$lib/components/abstract/Portal.svelte";
-import SubmitReplaysModal from "../modals/SubmitReplaysModal.svelte";
+    import Portal from "$lib/components/abstract/Portal.svelte";
+    import SubmitReplaysModal from "../modals/SubmitReplaysModal.svelte";
 
     export let scrim: CurrentScrim;
 
     let submitting: boolean = false;
-    $: console.log(scrim);
 </script>
 
 
@@ -41,7 +40,7 @@ import SubmitReplaysModal from "../modals/SubmitReplaysModal.svelte";
     {/each}
 </table>
 
-<button on:click={() => submitting = true}>
+<button on:click={() => { submitting = true }}>
     Submit Replays
 </button>
 

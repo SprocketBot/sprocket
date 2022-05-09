@@ -1,12 +1,21 @@
 // / <reference types="@sveltejs/kit" />
 import type {SessionUser} from "$lib/utils";
 
-declare namespace App {
-    declare interface Session {
-        gqlUrl: string;
-        secure: boolean;
+export interface Session {
+    gqlUrl: string;
+    secure: boolean;
 
-        token?: string;
-        user?: SessionUser;
+    token?: string;
+    user?: SessionUser;
+}
+
+declare global {
+    declare namespace App {
+        declare type Session = Session;
+
+        declare interface Locals {
+            user: SessionUser;
+            token: string;
+        }
     }
 }

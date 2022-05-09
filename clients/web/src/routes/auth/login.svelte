@@ -11,25 +11,24 @@
 </script>
 
 <script lang="ts">
-    import {goto} from "$app/navigation";
-
-    import {Card, CenteredCardLayout} from "$lib/components";
-    import {anonLoginMutation} from "$lib/api";
+    import {
+        Card,
+        CenteredCardLayout,
+        DiscordOAuthButton,
+    } from "$lib/components";
+    import type {SessionUser} from "$lib/utils";
     import {constants, extractJwt} from "$lib/utils";
     import {session} from "$app/stores";
 
-    let username: string;
-
-    async function login() {
-        const {token} = await anonLoginMutation({username});
-        cookies.set(constants.auth_cookie_key, token);
-        $session.user = extractJwt(token);
+    async function login(e: CustomEvent<string>) {
+        const token = e.detail;
+        
+        $session.user = extractJwt<SessionUser>(token);
         $session.token = token;
-        goto("/scrims/queue").catch(console.error);
-    }
 
-    const handleEnter: svelte.JSX.KeyboardEventHandler<HTMLInputElement> = (e) => {
-        if (e.code === "Enter") login()
+        cookies.set(constants.auth_cookie_key, token);
+
+        window.location.pathname = "/scrims/queue";
     }
 </script>
 
@@ -45,14 +44,7 @@
             </h1>
         </header>
         <section class="space-y-4">
-            <div class="form-control">
-                <label class="label" for="username">
-                    <span class="label-text">Username:</span>
-                </label>
-                <input class="input" name="username" bind:value={username} on:keypress={handleEnter} />
-            </div>
-
-            <button class="btn px-8 btn-primary btn-outline mx-auto block" on:click={login}>Login</button>
+            <DiscordOAuthButton on:loggedIn={login}/>            
         </section>
     </Card>
 </CenteredCardLayout>

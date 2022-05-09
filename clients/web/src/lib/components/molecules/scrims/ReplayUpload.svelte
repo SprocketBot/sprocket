@@ -1,10 +1,11 @@
 <script lang="ts">
-    import { ProgressMessage, ProgressStatus } from "$lib/utils/types/progress.types";
+    import type {ProgressMessage} from "$lib/utils/types/progress.types";
+    import {ProgressStatus} from "$lib/utils/types/progress.types";
     import IoMdClose from "svelte-icons/io/IoMdClose.svelte";
-    import { createEventDispatcher } from "svelte";
-    import { tweened } from "svelte/motion";
-    import { cubicOut } from 'svelte/easing';
-    import type { Readable } from "svelte/store";
+    import {createEventDispatcher} from "svelte";
+    import {tweened} from "svelte/motion";
+    import {cubicOut} from "svelte/easing";
+    import type {Readable} from "svelte/store";
 
     export let filename: string;
     export let progressStore: Readable<ProgressMessage<unknown>>;
@@ -13,14 +14,14 @@
     const dispatch = createEventDispatcher();
 
     let status: ProgressStatus;
-    let value = tweened(0, {
+    const value = tweened(0, {
         duration: 200,
         easing: cubicOut,
     });
 
     $: if ($progressStore) {
         status = $progressStore.status;
-        value.set($progressStore.progress.value ?? 0);
+        value.set($progressStore.progress.value ?? 0).catch(console.error);
     }
 
 </script>
