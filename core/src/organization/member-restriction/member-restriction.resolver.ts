@@ -4,7 +4,7 @@ import {
 
 import type {Member} from "../../database";
 import {MemberRestriction, MemberRestrictionType} from "../../database";
-import {MemberRestrictionService} from ".";
+import {MemberRestrictionService} from "./member-restriction.service";
 
 @Resolver(() => MemberRestriction)
 export class MemberRestrictionResolver {
