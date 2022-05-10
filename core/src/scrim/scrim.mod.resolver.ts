@@ -1,3 +1,4 @@
+import {InjectQueue} from "@nestjs/bull";
 import {
     Inject, Logger, UseGuards,
 } from "@nestjs/common";
@@ -10,6 +11,7 @@ import type {
 } from "@sprocketbot/common";
 import {RedisService, ScrimStatus} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
+import {Queue} from "bull";
 
 import {GameModeService} from "../game/game-mode/game-mode.service";
 import {CurrentUser} from "../identity/auth/current-user.decorator";
@@ -58,6 +60,7 @@ export class ScrimModuleResolver {
         private readonly redisService: RedisService,
         private readonly matchService: MatchService,
         private readonly roundService: RoundService,
+        @InjectQueue("scrim") private readonly scrimQueue: Queue,
     ) {
     }
 
