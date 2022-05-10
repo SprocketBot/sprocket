@@ -10,7 +10,7 @@
 
     const currentRoute = $page.url.pathname;
 
-    const nav = async (target: string): Promise<unknown> => await goto(target) as Promise<unknown>;
+    const nav = async (target: string): Promise<unknown> => goto(target);
 </script>
 
 <nav>
