@@ -22,7 +22,7 @@
 <Portal>
     <input type="checkbox" class="modal-toggle" bind:checked={visible}/>
 
-    <div class="modal" {id} use:clickOutside={{callback: handleClickOutside}}>
+    <div class="modal bg-gray-700/40" {id} use:clickOutside={{callback: handleClickOutside}}>
         <div class="modal-box max-w-xl">
             <div class="close" on:click={close}>✖</div>
             <h2>

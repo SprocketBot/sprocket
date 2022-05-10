@@ -10,7 +10,7 @@
 
 <div class="h-screen drawer drawer-mobile w-full">
     <input id="nav-drawer" type="checkbox" class="drawer-toggle">
-    <div class="drawer-content bg-gray-800 lg:p-4 p-0 relative h-full">
+    <div class="drawer-content">
         <DashboardMobileHeader/>
         <section class="p-4 h-full flex flex-col py-20 lg:py-4">
             <slot/>
@@ -46,8 +46,12 @@
         @apply bg-gray-900 py-4 w-96 lg:w-auto lg:px-0 flex flex-col items-center gap-1;
     }
 
-    main {
-        @apply bg-gray-800 p-8 w-full flex flex-col;
+    .drawer-content {
+        @apply lg:p-4 p-0 relative h-full
+                bg-gradient-to-b from-gray-800 to-gray-700
+        ;
+        /*background: linear-gradient(180deg, theme("colors.gray-600") 0%, theme("colors.gray-600") 65%);*/
+
     }
 
     .icon {
