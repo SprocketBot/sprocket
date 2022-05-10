@@ -38,9 +38,9 @@ export class MemberRestrictionResolver {
     @Mutation(() => MemberRestriction)
     async updateMemberRestriction(
         @Args("id", {type: () => Int}) id: number,
-        @Args("expiration", {type: () => Date}) expiration: Date,
+        @Args("manualExpiration", {type: () => Date}) manualExpiration: Date,
     ): Promise<MemberRestriction> {
-        return this.memberRestrictionService.updateMemberRestriction(id, {expiration});
+        return this.memberRestrictionService.updateMemberRestriction(id, {manualExpiration});
     }
 
     @Mutation(() => MemberRestriction)
