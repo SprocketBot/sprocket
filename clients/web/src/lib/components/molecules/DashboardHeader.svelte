@@ -6,7 +6,7 @@
 <img src="/img/logo.svg" alt="Sprocket"/>
 
 <hr/>
-<section>
+<section class="flex flex-col">
     <!-- TODO: User Data -->
     <Avatar class="w-1/3"/>
     <div>

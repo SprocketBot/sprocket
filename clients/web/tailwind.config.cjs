@@ -5,7 +5,8 @@ const c = require("color")
 const sprocketPalette = {
   primary: "#F5C04E",
   secondary: "#307AF7",
-  accent: "#ED367C",
+  // accent: "#ED367C",
+  accent: "#623FCF",
   purple: "#623FCF",
   gray: {
     "100": "#CFD2D3",

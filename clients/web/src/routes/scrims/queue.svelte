@@ -39,8 +39,6 @@
 </script>
 
 <DashboardLayout>
-    <DebugPlayerStoreForm slot="sidebar"/>
-
     <div class="row">
         <StatGroup responsive>
             <BigNumber num={metrics?.completedScrims ?? 0} label="Scrims in the last hour" description="{Math.abs(activityChange)}% {activityChange > 0 ? 'more' : 'less'} than previous hour"/>
