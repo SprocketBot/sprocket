@@ -81,11 +81,12 @@ export class OauthController {
                 sub: discordAccount.accountId,
                 username: userProfile.email,
                 userId: ourUser.id,
-                orgs: orgs,
+                org: "Sprocket",
+                orgTeams: orgs,
             };
             const token = await this.authService.loginDiscord(payload);
 
-            res.redirect(`${config.auth.frontend_callback}?token=${token.access_token}`)
+            res.redirect(`${config.auth.frontend_callback}?token=${token.access_token}`);
             return;
         }
         throw new ForbiddenException();
