@@ -1,1 +1,1 @@
-export {default as TeamAuth} from "./TeamAuth.svelte";
+export {default as TeamGuard} from "./TeamGuard.svelte";
