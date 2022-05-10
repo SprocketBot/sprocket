@@ -2,6 +2,7 @@ import {Module} from "@nestjs/common";
 
 import {DatabaseModule} from "../database";
 import {GameModule} from "../game/game.module";
+import {IdentityModule} from "../identity/identity.module";
 import {MemberService} from "./member/member.service";
 import {MemberPlatformAccountService} from "./member-platform-account/member-platform-account.service";
 import {
@@ -12,7 +13,7 @@ import {OrganizationService} from "./organization/organization.service";
 import {PronounsService} from "./pronouns/pronouns.service";
 
 @Module({
-    imports: [DatabaseModule, GameModule],
+    imports: [DatabaseModule, GameModule, IdentityModule],
     providers: [
         OrganizationResolver,
         OrganizationService,

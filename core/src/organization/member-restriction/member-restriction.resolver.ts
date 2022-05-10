@@ -4,11 +4,15 @@ import {
 
 import type {Member} from "../../database";
 import {MemberRestriction, MemberRestrictionType} from "../../database";
+import {MemberService} from "../member/member.service";
 import {MemberRestrictionService} from "./member-restriction.service";
 
 @Resolver(() => MemberRestriction)
 export class MemberRestrictionResolver {
-    constructor(private readonly memberRestrictionService: MemberRestrictionService) {}
+    constructor(
+        private readonly memberRestrictionService: MemberRestrictionService,
+        private readonly memberService: MemberService,
+    ) {}
 
     @Query(() => MemberRestriction)
     async getMemberRestrictionById(@Args("id", {type: () => Int}) id: number): Promise<MemberRestriction> {
@@ -18,10 +22,7 @@ export class MemberRestrictionResolver {
     @ResolveField()
     async member(@Root() memberRestriction: MemberRestriction): Promise<Member> {
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        if (!memberRestriction.member) {
-            const {member} = await this.memberRestrictionService.getMemberRestrictionById(memberRestriction.id, {relations: ["member"] });
-            return member;
-        }
+        if (!memberRestriction.member) return this.memberService.getMemberById(memberRestriction.memberId);
         return memberRestriction.member;
     }
 

@@ -24,7 +24,7 @@ export abstract class MemberRestrictionGuard implements CanActivate {
         const member = await this.memberService.getMember({
             where: {user: {id: payload.userId}, organization: {id: payload.currentOrganizationId} },
         }).catch(() => null);
-        if (!member) return false;
+        if (!member) throw new GraphQLError("User is not a member of the organization");
 
         const restrictions = await this.memberRestrictionService.getMemberRestrictions({
             where: [
