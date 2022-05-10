@@ -14,15 +14,21 @@ export class RedisService {
         return this._redis;
     }
 
-    async onApplicationBootstrap(): Promise<void> {
-        const redis = new IORedis(config.redis.port, config.redis.host, {
+    get redisOptions() {
+        return {
+            host: config.redis.host,
+            port: config.redis.port,
             password: config.redis.password,
             lazyConnect: true,
             tls: config.redis.secure ? {
                 host: config.redis.host,
                 servername: config.redis.host
             } : undefined
-        });
+        }
+    }
+
+    async onApplicationBootstrap(): Promise<void> {
+        const redis = new IORedis(this.redisOptions);
         this.logger.log(`Connecting to redis @ ${config.redis.host}`);
         await redis.connect();
         this.logger.log("Connected to redis");

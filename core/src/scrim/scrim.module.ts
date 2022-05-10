@@ -1,7 +1,7 @@
 import {BullModule} from "@nestjs/bull";
 import {Module} from "@nestjs/common";
 import {
-    EventsModule, MatchmakingModule, RedisModule,
+    EventsModule, MatchmakingModule, RedisModule, RedisService,
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 
@@ -12,7 +12,6 @@ import {AuthModule} from "../identity/auth/auth.module";
 import {OrganizationModule} from "../organization/organization.module";
 import {MatchService} from "../scheduling/match/match.service";
 import {RoundService} from "../scheduling/round/round.service";
-import {config} from "../util/config";
 import {ScrimPubSub} from "./constants";
 import {ScrimMetricsResolver} from "./metrics/scrim-metrics.resolver";
 import {ScrimConsumer} from "./scrim.consumer";
@@ -20,6 +19,7 @@ import {ScrimModuleResolver, ScrimModuleResolverPublic} from "./scrim.mod.resolv
 import {ScrimResolver} from "./scrim.resolver";
 import {ScrimService} from "./scrim.service";
 import {ScrimMetaCrudService} from "./scrim-crud/scrim-crud.service";
+import {config} from "@sprocketbot/common/lib/util/config";
 
 @Module({
     imports: [
@@ -33,10 +33,17 @@ import {ScrimMetaCrudService} from "./scrim-crud/scrim-crud.service";
         DatabaseModule,
         OrganizationModule,
         BullModule.forRoot({
+            // TODO: find a way to share this value with the redis service
             redis: {
                 host: config.redis.host,
-                port: Number(config.redis.port),
-            },
+                port: config.redis.port,
+                password: config.redis.password,
+                lazyConnect: true,
+                tls: config.redis.secure ? {
+                    host: config.redis.host,
+                    servername: config.redis.host
+                } : undefined
+            }
         }),
         BullModule.registerQueue({name: "scrim"}),
     ],
