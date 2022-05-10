@@ -6,6 +6,7 @@ import {
 import {BaseModel} from "../../base-model";
 import {Member} from "../member/member.model";
 import {MemberRestrictionType} from "./member_restriction_type.enum";
+
 @Entity({schema: "sprocket"})
 @ObjectType()
 export class MemberRestriction extends BaseModel {
@@ -27,4 +28,8 @@ export class MemberRestriction extends BaseModel {
     @OneToOne(() => Member)
     @Field(() => Member)
     member: Member;
+
+    @Column()
+    @Field()
+    memberId: number;
 }
