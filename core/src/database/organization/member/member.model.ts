@@ -1,14 +1,16 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {
-    Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne,
+    Entity, JoinColumn, ManyToOne, OneToMany, OneToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {Player} from "../../franchise";
+import {User} from "../../identity";
 import {MemberPlatformAccount} from "../member_platform_account";
 import {MemberProfile} from "../member_profile";
 import {Organization} from "../organization";
-@Entity({ schema: "sprocket" })
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class Member extends BaseModel {
     @OneToMany(() => MemberPlatformAccount, mpa => mpa.member)
@@ -20,10 +22,6 @@ export class Member extends BaseModel {
     @Field(() => MemberProfile)
     profile: MemberProfile;
 
-    @Column({unique: true})
-    @Field(() => String)
-    discordId: string;
-
     @ManyToOne(() => Organization)
     @Field(() => Organization)
     organization: Organization;
@@ -31,4 +29,8 @@ export class Member extends BaseModel {
     @OneToMany(() => Player, p => p.member)
     @Field(() => [Player])
     players: Player[];
+
+    @ManyToOne(() => User, u => u.members)
+    @Field(() => User)
+    user: User;
 }
