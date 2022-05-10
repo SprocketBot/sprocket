@@ -39,25 +39,25 @@ export class MLE_EloData {
     })
     updatedAt: Date;
 
-    @Column("integer", {name: "player_id", unique: true})
+    @Column("integer", {name: "player_id"})
     playerId: number;
 
-    @Column("integer", {name: "replay_id", nullable: true, unique: true})
+    @Column("integer", {name: "replay_id", nullable: true})
     replayId: number | null;
 
     @Column("real", {name: "elo"})
     elo: number;
 
-    @Column("integer", {name: "previous_node_id", nullable: true, unique: true})
+    @Column("integer", {name: "previous_node_id", nullable: true})
     previousNodeId: number | null;
 
-    @Column("integer", {name: "next_node_id", nullable: true, unique: true})
+    @Column("integer", {name: "next_node_id", nullable: true})
     nextNodeId: number | null;
 
     @Column("integer", {name: "chain", default: () => "0"})
     chain: number;
 
-    @Column("character varying", {name: "league", nullable: true, length: 255})
+    @Column("character varying", {name: "league", length: 255, nullable: true})
     league: string | null;
 
     @OneToOne(() => MLE_EloData, (eloData) => eloData.previousNode, {

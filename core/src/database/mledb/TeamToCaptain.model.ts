@@ -37,15 +37,14 @@ export class MLE_TeamToCaptain {
     })
     updatedAt: Date;
 
-    @Column("integer", {name: "player_id", unique: true})
+    @Column("integer", {name: "player_id"})
     playerId: number;
 
-    @Column("character varying", {name: "team_name", unique: true, length: 255})
+    @Column("character varying", {name: "team_name", length: 255})
     teamName: string;
 
     @Column("character varying", {
         name: "league",
-        unique: true,
         length: 255,
         default: () => "'UNKNOWN'",
     })

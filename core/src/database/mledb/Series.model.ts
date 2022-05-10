@@ -46,7 +46,6 @@ export class MLE_Series {
 
     @Column("character varying", {
         name: "league",
-        unique: true,
         length: 255,
         default: () => "'UNKNOWN'",
     })
@@ -67,13 +66,13 @@ export class MLE_Series {
     @Column("boolean", {name: "full_ncp", default: () => "false"})
     fullNcp: boolean;
 
-    @Column("text", {name: "mode", unique: true})
+    @Column("text", {name: "mode"})
     mode: Mode;
 
-    @Column("integer", {name: "fixture_id", nullable: true, unique: true})
+    @Column("integer", {name: "fixture_id", nullable: true})
     fixtureId: number | null;
 
-    @Column("integer", {name: "scrim_id", nullable: true, unique: true})
+    @Column("integer", {name: "scrim_id", nullable: true})
     scrimId: number | null;
 
     @Column("character varying", {

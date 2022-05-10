@@ -47,7 +47,7 @@ export class MLE_Match {
     isDoubleHeader: boolean;
 
 
-    @Column("integer", {name: "match_number", unique: true})
+    @Column("integer", {name: "match_number"})
     matchNumber: number;
 
     @Column("character varying", {
