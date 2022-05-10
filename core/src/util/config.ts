@@ -50,6 +50,7 @@ export const config = {
             get callbackURL(): string { return _config.get<string>("auth.discordCallbackURL") },
         },
         get jwt_expiry(): string { return _config.get<string>("auth.jwt_expiry") },
+        get frontend_callback(): string { return _config.get<string>("auth.frontend_callback") }
     },
     redis: {
         get port(): string { return _config.get<string>("redis.port") },

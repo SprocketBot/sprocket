@@ -40,13 +40,12 @@ export class MLE_PlayerAccount {
     })
     updatedAt: Date;
 
-    @Column("character varying", {name: "platform", unique: true, length: 255})
+    @Column("character varying", {name: "platform", length: 255})
     platform: string;
 
     @Column("character varying", {
         name: "tracker",
         nullable: true,
-        unique: true,
         length: 255,
     })
     tracker: string | null;
@@ -54,7 +53,6 @@ export class MLE_PlayerAccount {
     @Column("text", {
         name: "platform_id",
         nullable: true,
-        unique: true,
         default: () => "''",
     })
     platformId: string | null;

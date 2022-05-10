@@ -1,5 +1,7 @@
 <script lang="ts" context="module">
-    import { ProgressMessage, ProgressStatus } from "$lib/utils/types/progress.types";
+    import type {ProgressMessage} from "$lib/utils/types/progress.types";
+    import {ProgressStatus} from "$lib/utils/types/progress.types";
+
 
     export interface Replay {
         id: string;
@@ -14,44 +16,45 @@
 <script lang="ts">
     import {FileInput, Modal} from "$lib/components";
     import ReplayUpload from "$lib/components/molecules/scrims/ReplayUpload.svelte";
-    import {derived, Readable} from "svelte/store";
+    import type {Readable} from "svelte/store";
+    import {derived} from "svelte/store";
     import shortid from "shortid";
     import {fade} from "svelte/transition";
     import {uploadReplaysMutation} from "$lib/api/mutations/UploadReplays.mutation";
     import FaCheckCircle from "svelte-icons/fa/FaCheckCircle.svelte";
-    import FaTimesCircle from 'svelte-icons/fa/FaTimesCircle.svelte'
-    import { FollowReplayUploadStore } from "$lib/api/subscriptions/FollowReplayUpload.subscription";
-    import { findLast } from "$lib/utils/findLast";
+    import FaTimesCircle from "svelte-icons/fa/FaTimesCircle.svelte";
+    import {FollowReplayUploadStore} from "$lib/api/subscriptions/FollowReplayUpload.subscription";
+    import {findLast} from "$lib/utils/findLast";
 
     export let visible: boolean = true;
     export let submissionId: string | undefined;
 
-    //////////
+    // ////////
     // Local variables
-    //////////
+    // ////////
     let files: FileList;
     let replays: Replay[] = [];
     let status: SubmitReplaysModalStatus = "init";
     
-    //////////
+    // ////////
     // Local stores
-    //////////
+    // ////////
     let followReplayUploadStore: FollowReplayUploadStore;
     let allComplete: Readable<boolean>;
     let anyError: Readable<boolean>;
 
-    //////////
+    // ////////
     // Handlers
-    //////////
+    // ////////
     const handleRemove = (id: string) => {
         replays = replays.filter(r => r.id !== id);
         if (replays.length === 0) status = "init";
     };
 
-    const handleUpload = async (files: FileList) => {
-        if (!files || !files.length) return;
+    const handleUpload = async (f: FileList) => {
+        if (!f || !f.length) return;
         
-        const _replays = Array.from(files).map(file => ({
+        const _replays = Array.from(f).map(file => ({
             id: shortid.generate(),
             file: file,
         }));
@@ -63,46 +66,46 @@
     const handleSubmit = async () => {
         if (!replays.length) return;
 
-        followReplayUploadStore = new FollowReplayUploadStore({ submissionId });
+        followReplayUploadStore = new FollowReplayUploadStore({submissionId});
         status = "parsing";
 
-        const { parseReplays: taskIds } = await uploadReplaysMutation({
+        const {parseReplays: taskIds} = await uploadReplaysMutation({
             files: replays.map(r => r.file),
             submissionId: submissionId,
         });
 
-        for (let i = 0; i < replays.length; i++) {
+        for (let i = 0;i < replays.length;i++) {
             // Set each progressStore to the most recent progress message from followReplayUploadStore
             replays[i].progressStore = derived(
                 followReplayUploadStore,
                 $value => {
-                    const latestMsg = findLast($value, msg => msg?.data.followReplayParse.taskId === taskIds[i])
-                    const progress = latestMsg?.data.followReplayParse
+                    const latestMsg = findLast($value, msg => msg?.data.followReplayParse.taskId === taskIds[i]);
+                    const progress = latestMsg?.data.followReplayParse;
                     console.log(`${progress?.taskId}\t${progress?.progress.value}`);
                     return progress;
-                }
-            )
+                },
+            );
         }
 
         allComplete = derived(
             replays.map(r => r.progressStore),
             $progresses => {
                 const _progresses = [...$progresses]; // convert `empty` to undefined
-                return Boolean(_progresses.length) && _progresses.every(p => p?.status === ProgressStatus.Complete)
-            }
+                return Boolean(_progresses.length) && _progresses.every(p => p?.status === ProgressStatus.Complete);
+            },
         );
 
         anyError = derived(
             replays.map(r => r.progressStore),
             $progresses => {
                 const _progresses = [...$progresses]; // convert `empty` to undefined
-                return Boolean(_progresses.length) && _progresses.some(p => p?.status === ProgressStatus.Error)
-            }
+                return Boolean(_progresses.length) && _progresses.some(p => p?.status === ProgressStatus.Error);
+            },
         );
     };
 
     // Load files when they change
-    $: handleUpload(files);
+    $: handleUpload(files).catch(console.error);
 </script>
 
 

@@ -5,7 +5,6 @@ import fetch from "node-fetch";
 
 import {AppModule} from "./app.module";
 
-// @ts-expect-error gql-client needs fetch
 // eslint-disable-next-line no-undef, @typescript-eslint/no-unsafe-assignment
 global.fetch = fetch;
 

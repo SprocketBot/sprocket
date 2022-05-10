@@ -1,5 +1,5 @@
 import {Module} from "@nestjs/common";
-import {EventsModule, RedisModule} from "@sprocketbot/common";
+import {AnalyticsModule, EventsModule, RedisModule} from "@sprocketbot/common";
 
 import {EventProxyService} from "./event-proxy/event-proxy.service";
 import {GameOrderService} from "./game-order/game-order.service";
@@ -11,7 +11,7 @@ import {ScrimLogicService} from "./scrim-logic/scrim-logic.service";
 import {ScrimMetricsService} from "./scrim-metrics/scrim-metrics.service";
 
 @Module({
-    imports: [RedisModule, EventsModule],
+    imports: [RedisModule, EventsModule, AnalyticsModule],
     controllers: [ScrimController],
     providers: [
         ScrimCrudService,
@@ -20,7 +20,7 @@ import {ScrimMetricsService} from "./scrim-metrics/scrim-metrics.service";
         EventProxyService,
         ScrimMetricsService,
         ScrimGroupService,
-        GameOrderService,
+        GameOrderService
     ],
 })
 export class ScrimModule {}

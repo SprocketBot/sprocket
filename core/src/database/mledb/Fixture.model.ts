@@ -1,7 +1,6 @@
 import {Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn,} from "typeorm";
 import {MLE_Match} from "./Match.model";
 import {MLE_Series} from "./Series.model";
-import {MLE_Team} from "./Team.model";
 
 @Index(
     "fixture_home_name_away_name_match_id_unique",
@@ -40,13 +39,13 @@ export class MLE_Fixture {
     })
     updatedAt: Date;
 
-    @Column("character varying", {name: "home_name", unique: true, length: 255})
+    @Column("character varying", {name: "home_name", length: 255})
     homeName: string;
 
-    @Column("character varying", {name: "away_name", unique: true, length: 255})
+    @Column("character varying", {name: "away_name", length: 255})
     awayName: string;
 
-    @Column("integer", {name: "match_id", unique: true})
+    @Column("integer", {name: "match_id"})
     matchId: number;
 
     @Column("character varying", {

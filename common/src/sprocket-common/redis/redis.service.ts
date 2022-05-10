@@ -18,10 +18,10 @@ export class RedisService {
         const redis = new IORedis(config.redis.port, config.redis.host, {
             password: config.redis.password,
             lazyConnect: true,
-            tls: {
+            tls: config.redis.secure ? {
                 host: config.redis.host,
                 servername: config.redis.host
-            }
+            } : undefined
         });
         this.logger.log(`Connecting to redis @ ${config.redis.host}`);
         await redis.connect();

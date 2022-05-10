@@ -51,6 +51,12 @@ export const config = {
         get host(): string { return _config.get<string>("redis.host") },
         get password(): string { return readFileSync("./secret/redis-password.txt").toString() },
         get prefix(): string { return _config.get<string>("redis.prefix") },
+        get secure(): boolean {
+            if (_config.has("redis.secure"))
+                return _config.get<boolean>("redis.secure")
+            else
+                return false
+        }
     },
     gql: {
         get url(): string { return _config.get<string>("gql.url") },
