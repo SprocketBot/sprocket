@@ -1,0 +1,1 @@
+export {default as TeamAuth} from "./TeamAuth.svelte";
