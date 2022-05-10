@@ -78,9 +78,11 @@ jobs:
           filters: |
             change:
               ${{ matrix.directory[1] }}/**
+            common:
+              ./common/**
 
       - name: Build project
-        if: steps.changes.outputs.change == 'true'
+        if: steps.changes.outputs.change == 'true' || steps.changes.outputs.common == 'true'
         uses: ./.github/reusable_workflows/build_container
         with:
           build_directory: ${{ matrix.directory[1] }}
