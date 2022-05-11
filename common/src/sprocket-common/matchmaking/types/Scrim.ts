@@ -40,6 +40,12 @@ export enum ScrimStatus {
      * This state is used for event broadcast
      */
     COMPLETE = "COMPLETE",
+
+    /**
+     * One or more players have not checked into the queue
+     * Players will be queue banned and scrim will be removed
+     */
+    CANCELLED = "CANCELLED",
 }
 
 export const ScrimSchema = z.object({
@@ -56,7 +62,10 @@ export const ScrimSchema = z.object({
         .optional(),
 
     submissionId: z.string().optional(),
-    submissionGroupId: z.string().uuid().optional()
+    submissionGroupId: z.string().uuid()
+        .optional(),
+
+    timeoutJobId: z.number().optional(),
 });
 
 
