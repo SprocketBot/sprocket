@@ -52,7 +52,7 @@ export class ScrimLogicService {
         
         if (scrim.timeoutJobId) {
             const job = await this.scrimQueue.getJob(scrim.timeoutJobId);
-            job?.remove();
+            await job?.remove();
         }
         
         await this.eventsService.publish(EventTopic.ScrimStarted, scrim, scrim.id);
