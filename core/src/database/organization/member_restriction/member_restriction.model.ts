@@ -1,6 +1,6 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {
-    Column, Entity, JoinColumn, OneToOne,
+    Column, Entity, JoinColumn, ManyToOne, OneToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
@@ -29,7 +29,7 @@ export class MemberRestriction extends BaseModel {
     @Field({nullable: true})
     manualExpirationReason?: string;
 
-    @OneToOne(() => Member)
+    @ManyToOne(() => Member, m => m.restrictions)
     @JoinColumn()
     @Field(() => Member)
     member: Member;
