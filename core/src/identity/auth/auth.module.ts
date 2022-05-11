@@ -1,20 +1,17 @@
 import {Module} from "@nestjs/common";
 import {JwtModule} from "@nestjs/jwt";
 import {PassportModule} from "@nestjs/passport";
-import { AnalyticsModule } from "@sprocketbot/common";
-import {MledbInterfaceModule} from "src/mledb/mledb-interface.module";
+import {AnalyticsModule} from "@sprocketbot/common";
 
+import {MledbInterfaceModule} from "../../mledb";
 import {config} from "../../util/config";
 import {IdentityModule} from "../identity.module";
-import {AnonymousAuthService} from "./anonymous-auth/anonymous-auth.service";
+import {AnonymousAuthService} from "./anonymous-auth";
 import {AuthModuleResolver} from "./auth.mod.resolver";
-import {GqlJwtGuard} from "./gql-auth-guard/gql-jwt-guard";
-import {JwtConstants} from "./oauth/constants";
-import {OauthController} from "./oauth/oauth.controller";
-import {OauthService} from "./oauth/oauth.service";
-import {DiscordStrategy} from "./oauth/strategies/discord.strategy";
-import {GoogleStrategy} from "./oauth/strategies/google.strategy";
-import {JwtStrategy} from "./oauth/strategies/oauth.jwt.strategy";
+import {GqlJwtGuard} from "./gql-auth-guard";
+import {
+    DiscordStrategy, GoogleStrategy, JwtConstants, JwtStrategy, OauthController, OauthService,
+} from "./oauth";
 
 @Module({
     imports: [
@@ -25,7 +22,7 @@ import {JwtStrategy} from "./oauth/strategies/oauth.jwt.strategy";
             signOptions: {expiresIn: config.auth.jwt_expiry},
         }),
         MledbInterfaceModule,
-        AnalyticsModule
+        AnalyticsModule,
     ],
     providers: [
         AuthModuleResolver,

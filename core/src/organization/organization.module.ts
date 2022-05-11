@@ -1,12 +1,11 @@
 import {Module} from "@nestjs/common";
 
 import {DatabaseModule} from "../database";
-import {GameModule} from "../game/game.module";
-import {MemberService} from "./member/member.service";
-import {MemberPlatformAccountService} from "./member-platform-account/member-platform-account.service";
-import {OrganizationResolver} from "./organization/organization.resolver";
-import {OrganizationService} from "./organization/organization.service";
-import {PronounsService} from "./pronouns/pronouns.service";
+import {GameModule} from "../game";
+import {MemberService} from "./member";
+import {MemberPlatformAccountService} from "./member-platform-account";
+import {OrganizationResolver, OrganizationService} from "./organization";
+import {PronounsService} from "./pronouns";
 
 @Module({
     imports: [DatabaseModule, GameModule],
@@ -17,6 +16,5 @@ import {PronounsService} from "./pronouns/pronouns.service";
         PronounsService,
         MemberPlatformAccountService,
     ],
-    exports: [],
 })
 export class OrganizationModule {}

@@ -3,8 +3,8 @@ import {
 } from "@nestjs/graphql";
 
 import {Organization, OrganizationProfile} from "../../database";
-import {OrganizationService} from ".";
-import {OrganizationProfileInput} from "./inputs/organization_profile.input";
+import {OrganizationProfileInput} from "./inputs";
+import {OrganizationService} from "./organization.service";
 
 @Resolver(() => Organization)
 export class OrganizationResolver {

@@ -4,7 +4,9 @@ import {Repository} from "typeorm";
 import type {FindManyOptions} from "typeorm/find-options/FindManyOptions";
 
 import type {IrrelevantFields} from "../../database";
-import {User, UserAuthenticationAccount, UserProfile,} from "../../database";
+import {
+    User, UserAuthenticationAccount, UserProfile,
+} from "../../database";
 
 @Injectable()
 export class UserService {
@@ -28,11 +30,11 @@ export class UserService {
         const authAccts = authenticationAccounts.map(acct => this.userAuthAcctRepository.create(acct));
         const user = this.userRepository.create({userProfile: profile});
         user.authenticationAccounts = authAccts;
-        authAccts.forEach(aa => aa.user = user)
+        authAccts.forEach(aa => { aa.user = user });
 
         await this.userProfileRepository.save(user.userProfile);
         await this.userRepository.save(user);
-        await this.userAuthAcctRepository.save(authAccts)
+        await this.userAuthAcctRepository.save(authAccts);
         return user;
     }
 
@@ -63,7 +65,7 @@ export class UserService {
      * for the user.
      */
     async getUserAuthenticationAccountsForUser(userId: number): Promise<UserAuthenticationAccount[]> {
-        const authAccounts = await this.userAuthAcctRepository.find({where: {user: {id: userId}}});
+        const authAccounts = await this.userAuthAcctRepository.find({where: {user: {id: userId} } });
         return authAccounts;
     }
 
@@ -84,7 +86,7 @@ export class UserService {
     async getUsers(query: FindManyOptions<UserProfile>): Promise<User[]> {
         const userProfiles = await this.userProfileRepository.find({
             ...query,
-            relations: ["user", ...query.relations ?? []]
+            relations: ["user", ...query.relations ?? []],
         });
         return userProfiles.map(op => op.user);
     }
@@ -98,7 +100,7 @@ export class UserService {
     async updateUserProfile(userId: number, data: Omit<Partial<UserProfile>, "user">): Promise<UserProfile> {
         let {userProfile} = await this.userRepository.findOneOrFail(
             userId,
-            {relations: ["userProfile"]},
+            {relations: ["userProfile"] },
         );
         userProfile = this.userProfileRepository.merge(userProfile, data);
         await this.userProfileRepository.save(userProfile);
@@ -125,7 +127,7 @@ export class UserService {
      * @returns The found UserProfile
      */
     async getUserProfileForUser(userId: number): Promise<UserProfile> {
-        const org = await this.userRepository.findOneOrFail(userId, {relations: ["userProfile"]});
+        const org = await this.userRepository.findOneOrFail(userId, {relations: ["userProfile"] });
         return org.userProfile;
     }
 }
