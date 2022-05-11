@@ -9,4 +9,5 @@ export * from "./schedule_fixture";
 export * from "./schedule_group";
 export * from "./schedule_group_type";
 export * from "./scheduled_event";
+export * from "./scheduling.module";
 export * from "./team_stat_line";
