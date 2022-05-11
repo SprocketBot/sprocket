@@ -1,57 +1,65 @@
 import * as zod from "zod";
-const operationTypes = zod.enum(["text", "fill", "stroke", "image"]);
 
-const hAlignOptions = zod.enum(["left", "center", "right"]);
-const vAlignOptions = zod.enum(["top", "center", "bottom"]);
+// Hex color with or without alpha
+const hexColorRegex = /#[a-f\d]{3}(?:[a-f\d]?|(?:[a-f\d]{3}(?:[a-f\d]{2})?)?)\b/i;
 
-const textTransformationOptions = zod.object({
-    "h-align": hAlignOptions,
-    "v-align": vAlignOptions,
-});
+export const dataLeafSchema = zod.union([
+    zod.object({
+        type: zod.literal("text"),
+        value: zod.union([zod.string(), zod.number()]),
+    }),
+    zod.object({
+        type: zod.literal("number"),
+        value: zod.union([zod.string(), zod.number()]),
+    }),
+    zod.object({
+        type: zod.literal("color"), // Should be color
+        value: zod.string(),
+    }),
+    zod.object({
+        type: zod.literal("image"),
+        value: zod.string().url(),
+    }),
+]);
+export type DataLeaf = zod.infer<typeof dataLeafSchema>;
 
-export type HAlignOption = zod.infer<typeof hAlignOptions>;
-export type VAlignOption = zod.infer<typeof vAlignOptions>;
-export type TextTransformationOptions = zod.infer<typeof textTransformationOptions>;
 
-const rescaleOnOptions = zod.enum(["height", "width"]);
-const imageTransformationOptions = zod.object({
-    rescaleOn: zod.enum(["height", "width"]),
-});
-
-export type RescaleOnOptions = zod.infer<typeof rescaleOnOptions>;
-export type ImageTransformationsOptions = zod.infer<typeof imageTransformationOptions>;
-
-export const operationSchema = zod.object({
-    value: zod.union([zod.string(), zod.number()]),
-    type: operationTypes,
-});
+/**
+ * Recursive type that describes the JSON Object Tree with DataLeaf Nodes
+ */
+// eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
+export type DataStructure = DataLeaf | { [key: string]: DataStructure;} | DataStructure[];
+export const templateStructureSchema: zod.ZodType<DataStructure> = zod.lazy(() => zod.union([dataLeafSchema, zod.array(templateStructureSchema), zod.record(templateStructureSchema)]));
 
 
 export const dimensionSchema = zod.object({
     height: zod.number(),
     width: zod.number(),
 });
-
-export type Operation = zod.infer<typeof operationSchema>;
 export type Dimension = zod.infer<typeof dimensionSchema>;
 
+const textTransformationOptions = zod.object({
+    "h-align": zod.optional(zod.enum(["left", "center", "right"])),
+    "v-align": zod.optional(zod.enum(["top", "center", "bottom"])),
+    "truncate-to": zod.optional(zod.union([zod.number(), zod.literal('as-is')])),
+    "case": zod.optional(zod.enum(["lower", "upper", "as-is"])),
+});
+export type TextTransformationOptions = zod.infer<typeof textTransformationOptions>;
 
-/**
- * Recursive type that describes a Tree with Operation Leafs
- */
-// eslint-disable-next-line
-export interface InputDatum extends Record<string | number, InputDatum | Operation | InputDatum[]> { }
-
-// @ts-expect-error Types are hard, but we can safely consider array indexes as keys for the sake of this program
-export const inputDataSchema: zod.ZodSchema<InputDatum> = zod.lazy(() => zod.union([
-    zod.array(zod.union([operationSchema, inputDataSchema])),
-    zod.record(zod.union([operationSchema, inputDataSchema])),
-]));
+const imageTransformationOptions = zod.object({
+    rescaleOn: zod.enum(["height", "width"]),
+});
+export type ImageTransformationsOptions = zod.infer<typeof imageTransformationOptions>;
 
 export const sprocketDataSchema = zod.array(zod.union([
     zod.object({
         varPath: zod.string(),
         type: zod.literal("text"),
+        options: textTransformationOptions,
+    }),
+    zod.object({
+        varPath: zod.string(),
+        type: zod.literal("number"),
         options: textTransformationOptions,
     }),
     zod.object({
@@ -70,4 +78,13 @@ export const sprocketDataSchema = zod.array(zod.union([
         options: imageTransformationOptions,
     }),
 ]));
-export type SprocketDataSchema = zod.infer<typeof sprocketDataSchema>;
+export type SprocketData = zod.infer<typeof sprocketDataSchema>;
+
+
+export const dataForLinkType = {
+    "text": ["text", "number"],
+    "number": ["text", "number"],
+    "stroke": ["color"],
+    "fill": ["color"],
+    "image": ["image"],
+};
