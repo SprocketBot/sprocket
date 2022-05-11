@@ -4,7 +4,9 @@ import {
 import {Logger} from "@nestjs/common";
 import {ScrimStatus} from "@sprocketbot/common";
 import {Job} from "bull";
+import {IsNull} from "typeorm";
 
+import {OrganizationConfigurationService} from "../configuration/organization-configuration/organization-configuration.service";
 import {MemberRestrictionType} from "../database";
 import {MemberService} from "../organization/member/member.service";
 import {MemberRestrictionService} from "../organization/member-restriction";
@@ -18,6 +20,7 @@ export class ScrimConsumer {
         private readonly scrimService: ScrimService,
         private readonly memberRestrictionService: MemberRestrictionService,
         private readonly memberService: MemberService,
+        private readonly organizationConfigurationService: OrganizationConfigurationService,
     ) {}
 
     @Process({name: "timeoutQueue"})
@@ -32,11 +35,24 @@ export class ScrimConsumer {
         this.logger.log(`scrim unsuccessful scrimId=${scrimId}`);
         this.logger.log(`scrimId=${scrimId} players didn't check in: ${playersNotCheckedIn.map(p => p.name)}`);
 
-        const bannedUntil = new Date();
-        bannedUntil.setHours(bannedUntil.getHours() + 24);
+        const initialBanDuration = await this.organizationConfigurationService.getOrganizationConfigurationValue(scrim.organizationId, "queueBanInitialDuration");
+        const durationModifier = await this.organizationConfigurationService.getOrganizationConfigurationValue(scrim.organizationId, "queueBanDurationModifier");
 
         for (const player of playersNotCheckedIn) {
-            const member = await this.memberService.getMember({where: {user: {id: player.id} } });
+            const member = await this.memberService.getMember({relations: ["organization"], where: {user: {id: player.id} } });
+            const restrictions = await this.memberRestrictionService.getMemberRestrictions({
+                where: {
+                    type: MemberRestrictionType.QUEUE_BAN,
+                    member: member,
+                    manualExpiration: IsNull(),
+                },
+            });
+
+            // eslint-disable-next-line @typescript-eslint/no-extra-parens
+            const banMinuteOffset = Number(initialBanDuration) + (Number(durationModifier) * restrictions.length);
+            const bannedUntil = new Date();
+            bannedUntil.setMinutes(bannedUntil.getMinutes() + banMinuteOffset);
+
             await this.memberRestrictionService.createMemberRestriction(MemberRestrictionType.QUEUE_BAN, bannedUntil, member.id);
         }
 

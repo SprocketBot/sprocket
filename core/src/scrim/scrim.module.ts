@@ -6,6 +6,7 @@ import {
 import {config} from "@sprocketbot/common/lib/util/config";
 import {PubSub} from "apollo-server-express";
 
+import {ConfigurationModule} from "../configuration/configuration.module";
 import {DatabaseModule} from "../database";
 import {SchedulingModule} from "../database/scheduling/scheduling.module";
 import {GameModule} from "../game/game.module";
@@ -23,6 +24,7 @@ import {ScrimMetaCrudService} from "./scrim-crud/scrim-crud.service";
 
 @Module({
     imports: [
+        ConfigurationModule,
         MatchmakingModule,
         EventsModule,
         GameModule,

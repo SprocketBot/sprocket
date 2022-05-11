@@ -9,12 +9,12 @@ import {SprocketConfigurationService} from "./sprocket-configuration/sprocket-co
 
 @Module({
     imports: [DatabaseModule, OrganizationModule],
-    controllers: [],
     providers: [
         OrganizationConfigurationResolver,
         OrganizationConfigurationService,
         SprocketConfigurationResolver,
         SprocketConfigurationService,
     ],
+    exports: [OrganizationConfigurationService],
 })
 export class ConfigurationModule {}
