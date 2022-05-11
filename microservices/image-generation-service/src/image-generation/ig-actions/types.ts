@@ -1,9 +1,9 @@
 import * as z from "zod";
 
-import {inputDataSchema} from "../types";
+import {templateStructureSchema} from "../types";
 
 export const CreateImageSchema = z.object({
-    filterValues: inputDataSchema,
+    filterValues: templateStructureSchema,
     inputFile: z.string(),
     outputFile: z.string(),
 });
