@@ -1,16 +1,15 @@
 import {Module} from "@nestjs/common";
 
 import {DatabaseModule} from "../database";
-import {GameModule} from "../game/game.module";
-import {IdentityModule} from "../identity/identity.module";
-import {MemberService} from "./member/member.service";
-import {MemberPlatformAccountService} from "./member-platform-account/member-platform-account.service";
+import {GameModule} from "../game";
+import {IdentityModule} from "../identity";
+import {MemberService} from "./member";
+import {MemberPlatformAccountService} from "./member-platform-account";
+import {OrganizationResolver, OrganizationService} from "./organization";
+import {PronounsService} from "./pronouns/pronouns.service";
 import {
     MemberRestrictionResolver, MemberRestrictionService, QueueBanGuard,
 } from "./member-restriction/";
-import {OrganizationResolver} from "./organization/organization.resolver";
-import {OrganizationService} from "./organization/organization.service";
-import {PronounsService} from "./pronouns/pronouns.service";
 
 @Module({
     imports: [DatabaseModule, GameModule, IdentityModule],

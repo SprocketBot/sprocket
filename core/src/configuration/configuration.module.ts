@@ -1,11 +1,9 @@
 import {Module} from "@nestjs/common";
 
 import {DatabaseModule} from "../database";
-import {OrganizationModule} from "../organization/organization.module";
-import {OrganizationConfigurationResolver} from "./organization-configuration/organization-confguration.resolvers";
-import {OrganizationConfigurationService} from "./organization-configuration/organization-configuration.service";
-import {SprocketConfigurationResolver} from "./sprocket-configuration/sprocket-configuration.resolver";
-import {SprocketConfigurationService} from "./sprocket-configuration/sprocket-configuration.service";
+import {OrganizationModule} from "../organization";
+import {OrganizationConfigurationResolver, OrganizationConfigurationService} from "./organization-configuration";
+import {SprocketConfigurationResolver, SprocketConfigurationService} from "./sprocket-configuration";
 
 @Module({
     imports: [DatabaseModule, OrganizationModule],

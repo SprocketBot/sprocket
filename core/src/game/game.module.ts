@@ -1,10 +1,9 @@
 import {Module} from "@nestjs/common";
 
 import {DatabaseModule} from "../database";
-import {GameResolver} from "./game/game.resolver";
-import {GameService} from "./game/game.service";
-import {GameModeService} from "./game-mode/game-mode.service";
-import {PlatformService} from "./platform/platform.service";
+import {GameResolver, GameService} from "./game";
+import {GameModeService} from "./game-mode";
+import {PlatformService} from "./platform";
 
 @Module({
     imports: [DatabaseModule],

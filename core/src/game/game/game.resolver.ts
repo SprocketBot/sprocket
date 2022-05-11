@@ -4,7 +4,7 @@ import {
 
 import type {GameMode} from "../../database";
 import {Game} from "../../database";
-import {GameModeService} from "../game-mode/game-mode.service";
+import {GameModeService} from "../game-mode";
 import {GameService} from "./game.service";
 
 @Resolver(() => Game)

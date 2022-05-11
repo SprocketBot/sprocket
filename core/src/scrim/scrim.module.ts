@@ -6,21 +6,21 @@ import {
 import {config} from "@sprocketbot/common/lib/util/config";
 import {PubSub} from "apollo-server-express";
 
-import {ConfigurationModule} from "../configuration/configuration.module";
+import {ConfigurationModule} from "../configuration";
 import {DatabaseModule} from "../database";
-import {SchedulingModule} from "../database/scheduling/scheduling.module";
-import {GameModule} from "../game/game.module";
-import {AuthModule} from "../identity/auth/auth.module";
-import {OrganizationModule} from "../organization/organization.module";
-import {MatchService} from "../scheduling/match/match.service";
-import {RoundService} from "../scheduling/round/round.service";
+import {SchedulingModule} from "../database/scheduling";
+import {GameModule} from "../game";
+import {AuthModule} from "../identity";
+import {OrganizationModule} from "../organization";
+import {MatchService} from "../scheduling";
+import {RoundService} from "../scheduling";
 import {ScrimPubSub} from "./constants";
-import {ScrimMetricsResolver} from "./metrics/scrim-metrics.resolver";
+import {ScrimMetricsResolver} from "./metrics";
 import {ScrimConsumer} from "./scrim.consumer";
 import {ScrimModuleResolver, ScrimModuleResolverPublic} from "./scrim.mod.resolver";
 import {ScrimResolver} from "./scrim.resolver";
 import {ScrimService} from "./scrim.service";
-import {ScrimMetaCrudService} from "./scrim-crud/scrim-crud.service";
+import {ScrimMetaCrudService} from "./scrim-crud";
 
 @Module({
     imports: [
