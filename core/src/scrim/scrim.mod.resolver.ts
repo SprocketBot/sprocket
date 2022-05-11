@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import {InjectQueue} from "@nestjs/bull";
 import {
     Inject, Logger, UseGuards,

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import {
     Process, Processor,
 } from "@nestjs/bull";
