@@ -341,7 +341,7 @@ module.exports = {
     "no-duplicate-imports": "off",                                             /* (  ) disallow duplicate module imports */ // Disabled in favor of typescript-eslint rule below
     "no-new-symbol": "error",                                                  /* (r ) disallow `new` operators with the `Symbol` object */
     "no-restricted-exports": "off",                                            /* (  ) disallow specified names in exports */
-    "no-restricted-imports": ["error", { "patterns": ["src/*"], }],                                            /* (  ) disallow specified modules when loaded by `import` */
+    "no-restricted-imports": ["error", { "patterns": ["src/*"], }],            /* (  ) disallow specified modules when loaded by `import` */
     "no-this-before-super": "error",                                           /* (r ) disallow `this`/`super` before calling `super()` in constructors */
     "no-useless-computed-key": "error",                                        /* ( f) disallow unnecessary computed property keys in objects and classes */
     "no-useless-constructor": "off",                                           /* (  ) disallow unnecessary constructors */ // Disabled in favor of typescript-eslint rule below
