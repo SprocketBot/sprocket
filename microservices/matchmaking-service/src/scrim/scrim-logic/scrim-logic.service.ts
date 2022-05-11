@@ -49,7 +49,12 @@ export class ScrimLogicService {
         scrim.games = this.gameOrderService.generateGameOrder(scrim);
         await this.scrimCrudService.setScrimGames(scrim.id, scrim.games);
         await this.scrimCrudService.updateScrimStatus(scrim.id, ScrimStatus.IN_PROGRESS);
-        if (scrim.timeoutJobId) await (await this.scrimQueue.getJob(scrim.timeoutJobId))?.remove();
+        
+        if (scrim.timeoutJobId) {
+            const job = await this.scrimQueue.getJob(scrim.timeoutJobId);
+            job?.remove();
+        }
+        
         await this.eventsService.publish(EventTopic.ScrimStarted, scrim, scrim.id);
     }
 

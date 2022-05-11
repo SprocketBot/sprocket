@@ -1,11 +1,15 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {FindManyOptions, FindOneOptions} from "typeorm";
-import {Repository} from "typeorm";
+import {
+    IsNull, MoreThan, Repository,
+} from "typeorm";
 
 import type {MemberRestrictionType} from "../../database";
 import {MemberRestriction} from "../../database";
 import {MemberService} from "../member/member.service";
+import type {MemberRestrictionFindOperation} from "./member-restriction.types";
+
 
 @Injectable()
 export class MemberRestrictionService {
@@ -40,22 +44,33 @@ export class MemberRestrictionService {
         return this.memberRestrictionRepository.find(query);
     }
 
-    async updateMemberRestriction(memberRestrictionId: number, data: Omit<Partial<MemberRestriction>, "member">): Promise<MemberRestriction> {
+    async getActiveMemberRestrictions(type: MemberRestrictionType, date: Date = new Date(), memberId?: number): Promise<MemberRestriction[]> {
+        const whereA: MemberRestrictionFindOperation = {
+            type: type,
+            expiration: MoreThan(date),
+            manualExpiration: IsNull(),
+        };
+        const whereB: MemberRestrictionFindOperation = {
+            type: type,
+            manualExpiration: MoreThan(new Date()),
+        };
+
+        if (memberId) {
+            whereA.member = {id: memberId};
+            whereB.member = {id: memberId};
+        }
+
+        return this.memberRestrictionRepository.find({
+            where: [whereA, whereB],
+        });
+    }
+
+    async manuallyExpireMemberRestriction(memberRestrictionId: number, manualExpiration: Date, manualExpirationReason: string): Promise<MemberRestriction> {
         let memberRestriction = await this.memberRestrictionRepository.findOneOrFail(memberRestrictionId);
         
-        memberRestriction = this.memberRestrictionRepository.merge(memberRestriction, data);
+        memberRestriction = this.memberRestrictionRepository.merge(memberRestriction, {manualExpiration, manualExpirationReason});
         await this.memberRestrictionRepository.save(memberRestriction);
         
         return memberRestriction;
-    }
-
-    async deleteMemberRestriction(id: number): Promise<MemberRestriction> {
-        const toDelete = await this.memberRestrictionRepository.findOneOrFail(id, {
-            relations: ["memberRestrictionProfile"],
-        });
-        
-        await this.memberRestrictionRepository.delete({id});
-
-        return toDelete;
     }
 }

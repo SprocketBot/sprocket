@@ -29,8 +29,8 @@ export class ScrimConsumer {
 
         const playersNotCheckedIn = scrim.players.filter(p => !p.checkedIn);
 
-        this.logger.debug(`scrim unsuccessful scrimId=${scrimId}`);
-        this.logger.debug(`scrimId=${scrimId} players didn't check in: ${playersNotCheckedIn.map(p => p.name)}`);
+        this.logger.log(`scrim unsuccessful scrimId=${scrimId}`);
+        this.logger.log(`scrimId=${scrimId} players didn't check in: ${playersNotCheckedIn.map(p => p.name)}`);
 
         const bannedUntil = new Date();
         bannedUntil.setHours(bannedUntil.getHours() + 24);

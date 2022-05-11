@@ -166,9 +166,6 @@ export class ScrimService {
         if (!scrim) {
             throw new RpcException("Scrim not found");
         }
-        if (scrim.status !== ScrimStatus.POPPED) {
-            throw new RpcException("Scrim is not popped");
-        }
 
         await this.scrimCrudService.removeScrim(scrimId);
         scrim.status = ScrimStatus.CANCELLED;
