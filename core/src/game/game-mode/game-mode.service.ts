@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
+import type {FindManyOptions} from "typeorm";
 import {Repository} from "typeorm";
-import type {FindManyOptions} from "typeorm/find-options/FindManyOptions";
 
 import {GameMode} from "../../database";
 
