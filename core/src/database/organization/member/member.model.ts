@@ -8,6 +8,7 @@ import {Player} from "../../franchise";
 import {User} from "../../identity";
 import {MemberPlatformAccount} from "../member_platform_account";
 import {MemberProfile} from "../member_profile";
+import {MemberRestriction} from "../member_restriction";
 import {Organization} from "../organization";
 
 @Entity({schema: "sprocket"})
@@ -33,4 +34,8 @@ export class Member extends BaseModel {
     @ManyToOne(() => User, u => u.members)
     @Field(() => User)
     user: User;
+
+    @OneToMany(() => MemberRestriction, mr => mr.member)
+    @Field(() => [MemberRestriction])
+    restrictions: MemberRestriction;
 }
