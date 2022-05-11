@@ -64,6 +64,14 @@ export class ScrimService {
         throw result.error;
     }
 
+    async getScrimById(scrimId: string): Promise<IScrim | null> {
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, scrimId);
+        if (result.status === ResponseStatus.SUCCESS) {
+            return result.data;
+        }
+        throw result.error;
+    }
+
     async createScrim(player: IScrimPlayer, settings: IScrimSettings, gameMode: ScrimGameMode, createGroup?: boolean): Promise<IScrim> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.CreateScrim, {
             author: player,
@@ -111,6 +119,16 @@ export class ScrimService {
         this.logger.log(`endScrim player=${player.id} scrimId=${scrimId}`);
         const result = await this.matchmakingService.send(MatchmakingEndpoint.EndScrim, {
             player,
+            scrimId,
+        });
+
+        if (result.status === ResponseStatus.SUCCESS) return result.data;
+        throw result.error;
+    }
+
+    async cancelScrim(scrimId: string): Promise<IScrim> {
+        this.logger.log(`cancelScrim scrimId=${scrimId}`);
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.CancelScrim, {
             scrimId,
         });
 

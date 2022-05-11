@@ -71,6 +71,12 @@ export class ScrimController {
         return this.scrimService.ratifyScrim(data.scrimId, data.player);
     }
 
+    @MessagePattern(MatchmakingEndpoint.CancelScrim)
+    async cancelScrim(@Payload() payload: unknown): Promise<Scrim> {
+        const data = MatchmakingSchemas.CancelScrim.input.parse(payload);
+        return this.scrimService.cancelScrim(data.scrimId);
+    }
+
     @MessagePattern(MatchmakingEndpoint.GetScrimMetrics)
     async getScrimMetrics(): Promise<ScrimMetrics> {
         return this.scrimMetricsService.getScrimMetrics();

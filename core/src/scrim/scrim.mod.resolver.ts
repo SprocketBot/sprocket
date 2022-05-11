@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {InjectQueue} from "@nestjs/bull";
 import {
     Inject, Logger, UseGuards,
@@ -9,7 +10,7 @@ import type {
     ScrimPlayer as IScrimPlayer,
     ScrimSettings as IScrimSettings,
 } from "@sprocketbot/common";
-import {RedisService, ScrimStatus} from "@sprocketbot/common";
+import {ScrimStatus} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 import {Queue} from "bull";
 
@@ -18,8 +19,6 @@ import {CurrentUser} from "../identity/auth/current-user.decorator";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard/gql-jwt-guard";
 import {UserPayload} from "../identity/auth/oauth/types/userpayload.type";
 import {QueueBanGuard} from "../organization/member-restriction";
-import {MatchService} from "../scheduling/match/match.service";
-import {RoundService} from "../scheduling/round/round.service";
 import {ScrimPubSub} from "./constants";
 import {ScrimService} from "./scrim.service";
 import {
@@ -54,13 +53,10 @@ export class ScrimModuleResolver {
     private readonly logger = new Logger(ScrimModuleResolver.name);
 
     constructor(
-        private readonly scrimService: ScrimService,
         @Inject(ScrimPubSub) private readonly pubSub: PubSub,
+        @InjectQueue("scrim") private scrimQueue: Queue,
+        private readonly scrimService: ScrimService,
         private readonly gameModeService: GameModeService,
-        private readonly redisService: RedisService,
-        private readonly matchService: MatchService,
-        private readonly roundService: RoundService,
-        @InjectQueue("scrim") private readonly scrimQueue: Queue,
     ) {
     }
 

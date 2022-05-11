@@ -158,6 +158,33 @@ export class ScrimService {
         return true;
     }
 
+    async cancelScrim(scrimId: string): Promise<Scrim> {
+        this.logger.debug(`Attempting to cancel scrim, scrimId=${scrimId}`);
+
+        const scrim = await this.scrimCrudService.getScrim(scrimId);
+
+        if (!scrim) {
+            throw new RpcException("Scrim not found");
+        }
+        if (scrim.status === ScrimStatus.POPPED) {
+            throw new RpcException("Scrim is not popped");
+        }
+
+        // TODO: This isn't actually deleting the scrim???
+        await this.scrimCrudService.removeScrim(scrimId);
+        scrim.status = ScrimStatus.CANCELLED;
+        await this.eventsService.publish(EventTopic.ScrimCancelled, scrim, scrim.id);
+
+        this.analyticsService.send(AnalyticsEndpoint.Analytics, {
+            name: "scrimCancelled",
+            tags: [
+                ["scrimId", scrim.id],
+            ],
+        }).catch(err => { this.logger.error(err) });
+
+        return scrim;
+    }
+
     async endScrim(scrimId: string, player: ScrimPlayer): Promise<Scrim> {
         this.logger.debug(`Attempting to end scrim, scrimId=${scrimId} playerId=${player.id}`);
 

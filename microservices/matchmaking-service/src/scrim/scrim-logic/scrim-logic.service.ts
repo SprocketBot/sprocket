@@ -1,8 +1,10 @@
+import {InjectQueue} from "@nestjs/bull";
 import {Injectable, Logger} from "@nestjs/common";
 import type {Scrim} from "@sprocketbot/common";
 import {
     AnalyticsEndpoint, AnalyticsService, EventTopic, ScrimStatus,
 } from "@sprocketbot/common";
+import {Queue} from "bull";
 import {v4 as uuid} from "uuid";
 
 import {EventProxyService} from "../event-proxy/event-proxy.service";
@@ -18,14 +20,18 @@ export class ScrimLogicService {
         private readonly eventsService: EventProxyService,
         private readonly gameOrderService: GameOrderService,
         protected readonly analyticsService: AnalyticsService,
+        @InjectQueue("scrim") private scrimQueue: Queue,
     ) {}
 
     async popScrim(scrim: Scrim): Promise<void> {
         scrim.status = ScrimStatus.POPPED;
         scrim.submissionGroupId = uuid();
 
+        const job = await this.scrimQueue.add("timeoutQueue", scrim.id, {delay: 10000});
+
         await this.scrimCrudService.updateScrimStatus(scrim.id, scrim.status);
         await this.scrimCrudService.setSubmissionGroupId(scrim.id, scrim.submissionGroupId);
+        await this.scrimCrudService.setTimeoutJobId(scrim.id, job.id);
 
         await this.eventsService.publish(EventTopic.ScrimPopped, scrim, scrim.id);
 
@@ -43,6 +49,7 @@ export class ScrimLogicService {
         scrim.games = this.gameOrderService.generateGameOrder(scrim);
         await this.scrimCrudService.setScrimGames(scrim.id, scrim.games);
         await this.scrimCrudService.updateScrimStatus(scrim.id, ScrimStatus.IN_PROGRESS);
+        if (scrim.timeoutJobId) await (await this.scrimQueue.getJob(scrim.timeoutJobId))?.remove();
         await this.eventsService.publish(EventTopic.ScrimStarted, scrim, scrim.id);
     }
 
