@@ -1,8 +1,7 @@
 import * as zod from "zod";
-const operationTypes = zod.enum(["text", "fill", "stroke", "image"]);
 
-const hAlignOptions = zod.enum(["left", "center", "right"]);
-const vAlignOptions = zod.enum(["top", "center", "bottom"]);
+// Hex color with or without alpha
+const hexColorRegex = /#[a-f\d]{3}(?:[a-f\d]?|(?:[a-f\d]{3}(?:[a-f\d]{2})?)?)\b/i;
 
 export const dataLeafSchema = zod.union([
     zod.object({
@@ -24,10 +23,6 @@ export const dataLeafSchema = zod.union([
 ]);
 export type DataLeaf = zod.infer<typeof dataLeafSchema>;
 
-const rescaleOnOptions = zod.enum(["height", "width"]);
-const imageTransformationOptions = zod.object({
-    rescaleOn: zod.enum(["height", "width"]),
-});
 
 /**
  * Recursive type that describes the JSON Object Tree with DataLeaf Nodes
@@ -41,13 +36,13 @@ export const dimensionSchema = zod.object({
     height: zod.number(),
     width: zod.number(),
 });
-
-export type Operation = zod.infer<typeof operationSchema>;
 export type Dimension = zod.infer<typeof dimensionSchema>;
 
 const textTransformationOptions = zod.object({
     "h-align": zod.optional(zod.enum(["left", "center", "right"])),
     "v-align": zod.optional(zod.enum(["top", "center", "bottom"])),
+    "truncate-to": zod.optional(zod.union([zod.number(), zod.literal('as-is')])),
+    "case": zod.optional(zod.enum(["lower", "upper", "as-is"])),
 });
 export type TextTransformationOptions = zod.infer<typeof textTransformationOptions>;
 
@@ -60,6 +55,11 @@ export const sprocketDataSchema = zod.array(zod.union([
     zod.object({
         varPath: zod.string(),
         type: zod.literal("text"),
+        options: textTransformationOptions,
+    }),
+    zod.object({
+        varPath: zod.string(),
+        type: zod.literal("number"),
         options: textTransformationOptions,
     }),
     zod.object({

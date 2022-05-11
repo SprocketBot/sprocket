@@ -136,7 +136,24 @@ export class SvgTransformationService {
         const originalBottom = Number(target.getAttribute("y") ?? 0);
         const {height: originalHeight, width: originalWidth} = await this.getElDimension(el);
         
-        target.textContent = value;
+        let newtext = value;
+        const truncate = options["truncate-to"]
+        console.log(truncate)
+        if (truncate && truncate !== 'as-is') {
+            newtext = newtext.slice(0,truncate)
+        }
+        switch (options.case) {
+            case "upper":
+                newtext = newtext.toUpperCase()
+                break;
+            case "lower":
+                newtext = newtext.toLowerCase()
+                break;
+            default: break;
+        }
+
+
+        target.textContent = newtext;
 
         const {height: newHeight, width: newWidth} = await this.getElDimension(el);
 
@@ -196,7 +213,7 @@ export class SvgTransformationService {
     async applyStrokeTransformation(el: Element, value: string): Promise<void> {
         function swapStroke(target: SVGElement): void {
             if (target.hasAttribute("stroke")) {
-                target.style.fill = value;
+                target.style.stroke = value;
             }
             if (target.hasAttribute("stroke")) {
                 target.setAttribute("stroke", value);
@@ -234,32 +251,33 @@ export class SvgTransformationService {
         const transformations = sprocketDataSchema.parse(rawTransformations);
         
         try {
-        await Promise.all(transformations.map(async t => {
+            await Promise.all(transformations.map(async t => {
                 const datum = this.extractDataFromStructure(t.varPath, data);
                 if (!datum) return Promise.resolve();
                 if (!dataForLinkType[t.type].includes(datum.type)) {
                     this.logger.warn(`Problem parsing operation for ${t.varPath}. ${datum.type} cannot be applied to ${t.type}! Skipping ...`);
                     return Promise.resolve();
                 }
-            switch (t.type) {
-                case "text":
-                    await this.applyTextTransformation(el, operation.value.toString(), t.options);
-                    break;
-                case "fill":
-                    await this.applyFillTransformation(el, operation.value.toString());
-                    break;
-                case "stroke":
-                    await this.applyStrokeTransformation(el, operation.value.toString());
-                    break;
-                case "image":
-                    await this.applyImageTransformation(el, operation.value.toString(), t.options);
-                    break;
-                default:
-                    // @ts-expect-error leaving this here for when we create future transformation types
-                    this.logger.warn(`Unknown operation ${t.type} found! Skipping...`);
-            }
-            return Promise.resolve();
-        }));
+                switch (t.type) {
+                    case "number":
+                    case "text":
+                        await this.applyTextTransformation(el, datum.value.toString(), t.options);
+                        break;
+                    case "fill":
+                        await this.applyFillTransformation(el, datum.value.toString());
+                        break;
+                    case "stroke":
+                        await this.applyStrokeTransformation(el, datum.value.toString());
+                        break;
+                    case "image":
+                        await this.applyImageTransformation(el, datum.value.toString(), t.options);
+                        break;
+                    default:
+                        // Leaving this here for when we create future transformation types
+                        this.logger.warn(`Unknown operation ${t} found! Skipping...`);
+                }
+                return Promise.resolve();
+            }));
         } catch (e) {
             this.logger.warn(`failed to apply transformation to ${el.id}`)
             throw e
