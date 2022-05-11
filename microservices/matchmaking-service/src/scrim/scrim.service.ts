@@ -24,7 +24,7 @@ export class ScrimService {
         protected readonly analyticsService: AnalyticsService,
     ) {}
 
-    async createScrim(author: ScrimPlayer, settings: ScrimSettings, gameMode: ScrimGameMode, createGroup: boolean): Promise<Scrim> {
+    async createScrim(organizationId: number, author: ScrimPlayer, settings: ScrimSettings, gameMode: ScrimGameMode, createGroup: boolean): Promise<Scrim> {
         if (await this.scrimCrudService.playerInAnyScrim(author.id)) {
             throw new RpcException("Cannot create scrim, player already in another scrim");
         }
@@ -34,7 +34,7 @@ export class ScrimService {
         }
 
         const scrim = await this.scrimCrudService.createScrim({
-            settings, author, gameMode,
+            organizationId, settings, author, gameMode,
         });
 
         if (createGroup) {

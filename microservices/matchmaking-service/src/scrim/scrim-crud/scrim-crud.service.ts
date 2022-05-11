@@ -17,10 +17,11 @@ export class ScrimCrudService {
     }
 
     async createScrim({
-        settings, author, gameMode,
+        organizationId, settings, author, gameMode,
     }: CreateScrimOpts): Promise<Scrim> {
         const scrim: Scrim = {
             id: v4(),
+            organizationId: organizationId,
             players: [],
             settings: settings,
             status: ScrimStatus.PENDING,

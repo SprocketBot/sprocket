@@ -12,6 +12,7 @@ import type {
 import {ScrimStatus} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 import {Queue} from "bull";
+import {GraphQLError} from "graphql";
 
 import {GameModeService} from "../game/game-mode/game-mode.service";
 import {CurrentUser} from "../identity/auth/current-user.decorator";
@@ -103,10 +104,18 @@ export class ScrimModuleResolver {
             teamCount: gameMode.teamCount,
         };
 
-        const r = await this.scrimService.createScrim(this.userToScrimPlayer(user), settings, {
-            id: gameMode.id,
-            description: gameMode.description,
-        }, createGroup);
+        if (!user.currentOrganizationId) throw new GraphQLError("User is connected to an organization");
+
+        const r = await this.scrimService.createScrim(
+            user.currentOrganizationId,
+            this.userToScrimPlayer(user),
+            settings,
+            {
+                id: gameMode.id,
+                description: gameMode.description,
+            },
+            createGroup,
+        );
         return r as Scrim;
     }
 

@@ -20,7 +20,7 @@ export class ScrimController {
     async createScrim(@Payload() payload: unknown): Promise<Scrim> {
         const data = MatchmakingSchemas.CreateScrim.input.parse(payload);
         // TODO: Permissions Checks (Must be a Player for the requested game)
-        return this.scrimService.createScrim(data.author, data.settings, data.gameMode, data.createGroup);
+        return this.scrimService.createScrim(data.organizationId, data.author, data.settings, data.gameMode, data.createGroup);
     }
 
     @MessagePattern(MatchmakingEndpoint.GetAllScrims)

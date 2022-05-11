@@ -52,6 +52,7 @@ export const ScrimSchema = z.object({
     id: z.string().uuid(),
     status: z.nativeEnum(ScrimStatus),
 
+    organizationId: z.number(),
     players: z.array(ScrimPlayerSchema),
     gameMode: ScrimGameModeSchema,
 
