@@ -2,10 +2,12 @@ import {Injectable, Logger} from "@nestjs/common";
 import axios from "axios";
 import * as sharp from "sharp";
 
-import type {
-    Dimension, ImageTransformationsOptions, InputDatum, Operation, TextTransformationOptions,
+import {
+    dataForLinkType,
+    DataLeaf, DataStructure,     Dimension, ImageTransformationsOptions,
+    SprocketData, TextTransformationOptions,
 } from "../types";
-import {operationSchema, sprocketDataSchema} from "../types";
+import {sprocketDataSchema} from "../types";
 
 @Injectable()
 export class SvgTransformationService {
@@ -210,34 +212,35 @@ export class SvgTransformationService {
         }
     }
 
-    extractOperation(key: string, data: InputDatum): Operation | false {
+    extractDataFromStructure(key: string, data: DataStructure): DataLeaf | false {
         // eslint-disable-next-line
-        let val: InputDatum | Operation | object = data;
-    
-        for (const segment of key.split(".")) {
+        let val: DataStructure | DataLeaf = data;
+        const segments = key.split(".");
+        for (const segment of segments) {
             // eslint-disable-next-line
             if (Object.keys(val).includes(segment)) {
-                val = val[segment] as object;
+                val = val[segment];
             } else {
                 this.logger.warn(`Unknown value ${key} found! Skipping...`);
                 return false;
             }
         }
-        // Console.log(key, data)
-        const checked = operationSchema.safeParse(val);
-        if (!checked.success) {
-            this.logger.warn(`Malformed object at ${key} found! Skipping... (${checked.error})`);
-            return false;
-        }
-        return checked.data;
+        val = val as DataLeaf;
+        return val;
     }
     
-    async transformElement(el: Element, data: InputDatum): Promise<void> {
-        const rawTransformations = JSON.parse((el as SVGElement).dataset.sprocket ?? "") as unknown;
+    async transformElement(el: Element, data: DataStructure): Promise<void> {
+        const rawTransformations = JSON.parse((el as SVGElement).dataset.sprocket ?? "") as SprocketData[];
         const transformations = sprocketDataSchema.parse(rawTransformations);
+        
+        try {
         await Promise.all(transformations.map(async t => {
-            const operation = this.extractOperation(t.varPath, data);
-            if (operation === false) return Promise.resolve();
+                const datum = this.extractDataFromStructure(t.varPath, data);
+                if (!datum) return Promise.resolve();
+                if (!dataForLinkType[t.type].includes(datum.type)) {
+                    this.logger.warn(`Problem parsing operation for ${t.varPath}. ${datum.type} cannot be applied to ${t.type}! Skipping ...`);
+                    return Promise.resolve();
+                }
             switch (t.type) {
                 case "text":
                     await this.applyTextTransformation(el, operation.value.toString(), t.options);
@@ -257,7 +260,12 @@ export class SvgTransformationService {
             }
             return Promise.resolve();
         }));
+        } catch (e) {
+            this.logger.warn(`failed to apply transformation to ${el.id}`)
+            throw e
+        }
         el.removeAttribute("data-sprocket");
         this.logger.log(`successfully applied transformation to ${el.id}`);
+
     }
 }
