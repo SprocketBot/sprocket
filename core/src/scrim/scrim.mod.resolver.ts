@@ -14,6 +14,7 @@ import {PubSub} from "apollo-server-express";
 import {Queue} from "bull";
 import {GraphQLError} from "graphql";
 
+import {OrganizationConfigurationService} from "../configuration/organization-configuration/organization-configuration.service";
 import {GameModeService} from "../game/game-mode/game-mode.service";
 import {CurrentUser} from "../identity/auth/current-user.decorator";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard/gql-jwt-guard";
@@ -57,8 +58,8 @@ export class ScrimModuleResolver {
         @InjectQueue("scrim") private scrimQueue: Queue,
         private readonly scrimService: ScrimService,
         private readonly gameModeService: GameModeService,
-    ) {
-    }
+        private readonly organizationConfigurationService: OrganizationConfigurationService,
+    ) {}
 
     /*
      *
@@ -96,17 +97,19 @@ export class ScrimModuleResolver {
         @Args("data") data: CreateScrimInput,
         @Args("createGroup", {nullable: true}) createGroup?: boolean,
     ): Promise<Scrim> {
+        if (!user.currentOrganizationId) throw new GraphQLError("User is connected to an organization");
+
         const gameMode = await this.gameModeService.getGameModeById(data.settings.gameModeId);
+        const checkinTimeout = await this.organizationConfigurationService.getOrganizationConfigurationValue(user.currentOrganizationId, "scrimQueueCheckinTimeout");
         const settings: IScrimSettings = {
             competitive: data.settings.competitive,
             mode: data.settings.mode,
             teamSize: gameMode.teamSize,
             teamCount: gameMode.teamCount,
+            checkinTimeout: Number(checkinTimeout),
         };
 
-        if (!user.currentOrganizationId) throw new GraphQLError("User is connected to an organization");
-
-        const r = await this.scrimService.createScrim(
+        return this.scrimService.createScrim(
             user.currentOrganizationId,
             this.userToScrimPlayer(user),
             settings,
@@ -115,8 +118,7 @@ export class ScrimModuleResolver {
                 description: gameMode.description,
             },
             createGroup,
-        );
-        return r as Scrim;
+        ) as Promise<Scrim>;
     }
 
     @Mutation(() => Boolean)
