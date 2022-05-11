@@ -1,12 +1,13 @@
-import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,} from "typeorm";
+import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique,} from "typeorm";
 import {MLE_Season} from "./Season.model";
 
 @Index("draft_order_pkey", ["id"], {unique: true})
-@Index(
-    "draft_order_season_season_number_league_round_pick_unique",
-    ["league", "pick", "round", "seasonSeasonNumber"],
-    {unique: true}
-)
+// @Index(
+//     "draft_order_season_season_number_league_round_pick_unique",
+//     ["league", "pick", "round", "seasonSeasonNumber"],
+//     {unique: true}
+// )
+@Unique(["league", "pick", "round", "seasonSeasonNumber"])
 @Entity("draft_order", {schema: "mledb"})
 export class MLE_DraftOrder {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
@@ -38,7 +39,7 @@ export class MLE_DraftOrder {
     })
     updatedAt: Date;
 
-    @Column("integer", {name: "season_season_number", unique: true})
+    @Column("integer", {name: "season_season_number"})
     seasonSeasonNumber: number;
 
     @Column("character varying", {name: "original_team_name", length: 255})
@@ -47,13 +48,13 @@ export class MLE_DraftOrder {
     @Column("character varying", {name: "team_name", length: 255})
     teamName: string;
 
-    @Column("text", {name: "league", unique: true})
+    @Column("text", {name: "league"})
     league: string;
 
-    @Column("integer", {name: "round", unique: true})
+    @Column("integer", {name: "round"})
     round: number;
 
-    @Column("integer", {name: "pick", unique: true})
+    @Column("integer", {name: "pick"})
     pick: number;
 
     @ManyToOne(() => MLE_Season, (season) => season.draftOrders, {

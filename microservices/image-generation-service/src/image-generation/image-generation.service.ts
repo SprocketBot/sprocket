@@ -10,7 +10,7 @@ import {Client} from "minio";
 import * as sharp from "sharp";
 
 import {SvgTransformationService} from "./svg-transformation/svg-transformation.service";
-import {inputDataSchema} from "./types";
+import {templateStructureSchema} from "./types";
 
 @Injectable()
 export class ImageGenerationService {
@@ -23,7 +23,7 @@ export class ImageGenerationService {
     async processSvg(inputFileKey: string, outputFileKey: string, rawData: unknown): Promise<void> {
         this.logger.log(`Beginning Generation of ${inputFileKey}`);
         // eslint-disable-next-line
-        const data = inputDataSchema.parse(rawData);
+        const data = templateStructureSchema.parse(rawData);;
         this.logger.debug("Input data successfully parsed");
         const file = await this.downloadFile(inputFileKey);
         // WriteFileSync("./input.svg", file);

@@ -47,7 +47,6 @@ export class MLE_SeriesReplay {
     @Column("character varying", {
         name: "match_guid",
         nullable: true,
-        unique: true,
         length: 255,
     })
     matchGuid: string | null;
@@ -59,7 +58,7 @@ export class MLE_SeriesReplay {
     })
     ballchasingId: string | null;
 
-    @Column("integer", {name: "duration", unique: true})
+    @Column("integer", {name: "duration"})
     duration: number;
 
     @Column("boolean", {name: "ncp", default: () => "false"})
