@@ -6,4 +6,6 @@ export class AuthPayload {
     userId: number;
 
     currentOrganizationId?: number;
+
+    orgTeams?: number[]
 }

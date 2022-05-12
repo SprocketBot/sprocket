@@ -1,6 +1,4 @@
-import {
-    Controller, ForbiddenException, Get, Request, Response, UseGuards,
-} from "@nestjs/common";
+import {Controller, ForbiddenException, Get, Request, Response, UseGuards,} from "@nestjs/common";
 import {Request as Req, Response as Res} from "express";
 
 import type {User, UserAuthenticationAccount} from "../../../database";
@@ -78,11 +76,11 @@ export class OauthController {
             const player = await this.mledbUserService.getUserByDiscordId(discordAccount.accountId);
             const player_to_orgs = await this.mledbUserService.getUserOrgs(player);
             const orgs = player_to_orgs.map(pto => pto.orgTeam);
-            const payload = {
+            const payload: AuthPayload = {
                 sub: discordAccount.accountId,
                 username: userProfile.email,
                 userId: ourUser.id,
-                org: "Sprocket",
+                currentOrganizationId: 1,
                 orgTeams: orgs,
             };
             const token = await this.authService.loginDiscord(payload);
