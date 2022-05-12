@@ -24,7 +24,7 @@ export enum ChannelType {
     PENDING_SCRIMS_MASTER,
     OPEN_SCRIMS_PREMIER,
     PENDING_SCRIMS_PREMIER,
-    //add enums here for League_Report_Card_Foundation, assign a value start at 21
+    // add enums here for League_Report_Card_Foundation, assign a value start at 21
     LEAGUE_REPORT_CARD_FOUNDATION = 21,
     LEAGUE_REPORT_CARD_ACADEMY = 22,
     LEAGUE_REPORT_CARD_CHAMPION = 23,
@@ -33,5 +33,5 @@ export enum ChannelType {
     TRANSACTIONS = 6,
 
     MATCH_TIMES = 99,
-    LO_NOTIFS = 100
+    LO_NOTIFS = 100,
 }

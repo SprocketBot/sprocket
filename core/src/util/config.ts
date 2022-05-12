@@ -40,9 +40,9 @@ export const config = {
     },
     auth: {
         google: {
-            get clientId(): string {return readFileSync("./secret/googleClientId.txt").toString()},
-            get secret(): string {return readFileSync("./secret/googleSecret.txt").toString()},
-            get callbackUrl(): string { return _config.get<string>("auth.googleCallbackURL") }
+            get clientId(): string { return readFileSync("./secret/googleClientId.txt").toString() },
+            get secret(): string { return readFileSync("./secret/googleSecret.txt").toString() },
+            get callbackUrl(): string { return _config.get<string>("auth.googleCallbackURL") },
         },
         discord: {
             get clientId(): string { return readFileSync("./secret/discord-client.txt").toString() },
@@ -50,7 +50,7 @@ export const config = {
             get callbackURL(): string { return _config.get<string>("auth.discordCallbackURL") },
         },
         get jwt_expiry(): string { return _config.get<string>("auth.jwt_expiry") },
-        get frontend_callback(): string { return _config.get<string>("auth.frontend_callback") }
+        get frontend_callback(): string { return _config.get<string>("auth.frontend_callback") },
     },
     redis: {
         get port(): string { return _config.get<string>("redis.port") },

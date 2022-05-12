@@ -7,7 +7,8 @@ import {BaseModel} from "../../base-model";
 import {EnabledFeature} from "../enabled_feature";
 import {Feature} from "../feature";
 import {Game} from "../game";
-@Entity({ schema: "sprocket" })
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class GameFeature extends BaseModel {
     @ManyToOne(() => Game)

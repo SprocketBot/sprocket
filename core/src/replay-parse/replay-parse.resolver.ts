@@ -1,5 +1,10 @@
-import {Inject, UploadedFiles, UseGuards, UseInterceptors} from "@nestjs/common";
-import {Args, Mutation, Resolver, Subscription} from "@nestjs/graphql";
+import {
+    Inject, UploadedFiles, UseGuards, UseInterceptors,
+} from "@nestjs/common";
+import {
+    Args, Mutation, Resolver, Subscription,
+} from "@nestjs/graphql";
+import {FilesInterceptor} from "@nestjs/platform-express";
 import {PubSub} from "apollo-server-express";
 
 import {CurrentUser} from "../identity/auth/current-user.decorator";
@@ -8,7 +13,6 @@ import {UserPayload} from "../identity/auth/oauth/types/userpayload.type";
 import {ReplayParsePubSub} from "./replay-parse.constants";
 import {ReplayParseService} from "./replay-parse.service";
 import {ReplayParseProgress} from "./replay-parse.types";
-import {FilesInterceptor} from "@nestjs/platform-express";
 
 @Resolver()
 @UseGuards(GqlJwtGuard)
@@ -16,14 +20,13 @@ export class ReplayParseResolver {
     constructor(
         private readonly rpService: ReplayParseService,
         @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
-    ) {
-    }
+    ) {}
 
     @Mutation(() => [String])
-    @UseInterceptors(FilesInterceptor('files'))
+    @UseInterceptors(FilesInterceptor("files"))
     async parseReplays(
         @CurrentUser() user: UserPayload,
-        @UploadedFiles() files: Array<Express.Multer.File>,
+        @UploadedFiles() files: Express.Multer.File[],
         @Args("submissionId", {nullable: true}) submissionId: string,
     ): Promise<string[]> {
         const streams = await Promise.all(files.map(async f => f.stream));

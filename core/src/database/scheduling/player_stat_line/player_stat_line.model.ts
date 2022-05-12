@@ -7,7 +7,8 @@ import {
 import {BaseModel} from "../../base-model";
 import {Round} from "../round/round.model";
 import {TeamStatLine} from "../team_stat_line/team_stat_line.model";
-@Entity({ schema: "sprocket" })
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class PlayerStatLine extends BaseModel {
     @Column({

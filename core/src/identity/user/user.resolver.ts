@@ -41,9 +41,9 @@ export class UserResolver {
     }
 
     @ResolveField()
-    async authenticationAccounts(@Root() user: User): Promise<UserAuthenticationAccount[]> {
+    async authenticationAccounts(@Root() user: Partial<User>): Promise<UserAuthenticationAccount[]> {
         if (!Array.isArray(user.authenticationAccounts)) {
-            return this.identityService.getAuthAccountsForUser(user.id);
+            return this.identityService.getAuthAccountsForUser(user.id!);
         }
         return user.authenticationAccounts;
     }

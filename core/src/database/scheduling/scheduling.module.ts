@@ -39,5 +39,4 @@ const ormModule = TypeOrmModule.forFeature(schedulingEntities);
         ormModule,
     ],
 })
-export class SchedulingModule {
-}
+export class SchedulingModule {}

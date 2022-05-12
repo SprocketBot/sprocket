@@ -5,11 +5,11 @@ import {GameModule} from "../game";
 import {IdentityModule} from "../identity";
 import {MemberService} from "./member";
 import {MemberPlatformAccountService} from "./member-platform-account";
-import {OrganizationResolver, OrganizationService} from "./organization";
-import {PronounsService} from "./pronouns/pronouns.service";
 import {
     MemberRestrictionResolver, MemberRestrictionService, QueueBanGuard,
 } from "./member-restriction/";
+import {OrganizationResolver, OrganizationService} from "./organization";
+import {PronounsService} from "./pronouns/pronouns.service";
 
 @Module({
     imports: [DatabaseModule, GameModule, IdentityModule],

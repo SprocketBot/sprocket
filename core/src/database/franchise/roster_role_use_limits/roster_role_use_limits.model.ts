@@ -6,7 +6,8 @@ import {
 import {BaseModel} from "../../base-model";
 import {ScheduleGroupType} from "../../scheduling/schedule_group_type";
 import {GameSkillGroup} from "../game_skill_group";
-@Entity({ schema: "sprocket" })
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class RosterRoleUseLimits extends BaseModel {
     @Column()

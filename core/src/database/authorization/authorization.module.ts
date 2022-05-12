@@ -36,5 +36,4 @@ const ormModule = TypeOrmModule.forFeature(authorizationEntities);
         ormModule,
     ],
 })
-export class AuthorizationModule {
-}
+export class AuthorizationModule {}

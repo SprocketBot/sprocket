@@ -47,5 +47,4 @@ const ormModule = TypeOrmModule.forFeature(franchiseEntities);
         ormModule,
     ],
 })
-export class FranchiseModule {
-}
+export class FranchiseModule {}

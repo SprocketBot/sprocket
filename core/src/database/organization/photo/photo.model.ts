@@ -5,7 +5,8 @@ import {
 
 import {BaseModel} from "../../base-model";
 import {Approval} from "../approval";
-@Entity({ schema: "sprocket" })
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class Photo extends BaseModel {
     @Column({nullable: true})

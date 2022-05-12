@@ -1,11 +1,13 @@
-import {Controller, ForbiddenException, Get, Request, Response, UseGuards,} from "@nestjs/common";
+import {
+    Controller, ForbiddenException, Get, Request, Response, UseGuards,
+} from "@nestjs/common";
 import {Request as Req, Response as Res} from "express";
 
 import type {User, UserAuthenticationAccount} from "../../../database";
 import {UserAuthenticationAccountType} from "../../../database";
 import {UserService} from "../../../identity/user/user.service";
 import {MledbUserService} from "../../../mledb/mledb-user/mledb-user.service";
-
+import {config} from "../../../util/config";
 import {DiscordAuthGuard} from "./guards/discord-auth.guard";
 import {GoogleAuthGuard} from "./guards/google-auth.guard";
 import {JwtAuthGuard} from "./guards/jwt-auth.guard";
@@ -14,7 +16,6 @@ import {OauthService} from "./oauth.service";
 import {Roles} from "./roles.decorator";
 import type {AccessToken} from "./types/accesstoken.type";
 import type {AuthPayload} from "./types/payload.type";
-import {config} from "../../../util/config";
 
 @Controller()
 export class OauthController {

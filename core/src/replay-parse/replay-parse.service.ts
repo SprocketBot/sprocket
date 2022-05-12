@@ -10,13 +10,13 @@ import {
 import {PubSub} from "apollo-server-express";
 import {SHA256} from "crypto-js";
 import type {ReadStream} from "fs";
+import type {Readable} from "stream";
 
 import {config} from "../util/config";
 import {read} from "../util/read";
 import {REPLAY_EXT, ReplayParsePubSub} from "./replay-parse.constants";
 import type {ParseReplayResult, ParseReplaysTasks} from "./replay-parse.types";
 import {ReplaySubmissionService} from "./replay-submission";
-import {Readable} from "stream";
 
 @Injectable()
 export class ReplayParseService {

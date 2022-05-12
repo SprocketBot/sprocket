@@ -1,6 +1,9 @@
-import {Column, Entity, Index, JoinColumn, OneToOne, PrimaryGeneratedColumn,} from "typeorm";
-import {MLE_Series} from "./Series.model";
+import {
+    Column, Entity, Index, JoinColumn, OneToOne, PrimaryGeneratedColumn,
+} from "typeorm";
+
 import {EventFormat} from "./enums/EventFormat";
+import {MLE_Series} from "./Series.model";
 
 @Index("stream_event_pkey", ["id"], {unique: true})
 @Index("stream_event_series_id_unique", ["seriesId"], {unique: true})
@@ -38,7 +41,9 @@ export class MLE_StreamEvent {
     @Column("character varying", {name: "channel", length: 255})
     channel: string;
 
-    @Column("integer", {name: "series_id", nullable: true, unique: true})
+    @Column("integer", {
+        name: "series_id", nullable: true, unique: true,
+    })
     seriesId: number | null;
 
     @Column("timestamp with time zone", {name: "event_time"})
@@ -57,10 +62,10 @@ export class MLE_StreamEvent {
     })
     discordId: string | null;
 
-    @OneToOne(() => MLE_Series, (series) => series.streamEvent, {
+    @OneToOne(() => MLE_Series, series => series.streamEvent, {
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
     })
-    @JoinColumn([{name: "series_id", referencedColumnName: "id"}])
+    @JoinColumn([ {name: "series_id", referencedColumnName: "id"} ])
     series: MLE_Series;
 }

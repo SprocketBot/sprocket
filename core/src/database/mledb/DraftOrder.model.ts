@@ -1,4 +1,7 @@
-import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique,} from "typeorm";
+import {
+    Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique,
+} from "typeorm";
+
 import {MLE_Season} from "./Season.model";
 
 @Index("draft_order_pkey", ["id"], {unique: true})
@@ -57,7 +60,7 @@ export class MLE_DraftOrder {
     @Column("integer", {name: "pick"})
     pick: number;
 
-    @ManyToOne(() => MLE_Season, (season) => season.draftOrders, {
+    @ManyToOne(() => MLE_Season, season => season.draftOrders, {
         onUpdate: "CASCADE",
     })
     @JoinColumn([

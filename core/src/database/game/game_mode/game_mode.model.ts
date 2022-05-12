@@ -7,7 +7,8 @@ import {
 
 import {BaseModel} from "../../base-model";
 import {Game} from "../game";
-@Entity({ schema: "sprocket" })
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class GameMode extends BaseModel {
     @ManyToOne(() => Game)
