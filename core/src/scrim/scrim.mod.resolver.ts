@@ -21,6 +21,7 @@ import {GqlJwtGuard} from "../identity/auth/gql-auth-guard/gql-jwt-guard";
 import {UserPayload} from "../identity/auth/oauth/types/userpayload.type";
 import {QueueBanGuard} from "../organization/member-restriction";
 import {ScrimPubSub} from "./constants";
+import {JoinScrimPlayerGuard} from "./scrim.guard";
 import {ScrimService} from "./scrim.service";
 import {
     CreateScrimInput, Scrim, ScrimEvent,
@@ -122,7 +123,7 @@ export class ScrimModuleResolver {
     }
 
     @Mutation(() => Boolean)
-    @UseGuards(QueueBanGuard)
+    @UseGuards(QueueBanGuard, JoinScrimPlayerGuard)
     async joinScrim(
         @Args("scrimId") scrimId: string,
         @CurrentUser() user: UserPayload,
@@ -154,8 +155,8 @@ export class ScrimModuleResolver {
     }
 
     @Mutation(() => Scrim)
-    async cancelScrim(@Args("scrimId") scrimId: string) {
-        return await this.scrimService.cancelScrim(scrimId)
+    async cancelScrim(@Args("scrimId") scrimId: string): Promise<Scrim> {
+        return this.scrimService.cancelScrim(scrimId) as Promise<Scrim>;
     }
 
     /*

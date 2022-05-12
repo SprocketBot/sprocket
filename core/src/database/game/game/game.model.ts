@@ -4,6 +4,7 @@ import {
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
+import {GameSkillGroup} from "../../franchise";
 import {GameFeature} from "../game_feature";
 import {GameMode} from "../game_mode";
 import {Platform} from "../platform";
@@ -19,6 +20,10 @@ export class Game extends BaseModel {
     @Field(() => [GameMode])
     modes: GameMode[];
 
+    @OneToMany(() => GameSkillGroup, gsg => gsg.game)
+    @Field(() => [GameSkillGroup])
+    skillGroups: GameSkillGroup[];
+    
     @ManyToMany(() => Platform)
     @JoinTable({name: "game_platform"})
     @Field(() => [Platform])

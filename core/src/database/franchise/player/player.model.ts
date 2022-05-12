@@ -1,6 +1,8 @@
-import {Field, ObjectType} from "@nestjs/graphql";
 import {
-    Column, Entity, ManyToOne, OneToOne,
+    Field, Float, ObjectType,
+} from "@nestjs/graphql";
+import {
+    Column, Entity, JoinColumn, ManyToOne, OneToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
@@ -11,7 +13,8 @@ import {RosterSlot} from "../roster_slot";
 @Entity({schema: "sprocket"})
 @ObjectType()
 export class Player extends BaseModel {
-    @ManyToOne(() => Member)
+    @ManyToOne(() => Member, m => m.players)
+    @JoinColumn()
     @Field(() => Member)
     member: Member;
 
@@ -19,8 +22,8 @@ export class Player extends BaseModel {
     @Field(() => GameSkillGroup)
     skillGroup: GameSkillGroup;
 
-    @Column()
-    @Field(() => Number)
+    @Column({type: "numeric"})
+    @Field(() => Float)
     salary: number;
 
     @OneToOne(() => RosterSlot, {nullable: true})
