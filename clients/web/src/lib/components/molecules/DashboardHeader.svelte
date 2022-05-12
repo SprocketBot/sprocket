@@ -11,8 +11,6 @@
     <Avatar class="w-1/3"/>
     <div>
         <h2>{$user.username}</h2>
-        <span>Foundation</span>
-        <span>Free Agency</span>
     </div>
 </section>
 
