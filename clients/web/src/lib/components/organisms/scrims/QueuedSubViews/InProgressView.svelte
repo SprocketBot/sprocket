@@ -32,7 +32,7 @@
             {#each game.teams as team, teamIndex}
                 {#each team.players as player}
                     <td class:alt={teamIndex % 2 === 0}>
-                        {player.name} ({player.id})
+                        {player.name}
                     </td>
                 {/each}
             {/each}
