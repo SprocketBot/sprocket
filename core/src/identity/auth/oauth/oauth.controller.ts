@@ -59,7 +59,7 @@ export class OauthController {
         const ourUser = req.user as User;
         const userProfile = await this.userService.getUserProfileForUser(ourUser.id);
         const payload: AuthPayload = {
-            sub: ourUser.id.toString(), username: userProfile.email, userId: ourUser.id,
+            sub: ourUser.id.toString(), username: userProfile.displayName, userId: ourUser.id,
         };
         return this.authService.login(payload);
     }
@@ -78,7 +78,7 @@ export class OauthController {
             const orgs = player_to_orgs.map(pto => pto.orgTeam);
             const payload: AuthPayload = {
                 sub: discordAccount.accountId,
-                username: userProfile.email,
+                username: userProfile.displayName,
                 userId: ourUser.id,
                 currentOrganizationId: 1,
                 orgTeams: orgs,
