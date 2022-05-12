@@ -2,8 +2,7 @@ import {Module} from "@nestjs/common";
 
 import {DatabaseModule} from "../database";
 import {MledbModule} from "../database/mledb";
-import {MLEDeveloperTeamGuard} from "./mledb-user/mle-organization-team.guard";
-import {MledbUserService} from "./mledb-user/mledb-user.service";
+import {MledbUserService, MLEDeveloperTeamGuard} from "./mledb-user";
 
 @Module({
     imports: [
