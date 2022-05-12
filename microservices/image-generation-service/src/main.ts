@@ -13,10 +13,8 @@ async function bootstrap(): Promise<void> {
             queue: config.has("transport.queue") && config.get("transport.queue"),
         },
     });
-    app.listen(() => {
-        /* eslint-disable no-console */
-        console.log("Service Started!!");
-    });
+    await app.listen();
 }
 
+// eslint-disable-next-line no-console
 bootstrap().catch(console.error);
