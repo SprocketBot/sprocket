@@ -7,10 +7,9 @@ import {Strategy} from "passport-discord";
 import type {
     IrrelevantFields, UserAuthenticationAccount, UserProfile,
 } from "../../../../database";
-import {UserAuthenticationAccountType} from "../../../../database";
-import {User} from "../../../../database/identity/user/user.model";
-import {UserService} from "../../../../identity/user/user.service";
+import {User, UserAuthenticationAccountType} from "../../../../database";
 import {config} from "../../../../util/config";
+import {UserService} from "../../../user";
 
 export type Done = (err: string, user: User) => void;
 const MLE_GUILD_ID = "172404472637685760";

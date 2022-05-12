@@ -1,4 +1,4 @@
-import type {MLE_OrganizationTeam} from "../../../../database/mledb/enums/OrganizationTeam.enum";
+import type {MLE_OrganizationTeam} from "../../../../database/mledb";
 
 export class AuthPayload {
     sub: string;

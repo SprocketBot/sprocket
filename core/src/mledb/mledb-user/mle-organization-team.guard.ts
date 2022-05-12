@@ -2,7 +2,7 @@ import type {CanActivate, ExecutionContext} from "@nestjs/common";
 import {Injectable} from "@nestjs/common";
 import {GqlExecutionContext} from "@nestjs/graphql";
 
-import {MLE_OrganizationTeam} from "../../database/mledb/enums/OrganizationTeam.enum";
+import {MLE_OrganizationTeam} from "../../database/mledb";
 import type {UserPayload} from "../../identity";
 
 @Injectable()
