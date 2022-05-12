@@ -1,6 +1,8 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import type {FindManyOptions, FindOneOptions} from "typeorm";
+import type {
+    FindConditions, FindManyOptions, FindOneOptions,
+} from "typeorm";
 import {
     IsNull, MoreThan, Repository,
 } from "typeorm";
@@ -8,7 +10,6 @@ import {
 import type {MemberRestrictionType} from "../../database";
 import {MemberRestriction} from "../../database";
 import {MemberService} from "../member/member.service";
-import type {MemberRestrictionFindOperation} from "./member-restriction.types";
 
 
 @Injectable()
@@ -45,12 +46,12 @@ export class MemberRestrictionService {
     }
 
     async getActiveMemberRestrictions(type: MemberRestrictionType, date: Date = new Date(), memberId?: number): Promise<MemberRestriction[]> {
-        const whereA: MemberRestrictionFindOperation = {
+        const whereA: FindConditions<MemberRestriction> = {
             type: type,
             expiration: MoreThan(date),
             manualExpiration: IsNull(),
         };
-        const whereB: MemberRestrictionFindOperation = {
+        const whereB: FindConditions<MemberRestriction> = {
             type: type,
             manualExpiration: MoreThan(new Date()),
         };
