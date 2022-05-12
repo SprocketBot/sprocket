@@ -53,7 +53,7 @@ export class ScrimConsumer {
             const bannedUntil = new Date();
             bannedUntil.setMinutes(bannedUntil.getMinutes() + banMinuteOffset);
 
-            await this.memberRestrictionService.createMemberRestriction(MemberRestrictionType.QUEUE_BAN, bannedUntil, member.id);
+            await this.memberRestrictionService.createMemberRestriction(MemberRestrictionType.QUEUE_BAN, bannedUntil, "Failed to check-in to scrim", member.id);
         }
 
         await this.scrimService.cancelScrim(scrimId);

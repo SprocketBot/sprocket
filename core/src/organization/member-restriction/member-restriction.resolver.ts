@@ -18,9 +18,10 @@ export class MemberRestrictionResolver {
     async createMemberRestriction(
         @Args("type", {type: () => MemberRestrictionType}) type: MemberRestrictionType,
         @Args("expiration", {type: () => Date}) expiration: Date,
+        @Args("reason") reason: string,
         @Args("memberId", {type: () => Int}) memberId: number,
     ): Promise<MemberRestriction> {
-        return this.memberRestrictionService.createMemberRestriction(type, expiration, memberId);
+        return this.memberRestrictionService.createMemberRestriction(type, expiration, reason, memberId);
     }
 
     @Mutation(() => MemberRestriction)

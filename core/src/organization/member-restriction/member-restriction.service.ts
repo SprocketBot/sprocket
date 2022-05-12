@@ -22,12 +22,14 @@ export class MemberRestrictionService {
     async createMemberRestriction(
         type: MemberRestrictionType,
         expiration: Date,
+        reason: string,
         memberId: number,
     ): Promise<MemberRestriction> {
         const member = await this.memberService.getMemberById(memberId);
 
         const memberRestriction = this.memberRestrictionRepository.create({
             type,
+            reason,
             expiration,
             member,
         });
