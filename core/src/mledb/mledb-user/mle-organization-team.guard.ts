@@ -2,24 +2,21 @@ import type {CanActivate, ExecutionContext} from "@nestjs/common";
 import {Injectable} from "@nestjs/common";
 import {GqlExecutionContext} from "@nestjs/graphql";
 
-import {OrganizationTeam} from "../../database/mledb/enums/OrganizationTeam.enum";
+import {MLE_OrganizationTeam} from "../../database/mledb/enums/OrganizationTeam.enum";
 import type {UserPayload} from "../../identity";
-import {MledbUserService} from "./mledb-user.service";
 
 @Injectable()
 export abstract class MLEOrganizationTeamGuard implements CanActivate {
-    abstract readonly organizationTeam: OrganizationTeam;
-
-    constructor(private readonly mledbUserService: MledbUserService) {}
+    abstract readonly organizationTeam: MLE_OrganizationTeam;
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const ctx = GqlExecutionContext.create(context);
         const payload = ctx.getContext().req.user as UserPayload;
 
-        return false;
+        return Boolean(payload.orgTeams?.includes(this.organizationTeam));
     }
 }
 
 export class MLEDeveloperTeamGuard extends MLEOrganizationTeamGuard {
-    readonly organizationTeam = OrganizationTeam.YES;
+    readonly organizationTeam = MLE_OrganizationTeam.MLEDB_ADMIN;
 }
