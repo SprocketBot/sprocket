@@ -7,7 +7,8 @@ import {BaseModel} from "../../base-model";
 import {Franchise} from "../../franchise/franchise";
 import {MatchParent} from "../match_parent";
 import {ScheduleGroup} from "../schedule_group";
-@Entity({ schema: "sprocket" })
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class ScheduleFixture extends BaseModel {
     @ManyToOne(() => ScheduleGroup)

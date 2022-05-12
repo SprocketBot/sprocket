@@ -10,5 +10,5 @@ export enum Role {
     ReserveA = "RESERVEA",
     ReserveB = "RESERVEB",
     ReserveC = "RESERVEC",
-    NONE = "NONE"
+    NONE = "NONE",
 }

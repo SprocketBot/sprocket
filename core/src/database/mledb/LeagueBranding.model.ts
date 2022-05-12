@@ -1,4 +1,7 @@
-import {Column, Entity, Index, PrimaryGeneratedColumn} from "typeorm";
+import {
+    Column, Entity, Index, PrimaryGeneratedColumn,
+} from "typeorm";
+
 import {League} from "./enums/League.enum";
 
 @Index("league_branding_pkey", ["id"], {unique: true})
@@ -34,7 +37,9 @@ export class MLE_LeagueBranding {
     })
     updatedAt: Date;
 
-    @Column("character varying", {name: "league", unique: true, length: 255})
+    @Column("character varying", {
+        name: "league", unique: true, length: 255,
+    })
     league: League;
 
     @Column("character varying", {name: "color", length: 255})

@@ -1,5 +1,6 @@
-import {Module} from '@nestjs/common';
+import {Module} from "@nestjs/common";
 import {TypeOrmModule} from "@nestjs/typeorm";
+
 import {MLE_ChannelMap} from "./ChannelMap.model";
 import {MLE_Config} from "./Config.model";
 import {MLE_Division} from "./Division.model";
@@ -57,18 +58,18 @@ export const mledbEntities = [
     MLE_TeamBranding,
     MLE_TeamCoreStats,
     MLE_TeamRoleUsage,
-    MLE_TeamToCaptain
-]
+    MLE_TeamToCaptain,
+];
 
 const ormModule = TypeOrmModule.forFeature(mledbEntities);
 
 @Module({
     imports: [
-        ormModule
+        ormModule,
     ],
     exports: [
-        ormModule
-    ]
+        ormModule,
+    ],
 })
 export class MledbModule {
 }

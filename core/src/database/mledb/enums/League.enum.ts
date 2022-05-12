@@ -4,7 +4,7 @@ export enum League {
     CHAMPION = "CHAMPION",
     MASTER = "MASTER",
     PREMIER = "PREMIER",
-    UNKNOWN = "UNKNOWN"
+    UNKNOWN = "UNKNOWN",
 }
 
 export const LeagueOrdinals = [
@@ -12,5 +12,5 @@ export const LeagueOrdinals = [
     League.MASTER,
     League.CHAMPION,
     League.ACADEMY,
-    League.FOUNDATION
+    League.FOUNDATION,
 ];

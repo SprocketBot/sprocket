@@ -20,7 +20,7 @@ export class ScrimController {
     async createScrim(@Payload() payload: unknown): Promise<Scrim> {
         const data = MatchmakingSchemas.CreateScrim.input.parse(payload);
         // TODO: Permissions Checks (Must be a Player for the requested game)
-        return this.scrimService.createScrim(data.author, data.settings, data.gameMode, data.createGroup);
+        return this.scrimService.createScrim(data.organizationId, data.author, data.settings, data.gameMode, data.createGroup);
     }
 
     @MessagePattern(MatchmakingEndpoint.GetAllScrims)
@@ -69,6 +69,12 @@ export class ScrimController {
     async ratifyScrim(@Payload() payload: unknown): Promise<Scrim> {
         const data = MatchmakingSchemas.RatifyScrim.input.parse(payload);
         return this.scrimService.ratifyScrim(data.scrimId, data.player);
+    }
+
+    @MessagePattern(MatchmakingEndpoint.CancelScrim)
+    async cancelScrim(@Payload() payload: unknown): Promise<Scrim> {
+        const data = MatchmakingSchemas.CancelScrim.input.parse(payload);
+        return this.scrimService.cancelScrim(data.scrimId);
     }
 
     @MessagePattern(MatchmakingEndpoint.GetScrimMetrics)

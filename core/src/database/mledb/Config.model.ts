@@ -1,4 +1,6 @@
-import {Column, Entity, Index, PrimaryGeneratedColumn} from "typeorm";
+import {
+    Column, Entity, Index, PrimaryGeneratedColumn,
+} from "typeorm";
 
 @Index("config_pkey", ["id"], {unique: true})
 @Index("config_key_unique", ["key"], {unique: true})
@@ -33,7 +35,9 @@ export class MLE_Config {
     })
     updatedAt: Date;
 
-    @Column("character varying", {name: "key", unique: true, length: 255})
+    @Column("character varying", {
+        name: "key", unique: true, length: 255,
+    })
     key: string;
 
     @Column("character varying", {name: "value", length: 255})

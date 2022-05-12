@@ -5,7 +5,6 @@ import {User} from "./user";
 import {UserAuthenticationAccount} from "./user_authentication_account";
 import {UserProfile} from "./user_profile";
 
-
 export const identityEntities = [
     User,
     UserProfile,
@@ -22,5 +21,4 @@ const ormModule = TypeOrmModule.forFeature(identityEntities);
         ormModule,
     ],
 })
-export class IdentityModule {
-}
+export class IdentityModule {}

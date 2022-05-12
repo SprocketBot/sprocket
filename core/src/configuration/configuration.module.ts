@@ -13,5 +13,6 @@ import {SprocketConfigurationResolver, SprocketConfigurationService} from "./spr
         SprocketConfigurationResolver,
         SprocketConfigurationService,
     ],
+    exports: [OrganizationConfigurationService],
 })
 export class ConfigurationModule {}

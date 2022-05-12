@@ -1,11 +1,16 @@
-import {Column, Entity, Index, OneToMany} from "typeorm";
-import {MLE_Team} from "./Team.model";
+import {
+    Column, Entity, Index, OneToMany,
+} from "typeorm";
+
 import {Conference} from "./enums/Conference.enum";
+import {MLE_Team} from "./Team.model";
 
 @Index("division_pkey", ["name"], {unique: true})
 @Entity("division", {schema: "mledb"})
 export class MLE_Division {
-    @Column("character varying", {primary: true, name: "name", length: 255})
+    @Column("character varying", {
+        primary: true, name: "name", length: 255,
+    })
     name: string;
 
     @Column("character varying", {
@@ -37,6 +42,6 @@ export class MLE_Division {
     @Column("text", {name: "conference"})
     conference: Conference;
 
-    @OneToMany(() => MLE_Team, (team) => team.divisionName)
+    @OneToMany(() => MLE_Team, team => team.divisionName)
     teams: MLE_Team[];
 }

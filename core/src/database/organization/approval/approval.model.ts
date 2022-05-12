@@ -5,7 +5,8 @@ import {
 
 import {BaseModel} from "../../base-model";
 import {Member} from "../member";
-@Entity({ schema: "sprocket" })
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class Approval extends BaseModel {
     @Column()

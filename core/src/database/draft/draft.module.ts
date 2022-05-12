@@ -19,5 +19,4 @@ const ormModule = TypeOrmModule.forFeature(draftEntities);
         ormModule,
     ],
 })
-export class DraftModule {
-}
+export class DraftModule {}

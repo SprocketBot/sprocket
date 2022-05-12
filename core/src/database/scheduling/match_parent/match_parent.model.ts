@@ -8,7 +8,8 @@ import {Match} from "../match";
 import {ScrimMeta} from "../saved_scrim";
 import {ScheduleFixture} from "../schedule_fixture";
 import {ScheduledEvent} from "../scheduled_event";
-@Entity({ schema: "sprocket" })
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class MatchParent extends BaseModel {
     @ManyToOne(() => ScheduledEvent, {nullable: true})

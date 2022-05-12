@@ -1,4 +1,7 @@
-import {Column, Entity, Index, JoinColumn, OneToOne, PrimaryGeneratedColumn,} from "typeorm";
+import {
+    Column, Entity, Index, JoinColumn, OneToOne, PrimaryGeneratedColumn,
+} from "typeorm";
+
 import {MLE_Player} from "./Player.model";
 
 @Index("team_to_captain_pkey", ["id"], {unique: true})
@@ -50,10 +53,10 @@ export class MLE_TeamToCaptain {
     })
     league: string;
 
-    @OneToOne(() => MLE_Player,{
+    @OneToOne(() => MLE_Player, {
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
     })
-    @JoinColumn([{name: "player_id", referencedColumnName: "id"}])
+    @JoinColumn([ {name: "player_id", referencedColumnName: "id"} ])
     player: MLE_Player;
 }
