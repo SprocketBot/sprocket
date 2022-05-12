@@ -97,7 +97,7 @@ export class ScrimModuleResolver {
         @Args("data") data: CreateScrimInput,
         @Args("createGroup", {nullable: true}) createGroup?: boolean,
     ): Promise<Scrim> {
-        if (!user.currentOrganizationId) throw new GraphQLError("User is connected to an organization");
+        if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organization");
 
         const gameMode = await this.gameModeService.getGameModeById(data.settings.gameModeId);
         const checkinTimeout = await this.organizationConfigurationService.getOrganizationConfigurationValue(user.currentOrganizationId, "scrimQueueCheckinTimeout");
@@ -106,7 +106,7 @@ export class ScrimModuleResolver {
             mode: data.settings.mode,
             teamSize: gameMode.teamSize,
             teamCount: gameMode.teamCount,
-            checkinTimeout: Number(checkinTimeout),
+            checkinTimeout: parseInt(checkinTimeout.value),
         };
 
         return this.scrimService.createScrim(
@@ -151,6 +151,11 @@ export class ScrimModuleResolver {
         if (!scrim) throw new Error("You must be in a scrim to check in");
 
         return this.scrimService.checkIn(this.userToScrimPlayer(user), scrim.id);
+    }
+
+    @Mutation(() => Scrim)
+    async cancelScrim(@Args("scrimId") scrimId: string) {
+        return await this.scrimService.cancelScrim(scrimId)
     }
 
     /*

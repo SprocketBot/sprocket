@@ -4,4 +4,6 @@ export class UserPayload {
     username: string;
 
     currentOrganizationId?: number;
+
+    orgTeams?: number[]
 }
