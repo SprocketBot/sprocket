@@ -2,7 +2,7 @@ import {
     Args, Mutation, Resolver,
 } from "@nestjs/graphql";
 
-import {AnonymousAuthService} from "./anonymous-auth/anonymous-auth.service";
+import {AnonymousAuthService} from "./anonymous-auth";
 
 @Resolver()
 export class AuthModuleResolver {

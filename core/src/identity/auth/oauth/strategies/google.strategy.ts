@@ -2,11 +2,10 @@ import {Injectable} from "@nestjs/common";
 import {PassportStrategy} from "@nestjs/passport";
 import type {VerifyCallback} from "passport-google-oauth20";
 import {Strategy} from "passport-google-oauth20";
-import {UserAuthenticationAccountType} from "src/database";
-import {User} from "src/database/identity/user/user.model";
-import {UserService} from "src/identity/user/user.service";
-import {config} from "src/util/config";
 
+import {User, UserAuthenticationAccountType} from "../../../../database";
+import {config} from "../../../../util/config";
+import {UserService} from "../../../user";
 import type {GoogleProfileType} from "../types/profile.type";
 
 @Injectable()

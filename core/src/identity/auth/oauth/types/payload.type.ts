@@ -1,3 +1,5 @@
+import type {MLE_OrganizationTeam} from "../../../../database/mledb";
+
 export class AuthPayload {
     sub: string;
 
@@ -7,5 +9,5 @@ export class AuthPayload {
 
     currentOrganizationId?: number;
 
-    orgTeams?: number[]
+    orgTeams?: MLE_OrganizationTeam[];
 }
