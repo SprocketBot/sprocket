@@ -27,7 +27,7 @@ export class ScrimConsumer {
     async timeoutQueue(job: Job<string>): Promise<void> {
         const scrimId = job.data;
         const scrim = await this.scrimService.getScrimById(scrimId);
-        
+
         if (scrim?.status !== ScrimStatus.POPPED) return;
 
         const playersNotCheckedIn = scrim.players.filter(p => !p.checkedIn);
@@ -49,7 +49,7 @@ export class ScrimConsumer {
             });
 
             // eslint-disable-next-line @typescript-eslint/no-extra-parens
-            const banMinuteOffset = Number(initialBanDuration) + (Number(durationModifier) * restrictions.length);
+            const banMinuteOffset = parseInt(initialBanDuration.value) + (parseFloat(durationModifier.value) * restrictions.length);
             const bannedUntil = new Date();
             bannedUntil.setMinutes(bannedUntil.getMinutes() + banMinuteOffset);
 
