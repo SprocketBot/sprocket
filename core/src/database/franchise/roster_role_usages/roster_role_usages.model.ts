@@ -6,7 +6,8 @@ import {Match} from "../../scheduling/match/match.model";
 import {Player} from "../player";
 import {RosterRole} from "../roster_role";
 import {Team} from "../team";
-@Entity({ schema: "sprocket" })
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class RosterRoleUsage extends BaseModel {
     @ManyToOne(() => Team)

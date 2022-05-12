@@ -6,7 +6,7 @@ import {
 import {BaseModel} from "../../base-model";
 import {User} from "../user/user.model";
 
-@Entity({ schema: "sprocket" })
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class UserProfile extends BaseModel {
     @OneToOne(() => User, user => user.userProfile)
@@ -17,16 +17,16 @@ export class UserProfile extends BaseModel {
     @Field(() => String)
     email: string;
 
-    @Column({ default: "Sprocket User" })
+    @Column({default: "Sprocket User"})
     @Field(() => String)
     displayName: string;
 
-    @Column({ nullable: true })
-    @Field(() => String, { nullable: true })
+    @Column({nullable: true})
+    @Field(() => String, {nullable: true})
     firstName?: string;
 
-    @Column({ nullable: true })
-    @Field(() => String, { nullable: true })
+    @Column({nullable: true})
+    @Field(() => String, {nullable: true})
     lastName?: string;
 
     @Column({nullable: true})

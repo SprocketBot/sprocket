@@ -20,10 +20,10 @@ export class AnonymousAuthService {
             "username": "bmdonald1998@gmail.com",
             "userId": 7,
             "orgs": [
-                69
+                69,
             ],
             "iat": 1652057047,
-        })
+        });
     }
 
     generateUserId(username: string): number {

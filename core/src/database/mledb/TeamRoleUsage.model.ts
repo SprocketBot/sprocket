@@ -1,6 +1,9 @@
-import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,} from "typeorm";
+import {
+    Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,
+} from "typeorm";
+
+import {Role} from "./enums/Role.enum";
 import {MLE_Series} from "./Series.model";
-import {Role} from "./enums/Role.enum"
 
 @Index("team_role_usage_pkey", ["id"], {unique: true})
 @Entity("team_role_usage", {schema: "mledb"})
@@ -43,9 +46,9 @@ export class MLE_TeamRoleUsage {
     @Column("text", {name: "role"})
     role: Role;
 
-    @ManyToOne(() => MLE_Series, (series) => series.teamRoleUsages, {
+    @ManyToOne(() => MLE_Series, series => series.teamRoleUsages, {
         onUpdate: "CASCADE",
     })
-    @JoinColumn([{name: "series_id", referencedColumnName: "id"}])
+    @JoinColumn([ {name: "series_id", referencedColumnName: "id"} ])
     series: MLE_Series;
 }

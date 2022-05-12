@@ -28,5 +28,4 @@ const ormModule = TypeOrmModule.forFeature(gameEntities);
         ormModule,
     ],
 })
-export class GameModule {
-}
+export class GameModule {}

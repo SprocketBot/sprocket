@@ -31,8 +31,11 @@ export class ScrimService {
         private readonly matchmakingService: MatchmakingService,
         private readonly eventsService: EventsService,
         @Inject(ScrimPubSub) private readonly pubsub: PubSub,
-    ) {
-    }
+    ) {}
+
+    get metricsSubTopic(): string { return "metrics.update" }
+
+    get pendingScrimsSubTopic(): string { return "scrims.created" }
 
     async getAllScrims(): Promise<IScrim[]> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.GetAllScrims, {});
@@ -64,8 +67,17 @@ export class ScrimService {
         throw result.error;
     }
 
-    async createScrim(player: IScrimPlayer, settings: IScrimSettings, gameMode: ScrimGameMode, createGroup?: boolean): Promise<IScrim> {
+    async getScrimById(scrimId: string): Promise<IScrim | null> {
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, scrimId);
+        if (result.status === ResponseStatus.SUCCESS) {
+            return result.data;
+        }
+        throw result.error;
+    }
+
+    async createScrim(organizationId: number, player: IScrimPlayer, settings: IScrimSettings, gameMode: ScrimGameMode, createGroup?: boolean): Promise<IScrim> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.CreateScrim, {
+            organizationId: organizationId,
             author: player,
             settings: settings,
             gameMode: gameMode,
@@ -118,9 +130,15 @@ export class ScrimService {
         throw result.error;
     }
 
-    get metricsSubTopic(): string { return "metrics.update" }
+    async cancelScrim(scrimId: string): Promise<IScrim> {
+        this.logger.log(`cancelScrim scrimId=${scrimId}`);
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.CancelScrim, {
+            scrimId,
+        });
 
-    get pendingScrimsSubTopic(): string { return "scrims.created" }
+        if (result.status === ResponseStatus.SUCCESS) return result.data;
+        throw result.error;
+    }
 
     async enableSubscription(): Promise<void> {
         if (this.subscribed) return;

@@ -6,6 +6,7 @@ import {Approval} from "./approval";
 import {Member} from "./member";
 import {MemberPlatformAccount} from "./member_platform_account";
 import {MemberProfile} from "./member_profile";
+import {MemberRestriction} from "./member_restriction";
 import {Organization} from "./organization";
 import {OrganizationMottos} from "./organization_mottos";
 import {OrganizationProfile} from "./organization_profile";
@@ -20,12 +21,12 @@ export const organizationEntities = [
     Member,
     MemberProfile,
     MemberPlatformAccount,
+    MemberRestriction,
     Photo,
     Pronouns,
 ];
 
 const ormModule = TypeOrmModule.forFeature(organizationEntities);
-
 
 @Module({
     imports: [

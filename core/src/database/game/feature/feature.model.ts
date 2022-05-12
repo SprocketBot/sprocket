@@ -5,7 +5,8 @@ import {
 
 import {BaseModel} from "../../base-model";
 import {GameFeature} from "../game_feature";
-@Entity({ schema: "sprocket" })
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class Feature extends BaseModel {
     @Column()

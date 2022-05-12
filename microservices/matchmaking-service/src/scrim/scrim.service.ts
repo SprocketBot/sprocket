@@ -24,7 +24,7 @@ export class ScrimService {
         protected readonly analyticsService: AnalyticsService,
     ) {}
 
-    async createScrim(author: ScrimPlayer, settings: ScrimSettings, gameMode: ScrimGameMode, createGroup: boolean): Promise<Scrim> {
+    async createScrim(organizationId: number, author: ScrimPlayer, settings: ScrimSettings, gameMode: ScrimGameMode, createGroup: boolean): Promise<Scrim> {
         if (await this.scrimCrudService.playerInAnyScrim(author.id)) {
             throw new RpcException("Cannot create scrim, player already in another scrim");
         }
@@ -34,7 +34,7 @@ export class ScrimService {
         }
 
         const scrim = await this.scrimCrudService.createScrim({
-            settings, author, gameMode,
+            organizationId, settings, author, gameMode,
         });
 
         if (createGroup) {
@@ -156,6 +156,29 @@ export class ScrimService {
             return true;
         }
         return true;
+    }
+
+    async cancelScrim(scrimId: string): Promise<Scrim> {
+        this.logger.debug(`Attempting to cancel scrim, scrimId=${scrimId}`);
+
+        const scrim = await this.scrimCrudService.getScrim(scrimId);
+
+        if (!scrim) {
+            throw new RpcException("Scrim not found");
+        }
+
+        await this.scrimCrudService.removeScrim(scrimId);
+        scrim.status = ScrimStatus.CANCELLED;
+        await this.eventsService.publish(EventTopic.ScrimCancelled, scrim, scrim.id);
+
+        this.analyticsService.send(AnalyticsEndpoint.Analytics, {
+            name: "scrimCancelled",
+            tags: [
+                ["scrimId", scrim.id],
+            ],
+        }).catch(err => { this.logger.error(err) });
+
+        return scrim;
     }
 
     async endScrim(scrimId: string, player: ScrimPlayer): Promise<Scrim> {

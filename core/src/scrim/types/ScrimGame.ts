@@ -7,5 +7,4 @@ import {ScrimTeam} from "./ScrimTeam";
 export class ScrimGame implements IScrimGame {
     @Field(() => [ScrimTeam])
     teams: ScrimTeam[];
-
 }

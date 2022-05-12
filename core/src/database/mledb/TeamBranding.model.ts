@@ -1,4 +1,7 @@
-import {Column, Entity, Index, OneToOne, PrimaryGeneratedColumn,} from "typeorm";
+import {
+    Column, Entity, Index, OneToOne, PrimaryGeneratedColumn,
+} from "typeorm";
+
 import {MLE_Team} from "./Team.model";
 
 @Index("team_branding_pkey", ["id"], {unique: true})
@@ -34,7 +37,9 @@ export class MLE_TeamBranding {
     })
     updatedAt: Date;
 
-    @Column("character varying", {name: "team_name", unique: true, length: 255})
+    @Column("character varying", {
+        name: "team_name", unique: true, length: 255,
+    })
     teamName: string;
 
     @Column("character varying", {name: "primary_color", length: 255})
@@ -53,6 +58,6 @@ export class MLE_TeamBranding {
     })
     discordEmojiId: string | null;
 
-    @OneToOne(() => MLE_Team, (team) => team.branding)
+    @OneToOne(() => MLE_Team, team => team.branding)
     team: MLE_Team;
 }

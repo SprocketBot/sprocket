@@ -1,4 +1,7 @@
-import {Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn,} from "typeorm";
+import {
+    Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn,
+} from "typeorm";
+
 import {MLE_Fixture} from "./Fixture.model";
 import {MLE_Season} from "./Season.model";
 
@@ -57,10 +60,10 @@ export class MLE_Match {
     })
     map: string;
 
-    @OneToMany(() => MLE_Fixture, (fixture) => fixture.match)
+    @OneToMany(() => MLE_Fixture, fixture => fixture.match)
     fixtures: MLE_Fixture[];
 
-    @ManyToOne(() => MLE_Season, (season) => season.matches, {onUpdate: "CASCADE"})
-    @JoinColumn([{name: "season", referencedColumnName: "seasonNumber"}])
+    @ManyToOne(() => MLE_Season, season => season.matches, {onUpdate: "CASCADE"})
+    @JoinColumn([ {name: "season", referencedColumnName: "seasonNumber"} ])
     season: MLE_Season;
 }

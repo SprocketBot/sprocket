@@ -1,12 +1,13 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
+import type {FindManyOptions, FindOneOptions} from "typeorm";
 import {Repository} from "typeorm";
-import type {FindManyOptions} from "typeorm/find-options/FindManyOptions";
 
 import type {IrrelevantFields} from "../../database";
 import {
     Member, MemberProfile,
 } from "../../database";
+import {UserService} from "../../identity/user/user.service";
 import {OrganizationService} from "../organization";
 
 @Injectable()
@@ -14,27 +15,33 @@ export class MemberService {
     constructor(
         @InjectRepository(Member) private memberRepository: Repository<Member>,
         @InjectRepository(MemberProfile) private memberProfileRepository: Repository<MemberProfile>,
-        private organizationService: OrganizationService,
+        private readonly organizationService: OrganizationService,
+        private readonly userService: UserService,
     ) {}
 
     async createMember(
         memberProfile: Omit<MemberProfile, IrrelevantFields | "id " | "member">,
-        discordId: string,
         organizationId: number,
+        userId: number,
     ): Promise<Member> {
         const organization = await this.organizationService.getOrganizationById(organizationId);
+        const user = await this.userService.getUserById(userId);
 
         const profile = this.memberProfileRepository.create(memberProfile);
         const member = this.memberRepository.create({
             profile,
-            discordId,
             organization,
+            user,
         });
 
         await this.memberProfileRepository.save(profile);
         await this.memberRepository.save(member);
 
         return member;
+    }
+
+    async getMember(query: FindOneOptions<Member>): Promise<Member> {
+        return this.memberRepository.findOneOrFail(query);
     }
 
     async getMemberById(id: number): Promise<Member> {

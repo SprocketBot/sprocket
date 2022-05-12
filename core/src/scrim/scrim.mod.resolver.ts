@@ -1,3 +1,4 @@
+import {InjectQueue} from "@nestjs/bull";
 import {
     Inject, Logger, UseGuards,
 } from "@nestjs/common";
@@ -8,15 +9,17 @@ import type {
     ScrimPlayer as IScrimPlayer,
     ScrimSettings as IScrimSettings,
 } from "@sprocketbot/common";
-import {RedisService, ScrimStatus} from "@sprocketbot/common";
+import {ScrimStatus} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
-import {RoundService} from "src/scheduling/round/round.service";
+import {Queue} from "bull";
+import {GraphQLError} from "graphql";
 
+import {OrganizationConfigurationService} from "../configuration/organization-configuration/organization-configuration.service";
 import {GameModeService} from "../game/game-mode/game-mode.service";
 import {CurrentUser} from "../identity/auth/current-user.decorator";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard/gql-jwt-guard";
 import {UserPayload} from "../identity/auth/oauth/types/userpayload.type";
-import {MatchService} from "../scheduling/match/match.service";
+import {QueueBanGuard} from "../organization/member-restriction";
 import {ScrimPubSub} from "./constants";
 import {ScrimService} from "./scrim.service";
 import {
@@ -51,14 +54,12 @@ export class ScrimModuleResolver {
     private readonly logger = new Logger(ScrimModuleResolver.name);
 
     constructor(
-        private readonly scrimService: ScrimService,
         @Inject(ScrimPubSub) private readonly pubSub: PubSub,
+        @InjectQueue("scrim") private scrimQueue: Queue,
+        private readonly scrimService: ScrimService,
         private readonly gameModeService: GameModeService,
-        private readonly redisService: RedisService,
-        private readonly matchService: MatchService,
-        private readonly roundService: RoundService,
-    ) {
-    }
+        private readonly organizationConfigurationService: OrganizationConfigurationService,
+    ) {}
 
     /*
      *
@@ -90,27 +91,38 @@ export class ScrimModuleResolver {
      */
 
     @Mutation(() => Scrim)
+    @UseGuards(QueueBanGuard)
     async createScrim(
         @CurrentUser() user: UserPayload,
         @Args("data") data: CreateScrimInput,
         @Args("createGroup", {nullable: true}) createGroup?: boolean,
     ): Promise<Scrim> {
+        if (!user.currentOrganizationId) throw new GraphQLError("User is connected to an organization");
+
         const gameMode = await this.gameModeService.getGameModeById(data.settings.gameModeId);
+        const checkinTimeout = await this.organizationConfigurationService.getOrganizationConfigurationValue(user.currentOrganizationId, "scrimQueueCheckinTimeout");
         const settings: IScrimSettings = {
             competitive: data.settings.competitive,
             mode: data.settings.mode,
             teamSize: gameMode.teamSize,
             teamCount: gameMode.teamCount,
+            checkinTimeout: Number(checkinTimeout),
         };
 
-        const r = await this.scrimService.createScrim(this.userToScrimPlayer(user), settings, {
-            id: gameMode.id,
-            description: gameMode.description,
-        }, createGroup);
-        return r as Scrim;
+        return this.scrimService.createScrim(
+            user.currentOrganizationId,
+            this.userToScrimPlayer(user),
+            settings,
+            {
+                id: gameMode.id,
+                description: gameMode.description,
+            },
+            createGroup,
+        ) as Promise<Scrim>;
     }
 
     @Mutation(() => Boolean)
+    @UseGuards(QueueBanGuard)
     async joinScrim(
         @Args("scrimId") scrimId: string,
         @CurrentUser() user: UserPayload,

@@ -1,10 +1,13 @@
-import {Column, Entity, Index, OneToMany, PrimaryGeneratedColumn,} from "typeorm";
+import {
+    Column, Entity, Index, OneToMany, PrimaryGeneratedColumn,
+} from "typeorm";
+
+import {League} from "./enums/League.enum";
+import {ModePreference} from "./enums/ModePreference.enum";
+import type {Role} from "./enums/Role.enum";
+import {Timezone} from "./enums/Timezone.enum";
 import {MLE_PlayerAccount} from "./PlayerAccount.model";
 import {MLE_PlayerToOrg} from "./PlayerToOrg.model";
-import {ModePreference} from "./enums/ModePreference.enum";
-import {Role} from "./enums/Role.enum";
-import {Timezone} from "./enums/Timezone.enum";
-import {League} from "./enums/League.enum";
 
 @Index("player_pkey", ["id"], {unique: true})
 @Index("player_mleid_index", ["mleid"], {})
@@ -43,7 +46,9 @@ export class MLE_Player {
     @Column("integer", {name: "mleid"})
     mleid: number;
 
-    @Column("character varying", {name: "name", unique: true, length: 255})
+    @Column("character varying", {
+        name: "name", unique: true, length: 255,
+    })
     name: string;
 
     @Column("real", {name: "salary", default: () => "'-1.0'"})
@@ -63,7 +68,9 @@ export class MLE_Player {
     })
     league: League;
 
-    @Column("character varying", {name: "role", nullable: true, length: 255})
+    @Column("character varying", {
+        name: "role", nullable: true, length: 255,
+    })
     role: Role | null;
 
     @Column("character varying", {
@@ -73,7 +80,9 @@ export class MLE_Player {
     })
     preferredPlatform: string | null;
 
-    @Column("integer", {name: "peak_mmr", nullable: true, default: () => "0"})
+    @Column("integer", {
+        name: "peak_mmr", nullable: true, default: () => "0",
+    })
     peakMmr: number | null;
 
     @Column("character varying", {
@@ -96,9 +105,9 @@ export class MLE_Player {
     @Column("boolean", {name: "suspended", default: () => "false"})
     suspended: boolean;
 
-    @OneToMany(() => MLE_PlayerAccount, (playerAccount) => playerAccount.player)
+    @OneToMany(() => MLE_PlayerAccount, playerAccount => playerAccount.player)
     accounts: MLE_PlayerAccount[];
 
-    @OneToMany(() => MLE_PlayerToOrg, (playerToOrg) => playerToOrg.player)
+    @OneToMany(() => MLE_PlayerToOrg, playerToOrg => playerToOrg.player)
     playerOrgs: MLE_PlayerToOrg[];
 }

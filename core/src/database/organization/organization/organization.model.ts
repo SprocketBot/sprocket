@@ -12,7 +12,8 @@ import {Member} from "../member";
 import {OrganizationMottos} from "../organization_mottos";
 import {OrganizationProfile} from "../organization_profile";
 import {Pronouns} from "../pronouns";
-@Entity({ schema: "sprocket" })
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class Organization extends BaseModel {
     @OneToOne(() => OrganizationProfile)

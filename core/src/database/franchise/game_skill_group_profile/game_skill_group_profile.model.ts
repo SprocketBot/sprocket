@@ -3,7 +3,8 @@ import {Entity, OneToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {GameSkillGroup} from "../game_skill_group";
-@Entity({ schema: "sprocket" })
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class GameSkillGroupProfile extends BaseModel {
     @OneToOne(() => GameSkillGroup)

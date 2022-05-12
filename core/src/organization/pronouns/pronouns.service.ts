@@ -37,15 +37,15 @@ export class PronounsService {
     }
 
     // TODO type this
-    async getPronouns(query: { organization: { id: number } }): Promise<Pronouns[]> {
+    async getPronouns(query: {organization: {id: number;};}): Promise<Pronouns[]> {
         const organization = await this.organizationService.getOrganizationById(query.organization.id);
-        const pronouns = await this.pronounsRepository.find({organization: { id: organization.id } });
+        const pronouns = await this.pronounsRepository.find({organization: {id: organization.id} });
         return pronouns;
     }
 
     async deletePronouns(id: number): Promise<Pronouns> {
         const toDelete = await this.pronounsRepository.findOneOrFail(id);
-        await this.pronounsRepository.softDelete({ id: toDelete.id });
+        await this.pronounsRepository.softDelete({id: toDelete.id});
         return toDelete;
     }
 }

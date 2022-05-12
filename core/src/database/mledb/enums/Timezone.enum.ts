@@ -11,11 +11,11 @@ export enum Timezone {
     EU_WEST = "EU_WEST",
     EU_CENTRAL = "EU_CENTRAL",
     EU_EAST = "EU_EAST",
-    //OCE
+    // OCE
     OCE_WEST = "OCE_WEST",
     OCE_CENTRAL = "OCE_CENTRAL",
     OCE_EAST = "OCE_EAST",
     OCE_NZ = "OCE_NZ",
     // Misc
-    UNKNOWN = "UNKNOWN"
+    UNKNOWN = "UNKNOWN",
 }

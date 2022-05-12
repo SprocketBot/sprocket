@@ -10,6 +10,7 @@ export enum EventTopic {
     ScrimUpdated = "scrim.updated",
     ScrimDestroyed = "scrim.destroyed",
     ScrimStarted = "scrim.started",
+    ScrimCancelled = "scrim.cancelled",
     ScrimMetricsUpdate = "scrim.metricsUpdate",
 }
 
@@ -28,6 +29,7 @@ export const EventSchemas = {
     [EventTopic.ScrimUpdated]: ScrimSchema,
     [EventTopic.ScrimDestroyed]: ScrimSchema,
     [EventTopic.ScrimStarted]: ScrimSchema,
+    [EventTopic.ScrimCancelled]: ScrimSchema,
     [EventTopic.AllScrimEvents]: z.union([
         z.number(),
         z.string().uuid(),

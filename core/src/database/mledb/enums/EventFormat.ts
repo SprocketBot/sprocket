@@ -1,5 +1,5 @@
 export enum EventFormat {
     FRIENDLY = "FRIENDLY",
     COMPETITIVE = "COMPETITIVE",
-    TOURNAMENT = "TOURNAMENT"
+    TOURNAMENT = "TOURNAMENT",
 }

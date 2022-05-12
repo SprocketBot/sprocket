@@ -2,8 +2,8 @@ import {Injectable} from "@nestjs/common";
 import type {
     Scrim, ScrimGame, ScrimPlayer,
 } from "@sprocketbot/common";
-import {ScrimStatus} from "@sprocketbot/common";
-import {RedisService} from "@sprocketbot/common";
+import {RedisService, ScrimStatus} from "@sprocketbot/common";
+import type {JobId} from "bull";
 import {v4} from "uuid";
 
 import {config} from "../../util/config";
@@ -17,10 +17,11 @@ export class ScrimCrudService {
     }
 
     async createScrim({
-        settings, author, gameMode,
+        organizationId, settings, author, gameMode,
     }: CreateScrimOpts): Promise<Scrim> {
         const scrim: Scrim = {
             id: v4(),
+            organizationId: organizationId,
             players: [],
             settings: settings,
             status: ScrimStatus.PENDING,
@@ -93,6 +94,10 @@ export class ScrimCrudService {
 
     async setSubmissionGroupId(scrimId: string, submissionGroupId: string): Promise<void> {
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.submissionGroupId", submissionGroupId);
+    }
+
+    async setTimeoutJobId(scrimId: string, jobId: JobId): Promise<void> {
+        await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.jobId", jobId);
     }
 
     async setScrimGames(scrimId: string, games: ScrimGame[]): Promise<void> {

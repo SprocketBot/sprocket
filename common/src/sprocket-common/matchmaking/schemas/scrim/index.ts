@@ -1,4 +1,6 @@
+export * from "./CancelScrim.schema";
 export * from "./CheckInToScrim.schema";
+export * from "./CompleteScrim.schema";
 export * from "./CreateScrim.schema";
 export * from "./EndScrim.schema";
 export * from "./GetAllScrims.schema";
@@ -9,5 +11,4 @@ export * from "./GetScrimMetrics.schema";
 export * from "./JoinScrim.schema";
 export * from "./LeaveScrim.schema";
 export * from "./QueueStatus.schema";
-export * from "./CompleteScrim.schema"
-export * from "./RatifyScrim.schema"
+export * from "./RatifyScrim.schema";

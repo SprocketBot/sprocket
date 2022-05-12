@@ -1,4 +1,7 @@
-import {Column, Entity, Index, PrimaryGeneratedColumn} from "typeorm";
+import {
+    Column, Entity, Index, PrimaryGeneratedColumn,
+} from "typeorm";
+
 import {ChannelType} from "./enums/ChannelType.enum";
 
 @Index("channel_map_pkey", ["channelType"], {unique: true})
