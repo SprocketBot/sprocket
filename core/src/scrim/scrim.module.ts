@@ -9,11 +9,11 @@ import {PubSub} from "apollo-server-express";
 import {ConfigurationModule} from "../configuration";
 import {DatabaseModule} from "../database";
 import {SchedulingModule} from "../database/scheduling";
+import {FranchiseModule} from "../franchise";
 import {GameModule} from "../game";
 import {AuthModule} from "../identity";
 import {OrganizationModule} from "../organization";
-import {MatchService} from "../scheduling";
-import {RoundService} from "../scheduling";
+import {MatchService, RoundService} from "../scheduling";
 import {ScrimPubSub} from "./constants";
 import {ScrimMetricsResolver} from "./metrics";
 import {ScrimConsumer} from "./scrim.consumer";
@@ -34,6 +34,7 @@ import {ScrimMetaCrudService} from "./scrim-crud";
         MatchmakingModule,
         DatabaseModule,
         OrganizationModule,
+        FranchiseModule,
         BullModule.forRoot({
             redis: {
                 host: config.redis.host,

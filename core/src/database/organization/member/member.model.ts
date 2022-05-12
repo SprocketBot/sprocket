@@ -4,8 +4,8 @@ import {
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {Player} from "../../franchise";
-import {User} from "../../identity";
+import {Player} from "../../franchise/player";
+import {User} from "../../identity/user";
 import {MemberPlatformAccount} from "../member_platform_account";
 import {MemberProfile} from "../member_profile";
 import {MemberRestriction} from "../member_restriction";
