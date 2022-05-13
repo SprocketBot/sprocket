@@ -1,12 +1,12 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {
-    Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToOne,
+    Column, Entity, JoinColumn, ManyToOne, OneToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {Member} from "../member";
 import {Photo} from "../photo";
-import {Pronouns} from "../pronouns";
+import {Pronouns} from "../pronouns/pronouns.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()
@@ -15,8 +15,8 @@ export class MemberProfile extends BaseModel {
     @Field(() => String)
     name: string;
 
-    @ManyToMany(() => Pronouns, {nullable: true})
-    @JoinTable()
+    @ManyToOne(() => Pronouns, {nullable: true})
+    @JoinColumn()
     @Field(() => Pronouns, {nullable: true})
     pronouns?: Pronouns;
 
