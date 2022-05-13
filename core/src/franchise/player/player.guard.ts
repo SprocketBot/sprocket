@@ -15,7 +15,7 @@ export abstract class PlayerGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const ctx = GqlExecutionContext.create(context);
         const payload = ctx.getContext().req.user as UserPayload;
-        const {gameId, organizationId} = await this.getGameAndOrganization(ctx);
+        const {gameId, organizationId} = await this.getGameAndOrganization(ctx, payload);
 
         const player = await this.playerService.getPlayer({
             where: {
@@ -37,8 +37,10 @@ export abstract class PlayerGuard implements CanActivate {
         }).catch(() => null);
 
         if (!player) throw new GraphQLError(`User is not a player for organization=${organizationId} and game=${gameId}`);
+        ctx.getContext().req.player = player;
+
         return true;
     }
 
-    abstract getGameAndOrganization(ctx: GraphQLExecutionContext): Promise<GameAndOrganization>;
+    abstract getGameAndOrganization(ctx: GraphQLExecutionContext, userPayload?: UserPayload): Promise<GameAndOrganization>;
 }

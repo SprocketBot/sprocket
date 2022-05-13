@@ -1,13 +1,20 @@
 import {Module} from "@nestjs/common";
 
 import {DatabaseModule} from "../database";
-import {PlayerService} from "./player/player.service";
+import {GameSkillGroupService} from "./game-skill-group";
+import {PlayerService} from "./player";
 
 @Module({
     imports: [
         DatabaseModule,
     ],
-    providers: [PlayerService],
-    exports: [PlayerService],
+    providers: [
+        PlayerService,
+        GameSkillGroupService,
+    ],
+    exports: [
+        PlayerService,
+        GameSkillGroupService,
+    ],
 })
 export class FranchiseModule {}

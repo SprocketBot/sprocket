@@ -24,9 +24,10 @@ export class ScrimController {
     }
 
     @MessagePattern(MatchmakingEndpoint.GetAllScrims)
-    async getAllScrims(): Promise<Scrim[]> {
+    async getAllScrims(@Payload() payload: unknown): Promise<Scrim[]> {
+        const data = MatchmakingSchemas.GetAllScrims.input.parse(payload);
         // TODO: Permissions Checks (Must be a Player for the requested game)
-        return this.scrimCrudService.getAllScrims();
+        return this.scrimCrudService.getAllScrims(data.skillGroupId);
     }
 
     @MessagePattern(MatchmakingEndpoint.GetScrim)
