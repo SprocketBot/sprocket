@@ -8,7 +8,7 @@ import type {
     IrrelevantFields, User, UserAuthenticationAccount, UserProfile,
 } from "../../../../database";
 import {UserAuthenticationAccountType} from "../../../../database";
-import {PlayerService} from "../../../../franchise";
+import {GameSkillGroupService, PlayerService} from "../../../../franchise";
 import {MledbUserService} from "../../../../mledb";
 import {MemberService} from "../../../../organization";
 import {config} from "../../../../util/config";
@@ -18,17 +18,6 @@ import {UserService} from "../../../user";
 export type Done = (err: string, user: User) => void;
 const MLE_GUILD_ID = "172404472637685760";
 const MLE_ORGANIZATION_ID = 2;
-
-function mleLeagueToSprocketSkillGroup(league: string): number {
-    switch (league) {
-        case "PREMIER": return 2;
-        case "MASTER": return 8;
-        case "CHAMPION": return 9;
-        case "ACADEMY": return 10;
-        case "FOUNDATION": return 11;
-        default: return -1;
-    }
-}
 
 @Injectable()
 export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
@@ -42,6 +31,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         private readonly playerService: PlayerService,
         private readonly mledbUserService: MledbUserService,
         private readonly analyticsService: AnalyticsService,
+        private readonly skillGroupService: GameSkillGroupService,
     ) {
         super({
             clientID: config.auth.discord.clientId,
@@ -59,6 +49,9 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
     ): Promise<User | undefined> {
         const guilds: GuildInfo[] = profile.guilds ?? [];
         if (!guilds.some(g => g.id === MLE_GUILD_ID)) return undefined;
+
+        const mledbUser = await this.mledbUserService.getUserByDiscordId(profile.id).catch(() => null);
+        if (!mledbUser) throw new Error("User is not associated with MLE");
 
         const userByDiscordId = await this.identityService.getUserByAuthAccount(UserAuthenticationAccountType.DISCORD, profile.id).catch(() => undefined);
         let user = userByDiscordId;
@@ -107,21 +100,20 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         }
 
         let member = await this.memberService.getMember({where: {user: {id: user.id} } }).catch(() => null);
-        const mledbUser = await this.mledbUserService.getUserByDiscordId(profile.id).catch(() => null);
-
-        if (mledbUser) {
-            if (!member) {
-                member = await this.memberService.createMember(
-                    {name: user.userProfile.displayName},
-                    MLE_ORGANIZATION_ID,
-                    user.id,
-                );
-            }
-
-            const player = await this.playerService.getPlayer({where: {member: {id: member.id} } }).catch(() => null);
-            if (!player) await this.playerService.createPlayer(member.id, mleLeagueToSprocketSkillGroup(mledbUser.league), mledbUser.salary);
-        }
         
+        if (!member) {
+            member = await this.memberService.createMember(
+                {name: user.userProfile.displayName},
+                MLE_ORGANIZATION_ID,
+                user.id,
+            );
+        }
+
+        if (!["PREMIER", "MASTER", "CHAMPION", "ACADEMY", "FOUNDATION"].includes(mledbUser.league)) throw new Error("Player does not belong to a league");
+
+        const skillGroup = await this.skillGroupService.getGameSkillGroup({where: {code: `${mledbUser.league[0]}L`} });
+        const player = await this.playerService.getPlayer({where: {member: {id: member.id} } }).catch(() => null);
+        if (!player) await this.playerService.createPlayer(member.id, skillGroup.id, mledbUser.salary);
 
         done("", user);
         return user;
