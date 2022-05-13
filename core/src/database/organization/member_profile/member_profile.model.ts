@@ -6,7 +6,7 @@ import {
 import {BaseModel} from "../../base-model";
 import {Member} from "../member";
 import {Photo} from "../photo";
-import {Pronouns} from "../pronouns/pronouns.model";
+import {Pronouns} from "../pronouns";
 
 @Entity({schema: "sprocket"})
 @ObjectType()
