@@ -6,8 +6,18 @@ from config import config
 
 ballchasing_token = config["ballchasing"]["apiToken"]
 ballchasing_api = ballchasing.Api(ballchasing_token, None, True)
+PARSER = config["parser"]
+
+if PARSER != "carball" and PARSER != "ballchasing":
+    raise Exception(f"Unknown parser {PARSER}. Please specify either 'carball' or 'ballchasing'.")
 
 def parse(path):
+    if PARSER == "carball":
+        return parse_carball(path)
+    if PARSER == "ballchasing":
+        return parse_ballchasing(path)
+
+def parse_carball(path):
     """
     Parses a Rocket League replay located at a given local path
 

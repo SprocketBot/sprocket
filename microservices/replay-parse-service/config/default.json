@@ -17,5 +17,6 @@
     "ballchasing": {
         "apiToken": ""
     },
+    "parser": "carball|ballchasing",
     "tempDir": ""
 }
