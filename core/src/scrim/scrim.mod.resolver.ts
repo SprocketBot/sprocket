@@ -2,7 +2,7 @@ import {
     Inject, Logger, UseGuards,
 } from "@nestjs/common";
 import {
-    Args, Int, Mutation, Query, Resolver, Subscription,
+    Args, Mutation, Query, Resolver, Subscription,
 } from "@nestjs/graphql";
 import type {
     ScrimPlayer as IScrimPlayer,
@@ -12,15 +12,16 @@ import {ScrimStatus} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 import {GraphQLError} from "graphql";
 
-import {OrganizationConfigurationService} from "../configuration/organization-configuration/organization-configuration.service";
+import {OrganizationConfigurationService} from "../configuration";
 import {Player} from "../database";
-import {CurrentPlayer} from "../franchise";
-import {GameSkillGroupService} from "../franchise/game-skill-group";
-import {GameModeService} from "../game/game-mode/game-mode.service";
-import {CurrentUser} from "../identity/auth/current-user.decorator";
+import {
+    CurrentPlayer, GameSkillGroupService, PlayerService,
+} from "../franchise";
+import {GameModeService} from "../game";
+import {CurrentUser} from "../identity";
+import {UserPayload} from "../identity/auth/";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard/gql-jwt-guard";
-import {UserPayload} from "../identity/auth/oauth/types/userpayload.type";
-import {QueueBanGuard} from "../organization/member-restriction";
+import {QueueBanGuard} from "../organization";
 import {ScrimPubSub} from "./constants";
 import {CreateScrimPlayerGuard, JoinScrimPlayerGuard} from "./scrim.guard";
 import {ScrimService} from "./scrim.service";
@@ -57,6 +58,7 @@ export class ScrimModuleResolver {
 
     constructor(
         @Inject(ScrimPubSub) private readonly pubSub: PubSub,
+        private readonly playerService: PlayerService,
         private readonly scrimService: ScrimService,
         private readonly gameModeService: GameModeService,
         private readonly skillGroupService: GameSkillGroupService,
@@ -82,6 +84,28 @@ export class ScrimModuleResolver {
         const scrims = await this.scrimService.getAllScrims();
         if (status) return scrims.filter(s => s.status === status) as Scrim[];
         return scrims.filter(s => s.organizationId === user.currentOrganizationId) as Scrim[];
+    }
+
+    @Query(() => [Scrim])
+    async getAvailableScrims(
+        @CurrentUser() user: UserPayload,
+        @Args("status", {
+            type: () => ScrimStatus,
+            nullable: true,
+            defaultValue: ScrimStatus.PENDING,
+        }) status: ScrimStatus = ScrimStatus.PENDING,
+    ): Promise<Scrim[]> {
+        if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organiazation");
+
+        const players = await this.playerService.getPlayers({
+            where: {member: {user: {id: user.userId} } },
+            relations: ["member", "skillGroup"],
+        });
+        const scrims = await this.scrimService.getAllScrims();
+
+        return scrims.filter(s => s.organizationId === user.currentOrganizationId
+            && players.some(p => s.settings.skillGroupId === p.skillGroupId)
+            && s.status === status) as Scrim[];
     }
 
     @Query(() => Scrim, {nullable: true})
