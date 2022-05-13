@@ -1,6 +1,6 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {
-    Column, Entity, JoinColumn, ManyToOne, OneToOne,
+    Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
@@ -15,14 +15,15 @@ export class MemberProfile extends BaseModel {
     @Field(() => String)
     name: string;
 
-    @ManyToOne(() => Pronouns)
-    @Field(() => Pronouns)
-    pronouns: Pronouns;
+    @ManyToMany(() => Pronouns, {nullable: true})
+    @JoinTable()
+    @Field(() => Pronouns, {nullable: true})
+    pronouns?: Pronouns;
 
-    @OneToOne(() => Photo)
+    @OneToOne(() => Photo, {nullable: true})
     @JoinColumn()
-    @Field(() => Photo)
-    profilePicture: Photo;
+    @Field(() => Photo, {nullable: true})
+    profilePicture?: Photo;
 
     @OneToOne(() => Member)
     @Field(() => Member)
