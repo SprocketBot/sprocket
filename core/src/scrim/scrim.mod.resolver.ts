@@ -71,18 +71,17 @@ export class ScrimModuleResolver {
 
     @Query(() => [Scrim])
     async getAllScrims(
+        @CurrentUser() user: UserPayload,
         @Args("status", {
             type: () => ScrimStatus,
             nullable: true,
         }) status?: ScrimStatus,
-        @Args("skillGroupId", {
-            nullable: true,
-            type: () => Int,
-        }) skillGroupId?: number,
     ): Promise<Scrim[]> {
-        const scrims = await this.scrimService.getAllScrims(skillGroupId);
+        if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organiazation");
+        
+        const scrims = await this.scrimService.getAllScrims();
         if (status) return scrims.filter(s => s.status === status) as Scrim[];
-        return scrims as Scrim[];
+        return scrims.filter(s => s.organizationId === user.currentOrganizationId) as Scrim[];
     }
 
     @Query(() => Scrim, {nullable: true})
