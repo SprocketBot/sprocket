@@ -14,6 +14,9 @@ import {PlayerService} from "./player";
         PlayerService,
         GameSkillGroupService,
     ],
-    exports: [PlayerService],
+    exports: [
+        PlayerService,
+        GameSkillGroupService,
+    ],
 })
 export class FranchiseModule {}

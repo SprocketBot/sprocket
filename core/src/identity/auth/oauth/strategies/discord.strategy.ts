@@ -29,9 +29,9 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         private readonly userService: UserService,
         private readonly memberService: MemberService,
         private readonly playerService: PlayerService,
+        private readonly skillGroupService: GameSkillGroupService,
         private readonly mledbUserService: MledbUserService,
         private readonly analyticsService: AnalyticsService,
-        private readonly skillGroupService: GameSkillGroupService,
     ) {
         super({
             clientID: config.auth.discord.clientId,
