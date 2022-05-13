@@ -10,10 +10,6 @@
     setContext<NavigationItem[]>(NavigationContextKey, [
         {
             target: "/scrims",
-            label: "Performance",
-        },
-        {
-            target: "/scrims/queue",
             label: "Play",
         },
     ]);

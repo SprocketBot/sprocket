@@ -1,10 +1,8 @@
 <script lang="ts">
-    import {
-        DashboardMobileHeader, Navigation, DashboardHeader,
-    } from "$lib/components";
-    import FaSignOutAlt from "svelte-icons/fa/FaSignOutAlt.svelte";
+    import {DashboardHeader, DashboardMobileHeader, Navigation,} from "$lib/components";
+
     import FaBackward from "svelte-icons/fa/FaBackward.svelte";
-    import {goto} from "$app/navigation";
+
 </script>
 
 
@@ -22,13 +20,10 @@
             <header>
                 <DashboardHeader/>
             </header>
-            <div class="flex justify-between gap-8">
+            <div class="flex justify-between gap-8 mb-8">
                 <label for="nav-drawer" class="btn btn-primary drawer-button lg:hidden btn-outline mx-auto">
                     <span class="icon"><FaBackward/></span> Close
                 </label>
-                <button class="btn btn-outline btn-error" on:click={async () => goto("/auth/logout")}>
-                    <span class="icon"><FaSignOutAlt/></span> Logout
-                </button>
             </div>
             <Navigation/>
             <slot name="sidebar"/>
@@ -48,10 +43,9 @@
 
     .drawer-content {
         @apply lg:p-4 p-0 relative h-full
-                bg-gradient-to-b from-gray-800 to-gray-700
+        bg-gradient-to-b from-gray-800 to-gray-700
         ;
         /*background: linear-gradient(180deg, theme("colors.gray-600") 0%, theme("colors.gray-600") 65%);*/
-
     }
 
     .icon {

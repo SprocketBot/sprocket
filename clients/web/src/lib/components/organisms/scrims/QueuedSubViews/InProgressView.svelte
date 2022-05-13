@@ -12,19 +12,13 @@
 <h2 class="mb-4">Time to Play!</h2>
 <p class="text-accent font-bold tracking-wider">Don't forget to save replays!</p>
 <table class="table">
-    <colgroup>
-        <col/>
-        {#each scrim.games[0].teams as t, ti}
-            <col span={t.players.length} class="team"/>
-        {/each}
-    </colgroup>
     <thead>
-    <tr>
-        <th/>
-        {#each scrim.games[0].teams as t, ti}
-            <th colspan={t.players.length}>Team {ti + 1}</th>
-        {/each}
-    </tr>
+        <tr>
+            <th/>
+            {#each scrim.games[0].teams as t, ti}
+                <th colspan={t.players.length}>Team {ti + 1}</th>
+            {/each}
+        </tr>
     </thead>
     {#each scrim.games as game, gameIndex}
         <tr>

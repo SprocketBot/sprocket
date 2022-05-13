@@ -22,13 +22,13 @@
 
     async function login(e: CustomEvent<string>) {
         const token = e.detail;
-        
+
         $session.user = extractJwt<SessionUser>(token);
         $session.token = token;
 
         cookies.set(constants.auth_cookie_key, token);
 
-        window.location.pathname = "/scrims/queue";
+        window.location.pathname = "/scrims";
     }
 </script>
 
@@ -44,7 +44,7 @@
             </h1>
         </header>
         <section class="space-y-4">
-            <DiscordOAuthButton on:loggedIn={login}/>            
+            <DiscordOAuthButton on:loggedIn={login}/>
         </section>
     </Card>
 </CenteredCardLayout>
