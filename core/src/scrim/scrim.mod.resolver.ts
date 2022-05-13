@@ -141,14 +141,14 @@ export class ScrimModuleResolver {
         @Args("createGroup", {nullable: true}) createGroup?: boolean,
     ): Promise<boolean> {
         if (groupKey && createGroup) {
-            throw new Error("You cannot join a group and create a group. Please provide either group or createGroup, not both.");
+            throw new GraphQLError("You cannot join a group and create a group. Please provide either group or createGroup, not both.");
         }
         const group = groupKey ?? createGroup ?? undefined;
 
         const scrim = await this.scrimService.getScrimById(scrimId).catch(() => null);
-        if (!scrim) throw new Error("Scrim does not exist");
+        if (!scrim) throw new GraphQLError("Scrim does not exist");
         
-        if (player.skillGroupId !== scrim.settings.skillGroupId) throw new Error("Player is not in the correct skill group");
+        if (player.skillGroupId !== scrim.settings.skillGroupId) throw new GraphQLError("Player is not in the correct skill group");
 
         return this.scrimService.joinScrim(this.userToScrimPlayer(user), scrimId, group);
     }
@@ -156,7 +156,7 @@ export class ScrimModuleResolver {
     @Mutation(() => Boolean)
     async leaveScrim(@CurrentUser() user: UserPayload): Promise<boolean> {
         const scrim = await this.scrimService.getScrimByPlayer(user.userId);
-        if (!scrim) throw new Error("You must be in a scrim to leave");
+        if (!scrim) throw new GraphQLError("You must be in a scrim to leave");
 
         return this.scrimService.leaveScrim(this.userToScrimPlayer(user), scrim.id);
     }
@@ -164,7 +164,7 @@ export class ScrimModuleResolver {
     @Mutation(() => Boolean)
     async checkInToScrim(@CurrentUser() user: UserPayload): Promise<boolean> {
         const scrim = await this.scrimService.getScrimByPlayer(user.userId);
-        if (!scrim) throw new Error("You must be in a scrim to check in");
+        if (!scrim) throw new GraphQLError("You must be in a scrim to check in");
 
         return this.scrimService.checkIn(this.userToScrimPlayer(user), scrim.id);
     }
@@ -184,7 +184,7 @@ export class ScrimModuleResolver {
     async followCurrentScrim(@CurrentUser() user: UserPayload): Promise<AsyncIterator<ScrimEvent>> {
         await this.scrimService.enableSubscription();
         const scrim = await this.scrimService.getScrimByPlayer(user.userId);
-        if (!scrim) throw new Error("You must be in a scrim to subscribe to updates");
+        if (!scrim) throw new GraphQLError("You must be in a scrim to subscribe to updates");
         return this.pubSub.asyncIterator(scrim.id);
     }
 
