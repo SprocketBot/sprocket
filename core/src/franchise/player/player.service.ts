@@ -16,4 +16,25 @@ export class PlayerService {
     async getPlayerById(id: number): Promise<Player> {
         return this.playerRepository.findOneOrFail(id);
     }
+
+    async getPlayerByOrganizationAndGame(userId: number, organizationId: number, gameId: number): Promise<Player> {
+        return this.playerRepository.findOneOrFail({
+            where: {
+                member: {
+                    user: {
+                        id: userId,
+                    },
+                    organization: {
+                        id: organizationId,
+                    },
+                },
+                skillGroup: {
+                    game: {
+                        id: gameId,
+                    },
+                },
+            },
+            relations: ["member", "skillGroup"],
+        });
+    }
 }
