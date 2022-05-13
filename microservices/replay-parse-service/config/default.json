@@ -14,5 +14,8 @@
         "parsed_object_prefix": "",
         "accessKey": ""
     },
+    "ballchasing": {
+        "apiToken": ""
+    },
     "tempDir": ""
 }

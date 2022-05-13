@@ -134,5 +134,5 @@ dmypy.json
 .pyre/
 tmp/
 secret/
-config/development.json
-config/production.json
+config/*
+!config/default.json
