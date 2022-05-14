@@ -38,6 +38,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
             clientSecret: config.auth.discord.secret,
             callbackURL: config.auth.discord.callbackURL,
             scope: ["identify", "email", "guilds", "guilds.members.read"],
+            prompt: "none",
         });
     }
 
@@ -103,7 +104,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         
         if (!member) {
             member = await this.memberService.createMember(
-                {name: user.userProfile.displayName},
+                {name: mledbUser.name},
                 MLE_ORGANIZATION_ID,
                 user.id,
             );
