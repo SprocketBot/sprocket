@@ -38,11 +38,12 @@
     "playground": false
   },
   "auth": {
-    "jwt_expiry": 86400,
-    "frontend_callback": "",
     "googleClientID": "",
     "googleSecret" : "",
     "googleCallbackURL": "",
+    "jwt_expiry": "",
+    "discordClientID" : "",
+    "discordSecret" : "",
     "discordCallbackURL": ""
   }
 }
