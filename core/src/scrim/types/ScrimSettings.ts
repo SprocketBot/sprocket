@@ -35,7 +35,4 @@ export class ScrimSettingsInput {
 
     @Field(() => Boolean)
     competitive: boolean;
-
-    @Field(() => Int)
-    skillGroupId: number;
 }
