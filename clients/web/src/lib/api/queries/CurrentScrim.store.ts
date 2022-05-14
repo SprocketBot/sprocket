@@ -1,6 +1,8 @@
 import type {OperationResult} from "@urql/core";
 import {gql} from "@urql/core";
 import {LiveQueryStore} from "$lib/api/core/LiveQueryStore";
+import {toasts} from "$lib/components";
+import {screamingSnakeToHuman} from "$lib/utils";
 
 export interface CurrentScrim {
     id: string;
@@ -123,7 +125,17 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
 
     protected handleGqlMessage = (message: OperationResult<CurrentScrimSubscriptionValue, CurrentScrimStoreSubscriptionVariables>) => {
         if (message?.data?.currentScrim) {
-            this.currentValue.data.currentScrim = message?.data?.currentScrim.scrim;
+            const {scrim} = message?.data?.currentScrim;
+            if (scrim?.status === "CANCELLED" || scrim?.status === "COMPLETE") {
+                this.currentValue.data = undefined;
+                toasts.pushToast({
+                    status: "info",
+                    content: `Scrim ${screamingSnakeToHuman(scrim.status)}`,
+                });
+            } else {
+                this.currentValue.data.currentScrim = scrim;
+            }
+
             this.pub();
         }
     };
