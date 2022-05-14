@@ -25,7 +25,7 @@ export class ScrimLogicService {
 
     async popScrim(scrim: Scrim): Promise<void> {
         scrim.status = ScrimStatus.POPPED;
-        scrim.submissionGroupId = uuid();
+        scrim.submissionGroupId = `scrim-${uuid()}`;
 
         const job = await this.scrimQueue.add("timeoutQueue", scrim.id, {delay: scrim.settings.checkinTimeout * 1000});
 
@@ -49,12 +49,12 @@ export class ScrimLogicService {
         scrim.games = this.gameOrderService.generateGameOrder(scrim);
         await this.scrimCrudService.setScrimGames(scrim.id, scrim.games);
         await this.scrimCrudService.updateScrimStatus(scrim.id, ScrimStatus.IN_PROGRESS);
-        
+
         if (scrim.timeoutJobId) {
             const job = await this.scrimQueue.getJob(scrim.timeoutJobId);
             await job?.remove();
         }
-        
+
         await this.eventsService.publish(EventTopic.ScrimStarted, scrim, scrim.id);
     }
 

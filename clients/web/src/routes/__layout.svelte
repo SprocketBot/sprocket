@@ -1,11 +1,10 @@
 <script lang="ts">
     import "../app.postcss";
-    import {setContext} from "svelte";
-    import {NavigationContextKey} from "$lib/types";
-    import type {NavigationItem} from "$lib/types/Navigation.js";
-    import {initializeClient} from "$lib/api/client";
     import {session} from "$app/stores";
+    import {setContext} from "svelte";
+    import {NavigationContextKey, NavigationItem} from "$lib/types";
     import {ToastContainer} from "$lib/components";
+    import {initializeClient} from "$lib/api/client";
 
     setContext<NavigationItem[]>(NavigationContextKey, [
         {
@@ -15,6 +14,7 @@
     ]);
 
     initializeClient($session);
+
 </script>
 
 <slot/>

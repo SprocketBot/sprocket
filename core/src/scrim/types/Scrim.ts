@@ -43,12 +43,12 @@ export class Scrim implements Omit<IScrim, "id" | "status" | "players"> {
 
     @Field(() => [ScrimGame], {nullable: true})
     games?: ScrimGame[];
-    
+
     @Field(() => ScrimGameMode)
     gameMode: ScrimGameMode;
 
     @Field(() => String, {nullable: true})
-    submissionId?: string;
+    submissionGroupId?: string;
 
     constructor(data: IScrim) {
         this.id = data.id;
@@ -58,7 +58,7 @@ export class Scrim implements Omit<IScrim, "id" | "status" | "players"> {
         this.settings = data.settings;
         this.games = data.games;
         this.gameMode = data.gameMode;
-        this.submissionId = data.submissionId;
+        this.submissionGroupId = data.submissionGroupId;
     }
 }
 

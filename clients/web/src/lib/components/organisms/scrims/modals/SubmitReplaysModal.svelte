@@ -27,7 +27,7 @@
     import {findLast} from "$lib/utils/findLast";
 
     export let visible: boolean = true;
-    export let submissionId: string | undefined;
+    export let submissionId: string | undefined = "scrim-test";
 
     // ////////
     // Local variables
@@ -35,7 +35,7 @@
     let files: FileList;
     let replays: Replay[] = [];
     let status: SubmitReplaysModalStatus = "init";
-    
+
     // ////////
     // Local stores
     // ////////
@@ -53,7 +53,7 @@
 
     const handleUpload = async (f: FileList) => {
         if (!f || !f.length) return;
-        
+
         const _replays = Array.from(f).map(file => ({
             id: shortid.generate(),
             file: file,

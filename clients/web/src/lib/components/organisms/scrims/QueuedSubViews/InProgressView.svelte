@@ -39,7 +39,7 @@
 </button>
 
 <Portal>
-    <SubmitReplaysModal bind:visible={submitting} submissionId={scrim.submissionId}/>
+    <SubmitReplaysModal bind:visible={submitting} submissionId={scrim.submissionGroupId}/>
 </Portal>
 
 <style lang="postcss">
