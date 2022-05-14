@@ -108,6 +108,7 @@ export class ScrimCrudService {
     }
 
     async getValidated(scrimId: string): Promise<boolean> {
+        // Not implemented yet, so just throwing this here to get rid of a warning until it's added.
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const submissionId = await this.redisService.getJson(`${this.prefix}${scrimId}`, "$.submissionGroupId");
         return this.redisService.getJson(`${this.prefix}`);
