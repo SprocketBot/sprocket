@@ -7,4 +7,5 @@ export interface CreateScrimOpts {
     settings: ScrimSettings;
     author?: ScrimPlayer;
     gameMode: ScrimGameMode;
+    skillGroupId: number;
 }

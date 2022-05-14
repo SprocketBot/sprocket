@@ -75,12 +75,13 @@ export class ScrimService {
         throw result.error;
     }
 
-    async createScrim(organizationId: number, player: IScrimPlayer, settings: IScrimSettings, gameMode: ScrimGameMode, createGroup?: boolean): Promise<IScrim> {
+    async createScrim(organizationId: number, player: IScrimPlayer, settings: IScrimSettings, gameMode: ScrimGameMode, skillGroupId: number, createGroup?: boolean): Promise<IScrim> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.CreateScrim, {
             organizationId: organizationId,
             author: player,
             settings: settings,
             gameMode: gameMode,
+            skillGroupId: skillGroupId,
             createGroup: Boolean(createGroup),
         });
 

@@ -17,7 +17,7 @@ export class ScrimCrudService {
     }
 
     async createScrim({
-        organizationId, settings, author, gameMode,
+        organizationId, settings, author, gameMode, skillGroupId,
     }: CreateScrimOpts): Promise<Scrim> {
         const scrim: Scrim = {
             id: v4(),
@@ -26,6 +26,7 @@ export class ScrimCrudService {
             settings: settings,
             status: ScrimStatus.PENDING,
             gameMode: gameMode,
+            skillGroupId: skillGroupId,
             games: [],
         };
         if (author) {
@@ -52,7 +53,7 @@ export class ScrimCrudService {
         const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
         const scrims = await Promise.all(scrimKeys.map<Promise<Scrim>>(async key => this.redisService.getJson<Scrim>(key)));
         
-        return skillGroupId ? scrims.filter(s => s.settings.skillGroupId === skillGroupId || !s.settings.competitive) : scrims;
+        return skillGroupId ? scrims.filter(s => s.skillGroupId === skillGroupId || !s.settings.competitive) : scrims;
     }
 
     async getScrimByPlayer(id: number): Promise<Scrim | null> {
@@ -107,6 +108,7 @@ export class ScrimCrudService {
     }
 
     async getValidated(scrimId: string): Promise<boolean> {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const submissionId = await this.redisService.getJson(`${this.prefix}${scrimId}`, "$.submissionGroupId");
         return this.redisService.getJson(`${this.prefix}`);
     }

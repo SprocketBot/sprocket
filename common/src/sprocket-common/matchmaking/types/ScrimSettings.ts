@@ -7,7 +7,6 @@ export const ScrimSettingsSchema = z.object({
     teamCount: z.number().min(2),
     mode: z.nativeEnum(ScrimMode),
     competitive: z.boolean(),
-    skillGroupId: z.number(),
     checkinTimeout: z.number(),
 });
 

@@ -19,9 +19,6 @@ export class ScrimSettings implements IScrimSettings {
     competitive: boolean;
 
     @Field(() => Int)
-    skillGroupId: number;
-
-    @Field(() => Int)
     checkinTimeout: number;
 }
 
