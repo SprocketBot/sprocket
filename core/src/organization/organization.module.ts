@@ -1,4 +1,4 @@
-import {Module} from "@nestjs/common";
+import {forwardRef, Module} from "@nestjs/common";
 
 import {DatabaseModule} from "../database";
 import {GameModule} from "../game";
@@ -12,7 +12,11 @@ import {OrganizationResolver, OrganizationService} from "./organization";
 import {PronounsService} from "./pronouns/pronouns.service";
 
 @Module({
-    imports: [DatabaseModule, GameModule, IdentityModule],
+    imports: [
+        DatabaseModule,
+        GameModule,
+        forwardRef(() => IdentityModule),
+    ],
     providers: [
         OrganizationResolver,
         OrganizationService,

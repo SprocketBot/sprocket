@@ -5,6 +5,7 @@ export abstract class BaseStore<T> {
 
     subscribe(sub: (T) => unknown): () => void {
         this.subscribers.add(sub);
+        sub(this.currentValue);
         return () => { this.cleanup(sub) };
     }
 
@@ -12,7 +13,7 @@ export abstract class BaseStore<T> {
         if (v) this.currentValue = v;
         this.subscribers.forEach(sub => sub(this.currentValue));
     }
-    
+
     protected cleanup(sub: (val: T) => unknown): void {
         this.subscribers.delete(sub);
     }

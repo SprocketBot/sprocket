@@ -15,14 +15,15 @@ export class MemberProfile extends BaseModel {
     @Field(() => String)
     name: string;
 
-    @ManyToOne(() => Pronouns)
-    @Field(() => Pronouns)
-    pronouns: Pronouns;
-
-    @OneToOne(() => Photo)
+    @ManyToOne(() => Pronouns, {nullable: true})
     @JoinColumn()
-    @Field(() => Photo)
-    profilePicture: Photo;
+    @Field(() => Pronouns, {nullable: true})
+    pronouns?: Pronouns;
+
+    @OneToOne(() => Photo, {nullable: true})
+    @JoinColumn()
+    @Field(() => Photo, {nullable: true})
+    profilePicture?: Photo;
 
     @OneToOne(() => Member)
     @Field(() => Member)
