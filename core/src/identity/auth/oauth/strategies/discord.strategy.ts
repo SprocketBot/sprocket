@@ -48,8 +48,8 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         profile: Profile,
         done: Done,
     ): Promise<User | undefined> {
-        const guilds: GuildInfo[] = profile.guilds ?? [];
-        if (!guilds.some(g => g.id === MLE_GUILD_ID)) return undefined;
+        // const guilds: GuildInfo[] = profile.guilds ?? [];
+        // if (!guilds.some(g => g.id === MLE_GUILD_ID)) return undefined;
 
         const mledbUser = await this.mledbUserService.getUserByDiscordId(profile.id).catch(() => null);
         if (!mledbUser) throw new Error("User is not associated with MLE");
