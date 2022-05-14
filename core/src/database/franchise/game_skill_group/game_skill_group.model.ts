@@ -1,9 +1,10 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {
-    Column, Entity, JoinColumn, OneToMany, OneToOne,
+    Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
+import {Game} from "../../game";
 import {GameSkillGroupProfile} from "../game_skill_group_profile";
 import {Player} from "../player";
 import {RosterRoleUseLimits} from "../roster_role_use_limits";
@@ -32,6 +33,11 @@ export class GameSkillGroup extends BaseModel {
     @JoinColumn()
     @Field(() => GameSkillGroupProfile)
     profile: GameSkillGroupProfile;
+
+    @ManyToOne(() => Game, g => g.skillGroups)
+    @JoinColumn()
+    @Field(() => Game)
+    game: Game;
 
     @OneToOne(() => RosterRoleUseLimits)
     @JoinColumn()

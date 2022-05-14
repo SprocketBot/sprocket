@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
+import type {FindManyOptions, FindOneOptions} from "typeorm";
 import {Repository} from "typeorm";
-import type {FindManyOptions} from "typeorm/find-options/FindManyOptions";
 
 import type {IrrelevantFields} from "../../database";
 import {
@@ -76,6 +76,14 @@ export class UserService {
      */
     async getUserById(id: number): Promise<User> {
         return this.userRepository.findOneOrFail(id);
+    }
+
+    async getUser(query: FindOneOptions<UserProfile>): Promise<User | undefined> {
+        const userProfile = await this.userProfileRepository.findOne({
+            ...query,
+            relations: ["user", ...query.relations ?? []],
+        });
+        return userProfile?.user;
     }
 
     /**

@@ -20,7 +20,7 @@ export class MemberService {
     ) {}
 
     async createMember(
-        memberProfile: Omit<MemberProfile, IrrelevantFields | "id " | "member">,
+        memberProfile: Omit<MemberProfile, IrrelevantFields | "id" | "member">,
         organizationId: number,
         userId: number,
     ): Promise<Member> {

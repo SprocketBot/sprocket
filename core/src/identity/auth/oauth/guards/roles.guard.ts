@@ -4,9 +4,9 @@ import {Reflector} from "@nestjs/core";
 import {JwtService} from "@nestjs/jwt";
 import {AuthGuard} from "@nestjs/passport";
 import {Request as Req} from "express";
-import {UserService} from "src/identity/user/user.service";
 
-import type {AuthPayload} from "../types/payload.type";
+import {UserService} from "../../../user";
+import type {AuthPayload} from "../types";
 
 @Injectable()
 export class RolesGuard extends AuthGuard("jwt") {

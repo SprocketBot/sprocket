@@ -1,19 +1,21 @@
 import {Module} from "@nestjs/common";
-import {TypeOrmModule} from "@nestjs/typeorm";
-import {DatabaseModule} from "src/database";
-import {MLE_Player} from "src/database/mledb/Player.model";
-import {MLE_PlayerToOrg} from "src/database/mledb/PlayerToOrg.model";
 
-import {MledbUserService} from "./mledb-user/mledb-user.service";
+import {DatabaseModule} from "../database";
+import {MledbModule} from "../database/mledb";
+import {MledbUserService, MLEDeveloperTeamGuard} from "./mledb-user";
+
 @Module({
     imports: [
         DatabaseModule,
-        TypeOrmModule.forFeature([
-            MLE_Player,
-            MLE_PlayerToOrg,
-        ]),
+        MledbModule,
     ],
-    providers: [MledbUserService],
-    exports: [MledbUserService],
+    providers: [
+        MledbUserService,
+        MLEDeveloperTeamGuard,
+    ],
+    exports: [
+        MledbUserService,
+        MLEDeveloperTeamGuard,
+    ],
 })
 export class MledbInterfaceModule {}

@@ -1,4 +1,3 @@
-import {InjectQueue} from "@nestjs/bull";
 import {
     Inject, Logger, UseGuards,
 } from "@nestjs/common";
@@ -11,16 +10,20 @@ import type {
 } from "@sprocketbot/common";
 import {ScrimStatus} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
-import {Queue} from "bull";
 import {GraphQLError} from "graphql";
 
-import {OrganizationConfigurationService} from "../configuration/organization-configuration/organization-configuration.service";
-import {GameModeService} from "../game/game-mode/game-mode.service";
-import {CurrentUser} from "../identity/auth/current-user.decorator";
+import {OrganizationConfigurationService} from "../configuration";
+import {Player} from "../database";
+import {
+    CurrentPlayer, GameSkillGroupService, PlayerService,
+} from "../franchise";
+import {GameModeService} from "../game";
+import {CurrentUser} from "../identity";
+import {UserPayload} from "../identity/auth/";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard/gql-jwt-guard";
-import {UserPayload} from "../identity/auth/oauth/types/userpayload.type";
-import {QueueBanGuard} from "../organization/member-restriction";
+import {QueueBanGuard} from "../organization";
 import {ScrimPubSub} from "./constants";
+import {CreateScrimPlayerGuard, JoinScrimPlayerGuard} from "./scrim.guard";
 import {ScrimService} from "./scrim.service";
 import {
     CreateScrimInput, Scrim, ScrimEvent,
@@ -55,9 +58,10 @@ export class ScrimModuleResolver {
 
     constructor(
         @Inject(ScrimPubSub) private readonly pubSub: PubSub,
-        @InjectQueue("scrim") private scrimQueue: Queue,
+        private readonly playerService: PlayerService,
         private readonly scrimService: ScrimService,
         private readonly gameModeService: GameModeService,
+        private readonly skillGroupService: GameSkillGroupService,
         private readonly organizationConfigurationService: OrganizationConfigurationService,
     ) {}
 
@@ -68,13 +72,40 @@ export class ScrimModuleResolver {
      */
 
     @Query(() => [Scrim])
-    async getAllScrims(@Args("status", {
-        type: () => ScrimStatus,
-        nullable: true,
-    }) status?: ScrimStatus): Promise<Scrim[]> {
+    async getAllScrims(
+        @CurrentUser() user: UserPayload,
+        @Args("status", {
+            type: () => ScrimStatus,
+            nullable: true,
+        }) status?: ScrimStatus,
+    ): Promise<Scrim[]> {
+        if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organiazation");
+        
         const scrims = await this.scrimService.getAllScrims();
         if (status) return scrims.filter(s => s.status === status) as Scrim[];
-        return scrims as Scrim[];
+        return scrims.filter(s => s.organizationId === user.currentOrganizationId) as Scrim[];
+    }
+
+    @Query(() => [Scrim])
+    async getAvailableScrims(
+        @CurrentUser() user: UserPayload,
+        @Args("status", {
+            type: () => ScrimStatus,
+            nullable: true,
+            defaultValue: ScrimStatus.PENDING,
+        }) status: ScrimStatus = ScrimStatus.PENDING,
+    ): Promise<Scrim[]> {
+        if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organiazation");
+
+        const players = await this.playerService.getPlayers({
+            where: {member: {user: {id: user.userId} } },
+            relations: ["member", "skillGroup"],
+        });
+        const scrims = await this.scrimService.getAllScrims();
+
+        return scrims.filter(s => s.organizationId === user.currentOrganizationId
+            && players.some(p => s.settings.skillGroupId === p.skillGroupId)
+            && s.status === status) as Scrim[];
     }
 
     @Query(() => Scrim, {nullable: true})
@@ -91,7 +122,7 @@ export class ScrimModuleResolver {
      */
 
     @Mutation(() => Scrim)
-    @UseGuards(QueueBanGuard)
+    @UseGuards(QueueBanGuard, CreateScrimPlayerGuard)
     async createScrim(
         @CurrentUser() user: UserPayload,
         @Args("data") data: CreateScrimInput,
@@ -100,9 +131,11 @@ export class ScrimModuleResolver {
         if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organization");
 
         const gameMode = await this.gameModeService.getGameModeById(data.settings.gameModeId);
+        const skillGroup = await this.skillGroupService.getGameSkillGroupById(data.settings.skillGroupId);
         const checkinTimeout = await this.organizationConfigurationService.getOrganizationConfigurationValue(user.currentOrganizationId, "scrimQueueCheckinTimeout");
         const settings: IScrimSettings = {
             competitive: data.settings.competitive,
+            skillGroupId: skillGroup.id,
             mode: data.settings.mode,
             teamSize: gameMode.teamSize,
             teamCount: gameMode.teamCount,
@@ -122,17 +155,23 @@ export class ScrimModuleResolver {
     }
 
     @Mutation(() => Boolean)
-    @UseGuards(QueueBanGuard)
+    @UseGuards(QueueBanGuard, JoinScrimPlayerGuard)
     async joinScrim(
-        @Args("scrimId") scrimId: string,
         @CurrentUser() user: UserPayload,
+        @CurrentPlayer() player: Player,
+        @Args("scrimId") scrimId: string,
         @Args("group", {nullable: true}) groupKey?: string,
         @Args("createGroup", {nullable: true}) createGroup?: boolean,
     ): Promise<boolean> {
         if (groupKey && createGroup) {
-            throw new Error("You cannot join a group and create a group. Please provide either group or createGroup, not both.");
+            throw new GraphQLError("You cannot join a group and create a group. Please provide either group or createGroup, not both.");
         }
         const group = groupKey ?? createGroup ?? undefined;
+
+        const scrim = await this.scrimService.getScrimById(scrimId).catch(() => null);
+        if (!scrim) throw new GraphQLError("Scrim does not exist");
+        
+        if (player.skillGroupId !== scrim.settings.skillGroupId) throw new GraphQLError("Player is not in the correct skill group");
 
         return this.scrimService.joinScrim(this.userToScrimPlayer(user), scrimId, group);
     }
@@ -140,7 +179,7 @@ export class ScrimModuleResolver {
     @Mutation(() => Boolean)
     async leaveScrim(@CurrentUser() user: UserPayload): Promise<boolean> {
         const scrim = await this.scrimService.getScrimByPlayer(user.userId);
-        if (!scrim) throw new Error("You must be in a scrim to leave");
+        if (!scrim) throw new GraphQLError("You must be in a scrim to leave");
 
         return this.scrimService.leaveScrim(this.userToScrimPlayer(user), scrim.id);
     }
@@ -148,14 +187,14 @@ export class ScrimModuleResolver {
     @Mutation(() => Boolean)
     async checkInToScrim(@CurrentUser() user: UserPayload): Promise<boolean> {
         const scrim = await this.scrimService.getScrimByPlayer(user.userId);
-        if (!scrim) throw new Error("You must be in a scrim to check in");
+        if (!scrim) throw new GraphQLError("You must be in a scrim to check in");
 
         return this.scrimService.checkIn(this.userToScrimPlayer(user), scrim.id);
     }
 
     @Mutation(() => Scrim)
-    async cancelScrim(@Args("scrimId") scrimId: string) {
-        return await this.scrimService.cancelScrim(scrimId)
+    async cancelScrim(@Args("scrimId") scrimId: string): Promise<Scrim> {
+        return this.scrimService.cancelScrim(scrimId) as Promise<Scrim>;
     }
 
     /*
@@ -168,7 +207,7 @@ export class ScrimModuleResolver {
     async followCurrentScrim(@CurrentUser() user: UserPayload): Promise<AsyncIterator<ScrimEvent>> {
         await this.scrimService.enableSubscription();
         const scrim = await this.scrimService.getScrimByPlayer(user.userId);
-        if (!scrim) throw new Error("You must be in a scrim to subscribe to updates");
+        if (!scrim) throw new GraphQLError("You must be in a scrim to subscribe to updates");
         return this.pubSub.asyncIterator(scrim.id);
     }
 

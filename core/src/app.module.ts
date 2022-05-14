@@ -5,6 +5,7 @@ import {graphqlUploadExpress} from "graphql-upload";
 
 import {ConfigurationModule} from "./configuration/configuration.module";
 import {DatabaseModule} from "./database/database.module";
+import {FranchiseModule} from "./franchise/franchise.module";
 import {GameModule} from "./game/game.module";
 import {AuthModule} from "./identity/auth/auth.module";
 import {IdentityModule} from "./identity/identity.module";
@@ -47,6 +48,7 @@ import {config} from "./util/config";
         AuthModule,
         SchedulingModule,
         MledbInterfaceModule,
+        FranchiseModule,
     ],
     providers: [UserService],
 })

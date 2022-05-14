@@ -1,8 +1,9 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import {MLE_Player} from "src/database/mledb/Player.model";
-import {MLE_PlayerToOrg} from "src/database/mledb/PlayerToOrg.model";
 import {Repository} from "typeorm";
+
+import {MLE_Player, MLE_PlayerToOrg} from "../../database/mledb";
+
 @Injectable()
 export class MledbUserService {
     constructor(

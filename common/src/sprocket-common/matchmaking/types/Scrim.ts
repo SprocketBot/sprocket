@@ -28,7 +28,6 @@ export enum ScrimStatus {
      */
     RATIFYING = "RATIFYING",
 
-
     /**
      * All players have left before scrim popped.
      * Scrim is being removed, this state is used for event broadcast

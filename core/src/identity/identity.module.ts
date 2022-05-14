@@ -13,6 +13,6 @@ import {UserAuthenticationAccountResolver} from "./user-authentication-account";
         UserAuthenticationAccountResolver,
         UserService,
     ],
-    exports: [UserService],
+    exports: [IdentityService, UserService],
 })
 export class IdentityModule {}

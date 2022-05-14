@@ -5,9 +5,9 @@ import {
 
 import type {UserAuthenticationAccount, UserProfile} from "../../database";
 import {User, UserAuthenticationAccountType} from "../../database";
+import {UserPayload} from "../auth";
 import {CurrentUser} from "../auth/current-user.decorator";
-import {GqlJwtGuard} from "../auth/gql-auth-guard/gql-jwt-guard";
-import {UserPayload} from "../auth/oauth/types/userpayload.type";
+import {GqlJwtGuard} from "../auth/gql-auth-guard";
 import {IdentityService} from "../identity.service";
 import {UserService} from "./user.service";
 

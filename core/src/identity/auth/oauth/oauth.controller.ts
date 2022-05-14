@@ -1,15 +1,16 @@
-import {Controller, ForbiddenException, Get, Request, Response, UseGuards,} from "@nestjs/common";
+import {
+    Controller, ForbiddenException, Get, Request, Response, UseGuards,
+} from "@nestjs/common";
 import {Request as Req, Response as Res} from "express";
 
 import type {User, UserAuthenticationAccount} from "../../../database";
 import {UserAuthenticationAccountType} from "../../../database";
-import {UserService} from "../../../identity/user/user.service";
-import {MledbUserService} from "../../../mledb/mledb-user/mledb-user.service";
+import {MledbUserService} from "../../../mledb";
 import {config} from "../../../util/config";
-import {DiscordAuthGuard} from "./guards/discord-auth.guard";
-import {GoogleAuthGuard} from "./guards/google-auth.guard";
-import {JwtAuthGuard} from "./guards/jwt-auth.guard";
-import {RolesGuard} from "./guards/roles.guard";
+import {UserService} from "../../user";
+import {
+    DiscordAuthGuard, GoogleAuthGuard, JwtAuthGuard, RolesGuard,
+} from "./guards";
 import {OauthService} from "./oauth.service";
 import {Roles} from "./roles.decorator";
 import type {AccessToken} from "./types/accesstoken.type";
@@ -21,8 +22,7 @@ export class OauthController {
         private authService: OauthService,
         private userService: UserService,
         private mledbUserService: MledbUserService,
-    ) {
-    }
+    ) {}
 
     @Get("rolesTest")
     @UseGuards(RolesGuard)
@@ -67,7 +67,7 @@ export class OauthController {
     @Get("login")
     @Get("discord/redirect")
     @UseGuards(DiscordAuthGuard)
-    async discordAuthRedirect(@Request() req: Req, @Response() res: Res) {
+    async discordAuthRedirect(@Request() req: Req, @Response() res: Res): Promise<void> {
         const ourUser = req.user as User;
         const userProfile = await this.userService.getUserProfileForUser(ourUser.id);
         const authAccounts: UserAuthenticationAccount[] = await this.userService.getUserAuthenticationAccountsForUser(ourUser.id);
