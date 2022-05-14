@@ -1,5 +1,5 @@
 import {
-    Field, Float, ObjectType,
+    Field, Float, Int, ObjectType,
 } from "@nestjs/graphql";
 import {
     Column, Entity, JoinColumn, ManyToOne, OneToOne,
@@ -21,6 +21,10 @@ export class Player extends BaseModel {
     @ManyToOne(() => GameSkillGroup)
     @Field(() => GameSkillGroup)
     skillGroup: GameSkillGroup;
+
+    @Column()
+    @Field(() => Int)
+    skillGroupId: number;
 
     @Column({type: "numeric"})
     @Field(() => Float)

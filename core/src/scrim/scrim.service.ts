@@ -37,8 +37,8 @@ export class ScrimService {
 
     get pendingScrimsSubTopic(): string { return "scrims.created" }
 
-    async getAllScrims(): Promise<IScrim[]> {
-        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetAllScrims, {});
+    async getAllScrims(skillGroupId?: number): Promise<IScrim[]> {
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetAllScrims, {skillGroupId});
 
         if (result.status === ResponseStatus.SUCCESS) return result.data;
         throw result.error;
