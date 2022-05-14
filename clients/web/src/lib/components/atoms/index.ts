@@ -7,3 +7,4 @@ export {default as Modal} from "./Modal.svelte";
 export {default as Stat} from "./Stat.svelte";
 export {default as StatGroup} from "./StatGroup.svelte";
 export {default as FileInput} from "./FileInput.svelte";
+export {default as DashboardNumberCard} from "./DashboardNumberCard.svelte";

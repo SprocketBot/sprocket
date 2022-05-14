@@ -20,6 +20,7 @@ import type {App} from "@sveltejs/kit";
 import {session} from "$app/stores";
 
 export function initializeClient(sessionInput: App.Session): void {
+    console.log("HI");
     let sessionData: App.Session = sessionInput;
     session.subscribe(d => {
         sessionData = d;

@@ -37,7 +37,7 @@
             max={100}
             class:complete={status === ProgressStatus.Complete}
             class:error={status === ProgressStatus.Error}
-        />
+        ></progress>
     </div>
 
     <button on:click={() => dispatch("remove")} disabled={!canRemove}>
