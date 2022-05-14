@@ -72,7 +72,7 @@ export class MLE_SeriesReplay {
     @Column("boolean", {name: "overtime"})
     overtime: boolean;
 
-    @Column("integer", {name: "overtime_seconds", default: () => "0"})
+    @Column("integer", {name: "overtime_seconds", default: 0})
     overtimeSeconds: number;
 
     @Column("character varying", {

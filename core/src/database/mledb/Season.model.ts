@@ -46,7 +46,7 @@ export class MLE_Season {
     @Column("boolean", {name: "roster_locked", default: () => "false"})
     rosterLocked: boolean;
 
-    @Column("integer", {name: "week_length", default: () => "7"})
+    @Column("integer", {name: "week_length", default: 7})
     weekLength: number;
 
     @OneToMany(() => MLE_DraftOrder, draftOrder => draftOrder.seasonSeasonNumber2)

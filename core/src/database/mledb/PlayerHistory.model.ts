@@ -45,7 +45,7 @@ export class MLE_PlayerHistory {
     @Column("character varying", {name: "name", length: 255})
     name: string;
 
-    @Column("real", {name: "salary", default: () => "'-1.0'"})
+    @Column("real", {name: "salary", default: -1})
     salary: number;
 
     @Column("character varying", {
@@ -75,7 +75,7 @@ export class MLE_PlayerHistory {
     preferredPlatform: string | null;
 
     @Column("integer", {
-        name: "peak_mmr", nullable: true, default: () => "0",
+        name: "peak_mmr", nullable: true, default: 0,
     })
     peakMmr: number | null;
 

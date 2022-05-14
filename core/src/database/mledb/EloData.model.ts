@@ -57,7 +57,7 @@ export class MLE_EloData {
     @Column("integer", {name: "next_node_id", nullable: true})
     nextNodeId: number | null;
 
-    @Column("integer", {name: "chain", default: () => "0"})
+    @Column("integer", {name: "chain", default: 0})
     chain: number;
 
     @Column("character varying", {
