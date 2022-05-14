@@ -3,8 +3,8 @@
 WITH
 
 vars AS (SELECT 
-		 	scrim_id::numeric AS scrim_id,
-			org_id::numeric AS org_id
+		 	:scrim_id::numeric AS scrim_id,
+			:org_id::numeric AS org_id
 		),
 
 colors AS (
