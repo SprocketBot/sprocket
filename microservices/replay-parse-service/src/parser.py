@@ -4,8 +4,14 @@ import ballchasing
 
 from config import config
 
-ballchasing_token = config["ballchasing"]["apiToken"]
-ballchasing_api = ballchasing.Api(ballchasing_token, None, True)
+BALLCHASING_TOKEN_FILE = open("../secret/ballchasing-token", "r")
+BALLCHASING_TOKEN = BALLCHASING_TOKEN_FILE.read()
+if len(BALLCHASING_TOKEN.strip()) == 0:
+    print("Missing required secret: 'secret/ballchasing-token'`")
+    exit(1)
+BALLCHASING_TOKEN_FILE.close()
+
+BALLCHASING_API = ballchasing.Api(BALLCHASING_TOKEN, None, True)
 PARSER = config["parser"]
 
 if PARSER != "carball" and PARSER != "ballchasing":
@@ -47,7 +53,7 @@ def parse_ballchasing(path):
     with open(path, "rb") as replay_file:
         upload_response = None
         try:
-            upload_response = ballchasing_api.upload_replay(replay_file)
+            upload_response = BALLCHASING_API.upload_replay(replay_file)
         except Exception as e:
             if is_duplicate_replay(e):
                 upload_response = e.args[1]
@@ -56,6 +62,6 @@ def parse_ballchasing(path):
                 raise e
 
         replay_id = upload_response["id"]
-        get_response = ballchasing_api.get_replay(replay_id)
+        get_response = BALLCHASING_API.get_replay(replay_id)
 
         return get_response
