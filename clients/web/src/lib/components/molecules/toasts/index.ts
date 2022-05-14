@@ -1,2 +1,2 @@
-export {default as ToastContainer} from "./ToastContainer.svelte"
-export * from "./ToastStore"
+export {default as ToastContainer} from "./ToastContainer.svelte";
+export * from "./ToastStore";

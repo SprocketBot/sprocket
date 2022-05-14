@@ -1,8 +1,9 @@
 <script lang="ts">
     import {Portal} from "$lib/components";
     import {fade, fly} from "svelte/transition";
-    import FaInfoCircle from 'svelte-icons/fa/FaInfoCircle.svelte'
-    import {Toast, toasts} from "./ToastStore"
+    import FaInfoCircle from "svelte-icons/fa/FaInfoCircle.svelte";
+    import type {Toast} from "./ToastStore";
+    import {toasts} from "./ToastStore";
     export let showTestButton = true;
 
     function removeToast(t: Toast, node: HTMLLIElement) {
@@ -16,7 +17,7 @@
     <section>
         <ul>
             {#each $toasts as toast (toast.id)}
-                <li class="toast" in:fade out:fly={{y: -5, duration: 200}} on:click={(e) => removeToast(toast, e.currentTarget)}>
+                <li class="toast" in:fade out:fly={{y: -5, duration: 200}} on:click={e => { removeToast(toast, e.currentTarget) }}>
                     <span class="w-4 h-4">
                         <FaInfoCircle/>
                     </span>
@@ -33,7 +34,7 @@
     {#if showTestButton}
         <div class="left-1/3 absolute bottom-8">
             <button class="btn btn-secondary relative block"
-                    on:click={() => toasts.pushToast({status: "info", content: `Notification${Math.random()}`})}>Create Notification
+                    on:click={() => { toasts.pushToast({status: "info", content: `Notification${Math.random()}`}) }}>Create Notification
             </button>
         </div>
     {/if}

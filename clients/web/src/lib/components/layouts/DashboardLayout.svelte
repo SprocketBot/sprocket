@@ -1,5 +1,7 @@
 <script lang="ts">
-    import {DashboardHeader, DashboardMobileHeader, Navigation,} from "$lib/components";
+    import {
+        DashboardHeader, DashboardMobileHeader, Navigation,
+    } from "$lib/components";
 
     import FaBackward from "svelte-icons/fa/FaBackward.svelte";
 

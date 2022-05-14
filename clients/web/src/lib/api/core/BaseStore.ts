@@ -5,7 +5,7 @@ export abstract class BaseStore<T> {
 
     subscribe(sub: (T) => unknown): () => void {
         this.subscribers.add(sub);
-        sub(this.currentValue)
+        sub(this.currentValue);
         return () => { this.cleanup(sub) };
     }
 

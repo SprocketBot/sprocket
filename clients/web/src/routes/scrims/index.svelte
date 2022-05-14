@@ -11,8 +11,6 @@
         StatGroup,
     } from "$lib/components";
 
-    import DebugPlayerStoreForm from "$lib/components/__debug__/DebugPlayerStoreForm.svelte";
-
     let metrics: MetricsResult["metrics"];
     $: metrics = $scrimMetrics.data?.metrics;
 
