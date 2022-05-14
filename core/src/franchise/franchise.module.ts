@@ -2,7 +2,7 @@ import {forwardRef, Module} from "@nestjs/common";
 
 import {DatabaseModule} from "../database";
 import {OrganizationModule} from "../organization";
-import {GameSkillGroupService} from "./game-skill-group";
+import {GameSkillGroupResolver, GameSkillGroupService} from "./game-skill-group";
 import {PlayerService} from "./player";
 
 @Module({
@@ -13,6 +13,7 @@ import {PlayerService} from "./player";
     providers: [
         PlayerService,
         GameSkillGroupService,
+        GameSkillGroupResolver,
     ],
     exports: [
         PlayerService,
