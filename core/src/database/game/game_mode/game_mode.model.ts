@@ -16,6 +16,10 @@ export class GameMode extends BaseModel {
     game: Game;
 
     @Column()
+    @Field(() => Int)
+    gameId: number;
+
+    @Column()
     @Field(() => String)
     code: string;
 

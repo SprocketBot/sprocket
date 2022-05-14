@@ -131,7 +131,7 @@ export class ScrimModuleResolver {
         if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organization");
 
         const gameMode = await this.gameModeService.getGameModeById(data.settings.gameModeId);
-        const player = await this.playerService.getPlayerByOrganizationAndGame(user.userId, user.currentOrganizationId, gameMode.game.id);
+        const player = await this.playerService.getPlayerByOrganizationAndGame(user.userId, user.currentOrganizationId, gameMode.gameId);
         const skillGroup = await this.skillGroupService.getGameSkillGroupById(player.skillGroupId);
         const checkinTimeout = await this.organizationConfigurationService.getOrganizationConfigurationValue(user.currentOrganizationId, "scrimQueueCheckinTimeout");
         const settings: IScrimSettings = {
