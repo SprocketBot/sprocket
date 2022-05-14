@@ -125,14 +125,15 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
 
     protected handleGqlMessage = (message: OperationResult<CurrentScrimSubscriptionValue, CurrentScrimStoreSubscriptionVariables>) => {
         if (message?.data?.currentScrim) {
-            if (message?.data?.currentScrim?.scrim.status === "CANCELLED" || message?.data?.currentScrim?.scrim.status === "COMPLETE") {
+            const {scrim} = message?.data?.currentScrim;
+            if (scrim?.status === "CANCELLED" || scrim?.status === "COMPLETE") {
                 this.currentValue.data = undefined;
                 toasts.pushToast({
                     status: "info",
-                    content: `Scrim ${screamingSnakeToHuman(message.data.currentScrim.scrim.status)}`,
+                    content: `Scrim ${screamingSnakeToHuman(scrim.status)}`,
                 });
             } else {
-                this.currentValue.data.currentScrim = message?.data?.currentScrim.scrim;
+                this.currentValue.data.currentScrim = scrim;
             }
 
             this.pub();
