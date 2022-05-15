@@ -1,18 +1,17 @@
 SELECT
-  scrim.id AS value,
   CONCAT(
-    DATE_TRUNC('minute', scrim.created_at),
+    DATE_TRUNC('minute', s.created_at),
     ' ',
-    LEFT(series.league, 1),
+    LEFT(se.league, 1),
     'L ',
-    REPLACE(INITCAP(series.mode), '_', ' '),
+    REPLACE(INITCAP(se.mode), '_', ' '),
     ' ',
     REPLACE(INITCAP(TYPE), '_', ' '),
     ' '
-  ) AS description
-  
+  ) AS Description,
+  s.ID AS Value
 FROM
-  scrim
-  INNER JOIN series ON scrim.id = series.scrim_id
+  mledb.scrim s
+  INNER JOIN mledb.series se ON s.id = se.scrim_id
 ORDER BY
-  scrim.id DESC
+  s.ID DESC
