@@ -13,5 +13,5 @@ result_backend = config["celery"]["backend"]
 # https://www.ssllabs.com/ssltest/analyze.html?d=rabbitmq.dev.spr.ocket.cloud > "This site works only in browsers with SNI support."
 # https://github.com/celery/py-amqp/blob/98f6d364188215c2973693a79e461c7e9b54daef/amqp/transport.py#L488
 broker_use_ssl = {
-    'server_hostname': 'rabbitmq.dev.spr.ocket.cloud'
+    'server_hostname': config["celery"]["broker_hostname"]
 }
