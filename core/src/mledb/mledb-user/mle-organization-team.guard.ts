@@ -14,8 +14,8 @@ export type OrganizationTeamGuardOptions = MLE_OrganizationTeam | MLE_Organizati
 
 /**
  * Verifies a player has the correct MLE organization teams.
- * @param {OrganizationTeamGuardOptions} guards Either an MLE Organization Team, array of Organization Teams (acts as overall `OR`), or a function that takes the user's organization teams and returns a boolean.
- * @returns {Type<CanActivate>} The organization teamguard.
+ * @param {OrganizationTeamGuardOptions} guards Either an MLE Organization Team, array of Organization Teams (only requires one), or a function that takes the user's organization teams and returns a boolean.
+ * @returns {Type<CanActivate>} The organization team guard.
  *
  * @example
  * ```js
