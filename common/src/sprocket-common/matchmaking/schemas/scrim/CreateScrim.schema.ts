@@ -10,6 +10,7 @@ export const CreateScrim_Request = z.object({
     author: ScrimPlayerSchema,
     organizationId: z.number(),
     gameMode: ScrimGameModeSchema,
+    skillGroupId: z.number(),
     createGroup: z.boolean().optional()
         .default(false),
 });

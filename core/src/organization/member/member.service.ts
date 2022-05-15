@@ -29,10 +29,11 @@ export class MemberService {
 
         const profile = this.memberProfileRepository.create(memberProfile);
         const member = this.memberRepository.create({
-            profile,
             organization,
             user,
         });
+
+        member.profile = profile;
 
         await this.memberProfileRepository.save(profile);
         await this.memberRepository.save(member);

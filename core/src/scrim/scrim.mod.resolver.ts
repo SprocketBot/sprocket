@@ -104,7 +104,7 @@ export class ScrimModuleResolver {
         const scrims = await this.scrimService.getAllScrims();
 
         return scrims.filter(s => s.organizationId === user.currentOrganizationId
-            && players.some(p => s.settings.skillGroupId === p.skillGroupId)
+            && players.some(p => s.skillGroupId === p.skillGroupId)
             && s.status === status) as Scrim[];
     }
 
@@ -136,7 +136,6 @@ export class ScrimModuleResolver {
         const checkinTimeout = await this.organizationConfigurationService.getOrganizationConfigurationValue(user.currentOrganizationId, "scrimQueueCheckinTimeout");
         const settings: IScrimSettings = {
             competitive: data.settings.competitive,
-            skillGroupId: skillGroup.id,
             mode: data.settings.mode,
             teamSize: gameMode.teamSize,
             teamCount: gameMode.teamCount,
@@ -151,6 +150,7 @@ export class ScrimModuleResolver {
                 id: gameMode.id,
                 description: gameMode.description,
             },
+            skillGroup.id,
             createGroup,
         ) as Promise<Scrim>;
     }
@@ -172,7 +172,7 @@ export class ScrimModuleResolver {
         const scrim = await this.scrimService.getScrimById(scrimId).catch(() => null);
         if (!scrim) throw new GraphQLError("Scrim does not exist");
         
-        if (player.skillGroupId !== scrim.settings.skillGroupId) throw new GraphQLError("Player is not in the correct skill group");
+        if (player.skillGroupId !== scrim.skillGroupId) throw new GraphQLError("Player is not in the correct skill group");
 
         return this.scrimService.joinScrim(this.userToScrimPlayer(user), scrimId, group);
     }

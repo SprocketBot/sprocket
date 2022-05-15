@@ -54,6 +54,7 @@ export const ScrimSchema = z.object({
     organizationId: z.number(),
     players: z.array(ScrimPlayerSchema),
     gameMode: ScrimGameModeSchema,
+    skillGroupId: z.number(),
 
     settings: ScrimSettingsSchema,
 
