@@ -105,8 +105,10 @@ export class ScrimCrudService {
     }
 
     async generateLobby(scrimId: string): Promise<void> {
-        const lobby = {name: "sprocket", password: randomBytes(3).toString("hex")};
-        await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.settings.lobby", lobby).catch(e => console.error("ERR", e));
+        await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.settings.lobby", {
+            name: "sprocket",
+            password: randomBytes(3).toString("hex"),
+        });
     }
 
     async setScrimGames(scrimId: string, games: ScrimGame[]): Promise<void> {
