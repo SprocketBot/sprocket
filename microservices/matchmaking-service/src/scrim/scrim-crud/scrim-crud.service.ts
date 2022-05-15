@@ -107,7 +107,7 @@ export class ScrimCrudService {
     async generateLobby(scrimId: string): Promise<void> {
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.settings.lobby", {
             name: "sprocket",
-            password: randomBytes(6),
+            password: randomBytes(6).toString("hex"),
         });
     }
 
