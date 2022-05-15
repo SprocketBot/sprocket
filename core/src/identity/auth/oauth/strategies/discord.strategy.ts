@@ -126,9 +126,13 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
                     platformAccountId: mledbPlayerAccount.platformId,
                 },
             }).catch(() => null);
-            const platform = await this.platformService.getPlatformByCode(mledbPlayerAccount.platform)
-                .catch(async () => this.platformService.createPlatform(mledbPlayerAccount.platform));
-            if (!platformAccount) await this.memberPlatformAccountService.createMemberPlatformAccount(member.id, platform.id, mledbPlayerAccount.platformId);
+
+            if (!platformAccount) {
+                const platform = await this.platformService.getPlatformByCode(mledbPlayerAccount.platform)
+                    .catch(async () => this.platformService.createPlatform(mledbPlayerAccount.platform));
+                    
+                await this.memberPlatformAccountService.createMemberPlatformAccount(member.id, platform.id, mledbPlayerAccount.platformId);
+            }
         }
 
         if (!["PREMIER", "MASTER", "CHAMPION", "ACADEMY", "FOUNDATION"].includes(mledbPlayer.league)) throw new Error("Player does not belong to a league");
