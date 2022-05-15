@@ -1,7 +1,6 @@
 {
     "celery": {
         "broker": "",
-        "broker_hostname": "",
         "backend": "",
         "queue": ""
     },
