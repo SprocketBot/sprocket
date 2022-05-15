@@ -33,7 +33,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         private readonly playerService: PlayerService,
         private readonly platformService: PlatformService,
         private readonly skillGroupService: GameSkillGroupService,
-        private readonly mledbUserService: MledbPlayerService,
+        private readonly mledbPlayerService: MledbPlayerService,
         private readonly mledbPlayerAccountService: MledbPlayerAccountService,
         private readonly analyticsService: AnalyticsService,
     ) {
@@ -55,7 +55,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         // const guilds: GuildInfo[] = profile.guilds ?? [];
         // if (!guilds.some(g => g.id === MLE_GUILD_ID)) return undefined;
 
-        const mledbPlayer = await this.mledbUserService.getPlayerByDiscordId(profile.id).catch(() => null);
+        const mledbPlayer = await this.mledbPlayerService.getPlayerByDiscordId(profile.id).catch(() => null);
         if (!mledbPlayer) throw new Error("User is not associated with MLE");
 
         const userByDiscordId = await this.identityService.getUserByAuthAccount(UserAuthenticationAccountType.DISCORD, profile.id).catch(() => undefined);
@@ -125,6 +125,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
                     platform: {code: mledbPlayerAccount.platform},
                     platformAccountId: mledbPlayerAccount.platformId,
                 },
+                relations: ["platform"],
             }).catch(() => null);
 
             if (!platformAccount) {
