@@ -1,6 +1,6 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {
-    Column, Entity, ManyToOne,
+    Column, Entity, JoinColumn, ManyToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
@@ -11,10 +11,12 @@ import {Member} from "../member";
 @ObjectType()
 export class MemberPlatformAccount extends BaseModel {
     @ManyToOne(() => Member)
+    @JoinColumn()
     @Field(() => Member)
     member: Member;
 
     @ManyToOne(() => Platform)
+    @JoinColumn()
     @Field(() => Platform)
     platform: Platform;
 

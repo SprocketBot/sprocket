@@ -9,8 +9,9 @@ import type {
 } from "../../../../database";
 import {UserAuthenticationAccountType} from "../../../../database";
 import {GameSkillGroupService, PlayerService} from "../../../../franchise";
-import {MledbUserService} from "../../../../mledb";
-import {MemberService} from "../../../../organization";
+import {PlatformService} from "../../../../game";
+import {MledbPlayerAccountService, MledbPlayerService} from "../../../../mledb";
+import {MemberPlatformAccountService, MemberService} from "../../../../organization";
 import {config} from "../../../../util/config";
 import {IdentityService} from "../../../identity.service";
 import {UserService} from "../../../user";
@@ -28,9 +29,12 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         private readonly identityService: IdentityService,
         private readonly userService: UserService,
         private readonly memberService: MemberService,
+        private readonly memberPlatformAccountService: MemberPlatformAccountService,
         private readonly playerService: PlayerService,
+        private readonly platformService: PlatformService,
         private readonly skillGroupService: GameSkillGroupService,
-        private readonly mledbUserService: MledbUserService,
+        private readonly mledbUserService: MledbPlayerService,
+        private readonly mledbPlayerAccountService: MledbPlayerAccountService,
         private readonly analyticsService: AnalyticsService,
     ) {
         super({
@@ -51,8 +55,8 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         // const guilds: GuildInfo[] = profile.guilds ?? [];
         // if (!guilds.some(g => g.id === MLE_GUILD_ID)) return undefined;
 
-        const mledbUser = await this.mledbUserService.getUserByDiscordId(profile.id).catch(() => null);
-        if (!mledbUser) throw new Error("User is not associated with MLE");
+        const mledbPlayer = await this.mledbUserService.getPlayerByDiscordId(profile.id).catch(() => null);
+        if (!mledbPlayer) throw new Error("User is not associated with MLE");
 
         const userByDiscordId = await this.identityService.getUserByAuthAccount(UserAuthenticationAccountType.DISCORD, profile.id).catch(() => undefined);
         let user = userByDiscordId;
@@ -104,17 +108,34 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         
         if (!member) {
             member = await this.memberService.createMember(
-                {name: mledbUser.name},
+                {name: mledbPlayer.name},
                 MLE_ORGANIZATION_ID,
                 user.id,
             );
         }
 
-        if (!["PREMIER", "MASTER", "CHAMPION", "ACADEMY", "FOUNDATION"].includes(mledbUser.league)) throw new Error("Player does not belong to a league");
+        const mledbPlayerAccounts = await this.mledbPlayerAccountService.getPlayerAccounts({where: {player: {id: mledbPlayer.id} } });
 
-        const skillGroup = await this.skillGroupService.getGameSkillGroup({where: {code: `${mledbUser.league[0]}L`} });
+        for (const mledbPlayerAccount of mledbPlayerAccounts) {
+            if (!mledbPlayerAccount.platformId) continue;
+
+            const platformAccount = await this.memberPlatformAccountService.getMemberPlatformAccount({
+                where: {
+                    member: {id: member.id},
+                    platform: {code: mledbPlayerAccount.platform},
+                    platformAccountId: mledbPlayerAccount.platformId,
+                },
+            }).catch(() => null);
+            const platform = await this.platformService.getPlatformByCode(mledbPlayerAccount.platform)
+                .catch(async () => this.platformService.createPlatform(mledbPlayerAccount.platform));
+            if (!platformAccount) await this.memberPlatformAccountService.createMemberPlatformAccount(member.id, platform.id, mledbPlayerAccount.platformId);
+        }
+
+        if (!["PREMIER", "MASTER", "CHAMPION", "ACADEMY", "FOUNDATION"].includes(mledbPlayer.league)) throw new Error("Player does not belong to a league");
+
+        const skillGroup = await this.skillGroupService.getGameSkillGroup({where: {code: `${mledbPlayer.league[0]}L`} });
         const player = await this.playerService.getPlayer({where: {member: {id: member.id} } }).catch(() => null);
-        if (!player) await this.playerService.createPlayer(member.id, skillGroup.id, mledbUser.salary);
+        if (!player) await this.playerService.createPlayer(member.id, skillGroup.id, mledbPlayer.salary);
 
         done("", user);
         return user;
