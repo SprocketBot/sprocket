@@ -53,6 +53,9 @@ export class JoinScrimPlayerGuard extends PlayerGuard {
 }
 
 @Injectable()
+/**
+ * This guard passes if the player making the request is in the specified scrim
+ */
 export class ScrimResolverPlayerGuard extends PlayerGuard {
     constructor(
         private readonly gameModeService: GameModeService,
