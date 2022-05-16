@@ -4,7 +4,11 @@
     import {scrimMetrics} from "$lib/api/queries/ScrimMetrics.store";
 
     import {
-        AvailableScrimsView, BetterDashboardLayout, BigNumber, DashboardCard, QueuedView, DashboardNumberCard
+        AvailableScrimsView,
+        DashboardLayout,
+        DashboardCard,
+        DashboardNumberCard,
+        QueuedView,
     } from "$lib/components";
 
     let metrics: MetricsResult["metrics"];
@@ -31,8 +35,8 @@
     }
 </script>
 
-<BetterDashboardLayout>
-    <DashboardCard width={5} height={3}>
+<DashboardLayout>
+    <DashboardCard class="col-span-6 xl:col-span-5 row-span-3">
         {#if $currentScrim.fetching}
             Loading...
         {:else if $currentScrim.data?.currentScrim}
@@ -43,13 +47,16 @@
     </DashboardCard>
     <DashboardNumberCard title="Scrims in the last hour"
                          value={metrics?.completedScrims ?? 0}
-                         description="{Math.abs(activityChange)}% {activityChange > 0 ? 'more' : 'less'} than previous hour"/>
+                         description="{Math.abs(activityChange)}% {activityChange > 0 ? 'up' : 'down'}"
+    />
     <DashboardNumberCard title="Pending Scrims"
-                         value={metrics?.pendingScrims ?? 0}/>
+                         value={metrics?.pendingScrims ?? 0}
+    />
     <DashboardNumberCard title="Active Players"
-                         value={metrics?.totalPlayers ?? 0}/>
+                         value={metrics?.totalPlayers ?? 0}
+    />
 
-</BetterDashboardLayout>
+</DashboardLayout>
 
 <style lang="postcss">
 

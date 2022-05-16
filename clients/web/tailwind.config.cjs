@@ -3,11 +3,12 @@ const daisy = require("daisyui")
 const c = require("color")
 
 const sprocketPalette = {
-    primary: "#F5C04E",
-    secondary: "#307AF7",
-    // accent: "#ED367C",
-    accent: "#623FCF",
-    purple: "#623FCF",
+    primary: "#FEBF2B",
+    secondary: "#F15A24",
+    accent: "#0097D7",
+    success: "#189666",
+    info: "#635DB2",
+    error: "#D81C0E",
     gray: {
         "100": "#CFD2D3",
         "200": "#AFB1B2",
@@ -24,11 +25,6 @@ const sprocketPalette = {
 
 const config = {
     mode: 'jit',
-    purge: [
-        "./src/**/*.svelte",
-        // may also want to include HTML files
-        "./src/**/*.html"
-    ],
     content: ["./src/**/*.{html,js,svelte,ts}"],
     theme: {
         extend: {
@@ -141,10 +137,10 @@ const config = {
                 "base-content": "#ebecf0",
 
                 // TODO: This:
-                "info": "#66c7ff",
-                "success": "#87cf3a",
+                "info": sprocketPalette.info,
+                "success": sprocketPalette.success,
                 "warning": "#e1d460",
-                "error": "#ff6b6b",
+                "error": sprocketPalette.error,
             },
         },],
         base: true,

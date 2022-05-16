@@ -1,56 +1,67 @@
 <script lang="ts">
-    import {
-        DashboardHeader, DashboardMobileHeader, Navigation,
-    } from "$lib/components";
+    import {goto} from "$app/navigation";
 
-    import FaBackward from "svelte-icons/fa/FaBackward.svelte";
+    import FaBars from "svelte-icons/fa/FaBars.svelte";
 
+    import {Avatar, Navigation} from "$lib/components";
+    import {user} from "$lib/stores/user";
 </script>
 
 
-<div class="h-screen drawer drawer-mobile w-full">
-    <input id="nav-drawer" type="checkbox" class="drawer-toggle">
-    <div class="drawer-content">
-        <DashboardMobileHeader/>
-        <section class="p-4 h-full flex flex-col py-20 lg:py-4">
-            <slot/>
-        </section>
-    </div>
-    <div class="drawer-side">
-        <label for="nav-drawer" class="drawer-overlay"></label>
-        <aside>
-            <header>
-                <DashboardHeader/>
-            </header>
-            <div class="flex justify-between gap-8 mb-8">
-                <label for="nav-drawer" class="btn btn-primary drawer-button lg:hidden btn-outline mx-auto">
-                    <span class="icon"><FaBackward/></span> Close
-                </label>
+<main>
+    <nav class="navbar border-b-primary/20 border-b-2 pl-4 pr-16 h-20">
+        <header class="navbar-start">
+            <h1 class="hidden">Sprocket</h1>
+            <img src="/img/logo-horizontal.svg" alt="Sprocket" class="h-8"/>
+        </header>
+
+        <div class="navbar-center">
+            <label for="nav-drawer" class="btn btn-ghost drawer-button flex justify-center items-center h-8 px-4 lg:hidden">
+                <span class="w-6 h-6 mr-2">
+                    <FaBars/>
+                </span>
+                Menu
+            </label>
+        </div>
+
+        <div class="navbar-end">
+            {#if $user}
+                <Avatar class="h-12 w-12 mr-4"/>
+                {$user.username}
+            {:else}
+                <button class="btn btn-outline" on:click={async () => goto("/auth/login")}>Sign In</button>
+            {/if}
+        </div>
+    </nav>
+    <div class="drawer drawer-mobile h-full w-full flex-1">
+        <input id="nav-drawer" type="checkbox" class="drawer-toggle">
+
+        <div class="drawer-content">
+            <!-- Page -->
+            <section>
+                <slot/>
+            </section>
+        </div>
+        <div class="drawer-side">
+            <!-- Sidebar -->
+            <label for="nav-drawer" class="drawer-overlay"></label>
+            <div class="px-4 w-56 py-16">
+                <Navigation/>
+                <slot name="sidebar"/>
             </div>
-            <Navigation/>
-            <slot name="sidebar"/>
-        </aside>
+        </div>
     </div>
-</div>
+</main>
 
 <style lang="postcss">
-
-    header {
-        @apply mb-8 px-4;
+    main {
+        @apply bg-gradient-to-br from-base-200 via-base-300 to-black
+        h-screen w-screen flex flex-col;
     }
+    section {
+        @apply p-4 h-full flex flex-col py-20 lg:py-4 grid gap-8
+        grid-cols-6;
+        grid-auto-rows: 12rem;
 
-    aside {
-        @apply bg-gray-900 py-4 w-96 lg:w-auto lg:px-0 flex flex-col items-center gap-1;
-    }
-
-    .drawer-content {
-        @apply lg:p-4 p-0 relative h-full
-        bg-gradient-to-b from-gray-800 to-gray-700
-        ;
-        /*background: linear-gradient(180deg, theme("colors.gray-600") 0%, theme("colors.gray-600") 65%);*/
-    }
-
-    .icon {
-        @apply block w-4 h-4 mx-2;
     }
 </style>
