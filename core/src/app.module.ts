@@ -24,6 +24,7 @@ import {config} from "./util/config";
             autoSchemaFile: true,
             installSubscriptionHandlers: true,
             playground: config.gql.playground,
+            fieldResolverEnhancers: ["guards"],
             context: ({
                 connection, req, payload,
             }) => {

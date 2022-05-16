@@ -139,6 +139,7 @@ export class ScrimModuleResolver {
             mode: data.settings.mode,
             teamSize: gameMode.teamSize,
             teamCount: gameMode.teamCount,
+            observable: data.settings.observable,
             checkinTimeout: parseInt(checkinTimeout.value),
         };
 

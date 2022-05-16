@@ -1,6 +1,7 @@
 export * from "./Scrim";
 export * from "./ScrimGame";
 export * from "./ScrimGameMode";
+export * from "./ScrimLobby";
 export * from "./ScrimMetrics";
 export * from "./ScrimMode";
 export * from "./ScrimPlayer";
