@@ -10,7 +10,7 @@
 <!-- Hide the input so we can style the label -->
 <input class="sr-only" id="file-input" type="file" multiple bind:files disabled={disabled} />
 
-<label for="file-input" class={disabled ? "disabled" : ""}>
+<label for="file-input" class:disabled>
     <span><FaUpload /></span>
     {label}
 </label>

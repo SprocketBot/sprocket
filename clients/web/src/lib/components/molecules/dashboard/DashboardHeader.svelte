@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import {goto} from "$app/navigation";
     import {Avatar} from "$lib/components";
     import {user} from "$lib/stores/user";
@@ -16,7 +16,9 @@
     <Avatar class="w-1/3"/>
 
     <div>
-        <h2>Hello {$user.username}!</h2>
+        {#if $user}
+            <h2>Hello {$user.username}!</h2>
+        {/if}
     </div>
 
     <button class="btn btn-outline btn-error" on:click={async () => goto("/auth/logout")}>
@@ -30,10 +32,6 @@
 
     img {
         @apply mb-4;
-    }
-
-    hr {
-        @apply w-1/3 mx-auto my-2 border-t-sprocket;
     }
 
     section {
