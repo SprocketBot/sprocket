@@ -65,6 +65,15 @@ export class ScrimCrudService {
         return null;
     }
 
+    async getScrimBySubmissionId(submissionId: string): Promise<Scrim | null> {
+        const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
+        for (const scrimKey of scrimKeys) {
+            const [_submissionId] = await this.redisService.getJson<string[]>(scrimKey, "$.submissionId");
+            if (_submissionId === submissionId) return this.redisService.getJson<Scrim>(scrimKey);
+        }
+        return null;
+    }
+
     async addPlayerToScrim(scrimId: string, player: ScrimPlayer): Promise<void> {
         await this.redisService.appendToJsonArray<ScrimPlayer>(`${this.prefix}${scrimId}`, "players", player);
     }

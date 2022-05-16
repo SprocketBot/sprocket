@@ -1,10 +1,12 @@
 import {
-    Inject, UploadedFiles, UseGuards, UseInterceptors,
+    Inject, UseGuards,
 } from "@nestjs/common";
 import {
     Args, Mutation, Resolver, Subscription,
 } from "@nestjs/graphql";
 import {PubSub} from "apollo-server-express";
+import type {FileUpload} from "graphql-upload";
+import {GraphQLUpload} from "graphql-upload";
 
 import {CurrentUser} from "../identity/auth/current-user.decorator";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard/gql-jwt-guard";
@@ -12,8 +14,6 @@ import {UserPayload} from "../identity/auth/oauth/types/userpayload.type";
 import {ReplayParsePubSub} from "./replay-parse.constants";
 import {ReplayParseService} from "./replay-parse.service";
 import {ReplayParseProgress} from "./replay-parse.types";
-import type {FileUpload} from "graphql-upload";
-import {GraphQLUpload} from "graphql-upload";
 
 
 @Resolver()
