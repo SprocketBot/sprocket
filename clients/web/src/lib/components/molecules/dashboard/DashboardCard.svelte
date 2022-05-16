@@ -19,7 +19,7 @@
 
 <style lang="postcss">
     section {
-        @apply bg-base-100/50 p-8 drop-shadow-xl flex flex-col justify-between items-stretch relative;
+        @apply bg-base-100/10 p-8 drop-shadow-xl flex flex-col justify-between items-stretch relative;
     }
 
     header {
