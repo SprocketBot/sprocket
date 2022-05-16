@@ -10,14 +10,13 @@ export const handle: Handle = async ({event, resolve}) => {
             const rawToken = cookies.split("; ").find(c => c.split("=")[0] === constants.auth_cookie_key)
                 ?.split("=")[1];
             const token = JSON.parse(atob(rawToken.split(".")[1]));
-    
+
             const now = new Date();
             const exp = new Date(token.exp * 1000);
             const remaining = exp.getTime() - now.getTime();
-    
+
             if (remaining < 0) {
                 // TODO: Attempt refresh token logic here
-                
                 event.request.headers.delete("cookie");
             } else {
                 event.locals.user = token;
