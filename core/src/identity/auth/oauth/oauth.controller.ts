@@ -5,7 +5,7 @@ import {Request as Req, Response as Res} from "express";
 
 import type {User, UserAuthenticationAccount} from "../../../database";
 import {UserAuthenticationAccountType} from "../../../database";
-import {MledbUserService} from "../../../mledb";
+import {MledbPlayerService} from "../../../mledb";
 import {config} from "../../../util/config";
 import {UserService} from "../../user";
 import {
@@ -21,7 +21,7 @@ export class OauthController {
     constructor(
         private authService: OauthService,
         private userService: UserService,
-        private mledbUserService: MledbUserService,
+        private mledbUserService: MledbPlayerService,
     ) {}
 
     @Get("rolesTest")
@@ -73,8 +73,8 @@ export class OauthController {
         const authAccounts: UserAuthenticationAccount[] = await this.userService.getUserAuthenticationAccountsForUser(ourUser.id);
         const discordAccount = authAccounts.find(obj => obj.accountType === UserAuthenticationAccountType.DISCORD);
         if (discordAccount) {
-            const player = await this.mledbUserService.getUserByDiscordId(discordAccount.accountId);
-            const player_to_orgs = await this.mledbUserService.getUserOrgs(player);
+            const player = await this.mledbUserService.getPlayerByDiscordId(discordAccount.accountId);
+            const player_to_orgs = await this.mledbUserService.getPlayerOrgs(player);
             const orgs = player_to_orgs.map(pto => pto.orgTeam);
             const payload: AuthPayload = {
                 sub: discordAccount.accountId,

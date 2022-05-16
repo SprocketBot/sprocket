@@ -4,6 +4,7 @@ import {PassportModule} from "@nestjs/passport";
 import {AnalyticsModule} from "@sprocketbot/common";
 
 import {FranchiseModule} from "../../franchise";
+import {GameModule} from "../../game";
 import {MledbInterfaceModule} from "../../mledb";
 import {OrganizationModule} from "../../organization";
 import {config} from "../../util/config";
@@ -26,6 +27,7 @@ import {
         MledbInterfaceModule,
         AnalyticsModule,
         FranchiseModule,
+        GameModule,
         forwardRef(() => OrganizationModule),
     ],
     providers: [
