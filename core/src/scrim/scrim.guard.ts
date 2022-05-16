@@ -10,6 +10,9 @@ import type {UserPayload} from "../identity";
 import {ScrimService} from "./scrim.service";
 import type {CreateScrimInput} from "./types";
 
+/**
+ * Used on the createScrim mutation. Checks if the user attached to the request is a player of the organization the scrim is being created for.
+ */
 @Injectable()
 export class CreateScrimPlayerGuard extends PlayerGuard {
     constructor(
@@ -30,6 +33,9 @@ export class CreateScrimPlayerGuard extends PlayerGuard {
     }
 }
 
+/**
+ * Used on the joinScrim mutation. Checks if the user attached to the request is a player in the correct skill group and organization.
+ */
 @Injectable()
 export class JoinScrimPlayerGuard extends PlayerGuard {
     constructor(
@@ -52,10 +58,10 @@ export class JoinScrimPlayerGuard extends PlayerGuard {
     }
 }
 
-@Injectable()
 /**
- * This guard passes if the player making the request is in the specified scrim
+ * Used on the field resolvers in the scrim resolver. Checks if the user attached to the request is a player in the scrim.
  */
+@Injectable()
 export class ScrimResolverPlayerGuard extends PlayerGuard {
     constructor(
         private readonly gameModeService: GameModeService,
