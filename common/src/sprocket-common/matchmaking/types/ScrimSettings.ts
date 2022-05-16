@@ -1,5 +1,6 @@
 import {z} from "zod";
 
+import {ScrimLobbySchema} from "./ScrimLobby";
 import {ScrimMode} from "./ScrimMode";
 
 export const ScrimSettingsSchema = z.object({
@@ -7,6 +8,8 @@ export const ScrimSettingsSchema = z.object({
     teamCount: z.number().min(2),
     mode: z.nativeEnum(ScrimMode),
     competitive: z.boolean(),
+    observable: z.boolean(),
+    lobby: ScrimLobbySchema.optional(),
     checkinTimeout: z.number(),
 });
 

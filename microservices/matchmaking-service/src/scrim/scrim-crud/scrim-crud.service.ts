@@ -4,6 +4,7 @@ import type {
 } from "@sprocketbot/common";
 import {RedisService, ScrimStatus} from "@sprocketbot/common";
 import type {JobId} from "bull";
+import {randomBytes} from "crypto";
 import {v4} from "uuid";
 
 import {config} from "../../util/config";
@@ -101,6 +102,13 @@ export class ScrimCrudService {
 
     async setTimeoutJobId(scrimId: string, jobId: JobId): Promise<void> {
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.jobId", jobId);
+    }
+
+    async generateLobby(scrimId: string): Promise<void> {
+        await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.settings.lobby", {
+            name: "sprocket",
+            password: randomBytes(3).toString("hex"),
+        });
     }
 
     async setScrimGames(scrimId: string, games: ScrimGame[]): Promise<void> {
