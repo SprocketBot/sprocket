@@ -34,7 +34,7 @@ def parse(path: str):
 #
 ###############################
 
-def _parse_carball(path: str):
+def _parse_carball(path: str) -> dict:
     """
     Parses a Rocket League replay located at a given local path
 
@@ -57,19 +57,19 @@ def _parse_carball(path: str):
 #
 ###############################
 
-def _is_duplicate_replay(response: Response, body: object):
-    return response.status_code == 409 and body.error == "duplicate replay"
+def _is_duplicate_replay(response: Response, body: dict):
+    return response.status_code == 409 and body["error"] == "duplicate replay"
 
 
-def _is_failed_replay(response: Response, body: object):
+def _is_failed_replay(response: Response, body: dict):
     return response.status_code == 400
 
 
-def _is_pending_replay(response: Response, body: object):
+def _is_pending_replay(response: Response, body: dict):
     return True
 
 
-def _parse_ballchasing(path: str):
+def _parse_ballchasing(path: str) -> dict:
     """
     Sends a Rocket League replay located at a given local path to Ballchasing
     and returns ballchasing stats
@@ -83,12 +83,13 @@ def _parse_ballchasing(path: str):
     logging.info(f"Parsing {path} with Ballchasing")
 
     with open(path, "rb") as replay_file:
-        upload_response = None
+        ballchasing_id: str = None
+        
         try:
-            upload_response = BALLCHASING_API.upload_replay(replay_file)
+            ballchasing_id = BALLCHASING_API.upload_replay(replay_file)
         except Exception as e:
             if _is_duplicate_replay(*e.args):
-                upload_response = e.args[1]
+                ballchasing_id = e.args[1]["id"]
                 pass
             elif _is_failed_replay(*e.args):
                 logging.error(f"Parsing {path} with Ballchasing failed", e)
@@ -100,8 +101,7 @@ def _parse_ballchasing(path: str):
         # TODO handle rate-limiting
         # TODO handle pending replays (exponential backoff, fail after X tries)
 
-        replay_id = upload_response["id"]
-        get_response = BALLCHASING_API.get_replay(replay_id)
+        get_response = BALLCHASING_API.get_replay(ballchasing_id)
 
         return get_response
 
@@ -118,5 +118,5 @@ FAIL_REPLAY = f"{DIR}/fail.replay"
 DUPLICATE_REPLAY = f"{DIR}/duplicate.replay"
 
 if __name__ == "__main__":
-    results = _parse_ballchasing(FAIL_REPLAY)
+    results = _parse_ballchasing(DUPLICATE_REPLAY)
     print(results)
