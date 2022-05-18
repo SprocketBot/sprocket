@@ -17,9 +17,11 @@ const mutationString = gql`
 `;
 
 export const uploadReplaysMutation = async (vars: UploadReplaysVariables): Promise<UploadReplaysResponse> => {
-    console.log({...vars, submissionId: "scrim-test"})
-    const r = await client.mutation<UploadReplaysResponse, UploadReplaysVariables>(mutationString,
-        {...vars, submissionId: "scrim-test"}).toPromise();
+    console.log({...vars, submissionId: "scrim-test"});
+    const r = await client.mutation<UploadReplaysResponse, UploadReplaysVariables>(
+        mutationString,
+        {...vars, submissionId: "scrim-test"},
+    ).toPromise();
     if (r.data) return r.data;
     throw r.error;
 };

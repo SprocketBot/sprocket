@@ -2,9 +2,11 @@
     import "../app.postcss";
     import {session} from "$app/stores";
     import {setContext} from "svelte";
-    import {NavigationContextKey, NavigationItem} from "$lib/types";
-    import {ToastContainer} from "$lib/components";
+    import {NavigationContextKey, type NavigationItem} from "$lib/types";
     import {initializeClient} from "$lib/api/client";
+    import {
+        AuthGuard, Chatwoot, ToastContainer,
+    } from "$lib/components";
 
     setContext<NavigationItem[]>(NavigationContextKey, [
         {
@@ -20,3 +22,7 @@
 <slot/>
 
 <ToastContainer showTestButton={false}/>
+
+<AuthGuard>
+    <Chatwoot/>
+</AuthGuard>

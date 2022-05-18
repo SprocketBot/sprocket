@@ -6,7 +6,7 @@
             return {redirect: "/auth/login", status: 302};
         }
         return {};
-    };
+    }
 </script>
 
 <slot/>

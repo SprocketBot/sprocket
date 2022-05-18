@@ -27,6 +27,11 @@ import {PronounsService} from "./pronouns/pronouns.service";
         MemberRestrictionResolver,
         QueueBanGuard,
     ],
-    exports: [MemberService, MemberRestrictionService, QueueBanGuard],
+    exports: [
+        MemberService,
+        MemberPlatformAccountService,
+        MemberRestrictionService,
+        QueueBanGuard,
+    ],
 })
 export class OrganizationModule {}

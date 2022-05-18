@@ -3,14 +3,14 @@
     import {createScrimMutation} from "$lib/api";
     import {gamesAndModes} from "$lib/api/queries/GamesAndModes.store";
     import {Modal} from "$lib/components";
-    import {user} from "$lib/stores/user";
 
     export let visible = false;
 
     let game: GamesAndModesValue["games"][0];
     let mode: GamesAndModesValue["games"][0]["modes"][0];
     let scrimType: "BEST_OF" | "ROUND_ROBIN";
-    let competitive: boolean = false;
+    let competitive: boolean = true;
+    let observable: boolean = true;
 
     let buttonEnabled = true;
 
@@ -18,14 +18,11 @@
         buttonEnabled = false;
         try {
             await createScrimMutation({
-                player: {
-                    id: $user.id,
-                    name: $user.name,
-                },
                 settings: {
                     gameModeId: mode.id,
                     mode: scrimType,
                     competitive: competitive,
+                    observable: observable,
                 },
             });
             visible = false;
@@ -99,6 +96,17 @@
                         bind:checked={competitive}
                         class="toggle toggle-primary"
                         name="competitive"
+                />
+            </label>
+        </div>
+        <div class="form-control">
+            <label class="cursor-pointer label" for="observable">
+                <span class="label-text">Observable</span>
+                <input
+                        type="checkbox"
+                        bind:checked={observable}
+                        class="toggle toggle-primary"
+                        name="observable"
                 />
             </label>
         </div>

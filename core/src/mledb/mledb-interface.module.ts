@@ -2,7 +2,8 @@ import {Module} from "@nestjs/common";
 
 import {DatabaseModule} from "../database";
 import {MledbModule} from "../database/mledb";
-import {MledbUserService, MLEDeveloperTeamGuard} from "./mledb-user";
+import {MledbPlayerService} from "./mledb-player";
+import {MledbPlayerAccountService} from "./mledb-player-account";
 
 @Module({
     imports: [
@@ -10,12 +11,12 @@ import {MledbUserService, MLEDeveloperTeamGuard} from "./mledb-user";
         MledbModule,
     ],
     providers: [
-        MledbUserService,
-        MLEDeveloperTeamGuard,
+        MledbPlayerService,
+        MledbPlayerAccountService,
     ],
     exports: [
-        MledbUserService,
-        MLEDeveloperTeamGuard,
+        MledbPlayerService,
+        MledbPlayerAccountService,
     ],
 })
 export class MledbInterfaceModule {}
