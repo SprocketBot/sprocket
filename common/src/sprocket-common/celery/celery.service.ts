@@ -30,8 +30,9 @@ export class CeleryService {
         this.logger.log(`Connecting to RabbitMQ @ ${config.celery.broker}`);
         const connection = await connect(config.celery.broker, {heartbeat: 120});
 
-        // This should log `undefined` when the backend is ready
-        this.logger.debug(await this.celeryClient.backend.isReady());
+        // These should log `undefined` when the broker/backend is ready
+        // this.logger.debug(await this.celeryClient.broker.isReady());
+        // this.logger.debug(await this.celeryClient.backend.isReady());
 
         this.progressChannel = await connection.createChannel();
         this.logger.log("Connected to RabbitMQ");
