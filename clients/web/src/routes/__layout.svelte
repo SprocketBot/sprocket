@@ -5,7 +5,9 @@
     import type {NavigationItem} from "$lib/types/Navigation.js";
     import {initializeClient} from "$lib/api/client";
     import {session} from "$app/stores";
-    import {ToastContainer} from "$lib/components";
+    import {
+        AuthGuard, Chatwoot, ToastContainer,
+    } from "$lib/components";
 
     setContext<NavigationItem[]>(NavigationContextKey, [
         {
@@ -20,3 +22,7 @@
 <slot/>
 
 <ToastContainer showTestButton={false}/>
+
+<AuthGuard>
+    <Chatwoot/>
+</AuthGuard>
