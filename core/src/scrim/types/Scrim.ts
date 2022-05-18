@@ -45,7 +45,7 @@ export class Scrim implements Omit<IScrim, "id" | "status" | "players"> {
     games?: ScrimGame[];
 
     @Field(() => String, {nullable: true})
-    submissionId?: string | undefined;
+    submissionId?: string;
     
     gameMode: ScrimGameMode;
 
