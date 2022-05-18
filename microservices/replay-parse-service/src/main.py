@@ -35,7 +35,7 @@ class BaseTask(celery.Task):
     def connect(self):
         logging.debug("Creating RMQ connection")
         self.__producer = Producer(Connection(config["transport"]["url"], ssl={
-            "server_hostname": celeryconfig.BROKER_HOSTNAME
+            "server_hostname": celeryconfig._SERVER_HOSTNAME
         }))
 
     def publish_progress(self, msg: str):
