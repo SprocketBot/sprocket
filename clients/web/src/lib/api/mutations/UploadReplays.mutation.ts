@@ -1,4 +1,5 @@
 import {gql} from "@urql/core";
+import type {FileUpload} from "graphql-upload";
 import {client} from "../client";
 
 export interface UploadReplaysResponse {
@@ -6,7 +7,7 @@ export interface UploadReplaysResponse {
 }
 
 export interface UploadReplaysVariables {
-    files: File[];
+    files: FileUpload[];
     submissionId: string;
 }
 
@@ -17,11 +18,7 @@ const mutationString = gql`
 `;
 
 export const uploadReplaysMutation = async (vars: UploadReplaysVariables): Promise<UploadReplaysResponse> => {
-    console.log({...vars, submissionId: "scrim-test"});
-    const r = await client.mutation<UploadReplaysResponse, UploadReplaysVariables>(
-        mutationString,
-        {...vars, submissionId: "scrim-test"},
-    ).toPromise();
+    const r = await client.mutation<UploadReplaysResponse, UploadReplaysVariables>(mutationString, vars).toPromise();
     if (r.data) return r.data;
     throw r.error;
 };

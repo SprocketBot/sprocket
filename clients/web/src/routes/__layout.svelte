@@ -1,9 +1,10 @@
 <script lang="ts">
     import "../app.postcss";
-    import {session} from "$app/stores";
     import {setContext} from "svelte";
-    import {NavigationContextKey, type NavigationItem} from "$lib/types";
+    import {NavigationContextKey} from "$lib/types";
+    import type {NavigationItem} from "$lib/types/Navigation.js";
     import {initializeClient} from "$lib/api/client";
+    import {session} from "$app/stores";
     import {
         AuthGuard, Chatwoot, ToastContainer,
     } from "$lib/components";
@@ -16,7 +17,6 @@
     ]);
 
     initializeClient($session);
-
 </script>
 
 <slot/>

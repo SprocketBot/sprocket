@@ -31,7 +31,7 @@ export interface CurrentScrim {
         }>;
     }>;
 
-    submissionGroupId?: string;
+    submissionId?: string;
 }
 
 export interface CurrentScrimStoreValue {
@@ -79,7 +79,7 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
                     }
                 }
             }
-            submissionGroupId
+            submissionId
         }
     }`;
 

@@ -2,7 +2,6 @@
     import type {ProgressMessage} from "$lib/utils/types/progress.types";
     import {ProgressStatus} from "$lib/utils/types/progress.types";
 
-
     export interface Replay {
         id: string;
         file?: File;
@@ -27,7 +26,7 @@
     import {findLast} from "$lib/utils/findLast";
 
     export let visible: boolean = true;
-    export let submissionId: string | undefined = "scrim-test";
+    export let submissionId: string | undefined;
 
     // ////////
     // Local variables
