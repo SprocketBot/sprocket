@@ -16,6 +16,7 @@ interface CreateScrimVariables {
         gameModeId: number;
         mode: "BEST_OF" | "ROUND_ROBIN";
         competitive: boolean;
+        observable: boolean;
     };
 }
 
