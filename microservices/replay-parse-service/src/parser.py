@@ -1,7 +1,8 @@
 import logging
+from typing import Tuple
 import carball
 import ballchasing
-import json
+from requests import Response
 
 from config import config
 
@@ -18,14 +19,22 @@ PARSER = config["parser"]
 if PARSER != "carball" and PARSER != "ballchasing":
     raise Exception(f"Unknown parser {PARSER}. Please specify either 'carball' or 'ballchasing'.")
 
-def parse(path):
-    if PARSER == "carball":
-        return parse_carball(path)
-    if PARSER == "ballchasing":
-        return parse_ballchasing(path)
 
-def parse_carball(path):
-    logging.info(f"Parsing {path} with carball")
+def parse(path: str):
+    if PARSER == "carball":
+        return _parse_carball(path)
+    if PARSER == "ballchasing":
+        return _parse_ballchasing(path)
+
+
+
+###############################
+#
+# Carball
+#
+###############################
+
+def _parse_carball(path: str):
     """
     Parses a Rocket League replay located at a given local path
 
@@ -35,14 +44,32 @@ def parse_carball(path):
     Returns:
         dict: A dictionary containing all of the stats returned by carball
     """
+    logging.info(f"Parsing {path} with carball")
+
     analysis_manager = carball.analyze_replay_file(path, logging_level=logging.ERROR)
     return analysis_manager.get_json_data()
 
-def is_duplicate_replay(exception):
-    return exception.args[0].status_code == 409
 
-def parse_ballchasing(path):
-    logging.info(f"Parsing {path} with Ballchasing")
+
+###############################
+#
+# Ballchasing
+#
+###############################
+
+def _is_duplicate_replay(response: Response, body: object):
+    return response.status_code == 409 and body.error == "duplicate replay"
+
+
+def _is_failed_replay(response: Response, body: object):
+    return response.status_code == 400
+
+
+def _is_pending_replay(response: Response, body: object):
+    return True
+
+
+def _parse_ballchasing(path: str):
     """
     Sends a Rocket League replay located at a given local path to Ballchasing
     and returns ballchasing stats
@@ -53,23 +80,43 @@ def parse_ballchasing(path):
     Returns:
         dict: A dictionary containing all of the stats returned by Ballchasing
     """
+    logging.info(f"Parsing {path} with Ballchasing")
+
     with open(path, "rb") as replay_file:
         upload_response = None
         try:
             upload_response = BALLCHASING_API.upload_replay(replay_file)
         except Exception as e:
-            if is_duplicate_replay(e):
+            if _is_duplicate_replay(*e.args):
                 upload_response = e.args[1]
                 pass
+            elif _is_failed_replay(*e.args):
+                logging.error(f"Parsing {path} with Ballchasing failed", e)
+                raise e
             else:
                 logging.error(f"Parsing {path} with Ballchasing failed", e)
                 raise e
 
         # TODO handle rate-limiting
         # TODO handle pending replays (exponential backoff, fail after X tries)
-        # TODO handle replays that fail parsing in ballchasing
 
         replay_id = upload_response["id"]
         get_response = BALLCHASING_API.get_replay(replay_id)
 
         return get_response
+
+
+
+###############################
+#
+# Testing
+#
+###############################
+
+DIR = "/mnt/c/Users/zachs/Documents/My Games/Rocket League/TAGame/Demos/testing"
+FAIL_REPLAY = f"{DIR}/fail.replay"
+DUPLICATE_REPLAY = f"{DIR}/duplicate.replay"
+
+if __name__ == "__main__":
+    results = _parse_ballchasing(FAIL_REPLAY)
+    print(results)
