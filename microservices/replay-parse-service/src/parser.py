@@ -65,6 +65,10 @@ def parse_ballchasing(path):
                 logging.error(f"Parsing {path} with Ballchasing failed", e)
                 raise e
 
+        # TODO handle rate-limiting
+        # TODO handle pending replays (exponential backoff, fail after X tries)
+        # TODO handle replays that fail parsing in ballchasing
+
         replay_id = upload_response["id"]
         get_response = BALLCHASING_API.get_replay(replay_id)
 
