@@ -45,7 +45,8 @@
   "redis": {
     "port": 80,
     "host": "",
-    "prefix": ""
+    "prefix": "",
+    "secure": true
   }
 }
 
