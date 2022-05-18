@@ -1,6 +1,7 @@
 import logging
 import carball
 import ballchasing
+import json
 
 from config import config
 
@@ -24,6 +25,7 @@ def parse(path):
         return parse_ballchasing(path)
 
 def parse_carball(path):
+    logging.info(f"Parsing {path} with carball")
     """
     Parses a Rocket League replay located at a given local path
 
@@ -40,6 +42,7 @@ def is_duplicate_replay(exception):
     return exception.args[0].status_code == 409
 
 def parse_ballchasing(path):
+    logging.info(f"Parsing {path} with Ballchasing")
     """
     Sends a Rocket League replay located at a given local path to Ballchasing
     and returns ballchasing stats
@@ -59,6 +62,7 @@ def parse_ballchasing(path):
                 upload_response = e.args[1]
                 pass
             else:
+                logging.error(f"Parsing {path} with Ballchasing failed", e)
                 raise e
 
         replay_id = upload_response["id"]

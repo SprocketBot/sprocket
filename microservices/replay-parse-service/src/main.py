@@ -11,7 +11,7 @@ import parser
 from progress import get_progress_msg, TaskProgressStatus
 from analytics import get_analytics_msg
 import celeryconfig
-from kombu import Connection, Exchange, Queue, Producer
+from kombu import Connection, Producer
 
 
 # Celery pipeline for starting jobs (broker) and publishing results (backend)
@@ -44,7 +44,9 @@ class ParseReplay(BaseTask):
         self.connect()
 
     def connect(self):
-        self._producer = Producer(Connection(config["transport"]["url"]))
+        self._producer = Producer(Connection(config["transport"]["url"], ssl={
+            "server_hostname": celeryconfig.BROKER_HOSTNAME
+        }))
     
     def close(self):
         self._producer.close()
