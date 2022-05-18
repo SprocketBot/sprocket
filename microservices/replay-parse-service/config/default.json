@@ -14,6 +14,10 @@
         "parsed_object_prefix": "",
         "accessKey": ""
     },
+    "ballchasing": {
+        "maxRetries": 4,
+        "backoffFactor": 4
+    },
     "parser": "carball|ballchasing",
     "tempDir": ""
 }
