@@ -7,49 +7,75 @@ PARSER = config["parser"]
 class Analytics:
     __task_id: str
 
+    __start_ms: int
+
     __analytics = {
         "taskId": None,
         "success": None,
         "cached": None,
         "hash": None,
         "replay_size": None,
-        "get_duration": None,
-        "parse_duration": None,
-        "put_duration": None,
-        "total_duration": None
+        "get_ms": None,
+        "parse_ms": None,
+        "put_ms": None,
+        "total_ms": None
     }
-
-    __start_ms: int
 
     def __init__(self, task_id: str):
         self.__task_id = task_id
         self.__start_ms = now()
 
-    def set_success(self, success: bool):
-        self.__analytics["success"] = success
+    ###
+    # Completers
+    ###
+    def complete(self) -> dict:
+        self.__analytics["success"] = True
+        self.__timer_end()
+        return self.__get_message()
 
-    def set_cached(self, cached: bool):
+    def fail(self) -> dict:
+        self.__analytics["success"] = False
+        self.__timer_end()
+        return self.__get_message()
+
+    ###
+    # Builders
+    ###
+    def cached(self, cached: bool) -> 'Analytics':
         self.__analytics["cached"] = cached
+        return self
 
-    def set_hash(self, hash: str):
+    def hash(self, hash: str) -> 'Analytics':
         self.__analytics["hash"] = hash
+        return self
 
-    def set_replay_size(self, replay_size: int):
+    def replay_size(self, replay_size: int) -> 'Analytics':
         self.__analytics["replay_size"] = replay_size
+        return self
 
-    def start_timer(self):
+    def timer_start(self) -> 'Analytics':
         self.__start_ms = now()
+        return self
     
-    def timer_split_get(self):
-        self.__analytics["get_duration"] = now() - self.__start_ms
+    def timer_split_get(self) -> 'Analytics':
+        self.__analytics["get_ms"] = now() - self.__start_ms
+        return self
 
-    def timer_split_parse(self):
-        self.__analytics["parse_duration"] = now() - self.__start_ms
+    def timer_split_parse(self) -> 'Analytics':
+        self.__analytics["parse_ms"] = now() - self.__start_ms
+        return self
 
-    def timer_split_put(self):
-        self.__analytics["put_duration"] = now() - self.__start_ms
+    def timer_split_put(self) -> 'Analytics':
+        self.__analytics["put_ms"] = now() - self.__start_ms
+        return self
+    
+    ###
+    # Private setters/getters
+    ###
+    def __timer_end(self):
+        self.__analytics["total_ms"] = now() - self.__start_ms
 
-    def get_message(self) -> str:
+    def __get_message(self) -> str:
         tags = [
             ["taskId", self.__task_id],
             ["hash", self.__get_hash()],
@@ -62,10 +88,10 @@ class Analytics:
             ["cached", self.__get_cached()]
         ]
         ints = [
-            ["getMs", self.__get_get_duration()],
-            ["parseMs", self.__get_parse_duration()],
-            ["putMs", self.__get_put_duration()],
-            ["totalMs", self.__get_total_duration()],
+            ["getMs", self.__get_get_ms()],
+            ["parseMs", self.__get_parse_ms()],
+            ["putMs", self.__get_put_ms()],
+            ["totalMs", self.__get_total_ms()],
             ["replayKb", self.__get_replay_size()]
         ]
 
@@ -91,17 +117,14 @@ class Analytics:
     def __get_replay_size(self) -> int:
         return self.__analytics["replay_size"]
 
-    def __get_get_duration(self) -> int:
-        return self.__analytics["get_duration"]
+    def __get_get_ms(self) -> int:
+        return self.__analytics["get_ms"]
 
-    def __get_parse_duration(self) -> int:
-        return self.__analytics["parse_duration"]
+    def __get_parse_ms(self) -> int:
+        return self.__analytics["parse_ms"]
 
-    def __get_put_duration(self) -> int:
-        return self.__analytics["put_duration"]
+    def __get_put_ms(self) -> int:
+        return self.__analytics["put_ms"]
 
-    def __get_total_duration(self) -> int:
-        get_duration = self.__analytics["get_duration"] or 0
-        parse_duration = self.__analytics["parse_duration"] or 0
-        put_duration = self.__analytics["put_duration"] or 0
-        return get_duration + parse_duration + put_duration
+    def __get_total_ms(self) -> int:
+        return self.__analytics["total_ms"]
