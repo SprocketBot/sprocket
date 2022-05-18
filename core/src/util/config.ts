@@ -42,12 +42,12 @@ export const config = {
         google: {
             get clientId(): string { return readFileSync("./secret/googleClientId.txt").toString() },
             get secret(): string { return readFileSync("./secret/googleSecret.txt").toString() },
-            get callbackUrl(): string { return _config.get<string>("auth.googleCallbackURL") },
+            get callbackUrl(): string { return _config.get<string>("auth.google.callbackUrl") },
         },
         discord: {
             get clientId(): string { return readFileSync("./secret/discord-client.txt").toString() },
             get secret(): string { return readFileSync("./secret/discord-secret.txt").toString() },
-            get callbackURL(): string { return _config.get<string>("auth.discordCallbackURL") },
+            get callbackURL(): string { return _config.get<string>("auth.discord.callbackUrl") },
         },
         get jwt_expiry(): string { return _config.get<string>("auth.jwt_expiry") },
         get frontend_callback(): string { return _config.get<string>("auth.frontend_callback") },
