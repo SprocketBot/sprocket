@@ -1,4 +1,3 @@
-import ssl
 from config import config
 from urllib.parse import urlparse
 

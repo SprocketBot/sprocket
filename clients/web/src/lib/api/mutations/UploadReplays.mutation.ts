@@ -1,6 +1,6 @@
 import {gql} from "@urql/core";
-import type {FileUpload} from "graphql-upload";
 import {client} from "../client";
+import type {FileUpload} from "graphql-upload";
 
 export interface UploadReplaysResponse {
     parseReplays: string[];
