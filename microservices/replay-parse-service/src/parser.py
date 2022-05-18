@@ -139,7 +139,6 @@ def _parse_ballchasing(path: str) -> dict:
         # Upload replay (not rate limited)
         try:
             ballchasing_id = BALLCHASING_API.upload_replay(replay_file)["id"]
-            print(f"Replay uploaded to ballchasing id={ballchasing_id}")
         except Exception as e:
             err_body = e.args[1]
             if _parse_is_duplicate_replay(*e.args):
@@ -182,21 +181,3 @@ def _parse_ballchasing(path: str) -> dict:
             raise Exception(f"Unable to parse replay {ballchasing_id} after {MAX_RETRIES} retries, total delay of {sum(DELAYS)}")
 
         return body
-
-
-
-###############################
-#
-# Testing
-#
-###############################
-
-DIR = "/mnt/c/Users/zachs/Documents/My Games/Rocket League/TAGame/Demos/testing"
-FAIL_REPLAY = f"{DIR}/fail.replay"
-DUPLICATE_REPLAY = f"{DIR}/duplicate.replay"
-NEW_REPLAY = f"{DIR}/new.replay"
-
-if __name__ == "__main__":
-    while True:
-        results = _parse_ballchasing(NEW_REPLAY)
-    print(results)
