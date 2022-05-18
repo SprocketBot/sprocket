@@ -13,7 +13,8 @@ if len(BALLCHASING_TOKEN.strip()) == 0:
     exit(1)
 BALLCHASING_TOKEN_FILE.close()
 
-BALLCHASING_API = ballchasing.Api(BALLCHASING_TOKEN, None, True)
+# We are handling rate limits, so the library doesn't need to
+BALLCHASING_API = ballchasing.Api(BALLCHASING_TOKEN, sleep_time_on_rate_limit=0, print_on_rate_limit=False)
 PARSER = config["parser"]
 MAX_RETRIES = config["ballchasing"]["maxRetries"]
 BACKOFF_FACTOR = config["ballchasing"]["backoffFactor"]
@@ -59,6 +60,13 @@ def _parse_carball(path: str) -> dict:
 # Ballchasing
 #
 ###############################
+
+def _is_rate_limit(response: Response, body: dict) -> bool:
+    """
+    https://ballchasing.com/doc/api#header-rate-limiting
+    """
+    return response.status_code == 429
+
 
 def _parse_is_duplicate_replay(response: Response, body: dict) -> bool:
     """
@@ -128,38 +136,44 @@ def _parse_ballchasing(path: str) -> dict:
     with open(path, "rb") as replay_file:
         ballchasing_id: str = None
 
-        # Upload replay
+        # Upload replay (not rate limited)
         try:
             ballchasing_id = BALLCHASING_API.upload_replay(replay_file)["id"]
             print(f"Replay uploaded to ballchasing id={ballchasing_id}")
         except Exception as e:
+            err_body = e.args[1]
             if _parse_is_duplicate_replay(*e.args):
-                ballchasing_id = e.args[1]["id"]
-                print(f"Replay already parsed {ballchasing_id}")
+                ballchasing_id = err_body["id"]
+                logging.debug(f"Replay already parsed {ballchasing_id}")
                 pass
             elif _parse_is_failed_replay(*e.args):
-                print(f"Parsing {path} with Ballchasing failed", e)
+                logging.error(f"Parsing {path} with Ballchasing failed", err_body)
                 raise e
             else:
-                print(f"Parsing {path} with Ballchasing failed", e)
+                logging.error(f"Parsing {path} with Ballchasing failed", err_body)
                 raise e
 
         # Get parsed stats, retring while replay is pending or while we are rate-limited
         body: dict = None
 
-        for retry in range(MAX_RETRIES + 1):
-            sleep(DELAYS[retry])
+        for retry in range(MAX_RETRIES):
+            sleep(DELAYS[retry]) # first delay is 0 seconds
 
             try:
                 body = BALLCHASING_API.get_replay(ballchasing_id)
             except Exception as e:
-                print(f"Getting replay {ballchasing_id} from Ballchasing failed", e)
-                raise e
+                err_body
+                if _is_rate_limit(*e.args):
+                    logging.debug(f"Rate limited, retrying in {DELAYS[retry+1]} seconds")
+                    continue
+                else:
+                    logging.error(f"Getting replay {ballchasing_id} from Ballchasing failed", err_body)
+                    raise e
             
             if _get_is_ok_replay(body):
                 return body
             elif _get_is_pending_replay(body):
-                print(f"Replay {ballchasing_id} still pending, retrying in {DELAYS[retry+1]} seconds")
+                logging.debug(f"Replay {ballchasing_id} still pending, retrying in {DELAYS[retry+1]} seconds")
                 continue
             elif _get_is_failed_replay(body):
                 raise Exception(f"Got replay that failed parsing from ballchasing {ballchasing_id}")
@@ -183,5 +197,6 @@ DUPLICATE_REPLAY = f"{DIR}/duplicate.replay"
 NEW_REPLAY = f"{DIR}/new.replay"
 
 if __name__ == "__main__":
-    results = _parse_ballchasing(NEW_REPLAY)
+    while True:
+        results = _parse_ballchasing(NEW_REPLAY)
     print(results)
