@@ -20,7 +20,7 @@ module.exports = {
 		"svelte3",
 		"@typescript-eslint",
 	],
-	ignorePatterns: ["*.cjs", ".eslintrc.js", "jest.config.js", "commitlint.config.js", "*.stories.svelte", "docs", "*.json"],
+	ignorePatterns: ["*.cjs", ".eslintrc.js", "jest.config.js", "commitlint.config.js", "*.stories.svelte", "docs", "*.json", "svelte.config.js"],
 	overrides: [
 		{
 			files: ["*.svelte"],
