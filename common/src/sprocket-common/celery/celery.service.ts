@@ -21,6 +21,12 @@ export class CeleryService {
     private progressChannel: Channel;
 
     async onApplicationBootstrap(): Promise<void> {
+        this.celeryClient.conf.CELERY_BACKEND_OPTIONS = {
+            tls: {
+                servername: config.redis.host,
+            },
+        };
+
         this.logger.log(`Connecting to RabbitMQ @ ${config.celery.broker}`);
         const connection = await connect(config.celery.broker, {heartbeat: 120});
 

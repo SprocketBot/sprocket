@@ -89,4 +89,10 @@ export class ScrimController {
         return this.scrimCrudService.getScrimByPlayer(data);
     }
 
+    @MessagePattern(MatchmakingEndpoint.GetScrimBySubmissionId)
+    async getScrimBySubmissionId(@Payload() payload: unknown): Promise<Scrim | null> {
+        const data = MatchmakingSchemas.GetScrimBySubmissionId.input.parse(payload);
+        return this.scrimCrudService.getScrimBySubmissionId(data);
+    }
+
 }

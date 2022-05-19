@@ -66,6 +66,15 @@ export class ScrimCrudService {
         return null;
     }
 
+    async getScrimBySubmissionId(submissionId: string): Promise<Scrim | null> {
+        const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
+        for (const scrimKey of scrimKeys) {
+            const [_submissionId] = await this.redisService.getJson<string[]>(scrimKey, "$.submissionId");
+            if (_submissionId === submissionId) return this.redisService.getJson<Scrim>(scrimKey);
+        }
+        return null;
+    }
+
     async addPlayerToScrim(scrimId: string, player: ScrimPlayer): Promise<void> {
         await this.redisService.appendToJsonArray<ScrimPlayer>(`${this.prefix}${scrimId}`, "players", player);
     }
@@ -96,8 +105,8 @@ export class ScrimCrudService {
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.status", status);
     }
 
-    async setSubmissionGroupId(scrimId: string, submissionGroupId: string): Promise<void> {
-        await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.submissionGroupId", submissionGroupId);
+    async setSubmissionId(scrimId: string, submissionId: string): Promise<void> {
+        await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.submissionId", submissionId);
     }
 
     async setTimeoutJobId(scrimId: string, jobId: JobId): Promise<void> {
@@ -118,7 +127,7 @@ export class ScrimCrudService {
     async getValidated(scrimId: string): Promise<boolean> {
         // Not implemented yet, so just throwing this here to get rid of a warning until it's added.
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const submissionId = await this.redisService.getJson(`${this.prefix}${scrimId}`, "$.submissionGroupId");
+        const submissionId = await this.redisService.getJson(`${this.prefix}${scrimId}`, "$.submissionId");
         return this.redisService.getJson(`${this.prefix}`);
     }
 }

@@ -12,7 +12,7 @@ export interface UploadReplaysVariables {
 }
 
 const mutationString = gql`
-    mutation($files: [Upload!]!, $submissionId: String) {
+    mutation($files: [Upload!]!, $submissionId: String!) {
         parseReplays(files: $files, submissionId: $submissionId)
     }
 `;

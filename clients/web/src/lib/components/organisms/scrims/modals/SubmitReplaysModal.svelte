@@ -2,7 +2,6 @@
     import type {ProgressMessage} from "$lib/utils/types/progress.types";
     import {ProgressStatus} from "$lib/utils/types/progress.types";
 
-
     export interface Replay {
         id: string;
         file?: File;
@@ -35,7 +34,7 @@
     let files: FileList;
     let replays: Replay[] = [];
     let status: SubmitReplaysModalStatus = "init";
-    
+
     // ////////
     // Local stores
     // ////////
@@ -53,7 +52,7 @@
 
     const handleUpload = async (f: FileList) => {
         if (!f || !f.length) return;
-        
+
         const _replays = Array.from(f).map(file => ({
             id: shortid.generate(),
             file: file,
