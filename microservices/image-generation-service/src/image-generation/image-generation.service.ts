@@ -20,6 +20,11 @@ export class ImageGenerationService {
         process.env.FONTCONFIG_PATH = "./fonts";
     }
 
+    async generateScrimReportCard(scrimId: string): Promise<string>{
+
+        return "hello"
+    }
+
     async processSvg(inputFileKey: string, outputFileKey: string, rawData: unknown): Promise<void> {
         this.logger.log(`Beginning Generation of ${inputFileKey}`);
         // eslint-disable-next-line
