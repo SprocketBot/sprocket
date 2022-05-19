@@ -12,7 +12,8 @@
         "hostname": "",
         "bucket": "",
         "parsed_object_prefix": "",
-        "accessKey": ""
+        "accessKey": "",
+        "secure": true
     },
     "ballchasing": {
         "maxRetries": 4,

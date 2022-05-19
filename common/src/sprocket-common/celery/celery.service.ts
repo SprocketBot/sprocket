@@ -23,7 +23,7 @@ export class CeleryService {
     async onApplicationBootstrap(): Promise<void> {
         this.celeryClient.conf.CELERY_BACKEND_OPTIONS = {
             tls: {
-                servername: "redis.dev.spr.ocket.cloud",
+                servername: config.redis.host,
             },
         };
 
