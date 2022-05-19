@@ -62,8 +62,7 @@ export const ScrimSchema = z.object({
         .default([])
         .optional(),
 
-    submissionId: z.string().uuid()
-        .optional(),
+    submissionId: z.string().optional(),
 
     timeoutJobId: z.number().optional(),
 });
