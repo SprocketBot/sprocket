@@ -21,7 +21,7 @@ _SERVER_HOSTNAME = _BROKER_URL.hostname
 # https://github.com/celery/py-amqp/blob/98f6d364188215c2973693a79e461c7e9b54daef/amqp/transport.py#L488
 broker_use_ssl = None
 
-if _SECURE: 
+if _SECURE:
     broker_use_ssl = {
         'server_hostname': _SERVER_HOSTNAME
     }

@@ -15,6 +15,7 @@ client = Minio(
     config["minio"]["hostname"],
     access_key=config["minio"]["accessKey"],
     secret_key=S3_SECRET,
+    secure=config["minio"]["secure"],
 )
 
 BUCKET = config["minio"]["bucket"]

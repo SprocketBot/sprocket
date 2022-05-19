@@ -9,7 +9,6 @@ import {
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 import {SHA256} from "crypto-js";
-import type {ReadStream} from "fs";
 import type {Readable} from "stream";
 
 import {config} from "../util/config";
@@ -47,11 +46,11 @@ export class ReplayParseService {
     /**
      * Checks if the parsed replay is already stored in Minio. If yes, returns those stats.
      * If not, sends the replay to the replay-parse-service and waits for it to be parsed.
-     * @param file The file to parse.
+     * @param stream The file to parse.
      * @returns The replay's stats.
      */
-    async parseReplaySync(file: ReadStream): Promise<ParseReplayResult> {
-        const buffer = await read(file);
+    async parseReplaySync(stream: Readable): Promise<ParseReplayResult> {
+        const buffer = await read(stream);
         const objectHash = SHA256(buffer.toString()).toString();
         const replayObjectPath = `replays/${objectHash}${REPLAY_EXT}`;
 

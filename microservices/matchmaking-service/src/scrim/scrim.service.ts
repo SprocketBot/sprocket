@@ -49,7 +49,7 @@ export class ScrimService {
             name: "scrimCreated",
             tags: [
                 ["scrimId", scrim.id],
-                ["submissionGroupId", scrim.submissionGroupId ?? ""],
+                ["submissionId", scrim.submissionId ?? ""],
                 ["authorId", `${author.id}`],
             ],
         }).catch(err => { this.logger.error(err) });
