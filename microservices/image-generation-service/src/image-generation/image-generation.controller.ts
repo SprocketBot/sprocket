@@ -10,13 +10,13 @@ import {ImageGenerationEndpoint, ImageGenerationSchemas} from "@sprocketbot/comm
 export class ImageGenerationController {
   private logger = new Logger(ImageGenerationController.name);
   
-  constructor(private igService: ImageGenerationService) {}
+  constructor(private imageGenerationService: ImageGenerationService) {}
 
-  @MessagePattern(ImageGenerationEndpoint.CreateScrim)
-  async createScrim(@Payload() payload: unknown): Promise<Scrim> {
-      const data = ImageGenerationSchemas.CreateScrim.input.parse(payload);
-      // TODO: Permissions Checks (Must be a Player for the requested game)
-      return this.scrimService.createScrim(data.organizationId, data.author, data.settings, data.gameMode, data.skillGroupId, data.createGroup);
+  @MessagePattern(ImageGenerationEndpoint.GenerateScrimReportCard)
+  async createScrim(@Payload() payload: unknown): Promise<string> {
+      const data = ImageGenerationSchemas.GenerateScrimReportCard.input.parse(payload);
+      // TODO: Permissions Checks 
+      return this.imageGenerationService.generateScrimReportCard(data.scrimId);
   }
 
 
