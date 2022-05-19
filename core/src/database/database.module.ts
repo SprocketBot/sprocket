@@ -9,6 +9,7 @@ import {DraftModule} from "./draft/draft.module";
 import {FranchiseModule} from "./franchise/franchise.module";
 import {GameModule} from "./game/game.module";
 import {IdentityModule} from "./identity/identity.module";
+import {ImageGenModule} from "./image-gen/image-gen.module";
 import {MledbModule} from "./mledb/mledb.module";
 import {OrganizationModule} from "./organization/organization.module";
 import {SchedulingModule} from "./scheduling/scheduling.module";
@@ -23,6 +24,7 @@ const modules = [
     OrganizationModule,
     SchedulingModule,
     MledbModule,
+    ImageGenModule,
     TypeOrmModule.forRoot({
         type: "postgres",
         host: config.db.host,
