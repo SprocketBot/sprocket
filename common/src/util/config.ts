@@ -10,6 +10,7 @@ export const config = {
         get matchmaking_queue(): string { return _config.get<string>("transport.matchmaking_queue") },
         get events_queue(): string { return  _config.get<string>("transport.events_queue") },
         get events_application_key(): string { return _config.get<string>("transport.events_application_key") },
+        get image_generation_queue(): string { return _config.get<string>("transport.image_generation_queue") },
     },
     logger: {
         get levels(): boolean | string { return _config.get<boolean | string>("logger.levels") },
@@ -27,6 +28,7 @@ export const config = {
         get secretKey(): string { return readFileSync("./secret/minio-secret.txt").toString() },
         bucketNames: {
             get replays(): string { return _config.get<string>("minio.bucketNames.replays") },
+            get image_generation(): string { return _config.get<string>("minio.bucketNames.image-generation") },
         },
         get useSSL(): boolean {
             if (_config.has("minio.useSSL")) {
@@ -52,11 +54,9 @@ export const config = {
         get password(): string { return readFileSync("./secret/redis-password.txt").toString() },
         get prefix(): string { return _config.get<string>("redis.prefix") },
         get secure(): boolean {
-            if (_config.has("redis.secure"))
-                return _config.get<boolean>("redis.secure")
-            else
-                return false
-        }
+            if (_config.has("redis.secure")) return _config.get<boolean>("redis.secure");
+            return false;
+        },
     },
     gql: {
         get url(): string { return _config.get<string>("gql.url") },

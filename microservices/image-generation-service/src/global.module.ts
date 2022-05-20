@@ -1,7 +1,7 @@
 import {Global, Module} from "@nestjs/common";
 import {ClientsModule, Transport} from "@nestjs/microservices";
-import * as config from "config";
-import {readFileSync} from "fs";
+// Import * as config from "config";
+import {config} from "@sprocketbot/common/lib/util/config";
 import {Client as MinioClient} from "minio";
 
 const client = ClientsModule.register([
@@ -9,19 +9,19 @@ const client = ClientsModule.register([
         name: "Client",
         transport: Transport.RMQ,
         options: {
-            urls: config.get("transport.url"),
-            queue: config.has("transport.queue") ? config.get("transport.queue") : undefined,
+            urls: [config.transport.url],
+            queue: config.transport.image_generation_queue,
         },
     },
 ]);
 
 
 const minioClient = new MinioClient({
-    endPoint: config.get("s3.endpoint"),
-    port: config.get("s3.port"),
-    useSSL: config.get("s3.ssl"),
-    accessKey: config.get("s3.accessKey"),
-    secretKey: readFileSync("./secret/s3-password.txt").toString(),
+    endPoint: config.minio.endPoint,
+    port: config.minio.port,
+    useSSL: config.minio.useSSL,
+    accessKey: config.minio.accessKey,
+    secretKey: config.minio.secretKey,
 });
 const minioProvider = {
     provide: "s3",

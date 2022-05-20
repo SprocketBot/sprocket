@@ -1,4 +1,17 @@
 {
+  "transport": {
+    "url": "",
+    "core_queue": "",
+    "bot_queue": "",
+    "analytics_queue": "",
+    "matchmaking_queue": "",
+    "events_queue":  "",
+    "events_application_key": "",
+    "image_generation_queue" : ""
+  },
+  "logger": {
+    "levels": true
+  },
   "db": {
     "host": "",
     "port": "",
@@ -6,18 +19,36 @@
     "database": "",
     "enable_logs": false
   },
-  "transport": {
-    "url": "",
+  "minio": {
+    "endPoint": "",
+    "bucketNames": {
+      "replays": "",
+      "image_generation" : ""
+    }
+  },
+  "celery": {
+    "broker": "",
+    "backend": "",
     "queue": ""
   },
-  "logger": {
-    "levels": true
+  "gql": {
+    "playground": false
   },
-  "s3": {
-    "endpoint":"",
-    "port": 9000,
-    "ssl": true,
-    "accessKey": "",
-    "bucket": ""
+  "auth": {
+    "google": {
+      "callbackUrl": ""
+    },
+    "discord": {
+      "callbackUrl": ""
+    },
+    "jwt_expiry": "",
+    "frontend_callback": ""
+  },
+  "redis": {
+    "port": 80,
+    "host": "",
+    "prefix": "",
+    "secure": true
   }
 }
+

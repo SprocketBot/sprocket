@@ -10,6 +10,7 @@ import {GameModule} from "./game/game.module";
 import {AuthModule} from "./identity/auth/auth.module";
 import {IdentityModule} from "./identity/identity.module";
 import {UserService} from "./identity/user/user.service";
+import {ImageGenerationModule} from "./image-generation";
 import {MledbInterfaceModule} from "./mledb/mledb-interface.module";
 import {OrganizationModule} from "./organization/organization.module";
 import {ReplayParseModule} from "./replay-parse/replay-parse.module";
@@ -50,6 +51,7 @@ import {config} from "./util/config";
         SchedulingModule,
         MledbInterfaceModule,
         FranchiseModule,
+        ImageGenerationModule,
     ],
     providers: [UserService],
 })

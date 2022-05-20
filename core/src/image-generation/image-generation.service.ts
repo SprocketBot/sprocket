@@ -1,17 +1,23 @@
 import {Injectable} from "@nestjs/common";
-import {InjectRepository} from "@nestjs/typeorm";
+import { InjectRepository, InjectConnection } from "@nestjs/typeorm";
 
-import {Repository} from "typeorm";
+import {Connection, Repository} from "typeorm";
+
+import {ImageTemplate} from "../database";
 
 @Injectable()
-export class RoundService {
+export class ImageGenerationService {
     constructor(
-        // @InjectRepository(ImageTemplate) private imageTemplateRepo: Repository<ImageTemplate>,
-    ) {}
+        @InjectRepository(ImageTemplate) private imageTemplateRepository: Repository<ImageTemplate>,
+        @InjectConnection() private readonly connection: Connection
+        )
+    { }
 
     async createScrimReportCard(scrimId: number): Promise<string> {
-        //grab image-template row for report card -- currently hard coded
-        //
-      return "hello"
+        const reportCardRow = await this.imageTemplateRepository.findOneOrFail({where: {reportCode: "scrim_report_cards"} });
+        
+        const params = {scrim_id: 7, org_id:1}
+        const result = await this.connection.query(reportCardRow.query.query, [params])
+        return `hello ${reportCardRow.reportCode}, ${scrimId}, ${result}`;
     }
 }

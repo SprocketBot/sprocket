@@ -6,7 +6,8 @@
     "analytics_queue": "",
     "matchmaking_queue": "",
     "events_queue":  "",
-    "events_application_key": ""
+    "events_application_key": "",
+    "image_generation_queue" : ""
   },
   "logger": {
     "levels": true
@@ -21,7 +22,8 @@
   "minio": {
     "endPoint": "",
     "bucketNames": {
-      "replays": ""
+      "replays": "",
+      "image_generation" : ""
     }
   },
   "celery": {
