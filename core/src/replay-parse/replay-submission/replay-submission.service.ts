@@ -2,6 +2,7 @@ import {Injectable, Logger} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {
     CeleryService,
+    config,
     MatchmakingEndpoint, MatchmakingService, RedisService, ResponseStatus, ScrimStatus,
 } from "@sprocketbot/common";
 import {Repository} from "typeorm";
@@ -9,7 +10,6 @@ import {Repository} from "typeorm";
 import {
     Match, MatchParent, Round, ScrimMeta,
 } from "../../database";
-import {config} from "../../util/config";
 import {REPLAY_SUBMISSION_PREFIX} from "../replay-parse.constants";
 import type {ParseReplayResult} from "../replay-parse.types";
 import type {BaseReplaySubmission, ReplaySubmission} from "./replay-submission.types";
@@ -140,7 +140,7 @@ export class ReplaySubmissionService {
 
             // TODO save to DB
             const submission = await this.getSubmission(submissionId);
-            
+
             // Create Scrim/MatchParent/Match for scrim
             const scrimMeta = this.scrimMetaRepo.create();
             const matchParent = this.matchParentRepo.create();

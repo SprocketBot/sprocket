@@ -1,14 +1,14 @@
+import {config} from "@sprocketbot/common";
 import type {EmbedFieldData} from "discord.js";
-import {Unicode} from "src/enums/unicode";
-import {appConfig} from "src/util/config";
 
+import {Unicode} from "../../enums/unicode";
 import type {CommandSpec} from "../../marshal/types";
 
 export const specToField = (spec: CommandSpec): EmbedFieldData => {
-    const aliases: string | undefined = spec.aliases ? spec.aliases.map(a => `\`${appConfig.bot.prefix}${a}\``).join(", ") : undefined;
+    const aliases: string | undefined = spec.aliases ? spec.aliases.map(a => `\`${config.bot.prefix}${a}\``).join(", ") : undefined;
     const docs: string = spec.longDocs ?? spec.docs;
     return {
-        name: `\`${appConfig.bot.prefix}${spec.name}${spec.args.map(a => ` [${a.name}]`).join("")}\``,
+        name: `\`${config.bot.prefix}${spec.name}${spec.args.map(a => ` [${a.name}]`).join("")}\``,
         value: `${aliases ? `**Aliases:** ${aliases}` : ""}\n${docs}`,
         inline: false,
     };
@@ -27,13 +27,13 @@ export const specsToFields = (specs: CommandSpec[]): EmbedFieldData[] => {
 
         fields.push({
             name: "Usage",
-            value: `\`\`\`${appConfig.bot.prefix}${spec.name}${spec.args.map(arg => ` [${arg.name}]`).join("")}\`\`\``,
+            value: `\`\`\`${config.bot.prefix}${spec.name}${spec.args.map(arg => ` [${arg.name}]`).join("")}\`\`\``,
         });
 
         if (spec.aliases) {
             fields.push({
                 name: "Aliases",
-                value: spec.aliases.map(alias => `\`${appConfig.bot.prefix}${alias}\``).join(", "),
+                value: spec.aliases.map(alias => `\`${config.bot.prefix}${alias}\``).join(", "),
             });
         }
 

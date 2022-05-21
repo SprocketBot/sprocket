@@ -1,12 +1,12 @@
 import {
     Controller, ForbiddenException, Get, Request, Response, UseGuards,
 } from "@nestjs/common";
+import {config} from "@sprocketbot/common";
 import {Request as Req, Response as Res} from "express";
 
 import type {User, UserAuthenticationAccount} from "../../../database";
 import {UserAuthenticationAccountType} from "../../../database";
 import {MledbPlayerService} from "../../../mledb";
-import {config} from "../../../util/config";
 import {UserService} from "../../user";
 import {
     DiscordAuthGuard, GoogleAuthGuard, JwtAuthGuard, RolesGuard,

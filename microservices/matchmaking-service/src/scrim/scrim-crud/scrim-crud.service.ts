@@ -2,12 +2,13 @@ import {Injectable} from "@nestjs/common";
 import type {
     Scrim, ScrimGame, ScrimPlayer,
 } from "@sprocketbot/common";
-import {RedisService, ScrimStatus} from "@sprocketbot/common";
+import {
+    config, RedisService, ScrimStatus,
+} from "@sprocketbot/common";
 import type {JobId} from "bull";
 import {randomBytes} from "crypto";
 import {v4} from "uuid";
 
-import {config} from "../../util/config";
 import type {CreateScrimOpts} from "./types";
 
 @Injectable()
@@ -53,7 +54,7 @@ export class ScrimCrudService {
     async getAllScrims(skillGroupId?: number): Promise<Scrim[]> {
         const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
         const scrims = await Promise.all(scrimKeys.map<Promise<Scrim>>(async key => this.redisService.getJson<Scrim>(key)));
-        
+
         return skillGroupId ? scrims.filter(s => s.skillGroupId === skillGroupId || !s.settings.competitive) : scrims;
     }
 
@@ -94,7 +95,7 @@ export class ScrimCrudService {
         await this.redisService.deleteJsonField(`${this.prefix}${scrimId}`, "$.players");
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.players", players);
     }
-    
+
     async playerInAnyScrim(playerId: number): Promise<boolean> {
         const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
         const allScrimPlayers = await Promise.all(scrimKeys.map(async k => this.redisService.getJson(k, "$.players[*].id")));

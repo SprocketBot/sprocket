@@ -1,8 +1,8 @@
 import {Module} from "@nestjs/common";
 import {TypeOrmModule} from "@nestjs/typeorm";
+import {config} from "@sprocketbot/common";
 import {readFileSync} from "fs";
 
-import {config} from "../util/config";
 import {AuthorizationModule} from "./authorization/authorization.module";
 import {ConfigurationModule} from "./configuration/configuration.module";
 import {DraftModule} from "./draft/draft.module";

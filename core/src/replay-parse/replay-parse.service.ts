@@ -3,7 +3,8 @@ import {
 } from "@nestjs/common";
 import type {ScrimPlayer} from "@sprocketbot/common";
 import {
-    CeleryService, MatchmakingEndpoint, MatchmakingService,
+    CeleryService, config,
+    MatchmakingEndpoint, MatchmakingService,
     MinioService, ProgressStatus,
     ResponseStatus, Task,
 } from "@sprocketbot/common";
@@ -11,7 +12,6 @@ import {PubSub} from "apollo-server-express";
 import {SHA256} from "crypto-js";
 import type {Readable} from "stream";
 
-import {config} from "../util/config";
 import {read} from "../util/read";
 import {REPLAY_EXT, ReplayParsePubSub} from "./replay-parse.constants";
 import type {ParseReplayResult, ParseReplaysTasks} from "./replay-parse.types";
