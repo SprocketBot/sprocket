@@ -1,17 +1,12 @@
-import {
-    Inject, Injectable, Logger,
-} from "@nestjs/common";
+import { Injectable, Logger} from "@nestjs/common";
 import { MinioService } from "@sprocketbot/common";
 import {config} from "@sprocketbot/common/lib/util/config";
-import {
-    createReadStream, existsSync, mkdirSync, rmSync, unlinkSync, writeFileSync,
-} from "fs";
+import { existsSync, mkdirSync, unlinkSync, writeFileSync} from "fs";
 import {JSDOM} from "jsdom";
 import * as sharp from "sharp";
 import { Readable } from "stream";
 
 import {SvgTransformationService} from "./svg-transformation/svg-transformation.service";
-import {templateStructureSchema} from "./types";
 
 @Injectable()
 export class ImageGenerationService {
@@ -23,17 +18,11 @@ export class ImageGenerationService {
         process.env.FONTCONFIG_PATH = "./fonts";
     }
 
-    async generateScrimReportCard(scrimId: string): Promise<string>{
-
-        return "hello"
-    }
-
-    async processSvg(inputFileKey: string, outputFileKey: string, rawData: unknown): Promise<void> {
+    async processSvg(inputFileKey: string, outputFileKey: string, data): Promise<string> {
         this.logger.log(`Beginning Generation of ${inputFileKey}`);
         // eslint-disable-next-line
-        const data = templateStructureSchema.parse(rawData);;
-        this.logger.debug("Input data successfully parsed");
-
+        //const data = templateStructureSchema.parse(rawData); //moved to controller
+        
         const file = await this.minioService.get(config.minio.bucketNames.image_generation, inputFileKey);
         // WriteFileSync("./input.svg", file);
 
@@ -48,7 +37,7 @@ export class ImageGenerationService {
         if (!existsSync("./fonts/temp")) {
             mkdirSync("./fonts/temp");
         }
-        const createdFiles: string[] = [];
+        // const createdFiles: string[] = [];
         
         
         if (fonts.length) {
@@ -61,7 +50,7 @@ export class ImageGenerationService {
                     const buffer = Buffer.from(matches[2], "base64");
                     this.logger.log(`Saving font: ${filename}`);
                     writeFileSync(filename, buffer);
-                    createdFiles.push(filename);
+                    // createdFiles.push(filename);
                 }
             }));
             svgRoot.removeChild(svgRoot.querySelector("#fonts")!);
@@ -78,12 +67,13 @@ export class ImageGenerationService {
         
         const newSvg = svgRoot.outerHTML;
         const newSvgBuffer = Buffer.from(newSvg);
-        this.logger.debug(`Buffer Created, exporting to image`);
-        writeFileSync("./output.svg", newSvg); // TODO: purge [data-sprocket] items from output.svg
-        await sharp(newSvgBuffer).png()
-            .toFile("./output.png");
-        this.logger.debug(`Image rendered!`);
-
+        
+        //writeFileSync("./output.svg", newSvg);
+        // await sharp(newSvgBuffer).png()
+        //     .toFile("./output.png");
+        // this.logger.debug(`Image rendered!`);
+        
+        this.logger.debug(`Buffer Created, uploading to Minio`);
         // Save output to minio
         await this.minioService.put(
             config.minio.bucketNames.image_generation,
@@ -91,19 +81,22 @@ export class ImageGenerationService {
             newSvgBuffer);
         await this.minioService.put(
             config.minio.bucketNames.image_generation,
-            `${outputFileKey}.svg`,
-            newSvgBuffer);
+            `${outputFileKey}.png`,
+            await sharp(newSvgBuffer).png().toBuffer());
 
+        // this causes issues with multiple files running simultaneously - need solution when we start running with a lot of different templates
         // Cleanup files
-        for (const f of createdFiles) {
-            unlinkSync(f);
-            this.logger.log(`removing file: ${f}`);
-        }
-        if (existsSync("./fonts/temp")) {
-            this.logger.log("removing cached fonts");
-            rmSync("./fonts/temp", {recursive: true});
-        }
+        // for (const f of createdFiles) {
+        //     unlinkSync(f);
+        //     this.logger.log(`removing file: ${f}`);
+        // }
+        
+        // if (existsSync("./fonts/temp")) {
+        //     this.logger.log("removing cached fonts");
+        //     rmSync("./fonts/temp", {recursive: true}); 
+        // }
         this.logger.log("Finished Processing");
+        return outputFileKey;
     }
 
     private async readableToString(file: Readable): Promise<string> {

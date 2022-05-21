@@ -15,7 +15,7 @@ import {ImageGenerationSchemas} from "./image-generation.types";
 export class ImageGenerationService {
   private logger = new Logger(ImageGenerationService.name);
 
-  constructor(@Inject(CommonClient.Matchmaking) private microserviceClient: ClientProxy) {}
+  constructor(@Inject(CommonClient.ImageGeneration) private microserviceClient: ClientProxy) {}
 
   async send<E extends ImageGenerationEndpoint>(endpoint: E, data: ImageGenerationInput<E>): Promise<ImageGenerationResponse<E>> {
       this.logger.debug(`Sending message to endpoint=${endpoint} with data=${JSON.stringify(data)}`);

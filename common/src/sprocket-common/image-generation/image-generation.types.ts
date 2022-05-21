@@ -6,14 +6,14 @@ import * as Schemas from "./schemas";
 
 export enum ImageGenerationEndpoint {
     // Scrim
-    GenerateScrimReportCard = "GenerateScrimReportCard",
+    GenerateImage = "GenerateImage",
 }
 
 export const ImageGenerationSchemas = {
     // Scrim Report card
-    [ImageGenerationEndpoint.GenerateScrimReportCard]: {
-        input: Schemas.GenerateScrimReportCard_Request,
-        output: Schemas.GenerateScrimReportCard_Response,
+    [ImageGenerationEndpoint.GenerateImage]: {
+        input: Schemas.GenerateImage_Request,
+        output: Schemas.GenerateImage_Response,
     }
 };
 

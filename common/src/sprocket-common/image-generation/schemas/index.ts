@@ -1,1 +1,1 @@
-export * from "./GenerateScrimReportCard.schema"
+export * from "./GenerateImage.schema"

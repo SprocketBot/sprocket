@@ -1,37 +1,5 @@
 import * as zod from "zod";
 
-// Hex color with or without alpha
-const hexColorRegex = /#[a-f\d]{3}(?:[a-f\d]?|(?:[a-f\d]{3}(?:[a-f\d]{2})?)?)\b/i;
-
-export const dataLeafSchema = zod.union([
-    zod.object({
-        type: zod.literal("text"),
-        value: zod.union([zod.string(), zod.number()]),
-    }),
-    zod.object({
-        type: zod.literal("number"),
-        value: zod.union([zod.string(), zod.number()]),
-    }),
-    zod.object({
-        type: zod.literal("color"), // Should be color
-        value: zod.string(),
-    }),
-    zod.object({
-        type: zod.literal("image"),
-        value: zod.string().url(),
-    }),
-]);
-export type DataLeaf = zod.infer<typeof dataLeafSchema>;
-
-
-/**
- * Recursive type that describes the JSON Object Tree with DataLeaf Nodes
- */
-// eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
-export type DataStructure = DataLeaf | { [key: string]: DataStructure;} | DataStructure[];
-export const templateStructureSchema: zod.ZodType<DataStructure> = zod.lazy(() => zod.union([dataLeafSchema, zod.array(templateStructureSchema), zod.record(templateStructureSchema)]));
-
-
 export const dimensionSchema = zod.object({
     height: zod.number(),
     width: zod.number(),
