@@ -19,9 +19,8 @@ export class ImageGenerationService {
         
         // const params = {scrim_id: 7, org_id:1}
         const data = await this.connection.query(reportCardRow.query.query, [24196, 1])
-        const result = await this.igService.send(ImageGenerationEndpoint.GenerateImage, { inputFile:"scrim_report_cards/scrimReportCards/template.svg", outputFile:"scrim_report_cards/scrimReportCards/outputs/7_1", template:data });
-        console.log(result)
-        if (result.status === ResponseStatus.SUCCESS) return result.data.outputFile;
+        const result = await this.igService.send(ImageGenerationEndpoint.GenerateImage, { inputFile:"scrim_report_cards/scrimReportCards/template.svg", outputFile:"scrim_report_cards/scrimReportCards/outputs/7_1", template:data[0].data });
+        if (result.status === ResponseStatus.SUCCESS) return result.data;
         throw result.error;
     }
 }

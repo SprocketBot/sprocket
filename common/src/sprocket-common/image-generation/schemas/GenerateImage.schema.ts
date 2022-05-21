@@ -39,6 +39,5 @@ export const GenerateImage_Request = z.object({
     template: templateStructureSchema,
 });
 
-export const GenerateImage_Response = z.object({
-    outputFile: z.string(),
-});
+export const GenerateImage_Response = z.string()
+
