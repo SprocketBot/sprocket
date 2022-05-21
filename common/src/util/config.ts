@@ -28,7 +28,7 @@ export const config = {
         get secretKey(): string { return readFileSync("./secret/minio-secret.txt").toString() },
         bucketNames: {
             get replays(): string { return _config.get<string>("minio.bucketNames.replays") },
-            get image_generation(): string { return _config.get<string>("minio.bucketNames.image-generation") },
+            get image_generation(): string { return _config.get<string>("minio.bucketNames.image_generation") },
         },
         get useSSL(): boolean {
             if (_config.has("minio.useSSL")) {

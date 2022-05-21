@@ -1,54 +1,17 @@
 {
   "transport": {
     "url": "",
-    "core_queue": "",
-    "bot_queue": "",
-    "analytics_queue": "",
-    "matchmaking_queue": "",
-    "events_queue":  "",
-    "events_application_key": "",
     "image_generation_queue" : ""
   },
   "logger": {
     "levels": true
   },
-  "db": {
-    "host": "",
-    "port": "",
-    "username": "",
-    "database": "",
-    "enable_logs": false
-  },
   "minio": {
     "endPoint": "",
+    "port" : 80,
     "bucketNames": {
       "replays": "",
       "image_generation" : ""
     }
-  },
-  "celery": {
-    "broker": "",
-    "backend": "",
-    "queue": ""
-  },
-  "gql": {
-    "playground": false
-  },
-  "auth": {
-    "google": {
-      "callbackUrl": ""
-    },
-    "discord": {
-      "callbackUrl": ""
-    },
-    "jwt_expiry": "",
-    "frontend_callback": ""
-  },
-  "redis": {
-    "port": 80,
-    "host": "",
-    "prefix": "",
-    "secure": true
   }
 }
-

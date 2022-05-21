@@ -21,6 +21,7 @@
   },
   "minio": {
     "endPoint": "",
+    "port" : 80,
     "bucketNames": {
       "replays": "",
       "image_generation" : ""
