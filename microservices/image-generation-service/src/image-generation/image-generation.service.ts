@@ -1,13 +1,14 @@
 import {
     Inject, Injectable, Logger,
 } from "@nestjs/common";
-import * as config from "config";
+import { MinioService } from "@sprocketbot/common";
+import {config} from "@sprocketbot/common/lib/util/config";
 import {
     createReadStream, existsSync, mkdirSync, rmSync, unlinkSync, writeFileSync,
 } from "fs";
 import {JSDOM} from "jsdom";
-import {Client} from "minio";
 import * as sharp from "sharp";
+import { Readable } from "stream";
 
 import {SvgTransformationService} from "./svg-transformation/svg-transformation.service";
 import {templateStructureSchema} from "./types";
@@ -16,7 +17,9 @@ import {templateStructureSchema} from "./types";
 export class ImageGenerationService {
     private logger = new Logger(ImageGenerationService.name);
 
-    constructor(@Inject("s3") private s3Client: Client, private svgTransformationService: SvgTransformationService) {
+    constructor(
+        private minioService:MinioService,
+        private svgTransformationService: SvgTransformationService) {
         process.env.FONTCONFIG_PATH = "./fonts";
     }
 
@@ -30,10 +33,11 @@ export class ImageGenerationService {
         // eslint-disable-next-line
         const data = templateStructureSchema.parse(rawData);;
         this.logger.debug("Input data successfully parsed");
-        const file = await this.downloadFile(inputFileKey);
+
+        const file = await this.minioService.get(config.minio.bucketNames.image_generation, inputFileKey);
         // WriteFileSync("./input.svg", file);
 
-        const dom = new JSDOM(file);
+        const dom = new JSDOM(await this.readableToString(file));
         const svgRoot = dom.window.document.body.children[0];
         svgRoot.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink"); // When base image has no images but rect->img transformation may be neccessary
         if (svgRoot.nodeName !== "svg") throw new Error(`Expected <svg>, found ${svgRoot.nodeName}`);
@@ -81,8 +85,14 @@ export class ImageGenerationService {
         this.logger.debug(`Image rendered!`);
 
         // Save output to minio
-        await this.uploadFile("./output.png", `${outputFileKey}.png`);
-        await this.uploadFile("./output.svg", `${outputFileKey}.svg`);
+        await this.minioService.put(
+            config.minio.bucketNames.image_generation,
+            `${outputFileKey}.svg`,
+            newSvgBuffer);
+        await this.minioService.put(
+            config.minio.bucketNames.image_generation,
+            `${outputFileKey}.svg`,
+            newSvgBuffer);
 
         // Cleanup files
         for (const f of createdFiles) {
@@ -96,26 +106,16 @@ export class ImageGenerationService {
         this.logger.log("Finished Processing");
     }
 
-    private async downloadFile(fileKey: string): Promise<string> {
-        const bucket: string = config.get("s3.bucket");
-        const fileStream = await this.s3Client.getObject(bucket, fileKey);
+    private async readableToString(file: Readable): Promise<string> {
         return new Promise((resolve, reject) => {
             const output: string[] = [];
-            fileStream.on("data", (chunk: Buffer) => {
+            file.on("data", (chunk: Buffer) => {
                 output.push(chunk.toString());
             });
-            fileStream.on("error", reject);
-            fileStream.on("end", () => {
+            file.on("error", reject);
+            file.on("end", () => {
                 resolve(output.join(""));
             });
         });
-    }
-
-    private async uploadFile(fileName: string, fileKey: string): Promise<void> {
-        this.logger.debug("Uploading File to Minio");
-        const bucket: string = config.get("s3.bucket");
-        const fileStream = createReadStream(fileName);
-        await this.s3Client.putObject(bucket, fileKey, fileStream);
-        this.logger.debug(`File saved to Minio: ${bucket}/${fileKey}`);
     }
 }

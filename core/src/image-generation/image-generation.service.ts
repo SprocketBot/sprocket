@@ -16,8 +16,8 @@ export class ImageGenerationService {
     async createScrimReportCard(scrimId: number): Promise<string> {
         const reportCardRow = await this.imageTemplateRepository.findOneOrFail({where: {reportCode: "scrim_report_cards"} });
         
-        const params = {scrim_id: 7, org_id:1}
-        const result = await this.connection.query(reportCardRow.query.query, [params])
-        return `hello ${reportCardRow.reportCode}, ${scrimId}, ${result}`;
+        // const params = {scrim_id: 7, org_id:1}
+        const result = await this.connection.query(reportCardRow.query.query, [7,1])
+        return `hello ${reportCardRow.reportCode}, ${scrimId}, ${JSON.stringify(result)}`;
     }
 }
