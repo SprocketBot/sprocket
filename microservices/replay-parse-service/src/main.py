@@ -34,9 +34,11 @@ class BaseTask(celery.Task):
 
     def connect(self):
         logging.debug("Creating RMQ connection")
-        self.__producer = Producer(Connection(config["transport"]["url"], ssl={
+        ssl_opts = {
             "server_hostname": celeryconfig._SERVER_HOSTNAME
-        }))
+        } if celeryconfig.SECURE else None
+
+        self.__producer = Producer(Connection(config["transport"]["url"], ssl=ssl_opts))
 
     def publish_progress(self, msg: str):
         if not self.progress_queue:
