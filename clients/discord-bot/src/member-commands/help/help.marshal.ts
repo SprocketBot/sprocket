@@ -1,12 +1,12 @@
 import type {AnalyticsService, GqlService} from "@sprocketbot/common";
+import {config} from "@sprocketbot/common";
 import {Message} from "discord.js";
-import type {EmbedService} from "src/embed/embed.service";
+
+import type {EmbedService} from "../../embed/embed.service";
 import {
     Command, Marshal, MarshalCommandContext,
-} from "src/marshal";
-import type {CommandManagerService} from "src/marshal/command-manager/command-manager.service";
-import {appConfig} from "src/util/config";
-
+} from "../../marshal";
+import type {CommandManagerService} from "../../marshal/command-manager/command-manager.service";
 import * as helpUtil from "./util";
 
 export class HelpMarshal extends Marshal {
@@ -19,11 +19,11 @@ export class HelpMarshal extends Marshal {
     ) {
         super(cms, gqlService, analyticsService, embedService);
     }
-    
+
     @Command({
         name: "help",
         docs: "Lists all available commands",
-        longDocs: `Lists all available commands. For more help about a specific command, use \`${appConfig.bot.prefix}help <command name>\``,
+        longDocs: `Lists all available commands. For more help about a specific command, use \`${config.bot.prefix}help <command name>\``,
         args: [],
     })
     async help(m: Message): Promise<void> {
@@ -62,7 +62,7 @@ export class HelpMarshal extends Marshal {
 
         // TODO get organization from author on context?
         const embed = await this.embedService.embed({
-            title: `Command Help: \`${appConfig.bot.prefix}${commandName}\``,
+            title: `Command Help: \`${config.bot.prefix}${commandName}\``,
             fields: fields,
         });
 

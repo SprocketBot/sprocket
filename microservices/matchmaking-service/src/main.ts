@@ -1,8 +1,8 @@
 import {NestFactory} from "@nestjs/core";
 import {Transport} from "@nestjs/microservices";
+import {config} from "@sprocketbot/common";
 
 import {AppModule} from "./app.module";
-import {config} from "./util/config";
 
 async function bootstrap(): Promise<void> {
     const app = await NestFactory.createMicroservice(AppModule, {

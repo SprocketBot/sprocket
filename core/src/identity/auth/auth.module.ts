@@ -1,13 +1,12 @@
 import {forwardRef, Module} from "@nestjs/common";
 import {JwtModule} from "@nestjs/jwt";
 import {PassportModule} from "@nestjs/passport";
-import {AnalyticsModule} from "@sprocketbot/common";
+import {AnalyticsModule, config} from "@sprocketbot/common";
 
 import {FranchiseModule} from "../../franchise";
 import {GameModule} from "../../game";
 import {MledbInterfaceModule} from "../../mledb";
 import {OrganizationModule} from "../../organization";
-import {config} from "../../util/config";
 import {IdentityModule} from "../identity.module";
 import {AnonymousAuthService} from "./anonymous-auth";
 import {AuthModuleResolver} from "./auth.mod.resolver";
