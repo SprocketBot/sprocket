@@ -139,7 +139,6 @@ export class SvgTransformationService {
         
         let newtext = value;
         const truncate = options["truncate-to"]
-        console.log(truncate)
         if (truncate && truncate !== 'as-is') {
             newtext = newtext.slice(0,truncate)
         }

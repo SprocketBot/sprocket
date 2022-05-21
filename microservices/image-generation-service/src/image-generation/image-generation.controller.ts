@@ -20,7 +20,7 @@ export class ImageGenerationController {
     return this.imageGenerationService.processSvg(data.inputFile, data.outputFile, data.template);
   }
 
-
+  //this is currently still needed for the frontend because of context
   @MessagePattern(`media-gen.img.create`)
   async createImage(@Ctx() context: RmqContext): Promise<boolean> {
     // eslint-disable-next-line
