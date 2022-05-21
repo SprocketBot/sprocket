@@ -3,7 +3,7 @@ import { InjectRepository, InjectConnection } from "@nestjs/typeorm";
 
 import {Connection, Repository} from "typeorm";
 import { ImageTemplate } from "../database";
-import { ImageGenerationEndpoint, ImageGenerationService as IGService } from "@sprocketbot/common";
+import { ImageGenerationEndpoint, ImageGenerationService as IGService, ResponseStatus } from "@sprocketbot/common";
 
 @Injectable()
 export class ImageGenerationService {
@@ -18,8 +18,10 @@ export class ImageGenerationService {
         const reportCardRow = await this.imageTemplateRepository.findOneOrFail({where: {reportCode: "scrim_report_cards"} });
         
         // const params = {scrim_id: 7, org_id:1}
-        const data = await this.connection.query(reportCardRow.query.query, [7, 1])
+        const data = await this.connection.query(reportCardRow.query.query, [24196, 1])
         const result = await this.igService.send(ImageGenerationEndpoint.GenerateImage, { inputFile:"scrim_report_cards/scrimReportCards/template.svg", outputFile:"scrim_report_cards/scrimReportCards/outputs/7_1", template:data });
-        return `hello ${reportCardRow.reportCode}, ${scrimId}, ${JSON.stringify(result)}`;
+        console.log(result)
+        if (result.status === ResponseStatus.SUCCESS) return result.data.outputFile;
+        throw result.error;
     }
 }
