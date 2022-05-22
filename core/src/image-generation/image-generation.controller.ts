@@ -1,4 +1,4 @@
-import {Controller, Get} from "@nestjs/common";
+import {Controller, Get, Param} from "@nestjs/common";
 
 import {ImageGenerationService} from "./image-generation.service";
 
@@ -6,8 +6,9 @@ import {ImageGenerationService} from "./image-generation.service";
 export class ImageGenerationController {
     constructor(private imageGenerationService: ImageGenerationService) { }
 
-    @Get()
-    async run(): Promise<string> {
-        return this.imageGenerationService.createScrimReportCard(7);
+    @Get(":scrim_id")
+    async run(@Param() params): Promise<string> {
+        console.log(params.scrim_id)
+        return this.imageGenerationService.createScrimReportCard(params.scrim_id);
     }
 }
