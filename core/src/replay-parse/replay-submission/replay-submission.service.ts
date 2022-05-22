@@ -1,5 +1,6 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
+import type {ScrimPlayer} from "@sprocketbot/common";
 import {
     CeleryService,
     config,
@@ -10,6 +11,7 @@ import {Repository} from "typeorm";
 import {
     Match, MatchParent, Round, ScrimMeta,
 } from "../../database";
+import {ScrimService} from "../../scrim";
 import {REPLAY_SUBMISSION_PREFIX} from "../replay-parse.constants";
 import type {ParseReplayResult} from "../replay-parse.types";
 import type {BaseReplaySubmission, ReplaySubmission} from "./replay-submission.types";
@@ -23,6 +25,7 @@ export class ReplaySubmissionService {
         private readonly celeryService: CeleryService,
         private readonly redisService: RedisService,
         private readonly matchmakingService: MatchmakingService,
+        private readonly scrimService: ScrimService,
         @InjectRepository(ScrimMeta) private readonly scrimMetaRepo: Repository<ScrimMeta>,
         @InjectRepository(MatchParent) private readonly matchParentRepo: Repository<MatchParent>,
         @InjectRepository(Match) private readonly matchRepo: Repository<Match>,
@@ -115,20 +118,39 @@ export class ReplaySubmissionService {
         return submission;
     }
 
+    async endSubmission(submissionId: string, player: ScrimPlayer): Promise<void> {
+        const isScrim = this.isScrimSubmission(submissionId);
+        const isMatch = this.isMatchSubmission(submissionId);
+
+        if (isScrim) {
+            // Scrim must exist
+            const scrimRes = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
+            if (scrimRes.status === ResponseStatus.ERROR) throw scrimRes.error;
+            const scrim = scrimRes.data;
+            if (!scrim) throw new Error(`Unable to end submission, could not find a scrim associated with submissionId=${submissionId}`);
+
+            await this.scrimService.endScrim(player, scrim.id);
+        } else if (isMatch) {
+            throw new Error("Ending submissions for matches is not yet supported");
+        } else {
+            throw new Error(`submissionId=${submissionId} must begin with scrim- or match-`);
+        }
+    }
+
     async ratifySubmission(submissionId: string, playerId: number): Promise<boolean> {
         if (this.isScrimSubmission(submissionId)) {
             // Scrim must exist
             const scrimRes = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
             if (scrimRes.status === ResponseStatus.ERROR) throw scrimRes.error;
             const scrim = scrimRes.data;
-            if (!scrim) throw new Error(`Unable to create submission, could not find a scrim associated with submissionId=${submissionId}`);
+            if (!scrim) throw new Error(`Unable to ratify submission, could not find a scrim associated with submissionId=${submissionId}`);
 
             // Player must be in scrim
             const playerIds = scrim.players.map(p => p.id);
-            if (!playerIds.includes(playerId)) throw new Error(`Unable to create submission, playerId=${playerId} is not a player in the associated scrim`);
+            if (!playerIds.includes(playerId)) throw new Error(`Unable to ratify submission, playerId=${playerId} is not a player in the associated scrim`);
 
             // Scrim must be IN_PROGRESS
-            if (scrim.status !== ScrimStatus.RATIFYING) throw new Error(`Unable to create submission, scrim must be ratifying`);
+            if (scrim.status !== ScrimStatus.RATIFYING) throw new Error(`Unable to ratify submission, scrim must be ratifying`);
 
             // Add player to ratifiers
             await this.addRatifier(submissionId, playerId);
@@ -225,6 +247,4 @@ export class ReplaySubmissionService {
     private isMatchSubmission(submissionId: string): boolean {
         return Boolean(submissionId.startsWith("match-"));
     }
-
-
 }

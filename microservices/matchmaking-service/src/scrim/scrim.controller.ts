@@ -61,7 +61,7 @@ export class ScrimController {
     }
 
     @MessagePattern(MatchmakingEndpoint.EndScrim)
-    async endScrim(@Payload() payload: unknown): Promise<Scrim> {
+    async endScrim(@Payload() payload: unknown): Promise<boolean> {
         const data = MatchmakingSchemas.EndScrim.input.parse(payload);
         return this.scrimService.endScrim(data.scrimId, data.player);
     }

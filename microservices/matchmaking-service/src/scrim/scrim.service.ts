@@ -181,7 +181,7 @@ export class ScrimService {
         return scrim;
     }
 
-    async endScrim(scrimId: string, player: ScrimPlayer): Promise<Scrim> {
+    async endScrim(scrimId: string, player: ScrimPlayer): Promise<boolean> {
         this.logger.debug(`Attempting to end scrim, scrimId=${scrimId} playerId=${player.id}`);
 
         const scrim = await this.scrimCrudService.getScrim(scrimId);
@@ -209,7 +209,7 @@ export class ScrimService {
             ],
         }).catch(err => { this.logger.error(err) });
 
-        return scrim;
+        return true;
     }
 
     async ratifyScrim(scrimId: string, player: ScrimPlayer): Promise<Scrim> {
