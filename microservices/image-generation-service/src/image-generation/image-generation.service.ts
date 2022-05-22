@@ -1,6 +1,6 @@
 import { Injectable, Logger} from "@nestjs/common";
 import { MinioService } from "@sprocketbot/common";
-import {config} from "@sprocketbot/common/lib/util/config";
+import {config} from "@sprocketbot/common";
 import { existsSync, mkdirSync, unlinkSync, writeFileSync} from "fs";
 import {JSDOM} from "jsdom";
 import * as sharp from "sharp";

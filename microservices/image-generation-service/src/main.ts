@@ -1,6 +1,6 @@
 import {NestFactory} from "@nestjs/core";
 import {Transport} from "@nestjs/microservices";
-import {config} from "@sprocketbot/common/lib/util/config";
+import {config} from "@sprocketbot/common";
 
 import {AppModule} from "./app.module";
 
