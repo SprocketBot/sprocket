@@ -212,17 +212,17 @@ export class ScrimService {
         return true;
     }
 
-    async ratifyScrim(scrimId: string, player: ScrimPlayer): Promise<Scrim> {
+    async completeScrim(scrimId: string, playerId: number): Promise<Scrim> {
         // Player will be used to track who submitted / completed a scrim
         const scrim = await this.scrimCrudService.getScrim(scrimId);
         if (!scrim) {
             throw new RpcException("Scrim not found");
         }
-        if (scrim.status !== ScrimStatus.IN_PROGRESS) {
-            throw new RpcException("Scrim is not in progress!");
+        if (scrim.status !== ScrimStatus.RATIFYING) {
+            throw new RpcException("Scrim is not ratifying!");
         }
         // TODO: Override this if player / member is an admin
-        if (!scrim.players.some(p => p.id === player.id)) {
+        if (!scrim.players.some(p => p.id === playerId)) {
             throw new RpcException("Player not in this scrim");
         }
 
@@ -231,7 +231,7 @@ export class ScrimService {
         await this.eventsService.publish(EventTopic.ScrimComplete, scrim, scrim.id);
 
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
-            name: "scrimRatified",
+            name: "scrimComplete",
             tags: [
                 ["scrimId", scrim.id],
             ],

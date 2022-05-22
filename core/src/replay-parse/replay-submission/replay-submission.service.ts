@@ -118,6 +118,11 @@ export class ReplaySubmissionService {
         return submission;
     }
 
+    async removeSubmission(submissionId: string): Promise<void> {
+        const key = this.buildKey(submissionId);
+        return this.redisService.delete(key);
+    }
+
     async endSubmission(submissionId: string, player: ScrimPlayer): Promise<void> {
         const isScrim = this.isScrimSubmission(submissionId);
         const isMatch = this.isMatchSubmission(submissionId);
@@ -196,14 +201,16 @@ export class ReplaySubmissionService {
             await this.scrimMetaRepo.save(scrimMeta);
             await this.matchParentRepo.save(matchParent);
 
-            // TODO complete scrim
             await this.matchmakingService.send(MatchmakingEndpoint.CompleteScrim, {
                 scrimId: scrim.id,
                 playerId: playerId,
             });
 
-            return true;
+            await this.removeSubmission(submissionId);
 
+            this.logger.debug(`Submission ${submissionId} completed and removed`);
+
+            return true;
         } else if (this.isMatchSubmission(submissionId)) {
             throw new Error("Submitting replays for matches is not implemented yet");
         } else {
