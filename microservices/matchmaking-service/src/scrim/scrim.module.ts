@@ -1,9 +1,8 @@
 import {BullModule} from "@nestjs/bull";
 import {Module} from "@nestjs/common";
 import {
-    AnalyticsModule, EventsModule, RedisModule,
+    AnalyticsModule, config, EventsModule, RedisModule,
 } from "@sprocketbot/common";
-import {config} from "@sprocketbot/common/lib/util/config";
 
 import {EventProxyService} from "./event-proxy/event-proxy.service";
 import {GameOrderService} from "./game-order/game-order.service";
@@ -45,4 +44,5 @@ import {ScrimMetricsService} from "./scrim-metrics/scrim-metrics.service";
         GameOrderService,
     ],
 })
-export class ScrimModule {}
+export class ScrimModule {
+}

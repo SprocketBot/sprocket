@@ -1,8 +1,8 @@
 import {ValidationPipe} from "@nestjs/common";
 import {NestFactory} from "@nestjs/core";
+import {config} from "@sprocketbot/common";
 
 import {AppModule} from "./app.module";
-import {config} from "./util/config";
 
 async function bootstrap(): Promise<void> {
     // @ts-expect-error I have no idea why this one is broken but I promise it's ok.

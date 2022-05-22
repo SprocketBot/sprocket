@@ -1,6 +1,7 @@
 import type {MiddlewareConsumer, NestModule} from "@nestjs/common";
 import {Module} from "@nestjs/common";
 import {GraphQLModule} from "@nestjs/graphql";
+import {config} from "@sprocketbot/common";
 import {graphqlUploadExpress} from "graphql-upload";
 
 import {ConfigurationModule} from "./configuration/configuration.module";
@@ -16,7 +17,6 @@ import {OrganizationModule} from "./organization/organization.module";
 import {ReplayParseModule} from "./replay-parse/replay-parse.module";
 import {SchedulingModule} from "./scheduling/scheduling.module";
 import {ScrimModule} from "./scrim/scrim.module";
-import {config} from "./util/config";
 
 
 @Module({

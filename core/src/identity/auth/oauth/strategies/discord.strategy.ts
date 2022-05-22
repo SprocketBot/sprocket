@@ -1,7 +1,9 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {PassportStrategy} from "@nestjs/passport";
-import {AnalyticsEndpoint, AnalyticsService} from "@sprocketbot/common";
-import type {GuildInfo, Profile} from "passport-discord";
+import {
+    AnalyticsEndpoint, AnalyticsService, config,
+} from "@sprocketbot/common";
+import type {Profile} from "passport-discord";
 import {Strategy} from "passport-discord";
 
 import type {
@@ -12,12 +14,10 @@ import {GameSkillGroupService, PlayerService} from "../../../../franchise";
 import {PlatformService} from "../../../../game";
 import {MledbPlayerAccountService, MledbPlayerService} from "../../../../mledb";
 import {MemberPlatformAccountService, MemberService} from "../../../../organization";
-import {config} from "../../../../util/config";
 import {IdentityService} from "../../../identity.service";
 import {UserService} from "../../../user";
 
 export type Done = (err: string, user: User) => void;
-const MLE_GUILD_ID = "172404472637685760";
 const MLE_ORGANIZATION_ID = 2;
 
 @Injectable()
@@ -63,7 +63,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
 
         // It's possible the email doesn't exist if the user didn't verify it.
         if (!user && !profile.email) throw new Error("User account could not be found and there is no attached email to the Discord user");
-        
+
         // TODO: Do we want to actually do this? Theoretically, if a user changes their email, that's a "new user" if we go by email. Hence ^
         if (!user) user = await this.userService.getUser({where: {email: profile.email} });
 
@@ -105,7 +105,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         }
 
         let member = await this.memberService.getMember({where: {user: {id: user.id} } }).catch(() => null);
-        
+
         if (!member) {
             member = await this.memberService.createMember(
                 {name: mledbPlayer.name},
@@ -131,7 +131,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
             if (!platformAccount) {
                 const platform = await this.platformService.getPlatformByCode(mledbPlayerAccount.platform)
                     .catch(async () => this.platformService.createPlatform(mledbPlayerAccount.platform));
-                    
+
                 await this.memberPlatformAccountService.createMemberPlatformAccount(member.id, platform.id, mledbPlayerAccount.platformId);
             }
         }

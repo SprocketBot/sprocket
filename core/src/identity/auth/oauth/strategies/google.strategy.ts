@@ -1,10 +1,10 @@
 import {Injectable} from "@nestjs/common";
 import {PassportStrategy} from "@nestjs/passport";
+import {config} from "@sprocketbot/common";
 import type {VerifyCallback} from "passport-google-oauth20";
 import {Strategy} from "passport-google-oauth20";
 
 import {User, UserAuthenticationAccountType} from "../../../../database";
-import {config} from "../../../../util/config";
 import {UserService} from "../../../user";
 import type {GoogleProfileType} from "../types/profile.type";
 
