@@ -333,17 +333,17 @@ games_data AS(
 		FROM empty_players e
 		GROUP BY n			
 	)
- 	SELECT row_to_json(played_game_data.*) as game
- 	FROM played_game_data
- 	UNION ALL
- 	SELECT * FROM empty_game_data
- 	UNION ALL
- 	SELECT * FROM empty_game_data
- 	UNION ALL
- 	SELECT * FROM empty_game_data
- 	UNION ALL
- 	SELECT * FROM empty_game_data
- 	LIMIT 7
+	SELECT row_to_json(played_game_data.*) as game
+	FROM played_game_data
+	UNION ALL
+	SELECT * FROM empty_game_data
+	UNION ALL
+	SELECT * FROM empty_game_data
+	UNION ALL
+	SELECT * FROM empty_game_data
+	UNION ALL
+	SELECT * FROM empty_game_data
+	LIMIT 7
 	
 ),
 
