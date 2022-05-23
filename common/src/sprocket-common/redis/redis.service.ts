@@ -1,5 +1,5 @@
 import {Injectable, Logger} from "@nestjs/common";
-import type {Redis} from "ioredis";
+import type {Redis, RedisOptions} from "ioredis";
 import IORedis from "ioredis";
 
 import {config} from "../../util/config";
@@ -14,17 +14,19 @@ export class RedisService {
         return this._redis;
     }
 
-    get redisOptions() {
+    get redisOptions(): RedisOptions {
         return {
             host: config.redis.host,
             port: config.redis.port,
             password: config.redis.password,
             lazyConnect: true,
-            tls: config.redis.secure ? {
-                host: config.redis.host,
-                servername: config.redis.host
-            } : undefined
-        }
+            tls: config.redis.secure
+                ? {
+                        host: config.redis.host,
+                        servername: config.redis.host,
+                    }
+                : undefined,
+        };
     }
 
     async onApplicationBootstrap(): Promise<void> {
@@ -64,6 +66,10 @@ export class RedisService {
 
     async deleteJsonField(key: string, path: string): Promise<void> {
         await this.redis.send_command("json.del", key, path);
+    }
+
+    async delete(key: string): Promise<void> {
+        await this.redis.send_command("json.del", key, "$");
     }
 
     async getKeys(pattern: string): Promise<string[]> {

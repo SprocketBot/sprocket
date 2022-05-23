@@ -61,15 +61,9 @@ export class ScrimController {
     }
 
     @MessagePattern(MatchmakingEndpoint.EndScrim)
-    async endScrim(@Payload() payload: unknown): Promise<Scrim> {
+    async endScrim(@Payload() payload: unknown): Promise<boolean> {
         const data = MatchmakingSchemas.EndScrim.input.parse(payload);
         return this.scrimService.endScrim(data.scrimId, data.player);
-    }
-
-    @MessagePattern(MatchmakingEndpoint.RatifyScrim)
-    async ratifyScrim(@Payload() payload: unknown): Promise<Scrim> {
-        const data = MatchmakingSchemas.RatifyScrim.input.parse(payload);
-        return this.scrimService.ratifyScrim(data.scrimId, data.player);
     }
 
     @MessagePattern(MatchmakingEndpoint.CancelScrim)
@@ -93,6 +87,12 @@ export class ScrimController {
     async getScrimBySubmissionId(@Payload() payload: unknown): Promise<Scrim | null> {
         const data = MatchmakingSchemas.GetScrimBySubmissionId.input.parse(payload);
         return this.scrimCrudService.getScrimBySubmissionId(data);
+    }
+
+    @MessagePattern(MatchmakingEndpoint.CompleteScrim)
+    async completeScrim(@Payload() payload: unknown): Promise<Scrim | null> {
+        const data = MatchmakingSchemas.CompleteScrim.input.parse(payload);
+        return this.scrimService.completeScrim(data.scrimId, data.playerId);
     }
 
 }

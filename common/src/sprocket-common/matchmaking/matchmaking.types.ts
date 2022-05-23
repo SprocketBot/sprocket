@@ -18,7 +18,6 @@ export enum MatchmakingEndpoint {
     EndScrim = "EndScrim",
     CompleteScrim = "CompleteScrim",
     GetScrimBySubmissionId = "GetScrimBySubmissionId",
-    RatifyScrim = "RatifyScrim",
     CancelScrim = "CancelScrim",
 
     // Validation
@@ -74,10 +73,6 @@ export const MatchmakingSchemas = {
     [MatchmakingEndpoint.GetScrimBySubmissionId]: {
         input: Schemas.GetScrimBySubmissionId_Request,
         output: Schemas.GetScrimBySubmissionId_Response,
-    },
-    [MatchmakingEndpoint.RatifyScrim]: {
-        input: Schemas.RatifyScrim_Request,
-        output: Schemas.RatifyScrim_Response,
     },
     [MatchmakingEndpoint.CancelScrim]: {
         input: Schemas.CancelScrim_Request,

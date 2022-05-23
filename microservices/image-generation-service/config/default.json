@@ -1,23 +1,17 @@
 {
-  "db": {
-    "host": "",
-    "port": "",
-    "username": "",
-    "database": "",
-    "enable_logs": false
-  },
   "transport": {
     "url": "",
-    "queue": ""
+    "image_generation_queue" : ""
   },
   "logger": {
     "levels": true
   },
-  "s3": {
-    "endpoint":"",
-    "port": 9000,
-    "ssl": true,
-    "accessKey": "",
-    "bucket": ""
+  "minio": {
+    "endPoint": "",
+    "port" : 80,
+    "bucketNames": {
+      "replays": "",
+      "image_generation" : ""
+    }
   }
 }
