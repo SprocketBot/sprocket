@@ -4,7 +4,9 @@ import {
 import type {
     ProgressMessage, Task, TaskResult,
 } from "@sprocketbot/common";
-import {Progress as IProgress, ProgressStatus} from "@sprocketbot/common";
+import {
+    BallchasingResponse, Progress as IProgress, ProgressStatus,
+} from "@sprocketbot/common";
 import GraphQLJSON from "graphql-type-json";
 
 import {Progress} from "../util/types/celery-progress";
@@ -12,7 +14,7 @@ import {Progress} from "../util/types/celery-progress";
 @ObjectType()
 export class ParseReplayResult implements TaskResult<Task.ParseReplay> {
     @Field(() => GraphQLJSON)
-    data: unknown;
+    data: BallchasingResponse;
 }
 
 @ObjectType()
