@@ -1,6 +1,6 @@
 import {Module} from "@nestjs/common";
 import {
-    CeleryModule, MatchmakingModule, RedisModule,
+    CeleryModule, MatchmakingModule, MinioModule, RedisModule,
 } from "@sprocketbot/common";
 
 import {DatabaseModule} from "../../database";
@@ -15,6 +15,7 @@ import {ReplaySubmissionService} from "./replay-submission.service";
         RedisModule,
         MatchmakingModule,
         ScrimModule,
+        MinioModule,
     ],
     providers: [
         ReplaySubmissionResolver,

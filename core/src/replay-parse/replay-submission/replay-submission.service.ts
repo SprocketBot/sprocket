@@ -1,10 +1,11 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import type {ScrimPlayer} from "@sprocketbot/common";
+import type {ParsedReplay, ScrimPlayer} from "@sprocketbot/common";
 import {
     CeleryService,
     config,
-    MatchmakingEndpoint, MatchmakingService, RedisService, ResponseStatus, ScrimStatus,
+    MatchmakingEndpoint, MatchmakingService,     MinioService, Parser, RedisService, ResponseStatus,
+    ScrimStatus,
 } from "@sprocketbot/common";
 import {Repository} from "typeorm";
 
@@ -12,10 +13,13 @@ import {
     Match, MatchParent, Round, ScrimMeta,
 } from "../../database";
 import {ScrimService} from "../../scrim";
+import {read} from "../../util/read";
 import {REPLAY_SUBMISSION_PREFIX} from "../replay-parse.constants";
 import type {ParseReplayResult} from "../replay-parse.types";
-import type {BaseReplaySubmission, ReplaySubmission} from "./replay-submission.types";
-import {ReplaySubmissionType} from "./replay-submission.types";
+import type {BaseReplaySubmission, ReplaySubmission} from "./types/replay-submission.types";
+import {ReplaySubmissionType} from "./types/replay-submission.types";
+import type {ReplaySubmissionItem} from "./types/submission-item.types";
+import type {ReplaySubmissionStats} from "./types/submission-stats.types";
 
 @Injectable()
 export class ReplaySubmissionService {
@@ -26,6 +30,7 @@ export class ReplaySubmissionService {
         private readonly redisService: RedisService,
         private readonly matchmakingService: MatchmakingService,
         private readonly scrimService: ScrimService,
+        private readonly minioService: MinioService,
         @InjectRepository(ScrimMeta) private readonly scrimMetaRepo: Repository<ScrimMeta>,
         @InjectRepository(MatchParent) private readonly matchParentRepo: Repository<MatchParent>,
         @InjectRepository(Match) private readonly matchRepo: Repository<Match>,
@@ -40,6 +45,11 @@ export class ReplaySubmissionService {
     async getRatifiers(submissionId: string): Promise<ReplaySubmission["ratifiers"]> {
         const key = this.buildKey(submissionId);
         return this.redisService.getJson(key, "ratifiers");
+    }
+
+    async getItems(submissionId: string): Promise<ReplaySubmission["items"]> {
+        const key = this.buildKey(submissionId);
+        return this.redisService.getJson(key, "items");
     }
 
     async isRatified(submissionId: string): Promise<boolean> {
@@ -88,9 +98,10 @@ export class ReplaySubmissionService {
         const commonFields: BaseReplaySubmission = {
             creatorId: playerId,
             taskIds: [],
-            objects: [],
+            items: [],
             validated: false,
             ratifiers: [],
+            stats: undefined,
             requiredRatifications: 1, // TODO configurable by organization (1, majority, unanimous)
         };
         let submission: ReplaySubmission;
@@ -134,6 +145,11 @@ export class ReplaySubmissionService {
             const scrim = scrimRes.data;
             if (!scrim) throw new Error(`Unable to end submission, could not find a scrim associated with submissionId=${submissionId}`);
 
+            // Save stats on submission for ratification
+            const stats = await this.calculateStats(submissionId);
+            await this.setStats(submissionId, stats);
+
+            // Move scrim to RATIFYING
             await this.scrimService.endScrim(player, scrim.id);
         } else if (isMatch) {
             throw new Error("Ending submissions for matches is not yet supported");
@@ -218,14 +234,9 @@ export class ReplaySubmissionService {
         }
     }
 
-    async addTaskId(submissionId: string, taskId: string): Promise<void> {
+    async addItem(submissionId: string, item: ReplaySubmissionItem): Promise<void> {
         const key = this.buildKey(submissionId);
-        await this.redisService.appendToJsonArray(key, "taskIds", taskId);
-    }
-
-    async addObject(submissionId: string, object: string): Promise<void> {
-        const key = this.buildKey(submissionId);
-        await this.redisService.appendToJsonArray(key, "objects", object);
+        await this.redisService.appendToJsonArray(key, "items", item);
     }
 
     async addRatifier(submissionId: string, playerId: number): Promise<void> {
@@ -243,6 +254,11 @@ export class ReplaySubmissionService {
         await this.redisService.setJsonField(key, "validated", true);
     }
 
+    async setStats(submissionId: string, stats: ReplaySubmissionStats): Promise<void> {
+        const key = this.buildKey(submissionId);
+        await this.redisService.setJsonField(key, "stats", stats);
+    }
+
     private buildKey(submissionId: string): string {
         return `${config.redis.prefix}:${REPLAY_SUBMISSION_PREFIX}:${submissionId}`;
     }
@@ -253,5 +269,59 @@ export class ReplaySubmissionService {
 
     private isMatchSubmission(submissionId: string): boolean {
         return Boolean(submissionId.startsWith("match-"));
+    }
+
+    private async calculateStats(submissionId: string): Promise<ReplaySubmissionStats> {
+        // Get stats from Minio
+        const items = await this.getItems(submissionId);
+        if (!items.every(item => Boolean(item.outputPath))) {
+            throw new Error(`Submission ${submissionId} has incomplete stats due to item with a missing outputPath`);
+        }
+
+        const promises = items.map(async item => {
+            const outputPath = item.outputPath!; // Must exist because of our .every check above
+            const stream = await this.minioService.get(config.minio.bucketNames.replays, outputPath);
+            const b = await read(stream);
+            return JSON.parse(b.toString()) as ParsedReplay;
+        });
+        const rawStats = await Promise.all(promises);
+
+        return this.convertStats(rawStats);
+    }
+
+    private convertStats(rawStats: ParsedReplay[]): ReplaySubmissionStats {
+        // TODO in the future, we will be able to translate the ballchasing player to a Sprocket member
+        // in the validation step. Since we don't have that, for now we will just use the names from
+        // the replays directly
+        const out: ReplaySubmissionStats = {
+            games: [],
+        };
+
+        for (const raw of rawStats) {
+            const {parser, data} = raw;
+            switch (parser) {
+                case Parser.BALLCHASING: {
+                    // teams = [blue, orange]
+                    const blueWon = data.blue.stats.core.goals > data.orange.stats.core.goals;
+                    const teams = [
+                        {
+                            won: blueWon,
+                            players: data.blue.players.map(p => p.name),
+                        },
+                        {
+                            won: !blueWon,
+                            players: data.orange.players.map(p => p.name),
+                        },
+                    ];
+                    out.games.push({teams});
+                    break;
+                }
+                case Parser.CARBALL:
+                default:
+                    throw new Error(`Parser ${parser} is not supported!`);
+            }
+        }
+
+        return out;
     }
 }

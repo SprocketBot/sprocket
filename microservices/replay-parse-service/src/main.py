@@ -143,7 +143,11 @@ class ParseReplay(BaseTask):
         
         self.analytics.timer_split_parse()
 
-        result = { "data": parsed_data }
+        result = {
+            "parser": config["parser"],
+            "outputPath": parsed_object_path,
+            "data": parsed_data,
+        }
 
         logging.info(f"Parsing complete")
         self.publish_progress(
