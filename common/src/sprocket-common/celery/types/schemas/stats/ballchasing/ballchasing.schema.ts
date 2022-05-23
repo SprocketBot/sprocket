@@ -44,7 +44,7 @@ export const BallchasingResponseSchema = z.object({
     // Duration
     duration: z.number(),
     overtime: z.boolean(),
-    overtime_seconds: z.number(),
+    overtime_seconds: z.number().optional(),
     
     // Team stats
     team_size: z.number(),
