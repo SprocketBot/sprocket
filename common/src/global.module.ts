@@ -47,6 +47,20 @@ const client = ClientsModule.register([
             },
         },
     },
+    {
+        name: CommonClient.ImageGeneration,
+        transport: Transport.RMQ,
+        options: {
+            urls: [config.transport.url] as string[],
+            queue: config.transport.image_generation_queue,
+            queueOptions: {
+                durable: true,
+            },
+            socketOptions: {
+                heartbeat: 120,
+            },
+        },
+    }
 ]);
 
 @Global()
