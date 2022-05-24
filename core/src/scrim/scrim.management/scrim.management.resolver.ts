@@ -1,14 +1,13 @@
-import { Query } from '@nestjs/graphql';
+import { Args, Query, Int } from '@nestjs/graphql';
 import { Resolver } from '@nestjs/graphql';
-import { GameModeService } from 'src/game';
-import { ScrimService } from '..';
+import { ScrimService } from '../scrim.service';
 import { ScrimMetrics } from '../types';
+import { Scrim as IScrim } from '../types';
 
 @Resolver()
 export class ScrimManagementResolver {
     constructor(
         private readonly scrimService: ScrimService,
-        private readonly gameModeService: GameModeService,
     ) {}
     /*
         So, what we've got to do is straightforward. We create here a resolver
@@ -28,5 +27,10 @@ export class ScrimManagementResolver {
     @Query(()=> ScrimMetrics)
     async getScrimMetrics(): Promise<ScrimMetrics> {
         return this.scrimService.getScrimMetrics();
+    }
+
+    @Query(()=> [IScrim])
+    async getAllScrims(@Args('skillGroupId', {type: () => Int}) skillGroupId: number) {
+        return this.scrimService.getAllScrims(skillGroupId);
     }
 }
