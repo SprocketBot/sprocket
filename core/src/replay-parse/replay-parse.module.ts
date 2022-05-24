@@ -1,6 +1,6 @@
 import {Module} from "@nestjs/common";
 import {
-    CeleryModule, MatchmakingModule, MinioModule, RedisModule,
+    CeleryModule, EventsModule, MatchmakingModule, MinioModule, RedisModule,
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 
@@ -11,7 +11,7 @@ import {ReplayParseService} from "./replay-parse.service";
 import {ReplaySubmissionModule} from "./replay-submission";
 
 @Module({
-    imports: [CeleryModule, MinioModule, RedisModule, MatchmakingModule, ScrimModule, ReplaySubmissionModule],
+    imports: [CeleryModule, MinioModule, RedisModule, MatchmakingModule, ScrimModule, ReplaySubmissionModule, EventsModule],
     providers: [
         ReplayParseResolver,
         ReplayParseService,

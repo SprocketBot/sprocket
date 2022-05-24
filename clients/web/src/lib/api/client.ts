@@ -24,6 +24,7 @@ export function initializeClient(sessionInput: App.Session): void {
     session.subscribe(d => {
         sessionData = d;
     });
+    console.log(sessionData);
 
     const wsClient = browser
         ? new SubscriptionClient(`ws${sessionData.secure ? "s" : ""}://${sessionData.gqlUrl}/graphql`, {
@@ -72,6 +73,7 @@ export function initializeClient(sessionInput: App.Session): void {
             } return {};
         },
     });
+    console.log(client);
     if (clientAvailable) clientAvailable();
 }
 

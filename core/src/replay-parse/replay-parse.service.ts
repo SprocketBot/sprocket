@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common";
 import type {ScrimPlayer} from "@sprocketbot/common";
 import {
-    CeleryService, config,
+    CeleryService, config, EventsService, EventTopic,
     MatchmakingEndpoint, MatchmakingService,
     MinioService, ProgressStatus,
     ResponseStatus, Task,
@@ -26,6 +26,7 @@ export class ReplayParseService {
         private readonly minioService: MinioService,
         private readonly matchmakingService: MatchmakingService,
         private readonly submissionService: ReplaySubmissionService,
+        private readonly eventsService: EventsService,
         @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
     ) {}
 
@@ -115,6 +116,8 @@ export class ReplayParseService {
 
         // Wait for all tasks to be started
         await Promise.all(promises);
+
+        await this.eventsService.publish(EventTopic.SubmissionStarted, { submissionId: submissionId })
 
         // Return taskIds, directly correspond to the files that were uploaded
         return taskIds;

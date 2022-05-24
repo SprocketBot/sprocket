@@ -24,5 +24,5 @@ export const joinScrimMutation = async (vars: JoinScrimVars): Promise<JoinScrimR
         currentScrim.invalidate();
         return r.data;
     }
-    throw r.error;
+    throw r.error as Error;
 };

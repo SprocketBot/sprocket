@@ -16,6 +16,6 @@ const mutationString = gql`
 export const checkInMutation = async (vars: CheckInVariables): Promise<CheckInResponse> => {
     const r = await client.mutation<CheckInResponse, CheckInVariables>(mutationString, vars).toPromise();
     if (r.data) return r.data;
-    throw r.error;
+    throw r.error as Error;
 };
 

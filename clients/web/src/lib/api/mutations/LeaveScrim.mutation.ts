@@ -18,5 +18,5 @@ export const leaveScrimMutation = async (vars: LeaveScrimVars): Promise<LeaveScr
         currentScrim.invalidate();
         return r.data;
     }
-    throw r.error;
+    throw r.error as Error;
 };

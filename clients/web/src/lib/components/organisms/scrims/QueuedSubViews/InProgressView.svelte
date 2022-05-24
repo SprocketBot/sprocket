@@ -1,17 +1,18 @@
 <script lang="ts">
     import type {CurrentScrim} from "$lib/api";
-    import Portal from "$lib/components/abstract/Portal.svelte";
     import SubmitReplaysModal from "../modals/SubmitReplaysModal.svelte";
+    import UploadReplaysModal from "../modals/UploadReplaysModal.svelte";
 
     export let scrim: CurrentScrim;
 
     let submitting: boolean = false;
+    let uploading: boolean = false;
 </script>
 
 
 <h2 class="mb-4">Time to Play!</h2>
 <p class="text-accent font-bold tracking-wider">Don't forget to save replays!</p>
-<table class="table">
+<table class="table w-full">
     <thead>
         <tr>
             <th/>
@@ -34,13 +35,17 @@
     {/each}
 </table>
 
+<button on:click={() => { uploading = true }}>
+    Upload Replays
+</button>
+
 <button on:click={() => { submitting = true }}>
     Submit Replays
 </button>
 
-<Portal>
-    <SubmitReplaysModal bind:visible={submitting} submissionId={scrim.submissionId}/>
-</Portal>
+<UploadReplaysModal bind:visible={uploading} submissionId={scrim.submissionId}/>
+<SubmitReplaysModal bind:visible={submitting} submissionId={scrim.submissionId}/>
+
 
 <style lang="postcss">
     h2 {

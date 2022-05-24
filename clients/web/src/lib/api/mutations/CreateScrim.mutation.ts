@@ -41,5 +41,5 @@ export const createScrimMutation = async (vars: CreateScrimVariables): Promise<C
         currentScrim.invalidate();
         return r.data;
     }
-    throw r.error;
+    throw r.error as Error;
 };

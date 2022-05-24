@@ -3,6 +3,7 @@ import {z} from "zod";
 import {ScrimMetricsSchema, ScrimSchema} from "../matchmaking";
 
 export enum EventTopic {
+    // Scrims
     AllScrimEvents = "scrim.*",
     ScrimComplete = "scrim.complete",
     ScrimPopped = "scrim.popped",
@@ -12,6 +13,9 @@ export enum EventTopic {
     ScrimStarted = "scrim.started",
     ScrimCancelled = "scrim.cancelled",
     ScrimMetricsUpdate = "scrim.metricsUpdate",
+
+    // Submissions
+    SubmissionStarted = "submission.started"
 }
 
 
@@ -37,6 +41,7 @@ export const EventSchemas = {
         ScrimMetricsSchema,
     ]),
     [EventTopic.ScrimMetricsUpdate]: ScrimMetricsSchema,
+    [EventTopic.SubmissionStarted]: z.object({ submissionId: z.string()})
 };
 
 export type EventPayload<T extends EventTopic> = z.infer<typeof EventSchemas[T]>;
