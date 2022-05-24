@@ -1,4 +1,4 @@
-import { Args, Query, Int } from '@nestjs/graphql';
+import { Args, Query, Int, Mutation } from '@nestjs/graphql';
 import { Resolver } from '@nestjs/graphql';
 import { ScrimService } from '../scrim.service';
 import { ScrimMetrics } from '../types';
@@ -18,7 +18,7 @@ export class ScrimManagementResolver {
         - Force ratification of the scrim
         - Ban a player from queueing (and consequently unban them)
         - Ban a player from rejecting ratifications
-        - Show/view all scrims in progress
+        - Show/view all scrims in progress DONE
         - Cancel a scrim
         - Change the state of a specific scrim
 
@@ -30,7 +30,12 @@ export class ScrimManagementResolver {
     }
 
     @Query(()=> [IScrim])
-    async getAllScrims(@Args('skillGroupId', {type: () => Int}) skillGroupId: number) {
+    async getAllScrims(@Args('skillGroupId', {type: () => Int, nullable: true, defaultValue: 0}) skillGroupId: number) {
         return this.scrimService.getAllScrims(skillGroupId);
+    }
+
+    @Mutation(()=> IScrim)
+    async cancelScrim(@Args('scrimId', {type: ()=> String}) scrimId: string) {
+        return this.scrimService.cancelScrim(scrimId);
     }
 }
