@@ -1,7 +1,6 @@
 import { Args, Query, Int, Mutation } from '@nestjs/graphql';
 import { Resolver } from '@nestjs/graphql';
 import { ScrimService } from '../scrim.service';
-import { ScrimMetrics } from '../types';
 import { Scrim as IScrim } from '../types';
 
 @Resolver()
@@ -32,4 +31,5 @@ export class ScrimManagementResolver {
     async cancelScrim(@Args('scrimId', {type: ()=> String}) scrimId: string) {
         return this.scrimService.cancelScrim(scrimId);
     }
+
 }
