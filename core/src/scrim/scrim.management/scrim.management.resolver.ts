@@ -15,6 +15,8 @@ export class ScrimManagementResolver {
 
         - Upload replays for a player/scrim - This flow already exists, has to
           plug in to the replay-parse service
+            - See UploadReplays.mutation.ts in web, and the
+              replay-parse.resolver.ts in replay service.
         - Force ratification of the scrim - Still waiting on this
           service/feature to hit dev
         - Ban a player from queueing (and consequently unban them) DONE [in member-restriction.resolver.ts]
