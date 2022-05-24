@@ -16,7 +16,7 @@ export class ScrimManagementResolver {
         - Upload replays for a player/scrim
         - Force ratification of the scrim
         - Ban a player from queueing (and consequently unban them) DONE [in member-restriction.resolver.ts]
-        - Ban a player from rejecting ratifications
+        - Ban a player from rejecting ratifications DONE
         - Show/view all scrims in progress DONE
         - Cancel a scrim DONE
         - Change the state of a specific scrim
