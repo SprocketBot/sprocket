@@ -19,7 +19,8 @@ export class ScrimManagementResolver {
         - Ban a player from rejecting ratifications DONE
         - Show/view all scrims in progress DONE
         - Cancel a scrim DONE
-        - Change the state of a specific scrim
+        - Change state of a specific scrim
+            - i.e. locking a scrim
 
      */
     @Query(()=> [IScrim])
