@@ -10,6 +10,7 @@
         DashboardNumberCard,
         QueuedView,
     } from "$lib/components";
+import DashboardHeader from "../../lib/components/molecules/dashboard/DashboardHeader.svelte";
 
     let metrics: MetricsResult["metrics"];
     $: metrics = $scrimMetrics.data?.metrics;
@@ -36,26 +37,13 @@
 </script>
 
 <DashboardLayout>
-    <DashboardCard class="col-span-6 xl:col-span-5 row-span-3">
-        {#if $currentScrim.fetching}
-            Loading...
-        {:else if $currentScrim.data?.currentScrim}
-            <QueuedView/>
-        {:else}
-            <AvailableScrimsView/>
-        {/if}
+    <DashboardCard class="col-span-6 xl:col-span-2 row-span-1">
+        HAI
     </DashboardCard>
-    <DashboardNumberCard title="Scrims in the last hour"
-                         value={metrics?.completedScrims ?? 0}
-                         description="{Math.abs(activityChange)}% {activityChange > 0 ? 'up' : 'down'}"
-    />
-    <DashboardNumberCard title="Pending Scrims"
-                         value={metrics?.pendingScrims ?? 0}
-    />
-    <DashboardNumberCard title="Active Players"
-                         value={metrics?.totalPlayers ?? 0}
-    />
-
+    <DashboardCard class="col-span-3 xl:col-span-3" title="Uhhh is this thing on?">
+        This is the new Sprocket scrim management interface. I don't know whatd
+        I'm doing but they tell me that's ok. 
+    </DashboardCard>
 </DashboardLayout>
 
 <style lang="postcss">
