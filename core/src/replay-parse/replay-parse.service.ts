@@ -104,7 +104,7 @@ export class ReplayParseService {
 
                     // Handle completion of tasks
                     if (allTasksStarted && allTasksDone) {
-                        await this.onSubmissionCompletion(tasks, submissionId, player);
+                        await this.onParseCompletion(tasks, submissionId, player);
                     }
                 },
             });
@@ -120,7 +120,7 @@ export class ReplayParseService {
         return taskIds;
     }
 
-    private async onSubmissionCompletion(tasks: ParseReplaysTasks, submissionId: string, player: ScrimPlayer): Promise<void> {
+    private async onParseCompletion(tasks: ParseReplaysTasks, submissionId: string, player: ScrimPlayer): Promise<void> {
         this.logger.debug(`Replay parse tasks complete, submissionId=${submissionId} playerId=${player.id}`);
 
         // Make sure all tasks completed successfully
@@ -145,6 +145,9 @@ export class ReplayParseService {
         // Passed validation, set validated=true
         this.logger.debug(`Submission passed validation submissionId=${submissionId}`);
         await this.submissionService.setValidatedTrue(submissionId);
+
+        // End submission so that players can ratify the submission
+        await this.submissionService.endSubmission(submissionId, player);
 
         // Without this ESLint complains about consistent-return
         return undefined;

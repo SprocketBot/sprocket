@@ -4,10 +4,11 @@ import * as sharp from "sharp";
 
 import {
     dataForLinkType,
-    DataLeaf, DataStructure,     Dimension, ImageTransformationsOptions,
+    Dimension, ImageTransformationsOptions,
     SprocketData, TextTransformationOptions,
 } from "../types";
 import {sprocketDataSchema} from "../types";
+import { DataLeaf, TemplateStructure } from "@sprocketbot/common";
 
 @Injectable()
 export class SvgTransformationService {
@@ -138,7 +139,6 @@ export class SvgTransformationService {
         
         let newtext = value;
         const truncate = options["truncate-to"]
-        console.log(truncate)
         if (truncate && truncate !== 'as-is') {
             newtext = newtext.slice(0,truncate)
         }
@@ -229,9 +229,9 @@ export class SvgTransformationService {
         }
     }
 
-    extractDataFromStructure(key: string, data: DataStructure): DataLeaf | false {
+    extractDataFromStructure(key: string, data: TemplateStructure): DataLeaf | false {
         // eslint-disable-next-line
-        let val: DataStructure | DataLeaf = data;
+        let val: TemplateStructure | DataLeaf = data;
         const segments = key.split(".");
         for (const segment of segments) {
             // eslint-disable-next-line
@@ -246,7 +246,7 @@ export class SvgTransformationService {
         return val;
     }
     
-    async transformElement(el: Element, data: DataStructure): Promise<void> {
+    async transformElement(el: Element, data: TemplateStructure): Promise<void> {
         const rawTransformations = JSON.parse((el as SVGElement).dataset.sprocket ?? "") as SprocketData[];
         const transformations = sprocketDataSchema.parse(rawTransformations);
         

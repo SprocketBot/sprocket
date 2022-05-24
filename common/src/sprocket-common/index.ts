@@ -3,6 +3,7 @@ export * from "./bot";
 export * from "./caching";
 export * from "./celery";
 export * from "./events";
+export * from "./image-generation";
 export * from "./gql";
 export * from "./matchmaking";
 export * from "./minio";

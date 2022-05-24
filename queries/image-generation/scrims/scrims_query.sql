@@ -1,10 +1,7 @@
-
-
-WITH
-
+WITH 
 vars AS (SELECT 
-		 	:scrim_id::numeric AS scrim_id,
-			:org_id::numeric AS org_id
+		 	$1::numeric AS scrim_id,
+			$2::numeric AS org_id
 		),
 
 colors AS (
@@ -141,7 +138,7 @@ player_stats AS (
 		INNER JOIN records re
 		ON gs.player_name = re.player_name
 		GROUP BY gs.player_name, re.wins, re.losses
-		ORDER BY rating DESC
+		ORDER BY wins DESC, rating DESC
 	)
 	SELECT 
 		t.name,
@@ -253,13 +250,12 @@ games_data AS(
 		JOIN player_stats ps ON gs.player_name = ps.name
 		UNION ALL
 		SELECT * from empty_player_game_data
-		ORDER BY replay_id, player_team_color, player DESC
-		
 	),
 	complete_player_data AS(
 		SELECT *, 
 		ROW_NUMBER() OVER (PARTITION BY cpd.replay_id, cpd.player_team_color ORDER BY cpd.score DESC) AS n 
 		FROM player_game_data cpd
+		ORDER BY replay_id, player_team_color DESC, player->>'value' DESC
 	),
 	team_replay_data AS(
 		SELECT 
@@ -359,6 +355,5 @@ full_object AS (
 		(SELECT json_agg(games_data.game) FROM games_data) as games_data
 	FROM game_object
 )
-
 
 SELECT row_to_json(full_object.*) AS data FROM full_object
