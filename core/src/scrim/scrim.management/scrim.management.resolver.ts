@@ -16,19 +16,13 @@ export class ScrimManagementResolver {
 
         - Upload replays for a player/scrim
         - Force ratification of the scrim
-        - Ban a player from queueing (and consequently unban them)
+        - Ban a player from queueing (and consequently unban them) DONE [in member-restriction.resolver.ts]
         - Ban a player from rejecting ratifications
         - Show/view all scrims in progress DONE
-        - Cancel a scrim
+        - Cancel a scrim DONE
         - Change the state of a specific scrim
 
      */
-
-    @Query(()=> ScrimMetrics)
-    async getScrimMetrics(): Promise<ScrimMetrics> {
-        return this.scrimService.getScrimMetrics();
-    }
-
     @Query(()=> [IScrim])
     async getAllScrims(@Args('skillGroupId', {type: () => Int, nullable: true, defaultValue: 0}) skillGroupId: number) {
         return this.scrimService.getAllScrims(skillGroupId);
