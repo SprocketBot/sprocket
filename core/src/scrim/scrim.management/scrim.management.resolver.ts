@@ -13,18 +13,22 @@ export class ScrimManagementResolver {
         that lets our bot team (scrim admins) perform the actions they already
         do on behalf of players for scrim management reasons:
 
-        - Upload replays for a player/scrim
-        - Force ratification of the scrim
+        - Upload replays for a player/scrim - This flow already exists, has to
+          plug in to the replay-parse service
+        - Force ratification of the scrim - Still waiting on this
+          service/feature to hit dev
         - Ban a player from queueing (and consequently unban them) DONE [in member-restriction.resolver.ts]
         - Ban a player from rejecting ratifications DONE
         - Show/view all scrims in progress DONE
         - Cancel a scrim DONE
         - Change state of a specific scrim
             - i.e. locking a scrim
+            - This one will require changes to the matchmaking microservice.
+              Delaying for now because there's some design involved. 
 
      */
     @Query(()=> [IScrim])
-    async getAllScrims(@Args('skillGroupId', {type: () => Int, nullable: true, defaultValue: 0}) skillGroupId: number) {
+    async getScrimsView(@Args('skillGroupId', {type: () => Int, nullable: true, defaultValue: 0}) skillGroupId: number) {
         return this.scrimService.getAllScrims(skillGroupId);
     }
 
