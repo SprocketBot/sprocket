@@ -1,6 +1,6 @@
 import {UseGuards} from "@nestjs/common";
 import {
-    Args, Mutation, Resolver,
+    Args, Mutation, Query, Resolver,
 } from "@nestjs/graphql";
 
 import {CurrentUser} from "../../identity/auth/current-user.decorator";
@@ -12,6 +12,16 @@ import {ReplaySubmissionService} from "./replay-submission.service";
 @UseGuards(GqlJwtGuard)
 export class ReplaySubmissionResolver {
     constructor(private readonly service: ReplaySubmissionService) {}
+
+    @Query(() => [String])
+    async getSubmissionTasks(
+        @CurrentUser() user: UserPayload,
+        @Args("submissionId") submissionId: string,
+    ): Promise<String[]> {
+        const submission = await this.service.getSubmission(submissionId)
+
+        return submission.taskIds
+    }
 
     @Mutation(() => Boolean)
     async ratifySubmission(

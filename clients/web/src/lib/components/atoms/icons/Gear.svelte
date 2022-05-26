@@ -1,4 +1,4 @@
-<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" class="h-16" viewBox="0 0 807 807"
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" class="h-full" viewBox="0 0 807 807"
      style="enable-background:new 0 0 807 807;" xml:space="preserve">
           <path fill="currentColor" d="M60.6,475.5c-1-42.8-1.9-85.5-2.9-128.5c5.4-1.1,10.3-2.2,15.2-3.2c22-4.6,44-9.3,66.1-13.8
 				c1.9-0.4,2.9-1.2,3.5-3.1c4.3-15.4,10.1-30.2,17.1-44.5c1.3-2.6,0.8-4.3-0.7-6.4c-9.1-12.5-18.1-25-27.1-37.5

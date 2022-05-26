@@ -1,9 +1,11 @@
 <script lang="ts">
     import {createEventDispatcher} from "svelte";
     import IoMdClose from "svelte-icons/io/IoMdClose.svelte";
+    import {Spinner} from "$lib/components"
 
     export let filename: string;
     export let canRemove: boolean;
+    export let loading: boolean = false;
 
     const dispatch = createEventDispatcher();
 </script>
@@ -13,9 +15,16 @@
         {#if filename}
             <span class="filename">{filename}</span>
         {/if}
+        {#if loading}
+            <span class="h-8">
+                <Spinner/>
+            </span>
+        {/if}
     </div>
     <button on:click={() => dispatch("remove")} disabled={!canRemove}>
-        <div class="icon"><IoMdClose /></div>
+        <div class="icon">
+            <IoMdClose/>
+        </div>
         <span class="sr-only">Remove</span>
     </button>
 </div>
@@ -28,15 +37,24 @@
         rounded-lg bg-base-200/50 shadow-md;
     }
 
-    .upload { @apply flex flex-col items-start flex-grow flex-shrink overflow-hidden; }
+    .upload {
+        @apply flex items-start flex-grow flex-shrink;
+    }
 
-    .filename { @apply overflow-hidden text-ellipsis mb-1 w-full; }
+    .filename {
+        @apply overflow-hidden text-ellipsis mb-1 w-full;
+    }
 
     progress {
         @apply progress progress-primary bg-base-100 h-4;
 
-        &.complete { @apply progress-success; }
-        &.error { @apply progress-error; }
+        &.complete {
+            @apply progress-success;
+        }
+
+        &.error {
+            @apply progress-error;
+        }
     }
 
     button {

@@ -1,26 +1,42 @@
 <script lang="ts">
     import {
-        FileBlock, FileInput, Modal,
+        FileBlock, FileInput, Modal, toasts,
     } from "$lib/components";
     import {fade} from "svelte/transition";
     import {uploadReplaysMutation} from "$lib/api/mutations/UploadReplays.mutation";
     import type {FileUpload} from "graphql-upload";
+    import type {CombinedError} from "@urql/core";
 
     export let visible: boolean = true;
     export let submissionId: string | undefined;
 
     let rawFiles: FileList;
     let files: File[] = [];
+    let submitting: boolean = false;
+
     $: files = [...files, ...Array.from(rawFiles ?? [])].reduce<File[]>((acc: File[], v: File) => {
         if (!acc.some(c => c.name === v.name)) acc.push(v);
         return acc;
     }, []);
+
     async function handleSubmit() {
         if (!files.length) return;
-        await uploadReplaysMutation({
-            files: files as FileUpload[],
-            submissionId: submissionId,
-        });
+        submitting = true;
+        try {
+            await uploadReplaysMutation({
+                files: files as FileUpload[],
+                submissionId: submissionId,
+            });
+        } catch (_e) {
+            const e = _e as CombinedError;
+            e.graphQLErrors.forEach(gqlError => {
+                toasts.pushToast({
+                    status: "info",
+                    content: gqlError.message,
+                });
+            });
+            submitting = false;
+        }
     }
 </script>
 
@@ -29,7 +45,7 @@
         {#if files}
             {#each files as file}
                 <div out:fade={{duration: 250}}>
-                    <FileBlock filename={file.name} canRemove
+                    <FileBlock filename={file.name} canRemove loading={submitting}
                                on:remove={() => { files = files.filter(f => f.name !== file.name) }}
                     />
                 </div>

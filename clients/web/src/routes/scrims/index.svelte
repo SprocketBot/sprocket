@@ -39,7 +39,9 @@
 <DashboardLayout>
     <DashboardCard class="col-span-6 xl:col-span-5 row-span-3">
         {#if $currentScrim.fetching}
-            <Spinner class="h-full w-full"/>
+            <div class="h-full w-full flex items-center justify-center">
+                <Spinner class="h-16 w-full"/>
+            </div>
         {:else if $currentScrim.data?.currentScrim}
             <QueuedView/>
         {:else}

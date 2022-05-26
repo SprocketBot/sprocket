@@ -6,10 +6,10 @@
 </script>
 
 
-<div class="flex gap-2 {_class ?? ''} justify-center items-center text-primary">
-    <span><Gear/></span>
-    <span><Gear/></span>
-    <span><Gear/></span>
+<div class="flex gap-2 {_class ?? ''} justify-center items-center text-primary h-full">
+    <span class="h-full"><Gear/></span>
+    <span class="h-full"><Gear/></span>
+    <span class="h-full"><Gear/></span>
 </div>
 
 
@@ -17,18 +17,18 @@
     @keyframes bounce {
         0%   { transform: scale(1,1)      translateY(0)      rotate(0); }
         10%  { transform: scale(1.1,.9)   translateY(0)      rotate(36deg); }
-        30%  { transform: scale(.9,1.1)   translateY(-50px)  rotate(108deg); }
+        30%  { transform: scale(.9,1.1)   translateY(-100%)  rotate(108deg); }
         50%  { transform: scale(1.05,.95) translateY(0)      rotate(180deg); }
-        57%  { transform: scale(1,1)      translateY(-7px)   rotate(205deg); }
+        57%  { transform: scale(1,1)      translateY(-10%)   rotate(205deg); }
         64%  { transform: scale(1,1)      translateY(0)      rotate(230deg); }
         100% { transform: scale(1,1)      translateY(0)      rotate(360deg); }
     }
     @keyframes bounce-alt {
         0%   { transform: scale(1,1)      translateY(0)      rotate(0); }
         10%  { transform: scale(1.1,.9)   translateY(0)      rotate(-36deg); }
-        30%  { transform: scale(.9,1.1)   translateY(-50px)  rotate(-108deg); }
+        30%  { transform: scale(.9,1.1)   translateY(-100%)  rotate(-108deg); }
         50%  { transform: scale(1.05,.95) translateY(0)      rotate(-180deg); }
-        57%  { transform: scale(1,1)      translateY(-7px)   rotate(-205deg); }
+        57%  { transform: scale(1,1)      translateY(-10%)   rotate(-205deg); }
         64%  { transform: scale(1,1)      translateY(0)      rotate(-230deg); }
         100% { transform: scale(1,1)      translateY(0)      rotate(-360deg); }
     }
