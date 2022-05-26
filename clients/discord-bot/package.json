@@ -9,7 +9,7 @@
     "debug": "nest start --watch --debug",
     "test": "NODE_ENV=test jest --coverage",
     "test:watch": "NODE_ENV=test jest --watch",
-    "lint": "eslint"
+    "lint": "eslint src --fix"
   },
   "repository": {
     "type": "git",
@@ -31,6 +31,7 @@
     "config": "^3.3.6",
     "discord-api-types": "^0.25.2",
     "discord.js": "13.1.0",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
     "jest": "^27.0.4",
     "jest-junit": "^12.2.0",
     "reflect-metadata": "^0.1.13",

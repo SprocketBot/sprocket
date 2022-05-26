@@ -10,7 +10,11 @@ import type {
     Task, TaskArgs,
     TaskResult,
 } from "./types";
-import {CELERY_TASK_REDIS_RESULT_PREFIX, taskNames} from "./types";
+import {
+    CELERY_TASK_REDIS_RESULT_PREFIX,
+    taskNames,
+    TaskSchemas,
+} from "./types";
 
 @Injectable()
 export class CeleryService {
@@ -50,7 +54,8 @@ export class CeleryService {
         const asyncResult = t.applyAsync([], args);
         this.logger.debug(`Running celery task synchronously name=${name} taskId=${asyncResult.taskId}`);
 
-        const result = await asyncResult.get() as TaskResult<T>; // TODO Zod parsing?
+        const r = await asyncResult.get() as TaskResult<T>;
+        const result = this.parseResult(task, r);
         this.logger.debug(`Celery task completed synchronously name=${name} taskId=${asyncResult.taskId}`);
         // this.logger.verbose(`Celery task completed synchronously name=${name} taskId=${asyncResult.taskId} result=${JSON.stringify(result)}`);
 
@@ -79,7 +84,8 @@ export class CeleryService {
 
         if (opts?.cb) {
             asyncResult.get()
-                .then((result: TaskResult<T>) => {
+                .then((r: unknown) => {
+                    const result = this.parseResult(task, r);
                     const p = opts.cb!(taskId, result, null);
                     if (p instanceof Promise) p.catch(err => { this.logger.error(`Celery task callback failed name=${name} taskId=${taskId}`, err) });
                 })
@@ -93,6 +99,17 @@ export class CeleryService {
         }
 
         return taskId;
+    }
+
+    parseResult<T extends Task>(task: T, result: unknown): TaskResult<T> {
+        const parseResult = TaskSchemas[task].result.safeParse(result);
+        if (parseResult.success) {
+            return parseResult.data;
+        }
+        this.logger.warn(`Task ${task} result failed schema validation, ${parseResult.error}`);
+        // TODO have better error handling on results that don't match the schema
+        return result as TaskResult<T>;
+        
     }
 
     /**

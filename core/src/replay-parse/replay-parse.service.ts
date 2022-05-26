@@ -84,16 +84,19 @@ export class ReplayParseService {
             const taskId = await this.celeryService.run(Task.ParseReplay, {replayObjectPath}, {
                 progressQueue: submissionId,
                 cb: async (_taskId, result, error) => {
-                    // Add taskId and objectPath to submission in redis
-                    await this.submissionService.addTaskId(submissionId, _taskId);
-                    await this.submissionService.addObject(submissionId, replayObjectPath);
-
                     // When replay is finished parsing, update status
                     this.logger.debug(`Task completed taskId=${_taskId} result=${Boolean(result)} error=${error}`);
                     let status: ProgressStatus;
                     if (error) status = ProgressStatus.Error;
                     else if (result) status = ProgressStatus.Complete;
                     else throw new Error(`Task completed with neither result nor error, taskId=${_taskId}`);
+
+                    // Save information about parsed replay on the submission
+                    await this.submissionService.addItem(submissionId, {
+                        taskId: _taskId,
+                        inputPath: replayObjectPath,
+                        outputPath: result?.outputPath,
+                    });
 
                     tasks[_taskId] = {
                         status, result, error,
@@ -117,7 +120,7 @@ export class ReplayParseService {
         // Wait for all tasks to be started
         await Promise.all(promises);
 
-        await this.eventsService.publish(EventTopic.SubmissionStarted, { submissionId: submissionId })
+        await this.eventsService.publish(EventTopic.SubmissionStarted, {submissionId: submissionId});
 
         // Return taskIds, directly correspond to the files that were uploaded
         return taskIds;
