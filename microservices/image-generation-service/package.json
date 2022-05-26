@@ -9,7 +9,7 @@
     "debug": "nest start --watch --debug",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
-    "lint": "eslint",
+    "lint": "eslint src --fix",
     "start:proto": "ts-node src/prototype.ts"
   },
   "repository": {
@@ -35,6 +35,7 @@
     "amqplib": "^0.8.0",
     "axios": "^0.21.2",
     "config": "^3.3.6",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
     "jest": "^27.0.4",
     "jest-junit": "^12.2.0",
     "jsdom": "^16.6.0",
