@@ -2,12 +2,10 @@ import {
     Field, ObjectType, registerEnumType,
 } from "@nestjs/graphql";
 import type {
-    ProgressMessage,
-    Task, TaskResult,
+    ProgressMessage, Task, TaskResult,
 } from "@sprocketbot/common";
 import {
-    BallchasingResponse,     Parser,
-    Progress as IProgress, ProgressStatus,
+    BallchasingResponse, Parser, Progress as IProgress, ProgressStatus,
 } from "@sprocketbot/common";
 import GraphQLJSON from "graphql-type-json";
 
