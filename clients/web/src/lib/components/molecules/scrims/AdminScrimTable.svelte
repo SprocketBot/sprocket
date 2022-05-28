@@ -1,18 +1,28 @@
 <script lang="ts">
-    import {CreateScrimModal, JoinScrimModal} from "$lib/components";
+    import {ScrimManagementModal} from "$lib/components";
     import {screamingSnakeToHuman} from "$lib/utils";
 
-    export let adminScrimList;
+    /*
+    This will be the table that shows in ScrimManagementModal (Currently Named Modal
+    but I have since realized that it not the greatest)
 
-    let createModalVisible = false;
-    let joinModalVisible = false;
-    let targetId;
+    TODO: Populate all scrims list
+    TODO: Create/Implement Search
+    TODO: Figure out Visibility status pattern from CreateScrimModal and Scrim Table
+
+     */
+
+    export let scrims;
+
+    let visible = false;
+
+    let scrimManagement
 
     const openCreateScrimModal = () => {
         createModalVisible = true;
     };
-    const openJoinScrimModal = scrimId => {
-        joinModalVisible = true;
+    const openScrimManagementModal = scrimId => {
+        scrimManagementModalVisible = true;
         targetId = scrimId;
     };
 </script>
@@ -40,7 +50,7 @@
             <td>{scrim.playerCount} / {scrim.maxPlayers}</td>
             <td>{scrim.settings.competitive ? "Competitive" : "Casual"}</td>
             <td>
-                <button on:click={() => { openJoinScrimModal(scrim.id) }} class="btn btn-outline float-right lg:btn-sm">
+                <button on:click={() => { openScrimManagementModal(scrim.id) }} class="btn btn-outline float-right lg:btn-sm">
                     Join
                 </button>
             </td

@@ -1,7 +1,5 @@
 <script lang="ts">
-    import {currentScrim} from "$lib/api";
-    import type {MetricsResult} from "$lib/api/queries/ScrimMetrics.store";
-    import {scrimMetrics} from "$lib/api/queries/ScrimMetrics.store";
+    import {AvailableScrimsView} from "$lib/components";
 
     import {
         AvailableAdminView,
@@ -21,8 +19,8 @@ import DashboardHeader from "../../lib/components/molecules/dashboard/DashboardH
         <AvailableAdminView/>
     </DashboardCard>
     <DashboardCard class="col-span-3 xl:col-span-3" title="Uhhh is this thing on?">
-        This is the new Sprocket scrim management interface. I don't know whatd
-        I'm doing but they tell me that's ok. 
+        {#if adminScrim}
+
     </DashboardCard>
 
 </DashboardLayout>

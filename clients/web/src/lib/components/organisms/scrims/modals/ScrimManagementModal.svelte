@@ -1,4 +1,8 @@
 <script lang="ts">
+    /*
+
+     */
+
     import type {GamesAndModesValue} from "$lib/api";
     import {createScrimMutation} from "$lib/api";
     import {gamesAndModes} from "$lib/api/queries/GamesAndModes.store";

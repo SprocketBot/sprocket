@@ -7,7 +7,7 @@
     export let adminScrimsInView = [];
 
     const handleScrimManagementBtn = () => {
-
+        adminScrimManagementVisible = true;
     };
 
     const handlePlayerManagementBtn = () => {
@@ -23,7 +23,7 @@
 
 <div class="btn-group">
 
-    <button class="btn btn-primary btn-wide " on:click={handleScrimManagementBtn}>
+    <button class="btn btn-primary btn-wide "  on:click={handleScrimManagementBtn}>
         Scrim Management
     </button>
     <button class="btn btn-primary btn-wide " on:click={handlePlayerManagementBtn}>
