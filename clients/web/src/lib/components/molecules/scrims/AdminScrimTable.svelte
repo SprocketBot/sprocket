@@ -27,37 +27,25 @@
     };
 </script>
 
-<!--<table class="table text-center w-full">-->
-<!--    <thead>-->
-<!--    <tr>-->
-<!--        <th>Scrim Type</th>-->
-<!--        <th>Game Mode</th>-->
-<!--        <th>Players</th>-->
-<!--        <th/>-->
-<!--        <th>-->
-<!--            <button class="float-right lg:btn-sm btn btn-outline btn-accent" on:click={openCreateScrimModal}>-->
-<!--                Create Scrim-->
-<!--            </button>-->
-<!--        </th>-->
-<!--        <td/>-->
-<!--    </tr>-->
-<!--    </thead>-->
-<!--    <tbody>-->
-<!--    {#each scrims as scrim (scrim.id)}-->
-<!--        <tr>-->
-<!--            <td>{screamingSnakeToHuman(scrim.settings.mode)}</td>-->
-<!--            <td>{scrim.gameMode.description}</td>-->
-<!--            <td>{scrim.playerCount} / {scrim.maxPlayers}</td>-->
-<!--            <td>{scrim.settings.competitive ? "Competitive" : "Casual"}</td>-->
-<!--            <td>-->
-<!--                <button on:click={() => { openScrimManagementModal(scrim.id) }} class="btn btn-outline float-right lg:btn-sm">-->
-<!--                    Join-->
-<!--                </button>-->
-<!--            </td>-->
-<!--        </tr>-->
-<!--    {/each}-->
-<!--    </tbody>-->
-<!--</table>-->
+<table class="table text-center w-full">
+    <thead>
+    <tr>
+        <th>Scrim Type</th>
+        <th>Game Mode</th>
+        <th>Players</th>
+        <th/>
+        <th>
+            <button class="float-right lg:btn-sm btn btn-outline btn-accent" on:click={openCreateScrimModal}>
+                Create Scrim
+            </button>
+        </th>
+        <td/>
+    </tr>
+    </thead>
+    <tbody>
+    Yo Yo Yo I Am Here
+    </tbody>
+</table>
 <!--{#if createModalVisible}-->
 <!--    <CreateScrimModal bind:visible={createModalVisible}/>-->
 <!--{/if}-->

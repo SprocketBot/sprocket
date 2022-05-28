@@ -1,16 +1,22 @@
 <script lang="ts">
-    import {AvailableScrimsView} from "$lib/components";
 
-    let adminScrimTableVisible = false;
+    /*
+    What is visible on this file is controlled from AvailableAdminView
+    Bound boolean values for visible to variables in that file
+    Dont forget dummy
+
+     */
+    let adminScrimManagementVisible = false;
+
     import {
         AvailableAdminView,
+        AdminScrimTable,
         DashboardLayout,
         DashboardCard,
         DashboardNumberCard,
         QueuedView,
     } from "$lib/components";
-import DashboardHeader from "../../lib/components/molecules/dashboard/DashboardHeader.svelte";
-    import AdminScrimTable from "../../lib/components/molecules/scrims/AdminScrimTable.svelte";
+
 
 
 
@@ -27,9 +33,12 @@ import DashboardHeader from "../../lib/components/molecules/dashboard/DashboardH
 
 </DashboardLayout>
 
-{#if adminScrimTableVisible}
-    <AdminScrimTable bind:visible={adminScrimTableVisible}/>
+{#if adminScrimManagementVisible}
+    <AdminScrimTable bind:visible={adminScrimManagementVisible}/>
 {/if}
+<!--{#if adminPlayerManagementVisible}-->
+<!--    //TODO: player management-->
+<!--{/if}-->
 
 <style lang="postcss">
 

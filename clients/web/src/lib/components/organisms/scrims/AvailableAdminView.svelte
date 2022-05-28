@@ -2,6 +2,10 @@
     import {ScrimManagementModal} from "./modals";
     import {DashboardCard} from "$lib/components";
 
+    // Is this visible?
+    export let visible = true;
+
+    //State Machine of badness
     export let adminScrimManagementVisible = false;
     export let adminPlayerManagementVisible = false;
     export let adminLeagueManagementVisible = false;
