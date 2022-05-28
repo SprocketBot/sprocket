@@ -1,5 +1,6 @@
 <script lang="ts">
     import {ScrimManagementModal} from "./modals";
+    import {DashboardCard} from "$lib/components";
 
     export let adminScrimManagementVisible = false;
     export let adminPlayerManagementVisible = false;
