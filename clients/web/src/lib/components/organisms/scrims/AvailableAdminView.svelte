@@ -12,7 +12,7 @@
     export let adminScrimsInView = [];
 
     const handleScrimManagementBtn = () => {
-        adminScrimManagementVisible = "true";
+        adminScrimManagementVisible = true;
     };
 
     const handlePlayerManagementBtn = () => {
@@ -22,6 +22,7 @@
     const handleLeagueManagementBtn = () => {
         adminLeagueManagementVisible = true;
     };
+
 </script>
 
 <h2 class="justify-center">Admin Menu</h2>
@@ -31,21 +32,19 @@
     <button class="btn btn-primary btn-wide "  on:click={handleScrimManagementBtn}>
         Scrim Management
     </button>
-    <button class="btn btn-primary btn-wide " on:click={handlePlayerManagementBtn}>
+    <button class="btn btn-secondary btn-wide " on:click={handlePlayerManagementBtn}>
         Player Management
     </button>
     <button class="btn btn-primary btn-wide " on:click={handleLeagueManagementBtn}>
         League Management
     </button>
-    <button class="btn btn-primary btn-wide ">
+    <button class="btn btn-secondary btn-wide ">
         Shuk Management
     </button>
 
 </div>
 {#if adminScrimManagementVisible}
-<DashboardCard>
-    We did it!    
-</DashboardCard>
+
 {/if}
 
 <style lang="postcss">

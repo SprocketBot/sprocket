@@ -26,7 +26,7 @@
     <DashboardCard class="col-span-6 xl:col-span-6 row-span-1">
         <AvailableAdminView bind:adminScrimManagementVisible={scrimManagementVisible}/>
     </DashboardCard>
-    <DashboardCard class="col-span-3 xl:col-span-3" title="Uhhh is this thing on?">
+    <DashboardCard class="col-span-3 xl:col-span-6" title="Uhhh is this thing on?">
         {#if scrimManagementVisible}
             <AdminScrimTable bind:visible={scrimManagementVisible}/>
         {/if}
