@@ -27,7 +27,7 @@
     };
 </script>
 
-<table class="table text-center w-full">
+<table class="table text-center w-full" >
     <thead>
     <tr>
         <th>Scrim Type</th>

@@ -34,7 +34,7 @@
     <button class="btn btn-primary btn-wide " on:click={handlePlayerManagementBtn}>
         Player Management
     </button>
-    <button class="btn btn-primary btn-wide btn-group" on:click={handleLeagueManagementBtn}>
+    <button class="btn btn-primary btn-wide " on:click={handleLeagueManagementBtn}>
         League Management
     </button>
     <button class="btn btn-primary btn-wide ">
