@@ -1,6 +1,7 @@
 <script lang="ts">
     import {AvailableScrimsView} from "$lib/components";
 
+    let adminScrimTableVisible = false;
     import {
         AvailableAdminView,
         DashboardLayout,
@@ -9,6 +10,7 @@
         QueuedView,
     } from "$lib/components";
 import DashboardHeader from "../../lib/components/molecules/dashboard/DashboardHeader.svelte";
+    import AdminScrimTable from "../../lib/components/molecules/scrims/AdminScrimTable.svelte";
 
 
 
@@ -19,11 +21,15 @@ import DashboardHeader from "../../lib/components/molecules/dashboard/DashboardH
         <AvailableAdminView/>
     </DashboardCard>
     <DashboardCard class="col-span-3 xl:col-span-3" title="Uhhh is this thing on?">
-        {#if adminScrim}
+
 
     </DashboardCard>
 
 </DashboardLayout>
+
+{#if adminScrimTableVisible}
+    <AdminScrimTable bind:visible={adminScrimTableVisible}/>
+{/if}
 
 <style lang="postcss">
 
