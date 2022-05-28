@@ -1,10 +1,10 @@
 <script lang="ts">
 
     /*
-    What is visible on this file is controlled from AvailableAdminView
-    Bound boolean values for visible to variables in that file
-    Dont forget dummy
-
+    Top Dashboard Card calls AvailableAdminView.
+    AvailableAdminView contains state mechanism that determines what is presented in lower DashboardCard
+    Example: scrimManagement Visible is bound to bool in AdminView which is updated by buttons in that component
+        When that is updated it changes the value here which is also bound to AdminScrimTable and that will appear.
      */
     let scrimManagementVisible = false;
 
