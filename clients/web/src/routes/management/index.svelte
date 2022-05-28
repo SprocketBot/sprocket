@@ -24,18 +24,16 @@
 
 <DashboardLayout>
     <DashboardCard class="col-span-6 xl:col-span-6 row-span-1">
-        <AvailableAdminView/>
+        <AvailableAdminView bind:adminScrimManagementVisible={adminScrimManagementVisible}/>
     </DashboardCard>
     <DashboardCard class="col-span-3 xl:col-span-3" title="Uhhh is this thing on?">
-
-
+        {#if adminScrimManagementVisible}
+            <AdminScrimTable bind:visible={adminScrimManagementVisible}/>
+        {/if}
     </DashboardCard>
-
 </DashboardLayout>
 
-{#if adminScrimManagementVisible}
-    <AdminScrimTable bind:visible={adminScrimManagementVisible}/>
-{/if}
+
 <!--{#if adminPlayerManagementVisible}-->
 <!--    //TODO: player management-->
 <!--{/if}-->
