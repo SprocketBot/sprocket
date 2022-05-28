@@ -3,16 +3,16 @@
     import {DashboardCard} from "$lib/components";
 
     // Is this visible?
-    export let visible = true;
+    //export let visible = true;
 
     //State Machine of badness
     export let adminScrimManagementVisible = false;
     export let adminPlayerManagementVisible = false;
     export let adminLeagueManagementVisible = false;
-    export let adminScrimsInView = [];
+    //export let adminScrimsInView = [];
 
     const handleScrimManagementBtn = () => {
-        adminScrimManagementVisible = "true";
+        adminScrimManagementVisible = true;
     };
 
     const handlePlayerManagementBtn = () => {
@@ -42,11 +42,6 @@
     </button>
 
 </div>
-{#if adminScrimManagementVisible}
-<DashboardCard>
-    We did it!    
-</DashboardCard>
-{/if}
 
 <style lang="postcss">
     h2 {

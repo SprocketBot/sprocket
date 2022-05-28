@@ -23,7 +23,7 @@
 </script>
 
 <DashboardLayout>
-    <DashboardCard class="col-span-6 xl:col-span-6 row-span-1">
+    <DashboardCard title="The buttons of administration" class="col-span-6 xl:col-span-6 row-span-1">
         <AvailableAdminView bind:adminScrimManagementVisible={scrimManagementVisible}/>
     </DashboardCard>
     <DashboardCard class="col-span-3 xl:col-span-3" title="Uhhh is this thing on?">
@@ -32,15 +32,3 @@
         {/if}
     </DashboardCard>
 </DashboardLayout>
-
-
-<!--{#if adminPlayerManagementVisible}-->
-<!--    //TODO: player management-->
-<!--{/if}-->
-
-<style lang="postcss">
-
-    h2 {
-        @apply text-4xl mb-8;
-    }
-</style>
