@@ -37,7 +37,11 @@
     </button>
 
 </div>
-
+{#if adminScrimManagementVisible}
+<DashboardCard>
+    We did it!    
+</DashboardCard>
+{/if}
 
 <style lang="postcss">
     h2 {
