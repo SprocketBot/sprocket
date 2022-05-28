@@ -1,8 +1,7 @@
 <script lang="ts">
 
-
     // Is this visible?
-    // export let visible = true;
+    export let visible = true;
 
     // State Machine of badness
     export let adminScrimManagementVisible = false;
@@ -26,7 +25,7 @@
 
 <h2 class="justify-center">Admin Menu</h2>
 
-<div class="btn-group">
+<div >
 
     <button class="btn btn-primary btn-wide "  on:click={handleScrimManagementBtn}>
         Scrim Management
@@ -43,8 +42,3 @@
 
 </div>
 
-<style lang="postcss">
-    h2 {
-        @apply text-4xl font-bold text-sprocket mb-2;
-    }
-</style>

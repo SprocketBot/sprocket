@@ -21,9 +21,16 @@
     <DashboardCard title="" class="col-span-6 xl:col-span-6 row-span-1">
         <AvailableAdminView bind:adminScrimManagementVisible={scrimManagementVisible}/>
     </DashboardCard>
-    <DashboardCard class="col-span-3 xl:col-span-6" title="">
+    <DashboardCard title="" class="col-span-3 xl:col-span-6">
         {#if scrimManagementVisible}
             <AdminScrimTable bind:visible={scrimManagementVisible}/>
         {/if}
     </DashboardCard>
 </DashboardLayout>
+
+<style lang="postcss">
+
+    h2 {
+        @apply text-4xl mb-8;
+    }
+</style>
