@@ -6,7 +6,7 @@
     Dont forget dummy
 
      */
-    let adminScrimManagementVisible = false;
+    let admin = false;
 
     import {
         AvailableAdminView,
@@ -24,11 +24,11 @@
 
 <DashboardLayout>
     <DashboardCard class="col-span-6 xl:col-span-6 row-span-1">
-        <AvailableAdminView bind:adminScrimManagementVisible={adminScrimManagementVisible}/>
+        <AvailableAdminView bind:adminScrimManagementVisible={admin}/>
     </DashboardCard>
     <DashboardCard class="col-span-3 xl:col-span-3" title="Uhhh is this thing on?">
-        {#if adminScrimManagementVisible}
-            <AdminScrimTable bind:visible={adminScrimManagementVisible}/>
+        {#if admin}
+            <AdminScrimTable bind:visible={admin}/>
         {/if}
     </DashboardCard>
 </DashboardLayout>

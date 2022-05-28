@@ -12,7 +12,7 @@
     export let adminScrimsInView = [];
 
     const handleScrimManagementBtn = () => {
-        adminScrimManagementVisible = true;
+        adminScrimManagementVisible = "true";
     };
 
     const handlePlayerManagementBtn = () => {

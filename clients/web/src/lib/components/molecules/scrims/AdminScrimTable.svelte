@@ -14,7 +14,7 @@
 
     export let scrims;
 
-    let visible = false;
+    export let visible = false;
 
     let scrimManagement = false;
 
