@@ -1,15 +1,14 @@
 <script lang="ts">
-    import {ScrimManagementModal} from "./modals";
-    import {DashboardCard} from "$lib/components";
+
 
     // Is this visible?
-    //export let visible = true;
+    // export let visible = true;
 
-    //State Machine of badness
+    // State Machine of badness
     export let adminScrimManagementVisible = false;
     export let adminPlayerManagementVisible = false;
     export let adminLeagueManagementVisible = false;
-    //export let adminScrimsInView = [];
+
 
     const handleScrimManagementBtn = () => {
         adminScrimManagementVisible = true;

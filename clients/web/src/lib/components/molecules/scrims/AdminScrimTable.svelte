@@ -12,16 +12,27 @@
 
      */
 
-    export let visible = false;
+    // export let visible = false;
+    export let adminScrimsInTable;
+    let scrimManagementModalVisible = false;
+    let targetId;
+    let lockimgsrc = "/img/lock_closed.png";
+    let lockimgalt = "Closed Lock";
 
-    let scrimManagement = false;
+    // TODO: Implement Lock Scrim Workflow
+    const lockAllScrims = () => {
+        if (lockimgsrc === "/img/lock_closed.png") {
+            lockimgsrc = "/img/lock_open.png";
+            lockimgalt = "Open Lock";
+        } else {
+            lockimgsrc = "/img/lock_closed.png";
+            lockimgalt = "Closed Lock";
+        }
 
-    const openCreateScrimModal = () => {
-        //createModalVisible = true;
     };
     const openScrimManagementModal = scrimId => {
-        //scrimManagementModalVisible = true;
-        //targetId = scrimId;
+        scrimManagementModalVisible = true;
+        targetId = scrimId;
     };
 </script>
 
@@ -31,36 +42,47 @@
         <th>Scrim Type</th>
         <th>Game Mode</th>
         <th>Players</th>
-        <th/>
         <th>
-            <button class="float-right lg:btn-sm btn btn-outline btn-accent" on:click={openCreateScrimModal}>
-                Create Scrim
+            <button class="float-right lg:btn-sm btn btn-outline btn-accent" on:click={lockAllScrims}>
+                <img src = lockimgsrc alt= lockimgalt>
             </button>
         </th>
-        <td/>
     </tr>
     </thead>
     <tbody>
-    Yo Yo Yo I Am Here
+    {#each adminScrimsInTable as scrim (scrim.id)}
+        <tr>
+            <td>{screamingSnakeToHuman(scrim.settings.mode)}</td>
+            <td>{scrim.gameMode.description}</td>
+            <td>{scrim.playerCount} / {scrim.maxPlayers}</td>
+            <td>{scrim.settings.competitive ? "Competitive" : "Casual"}</td>
+            <td>
+                <button on:click={() => { openScrimManagementModal(scrim.id) }} class="btn btn-outline float-right lg:btn-sm">
+                    Manage
+                </button>
+            </td>
+        </tr>
+    {/each}
+
     </tbody>
 </table>
-<!--{#if createModalVisible}-->
-<!--    <CreateScrimModal bind:visible={createModalVisible}/>-->
-<!--{/if}-->
+{#if scrimManagementModalVisible}
+    <ScrimManagementModal bind:visible={scrimManagementModalVisible}/>
+{/if}
 <!--{#if joinModalVisible}-->
 <!--    <JoinScrimModal scrimId={targetId} bind:visible={joinModalVisible}/>-->
 <!--{/if}-->
 
-<style lang="postcss">
-    table {
-        @apply select-none;
+<!--<style lang="postcss">-->
+<!--    table {-->
+<!--        @apply select-none;-->
 
-    th {
-        @apply text-sm text-center py-3;
+<!--    th {-->
+<!--        @apply text-sm text-center py-3;-->
 
-    &:first-child {
-         @apply relative;
-     }
-    }
-    }
-</style>
+<!--    &:first-child {-->
+<!--         @apply relative;-->
+<!--     }-->
+<!--    }-->
+<!--    }-->
+<!--</style>-->
