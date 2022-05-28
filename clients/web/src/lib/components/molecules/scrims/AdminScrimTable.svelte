@@ -14,7 +14,7 @@
 
     export let scrims;
 
-    let visible = false;
+    export let visible = false;
 
     let scrimManagement = false;
 
@@ -27,7 +27,7 @@
     };
 </script>
 
-<table class="table text-center w-full">
+<table class="table text-center w-full" >
     <thead>
     <tr>
         <th>Scrim Type</th>
