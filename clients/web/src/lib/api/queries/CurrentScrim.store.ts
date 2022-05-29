@@ -124,7 +124,6 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
     }
 
     protected handleGqlMessage = (message: OperationResult<CurrentScrimSubscriptionValue, CurrentScrimStoreSubscriptionVariables>) => {
-        console.log(message);
         if (message?.data?.currentScrim) {
             const {scrim} = message?.data?.currentScrim ?? {};
             if (scrim?.status === "CANCELLED" || scrim?.status === "COMPLETE") {
