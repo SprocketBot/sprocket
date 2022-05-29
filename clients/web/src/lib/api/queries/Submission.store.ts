@@ -9,7 +9,7 @@ interface SubmissionVariables {
 
 export class SubmissionStore extends QueryStore<SubmissionResult, SubmissionVariables> {
     protected queryString = gql<SubmissionResult>`
-    query {
+    query($submissionId: String!) {
         getSubmissionTasks(submissionId: $submissionId)
     }
     `;

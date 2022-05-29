@@ -45,7 +45,7 @@
         {#if files}
             {#each files as file}
                 <div out:fade={{duration: 250}}>
-                    <FileBlock filename={file.name} canRemove loading={submitting}
+                    <FileBlock filename={file.name} canRemove={!submitting} loading={submitting}
                                on:remove={() => { files = files.filter(f => f.name !== file.name) }}
                     />
                 </div>

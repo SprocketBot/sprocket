@@ -4,7 +4,7 @@
     import PendingView from "./QueuedSubViews/PendingView.svelte";
     import PoppedView from "./QueuedSubViews/PoppedView.svelte";
     import InProgressView from "./QueuedSubViews/InProgressView.svelte";
-    import SubmissionView from "./QueuedSubViews/SubmissionView.svelte";
+    import SubmittingView from "./QueuedSubViews/SubmittingView.svelte";
     import RatificationView from "./QueuedSubViews/RatificationView.svelte";
 
 
@@ -21,7 +21,7 @@
     {:else if data.status === "IN_PROGRESS"}
         <InProgressView scrim={data}/>
     {:else if data.status === "SUBMITTING"}
-        <SubmissionView scrim={data}/>
+        <SubmittingView scrim={data}/>
     {:else if data.status === "RATIFYING"}
         <RatificationView scrim={data}/>
     {:else}
