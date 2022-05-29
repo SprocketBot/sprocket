@@ -109,7 +109,7 @@ export class CeleryService {
         this.logger.warn(`Task ${task} result failed schema validation, ${parseResult.error}`);
         // TODO have better error handling on results that don't match the schema
         return result as TaskResult<T>;
-        
+
     }
 
     /**
@@ -124,6 +124,7 @@ export class CeleryService {
                 .then(() => {
                     this.progressChannel.consume(queue, v => {
                         if (!v) return;
+                        // TODO: Zod schema enforcement
                         const msg = JSON.parse(v.content.toString()) as ProgressMessage<T>;
 
                         this.logger.debug(`Progress queue=${queue} message=${JSON.stringify(msg)}`);

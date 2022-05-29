@@ -60,8 +60,8 @@ export class RedisService {
         return JSON.parse(res) as T;
     }
 
-    async appendToJsonArray<T extends Object>(key: string, prop: string, value: T): Promise<void> {
-        await this.redis.send_command("json.arrappend", key, prop, JSON.stringify(value));
+    async appendToJsonArray<T extends Object>(key: string, path: string, value: T): Promise<void> {
+        await this.redis.send_command("json.arrappend", key, path, JSON.stringify(value));
     }
 
     async deleteJsonField(key: string, path: string): Promise<void> {

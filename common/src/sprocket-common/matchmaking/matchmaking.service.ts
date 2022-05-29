@@ -18,7 +18,7 @@ export class MatchmakingService {
     constructor(@Inject(CommonClient.Matchmaking) private microserviceClient: ClientProxy) {}
 
     async send<E extends MatchmakingEndpoint>(endpoint: E, data: MatchmakingInput<E>): Promise<MatchmakingResponse<E>> {
-        this.logger.debug(`Sending message to endpoint=${endpoint} with data=${JSON.stringify(data)}`);
+        this.logger.verbose(`Sending message to endpoint=${endpoint} with data=${JSON.stringify(data)}`);
 
         const {input: inputSchema, output: outputSchema} = MatchmakingSchemas[endpoint];
 
@@ -30,7 +30,7 @@ export class MatchmakingService {
             const response = await lastValueFrom(rx) as unknown;
 
             const output = outputSchema.parse(response);
-            this.logger.debug(`Replying from endpoint=${endpoint} with response=${JSON.stringify(response)}`);
+            this.logger.verbose(`Replying from endpoint=${endpoint} with response=${JSON.stringify(response)}`);
             return {
                 status: ResponseStatus.SUCCESS,
                 data: output,
