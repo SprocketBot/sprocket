@@ -18,7 +18,6 @@
             canCheckIn = true;
         }
     }
-    console.log("scrim", scrim);
     $: canCheckIn = !scrim.players.find(p => p.id === $user.userId)!.checkedIn;
 </script>
 

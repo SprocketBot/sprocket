@@ -22,6 +22,7 @@ export enum MatchmakingEndpoint {
 
     // Validation
     ValidateReplays = "ValidateReplays",
+    ForceUpdateScrimStatus = "ForceUpdateScrimStatus",
 }
 
 export const MatchmakingSchemas = {
@@ -82,6 +83,10 @@ export const MatchmakingSchemas = {
     [MatchmakingEndpoint.ValidateReplays]: {
         input: Schemas.ValidateReplays_Request,
         output: Schemas.ValidateReplays_Response,
+    },
+    [MatchmakingEndpoint.ForceUpdateScrimStatus]: {
+        input: Schemas.ForceUpdateScrimStatus_Request,
+        output: Schemas.ForceUpdateScrimStatus_Response,
     },
 };
 

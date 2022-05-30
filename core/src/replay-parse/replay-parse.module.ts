@@ -8,11 +8,13 @@ import {ScrimModule} from "../scrim";
 import {ReplayParsePubSub} from "./replay-parse.constants";
 import {ReplayParseResolver} from "./replay-parse.resolver";
 import {ReplayParseService} from "./replay-parse.service";
+import {ReplayParseSubscriber} from "./replay-parse.subscriber";
 import {ReplaySubmissionModule} from "./replay-submission";
 
 @Module({
     imports: [CeleryModule, MinioModule, RedisModule, MatchmakingModule, ScrimModule, ReplaySubmissionModule, EventsModule],
     providers: [
+        ReplayParseSubscriber,
         ReplayParseResolver,
         ReplayParseService,
         {

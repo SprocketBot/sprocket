@@ -41,6 +41,9 @@ export class ReplayParseProgress implements ProgressMessage<Task.ParseReplay> {
     @Field(() => ParseReplayResult, {nullable: true})
     result: ParseReplayResult | null;
 
+    @Field(() => String)
+    filename: string;
+
     @Field(() => String, {nullable: true})
     error: string | null;
 }

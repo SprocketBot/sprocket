@@ -5,7 +5,6 @@ import {
 
 import {DatabaseModule} from "../../database";
 import {ScrimModule} from "../../scrim";
-import {ReplaySubmissionResolver} from "./replay-submission.resolver";
 import {ReplaySubmissionService} from "./replay-submission.service";
 
 @Module({
@@ -18,7 +17,6 @@ import {ReplaySubmissionService} from "./replay-submission.service";
         MinioModule,
     ],
     providers: [
-        ReplaySubmissionResolver,
         ReplaySubmissionService,
     ],
     exports: [

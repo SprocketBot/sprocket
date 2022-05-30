@@ -1,4 +1,3 @@
 export {default as ScrimTable} from "./ScrimTable.svelte";
 export {default as ScrimFullIndicator} from "./ScrimFullIndicator.svelte";
-export {default as ReplayProgressBar} from "./ReplayProgressBar.svelte";
 export * from "./fixtures";

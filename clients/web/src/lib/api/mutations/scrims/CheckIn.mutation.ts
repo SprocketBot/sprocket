@@ -1,5 +1,5 @@
 import {gql} from "@urql/core";
-import {client} from "../client";
+import {client} from "../../client";
 
 type CheckInResponse = Boolean;
 
