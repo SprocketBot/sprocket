@@ -4,15 +4,25 @@ import {
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 
+import {DatabaseModule} from "../database";
 import {ScrimModule} from "../scrim";
 import {ReplayParsePubSub} from "./replay-parse.constants";
 import {ReplayParseResolver} from "./replay-parse.resolver";
 import {ReplayParseService} from "./replay-parse.service";
 import {ReplayParseSubscriber} from "./replay-parse.subscriber";
-import {ReplaySubmissionModule} from "./replay-submission";
+import {ReplayRatificationResolver} from "./replay-ratification/replay-ratification.resolver";
+import {ReplaySubmissionService} from "./replay-submission";
 
 @Module({
-    imports: [CeleryModule, MinioModule, RedisModule, MatchmakingModule, ScrimModule, ReplaySubmissionModule, EventsModule],
+    imports: [
+        CeleryModule,
+        MinioModule,
+        RedisModule,
+        MatchmakingModule,
+        ScrimModule,
+        EventsModule,
+        DatabaseModule,
+    ],
     providers: [
         ReplayParseSubscriber,
         ReplayParseResolver,
@@ -21,6 +31,9 @@ import {ReplaySubmissionModule} from "./replay-submission";
             provide: ReplayParsePubSub,
             useValue: new PubSub(),
         },
+        ReplayRatificationResolver,
+        ReplaySubmissionService,
     ],
 })
-export class ReplayParseModule {}
+export class ReplayParseModule {
+}

@@ -1,4 +1,6 @@
-import {Injectable, Logger} from "@nestjs/common";
+import {
+    Inject, Injectable, Logger,
+} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {
     ParsedReplay, ProgressMessage, ScrimPlayer, Task,
@@ -14,6 +16,7 @@ import {
     ResponseStatus,
     ScrimStatus,
 } from "@sprocketbot/common";
+import {PubSub} from "apollo-server-express";
 import {Repository} from "typeorm";
 
 import {
@@ -21,7 +24,7 @@ import {
 } from "../../database";
 import {ScrimService} from "../../scrim";
 import {read} from "../../util/read";
-import {REPLAY_SUBMISSION_PREFIX} from "../replay-parse.constants";
+import {REPLAY_SUBMISSION_PREFIX, ReplayParsePubSub} from "../replay-parse.constants";
 import type {ParseReplayResult} from "../replay-parse.types";
 import type {BaseReplaySubmission, ReplaySubmission} from "./types/replay-submission.types";
 import {ReplaySubmissionType} from "./types/replay-submission.types";
@@ -42,6 +45,7 @@ export class ReplaySubmissionService {
         @InjectRepository(MatchParent) private readonly matchParentRepo: Repository<MatchParent>,
         @InjectRepository(Match) private readonly matchRepo: Repository<Match>,
         @InjectRepository(Round) private readonly roundRepo: Repository<Round>,
+        @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
     ) {
     }
 
@@ -275,6 +279,13 @@ export class ReplaySubmissionService {
 
         const key = this.buildKey(submissionId);
         await this.redisService.appendToJsonArray(key, "ratifiers", playerId);
+
+        await this.pubsub.publish(submissionId, {
+            followSubmissionRatifications: {
+                currentRatifications: ratifiers.length + 1,
+                requiredRatifications: await this.getSubmission(submissionId).then(s => s.requiredRatifications),
+            },
+        });
     }
 
     async setValidatedTrue(submissionId: string): Promise<void> {
