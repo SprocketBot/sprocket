@@ -1,30 +1,34 @@
-import {Inject, Injectable} from "@nestjs/common";
-import { InjectRepository, InjectConnection } from "@nestjs/typeorm";
-
+import {Injectable} from "@nestjs/common";
+import {InjectConnection, InjectRepository} from "@nestjs/typeorm";
+import {
+    ImageGenerationEndpoint, ImageGenerationService as IGService, ResponseStatus,
+} from "@sprocketbot/common";
 import {Connection, Repository} from "typeorm";
-import { ImageTemplate } from "../database";
-import { ImageGenerationEndpoint, ImageGenerationService as IGService, ResponseStatus } from "@sprocketbot/common";
+
+import {ImageTemplate} from "../database";
 
 @Injectable()
 export class ImageGenerationService {
     constructor(
         @InjectRepository(ImageTemplate) private imageTemplateRepository: Repository<ImageTemplate>,
         @InjectConnection() private readonly connection: Connection,
-        private igService:IGService
-        )
-    { }
+        private igService: IGService,
+    ) { }
 
     async createScrimReportCard(scrimId: number): Promise<string> {
         const reportCardRow = await this.imageTemplateRepository.findOneOrFail({where: {reportCode: "scrim_report_cards"} });
-        
-        const data = await this.connection.query(reportCardRow.query.query, [scrimId, 1])
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const data = await this.connection.query(reportCardRow.query.query, [scrimId, 1]);
         const result = await this.igService.send(
-            ImageGenerationEndpoint.GenerateImage, 
+            ImageGenerationEndpoint.GenerateImage,
             {
                 inputFile: `scrim_report_cards/scrimReportCards/template.svg`,
                 outputFile: `scrim_report_cards/scrimReportCards/outputs/${scrimId}_1`,
-                template: data[0].data
-            });
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                template: data[0].data,
+            },
+        );
         if (result.status === ResponseStatus.SUCCESS) return result.data;
         throw result.error;
     }

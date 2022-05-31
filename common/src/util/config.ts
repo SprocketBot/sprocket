@@ -104,7 +104,7 @@ export const config = {
             },
             get image_generation(): string {
                 return _config.get<string>("minio.bucketNames.image_generation");
-            }
+            },
         },
         get useSSL(): boolean {
             if (_config.has("minio.useSSL")) {
@@ -159,7 +159,7 @@ export const config = {
         get events_application_key(): string {
             return _config.get<string>("transport.events_application_key");
         },
-        get image_generation_queue(): string{
+        get image_generation_queue(): string {
             return _config.get<string>("transport.image_generation_queue");
         },
     },

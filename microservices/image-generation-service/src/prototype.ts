@@ -103,7 +103,7 @@ async function resolveTargetImage(el: Element): Promise<Element | false> {
             if (use.hasAttribute("xlink:href")) {
                 const newTarget = el.ownerDocument.querySelector(use.getAttribute("xlink:href")!);
                 if (newTarget) {
-                    return await resolveTargetImage(newTarget);
+                    return resolveTargetImage(newTarget);
                 }
             }
         }

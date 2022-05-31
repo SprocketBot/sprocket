@@ -15,7 +15,7 @@ export enum EventTopic {
     ScrimMetricsUpdate = "scrim.metricsUpdate",
 
     // Submissions
-    SubmissionStarted = "submission.started"
+    SubmissionStarted = "submission.started",
 }
 
 
@@ -41,7 +41,7 @@ export const EventSchemas = {
         ScrimMetricsSchema,
     ]),
     [EventTopic.ScrimMetricsUpdate]: ScrimMetricsSchema,
-    [EventTopic.SubmissionStarted]: z.object({ submissionId: z.string()})
+    [EventTopic.SubmissionStarted]: z.object({submissionId: z.string()}),
 };
 
 export type EventPayload<T extends EventTopic> = z.infer<typeof EventSchemas[T]>;

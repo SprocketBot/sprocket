@@ -13,7 +13,8 @@
   "scripts": {
     "postinstall": "npm run build:common",
     "build": "npm run build --workspaces --if-available",
-    "build:common": "npm run build --workspace=common"
+    "build:common": "npm run build --workspace=common",
+    "lint": "npm run lint --workspaces --if-available"
   },
   "workspaces": [
     "common",
