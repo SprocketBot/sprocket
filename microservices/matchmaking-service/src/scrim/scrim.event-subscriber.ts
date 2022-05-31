@@ -11,8 +11,7 @@ export class ScrimEventSubscriber {
     constructor(
         private readonly eventsService: EventsService,
         private readonly scrimCrudService: ScrimCrudService,
-    ) {
-    }
+    ) {}
 
     async onApplicationBootstrap(): Promise<void> {
         await this.eventsService.subscribe(EventTopic.SubmissionStarted, false).then(obs => {
@@ -20,7 +19,6 @@ export class ScrimEventSubscriber {
             obs.subscribe(this.onSubmissionStarted);
         });
     }
-
 
     onSubmissionStarted = async (d: EventResponse<EventTopic.SubmissionStarted>): Promise<void> => {
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -31,6 +29,5 @@ export class ScrimEventSubscriber {
         await this.scrimCrudService.updateScrimStatus(scrim.id, ScrimStatus.SUBMITTING);
         scrim.status = ScrimStatus.SUBMITTING;
         await this.eventsService.publish(EventTopic.ScrimUpdated, scrim, scrim.id);
-
     };
 }

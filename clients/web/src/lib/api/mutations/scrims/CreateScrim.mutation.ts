@@ -1,5 +1,5 @@
 import {gql} from "@urql/core";
-import {currentScrim} from "../../index";
+import {currentScrim} from "../../queries";
 import {client} from "../../client";
 
 interface CreateScrimResponse {
