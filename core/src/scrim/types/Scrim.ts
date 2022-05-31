@@ -1,8 +1,9 @@
 import {
     Field, Int, ObjectType,
 } from "@nestjs/graphql";
+import type {Scrim as IScrim} from "@sprocketbot/common";
 import {
-    EventTopic, Scrim as IScrim, ScrimStatus,
+    EventTopic, ScrimStatus,
 } from "@sprocketbot/common";
 
 import {ScrimGame} from "./ScrimGame";
@@ -46,21 +47,10 @@ export class Scrim implements Omit<IScrim, "id" | "status" | "players"> {
 
     @Field(() => String, {nullable: true})
     submissionId?: string;
-    
+
     gameMode: ScrimGameMode;
 
     skillGroupId: number;
-
-    constructor(data: IScrim) {
-        this.id = data.id;
-        this.status = data.status;
-        this.players = data.players;
-        this.playerCount = data.players.length;
-        this.settings = data.settings;
-        this.games = data.games;
-        this.gameMode = data.gameMode;
-        this.submissionId = data.submissionId;
-    }
 }
 
 @ObjectType()

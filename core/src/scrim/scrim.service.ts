@@ -18,8 +18,7 @@ import {
 import {PubSub} from "apollo-server-express";
 
 import {ScrimPubSub} from "./constants";
-import type {ScrimGameMode} from "./types";
-import {Scrim} from "./types";
+import type {Scrim, ScrimGameMode} from "./types";
 
 @Injectable()
 export class ScrimService {
@@ -163,7 +162,7 @@ export class ScrimService {
                     default: {
                         const payload = v.payload as IScrim;
                         if (payload.status === ScrimStatus.PENDING) {
-                            this.pubsub.publish(this.pendingScrimsSubTopic, {followPendingScrims: new Scrim(payload)}).catch(this.logger.error.bind(this.logger));
+                            this.pubsub.publish(this.pendingScrimsSubTopic, {followPendingScrims: payload as Scrim}).catch(this.logger.error.bind(this.logger));
                         }
                         this.pubsub.publish(payload.id, {
                             followCurrentScrim: {
