@@ -18,14 +18,13 @@
             canCheckIn = true;
         }
     }
-    console.log("scrim", scrim);
     $: canCheckIn = !scrim.players.find(p => p.id === $user.userId)!.checkedIn;
 </script>
 
 
 <h2 class="mb-4">Your scrim popped!</h2>
 <p>Everybody needs to check in and you will be presented with your game order.</p>
-<table class="table">
+<table class="table w-full">
     <thead>
         <tr>
             <th>Player</th>
@@ -34,7 +33,7 @@
         </tr>
     </thead>
     {#each scrim.players as p}
-        <tr>
+        <tr class="h-20">
             <td>{p.name} {p.id === $user.userId ? "(You)" : ""}</td>
             <td>
                 <input type="checkbox" class="toggle" on:click|capture|preventDefault={() => false} checked={Boolean(p.checkedIn)} readonly/>

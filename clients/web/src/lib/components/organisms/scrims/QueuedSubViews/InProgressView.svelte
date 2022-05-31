@@ -1,48 +1,38 @@
 <script lang="ts">
     import type {CurrentScrim} from "$lib/api";
-    import Portal from "$lib/components/abstract/Portal.svelte";
-    import SubmitReplaysModal from "../modals/SubmitReplaysModal.svelte";
+    import UploadReplaysModal from "../modals/UploadReplaysModal.svelte";
+    import {BestOfFixture, RoundRobinFixture} from "$lib/components";
+
 
     export let scrim: CurrentScrim;
 
-    let submitting: boolean = false;
+    let uploading: boolean = false;
 </script>
 
 
-<h2 class="mb-4">Time to Play!</h2>
-<p class="text-accent font-bold tracking-wider">Don't forget to save replays!</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th/>
-            {#each scrim.games[0].teams as t, ti}
-                <th colspan={t.players.length}>Team {ti + 1}</th>
-            {/each}
-        </tr>
-    </thead>
-    {#each scrim.games as game, gameIndex}
-        <tr>
-            <td>Game {gameIndex + 1}</td>
-            {#each game.teams as team, teamIndex}
-                {#each team.players as player}
-                    <td class:alt={teamIndex % 2 === 0}>
-                        {player.name}
-                    </td>
-                {/each}
-            {/each}
-        </tr>
-    {/each}
-</table>
+<section>
+    <h2>Time to Play!</h2>
+    <p class="text-accent font-bold tracking-wider">Don't forget to save replays!</p>
+    <div>
+        {#if scrim.settings.mode === "ROUND_ROBIN"}
+            <RoundRobinFixture {scrim}/>
+        {:else if scrim.settings.mode === "BEST_OF"}
+            <BestOfFixture {scrim}/>
+        {/if}
+    </div>
+    <button on:click={() => { uploading = true }}>
+        Upload Replays
+    </button>
+</section>
 
-<button on:click={() => { submitting = true }}>
-    Submit Replays
-</button>
+<UploadReplaysModal bind:visible={uploading} submissionId={scrim.submissionId}/>
 
-<Portal>
-    <SubmitReplaysModal bind:visible={submitting} submissionId={scrim.submissionId}/>
-</Portal>
 
 <style lang="postcss">
+    section {
+        @apply space-y-4;
+    }
+
     h2 {
         @apply text-2xl font-bold text-primary;
     }
@@ -51,8 +41,12 @@
         @apply text-center
     }
 
-    th:not(:last-child):not(:empty) {
-        @apply border-r-gray-500 border-r-2
+    th:not(:last-child) {
+        @apply border-r-gray-500 border-r-2;
+    }
+
+    th:first-child, td:first-child {
+        @apply w-auto;
     }
 
     button {

@@ -3,18 +3,27 @@ import {
 } from "@nestjs/common";
 import type {ScrimPlayer} from "@sprocketbot/common";
 import {
-    CeleryService, config,
-    MatchmakingEndpoint, MatchmakingService,
-    MinioService, ProgressStatus,
-    ResponseStatus, Task,
+    CeleryService,
+    config,
+    EventsService,
+    EventTopic,
+    MatchmakingEndpoint,
+    MatchmakingService,
+    MinioService,
+    ProgressStatus,
+    ResponseStatus,
+    ScrimStatus,
+    Task,
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 import {SHA256} from "crypto-js";
+import {GraphQLError} from "graphql";
 import type {Readable} from "stream";
 
 import {read} from "../util/read";
 import {REPLAY_EXT, ReplayParsePubSub} from "./replay-parse.constants";
-import type {ParseReplayResult, ParseReplaysTasks} from "./replay-parse.types";
+import {ReplayParseSubscriber} from "./replay-parse.subscriber";
+import type {ParseReplaysTasks} from "./replay-parse.types";
 import {ReplaySubmissionService} from "./replay-submission";
 
 @Injectable()
@@ -26,39 +35,50 @@ export class ReplayParseService {
         private readonly minioService: MinioService,
         private readonly matchmakingService: MatchmakingService,
         private readonly submissionService: ReplaySubmissionService,
+        private readonly eventsService: EventsService,
+        private readonly rpSubscriber: ReplayParseSubscriber,
         @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
-    ) {}
-
-    /**
-     * Subscribes to replay parse progress updates via a submissionId returned by parseReplay.
-     * @param submissionId A submissionId returned by parseReplay.
-     * @returns An observable that yields replay parse progress updates.
-     */
-    followReplayParse(submissionId: string): void {
-        const observable = this.celeryService.subscribe(submissionId);
-        observable.subscribe(p => {
-            this.pubsub
-                .publish(submissionId, {followReplayParse: p})
-                .catch(this.logger.error.bind(this.logger));
-        });
+    ) {
     }
 
     /**
-     * Checks if the parsed replay is already stored in Minio. If yes, returns those stats.
-     * If not, sends the replay to the replay-parse-service and waits for it to be parsed.
-     * @param stream The file to parse.
-     * @returns The replay's stats.
+     *
+     * @returns if the scrim has been reset
      */
-    async parseReplaySync(stream: Readable): Promise<ParseReplayResult> {
-        const buffer = await read(stream);
-        const objectHash = SHA256(buffer.toString()).toString();
-        const replayObjectPath = `replays/${objectHash}${REPLAY_EXT}`;
+    async resetBrokenReplays(submissionId: string, playerId: number): Promise<boolean> {
+        const scrimResponse = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
+        if (scrimResponse.status === ResponseStatus.ERROR || !scrimResponse.data) {
+            if (scrimResponse.status === ResponseStatus.ERROR) this.logger.error(scrimResponse.error);
+            throw new GraphQLError("Error fetching scrim");
+        }
+        const scrim = scrimResponse.data;
 
-        await this.minioService.put(config.minio.bucketNames.replays, replayObjectPath, buffer);
-        return this.celeryService.runSync(Task.ParseReplay, {replayObjectPath});
+        if (scrim.status !== ScrimStatus.SUBMITTING) {
+            throw new GraphQLError("You cannot reset this scrim.");
+        }
+
+        if (!scrim.players.some(player => player.id === playerId)) {
+            throw new GraphQLError("You are not allowed to do this");
+        }
+
+        const submission = await this.submissionService.getSubmission(submissionId);
+
+        if (!submission.items.some(item => item.progress?.status === ProgressStatus.Error)) {
+            return false;
+        }
+
+        await Promise.all([
+            this.submissionService.removeSubmission(submissionId),
+            this.matchmakingService.send(MatchmakingEndpoint.ForceUpdateScrimStatus, {
+                scrimId: scrim.id,
+                status: ScrimStatus.IN_PROGRESS,
+            }),
+        ]);
+
+        return true;
     }
 
-    async parseReplays(streams: Readable[], submissionId: string, player: ScrimPlayer): Promise<string[]> {
+    async parseReplays(streams: Array<{stream: Readable; filename: string;}>, submissionId: string, player: ScrimPlayer): Promise<string[]> {
         if (await this.submissionService.submissionExists(submissionId)) throw new Error(`A submission already exists for this submissionId`); // TODO under what conditions should a re-submission be allowed?
 
         const cantCreateReason = await this.submissionService.canCreateSubmission(submissionId, player.id);
@@ -72,14 +92,15 @@ export class ReplayParseService {
         // Keep track of tasks from callbacks
         const tasks: ParseReplaysTasks = {};
 
-        const promises = streams.map(async (stream, i) => {
+        const promises = streams.map(async ({stream, filename}, i) => {
             const buffer = await read(stream);
             const objectHash = SHA256(buffer.toString()).toString();
             const replayObjectPath = `replays/${objectHash}${REPLAY_EXT}`;
 
             // Upload replay file to minio
             await this.minioService.put(config.minio.bucketNames.replays, replayObjectPath, buffer);
-
+            // watch the submission
+            this.rpSubscriber.subscribe(submissionId);
             const taskId = await this.celeryService.run(Task.ParseReplay, {replayObjectPath}, {
                 progressQueue: submissionId,
                 cb: async (_taskId, result, error) => {
@@ -89,9 +110,9 @@ export class ReplayParseService {
                     if (error) status = ProgressStatus.Error;
                     else if (result) status = ProgressStatus.Complete;
                     else throw new Error(`Task completed with neither result nor error, taskId=${_taskId}`);
-
                     // Save information about parsed replay on the submission
-                    await this.submissionService.addItem(submissionId, {
+                    await this.submissionService.upsertItem(submissionId, {
+                        originalFilename: filename,
                         taskId: _taskId,
                         inputPath: replayObjectPath,
                         outputPath: result?.outputPath,
@@ -112,12 +133,31 @@ export class ReplayParseService {
                 },
             });
 
+            await this.submissionService.upsertItem(submissionId, {
+                originalFilename: filename,
+                taskId: taskId,
+                inputPath: replayObjectPath,
+                progress: {
+                    taskId: taskId,
+                    status: ProgressStatus.Pending,
+                    progress: {
+                        value: 0,
+                        message: "starting",
+                    },
+                    result: null,
+                    error: null,
+                },
+            });
+
             // Collect taskIds to return to caller
             taskIds[i] = taskId;
         });
 
         // Wait for all tasks to be started
         await Promise.all(promises);
+
+
+        await this.eventsService.publish(EventTopic.SubmissionStarted, {submissionId: submissionId});
 
         // Return taskIds, directly correspond to the files that were uploaded
         return taskIds;

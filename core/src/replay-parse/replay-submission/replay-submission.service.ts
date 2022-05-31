@@ -1,12 +1,22 @@
-import {Injectable, Logger} from "@nestjs/common";
+import {
+    Inject, Injectable, Logger,
+} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import type {ParsedReplay, ScrimPlayer} from "@sprocketbot/common";
+import type {
+    ParsedReplay, ProgressMessage, ScrimPlayer, Task,
+} from "@sprocketbot/common";
 import {
     CeleryService,
     config,
-    MatchmakingEndpoint, MatchmakingService,     MinioService, Parser, RedisService, ResponseStatus,
+    MatchmakingEndpoint,
+    MatchmakingService,
+    MinioService,
+    Parser,
+    RedisService,
+    ResponseStatus,
     ScrimStatus,
 } from "@sprocketbot/common";
+import {PubSub} from "apollo-server-express";
 import {Repository} from "typeorm";
 
 import {
@@ -14,7 +24,7 @@ import {
 } from "../../database";
 import {ScrimService} from "../../scrim";
 import {read} from "../../util/read";
-import {REPLAY_SUBMISSION_PREFIX} from "../replay-parse.constants";
+import {REPLAY_SUBMISSION_PREFIX, ReplayParsePubSub} from "../replay-parse.constants";
 import type {ParseReplayResult} from "../replay-parse.types";
 import type {BaseReplaySubmission, ReplaySubmission} from "./types/replay-submission.types";
 import {ReplaySubmissionType} from "./types/replay-submission.types";
@@ -35,7 +45,9 @@ export class ReplaySubmissionService {
         @InjectRepository(MatchParent) private readonly matchParentRepo: Repository<MatchParent>,
         @InjectRepository(Match) private readonly matchRepo: Repository<Match>,
         @InjectRepository(Round) private readonly roundRepo: Repository<Round>,
-    ) {}
+        @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
+    ) {
+    }
 
     async getSubmission(submissionId: string): Promise<ReplaySubmission> {
         const key = this.buildKey(submissionId);
@@ -170,7 +182,7 @@ export class ReplaySubmissionService {
             const playerIds = scrim.players.map(p => p.id);
             if (!playerIds.includes(playerId)) throw new Error(`Unable to ratify submission, playerId=${playerId} is not a player in the associated scrim`);
 
-            // Scrim must be IN_PROGRESS
+            // Scrim must be RATIFYING
             if (scrim.status !== ScrimStatus.RATIFYING) throw new Error(`Unable to ratify submission, scrim must be ratifying`);
 
             // Add player to ratifiers
@@ -234,9 +246,29 @@ export class ReplaySubmissionService {
         }
     }
 
-    async addItem(submissionId: string, item: ReplaySubmissionItem): Promise<void> {
+    async upsertItem(submissionId: string, item: ReplaySubmissionItem): Promise<void> {
         const key = this.buildKey(submissionId);
-        await this.redisService.appendToJsonArray(key, "items", item);
+
+        const existingItems = await this.redisService.getJson<ReplaySubmissionItem[] | undefined>(key, ".items");
+        if (existingItems?.some(ei => ei.taskId === item.taskId)) {
+            // The task is already in the array
+            const t = {
+                ...existingItems.find(ei => ei.taskId === item.taskId)!,
+                ...item,
+            };
+            const i = existingItems.findIndex(ei => ei.taskId === item.taskId);
+            await this.redisService.setJsonField(key, `items[${i}]`, t);
+        } else {
+            await this.redisService.appendToJsonArray(key, "items", item);
+        }
+    }
+
+    async updateItemProgress(submissionId: string, progress: ProgressMessage<Task.ParseReplay>): Promise<void> {
+        const items = await this.getItems(submissionId);
+        const item = items.find(i => i.taskId === progress.taskId);
+        if (!item) throw new Error(`Task with id ${progress.taskId} not found for submission ${submissionId}`);
+        item.progress = progress;
+        await this.upsertItem(submissionId, item);
     }
 
     async addRatifier(submissionId: string, playerId: number): Promise<void> {
@@ -247,6 +279,13 @@ export class ReplaySubmissionService {
 
         const key = this.buildKey(submissionId);
         await this.redisService.appendToJsonArray(key, "ratifiers", playerId);
+
+        await this.pubsub.publish(submissionId, {
+            followSubmissionRatifications: {
+                currentRatifications: ratifiers.length + 1,
+                requiredRatifications: await this.getSubmission(submissionId).then(s => s.requiredRatifications),
+            },
+        });
     }
 
     async setValidatedTrue(submissionId: string): Promise<void> {
@@ -306,11 +345,19 @@ export class ReplaySubmissionService {
                     const teams = [
                         {
                             won: blueWon,
-                            players: data.blue.players.map(p => p.name),
+                            score: data.blue.stats.core.goals,
+                            players: data.blue.players.map(p => ({
+                                name: p.name,
+                                goals: p.stats.core.goals,
+                            })),
                         },
                         {
                             won: !blueWon,
-                            players: data.orange.players.map(p => p.name),
+                            score: data.orange.stats.core.goals,
+                            players: data.orange.players.map(p => ({
+                                name: p.name,
+                                goals: p.stats.core.goals,
+                            })),
                         },
                     ];
                     out.games.push({teams});

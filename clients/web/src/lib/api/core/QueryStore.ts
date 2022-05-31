@@ -4,7 +4,7 @@ import {BaseStore} from "./BaseStore";
 import type {Readable} from "svelte/store";
 
 export abstract class QueryStore<T, V extends Object> extends BaseStore<OperationResult<T, V>> implements Readable<OperationResult<T, V>> {
-    protected _vars: V;
+    protected _vars: V | undefined;
 
     protected currentValue: OperationResult<T, V> = {
         fetching: true,

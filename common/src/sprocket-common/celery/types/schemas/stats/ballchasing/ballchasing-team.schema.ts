@@ -65,7 +65,7 @@ export const BallchasingTeamStatsSchema = z.object({
 export type BallchasingTeamState = z.infer<typeof BallchasingTeamSchema>;
 
 export const BallchasingTeamSchema = z.object({
-    name: z.string(),
+    name: z.string().optional(),
     color: z.string(),
 
     stats: BallchasingTeamStatsSchema,
