@@ -14,7 +14,7 @@ export const ImageGenerationSchemas = {
     [ImageGenerationEndpoint.GenerateImage]: {
         input: Schemas.GenerateImage_Request,
         output: Schemas.GenerateImage_Response,
-    }
+    },
 };
 
 export type ImageGenerationInput<T extends ImageGenerationEndpoint> = z.infer<typeof ImageGenerationSchemas[T]["input"]>;
@@ -32,5 +32,5 @@ export interface ImageGenerationErrorResponse {
 
 export type ImageGenerationResponse<T extends ImageGenerationEndpoint> =
 ImageGenerationSuccessResponse<T>
-    | ImageGenerationErrorResponse;
+| ImageGenerationErrorResponse;
 

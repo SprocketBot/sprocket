@@ -4,6 +4,8 @@
     import PendingView from "./QueuedSubViews/PendingView.svelte";
     import PoppedView from "./QueuedSubViews/PoppedView.svelte";
     import InProgressView from "./QueuedSubViews/InProgressView.svelte";
+    import SubmittingView from "./QueuedSubViews/SubmittingView.svelte";
+    import RatificationView from "./QueuedSubViews/RatificationView.svelte";
 
 
     let data: CurrentScrim | undefined;
@@ -18,6 +20,10 @@
         <PoppedView scrim={data}/>
     {:else if data.status === "IN_PROGRESS"}
         <InProgressView scrim={data}/>
+    {:else if data.status === "SUBMITTING"}
+        <SubmittingView scrim={data}/>
+    {:else if data.status === "RATIFYING"}
+        <RatificationView scrim={data}/>
     {:else}
         {data.status}
     {/if}

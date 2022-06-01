@@ -1,14 +1,15 @@
 import {Injectable, Logger} from "@nestjs/common";
+import type {DataLeaf, TemplateStructure} from "@sprocketbot/common";
 import axios from "axios";
 import * as sharp from "sharp";
 
-import {
-    dataForLinkType,
+import type {
     Dimension, ImageTransformationsOptions,
     SprocketData, TextTransformationOptions,
 } from "../types";
-import {sprocketDataSchema} from "../types";
-import { DataLeaf, TemplateStructure } from "@sprocketbot/common";
+import {
+    dataForLinkType, sprocketDataSchema,
+} from "../types";
 
 @Injectable()
 export class SvgTransformationService {
@@ -20,12 +21,12 @@ export class SvgTransformationService {
         const styles = Array.from(el.ownerDocument.querySelectorAll("style"))
             .map(s => s.outerHTML)
             .join("\n");
-        
+
         const str = `<svg>
                 ${styles}
                 ${el.outerHTML}
             </svg>`;
-        
+
         const buf = Buffer.from(str);
         const sharpBuffer = sharp(buf).png();
         const metadata = await sharpBuffer.metadata();
@@ -58,7 +59,7 @@ export class SvgTransformationService {
                 if (use.hasAttribute("xlink:href")) {
                     const newTarget = el.ownerDocument.querySelector(use.getAttribute("xlink:href")!);
                     if (newTarget) {
-                        return await this.resolveTargetImage(newTarget);
+                        return this.resolveTargetImage(newTarget);
                     }
                 }
             }
@@ -66,11 +67,11 @@ export class SvgTransformationService {
         if (el.nodeName === "image") {
             return el;
         }
-    
-        
+
+
         return false;
     }
-    
+
 
     async applyImageTransformation(el: Element, value: string, options: ImageTransformationsOptions): Promise<void> {
         let target = el;
@@ -85,7 +86,7 @@ export class SvgTransformationService {
                 return;
             }
         }
-        
+
         /*
          * TODO: Ensure that string generic typing is correct here
          */
@@ -94,7 +95,7 @@ export class SvgTransformationService {
             const response = await axios.get<string>(value, {
                 responseType: "arraybuffer",
             });
-        
+
             if (response.headers?.["content-type"] !== "image/png") {
                 this.logger.warn("Found invalid image format for image transformation! Skipping...");
                 return;
@@ -122,7 +123,7 @@ export class SvgTransformationService {
          * TODO: Image rescaling options
          */
         if (options.rescaleOn === "height") return;
-        
+
     }
 
     async applyTextTransformation(el: Element, value: string, options: TextTransformationOptions): Promise<void> {
@@ -136,18 +137,18 @@ export class SvgTransformationService {
         const originalLeft = Number(target.getAttribute("x") ?? 0);
         const originalBottom = Number(target.getAttribute("y") ?? 0);
         const {height: originalHeight, width: originalWidth} = await this.getElDimension(el);
-        
+
         let newtext = value;
-        const truncate = options["truncate-to"]
-        if (truncate && truncate !== 'as-is') {
-            newtext = newtext.slice(0,truncate)
+        const truncate = options["truncate-to"];
+        if (truncate && truncate !== "as-is") {
+            newtext = newtext.slice(0, truncate);
         }
         switch (options.case) {
             case "upper":
-                newtext = newtext.toUpperCase()
+                newtext = newtext.toUpperCase();
                 break;
             case "lower":
-                newtext = newtext.toLowerCase()
+                newtext = newtext.toLowerCase();
                 break;
             default: break;
         }
@@ -230,13 +231,11 @@ export class SvgTransformationService {
     }
 
     extractDataFromStructure(key: string, data: TemplateStructure): DataLeaf | false {
-        // eslint-disable-next-line
         let val: TemplateStructure | DataLeaf = data;
         const segments = key.split(".");
         for (const segment of segments) {
-            // eslint-disable-next-line
             if (Object.keys(val).includes(segment)) {
-                val = val[segment];
+                val = val[segment] as TemplateStructure | DataLeaf;
             } else {
                 this.logger.warn(`Unknown value ${key} found! Skipping...`);
                 return false;
@@ -245,11 +244,11 @@ export class SvgTransformationService {
         val = val as DataLeaf;
         return val;
     }
-    
+
     async transformElement(el: Element, data: TemplateStructure): Promise<void> {
         const rawTransformations = JSON.parse((el as SVGElement).dataset.sprocket ?? "") as SprocketData[];
         const transformations = sprocketDataSchema.parse(rawTransformations);
-        
+
         try {
             await Promise.all(transformations.map(async t => {
                 const datum = this.extractDataFromStructure(t.varPath, data);
@@ -279,8 +278,8 @@ export class SvgTransformationService {
                 return Promise.resolve();
             }));
         } catch (e) {
-            this.logger.warn(`failed to apply transformation to ${el.id}`)
-            throw e
+            this.logger.warn(`failed to apply transformation to ${el.id}`);
+            throw e;
         }
         el.removeAttribute("data-sprocket");
         this.logger.log(`successfully applied transformation to ${el.id}`);

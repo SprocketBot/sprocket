@@ -3,7 +3,7 @@
     import {onMount} from "svelte";
 
     onMount(() => {
-        if (browser) {
+        if (browser && !window.location.origin.includes("localhost")) {
             (function(d, t) {
                 const BASE_URL = "https://chatwoot.spr.ocket.cloud";
                 const g = d.createElement(t),

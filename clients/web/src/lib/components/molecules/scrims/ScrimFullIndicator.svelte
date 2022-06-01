@@ -1,21 +1,17 @@
 <script lang="ts">
     import {currentScrim} from "$lib/api";
+    import {Progress, Spinner} from "$lib/components";
 </script>
 
-
-<div class="">
-    <p>{$currentScrim?.data?.currentScrim?.playerCount}</p>
-    <progress class="progress progress-primary h-8"
-              value={$currentScrim?.data?.currentScrim?.playerCount ?? 0}
-              max={$currentScrim?.data?.currentScrim?.maxPlayers ?? 1}
-    />
-    <p>{$currentScrim?.data?.currentScrim?.maxPlayers}</p>
+<div class="flex flex-col items-center">
+<Spinner/>
+    <Progress max={$currentScrim?.data?.currentScrim?.maxPlayers}
+            value={$currentScrim?.data?.currentScrim?.playerCount}
+              />
 </div>
 
 <style lang="postcss">
-    div {
-        @apply flex gap-4 w-full items-center;
-    }
+
     p {
         @apply text-xl font-bold;
     }

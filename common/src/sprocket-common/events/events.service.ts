@@ -1,4 +1,4 @@
-import {Injectable} from "@nestjs/common";
+import {Injectable, Logger} from "@nestjs/common";
 import type {Observable} from "rxjs";
 import {map} from "rxjs";
 
@@ -10,8 +10,10 @@ import {RmqService} from "./rmq.service";
 
 @Injectable()
 export class EventsService {
+    private readonly logger = new Logger(EventsService.name);
+
     constructor(private readonly rmqService: RmqService) {}
-    
+
     async subscribe<T extends EventTopic>(topic: T, instanceExclusive: boolean, subtopic: string = "*"): Promise<Observable<EventResponse<T>>> {
         const rawObservable = await this.rmqService.sub(`${topic}.${subtopic}`, instanceExclusive);
         const schema = EventSchemas[topic];
@@ -28,6 +30,8 @@ export class EventsService {
 
     async publish<T extends EventTopic>(topic: T, payload: EventPayload<T>, subtopic: string = "default"): Promise<boolean> {
         EventSchemas[topic].parse(payload);
+
+        this.logger.verbose(`Dispatching ${topic} with payload=${JSON.stringify(payload)}`);
         const buf = Buffer.from(JSON.stringify(payload));
         return this.rmqService.pub(`${topic}.${subtopic}`, buf);
     }

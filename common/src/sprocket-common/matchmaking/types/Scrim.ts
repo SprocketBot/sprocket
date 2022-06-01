@@ -12,16 +12,21 @@ export enum ScrimStatus {
      * Scrim is waiting for players
      */
     PENDING = "PENDING",
-    
+
     /**
      * Scrim has filled, and players are checking in
      */
     POPPED = "POPPED",
-    
+
     /**
      * Players are playing
      */
     IN_PROGRESS = "IN_PROGRESS",
+
+    /**
+     * Replays have been submitted, but have not yet finished parsing
+     */
+    SUBMITTING = "SUBMITTING",
 
     /**
      * Replays are uploaded, scrim players are ratifying the results
@@ -33,7 +38,7 @@ export enum ScrimStatus {
      * Scrim is being removed, this state is used for event broadcast
      */
     EMPTY = "EMPTY",
-    
+
     /**
      * Replays are submitted, this scrim is being removed
      * This state is used for event broadcast

@@ -9,7 +9,7 @@
     "debug": "nest start --watch --debug",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
-    "lint": "eslint"
+    "lint": "eslint src --fix"
   },
   "repository": {
     "type": "git",
@@ -32,6 +32,7 @@
     "amqp-connection-manager": "^3.7.0",
     "amqplib": "^0.8.0",
     "config": "^3.3.6",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
     "jest": "^27.0.4",
     "jest-junit": "^12.2.0",
     "lodash": "^4.17.21",

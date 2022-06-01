@@ -1,35 +1,29 @@
 module.exports = {
-	env: {
-		browser: true,
-		es2021: true,
-		jest: true
-	},
-	extends: [
-		"eslint:recommended",
-		"plugin:@typescript-eslint/recommended",
-		"plugin:@typescript-eslint/recommended-requiring-type-checking"
-	],
-	parser: "@typescript-eslint/parser",
-	parserOptions: {
-		ecmaVersion: 12,
-		project: ["tsconfig.json"],
-		extraFileExtensions: [".svelte"],
-		tsconfigRootDir: __dirname,
-	},
-	plugins: [
-		"svelte3",
-		"@typescript-eslint",
-	],
-	ignorePatterns: ["*.cjs", ".eslintrc.js", "jest.config.js", "commitlint.config.js", "*.stories.svelte", "docs", "*.json", "svelte.config.js"],
-	overrides: [
-		{
-			files: ["*.svelte"],
-			processor: "svelte3/svelte3"
-		}
-	],
+	root: true,
+	parser: '@typescript-eslint/parser',
+	extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', "plugin:@typescript-eslint/recommended-requiring-type-checking"],
+	plugins: ['svelte3', '@typescript-eslint'],
+	ignorePatterns: ["*.cjs", ".eslintrc.js", "jest.config.js", "commitlint.config.js", "*.stories.svelte", "docs", "*.json", "svelte.config.js", "*.postcss", "*.html", "*.md"],
+	overrides: [{ files: ['*.svelte'], processor: 'svelte3/svelte3' }],
 	settings: {
 		"svelte3/typescript": () => require("typescript"),
 		"svelte3/ignore-styles": (attrs) => attrs.lang === "postcss"
+	},
+	globals: {
+		App: true
+	},
+	parserOptions: {
+		sourceType: 'module',
+		project: ["tsconfig.json"],
+		extraFileExtensions: [".svelte"],
+		tsconfigRootDir: __dirname,
+		ecmaVersion: 2020
+	},
+	env: {
+		browser: true,
+		es2017: true,
+		node: true,
+		jest: true
 	},
 	rules: {
 		/**
@@ -570,4 +564,4 @@ module.exports = {
 		}],
 		"@typescript-eslint/space-infix-ops": "error",                             /* ( f ) This rule is aimed at ensuring there are spaces around infix operators. */
 	}
-}
+};

@@ -2,7 +2,7 @@ export enum CommonClient {
     Bot = "CommonClientBot",
     Analytics = "CommonClientAnalytics",
     Matchmaking = "CommonClientMatchmaking",
-    ImageGeneration = "CommonImageGeneration"
+    ImageGeneration = "CommonImageGeneration",
 }
 
 export enum ResponseStatus {

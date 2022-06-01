@@ -1,6 +1,6 @@
 import {gql} from "@urql/core";
-import {currentScrim} from "..";
-import {client} from "../client";
+import {currentScrim} from "../../queries";
+import {client} from "../../client";
 
 type LeaveScrimResponse = boolean;
 
@@ -18,5 +18,5 @@ export const leaveScrimMutation = async (vars: LeaveScrimVars): Promise<LeaveScr
         currentScrim.invalidate();
         return r.data;
     }
-    throw r.error;
+    throw r.error as Error;
 };

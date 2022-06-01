@@ -22,19 +22,20 @@
 <Portal>
     <input type="checkbox" class="modal-toggle" bind:checked={visible}/>
 
+
     <div class="modal bg-gray-700/40" {id} use:clickOutside={{callback: handleClickOutside}}>
-        <div class="modal-box max-w-xl">
-            <div class="close" on:click={close}>✖</div>
-            <h2>
-                {title ?? ""}
-            </h2>
-            <slot name="body"/>
-            {#if $$slots.actions}
-                <div class="modal-action">
-                    <slot name="actions" {close}/>
-                </div>
-            {/if}
-        </div>
+            <div class="modal-box max-w-xl">
+                <div class="close" on:click={close}>✖</div>
+                <h2>
+                    {title ?? ""}
+                </h2>
+                <slot name="body"/>
+                {#if $$slots.actions}
+                    <div class="modal-action">
+                        <slot name="actions" {close}/>
+                    </div>
+                {/if}
+            </div>
     </div>
 </Portal>
 

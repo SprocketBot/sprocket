@@ -43,7 +43,8 @@
 
 <style lang="postcss">
     section {
-        @apply absolute bottom-8 right-8;
+        @apply absolute bottom-8 left-8;
+        z-index: 10000;
     }
 
     ul {
@@ -52,13 +53,11 @@
 
     .toast {
         /*@apply relative bg-accent px-4 py-4 rounded text-gray-50 break-all;*/
-        @apply relative
-
-        alert alert-info;
+        @apply relative cursor-pointer alert alert-info;
     }
 
     .close {
-        @apply absolute h-8 w-8 bg-gray-50 text-secondary rounded-full p-1 -top-2 -right-2 z-10
+        @apply absolute h-8 w-8 bg-gray-50 text-secondary rounded-full p-1 -top-2 -right-2
             /*hover:h-8 hover:w-8 hover:-top-3 hover:-right-3 transition-all cursor-pointer*/
         z-10 text-center font-bold leading-6
         ;

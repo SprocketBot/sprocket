@@ -23,27 +23,27 @@ export class MinioService {
     /**
      * Upload an object to Minio.
      * @param bucket The bucket to upload the object to.
-     * @param objectName The name to give the uploaded object.
+     * @param objectPath The name to give the uploaded object.
      * @param object The data to upload.
      */
-    async put(bucket: string, objectName: string, object: Buffer | string): Promise<void> {
+    async put(bucket: string, objectPath: string, object: Buffer | string): Promise<void> {
         if (object.length === 0) {
-            throw new Error(`Cannot upload empty object ${objectName}`);
+            throw new Error(`Cannot upload empty object ${objectPath}`);
         }
 
-        this.logger.debug(`put bucket=${bucket} objectName=${objectName}`);
-        await this.minio.putObject(bucket, objectName, object, {});
+        this.logger.debug(`put bucket=${bucket} objectPath=${objectPath}`);
+        await this.minio.putObject(bucket, objectPath, object, {});
     }
 
     /**
      * Fetches an object from Minio.
      * @param bucket The bucket to fetch the object from.
-     * @param objectName The name of the object to fetch.
+     * @param objectPath The name of the object to fetch.
      * @returns A readable stream containing the object's data.
      * @throws An error if the object does not exist.
      */
-    async get(bucket: string, objectName: string): Promise<Readable> {
-        this.logger.debug(`get bucket=${bucket} objectName=${objectName}`);
-        return this.minio.getObject(bucket, objectName);
+    async get(bucket: string, objectPath: string): Promise<Readable> {
+        this.logger.debug(`get bucket=${bucket} objectPath=${objectPath}`);
+        return this.minio.getObject(bucket, objectPath);
     }
 }
