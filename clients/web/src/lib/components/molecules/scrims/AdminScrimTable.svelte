@@ -106,20 +106,3 @@
 {#if scrimManagementModalVisible}
     <ScrimManagementModal bind:visible={scrimManagementModalVisible}/>
 {/if}
-<!--{#if joinModalVisible}-->
-<!--    <JoinScrimModal scrimId={targetId} bind:visible={joinModalVisible}/>-->
-<!--{/if}-->
-
-<!--<style lang="postcss">-->
-<!--    table {-->
-<!--        @apply select-none;-->
-
-<!--    th {-->
-<!--        @apply text-sm text-center py-3;-->
-
-<!--    &:first-child {-->
-<!--         @apply relative;-->
-<!--     }-->
-<!--    }-->
-<!--    }-->
-<!--</style>-->
