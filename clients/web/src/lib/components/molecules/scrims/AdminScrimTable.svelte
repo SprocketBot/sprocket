@@ -13,8 +13,6 @@
     TODO: Figure out Visibility status pattern from CreateScrimModal and Scrim Table
 
      */
-    const r = client.query(AllCurrentScrimsQuery, {});
-    console.log(r.data);
 
     export let adminScrimsInTable = [
        {
@@ -53,6 +51,14 @@
         scrimManagementModalVisible = true;
         targetId = scrimId;
     };
+    const getScrims = async () => {
+        const r = await client.query(AllCurrentScrimsQuery, {}).toPromise();
+        if (r.data) {
+            console.log(r.data);
+        }
+    }
+
+    getScrims();
 </script>
 
 <table class="table text-center w-full" >
