@@ -66,19 +66,19 @@
     </thead>
     <tbody>
     {#if adminScrimsInTable.length > 0}
-    {#each adminScrimsInTable as scrim (scrim.id)}
-        <tr>
-            <td>{screamingSnakeToHuman(scrim.settings.mode)}</td>
-            <td>{scrim.gameMode.description}</td>
-            <td>{scrim.playerCount} / {scrim.maxPlayers}</td>
-            <td>{scrim.settings.competitive ? "Competitive" : "Casual"}</td>
-            <td>
-                <button on:click={() => { openScrimManagementModal(scrim.id) }} class="btn btn-outline float-right lg:btn-sm">
-                    Manage
-                </button>
-            </td>
-        </tr>
-    {/each}
+        {#each adminScrimsInTable as scrim (scrim.id)}
+            <tr>
+                <td>{screamingSnakeToHuman(scrim.settings.mode)}</td>
+                <td>{scrim.gameMode.description}</td>
+                <td>{scrim.playerCount} / {scrim.maxPlayers}</td>
+                <td>{scrim.settings.competitive ? "Competitive" : "Casual"}</td>
+                <td>
+                    <button on:click={() => { openScrimManagementModal(scrim.id) }} class="btn btn-outline float-right lg:btn-sm">
+                        Manage
+                    </button>
+                </td>
+            </tr>
+        {/each}
     {/if}
 
     </tbody>
