@@ -1,12 +1,16 @@
-import { Args, Query, Int, Mutation } from '@nestjs/graphql';
+import { Args, Query, Int, Mutation, Subscription } from '@nestjs/graphql';
 import { Resolver } from '@nestjs/graphql';
 import { ScrimService } from '../scrim.service';
 import { Scrim as IScrim } from '../types';
+import { ScrimPubSub } from '../constants';
+import { PubSub } from 'apollo-server-express';
+import { Inject } from '@nestjs/common';
 
 @Resolver()
 export class ScrimManagementResolver {
     constructor(
         private readonly scrimService: ScrimService,
+        @Inject(ScrimPubSub) private readonly pubSub: PubSub,
     ) {}
     /*
         So, what we've got to do is straightforward. We create here a resolver
@@ -37,6 +41,12 @@ export class ScrimManagementResolver {
     @Mutation(()=> IScrim)
     async cancelScrim(@Args('scrimId', {type: ()=> String}) scrimId: string) {
         return this.scrimService.cancelScrim(scrimId);
+    }
+
+    @Subscription(() => IScrim)
+    async followActiveScrims(): Promise<AsyncIterator<IScrim>> {
+        await this.scrimService.enableSubscription();
+        return this.pubSub.asyncIterator(this.scrimService.allActiveScrimsSubTopic);
     }
 
 }
