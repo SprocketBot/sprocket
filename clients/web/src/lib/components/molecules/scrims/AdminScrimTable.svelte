@@ -54,9 +54,9 @@
 <table class="table text-center w-full" >
     <thead>
     <tr>
-        <th>Scrim Type</th>
+        <th>Scrim ID</th>
         <th>Game Mode</th>
-        <th>Players</th>
+        <th>Status</th>
         <th>
             <button class="float-right btn btn-outline btn-accent" on:click={lockAllScrims}>
                 <img src = {lockimgsrc} alt= {lockimgalt} >

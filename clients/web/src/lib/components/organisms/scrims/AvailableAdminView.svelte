@@ -1,5 +1,6 @@
 <script lang="ts">
 
+
     // Is this visible?
     export let visible = true;
 
@@ -23,9 +24,8 @@
 
 </script>
 
-<h2 class="justify-center">Admin Menu</h2>
 
-<div >
+<div class="items-center">
 
     <button class="btn btn-primary btn-wide "  on:click={handleScrimManagementBtn}>
         Scrim Management
@@ -41,4 +41,5 @@
     </button>
 
 </div>
+
 
