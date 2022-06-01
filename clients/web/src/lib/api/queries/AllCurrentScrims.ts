@@ -1,8 +1,7 @@
 import type {OperationResult} from "@urql/core";
 import {gql} from "@urql/core";
 
-export class AllCurrentScrims {
-    protected queryString = gql`
+export const AllCurrentScrimsQuery = gql`
     query {
         allCurrentScrims: getAllScrims {
             id
@@ -32,5 +31,3 @@ export class AllCurrentScrims {
             submissionId
         }
     }`;
-
-}

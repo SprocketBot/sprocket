@@ -1,7 +1,7 @@
 <script lang="ts">
     import {ScrimManagementModal} from "$lib/components";
     import {screamingSnakeToHuman} from "$lib/utils";
-    import {AllCurrentScrims} from "$lib/api";
+    import {AllCurrentScrimsQuery} from "$lib/api";
     import {client} from "$lib/api/client";
 
     /*
@@ -13,6 +13,8 @@
     TODO: Figure out Visibility status pattern from CreateScrimModal and Scrim Table
 
      */
+    const r = client.query(AllCurrentScrimsQuery, {});
+    console.log(r.data);
 
     export let adminScrimsInTable = [
        {
