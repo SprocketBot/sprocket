@@ -3,6 +3,8 @@
     import {screamingSnakeToHuman} from "$lib/utils";
     import {AllCurrentScrimsQuery} from "$lib/api";
     import {client} from "$lib/api/client";
+    import { activeScrims, type ActiveScrims } from "../../../api/queries/ActiveScrims.store";
+    import type {CurrentScrim} from "../../../api/queries/CurrentScrim.store";
 
     /*
     This will be the table that shows in ScrimManagementModal (Currently Named Modal
@@ -14,22 +16,22 @@
 
      */
 
-    export let adminScrimsInTable = [
-       {
-           "id":1,
-           "status": 'Pending',
-           "gameMode": {
-               "description": "Doubles",
-           },
-           "playerCount": 4,
-           "maxPlayers": 4,
-           "settings": {
-               "competitive": true,
-               "mode": "DOUBLES"
-           }
-       }
-    ];
-    console.log(adminScrimsInTable);
+    //export let adminScrimsInTable = [
+    //   {
+    //       "id":1,
+    //       "status": 'Pending',
+    //       "gameMode": {
+    //           "description": "Doubles",
+    //       },
+    //       "playerCount": 4,
+    //       "maxPlayers": 4,
+    //       "settings": {
+    //           "competitive": true,
+    //           "mode": "DOUBLES"
+    //       }
+    //   }
+    //];
+    //console.log(adminScrimsInTable);
     export let visible = false;
     let scrimManagementModalVisible = false;
     let targetId;
@@ -51,14 +53,17 @@
         scrimManagementModalVisible = true;
         targetId = scrimId;
     };
-    const getScrims = async () => {
-        const r = await client.query(AllCurrentScrimsQuery, {}).toPromise();
-        if (r.data) {
-            console.log(r.data);
-        }
-    }
+    //const getScrims = async () => {
+    //    const r = await client.query(AllCurrentScrimsQuery, {}).toPromise();
+    //    if (r.data) {
+    //        console.log(r.data);
+    //        adminScrimsInTable = r.data.allCurrentScrims;
+    //    }
+    //}
 
-    getScrims();
+    //getScrims();
+    let activeScrimsData: ActiveScrims | undefined;
+    $: activeScrimsData = $activeScrims?.data?.activeScrims;
 </script>
 
 <table class="table text-center w-full" >
@@ -76,24 +81,24 @@
     </tr>
     </thead>
     <tbody>
-    {#if adminScrimsInTable.length > 0}
-    {#each adminScrimsInTable as scrim (scrim.id)}
-        <tr>
-            <td>{scrim.id}</td>
-            <td>{screamingSnakeToHuman(scrim.settings.mode)}</td>
-            <td>{scrim.status}</td>
-            <!--{#if scrim.players.length >= 1}-->
-            <!--    <td>{scrim.players.join(", ")}</td>-->
-            <!--    {:else}-->
-            <!--    <td>Empty Scrim</td>-->
-            <!--{/if}-->
-            <td>
-                <button on:click={() => { openScrimManagementModal(scrim.id) }} class="btn btn-outline float-right lg:btn-sm">
-                    Manage
-                </button>
-            </td>
-        </tr>
-    {/each}
+    {#if activeScrimsData?.length}
+        {#each activeScrimsData as scrim (scrim.id)}
+            <tr>
+                <td>{scrim.id}</td>
+                <td>{screamingSnakeToHuman(scrim.settings.mode)}</td>
+                <td>{scrim.status}</td>
+                <!--{#if scrim.players.length >= 1}-->
+                <!--    <td>{scrim.players.join(", ")}</td>-->
+                <!--    {:else}-->
+                <!--    <td>Empty Scrim</td>-->
+                <!--{/if}-->
+                <td>
+                    <button on:click={() => { openScrimManagementModal(scrim.id) }} class="btn btn-outline float-right lg:btn-sm">
+                        Manage
+                    </button>
+                </td>
+            </tr>
+        {/each}
     {/if}
 
     </tbody>

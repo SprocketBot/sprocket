@@ -34,7 +34,7 @@ export class ScrimManagementResolver {
 
      */
     @Query(()=> [IScrim])
-    async getScrimsView(@Args('skillGroupId', {type: () => Int, nullable: true, defaultValue: 0}) skillGroupId: number) {
+    async getActiveScrims(@Args('skillGroupId', {type: () => Int, nullable: true, defaultValue: 0}) skillGroupId: number) {
         return this.scrimService.getAllScrims(skillGroupId);
     }
 
