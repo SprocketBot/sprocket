@@ -1,6 +1,8 @@
 <script lang="ts">
     import {ScrimManagementModal} from "$lib/components";
     import {screamingSnakeToHuman} from "$lib/utils";
+    import {AllCurrentScrims} from "$lib/api";
+    import {client} from "$lib/api/client";
 
     /*
     This will be the table that shows in ScrimManagementModal (Currently Named Modal
