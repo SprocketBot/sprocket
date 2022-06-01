@@ -48,6 +48,7 @@
     "shortid": "^2.2.16",
     "subscriptions-transport-ws": "^0.11.0",
     "svelte-icons": "^2.1.0",
+    "svelte-table": "^0.3.4",
     "wonka": "^4.0.15"
   }
 }
