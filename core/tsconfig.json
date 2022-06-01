@@ -20,7 +20,7 @@
     "strictPropertyInitialization": false,
     "esModuleInterop": true
   },
-  "include": ["src/**/*", "src/*", "migrations/*"],
+  "include": ["src/**/*", "src/*"],
   "paths": {
     "@database/*": ["database/*"]
   }

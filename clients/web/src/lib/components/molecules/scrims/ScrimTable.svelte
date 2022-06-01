@@ -29,7 +29,6 @@
                 Create Scrim
             </button>
         </th>
-        <td/>
     </tr>
     </thead>
     <tbody>
@@ -43,8 +42,7 @@
                 <button on:click={() => { openJoinScrimModal(scrim.id) }} class="btn btn-outline float-right lg:btn-sm">
                     Join
                 </button>
-            </td
-            >
+            </td>
         </tr>
     {/each}
     </tbody>

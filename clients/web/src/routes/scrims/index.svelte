@@ -9,6 +9,7 @@
         DashboardCard,
         DashboardNumberCard,
         QueuedView,
+        Spinner,
     } from "$lib/components";
 
     let metrics: MetricsResult["metrics"];
@@ -38,7 +39,9 @@
 <DashboardLayout>
     <DashboardCard class="col-span-6 xl:col-span-5 row-span-3">
         {#if $currentScrim.fetching}
-            Loading...
+            <div class="h-full w-full flex items-center justify-center">
+                <Spinner class="h-16 w-full"/>
+            </div>
         {:else if $currentScrim.data?.currentScrim}
             <QueuedView/>
         {:else}
@@ -57,10 +60,3 @@
     />
 
 </DashboardLayout>
-
-<style lang="postcss">
-
-    h2 {
-        @apply text-4xl mb-8;
-    }
-</style>

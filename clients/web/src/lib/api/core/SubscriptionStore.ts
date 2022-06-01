@@ -10,15 +10,16 @@ type SubscriptionValue<T, V extends Object, HasHistory = false> = HasHistory ext
     : OperationResult<T, V>;
 
 export abstract class SubscriptionStore<T, V extends Object, HasHistory = false> extends BaseStore<SubscriptionValue<T, V, HasHistory>> implements Readable<SubscriptionValue<T, V, HasHistory>> {
-    protected gqlUnsub: () => unknown | undefined;
+    protected gqlUnsub?: () => unknown | undefined;
 
-    protected _vars: V;
+    protected _vars: V | undefined;
 
     protected abstract subscriptionString: TypedDocumentNode<T, V>;
 
     protected abstract handleGqlMessage: (message: OperationResult<T, V>) => void;
 
     get vars(): V {
+        if (!this._vars) throw new Error(`Cannot access vars before they are set.`);
         return this._vars;
     }
 

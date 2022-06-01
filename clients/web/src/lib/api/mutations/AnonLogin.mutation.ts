@@ -16,5 +16,5 @@ mutation($username: String!) {
 export const anonLoginMutation = async (vars: AnonLoginVars): Promise<AnonLoginResponse> => {
     const r = await client.mutation<AnonLoginResponse, AnonLoginVars>(mutationString, vars).toPromise();
     if (r.data) return r.data;
-    throw r.error;
+    throw r.error as Error;
 };

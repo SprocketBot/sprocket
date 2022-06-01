@@ -60,7 +60,7 @@ const client = ClientsModule.register([
                 heartbeat: 120,
             },
         },
-    }
+    },
 ]);
 
 @Global()
