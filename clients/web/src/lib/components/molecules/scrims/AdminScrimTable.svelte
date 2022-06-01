@@ -12,8 +12,23 @@
 
      */
 
+    export let adminScrimsInTable = []
+    //    {
+    //        "id":1,
+    //        "gameMode": {
+    //            "description": "Doubles",
+    //        },
+    //        "playerCount": 4,
+    //        "maxPlayers": 4,
+    //        "settings": {
+    //            "competitive": true,
+    //            "mode": "DOUBLES"
+    //        }
+    //    }
+    //];
+    console.log(adminScrimsInTable);
     export let visible = false;
-    export let adminScrimsInTable;
+    //export let adminScrimsInTable;
     let scrimManagementModalVisible = false;
     let targetId;
     let lockimgsrc = "/img/lock_open.svg";
@@ -50,19 +65,21 @@
     </tr>
     </thead>
     <tbody>
-    <!--{#each adminScrimsInTable as scrim (scrim.id)}-->
-    <!--    <tr>-->
-    <!--        <td>{screamingSnakeToHuman(scrim.settings.mode)}</td>-->
-    <!--        <td>{scrim.gameMode.description}</td>-->
-    <!--        <td>{scrim.playerCount} / {scrim.maxPlayers}</td>-->
-    <!--        <td>{scrim.settings.competitive ? "Competitive" : "Casual"}</td>-->
-    <!--        <td>-->
-    <!--            <button on:click={() => { openScrimManagementModal(scrim.id) }} class="btn btn-outline float-right lg:btn-sm">-->
-    <!--                Manage-->
-    <!--            </button>-->
-    <!--        </td>-->
-    <!--    </tr>-->
-    <!--{/each}-->
+    {#if adminScrimsInTable.length > 0}
+    {#each adminScrimsInTable as scrim (scrim.id)}
+        <tr>
+            <td>{screamingSnakeToHuman(scrim.settings.mode)}</td>
+            <td>{scrim.gameMode.description}</td>
+            <td>{scrim.playerCount} / {scrim.maxPlayers}</td>
+            <td>{scrim.settings.competitive ? "Competitive" : "Casual"}</td>
+            <td>
+                <button on:click={() => { openScrimManagementModal(scrim.id) }} class="btn btn-outline float-right lg:btn-sm">
+                    Manage
+                </button>
+            </td>
+        </tr>
+    {/each}
+    {/if}
 
     </tbody>
 </table>
