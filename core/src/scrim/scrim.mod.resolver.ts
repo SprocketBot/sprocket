@@ -111,7 +111,7 @@ export class ScrimModuleResolver {
     @Query(() => Scrim, {nullable: true})
     async getCurrentScrim(@CurrentUser() user: UserPayload): Promise<Scrim | null> {
         const result = await this.scrimService.getScrimByPlayer(user.userId);
-        if (result) return new Scrim(result);
+        if (result) return result as Scrim;
         return null;
     }
 
@@ -172,7 +172,7 @@ export class ScrimModuleResolver {
 
         const scrim = await this.scrimService.getScrimById(scrimId).catch(() => null);
         if (!scrim) throw new GraphQLError("Scrim does not exist");
-        
+
         if (player.skillGroupId !== scrim.skillGroupId) throw new GraphQLError("Player is not in the correct skill group");
 
         return this.scrimService.joinScrim(this.userToScrimPlayer(user), scrimId, group);

@@ -7,6 +7,7 @@ import {
 import {EventProxyService} from "./event-proxy/event-proxy.service";
 import {GameOrderService} from "./game-order/game-order.service";
 import {ScrimController} from "./scrim.controller";
+import {ScrimEventSubscriber} from "./scrim.event-subscriber";
 import {ScrimService} from "./scrim.service";
 import {ScrimCrudService} from "./scrim-crud/scrim-crud.service";
 import {ScrimGroupService} from "./scrim-group/scrim-group.service";
@@ -42,6 +43,7 @@ import {ScrimMetricsService} from "./scrim-metrics/scrim-metrics.service";
         ScrimMetricsService,
         ScrimGroupService,
         GameOrderService,
+        ScrimEventSubscriber,
     ],
 })
 export class ScrimModule {

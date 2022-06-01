@@ -122,9 +122,6 @@
     form {
         @apply space-y-4;
 
-        hr {
-            @apply col-span-2;
-        }
 
         label {
             @apply contents;

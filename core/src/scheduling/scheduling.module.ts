@@ -1,6 +1,6 @@
 import {Module} from "@nestjs/common";
-import {DatabaseModule} from "src/database";
 
+import {DatabaseModule} from "../database";
 import {MatchService} from "./match";
 import {RoundService} from "./round";
 

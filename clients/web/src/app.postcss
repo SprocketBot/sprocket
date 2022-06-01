@@ -14,47 +14,19 @@ h1,h2,h3,h4,h5,h6 {
     @apply text-opacity-100 text-gray-100;
 }
 
-/*
-table {
-    @apply w-full text-left table-auto;
+table.table tr:not(thead tr) {
+    @apply bg-base-200/75;
+    &:nth-child(even) {
+        @apply bg-base-200/50;
+    }
+    &:last-child {
+        td:last-child {
+            @apply rounded-br-lg;
+        }
+        td:first-child {
+            @apply rounded-bl-lg;
+        }
 
-    thead {
-        @apply text-lg border-b-2 border-b-sprocket border-opacity-20;
     }
-    th, td {
-        @apply py-4
-    }
-    th:first-child, td:first-child {
-        @apply pl-5;
-    }
-    th:last-child, td:last-child {
-        @apply pr-5;
-    }
+
 }
-
-input[type="checkbox"] {
-        @apply appearance-none bg-gray-200 bg-opacity-30 h-4 w-8 relative;
-
-        &:hover {
-            @apply bg-opacity-40;
-        }
-
-        &:active {
-            @apply bg-opacity-50;
-        }
-
-        &:before {
-            content: "";
-
-            @apply bg-sprocket-gray absolute 
-            left-1/2 top-1/2 h-2/3 w-1/3
-            -translate-x-3 -translate-y-1/2 
-            transition-all;
-        }
-
-        &:checked:before {
-            content: "";
-            @apply translate-x-0 bg-sprocket;
-        }
-    }
-    */

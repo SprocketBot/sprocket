@@ -80,7 +80,6 @@
                 $value => {
                     const latestMsg = findLast($value, msg => msg?.data.followReplayParse.taskId === taskIds[i]);
                     const progress = latestMsg?.data.followReplayParse;
-                    console.log(`${progress?.taskId}\t${progress?.progress.value}`);
                     return progress;
                 },
             );

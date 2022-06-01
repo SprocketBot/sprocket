@@ -32,7 +32,7 @@ export class AnalyticsService {
             // eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
             const output = outputSchema.parse(response);
 
-            this.logger.debug(`Responding from endpoint \`${endpoint}\` with data \`${JSON.stringify(data, null, 2)}\``);
+            this.logger.verbose(`Responding from endpoint \`${endpoint}\` with data \`${JSON.stringify(data, null, 2)}\``);
             return {
                 status: ResponseStatus.SUCCESS,
                 data: output,

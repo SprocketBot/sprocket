@@ -1,6 +1,6 @@
 import {gql} from "@urql/core";
-import {currentScrim} from "..";
-import {client} from "../client";
+import {currentScrim} from "../../queries";
+import {client} from "../../client";
 
 type JoinScrimResponse = boolean;
 
@@ -24,5 +24,5 @@ export const joinScrimMutation = async (vars: JoinScrimVars): Promise<JoinScrimR
         currentScrim.invalidate();
         return r.data;
     }
-    throw r.error;
+    throw r.error as Error;
 };

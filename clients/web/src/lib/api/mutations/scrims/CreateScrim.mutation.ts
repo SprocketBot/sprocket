@@ -1,6 +1,6 @@
 import {gql} from "@urql/core";
-import {currentScrim} from "..";
-import {client} from "../client";
+import {currentScrim} from "../../queries";
+import {client} from "../../client";
 
 interface CreateScrimResponse {
     id: string;
@@ -41,5 +41,5 @@ export const createScrimMutation = async (vars: CreateScrimVariables): Promise<C
         currentScrim.invalidate();
         return r.data;
     }
-    throw r.error;
+    throw r.error as Error;
 };

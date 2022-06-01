@@ -3,6 +3,7 @@ export * from "./CheckInToScrim.schema";
 export * from "./CompleteScrim.schema";
 export * from "./CreateScrim.schema";
 export * from "./EndScrim.schema";
+export * from "./ForceUpdateScrimStatus.schema";
 export * from "./GetAllScrims.schema";
 export * from "./GetScrim.schema";
 export * from "./GetScrimByPlayer.schema";
