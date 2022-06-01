@@ -36,6 +36,8 @@ export class ScrimService {
 
     get pendingScrimsSubTopic(): string { return "scrims.created" }
 
+    get allActiveScrimsSubTopic(): string { return "scrims.updated" }
+
     async getAllScrims(skillGroupId?: number): Promise<IScrim[]> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.GetAllScrims, {skillGroupId});
 
@@ -170,6 +172,12 @@ export class ScrimService {
                                 event: v.topic,
                             },
                         }).catch(this.logger.error.bind(this.logger));
+                        this.pubsub.publish(payload.id, {
+                            followActiveScrims: {
+                                scrim: payload,
+                                event: v.topic,
+                            },
+                        }).catch(this.logger.error.bind(this.logger))
                         break;
                     }
                 }
