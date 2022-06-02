@@ -1,9 +1,14 @@
 {
   "transport": {
     "url": "",
+    "matchmaking_queue": "dev-matchmaking",
+    "core_queue": "dev-core",
     "bot_queue": "dev-bot",
+    "analytics_queue": "dev-analytics",
     "events_queue": "dev-events",
-    "events_application_key": "notification-service"
+    "image_generation_queue": "dev-image-gen",
+    "notification_queue": "dev-notifications",
+    "events_application_key": "matchmaking-service"
   },
   "logger": {
     "levels": true

@@ -153,6 +153,9 @@ export const config = {
         get matchmaking_queue(): string {
             return _config.get<string>("transport.matchmaking_queue");
         },
+        get notification_queue(): string {
+            return _config.get<string>("transport.notification_queue");
+        },
         get events_queue(): string {
             return _config.get<string>("transport.events_queue");
         },
