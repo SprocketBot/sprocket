@@ -2,6 +2,8 @@
 
     import {Modal} from "$lib/components";
     import SubmitReplaysModal from "../modals/SubmitReplaysModal.svelte";
+    import {activeScrims, type ActiveScrims} from "$lib/api";
+
     export let visible = false;
     let submitting: boolean = false;
 
@@ -27,37 +29,3 @@
     </section>
 
 </Modal>
-
-<!--<style lang="postcss">-->
-<!--    form {-->
-<!--        @apply space-y-4;-->
-
-<!--    hr {-->
-<!--        @apply col-span-2;-->
-<!--    }-->
-
-<!--    label {-->
-<!--        @apply contents;-->
-<!--    }-->
-
-<!--    select {-->
-<!--        @apply mt-2 outline-1 select select-bordered select-sm;-->
-
-<!--    option {-->
-<!--        @apply py-2;-->
-<!--    }-->
-
-<!--    &:disabled {-->
-<!--         @apply bg-gray-700 cursor-not-allowed;-->
-<!--     }-->
-<!--    }-->
-
-<!--    input {-->
-<!--        @apply ml-auto;-->
-<!--    }-->
-
-<!--    input:disabled {-->
-<!--        @apply text-right px-4 py-1 bg-gray-700;-->
-<!--    }-->
-<!--    }-->
-<!--</style>-->
