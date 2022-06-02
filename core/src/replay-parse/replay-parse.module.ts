@@ -5,7 +5,9 @@ import {
 import {PubSub} from "apollo-server-express";
 
 import {DatabaseModule} from "../database";
+import {MledbInterfaceModule} from "../mledb";
 import {ScrimModule} from "../scrim";
+import {BallchasingConverterService, FinalizationService} from "./finalization";
 import {ReplayParsePubSub} from "./replay-parse.constants";
 import {ReplayParseResolver} from "./replay-parse.resolver";
 import {ReplayParseService} from "./replay-parse.service";
@@ -22,6 +24,7 @@ import {ReplaySubmissionService} from "./replay-submission";
         ScrimModule,
         EventsModule,
         DatabaseModule,
+        MledbInterfaceModule,
     ],
     providers: [
         ReplayParseSubscriber,
@@ -33,6 +36,8 @@ import {ReplaySubmissionService} from "./replay-submission";
         },
         ReplayRatificationResolver,
         ReplaySubmissionService,
+        FinalizationService,
+        BallchasingConverterService,
     ],
 })
 export class ReplayParseModule {

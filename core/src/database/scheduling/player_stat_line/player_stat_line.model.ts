@@ -28,5 +28,4 @@ export class PlayerStatLine extends BaseModel {
     @ManyToOne(() => TeamStatLine)
     @Field(() => TeamStatLine)
     teamStats: TeamStatLine;
-
 }

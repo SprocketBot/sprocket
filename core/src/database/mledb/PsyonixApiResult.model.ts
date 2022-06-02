@@ -22,7 +22,7 @@ export class MLE_PsyonixApiResult {
     @Column("integer", {name: "division"})
     division: number;
 
-    @Column("integer", {name: "skill"})
+    @Column("numeric", {name: "skill"})
     skill: number;
 
     @Column("integer", {name: "matches_played"})
@@ -31,10 +31,10 @@ export class MLE_PsyonixApiResult {
     @Column("integer", {name: "win_streak"})
     winStreak: number;
 
-    @Column("integer", {name: "sigma"})
+    @Column("numeric", {name: "sigma"})
     sigma: number;
 
-    @Column("integer", {name: "mu"})
+    @Column("numeric", {name: "mu"})
     mu: number;
 
     @ManyToOne(

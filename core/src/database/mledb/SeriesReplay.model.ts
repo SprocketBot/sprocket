@@ -3,7 +3,7 @@ import {
 } from "typeorm";
 
 import {MLE_EloData} from "./EloData.model";
-import type {Map} from "./enums/Map.enum";
+import type {RocketLeagueMap} from "./enums/Map.enum";
 import {MLE_PlayerStats} from "./PlayerStats.model";
 import {MLE_PlayerStatsCore} from "./PlayerStatsCore.model";
 import {MLE_Series} from "./Series.model";
@@ -47,7 +47,7 @@ export class MLE_SeriesReplay {
     @Column("character varying", {
         name: "map", nullable: true, length: 255,
     })
-    map: Map | null;
+    map: RocketLeagueMap | null;
 
     @Column("character varying", {
         name: "match_guid",
