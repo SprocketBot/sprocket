@@ -1,6 +1,7 @@
 <script lang="ts">
     import {ScrimManagementModal} from "$lib/components";
     import {screamingSnakeToHuman} from "$lib/utils";
+import type { CurrentScrim } from "../../../api";
     import { activeScrims, type ActiveScrims } from "../../../api/queries/ActiveScrims.store";
 
     /*
@@ -14,7 +15,7 @@
 
     export let visible = false;
     let scrimManagementModalVisible = false;
-    let targetId;
+    let targetId:string;
     let lockimgsrc = "/img/lock_open.svg";
     let lockimgalt = "Open Lock";
 
@@ -29,13 +30,19 @@
         }
 
     };
-    const openScrimManagementModal = scrimId => {
-        scrimManagementModalVisible = true;
-        targetId = scrimId;
-    };
 
     let activeScrimsData: ActiveScrims | undefined;
     $: activeScrimsData = $activeScrims?.data?.activeScrims;
+
+    let targetScrim: CurrentScrim | undefined;
+
+    const openScrimManagementModal = (scrimId:string) => {
+        scrimManagementModalVisible = true;
+        targetId = scrimId;
+        let targetScrims = activeScrimsData?.filter(s => s.id === targetId);
+        targetScrim = targetScrims? targetScrims[0] : undefined;
+    };
+
 </script>
 
 <table class="table text-center w-full" >
@@ -55,7 +62,6 @@
     <tbody>
     {#if activeScrimsData?.length}
         {#each activeScrimsData as scrim (scrim.id)}
-            {console.log(scrim)}
             <tr>
                 <td>{scrim.id}</td>
                 <td>{screamingSnakeToHuman(scrim.settings.mode)}</td>
@@ -77,5 +83,5 @@
     </tbody>
 </table>
 {#if scrimManagementModalVisible}
-    <ScrimManagementModal bind:visible={scrimManagementModalVisible}/>
+    <ScrimManagementModal bind:visible={scrimManagementModalVisible} bind:targetScrim={targetScrim} />
 {/if}
