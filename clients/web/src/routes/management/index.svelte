@@ -21,11 +21,6 @@
     <DashboardCard title="" class="col-span-6 xl:col-span-6 row-span-1">
         <AvailableAdminView bind:adminScrimManagementVisible={scrimManagementVisible}/>
     </DashboardCard>
-    <DashboardCard title="" class="col-span-3 xl:col-span-6">
-        {#if scrimManagementVisible}
-            <AdminScrimTable bind:visible={scrimManagementVisible}/>
-        {/if}
-    </DashboardCard>
 </DashboardLayout>
 
 <style lang="postcss">

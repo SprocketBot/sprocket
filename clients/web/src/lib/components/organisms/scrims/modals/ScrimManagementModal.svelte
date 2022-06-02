@@ -14,28 +14,48 @@
     console.log(targetScrim);
 </script>
 
-<Modal title="Manage Scrim" id="manage-scrim-modal" visible={visible}>
+<Modal title="Manage Scrim" id="manage-scrim-modal" bind:visible >
     <section slot ="body">
         {#if targetScrim && targetScrim?.playerCount > 0}
-                <br />
-                Someone please help me with HTML, I'm bad at it. Players in the scrim:
-                {targetScrim.players}
-        {:else}
-        <hr/>
-        <div class="flex items-center">
-
-            <h3 class="flex-1">Play Solo</h3>
-            <div>
-                <button>Join</button>
+            {#if targetScrim.players === null}
+                This Scrim is still in the 'PENDING' state.
+            {:else}
+                No longer in pending, we've popped! Here are the players:
+                <table class="table text-center w-full" >
+                <thead>
+                <tr>
+                    <th>Player ID</th>
+                    <th>Checked In?</th>
+                    <th>Player Name</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {#each targetScrim.players as player (player.id)}
+                    <tr>
+                        <td>{player.id}</td>
+                        <td>{player.checkedIn}</td>
+                        <td>{player.name}</td>
+                        <td>
+                            <button class="btn btn-outline float-right lg:btn-sm">
+                                Manage
+                            </button>
+                        </td>
+                    </tr>
+                {/each}
+                </tbody>
+            </table>
+            {/if}
+            <div class="divider" />
+            <div class="flex items-center">
+                <h3 class="flex-1">Cancel this scrim</h3>
+                <div>
+                    <button>Cancel</button>
+                </div>
             </div>
 
-        </div>
-        <div class="divider"></div>
-        <div class="flex items-center gap-2">
-            <h3 class="flex-1">Play Together <span class="text-gray-300 text-sm">(Coming Soon)</span></h3>
-            <button>Create group</button>
-            <button>Join group</button>
-        </div>
+        {:else}
+            Target Scrim does not exist, sorry. 
         {/if}
     </section>
 

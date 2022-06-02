@@ -67,9 +67,13 @@ import type { CurrentScrim } from "../../../api";
                 <td>{screamingSnakeToHuman(scrim.settings.mode)}</td>
                 <td>{scrim.status}</td>
                 {#if scrim.players?.length >= 1}
-                    <td>{scrim.players.join(", ")}</td>
+                    <td><div class="flex flex-col gap-1">
+                        {#each scrim.players as player (player.id)}
+                            <div class="p-2 bg-base-300/20 rounded-lg">{player.name}</div>
+                        {/each}
+                    </div></td>
                 {:else}
-                    <td>Empty Scrim</td>
+                    <td>Scrim still pending</td>
                 {/if}
                 <td>
                     <button on:click={() => { openScrimManagementModal(scrim.id) }} class="btn btn-outline float-right lg:btn-sm">

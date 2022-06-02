@@ -1,5 +1,5 @@
 <script lang="ts">
-
+    import {AdminScrimTable, DashboardLayout, DashboardCard} from "$lib/components";
 
     // Is this visible?
     export let visible = true;
@@ -39,6 +39,13 @@
     <button class="btn btn-secondary btn-wide ">
         Shuk Management
     </button>
+
+    <DashboardCard title="" class="col-span-3 xl:col-span-6">
+        {#if adminScrimManagementVisible}
+            <AdminScrimTable bind:visible={adminScrimManagementVisible}/>
+        {/if}
+    </DashboardCard>
+
 
 </div>
 
