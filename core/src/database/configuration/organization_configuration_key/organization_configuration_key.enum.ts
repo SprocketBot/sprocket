@@ -1,0 +1,13 @@
+import {registerEnumType} from "@nestjs/graphql";
+
+export enum OrganizationConfigurationKeyCode {
+    // SCRIMS
+    SCRIM_QUEUE_BAN_CHECKIN_TIMEOUT_SECONDS = "SCRIM_QUEUE_BAN_CHECKIN_TIMEOUT_SECONDS",
+    SCRIM_QUEUE_BAN_INITIAL_DURATION_SECONDS = "SCRIM_QUEUE_BAN_INITIAL_DURATION_SECONDS",
+    SCRIM_QUEUE_BAN_DURATION_MODIFIER = "SCRIM_QUEUE_BAN_DURATION_MODIFIER",
+    SCRIM_QUEUE_BAN_MODIFIER_FALL_OFF_DAYS = "SCRIM_QUEUE_BAN_MODIFIER_FALL_OFF_DAYS",
+}
+
+registerEnumType(OrganizationConfigurationKeyCode, {
+    name: "OrganizationConfigurationKeyCode",
+});

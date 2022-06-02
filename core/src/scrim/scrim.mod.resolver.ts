@@ -13,7 +13,7 @@ import {PubSub} from "apollo-server-express";
 import {GraphQLError} from "graphql";
 
 import {OrganizationConfigurationService} from "../configuration";
-import {Player} from "../database";
+import {OrganizationConfigurationKeyCode, Player} from "../database";
 import {
     CurrentPlayer, GameSkillGroupService, PlayerService,
 } from "../franchise";
@@ -133,7 +133,7 @@ export class ScrimModuleResolver {
         const gameMode = await this.gameModeService.getGameModeById(data.settings.gameModeId);
         const player = await this.playerService.getPlayerByOrganizationAndGame(user.userId, user.currentOrganizationId, gameMode.gameId);
         const skillGroup = await this.skillGroupService.getGameSkillGroupById(player.skillGroupId);
-        const checkinTimeout = await this.organizationConfigurationService.getOrganizationConfigurationValue(user.currentOrganizationId, "scrimQueueCheckinTimeout");
+        const checkinTimeout = await this.organizationConfigurationService.getOrganizationConfigurationValue(user.currentOrganizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_CHECKIN_TIMEOUT_SECONDS);
         const settings: IScrimSettings = {
             competitive: data.settings.competitive,
             mode: data.settings.mode,
