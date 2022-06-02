@@ -6,8 +6,9 @@
     let activePlayersData: Player[] | undefined;
     $: activePlayersData = $activePlayers;
     let targetPlayer;
+    export let selectedPlayer;
 
-    const openPlayerManagementModal = (playerId:number) => {
+    const openPlayerManagementModal = (playerId: number) => {
         playerManagementModalVisible = true;
         targetPlayer = playerId;
     };
