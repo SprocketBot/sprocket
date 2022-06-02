@@ -1,11 +1,9 @@
 <script lang="ts">
 
 
-
-    const scrimManagementVisible = false;
+    let selectedPlayer;
 
     import {
-        AvailableAdminView,
         AdminScrimTable,
         AdminPlayerTable,
         DashboardLayout,
@@ -20,13 +18,13 @@
     <DashboardCard title="" class="col-span-6 xl:col-span-5 row-span-3">
         <h2>Scrim Management</h2>
         <div class=" flex justify-center">
-            <AdminScrimTable/>
+            <AdminScrimTable bind:selectedPlayer/>
         </div>
     </DashboardCard>
     <DashboardCard title="" class="col-span-6 xl:col-span-5 row-span-3">
         <h2>Player Management</h2>
         <div class=" flex justify-center">
-            <AdminPlayerTable/>
+            <AdminPlayerTable bind:selectedPlayer/>
         </div>
     </DashboardCard>
 
