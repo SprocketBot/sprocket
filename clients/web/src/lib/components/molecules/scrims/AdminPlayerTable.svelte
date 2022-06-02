@@ -11,16 +11,22 @@
 <table class="table text-center w-full" >
     <thead>
     <tr>
-        <th>Player ID</th>
         <th>Player Name</th>
+        <th>Player ID</th>
+        <th></th>
     </tr>
     </thead>
     <tbody>
         {#if activePlayersData}
             {#each activePlayersData as player (player.id)}
                 <tr>
-                <td>{player.id}</td>
                 <td>{player.name}</td>
+                <td>{player.id}</td>
+                <td>
+                    <button class="btn btn-outline float-right lg:btn-sm">
+                        Manage
+                    </button>
+                </td>
                 </tr>
             {/each}
         {/if}
