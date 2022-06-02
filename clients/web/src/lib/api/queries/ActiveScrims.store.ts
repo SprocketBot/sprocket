@@ -41,7 +41,7 @@ export interface ActiveScrimsStoreVariables {
 export interface ActiveScrimsStoreSubscriptionVariables {
 }
 
-class ActiveScrimsStore extends LiveQueryStore<ActiveScrimsStoreValue, ActiveScrimsStoreVariables, ActiveScrimsSubscriptionValue, ActiveScrimsStoreSubscriptionVariables> {
+export class ActiveScrimsStore extends LiveQueryStore<ActiveScrimsStoreValue, ActiveScrimsStoreVariables, ActiveScrimsSubscriptionValue, ActiveScrimsStoreSubscriptionVariables> {
     protected queryString = gql<ActiveScrimsStoreValue, ActiveScrimsStoreVariables>`
     query {
         activeScrims: getActiveScrims {

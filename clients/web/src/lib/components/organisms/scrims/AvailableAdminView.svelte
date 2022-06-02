@@ -1,5 +1,6 @@
 <script lang="ts">
     import {AdminScrimTable, DashboardLayout, DashboardCard} from "$lib/components";
+import AdminPlayerTable from "../../molecules/scrims/AdminPlayerTable.svelte";
 
     // Is this visible?
     export let visible = true;
@@ -12,10 +13,12 @@
 
     const handleScrimManagementBtn = () => {
         adminScrimManagementVisible = true;
+        adminPlayerManagementVisible = false;
     };
 
     const handlePlayerManagementBtn = () => {
         adminPlayerManagementVisible = true;
+        adminScrimManagementVisible = false;
     };
 
     const handleLeagueManagementBtn = () => {
@@ -43,6 +46,9 @@
     <DashboardCard title="" class="col-span-3 xl:col-span-6">
         {#if adminScrimManagementVisible}
             <AdminScrimTable bind:visible={adminScrimManagementVisible}/>
+        {/if}
+        {#if adminPlayerManagementVisible}
+            <AdminPlayerTable bind:visible={adminPlayerManagementVisible} />
         {/if}
     </DashboardCard>
 

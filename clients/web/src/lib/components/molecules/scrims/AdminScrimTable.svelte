@@ -1,7 +1,7 @@
 <script lang="ts">
     import {ScrimManagementModal} from "$lib/components";
     import {screamingSnakeToHuman} from "$lib/utils";
-import type { CurrentScrim } from "../../../api";
+    import type { CurrentScrim } from "../../../api";
     import { activeScrims, type ActiveScrims } from "../../../api/queries/ActiveScrims.store";
 
     /*
