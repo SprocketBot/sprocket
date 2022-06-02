@@ -2,7 +2,7 @@ import {
     Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn,
 } from "typeorm";
 
-import {Mode} from "./enums/Mode.enum";
+import {LegacyGameMode} from "./enums/Mode.enum";
 import {MLE_Fixture} from "./Fixture.model";
 import {MLE_Scrim} from "./Scrim.model";
 import {MLE_SeriesReplay} from "./SeriesReplay.model";
@@ -70,7 +70,7 @@ export class MLE_Series {
     fullNcp: boolean;
 
     @Column("text", {name: "mode"})
-    mode: Mode;
+    mode: LegacyGameMode;
 
     @Column("integer", {name: "fixture_id", nullable: true})
     fixtureId: number | null;

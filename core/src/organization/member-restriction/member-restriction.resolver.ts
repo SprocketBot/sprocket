@@ -1,9 +1,12 @@
+import {UseGuards} from "@nestjs/common";
 import {
-    Args, Int, Mutation, ResolveField, Resolver, Root,
+    Args, Int, Mutation, Query, ResolveField, Resolver, Root,
 } from "@nestjs/graphql";
 
 import type {Member} from "../../database";
 import {MemberRestriction, MemberRestrictionType} from "../../database";
+import {MLE_OrganizationTeam} from "../../database/mledb";
+import {MLEOrganizationTeamGuard} from "../../mledb";
 import {MemberService} from "../member/member.service";
 import {MemberRestrictionService} from "./member-restriction.service";
 
@@ -13,6 +16,12 @@ export class MemberRestrictionResolver {
         private readonly memberRestrictionService: MemberRestrictionService,
         private readonly memberService: MemberService,
     ) {}
+
+    @Query(() => [MemberRestriction])
+    @UseGuards(MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    async getActiveMemberRestrictions(@Args("type", {type: () => MemberRestrictionType}) type: MemberRestrictionType): Promise<MemberRestriction[]> {
+        return this.memberRestrictionService.getActiveMemberRestrictions(type);
+    }
 
     @Mutation(() => MemberRestriction)
     async createMemberRestriction(
