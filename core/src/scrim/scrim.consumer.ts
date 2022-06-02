@@ -4,10 +4,10 @@ import {
 import {Logger} from "@nestjs/common";
 import {ScrimStatus} from "@sprocketbot/common";
 import {Job} from "bull";
-import {IsNull} from "typeorm";
+import {IsNull, MoreThanOrEqual} from "typeorm";
 
 import {OrganizationConfigurationService} from "../configuration/organization-configuration/organization-configuration.service";
-import {MemberRestrictionType} from "../database";
+import {MemberRestrictionType, OrganizationConfigurationKeyCode} from "../database";
 import {MemberService} from "../organization/member/member.service";
 import {MemberRestrictionService} from "../organization/member-restriction";
 import {ScrimService} from "./scrim.service";
@@ -35,8 +35,12 @@ export class ScrimConsumer {
         this.logger.log(`scrim unsuccessful scrimId=${scrimId}`);
         this.logger.log(`scrimId=${scrimId} players didn't check in: ${playersNotCheckedIn.map(p => p.name)}`);
 
-        const initialBanDuration = await this.organizationConfigurationService.getOrganizationConfigurationValue(scrim.organizationId, "queueBanInitialDuration");
-        const durationModifier = await this.organizationConfigurationService.getOrganizationConfigurationValue(scrim.organizationId, "queueBanDurationModifier");
+        const initialBanDuration = await this.organizationConfigurationService.getOrganizationConfigurationValue(scrim.organizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_INITIAL_DURATION_SECONDS);
+        const durationModifier = await this.organizationConfigurationService.getOrganizationConfigurationValue(scrim.organizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_DURATION_MODIFIER);
+        const restrictionFallOffDays = await this.organizationConfigurationService.getOrganizationConfigurationValue(scrim.organizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_MODIFIER_FALL_OFF_DAYS);
+
+        const restrictionFallOffDate = new Date();
+        restrictionFallOffDate.setDate(restrictionFallOffDate.getDate() - parseInt(restrictionFallOffDays));
 
         for (const player of playersNotCheckedIn) {
             const member = await this.memberService.getMember({relations: ["organization"], where: {user: {id: player.id} } });
@@ -45,11 +49,12 @@ export class ScrimConsumer {
                     type: MemberRestrictionType.QUEUE_BAN,
                     member: member,
                     manualExpiration: IsNull(),
+                    expiration: MoreThanOrEqual(restrictionFallOffDate),
                 },
             });
 
             // eslint-disable-next-line @typescript-eslint/no-extra-parens
-            const banMinuteOffset = parseInt(initialBanDuration.value) + (parseFloat(durationModifier.value) * restrictions.length);
+            const banMinuteOffset = parseInt(initialBanDuration) + (parseFloat(durationModifier) * restrictions.length);
             const bannedUntil = new Date();
             bannedUntil.setMinutes(bannedUntil.getMinutes() + banMinuteOffset);
 

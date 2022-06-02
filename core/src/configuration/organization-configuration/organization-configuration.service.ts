@@ -4,9 +4,9 @@ import type {FindConditions} from "typeorm";
 import {Repository} from "typeorm";
 
 import {
-    Organization,
-    OrganizationConfigurationAllowedValue, OrganizationConfigurationKey, OrganizationConfigurationValue,
+    Organization, OrganizationConfigurationAllowedValue, OrganizationConfigurationKey, OrganizationConfigurationValue,
 } from "../../database";
+import type {OrganizationConfigurationKeyCode} from "../../database/configuration/organization_configuration_key";
 import type {OrganizationConfiguration} from "./organization-configuration.types";
 
 @Injectable()
@@ -18,14 +18,14 @@ export class OrganizationConfigurationService {
         @InjectRepository(OrganizationConfigurationValue) private valueRepository: Repository<OrganizationConfigurationValue>,
     ) {}
 
-    async getOrganizationConfigurations(organizationId: number, keyCode?: string): Promise<OrganizationConfiguration[]> {
+    async getOrganizationConfigurations(organizationId: number, code?: OrganizationConfigurationKeyCode): Promise<OrganizationConfiguration[]> {
         const where: FindConditions<OrganizationConfigurationValue> = {
             organization: {
                 id: organizationId,
             },
         };
 
-        if (keyCode) where.key = {code: keyCode};
+        if (code) where.key = {code};
         
         const values = await this.valueRepository.find({
             where: where,
@@ -53,14 +53,28 @@ export class OrganizationConfigurationService {
         });
     }
 
-    async getOrganizationConfigurationValue(organizationId: number, code: string): Promise<OrganizationConfigurationValue> {
-        return this.valueRepository.findOneOrFail({
+    async getOrganizationConfigurationValue(organizationId: number, code: string): Promise<string> {
+        const organizationConfigurationValue = await this.valueRepository.findOne({
             relations: ["key"],
             where: {
                 organization: organizationId,
                 key: {code},
             },
         });
+
+        let value = organizationConfigurationValue?.value;
+
+        if (!value) {
+            const organizationConfigurationKey = await this.keyRepository.findOneOrFail({
+                where: {
+                    key: {code},
+                },
+            });
+
+            value = organizationConfigurationKey.default;
+        }
+
+        return value;
     }
 
     async createOrganizationConfigurationValue(organizationId: number, code: string, value: string): Promise<OrganizationConfigurationValue> {
