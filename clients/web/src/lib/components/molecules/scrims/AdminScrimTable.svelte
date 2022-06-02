@@ -53,15 +53,7 @@
         scrimManagementModalVisible = true;
         targetId = scrimId;
     };
-    //const getScrims = async () => {
-    //    const r = await client.query(AllCurrentScrimsQuery, {}).toPromise();
-    //    if (r.data) {
-    //        console.log(r.data);
-    //        adminScrimsInTable = r.data.allCurrentScrims;
-    //    }
-    //}
 
-    //getScrims();
     let activeScrimsData: ActiveScrims | undefined;
     $: activeScrimsData = $activeScrims?.data?.activeScrims;
 </script>

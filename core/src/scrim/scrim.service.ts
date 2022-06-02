@@ -151,6 +151,7 @@ export class ScrimService {
                     return;
                 }
 
+                console.log(v.topic);
                 switch (v.topic as EventTopic) {
                     case EventTopic.ScrimMetricsUpdate:
                         this.pubsub.publish(this.metricsSubTopic, {followScrimMetrics: v.payload}).catch(this.logger.error.bind(this.logger));
@@ -165,6 +166,7 @@ export class ScrimService {
                         }).catch(this.logger.error.bind(this.logger))
                         break;
                     case EventTopic.ScrimDestroyed:
+                    case EventTopic.ScrimCancelled:
                         this.pubsub.publish(this.pendingScrimsSubTopic, {followPendingScrims: v.payload}).catch(this.logger.error.bind(this.logger));
                         this.pubsub.publish(this.allActiveScrimsSubTopic, {
                             followActiveScrims: {
@@ -184,7 +186,7 @@ export class ScrimService {
                                 event: v.topic,
                             },
                         }).catch(this.logger.error.bind(this.logger));
-                        this.pubsub.publish(payload.id, {
+                        this.pubsub.publish(this.allActiveScrimsSubTopic, {
                             followActiveScrims: {
                                 scrim: payload,
                                 event: v.topic,
