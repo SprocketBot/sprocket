@@ -3,10 +3,10 @@ import {InjectRepository} from "@nestjs/typeorm";
 import type {FindConditions} from "typeorm";
 import {Repository} from "typeorm";
 
-import type {OrganizationConfigurationKeyCode} from "../../database";
 import {
     Organization, OrganizationConfigurationAllowedValue, OrganizationConfigurationKey, OrganizationConfigurationValue,
 } from "../../database";
+import type {OrganizationConfigurationKeyCode} from "../../database/configuration/organization_configuration_key";
 import type {OrganizationConfiguration} from "./organization-configuration.types";
 
 @Injectable()
