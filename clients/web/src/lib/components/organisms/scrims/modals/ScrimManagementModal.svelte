@@ -2,6 +2,7 @@
 
     import {Modal} from "$lib/components";
     import SubmitReplaysModal from "../modals/SubmitReplaysModal.svelte";
+    import {UploadReplaysModal} from "$lib/components";
     import {activeScrims, cancelScrimMutation, type ActiveScrims, type CurrentScrim} from "$lib/api";
 
     export let visible = false;
@@ -16,13 +17,22 @@
             cancelScrimMutation({scrimId: targetScrim?.id?? ""});
             visible = false;
         } catch {
-            console.log("oops")
+            console.log("oops, all berries!")
         }
+    }
+
+    let uploading = false;
+    function uploadReplays() {
+        console.log("Sucker");
+        uploading = true;
     }
 </script>
 
 <Modal title="Manage Scrim" id="manage-scrim-modal" bind:visible >
     <section slot ="body">
+        {#if uploading}
+            <UploadReplaysModal bind:visible={uploading} submissionId={targetScrim?.submissionId} />
+        {:else}
         {#if targetScrim && targetScrim?.playerCount > 0}
             {#if targetScrim.players === null}
                 This Scrim is still in the 'PENDING' state.
@@ -53,6 +63,17 @@
                 </tbody>
             </table>
             {/if}
+            {#if targetScrim.status === "IN_PROGRESS"}
+                <div class="divider" />
+                <div class="flex items-center">
+                    <h3 class="flex-1 text-info-content">Now you can also
+                    upload replays.</h3>
+                    <div>
+                        <button on:click={uploadReplays} class="btn btn-primary
+                         btn-sm">Upload</button>
+                    </div>
+                </div>
+            {/if}
             <div class="divider" />
             <div class="flex items-center">
                 <h3 class="flex-1 text-error-content">Cancel this scrim</h3>
@@ -63,6 +84,7 @@
 
         {:else}
             Target Scrim does not exist, sorry. 
+        {/if}
         {/if}
     </section>
 
