@@ -12,7 +12,7 @@ import {
 } from "../../database";
 import {MledbScrimService} from "../../mledb/mledb-scrim/mledb-scrim.service";
 import type {ReplaySubmission} from "../replay-submission";
-import {BallchasingConverterService} from "./ballchasing-converter/ballchasing-converter.service";
+import {BallchasingConverterService} from "./ballchasing-converter";
 
 @Injectable()
 export class FinalizationService {
@@ -31,8 +31,7 @@ export class FinalizationService {
         @InjectRepository(Round) private readonly roundRepo: Repository<Round>,
         @InjectRepository(PlayerStatLine) private readonly playerStatRepo: Repository<PlayerStatLine>,
         @InjectRepository(TeamStatLine) private readonly teamStatRepo: Repository<TeamStatLine>,
-    ) {
-    }
+    ) {}
 
     async saveScrimToDatabase(submission: ReplaySubmission, submissionId: string): Promise<void> {
         const runner = this.dbConn.createQueryRunner();

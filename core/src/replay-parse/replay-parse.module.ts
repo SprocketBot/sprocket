@@ -7,14 +7,13 @@ import {PubSub} from "apollo-server-express";
 import {DatabaseModule} from "../database";
 import {MledbInterfaceModule} from "../mledb";
 import {ScrimModule} from "../scrim";
-import {FinalizationService} from "./finalization/finalization.service";
+import {BallchasingConverterService, FinalizationService} from "./finalization";
 import {ReplayParsePubSub} from "./replay-parse.constants";
 import {ReplayParseResolver} from "./replay-parse.resolver";
 import {ReplayParseService} from "./replay-parse.service";
 import {ReplayParseSubscriber} from "./replay-parse.subscriber";
 import {ReplayRatificationResolver} from "./replay-ratification/replay-ratification.resolver";
 import {ReplaySubmissionService} from "./replay-submission";
-import { BallchasingConverterService } from './finalization/ballchasing-converter/ballchasing-converter.service';
 
 @Module({
     imports: [

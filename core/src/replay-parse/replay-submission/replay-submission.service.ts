@@ -195,8 +195,7 @@ export class ReplaySubmissionService {
             await this.removeSubmission(submissionId);
 
             this.logger.debug(`Submission ${submissionId} completed and removed`);
-
-
+            
             return true;
         } else if (this.isMatchSubmission(submissionId)) {
             throw new Error("Submitting replays for matches is not implemented yet");
