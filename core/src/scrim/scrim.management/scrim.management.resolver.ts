@@ -21,17 +21,10 @@ export class ScrimManagementResolver {
           plug in to the replay-parse service
             - See UploadReplays.mutation.ts in web, and the
               replay-parse.resolver.ts in replay service.
-        - Force ratification of the scrim - Still waiting on this
-          service/feature to hit dev
         - Ban a player from queueing (and consequently unban them) DONE [in member-restriction.resolver.ts]
         - Ban a player from rejecting ratifications DONE
         - Show/view all scrims in progress DONE
         - Cancel a scrim DONE
-        - Change state of a specific scrim
-            - i.e. locking a scrim
-            - This one will require changes to the matchmaking microservice.
-              Delaying for now because there's some design involved. 
-
      */
     @Query(()=> [IScrim])
     async getActiveScrims(@Args('skillGroupId', {type: () => Int, nullable: true, defaultValue: 0}) skillGroupId: number) {

@@ -24,18 +24,18 @@
                 <table class="table text-center w-full" >
                 <thead>
                 <tr>
+                    <th>Player Name</th>
                     <th>Player ID</th>
                     <th>Checked In?</th>
-                    <th>Player Name</th>
                     <th></th>
                 </tr>
                 </thead>
                 <tbody>
                 {#each targetScrim.players as player (player.id)}
                     <tr>
+                        <td>{player.name}</td>
                         <td>{player.id}</td>
                         <td>{player.checkedIn}</td>
-                        <td>{player.name}</td>
                         <td>
                             <button class="btn btn-outline float-right lg:btn-sm">
                                 Manage
@@ -48,9 +48,9 @@
             {/if}
             <div class="divider" />
             <div class="flex items-center">
-                <h3 class="flex-1">Cancel this scrim</h3>
+                <h3 class="flex-1 text-error-content">Cancel this scrim</h3>
                 <div>
-                    <button>Cancel</button>
+                    <button class="btn btn-error btn-outline btn-sm">Cancel</button>
                 </div>
             </div>
 
