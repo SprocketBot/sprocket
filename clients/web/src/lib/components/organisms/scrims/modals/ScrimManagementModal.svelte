@@ -2,7 +2,7 @@
 
     import {Modal} from "$lib/components";
     import SubmitReplaysModal from "../modals/SubmitReplaysModal.svelte";
-    import {activeScrims, type ActiveScrims, type CurrentScrim} from "$lib/api";
+    import {activeScrims, cancelScrimMutation, type ActiveScrims, type CurrentScrim} from "$lib/api";
 
     export let visible = false;
     export let targetScrim: CurrentScrim | undefined;
@@ -10,8 +10,15 @@
 
     let activeScrimsData: ActiveScrims | undefined;
     $: activeScrimsData = $activeScrims?.data?.activeScrims;
-    console.log(activeScrimsData);
-    console.log(targetScrim);
+
+    function cancelScrim() {
+        try {
+            cancelScrimMutation({scrimId: targetScrim?.id?? ""});
+            visible = false;
+        } catch {
+            console.log("oops")
+        }
+    }
 </script>
 
 <Modal title="Manage Scrim" id="manage-scrim-modal" bind:visible >
@@ -50,7 +57,7 @@
             <div class="flex items-center">
                 <h3 class="flex-1 text-error-content">Cancel this scrim</h3>
                 <div>
-                    <button class="btn btn-error btn-outline btn-sm">Cancel</button>
+                    <button on:click={cancelScrim} class="btn btn-error btn-outline btn-sm">Cancel</button>
                 </div>
             </div>
 
