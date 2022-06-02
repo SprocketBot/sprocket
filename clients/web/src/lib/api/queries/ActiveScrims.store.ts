@@ -13,7 +13,7 @@ export interface ActiveScrimsStoreValue {
 
 export interface ActiveScrimsSubscriptionValue {
     activeScrims: {
-        scrims: ActiveScrims;
+        scrim: CurrentScrim;
     };
 }
 
@@ -58,31 +58,33 @@ class ActiveScrimsStore extends LiveQueryStore<ActiveScrimsStoreValue, ActiveScr
     protected subscriptionString = gql<ActiveScrimsSubscriptionValue, ActiveScrimsStoreSubscriptionVariables>`
     subscription {
         activeScrims: followActiveScrims {
-            id
-            playerCount
-            maxPlayers
-            status
-            gameMode {
-                description
-            }
-            settings {
-                competitive
-                mode
-            }
-            players {
-                id 
-                name
-                checkedIn
-            }
-            games {
-                teams {
-                    players {
-                        id
-                        name
+            scrim {
+                id
+                playerCount
+                maxPlayers
+                status
+                gameMode {
+                    description
+                }
+                settings {
+                    competitive
+                    mode
+                }
+                players {
+                    id 
+                    name
+                    checkedIn
+                }
+                games {
+                    teams {
+                        players {
+                            id
+                            name
+                        }
                     }
                 }
+                submissionId
             }
-            submissionId
         }
     }
     `;
@@ -95,20 +97,22 @@ class ActiveScrimsStore extends LiveQueryStore<ActiveScrimsStoreValue, ActiveScr
 
     protected handleGqlMessage = (message: OperationResult<ActiveScrimsSubscriptionValue, ActiveScrimsStoreSubscriptionVariables>) => {
         if (message?.data?.activeScrims) {
-            const {scrims} = message?.data?.activeScrims ?? {};
-            //if (scrim?.status === "CANCELLED" || scrim?.status === "COMPLETE") {
-            //    this.currentValue.data = undefined;
-            //    toasts.pushToast({
-            //        status: "info",
-            //        content: `Scrim ${screamingSnakeToHuman(scrim.status)}`,
-            //    });
-            //} else {
-            //    this.currentValue.data.currentScrim = scrim;
-            //}
-            this.currentValue.data = {
-                                        activeScrims: scrims
-            }
+            const {scrim} = message?.data?.activeScrims ?? {};
 
+            if ( !this.currentValue.data) {
+                console.warn("Received subscription before query completed!");
+                return;
+            } 
+            switch(message.data.activeScrims.scrim.status) {
+                case "PENDING":
+                    this.currentValue.data.activeScrims.push(scrim);
+                    break;
+                case "CANCELLED":
+                case "COMPLETE":
+                case "EMPTY":
+                    this.currentValue.data.activeScrims = this.currentValue.data.activeScrims.filter(s => s.id !== scrim.id);
+            }
+            
             this.pub();
         }
     };

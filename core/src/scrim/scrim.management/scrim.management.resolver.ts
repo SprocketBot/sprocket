@@ -1,7 +1,7 @@
 import { Args, Query, Int, Mutation, Subscription } from '@nestjs/graphql';
 import { Resolver } from '@nestjs/graphql';
 import { ScrimService } from '../scrim.service';
-import { Scrim as IScrim } from '../types';
+import { Scrim as IScrim, ScrimEvent } from '../types';
 import { ScrimPubSub } from '../constants';
 import { PubSub } from 'apollo-server-express';
 import { Inject } from '@nestjs/common';
@@ -43,8 +43,8 @@ export class ScrimManagementResolver {
         return this.scrimService.cancelScrim(scrimId);
     }
 
-    @Subscription(() => IScrim)
-    async followActiveScrims(): Promise<AsyncIterator<IScrim>> {
+    @Subscription(() => ScrimEvent)
+    async followActiveScrims(): Promise<AsyncIterator<ScrimEvent>> {
         await this.scrimService.enableSubscription();
         return this.pubSub.asyncIterator(this.scrimService.allActiveScrimsSubTopic);
     }

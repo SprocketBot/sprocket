@@ -157,9 +157,21 @@ export class ScrimService {
                         break;
                     case EventTopic.ScrimCreated:
                         this.pubsub.publish(this.pendingScrimsSubTopic, {followPendingScrims: v.payload}).catch(this.logger.error.bind(this.logger));
+                        this.pubsub.publish(this.allActiveScrimsSubTopic, {
+                            followActiveScrims: {
+                                scrim: v.payload,
+                                event: v.topic,
+                            },
+                        }).catch(this.logger.error.bind(this.logger))
                         break;
                     case EventTopic.ScrimDestroyed:
                         this.pubsub.publish(this.pendingScrimsSubTopic, {followPendingScrims: v.payload}).catch(this.logger.error.bind(this.logger));
+                        this.pubsub.publish(this.allActiveScrimsSubTopic, {
+                            followActiveScrims: {
+                                scrim: v.payload,
+                                event: v.topic,
+                            },
+                        }).catch(this.logger.error.bind(this.logger))
                         break;
                     default: {
                         const payload = v.payload as IScrim;
