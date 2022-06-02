@@ -7,7 +7,7 @@
     $: activePlayersData = $activePlayers;
     let targetPlayer;
 
-    const openPlayerManagementModal = playerId => {
+    const openPlayerManagementModal = (playerId:string) => {
         playerManagementModalVisible = true;
         targetPlayer = playerId;
     };
