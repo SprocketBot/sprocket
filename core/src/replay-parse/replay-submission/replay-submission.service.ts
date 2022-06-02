@@ -1,7 +1,6 @@
 import {
     Inject, Injectable, Logger,
 } from "@nestjs/common";
-import {InjectRepository} from "@nestjs/typeorm";
 import type {
     ParsedReplay, ProgressMessage, ScrimPlayer, Task,
 } from "@sprocketbot/common";
@@ -17,15 +16,11 @@ import {
     ScrimStatus,
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
-import {Repository} from "typeorm";
 
-import {
-    Match, MatchParent, Round, ScrimMeta,
-} from "../../database";
 import {ScrimService} from "../../scrim";
 import {read} from "../../util/read";
+import {FinalizationService} from "../finalization/finalization.service";
 import {REPLAY_SUBMISSION_PREFIX, ReplayParsePubSub} from "../replay-parse.constants";
-import type {ParseReplayResult} from "../replay-parse.types";
 import type {BaseReplaySubmission, ReplaySubmission} from "./types/replay-submission.types";
 import {ReplaySubmissionType} from "./types/replay-submission.types";
 import type {ReplaySubmissionItem} from "./types/submission-item.types";
@@ -41,10 +36,7 @@ export class ReplaySubmissionService {
         private readonly matchmakingService: MatchmakingService,
         private readonly scrimService: ScrimService,
         private readonly minioService: MinioService,
-        @InjectRepository(ScrimMeta) private readonly scrimMetaRepo: Repository<ScrimMeta>,
-        @InjectRepository(MatchParent) private readonly matchParentRepo: Repository<MatchParent>,
-        @InjectRepository(Match) private readonly matchRepo: Repository<Match>,
-        @InjectRepository(Round) private readonly roundRepo: Repository<Round>,
+        private readonly finalizationService: FinalizationService,
         @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
     ) {
     }
@@ -193,41 +185,7 @@ export class ReplaySubmissionService {
 
             this.logger.log(`scrim ${scrim.id} ratified!`);
 
-            // TODO save to DB
-            const submission = await this.getSubmission(submissionId);
-
-            // Create Scrim/MatchParent/Match for scrim
-            const scrimMeta = this.scrimMetaRepo.create();
-            const matchParent = this.matchParentRepo.create();
-            const match = this.matchRepo.create();
-
-            // Create rounds for match
-            const promises = submission.taskIds.map(async taskId => {
-                const resultKey = this.celeryService.buildResultKey(taskId);
-                const parsed = await this.redisService.getString<ParseReplayResult>(resultKey);
-                if (!parsed) throw new Error(`Unable to find parsed replay for submissionId=${submissionId} at key=${resultKey}`);
-                return parsed;
-            });
-            const parsedReplays = await Promise.all(promises);
-
-            const rounds = parsedReplays.map(pr => this.roundRepo.create({
-                match: match,
-                roundStats: pr,
-                homeWon: false,
-            }));
-
-            // Create relationships
-            scrimMeta.parent = matchParent;
-            matchParent.scrimMeta = scrimMeta;
-            matchParent.match = match;
-            match.matchParent = matchParent;
-            match.rounds = rounds;
-
-            // Save in DB
-            await this.roundRepo.save(rounds);
-            await this.matchRepo.save(match);
-            await this.scrimMetaRepo.save(scrimMeta);
-            await this.matchParentRepo.save(matchParent);
+            await this.finalizationService.saveScrimToDatabase(await this.getSubmission(submissionId), submissionId);
 
             await this.matchmakingService.send(MatchmakingEndpoint.CompleteScrim, {
                 scrimId: scrim.id,
@@ -237,6 +195,7 @@ export class ReplaySubmissionService {
             await this.removeSubmission(submissionId);
 
             this.logger.debug(`Submission ${submissionId} completed and removed`);
+
 
             return true;
         } else if (this.isMatchSubmission(submissionId)) {
