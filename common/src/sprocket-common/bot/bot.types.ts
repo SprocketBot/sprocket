@@ -1,15 +1,16 @@
-import {z} from "zod";
+import type {z} from "zod";
 
 import type {ResponseStatus} from "../../global.types";
+import * as Schemas from "./schemas";
 
 export enum BotEndpoint {
-    Temp = "Temp",
+    SendMessageToGuildTextChannel = "SendMessageToGuildTextChannel",
 }
 
 export const BotSchemas = {
-    [BotEndpoint.Temp]: {
-        input: z.unknown(),
-        output: z.unknown(),
+    [BotEndpoint.SendMessageToGuildTextChannel]: {
+        input: Schemas.SendGuildTextMessage_Request,
+        output: Schemas.SendGuildTextMessage_Response,
     },
 };
 

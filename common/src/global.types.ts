@@ -3,6 +3,7 @@ export enum CommonClient {
     Analytics = "CommonClientAnalytics",
     Matchmaking = "CommonClientMatchmaking",
     ImageGeneration = "CommonImageGeneration",
+    Noitification = "CommonNotification",
 }
 
 export enum ResponseStatus {
