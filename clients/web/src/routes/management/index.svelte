@@ -1,17 +1,20 @@
 <script lang="ts">
-
-
-
-    const scrimManagementVisible = false;
-
     import {
-        AvailableAdminView,
         AdminScrimTable,
         AdminPlayerTable,
         DashboardLayout,
         DashboardCard,
     } from "$lib/components";
 
+    import type {Load} from "@sveltejs/kit";
+
+    export const load: Load = ({session}) => {
+        if (session.user) {
+            if (session.user.orgTeams.find(obj => obj === "0"))
+            return {status: 302, redirect: "/scrims"};
+        }
+        return {status: 302, redirect: "/auth/login"};
+    };
 </script>
 
 <DashboardLayout>

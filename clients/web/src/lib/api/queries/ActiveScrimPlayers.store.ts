@@ -10,8 +10,8 @@ export const activePlayers = derived<ActiveScrimsStore, Array<Player>>(
     activeScrims, $activeScrims => {
         let players:Array<Player>;
         players = [];
-        $activeScrims?.data?.activeScrims.forEach(s =>{
-            s.players.forEach(p => {
+        $activeScrims?.data?.activeScrims?.forEach(s =>{
+            s.players?.forEach(p => {
                 players.push(p)
             })
         });
