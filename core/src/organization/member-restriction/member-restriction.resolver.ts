@@ -1,5 +1,5 @@
 import {
-    Args, Int, Mutation, ResolveField, Resolver, Root,
+    Args, Int, Mutation, Query, ResolveField, Resolver, Root,
 } from "@nestjs/graphql";
 
 import type {Member} from "../../database";
@@ -13,6 +13,11 @@ export class MemberRestrictionResolver {
         private readonly memberRestrictionService: MemberRestrictionService,
         private readonly memberService: MemberService,
     ) {}
+
+    @Query(() => [MemberRestriction])
+    async getActiveMemberRestrictions(@Args("type", {type: () => MemberRestrictionType}) type: MemberRestrictionType): Promise<MemberRestriction[]> {
+        return this.memberRestrictionService.getActiveMemberRestrictions(type);
+    }
 
     @Mutation(() => MemberRestriction)
     async createMemberRestriction(
