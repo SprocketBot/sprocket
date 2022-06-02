@@ -1,8 +1,10 @@
 <script lang="ts">
     import {ScrimManagementModal} from "$lib/components";
     import {screamingSnakeToHuman} from "$lib/utils";
-    import type { CurrentScrim } from "../../../api";
-    import { activeScrims, type ActiveScrims } from "../../../api/queries/ActiveScrims.store";
+    import type {CurrentScrim} from "../../../api";
+    import {activeScrims, type ActiveScrims} from "../../../api/queries/ActiveScrims.store";
+    import FaLockOpen from "svelte-icons/fa/FaLockOpen.svelte";
+    import FaLock from "svelte-icons/fa/FaLock.svelte";
 
     /*
     This will be the table that shows in ScrimManagementModal (Currently Named Modal
@@ -13,39 +15,30 @@
 
      */
 
-    export let visible = false;
     let scrimManagementModalVisible = false;
-    let targetId:string;
-    let lockimgsrc = "/img/lock_open.svg";
-    let lockimgalt = "Open Lock";
+    let targetId: string;
+    let scrimsLocked: boolean = false;
 
     // TODO: Implement Lock Scrim Workflow
-    const lockAllScrims = () => {
-        if (lockimgsrc === "/img/lock_closed.svg") {
-            lockimgsrc = "/img/lock_open.svg";
-            lockimgalt = "Open Lock";
-        } else {
-            lockimgsrc = "/img/lock_closed.svg";
-            lockimgalt = "Closed Lock";
-        }
 
-    };
 
     let activeScrimsData: ActiveScrims | undefined;
     $: activeScrimsData = $activeScrims?.data?.activeScrims;
 
     let targetScrim: CurrentScrim | undefined;
 
-    const openScrimManagementModal = (scrimId:string) => {
+
+    const openScrimManagementModal = (scrimId: string) => {
         scrimManagementModalVisible = true;
         targetId = scrimId;
-        let targetScrims = activeScrimsData?.filter(s => s.id === targetId);
-        targetScrim = targetScrims? targetScrims[0] : undefined;
+        const targetScrims = activeScrimsData?.filter(s => s.id === targetId);
+        targetScrim = targetScrims ? targetScrims[0] : undefined;
     };
 
 </script>
 
-<table class="table text-center w-full" >
+
+<table class="table text-center w-full">
     <thead>
     <tr>
         <th>Scrim ID</th>
@@ -53,8 +46,16 @@
         <th>Status</th>
         <th>Players</th>
         <th>
-            <button class="float-right btn btn-outline btn-accent" on:click={lockAllScrims}>
-                <img src = {lockimgsrc} alt= {lockimgalt} >
+            <button class="float-right btn btn-outline btn-accent" on:click={() => { scrimsLocked = !scrimsLocked }}>
+                {#if scrimsLocked }
+                    <span class="h-4">
+                        <FaLock/>
+                    </span>
+                {:else}
+                    <span class="h-4">
+                        <FaLockOpen/>
+                    </span>
+                {/if}
             </button>
         </th>
     </tr>
@@ -67,16 +68,19 @@
                 <td>{screamingSnakeToHuman(scrim.settings.mode)}</td>
                 <td>{scrim.status}</td>
                 {#if scrim.players?.length >= 1}
-                    <td><div class="flex flex-col gap-1">
-                        {#each scrim.players as player (player.id)}
-                            <div class="p-2 bg-base-300/20 rounded-lg">{player.name}</div>
-                        {/each}
-                    </div></td>
+                    <td>
+                        <div class="flex flex-col gap-1">
+                            {#each scrim.players as player (player.id)}
+                                <div class="p-2 bg-base-300/20 rounded-lg">{player.name}</div>
+                            {/each}
+                        </div>
+                    </td>
                 {:else}
                     <td>Scrim still pending</td>
                 {/if}
                 <td>
-                    <button on:click={() => { openScrimManagementModal(scrim.id) }} class="btn btn-outline float-right lg:btn-sm">
+                    <button on:click={() => { openScrimManagementModal(scrim.id) }}
+                            class="btn btn-outline float-right lg:btn-sm">
                         Manage
                     </button>
                 </td>
@@ -87,5 +91,24 @@
     </tbody>
 </table>
 {#if scrimManagementModalVisible}
-    <ScrimManagementModal bind:visible={scrimManagementModalVisible} bind:targetScrim={targetScrim} />
+    <ScrimManagementModal bind:visible={scrimManagementModalVisible} bind:targetScrim={targetScrim}/>
 {/if}
+
+<style lang="postcss">
+    h2 {
+        @apply text-4xl font-bold text-sprocket mb-2;
+    }
+
+    table {
+        @apply select-none;
+
+        th {
+            @apply text-sm text-center py-3;
+
+            &:first-child {
+                @apply relative;
+            }
+
+        }
+    }
+</style>

@@ -1,5 +1,7 @@
 <script lang="ts">
-    import {AdminScrimTable, DashboardLayout, DashboardCard} from "$lib/components";
+    import {
+        AdminScrimTable, DashboardLayout, DashboardCard,
+    } from "$lib/components";
 import AdminPlayerTable from "../../molecules/scrims/AdminPlayerTable.svelte";
 
     // Is this visible?
@@ -45,7 +47,7 @@ import AdminPlayerTable from "../../molecules/scrims/AdminPlayerTable.svelte";
 
     <DashboardCard title="" class="col-span-3 xl:col-span-6">
         {#if adminScrimManagementVisible}
-            <AdminScrimTable bind:visible={adminScrimManagementVisible}/>
+            <AdminScrimTable/>
         {/if}
         {#if adminPlayerManagementVisible}
             <AdminPlayerTable bind:visible={adminPlayerManagementVisible} />

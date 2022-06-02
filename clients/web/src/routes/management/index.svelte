@@ -1,16 +1,13 @@
 <script lang="ts">
 
-    /*
-    Top Dashboard Card calls AvailableAdminView.
-    AvailableAdminView contains state mechanism that determines what is presented in lower DashboardCard
-    Example: scrimManagement Visible is bound to bool in AdminView which is updated by buttons in that component
-        When that is updated it changes the value here which is also bound to AdminScrimTable and that will appear.
-     */
-    let scrimManagementVisible = false;
+
+
+    const scrimManagementVisible = false;
 
     import {
         AvailableAdminView,
         AdminScrimTable,
+        AdminPlayerTable,
         DashboardLayout,
         DashboardCard,
     } from "$lib/components";
@@ -18,14 +15,27 @@
 </script>
 
 <DashboardLayout>
-    <DashboardCard title="" class="col-span-6 xl:col-span-6 row-span-1">
-        <AvailableAdminView bind:adminScrimManagementVisible={scrimManagementVisible}/>
+
+    
+    <DashboardCard title="" class="col-span-6 xl:col-span-5 row-span-3">
+        <h2>Scrim Management</h2>
+        <div class=" flex justify-center">
+            <AdminScrimTable/>
+        </div>
     </DashboardCard>
+    <DashboardCard title="" class="col-span-6 xl:col-span-5 row-span-3">
+        <h2>Player Management</h2>
+        <div class=" flex justify-center">
+            <AdminPlayerTable/>
+        </div>
+    </DashboardCard>
+
+
 </DashboardLayout>
 
 <style lang="postcss">
 
     h2 {
-        @apply text-4xl mb-8;
+        @apply text-4xl font-bold text-sprocket mb-2;
     }
 </style>

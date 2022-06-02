@@ -1,10 +1,16 @@
 <script lang="ts">
-    import { activePlayers, type Player } from "$lib/api";
+    import {activePlayers, type Player} from "$lib/api";
 
     export let visible = false;
     let playerManagementModalVisible = false;
-    let activePlayersData: Array<Player> | undefined;
+    let activePlayersData: Player[] | undefined;
     $: activePlayersData = $activePlayers;
+    let targetPlayer;
+
+    const openPlayerManagementModal = playerId => {
+        playerManagementModalVisible = true;
+        targetPlayer = playerId;
+    };
 
 </script>
 
@@ -19,11 +25,13 @@
     <tbody>
         {#if activePlayersData}
             {#each activePlayersData as player (player.id)}
+
                 <tr>
+<!--                <td>{player.banStatus}</td>-->
                 <td>{player.name}</td>
                 <td>{player.id}</td>
                 <td>
-                    <button class="btn btn-outline float-right lg:btn-sm">
+                    <button class="btn btn-outline float-right lg:btn-sm" on:click={() => { openPlayerManagementModal(player.id) }}>
                         Manage
                     </button>
                 </td>
@@ -32,3 +40,9 @@
         {/if}
     </tbody>
 </table>
+
+<style lang="postcss">
+    h2 {
+        @apply text-4xl font-bold text-sprocket mb-2;
+    }
+</style>
