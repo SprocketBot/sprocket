@@ -1,0 +1,12 @@
+{
+  "transport": {
+    "url": "",
+    "bot_queue": "dev-bot",
+    "events_queue": "dev-events",
+    "events_application_key": "notification-service"
+  },
+  "logger": {
+    "levels": true
+  }
+}
+  
