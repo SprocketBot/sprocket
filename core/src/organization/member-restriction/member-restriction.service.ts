@@ -1,5 +1,6 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
+import {EventsService, EventTopic} from "@sprocketbot/common";
 import type {
     FindConditions, FindManyOptions, FindOneOptions,
 } from "typeorm";
@@ -17,6 +18,7 @@ export class MemberRestrictionService {
     constructor(
         @InjectRepository(MemberRestriction) private readonly memberRestrictionRepository: Repository<MemberRestriction>,
         private readonly memberService: MemberService,
+        private readonly eventsService: EventsService,
     ) {}
 
     async createMemberRestriction(
@@ -36,6 +38,7 @@ export class MemberRestrictionService {
 
         await this.memberRestrictionRepository.save(memberRestriction);
 
+        await this.eventsService.publish(EventTopic.MemberBanned, {id: 1, message: "nigel"});
         return memberRestriction;
     }
 

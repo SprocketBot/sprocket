@@ -22,8 +22,6 @@ export enum EventTopic {
     MemberBanned = "member.banned",
 }
 
-
-
 export const EventTopicSchema = z.preprocess(v => {
     if (typeof v !== "string") return v;
     return v.split(".").slice(0, 2)
@@ -49,8 +47,15 @@ export const EventSchemas = {
     [EventTopic.AllMemberEvents]: z.union([
         z.number(),
         z.string().uuid(),
+        z.object({
+            id: z.number(),
+            message: z.string(),
+        }),
     ]),
-    [EventTopic.MemberBanned]: z.number(),
+    [EventTopic.MemberBanned]: z.object({
+        id: z.number(),
+        message: z.string(),
+    }),
 };
 
 export type EventPayload<T extends EventTopic> = z.infer<typeof EventSchemas[T]>;
