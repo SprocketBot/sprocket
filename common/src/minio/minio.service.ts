@@ -2,7 +2,7 @@ import {Injectable, Logger} from "@nestjs/common";
 import * as minio from "minio";
 import type {Readable} from "stream";
 
-import {config} from "../../util/config";
+import {config} from "../util/config";
 
 @Injectable()
 export class MinioService {

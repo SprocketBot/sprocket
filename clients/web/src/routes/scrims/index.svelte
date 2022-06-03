@@ -14,23 +14,17 @@
 
     let metrics: MetricsResult["metrics"];
     $: metrics = $scrimMetrics.data?.metrics;
-
     let activityChange: number = 0;
 
     function calculateActivityChange() {
-        const prev = metrics.previousCompletedScrims;
-        const cur = metrics?.completedScrims;
-        if (metrics?.completedScrims && metrics.previousCompletedScrims) {
-            const change = cur - prev;
-            const ratio = change / Math.max(prev, 1);
-            console.log({
-                change, cur, prev, ratio,
-            });
+        const prev = metrics.previousCompletedScrims ?? 0;
+        const cur = metrics?.completedScrims ?? 0;
 
-            activityChange = Math.round(ratio * 100);
-        }
+        const change = cur - prev;
+        const ratio = change / Math.max(prev, 1);
+
+        activityChange = Math.round(ratio * 100);
     }
-
     $: if (typeof metrics?.completedScrims === "number" || typeof metrics?.previousCompletedScrims === "number") {
         calculateActivityChange();
     }

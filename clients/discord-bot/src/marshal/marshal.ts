@@ -1,5 +1,5 @@
 import {Injectable, Logger} from "@nestjs/common";
-import {AnalyticsService, GqlService} from "@sprocketbot/common";
+import {AnalyticsService, CoreService} from "@sprocketbot/common";
 import * as zod from "zod";
 
 import {EmbedService} from "../embed/embed.service";
@@ -18,7 +18,7 @@ export abstract class Marshal {
 
     constructor(
         cms: CommandManagerService,
-        protected readonly gqlService: GqlService,
+        protected readonly coreService: CoreService,
         protected readonly analyticsService: AnalyticsService,
         protected readonly embedService: EmbedService,
     ) {
