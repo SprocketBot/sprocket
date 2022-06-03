@@ -1,8 +1,4 @@
 <script lang="ts">
-
-
-    let selectedPlayer;
-
     import {
         AdminScrimTable,
         AdminPlayerTable,
@@ -10,6 +6,15 @@
         DashboardCard,
     } from "$lib/components";
 
+    import type {Load} from "@sveltejs/kit";
+
+    export const load: Load = ({session}) => {
+        if (session.user) {
+            if (session.user.orgTeams.find(obj => obj === "0"))
+            return {status: 302, redirect: "/scrims"};
+        }
+        return {status: 302, redirect: "/auth/login"};
+    };
 </script>
 
 <DashboardLayout>
@@ -18,13 +23,13 @@
     <DashboardCard title="" class="col-span-6 xl:col-span-5 row-span-3">
         <h2>Scrim Management</h2>
         <div class=" flex justify-center">
-            <AdminScrimTable bind:selectedPlayer/>
+            <AdminScrimTable/>
         </div>
     </DashboardCard>
     <DashboardCard title="" class="col-span-6 xl:col-span-5 row-span-3">
         <h2>Player Management</h2>
         <div class=" flex justify-center">
-            <AdminPlayerTable bind:selectedPlayer/>
+            <AdminPlayerTable/>
         </div>
     </DashboardCard>
 
