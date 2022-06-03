@@ -16,17 +16,16 @@ export class ScrimEventSubscriber {
     ) {}
 
     async onApplicationBootstrap(): Promise<void> {
-        await this.eventsService.subscribe(EventTopic.ScrimCreated, false).then(obs => {
+        await this.eventsService.subscribe(EventTopic.ScrimPopped, false).then(obs => {
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            obs.subscribe(this.onScrimCreated);
+            obs.subscribe(this.onScrimPopped);
         });
     }
 
-    onScrimCreated = async (d: EventResponse<EventTopic.ScrimCreated>): Promise<void> => {
+    onScrimPopped = async (d: EventResponse<EventTopic.ScrimPopped>): Promise<void> => {
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        if (d.topic !== EventTopic.ScrimCreated) return;
+        if (d.topic !== EventTopic.ScrimPopped) return;
 
-        this.logger.debug("Scrim created!");
-        await this.scrimService.sendScrimNotification();
+        await this.scrimService.sendNotifications(d.payload);
     };
 }

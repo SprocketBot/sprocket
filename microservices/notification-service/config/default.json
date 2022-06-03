@@ -8,7 +8,7 @@
     "events_queue": "dev-events",
     "image_generation_queue": "dev-image-gen",
     "notification_queue": "dev-notifications",
-    "events_application_key": "matchmaking-service"
+    "events_application_key": "notification-service"
   },
   "logger": {
     "levels": true

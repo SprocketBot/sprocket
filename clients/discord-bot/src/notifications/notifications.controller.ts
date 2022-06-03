@@ -8,9 +8,9 @@ import {NotificationsService} from "./notifications.service";
 export class NotificationsController {
     constructor(private readonly notificationService: NotificationsService) {}
     
-    @MessagePattern(BotEndpoint.SendMessageToGuildTextChannel)
-    async sendMessageToGuildTextChannel(@Payload() payload: unknown): Promise<boolean> {
-        const data = BotSchemas.SendMessageToGuildTextChannel.input.parse(payload);
-        return this.notificationService.sendMessage(data.channelId, data.message);
+    @MessagePattern(BotEndpoint.SendDirectMessage)
+    async sendDirectMessage(@Payload() payload: unknown): Promise<boolean> {
+        const data = BotSchemas.SendDirectMessage.input.parse(payload);
+        return this.notificationService.sendDirectMessage(data.userId, data.content);
     }
 }

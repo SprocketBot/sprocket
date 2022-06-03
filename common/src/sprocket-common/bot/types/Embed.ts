@@ -22,16 +22,24 @@ export const EmbedSchema = z.object({
         icon_url: z.string().optional(),
     }).optional(),
     image: z.object({
-
+        url: z.string(),
+        height: z.number().optional(),
+        width: z.number().optional(),
     }).optional(),
     thumbnail: z.object({
-
+        url: z.string(),
+        height: z.number().optional(),
+        width: z.number().optional(),
     }).optional(),
     video: z.object({
-
+        url: z.string().optional(),
+        height: z.number().optional(),
+        width: z.number().optional(),
     }).optional(),
     author: z.object({
         name: z.string().max(256),
+        url: z.string().optional(),
+        icon_url: z.string().optional(),
     }).optional(),
     fields: z.array(z.object({
         name: z.string().max(256),

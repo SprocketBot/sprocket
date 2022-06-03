@@ -1,13 +1,36 @@
 import {Injectable, Logger} from "@nestjs/common";
-import {BotEndpoint, BotService} from "@sprocketbot/common";
+import type {Scrim} from "@sprocketbot/common";
+import {
+    BotEndpoint, BotService, GqlService, MatchmakingEndpoint, MatchmakingService, ResponseStatus,
+} from "@sprocketbot/common";
 
 @Injectable()
 export class ScrimService {
     private readonly logger = new Logger(ScrimService.name);
 
-    constructor(private readonly botService: BotService) {}
+    constructor(
+        private readonly botService: BotService,
+        private readonly matchmakingService: MatchmakingService,
+        private readonly gqlService: GqlService,
+    ) {}
 
-    async sendScrimNotification(): Promise<void> {
-        await this.botService.send(BotEndpoint.SendMessageToGuildTextChannel, {channelId: "856290331656847378", message: "Hey, loser <@112140878637707264>. A scrim was created."});
+    async sendNotifications(scrim: Scrim): Promise<void> {
+        await Promise.all(scrim.players.map(async p => this.botService.send(BotEndpoint.SendDirectMessage, {
+            userId: "105408136285818880",
+            content: {
+                embeds: [ {
+                    title: "Scrim popped!",
+                    description: `Hey there, ${p.name}! Your scrim popped! Go check in!`,
+                } ],
+            },
+        })));
+    }
+
+    async getScrim(scrimId: string): Promise<Scrim | null> {
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, scrimId);
+        if (result.status === ResponseStatus.SUCCESS) {
+            return result.data;
+        }
+        throw result.error;
     }
 }

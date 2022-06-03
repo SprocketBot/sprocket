@@ -4,13 +4,18 @@ import type {ResponseStatus} from "../../global.types";
 import * as Schemas from "./schemas";
 
 export enum BotEndpoint {
-    SendMessageToGuildTextChannel = "SendMessageToGuildTextChannel",
+    SendGuildTextMessage = "SendGuildTextMessage",
+    SendDirectMessage = "SendDirectMessage",
 }
 
 export const BotSchemas = {
-    [BotEndpoint.SendMessageToGuildTextChannel]: {
+    [BotEndpoint.SendGuildTextMessage]: {
         input: Schemas.SendGuildTextMessage_Request,
         output: Schemas.SendGuildTextMessage_Response,
+    },
+    [BotEndpoint.SendDirectMessage]: {
+        input: Schemas.SendDirectMessage_Request,
+        output: Schemas.SendDirectMessage_Response,
     },
 };
 

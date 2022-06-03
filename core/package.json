@@ -13,7 +13,7 @@
     "migration:generate": "node --require ts-node/register ./node_modules/typeorm/cli.js migration:generate -n Automigration",
     "migration:run": "node --require ts-node/register ./node_modules/typeorm/cli.js migration:run",
     "migration:revert": "node --require ts-node/register ./node_modules/typeorm/cli.js migration:revert",
-    "generate-client": "ts-node src/create_sdl.ts && tsc gql-client/gql-client.ts --outdir gql-client/dist/mjs --target es2020 --moduleResolution node && tsc gql-client/gql-client.ts --outdir gql-client/dist/cjs --target es2020 --module commonjs --moduleResolution node && tsc gql-client/gql-client.ts --emitDeclarationOnly --declaration --outdir gql-client/dist --target es2020 --moduleResolution node",
+    "postbuild": "ts-node src/create_sdl.ts && tsc gql-client/gql-client.ts --outdir gql-client/dist/mjs --target es2020 --moduleResolution node && tsc gql-client/gql-client.ts --outdir gql-client/dist/cjs --target es2020 --module commonjs --moduleResolution node && tsc gql-client/gql-client.ts --emitDeclarationOnly --declaration --outdir gql-client/dist --target es2020 --moduleResolution node",
     "prepublish-client": "npm run generate-client",
     "publish-client": "cd gql-client && npm publish"
   },
