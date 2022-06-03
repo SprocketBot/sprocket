@@ -10,6 +10,7 @@ import {
 } from "./member-restriction/";
 import {OrganizationResolver, OrganizationService} from "./organization";
 import {PronounsService} from "./pronouns/pronouns.service";
+import { MemberResolver } from './member/member.resolver';
 
 @Module({
     imports: [
@@ -26,6 +27,7 @@ import {PronounsService} from "./pronouns/pronouns.service";
         MemberRestrictionService,
         MemberRestrictionResolver,
         QueueBanGuard,
+        MemberResolver,
     ],
     exports: [
         MemberService,

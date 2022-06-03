@@ -18,7 +18,7 @@ export class MemberRestrictionResolver {
     ) {}
 
     @Query(() => [MemberRestriction])
-    @UseGuards(MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    //@UseGuards(MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async getActiveMemberRestrictions(@Args("type", {type: () => MemberRestrictionType}) type: MemberRestrictionType): Promise<MemberRestriction[]> {
         return this.memberRestrictionService.getActiveMemberRestrictions(type);
     }
