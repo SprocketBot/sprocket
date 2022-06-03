@@ -1,4 +1,6 @@
-import type {AnalyticsService, GqlService} from "@sprocketbot/common";
+import type {
+    AnalyticsService, CoreService,
+} from "@sprocketbot/common";
 import {config} from "@sprocketbot/common";
 import {Message} from "discord.js";
 
@@ -13,11 +15,11 @@ export class HelpMarshal extends Marshal {
 
     constructor(
         protected readonly cms: CommandManagerService,
-        protected readonly gqlService: GqlService,
+        protected readonly coreService: CoreService,
         protected readonly analyticsService: AnalyticsService,
         protected readonly embedService: EmbedService,
     ) {
-        super(cms, gqlService, analyticsService, embedService);
+        super(cms, coreService, analyticsService, embedService);
     }
 
     @Command({

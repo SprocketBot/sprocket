@@ -1,10 +1,10 @@
 import {Module} from "@nestjs/common";
-import {GqlModule} from "@sprocketbot/common";
+import {CoreModule} from "@sprocketbot/common";
 
 import {EmbedService} from "./embed.service";
 
 @Module({
-    imports: [GqlModule],
+    imports: [CoreModule],
     providers: [EmbedService],
     exports: [EmbedService],
 })

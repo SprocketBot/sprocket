@@ -1,4 +1,4 @@
-import {config} from "../../util/config";
+import {config} from "../util/config";
 
 /**
  * Names of Minio buckets that fulfill certain purposes. Used in place of hardcoded

@@ -61,13 +61,26 @@ const client = ClientsModule.register([
             },
         },
     },
+    {
+        name: CommonClient.Core,
+        transport: Transport.RMQ,
+        options: {
+            urls: [config.transport.url] as string[],
+            queue: config.transport.core_queue,
+            queueOptions: {
+                durable: true,
+            },
+            socketOptions: {
+                heartbeat: 120,
+            },
+        },
+    },
 ]);
 
 @Global()
 @Module({
     imports: [client],
     exports: [client],
-    providers: [],
 })
 export class GlobalModule {}
 

@@ -14,7 +14,7 @@ import {DiscordService} from "./discord.service";
         {
             provide: "DISCORD_CLIENT",
             useFactory: async (): Promise<Client> => {
-                const bot_token = (await readFile("./secret/bot-token.txt")).toString();
+                const bot_token = (await readFile("./secret/bot-token.txt")).toString().trim();
                 const bot_client = new Client({intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS"]});
                 await bot_client.login(bot_token);
                 return bot_client;

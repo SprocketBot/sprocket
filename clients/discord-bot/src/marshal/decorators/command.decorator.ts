@@ -1,5 +1,7 @@
 import {Logger} from "@nestjs/common";
-import {AnalyticsEndpoint, UserAuthenticationAccountType} from "@sprocketbot/common";
+import {
+    AnalyticsEndpoint, CoreEndpoint, ResponseStatus,
+} from "@sprocketbot/common";
 import type {Message} from "discord.js";
 import {TextChannel} from "discord.js";
 import {performance} from "perf_hooks";
@@ -27,23 +29,17 @@ export const Command = (commandSpec: CommandSpec): MethodDecorator => <T>(target
         const before = performance.now();
 
         try {
-            const res = await this.gqlService.query({
-                getUserByAuthAccount: [
-                    {
-                        accountId: params[0].author.id,
-                        accountType: UserAuthenticationAccountType.DISCORD,
-                    },
-                    {
-                        id: true,
-                    },
-                ],
+            const response = await this.coreService.send(CoreEndpoint.GetUserByAuthAccount, {
+                accountId: params[0].author.id,
+                accountType: "DISCORD",
             });
-            
-            const user = res.getUserByAuthAccount;
-            if (!user) throw new Error(`getUserByAuthAccount for discord id '${params[0].author.id}' failed`);
-            
+            if (response.status === ResponseStatus.ERROR) throw response.error;
+            const user = response.data;
             const context = {...params[1]};
-            context.author = user;
+            context.author = {
+                ...user,
+                id: user.id.toString(),
+            };
             params[1] = context;
         } catch (e) {
             logger.error(e);

@@ -4,7 +4,7 @@ import {connect} from "amqplib";
 import {createClient} from "celery-node";
 import {Observable} from "rxjs";
 
-import {config} from "../../util/config";
+import {config} from "../util/config";
 import type {
     ProgressMessage, RunOpts,
     Task, TaskArgs,
