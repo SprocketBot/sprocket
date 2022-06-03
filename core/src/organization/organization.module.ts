@@ -5,6 +5,7 @@ import {PubSub} from "apollo-server-express";
 import {DatabaseModule} from "../database";
 import {GameModule} from "../game";
 import {IdentityModule} from "../identity";
+import {MemberPubSub} from "./constants";
 import {MemberService} from "./member";
 import {MemberResolver} from "./member/member.resolver";
 import {MemberPlatformAccountService} from "./member-platform-account";
@@ -27,7 +28,7 @@ import {PronounsService} from "./pronouns/pronouns.service";
         OrganizationService,
         MemberService,
         {
-            provide: "MEMBER_PUB_SUB",
+            provide: MemberPubSub,
             useValue: new PubSub(),
         },
         PronounsService,

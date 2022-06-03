@@ -1,4 +1,6 @@
-import {Injectable, Logger} from "@nestjs/common";
+import {
+    Inject, Injectable, Logger,
+} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {EventsService, EventTopic} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
@@ -10,6 +12,7 @@ import {
     Member, MemberProfile,
 } from "../../database";
 import {UserService} from "../../identity/user/user.service";
+import {MemberPubSub} from "../constants";
 import {OrganizationService} from "../organization";
 
 @Injectable()
@@ -25,7 +28,7 @@ export class MemberService {
         private readonly organizationService: OrganizationService,
         private readonly userService: UserService,
         private readonly eventsService: EventsService,
-        private readonly pubsub: PubSub,
+        @Inject(MemberPubSub) private readonly pubsub: PubSub,
     ) {}
 
     get bannedMembersSubTopic(): string { return "member.banned" }

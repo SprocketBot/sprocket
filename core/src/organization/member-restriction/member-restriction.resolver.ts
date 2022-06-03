@@ -1,6 +1,7 @@
 // import {UseGuards} from "@nestjs/common";
 // import {MLE_OrganizationTeam} from "../../database/mledb";
 // import {MLEOrganizationTeamGuard} from "../../mledb";
+import {Inject} from "@nestjs/common";
 import {
     Args, Int, Mutation, Query, ResolveField, Resolver, Root, Subscription,
 } from "@nestjs/graphql";
@@ -8,7 +9,9 @@ import {PubSub} from "apollo-server-express";
 
 import type {Member} from "../../database";
 import {MemberRestriction, MemberRestrictionType} from "../../database";
+import {MemberPubSub} from "../constants";
 import {MemberService} from "../member/member.service";
+import {MemberEvent} from "./member.types";
 import {MemberRestrictionService} from "./member-restriction.service";
 
 @Resolver(() => MemberRestriction)
@@ -16,7 +19,7 @@ export class MemberRestrictionResolver {
     constructor(
         private readonly memberRestrictionService: MemberRestrictionService,
         private readonly memberService: MemberService,
-        private readonly pubSub: PubSub,
+        @Inject(MemberPubSub) private readonly pubSub: PubSub,
     ) {}
 
     @Query(() => [MemberRestriction])
@@ -49,9 +52,9 @@ export class MemberRestrictionResolver {
         return memberRestriction.member ?? await this.memberService.getMemberById(memberRestriction.memberId!);
     }
 
-    // @Subscription(() => MemberEvent)
-    // async followActiveMembers(): Promise<AsyncIterator<MemberEvent>> {
-    //     await this.memberService.enableSubscription();
-    //     return this.pubSub.asyncIterator(this.memberService.bannedMembersSubTopic);
-    // }
+    @Subscription(() => MemberEvent)
+    async followBannedMembers(): Promise<AsyncIterator<MemberEvent>> {
+        await this.memberService.enableSubscription();
+        return this.pubSub.asyncIterator(this.memberService.bannedMembersSubTopic);
+    }
 }
