@@ -2,7 +2,7 @@
     import {ScrimManagementModal} from "$lib/components";
     import {screamingSnakeToHuman} from "$lib/utils";
     import type {CurrentScrim} from "../../../api";
-    import {activeScrims, type ActiveScrims} from "../../../api/queries/ActiveScrims.store";
+    import {activeScrims, type ActiveScrims} from "$lib/api";
     import FaLockOpen from "svelte-icons/fa/FaLockOpen.svelte";
     import FaLock from "svelte-icons/fa/FaLock.svelte";
 
@@ -27,8 +27,12 @@
 
     let targetScrim: CurrentScrim | undefined;
 
-    export let selectedPlayers: [];
+    export let selectedPlayer: string | undefined;
 
+    const selectPlayerInTable = (playerId: string) => {
+        selectedPlayer = playerId;
+        
+    };
     const openScrimManagementModal = (scrimId: string) => {
         scrimManagementModalVisible = true;
         targetId = scrimId;
@@ -72,9 +76,7 @@
                     <td>
                         <div class="flex flex-col gap-1">
                             {#each scrim.players as player (player.id)}
-
-                                <button class="btn btn-outline float-right lg:btn-sm" on:click = {() => { selectedPlayers.push(player.id) }}>{player.name}</button>
-
+                                <button class="p-2 bg-base-300/20 rounded-lg" on:click = {() => { selectPlayerInTable(`${player.id}`) }}>{player.name}</button>
                             {/each}
                         </div>
                     </td>
