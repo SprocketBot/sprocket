@@ -18,6 +18,7 @@
 <table class="table text-center w-full" >
     <thead>
     <tr>
+<!--        <th>Ban Status</th>-->
         <th>Player Name</th>
         <th>Player ID</th>
         <th></th>
