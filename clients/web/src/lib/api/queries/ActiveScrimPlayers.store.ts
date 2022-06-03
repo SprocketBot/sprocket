@@ -1,20 +1,19 @@
-import { derived } from "svelte/store";
-import { activeScrims, type ActiveScrimsStore } from "./ActiveScrims.store";
+import {derived} from "svelte/store";
+import {activeScrims, type ActiveScrimsStore} from "./ActiveScrims.store";
 
-export type Player = {
+export interface Player {
     id: number;
     name: string;
     checkedIn: boolean;
-};
-export const activePlayers = derived<ActiveScrimsStore, Array<Player>>(
-    activeScrims, $activeScrims => {
-        let players:Array<Player>;
-        players = [];
-        $activeScrims?.data?.activeScrims?.forEach(s =>{
-            s.players?.forEach(p => {
-                players.push(p)
-            })
+}
+export const activePlayers = derived<ActiveScrimsStore, Player[]>(activeScrims, $activeScrims => {
+    let players: Player[];
+    // eslint-disable-next-line prefer-const
+    players = [];
+    $activeScrims?.data?.activeScrims?.forEach(s => {
+        s.players?.forEach(p => {
+            players.push(p);
         });
-        return players;
-    }
-)
+    });
+    return players;
+});

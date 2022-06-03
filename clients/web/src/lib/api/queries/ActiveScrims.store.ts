@@ -1,12 +1,9 @@
 import type {OperationResult} from "@urql/core";
 import {gql} from "@urql/core";
 import {LiveQueryStore} from "$lib/api/core/LiveQueryStore";
-import {toasts} from "$lib/components";
-import {screamingSnakeToHuman} from "$lib/utils";
-import type { CurrentScrim } from "./CurrentScrim.store";
-import { SingleFieldSubscriptionsRule } from "graphql";
+import type {CurrentScrim} from "./CurrentScrim.store";
 
-export type ActiveScrims = Array<CurrentScrim>;
+export type ActiveScrims = CurrentScrim[];
 
 enum EventTopic {
     // Scrims
@@ -114,40 +111,27 @@ export class ActiveScrimsStore extends LiveQueryStore<ActiveScrimsStoreValue, Ac
         this.subscriptionVariables = {};
     }
 
-    protected handleGqlMessage = (message: OperationResult<ActiveScrimsSubscriptionValue, ActiveScrimsStoreSubscriptionVariables>) => {
+    protected handleGqlMessage = (message: OperationResult<ActiveScrimsSubscriptionValue, ActiveScrimsStoreSubscriptionVariables>): void => {
         if (message?.data?.activeScrims) {
             const {scrim} = message?.data?.activeScrims ?? {};
 
-            if ( !this.currentValue.data) {
+            if (!this.currentValue.data) {
                 console.warn("Received subscription before query completed!");
                 return;
-            } 
+            }
 
             console.log(message.data.activeScrims.event);
-            switch(message.data.activeScrims.event) {
-                //ScrimComplete = "scrim.complete",
-                //ScrimPopped = "scrim.popped",
-                //ScrimCreated = "scrim.created",
-                //ScrimUpdated = "scrim.updated",
-                //ScrimDestroyed = "scrim.destroyed",
-                //ScrimStarted = "scrim.started",
-                //ScrimCancelled = "scrim.cancelled",
-                //ScrimMetricsUpdate = "scrim.metricsUpdate"
-                //case "PENDING":
+            const oldScrim = this.currentValue.data.activeScrims.findIndex(s => s.id === scrim.id);
+            switch (message.data.activeScrims.event) {
                 case "scrim.created":
                     this.currentValue.data.activeScrims.push(scrim);
                     break;
-                //case "CANCELLED":
-                //case "COMPLETE":
-                //case "EMPTY":
-                //case "DESTROYED":
                 case EventTopic.ScrimCancelled:
                 case EventTopic.ScrimComplete:
                 case EventTopic.ScrimDestroyed:
                     this.currentValue.data.activeScrims = this.currentValue.data.activeScrims.filter(s => s.id !== scrim.id);
                     break;
                 default:
-                    let oldScrim = this.currentValue.data.activeScrims.findIndex(s => s.id === scrim.id);
                     this.currentValue.data.activeScrims.splice(oldScrim, 1, scrim);
                     console.log("This is the update path.");
             }
