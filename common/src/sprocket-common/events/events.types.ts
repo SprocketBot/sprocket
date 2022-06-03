@@ -16,6 +16,10 @@ export enum EventTopic {
 
     // Submissions
     SubmissionStarted = "submission.started",
+
+    // Member
+    AllMemberEvents = "member.*",
+    MemberBanned = "member.banned",
 }
 
 
@@ -42,6 +46,11 @@ export const EventSchemas = {
     ]),
     [EventTopic.ScrimMetricsUpdate]: ScrimMetricsSchema,
     [EventTopic.SubmissionStarted]: z.object({submissionId: z.string()}),
+    [EventTopic.AllMemberEvents]: z.union([
+        z.number(),
+        z.string().uuid(),
+    ]),
+    [EventTopic.MemberBanned]: z.number(),
 };
 
 export type EventPayload<T extends EventTopic> = z.infer<typeof EventSchemas[T]>;

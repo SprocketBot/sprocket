@@ -1,5 +1,7 @@
-import {Injectable} from "@nestjs/common";
+import {Injectable, Logger} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
+import {EventsService, EventTopic} from "@sprocketbot/common";
+import {PubSub} from "apollo-server-express";
 import type {FindManyOptions, FindOneOptions} from "typeorm";
 import {Repository} from "typeorm";
 
@@ -12,12 +14,21 @@ import {OrganizationService} from "../organization";
 
 @Injectable()
 export class MemberService {
+
+    private readonly logger = new Logger(MemberService.name);
+
+    private subscribed = false;
+
     constructor(
         @InjectRepository(Member) private memberRepository: Repository<Member>,
         @InjectRepository(MemberProfile) private memberProfileRepository: Repository<MemberProfile>,
         private readonly organizationService: OrganizationService,
         private readonly userService: UserService,
+        private readonly eventsService: EventsService,
+        private readonly pubsub: PubSub,
     ) {}
+
+    get bannedMembersSubTopic(): string { return "member.banned" }
 
     async createMember(
         memberProfile: Omit<MemberProfile, IrrelevantFields | "id" | "member">,
@@ -75,5 +86,26 @@ export class MemberService {
         await this.memberRepository.delete({id});
         await this.memberProfileRepository.delete({id: toDelete.profile.id});
         return toDelete;
+    }
+
+    async enableSubscription(): Promise<void> {
+        if (this.subscribed) return;
+        this.subscribed = true;
+        await this.eventsService.subscribe(EventTopic.AllMemberEvents, true).then(rx => {
+            rx.subscribe(v => {
+                if (typeof v.payload !== "object") {
+                    return;
+                }
+
+                switch (v.topic as EventTopic) {
+                    case EventTopic.MemberBanned:
+                        this.pubsub.publish(this.bannedMembersSubTopic, {followBannedMembers: v.payload}).catch(this.logger.error.bind(this.logger));
+                        break;
+                    default: {
+                        break;
+                    }
+                }
+            });
+        });
     }
 }
