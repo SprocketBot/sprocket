@@ -1,8 +1,9 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
+import type {Duration} from "date-fns";
 import {add} from "date-fns";
 import {
-    Between,
+    Between, MoreThan,
     Repository,
 } from "typeorm";
 
@@ -16,25 +17,33 @@ export class ScrimMetaCrudService {
     constructor(@InjectRepository(ScrimMeta) private readonly scrimRepo: Repository<ScrimMeta>) {}
 
     async getScrimCountInPreviousPeriod(p: Period, previousPeriod: boolean = false): Promise<number> {
-        let from = new Date();
-        let to = new Date();
+        let increment: Duration;
+
         switch (p) {
             case Period.DAY:
-                to = add(to, {days: -1});
-                if (previousPeriod) from = add(from, {days: -1});
+                increment = {days: -1};
                 break;
             case Period.HOUR:
-                to = add(to, {hours: -1});
-                if (previousPeriod) from = add(from, {hours: -1});
+                increment = {hours: -1};
                 break;
             default:
-                break;
+                throw new Error(`Unsupported Period Type ${p}`);
         }
-
+        if (previousPeriod) {
+            return this.scrimRepo.count({
+                where: {
+                    createdAt: Between(
+                        add(add(new Date(), increment), increment).toUTCString(),
+                        add(new Date(), increment).toUTCString(),
+                    ),
+                },
+            });
+        }
         return this.scrimRepo.count({
             where: {
-                createdAt: Between(from, to),
+                createdAt: MoreThan(add(new Date(), increment).toUTCString()),
             },
         });
+
     }
 }
