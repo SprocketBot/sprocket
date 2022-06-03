@@ -161,7 +161,7 @@ export class ScrimService {
                         break;
                     default: {
                         const payload = v.payload as IScrim;
-                        if (payload.status === ScrimStatus.PENDING) {
+                        if (payload.status === ScrimStatus.PENDING || payload.status === ScrimStatus.POPPED) {
                             this.pubsub.publish(this.pendingScrimsSubTopic, {followPendingScrims: payload as Scrim}).catch(this.logger.error.bind(this.logger));
                         }
                         this.pubsub.publish(payload.id, {
