@@ -9,7 +9,6 @@ import {OrganizationService} from "./organization.service";
 export class OrganizationController {
     constructor(private readonly orgService: OrganizationService) {}
 
-
     @MessagePattern(CoreEndpoint.GetOrganizationBranding)
     async getOrganizationBranding(@Payload() payload: unknown): Promise<OrganizationProfile> {
         const data = CoreSchemas.GetOrganizationBranding.input.parse(payload);
