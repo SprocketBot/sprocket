@@ -1,4 +1,4 @@
-import type {Task, TaskResult} from "..";
+import type {Task, TaskResult} from "../index";
 
 export enum ProgressStatus {
     Pending = "Pending",
@@ -13,7 +13,7 @@ export interface Progress {
 
 export interface ProgressMessage<T extends Task> {
     taskId: string;
-    
+
     status: ProgressStatus;
     progress: Progress;
 

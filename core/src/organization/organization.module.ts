@@ -9,6 +9,7 @@ import {
     MemberRestrictionResolver, MemberRestrictionService, QueueBanGuard,
 } from "./member-restriction/";
 import {OrganizationResolver, OrganizationService} from "./organization";
+import {OrganizationController} from "./organization/organization.controller";
 import {PronounsService} from "./pronouns/pronouns.service";
 
 @Module({
@@ -33,5 +34,6 @@ import {PronounsService} from "./pronouns/pronouns.service";
         MemberRestrictionService,
         QueueBanGuard,
     ],
+    controllers: [OrganizationController],
 })
 export class OrganizationModule {}

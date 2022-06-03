@@ -2,7 +2,7 @@ import {Injectable, Logger} from "@nestjs/common";
 import type {Redis, RedisOptions} from "ioredis";
 import IORedis from "ioredis";
 
-import {config} from "../../util/config";
+import {config} from "../util/config";
 
 @Injectable()
 export class RedisService {

@@ -1,6 +1,6 @@
 import {z} from "zod";
 
-import {ScrimMetricsSchema, ScrimSchema} from "../matchmaking";
+import {ScrimMetricsSchema, ScrimSchema} from "../service-connectors/matchmaking";
 
 export enum EventTopic {
     // Scrims
