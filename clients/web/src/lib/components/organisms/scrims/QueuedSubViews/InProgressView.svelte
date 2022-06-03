@@ -12,7 +12,18 @@
 
 <section>
     <h2>Time to Play!</h2>
-    <p class="text-accent font-bold tracking-wider">Don't forget to save replays!</p>
+    <p class="text-accent font-bold tracking-wider">
+        Don't forget to save replays!
+    </p>
+    <div class="lobby">
+        <h3>Lobby Information</h3>
+        <dl>
+            <dt>Name</dt>
+            <dd>{scrim.lobby.name}</dd>
+            <dt>Password</dt>
+            <dd>{scrim.lobby.password}</dd>
+        </dl>
+    </div>
     <div>
         {#if scrim.settings.mode === "ROUND_ROBIN"}
             <RoundRobinFixture {scrim}/>
@@ -51,5 +62,21 @@
 
     button {
         @apply btn btn-primary;
+    }
+
+    div.lobby {
+        @apply bg-base-100/20 rounded-lg p-4;
+        h3 {
+            @apply font-bold;
+        }
+        dl {
+            @apply pl-4;
+            dt {
+                @apply font-bold;
+            }
+            dd {
+                @apply pl-4 text-accent;
+            }
+        }
     }
 </style>

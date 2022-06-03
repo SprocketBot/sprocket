@@ -21,6 +21,10 @@ export interface CurrentScrim {
         name: string;
         checkedIn: boolean;
     }>;
+    lobby: {
+        name: string;
+        password: string;
+    };
 
     games: Array<{
         teams: Array<{
@@ -71,6 +75,10 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
                 name
                 checkedIn
             }
+            lobby {
+                name
+                password
+            }
             games {
                 teams {
                     players {
@@ -102,6 +110,10 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
                     id 
                     name
                     checkedIn
+                }
+                lobby {
+                    name
+                    password
                 }
                 games {
                     teams {
