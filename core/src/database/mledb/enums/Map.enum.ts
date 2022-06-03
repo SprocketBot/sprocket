@@ -1,4 +1,4 @@
-export enum Map {
+export enum RocketLeagueMap {
     STARBASE_ARC = "STARBASE_ARC",
     STARBASE_ARC_STANDARD = "STARBASE_ARC_STANDARD",
     CHAMPIONS_FIELD_NFL = "CHAMPIONS_FIELD_NFL",
