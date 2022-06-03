@@ -8,8 +8,9 @@ import {MemberPlatformAccountService} from "./member-platform-account";
 import {
     MemberRestrictionResolver, MemberRestrictionService, QueueBanGuard,
 } from "./member-restriction/";
-import {OrganizationResolver, OrganizationService} from "./organization";
-import {OrganizationController} from "./organization/organization.controller";
+import {
+    OrganizationController, OrganizationResolver, OrganizationService,
+} from "./organization";
 import {PronounsService} from "./pronouns/pronouns.service";
 
 @Module({
