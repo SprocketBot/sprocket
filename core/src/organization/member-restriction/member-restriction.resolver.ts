@@ -49,9 +49,9 @@ export class MemberRestrictionResolver {
         return memberRestriction.member ?? await this.memberService.getMemberById(memberRestriction.memberId!);
     }
 
-    @Subscription(() => MemberEvent)
-    async followActiveMembers(): Promise<AsyncIterator<MemberEvent>> {
-        await this.memberService.enableSubscription();
-        return this.pubSub.asyncIterator(this.memberService.bannedMembersSubTopic);
-    }
+    // @Subscription(() => MemberEvent)
+    // async followActiveMembers(): Promise<AsyncIterator<MemberEvent>> {
+    //     await this.memberService.enableSubscription();
+    //     return this.pubSub.asyncIterator(this.memberService.bannedMembersSubTopic);
+    // }
 }
