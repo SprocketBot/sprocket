@@ -14,7 +14,7 @@ from progress import Progress
 import celeryconfig
 from kombu import Producer, Connection
 
-print("deploy attempt 1")
+print("deploy attempt 2")
 
 # Celery pipeline for starting jobs (broker) and returning results (backend)
 app = celery.Celery(config_source=celeryconfig)
