@@ -9,7 +9,7 @@ import {Repository} from "typeorm";
 
 import type {GameMode, GameSkillGroup} from "../../database";
 import {
-    LegacyGameMode, MLE_Player,
+    LegacyGameMode, MLE_Player, MLE_PlayerAccount,
     MLE_PlayerStats,
     MLE_PlayerStatsCore,
     MLE_Scrim,
@@ -32,6 +32,7 @@ export class MledbScrimService {
         @InjectRepository(MLE_PlayerStatsCore) private readonly mlePlayerStatsCoreRepository: Repository<MLE_PlayerStatsCore>,
         @InjectRepository(MLE_PlayerStats) private readonly mlePlayerStatsRepository: Repository<MLE_PlayerStats>,
         @InjectRepository(MLE_TeamCoreStats) private readonly mleTeamCoreStatsRepository: Repository<MLE_TeamCoreStats>,
+        @InjectRepository(MLE_PlayerAccount) private readonly mlePlayerAccountRepository: Repository<MLE_PlayerAccount>,
         @InjectRepository(MLE_Player) private readonly mlePlayerRepository: Repository<MLE_Player>,
         private readonly skillGroupService: GameSkillGroupService,
         private readonly gameModeService: GameModeService,
@@ -77,7 +78,8 @@ export class MledbScrimService {
         series.fullNcp = false;
 
 
-        series.seriesReplays = submission.items.map(item => {
+        // eslint-disable-next-line require-atomic-updates
+        series.seriesReplays = await Promise.all(submission.items.map(async item => {
             const data = item.progress!.result!.data;
             const replay = this.mleSeriesReplayRepositroy.create();
             replay.series = series;
@@ -91,9 +93,18 @@ export class MledbScrimService {
             replay.playerStats = [];
             replay.playerStatsCores = [];
 
-            const convertPlayerToMLE = (p: BallchasingPlayer, color: "BLUE" | "ORANGE"): void => {
+            const convertPlayerToMLE = async (p: BallchasingPlayer, color: "BLUE" | "ORANGE"): Promise<void> => {
                 const core = this.mlePlayerStatsCoreRepository.create();
                 const stats = this.mlePlayerStatsRepository.create();
+                const player = await this.mlePlayerRepository.findOneOrFail({
+                    where: {
+                        accounts: {
+                            platformId: p.id.id,
+                            platform: p.id.platform,
+                        },
+                    },
+                    relations: ["accounts"],
+                });
 
                 core.replay = replay;
                 core.color = color;
@@ -107,6 +118,9 @@ export class MledbScrimService {
                 core.mvpr = core.goals + (core.assists * 0.75) + (core.saves * 0.60) + (core.shots / 3);
 
                 stats.replay = replay;
+
+                core.player = player;
+                stats.player = player;
 
                 replay.playerStatsCores.push(core);
                 coreStats.push(core);
@@ -129,7 +143,7 @@ export class MledbScrimService {
                 return teamStat;
             };
 
-            data.blue.players.forEach(x => { convertPlayerToMLE(x, "BLUE") });
+            await Promise.all(data.blue.players.map(async x => convertPlayerToMLE(x, "BLUE")));
             replay.teamCoreStats = [
                 buildTeamStats(data.blue, "BLUE"),
                 buildTeamStats(data.orange, "ORANGE"),
@@ -137,10 +151,10 @@ export class MledbScrimService {
 
             teamStats.push(...replay.teamCoreStats);
 
-            item.progress!.result!.data.orange.players.forEach(x => { convertPlayerToMLE(x, "ORANGE") });
+            await Promise.all(data.orange.players.map(async x => convertPlayerToMLE(x, "ORANGE")));
 
             return replay;
-        });
+        }));
 
         await runner.manager.save(scrim);
         await runner.manager.save(series);

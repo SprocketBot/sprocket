@@ -1,5 +1,7 @@
 import {Logger} from "@nestjs/common";
-import {UserAuthenticationAccountType} from "@sprocketbot/common";
+import {
+    CoreEndpoint, ResponseStatus,
+} from "@sprocketbot/common";
 import {Message} from "discord.js";
 
 import {
@@ -35,16 +37,16 @@ export class MemberLookupMarshal extends Marshal {
         ],
     })
     async getUserByAuthAccount(m: Message, c: MarshalCommandContext): Promise<void> {
-        const accountType = UserAuthenticationAccountType.DISCORD;
         const accountId = c.args.accountId as string;
 
-        const res = await this.gqlService.query({
-            getUserByAuthAccount: [
-                {accountType, accountId},
-                {id: true},
-            ],
+        const response = await this.coreService.send(CoreEndpoint.GetUserByAuthAccount, {
+            accountId: accountId,
+            accountType: "DISCORD",
         });
-
-        await m.reply(res.getUserByAuthAccount?.id ?? "No user found");
+        if (response.status === ResponseStatus.ERROR) {
+            await m.reply("No user found");
+            return;
+        }
+        await m.reply(response.data.id.toString());
     }
 }

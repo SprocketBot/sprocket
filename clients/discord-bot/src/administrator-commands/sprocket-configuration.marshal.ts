@@ -1,3 +1,4 @@
+import {CoreEndpoint, ResponseStatus} from "@sprocketbot/common";
 import {Message} from "discord.js";
 
 import {
@@ -21,17 +22,12 @@ export class SprocketConfigurationMarshal extends Marshal {
     async getSprocketConfig(m: Message, context: MarshalCommandContext): Promise<void> {
         const key = context.args.key as string;
 
-        const {getSprocketConfiguration: configs} = await this.gqlService.query({
-            getSprocketConfiguration: [
-                {key},
-                {
-                    key: true,
-                    value: true,
-                },
-            ],
+        const result = await this.coreService.send(CoreEndpoint.GetSprocketConfiguration, {
+            key,
         });
+        if (result.status === ResponseStatus.ERROR) throw result.error;
 
-        const arr = configs.map(c => [c.key, c.value]);
+        const arr = result.data.map(c => [c.key, c.value]);
         const t = table(arr, ["key", "value"]);
         await m.reply(`\`\`\`${t}\`\`\``);
     }

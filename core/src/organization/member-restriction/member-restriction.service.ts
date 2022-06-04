@@ -1,5 +1,6 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
+import {EventsService, EventTopic} from "@sprocketbot/common";
 import type {
     FindConditions, FindManyOptions, FindOneOptions,
 } from "typeorm";
@@ -7,8 +8,7 @@ import {
     IsNull, MoreThan, Repository,
 } from "typeorm";
 
-import type {MemberRestrictionType} from "../../database";
-import {MemberRestriction} from "../../database";
+import {MemberRestriction, MemberRestrictionType} from "../../database";
 import {MemberService} from "../member/member.service";
 
 
@@ -17,6 +17,7 @@ export class MemberRestrictionService {
     constructor(
         @InjectRepository(MemberRestriction) private readonly memberRestrictionRepository: Repository<MemberRestriction>,
         private readonly memberService: MemberService,
+        private readonly eventsService: EventsService,
     ) {}
 
     async createMemberRestriction(
@@ -35,6 +36,17 @@ export class MemberRestrictionService {
         });
 
         await this.memberRestrictionRepository.save(memberRestriction);
+
+        // This is the message we'll send to the front end about the ban
+        const eventPayload = {
+            id: 1,
+            message: "Member Queue Banned",
+            type: MemberRestrictionType.QUEUE_BAN,
+            expiration: expiration,
+            reason: reason,
+            memberId: member.id,
+        };
+        await this.eventsService.publish(EventTopic.MemberBanned, eventPayload);
 
         return memberRestriction;
     }
@@ -73,7 +85,20 @@ export class MemberRestrictionService {
         
         memberRestriction = this.memberRestrictionRepository.merge(memberRestriction, {manualExpiration, manualExpirationReason});
         await this.memberRestrictionRepository.save(memberRestriction);
-        
+
+        // This is the message we'll send to the front end about the manual expiration
+        const eventPayload = {
+            id: 2,
+            message: "Member ban manually expired",
+            type: MemberRestrictionType.QUEUE_BAN,
+            expiration: memberRestriction.expiration,
+            reason: memberRestriction.reason,
+            manualExpiration: manualExpiration,
+            manualExpirationReason: manualExpirationReason,
+            memberId: memberRestriction.memberId,
+        };
+
+        await this.eventsService.publish(EventTopic.MemberBanned, eventPayload);
         return memberRestriction;
     }
 }

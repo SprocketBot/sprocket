@@ -151,7 +151,6 @@ export class ScrimService {
                     return;
                 }
 
-                console.log(v.topic);
                 switch (v.topic as EventTopic) {
                     case EventTopic.ScrimMetricsUpdate:
                         this.pubsub.publish(this.metricsSubTopic, {followScrimMetrics: v.payload}).catch(this.logger.error.bind(this.logger));
@@ -163,7 +162,7 @@ export class ScrimService {
                                 scrim: v.payload,
                                 event: v.topic,
                             },
-                        }).catch(this.logger.error.bind(this.logger))
+                        }).catch(this.logger.error.bind(this.logger));
                         break;
                     case EventTopic.ScrimDestroyed:
                     case EventTopic.ScrimCancelled:
@@ -173,11 +172,11 @@ export class ScrimService {
                                 scrim: v.payload,
                                 event: v.topic,
                             },
-                        }).catch(this.logger.error.bind(this.logger))
+                        }).catch(this.logger.error.bind(this.logger));
                         break;
                     default: {
                         const payload = v.payload as IScrim;
-                        if (payload.status === ScrimStatus.PENDING) {
+                        if (payload.status === ScrimStatus.PENDING || payload.status === ScrimStatus.POPPED) {
                             this.pubsub.publish(this.pendingScrimsSubTopic, {followPendingScrims: payload as Scrim}).catch(this.logger.error.bind(this.logger));
                         }
                         this.pubsub.publish(payload.id, {
@@ -191,7 +190,7 @@ export class ScrimService {
                                 scrim: payload,
                                 event: v.topic,
                             },
-                        }).catch(this.logger.error.bind(this.logger))
+                        }).catch(this.logger.error.bind(this.logger));
                         break;
                     }
                 }

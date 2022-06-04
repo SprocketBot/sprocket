@@ -93,12 +93,9 @@ class PendingScrimsStore extends LiveQueryStore<PendingScrimsData, PendingScrims
                 }
                 break;
             }
-            case "EMPTY":
-            case "POPPED":
+            default:
                 existingScrims = existingScrims.filter(s => s.id !== scrim.id);
                 break;
-            default:
-                console.warn(`Unexpected scrim status "${scrim.status}" given to followPendingScrims`);
         }
 
         this.currentValue.data.pendingScrims = existingScrims;

@@ -1,10 +1,13 @@
-import { Args, Query, Int, Mutation, Subscription } from '@nestjs/graphql';
-import { Resolver } from '@nestjs/graphql';
-import { ScrimService } from '../scrim.service';
-import { Scrim as IScrim, ScrimEvent } from '../types';
-import { ScrimPubSub } from '../constants';
-import { PubSub } from 'apollo-server-express';
-import { Inject } from '@nestjs/common';
+import {Inject} from "@nestjs/common";
+import {
+    Args, Int, Mutation, Query, Resolver, Subscription,
+} from "@nestjs/graphql";
+import type {Scrim as IScrim} from "@sprocketbot/common";
+import {PubSub} from "apollo-server-express";
+
+import {ScrimPubSub} from "../constants";
+import {ScrimService} from "../scrim.service";
+import {Scrim, ScrimEvent} from "../types";
 
 @Resolver()
 export class ScrimManagementResolver {
@@ -12,6 +15,7 @@ export class ScrimManagementResolver {
         private readonly scrimService: ScrimService,
         @Inject(ScrimPubSub) private readonly pubSub: PubSub,
     ) {}
+
     /*
         So, what we've got to do is straightforward. We create here a resolver
         that lets our bot team (scrim admins) perform the actions they already
@@ -26,13 +30,15 @@ export class ScrimManagementResolver {
         - Show/view all scrims in progress DONE
         - Cancel a scrim DONE
      */
-    @Query(()=> [IScrim])
-    async getActiveScrims(@Args('skillGroupId', {type: () => Int, nullable: true, defaultValue: 0}) skillGroupId: number) {
+    @Query(() => [Scrim])
+    async getActiveScrims(@Args("skillGroupId", {
+        type: () => Int, nullable: true, defaultValue: 0,
+    }) skillGroupId: number): Promise<IScrim[]> {
         return this.scrimService.getAllScrims(skillGroupId);
     }
 
-    @Mutation(()=> IScrim)
-    async cancelScrim(@Args('scrimId', {type: ()=> String}) scrimId: string) {
+    @Mutation(() => Scrim)
+    async cancelScrim(@Args("scrimId", {type: () => String}) scrimId: string): Promise<IScrim> {
         return this.scrimService.cancelScrim(scrimId);
     }
 
