@@ -20,17 +20,23 @@
 <DashboardLayout>
 
     
-    <DashboardCard title="" class="col-span-6 xl:col-span-5 row-span-3">
+    <DashboardCard title="" class="col-span-6 xl:col-span-5 row-span-2">
         <h2>Scrim Management</h2>
         <div class=" flex justify-center">
             <AdminScrimTable/>
         </div>
     </DashboardCard>
-    <DashboardCard title="" class="col-span-6 xl:col-span-5 row-span-3">
+    <DashboardCard title="" class="col-span-6 xl:col-span-5 row-span-2>
         <h2>Player Management</h2>
         <div class=" flex justify-center">
             <AdminPlayerTable/>
         </div>
+    </DashboardCard>
+    <DashboardCard title="" class="col-span-6 xl:col-span-5 row-span-2>
+        <h2>Ban Management</h2>
+        <div class=" flex justify-center">
+    <AdminBanTable/>
+    </div>
     </DashboardCard>
 
 
