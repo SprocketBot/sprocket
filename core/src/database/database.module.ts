@@ -30,7 +30,8 @@ const modules = [
         host: config.db.host,
         port: config.db.port,
         username: config.db.username,
-        password: readFileSync("./secret/db-password.txt").toString(),
+        password: readFileSync("./secret/db-password.txt").toString()
+            .trim(),
         database: config.db.database,
         autoLoadEntities: true,
         logging: config.db.enable_logs,

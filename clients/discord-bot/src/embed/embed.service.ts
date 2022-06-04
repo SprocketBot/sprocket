@@ -1,5 +1,7 @@
 import {Injectable} from "@nestjs/common";
-import {GqlService} from "@sprocketbot/common";
+import {
+    CoreEndpoint, CoreService, ResponseStatus,
+} from "@sprocketbot/common";
 import type {
     EmbedFieldData, HexColorString, MessageEmbedFooter, MessageEmbedOptions,
 } from "discord.js";
@@ -14,7 +16,7 @@ export interface EmbedOptions {
 
 @Injectable()
 export class EmbedService {
-    constructor(private readonly gqlService: GqlService) {}
+    constructor(private readonly coreService: CoreService) {}
 
     /**
      * Creates an organization branded embed if the organization has branding enabled. Otherwise uses Sprocket branding.
@@ -35,23 +37,9 @@ export class EmbedService {
             }
         }
 
-        const res = await this.gqlService.query({
-            getOrganizationById: [
-                {
-                    id: orgId,
-                },
-                {
-                    organizationProfile: {
-                        name: true,
-                        primaryColor: true,
-                        logoUrl: true,
-                        websiteUrl: true,
-                    },
-                },
-            ],
-        });
-        const profile = res.getOrganizationById.organizationProfile;
-
+        const response = await this.coreService.send(CoreEndpoint.GetOrganizationBranding, {id: orgId});
+        if (response.status === ResponseStatus.ERROR) throw response.error;
+        const profile = response.data;
         // TODO what should our overall embed system look like, and what should the defaults be?
         const defaults: Partial<MessageEmbedOptions> = {
             footer: {

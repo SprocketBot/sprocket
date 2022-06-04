@@ -7,7 +7,7 @@
 import type {Redis} from "ioredis";
 import IORedis from "ioredis";
 
-import {config} from "../../util/config";
+import {config} from "../config";
 import {cacheKeyMetadatakey} from "./constants";
 
 function createKey(constructorName: string, propertyName: string, args: string[]) {
@@ -60,7 +60,7 @@ export const Cache: (co: CacheOptions) => MethodDecorator = ({ttl, transformers}
          * Use that to lookup based on paramter index (which is all that we can get from a parameter decorator)
          */
         const paramNames = descriptor.value.toString().split("\n")[0].split("(")[1].split(")")[0].split(",");
-        
+
         descriptor.value = async (...args: any[]) => {
             const cacheValues: string[] = cacheKeys.map(keyIndex => {
                 // Lookup the name of the key in question
@@ -72,8 +72,8 @@ export const Cache: (co: CacheOptions) => MethodDecorator = ({ttl, transformers}
                 if (!args[keyIndex].toString) throw new Error("CacheKey value must have a transformer or toString function");
                 return args[keyIndex].toString();
             });
-            
-            
+
+
             // Smash all the cache keys together and make one big redis key
             const key = createKey(target.constructor.name, propertyKey.toString(), cacheValues);
             // Grab redis (and connect if we haven't already)
@@ -91,7 +91,7 @@ export const Cache: (co: CacheOptions) => MethodDecorator = ({ttl, transformers}
             // Return the result
             return v;
         };
-        
+
         return descriptor;
     };
 };

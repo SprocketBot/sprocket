@@ -1,5 +1,6 @@
 import {ValidationPipe} from "@nestjs/common";
 import {NestFactory} from "@nestjs/core";
+import {Transport} from "@nestjs/microservices";
 import {config} from "@sprocketbot/common";
 
 import {AppModule} from "./app.module";
@@ -9,9 +10,22 @@ async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule, {
         logger: config.logger.levels,
     });
+
+    app.connectMicroservice({
+        transport: Transport.RMQ,
+        options: {
+            urls: [config.transport.url],
+            queue: config.transport.core_queue,
+            queueOptions: {
+                durable: true,
+            },
+            heartbeat: 120,
+        },
+    });
     app.enableCors();
     app.useGlobalPipes(new ValidationPipe());
     const port = 3001;
+    await app.startAllMicroservices();
     await app.listen(port);
 }
 // eslint-disable-next-line no-console

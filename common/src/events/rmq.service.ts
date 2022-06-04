@@ -4,7 +4,7 @@ import {connect} from "amqplib";
 import type {ConsumeMessage} from "amqplib/properties";
 import {Observable, tap} from "rxjs";
 
-import {config} from "../../util/config";
+import {config} from "../util/config";
 
 @Injectable()
 export class RmqService {
