@@ -11,7 +11,7 @@ import type {Member} from "../../database";
 import {MemberRestriction, MemberRestrictionType} from "../../database";
 import {MemberPubSub} from "../constants";
 import {MemberService} from "../member/member.service";
-import {MemberEvent} from "./member.types";
+import {MemberRestrictionEvent} from "./member.types";
 import {MemberRestrictionService} from "./member-restriction.service";
 
 @Resolver(() => MemberRestriction)
@@ -52,8 +52,8 @@ export class MemberRestrictionResolver {
         return memberRestriction.member ?? await this.memberService.getMemberById(memberRestriction.memberId!);
     }
 
-    @Subscription(() => MemberEvent)
-    async followBannedMembers(): Promise<AsyncIterator<MemberEvent>> {
+    @Subscription(() => MemberRestrictionEvent)
+    async followBannedMembers(): Promise<AsyncIterator<MemberRestrictionEvent>> {
         await this.memberService.enableSubscription();
         return this.pubSub.asyncIterator(this.memberService.bannedMembersSubTopic);
     }

@@ -1,6 +1,7 @@
 import {z} from "zod";
 
 import {ScrimMetricsSchema, ScrimSchema} from "../matchmaking";
+import {MemberRestrictionEventSchema} from "../member";
 
 export enum EventTopic {
     // Scrims
@@ -47,15 +48,9 @@ export const EventSchemas = {
     [EventTopic.AllMemberEvents]: z.union([
         z.number(),
         z.string().uuid(),
-        z.object({
-            id: z.number(),
-            message: z.string(),
-        }),
+        MemberRestrictionEventSchema,
     ]),
-    [EventTopic.MemberBanned]: z.object({
-        id: z.number(),
-        message: z.string(),
-    }),
+    [EventTopic.MemberBanned]: MemberRestrictionEventSchema,
 };
 
 export type EventPayload<T extends EventTopic> = z.infer<typeof EventSchemas[T]>;

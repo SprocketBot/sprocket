@@ -8,8 +8,7 @@ import {
     IsNull, MoreThan, Repository,
 } from "typeorm";
 
-import type {MemberRestrictionType} from "../../database";
-import {MemberRestriction} from "../../database";
+import {MemberRestriction, MemberRestrictionType} from "../../database";
 import {MemberService} from "../member/member.service";
 
 
@@ -37,8 +36,22 @@ export class MemberRestrictionService {
         });
 
         await this.memberRestrictionRepository.save(memberRestriction);
+        // id: number;
+        // message: string;
+        // type: MemberRestrictionType;
+        // expiration: Date;
+        // reason: string;
+        // memberId: number;
+        const eventPayload = {
+            id: 1,
+            message: "nigel",
+            type: MemberRestrictionType.QUEUE_BAN,
+            expiration: expiration,
+            reason: reason,
+            memberId: member.id,
+        };
+        await this.eventsService.publish(EventTopic.MemberBanned, eventPayload);
 
-        await this.eventsService.publish(EventTopic.MemberBanned, {id: 1, message: "nigel"});
         return memberRestriction;
     }
 
