@@ -1,7 +1,7 @@
 import {z} from "zod";
 
-import {MemberRestrictionEventSchema} from "../member";
 import {ScrimMetricsSchema, ScrimSchema} from "../service-connectors/matchmaking";
+import {MemberRestrictionEventSchema} from "../service-connectors/member";
 
 export enum EventTopic {
     // Scrims
