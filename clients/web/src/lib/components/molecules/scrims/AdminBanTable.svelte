@@ -1,18 +1,27 @@
 <script lang="ts">
     import {activePlayers, type Player} from "$lib/api";
-    import {bannedPlayers, type MemberRestrictionEvent} from "$lib/api";
+    import {bannedPlayers, type MemberRestrictionEvent, cancelRestrictionMutation} from "$lib/api";
 
     //export let visible = false;
-    let playerManagementModalVisible = false;
-    let activePlayersData: Player[] | undefined;
-    $: activePlayersData = $activePlayers;
     let bannedPlayersData: MemberRestrictionEvent[] | undefined;
     $: bannedPlayersData = $bannedPlayers?.data?.getActiveMemberRestrictions;
 
     console.log(bannedPlayersData)
-    let targetPlayer;
-    //export let selectedPlayer;
+    let targetRestriction:number;
 
+    const unbanThisPlayer = (restrictionId: number) => {
+        targetRestriction = restrictionId;
+        console.log(`Unbanning ${restrictionId}`);
+        cancelRestriction(restrictionId);
+    }
+
+    function cancelRestriction(id:number) {
+        try {
+            cancelRestrictionMutation({id: id?? 0, expiration: new Date()});
+        } catch {
+            console.log("oops, all berries!")
+        }
+    }
 </script>
 
 <table class="table text-center w-full" >
@@ -31,7 +40,7 @@
                     <td>{restriction.member.profile.name}</td>
                     <td>{restriction.id}</td>
                     <td>
-                        <button class="btn btn-outline lg:btn-sm">
+                        <button class="btn btn-outline lg:btn-sm" on:click={() => {unbanThisPlayer(restriction.id)}}>
                             Unban
                         </button>
                     </td>
