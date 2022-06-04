@@ -18,6 +18,8 @@ interface Member {
 export interface MemberRestrictionEvent {
     id: number;
 
+    eventType: number;
+
     message?: string;
 
     type: MemberRestrictionType;
@@ -70,6 +72,7 @@ export class BannedPlayersStore extends LiveQueryStore<BannedPlayersStoreValue, 
     subscription {
       followBannedMembers {
         id
+        eventType
         message
         type
         expiration
@@ -93,12 +96,12 @@ export class BannedPlayersStore extends LiveQueryStore<BannedPlayersStoreValue, 
                 return;
             }
 
-            switch (message.data.followBannedMembers.id) {
+            switch (message.data.followBannedMembers.eventType) {
                 case 1:
                     this.currentValue.data.getActiveMemberRestrictions.push(message.data.followBannedMembers);
                     break;
                 case 2:
-                    this.currentValue.data.getActiveMemberRestrictions = this.currentValue.data.getActiveMemberRestrictions.filter(s => s.memberId !== message.data?.event.memberId);
+                    this.currentValue.data.getActiveMemberRestrictions = this.currentValue.data.getActiveMemberRestrictions.filter(s => s.id !== message.data?.followBannedMembers.id);
                     break;
                 default:
                     console.log("This is path shouldn't be hit.");
