@@ -1,14 +1,14 @@
 <script lang="ts">
     import {activePlayers, type Player} from "$lib/api";
-    import {bannedPlayers, type MemberRestrictionEvent} from "$lib/api";
+    import {PlayerManagementModal} from "../../organisms/index.js";
+    import FaHammer from "svelte-icons/fa/FaHammer.svelte";
 
-    //export let visible = false;
+    // export let visible = false;
     let playerManagementModalVisible = false;
     let activePlayersData: Player[] | undefined;
     $: activePlayersData = $activePlayers;
-
     let targetPlayer;
-    //export let selectedPlayer;
+    // export let selectedPlayer;
 
     const openPlayerManagementModal = (playerId: number) => {
         playerManagementModalVisible = true;
@@ -20,7 +20,7 @@
 <table>
     <thead>
     <tr>
-<!--        <th>Ban Status</th>-->
+
         <th>Player Name</th>
         <th>Player ID</th>
         <th></th>
@@ -30,12 +30,12 @@
         {#if activePlayersData}
             {#each activePlayersData as player (player.id)}
                 <tr>
-<!--                <td>{player.banStatus}</td>-->
+
                 <td>{player.name}</td>
                 <td>{player.id}</td>
                 <td>
                     <button class="btn btn-outline float-right lg:btn-sm" on:click={() => { openPlayerManagementModal(player.id) }}>
-                        Manage
+                        <FaHammer/>
                     </button>
                 </td>
                 </tr>
@@ -43,6 +43,10 @@
         {/if}
     </tbody>
 </table>
+
+{#if playerManagementModalVisible}
+    <PlayerManagementModal playerId={targetPlayer} bind:visible={playerManagementModalVisible} />
+{/if}
 
 <style lang="postcss">
     table {
