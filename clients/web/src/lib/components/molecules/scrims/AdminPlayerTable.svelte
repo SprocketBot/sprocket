@@ -44,7 +44,7 @@
                 </tr>
             {/each}
             {#if bannedPlayersData}
-            {#each bannedPlayersData as restriction}
+            {#each bannedPlayersData as restriction (restriction.id)}
                 <tr>
                     <td>{restriction.member.profile.name}</td>
                     <td>{restriction.id}</td>

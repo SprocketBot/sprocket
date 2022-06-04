@@ -39,7 +39,8 @@ export class MemberRestrictionService {
 
         // This is the message we'll send to the front end about the ban
         const eventPayload = {
-            id: 1,
+            id: memberRestriction.id,
+            eventType: 1,
             message: "Member Queue Banned",
             type: MemberRestrictionType.QUEUE_BAN,
             expiration: expiration,
@@ -88,7 +89,8 @@ export class MemberRestrictionService {
 
         // This is the message we'll send to the front end about the manual expiration
         const eventPayload = {
-            id: 2,
+            id: memberRestriction.id,
+            eventType: 2,
             message: "Member ban manually expired",
             type: MemberRestrictionType.QUEUE_BAN,
             expiration: memberRestriction.expiration,

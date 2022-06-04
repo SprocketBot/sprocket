@@ -11,6 +11,7 @@ import {z} from "zod";
 // memberId: number;
 export const MemberRestrictionEventSchema = z.object({
     id: z.number(),
+    eventType: z.number(),
     message: z.string(),
     type: z.enum(["QUEUE_BAN", "RATIFICATION_BAN"]),
     expiration: z.preprocess(arg => {

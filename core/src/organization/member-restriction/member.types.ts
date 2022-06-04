@@ -7,6 +7,9 @@ export class MemberRestrictionEvent {
     @Field(() => Number)
     id: number;
 
+    @Field(() => Number)
+    eventType: number;
+
     @Field(() => String)
     message: string;
 
