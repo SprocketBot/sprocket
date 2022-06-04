@@ -42,7 +42,7 @@ export class MemberRestrictionResolver {
     async manuallyExpireMemberRestriction(
         @Args("id", {type: () => Int}) id: number,
         @Args("manualExpiration", {type: () => Date}) manualExpiration: Date,
-        @Args("manualExpirationReason", {type: () => Int}) manualExpirationReason: string,
+        @Args("manualExpirationReason", {type: () => String}) manualExpirationReason: string,
     ): Promise<MemberRestriction> {
         return this.memberRestrictionService.manuallyExpireMemberRestriction(id, manualExpiration, manualExpirationReason);
     }

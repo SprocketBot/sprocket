@@ -36,15 +36,11 @@ export class MemberRestrictionService {
         });
 
         await this.memberRestrictionRepository.save(memberRestriction);
-        // id: number;
-        // message: string;
-        // type: MemberRestrictionType;
-        // expiration: Date;
-        // reason: string;
-        // memberId: number;
+
+        // This is the message we'll send to the front end about the ban
         const eventPayload = {
             id: 1,
-            message: "nigel",
+            message: "Member Queue Banned",
             type: MemberRestrictionType.QUEUE_BAN,
             expiration: expiration,
             reason: reason,
@@ -89,7 +85,20 @@ export class MemberRestrictionService {
         
         memberRestriction = this.memberRestrictionRepository.merge(memberRestriction, {manualExpiration, manualExpirationReason});
         await this.memberRestrictionRepository.save(memberRestriction);
-        
+
+        // This is the message we'll send to the front end about the manual expiration
+        const eventPayload = {
+            id: 2,
+            message: "Member ban manually expired",
+            type: MemberRestrictionType.QUEUE_BAN,
+            expiration: memberRestriction.expiration,
+            reason: memberRestriction.reason,
+            manualExpiration: manualExpiration,
+            manualExpirationReason: manualExpirationReason,
+            memberId: memberRestriction.memberId,
+        };
+
+        await this.eventsService.publish(EventTopic.MemberBanned, eventPayload);
         return memberRestriction;
     }
 }

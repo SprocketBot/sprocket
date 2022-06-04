@@ -20,7 +20,12 @@ export const MemberRestrictionEventSchema = z.object({
         return arg;
     }, z.date()),
     reason: z.string(),
-    manualExpiration: z.date().optional(),
+    manualExpiration: z.preprocess(arg => {
+        if (typeof arg === "string" || arg instanceof Date) {
+            return new Date(arg);
+        }
+        return arg;
+    }, z.date()).optional(),
     manualExpirationReason: z.string().optional(),
     memberId: z.number(),
 });
