@@ -2,16 +2,17 @@
     import {
         AdminScrimTable,
         AdminPlayerTable,
+        AdminBanTable,
         DashboardLayout,
         DashboardCard,
     } from "$lib/components";
 
     import type {Load} from "@sveltejs/kit";
 
+
     export const load: Load = ({session}) => {
         if (session.user) {
-            if (session.user.orgTeams.find(obj => obj === "0"))
-            return {status: 302, redirect: "/scrims"};
+            if (session.user.orgTeams.find(obj => obj === "0"))     return {status: 302, redirect: "/scrims"};
         }
         return {status: 302, redirect: "/auth/login"};
     };
@@ -26,13 +27,13 @@
             <AdminScrimTable/>
         </div>
     </DashboardCard>
-    <DashboardCard title="" class="col-span-6 xl:col-span-5 row-span-2>
+    <DashboardCard title="" class="col-span-6 xl:col-span-5 row-span-2">
         <h2>Player Management</h2>
-        <div class=" flex justify-center">
+        <div class= "flex justify-center">
             <AdminPlayerTable/>
         </div>
     </DashboardCard>
-    <DashboardCard title="" class="col-span-6 xl:col-span-5 row-span-2>
+    <DashboardCard title="" class="col-span-6 xl:col-span-5 row-span-2">
         <h2>Ban Management</h2>
         <div class=" flex justify-center">
     <AdminBanTable/>
