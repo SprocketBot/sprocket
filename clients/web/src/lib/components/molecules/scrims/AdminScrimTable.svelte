@@ -27,7 +27,7 @@
 
     let targetScrim: CurrentScrim | undefined;
 
-    export let selectedPlayer: string | undefined;
+    let selectedPlayer: string | undefined;
 
     const selectPlayerInTable = (playerId: string) => {
         selectedPlayer = playerId;

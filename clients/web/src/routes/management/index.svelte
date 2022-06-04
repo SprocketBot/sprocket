@@ -1,4 +1,4 @@
-<script lang="ts">
+<script lang="ts" context="module">
     import {
         AdminScrimTable,
         AdminPlayerTable,
@@ -8,19 +8,21 @@
     } from "$lib/components";
 
     import type {Load} from "@sveltejs/kit";
-
+    const MLEDB_ADMIN = 1;
 
     export const load: Load = ({session}) => {
         if (session.user) {
-            if (session.user.orgTeams.find(obj => obj === "0"))     return {status: 302, redirect: "/scrims"};
+            const inAdminTeam = session.user.orgTeams.find((s:number) => s === MLEDB_ADMIN)
+            if ( inAdminTeam === MLEDB_ADMIN) {
+                return {status: 200};
+            }
+            return {status: 302, redirect: "/scrims"};
         }
         return {status: 302, redirect: "/auth/login"};
     };
 </script>
 
 <DashboardLayout>
-
-    
     <DashboardCard title="" class="col-span-6 xl:col-span-5 row-span-2">
         <h2>Scrim Management</h2>
         <div class=" flex justify-center">
@@ -39,8 +41,6 @@
     <AdminBanTable/>
     </div>
     </DashboardCard>
-
-
 </DashboardLayout>
 
 <style lang="postcss">

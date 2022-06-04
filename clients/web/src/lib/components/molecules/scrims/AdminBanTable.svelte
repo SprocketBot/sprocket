@@ -6,7 +6,6 @@
     let bannedPlayersData: MemberRestrictionEvent[] | undefined;
     $: bannedPlayersData = $bannedPlayers?.data?.getActiveMemberRestrictions;
 
-    console.log(bannedPlayersData)
     let targetRestriction:number;
 
     const unbanThisPlayer = (restrictionId: number) => {
