@@ -23,7 +23,8 @@
 
         <th>Player Name</th>
         <th>Player ID</th>
-        <th></th>
+        <th>Player Search:
+            <textfield class="input-bordered bg-base-300/20" > Search Here: </textfield></th>
     </tr>
     </thead>
     <tbody>
@@ -35,7 +36,9 @@
                 <td>{player.id}</td>
                 <td>
                     <button class="btn btn-outline float-right lg:btn-sm" on:click={() => { openPlayerManagementModal(player.id) }}>
-                        <FaHammer/>
+                        <span class = "h-6">
+                            <FaHammer/>
+                        </span>
                     </button>
                 </td>
                 </tr>

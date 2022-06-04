@@ -59,8 +59,41 @@
         <div class="divider"></div>
 
         <button class="btn btn-primary btn-wide flex mx-auto mb-4" disabled={!buttonEnabled}>
+            <span class = "h-10">
             <FaHammer/>
+            </span>
         </button>
     </form>
 
 </Modal>
+
+<style lang="postcss">
+    form {
+        @apply space-y-4;
+
+
+    label {
+        @apply contents;
+    }
+
+    select {
+        @apply mt-2 outline-1 select select-bordered select-sm;
+
+    option {
+        @apply py-2;
+    }
+
+    &:disabled {
+         @apply bg-gray-700 cursor-not-allowed;
+     }
+    }
+
+    input {
+        @apply ml-auto;
+    }
+
+    input:disabled {
+        @apply text-right px-4 py-1 bg-gray-700;
+    }
+    }
+</style>

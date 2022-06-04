@@ -53,11 +53,11 @@
         <th>
             <button class="float-right btn btn-outline btn-accent" on:click={() => { scrimsLocked = !scrimsLocked }}>
                 {#if scrimsLocked }
-                    <span class="h-4">
+                    <span class="h-6">
                         <FaLock/>
                     </span>
                 {:else}
-                    <span class="h-4">
+                    <span class="h-6">
                         <FaLockOpen/>
                     </span>
                 {/if}
