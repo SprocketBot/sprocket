@@ -8,12 +8,12 @@
     } from "$lib/components";
 
     import type {Load} from "@sveltejs/kit";
-    const MLEDB_ADMIN = 1;
+    const MLEDB_ADMIN = 0;
 
     export const load: Load = ({session}) => {
         if (session.user) {
-            const inAdminTeam = session.user.orgTeams.find((s:number) => s === MLEDB_ADMIN)
-            if ( inAdminTeam === MLEDB_ADMIN) {
+            const inAdminTeam = session.user.orgTeams.find((s: number) => s === MLEDB_ADMIN);
+            if (inAdminTeam === MLEDB_ADMIN) {
                 return {status: 200};
             }
             return {status: 302, redirect: "/scrims"};

@@ -23,8 +23,7 @@
 
         <th>Player Name</th>
         <th>Player ID</th>
-        <th>Player Search:
-            <textfield class="input-bordered bg-base-300/20" > Search Here: </textfield></th>
+        <th><textarea class="input-bordered bg-base-300/20 w-3" rows="1" id:> Player Search: </textarea></th>
     </tr>
     </thead>
     <tbody>

@@ -28,6 +28,7 @@
     <form on:submit|preventDefault={createBan} slot="body">
         <div class="divider"></div>
 
+        <h4>Choose {playerId}'s Fate:</h4>
 
         <div class="form-control">
             <label class="label" >
