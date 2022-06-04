@@ -1,12 +1,17 @@
 <script lang="ts">
     import {activePlayers, type Player} from "$lib/api";
+    import {bannedPlayers, type MemberRestrictionEvent} from "$lib/api";
 
-    export let visible = false;
+    //export let visible = false;
     let playerManagementModalVisible = false;
     let activePlayersData: Player[] | undefined;
     $: activePlayersData = $activePlayers;
+    let bannedPlayersData: MemberRestrictionEvent[] | undefined;
+    $: bannedPlayersData = $bannedPlayers?.data?.getActiveMemberRestrictions;
+
+    console.log(bannedPlayersData)
     let targetPlayer;
-    export let selectedPlayer;
+    //export let selectedPlayer;
 
     const openPlayerManagementModal = (playerId: number) => {
         playerManagementModalVisible = true;
@@ -39,6 +44,19 @@
                 </td>
                 </tr>
             {/each}
+            {#if bannedPlayersData}
+            {#each bannedPlayersData as restriction}
+                <tr>
+                    <td>{restriction.member.profile.name}</td>
+                    <td>{restriction.id}</td>
+                    <td>
+                        <button class="btn btn-outline lg:btn-sm">
+                            Unban
+                        </button>
+                    </td>
+                </tr>
+            {/each}
+            {/if}
         {/if}
     </tbody>
 </table>
