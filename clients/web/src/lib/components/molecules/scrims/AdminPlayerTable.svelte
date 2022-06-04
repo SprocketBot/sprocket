@@ -6,10 +6,7 @@
     let playerManagementModalVisible = false;
     let activePlayersData: Player[] | undefined;
     $: activePlayersData = $activePlayers;
-    let bannedPlayersData: MemberRestrictionEvent[] | undefined;
-    $: bannedPlayersData = $bannedPlayers?.data?.getActiveMemberRestrictions;
 
-    console.log(bannedPlayersData)
     let targetPlayer;
     //export let selectedPlayer;
 
@@ -20,7 +17,7 @@
 
 </script>
 
-<table class="table text-center w-full" >
+<table>
     <thead>
     <tr>
 <!--        <th>Ban Status</th>-->
@@ -32,7 +29,6 @@
     <tbody>
         {#if activePlayersData}
             {#each activePlayersData as player (player.id)}
-
                 <tr>
 <!--                <td>{player.banStatus}</td>-->
                 <td>{player.name}</td>
@@ -44,25 +40,12 @@
                 </td>
                 </tr>
             {/each}
-            {#if bannedPlayersData}
-            {#each bannedPlayersData as restriction (restriction.id)}
-                <tr>
-                    <td>{restriction.member.profile.name}</td>
-                    <td>{restriction.id}</td>
-                    <td>
-                        <button class="btn btn-outline lg:btn-sm">
-                            Unban
-                        </button>
-                    </td>
-                </tr>
-            {/each}
-            {/if}
         {/if}
     </tbody>
 </table>
 
 <style lang="postcss">
-    h2 {
-        @apply text-4xl font-bold text-sprocket mb-2;
+    table {
+        @apply table text-center w-full;
     }
 </style>

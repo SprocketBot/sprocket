@@ -13,11 +13,6 @@
     let targetPlayer;
     //export let selectedPlayer;
 
-    const openPlayerManagementModal = (playerId: number) => {
-        playerManagementModalVisible = true;
-        targetPlayer = playerId;
-    };
-
 </script>
 
 <table class="table text-center w-full" >
@@ -25,26 +20,12 @@
     <tr>
 <!--        <th>Ban Status</th>-->
         <th>Player Name</th>
-        <th>Player ID</th>
+        <th>Restriction ID</th>
         <th></th>
     </tr>
     </thead>
     <tbody>
-        {#if activePlayersData}
-            {#each activePlayersData as player (player.id)}
-
-                <tr>
-<!--                <td>{player.banStatus}</td>-->
-                <td>{player.name}</td>
-                <td>{player.id}</td>
-                <td>
-                    <button class="btn btn-outline float-right lg:btn-sm" on:click={() => { openPlayerManagementModal(player.id) }}>
-                        Manage
-                    </button>
-                </td>
-                </tr>
-            {/each}
-            {#if bannedPlayersData}
+        {#if bannedPlayersData}
             {#each bannedPlayersData as restriction}
                 <tr>
                     <td>{restriction.member.profile.name}</td>
@@ -56,7 +37,6 @@
                     </td>
                 </tr>
             {/each}
-            {/if}
         {/if}
     </tbody>
 </table>
