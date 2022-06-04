@@ -166,4 +166,9 @@ export const config = {
             return _config.get<string>("transport.image_generation_queue");
         },
     },
+    web: {
+        get url(): string {
+            return _config.get<string>("web.url");
+        },
+    },
 };

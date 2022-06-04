@@ -1,6 +1,6 @@
 import {Module} from "@nestjs/common";
 import {
-    BotModule, EventsModule, GqlModule, MatchmakingModule,
+    BotModule, CoreModule, EventsModule, MatchmakingModule,
 } from "@sprocketbot/common";
 
 import {ScrimEventSubscriber} from "./scrim.event-subscriber";
@@ -11,7 +11,7 @@ import {ScrimService} from "./scrim.service";
         EventsModule,
         BotModule,
         MatchmakingModule,
-        GqlModule,
+        CoreModule,
     ],
     providers: [
         ScrimService,

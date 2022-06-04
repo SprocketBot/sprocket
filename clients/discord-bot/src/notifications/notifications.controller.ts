@@ -11,6 +11,6 @@ export class NotificationsController {
     @MessagePattern(BotEndpoint.SendDirectMessage)
     async sendDirectMessage(@Payload() payload: unknown): Promise<boolean> {
         const data = BotSchemas.SendDirectMessage.input.parse(payload);
-        return this.notificationService.sendDirectMessage(data.userId, data.content);
+        return this.notificationService.sendDirectMessage(data.organizationId, data.userId, data.content);
     }
 }

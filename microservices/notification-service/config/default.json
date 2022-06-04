@@ -12,6 +12,9 @@
   },
   "logger": {
     "levels": true
+  },
+  "web": {
+    "url": ""
   }
 }
   

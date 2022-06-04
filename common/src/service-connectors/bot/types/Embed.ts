@@ -5,17 +5,7 @@ export const EmbedSchema = z.object({
         .optional(),
     description: z.string().max(4096),
     url: z.string().optional(),
-    /**
-     * ISO8601 timestamp
-     */
     timestamp: z.number().optional(),
-    /**
-     * Represented as a decimal.
-     * @example
-     * 0x00adff
-     * @example
-     * 44543
-     */
     color: z.number().optional(),
     footer: z.object({
         text: z.string().max(2048),
