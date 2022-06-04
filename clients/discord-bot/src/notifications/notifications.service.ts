@@ -1,12 +1,8 @@
 import {
     Inject, Injectable, Logger,
 } from "@nestjs/common";
-import type {
-    Embed, MessageContent,
-} from "@sprocketbot/common";
-import type {
-    MessageOptions, TextChannel,
-} from "discord.js";
+import type {Embed, MessageContent} from "@sprocketbot/common";
+import type {MessageOptions} from "discord.js";
 import {Client} from "discord.js";
 
 import {EmbedService} from "../embed";
@@ -21,8 +17,10 @@ export class NotificationsService {
     ) {}
 
     async sendMessage(channelId: string, message: string): Promise<boolean> {
-        const c = await this.discordClient.channels.fetch(channelId) as TextChannel;
-        await c.send(message);
+        const guildChannel = await this.discordClient.channels.fetch(channelId);
+        if (!guildChannel?.isText()) return false;
+        
+        await guildChannel.send(message);
 
         return true;
     }
