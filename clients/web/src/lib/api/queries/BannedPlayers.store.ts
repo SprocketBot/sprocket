@@ -15,7 +15,7 @@ interface Member {
     profile: MemberProfile;
 }
 
-interface MemberRestrictionEvent {
+export interface MemberRestrictionEvent {
     id: number;
 
     message?: string;
@@ -36,11 +36,11 @@ interface MemberRestrictionEvent {
 }
 
 export interface BannedPlayersStoreValue {
-    restrictions: MemberRestrictionEvent[];
+    getActiveMemberRestrictions: MemberRestrictionEvent[];
 }
 
 export interface BannedPlayersSubscriptionValue {
-    event: MemberRestrictionEvent;
+    followBannedMembers: MemberRestrictionEvent;
 }
 
 export interface BannedPlayersStoreVariables {
@@ -87,18 +87,18 @@ export class BannedPlayersStore extends LiveQueryStore<BannedPlayersStoreValue, 
 
     protected handleGqlMessage = (message: OperationResult<BannedPlayersSubscriptionValue, BannedPlayersStoreSubscriptionVariables>): void => {
         if (message?.data) {
-            if (!this.currentValue.data) {
+            if (!this.currentValue.data?.getActiveMemberRestrictions) {
+                console.log(this.currentValue);
                 console.warn("Received subscription before query completed!");
                 return;
             }
 
-            console.log(message.data);
-            switch (message.data.event.id) {
+            switch (message.data.followBannedMembers.id) {
                 case 1:
-                    this.currentValue.data.restrictions.push(message.data.event);
+                    this.currentValue.data.getActiveMemberRestrictions.push(message.data.followBannedMembers);
                     break;
                 case 2:
-                    this.currentValue.data.restrictions = this.currentValue.data.restrictions.filter(s => s.memberId !== message.data?.event.memberId);
+                    this.currentValue.data.getActiveMemberRestrictions = this.currentValue.data.getActiveMemberRestrictions.filter(s => s.memberId !== message.data?.event.memberId);
                     break;
                 default:
                     console.log("This is path shouldn't be hit.");
