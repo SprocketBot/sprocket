@@ -27,11 +27,11 @@ export class NotificationsService {
         return true;
     }
 
-    async sendDirectMessage(organizationId: number, userId: string, content: string | MessageContent): Promise<boolean> {
+    async sendDirectMessage(organizationId: number, userId: string, content: MessageContent): Promise<boolean> {
         try {
             const user = await this.discordClient.users.fetch(userId);
             
-            if (typeof content !== "string" && content.embeds?.length) {
+            if (content.embeds?.length) {
                 const newEmbeds: Embed[] = [];
 
                 for (const embed of content.embeds) newEmbeds.push(await this.embedService.embed(embed, organizationId) as Embed);
