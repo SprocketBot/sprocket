@@ -20,7 +20,7 @@ export enum EventTopic {
 
     // Member
     AllMemberEvents = "member.*",
-    MemberBanned = "member.banned",
+    MemberRestrictionCreated = "member.restriction.created",
 }
 
 export const EventTopicSchema = z.preprocess(v => {
@@ -50,7 +50,7 @@ export const EventSchemas = {
         z.string().uuid(),
         MemberRestrictionEventSchema,
     ]),
-    [EventTopic.MemberBanned]: MemberRestrictionEventSchema,
+    [EventTopic.MemberRestrictionCreated]: MemberRestrictionEventSchema,
 };
 
 export type EventPayload<T extends EventTopic> = z.infer<typeof EventSchemas[T]>;

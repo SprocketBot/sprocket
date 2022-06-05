@@ -32,7 +32,7 @@ export class ScrimManagementResolver {
      */
     @Query(() => [Scrim])
     async getActiveScrims(@Args("skillGroupId", {
-        type: () => Int, nullable: true, defaultValue: 0,
+        type: () => Int, nullable: true,
     }) skillGroupId: number): Promise<IScrim[]> {
         return this.scrimService.getAllScrims(skillGroupId);
     }

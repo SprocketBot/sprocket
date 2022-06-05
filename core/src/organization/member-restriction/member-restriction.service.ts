@@ -47,7 +47,7 @@ export class MemberRestrictionService {
             member: member,
             memberId: member.id,
         };
-        await this.eventsService.publish(EventTopic.MemberBanned, eventPayload);
+        await this.eventsService.publish(EventTopic.MemberRestrictionCreated, eventPayload);
 
         return memberRestriction;
     }
@@ -106,7 +106,7 @@ export class MemberRestrictionService {
             memberId: memberRestriction.memberId,
         };
 
-        await this.eventsService.publish(EventTopic.MemberBanned, eventPayload);
+        await this.eventsService.publish(EventTopic.MemberRestrictionCreated, eventPayload);
         return memberRestriction;
     }
 }

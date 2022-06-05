@@ -15,5 +15,6 @@ export const activePlayers = derived<ActiveScrimsStore, Player[]>(activeScrims, 
             players.push(p);
         });
     });
+    // const players = $activeScrims?.data?.activeScrims?.flatMap(s => s.players) ?? [];
     return players;
 });
