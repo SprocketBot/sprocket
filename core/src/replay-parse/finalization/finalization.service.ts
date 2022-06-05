@@ -1,8 +1,13 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {InjectConnection, InjectRepository} from "@nestjs/typeorm";
-import type {BallchasingPlayer} from "@sprocketbot/common";
+import type {BallchasingPlayer, Scrim} from "@sprocketbot/common";
 import {
-    CeleryService, MatchmakingService, Parser, RedisService,
+    CeleryService,
+    MatchmakingEndpoint,
+    MatchmakingService,
+    Parser,
+    RedisService,
+    ResponseStatus,
 } from "@sprocketbot/common";
 import type {QueryRunner} from "typeorm";
 import {Connection, Repository} from "typeorm";
@@ -38,8 +43,12 @@ export class FinalizationService {
         await runner.connect();
         await runner.startTransaction();
 
+        const scrimResponse = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
+        if (scrimResponse.status === ResponseStatus.ERROR) throw scrimResponse.error;
+        const scrimObject = scrimResponse.data;
+
         await Promise.all([
-            this.mledbScrimService.saveScrim(submission, submissionId, runner),
+            this.mledbScrimService.saveScrim(submission, submissionId, runner, scrimObject as Scrim),
             this.saveToSprocket(submission, runner),
         ])
             .then(async () => runner.commitTransaction())
@@ -54,7 +63,7 @@ export class FinalizationService {
         const scrimMeta = this.scrimMetaRepo.create();
         const matchParent = this.matchParentRepo.create();
         const match = this.matchRepo.create();
-        
+
         const parsedReplays = submission.items.map(i => i.progress!.result!);
 
         const playerStats: PlayerStatLine[] = [];
