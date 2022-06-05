@@ -49,7 +49,6 @@ export class MLE_Match {
     @Column("boolean", {name: "is_double_header"})
     isDoubleHeader: boolean;
 
-
     @Column("integer", {name: "match_number"})
     matchNumber: number;
 

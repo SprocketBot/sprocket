@@ -76,7 +76,6 @@ export class MledbScrimService {
         series.submissionTimestamp = new Date();
         series.fullNcp = false;
 
-
         // eslint-disable-next-line require-atomic-updates
         series.seriesReplays = await Promise.all(submission.items.map(async item => {
             const data = item.progress!.result!.data;

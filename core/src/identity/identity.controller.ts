@@ -34,7 +34,5 @@ export class IdentityController {
                 description: profile.description,
             },
         };
-
-
     }
 }

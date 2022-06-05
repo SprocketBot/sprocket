@@ -1,7 +1,8 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import {Invalidation, Match} from "src/database";
 import {Repository} from "typeorm";
+
+import {Invalidation, Match} from "../../database";
 
 @Injectable()
 export class MatchService {

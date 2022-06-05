@@ -11,7 +11,6 @@ import type {MemberRestrictionType} from "../../database";
 import {MemberRestriction} from "../../database";
 import {MemberService} from "../member/member.service";
 
-
 @Injectable()
 export class MemberRestrictionService {
     constructor(

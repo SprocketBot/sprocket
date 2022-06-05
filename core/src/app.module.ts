@@ -18,7 +18,6 @@ import {ReplayParseModule} from "./replay-parse/replay-parse.module";
 import {SchedulingModule} from "./scheduling/scheduling.module";
 import {ScrimModule} from "./scrim/scrim.module";
 
-
 @Module({
     imports: [
         GraphQLModule.forRoot({
