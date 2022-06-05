@@ -102,6 +102,5 @@
 <style lang="postcss">
     table {
         @apply select-none;
-
     }
 </style>
