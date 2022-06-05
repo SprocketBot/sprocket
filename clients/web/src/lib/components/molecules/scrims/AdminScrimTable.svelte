@@ -100,19 +100,8 @@
 {/if}
 
 <style lang="postcss">
-    h2 {
-        @apply text-4xl font-bold text-sprocket mb-2;
-    }
-
     table {
         @apply select-none;
 
-        th {
-            @apply text-sm text-center py-3;
-
-            &:first-child {
-                @apply relative;
-            }
-        }
     }
 </style>
