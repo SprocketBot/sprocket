@@ -1,11 +1,11 @@
 import {gql} from "@urql/core";
 import {client} from "../client";
 
-interface CancelRestrictionResponse {
+interface ExpireRestrictionResponse {
     id: string;
 }
 
-interface CancelRestrictionVariables {
+interface ExpireRestrictionVariables {
     id: number;
     expiration: Date;
 }
@@ -22,8 +22,8 @@ const mutationString = gql`
     }
 `;
 
-export const expireRestrictionMutation = async (vars: CancelRestrictionVariables): Promise<CancelRestrictionResponse> => {
-    const r = await client.mutation<CancelRestrictionResponse, CancelRestrictionVariables>(mutationString, vars).toPromise();
+export const expireRestrictionMutation = async (vars: ExpireRestrictionVariables): Promise<ExpireRestrictionResponse> => {
+    const r = await client.mutation<ExpireRestrictionResponse, ExpireRestrictionVariables>(mutationString, vars).toPromise();
     if (r.data) {
         return r.data;
     }
