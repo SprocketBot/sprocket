@@ -54,15 +54,7 @@ export class FinalizationService {
         const scrimMeta = this.scrimMetaRepo.create();
         const matchParent = this.matchParentRepo.create();
         const match = this.matchRepo.create();
-
-        // Create rounds for match
-        // const promises = submission.taskIds.map(async taskId => {
-        //     const resultKey = this.celeryService.buildResultKey(taskId);
-        //     const parsed = await this.redisService.getString<ParseReplayResult>(resultKey);
-        //     if (!parsed) throw new Error(`Unable to find parsed replay`);
-        //     return parsed;
-        // });
-        // const parsedReplays = await Promise.all(promises);
+        
         const parsedReplays = submission.items.map(i => i.progress!.result!);
 
         const playerStats: PlayerStatLine[] = [];

@@ -66,6 +66,7 @@ export class MledbScrimService {
             1: LegacyGameMode.SOLO, 2: LegacyGameMode.DOUBLES, 3: LegacyGameMode.STANDARD,
         }[mode.teamSize]!;
         scrim.series = series;
+        series.scrim = scrim;
 
         scrim.mode = series.mode;
         scrim.type = mode.description.toUpperCase();
