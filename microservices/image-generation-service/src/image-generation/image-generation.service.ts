@@ -38,10 +38,9 @@ export class ImageGenerationService {
         this.logger.debug(`Found ${fonts.length} fonts`);
 
         if (!existsSync("./fonts/temp")) {
-            mkdirSync("./fonts/temp");
+            mkdirSync("./fonts/temp", {recursive: true});
         }
         // Const createdFiles: string[] = [];
-
 
         if (fonts.length) {
             await Promise.all(fonts.map(async font => {
