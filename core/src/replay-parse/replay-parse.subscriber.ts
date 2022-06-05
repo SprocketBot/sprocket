@@ -33,9 +33,7 @@ export class ReplayParseSubscriber {
         if (this.existingSubscriptions.has(submissionId)) return;
         this.existingSubscriptions.add(submissionId);
 
-
         const observable = this.celeryService.subscribe<Task.ParseReplay>(submissionId);
-
 
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         observable.subscribe(async (p: ProgressMessage<Task.ParseReplay>) => {
@@ -57,7 +55,6 @@ export class ReplayParseSubscriber {
                     } ],
                 })
                 .catch(this.logger.error.bind(this.logger));
-
 
         });
     }

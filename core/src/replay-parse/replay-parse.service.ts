@@ -156,7 +156,6 @@ export class ReplayParseService {
         // Wait for all tasks to be started
         await Promise.all(promises);
 
-
         await this.eventsService.publish(EventTopic.SubmissionStarted, {submissionId: submissionId});
 
         // Return taskIds, directly correspond to the files that were uploaded

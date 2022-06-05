@@ -5,7 +5,6 @@ import {
 import {SprocketConfiguration} from "../../database";
 import {SprocketConfigurationService} from "./sprocket-configuration.service";
 
-
 @Resolver(() => SprocketConfiguration)
 export class SprocketConfigurationResolver {
     constructor(private readonly service: SprocketConfigurationService) {}

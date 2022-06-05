@@ -65,7 +65,6 @@ export class FinalizationService {
         // const parsedReplays = await Promise.all(promises);
         const parsedReplays = submission.items.map(i => i.progress!.result!);
 
-
         const playerStats: PlayerStatLine[] = [];
         const teamStats: TeamStatLine[] = [];
 
@@ -86,8 +85,6 @@ export class FinalizationService {
                     const orangeStats = pr.data.orange.players.map(p => createPlayerStat(p, "ORANGE"));
                     const roundPlayerStats = [...orangeStats, ...blueStats];
                     roundPlayerStats.forEach(ps => { ps.round = round });
-
-
 
                     // TODO: Handle linking a team for matches
                     const blueTeam = this.teamStatRepo.create({

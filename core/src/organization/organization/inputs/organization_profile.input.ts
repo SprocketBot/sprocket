@@ -3,7 +3,6 @@ import {
     IsHexColor, IsOptional, IsUrl,
 } from "class-validator";
 
-
 @InputType()
 export class OrganizationProfileInput {
     @Field(() => String, {nullable: true})
