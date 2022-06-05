@@ -23,7 +23,8 @@
     "clients/discord-bot",
     "microservices/image-generation-service",
     "microservices/matchmaking-service",
-    "microservices/server-analytics-service"
+    "microservices/server-analytics-service",
+    "microservices/notification-service"
   ],
   "devDependencies": {
     "@commitlint/cli": "^16.2.4",
