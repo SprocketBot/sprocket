@@ -4,4 +4,5 @@ export interface ISubmissionRejection {
     playerId: number;
     reason: string;
     rejectedItems: ReplaySubmissionItem[];
+    rejectedAt: string;
 }

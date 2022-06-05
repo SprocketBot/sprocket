@@ -238,6 +238,7 @@ export class ReplaySubmissionService {
                 playerId: playerId,
                 reason: reason,
                 rejectedItems: items,
+                rejectedAt: new Date().toISOString(),
             };
             await this.addRejection(submissionId, rejection);
             await this.clearItems(submissionId);

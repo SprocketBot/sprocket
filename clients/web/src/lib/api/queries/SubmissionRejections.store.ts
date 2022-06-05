@@ -2,8 +2,9 @@ import {gql} from "@urql/core";
 import {QueryStore} from "../core/QueryStore";
 
 export interface SubmissionRejection {
-    playerId: number;
+    playerName: string;
     reason: string;
+    rejectedAt: Date;
 }
 
 export interface SubmissionRejectionsValue {
@@ -18,8 +19,9 @@ export class SubmissionRejectionsStore extends QueryStore<SubmissionRejectionsVa
     protected queryString = gql`
         query($submissionId: String!) {
             rejections: getSubmissionRejections(submissionId: $submissionId) {
-                playerId
+                playerName
                 reason
+                rejectedAt
             }
         }
     `;

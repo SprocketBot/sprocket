@@ -1,12 +1,13 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 
-import type {ISubmissionRejection} from "../replay-submission/types/submission-rejection.types";
-
 @ObjectType()
-export class SubmissionRejection implements Omit<ISubmissionRejection, "rejectedItems"> {
+export class SubmissionRejection {
     @Field()
-    playerId: number;
+    playerName: string;
 
     @Field()
     reason: string;
+
+    @Field(() => Date)
+    rejectedAt: Date;
 }

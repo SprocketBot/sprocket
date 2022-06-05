@@ -46,7 +46,7 @@
 
     {#if lastRejection}
         <h2 class="text-error">Replays Rejected</h2>
-        <p>Player {lastRejection.playerId} rejected the uploaded replays because "{lastRejection.reason}"</p>
+        <p>{lastRejection.playerName} rejected the uploaded replays because "{lastRejection.reason}"</p>
         <p class="mt-4">You can upload replays again:</p>
     {/if}
 

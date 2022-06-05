@@ -4,24 +4,35 @@ import {
 } from "@nestjs/graphql";
 import {PubSub} from "apollo-server-express";
 
+import {ScrimService} from "../../scrim";
 import {ReplayParsePubSub} from "../replay-parse.constants";
 import {ReplaySubmissionService} from "../replay-submission";
 import {SubmissionRejection} from "./SubmissionRejection.model";
 
-@Resolver()
+@Resolver(() => SubmissionRejection)
 export class ReplayRejectionResolver {
     constructor(
+        private readonly scrimService: ScrimService,
         private readonly replaySubmissionService: ReplaySubmissionService,
         @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
     ) {}
 
     @Query(() => [SubmissionRejection])
     async getSubmissionRejections(@Args("submissionId") submissionId: string): Promise<SubmissionRejection[]> {
+        const scrim = await this.scrimService.getScrimBySubmissionId(submissionId);
         const rejections = await this.replaySubmissionService.getRejections(submissionId);
-        return rejections.map(r => ({
-            playerId: r.playerId,
-            reason: r.reason,
-        }));
+
+        const out = rejections.map(r => {
+            const player = scrim?.players.find(p => p.id === r.playerId);
+
+            return {
+                playerName: player?.name ?? "Someone",
+                reason: r.reason,
+                rejectedAt: new Date(Date.parse(r.rejectedAt)),
+            };
+        });
+
+        return out;
     }
 
     @Subscription(() => [SubmissionRejection])
