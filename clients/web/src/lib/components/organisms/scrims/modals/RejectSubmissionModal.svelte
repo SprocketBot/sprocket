@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {RejectSubmissionMutation} from "../../../../api/mutations/scrims/RejectSubmission.mutation";
+    import {RejectSubmissionMutation} from "../../../../api/mutations/scrims";
     import {Modal} from "../../../atoms";
 
     export let visible: boolean = false;
