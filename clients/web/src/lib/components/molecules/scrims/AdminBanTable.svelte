@@ -1,21 +1,22 @@
 <script lang="ts">
-    import {activePlayers, type Player} from "$lib/api";
-    import {restrictedPlayers, type MemberRestrictionEvent, expireRestrictionMutation} from "$lib/api";
+    import {
+        restrictedPlayers, type MemberRestrictionEvent, expireRestrictionMutation,
+    } from "$lib/api";
 
     let restrictedPlayersData: MemberRestrictionEvent[] | undefined;
     $: restrictedPlayersData = $restrictedPlayers?.data?.getActiveMemberRestrictions;
 
-    const unbanThisPlayer = (restrictionId: number) => {
-        cancelRestriction(restrictionId);
-    }
-
-    function cancelRestriction(id:number) {
+    async function cancelRestriction(id: number) {
         try {
-            expireRestrictionMutation({id: id?? 0, expiration: new Date()});
+            await expireRestrictionMutation({id: id ?? 0, expiration: new Date()});
         } catch {
             console.log(`Failed to cancel the restriction for member ${id}`);
         }
     }
+
+    const unbanThisPlayer = async (restrictionId: number) => {
+        await cancelRestriction(restrictionId);
+    };
 </script>
 
 <table class="table text-center w-full" >
@@ -33,7 +34,7 @@
                     <td>{restriction.member.profile.name}</td>
                     <td>{restriction.id}</td>
                     <td>
-                        <button class="btn btn-outline lg:btn-sm" on:click={() => {unbanThisPlayer(restriction.id)}}>
+                        <button class="btn btn-outline lg:btn-sm" on:click={async () => unbanThisPlayer(restriction.id) }>
                             Unban
                         </button>
                     </td>
