@@ -50,7 +50,4 @@
 </table>
 
 <style lang="postcss">
-    h2 {
-        @apply text-4xl font-bold text-sprocket mb-2;
-    }
 </style>
