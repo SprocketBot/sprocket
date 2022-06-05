@@ -1,6 +1,6 @@
 <script lang="ts">
     import {Modal} from "$lib/components";
-    import {createRestrictionMutation} from "$lib/api";
+    import {createRestrictionMutation, getMemberByUserIdQuery} from "$lib/api";
     import FaHammer from "svelte-icons/fa/FaHammer.svelte";
 
     export let visible = false;
@@ -15,8 +15,11 @@
         // remove ban
         try {
 
-            // TODO: Ban creation mutation
-            createRestrictionMutation({memberId: playerId, reason:"Because nigel said yo", expiration: new Date()})
+            const memberRequest = (await getMemberByUserIdQuery({id: playerId, orgId: 1}));
+            console.log(memberRequest);
+            const memberId = memberRequest.id ?? 0;
+            createRestrictionMutation({memberId: memberId, reason:"Because nigel said yo", expiration: new Date(Date.now() + 1000*60*60*12)})
+            console.log("Get banned loser.");
             visible = false;
         } finally {
             buttonEnabled = true;

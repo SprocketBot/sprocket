@@ -7,3 +7,4 @@ export * from "./AllCurrentScrims";
 export * from "./ActiveScrims.store";
 export * from "./ActiveScrimPlayers.store";
 export * from "./BannedPlayers.store";
+export * from "./GetMemberByUserId";

@@ -12,7 +12,7 @@ export class MemberResolver {
 
     @ResolveField()
     async profile(@Root() member: Partial<Member>): Promise<MemberProfile> {
-        return member.profile ?? await this.memberService.getMemberProfile(member.id!);
+        return member.profile ?? (await this.memberService.getMember({where: {id: member.id}, relations: ["profile"] })).profile;
     }
 
     @Query(() => Member)

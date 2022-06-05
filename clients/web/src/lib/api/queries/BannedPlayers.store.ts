@@ -77,6 +77,11 @@ export class BannedPlayersStore extends LiveQueryStore<BannedPlayersStoreValue, 
         type
         expiration
         reason
+        member {
+            profile {
+                name
+            }
+        }
         memberId
       }
     }
