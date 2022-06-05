@@ -4,7 +4,6 @@ import {ScrimStatus} from "@sprocketbot/common";
 
 import {ScrimCrudService} from "../scrim-crud/scrim-crud.service";
 
-
 @Injectable()
 export class ScrimMetricsService {
     constructor(private readonly scrimCrudService: ScrimCrudService) {

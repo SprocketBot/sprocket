@@ -1,8 +1,13 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {InjectConnection, InjectRepository} from "@nestjs/typeorm";
-import type {BallchasingPlayer} from "@sprocketbot/common";
+import type {BallchasingPlayer, Scrim} from "@sprocketbot/common";
 import {
-    CeleryService, MatchmakingService, Parser, RedisService,
+    CeleryService,
+    MatchmakingEndpoint,
+    MatchmakingService,
+    Parser,
+    RedisService,
+    ResponseStatus,
 } from "@sprocketbot/common";
 import type {QueryRunner} from "typeorm";
 import {Connection, Repository} from "typeorm";
@@ -38,8 +43,12 @@ export class FinalizationService {
         await runner.connect();
         await runner.startTransaction();
 
+        const scrimResponse = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
+        if (scrimResponse.status === ResponseStatus.ERROR) throw scrimResponse.error;
+        const scrimObject = scrimResponse.data;
+
         await Promise.all([
-            this.mledbScrimService.saveScrim(submission, submissionId, runner),
+            this.mledbScrimService.saveScrim(submission, submissionId, runner, scrimObject as Scrim),
             this.saveToSprocket(submission, runner),
         ])
             .then(async () => runner.commitTransaction())
@@ -55,16 +64,7 @@ export class FinalizationService {
         const matchParent = this.matchParentRepo.create();
         const match = this.matchRepo.create();
 
-        // Create rounds for match
-        // const promises = submission.taskIds.map(async taskId => {
-        //     const resultKey = this.celeryService.buildResultKey(taskId);
-        //     const parsed = await this.redisService.getString<ParseReplayResult>(resultKey);
-        //     if (!parsed) throw new Error(`Unable to find parsed replay`);
-        //     return parsed;
-        // });
-        // const parsedReplays = await Promise.all(promises);
         const parsedReplays = submission.items.map(i => i.progress!.result!);
-
 
         const playerStats: PlayerStatLine[] = [];
         const teamStats: TeamStatLine[] = [];
@@ -86,8 +86,6 @@ export class FinalizationService {
                     const orangeStats = pr.data.orange.players.map(p => createPlayerStat(p, "ORANGE"));
                     const roundPlayerStats = [...orangeStats, ...blueStats];
                     roundPlayerStats.forEach(ps => { ps.round = round });
-
-
 
                     // TODO: Handle linking a team for matches
                     const blueTeam = this.teamStatRepo.create({

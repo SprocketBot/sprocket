@@ -4,12 +4,17 @@ import type {ResponseStatus} from "../../global.types";
 import * as Schemas from "./schemas";
 
 export enum CoreEndpoint {
+    GetDiscordIdByUser = "GetDiscordIdByUser",
     GetSprocketConfiguration = "GetSprocketConfiguration",
     GetOrganizationBranding = "GetOrganizationBranding",
     GetUserByAuthAccount = "GetUserByAuthAccount",
 }
 
 export const CoreSchemas = {
+    [CoreEndpoint.GetDiscordIdByUser]: {
+        input: Schemas.GetDiscordIdByUser_Request,
+        output: Schemas.GetDiscordIdByUser_Response,
+    },
     [CoreEndpoint.GetSprocketConfiguration]: {
         input: Schemas.GetSprocketConfiguration_Request,
         output: Schemas.GetSprocketConfiguration_Response,

@@ -253,7 +253,7 @@ module.exports = {
     "no-mixed-spaces-and-tabs": "error",                                       /* (r ) disallow mixed spaces and tabs for indentation */
     "no-multi-assign": "error",                                                /* (  ) disallow use of chained assignment expressions */
     "no-multiple-empty-lines": ["error", {                                     /* ( f) disallow multiple empty lines */
-      "max": 3,
+      "max": 1,
       "maxBOF": 0,
       "maxEOF": 1
     }],

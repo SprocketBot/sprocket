@@ -1,6 +1,8 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import type {BallchasingPlayer, BallchasingTeam} from "@sprocketbot/common";
+import type {
+    BallchasingPlayer, BallchasingTeam, Scrim,
+} from "@sprocketbot/common";
 import {
     MatchmakingEndpoint, MatchmakingService, ResponseStatus,
 } from "@sprocketbot/common";
@@ -52,14 +54,12 @@ export class MledbScrimService {
         };
     }
 
-    async saveScrim(submission: ReplaySubmission, submissionId: string, runner: QueryRunner): Promise<void> {
+    async saveScrim(submission: ReplaySubmission, submissionId: string, runner: QueryRunner, scrimObject: Scrim): Promise<void> {
         const scrim = this.mleScrimRepository.create();
         const series = this.mleSeriesRepository.create();
         const coreStats: MLE_PlayerStatsCore[] = [];
         const playerStats: MLE_PlayerStats[] = [];
         const teamStats: MLE_TeamCoreStats[] = [];
-
-
 
         const {mode, group} = await this.getLeagueAndMode(submissionId);
         const author = await this.mlePlayerRepository.findOneOrFail({where: {id: -1} });
@@ -68,15 +68,15 @@ export class MledbScrimService {
             1: LegacyGameMode.SOLO, 2: LegacyGameMode.DOUBLES, 3: LegacyGameMode.STANDARD,
         }[mode.teamSize]!;
         scrim.series = series;
+        series.scrim = scrim;
 
         scrim.mode = series.mode;
-        scrim.type = mode.description.toUpperCase();
+        scrim.type = scrimObject.settings.mode.toUpperCase();
         scrim.baseScrimPoints = 5;
         scrim.author = author;
 
         series.submissionTimestamp = new Date();
         series.fullNcp = false;
-
 
         // eslint-disable-next-line require-atomic-updates
         series.seriesReplays = await Promise.all(submission.items.map(async item => {
@@ -96,15 +96,23 @@ export class MledbScrimService {
             const convertPlayerToMLE = async (p: BallchasingPlayer, color: "BLUE" | "ORANGE"): Promise<void> => {
                 const core = this.mlePlayerStatsCoreRepository.create();
                 const stats = this.mlePlayerStatsRepository.create();
-                const player = await this.mlePlayerRepository.findOneOrFail({
+                // const player = await this.mlePlayerRepository.findOneOrFail({
+                //     where: {
+                //         accounts: {
+                //             platformId: p.id.id,
+                //             platform: p.id.platform,
+                //         },
+                //     },
+                //     relations: ["accounts"],
+                // });
+                const playerAccount = await this.mlePlayerAccountRepository.findOneOrFail({
                     where: {
-                        accounts: {
-                            platformId: p.id.id,
-                            platform: p.id.platform,
-                        },
+                        platformId: p.id.id,
+                        platform: p.id.platform.toUpperCase(),
                     },
-                    relations: ["accounts"],
+                    relations: ["player"],
                 });
+                const player = playerAccount.player;
 
                 core.replay = replay;
                 core.color = color;

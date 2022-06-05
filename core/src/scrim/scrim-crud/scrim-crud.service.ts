@@ -10,7 +10,6 @@ import {
 import {ScrimMeta} from "../../database";
 import {Period} from "../../util/types/period.enum";
 
-
 @Injectable()
 export class ScrimMetaCrudService {
 

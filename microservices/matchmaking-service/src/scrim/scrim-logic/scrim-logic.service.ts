@@ -27,13 +27,15 @@ export class ScrimLogicService {
         scrim.status = ScrimStatus.POPPED;
         scrim.submissionId = `scrim-${uuid()}`;
 
-        const job = await this.scrimQueue.add("timeoutQueue", scrim.id, {delay: scrim.settings.checkinTimeout * 1000});
+        const job = await this.scrimQueue.add("timeoutQueue", scrim.id, {delay: scrim.settings.checkinTimeout});
 
         await this.scrimCrudService.updateScrimStatus(scrim.id, scrim.status);
         await this.scrimCrudService.setSubmissionId(scrim.id, scrim.submissionId);
         await this.scrimCrudService.setTimeoutJobId(scrim.id, job.id);
 
-        await this.eventsService.publish(EventTopic.ScrimPopped, scrim, scrim.id);
+        const updatedScrim = await this.scrimCrudService.getScrim(scrim.id);
+        if (!updatedScrim) throw new Error("Scrim is somehow missing!");
+        await this.eventsService.publish(EventTopic.ScrimPopped, updatedScrim, scrim.id);
 
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
             name: "scrimPopped",
@@ -50,13 +52,15 @@ export class ScrimLogicService {
         await this.scrimCrudService.setScrimGames(scrim.id, scrim.games);
         await this.scrimCrudService.updateScrimStatus(scrim.id, ScrimStatus.IN_PROGRESS);
         await this.scrimCrudService.generateLobby(scrim.id);
-        
+
         if (scrim.timeoutJobId) {
             const job = await this.scrimQueue.getJob(scrim.timeoutJobId);
             await job?.remove();
         }
 
-        await this.eventsService.publish(EventTopic.ScrimStarted, scrim, scrim.id);
+        const updatedScrim = await this.scrimCrudService.getScrim(scrim.id);
+        if (!updatedScrim) throw new Error("Scrim is somehow missing!");
+        await this.eventsService.publish(EventTopic.ScrimStarted, updatedScrim, scrim.id);
     }
 
     async deleteScrim(scrim: Scrim): Promise<void> {

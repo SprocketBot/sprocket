@@ -66,9 +66,7 @@ export class OrganizationConfigurationService {
 
         if (!value) {
             const organizationConfigurationKey = await this.keyRepository.findOneOrFail({
-                where: {
-                    key: {code},
-                },
+                where: {code},
             });
 
             value = organizationConfigurationKey.default;

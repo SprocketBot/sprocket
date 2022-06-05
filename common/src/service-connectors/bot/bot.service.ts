@@ -18,7 +18,7 @@ export class BotService {
     constructor(@Inject(CommonClient.Bot) private microserviceClient: ClientProxy) {}
 
     async send<E extends BotEndpoint>(endpoint: E, data: BotInput<E>): Promise<BotResponse<E>> {
-        // this.logger.debug(`Sending message to endpoint \`${endpoint}\` with data \`${JSON.stringify(data, null, 2)}\``);
+        this.logger.verbose(`Sending message to endpoint=${endpoint} with data=${JSON.stringify(data)}`);
 
         const {input: inputSchema, output: outputSchema} = BotSchemas[endpoint];
 
@@ -30,8 +30,7 @@ export class BotService {
             const response = await lastValueFrom(rx) as unknown;
 
             const output = outputSchema.parse(response);
-
-            this.logger.verbose(`Responding from endpoint \`${endpoint}\` with data \`${JSON.stringify(data, null, 2)}\``);
+            this.logger.verbose(`Replying from endpoint=${endpoint} with response=${JSON.stringify(response)}`);
             return {
                 status: ResponseStatus.SUCCESS,
                 data: output,
