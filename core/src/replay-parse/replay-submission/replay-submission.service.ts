@@ -24,6 +24,7 @@ import {REPLAY_SUBMISSION_PREFIX, ReplayParsePubSub} from "../replay-parse.const
 import type {BaseReplaySubmission, ReplaySubmission} from "./types/replay-submission.types";
 import {ReplaySubmissionType} from "./types/replay-submission.types";
 import type {ReplaySubmissionItem} from "./types/submission-item.types";
+import type {ISubmissionRejection} from "./types/submission-rejection.types";
 import type {ReplaySubmissionStats} from "./types/submission-stats.types";
 
 @Injectable()
@@ -49,6 +50,11 @@ export class ReplaySubmissionService {
     async getRatifiers(submissionId: string): Promise<ReplaySubmission["ratifiers"]> {
         const key = this.buildKey(submissionId);
         return this.redisService.getJson(key, "ratifiers");
+    }
+
+    async getRejections(submissionId: string): Promise<ReplaySubmission["rejections"]> {
+        const key = this.buildKey(submissionId);
+        return this.redisService.getJson(key, "rejecters");
     }
 
     async getItems(submissionId: string): Promise<ReplaySubmission["items"]> {
@@ -105,6 +111,7 @@ export class ReplaySubmissionService {
             items: [],
             validated: false,
             ratifiers: [],
+            rejections: [],
             stats: undefined,
             requiredRatifications: 1, // TODO configurable by organization (1, majority, unanimous)
         };
@@ -204,6 +211,43 @@ export class ReplaySubmissionService {
         }
     }
 
+    async rejectSubmission(submissionId: string, playerId: number, reason: string): Promise<boolean> {
+        const items = await this.getItems(submissionId);
+
+        if (this.isScrimSubmission(submissionId)) {
+            // Scrim must exist
+            const scrimRes = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
+            if (scrimRes.status === ResponseStatus.ERROR) throw scrimRes.error;
+            const scrim = scrimRes.data;
+            if (!scrim) throw new Error(`Unable to reject submission, could not find a scrim associated with submissionId=${submissionId}`);
+
+            // Player must be in scrim
+            const playerIds = scrim.players.map(p => p.id);
+            if (!playerIds.includes(playerId)) throw new Error(`Unable to reject submission, playerId=${playerId} is not a player in the associated scrim`);
+
+            // Scrim must be RATIFYING
+            if (scrim.status !== ScrimStatus.RATIFYING) throw new Error(`Unable to reject submission, scrim must be ratifying`);
+
+            // Add rejection
+            const rejection: ISubmissionRejection = {
+                playerId: playerId,
+                reason: reason,
+                rejectedItems: items,
+            };
+            await this.addRejection(submissionId, rejection);
+            await this.clearItems(submissionId);
+            
+            // Reset scrim to allow re-submission
+            await this.scrimService.resetScrim(scrim.id, playerId);
+
+            return true;
+        } else if (this.isMatchSubmission(submissionId)) {
+            throw new Error("Submitting replays for matches is not implemented yet");
+        } else {
+            throw new Error(`Cannot determine submission type from submissionId=${submissionId}`);
+        }
+    }
+
     async upsertItem(submissionId: string, item: ReplaySubmissionItem): Promise<void> {
         const key = this.buildKey(submissionId);
 
@@ -244,6 +288,16 @@ export class ReplaySubmissionService {
                 requiredRatifications: await this.getSubmission(submissionId).then(s => s.requiredRatifications),
             },
         });
+    }
+
+    async clearItems(submissionId: string): Promise<void> {
+        const key = this.buildKey(submissionId);
+        await this.redisService.setJsonField(key, "items", []);
+    }
+
+    async addRejection(submissionId: string, rejection: ISubmissionRejection): Promise<void> {
+        const key = this.buildKey(submissionId);
+        await this.redisService.appendToJsonArray(key, "rejections", rejection);
     }
 
     async setValidatedTrue(submissionId: string): Promise<void> {
