@@ -78,10 +78,6 @@ export class MemberService {
         return profile;
     }
 
-    async getMemberProfile(memberId: number): Promise<MemberProfile> {
-        return this.memberProfileRepository.findOneOrFail(memberId);
-    }
-
     async deleteMember(id: number): Promise<Member> {
         const toDelete = await this.memberRepository.findOneOrFail(id, {
             relations: ["memberProfile"],

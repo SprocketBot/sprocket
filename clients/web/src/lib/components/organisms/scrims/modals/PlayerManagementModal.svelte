@@ -19,7 +19,6 @@
             console.log(memberRequest);
             const memberId = memberRequest.id ?? 0;
             createRestrictionMutation({memberId: memberId, reason:"Because nigel said yo", expiration: new Date(Date.now() + 1000*60*60*12)})
-            console.log("Get banned loser.");
             visible = false;
         } finally {
             buttonEnabled = true;
