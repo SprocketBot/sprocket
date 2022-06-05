@@ -16,11 +16,23 @@ export class NotificationsService {
         private readonly embedService: EmbedService,
     ) {}
 
-    async sendMessage(channelId: string, message: string): Promise<boolean> {
-        const guildChannel = await this.discordClient.channels.fetch(channelId);
-        if (!guildChannel?.isText()) return false;
-        
-        await guildChannel.send(message);
+    async sendGuildTextMessage(organizationId: number, channelId: string, content: MessageContent): Promise<boolean> {
+        try {
+            const guildChannel = await this.discordClient.channels.fetch(channelId);
+            if (!guildChannel?.isText()) return false;
+            
+            if (content.embeds?.length) {
+                const newEmbeds: Embed[] = [];
+
+                for (const embed of content.embeds) newEmbeds.push(await this.embedService.embed(embed, organizationId) as Embed);
+                content.embeds = newEmbeds;
+            }
+
+            await guildChannel.send(content as unknown as MessageOptions);
+        } catch (e) {
+            this.logger.error(e);
+            return false;
+        }
 
         return true;
     }
