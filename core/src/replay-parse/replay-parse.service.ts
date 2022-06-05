@@ -20,6 +20,7 @@ import {SHA256} from "crypto-js";
 import {GraphQLError} from "graphql";
 import type {Readable} from "stream";
 
+import {ScrimService} from "../scrim";
 import {read} from "../util/read";
 import {REPLAY_EXT, ReplayParsePubSub} from "./replay-parse.constants";
 import {ReplayParseSubscriber} from "./replay-parse.subscriber";
@@ -37,6 +38,7 @@ export class ReplayParseService {
         private readonly submissionService: ReplaySubmissionService,
         private readonly eventsService: EventsService,
         private readonly rpSubscriber: ReplayParseSubscriber,
+        private readonly scrimService: ScrimService,
         @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
     ) {
     }
@@ -69,10 +71,7 @@ export class ReplayParseService {
 
         await Promise.all([
             this.submissionService.removeSubmission(submissionId),
-            this.matchmakingService.send(MatchmakingEndpoint.ForceUpdateScrimStatus, {
-                scrimId: scrim.id,
-                status: ScrimStatus.IN_PROGRESS,
-            }),
+            this.scrimService.resetScrim(scrim.id, playerId),
         ]);
 
         return true;
