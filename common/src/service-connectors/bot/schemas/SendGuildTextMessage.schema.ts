@@ -1,11 +1,11 @@
 import {z} from "zod";
 
-import {MessageContentSchema} from "../types";
+import {BrandingOptionsSchema, MessageContentSchema} from "../types";
 
 export const SendGuildTextMessage_Request = z.object({
-    organizationId: z.number(),
     channelId: z.string(),
     content: MessageContentSchema,
+    brandingOptions: BrandingOptionsSchema.optional(),
 });
 
 export const SendGuildTextMessage_Response = z.boolean();

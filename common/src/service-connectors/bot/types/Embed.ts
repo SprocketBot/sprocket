@@ -3,7 +3,8 @@ import {z} from "zod";
 export const EmbedSchema = z.object({
     title: z.string().max(256)
         .optional(),
-    description: z.string().max(4096),
+    description: z.string().max(4096)
+        .optional(),
     url: z.string().optional(),
     timestamp: z.number().optional(),
     color: z.number().optional(),

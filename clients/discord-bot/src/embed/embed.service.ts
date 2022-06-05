@@ -1,4 +1,5 @@
 import {Injectable} from "@nestjs/common";
+import type {Embed, EmbedBrandingOptions} from "@sprocketbot/common";
 import {
     CoreEndpoint, CoreService, ResponseStatus,
 } from "@sprocketbot/common";
@@ -17,6 +18,38 @@ export interface EmbedOptions {
 @Injectable()
 export class EmbedService {
     constructor(private readonly coreService: CoreService) {}
+
+    async brandEmbed(data: Embed, options: EmbedBrandingOptions = {}, _organizationId?: number): Promise<MessageEmbed> {
+        let organizationId = 1;
+
+        if (_organizationId !== undefined) {
+            // TODO check if this organization has branding enabled
+            const brandingEnabled = true;
+
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            if (brandingEnabled) organizationId = _organizationId;
+        }
+
+        const brandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationBranding, {id: organizationId});
+        if (brandingResult.status === ResponseStatus.ERROR) throw brandingResult.error;
+
+        const profile = brandingResult.data;
+        const embed = new MessageEmbed(data);
+
+        if (options.author) embed.setAuthor(
+            data.author?.name ?? profile.name,
+            options.author.icon ? profile.logoUrl : data.author?.url,
+            options.author.url ? profile.websiteUrl : data.author?.url,
+        );
+        if (options.color) embed.setColor(profile.primaryColor as HexColorString);
+        if (options.footer) embed.setFooter(
+            data.footer?.text ?? profile.name,
+            options.footer.icon ? profile.logoUrl : data.footer?.icon_url,
+        );
+        if (options.thumbnail) embed.setThumbnail(profile.logoUrl);
+
+        return embed;
+    }
 
     /**
      * Creates an organization branded embed if the organization has branding enabled. Otherwise uses Sprocket branding.

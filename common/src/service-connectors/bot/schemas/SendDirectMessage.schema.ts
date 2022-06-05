@@ -1,11 +1,11 @@
 import {z} from "zod";
 
-import {MessageContentSchema} from "../types";
+import {BrandingOptionsSchema, MessageContentSchema} from "../types";
 
 export const SendDirectMessage_Request = z.object({
-    organizationId: z.number(),
     userId: z.string(),
     content: MessageContentSchema,
+    brandingOptions: BrandingOptionsSchema.optional(),
 });
 
 export const SendDirectMessage_Response = z.boolean();

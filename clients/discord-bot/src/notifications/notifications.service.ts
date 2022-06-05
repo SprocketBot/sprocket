@@ -1,7 +1,9 @@
 import {
     Inject, Injectable, Logger,
 } from "@nestjs/common";
-import type {Embed, MessageContent} from "@sprocketbot/common";
+import type {
+    BrandingOptions, Embed, MessageContent,
+} from "@sprocketbot/common";
 import type {MessageOptions} from "discord.js";
 import {Client} from "discord.js";
 
@@ -16,23 +18,43 @@ export class NotificationsService {
         private readonly embedService: EmbedService,
     ) {}
 
-    async sendMessage(channelId: string, message: string): Promise<boolean> {
-        const guildChannel = await this.discordClient.channels.fetch(channelId);
-        if (!guildChannel?.isText()) return false;
-        
-        await guildChannel.send(message);
+    async sendGuildTextMessage(channelId: string, content: MessageContent, brandingOptions?: BrandingOptions): Promise<boolean> {
+        try {
+            const guildChannel = await this.discordClient.channels.fetch(channelId);
+            if (!guildChannel?.isText()) return false;
+            
+            if (content.embeds?.length) {
+                const newEmbeds: Embed[] = [];
+
+                for (const embed of content.embeds) newEmbeds.push(await this.embedService.brandEmbed(
+                    embed,
+                    brandingOptions?.options,
+                    brandingOptions?.organizationId,
+                ) as Embed);
+                content.embeds = newEmbeds;
+            }
+
+            await guildChannel.send(content as unknown as MessageOptions);
+        } catch (e) {
+            this.logger.error(e);
+            return false;
+        }
 
         return true;
     }
 
-    async sendDirectMessage(organizationId: number, userId: string, content: MessageContent): Promise<boolean> {
+    async sendDirectMessage(userId: string, content: MessageContent, brandingOptions?: BrandingOptions): Promise<boolean> {
         try {
             const user = await this.discordClient.users.fetch(userId);
             
             if (content.embeds?.length) {
                 const newEmbeds: Embed[] = [];
 
-                for (const embed of content.embeds) newEmbeds.push(await this.embedService.embed(embed, organizationId) as Embed);
+                for (const embed of content.embeds) newEmbeds.push(await this.embedService.brandEmbed(
+                    embed,
+                    brandingOptions?.options,
+                    brandingOptions?.organizationId,
+                ) as Embed);
                 content.embeds = newEmbeds;
             }
 

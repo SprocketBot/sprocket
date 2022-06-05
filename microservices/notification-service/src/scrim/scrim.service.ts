@@ -33,7 +33,6 @@ export class ScrimService {
             if (!userResult.data) return;
 
             await this.botService.send(BotEndpoint.SendDirectMessage, {
-                organizationId: scrim.organizationId,
                 userId: userResult.data,
                 content: {
                     embeds: [ {
@@ -41,11 +40,9 @@ export class ScrimService {
                         description: `Hey, ${p.name}! Your ${organizationBrandingResult.data.name} scrim just popped. Check in [here](${config.web.url}/scrims) to avoid being queue banned.`,
                         author: {
                             name: `${organizationBrandingResult.data.name} Scrims`,
-                            icon_url: organizationBrandingResult.data.logoUrl,
                         },
                         footer: {
                             text: organizationBrandingResult.data.name,
-                            icon_url: organizationBrandingResult.data.logoUrl,
                         },
                         timestamp: Date.now(),
                     } ],
@@ -60,6 +57,19 @@ export class ScrimService {
                             },
                         ],
                     } ],
+                },
+                brandingOptions: {
+                    organizationId: scrim.organizationId,
+                    options: {
+                        author: {
+                            icon: true,
+                        },
+                        color: true,
+                        thumbnail: true,
+                        footer: {
+                            icon: true,
+                        },
+                    },
                 },
             });
         }));

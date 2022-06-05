@@ -57,8 +57,9 @@ jobs:
           - [ core, ./core ]
           - [ image-generation-service, ./microservices/image-generation-service ]
           - [ matchmaking-service, ./microservices/matchmaking-service ]
-          - [replay-parse-service, ./microservices/replay-parse-service]
+          - [ replay-parse-service, ./microservices/replay-parse-service ]
           - [ server-analytics-service, ./microservices/server-analytics-service ]
+          - [ notification-service, ./microservices/notification-service ]
 
     steps:
       - name: Extract branch name
