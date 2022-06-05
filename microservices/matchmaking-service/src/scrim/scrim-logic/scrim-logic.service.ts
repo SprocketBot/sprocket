@@ -27,7 +27,7 @@ export class ScrimLogicService {
         scrim.status = ScrimStatus.POPPED;
         scrim.submissionId = `scrim-${uuid()}`;
 
-        const job = await this.scrimQueue.add("timeoutQueue", scrim.id, {delay: scrim.settings.checkinTimeout * 1000});
+        const job = await this.scrimQueue.add("timeoutQueue", scrim.id, {delay: scrim.settings.checkinTimeout});
 
         await this.scrimCrudService.updateScrimStatus(scrim.id, scrim.status);
         await this.scrimCrudService.setSubmissionId(scrim.id, scrim.submissionId);
