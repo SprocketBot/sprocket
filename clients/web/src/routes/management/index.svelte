@@ -9,8 +9,7 @@
 
     export const load: Load = ({session}) => {
         if (session.user) {
-            const inAdminTeam = session.user.orgTeams.find((s: number) => s === MLEDB_ADMIN);
-            if (inAdminTeam === MLEDB_ADMIN) {
+            if (session.user.orgTeams.some((s:number) => s === MLEDB_ADMIN)) {
                 return {status: 200};
             }
             return {status: 302, redirect: "/scrims"};
