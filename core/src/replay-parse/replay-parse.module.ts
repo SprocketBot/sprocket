@@ -13,6 +13,7 @@ import {ReplayParseResolver} from "./replay-parse.resolver";
 import {ReplayParseService} from "./replay-parse.service";
 import {ReplayParseSubscriber} from "./replay-parse.subscriber";
 import {ReplayRatificationResolver} from "./replay-ratification/replay-ratification.resolver";
+import {ReplayRejectionResolver} from "./replay-rejection/replay-rejection.resolver";
 import {ReplaySubmissionService} from "./replay-submission";
 
 @Module({
@@ -35,6 +36,7 @@ import {ReplaySubmissionService} from "./replay-submission";
             useValue: new PubSub(),
         },
         ReplayRatificationResolver,
+        ReplayRejectionResolver,
         ReplaySubmissionService,
         FinalizationService,
         BallchasingConverterService,

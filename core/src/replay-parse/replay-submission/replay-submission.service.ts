@@ -54,7 +54,7 @@ export class ReplaySubmissionService {
 
     async getRejections(submissionId: string): Promise<ReplaySubmission["rejections"]> {
         const key = this.buildKey(submissionId);
-        return this.redisService.getJson(key, "rejecters");
+        return this.redisService.getJson(key, "rejections");
     }
 
     async getItems(submissionId: string): Promise<ReplaySubmission["items"]> {

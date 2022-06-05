@@ -24,7 +24,7 @@ export class ReplayRejectionResolver {
         }));
     }
 
-    @Subscription()
+    @Subscription(() => [SubmissionRejection])
     async followSubmissionRejections(@Args("submissionId") submissionId: string): Promise<AsyncIterator<SubmissionRejection[]>> {
         return this.pubsub.asyncIterator(submissionId);
     }
