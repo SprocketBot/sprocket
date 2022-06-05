@@ -28,5 +28,8 @@ export const MemberRestrictionEventSchema = z.object({
         return arg;
     }, z.date()).optional(),
     manualExpirationReason: z.string().optional(),
+    member: z.object({
+        id: z.number(),
+    }),
     memberId: z.number(),
 });

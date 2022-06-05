@@ -13,7 +13,6 @@ import {MemberPubSub} from "../constants";
 import {MemberService} from "../member/member.service";
 import {MemberRestrictionEvent} from "./member.types";
 import {MemberRestrictionService} from "./member-restriction.service";
-import { createTempVariable } from "typescript";
 
 @Resolver(() => MemberRestriction)
 export class MemberRestrictionResolver {
@@ -50,9 +49,7 @@ export class MemberRestrictionResolver {
 
     @ResolveField()
     async member(@Root() memberRestriction: Partial<MemberRestriction>): Promise<Member> {
-        const x = memberRestriction.member ?? await this.memberService.getMemberById(memberRestriction.memberId!);
-        console.log(x);
-        return x;
+        return memberRestriction.member ?? await this.memberService.getMemberById(memberRestriction.memberId!);
     }
 
     @Subscription(() => MemberRestrictionEvent)

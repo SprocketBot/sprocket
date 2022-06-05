@@ -1,6 +1,6 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 
-import {MemberRestrictionType} from "../../database";
+import {Member, MemberRestrictionType} from "../../database";
 
 @ObjectType()
 export class MemberRestrictionEvent {
@@ -27,6 +27,9 @@ export class MemberRestrictionEvent {
 
     @Field({nullable: true})
     manualExpirationReason?: string;
+
+    @Field(() => Member)
+    member: Member;
 
     @Field()
     memberId: number;

@@ -45,6 +45,7 @@ export class MemberRestrictionService {
             type: MemberRestrictionType.QUEUE_BAN,
             expiration: expiration,
             reason: reason,
+            member: member,
             memberId: member.id,
         };
         await this.eventsService.publish(EventTopic.MemberBanned, eventPayload);
@@ -87,7 +88,9 @@ export class MemberRestrictionService {
         memberRestriction = this.memberRestrictionRepository.merge(memberRestriction, {manualExpiration, manualExpirationReason});
         await this.memberRestrictionRepository.save(memberRestriction);
 
-        // This is the message we'll send to the front end about the manual expiration
+        // This is the message we'll send to the front end about the manual
+        // expiration
+        const newMember = await this.memberService.getMemberById(memberRestriction.memberId);
         const eventPayload = {
             id: memberRestriction.id,
             eventType: 2,
@@ -97,6 +100,7 @@ export class MemberRestrictionService {
             reason: memberRestriction.reason,
             manualExpiration: manualExpiration,
             manualExpirationReason: manualExpirationReason,
+            member: newMember,
             memberId: memberRestriction.memberId,
         };
 
