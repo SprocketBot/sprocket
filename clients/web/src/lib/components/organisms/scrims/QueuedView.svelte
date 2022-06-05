@@ -6,6 +6,7 @@
     import InProgressView from "./QueuedSubViews/InProgressView.svelte";
     import SubmittingView from "./QueuedSubViews/SubmittingView.svelte";
     import RatificationView from "./QueuedSubViews/RatificationView.svelte";
+    import LockedView from "./QueuedSubViews/LockedView.svelte";
 
 
     let data: CurrentScrim | undefined;
@@ -24,6 +25,8 @@
         <SubmittingView scrim={data}/>
     {:else if data.status === "RATIFYING"}
         <RatificationView scrim={data}/>
+    {:else if data.status === "LOCKED"}
+        <LockedView scrim={data}/>
     {:else}
         {data.status}
     {/if}
