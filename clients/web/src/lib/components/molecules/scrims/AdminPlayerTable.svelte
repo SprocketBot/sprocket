@@ -3,12 +3,10 @@
     import { PlayerManagementModal } from "../../organisms/index.js";
     import FaHammer from "svelte-icons/fa/FaHammer.svelte";
 
-    // export let visible = false;
     let playerManagementModalVisible = false;
     let activePlayersData: Player[] | undefined;
     $: activePlayersData = $activePlayers;
     let targetPlayer: number;
-    // export let selectedPlayer;
 
     const openPlayerManagementModal = (playerId: number) => {
         playerManagementModalVisible = true;

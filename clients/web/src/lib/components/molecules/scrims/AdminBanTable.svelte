@@ -2,15 +2,10 @@
     import {activePlayers, type Player} from "$lib/api";
     import {restrictedPlayers, type MemberRestrictionEvent, expireRestrictionMutation} from "$lib/api";
 
-    //export let visible = false;
     let restrictedPlayersData: MemberRestrictionEvent[] | undefined;
     $: restrictedPlayersData = $restrictedPlayers?.data?.getActiveMemberRestrictions;
 
-    let targetRestriction:number;
-
     const unbanThisPlayer = (restrictionId: number) => {
-        targetRestriction = restrictionId;
-        console.log(`Unbanning ${restrictionId}`);
         cancelRestriction(restrictionId);
     }
 
@@ -18,7 +13,7 @@
         try {
             expireRestrictionMutation({id: id?? 0, expiration: new Date()});
         } catch {
-            console.log("oops, all berries!")
+            console.log(`Failed to cancel the restriction for member ${id}`);
         }
     }
 </script>
@@ -26,7 +21,6 @@
 <table class="table text-center w-full" >
     <thead>
     <tr>
-<!--        <th>Ban Status</th>-->
         <th>Player Name</th>
         <th>Restriction ID</th>
         <th></th>
