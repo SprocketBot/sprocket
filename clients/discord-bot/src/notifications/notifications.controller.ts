@@ -11,12 +11,12 @@ export class NotificationsController {
     @MessagePattern(BotEndpoint.SendGuildTextMessage)
     async sendGuildTextMessage(@Payload() payload: unknown): Promise<boolean> {
         const data = BotSchemas.SendGuildTextMessage.input.parse(payload);
-        return this.notificationService.sendGuildTextMessage(data.organizationId, data.channelId, data.content);
+        return this.notificationService.sendGuildTextMessage(data.channelId, data.content, data.brandingOptions);
     }
     
     @MessagePattern(BotEndpoint.SendDirectMessage)
     async sendDirectMessage(@Payload() payload: unknown): Promise<boolean> {
         const data = BotSchemas.SendDirectMessage.input.parse(payload);
-        return this.notificationService.sendDirectMessage(data.organizationId, data.userId, data.content);
+        return this.notificationService.sendDirectMessage(data.userId, data.content, data.brandingOptions);
     }
 }

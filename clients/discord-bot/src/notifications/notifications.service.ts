@@ -1,7 +1,9 @@
 import {
     Inject, Injectable, Logger,
 } from "@nestjs/common";
-import type {Embed, MessageContent} from "@sprocketbot/common";
+import type {
+    BrandingOptions, Embed, MessageContent,
+} from "@sprocketbot/common";
 import type {MessageOptions} from "discord.js";
 import {Client} from "discord.js";
 
@@ -16,7 +18,7 @@ export class NotificationsService {
         private readonly embedService: EmbedService,
     ) {}
 
-    async sendGuildTextMessage(organizationId: number, channelId: string, content: MessageContent): Promise<boolean> {
+    async sendGuildTextMessage(channelId: string, content: MessageContent, brandingOptions?: BrandingOptions): Promise<boolean> {
         try {
             const guildChannel = await this.discordClient.channels.fetch(channelId);
             if (!guildChannel?.isText()) return false;
@@ -24,7 +26,11 @@ export class NotificationsService {
             if (content.embeds?.length) {
                 const newEmbeds: Embed[] = [];
 
-                for (const embed of content.embeds) newEmbeds.push(await this.embedService.embed(embed, organizationId) as Embed);
+                for (const embed of content.embeds) newEmbeds.push(await this.embedService.brandEmbed(
+                    embed,
+                    brandingOptions?.options,
+                    brandingOptions?.organizationId,
+                ) as Embed);
                 content.embeds = newEmbeds;
             }
 
@@ -37,14 +43,18 @@ export class NotificationsService {
         return true;
     }
 
-    async sendDirectMessage(organizationId: number, userId: string, content: MessageContent): Promise<boolean> {
+    async sendDirectMessage(userId: string, content: MessageContent, brandingOptions?: BrandingOptions): Promise<boolean> {
         try {
             const user = await this.discordClient.users.fetch(userId);
             
             if (content.embeds?.length) {
                 const newEmbeds: Embed[] = [];
 
-                for (const embed of content.embeds) newEmbeds.push(await this.embedService.embed(embed, organizationId) as Embed);
+                for (const embed of content.embeds) newEmbeds.push(await this.embedService.brandEmbed(
+                    embed,
+                    brandingOptions?.options,
+                    brandingOptions?.organizationId,
+                ) as Embed);
                 content.embeds = newEmbeds;
             }
 
