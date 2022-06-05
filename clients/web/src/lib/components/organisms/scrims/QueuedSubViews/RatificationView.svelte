@@ -2,7 +2,7 @@
     import type {CurrentScrim} from "$lib/api";
     import {RatifySubmissionMutation, SubmissionStatsStore} from "$lib/api";
     import {GameCard, Progress} from "$lib/components";
-import RejectSubmissionModal from "../modals/RejectSubmissionModal.svelte";
+    import RejectSubmissionModal from "../modals/RejectSubmissionModal.svelte";
 
     export let scrim: CurrentScrim;
     if (!scrim) throw new Error();
