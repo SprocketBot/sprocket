@@ -29,12 +29,12 @@
     </thead>
     <tbody>
         {#if restrictedPlayersData}
-            {#each restrictedPlayersData as restriction (restriction.id)}
+            {#each restrictedPlayersData as restrictionEvent (restrictionEvent.id)}
                 <tr>
-                    <td>{restriction.member.profile.name}</td>
-                    <td>{restriction.id}</td>
+                    <td>{restrictionEvent.restriction.member.profile.name}</td>
+                    <td>{restrictionEvent.id}</td>
                     <td>
-                        <button class="btn btn-outline lg:btn-sm" on:click={async () => unbanThisPlayer(restriction.id) }>
+                        <button class="btn btn-outline lg:btn-sm" on:click={async () => unbanThisPlayer(restrictionEvent.id) }>
                             Unban
                         </button>
                     </td>

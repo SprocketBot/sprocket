@@ -12,19 +12,21 @@ export const MemberRestrictionEventSchema = z.object({
     restriction: z.object({
         type: z.enum(["QUEUE_BAN", "RATIFICATION_BAN"]),
         expiration: z.preprocess(arg => {
-            if (typeof arg === "string" || arg instanceof Date) {
+            if (typeof arg === "string") {
                 return new Date(arg);
             }
             return arg;
         }, z.date()),
         reason: z.string(),
         manualExpiration: z.preprocess(arg => {
-            if (typeof arg === "string" || arg instanceof Date) {
+            if (typeof arg === "string") {
                 return new Date(arg);
             }
             return arg;
-        }, z.date()).optional(),
-        manualExpirationReason: z.string().optional(),
+        }, z.date()).nullable()
+            .optional(),
+        manualExpirationReason: z.string().nullable()
+            .optional(),
         member: z.object({
             id: z.number(),
         }),

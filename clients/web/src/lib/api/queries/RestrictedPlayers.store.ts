@@ -112,10 +112,10 @@ export class RestrictedPlayersStore extends LiveQueryStore<RestrictedPlayersStor
 
             switch (message.data.followRestrictedMembers.eventType) {
                 case MemberRestrictionEventType.RESTRICTED:
-                    this.currentValue.data.getActiveMemberRestrictions.push(message.data.followRestrictedMembers.restriction);
+                    this.currentValue.data.getActiveMemberRestrictions.push(message.data.followRestrictedMembers);
                     break;
                 case MemberRestrictionEventType.UNRESTRICTED:
-                    this.currentValue.data.getActiveMemberRestrictions = this.currentValue.data.getActiveMemberRestrictions.filter(s => s.id !== message.data?.followRestrictedMembers.restriction.id);
+                    this.currentValue.data.getActiveMemberRestrictions = this.currentValue.data.getActiveMemberRestrictions.filter(s => s.id !== message.data?.followRestrictedMembers.id);
                     break;
                 default:
                     console.log("This path shouldn't be hit.");

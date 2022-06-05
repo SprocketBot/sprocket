@@ -34,6 +34,7 @@ export class MemberRestrictionService {
             reason: reason,
             expiration: expiration.toUTCString(),
             member: member,
+            memberId: member.id,
         });
 
         await this.memberRestrictionRepository.save(memberRestriction);
@@ -81,7 +82,7 @@ export class MemberRestrictionService {
     }
 
     async manuallyExpireMemberRestriction(memberRestrictionId: number, manualExpiration: Date, manualExpirationReason: string): Promise<MemberRestriction> {
-        let memberRestriction = await this.memberRestrictionRepository.findOneOrFail(memberRestrictionId);
+        let memberRestriction = await this.memberRestrictionRepository.findOneOrFail(memberRestrictionId, {relations: ["member", "member.profile"] });
 
         memberRestriction = this.memberRestrictionRepository.merge(memberRestriction, {
             manualExpiration: manualExpiration.toUTCString(),
