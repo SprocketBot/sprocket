@@ -59,8 +59,6 @@ export class MledbScrimService {
         const playerStats: MLE_PlayerStats[] = [];
         const teamStats: MLE_TeamCoreStats[] = [];
 
-
-
         const {mode, group} = await this.getLeagueAndMode(submissionId);
         const author = await this.mlePlayerRepository.findOneOrFail({where: {id: -1} });
         series.league = group.description.split(" ")[0].toUpperCase();
@@ -68,6 +66,7 @@ export class MledbScrimService {
             1: LegacyGameMode.SOLO, 2: LegacyGameMode.DOUBLES, 3: LegacyGameMode.STANDARD,
         }[mode.teamSize]!;
         scrim.series = series;
+        series.scrim = scrim;
 
         scrim.mode = series.mode;
         scrim.type = mode.description.toUpperCase();
