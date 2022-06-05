@@ -5,6 +5,8 @@ import type {
     ParsedReplay, ProgressMessage, ScrimPlayer, Task,
 } from "@sprocketbot/common";
 import {
+    AnalyticsEndpoint,
+    AnalyticsService,
     CeleryService,
     config,
     MatchmakingEndpoint,
@@ -37,6 +39,7 @@ export class ReplaySubmissionService {
         private readonly scrimService: ScrimService,
         private readonly minioService: MinioService,
         private readonly finalizationService: FinalizationService,
+        private readonly analyticsService: AnalyticsService,
         @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
     ) {
     }
@@ -236,6 +239,14 @@ export class ReplaySubmissionService {
             
             // Reset scrim to allow re-submission
             await this.scrimService.resetScrim(scrim.id, playerId);
+
+            await this.analyticsService.send(AnalyticsEndpoint.Analytics, {
+                name: "scrim-rejected",
+                tags: [
+                    ["playerId", playerId.toString()],
+                    ["submissionId", submissionId],
+                ],
+            });
 
             return true;
         } else if (this.isMatchSubmission(submissionId)) {

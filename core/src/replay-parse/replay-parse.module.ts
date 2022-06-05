@@ -1,5 +1,6 @@
 import {Module} from "@nestjs/common";
 import {
+    AnalyticsModule,
     CeleryModule, EventsModule, MatchmakingModule, MinioModule, RedisModule,
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
@@ -26,6 +27,7 @@ import {ReplaySubmissionService} from "./replay-submission";
         EventsModule,
         DatabaseModule,
         MledbInterfaceModule,
+        AnalyticsModule,
     ],
     providers: [
         ReplayParseSubscriber,
