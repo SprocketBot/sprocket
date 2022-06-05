@@ -40,9 +40,6 @@ export class ScrimConsumer {
         const durationModifier = await this.organizationConfigurationService.getOrganizationConfigurationValue(scrim.organizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_DURATION_MODIFIER);
         const restrictionFallOffDays = await this.organizationConfigurationService.getOrganizationConfigurationValue(scrim.organizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_MODIFIER_FALL_OFF_DAYS);
 
-        const restrictionFallOffDate = new Date();
-        restrictionFallOffDate.setDate(restrictionFallOffDate.getDate() - parseInt(restrictionFallOffDays));
-
         for (const player of playersNotCheckedIn) {
             const member = await this.memberService.getMember({relations: ["organization"], where: {user: {id: player.id} } });
             const restrictions = await this.memberRestrictionService.getMemberRestrictions({
