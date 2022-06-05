@@ -133,7 +133,7 @@ export class ScrimModuleResolver {
         const gameMode = await this.gameModeService.getGameModeById(data.settings.gameModeId);
         const player = await this.playerService.getPlayerByOrganizationAndGame(user.userId, user.currentOrganizationId, gameMode.gameId);
         const skillGroup = await this.skillGroupService.getGameSkillGroupById(player.skillGroupId);
-        const checkinTimeout = await this.organizationConfigurationService.getOrganizationConfigurationValue(user.currentOrganizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_CHECKIN_TIMEOUT_SECONDS);
+        const checkinTimeout = await this.organizationConfigurationService.getOrganizationConfigurationValue(user.currentOrganizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_CHECKIN_TIMEOUT_MINUTES);
         const settings: IScrimSettings = {
             competitive: data.settings.competitive,
             mode: data.settings.mode,
