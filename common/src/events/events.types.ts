@@ -30,6 +30,7 @@ export const EventTopicSchema = z.preprocess(v => {
 }, z.nativeEnum(EventTopic));
 
 export const EventSchemas = {
+    // Scrim Events
     [EventTopic.ScrimComplete]: ScrimSchema,
     [EventTopic.ScrimPopped]: ScrimSchema,
     [EventTopic.ScrimCreated]: ScrimSchema,
@@ -44,13 +45,16 @@ export const EventSchemas = {
         ScrimMetricsSchema,
     ]),
     [EventTopic.ScrimMetricsUpdate]: ScrimMetricsSchema,
+    // Submission Events
     [EventTopic.SubmissionStarted]: z.object({submissionId: z.string()}),
+    // Member Events
+    [EventTopic.MemberRestrictionCreated]: MemberRestrictionEventSchema,
     [EventTopic.AllMemberEvents]: z.union([
         z.number(),
         z.string().uuid(),
         MemberRestrictionEventSchema,
     ]),
-    [EventTopic.MemberRestrictionCreated]: MemberRestrictionEventSchema,
+
 };
 
 export type EventPayload<T extends EventTopic> = z.infer<typeof EventSchemas[T]>;
