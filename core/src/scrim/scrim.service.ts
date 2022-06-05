@@ -151,28 +151,25 @@ export class ScrimService {
                     return;
                 }
 
+                if (v.topic as EventTopic !== EventTopic.ScrimMetricsUpdate) {
+                    this.pubsub.publish(this.allActiveScrimsSubTopic, {
+                        followActiveScrims: {
+                            scrim: v.payload,
+                            event: v.topic,
+                        },
+                    }).catch(this.logger.error.bind(this.logger));
+                }
+
                 switch (v.topic as EventTopic) {
                     case EventTopic.ScrimMetricsUpdate:
                         this.pubsub.publish(this.metricsSubTopic, {followScrimMetrics: v.payload}).catch(this.logger.error.bind(this.logger));
                         break;
                     case EventTopic.ScrimCreated:
                         this.pubsub.publish(this.pendingScrimsSubTopic, {followPendingScrims: v.payload}).catch(this.logger.error.bind(this.logger));
-                        this.pubsub.publish(this.allActiveScrimsSubTopic, {
-                            followActiveScrims: {
-                                scrim: v.payload,
-                                event: v.topic,
-                            },
-                        }).catch(this.logger.error.bind(this.logger));
                         break;
                     case EventTopic.ScrimDestroyed:
                     case EventTopic.ScrimCancelled:
                         this.pubsub.publish(this.pendingScrimsSubTopic, {followPendingScrims: v.payload}).catch(this.logger.error.bind(this.logger));
-                        this.pubsub.publish(this.allActiveScrimsSubTopic, {
-                            followActiveScrims: {
-                                scrim: v.payload,
-                                event: v.topic,
-                            },
-                        }).catch(this.logger.error.bind(this.logger));
                         break;
                     default: {
                         const payload = v.payload as IScrim;
@@ -181,12 +178,6 @@ export class ScrimService {
                         }
                         this.pubsub.publish(payload.id, {
                             followCurrentScrim: {
-                                scrim: payload,
-                                event: v.topic,
-                            },
-                        }).catch(this.logger.error.bind(this.logger));
-                        this.pubsub.publish(this.allActiveScrimsSubTopic, {
-                            followActiveScrims: {
                                 scrim: payload,
                                 event: v.topic,
                             },
