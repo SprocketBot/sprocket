@@ -1,9 +1,10 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
+import {Repository} from "typeorm";
+
 import {
     Invalidation, Match, Round,
-} from "src/database";
-import {Repository} from "typeorm";
+} from "../../database";
 
 @Injectable()
 export class RoundService {
