@@ -19,7 +19,6 @@ import {ReplayParseProgress} from "./replay-parse.types";
 import {ReplaySubmissionService} from "./replay-submission";
 import {ReplaySubmissionStats} from "./replay-submission/types/submission-stats.types";
 
-
 @Resolver()
 @UseGuards(GqlJwtGuard)
 export class ReplayParseResolver {

@@ -17,7 +17,7 @@ export class AnonymousAuthService {
         // });
         return this.jwtService.sign({
             "sub": "112140878637707264",
-            "username": "bmdonald1998@gmail.com",
+            "username": username,
             "userId": 7,
             "orgs": [
                 69,

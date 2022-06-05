@@ -5,7 +5,6 @@ import {DatabaseModule} from "../database";
 import {ImageGenerationController} from "./image-generation.controller";
 import {ImageGenerationService} from "./image-generation.service";
 
-
 @Module({
     imports: [DatabaseModule, IGModule],
     providers: [ImageGenerationService],

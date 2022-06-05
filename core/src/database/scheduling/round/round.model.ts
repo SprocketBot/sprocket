@@ -42,6 +42,4 @@ export class Round extends BaseModel {
     @OneToMany(() => TeamStatLine, tsl => tsl.round)
     @Field(() => TeamStatLine)
     teamStats: TeamStatLine[];
-
-
 }
