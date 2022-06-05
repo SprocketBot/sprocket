@@ -1,11 +1,12 @@
 <script lang="ts">
     import {Modal} from "$lib/components";
+    import {createRestrictionMutation} from "$lib/api";
     import FaHammer from "svelte-icons/fa/FaHammer.svelte";
 
     export let visible = false;
 
     let buttonEnabled = true;
-    export let playerId;
+    export let playerId:number;
 
 
     async function createBan() {
@@ -15,6 +16,7 @@
         try {
 
             // TODO: Ban creation mutation
+            createRestrictionMutation({memberId: playerId, reason:"Because nigel said yo", expiration: new Date()})
             visible = false;
         } finally {
             buttonEnabled = true;

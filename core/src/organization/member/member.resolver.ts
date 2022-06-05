@@ -1,5 +1,5 @@
 import {
-    ResolveField, Resolver, Root,
+    Args, Int, Query, ResolveField, Resolver, Root,
 } from "@nestjs/graphql";
 
 import type {MemberProfile} from "../../database";
@@ -13,5 +13,13 @@ export class MemberResolver {
     @ResolveField()
     async profile(@Root() member: Partial<Member>): Promise<MemberProfile> {
         return member.profile ?? await this.memberService.getMemberProfile(member.id!);
+    }
+
+    @Query(() => Member)
+    async getMemberByUserId(
+        @Args("userId", {type: () => Int}) userId: number,
+        @Args("organizationId", {type: () => Int})organizationId: number,
+    ): Promise<Member> {
+        return this.memberService.getMember({where: {organization: {id: organizationId}, user: {id: userId} } });
     }
 }

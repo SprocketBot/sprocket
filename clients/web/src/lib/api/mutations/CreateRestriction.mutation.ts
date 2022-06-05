@@ -6,17 +6,18 @@ interface CreateRestrictionResponse {
 }
 
 interface CreateRestrictionVariables {
-    id: number;
+    memberId: number;
+    reason: string;
     expiration: Date;
 }
 
 const mutationString = gql`
     mutation (
-        $id: Int!
+        $memberId: Int!
+        $reason: String!
         $expiration: DateTime!
     ){
-        manuallyExpireMemberRestriction(id: $id, manualExpiration: $expiration, manualExpirationReason:"From admin interface") {
-            memberId
+        createMemberRestriction(memberId: $memberId, type:QUEUE_BAN, reason:$reason, expiration: $expiration) {
             id
         }
     }
