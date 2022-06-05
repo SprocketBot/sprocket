@@ -5,3 +5,4 @@ export * from "./LeaveScrim.mutation";
 export * from "./ResetSubmission.mutation";
 export * from "./RatifySubmission.mutation";
 export * from "./CancelScrim.mutation";
+export * from "./RejectSubmission.mutation";

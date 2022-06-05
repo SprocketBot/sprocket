@@ -132,6 +132,17 @@ export class ScrimService {
         throw result.error;
     }
 
+    async resetScrim(scrimId: string, playerId: number): Promise<boolean> {
+        this.logger.log(`resetScrim player=${playerId} scrimId=${scrimId}`);
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.ForceUpdateScrimStatus, {
+            scrimId: scrimId,
+            status: ScrimStatus.IN_PROGRESS,
+        });
+
+        if (result.status === ResponseStatus.SUCCESS) return result.data;
+        throw result.error;
+    }
+
     async cancelScrim(scrimId: string): Promise<IScrim> {
         this.logger.log(`cancelScrim scrimId=${scrimId}`);
         const result = await this.matchmakingService.send(MatchmakingEndpoint.CancelScrim, {

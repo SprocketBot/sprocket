@@ -212,6 +212,29 @@ export class ScrimService {
         return true;
     }
 
+    async resetScrim(scrimId: string, playerId: number): Promise<boolean> {
+        this.logger.debug(`Attempting to reset scrim, scrimId=${scrimId} playerId=${playerId}`);
+
+        const scrim = await this.scrimCrudService.getScrim(scrimId);
+
+        if (!scrim) {
+            throw new RpcException("Scrim not found");
+        }
+        if (!scrim.players.some(p => p.id === playerId)) {
+            throw new RpcException("Player not in this scrim");
+        }
+        if (scrim.status !== ScrimStatus.RATIFYING) {
+            throw new RpcException("Scrim is not RATIFYING, can't be reset");
+        }
+
+        scrim.status = ScrimStatus.IN_PROGRESS;
+        await this.scrimCrudService.updateScrimStatus(scrimId, scrim.status);
+
+        await this.publishScrimUpdate(scrimId);
+        
+        return true;
+    }
+
     async completeScrim(scrimId: string, playerId: number): Promise<Scrim> {
         // Player will be used to track who submitted / completed a scrim
         const scrim = await this.scrimCrudService.getScrim(scrimId);
