@@ -24,7 +24,6 @@ import {REPLAY_SUBMISSION_PREFIX, ReplayParsePubSub} from "../replay-parse.const
 import type {BaseReplaySubmission, ReplaySubmission} from "./types/replay-submission.types";
 import {ReplaySubmissionType} from "./types/replay-submission.types";
 import type {ReplaySubmissionItem} from "./types/submission-item.types";
-import type {ISubmissionRejection} from "./types/submission-rejection.types";
 import type {ReplaySubmissionStats} from "./types/submission-stats.types";
 
 @Injectable()
@@ -217,8 +216,6 @@ export class ReplaySubmissionService {
     }
 
     async rejectSubmission(submissionId: string, playerId: number, reason: string): Promise<boolean> {
-        const items = await this.getItems(submissionId);
-
         if (this.isScrimSubmission(submissionId)) {
             // Scrim must exist
             const scrimRes = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
@@ -234,13 +231,7 @@ export class ReplaySubmissionService {
             if (scrim.status !== ScrimStatus.RATIFYING) throw new Error(`Unable to reject submission, scrim must be ratifying`);
 
             // Add rejection
-            const rejection: ISubmissionRejection = {
-                playerId: playerId,
-                reason: reason,
-                rejectedItems: items,
-                rejectedAt: new Date().toISOString(),
-            };
-            await this.addRejection(submissionId, rejection);
+            await this.addRejection(submissionId, playerId, reason);
             await this.clearItems(submissionId);
             
             // Reset scrim to allow re-submission
@@ -301,8 +292,22 @@ export class ReplaySubmissionService {
         await this.redisService.setJsonField(key, "items", []);
     }
 
-    async addRejection(submissionId: string, rejection: ISubmissionRejection): Promise<void> {
+    async addRejection(submissionId: string, playerId: number, reason: string): Promise<void> {
         const key = this.buildKey(submissionId);
+        const rejectedAt = new Date().toISOString();
+
+        const fullItems = await this.getItems(submissionId);
+        const rejectedItems = fullItems.map(item => {
+            // Remove progress from copied objects
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const {progress, ...rejectedItem} = item;
+            return rejectedItem;
+        });
+
+        const rejection = {
+            playerId, reason, rejectedItems, rejectedAt,
+        };
+
         await this.redisService.appendToJsonArray(key, "rejections", rejection);
     }
 
