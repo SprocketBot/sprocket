@@ -1,4 +1,3 @@
-import type {OperationResult} from "@urql/core";
 import {gql} from "@urql/core";
 
 export const AllCurrentScrimsQuery = gql`
