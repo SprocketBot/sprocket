@@ -79,12 +79,10 @@ export class ReplayParseService {
     }
 
     async parseReplays(streams: Array<{stream: Readable; filename: string;}>, submissionId: string, player: ScrimPlayer): Promise<string[]> {
-        if (await this.submissionService.submissionExists(submissionId)) throw new Error(`A submission already exists for this submissionId`); // TODO under what conditions should a re-submission be allowed?
+        const cantSubmitReason = await this.submissionService.canSubmitReplays(submissionId, player.id);
+        if (cantSubmitReason) throw new Error(cantSubmitReason);
 
-        const cantCreateReason = await this.submissionService.canCreateSubmission(submissionId, player.id);
-        if (cantCreateReason) throw new Error(cantCreateReason);
-
-        await this.submissionService.createSubmission(submissionId, player.id);
+        await this.submissionService.ensureSubmission(submissionId, player.id);
 
         // Keep track of taskIds to return to the client
         const taskIds: string[] = new Array<string>(streams.length);

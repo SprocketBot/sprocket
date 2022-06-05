@@ -54,6 +54,15 @@ export class RedisService {
         return JSON.parse(await this.redis.send_command("json.get", ...args) as string) as T;
     }
 
+    async getIfExists<T>(key: string): Promise<T | undefined> {
+        try {
+            const obj = await this.redis.send_command("get", key) as T;
+            return obj;
+        } catch (e) {
+            return undefined;
+        }
+    }
+
     async getString<T = string>(key: string): Promise<T | null> {
         const res = await this.redis.get(key);
         if (res === null) return null;
