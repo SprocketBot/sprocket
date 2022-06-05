@@ -6,7 +6,7 @@ interface CancelScrimResponse {
 }
 
 interface CancelScrimVariables {
-    scrimId:string;
+    scrimId: string;
 }
 
 const mutationString = gql`

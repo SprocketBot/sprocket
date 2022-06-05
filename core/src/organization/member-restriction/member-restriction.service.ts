@@ -1,6 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {EventsService, EventTopic} from "@sprocketbot/common";
+import {MemberRestrictionEventType} from "@sprocketbot/common/lib/service-connectors/member";
 import type {
     FindConditions, FindManyOptions, FindOneOptions,
 } from "typeorm";
@@ -8,7 +9,8 @@ import {
     IsNull, MoreThan, Repository,
 } from "typeorm";
 
-import {MemberRestriction, MemberRestrictionType} from "../../database";
+import type {MemberRestrictionType} from "../../database";
+import {MemberRestriction} from "../../database";
 import {MemberService} from "../member/member.service";
 
 @Injectable()
@@ -39,13 +41,9 @@ export class MemberRestrictionService {
         // This is the message we'll send to the front end about the ban
         const eventPayload = {
             id: memberRestriction.id,
-            eventType: 1,
-            message: "Member Queue Banned",
-            type: MemberRestrictionType.QUEUE_BAN,
-            expiration: expiration,
-            reason: reason,
-            member: member,
-            memberId: member.id,
+            eventType: MemberRestrictionEventType.RESTRICTED,
+            message: "Member restricted",
+            restriction: memberRestriction,
         };
 
         await this.eventsService.publish(EventTopic.MemberRestrictionCreated, eventPayload);
@@ -84,7 +82,7 @@ export class MemberRestrictionService {
 
     async manuallyExpireMemberRestriction(memberRestrictionId: number, manualExpiration: Date, manualExpirationReason: string): Promise<MemberRestriction> {
         let memberRestriction = await this.memberRestrictionRepository.findOneOrFail(memberRestrictionId);
-        
+
         memberRestriction = this.memberRestrictionRepository.merge(memberRestriction, {
             manualExpiration: manualExpiration.toUTCString(),
             manualExpirationReason: manualExpirationReason,
@@ -93,18 +91,11 @@ export class MemberRestrictionService {
 
         // This is the message we'll send to the front end about the manual
         // expiration
-        const newMember = await this.memberService.getMemberById(memberRestriction.memberId);
         const eventPayload = {
             id: memberRestriction.id,
-            eventType: 2,
-            message: "Member ban manually expired",
-            type: MemberRestrictionType.QUEUE_BAN,
-            expiration: memberRestriction.expiration,
-            reason: memberRestriction.reason,
-            manualExpiration: manualExpiration,
-            manualExpirationReason: manualExpirationReason,
-            member: newMember,
-            memberId: memberRestriction.memberId,
+            eventType: MemberRestrictionEventType.UNRESTRICTED,
+            message: "Member restriction manually expired",
+            restriction: memberRestriction,
         };
 
         await this.eventsService.publish(EventTopic.MemberRestrictionCreated, eventPayload);

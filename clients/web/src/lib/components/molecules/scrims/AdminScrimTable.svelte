@@ -7,12 +7,8 @@
     import FaLock from "svelte-icons/fa/FaLock.svelte";
 
     /*
-    This will be the table that shows in ScrimManagementModal (Currently Named Modal
-    but I have since realized that it not the greatest)
-
-    TODO: Create/Implement Search
-    TODO: Figure out Visibility status pattern from CreateScrimModal and Scrim Table
-
+        TODO: Create/Implement Search
+        TODO: Figure out Visibility status pattern from CreateScrimModal and Scrim Table
      */
 
     let scrimManagementModalVisible = false;
@@ -20,7 +16,6 @@
     let scrimsLocked: boolean = false;
 
     // TODO: Implement Lock Scrim Workflow
-
 
     let activeScrimsData: ActiveScrims | undefined;
     $: activeScrimsData = $activeScrims?.data?.activeScrims;
@@ -31,7 +26,7 @@
 
     const selectPlayerInTable = (playerId: string) => {
         selectedPlayer = playerId;
-        
+
     };
     const openScrimManagementModal = (scrimId: string) => {
         scrimManagementModalVisible = true;
@@ -76,7 +71,10 @@
                     <td>
                         <div class="flex flex-col gap-1">
                             {#each scrim.players as player (player.id)}
-                                <button class="p-2 bg-base-300/20 rounded-lg" on:click = {() => { selectPlayerInTable(`${player.id}`) }}>{player.name}</button>
+                                <button class="p-2 bg-base-300/20 rounded-lg"
+                                        on:click={() => { selectPlayerInTable(`${player.id}`) }}>
+                                    {player.name}
+                                </button>
                             {/each}
                         </div>
                     </td>

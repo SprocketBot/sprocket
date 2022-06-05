@@ -7,6 +7,11 @@ enum MemberRestrictionType {
     RATIFICATION_BAN = "RATIFICATION_BAN",
 }
 
+enum MemberRestrictionEventType {
+    RESTRICTED = 1,
+    UNRESTRICTED = 2,
+}
+
 interface MemberProfile {
     name: string;
 }
@@ -22,19 +27,21 @@ export interface MemberRestrictionEvent {
 
     message?: string;
 
-    type: MemberRestrictionType;
+    restriction: {
+        type: MemberRestrictionType;
 
-    expiration: Date;
+        expiration: Date;
 
-    reason: string;
+        reason: string;
 
-    member: Member;
+        member: Member;
 
-    manualExpiration?: Date;
+        manualExpiration?: Date;
 
-    manualExpirationReason?: string;
+        manualExpirationReason?: string;
 
-    memberId: number;
+        memberId: number;
+    };
 }
 
 export interface RestrictedPlayersStoreValue {
@@ -53,38 +60,40 @@ export interface RestrictedPlayersStoreSubscriptionVariables {
 
 export class RestrictedPlayersStore extends LiveQueryStore<RestrictedPlayersStoreValue, RestrictedPlayersStoreVariables, RestrictedPlayersSubscriptionValue, RestrictedPlayersStoreSubscriptionVariables> {
     protected queryString = gql<RestrictedPlayersStoreValue, RestrictedPlayersStoreVariables>`
-    query {
-        getActiveMemberRestrictions(type: QUEUE_BAN) {
-          id
-          type
-          expiration
-          reason
-          member {
-            profile {
-              name
+        query {
+            getActiveMemberRestrictions(type: QUEUE_BAN) {
+                id
+                type
+                expiration
+                reason
+                member {
+                    profile {
+                        name
+                    }
+                }
+                memberId
             }
-          }
-          memberId
-        }
-    }`;
+        }`;
 
     protected subscriptionString = gql<RestrictedPlayersSubscriptionValue, RestrictedPlayersStoreSubscriptionVariables>`
-    subscription {
-      followRestrictedMembers {
-        id
-        eventType
-        message
-        type
-        expiration
-        reason
-        member {
-            profile {
-                name
+        subscription {
+            followRestrictedMembers {
+                id
+                eventType
+                message
+                restriction {
+                    type
+                    expiration
+                    reason
+                    member {
+                        profile {
+                            name
+                        }
+                    }
+                    memberId
+                }
             }
         }
-        memberId
-      }
-    }
     `;
 
     constructor() {
@@ -102,16 +111,16 @@ export class RestrictedPlayersStore extends LiveQueryStore<RestrictedPlayersStor
             }
 
             switch (message.data.followRestrictedMembers.eventType) {
-                case 1:
-                    this.currentValue.data.getActiveMemberRestrictions.push(message.data.followRestrictedMembers);
+                case MemberRestrictionEventType.RESTRICTED:
+                    this.currentValue.data.getActiveMemberRestrictions.push(message.data.followRestrictedMembers.restriction);
                     break;
-                case 2:
-                    this.currentValue.data.getActiveMemberRestrictions = this.currentValue.data.getActiveMemberRestrictions.filter(s => s.id !== message.data?.followRestrictedMembers.id);
+                case MemberRestrictionEventType.UNRESTRICTED:
+                    this.currentValue.data.getActiveMemberRestrictions = this.currentValue.data.getActiveMemberRestrictions.filter(s => s.id !== message.data?.followRestrictedMembers.restriction.id);
                     break;
                 default:
                     console.log("This path shouldn't be hit.");
             }
-            
+
             this.pub();
         }
     };

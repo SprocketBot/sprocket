@@ -11,8 +11,8 @@ import type {Member} from "../../database";
 import {MemberRestriction, MemberRestrictionType} from "../../database";
 import {MemberPubSub} from "../constants";
 import {MemberService} from "../member/member.service";
-import {MemberRestrictionEvent} from "./member.types";
 import {MemberRestrictionService} from "./member-restriction.service";
+import {MemberRestrictionEvent} from "./member-restriction.types";
 
 @Resolver(() => MemberRestriction)
 export class MemberRestrictionResolver {
