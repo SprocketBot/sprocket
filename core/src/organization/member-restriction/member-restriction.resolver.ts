@@ -53,7 +53,7 @@ export class MemberRestrictionResolver {
     }
 
     @Subscription(() => MemberRestrictionEvent)
-    async followBannedMembers(): Promise<AsyncIterator<MemberRestrictionEvent>> {
+    async followRestrictedMembers(): Promise<AsyncIterator<MemberRestrictionEvent>> {
         await this.memberService.enableSubscription();
         return this.pubSub.asyncIterator(this.memberService.bannedMembersSubTopic);
     }

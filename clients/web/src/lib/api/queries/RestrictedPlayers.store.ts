@@ -42,7 +42,7 @@ export interface RestrictedPlayersStoreValue {
 }
 
 export interface RestrictedPlayersSubscriptionValue {
-    followBannedMembers: MemberRestrictionEvent;
+    followRestrictedMembers: MemberRestrictionEvent;
 }
 
 export interface RestrictedPlayersStoreVariables {
@@ -70,7 +70,7 @@ export class RestrictedPlayersStore extends LiveQueryStore<RestrictedPlayersStor
 
     protected subscriptionString = gql<RestrictedPlayersSubscriptionValue, RestrictedPlayersStoreSubscriptionVariables>`
     subscription {
-      followBannedMembers {
+      followRestrictedMembers {
         id
         eventType
         message
@@ -101,15 +101,15 @@ export class RestrictedPlayersStore extends LiveQueryStore<RestrictedPlayersStor
                 return;
             }
 
-            switch (message.data.followBannedMembers.eventType) {
+            switch (message.data.followRestrictedMembers.eventType) {
                 case 1:
-                    this.currentValue.data.getActiveMemberRestrictions.push(message.data.followBannedMembers);
+                    this.currentValue.data.getActiveMemberRestrictions.push(message.data.followRestrictedMembers);
                     break;
                 case 2:
-                    this.currentValue.data.getActiveMemberRestrictions = this.currentValue.data.getActiveMemberRestrictions.filter(s => s.id !== message.data?.followBannedMembers.id);
+                    this.currentValue.data.getActiveMemberRestrictions = this.currentValue.data.getActiveMemberRestrictions.filter(s => s.id !== message.data?.followRestrictedMembers.id);
                     break;
                 default:
-                    console.log("This is path shouldn't be hit.");
+                    console.log("This path shouldn't be hit.");
             }
             
             this.pub();
