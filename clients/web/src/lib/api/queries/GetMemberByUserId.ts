@@ -10,7 +10,6 @@ interface GetMemberByUserIdVariables {
     orgId: number;
 }
 
-
 const queryString = gql`
     query (
         $orgId: Int!

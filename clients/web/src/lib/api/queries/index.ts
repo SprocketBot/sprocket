@@ -6,5 +6,5 @@ export * from "./SubmissionStats.store";
 export * from "./AllCurrentScrims";
 export * from "./ActiveScrims.store";
 export * from "./ActiveScrimPlayers.store";
-export * from "./BannedPlayers.store";
+export * from "./RestrictedPlayers.store";
 export * from "./GetMemberByUserId";

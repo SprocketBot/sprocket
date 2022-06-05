@@ -37,22 +37,22 @@ export interface MemberRestrictionEvent {
     memberId: number;
 }
 
-export interface BannedPlayersStoreValue {
+export interface RestrictedPlayersStoreValue {
     getActiveMemberRestrictions: MemberRestrictionEvent[];
 }
 
-export interface BannedPlayersSubscriptionValue {
-    followBannedMembers: MemberRestrictionEvent;
+export interface RestrictedPlayersSubscriptionValue {
+    followRestrictedMembers: MemberRestrictionEvent;
 }
 
-export interface BannedPlayersStoreVariables {
+export interface RestrictedPlayersStoreVariables {
 }
 
-export interface BannedPlayersStoreSubscriptionVariables {
+export interface RestrictedPlayersStoreSubscriptionVariables {
 }
 
-export class BannedPlayersStore extends LiveQueryStore<BannedPlayersStoreValue, BannedPlayersStoreVariables, BannedPlayersSubscriptionValue, BannedPlayersStoreSubscriptionVariables> {
-    protected queryString = gql<BannedPlayersStoreValue, BannedPlayersStoreVariables>`
+export class RestrictedPlayersStore extends LiveQueryStore<RestrictedPlayersStoreValue, RestrictedPlayersStoreVariables, RestrictedPlayersSubscriptionValue, RestrictedPlayersStoreSubscriptionVariables> {
+    protected queryString = gql<RestrictedPlayersStoreValue, RestrictedPlayersStoreVariables>`
     query {
         getActiveMemberRestrictions(type: QUEUE_BAN) {
           id
@@ -68,9 +68,9 @@ export class BannedPlayersStore extends LiveQueryStore<BannedPlayersStoreValue, 
         }
     }`;
 
-    protected subscriptionString = gql<BannedPlayersSubscriptionValue, BannedPlayersStoreSubscriptionVariables>`
+    protected subscriptionString = gql<RestrictedPlayersSubscriptionValue, RestrictedPlayersStoreSubscriptionVariables>`
     subscription {
-      followBannedMembers {
+      followRestrictedMembers {
         id
         eventType
         message
@@ -93,7 +93,7 @@ export class BannedPlayersStore extends LiveQueryStore<BannedPlayersStoreValue, 
         this.subscriptionVariables = {};
     }
 
-    protected handleGqlMessage = (message: OperationResult<BannedPlayersSubscriptionValue, BannedPlayersStoreSubscriptionVariables>): void => {
+    protected handleGqlMessage = (message: OperationResult<RestrictedPlayersSubscriptionValue, RestrictedPlayersStoreSubscriptionVariables>): void => {
         if (message?.data) {
             if (!this.currentValue.data?.getActiveMemberRestrictions) {
                 console.log(this.currentValue);
@@ -101,12 +101,12 @@ export class BannedPlayersStore extends LiveQueryStore<BannedPlayersStoreValue, 
                 return;
             }
 
-            switch (message.data.followBannedMembers.eventType) {
+            switch (message.data.followRestrictedMembers.eventType) {
                 case 1:
-                    this.currentValue.data.getActiveMemberRestrictions.push(message.data.followBannedMembers);
+                    this.currentValue.data.getActiveMemberRestrictions.push(message.data.followRestrictedMembers);
                     break;
                 case 2:
-                    this.currentValue.data.getActiveMemberRestrictions = this.currentValue.data.getActiveMemberRestrictions.filter(s => s.id !== message.data?.followBannedMembers.id);
+                    this.currentValue.data.getActiveMemberRestrictions = this.currentValue.data.getActiveMemberRestrictions.filter(s => s.id !== message.data?.followRestrictedMembers.id);
                     break;
                 default:
                     console.log("This is path shouldn't be hit.");
@@ -117,4 +117,4 @@ export class BannedPlayersStore extends LiveQueryStore<BannedPlayersStoreValue, 
     };
 }
 
-export const bannedPlayers = new BannedPlayersStore();
+export const restrictedPlayers = new RestrictedPlayersStore();

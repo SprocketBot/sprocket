@@ -22,7 +22,7 @@ const mutationString = gql`
     }
 `;
 
-export const cancelRestrictionMutation = async (vars: CancelRestrictionVariables): Promise<CancelRestrictionResponse> => {
+export const expireRestrictionMutation = async (vars: CancelRestrictionVariables): Promise<CancelRestrictionResponse> => {
     const r = await client.mutation<CancelRestrictionResponse, CancelRestrictionVariables>(mutationString, vars).toPromise();
     if (r.data) {
         return r.data;

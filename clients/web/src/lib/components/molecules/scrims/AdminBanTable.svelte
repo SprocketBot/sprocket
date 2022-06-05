@@ -1,10 +1,10 @@
 <script lang="ts">
     import {activePlayers, type Player} from "$lib/api";
-    import {bannedPlayers, type MemberRestrictionEvent, cancelRestrictionMutation} from "$lib/api";
+    import {restrictedPlayers, type MemberRestrictionEvent, expireRestrictionMutation} from "$lib/api";
 
     //export let visible = false;
-    let bannedPlayersData: MemberRestrictionEvent[] | undefined;
-    $: bannedPlayersData = $bannedPlayers?.data?.getActiveMemberRestrictions;
+    let restrictedPlayersData: MemberRestrictionEvent[] | undefined;
+    $: restrictedPlayersData = $restrictedPlayers?.data?.getActiveMemberRestrictions;
 
     let targetRestriction:number;
 
@@ -16,7 +16,7 @@
 
     function cancelRestriction(id:number) {
         try {
-            cancelRestrictionMutation({id: id?? 0, expiration: new Date()});
+            expireRestrictionMutation({id: id?? 0, expiration: new Date()});
         } catch {
             console.log("oops, all berries!")
         }
@@ -33,8 +33,8 @@
     </tr>
     </thead>
     <tbody>
-        {#if bannedPlayersData}
-            {#each bannedPlayersData as restriction (restriction.id)}
+        {#if restrictedPlayersData}
+            {#each restrictedPlayersData as restriction (restriction.id)}
                 <tr>
                     <td>{restriction.member.profile.name}</td>
                     <td>{restriction.id}</td>
