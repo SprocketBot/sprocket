@@ -440,7 +440,7 @@ module.exports = {
     "@typescript-eslint/no-this-alias": "error",                               /* (r  ) Disallow aliasing this */
     "@typescript-eslint/no-type-alias": "off",                                 /* (   ) Disallow the use of type aliases */
     "@typescript-eslint/no-unnecessary-boolean-literal-compare": "error",      /* ( ft) Flags unnecessary equality comparisons against boolean literals */
-    "@typescript-eslint/no-unnecessary-condition": "error",                    /* ( ft) Prevents conditionals where the type is always truthy or always falsy */
+    "@typescript-eslint/no-unnecessary-condition": "off",                      /* ( ft) Prevents conditionals where the type is always truthy or always falsy */
     "@typescript-eslint/no-unnecessary-qualifier": "error",                    /* ( ft) Warns when a namespace qualifier is unnecessary */
     "@typescript-eslint/no-unnecessary-type-arguments": "off",                 /* ( ft) Enforces that type arguments will not be used if not required */
     "@typescript-eslint/no-unnecessary-type-assertion": "error",               /* (rft) Warns if a type assertion does not change the type of an expression */

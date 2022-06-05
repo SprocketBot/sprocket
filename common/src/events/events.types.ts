@@ -1,6 +1,7 @@
 import {z} from "zod";
 
 import {ScrimMetricsSchema, ScrimSchema} from "../service-connectors/matchmaking";
+import {MemberRestrictionEventSchema} from "../service-connectors/member";
 
 export enum EventTopic {
     // Scrims
@@ -16,9 +17,11 @@ export enum EventTopic {
 
     // Submissions
     SubmissionStarted = "submission.started",
+
+    // Member
+    AllMemberEvents = "member.*",
+    MemberRestrictionCreated = "member.restrictionCreated",
 }
-
-
 
 export const EventTopicSchema = z.preprocess(v => {
     if (typeof v !== "string") return v;
@@ -27,6 +30,7 @@ export const EventTopicSchema = z.preprocess(v => {
 }, z.nativeEnum(EventTopic));
 
 export const EventSchemas = {
+    // Scrim Events
     [EventTopic.ScrimComplete]: ScrimSchema,
     [EventTopic.ScrimPopped]: ScrimSchema,
     [EventTopic.ScrimCreated]: ScrimSchema,
@@ -41,7 +45,16 @@ export const EventSchemas = {
         ScrimMetricsSchema,
     ]),
     [EventTopic.ScrimMetricsUpdate]: ScrimMetricsSchema,
+    // Submission Events
     [EventTopic.SubmissionStarted]: z.object({submissionId: z.string()}),
+    // Member Events
+    [EventTopic.MemberRestrictionCreated]: MemberRestrictionEventSchema,
+    [EventTopic.AllMemberEvents]: z.union([
+        z.number(),
+        z.string().uuid(),
+        MemberRestrictionEventSchema,
+    ]),
+
 };
 
 export type EventPayload<T extends EventTopic> = z.infer<typeof EventSchemas[T]>;

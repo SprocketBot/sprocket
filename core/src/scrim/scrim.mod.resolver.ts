@@ -79,8 +79,8 @@ export class ScrimModuleResolver {
             nullable: true,
         }) status?: ScrimStatus,
     ): Promise<Scrim[]> {
-        if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organiazation");
-
+        if (!user.currentOrganizationId) throw new GraphQLError("Player is not connected to an organization");
+        
         const scrims = await this.scrimService.getAllScrims();
         if (status) return scrims.filter(s => s.status === status) as Scrim[];
         return scrims.filter(s => s.organizationId === user.currentOrganizationId) as Scrim[];

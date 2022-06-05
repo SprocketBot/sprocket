@@ -14,6 +14,10 @@
             target: "/scrims",
             label: "Play",
         },
+        {
+            target: "/management",
+            label: "Manage",
+        },
     ]);
 
     initializeClient($session);

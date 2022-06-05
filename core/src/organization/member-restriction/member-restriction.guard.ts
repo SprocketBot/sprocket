@@ -38,3 +38,9 @@ export class QueueBanGuard extends MemberRestrictionGuard {
 
     readonly failureResponse = "You are currently queue banned";
 }
+
+export class RatificationBanGuard extends MemberRestrictionGuard {
+    readonly restrictionType: MemberRestrictionType = MemberRestrictionType.RATIFICATION_BAN;
+
+    readonly failureResponse = "You have been banned from ratifying or rejecting ratification of scrims.";
+}
