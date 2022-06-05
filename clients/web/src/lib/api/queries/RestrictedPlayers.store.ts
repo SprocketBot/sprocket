@@ -7,6 +7,11 @@ enum MemberRestrictionType {
     RATIFICATION_BAN = "RATIFICATION_BAN",
 }
 
+enum MemberRestrictionEventType {
+    RESTRICTED = 1,
+    UNRESTRICTED = 2,
+}
+
 interface MemberProfile {
     name: string;
 }
@@ -106,10 +111,10 @@ export class RestrictedPlayersStore extends LiveQueryStore<RestrictedPlayersStor
             }
 
             switch (message.data.followRestrictedMembers.eventType) {
-                case 1:
+                case MemberRestrictionEventType.RESTRICTED:
                     this.currentValue.data.getActiveMemberRestrictions.push(message.data.followRestrictedMembers.restriction);
                     break;
-                case 2:
+                case MemberRestrictionEventType.UNRESTRICTED:
                     this.currentValue.data.getActiveMemberRestrictions = this.currentValue.data.getActiveMemberRestrictions.filter(s => s.id !== message.data?.followRestrictedMembers.restriction.id);
                     break;
                 default:

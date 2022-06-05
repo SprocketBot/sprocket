@@ -1,8 +1,13 @@
 import {z} from "zod";
 
+export enum MemberRestrictionEventType {
+    RESTRICTED = 1,
+    UNRESTRICTED = 2,
+}
+
 export const MemberRestrictionEventSchema = z.object({
     id: z.number(),
-    eventType: z.number(),
+    eventType: z.nativeEnum(MemberRestrictionEventType),
     message: z.string(),
     restriction: z.object({
         type: z.enum(["QUEUE_BAN", "RATIFICATION_BAN"]),

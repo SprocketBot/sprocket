@@ -1,6 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {EventsService, EventTopic} from "@sprocketbot/common";
+import {MemberRestrictionEventType} from "@sprocketbot/common/lib/service-connectors/member";
 import type {
     FindConditions, FindManyOptions, FindOneOptions,
 } from "typeorm";
@@ -40,7 +41,7 @@ export class MemberRestrictionService {
         // This is the message we'll send to the front end about the ban
         const eventPayload = {
             id: memberRestriction.id,
-            eventType: 1,
+            eventType: MemberRestrictionEventType.RESTRICTED,
             message: "Member restricted",
             restriction: memberRestriction,
         };
@@ -92,7 +93,7 @@ export class MemberRestrictionService {
         // expiration
         const eventPayload = {
             id: memberRestriction.id,
-            eventType: 2,
+            eventType: MemberRestrictionEventType.UNRESTRICTED,
             message: "Member restriction manually expired",
             restriction: memberRestriction,
         };
