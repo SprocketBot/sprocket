@@ -113,7 +113,7 @@ export class RestrictedPlayersStore extends LiveQueryStore<RestrictedPlayersStor
                     this.currentValue.data.getActiveMemberRestrictions = this.currentValue.data.getActiveMemberRestrictions.filter(s => s.id !== message.data?.followRestrictedMembers.restriction.id);
                     break;
                 default:
-                    console.log("This is path shouldn't be hit.");
+                    console.log("This path shouldn't be hit.");
             }
 
             this.pub();

@@ -20,7 +20,7 @@ export enum EventTopic {
 
     // Member
     AllMemberEvents = "member.*",
-    MemberRestrictionCreated = "member.restriction.created",
+    MemberRestrictionCreated = "member.restrictionCreated",
 }
 
 export const EventTopicSchema = z.preprocess(v => {

@@ -44,6 +44,7 @@ export class MemberRestrictionService {
             message: "Member restricted",
             restriction: memberRestriction,
         };
+
         await this.eventsService.publish(EventTopic.MemberRestrictionCreated, eventPayload);
 
         return memberRestriction;
