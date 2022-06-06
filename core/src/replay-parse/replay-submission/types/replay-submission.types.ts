@@ -2,6 +2,7 @@ import type {Scrim} from "@sprocketbot/common";
 
 import type {Match} from "../../../database";
 import type {ReplaySubmissionItem} from "./submission-item.types";
+import type {ISubmissionRejection} from "./submission-rejection.types";
 import type {ReplaySubmissionStats} from "./submission-stats.types";
 
 export enum ReplaySubmissionType {
@@ -19,6 +20,7 @@ export interface BaseReplaySubmission {
     stats?: ReplaySubmissionStats;
     ratifiers: number[];
     requiredRatifications: number;
+    rejections: ISubmissionRejection[];
 }
 
 export interface ScrimReplaySubmission extends BaseReplaySubmission {

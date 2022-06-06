@@ -81,6 +81,15 @@ export class ReplayParseResolver {
         return this.replaySubmissionService.ratifySubmission(submissionId, user.userId);
     }
 
+    @Mutation(() => Boolean)
+    async rejectSubmission(
+        @CurrentUser() user: UserPayload,
+        @Args("submissionId") submissionId: string,
+        @Args("reason") reason: string,
+    ): Promise<boolean> {
+        return this.replaySubmissionService.rejectSubmission(submissionId, user.userId, reason);
+    }
+
     @Subscription(() => [ReplayParseProgress], {nullable: true})
     async followReplayParse(@Args("submissionId") submissionId: string): Promise<AsyncIterator<ReplayParseProgress>> {
         return this.pubsub.asyncIterator(submissionId);

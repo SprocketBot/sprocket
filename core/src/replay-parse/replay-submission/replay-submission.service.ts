@@ -5,6 +5,8 @@ import type {
     ParsedReplay, ProgressMessage, ScrimPlayer, Task,
 } from "@sprocketbot/common";
 import {
+    AnalyticsEndpoint,
+    AnalyticsService,
     CeleryService,
     config,
     MatchmakingEndpoint,
@@ -37,6 +39,7 @@ export class ReplaySubmissionService {
         private readonly scrimService: ScrimService,
         private readonly minioService: MinioService,
         private readonly finalizationService: FinalizationService,
+        private readonly analyticsService: AnalyticsService,
         @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
     ) {
     }
@@ -49,6 +52,11 @@ export class ReplaySubmissionService {
     async getRatifiers(submissionId: string): Promise<ReplaySubmission["ratifiers"]> {
         const key = this.buildKey(submissionId);
         return this.redisService.getJson(key, "ratifiers");
+    }
+
+    async getRejections(submissionId: string): Promise<ReplaySubmission["rejections"]> {
+        const key = this.buildKey(submissionId);
+        return this.redisService.getJson(key, "rejections");
     }
 
     async getItems(submissionId: string): Promise<ReplaySubmission["items"]> {
@@ -66,26 +74,26 @@ export class ReplaySubmissionService {
         return this.redisService.keyExists(key);
     }
 
-    async canCreateSubmission(submissionId: string, playerId: number): Promise<string | null> {
+    async canSubmitReplays(submissionId: string, playerId: number): Promise<string | null> {
         const key = this.buildKey(submissionId);
 
-        // Check that no submission exists already
-        const exists = await this.redisService.keyExists(key);
-        if (exists) return `Unable to create submission, a submission already exists for submissionId=${submissionId}`;
+        // Check that no submission exists with items already
+        const submission = await this.redisService.getIfExists<ReplaySubmission>(key);
+        if (submission?.items.length) return `Unable to submit replays, a submission with items already exists for submissionId=${submissionId}`;
 
         if (this.isScrimSubmission(submissionId)) {
             // Scrim must exist
             const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
             if (result.status === ResponseStatus.ERROR) throw result.error;
             const scrim = result.data;
-            if (!scrim) return `Unable to create submission, could not find a scrim associated with submissionId=${submissionId}`;
+            if (!scrim) return `Unable to submit replays, could not find a scrim associated with submissionId=${submissionId}`;
 
             // Player must be in scrim
             const playerIds = scrim.players.map(p => p.id);
-            if (!playerIds.includes(playerId)) return `Unable to create submission, playerId=${playerId} is not a player in the associated scrim`;
+            if (!playerIds.includes(playerId)) return `Unable to submit replays, playerId=${playerId} is not a player in the associated scrim`;
 
             // Scrim must be IN_PROGRESS
-            if (scrim.status !== ScrimStatus.IN_PROGRESS) return `Unable to create submission, scrim must be in progress`;
+            if (scrim.status !== ScrimStatus.IN_PROGRESS) return `Unable to submit replays, scrim must be in progress`;
         } else if (this.isMatchSubmission(submissionId)) {
             return "Submitting replays for matches is not implemented yet";
         } else {
@@ -95,7 +103,13 @@ export class ReplaySubmissionService {
         return null;
     }
 
-    async createSubmission(submissionId: string, playerId: number): Promise<ReplaySubmission> {
+    async ensureSubmission(submissionId: string, playerId: number): Promise<ReplaySubmission> {
+        const key = this.buildKey(submissionId);
+
+        // If a submission already exists without items, just return that
+        const alreadySubmission = await this.redisService.getIfExists<ReplaySubmission>(key);
+        if (alreadySubmission && !alreadySubmission.items.length) return alreadySubmission;
+        
         const isScrim = this.isScrimSubmission(submissionId);
         const isMatch = this.isMatchSubmission(submissionId);
 
@@ -105,6 +119,7 @@ export class ReplaySubmissionService {
             items: [],
             validated: false,
             ratifiers: [],
+            rejections: [],
             stats: undefined,
             requiredRatifications: 1, // TODO configurable by organization (1, majority, unanimous)
         };
@@ -127,7 +142,6 @@ export class ReplaySubmissionService {
             throw new Error(`submissionId=${submissionId} must begin with scrim- or match-`);
         }
 
-        const key = this.buildKey(submissionId);
         await this.redisService.setJson(key, submission);
 
         return submission;
@@ -204,6 +218,44 @@ export class ReplaySubmissionService {
         }
     }
 
+    async rejectSubmission(submissionId: string, playerId: number, reason: string): Promise<boolean> {
+        if (this.isScrimSubmission(submissionId)) {
+            // Scrim must exist
+            const scrimRes = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
+            if (scrimRes.status === ResponseStatus.ERROR) throw scrimRes.error;
+            const scrim = scrimRes.data;
+            if (!scrim) throw new Error(`Unable to reject submission, could not find a scrim associated with submissionId=${submissionId}`);
+
+            // Player must be in scrim
+            const playerIds = scrim.players.map(p => p.id);
+            if (!playerIds.includes(playerId)) throw new Error(`Unable to reject submission, playerId=${playerId} is not a player in the associated scrim`);
+
+            // Scrim must be RATIFYING
+            if (scrim.status !== ScrimStatus.RATIFYING) throw new Error(`Unable to reject submission, scrim must be ratifying`);
+
+            // Add rejection
+            await this.addRejection(submissionId, playerId, reason);
+            await this.clearItems(submissionId);
+            
+            // Reset scrim to allow re-submission
+            await this.scrimService.resetScrim(scrim.id, playerId);
+
+            await this.analyticsService.send(AnalyticsEndpoint.Analytics, {
+                name: "scrim-rejected",
+                tags: [
+                    ["playerId", playerId.toString()],
+                    ["submissionId", submissionId],
+                ],
+            });
+
+            return true;
+        } else if (this.isMatchSubmission(submissionId)) {
+            throw new Error("Submitting replays for matches is not implemented yet");
+        } else {
+            throw new Error(`Cannot determine submission type from submissionId=${submissionId}`);
+        }
+    }
+
     async upsertItem(submissionId: string, item: ReplaySubmissionItem): Promise<void> {
         const key = this.buildKey(submissionId);
 
@@ -244,6 +296,30 @@ export class ReplaySubmissionService {
                 requiredRatifications: await this.getSubmission(submissionId).then(s => s.requiredRatifications),
             },
         });
+    }
+
+    async clearItems(submissionId: string): Promise<void> {
+        const key = this.buildKey(submissionId);
+        await this.redisService.setJsonField(key, "items", []);
+    }
+
+    async addRejection(submissionId: string, playerId: number, reason: string): Promise<void> {
+        const key = this.buildKey(submissionId);
+        const rejectedAt = new Date().toISOString();
+
+        const fullItems = await this.getItems(submissionId);
+        const rejectedItems = fullItems.map(item => {
+            // Remove progress from copied objects
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const {progress, ...rejectedItem} = item;
+            return rejectedItem;
+        });
+
+        const rejection = {
+            playerId, reason, rejectedItems, rejectedAt,
+        };
+
+        await this.redisService.appendToJsonArray(key, "rejections", rejection);
     }
 
     async setValidatedTrue(submissionId: string): Promise<void> {

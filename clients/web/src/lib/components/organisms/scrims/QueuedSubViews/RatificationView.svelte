@@ -2,11 +2,13 @@
     import type {CurrentScrim} from "$lib/api";
     import {RatifySubmissionMutation, SubmissionStatsStore} from "$lib/api";
     import {GameCard, Progress} from "$lib/components";
+    import RejectSubmissionModal from "../modals/RejectSubmissionModal.svelte";
 
     export let scrim: CurrentScrim;
     if (!scrim) throw new Error();
+    const submissionId = scrim.submissionId!;
 
-    const submissionStats = new SubmissionStatsStore(scrim.submissionId!);
+    const submissionStats = new SubmissionStatsStore(submissionId);
 
     const submissionResults = [false];
 
@@ -17,8 +19,14 @@
 
     async function ratifyScrim() {
         if (hasRatified) return;
-        await RatifySubmissionMutation({submissionId: scrim.submissionId!});
+        await RatifySubmissionMutation({submissionId});
     }
+
+    let rejecting: boolean = false;
+
+    const reject = () => {
+        rejecting = true;
+    };
 </script>
 
 <section class="space-y-4">
@@ -42,11 +50,13 @@
             {:else}
                 <div/>
             {/if}
-            <button class="btn btn-error btn-outline">These aren't correct</button>
+            <button class="btn btn-error btn-outline" on:click={reject}>These aren't correct</button>
         </div>
         {/if}
     {/if}
 </section>
+
+<RejectSubmissionModal bind:visible={rejecting} submissionId={submissionId} />
 
 <style lang="postcss">
     h2 {

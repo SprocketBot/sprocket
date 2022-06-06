@@ -14,7 +14,7 @@
 
     let metrics: MetricsResult["metrics"];
     $: metrics = $scrimMetrics.data?.metrics;
-    let activityChange: number = 0;
+    let activityChange: string = "";
 
     function calculateActivityChange() {
         const prev = metrics.previousCompletedScrims ?? 0;
@@ -22,8 +22,11 @@
 
         const change = cur - prev;
         const ratio = change / Math.max(prev, 1);
-
-        activityChange = Math.round(ratio * 100);
+        if (ratio === 0) {
+            activityChange = "No change";
+        } else {
+            activityChange = `${Math.abs(Math.round(ratio * 100))}% ${activityChange > 0 ? "up" : "down"}`;
+        }
     }
     $: if (typeof metrics?.completedScrims === "number" || typeof metrics?.previousCompletedScrims === "number") {
         calculateActivityChange();
@@ -44,7 +47,7 @@
     </DashboardCard>
     <DashboardNumberCard title="Scrims in the last hour"
                          value={metrics?.completedScrims ?? 0}
-                         description="{Math.abs(activityChange)}% {activityChange > 0 ? 'up' : 'down'}"
+                         description="{activityChange}"
     />
     <DashboardNumberCard title="Pending Scrims"
                          value={metrics?.pendingScrims ?? 0}

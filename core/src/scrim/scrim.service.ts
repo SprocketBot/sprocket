@@ -36,6 +36,8 @@ export class ScrimService {
 
     get pendingScrimsSubTopic(): string { return "scrims.created" }
 
+    get allActiveScrimsSubTopic(): string { return "scrims.updated" }
+
     async getAllScrims(skillGroupId?: number): Promise<IScrim[]> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.GetAllScrims, {skillGroupId});
 
@@ -130,6 +132,17 @@ export class ScrimService {
         throw result.error;
     }
 
+    async resetScrim(scrimId: string, playerId: number): Promise<boolean> {
+        this.logger.log(`resetScrim player=${playerId} scrimId=${scrimId}`);
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.ForceUpdateScrimStatus, {
+            scrimId: scrimId,
+            status: ScrimStatus.IN_PROGRESS,
+        });
+
+        if (result.status === ResponseStatus.SUCCESS) return result.data;
+        throw result.error;
+    }
+
     async cancelScrim(scrimId: string): Promise<IScrim> {
         this.logger.log(`cancelScrim scrimId=${scrimId}`);
         const result = await this.matchmakingService.send(MatchmakingEndpoint.CancelScrim, {
@@ -159,6 +172,15 @@ export class ScrimService {
                     return;
                 }
 
+                if (v.topic as EventTopic !== EventTopic.ScrimMetricsUpdate) {
+                    this.pubsub.publish(this.allActiveScrimsSubTopic, {
+                        followActiveScrims: {
+                            scrim: v.payload,
+                            event: v.topic,
+                        },
+                    }).catch(this.logger.error.bind(this.logger));
+                }
+
                 switch (v.topic as EventTopic) {
                     case EventTopic.ScrimMetricsUpdate:
                         this.pubsub.publish(this.metricsSubTopic, {followScrimMetrics: v.payload}).catch(this.logger.error.bind(this.logger));
@@ -167,6 +189,7 @@ export class ScrimService {
                         this.pubsub.publish(this.pendingScrimsSubTopic, {followPendingScrims: v.payload}).catch(this.logger.error.bind(this.logger));
                         break;
                     case EventTopic.ScrimDestroyed:
+                    case EventTopic.ScrimCancelled:
                         this.pubsub.publish(this.pendingScrimsSubTopic, {followPendingScrims: v.payload}).catch(this.logger.error.bind(this.logger));
                         break;
                     default: {

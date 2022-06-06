@@ -17,6 +17,7 @@ import {MatchService, RoundService} from "../scheduling";
 import {ScrimPubSub} from "./constants";
 import {ScrimMetricsResolver} from "./metrics";
 import {ScrimConsumer} from "./scrim.consumer";
+import {ScrimManagementResolver} from "./scrim.management/scrim.management.resolver";
 import {ScrimModuleResolver, ScrimModuleResolverPublic} from "./scrim.mod.resolver";
 import {ScrimResolver} from "./scrim.resolver";
 import {ScrimService} from "./scrim.service";
@@ -64,6 +65,7 @@ import {ScrimMetaCrudService} from "./scrim-crud";
         RoundService,
         ScrimMetricsResolver,
         ScrimMetaCrudService,
+        ScrimManagementResolver,
     ],
     exports: [ScrimService],
 })
