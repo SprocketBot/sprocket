@@ -68,10 +68,8 @@ export class SvgTransformationService {
             return el;
         }
 
-
         return false;
     }
-
 
     async applyImageTransformation(el: Element, value: string, options: ImageTransformationsOptions): Promise<void> {
         let target = el;
@@ -152,7 +150,6 @@ export class SvgTransformationService {
                 break;
             default: break;
         }
-
 
         target.textContent = newtext;
 
@@ -274,15 +271,15 @@ export class SvgTransformationService {
                     default:
                         // Leaving this here for when we create future transformation types
                         this.logger.warn(`Unknown operation ${t} found! Skipping...`);
+                        break;
                 }
+                this.logger.log(`successfully applied transformation to ${el.id}`);
                 return Promise.resolve();
             }));
         } catch (e) {
             this.logger.warn(`failed to apply transformation to ${el.id}`);
-            throw e;
+            this.logger.error(e, (e as Error).stack);
         }
         el.removeAttribute("data-sprocket");
-        this.logger.log(`successfully applied transformation to ${el.id}`);
-
     }
 }
