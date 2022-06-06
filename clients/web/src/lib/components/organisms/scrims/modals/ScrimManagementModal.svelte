@@ -5,11 +5,9 @@
         type ActiveScrims,
         cancelScrimMutation,
         type CurrentScrim,
-    } from "$lib/api";
-    import {
         lockScrimMutation,
         unlockScrimMutation,
-    } from "../../../../api/mutations/SetScrimLocked.mutation";
+    } from "$lib/api";
 
     export let visible = false;
     export let targetScrim: CurrentScrim | undefined;
