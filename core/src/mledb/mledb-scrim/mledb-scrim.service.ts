@@ -92,19 +92,12 @@ export class MledbScrimService {
             replay.played = new Date(data.date);
             replay.playerStats = [];
             replay.playerStatsCores = [];
+            replay.winningColor = data.orange.stats.core.goals > data.blue.stats.core.goals ? "ORANGE" : "BLUE";
 
             const convertPlayerToMLE = async (p: BallchasingPlayer, color: "BLUE" | "ORANGE"): Promise<void> => {
                 const core = this.mlePlayerStatsCoreRepository.create();
                 const stats = this.mlePlayerStatsRepository.create();
-                // const player = await this.mlePlayerRepository.findOneOrFail({
-                //     where: {
-                //         accounts: {
-                //             platformId: p.id.id,
-                //             platform: p.id.platform,
-                //         },
-                //     },
-                //     relations: ["accounts"],
-                // });
+
                 const playerAccount = await this.mlePlayerAccountRepository.findOneOrFail({
                     where: {
                         platformId: p.id.id,
