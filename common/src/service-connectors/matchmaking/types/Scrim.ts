@@ -61,6 +61,7 @@ export enum ScrimStatus {
 export const ScrimSchema = z.object({
     id: z.string().uuid(),
     status: z.nativeEnum(ScrimStatus),
+    unlockedStatus: z.nativeEnum(ScrimStatus).optional(),
 
     organizationId: z.number(),
     players: z.array(ScrimPlayerSchema),

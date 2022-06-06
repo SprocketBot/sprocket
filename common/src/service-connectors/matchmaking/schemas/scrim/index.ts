@@ -13,3 +13,4 @@ export * from "./JoinScrim.schema";
 export * from "./LeaveScrim.schema";
 export * from "./QueueStatus.schema";
 export * from "./RatifyScrim.schema";
+export * from "./SetScrimLocked.schema";
