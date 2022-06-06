@@ -49,15 +49,13 @@
                         scrimsLocked = !scrimsLocked;
                     }}
                 >
-                    {#if scrimsLocked}
-                        <span class="h-6">
+                    <span class="h-6">
+                        {#if scrimsLocked}
                             <FaLock />
-                        </span>
-                    {:else}
-                        <span class="h-6">
+                        {:else}
                             <FaLockOpen />
-                        </span>
-                    {/if}
+                        {/if}
+                    </span>
                 </button>
             </th>
         </tr>
