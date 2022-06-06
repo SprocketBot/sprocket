@@ -16,6 +16,13 @@ export class CommandManagerService {
     private _commands = new Map<string, LinkedCommandMeta>();
 
     /**
+     * List of all registered command not found hooks
+     */
+    private _commandNotFoundHooks = new Set<LinkedCommandNotFoundMeta>();
+
+    private readonly _logger = new Logger(CommandManagerService.name);
+
+    /**
      * Gets all non-alias command specs. Useful when displaying command metadata
      * to users. Should not be used for executing a command, instead use {@link handleMessage}.
      */
@@ -23,13 +30,6 @@ export class CommandManagerService {
         const values = [...this._commands.values()];
         return values.filter(v => !v.isAlias).map(meta => meta.spec);
     }
-
-    /**
-     * List of all registered command not found hooks
-     */
-    private _commandNotFoundHooks = new Set<LinkedCommandNotFoundMeta>();
-
-    private readonly _logger = new Logger(CommandManagerService.name);
 
     /**
      * Given some discord message, runs all hooks that match it
@@ -122,7 +122,7 @@ export class CommandManagerService {
      */
     private extractCommandName(message: string): string | undefined {
         let commandKey = message.split(" ")[0].toLowerCase();
-        
+
         const prefix = config.has("bot.prefix") ? `${config.get("bot.prefix")}` : "";
         if (commandKey.startsWith(prefix)) {
             commandKey = commandKey.slice(prefix.length);

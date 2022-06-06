@@ -3,7 +3,6 @@ import type {z} from "zod";
 import type {ResponseStatus} from "../../global.types";
 import * as Schemas from "./schemas";
 
-
 export enum ImageGenerationEndpoint {
     // Scrim
     GenerateImage = "GenerateImage",

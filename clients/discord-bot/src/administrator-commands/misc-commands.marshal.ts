@@ -1,15 +1,15 @@
 import {Logger} from "@nestjs/common";
 import {Message} from "discord.js";
-import type {CommandErrorType} from "src/marshal/command-error";
-import {CommandError} from "src/marshal/command-error";
 
 import {
     Command, Marshal, MarshalCommandContext,
 } from "../marshal";
+import type {CommandErrorType} from "../marshal/command-error";
+import {CommandError} from "../marshal/command-error";
 
 export class MiscCommandsMarshal extends Marshal {
     private readonly logger = new Logger(MiscCommandsMarshal.name);
-    
+
     @Command({
         name: "ping",
         docs: "A noop command to check if the bot is up",
@@ -53,7 +53,7 @@ export class MiscCommandsMarshal extends Marshal {
     })
     async embed(m: Message, c: MarshalCommandContext): Promise<void> {
         const orgId = c.args.orgId as number;
-        
+
         const embed = await this.embedService.embed({
             title: "My Embed Title",
             description: "My Embed DescriptionLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sodales ex et nibh volutpat, vel mattis magna feugiat.",

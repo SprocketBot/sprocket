@@ -13,7 +13,6 @@ import {
     Wizard, WizardExitStatus, WizardType,
 } from "../marshal/wizard";
 
-
 export class DebugCommandsMarshal extends Marshal {
     private readonly logger = new Logger(DebugCommandsMarshal.name);
 
@@ -83,7 +82,6 @@ export class DebugCommandsMarshal extends Marshal {
             },
         ];
 
-
         const baseInteractionHandler = async (interaction: MessageComponentInteraction): Promise<WizardFunctionOutput> => {
             await response.reactions.removeAll();
             // Acknowledge it
@@ -123,7 +121,6 @@ export class DebugCommandsMarshal extends Marshal {
         await response.edit({
             components: [actionRow],
         });
-
 
         await wizard.start();
     }

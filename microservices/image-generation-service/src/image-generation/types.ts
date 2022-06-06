@@ -48,7 +48,6 @@ export const sprocketDataSchema = z.array(z.union([
 ]));
 export type SprocketData = z.infer<typeof sprocketDataSchema>;
 
-
 export const dataForLinkType = {
     "text": ["text", "number"],
     "number": ["text", "number"],

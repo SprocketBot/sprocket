@@ -1,9 +1,9 @@
-/* eslint-disable no-console, @typescript-eslint/no-magic-numbers */
+/* eslint-disable no-console, @typescript-eslint/no-magic-numbers, @typescript-eslint/no-unsafe-assignment */
 import type {TestingModule} from "@nestjs/testing";
 import {Test} from "@nestjs/testing";
+import {config as appConfig} from "@sprocketbot/common";
 import type {Message} from "discord.js";
 
-import {appConfig} from "../../util/config";
 import type {LinkedCommandMeta} from "..";
 import {CommandManagerService} from "./command-manager.service";
 
@@ -143,7 +143,7 @@ describe("CommandManagerService", () => {
             function: commandFunction,
             functionName: "functionName",
         });
-        
+
         const mockedMessage = {content: `${botPrefix}${name}`} as Message;
         await service.handleMessage(mockedMessage);
         expect(commandFunction).toBeCalledTimes(1);
@@ -172,7 +172,7 @@ describe("CommandManagerService", () => {
             function: commandFunction,
             functionName: "functionName",
         });
-        
+
         const stringArg = "stringArg";
         const stringArgWithSpaces = "stringArg with spaces";
         const mockedMessage = {content: `${botPrefix}${name} ${stringArg} "${stringArgWithSpaces}"`} as Message;
@@ -249,7 +249,7 @@ describe("CommandManagerService", () => {
                 function: async () => {},
                 functionName: "functionName",
             };
-            
+
             const command2: LinkedCommandMeta = {
                 spec: {
                     name: name,

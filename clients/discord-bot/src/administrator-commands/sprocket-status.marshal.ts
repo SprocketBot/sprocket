@@ -1,10 +1,12 @@
 import {Logger} from "@nestjs/common";
 import type {MessageComponentInteraction, TextChannel} from "discord.js";
 import {Message} from "discord.js";
-import {Command, Marshal} from "src/marshal";
-import {Wizard} from "src/marshal/wizard";
-import type {WizardFunctionOutput} from "src/marshal/wizard/wizard.types";
-import {WizardExitStatus, WizardType} from "src/marshal/wizard/wizard.types";
+
+import {Command, Marshal} from "../marshal";
+import type {WizardFunctionOutput} from "../marshal/wizard";
+import {
+    Wizard, WizardExitStatus, WizardType,
+} from "../marshal/wizard";
 
 export class SprocketStatusMarshal extends Marshal {
     private readonly logger = new Logger(SprocketStatusMarshal.name);
@@ -54,7 +56,7 @@ export class SprocketStatusMarshal extends Marshal {
             });
 
             messagesToDelete.push(await m.channel.send("Enter a description for the status message."));
-            
+
             return [WizardExitStatus.SUCCESS];
         });
 
@@ -64,7 +66,7 @@ export class SprocketStatusMarshal extends Marshal {
 
             messageEmbed.description = content;
             await previewMessage.delete();
-            
+
             confirmationPreview = await m.channel.send({
                 embeds: [messageEmbed],
                 components: [
@@ -84,7 +86,7 @@ export class SprocketStatusMarshal extends Marshal {
                                 customId: "cancel",
                             },
                         ],
-            
+
                     },
                 ],
             });

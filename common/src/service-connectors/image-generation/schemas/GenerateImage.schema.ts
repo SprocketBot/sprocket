@@ -24,7 +24,6 @@ export const dataLeafSchema = z.union([
 ]);
 export type DataLeaf = z.infer<typeof dataLeafSchema>;
 
-
 /**
  * Recursive type that describes the JSON Object Tree with DataLeaf Nodes
  */

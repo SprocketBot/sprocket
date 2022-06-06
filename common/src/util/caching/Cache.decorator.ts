@@ -23,7 +23,6 @@ export interface CacheOptions {
     transformers?: Record<string, (a: any) => string>;
 }
 
-
 let redisClient: Redis | undefined;
 async function getRedisClient(): Promise<Redis> {
     if (!redisClient) {
@@ -72,7 +71,6 @@ export const Cache: (co: CacheOptions) => MethodDecorator = ({ttl, transformers}
                 if (!args[keyIndex].toString) throw new Error("CacheKey value must have a transformer or toString function");
                 return args[keyIndex].toString();
             });
-
 
             // Smash all the cache keys together and make one big redis key
             const key = createKey(target.constructor.name, propertyKey.toString(), cacheValues);

@@ -11,6 +11,6 @@ export class ValidationService {
     ) {}
 
     async validate(submissionId: string): Promise<boolean> {
-        return true;
+        return Boolean(submissionId);
     }
 }

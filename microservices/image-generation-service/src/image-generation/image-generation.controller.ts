@@ -8,7 +8,6 @@ import {ImageGenerationEndpoint, ImageGenerationSchemas} from "@sprocketbot/comm
 
 import {ImageGenerationService} from "./image-generation.service";
 
-
 @Controller(ImageGenerationEndpoint.GenerateImage)
 export class ImageGenerationController {
     private logger = new Logger(ImageGenerationController.name);

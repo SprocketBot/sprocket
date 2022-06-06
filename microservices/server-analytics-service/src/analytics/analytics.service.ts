@@ -30,8 +30,6 @@ export class AnalyticsService {
             this.logger.log("Flushed InfluxDB Points");
         }, flushThrottle);
     }
-
-
     
     createPoint = (data: ServerEvent): void => {
         try {

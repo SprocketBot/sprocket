@@ -11,7 +11,6 @@ export enum Parser {
     BALLCHASING = "ballchasing",
 }
 
-
 export const ParseReplay_Response = z.object({
     parser: z.nativeEnum(Parser),
     outputPath: z.string(),

@@ -5,7 +5,6 @@ import {readFile} from "fs/promises";
 import {MarshalModule} from "../marshal";
 import {DiscordService} from "./discord.service";
 
-
 @Module({
     imports: [
         MarshalModule,
