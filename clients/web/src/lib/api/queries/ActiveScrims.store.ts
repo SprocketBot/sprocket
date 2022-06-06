@@ -58,6 +58,10 @@ export class ActiveScrimsStore extends LiveQueryStore<ActiveScrimsStoreValue, Ac
                 name
                 checkedIn
             }
+            playersAdmin {
+                id
+                name
+            }
             games {
                 teams {
                     players {
@@ -89,6 +93,10 @@ export class ActiveScrimsStore extends LiveQueryStore<ActiveScrimsStoreValue, Ac
                     id 
                     name
                     checkedIn
+                }
+                playersAdmin {
+                    id
+                    name
                 }
                 games {
                     teams {

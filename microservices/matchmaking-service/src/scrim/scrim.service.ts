@@ -275,7 +275,7 @@ export class ScrimService {
         }
 
         if (locked) {
-            await this.scrimCrudService.updateScrimUnlockedStatus(scrimId, scrim.status);
+            if (scrim.unlockedStatus !== ScrimStatus.LOCKED) await this.scrimCrudService.updateScrimUnlockedStatus(scrimId, scrim.status);
             scrim.status = ScrimStatus.LOCKED;
         } else scrim.status = scrim.unlockedStatus ?? ScrimStatus.IN_PROGRESS;
         await this.scrimCrudService.updateScrimStatus(scrimId, scrim.status);
