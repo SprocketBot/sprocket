@@ -199,6 +199,16 @@ export class ScrimModuleResolver {
         return this.scrimService.cancelScrim(scrimId) as Promise<Scrim>;
     }
 
+    @Mutation(() => Boolean)
+    async lockScrim(@Args("scrimId") scrimId: string): Promise<boolean> {
+        return this.scrimService.setScrimLocked(scrimId, true);
+    }
+
+    @Mutation(() => Boolean)
+    async unlockScrim(@Args("scrimId") scrimId: string): Promise<boolean> {
+        return this.scrimService.setScrimLocked(scrimId, false);
+    }
+
     /*
      *
      * Subscriptions

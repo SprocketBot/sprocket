@@ -3,7 +3,6 @@ import type {z} from "zod";
 import type {ResponseStatus} from "../../global.types";
 import * as Schemas from "./schemas";
 
-
 export enum MatchmakingEndpoint {
     // Scrim
     GetQueueStatus = "GetQueueStatus",
@@ -19,6 +18,7 @@ export enum MatchmakingEndpoint {
     CompleteScrim = "CompleteScrim",
     GetScrimBySubmissionId = "GetScrimBySubmissionId",
     CancelScrim = "CancelScrim",
+    SetScrimLocked = "SetScrimLocked",
 
     // Validation
     ValidateReplays = "ValidateReplays",
@@ -78,6 +78,10 @@ export const MatchmakingSchemas = {
     [MatchmakingEndpoint.CancelScrim]: {
         input: Schemas.CancelScrim_Request,
         output: Schemas.CancelScrim_Response,
+    },
+    [MatchmakingEndpoint.SetScrimLocked]: {
+        input: Schemas.SetScrimLocked_Request,
+        output: Schemas.SetScrimLocked_Response,
     },
     // Validation
     [MatchmakingEndpoint.ValidateReplays]: {

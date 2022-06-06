@@ -7,12 +7,16 @@ import {ScrimStatus} from "@sprocketbot/common";
 import {
     GameMode, GameSkillGroup,
 } from "../database";
+import {MLE_OrganizationTeam} from "../database/mledb";
 import {GameSkillGroupService} from "../franchise";
 import {GameModeService} from "../game";
+import {GqlJwtGuard} from "../identity/auth/gql-auth-guard";
+import {MLEOrganizationTeamGuard} from "../mledb";
 import {OrGuard} from "../util/or.guard";
 import {ScrimResolverPlayerGuard} from "./scrim.guard";
-import type {ScrimPlayer} from "./types";
-import {Scrim, ScrimLobby} from "./types";
+import {
+    Scrim, ScrimLobby, ScrimPlayer,
+} from "./types";
 
 @Resolver(() => Scrim)
 export class ScrimResolver {
@@ -24,6 +28,12 @@ export class ScrimResolver {
     @ResolveField()
     players(@Root() scrim: Scrim): undefined | ScrimPlayer[] {
         if (scrim.status === ScrimStatus.PENDING) return undefined;
+        return scrim.players ?? [];
+    }
+
+    @ResolveField(() => [ScrimPlayer])
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    playersAdmin(@Root() scrim: Scrim): undefined | ScrimPlayer[] {
         return scrim.players ?? [];
     }
 

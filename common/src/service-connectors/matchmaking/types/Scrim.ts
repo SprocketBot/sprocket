@@ -50,11 +50,18 @@ export enum ScrimStatus {
      * Players will be queue banned and scrim will be removed
      */
     CANCELLED = "CANCELLED",
+
+    /**
+     * A locked scrim has manually been moved to this state by a support member,
+     * and needs to be handled by a support team member
+     */
+    LOCKED = "LOCKED",
 }
 
 export const ScrimSchema = z.object({
     id: z.string().uuid(),
     status: z.nativeEnum(ScrimStatus),
+    unlockedStatus: z.nativeEnum(ScrimStatus).optional(),
 
     organizationId: z.number(),
     players: z.array(ScrimPlayerSchema),
@@ -71,6 +78,5 @@ export const ScrimSchema = z.object({
 
     timeoutJobId: z.number().optional(),
 });
-
 
 export type Scrim = z.infer<typeof ScrimSchema>;

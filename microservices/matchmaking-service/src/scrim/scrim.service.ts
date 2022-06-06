@@ -268,6 +268,31 @@ export class ScrimService {
         await this.publishScrimUpdate(scrimId);
     }
 
+    async setScrimLocked(scrimId: string, locked: boolean): Promise<boolean> {
+        const scrim = await this.scrimCrudService.getScrim(scrimId);
+        if (!scrim) {
+            throw new RpcException("Scrim not found");
+        }
+
+        if (locked) {
+            if (scrim.unlockedStatus !== ScrimStatus.LOCKED) await this.scrimCrudService.updateScrimUnlockedStatus(scrimId, scrim.status);
+            scrim.status = ScrimStatus.LOCKED;
+        } else scrim.status = scrim.unlockedStatus ?? ScrimStatus.IN_PROGRESS;
+        await this.scrimCrudService.updateScrimStatus(scrimId, scrim.status);
+
+        this.analyticsService.send(AnalyticsEndpoint.Analytics, {
+            name: `scrimLockStatusUpdated`,
+            tags: [
+                ["scrimId", scrim.id],
+                ["status", locked ? "locked" : "unlocked"],
+            ],
+        }).catch(err => { this.logger.error(err) });
+
+        await this.publishScrimUpdate(scrimId);
+
+        return true;
+    }
+
     private async publishScrimUpdate(scrimId: string): Promise<Scrim> {
         const scrim = await this.scrimCrudService.getScrim(scrimId);
         if (!scrim) throw new Error("Unexpected null scrim found");
