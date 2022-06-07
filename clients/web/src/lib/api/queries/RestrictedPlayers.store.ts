@@ -117,7 +117,7 @@ export class RestrictedPlayersStore extends LiveQueryStore<RestrictedPlayersStor
             // operation would be appreciated ;). 
             const {eventType, ...memberRestriction} = message.data.followRestrictedMembers;
 
-            switch (message.data.followRestrictedMembers.eventType) {
+            switch (eventType) {
                 case MemberRestrictionEventType.RESTRICTED:
                     this.currentValue.data.getActiveMemberRestrictions.push(memberRestriction);
                     break;
