@@ -11,7 +11,7 @@
     let joining: boolean = false;
 
     async function joinSolo() {
-        joiningAsGroup = false;
+        joiningWithExistingGroup = false;
         joining = true;
         await joinScrimMutation({
             scrimId: scrimId,
