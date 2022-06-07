@@ -31,8 +31,8 @@
                 Scrim
             </button>
         </div>
-        <div class="w-full">
-            <p class="italics text-opacity-80 text-lg">Details:</p>
+        <div class="w-full mb-4">
+            <h3>Scrim Details:</h3>
             <dl>
                 <dt>Scrim Type:</dt>
                 <dd>{screamingSnakeToHuman(scrim.settings.mode)}</dd>
@@ -40,6 +40,22 @@
                 <dd>{scrim.gameMode.description}</dd>
             </dl>
         </div>
+        {#if scrim.currentGroup}
+        <div class='w-full'>
+            <h3>You are currently in a group</h3>
+            <div class='flex gap-4 items-center'>
+                <p>Share this code with your friends so they can join your group</p>
+                <span class='inline-block px-4 py-2 text-2xl text-primary/80 bg-base-200/60 rounded-lg'>{scrim.currentGroup.code}</span>
+            </div>
+            <div>
+                <p>Other players in your group:</p>
+                {#each scrim.currentGroup.players as p}
+                    <p>{p}</p>
+                {/each}
+            </div>
+
+        </div>
+        {/if}
     </div>
 
     <ScrimFullIndicator/>
@@ -50,16 +66,20 @@
     h2 {
         @apply text-2xl font-bold text-primary;
     }
+    h3 {
+        @apply italic text-opacity-80 text-xl;
+    }
+
 
     dl {
         @apply text-lg lg:text-base;
 
         dt {
-            @apply font-bold float-left clear-both mr-2;
+            @apply font-bold mr-2;
         }
 
         dd {
-            @apply float-left;
+
         }
 
     }

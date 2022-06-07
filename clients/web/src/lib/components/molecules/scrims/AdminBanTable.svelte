@@ -1,9 +1,9 @@
 <script lang="ts">
     import {
-        restrictedPlayers, type MemberRestrictionEvent, expireRestrictionMutation,
+        restrictedPlayers, type MemberRestriction, expireRestrictionMutation,
     } from "$lib/api";
 
-    let restrictedPlayersData: MemberRestrictionEvent[] | undefined;
+    let restrictedPlayersData: MemberRestriction[] | undefined;
     $: restrictedPlayersData = $restrictedPlayers?.data?.getActiveMemberRestrictions;
 
     async function cancelRestriction(id: number) {
@@ -31,7 +31,7 @@
         {#if restrictedPlayersData}
             {#each restrictedPlayersData as restrictionEvent (restrictionEvent.id)}
                 <tr>
-                    <td>{restrictionEvent.restriction.member.profile.name}</td>
+                    <td>{restrictionEvent.member.profile.name}</td>
                     <td>{restrictionEvent.id}</td>
                     <td>
                         <button class="btn btn-outline lg:btn-sm" on:click={async () => unbanThisPlayer(restrictionEvent.id) }>

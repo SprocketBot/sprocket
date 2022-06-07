@@ -55,6 +55,7 @@ export class FinalizationService {
             .catch(async e => {
                 await runner.rollbackTransaction();
                 this.logger.error(e);
+                throw e;
             });
     }
 

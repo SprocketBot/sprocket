@@ -109,7 +109,7 @@ export class ReplaySubmissionService {
         // If a submission already exists without items, just return that
         const alreadySubmission = await this.redisService.getIfExists<ReplaySubmission>(key);
         if (alreadySubmission && !alreadySubmission.items.length) return alreadySubmission;
-        
+
         const isScrim = this.isScrimSubmission(submissionId);
         const isMatch = this.isMatchSubmission(submissionId);
 
@@ -198,8 +198,15 @@ export class ReplaySubmissionService {
             if (!ratified) return true;
 
             this.logger.log(`scrim ${scrim.id} ratified!`);
-
-            await this.finalizationService.saveScrimToDatabase(await this.getSubmission(submissionId), submissionId);
+            try {
+                await this.finalizationService.saveScrimToDatabase(await this.getSubmission(submissionId), submissionId);
+            } catch (e) {
+                this.logger.warn("Error saving scrim!");
+                // TODO: What needs to be done in this situation?
+                // for now, send it back to in progress so somebody else can upload replays.
+                // We _really_ need a way of notifying members of a scrim certain things
+                await this.scrimService.resetScrim(scrim.id);
+            }
 
             await this.matchmakingService.send(MatchmakingEndpoint.CompleteScrim, {
                 scrimId: scrim.id,
@@ -209,7 +216,7 @@ export class ReplaySubmissionService {
             await this.removeSubmission(submissionId);
 
             this.logger.debug(`Submission ${submissionId} completed and removed`);
-            
+
             return true;
         } else if (this.isMatchSubmission(submissionId)) {
             throw new Error("Submitting replays for matches is not implemented yet");
@@ -236,7 +243,7 @@ export class ReplaySubmissionService {
             // Add rejection
             await this.addRejection(submissionId, playerId, reason);
             await this.clearItems(submissionId);
-            
+
             // Reset scrim to allow re-submission
             await this.scrimService.resetScrim(scrim.id, playerId);
 
