@@ -63,7 +63,7 @@
             <button on:click={joinAsNewGroup} disabled={joining}>Create group</button>
             <button on:click={() => { joiningAsGroup = !joiningAsGroup }} disabled={joining}>Join group</button>
         </div>
-        {#if joiningAsGroup}
+        {#if joiningWithExistingGroup}
             <div class='flex items-center gap-2' transition:slide>
                 <h3 class='flex-1'>Enter Group Code</h3>
                 <input bind:value={groupCode} class='input input-bordered text-primary w-20' placeholder='Code'/> <button on:click={joinExistingGroup}>Join</button>
