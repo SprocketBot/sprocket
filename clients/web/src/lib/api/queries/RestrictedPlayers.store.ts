@@ -115,16 +115,7 @@ export class RestrictedPlayersStore extends LiveQueryStore<RestrictedPlayersStor
             // here in the front end, as my store value is just an array of
             // MemberRestrictions. Any help with a slick syntax to do this below
             // operation would be appreciated ;). 
-            const memberRestriction = {
-                id: message.data.followRestrictedMembers.id,
-                type: message.data.followRestrictedMembers.type,
-                expiration: message.data.followRestrictedMembers.expiration,
-                reason: message.data.followRestrictedMembers.reason,
-                member: message.data.followRestrictedMembers.member,
-                manualExpiration: message.data.followRestrictedMembers.manualExpiration,
-                manualExpirationReason: message.data.followRestrictedMembers.manualExpirationReason,
-                memberId: message.data.followRestrictedMembers.memberId,
-            };
+            const {eventType, ...memberRestriction} = message.data.followRestrictedMembers;
 
             switch (message.data.followRestrictedMembers.eventType) {
                 case MemberRestrictionEventType.RESTRICTED:
