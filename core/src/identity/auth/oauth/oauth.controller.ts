@@ -76,6 +76,7 @@ export class OauthController {
             const player = await this.mledbUserService.getPlayerByDiscordId(discordAccount.accountId);
             const player_to_orgs = await this.mledbUserService.getPlayerOrgs(player);
             const orgs = player_to_orgs.map(pto => pto.orgTeam);
+            console.log(orgs);
             const payload: AuthPayload = {
                 sub: discordAccount.accountId,
                 username: userProfile.displayName,
@@ -83,8 +84,9 @@ export class OauthController {
                 currentOrganizationId: 1,
                 orgTeams: orgs,
             };
+            console.log(payload);
             const token = await this.authService.loginDiscord(payload);
-
+            console.log(token.access_token);
             res.redirect(`${config.auth.frontend_callback}?token=${token.access_token}`);
             return;
         }

@@ -100,6 +100,9 @@ export class MemberService {
                     case EventTopic.MemberRestrictionCreated:
                         this.pubsub.publish(this.restrictedMembersSubTopic, {followRestrictedMembers: v.payload}).catch(this.logger.error.bind(this.logger));
                         break;
+                    case EventTopic.MemberRestrictionExpired:
+                        this.pubsub.publish(this.restrictedMembersSubTopic, {followRestrictedMembers: v.payload}).catch(this.logger.error.bind(this.logger));
+                        break;
                     default: {
                         break;
                     }
