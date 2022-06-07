@@ -5,7 +5,6 @@ import {
 } from "@sprocketbot/common";
 
 import {MemberService} from "./member.service";
-import type {MemberRestriction} from "./member.types";
 
 @Injectable()
 export class MemberEventSubscriber {
@@ -27,6 +26,6 @@ export class MemberEventSubscriber {
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (d.topic !== EventTopic.MemberRestrictionCreated) return;
 
-        await this.memberService.sendQueueBanNotification(d.payload.restriction as MemberRestriction).catch(e => { this.logger.error(e) });
+        await this.memberService.sendQueueBanNotification(d.payload).catch(e => { this.logger.error(e) });
     };
 }

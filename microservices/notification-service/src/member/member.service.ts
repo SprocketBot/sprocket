@@ -1,12 +1,14 @@
 import {Injectable, Logger} from "@nestjs/common";
+import type {MemberRestriction} from "@sprocketbot/common";
 import {
     BotEndpoint,
-    BotService, CoreEndpoint, CoreService, ResponseStatus,
+    BotService,
+    CoreEndpoint,
+    CoreService,
+    MemberRestrictionType,
+    ResponseStatus,
 } from "@sprocketbot/common";
 import {format, utcToZonedTime} from "date-fns-tz";
-
-import type {MemberRestriction} from "./member.types";
-import {MemberRestrictionType} from "./member.types";
 
 @Injectable()
 export class MemberService {
@@ -31,7 +33,7 @@ export class MemberService {
             userId: userResult.data,
             content: {
                 embeds: [ {
-                    title: "You have been queue banned!",
+                    title: "You've Been Queue Banned",
                     fields: [
                         {
                             name: "Reason",
