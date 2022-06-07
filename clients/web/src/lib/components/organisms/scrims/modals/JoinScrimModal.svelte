@@ -20,7 +20,7 @@
     }
 
     async function joinAsNewGroup() {
-        joiningAsGroup = false;
+        joiningWithExistingGroup = false;
         joining = true;
         await joinScrimMutation({
             scrimId: scrimId,
