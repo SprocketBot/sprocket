@@ -205,10 +205,7 @@ export class ReplaySubmissionService {
                 // TODO: What needs to be done in this situation?
                 // for now, send it back to in progress so somebody else can upload replays.
                 // We _really_ need a way of notifying members of a scrim certain things
-                await this.matchmakingService.send(MatchmakingEndpoint.ForceUpdateScrimStatus, {
-                    scrimId: scrim.id,
-                    status: ScrimStatus.IN_PROGRESS,
-                });
+                await this.scrimService.resetScrim(scrim.id);
             }
 
             await this.matchmakingService.send(MatchmakingEndpoint.CompleteScrim, {
