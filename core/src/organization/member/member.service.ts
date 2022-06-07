@@ -96,9 +96,16 @@ export class MemberService {
                     return;
                 }
 
+                const payload = {eventType: 0, ...v.payload};
+
                 switch (v.topic as EventTopic) {
                     case EventTopic.MemberRestrictionCreated:
-                        this.pubsub.publish(this.restrictedMembersSubTopic, {followRestrictedMembers: v.payload}).catch(this.logger.error.bind(this.logger));
+                        payload.eventType = 1;
+                        this.pubsub.publish(this.restrictedMembersSubTopic, {followRestrictedMembers: payload}).catch(this.logger.error.bind(this.logger));
+                        break;
+                    case EventTopic.MemberRestrictionExpired:
+                        payload.eventType = 2;
+                        this.pubsub.publish(this.restrictedMembersSubTopic, {followRestrictedMembers: payload}).catch(this.logger.error.bind(this.logger));
                         break;
                     default: {
                         break;

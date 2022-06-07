@@ -5,16 +5,7 @@ import {
 } from "../../database";
 
 @ObjectType()
-export class MemberRestrictionEvent {
-    @Field(() => Number)
-    id: number;
-
+export class MemberRestrictionEvent extends MemberRestriction {
     @Field(() => Number)
     eventType: number;
-
-    @Field(() => String)
-    message: string;
-
-    @Field(() => MemberRestriction)
-    restriction: MemberRestriction;
 }
