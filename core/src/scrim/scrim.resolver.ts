@@ -10,10 +10,12 @@ import {
 import {MLE_OrganizationTeam} from "../database/mledb";
 import {GameSkillGroupService} from "../franchise";
 import {GameModeService} from "../game";
+import {CurrentUser, UserPayload} from "../identity";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../mledb";
 import {OrGuard} from "../util/or.guard";
 import {ScrimResolverPlayerGuard} from "./scrim.guard";
+import type {ScrimGroup} from "./types";
 import {
     Scrim, ScrimLobby, ScrimPlayer,
 } from "./types";
@@ -45,6 +47,16 @@ export class ScrimResolver {
     @ResolveField()
     maxPlayers(@Root() scrim: Scrim): number {
         return scrim.settings.teamCount * scrim.settings.teamSize;
+    }
+
+    @ResolveField(() => String, {nullable: true})
+    currentGroup(@Root() scrim: Scrim, @CurrentUser() user: UserPayload): ScrimGroup | undefined {
+        const code = scrim.players?.find(p => p.id === user.userId)?.group;
+        if (!code) return undefined;
+        return {
+            code: code,
+            players: scrim.players!.filter(p => p.group === code && p.id !== user.userId).map(p => p.name),
+        };
     }
 
     @ResolveField(() => ScrimLobby, {nullable: true})

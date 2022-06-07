@@ -3,7 +3,7 @@ import {BaseStore} from "$lib/api/core/BaseStore";
 
 export interface Toast {
     content: string;
-    status: "info";
+    status: "info" | "error";
     id?: string;
 }
 
