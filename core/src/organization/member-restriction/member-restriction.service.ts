@@ -1,7 +1,6 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {EventsService, EventTopic} from "@sprocketbot/common";
-import {MemberRestrictionEventType} from "@sprocketbot/common/lib/service-connectors/member";
 import type {
     FindConditions, FindManyOptions, FindOneOptions,
 } from "typeorm";
@@ -40,14 +39,14 @@ export class MemberRestrictionService {
         await this.memberRestrictionRepository.save(memberRestriction);
 
         // This is the message we'll send to the front end about the ban
-        const eventPayload = {
-            id: memberRestriction.id,
-            eventType: MemberRestrictionEventType.RESTRICTED,
-            message: "Member restricted",
-            restriction: memberRestriction,
-        };
+        // const eventPayload = {
+        //     id: memberRestriction.id,
+        //     eventType: MemberRestrictionEventType.RESTRICTED,
+        //     message: "Member restricted",
+        //     restriction: memberRestriction,
+        // };
 
-        await this.eventsService.publish(EventTopic.MemberRestrictionCreated, eventPayload);
+        await this.eventsService.publish(EventTopic.MemberRestrictionCreated, memberRestriction);
 
         return memberRestriction;
     }
@@ -92,14 +91,14 @@ export class MemberRestrictionService {
 
         // This is the message we'll send to the front end about the manual
         // expiration
-        const eventPayload = {
-            id: memberRestriction.id,
-            eventType: MemberRestrictionEventType.UNRESTRICTED,
-            message: "Member restriction manually expired",
-            restriction: memberRestriction,
-        };
+        // const eventPayload = {
+        //     id: memberRestriction.id,
+        //     eventType: MemberRestrictionEventType.UNRESTRICTED,
+        //     message: "Member restriction manually expired",
+        //     restriction: memberRestriction,
+        // };
 
-        await this.eventsService.publish(EventTopic.MemberRestrictionCreated, eventPayload);
+        await this.eventsService.publish(EventTopic.MemberRestrictionExpired, memberRestriction);
         return memberRestriction;
     }
 }

@@ -84,7 +84,6 @@ export class OauthController {
                 orgTeams: orgs,
             };
             const token = await this.authService.loginDiscord(payload);
-
             res.redirect(`${config.auth.frontend_callback}?token=${token.access_token}`);
             return;
         }

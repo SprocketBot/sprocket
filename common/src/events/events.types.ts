@@ -1,7 +1,7 @@
 import {z} from "zod";
 
+import {MemberRestrictionSchema} from "../service-connectors/core";
 import {ScrimMetricsSchema, ScrimSchema} from "../service-connectors/matchmaking";
-import {MemberRestrictionEventSchema} from "../service-connectors/member";
 
 export enum EventTopic {
     // Scrims
@@ -21,6 +21,8 @@ export enum EventTopic {
     // Member
     AllMemberEvents = "member.*",
     MemberRestrictionCreated = "member.restrictionCreated",
+    MemberRestrictionExpired = "member.restrictionExpired",
+
 }
 
 export const EventTopicSchema = z.preprocess(v => {
@@ -48,11 +50,12 @@ export const EventSchemas = {
     // Submission Events
     [EventTopic.SubmissionStarted]: z.object({submissionId: z.string()}),
     // Member Events
-    [EventTopic.MemberRestrictionCreated]: MemberRestrictionEventSchema,
+    [EventTopic.MemberRestrictionCreated]: MemberRestrictionSchema,
+    [EventTopic.MemberRestrictionExpired]: MemberRestrictionSchema,
     [EventTopic.AllMemberEvents]: z.union([
         z.number(),
         z.string().uuid(),
-        MemberRestrictionEventSchema,
+        MemberRestrictionSchema,
     ]),
 
 };
