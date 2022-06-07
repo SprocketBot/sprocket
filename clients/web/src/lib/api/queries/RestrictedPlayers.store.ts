@@ -20,32 +20,30 @@ interface Member {
     profile: MemberProfile;
 }
 
-export interface MemberRestrictionEvent {
+export interface MemberRestriction {
     id: number;
 
+    type: MemberRestrictionType;
+
+    expiration: Date;
+
+    reason: string;
+
+    member: Member;
+
+    manualExpiration?: Date;
+
+    manualExpirationReason?: string;
+
+    memberId: number;
+}
+
+export interface MemberRestrictionEvent extends MemberRestriction{
     eventType: number;
-
-    message?: string;
-
-    restriction: {
-        type: MemberRestrictionType;
-
-        expiration: Date;
-
-        reason: string;
-
-        member: Member;
-
-        manualExpiration?: Date;
-
-        manualExpirationReason?: string;
-
-        memberId: number;
-    };
 }
 
 export interface RestrictedPlayersStoreValue {
-    getActiveMemberRestrictions: MemberRestrictionEvent[];
+    getActiveMemberRestrictions: MemberRestriction[];
 }
 
 export interface RestrictedPlayersSubscriptionValue {
@@ -66,6 +64,8 @@ export class RestrictedPlayersStore extends LiveQueryStore<RestrictedPlayersStor
                 type
                 expiration
                 reason
+                manualExpiration
+                manualExpirationReason
                 member {
                     profile {
                         name
@@ -80,18 +80,17 @@ export class RestrictedPlayersStore extends LiveQueryStore<RestrictedPlayersStor
             followRestrictedMembers {
                 id
                 eventType
-                message
-                restriction {
-                    type
-                    expiration
-                    reason
-                    member {
-                        profile {
-                            name
-                        }
+                type
+                expiration
+                reason
+                manualExpiration
+                manualExpirationReason
+                member {
+                    profile {
+                        name
                     }
-                    memberId
                 }
+                memberId
             }
         }
     `;
@@ -110,12 +109,29 @@ export class RestrictedPlayersStore extends LiveQueryStore<RestrictedPlayersStor
                 return;
             }
 
+            // In the backend, we spread to create the event
+            // MemberRestrictionEvent = {eventType: 1, ...MemberRestriction}
+            // I don't know of a way to invert that operation, but I need to
+            // here in the front end, as my store value is just an array of
+            // MemberRestrictions. Any help with a slick syntax to do this below
+            // operation would be appreciated ;). 
+            const memberRestriction = {
+                id: message.data.followRestrictedMembers.id,
+                type: message.data.followRestrictedMembers.type,
+                expiration: message.data.followRestrictedMembers.expiration,
+                reason: message.data.followRestrictedMembers.reason,
+                member: message.data.followRestrictedMembers.member,
+                manualExpiration: message.data.followRestrictedMembers.manualExpiration,
+                manualExpirationReason: message.data.followRestrictedMembers.manualExpirationReason,
+                memberId: message.data.followRestrictedMembers.memberId,
+            };
+
             switch (message.data.followRestrictedMembers.eventType) {
                 case MemberRestrictionEventType.RESTRICTED:
-                    this.currentValue.data.getActiveMemberRestrictions.push(message.data.followRestrictedMembers);
+                    this.currentValue.data.getActiveMemberRestrictions.push(memberRestriction);
                     break;
                 case MemberRestrictionEventType.UNRESTRICTED:
-                    this.currentValue.data.getActiveMemberRestrictions = this.currentValue.data.getActiveMemberRestrictions.filter(s => s.id !== message.data?.followRestrictedMembers.id);
+                    this.currentValue.data.getActiveMemberRestrictions = this.currentValue.data.getActiveMemberRestrictions.filter(s => s.id !== memberRestriction.id);
                     break;
                 default:
                     console.log("This path shouldn't be hit.");
