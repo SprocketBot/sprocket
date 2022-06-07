@@ -98,7 +98,7 @@ export class MemberRestrictionService {
         //     restriction: memberRestriction,
         // };
 
-        await this.eventsService.publish(EventTopic.MemberRestrictionCreated, memberRestriction);
+        await this.eventsService.publish(EventTopic.MemberRestrictionExpired, memberRestriction);
         return memberRestriction;
     }
 }
