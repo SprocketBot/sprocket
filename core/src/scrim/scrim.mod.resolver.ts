@@ -80,7 +80,7 @@ export class ScrimModuleResolver {
         }) status?: ScrimStatus,
     ): Promise<Scrim[]> {
         if (!user.currentOrganizationId) throw new GraphQLError("Player is not connected to an organization");
-        
+
         const scrims = await this.scrimService.getAllScrims();
         if (status) return scrims.filter(s => s.status === status) as Scrim[];
         return scrims.filter(s => s.organizationId === user.currentOrganizationId) as Scrim[];
@@ -175,7 +175,12 @@ export class ScrimModuleResolver {
 
         if (player.skillGroupId !== scrim.skillGroupId) throw new GraphQLError("Player is not in the correct skill group");
 
-        return this.scrimService.joinScrim(this.userToScrimPlayer(user), scrimId, group);
+        try {
+            return await this.scrimService.joinScrim(this.userToScrimPlayer(user), scrimId, group);
+        } catch (e) {
+            throw new GraphQLError((e as Error).message);
+        }
+
     }
 
     @Mutation(() => Boolean)

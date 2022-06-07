@@ -46,7 +46,7 @@ export class ScrimGroupService {
             if (!this.canCreateNewGroup(scrim)) {
                 throw new RpcException("This scrim cannot hold any more groups");
             }
-            output = nanoid(5);
+            output = nanoid(5).toLowerCase();
         }
         return output;
     }

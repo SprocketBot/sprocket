@@ -20,9 +20,21 @@ export class ScrimGameMode {
 }
 
 @ObjectType()
+export class ScrimGroup {
+    @Field(() => String)
+    code: string;
+
+    @Field(() => [String])
+    players: string[];
+}
+
+@ObjectType()
 export class Scrim implements Omit<IScrim, "id" | "status" | "players"> {
     @Field(() => String)
     id: string;
+
+    @Field(() => ScrimGroup, {nullable: true})
+    currentGroup?: ScrimGroup;
 
     @Field(() => ScrimStatus)
     status: ScrimStatus;

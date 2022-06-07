@@ -9,6 +9,10 @@ export interface CurrentScrim {
     playerCount: number;
     maxPlayers: number;
     status: string;
+    currentGroup?: {
+        code: string;
+        players: string[];
+    };
     gameMode: {
         description: string;
     };
@@ -67,6 +71,10 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
             playerCount
             maxPlayers
             status
+            currentGroup {
+                code
+                players
+            }
             gameMode {
                 description
             }
@@ -103,6 +111,10 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
                 playerCount
                 maxPlayers
                 status
+                currentGroup { 
+                    code
+                    players
+                }
                 gameMode {
                     description
                 }
