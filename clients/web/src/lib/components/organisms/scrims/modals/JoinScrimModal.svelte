@@ -7,7 +7,7 @@
     export let scrimId: string;
 
     let groupCode: string;
-    let joiningAsGroup: boolean = false;
+    let joiningWithExistingGroup: boolean = false;
     let joining: boolean = false;
 
     async function joinSolo() {
