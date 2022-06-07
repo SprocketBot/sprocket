@@ -8,6 +8,7 @@ export enum CoreEndpoint {
     GetSprocketConfiguration = "GetSprocketConfiguration",
     GetOrganizationBranding = "GetOrganizationBranding",
     GetUserByAuthAccount = "GetUserByAuthAccount",
+    GetMember = "GetMember",
 }
 
 export const CoreSchemas = {
@@ -26,6 +27,10 @@ export const CoreSchemas = {
     [CoreEndpoint.GetUserByAuthAccount]: {
         input: Schemas.GetUserByAuthAccount_Request,
         output: Schemas.GetUserByAuthAccount_Response,
+    },
+    [CoreEndpoint.GetMember]: {
+        input: Schemas.GetMember_Request,
+        output: Schemas.GetMember_Response,
     },
 };
 

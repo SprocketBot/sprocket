@@ -59,8 +59,8 @@ export class MemberService {
         return this.memberRepository.findOneOrFail(query);
     }
 
-    async getMemberById(id: number): Promise<Member> {
-        return this.memberRepository.findOneOrFail(id);
+    async getMemberById(id: number, options?: FindOneOptions<Member>): Promise<Member> {
+        return this.memberRepository.findOneOrFail(id, options);
     }
 
     async getMembers(query: FindManyOptions<MemberProfile>): Promise<Member[]> {
