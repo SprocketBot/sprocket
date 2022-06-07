@@ -39,7 +39,7 @@ export interface MemberRestriction {
 }
 
 export interface MemberRestrictionEvent extends MemberRestriction{
-    eventType: number;
+    eventType: MemberRestrictionEventType;
 }
 
 export interface RestrictedPlayersStoreValue {
@@ -109,12 +109,6 @@ export class RestrictedPlayersStore extends LiveQueryStore<RestrictedPlayersStor
                 return;
             }
 
-            // In the backend, we spread to create the event
-            // MemberRestrictionEvent = {eventType: 1, ...MemberRestriction}
-            // I don't know of a way to invert that operation, but I need to
-            // here in the front end, as my store value is just an array of
-            // MemberRestrictions. Any help with a slick syntax to do this below
-            // operation would be appreciated ;). 
             const {eventType, ...memberRestriction} = message.data.followRestrictedMembers;
 
             switch (eventType) {
