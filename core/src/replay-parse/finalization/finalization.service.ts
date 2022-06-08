@@ -13,8 +13,15 @@ import type {QueryRunner} from "typeorm";
 import {Connection, Repository} from "typeorm";
 
 import {
-    Match, MatchParent, PlayerStatLine, Round, ScrimMeta, TeamStatLine,
+    EligibilityData,
+    Match,
+    MatchParent,
+    PlayerStatLine,
+    Round,
+    ScrimMeta,
+    TeamStatLine,
 } from "../../database";
+import {PlayerService} from "../../franchise";
 import {MledbScrimService} from "../../mledb/mledb-scrim/mledb-scrim.service";
 import type {ReplaySubmission} from "../replay-submission";
 import {BallchasingConverterService} from "./ballchasing-converter";
@@ -29,6 +36,7 @@ export class FinalizationService {
         private readonly matchmakingService: MatchmakingService,
         private readonly mledbScrimService: MledbScrimService,
         private readonly ballchasingConverter: BallchasingConverterService,
+        private readonly playerService: PlayerService,
         @InjectConnection() private readonly dbConn: Connection,
         @InjectRepository(ScrimMeta) private readonly scrimMetaRepo: Repository<ScrimMeta>,
         @InjectRepository(MatchParent) private readonly matchParentRepo: Repository<MatchParent>,
@@ -36,6 +44,7 @@ export class FinalizationService {
         @InjectRepository(Round) private readonly roundRepo: Repository<Round>,
         @InjectRepository(PlayerStatLine) private readonly playerStatRepo: Repository<PlayerStatLine>,
         @InjectRepository(TeamStatLine) private readonly teamStatRepo: Repository<TeamStatLine>,
+        @InjectRepository(EligibilityData) private readonly eligibilityDataRepo: Repository<EligibilityData>,
     ) {}
 
     async saveScrimToDatabase(submission: ReplaySubmission, submissionId: string): Promise<void> {
@@ -49,7 +58,7 @@ export class FinalizationService {
 
         await Promise.all([
             this.mledbScrimService.saveScrim(submission, submissionId, runner, scrimObject as Scrim),
-            this.saveToSprocket(submission, runner),
+            this.saveToSprocket(submission, runner, scrimObject as Scrim),
         ])
             .then(async () => runner.commitTransaction())
             .catch(async e => {
@@ -59,7 +68,7 @@ export class FinalizationService {
             });
     }
 
-    private async saveToSprocket(submission: ReplaySubmission, runner: QueryRunner): Promise<void> {
+    private async saveToSprocket(submission: ReplaySubmission, runner: QueryRunner, scrimObject: Scrim): Promise<void> {
         // Create Scrim/MatchParent/Match for scrim
         const scrimMeta = this.scrimMetaRepo.create();
         const matchParent = this.matchParentRepo.create();
@@ -120,6 +129,32 @@ export class FinalizationService {
             }
         });
 
+        const playerEligibilities: EligibilityData[] = await Promise.all(scrimObject.players.map(async p => {
+            const playerEligibility = this.eligibilityDataRepo.create();
+            const player = await this.playerService.getPlayer({
+                where: {
+                    member: {
+                        user: {
+                            id: p.id,
+                        },
+                        organization: {
+                            id: scrimObject.organizationId,
+                        },
+                    },
+                },
+                relations: [
+                    "member",
+                    "member.user",
+                    "member.organization",
+                ],
+            });
+
+            playerEligibility.player = player;
+            playerEligibility.points = 5;
+
+            return playerEligibility;
+        }));
+
         // Create relationships
         matchParent.scrimMeta = scrimMeta;
         scrimMeta.parent = matchParent;
@@ -129,6 +164,8 @@ export class FinalizationService {
 
         match.rounds = rounds;
         rounds.forEach(r => { r.match = match });
+
+        playerEligibilities.forEach(pe => { pe.matchParent = matchParent });
 
         /*
          * The order of saving is important here
@@ -140,5 +177,6 @@ export class FinalizationService {
         await runner.manager.save(rounds);
         await runner.manager.save(teamStats);
         await runner.manager.save(playerStats);
+        await runner.manager.save(playerEligibilities);
     }
 }

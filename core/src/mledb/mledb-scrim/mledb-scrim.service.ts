@@ -11,7 +11,10 @@ import {Repository} from "typeorm";
 
 import type {GameMode, GameSkillGroup} from "../../database";
 import {
-    LegacyGameMode, MLE_Player, MLE_PlayerAccount,
+    LegacyGameMode,
+    MLE_EligibilityData,
+    MLE_Player,
+    MLE_PlayerAccount,
     MLE_PlayerStats,
     MLE_PlayerStatsCore,
     MLE_Scrim,
@@ -21,6 +24,7 @@ import {
 } from "../../database/mledb";
 import {GameSkillGroupService} from "../../franchise";
 import {GameModeService} from "../../game";
+import {UserService} from "../../identity";
 import type {ReplaySubmission} from "../../replay-parse";
 import {assignPlayerStats} from "./assign-player-stats";
 import {ballchasingMapLookup} from "./ballchasing-maps";
@@ -36,9 +40,11 @@ export class MledbScrimService {
         @InjectRepository(MLE_TeamCoreStats) private readonly mleTeamCoreStatsRepository: Repository<MLE_TeamCoreStats>,
         @InjectRepository(MLE_PlayerAccount) private readonly mlePlayerAccountRepository: Repository<MLE_PlayerAccount>,
         @InjectRepository(MLE_Player) private readonly mlePlayerRepository: Repository<MLE_Player>,
+        @InjectRepository(MLE_EligibilityData) private readonly mleEligibilityRepository: Repository<MLE_EligibilityData>,
         private readonly skillGroupService: GameSkillGroupService,
         private readonly gameModeService: GameModeService,
         private readonly matchmakingService: MatchmakingService,
+        private readonly userService: UserService,
     ) {
     }
 
@@ -157,12 +163,29 @@ export class MledbScrimService {
             return replay;
         }));
 
+        const playerEligibilities: MLE_EligibilityData[] = await Promise.all(scrimObject.players.map(async p => {
+            const playerEligibility = this.mleEligibilityRepository.create();
+            const discordAccount = await this.userService.getUserDiscordAccount(p.id);
+            const player = await this.mlePlayerRepository.findOneOrFail({
+                where: {
+                    discordId: discordAccount.accountId,
+                },
+            });
+
+            playerEligibility.player = player;
+            playerEligibility.scrimPoints = 5;
+            playerEligibility.scrim = scrim;
+
+            return playerEligibility;
+        }));
+
         await runner.manager.save(scrim);
         await runner.manager.save(series);
         await runner.manager.save(series.seriesReplays);
         await runner.manager.save(coreStats);
         await runner.manager.save(playerStats);
         await runner.manager.save(teamStats);
+        await runner.manager.save(playerEligibilities);
     }
 
 }

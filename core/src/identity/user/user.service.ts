@@ -5,7 +5,10 @@ import {Repository} from "typeorm";
 
 import type {IrrelevantFields} from "../../database";
 import {
-    User, UserAuthenticationAccount, UserProfile,
+    User,
+    UserAuthenticationAccount,
+    UserAuthenticationAccountType,
+    UserProfile,
 } from "../../database";
 
 @Injectable()
@@ -14,8 +17,7 @@ export class UserService {
         @InjectRepository(User) private userRepository: Repository<User>,
         @InjectRepository(UserProfile) private userProfileRepository: Repository<UserProfile>,
         @InjectRepository(UserAuthenticationAccount) private userAuthAcctRepository: Repository<UserAuthenticationAccount>,
-    ) {
-    }
+    ) {}
 
     /**
      * Creates an User with a given profile.
@@ -67,6 +69,15 @@ export class UserService {
     async getUserAuthenticationAccountsForUser(userId: number): Promise<UserAuthenticationAccount[]> {
         const authAccounts = await this.userAuthAcctRepository.find({where: {user: {id: userId} } });
         return authAccounts;
+    }
+
+    async getUserDiscordAccount(userId: number): Promise<UserAuthenticationAccount> {
+        return this.userAuthAcctRepository.findOneOrFail({
+            where: {
+                accountType: UserAuthenticationAccountType.DISCORD,
+                user: {id: userId},
+            },
+        });
     }
 
     /**
