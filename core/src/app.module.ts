@@ -4,19 +4,18 @@ import {GraphQLModule} from "@nestjs/graphql";
 import {config} from "@sprocketbot/common";
 import {graphqlUploadExpress} from "graphql-upload";
 
-import {ConfigurationModule} from "./configuration/configuration.module";
-import {DatabaseModule} from "./database/database.module";
-import {FranchiseModule} from "./franchise/franchise.module";
-import {GameModule} from "./game/game.module";
-import {AuthModule} from "./identity/auth/auth.module";
-import {IdentityModule} from "./identity/identity.module";
-import {UserService} from "./identity/user/user.service";
+import {ConfigurationModule} from "./configuration";
+import {DatabaseModule} from "./database";
+import {FranchiseModule} from "./franchise";
+import {GameModule} from "./game";
+import {IdentityModule} from "./identity";
+import {AuthModule} from "./identity/auth";
 import {ImageGenerationModule} from "./image-generation";
-import {MledbInterfaceModule} from "./mledb/mledb-interface.module";
-import {OrganizationModule} from "./organization/organization.module";
-import {ReplayParseModule} from "./replay-parse/replay-parse.module";
-import {SchedulingModule} from "./scheduling/scheduling.module";
-import {ScrimModule} from "./scrim/scrim.module";
+import {MledbInterfaceModule} from "./mledb";
+import {OrganizationModule} from "./organization";
+import {ReplayParseModule} from "./replay-parse";
+import {SchedulingModule} from "./scheduling";
+import {ScrimModule} from "./scrim";
 
 @Module({
     imports: [
@@ -52,7 +51,6 @@ import {ScrimModule} from "./scrim/scrim.module";
         FranchiseModule,
         ImageGenerationModule,
     ],
-    providers: [UserService],
 })
 export class AppModule implements NestModule {
     configure(consumer: MiddlewareConsumer): void {
