@@ -24,7 +24,7 @@ import {
 } from "../../database/mledb";
 import {GameSkillGroupService} from "../../franchise";
 import {GameModeService} from "../../game";
-import {UserService} from "../../identity";
+import {UserService} from "../../identity/user/user.service";
 import type {ReplaySubmission} from "../../replay-parse";
 import {assignPlayerStats} from "./assign-player-stats";
 import {ballchasingMapLookup} from "./ballchasing-maps";
