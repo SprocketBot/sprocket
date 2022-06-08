@@ -44,12 +44,12 @@
       <th>Players</th>
       <th>
         <button
-          class="float-right btn btn-outline btn-accent"
+          class="float-right btn btn-outline btn-accent btn-sm"
           on:click={() => {
             scrimsLocked = !scrimsLocked;
           }}
         >
-          <span class="h-6">
+          <span class="h-3.5 w-4">
             {#if scrimsLocked}
               <FaLock />
             {:else}
@@ -73,10 +73,7 @@
                 {#each scrim.players ?? scrim.playersAdmin as player (player.id)}
                   <button
                     class="p-2 bg-base-300/20 rounded-lg"
-                    on:click={() => {
-                      selectPlayerInTable(`${player.id}`);
-                    }}
-                  >
+                    on:click={() => { selectPlayerInTable(`${player.id}`) }}>
                     {player.name}
                   </button>
                 {/each}
@@ -87,11 +84,8 @@
           {/if}
           <td>
             <button
-              on:click={() => {
-                openScrimManagementModal(scrim.id);
-              }}
-              class="btn btn-outline float-right lg:btn-sm"
-            >
+              on:click={() => { openScrimManagementModal(scrim.id) }}
+              class="btn btn-outline float-right lg:btn-sm">
               Manage
             </button>
           </td>
