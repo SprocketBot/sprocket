@@ -6,7 +6,7 @@ import {
 import {PubSub} from "apollo-server-express";
 
 import {DatabaseModule} from "../database";
-import { FranchiseModule } from "../franchise";
+import {FranchiseModule} from "../franchise";
 import {MledbInterfaceModule} from "../mledb";
 import {ScrimModule} from "../scrim";
 import {BallchasingConverterService, FinalizationService} from "./finalization";
