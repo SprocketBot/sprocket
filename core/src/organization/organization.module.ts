@@ -6,8 +6,9 @@ import {DatabaseModule} from "../database";
 import {GameModule} from "../game";
 import {IdentityModule} from "../identity";
 import {MemberPubSub} from "./constants";
-import {MemberService} from "./member";
-import {MemberResolver} from "./member/member.resolver";
+import {
+    MemberController, MemberResolver, MemberService,
+} from "./member";
 import {MemberPlatformAccountService} from "./member-platform-account";
 import {
     MemberRestrictionResolver, MemberRestrictionService, QueueBanGuard,
@@ -23,7 +24,6 @@ import {PronounsService} from "./pronouns/pronouns.service";
         GameModule,
         forwardRef(() => IdentityModule),
         EventsModule,
-
     ],
     providers: [
         OrganizationResolver,
@@ -46,6 +46,6 @@ import {PronounsService} from "./pronouns/pronouns.service";
         MemberRestrictionService,
         QueueBanGuard,
     ],
-    controllers: [OrganizationController],
+    controllers: [OrganizationController, MemberController],
 })
 export class OrganizationModule {}

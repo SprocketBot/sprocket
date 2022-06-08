@@ -1,8 +1,13 @@
 import {z} from "zod";
 
+export enum MemberRestrictionType {
+    QUEUE_BAN = "QUEUE_BAN",
+    RATIFICATION_BAN = "RATIFICATION_BAN",
+}
+
 export const MemberRestrictionSchema = z.object({
     id: z.number(),
-    type: z.enum(["QUEUE_BAN", "RATIFICATION_BAN"]),
+    type: z.nativeEnum(MemberRestrictionType),
     expiration: z.preprocess(arg => {
         if (typeof arg === "string") {
             return new Date(arg);
@@ -25,4 +30,4 @@ export const MemberRestrictionSchema = z.object({
     memberId: z.number(),
 });
 
-export type MemberRestrictionSchemaType = z.infer<typeof MemberRestrictionSchema>;
+export type MemberRestriction = z.infer<typeof MemberRestrictionSchema>;
