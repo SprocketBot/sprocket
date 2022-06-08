@@ -17,15 +17,14 @@ export class MemberEventSubscriber {
 
     async onApplicationBootstrap(): Promise<void> {
         await this.eventsService.subscribe(EventTopic.MemberRestrictionCreated, false).then(obs => {
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
             obs.subscribe(this.onMemberRestrictionCreated);
         });
     }
 
-    onMemberRestrictionCreated = async (d: EventResponse<EventTopic.MemberRestrictionCreated>): Promise<void> => {
+    onMemberRestrictionCreated = (d: EventResponse<EventTopic.MemberRestrictionCreated>): void => {
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (d.topic !== EventTopic.MemberRestrictionCreated) return;
 
-        await this.memberService.sendQueueBanNotification(d.payload).catch(e => { this.logger.error(e) });
+        this.memberService.sendQueueBanNotification(d.payload).catch(e => { this.logger.error(e) });
     };
 }
