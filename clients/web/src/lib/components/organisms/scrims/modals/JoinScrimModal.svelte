@@ -61,7 +61,7 @@
         <div class="flex items-center gap-2">
             <h3 class="flex-1">Play Together</h3>
             <button on:click={joinAsNewGroup} disabled={joining}>Create group</button>
-            <button on:click={() => { joinWithExistingGroup = !joinWithExistingGroup }} disabled={joining}>Join group</button>
+            <button on:click={() => { joiningWithExistingGroup = !joiningWithExistingGroup }} disabled={joining}>Join group</button>
         </div>
         {#if joiningWithExistingGroup}
             <div class='flex items-center gap-2' transition:slide>
