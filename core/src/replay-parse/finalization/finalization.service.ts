@@ -24,8 +24,8 @@ import {
 import type {MLE_PlayerStatsCore} from "../../database/mledb";
 import {PlayerService} from "../../franchise";
 import {MledbScrimService} from "../../mledb/mledb-scrim/mledb-scrim.service";
+import {SprocketRatingService} from "../../sprocket-rating/sprocket-rating.service";
 import type {ReplaySubmission} from "../replay-submission";
-import {SprocketRatingService} from "../sprocket-rating/sprocket-rating.service";
 import {BallchasingConverterService} from "./ballchasing-converter";
 
 @Injectable()

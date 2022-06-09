@@ -9,6 +9,7 @@ import {DatabaseModule} from "../database";
 import {FranchiseModule} from "../franchise";
 import {MledbInterfaceModule} from "../mledb";
 import {ScrimModule} from "../scrim";
+import {SprocketRatingService} from "../sprocket-rating/sprocket-rating.service";
 import {BallchasingConverterService, FinalizationService} from "./finalization";
 import {ReplayParsePubSub} from "./replay-parse.constants";
 import {ReplayParseResolver} from "./replay-parse.resolver";
@@ -17,7 +18,6 @@ import {ReplayParseSubscriber} from "./replay-parse.subscriber";
 import {ReplayRatificationResolver} from "./replay-ratification/replay-ratification.resolver";
 import {ReplayRejectionResolver} from "./replay-rejection/replay-rejection.resolver";
 import {ReplaySubmissionService} from "./replay-submission";
-import { SprocketRatingService } from './sprocket-rating/sprocket-rating.service';
 
 @Module({
     imports: [

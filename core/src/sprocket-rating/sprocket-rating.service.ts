@@ -1,12 +1,13 @@
 import {Injectable, Logger} from "@nestjs/common";
 
-import type {MLE_PlayerStatsCore} from "../../database/mledb";
+import type {MLE_PlayerStatsCore} from "../database/mledb";
 
 export interface SprocketRating {
     opi: number;
     dpi: number;
     gpi: number;
 }
+
 @Injectable()
 export class SprocketRatingService {
     private logger = new Logger(SprocketRatingService.name);

@@ -26,7 +26,7 @@ import {GameSkillGroupService} from "../../franchise";
 import {GameModeService} from "../../game";
 import {UserService} from "../../identity/user/user.service";
 import type {ReplaySubmission} from "../../replay-parse";
-import {SprocketRatingService} from "../../replay-parse/sprocket-rating/sprocket-rating.service";
+import {SprocketRatingService} from "../../sprocket-rating/sprocket-rating.service";
 import {assignPlayerStats} from "./assign-player-stats";
 import {ballchasingMapLookup} from "./ballchasing-maps";
 
