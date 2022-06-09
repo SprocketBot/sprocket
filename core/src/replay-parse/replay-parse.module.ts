@@ -9,6 +9,7 @@ import {DatabaseModule} from "../database";
 import {FranchiseModule} from "../franchise";
 import {MledbInterfaceModule} from "../mledb";
 import {ScrimModule} from "../scrim";
+import {SprocketRatingModule} from "../sprocket-rating/sprocket-rating.module";
 import {SprocketRatingService} from "../sprocket-rating/sprocket-rating.service";
 import {BallchasingConverterService, FinalizationService} from "./finalization";
 import {ReplayParsePubSub} from "./replay-parse.constants";
@@ -31,6 +32,7 @@ import {ReplaySubmissionService} from "./replay-submission";
         MledbInterfaceModule,
         AnalyticsModule,
         FranchiseModule,
+        SprocketRatingModule,
     ],
     providers: [
         ReplayParseSubscriber,

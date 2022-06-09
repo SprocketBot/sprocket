@@ -16,6 +16,7 @@ import {OrganizationModule} from "./organization";
 import {ReplayParseModule} from "./replay-parse";
 import {SchedulingModule} from "./scheduling";
 import {ScrimModule} from "./scrim";
+import {SprocketRatingModule} from "./sprocket-rating/sprocket-rating.module";
 
 @Module({
     imports: [
@@ -50,6 +51,7 @@ import {ScrimModule} from "./scrim";
         MledbInterfaceModule,
         FranchiseModule,
         ImageGenerationModule,
+        SprocketRatingModule,
     ],
 })
 export class AppModule implements NestModule {
