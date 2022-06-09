@@ -21,9 +21,11 @@ import {
     ScrimMeta,
     TeamStatLine,
 } from "../../database";
+import type {MLE_PlayerStatsCore} from "../../database/mledb";
 import {PlayerService} from "../../franchise";
 import {MledbScrimService} from "../../mledb/mledb-scrim/mledb-scrim.service";
 import type {ReplaySubmission} from "../replay-submission";
+import {SprocketRatingService} from "../sprocket-rating/sprocket-rating.service";
 import {BallchasingConverterService} from "./ballchasing-converter";
 
 @Injectable()
@@ -37,6 +39,7 @@ export class FinalizationService {
         private readonly mledbScrimService: MledbScrimService,
         private readonly ballchasingConverter: BallchasingConverterService,
         private readonly playerService: PlayerService,
+        private readonly sprocketRatingService: SprocketRatingService,
         @InjectConnection() private readonly dbConn: Connection,
         @InjectRepository(ScrimMeta) private readonly scrimMetaRepo: Repository<ScrimMeta>,
         @InjectRepository(MatchParent) private readonly matchParentRepo: Repository<MatchParent>,
@@ -87,10 +90,16 @@ export class FinalizationService {
                         homeWon: false,
                     });
 
-                    const createPlayerStat = (p: BallchasingPlayer, color: string): PlayerStatLine => this.playerStatRepo.create({
-                        isHome: color === "BLUE",
-                        stats: this.ballchasingConverter.createPlayerStats(p),
-                    });
+                    const createPlayerStat = (p: BallchasingPlayer, color: string): PlayerStatLine => {
+
+                        const psc: Partial<MLE_PlayerStatsCore> = p.stats.core;
+                        const otherStats = this.ballchasingConverter.createPlayerStats(p);
+
+                        return this.playerStatRepo.create({
+                            isHome: color === "BLUE",
+                            stats: {otherStats, ...this.sprocketRatingService.calcSprocketRating(psc)},
+                        });
+                    };
 
                     const blueStats = pr.data.blue.players.map(p => createPlayerStat(p, "BLUE"));
                     const orangeStats = pr.data.orange.players.map(p => createPlayerStat(p, "ORANGE"));
