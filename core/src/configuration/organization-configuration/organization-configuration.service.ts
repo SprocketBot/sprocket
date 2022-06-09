@@ -4,9 +4,13 @@ import type {FindConditions} from "typeorm";
 import {Repository} from "typeorm";
 
 import {
-    Organization, OrganizationConfigurationAllowedValue, OrganizationConfigurationKey, OrganizationConfigurationValue,
+    Organization,
+    OrganizationConfigurationAllowedValue,
+    OrganizationConfigurationKey,
+    OrganizationConfigurationValue,
 } from "../../database";
-import type {OrganizationConfigurationKeyCode} from "../../database/configuration/organization_configuration_key";
+import type {OrganizationConfigurationKeyCode, OrganizationConfigurationKeyTypes} from "../../database/configuration/organization_configuration_key";
+import {OrganizationConfigurationKeyType} from "../../database/configuration/organization_configuration_key";
 import type {OrganizationConfiguration} from "./organization-configuration.types";
 
 @Injectable()
@@ -53,7 +57,7 @@ export class OrganizationConfigurationService {
         });
     }
 
-    async getOrganizationConfigurationValue(organizationId: number, code: string): Promise<string> {
+    async getOrganizationConfigurationValue<T extends OrganizationConfigurationKeyTypes[keyof OrganizationConfigurationKeyTypes]>(organizationId: number, code: string): Promise<T> {
         const organizationConfigurationValue = await this.valueRepository.findOne({
             relations: ["key"],
             where: {
@@ -62,17 +66,18 @@ export class OrganizationConfigurationService {
             },
         });
 
-        let value = organizationConfigurationValue?.value;
+        let organizationConfigurationKey: OrganizationConfigurationKey;
 
-        if (!value) {
-            const organizationConfigurationKey = await this.keyRepository.findOneOrFail({
+        if (!organizationConfigurationValue) {
+            organizationConfigurationKey = await this.keyRepository.findOneOrFail({
                 where: {code},
             });
-
-            value = organizationConfigurationKey.default;
         }
 
-        return value;
+        return this.parseValue(
+            organizationConfigurationValue?.key ?? organizationConfigurationKey!,
+            organizationConfigurationValue?.value ?? organizationConfigurationKey!.default,
+        ) as T;
     }
 
     async createOrganizationConfigurationValue(organizationId: number, code: string, value: string): Promise<OrganizationConfigurationValue> {
@@ -137,4 +142,18 @@ export class OrganizationConfigurationService {
         return false;
     }
 
+    parseValue(key: OrganizationConfigurationKey, value: string): OrganizationConfigurationKeyTypes[keyof OrganizationConfigurationKeyTypes] {
+        switch (key.type) {
+            case OrganizationConfigurationKeyType.ARRAY_STRING:
+                return JSON.parse(value) as string[];
+            case OrganizationConfigurationKeyType.FLOAT:
+                return parseFloat(value);
+            case OrganizationConfigurationKeyType.INTEGER:
+                return parseInt(value);
+            case OrganizationConfigurationKeyType.STRING:
+                return value;
+            default:
+                throw new Error("Invalid key type given");
+        }
+    }
 }
