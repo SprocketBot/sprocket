@@ -1,15 +1,21 @@
-import {z} from "zod";
+import type {z} from "zod";
 
 import type {ResponseStatus} from "../../global.types";
+import * as Schemas from "./schemas";
 
 export enum SubmissionEndpoint {
-    Debug = "Debug",
+    SubmitReplays = "SubmitReplays",
+    CanSubmitReplays = "CanSubmitReplays",
 }
 
 export const SubmissionSchemas = {
-    [SubmissionEndpoint.Debug]: {
-        input: z.unknown(),
-        output: z.unknown(),
+    [SubmissionEndpoint.SubmitReplays]: {
+        input: Schemas.SubmitReplays_Request,
+        output: Schemas.SubmitReplays_Response,
+    },
+    [SubmissionEndpoint.CanSubmitReplays]: {
+        input: Schemas.CanSubmitReplays_Request,
+        output: Schemas.CanSubmitReplays_Response,
     },
 };
 

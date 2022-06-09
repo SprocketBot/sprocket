@@ -13,7 +13,6 @@
     "start:prod": "node dist/main",
     "lint": "eslint src --fix"
   },
-
   "keywords": [],
   "author": "",
   "license": "ISC",

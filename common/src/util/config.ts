@@ -166,6 +166,9 @@ export const config = {
         get image_generation_queue(): string {
             return _config.get<string>("transport.image_generation_queue");
         },
+        get submission_queue(): string {
+            return _config.get<string>("transport.submission_queue");
+        },
     },
     web: {
         get url(): string {
