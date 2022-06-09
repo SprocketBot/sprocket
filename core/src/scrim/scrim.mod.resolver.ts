@@ -126,7 +126,6 @@ export class ScrimModuleResolver {
     async createScrim(
         @CurrentUser() user: UserPayload,
         @Args("data") data: CreateScrimInput,
-        @Args("createGroup", {nullable: true}) createGroup?: boolean,
     ): Promise<Scrim> {
         if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organization");
 
@@ -152,7 +151,7 @@ export class ScrimModuleResolver {
                 description: gameMode.description,
             },
             skillGroup.id,
-            createGroup,
+            data.createGroup,
         ) as Promise<Scrim>;
     }
 
