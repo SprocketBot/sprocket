@@ -18,13 +18,15 @@ interface CreateScrimVariables {
         competitive: boolean;
         observable: boolean;
     };
+    createGroup: boolean;
 }
 
 const mutationString = gql`
     mutation (
         $settings: ScrimSettingsInput!
+        $createGroup: Boolean
     ) {
-        createScrim(data: { settings: $settings }, createGroup: false) {
+        createScrim(data: {settings: $settings, createGroup: $createGroup}) {
             id
             playerCount
             settings {
