@@ -126,21 +126,20 @@ export class ScrimModuleResolver {
     async createScrim(
         @CurrentUser() user: UserPayload,
         @Args("data") data: CreateScrimInput,
-        @Args("createGroup", {nullable: true}) createGroup?: boolean,
     ): Promise<Scrim> {
         if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organization");
 
         const gameMode = await this.gameModeService.getGameModeById(data.settings.gameModeId);
         const player = await this.playerService.getPlayerByOrganizationAndGame(user.userId, user.currentOrganizationId, gameMode.gameId);
         const skillGroup = await this.skillGroupService.getGameSkillGroupById(player.skillGroupId);
-        const checkinTimeout = await this.organizationConfigurationService.getOrganizationConfigurationValue(user.currentOrganizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_CHECKIN_TIMEOUT_MINUTES);
+        const checkinTimeout = await this.organizationConfigurationService.getOrganizationConfigurationValue<number>(user.currentOrganizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_CHECKIN_TIMEOUT_MINUTES);
         const settings: IScrimSettings = {
             competitive: data.settings.competitive,
             mode: data.settings.mode,
             teamSize: gameMode.teamSize,
             teamCount: gameMode.teamCount,
             observable: data.settings.observable,
-            checkinTimeout: parseFloat(checkinTimeout) * 60 * 1000,
+            checkinTimeout: checkinTimeout * 60 * 1000,
         };
 
         return this.scrimService.createScrim(
@@ -152,7 +151,7 @@ export class ScrimModuleResolver {
                 description: gameMode.description,
             },
             skillGroup.id,
-            createGroup,
+            data.createGroup,
         ) as Promise<Scrim>;
     }
 

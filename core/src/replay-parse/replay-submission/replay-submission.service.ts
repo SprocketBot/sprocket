@@ -20,7 +20,6 @@ import {
 import {PubSub} from "apollo-server-express";
 
 import {ScrimService} from "../../scrim";
-import {read} from "../../util/read";
 import {FinalizationService} from "../finalization/finalization.service";
 import {REPLAY_SUBMISSION_PREFIX, ReplayParsePubSub} from "../replay-parse.constants";
 import type {BaseReplaySubmission, ReplaySubmission} from "./types/replay-submission.types";
@@ -274,8 +273,10 @@ export class ReplaySubmissionService {
                 ...item,
             };
             const i = existingItems.findIndex(ei => ei.taskId === item.taskId);
+            this.logger.verbose(`Updating ${submissionId} = ${JSON.stringify(item)}`);
             await this.redisService.setJsonField(key, `items[${i}]`, t);
         } else {
+            this.logger.verbose(`Inserting ${submissionId} = ${JSON.stringify(item)}`);
             await this.redisService.appendToJsonArray(key, "items", item);
         }
     }
@@ -352,19 +353,12 @@ export class ReplaySubmissionService {
     }
 
     private async calculateStats(submissionId: string): Promise<ReplaySubmissionStats> {
-        // Get stats from Minio
         const items = await this.getItems(submissionId);
-        if (!items.every(item => Boolean(item.outputPath))) {
-            throw new Error(`Submission ${submissionId} has incomplete stats due to item with a missing outputPath`);
-        }
 
-        const promises = items.map(async item => {
-            const outputPath = item.outputPath!; // Must exist because of our .every check above
-            const stream = await this.minioService.get(config.minio.bucketNames.replays, outputPath);
-            const b = await read(stream);
-            return JSON.parse(b.toString()) as ParsedReplay;
+        const rawStats = items.map(item => {
+            if (!item.progress?.result) throw new Error(`Missing item result for submissionId=${submissionId}, taskId=${item.taskId}`);
+            return item.progress.result;
         });
-        const rawStats = await Promise.all(promises);
 
         return this.convertStats(rawStats);
     }

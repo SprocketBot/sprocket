@@ -11,6 +11,7 @@
     let scrimType: "BEST_OF" | "ROUND_ROBIN";
     let competitive: boolean = true;
     let observable: boolean = true;
+    let createGroup: boolean = false;
 
     let buttonEnabled = true;
 
@@ -24,6 +25,7 @@
                     competitive: competitive,
                     observable: observable,
                 },
+                createGroup: createGroup,
             });
             visible = false;
         } finally {
@@ -79,12 +81,15 @@
         </div>
 
         <div class="form-control">
-            <label class="label" for="createGroup">
+            <label class="cursor-pointer label" for="createGroup">
                 <span class="label-text">Create Group:</span>
+                <input
+                  type="checkbox"
+                  bind:checked={createGroup}
+                  class="toggle toggle-primary"
+                  name="createGroup"
+                />
             </label>
-            <select disabled name="createGroup">
-                <option disabled selected> Coming Soon</option>
-            </select>
         </div>
 
 

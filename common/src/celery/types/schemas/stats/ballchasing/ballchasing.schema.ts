@@ -27,7 +27,7 @@ export const BallchasingResponseSchema = z.object({
     match_guid: z.string(),
 
     // Uploader
-    recorder: z.string(),
+    recorder: z.string().optional(),
     uploader: BallchasingUploaderSchema,
     
     // Match
@@ -39,7 +39,7 @@ export const BallchasingResponseSchema = z.object({
     
     // Map
     map_code: z.string(), // TODO enum for maps
-    map_name: z.string(),
+    map_name: z.string().default("UNKNOWN"),
     
     // Duration
     duration: z.number(),

@@ -6,11 +6,11 @@
     let playerManagementModalVisible = false;
     let activePlayersData: Player[] | undefined;
     $: activePlayersData = $activePlayers;
-    let targetPlayer: number;
+    let targetPlayer: Player;
 
-    const openPlayerManagementModal = (playerId: number) => {
+    const openPlayerManagementModal = (player: Player) => {
         playerManagementModalVisible = true;
-        targetPlayer = playerId;
+        targetPlayer = player;
     };
 </script>
 
@@ -30,8 +30,8 @@
                 <td>{player.id}</td>
                 <td>
                     <button class="btn btn-outline float-right lg:btn-sm"
-                            on:click={() => { openPlayerManagementModal(player.id) }}>
-                            <span class="h-6">
+                            on:click={() =>  { openPlayerManagementModal(player) } }>
+                            <span class="h-3.5 w-4">
                                 <FaHammer/>
                             </span>
                     </button>
@@ -44,7 +44,7 @@
 
 {#if playerManagementModalVisible}
     <PlayerManagementModal
-            playerId={targetPlayer}
+            player={targetPlayer}
             bind:visible={playerManagementModalVisible}
     />
 {/if}

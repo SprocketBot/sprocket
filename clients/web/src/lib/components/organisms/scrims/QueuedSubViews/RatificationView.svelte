@@ -34,10 +34,10 @@
     <p>Now, carefully review the results to make sure we got everything right. Once you have decided a replay is
         correct, click the checkbox in the top right corner</p>
     {#if !$submissionStats.fetching}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4">
             {#each $submissionStats?.data?.stats?.games as game, gameIndex}
                 <GameCard {game} title="Game {gameIndex + 1}" showCheckbox={!hasRatified}
-                          bind:checkboxValue={submissionResults[gameIndex]}/>
+                          bind:checkboxValue={submissionResults[gameIndex]} showResult/>
             {/each}
         </div>
 

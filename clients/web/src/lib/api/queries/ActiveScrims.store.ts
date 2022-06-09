@@ -3,7 +3,7 @@ import {gql} from "@urql/core";
 import {LiveQueryStore} from "$lib/api/core/LiveQueryStore";
 import type {CurrentScrim} from "./CurrentScrim.store";
 
-export type ActiveScrims = CurrentScrim[];
+export type ActiveScrims = Array<CurrentScrim & {organizationId: number;}>;
 
 enum EventTopic {
     // Scrims
@@ -27,7 +27,7 @@ export interface ActiveScrimsStoreValue {
 
 export interface ActiveScrimsSubscriptionValue {
     activeScrims: {
-        scrim: CurrentScrim;
+        scrim: ActiveScrims[number];
         event: EventTopic;
     };
 }
@@ -43,6 +43,7 @@ export class ActiveScrimsStore extends LiveQueryStore<ActiveScrimsStoreValue, Ac
     query {
         activeScrims: getActiveScrims {
             id
+            organizationId
             playerCount
             maxPlayers
             status
@@ -79,6 +80,7 @@ export class ActiveScrimsStore extends LiveQueryStore<ActiveScrimsStoreValue, Ac
         activeScrims: followActiveScrims {
             scrim {
                 id
+                organizationId
                 playerCount
                 maxPlayers
                 status
@@ -143,7 +145,7 @@ export class ActiveScrimsStore extends LiveQueryStore<ActiveScrimsStoreValue, Ac
                     this.currentValue.data.activeScrims.splice(oldScrim, 1, scrim);
                     console.log("This is the update path.");
             }
-            
+
             this.pub();
         }
     };
