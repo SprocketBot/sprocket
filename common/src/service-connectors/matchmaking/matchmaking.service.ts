@@ -3,7 +3,6 @@ import {
     Inject, Injectable, Logger,
 } from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
-import {MicroservicesModule} from "@nestjs/microservices/microservices-module";
 import {lastValueFrom, timeout} from "rxjs";
 
 import type {MicroserviceRequestOptions} from "../../global.types";
@@ -27,7 +26,7 @@ export class MatchmakingService {
         try {
             const input = inputSchema.parse(data);
 
-            const rx = this.microserviceClient.send(endpoint, input).pipe(timeout(options?.timeout ?? 1000));
+            const rx = this.microserviceClient.send(endpoint, input).pipe(timeout(options?.timeout ?? 5000));
 
             const response = await lastValueFrom(rx) as unknown;
 

@@ -76,7 +76,7 @@ export class ScrimService {
     }
 
     async getScrim(scrimId: string): Promise<Scrim | null> {
-        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, scrimId);
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, scrimId, 0);
         if (result.status === ResponseStatus.SUCCESS) {
             return result.data;
         }
