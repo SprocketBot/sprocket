@@ -119,10 +119,18 @@ export class MledbScrimService {
                 core.goals = p.stats.core.goals;
                 core.saves = p.stats.core.saves;
                 core.assists = p.stats.core.assists;
+                core.goals_against = p.stats.core.goals_against;
+                core.shots_against = p.stats.core.shots_against;
                 core.mvp = p.stats.core.mvp;
                 core.score = p.stats.core.score;
                 // eslint-disable-next-line @typescript-eslint/no-extra-parens
                 core.mvpr = core.goals + (core.assists * 0.75) + (core.saves * 0.60) + (core.shots / 3);
+                const {
+                    opi, dpi, gpi,
+                } = this.calcSprocketRating(core);
+                core.opi = opi;
+                core.dpi = dpi;
+                core.gpi = gpi;
 
                 stats.replay = replay;
 
@@ -188,4 +196,34 @@ export class MledbScrimService {
         await runner.manager.save(playerEligibilities);
     }
 
+    calcSprocketRating(core: MLE_PlayerStatsCore): {opi: number; dpi: number; gpi: number;} {
+        const OPI_goal_w = 1.0;
+        const OPI_assist_w = 0.8;
+        const OPI_shot_w = 0.2;
+
+        const DPI_goal_w = 1.1;
+        const DPI_saves_w = 0.5;
+        const DPI_shot_w = 0.4;
+
+        const OPI_beta = -1 * Math.log(9);
+        const OPI_mu =  2.03;
+        const OPI_sigma = 1.38;
+
+        const DPI_beta = OPI_beta;
+        const DPI_mu = 1.93;
+        const DPI_sigma = 0.85;
+
+        const opi_raw = (OPI_goal_w * (core.goals / 1.5)) + (OPI_assist_w * (core.assists / 0.75)) + (OPI_shot_w * (core.shots / 1.75));
+        const opi = 100.0 / (1 + Math.exp(OPI_beta * ((opi_raw - OPI_mu) / OPI_sigma)));
+
+        const dpi_raw = (DPI_goal_w * (2.0 - (core.goals_against / 2.0 / 1.5))) + (DPI_saves_w * (core.saves / 1.75)) + (DPI_shot_w * (2.0 - (core.shots_against / 2.0 / 3.75)));
+        const dpi = 100.0 / (1 + Math.exp(DPI_beta * ((dpi_raw - DPI_mu) / DPI_sigma)));
+
+        const gpi = (opi + dpi) / 2.0;
+
+        return {
+            opi, dpi, gpi,
+        };
+
+    }
 }
