@@ -12,4 +12,9 @@ export class DiscordSyncMarshal extends Marshal {
     async guildMemberAdd([member]: ClientEvents[ClientEvent.guildMemberAdd]): Promise<void> {
         this.logger.log(member.displayName);
     }
+
+    @Event({event: ClientEvent.guildMemberAdd})
+    async guildMemberUpdate([oldMember, newMember]: ClientEvents[ClientEvent.guildMemberUpdate]): Promise<void> {
+        this.logger.log(oldMember.displayName, newMember.displayName);
+    }
 }
