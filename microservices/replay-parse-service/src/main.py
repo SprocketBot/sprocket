@@ -142,7 +142,7 @@ class ParseReplay(BaseTask):
         finally:
             logging.debug(f"Deleting local data")
             os.remove(path)
-        
+
         self.analytics.timer_split_parse()
 
         result = {
