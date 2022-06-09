@@ -17,6 +17,8 @@ export enum EventTopic {
 
     // Submissions
     SubmissionStarted = "submission.started",
+    SubmissionRatificationAdded = "submission.ratification",
+    SubmissionRejectionAdded = "submission.rejection",
 
     // Member
     AllMemberEvents = "member.*",
@@ -49,6 +51,15 @@ export const EventSchemas = {
     [EventTopic.ScrimMetricsUpdate]: ScrimMetricsSchema,
     // Submission Events
     [EventTopic.SubmissionStarted]: z.object({submissionId: z.string()}),
+    [EventTopic.SubmissionRatificationAdded]: z.object({
+        currentRatifications: z.number(),
+        requiredRatifications: z.number(),
+        submissionId: z.string(),
+    }),
+    [EventTopic.SubmissionRejectionAdded]: z.object({
+        submissionId: z.string(),
+    }),
+
     // Member Events
     [EventTopic.MemberRestrictionCreated]: MemberRestrictionSchema,
     [EventTopic.MemberRestrictionExpired]: MemberRestrictionSchema,

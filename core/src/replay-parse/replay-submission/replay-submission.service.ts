@@ -69,11 +69,6 @@ export class ReplaySubmissionService {
         return submission.ratifiers.length >= submission.requiredRatifications;
     }
 
-    async submissionExists(submissionId: string): Promise<boolean> {
-        const key = this.buildKey(submissionId);
-        return this.redisService.keyExists(key);
-    }
-
     async canSubmitReplays(submissionId: string, playerId: number): Promise<string | null> {
         const key = this.buildKey(submissionId);
 

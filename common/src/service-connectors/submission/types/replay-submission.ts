@@ -1,5 +1,5 @@
 import type {ReplaySubmissionItem} from "./replay-submission-item";
-import type {ISubmissionRejection} from "./replay-submission-rejection";
+import type {ReplaySubmissionRejection} from "./replay-submission-rejection";
 import type {ReplaySubmissionStats} from "./replay-submission-stats";
 
 export enum ReplaySubmissionType {
@@ -17,12 +17,12 @@ export interface BaseReplaySubmission {
     stats?: ReplaySubmissionStats;
     ratifiers: number[];
     requiredRatifications: number;
-    rejections: ISubmissionRejection[];
+    rejections: ReplaySubmissionRejection[];
 }
 
 export interface ScrimReplaySubmission extends BaseReplaySubmission {
     type: ReplaySubmissionType.SCRIM;
-    scrimId: number;
+    scrimId: string;
 }
 
 export interface MatchReplaySubmission extends BaseReplaySubmission {

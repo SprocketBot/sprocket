@@ -1,10 +1,14 @@
 import {Injectable} from "@nestjs/common";
-import type {ICanSubmitReplays_Response, ReplaySubmission} from "@sprocketbot/common";
+import type {
+    ICanSubmitReplays_Response, ReplaySubmission,
+} from "@sprocketbot/common";
 import {
     MatchmakingEndpoint, MatchmakingService, RedisService, ResponseStatus, ScrimStatus,
 } from "@sprocketbot/common";
 
-import {REDIS_PREFIX} from "../submission.constants";
+import {
+    getSubmissionKey, submissionIsMatch, submissionIsScrim,
+} from "../utils";
 
 @Injectable()
 export class ReplayUploadService {
@@ -14,7 +18,7 @@ export class ReplayUploadService {
     ) {}
 
     async canSubmitReplays(submissionId: string, playerId: number): Promise<ICanSubmitReplays_Response> {
-        const submissionKey = `${REDIS_PREFIX}:${submissionId}`;
+        const submissionKey = getSubmissionKey(submissionId);
         const submission = await this.redisService.getIfExists<ReplaySubmission>(submissionKey);
 
         if (submission?.items.length) {
@@ -24,7 +28,7 @@ export class ReplayUploadService {
             };
         }
 
-        if (submissionId.startsWith("scrim")) {
+        if (submissionIsScrim(submissionId)) {
             const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
             if (result.status === ResponseStatus.ERROR) throw result.error;
             const scrim = result.data;
@@ -46,7 +50,7 @@ export class ReplayUploadService {
                     reason: "Scrim must be in progress.",
                 };
             }
-        } else if (submissionId.startsWith("match)")) {
+        } else if (submissionIsMatch(submissionId)) {
             return {
                 canSubmit: false,
                 reason: "Match submissions not yet supported.",

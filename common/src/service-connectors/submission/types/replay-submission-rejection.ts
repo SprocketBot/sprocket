@@ -4,7 +4,7 @@ import type {
 
 export type RejectedItem = Omit<ReplaySubmissionItem, "progress">;
 
-export interface ISubmissionRejection {
+export interface ReplaySubmissionRejection {
     playerId: number;
     reason: string;
     rejectedItems: RejectedItem[];
