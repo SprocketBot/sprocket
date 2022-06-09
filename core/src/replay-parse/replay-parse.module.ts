@@ -17,6 +17,7 @@ import {ReplayParseSubscriber} from "./replay-parse.subscriber";
 import {ReplayRatificationResolver} from "./replay-ratification/replay-ratification.resolver";
 import {ReplayRejectionResolver} from "./replay-rejection/replay-rejection.resolver";
 import {ReplaySubmissionService} from "./replay-submission";
+import { SprocketRatingService } from './sprocket-rating/sprocket-rating.service';
 
 @Module({
     imports: [
@@ -44,6 +45,7 @@ import {ReplaySubmissionService} from "./replay-submission";
         ReplaySubmissionService,
         FinalizationService,
         BallchasingConverterService,
+        SprocketRatingService,
     ],
 })
 export class ReplayParseModule {
