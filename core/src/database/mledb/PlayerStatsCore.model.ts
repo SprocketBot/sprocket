@@ -56,6 +56,12 @@ export class MLE_PlayerStatsCore {
     @Column("integer", {name: "assists"})
     assists: number;
 
+    @Column("integer", {name: "goals_against"})
+    goals_against: number;
+
+    @Column("integer", {name: "shots_against"})
+    shots_against: number;
+
     @Column("boolean", {name: "mvp"})
     mvp: boolean;
 
