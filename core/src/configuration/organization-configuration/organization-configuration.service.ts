@@ -57,7 +57,7 @@ export class OrganizationConfigurationService {
         });
     }
 
-    async getOrganizationConfigurationValue<T extends OrganizationConfigurationKeyTypes[keyof OrganizationConfigurationKeyTypes]>(organizationId: number, code: string): Promise<T> {
+    async getOrganizationConfigurationValue<T extends OrganizationConfigurationKeyTypes[keyof OrganizationConfigurationKeyTypes]>(organizationId: number, code: OrganizationConfigurationKeyCode): Promise<T> {
         const organizationConfigurationValue = await this.valueRepository.findOne({
             relations: ["key"],
             where: {
