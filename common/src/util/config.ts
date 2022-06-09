@@ -127,7 +127,8 @@ export const config = {
             return _config.get<string>("redis.host");
         },
         get password(): string {
-            return readFileSync("./secret/redis-password.txt").toString();
+            return readFileSync("./secret/redis-password.txt").toString()
+                .trim();
         },
         get prefix(): string {
             return _config.get<string>("redis.prefix");

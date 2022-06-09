@@ -5,6 +5,7 @@ export enum CommonClient {
     ImageGeneration = "CommonImageGeneration",
     Notification = "CommonNotification",
     Core = "CommonClientCore",
+    Submission = "CommonClientSubmission",
 }
 
 export enum ResponseStatus {
