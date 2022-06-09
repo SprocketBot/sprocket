@@ -62,6 +62,15 @@ export class MLE_PlayerStatsCore {
     @Column("real", {name: "mvpr"})
     mvpr: number;
 
+    @Column("real", {name: "opi", nullable: true})
+    opi: number;
+
+    @Column("real", {name: "dpi", nullable: true})
+    dpi: number;
+
+    @Column("real", {name: "gpi", nullable: true})
+    gpi: number;
+
     @OneToOne(() => MLE_PlayerStats, playerStats => playerStats.coreStats)
     playerStats: MLE_PlayerStats;
 
