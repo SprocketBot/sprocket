@@ -22,8 +22,8 @@ export abstract class Marshal {
     private readonly _logger = new Logger(Marshal.name);
 
     constructor(
-        cms: CommandManagerService,
-        ems: EventManagerService,
+        protected readonly cms: CommandManagerService,
+        protected readonly ems: EventManagerService,
         protected readonly coreService: CoreService,
         protected readonly analyticsService: AnalyticsService,
         protected readonly embedService: EmbedService,
