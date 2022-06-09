@@ -111,7 +111,11 @@ class ParseReplay(BaseTask):
                 self.analytics.cached(True).complete()
             )
 
-            return already_parsed
+            return {
+                "parser": config["parser"],
+                "outputPath": parsed_object_path,
+                "data": already_parsed
+            }
         except S3Error as e:
             if e.code == "NoSuchKey":
                 pass
@@ -142,7 +146,7 @@ class ParseReplay(BaseTask):
         finally:
             logging.debug(f"Deleting local data")
             os.remove(path)
-        
+
         self.analytics.timer_split_parse()
 
         result = {
