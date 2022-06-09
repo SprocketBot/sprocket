@@ -1,4 +1,5 @@
 import {Injectable, Logger} from "@nestjs/common";
+import {MICROSERVICES_PACKAGE_NOT_FOUND_EXCEPTION} from "@nestjs/core/errors/messages";
 import type {Scrim} from "@sprocketbot/common";
 import {
     BotEndpoint,
@@ -76,7 +77,7 @@ export class ScrimService {
     }
 
     async getScrim(scrimId: string): Promise<Scrim | null> {
-        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, scrimId, 0);
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, scrimId);
         if (result.status === ResponseStatus.SUCCESS) {
             return result.data;
         }
