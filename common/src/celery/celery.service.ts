@@ -102,14 +102,7 @@ export class CeleryService {
     }
 
     parseResult<T extends Task>(task: T, result: unknown): TaskResult<T> {
-        const parseResult = TaskSchemas[task].result.safeParse(result);
-        if (parseResult.success) {
-            return parseResult.data;
-        }
-        this.logger.warn(`Task ${task} result failed schema validation, ${parseResult.error}`);
-        // TODO have better error handling on results that don't match the schema
-        return result as TaskResult<T>;
-
+        return TaskSchemas[task].result.parse(result);
     }
 
     /**
