@@ -4,22 +4,24 @@ import type {
 import {config} from "@sprocketbot/common";
 import {Message} from "discord.js";
 
-import type {EmbedService} from "../../embed/embed.service";
+import type {EmbedService} from "../../../embed/embed.service";
+import type {EventManagerService} from "../../../marshal";
 import {
     Command, Marshal, MarshalCommandContext,
-} from "../../marshal";
-import type {CommandManagerService} from "../../marshal/command-manager/command-manager.service";
+} from "../../../marshal";
+import type {CommandManagerService} from "../../../marshal/commands/command-manager.service";
 import * as helpUtil from "./util";
 
 export class HelpMarshal extends Marshal {
 
     constructor(
         protected readonly cms: CommandManagerService,
+        protected readonly ems: EventManagerService,
         protected readonly coreService: CoreService,
         protected readonly analyticsService: AnalyticsService,
         protected readonly embedService: EmbedService,
     ) {
-        super(cms, coreService, analyticsService, embedService);
+        super(cms, ems, coreService, analyticsService, embedService);
     }
 
     @Command({

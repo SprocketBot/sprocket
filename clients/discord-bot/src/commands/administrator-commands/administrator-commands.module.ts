@@ -1,8 +1,8 @@
 import {Module} from "@nestjs/common";
 import {CoreModule} from "@sprocketbot/common";
 
-import {EmbedModule} from "../embed/embed.module";
-import {MarshalModule} from "../marshal";
+import {EmbedModule} from "../../embed/embed.module";
+import {CommandsModule, EventsModule} from "../../marshal";
 import {CommandDecoratorTestMarshal} from "./command-decorator-test.marshal";
 import {DebugCommandsMarshal} from "./debug-commands.marshal";
 import {MiscCommandsMarshal} from "./misc-commands.marshal";
@@ -11,7 +11,8 @@ import {SprocketStatusMarshal} from "./sprocket-status.marshal";
 
 @Module({
     imports: [
-        MarshalModule,
+        CommandsModule,
+        EventsModule,
         EmbedModule,
         CoreModule,
     ],

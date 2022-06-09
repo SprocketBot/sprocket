@@ -3,11 +3,12 @@ import {CoreModule} from "@sprocketbot/common";
 
 import {EmbedModule} from "../embed/embed.module";
 import {EmbedService} from "../embed/embed.service";
-import {CommandManagerService} from "./command-manager/command-manager.service";
+import {CommandsModule} from "./commands/commands.module";
+import {EventsModule} from "./events/events.module";
 
 @Module({
-    imports: [EmbedModule, CoreModule],
-    providers: [CommandManagerService, EmbedService],
-    exports: [CommandManagerService, EmbedService],
+    imports: [EmbedModule, CoreModule, CommandsModule, EventsModule],
+    providers: [EmbedService],
+    exports: [EmbedService],
 })
 export class MarshalModule {}

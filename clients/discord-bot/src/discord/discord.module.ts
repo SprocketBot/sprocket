@@ -2,12 +2,13 @@ import {Module} from "@nestjs/common";
 import {Client} from "discord.js";
 import {readFile} from "fs/promises";
 
-import {MarshalModule} from "../marshal";
+import {CommandsModule, EventsModule} from "../marshal";
 import {DiscordService} from "./discord.service";
 
 @Module({
     imports: [
-        MarshalModule,
+        CommandsModule,
+        EventsModule,
     ],
     providers: [
         {

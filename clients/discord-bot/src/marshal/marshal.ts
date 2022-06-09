@@ -3,10 +3,15 @@ import {AnalyticsService, CoreService} from "@sprocketbot/common";
 import * as zod from "zod";
 
 import {EmbedService} from "../embed/embed.service";
-import {CommandMetaSchema} from ".";
-import {CommandManagerService} from "./command-manager/command-manager.service";
-import type {CommandFunction} from "./types";
-import {CommandNotFoundMetaSchema, MarshalMetadataKey} from "./types";
+import type {EventFunction} from ".";
+import {
+    CommandMetaSchema,
+    EventManagerService, EventMetaSchema,
+    MarshalMetadataKey,
+} from ".";
+import type {CommandFunction} from "./commands";
+import {CommandNotFoundMetaSchema} from "./commands";
+import {CommandManagerService} from "./commands/command-manager.service";
 
 /**
  * The marshal implements hidden functionality that is called at construction time to wire up all decorators provided by the Marshal Module
@@ -18,12 +23,14 @@ export abstract class Marshal {
 
     constructor(
         cms: CommandManagerService,
+        ems: EventManagerService,
         protected readonly coreService: CoreService,
         protected readonly analyticsService: AnalyticsService,
         protected readonly embedService: EmbedService,
     ) {
         this.registerAllCommands(cms);
         this.registerAllCommandNotFoundHooks(cms);
+        this.registerAllEvents(ems);
     }
 
     private registerAllCommands(cms: CommandManagerService): void {
@@ -66,6 +73,28 @@ export abstract class Marshal {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
                 function: Reflect.get(this, meta.functionName).bind(this),
             });
+        });
+    }
+
+    private registerAllEvents(ems: EventManagerService): void {
+        const marshalMetadata: unknown = Reflect.getMetadata(MarshalMetadataKey.Event, this);
+        if (!marshalMetadata) return;
+        const parseResult = zod.array(EventMetaSchema).safeParse(marshalMetadata);
+        if (!parseResult.success) {
+            this._logger.error(parseResult);
+            return;
+        }
+        const {data} = parseResult;
+
+        data.forEach(meta => {
+            // Do things
+            ems.registerEvent({
+                ...meta,
+                // We kinda need to act on faith here, if the implementer has decorated an unsafe function, we can't tell until runtime.
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
+                function: Reflect.get(this, meta.functionName).bind(this) as EventFunction,
+            });
+            this._logger.debug(`Registered Event ${meta.spec.event}`);
         });
     }
 }

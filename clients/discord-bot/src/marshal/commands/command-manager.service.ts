@@ -4,7 +4,7 @@ import type {Message} from "discord.js";
 
 import type {
     CommandArg, CommandSpec, LinkedCommandMeta, LinkedCommandNotFoundMeta,
-} from "../types";
+} from "./commands.types";
 
 @Injectable()
 export class CommandManagerService {

@@ -3,8 +3,8 @@ import {Message} from "discord.js";
 
 import {
     Command, Marshal, MarshalCommandContext,
-} from "../marshal";
-import {table} from "../util/table";
+} from "../../marshal";
+import {table} from "../../util/table";
 
 export class SprocketConfigurationMarshal extends Marshal {
 

@@ -1,8 +1,8 @@
 import {config} from "@sprocketbot/common";
 import type {EmbedFieldData} from "discord.js";
 
-import {Unicode} from "../../enums/unicode";
-import type {CommandSpec} from "../../marshal/types";
+import {Unicode} from "../../../enums/unicode";
+import type {CommandSpec} from "../../../marshal";
 
 export const specToField = (spec: CommandSpec): EmbedFieldData => {
     const aliases: string | undefined = spec.aliases ? spec.aliases.map(a => `\`${config.bot.prefix}${a}\``).join(", ") : undefined;

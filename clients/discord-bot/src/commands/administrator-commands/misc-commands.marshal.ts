@@ -3,9 +3,9 @@ import {Message} from "discord.js";
 
 import {
     Command, Marshal, MarshalCommandContext,
-} from "../marshal";
-import type {CommandErrorType} from "../marshal/command-error";
-import {CommandError} from "../marshal/command-error";
+} from "../../marshal";
+import type {CommandErrorType} from "../../marshal/command-error";
+import {CommandError} from "../../marshal/command-error";
 
 export class MiscCommandsMarshal extends Marshal {
     private readonly logger = new Logger(MiscCommandsMarshal.name);
