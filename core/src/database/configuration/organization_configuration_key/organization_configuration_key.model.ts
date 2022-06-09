@@ -5,7 +5,7 @@ import {
 
 import {BaseModel} from "../../base-model";
 import {OrganizationConfigurationAllowedValue} from "../organization_configuration_allowed_value";
-import {OrganizationConfigurationKeyCode} from "./organization_configuration_key.enum";
+import {OrganizationConfigurationKeyCode, OrganizationConfigurationKeyType} from "./organization_configuration_key.enum";
 
 @Entity({schema: "sprocket"})
 @ObjectType()
@@ -21,4 +21,11 @@ export class OrganizationConfigurationKey extends BaseModel {
     @OneToMany(() => OrganizationConfigurationAllowedValue, ocav => ocav.key)
     @Field(() => [OrganizationConfigurationAllowedValue])
     allowedValues: OrganizationConfigurationAllowedValue[];
+
+    @Column({
+        type: "enum",
+        enum: OrganizationConfigurationKeyType,
+    })
+    @Field(() => OrganizationConfigurationKeyType)
+    type: OrganizationConfigurationKeyType;
 }

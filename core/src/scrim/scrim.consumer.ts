@@ -36,9 +36,9 @@ export class ScrimConsumer {
         this.logger.log(`scrim unsuccessful scrimId=${scrimId}`);
         this.logger.log(`scrimId=${scrimId} players didn't check in: ${playersNotCheckedIn.map(p => p.name)}`);
 
-        const initialBanDuration = await this.organizationConfigurationService.getOrganizationConfigurationValue(scrim.organizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_INITIAL_DURATION_MINUTES);
-        const durationModifier = await this.organizationConfigurationService.getOrganizationConfigurationValue(scrim.organizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_DURATION_MODIFIER);
-        const restrictionFallOffDays = await this.organizationConfigurationService.getOrganizationConfigurationValue(scrim.organizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_MODIFIER_FALL_OFF_DAYS);
+        const initialBanDuration = await this.organizationConfigurationService.getOrganizationConfigurationValue<number>(scrim.organizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_INITIAL_DURATION_MINUTES);
+        const durationModifier = await this.organizationConfigurationService.getOrganizationConfigurationValue<number>(scrim.organizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_DURATION_MODIFIER);
+        const restrictionFallOffDays = await this.organizationConfigurationService.getOrganizationConfigurationValue<number>(scrim.organizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_MODIFIER_FALL_OFF_DAYS);
 
         for (const player of playersNotCheckedIn) {
             const member = await this.memberService.getMember({relations: ["organization"], where: {user: {id: player.id} } });
@@ -47,12 +47,12 @@ export class ScrimConsumer {
                     type: MemberRestrictionType.QUEUE_BAN,
                     member: member,
                     manualExpiration: IsNull(),
-                    expiration: MoreThanOrEqual(add(new Date(), {days: -parseInt(restrictionFallOffDays)}).toUTCString()),
+                    expiration: MoreThanOrEqual(add(new Date(), {days: -restrictionFallOffDays}).toUTCString()),
                 },
             });
 
             // eslint-disable-next-line @typescript-eslint/no-extra-parens
-            const banMinuteOffset = parseInt(initialBanDuration) + (parseFloat(durationModifier) * restrictions.length);
+            const banMinuteOffset = initialBanDuration + (durationModifier * restrictions.length);
             
             await this.memberRestrictionService.createMemberRestriction(
                 MemberRestrictionType.QUEUE_BAN,
