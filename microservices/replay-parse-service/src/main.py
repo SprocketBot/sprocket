@@ -111,11 +111,7 @@ class ParseReplay(BaseTask):
                 self.analytics.cached(True).complete()
             )
 
-            return {
-                "parser": config["parser"],
-                "outputPath": parsed_object_path,
-                "data": already_parsed
-            }
+            return already_parsed
         except S3Error as e:
             if e.code == "NoSuchKey":
                 pass
