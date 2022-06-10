@@ -1,12 +1,16 @@
-import {Injectable, Logger} from "@nestjs/common";
+import {
+    Inject, Injectable, Logger,
+} from "@nestjs/common";
 import {AnalyticsService, CoreService} from "@sprocketbot/common";
+import type {ClientEvents} from "discord.js";
+import {Client} from "discord.js";
 import * as zod from "zod";
 
 import {EmbedService} from "../embed/embed.service";
 import type {EventFunction} from ".";
 import {
     CommandMetaSchema,
-    EventManagerService, EventMetaSchema,
+    EventMetaSchema,
     MarshalMetadataKey,
 } from ".";
 import type {CommandFunction} from "./commands";
@@ -23,14 +27,14 @@ export abstract class Marshal {
 
     constructor(
         protected readonly cms: CommandManagerService,
-        protected readonly ems: EventManagerService,
         protected readonly coreService: CoreService,
         protected readonly analyticsService: AnalyticsService,
         protected readonly embedService: EmbedService,
+        @Inject("DISCORD_CLIENT") protected readonly botClient: Client,
     ) {
         this.registerAllCommands(cms);
         this.registerAllCommandNotFoundHooks(cms);
-        this.registerAllEvents(ems);
+        this.registerAllEvents();
     }
 
     private registerAllCommands(cms: CommandManagerService): void {
@@ -76,7 +80,7 @@ export abstract class Marshal {
         });
     }
 
-    private registerAllEvents(ems: EventManagerService): void {
+    private registerAllEvents(): void {
         const marshalMetadata: unknown = Reflect.getMetadata(MarshalMetadataKey.Event, this);
         if (!marshalMetadata) return;
         const parseResult = zod.array(EventMetaSchema).safeParse(marshalMetadata);
@@ -87,12 +91,12 @@ export abstract class Marshal {
         const {data} = parseResult;
 
         data.forEach(meta => {
+            // We kinda need to act on faith here, if the implementer has decorated an unsafe function, we can't tell until runtime.
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
+            const f = Reflect.get(this, meta.functionName).bind(this) as EventFunction;
             // Do things
-            ems.registerEvent({
-                ...meta,
-                // We kinda need to act on faith here, if the implementer has decorated an unsafe function, we can't tell until runtime.
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
-                function: Reflect.get(this, meta.functionName).bind(this) as EventFunction,
+            this.botClient.on(meta.spec.event, async (...args: ClientEvents[keyof ClientEvents]): Promise<void> => {
+                await f(args);
             });
             this._logger.debug(`Registered Event ${meta.spec.event}`);
         });
