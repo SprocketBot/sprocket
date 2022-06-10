@@ -96,7 +96,7 @@ export abstract class Marshal {
             const f = Reflect.get(this, meta.functionName).bind(this) as EventFunction;
             // Do things
             this.botClient.on(meta.spec.event, async (...args: ClientEvents[keyof ClientEvents]): Promise<void> => {
-                await f(args);
+                await f(args).catch(e => { this._logger.error(e) });
             });
             this._logger.debug(`Registered Event ${meta.spec.event}`);
         });
