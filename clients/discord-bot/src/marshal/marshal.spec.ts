@@ -6,9 +6,9 @@ import {
 import type {Message} from "discord.js";
 
 import {EmbedService} from "../embed/embed.service";
-import {CommandManagerService} from "./command-manager/command-manager.service";
+import {CommandManagerService} from "./commands/command-manager.service";
+import {CommandNotFound} from "./commands/command-not-found.decorator";
 import {Command} from "./decorators";
-import {CommandNotFound} from "./decorators/command-not-found.decorator";
 import {Marshal} from "./marshal";
 import type {CommandSpec} from "./types";
 

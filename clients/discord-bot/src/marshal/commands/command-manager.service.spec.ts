@@ -4,8 +4,8 @@ import {Test} from "@nestjs/testing";
 import {config as appConfig} from "@sprocketbot/common";
 import type {Message} from "discord.js";
 
-import type {LinkedCommandMeta} from "..";
 import {CommandManagerService} from "./command-manager.service";
+import type {LinkedCommandMeta} from "./commands.types";
 
 const botPrefix = appConfig.bot.prefix;
 

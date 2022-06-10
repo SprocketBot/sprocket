@@ -1,3 +1,3 @@
-import {Marshal} from "../marshal";
+import {Marshal} from "../../marshal";
 
 export class OrganizationConfigurationMarshal extends Marshal {}

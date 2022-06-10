@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import type {FindConditions} from "typeorm";
-import {Repository} from "typeorm";
+import type {FindConditions, FindOneOptions} from "typeorm";
+import {Like, Repository} from "typeorm";
 
 import {
     Organization,
@@ -78,6 +78,14 @@ export class OrganizationConfigurationService {
             organizationConfigurationValue?.key ?? organizationConfigurationKey!,
             organizationConfigurationValue?.value ?? organizationConfigurationKey!.default,
         ) as T;
+    }
+
+    async findOrganizationConfigurationValue(value: string, options?: FindOneOptions<OrganizationConfigurationValue>): Promise<OrganizationConfigurationValue> {
+        return this.valueRepository.findOneOrFail(Object.assign(options ?? {}, {
+            where: {
+                value: Like(`%${value}%`),
+            },
+        }));
     }
 
     async createOrganizationConfigurationValue(organizationId: number, code: string, value: string): Promise<OrganizationConfigurationValue> {

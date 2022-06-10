@@ -2,7 +2,7 @@ import {Message} from "discord.js";
 
 import {
     Command, Marshal, MarshalCommandContext,
-} from "../marshal";
+} from "../../marshal";
 
 export class CommandDecoratorTestMarshal extends Marshal {
 
