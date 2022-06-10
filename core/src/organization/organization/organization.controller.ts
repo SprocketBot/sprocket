@@ -24,7 +24,7 @@ export class OrganizationController {
     @MessagePattern(CoreEndpoint.GetOrganizationDiscordGuildsByGuild)
     async getOrganizationDiscordGuildsByGuild(@Payload() payload: unknown): Promise<GetOrganizationDiscordGuildsByGuildResponse> {
         const data = CoreSchemas.GetOrganizationDiscordGuildsByGuild.input.parse(payload);
-        const valueContainingGuildId = await this.organizationConfigurationService.findOrganizationConfigurationValue(data, {relations: ["organization"] });
+        const valueContainingGuildId = await this.organizationConfigurationService.findOrganizationConfigurationValue(data.guildId, {relations: ["organization"] });
 
         const primaryGuild = await this.organizationConfigurationService.getOrganizationConfigurationValue<string>(valueContainingGuildId.organization.id, OrganizationConfigurationKeyCode.PRIMARY_DISCORD_GUILD_SNOWFLAKE);
         const alternateGuilds = await this.organizationConfigurationService.getOrganizationConfigurationValue<string[]>(valueContainingGuildId.organization.id, OrganizationConfigurationKeyCode.ALTERNATE_DISCORD_GUILD_SNOWFLAKES);
