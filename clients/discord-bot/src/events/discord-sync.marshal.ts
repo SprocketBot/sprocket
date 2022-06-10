@@ -11,46 +11,6 @@ import {
 export class DiscordSyncMarshal extends Marshal {
     private readonly logger = new Logger(DiscordSyncMarshal.name);
 
-    @Event({event: ClientEvent.guildMemberAdd})
-    async guildMemberAdd([member]: ClientEvents[ClientEvent.guildMemberAdd]): Promise<void> {
-        await this.syncMember(member);
-    }
-
-    @Event({event: ClientEvent.guildMemberUpdate})
-    async guildMemberUpdate([oldMember, newMember]: ClientEvents[ClientEvent.guildMemberUpdate]): Promise<void> {
-        const orgGuilds = await this.getOrganizationDiscordGuildsByGuild(newMember.guild.id);
-        if (newMember.guild.id !== orgGuilds.primary) return;
-
-        const primaryGuild = newMember.guild;
-        const alternateGuilds = await Promise.all(orgGuilds.alternate.map(async g => this.botClient.guilds.fetch(g)));
-        await Promise.all(alternateGuilds.map(async g => g.members.fetch()));
-
-        const guildIntersection = alternateGuilds.filter(g => g.members.resolve(newMember.user.id));
-
-        for (const alternateGuild of guildIntersection.values()) {
-            const alternateMember = alternateGuild.members.resolve(newMember.user.id);
-            if (!alternateMember) continue;
-
-            if (alternateMember.displayName !== newMember.displayName) alternateMember.setNickname(newMember.displayName).catch(e => { this.logger.error(e) });
-
-            const roleDifference = oldMember.roles.cache.difference(newMember.roles.cache);
-            if (!roleDifference.size) continue;
-
-            const rolesIntersection = primaryGuild.roles.cache.filter(pgr => alternateGuild.roles.cache.some(agr => agr.name === pgr.name) && roleDifference.has(pgr.id));
-            if (!rolesIntersection.size) continue;
-
-            const rolesToCheck = rolesIntersection.map(pgr => alternateGuild.roles.cache.find(agr => agr.name === pgr.name)!);
-
-            for (const role of rolesToCheck) {
-                if (newMember.roles.cache.some(r => r.name === role.name) && !alternateMember.roles.cache.some(r => r.name === role.name)) {
-                    alternateMember.roles.add(role.id).catch(e => { this.logger.error(e) });
-                } else if (!newMember.roles.cache.some(r => r.name === role.name) && alternateMember.roles.cache.some(r => r.name === role.name)) {
-                    alternateMember.roles.remove(role.id).catch(e => { this.logger.error(e) });
-                }
-            }
-        }
-    }
-
     @Command({
         name: "syncme",
         docs: "Sync your name and roles from the organization's primary guild.",
@@ -63,32 +23,65 @@ export class DiscordSyncMarshal extends Marshal {
             .catch(async () => m.reply("Something happened...contact an admin."));
     }
 
-    async syncMember(member: GuildMember): Promise<void> {
-        const orgGuilds = await this.getOrganizationDiscordGuildsByGuild(member.guild.id);
-        if (!orgGuilds.alternate.some(g => g === member.guild.id)) return;
+    @Event({event: ClientEvent.guildMemberAdd})
+    async guildMemberAdd([member]: ClientEvents[ClientEvent.guildMemberAdd]): Promise<void> {
+        await this.syncMember(member);
+    }
 
-        const primaryGuild = await this.botClient.guilds.fetch(orgGuilds.primary);
+    @Event({event: ClientEvent.guildMemberUpdate})
+    async guildMemberUpdated([, newMember]: ClientEvents[ClientEvent.guildMemberUpdate]): Promise<void> {
+        const organizationGuilds = await this.getOrganizationDiscordGuildsByGuild(newMember.guild.id);
+        if (organizationGuilds.primary !== newMember.guild.id) return;
+
+        const primaryGuild = newMember.guild;
+        const primaryGuildMember = newMember;
         const primaryGuildRoles = await primaryGuild.roles.fetch();
+
+        const alternateGuilds = await Promise.all(organizationGuilds.alternate.map(async g => this.botClient.guilds.fetch(g)));
+        await Promise.all(alternateGuilds.map(async g => g.members.fetch(primaryGuildMember.user.id)));
+        const alternateGuildsWithMember = alternateGuilds.filter(g => g.members.cache.some(m => m.user.id === primaryGuildMember.user.id));
+
+        for (const alternateGuild of alternateGuildsWithMember) {
+            const alternateGuildMember = await alternateGuild.members.fetch(primaryGuildMember.user.id);
+            const alternateGuildRoles = await alternateGuild.roles.fetch();
+
+            if (primaryGuildMember.displayName !== alternateGuildMember.displayName) alternateGuildMember.setNickname(primaryGuildMember.displayName).catch(e => { this.logger.error(e) });
+
+            const primaryGuildRolesInAlternateGuild = primaryGuildRoles.filter(pgr => alternateGuildRoles.some(agr => agr.name === pgr.name) && pgr.id !== pgr.guild.id);
+            const alternateGuildRolesFromPrimaryGuild = primaryGuildRolesInAlternateGuild.map(r => alternateGuild.roles.cache.find(rr => rr.name === r.name)!);
+            const rolesToAdd = alternateGuildRolesFromPrimaryGuild.filter(r => primaryGuildMember.roles.cache.some(rr => rr.name === r.name) && !alternateGuildMember.roles.cache.some(rr => rr.name === r.name));
+            const rolesToRemove = alternateGuildRolesFromPrimaryGuild.filter(r => !primaryGuildMember.roles.cache.some(rr => rr.name === r.name) && alternateGuildMember.roles.cache.some(rr => rr.name === r.name));
+
+            await Promise.all([
+                ...rolesToAdd.map(async rta => alternateGuildMember.roles.add(rta).catch(() => {})),
+                ...rolesToRemove.map(async rtr => alternateGuildMember.roles.remove(rtr).catch(() => {})),
+            ]).catch(e => { this.logger.error(e) });
+        }
+    }
+
+    async syncMember(member: GuildMember): Promise<void> {
+        const organizationGuilds = await this.getOrganizationDiscordGuildsByGuild(member.guild.id);
+        if (!organizationGuilds.alternate.some(alternateGuildId => alternateGuildId === member.guild.id)) return;
+
+        const primaryGuild = await this.botClient.guilds.fetch(organizationGuilds.primary);
         const primaryGuildMember = await primaryGuild.members.fetch(member.user.id);
+        const primaryGuildRoles = await primaryGuild.roles.fetch();
 
-        if (member.displayName !== primaryGuildMember.displayName) await member.setNickname(primaryGuildMember.displayName);
+        const alternateGuild = member.guild;
+        const alternateGuildMember = member;
+        const alternateGuildRoles = await alternateGuild.roles.fetch();
 
-        const alternateGuildRoles = await member.guild.roles.fetch();
+        if (primaryGuildMember.displayName !== alternateGuildMember.displayName) alternateGuildMember.setNickname(primaryGuildMember.displayName).catch(e => { this.logger.error(e) });
 
-        const rolesIntersection = primaryGuildRoles.filter(pgr => pgr.id !== pgr.guild.id // Role is not @everyone
-            && alternateGuildRoles.some(gr => gr.name === pgr.name) // Role name exists in alternate server
-            && primaryGuildMember.roles.cache.has(pgr.id) // Primary guild member has primary guild role
-            && !member.roles.cache.some(r => r.name === pgr.name)); // Alternate guild member does not have alternate guild role, should never happen though
-        const rolesToGive = rolesIntersection.map(pgr => alternateGuildRoles.find(agr => agr.name === pgr.name)!);
+        const primaryGuildRolesInAlternateGuild = primaryGuildRoles.filter(pgr => alternateGuildRoles.some(agr => agr.name === pgr.name) && pgr.id !== pgr.guild.id);
+        const alternateGuildRolesFromPrimaryGuild = primaryGuildRolesInAlternateGuild.map(r => alternateGuild.roles.cache.find(rr => rr.name === r.name)!);
+        const rolesToAdd = alternateGuildRolesFromPrimaryGuild.filter(r => primaryGuildMember.roles.cache.some(rr => rr.name === r.name) && !alternateGuildMember.roles.cache.some(rr => rr.name === r.name));
+        const rolesToRemove = alternateGuildRolesFromPrimaryGuild.filter(r => !primaryGuildMember.roles.cache.some(rr => rr.name === r.name) && alternateGuildMember.roles.cache.some(rr => rr.name === r.name));
 
-        const antiRolesIntersection = primaryGuildRoles.filter(pgr => pgr.id !== pgr.guild.id
-            && alternateGuildRoles.some(gr => gr.name === pgr.name)
-            && !primaryGuildMember.roles.cache.has(pgr.id)
-            && member.roles.cache.some(r => r.name === pgr.name));
-        const rolesToTake = antiRolesIntersection.map(pgr => alternateGuildRoles.find(agr => agr.name === pgr.name)!);
-
-        await member.roles.add(rolesToGive);
-        await member.roles.remove(rolesToTake);
+        await Promise.all([
+            ...rolesToAdd.map(async rta => alternateGuildMember.roles.add(rta).catch(() => {})),
+            ...rolesToRemove.map(async rtr => alternateGuildMember.roles.remove(rtr).catch(() => {})),
+        ]).catch(e => { this.logger.error(e) });
     }
 
     async getOrganizationDiscordGuildsByGuild(guildId: string): Promise<GetOrganizationDiscordGuildsByGuildResponse> {
