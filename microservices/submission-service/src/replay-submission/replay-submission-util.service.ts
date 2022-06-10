@@ -1,25 +1,34 @@
 import {Injectable} from "@nestjs/common";
 import type {
-    ICanSubmitReplays_Response, ReplaySubmission,
+    ICanSubmitReplays_Response,
 } from "@sprocketbot/common";
 import {
-    MatchmakingEndpoint, MatchmakingService, RedisService, ResponseStatus, ScrimStatus,
+    MatchmakingEndpoint, MatchmakingService, RedisService,
+    ResponseStatus,
+    ScrimStatus,
 } from "@sprocketbot/common";
 
 import {
-    getSubmissionKey, submissionIsMatch, submissionIsScrim,
+    submissionIsMatch, submissionIsScrim,
 } from "../utils";
+import {ReplaySubmissionCrudService} from "./replay-submission-crud.service";
 
 @Injectable()
-export class ReplayUploadService {
+export class ReplaySubmissionUtilService {
     constructor(
+        private readonly submissionCrudService: ReplaySubmissionCrudService,
         private readonly redisService: RedisService,
         private readonly matchmakingService: MatchmakingService,
     ) {}
 
+    async isRatified(submissionId: string): Promise<boolean> {
+        const submission = await this.submissionCrudService.getSubmission(submissionId);
+        if (!submission) throw new Error(`No submission ${submissionId}`);
+        return submission.ratifiers.length >= submission.requiredRatifications;
+    }
+
     async canSubmitReplays(submissionId: string, playerId: number): Promise<ICanSubmitReplays_Response> {
-        const submissionKey = getSubmissionKey(submissionId);
-        const submission = await this.redisService.getIfExists<ReplaySubmission>(submissionKey);
+        const submission = await this.submissionCrudService.getSubmission(submissionId);
 
         if (submission?.items.length) {
             return {

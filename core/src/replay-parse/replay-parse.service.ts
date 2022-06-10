@@ -10,7 +10,7 @@ import {
     MatchmakingEndpoint,
     MatchmakingService,
     MinioService,
-    ProgressStatus,
+    ProgressStatus, readBuffer,
     ResponseStatus,
     ScrimStatus,
     Task,
@@ -21,7 +21,6 @@ import {GraphQLError} from "graphql";
 import type {Readable} from "stream";
 
 import {ScrimService} from "../scrim";
-import {read} from "../util/read";
 import {REPLAY_EXT, ReplayParsePubSub} from "./replay-parse.constants";
 import {ReplayParseSubscriber} from "./replay-parse.subscriber";
 import type {ParseReplaysTasks} from "./replay-parse.types";
@@ -78,9 +77,11 @@ export class ReplayParseService {
     }
 
     async parseReplays(streams: Array<{stream: Readable; filename: string;}>, submissionId: string, player: ScrimPlayer): Promise<string[]> {
+        // ✅
         const cantSubmitReason = await this.submissionService.canSubmitReplays(submissionId, player.id);
         if (cantSubmitReason) throw new Error(cantSubmitReason);
 
+        // ✅
         await this.submissionService.ensureSubmission(submissionId, player.id);
 
         // Keep track of taskIds to return to the client
@@ -90,7 +91,7 @@ export class ReplayParseService {
         const tasks: ParseReplaysTasks = {};
 
         const promises = streams.map(async ({stream, filename}, i) => {
-            const buffer = await read(stream);
+            const buffer = await readBuffer(stream);
             const objectHash = SHA256(buffer.toString()).toString();
             const replayObjectPath = `replays/${objectHash}${REPLAY_EXT}`;
 

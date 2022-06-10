@@ -27,9 +27,9 @@ export class ReplaySubmissionCrudService {
         private readonly eventService: EventsService,
     ) {}
 
-    async getSubmission(submissionId: string): Promise<ReplaySubmission> {
+    async getSubmission(submissionId: string): Promise<ReplaySubmission | undefined> {
         const key = getSubmissionKey(submissionId);
-        return this.redisService.getJson<ReplaySubmission>(key);
+        return this.redisService.getJson<ReplaySubmission | undefined>(key);
     }
 
     async getOrCreateSubmission(submissionId: string, playerId: number): Promise<ReplaySubmission> {
@@ -135,7 +135,7 @@ export class ReplaySubmissionCrudService {
 
         await this.eventService.publish(EventTopic.SubmissionRatificationAdded, {
             currentRatifications: ratifiers.length + 1,
-            requiredRatifications: await this.getSubmission(submissionId).then(s => s.requiredRatifications),
+            requiredRatifications: await this.getSubmission(submissionId).then(s => s?.requiredRatifications ?? 1),
             submissionId: submissionId,
         });
     }

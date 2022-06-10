@@ -12,7 +12,7 @@ import {
     MatchmakingEndpoint,
     MatchmakingService,
     MinioService,
-    Parser,
+    Parser, readBuffer,
     RedisService,
     ResponseStatus,
     ScrimStatus,
@@ -20,7 +20,6 @@ import {
 import {PubSub} from "apollo-server-express";
 
 import {ScrimService} from "../../scrim";
-import {read} from "../../util/read";
 import {FinalizationService} from "../finalization/finalization.service";
 import {REPLAY_SUBMISSION_PREFIX, ReplayParsePubSub} from "../replay-parse.constants";
 import type {BaseReplaySubmission, ReplaySubmission} from "./types/replay-submission.types";
@@ -356,7 +355,7 @@ export class ReplaySubmissionService {
         const promises = items.map(async item => {
             const outputPath = item.outputPath!; // Must exist because of our .every check above
             const stream = await this.minioService.get(config.minio.bucketNames.replays, outputPath);
-            const b = await read(stream);
+            const b = await readBuffer(stream);
             return JSON.parse(b.toString()) as ParsedReplay;
         });
         const rawStats = await Promise.all(promises);

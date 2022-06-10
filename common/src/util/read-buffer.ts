@@ -6,7 +6,7 @@ import type {Readable} from "stream";
  * @param stream The stream to read.
  * @returns A buffer containing the data from the stream.
  */
-export const read = async (stream: Readable): Promise<Buffer> => {
+export const readBuffer = async (stream: Readable): Promise<Buffer> => {
     const chunks: Buffer[] = [];
     return new Promise((resolve, reject) => {
         stream.on("data", chunk => { chunks.push(Buffer.from(chunk as ArrayBuffer)) });
