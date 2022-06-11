@@ -1,5 +1,4 @@
 import {Injectable, Logger} from "@nestjs/common";
-import {MICROSERVICES_PACKAGE_NOT_FOUND_EXCEPTION} from "@nestjs/core/errors/messages";
 import type {Scrim} from "@sprocketbot/common";
 import {
     BotEndpoint,
