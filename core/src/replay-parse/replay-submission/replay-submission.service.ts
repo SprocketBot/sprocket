@@ -246,6 +246,9 @@ export class ReplaySubmissionService {
             // Reset scrim to allow re-submission
             await this.scrimService.resetScrim(scrim.id, playerId);
 
+            const rejections = await this.getRejections(submissionId);
+            if (rejections.length >= 3) await this.scrimService.setScrimLocked(scrim.id, true);
+
             await this.analyticsService.send(AnalyticsEndpoint.Analytics, {
                 name: "scrim-rejected",
                 tags: [
