@@ -114,7 +114,7 @@ export const BallchasingPlayerSchema = z.object({
         transition_speed: z.number(),
     }),
     car_id: z.number().default(-1),
-    car_name: z.string().default("UNKNOWN"),
+    car_name: z.preprocess((val: unknown) => val ?? "UNKNOWN", z.string()),
     end_time: z.number(),
     start_time: z.number(),
     steering_sensitivity: z.number(),
