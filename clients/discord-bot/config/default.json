@@ -15,5 +15,13 @@
   },
   "logger": {
     "levels": true
+  },
+  "minio": {
+    "endPoint": "",
+    "bucketNames": {
+      "image_generation": ""
+    },
+    "useSSL": true,
+    "port": 80
   }
 }

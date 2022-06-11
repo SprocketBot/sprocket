@@ -75,6 +75,38 @@ export class ScrimService {
         }));
     }
 
+    async sendReportCard(scrim: Scrim): Promise<void> {
+        // TODO: This!
+        const mleScrimId = 24242;
+
+        const reportCard = await this.coreService.send(CoreEndpoint.GenerateReportCard, {mleScrimId});
+        if (reportCard.status !== ResponseStatus.SUCCESS) { this.logger.error(`Could not generate report card for mleScrimId=${mleScrimId}`);return }
+        
+        await this.botService.send(BotEndpoint.SendGuildTextMessage, {
+            channelId: "866420216653414400",
+            content: {
+                embeds: [ {
+                    title: "Scrim Results",
+                    image: {
+                        url: "attachment://card.png",
+                    },
+                    timestamp: Date.now(),
+                } ],
+                attachments: [ {name: "card.png", url: `minio:${config.minio.bucketNames.image_generation}/${reportCard.data}.png`} ],
+            },
+            brandingOptions: {
+                organizationId: scrim.organizationId,
+                options: {
+                    color: true,
+                    footer: {
+                        icon: true,
+                        text: true,
+                    },
+                },
+            },
+        });
+    }
+
     async getScrim(scrimId: string): Promise<Scrim | null> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, scrimId);
         if (result.status === ResponseStatus.SUCCESS) {

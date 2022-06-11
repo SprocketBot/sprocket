@@ -1,3 +1,4 @@
+export * from "./GenerateReportCard.schema";
 export * from "./GetDiscordIdByUser.schema";
 export * from "./GetMember.schema";
 export * from "./GetOrganizationBranding.schema";
