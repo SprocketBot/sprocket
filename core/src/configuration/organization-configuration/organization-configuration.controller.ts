@@ -10,7 +10,7 @@ export class OrganizationConfigurationController {
     constructor(private readonly organizationConfigurationService: OrganizationConfigurationService) {}
 
     @MessagePattern(CoreEndpoint.GetOrganizationConfigurationValue)
-    async getOrganizationBranding(@Payload() payload: unknown): Promise<OrganizationConfigurationKeyTypes[keyof OrganizationConfigurationKeyTypes]> {
+    async getOrganizationConfigurationValue(@Payload() payload: unknown): Promise<OrganizationConfigurationKeyTypes[keyof OrganizationConfigurationKeyTypes]> {
         const data = CoreSchemas.GetOrganizationConfigurationValue.input.parse(payload);
         return this.organizationConfigurationService.getOrganizationConfigurationValue(data.organizationId, data.code);
     }
