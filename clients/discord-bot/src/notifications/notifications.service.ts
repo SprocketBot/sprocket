@@ -35,6 +35,11 @@ export class NotificationsService {
     /**
      * Attachments use either a url for an image or video or to use minio, the following format:
      * minio:bucket_name/object_key
+     * @example
+     * // Minio File
+     * downloadAttachment("minio:bucket_name/object_key")
+     * // External File
+     * // ??
      */
     async downloadAttachment(attachment: Attachment | string): Promise<MessageAttachment> {
         const url = typeof attachment === "string" ? attachment : attachment.url;
