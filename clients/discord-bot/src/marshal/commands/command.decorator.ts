@@ -8,10 +8,10 @@ import {performance} from "perf_hooks";
 
 import {CommandError} from "../command-error";
 import type {Marshal} from "../marshal";
+import {MarshalMetadataKey} from "../types";
 import type {
     CommandFunction, CommandMeta, CommandSpec,
-} from "../types";
-import {MarshalMetadataKey} from "../types";
+} from "./commands.types";
 
 const logger = new Logger("CommandDecorator");
 export const Command = (commandSpec: CommandSpec): MethodDecorator => <T>(target: Object, key: string | symbol, descriptor: TypedPropertyDescriptor<T>): TypedPropertyDescriptor<T> => {

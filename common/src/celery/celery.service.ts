@@ -110,18 +110,21 @@ export class CeleryService {
      * @param queue The name of the queue to subscribe to.
      * @returns An observable that yields messages from the queue.
      */
-    subscribe<T extends Task>(queue: string): Observable<ProgressMessage<T>> {
+    subscribe<T extends Task>(task: T, queue: string): Observable<ProgressMessage<T>> {
         const observable = new Observable<ProgressMessage<T>>(sub => {
             // Create queue if doesn't exist
             this.progressChannel.assertQueue(queue)
                 .then(() => {
                     this.progressChannel.consume(queue, v => {
                         if (!v) return;
-                        // TODO: Zod schema enforcement
-                        const msg = JSON.parse(v.content.toString()) as ProgressMessage<T>;
-
-                        this.logger.debug(`Progress queue=${queue} message=${JSON.stringify(msg)}`);
-                        sub.next(msg);
+                        const message = JSON.parse(v.content.toString()) as ProgressMessage<T>;
+                        if (message.result) {
+                            message.result = this.parseResult(task, message.result);
+                        }
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                        const {result, ...messageWithoutResult} = message;
+                        this.logger.debug(`Progress queue=${queue} message=${JSON.stringify(messageWithoutResult)}`);
+                        sub.next(message);
 
                         // How to complete subscription/delete queue here, without knowing if other tasks are complete?
                         // if (msg.status === ProgressStatus.Complete) {

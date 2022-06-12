@@ -1,6 +1,6 @@
 # Sprocket Project Repo
 [![Support Server](https://img.shields.io/discord/856290331279884288.svg?label=Discord&logo=Discord&colorB=7289da&style=for-the-badge)](https://discord.gg/hJ3YAvHucb)
-
+[![Support us on Ko-Fi](./badges/kofi.svg)](https://ko-fi.com/sprocketbot)
 ---
 
 Sprocket is a platform primarily used to manage and automate organized Esports leagues, one such example being [Minor League Esports](https://mlesports.gg).

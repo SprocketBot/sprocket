@@ -4,14 +4,14 @@ import {
     Message, MessageActionRow, MessageButton, MessageEmbed,
 } from "discord.js";
 
-import {Command, Marshal} from "../marshal";
-import {CommandError} from "../marshal/command-error";
+import {Command, Marshal} from "../../marshal";
+import {CommandError} from "../../marshal/command-error";
 import type {
     StepOptions, WizardFunction, WizardFunctionOutput,
-} from "../marshal/wizard";
+} from "../../marshal/wizard";
 import {
     Wizard, WizardExitStatus, WizardType,
-} from "../marshal/wizard";
+} from "../../marshal/wizard";
 
 export class DebugCommandsMarshal extends Marshal {
     private readonly logger = new Logger(DebugCommandsMarshal.name);
