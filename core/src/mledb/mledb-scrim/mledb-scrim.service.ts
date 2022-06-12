@@ -60,7 +60,7 @@ export class MledbScrimService {
         };
     }
 
-    async saveScrim(submission: ReplaySubmission, submissionId: string, runner: QueryRunner, scrimObject: Scrim): Promise<void> {
+    async saveScrim(submission: ReplaySubmission, submissionId: string, runner: QueryRunner, scrimObject: Scrim): Promise<number> {
         const scrim = this.mleScrimRepository.create();
         const series = this.mleSeriesRepository.create();
         const coreStats: MLE_PlayerStatsCore[] = [];
@@ -186,6 +186,8 @@ export class MledbScrimService {
         await runner.manager.save(playerStats);
         await runner.manager.save(teamStats);
         await runner.manager.save(playerEligibilities);
+
+        return scrim.id;
     }
 
 }

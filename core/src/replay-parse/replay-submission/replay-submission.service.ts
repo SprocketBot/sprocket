@@ -197,8 +197,15 @@ export class ReplaySubmissionService {
             if (!ratified) return true;
 
             this.logger.log(`scrim ${scrim.id} ratified!`);
+
             try {
-                await this.finalizationService.saveScrimToDatabase(await this.getSubmission(submissionId), submissionId);
+                const ids = await this.finalizationService.saveScrimToDatabase(await this.getSubmission(submissionId), submissionId);
+
+                await this.matchmakingService.send(MatchmakingEndpoint.CompleteScrim, {
+                    scrimId: scrim.id,
+                    playerId: playerId,
+                    databaseIds: ids,
+                });
             } catch (e) {
                 this.logger.warn("Error saving scrim!");
                 // TODO: What needs to be done in this situation?
@@ -206,11 +213,6 @@ export class ReplaySubmissionService {
                 // We _really_ need a way of notifying members of a scrim certain things
                 await this.scrimService.resetScrim(scrim.id);
             }
-
-            await this.matchmakingService.send(MatchmakingEndpoint.CompleteScrim, {
-                scrimId: scrim.id,
-                playerId: playerId,
-            });
 
             await this.removeSubmission(submissionId);
 

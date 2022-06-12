@@ -29,7 +29,6 @@ export class ScrimEventSubscriber {
         if (d.topic !== EventTopic.ScrimPopped) return;
 
         this.scrimService.sendNotifications(d.payload).catch(e => { this.logger.error(e) });
-        this.scrimService.sendReportCard(d.payload).catch(e => { this.logger.error(e) });
     };
 
     onScrimComplete = (d: EventResponse<EventTopic.ScrimComplete>): void => {

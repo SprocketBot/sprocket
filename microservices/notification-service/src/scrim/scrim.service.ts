@@ -1,5 +1,5 @@
 import {Injectable, Logger} from "@nestjs/common";
-import type {Scrim} from "@sprocketbot/common";
+import type {Scrim, ScrimDatabaseIds} from "@sprocketbot/common";
 import {
     BotEndpoint,
     BotService,
@@ -76,17 +76,14 @@ export class ScrimService {
         }));
     }
 
-    async sendReportCard(scrim: Scrim): Promise<void> {
-        // TODO: This!
-        const mleScrimId = 24242;
-
+    async sendReportCard(scrim: Scrim & {databaseIds: ScrimDatabaseIds;}): Promise<void> {
         const reportCardChannelResult = await this.coreService.send(CoreEndpoint.GetOrganizationConfigurationValue, {
             organizationId: scrim.organizationId,
             code: OrganizationConfigurationKeyCode.REPORT_CARD_CHANNEL_SNOWFLAKE,
         });
         if (reportCardChannelResult.status !== ResponseStatus.SUCCESS) throw reportCardChannelResult.error;
 
-        const reportCardResult = await this.coreService.send(CoreEndpoint.GenerateReportCard, {mleScrimId});
+        const reportCardResult = await this.coreService.send(CoreEndpoint.GenerateReportCard, {mleScrimId: scrim.databaseIds.legacyId});
         if (reportCardResult.status !== ResponseStatus.SUCCESS) throw reportCardResult.error;
 
         const discordUserIds = await Promise.all(scrim.players.map(async player => {
