@@ -26,6 +26,7 @@ import {GameSkillGroupService} from "../../franchise";
 import {GameModeService} from "../../game";
 import {UserService} from "../../identity/user/user.service";
 import type {ReplaySubmission} from "../../replay-parse";
+import {SprocketRatingService} from "../../sprocket-rating/sprocket-rating.service";
 import {assignPlayerStats} from "./assign-player-stats";
 import {ballchasingMapLookup} from "./ballchasing-maps";
 
@@ -45,6 +46,7 @@ export class MledbScrimService {
         private readonly gameModeService: GameModeService,
         private readonly matchmakingService: MatchmakingService,
         private readonly userService: UserService,
+        private readonly sprocketRatingService: SprocketRatingService,
     ) {
     }
 
@@ -119,10 +121,18 @@ export class MledbScrimService {
                 core.goals = p.stats.core.goals;
                 core.saves = p.stats.core.saves;
                 core.assists = p.stats.core.assists;
+                core.goals_against = p.stats.core.goals_against;
+                core.shots_against = p.stats.core.shots_against;
                 core.mvp = p.stats.core.mvp;
                 core.score = p.stats.core.score;
                 // eslint-disable-next-line @typescript-eslint/no-extra-parens
                 core.mvpr = core.goals + (core.assists * 0.75) + (core.saves * 0.60) + (core.shots / 3);
+                const {
+                    opi, dpi, gpi,
+                } = this.sprocketRatingService.calcSprocketRating(core);
+                core.opi = opi;
+                core.dpi = dpi;
+                core.gpi = gpi;
 
                 stats.replay = replay;
 
