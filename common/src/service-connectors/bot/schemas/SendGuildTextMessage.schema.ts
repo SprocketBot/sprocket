@@ -4,7 +4,7 @@ import {BrandingOptionsSchema, MessageContentSchema} from "../types";
 
 export const SendGuildTextMessage_Request = z.object({
     channelId: z.string(),
-    content: MessageContentSchema,
+    payload: MessageContentSchema,
     brandingOptions: BrandingOptionsSchema.optional(),
 });
 

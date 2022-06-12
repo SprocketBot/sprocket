@@ -1,6 +1,8 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {InjectConnection, InjectRepository} from "@nestjs/typeorm";
-import type {BallchasingPlayer, Scrim} from "@sprocketbot/common";
+import type {
+    BallchasingPlayer, Scrim, ScrimDatabaseIds,
+} from "@sprocketbot/common";
 import {
     CeleryService,
     MatchmakingEndpoint,
@@ -50,7 +52,7 @@ export class FinalizationService {
         @InjectRepository(EligibilityData) private readonly eligibilityDataRepo: Repository<EligibilityData>,
     ) {}
 
-    async saveScrimToDatabase(submission: ReplaySubmission, submissionId: string): Promise<void> {
+    async saveScrimToDatabase(submission: ReplaySubmission, submissionId: string): Promise<ScrimDatabaseIds> {
         const runner = this.dbConn.createQueryRunner();
         await runner.connect();
         await runner.startTransaction();
@@ -59,19 +61,26 @@ export class FinalizationService {
         if (scrimResponse.status === ResponseStatus.ERROR) throw scrimResponse.error;
         const scrimObject = scrimResponse.data;
 
-        await Promise.all([
-            this.mledbScrimService.saveScrim(submission, submissionId, runner, scrimObject as Scrim),
-            this.saveToSprocket(submission, runner, scrimObject as Scrim),
-        ])
-            .then(async () => runner.commitTransaction())
-            .catch(async e => {
-                await runner.rollbackTransaction();
-                this.logger.error(e);
-                throw e;
-            });
+        try {
+            const [mledbScrimId, sprocketMatchParentId] = await Promise.all([
+                this.mledbScrimService.saveScrim(submission, submissionId, runner, scrimObject as Scrim),
+                this.saveToSprocket(submission, runner, scrimObject as Scrim),
+            ]);
+    
+            await runner.commitTransaction();
+    
+            return {
+                id: sprocketMatchParentId,
+                legacyId: mledbScrimId,
+            };
+        } catch (e) {
+            await runner.rollbackTransaction();
+            this.logger.error(e);
+            throw e;
+        }
     }
 
-    private async saveToSprocket(submission: ReplaySubmission, runner: QueryRunner, scrimObject: Scrim): Promise<void> {
+    private async saveToSprocket(submission: ReplaySubmission, runner: QueryRunner, scrimObject: Scrim): Promise<number> {
         // Create Scrim/MatchParent/Match for scrim
         const scrimMeta = this.scrimMetaRepo.create();
         const matchParent = this.matchParentRepo.create();
@@ -187,5 +196,7 @@ export class FinalizationService {
         await runner.manager.save(teamStats);
         await runner.manager.save(playerStats);
         await runner.manager.save(playerEligibilities);
+
+        return scrimMeta.id;
     }
 }

@@ -25,6 +25,10 @@ export enum OrganizationConfigurationKeyCode {
       * Alterate guilds of the organization that names and roles will be synced to.
       */
     ALTERNATE_DISCORD_GUILD_SNOWFLAKES = "ALTERNATE_DISCORD_GUILD_SNOWFLAKES",
+    /**
+     * Disocrd Guild Webhook Url to post report cards to.
+     */
+    REPORT_CARD_DISCORD_WEBHOOK_URL = "REPORT_CARD_DISCORD_WEBHOOK_URL",
 }
 
 export enum OrganizationConfigurationKeyType {

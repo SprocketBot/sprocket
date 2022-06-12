@@ -1,5 +1,5 @@
 import {Injectable, Logger} from "@nestjs/common";
-import type {Scrim} from "@sprocketbot/common";
+import type {Scrim, ScrimDatabaseIds} from "@sprocketbot/common";
 import {
     BotEndpoint,
     BotService,
@@ -10,6 +10,7 @@ import {
     CoreService,
     MatchmakingEndpoint,
     MatchmakingService,
+    OrganizationConfigurationKeyCode,
     ResponseStatus,
 } from "@sprocketbot/common";
 
@@ -23,7 +24,7 @@ export class ScrimService {
         private readonly matchmakingService: MatchmakingService,
     ) {}
 
-    async sendNotifications(scrim: Scrim): Promise<void> {
+    async sendQueuePoppedNotifications(scrim: Scrim): Promise<void> {
         const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationBranding, {id: scrim.organizationId});
         if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
 
@@ -34,7 +35,7 @@ export class ScrimService {
 
             await this.botService.send(BotEndpoint.SendDirectMessage, {
                 userId: userResult.data,
-                content: {
+                payload: {
                     embeds: [ {
                         title: "Your scrim has popped!",
                         description: `Hey, ${p.name}! Your ${organizationBrandingResult.data.name} scrim just popped. Check in [here](${config.web.url}/scrims) to avoid being queue banned.`,
@@ -73,6 +74,52 @@ export class ScrimService {
                 },
             });
         }));
+    }
+
+    async sendReportCard(scrim: Scrim & {databaseIds: ScrimDatabaseIds;}): Promise<void> {
+        const reportCardWebhookUrl = await this.coreService.send(CoreEndpoint.GetOrganizationConfigurationValue, {
+            organizationId: scrim.organizationId,
+            code: OrganizationConfigurationKeyCode.REPORT_CARD_DISCORD_WEBHOOK_URL,
+        });
+        if (reportCardWebhookUrl.status !== ResponseStatus.SUCCESS) throw reportCardWebhookUrl.error;
+
+        const reportCardResult = await this.coreService.send(CoreEndpoint.GenerateReportCard, {mleScrimId: scrim.databaseIds.legacyId});
+        if (reportCardResult.status !== ResponseStatus.SUCCESS) throw reportCardResult.error;
+
+        const discordUserIds = await Promise.all(scrim.players.map(async player => {
+            const discordUserResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, player.id);
+            if (discordUserResult.status !== ResponseStatus.SUCCESS) return undefined;
+
+            return discordUserResult.data;
+        }));
+        
+        await this.botService.send(BotEndpoint.SendWebhookMessage, {
+            webhookUrl: reportCardWebhookUrl.data as string,
+            payload: {
+                content: discordUserIds.filter(u => u).map(u => `<@${u}>`)
+                    .join(", "),
+                embeds: [ {
+                    title: "Scrim Results",
+                    image: {
+                        url: "attachment://card.png",
+                    },
+                    timestamp: Date.now(),
+                } ],
+                attachments: [ {name: "card.png", url: `minio:${config.minio.bucketNames.image_generation}/${reportCardResult.data}.png`} ],
+            },
+            brandingOptions: {
+                organizationId: scrim.organizationId,
+                options: {
+                    color: true,
+                    footer: {
+                        icon: true,
+                        text: true,
+                    },
+                    webhookAvatar: true,
+                    webhookUsername: true,
+                },
+            },
+        });
     }
 
     async getScrim(scrimId: string): Promise<Scrim | null> {
