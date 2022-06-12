@@ -26,7 +26,7 @@ export enum OrganizationConfigurationKeyCode {
       */
     ALTERNATE_DISCORD_GUILD_SNOWFLAKES = "ALTERNATE_DISCORD_GUILD_SNOWFLAKES",
     /**
-     * Disocrd Guuild Text Channel Id to post report cards to.
+     * Disocrd Guild Webhook Url to post report cards to.
      */
     REPORT_CARD_DISCORD_WEBHOOK_URL = "REPORT_CARD_DISCORD_WEBHOOK_URL",
 }

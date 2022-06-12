@@ -58,23 +58,21 @@ export class FinalizationService {
         if (scrimResponse.status === ResponseStatus.ERROR) throw scrimResponse.error;
         const scrimObject = scrimResponse.data;
 
-        return Promise.all([
+        const [mledbScrimId, sprocketMatchParentId] = await Promise.all([
             this.mledbScrimService.saveScrim(submission, submissionId, runner, scrimObject as Scrim),
             this.saveToSprocket(submission, runner, scrimObject as Scrim),
-        ])
-            .then(async ([mledbScrimId, sprocketMatchParentId]) => {
-                await runner.commitTransaction();
+        ]).catch(async e => {
+            await runner.rollbackTransaction();
+            this.logger.error(e);
+            throw e;
+        });
 
-                return {
-                    id: sprocketMatchParentId,
-                    legacyId: mledbScrimId,
-                };
-            })
-            .catch(async e => {
-                await runner.rollbackTransaction();
-                this.logger.error(e);
-                throw e;
-            });
+        await runner.commitTransaction();
+
+        return {
+            id: sprocketMatchParentId,
+            legacyId: mledbScrimId,
+        };
     }
 
     private async saveToSprocket(submission: ReplaySubmission, runner: QueryRunner, scrimObject: Scrim): Promise<number> {
@@ -188,6 +186,6 @@ export class FinalizationService {
         await runner.manager.save(playerStats);
         await runner.manager.save(playerEligibilities);
 
-        return matchParent.id;
+        return scrimMeta.id;
     }
 }
