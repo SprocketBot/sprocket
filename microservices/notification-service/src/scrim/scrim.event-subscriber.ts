@@ -28,7 +28,7 @@ export class ScrimEventSubscriber {
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (d.topic !== EventTopic.ScrimPopped) return;
 
-        this.scrimService.sendNotifications(d.payload).catch(e => { this.logger.error(e) });
+        this.scrimService.sendQueuePoppedNotifications(d.payload).catch(e => { this.logger.error(e) });
     };
 
     onScrimComplete = (d: EventResponse<EventTopic.ScrimComplete>): void => {

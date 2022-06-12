@@ -4,7 +4,7 @@ import {BrandingOptionsSchema, MessageContentSchema} from "../types";
 
 export const SendDirectMessage_Request = z.object({
     userId: z.string(),
-    content: MessageContentSchema,
+    payload: MessageContentSchema,
     brandingOptions: BrandingOptionsSchema.optional(),
 });
 

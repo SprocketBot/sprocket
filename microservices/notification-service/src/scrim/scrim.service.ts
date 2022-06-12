@@ -24,7 +24,7 @@ export class ScrimService {
         private readonly matchmakingService: MatchmakingService,
     ) {}
 
-    async sendNotifications(scrim: Scrim): Promise<void> {
+    async sendQueuePoppedNotifications(scrim: Scrim): Promise<void> {
         const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationBranding, {id: scrim.organizationId});
         if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
 
@@ -35,7 +35,7 @@ export class ScrimService {
 
             await this.botService.send(BotEndpoint.SendDirectMessage, {
                 userId: userResult.data,
-                content: {
+                payload: {
                     embeds: [ {
                         title: "Your scrim has popped!",
                         description: `Hey, ${p.name}! Your ${organizationBrandingResult.data.name} scrim just popped. Check in [here](${config.web.url}/scrims) to avoid being queue banned.`,
@@ -77,11 +77,11 @@ export class ScrimService {
     }
 
     async sendReportCard(scrim: Scrim & {databaseIds: ScrimDatabaseIds;}): Promise<void> {
-        const reportCardChannelResult = await this.coreService.send(CoreEndpoint.GetOrganizationConfigurationValue, {
+        const reportCardWebhookUrl = await this.coreService.send(CoreEndpoint.GetOrganizationConfigurationValue, {
             organizationId: scrim.organizationId,
-            code: OrganizationConfigurationKeyCode.REPORT_CARD_CHANNEL_SNOWFLAKE,
+            code: OrganizationConfigurationKeyCode.REPORT_CARD_DISCORD_WEBHOOK_URL,
         });
-        if (reportCardChannelResult.status !== ResponseStatus.SUCCESS) throw reportCardChannelResult.error;
+        if (reportCardWebhookUrl.status !== ResponseStatus.SUCCESS) throw reportCardWebhookUrl.error;
 
         const reportCardResult = await this.coreService.send(CoreEndpoint.GenerateReportCard, {mleScrimId: scrim.databaseIds.legacyId});
         if (reportCardResult.status !== ResponseStatus.SUCCESS) throw reportCardResult.error;
@@ -93,9 +93,9 @@ export class ScrimService {
             return discordUserResult.data;
         }));
         
-        await this.botService.send(BotEndpoint.SendGuildTextMessage, {
-            channelId: reportCardChannelResult.data as string,
-            content: {
+        await this.botService.send(BotEndpoint.SendWebhookMessage, {
+            webhookUrl: reportCardWebhookUrl.data as string,
+            payload: {
                 content: discordUserIds.filter(u => u).map(u => `<@${u}>`)
                     .join(", "),
                 embeds: [ {
@@ -115,6 +115,8 @@ export class ScrimService {
                         icon: true,
                         text: true,
                     },
+                    webhookAvatar: true,
+                    webhookUsername: true,
                 },
             },
         });

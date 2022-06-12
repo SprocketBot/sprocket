@@ -31,7 +31,7 @@ export class MemberService {
 
         await this.botService.send(BotEndpoint.SendDirectMessage, {
             userId: userResult.data,
-            content: {
+            payload: {
                 embeds: [ {
                     title: "You've Been Queue Banned",
                     fields: [

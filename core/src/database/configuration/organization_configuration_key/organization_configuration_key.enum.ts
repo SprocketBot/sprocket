@@ -28,7 +28,7 @@ export enum OrganizationConfigurationKeyCode {
     /**
      * Disocrd Guuild Text Channel Id to post report cards to.
      */
-    REPORT_CARD_CHANNEL_SNOWFLAKE = "REPORT_CARD_CHANNEL_SNOWFLAKE",
+    REPORT_CARD_DISCORD_WEBHOOK_URL = "REPORT_CARD_DISCORD_WEBHOOK_URL",
 }
 
 export enum OrganizationConfigurationKeyType {

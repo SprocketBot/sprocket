@@ -6,6 +6,7 @@ import * as Schemas from "./schemas";
 export enum BotEndpoint {
     SendGuildTextMessage = "SendGuildTextMessage",
     SendDirectMessage = "SendDirectMessage",
+    SendWebhookMessage = "SendWebhookMessage",
 }
 
 export const BotSchemas = {
@@ -17,6 +18,11 @@ export const BotSchemas = {
         input: Schemas.SendDirectMessage_Request,
         output: Schemas.SendDirectMessage_Response,
     },
+    [BotEndpoint.SendWebhookMessage]: {
+        input: Schemas.SendWebhookMessage_Request,
+        output: Schemas.SendWebhookMessage_Response,
+    },
+
 };
 
 export type BotInput<T extends BotEndpoint> = z.infer<typeof BotSchemas[T]["input"]>;
