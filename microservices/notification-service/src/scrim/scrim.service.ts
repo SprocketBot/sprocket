@@ -10,6 +10,7 @@ import {
     CoreService,
     MatchmakingEndpoint,
     MatchmakingService,
+    OrganizationConfigurationKeyCode,
     ResponseStatus,
 } from "@sprocketbot/common";
 
@@ -79,12 +80,27 @@ export class ScrimService {
         // TODO: This!
         const mleScrimId = 24242;
 
-        const reportCard = await this.coreService.send(CoreEndpoint.GenerateReportCard, {mleScrimId});
-        if (reportCard.status !== ResponseStatus.SUCCESS) { this.logger.error(`Could not generate report card for mleScrimId=${mleScrimId}`);return }
+        const reportCardChannelResult = await this.coreService.send(CoreEndpoint.GetOrganizationConfigurationValue, {
+            organizationId: scrim.organizationId,
+            code: OrganizationConfigurationKeyCode.REPORT_CARD_CHANNEL_SNOWFLAKE,
+        });
+        if (reportCardChannelResult.status !== ResponseStatus.SUCCESS) throw reportCardChannelResult.error;
+
+        const reportCardResult = await this.coreService.send(CoreEndpoint.GenerateReportCard, {mleScrimId});
+        if (reportCardResult.status !== ResponseStatus.SUCCESS) throw reportCardResult.error;
+
+        const discordUserIds = await Promise.all(scrim.players.map(async player => {
+            const discordUserResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, player.id);
+            if (discordUserResult.status !== ResponseStatus.SUCCESS) return undefined;
+
+            return discordUserResult.data;
+        }));
         
         await this.botService.send(BotEndpoint.SendGuildTextMessage, {
-            channelId: "866420216653414400",
+            channelId: reportCardChannelResult.data as string,
             content: {
+                content: discordUserIds.filter(u => u).map(u => `<@${u}>`)
+                    .join(", "),
                 embeds: [ {
                     title: "Scrim Results",
                     image: {
@@ -92,7 +108,7 @@ export class ScrimService {
                     },
                     timestamp: Date.now(),
                 } ],
-                attachments: [ {name: "card.png", url: `minio:${config.minio.bucketNames.image_generation}/${reportCard.data}.png`} ],
+                attachments: [ {name: "card.png", url: `minio:${config.minio.bucketNames.image_generation}/${reportCardResult.data}.png`} ],
             },
             brandingOptions: {
                 organizationId: scrim.organizationId,

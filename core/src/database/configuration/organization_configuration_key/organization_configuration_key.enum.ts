@@ -25,6 +25,10 @@ export enum OrganizationConfigurationKeyCode {
       * Alterate guilds of the organization that names and roles will be synced to.
       */
     ALTERNATE_DISCORD_GUILD_SNOWFLAKES = "ALTERNATE_DISCORD_GUILD_SNOWFLAKES",
+    /**
+     * Disocrd Guuild Text Channel Id to post report cards to.
+     */
+    REPORT_CARD_CHANNEL_SNOWFLAKE = "REPORT_CARD_CHANNEL_SNOWFLAKE",
 }
 
 export enum OrganizationConfigurationKeyType {
