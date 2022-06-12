@@ -6,6 +6,10 @@ import * as Schemas from "./schemas";
 export enum SubmissionEndpoint {
     SubmitReplays = "SubmitReplays",
     CanSubmitReplays = "CanSubmitReplays",
+    RatifySubmission = "RatifySubmission",
+    RejectSubmission = "RejectSubmission",
+    ResetSubmission = "ResetSubmission",
+    GetSubmissionRedisKey = "GetSubmissionRedisKey",
 }
 
 export const SubmissionSchemas = {
@@ -16,6 +20,22 @@ export const SubmissionSchemas = {
     [SubmissionEndpoint.CanSubmitReplays]: {
         input: Schemas.CanSubmitReplays_Request,
         output: Schemas.CanSubmitReplays_Response,
+    },
+    [SubmissionEndpoint.RatifySubmission]: {
+        input: Schemas.RatifySubmission_Request,
+        output: Schemas.RatifySubmission_Response,
+    },
+    [SubmissionEndpoint.RejectSubmission]: {
+        input: Schemas.RejectSubmission_Request,
+        output: Schemas.RejectSubmission_Response,
+    },
+    [SubmissionEndpoint.ResetSubmission]: {
+        input: Schemas.ResetSubmission_Request,
+        output: Schemas.ResetSubmission_Response,
+    },
+    [SubmissionEndpoint.GetSubmissionRedisKey]: {
+        input: Schemas.GetSubmissionRedisKey_Request,
+        output: Schemas.GetSubmissionRedisKey_Response,
     },
 };
 

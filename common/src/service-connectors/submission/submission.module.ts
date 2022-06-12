@@ -4,5 +4,6 @@ import {SubmissionService} from "./submission.service";
 
 @Module({
     providers: [SubmissionService],
+    exports: [SubmissionService],
 })
 export class SubmissionModule {}

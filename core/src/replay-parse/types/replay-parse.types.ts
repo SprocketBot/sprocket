@@ -9,7 +9,7 @@ import {
 } from "@sprocketbot/common";
 import GraphQLJSON from "graphql-type-json";
 
-import {Progress} from "../util/types/celery-progress";
+import {GqlProgress} from "../../util/types/celery-progress";
 
 registerEnumType(Parser, {
     name: "Parser",
@@ -35,7 +35,7 @@ export class ReplayParseProgress implements ProgressMessage<Task.ParseReplay> {
     @Field(() => ProgressStatus)
     status: ProgressStatus;
 
-    @Field(() => Progress)
+    @Field(() => GqlProgress)
     progress: IProgress;
 
     @Field(() => ParseReplayResult, {nullable: true})

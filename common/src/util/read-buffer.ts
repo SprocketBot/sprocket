@@ -8,7 +8,7 @@ import type {Readable} from "stream";
  */
 export const readBuffer = async (stream: Readable): Promise<Buffer> => {
     const chunks: Buffer[] = [];
-    return new Promise((resolve, reject) => {
+    return new Promise<Buffer>((resolve, reject) => {
         stream.on("data", chunk => { chunks.push(Buffer.from(chunk as ArrayBuffer)) });
         stream.on("error", err => { reject(err) });
         stream.on("end", () => { resolve(Buffer.concat(chunks)) });

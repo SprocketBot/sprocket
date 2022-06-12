@@ -1,9 +1,12 @@
-import {Injectable, Logger} from "@nestjs/common";
+import {
+    forwardRef, Inject, Injectable, Logger,
+} from "@nestjs/common";
 import type {ReplayParseTask} from "@sprocketbot/common";
 import {
     CeleryService, EventsService, EventTopic, MinioService, Precondition, ProgressStatus, Task,
 } from "@sprocketbot/common";
 
+import {getSubmissionKey} from "../utils";
 import {ReplayParseSubscriber} from "./parse-subscriber/replay-parse.subscriber";
 import {ReplaySubmissionCrudService} from "./replay-submission-crud.service";
 
@@ -16,6 +19,7 @@ export class ReplaySubmissionService {
         private readonly minioService: MinioService,
         private readonly celeryService: CeleryService,
         private readonly eventsService: EventsService,
+        @Inject(forwardRef(() => ReplayParseSubscriber))
         private readonly replayParseSubscriber: ReplayParseSubscriber,
     ) {}
 
@@ -96,7 +100,10 @@ export class ReplaySubmissionService {
         });
 
         await Promise.all(celeryPromises);
-        await this.eventsService.publish(EventTopic.SubmissionStarted, {submissionId: submissionId});
+        await this.eventsService.publish(EventTopic.SubmissionStarted, {
+            submissionId: submissionId,
+            redisKey: getSubmissionKey(submissionId),
+        });
         return tasks.map(t => t.taskId);
 
     }

@@ -9,7 +9,7 @@ async function bootstrap(): Promise<void> {
         transport: Transport.RMQ,
         options: {
             urls: [config.transport.url],
-            queue: config.transport.matchmaking_queue,
+            queue: config.transport.submission_queue,
             queueOptions: {
                 durable: true,
             },

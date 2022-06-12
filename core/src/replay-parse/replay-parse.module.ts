@@ -1,7 +1,7 @@
 import {Module} from "@nestjs/common";
 import {
     AnalyticsModule,
-    CeleryModule, EventsModule, MatchmakingModule, MinioModule, RedisModule,
+    CeleryModule, EventsModule, MatchmakingModule, MinioModule, RedisModule, SubmissionModule,
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 
@@ -11,15 +11,13 @@ import {MledbInterfaceModule} from "../mledb";
 import {ScrimModule} from "../scrim";
 import {BallchasingConverterService, FinalizationService} from "./finalization";
 import {ReplayParsePubSub} from "./replay-parse.constants";
-import {ReplayParseResolver} from "./replay-parse.resolver";
+import {ReplayParseModResolver} from "./replay-parse.mod.resolver";
+import {ReplaySubmissionResolver} from "./replay-parse.resolver";
 import {ReplayParseService} from "./replay-parse.service";
-import {ReplayParseSubscriber} from "./replay-parse.subscriber";
-import {ReplayRatificationResolver} from "./replay-ratification/replay-ratification.resolver";
-import {ReplayRejectionResolver} from "./replay-rejection/replay-rejection.resolver";
-import {ReplaySubmissionService} from "./replay-submission";
 
 @Module({
     imports: [
+        SubmissionModule,
         CeleryModule,
         MinioModule,
         RedisModule,
@@ -32,16 +30,13 @@ import {ReplaySubmissionService} from "./replay-submission";
         FranchiseModule,
     ],
     providers: [
-        ReplayParseSubscriber,
-        ReplayParseResolver,
+        ReplayParseModResolver,
         ReplayParseService,
         {
             provide: ReplayParsePubSub,
             useValue: new PubSub(),
         },
-        ReplayRatificationResolver,
-        ReplayRejectionResolver,
-        ReplaySubmissionService,
+        ReplaySubmissionResolver,
         FinalizationService,
         BallchasingConverterService,
     ],

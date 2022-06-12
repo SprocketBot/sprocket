@@ -23,7 +23,7 @@ import {
 } from "../../database";
 import {PlayerService} from "../../franchise";
 import {MledbScrimService} from "../../mledb/mledb-scrim/mledb-scrim.service";
-import type {ReplaySubmission} from "../replay-submission";
+import type {ReplaySubmission} from "../types";
 import {BallchasingConverterService} from "./ballchasing-converter";
 
 @Injectable()

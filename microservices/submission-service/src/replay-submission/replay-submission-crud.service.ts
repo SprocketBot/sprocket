@@ -6,7 +6,7 @@ import type {
     Task,
 } from "@sprocketbot/common";
 import {
-    EventsService, EventTopic,
+    EventsService,
     MatchmakingEndpoint, MatchmakingService, RedisService,
     ReplaySubmissionType,
     ResponseStatus,
@@ -78,9 +78,9 @@ export class ReplaySubmissionCrudService {
         return this.redisService.getJson<ReplaySubmissionRejection[]>(key, "rejections");
     }
 
-    async getSubmissionRatifiers(submissionId: string): Promise<number[]> {
+    async getSubmissionRatifiers(submissionId: string): Promise<string[]> {
         const key = getSubmissionKey(submissionId);
-        return this.redisService.getJson<number[]>(key, "ratifiers");
+        return this.redisService.getJson<string[]>(key, "ratifiers");
     }
 
     async removeSubmission(submissionId: string): Promise<void> {
@@ -123,8 +123,7 @@ export class ReplaySubmissionCrudService {
         await this.redisService.setJsonField(key, "stats", stats);
     }
 
-    // TODO: Do these need to live somewhere else? They do more than just crud
-    async addRatifier(submissionId: string, playerId: number): Promise<void> {
+    async addRatifier(submissionId: string, playerId: string): Promise<void> {
         const ratifiers = await this.getSubmissionRatifiers(submissionId);
 
         // Players cannot ratify a scrim twice
@@ -132,15 +131,9 @@ export class ReplaySubmissionCrudService {
 
         const key = getSubmissionKey(submissionId);
         await this.redisService.appendToJsonArray(key, "ratifiers", playerId);
-
-        await this.eventService.publish(EventTopic.SubmissionRatificationAdded, {
-            currentRatifications: ratifiers.length + 1,
-            requiredRatifications: await this.getSubmission(submissionId).then(s => s?.requiredRatifications ?? 1),
-            submissionId: submissionId,
-        });
     }
 
-    async addRejection(submissionId: string, playerId: number, reason: string): Promise<void> {
+    async addRejection(submissionId: string, playerId: string, reason: string): Promise<void> {
         const key = getSubmissionKey(submissionId);
         const rejectedAt = new Date().toISOString();
 
@@ -157,10 +150,6 @@ export class ReplaySubmissionCrudService {
         };
 
         await this.redisService.appendToJsonArray(key, "rejections", rejection);
-
-        await this.eventService.publish(EventTopic.SubmissionRejectionAdded, {
-            submissionId: submissionId,
-        });
     }
 
 }
