@@ -11,3 +11,7 @@ export enum ResponseStatus {
     SUCCESS = "SUCCESS",
     ERROR = "ERROR",
 }
+
+export interface MicroserviceRequestOptions {
+    timeout?: number;
+}
