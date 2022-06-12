@@ -3,8 +3,9 @@ import {
     Inject, Injectable, Logger,
 } from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
-import {lastValueFrom} from "rxjs";
+import {lastValueFrom, timeout} from "rxjs";
 
+import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
 import type {
     BotEndpoint, BotInput, BotResponse,
@@ -17,7 +18,7 @@ export class BotService {
 
     constructor(@Inject(CommonClient.Bot) private microserviceClient: ClientProxy) {}
 
-    async send<E extends BotEndpoint>(endpoint: E, data: BotInput<E>): Promise<BotResponse<E>> {
+    async send<E extends BotEndpoint>(endpoint: E, data: BotInput<E>, options?: MicroserviceRequestOptions): Promise<BotResponse<E>> {
         this.logger.verbose(`Sending message to endpoint=${endpoint} with data=${JSON.stringify(data)}`);
 
         const {input: inputSchema, output: outputSchema} = BotSchemas[endpoint];
@@ -25,7 +26,7 @@ export class BotService {
         try {
             const input = inputSchema.parse(data);
 
-            const rx = this.microserviceClient.send(endpoint, input);
+            const rx = this.microserviceClient.send(endpoint, input).pipe(timeout(options?.timeout ?? 5000));
 
             const response = await lastValueFrom(rx) as unknown;
 

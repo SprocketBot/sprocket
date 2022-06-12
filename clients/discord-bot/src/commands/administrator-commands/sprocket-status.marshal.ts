@@ -2,11 +2,11 @@ import {Logger} from "@nestjs/common";
 import type {MessageComponentInteraction, TextChannel} from "discord.js";
 import {Message} from "discord.js";
 
-import {Command, Marshal} from "../marshal";
-import type {WizardFunctionOutput} from "../marshal/wizard";
+import {Command, Marshal} from "../../marshal";
+import type {WizardFunctionOutput} from "../../marshal/wizard";
 import {
     Wizard, WizardExitStatus, WizardType,
-} from "../marshal/wizard";
+} from "../../marshal/wizard";
 
 export class SprocketStatusMarshal extends Marshal {
     private readonly logger = new Logger(SprocketStatusMarshal.name);

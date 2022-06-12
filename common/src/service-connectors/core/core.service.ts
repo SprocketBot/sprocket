@@ -3,8 +3,9 @@ import {
     Inject, Injectable, Logger,
 } from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
-import {lastValueFrom} from "rxjs";
+import {lastValueFrom, timeout} from "rxjs";
 
+import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
 import type {
     CoreEndpoint, CoreInput, CoreResponse,
@@ -17,7 +18,7 @@ export class CoreService {
 
     constructor(@Inject(CommonClient.Core) private microserviceClient: ClientProxy) {}
 
-    async send<E extends CoreEndpoint>(endpoint: E, data: CoreInput<E>): Promise<CoreResponse<E>> {
+    async send<E extends CoreEndpoint>(endpoint: E, data: CoreInput<E>, options?: MicroserviceRequestOptions): Promise<CoreResponse<E>> {
         // this.logger.debug(`Sending message to endpoint \`${endpoint}\` with data \`${JSON.stringify(data, null, 2)}\``);
 
         const {input: inputSchema, output: outputSchema} = CoreSchemas[endpoint];
@@ -25,7 +26,7 @@ export class CoreService {
         try {
             const input = inputSchema.parse(data);
 
-            const rx = this.microserviceClient.send(endpoint, input);
+            const rx = this.microserviceClient.send(endpoint, input).pipe(timeout(options?.timeout ?? 5000));
 
             const response = await lastValueFrom(rx) as unknown;
 

@@ -1,27 +1,12 @@
-import type {
-    AnalyticsService, CoreService,
-} from "@sprocketbot/common";
 import {config} from "@sprocketbot/common";
 import {Message} from "discord.js";
 
-import type {EmbedService} from "../../embed/embed.service";
 import {
     Command, Marshal, MarshalCommandContext,
-} from "../../marshal";
-import type {CommandManagerService} from "../../marshal/command-manager/command-manager.service";
+} from "../../../marshal";
 import * as helpUtil from "./util";
 
 export class HelpMarshal extends Marshal {
-
-    constructor(
-        protected readonly cms: CommandManagerService,
-        protected readonly coreService: CoreService,
-        protected readonly analyticsService: AnalyticsService,
-        protected readonly embedService: EmbedService,
-    ) {
-        super(cms, coreService, analyticsService, embedService);
-    }
-
     @Command({
         name: "help",
         docs: "Lists all available commands",

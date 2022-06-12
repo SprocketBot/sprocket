@@ -1,20 +1,28 @@
-import {Module} from "@nestjs/common";
+import {forwardRef, Module} from "@nestjs/common";
 import {Client} from "discord.js";
+import {GatewayIntentBits} from "discord-api-types";
 import {readFile} from "fs/promises";
 
-import {MarshalModule} from "../marshal";
+import {CommandsModule} from "../marshal";
 import {DiscordService} from "./discord.service";
 
 @Module({
     imports: [
-        MarshalModule,
+        forwardRef(() => CommandsModule),
     ],
     providers: [
         {
             provide: "DISCORD_CLIENT",
             useFactory: async (): Promise<Client> => {
                 const bot_token = (await readFile("./secret/bot-token.txt")).toString().trim();
-                const bot_client = new Client({intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS"]});
+                const bot_client = new Client({
+                    intents: [
+                        GatewayIntentBits.Guilds,
+                        GatewayIntentBits.GuildMessages,
+                        GatewayIntentBits.GuildMessageReactions,
+                        GatewayIntentBits.GuildMembers,
+                    ],
+                });
                 await bot_client.login(bot_token);
                 return bot_client;
             },

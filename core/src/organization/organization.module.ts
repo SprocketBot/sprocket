@@ -2,6 +2,7 @@ import {forwardRef, Module} from "@nestjs/common";
 import {EventsModule} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 
+import {ConfigurationModule} from "../configuration";
 import {DatabaseModule} from "../database";
 import {GameModule} from "../game";
 import {IdentityModule} from "../identity";
@@ -24,6 +25,7 @@ import {PronounsService} from "./pronouns/pronouns.service";
         GameModule,
         forwardRef(() => IdentityModule),
         EventsModule,
+        forwardRef(() => ConfigurationModule),
     ],
     providers: [
         OrganizationResolver,

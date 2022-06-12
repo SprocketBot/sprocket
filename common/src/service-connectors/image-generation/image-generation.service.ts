@@ -3,8 +3,9 @@ import {
     Inject, Injectable, Logger,
 } from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
-import {lastValueFrom} from "rxjs";
+import {lastValueFrom, timeout} from "rxjs";
 
+import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
 import type {
     ImageGenerationEndpoint, ImageGenerationInput, ImageGenerationResponse,
@@ -18,7 +19,7 @@ export class ImageGenerationService {
     constructor(@Inject(CommonClient.ImageGeneration) private microserviceClient: ClientProxy) {
     }
 
-    async send<E extends ImageGenerationEndpoint>(endpoint: E, data: ImageGenerationInput<E>): Promise<ImageGenerationResponse<E>> {
+    async send<E extends ImageGenerationEndpoint>(endpoint: E, data: ImageGenerationInput<E>, options?: MicroserviceRequestOptions): Promise<ImageGenerationResponse<E>> {
         this.logger.verbose(`Sending message to endpoint=${endpoint} with data=${JSON.stringify(data)}`);
 
         const {input: inputSchema, output: outputSchema} = ImageGenerationSchemas[endpoint];
@@ -26,7 +27,7 @@ export class ImageGenerationService {
         try {
             const input = inputSchema.parse(data);
 
-            const rx = this.microserviceClient.send(endpoint, input);
+            const rx = this.microserviceClient.send(endpoint, input).pipe(timeout(options?.timeout ?? 5000));
 
             const response = await lastValueFrom(rx) as unknown;
 
