@@ -21,10 +21,10 @@ import {
     ScrimMeta,
     TeamStatLine,
 } from "../../database";
-import type {MLE_PlayerStatsCore} from "../../database/mledb";
 import {PlayerService} from "../../franchise";
 import {MledbScrimService} from "../../mledb/mledb-scrim/mledb-scrim.service";
 import {SprocketRatingService} from "../../sprocket-rating/sprocket-rating.service";
+import type {SprocketRatingInput} from "../../sprocket-rating/sprocket-rating.types";
 import type {ReplaySubmission} from "../replay-submission";
 import {BallchasingConverterService} from "./ballchasing-converter";
 
@@ -92,7 +92,7 @@ export class FinalizationService {
 
                     const createPlayerStat = (p: BallchasingPlayer, color: string): PlayerStatLine => {
 
-                        const psc: Partial<MLE_PlayerStatsCore> = p.stats.core;
+                        const psc: SprocketRatingInput = p.stats.core;
                         const otherStats = this.ballchasingConverter.createPlayerStats(p);
 
                         return this.playerStatRepo.create({

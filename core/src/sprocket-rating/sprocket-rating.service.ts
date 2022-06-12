@@ -1,18 +1,12 @@
 import {Injectable, Logger} from "@nestjs/common";
 
-import type {MLE_PlayerStatsCore} from "../database/mledb";
-
-export interface SprocketRating {
-    opi: number;
-    dpi: number;
-    gpi: number;
-}
+import type {SprocketRating, SprocketRatingInput} from "./sprocket-rating.types";
 
 @Injectable()
 export class SprocketRatingService {
     private logger = new Logger(SprocketRatingService.name);
 
-    calcSprocketRating(core: Partial<MLE_PlayerStatsCore>): SprocketRating {
+    calcSprocketRating(core: SprocketRatingInput): SprocketRating {
         const OPI_goal_w = 1.0;
         const OPI_assist_w = 0.8;
         const OPI_shot_w = 0.2;
