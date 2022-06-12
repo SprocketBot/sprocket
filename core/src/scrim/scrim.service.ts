@@ -179,6 +179,14 @@ export class ScrimService {
                             event: v.topic,
                         },
                     }).catch(this.logger.error.bind(this.logger));
+
+                    const payload = v.payload as IScrim;
+                    this.pubsub.publish(payload.id, {
+                        followCurrentScrim: {
+                            scrim: payload,
+                            event: v.topic,
+                        },
+                    }).catch(this.logger.error.bind(this.logger));
                 }
 
                 switch (v.topic as EventTopic) {
@@ -197,12 +205,6 @@ export class ScrimService {
                         if (payload.status === ScrimStatus.PENDING || payload.status === ScrimStatus.POPPED) {
                             this.pubsub.publish(this.pendingScrimsSubTopic, {followPendingScrims: payload as Scrim}).catch(this.logger.error.bind(this.logger));
                         }
-                        this.pubsub.publish(payload.id, {
-                            followCurrentScrim: {
-                                scrim: payload,
-                                event: v.topic,
-                            },
-                        }).catch(this.logger.error.bind(this.logger));
                         break;
                     }
                 }
