@@ -27,7 +27,7 @@ export class ImageGenerationService {
         try {
             const input = inputSchema.parse(data);
 
-            const rx = this.microserviceClient.send(endpoint, input).pipe(timeout(options?.timeout ?? 5000));
+            const rx = this.microserviceClient.send(endpoint, input).pipe(timeout(options?.timeout ?? 120000));
 
             const response = await lastValueFrom(rx) as unknown;
 
