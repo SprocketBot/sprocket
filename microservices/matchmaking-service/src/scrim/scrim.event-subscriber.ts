@@ -4,6 +4,7 @@ import {
     EventsService, EventTopic, ScrimStatus,
 } from "@sprocketbot/common";
 
+import {ScrimService} from "./scrim.service";
 import {ScrimCrudService} from "./scrim-crud/scrim-crud.service";
 
 @Injectable()
@@ -13,6 +14,7 @@ export class ScrimEventSubscriber {
     constructor(
         private readonly eventsService: EventsService,
         private readonly scrimCrudService: ScrimCrudService,
+        private readonly scrimService: ScrimService,
     ) {}
 
     async onApplicationBootstrap(): Promise<void> {
@@ -24,7 +26,16 @@ export class ScrimEventSubscriber {
                         this.onSubmissionStarted(p as unknown as EventResponse<EventTopic.SubmissionStarted>).catch(this.logger.error.bind(this.logger));
                         break;
                     case EventTopic.SubmissionReset:
-                        this.onSubmissionReset(p as unknown as EventResponse<EventTopic.SubmissionReset>).catch(this.logger.error.bind(this.logger));
+                        this.onSubmissionReset(p as EventResponse<EventTopic>).catch(this.logger.error.bind(this.logger));
+                        break;
+                    case EventTopic.SubmissionComplete:
+                        this.onSubmissionComplete(p as EventResponse<EventTopic>).catch(this.logger.error.bind(this.logger));
+                        break;
+                    case EventTopic.SubmissionRatified:
+                        this.onSubmissionRatified(p as EventResponse<EventTopic>).catch(this.logger.error.bind(this.logger));
+                        break;
+                    case EventTopic.SubmissionRejected:
+                        this.onSubmissionRejected(p as EventResponse<EventTopic>).catch(this.logger.error.bind(this.logger));
                         break;
                     default:
                         break;
@@ -54,5 +65,41 @@ export class ScrimEventSubscriber {
         await this.scrimCrudService.updateScrimStatus(scrim.id, ScrimStatus.IN_PROGRESS);
         scrim.status = ScrimStatus.IN_PROGRESS;
         await this.eventsService.publish(EventTopic.ScrimUpdated, scrim, scrim.id);
+    };
+
+    onSubmissionComplete = async (d: EventResponse<EventTopic.SubmissionComplete | EventTopic>): Promise<void> => {
+        if (d.topic !== EventTopic.SubmissionComplete) return;
+        const {payload} = d as EventResponse<EventTopic.SubmissionComplete>;
+
+        const scrim = await this.scrimCrudService.getScrimBySubmissionId(payload.submissionId);
+        if (!scrim) {
+            this.logger.warn(`Scrim not found for submission ${payload.submissionId}`);
+            return;
+        }
+        await this.scrimService.moveToRatification(scrim.id);
+    };
+
+    onSubmissionRatified = async (d: EventResponse<EventTopic.SubmissionRatified | EventTopic>): Promise<void> => {
+        if (d.topic !== EventTopic.SubmissionRatified) return;
+        const {payload} = d as EventResponse<EventTopic.SubmissionRatified>;
+
+        const scrim = await this.scrimCrudService.getScrimBySubmissionId(payload.submissionId);
+        if (!scrim) {
+            this.logger.warn(`Scrim not found for submission ${payload.submissionId}`);
+            return;
+        }
+        await this.scrimService.completeScrim(scrim.id);
+    };
+
+    onSubmissionRejected = async (d: EventResponse<EventTopic.SubmissionRejected | EventTopic>): Promise<void> => {
+        if (d.topic !== EventTopic.SubmissionRejected) return;
+        const {payload} = d as EventResponse<EventTopic.SubmissionRejected>;
+
+        const scrim = await this.scrimCrudService.getScrimBySubmissionId(payload.submissionId);
+        if (!scrim) {
+            this.logger.warn(`Scrim not found for submission ${payload.submissionId}`);
+            return;
+        }
+        await this.scrimService.resetScrim(scrim.id);
     };
 }

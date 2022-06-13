@@ -57,7 +57,7 @@ export class ScrimController {
     @MessagePattern(MatchmakingEndpoint.EndScrim)
     async endScrim(@Payload() payload: unknown): Promise<boolean> {
         const data = MatchmakingSchemas.EndScrim.input.parse(payload);
-        return this.scrimService.endScrim(data.scrimId, data.player);
+        return this.scrimService.moveToRatification(data.scrimId);
     }
 
     @MessagePattern(MatchmakingEndpoint.CancelScrim)
@@ -90,7 +90,7 @@ export class ScrimController {
     }
 
     @MessagePattern(MatchmakingEndpoint.ForceUpdateScrimStatus)
-    async complete(@Payload() payload: unknown): Promise<boolean | null> {
+    async forceUpdateStatus(@Payload() payload: unknown): Promise<boolean | null> {
         const data = MatchmakingSchemas.ForceUpdateScrimStatus.input.parse(payload);
         await this.scrimService.forceUpdateScrimStatus(data.scrimId, data.status);
         return true;

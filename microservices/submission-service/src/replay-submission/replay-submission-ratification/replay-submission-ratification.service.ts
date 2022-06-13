@@ -41,10 +41,9 @@ export class ReplaySubmissionRatificationService {
         const submission = await this.crudService.getSubmission(getSubmissionKey(submissionId));
         if (!submission) throw new Error("Submission not found");
         if (submission.ratifiers.length >= submission.requiredRatifications) {
-            await this.eventService.publish(EventTopic.SubmissionComplete, {
+            await this.eventService.publish(EventTopic.SubmissionRatified, {
                 submissionId: submissionId,
                 redisKey: getSubmissionKey(submissionId),
-                resultPaths: submission.items.map(si => si.outputPath!),
             });
             return true;
         }

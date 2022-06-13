@@ -1,14 +1,23 @@
 import {
     forwardRef, Inject, Injectable, Logger,
 } from "@nestjs/common";
-import type {ReplayParseTask} from "@sprocketbot/common";
+import type {ReplayParseTask, ReplaySubmission} from "@sprocketbot/common";
 import {
-    CeleryService, EventsService, EventTopic, MinioService, Precondition, ProgressStatus, Task,
+    CeleryService,
+    EventsService,
+    EventTopic,
+    MinioService,
+    Precondition,
+    ProgressStatus,
+    Task,
 } from "@sprocketbot/common";
 
+import {ReplayValidationService} from "../replay-validation/replay-validation.service";
 import {getSubmissionKey} from "../utils";
 import {ReplayParseSubscriber} from "./parse-subscriber/replay-parse.subscriber";
 import {ReplaySubmissionCrudService} from "./replay-submission-crud.service";
+import {ReplaySubmissionRatificationService} from "./replay-submission-ratification";
+import {StatsConverterService} from "./stats-converter/stats-converter.service";
 
 @Injectable()
 export class ReplaySubmissionService {
@@ -21,6 +30,9 @@ export class ReplaySubmissionService {
         private readonly eventsService: EventsService,
         @Inject(forwardRef(() => ReplayParseSubscriber))
         private readonly replayParseSubscriber: ReplayParseSubscriber,
+        private readonly replayValidationService: ReplayValidationService,
+        private readonly ratificationService: ReplaySubmissionRatificationService,
+        private readonly statsConverterService: StatsConverterService,
     ) {}
 
     /**
@@ -77,6 +89,9 @@ export class ReplaySubmissionService {
                     });
                     if (tasks.length === filePaths.length && tasks.every(t => [ProgressStatus.Complete, ProgressStatus.Error].includes(t.status))) {
                         // We do be kinda done though.
+                        const submission = await this.submissionCrudService.getSubmission(submissionId);
+                        if (!submission) throw new Error("Submission is done, but also does not exist?");
+                        await this.completeSubmission(submission, submissionId);
                     }
                 },
             });
@@ -106,5 +121,29 @@ export class ReplaySubmissionService {
         });
         return tasks.map(t => t.taskId);
 
+    }
+
+    async completeSubmission(submission: ReplaySubmission, submissionId: string): Promise<void> {
+        if (!submission.items.every(item => [ProgressStatus.Complete, ProgressStatus.Error].includes(item.progress?.status ?? ProgressStatus.Pending))) {
+            throw new Error("Submission not yet ready for completion");
+        }
+        const valid = this.replayValidationService.validate(submission);
+        if (!valid.valid) {
+            await this.ratificationService.rejectSubmission("system", submissionId, JSON.stringify(valid.errors, null, 2));
+            return;
+        }
+
+        submission.validated = true;
+        await this.submissionCrudService.setValidatedTrue(submissionId);
+
+        submission.stats = this.statsConverterService.convertStats(submission.items.map(item => item.progress!.result!));
+        await this.submissionCrudService.setStats(submissionId, submission.stats);
+
+        await this.eventsService.publish(EventTopic.SubmissionComplete, {
+            submissionId: submissionId,
+            redisKey: getSubmissionKey(submissionId),
+            resultPaths: submission.items.map(item => item.outputPath!),
+        });
+        // TODO: Expose endpoint to remove submission.
     }
 }

@@ -9,6 +9,7 @@ export enum SubmissionEndpoint {
     RatifySubmission = "RatifySubmission",
     RejectSubmission = "RejectSubmission",
     ResetSubmission = "ResetSubmission",
+    RemoveSubmission = "RemoveSubmission",
     GetSubmissionRedisKey = "GetSubmissionRedisKey",
 }
 
@@ -36,6 +37,10 @@ export const SubmissionSchemas = {
     [SubmissionEndpoint.GetSubmissionRedisKey]: {
         input: Schemas.GetSubmissionRedisKey_Request,
         output: Schemas.GetSubmissionRedisKey_Response,
+    },
+    [SubmissionEndpoint.RemoveSubmission]: {
+        input: Schemas.RemoveSubmission_Request,
+        output: Schemas.RemoveSubmission_Response,
     },
 };
 

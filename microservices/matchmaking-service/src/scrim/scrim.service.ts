@@ -4,7 +4,12 @@ import type {
     Scrim, ScrimGameMode, ScrimPlayer, ScrimSettings,
 } from "@sprocketbot/common";
 import {
-    AnalyticsEndpoint, AnalyticsService, EventTopic, ScrimStatus,
+    AnalyticsEndpoint,
+    AnalyticsService,
+    EventTopic,
+    ScrimStatus,
+    SubmissionEndpoint,
+    SubmissionService,
 } from "@sprocketbot/common";
 
 import {EventProxyService} from "./event-proxy/event-proxy.service";
@@ -21,7 +26,8 @@ export class ScrimService {
         private readonly eventsService: EventProxyService,
         private readonly scrimLogicService: ScrimLogicService,
         private readonly scrimGroupService: ScrimGroupService,
-        protected readonly analyticsService: AnalyticsService,
+        private readonly submissionService: SubmissionService,
+        private readonly analyticsService: AnalyticsService,
     ) {}
 
     async createScrim(organizationId: number, author: ScrimPlayer, settings: ScrimSettings, gameMode: ScrimGameMode, skillGroupId: number, createGroup: boolean): Promise<Scrim> {
@@ -179,16 +185,13 @@ export class ScrimService {
         return scrim;
     }
 
-    async endScrim(scrimId: string, player: ScrimPlayer): Promise<boolean> {
-        this.logger.debug(`Attempting to end scrim, scrimId=${scrimId} playerId=${player.id}`);
+    async moveToRatification(scrimId: string): Promise<boolean> {
+        this.logger.debug(`Beginning to ratify scrim, scrimId=${scrimId}`);
 
         const scrim = await this.scrimCrudService.getScrim(scrimId);
 
         if (!scrim) {
             throw new RpcException("Scrim not found");
-        }
-        if (!scrim.players.some(p => p.id === player.id)) {
-            throw new RpcException("Player not in this scrim");
         }
         if (scrim.status === ScrimStatus.RATIFYING) {
             throw new RpcException("Scrim is already ended");
@@ -212,7 +215,7 @@ export class ScrimService {
         return true;
     }
 
-    async resetScrim(scrimId: string, playerId: number): Promise<boolean> {
+    async resetScrim(scrimId: string, playerId?: number): Promise<boolean> {
         this.logger.debug(`Attempting to reset scrim, scrimId=${scrimId} playerId=${playerId}`);
 
         const scrim = await this.scrimCrudService.getScrim(scrimId);
@@ -220,7 +223,7 @@ export class ScrimService {
         if (!scrim) {
             throw new RpcException("Scrim not found");
         }
-        if (!scrim.players.some(p => p.id === playerId)) {
+        if (playerId && !scrim.players.some(p => p.id === playerId)) {
             throw new RpcException("Player not in this scrim");
         }
         if (scrim.status !== ScrimStatus.RATIFYING) {
@@ -231,11 +234,11 @@ export class ScrimService {
         await this.scrimCrudService.updateScrimStatus(scrimId, scrim.status);
 
         await this.publishScrimUpdate(scrimId);
-        
+
         return true;
     }
 
-    async completeScrim(scrimId: string, playerId: number): Promise<Scrim> {
+    async completeScrim(scrimId: string, playerId?: number): Promise<Scrim> {
         // Player will be used to track who submitted / completed a scrim
         const scrim = await this.scrimCrudService.getScrim(scrimId);
         if (!scrim) {
@@ -245,13 +248,14 @@ export class ScrimService {
             throw new RpcException("Scrim is not ratifying!");
         }
         // TODO: Override this if player / member is an admin
-        if (!scrim.players.some(p => p.id === playerId)) {
+        if (playerId && !scrim.players.some(p => p.id === playerId)) {
             throw new RpcException("Player not in this scrim");
         }
 
         await this.scrimCrudService.removeScrim(scrimId);
         scrim.status = ScrimStatus.COMPLETE;
         await this.eventsService.publish(EventTopic.ScrimComplete, scrim, scrim.id);
+        await this.submissionService.send(SubmissionEndpoint.RemoveSubmission, {submissionId: scrim.submissionId!});
 
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
             name: "scrimComplete",
