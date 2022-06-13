@@ -6,4 +6,4 @@ export const ResetSubmission_Request = z.object({
     playerId: z.string(),
 });
 
-export const ResetSubmission_Response = z.void();
+export const ResetSubmission_Response = z.literal(true);

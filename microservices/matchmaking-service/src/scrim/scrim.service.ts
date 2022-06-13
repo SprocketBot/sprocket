@@ -8,8 +8,6 @@ import {
     AnalyticsService,
     EventTopic,
     ScrimStatus,
-    SubmissionEndpoint,
-    SubmissionService,
 } from "@sprocketbot/common";
 
 import {EventProxyService} from "./event-proxy/event-proxy.service";
@@ -26,7 +24,6 @@ export class ScrimService {
         private readonly eventsService: EventProxyService,
         private readonly scrimLogicService: ScrimLogicService,
         private readonly scrimGroupService: ScrimGroupService,
-        private readonly submissionService: SubmissionService,
         private readonly analyticsService: AnalyticsService,
     ) {}
 
@@ -226,7 +223,7 @@ export class ScrimService {
         if (playerId && !scrim.players.some(p => p.id === playerId)) {
             throw new RpcException("Player not in this scrim");
         }
-        if (scrim.status !== ScrimStatus.RATIFYING) {
+        if (scrim.status !== ScrimStatus.RATIFYING && scrim.status !== ScrimStatus.SUBMITTING) {
             throw new RpcException("Scrim is not RATIFYING, can't be reset");
         }
 
@@ -255,7 +252,6 @@ export class ScrimService {
         await this.scrimCrudService.removeScrim(scrimId);
         scrim.status = ScrimStatus.COMPLETE;
         await this.eventsService.publish(EventTopic.ScrimComplete, scrim, scrim.id);
-        await this.submissionService.send(SubmissionEndpoint.RemoveSubmission, {submissionId: scrim.submissionId!});
 
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
             name: "scrimComplete",

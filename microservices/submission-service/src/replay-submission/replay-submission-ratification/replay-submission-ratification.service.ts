@@ -38,7 +38,7 @@ export class ReplaySubmissionRatificationService {
 
     async ratifyScrim(playerId: string, submissionId: string): Promise<Boolean> {
         await this.crudService.addRatifier(submissionId, playerId);
-        const submission = await this.crudService.getSubmission(getSubmissionKey(submissionId));
+        const submission = await this.crudService.getSubmission(submissionId);
         if (!submission) throw new Error("Submission not found");
         if (submission.ratifiers.length >= submission.requiredRatifications) {
             await this.eventService.publish(EventTopic.SubmissionRatified, {
@@ -58,6 +58,7 @@ export class ReplaySubmissionRatificationService {
 
     async rejectSubmission(playerId: string, submissionId: string, reason: string): Promise<Boolean> {
         await this.crudService.addRejection(submissionId, playerId, reason);
+        await this.crudService.removeItems(submissionId);
         await this.eventService.publish(EventTopic.SubmissionRejectionAdded, {submissionId: submissionId, redisKey: getSubmissionKey(submissionId)});
 
         // TODO: support for different thresholds

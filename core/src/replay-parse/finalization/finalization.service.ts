@@ -3,11 +3,8 @@ import {InjectConnection, InjectRepository} from "@nestjs/typeorm";
 import type {BallchasingPlayer, Scrim} from "@sprocketbot/common";
 import {
     CeleryService,
-    MatchmakingEndpoint,
-    MatchmakingService,
     Parser,
     RedisService,
-    ResponseStatus,
 } from "@sprocketbot/common";
 import type {QueryRunner} from "typeorm";
 import {Connection, Repository} from "typeorm";
@@ -33,10 +30,10 @@ export class FinalizationService {
     constructor(
         private readonly celeryService: CeleryService,
         private readonly redisService: RedisService,
-        private readonly matchmakingService: MatchmakingService,
         private readonly mledbScrimService: MledbScrimService,
         private readonly ballchasingConverter: BallchasingConverterService,
         private readonly playerService: PlayerService,
+
         @InjectConnection() private readonly dbConn: Connection,
         @InjectRepository(ScrimMeta) private readonly scrimMetaRepo: Repository<ScrimMeta>,
         @InjectRepository(MatchParent) private readonly matchParentRepo: Repository<MatchParent>,
@@ -45,27 +42,25 @@ export class FinalizationService {
         @InjectRepository(PlayerStatLine) private readonly playerStatRepo: Repository<PlayerStatLine>,
         @InjectRepository(TeamStatLine) private readonly teamStatRepo: Repository<TeamStatLine>,
         @InjectRepository(EligibilityData) private readonly eligibilityDataRepo: Repository<EligibilityData>,
-    ) {}
+    ) {
+    }
 
-    async saveScrimToDatabase(submission: ReplaySubmission, submissionId: string): Promise<void> {
+    async saveScrimToDatabase(submission: ReplaySubmission, submissionId: string, scrim: Scrim): Promise<void> {
         const runner = this.dbConn.createQueryRunner();
         await runner.connect();
         await runner.startTransaction();
 
-        const scrimResponse = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
-        if (scrimResponse.status === ResponseStatus.ERROR) throw scrimResponse.error;
-        const scrimObject = scrimResponse.data;
-
-        await Promise.all([
-            this.mledbScrimService.saveScrim(submission, submissionId, runner, scrimObject as Scrim),
-            this.saveToSprocket(submission, runner, scrimObject as Scrim),
-        ])
-            .then(async () => runner.commitTransaction())
-            .catch(async e => {
-                await runner.rollbackTransaction();
-                this.logger.error(e);
-                throw e;
-            });
+        try {
+            await Promise.all([
+                this.mledbScrimService.saveScrim(submission, submissionId, runner, scrim),
+                this.saveToSprocket(submission, runner, scrim),
+            ]);
+            await runner.commitTransaction();
+        } catch (e) {
+            await runner.rollbackTransaction();
+            this.logger.error(e);
+            throw e;
+        }
     }
 
     private async saveToSprocket(submission: ReplaySubmission, runner: QueryRunner, scrimObject: Scrim): Promise<void> {

@@ -34,7 +34,7 @@ export class ReplaySubmissionCrudService {
 
     async getOrCreateSubmission(submissionId: string, playerId: number): Promise<ReplaySubmission> {
         const key = getSubmissionKey(submissionId);
-        const existingSubmission = await this.redisService.getIfExists<ReplaySubmission>(key);
+        const existingSubmission = await this.redisService.getJsonIfExists<ReplaySubmission>(key);
         if (existingSubmission && !existingSubmission.items.length) return existingSubmission;
 
         const commonFields: BaseReplaySubmission = {
@@ -88,6 +88,10 @@ export class ReplaySubmissionCrudService {
         return this.redisService.delete(key);
     }
 
+    async removeItems(submissionId: string): Promise<void> {
+        await this.redisService.setJsonField(getSubmissionKey(submissionId), "items", []);
+    }
+
     async upsertItem(submissionId: string, item: ReplaySubmissionItem): Promise<void> {
         const key = getSubmissionKey(submissionId);
 
@@ -129,8 +133,7 @@ export class ReplaySubmissionCrudService {
         // Players cannot ratify a scrim twice
         if (ratifiers.includes(playerId)) return;
 
-        const key = getSubmissionKey(submissionId);
-        await this.redisService.appendToJsonArray(key, "ratifiers", playerId);
+        await this.redisService.appendToJsonArray(getSubmissionKey(submissionId), "ratifiers", playerId);
     }
 
     async addRejection(submissionId: string, playerId: string, reason: string): Promise<void> {

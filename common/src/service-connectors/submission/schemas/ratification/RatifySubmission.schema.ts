@@ -5,4 +5,4 @@ export const RatifySubmission_Request = z.object({
     playerId: z.string(),
 });
 
-export const RatifySubmission_Response = z.void();
+export const RatifySubmission_Response = z.literal(true);

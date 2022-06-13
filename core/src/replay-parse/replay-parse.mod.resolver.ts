@@ -69,6 +69,7 @@ export class ReplayParseModResolver {
 
     @Subscription(() => GqlReplaySubmission, {nullable: true})
     async followSubmission(@Args("submissionId") submissionId: string): Promise<AsyncIterator<GqlReplaySubmission>> {
+        await this.rpService.enableSubscription(submissionId);
         return this.pubsub.asyncIterator(submissionId);
     }
 }

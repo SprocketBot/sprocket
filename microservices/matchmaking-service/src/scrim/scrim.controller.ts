@@ -78,9 +78,11 @@ export class ScrimController {
     }
 
     @MessagePattern(MatchmakingEndpoint.GetScrimBySubmissionId)
-    async getScrimBySubmissionId(@Payload() payload: unknown): Promise<Scrim | null> {
+    async getScrimBySubmissionId(@Payload() payload: unknown): Promise<Scrim> {
         const data = MatchmakingSchemas.GetScrimBySubmissionId.input.parse(payload);
-        return this.scrimCrudService.getScrimBySubmissionId(data);
+        const result =  await this.scrimCrudService.getScrimBySubmissionId(data);
+        if (result !== null) return result;
+        throw new Error(`No scrim for submission ${data}`);
     }
 
     @MessagePattern(MatchmakingEndpoint.CompleteScrim)
