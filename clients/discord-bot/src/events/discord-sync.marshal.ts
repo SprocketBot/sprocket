@@ -88,6 +88,6 @@ export class DiscordSyncMarshal extends Marshal {
         const response = await this.coreService.send(CoreEndpoint.GetOrganizationDiscordGuildsByGuild, {guildId});
         if (response.status === ResponseStatus.ERROR) throw response.error;
 
-        return response.data;
+        return response.data as GetOrganizationDiscordGuildsByGuildResponse;
     }
 }

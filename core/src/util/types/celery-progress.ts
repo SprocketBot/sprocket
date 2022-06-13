@@ -9,7 +9,7 @@ registerEnumType(ProgressStatus, {
 });
 
 @ObjectType()
-export class Progress implements IProgress {
+export class GqlProgress implements IProgress {
     @Field()
     value: number;
 

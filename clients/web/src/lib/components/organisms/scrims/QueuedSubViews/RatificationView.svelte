@@ -1,25 +1,25 @@
 <script lang="ts">
-    import type {CurrentScrim} from "$lib/api";
-    import {RatifySubmissionMutation, SubmissionStatsStore} from "$lib/api";
+    import type {Submission} from "$lib/api";
+    import {RatifySubmissionMutation} from "$lib/api";
     import {GameCard, Progress} from "$lib/components";
     import RejectSubmissionModal from "../modals/RejectSubmissionModal.svelte";
 
-    export let scrim: CurrentScrim;
-    if (!scrim) throw new Error();
-    const submissionId = scrim.submissionId!;
+    export let submission: Submission;
+    if (!submission) throw new Error();
+    export let submissionId: string;
 
-    const submissionStats = new SubmissionStatsStore(submissionId);
 
     const submissionResults = [false];
 
     let readyToRatify;
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-boolean-literal-compare
-    $: readyToRatify = Array.from(submissionResults).every(Boolean) && submissionResults.length === $submissionStats?.data?.stats?.games.length;
-    const hasRatified = false;
+    $: readyToRatify = Array.from(submissionResults).every(Boolean) && submissionResults.length === submission.stats.games.length;
+    let hasRatified = submission.userHasRatified;
 
     async function ratifyScrim() {
         if (hasRatified) return;
         await RatifySubmissionMutation({submissionId});
+        // eslint-disable-next-line require-atomic-updates
+        hasRatified = true;
     }
 
     let rejecting: boolean = false;
@@ -33,27 +33,32 @@
     <h2>Replays are done parsing!</h2>
     <p>Now, carefully review the results to make sure we got everything right. Once you have decided a replay is
         correct, click the checkbox in the top right corner</p>
-    {#if !$submissionStats.fetching}
-        <div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4">
-            {#each $submissionStats?.data?.stats?.games as game, gameIndex}
-                <GameCard {game} title="Game {gameIndex + 1}" showCheckbox={!hasRatified}
-                          bind:checkboxValue={submissionResults[gameIndex]} showResult/>
-            {/each}
-        </div>
 
-        <Progress value={0} max={0}/>
+    <div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4">
+        {#each submission.stats.games as game, gameIndex}
+            <GameCard {game} title="Game {gameIndex + 1}" showCheckbox={!hasRatified}
+                      bind:checkboxValue={submissionResults[gameIndex]} showResult/>
+        {/each}
+    </div>
 
+    <Progress value={submission.ratifications} max={submission.requiredRatifications}/>
+
+
+    <div class="w-full flex justify-around">
         {#if !hasRatified}
-        <div class="w-full flex justify-around">
             {#if readyToRatify}
                 <button class="btn btn-success btn-outline" on:click={ratifyScrim}>Looks good to me!</button>
             {:else}
                 <div/>
             {/if}
             <button class="btn btn-error btn-outline" on:click={reject}>These aren't correct</button>
-        </div>
+        {:else}
+            <span class="text-xl font-bold text-primary">You have already ratified</span>
         {/if}
-    {/if}
+    </div>
+
+
+
 </section>
 
 <RejectSubmissionModal bind:visible={rejecting} submissionId={submissionId} />

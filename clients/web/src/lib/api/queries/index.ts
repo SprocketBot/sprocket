@@ -8,4 +8,4 @@ export * from "./ActiveScrims.store";
 export * from "./ActiveScrimPlayers.store";
 export * from "./RestrictedPlayers.store";
 export * from "./GetMemberByUserId";
-export * from "./SubmissionRejections.store";
+export * from "./Submission.store";

@@ -11,10 +11,6 @@
     "test:watch": "jest --watch",
     "lint": "eslint src --fix"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/SprocketBot/service-template.git"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",

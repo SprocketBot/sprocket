@@ -3,9 +3,6 @@ import {InjectRepository} from "@nestjs/typeorm";
 import type {
     BallchasingPlayer, BallchasingTeam, Scrim,
 } from "@sprocketbot/common";
-import {
-    MatchmakingEndpoint, MatchmakingService, ResponseStatus,
-} from "@sprocketbot/common";
 import type {QueryRunner} from "typeorm";
 import {Repository} from "typeorm";
 
@@ -44,18 +41,14 @@ export class MledbScrimService {
         @InjectRepository(MLE_EligibilityData) private readonly mleEligibilityRepository: Repository<MLE_EligibilityData>,
         private readonly skillGroupService: GameSkillGroupService,
         private readonly gameModeService: GameModeService,
-        private readonly matchmakingService: MatchmakingService,
         private readonly userService: UserService,
         private readonly sprocketRatingService: SprocketRatingService,
     ) {
     }
 
-    async getLeagueAndMode(submissionId: string): Promise<{mode: GameMode; group: GameSkillGroup;}> {
-        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
-        if (result.status !== ResponseStatus.SUCCESS) throw result.error;
-        if (!result.data) throw new Error("Missing data on scrim response");
-        const gameMode = await this.gameModeService.getGameModeById(result.data.gameMode.id);
-        const skillGroup = await this.skillGroupService.getGameSkillGroupById(result.data.skillGroupId);
+    async getLeagueAndMode(scrim: Scrim): Promise<{mode: GameMode; group: GameSkillGroup;}> {
+        const gameMode = await this.gameModeService.getGameModeById(scrim.gameMode.id);
+        const skillGroup = await this.skillGroupService.getGameSkillGroupById(scrim.skillGroupId);
         return {
             mode: gameMode,
             group: skillGroup,
@@ -69,7 +62,7 @@ export class MledbScrimService {
         const playerStats: MLE_PlayerStats[] = [];
         const teamStats: MLE_TeamCoreStats[] = [];
 
-        const {mode, group} = await this.getLeagueAndMode(submissionId);
+        const {mode, group} = await this.getLeagueAndMode(scrimObject);
         const author = await this.mlePlayerRepository.findOneOrFail({where: {id: -1} });
         series.league = group.description.split(" ")[0].toUpperCase();
         series.mode = {

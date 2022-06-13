@@ -3,204 +3,120 @@ import {
 } from "@nestjs/common";
 import type {ScrimPlayer} from "@sprocketbot/common";
 import {
-    CeleryService,
     config,
-    EventsService,
-    EventTopic,
-    MatchmakingEndpoint,
-    MatchmakingService,
+    EventsService, EventTopic,
     MinioService,
-    ProgressStatus,
+    readBuffer, RedisService,
     ResponseStatus,
-    ScrimStatus,
-    Task,
+    SubmissionEndpoint,
+    SubmissionService,
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 import {SHA256} from "crypto-js";
 import {GraphQLError} from "graphql";
 import type {Readable} from "stream";
 
-import {ScrimService} from "../scrim";
-import {read} from "../util/read";
 import {REPLAY_EXT, ReplayParsePubSub} from "./replay-parse.constants";
-import {ReplayParseSubscriber} from "./replay-parse.subscriber";
-import type {ParseReplaysTasks} from "./replay-parse.types";
-import {ReplaySubmissionService} from "./replay-submission";
+import type {ReplaySubmission} from "./types";
 
 @Injectable()
 export class ReplayParseService {
     private readonly logger = new Logger(ReplayParseService.name);
 
+    private subscribed: boolean = false;
+
     constructor(
-        private readonly celeryService: CeleryService,
         private readonly minioService: MinioService,
-        private readonly matchmakingService: MatchmakingService,
-        private readonly submissionService: ReplaySubmissionService,
+        private readonly submissionService: SubmissionService,
+        private readonly redisService: RedisService,
         private readonly eventsService: EventsService,
-        private readonly rpSubscriber: ReplayParseSubscriber,
-        private readonly scrimService: ScrimService,
         @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
     ) {
     }
 
+    async getSubmission(submissionId: string): Promise<ReplaySubmission> {
+        const result = await this.submissionService.send(SubmissionEndpoint.GetSubmissionRedisKey, {submissionId});
+        if (result.status === ResponseStatus.ERROR) throw result.error;
+
+        // Right now, this is entirely based on faith. If we enounter issues; we can update the graphql types.
+        // Writing up a zod schema set for this would be suckage to the 10th degree.
+        return this.redisService.getJson<ReplaySubmission>(result.data.redisKey);
+
+    }
+
     /**
-     *
      * @returns if the scrim has been reset
      */
     async resetBrokenReplays(submissionId: string, playerId: number): Promise<boolean> {
-        const scrimResponse = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
-        if (scrimResponse.status === ResponseStatus.ERROR || !scrimResponse.data) {
-            if (scrimResponse.status === ResponseStatus.ERROR) this.logger.error(scrimResponse.error);
-            throw new GraphQLError("Error fetching scrim");
-        }
-        const scrim = scrimResponse.data;
-
-        if (scrim.status !== ScrimStatus.SUBMITTING) {
-            throw new GraphQLError("You cannot reset this scrim.");
-        }
-
-        if (!scrim.players.some(player => player.id === playerId)) {
-            throw new GraphQLError("You are not allowed to do this");
-        }
-
-        const submission = await this.submissionService.getSubmission(submissionId);
-
-        if (!submission.items.some(item => item.progress?.status === ProgressStatus.Error)) {
-            return false;
-        }
-
-        await Promise.all([
-            this.submissionService.removeSubmission(submissionId),
-            this.scrimService.resetScrim(scrim.id, playerId),
-        ]);
-
+        const resetResponse = await this.submissionService.send(SubmissionEndpoint.ResetSubmission, {
+            submissionId: submissionId,
+            override: false,
+            playerId: playerId.toString(),
+        });
+        if (resetResponse.status === ResponseStatus.ERROR) throw resetResponse.error;
         return true;
     }
 
     async parseReplays(streams: Array<{stream: Readable; filename: string;}>, submissionId: string, player: ScrimPlayer): Promise<string[]> {
-        const cantSubmitReason = await this.submissionService.canSubmitReplays(submissionId, player.id);
-        if (cantSubmitReason) throw new Error(cantSubmitReason);
+        const canSubmitReponse = await this.submissionService.send(SubmissionEndpoint.CanSubmitReplays, {
+            playerId: player.id,
+            submissionId: submissionId,
+        });
+        if (canSubmitReponse.status === ResponseStatus.ERROR) throw canSubmitReponse.error;
+        if (!canSubmitReponse.data.canSubmit) throw new GraphQLError(canSubmitReponse.data.reason);
 
-        await this.submissionService.ensureSubmission(submissionId, player.id);
-
-        // Keep track of taskIds to return to the client
-        const taskIds: string[] = new Array<string>(streams.length);
-
-        // Keep track of tasks from callbacks
-        const tasks: ParseReplaysTasks = {};
-
-        const promises = streams.map(async ({stream, filename}, i) => {
-            const buffer = await read(stream);
+        const filepaths = await Promise.all(streams.map(async s => {
+            const buffer = await readBuffer(s.stream);
             const objectHash = SHA256(buffer.toString()).toString();
             const replayObjectPath = `replays/${objectHash}${REPLAY_EXT}`;
-
-            // Upload replay file to minio
             await this.minioService.put(config.minio.bucketNames.replays, replayObjectPath, buffer);
-            // watch the submission
-            this.rpSubscriber.subscribe(submissionId);
-            const taskId = await this.celeryService.run(Task.ParseReplay, {replayObjectPath}, {
-                progressQueue: submissionId,
-                cb: async (_taskId, result, error) => {
-                    // When replay is finished parsing, update status
-                    this.logger.debug(`Task completed taskId=${_taskId} result=${Boolean(result)} error=${error}`);
-                    let status: ProgressStatus;
-                    if (error) status = ProgressStatus.Error;
-                    else if (result) status = ProgressStatus.Complete;
-                    else throw new Error(`Task completed with neither result nor error, taskId=${_taskId}`);
-                    // Save information about parsed replay on the submission
-                    await this.submissionService.upsertItem(submissionId, {
-                        originalFilename: filename,
-                        taskId: _taskId,
-                        inputPath: replayObjectPath,
-                        outputPath: result?.outputPath,
-                    });
+            return {
+                minioPath: replayObjectPath,
+                originalFilename: s.filename,
+            };
+        }));
 
-                    tasks[_taskId] = {
-                        status, result, error,
-                    };
-
-                    // All tasks are done when they have either completed or errored
-                    const allTasksStarted = Object.keys(tasks).length === streams.length;
-                    const allTasksDone = Object.values(tasks).every(t => t.status === ProgressStatus.Complete || t.status === ProgressStatus.Error);
-
-                    // Handle completion of tasks
-                    if (allTasksStarted && allTasksDone) {
-                        await this.onParseCompletion(tasks, submissionId, player);
-                    }
-                },
-            });
-
-            await this.submissionService.upsertItem(submissionId, {
-                originalFilename: filename,
-                taskId: taskId,
-                inputPath: replayObjectPath,
-                progress: {
-                    taskId: taskId,
-                    status: ProgressStatus.Pending,
-                    progress: {
-                        value: 0,
-                        message: "starting",
-                    },
-                    result: null,
-                    error: null,
-                },
-            });
-
-            // Collect taskIds to return to caller
-            taskIds[i] = taskId;
+        const submissionResponse = await this.submissionService.send(SubmissionEndpoint.SubmitReplays, {
+            submissionId: submissionId,
+            filepaths: filepaths,
+            creatorId: player.id,
         });
-
-        // Wait for all tasks to be started
-        await Promise.all(promises);
-
-        await this.eventsService.publish(EventTopic.SubmissionStarted, {submissionId: submissionId});
-
+        if (submissionResponse.status === ResponseStatus.ERROR) throw submissionResponse.error;
         // Return taskIds, directly correspond to the files that were uploaded
-        return taskIds;
+        return submissionResponse.data;
     }
 
-    private async onParseCompletion(tasks: ParseReplaysTasks, submissionId: string, player: ScrimPlayer): Promise<void> {
-        this.logger.debug(`Replay parse tasks complete, submissionId=${submissionId} playerId=${player.id}`);
-
-        // Make sure all tasks completed successfully
-        const allComplete = Object.values(tasks).every(t => t.status === ProgressStatus.Complete);
-        if (!allComplete) {
-            this.logger.error(Object.keys(tasks).map(key => `\n${key} status=${tasks[key].status} error=${tasks[key].error}`));
-            return this.cleanupSubmission(submissionId, "a task failed");
-        }
-
-        // Validate replays
-        const validateRes = await this.matchmakingService.send(MatchmakingEndpoint.ValidateReplays, {submissionId});
-
-        if (validateRes.status === ResponseStatus.ERROR) {
-            this.logger.error(validateRes);
-            return this.cleanupSubmission(submissionId, "unexpected error");
-        }
-
-        if (!validateRes.data) {
-            return this.cleanupSubmission(submissionId, "invalid");
-        }
-
-        // Passed validation, set validated=true
-        this.logger.debug(`Submission passed validation submissionId=${submissionId}`);
-        await this.submissionService.setValidatedTrue(submissionId);
-
-        // End submission so that players can ratify the submission
-        await this.submissionService.endSubmission(submissionId, player);
-
-        // Without this ESLint complains about consistent-return
-        return undefined;
+    async ratifySubmission(submissionId: string, playerId: string): Promise<void> {
+        const ratificationResponse = await this.submissionService.send(SubmissionEndpoint.RatifySubmission, {
+            submissionId: submissionId,
+            playerId: playerId,
+        });
+        if (ratificationResponse.status === ResponseStatus.ERROR) throw ratificationResponse.error;
     }
 
-    private async cleanupSubmission(submissionId: string, error?: string): Promise<void> {
-        if (error) {
-            this.logger.error(error);
-        }
-        // TODO what kind of error to get/report?
+    async rejectSubmission(submissionId: string, playerId: string, reason: string): Promise<void> {
+        const rejectionResponse = await this.submissionService.send(SubmissionEndpoint.RejectSubmission, {
+            submissionId: submissionId,
+            playerId: playerId,
+            reason: reason,
+        });
+        if (rejectionResponse.status === ResponseStatus.ERROR) throw rejectionResponse.error;
+    }
 
-        // Clear submission from redis
-        // Clear all parsed results from redis
-        // Report error to client on pubsub
-        return;
+    async enableSubscription(submissionId: string): Promise<void> {
+        if (this.subscribed) return;
+        this.subscribed = true;
+        await this.eventsService.subscribe(EventTopic.AllSubmissionEvents, true).then(rx => {
+            rx.subscribe(v => {
+                if (typeof v.payload !== "object") {
+                    return;
+                }
+                this.redisService.getJson<ReplaySubmission>(v.payload.redisKey)
+                    .then(async submission => this.pubsub.publish(submissionId, {
+                        followSubmission: submission,
+                    }))
+                    .catch(this.logger.error.bind(this.logger));
+            });
+        });
     }
 }

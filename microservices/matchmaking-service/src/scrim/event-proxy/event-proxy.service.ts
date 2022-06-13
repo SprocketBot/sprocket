@@ -12,7 +12,7 @@ import {ScrimMetricsService} from "../scrim-metrics/scrim-metrics.service";
  * This service exists to wrap the existing Event Service exposed by Sprocket Common, but let us intercept event publishing
  * So that we can publish Scrim Metrics
  */
-export class EventProxyService implements Omit<EventsService, "rmqService"> {
+export class EventProxyService implements Omit<EventsService, "rmqService" | "subscribeAsyncIterator"> {
     constructor(
         private readonly service: EventsService,
         private readonly scrimMetricsService: ScrimMetricsService,

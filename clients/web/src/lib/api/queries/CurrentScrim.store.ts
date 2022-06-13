@@ -68,6 +68,7 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
     query {
         currentScrim: getCurrentScrim {
             id
+            submissionId
             playerCount
             maxPlayers
             status
@@ -99,7 +100,7 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
                     }
                 }
             }
-            submissionId
+            
         }
     }`;
 
@@ -160,9 +161,8 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
                     status: "info",
                     content: `Scrim ${screamingSnakeToHuman(scrim.status)}`,
                 });
-            } else {
-                this.currentValue.data.currentScrim = scrim;
-            }
+            } else if (!this.currentValue.data) this.currentValue.data = {currentScrim: scrim};
+            else this.currentValue.data.currentScrim = scrim;
 
             this.pub();
         }

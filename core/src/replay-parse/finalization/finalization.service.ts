@@ -5,11 +5,8 @@ import type {
 } from "@sprocketbot/common";
 import {
     CeleryService,
-    MatchmakingEndpoint,
-    MatchmakingService,
     Parser,
     RedisService,
-    ResponseStatus,
 } from "@sprocketbot/common";
 import type {QueryRunner} from "typeorm";
 import {Connection, Repository} from "typeorm";
@@ -27,7 +24,7 @@ import {PlayerService} from "../../franchise";
 import {MledbScrimService} from "../../mledb/mledb-scrim/mledb-scrim.service";
 import {SprocketRatingService} from "../../sprocket-rating/sprocket-rating.service";
 import type {SprocketRatingInput} from "../../sprocket-rating/sprocket-rating.types";
-import type {ReplaySubmission} from "../replay-submission";
+import type {ReplaySubmission} from "../types";
 import {BallchasingConverterService} from "./ballchasing-converter";
 
 @Injectable()
@@ -37,7 +34,6 @@ export class FinalizationService {
     constructor(
         private readonly celeryService: CeleryService,
         private readonly redisService: RedisService,
-        private readonly matchmakingService: MatchmakingService,
         private readonly mledbScrimService: MledbScrimService,
         private readonly ballchasingConverter: BallchasingConverterService,
         private readonly playerService: PlayerService,
@@ -50,25 +46,22 @@ export class FinalizationService {
         @InjectRepository(PlayerStatLine) private readonly playerStatRepo: Repository<PlayerStatLine>,
         @InjectRepository(TeamStatLine) private readonly teamStatRepo: Repository<TeamStatLine>,
         @InjectRepository(EligibilityData) private readonly eligibilityDataRepo: Repository<EligibilityData>,
-    ) {}
+    ) {
+    }
 
-    async saveScrimToDatabase(submission: ReplaySubmission, submissionId: string): Promise<ScrimDatabaseIds> {
+    async saveScrimToDatabase(submission: ReplaySubmission, submissionId: string, scrim: Scrim): Promise<ScrimDatabaseIds> {
         const runner = this.dbConn.createQueryRunner();
         await runner.connect();
         await runner.startTransaction();
 
-        const scrimResponse = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
-        if (scrimResponse.status === ResponseStatus.ERROR) throw scrimResponse.error;
-        const scrimObject = scrimResponse.data;
-
         try {
             const [mledbScrimId, sprocketMatchParentId] = await Promise.all([
-                this.mledbScrimService.saveScrim(submission, submissionId, runner, scrimObject as Scrim),
-                this.saveToSprocket(submission, runner, scrimObject as Scrim),
+                this.mledbScrimService.saveScrim(submission, submissionId, runner, scrim),
+                this.saveToSprocket(submission, runner, scrim),
             ]);
-    
+
             await runner.commitTransaction();
-    
+
             return {
                 id: sprocketMatchParentId,
                 legacyId: mledbScrimId,

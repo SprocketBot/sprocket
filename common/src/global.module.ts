@@ -2,6 +2,7 @@ import {Global, Module} from "@nestjs/common";
 import {ClientsModule, Transport} from "@nestjs/microservices";
 
 import {CommonClient} from "./global.types";
+import {SubmissionModule} from "./service-connectors/submission/submission.module";
 import {config} from "./util/config";
 
 const client = ClientsModule.register([
@@ -75,11 +76,25 @@ const client = ClientsModule.register([
             },
         },
     },
+    {
+        name: CommonClient.Submission,
+        transport: Transport.RMQ,
+        options: {
+            urls: [config.transport.url] as string[],
+            queue: config.transport.submission_queue,
+            queueOptions: {
+                durable: true,
+            },
+            socketOptions: {
+                heartbeat: 120,
+            },
+        },
+    },
 ]);
 
 @Global()
 @Module({
-    imports: [client],
+    imports: [client, SubmissionModule],
     exports: [client],
 })
 export class GlobalModule {}
