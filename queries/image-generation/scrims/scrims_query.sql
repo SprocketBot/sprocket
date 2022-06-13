@@ -128,7 +128,7 @@ player_stats AS (
 		SELECT 	gs.player_name AS name,
 				re.wins,
 				re.losses,
-				AVG(gs.mvpr) AS rating,
+				AVG(COALESCE(gs.gpi, gs.mvpr)) AS rating,
 				SUM(gs.goals) AS goals,
 				SUM(gs.assists) AS assists,
 				SUM(gs.saves) AS saves,

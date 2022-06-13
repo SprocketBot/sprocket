@@ -1,7 +1,9 @@
 import {z} from "zod";
 
 import {MemberRestrictionSchema} from "../service-connectors/core";
-import {ScrimMetricsSchema, ScrimSchema} from "../service-connectors/matchmaking";
+import {
+    ScrimDatabaseIdsSchema, ScrimMetricsSchema, ScrimSchema,
+} from "../service-connectors/matchmaking";
 import {SubmissionEventSchema} from "./types/submission.schemas";
 
 export enum EventTopic {
@@ -46,7 +48,7 @@ const SubmissionRatificationSchema = SubmissionEventSchema.extend({
 });
 export const EventSchemas = {
     // Scrim Events
-    [EventTopic.ScrimComplete]: ScrimSchema,
+    [EventTopic.ScrimComplete]: ScrimSchema.extend({databaseIds: ScrimDatabaseIdsSchema}),
     [EventTopic.ScrimPopped]: ScrimSchema,
     [EventTopic.ScrimCreated]: ScrimSchema,
     [EventTopic.ScrimUpdated]: ScrimSchema,

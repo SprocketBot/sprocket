@@ -37,15 +37,6 @@ export class MemberRestrictionService {
         });
 
         await this.memberRestrictionRepository.save(memberRestriction);
-
-        // This is the message we'll send to the front end about the ban
-        // const eventPayload = {
-        //     id: memberRestriction.id,
-        //     eventType: MemberRestrictionEventType.RESTRICTED,
-        //     message: "Member restricted",
-        //     restriction: memberRestriction,
-        // };
-
         await this.eventsService.publish(EventTopic.MemberRestrictionCreated, memberRestriction);
 
         return memberRestriction;
@@ -80,25 +71,18 @@ export class MemberRestrictionService {
         });
     }
 
-    async manuallyExpireMemberRestriction(memberRestrictionId: number, manualExpiration: Date, manualExpirationReason: string): Promise<MemberRestriction> {
+    async manuallyExpireMemberRestriction(memberRestrictionId: number, manualExpiration: Date, manualExpirationReason: string, forgiven: boolean): Promise<MemberRestriction> {
         let memberRestriction = await this.memberRestrictionRepository.findOneOrFail(memberRestrictionId, {relations: ["member", "member.profile"] });
 
         memberRestriction = this.memberRestrictionRepository.merge(memberRestriction, {
             manualExpiration: manualExpiration.toUTCString(),
             manualExpirationReason: manualExpirationReason,
+            forgiven: forgiven,
         });
+
         await this.memberRestrictionRepository.save(memberRestriction);
-
-        // This is the message we'll send to the front end about the manual
-        // expiration
-        // const eventPayload = {
-        //     id: memberRestriction.id,
-        //     eventType: MemberRestrictionEventType.UNRESTRICTED,
-        //     message: "Member restriction manually expired",
-        //     restriction: memberRestriction,
-        // };
-
         await this.eventsService.publish(EventTopic.MemberRestrictionExpired, memberRestriction);
+
         return memberRestriction;
     }
 }

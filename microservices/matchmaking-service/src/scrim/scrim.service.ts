@@ -1,7 +1,7 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {RpcException} from "@nestjs/microservices";
 import type {
-    Scrim, ScrimGameMode, ScrimPlayer, ScrimSettings,
+    Scrim, ScrimDatabaseIds, ScrimGameMode, ScrimPlayer, ScrimSettings,
 } from "@sprocketbot/common";
 import {
     AnalyticsEndpoint,
@@ -235,7 +235,7 @@ export class ScrimService {
         return true;
     }
 
-    async completeScrim(scrimId: string, playerId?: number): Promise<Scrim> {
+    async completeScrim(scrimId: string, playerId: number, databaseIds: ScrimDatabaseIds): Promise<Scrim> {
         // Player will be used to track who submitted / completed a scrim
         const scrim = await this.scrimCrudService.getScrim(scrimId);
         if (!scrim) {
@@ -251,7 +251,7 @@ export class ScrimService {
 
         await this.scrimCrudService.removeScrim(scrimId);
         scrim.status = ScrimStatus.COMPLETE;
-        await this.eventsService.publish(EventTopic.ScrimComplete, scrim, scrim.id);
+        await this.eventsService.publish(EventTopic.ScrimComplete, {...scrim, databaseIds}, scrim.id);
 
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
             name: "scrimComplete",

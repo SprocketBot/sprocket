@@ -42,13 +42,22 @@ export class ScrimConsumer {
 
         for (const player of playersNotCheckedIn) {
             const member = await this.memberService.getMember({relations: ["organization"], where: {user: {id: player.id} } });
+
+            const whereA = {
+                type: MemberRestrictionType.QUEUE_BAN,
+                member: member,
+                manualExpiration: IsNull(),
+                expiration: MoreThanOrEqual(add(new Date(), {days: -restrictionFallOffDays}).toUTCString()),
+            };
+            const whereB = {
+                type: MemberRestrictionType.QUEUE_BAN,
+                member: member,
+                manualExpiration: MoreThanOrEqual(add(new Date(), {days: -restrictionFallOffDays}).toUTCString()),
+                forgiven: false,
+            };
+
             const restrictions = await this.memberRestrictionService.getMemberRestrictions({
-                where: {
-                    type: MemberRestrictionType.QUEUE_BAN,
-                    member: member,
-                    manualExpiration: IsNull(),
-                    expiration: MoreThanOrEqual(add(new Date(), {days: -restrictionFallOffDays}).toUTCString()),
-                },
+                where: [whereA, whereB],
             });
 
             // eslint-disable-next-line @typescript-eslint/no-extra-parens

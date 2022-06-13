@@ -10,6 +10,7 @@ import {FranchiseModule} from "../franchise";
 import {IdentityModule} from "../identity";
 import {MledbInterfaceModule} from "../mledb";
 import {ScrimModule} from "../scrim";
+import {SprocketRatingModule} from "../sprocket-rating/sprocket-rating.module";
 import {
     BallchasingConverterService, FinalizationService, FinalizationSubscriber,
 } from "./finalization";
@@ -32,6 +33,7 @@ import {ReplayParseService} from "./replay-parse.service";
         AnalyticsModule,
         FranchiseModule,
         IdentityModule,
+        SprocketRatingModule,
     ],
     providers: [
         ReplayParseModResolver,

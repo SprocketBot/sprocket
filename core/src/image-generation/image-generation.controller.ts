@@ -1,6 +1,8 @@
 import {
     Controller, Get, Logger, Param,
 } from "@nestjs/common";
+import {MessagePattern, Payload} from "@nestjs/microservices";
+import {CoreEndpoint, CoreSchemas} from "@sprocketbot/common";
 
 import {ImageGenerationService} from "./image-generation.service";
 
@@ -14,5 +16,11 @@ export class ImageGenerationController {
     async run(@Param() params: {scrim_id: number;}): Promise<string> {
         this.logger.debug({params});
         return this.imageGenerationService.createScrimReportCard(params.scrim_id);
+    }
+
+    @MessagePattern(CoreEndpoint.GenerateReportCard)
+    async generateReportCard(@Payload() payload: unknown): Promise<string> {
+        const data = CoreSchemas.GenerateReportCard.input.parse(payload);
+        return this.imageGenerationService.createScrimReportCard(data.mleScrimId);
     }
 }

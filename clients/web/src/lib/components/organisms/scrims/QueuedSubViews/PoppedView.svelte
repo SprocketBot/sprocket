@@ -29,7 +29,7 @@
 		<h2 class='mb-4'>Your scrim popped!</h2>
 		<p>Everybody needs to check in and you will be presented with your game order.</p>
 	</header>
-	<div class='grid grid-cols-4 gap-8'>
+	<div class='grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-8'>
 		{#each scrim.players as p}
 			<Card class='bg-base-100/50 transition-colors border {p.checkedIn ? "border-success/50" : "border-error/50"}'>
 				<h2 slot='title'>{p.name}</h2>
