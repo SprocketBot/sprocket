@@ -1,21 +1,18 @@
 <script lang="ts">
     import {
-        restrictedPlayers, type MemberRestriction, expireRestrictionMutation,
+        restrictedPlayers, type MemberRestriction,
     } from "$lib/api";
+import ManuallyExpireRestrictionModal from "../../organisms/scrims/modals/ManuallyExpireRestrictionModal.svelte";
 
     let restrictedPlayersData: MemberRestriction[] | undefined;
     $: restrictedPlayersData = $restrictedPlayers?.data?.getActiveMemberRestrictions;
 
-    async function cancelRestriction(id: number) {
-        try {
-            await expireRestrictionMutation({id: id ?? 0, expiration: new Date()});
-        } catch {
-            console.log(`Failed to cancel the restriction for member ${id}`);
-        }
-    }
+    let expireRestrictionModalVisible = false;
+    let targetRestriction: MemberRestriction;
 
-    const unbanThisPlayer = async (restrictionId: number) => {
-        await cancelRestriction(restrictionId);
+    const openExpireRestrictionModal = (restriction: MemberRestriction) => {
+        expireRestrictionModalVisible = true;
+        targetRestriction = restriction;
     };
 </script>
 
@@ -34,7 +31,7 @@
                     <td>{restrictionEvent.member.profile.name}</td>
                     <td>{restrictionEvent.id}</td>
                     <td>
-                        <button class="btn btn-outline lg:btn-sm" on:click={async () => unbanThisPlayer(restrictionEvent.id) }>
+                        <button class="btn btn-outline lg:btn-sm" on:click={() => { openExpireRestrictionModal(restrictionEvent) } }>
                             Unban
                         </button>
                     </td>
@@ -43,6 +40,13 @@
         {/if}
     </tbody>
 </table>
+
+{#if expireRestrictionModalVisible}
+    <ManuallyExpireRestrictionModal
+            restriction={targetRestriction}
+            bind:visible={expireRestrictionModalVisible}
+    />
+{/if}
 
 <style lang="postcss">
 </style>
