@@ -17,6 +17,7 @@ export enum EventTopic {
     ScrimStarted = "scrim.started",
     ScrimCancelled = "scrim.cancelled",
     ScrimMetricsUpdate = "scrim.metricsUpdate",
+    ScrimSaved = "scrim.saved",
 
     // Submissions
     AllSubmissionEvents = "submission.*",
@@ -48,13 +49,14 @@ const SubmissionRatificationSchema = SubmissionEventSchema.extend({
 });
 export const EventSchemas = {
     // Scrim Events
-    [EventTopic.ScrimComplete]: ScrimSchema.extend({databaseIds: ScrimDatabaseIdsSchema}),
+    [EventTopic.ScrimComplete]: ScrimSchema,
     [EventTopic.ScrimPopped]: ScrimSchema,
     [EventTopic.ScrimCreated]: ScrimSchema,
     [EventTopic.ScrimUpdated]: ScrimSchema,
     [EventTopic.ScrimDestroyed]: ScrimSchema,
     [EventTopic.ScrimStarted]: ScrimSchema,
     [EventTopic.ScrimCancelled]: ScrimSchema,
+    [EventTopic.ScrimSaved]: ScrimSchema.extend({databaseIds: ScrimDatabaseIdsSchema}),
     [EventTopic.AllScrimEvents]: z.union([
         z.number(),
         z.string().uuid(),

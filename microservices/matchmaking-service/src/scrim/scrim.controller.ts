@@ -88,7 +88,7 @@ export class ScrimController {
     @MessagePattern(MatchmakingEndpoint.CompleteScrim)
     async completeScrim(@Payload() payload: unknown): Promise<Scrim | null> {
         const data = MatchmakingSchemas.CompleteScrim.input.parse(payload);
-        return this.scrimService.completeScrim(data.scrimId, data.playerId, data.databaseIds);
+        return this.scrimService.completeScrim(data.scrimId, data.playerId);
     }
 
     @MessagePattern(MatchmakingEndpoint.ForceUpdateScrimStatus)

@@ -2,7 +2,7 @@ import {Injectable} from "@nestjs/common";
 import type {
     BaseReplaySubmission,
     ProgressMessage,     ReplaySubmission, ReplaySubmissionItem, ReplaySubmissionRejection,
-    ScrimReplaySubmission,
+    ReplaySubmissionStats,    ScrimReplaySubmission,
     Task,
 } from "@sprocketbot/common";
 import {
@@ -11,9 +11,6 @@ import {
     ReplaySubmissionType,
     ResponseStatus,
 } from "@sprocketbot/common";
-import type {
-    ReplaySubmissionStats,
-} from "@sprocketbot/core/dist/replay-parse/replay-submission/types/submission-stats.types";
 
 import {
     getSubmissionKey, submissionIsMatch, submissionIsScrim,

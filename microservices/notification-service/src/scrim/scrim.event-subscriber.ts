@@ -19,8 +19,8 @@ export class ScrimEventSubscriber {
         await this.eventsService.subscribe(EventTopic.ScrimPopped, false).then(obs => {
             obs.subscribe(this.onScrimPopped);
         });
-        await this.eventsService.subscribe(EventTopic.ScrimComplete, false).then(obs => {
-            obs.subscribe(this.onScrimComplete);
+        await this.eventsService.subscribe(EventTopic.ScrimSaved, false).then(obs => {
+            obs.subscribe(this.onScrimSaved);
         });
     }
 
@@ -31,9 +31,9 @@ export class ScrimEventSubscriber {
         this.scrimService.sendQueuePoppedNotifications(d.payload).catch(e => { this.logger.error(e) });
     };
 
-    onScrimComplete = (d: EventResponse<EventTopic.ScrimComplete>): void => {
+    onScrimSaved = (d: EventResponse<EventTopic.ScrimSaved>): void => {
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        if (d.topic !== EventTopic.ScrimComplete) return;
+        if (d.topic !== EventTopic.ScrimSaved) return;
 
         this.scrimService.sendReportCard(d.payload).catch(e => { this.logger.error(e) });
     };
