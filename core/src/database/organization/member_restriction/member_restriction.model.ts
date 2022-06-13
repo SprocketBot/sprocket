@@ -32,6 +32,10 @@ export class MemberRestriction extends BaseModel {
     @Column({nullable: true})
     @Field({nullable: true})
     manualExpirationReason?: string;
+    
+    @Column({default: false})
+    @Field({defaultValue: false})
+    forgiven: boolean;
 
     @ManyToOne(() => Member, m => m.restrictions)
     @JoinColumn()

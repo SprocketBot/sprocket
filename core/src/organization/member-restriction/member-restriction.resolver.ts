@@ -43,8 +43,11 @@ export class MemberRestrictionResolver {
         @Args("id", {type: () => Int}) id: number,
         @Args("manualExpiration", {type: () => Date}) manualExpiration: Date,
         @Args("manualExpirationReason", {type: () => String}) manualExpirationReason: string,
+        @Args("forgiven", {
+            type: () => Boolean, nullable: true, defaultValue: false,
+        }) forgiven: boolean = false,
     ): Promise<MemberRestriction> {
-        return this.memberRestrictionService.manuallyExpireMemberRestriction(id, manualExpiration, manualExpirationReason);
+        return this.memberRestrictionService.manuallyExpireMemberRestriction(id, manualExpiration, manualExpirationReason, forgiven);
     }
 
     @ResolveField()
