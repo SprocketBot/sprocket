@@ -41,8 +41,12 @@ export class FinalizationSubscriber {
         }
         try {
             const submission = await this.redisService.getJson<ReplaySubmission>(keyResponse.data.redisKey);
-            await this.finalizationService.saveScrimToDatabase(submission, submissionId, scrim);
+            const ids = await this.finalizationService.saveScrimToDatabase(submission, submissionId, scrim);
             await this.submissionService.send(SubmissionEndpoint.RemoveSubmission, {submissionId});
+            await this.eventsService.publish(EventTopic.ScrimSaved, {
+                ...scrim,
+                databaseIds: ids,
+            });
         } catch (_e) {
             const e = _e as Error;
             this.logger.warn(e.message, e.stack);
