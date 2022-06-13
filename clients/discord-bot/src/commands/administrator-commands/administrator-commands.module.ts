@@ -6,6 +6,7 @@ import {EmbedModule} from "../../embed/embed.module";
 import {CommandsModule} from "../../marshal";
 import {CommandDecoratorTestMarshal} from "./command-decorator-test.marshal";
 import {DebugCommandsMarshal} from "./debug-commands.marshal";
+import {DeveloperCommandsMarshal} from "./developer-commands.marshal";
 import {MiscCommandsMarshal} from "./misc-commands.marshal";
 import {SprocketConfigurationMarshal} from "./sprocket-configuration.marshal";
 import {SprocketStatusMarshal} from "./sprocket-status.marshal";
@@ -23,6 +24,7 @@ import {SprocketStatusMarshal} from "./sprocket-status.marshal";
         MiscCommandsMarshal,
         SprocketConfigurationMarshal,
         CommandDecoratorTestMarshal,
+        DeveloperCommandsMarshal,
     ],
 })
 export class AdministratorCommandsModule {}
