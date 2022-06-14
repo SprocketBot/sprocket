@@ -81,10 +81,16 @@ export class ScrimService {
             organizationId: scrim.organizationId,
             code: OrganizationConfigurationKeyCode.REPORT_CARD_DISCORD_WEBHOOK_URL,
         });
-        if (reportCardWebhookUrl.status !== ResponseStatus.SUCCESS) throw reportCardWebhookUrl.error;
+        if (reportCardWebhookUrl.status !== ResponseStatus.SUCCESS) {
+            this.logger.warn("Failed to fetch report card webhool url");
+            throw reportCardWebhookUrl.error;
+        }
 
-        const reportCardResult = await this.coreService.send(CoreEndpoint.GenerateReportCard, {mleScrimId: scrim.databaseIds.legacyId});
-        if (reportCardResult.status !== ResponseStatus.SUCCESS) throw reportCardResult.error;
+        const reportCardResult = await this.coreService.send(CoreEndpoint.GenerateReportCard, {mleScrimId: scrim.databaseIds.legacyId}, {timeout: 300000});
+        if (reportCardResult.status !== ResponseStatus.SUCCESS) {
+            this.logger.warn("Failed to generate report card");
+            throw reportCardResult.error;
+        }
 
         const discordUserIds = await Promise.all(scrim.players.map(async player => {
             const discordUserResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, player.id);
