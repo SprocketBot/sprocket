@@ -7,3 +7,4 @@ export {default as Modal} from "./Modal.svelte";
 export {default as FileInput} from "./FileInput.svelte";
 export {default as DashboardNumberCard} from "./DashboardNumberCard.svelte";
 export {default as Progress} from "./Progress.svelte";
+export {default as Dropdown} from "./Dropdown.svelte";

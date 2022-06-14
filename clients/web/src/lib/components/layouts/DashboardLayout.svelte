@@ -1,10 +1,11 @@
 <script lang="ts">
-    import {goto} from "$app/navigation";
-
     import FaBars from "svelte-icons/fa/FaBars.svelte";
 
-    import {Avatar, Navigation} from "$lib/components";
-    import {user} from "$lib/stores/user";
+    import {
+        Navigation, UserMenu,
+    } from "$lib/components";
+
+
 </script>
 
 
@@ -25,12 +26,7 @@
         </div>
 
         <div class="navbar-end">
-            {#if $user}
-                <Avatar class="h-12 w-12 mr-4"/>
-                {$user.username}
-            {:else}
-                <button class="btn btn-outline" on:click={async () => goto("/auth/login")}>Sign In</button>
-            {/if}
+            <UserMenu/>
         </div>
     </nav>
     <div class="drawer drawer-mobile h-full w-full flex-1">
