@@ -27,12 +27,9 @@ export class SprocketRatingService {
         const OPI_beta = -1 * Math.log(9);
         const DPI_beta = OPI_beta;
 
-        const goals = core.goals ?? 0;
-        const assists = core.assists ?? 0;
-        const shots = core.shots ?? 0;
-        const saves = core.saves ?? 0;
-        const goals_against = core.goals_against ?? 0;
-        const shots_against = core.shots_against ?? 0;
+        const {
+            goals, assists, shots, saves, goals_against, shots_against,
+        } = core;
 
         if ((goals + assists + shots + saves + goals_against + shots_against) > 0) {
             const opi_raw = (OPI_goal_w * (goals / G_2s)) + (OPI_assist_w * (assists / A_2s)) + (OPI_shot_w * (shots / Sh_2s));
@@ -78,18 +75,15 @@ export class SprocketRatingService {
         const OPI_beta = -1 * Math.log(9);
         const DPI_beta = OPI_beta;
 
-        const goals = core.goals ?? 0;
-        const assists = core.assists ?? 0;
-        const shots = core.shots ?? 0;
-        const saves = core.saves ?? 0;
-        const goals_against = core.goals_against ?? 0;
-        const shots_against = core.shots_against ?? 0;
+        const {
+            goals, assists, shots, saves, goals_against, shots_against,
+        } = core;
 
         if ((goals + assists + shots + saves + goals_against + shots_against) > 0) {
             const opi_raw = (OPI_goal_w * (goals / G_3s)) + (OPI_assist_w * (assists / A_3s)) + (OPI_shot_w * (shots / Sh_3s));
             const opi = 100.0 / (1 + Math.exp(OPI_beta * ((opi_raw - xOPI_3s) / yOPI_3s)));
 
-            const dpi_raw = (DPI_goal_w * (2.0 - (goals_against / 2.0 / G_3s))) + (DPI_saves_w * (saves / Sv_3s)) + (DPI_shot_w * (2.0 - (shots_against / 2.0 / Sh_3s)));
+            const dpi_raw = (DPI_goal_w * (2.0 - (goals_against / 3.0 / G_3s))) + (DPI_saves_w * (saves / Sv_3s)) + (DPI_shot_w * (2.0 - (shots_against / 3.0 / Sh_3s)));
             const dpi = 100.0 / (1 + Math.exp(DPI_beta * ((dpi_raw - xDPI_3s) / yDPI_3s)));
 
             const gpi = (opi + dpi) / 2.0;

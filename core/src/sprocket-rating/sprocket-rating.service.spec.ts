@@ -119,4 +119,42 @@ describe("SprocketRatingService", () => {
 
     });
 
+    it("Nigel's 3s Test #1", () => {
+        const input = {
+            goals: 5.0 / 5.0,
+            assists: 0.0 / 5.0,
+            shots: 11.0 / 5.0,
+            saves: 4.0 / 5.0,
+            goals_against: 28.0 / 5.0,
+            shots_against: 65.0 / 5.0,
+        };
+        const result = {
+            opi: 33.0,
+            dpi: 0.8,
+            gpi: 16.9,
+        };
+
+        expect(Math.round(service.calcSprocketRating3s(input).opi * 10.0) / 10.0).toStrictEqual(result.opi);
+        expect(Math.round(service.calcSprocketRating3s(input).dpi * 10.0) / 10.0).toStrictEqual(result.dpi);
+        expect(Math.round(service.calcSprocketRating3s(input).gpi * 10.0) / 10.0).toStrictEqual(result.gpi);
+
+    });
+
+    it("Nigels' 3s Test #2", () => {
+        const input = {
+            goals: 0.0,
+            assists: 0.0,
+            shots: 0.0,
+            saves: 0.0,
+            goals_against: 0.0,
+            shots_against: 0.0,
+        };
+        const result = {
+            opi: 0.0, dpi: 0.0, gpi: 0.0,
+        };
+
+        expect(service.calcSprocketRating3s(input)).toStrictEqual(result);
+
+    });
+
 });
