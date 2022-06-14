@@ -115,8 +115,6 @@ export class ScrimService {
                         icon: true,
                         text: true,
                     },
-                    webhookAvatar: true,
-                    webhookUsername: true,
                 },
             },
         });
