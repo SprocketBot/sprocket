@@ -6,3 +6,4 @@ export * from "./auth";
 export * from "./toasts";
 export * from "./scrims";
 export * from "./dashboard";
+export * from "./user-menu";
