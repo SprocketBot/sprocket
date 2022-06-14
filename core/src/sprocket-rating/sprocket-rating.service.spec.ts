@@ -35,22 +35,87 @@ describe("SprocketRatingService", () => {
 
     });
 
-    it("Should give valid results", () => {
+    it("GT's SR Test #1, Fresh", () => {
         const input = {
-            goals: 1.0,
-            assists: 2.0,
-            shots: 7.0,
-            saves: 1.0,
-            goals_against: 4.0,
-            shots_against: 5.0,
+            goals: 9.0 / 5.0,
+            assists: 8.0 / 5.0,
+            shots: 28.0 / 5.0,
+            saves: 5.0 / 5.0,
+            goals_against: 7.0 / 5.0,
+            shots_against: 24.0 / 5.0,
         };
         const result = {
-            opi: 92.41236614475706,
-            dpi: 27.36595668648241,
-            gpi: 59.88916141561973,
+            opi: 86.7,
+            dpi: 82.0,
+            gpi: 84.3,
         };
 
-        expect(service.calcSprocketRating(input)).toStrictEqual(result);
+        expect(Math.round(service.calcSprocketRating(input).opi * 10.0) / 10.0).toStrictEqual(result.opi);
+        expect(Math.round(service.calcSprocketRating(input).dpi * 10.0) / 10.0).toStrictEqual(result.dpi);
+        expect(Math.round(service.calcSprocketRating(input).gpi * 10.0) / 10.0).toStrictEqual(result.gpi);
+
+    });
+
+    it("GT's SR Test #2, Zyta", () => {
+        const input = {
+            goals: 19.0 / 5.0,
+            assists: 5.0 / 5.0,
+            shots: 37.0 / 5.0,
+            saves: 5.0 / 5.0,
+            goals_against: 7.0 / 5.0,
+            shots_against: 24.0 / 5.0,
+        };
+        const result = {
+            opi: 95.8,
+            dpi: 82.0,
+            gpi: 88.9,
+        };
+
+        expect(Math.round(service.calcSprocketRating(input).opi * 10.0) / 10.0).toStrictEqual(result.opi);
+        expect(Math.round(service.calcSprocketRating(input).dpi * 10.0) / 10.0).toStrictEqual(result.dpi);
+        expect(Math.round(service.calcSprocketRating(input).gpi * 10.0) / 10.0).toStrictEqual(result.gpi);
+
+    });
+
+    it("GT's SR Test #3, AJBinky", () => {
+        const input = {
+            goals: 2.0 / 5.0,
+            assists: 3.0 / 5.0,
+            shots: 13.0 / 5.0,
+            saves: 24.0 / 5.0,
+            goals_against: 28.0 / 5.0,
+            shots_against: 65.0 / 5.0,
+        };
+        const result = {
+            opi: 17.3,
+            dpi: 31.2,
+            gpi: 24.2,
+        };
+
+        expect(Math.round(service.calcSprocketRating(input).opi * 10.0) / 10.0).toStrictEqual(result.opi);
+        expect(Math.round(service.calcSprocketRating(input).dpi * 10.0) / 10.0).toStrictEqual(result.dpi);
+        expect(Math.round(service.calcSprocketRating(input).gpi * 10.0) / 10.0).toStrictEqual(result.gpi);
+
+    });
+
+    it("GT's SR Test #4, Maple", () => {
+        const input = {
+            goals: 5.0 / 5.0,
+            assists: 0.0 / 5.0,
+            shots: 11.0 / 5.0,
+            saves: 4.0 / 5.0,
+            goals_against: 28.0 / 5.0,
+            shots_against: 65.0 / 5.0,
+        };
+        const result = {
+            opi: 12.1,
+            dpi: 2.3,
+            gpi: 7.2,
+        };
+
+        expect(Math.round(service.calcSprocketRating(input).opi * 10.0) / 10.0).toStrictEqual(result.opi);
+        expect(Math.round(service.calcSprocketRating(input).dpi * 10.0) / 10.0).toStrictEqual(result.dpi);
+        expect(Math.round(service.calcSprocketRating(input).gpi * 10.0) / 10.0).toStrictEqual(result.gpi);
 
     });
 
