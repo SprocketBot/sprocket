@@ -149,7 +149,7 @@ def _parse_ballchasing(path: str) -> dict:
                 if _parse_is_duplicate_replay(*e.args):
                     ballchasing_id = err_body["id"]
                     logging.debug(f"Replay already parsed {ballchasing_id}")
-                    pass
+                    break
                 elif _parse_is_failed_replay(*e.args):
                     logging.error(f"Parsing {path} with Ballchasing failed due to bad replay", err_body)
                     raise e
