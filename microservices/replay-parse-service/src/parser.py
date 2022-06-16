@@ -158,7 +158,7 @@ def _parse_ballchasing(path: str) -> dict:
                     continue
 
 
-        # Get parsed stats, retring while replay is pending or while we are rate-limited
+        # Get parsed stats, retrying while replay is pending or while we are rate-limited
         body: dict = None
 
         for retry in range(MAX_RETRIES):
