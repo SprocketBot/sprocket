@@ -1,7 +1,12 @@
 import {Injectable, Logger} from "@nestjs/common";
 import type {EventResponse} from "@sprocketbot/common";
 import {
-    EventsService, EventTopic, ScrimStatus,
+    EventsService,
+    EventTopic,
+    ResponseStatus,
+    ScrimStatus,
+    SubmissionEndpoint,
+    SubmissionService,
 } from "@sprocketbot/common";
 
 import {ScrimService} from "./scrim.service";
@@ -15,6 +20,7 @@ export class ScrimEventSubscriber {
         private readonly eventsService: EventsService,
         private readonly scrimCrudService: ScrimCrudService,
         private readonly scrimService: ScrimService,
+        private readonly submissionService: SubmissionService,
     ) {}
 
     async onApplicationBootstrap(): Promise<void> {
@@ -92,6 +98,7 @@ export class ScrimEventSubscriber {
     };
 
     onSubmissionRejected = async (d: EventResponse<EventTopic.SubmissionRejected | EventTopic>): Promise<void> => {
+        this.logger.warn("Scrim rejected!");
         if (d.topic !== EventTopic.SubmissionRejected) return;
         const {payload} = d as EventResponse<EventTopic.SubmissionRejected>;
 
@@ -101,5 +108,10 @@ export class ScrimEventSubscriber {
             return;
         }
         await this.scrimService.resetScrim(scrim.id);
+
+        const submissionResult = await this.submissionService.send(SubmissionEndpoint.GetSubmissionRejections, {submissionId: payload.submissionId});
+        if (submissionResult.status === ResponseStatus.ERROR) throw submissionResult.error;
+
+        if (submissionResult.data.length >= 3) await this.scrimService.setScrimLocked(scrim.id, true);
     };
 }
