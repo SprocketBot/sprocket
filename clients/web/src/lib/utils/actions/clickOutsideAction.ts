@@ -4,9 +4,7 @@ export function clickOutside(node) {
             node.dispatchEvent(new CustomEvent("outclick"));
         }
     };
-
     document.addEventListener("click", handleClick, true);
-
     return {
         destroy() {
             document.removeEventListener("click", handleClick, true);

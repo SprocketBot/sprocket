@@ -13,7 +13,6 @@
     };
 
     const handleClickOutside = (): void => {
-        console.log("Handler fired.");
         visible = false;
     };
 
