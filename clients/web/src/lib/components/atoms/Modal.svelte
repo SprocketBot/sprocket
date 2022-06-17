@@ -7,7 +7,6 @@
 
     export let title: string;
     export let visible: boolean = false;
-    export let canClickOutside: boolean = true;
     export let id: string;
     const close = (): void => {
         visible = false;
@@ -16,7 +15,7 @@
     const handleClickOutside = (): void => {
         console.log("Handler fired.");
         visible = false;
-    }
+    };
 
     setContext("close", close);
 </script>
