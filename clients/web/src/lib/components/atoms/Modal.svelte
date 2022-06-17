@@ -14,7 +14,9 @@
     };
 
     const handleClickOutside = (): void => {
+        console.log("Handler fired.");
         visible = false;
+    }
 
     setContext("close", close);
 </script>
@@ -22,8 +24,8 @@
 <Portal>
     <input type="checkbox" class="modal-toggle" bind:checked={visible}/>
 
-    <div class="modal bg-gray-700/40" {id} use:clickOutside on:outclick = "{ handleClickOutside() }">
-        <div class="modal-box max-w-xl">
+    <div class="modal bg-gray-700/40" {id} >
+        <div class="modal-box max-w-xl" visible={visible} use:clickOutside on:outclick={handleClickOutside}>
             <div class="close" on:click={close}>
                 <IoMdClose/>
             </div>
