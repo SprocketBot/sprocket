@@ -7,19 +7,14 @@
 
     export let title: string;
     export let visible: boolean = false;
-    export let canClickOutside: boolean = false;
+    export let canClickOutside: boolean = true;
     export let id: string;
     const close = (): void => {
         visible = false;
     };
 
     const handleClickOutside = (): void => {
-        if (canClickOutside) {
-            close();
-        }
-        canClickOutside = !canClickOutside;
-        console.log(canClickOutside);
-    };
+        visible = false;
 
     setContext("close", close);
 </script>
@@ -27,7 +22,7 @@
 <Portal>
     <input type="checkbox" class="modal-toggle" bind:checked={visible}/>
 
-    <div class="modal bg-gray-700/40" {id} use:clickOutside = {{callback: handleClickOutside}}>
+    <div class="modal bg-gray-700/40" {id} use:clickOutside on:outclick = "{ handleClickOutside() }">
         <div class="modal-box max-w-xl">
             <div class="close" on:click={close}>
                 <IoMdClose/>
