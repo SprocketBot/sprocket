@@ -106,7 +106,7 @@ export class ScrimEventSubscriber {
             this.logger.warn(`Scrim not found for submission ${payload.submissionId}`);
             return;
         }
-        await this.scrimService.resetScrim(scrim.id).catch(() => null);
+        await this.scrimService.resetScrim(scrim.id).catch(e => { this.logger.error(e) });
 
         const submissionResult = await this.submissionService.send(SubmissionEndpoint.GetSubmissionRejections, {submissionId: payload.submissionId});
         if (submissionResult.status === ResponseStatus.ERROR) throw submissionResult.error;
