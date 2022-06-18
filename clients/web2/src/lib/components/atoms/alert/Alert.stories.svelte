@@ -9,7 +9,7 @@
 	};
 </script>
 
-<Meta title="Alert" component={Alert} {argTypes} />
+<Meta title="atoms/Alert" component={Alert} {argTypes} />
 
 <Template let:args>
 	<Alert {...args}>
