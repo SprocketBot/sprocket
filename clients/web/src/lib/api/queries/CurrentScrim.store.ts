@@ -15,9 +15,6 @@ export interface CurrentScrim {
     };
     gameMode: {
         description: string;
-        game: {
-            title: string;
-        };
     };
     settings: {
         competitive: boolean;
@@ -81,9 +78,6 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
             }
             gameMode {
                 description
-                game {
-                    title
-                }
             }
             settings {
                 competitive
@@ -124,9 +118,6 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
                 }
                 gameMode {
                     description
-                    game {
-                        title
-                    }
                 }
                 settings {
                     competitive

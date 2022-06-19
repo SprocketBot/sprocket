@@ -20,9 +20,8 @@
 <table class="table text-center w-full">
     <thead>
     <tr>
-        <th>Game</th>
-        <th>Game Mode</th>
         <th>Scrim Type</th>
+        <th>Game Mode</th>
         <th>Players</th>
         <th/>
         <th>
@@ -35,9 +34,8 @@
     <tbody>
     {#each scrims as scrim (scrim.id)}
         <tr>
-            <td>{scrim.gameMode.game.title}</td>
-            <td>{scrim.gameMode.description}</td>
             <td>{screamingSnakeToHuman(scrim.settings.mode)}</td>
+            <td>{scrim.gameMode.description}</td>
             <td>{scrim.playerCount} / {scrim.maxPlayers}</td>
             <td>{scrim.settings.competitive ? "Competitive" : "Casual"}</td>
             <td>

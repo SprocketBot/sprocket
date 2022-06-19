@@ -9,9 +9,6 @@ interface PendingScrim {
     status: "PENDING" | "EMPTY" | "POPPED";
     gameMode: {
         description: string;
-        game: {
-            title: string;
-        };
     };
     settings: {
         competitive: boolean;
@@ -42,9 +39,6 @@ class PendingScrimsStore extends LiveQueryStore<PendingScrimsData, PendingScrims
             status
             gameMode {
                 description
-                game {
-                    title
-                }
             }
             settings {
                 competitive
@@ -62,9 +56,6 @@ class PendingScrimsStore extends LiveQueryStore<PendingScrimsData, PendingScrims
             status
             gameMode {
                 description
-                game {
-                    title
-                }
             }
             settings {
                 competitive
