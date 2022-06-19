@@ -1,6 +1,6 @@
 import {Controller} from "@nestjs/common";
 import {MessagePattern, Payload} from "@nestjs/microservices";
-import type {GetOrganizationDiscordGuildsByGuildResponse} from "@sprocketbot/common";
+import type {GetOrganizationByDiscordGuildResponse, GetOrganizationDiscordGuildsByGuildResponse} from "@sprocketbot/common";
 import {CoreEndpoint, CoreSchemas} from "@sprocketbot/common";
 
 import {OrganizationConfigurationService} from "../../configuration/organization-configuration/organization-configuration.service";
@@ -32,6 +32,16 @@ export class OrganizationController {
         return {
             primary: primaryGuild,
             alternate: alternateGuilds,
+        };
+    }
+
+    @MessagePattern(CoreEndpoint.GetOrganizationByDiscordGuild)
+    async getOrganizationByDiscordGuild(@Payload() payload: unknown): Promise<GetOrganizationByDiscordGuildResponse> {
+        const data = CoreSchemas.GetOrganizationDiscordGuildsByGuild.input.parse(payload);
+        const valueContainingGuildId = await this.organizationConfigurationService.findOrganizationConfigurationValue(data.guildId, {relations: ["organization"] });
+
+        return {
+            id: valueContainingGuildId.organization.id,
         };
     }
 }

@@ -82,7 +82,7 @@ export class ScrimService {
             code: OrganizationConfigurationKeyCode.REPORT_CARD_DISCORD_WEBHOOK_URL,
         });
         if (reportCardWebhookUrl.status !== ResponseStatus.SUCCESS) {
-            this.logger.warn("Failed to fetch report card webhool url");
+            this.logger.warn("Failed to fetch report card webhook url");
             throw reportCardWebhookUrl.error;
         }
 

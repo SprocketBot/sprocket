@@ -7,6 +7,7 @@ import {CommandsModule} from "../../marshal";
 import {HelpMarshal} from "./help";
 import {MemberLookupMarshal} from "./member-lookup.marshal";
 import {OrganizationConfigurationMarshal} from "./organization-configuration.marshal";
+import {ReportCardMarshal} from "./report-card.marshal";
 
 @Module({
     imports: [
@@ -19,6 +20,7 @@ import {OrganizationConfigurationMarshal} from "./organization-configuration.mar
         MemberLookupMarshal,
         OrganizationConfigurationMarshal,
         HelpMarshal,
+        ReportCardMarshal,
     ],
 })
 export class MemberCommandsModule {}

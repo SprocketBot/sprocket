@@ -1,6 +1,7 @@
 import {
     Inject, Injectable, Logger,
 } from "@nestjs/common";
+import {InjectRepository} from "@nestjs/typeorm";
 import type {
     Scrim as IScrim,
     ScrimMetrics as IScrimMetrics,
@@ -16,7 +17,9 @@ import {
     ScrimStatus,
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
+import {Repository} from "typeorm";
 
+import {PlayerStatLine} from "../database";
 import {ScrimPubSub} from "./constants";
 import type {Scrim, ScrimGameMode} from "./types";
 
@@ -30,6 +33,7 @@ export class ScrimService {
         private readonly matchmakingService: MatchmakingService,
         private readonly eventsService: EventsService,
         @Inject(ScrimPubSub) private readonly pubsub: PubSub,
+        @InjectRepository(PlayerStatLine) private readonly playerStatLineRepository: Repository<PlayerStatLine>,
     ) {}
 
     get metricsSubTopic(): string { return "metrics.update" }
@@ -161,6 +165,14 @@ export class ScrimService {
 
         if (result.status === ResponseStatus.SUCCESS) return result.data;
         throw result.error;
+    }
+
+    async getLatestScrimIdByUserId(userId: number): Promise<number> {
+        const psl = await this.playerStatLineRepository.findOneOrFail({
+            where: {
+                
+            }
+        })
     }
 
     async enableSubscription(): Promise<void> {
