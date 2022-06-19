@@ -11,6 +11,8 @@ export const EmbedBrandingOptionsSchema = z.object({
         icon: z.boolean().optional(),
     }).optional(),
     thumbnail: z.boolean().optional(),
+    webhookUsername: z.boolean().optional(),
+    webhookAvatar: z.boolean().optional(),
 });
 
 export const BrandingOptionsSchema = z.object({

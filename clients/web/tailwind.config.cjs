@@ -27,6 +27,9 @@ const config = {
   content: ['./src/**/*.{html,js,svelte,ts}'],
   theme: {
     extend: {
+      animation: {
+        "spin-slow": "spin 3s linear infinite"
+      },
       colors: {
         "sprocket": sprocketPalette.primary,
 

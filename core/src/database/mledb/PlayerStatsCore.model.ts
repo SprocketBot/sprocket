@@ -56,11 +56,26 @@ export class MLE_PlayerStatsCore {
     @Column("integer", {name: "assists"})
     assists: number;
 
+    @Column("integer", {name: "goals_against", nullable: true})
+    goals_against: number;
+
+    @Column("integer", {name: "shots_against", nullable: true})
+    shots_against: number;
+
     @Column("boolean", {name: "mvp"})
     mvp: boolean;
 
     @Column("real", {name: "mvpr"})
     mvpr: number;
+
+    @Column("real", {name: "opi", nullable: true})
+    opi: number;
+
+    @Column("real", {name: "dpi", nullable: true})
+    dpi: number;
+
+    @Column("real", {name: "gpi", nullable: true})
+    gpi: number;
 
     @OneToOne(() => MLE_PlayerStats, playerStats => playerStats.coreStats)
     playerStats: MLE_PlayerStats;

@@ -4,7 +4,7 @@ import {
 import {config} from "@sprocketbot/common";
 import {Client} from "discord.js";
 
-import {CommandManagerService} from "../marshal/command-manager/command-manager.service";
+import {CommandManagerService} from "../marshal/commands/command-manager.service";
 
 @Injectable()
 export class DiscordService {

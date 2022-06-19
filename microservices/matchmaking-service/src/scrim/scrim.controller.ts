@@ -57,7 +57,7 @@ export class ScrimController {
     @MessagePattern(MatchmakingEndpoint.EndScrim)
     async endScrim(@Payload() payload: unknown): Promise<boolean> {
         const data = MatchmakingSchemas.EndScrim.input.parse(payload);
-        return this.scrimService.endScrim(data.scrimId, data.player);
+        return this.scrimService.moveToRatification(data.scrimId);
     }
 
     @MessagePattern(MatchmakingEndpoint.CancelScrim)
@@ -78,9 +78,11 @@ export class ScrimController {
     }
 
     @MessagePattern(MatchmakingEndpoint.GetScrimBySubmissionId)
-    async getScrimBySubmissionId(@Payload() payload: unknown): Promise<Scrim | null> {
+    async getScrimBySubmissionId(@Payload() payload: unknown): Promise<Scrim> {
         const data = MatchmakingSchemas.GetScrimBySubmissionId.input.parse(payload);
-        return this.scrimCrudService.getScrimBySubmissionId(data);
+        const result =  await this.scrimCrudService.getScrimBySubmissionId(data);
+        if (result !== null) return result;
+        throw new Error(`No scrim for submission ${data}`);
     }
 
     @MessagePattern(MatchmakingEndpoint.CompleteScrim)
@@ -90,7 +92,7 @@ export class ScrimController {
     }
 
     @MessagePattern(MatchmakingEndpoint.ForceUpdateScrimStatus)
-    async complete(@Payload() payload: unknown): Promise<boolean | null> {
+    async forceUpdateStatus(@Payload() payload: unknown): Promise<boolean | null> {
         const data = MatchmakingSchemas.ForceUpdateScrimStatus.input.parse(payload);
         await this.scrimService.forceUpdateScrimStatus(data.scrimId, data.status);
         return true;

@@ -127,7 +127,8 @@ export const config = {
             return _config.get<string>("redis.host");
         },
         get password(): string {
-            return readFileSync("./secret/redis-password.txt").toString();
+            return readFileSync("./secret/redis-password.txt").toString()
+                .trim();
         },
         get prefix(): string {
             return _config.get<string>("redis.prefix");
@@ -164,6 +165,9 @@ export const config = {
         },
         get image_generation_queue(): string {
             return _config.get<string>("transport.image_generation_queue");
+        },
+        get submission_queue(): string {
+            return _config.get<string>("transport.submission_queue");
         },
     },
     web: {

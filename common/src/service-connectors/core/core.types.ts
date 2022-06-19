@@ -9,6 +9,9 @@ export enum CoreEndpoint {
     GetOrganizationBranding = "GetOrganizationBranding",
     GetUserByAuthAccount = "GetUserByAuthAccount",
     GetMember = "GetMember",
+    GetOrganizationDiscordGuildsByGuild = "GetOrganizationDiscordGuildsByGuild",
+    GenerateReportCard = "GenerateReportCard",
+    GetOrganizationConfigurationValue = "GetOrganizationConfigurationValue",
 }
 
 export const CoreSchemas = {
@@ -31,6 +34,18 @@ export const CoreSchemas = {
     [CoreEndpoint.GetMember]: {
         input: Schemas.GetMember_Request,
         output: Schemas.GetMember_Response,
+    },
+    [CoreEndpoint.GetOrganizationDiscordGuildsByGuild]: {
+        input: Schemas.GetOrganizationDiscordGuildsByGuild_Request,
+        output: Schemas.GetOrganizationDiscordGuildsByGuild_Response,
+    },
+    [CoreEndpoint.GenerateReportCard]: {
+        input: Schemas.GenerateReportCard_Request,
+        output: Schemas.GenerateReportCard_Response,
+    },
+    [CoreEndpoint.GetOrganizationConfigurationValue]: {
+        input: Schemas.GetOrganizationConfigurationValue_Request,
+        output: Schemas.GetOrganizationConfigurationValue_Response,
     },
 };
 

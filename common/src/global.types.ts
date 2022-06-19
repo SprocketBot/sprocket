@@ -5,9 +5,14 @@ export enum CommonClient {
     ImageGeneration = "CommonImageGeneration",
     Notification = "CommonNotification",
     Core = "CommonClientCore",
+    Submission = "CommonClientSubmission",
 }
 
 export enum ResponseStatus {
     SUCCESS = "SUCCESS",
     ERROR = "ERROR",
+}
+
+export interface MicroserviceRequestOptions {
+    timeout?: number;
 }

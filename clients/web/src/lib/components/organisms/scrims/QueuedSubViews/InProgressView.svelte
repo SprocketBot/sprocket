@@ -1,6 +1,6 @@
 <script lang="ts">
-    import {
-        SubmissionRejectionsStore, type CurrentScrim, type SubmissionRejection,
+    import type {
+        CurrentScrim, Submission, SubmissionRejection,
     } from "$lib/api";
     import UploadReplaysModal from "../modals/UploadReplaysModal.svelte";
     import {BestOfFixture, RoundRobinFixture} from "$lib/components";
@@ -8,18 +8,11 @@
 
 
     export let scrim: CurrentScrim;
+    export let submission: Submission | undefined;
 
     let uploading: boolean = false;
-
-    let lastRejection: SubmissionRejection | undefined;
-    const submissionRejections = new SubmissionRejectionsStore(scrim.submissionId!);
-
-    $: {
-        if ($submissionRejections.data) {
-            const {rejections} = $submissionRejections.data;
-            lastRejection = rejections[rejections.length - 1];
-        }
-    }
+    let rejection: SubmissionRejection | undefined;
+    $: rejection = submission?.rejections[submission.rejections.length - 1];
 </script>
 
 
@@ -49,10 +42,10 @@
         {/if}
     </div>
 
-    {#if lastRejection}
+    {#if rejection}
         <h2 class="text-error">Replays Rejected</h2>
         <!-- TODO sanitize reason -->
-        <p>{lastRejection.playerName} rejected the uploaded replays because "{lastRejection.reason}"</p>
+        <p>{rejection.playerName} rejected the uploaded replays because "{rejection.reason}"</p>
         <p class="mt-4">You can upload replays again:</p>
     {/if}
 

@@ -1,7 +1,7 @@
 import {BullModule} from "@nestjs/bull";
 import {Module} from "@nestjs/common";
 import {
-    AnalyticsModule, config, EventsModule, RedisModule,
+    AnalyticsModule, config, EventsModule, RedisModule, SubmissionModule,
 } from "@sprocketbot/common";
 
 import {EventProxyService} from "./event-proxy/event-proxy.service";
@@ -19,6 +19,7 @@ import {ScrimMetricsService} from "./scrim-metrics/scrim-metrics.service";
         RedisModule,
         EventsModule,
         AnalyticsModule,
+        SubmissionModule,
         BullModule.forRoot({
             redis: {
                 host: config.redis.host,

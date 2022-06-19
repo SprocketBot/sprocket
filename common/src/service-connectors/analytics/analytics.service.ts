@@ -3,8 +3,9 @@ import {
     Inject, Injectable, Logger,
 } from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
-import {lastValueFrom} from "rxjs";
+import {lastValueFrom, timeout} from "rxjs";
 
+import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
 import type {
     AnalyticsEndpoint, AnalyticsInput, AnalyticsResponse,
@@ -17,7 +18,7 @@ export class AnalyticsService {
 
     constructor(@Inject(CommonClient.Analytics) private microServiceClient: ClientProxy) {}
 
-    async send<E extends AnalyticsEndpoint>(endpoint: E, data: AnalyticsInput<E>): Promise<AnalyticsResponse<E>> {
+    async send<E extends AnalyticsEndpoint>(endpoint: E, data: AnalyticsInput<E>, options?: MicroserviceRequestOptions): Promise<AnalyticsResponse<E>> {
         // this.logger.debug(`Sending message to endpoint \`${endpoint}\` with data \`${JSON.stringify(data, null, 2)}\``);
 
         const {input: inputSchema, output: outputSchema} = AnalyticsSchemas[endpoint];
@@ -25,7 +26,7 @@ export class AnalyticsService {
         try {
             const input = inputSchema.parse(data);
 
-            const rx = this.microServiceClient.send(endpoint, input);
+            const rx = this.microServiceClient.send(endpoint, input).pipe(timeout(options?.timeout ?? 5000));
 
             const response = await lastValueFrom(rx) as unknown;
 

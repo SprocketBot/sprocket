@@ -15,14 +15,14 @@ colors AS (
 ),
 
 organization AS (
-	SELECT 
-		jsonb_build_object('type', 'text', 'value', op.name) AS name, 
+	SELECT
+		jsonb_build_object('type', 'text', 'value', op.name) AS name,
 		jsonb_build_object('type', 'text', 'value', op.description) AS description,
 		jsonb_build_object('type', 'text', 'value', op."websiteUrl") AS webisite,
 		jsonb_build_object('type', 'color', 'value', op."primaryColor") AS primary_color,
 		jsonb_build_object('type', 'color', 'value', op."secondaryColor") AS secondary_color,
 		jsonb_build_object('type', 'image', 'value', op."logoUrl") AS logo_url
-		
+
 	FROM sprocket.organization_profile op
 	INNER JOIN vars v
 	ON op.id = v.org_id
@@ -40,6 +40,7 @@ game_stats AS(
 		psc.assists,
 		psc.saves,
 		psc.shots,
+		psc.gpi,
 		p.name as player_name
 	FROM		vars v
 	INNER JOIN 	mledb.series s
@@ -62,16 +63,16 @@ game_info AS (
 		INNER JOIN vars v on v.scrim_id=g.scrim_id
 		GROUP BY v.scrim_id
 	)
-	SELECT 	s.league, 
-			s.mode, 
+	SELECT 	s.league,
+			s.mode,
 			sc.type,
 			ss.blue_wins,
 			ss.orange_wins,
 			concat(ss.blue_wins, ' - ', ss.orange_wins) as series_score
 	FROM 		vars v
-	INNER JOIN 	mledb.scrim sc 
+	INNER JOIN 	mledb.scrim sc
 	ON 			v.scrim_id = sc.id
-	INNER JOIN 	mledb.series s 
+	INNER JOIN 	mledb.series s
 	ON 			v.scrim_id = s.scrim_id
 	INNER JOIN 	series_score ss
 	ON			ss.scrim_id = v.scrim_id
@@ -87,13 +88,13 @@ game_object AS(
 						  END
 						  )) AS title,
 		jsonb_build_object('type', 'text', 'value', CONCAT(UPPER(LEFT(mode, 1)),LOWER(SUBSTRING(mode, 2, LENGTH(mode))))) AS scrim_mode,
-		jsonb_build_object('type', 'text', 'value', 
+		jsonb_build_object('type', 'text', 'value',
 						  CASE
 						   	WHEN type = 'BEST_OF' THEN 'Best Of'
 						   	WHEN type = 'ROUND_ROBIN' THEN 'Round Robin'
 						  END) AS scrim_type,
-		jsonb_build_object('type', 'text', 'value', 
-						  CASE 
+		jsonb_build_object('type', 'text', 'value',
+						  CASE
 						   	WHEN mode = 'STANDARD' THEN '3S'
 						   	WHEN mode = 'DOUBLES' THEN '2S'
 						  END ) AS mode_short,
@@ -101,34 +102,34 @@ game_object AS(
 		jsonb_build_object('type', 'text', 'value', CONCAT(LEFT(gi.league,1), 'L')) as league_short,
 		jsonb_build_object('type', 'color', 'value', lb.color) as league_color,
 		jsonb_build_object('type', 'image', 'value', lb.badge_img_link) as league_logo,
-		jsonb_build_object('type', 'color', 'value', 
-						  CASE 
+		jsonb_build_object('type', 'color', 'value',
+						  CASE
 						  	WHEN blue_wins > orange_wins THEN '#0C2CFC'
 						  	ELSE '#FC7C0C'
 						  END) as winning_color,
 		json_build_object('type', 'text', 'value', series_score) as series_score
-		
-		
+
+
 	FROM game_info gi
 	INNER JOIN mledb.league_branding lb
 	ON gi.league = lb.league
 ),
 
 player_stats AS (
-	WITH 
+	WITH
 	records AS (
-		SELECT 	COUNT(CASE WHEN winning_color = player_team_color THEN 1 END) as wins, 
+		SELECT 	COUNT(CASE WHEN winning_color = player_team_color THEN 1 END) as wins,
 				COUNT(CASE WHEN winning_color != player_team_color THEN 1 END) as losses,
 				player_name
 		FROM game_stats
 		GROUP BY player_name
 	),
-	
+
 	t AS(
 		SELECT 	gs.player_name AS name,
 				re.wins,
 				re.losses,
-				AVG(gs.mvpr) AS rating,
+				AVG(COALESCE(gs.gpi, gs.mvpr)) AS rating,
 				SUM(gs.goals) AS goals,
 				SUM(gs.assists) AS assists,
 				SUM(gs.saves) AS saves,
@@ -140,7 +141,7 @@ player_stats AS (
 		GROUP BY gs.player_name, re.wins, re.losses
 		ORDER BY wins DESC, rating DESC
 	)
-	SELECT 
+	SELECT
 		t.name,
 		t.wins,
 		t.losses,
@@ -158,7 +159,7 @@ player_stats AS (
 player_stats_object AS(
 	WITH
 	blank_player_data_json AS (
-       SELECT 
+       SELECT
 			jsonb_build_object('type', 'text', 'value', '') AS name,
 			jsonb_build_object('type', 'number', 'value', '') AS wins,
 			jsonb_build_object('type', 'number', 'value', '') AS losses,
@@ -189,9 +190,9 @@ player_stats_object AS(
 								WHEN player_color = 'BLUE' THEN '#0C2CFC'
 								WHEN player_color = 'ORANGE' THEN '#FC7C0C'
 								ELSE '#FFFFFF00'
-						 END 
+						 END
 		   )                                                     AS team_color
-		FROM player_stats	
+		FROM player_stats
 	)
 	SELECT * from player_data_json
 	UNION ALL
@@ -202,9 +203,9 @@ player_stats_object AS(
 ),
 
 games_data AS(
-	WITH 
+	WITH
 	empty_player_game_data AS(
-		SELECT 	gs.replay_id, 
+		SELECT 	gs.replay_id,
 				gs.winning_color,
 				gs.player_team_color,
 				-1,
@@ -224,13 +225,13 @@ games_data AS(
 
 	),
 	player_game_data AS(
-		SELECT  gs.replay_id, 
+		SELECT  gs.replay_id,
 				gs.winning_color,
 				gs.player_team_color,
 				gs.score,
 				gs.goals,
 				jsonb_build_object('type', 'text', 'value', gs.player_name) as player,
-				jsonb_build_object('type', 'color', 'value', 
+				jsonb_build_object('type', 'color', 'value',
 								CASE
 									WHEN gs.player_team_color = 'BLUE' THEN '#0C2CFC'
 									WHEN gs.player_team_color = 'ORANGE' THEN '#FC7C0C'
@@ -245,27 +246,27 @@ games_data AS(
 				jsonb_build_object('type', 'number', 'value', gs.assists) as p_assists,
 				jsonb_build_object('type', 'number', 'value', gs.saves) as p_saves,
 				jsonb_build_object('type', 'number', 'value', gs.shots) as p_shots
-				
+
 		from game_stats gs
 		JOIN player_stats ps ON gs.player_name = ps.name
 		UNION ALL
 		SELECT * from empty_player_game_data
 	),
 	complete_player_data AS(
-		SELECT *, 
-		ROW_NUMBER() OVER (PARTITION BY cpd.replay_id, cpd.player_team_color ORDER BY cpd.score DESC) AS n 
+		SELECT *,
+		ROW_NUMBER() OVER (PARTITION BY cpd.replay_id, cpd.player_team_color ORDER BY cpd.score DESC) AS n
 		FROM player_game_data cpd
 		ORDER BY replay_id, player_team_color DESC, player->>'value' DESC
 	),
 	team_replay_data AS(
-		SELECT 
+		SELECT
 			replay_id,
 			winning_color,
 			SUM(goals) filter (WHERE player_team_color = 'BLUE') as blue_goals,
 			SUM(goals) filter (WHERE player_team_color = 'ORANGE') as orange_goals,
 			json_agg(jsonb_build_object(
-				'name', player, 
-				'player_color', player_color, 
+				'name', player,
+				'player_color', player_color,
 				'team_color',team_color,
 				'rating', p_rating,
 				'score', p_score,
@@ -275,8 +276,8 @@ games_data AS(
 				'shots', p_shots
 			)) filter (WHERE player_team_color = 'BLUE') AS blue_players,
 			json_agg(jsonb_build_object(
-				'name', player, 
-				'player_color', player_color, 
+				'name', player,
+				'player_color', player_color,
 				'team_color',team_color,
 				'rating', p_rating,
 				'score', p_score,
@@ -289,9 +290,9 @@ games_data AS(
 		GROUP BY replay_id, winning_color
 	),
 	played_game_data AS(
-		SELECT 
+		SELECT
 			jsonb_build_object('type', 'text', 'value', CONCAT(blue_goals, ' - ',orange_goals)) as result,
-			jsonb_build_object('type', 'color', 'value', 
+			jsonb_build_object('type', 'color', 'value',
 							 CASE
 								WHEN winning_color = 'BLUE' THEN '#0C2CFC'
 								WHEN winning_color = 'ORANGE' THEN '#FC7C0C'
@@ -308,7 +309,7 @@ games_data AS(
 		WITH empty_players AS(
 			SELECT 1 as n, jsonb_build_object(
 										'name', json_build_object('type', 'text', 'value', ''),
-										'player_color', json_build_object('type', 'color', 'value', '#FFFFFF00'), 
+										'player_color', json_build_object('type', 'color', 'value', '#FFFFFF00'),
 										'team_color',json_build_object('type', 'color', 'value', 'FFFFFF00'),
 										'rating', json_build_object('type', 'number', 'value', ''),
 										'score', json_build_object('type', 'number', 'value', ''),
@@ -331,7 +332,7 @@ games_data AS(
 								  'orange_players', json_agg(e.ep)
 								 )
 		FROM empty_players e
-		GROUP BY n			
+		GROUP BY n
 	)
 	SELECT row_to_json(played_game_data.*) as game
 	FROM played_game_data
@@ -344,7 +345,7 @@ games_data AS(
 	UNION ALL
 	SELECT * FROM empty_game_data
 	LIMIT 7
-	
+
 ),
 
 full_object AS (

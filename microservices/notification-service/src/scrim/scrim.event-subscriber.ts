@@ -19,12 +19,22 @@ export class ScrimEventSubscriber {
         await this.eventsService.subscribe(EventTopic.ScrimPopped, false).then(obs => {
             obs.subscribe(this.onScrimPopped);
         });
+        await this.eventsService.subscribe(EventTopic.ScrimSaved, false).then(obs => {
+            obs.subscribe(this.onScrimSaved);
+        });
     }
 
     onScrimPopped = (d: EventResponse<EventTopic.ScrimPopped>): void => {
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (d.topic !== EventTopic.ScrimPopped) return;
 
-        this.scrimService.sendNotifications(d.payload).catch(e => { this.logger.error(e) });
+        this.scrimService.sendQueuePoppedNotifications(d.payload).catch(e => { this.logger.error(e) });
+    };
+
+    onScrimSaved = (d: EventResponse<EventTopic.ScrimSaved>): void => {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (d.topic !== EventTopic.ScrimSaved) return;
+
+        this.scrimService.sendReportCard(d.payload).catch(e => { this.logger.error(e) });
     };
 }

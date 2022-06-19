@@ -1,4 +1,4 @@
-import {Module} from "@nestjs/common";
+import {forwardRef, Module} from "@nestjs/common";
 
 import {DatabaseModule} from "../database";
 import {OrganizationModule} from "../organization";
@@ -8,7 +8,10 @@ import {SprocketConfigurationResolver, SprocketConfigurationService} from "./spr
 import {SprocketConfigurationController} from "./sprocket-configuration/sprocket-configuration.controller";
 
 @Module({
-    imports: [DatabaseModule, OrganizationModule],
+    imports: [
+        DatabaseModule,
+        forwardRef(() => OrganizationModule),
+    ],
     providers: [
         OrganizationConfigurationResolver,
         OrganizationConfigurationService,

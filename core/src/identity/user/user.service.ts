@@ -54,7 +54,8 @@ export class UserService {
         const authAccts = authenticationAccounts.map(acct => this.userAuthAcctRepository.create(acct));
         const user = await this.userRepository.findOneOrFail(id);
         user.authenticationAccounts = authAccts;
-        authenticationAccounts.map(async acct => this.userAuthAcctRepository.save(acct));
+        authAccts.forEach(aa => { aa.user = user });
+        await this.userAuthAcctRepository.save(authAccts);
         await this.userRepository.save(user);
         return user;
     }
@@ -86,7 +87,7 @@ export class UserService {
      * @retusn The user with the given id, if found.
      */
     async getUserById(id: number): Promise<User> {
-        return this.userRepository.findOneOrFail(id);
+        return this.userRepository.findOneOrFail(id, {relations: ["userProfile"] });
     }
 
     async getUser(query: FindOneOptions<UserProfile>): Promise<User | undefined> {

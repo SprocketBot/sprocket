@@ -36,23 +36,32 @@ export class ScrimConsumer {
         this.logger.log(`scrim unsuccessful scrimId=${scrimId}`);
         this.logger.log(`scrimId=${scrimId} players didn't check in: ${playersNotCheckedIn.map(p => p.name)}`);
 
-        const initialBanDuration = await this.organizationConfigurationService.getOrganizationConfigurationValue(scrim.organizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_INITIAL_DURATION_MINUTES);
-        const durationModifier = await this.organizationConfigurationService.getOrganizationConfigurationValue(scrim.organizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_DURATION_MODIFIER);
-        const restrictionFallOffDays = await this.organizationConfigurationService.getOrganizationConfigurationValue(scrim.organizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_MODIFIER_FALL_OFF_DAYS);
+        const initialBanDuration = await this.organizationConfigurationService.getOrganizationConfigurationValue<number>(scrim.organizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_INITIAL_DURATION_MINUTES);
+        const durationModifier = await this.organizationConfigurationService.getOrganizationConfigurationValue<number>(scrim.organizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_DURATION_MODIFIER);
+        const restrictionFallOffDays = await this.organizationConfigurationService.getOrganizationConfigurationValue<number>(scrim.organizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_MODIFIER_FALL_OFF_DAYS);
 
         for (const player of playersNotCheckedIn) {
             const member = await this.memberService.getMember({relations: ["organization"], where: {user: {id: player.id} } });
+
+            const whereA = {
+                type: MemberRestrictionType.QUEUE_BAN,
+                member: member,
+                manualExpiration: IsNull(),
+                expiration: MoreThanOrEqual(add(new Date(), {days: -restrictionFallOffDays}).toUTCString()),
+            };
+            const whereB = {
+                type: MemberRestrictionType.QUEUE_BAN,
+                member: member,
+                manualExpiration: MoreThanOrEqual(add(new Date(), {days: -restrictionFallOffDays}).toUTCString()),
+                forgiven: false,
+            };
+
             const restrictions = await this.memberRestrictionService.getMemberRestrictions({
-                where: {
-                    type: MemberRestrictionType.QUEUE_BAN,
-                    member: member,
-                    manualExpiration: IsNull(),
-                    expiration: MoreThanOrEqual(add(new Date(), {days: -parseInt(restrictionFallOffDays)}).toUTCString()),
-                },
+                where: [whereA, whereB],
             });
 
             // eslint-disable-next-line @typescript-eslint/no-extra-parens
-            const banMinuteOffset = parseInt(initialBanDuration) + (parseFloat(durationModifier) * restrictions.length);
+            const banMinuteOffset = initialBanDuration + (durationModifier * restrictions.length);
             
             await this.memberRestrictionService.createMemberRestriction(
                 MemberRestrictionType.QUEUE_BAN,

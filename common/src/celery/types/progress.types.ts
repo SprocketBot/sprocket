@@ -1,3 +1,5 @@
+import {z} from "zod";
+
 import type {Task, TaskResult} from "../index";
 
 export enum ProgressStatus {
@@ -20,3 +22,14 @@ export interface ProgressMessage<T extends Task> {
     result: TaskResult<T> | null;
     error: string | null;
 }
+
+export const ProgressMessageSchema = z.object({
+    taskId: z.string(),
+    status: z.nativeEnum(ProgressStatus),
+    progress: z.object({
+        value: z.number(),
+        message: z.string(),
+    }),
+    error: z.string().nullable()
+        .optional(),
+});

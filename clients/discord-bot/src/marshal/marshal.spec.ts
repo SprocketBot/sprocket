@@ -5,12 +5,12 @@ import {
 } from "@sprocketbot/common";
 import type {Message} from "discord.js";
 
-import {EmbedService} from "../embed/embed.service";
-import {CommandManagerService} from "./command-manager/command-manager.service";
-import {Command} from "./decorators";
-import {CommandNotFound} from "./decorators/command-not-found.decorator";
+import {EmbedService} from "../embed";
+import type {CommandSpec} from "./commands";
+import {
+    Command, CommandManagerService, CommandNotFound,
+} from "./commands";
 import {Marshal} from "./marshal";
-import type {CommandSpec} from "./types";
 
 const command1Spec: CommandSpec = {
     name: "command1",

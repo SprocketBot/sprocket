@@ -8,4 +8,7 @@ import {ScrimSettingsInput} from "./ScrimSettings";
 export class CreateScrimInput {
     @Field()
     settings: ScrimSettingsInput;
+
+    @Field({nullable: true})
+    createGroup: boolean;
 }

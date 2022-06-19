@@ -1,7 +1,10 @@
 import {z} from "zod";
 
 import {MemberRestrictionSchema} from "../service-connectors/core";
-import {ScrimMetricsSchema, ScrimSchema} from "../service-connectors/matchmaking";
+import {
+    ScrimDatabaseIdsSchema, ScrimMetricsSchema, ScrimSchema,
+} from "../service-connectors/matchmaking";
+import {SubmissionEventSchema} from "./types/submission.schemas";
 
 export enum EventTopic {
     // Scrims
@@ -14,9 +17,18 @@ export enum EventTopic {
     ScrimStarted = "scrim.started",
     ScrimCancelled = "scrim.cancelled",
     ScrimMetricsUpdate = "scrim.metricsUpdate",
+    ScrimSaved = "scrim.saved",
 
     // Submissions
+    AllSubmissionEvents = "submission.*",
     SubmissionStarted = "submission.started",
+    SubmissionRatificationAdded = "submission.ratification",
+    SubmissionRatified = "submission.ratified",
+    SubmissionRejectionAdded = "submission.rejection",
+    SubmissionRejected = "submission.rejected",
+    SubmissionComplete = "submission.complete",
+    SubmissionReset = "submission.reset",
+    SubmissionProgress = "submission.progress",
 
     // Member
     AllMemberEvents = "member.*",
@@ -31,6 +43,10 @@ export const EventTopicSchema = z.preprocess(v => {
         .join(".");
 }, z.nativeEnum(EventTopic));
 
+const SubmissionRatificationSchema = SubmissionEventSchema.extend({
+    currentRatifications: z.number(),
+    requiredRatifications: z.number(),
+});
 export const EventSchemas = {
     // Scrim Events
     [EventTopic.ScrimComplete]: ScrimSchema,
@@ -40,6 +56,7 @@ export const EventSchemas = {
     [EventTopic.ScrimDestroyed]: ScrimSchema,
     [EventTopic.ScrimStarted]: ScrimSchema,
     [EventTopic.ScrimCancelled]: ScrimSchema,
+    [EventTopic.ScrimSaved]: ScrimSchema.extend({databaseIds: ScrimDatabaseIdsSchema}),
     [EventTopic.AllScrimEvents]: z.union([
         z.number(),
         z.string().uuid(),
@@ -47,8 +64,22 @@ export const EventSchemas = {
         ScrimMetricsSchema,
     ]),
     [EventTopic.ScrimMetricsUpdate]: ScrimMetricsSchema,
+
     // Submission Events
-    [EventTopic.SubmissionStarted]: z.object({submissionId: z.string()}),
+    [EventTopic.SubmissionStarted]: SubmissionEventSchema,
+    [EventTopic.SubmissionRatificationAdded]: SubmissionRatificationSchema,
+    [EventTopic.SubmissionRejectionAdded]: SubmissionEventSchema,
+    [EventTopic.SubmissionRatified]: SubmissionEventSchema,
+    // TODO: Subscribe to these events in the matchmaking service
+    [EventTopic.SubmissionComplete]: SubmissionEventSchema.extend({resultPaths: z.array(z.string())}),
+    [EventTopic.SubmissionRejected]: SubmissionEventSchema,
+    [EventTopic.SubmissionReset]: SubmissionEventSchema,
+    [EventTopic.SubmissionProgress]: SubmissionEventSchema,
+    [EventTopic.AllSubmissionEvents]: z.union([
+        SubmissionRatificationSchema,
+        SubmissionEventSchema,
+    ]),
+
     // Member Events
     [EventTopic.MemberRestrictionCreated]: MemberRestrictionSchema,
     [EventTopic.MemberRestrictionExpired]: MemberRestrictionSchema,

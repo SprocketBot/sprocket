@@ -38,11 +38,11 @@
     }
 
     .upload {
-        @apply flex items-start flex-grow flex-shrink;
+        @apply flex items-start flex-grow flex-shrink min-w-0 pr-8;
     }
 
     .filename {
-        @apply overflow-hidden text-ellipsis mb-1 w-full;
+        @apply overflow-hidden text-ellipsis mb-1 flex-1 whitespace-nowrap min-w-0;
     }
 
     progress {
