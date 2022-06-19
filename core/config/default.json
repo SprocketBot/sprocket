@@ -7,7 +7,8 @@
     "events_queue": "dev-events",
     "matchmaking_queue": "dev-matchmaking",
     "image_generation_queue": "dev-ig",
-    "celery-queue": "dev-celery"
+    "celery-queue": "dev-celery",
+    "submission_queue": "dev-submissions"
   },
   "logger": {
     "levels": true

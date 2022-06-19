@@ -65,7 +65,7 @@
       {#each activeScrimsData as scrim (scrim.id)}
         <tr>
           <td>{scrim.id}</td>
-          <td>{screamingSnakeToHuman(scrim.settings.mode)}</td>
+          <td>{scrim.settings.competitive ? 'Competitive' : 'Casual'} {screamingSnakeToHuman(scrim.settings.mode)} {scrim.gameMode.description}</td>
           <td>{scrim.status}</td>
           {#if scrim.players?.length || scrim.playersAdmin?.length}
             <td>
