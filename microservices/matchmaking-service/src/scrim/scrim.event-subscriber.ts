@@ -1,7 +1,12 @@
 import {Injectable, Logger} from "@nestjs/common";
 import type {EventResponse} from "@sprocketbot/common";
 import {
-    EventsService, EventTopic, ScrimStatus,
+    EventsService,
+    EventTopic,
+    ResponseStatus,
+    ScrimStatus,
+    SubmissionEndpoint,
+    SubmissionService,
 } from "@sprocketbot/common";
 
 import {ScrimService} from "./scrim.service";
@@ -15,6 +20,7 @@ export class ScrimEventSubscriber {
         private readonly eventsService: EventsService,
         private readonly scrimCrudService: ScrimCrudService,
         private readonly scrimService: ScrimService,
+        private readonly submissionService: SubmissionService,
     ) {}
 
     async onApplicationBootstrap(): Promise<void> {
@@ -100,6 +106,11 @@ export class ScrimEventSubscriber {
             this.logger.warn(`Scrim not found for submission ${payload.submissionId}`);
             return;
         }
-        await this.scrimService.resetScrim(scrim.id);
+        await this.scrimService.resetScrim(scrim.id).catch(e => { this.logger.error(e) });
+
+        const submissionResult = await this.submissionService.send(SubmissionEndpoint.GetSubmissionRejections, {submissionId: payload.submissionId});
+        if (submissionResult.status === ResponseStatus.ERROR) throw submissionResult.error;
+
+        if (submissionResult.data.length >= 3) await this.scrimService.setScrimLocked(scrim.id, true);
     };
 }
