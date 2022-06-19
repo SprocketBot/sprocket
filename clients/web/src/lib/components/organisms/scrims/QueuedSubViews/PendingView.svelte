@@ -34,10 +34,14 @@
         <div class="w-full mb-4">
             <h3>Scrim Details:</h3>
             <dl>
-                <dt>Scrim Type:</dt>
-                <dd>{screamingSnakeToHuman(scrim.settings.mode)}</dd>
+                <dt>Game:</dt>
+                <dd>{scrim.gameMode.game.title}</dd>
                 <dt>Game Mode:</dt>
                 <dd>{scrim.gameMode.description}</dd>
+                <dt>Scrim Type:</dt>
+                <dd>{screamingSnakeToHuman(scrim.settings.mode)}</dd>
+                <dt>Competitive:</dt>
+                <dd>{scrim.settings.competitive ? 'Yes' : 'No'}</dd>
             </dl>
         </div>
         {#if scrim.currentGroup}
