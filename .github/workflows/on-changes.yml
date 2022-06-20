@@ -61,6 +61,7 @@ jobs:
           - [ server-analytics-service, ./microservices/server-analytics-service ]
           - [ notification-service, ./microservices/notification-service ]
           - [ submission-service, ./microservices/submission-service ]
+          - [ image-generation-frontend, ./clients/image-generation-frontend]
 
     steps:
       - name: Extract branch name
