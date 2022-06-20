@@ -2,28 +2,33 @@
     import {Portal} from "$lib/components/abstract";
     import IoMdClose from "svelte-icons/io/IoMdClose.svelte";
 
-    import {setContext} from "svelte";
+    import {setContext, onMount} from "svelte";
     import {clickOutside} from "$lib/utils";
 
     export let title: string;
     export let visible: boolean = false;
-    export let canClickOutside: boolean = false;
+    export let canClickOutside: boolean =  true;
     export let id: string;
+    let mounted: boolean = false;
     const close = (): void => {
         visible = false;
     };
 
     const handleClickOutside = (): void => {
-        if (canClickOutside) close();
+        if (canClickOutside && mounted) close();
     };
+
+    onMount(() => {
+        mounted = true;
+    });
 
     setContext("close", close);
 </script>
 
 <Portal>
     <input type="checkbox" class="modal-toggle" bind:checked={visible}/>
-    <div class="modal bg-gray-700/40" {id} use:clickOutside={{callback: handleClickOutside}}>
-            <div class="modal-box max-w-xl">
+    <div class="modal bg-gray-700/40" {id} >
+            <div class="modal-box max-w-xl" use:clickOutside={{callback: handleClickOutside}}>
                 <div class="close" on:click={close}>
                     <IoMdClose/>
                 </div>
