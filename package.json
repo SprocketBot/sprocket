@@ -21,6 +21,7 @@
     "core",
     "clients/web",
     "clients/discord-bot",
+    "clients/image-generation-frontend",
     "microservices/image-generation-service",
     "microservices/matchmaking-service",
     "microservices/server-analytics-service",
