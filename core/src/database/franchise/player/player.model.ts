@@ -30,7 +30,7 @@ export class Player extends BaseModel {
     @Field(() => Float)
     salary: number;
 
-    @OneToOne(() => RosterSlot, {nullable: true})
+    @OneToOne(() => RosterSlot, rs => rs.player, {nullable: true})
     @Field(() => RosterSlot, {nullable: true})
     slot?: RosterSlot;
 }

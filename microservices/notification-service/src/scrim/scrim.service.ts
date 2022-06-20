@@ -10,7 +10,6 @@ import {
     CoreService,
     MatchmakingEndpoint,
     MatchmakingService,
-    OrganizationConfigurationKeyCode,
     ResponseStatus,
 } from "@sprocketbot/common";
 
@@ -25,7 +24,7 @@ export class ScrimService {
     ) {}
 
     async sendQueuePoppedNotifications(scrim: Scrim): Promise<void> {
-        const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationBranding, {id: scrim.organizationId});
+        const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: scrim.organizationId});
         if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
 
         await Promise.all(scrim.players.map(async p => {
@@ -77,13 +76,19 @@ export class ScrimService {
     }
 
     async sendReportCard(scrim: Scrim & {databaseIds: ScrimDatabaseIds;}): Promise<void> {
-        const reportCardWebhookUrl = await this.coreService.send(CoreEndpoint.GetOrganizationConfigurationValue, {
-            organizationId: scrim.organizationId,
-            code: OrganizationConfigurationKeyCode.REPORT_CARD_DISCORD_WEBHOOK_URL,
-        });
-        if (reportCardWebhookUrl.status !== ResponseStatus.SUCCESS) {
+        // const reportCardWebhookUrl = await this.coreService.send(CoreEndpoint.GetOrganizationConfigurationValue, {
+        //     organizationId: scrim.organizationId,
+        //     code: OrganizationConfigurationKeyCode.REPORT_CARD_DISCORD_WEBHOOK_URL,
+        // });
+        // if (reportCardWebhookUrl.status !== ResponseStatus.SUCCESS) {
+        //     this.logger.warn("Failed to fetch report card webhool url");
+        //     throw reportCardWebhookUrl.error;
+        // }
+
+        const scrimReportCardWebhooksResult = await this.coreService.send(CoreEndpoint.GetScrimReportCardWebhooks, scrim);
+        if (scrimReportCardWebhooksResult.status !== ResponseStatus.SUCCESS) {
             this.logger.warn("Failed to fetch report card webhool url");
-            throw reportCardWebhookUrl.error;
+            throw scrimReportCardWebhooksResult.error;
         }
 
         const reportCardResult = await this.coreService.send(CoreEndpoint.GenerateReportCard, {mleScrimId: scrim.databaseIds.legacyId}, {timeout: 300000});
@@ -99,8 +104,8 @@ export class ScrimService {
             return discordUserResult.data;
         }));
         
-        await this.botService.send(BotEndpoint.SendWebhookMessage, {
-            webhookUrl: reportCardWebhookUrl.data as string,
+        if (scrimReportCardWebhooksResult.data.skillGroupWebhook) await this.botService.send(BotEndpoint.SendWebhookMessage, {
+            webhookUrl: scrimReportCardWebhooksResult.data.skillGroupWebhook,
             payload: {
                 content: discordUserIds.filter(u => u).map(u => `<@${u}>`)
                     .join(", "),
@@ -124,6 +129,32 @@ export class ScrimService {
                 },
             },
         });
+
+        await Promise.all(scrimReportCardWebhooksResult.data.franchiseWebhooks.map(async franchiseWebhook => this.botService.send(BotEndpoint.SendWebhookMessage, {
+            webhookUrl: franchiseWebhook,
+            payload: {
+                embeds: [ {
+                    title: "Scrim Results",
+                    image: {
+                        url: "attachment://card.png",
+                    },
+                    timestamp: Date.now(),
+                } ],
+                attachments: [ {name: "card.png", url: `minio:${config.minio.bucketNames.image_generation}/${reportCardResult.data}.png`} ],
+            },
+            brandingOptions: {
+                organizationId: scrim.organizationId,
+                options: {
+                    color: true,
+                    footer: {
+                        icon: true,
+                        text: true,
+                    },
+                    webhookAvatar: true,
+                    webhookUsername: true,
+                },
+            },
+        })));
     }
 
     async getScrim(scrimId: string): Promise<Scrim | null> {

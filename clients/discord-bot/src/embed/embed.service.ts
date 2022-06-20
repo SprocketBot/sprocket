@@ -30,7 +30,7 @@ export class EmbedService {
             if (brandingEnabled) organizationId = _organizationId;
         }
 
-        const brandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationBranding, {id: organizationId});
+        const brandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: organizationId});
         if (brandingResult.status === ResponseStatus.ERROR) throw brandingResult.error;
 
         const profile = brandingResult.data;
@@ -38,15 +38,15 @@ export class EmbedService {
 
         if (options.author) embed.setAuthor(
             data.author?.name ?? profile.name,
-            options.author.icon ? profile.logoUrl : data.author?.url,
+            options.author.icon && profile.logoUrl ? profile.logoUrl : data.author?.url,
             options.author.url ? profile.websiteUrl : data.author?.url,
         );
         if (options.color) embed.setColor(profile.primaryColor as HexColorString);
         if (options.footer) embed.setFooter(
             data.footer?.text ?? profile.name,
-            options.footer.icon ? profile.logoUrl : data.footer?.icon_url,
+            options.footer.icon && profile.logoUrl ? profile.logoUrl : data.footer?.icon_url,
         );
-        if (options.thumbnail) embed.setThumbnail(profile.logoUrl);
+        if (options.thumbnail && profile.logoUrl) embed.setThumbnail(profile.logoUrl);
 
         return embed;
     }
@@ -70,25 +70,25 @@ export class EmbedService {
             }
         }
 
-        const response = await this.coreService.send(CoreEndpoint.GetOrganizationBranding, {id: orgId});
+        const response = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: orgId});
         if (response.status === ResponseStatus.ERROR) throw response.error;
         const profile = response.data;
         // TODO what should our overall embed system look like, and what should the defaults be?
         const defaults: Partial<MessageEmbedOptions> = {
             footer: {
                 text: "Footer",
-                iconURL: profile.logoUrl,
+                iconURL: profile.logoUrl ?? "",
             },
             author: {
                 name: "Author",
                 url: profile.websiteUrl,
-                iconURL: profile.logoUrl,
+                iconURL: profile.logoUrl ?? "",
             },
         };
 
         const branding: Partial<MessageEmbedOptions> = {
             color: profile.primaryColor as HexColorString,
-            thumbnail: {url: profile.logoUrl},
+            thumbnail: {url: profile.logoUrl ?? ""},
         };
 
         return new MessageEmbed({
