@@ -76,15 +76,6 @@ export class ScrimService {
     }
 
     async sendReportCard(scrim: Scrim & {databaseIds: ScrimDatabaseIds;}): Promise<void> {
-        // const reportCardWebhookUrl = await this.coreService.send(CoreEndpoint.GetOrganizationConfigurationValue, {
-        //     organizationId: scrim.organizationId,
-        //     code: OrganizationConfigurationKeyCode.REPORT_CARD_DISCORD_WEBHOOK_URL,
-        // });
-        // if (reportCardWebhookUrl.status !== ResponseStatus.SUCCESS) {
-        //     this.logger.warn("Failed to fetch report card webhool url");
-        //     throw reportCardWebhookUrl.error;
-        // }
-
         const scrimReportCardWebhooksResult = await this.coreService.send(CoreEndpoint.GetScrimReportCardWebhooks, scrim);
         if (scrimReportCardWebhooksResult.status !== ResponseStatus.SUCCESS) {
             this.logger.warn("Failed to fetch report card webhool url");
