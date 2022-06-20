@@ -1,0 +1,133 @@
+
+<svg width="1000" height="1000" viewBox="0 0 1000 1000" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g id="Frame 1">
+    <rect width="1000" height="1000" fill="white"/>
+    <g id="Player 0">
+    <g id="Player 0 Stats">
+    <text id="GOALS" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="405.335" y="112.556">GOALS</tspan></text>
+    <text id="{PLAYER.0.STATS.GOALS}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="476.474" y="112.556">0</tspan></text>
+    <text id="SAVES" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="404.001" y="143.556">SAVES</tspan></text>
+    <text id="{PLAYER.0.STATS.SAVES}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="476.474" y="143.556">0</tspan></text>
+    <text id="SHOTS" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="518.309" y="112.556">SHOTS</tspan></text>
+    <text id="{PLAYER.0.STATS.SHOTS}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="589.474" y="112.556">0</tspan></text>
+    <text id="ASSISTS" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="518.418" y="143.556">ASSISTS</tspan></text>
+    <text id="{PLAYER.0.STATS.ASSISTS}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="589.474" y="143.556">0</tspan></text>
+    </g>
+    <text id="{PLAYER.0.NAME}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="36" font-weight="500" letter-spacing="0em"><tspan x="389.047" y="62.112">PLAYER 0 NAME</tspan></text>
+    <rect id="{PLAYER.0.TEAM.BRANDING.LOGO}" x="41" y="30" width="150" height="150" fill="url(#pattern0)"/>
+    <rect id="{PLAYER.0.TEAM.BRANDING.SECONDARY}" x="291" y="30" width="50" height="150" fill="#C4C4C4"/>
+    <rect id="{PLAYER.0.TEAM.BRANDING.PRIMARY}" x="216" y="30" width="50" height="150" fill="#C4C4C4"/>
+    <g id="Player 0 Misc">
+    <text id="{PLAYER.0.TEAM.NAME}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="706.757" y="59.556">Player 0 Team Name</tspan></text>
+    <rect id="{PLAYER.0.LEAGUE.BRANDING.PRIMARY}" x="707" y="130" width="150" height="50" fill="#C4C4C4"/>
+    <text id="{PLAYER.0.LEAGUE.NAME}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="700.271" y="104.556">Player 0 League Name</tspan></text>
+    </g>
+    </g>
+    <g id="Player 1">
+    <g id="Player 1 Stats">
+    <text id="GOALS_2" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="405.335" y="311.556">GOALS</tspan></text>
+    <text id="{PLAYER.1.STATS.GOALS}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="476.474" y="311.556">0</tspan></text>
+    <text id="SAVES_2" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="404.001" y="342.556">SAVES</tspan></text>
+    <text id="{PLAYER.1.STATS.SAVES}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="476.474" y="342.556">0</tspan></text>
+    <text id="SHOTS_2" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="518.309" y="311.556">SHOTS</tspan></text>
+    <text id="{PLAYER.1.STATS.SHOTS}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="589.474" y="311.556">0</tspan></text>
+    <text id="ASSISTS_2" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="518.418" y="342.556">ASSISTS</tspan></text>
+    <text id="{PLAYER.1.STATS.ASSISTS}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="589.474" y="342.556">0</tspan></text>
+    </g>
+    <text id="{PLAYER.1.NAME}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="36" font-weight="500" letter-spacing="0em"><tspan x="389.064" y="261.112">PLAYER 1 NAME</tspan></text>
+    <rect id="{PLAYER.1.TEAM.BRANDING.LOGO}" x="41" y="224" width="150" height="150" fill="url(#pattern1)"/>
+    <rect id="{PLAYER.1.TEAM.BRANDING.SECONDARY}" x="291" y="224" width="50" height="150" fill="#C4C4C4"/>
+    <rect id="{PLAYER.1.TEAM.BRANDING.PRIMARY}" x="216" y="224" width="50" height="150" fill="#C4C4C4"/>
+    <g id="Player 1 Misc">
+    <text id="{PLAYER.1.TEAM.NAME}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="706.766" y="253.556">Player 1 Team Name</tspan></text>
+    <rect id="{PLAYER.1.LEAGUE.BRANDING.PRIMARY}" x="707" y="324" width="150" height="50" fill="#C4C4C4"/>
+    <text id="{PLAYER.1.LEAGUE.NAME}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="700.279" y="298.556">Player 1 League Name</tspan></text>
+    </g>
+    </g>
+    <g id="Player 2">
+    <g id="Player 2 Stats">
+    <text id="GOALS_3" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="405.335" y="505.556">GOALS</tspan></text>
+    <text id="{PLAYER.2.STATS.GOALS}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="476.474" y="505.556">0</tspan></text>
+    <text id="SAVES_3" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="404.001" y="536.556">SAVES</tspan></text>
+    <text id="{PLAYER.2.STATS.SAVES}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="476.474" y="536.556">0</tspan></text>
+    <text id="SHOTS_3" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="518.309" y="505.556">SHOTS</tspan></text>
+    <text id="{PLAYER.2.STATS.SHOTS}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="589.474" y="505.556">0</tspan></text>
+    <text id="ASSISTS_3" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="518.418" y="536.556">ASSISTS</tspan></text>
+    <text id="{PLAYER.2.STATS.ASSISTS}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="589.474" y="536.556">0</tspan></text>
+    </g>
+    <rect id="{PLAYER.2.TEAM.BRANDING.SECONDARY}" x="291" y="418" width="50" height="150" fill="#C4C4C4"/>
+    <text id="{PLAYER.2.NAME}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="36" font-weight="500" letter-spacing="0em"><tspan x="389.047" y="455.112">PLAYER 2 NAME</tspan></text>
+    <rect id="{PLAYER.2.TEAM.BRANDING.LOGO}" x="41" y="418" width="150" height="150" fill="url(#pattern2)"/>
+    <rect id="{PLAYER.2.TEAM.BRANDING.PRIMARY}" x="216" y="418" width="50" height="150" fill="#C4C4C4"/>
+    <g id="Player 2 Misc">
+    <text id="{PLAYER.2.TEAM.NAME}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="706.757" y="447.556">Player 2 Team Name</tspan></text>
+    <rect id="{PLAYER.2.LEAGUE.BRANDING.PRIMARY}" x="707" y="518" width="150" height="50" fill="#C4C4C4"/>
+    <text id="{PLAYER.2.LEAGUE.NAME}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="700.271" y="492.556">Player 2 League Name</tspan></text>
+    </g>
+    </g>
+    <g id="Player 3">
+    <g id="Player 3 Stats">
+    <text id="GOALS_4" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="405.335" y="712.556">GOALS</tspan></text>
+    <text id="{PLAYER.3.STATS.GOALS}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="476.474" y="712.556">0</tspan></text>
+    <text id="SAVES_4" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="404.001" y="743.556">SAVES</tspan></text>
+    <text id="{PLAYER.3.STATS.SAVES}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="476.474" y="743.556">0</tspan></text>
+    <text id="SHOTS_4" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="518.309" y="712.556">SHOTS</tspan></text>
+    <text id="{PLAYER.3.STATS.SHOTS}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="589.474" y="712.556">0</tspan></text>
+    <text id="ASSISTS_4" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="518.418" y="743.556">ASSISTS</tspan></text>
+    <text id="{PLAYER.3.STATS.ASSISTS}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="589.474" y="743.556">0</tspan></text>
+    </g>
+    <text id="{PLAYER.3.NAME}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="36" font-weight="500" letter-spacing="0em"><tspan x="389.047" y="662.112">PLAYER 3 NAME</tspan></text>
+    <rect id="{PLAYER.3.TEAM.BRANDING.LOGO}" x="41" y="625" width="150" height="150" fill="url(#pattern3)"/>
+    <rect id="{PLAYER.3.TEAM.BRANDING.SECONDARY}" x="291" y="625" width="50" height="150" fill="#C4C4C4"/>
+    <rect id="{PLAYER.3.TEAM.BRANDING.PRIMARY}" x="216" y="625" width="50" height="150" fill="#C4C4C4"/>
+    <g id="Player 3 Misc">
+    <text id="{PLAYER.3.TEAM.NAME}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="706.757" y="641.556">Player 3 Team Name</tspan></text>
+    <rect id="{PLAYER.3.LEAGUE.BRANDING.PRIMARY}" x="707" y="712" width="150" height="50" fill="#C4C4C4"/>
+    <text id="{PLAYER.3.LEAGUE.NAME}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="700.271" y="686.556">Player 3 League Name</tspan></text>
+    </g>
+    </g>
+    <g id="Player 4">
+    <g id="Player 4 Stats">
+    <text id="GOALS_5" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="405.335" y="906.556">GOALS</tspan></text>
+    <text id="{PLAYER.4.STATS.GOALS}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="476.474" y="906.556">0</tspan></text>
+    <text id="SAVES_5" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="404.001" y="937.556">SAVES</tspan></text>
+    <text id="{PLAYER.4.STATS.SAVES}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="476.474" y="937.556">0</tspan></text>
+    <text id="SHOTS_5" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="518.309" y="906.556">SHOTS</tspan></text>
+    <text id="{PLAYER.4.STATS.SHOTS}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="589.474" y="906.556">0</tspan></text>
+    <text id="ASSISTS_5" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="518.418" y="937.556">ASSISTS</tspan></text>
+    <text id="{PLAYER.4.STATS.ASSISTS}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="589.474" y="937.556">0</tspan></text>
+    </g>
+    <text id="{PLAYER.4.NAME}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="36" font-weight="500" letter-spacing="0em"><tspan x="389.047" y="856.112">PLAYER 4 NAME</tspan></text>
+    <rect id="{PLAYER.4.TEAM.BRANDING.LOGO}" x="41" y="819" width="150" height="150" fill="url(#pattern4)"/>
+    <rect id="{PLAYER.4.TEAM.BRANDING.SECONDARY}" x="291" y="819" width="50" height="150" fill="#C4C4C4"/>
+    <rect id="{PLAYER.4.TEAM.BRANDING.PRIMARY}" x="216" y="819" width="50" height="150" fill="#C4C4C4"/>
+    <g id="Player 4 Misc">
+    <text id="{PLAYER.4.TEAM.NAME}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="706.757" y="835.556">Player 4 Team Name</tspan></text>
+    <rect id="{PLAYER.4.LEAGUE.BRANDING.PRIMARY}" x="707" y="906" width="150" height="50" fill="#C4C4C4"/>
+    <text id="{PLAYER.4.LEAGUE.NAME}" fill="black" xml:space="preserve" style="white-space: pre" font-family="Autumn" font-size="18" font-weight="500" letter-spacing="0em"><tspan x="700.271" y="880.556">Player 4 League Name</tspan></text>
+    </g>
+    </g>
+    </g>
+    <defs>
+    <pattern id="pattern0" patternContentUnits="objectBoundingBox" width="1" height="1">
+    <use xlink:href="#image0" transform="scale(0.00666667)"/>
+    </pattern>
+    <pattern id="pattern1" patternContentUnits="objectBoundingBox" width="1" height="1">
+    <use xlink:href="#image1" transform="scale(0.00666667)"/>
+    </pattern>
+    <pattern id="pattern2" patternContentUnits="objectBoundingBox" width="1" height="1">
+    <use xlink:href="#image2" transform="scale(0.00666667)"/>
+    </pattern>
+    <pattern id="pattern3" patternContentUnits="objectBoundingBox" width="1" height="1">
+    <use xlink:href="#image3" transform="scale(0.00666667)"/>
+    </pattern>
+    <pattern id="pattern4" patternContentUnits="objectBoundingBox" width="1" height="1">
+    <use xlink:href="#image4" transform="scale(0.00666667)"/>
+    </pattern>
+    <image id="image0" data-name="Team 0.png" width="150" height="150" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAACWBAMAAADOL2zRAAAAG1BMVEXMzMyWlpajo6OcnJzFxcW3t7eqqqq+vr6xsbHB5j9fAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABOUlEQVRoge3UMW6DMBTG8ZdgkowYU6crQ5UVN2q7OqqzQ08QRA9Aj5D04n2vDC1SimqGDtX3E0NkK//YwUAEAAAAAAAAAAAA/8xSi+ovWql7+H1LheBC8D9NN1rXMUtzU3N1E7X/idba0mob3Xoxr7zhzuwoyVpLXd7LKIfWt7GtldaG6Fk73Sf20XW2LGRqWZDKY1tvT6qt6XziKzH+YPzGylSSEZnYVuspqaj0dKiSG+JrWA6P0T62dc/bzCiQtAria1jOopq+zVdbcmA5cLzoivc1bE3rbM66lLS2/BCYdtya8X+pPMjhP+/84qvFI7PuI/+46uXTtxZ9nq/UxrbKXgL8/WbUmnXu5XydyPWpHrVmPY9y7j01Rr+bUWvWe+Iiz+PG3aX7USvq/QUAAAAAAAAAAABXfAAdbihVxy5mWQAAAABJRU5ErkJggg=="/>
+    <image id="image1" data-name="Team 1.png" width="150" height="150" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAACWBAMAAADOL2zRAAAAG1BMVEXMzMyWlpajo6OcnJzFxcW3t7eqqqq+vr6xsbHB5j9fAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABC0lEQVRoge3TsU7DMBDG8QO7KGMvV8KcAXWNQYLVFWanPEGt8ADmEVpenLswgJBA1EEM6PvJQyTL/8iWTQQAAAAAAAAAAAD/zCmb4U9azfLnLZ9SSCl+Oe+OaKnw3a/yr7V84IrWozzp0lHWuqvc0diWqcUVrTNmIbrjwMV1N2Hs+tXbZMV5Pd/6/ED7nQ4ncSOx6apbOZIbqI+0Gdw56fBtdetKt7mkRNZakQ6S6pZdWA3cH3jQ1RYQms79+Ja31oU+AsnzW22yy79fx5P31vQcKvaop+OLfX1oTSpafbFVun47v2X3a0ehLHh+y+59pK3wi8xu0cHeYxMuF9ezWgAAAAAAAAAAAPDZK6mFI0twUQZzAAAAAElFTkSuQmCC"/>
+    <image id="image2" data-name="Team 2.png" width="150" height="150" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAACWBAMAAADOL2zRAAAAG1BMVEXMzMyWlpajo6OcnJzFxcW3t7eqqqq+vr6xsbHB5j9fAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABRElEQVRoge3TwU7CQBDG8YEupUemC8WjTTRcu2rU4xLqHXwCGnyAGp8AfHFnIAoYMU5iPJjvlyaQbvaf7XZLBAAAAAAAAAAAAP9Ml1X1F62svP95y9V1qOt4arhhPrcsLZwe6vv2ZfRLrXRM/dzcevRP8sArP6Fk0BS0ylu9mwyIvLWVMsucGQduk+I2rIpyuG1V3y7769bznWvmtF7Klfg49TErdMhFcuZ1NVHXUEaaVsmI5HLv25SeWVtXMmlANWlrSHJ9bFNzY23pgZXAw4Yr2e/dljPLz8xHY8tpaywfgW+OWz2+sKS2rbzWw7+exM6+pXcWppO6e0bZHdfqv4OWcGFub5WtBmT+4qiVmV4i7c/XkkLb46NWdyjPbm3puZfd8fzqD1uJvhNrizb6PWbhsnd92OpYWwAAAAAAAAAAAPDZG6wkKGjKeOo0AAAAAElFTkSuQmCC"/>
+    <image id="image3" data-name="Team 3.png" width="150" height="150" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAACWBAMAAADOL2zRAAAAG1BMVEXMzMyWlpajo6OcnJzFxcW3t7eqqqq+vr6xsbHB5j9fAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABS0lEQVRoge3UQU7CQBTG8Sct2GVfB8rWLgzbjhrcTmU0LEEv0KYeoN6A4sV9L2oEA8YxxoX5fmkCaeHfznRaIgAAAAAAAAAAAPhnBqzKv2gldu6+3Yq9t94f/X3BfBVyafb4oWHmbvJfao2mFJvg1r15lAG3ZkZR2uTUZp3uHaRfnupwa8Qs51+w5S7K57bNi7EeOu1+cF1P13Gzor6WLTKuMi55myb/MAltNY6ikgpHVRlNSLY4ez3Y8ya0dSHDTMmTtsYkG5n3VvB91AUrgdstl1Eq068tZvmgJa/CWrG2pvIQmOZzi9Znga3M6+LvZ+7koyV7lisddeAYZXbiTr/ttEQl11TVga2i04D8f73X0pvQbwJbur5qst2Q91pJ5pbsAlu67h2tDT+b3RZZ5uC1Slt9HhN7Przca92FvL8AAAAAAAAAAADggBdnzS0ASgQsyQAAAABJRU5ErkJggg=="/>
+    <image id="image4" data-name="Team 4.png" width="150" height="150" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAACWBAMAAADOL2zRAAAAG1BMVEXMzMyWlpajo6OcnJzFxcW3t7eqqqq+vr6xsbHB5j9fAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABKklEQVRoge3TwU7CMBzH8T+24I7rOsd5CYbrKkavXSx38AlYxgNsjzB8cf//eVBMJJYlHszvkx4Ihe/WpiUCAAAAAAAAAACAf+bGiOpvWi+/f44OwYXgf/5BE/XO7tLkbdz6L7ZUGd96tUdecGvXpNKmoDbrPiaHPrq1MMbyPhtnOlU8ubYo83FOF7PoVv+smx0NBx7K+tr6pBjnFnl8q/GkKio91ZW6Ix46G+f6XXzrgV8hpUDSyokH2XFuQ/EtObAc2J5MpVLefmkZkybL+JaW1pIvgW3OWvUq1I8+spUFOfzD2s8+W/xNHXtZZY28O7qTT19a7KpW2UmA/78/axFdsfdyvg7kurmZ3pJz72lvzZud3KKT3MfE3c83k1oAAAAAAAAAAADw3TvTFinFkchYqgAAAABJRU5ErkJggg=="/>
+    </defs>
+    </svg>
