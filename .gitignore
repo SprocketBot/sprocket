@@ -108,3 +108,5 @@ dist
 .idea/
 
 .run/
+
+clients/image-generation-frontend/build/
