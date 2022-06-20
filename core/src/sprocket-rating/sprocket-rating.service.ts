@@ -11,6 +11,14 @@ export class SprocketRatingService {
         const team_size = core.team_size ?? 2;
         this.logger.verbose(team_size);
 
+        if (team_size === 2) {
+            return this.calcSprocketRating2s(core);
+        }
+
+        return this.calcSprocketRating3s(core);
+    }
+
+    calcSprocketRating2s(core: SprocketRatingInput): SprocketRating {
         const OPI_goal_w = 1.0;
         const OPI_assist_w = 0.8;
         const OPI_shot_w = 0.2;
