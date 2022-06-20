@@ -2,6 +2,9 @@ import {
     Inject, Injectable, Logger,
 } from "@nestjs/common";
 import type {
+    CoreEndpoint,
+    CoreInput,
+    CoreOutput,
     Scrim as IScrim,
     ScrimMetrics as IScrimMetrics,
     ScrimPlayer as IScrimPlayer,
@@ -17,6 +20,9 @@ import {
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 
+import {GameSkillGroupService} from "../franchise";
+import {FranchiseService} from "../franchise/franchise";
+import {MemberService} from "../organization";
 import {ScrimPubSub} from "./constants";
 import type {Scrim, ScrimGameMode} from "./types";
 
@@ -29,6 +35,9 @@ export class ScrimService {
     constructor(
         private readonly matchmakingService: MatchmakingService,
         private readonly eventsService: EventsService,
+        private readonly gameSkillGroupService: GameSkillGroupService,
+        private readonly memberService: MemberService,
+        private readonly franchiseService: FranchiseService,
         @Inject(ScrimPubSub) private readonly pubsub: PubSub,
     ) {}
 
@@ -161,6 +170,23 @@ export class ScrimService {
 
         if (result.status === ResponseStatus.SUCCESS) return result.data;
         throw result.error;
+    }
+
+    async getRelevantWebhooks(scrim: CoreInput<CoreEndpoint.GetScrimReportCardWebhooks>): Promise<CoreOutput<CoreEndpoint.GetScrimReportCardWebhooks>> {
+        const skillGroupProfile = await this.gameSkillGroupService.getGameSkillGroupProfile(scrim.skillGroupId);
+        const franchiseProfiles = await Promise.all(scrim.players.map(async p => {
+            const member = await this.memberService.getMember({where: {user: {id: p.id} } });
+            const gameMode = await this.gameSkillGroupService.getGameSkillGroupById(scrim.skillGroupId, {relations: ["game"] });
+            const franchise = await this.memberService.getFranchiseByMember(member.id, scrim.organizationId, gameMode.game.id);
+            if (!franchise) return undefined;
+
+            return this.franchiseService.getFranchiseProfile(franchise.id);
+        }));
+
+        return {
+            skillGroupWebhook: skillGroupProfile.scrimReportWebhookUrl,
+            franchiseWebhooks: franchiseProfiles.map(fp => fp?.scrimReportWebhookUrl).filter(f => f) as string[],
+        };
     }
 
     async enableSubscription(): Promise<void> {

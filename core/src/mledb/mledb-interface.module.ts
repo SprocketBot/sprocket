@@ -3,7 +3,7 @@ import {MatchmakingModule} from "@sprocketbot/common";
 
 import {DatabaseModule} from "../database";
 import {MledbModule} from "../database/mledb";
-import {FranchiseModule} from "../franchise";
+import {FranchiseModule} from "../franchise/franchise.module";
 import {GameModule} from "../game";
 import {IdentityModule} from "../identity/identity.module";
 import {SprocketRatingModule} from "../sprocket-rating/sprocket-rating.module";
@@ -15,7 +15,7 @@ import {MledbScrimService} from "./mledb-scrim/mledb-scrim.service";
     imports: [
         DatabaseModule,
         MledbModule,
-        FranchiseModule,
+        forwardRef(() => FranchiseModule),
         GameModule,
         MatchmakingModule,
         SprocketRatingModule,

@@ -17,6 +17,14 @@ export class FranchiseProfile extends BaseModel {
     @Field(() => String)
     code: string;
 
+    @Column({nullable: true})
+    @Field({nullable: true})
+    scrimReportWebhookUrl?: string;
+
+    @Column({nullable: true})
+    @Field({nullable: true})
+    matchReportWebhookUrl?: string;
+
     @OneToOne(() => Franchise)
     @Field(() => Franchise)
     franchise: Franchise;

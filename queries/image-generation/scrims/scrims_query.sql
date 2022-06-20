@@ -85,6 +85,7 @@ game_object AS(
 						   	WHEN type = 'BEST_OF' AND mode='DOUBLES' THEN '2S BEST OF '
 						   	WHEN type = 'ROUND_ROBIN' AND mode='STANDARD' THEN '3S ROUND ROBIN '
 						   	WHEN type = 'ROUND_ROBIN' AND mode='DOUBLES' THEN '2S ROUND ROBIN '
+							WHEN mode='SOLO' THEN '1S BEST OF '
 						  END
 						  )) AS title,
 		jsonb_build_object('type', 'text', 'value', CONCAT(UPPER(LEFT(mode, 1)),LOWER(SUBSTRING(mode, 2, LENGTH(mode))))) AS scrim_mode,
@@ -97,6 +98,7 @@ game_object AS(
 						  CASE
 						   	WHEN mode = 'STANDARD' THEN '3S'
 						   	WHEN mode = 'DOUBLES' THEN '2S'
+							WHEN mode = 'SOLO' THEN '1S'
 						  END ) AS mode_short,
 		jsonb_build_object('type', 'text', 'value', CONCAT(UPPER(LEFT(gi.league, 1)),LOWER(SUBSTRING(gi.league, 2, LENGTH(gi.league))))) AS league,
 		jsonb_build_object('type', 'text', 'value', CONCAT(LEFT(gi.league,1), 'L')) as league_short,

@@ -1,6 +1,6 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {
-    Entity, ManyToOne, OneToOne,
+    Entity, JoinColumn, ManyToOne, OneToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
@@ -13,13 +13,16 @@ import {Team} from "../team";
 export class RosterSlot extends BaseModel {
     @ManyToOne(() => RosterRole)
     @Field(() => RosterRole)
+    @JoinColumn()
     role: RosterRole;
 
     @ManyToOne(() => Team)
     @Field(() => Team)
+    @JoinColumn()
     team: Team;
 
-    @OneToOne(() => Player)
+    @OneToOne(() => Player, p => p.slot)
     @Field(() => Player)
+    @JoinColumn()
     player: Player;
 }
