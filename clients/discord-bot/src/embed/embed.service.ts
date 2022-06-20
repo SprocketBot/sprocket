@@ -30,10 +30,10 @@ export class EmbedService {
             if (brandingEnabled) organizationId = _organizationId;
         }
 
-        const brandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: organizationId});
-        if (brandingResult.status === ResponseStatus.ERROR) throw brandingResult.error;
+        const organizationProfileResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: organizationId});
+        if (organizationProfileResult.status === ResponseStatus.ERROR) throw organizationProfileResult.error;
 
-        const profile = brandingResult.data;
+        const profile = organizationProfileResult.data;
         const embed = new MessageEmbed(data);
 
         if (options.author) embed.setAuthor(

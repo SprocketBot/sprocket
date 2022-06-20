@@ -131,11 +131,11 @@ export class NotificationsService {
             };
 
             if (brandingOptions?.organizationId && (brandingOptions.options.webhookAvatar || brandingOptions.options.webhookUsername)) {
-                const brandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: brandingOptions.organizationId});
-                if (brandingResult.status === ResponseStatus.ERROR) throw brandingResult.error;
+                const organizationProfileResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: brandingOptions.organizationId});
+                if (organizationProfileResult.status === ResponseStatus.ERROR) throw organizationProfileResult.error;
 
-                if (brandingOptions.options.webhookUsername) messageOptions.username = brandingResult.data.name;
-                if (brandingOptions.options.webhookAvatar && brandingResult.data.logoUrl) messageOptions.avatarURL = brandingResult.data.logoUrl;
+                if (brandingOptions.options.webhookUsername) messageOptions.username = organizationProfileResult.data.name;
+                if (brandingOptions.options.webhookAvatar && organizationProfileResult.data.logoUrl) messageOptions.avatarURL = organizationProfileResult.data.logoUrl;
             }
             
             if (content.embeds?.length) {
