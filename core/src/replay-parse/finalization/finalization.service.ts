@@ -23,7 +23,6 @@ import {
 import {PlayerService} from "../../franchise";
 import {MledbScrimService} from "../../mledb/mledb-scrim/mledb-scrim.service";
 import {SprocketRatingService} from "../../sprocket-rating/sprocket-rating.service";
-import type {SprocketRatingInput} from "../../sprocket-rating/sprocket-rating.types";
 import type {ReplaySubmission} from "../types";
 import {BallchasingConverterService} from "./ballchasing-converter";
 
@@ -93,13 +92,11 @@ export class FinalizationService {
                     });
 
                     const createPlayerStat = (p: BallchasingPlayer, color: string): PlayerStatLine => {
-
-                        const psc: SprocketRatingInput = p.stats.core;
                         const otherStats = this.ballchasingConverter.createPlayerStats(p);
 
                         return this.playerStatRepo.create({
                             isHome: color === "BLUE",
-                            stats: {otherStats, ...this.sprocketRatingService.calcSprocketRating(psc)},
+                            stats: {otherStats, ...this.sprocketRatingService.calcSprocketRating({...p.stats.core, team_size: pr.data.team_size})},
                         });
                     };
 
