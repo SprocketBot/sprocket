@@ -4,7 +4,7 @@ import {z} from "zod";
 export interface MarshalCommandContext {
     args: Record<string, unknown>;
     author: {
-        id: string;
+        id: number;
     } | false;
 }
 

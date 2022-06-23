@@ -1,15 +1,29 @@
-import {Logger} from "@nestjs/common";
+import {Inject, Logger} from "@nestjs/common";
 import {
-    CoreEndpoint, ResponseStatus,
+    AnalyticsService, config, CoreEndpoint, CoreService, ResponseStatus,
 } from "@sprocketbot/common";
-import {Message} from "discord.js";
+import type {MessageOptions} from "discord.js";
+import {Client, Message} from "discord.js";
 
+import {EmbedService} from "../../embed";
 import {
-    Command, Marshal, MarshalCommandContext,
+    Command, CommandManagerService, Marshal, MarshalCommandContext,
 } from "../../marshal";
+import {NotificationsService} from "../../notifications";
 
 export class ReportCardMarshal extends Marshal {
     private readonly logger = new Logger(ReportCardMarshal.name);
+
+    constructor(
+        protected readonly cms: CommandManagerService,
+        protected readonly coreService: CoreService,
+        protected readonly analyticsService: AnalyticsService,
+        protected readonly embedService: EmbedService,
+        @Inject("DISCORD_CLIENT") protected readonly botClient: Client,
+        private readonly notificationsService: NotificationsService,
+    ) {
+        super(cms, coreService, analyticsService, embedService, botClient);
+    }
 
     @Command({
         name: "reportCard",
@@ -18,7 +32,7 @@ export class ReportCardMarshal extends Marshal {
         args: [],
     })
     async reportCard(m: Message, c: MarshalCommandContext): Promise<void> {
-        if (!m.guild) return;
+        if (!m.guild || !c.author) return;
 
         const organizationResult = await this.coreService.send(CoreEndpoint.GetOrganizationByDiscordGuild, {
             guildId: m.guild.id,
@@ -28,6 +42,43 @@ export class ReportCardMarshal extends Marshal {
             return;
         }
 
-        await m.reply(organizationResult.data.id.toString());
+        const scrimResult = await this.coreService.send(CoreEndpoint.GetUsersLatestScrim, {
+            userId: c.author.id,
+            organizationId: organizationResult.data.id,
+        });
+        if (scrimResult.status === ResponseStatus.ERROR) {
+            await m.reply("Couldn't find a scrim for you.");
+            return;
+        }
+
+        const reportCardResult = await this.coreService.send(CoreEndpoint.GenerateReportCard, {mleScrimId: scrimResult.data.id}, {timeout: 300000});
+        if (reportCardResult.status === ResponseStatus.ERROR) {
+            await m.reply("Couldn't generate report card.");
+            return;
+        }
+
+        const embed = await this.embedService.brandEmbed({
+            title: "Scrim Results",
+            image: {
+                url: "attachment://card.png",
+            },
+            timestamp: Date.now(),
+        }, {
+            color: true,
+            footer: {
+                icon: true,
+                text: true,
+            },
+        }, organizationResult.data.id);
+        const messageAttachment = await this.notificationsService.downloadAttachment({
+            name: "card.png",
+            url: `minio:${config.minio.bucketNames.image_generation}/${reportCardResult.data}.png`,
+        });
+        const messageContent: MessageOptions = {
+            embeds: [embed],
+            files: [messageAttachment],
+        };
+
+        await m.reply(messageContent);
     }
 }

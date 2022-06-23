@@ -2,7 +2,6 @@ import type {z} from "zod";
 
 import type {ResponseStatus} from "../../global.types";
 import * as Schemas from "./schemas";
-import {GetOrganizationByDiscordGuild_Request, GetOrganizationByDiscordGuild_Response} from "./schemas/GetOrganizationByDiscordGuild.schema";
 
 export enum CoreEndpoint {
     GetDiscordIdByUser = "GetDiscordIdByUser",
@@ -17,6 +16,7 @@ export enum CoreEndpoint {
     GetFranchiseProfile = "GetFranchiseProfile",
     GetGameSkillGroupProfile = "GetGameSkillGroupProfile",
     GetScrimReportCardWebhooks = "GetScrimReportCardWebhooks",
+    GetUsersLatestScrim = "GetUsersLatestScrim",
 }
 
 export const CoreSchemas = {
@@ -53,8 +53,8 @@ export const CoreSchemas = {
         output: Schemas.GetOrganizationConfigurationValue_Response,
     },
     [CoreEndpoint.GetOrganizationByDiscordGuild]: {
-        input: GetOrganizationByDiscordGuild_Request,
-        output: GetOrganizationByDiscordGuild_Response,
+        input: Schemas.GetOrganizationByDiscordGuild_Request,
+        output: Schemas.GetOrganizationByDiscordGuild_Response,
     },
     [CoreEndpoint.GetFranchiseProfile]: {
         input: Schemas.GetFranchiseProfile_Request,
@@ -67,6 +67,10 @@ export const CoreSchemas = {
     [CoreEndpoint.GetScrimReportCardWebhooks]: {
         input: Schemas.GetScrimReportCardWebhooks_Request,
         output: Schemas.GetScrimReportCardWebhooks_Response,
+    },
+    [CoreEndpoint.GetUsersLatestScrim]: {
+        input: Schemas.GetUsersLastScrim_Request,
+        output: Schemas.GetUsersLastScrim_Response,
     },
 };
 

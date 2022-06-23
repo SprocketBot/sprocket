@@ -23,6 +23,7 @@ import {PubSub} from "apollo-server-express";
 import {Repository} from "typeorm";
 
 import {PlayerStatLine} from "../database";
+import {MLE_SeriesReplay} from "../database/mledb";
 import {GameSkillGroupService} from "../franchise";
 import {FranchiseService} from "../franchise/franchise";
 import {MemberService} from "../organization";
@@ -43,6 +44,7 @@ export class ScrimService {
         private readonly franchiseService: FranchiseService,
         @Inject(ScrimPubSub) private readonly pubsub: PubSub,
         @InjectRepository(PlayerStatLine) private readonly playerStatLineRepository: Repository<PlayerStatLine>,
+        @InjectRepository(MLE_SeriesReplay) private readonly mleSeriesReplayRepository: Repository<MLE_SeriesReplay>,
     ) {}
 
     get metricsSubTopic(): string { return "metrics.update" }
@@ -176,12 +178,32 @@ export class ScrimService {
         throw result.error;
     }
 
-    async getLatestScrimIdByUserId(userId: number): Promise<number> {
+    async getLatestScrimIdByUserId(userId: number, organizationId: number): Promise<number> {
         const psl = await this.playerStatLineRepository.findOneOrFail({
             where: {
-                
-            }
-        })
+                player: {
+                    member: {
+                        user: {
+                            id: userId,
+                        },
+                        organization: {
+                            id: organizationId,
+                        },
+                    },
+                },
+            },
+            order: {id: "DESC"},
+            relations: [
+                "player", "player.member", "player.member.user", "round",
+            ],
+        });
+        const roundStats = psl.round.roundStats as {"ballchasingId": string;};
+        const mleSeriesReplay = await this.mleSeriesReplayRepository.findOneOrFail({
+            where: {ballchasingId: roundStats.ballchasingId},
+            relations: ["series", "series.scrim"],
+        });
+        
+        return mleSeriesReplay.series.scrim.id;
     }
 
     async getRelevantWebhooks(scrim: CoreInput<CoreEndpoint.GetScrimReportCardWebhooks>): Promise<CoreOutput<CoreEndpoint.GetScrimReportCardWebhooks>> {
