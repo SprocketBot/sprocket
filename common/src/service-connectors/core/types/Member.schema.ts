@@ -1,7 +1,7 @@
 import {z} from "zod";
 
-import {OrganizationSchema} from "./Organization";
-import {UserSchema} from "./User";
+import {OrganizationSchema} from "./Organization.schema";
+import {UserSchema} from "./User.schema";
 
 export const MemberProfileSchema = z.object({
     name: z.string(),

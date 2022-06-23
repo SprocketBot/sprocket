@@ -14,7 +14,7 @@ const ClickOutsideManager = {
         if (this.registeredListeners.size === 0) {
             // Start listening to document clicks
             this.boundFunction = this.handleOnClick.bind(this);
-            document.addEventListener("click", this.boundFunction);
+            document.addEventListener("click", this.boundFunction, {capture: true});
         }
         const val = [func, el];
         this.registeredListeners.add(val);

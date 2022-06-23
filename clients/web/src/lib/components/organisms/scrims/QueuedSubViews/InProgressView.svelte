@@ -4,6 +4,7 @@
     } from "$lib/api";
     import UploadReplaysModal from "../modals/UploadReplaysModal.svelte";
     import {BestOfFixture, RoundRobinFixture} from "$lib/components";
+    import {screamingSnakeToHuman} from "$lib/utils";
 
 
     export let scrim: CurrentScrim;
@@ -21,13 +22,17 @@
         Don't forget to save replays!
     </p>
     <div class="lobby">
-        <h3>Lobby Information</h3>
-        <dl>
-            <dt>Name</dt>
-            <dd>{scrim.lobby.name}</dd>
-            <dt>Password</dt>
-            <dd>{scrim.lobby.password}</dd>
-        </dl>
+        <div>
+            <h3>Lobby Information</h3>
+            <dl>
+                <dt>Game Mode</dt>
+                <dd>{scrim.settings.competitive ? 'Competitive' : 'Casual'} {screamingSnakeToHuman(scrim.settings.mode)} {scrim.gameMode.description}</dd>
+                <dt>Name</dt>
+                <dd>{scrim.lobby.name}</dd>
+                <dt>Password</dt>
+                <dd>{scrim.lobby.password}</dd>
+            </dl>
+        </div>
     </div>
     <div>
         {#if scrim.settings.mode === "ROUND_ROBIN"}

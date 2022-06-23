@@ -1,4 +1,5 @@
 import {
+    forwardRef,
     Inject, Injectable, Logger,
 } from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
@@ -7,17 +8,17 @@ import {PubSub} from "apollo-server-express";
 import type {FindManyOptions, FindOneOptions} from "typeorm";
 import {Repository} from "typeorm";
 
-import type {IrrelevantFields} from "../../database";
+import type {Franchise, IrrelevantFields} from "../../database";
 import {
     Member, MemberProfile,
 } from "../../database";
+import {PlayerService} from "../../franchise/player/player.service";
 import {UserService} from "../../identity/user/user.service";
 import {MemberPubSub} from "../constants";
 import {OrganizationService} from "../organization";
 
 @Injectable()
 export class MemberService {
-
     private readonly logger = new Logger(MemberService.name);
 
     private subscribed = false;
@@ -28,6 +29,8 @@ export class MemberService {
         private readonly organizationService: OrganizationService,
         private readonly userService: UserService,
         private readonly eventsService: EventsService,
+        @Inject(forwardRef(() => PlayerService))
+        private readonly playerService: PlayerService,
         @Inject(MemberPubSub) private readonly pubsub: PubSub,
     ) {}
 
@@ -85,6 +88,36 @@ export class MemberService {
         await this.memberRepository.delete({id});
         await this.memberProfileRepository.delete({id: toDelete.profile.id});
         return toDelete;
+    }
+
+    async getFranchiseByMember(memberId: number, organizationId: number, gameId: number): Promise<Franchise | undefined> {
+        const player = await this.playerService.getPlayer({
+            where: {
+                member: {
+                    id: memberId,
+                    organization: {
+                        id: organizationId,
+                    },
+                },
+                skillGroup: {
+                    game: {
+                        id: gameId,
+                    },
+                },
+            },
+            relations: [
+                "member",
+                "member.user",
+                "member.organization",
+                "skillGroup",
+                "skillGroup.game",
+                "slot",
+                "slot.team",
+                "slot.team.franchise",
+            ],
+        });
+
+        return player.slot?.team.franchise;
     }
 
     async enableSubscription(): Promise<void> {

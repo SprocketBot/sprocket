@@ -4,6 +4,7 @@ import {PubSub} from "apollo-server-express";
 
 import {ConfigurationModule} from "../configuration";
 import {DatabaseModule} from "../database";
+import {FranchiseModule} from "../franchise";
 import {GameModule} from "../game";
 import {IdentityModule} from "../identity";
 import {MemberPubSub} from "./constants";
@@ -26,6 +27,7 @@ import {PronounsService} from "./pronouns/pronouns.service";
         forwardRef(() => IdentityModule),
         EventsModule,
         forwardRef(() => ConfigurationModule),
+        forwardRef(() => FranchiseModule),
     ],
     providers: [
         OrganizationResolver,

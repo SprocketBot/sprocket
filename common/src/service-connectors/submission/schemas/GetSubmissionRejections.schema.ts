@@ -5,5 +5,3 @@ export const GetSubmissionRejections_Request = z.object({
 });
 
 export const GetSubmissionRejections_Response = z.array(z.string());
-
-export type IGetSubmissionRejections_Response = z.infer<typeof GetSubmissionRejections_Response>;

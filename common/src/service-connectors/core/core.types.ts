@@ -7,13 +7,16 @@ import {GetOrganizationByDiscordGuild_Request, GetOrganizationByDiscordGuild_Res
 export enum CoreEndpoint {
     GetDiscordIdByUser = "GetDiscordIdByUser",
     GetSprocketConfiguration = "GetSprocketConfiguration",
-    GetOrganizationBranding = "GetOrganizationBranding",
+    GetOrganizationProfile = "GetOrganizationProfile",
     GetUserByAuthAccount = "GetUserByAuthAccount",
     GetMember = "GetMember",
     GetOrganizationDiscordGuildsByGuild = "GetOrganizationDiscordGuildsByGuild",
     GenerateReportCard = "GenerateReportCard",
     GetOrganizationConfigurationValue = "GetOrganizationConfigurationValue",
     GetOrganizationByDiscordGuild = "GetOrganizationByDiscordGuild",
+    GetFranchiseProfile = "GetFranchiseProfile",
+    GetGameSkillGroupProfile = "GetGameSkillGroupProfile",
+    GetScrimReportCardWebhooks = "GetScrimReportCardWebhooks",
 }
 
 export const CoreSchemas = {
@@ -25,9 +28,9 @@ export const CoreSchemas = {
         input: Schemas.GetSprocketConfiguration_Request,
         output: Schemas.GetSprocketConfiguration_Response,
     },
-    [CoreEndpoint.GetOrganizationBranding]: {
-        input: Schemas.GetOrganizationBranding_Request,
-        output: Schemas.GetOrganizationBranding_Response,
+    [CoreEndpoint.GetOrganizationProfile]: {
+        input: Schemas.GetOrganizationProfile_Request,
+        output: Schemas.GetOrganizationProfile_Response,
     },
     [CoreEndpoint.GetUserByAuthAccount]: {
         input: Schemas.GetUserByAuthAccount_Request,
@@ -52,6 +55,18 @@ export const CoreSchemas = {
     [CoreEndpoint.GetOrganizationByDiscordGuild]: {
         input: GetOrganizationByDiscordGuild_Request,
         output: GetOrganizationByDiscordGuild_Response,
+    },
+    [CoreEndpoint.GetFranchiseProfile]: {
+        input: Schemas.GetFranchiseProfile_Request,
+        output: Schemas.GetFranchiseProfile_Response,
+    },
+    [CoreEndpoint.GetGameSkillGroupProfile]: {
+        input: Schemas.GetGameSkillGroupProfile_Request,
+        output: Schemas.GetGameSkillGroupProfile_Response,
+    },
+    [CoreEndpoint.GetScrimReportCardWebhooks]: {
+        input: Schemas.GetScrimReportCardWebhooks_Request,
+        output: Schemas.GetScrimReportCardWebhooks_Response,
     },
 };
 

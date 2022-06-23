@@ -1,16 +1,19 @@
-import {Injectable} from "@nestjs/common";
+import {
+    forwardRef, Inject, Injectable,
+} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {FindManyOptions, FindOneOptions} from "typeorm";
 import {Repository} from "typeorm";
 
 import {Player} from "../../database";
-import {MemberService} from "../../organization";
+import {MemberService} from "../../organization/member/member.service";
 import {GameSkillGroupService} from "../game-skill-group";
 
 @Injectable()
 export class PlayerService {
     constructor(
         @InjectRepository(Player) private playerRepository: Repository<Player>,
+        @Inject(forwardRef(() => MemberService))
         private readonly memberService: MemberService,
         private readonly skillGroupService: GameSkillGroupService,
     ) {}

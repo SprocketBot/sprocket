@@ -5,6 +5,7 @@ export interface SprocketRatingInput {
     saves: number;
     goals_against: number;
     shots_against: number;
+    team_size?: number;
 }
 
 export interface SprocketRating {

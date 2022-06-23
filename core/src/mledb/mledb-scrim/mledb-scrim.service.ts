@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {
-    BallchasingPlayer, BallchasingTeam, Scrim,
+    BallchasingPlayer, BallchasingResponse, BallchasingTeam, Scrim,
 } from "@sprocketbot/common";
 import type {QueryRunner} from "typeorm";
 import {Repository} from "typeorm";
@@ -81,7 +81,7 @@ export class MledbScrimService {
 
         // eslint-disable-next-line require-atomic-updates
         series.seriesReplays = await Promise.all(submission.items.map(async item => {
-            const data = item.progress!.result!.data;
+            const data: BallchasingResponse = item.progress!.result!.data;
             const replay = this.mleSeriesReplayRepositroy.create();
             replay.series = series;
             replay.map = ballchasingMapLookup.get(data.map_code) ?? RocketLeagueMap.UNKNOWN;
@@ -122,7 +122,15 @@ export class MledbScrimService {
                 core.mvpr = core.goals + (core.assists * 0.75) + (core.saves * 0.60) + (core.shots / 3);
                 const {
                     opi, dpi, gpi,
-                } = this.sprocketRatingService.calcSprocketRating(core);
+                } = this.sprocketRatingService.calcSprocketRating({
+                    assists: core.assists,
+                    goals: core.goals,
+                    goals_against: core.goals_against,
+                    saves: core.saves,
+                    shots: core.shots,
+                    shots_against: core.shots_against,
+                    team_size: data.team_size,
+                });
                 core.opi = opi;
                 core.dpi = dpi;
                 core.gpi = gpi;

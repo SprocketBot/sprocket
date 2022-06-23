@@ -15,9 +15,9 @@ export class OrganizationController {
         private readonly organizationConfigurationService: OrganizationConfigurationService,
     ) {}
 
-    @MessagePattern(CoreEndpoint.GetOrganizationBranding)
-    async getOrganizationBranding(@Payload() payload: unknown): Promise<OrganizationProfile> {
-        const data = CoreSchemas.GetOrganizationBranding.input.parse(payload);
+    @MessagePattern(CoreEndpoint.GetOrganizationProfile)
+    async getOrganizationProfile(@Payload() payload: unknown): Promise<OrganizationProfile> {
+        const data = CoreSchemas.GetOrganizationProfile.input.parse(payload);
         return this.organizationService.getOrganizationProfileForOrganization(data.id);
     }
 
