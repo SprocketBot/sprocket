@@ -23,9 +23,9 @@ import {PubSub} from "apollo-server-express";
 import {Repository} from "typeorm";
 
 import {PlayerStatLine} from "../database";
-import {MLE_SeriesReplay} from "../database/mledb";
 import {GameSkillGroupService} from "../franchise";
 import {FranchiseService} from "../franchise/franchise";
+import {MledbScrimService} from "../mledb";
 import {MemberService} from "../organization";
 import {ScrimPubSub} from "./constants";
 import type {Scrim, ScrimGameMode} from "./types";
@@ -42,9 +42,9 @@ export class ScrimService {
         private readonly gameSkillGroupService: GameSkillGroupService,
         private readonly memberService: MemberService,
         private readonly franchiseService: FranchiseService,
+        private readonly mleScrimService: MledbScrimService,
         @Inject(ScrimPubSub) private readonly pubsub: PubSub,
         @InjectRepository(PlayerStatLine) private readonly playerStatLineRepository: Repository<PlayerStatLine>,
-        @InjectRepository(MLE_SeriesReplay) private readonly mleSeriesReplayRepository: Repository<MLE_SeriesReplay>,
     ) {}
 
     get metricsSubTopic(): string { return "metrics.update" }
@@ -198,12 +198,7 @@ export class ScrimService {
             ],
         });
         const roundStats = psl.round.roundStats as {"ballchasingId": string;};
-        const mleSeriesReplay = await this.mleSeriesReplayRepository.findOneOrFail({
-            where: {ballchasingId: roundStats.ballchasingId},
-            relations: ["series", "series.scrim"],
-        });
-        
-        return mleSeriesReplay.series.scrim.id;
+        return this.mleScrimService.getScrimIdByBallchasingId(roundStats.ballchasingId);
     }
 
     async getRelevantWebhooks(scrim: CoreInput<CoreEndpoint.GetScrimReportCardWebhooks>): Promise<CoreOutput<CoreEndpoint.GetScrimReportCardWebhooks>> {
