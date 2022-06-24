@@ -201,4 +201,8 @@ export class MledbScrimService {
         return scrim.id;
     }
 
+    async getScrimIdByBallchasingId(ballchasingId: string): Promise<number> {
+        const mleReplay = await this.mleSeriesReplayRepositroy.findOneOrFail({where: {ballchasingId}, relations: ["series", "series.scrim"] });
+        return mleReplay.series.scrim.id;
+    }
 }

@@ -5,6 +5,7 @@ import {
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
+import {Player} from "../../franchise";
 import {Round} from "../round/round.model";
 import {TeamStatLine} from "../team_stat_line/team_stat_line.model";
 
@@ -28,4 +29,8 @@ export class PlayerStatLine extends BaseModel {
     @ManyToOne(() => TeamStatLine)
     @Field(() => TeamStatLine)
     teamStats: TeamStatLine;
+
+    @ManyToOne(() => Player)
+    @Field(() => Player)
+    player: Player;
 }

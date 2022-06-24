@@ -12,6 +12,7 @@ import {SchedulingModule} from "../database/scheduling";
 import {FranchiseModule} from "../franchise";
 import {GameModule} from "../game";
 import {AuthModule} from "../identity";
+import {MledbInterfaceModule} from "../mledb";
 import {OrganizationModule} from "../organization";
 import {MatchService, RoundService} from "../scheduling";
 import {ScrimPubSub} from "./constants";
@@ -37,6 +38,7 @@ import {ScrimMetaCrudService} from "./scrim-crud";
         DatabaseModule,
         OrganizationModule,
         FranchiseModule,
+        MledbInterfaceModule,
         BullModule.forRoot({
             redis: {
                 host: config.redis.host,

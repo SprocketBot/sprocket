@@ -12,9 +12,11 @@ export enum CoreEndpoint {
     GetOrganizationDiscordGuildsByGuild = "GetOrganizationDiscordGuildsByGuild",
     GenerateReportCard = "GenerateReportCard",
     GetOrganizationConfigurationValue = "GetOrganizationConfigurationValue",
+    GetOrganizationByDiscordGuild = "GetOrganizationByDiscordGuild",
     GetFranchiseProfile = "GetFranchiseProfile",
     GetGameSkillGroupProfile = "GetGameSkillGroupProfile",
     GetScrimReportCardWebhooks = "GetScrimReportCardWebhooks",
+    GetUsersLatestScrim = "GetUsersLatestScrim",
 }
 
 export const CoreSchemas = {
@@ -50,6 +52,10 @@ export const CoreSchemas = {
         input: Schemas.GetOrganizationConfigurationValue_Request,
         output: Schemas.GetOrganizationConfigurationValue_Response,
     },
+    [CoreEndpoint.GetOrganizationByDiscordGuild]: {
+        input: Schemas.GetOrganizationByDiscordGuild_Request,
+        output: Schemas.GetOrganizationByDiscordGuild_Response,
+    },
     [CoreEndpoint.GetFranchiseProfile]: {
         input: Schemas.GetFranchiseProfile_Request,
         output: Schemas.GetFranchiseProfile_Response,
@@ -61,6 +67,10 @@ export const CoreSchemas = {
     [CoreEndpoint.GetScrimReportCardWebhooks]: {
         input: Schemas.GetScrimReportCardWebhooks_Request,
         output: Schemas.GetScrimReportCardWebhooks_Response,
+    },
+    [CoreEndpoint.GetUsersLatestScrim]: {
+        input: Schemas.GetUsersLastScrim_Request,
+        output: Schemas.GetUsersLastScrim_Response,
     },
 };
 

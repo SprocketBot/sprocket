@@ -38,7 +38,7 @@ export const Command = (commandSpec: CommandSpec): MethodDecorator => <T>(target
             const context = {...params[1]};
             context.author = {
                 ...user,
-                id: user.id.toString(),
+                id: user.id,
             };
             params[1] = context;
         } catch (e) {

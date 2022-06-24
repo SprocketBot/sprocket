@@ -1,6 +1,7 @@
 import {
     Inject, Injectable, Logger,
 } from "@nestjs/common";
+import {InjectRepository} from "@nestjs/typeorm";
 import type {
     CoreEndpoint,
     CoreInput,
@@ -19,9 +20,12 @@ import {
     ScrimStatus,
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
+import {Repository} from "typeorm";
 
+import {PlayerStatLine} from "../database";
 import {GameSkillGroupService} from "../franchise";
 import {FranchiseService} from "../franchise/franchise";
+import {MledbScrimService} from "../mledb";
 import {MemberService} from "../organization";
 import {ScrimPubSub} from "./constants";
 import type {Scrim, ScrimGameMode} from "./types";
@@ -38,7 +42,9 @@ export class ScrimService {
         private readonly gameSkillGroupService: GameSkillGroupService,
         private readonly memberService: MemberService,
         private readonly franchiseService: FranchiseService,
+        private readonly mleScrimService: MledbScrimService,
         @Inject(ScrimPubSub) private readonly pubsub: PubSub,
+        @InjectRepository(PlayerStatLine) private readonly playerStatLineRepository: Repository<PlayerStatLine>,
     ) {}
 
     get metricsSubTopic(): string { return "metrics.update" }
@@ -170,6 +176,29 @@ export class ScrimService {
 
         if (result.status === ResponseStatus.SUCCESS) return result.data;
         throw result.error;
+    }
+
+    async getLatestScrimIdByUserId(userId: number, organizationId: number): Promise<number> {
+        const psl = await this.playerStatLineRepository.findOneOrFail({
+            where: {
+                player: {
+                    member: {
+                        user: {
+                            id: userId,
+                        },
+                        organization: {
+                            id: organizationId,
+                        },
+                    },
+                },
+            },
+            order: {id: "DESC"},
+            relations: [
+                "player", "player.member", "player.member.user", "round",
+            ],
+        });
+        const roundStats = psl.round.roundStats as {"ballchasingId": string;};
+        return this.mleScrimService.getScrimIdByBallchasingId(roundStats.ballchasingId);
     }
 
     async getRelevantWebhooks(scrim: CoreInput<CoreEndpoint.GetScrimReportCardWebhooks>): Promise<CoreOutput<CoreEndpoint.GetScrimReportCardWebhooks>> {
