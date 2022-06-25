@@ -38,6 +38,7 @@ export class ReportCardMarshal extends Marshal {
             guildId: m.guild.id,
         });
         if (organizationResult.status === ResponseStatus.ERROR) {
+            this.logger.error(organizationResult.error);
             await m.reply("Couldn't resolve organization.");
             return;
         }
@@ -47,12 +48,14 @@ export class ReportCardMarshal extends Marshal {
             organizationId: organizationResult.data.id,
         });
         if (scrimResult.status === ResponseStatus.ERROR) {
+            this.logger.error(scrimResult.error);
             await m.reply("Couldn't find a scrim for you.");
             return;
         }
 
         const reportCardResult = await this.coreService.send(CoreEndpoint.GenerateReportCard, {mleScrimId: scrimResult.data.id}, {timeout: 300000});
         if (reportCardResult.status === ResponseStatus.ERROR) {
+            this.logger.error(reportCardResult.error);
             await m.reply("Couldn't generate report card.");
             return;
         }
