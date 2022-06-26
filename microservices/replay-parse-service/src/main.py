@@ -1,6 +1,5 @@
 from typing import Union
 import os
-import time
 
 import celery
 import logging
@@ -14,7 +13,6 @@ from progress import Progress
 import celeryconfig
 from kombu import Producer, Connection
 
-print("deploy attempt 6")
 
 # Celery pipeline for starting jobs (broker) and returning results (backend)
 app = celery.Celery(config_source=celeryconfig)
