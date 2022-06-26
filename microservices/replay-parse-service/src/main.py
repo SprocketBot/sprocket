@@ -100,7 +100,7 @@ class ParseReplay(BaseTask):
         # Check if the replay has already been parsed and stats are in minio
         try:
             already_parsed = files.get(parsed_object_path)
-            logging.info(f"Replay already parsed")
+            logging.info(f"Replay already parsed {parsed_object_path}")
 
             self.publish_progress(
                 self.progress.complete(already_parsed)
@@ -131,7 +131,10 @@ class ParseReplay(BaseTask):
         )
 
         try:
-            parsed_data = parser.parse(path)
+            parsed_data = parser.parse(
+                path,
+                lambda msg : self.publish_progress(self.progress.pending(msg))
+            )
             self.publish_progress(
                 self.progress.pending("Cleaning up...", 90)
             )
