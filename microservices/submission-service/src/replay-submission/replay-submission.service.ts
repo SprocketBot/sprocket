@@ -65,8 +65,10 @@ export class ReplaySubmissionService {
                         // Handle error case.
                         this.logger.warn(`Replay submission failed! ${error.message}`, error.stack);
                         item.progress!.status = ProgressStatus.Error;
-                        item.progress!.progress.message = "Parsing Failed";
-                        item.progress!.progress.value = 100;
+                        item.progress!.progress = {
+                            message: "Parsing Failed",
+                            value: 100,
+                        };
                     } else {
                         item.progress = {
                             status: ProgressStatus.Complete,
