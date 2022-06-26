@@ -12,6 +12,8 @@ class TaskProgressStatus(str, Enum):
 class Progress:
     _task_id: str
 
+    last_value: int = None
+
     def __init__(self, task_id: str):
         self._task_id = task_id
 
@@ -21,18 +23,23 @@ class Progress:
         progress_message: str,
         progress_value: int = None,
         result: dict = None,
-        error: str = None
+        error: str = None,
     ):
-        return json.dumps({
+        value = progress_value or self.last_value
+        payload = {
             "taskId": self._task_id,
             "status": status,
             "progress": {
-                "value": progress_value,
+                "value": value,
                 "message": progress_message,
             },
             "result": result,
             "error": error,
-        })
+        }
+        logging.debug('Sending progress', payload)
+
+        self.last_value = value
+        return json.dumps(payload)
 
     def pending(self, message: str, value: int = None) -> str:
         return self._get_msg(TaskProgressStatus.Pending, message, value)
