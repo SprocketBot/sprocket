@@ -1,0 +1,63 @@
+{
+  "minio":{
+    "endpoint":"files.spr.ocket.cloud",
+
+    "ssl": true,
+    "access": "sprocket-dev",
+    "bucket": "sprocket-image-gen-dev",
+    "secret": "OFAY7LnyF-qd3UPyu-RLqnHMnLE7c-OzyXNUr0XMHi1Zzp-ilo8-eg=="
+  },
+  "minio_remote":{
+    "endpoint":"files.spr.ocket.cloud",
+    "port": 777,
+    "ssl": false,
+    "access": "sprocket-dev",
+    "secret": "OFAY7LnyF-qd3UPyu-RLqnHMnLE7c-OzyXNUr0XMHi1Zzp-ilo8-eg=="
+  },
+  "minio_local":{
+    "endpoint":"localhost",
+    "port": 9000,
+    "ssl": false,
+    "access": "testkey",
+    "secret": "6Kcop6xELATAgH"
+  },
+  "knex":{
+    "host": "spr.ocket.cloud",
+    "port":30000,
+    "user": "developer_dev-github-andreasmwenzel-1654981571",
+    "database": "sprocket_dev",
+    "enable_logs": false,
+    "password": "3EE5ViL9Wp-jfAD07mGi",
+    "ssl":{ "rejectUnauthorized": true }
+  },
+  "knex_mledb":{
+    "host": "db-postgresql-nyc3-12498-do-user-8409189-0.b.db.ondigitalocean.com",
+    "port":25060,
+    "user": "dev",
+    "database": "MLEDB_DEV",
+    "enable_logs": false,
+    "password": "iD0pV8gIK1NnNqrL",
+    "ssl":{ "rejectUnauthorized": false }
+  },
+  "knex_sprocket":{
+    "host": "spr.ocket.cloud",
+    "port":30000,
+    "user": "sprocket_dev",
+    "database": "",
+    "enable_logs": false,
+    "password": "0ndX5SlWvQVWO07LwNLzkpbGixBMIMzBvFDuXzU6VDZKlAw9bUjuA1oI7yCUqyw4",
+    "ssl":{ "rejectUnauthorized": false }
+  },
+  "transport": {
+    "url": "amqps://rabbitMq.dev.spr.ocket.cloud:80",
+    "queue": "gap-image-gen"
+  },
+  "transport_remote": {
+    "url": "amqp://rabbitMq.dev.spr.ocket.cloud:80",
+    "queue": "aw-dev-img-gen"
+  },
+  "transport_local": {
+    "url": "amqp://localhost:5672",
+    "queue": "aw-dev-img-gen"
+  }
+}
