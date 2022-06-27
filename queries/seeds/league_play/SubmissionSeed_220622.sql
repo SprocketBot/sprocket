@@ -1,3 +1,6 @@
+-- This should not be taken as a "run and done" script; as there was a lot of handholding and double-checking along the way.
+-- However, it does provide the basic guidelines of setting this up 0-to-hero
+
 BEGIN TRANSACTION;
 -- Set up Franchises
 INSERT INTO sprocket.franchise_profile (title, code)
@@ -103,15 +106,26 @@ VALUES ('07/01/2022'::timestamp, '08/01/2022'::timestamp, 'Season 1',
         (SELECT id from sprocket.game WHERE title = 'Rocket League'));
 
 INSERT INTO sprocket.schedule_group (start, "end", description, "typeId", "gameId", "parentGroupId")
-VALUES ('07/01/2022'::timestamp, '07/07/2022'::timestamp, 'Match 1', ( select id from sprocket.schedule_group_type WHERE code = 'WK'), (SELECT id from sprocket.game WHERE title = 'Rocket League'), (SELECT id from sprocket.schedule_group WHERE description = 'Season 1' )),
-       ('07/08/2022'::timestamp, '07/14/2022'::timestamp, 'Match 2', ( select id from sprocket.schedule_group_type WHERE code = 'WK'), (SELECT id from sprocket.game WHERE title = 'Rocket League'), (SELECT id from sprocket.schedule_group WHERE description = 'Season 1' )),
-       ('07/15/2022'::timestamp, '07/21/2022'::timestamp, 'Match 3', ( select id from sprocket.schedule_group_type WHERE code = 'WK'), (SELECT id from sprocket.game WHERE title = 'Rocket League'), (SELECT id from sprocket.schedule_group WHERE description = 'Season 1' )),
-       ('07/22/2022'::timestamp, '07/30/2022'::timestamp, 'Match 4', ( select id from sprocket.schedule_group_type WHERE code = 'WK'), (SELECT id from sprocket.game WHERE title = 'Rocket League'), (SELECT id from sprocket.schedule_group WHERE description = 'Season 1' ))
+VALUES ('07/01/2022'::timestamp, '07/07/2022'::timestamp, 'Match 1',
+        (select id from sprocket.schedule_group_type WHERE code = 'WK'),
+        (SELECT id from sprocket.game WHERE title = 'Rocket League'),
+        (SELECT id from sprocket.schedule_group WHERE description = 'Season 1')),
+       ('07/08/2022'::timestamp, '07/14/2022'::timestamp, 'Match 2',
+        (select id from sprocket.schedule_group_type WHERE code = 'WK'),
+        (SELECT id from sprocket.game WHERE title = 'Rocket League'),
+        (SELECT id from sprocket.schedule_group WHERE description = 'Season 1')),
+       ('07/15/2022'::timestamp, '07/21/2022'::timestamp, 'Match 3',
+        (select id from sprocket.schedule_group_type WHERE code = 'WK'),
+        (SELECT id from sprocket.game WHERE title = 'Rocket League'),
+        (SELECT id from sprocket.schedule_group WHERE description = 'Season 1')),
+       ('07/22/2022'::timestamp, '07/30/2022'::timestamp, 'Match 4',
+        (select id from sprocket.schedule_group_type WHERE code = 'WK'),
+        (SELECT id from sprocket.game WHERE title = 'Rocket League'),
+        (SELECT id from sprocket.schedule_group WHERE description = 'Season 1'))
 
 
 INSERT INTO sprocket.schedule_fixture ("scheduleGroupId", "homeFranchiseId", "awayFranchiseId")
-VALUES
-       (17, 45, 48),
+VALUES (17, 45, 48),
        (17, 46, 47),
 
        (18, 46, 45),
@@ -124,8 +138,23 @@ VALUES
        (20, 48, 45);
 COMMIT;
 
-INSERT INTO sprocket.match ("deletedAt", "matchParentId", "gameSkillGroupId")
-VALUES
+INSERT INTO sprocket.match_parent ("fixtureId")
+SELECT schedule_fixture.id
+FROM sprocket.schedule_fixture
+CROSS JOIN sprocket.game_skill_group -- one match for each skill group and each skill group
+WHERE "scheduleGroupId" IN (SELECT schedule_group.id
+                            from sprocket.schedule_group
+                                     INNER JOIN sprocket.schedule_group parent on schedule_group."parentGroupId" = parent.id
+                            WHERE parent.description = 'Season 1');
 
+INSERT INTO sprocket.match ("matchParentId", "skillGroupId", "submissionId")
+SELECT mpid, gsgid, concat('match-', gen_random_uuid()) FROM (
+    select id as mpid, row_number() over (partition by "fixtureId") as rn, "fixtureId"
+    FROM sprocket.match_parent
+    WHERE "fixtureId" is not null
+              ) A
+JOIN (
+    SELECT id as gsgid, row_number() over () as rn FROM sprocket.game_skill_group
+) B ON A.rn = B.rn;
 
 ROLLBACK;
