@@ -124,6 +124,8 @@ VALUES
        (20, 48, 45);
 COMMIT;
 
-INSERT INTO sprocket.match ("deletedAt", "matchParentId", "")
+INSERT INTO sprocket.match ("deletedAt", "matchParentId", "gameSkillGroupId")
+VALUES
+
 
 ROLLBACK;

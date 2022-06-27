@@ -5,6 +5,7 @@ import {
 
 import {BaseModel} from "../../base-model";
 import {Game} from "../../game";
+import {Organization} from "../../organization";
 import {GameSkillGroupProfile} from "../game_skill_group_profile";
 import {Player} from "../player";
 import {RosterRoleUseLimits} from "../roster_role_use_limits";
@@ -51,4 +52,8 @@ export class GameSkillGroup extends BaseModel {
     @OneToMany(() => Team, t => t.skillGroup)
     @Field(() => [Team])
     teams: Team[];
+
+    @ManyToOne(() => Organization)
+    @Field(() => Organization)
+    organization: Organization;
 }
