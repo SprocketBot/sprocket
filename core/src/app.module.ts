@@ -17,6 +17,7 @@ import {ReplayParseModule} from "./replay-parse";
 import {SchedulingModule} from "./scheduling";
 import {ScrimModule} from "./scrim";
 import {SprocketRatingModule} from "./sprocket-rating";
+import {UtilModule} from "./util/util.module";
 
 @Module({
     imports: [
@@ -52,6 +53,7 @@ import {SprocketRatingModule} from "./sprocket-rating";
         FranchiseModule,
         ImageGenerationModule,
         SprocketRatingModule,
+        UtilModule,
     ],
 })
 export class AppModule implements NestModule {
