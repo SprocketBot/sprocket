@@ -1,6 +1,5 @@
 from typing import Union
 import os
-import time
 
 import celery
 import logging
@@ -14,7 +13,6 @@ from progress import Progress
 import celeryconfig
 from kombu import Producer, Connection
 
-print("deploy attempt 6")
 
 # Celery pipeline for starting jobs (broker) and returning results (backend)
 app = celery.Celery(config_source=celeryconfig)
@@ -87,7 +85,7 @@ class ParseReplay(BaseTask):
             dict: A dictionary containing the parsed replay.
         """
         self.publish_progress(
-            self.progress.pending(10, "Task started...")
+            self.progress.pending("Task started...", 10)
         )
 
         replay_object_path: Union[str, None] = kwargs.get("replayObjectPath")
@@ -102,7 +100,7 @@ class ParseReplay(BaseTask):
         # Check if the replay has already been parsed and stats are in minio
         try:
             already_parsed = files.get(parsed_object_path)
-            logging.info(f"Replay already parsed")
+            logging.info(f"Replay already parsed {parsed_object_path}")
 
             self.publish_progress(
                 self.progress.complete(already_parsed)
@@ -120,7 +118,7 @@ class ParseReplay(BaseTask):
 
         logging.debug(f"Fetching object {replay_object_path} from minio")
         self.publish_progress(
-            self.progress.pending(20, "Fetching replay...")
+            self.progress.pending("Fetching replay...", 20)
         )
 
         path = files.fget(replay_object_path)
@@ -129,13 +127,16 @@ class ParseReplay(BaseTask):
 
         logging.debug(f"Parsing replay")
         self.publish_progress(
-            self.progress.pending(40, "Parsing replay...")
+            self.progress.pending("Parsing replay...", 40)
         )
 
         try:
-            parsed_data = parser.parse(path)
+            parsed_data = parser.parse(
+                path,
+                lambda msg : self.publish_progress(self.progress.pending(msg))
+            )
             self.publish_progress(
-                self.progress.pending(90, "Cleaning up...")
+                self.progress.pending("Cleaning up...", 90)
             )
         except Exception as e:
             raise e

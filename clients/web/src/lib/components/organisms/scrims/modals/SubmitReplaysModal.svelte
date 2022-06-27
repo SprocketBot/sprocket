@@ -22,7 +22,7 @@
     import {uploadReplaysMutation} from "$lib/api/mutations/UploadReplays.mutation";
     import FaCheckCircle from "svelte-icons/fa/FaCheckCircle.svelte";
     import FaTimesCircle from "svelte-icons/fa/FaTimesCircle.svelte";
-    import {FollowReplayUploadStore} from "$lib/api/subscriptions/FollowReplayUpload.subscription";
+    import {FollowReplayParseStore} from "$lib/api/subscriptions/FollowReplayParse.subscription";
     import {findLast} from "$lib/utils/findLast";
 
     export let visible: boolean = true;
@@ -38,7 +38,7 @@
     // ////////
     // Local stores
     // ////////
-    let followReplayUploadStore: FollowReplayUploadStore;
+    let followReplayParseStore: FollowReplayParseStore;
     let allComplete: Readable<boolean>;
     let anyError: Readable<boolean>;
 
@@ -65,7 +65,7 @@
     const handleSubmit = async () => {
         if (!replays.length) return;
 
-        followReplayUploadStore = new FollowReplayUploadStore({submissionId});
+        followReplayParseStore = new FollowReplayParseStore({submissionId});
         status = "parsing";
 
         const {parseReplays: taskIds} = await uploadReplaysMutation({
@@ -74,9 +74,9 @@
         });
 
         for (let i = 0;i < replays.length;i++) {
-            // Set each progressStore to the most recent progress message from followReplayUploadStore
+            // Set each progressStore to the most recent progress message from followReplayParseStore
             replays[i].progressStore = derived(
-                followReplayUploadStore,
+                followReplayParseStore,
                 $value => {
                     const latestMsg = findLast($value, msg => msg?.data.followReplayParse.taskId === taskIds[i]);
                     const progress = latestMsg?.data.followReplayParse;

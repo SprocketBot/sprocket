@@ -4,16 +4,16 @@ import {gql} from "@urql/core";
 import {SubscriptionStore} from "../core/SubscriptionStore";
 
 // TODO type parsed replay
-export interface FollowReplayUploadProgressMessage {
+export interface FollowReplayParseProgressMessage {
     followReplayParse: ProgressMessage<unknown>;
 }
 
-export interface FollowReplayUploadProgressVariables {
+export interface FollowReplayParseProgressVariables {
     submissionId: string;
 }
 
-export class FollowReplayUploadStore extends SubscriptionStore<FollowReplayUploadProgressMessage, FollowReplayUploadProgressVariables, true> {
-    protected subscriptionString = gql<FollowReplayUploadProgressMessage, FollowReplayUploadProgressVariables>`
+export class FollowReplayParseStore extends SubscriptionStore<FollowReplayParseProgressMessage, FollowReplayParseProgressVariables, true> {
+    protected subscriptionString = gql<FollowReplayParseProgressMessage, FollowReplayParseProgressVariables>`
         subscription($submissionId: String!) {
             followReplayParse(submissionId: $submissionId) {
                 taskId
@@ -30,12 +30,12 @@ export class FollowReplayUploadStore extends SubscriptionStore<FollowReplayUploa
         }
     `;
 
-    constructor(_vars?: FollowReplayUploadProgressVariables) {
+    constructor(_vars?: FollowReplayParseProgressVariables) {
         super();
         this._vars = _vars;
     }
 
-    protected handleGqlMessage = (message: OperationResult<FollowReplayUploadProgressMessage, FollowReplayUploadProgressVariables>): void => {
+    protected handleGqlMessage = (message: OperationResult<FollowReplayParseProgressMessage, FollowReplayParseProgressVariables>): void => {
         this.pub([...this.currentValue ?? [], message]);
     };
 }
