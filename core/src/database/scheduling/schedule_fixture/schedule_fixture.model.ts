@@ -3,7 +3,7 @@ import {
 } from "@nestjs/graphql";
 import {
     Column,
-    Entity, ManyToOne, OneToOne,
+    Entity, ManyToOne, OneToMany,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
@@ -32,7 +32,7 @@ export class ScheduleFixture extends BaseModel {
     @Column()
     awayFranchiseId: number;
 
-    @OneToOne(() => MatchParent)
-    @Field(() => MatchParent)
-    matchParent: MatchParent;
+    @OneToMany(() => MatchParent, mp => mp.fixture)
+    @Field(() => [MatchParent])
+    matchParents: MatchParent[];
 }

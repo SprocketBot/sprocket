@@ -20,7 +20,7 @@ export class MatchParent extends BaseModel {
     @Field(() => ScrimMeta, {nullable: true})
     scrimMeta?: ScrimMeta;
 
-    @OneToOne(() => ScheduleFixture, {nullable: true})
+    @ManyToOne(() => ScheduleFixture, {nullable: true})
     @Field(() => ScheduleFixture, {nullable: true})
     fixture?: ScheduleFixture;
 
