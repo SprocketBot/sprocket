@@ -29,7 +29,7 @@ export class UserProfile extends BaseModel {
     @Field(() => String)
     description?: string;
 
-    @OneToOne(() => User, user => user.userProfile)
+    @OneToOne(() => User, user => user.profile)
     @JoinColumn()
     @Field(() => User)
     user: User;

@@ -18,7 +18,7 @@ export class User extends BaseModel {
 
     @OneToOne(() => UserProfile, profile => profile.user)
     @Field(() => UserProfile)
-    userProfile: UserProfile;
+    profile: UserProfile;
 
     @Column({
         name: "type",
