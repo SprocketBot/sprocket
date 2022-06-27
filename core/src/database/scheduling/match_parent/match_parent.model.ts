@@ -1,6 +1,6 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {
-    Entity, ManyToOne, OneToOne,
+    Entity, JoinColumn, ManyToOne, OneToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
@@ -18,6 +18,7 @@ export class MatchParent extends BaseModel {
 
     @OneToOne(() => ScrimMeta, {nullable: true})
     @Field(() => ScrimMeta, {nullable: true})
+    @JoinColumn()
     scrimMeta?: ScrimMeta;
 
     @ManyToOne(() => ScheduleFixture, {nullable: true})
