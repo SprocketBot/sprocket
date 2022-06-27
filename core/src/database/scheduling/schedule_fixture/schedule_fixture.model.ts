@@ -36,6 +36,6 @@ export class ScheduleFixture extends BaseModel {
     @OneToMany(() => MatchParent, mp => mp.fixture)
     matchParents: MatchParent[];
 
-    @Field(() => Match)
+    @Field(() => [Match])
     matches: Match[];
 }
