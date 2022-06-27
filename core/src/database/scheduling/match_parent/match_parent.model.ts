@@ -25,7 +25,7 @@ export class MatchParent extends BaseModel {
     @Field(() => ScheduleFixture, {nullable: true})
     fixture?: ScheduleFixture;
 
-    @OneToOne(() => Match)
+    @OneToOne(() => Match, m => m.matchParent)
     @Field(() => Match)
     match: Match;
 }

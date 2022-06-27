@@ -8,6 +8,7 @@ import {
 
 import {BaseModel} from "../../base-model";
 import {Franchise} from "../../franchise/franchise";
+import {Match} from "../match";
 import {MatchParent} from "../match_parent";
 import {ScheduleGroup} from "../schedule_group";
 
@@ -33,6 +34,8 @@ export class ScheduleFixture extends BaseModel {
     awayFranchiseId: number;
 
     @OneToMany(() => MatchParent, mp => mp.fixture)
-    @Field(() => [MatchParent])
     matchParents: MatchParent[];
+
+    @Field(() => Match)
+    matches: Match[];
 }

@@ -30,8 +30,8 @@ export class Match extends BaseModel {
     @Field(() => [Round])
     rounds: Round[];
 
+    @OneToOne(() => MatchParent, mp => mp.match)
     @JoinColumn()
-    @OneToOne(() => MatchParent)
     @Field(() => MatchParent)
     matchParent: MatchParent;
 
