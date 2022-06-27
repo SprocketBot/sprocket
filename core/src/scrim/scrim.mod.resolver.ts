@@ -48,7 +48,6 @@ export class ScrimModuleResolverPublic {
         await this.scrimService.enableSubscription();
         return this.pubSub.asyncIterator(this.scrimService.metricsSubTopic);
     }
-
 }
 
 @Resolver()

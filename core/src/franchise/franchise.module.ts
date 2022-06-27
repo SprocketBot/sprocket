@@ -3,6 +3,7 @@ import {forwardRef, Module} from "@nestjs/common";
 import {DatabaseModule} from "../database";
 import {OrganizationModule} from "../organization/organization.module";
 import {FranchiseController} from "./franchise/franchise.controller";
+import {FranchiseResolver} from "./franchise/franchise.resolver";
 import {FranchiseService} from "./franchise/franchise.service";
 import {
     GameSkillGroupController, GameSkillGroupResolver, GameSkillGroupService,
@@ -19,6 +20,7 @@ import {PlayerService} from "./player";
         GameSkillGroupService,
         GameSkillGroupResolver,
         FranchiseService,
+        FranchiseResolver,
     ],
     exports: [
         PlayerService,

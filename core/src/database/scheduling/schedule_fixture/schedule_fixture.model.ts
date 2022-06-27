@@ -1,5 +1,8 @@
-import {Field, ObjectType} from "@nestjs/graphql";
 import {
+    Field, ObjectType,
+} from "@nestjs/graphql";
+import {
+    Column,
     Entity, ManyToOne, OneToOne,
 } from "typeorm";
 
@@ -19,9 +22,15 @@ export class ScheduleFixture extends BaseModel {
     @Field(() => Franchise)
     homeFranchise: Franchise;
 
+    @Column()
+    homeFranchiseId: number;
+
     @ManyToOne(() => Franchise)
     @Field(() => Franchise)
     awayFranchise: Franchise;
+
+    @Column()
+    awayFranchiseId: number;
 
     @OneToOne(() => MatchParent)
     @Field(() => MatchParent)
