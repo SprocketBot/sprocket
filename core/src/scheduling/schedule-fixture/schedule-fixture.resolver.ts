@@ -47,14 +47,13 @@ private readonly franchiseService: FranchiseService,
     }
 
     @ResolveField()
-    async matchParent(@Root() root: ScheduleFixture): Promise<MatchParent> {
-        if (root.matchParent) return root.matchParent;
+    async matchParents(@Root() root: ScheduleFixture): Promise<MatchParent[]> {
+        if (root.matchParents) return root.matchParents;
 
-        const relation: MatchParent | undefined = await this.scheduleFixtureRepo.createQueryBuilder()
+        const relation: MatchParent[]  = await this.scheduleFixtureRepo.createQueryBuilder()
             .relation(MatchParent, "matchParent")
             .of(root)
-            .loadOne();
-        if (!relation) throw new GraphQLError("Unable to find fixture parent.");
+            .loadMany();
         return relation;
     }
 }
