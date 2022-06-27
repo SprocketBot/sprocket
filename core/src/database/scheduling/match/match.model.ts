@@ -34,4 +34,8 @@ export class Match extends BaseModel {
     @OneToOne(() => MatchParent)
     @Field(() => MatchParent)
     matchParent: MatchParent;
+
+    @Column({nullable: true, unique: true})
+    @Field(() => String)
+    submissionId: string;
 }
