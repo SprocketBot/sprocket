@@ -1,13 +1,14 @@
-INSERT INTO sprocket.organization_profile ("id", "name", "description", "websiteUrl", "primaryColor", "secondaryColor",
-                                           "logoUrl")
-VALUES (1, 'Sprocket', 'Sprocket', 'https://github.com/SprocketBot', '#F5C04E', '#0D0E0E',
-        'https://i.ibb.co/BnQ9hmB/Sprocket-Logo-Yellow-3.png'),
-       (2, 'Minor League Esports', 'Minor League Esports', 'https://mlesports.gg/', '#2A4B82', '#FFFFFF',
-        'https://mlesports.gg/wp-content/uploads/logo-mle-256.png');
+INSERT INTO sprocket.organization ("id")
+VALUES (1),
+       (2);
 
-INSERT INTO sprocket.organization ("id", "organizationProfileId")
-VALUES (1, 1),
-       (2, 2);
+INSERT INTO sprocket.organization_profile ("id", "organizationId", "name", "description", "websiteUrl", "primaryColor",
+                                           "secondaryColor",
+                                           "logoUrl")
+VALUES (1, 1, 'Sprocket', 'Sprocket', 'https://github.com/SprocketBot', '#F5C04E', '#0D0E0E',
+        'https://i.ibb.co/BnQ9hmB/Sprocket-Logo-Yellow-3.png'),
+       (2, 2, 'Minor League Esports', 'Minor League Esports', 'https://mlesports.gg/', '#2A4B82', '#FFFFFF',
+        'https://mlesports.gg/wp-content/uploads/logo-mle-256.png');
 
 INSERT INTO sprocket.game ("id", "title")
 VALUES (1, 'Rocket League');
@@ -15,10 +16,32 @@ VALUES (1, 'Rocket League');
 INSERT INTO sprocket.game_mode ("code", "description", "teamSize", "teamCount", "gameId")
 VALUES ('RL_DUEL', 'Duel', 1, 2, 1),
        ('RL_DOUBLES', 'Doubles', 2, 2, 1),
-       ('RL_STANDARD', 'Standard', 3, 2, 1)
+       ('RL_STANDARD', 'Standard', 3, 2, 1);
 
-INSERT INTO sprocket.game_skill_group_profile ("id")
-VALUES (1);
+INSERT INTO sprocket.schedule_group_type ("id", "name", "code", "organizationId")
+VALUES (1, 'Season', 'SEASON', 1);
+
+INSERT INTO sprocket.roster_role_use_limits ("code", "perMode", "total", "groupTypeId")
+VALUES ('PL', 0, 0, 1),
+       ('ML', 0, 0, 1),
+       ('CL', 0, 0, 1),
+       ('AL', 0, 0, 1),
+       ('FL', 0, 0, 1);
+
+INSERT INTO sprocket.game_skill_group ("id", "ordinal", "salaryCap", "roleUseLimitsId", "gameId")
+VALUES (1, 1, 1, 1, 1),
+       (2, 2, 2, 2, 1),
+       (3, 3, 3, 3, 1),
+       (4, 4, 4, 4, 1),
+       (5, 5, 5, 5, 1);
+
+INSERT INTO sprocket.game_skill_group_profile ("id", "skillGroupId", "code", "description", "scrimReportWebhookUrl",
+                                               "matchReportWebhookUrl")
+VALUES (1, 1, 'PL', 'Premier League', null, null),
+       (2, 2, 'ML', 'Master League', null, null),
+       (3, 3, 'CL', 'Champion League', null, null),
+       (4, 4, 'AL', 'Academy League', null, null),
+       (5, 5, 'FL', 'Foundation League', null, null);
 
 INSERT INTO sprocket.organization_configuration_key ("id", "default", "code", "type")
 VALUES (1, '1440', 'SCRIM_QUEUE_BAN_INITIAL_DURATION_MINUTES', 'FLOAT'),
@@ -32,7 +55,8 @@ INSERT INTO sprocket.organization_configuration_value ("keyId", "organizationId"
 VALUES (5, 1, '856290331279884288'),
        (6, 1, '["984300673787113512"]');
 
-INSERT INTO sprocket.platform ("code") VALUES ('STEAM', 'EPIC', 'XBOX', 'PS4');
+INSERT INTO sprocket.platform ("code")
+VALUES ('STEAM', 'EPIC', 'XBOX', 'PS4');
 
 INSERT INTO sprocket.image_template ("templateStructure", "reportCode", "displayName", description, query)
 VALUES ('{
