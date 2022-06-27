@@ -1,6 +1,6 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {
-    Entity, JoinColumn, OneToMany, OneToOne,
+    Entity, OneToMany, OneToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
@@ -14,7 +14,6 @@ import {FranchiseStaffAppointment} from "../franchise_staff_appointment";
 export class Franchise extends BaseModel {
     @OneToOne(() => FranchiseProfile)
     @Field(() => FranchiseProfile)
-    @JoinColumn()
     profile: FranchiseProfile;
 
     @OneToMany(() => FranchiseGroupAssignment, fga => fga.franchise)
