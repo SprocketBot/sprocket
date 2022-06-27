@@ -10,7 +10,7 @@ import {PopulateService} from "../../util/populate/populate.service";
 
 @Resolver(() => ScheduleGroup)
 export class ScheduleGroupResolver {
-    constructor(private readonly populate: PopulateService<ScheduleGroup>) {}
+    constructor(private readonly populate: PopulateService) {}
 
     @ResolveField()
     async type(@Root() root: ScheduleGroup): Promise<ScheduleGroupType> {

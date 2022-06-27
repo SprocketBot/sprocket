@@ -17,7 +17,7 @@ import {PopulateService} from "../../util/populate/populate.service";
 @Resolver(() => ScheduleFixture)
 export class ScheduleFixtureResolver {
     constructor(
-        private readonly populate: PopulateService<ScheduleFixture>,
+        private readonly populate: PopulateService,
                 @InjectRepository(ScheduleFixture)
                 private readonly scheduleFixtureRepo: Repository<ScheduleFixture>,
     ) {}
