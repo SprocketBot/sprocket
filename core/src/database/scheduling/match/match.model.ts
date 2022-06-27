@@ -1,9 +1,10 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {
-    Column, Entity, JoinColumn, JoinTable, OneToMany, OneToOne,
+    Column, Entity, JoinColumn, JoinTable, ManyToOne, OneToMany, OneToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
+import {GameSkillGroup} from "../../franchise";
 import {Invalidation} from "../invalidation/invalidation.model";
 import {MatchParent} from "../match_parent";
 import {Round} from "../round/round.model";
@@ -19,6 +20,11 @@ export class Match extends BaseModel {
     @JoinTable()
     @Field(() => Invalidation, {nullable: true})
     invalidation?: Invalidation;
+
+    // TODO: Nullable, so that we can save cross-group matches?
+    @ManyToOne(() => GameSkillGroup)
+    @Field(() => GameSkillGroup)
+    skillGroup: GameSkillGroup;
 
     @OneToMany(() => Round, r => r.match)
     @Field(() => [Round])

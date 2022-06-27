@@ -122,11 +122,8 @@ VALUES
 
        (20, 47, 46),
        (20, 48, 45);
---
--- SELECT sg.id FROM sprocket.schedule_group sg
---     INNER JOIN sprocket.schedule_group_type ON sg."typeId" = schedule_group_type.id
--- WHERE schedule_group_type.code = 'WK'
--- ;
-
 COMMIT;
+
+INSERT INTO sprocket.match ("deletedAt", "matchParentId", "")
+
 ROLLBACK;
