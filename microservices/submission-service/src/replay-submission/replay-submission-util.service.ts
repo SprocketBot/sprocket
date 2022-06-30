@@ -1,16 +1,16 @@
 import {Injectable} from "@nestjs/common";
-import type {
-    ICanSubmitReplays_Response,
-} from "@sprocketbot/common";
+import type {ICanSubmitReplays_Response} from "@sprocketbot/common";
 import {
-    MatchmakingEndpoint, MatchmakingService, RedisService,
+    CoreEndpoint,
+    CoreService,
+    MatchmakingEndpoint,
+    MatchmakingService,
+    RedisService,
     ResponseStatus,
     ScrimStatus,
 } from "@sprocketbot/common";
 
-import {
-    submissionIsMatch, submissionIsScrim,
-} from "../utils";
+import {submissionIsMatch, submissionIsScrim} from "../utils";
 import {ReplaySubmissionCrudService} from "./replay-submission-crud.service";
 
 @Injectable()
@@ -19,6 +19,7 @@ export class ReplaySubmissionUtilService {
         private readonly submissionCrudService: ReplaySubmissionCrudService,
         private readonly redisService: RedisService,
         private readonly matchmakingService: MatchmakingService,
+        private readonly coreService: CoreService,
     ) {}
 
     async isRatified(submissionId: string): Promise<boolean> {
@@ -60,6 +61,16 @@ export class ReplaySubmissionUtilService {
                 };
             }
         } else if (submissionIsMatch(submissionId)) {
+            // TODO: How does an admin override this?
+            const result = await this.coreService.send(CoreEndpoint.GetMatchBySubmissionId, {submissionId: submissionId});
+            if (result.status === ResponseStatus.ERROR) throw result.error;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const match = result.data;
+            if (!match.awayFranchise || !match.homeFranchise) return {
+                canSubmit: false,
+                reason: "Missing franchise information",
+            };
+
             return {
                 canSubmit: false,
                 reason: "Match submissions not yet supported.",

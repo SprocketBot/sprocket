@@ -17,6 +17,9 @@ export enum CoreEndpoint {
     GetGameSkillGroupProfile = "GetGameSkillGroupProfile",
     GetScrimReportCardWebhooks = "GetScrimReportCardWebhooks",
     GetUsersLatestScrim = "GetUsersLatestScrim",
+
+    GetMatchBySubmissionId = "GetMatchBySubmissionId",
+    GetFranchiseStaff = "GetFranchiseStaff",
 }
 
 export const CoreSchemas = {
@@ -71,6 +74,14 @@ export const CoreSchemas = {
     [CoreEndpoint.GetUsersLatestScrim]: {
         input: Schemas.GetUsersLastScrim_Request,
         output: Schemas.GetUsersLastScrim_Response,
+    },
+    [CoreEndpoint.GetMatchBySubmissionId]: {
+        input: Schemas.GetMatchBySubmissionId_Request,
+        output: Schemas.GetMatchBySubmissionId_Response,
+    },
+    [CoreEndpoint.GetFranchiseStaff]: {
+        input: Schemas.GetFranchiseStaff_Request,
+        output: Schemas.GetFranchiseStaff_Response,
     },
 };
 
