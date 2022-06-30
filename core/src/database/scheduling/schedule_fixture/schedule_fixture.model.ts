@@ -1,10 +1,13 @@
-import {Field, ObjectType} from "@nestjs/graphql";
 import {
-    Entity, ManyToOne, OneToOne,
+    Field, ObjectType,
+} from "@nestjs/graphql";
+import {
+    Entity, ManyToOne, OneToMany,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {Franchise} from "../../franchise/franchise";
+import {Match} from "../match";
 import {MatchParent} from "../match_parent";
 import {ScheduleGroup} from "../schedule_group";
 
@@ -23,7 +26,13 @@ export class ScheduleFixture extends BaseModel {
     @Field(() => Franchise)
     awayFranchise: Franchise;
 
-    @OneToOne(() => MatchParent)
-    @Field(() => MatchParent)
-    matchParent: MatchParent;
+    @OneToMany(() => MatchParent, mp => mp.fixture)
+    matchParents: MatchParent[];
+
+    @Field(() => [Match])
+    matches: Match[];
+
+    awayFranchiseId: number;
+
+    homeFranchiseId: number;
 }

@@ -32,11 +32,11 @@ export class ScheduleGroup extends BaseModel {
     game: Game;
 
     @ManyToOne(() => ScheduleGroup)
-    @Field(() => ScheduleGroup)
+    @Field(() => ScheduleGroup, {nullable: true})
     parentGroup: ScheduleGroup;
 
     @OneToMany(() => ScheduleGroup, sg => sg.parentGroup)
-    @Field(() => [ScheduleGroup])
+    @Field(() => [ScheduleGroup], {nullable: "items"})
     childGroups: ScheduleGroup[];
 
     @OneToMany(() => ScheduleFixture, sf => sf.scheduleGroup)
