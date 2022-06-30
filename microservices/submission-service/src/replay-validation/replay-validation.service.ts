@@ -1,24 +1,41 @@
 import {Injectable} from "@nestjs/common";
-import type {ReplaySubmission} from "@sprocketbot/common";
+import type {ReplaySubmission, ScrimReplaySubmission} from "@sprocketbot/common";
+import {
+    MatchmakingEndpoint, MatchmakingService, ReplaySubmissionType, ResponseStatus,
+} from "@sprocketbot/common";
 
-import type {ValidationError, ValidationResult} from "./types/validation-result";
+import {gameCount} from "./rules/gameCount";
+import type {ValidationResult} from "./types/validation-result";
 
 @Injectable()
 export class ReplayValidationService {
-    validate(submission: ReplaySubmission): ValidationResult {
-        const errors: ValidationError[] = [];
-        if (submission.items.length > 5) {
-            errors.push({error: `Too many games submitted. Expected 5, found ${submission.items.length}`});
-        } else if (submission.items.length < 5) {
-            errors.push({error: `Not enough games submitted. Expected 5, found ${submission.items.length}`});
+    constructor(private readonly matchmakingService: MatchmakingService) {}
+
+    async validate(submission: ReplaySubmission): Promise<ValidationResult> {
+        if (submission.type === ReplaySubmissionType.SCRIM) {
+            return this.validateScrimSubmission(submission);
+        }
+        return this.validateMatchSubmission();
+    }
+
+    private async validateScrimSubmission(submission: ScrimReplaySubmission): Promise<ValidationResult> {
+        const response = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, submission.scrimId);
+        if (response.status === ResponseStatus.ERROR) {
+            throw response.error;
         }
 
-        if (errors.length) {
-            return {
-                valid: false,
-                errors: errors,
-            };
-        }
-        return {valid: true};
+        const scrim = response.data;
+
+        // Run validation rules
+        return gameCount(submission, scrim);
+    }
+
+    private async validateMatchSubmission(): Promise<ValidationResult> {
+        return {
+            valid: false,
+            errors: [ {
+                error: "Submitting replays for matches is not yet supported",
+            } ],
+        };
     }
 }
