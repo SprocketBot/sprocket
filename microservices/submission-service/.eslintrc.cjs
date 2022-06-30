@@ -288,10 +288,7 @@ module.exports = {
     "quote-props": ["error", "consistent"],                                    /* ( f) require quotes around object literal property names */
     "quotes": "off",                                                           /* ( f) enforce the consistent use of either backticks, double, or single quotes */ // Disabled in favor of typescript-eslint rule below
     "semi": "off",                                                             /* ( f) require or disallow semicolons instead of ASI */ // Disabled in favor of typescript-eslint rule below
-    "semi-spacing": ["error", {                                                /* ( f) enforce consistent spacing before and after semicolons */
-      "before": false,
-      "after": false
-    }],
+    "semi-spacing": ["error"],                                                 /* ( f) enforce consistent spacing before and after semicolons */
     "semi-style": ["error", "last"],                                           /* ( f) enforce location of semicolons */
     "sort-keys": "off",                                                        /* (  ) require object keys to be sorted */
     "sort-vars": ["error", {                                                   /* ( f) require variables within the same declaration block to be sorted */
