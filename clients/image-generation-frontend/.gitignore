@@ -4,3 +4,5 @@ node_modules
 /package
 
 .husky/_/
+
+src/config.json
