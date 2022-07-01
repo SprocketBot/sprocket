@@ -7,8 +7,7 @@
     "preview": "svelte-kit preview",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
-    "lint": "eslint --ignore-path .gitignore .",
-    "postinstall": "husky install && rm -rf .git/hooks && ln -s ../.husky .git/hooks"
+    "lint": "eslint --ignore-path .gitignore ."
   },
   "devDependencies": {
     "@commitlint/cli": "^12.1.4",
@@ -31,7 +30,6 @@
     "tslib": "^2.3.1",
     "typescript": "^4.4.2"
   },
-  "type": "module",
   "dependencies": {
     "@sveltejs/adapter-node": "^1.0.0-next.43",
     "@types/knex": "^0.16.1",
@@ -43,5 +41,6 @@
     "pg": "^8.7.1",
     "svelte-icons": "^2.1.0",
     "uuid": "^8.3.2"
-  }
+  },
+  "type": "module"
 }
