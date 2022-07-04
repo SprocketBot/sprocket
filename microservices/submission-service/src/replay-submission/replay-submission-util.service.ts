@@ -47,8 +47,8 @@ export class ReplaySubmissionUtilService {
                 reason:
                   `Could not find a associated scrim`,
             };
-            // TODO: How does an admin override this?
             if (!scrim.players.some(p => p.id === playerId)) {
+                // TODO: Check player's organization teams (i.e. Support override)
                 return {
                     canSubmit: false,
                     reason: `Player not in scrim.`,
@@ -61,7 +61,6 @@ export class ReplaySubmissionUtilService {
                 };
             }
         } else if (submissionIsMatch(submissionId)) {
-            // TODO: How does an admin override this?
             const result = await this.coreService.send(CoreEndpoint.GetMatchBySubmissionId, {submissionId: submissionId});
             if (result.status === ResponseStatus.ERROR) throw result.error;
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -70,6 +69,10 @@ export class ReplaySubmissionUtilService {
                 canSubmit: false,
                 reason: "Missing franchise information",
             };
+            // TODO: Get Player/User's Franchise(s)
+            // TODO: Check if player is in franchise, if not get player's organization teams (i.e. LO override)
+            // Return type should be { franchiseId: number, isFranchiseStaff: boolean }[]
+            // TODO: If player is LO / Support, pass, If player is in franchise, and is staff, pass
 
             return {
                 canSubmit: false,

@@ -15,7 +15,7 @@ export class MatchController {
         const data = CoreSchemas.GetMatchBySubmissionId.input.parse(payload);
         const match = await this.matchService.getMatchBySubmissionId(data.submissionId);
         const matchParent = await this.matchService.getMatchParentEntity(match.id);
-        
+
         if (matchParent.type !== "fixture") return {id: match.id};
         return {
             id: match.id,
