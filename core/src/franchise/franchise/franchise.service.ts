@@ -13,4 +13,8 @@ export class FranchiseService {
         const franchise = await this.franchiseRepository.findOneOrFail({where: {id: franchiseId}, relations: ["profile"] });
         return franchise.profile;
     }
+
+    async getFranchise(franchiseId: number): Promise<Franchise> {
+        return this.franchiseRepository.findOneOrFail({where: {id: franchiseId} });
+    }
 }
