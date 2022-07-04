@@ -2,10 +2,11 @@ import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 
-import type {
-    ScheduledEvent, ScheduleFixture, ScrimMeta,
+import type {ScheduledEvent, ScrimMeta} from "../../database";
+import {
+    Invalidation, Match, ScheduleFixture,
 } from "../../database";
-import {Invalidation, Match} from "../../database";
+import {PopulateService} from "../../util/populate/populate.service";
 
 export type MatchParentResponse = {
     type: "fixture";
@@ -23,6 +24,7 @@ export class MatchService {
     constructor(
         @InjectRepository(Match) private matchRepo: Repository<Match>,
         @InjectRepository(Invalidation) private invalidationRepo: Repository<Invalidation>,
+        private readonly popService: PopulateService,
     ) {}
 
     async createMatch(isDummy?: boolean, invalidationId?: number): Promise<Match> {
@@ -54,10 +56,18 @@ export class MatchService {
             relations: ["matchParent", "matchParent.fixture", "matchParent.scrimMeta", "matchParent.event"],
         });
 
-        if (populatedMatch.matchParent.fixture) return {
-            type: "fixture",
-            data: populatedMatch.matchParent.fixture,
-        };
+        if (populatedMatch.matchParent.fixture) {
+            populatedMatch.matchParent.fixture.homeFranchise = await this.popService.populateOneOrFail(ScheduleFixture, populatedMatch.matchParent.fixture, "homeFranchise");
+            populatedMatch.matchParent.fixture.homeFranchiseId = populatedMatch.matchParent.fixture.homeFranchise.id;
+
+            populatedMatch.matchParent.fixture.awayFranchise = await this.popService.populateOneOrFail(ScheduleFixture, populatedMatch.matchParent.fixture, "awayFranchise");
+            populatedMatch.matchParent.fixture.awayFranchiseId = populatedMatch.matchParent.fixture.awayFranchise.id;
+
+            return {
+                type: "fixture",
+                data: populatedMatch.matchParent.fixture,
+            };
+        }
         if (populatedMatch.matchParent.scrimMeta) return {
             type: "scrim",
             data: populatedMatch.matchParent.scrimMeta,

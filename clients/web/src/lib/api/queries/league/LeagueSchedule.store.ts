@@ -1,49 +1,21 @@
 import {gql} from "@urql/core";
 import {QueryStore} from "../../core/QueryStore";
-
-export interface LeagueScheduleValue {
-    schedule: {
-        id: number;
-        description: string;
-        game: {
-            id: number;
-            title: string;
-        };
-        type: {
-            name: string;
-        };
-        childGroups: Array<{
-            id: number;
-            description: string;
-            fixtures: Array<{
-                id: number;
-                matches: Array<{
-                    skillGroup: {
-                        code: string;
-                        description: string;
-                    };
-                    submissionId: string;
-                }>;
-                homeFranchise: {
-                    profile: {
-                        title: string;
-                    };
-                };
-                awayFranchise: {
-                    profile: {
-                        title: string;
-                    };
-                };
-            }>;
-        }>;
-    };
-}
+import type {LeagueScheduleValue} from "./LeagueSchedule.types";
 
 export interface LeagueScheduleVars {
 }
 
 export class LeagueScheduleStore extends QueryStore<LeagueScheduleValue, LeagueScheduleVars> {
     protected queryString = gql<LeagueScheduleValue, LeagueScheduleVars>`
+      fragment FranchiseProfileFields on FranchiseProfile {
+          title
+          primaryColor
+          secondaryColor
+          photo{
+              url
+          }
+      }
+
       query {
           schedule: getScheduleGroups(type:"SEASON") {
               id
@@ -60,21 +32,14 @@ export class LeagueScheduleStore extends QueryStore<LeagueScheduleValue, LeagueS
                   description
                   fixtures {
                       id
-                      matches {
-                          skillGroup {
-                              code
-                              description
-                          }
-                          submissionId
-                      }
-                      homeFranchise{
+                      homeFranchise {
                           profile {
-                              title
+                            ...FranchiseProfileFields
                           }
                       }
-                      awayFranchise{
+                      awayFranchise {
                           profile {
-                              title
+                              ...FranchiseProfileFields
                           }
                       }
                   }

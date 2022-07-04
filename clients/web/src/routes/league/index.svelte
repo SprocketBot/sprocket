@@ -1,10 +1,11 @@
 <script lang="ts">
 	import {
-    DashboardLayout,
+	    DashboardLayout,
 	    DashboardCard,
 	    Spinner,
+	    FixtureCard,
 	} from "$lib/components";
-	import {LeagueScheduleStore} from "$lib/api";
+import {LeagueScheduleStore} from "$lib/api";
 
 	const store = new LeagueScheduleStore();
 	let fetching = true;
@@ -20,21 +21,20 @@
 				<Spinner class="h-16 w-full"/>
 			</div>
 		{:else}
-			<span class="text-2xl text-accent font-bold">{schedule.game.title} | {schedule.description}</span>
+			<h2 class="text-2xl text-accent font-bold">{schedule.game.title} | {schedule.description}</h2>
 			<div class="grid grid-cols-1 gap-4">
-			{#each schedule.childGroups as week (week.id)}
+			{#each schedule.childGroups as week, wi (week.id)}
 				<div>
-				<span class="text-lg text-accent">{week.description}</span>
+				<h3 class="text-lg text-accent font-bold text-center">{week.description}</h3>
 				<div class="grid grid-cols-2 gap-4">
 					{#each week.fixtures as fixture (fixture.id)}
-						<div class="flex justify-between">
-							<span class="flex-1 text-right">{fixture.homeFranchise.profile.title}</span>
-							<span class="mx-2">vs</span>
-							<span class="flex-1">{fixture.awayFranchise.profile.title}</span>
-						</div>
+						<FixtureCard {fixture}/>
 					{/each}
 				</div>
 				</div>
+				{#if wi < schedule.childGroups.length - 1}
+					<hl class="w-2/3 mx-auto border-accent border-b my-2"></hl>
+				{/if}
 			{/each}
 			</div>
 		{/if}
