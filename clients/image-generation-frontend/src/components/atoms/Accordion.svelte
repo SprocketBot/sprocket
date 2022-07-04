@@ -3,12 +3,12 @@
     export let shown = false;
 </script>
 
-<div on:click={() => (shown = !shown)}>
+<div on:click={() => { shown = !shown }}>
     <slot name="header" {shown}/>
 </div>
 
 {#if shown}
-<div transition:slide>
+<div transition:slide|local>
     <slot name="content"/>
 </div>
 {/if}
