@@ -178,6 +178,14 @@ export class ScrimService {
         throw result.error;
     }
 
+    async setScrimsDisabled(disabled: boolean): Promise<boolean> {
+        this.logger.log(`disableScrims disabled=${disabled}`);
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.SetScrimsDisabled, {disabled});
+
+        if (result.status === ResponseStatus.SUCCESS) return result.data;
+        throw result.error;
+    }
+
     async getLatestScrimIdByUserId(userId: number, organizationId: number): Promise<number> {
         const psl = await this.playerStatLineRepository.findOneOrFail({
             where: {

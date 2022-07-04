@@ -15,8 +15,7 @@ import type {CreateScrimOpts} from "./types";
 export class ScrimCrudService {
     private readonly prefix = `${config.redis.prefix}:scrim:`;
 
-    constructor(private readonly redisService: RedisService) {
-    }
+    constructor(private readonly redisService: RedisService) {}
 
     async createScrim({
         organizationId, settings, author, gameMode, skillGroupId,

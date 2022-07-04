@@ -4,6 +4,8 @@ import type {ResponseStatus} from "../../global.types";
 import * as Schemas from "./schemas";
 
 export enum MatchmakingEndpoint {
+    SetScrimsDisabled = "SetScrimsDisabled",
+
     // Scrim
     GetQueueStatus = "GetQueueStatus",
     CreateScrim = "CreateScrim",
@@ -26,6 +28,10 @@ export enum MatchmakingEndpoint {
 }
 
 export const MatchmakingSchemas = {
+    [MatchmakingEndpoint.SetScrimsDisabled]: {
+        input: Schemas.SetScrimsDisabled_Request,
+        output: Schemas.SetScrimsDisabled_Response,
+    },
     // Scrim
     [MatchmakingEndpoint.GetQueueStatus]: {
         input: Schemas.GetQueueStatus_Request,

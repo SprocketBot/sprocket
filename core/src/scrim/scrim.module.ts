@@ -24,6 +24,7 @@ import {ScrimModuleResolver, ScrimModuleResolverPublic} from "./scrim.mod.resolv
 import {ScrimResolver} from "./scrim.resolver";
 import {ScrimService} from "./scrim.service";
 import {ScrimMetaCrudService} from "./scrim-crud";
+import {ScrimToggleResolver} from "./scrim-toggle.resolver";
 
 @Module({
     imports: [
@@ -69,6 +70,7 @@ import {ScrimMetaCrudService} from "./scrim-crud";
         ScrimMetricsResolver,
         ScrimMetaCrudService,
         ScrimManagementResolver,
+        ScrimToggleResolver,
     ],
     exports: [ScrimService],
     controllers: [ScrimController],

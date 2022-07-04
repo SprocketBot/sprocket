@@ -13,6 +13,7 @@ import {ScrimCrudService} from "./scrim-crud/scrim-crud.service";
 import {ScrimGroupService} from "./scrim-group/scrim-group.service";
 import {ScrimLogicService} from "./scrim-logic/scrim-logic.service";
 import {ScrimMetricsService} from "./scrim-metrics/scrim-metrics.service";
+import {ScrimToggleService} from "./scrim-toggle/scrim-toggle.service";
 
 @Module({
     imports: [
@@ -45,6 +46,7 @@ import {ScrimMetricsService} from "./scrim-metrics/scrim-metrics.service";
         ScrimGroupService,
         GameOrderService,
         ScrimEventSubscriber,
+        ScrimToggleService,
     ],
 })
 export class ScrimModule {

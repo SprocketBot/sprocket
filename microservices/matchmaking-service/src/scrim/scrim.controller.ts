@@ -6,6 +6,7 @@ import {MatchmakingEndpoint, MatchmakingSchemas} from "@sprocketbot/common";
 import {ScrimService} from "./scrim.service";
 import {ScrimCrudService} from "./scrim-crud/scrim-crud.service";
 import {ScrimMetricsService} from "./scrim-metrics/scrim-metrics.service";
+import {ScrimToggleService} from "./scrim-toggle/scrim-toggle.service";
 
 @Controller("scrim")
 export class ScrimController {
@@ -13,6 +14,7 @@ export class ScrimController {
         private readonly scrimCrudService: ScrimCrudService,
         private readonly scrimService: ScrimService,
         private readonly scrimMetricsService: ScrimMetricsService,
+        private readonly scrimToggleService: ScrimToggleService,
     ) {
     }
 
@@ -105,4 +107,9 @@ export class ScrimController {
         return true;
     }
 
+    @MessagePattern(MatchmakingEndpoint.SetScrimsDisabled)
+    async setScrimsDisabled(@Payload() payload: unknown): Promise<boolean> {
+        const data = MatchmakingSchemas.SetScrimsDisabled.input.parse(payload);
+        return data.disabled ? this.scrimToggleService.disableScrims() : this.scrimToggleService.enableScrims();
+    }
 }
