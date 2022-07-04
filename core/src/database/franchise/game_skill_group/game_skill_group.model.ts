@@ -15,14 +15,6 @@ import {Team} from "../team";
 @ObjectType()
 export class GameSkillGroup extends BaseModel {
     @Column()
-    @Field(() => String)
-    code: string;
-
-    @Column()
-    @Field(() => String)
-    description: string;
-
-    @Column()
     @Field(() => Number)
     ordinal: number;
 
@@ -31,7 +23,6 @@ export class GameSkillGroup extends BaseModel {
     salaryCap: number;
 
     @OneToOne(() => GameSkillGroupProfile)
-    @JoinColumn()
     @Field(() => GameSkillGroupProfile)
     profile: GameSkillGroupProfile;
 

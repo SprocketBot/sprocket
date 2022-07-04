@@ -30,11 +30,11 @@ export class UserService {
     ): Promise<User> {
         const profile = this.userProfileRepository.create(userProfile);
         const authAccts = authenticationAccounts.map(acct => this.userAuthAcctRepository.create(acct));
-        const user = this.userRepository.create({userProfile: profile});
+        const user = this.userRepository.create({profile});
         user.authenticationAccounts = authAccts;
         authAccts.forEach(aa => { aa.user = user });
 
-        await this.userProfileRepository.save(user.userProfile);
+        await this.userProfileRepository.save(user.profile);
         await this.userRepository.save(user);
         await this.userAuthAcctRepository.save(authAccts);
         return user;
@@ -87,7 +87,7 @@ export class UserService {
      * @retusn The user with the given id, if found.
      */
     async getUserById(id: number): Promise<User> {
-        return this.userRepository.findOneOrFail(id, {relations: ["userProfile"] });
+        return this.userRepository.findOneOrFail(id, {relations: ["profile"] });
     }
 
     async getUser(query: FindOneOptions<UserProfile>): Promise<User | undefined> {
@@ -118,13 +118,13 @@ export class UserService {
      * @returns The updated UserProfile.
      */
     async updateUserProfile(userId: number, data: Omit<Partial<UserProfile>, "user">): Promise<UserProfile> {
-        let {userProfile} = await this.userRepository.findOneOrFail(
+        let {profile} = await this.userRepository.findOneOrFail(
             userId,
-            {relations: ["userProfile"] },
+            {relations: ["profile"] },
         );
-        userProfile = this.userProfileRepository.merge(userProfile, data);
-        await this.userProfileRepository.save(userProfile);
-        return userProfile;
+        profile = this.userProfileRepository.merge(profile, data);
+        await this.userProfileRepository.save(profile);
+        return profile;
     }
 
     /**
@@ -134,10 +134,10 @@ export class UserService {
      */
     async deleteUser(id: number): Promise<User> {
         const toDelete = await this.userRepository.findOneOrFail(id, {
-            relations: ["userProfile"],
+            relations: ["profile"],
         });
         await this.userRepository.delete({id});
-        await this.userProfileRepository.delete({id: toDelete.userProfile.id});
+        await this.userProfileRepository.delete({id: toDelete.profile.id});
         return toDelete;
     }
 
@@ -147,7 +147,7 @@ export class UserService {
      * @returns The found UserProfile
      */
     async getUserProfileForUser(userId: number): Promise<UserProfile> {
-        const org = await this.userRepository.findOneOrFail(userId, {relations: ["userProfile"] });
-        return org.userProfile;
+        const org = await this.userRepository.findOneOrFail(userId, {relations: ["profile"] });
+        return org.profile;
     }
 }
