@@ -13,7 +13,7 @@ export const UserProfileSchema = z.object({
 
 export const UserSchema = z.object({
     id: z.number(),
-    profile: UserProfileSchema.optional(),
+    userProfile: UserProfileSchema.optional(),
 });
 
 export type UserProfile = z.infer<typeof UserProfileSchema>;

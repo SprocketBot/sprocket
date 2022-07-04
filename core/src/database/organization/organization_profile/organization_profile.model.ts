@@ -1,6 +1,6 @@
 import {Field, ObjectType} from "@nestjs/graphql/dist";
 import {
-    Column, Entity, JoinColumn, OneToOne,
+    Column, Entity, OneToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
@@ -17,6 +17,10 @@ export class OrganizationProfile extends BaseModel {
     @Field(() => String)
     description: string;
 
+    @OneToOne(() => Organization)
+    @Field(() => Organization)
+    organization: Organization;
+
     @Column({default: ""})
     @Field(() => String)
     websiteUrl: string;
@@ -32,9 +36,4 @@ export class OrganizationProfile extends BaseModel {
     @Column({nullable: true})
     @Field(() => String, {nullable: true})
     logoUrl?: string;
-
-    @OneToOne(() => Organization)
-    @JoinColumn()
-    @Field(() => Organization)
-    organization: Organization;
 }

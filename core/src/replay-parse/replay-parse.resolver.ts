@@ -35,7 +35,7 @@ export class SubmissionRejectionResolver {
         // TODO: Is it possible to map to an organization from here?
 
         const user = await this.userService.getUserById(parseInt(rejection.playerId.toString()));
-        return user.profile.displayName;
+        return user.userProfile.displayName;
     }
 
     @ResolveField(() => String)

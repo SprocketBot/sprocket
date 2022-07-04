@@ -8,4 +8,5 @@ import {PopulateService} from "./populate/populate.service";
     providers: [PopulateService],
     exports: [PopulateService],
 })
-export class UtilModule {}
+export class UtilModule {
+}

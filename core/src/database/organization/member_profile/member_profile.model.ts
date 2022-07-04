@@ -26,7 +26,6 @@ export class MemberProfile extends BaseModel {
     profilePicture?: Photo;
 
     @OneToOne(() => Member)
-    @JoinColumn()
     @Field(() => Member)
     member: Member;
 }

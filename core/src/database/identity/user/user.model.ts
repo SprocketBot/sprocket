@@ -1,6 +1,7 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {
-    Column, Entity, OneToMany, OneToOne,
+    Column,
+    Entity, JoinColumn, OneToMany, OneToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
@@ -17,8 +18,9 @@ export class User extends BaseModel {
     authenticationAccounts: UserAuthenticationAccount[];
 
     @OneToOne(() => UserProfile, profile => profile.user)
+    @JoinColumn()
     @Field(() => UserProfile)
-    profile: UserProfile;
+    userProfile: UserProfile;
 
     @Column({
         name: "type",

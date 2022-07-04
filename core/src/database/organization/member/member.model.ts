@@ -19,11 +19,11 @@ export class Member extends BaseModel {
     platformAccounts: MemberPlatformAccount[];
 
     @OneToOne(() => MemberProfile)
+    @JoinColumn()
     @Field(() => MemberProfile)
     profile: MemberProfile;
 
     @ManyToOne(() => Organization)
-    @JoinColumn()
     @Field(() => Organization)
     organization: Organization;
 
@@ -32,7 +32,6 @@ export class Member extends BaseModel {
     players: Player[];
 
     @ManyToOne(() => User, u => u.members)
-    @JoinColumn()
     @Field(() => User)
     user: User;
 

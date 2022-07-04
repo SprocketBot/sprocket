@@ -48,7 +48,7 @@ export class MledbScrimService {
 
     async getLeagueAndMode(scrim: Scrim): Promise<{mode: GameMode; group: GameSkillGroup;}> {
         const gameMode = await this.gameModeService.getGameModeById(scrim.gameMode.id);
-        const skillGroup = await this.skillGroupService.getGameSkillGroupById(scrim.skillGroupId, {relations: ["profile"] });
+        const skillGroup = await this.skillGroupService.getGameSkillGroupById(scrim.skillGroupId);
         return {
             mode: gameMode,
             group: skillGroup,
@@ -64,7 +64,7 @@ export class MledbScrimService {
 
         const {mode, group} = await this.getLeagueAndMode(scrimObject);
         const author = await this.mlePlayerRepository.findOneOrFail({where: {id: -1} });
-        series.league = group.profile.description.split(" ")[0].toUpperCase();
+        series.league = group.description.split(" ")[0].toUpperCase();
         series.mode = {
             1: LegacyGameMode.SOLO, 2: LegacyGameMode.DOUBLES, 3: LegacyGameMode.STANDARD,
         }[mode.teamSize]!;

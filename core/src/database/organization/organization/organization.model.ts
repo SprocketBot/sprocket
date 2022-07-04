@@ -1,6 +1,6 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {
-    Entity, OneToMany, OneToOne,
+    Entity, JoinColumn, OneToMany, OneToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
@@ -17,6 +17,7 @@ import {Pronouns} from "../pronouns";
 @ObjectType()
 export class Organization extends BaseModel {
     @OneToOne(() => OrganizationProfile)
+    @JoinColumn()
     @Field(() => OrganizationProfile)
     organizationProfile: OrganizationProfile;
 

@@ -49,7 +49,7 @@ export class UserResolver {
     }
 
     @ResolveField()
-    async profile(@Root() user: Partial<User>): Promise<UserProfile> {
-        return user.profile ?? await this.userService.getUserProfileForUser(user.id!);
+    async userProfile(@Root() user: Partial<User>): Promise<UserProfile> {
+        return user.userProfile ?? await this.userService.getUserProfileForUser(user.id!);
     }
 }
