@@ -2,6 +2,7 @@ import {
     Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,
 } from "typeorm";
 
+import {MLE_Platform} from "./enums";
 import {MLE_Player} from "./Player.model";
 
 @Index("player_account_pkey", ["id"], {unique: true})
@@ -43,7 +44,7 @@ export class MLE_PlayerAccount {
     updatedAt: Date;
 
     @Column("character varying", {name: "platform", length: 255})
-    platform: string;
+    platform: MLE_Platform;
 
     @Column("character varying", {
         name: "tracker",
