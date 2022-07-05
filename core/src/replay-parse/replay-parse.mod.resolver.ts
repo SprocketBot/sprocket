@@ -4,7 +4,11 @@ import {
 import {
     Args, Mutation, Query, Resolver, Subscription,
 } from "@nestjs/graphql";
+import {
+    ResponseStatus, SubmissionEndpoint, SubmissionService,
+} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
+import GraphQLJSON from "graphql-type-json";
 import type {FileUpload} from "graphql-upload";
 import {GraphQLUpload} from "graphql-upload";
 
@@ -20,6 +24,7 @@ import {GqlReplaySubmission} from "./types";
 export class ReplayParseModResolver {
     constructor(
         private readonly rpService: ReplayParseService,
+        private readonly submissionService: SubmissionService,
         @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
     ) {}
 
@@ -71,5 +76,15 @@ export class ReplayParseModResolver {
     async followSubmission(@Args("submissionId") submissionId: string): Promise<AsyncIterator<GqlReplaySubmission>> {
         await this.rpService.enableSubscription(submissionId);
         return this.pubsub.asyncIterator(submissionId);
+    }
+
+    // TODO GraphQL type
+    @Mutation(() => GraphQLJSON)
+    async validateSubmission(@Args("submissionId") submissionId: string): Promise<unknown> {
+        const response = await this.submissionService.send(SubmissionEndpoint.ValidateSubmission, {submissionId});
+        if (response.status === ResponseStatus.ERROR) {
+            throw response.error;
+        }
+        return response.data;
     }
 }
