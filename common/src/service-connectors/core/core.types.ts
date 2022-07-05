@@ -1,4 +1,4 @@
-import type {z} from "zod";
+import {z} from "zod";
 
 import type {ResponseStatus} from "../../global.types";
 import * as Schemas from "./schemas";
@@ -9,6 +9,8 @@ export enum CoreEndpoint {
     GetOrganizationProfile = "GetOrganizationProfile",
     GetUserByAuthAccount = "GetUserByAuthAccount",
     GetMember = "GetMember",
+    GetPlayerByPlatformId = "GetPlayerByPlatformId",
+    GetPlayersByPlatformIds = "GetPlayersByPlatformIds",
     GetOrganizationDiscordGuildsByGuild = "GetOrganizationDiscordGuildsByGuild",
     GenerateReportCard = "GenerateReportCard",
     GetOrganizationConfigurationValue = "GetOrganizationConfigurationValue",
@@ -39,6 +41,14 @@ export const CoreSchemas = {
     [CoreEndpoint.GetMember]: {
         input: Schemas.GetMember_Request,
         output: Schemas.GetMember_Response,
+    },
+    [CoreEndpoint.GetPlayerByPlatformId]: {
+        input: Schemas.GetPlayerByPlatformId_Request,
+        output: Schemas.GetPlayerByPlatformId_Response,
+    },
+    [CoreEndpoint.GetPlayersByPlatformIds]: {
+        input: z.array(Schemas.GetPlayerByPlatformId_Request),
+        output: z.array(Schemas.GetPlayerByPlatformId_Response),
     },
     [CoreEndpoint.GetOrganizationDiscordGuildsByGuild]: {
         input: Schemas.GetOrganizationDiscordGuildsByGuild_Request,
