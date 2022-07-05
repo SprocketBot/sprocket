@@ -81,6 +81,17 @@ export class UserService {
         });
     }
 
+    async getUserByDiscordId(discordId: string): Promise<User> {
+        const authAccount = await this.userAuthAcctRepository.findOneOrFail({
+            where: {
+                accountType: UserAuthenticationAccountType.DISCORD,
+                accountId: discordId,
+            },
+            relations: ["user"],
+        });
+        return authAccount.user;
+    }
+
     /**
      * Finds a User by its id and fails if not found.
      * @param id The id of the user to find.

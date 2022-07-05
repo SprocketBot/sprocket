@@ -1,6 +1,9 @@
 import {Controller} from "@nestjs/common";
 import {MessagePattern, Payload} from "@nestjs/microservices";
-import {CoreEndpoint, CoreSchemas} from "@sprocketbot/common";
+import type {CoreOutput} from "@sprocketbot/common";
+import {
+    CoreEndpoint, CoreSchemas,
+} from "@sprocketbot/common";
 
 import {UserAuthenticationAccountType} from "../../database";
 import {UserService} from "./user.service";
@@ -16,5 +19,12 @@ export class UserController {
         const discordAccount = authenticationAccounts.find(aa => aa.accountType === UserAuthenticationAccountType.DISCORD);
 
         return discordAccount?.accountId;
+    }
+
+    @MessagePattern(CoreEndpoint.GetUserByDiscordId)
+    async getUserByDiscordId(@Payload() payload: unknown): Promise<CoreOutput<CoreEndpoint.GetUserByDiscordId>> {
+        const data = CoreSchemas.GetUserByDiscordId.input.parse(payload);
+        const user = await this.userService.getUserByDiscordId(data.discordId);
+        return {id: user.id};
     }
 }
