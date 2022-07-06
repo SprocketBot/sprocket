@@ -5,6 +5,7 @@ import {DatabaseModule} from "../database";
 import {FranchiseModule} from "../franchise";
 import {GameModule} from "../game";
 import {IdentityModule} from "../identity";
+import {OrganizationModule} from "../organization";
 import {SprocketRatingModule} from "../sprocket-rating";
 import {MledbPlayerService} from "./mledb-player";
 import {MledbPlayerAccountService} from "./mledb-player-account";
@@ -18,6 +19,7 @@ import {MledbScrimService} from "./mledb-scrim";
         SprocketRatingModule,
         forwardRef(() => FranchiseModule),
         forwardRef(() => IdentityModule),
+        forwardRef(() => OrganizationModule),
     ],
     providers: [
         MledbPlayerService,

@@ -3,11 +3,15 @@ import {MessagePattern, Payload} from "@nestjs/microservices";
 import type {CoreOutput} from "@sprocketbot/common";
 import {CoreEndpoint, CoreSchemas} from "@sprocketbot/common";
 
+import {ScheduleFixtureService} from "../schedule-fixture/schedule-fixture.service";
 import {MatchService} from "./match.service";
 
 @Controller("match")
 export class MatchController {
-    constructor(private readonly matchService: MatchService) {
+    constructor(
+        private readonly matchService: MatchService,
+        private readonly fixtureService: ScheduleFixtureService,
+    ) {
     }
 
     @MessagePattern(CoreEndpoint.GetMatchBySubmissionId)
@@ -21,9 +25,11 @@ export class MatchController {
             id: match.id,
             homeFranchise: {
                 id: matchParent.data.homeFranchiseId,
+                name: matchParent.data.homeFranchise.profile.title,
             },
             awayFranchise: {
                 id: matchParent.data.awayFranchiseId,
+                name: matchParent.data.awayFranchise.profile.title,
             },
         };
     }

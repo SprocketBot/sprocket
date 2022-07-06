@@ -1,9 +1,10 @@
-import {Injectable} from "@nestjs/common";
+import {Injectable, Logger} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 
 import type {ScheduledEvent, ScrimMeta} from "../../database";
 import {
+    Franchise,
     Invalidation, Match, ScheduleFixture,
 } from "../../database";
 import {PopulateService} from "../../util/populate/populate.service";
@@ -21,6 +22,8 @@ export type MatchParentResponse = {
 
 @Injectable()
 export class MatchService {
+    private readonly logger = new Logger(MatchService.name);
+
     constructor(
         @InjectRepository(Match) private matchRepo: Repository<Match>,
         @InjectRepository(Invalidation) private invalidationRepo: Repository<Invalidation>,
@@ -57,12 +60,14 @@ export class MatchService {
         });
 
         if (populatedMatch.matchParent.fixture) {
+            this.logger.debug("Populating Fixture");
             populatedMatch.matchParent.fixture.homeFranchise = await this.popService.populateOneOrFail(ScheduleFixture, populatedMatch.matchParent.fixture, "homeFranchise");
+            populatedMatch.matchParent.fixture.homeFranchise.profile = await this.popService.populateOneOrFail(Franchise, populatedMatch.matchParent.fixture.homeFranchise, "profile");
             populatedMatch.matchParent.fixture.homeFranchiseId = populatedMatch.matchParent.fixture.homeFranchise.id;
 
             populatedMatch.matchParent.fixture.awayFranchise = await this.popService.populateOneOrFail(ScheduleFixture, populatedMatch.matchParent.fixture, "awayFranchise");
+            populatedMatch.matchParent.fixture.awayFranchise.profile = await this.popService.populateOneOrFail(Franchise, populatedMatch.matchParent.fixture.awayFranchise, "profile");
             populatedMatch.matchParent.fixture.awayFranchiseId = populatedMatch.matchParent.fixture.awayFranchise.id;
-
             return {
                 type: "fixture",
                 data: populatedMatch.matchParent.fixture,
