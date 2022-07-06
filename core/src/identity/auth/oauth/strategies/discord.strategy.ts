@@ -1,4 +1,6 @@
-import {Injectable, Logger} from "@nestjs/common";
+import {
+    forwardRef, Inject, Injectable, Logger,
+} from "@nestjs/common";
 import {PassportStrategy} from "@nestjs/passport";
 import {
     AnalyticsEndpoint, AnalyticsService, config,
@@ -30,12 +32,17 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         private readonly userService: UserService,
         private readonly memberService: MemberService,
         private readonly memberPlatformAccountService: MemberPlatformAccountService,
-        private readonly playerService: PlayerService,
         private readonly platformService: PlatformService,
-        private readonly skillGroupService: GameSkillGroupService,
+        @Inject(forwardRef(() => MledbPlayerService))
         private readonly mledbPlayerService: MledbPlayerService,
+        @Inject(forwardRef(() => MledbPlayerAccountService))
         private readonly mledbPlayerAccountService: MledbPlayerAccountService,
         private readonly analyticsService: AnalyticsService,
+        @Inject(forwardRef(() => GameSkillGroupService))
+        private readonly skillGroupService: GameSkillGroupService,
+        @Inject(forwardRef(() => PlayerService))
+        private readonly playerService: PlayerService,
+
     ) {
         super({
             clientID: config.auth.discord.clientId,

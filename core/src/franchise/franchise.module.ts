@@ -1,6 +1,7 @@
 import {forwardRef, Module} from "@nestjs/common";
 
 import {DatabaseModule} from "../database";
+import {MledbInterfaceModule} from "../mledb";
 import {OrganizationModule} from "../organization/organization.module";
 import {UtilModule} from "../util/util.module";
 import {FranchiseController} from "./franchise/franchise.controller";
@@ -17,6 +18,7 @@ import {PlayerService} from "./player";
         DatabaseModule,
         UtilModule,
         forwardRef(() => OrganizationModule),
+        forwardRef(() => MledbInterfaceModule),
     ],
     providers: [
         PlayerService,
