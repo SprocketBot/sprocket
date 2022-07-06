@@ -1,13 +1,21 @@
 import {Injectable} from "@nestjs/common";
 import type {
     BaseReplaySubmission,
-    ProgressMessage,     ReplaySubmission, ReplaySubmissionItem, ReplaySubmissionRejection,
-    ReplaySubmissionStats,    ScrimReplaySubmission,
+    ProgressMessage,
+    ReplaySubmission,
+    ReplaySubmissionItem,
+    ReplaySubmissionRejection,
+    ReplaySubmissionStats,
+    ScrimReplaySubmission,
     Task,
 } from "@sprocketbot/common";
 import {
+    CoreEndpoint,
+    CoreService,
     EventsService,
-    MatchmakingEndpoint, MatchmakingService, RedisService,
+    MatchmakingEndpoint,
+    MatchmakingService,
+    RedisService,
     ReplaySubmissionType,
     ResponseStatus,
 } from "@sprocketbot/common";
@@ -22,6 +30,7 @@ export class ReplaySubmissionCrudService {
         private readonly redisService: RedisService,
         private readonly matchmakingService: MatchmakingService,
         private readonly eventService: EventsService,
+        private readonly coreService: CoreService,
     ) {}
 
     async getSubmission(submissionId: string): Promise<ReplaySubmission | undefined> {
@@ -56,7 +65,15 @@ export class ReplaySubmissionCrudService {
                 scrimId: scrim.id,
             } as ScrimReplaySubmission;
         } else if (submissionIsMatch(submissionId)) {
-            throw new Error("Creating submissions for matches is not yet supported");
+            const result = await this.coreService.send(CoreEndpoint.GetMatchBySubmissionId, {submissionId});
+            if (result.status === ResponseStatus.ERROR) throw result.error;
+            const match = result.data;
+            if (typeof match === "undefined") throw new Error(`Unable to create submission, could not find a match associated with submissionId=${submissionId}`);
+            submission = {
+                ...commonFields,
+                type: ReplaySubmissionType.MATCH,
+                matchId: match.id,
+            };
         } else {
             throw new Error("Unable to identify submission type.");
         }

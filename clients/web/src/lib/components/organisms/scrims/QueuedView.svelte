@@ -5,7 +5,7 @@
     import PendingView from "./QueuedSubViews/PendingView.svelte";
     import PoppedView from "./QueuedSubViews/PoppedView.svelte";
     import InProgressView from "./QueuedSubViews/InProgressView.svelte";
-    import RatificationView from "./QueuedSubViews/RatificationView.svelte";
+    import RatificationView from "../RatificationView.svelte";
     import LockedView from "./QueuedSubViews/LockedView.svelte";
 
 
@@ -35,7 +35,7 @@
         {/if}
     {:else if data.status === "RATIFYING"}
         {#if $submissionStore?.data?.submission}
-            <RatificationView scrim={data} submission={$submissionStore?.data?.submission} submissionId={data.submissionId}/>
+            <RatificationView submission={$submissionStore?.data?.submission} submissionId={data.submissionId}/>
         {:else}
             <div class="h-20">
                 <Spinner/>
