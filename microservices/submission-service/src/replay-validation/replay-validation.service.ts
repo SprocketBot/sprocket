@@ -148,6 +148,39 @@ export class ReplayValidationService {
                         };
                     }
                 }
+                if (scrimTeam.length !== submissionTeam.length) {
+                    return {
+                        valid: false,
+                        errors: [ {
+                            error: "Invalid team size",
+                            gameIndex: g,
+                            teamIndex: t,
+                        } ],
+                    };
+                }
+            }
+            if (scrimGame.length !== submissionGame.length) {
+                return {
+                    valid: false,
+                    errors: [ {
+                        error: "Invalid team count",
+                        gameIndex: g,
+                    } ],
+                };
+            }
+        }
+
+        // ========================================
+        // Validate players are in the correct skill group
+        // ========================================
+        for (const player of players) {
+            if (player.skillGroupId !== scrim.skillGroupId) {
+                return {
+                    valid: false,
+                    errors: [ {
+                        error: "One of the players isn't in the correct skill group",
+                    } ],
+                };
             }
         }
 
