@@ -20,6 +20,7 @@ import {
     ScrimMeta,
     TeamStatLine,
 } from "../../database";
+import {EloConnectorService} from "../../elo-connector/elo-connector.service";
 import {PlayerService} from "../../franchise";
 import {MledbScrimService} from "../../mledb/mledb-scrim/mledb-scrim.service";
 import {SprocketRatingService} from "../../sprocket-rating/sprocket-rating.service";
@@ -37,6 +38,7 @@ export class FinalizationService {
         private readonly ballchasingConverter: BallchasingConverterService,
         private readonly playerService: PlayerService,
         private readonly sprocketRatingService: SprocketRatingService,
+        private readonly eloConnectorService: EloConnectorService,
         @InjectConnection() private readonly dbConn: Connection,
         @InjectRepository(ScrimMeta) private readonly scrimMetaRepo: Repository<ScrimMeta>,
         @InjectRepository(MatchParent) private readonly matchParentRepo: Repository<MatchParent>,
@@ -171,6 +173,8 @@ export class FinalizationService {
         match.matchParent = matchParent;
 
         match.rounds = rounds;
+        // Ship the match off to elo service
+        await this.eloConnectorService.runEloForSeries(match);
         rounds.forEach(r => { r.match = match });
 
         playerEligibilities.forEach(pe => { pe.matchParent = matchParent });

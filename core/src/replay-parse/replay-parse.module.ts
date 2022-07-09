@@ -6,6 +6,7 @@ import {
 import {PubSub} from "apollo-server-express";
 
 import {DatabaseModule} from "../database";
+import {EloConnectorModule} from "../elo-connector/elo-connector.module";
 import {FranchiseModule} from "../franchise";
 import {IdentityModule} from "../identity";
 import {MledbInterfaceModule} from "../mledb";
@@ -34,6 +35,7 @@ import {ReplayParseService} from "./replay-parse.service";
         FranchiseModule,
         IdentityModule,
         SprocketRatingModule,
+        EloConnectorModule,
     ],
     providers: [
         ReplayParseModResolver,

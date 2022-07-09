@@ -2,6 +2,7 @@ import {BullModule} from "@nestjs/bull";
 import {Module} from "@nestjs/common";
 import {config} from "@sprocketbot/common";
 
+import {EloConnectorController} from "./elo-connector.controller";
 import {EloConnectorService} from "./elo-connector.service";
 
 @Module({
@@ -22,5 +23,7 @@ import {EloConnectorService} from "./elo-connector.service";
         BullModule.registerQueue({name: "elo"}),
     ],
     providers: [EloConnectorService],
+    exports: [EloConnectorService],
+    controllers: [EloConnectorController],
 })
 export class EloConnectorModule { }
