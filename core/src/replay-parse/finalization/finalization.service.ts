@@ -20,6 +20,7 @@ import {
     ScrimMeta,
     TeamStatLine,
 } from "../../database";
+import type {SeriesStatsPayload} from "../../elo-connector/elo.types";
 import {EloConnectorService} from "../../elo-connector/elo-connector.service";
 import {PlayerService} from "../../franchise";
 import {MledbScrimService} from "../../mledb/mledb-scrim/mledb-scrim.service";
@@ -174,7 +175,8 @@ export class FinalizationService {
 
         match.rounds = rounds;
         // Ship the match off to elo service
-        await this.eloConnectorService.runEloForSeries(match);
+        const eloPayload: SeriesStatsPayload = this.eloConnectorService.translatePayload(matchParent, false);
+        await this.eloConnectorService.runEloForSeries(eloPayload, false);
         rounds.forEach(r => { r.match = match });
 
         playerEligibilities.forEach(pe => { pe.matchParent = matchParent });
