@@ -19,7 +19,7 @@ import {EloConnectorService} from "./elo-connector.service";
                     : undefined,
             },
         }),
-        BullModule.registerQueue({name: "scrim"}),
+        BullModule.registerQueue({name: "elo"}),
     ],
     providers: [EloConnectorService],
 })
