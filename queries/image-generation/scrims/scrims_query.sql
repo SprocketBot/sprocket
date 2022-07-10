@@ -263,7 +263,7 @@ games_data AS(
 		SELECT *,
 		ROW_NUMBER() OVER (PARTITION BY cpd.replay_id, cpd.player_team_color ORDER BY cpd.score DESC) AS n
 		FROM player_game_data cpd
-		ORDER BY replay_id, player_team_color DESC, player->>'value' DESC
+		ORDER BY replay_id, player_team_color DESC, UPPER(player->>'value') DESC
 	),
 	team_replay_data AS(
 		SELECT
