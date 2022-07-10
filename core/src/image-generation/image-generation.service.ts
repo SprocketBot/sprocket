@@ -23,8 +23,8 @@ export class ImageGenerationService {
         const result = await this.igService.send(
             ImageGenerationEndpoint.GenerateImage,
             {
-                inputFile: `scrim_report_cards/scrimReportCards/template.svg`,
-                outputFile: `scrim_report_cards/scrimReportCards/outputs/${scrimId}_1`,
+                inputFile: `scrim_report_cards/scrimReportCards2/template.svg`,
+                outputFile: `scrim_report_cards/scrimReportCards2/outputs/${scrimId}_1`,
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 template: data[0].data,
             },
