@@ -19,7 +19,7 @@ function serve() {
 	return {
 		writeBundle() {
 			if (server) return;
-			// eslint-disable-next-line @typescript-eslint/no-var-requires
+			// eslint-disable-next-line
 			server = require('child_process').spawn('npm', ['run', 'start', '--', '--dev'], {
 				stdio: ['ignore', 'inherit', 'inherit'],
 				shell: true
