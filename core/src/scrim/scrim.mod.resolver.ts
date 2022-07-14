@@ -25,6 +25,7 @@ import {QueueBanGuard} from "../organization";
 import {ScrimPubSub} from "./constants";
 import {CreateScrimPlayerGuard, JoinScrimPlayerGuard} from "./scrim.guard";
 import {ScrimService} from "./scrim.service";
+import {ScrimToggleService} from "./scrim-toggle";
 import {
     CreateScrimInput, Scrim, ScrimEvent,
 } from "./types";
@@ -62,6 +63,7 @@ export class ScrimModuleResolver {
         private readonly gameModeService: GameModeService,
         private readonly skillGroupService: GameSkillGroupService,
         private readonly organizationConfigurationService: OrganizationConfigurationService,
+        private readonly scrimToggleService: ScrimToggleService,
     ) {}
 
     /*
@@ -127,6 +129,7 @@ export class ScrimModuleResolver {
         @Args("data") data: CreateScrimInput,
     ): Promise<Scrim> {
         if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organization");
+        if (await this.scrimToggleService.scrimsAreDisabled()) throw new GraphQLError("Scrims are disabled");
 
         const gameMode = await this.gameModeService.getGameModeById(data.settings.gameModeId);
         const player = await this.playerService.getPlayerByOrganizationAndGame(user.userId, user.currentOrganizationId, gameMode.gameId);
