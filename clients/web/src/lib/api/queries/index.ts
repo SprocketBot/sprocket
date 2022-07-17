@@ -9,3 +9,4 @@ export * from "./ActiveScrimPlayers.store";
 export * from "./RestrictedPlayers.store";
 export * from "./GetMemberByUserId";
 export * from "./Submission.store";
+export * from "./ScrimsDisabled.store";
