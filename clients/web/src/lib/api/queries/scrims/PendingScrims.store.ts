@@ -54,24 +54,24 @@ class PendingScrimsStore extends LiveQueryStore<PendingScrimsData, PendingScrims
     }`;
 
     protected subscriptionString = gql<FollowScrimsData, {}>`
-    subscription {
-        pendingScrim: followPendingScrims {
-            id
-            playerCount
-            maxPlayers
-            status
-            gameMode {
-                description
-                game {
-                    title
+        subscription {
+            pendingScrim: followPendingScrims {
+                id
+                playerCount
+                maxPlayers
+                status
+                gameMode {
+                    description
+                    game {
+                        title
+                    }
+                }
+                settings {
+                    competitive
+                    mode
                 }
             }
-            settings {
-                competitive
-                mode
-            }
         }
-    }
     `;
 
     constructor() {

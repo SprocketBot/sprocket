@@ -1,0 +1,22 @@
+{
+    "minio": {
+        "access": "",
+        "secret": "",
+        "endpoint": "",
+        "bucket": "",
+        "ssl": true     
+    },
+    "knex":{
+        "host": "",
+        "port":0,
+        "user": "",
+        "database": "",
+        "enable_logs": false,
+        "password": "",
+        "ssl":{ "rejectUnauthorized": false }
+      },
+    "transport": {
+        "url": "",
+        "queue": "dev-image-generation"
+    }
+}

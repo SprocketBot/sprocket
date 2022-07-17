@@ -1,38 +1,50 @@
 <script lang="ts">
-  import {ScrimManagementModal} from "$lib/components";
-  import {screamingSnakeToHuman} from "$lib/utils";
-  import type {CurrentScrim} from "../../../api";
-  import {activeScrims, type ActiveScrims} from "$lib/api";
-  import FaLockOpen from "svelte-icons/fa/FaLockOpen.svelte";
-  import FaLock from "svelte-icons/fa/FaLock.svelte";
+    import {ScrimManagementModal} from "$lib/components";
+    import {screamingSnakeToHuman} from "$lib/utils";
+    import {
+        setScrimsDisabledMutation, type CurrentScrim,
+    } from "../../../api";
+    import {activeScrims, type ActiveScrims} from "$lib/api";
+    import FaLockOpen from "svelte-icons/fa/FaLockOpen.svelte";
+    import FaLock from "svelte-icons/fa/FaLock.svelte";
+    import {scrimsDisabled} from "$lib/api/queries/ScrimsDisabled.store";
 
-  /*
-        TODO: Create/Implement Search
-        TODO: Figure out Visibility status pattern from CreateScrimModal and Scrim Table
-     */
+    /*
+            TODO: Create/Implement Search
+            TODO: Figure out Visibility status pattern from CreateScrimModal and Scrim Table
+        */
 
-  let scrimManagementModalVisible = false;
-  let targetId: string;
-  let scrimsLocked: boolean = false;
+    let scrimManagementModalVisible = false;
+    let targetId: string;
 
-  // TODO: Implement Lock Scrim Workflow
+    let scrimsAreDisabled: boolean;
+    $: scrimsAreDisabled = $scrimsDisabled.data?.getScrimsDisabled;
 
-  let activeScrimsData: ActiveScrims | undefined;
-  $: activeScrimsData = $activeScrims?.data?.activeScrims;
+    // TODO: Implement Lock Scrim Workflow
 
-  let targetScrim: CurrentScrim | undefined;
+    let activeScrimsData: ActiveScrims | undefined;
+    $: activeScrimsData = $activeScrims?.data?.activeScrims;
 
-  let selectedPlayer: string | undefined;
+    let targetScrim: CurrentScrim | undefined;
 
-  const selectPlayerInTable = (playerId: string) => {
-      selectedPlayer = playerId;
-  };
-  const openScrimManagementModal = (scrimId: string) => {
-      scrimManagementModalVisible = true;
-      targetId = scrimId;
-      const targetScrims = activeScrimsData?.filter(s => s.id === targetId);
-      targetScrim = targetScrims ? targetScrims[0] : undefined;
-  };
+    let selectedPlayer: string | undefined;
+
+    const selectPlayerInTable = (playerId: string) => {
+        selectedPlayer = playerId;
+    };
+    const openScrimManagementModal = (scrimId: string) => {
+        scrimManagementModalVisible = true;
+        targetId = scrimId;
+        const targetScrims = activeScrimsData?.filter(s => s.id === targetId);
+        targetScrim = targetScrims ? targetScrims[0] : undefined;
+    };
+    const toggleScrimsDisabled = async (disabled: boolean) => {
+        try {
+            await setScrimsDisabledMutation({disabled});
+        } catch {
+            console.log(`Failed to ${disabled ? "disable" : "enable"} scrims`);
+        }
+};
 </script>
 
 <table class="table text-center w-full">
@@ -45,12 +57,12 @@
       <th>
         <button
           class="float-right btn btn-outline btn-accent btn-sm"
-          on:click={() => {
-            scrimsLocked = !scrimsLocked;
+          on:click={async () => {
+            await toggleScrimsDisabled(!scrimsAreDisabled);
           }}
         >
           <span class="h-3.5 w-4">
-            {#if scrimsLocked}
+            {#if scrimsAreDisabled}
               <FaLock />
             {:else}
               <FaLockOpen />
@@ -65,7 +77,7 @@
       {#each activeScrimsData as scrim (scrim.id)}
         <tr>
           <td>{scrim.id}</td>
-          <td>{scrim.settings.competitive ? 'Competitive' : 'Casual'} {screamingSnakeToHuman(scrim.settings.mode)} {scrim.gameMode.description}</td>
+          <td>{scrim.settings.competitive ? "Competitive" : "Casual"} {screamingSnakeToHuman(scrim.settings.mode)} {scrim.gameMode.description}</td>
           <td>{scrim.status}</td>
           {#if scrim.players?.length || scrim.playersAdmin?.length}
             <td>
