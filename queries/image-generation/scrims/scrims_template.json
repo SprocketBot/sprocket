@@ -73,6 +73,10 @@
         "type": "text",
         "description": "name of #1 player based on record then rating"
       },
+      "salary": {
+        "type": "number",
+        "description": "the player's current salary"
+      },
       "wins": {
         "type": "number",
         "description": "# of wins"
@@ -118,6 +122,10 @@
       "name": {
         "type": "text",
         "description": "name of #2"
+      },
+      "salary": {
+        "type": "number",
+        "description": "the player's current salary"
       },
       "wins": {
         "type": "number",
@@ -165,6 +173,10 @@
         "type": "text",
         "description": "name of #3"
       },
+      "salary": {
+        "type": "number",
+        "description": "the player's current salary"
+      },
       "wins": {
         "type": "number",
         "description": "# of wins"
@@ -210,6 +222,10 @@
       "name": {
         "type": "text",
         "description": "name of #4"
+      },
+      "salary": {
+        "type": "number",
+        "description": "the player's current salary"
       },
       "wins": {
         "type": "number",
@@ -257,6 +273,10 @@
         "type": "text",
         "description": "name of #5"
       },
+      "salary": {
+        "type": "number",
+        "description": "the player's current salary"
+      },
       "wins": {
         "type": "number",
         "description": "# of wins"
@@ -302,6 +322,10 @@
       "name": {
         "type": "text",
         "description": "name of #6"
+      },
+      "salary": {
+        "type": "number",
+        "description": "the player's current salary"
       },
       "wins": {
         "type": "number",

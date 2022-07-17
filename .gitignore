@@ -110,3 +110,7 @@ dist
 .run/
 
 clients/image-generation-frontend/build/
+
+clients/image-generation-frontend/src/ca-certificate.cer
+
+clients/image-generation-frontend/src/config.json
