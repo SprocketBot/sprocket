@@ -2,6 +2,8 @@ import type {OperationResult} from "@urql/core";
 import {gql} from "@urql/core";
 import {LiveQueryStore} from "../../core/LiveQueryStore";
 
+console.log("Hi");
+
 export interface MetricsResult {
     metrics: {
         pendingScrims: number;
@@ -15,7 +17,7 @@ export interface MetricsResult {
 }
 
 interface MetricsVariables {}
-
+console.log("Hi2");
 class ScrimMetricsStore extends LiveQueryStore<MetricsResult, MetricsVariables> {
     protected queryString = gql<MetricsResult>`
     query {
@@ -39,12 +41,16 @@ class ScrimMetricsStore extends LiveQueryStore<MetricsResult, MetricsVariables> 
             playersScrimming
             totalScrims
             totalPlayers
-            completedScrims(period:HOUR)
-            previousCompletedScrims(period:HOUR)
+            completedScrims(period: HOUR)
+            previousCompletedScrims(period: HOUR)
         }
     }`;
 
+    protected _subVars = {};
+
+
     constructor() {
+        console.log("3");
         super();
         this._vars = {};
         this.subscriptionVariables = {};

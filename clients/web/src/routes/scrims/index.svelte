@@ -1,8 +1,9 @@
 <script lang="ts">
-    import {currentScrim} from "$lib/api";
-    import type {MetricsResult} from "$lib/api/queries/ScrimMetrics.store";
-    import {scrimMetrics} from "$lib/api/queries/ScrimMetrics.store";
-    import {scrimsDisabled} from "$lib/api/queries/ScrimsDisabled.store";
+    import {
+        currentScrim, scrimsDisabled, scrimMetrics,
+    } from "$lib/api";
+    import type {MetricsResult} from "$lib/api";
+
 
     import {
         AvailableScrimsView,
