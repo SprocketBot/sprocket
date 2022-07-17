@@ -16,6 +16,7 @@
       if (!$activeScrims.data?.activeScrims.some(ps => ps.id === targetScrim.id)) {
           visible = false;
       }
+
   }
   
 
