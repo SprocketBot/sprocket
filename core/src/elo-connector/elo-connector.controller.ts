@@ -7,12 +7,12 @@ import {TestPayload1} from "./elo-connector.test-data";
 export class EloConnectorController {
     constructor(private readonly eloConnectorService: EloConnectorService) { }
 
-    @Get("/testQueue")
+    @Get("testQueue")
     async trySalaries(): Promise<void> {
         await this.eloConnectorService.processSalaries(true);
     }
 
-    @Get("/testSeriesProcessing")
+    @Get("testSeriesProcessing")
     async trySeries(): Promise<void> {
         await this.eloConnectorService.runEloForSeries(TestPayload1, false);
     }

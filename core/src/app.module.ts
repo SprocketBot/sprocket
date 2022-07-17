@@ -6,7 +6,7 @@ import {graphqlUploadExpress} from "graphql-upload";
 
 import {ConfigurationModule} from "./configuration";
 import {DatabaseModule} from "./database";
-import {EloConnectorModule} from "./elo-connector/elo-connector.module";
+import {EloConnectorModule} from "./elo-connector";
 import {FranchiseModule} from "./franchise";
 import {GameModule} from "./game";
 import {IdentityModule} from "./identity";
