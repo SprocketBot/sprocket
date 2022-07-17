@@ -70,6 +70,11 @@ export class EloConnectorService {
         this.logger.verbose(`Started job 'series' in bull with ${JSON.stringify(job)} returned.`);
     }
 
+    async sendReplaysToElo(replayIds: number[], isNcp: boolean): Promise<void> {
+        const job = await this.eloQueue.add("ncps", {replayIds, isNcp});
+        this.logger.verbose(`Started job 'ncps' in bull with ${JSON.stringify(job)} returned.`);
+    }
+
     translatePayload(matchParent: MatchParent, isScrim: boolean): SeriesStatsPayload {
         const match = matchParent.match;
         const payload: Partial<SeriesStatsPayload> = {
@@ -179,6 +184,7 @@ export class EloConnectorService {
         }
 
         // Magic happens here to talk to the ELO service
+        await this.sendReplaysToElo(replayIds, isNcp);
 
         const outStr = `\`${replayIds.length === 1
             ? `replayId=${replayIds[0]}`
