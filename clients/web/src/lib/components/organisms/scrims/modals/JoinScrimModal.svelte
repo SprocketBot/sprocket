@@ -16,7 +16,6 @@
         if (!$pendingScrims.data?.pendingScrims.some(ps => ps.id === scrimId)) {
             visible = false;
         }
-
     }
 
     async function joinSolo() {
