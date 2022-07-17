@@ -26,6 +26,11 @@ export enum SkillGroups {
     PREMIER = 4,
 }
 
+export enum SeriesType {
+    Fixture = 0,
+    Scrim = 1,
+}
+
 export const NUM_SKILL_GROUPS = 5;
 
 export enum DegreeOfStiffness {
@@ -35,6 +40,7 @@ export enum DegreeOfStiffness {
 }
 
 export interface RankoutPayload {
+    newSalary: number;
     sgDelta: number;
     degreeOfStiffness: DegreeOfStiffness;
 }
@@ -44,6 +50,11 @@ export interface SalaryPayloadItem {
     newSalary: number;
     sgDelta: number;
     degreeOfStiffness: DegreeOfStiffness;
+}
+
+export interface SalaryJobPayload {
+    jobType: string;
+    data: SalaryPayloadItem[][];
 }
 
 export interface Player {
