@@ -12,6 +12,7 @@ import {
     GameSkillGroupController, GameSkillGroupResolver, GameSkillGroupService,
 } from "./game-skill-group";
 import {PlayerService} from "./player";
+import {PlayerResolver} from "./player/player.resolver";
 
 @Module({
     imports: [
@@ -27,6 +28,7 @@ import {PlayerService} from "./player";
         FranchiseService,
         FranchiseResolver,
         FranchiseProfileResolver,
+        PlayerResolver,
     ],
     exports: [
         PlayerService,

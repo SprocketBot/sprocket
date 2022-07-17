@@ -2,7 +2,7 @@ import {
     ResolveField, Resolver, Root,
 } from "@nestjs/graphql";
 
-import type {GameSkillGroupProfile} from "../../database";
+import type {Game, GameSkillGroupProfile} from "../../database";
 import {GameSkillGroup} from "../../database";
 import {PopulateService} from "../../util/populate/populate.service";
 
@@ -13,5 +13,10 @@ export class GameSkillGroupResolver {
     @ResolveField()
     async profile(@Root() root: GameSkillGroup): Promise<GameSkillGroupProfile> {
         return this.popService.populateOneOrFail(GameSkillGroup, root, "profile");
+    }
+
+    @ResolveField()
+    async game(@Root() root: GameSkillGroup): Promise<Game> {
+        return this.popService.populateOneOrFail(GameSkillGroup, root, "game");
     }
 }

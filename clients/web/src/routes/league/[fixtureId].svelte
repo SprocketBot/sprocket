@@ -16,6 +16,7 @@
 	} from "$lib/components";
 	import type {LeagueFixtureValue} from "$lib/api";
 	import {goto} from "$app/navigation";
+import {currentUser} from "../../lib/index.js";
 
 	export let fixtureId: number;
 	export let fixtureStore: LeagueFixtureStore;
@@ -25,6 +26,13 @@
 
 	let fixture: LeagueFixtureValue;
 	$: fixture = $fixtureStore.data?.fixture;
+
+	let currentUserFranchise: string;
+	$: currentUserFranchise = $currentUser.data?.me.members[0].players[0].franchiseName;
+
+
+	let canSubmit = false;
+	$: canSubmit = fixture?.awayFranchise.profile.title === currentUserFranchise || fixture?.homeFranchise.profile.title === currentUserFranchise;
 
 </script>
 
@@ -45,10 +53,12 @@
 							<header>
 								<h3 class="text-2xl font-bold">{m.skillGroup.description}</h3>
 							</header>
-							{#if m.submitted}
-								<span>Already Submitted</span>
-							{:else}
-								<button on:click={async () => goto(`/league/submit/${m.submissionId}`)} class="btn btn-outline btn-primary mx-auto">Submit Replays</button>
+							{#if canSubmit}
+								{#if m.submitted}
+									<span>Already Submitted</span>
+								{:else}
+									<button on:click={async () => goto(`/league/submit/${m.submissionId}`)} class="btn btn-outline btn-primary mx-auto">Submit Replays</button>
+								{/if}
 							{/if}
 						</section>
 					{/each}

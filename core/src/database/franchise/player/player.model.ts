@@ -33,4 +33,10 @@ export class Player extends BaseModel {
     @OneToOne(() => RosterSlot, rs => rs.player, {nullable: true})
     @Field(() => RosterSlot, {nullable: true})
     slot?: RosterSlot;
+
+    @Field(() => String)
+    franchiseName: string;
+
+    @Field(() => [String])
+    franchisePositions: string[];
 }
