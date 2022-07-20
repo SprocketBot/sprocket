@@ -15,9 +15,27 @@ import {ReplayUploadController} from "./replay-upload.controller";
 import {StatsConverterService} from "./stats-converter/stats-converter.service";
 
 @Module({
-    imports: [RedisModule, MatchmakingModule, EventsModule, MinioModule, CeleryModule, forwardRef(() => ReplayValidationModule)],
-    providers: [ReplaySubmissionService, ReplaySubmissionCrudService, ReplaySubmissionUtilService, ReplayParseSubscriber, ReplaySubmissionRatificationService, StatsConverterService],
-    controllers: [ReplayUploadController, ReplaySubmissionRatificationController, ReplaySubmissionCrudController],
+    imports: [
+        RedisModule,
+        MatchmakingModule,
+        EventsModule,
+        MinioModule,
+        CeleryModule,
+        forwardRef(() => ReplayValidationModule),
+    ],
+    providers: [
+        ReplaySubmissionService,
+        ReplaySubmissionCrudService,
+        ReplaySubmissionUtilService,
+        ReplayParseSubscriber,
+        ReplaySubmissionRatificationService,
+        StatsConverterService,
+    ],
+    controllers: [
+        ReplayUploadController,
+        ReplaySubmissionRatificationController,
+        ReplaySubmissionCrudController,
+    ],
     exports: [ReplaySubmissionCrudService],
 })
 export class ReplaySubmissionModule {}
