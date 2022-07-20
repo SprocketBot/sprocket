@@ -5,14 +5,14 @@ import type {
 import {
     config,
     CoreEndpoint, CoreService, MatchmakingEndpoint,
-    MatchmakingService, MinioService, ReplaySubmissionType,
+    MatchmakingService, MinioService, readToString,
+    ReplaySubmissionType,
     ResponseStatus,
 } from "@sprocketbot/common";
 
 import type {UserWithPlatformId} from "./types/user-with-platform-id";
 import type {ValidationResult} from "./types/validation-result";
-import {readableToString} from "./utils";
-import {sortIds} from "./utils/deepSort";
+import {sortIds} from "./utils";
 
 @Injectable()
 export class ReplayValidationService {
@@ -194,7 +194,7 @@ export class ReplayValidationService {
 
     private async getStats(outputPath: string): Promise<BallchasingResponse> {
         const r = await this.minioService.get(config.minio.bucketNames.replays, outputPath);
-        const stats = await readableToString(r);
+        const stats = await readToString(r);
         return JSON.parse(stats).data as BallchasingResponse;
     }
 
