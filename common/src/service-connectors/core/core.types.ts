@@ -19,7 +19,6 @@ export enum CoreEndpoint {
     GetGameSkillGroupProfile = "GetGameSkillGroupProfile",
     GetScrimReportCardWebhooks = "GetScrimReportCardWebhooks",
     GetUsersLatestScrim = "GetUsersLatestScrim",
-    GetUserByDiscordId = "GetUserByDiscordId",
 }
 
 export const CoreSchemas = {
@@ -82,10 +81,6 @@ export const CoreSchemas = {
     [CoreEndpoint.GetUsersLatestScrim]: {
         input: Schemas.GetUsersLastScrim_Request,
         output: Schemas.GetUsersLastScrim_Response,
-    },
-    [CoreEndpoint.GetUserByDiscordId]: {
-        input: Schemas.GetUserByDiscordId_Request,
-        output: Schemas.GetUserByDiscordId_Response,
     },
 };
 

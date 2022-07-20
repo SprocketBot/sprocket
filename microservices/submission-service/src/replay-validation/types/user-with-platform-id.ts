@@ -1,6 +1,6 @@
-import type {GetUserByDiscordIdResponse} from "@sprocketbot/common";
+import type {GetUserByAuthAccountResponse} from "@sprocketbot/common";
 
-export type UserWithPlatformId = GetUserByDiscordIdResponse & {
+export type UserWithPlatformId = GetUserByAuthAccountResponse & {
     platform: string;
     platformId: string;
 };

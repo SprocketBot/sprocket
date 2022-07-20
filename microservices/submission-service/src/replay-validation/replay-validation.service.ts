@@ -97,7 +97,7 @@ export class ReplayValidationService {
         }
         const players = playersResponse.data;
 
-        const userIdsResponses = await Promise.all(players.map(async p => this.coreService.send(CoreEndpoint.GetUserByDiscordId, {discordId: p.discordId})));
+        const userIdsResponses = await Promise.all(players.map(async p => this.coreService.send(CoreEndpoint.GetUserByAuthAccount, {accountType: "DISCORD", accountId: p.discordId})));
         if (userIdsResponses.some(r => r.status === ResponseStatus.ERROR)) {
             this.logger.error(`Unable to validate submission, couldn't map from MLE player to Sprocket user by discordId`, JSON.stringify(userIdsResponses));
             return {
@@ -105,7 +105,7 @@ export class ReplayValidationService {
                 errors: [],
             };
         }
-        const userIds = userIdsResponses.map(r => (r as CoreSuccessResponse<CoreEndpoint.GetUserByDiscordId>).data);
+        const userIds = userIdsResponses.map(r => (r as CoreSuccessResponse<CoreEndpoint.GetUserByAuthAccount>).data);
         
         // Add platformIds to players
         const userAndPlatformIds: UserWithPlatformId[] = userIds.map((u, i) => ({
