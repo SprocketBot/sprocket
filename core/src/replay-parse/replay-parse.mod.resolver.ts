@@ -8,7 +8,6 @@ import {
     ResponseStatus, SubmissionEndpoint, SubmissionService,
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
-import GraphQLJSON from "graphql-type-json";
 import type {FileUpload} from "graphql-upload";
 import {GraphQLUpload} from "graphql-upload";
 
@@ -18,6 +17,8 @@ import {ReplayParsePubSub} from "./replay-parse.constants";
 import {ReplayParseService} from "./replay-parse.service";
 import type {ReplaySubmission} from "./types";
 import {GqlReplaySubmission} from "./types";
+import type {ValidationResult} from "./types/validation-result.types";
+import {ValidationResultUnion} from "./types/validation-result.types";
 
 @Resolver()
 @UseGuards(GqlJwtGuard)
@@ -78,9 +79,8 @@ export class ReplayParseModResolver {
         return this.pubsub.asyncIterator(submissionId);
     }
 
-    // TODO GraphQL type
-    @Mutation(() => GraphQLJSON)
-    async validateSubmission(@Args("submissionId") submissionId: string): Promise<unknown> {
+    @Mutation(() => ValidationResultUnion)
+    async validateSubmission(@Args("submissionId") submissionId: string): Promise<ValidationResult> {
         const response = await this.submissionService.send(SubmissionEndpoint.ValidateSubmission, {submissionId});
         if (response.status === ResponseStatus.ERROR) {
             throw response.error;
