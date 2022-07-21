@@ -238,7 +238,6 @@ export class EloConnectorService {
             if (!series.matchParent.scrimMeta) {
                 return `Error: series with id=\`${seriesId}\` has no associated scrim. If this is a league play series, please use \`!ncpSeries\` or \`!unNcpSeries\`. If this actually is a scrim, ping Bot Team.`;
             }
-            // winningTeam = await this.ts.resolveTeam("FA");
             winningTeam = await this.teamRepository.findOneOrFail(0); // TODO: ID for FA team
         } else {
             throw new Error();
