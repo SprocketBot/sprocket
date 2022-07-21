@@ -11,11 +11,11 @@ import {PopulateService} from "../../util/populate/populate.service";
 @Resolver(() => Franchise)
 export class FranchiseResolver {
     constructor(
-    @InjectRepository(Franchise)
-    private readonly franchiseRepo: Repository<Franchise>,
-    @InjectRepository(FranchiseProfile)
-    private readonly franchiseProfileRepo: Repository<FranchiseProfile>,
-    private readonly populate: PopulateService,
+        @InjectRepository(Franchise)
+        private readonly franchiseRepo: Repository<Franchise>,
+        @InjectRepository(FranchiseProfile)
+        private readonly franchiseProfileRepo: Repository<FranchiseProfile>,
+        private readonly populate: PopulateService,
     ) {
     }
 

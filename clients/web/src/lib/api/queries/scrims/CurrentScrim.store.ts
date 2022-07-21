@@ -1,8 +1,8 @@
 import type {OperationResult} from "@urql/core";
 import {gql} from "@urql/core";
-import {LiveQueryStore} from "$lib/api/core/LiveQueryStore";
-import {toasts} from "$lib/components";
-import {screamingSnakeToHuman} from "$lib/utils";
+import {LiveQueryStore} from "../../core/LiveQueryStore";
+import {toasts} from "../../../components";
+import {screamingSnakeToHuman} from "../../../utils";
 
 export interface CurrentScrim {
     id: string;

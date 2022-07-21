@@ -11,6 +11,8 @@ export const FranchiseProfileSchema = z.object({
 
 export const FranchiseSchema = z.object({
     id: z.number(),
+    // Used to relate to MLE Franchises
+    name: z.string(),
 });
 
 export type FranchiseProfile = z.infer<typeof FranchiseProfileSchema>;

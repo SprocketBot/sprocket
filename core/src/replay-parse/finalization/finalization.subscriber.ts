@@ -9,6 +9,7 @@ import {
     SubmissionService,
 } from "@sprocketbot/common";
 
+import type {Match} from "../../database";
 import {ScrimService} from "../../scrim";
 import type {ReplaySubmission} from "../types";
 import {FinalizationService} from "./finalization.service";
@@ -47,6 +48,31 @@ export class FinalizationSubscriber {
                 ...scrim,
                 databaseIds: ids,
             });
+        } catch (_e) {
+            const e = _e as Error;
+            this.logger.warn(e.message, e.stack);
+        }
+    };
+
+    onMatchSubmissionComplete = async (submissionId: string, match: Match): Promise<void> => {
+        const keyResponse = await this.submissionService.send(SubmissionEndpoint.GetSubmissionRedisKey, {submissionId});
+        if (keyResponse.status === ResponseStatus.ERROR) {
+            this.logger.warn(keyResponse.error.message);
+            return;
+        }
+        try {
+            const submission = await this.redisService.getJson<ReplaySubmission>(keyResponse.data.redisKey);
+            // Prevent "unused" linting errors
+            this.logger.verbose({match, submission});
+            // TODO: Save Match to Database
+            // const ids = await this.finalizationService.saveScrimToDatabase(submission, submissionId, scrim);
+
+            await this.submissionService.send(SubmissionEndpoint.RemoveSubmission, {submissionId});
+            // TODO: MatchSaved
+            // await this.eventsService.publish(EventTopic.ScrimSaved, {
+            //     ...scrim,
+            //     databaseIds: ids,
+            // });
         } catch (_e) {
             const e = _e as Error;
             this.logger.warn(e.message, e.stack);

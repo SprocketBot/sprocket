@@ -36,6 +36,7 @@ import {ReplayParseService} from "./replay-parse.service";
         IdentityModule,
         SprocketRatingModule,
         EloConnectorModule,
+        SubmissionModule,
     ],
     providers: [
         ReplayParseModResolver,

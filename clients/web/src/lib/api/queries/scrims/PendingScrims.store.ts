@@ -1,6 +1,6 @@
 import type {OperationResult} from "@urql/core";
 import {gql} from "@urql/core";
-import {LiveQueryStore} from "../core/LiveQueryStore";
+import {LiveQueryStore} from "../../core/LiveQueryStore";
 
 interface PendingScrim {
     id: string;

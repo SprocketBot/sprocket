@@ -4,6 +4,9 @@ import {
 import {
     Args, Mutation, Query, Resolver, Subscription,
 } from "@nestjs/graphql";
+import {
+    ResponseStatus, SubmissionEndpoint, SubmissionService,
+} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 import type {FileUpload} from "graphql-upload";
 import {GraphQLUpload} from "graphql-upload";
@@ -14,17 +17,20 @@ import {ReplayParsePubSub} from "./replay-parse.constants";
 import {ReplayParseService} from "./replay-parse.service";
 import type {ReplaySubmission} from "./types";
 import {GqlReplaySubmission} from "./types";
+import type {ValidationResult} from "./types/validation-result.types";
+import {ValidationResultUnion} from "./types/validation-result.types";
 
 @Resolver()
 @UseGuards(GqlJwtGuard)
 export class ReplayParseModResolver {
     constructor(
         private readonly rpService: ReplayParseService,
+        private readonly submissionService: SubmissionService,
         @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
     ) {}
 
-    @Query(() => GqlReplaySubmission)
-    async getSubmission(@Args("submissionId") submissionId: string): Promise<ReplaySubmission> {
+    @Query(() => GqlReplaySubmission, {nullable: true})
+    async getSubmission(@Args("submissionId") submissionId: string): Promise<ReplaySubmission | null> {
         return this.rpService.getSubmission(submissionId);
     }
 
@@ -71,5 +77,14 @@ export class ReplayParseModResolver {
     async followSubmission(@Args("submissionId") submissionId: string): Promise<AsyncIterator<GqlReplaySubmission>> {
         await this.rpService.enableSubscription(submissionId);
         return this.pubsub.asyncIterator(submissionId);
+    }
+
+    @Mutation(() => ValidationResultUnion)
+    async validateSubmission(@Args("submissionId") submissionId: string): Promise<ValidationResult> {
+        const response = await this.submissionService.send(SubmissionEndpoint.ValidateSubmission, {submissionId});
+        if (response.status === ResponseStatus.ERROR) {
+            throw response.error;
+        }
+        return response.data;
     }
 }

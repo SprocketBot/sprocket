@@ -1,6 +1,8 @@
 export interface ValidationError {
     error: string;
-    game?: number;
+    gameIndex?: number;
+    teamIndex?: number;
+    playerIndex?: number;
 }
 
 export interface ValidationSuccess {

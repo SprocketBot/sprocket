@@ -4,6 +4,7 @@ import {DatabaseModule} from "../database";
 import {FranchiseModule} from "../franchise";
 import {UtilModule} from "../util/util.module";
 import {MatchService} from "./match";
+import {MatchController} from "./match/match.controller";
 import {MatchResolver} from "./match/match.resolver";
 import {RoundService} from "./round";
 import {ScheduleFixtureResolver} from "./schedule-fixture/schedule-fixture.resolver";
@@ -17,5 +18,6 @@ import {ScheduleGroupTypeService} from "./schedule-group/schedule-group-type.ser
     imports: [DatabaseModule, FranchiseModule, UtilModule],
     providers: [MatchService, RoundService, ScheduleGroupModResolver, ScheduleGroupResolver, ScheduleGroupService, ScheduleGroupTypeService, ScheduleFixtureService, ScheduleFixtureResolver, MatchResolver],
     exports: [MatchService, RoundService],
+    controllers: [MatchController],
 })
 export class SchedulingModule {}

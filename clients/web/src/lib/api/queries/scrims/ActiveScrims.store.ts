@@ -1,6 +1,6 @@
 import type {OperationResult} from "@urql/core";
 import {gql} from "@urql/core";
-import {LiveQueryStore} from "$lib/api/core/LiveQueryStore";
+import {LiveQueryStore} from "../../core/LiveQueryStore";
 import type {CurrentScrim} from "./CurrentScrim.store";
 
 export type ActiveScrims = Array<CurrentScrim & {organizationId: number;}>;

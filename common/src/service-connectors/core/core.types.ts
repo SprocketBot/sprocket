@@ -1,4 +1,4 @@
-import type {z} from "zod";
+import {z} from "zod";
 
 import type {ResponseStatus} from "../../global.types";
 import * as Schemas from "./schemas";
@@ -9,6 +9,8 @@ export enum CoreEndpoint {
     GetOrganizationProfile = "GetOrganizationProfile",
     GetUserByAuthAccount = "GetUserByAuthAccount",
     GetMember = "GetMember",
+    GetPlayerByPlatformId = "GetPlayerByPlatformId",
+    GetPlayersByPlatformIds = "GetPlayersByPlatformIds",
     GetOrganizationDiscordGuildsByGuild = "GetOrganizationDiscordGuildsByGuild",
     GenerateReportCard = "GenerateReportCard",
     GetOrganizationConfigurationValue = "GetOrganizationConfigurationValue",
@@ -17,6 +19,10 @@ export enum CoreEndpoint {
     GetGameSkillGroupProfile = "GetGameSkillGroupProfile",
     GetScrimReportCardWebhooks = "GetScrimReportCardWebhooks",
     GetUsersLatestScrim = "GetUsersLatestScrim",
+
+    GetMatchBySubmissionId = "GetMatchBySubmissionId",
+    GetFranchiseStaff = "GetFranchiseStaff",
+    GetPlayerFranchises = "GetPlayerFranchises",
 }
 
 export const CoreSchemas = {
@@ -39,6 +45,14 @@ export const CoreSchemas = {
     [CoreEndpoint.GetMember]: {
         input: Schemas.GetMember_Request,
         output: Schemas.GetMember_Response,
+    },
+    [CoreEndpoint.GetPlayerByPlatformId]: {
+        input: Schemas.GetPlayerByPlatformId_Request,
+        output: Schemas.GetPlayerByPlatformId_Response,
+    },
+    [CoreEndpoint.GetPlayersByPlatformIds]: {
+        input: z.array(Schemas.GetPlayerByPlatformId_Request),
+        output: z.array(Schemas.GetPlayerByPlatformId_Response),
     },
     [CoreEndpoint.GetOrganizationDiscordGuildsByGuild]: {
         input: Schemas.GetOrganizationDiscordGuildsByGuild_Request,
@@ -71,6 +85,18 @@ export const CoreSchemas = {
     [CoreEndpoint.GetUsersLatestScrim]: {
         input: Schemas.GetUsersLastScrim_Request,
         output: Schemas.GetUsersLastScrim_Response,
+    },
+    [CoreEndpoint.GetMatchBySubmissionId]: {
+        input: Schemas.GetMatchBySubmissionId_Request,
+        output: Schemas.GetMatchBySubmissionId_Response,
+    },
+    [CoreEndpoint.GetFranchiseStaff]: {
+        input: Schemas.GetFranchiseStaff_Request,
+        output: Schemas.GetFranchiseStaff_Response,
+    },
+    [CoreEndpoint.GetPlayerFranchises]: {
+        input: Schemas.GetPlayerFranchises_Request,
+        output: Schemas.GetPlayerFranchises_Response,
     },
 };
 

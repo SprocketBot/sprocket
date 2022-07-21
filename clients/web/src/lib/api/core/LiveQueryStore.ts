@@ -5,9 +5,9 @@ import {client, clientPromise} from "../client";
 import {QueryStore} from "./QueryStore";
 
 export abstract class LiveQueryStore<T, V extends Object, ST = T, SV extends Object = {}> extends QueryStore<T, V> {
-    protected gqlUnsub: () => unknown;
+    protected gqlUnsub?: () => unknown;
 
-    protected _subVars: SV;
+    protected abstract  _subVars: SV;
 
     protected abstract subscriptionString: TypedDocumentNode<ST, SV>;
 

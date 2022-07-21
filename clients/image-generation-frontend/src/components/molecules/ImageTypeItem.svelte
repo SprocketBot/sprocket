@@ -2,7 +2,7 @@
   import type {ImageTypeItem} from "src/types";
 
   export let type: ImageTypeItem;
-  export let select: (id: string) => unknown = () => {};
+  export let select: (id: string) => unknown = () => {console.log("Ignore me please")};
 </script>
 
 <div class="item">
@@ -10,13 +10,13 @@
     {type.displayName}
   </h2>
   <p>{type.description}</p>
-  
+
     <button
       on:click={() => {
         select(type.reportCode);
       }}>Select</button
     >
-  
+
 </div>
 
 <style lang="postcss">
