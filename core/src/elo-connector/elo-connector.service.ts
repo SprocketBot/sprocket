@@ -177,7 +177,6 @@ export class EloConnectorService {
                 replay.homeWon = newHomeWon;
                 await this.roundRepository.save(replay);
             }
-
         }
 
         // Magic happens here to talk to the ELO service
