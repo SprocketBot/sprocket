@@ -5,8 +5,10 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 
 import {UserAuthenticationAccountType} from "../../database";
+import type {MLE_Platform} from "../../database/mledb";
 import {
-    MLE_Player, MLE_PlayerToOrg, MLE_Team, MLE_TeamToCaptain,
+    MLE_Player, MLE_PlayerAccount, MLE_PlayerToOrg,
+    MLE_Team, MLE_TeamToCaptain,
 } from "../../database/mledb";
 import {UserService} from "../../identity";
 
@@ -15,12 +17,13 @@ export class MledbPlayerService {
     private readonly logger = new Logger(MledbPlayerService.name);
 
     constructor(
-      @InjectRepository(MLE_Player) private readonly playerRepository: Repository<MLE_Player>,
-      @InjectRepository(MLE_PlayerToOrg) private readonly playerToOrgRepository: Repository<MLE_PlayerToOrg>,
-      @InjectRepository(MLE_Team) private readonly teamRepo: Repository<MLE_Team>,
-      @InjectRepository(MLE_TeamToCaptain) private readonly teamToCaptainRepo: Repository<MLE_TeamToCaptain>,
-      @Inject(forwardRef(() => UserService))
-      private readonly userService: UserService,
+        @InjectRepository(MLE_Player) private readonly playerRepository: Repository<MLE_Player>,
+        @InjectRepository(MLE_PlayerAccount) private readonly playerAccountRepository: Repository<MLE_PlayerAccount>,
+        @InjectRepository(MLE_PlayerToOrg) private readonly playerToOrgRepository: Repository<MLE_PlayerToOrg>,
+        @InjectRepository(MLE_Team) private readonly teamRepo: Repository<MLE_Team>,
+        @InjectRepository(MLE_TeamToCaptain) private readonly teamToCaptainRepo: Repository<MLE_TeamToCaptain>,
+        @Inject(forwardRef(() => UserService))
+        private readonly userService: UserService,
     ) {}
 
     async getPlayerByDiscordId(id: string): Promise<MLE_Player> {
@@ -31,6 +34,11 @@ export class MledbPlayerService {
     async getPlayerOrgs(player: MLE_Player): Promise<MLE_PlayerToOrg[]> {
         const playerToOrgs = await this.playerToOrgRepository.find({relations: ["player"], where: {player: player} });
         return playerToOrgs;
+    }
+
+    async getPlayerByPlatformId(platform: MLE_Platform, platformId: string): Promise<MLE_Player> {
+        const playerAccount = await this.playerAccountRepository.findOneOrFail({platform, platformId}, {relations: ["player"] });
+        return playerAccount.player;
     }
 
     async getMlePlayerBySprocketUser(userId: number): Promise<MLE_Player> {

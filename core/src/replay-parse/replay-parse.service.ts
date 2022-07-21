@@ -6,7 +6,7 @@ import {
     config,
     EventsService, EventTopic,
     MinioService,
-    readBuffer, RedisService,
+    readToString, RedisService,
     ResponseStatus,
     SubmissionEndpoint,
     SubmissionService,
@@ -66,7 +66,7 @@ export class ReplayParseService {
         if (!canSubmitReponse.data.canSubmit) throw new GraphQLError(canSubmitReponse.data.reason);
 
         const filepaths = await Promise.all(streams.map(async s => {
-            const buffer = await readBuffer(s.stream);
+            const buffer = await readToString(s.stream);
             const objectHash = SHA256(buffer.toString()).toString();
             const replayObjectPath = `replays/${objectHash}${REPLAY_EXT}`;
             await this.minioService.put(config.minio.bucketNames.replays, replayObjectPath, buffer);

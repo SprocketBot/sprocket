@@ -1,6 +1,8 @@
 import {Controller} from "@nestjs/common";
 import {MessagePattern, Payload} from "@nestjs/microservices";
-import {CoreEndpoint, CoreSchemas} from "@sprocketbot/common";
+import {
+    CoreEndpoint, CoreSchemas,
+} from "@sprocketbot/common";
 
 import {UserAuthenticationAccountType} from "../../database";
 import {UserService} from "./user.service";

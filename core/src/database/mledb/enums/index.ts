@@ -7,6 +7,7 @@ export * from "./Map.enum";
 export * from "./Mode.enum";
 export * from "./ModePreference.enum";
 export * from "./OrganizationTeam.enum";
+export * from "./Platform.enum";
 export * from "./Role.enum";
 export * from "./StreamType.enum";
 export * from "./Timezone.enum";

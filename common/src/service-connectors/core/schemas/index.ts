@@ -9,6 +9,7 @@ export * from "./GetOrganizationByDiscordGuild.schema";
 export * from "./GetOrganizationConfiguration";
 export * from "./GetOrganizationDiscordGuildsByGuild.schema";
 export * from "./GetOrganizationProfile.schema";
+export * from "./GetPlayerByPlatformId";
 export * from "./GetPlayerFranchises.schema";
 export * from "./GetScrimReportCardWebhooks.schema";
 export * from "./GetSprocketConfiguration.schema";
