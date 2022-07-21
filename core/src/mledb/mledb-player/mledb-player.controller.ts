@@ -1,4 +1,6 @@
-import {Controller} from "@nestjs/common";
+import {
+    Controller, forwardRef, Inject,
+} from "@nestjs/common";
 import {MessagePattern, Payload} from "@nestjs/microservices";
 import type {
     CoreOutput,
@@ -17,6 +19,7 @@ const isMlePlatform = (platformCode: string): platformCode is MLE_Platform => Ob
 export class MledbPlayerController {
     constructor(
         private readonly mledbPlayerService: MledbPlayerService,
+        @Inject(forwardRef(() => GameSkillGroupService))
         private readonly skillGroupService: GameSkillGroupService,
     ) {}
 
