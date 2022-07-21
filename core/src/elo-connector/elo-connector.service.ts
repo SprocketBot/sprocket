@@ -214,8 +214,6 @@ export class EloConnectorService {
         // team names are in Sprocket.
         let winningTeam = await this.teamRepository.findOne(winningTeamInput?.id, {where: {id: winningTeamInput?.id}, relations: ["franchise", "franchise.profile"] });
 
-        // const series = await this.ss.getSeriesById(seriesId, ["fixture.home",
-        // "fixture.away"]);
         const series = await this.matchRepository.findOneOrFail(seriesId, {where: {id: seriesId}, relations: ["matchParent", "rounds"] });
 
         if (seriesType === SeriesType.Fixture) {
