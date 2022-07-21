@@ -16,6 +16,10 @@ export class Match extends BaseModel {
     @Field(() => Boolean, {defaultValue: false})
     isDummy: boolean;
 
+    @Column({default: false})
+    @Field(() => Boolean, {defaultValue: false})
+    isNcp: boolean;
+
     @OneToOne(() => Invalidation, {nullable: true})
     @JoinTable()
     @Field(() => Invalidation, {nullable: true})
