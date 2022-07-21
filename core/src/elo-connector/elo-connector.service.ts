@@ -219,24 +219,24 @@ export class EloConnectorService {
         if (seriesType === SeriesType.Fixture) {
 
             if (!series.matchParent.fixture) {
-                return `Error: series with id='${seriesId}' has no associated fixture, yet markSeriesNCP was called with SeriesType.Fixture.`;
+                throw new Error(`Series with id='${seriesId}' has no associated fixture, yet markSeriesNCP was called with SeriesType.Fixture.`);
             }
 
             // Winning team must be specified if NCPing replays
             if (isNcp && !winningTeam) {
-                return "When NCPing a series associated with a fixture, you must specify a winningTeam";
+                throw new Error("When NCPing a series associated with a fixture, you must specify a winningTeam");
             }
 
             // Check to make sure the winning team played in the series/fixture
             if (winningTeam
                 && series.matchParent.fixture.homeFranchise !== winningTeam.franchise
                 && series.matchParent.fixture.awayFranchise !== winningTeam.franchise) {
-                return `The team \`${winningTeam?.franchise.profile.title}\` did not play in series with id \`${series.id}\` (${series.matchParent.fixture.awayFranchise.profile.title} v. ${series.matchParent.fixture.homeFranchise.profile.title}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`;
+                throw new Error(`The team \`${winningTeam?.franchise.profile.title}\` did not play in series with id \`${series.id}\` (${series.matchParent.fixture.awayFranchise.profile.title} v. ${series.matchParent.fixture.homeFranchise.profile.title}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`);
             }
 
         } else if (seriesType === SeriesType.Scrim) {
             if (!series.matchParent.scrimMeta) {
-                return `Error: series with id=\`${seriesId}\` has no associated scrim. If this is a league play series, please use \`!ncpSeries\` or \`!unNcpSeries\`. If this actually is a scrim, ping Bot Team.`;
+                throw new Error(`Series with id=\`${seriesId}\` has no associated scrim, but markSeriesNCP was called with SeriesType.Scrim.`);
             }
             winningTeam = await this.teamRepository.findOneOrFail(0); // TODO: ID for FA team
         } else {
