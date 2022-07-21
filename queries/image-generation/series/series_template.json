@@ -1,0 +1,2436 @@
+{
+  "organization": {
+    "name": {
+      "type": "text",
+      "description": "Sprocket"
+    },
+    "description": {
+      "type": "text",
+      "description": "Sprocket"
+    },
+    "webisite": {
+      "type": "text",
+      "description": "https://github.com/SprocketBot"
+    },
+    "primary_color": {
+      "type": "color",
+      "description": "#F5C04E"
+    },
+    "secondary_color": {
+      "type": "color",
+      "description": "#0D0E0E"
+    },
+    "logo_url": {
+      "type": "image",
+      "description": "https://i.ibb.co/BnQ9hmB/Sprocket-Logo-Yellow-3.png"
+    }
+  },
+  "game": {
+    "title": {
+      "type": "text",
+      "description": "WEEK 1 AL 2S "
+    },
+    "game_mode": {
+      "type": "text",
+      "description": "Doubles"
+    },
+    "mode_short": {
+      "type": "text",
+      "description": "2S"
+    },
+    "league": {
+      "type": "text",
+      "description": "Academy"
+    },
+    "league_short": {
+      "type": "text",
+      "description": "AL"
+    },
+    "league_color": {
+      "type": "color",
+      "description": "#0085fa"
+    },
+    "league_logo": {
+      "type": "image",
+      "description": "https://cdn.mlesports.dev/public/img/leagues/academy.png"
+    },
+    "home_team_name": {
+      "type": "text",
+      "description": "Sabres"
+    },
+    "home_team_primary": {
+      "type": "color",
+      "description": "#f36a22"
+    },
+    "home_team_secondary": {
+      "type": "color",
+      "description": "#111111"
+    },
+    "home_team_logo": {
+      "type": "image",
+      "description": "https://cdn.mlesports.dev/public/img/teams/Sabres.png"
+    },
+    "away_team_name": {
+      "type": "text",
+      "description": "Sabres"
+    },
+    "away_team_primary": {
+      "type": "color",
+      "description": "#ec2c0d"
+    },
+    "away_team_secondary": {
+      "type": "color",
+      "description": "#9bf9ff"
+    },
+    "away_team_logo": {
+      "type": "image",
+      "description": "https://cdn.mlesports.dev/public/img/teams/Puffins.png"
+    },
+    "winning_team_name": {
+      "type": "color",
+      "description": "Sabres"
+    },
+    "winning_team_primary": {
+      "type": "color",
+      "description": "Sabres"
+    },
+    "winning_team_secondary": {
+      "type": "color",
+      "description": "#111111"
+    },
+    "winning_team_logo": {
+      "type": "image",
+      "description": "https://cdn.mlesports.dev/public/img/teams/Sabres.png"
+    },
+    "home_players": [
+      {
+        "type": "text",
+        "description": "Little Saucetin"
+      },
+      {
+        "type": "text",
+        "description": "The Big C"
+      }
+    ],
+    "away_players": [
+      {
+        "type": "text",
+        "description": "Outta Boost"
+      },
+      {
+        "type": "text",
+        "description": "Seany"
+      }
+    ],
+    "series_score": {
+      "type": "text",
+      "description": "3 - 2"
+    }
+  },
+  "player_data": [
+    {
+      "name": {
+        "type": "text",
+        "description": "Little Saucetin"
+      },
+      "salary": {
+        "type": "number",
+        "description": 13.5
+      },
+      "wins": {
+        "type": "number",
+        "description": 3
+      },
+      "losses": {
+        "type": "number",
+        "description": 2
+      },
+      "record": {
+        "type": "text",
+        "description": "3 - 2"
+      },
+      "rating": {
+        "type": "number",
+        "description": 4.97
+      },
+      "goals": {
+        "type": "number",
+        "description": 9
+      },
+      "assists": {
+        "type": "number",
+        "description": 7
+      },
+      "saves": {
+        "type": "number",
+        "description": 6
+      },
+      "shots": {
+        "type": "number",
+        "description": 21
+      },
+      "player_color": {
+        "type": "color",
+        "description": "#F54C91"
+      },
+      "team_primary": {
+        "type": "color",
+        "description": "#f36a22"
+      },
+      "team_secondary": {
+        "type": "color",
+        "description": "#111111"
+      }
+    },
+    {
+      "name": {
+        "type": "text",
+        "description": "The Big C"
+      },
+      "salary": {
+        "type": "number",
+        "description": 12
+      },
+      "wins": {
+        "type": "number",
+        "description": 3
+      },
+      "losses": {
+        "type": "number",
+        "description": 2
+      },
+      "record": {
+        "type": "text",
+        "description": "3 - 2"
+      },
+      "rating": {
+        "type": "number",
+        "description": 3.99
+      },
+      "goals": {
+        "type": "number",
+        "description": 8
+      },
+      "assists": {
+        "type": "number",
+        "description": 6
+      },
+      "saves": {
+        "type": "number",
+        "description": 3
+      },
+      "shots": {
+        "type": "number",
+        "description": 17
+      },
+      "player_color": {
+        "type": "color",
+        "description": "#0097D7"
+      },
+      "team_primary": {
+        "type": "color",
+        "description": "#f36a22"
+      },
+      "team_secondary": {
+        "type": "color",
+        "description": "#111111"
+      }
+    },
+    {
+      "name": {
+        "type": "text",
+        "description": "Outta Boost"
+      },
+      "salary": {
+        "type": "number",
+        "description": 13
+      },
+      "wins": {
+        "type": "number",
+        "description": 2
+      },
+      "losses": {
+        "type": "number",
+        "description": 3
+      },
+      "record": {
+        "type": "text",
+        "description": "2 - 3"
+      },
+      "rating": {
+        "type": "number",
+        "description": 3.87
+      },
+      "goals": {
+        "type": "number",
+        "description": 4
+      },
+      "assists": {
+        "type": "number",
+        "description": 4
+      },
+      "saves": {
+        "type": "number",
+        "description": 15
+      },
+      "shots": {
+        "type": "number",
+        "description": 10
+      },
+      "player_color": {
+        "type": "color",
+        "description": "#189666"
+      },
+      "team_primary": {
+        "type": "color",
+        "description": "#ec2c0d"
+      },
+      "team_secondary": {
+        "type": "color",
+        "description": "#9bf9ff"
+      }
+    },
+    {
+      "name": {
+        "type": "text",
+        "description": "Seany"
+      },
+      "salary": {
+        "type": "number",
+        "description": 13
+      },
+      "wins": {
+        "type": "number",
+        "description": 2
+      },
+      "losses": {
+        "type": "number",
+        "description": 3
+      },
+      "record": {
+        "type": "text",
+        "description": "2 - 3"
+      },
+      "rating": {
+        "type": "number",
+        "description": 3.86
+      },
+      "goals": {
+        "type": "number",
+        "description": 9
+      },
+      "assists": {
+        "type": "number",
+        "description": 2
+      },
+      "saves": {
+        "type": "number",
+        "description": 3
+      },
+      "shots": {
+        "type": "number",
+        "description": 21
+      },
+      "player_color": {
+        "type": "color",
+        "description": "#DE7327"
+      },
+      "team_primary": {
+        "type": "color",
+        "description": "#ec2c0d"
+      },
+      "team_secondary": {
+        "type": "color",
+        "description": "#9bf9ff"
+      }
+    },
+    {
+      "name": {
+        "type": "text",
+        "description": ""
+      },
+      "salary": {
+        "type": "number",
+        "description": ""
+      },
+      "wins": {
+        "type": "number",
+        "description": ""
+      },
+      "losses": {
+        "type": "number",
+        "description": ""
+      },
+      "record": {
+        "type": "text",
+        "description": ""
+      },
+      "rating": {
+        "type": "number",
+        "description": ""
+      },
+      "goals": {
+        "type": "number",
+        "description": ""
+      },
+      "assists": {
+        "type": "number",
+        "description": ""
+      },
+      "saves": {
+        "type": "number",
+        "description": ""
+      },
+      "shots": {
+        "type": "number",
+        "description": ""
+      },
+      "player_color": {
+        "type": "color",
+        "description": "#FFFFFF00"
+      },
+      "team_primary": {
+        "type": "color",
+        "description": "#FFFFFF00"
+      },
+      "team_secondary": {
+        "type": "color",
+        "description": "#FFFFFF00"
+      }
+    },
+    {
+      "name": {
+        "type": "text",
+        "description": ""
+      },
+      "salary": {
+        "type": "number",
+        "description": ""
+      },
+      "wins": {
+        "type": "number",
+        "description": ""
+      },
+      "losses": {
+        "type": "number",
+        "description": ""
+      },
+      "record": {
+        "type": "text",
+        "description": ""
+      },
+      "rating": {
+        "type": "number",
+        "description": ""
+      },
+      "goals": {
+        "type": "number",
+        "description": ""
+      },
+      "assists": {
+        "type": "number",
+        "description": ""
+      },
+      "saves": {
+        "type": "number",
+        "description": ""
+      },
+      "shots": {
+        "type": "number",
+        "description": ""
+      },
+      "player_color": {
+        "type": "color",
+        "description": "#FFFFFF00"
+      },
+      "team_primary": {
+        "type": "color",
+        "description": "#FFFFFF00"
+      },
+      "team_secondary": {
+        "type": "color",
+        "description": "#FFFFFF00"
+      }
+    },
+    {
+      "name": {
+        "type": "text",
+        "description": ""
+      },
+      "salary": {
+        "type": "number",
+        "description": ""
+      },
+      "wins": {
+        "type": "number",
+        "description": ""
+      },
+      "losses": {
+        "type": "number",
+        "description": ""
+      },
+      "record": {
+        "type": "text",
+        "description": ""
+      },
+      "rating": {
+        "type": "number",
+        "description": ""
+      },
+      "goals": {
+        "type": "number",
+        "description": ""
+      },
+      "assists": {
+        "type": "number",
+        "description": ""
+      },
+      "saves": {
+        "type": "number",
+        "description": ""
+      },
+      "shots": {
+        "type": "number",
+        "description": ""
+      },
+      "player_color": {
+        "type": "color",
+        "description": "#FFFFFF00"
+      },
+      "team_primary": {
+        "type": "color",
+        "description": "#FFFFFF00"
+      },
+      "team_secondary": {
+        "type": "color",
+        "description": "#FFFFFF00"
+      }
+    },
+    {
+      "name": {
+        "type": "text",
+        "description": ""
+      },
+      "salary": {
+        "type": "number",
+        "description": ""
+      },
+      "wins": {
+        "type": "number",
+        "description": ""
+      },
+      "losses": {
+        "type": "number",
+        "description": ""
+      },
+      "record": {
+        "type": "text",
+        "description": ""
+      },
+      "rating": {
+        "type": "number",
+        "description": ""
+      },
+      "goals": {
+        "type": "number",
+        "description": ""
+      },
+      "assists": {
+        "type": "number",
+        "description": ""
+      },
+      "saves": {
+        "type": "number",
+        "description": ""
+      },
+      "shots": {
+        "type": "number",
+        "description": ""
+      },
+      "player_color": {
+        "type": "color",
+        "description": "#FFFFFF00"
+      },
+      "team_primary": {
+        "type": "color",
+        "description": "#FFFFFF00"
+      },
+      "team_secondary": {
+        "type": "color",
+        "description": "#FFFFFF00"
+      }
+    }
+  ],
+  "games_data": [
+    {
+      "result": {
+        "type": "text",
+        "description": "3 - 0"
+      },
+      "winning_color": {
+        "type": "color",
+        "description": "#ec2c0d"
+      },
+      "blue_goals": {
+        "type": "number",
+        "description": 3
+      },
+      "orange_goals": {
+        "type": "number",
+        "description": 0
+      },
+      "blue_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": "Seany"
+          },
+          "goals": {
+            "type": "number",
+            "description": 2
+          },
+          "saves": {
+            "type": "number",
+            "description": 0
+          },
+          "score": {
+            "type": "number",
+            "description": 514
+          },
+          "shots": {
+            "type": "number",
+            "description": 7
+          },
+          "rating": {
+            "type": "number",
+            "description": 5.0833335
+          },
+          "assists": {
+            "type": "number",
+            "description": 1
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#DE7327"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#ec2c0d"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#9bf9ff"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "Outta Boost"
+          },
+          "goals": {
+            "type": "number",
+            "description": 1
+          },
+          "saves": {
+            "type": "number",
+            "description": 3
+          },
+          "score": {
+            "type": "number",
+            "description": 549
+          },
+          "shots": {
+            "type": "number",
+            "description": 3
+          },
+          "rating": {
+            "type": "number",
+            "description": 4.55
+          },
+          "assists": {
+            "type": "number",
+            "description": 1
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#189666"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#ec2c0d"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#9bf9ff"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": ""
+          },
+          "goals": {
+            "type": "number",
+            "description": ""
+          },
+          "saves": {
+            "type": "number",
+            "description": ""
+          },
+          "score": {
+            "type": "number",
+            "description": ""
+          },
+          "shots": {
+            "type": "number",
+            "description": ""
+          },
+          "rating": {
+            "type": "number",
+            "description": ""
+          },
+          "assists": {
+            "type": "number",
+            "description": ""
+          },
+          "player_color": {
+            "type": "color",
+            "description": "FFFFFF00"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          }
+        }
+      ],
+      "orange_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": "The Big C"
+          },
+          "goals": {
+            "type": "number",
+            "description": 0
+          },
+          "saves": {
+            "type": "number",
+            "description": 1
+          },
+          "score": {
+            "type": "number",
+            "description": 300
+          },
+          "shots": {
+            "type": "number",
+            "description": 4
+          },
+          "rating": {
+            "type": "number",
+            "description": 1.9333333
+          },
+          "assists": {
+            "type": "number",
+            "description": 0
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#0097D7"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#f36a22"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#111111"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "Little Saucetin"
+          },
+          "goals": {
+            "type": "number",
+            "description": 0
+          },
+          "saves": {
+            "type": "number",
+            "description": 1
+          },
+          "score": {
+            "type": "number",
+            "description": 210
+          },
+          "shots": {
+            "type": "number",
+            "description": 1
+          },
+          "rating": {
+            "type": "number",
+            "description": 0.93333334
+          },
+          "assists": {
+            "type": "number",
+            "description": 0
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#F54C91"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#f36a22"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#111111"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": ""
+          },
+          "goals": {
+            "type": "number",
+            "description": ""
+          },
+          "saves": {
+            "type": "number",
+            "description": ""
+          },
+          "score": {
+            "type": "number",
+            "description": ""
+          },
+          "shots": {
+            "type": "number",
+            "description": ""
+          },
+          "rating": {
+            "type": "number",
+            "description": ""
+          },
+          "assists": {
+            "type": "number",
+            "description": ""
+          },
+          "player_color": {
+            "type": "color",
+            "description": "FFFFFF00"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          }
+        }
+      ]
+    },
+    {
+      "result": {
+        "type": "text",
+        "description": "3 - 9"
+      },
+      "winning_color": {
+        "type": "color",
+        "description": "#f36a22"
+      },
+      "blue_goals": {
+        "type": "number",
+        "description": 3
+      },
+      "orange_goals": {
+        "type": "number",
+        "description": 9
+      },
+      "blue_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": "Seany"
+          },
+          "goals": {
+            "type": "number",
+            "description": 2
+          },
+          "saves": {
+            "type": "number",
+            "description": 0
+          },
+          "score": {
+            "type": "number",
+            "description": 416
+          },
+          "shots": {
+            "type": "number",
+            "description": 3
+          },
+          "rating": {
+            "type": "number",
+            "description": 3
+          },
+          "assists": {
+            "type": "number",
+            "description": 0
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#DE7327"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#ec2c0d"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#9bf9ff"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "Outta Boost"
+          },
+          "goals": {
+            "type": "number",
+            "description": 1
+          },
+          "saves": {
+            "type": "number",
+            "description": 2
+          },
+          "score": {
+            "type": "number",
+            "description": 376
+          },
+          "shots": {
+            "type": "number",
+            "description": 2
+          },
+          "rating": {
+            "type": "number",
+            "description": 3.6166666
+          },
+          "assists": {
+            "type": "number",
+            "description": 1
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#189666"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#ec2c0d"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#9bf9ff"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": ""
+          },
+          "goals": {
+            "type": "number",
+            "description": ""
+          },
+          "saves": {
+            "type": "number",
+            "description": ""
+          },
+          "score": {
+            "type": "number",
+            "description": ""
+          },
+          "shots": {
+            "type": "number",
+            "description": ""
+          },
+          "rating": {
+            "type": "number",
+            "description": ""
+          },
+          "assists": {
+            "type": "number",
+            "description": ""
+          },
+          "player_color": {
+            "type": "color",
+            "description": "FFFFFF00"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          }
+        }
+      ],
+      "orange_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": "The Big C"
+          },
+          "goals": {
+            "type": "number",
+            "description": 3
+          },
+          "saves": {
+            "type": "number",
+            "description": 1
+          },
+          "score": {
+            "type": "number",
+            "description": 831
+          },
+          "shots": {
+            "type": "number",
+            "description": 5
+          },
+          "rating": {
+            "type": "number",
+            "description": 8.266666
+          },
+          "assists": {
+            "type": "number",
+            "description": 4
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#0097D7"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#f36a22"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#111111"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "Little Saucetin"
+          },
+          "goals": {
+            "type": "number",
+            "description": 6
+          },
+          "saves": {
+            "type": "number",
+            "description": 1
+          },
+          "score": {
+            "type": "number",
+            "description": 1141
+          },
+          "shots": {
+            "type": "number",
+            "description": 6
+          },
+          "rating": {
+            "type": "number",
+            "description": 10.85
+          },
+          "assists": {
+            "type": "number",
+            "description": 3
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#F54C91"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#f36a22"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#111111"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": ""
+          },
+          "goals": {
+            "type": "number",
+            "description": ""
+          },
+          "saves": {
+            "type": "number",
+            "description": ""
+          },
+          "score": {
+            "type": "number",
+            "description": ""
+          },
+          "shots": {
+            "type": "number",
+            "description": ""
+          },
+          "rating": {
+            "type": "number",
+            "description": ""
+          },
+          "assists": {
+            "type": "number",
+            "description": ""
+          },
+          "player_color": {
+            "type": "color",
+            "description": "FFFFFF00"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          }
+        }
+      ]
+    },
+    {
+      "result": {
+        "type": "text",
+        "description": "3 - 2"
+      },
+      "winning_color": {
+        "type": "color",
+        "description": "#ec2c0d"
+      },
+      "blue_goals": {
+        "type": "number",
+        "description": 3
+      },
+      "orange_goals": {
+        "type": "number",
+        "description": 2
+      },
+      "blue_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": "Seany"
+          },
+          "goals": {
+            "type": "number",
+            "description": 2
+          },
+          "saves": {
+            "type": "number",
+            "description": 2
+          },
+          "score": {
+            "type": "number",
+            "description": 638
+          },
+          "shots": {
+            "type": "number",
+            "description": 5
+          },
+          "rating": {
+            "type": "number",
+            "description": 5.616667
+          },
+          "assists": {
+            "type": "number",
+            "description": 1
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#DE7327"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#ec2c0d"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#9bf9ff"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "Outta Boost"
+          },
+          "goals": {
+            "type": "number",
+            "description": 1
+          },
+          "saves": {
+            "type": "number",
+            "description": 3
+          },
+          "score": {
+            "type": "number",
+            "description": 504
+          },
+          "shots": {
+            "type": "number",
+            "description": 2
+          },
+          "rating": {
+            "type": "number",
+            "description": 3.4666667
+          },
+          "assists": {
+            "type": "number",
+            "description": 0
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#189666"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#ec2c0d"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#9bf9ff"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": ""
+          },
+          "goals": {
+            "type": "number",
+            "description": ""
+          },
+          "saves": {
+            "type": "number",
+            "description": ""
+          },
+          "score": {
+            "type": "number",
+            "description": ""
+          },
+          "shots": {
+            "type": "number",
+            "description": ""
+          },
+          "rating": {
+            "type": "number",
+            "description": ""
+          },
+          "assists": {
+            "type": "number",
+            "description": ""
+          },
+          "player_color": {
+            "type": "color",
+            "description": "FFFFFF00"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          }
+        }
+      ],
+      "orange_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": "The Big C"
+          },
+          "goals": {
+            "type": "number",
+            "description": 1
+          },
+          "saves": {
+            "type": "number",
+            "description": 1
+          },
+          "score": {
+            "type": "number",
+            "description": 436
+          },
+          "shots": {
+            "type": "number",
+            "description": 2
+          },
+          "rating": {
+            "type": "number",
+            "description": 3.0166667
+          },
+          "assists": {
+            "type": "number",
+            "description": 1
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#0097D7"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#f36a22"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#111111"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "Little Saucetin"
+          },
+          "goals": {
+            "type": "number",
+            "description": 1
+          },
+          "saves": {
+            "type": "number",
+            "description": 2
+          },
+          "score": {
+            "type": "number",
+            "description": 493
+          },
+          "shots": {
+            "type": "number",
+            "description": 7
+          },
+          "rating": {
+            "type": "number",
+            "description": 5.2833333
+          },
+          "assists": {
+            "type": "number",
+            "description": 1
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#F54C91"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#f36a22"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#111111"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": ""
+          },
+          "goals": {
+            "type": "number",
+            "description": ""
+          },
+          "saves": {
+            "type": "number",
+            "description": ""
+          },
+          "score": {
+            "type": "number",
+            "description": ""
+          },
+          "shots": {
+            "type": "number",
+            "description": ""
+          },
+          "rating": {
+            "type": "number",
+            "description": ""
+          },
+          "assists": {
+            "type": "number",
+            "description": ""
+          },
+          "player_color": {
+            "type": "color",
+            "description": "FFFFFF00"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          }
+        }
+      ]
+    },
+    {
+      "result": {
+        "type": "text",
+        "description": "1 - 2"
+      },
+      "winning_color": {
+        "type": "color",
+        "description": "#f36a22"
+      },
+      "blue_goals": {
+        "type": "number",
+        "description": 1
+      },
+      "orange_goals": {
+        "type": "number",
+        "description": 2
+      },
+      "blue_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": "Seany"
+          },
+          "goals": {
+            "type": "number",
+            "description": 0
+          },
+          "saves": {
+            "type": "number",
+            "description": 0
+          },
+          "score": {
+            "type": "number",
+            "description": 298
+          },
+          "shots": {
+            "type": "number",
+            "description": 2
+          },
+          "rating": {
+            "type": "number",
+            "description": 0.6666667
+          },
+          "assists": {
+            "type": "number",
+            "description": 0
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#DE7327"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#ec2c0d"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#9bf9ff"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "Outta Boost"
+          },
+          "goals": {
+            "type": "number",
+            "description": 1
+          },
+          "saves": {
+            "type": "number",
+            "description": 4
+          },
+          "score": {
+            "type": "number",
+            "description": 587
+          },
+          "shots": {
+            "type": "number",
+            "description": 2
+          },
+          "rating": {
+            "type": "number",
+            "description": 4.0666666
+          },
+          "assists": {
+            "type": "number",
+            "description": 0
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#189666"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#ec2c0d"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#9bf9ff"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": ""
+          },
+          "goals": {
+            "type": "number",
+            "description": ""
+          },
+          "saves": {
+            "type": "number",
+            "description": ""
+          },
+          "score": {
+            "type": "number",
+            "description": ""
+          },
+          "shots": {
+            "type": "number",
+            "description": ""
+          },
+          "rating": {
+            "type": "number",
+            "description": ""
+          },
+          "assists": {
+            "type": "number",
+            "description": ""
+          },
+          "player_color": {
+            "type": "color",
+            "description": "FFFFFF00"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          }
+        }
+      ],
+      "orange_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": "The Big C"
+          },
+          "goals": {
+            "type": "number",
+            "description": 1
+          },
+          "saves": {
+            "type": "number",
+            "description": 0
+          },
+          "score": {
+            "type": "number",
+            "description": 280
+          },
+          "shots": {
+            "type": "number",
+            "description": 2
+          },
+          "rating": {
+            "type": "number",
+            "description": 1.6666666
+          },
+          "assists": {
+            "type": "number",
+            "description": 0
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#0097D7"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#f36a22"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#111111"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "Little Saucetin"
+          },
+          "goals": {
+            "type": "number",
+            "description": 1
+          },
+          "saves": {
+            "type": "number",
+            "description": 2
+          },
+          "score": {
+            "type": "number",
+            "description": 627
+          },
+          "shots": {
+            "type": "number",
+            "description": 3
+          },
+          "rating": {
+            "type": "number",
+            "description": 3.95
+          },
+          "assists": {
+            "type": "number",
+            "description": 1
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#F54C91"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#f36a22"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#111111"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": ""
+          },
+          "goals": {
+            "type": "number",
+            "description": ""
+          },
+          "saves": {
+            "type": "number",
+            "description": ""
+          },
+          "score": {
+            "type": "number",
+            "description": ""
+          },
+          "shots": {
+            "type": "number",
+            "description": ""
+          },
+          "rating": {
+            "type": "number",
+            "description": ""
+          },
+          "assists": {
+            "type": "number",
+            "description": ""
+          },
+          "player_color": {
+            "type": "color",
+            "description": "FFFFFF00"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          }
+        }
+      ]
+    },
+    {
+      "result": {
+        "type": "text",
+        "description": "3 - 4"
+      },
+      "winning_color": {
+        "type": "color",
+        "description": "#f36a22"
+      },
+      "blue_goals": {
+        "type": "number",
+        "description": 3
+      },
+      "orange_goals": {
+        "type": "number",
+        "description": 4
+      },
+      "blue_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": "Seany"
+          },
+          "goals": {
+            "type": "number",
+            "description": 3
+          },
+          "saves": {
+            "type": "number",
+            "description": 1
+          },
+          "score": {
+            "type": "number",
+            "description": 575
+          },
+          "shots": {
+            "type": "number",
+            "description": 4
+          },
+          "rating": {
+            "type": "number",
+            "description": 4.9333334
+          },
+          "assists": {
+            "type": "number",
+            "description": 0
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#DE7327"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#ec2c0d"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#9bf9ff"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "Outta Boost"
+          },
+          "goals": {
+            "type": "number",
+            "description": 0
+          },
+          "saves": {
+            "type": "number",
+            "description": 3
+          },
+          "score": {
+            "type": "number",
+            "description": 475
+          },
+          "shots": {
+            "type": "number",
+            "description": 1
+          },
+          "rating": {
+            "type": "number",
+            "description": 3.6333334
+          },
+          "assists": {
+            "type": "number",
+            "description": 2
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#189666"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#ec2c0d"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#9bf9ff"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": ""
+          },
+          "goals": {
+            "type": "number",
+            "description": ""
+          },
+          "saves": {
+            "type": "number",
+            "description": ""
+          },
+          "score": {
+            "type": "number",
+            "description": ""
+          },
+          "shots": {
+            "type": "number",
+            "description": ""
+          },
+          "rating": {
+            "type": "number",
+            "description": ""
+          },
+          "assists": {
+            "type": "number",
+            "description": ""
+          },
+          "player_color": {
+            "type": "color",
+            "description": "FFFFFF00"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          }
+        }
+      ],
+      "orange_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": "The Big C"
+          },
+          "goals": {
+            "type": "number",
+            "description": 3
+          },
+          "saves": {
+            "type": "number",
+            "description": 0
+          },
+          "score": {
+            "type": "number",
+            "description": 665
+          },
+          "shots": {
+            "type": "number",
+            "description": 4
+          },
+          "rating": {
+            "type": "number",
+            "description": 5.0833335
+          },
+          "assists": {
+            "type": "number",
+            "description": 1
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#0097D7"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#f36a22"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#111111"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "Little Saucetin"
+          },
+          "goals": {
+            "type": "number",
+            "description": 1
+          },
+          "saves": {
+            "type": "number",
+            "description": 0
+          },
+          "score": {
+            "type": "number",
+            "description": 458
+          },
+          "shots": {
+            "type": "number",
+            "description": 4
+          },
+          "rating": {
+            "type": "number",
+            "description": 3.8333333
+          },
+          "assists": {
+            "type": "number",
+            "description": 2
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#F54C91"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#f36a22"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#111111"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": ""
+          },
+          "goals": {
+            "type": "number",
+            "description": ""
+          },
+          "saves": {
+            "type": "number",
+            "description": ""
+          },
+          "score": {
+            "type": "number",
+            "description": ""
+          },
+          "shots": {
+            "type": "number",
+            "description": ""
+          },
+          "rating": {
+            "type": "number",
+            "description": ""
+          },
+          "assists": {
+            "type": "number",
+            "description": ""
+          },
+          "player_color": {
+            "type": "color",
+            "description": "FFFFFF00"
+          },
+          "team_primary": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          },
+          "team_secondary": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          }
+        }
+      ]
+    },
+    {
+      "result": {
+        "type": "text",
+        "description": ""
+      },
+      "winning_color": {
+        "type": "color",
+        "description": "#FFFFFF00"
+      },
+      "blue_goals": {
+        "type": "number",
+        "description": ""
+      },
+      "orange_goals": {
+        "type": "number",
+        "description": ""
+      },
+      "blue_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": ""
+          },
+          "goals": {
+            "type": "number",
+            "description": ""
+          },
+          "saves": {
+            "type": "number",
+            "description": ""
+          },
+          "score": {
+            "type": "number",
+            "description": ""
+          },
+          "shots": {
+            "type": "number",
+            "description": ""
+          },
+          "rating": {
+            "type": "number",
+            "description": ""
+          },
+          "assists": {
+            "type": "number",
+            "description": ""
+          },
+          "team_color": {
+            "type": "color",
+            "description": "FFFFFF00"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": ""
+          },
+          "goals": {
+            "type": "number",
+            "description": ""
+          },
+          "saves": {
+            "type": "number",
+            "description": ""
+          },
+          "score": {
+            "type": "number",
+            "description": ""
+          },
+          "shots": {
+            "type": "number",
+            "description": ""
+          },
+          "rating": {
+            "type": "number",
+            "description": ""
+          },
+          "assists": {
+            "type": "number",
+            "description": ""
+          },
+          "team_color": {
+            "type": "color",
+            "description": "FFFFFF00"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": ""
+          },
+          "goals": {
+            "type": "number",
+            "description": ""
+          },
+          "saves": {
+            "type": "number",
+            "description": ""
+          },
+          "score": {
+            "type": "number",
+            "description": ""
+          },
+          "shots": {
+            "type": "number",
+            "description": ""
+          },
+          "rating": {
+            "type": "number",
+            "description": ""
+          },
+          "assists": {
+            "type": "number",
+            "description": ""
+          },
+          "team_color": {
+            "type": "color",
+            "description": "FFFFFF00"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          }
+        }
+      ],
+      "orange_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": ""
+          },
+          "goals": {
+            "type": "number",
+            "description": ""
+          },
+          "saves": {
+            "type": "number",
+            "description": ""
+          },
+          "score": {
+            "type": "number",
+            "description": ""
+          },
+          "shots": {
+            "type": "number",
+            "description": ""
+          },
+          "rating": {
+            "type": "number",
+            "description": ""
+          },
+          "assists": {
+            "type": "number",
+            "description": ""
+          },
+          "team_color": {
+            "type": "color",
+            "description": "FFFFFF00"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": ""
+          },
+          "goals": {
+            "type": "number",
+            "description": ""
+          },
+          "saves": {
+            "type": "number",
+            "description": ""
+          },
+          "score": {
+            "type": "number",
+            "description": ""
+          },
+          "shots": {
+            "type": "number",
+            "description": ""
+          },
+          "rating": {
+            "type": "number",
+            "description": ""
+          },
+          "assists": {
+            "type": "number",
+            "description": ""
+          },
+          "team_color": {
+            "type": "color",
+            "description": "FFFFFF00"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": ""
+          },
+          "goals": {
+            "type": "number",
+            "description": ""
+          },
+          "saves": {
+            "type": "number",
+            "description": ""
+          },
+          "score": {
+            "type": "number",
+            "description": ""
+          },
+          "shots": {
+            "type": "number",
+            "description": ""
+          },
+          "rating": {
+            "type": "number",
+            "description": ""
+          },
+          "assists": {
+            "type": "number",
+            "description": ""
+          },
+          "team_color": {
+            "type": "color",
+            "description": "FFFFFF00"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          }
+        }
+      ]
+    },
+    {
+      "result": {
+        "type": "text",
+        "description": ""
+      },
+      "winning_color": {
+        "type": "color",
+        "description": "#FFFFFF00"
+      },
+      "blue_goals": {
+        "type": "number",
+        "description": ""
+      },
+      "orange_goals": {
+        "type": "number",
+        "description": ""
+      },
+      "blue_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": ""
+          },
+          "goals": {
+            "type": "number",
+            "description": ""
+          },
+          "saves": {
+            "type": "number",
+            "description": ""
+          },
+          "score": {
+            "type": "number",
+            "description": ""
+          },
+          "shots": {
+            "type": "number",
+            "description": ""
+          },
+          "rating": {
+            "type": "number",
+            "description": ""
+          },
+          "assists": {
+            "type": "number",
+            "description": ""
+          },
+          "team_color": {
+            "type": "color",
+            "description": "FFFFFF00"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": ""
+          },
+          "goals": {
+            "type": "number",
+            "description": ""
+          },
+          "saves": {
+            "type": "number",
+            "description": ""
+          },
+          "score": {
+            "type": "number",
+            "description": ""
+          },
+          "shots": {
+            "type": "number",
+            "description": ""
+          },
+          "rating": {
+            "type": "number",
+            "description": ""
+          },
+          "assists": {
+            "type": "number",
+            "description": ""
+          },
+          "team_color": {
+            "type": "color",
+            "description": "FFFFFF00"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": ""
+          },
+          "goals": {
+            "type": "number",
+            "description": ""
+          },
+          "saves": {
+            "type": "number",
+            "description": ""
+          },
+          "score": {
+            "type": "number",
+            "description": ""
+          },
+          "shots": {
+            "type": "number",
+            "description": ""
+          },
+          "rating": {
+            "type": "number",
+            "description": ""
+          },
+          "assists": {
+            "type": "number",
+            "description": ""
+          },
+          "team_color": {
+            "type": "color",
+            "description": "FFFFFF00"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          }
+        }
+      ],
+      "orange_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": ""
+          },
+          "goals": {
+            "type": "number",
+            "description": ""
+          },
+          "saves": {
+            "type": "number",
+            "description": ""
+          },
+          "score": {
+            "type": "number",
+            "description": ""
+          },
+          "shots": {
+            "type": "number",
+            "description": ""
+          },
+          "rating": {
+            "type": "number",
+            "description": ""
+          },
+          "assists": {
+            "type": "number",
+            "description": ""
+          },
+          "team_color": {
+            "type": "color",
+            "description": "FFFFFF00"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": ""
+          },
+          "goals": {
+            "type": "number",
+            "description": ""
+          },
+          "saves": {
+            "type": "number",
+            "description": ""
+          },
+          "score": {
+            "type": "number",
+            "description": ""
+          },
+          "shots": {
+            "type": "number",
+            "description": ""
+          },
+          "rating": {
+            "type": "number",
+            "description": ""
+          },
+          "assists": {
+            "type": "number",
+            "description": ""
+          },
+          "team_color": {
+            "type": "color",
+            "description": "FFFFFF00"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": ""
+          },
+          "goals": {
+            "type": "number",
+            "description": ""
+          },
+          "saves": {
+            "type": "number",
+            "description": ""
+          },
+          "score": {
+            "type": "number",
+            "description": ""
+          },
+          "shots": {
+            "type": "number",
+            "description": ""
+          },
+          "rating": {
+            "type": "number",
+            "description": ""
+          },
+          "assists": {
+            "type": "number",
+            "description": ""
+          },
+          "team_color": {
+            "type": "color",
+            "description": "FFFFFF00"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "#FFFFFF00"
+          }
+        }
+      ]
+    }
+  ]
+}
