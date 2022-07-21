@@ -111,7 +111,6 @@ export class EloConnectorService {
             team: team,
             mvpr: this.calculateMVPR(p.stats as BallchasingPlayer),
         } as PlayerSummary;
-
     }
 
     calculateMVPR(p: BallchasingPlayer): number {
