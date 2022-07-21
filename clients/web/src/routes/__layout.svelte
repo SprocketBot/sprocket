@@ -15,6 +15,12 @@
 	            label: "Manage",
 	        });
 	    }
+
+	    // TODO: Identify if user is a franchise staff member or not
+	    items.push({
+	        target: "/league",
+	        label: "League Play",
+	    });
 	    return {
 	        props: {
 	            navigationItems: items,

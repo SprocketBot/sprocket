@@ -1,6 +1,6 @@
 import {forwardRef, Module} from "@nestjs/common";
 import {
-    CeleryModule,
+    CeleryModule, CoreModule,
     EventsModule, MatchmakingModule, MinioModule, RedisModule,
 } from "@sprocketbot/common";
 
@@ -22,6 +22,7 @@ import {StatsConverterService} from "./stats-converter/stats-converter.service";
         MinioModule,
         CeleryModule,
         forwardRef(() => ReplayValidationModule),
+        CoreModule,
     ],
     providers: [
         ReplaySubmissionService,

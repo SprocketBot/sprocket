@@ -15,6 +15,7 @@ import {AuthModule} from "../identity";
 import {MledbInterfaceModule} from "../mledb";
 import {OrganizationModule} from "../organization";
 import {MatchService, RoundService} from "../scheduling";
+import {UtilModule} from "../util/util.module";
 import {ScrimPubSub} from "./constants";
 import {ScrimMetricsResolver} from "./metrics";
 import {ScrimConsumer} from "./scrim.consumer";
@@ -24,9 +25,11 @@ import {ScrimModuleResolver, ScrimModuleResolverPublic} from "./scrim.mod.resolv
 import {ScrimResolver} from "./scrim.resolver";
 import {ScrimService} from "./scrim.service";
 import {ScrimMetaCrudService} from "./scrim-crud";
+import {ScrimToggleResolver, ScrimToggleService} from "./scrim-toggle";
 
 @Module({
     imports: [
+        UtilModule,
         ConfigurationModule,
         MatchmakingModule,
         EventsModule,
@@ -69,6 +72,8 @@ import {ScrimMetaCrudService} from "./scrim-crud";
         ScrimMetricsResolver,
         ScrimMetaCrudService,
         ScrimManagementResolver,
+        ScrimToggleService,
+        ScrimToggleResolver,
     ],
     exports: [ScrimService],
     controllers: [ScrimController],

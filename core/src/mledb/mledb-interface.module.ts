@@ -2,25 +2,25 @@ import {forwardRef, Module} from "@nestjs/common";
 import {MatchmakingModule} from "@sprocketbot/common";
 
 import {DatabaseModule} from "../database";
-import {MledbModule} from "../database/mledb";
-import {FranchiseModule} from "../franchise/franchise.module";
+import {FranchiseModule} from "../franchise";
 import {GameModule} from "../game";
-import {IdentityModule} from "../identity/identity.module";
-import {SprocketRatingModule} from "../sprocket-rating/sprocket-rating.module";
+import {IdentityModule} from "../identity";
+import {OrganizationModule} from "../organization";
+import {SprocketRatingModule} from "../sprocket-rating";
 import {MledbPlayerService} from "./mledb-player";
 import {MledbPlayerController} from "./mledb-player/mledb-player.controller";
 import {MledbPlayerAccountService} from "./mledb-player-account";
-import {MledbScrimService} from "./mledb-scrim/mledb-scrim.service";
+import {MledbScrimService} from "./mledb-scrim";
 
 @Module({
     imports: [
         DatabaseModule,
-        MledbModule,
-        forwardRef(() => FranchiseModule),
         GameModule,
         MatchmakingModule,
         SprocketRatingModule,
+        forwardRef(() => FranchiseModule),
         forwardRef(() => IdentityModule),
+        forwardRef(() => OrganizationModule),
     ],
     providers: [
         MledbPlayerService,

@@ -19,6 +19,8 @@ export enum EventTopic {
     ScrimMetricsUpdate = "scrim.metricsUpdate",
     ScrimSaved = "scrim.saved",
 
+    ScrimsDisabled = "scrims.disabled",
+
     // Submissions
     AllSubmissionEvents = "submission.*",
     SubmissionStarted = "submission.started",
@@ -64,6 +66,8 @@ export const EventSchemas = {
         ScrimMetricsSchema,
     ]),
     [EventTopic.ScrimMetricsUpdate]: ScrimMetricsSchema,
+
+    [EventTopic.ScrimsDisabled]: z.boolean(),
 
     // Submission Events
     [EventTopic.SubmissionStarted]: SubmissionEventSchema,

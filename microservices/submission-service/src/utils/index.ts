@@ -9,5 +9,5 @@ export function submissionIsScrim(submissionId: string): boolean {
 }
 
 export function submissionIsMatch(submissionId: string): boolean {
-    return submissionId.startsWith("match)");
+    return submissionId.startsWith("match");
 }

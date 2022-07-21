@@ -1,7 +1,9 @@
 <script lang="ts">
-    import {currentScrim} from "$lib/api";
-    import type {MetricsResult} from "$lib/api/queries/ScrimMetrics.store";
-    import {scrimMetrics} from "$lib/api/queries/ScrimMetrics.store";
+    import {
+        currentScrim, scrimsDisabled, scrimMetrics,
+    } from "$lib/api";
+    import type {MetricsResult} from "$lib/api";
+
 
     import {
         AvailableScrimsView,
@@ -9,12 +11,16 @@
         DashboardCard,
         DashboardNumberCard,
         QueuedView,
+        DisabledView,
         Spinner,
     } from "$lib/components";
 
     let metrics: MetricsResult["metrics"];
     $: metrics = $scrimMetrics.data?.metrics;
     let activityChange: string = "";
+
+    let scrimsAreDisabled: boolean;
+    $: scrimsAreDisabled = $scrimsDisabled.data?.getScrimsDisabled;
 
     function calculateActivityChange() {
         const prev = metrics.previousCompletedScrims ?? 0;
@@ -41,6 +47,8 @@
             </div>
         {:else if $currentScrim.data?.currentScrim}
             <QueuedView/>
+        {:else if scrimsAreDisabled}
+            <DisabledView/>
         {:else}
             <AvailableScrimsView/>
         {/if}

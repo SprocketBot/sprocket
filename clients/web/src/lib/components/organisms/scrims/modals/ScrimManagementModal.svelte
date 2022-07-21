@@ -5,15 +5,20 @@
       ScrimManagementPlayerTable,
   } from "$lib/components/molecules/scrims/modals";
   import {
-      activeScrims, type ActiveScrims, type CurrentScrim,
+      activeScrims, type CurrentScrim,
   } from "$lib/api";
 
   export let visible = false;
   export let targetScrim: CurrentScrim;
   if (!targetScrim) throw new Error();
 
-  let activeScrimsData: ActiveScrims | undefined;
-  $: activeScrimsData = $activeScrims?.data?.activeScrims;
+  $: {
+      if (!$activeScrims.data?.activeScrims.some(ps => ps.id === targetScrim.id)) {
+          visible = false;
+      }
+  }
+  
+
 </script>
 
 <Modal title="Manage Scrim" id="manage-scrim-modal" bind:visible>
@@ -23,7 +28,7 @@
         <ScrimManagementPlayerTable bind:targetScrim />
       </Collapse>
     {/if}
-    <Collapse title="Actions">
+    <Collapse title="Actions" open >
       <ScrimManagementActions bind:targetScrim />
     </Collapse>
   </section>

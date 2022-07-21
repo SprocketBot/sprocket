@@ -4,7 +4,10 @@ import {
 } from "@nestjs/graphql";
 
 import type {UserAuthenticationAccount, UserProfile} from "../../database";
-import {User, UserAuthenticationAccountType} from "../../database";
+import {
+    Member, User, UserAuthenticationAccountType,
+} from "../../database";
+import {PopulateService} from "../../util/populate/populate.service";
 import {UserPayload} from "../auth";
 import {CurrentUser} from "../auth/current-user.decorator";
 import {GqlJwtGuard} from "../auth/gql-auth-guard";
@@ -16,6 +19,7 @@ export class UserResolver {
     constructor(
         private readonly identityService: IdentityService,
         private readonly userService: UserService,
+        private readonly popService: PopulateService,
     ) {}
 
     @Query(() => User)
@@ -51,5 +55,23 @@ export class UserResolver {
     @ResolveField()
     async userProfile(@Root() user: Partial<User>): Promise<UserProfile> {
         return user.userProfile ?? await this.userService.getUserProfileForUser(user.id!);
+    }
+
+    @ResolveField()
+    async members(@Root() user: User, @Args("orgId", {nullable: true}) orgId?: number): Promise<Member[]> {
+        if (!user.members) {
+            // eslint-disable-next-line require-atomic-updates
+            user.members = await this.popService.populateMany(User, user, "members");
+        }
+        if (!orgId) return user.members;
+        // Ensure organization is populated on all the members, then filter
+        return Promise.all(user.members.map(async m => {
+            if (typeof m.organization?.id === "undefined") {
+                // eslint-disable-next-line require-atomic-updates
+                m.organization = await this.popService.populateOneOrFail(Member, m, "organization");
+            }
+
+            return m;
+        })).then(results => results.filter(m => m.organization.id === orgId));
     }
 }

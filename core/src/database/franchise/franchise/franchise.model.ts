@@ -1,9 +1,10 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {
-    Entity, JoinColumn, OneToMany, OneToOne,
+    Entity, JoinColumn, ManyToOne, OneToMany, OneToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
+import {Organization} from "../../organization";
 import {FranchiseGroupAssignment} from "../franchise_group_assignment";
 import {FranchiseLeadershipAppointment} from "../franchise_leadership_appointment";
 import {FranchiseProfile} from "../franchise_profile";
@@ -28,4 +29,10 @@ export class Franchise extends BaseModel {
     @OneToMany(() => FranchiseLeadershipAppointment, fla => fla.franchise)
     @Field(() => [FranchiseLeadershipAppointment])
     leadershipAppointments: FranchiseLeadershipAppointment[];
+
+    @ManyToOne(() => Organization)
+    @Field(() => Organization)
+    organization: Organization;
+
+    profileId: number;
 }

@@ -39,7 +39,10 @@ const config = {
         "sprocket-pink": sprocketPalette.accent,
         "sprocket-purple": sprocketPalette.purple,
         "sprocket-blue": sprocketPalette.secondary,
-        gray: sprocketPalette.gray
+        gray: sprocketPalette.gray,
+
+        "context-primary": "var(--primary-color)",
+        "context-secondary": "var(--secondary-color)",
       },
       spacing: {
         '1/10': '10%',

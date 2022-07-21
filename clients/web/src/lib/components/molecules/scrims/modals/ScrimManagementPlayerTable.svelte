@@ -2,9 +2,17 @@
 	import type {CurrentScrim} from "$lib/api";
 
 	export let targetScrim: CurrentScrim;
+	let players: Array<{id: number; name: string; checkedIn: boolean;}> | undefined;
+	let playersAdmin: Array<{id: number; name: string;}> | undefined;
+	$: {
+	    if (targetScrim) {
+	        players = targetScrim?.players;
+	        playersAdmin = targetScrim?.playersAdmin;
+	    }
+	}
 </script>
 {#if targetScrim}
-	{#if !targetScrim.players && !targetScrim.playersAdmin}
+	{#if !players && !playersAdmin}
 		<p>The players for this scrim are not available.</p>
 	{:else}
 		<table class='table text-center w-full'>
@@ -17,7 +25,7 @@
 			</tr>
 			</thead>
 			<tbody>
-			{#each targetScrim.players ?? targetScrim.playersAdmin as player (player.id)}
+			{#each players ?? playersAdmin as player (player.id)}
 				<tr>
 					<td>{player.name}</td>
 					<td>{player.id}</td>
