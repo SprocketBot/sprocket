@@ -184,7 +184,8 @@ export class EloConnectorService {
         }
 
         // Magic happens here to talk to the ELO service
-        await this.sendReplaysToElo(replayIds, isNcp);
+        const noDummies = replays.filter(rep => !rep.isDummy).map(rep => rep.id);
+        await this.sendReplaysToElo(noDummies, isNcp);
 
         const outStr = `\`${replayIds.length === 1
             ? `replayId=${replayIds[0]}`
