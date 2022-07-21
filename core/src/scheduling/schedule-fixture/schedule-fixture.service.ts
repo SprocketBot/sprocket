@@ -19,4 +19,15 @@ export class ScheduleFixtureService {
             relations: ["scheduleGroup"],
         });
     }
+
+    async getFixtureForMatchParent(matchParentId: number): Promise<ScheduleFixture> {
+        return this.scheduleFixtureRepo.findOneOrFail({
+            where: {
+                matchParents: {
+                    id: matchParentId,
+                },
+            },
+            relations: ["awayFranchise", "awayFranchise.profile", "homeFranchise", "homeFranchise.profile"],
+        });
+    }
 }

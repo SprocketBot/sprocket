@@ -1,6 +1,8 @@
 <script lang="ts">
     import {slide} from "svelte/transition";
-    import {joinScrimMutation} from "$lib/api";
+    import {
+        joinScrimMutation, pendingScrims,
+    } from "$lib/api";
     import {Modal, toasts} from "$lib/components";
 
     export let visible = true;
@@ -9,6 +11,12 @@
     let groupCode: string;
     let joiningWithExistingGroup: boolean = false;
     let joining: boolean = false;
+
+    $: {
+        if (!$pendingScrims.data?.pendingScrims.some(ps => ps.id === scrimId)) {
+            visible = false;
+        }
+    }
 
     async function joinSolo() {
         joiningWithExistingGroup = false;

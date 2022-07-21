@@ -15,12 +15,6 @@ const config = {
 
   kit: {
     adapter: adapter(),
-    vite: {
-      optimizeDeps: {
-        exclude: ["src/lib/config.json"],
-        allowNodeBuiltins: ['fs']
-      }
-    }
   },
 };
 

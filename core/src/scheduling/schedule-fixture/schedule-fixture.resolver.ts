@@ -1,4 +1,6 @@
 import {
+    Args,
+    Query,
     ResolveField, Resolver, Root,
 } from "@nestjs/graphql";
 import {InjectRepository} from "@nestjs/typeorm";
@@ -21,6 +23,11 @@ export class ScheduleFixtureResolver {
                 @InjectRepository(ScheduleFixture)
                 private readonly scheduleFixtureRepo: Repository<ScheduleFixture>,
     ) {}
+
+    @Query(() => ScheduleFixture)
+    async getFixture(@Args("id") id: number): Promise<ScheduleFixture> {
+        return this.scheduleFixtureRepo.findOneOrFail({id});
+    }
 
     @ResolveField()
     async scheduleGroup(@Root() root: ScheduleFixture): Promise<ScheduleGroup> {

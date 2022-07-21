@@ -4,6 +4,7 @@ import {
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
+import {Photo} from "../../organization";
 import {Franchise} from "../franchise";
 
 @Entity({schema: "sprocket"})
@@ -25,8 +26,21 @@ export class FranchiseProfile extends BaseModel {
     @Field({nullable: true})
     matchReportWebhookUrl?: string;
 
+    @OneToOne(() => Photo,  {nullable: true})
+    @JoinColumn()
+    @Field(() => Photo, {nullable: true})
+    photo?: Photo;
+
     @OneToOne(() => Franchise)
     @JoinColumn()
     @Field(() => Franchise)
     franchise: Franchise;
+
+    @Column()
+    @Field()
+    primaryColor: string;
+
+    @Column()
+    @Field()
+    secondaryColor: string;
 }

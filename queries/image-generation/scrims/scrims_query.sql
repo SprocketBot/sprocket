@@ -41,7 +41,8 @@ game_stats AS(
 		psc.saves,
 		psc.shots,
 		psc.gpi,
-		p.name as player_name
+		p.name as player_name,
+		p.salary
 	FROM		vars v
 	INNER JOIN 	mledb.series s
 	ON 			v.scrim_id = s.scrim_id
@@ -129,6 +130,7 @@ player_stats AS (
 
 	t AS(
 		SELECT 	gs.player_name AS name,
+				gs.salary AS salary,
 				re.wins,
 				re.losses,
 				AVG(COALESCE(gs.gpi, gs.mvpr)) AS rating,
@@ -140,7 +142,7 @@ player_stats AS (
 		FROM game_stats gs
 		INNER JOIN records re
 		ON gs.player_name = re.player_name
-		GROUP BY gs.player_name, re.wins, re.losses
+		GROUP BY gs.player_name, salary, re.wins, re.losses
 		ORDER BY wins DESC, rating DESC
 	)
 	SELECT
@@ -153,6 +155,7 @@ player_stats AS (
 		t.saves,
 		t.shots,
 		t.assists,
+		t.salary,
 		c.color as player_color
 	FROM t
 	INNER JOIN colors c
@@ -163,6 +166,7 @@ player_stats_object AS(
 	blank_player_data_json AS (
        SELECT
 			jsonb_build_object('type', 'text', 'value', '') AS name,
+			json_build_object('type', 'number', 'value', '') AS salary,
 			jsonb_build_object('type', 'number', 'value', '') AS wins,
 			jsonb_build_object('type', 'number', 'value', '') AS losses,
 			jsonb_build_object('type', 'text', 'value', '') AS record,
@@ -178,6 +182,7 @@ player_stats_object AS(
 	player_data_json AS(
 		SELECT
 			jsonb_build_object('type', 'text', 'value', name) AS name,
+			json_build_object('type', 'number', 'value', salary) AS salary,
 			jsonb_build_object('type', 'number', 'value', wins) AS wins,
 			jsonb_build_object('type', 'number', 'value', losses) AS losses,
 			jsonb_build_object('type', 'text', 'value', record) AS record,
@@ -258,7 +263,7 @@ games_data AS(
 		SELECT *,
 		ROW_NUMBER() OVER (PARTITION BY cpd.replay_id, cpd.player_team_color ORDER BY cpd.score DESC) AS n
 		FROM player_game_data cpd
-		ORDER BY replay_id, player_team_color DESC, player->>'value' DESC
+		ORDER BY replay_id, player_team_color DESC, UPPER(player->>'value') DESC
 	),
 	team_replay_data AS(
 		SELECT

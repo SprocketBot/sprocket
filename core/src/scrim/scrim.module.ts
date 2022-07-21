@@ -15,6 +15,7 @@ import {AuthModule} from "../identity";
 import {MledbInterfaceModule} from "../mledb";
 import {OrganizationModule} from "../organization";
 import {MatchService, RoundService} from "../scheduling";
+import {UtilModule} from "../util/util.module";
 import {ScrimPubSub} from "./constants";
 import {ScrimMetricsResolver} from "./metrics";
 import {ScrimConsumer} from "./scrim.consumer";
@@ -28,6 +29,7 @@ import {ScrimToggleResolver, ScrimToggleService} from "./scrim-toggle";
 
 @Module({
     imports: [
+        UtilModule,
         ConfigurationModule,
         MatchmakingModule,
         EventsModule,

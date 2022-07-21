@@ -1,6 +1,6 @@
 import type {OperationResult} from "@urql/core";
 import {gql} from "@urql/core";
-import {LiveQueryStore} from "../core/LiveQueryStore";
+import {LiveQueryStore} from "../../core/LiveQueryStore";
 
 interface PendingScrim {
     id: string;
@@ -54,24 +54,24 @@ class PendingScrimsStore extends LiveQueryStore<PendingScrimsData, PendingScrims
     }`;
 
     protected subscriptionString = gql<FollowScrimsData, {}>`
-    subscription {
-        pendingScrim: followPendingScrims {
-            id
-            playerCount
-            maxPlayers
-            status
-            gameMode {
-                description
-                game {
-                    title
+        subscription {
+            pendingScrim: followPendingScrims {
+                id
+                playerCount
+                maxPlayers
+                status
+                gameMode {
+                    description
+                    game {
+                        title
+                    }
+                }
+                settings {
+                    competitive
+                    mode
                 }
             }
-            settings {
-                competitive
-                mode
-            }
         }
-    }
     `;
 
     constructor() {

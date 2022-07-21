@@ -38,4 +38,7 @@ export class Match extends BaseModel {
     @Column({nullable: true, unique: true})
     @Field(() => String)
     submissionId: string;
+
+    @Field(() => Boolean)
+    submitted: boolean;
 }

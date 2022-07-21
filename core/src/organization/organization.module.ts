@@ -7,6 +7,7 @@ import {DatabaseModule} from "../database";
 import {FranchiseModule} from "../franchise";
 import {GameModule} from "../game";
 import {IdentityModule} from "../identity";
+import {UtilModule} from "../util/util.module";
 import {MemberPubSub} from "./constants";
 import {
     MemberController, MemberResolver, MemberService,
@@ -28,6 +29,7 @@ import {PronounsService} from "./pronouns/pronouns.service";
         EventsModule,
         forwardRef(() => ConfigurationModule),
         forwardRef(() => FranchiseModule),
+        UtilModule,
     ],
     providers: [
         OrganizationResolver,

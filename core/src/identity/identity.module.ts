@@ -1,6 +1,7 @@
 import {Module} from "@nestjs/common";
 
 import {DatabaseModule} from "../database";
+import {UtilModule} from "../util/util.module";
 import {IdentityController} from "./identity.controller";
 import {IdentityService} from "./identity.service";
 import {
@@ -9,7 +10,7 @@ import {
 import {UserAuthenticationAccountResolver} from "./user-authentication-account";
 
 @Module({
-    imports: [DatabaseModule],
+    imports: [DatabaseModule, UtilModule],
     providers: [
         IdentityService,
         UserResolver,

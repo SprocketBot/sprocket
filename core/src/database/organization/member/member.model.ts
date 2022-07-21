@@ -39,4 +39,7 @@ export class Member extends BaseModel {
     @OneToMany(() => MemberRestriction, mr => mr.member)
     @Field(() => [MemberRestriction])
     restrictions: MemberRestriction;
+
+    userId: number;
+
 }

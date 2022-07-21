@@ -2,6 +2,7 @@ import type {OperationResult, TypedDocumentNode} from "@urql/core";
 import {client, clientPromise} from "../client";
 import {BaseStore} from "./BaseStore";
 import type {Readable} from "svelte/store";
+import {browser} from "$app/env";
 
 export abstract class QueryStore<T, V extends Object> extends BaseStore<OperationResult<T, V>> implements Readable<OperationResult<T, V>> {
     protected _vars: V | undefined;
@@ -37,10 +38,12 @@ export abstract class QueryStore<T, V extends Object> extends BaseStore<Operatio
     }
 
     invalidate(): void {
+        if (!browser) return;
         this.query.bind(this)().catch(console.error);
     }
 
     protected async query(): Promise<void> {
+        if (!browser) return;
         if (!client) {
             await clientPromise;
         }
