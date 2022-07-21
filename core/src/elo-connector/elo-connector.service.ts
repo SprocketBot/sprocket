@@ -257,8 +257,6 @@ export class EloConnectorService {
         if (numReplays) {
             dummiesNeeded = numReplays - seriesReplays.length;
             for (let i = 0;i < dummiesNeeded;i++) {
-                // await this.srs.createDummySeriesReplay(seriesId,
-                // winningTeam);
                 const dummy: Partial<Round> = {
                     isDummy: true,
                     match: series,
