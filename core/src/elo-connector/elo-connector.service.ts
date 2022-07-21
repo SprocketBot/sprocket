@@ -146,8 +146,6 @@ export class EloConnectorService {
         if (winningTeam) {
             for (const replay of replays) {
                 if (replay.isDummy) continue; // Don't need to check dummy replays
-                // const teamsInReplay = (await
-                // replay.teamStats.loadItems()).map(tcs => tcs.team);
                 const teamsInReplay = replay.teamStats.map(tsl => tsl.teamName);
                 if (!teamsInReplay.includes(winningTeam.franchise.profile.title)) {
                     this.logger.error(`The team \`${winningTeam.franchise.profile.title}\` did not play in replay with id \`${replay.id}\` (${teamsInReplay.join(" v. ")}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`);
