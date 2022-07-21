@@ -16,8 +16,7 @@ export class FranchiseResolver {
         @InjectRepository(FranchiseProfile)
         private readonly franchiseProfileRepo: Repository<FranchiseProfile>,
         private readonly populate: PopulateService,
-    ) {
-    }
+    ) {}
 
     @ResolveField()
     async profile(@Root() root: Franchise): Promise<FranchiseProfile> {
