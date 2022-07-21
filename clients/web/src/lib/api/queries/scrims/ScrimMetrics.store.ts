@@ -17,7 +17,6 @@ export interface MetricsResult {
 }
 
 interface MetricsVariables {}
-console.log("Hi2");
 class ScrimMetricsStore extends LiveQueryStore<MetricsResult, MetricsVariables> {
     protected queryString = gql<MetricsResult>`
     query {
