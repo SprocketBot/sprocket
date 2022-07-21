@@ -50,7 +50,6 @@ class ScrimMetricsStore extends LiveQueryStore<MetricsResult, MetricsVariables> 
 
 
     constructor() {
-        console.log("3");
         super();
         this._vars = {};
         this.subscriptionVariables = {};
