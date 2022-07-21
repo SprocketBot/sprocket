@@ -224,7 +224,7 @@ export class EloConnectorService {
         if (seriesType === SeriesType.Fixture) {
 
             if (!series.matchParent.fixture) {
-                return `Error: series with id=\`${seriesId}\` has no associated fixture. If this is a scrim, please use \`!ncpScrim\` or \`!unNcpScrim\`. If this actually is a league play series, ping Bot Team.`;
+                return `Error: series with id='${seriesId}' has no associated fixture, yet markSeriesNCP was called with SeriesType.Fixture.`;
             }
 
             // Winning team must be specified if NCPing replays
@@ -246,7 +246,7 @@ export class EloConnectorService {
             // winningTeam = await this.ts.resolveTeam("FA");
             winningTeam = await this.teamRepository.findOneOrFail(0); // TODO: ID for FA team
         } else {
-            throw new Error();
+            throw new Error(`MarkSeriesNCP called with unknown series type: ${JSON.stringify(seriesType)}`);
         }
 
         // const seriesReplays = await this.srs.getSeriesReplays({series: {id:
