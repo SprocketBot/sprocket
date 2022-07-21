@@ -146,8 +146,6 @@ export class EloConnectorService {
         if (winningTeam) {
             for (const replay of replays) {
                 if (replay.isDummy) continue; // Don't need to check dummy replays
-                // const teamsInReplay = (await
-                // replay.teamStats.loadItems()).map(tcs => tcs.team);
                 const teamsInReplay = replay.teamStats.map(tsl => tsl.teamName);
                 if (!teamsInReplay.includes(winningTeam.franchise.profile.title)) {
                     this.logger.error(`The team \`${winningTeam.franchise.profile.title}\` did not play in replay with id \`${replay.id}\` (${teamsInReplay.join(" v. ")}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`);
@@ -179,7 +177,6 @@ export class EloConnectorService {
                 replay.homeWon = newHomeWon;
                 await this.roundRepository.save(replay);
             }
-
         }
 
         // Magic happens here to talk to the ELO service
@@ -217,8 +214,6 @@ export class EloConnectorService {
         // team names are in Sprocket.
         let winningTeam = await this.teamRepository.findOne(winningTeamInput?.id, {where: {id: winningTeamInput?.id}, relations: ["franchise", "franchise.profile"] });
 
-        // const series = await this.ss.getSeriesById(seriesId, ["fixture.home",
-        // "fixture.away"]);
         const series = await this.matchRepository.findOneOrFail(seriesId, {where: {id: seriesId}, relations: ["matchParent", "rounds"] });
 
         if (seriesType === SeriesType.Fixture) {
@@ -243,14 +238,11 @@ export class EloConnectorService {
             if (!series.matchParent.scrimMeta) {
                 return `Error: series with id=\`${seriesId}\` has no associated scrim. If this is a league play series, please use \`!ncpSeries\` or \`!unNcpSeries\`. If this actually is a scrim, ping Bot Team.`;
             }
-            // winningTeam = await this.ts.resolveTeam("FA");
             winningTeam = await this.teamRepository.findOneOrFail(0); // TODO: ID for FA team
         } else {
             throw new Error(`MarkSeriesNCP called with unknown series type: ${JSON.stringify(seriesType)}`);
         }
 
-        // const seriesReplays = await this.srs.getSeriesReplays({series: {id:
-        // seriesId} }, false);
         const seriesReplays: Round[] = series.rounds;
 
         // Add dummy replays
