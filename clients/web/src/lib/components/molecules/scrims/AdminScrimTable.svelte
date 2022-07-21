@@ -16,36 +16,35 @@
         */
 
     let scrimManagementModalVisible = false;
-    let targetId: string;
-
+    
     let scrimsAreDisabled: boolean;
     $: scrimsAreDisabled = $scrimsDisabled.data?.getScrimsDisabled;
-
-    // TODO: Implement Lock Scrim Workflow
 
     let activeScrimsData: ActiveScrims | undefined;
     $: activeScrimsData = $activeScrims?.data?.activeScrims;
 
+    let targetId: string;
     let targetScrim: CurrentScrim | undefined;
+    $: targetScrim = activeScrimsData?.find(s => s.id === targetId);
 
     let selectedPlayer: string | undefined;
 
     const selectPlayerInTable = (playerId: string) => {
         selectedPlayer = playerId;
     };
+
     const openScrimManagementModal = (scrimId: string) => {
         scrimManagementModalVisible = true;
         targetId = scrimId;
-        const targetScrims = activeScrimsData?.filter(s => s.id === targetId);
-        targetScrim = targetScrims ? targetScrims[0] : undefined;
     };
+
     const toggleScrimsDisabled = async (disabled: boolean) => {
         try {
             await setScrimsDisabledMutation({disabled});
         } catch {
             console.log(`Failed to ${disabled ? "disable" : "enable"} scrims`);
         }
-};
+    };
 </script>
 
 <table class="table text-center w-full">
