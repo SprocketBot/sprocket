@@ -23,8 +23,8 @@ export class ReplayParseModResolver {
         @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
     ) {}
 
-    @Query(() => GqlReplaySubmission)
-    async getSubmission(@Args("submissionId") submissionId: string): Promise<ReplaySubmission> {
+    @Query(() => GqlReplaySubmission, {nullable: true})
+    async getSubmission(@Args("submissionId") submissionId: string): Promise<ReplaySubmission | null> {
         return this.rpService.getSubmission(submissionId);
     }
 

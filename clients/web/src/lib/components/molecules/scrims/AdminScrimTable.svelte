@@ -4,10 +4,11 @@
     import {
         setScrimsDisabledMutation, type CurrentScrim,
     } from "../../../api";
-    import {activeScrims, type ActiveScrims} from "$lib/api";
+    import {
+        scrimsDisabled, activeScrims, type ActiveScrims,
+    } from "$lib/api";
     import FaLockOpen from "svelte-icons/fa/FaLockOpen.svelte";
     import FaLock from "svelte-icons/fa/FaLock.svelte";
-    import {scrimsDisabled} from "$lib/api/queries/ScrimsDisabled.store";
 
     /*
             TODO: Create/Implement Search

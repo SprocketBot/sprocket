@@ -1,8 +1,8 @@
 <script lang="ts">
-    import type {Submission} from "$lib/api";
-    import {RatifySubmissionMutation} from "$lib/api";
-    import {GameCard, Progress} from "$lib/components";
-    import RejectSubmissionModal from "../modals/RejectSubmissionModal.svelte";
+    import type {Submission} from "../../api";
+    import {RatifySubmissionMutation} from "../../api";
+    import {GameCard, Progress} from "../index";
+    import RejectSubmissionModal from "./scrims/modals/RejectSubmissionModal.svelte";
 
     export let submission: Submission;
     if (!submission) throw new Error();

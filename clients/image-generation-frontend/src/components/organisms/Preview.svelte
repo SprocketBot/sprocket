@@ -37,7 +37,7 @@
       $fontElements = new Map();
       const fontDef = $previewEl.querySelector("def#fonts");
       if (fontDef) {
-          for (const font of fontDef?.children) {
+          for (const font of fontDef?.children ?? []) {
               $fontElements.set(font.getAttribute("data-font-name"), font);
           }
           fontDef.remove();
@@ -45,7 +45,7 @@
       $fontElements = $fontElements;
 
       attachListeners($previewEl);
-    
+
   });
   onDestroy(() => {
       $previewEl = undefined;
@@ -78,7 +78,7 @@
       });
   }
 
-  
+
 
   function handleKeydown(e: KeyboardEvent) {
       if (e.key === "Escape") {

@@ -23,9 +23,10 @@ import {
             secret: JwtConstants.secret,
             signOptions: {expiresIn: config.auth.jwt_expiry},
         }),
-        MledbInterfaceModule,
+
         AnalyticsModule,
-        GameModule,
+        forwardRef(() => MledbInterfaceModule),
+        forwardRef(() => GameModule),
         forwardRef(() => FranchiseModule),
         forwardRef(() => OrganizationModule),
     ],

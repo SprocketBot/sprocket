@@ -1,4 +1,6 @@
-import {Injectable} from "@nestjs/common";
+import {
+    forwardRef, Inject, Injectable,
+} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {
     BallchasingPlayer, BallchasingResponse, BallchasingTeam, Scrim,
@@ -21,7 +23,7 @@ import {
 } from "../../database/mledb";
 import {GameSkillGroupService} from "../../franchise";
 import {GameModeService} from "../../game";
-import {UserService} from "../../identity/user/user.service";
+import {UserService} from "../../identity";
 import type {ReplaySubmission} from "../../replay-parse";
 import {SprocketRatingService} from "../../sprocket-rating/sprocket-rating.service";
 import {assignPlayerStats} from "./assign-player-stats";
@@ -39,6 +41,7 @@ export class MledbScrimService {
         @InjectRepository(MLE_PlayerAccount) private readonly mlePlayerAccountRepository: Repository<MLE_PlayerAccount>,
         @InjectRepository(MLE_Player) private readonly mlePlayerRepository: Repository<MLE_Player>,
         @InjectRepository(MLE_EligibilityData) private readonly mleEligibilityRepository: Repository<MLE_EligibilityData>,
+        @Inject(forwardRef(() => GameSkillGroupService))
         private readonly skillGroupService: GameSkillGroupService,
         private readonly gameModeService: GameModeService,
         private readonly userService: UserService,

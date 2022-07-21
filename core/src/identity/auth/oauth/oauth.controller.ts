@@ -1,5 +1,5 @@
 import {
-    Controller, ForbiddenException, Get, Request, Response, UseGuards,
+    Controller, ForbiddenException, forwardRef, Get, Inject, Request, Response, UseGuards,
 } from "@nestjs/common";
 import {config} from "@sprocketbot/common";
 import {Request as Req, Response as Res} from "express";
@@ -21,6 +21,7 @@ export class OauthController {
     constructor(
         private authService: OauthService,
         private userService: UserService,
+        @Inject(forwardRef(() => MledbPlayerService))
         private mledbUserService: MledbPlayerService,
     ) {}
 
