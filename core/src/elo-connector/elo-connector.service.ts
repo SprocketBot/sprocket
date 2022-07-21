@@ -246,8 +246,6 @@ export class EloConnectorService {
             throw new Error();
         }
 
-        // const seriesReplays = await this.srs.getSeriesReplays({series: {id:
-        // seriesId} }, false);
         const seriesReplays: Round[] = series.rounds;
 
         // Add dummy replays
