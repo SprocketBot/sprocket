@@ -182,17 +182,52 @@ match_info AS(
 	
 ),
 
+
+empty_players AS(
+	SELECT 
+		jsonb_build_object('type', 'text', 'value', ''),
+		v.series_id
+	FROM vars v
+),
+
 home_players AS(
-	SELECT json_agg(DISTINCT(jsonb_build_object('type', 'text', 'value', player_name))) as home_players, series_id FROM player_table
-	 WHERE player_team_name = home_name
-	 GROUP BY series_id
+	with hp as
+	(
+		SELECT 
+			DISTINCT(jsonb_build_object('type', 'text', 'value', player_name)) as home_players, 
+			series_id 
+		FROM player_table
+		WHERE player_team_name = home_name
+		UNION ALL 
+		SELECT * FROM empty_players
+		UNION ALL 
+		SELECT * FROM empty_players
+	)	
+	SELECT json_agg(home_players) as home_players,
+		series_id
+	FROM hp
+	GROUP BY series_id
 ),
 
 away_players AS(
-	SELECT json_agg(DISTINCT(jsonb_build_object('type', 'text', 'value', player_name))) as away_players, series_id FROM player_table
-	 WHERE player_team_name != home_name
-	 GROUP BY series_id
+	with ap as
+	(
+		SELECT 
+			DISTINCT(jsonb_build_object('type', 'text', 'value', player_name)) as away_players, 
+			series_id 
+		FROM player_table
+		WHERE player_team_name != home_name
+		UNION ALL 
+		SELECT * FROM empty_players
+		UNION ALL 
+		SELECT * FROM empty_players
+	)	
+	SELECT json_agg(away_players) as away_players,
+		series_id
+	FROM ap
+	GROUP BY series_id
 ),
+
 
 game_object AS(
 	SELECT
@@ -485,5 +520,6 @@ full_object AS (
 		(SELECT json_agg(games_data.game) FROM games_data) as games_data
 	FROM game_object
 )
+
 
 SELECT row_to_json(full_object.*) AS data FROM full_object
