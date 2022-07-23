@@ -7,3 +7,4 @@ node_modules
 
 src/config.json
 src/ca-certificate.cer
+secret/
