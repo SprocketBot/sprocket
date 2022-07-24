@@ -11,6 +11,7 @@
     export let progressStore: Readable<ProgressMessage<unknown>>;
     export let canRemove: boolean;
 
+
     const dispatch = createEventDispatcher();
 
     let status: ProgressStatus;
