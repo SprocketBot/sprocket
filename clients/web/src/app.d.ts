@@ -7,6 +7,7 @@ import type {SessionUser} from "$lib/types/SessionUser";
 
 import type {ChatwootSDK} from "$lib/components/abstract/Chatwoot";
 import type {Config} from "./lib/utils/types";
+import type {SSRData} from "@urql/core/dist/types/exchanges/ssr";
 
 declare global {
     declare namespace App {
@@ -24,7 +25,7 @@ declare global {
     }
 
     declare interface Window {
+        __URQL_DATA__?: SSRData;
         chatwootSDK?: ChatwootSDK;
     }
 }
-
