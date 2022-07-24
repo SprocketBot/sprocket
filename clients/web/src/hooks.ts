@@ -1,6 +1,6 @@
-import config from "$lib/utils/config";
 import type {GetSession, Handle} from "@sveltejs/kit";
-import {constants} from "$lib/utils";
+import {constants, type Config} from "$lib/utils";
+import {readFileSync} from "fs";
 
 export const handle: Handle = async ({event, resolve}) => {
     if (event.request.headers.has("cookie")) {
@@ -24,11 +24,9 @@ export const handle: Handle = async ({event, resolve}) => {
                         event.locals.token = rawToken;
                     }
                 }
-
             }
-
         } catch (e) {
-            console.log(e);
+            console.error(e);
         }
     }
     const result = await resolve(event);
@@ -36,13 +34,15 @@ export const handle: Handle = async ({event, resolve}) => {
 };
 
 export const getSession: GetSession = (event): App.Session => {
+    const config = JSON.parse(readFileSync("./src/config.json").toString()) as Config;
+
     if (event.locals.user) {
         return {
-            ...config,
+            config: config,
             user: event.locals.user,
             token: event.locals.token,
-        } as App.Session;
+        };
     }
 
-    return config;
+    return {config};
 };

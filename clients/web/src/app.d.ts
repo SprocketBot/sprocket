@@ -13,8 +13,7 @@ declare global {
         }
         // interface Platform {}
         interface Session {
-            gqlUrl: string;
-            secure: boolean;
+            config: Config;
     
             token?: string;
             user?: SessionUser;
