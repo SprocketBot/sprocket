@@ -32,6 +32,7 @@ export class FranchiseProfile extends BaseModel {
     photo?: Photo;
 
     @OneToOne(() => Franchise)
+    @JoinColumn()
     @Field(() => Franchise)
     franchise: Franchise;
 
