@@ -87,7 +87,7 @@ export class UserService {
      * @retusn The user with the given id, if found.
      */
     async getUserById(id: number, options?: FindOneOptions<User>): Promise<User> {
-        return this.userRepository.findOneOrFail(id, {...options, relations: ["userProfile", ...options?.relations ?? []] });
+        return this.userRepository.findOneOrFail(id, {...options, relations: ["profile", ...options?.relations ?? []] });
     }
 
     async getUser(query: FindOneOptions<UserProfile>): Promise<User | undefined> {
