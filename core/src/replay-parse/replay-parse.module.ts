@@ -34,6 +34,7 @@ import {ReplayParseService} from "./replay-parse.service";
         FranchiseModule,
         IdentityModule,
         SprocketRatingModule,
+        SubmissionModule,
     ],
     providers: [
         ReplayParseModResolver,

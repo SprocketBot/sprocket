@@ -4,3 +4,4 @@ export * from "./GetSubmissionRejections.schema";
 export * from "./ratification";
 export * from "./RemoveSubmission.schema";
 export * from "./SubmitReplays.schema";
+export * from "./ValidateSubmission.schema";

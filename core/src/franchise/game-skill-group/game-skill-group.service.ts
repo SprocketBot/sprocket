@@ -5,6 +5,7 @@ import {Repository} from "typeorm";
 
 import type {GameSkillGroupProfile} from "../../database";
 import {GameSkillGroup} from "../../database";
+import {League} from "../../database/mledb";
 
 @Injectable()
 export class GameSkillGroupService {
@@ -21,5 +22,31 @@ export class GameSkillGroupService {
     async getGameSkillGroupProfile(skillGroupId: number): Promise<GameSkillGroupProfile> {
         const skillGroup = await this.gameSkillGroupRepository.findOneOrFail({where: {id: skillGroupId}, relations: ["profile"] });
         return skillGroup.profile;
+    }
+
+    async getGameSkillGroupByMLEDBLeague(league: League): Promise<GameSkillGroup> {
+        let code: string;
+        switch (league) {
+            case League.FOUNDATION:
+                code = "FL";
+                break;
+            case League.ACADEMY:
+                code = "AL";
+                break;
+            case League.CHAMPION:
+                code = "CL";
+                break;
+            case League.MASTER:
+                code = "ML";
+                break;
+            case League.PREMIER:
+                code = "PL";
+                break;
+            default:
+                throw new Error(`Unknown league ${league}`);
+        }
+        return this.getGameSkillGroup({
+            where: {code},
+        });
     }
 }

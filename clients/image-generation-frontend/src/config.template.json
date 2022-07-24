@@ -1,18 +1,17 @@
 {
-    "minio": {
+    "minio":{
+        "endpoint":"",
+        "port": 0,
+        "ssl": true,
         "access": "",
-        "secret": "",
-        "endpoint": "",
-        "bucket": "",
-        "ssl": true     
-    },
+        "bucket": "sprocket-image-gen-dev"
+      },
     "knex":{
         "host": "",
         "port":0,
         "user": "",
         "database": "",
         "enable_logs": false,
-        "password": "",
         "ssl":{ "rejectUnauthorized": false }
       },
     "transport": {

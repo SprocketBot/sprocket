@@ -101,7 +101,7 @@ export type BallchasingPlayerStates = z.infer<typeof BallchasingPlayerStatsSchem
 export const BallchasingPlayerSchema = z.object({
     id: z.object({
         id: z.string(),
-        platform: z.string(), // TODO enum
+        platform: z.enum(["steam", "xbox", "ps4", "epic"]),
     }),
     name: z.string(),
     camera: z.object({
