@@ -1,8 +1,9 @@
 <script lang="ts">
-    import {browser} from "$app/env";
     import {onMount} from "svelte";
+    import {browser} from "$app/env";
     import {session} from "$app/stores";
-import {chatwootSettings} from "./Chatwoot.constants";
+
+    import {chatwootSettings} from "./Chatwoot.constants";
 
     const {
         enabled, url, websiteToken,
