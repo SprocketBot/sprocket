@@ -35,7 +35,7 @@ interface FollowScrimsData {
 class PendingScrimsStore extends LiveQueryStore<PendingScrimsData, PendingScrimsVars, FollowScrimsData> {
     protected queryString = gql<PendingScrimsData, PendingScrimsVars>`
     query {
-        pendingScrims: getAllScrims(status: PENDING) {
+        pendingScrims: getAvailableScrims(status: PENDING) {
             id
             playerCount
             maxPlayers
