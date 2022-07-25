@@ -32,7 +32,7 @@ export interface ChatwootUser {
 }
 
 /** https://github.com/chatwoot/chatwoot/blob/develop/app/javascript/packs/sdk.js#L21 */
-export interface Chatwoot {
+export interface ChatwootGlobal {
     baseUrl: string;
     hasLoaded: boolean;
     hideMessageBubble: boolean;
