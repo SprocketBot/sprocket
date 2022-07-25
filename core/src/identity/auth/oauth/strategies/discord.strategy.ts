@@ -132,8 +132,8 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
                     platform: {code: mledbPlayerAccount.platform},
                     platformAccountId: mledbPlayerAccount.platformId,
                 },
-                relations: ["platform"],
-            }).catch(() => null);
+                relations: ["member", "platform"],
+            }).catch(e => { this.logger.error(e) });
 
             if (!platformAccount) {
                 const platform = await this.platformService.getPlatformByCode(mledbPlayerAccount.platform)
@@ -145,7 +145,14 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
 
         if (!["PREMIER", "MASTER", "CHAMPION", "ACADEMY", "FOUNDATION"].includes(mledbPlayer.league)) throw new Error("Player does not belong to a league");
 
-        const skillGroup = await this.skillGroupService.getGameSkillGroup({where: {code: `${mledbPlayer.league[0]}L`} });
+        const skillGroup = await this.skillGroupService.getGameSkillGroup({
+            where: {
+                profile: {
+                    code: `${mledbPlayer.league[0]}L`,
+                },
+            },
+            relations: ["profile"],
+        });
         const player = await this.playerService.getPlayer({where: {member: {id: member.id} } }).catch(() => null);
         if (!player) await this.playerService.createPlayer(member.id, skillGroup.id, mledbPlayer.salary);
 

@@ -13,7 +13,7 @@
   if (!targetScrim) throw new Error();
 
   $: {
-      if (!$activeScrims.data?.activeScrims.some(ps => ps.id === targetScrim.id)) {
+      if (!$activeScrims.data?.activeScrims?.some(ps => ps.id === targetScrim.id)) {
           visible = false;
       }
   }
