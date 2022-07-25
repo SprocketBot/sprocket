@@ -5,10 +5,10 @@
 // for information about these interfaces
 
 import type {SSRData} from "@urql/core/dist/types/exchanges/ssr";
-import type {Config, SessionUser} from "./lib/utils";
+import type {Config, SessionUser} from "$lib/utils";
 import type {
     ChatwootGlobal, ChatwootSDK, ChatwootSettings,
-} from "./lib/components/abstract/Chatwoot";
+} from "$lib/components/abstract/Chatwoot";
 
 declare global {
     declare namespace App {
