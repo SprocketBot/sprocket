@@ -18,7 +18,7 @@ export class Member extends BaseModel {
     @Field(() => [MemberPlatformAccount])
     platformAccounts: MemberPlatformAccount[];
 
-    @OneToOne(() => MemberProfile)
+    @OneToOne(() => MemberProfile, mp => mp.member)
     @Field(() => MemberProfile)
     profile: MemberProfile;
 
