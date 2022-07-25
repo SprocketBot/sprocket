@@ -1,3 +1,23 @@
+// =========================
+// Our custom types
+// =========================
+/**
+ * String labels (i.e. flags, tags) that are set on a user's conversation using `window.$chatwoot.setLabel('')`.
+ * These values do *not* persist across sessions/conversations.
+ */
+export type ChatwootConversationLabel = "org-mle";
+
+/**
+ * Key-value pairs that are set on Chatwoot users using `window.$chatwoot.setCustomAttributes({})`.
+ * These values persist across sessions/conversations.
+ */
+export interface ChatwootCustomAttributes {
+    userId: number;
+}
+
+// =========================
+// Chatwoot's types
+// =========================
 /** https://github.com/chatwoot/chatwoot/blob/develop/app/javascript/packs/sdk.js#L147 */
 export interface ChatwootSDK {
     run: ({websiteToken, baseUrl}: {websiteToken: string; baseUrl: string;}) => void;
@@ -30,10 +50,10 @@ export interface Chatwoot {
     toggleBubbleVisibility: (visibility: unknown) => void;
     popoutChatWindow: () => void;
     setUser: (identifier: string, user: ChatwootUser) => void;
-    setCustomAttributes: (customAttributes: unknown) => void;
-    deleteCustomAttribute: (customAttribute: string) => void;
-    setLabel: (label: string) => void;
-    removeLabel: (label: string) => void;
+    setCustomAttributes: (customAttributes: Partial<ChatwootCustomAttributes>) => void;
+    deleteCustomAttribute: (customAttribute: keyof ChatwootCustomAttributes) => void;
+    setLabel: (label: ChatwootConversationLabel) => void;
+    removeLabel: (label: ChatwootConversationLabel) => void;
     setLocale: (localeToBeUsed: string) => void;
     reset: () => void;
 }

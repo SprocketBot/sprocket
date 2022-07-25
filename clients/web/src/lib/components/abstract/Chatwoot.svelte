@@ -32,7 +32,11 @@
             window.$chatwoot.setUser($session.user.userId.toString(), {
                 name: $session.user.username,
             });
-            window.$chatwoot.setLabel($session.user.org);
+            // TODO support other orgs in the future
+            window.$chatwoot.setLabel("org-mle");
+            window.$chatwoot.setCustomAttributes({
+                userId: $session.user.userId,
+            });
         });
     }
 </script>
