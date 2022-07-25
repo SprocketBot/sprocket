@@ -18,17 +18,38 @@ export interface ChatwootCustomAttributes {
 // =========================
 // Chatwoot's types
 // =========================
+/** https://www.chatwoot.com/docs/product/channels/live-chat/sdk/setup/#sdk-settings */
+export interface ChatwootSettings {
+    showPopoutButton: boolean;
+    hideMessageBubble: boolean;
+    position: "left" | "right";
+    locale: string;
+    type: "standard" | "expanded_bubble";
+    darkMode: "light" | "auto";
+}
+
 /** https://github.com/chatwoot/chatwoot/blob/develop/app/javascript/packs/sdk.js#L147 */
 export interface ChatwootSDK {
     run: ({websiteToken, baseUrl}: {websiteToken: string; baseUrl: string;}) => void;
 }
 
-/** https://www.chatwoot.com/docs/product/channels/live-chat/sdk/setup#set-the-user-in-the-widget */
+/** https://www.chatwoot.com/docs/product/channels/live-chat/sdk/setup/#identity-validation-using-hmac */
 export interface ChatwootUser {
-    email?: string;
     name?: string;
     avatar_url?: string;
+    email?: string;
+    identifier_hdash?: string;
     phone_number?: string;
+    description?: string;
+    country_code?: string;
+    city?: string;
+    company_name?: string;
+    social_profiles?: {
+        twitter?: string;
+        linkedin?: string;
+        facebook?: string;
+        github?: string;
+    };
 }
 
 /** https://github.com/chatwoot/chatwoot/blob/develop/app/javascript/packs/sdk.js#L21 */

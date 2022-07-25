@@ -2,6 +2,7 @@
     import {browser} from "$app/env";
     import {onMount} from "svelte";
     import {session} from "$app/stores";
+import {chatwootSettings} from "./Chatwoot.constants";
 
     const {
         enabled, url, websiteToken,
@@ -16,6 +17,7 @@
                 g.async = true;
                 document.body.append(g);
                 g.onload = function() {
+                    window.chatwootSettings = chatwootSettings;
                     window.chatwootSDK?.run({
                         websiteToken: websiteToken,
                         baseUrl: url,
