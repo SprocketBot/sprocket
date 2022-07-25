@@ -22,7 +22,7 @@ export class GameSkillGroup extends BaseModel {
     @Field(() => Number)
     salaryCap: number;
 
-    @OneToOne(() => GameSkillGroupProfile)
+    @OneToOne(() => GameSkillGroupProfile, gsgp => gsgp.skillGroup)
     @Field(() => GameSkillGroupProfile)
     profile: GameSkillGroupProfile;
 

@@ -9,7 +9,7 @@ import {MatchParent} from "../match_parent/match_parent.model";
 @Entity({schema: "sprocket"})
 @ObjectType()
 export class ScrimMeta extends BaseModel {
-    @OneToOne(() => MatchParent)
+    @OneToOne(() => MatchParent, mp => mp.scrimMeta)
     @Field(() => MatchParent)
     parent: MatchParent;
 }
