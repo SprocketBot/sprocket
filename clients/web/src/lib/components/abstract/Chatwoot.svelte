@@ -20,14 +20,19 @@
                         websiteToken: websiteToken,
                         baseUrl: url,
                     });
-
-                    if ($session.user) {
-                        window.$chatwoot?.setUser($session.user.userId.toString(), {
-                            name: $session.user?.username,
-                        });
-                    }
                 };
             })();
         }
     });
+
+    if (browser) {
+        window.addEventListener("chatwoot:ready", () => {
+            if (!$session.user || !window.$chatwoot) return;
+
+            window.$chatwoot.setUser($session.user.userId.toString(), {
+                name: $session.user.username,
+            });
+            window.$chatwoot.setLabel($session.user.org);
+        });
+    }
 </script>
