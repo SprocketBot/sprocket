@@ -22,7 +22,7 @@ export class FranchiseGroup extends BaseModel {
     @Field(() => FranchiseGroupType)
     type: FranchiseGroupType;
 
-    @OneToOne(() => FranchiseGroupProfile)
+    @OneToOne(() => FranchiseGroupProfile, fp => fp.group)
     @Field(() => FranchiseGroupProfile)
     profile: FranchiseGroupProfile;
 }

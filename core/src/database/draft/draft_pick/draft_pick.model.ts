@@ -36,7 +36,7 @@ export class DraftPick extends BaseModel {
     @Field(() => ScheduleGroup)
     scheduleGroup: ScheduleGroup;
 
-    @OneToOne(() => DraftSelection, {nullable: true})
+    @OneToOne(() => DraftSelection, ds => ds.draftPick, {nullable: true})
     @Field(() => DraftSelection, {nullable: true})
     selection?: DraftSelection;
 }

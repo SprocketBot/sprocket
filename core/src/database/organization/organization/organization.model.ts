@@ -16,9 +16,9 @@ import {Pronouns} from "../pronouns";
 @Entity({schema: "sprocket"})
 @ObjectType()
 export class Organization extends BaseModel {
-    @OneToOne(() => OrganizationProfile)
+    @OneToOne(() => OrganizationProfile, op => op.organization)
     @Field(() => OrganizationProfile)
-    organizationProfile: OrganizationProfile;
+    profile: OrganizationProfile;
 
     @OneToMany(() => OrganizationMottos, om => om.organization)
     @Field(() => [OrganizationMottos])
