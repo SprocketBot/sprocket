@@ -4,7 +4,7 @@ import {
 } from "@sprocketbot/common";
 
 import {getSubmissionKey, submissionIsScrim} from "../../utils";
-import {ReplaySubmissionCrudService} from "../replay-submission-crud.service";
+import {ReplaySubmissionCrudService} from "../replay-submission-crud/replay-submission-crud.service";
 
 @Injectable()
 export class ReplaySubmissionRatificationService {

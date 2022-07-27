@@ -15,7 +15,7 @@ import {
 import {ReplayValidationService} from "../replay-validation/replay-validation.service";
 import {getSubmissionKey} from "../utils";
 import {ReplayParseSubscriber} from "./parse-subscriber/replay-parse.subscriber";
-import {ReplaySubmissionCrudService} from "./replay-submission-crud.service";
+import {ReplaySubmissionCrudService} from "./replay-submission-crud/replay-submission-crud.service";
 import {ReplaySubmissionRatificationService} from "./replay-submission-ratification";
 import {StatsConverterService} from "./stats-converter/stats-converter.service";
 

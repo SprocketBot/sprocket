@@ -22,7 +22,7 @@ import {
 
 import {
     getSubmissionKey, submissionIsMatch, submissionIsScrim,
-} from "../utils";
+} from "../../utils";
 
 @Injectable()
 export class ReplaySubmissionCrudService {
