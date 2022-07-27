@@ -24,7 +24,7 @@ export class OrganizationResolver {
     }
 
     @ResolveField()
-    async organizationProfile(@Root() organization: Partial<Organization>): Promise<OrganizationProfile> {
-        return organization.organizationProfile ?? await this.organizationService.getOrganizationProfileForOrganization(organization.id!);
+    async profile(@Root() organization: Partial<Organization>): Promise<OrganizationProfile> {
+        return organization.profile ?? await this.organizationService.getOrganizationProfileForOrganization(organization.id!);
     }
 }

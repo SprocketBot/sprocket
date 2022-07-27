@@ -1,12 +1,13 @@
 import {Injectable, Logger} from "@nestjs/common";
 import type {Template} from "@sprocketbot/common";
-import {config, MinioService} from "@sprocketbot/common";
+import {
+    config, MinioService, readToString,
+} from "@sprocketbot/common";
 import {
     existsSync, mkdirSync, writeFileSync,
 } from "fs";
 import {JSDOM} from "jsdom";
 import * as sharp from "sharp";
-import type {Readable} from "stream";
 
 import {SvgTransformationService} from "./svg-transformation/svg-transformation.service";
 
@@ -29,7 +30,7 @@ export class ImageGenerationService {
         const file = await this.minioService.get(config.minio.bucketNames.image_generation, inputFileKey);
         // WriteFileSync("./input.svg", file);
 
-        const dom = new JSDOM(await this.readableToString(file));
+        const dom = new JSDOM(await readToString(file));
         const svgRoot = dom.window.document.body.children[0];
         svgRoot.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink"); // When base image has no images but rect->img transformation may be neccessary
         if (svgRoot.nodeName !== "svg") throw new Error(`Expected <svg>, found ${svgRoot.nodeName}`);
@@ -108,18 +109,5 @@ export class ImageGenerationService {
          */
         this.logger.log("Finished Processing");
         return outputFileKey;
-    }
-
-    private async readableToString(file: Readable): Promise<string> {
-        return new Promise((resolve, reject) => {
-            const output: string[] = [];
-            file.on("data", (chunk: Buffer) => {
-                output.push(chunk.toString());
-            });
-            file.on("error", reject);
-            file.on("end", () => {
-                resolve(output.join(""));
-            });
-        });
     }
 }

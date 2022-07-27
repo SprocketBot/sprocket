@@ -129,13 +129,12 @@ export class ReplaySubmissionService {
         if (!submission.items.every(item => [ProgressStatus.Complete, ProgressStatus.Error].includes(item.progress?.status ?? ProgressStatus.Pending))) {
             throw new Error("Submission not yet ready for completion");
         }
-        const valid = this.replayValidationService.validate(submission);
+        const valid = await this.replayValidationService.validate(submission);
         if (!valid.valid) {
             await this.ratificationService.rejectSubmission("system", submissionId, JSON.stringify(valid.errors, null, 2));
             return;
         }
 
-        submission.validated = true;
         await this.submissionCrudService.setValidatedTrue(submissionId);
 
         submission.stats = this.statsConverterService.convertStats(submission.items.map(item => item.progress!.result!));

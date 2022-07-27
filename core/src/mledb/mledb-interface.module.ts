@@ -8,6 +8,7 @@ import {IdentityModule} from "../identity";
 import {OrganizationModule} from "../organization";
 import {SprocketRatingModule} from "../sprocket-rating";
 import {MledbPlayerService} from "./mledb-player";
+import {MledbPlayerController} from "./mledb-player/mledb-player.controller";
 import {MledbPlayerAccountService} from "./mledb-player-account";
 import {MledbScrimService} from "./mledb-scrim";
 
@@ -31,6 +32,7 @@ import {MledbScrimService} from "./mledb-scrim";
         MledbPlayerAccountService,
         MledbScrimService,
     ],
+    controllers: [MledbPlayerController],
 })
 export class MledbInterfaceModule {
 }

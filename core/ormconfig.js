@@ -8,7 +8,7 @@ module.exports = {
     username: config.get("db.username"),
     password: fs.readFileSync("./secret/db-password.txt").toString().trim(),
     database: config.get("db.database"),
-    entities: ["src/database/**/*.model.ts"],
+    entities: ["src/database/!(mledb)/**/*.model.ts "],
     migrationsTableName: "migrations",
     migrations: ["migrations/*.ts"],
     cli: {

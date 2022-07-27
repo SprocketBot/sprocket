@@ -40,7 +40,7 @@
     }
 </script>
 
-<Modal title="Upload Replays" bind:visible id="upload-replays-modal">
+<Modal title="Upload Replays" bind:visible id="upload-replays-modal" canClickOutside={false}>
     <section slot="body">
         {#if files}
             {#each files as file}

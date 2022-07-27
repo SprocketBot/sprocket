@@ -22,7 +22,7 @@ export class RosterRoleUseLimits extends BaseModel {
     @Field(() => Number)
     total: number;
 
-    @OneToOne(() => GameSkillGroup)
+    @OneToOne(() => GameSkillGroup, gsg => gsg.roleUseLimits)
     @Field(() => GameSkillGroup)
     skillGroup: GameSkillGroup;
 
