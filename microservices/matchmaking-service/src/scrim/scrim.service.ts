@@ -4,10 +4,7 @@ import type {
     Scrim, ScrimGameMode, ScrimPlayer, ScrimSettings,
 } from "@sprocketbot/common";
 import {
-    AnalyticsEndpoint,
-    AnalyticsService,
-    EventTopic,
-    ScrimStatus,
+    AnalyticsEndpoint, AnalyticsService, EventTopic, ScrimStatus,
 } from "@sprocketbot/common";
 
 import {EventProxyService} from "./event-proxy/event-proxy.service";
@@ -296,7 +293,15 @@ export class ScrimService {
     private async publishScrimUpdate(scrimId: string): Promise<Scrim> {
         const scrim = await this.scrimCrudService.getScrim(scrimId);
         if (!scrim) throw new Error("Unexpected null scrim found");
-        await this.eventsService.publish(EventTopic.ScrimUpdated, scrim, scrimId);
+        await Promise.all([
+            // We don't really care about _what_ changed, in this context;
+            // this is more to do with tracking how often a scrim is changed
+            this.analyticsService.send(AnalyticsEndpoint.Analytics, {
+                name: "ScrimUpdated",
+                strings: [ ["scrimId", scrimId] ],
+            }),
+            this.eventsService.publish(EventTopic.ScrimUpdated, scrim, scrimId),
+        ]);
         return scrim;
     }
 }
