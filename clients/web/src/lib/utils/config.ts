@@ -24,7 +24,7 @@ export const loadConfig = async (): Promise<Config> => {
         },
         server: {
             chatwoot: {
-                hmacKey: fs.readFileSync("secret/chatwoot-hmac-key.txt").toString(),
+                hmacKey: fs.readFileSync("secret/chatwoot-hmac-key.txt").toString().trim(),
             },
         },
     };
