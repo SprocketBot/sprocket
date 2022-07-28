@@ -1,11 +1,18 @@
 export interface Config {
-    gqlUrl: string;
-
-    secure: boolean;
-
-    chatwoot: {
-        enabled: boolean;
-        url: string;
-        websiteToken: string;
+    client: {
+        gqlUrl: string;
+    
+        secure: boolean;
+    
+        chatwoot: {
+            enabled: boolean;
+            url: string;
+            websiteToken: string;
+        };
+    };
+    server: {
+        chatwoot: {
+            hmacKey: string;
+        };
     };
 }

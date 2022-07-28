@@ -1,6 +1,5 @@
 import type {GetSession, Handle} from "@sveltejs/kit";
-import {constants, type Config} from "$lib/utils";
-import {readFileSync} from "fs";
+import {constants, loadConfig} from "$lib/utils";
 
 export const handle: Handle = async ({event, resolve}) => {
     if (event.request.headers.has("cookie")) {
@@ -33,16 +32,18 @@ export const handle: Handle = async ({event, resolve}) => {
     return result;
 };
 
-export const getSession: GetSession = (event): App.Session => {
-    const config = JSON.parse(readFileSync("./src/config.json").toString()) as Config;
+export const getSession: GetSession = async event => {
+    const config = await loadConfig();
 
+    // Anything put on the session here is available in the client
+    // Make sure it is safe and secure to do so!
     if (event.locals.user) {
         return {
-            config: config,
+            config: config.client,
             user: event.locals.user,
             token: event.locals.token,
         };
     }
 
-    return {config};
+    return {config: config.client};
 };

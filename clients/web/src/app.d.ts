@@ -18,7 +18,7 @@ declare global {
         }
 
         interface Session {
-            config: Config;
+            config: Config["client"];
     
             token?: string;
             user?: SessionUser;

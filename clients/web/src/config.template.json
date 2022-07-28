@@ -1,9 +1,0 @@
-{
-    "gqlUrl": "",
-    "secure": false,
-    "chatwoot": {
-        "enabled": false,
-        "url": "",
-        "websiteToken": ""
-    }
-}

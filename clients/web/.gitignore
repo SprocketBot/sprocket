@@ -6,4 +6,6 @@ node_modules
 .env
 .env.*
 !.env.example
-config.json
+config/*
+!config/default.json
+secret/
