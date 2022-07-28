@@ -7,8 +7,17 @@ export enum ReplaySubmissionType {
     SCRIM = "SCRIM",
 }
 
+export enum ReplaySubmissionStatus {
+    PROCESSING = "PROCESSING",
+    RATIFYING = "RATIFYING",
+    RATIFIED = "RATIFIED",
+    REJECTED = "REJECTED",
+}
+
 export interface BaseReplaySubmission {
     creatorId: number;
+
+    status: ReplaySubmissionStatus;
 
     taskIds: string[];
     items: ReplaySubmissionItem[];

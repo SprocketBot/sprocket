@@ -7,10 +7,9 @@
   import {resetSubmissionMutation} from "$lib/api";
 
   export let submission: Submission;
-  if (!submission) throw new Error();
   export let submissionId: string;
   let progress: SubmissionProgress[];
-  $: progress = submission.items.map(item => ({
+  $: progress = submission?.items.map(item => ({
       filename: item.originalFilename,
       ...item.progress,
   }));

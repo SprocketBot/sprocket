@@ -12,10 +12,10 @@ import type {
 import {
     CoreEndpoint,
     CoreService,
-    EventsService,
     MatchmakingEndpoint,
     MatchmakingService,
     RedisService,
+    ReplaySubmissionStatus,
     ReplaySubmissionType,
     ResponseStatus,
 } from "@sprocketbot/common";
@@ -29,7 +29,6 @@ export class ReplaySubmissionCrudService {
     constructor(
         private readonly redisService: RedisService,
         private readonly matchmakingService: MatchmakingService,
-        private readonly eventService: EventsService,
         private readonly coreService: CoreService,
     ) {}
 
@@ -45,6 +44,7 @@ export class ReplaySubmissionCrudService {
 
         const commonFields: BaseReplaySubmission = {
             creatorId: playerId,
+            status: ReplaySubmissionStatus.PROCESSING,
             taskIds: [],
             items: [],
             validated: false,
@@ -104,6 +104,10 @@ export class ReplaySubmissionCrudService {
 
     async removeItems(submissionId: string): Promise<void> {
         await this.redisService.setJsonField(getSubmissionKey(submissionId), "items", []);
+    }
+
+    async updateStatus(submissionId: string, submissionStatus: ReplaySubmissionStatus): Promise<void> {
+        await this.redisService.setJsonField(getSubmissionKey(submissionId), "status", submissionStatus);
     }
 
     async upsertItem(submissionId: string, item: ReplaySubmissionItem): Promise<void> {

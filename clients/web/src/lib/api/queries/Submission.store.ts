@@ -17,6 +17,7 @@ export interface SubmissionProgress {
 }
 
 export interface Submission {
+    status: string;
     creatorId: number;
     ratifications: number;
     requiredRatifications: number;
@@ -70,6 +71,7 @@ export class SubmissionStore extends LiveQueryStore<SubmissionStoreValue, Submis
                 type
                 scrimId
                 matchId
+                status
                 items {
                     taskId
                     originalFilename
@@ -114,6 +116,7 @@ export class SubmissionStore extends LiveQueryStore<SubmissionStoreValue, Submis
                 type
                 scrimId
                 matchId
+                status
                 items {
                     taskId
                     originalFilename

@@ -9,6 +9,7 @@ import {
     MinioService,
     Precondition,
     ProgressStatus,
+    ReplaySubmissionStatus,
     Task,
 } from "@sprocketbot/common";
 
@@ -44,6 +45,7 @@ export class ReplaySubmissionService {
         const tasks: ReplayParseTask[] = [];
         // Subscribe before doing anything to ensure that we don't drop events
         this.replayParseSubscriber.subscribe(submissionId);
+        await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.PROCESSING);
         const celeryPromises = filePaths.map(async fp => {
             const precondition = new Precondition();
 
@@ -131,16 +133,18 @@ export class ReplaySubmissionService {
         }
         const valid = await this.replayValidationService.validate(submission);
         if (!valid.valid) {
+            await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.REJECTED);
             await this.ratificationService.rejectSubmission("system", submissionId, JSON.stringify(valid.errors, null, 2));
             return;
         }
 
         await this.submissionCrudService.setValidatedTrue(submissionId);
+        await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.RATIFYING);
 
         submission.stats = this.statsConverterService.convertStats(submission.items.map(item => item.progress!.result!));
         await this.submissionCrudService.setStats(submissionId, submission.stats);
 
-        await this.eventsService.publish(EventTopic.SubmissionComplete, {
+        await this.eventsService.publish(EventTopic.SubmissionRatifying, {
             submissionId: submissionId,
             redisKey: getSubmissionKey(submissionId),
             resultPaths: submission.items.map(item => item.outputPath!),

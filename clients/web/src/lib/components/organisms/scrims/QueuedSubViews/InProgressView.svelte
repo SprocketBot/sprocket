@@ -11,10 +11,9 @@
     export let submission: Submission | undefined;
 
     let uploading: boolean = false;
-    let rejection: SubmissionRejection | undefined;
-    $: rejection = submission?.rejections[submission.rejections.length - 1];
+    let rejections: SubmissionRejection[];
+    $: rejections = submission?.rejections;
 </script>
-
 
 <section>
     <h2>Time to Play!</h2>
@@ -26,7 +25,7 @@
             <h3>Lobby Information</h3>
             <dl>
                 <dt>Game Mode</dt>
-                <dd>{scrim.settings.competitive ? 'Competitive' : 'Casual'} {screamingSnakeToHuman(scrim.settings.mode)} {scrim.gameMode.description}</dd>
+                <dd>{scrim.settings.competitive ? "Competitive" : "Casual"} {screamingSnakeToHuman(scrim.settings.mode)} {scrim.gameMode.description}</dd>
                 <dt>Name</dt>
                 <dd>{scrim.lobby.name}</dd>
                 <dt>Password</dt>
@@ -42,10 +41,13 @@
         {/if}
     </div>
 
-    {#if rejection}
+    {#if rejections?.length}
         <h2 class="text-error">Replays Rejected</h2>
-        <!-- TODO sanitize reason -->
-        <p>{rejection.playerName} rejected the uploaded replays because "{rejection.reason}"</p>
+        <ul class="list-decimal list-inside">
+        {#each rejections as rejection}
+            <li>{rejection.playerName} rejected the uploaded replays because "{rejection.reason}"</li>
+        {/each}
+        </ul>
         <p class="mt-4">You can upload replays again:</p>
     {/if}
 
