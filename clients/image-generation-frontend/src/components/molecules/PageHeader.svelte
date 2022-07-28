@@ -1,6 +1,6 @@
 
 <header>
-    <img src="/img/Sprocket_Logo.png" alt="Sprocket Logo" />
+    <img src="https://p.ocket.cloud/sprocket/Yellow%20Logo%20Yellow%20Text%20Horizontal.png" alt="Sprocket Logo" />
     <h1>Image Generation Utility</h1>
 </header>
 

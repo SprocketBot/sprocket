@@ -16,7 +16,7 @@
         */
 
     let scrimManagementModalVisible = false;
-    
+
     let scrimsAreDisabled: boolean;
     $: scrimsAreDisabled = $scrimsDisabled.data?.getScrimsDisabled;
 
@@ -76,8 +76,8 @@
     {#if activeScrimsData?.length}
       {#each activeScrimsData as scrim (scrim.id)}
         <tr>
-          <td>{scrim.gameMode.game.title}</td>
-          <td>{scrim.settings.competitive ? "Competitive" : "Casual"} {screamingSnakeToHuman(scrim.settings.mode)} {scrim.gameMode.description}</td>
+          <td>{scrim.gameMode?.game?.title ?? ""}</td>
+          <td>{scrim.settings?.competitive ? "Competitive" : "Casual"} {screamingSnakeToHuman(scrim.settings?.mode)} {scrim.gameMode?.description}</td>
           <td>{scrim.status}</td>
           {#if scrim.players?.length || scrim.playersAdmin?.length}
             <td>

@@ -20,9 +20,9 @@ export class OrganizationService {
      */
     async createOrganization(organizationProfile: Omit<OrganizationProfile, IrrelevantFields | "id" | "organization">): Promise<Organization> {
         const profile = this.organizationProfileRepository.create(organizationProfile);
-        const organization = this.organizationRepository.create({organizationProfile: profile});
+        const organization = this.organizationRepository.create({profile});
         
-        await this.organizationProfileRepository.save(organization.organizationProfile);
+        await this.organizationProfileRepository.save(organization.profile);
         await this.organizationRepository.save(organization);
         return organization;
     }
@@ -53,13 +53,13 @@ export class OrganizationService {
      * @returns The updated OrganizationProfile.
      */
     async updateOrganizationProfile(organizationId: number, data: Omit<Partial<OrganizationProfile>, "organization">): Promise<OrganizationProfile> {
-        let {organizationProfile} = await this.organizationRepository.findOneOrFail(
+        let {profile} = await this.organizationRepository.findOneOrFail(
             organizationId,
-            {relations: ["organizationProfile"] },
+            {relations: ["profile"] },
         );
-        organizationProfile = this.organizationProfileRepository.merge(organizationProfile, data);
-        await this.organizationProfileRepository.save(organizationProfile);
-        return organizationProfile;
+        profile = this.organizationProfileRepository.merge(profile, data);
+        await this.organizationProfileRepository.save(profile);
+        return profile;
     }
 
     /**
@@ -69,15 +69,15 @@ export class OrganizationService {
      */
     async deleteOrganization(id: number): Promise<Organization> {
         const toDelete = await this.organizationRepository.findOneOrFail(id, {
-            relations: ["organizationProfile"],
+            relations: ["profile"],
         });
         await this.organizationRepository.delete({id});
-        await this.organizationProfileRepository.delete({id: toDelete.organizationProfile.id});
+        await this.organizationProfileRepository.delete({id: toDelete.profile.id});
         return toDelete;
     }
 
     async getOrganizationProfileForOrganization(organizationId: number): Promise<OrganizationProfile> {
-        const org = await this.organizationRepository.findOneOrFail(organizationId, {relations: ["organizationProfile"] });
-        return org.organizationProfile;
+        const org = await this.organizationRepository.findOneOrFail(organizationId, {relations: ["profile"] });
+        return org.profile;
     }
 }

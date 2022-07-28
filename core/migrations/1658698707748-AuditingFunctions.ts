@@ -1,9 +1,9 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AuditingFunctions1658683310973 implements MigrationInterface {
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`)
-    await queryRunner.query(`
+export class AuditingFunctions1658698707748 implements MigrationInterface {
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`)
+        await queryRunner.query(`
 
 CREATE OR REPLACE FUNCTION create_history_table(target_table text, build_index boolean default true)
     RETURNS VOID
@@ -53,7 +53,7 @@ BEGIN
 END;
 $body$;
 `);
-    await queryRunner.query(`
+        await queryRunner.query(`
 --
 -- Update History Table Function
 -- Example Usage -> (You don't, create_history_table does)
@@ -97,7 +97,7 @@ BEGIN
 END;
 $body$;
 `);
-    await queryRunner.query(`
+        await queryRunner.query(`
 CREATE OR REPLACE FUNCTION remove_history_table(target_table text)
     RETURNS VOID
     LANGUAGE plpgsql
@@ -109,12 +109,12 @@ END;
 $body$;
 `);
 
-  }
+    }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP FUNCTION update_history_table() CASCADE`);
-    await queryRunner.query(`DROP FUNCTION create_history_table(text, boolean) CASCADE`);
-    await queryRunner.query(`DROP FUNCTION remove_history_table(text) CASCADE`);
-  }
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`DROP FUNCTION update_history_table() CASCADE`);
+        await queryRunner.query(`DROP FUNCTION create_history_table(text, boolean) CASCADE`);
+        await queryRunner.query(`DROP FUNCTION remove_history_table(text) CASCADE`);
+    }
 
 }

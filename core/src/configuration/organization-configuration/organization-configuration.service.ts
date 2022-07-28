@@ -33,7 +33,7 @@ export class OrganizationConfigurationService {
         
         const values = await this.valueRepository.find({
             where: where,
-            relations: ["organization", "organization.organizationProfile", "key", "key.allowedValues"],
+            relations: ["organization", "organization.profile", "key", "key.allowedValues"],
         });
 
         return values.map(v => ({
