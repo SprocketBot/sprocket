@@ -38,7 +38,7 @@ export interface ChatwootUser {
     name?: string;
     avatar_url?: string;
     email?: string;
-    identifier_hdash?: string;
+    identifier_hash?: string;
     phone_number?: string;
     description?: string;
     country_code?: string;
