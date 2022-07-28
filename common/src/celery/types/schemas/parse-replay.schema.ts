@@ -13,6 +13,7 @@ export enum Parser {
 
 export const ParseReplay_Response = z.object({
     parser: z.nativeEnum(Parser),
+    parserVersion: z.number(),
     outputPath: z.string(),
     data: BallchasingResponseSchema,
 });
