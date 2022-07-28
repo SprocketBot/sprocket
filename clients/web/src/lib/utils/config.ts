@@ -12,8 +12,6 @@ export const loadConfig = async (): Promise<Config> => {
 
     if (config) return config;
 
-    console.log(`Loading config on ${browser ? "client" : "server"}`);
-
     config = {
         client: {
             gqlUrl: _config.get<string>("client.gqlUrl"),
@@ -30,7 +28,6 @@ export const loadConfig = async (): Promise<Config> => {
             },
         },
     };
-    console.log(`Loaded config ${JSON.stringify(config, null, 2)}`);
     
     return config;
 };
