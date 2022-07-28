@@ -8,4 +8,5 @@ node_modules
 !.env.example
 config/*
 !config/default.json
+!config/README.md
 secret/
