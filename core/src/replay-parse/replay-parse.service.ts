@@ -4,9 +4,11 @@ import {
 import type {ScrimPlayer} from "@sprocketbot/common";
 import {
     config,
-    EventsService, EventTopic,
+    EventsService,
+    EventTopic,
     MinioService,
-    readToString, RedisService,
+    readToBuffer,
+    RedisService,
     ResponseStatus,
     SubmissionEndpoint,
     SubmissionService,
@@ -31,8 +33,7 @@ export class ReplayParseService {
         private readonly redisService: RedisService,
         private readonly eventsService: EventsService,
         @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
-    ) {
-    }
+    ) {}
 
     async getSubmission(submissionId: string): Promise<ReplaySubmission> {
         const result = await this.submissionService.send(SubmissionEndpoint.GetSubmissionRedisKey, {submissionId});
@@ -66,7 +67,7 @@ export class ReplayParseService {
         if (!canSubmitReponse.data.canSubmit) throw new GraphQLError(canSubmitReponse.data.reason);
 
         const filepaths = await Promise.all(streams.map(async s => {
-            const buffer = await readToString(s.stream);
+            const buffer = await readToBuffer(s.stream);
             const objectHash = SHA256(buffer.toString()).toString();
             const replayObjectPath = `replays/${objectHash}${REPLAY_EXT}`;
             await this.minioService.put(config.minio.bucketNames.replays, replayObjectPath, buffer);
