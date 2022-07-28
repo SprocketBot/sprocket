@@ -1,4 +1,5 @@
 import {Field, ObjectType} from "@nestjs/graphql";
+import {Parser} from "@sprocketbot/common";
 import GraphQLJSON from "graphql-type-json";
 import {
     Column, Entity, ManyToOne, OneToMany,
@@ -23,6 +24,18 @@ export class Round extends BaseModel {
     @Field(() => GraphQLJSON)
     roundStats: unknown;
 
+    @Column({type: "enum", enum: Parser})
+    @Field(() => Parser)
+    parser: Parser;
+
+    @Column()
+    @Field()
+    parserVersion: number;
+    
+    @Column()
+    @Field()
+    outputPath: string;
+    
     @Column({default: false})
     @Field(() => Boolean, {defaultValue: false})
     isDummy: boolean;

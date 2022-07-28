@@ -8,7 +8,7 @@ import {Parser, ProgressStatus} from "@sprocketbot/common";
 
 import {GqlProgress} from "../../util/types/celery-progress";
 
-registerEnumType(Parser, {name: "parser"});
+registerEnumType(Parser, {name: "Parser"});
 
 @ObjectType()
 export class SubmissionProgressMessage implements ProgressMessage<Task.ParseReplay> {
