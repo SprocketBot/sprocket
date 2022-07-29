@@ -29,8 +29,6 @@ export const loadConfig = async (): Promise<Config> => {
             },
         },
     };
-
-    console.log(`Loaded config ${JSON.stringify(config, null, 2)}`);
     
     return config;
 };
