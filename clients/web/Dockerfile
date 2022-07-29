@@ -1,5 +1,6 @@
 ARG BASE_IMAGE
 FROM $BASE_IMAGE AS test_image
+RUN mdkir /app/secret && touch /app/secret/chatwoot-hmac-key.txt
 ENTRYPOINT npm run test --workspace=clients/web
 
 FROM $BASE_IMAGE AS app_image
