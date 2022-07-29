@@ -37,9 +37,6 @@
     "typescript": "~4.6.2",
     "vite": "^3.0.0"
   },
-  "browser": {
-    "crypto": false
-  },
   "dependencies": {
     "@types/js-cookie": "^3.0.1",
     "@urql/core": "^2.4.1",
