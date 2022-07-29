@@ -92,6 +92,9 @@ export class FinalizationService {
                     const round = this.roundRepo.create({
                         roundStats: this.ballchasingConverter.createRound(pr.data),
                         homeWon: false,
+                        parser: pr.parser,
+                        parserVersion: pr.parserVersion,
+                        outputPath: pr.outputPath,
                     });
 
                     const createPlayerStat = (p: BallchasingPlayer, color: string): PlayerStatLine => {

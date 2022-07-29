@@ -33,8 +33,7 @@ export class ReplayParseService {
         private readonly redisService: RedisService,
         private readonly eventsService: EventsService,
         @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
-    ) {
-    }
+    ) {}
 
     async getSubmission(submissionId: string): Promise<ReplaySubmission> {
         const result = await this.submissionService.send(SubmissionEndpoint.GetSubmissionRedisKey, {submissionId});

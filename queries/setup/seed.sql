@@ -56,7 +56,7 @@ VALUES (5, 1, '856290331279884288'),
        (6, 1, '["984300673787113512"]');
 
 INSERT INTO sprocket.platform ("code")
-VALUES ('STEAM', 'EPIC', 'XBOX', 'PS4');
+VALUES ('STEAM'), ('EPIC'), ('XBOX'), ('PS4');
 
 INSERT INTO sprocket.image_template ("templateStructure", "reportCode", "displayName", description, query)
 VALUES ('{
