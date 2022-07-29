@@ -7,7 +7,7 @@ export const loadConfig = async (): Promise<Config> => {
     if (browser) throw new Error("Can't call `loadConfig` on the client! Use `$session.config`");
 
     // Import dynamically so these modules aren't loaded on the client
-    const _config = await import("config");
+    const _config = (await import("config")).default;
     const fs = await import("fs");
 
     if (config) return config;
@@ -24,7 +24,8 @@ export const loadConfig = async (): Promise<Config> => {
         },
         server: {
             chatwoot: {
-                hmacKey: fs.readFileSync("secret/chatwoot-hmac-key.txt").toString().trim(),
+                hmacKey: fs.readFileSync("secret/chatwoot-hmac-key.txt").toString()
+                    .trim(),
             },
         },
     };
