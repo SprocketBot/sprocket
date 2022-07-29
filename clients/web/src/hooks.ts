@@ -1,6 +1,5 @@
-import config from "$lib/utils/config";
 import type {GetSession, Handle} from "@sveltejs/kit";
-import {constants} from "$lib/utils";
+import {constants, loadConfig} from "$lib/utils";
 
 export const handle: Handle = async ({event, resolve}) => {
     if (event.request.headers.has("cookie")) {
@@ -24,25 +23,27 @@ export const handle: Handle = async ({event, resolve}) => {
                         event.locals.token = rawToken;
                     }
                 }
-
             }
-
         } catch (e) {
-            console.log(e);
+            console.error(e);
         }
     }
     const result = await resolve(event);
     return result;
 };
 
-export const getSession: GetSession = (event): App.Session => {
+export const getSession: GetSession = async event => {
+    const config = await loadConfig();
+
+    // Anything put on the session here is available in the client
+    // Make sure it is safe and secure to do so!
     if (event.locals.user) {
         return {
-            ...config,
+            config: config.client,
             user: event.locals.user,
             token: event.locals.token,
-        } as App.Session;
+        };
     }
 
-    return config;
+    return {config: config.client};
 };

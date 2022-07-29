@@ -26,7 +26,7 @@
             <h3>Lobby Information</h3>
             <dl>
                 <dt>Game Mode</dt>
-                <dd>{scrim.settings.competitive ? 'Competitive' : 'Casual'} {screamingSnakeToHuman(scrim.settings.mode)} {scrim.gameMode.description}</dd>
+                <dd>{scrim.settings.competitive ? "Competitive" : "Casual"} {screamingSnakeToHuman(scrim.settings.mode)} {scrim.gameMode.description}</dd>
                 <dt>Name</dt>
                 <dd>{scrim.lobby.name}</dd>
                 <dt>Password</dt>

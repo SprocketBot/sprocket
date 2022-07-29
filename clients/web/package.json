@@ -4,8 +4,8 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
-    "package": "svelte-kit package",
     "preview": "svelte-kit preview",
+    "package": "svelte-kit package",
     "prepare": "svelte-kit sync",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
@@ -21,6 +21,8 @@
     "@typescript-eslint/parser": "^5.10.1",
     "autoprefixer": "^10.4.4",
     "color": "^4.2.3",
+    "config": "^3.3.7",
+    "crypto": "^1.0.1",
     "eslint": "^8.14.0",
     "eslint-plugin-svelte3": "^4.0.0",
     "jest": "^27.5.1",

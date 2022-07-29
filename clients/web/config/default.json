@@ -1,0 +1,13 @@
+{
+    "client": {
+        "gqlUrl": "",
+        "secure": false,
+        "chatwoot": {
+            "enabled": false,
+            "url": "",
+            "websiteToken": ""
+        }
+    },
+    
+    "server": {}
+}
