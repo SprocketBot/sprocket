@@ -4,7 +4,6 @@ import { sveltekit } from '@sveltejs/kit/vite';
 const config = {
 	plugins: [sveltekit()],
 	optimizeDeps: {
-		exclude: ["./secret/chatwoot-hmac-key.txt"],
 		allowNodeBuiltins: ['fs']
 	},
 	server: {
