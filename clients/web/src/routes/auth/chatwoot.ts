@@ -1,6 +1,6 @@
 import type {RequestHandler} from "@sveltejs/kit";
 import {config} from "$lib/utils";
-import {getCrypto} from "../../lib/utils/getCrypto";
+import {sha256} from "js-sha256";
 
 export const GET: RequestHandler = async ({locals}) => {
     const {user} = locals;
@@ -8,9 +8,7 @@ export const GET: RequestHandler = async ({locals}) => {
     const identifier = user.userId.toString();
     const key = config.server.chatwoot.hmacKey;
 
-    const crypto = await getCrypto();
-    const hash = crypto.createHmac("sha256", key).update(identifier)
-        .digest("hex");
+    const hash = sha256.hmac(key, identifier);
 
     return {
         body: {identifier, hash},
