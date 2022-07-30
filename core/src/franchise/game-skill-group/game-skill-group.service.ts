@@ -10,11 +10,11 @@ import {League} from "../../database/mledb";
 @Injectable()
 export class GameSkillGroupService {
     constructor(@InjectRepository(GameSkillGroup) private gameSkillGroupRepository: Repository<GameSkillGroup>) {}
-    
+
     async getGameSkillGroup(query: FindOneOptions<GameSkillGroup>): Promise<GameSkillGroup> {
         return this.gameSkillGroupRepository.findOneOrFail(query);
     }
-    
+
     async getGameSkillGroupById(id: number, options?: FindOneOptions<GameSkillGroup>): Promise<GameSkillGroup> {
         return this.gameSkillGroupRepository.findOneOrFail(id, options);
     }
@@ -43,7 +43,8 @@ export class GameSkillGroupService {
                 code = "PL";
                 break;
             default:
-                throw new Error(`Unknown league ${league}`);
+                code = league.toString().toUpperCase();
+                break;
         }
         return this.getGameSkillGroup({
             where: {profile: {code} },

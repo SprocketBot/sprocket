@@ -51,6 +51,10 @@ export class MatchService {
         });
     }
 
+    async getMatchById(matchId: number): Promise<Match> {
+        return this.matchRepo.findOneOrFail(matchId);
+    }
+
     async getMatchParentEntity(matchId: number): Promise<MatchParentResponse> {
         const populatedMatch = await this.matchRepo.findOneOrFail({
             where: {

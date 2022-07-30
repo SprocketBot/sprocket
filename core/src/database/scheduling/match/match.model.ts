@@ -23,8 +23,12 @@ export class Match extends BaseModel {
 
     // TODO: Nullable, so that we can save cross-group matches?
     @ManyToOne(() => GameSkillGroup)
+    @JoinColumn()
     @Field(() => GameSkillGroup)
     skillGroup: GameSkillGroup;
+
+    @Column()
+    skillGroupId: number;
 
     @OneToMany(() => Round, r => r.match)
     @Field(() => [Round])

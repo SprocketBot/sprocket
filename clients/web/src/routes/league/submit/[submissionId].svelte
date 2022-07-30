@@ -18,7 +18,6 @@
 	const submissionStore: SubmissionStore = new SubmissionStore(submissionId);
 
 	let uploadVisible = false;
-	$: console.log(uploadVisible);
 </script>
 
 
@@ -34,9 +33,11 @@
 				<div>
 					<h3 class="text-error-content text-2xl font-bold">Submission Rejected</h3>
 					<ul class="mb-8">
-						{#each $submissionStore.data?.submission.rejections as rejection}
-							{rejection.playerName} has rejected replays because "{rejection.reason}"
-						{/each}
+						{#key $submissionStore.data?.submission}
+							{#each $submissionStore.data?.submission.rejections.filter(r => !r.stale) as rejection}
+								<li>{rejection.playerName} has rejected replays because "{rejection.reason}"</li>
+							{/each}
+						{/key}
 					</ul>
 					<button class="btn btn-primary btn-outline" on:click={() => { uploadVisible = true }}>Resubmit</button>
 					<UploadReplaysModal bind:visible={uploadVisible} {submissionId}/>
