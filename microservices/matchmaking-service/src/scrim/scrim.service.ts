@@ -1,17 +1,17 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {RpcException} from "@nestjs/microservices";
 import type {
-    Scrim, ScrimGameMode, ScrimPlayer, ScrimSettings,
+    ReplaySubmission,    Scrim, ScrimGameMode, ScrimPlayer, ScrimSettings,
 } from "@sprocketbot/common";
 import {
     AnalyticsEndpoint,
     AnalyticsService,
-    EventTopic, RedisService, ReplaySubmissionStatus, ResponseStatus,
+    EventTopic, RedisService,
+    ReplaySubmissionStatus, ResponseStatus,
     ScrimStatus,
     SubmissionEndpoint,
     SubmissionService,
 } from "@sprocketbot/common";
-import type {ReplaySubmission} from "@sprocketbot/core/dist/replay-parse";
 
 import {EventProxyService} from "./event-proxy/event-proxy.service";
 import {ScrimCrudService} from "./scrim-crud/scrim-crud.service";
