@@ -67,7 +67,7 @@ export class EloConnectorService {
 
     async runEloForSeries(match: SeriesStatsPayload, isScrim: boolean): Promise<void> {
         const job = await this.eloQueue.add("series", {match, isScrim});
-        this.logger.verbose(`Started job 'series' in bull with ${JSON.stringify(job)} returned.`);
+        this.logger.verbose(`| - (${job.id.toString().padStart(6)} > | EloQueue (${job.data})`);
     }
 
     async sendReplaysToElo(replayIds: number[], isNcp: boolean): Promise<void> {
