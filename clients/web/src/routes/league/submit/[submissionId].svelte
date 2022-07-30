@@ -30,7 +30,20 @@
 			</div>
 		{:else}
 		{#if $submissionStore.data?.submission}
+			{#if $submissionStore.data?.submission.status === "REJECTED"}
+				<div>
+					<h3 class="text-error-content text-2xl font-bold">Submission Rejected</h3>
+					<ul class="mb-8">
+						{#each $submissionStore.data?.submission.rejections as rejection}
+							{rejection.playerName} has rejected replays because "{rejection.reason}"
+						{/each}
+					</ul>
+					<button class="btn btn-primary btn-outline" on:click={() => { uploadVisible = true }}>Resubmit</button>
+					<UploadReplaysModal bind:visible={uploadVisible} {submissionId}/>
+				</div>
+			{:else}
 				<SubmissionView submission={$submissionStore.data.submission} {submissionId}/>
+			{/if}
 		{:else}
 			<button on:click={() => { uploadVisible = true }}>Upload</button>
 			<UploadReplaysModal bind:visible={uploadVisible} {submissionId}/>
