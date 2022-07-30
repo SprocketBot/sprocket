@@ -13,7 +13,6 @@ export class FranchiseResolver {
     @ResolveField()
     async profile(@Root() root: Franchise): Promise<FranchiseProfile> {
         if (root.profile) return root.profile;
-
         return this.populate.populateOneOrFail(Franchise, root, "profile");
     }
 

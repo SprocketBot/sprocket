@@ -267,7 +267,7 @@ export class EloConnectorService {
         // Set series to Full NCP and set winning team
         // await this.ss.updateSeries({fullNcp: isNcp}, seriesId);
         // TODO: Create Invalidation here
-        series.isNcp = isNcp;
+        // series.isNcp = isNcp;
         await this.matchRepository.save(series);
 
         // Update each series replay (including any dummies) to NCP

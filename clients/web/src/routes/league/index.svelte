@@ -17,17 +17,17 @@ import {LeagueScheduleStore} from "$lib/api";
 <DashboardLayout>
 	<DashboardCard class="col-span-8 row-span-3" title="League Play Schedule">
 		{#if fetching}
-			<div class="h-full w-full flex items-center justify-center">
+			<div class="h-full w-full flex items-center justify-cente`r">
 				<Spinner class="h-16 w-full"/>
 			</div>
 		{:else}
 			<h2 class="text-2xl text-accent font-bold">{schedule.game.title} | {schedule.description}</h2>
 			<div class="grid grid-cols-1 gap-4">
-			{#each schedule.childGroups as week, wi (week.id)}
+			{#each schedule.childGroups as week, wi (week?.id)}
 				<div>
 				<h3 class="text-lg text-accent font-bold text-center">{week.description}</h3>
 				<div class="grid grid-cols-2 gap-4">
-					{#each week.fixtures as fixture (fixture.id)}
+					{#each week.fixtures as fixture (fixture?.id)}
 						<FixtureCard {fixture}/>
 					{/each}
 				</div>

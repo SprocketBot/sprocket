@@ -44,8 +44,6 @@ export class MledbPlayerService {
     async getMlePlayerBySprocketUser(userId: number): Promise<MLE_Player> {
         const sprocketUser = await this.userService.getUserById(userId, {relations: ["authenticationAccounts"] });
 
-        this.logger.debug(JSON.stringify(sprocketUser, null, 2));
-
         const account = sprocketUser?.authenticationAccounts.find(aa => aa.accountType === UserAuthenticationAccountType.DISCORD);
         if (!account) {
             throw new Error("Discord Authentication Account not found");

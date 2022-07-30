@@ -32,6 +32,4 @@ export class Franchise extends BaseModel {
     @ManyToOne(() => Organization)
     @Field(() => Organization)
     organization: Organization;
-
-    profileId: number;
 }
