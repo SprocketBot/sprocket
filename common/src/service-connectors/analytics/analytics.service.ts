@@ -19,7 +19,7 @@ export class AnalyticsService {
     constructor(@Inject(CommonClient.Analytics) private microServiceClient: ClientProxy) {}
 
     async send<E extends AnalyticsEndpoint>(endpoint: E, data: AnalyticsInput<E>, options?: MicroserviceRequestOptions): Promise<AnalyticsResponse<E>> {
-        // this.logger.debug(`Sending message to endpoint \`${endpoint}\` with data \`${JSON.stringify(data, null, 2)}\``);
+        this.logger.verbose(`|-> \`${endpoint}\` (${JSON.stringify(data)})`);
 
         const {input: inputSchema, output: outputSchema} = AnalyticsSchemas[endpoint];
 
@@ -33,12 +33,13 @@ export class AnalyticsService {
             // eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
             const output = outputSchema.parse(response);
 
-            this.logger.verbose(`Responding from endpoint \`${endpoint}\` with data \`${JSON.stringify(data, null, 2)}\``);
+            this.logger.verbose(`<-| \`${endpoint}\` (${JSON.stringify(output)})`);
             return {
                 status: ResponseStatus.SUCCESS,
                 data: output,
             };
         } catch (e) {
+            this.logger.verbose(`<-| \`${endpoint}\` failed ${(e as Error).message}`);
             return {
                 status: ResponseStatus.ERROR,
                 error: e as Error,

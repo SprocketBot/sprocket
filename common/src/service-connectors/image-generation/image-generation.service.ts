@@ -20,7 +20,7 @@ export class ImageGenerationService {
     }
 
     async send<E extends ImageGenerationEndpoint>(endpoint: E, data: ImageGenerationInput<E>, options?: MicroserviceRequestOptions): Promise<ImageGenerationResponse<E>> {
-        this.logger.verbose(`Sending message to endpoint=${endpoint} with data=${JSON.stringify(data)}`);
+        this.logger.verbose(`|-> \`${endpoint}\` (${JSON.stringify(data)})`);
 
         const {input: inputSchema, output: outputSchema} = ImageGenerationSchemas[endpoint];
 
@@ -32,12 +32,13 @@ export class ImageGenerationService {
             const response = await lastValueFrom(rx) as unknown;
 
             const output = outputSchema.parse(response);
-            this.logger.verbose(`Replying from endpoint=${endpoint} with response=${JSON.stringify(response)}`);
+            this.logger.verbose(`<-| \`${endpoint}\` (${JSON.stringify(output)})`);
             return {
                 status: ResponseStatus.SUCCESS,
                 data: output,
             };
         } catch (e) {
+            this.logger.verbose(`<-| \`${endpoint}\` failed ${(e as Error).message}`);
             return {
                 status: ResponseStatus.ERROR,
                 error: e as Error,

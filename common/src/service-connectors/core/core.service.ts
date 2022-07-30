@@ -19,7 +19,7 @@ export class CoreService {
     constructor(@Inject(CommonClient.Core) private microserviceClient: ClientProxy) {}
 
     async send<E extends CoreEndpoint>(endpoint: E, data: CoreInput<E>, options?: MicroserviceRequestOptions): Promise<CoreResponse<E>> {
-        // this.logger.debug(`Sending message to endpoint \`${endpoint}\` with data \`${JSON.stringify(data, null, 2)}\``);
+        this.logger.verbose(`|-> \`${endpoint}\` (${JSON.stringify(data)})`);
 
         const {input: inputSchema, output: outputSchema} = CoreSchemas[endpoint];
 
@@ -32,12 +32,13 @@ export class CoreService {
 
             const output = outputSchema.parse(response);
 
-            this.logger.verbose(`Responding from endpoint \`${endpoint}\` with data \`${JSON.stringify(data, null, 2)}\``);
+            this.logger.verbose(`<-| \`${endpoint}\` (${JSON.stringify(output)})`);
             return {
                 status: ResponseStatus.SUCCESS,
                 data: output,
             };
         } catch (e) {
+            this.logger.verbose(`<-| \`${endpoint}\` failed ${(e as Error).message}`);``;
             return {
                 status: ResponseStatus.ERROR,
                 error: e as Error,
