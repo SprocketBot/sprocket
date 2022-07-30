@@ -90,7 +90,7 @@ $$
         INSERT INTO sprocket.franchise_profile ( title, code, "primaryColor", "secondaryColor", "franchiseId" )
             VALUES ( 'Frogs', 'FRG', '#E91C24', '#350307', frg_franchise_id ),
                    ( 'Butterflies', 'BTR', '#131547', '#e8bdf9', btr_franchise_id ),
-                   ( 'Grasshoppers', 'GHP', '#1d7d0f', 'eaea3d', ghp_franchise_id ),
+                   ( 'Grasshoppers', 'GHP', '#1d7d0f', '#eaea3d', ghp_franchise_id ),
                    ( 'Turtles', 'TUR', '#777f2d', '#ebe39d', tur_franchise_id );
 
         -- Assign Franchises
