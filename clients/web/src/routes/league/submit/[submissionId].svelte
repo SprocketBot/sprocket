@@ -9,7 +9,7 @@
 
 <script lang="ts">
 	import {
-	    DashboardLayout, DashboardCard, SubmissionView, UploadReplaysModal, Spinner, RatificationView,
+	    DashboardLayout, DashboardCard, SubmissionView, UploadReplaysModal, Spinner,
 	} from "$lib/components";
 	import {SubmissionStore} from "$lib/api";
 
@@ -30,11 +30,7 @@
 			</div>
 		{:else}
 		{#if $submissionStore.data?.submission}
-			{#if $submissionStore.data?.submission.items.every(i => i.progress.status === "Complete")}
-				<RatificationView submission={$submissionStore?.data?.submission} {submissionId}/>
-			{:else}
 				<SubmissionView submission={$submissionStore.data.submission} {submissionId}/>
-			{/if}
 		{:else}
 			<button on:click={() => { uploadVisible = true }}>Upload</button>
 			<UploadReplaysModal bind:visible={uploadVisible} {submissionId}/>

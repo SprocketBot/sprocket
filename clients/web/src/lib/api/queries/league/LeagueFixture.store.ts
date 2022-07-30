@@ -29,17 +29,30 @@ export interface LeagueFixtureVars {
 
 export class LeagueFixtureStore extends QueryStore<LeagueFixtureValue, LeagueFixtureVars> {
     protected queryString = gql<LeagueFixtureValue, LeagueFixtureVars>`
+        fragment FranchiseFields on Franchise {
+            profile {
+                title
+                primaryColor
+                secondaryColor
+                photo{
+                    url
+                }
+            }
+        }
+        
         query($id: Float!) {
             fixture: getFixture(id: $id) {
-                homeFranchise { profile { title, primaryColor, secondaryColor, photo { url } } }
-                awayFranchise { profile { title, primaryColor, secondaryColor, photo { url } } }
+                homeFranchise { ...FranchiseFields }
+                awayFranchise { ...FranchiseFields }
                 scheduleGroup { description }
                 
                 matches {
                     id
-                    skillGroup { description, ordinal 
+                    skillGroup { 
+                        ordinal 
                         profile {
                             id
+                            description
                         } 
                     }
                     submissionId
