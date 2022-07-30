@@ -12,7 +12,6 @@
 
     let submissionStore: SubmissionStore | undefined;
     $: if (scrim?.submissionId) {
-        console.log("Hello???");
         submissionStore = new SubmissionStore(scrim.submissionId);
     }
     let submission: SubmissionStoreValue["submission"];
