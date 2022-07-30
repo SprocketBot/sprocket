@@ -46,7 +46,8 @@ export class GameSkillGroupService {
                 throw new Error(`Unknown league ${league}`);
         }
         return this.getGameSkillGroup({
-            where: {code},
+            where: {profile: {code} },
+            relations: ["profile"],
         });
     }
 }

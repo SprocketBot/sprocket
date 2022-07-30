@@ -17,6 +17,7 @@ export interface SubmissionProgress {
 }
 
 export interface Submission {
+    status: string;
     creatorId: number;
     ratifications: number;
     requiredRatifications: number;
@@ -24,6 +25,7 @@ export interface Submission {
     type: "MATCH" | "SCRIM";
     scrimId?: string;
     matchId?: string;
+    stale: boolean;
     items: Array<{
         taskId: string;
         originalFilename: string;
@@ -70,6 +72,7 @@ export class SubmissionStore extends LiveQueryStore<SubmissionStoreValue, Submis
                 type
                 scrimId
                 matchId
+                status
                 items {
                     taskId
                     originalFilename
@@ -86,6 +89,7 @@ export class SubmissionStore extends LiveQueryStore<SubmissionStoreValue, Submis
                 rejections {
                     playerName
                     reason
+                    stale
                 }
                 validated
                 stats {
@@ -114,6 +118,7 @@ export class SubmissionStore extends LiveQueryStore<SubmissionStoreValue, Submis
                 type
                 scrimId
                 matchId
+                status
                 items {
                     taskId
                     originalFilename

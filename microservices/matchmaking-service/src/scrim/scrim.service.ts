@@ -4,8 +4,14 @@ import type {
     Scrim, ScrimGameMode, ScrimPlayer, ScrimSettings,
 } from "@sprocketbot/common";
 import {
-    AnalyticsEndpoint, AnalyticsService, EventTopic, ScrimStatus,
+    AnalyticsEndpoint,
+    AnalyticsService,
+    EventTopic, RedisService, ReplaySubmissionStatus, ResponseStatus,
+    ScrimStatus,
+    SubmissionEndpoint,
+    SubmissionService,
 } from "@sprocketbot/common";
+import type {ReplaySubmission} from "@sprocketbot/core/dist/replay-parse";
 
 import {EventProxyService} from "./event-proxy/event-proxy.service";
 import {ScrimCrudService} from "./scrim-crud/scrim-crud.service";
@@ -22,6 +28,8 @@ export class ScrimService {
         private readonly scrimLogicService: ScrimLogicService,
         private readonly scrimGroupService: ScrimGroupService,
         private readonly analyticsService: AnalyticsService,
+        private readonly submissionService: SubmissionService,
+        private readonly redisService: RedisService,
     ) {}
 
     async createScrim(organizationId: number, author: ScrimPlayer, settings: ScrimSettings, gameMode: ScrimGameMode, skillGroupId: number, createGroup: boolean): Promise<Scrim> {
@@ -238,9 +246,19 @@ export class ScrimService {
         if (!scrim) {
             throw new RpcException("Scrim not found");
         }
-        if (scrim.status !== ScrimStatus.RATIFYING) {
-            throw new RpcException("Scrim is not ratifying!");
+        if (!scrim.submissionId) throw new RpcException("Scrim does not yet have a submission, cannot complete.");
+
+        const keyResponse = await this.submissionService.send(SubmissionEndpoint.GetSubmissionRedisKey, {submissionId: scrim.submissionId});
+        if (keyResponse.status === ResponseStatus.ERROR) {
+            this.logger.warn(keyResponse.error.message);
+            throw keyResponse.error;
         }
+        const submission = await this.redisService.getJson<ReplaySubmission>(keyResponse.data.redisKey);
+
+        if (submission.status !== ReplaySubmissionStatus.RATIFIED) {
+            throw new RpcException("Submission has not been ratified, cannot complete scrim.");
+        }
+
         // TODO: Override this if player / member is an admin
         if (playerId && !scrim.players.some(p => p.id === playerId)) {
             throw new RpcException("Player not in this scrim");

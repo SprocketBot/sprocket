@@ -12,24 +12,23 @@ import type {
 import {
     CoreEndpoint,
     CoreService,
-    EventsService,
     MatchmakingEndpoint,
     MatchmakingService,
     RedisService,
+    ReplaySubmissionStatus,
     ReplaySubmissionType,
     ResponseStatus,
 } from "@sprocketbot/common";
 
 import {
     getSubmissionKey, submissionIsMatch, submissionIsScrim,
-} from "../utils";
+} from "../../utils";
 
 @Injectable()
 export class ReplaySubmissionCrudService {
     constructor(
         private readonly redisService: RedisService,
         private readonly matchmakingService: MatchmakingService,
-        private readonly eventService: EventsService,
         private readonly coreService: CoreService,
     ) {}
 
@@ -45,6 +44,7 @@ export class ReplaySubmissionCrudService {
 
         const commonFields: BaseReplaySubmission = {
             creatorId: playerId,
+            status: ReplaySubmissionStatus.PROCESSING,
             taskIds: [],
             items: [],
             validated: false,
@@ -106,6 +106,10 @@ export class ReplaySubmissionCrudService {
         await this.redisService.setJsonField(getSubmissionKey(submissionId), "items", []);
     }
 
+    async updateStatus(submissionId: string, submissionStatus: ReplaySubmissionStatus): Promise<void> {
+        await this.redisService.setJsonField(getSubmissionKey(submissionId), "status", submissionStatus);
+    }
+
     async upsertItem(submissionId: string, item: ReplaySubmissionItem): Promise<void> {
         const key = getSubmissionKey(submissionId);
 
@@ -150,6 +154,16 @@ export class ReplaySubmissionCrudService {
         await this.redisService.appendToJsonArray(getSubmissionKey(submissionId), "ratifiers", playerId);
     }
 
+    async expireRejections(submissionId: string): Promise<void> {
+        const key = getSubmissionKey(submissionId);
+        // We need to make sure this array exists, otherwise multipathing breaks
+        const len = await this.redisService.redis.send_command("JSON.ARRLEN", key, "rejections") as number;
+        if (len) {
+            await this.redisService.setJsonField(key, `rejections..stale`, true);
+        }
+
+    }
+
     async addRejection(submissionId: string, playerId: string, reason: string): Promise<void> {
         const key = getSubmissionKey(submissionId);
         const rejectedAt = new Date().toISOString();
@@ -162,8 +176,9 @@ export class ReplaySubmissionCrudService {
             return rejectedItem;
         });
 
+        const stale = false;
         const rejection = {
-            playerId, reason, rejectedItems, rejectedAt,
+            playerId, reason, rejectedItems, rejectedAt, stale,
         };
 
         await this.redisService.appendToJsonArray(key, "rejections", rejection);

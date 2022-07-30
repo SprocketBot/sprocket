@@ -11,10 +11,9 @@
     export let submission: Submission | undefined;
 
     let uploading: boolean = false;
-    let rejection: SubmissionRejection | undefined;
-    $: rejection = submission?.rejections[submission.rejections.length - 1];
+    let rejections: SubmissionRejection[];
+    $: rejections = submission?.rejections;
 </script>
-
 
 <section>
     <h2>Time to Play!</h2>
@@ -42,10 +41,13 @@
         {/if}
     </div>
 
-    {#if rejection}
+    {#if rejections?.length}
         <h2 class="text-error">Replays Rejected</h2>
-        <!-- TODO sanitize reason -->
-        <p>{rejection.playerName} rejected the uploaded replays because "{rejection.reason}"</p>
+        <ul class="list-disc list-inside">
+        {#each rejections.filter(r => !r.stale) as rejection}
+            <li>{rejection.playerName} rejected the uploaded replays because "{rejection.reason}"</li>
+        {/each}
+        </ul>
         <p class="mt-4">You can upload replays again:</p>
     {/if}
 

@@ -93,10 +93,12 @@ export const config = {
             return _config.get<string>("minio.endPoint");
         },
         get accessKey(): string {
-            return readFileSync("./secret/minio-access.txt").toString();
+            return readFileSync("./secret/minio-access.txt").toString()
+                .trim();
         },
         get secretKey(): string {
-            return readFileSync("./secret/minio-secret.txt").toString();
+            return readFileSync("./secret/minio-secret.txt").toString()
+                .trim();
         },
         bucketNames: {
             get replays(): string {

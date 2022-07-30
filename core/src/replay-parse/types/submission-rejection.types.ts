@@ -15,6 +15,9 @@ export class SubmissionRejection {
     @Field()
     reason: string;
 
+    @Field()
+    stale: boolean;
+
     @Field(() => Date)
     rejectedAt: Date | string;
 
