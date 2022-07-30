@@ -3,12 +3,14 @@ import {ClientsModule, Transport} from "@nestjs/microservices";
 
 import {CommonClient} from "../../global.types";
 import {config} from "../../util";
+import {UtilModule} from "../../util/util.module";
 import {CoreService} from "./core.service";
 
 @Module({
     providers: [CoreService],
     exports: [CoreService],
     imports: [
+        UtilModule,
         ClientsModule.register([ {
             name: CommonClient.Core,
             transport: Transport.RMQ,

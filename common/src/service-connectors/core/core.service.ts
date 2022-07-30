@@ -7,6 +7,7 @@ import {lastValueFrom, timeout} from "rxjs";
 
 import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
+import {NanoidService} from "../../util/nanoid/nanoid.service";
 import type {
     CoreEndpoint, CoreInput, CoreResponse,
 } from "./core.types";
@@ -16,10 +17,14 @@ import {CoreSchemas} from "./core.types";
 export class CoreService {
     private logger = new Logger(CoreService.name);
 
-    constructor(@Inject(CommonClient.Core) private microserviceClient: ClientProxy) {}
+    constructor(
+        @Inject(CommonClient.Core) private microserviceClient: ClientProxy,
+        private readonly nidService: NanoidService,
+    ) {}
 
     async send<E extends CoreEndpoint>(endpoint: E, data: CoreInput<E>, options?: MicroserviceRequestOptions): Promise<CoreResponse<E>> {
-        this.logger.verbose(`|-> \`${endpoint}\` (${JSON.stringify(data)})`);
+        const rid = this.nidService.gen();
+        this.logger.verbose(`| - (${rid}) > | \`${endpoint}\` (${JSON.stringify(data)})`);
 
         const {input: inputSchema, output: outputSchema} = CoreSchemas[endpoint];
 
@@ -32,13 +37,13 @@ export class CoreService {
 
             const output = outputSchema.parse(response);
 
-            this.logger.verbose(`<-| \`${endpoint}\` (${JSON.stringify(output)})`);
+            this.logger.verbose(`| < (${rid}) - | \`${endpoint}\` (${JSON.stringify(output)})`);
             return {
                 status: ResponseStatus.SUCCESS,
                 data: output,
             };
         } catch (e) {
-            this.logger.verbose(`<-| \`${endpoint}\` failed ${(e as Error).message}`);``;
+            this.logger.verbose(`| < (${rid}) - | \`${endpoint}\` failed ${(e as Error).message}`);``;
             return {
                 status: ResponseStatus.ERROR,
                 error: e as Error,

@@ -7,6 +7,7 @@ import {lastValueFrom, timeout} from "rxjs";
 
 import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
+import {NanoidService} from "../../util/nanoid/nanoid.service";
 import type {
     BotEndpoint, BotInput, BotResponse,
 } from "./bot.types";
@@ -16,10 +17,14 @@ import {BotSchemas} from "./bot.types";
 export class BotService {
     private logger = new Logger(BotService.name);
 
-    constructor(@Inject(CommonClient.Bot) private microserviceClient: ClientProxy) {}
+    constructor(
+        @Inject(CommonClient.Bot) private microserviceClient: ClientProxy,
+        private readonly nidService: NanoidService,
+    ) {}
 
     async send<E extends BotEndpoint>(endpoint: E, data: BotInput<E>, options?: MicroserviceRequestOptions): Promise<BotResponse<E>> {
-        this.logger.verbose(`|-> \`${endpoint}\` (${JSON.stringify(data)})`);
+        const rid = this.nidService.gen();
+        this.logger.verbose(`| - (${rid}) > | \`${endpoint}\` (${JSON.stringify(data)})`);
 
         const {input: inputSchema, output: outputSchema} = BotSchemas[endpoint];
 
@@ -37,7 +42,7 @@ export class BotService {
                 data: output,
             };
         } catch (e) {
-            this.logger.verbose(`<-| \`${endpoint}\` failed ${(e as Error).message}`);
+            this.logger.verbose(`| < (${rid}) - | \`${endpoint}\` failed ${(e as Error).message}`);
             return {
                 status: ResponseStatus.ERROR,
                 error: e as Error,
