@@ -131,6 +131,17 @@ export class ReplaySubmissionService {
         if (!submission.items.every(item => [ProgressStatus.Complete, ProgressStatus.Error].includes(item.progress?.status ?? ProgressStatus.Pending))) {
             throw new Error("Submission not yet ready for completion");
         }
+
+        submission.rejections.forEach(r => { r.stale = true });
+
+        await this.submissionCrudService.expireRejections(submissionId);
+        await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.VALIDATING);
+
+        await this.eventsService.publish(EventTopic.SubmissionValidating, {
+            submissionId: submissionId,
+            redisKey: getSubmissionKey(submissionId),
+        });
+
         const valid = await this.replayValidationService.validate(submission);
         if (!valid.valid) {
             await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.REJECTED);

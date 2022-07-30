@@ -10,6 +10,7 @@ export enum ReplaySubmissionType {
 export enum ReplaySubmissionStatus {
     PROCESSING = "PROCESSING",
     RATIFYING = "RATIFYING",
+    VALIDATING = "VALIDATING",
     RATIFIED = "RATIFIED",
     REJECTED = "REJECTED",
 }

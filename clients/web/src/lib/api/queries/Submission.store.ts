@@ -25,6 +25,7 @@ export interface Submission {
     type: "MATCH" | "SCRIM";
     scrimId?: string;
     matchId?: string;
+    stale: boolean;
     items: Array<{
         taskId: string;
         originalFilename: string;
@@ -88,6 +89,7 @@ export class SubmissionStore extends LiveQueryStore<SubmissionStoreValue, Submis
                 rejections {
                     playerName
                     reason
+                    stale
                 }
                 validated
                 stats {

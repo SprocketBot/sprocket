@@ -43,8 +43,8 @@
 
     {#if rejections?.length}
         <h2 class="text-error">Replays Rejected</h2>
-        <ul class="list-decimal list-inside">
-        {#each rejections as rejection}
+        <ul class="list-disc list-inside">
+        {#each rejections.filter(r => !r.stale) as rejection}
             <li>{rejection.playerName} rejected the uploaded replays because "{rejection.reason}"</li>
         {/each}
         </ul>

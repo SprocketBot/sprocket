@@ -1,15 +1,11 @@
 <script lang="ts">
     import type {CurrentScrim, SubmissionStoreValue} from "$lib/api";
     import {currentScrim, SubmissionStore} from "$lib/api";
-    import {Spinner, SubmissionView} from "$lib/components";
+    import {SubmissionView} from "$lib/components";
     import PendingView from "./QueuedSubViews/PendingView.svelte";
     import PoppedView from "./QueuedSubViews/PoppedView.svelte";
     import InProgressView from "./QueuedSubViews/InProgressView.svelte";
-    import RatificationView from "../RatificationView.svelte";
     import LockedView from "./QueuedSubViews/LockedView.svelte";
-
-    console.log("Queued View");
-
 
     let scrim: CurrentScrim | undefined;
     $: scrim = $currentScrim?.data?.currentScrim;
@@ -33,22 +29,6 @@
             <InProgressView scrim={scrim} {submission}/>
         {:else if submission}
             <SubmissionView {submission} submissionId={scrim.submissionId}/>
-        {/if}
-    {:else if scrim.status === "SUBMITTING"}
-        {#if $submissionStore?.data?.submission}
-
-        {:else}
-            <div class="h-20">
-                <Spinner/>
-            </div>
-        {/if}
-    {:else if scrim.status === "RATIFYING"}
-        {#if $submissionStore?.scrim?.submission}
-            <RatificationView submission={$submissionStore?.scrim?.submission} submissionId={scrim.submissionId}/>
-        {:else}
-            <div class="h-20">
-                <Spinner/>
-            </div>
         {/if}
     {:else if scrim.status === "LOCKED"}
         <LockedView scrim={scrim}/>

@@ -25,6 +25,7 @@ export enum EventTopic {
     AllSubmissionEvents = "submission.*",
     SubmissionStarted = "submission.started",
     SubmissionProgress = "submission.progress",
+    SubmissionValidating = "submission.validating",
 
     SubmissionRatifying = "submission.ratifying",
     SubmissionRatificationAdded = "submission.ratification",
@@ -77,7 +78,7 @@ export const EventSchemas = {
     [EventTopic.SubmissionRatificationAdded]: SubmissionRatificationSchema,
     [EventTopic.SubmissionRejectionAdded]: SubmissionEventSchema,
     [EventTopic.SubmissionRatified]: SubmissionEventSchema,
-    // TODO: Subscribe to these events in the matchmaking service
+    [EventTopic.SubmissionValidating]: SubmissionEventSchema,
     [EventTopic.SubmissionRatifying]: SubmissionEventSchema.extend({resultPaths: z.array(z.string())}),
     [EventTopic.SubmissionRejected]: SubmissionEventSchema,
     [EventTopic.SubmissionReset]: SubmissionEventSchema,

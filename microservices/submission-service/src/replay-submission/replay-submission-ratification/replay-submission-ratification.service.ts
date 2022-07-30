@@ -48,6 +48,7 @@ export class ReplaySubmissionRatificationService {
         if (submission.status !== ReplaySubmissionStatus.RATIFYING) throw new Error("Submission is not ready for ratifications");
 
         await this.crudService.addRatifier(submissionId, playerId);
+        submission.ratifiers.push(parseInt(playerId));
 
         if (submission.ratifiers.length >= submission.requiredRatifications) {
             await this.crudService.updateStatus(submissionId, ReplaySubmissionStatus.RATIFIED);
