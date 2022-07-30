@@ -13,7 +13,7 @@ import {FranchiseStaffAppointment} from "../franchise_staff_appointment";
 @Entity({schema: "sprocket"})
 @ObjectType()
 export class Franchise extends BaseModel {
-    @OneToOne(() => FranchiseProfile)
+    @OneToOne(() => FranchiseProfile, p => p.franchise)
     @Field(() => FranchiseProfile)
     profile: FranchiseProfile;
 
