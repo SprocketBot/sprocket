@@ -70,7 +70,9 @@ export class ReplayParseService {
             const buffer = await readToBuffer(s.stream);
             const objectHash = SHA256(buffer.toString()).toString();
             const replayObjectPath = `replays/${objectHash}${REPLAY_EXT}`;
-            await this.minioService.put(config.minio.bucketNames.replays, replayObjectPath, buffer);
+            const bucket = config.minio.bucketNames.replays;
+            await this.minioService.put(bucket, replayObjectPath, buffer).catch(this.logger.error.bind(this));
+
             return {
                 minioPath: replayObjectPath,
                 originalFilename: s.filename,

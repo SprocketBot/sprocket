@@ -9,4 +9,5 @@ export interface ReplaySubmissionRejection {
     reason: string;
     rejectedItems: RejectedItem[];
     rejectedAt: string;
+    stale: boolean;
 }

@@ -11,7 +11,7 @@ import {
 } from "@sprocketbot/common";
 
 import type {UserWithPlatformId} from "./types/user-with-platform-id";
-import type {ValidationResult} from "./types/validation-result";
+import type {ValidationError, ValidationResult} from "./types/validation-result";
 import {sortIds} from "./utils";
 
 @Injectable()
@@ -45,10 +45,10 @@ export class ReplayValidationService {
         if (!scrim.games) {
             throw new Error(`Unable to validate gameCount for scrim ${scrim.id} because it has no games`);
         }
-        
+
         const submissionGameCount = submission.items.length;
         const scrimGameCount = scrim.games.length;
-        
+
         if (submissionGameCount !== scrimGameCount) {
             return {
                 valid: false,
@@ -59,7 +59,23 @@ export class ReplayValidationService {
         }
 
         const gameCount = submissionGameCount;
-        
+
+        const progressErrors = submission.items.reduce<ValidationError[]>((r, v) => {
+            if (v.progress?.error) {
+                this.logger.error(`Error in submission found, scrim=${scrim.id} submissionId=${scrim.submissionId}\n${v.progress.error}`);
+                r.push({
+                    error: `Error encountered while parsing file ${v.originalFilename}`,
+                });
+            }
+            return r;
+        }, []);
+        if (progressErrors.length) {
+            return {
+                valid: false,
+                errors: progressErrors,
+            };
+        }
+
         // ========================================
         // Validate the correct players played
         // ========================================
@@ -106,7 +122,7 @@ export class ReplayValidationService {
             };
         }
         const userIds = userIdsResponses.map(r => (r as CoreSuccessResponse<CoreEndpoint.GetUserByAuthAccount>).data);
-        
+
         // Add platformIds to players
         const userAndPlatformIds: UserWithPlatformId[] = userIds.map((u, i) => ({
             ...u,

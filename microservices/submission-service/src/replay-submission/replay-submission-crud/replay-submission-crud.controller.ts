@@ -3,7 +3,7 @@ import {MessagePattern, Payload} from "@nestjs/microservices";
 import type {SubmissionOutput} from "@sprocketbot/common";
 import {SubmissionEndpoint, SubmissionSchemas} from "@sprocketbot/common";
 
-import {ReplaySubmissionCrudService} from "../replay-submission-crud.service";
+import {ReplaySubmissionCrudService} from "./replay-submission-crud.service";
 
 @Controller()
 export class ReplaySubmissionCrudController {

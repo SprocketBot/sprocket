@@ -5,12 +5,12 @@
   import {ProgressStatus} from "$lib/utils/types/progress.types";
   import MdErrorOutline from "svelte-icons/md/MdErrorOutline.svelte";
   import {resetSubmissionMutation} from "$lib/api";
+  import {Spinner} from "$lib/components";
 
   export let submission: Submission;
-  if (!submission) throw new Error();
   export let submissionId: string;
   let progress: SubmissionProgress[];
-  $: progress = submission.items.map(item => ({
+  $: progress = submission?.items.map(item => ({
       filename: item.originalFilename,
       ...item.progress,
   }));
@@ -36,6 +36,14 @@
 			<button class="btn btn-outline" on:click={resetSubmission}>
 				Try again
 			</button>
+		</div>
+	{/if}
+	{#if submission.status === "VALIDATING"}
+		<div class="alert alert-success">
+			<p class="text-error-content">
+				<span class="h-8"><Spinner/></span>
+				Validating Replays...
+			</p>
 		</div>
 	{/if}
 	{#each progress as taskProgress (taskProgress.taskId)}
