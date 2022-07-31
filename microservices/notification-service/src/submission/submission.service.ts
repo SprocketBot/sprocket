@@ -17,6 +17,7 @@ import {
     MatchmakingEndpoint,
     MatchmakingService,
     RedisService,
+    ReplaySubmissionType,
     ResponseStatus,
 } from "@sprocketbot/common";
 
@@ -33,12 +34,16 @@ export class SubmissionService {
 
     async sendSubmissionRatifyingNotifications(payload: EventPayload<EventTopic.SubmissionRatifying>): Promise<void> {
         const submission = await this.redisService.getJson<ReplaySubmission>(payload.redisKey);
-        const [,, submissionId] = payload.redisKey.split(":");
 
-        if (submissionId.startsWith("scrim")) {
-            await this.sendScrimSubmissionRatifyingNotifications(submission as ScrimReplaySubmission);
-        } else if (submissionId.startsWith("match")) {
-            await this.sendMatchSubmissionRatifyingNotifications(submission as MatchReplaySubmission);
+        switch (submission.type) {
+            case ReplaySubmissionType.MATCH:
+                await this.sendMatchSubmissionRatifyingNotifications(submission);
+                break;
+            case ReplaySubmissionType.SCRIM:
+                await this.sendScrimSubmissionRatifyingNotifications(submission);
+                break;
+            default:
+                this.logger.error("Submission type has not been implemented");
         }
     }
 
