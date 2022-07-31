@@ -35,8 +35,6 @@ export class SubmissionService {
         const submission = await this.redisService.getJson<ReplaySubmission>(payload.redisKey);
         const [,, submissionId] = payload.redisKey.split(":");
 
-        this.logger.log(submissionId);
-
         if (submissionId.startsWith("scrim")) {
             await this.sendScrimSubmissionRatifyingNotifications(submission as ScrimReplaySubmission);
         } else if (submissionId.startsWith("match")) {
