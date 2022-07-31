@@ -22,7 +22,6 @@ export class SubmissionEventSubscriber {
     }
 
     onSubmissionRatifying = (d: EventResponse<EventTopic.SubmissionRatifying>): void => {
-        this.logger.error("SUBMISSION RATIFYING");
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (d.topic !== EventTopic.SubmissionRatifying) return;
 
