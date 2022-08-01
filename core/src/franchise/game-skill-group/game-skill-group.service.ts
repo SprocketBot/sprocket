@@ -1,6 +1,6 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import type {FindOneOptions} from "typeorm";
+import type {FindOneOptions, FindOptionsWhere} from "typeorm";
 import {Repository} from "typeorm";
 
 import type {GameSkillGroupProfile} from "../../database";
@@ -16,7 +16,13 @@ export class GameSkillGroupService {
     }
 
     async getGameSkillGroupById(id: number, options?: FindOneOptions<GameSkillGroup>): Promise<GameSkillGroup> {
-        return this.gameSkillGroupRepository.findOneOrFail(id, options);
+        return this.gameSkillGroupRepository.findOneOrFail({
+            ...options,
+            where: {
+                id,
+                ...options?.where,
+            } as FindOptionsWhere<GameSkillGroup>,
+        });
     }
 
     async getGameSkillGroupProfile(skillGroupId: number): Promise<GameSkillGroupProfile> {

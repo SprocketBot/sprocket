@@ -32,12 +32,12 @@ export class MledbPlayerService {
     }
 
     async getPlayerOrgs(player: MLE_Player): Promise<MLE_PlayerToOrg[]> {
-        const playerToOrgs = await this.playerToOrgRepository.find({relations: ["player"], where: {player: player} });
+        const playerToOrgs = await this.playerToOrgRepository.find({relations: {player: true}, where: {player: {id: player.id} } });
         return playerToOrgs;
     }
 
     async getPlayerByPlatformId(platform: MLE_Platform, platformId: string): Promise<MLE_Player> {
-        const playerAccount = await this.playerAccountRepository.findOneOrFail({platform, platformId}, {relations: ["player"] });
+        const playerAccount = await this.playerAccountRepository.findOneOrFail({where: {platform, platformId}, relations: {player: true} });
         return playerAccount.player;
     }
 
@@ -57,7 +57,7 @@ export class MledbPlayerService {
     }
 
     async getPlayerFranchise(id: number): Promise<MLE_Team> {
-        const player = await this.playerRepository.findOneOrFail(id);
+        const player = await this.playerRepository.findOneOrFail({where: {id} });
         return this.teamRepo.findOneOrFail({
             where: {
                 name: player.teamName,
@@ -66,7 +66,7 @@ export class MledbPlayerService {
     }
 
     async playerIsCaptain(id: number): Promise<boolean> {
-        const player = await this.playerRepository.findOneOrFail(id);
+        const player = await this.playerRepository.findOneOrFail({where: {id} });
         const ttc = await this.teamToCaptainRepo.find({
             where: {
                 teamName: player.teamName,

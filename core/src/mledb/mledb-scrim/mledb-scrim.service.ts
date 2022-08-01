@@ -3,12 +3,13 @@ import {
 } from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {
-    BallchasingPlayer, BallchasingResponse, BallchasingTeam, Scrim,
+    BallchasingPlayer, BallchasingResponse, BallchasingTeam, ReplaySubmission, Scrim,
 } from "@sprocketbot/common";
 import type {QueryRunner} from "typeorm";
 import {Repository} from "typeorm";
 
 import type {GameMode, GameSkillGroup} from "../../database";
+import type {MLE_Platform} from "../../database/mledb";
 import {
     LegacyGameMode,
     MLE_EligibilityData,
@@ -24,7 +25,6 @@ import {
 import {GameSkillGroupService} from "../../franchise";
 import {GameModeService} from "../../game";
 import {UserService} from "../../identity";
-import type {ReplaySubmission} from "../../replay-parse";
 import {SprocketRatingService} from "../../sprocket-rating/sprocket-rating.service";
 import {assignPlayerStats} from "./assign-player-stats";
 import {ballchasingMapLookup} from "./ballchasing-maps";
@@ -58,7 +58,10 @@ export class MledbScrimService {
         };
     }
 
-    async saveScrim(submission: ReplaySubmission, submissionId: string, runner: QueryRunner, scrimObject: Scrim): Promise<number> {
+    // TODO: Create Scrim function
+    // TODO: saveSeries accepts fixture id or scrim id
+
+    async saveSeries(submission: ReplaySubmission, submissionId: string, runner: QueryRunner, scrimObject: Scrim): Promise<number> {
         const scrim = this.mleScrimRepository.create();
         const series = this.mleSeriesRepository.create();
         const coreStats: MLE_PlayerStatsCore[] = [];
@@ -105,7 +108,7 @@ export class MledbScrimService {
                 const playerAccount = await this.mlePlayerAccountRepository.findOneOrFail({
                     where: {
                         platformId: p.id.id,
-                        platform: p.id.platform.toUpperCase(),
+                        platform: p.id.platform.toUpperCase() as MLE_Platform,
                     },
                     relations: ["player"],
                 });

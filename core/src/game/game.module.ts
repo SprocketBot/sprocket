@@ -15,6 +15,6 @@ import {PlatformService} from "./platform";
         GameModeResolver,
     ],
     controllers: [],
-    exports: [PlatformService, GameModeService],
+    exports: [PlatformService, GameModeService, GameService],
 })
 export class GameModule {}

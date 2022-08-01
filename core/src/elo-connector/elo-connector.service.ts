@@ -49,7 +49,7 @@ export class EloConnectorService {
     async saveSalaries(payload: SalaryPayloadItem[][]): Promise<void> {
         await Promise.all(payload.map(async sg => {
             await Promise.all(sg.map(async deltaP => {
-                let player = await this.playerRepository.findOneOrFail(deltaP.playerId);
+                let player = await this.playerRepository.findOneOrFail({where: {id: deltaP.playerId} });
 
                 player = this.playerRepository.merge(player, {
                     skillGroupId: player.skillGroupId + deltaP.sgDelta,
@@ -131,7 +131,7 @@ export class EloConnectorService {
 
         // Find the winning team and it's franchise profile, since that's where
         // team names are in Sprocket.
-        const winningTeam = await this.teamRepository.findOne(winningTeamInput?.id, {where: {id: winningTeamInput?.id}, relations: ["franchise", "franchise.profile"] });
+        const winningTeam = await this.teamRepository.findOne({where: {id: winningTeamInput?.id}, relations: {franchise: {profile: true} } });
 
         if (isNcp && !winningTeam) return "Winning team must be specified if NCPing replays";
 
@@ -139,7 +139,7 @@ export class EloConnectorService {
         replayIds.sort((r1, r2) => r1 - r2);
 
         // Gather replays
-        const replayPromises = replayIds.map(async rId => this.roundRepository.findOneOrFail(rId));
+        const replayPromises = replayIds.map(async rId => this.roundRepository.findOneOrFail({where: {id: rId} }));
         const replays = await Promise.all(replayPromises);
 
         // Check to make sure the winning team played in each replay
@@ -212,9 +212,9 @@ export class EloConnectorService {
 
         // Find the winning team and it's franchise profile, since that's where
         // team names are in Sprocket.
-        let winningTeam = await this.teamRepository.findOne(winningTeamInput?.id, {where: {id: winningTeamInput?.id}, relations: ["franchise", "franchise.profile"] });
+        let winningTeam = await this.teamRepository.findOne({where: {id: winningTeamInput?.id}, relations: {franchise: {profile: true} } });
 
-        const series = await this.matchRepository.findOneOrFail(seriesId, {where: {id: seriesId}, relations: ["matchParent", "rounds"] });
+        const series = await this.matchRepository.findOneOrFail({where: {id: seriesId}, relations: {matchParent: true, rounds: true} });
 
         if (seriesType === SeriesType.Fixture) {
 
@@ -238,7 +238,11 @@ export class EloConnectorService {
             if (!series.matchParent.scrimMeta) {
                 throw new Error(`Series with id=\`${seriesId}\` has no associated scrim, but markSeriesNCP was called with SeriesType.Scrim.`);
             }
-            winningTeam = await this.teamRepository.findOneOrFail(0); // TODO: ID for FA team
+            winningTeam = await this.teamRepository.findOneOrFail({
+                where: {
+                    id: 0,
+                },
+            }); // TODO: ID for FA team
         } else {
             throw new Error(`MarkSeriesNCP called with unknown series type: ${JSON.stringify(seriesType)}`);
         }
@@ -272,7 +276,7 @@ export class EloConnectorService {
 
         // Update each series replay (including any dummies) to NCP
         const replayIds = seriesReplays.map(replay => replay.id);
-        await this.markReplaysNcp(replayIds, isNcp, winningTeam);
+        await this.markReplaysNcp(replayIds, isNcp, winningTeam ?? undefined);
 
         this.logger.verbose(`(${r}) end markSeriesNcp`);
 

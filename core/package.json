@@ -70,7 +70,7 @@
     "rxjs": "^7.2.0",
     "shorthash2": "^1.0.3",
     "ts-jest": "^27.0.3",
-    "typeorm": "^0.2.37",
+    "typeorm": "^0.3.7",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
