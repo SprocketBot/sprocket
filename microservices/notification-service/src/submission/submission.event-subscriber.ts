@@ -16,8 +16,19 @@ export class SubmissionEventSubscriber {
     ) {}
 
     async onApplicationBootstrap(): Promise<void> {
-        await this.eventsService.subscribe(EventTopic.SubmissionRatifying, false).then(obs => {
-            obs.subscribe(this.onSubmissionRatifying);
+        await this.eventsService.subscribe(EventTopic.AllSubmissionEvents, false).then(obs => {
+            obs.subscribe((p: EventResponse<EventTopic>) => {
+                switch (p.topic) {
+                    case EventTopic.SubmissionRatifying:
+                        this.onSubmissionRatifying(p as EventResponse<EventTopic.SubmissionRatifying>);
+                        break;
+                    case EventTopic.SubmissionRejected:
+                        this.onSubmissionRejected(p as EventResponse<EventTopic.SubmissionRejected>);
+                        break;
+                    default:
+                        break;
+                }
+            });
         });
     }
 
@@ -26,5 +37,12 @@ export class SubmissionEventSubscriber {
         if (d.topic !== EventTopic.SubmissionRatifying) return;
 
         this.submissionService.sendSubmissionRatifyingNotifications(d.payload).catch(e => { this.logger.error(e) });
+    };
+
+    onSubmissionRejected = (d: EventResponse<EventTopic.SubmissionRejected>): void => {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (d.topic !== EventTopic.SubmissionRejected) return;
+
+        this.submissionService.sendSubmissionRejectedNotifications(d.payload).catch(e => { this.logger.error(e) });
     };
 }
