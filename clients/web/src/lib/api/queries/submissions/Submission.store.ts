@@ -1,5 +1,5 @@
 import {gql, type OperationResult} from "@urql/core";
-import {LiveQueryStore} from "../core/LiveQueryStore";
+import {LiveQueryStore} from "../../core/LiveQueryStore";
 
 export interface SubmissionRejection {
     playerId: string;
