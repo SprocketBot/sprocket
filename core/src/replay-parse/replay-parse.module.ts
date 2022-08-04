@@ -1,7 +1,12 @@
 import {Module} from "@nestjs/common";
 import {
     AnalyticsModule,
-    CeleryModule, EventsModule, MatchmakingModule, MinioModule, RedisModule, SubmissionModule,
+    CeleryModule,
+    EventsModule,
+    MatchmakingModule,
+    MinioModule,
+    RedisModule,
+    SubmissionModule,
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 
@@ -10,8 +15,10 @@ import {EloConnectorModule} from "../elo-connector/elo-connector.module";
 import {FranchiseModule} from "../franchise";
 import {IdentityModule} from "../identity";
 import {MledbInterfaceModule} from "../mledb";
+import {SchedulingModule} from "../scheduling";
 import {ScrimModule} from "../scrim";
 import {SprocketRatingModule} from "../sprocket-rating/sprocket-rating.module";
+import {UtilModule} from "../util/util.module";
 import {
     BallchasingConverterService, FinalizationService, FinalizationSubscriber,
 } from "./finalization";
@@ -36,7 +43,8 @@ import {ReplayParseService} from "./replay-parse.service";
         IdentityModule,
         SprocketRatingModule,
         EloConnectorModule,
-        SubmissionModule,
+        SchedulingModule,
+        UtilModule,
     ],
     providers: [
         ReplayParseModResolver,

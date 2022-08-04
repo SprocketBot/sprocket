@@ -21,6 +21,7 @@
 </script>
 
 
+
 <DashboardLayout>
 	<DashboardCard class="col-span-8 row-span-3" title="Submit Replays">
 		{#if $submissionStore.fetching}
@@ -50,5 +51,8 @@
 			<UploadReplaysModal bind:visible={uploadVisible} {submissionId}/>
 		{/if}
 		{/if}
+	</DashboardCard>
+	<DashboardCard class="col-span-8">
+		<pre>{JSON.stringify($submissionStore, null, 2)}</pre>
 	</DashboardCard>
 </DashboardLayout>

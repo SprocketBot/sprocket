@@ -21,6 +21,7 @@ export abstract class QueryStore<T, V extends Object> extends BaseStore<Operatio
     }
 
     subscribe(sub: (T: OperationResult<T, V>) => unknown): () => void {
+        if (this.currentValue) sub(this.currentValue);
         if (this.subscribers.size === 0) {
             if (typeof this._vars !== "undefined") {
                 this.query.bind(this)().catch(e => {
@@ -28,8 +29,7 @@ export abstract class QueryStore<T, V extends Object> extends BaseStore<Operatio
                 });
             }
         }
-        if (this.currentValue) sub(this.currentValue);
-
+        
         return super.subscribe(sub);
     }
 

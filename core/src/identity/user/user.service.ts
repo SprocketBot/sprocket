@@ -92,10 +92,7 @@ export class UserService {
     async getUser(query: FindOneOptions<UserProfile>): Promise<User | undefined> {
         const userProfile = await this.userProfileRepository.findOne({
             ...query,
-            relations: {
-                ...query.relations,
-                user: true,
-            },
+            relations: Object.assign({user: true}, query.relations),
         });
         return userProfile?.user;
     }

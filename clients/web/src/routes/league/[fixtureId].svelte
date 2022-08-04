@@ -66,6 +66,8 @@
 													class='btn btn-outline btn-primary mx-auto'>Submit Replays
 									</button>
 								{/if}
+								{:else}
+								<span>You are not allowed to submit for this skill group.</span>
 							{/if}
 						</section>
 					{/each}

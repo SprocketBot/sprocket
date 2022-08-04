@@ -10,9 +10,9 @@
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "lint": "eslint src --fix",
-    "migration:generate": "node --require ts-node/register ./node_modules/typeorm/cli.js migration:generate -n Automigration",
-    "migration:run": "node --require ts-node/register ./node_modules/typeorm/cli.js migration:run",
-    "migration:revert": "node --require ts-node/register ./node_modules/typeorm/cli.js migration:revert"
+    "migration:generate": "typeorm-ts-node-esm migration:generate -d ormconfig.mjs ./migrations/Automigration",
+    "migration:run": "typeorm-ts-node-esm migration:run -d ormconfig.mjs",
+    "migration:revert": "typeorm-ts-node-esm migration:revert -d ormconfig.mjs"
   },
   "repository": {
     "type": "git",
