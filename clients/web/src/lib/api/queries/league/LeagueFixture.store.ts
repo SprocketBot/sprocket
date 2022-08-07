@@ -20,6 +20,7 @@ export interface LeagueFixtureValue {
         id: number;
         skillGroup: {description: string; ordinal: number;};
         submissionId: string;
+        gameMode: {description: string;};
     }>;
 }
 
@@ -54,6 +55,9 @@ export class LeagueFixtureStore extends QueryStore<LeagueFixtureValue, LeagueFix
                             id
                             description
                         } 
+                    }
+                    gameMode {
+                        description
                     }
                     submissionId
                 }

@@ -61,12 +61,13 @@ export class MledbScrimService {
     // TODO: Create Scrim function
     // TODO: saveSeries accepts fixture id or scrim id
 
-    async saveSeries(submission: ReplaySubmission, submissionId: string, runner: QueryRunner, scrimObject: Scrim): Promise<number> {
+    async saveMatch(submission: ReplaySubmission, submissionId: string, runner: QueryRunner, series: MLE_Series): Promise<number> {
+        return this.saveSeries(submission, submissionId, runner, series);
+    }
+
+    async saveScrim(submission: ReplaySubmission, submissionId: string, runner: QueryRunner, scrimObject: Scrim): Promise<number> {
         const scrim = this.mleScrimRepository.create();
         const series = this.mleSeriesRepository.create();
-        const coreStats: MLE_PlayerStatsCore[] = [];
-        const playerStats: MLE_PlayerStats[] = [];
-        const teamStats: MLE_TeamCoreStats[] = [];
 
         const {mode, group} = await this.getLeagueAndMode(scrimObject);
         const author = await this.mlePlayerRepository.findOneOrFail({where: {id: -1} });
@@ -84,6 +85,34 @@ export class MledbScrimService {
 
         series.submissionTimestamp = new Date();
         series.fullNcp = false;
+
+        const playerEligibilities: MLE_EligibilityData[] = await Promise.all(scrimObject.players.map(async p => {
+            const playerEligibility = this.mleEligibilityRepository.create();
+            const discordAccount = await this.userService.getUserDiscordAccount(p.id);
+            const player = await this.mlePlayerRepository.findOneOrFail({
+                where: {
+                    discordId: discordAccount.accountId,
+                },
+            });
+
+            playerEligibility.player = player;
+            playerEligibility.scrimPoints = 5;
+            playerEligibility.scrim = scrim;
+
+            return playerEligibility;
+        }));
+
+        await this.mleScrimRepository.save(scrim);
+        await this.saveSeries(submission, submissionId, runner, series);
+        await runner.manager.save(playerEligibilities);
+
+        return series.id;
+    }
+
+    async saveSeries(submission: ReplaySubmission, submissionId: string, runner: QueryRunner, series: MLE_Series): Promise<number> {
+        const coreStats: MLE_PlayerStatsCore[] = [];
+        const playerStats: MLE_PlayerStats[] = [];
+        const teamStats: MLE_TeamCoreStats[] = [];
 
         // eslint-disable-next-line require-atomic-updates
         series.seriesReplays = await Promise.all(submission.items.map(async item => {
@@ -180,31 +209,13 @@ export class MledbScrimService {
             return replay;
         }));
 
-        const playerEligibilities: MLE_EligibilityData[] = await Promise.all(scrimObject.players.map(async p => {
-            const playerEligibility = this.mleEligibilityRepository.create();
-            const discordAccount = await this.userService.getUserDiscordAccount(p.id);
-            const player = await this.mlePlayerRepository.findOneOrFail({
-                where: {
-                    discordId: discordAccount.accountId,
-                },
-            });
-
-            playerEligibility.player = player;
-            playerEligibility.scrimPoints = 5;
-            playerEligibility.scrim = scrim;
-
-            return playerEligibility;
-        }));
-
-        await runner.manager.save(scrim);
         await runner.manager.save(series);
         await runner.manager.save(series.seriesReplays);
         await runner.manager.save(coreStats);
         await runner.manager.save(playerStats);
         await runner.manager.save(teamStats);
-        await runner.manager.save(playerEligibilities);
 
-        return scrim.id;
+        return series.id;
     }
 
     async getScrimIdByBallchasingId(ballchasingId: string): Promise<number> {

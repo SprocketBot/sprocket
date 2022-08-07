@@ -56,7 +56,7 @@
 					{#each fixture.matches.sort((a, b) => a.skillGroup.ordinal - b.skillGroup.ordinal) as m}
 						<section class='space-y-4'>
 							<header>
-								<h3 class='text-2xl font-bold'>{m.skillGroup.profile.description}</h3>
+								<h3 class='text-2xl font-bold'>{m.skillGroup.profile.description} | {m.gameMode.description}</h3>
 							</header>
 							{#if canSubmit}
 								{#if m.submitted}
