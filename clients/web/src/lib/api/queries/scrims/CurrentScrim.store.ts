@@ -3,12 +3,14 @@ import {gql} from "@urql/core";
 import {LiveQueryStore} from "../../core/LiveQueryStore";
 import {toasts} from "../../../components";
 import {screamingSnakeToHuman} from "../../../utils";
+import type {GameSkillGroup} from "@sprocketbot/core/dist/database";
 
 export interface CurrentScrim {
     id: string;
     playerCount: number;
     maxPlayers: number;
     status: string;
+    skillGroup: GameSkillGroup;
     currentGroup?: {
         code: string;
         players: string[];
@@ -75,6 +77,11 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
             playerCount
             maxPlayers
             status
+            skillGroup{
+              profile{
+                description
+              }
+            }
             currentGroup {
                 code
                 players
@@ -118,6 +125,11 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
                 playerCount
                 maxPlayers
                 status
+                skillGroup {
+                    profile {
+                        description
+                        }
+                }
                 currentGroup { 
                     code
                     players

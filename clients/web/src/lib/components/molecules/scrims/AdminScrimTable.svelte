@@ -9,6 +9,7 @@
     } from "$lib/api";
     import FaLockOpen from "svelte-icons/fa/FaLockOpen.svelte";
     import FaLock from "svelte-icons/fa/FaLock.svelte";
+    import scrims from "../../../../routes/scrims/index.svelte";
 
     /*
             TODO: Create/Implement Search
@@ -45,6 +46,10 @@
             console.log(`Failed to ${disabled ? "disable" : "enable"} scrims`);
         }
     };
+
+    $: console.log(activeScrimsData);
+
+
 </script>
 
 <table class="table table-compact table-zebra text-center w-full">
@@ -52,6 +57,7 @@
     <tr>
       <th>Scrim ID</th>
       <th>Game</th>
+      <th>Skill Group</th>
       <th>Mode</th>
       <th>Status</th>
       <th>Players</th>
@@ -79,12 +85,13 @@
         <tr>
           <td>{scrim.id}</td>
           <td>{scrim.gameMode?.game?.title ?? ""}</td>
+          <td>{scrim.skillGroup?.profile?.description}</td>
           <td>{scrim.settings?.competitive ? "Competitive" : "Casual"} {screamingSnakeToHuman(scrim.settings?.mode)} {scrim.gameMode?.description}</td>
           <td>{scrim.status}</td>
           {#if scrim.players?.length || scrim.playersAdmin?.length}
             <td>
               <div class="flex flex-col gap-1">
-                {#each scrim.players ?? scrim.playersAdmin as player (player.id)}
+                {#each scrim.players ?? scrim.playersAdmin as player }
                   <button
                     class="p-2 bg-base-300/20 rounded-lg"
                     on:click={() => { selectPlayerInTable(`${player.id}`) }}>
