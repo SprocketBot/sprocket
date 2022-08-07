@@ -58,14 +58,11 @@ export class MledbScrimService {
         };
     }
 
-    // TODO: Create Scrim function
-    // TODO: saveSeries accepts fixture id or scrim id
-
     async saveMatch(submission: ReplaySubmission, submissionId: string, runner: QueryRunner, series: MLE_Series): Promise<number> {
         return this.saveSeries(submission, submissionId, runner, series);
     }
 
-    async saveScrim(submission: ReplaySubmission, submissionId: string, runner: QueryRunner, scrimObject: Scrim): Promise<number> {
+    async saveScrim(submission: ReplaySubmission, submissionId: string, runner: QueryRunner, scrimObject: Scrim): Promise<MLE_Scrim> {
         const scrim = this.mleScrimRepository.create();
         const series = this.mleSeriesRepository.create();
 
@@ -106,7 +103,7 @@ export class MledbScrimService {
         await this.saveSeries(submission, submissionId, runner, series);
         await runner.manager.save(playerEligibilities);
 
-        return series.id;
+        return scrim;
     }
 
     async saveSeries(submission: ReplaySubmission, submissionId: string, runner: QueryRunner, series: MLE_Series): Promise<number> {

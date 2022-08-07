@@ -13,6 +13,7 @@ import {
 } from "@sprocketbot/common";
 
 import type {Match} from "../../database";
+import {EloConnectorService} from "../../elo-connector/";
 import {MatchService} from "../../scheduling";
 import {ScrimService} from "../../scrim";
 import {FinalizationService} from "./finalization.service";
@@ -28,6 +29,7 @@ export class FinalizationSubscriber {
         private readonly redisService: RedisService,
         private readonly scrimService: ScrimService,
         private readonly matchService: MatchService,
+        private readonly eloConnectorService: EloConnectorService,
     ) {}
 
     onApplicationBootstrap(): void {
@@ -63,13 +65,18 @@ export class FinalizationSubscriber {
                 this.logger.warn("Attempted to finalize scrim that did not have validated submission");
                 return;
             }
-
-            const ids = await this.finalizationService.saveScrimToDatabase(submission, submissionId, scrim);
+            const result = await this.finalizationService.saveScrimToDatabase(submission, submissionId, scrim);
             await this.submissionService.send(SubmissionEndpoint.RemoveSubmission, {submissionId});
             await this.eventsService.publish(EventTopic.ScrimSaved, {
                 ...scrim,
-                databaseIds: ids,
+                databaseIds: {
+                    id: result.scrim.id,
+                    legacyId: result.legacyScrim.id,
+                },
             });
+
+            const eloPayload = this.eloConnectorService.translatePayload(result.scrim.parent, false);
+            await this.eloConnectorService.runEloForSeries(eloPayload, false);
         } catch (_e) {
             const e = _e as Error;
             this.logger.warn(e.message, e.stack);
