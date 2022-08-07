@@ -81,7 +81,7 @@ export class OauthController {
                 sub: discordAccount.accountId,
                 username: userProfile.displayName,
                 userId: ourUser.id,
-                currentOrganizationId: 1,
+                currentOrganizationId: config.defaultOrganizationId,
                 orgTeams: orgs,
             };
             const token = await this.authService.loginDiscord(payload);

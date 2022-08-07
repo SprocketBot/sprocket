@@ -2,6 +2,7 @@ import {
     forwardRef, Inject, Injectable, Logger,
 } from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
+import {config} from "@sprocketbot/common";
 import {Repository} from "typeorm";
 
 import type {Player, User} from "../../database";
@@ -153,7 +154,7 @@ export class MledbPlayerService {
             throw new Error(`No sprocket user found (${platform} | ${platformId})`);
         }
 
-        const member = user.members.find(m => m.organizationId === 1);
+        const member = user.members.find(m => m.organizationId === config.defaultOrganizationId);
         if (!member) {
             throw new Error(`Member not found in MLE for user ${user.id}`);
         }
@@ -167,7 +168,5 @@ export class MledbPlayerService {
         }
 
         return player;
-
-        // const member = await this.mem
     }
 }

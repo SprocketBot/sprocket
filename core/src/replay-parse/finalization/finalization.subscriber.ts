@@ -1,12 +1,10 @@
 import {Injectable, Logger} from "@nestjs/common";
-import type {
-    ReplaySubmission,
-    Scrim,
-} from "@sprocketbot/common";
+import type {ReplaySubmission, Scrim} from "@sprocketbot/common";
 import {
     EventsService,
     EventTopic,
     RedisService,
+    ReplaySubmissionType,
     ResponseStatus,
     SubmissionEndpoint,
     SubmissionService,
@@ -45,11 +43,11 @@ export class FinalizationSubscriber {
             rx.subscribe(async ({payload}) => {
                 const submission = await this.redisService.getJson<ReplaySubmission>(payload.redisKey);
 
-                if (payload.submissionId.startsWith("match")) {
+                if (submission.type === ReplaySubmissionType.MATCH) {
                     // Get the match???
                     const match = await this.matchService.getMatchBySubmissionId(payload.submissionId);
                     await this.onMatchSubmissionComplete(submission, payload.submissionId, match);
-                } else if (payload.submissionId.startsWith("scrim")) {
+                } else if (submission.type === ReplaySubmissionType.SCRIM) {
                     const scrim = await this.scrimService.getScrimBySubmissionId(payload.submissionId);
                     await this.onScrimComplete(submission, payload.submissionId, scrim!);
                 }
