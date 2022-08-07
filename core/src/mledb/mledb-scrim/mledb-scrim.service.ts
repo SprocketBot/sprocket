@@ -58,7 +58,7 @@ export class MledbScrimService {
         };
     }
 
-    async saveScrim(submission: ReplaySubmission, submissionId: string, runner: QueryRunner, scrimObject: Scrim): Promise<number> {
+    async saveScrim(submission: ReplaySubmission, submissionId: string, runner: QueryRunner, scrimObject: Scrim): Promise<MLE_Scrim> {
         const scrim = this.mleScrimRepository.create();
         const series = this.mleSeriesRepository.create();
         const coreStats: MLE_PlayerStatsCore[] = [];
@@ -201,7 +201,7 @@ export class MledbScrimService {
         await runner.manager.save(teamStats);
         await runner.manager.save(playerEligibilities);
 
-        return scrim.id;
+        return scrim;
     }
 
     async getScrimIdByBallchasingId(ballchasingId: string): Promise<number> {

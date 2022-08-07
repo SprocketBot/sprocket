@@ -10,7 +10,7 @@ import {
 } from "@sprocketbot/common";
 
 import type {Match} from "../../database";
-import {ScrimService} from "../../scrim";
+import {EloConnectorService} from "../../elo-connector/";
 import type {ReplaySubmission} from "../types";
 import {FinalizationService} from "./finalization.service";
 
@@ -23,7 +23,7 @@ export class FinalizationSubscriber {
         private readonly finalizationService: FinalizationService,
         private readonly submissionService: SubmissionService,
         private readonly redisService: RedisService,
-        private readonly scrimService: ScrimService,
+        private readonly eloConnectorService: EloConnectorService,
     ) {}
 
     onApplicationBootstrap(): void {
@@ -42,12 +42,18 @@ export class FinalizationSubscriber {
         }
         try {
             const submission = await this.redisService.getJson<ReplaySubmission>(keyResponse.data.redisKey);
-            const ids = await this.finalizationService.saveScrimToDatabase(submission, submissionId, scrim);
+            const savedScrims = await this.finalizationService.saveScrimToDatabase(submission, submissionId, scrim);
             await this.submissionService.send(SubmissionEndpoint.RemoveSubmission, {submissionId});
             await this.eventsService.publish(EventTopic.ScrimSaved, {
                 ...scrim,
-                databaseIds: ids,
+                databaseIds: {
+                    id: savedScrims.scrim.id,
+                    legacyId: savedScrims.legacyScrim.id,
+                },
             });
+            
+            const eloPayload = this.eloConnectorService.translatePayload(savedScrims.scrim.parent, false);
+            await this.eloConnectorService.runEloForSeries(eloPayload, false);
         } catch (_e) {
             const e = _e as Error;
             this.logger.warn(e.message, e.stack);

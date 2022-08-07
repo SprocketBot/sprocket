@@ -1,7 +1,6 @@
 import {BullModule} from "@nestjs/bull";
 import {Module} from "@nestjs/common";
 import {
-    config,
     EventsModule, MatchmakingModule, RedisModule,
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
@@ -42,19 +41,6 @@ import {ScrimToggleResolver, ScrimToggleService} from "./scrim-toggle";
         OrganizationModule,
         FranchiseModule,
         MledbInterfaceModule,
-        BullModule.forRoot({
-            redis: {
-                host: config.redis.host,
-                port: config.redis.port,
-                password: config.redis.password,
-                tls: config.redis.secure
-                    ? {
-                            host: config.redis.host,
-                            servername: config.redis.host,
-                        }
-                    : undefined,
-            },
-        }),
         BullModule.registerQueue({name: "scrim"}),
     ],
     providers: [
