@@ -1,8 +1,11 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import {Repository} from "typeorm";
+import type {FindOperator} from "typeorm";
+import {Raw, Repository} from "typeorm";
 
-import type {LegacyGameMode, MLE_Series} from "../../database/mledb";
+import type {
+    League, LegacyGameMode, MLE_Series,
+} from "../../database/mledb";
 import {MLE_Fixture} from "../../database/mledb";
 
 @Injectable()
@@ -10,18 +13,21 @@ export class MledbMatchService {
     constructor(@InjectRepository(MLE_Fixture) private readonly fixtureRepo: Repository<MLE_Fixture>) {
     }
 
-    async getMleSeries(awayName: string, homeName: string, matchStart: Date, seasonStart: Date, mode: LegacyGameMode): Promise<MLE_Series> {
+    async getMleSeries(awayName: string, homeName: string, matchStart: Date, seasonStart: Date, mode: LegacyGameMode, league: League): Promise<MLE_Series> {
+        const matchByDay: (d: Date) => FindOperator<Date> = (d: Date) => Raw<Date>((alias: string) => `DATE_TRUNC('day', ${alias}) = '${d.toISOString().split("T")[0]}'`) as unknown as FindOperator<Date>;
+
         const mleFixture = await this.fixtureRepo.findOneOrFail({
             where: {
                 series: {
                     mode: mode,
+                    league: league,
                 },
                 awayName: awayName,
                 homeName: homeName,
                 match: {
-                    from: matchStart,
+                    from: matchByDay(matchStart),
                     season: {
-                        startDate: seasonStart,
+                        startDate: matchByDay(seasonStart),
                     },
                 },
             },

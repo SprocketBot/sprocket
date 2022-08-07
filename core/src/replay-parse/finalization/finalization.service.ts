@@ -10,7 +10,7 @@ import {Connection, Repository} from "typeorm";
 
 import type {User} from "../../database";
 import {
-    EligibilityData,
+    EligibilityData, Franchise, GameSkillGroup,
     Match,
     MatchParent,
     PlayerStatLine,
@@ -20,7 +20,7 @@ import {
     ScrimMeta,
     TeamStatLine,
 } from "../../database";
-import type {MLE_Platform} from "../../database/mledb";
+import type {League, MLE_Platform} from "../../database/mledb";
 import {LegacyGameMode} from "../../database/mledb";
 import {EloConnectorService} from "../../elo-connector";
 import {PlayerService} from "../../franchise";
@@ -111,20 +111,33 @@ export class FinalizationService {
             if (!match.skillGroup) {
                 match.skillGroup = await this.popService.populateOneOrFail(Match, match, "skillGroup");
             }
+            if (!match.skillGroup.profile) {
+                const skillGroupProfile = await this.popService.populateOneOrFail(GameSkillGroup, match.skillGroup, "profile");
+                match.skillGroup.profile = skillGroupProfile;
+            }
 
             const fixture = await this.popService.populateOne(MatchParent, matchParent, "fixture");
             if (!fixture) {
                 throw new Error("Fixture not found, this may not be league play!");
             }
+            const awayFranchise = await this.popService.populateOneOrFail(ScheduleFixture, fixture, "awayFranchise");
+            const homeFranchise = await this.popService.populateOneOrFail(ScheduleFixture, fixture, "homeFranchise");
+
+            const awayFranchiseProfile = await this.popService.populateOneOrFail(Franchise, awayFranchise, "profile");
+            const homeFranchiseProfile = await this.popService.populateOneOrFail(Franchise, homeFranchise, "profile");
+
             const week = await this.popService.populateOneOrFail(ScheduleFixture, fixture, "scheduleGroup");
             const season = await this.popService.populateOneOrFail(ScheduleGroup, week, "parentGroup");
 
+            const gameMode = await this.popService.populateOneOrFail(Match, match, "gameMode");
+
             const mleMatch = await this.mledbMatchService.getMleSeries(
-                fixture.awayFranchise.profile.title,
-                fixture.homeFranchise.profile.title,
+                awayFranchiseProfile.title,
+                homeFranchiseProfile.title,
                 week.start,
                 season.start,
-                match.gameMode.teamSize === 2 ? LegacyGameMode.DOUBLES : LegacyGameMode.STANDARD,
+                gameMode.teamSize === 2 ? LegacyGameMode.DOUBLES : LegacyGameMode.STANDARD,
+                match.skillGroup.profile.code.toUpperCase() as League,
             );
 
             const [mledbSeriesId] = await Promise.all([

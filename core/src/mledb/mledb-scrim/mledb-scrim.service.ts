@@ -111,8 +111,7 @@ export class MledbScrimService {
         const playerStats: MLE_PlayerStats[] = [];
         const teamStats: MLE_TeamCoreStats[] = [];
 
-        // eslint-disable-next-line require-atomic-updates
-        series.seriesReplays = await Promise.all(submission.items.map(async item => {
+        const mleSeriesReplays = await Promise.all(submission.items.map(async item => {
             const data: BallchasingResponse = item.progress!.result!.data;
             const replay = this.mleSeriesReplayRepositroy.create();
             replay.series = series;
@@ -206,8 +205,10 @@ export class MledbScrimService {
             return replay;
         }));
 
+        series.seriesReplays = mleSeriesReplays;
+
         await runner.manager.save(series);
-        await runner.manager.save(series.seriesReplays);
+        await runner.manager.save(mleSeriesReplays);
         await runner.manager.save(coreStats);
         await runner.manager.save(playerStats);
         await runner.manager.save(teamStats);
