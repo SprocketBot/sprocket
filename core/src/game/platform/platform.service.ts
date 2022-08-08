@@ -9,7 +9,7 @@ export class PlatformService {
     constructor(@InjectRepository(Platform) private platformRepository: Repository<Platform>) {}
 
     async getPlatformById(id: number): Promise<Platform> {
-        return this.platformRepository.findOneOrFail(id);
+        return this.platformRepository.findOneOrFail({where: {id} });
     }
 
     async getPlatformByCode(code: string): Promise<Platform> {

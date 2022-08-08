@@ -19,15 +19,23 @@ export interface CurrentUserResult {
     };
 }
 
-export class CurrentUserStore extends QueryStore<CurrentUserResult, {}> {
-    protected queryString = gql<CurrentUserResult, {}>`
+export interface CurrentUserVars {
+    orgId?: number;
+}
+
+export class CurrentUserStore extends QueryStore<CurrentUserResult, CurrentUserVars> {
+    protected queryString = gql<CurrentUserResult, CurrentUserVars>`
         query($orgId: Float) {
             me {
                 id
                 members(orgId: $orgId) {
                     id
                     players {
+                        
                         skillGroup {
+                            profile {
+                                description
+                            }
                             game {
                                 title
                             }

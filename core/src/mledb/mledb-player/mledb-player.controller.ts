@@ -28,7 +28,7 @@ export class MledbPlayerController {
         const {platform, platformId} = CoreSchemas.GetPlayerByPlatformId.input.parse(payload);
 
         if (!isMlePlatform(platform)) {
-            throw new Error(`platformCode must be one of (${Object.values(MLE_Platform)})`);
+            throw new Error(`platformCode must be one of (${Object.values(MLE_Platform)}) (found ${platform})`);
         }
 
         const player = await this.mledbPlayerService.getPlayerByPlatformId(platform, platformId);
@@ -43,6 +43,9 @@ export class MledbPlayerController {
             id: player.id,
             discordId: player.discordId,
             skillGroupId: skillGroup.id,
+            franchise: {
+                name: player.teamName,
+            },
         };
     }
 

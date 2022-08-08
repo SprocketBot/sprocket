@@ -21,6 +21,7 @@ export enum CoreEndpoint {
     GetUsersLatestScrim = "GetUsersLatestScrim",
 
     GetMatchBySubmissionId = "GetMatchBySubmissionId",
+    GetMatchById = "GetMatchById",
     GetFranchiseStaff = "GetFranchiseStaff",
     GetPlayerFranchises = "GetPlayerFranchises",
 }
@@ -89,6 +90,10 @@ export const CoreSchemas = {
     [CoreEndpoint.GetMatchBySubmissionId]: {
         input: Schemas.GetMatchBySubmissionId_Request,
         output: Schemas.GetMatchBySubmissionId_Response,
+    },
+    [CoreEndpoint.GetMatchById]: {
+        input: Schemas.GetMatchById_Request,
+        output: Schemas.GetMatchById_Response,
     },
     [CoreEndpoint.GetFranchiseStaff]: {
         input: Schemas.GetFranchiseStaff_Request,

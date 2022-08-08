@@ -23,7 +23,7 @@ export class PlayerService {
     }
 
     async getPlayerById(id: number): Promise<Player> {
-        return this.playerRepository.findOneOrFail(id);
+        return this.playerRepository.findOneOrFail({where: {id} });
     }
 
     async getPlayerByOrganizationAndGame(userId: number, organizationId: number, gameId: number): Promise<Player> {

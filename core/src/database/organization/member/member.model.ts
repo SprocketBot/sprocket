@@ -1,5 +1,6 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {
+    Column,
     Entity, JoinColumn, ManyToOne, OneToMany, OneToOne,
 } from "typeorm";
 
@@ -40,6 +41,10 @@ export class Member extends BaseModel {
     @Field(() => [MemberRestriction])
     restrictions: MemberRestriction;
 
+    @Column()
     userId: number;
+
+    @Column()
+    organizationId: number;
 
 }

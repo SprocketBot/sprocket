@@ -7,6 +7,7 @@ import {GameModule} from "../game";
 import {IdentityModule} from "../identity";
 import {OrganizationModule} from "../organization";
 import {SprocketRatingModule} from "../sprocket-rating";
+import {MledbMatchService} from "./mledb-match/mledb-match.service";
 import {MledbPlayerService} from "./mledb-player";
 import {MledbPlayerController} from "./mledb-player/mledb-player.controller";
 import {MledbPlayerAccountService} from "./mledb-player-account";
@@ -26,8 +27,10 @@ import {MledbScrimService} from "./mledb-scrim";
         MledbPlayerService,
         MledbPlayerAccountService,
         MledbScrimService,
+        MledbMatchService,
     ],
     exports: [
+        MledbMatchService,
         MledbPlayerService,
         MledbPlayerAccountService,
         MledbScrimService,

@@ -135,6 +135,7 @@ export class SubmissionStore extends LiveQueryStore<SubmissionStoreValue, Submis
                 rejections {
                     playerName
                     reason
+                    stale
                 }
                 validated
                 stats {

@@ -17,17 +17,21 @@ export class MemberResolver {
     ) {}
 
     @ResolveField()
-    async profile(@Root() member: Partial<Member>): Promise<MemberProfile> {
-        return member.profile ?? (await this.memberService.getMember({where: {id: member.id}, relations: ["profile"] })).profile;
+    async profile(@Root() member: Member): Promise<MemberProfile> {
+        if (member.profile) return member.profile;
+
+        return this.popService.populateOneOrFail(Member, member, "profile");
     }
 
     @ResolveField()
     async organization(@Root() member: Member): Promise<Organization> {
+        if (member.organization) return member.organization;
         return this.popService.populateOneOrFail(Member, member, "organization");
     }
 
     @ResolveField()
     async players(@Root() member: Member): Promise<Player[]> {
+        if (member.players) return member.players;
         return this.popService.populateMany(Member, member, "players");
     }
 

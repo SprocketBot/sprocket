@@ -17,7 +17,7 @@ export class PopulateService {
             .relation(base, relation)
             .of(root)
             .loadOne();
-        if (!result) throw new GraphQLError(`Unable to find ${relation} for ${base.name}`);
+        if (!result) throw new GraphQLError(`Unable to find ${relation} for ${base.name} (id = ${root.id})`);
         return result;
     }
 
