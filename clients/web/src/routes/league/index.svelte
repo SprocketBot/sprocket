@@ -20,7 +20,7 @@ import {LeagueScheduleStore} from "$lib/api";
 			<div class="h-full w-full flex items-center justify-center">
 				<Spinner class="h-16 w-full"/>
 			</div>
-		{:else}
+		{:else if schedule}
 			<h2 class="text-2xl text-accent font-bold">{schedule.game.title} | {schedule.description}</h2>
 			<div class="grid grid-cols-1 gap-4">
 			{#each schedule.childGroups as week, wi (week?.id)}

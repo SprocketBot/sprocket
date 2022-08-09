@@ -52,6 +52,6 @@
     "prefix": "",
     "secure": true
   },
-  "defaultOrganization": 2
+  "defaultOrganizationId": 2
 }
 
