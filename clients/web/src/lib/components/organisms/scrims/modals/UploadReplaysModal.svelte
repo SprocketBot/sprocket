@@ -27,6 +27,7 @@
                 files: files as FileUpload[],
                 submissionId: submissionId,
             });
+            visible = false;
         } catch (_e) {
             const e = _e as CombinedError;
             e.graphQLErrors.forEach(gqlError => {

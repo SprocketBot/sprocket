@@ -18,9 +18,9 @@ export class MemberPlatformAccountService {
     async getMemberPlatformAccount(query: FindOneOptions<MemberPlatformAccount>): Promise<MemberPlatformAccount> {
         return this.memberPlatformAccountRepository.findOneOrFail(query);
     }
-    
+
     async getMemberPlatformAccountById(id: number): Promise<MemberPlatformAccount> {
-        return this.memberPlatformAccountRepository.findOneOrFail(id);
+        return this.memberPlatformAccountRepository.findOneOrFail({where: {id} });
     }
 
     async getMemberPlatformAccounts(query: FindManyOptions<MemberPlatformAccount>): Promise<MemberPlatformAccount[]> {

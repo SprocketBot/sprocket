@@ -25,7 +25,7 @@ export class ReplaySubmissionRatificationController {
     @MessagePattern(SubmissionEndpoint.RejectSubmission)
     async rejectSubmission(@Payload() payload: unknown): Promise<true> {
         const data = SubmissionSchemas.RejectSubmission.input.parse(payload);
-        await this.ratificationService.rejectSubmission(data.playerId, data.submissionId, data.reason);
+        await this.ratificationService.rejectSubmission(data.playerId, data.submissionId, [data.reason]);
         return true;
     }
 }

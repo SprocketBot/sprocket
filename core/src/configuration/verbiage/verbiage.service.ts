@@ -50,24 +50,18 @@ export class VerbiageService {
         return verbiage;
     }
 
-    /**
-     * Finds verbiage that match a given query.
-     * @param query A query to search for matching Verbiage.
-     * @returns The verbiage that matches the query.
-     */
-    // TODO type this
-    async getVerbiage(query: {organizationId: number; code: string;}): Promise<string> {
+    async getVerbiage(organizationId: number, code: string): Promise<string> {
         const verbiage = await this.verbiageRepository.findOne({
             where: {
-                organizationId: query.organizationId,
+                organization: {id: organizationId},
                 code: {
-                    code: query.code,
+                    code: code,
                 },
             },
         });
         if (verbiage) return verbiage.term;
 
-        const defaultCode = await this.verbiageCodeRepository.findOneOrFail(query.code);
+        const defaultCode = await this.verbiageCodeRepository.findOneOrFail({where: {code} });
         return defaultCode.default;
     }
 
@@ -77,14 +71,14 @@ export class VerbiageService {
      * @param code The verbiage code.
      * @returns The deleted verbiage.
      */
-    async deleteVerbiage(organizationId: number, code: string): Promise<Verbiage> {
+    async deleteVerbiage(organizationId: number, code: VerbiageCode): Promise<Verbiage> {
         const toDelete = await this.verbiageRepository.findOneOrFail({
             where: {
-                organizationId,
-                code,
+                organization: {id: organizationId},
+                code: code,
             },
         });
-        
+
         await this.verbiageRepository.delete({id: toDelete.id});
         return toDelete;
     }

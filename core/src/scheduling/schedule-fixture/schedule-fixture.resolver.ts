@@ -26,7 +26,7 @@ export class ScheduleFixtureResolver {
 
     @Query(() => ScheduleFixture)
     async getFixture(@Args("id") id: number): Promise<ScheduleFixture> {
-        return this.scheduleFixtureRepo.findOneOrFail({id});
+        return this.scheduleFixtureRepo.findOneOrFail({where: {id} });
     }
 
     @ResolveField()

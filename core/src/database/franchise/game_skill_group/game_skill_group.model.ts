@@ -47,4 +47,7 @@ export class GameSkillGroup extends BaseModel {
     @ManyToOne(() => Organization)
     @Field(() => Organization)
     organization: Organization;
+
+    @Column()
+    organizationId: number;
 }

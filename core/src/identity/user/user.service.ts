@@ -1,14 +1,13 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import type {FindManyOptions, FindOneOptions} from "typeorm";
+import type {
+    FindManyOptions, FindOneOptions, FindOptionsWhere,
+} from "typeorm";
 import {Repository} from "typeorm";
 
 import type {IrrelevantFields} from "../../database";
 import {
-    User,
-    UserAuthenticationAccount,
-    UserAuthenticationAccountType,
-    UserProfile,
+    User, UserAuthenticationAccount, UserAuthenticationAccountType, UserProfile,
 } from "../../database";
 
 @Injectable()
@@ -52,7 +51,7 @@ export class UserService {
         authenticationAccounts: Array<Omit<UserAuthenticationAccount, IrrelevantFields | "id" | "user">>,
     ): Promise<User> {
         const authAccts = authenticationAccounts.map(acct => this.userAuthAcctRepository.create(acct));
-        const user = await this.userRepository.findOneOrFail(id);
+        const user = await this.userRepository.findOneOrFail({where: {id} });
         user.authenticationAccounts = authAccts;
         authAccts.forEach(aa => { aa.user = user });
         await this.userAuthAcctRepository.save(authAccts);
@@ -62,14 +61,9 @@ export class UserService {
 
     /**
      * Finds the authentication accounts associated with a user
-     * @param id The id of the user to find
-     * to the user
-     * @returns A promise that resolves to the array of authentication accounts
-     * for the user.
      */
     async getUserAuthenticationAccountsForUser(userId: number): Promise<UserAuthenticationAccount[]> {
-        const authAccounts = await this.userAuthAcctRepository.find({where: {user: {id: userId} } });
-        return authAccounts;
+        return this.userAuthAcctRepository.find({where: {user: {id: userId} } });
     }
 
     async getUserDiscordAccount(userId: number): Promise<UserAuthenticationAccount> {
@@ -83,17 +77,22 @@ export class UserService {
 
     /**
      * Finds a User by its id and fails if not found.
-     * @param id The id of the user to find.
-     * @retusn The user with the given id, if found.
      */
     async getUserById(id: number, options?: FindOneOptions<User>): Promise<User> {
-        return this.userRepository.findOneOrFail(id, {...options, relations: ["profile", ...options?.relations ?? []] });
+        return this.userRepository.findOneOrFail({
+            ...options,
+            where: {...options?.where, id} as FindOptionsWhere<User>,
+            relations: {
+                ...options?.relations,
+                profile: true,
+            },
+        });
     }
 
     async getUser(query: FindOneOptions<UserProfile>): Promise<User | undefined> {
         const userProfile = await this.userProfileRepository.findOne({
             ...query,
-            relations: ["user", ...query.relations?.map(r => `user.${r}`) ?? []],
+            relations: Object.assign({user: true}, query.relations),
         });
         return userProfile?.user;
     }
@@ -106,7 +105,10 @@ export class UserService {
     async getUsers(query: FindManyOptions<UserProfile>): Promise<User[]> {
         const userProfiles = await this.userProfileRepository.find({
             ...query,
-            relations: ["user", ...query.relations ?? []],
+            relations: {
+                ...query.relations,
+                user: true,
+            },
         });
         return userProfiles.map(op => op.user);
     }
@@ -118,10 +120,10 @@ export class UserService {
      * @returns The updated UserProfile.
      */
     async updateUserProfile(userId: number, data: Omit<Partial<UserProfile>, "user">): Promise<UserProfile> {
-        let {profile} = await this.userRepository.findOneOrFail(
-            userId,
-            {relations: ["profile"] },
-        );
+        let {profile} = await this.userRepository.findOneOrFail({
+            where: {id: userId},
+            relations: {profile: true},
+        });
         profile = this.userProfileRepository.merge(profile, data);
         await this.userProfileRepository.save(profile);
         return profile;
@@ -133,8 +135,9 @@ export class UserService {
      * @returns The deleted User.
      */
     async deleteUser(id: number): Promise<User> {
-        const toDelete = await this.userRepository.findOneOrFail(id, {
-            relations: ["profile"],
+        const toDelete = await this.userRepository.findOneOrFail({
+            where: {id},
+            relations: {profile: true},
         });
         await this.userRepository.delete({id});
         await this.userProfileRepository.delete({id: toDelete.profile.id});
@@ -147,7 +150,7 @@ export class UserService {
      * @returns The found UserProfile
      */
     async getUserProfileForUser(userId: number): Promise<UserProfile> {
-        const org = await this.userRepository.findOneOrFail(userId, {relations: ["profile"] });
+        const org = await this.userRepository.findOneOrFail({where: {id: userId}, relations: {profile: true} });
         return org.profile;
     }
 }

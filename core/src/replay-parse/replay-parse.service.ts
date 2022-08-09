@@ -39,10 +39,9 @@ export class ReplayParseService {
         const result = await this.submissionService.send(SubmissionEndpoint.GetSubmissionRedisKey, {submissionId});
         if (result.status === ResponseStatus.ERROR) throw result.error;
 
-        // Right now, this is entirely based on faith. If we enounter issues; we can update the graphql types.
+        // Right now, this is entirely based on faith. If we encounter issues; we can update the graphql types.
         // Writing up a zod schema set for this would be suckage to the 10th degree.
         return this.redisService.getJson<ReplaySubmission>(result.data.redisKey);
-
     }
 
     /**

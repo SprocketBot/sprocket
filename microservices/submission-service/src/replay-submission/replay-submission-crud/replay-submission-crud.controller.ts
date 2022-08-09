@@ -20,6 +20,6 @@ export class ReplaySubmissionCrudController {
     async getSubmissionRejections(@Payload() payload: unknown): Promise<SubmissionOutput<SubmissionEndpoint.GetSubmissionRejections>> {
         const data = SubmissionSchemas.RemoveSubmission.input.parse(payload);
         const rejections = await this.crudService.getSubmissionRejections(data.submissionId);
-        return rejections.map(r => r.playerId);
+        return rejections.map(r => r.playerId.toString());
     }
 }
