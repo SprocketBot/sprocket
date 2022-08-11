@@ -87,4 +87,27 @@ export class MatchService {
         };
         throw new Error("Data type not found");
     }
+
+    async getOrganizationIdByMatchId(matchId: number): Promise<number> {
+        const match = await this.matchRepo.findOneOrFail({
+            where: {
+                id: matchId,
+            },
+            relations: {
+                matchParent: {
+                    fixture: {
+                        scheduleGroup: {
+                            type: {
+                                organization: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        if (!match.matchParent.fixture?.scheduleGroup.type.organization.id) throw new Error("Cannot find Organization");
+
+        return match.matchParent.fixture.scheduleGroup.type.organization.id;
+    }
 }
