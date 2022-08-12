@@ -119,7 +119,7 @@ export class RmqService {
         }
         this.channel = await this.connection.createChannel();
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        this.channel.on("close", async () => this.buildChannel().catch(this.logger.error.bind(this.logger)));
+        this.channel.on("closed", async () => this.buildChannel().catch(this.logger.error.bind(this.logger)));
         /*
          * Assert that our exchange exists, and meets the specification we are expecting
          * If it does not exist, this creates it
