@@ -220,4 +220,15 @@ export class MledbScrimService {
         const mleReplay = await this.mleSeriesReplayRepositroy.findOneOrFail({where: {ballchasingId}, relations: ["series", "series.scrim"] });
         return mleReplay.series.scrim.id;
     }
+
+    async getMlePlayerByGamePlayer(p: BallchasingPlayer): Promise<MLE_Player> {
+        const playerAccount = await this.mlePlayerAccountRepository.findOneOrFail({
+            where: {
+                platformId: p.id.id,
+                platform: p.id.platform.toUpperCase() as MLE_Platform,
+            },
+            relations: ["player"],
+        });
+        return playerAccount.player;
+    }
 }

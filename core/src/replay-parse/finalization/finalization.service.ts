@@ -10,7 +10,9 @@ import {Connection, Repository} from "typeorm";
 
 import type {User} from "../../database";
 import {
-    EligibilityData, Franchise, GameSkillGroup,
+    EligibilityData,
+    Franchise,
+    GameSkillGroup,
     Match,
     MatchParent,
     PlayerStatLine,
@@ -19,11 +21,12 @@ import {
     ScheduleGroup,
     ScrimMeta,
     TeamStatLine,
+    UserAuthenticationAccountType,
 } from "../../database";
 import type {League, MLE_Platform} from "../../database/mledb";
 import {LegacyGameMode} from "../../database/mledb";
-import {EloConnectorService} from "../../elo-connector";
 import {PlayerService} from "../../franchise";
+import {IdentityService} from "../../identity";
 import {MledbPlayerService, MledbScrimService} from "../../mledb";
 import {MledbMatchService} from "../../mledb/mledb-match/mledb-match.service";
 import {SprocketRatingService} from "../../sprocket-rating/sprocket-rating.service";
@@ -41,19 +44,18 @@ export class FinalizationService {
         private readonly mledbMatchService: MledbMatchService,
         private readonly ballchasingConverter: BallchasingConverterService,
         private readonly playerService: PlayerService,
+        private readonly identityService: IdentityService,
         private readonly sprocketRatingService: SprocketRatingService,
-        private readonly eloConnectorService: EloConnectorService,
         private readonly popService: PopulateService,
-    @InjectConnection() private readonly dbConn: Connection,
-    @InjectRepository(ScrimMeta) private readonly scrimMetaRepo: Repository<ScrimMeta>,
-    @InjectRepository(MatchParent) private readonly matchParentRepo: Repository<MatchParent>,
-    @InjectRepository(Match) private readonly matchRepo: Repository<Match>,
-    @InjectRepository(Round) private readonly roundRepo: Repository<Round>,
-    @InjectRepository(PlayerStatLine) private readonly playerStatRepo: Repository<PlayerStatLine>,
-    @InjectRepository(TeamStatLine) private readonly teamStatRepo: Repository<TeamStatLine>,
-    @InjectRepository(EligibilityData) private readonly eligibilityDataRepo: Repository<EligibilityData>,
-    ) {
-    }
+        @InjectConnection() private readonly dbConn: Connection,
+        @InjectRepository(ScrimMeta) private readonly scrimMetaRepo: Repository<ScrimMeta>,
+        @InjectRepository(MatchParent) private readonly matchParentRepo: Repository<MatchParent>,
+        @InjectRepository(Match) private readonly matchRepo: Repository<Match>,
+        @InjectRepository(Round) private readonly roundRepo: Repository<Round>,
+        @InjectRepository(PlayerStatLine) private readonly playerStatRepo: Repository<PlayerStatLine>,
+        @InjectRepository(TeamStatLine) private readonly teamStatRepo: Repository<TeamStatLine>,
+        @InjectRepository(EligibilityData) private readonly eligibilityDataRepo: Repository<EligibilityData>,
+    ) {}
 
     async saveScrimToDatabase(submission: ReplaySubmission, submissionId: string, scrim: Scrim): Promise<SaveScrimFinalizationReturn> {
         const runner = this.dbConn.createQueryRunner();
@@ -173,7 +175,7 @@ export class FinalizationService {
         const playerStats: PlayerStatLine[] = [];
         const teamStats: TeamStatLine[] = [];
 
-        const rounds = parsedReplays.map(pr => {
+        const rounds = await Promise.all(parsedReplays.map(async pr => {
             switch (pr.parser) {
                 case Parser.BALLCHASING: {
                     const round = this.roundRepo.create({
@@ -184,10 +186,33 @@ export class FinalizationService {
                         outputPath: pr.outputPath,
                     });
 
-                    const createPlayerStat = (p: BallchasingPlayer, color: string): PlayerStatLine => {
+                    const createPlayerStat = async (p: BallchasingPlayer, color: string): Promise<PlayerStatLine> => {
                         const otherStats = this.ballchasingConverter.createPlayerStats(p);
-
-                        return this.playerStatRepo.create({
+                        
+                        const mlePlayer = await this.mledbScrimService.getMlePlayerByGamePlayer(p);
+                        if (!mlePlayer.discordId) throw new Error(`Player does not have a Discord Id mleid=${mlePlayer.mleid}`);
+                        
+                        const sprocketUser = await this.identityService.getUserByAuthAccount(UserAuthenticationAccountType.DISCORD, mlePlayer.discordId);
+                        const sprocketPlayer = await this.playerService.getPlayer({
+                            where: {
+                                member: {
+                                    organization: {
+                                        id: organizationId,
+                                    },
+                                    user: {
+                                        id: sprocketUser.id,
+                                    },
+                                },
+                            },
+                            relations: {
+                                member: {
+                                    organization: true,
+                                    user: true,
+                                },
+                            },
+                        });
+                        
+                        const playerStatLine = this.playerStatRepo.create({
                             isHome: color === "BLUE",
                             stats: {
                                 otherStats,
@@ -197,10 +222,14 @@ export class FinalizationService {
                                 }),
                             },
                         });
+
+                        playerStatLine.player = sprocketPlayer;
+
+                        return playerStatLine;
                     };
 
-                    const blueStats = pr.data.blue.players.map(p => createPlayerStat(p, "BLUE"));
-                    const orangeStats = pr.data.orange.players.map(p => createPlayerStat(p, "ORANGE"));
+                    const blueStats = await Promise.all(pr.data.blue.players.map(async p => createPlayerStat(p, "BLUE")));
+                    const orangeStats = await Promise.all(pr.data.orange.players.map(async p => createPlayerStat(p, "ORANGE")));
                     const roundPlayerStats = [...orangeStats, ...blueStats];
                     roundPlayerStats.forEach(ps => {
                         ps.round = round;
@@ -240,7 +269,7 @@ export class FinalizationService {
                 default:
                     throw new Error(`Support for saving stats from ${pr.parser} is not supported`);
             }
-        });
+        }));
 
         const playerEligibilities: EligibilityData[] = await Promise.all(userIds.map(async userId => {
             const playerEligibility = this.eligibilityDataRepo.create();
