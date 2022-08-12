@@ -88,7 +88,7 @@ export class MemberRestrictionService {
         });
 
         memberRestriction = this.memberRestrictionRepository.merge(memberRestriction, {
-            manualExpiration: manualExpiration.toUTCString(),
+            manualExpiration: manualExpiration,
             manualExpirationReason: manualExpirationReason,
             forgiven: forgiven,
         });
