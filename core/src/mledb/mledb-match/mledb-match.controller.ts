@@ -12,6 +12,6 @@ export class MledbMatchController {
     @MessagePattern(CoreEndpoint.GetMleMatchInfoAndStakeholders)
     async getMleMatchInfoAndStakeholders(@Payload() payload: unknown): Promise<CoreOutput<CoreEndpoint.GetMleMatchInfoAndStakeholders>> {
         const data = CoreSchemas.GetMleMatchInfoAndStakeholders.input.parse(payload);
-        return this.matchService.getMatchStakeholdersBySprocketMatchId(data.sprocketMatchId);
+        return this.matchService.getMleMatchInfoAndStakeholders(data.sprocketMatchId);
     }
 }

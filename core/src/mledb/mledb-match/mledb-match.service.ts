@@ -59,7 +59,7 @@ export class MledbMatchService {
         return mleFixture.series[0];
     }
 
-    async getMatchStakeholdersBySprocketMatchId(sprocketMatchId: number): Promise<CoreOutput<CoreEndpoint.GetMleMatchInfoAndStakeholders>> {
+    async getMleMatchInfoAndStakeholders(sprocketMatchId: number): Promise<CoreOutput<CoreEndpoint.GetMleMatchInfoAndStakeholders>> {
         const match = await this.sprocketMatchService.getMatchById(sprocketMatchId);
         if (!match.skillGroup) {
             match.skillGroup = await this.popService.populateOneOrFail(Match, match, "skillGroup");
