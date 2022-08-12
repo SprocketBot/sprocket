@@ -55,4 +55,10 @@ export class MatchController {
             skillGroupId: match.skillGroupId,
         };
     }
+
+    @MessagePattern(CoreEndpoint.GetMatchReportCardWebhooks)
+    async getMatchReportCardWebhooks(@Payload() payload: unknown): Promise<CoreOutput<CoreEndpoint.GetMatchReportCardWebhooks>> {
+        const data = CoreSchemas.GetMatchReportCardWebhooks.input.parse(payload);
+        return this.matchService.getMatchReportCardWebhooks(data.matchId);
+    }
 }

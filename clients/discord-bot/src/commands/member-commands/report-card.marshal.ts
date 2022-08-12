@@ -1,6 +1,6 @@
 import {Inject, Logger} from "@nestjs/common";
 import {
-    AnalyticsService, config, CoreEndpoint, CoreService, ResponseStatus,
+    AnalyticsService, config, CoreEndpoint, CoreService, GenerateReportCardType, ResponseStatus,
 } from "@sprocketbot/common";
 import type {MessageOptions} from "discord.js";
 import {Client, Message} from "discord.js";
@@ -53,7 +53,10 @@ export class ReportCardMarshal extends Marshal {
             return;
         }
 
-        const reportCardResult = await this.coreService.send(CoreEndpoint.GenerateReportCard, {mleScrimId: scrimResult.data.id}, {timeout: 300000});
+        const reportCardResult = await this.coreService.send(CoreEndpoint.GenerateReportCard, {
+            type: GenerateReportCardType.SCRIM,
+            mleScrimId: scrimResult.data.id,
+        }, {timeout: 300000});
         if (reportCardResult.status === ResponseStatus.ERROR) {
             this.logger.error(reportCardResult.error);
             await m.reply("Couldn't generate report card.");
