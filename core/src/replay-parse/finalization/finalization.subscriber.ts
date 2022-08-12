@@ -88,13 +88,12 @@ export class FinalizationSubscriber {
             return;
         }
         try {
-            await this.finalizationService.saveMatchToDatabase(submission, submissionId, match);
-            // await this.submissionService.send(SubmissionEndpoint.RemoveSubmission, {submissionId});
-            // TODO: MatchSaved
-            // await this.eventsService.publish(EventTopic.ScrimSaved, {
-            //     ...scrim,
-            //     databaseIds: ids,
-            // });
+            const result = await this.finalizationService.saveMatchToDatabase(submission, submissionId, match);
+            await this.submissionService.send(SubmissionEndpoint.RemoveSubmission, {submissionId});
+            await this.eventsService.publish(EventTopic.MatchSaved, {
+                id: result.match.id,
+                legacyId: result.legacyMatch.id,
+            });
         } catch (_e) {
             const e = _e as Error;
             this.logger.warn(e.message, e.stack);

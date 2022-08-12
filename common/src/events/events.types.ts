@@ -2,6 +2,7 @@ import {z} from "zod";
 
 import {MemberRestrictionSchema} from "../service-connectors/core";
 import {
+    MatchDatabaseIdsSchema,
     ScrimDatabaseIdsSchema, ScrimMetricsSchema, ScrimSchema,
 } from "../service-connectors/matchmaking";
 import {SubmissionEventSchema} from "./types/submission.schemas";
@@ -20,6 +21,9 @@ export enum EventTopic {
     ScrimSaved = "scrim.saved",
 
     ScrimsDisabled = "scrims.disabled",
+
+    // Matches
+    MatchSaved = "match.saved",
 
     // Submissions
     AllSubmissionEvents = "submission.*",
@@ -72,6 +76,9 @@ export const EventSchemas = {
     [EventTopic.ScrimMetricsUpdate]: ScrimMetricsSchema,
 
     [EventTopic.ScrimsDisabled]: z.boolean(),
+
+    // Match Events
+    [EventTopic.MatchSaved]: MatchDatabaseIdsSchema,
 
     // Submission Events
     [EventTopic.SubmissionStarted]: SubmissionEventSchema,

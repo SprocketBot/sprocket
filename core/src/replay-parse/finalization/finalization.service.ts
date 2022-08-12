@@ -29,7 +29,7 @@ import {MledbMatchService} from "../../mledb/mledb-match/mledb-match.service";
 import {SprocketRatingService} from "../../sprocket-rating/sprocket-rating.service";
 import {PopulateService} from "../../util/populate/populate.service";
 import {BallchasingConverterService} from "./ballchasing-converter";
-import type {SaveScrimFinalizationReturn} from "./finalization.types";
+import type {SaveMatchFinalizationReturn, SaveScrimFinalizationReturn} from "./finalization.types";
 
 @Injectable()
 export class FinalizationService {
@@ -81,7 +81,6 @@ export class FinalizationService {
             return {
                 scrim: scrimMeta,
                 legacyScrim: mledbScrim,
-
             };
         } catch (e) {
             await runner.rollbackTransaction();
@@ -90,7 +89,7 @@ export class FinalizationService {
         }
     }
 
-    async saveMatchToDatabase(submission: ReplaySubmission, submissionId: string, match: Match): Promise<void> {
+    async saveMatchToDatabase(submission: ReplaySubmission, submissionId: string, match: Match): Promise<SaveMatchFinalizationReturn> {
         const runner = this.dbConn.createQueryRunner();
         await runner.connect();
         await runner.startTransaction();
@@ -144,15 +143,19 @@ export class FinalizationService {
                 this.mledbScrimService.saveMatch(submission, submissionId, runner, mleMatch),
                 this.saveMatch(submission, runner, users.map(u => u.id), match.skillGroup.organizationId, matchParent),
             ]);
-            this.logger.log(mledbSeriesId);
+
+            await runner.commitTransaction();
+            this.logger.log(`Successfully saved match! mledbSeriesId=${mledbSeriesId}`);
+
+            return {
+                match: match,
+                legacyMatch: mleMatch,
+            };
         } catch (e) {
             await runner.rollbackTransaction();
             this.logger.error(e);
             throw e;
         }
-
-        this.logger.log("Successfully saved match!");
-        await runner.rollbackTransaction();
     }
 
     async getMatchParentForMatch(runner: QueryRunner, match: Match): Promise<MatchParent> {
