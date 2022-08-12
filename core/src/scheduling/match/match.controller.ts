@@ -55,12 +55,4 @@ export class MatchController {
             skillGroupId: match.skillGroupId,
         };
     }
-
-    @MessagePattern(CoreEndpoint.GetOrganizationIdByMatchId)
-    async getOrganizationIdByMatchId(@Payload() payload: unknown): Promise<CoreOutput<CoreEndpoint.GetOrganizationIdByMatchId>> {
-        const data = CoreSchemas.GetMatchById.input.parse(payload);
-        const organizationId = await this.matchService.getOrganizationIdByMatchId(data.matchId);
-
-        return {organizationId};
-    }
 }

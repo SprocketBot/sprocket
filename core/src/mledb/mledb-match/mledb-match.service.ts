@@ -1,10 +1,11 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
+import type {CoreEndpoint, CoreOutput} from "@sprocketbot/common";
 import type {FindOperator, FindOptionsRelations} from "typeorm";
 import {Raw, Repository} from "typeorm";
 
 import {
-    Franchise, GameSkillGroup, Match, MatchParent, ScheduleFixture, ScheduleGroup,
+    Franchise, GameMode, GameSkillGroup, Match, MatchParent, ScheduleFixture, ScheduleGroup, ScheduleGroupType,
 } from "../../database";
 import type {League, MLE_Series} from "../../database/mledb";
 import {
@@ -58,7 +59,7 @@ export class MledbMatchService {
         return mleFixture.series[0];
     }
 
-    async getMatchStakeholdersBySprocketMatchId(sprocketMatchId: number): Promise<string[]> {
+    async getMatchStakeholdersBySprocketMatchId(sprocketMatchId: number): Promise<CoreOutput<CoreEndpoint.GetMleMatchInfoAndStakeholders>> {
         const match = await this.sprocketMatchService.getMatchById(sprocketMatchId);
         if (!match.skillGroup) {
             match.skillGroup = await this.popService.populateOneOrFail(Match, match, "skillGroup");
@@ -82,8 +83,11 @@ export class MledbMatchService {
 
         const week = await this.popService.populateOneOrFail(ScheduleFixture, fixture, "scheduleGroup");
         const season = await this.popService.populateOneOrFail(ScheduleGroup, week, "parentGroup");
+        const groupType = await this.popService.populateOneOrFail(ScheduleGroup, season, "type");
+        const organization = await this.popService.populateOneOrFail(ScheduleGroupType, groupType, "organization");
 
         const gameMode = await this.popService.populateOneOrFail(Match, match, "gameMode");
+        const game = await this.popService.populateOneOrFail(GameMode, gameMode, "game");
 
         const mledbMatch = await this.getMleSeries(
             awayFranchiseProfile.title,
@@ -143,6 +147,14 @@ export class MledbMatchService {
             ...mledbAwayCaptain.map(c => c.player.discordId),
         ].filter(s => s !== null && s !== undefined) as string[];
 
-        return stakeholders;
+        const stakeholdersSet = new Set(stakeholders);
+
+        return {
+            organizationId: organization.id,
+            stakeholderDiscordIds: Array.from(stakeholdersSet),
+            game: game.title,
+            gameMode: gameMode.description,
+            skillGroup: match.skillGroup.profile.description,
+        };
     }
 }

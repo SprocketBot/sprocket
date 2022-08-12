@@ -8,11 +8,10 @@ import {MledbMatchService} from "./mledb-match.service";
 @Controller("mledb-match")
 export class MledbMatchController {
     constructor(private readonly matchService: MledbMatchService) {}
-    
-    @MessagePattern(CoreEndpoint.GetMleMatchStakeholdersBySprocketMatchId)
-    async getMatchStakeholdersBySprocketMatchId(@Payload() payload: unknown): Promise<CoreOutput<CoreEndpoint.GetMleMatchStakeholdersBySprocketMatchId>> {
-        const data = CoreSchemas.GetMleMatchStakeholdersBySprocketMatchId.input.parse(payload);
-        const discordIds = await this.matchService.getMatchStakeholdersBySprocketMatchId(data.matchId);
-        return {discordIds};
+
+    @MessagePattern(CoreEndpoint.GetMleMatchInfoAndStakeholders)
+    async getMleMatchInfoAndStakeholders(@Payload() payload: unknown): Promise<CoreOutput<CoreEndpoint.GetMleMatchInfoAndStakeholders>> {
+        const data = CoreSchemas.GetMleMatchInfoAndStakeholders.input.parse(payload);
+        return this.matchService.getMatchStakeholdersBySprocketMatchId(data.sprocketMatchId);
     }
 }
