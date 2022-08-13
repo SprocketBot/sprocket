@@ -1,18 +1,16 @@
-import {
-    InjectQueue, OnGlobalQueueCompleted, Processor,
-} from "@nestjs/bull";
+import {InjectQueue} from "@nestjs/bull";
 import {Injectable, Logger} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {BallchasingPlayer} from "@sprocketbot/common";
-import {Job, Queue} from "bull";
+import {Queue} from "bull";
+import {previousMonday} from "date-fns";
 import {Repository} from "typeorm";
 
 import type {
     MatchParent, PlayerStatLine,
 } from "../database";
 import {
-    Match,
-    Player, Round, Team,
+    Match, Player, Round, Team,
 } from "../database";
 import type {
     MatchSummary, PlayerSummary, SalaryPayloadItem, SeriesStatsPayload,
@@ -20,9 +18,9 @@ import type {
 import {
     GameMode, SeriesType, TeamColor,
 } from "./elo.types";
+import {WEEKLY_SALARIES_JOB_NAME} from "./elo-connector.consumer";
 
 @Injectable()
-@Processor("elo")
 export class EloConnectorService {
     private readonly logger = new Logger(EloConnectorService.name);
 
@@ -32,19 +30,25 @@ export class EloConnectorService {
         @InjectRepository(Round) private readonly roundRepository: Repository<Round>,
         @InjectRepository(Team) private readonly teamRepository: Repository<Team>,
         @InjectRepository(Match) private readonly matchRepository: Repository<Match>,
-    ) { }
+    ) {}
 
-    /* eslint-disable */
-    @OnGlobalQueueCompleted()
-    async onCompleted(job: Job, result: any): Promise<void> {
-        const resObj = JSON.parse(result);
-        this.logger.verbose(`Job ${JSON.stringify(job)} completed with result: ${result}, and ${JSON.stringify(resObj)}`);
-        if (resObj.jobType) {
-            this.logger.verbose(`Salary job finished, processing on postgres side now. `);
-            await this.saveSalaries(resObj.data);
+    async onApplicationBootstrap(): Promise<void> {
+        const repeatableJobs = await this.eloQueue.getRepeatableJobs();
+
+        if (!repeatableJobs.some(job => job.name === WEEKLY_SALARIES_JOB_NAME)) {
+            this.logger.debug("Found no job for weekly salaries, creating");
+
+            await this.eloQueue.add(WEEKLY_SALARIES_JOB_NAME, null, {
+                repeat: {
+                    cron: "0 12 * * 1",
+                    startDate: previousMonday(new Date()),
+                    tz: "America/New_York",
+                },
+            });
+        } else {
+            this.logger.debug("Job for weekly salaries already exists");
         }
     }
-    /* eslint-enable */
 
     async saveSalaries(payload: SalaryPayloadItem[][]): Promise<void> {
         await Promise.all(payload.map(async sg => {
