@@ -3,11 +3,11 @@ import {TypeOrmModule} from "@nestjs/typeorm";
 
 import {ImageTemplate} from "./image_template";
 
-export const configurationEntities = [
+export const imageGenerationEntities = [
     ImageTemplate,
 ];
 
-const ormModule = TypeOrmModule.forFeature(configurationEntities);
+const ormModule = TypeOrmModule.forFeature(imageGenerationEntities);
 
 @Module({
     imports: [
