@@ -32,7 +32,7 @@ export class EloConsumer {
                 this.logger.verbose(`Job ${JSON.stringify(job)} completed with result: ${result}, and ${JSON.stringify(resObj)}`);
                 if (resObj.jobType) {
                     this.logger.verbose(`Salary job finished, processing on postgres side now. `);
-                    // await this.eloService.saveSalaries(resObj.data);
+                    await this.eloService.saveSalaries(resObj.data);
                 }
             } catch (e) {
                 this.logger.error(e);
