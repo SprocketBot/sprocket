@@ -79,6 +79,23 @@ export const config = {
             return _config.get<boolean>("db.enable_logs");
         },
     },
+    mledb: {
+        get host(): string {
+            return _config.get<string>("db.host");
+        },
+        get port(): number {
+            return _config.get<number>("db.port");
+        },
+        get username(): string {
+            return _config.get<string>("db.username");
+        },
+        get database(): string {
+            return _config.get<string>("db.database");
+        },
+        get enable_logs(): boolean {
+            return _config.get<boolean>("db.enable_logs");
+        },
+    },
     gql: {
         get url(): string { return _config.get<string>("gql.url") },
         get playground(): boolean { return _config.get<boolean>("gql.playground") },

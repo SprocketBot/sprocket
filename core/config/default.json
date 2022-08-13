@@ -20,6 +20,13 @@
     "database": "",
     "enable_logs": false
   },
+  "mledb": {
+    "host": "",
+    "port": "",
+    "username": "",
+    "database": "",
+    "enable_logs": false
+  },
   "minio": {
     "endPoint": "",
     "port" : 80,

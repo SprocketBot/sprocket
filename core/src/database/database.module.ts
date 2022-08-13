@@ -1,5 +1,4 @@
 import {Module} from "@nestjs/common";
-import type {TypeOrmModuleOptions} from "@nestjs/typeorm";
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {config} from "@sprocketbot/common";
 import {readFileSync} from "fs";
@@ -27,17 +26,6 @@ const sprocketEntities = authorizationEntities.concat(
     schedulingEntities,
 );
 
-const typeOrmOptions: TypeOrmModuleOptions = {
-    type: "postgres",
-    host: config.db.host,
-    port: config.db.port,
-    username: config.db.username,
-    password: readFileSync("./secret/db-password.txt").toString()
-        .trim(),
-    database: config.db.database,
-    logging: config.db.enable_logs,
-};
-
 export const mledbConnectionName = "mledb";
 
 const modules = [
@@ -51,14 +39,30 @@ const modules = [
     SchedulingModule,
     MledbModule,
     ImageGenModule,
+    // SprocketDB
     TypeOrmModule.forRoot({
-        ...typeOrmOptions,
+        type: "postgres",
+        host: config.db.host,
+        port: config.db.port,
+        username: config.db.username,
+        password: readFileSync("./secret/db-password.txt").toString()
+            .trim(),
+        database: config.db.database,
+        logging: config.db.enable_logs,
         entities: sprocketEntities,
     }),
+    // MLEDB
     TypeOrmModule.forRoot({
-        ...typeOrmOptions,
-        entities: mledbEntities,
         name: mledbConnectionName,
+        type: "postgres",
+        host: config.mledb.host,
+        port: config.mledb.port,
+        username: config.mledb.username,
+        password: readFileSync("./secret/mledb-password.txt").toString()
+            .trim(),
+        database: config.mledb.database,
+        logging: config.mledb.enable_logs,
+        entities: mledbEntities,
     }),
 ];
 
