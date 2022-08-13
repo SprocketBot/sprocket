@@ -15,16 +15,17 @@ import {MledbModule} from "./mledb/mledb.module";
 import {organizationEntities, OrganizationModule} from "./organization/organization.module";
 import {schedulingEntities, SchedulingModule} from "./scheduling/scheduling.module";
 
-const sprocketEntities = authorizationEntities.concat(
-    configurationEntities,
-    draftEntities,
-    franchiseEntities,
-    gameEntities,
-    identityEntities,
-    imageGenerationEntities,
-    organizationEntities,
-    schedulingEntities,
-);
+const sprocketEntities = [
+    ...authorizationEntities,
+    ...configurationEntities,
+    ...draftEntities,
+    ...franchiseEntities,
+    ...gameEntities,
+    ...identityEntities,
+    ...imageGenerationEntities,
+    ...organizationEntities,
+    ...schedulingEntities,
+];
 
 export const mledbConnectionName = "mledb";
 
