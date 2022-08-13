@@ -17,6 +17,7 @@ export class GameFeatureResolver {
     constructor(private readonly gameFeatureService: GameFeatureService) {}
 
     @Query(() => Boolean)
+    @UseGuards(GqlJwtGuard)
     async getFeatureEnabled(
         @CurrentUser() user: UserPayload,
         @Args("code", {type: () => FeatureCode}) code: FeatureCode,
