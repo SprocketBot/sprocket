@@ -6,7 +6,7 @@ export const EloBullQueue = "elo";
 
 export enum EloEndpoint {
     CalculateSalaries = "CalculateSalaries",
-    CalculateEloForSeries = "CalculateEloForSeries",
+    CalculateEloForMatch = "CalculateEloForMatch",
     CalculateEloForNcp = "CalculateEloForNcp",
 }
 
@@ -15,9 +15,9 @@ export const EloSchemas = {
         input: Schemas.CalculateSalaries_Input,
         output: Schemas.CalculateSalaries_Output,
     },
-    [EloEndpoint.CalculateEloForSeries]: {
-        input: Schemas.CalculateEloForSeries_Input,
-        output: Schemas.CalculateEloForSeries_Output,
+    [EloEndpoint.CalculateEloForMatch]: {
+        input: Schemas.CalculateEloForMatch_Input,
+        output: Schemas.CalculateEloForMatch_Output,
     },
     [EloEndpoint.CalculateEloForNcp]: {
         input: Schemas.CalculateEloForNcp_Input,
