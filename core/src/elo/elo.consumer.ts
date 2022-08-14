@@ -7,7 +7,7 @@ import {Job} from "bull";
 import {FeatureCode} from "../database";
 import {GameFeatureService, GameService} from "../game";
 import {OrganizationService} from "../organization";
-import {EloConnectorService} from "./elo.service";
+import {EloService} from "./elo.service";
 
 export const WEEKLY_SALARIES_JOB_NAME = "weeklySalaries";
 export const RUN_SALARIES_JOB_NAME = "salaries";
@@ -17,7 +17,7 @@ export class EloConsumer {
     private readonly logger = new Logger(EloConsumer.name);
 
     constructor(
-        private readonly eloService: EloConnectorService,
+        private readonly eloService: EloService,
         private readonly gameService: GameService,
         private readonly gameFeatureService: GameFeatureService,
         private readonly organizationService: OrganizationService,

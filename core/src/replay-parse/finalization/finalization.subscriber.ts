@@ -11,7 +11,7 @@ import {
 } from "@sprocketbot/common";
 
 import type {Match} from "../../database";
-import {EloConnectorService} from "../../elo-connector/";
+import {EloService} from "../../elo";
 import {MatchService} from "../../scheduling";
 import {ScrimService} from "../../scrim";
 import {FinalizationService} from "./finalization.service";
@@ -27,7 +27,7 @@ export class FinalizationSubscriber {
         private readonly redisService: RedisService,
         private readonly scrimService: ScrimService,
         private readonly matchService: MatchService,
-        private readonly eloConnectorService: EloConnectorService,
+        private readonly eloConnectorService: EloService,
     ) {}
 
     onApplicationBootstrap(): void {

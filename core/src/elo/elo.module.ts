@@ -5,8 +5,8 @@ import {DatabaseModule} from "../database";
 import {GameModule} from "../game";
 import {OrganizationModule} from "../organization";
 import {EloConsumer} from "./elo.consumer";
-import {EloConnectorController} from "./elo.controller";
-import {EloConnectorService} from "./elo.service";
+import {EloService} from "./elo.service";
+import {EloConnectorModule} from "./elo-connector/elo-connector.module";
 
 @Module({
     imports: [
@@ -14,12 +14,14 @@ import {EloConnectorService} from "./elo.service";
         DatabaseModule,
         GameModule,
         OrganizationModule,
+        EloConnectorModule,
     ],
     providers: [
-        EloConnectorService,
+        EloService,
         EloConsumer,
     ],
-    exports: [EloConnectorService],
-    controllers: [EloConnectorController],
+    exports: [
+        EloService,
+    ],
 })
-export class EloConnectorModule { }
+export class EloModule {}

@@ -21,8 +21,8 @@ import {
 } from "./elo.types";
 
 @Injectable()
-export class EloConnectorService {
-    private readonly logger = new Logger(EloConnectorService.name);
+export class EloService {
+    private readonly logger = new Logger(EloService.name);
 
     constructor(
         @InjectQueue("elo") private eloQueue: Queue,
