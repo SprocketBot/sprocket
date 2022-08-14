@@ -31,7 +31,7 @@ export class MemberRestrictionService {
         const memberRestriction = this.memberRestrictionRepository.create({
             type: type,
             reason: reason,
-            expiration: expiration.toUTCString(),
+            expiration: expiration,
             member: member,
             memberId: member.id,
         });
@@ -88,7 +88,7 @@ export class MemberRestrictionService {
         });
 
         memberRestriction = this.memberRestrictionRepository.merge(memberRestriction, {
-            manualExpiration: manualExpiration.toUTCString(),
+            manualExpiration: manualExpiration,
             manualExpirationReason: manualExpirationReason,
             forgiven: forgiven,
         });
