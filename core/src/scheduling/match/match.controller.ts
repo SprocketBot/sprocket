@@ -54,6 +54,5 @@ export class MatchController {
             },
             skillGroupId: match.skillGroupId,
         };
-
     }
 }

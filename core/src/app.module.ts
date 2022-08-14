@@ -53,6 +53,7 @@ import {UtilModule} from "./util/util.module";
                             servername: config.redis.host,
                         }
                     : undefined,
+                keyPrefix: `${config.redis.prefix}:bull`,
             },
         }),
         OrganizationModule,
