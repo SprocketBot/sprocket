@@ -1,7 +1,9 @@
 import {Module} from "@nestjs/common";
 import {TypeOrmModule} from "@nestjs/typeorm";
 
-import {User} from "./user";
+import {
+    User, UserPrimaryRepository, UserProfileRepository, UserRepository,
+} from "./user";
 import {UserAuthenticationAccount} from "./user_authentication_account";
 import {UserProfile} from "./user_profile";
 
@@ -17,7 +19,13 @@ const ormModule = TypeOrmModule.forFeature(identityEntities);
     imports: [
         ormModule,
     ],
+    providers: [
+        UserRepository,
+        UserPrimaryRepository,
+        UserProfileRepository,
+    ],
     exports: [
+        UserRepository,
         ormModule,
     ],
 })
