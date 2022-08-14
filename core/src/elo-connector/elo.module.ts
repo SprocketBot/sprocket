@@ -4,9 +4,9 @@ import {Module} from "@nestjs/common";
 import {DatabaseModule} from "../database";
 import {GameModule} from "../game";
 import {OrganizationModule} from "../organization";
-import {EloConsumer} from "./elo-connector.consumer";
-import {EloConnectorController} from "./elo-connector.controller";
-import {EloConnectorService} from "./elo-connector.service";
+import {EloConsumer} from "./elo.consumer";
+import {EloConnectorController} from "./elo.controller";
+import {EloConnectorService} from "./elo.service";
 
 @Module({
     imports: [

@@ -12,13 +12,13 @@ import type {
 import {
     Match, Player, Round, Team,
 } from "../database";
+import {WEEKLY_SALARIES_JOB_NAME} from "./elo.consumer";
 import type {
     MatchSummary, PlayerSummary, SalaryPayloadItem, SeriesStatsPayload,
 } from "./elo.types";
 import {
     GameMode, SeriesType, TeamColor,
 } from "./elo.types";
-import {WEEKLY_SALARIES_JOB_NAME} from "./elo-connector.consumer";
 
 @Injectable()
 export class EloConnectorService {

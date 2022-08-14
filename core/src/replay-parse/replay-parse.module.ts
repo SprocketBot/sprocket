@@ -11,7 +11,7 @@ import {
 import {PubSub} from "apollo-server-express";
 
 import {DatabaseModule} from "../database";
-import {EloConnectorModule} from "../elo-connector/elo-connector.module";
+import {EloConnectorModule} from "../elo-connector/elo.module";
 import {FranchiseModule} from "../franchise";
 import {IdentityModule} from "../identity";
 import {MledbInterfaceModule} from "../mledb";

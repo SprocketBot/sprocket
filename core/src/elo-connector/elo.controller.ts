@@ -1,7 +1,7 @@
 import {Controller, Get} from "@nestjs/common";
 
-import {EloConnectorService} from "./elo-connector.service";
-import {TestPayload1} from "./elo-connector.test-data";
+import {EloConnectorService} from "./elo.service";
+import {TestPayload1} from "./elo.test-data";
 
 @Controller("elo-connector")
 export class EloConnectorController {
