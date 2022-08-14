@@ -221,7 +221,7 @@ export class MledbScrimService {
         return mleReplay.series.scrim.id;
     }
 
-    async getMlePlayerByGamePlayer(p: BallchasingPlayer): Promise<MLE_Player> {
+    async getMlePlayerByBallchasingPlayer(p: BallchasingPlayer): Promise<MLE_Player> {
         const playerAccount = await this.mlePlayerAccountRepository.findOneOrFail({
             where: {
                 platformId: p.id.id,
