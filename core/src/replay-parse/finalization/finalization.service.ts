@@ -189,7 +189,7 @@ export class FinalizationService {
                     const createPlayerStat = async (p: BallchasingPlayer, color: string): Promise<PlayerStatLine> => {
                         const otherStats = this.ballchasingConverter.createPlayerStats(p);
                         
-                        const mlePlayer = await this.mledbScrimService.getMlePlayerByGamePlayer(p);
+                        const mlePlayer = await this.mledbScrimService.getMlePlayerByBallchasingPlayer(p);
                         if (!mlePlayer.discordId) throw new Error(`Player does not have a Discord Id mleid=${mlePlayer.mleid}`);
                         
                         const sprocketUser = await this.identityService.getUserByAuthAccount(UserAuthenticationAccountType.DISCORD, mlePlayer.discordId);
