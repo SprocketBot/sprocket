@@ -12,6 +12,7 @@ import {PubSub} from "apollo-server-express";
 
 import {DatabaseModule} from "../database";
 import {EloModule} from "../elo/elo.module";
+import {EloConnectorModule} from "../elo/elo-connector";
 import {FranchiseModule} from "../franchise";
 import {IdentityModule} from "../identity";
 import {MledbInterfaceModule} from "../mledb";
@@ -43,6 +44,7 @@ import {ReplayParseService} from "./replay-parse.service";
         IdentityModule,
         SprocketRatingModule,
         EloModule,
+        EloConnectorModule,
         SchedulingModule,
         UtilModule,
     ],

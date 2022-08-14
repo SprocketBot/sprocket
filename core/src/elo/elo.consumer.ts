@@ -1,18 +1,17 @@
-import {
-    OnGlobalQueueCompleted, Process, Processor,
-} from "@nestjs/bull";
+import {Process, Processor} from "@nestjs/bull";
 import {Logger} from "@nestjs/common";
-import {Job} from "bull";
 
 import {FeatureCode} from "../database";
 import {GameFeatureService, GameService} from "../game";
 import {OrganizationService} from "../organization";
 import {EloService} from "./elo.service";
+import {
+    EloBullQueue, EloConnectorService, EloEndpoint,
+} from "./elo-connector";
 
 export const WEEKLY_SALARIES_JOB_NAME = "weeklySalaries";
-export const RUN_SALARIES_JOB_NAME = "salaries";
 
-@Processor("elo")
+@Processor(EloBullQueue)
 export class EloConsumer {
     private readonly logger = new Logger(EloConsumer.name);
 
@@ -21,25 +20,8 @@ export class EloConsumer {
         private readonly gameService: GameService,
         private readonly gameFeatureService: GameFeatureService,
         private readonly organizationService: OrganizationService,
+        private readonly eloConnectorService: EloConnectorService,
     ) {}
-
-    /* eslint-disable */
-    @OnGlobalQueueCompleted()
-    async onCompleted(job: Job, result: any): Promise<void> {
-        if (job.name === RUN_SALARIES_JOB_NAME) {
-            try {
-                const resObj = JSON.parse(result);
-                this.logger.verbose(`Job ${JSON.stringify(job)} completed with result: ${result}, and ${JSON.stringify(resObj)}`);
-                if (resObj.jobType) {
-                    this.logger.verbose(`Salary job finished, processing on postgres side now. `);
-                    await this.eloService.saveSalaries(resObj.data);
-                }
-            } catch (e) {
-                this.logger.error(e);
-            }
-        }
-    }
-    /* eslint-enable */
 
     @Process({name: WEEKLY_SALARIES_JOB_NAME})
     async runSalaries(): Promise<void> {
@@ -68,9 +50,9 @@ export class EloConsumer {
         const autoSalariesEnabled = await this.gameFeatureService.featureIsEnabled(FeatureCode.AUTO_SALARIES, rocketLeague.id, mleOrg.id);
 
         if (autoRankoutsEnabled) {
-            await this.eloService.processSalaries(true);
+            await this.eloConnectorService.createJob(EloEndpoint.CalculateSalaries, {doRankouts: true});
         } else if (autoSalariesEnabled) {
-            await this.eloService.processSalaries(false);
+            await this.eloConnectorService.createJob(EloEndpoint.CalculateSalaries, {doRankouts: false});
         }
     }
 }

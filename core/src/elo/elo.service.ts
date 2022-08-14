@@ -6,30 +6,34 @@ import {Queue} from "bull";
 import {previousMonday} from "date-fns";
 import {Repository} from "typeorm";
 
-import type {
-    MatchParent, PlayerStatLine,
-} from "../database";
+import type {MatchParent, PlayerStatLine} from "../database";
 import {
-    Match, Player, Round, Team,
+    Invalidation,
+    Match,
+    Player,
+    Round,
+    Team,
 } from "../database";
 import {WEEKLY_SALARIES_JOB_NAME} from "./elo.consumer";
+import {EloBullQueue, EloEndpoint} from "./elo-connector";
+import {EloConnectorService} from "./elo-connector/elo-connector.service";
 import type {
-    MatchSummary, PlayerSummary, SalaryPayloadItem, SeriesStatsPayload,
-} from "./elo.types";
-import {
-    GameMode, SeriesType, TeamColor,
-} from "./elo.types";
+    CalculateEloForMatchInput, MatchSummary, PlayerSummary, SalaryPayloadItem,
+} from "./elo-connector/schemas";
+import {GameMode, TeamColor} from "./elo-connector/schemas";
 
 @Injectable()
 export class EloService {
     private readonly logger = new Logger(EloService.name);
 
     constructor(
-        @InjectQueue("elo") private eloQueue: Queue,
         @InjectRepository(Player) private readonly playerRepository: Repository<Player>,
         @InjectRepository(Round) private readonly roundRepository: Repository<Round>,
         @InjectRepository(Team) private readonly teamRepository: Repository<Team>,
         @InjectRepository(Match) private readonly matchRepository: Repository<Match>,
+        @InjectRepository(Invalidation) private readonly invalidationRepository: Repository<Invalidation>,
+        @InjectQueue(EloBullQueue) private eloQueue: Queue,
+        private readonly eloConnectorService: EloConnectorService,
     ) {}
 
     async onApplicationBootstrap(): Promise<void> {
@@ -64,24 +68,9 @@ export class EloService {
         }));
     }
 
-    async processSalaries(rankouts: boolean): Promise<void> {
-        const job = await this.eloQueue.add("salaries", {doRankouts: rankouts});
-        this.logger.verbose(`Started job in bull with ${JSON.stringify(job)} returned.`);
-    }
-
-    async runEloForSeries(match: SeriesStatsPayload, isScrim: boolean): Promise<void> {
-        const job = await this.eloQueue.add("series", {match, isScrim});
-        this.logger.verbose(`| - (${job.id.toString().padStart(6)} > | EloQueue (${job.data})`);
-    }
-
-    async sendReplaysToElo(replayIds: number[], isNcp: boolean): Promise<void> {
-        const job = await this.eloQueue.add("ncps", {replayIds, isNcp});
-        this.logger.verbose(`Started job 'ncps' in bull with ${JSON.stringify(job)} returned.`);
-    }
-
-    translatePayload(matchParent: MatchParent, isScrim: boolean): SeriesStatsPayload {
+    translatePayload(matchParent: MatchParent, isScrim: boolean): CalculateEloForMatchInput {
         const match = matchParent.match;
-        const payload: Partial<SeriesStatsPayload> = {
+        const payload: CalculateEloForMatchInput = {
             id: match.id,
             numGames: match.rounds.length,
             isScrim: isScrim,
@@ -89,9 +78,7 @@ export class EloService {
             gameStats: [],
         };
 
-        let i = 0;
-        for (i = 0;i < match.rounds.length;i++) {
-            const round = match.rounds[i];
+        for (const round of match.rounds) {
             const orangeStats: BallchasingPlayer[] = (round.teamStats[1].playerStats.map(p => p.stats)) as BallchasingPlayer[];
             const blueStats: BallchasingPlayer[] = (round.teamStats[0].playerStats.map(p => p.stats)) as BallchasingPlayer[];
             const summary: MatchSummary = {
@@ -105,7 +92,8 @@ export class EloService {
 
             payload.gameStats?.push(summary);
         }
-        return payload as SeriesStatsPayload;
+
+        return payload;
     }
 
     translatePlayerStats(p: PlayerStatLine, team: TeamColor): PlayerSummary {
@@ -129,7 +117,7 @@ export class EloService {
      * @param isNcp Whether the given replayId should be marked NCP or un-NCP.
      * @returns A string containing status of what was updated.
      */
-    async markReplaysNcp(replayIds: number[], isNcp: boolean, winningTeamInput?: Team): Promise<string> {
+    async markReplaysNcp(replayIds: number[], isNcp: boolean, winningTeamInput?: Team, invalidation?: Invalidation): Promise<string> {
         const r = Math.floor(Math.random() * 10000);
         this.logger.verbose(`(${r}) begin markReplaysNcp: replayIds=${replayIds}, isNcp=${isNcp}, winningTeam=${winningTeamInput}`);
 
@@ -161,31 +149,18 @@ export class EloService {
 
         // Set replays to NCP true/false and update winning team/color
         for (const replay of replays) {
-            let newHomeWon: boolean = false;
-
-            // Handle NCPing/Un-NCPing with non-dummy/dummy replays
-            if (isNcp) {
-                if (!replay.isDummy) {
-                    newHomeWon = !replay.homeWon;
-                } else {
-                    newHomeWon = false;
-                }
-            } else if (!replay.isDummy) {
-                newHomeWon = !replay.homeWon;
-            }
-
-            // If Un-NCPing a dummy replay, just delete it
-            if (!isNcp && replay.isDummy) {
-                await this.roundRepository.delete(replay.id);
-            } else {
-                replay.homeWon = newHomeWon;
-                await this.roundRepository.save(replay);
-            }
+            if (!isNcp && replay.isDummy) await this.roundRepository.delete(replay.id);
+            
+            replay.invalidation = invalidation;
+            await this.roundRepository.save(replay);
         }
 
         // Magic happens here to talk to the ELO service
         const noDummies = replays.filter(rep => !rep.isDummy).map(rep => rep.id);
-        await this.sendReplaysToElo(noDummies, isNcp);
+        await this.eloConnectorService.createJob(EloEndpoint.CalculateEloForNcp, {
+            roundIds: noDummies,
+            isNcp: isNcp,
+        });
 
         const outStr = `\`${replayIds.length === 1
             ? `replayId=${replayIds[0]}`
@@ -210,22 +185,28 @@ export class EloService {
      * @param numReplays The number of replays that should be in the series. Optional. Used to add dummy replays in place of replays that weren't submitted for some reason.
      * @returns A string containing a summary of the actions that took place when the processing has completed.
      */
-    async markSeriesNcp(seriesId: number, isNcp: boolean, seriesType: SeriesType, winningTeamInput?: Team, numReplays?: number): Promise<string> {
+    async markSeriesNcp(seriesId: number, isNcp: boolean, winningTeamId?: number, numReplays?: number): Promise<string> {
         const r = Math.floor(Math.random() * 10000);
-        this.logger.verbose(`(${r}) begin markSeriesNcp: seriesId=${seriesId}, isNcp=${isNcp}, winningTeam=${winningTeamInput}`);
+        this.logger.verbose(`(${r}) begin markSeriesNcp: seriesId=${seriesId}, isNcp=${isNcp}, winningTeam=${winningTeamId}`);
 
         // Find the winning team and it's franchise profile, since that's where
         // team names are in Sprocket.
-        let winningTeam = await this.teamRepository.findOne({where: {id: winningTeamInput?.id}, relations: {franchise: {profile: true} } });
+        const winningTeam = await this.teamRepository.findOne({where: {id: winningTeamId}, relations: {franchise: {profile: true} } });
+        const series = await this.matchRepository.findOneOrFail({
+            where: {id: seriesId},
+            relations: {
+                matchParent: {
+                    fixture: {
+                        homeFranchise: true,
+                        awayFranchise: true,
+                    },
+                    scrimMeta: true,
+                },
+                rounds: true,
+            },
+        });
 
-        const series = await this.matchRepository.findOneOrFail({where: {id: seriesId}, relations: {matchParent: true, rounds: true} });
-
-        if (seriesType === SeriesType.Fixture) {
-
-            if (!series.matchParent.fixture) {
-                throw new Error(`Series with id='${seriesId}' has no associated fixture, yet markSeriesNCP was called with SeriesType.Fixture.`);
-            }
-
+        if (series.matchParent.fixture) {
             // Winning team must be specified if NCPing replays
             if (isNcp && !winningTeam) {
                 throw new Error("When NCPing a series associated with a fixture, you must specify a winningTeam");
@@ -237,18 +218,8 @@ export class EloService {
                 && series.matchParent.fixture.awayFranchise !== winningTeam.franchise) {
                 throw new Error(`The team \`${winningTeam?.franchise.profile.title}\` did not play in series with id \`${series.id}\` (${series.matchParent.fixture.awayFranchise.profile.title} v. ${series.matchParent.fixture.homeFranchise.profile.title}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`);
             }
-
-        } else if (seriesType === SeriesType.Scrim) {
-            if (!series.matchParent.scrimMeta) {
-                throw new Error(`Series with id=\`${seriesId}\` has no associated scrim, but markSeriesNCP was called with SeriesType.Scrim.`);
-            }
-            winningTeam = await this.teamRepository.findOneOrFail({
-                where: {
-                    id: 0,
-                },
-            }); // TODO: ID for FA team
-        } else {
-            throw new Error(`MarkSeriesNCP called with unknown series type: ${JSON.stringify(seriesType)}`);
+        } else if (!series.matchParent.scrimMeta) {
+            throw new Error(`MarkSeriesNCP called with series without a fixtureId or scrimMetaId`);
         }
 
         const seriesReplays: Round[] = series.rounds;
@@ -272,19 +243,22 @@ export class EloService {
             }
         }
 
-        // Set series to Full NCP and set winning team
-        // await this.ss.updateSeries({fullNcp: isNcp}, seriesId);
-        // TODO: Create Invalidation here
-        // series.isNcp = isNcp;
+        const invalidation = this.invalidationRepository.create({
+            favorsHomeTeam: winningTeamId === series.matchParent.fixture?.homeFranchise.id,
+            description: series.matchParent.fixture ? "Series NCP" : "Scrim NCP",
+        });
+        await this.invalidationRepository.save(invalidation);
+
+        series.invalidation = invalidation;
         await this.matchRepository.save(series);
 
         // Update each series replay (including any dummies) to NCP
         const replayIds = seriesReplays.map(replay => replay.id);
-        await this.markReplaysNcp(replayIds, isNcp, winningTeam ?? undefined);
+        await this.markReplaysNcp(replayIds, isNcp, winningTeam ?? undefined, invalidation);
 
         this.logger.verbose(`(${r}) end markSeriesNcp`);
 
-        const seriesTypeStr = seriesType === SeriesType.Fixture ? "fixture" : seriesType === SeriesType.Scrim ? "scrim" : null;
+        const seriesTypeStr = series.matchParent.fixture ? "fixture" : series.matchParent.scrimMeta ? "scrim" : "unknown";
         return `\`seriesId=${seriesId}\` ${seriesTypeStr ? `(${seriesTypeStr})` : ""} successfully marked \`fullNcp=${isNcp}\` with updated elo, and all connected replays had their elo updated.${numReplays && dummiesNeeded ? ` **${dummiesNeeded} dummy replay(s)** were added to the series.` : ""}`;
     }
 }

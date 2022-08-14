@@ -12,6 +12,7 @@ import {
 
 import type {Match} from "../../database";
 import {EloService} from "../../elo";
+import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
 import {MatchService} from "../../scheduling";
 import {ScrimService} from "../../scrim";
 import {FinalizationService} from "./finalization.service";
@@ -27,7 +28,8 @@ export class FinalizationSubscriber {
         private readonly redisService: RedisService,
         private readonly scrimService: ScrimService,
         private readonly matchService: MatchService,
-        private readonly eloConnectorService: EloService,
+        private readonly eloService: EloService,
+        private readonly eloConnectorService: EloConnectorService,
     ) {}
 
     onApplicationBootstrap(): void {
@@ -73,8 +75,8 @@ export class FinalizationSubscriber {
                 },
             });
 
-            const eloPayload = this.eloConnectorService.translatePayload(result.scrim.parent, false);
-            await this.eloConnectorService.runEloForSeries(eloPayload, false);
+            const eloPayload = this.eloService.translatePayload(result.scrim.parent, false);
+            await this.eloConnectorService.createJob(EloEndpoint.CalculateEloForMatch, eloPayload);
         } catch (_e) {
             const e = _e as Error;
             this.logger.warn(e.message, e.stack);
