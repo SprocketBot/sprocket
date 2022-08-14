@@ -81,19 +81,22 @@ export const config = {
     },
     mledb: {
         get host(): string {
-            return _config.get<string>("db.host");
+            return _config.get<string>("mledb.host");
         },
         get port(): number {
-            return _config.get<number>("db.port");
+            return _config.get<number>("mledb.port");
         },
         get username(): string {
-            return _config.get<string>("db.username");
+            return _config.get<string>("mledb.username");
         },
         get database(): string {
-            return _config.get<string>("db.database");
+            return _config.get<string>("mledb.database");
         },
         get enable_logs(): boolean {
-            return _config.get<boolean>("db.enable_logs");
+            return _config.get<boolean>("mledb.enable_logs");
+        },
+        get name(): string {
+            return _config.get<string>("mledb.name");
         },
     },
     gql: {

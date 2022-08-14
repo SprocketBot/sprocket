@@ -1,7 +1,7 @@
 import {Module} from "@nestjs/common";
 import {TypeOrmModule} from "@nestjs/typeorm";
+import {config} from "@sprocketbot/common";
 
-import {mledbConnectionName} from "../database.module";
 import {MLE_ChannelMap} from "./ChannelMap.model";
 import {MLE_Config} from "./Config.model";
 import {MLE_Division} from "./Division.model";
@@ -62,7 +62,7 @@ export const mledbEntities = [
     MLE_TeamToCaptain,
 ];
 
-const ormModule = TypeOrmModule.forFeature(mledbEntities, mledbConnectionName);
+const ormModule = TypeOrmModule.forFeature(mledbEntities, config.mledb.name);
 
 @Module({
     imports: [

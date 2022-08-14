@@ -5,6 +5,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 import type {
     BallchasingPlayer, BallchasingResponse, BallchasingTeam, ReplaySubmission, Scrim,
 } from "@sprocketbot/common";
+import {config} from "@sprocketbot/common";
 import type {QueryRunner} from "typeorm";
 import {Repository} from "typeorm";
 
@@ -32,15 +33,15 @@ import {ballchasingMapLookup} from "./ballchasing-maps";
 @Injectable()
 export class MledbScrimService {
     constructor(
-        @InjectRepository(MLE_Scrim) private readonly mleScrimRepository: Repository<MLE_Scrim>,
-        @InjectRepository(MLE_Series) private readonly mleSeriesRepository: Repository<MLE_Series>,
-        @InjectRepository(MLE_SeriesReplay) private readonly mleSeriesReplayRepositroy: Repository<MLE_SeriesReplay>,
-        @InjectRepository(MLE_PlayerStatsCore) private readonly mlePlayerStatsCoreRepository: Repository<MLE_PlayerStatsCore>,
-        @InjectRepository(MLE_PlayerStats) private readonly mlePlayerStatsRepository: Repository<MLE_PlayerStats>,
-        @InjectRepository(MLE_TeamCoreStats) private readonly mleTeamCoreStatsRepository: Repository<MLE_TeamCoreStats>,
-        @InjectRepository(MLE_PlayerAccount) private readonly mlePlayerAccountRepository: Repository<MLE_PlayerAccount>,
-        @InjectRepository(MLE_Player) private readonly mlePlayerRepository: Repository<MLE_Player>,
-        @InjectRepository(MLE_EligibilityData) private readonly mleEligibilityRepository: Repository<MLE_EligibilityData>,
+        @InjectRepository(MLE_Scrim, config.mledb.name) private readonly mleScrimRepository: Repository<MLE_Scrim>,
+        @InjectRepository(MLE_Series, config.mledb.name) private readonly mleSeriesRepository: Repository<MLE_Series>,
+        @InjectRepository(MLE_SeriesReplay, config.mledb.name) private readonly mleSeriesReplayRepositroy: Repository<MLE_SeriesReplay>,
+        @InjectRepository(MLE_PlayerStatsCore, config.mledb.name) private readonly mlePlayerStatsCoreRepository: Repository<MLE_PlayerStatsCore>,
+        @InjectRepository(MLE_PlayerStats, config.mledb.name) private readonly mlePlayerStatsRepository: Repository<MLE_PlayerStats>,
+        @InjectRepository(MLE_TeamCoreStats, config.mledb.name) private readonly mleTeamCoreStatsRepository: Repository<MLE_TeamCoreStats>,
+        @InjectRepository(MLE_PlayerAccount, config.mledb.name) private readonly mlePlayerAccountRepository: Repository<MLE_PlayerAccount>,
+        @InjectRepository(MLE_Player, config.mledb.name) private readonly mlePlayerRepository: Repository<MLE_Player>,
+        @InjectRepository(MLE_EligibilityData, config.mledb.name) private readonly mleEligibilityRepository: Repository<MLE_EligibilityData>,
         @Inject(forwardRef(() => GameSkillGroupService))
         private readonly skillGroupService: GameSkillGroupService,
         private readonly gameModeService: GameModeService,

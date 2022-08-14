@@ -27,8 +27,6 @@ const sprocketEntities = [
     ...schedulingEntities,
 ];
 
-export const mledbConnectionName = "mledb";
-
 const modules = [
     AuthorizationModule,
     ConfigurationModule,
@@ -54,7 +52,7 @@ const modules = [
     }),
     // MLEDB
     TypeOrmModule.forRoot({
-        name: mledbConnectionName,
+        name: config.mledb.name,
         type: "postgres",
         host: config.mledb.host,
         port: config.mledb.port,

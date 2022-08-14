@@ -25,7 +25,8 @@
     "port": "",
     "username": "",
     "database": "",
-    "enable_logs": false
+    "enable_logs": false,
+    "name": ""
   },
   "minio": {
     "endPoint": "",

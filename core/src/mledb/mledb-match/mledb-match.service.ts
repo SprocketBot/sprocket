@@ -1,5 +1,6 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
+import {config} from "@sprocketbot/common";
 import type {FindOperator} from "typeorm";
 import {Raw, Repository} from "typeorm";
 
@@ -10,7 +11,7 @@ import {MLE_Fixture} from "../../database/mledb";
 
 @Injectable()
 export class MledbMatchService {
-    constructor(@InjectRepository(MLE_Fixture) private readonly fixtureRepo: Repository<MLE_Fixture>) {
+    constructor(@InjectRepository(MLE_Fixture, config.mledb.name) private readonly fixtureRepo: Repository<MLE_Fixture>) {
     }
 
     async getMleSeries(awayName: string, homeName: string, matchStart: Date, seasonStart: Date, mode: LegacyGameMode, league: League): Promise<MLE_Series> {

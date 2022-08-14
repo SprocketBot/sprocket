@@ -20,11 +20,11 @@ export class MledbPlayerService {
     private readonly logger = new Logger(MledbPlayerService.name);
 
     constructor(
-        @InjectRepository(MLE_Player) private readonly playerRepository: Repository<MLE_Player>,
-        @InjectRepository(MLE_PlayerAccount) private readonly playerAccountRepository: Repository<MLE_PlayerAccount>,
-        @InjectRepository(MLE_PlayerToOrg) private readonly playerToOrgRepository: Repository<MLE_PlayerToOrg>,
-        @InjectRepository(MLE_Team) private readonly teamRepo: Repository<MLE_Team>,
-        @InjectRepository(MLE_TeamToCaptain) private readonly teamToCaptainRepo: Repository<MLE_TeamToCaptain>,
+        @InjectRepository(MLE_Player, config.mledb.name) private readonly playerRepository: Repository<MLE_Player>,
+        @InjectRepository(MLE_PlayerAccount, config.mledb.name) private readonly playerAccountRepository: Repository<MLE_PlayerAccount>,
+        @InjectRepository(MLE_PlayerToOrg, config.mledb.name) private readonly playerToOrgRepository: Repository<MLE_PlayerToOrg>,
+        @InjectRepository(MLE_Team, config.mledb.name) private readonly teamRepo: Repository<MLE_Team>,
+        @InjectRepository(MLE_TeamToCaptain, config.mledb.name) private readonly teamToCaptainRepo: Repository<MLE_TeamToCaptain>,
         @Inject(forwardRef(() => UserService))
         private readonly userService: UserService,
         @Inject(forwardRef(() => GameService))
