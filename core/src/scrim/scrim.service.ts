@@ -206,7 +206,7 @@ export class ScrimService {
         const franchiseProfiles = await Promise.all(scrim.players.map(async p => {
             const member = await this.memberService.getMember({where: {user: {id: p.id} } });
             const gameMode = await this.gameSkillGroupService.getGameSkillGroupById(scrim.skillGroupId, {relations: ["game"] });
-            const franchise = await this.memberService.getFranchiseByMember(member.id, scrim.organizationId, gameMode.game.id).catch(() => null);
+            const franchise = await this.memberService.getFranchiseByMember(member.id, scrim.organizationId, gameMode.game.id);
             if (!franchise) return undefined;
 
             return this.franchiseService.getFranchiseProfile(franchise.id);
