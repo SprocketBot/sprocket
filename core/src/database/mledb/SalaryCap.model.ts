@@ -4,7 +4,7 @@ import {
 
 @Index("salary_cap_pkey", ["id"], {unique: true})
 @Index("salary_cap_league_unique", ["league"], {unique: true})
-@Entity("salary_cap", {schema: "mledb"})
+@Entity("salary_cap")
 export class MLE_SalaryCap {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

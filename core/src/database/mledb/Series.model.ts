@@ -16,7 +16,7 @@ import {MLE_TeamRoleUsage} from "./TeamRoleUsage.model";
 )
 @Index("series_pkey", ["id"], {unique: true})
 @Index("series_scrim_id_unique", ["scrimId"], {unique: true})
-@Entity("series", {schema: "mledb"})
+@Entity("series")
 export class MLE_Series {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

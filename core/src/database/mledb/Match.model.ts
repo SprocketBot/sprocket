@@ -9,7 +9,7 @@ import {MLE_Season} from "./Season.model";
 @Index("match_season_match_number_unique", ["matchNumber", "season"], {
     unique: true,
 })
-@Entity("match", {schema: "mledb"})
+@Entity("match")
 export class MLE_Match {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

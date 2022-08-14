@@ -12,7 +12,7 @@ import {MLE_PlayerToOrg} from "./PlayerToOrg.model";
 @Index("player_pkey", ["id"], {unique: true})
 @Index("player_mleid_index", ["mleid"], {})
 @Index("player_name_unique", ["name"], {unique: true})
-@Entity("player", {schema: "mledb"})
+@Entity("player")
 export class MLE_Player {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

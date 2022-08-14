@@ -5,7 +5,7 @@ import {
 import {MLE_PlayerAccount} from "./PlayerAccount.model";
 
 @Index("psyonix_api_result_pkey", ["id"], {unique: true})
-@Entity("psyonix_api_result", {schema: "mledb"})
+@Entity("psyonix_api_result")
 export class MLE_PsyonixApiResult {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

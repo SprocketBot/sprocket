@@ -9,7 +9,7 @@ import {MLE_Scrim} from "./Scrim.model";
 @Index("eligibility_data_player_id_scrim_id", ["playerId", "scrimId"], {
     unique: true,
 })
-@Entity("eligibility_data", {schema: "mledb"})
+@Entity("eligibility_data")
 export class MLE_EligibilityData {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

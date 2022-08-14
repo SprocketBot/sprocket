@@ -7,7 +7,7 @@ import {MLE_PlayerStats} from "./PlayerStats.model";
 import {MLE_SeriesReplay} from "./SeriesReplay.model";
 
 @Index("player_stats_core_pkey", ["id"], {unique: true})
-@Entity("player_stats_core", {schema: "mledb"})
+@Entity("player_stats_core")
 export class MLE_PlayerStatsCore {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

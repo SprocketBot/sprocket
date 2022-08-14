@@ -7,7 +7,7 @@ import {MLE_Series} from "./Series.model";
 
 @Index("stream_event_pkey", ["id"], {unique: true})
 @Index("stream_event_series_id_unique", ["seriesId"], {unique: true})
-@Entity("stream_event", {schema: "mledb"})
+@Entity("stream_event")
 export class MLE_StreamEvent {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

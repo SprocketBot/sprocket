@@ -11,7 +11,7 @@ import {MLE_Series} from "./Series.model";
     {unique: true},
 )
 @Index("fixture_pkey", ["id"], {unique: true})
-@Entity("fixture", {schema: "mledb"})
+@Entity("fixture")
 export class MLE_Fixture {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

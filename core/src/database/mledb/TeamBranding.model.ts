@@ -6,7 +6,7 @@ import {MLE_Team} from "./Team.model";
 
 @Index("team_branding_pkey", ["id"], {unique: true})
 @Index("team_branding_team_name_unique", ["teamName"], {unique: true})
-@Entity("team_branding", {schema: "mledb"})
+@Entity("team_branding")
 export class MLE_TeamBranding {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

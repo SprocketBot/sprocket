@@ -5,7 +5,7 @@ import {
 import {MLE_Player} from "./Player.model";
 
 @Index("player_to_org_pkey", ["id"], {unique: true})
-@Entity("player_to_org", {schema: "mledb"})
+@Entity("player_to_org")
 export class MLE_PlayerToOrg {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

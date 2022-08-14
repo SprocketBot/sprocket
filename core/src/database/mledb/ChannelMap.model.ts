@@ -5,7 +5,7 @@ import {
 import {ChannelType} from "./enums/ChannelType.enum";
 
 @Index("channel_map_pkey", ["channelType"], {unique: true})
-@Entity("channel_map", {schema: "mledb"})
+@Entity("channel_map")
 export class MLE_ChannelMap {
     @PrimaryGeneratedColumn({type: "integer", name: "channel_type"})
     channelType: ChannelType;

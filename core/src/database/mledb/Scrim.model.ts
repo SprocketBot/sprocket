@@ -7,7 +7,7 @@ import {MLE_Player} from "./Player.model";
 import {MLE_Series} from "./Series.model";
 
 @Index("scrim_pkey", ["id"], {unique: true})
-@Entity("scrim", {schema: "mledb"})
+@Entity("scrim")
 export class MLE_Scrim {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

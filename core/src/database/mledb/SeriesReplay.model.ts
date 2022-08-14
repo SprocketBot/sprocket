@@ -13,7 +13,7 @@ import {MLE_TeamCoreStats} from "./TeamCoreStats.model";
     unique: true,
 })
 @Index("series_replay_pkey", ["id"], {unique: true})
-@Entity("series_replay", {schema: "mledb"})
+@Entity("series_replay")
 export class MLE_SeriesReplay {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

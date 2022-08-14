@@ -6,7 +6,7 @@ import {Conference} from "./enums/Conference.enum";
 import {MLE_Team} from "./Team.model";
 
 @Index("division_pkey", ["name"], {unique: true})
-@Entity("division", {schema: "mledb"})
+@Entity("division")
 export class MLE_Division {
     @Column("character varying", {
         primary: true, name: "name", length: 255,

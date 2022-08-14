@@ -98,6 +98,9 @@ export const config = {
         get name(): string {
             return _config.get<string>("mledb.name");
         },
+        get schema(): string {
+            return _config.get<string>("mledb.schema");
+        },
     },
     gql: {
         get url(): string { return _config.get<string>("gql.url") },

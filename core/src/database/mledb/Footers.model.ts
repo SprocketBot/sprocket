@@ -3,7 +3,7 @@ import {
 } from "typeorm";
 
 @Index("footers_pkey", ["id"], {unique: true})
-@Entity("footers", {schema: "mledb"})
+@Entity("footers")
 export class MLE_Footers {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

@@ -11,7 +11,7 @@ import {MLE_Season} from "./Season.model";
 //     {unique: true}
 // )
 @Unique(["league", "pick", "round", "seasonSeasonNumber"])
-@Entity("draft_order", {schema: "mledb"})
+@Entity("draft_order")
 export class MLE_DraftOrder {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

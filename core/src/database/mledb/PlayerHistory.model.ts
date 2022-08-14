@@ -8,7 +8,7 @@ import {Timezone} from "./enums/Timezone.enum";
 
 @Index("player_history_pkey", ["historyId"], {unique: true})
 @Index("player_history_mleid_index", ["mleid"], {})
-@Entity("player_history", {schema: "mledb"})
+@Entity("player_history")
 export class MLE_PlayerHistory {
     @PrimaryGeneratedColumn({type: "integer", name: "history_id"})
     historyId: number;

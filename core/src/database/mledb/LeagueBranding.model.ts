@@ -6,7 +6,7 @@ import {League} from "./enums/League.enum";
 
 @Index("league_branding_pkey", ["id"], {unique: true})
 @Index("league_branding_league_unique", ["league"], {unique: true})
-@Entity("league_branding", {schema: "mledb"})
+@Entity("league_branding")
 export class MLE_LeagueBranding {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

@@ -4,7 +4,7 @@ import {
 
 @Index("config_pkey", ["id"], {unique: true})
 @Index("config_key_unique", ["key"], {unique: true})
-@Entity("config", {schema: "mledb"})
+@Entity("config")
 export class MLE_Config {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

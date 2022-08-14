@@ -6,7 +6,7 @@ import {MLE_DraftOrder} from "./DraftOrder.model";
 import {MLE_Match} from "./Match.model";
 
 @Index("season_pkey", ["seasonNumber"], {unique: true})
-@Entity("season", {schema: "mledb"})
+@Entity("season")
 export class MLE_Season {
     @PrimaryGeneratedColumn({type: "integer", name: "season_number"})
     seasonNumber: number;

@@ -23,7 +23,7 @@ import {MLE_TeamBranding} from "./TeamBranding.model";
     ["standardAssistantGeneralManagerId"],
     {unique: true},
 )
-@Entity("team", {schema: "mledb"})
+@Entity("team")
 export class MLE_Team {
     @Column("character varying", {
         primary: true, name: "name", length: 255,

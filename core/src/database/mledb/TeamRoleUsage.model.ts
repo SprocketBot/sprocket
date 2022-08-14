@@ -6,7 +6,7 @@ import {Role} from "./enums/Role.enum";
 import {MLE_Series} from "./Series.model";
 
 @Index("team_role_usage_pkey", ["id"], {unique: true})
-@Entity("team_role_usage", {schema: "mledb"})
+@Entity("team_role_usage")
 export class MLE_TeamRoleUsage {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

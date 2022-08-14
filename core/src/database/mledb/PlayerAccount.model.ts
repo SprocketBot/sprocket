@@ -12,7 +12,7 @@ import {MLE_Player} from "./Player.model";
     {unique: true},
 )
 @Index("player_account_tracker_unique", ["tracker"], {unique: true})
-@Entity("player_account", {schema: "mledb"})
+@Entity("player_account")
 export class MLE_PlayerAccount {
     @PrimaryGeneratedColumn({type: "integer", name: "id"})
     id: number;

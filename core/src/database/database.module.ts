@@ -62,6 +62,7 @@ const modules = [
         database: config.mledb.database,
         logging: config.mledb.enable_logs,
         entities: mledbEntities,
+        schema: config.mledb.schema,
     }),
 ];
 
