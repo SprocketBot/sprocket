@@ -13,6 +13,7 @@ import {ImageGenModule} from "./image-gen/image-gen.module";
 import {MledbModule} from "./mledb/mledb.module";
 import {OrganizationModule} from "./organization/organization.module";
 import {SchedulingModule} from "./scheduling/scheduling.module";
+import { MledbBridgeModule } from './mledb_bridge/mledb_bridge.module';
 
 const modules = [
     AuthorizationModule,
