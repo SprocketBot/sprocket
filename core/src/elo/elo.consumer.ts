@@ -27,22 +27,6 @@ export class EloConsumer {
     async runSalaries(): Promise<void> {
         this.logger.debug("Running weekly salaries!");
 
-        // const games = await this.gameService.getGames();
-        // const organizations = await this.organizationService.getOrganizations();
-
-        // await Promise.all(organizations.map(async organization => Promise.all(games.map(async game => {
-        //     const autoRankoutsEnabled = await this.gameFeatureService.featureIsEnabled(FeatureCode.AUTO_RANKOUTS, game.id, organization.id);
-        //     const autoSalariesEnabled = await this.gameFeatureService.featureIsEnabled(FeatureCode.AUTO_SALARIES, game.id, organization.id);
-
-        //     if (autoRankoutsEnabled) {
-        //         // TODO: Scope to Org/Game
-        //         await this.eloService.processSalaries(true);
-        //     } else if (autoSalariesEnabled) {
-        //         // TODO: Scope to Org/Game
-        //         await this.eloService.processSalaries(false);
-        //     }
-        // }))));
-
         const rocketLeague = await this.gameService.getGameByTitle("Rocket League");
         const mleOrg = await this.organizationService.getOrganization({where: {name: "Minor League Esports"} });
 
