@@ -7,7 +7,7 @@ import {graphqlUploadExpress} from "graphql-upload";
 
 import {ConfigurationModule} from "./configuration";
 import {DatabaseModule} from "./database";
-import {EloConnectorModule} from "./elo-connector";
+import {EloModule} from "./elo";
 import {FranchiseModule} from "./franchise";
 import {GameModule} from "./game";
 import {IdentityModule} from "./identity";
@@ -70,7 +70,7 @@ import {UtilModule} from "./util/util.module";
         ImageGenerationModule,
         SprocketRatingModule,
         UtilModule,
-        EloConnectorModule,
+        EloModule,
     ],
 })
 export class AppModule implements NestModule {

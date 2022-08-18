@@ -4,9 +4,9 @@ import {Module} from "@nestjs/common";
 import {DatabaseModule} from "../database";
 import {GameModule} from "../game";
 import {OrganizationModule} from "../organization";
-import {EloConsumer} from "./elo-connector.consumer";
-import {EloConnectorController} from "./elo-connector.controller";
-import {EloConnectorService} from "./elo-connector.service";
+import {EloConsumer} from "./elo.consumer";
+import {EloService} from "./elo.service";
+import {EloConnectorModule} from "./elo-connector/elo-connector.module";
 
 @Module({
     imports: [
@@ -14,12 +14,14 @@ import {EloConnectorService} from "./elo-connector.service";
         DatabaseModule,
         GameModule,
         OrganizationModule,
+        EloConnectorModule,
     ],
     providers: [
-        EloConnectorService,
+        EloService,
         EloConsumer,
     ],
-    exports: [EloConnectorService],
-    controllers: [EloConnectorController],
+    exports: [
+        EloService,
+    ],
 })
-export class EloConnectorModule { }
+export class EloModule {}

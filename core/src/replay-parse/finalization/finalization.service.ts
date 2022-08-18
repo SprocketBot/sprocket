@@ -22,7 +22,7 @@ import {
 } from "../../database";
 import type {League, MLE_Platform} from "../../database/mledb";
 import {LegacyGameMode} from "../../database/mledb";
-import {EloConnectorService} from "../../elo-connector";
+import {EloService} from "../../elo";
 import {PlayerService} from "../../franchise";
 import {MledbPlayerService, MledbScrimService} from "../../mledb";
 import {MledbMatchService} from "../../mledb/mledb-match/mledb-match.service";
@@ -42,18 +42,17 @@ export class FinalizationService {
         private readonly ballchasingConverter: BallchasingConverterService,
         private readonly playerService: PlayerService,
         private readonly sprocketRatingService: SprocketRatingService,
-        private readonly eloConnectorService: EloConnectorService,
+        private readonly eloConnectorService: EloService,
         private readonly popService: PopulateService,
-    @InjectConnection() private readonly dbConn: Connection,
-    @InjectRepository(ScrimMeta) private readonly scrimMetaRepo: Repository<ScrimMeta>,
-    @InjectRepository(MatchParent) private readonly matchParentRepo: Repository<MatchParent>,
-    @InjectRepository(Match) private readonly matchRepo: Repository<Match>,
-    @InjectRepository(Round) private readonly roundRepo: Repository<Round>,
-    @InjectRepository(PlayerStatLine) private readonly playerStatRepo: Repository<PlayerStatLine>,
-    @InjectRepository(TeamStatLine) private readonly teamStatRepo: Repository<TeamStatLine>,
-    @InjectRepository(EligibilityData) private readonly eligibilityDataRepo: Repository<EligibilityData>,
-    ) {
-    }
+        @InjectConnection() private readonly dbConn: Connection,
+        @InjectRepository(ScrimMeta) private readonly scrimMetaRepo: Repository<ScrimMeta>,
+        @InjectRepository(MatchParent) private readonly matchParentRepo: Repository<MatchParent>,
+        @InjectRepository(Match) private readonly matchRepo: Repository<Match>,
+        @InjectRepository(Round) private readonly roundRepo: Repository<Round>,
+        @InjectRepository(PlayerStatLine) private readonly playerStatRepo: Repository<PlayerStatLine>,
+        @InjectRepository(TeamStatLine) private readonly teamStatRepo: Repository<TeamStatLine>,
+        @InjectRepository(EligibilityData) private readonly eligibilityDataRepo: Repository<EligibilityData>,
+    ) {}
 
     async saveScrimToDatabase(submission: ReplaySubmission, submissionId: string, scrim: Scrim): Promise<SaveScrimFinalizationReturn> {
         const runner = this.dbConn.createQueryRunner();
@@ -275,6 +274,7 @@ export class FinalizationService {
 
         match.rounds = rounds;
         rounds.forEach(r => {
+            r.gameMode = match.gameMode;
             r.match = match;
         });
 
@@ -286,6 +286,7 @@ export class FinalizationService {
          * The order of saving is important here
          * We first save the match parent, and then scrim meta, because scrim meta is the owner of the relationship.
         */
+        await runner.manager.save(match);
         await runner.manager.save(rounds);
         await runner.manager.save(teamStats);
         await runner.manager.save(playerStats);
