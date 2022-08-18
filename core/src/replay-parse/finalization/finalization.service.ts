@@ -25,6 +25,7 @@ import {
 } from "../../database";
 import type {League, MLE_Platform} from "../../database/mledb";
 import {LegacyGameMode} from "../../database/mledb";
+import {EloService} from "../../elo";
 import {PlayerService} from "../../franchise";
 import {IdentityService} from "../../identity";
 import {MledbPlayerService, MledbScrimService} from "../../mledb";
@@ -46,6 +47,7 @@ export class FinalizationService {
         private readonly playerService: PlayerService,
         private readonly identityService: IdentityService,
         private readonly sprocketRatingService: SprocketRatingService,
+        private readonly eloConnectorService: EloService,
         private readonly popService: PopulateService,
         @InjectConnection() private readonly dbConn: Connection,
         @InjectRepository(ScrimMeta) private readonly scrimMetaRepo: Repository<ScrimMeta>,
@@ -304,6 +306,7 @@ export class FinalizationService {
 
         match.rounds = rounds;
         rounds.forEach(r => {
+            r.gameMode = match.gameMode;
             r.match = match;
         });
 
@@ -315,6 +318,7 @@ export class FinalizationService {
          * The order of saving is important here
          * We first save the match parent, and then scrim meta, because scrim meta is the owner of the relationship.
         */
+        await runner.manager.save(match);
         await runner.manager.save(rounds);
         await runner.manager.save(teamStats);
         await runner.manager.save(playerStats);
