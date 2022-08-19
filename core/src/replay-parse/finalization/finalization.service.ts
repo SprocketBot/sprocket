@@ -26,7 +26,7 @@ import {
 import type {League, MLE_Platform} from "../../database/mledb";
 import {LegacyGameMode} from "../../database/mledb";
 import {EloService} from "../../elo";
-import {PlayerService} from "../../franchise";
+import {GameSkillGroupService, PlayerService} from "../../franchise";
 import {IdentityService} from "../../identity";
 import {MledbPlayerService, MledbScrimService} from "../../mledb";
 import {MledbMatchService} from "../../mledb/mledb-match/mledb-match.service";
@@ -45,6 +45,7 @@ export class FinalizationService {
         private readonly mledbMatchService: MledbMatchService,
         private readonly ballchasingConverter: BallchasingConverterService,
         private readonly playerService: PlayerService,
+        private readonly skillGroupService: GameSkillGroupService,
         private readonly identityService: IdentityService,
         private readonly sprocketRatingService: SprocketRatingService,
         private readonly eloConnectorService: EloService,
@@ -77,7 +78,7 @@ export class FinalizationService {
         try {
             const [mledbScrim] = await Promise.all([
                 this.mledbScrimService.saveScrim(submission, submissionId, runner, scrim),
-                this.saveMatch(submission, runner, scrim.players.map(p => p.id), scrim.organizationId, matchParent),
+                this.saveMatch(submission, runner, scrim.players.map(p => p.id), scrim.organizationId, matchParent, scrim.skillGroupId),
             ]);
 
             await runner.commitTransaction();
@@ -146,7 +147,7 @@ export class FinalizationService {
 
             const [mledbSeriesId] = await Promise.all([
                 this.mledbScrimService.saveMatch(submission, submissionId, runner, mleMatch),
-                this.saveMatch(submission, runner, users.map(u => u.id), match.skillGroup.organizationId, matchParent),
+                this.saveMatch(submission, runner, users.map(u => u.id), match.skillGroup.organizationId, matchParent, match.skillGroup.id),
             ]);
             this.logger.log(mledbSeriesId);
         } catch (e) {
@@ -168,7 +169,7 @@ export class FinalizationService {
         });
     }
 
-    private async saveMatch(submission: ReplaySubmission, runner: QueryRunner, userIds: number[], organizationId: number, matchParent: MatchParent): Promise<Match> {
+    private async saveMatch(submission: ReplaySubmission, runner: QueryRunner, userIds: number[], organizationId: number, matchParent: MatchParent, skillGroupId: number): Promise<Match> {
     // Create Scrim/MatchParent/Match for scrim
         const match = this.matchRepo.create();
 
@@ -309,6 +310,8 @@ export class FinalizationService {
             r.gameMode = match.gameMode;
             r.match = match;
         });
+
+        match.skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
 
         playerEligibilities.forEach(pe => {
             pe.matchParent = matchParent;
