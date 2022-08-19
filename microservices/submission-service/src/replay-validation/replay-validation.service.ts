@@ -17,6 +17,7 @@ import {
     ReplaySubmissionType,
     ResponseStatus,
 } from "@sprocketbot/common";
+import {isEqual} from "lodash";
 
 import type {UserWithPlatformId} from "./types/user-with-platform-id";
 import type {ValidationError, ValidationResult} from "./types/validation-result";
@@ -156,26 +157,31 @@ export class ReplayValidationService {
         const sortedScrimPlayerIds = sortIds(scrimPlayerIds);
         const sortedSubmissionUserIds = sortIds(submissionUserIds);
 
+        const expectedMatchups = Array.from(sortedScrimPlayerIds);
+
         // For each game, make sure the players were on correct teams
         for (let g = 0; g < gameCount; g++) {
-            const scrimGame = sortedScrimPlayerIds[g];
             const submissionGame = sortedSubmissionUserIds[g];
+            let matchupIndex: number;
+
+            if (expectedMatchups.some(expectedMatchup => isEqual(submissionGame, expectedMatchup))) {
+                matchupIndex = expectedMatchups.findIndex(expectedMatchup => isEqual(submissionGame, expectedMatchup));
+                expectedMatchups.splice(matchupIndex, 1);
+            } else {
+                return {
+                    valid: false,
+                    errors: [ {
+                        error: "Mismatched player",
+                        gameIndex: g,
+                    } ],
+                };
+            }
+
+            const scrimGame = sortedScrimPlayerIds[matchupIndex];
+            
             for (let t = 0; t < scrim.settings.teamCount; t++) {
                 const scrimTeam = scrimGame[t];
                 const submissionTeam = submissionGame[t];
-                for (let p = 0; p < scrim.settings.teamSize; p++) {
-                    const scrimPlayerId = scrimTeam[p];
-                    const submissionPlayerId = submissionTeam[p];
-                    if (scrimPlayerId !== submissionPlayerId) {
-                        return {
-                            valid: false,
-                            errors: [ {
-                                error: `Mismatched player`,
-                                gameIndex: g,
-                            } ],
-                        };
-                    }
-                }
                 if (scrimTeam.length !== submissionTeam.length) {
                     return {
                         valid: false,
