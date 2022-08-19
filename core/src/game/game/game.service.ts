@@ -18,10 +18,10 @@ export class GameService {
     }
 
     async getGameById(id: number): Promise<Game> {
-        return this.gameRepository.findOneOrFail(id);
+        return this.gameRepository.findOneOrFail({where: {id} });
     }
 
-    async getGames(query: FindManyOptions<Game>): Promise<Game[]> {
+    async getGames(query?: FindManyOptions<Game>): Promise<Game[]> {
         return this.gameRepository.find(query);
     }
 }

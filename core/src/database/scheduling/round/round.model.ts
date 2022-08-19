@@ -6,6 +6,7 @@ import {
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
+import {GameMode} from "../../game";
 import {Invalidation} from "../invalidation/invalidation.model";
 import {Match} from "../match/match.model";
 import {PlayerStatLine} from "../player_stat_line";
@@ -31,11 +32,11 @@ export class Round extends BaseModel {
     @Column()
     @Field()
     parserVersion: number;
-    
+
     @Column()
     @Field()
     outputPath: string;
-    
+
     @Column({default: false})
     @Field(() => Boolean, {defaultValue: false})
     isDummy: boolean;
@@ -55,4 +56,8 @@ export class Round extends BaseModel {
     @OneToMany(() => TeamStatLine, tsl => tsl.round)
     @Field(() => TeamStatLine)
     teamStats: TeamStatLine[];
+
+    @ManyToOne(() => GameMode)
+    @Field(() => GameMode)
+    gameMode: GameMode;
 }

@@ -2,7 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {EventsService, EventTopic} from "@sprocketbot/common";
 import type {
-    FindConditions, FindManyOptions, FindOneOptions,
+    FindManyOptions, FindOneOptions, FindOptionsWhere,
 } from "typeorm";
 import {
     IsNull, MoreThan, Repository,
@@ -31,7 +31,7 @@ export class MemberRestrictionService {
         const memberRestriction = this.memberRestrictionRepository.create({
             type: type,
             reason: reason,
-            expiration: expiration.toUTCString(),
+            expiration: expiration,
             member: member,
             memberId: member.id,
         });
@@ -43,7 +43,13 @@ export class MemberRestrictionService {
     }
 
     async getMemberRestrictionById(id: number, options?: FindOneOptions<MemberRestriction>): Promise<MemberRestriction> {
-        return this.memberRestrictionRepository.findOneOrFail(id, options);
+        return this.memberRestrictionRepository.findOneOrFail({
+            ...options,
+            where: {
+                id,
+                ...options?.where,
+            },
+        });
     }
 
     async getMemberRestrictions(query: FindManyOptions<MemberRestriction>): Promise<MemberRestriction[]> {
@@ -51,12 +57,12 @@ export class MemberRestrictionService {
     }
 
     async getActiveMemberRestrictions(type: MemberRestrictionType, date: Date = new Date(), memberId?: number): Promise<MemberRestriction[]> {
-        const whereA: FindConditions<MemberRestriction> = {
+        const whereA: FindOptionsWhere<MemberRestriction> = {
             type: type,
             expiration: MoreThan(date),
             manualExpiration: IsNull(),
         };
-        const whereB: FindConditions<MemberRestriction> = {
+        const whereB: FindOptionsWhere<MemberRestriction> = {
             type: type,
             manualExpiration: MoreThan(new Date()),
         };
@@ -72,10 +78,17 @@ export class MemberRestrictionService {
     }
 
     async manuallyExpireMemberRestriction(memberRestrictionId: number, manualExpiration: Date, manualExpirationReason: string, forgiven: boolean): Promise<MemberRestriction> {
-        let memberRestriction = await this.memberRestrictionRepository.findOneOrFail(memberRestrictionId, {relations: ["member", "member.profile"] });
+        let memberRestriction = await this.memberRestrictionRepository.findOneOrFail({
+            where: {id: memberRestrictionId},
+            relations: {
+                member: {
+                    profile: true,
+                },
+            },
+        });
 
         memberRestriction = this.memberRestrictionRepository.merge(memberRestriction, {
-            manualExpiration: manualExpiration.toUTCString(),
+            manualExpiration: manualExpiration,
             manualExpirationReason: manualExpirationReason,
             forgiven: forgiven,
         });

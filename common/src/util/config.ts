@@ -177,4 +177,7 @@ export const config = {
             return _config.get<string>("web.url");
         },
     },
+    get defaultOrganizationId(): number {
+        return _config.get<number>("defaultOrganizationId");
+    },
 };

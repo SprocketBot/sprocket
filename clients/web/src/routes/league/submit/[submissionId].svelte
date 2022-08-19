@@ -9,7 +9,7 @@
 
 <script lang="ts">
 	import {
-	    DashboardLayout, DashboardCard, SubmissionView, UploadReplaysModal, Spinner, RatificationView,
+	    DashboardLayout, DashboardCard, SubmissionView, UploadReplaysModal, Spinner,
 	} from "$lib/components";
 	import {SubmissionStore} from "$lib/api";
 
@@ -18,8 +18,8 @@
 	const submissionStore: SubmissionStore = new SubmissionStore(submissionId);
 
 	let uploadVisible = false;
-	$: console.log(uploadVisible);
 </script>
+
 
 
 <DashboardLayout>
@@ -30,8 +30,19 @@
 			</div>
 		{:else}
 		{#if $submissionStore.data?.submission}
-			{#if $submissionStore.data?.submission.items.every(i => i.progress.status === "Complete")}
-				<RatificationView submission={$submissionStore?.data?.submission} {submissionId}/>
+			{#if $submissionStore.data?.submission.status === "REJECTED"}
+				<div>
+					<h3 class="text-error-content text-2xl font-bold">Submission Rejected</h3>
+					<ul class="mb-8">
+						{#key $submissionStore.data?.submission}
+							{#each $submissionStore.data?.submission.rejections.filter(r => !r.stale) as rejection}
+								<li>{rejection.playerName} has rejected replays because "{rejection.reason}"</li>
+							{/each}
+						{/key}
+					</ul>
+					<button class="btn btn-primary btn-outline" on:click={() => { uploadVisible = true }}>Resubmit</button>
+					<UploadReplaysModal bind:visible={uploadVisible} {submissionId}/>
+				</div>
 			{:else}
 				<SubmissionView submission={$submissionStore.data.submission} {submissionId}/>
 			{/if}
@@ -40,5 +51,8 @@
 			<UploadReplaysModal bind:visible={uploadVisible} {submissionId}/>
 		{/if}
 		{/if}
+	</DashboardCard>
+	<DashboardCard class="col-span-8">
+		<pre>{JSON.stringify($submissionStore, null, 2)}</pre>
 	</DashboardCard>
 </DashboardLayout>

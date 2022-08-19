@@ -1,3 +1,4 @@
+import {BullModule} from "@nestjs/bull";
 import type {MiddlewareConsumer, NestModule} from "@nestjs/common";
 import {Module} from "@nestjs/common";
 import {GraphQLModule} from "@nestjs/graphql";
@@ -6,7 +7,7 @@ import {graphqlUploadExpress} from "graphql-upload";
 
 import {ConfigurationModule} from "./configuration";
 import {DatabaseModule} from "./database";
-import {EloConnectorModule} from "./elo-connector";
+import {EloModule} from "./elo";
 import {FranchiseModule} from "./franchise";
 import {GameModule} from "./game";
 import {IdentityModule} from "./identity";
@@ -41,6 +42,20 @@ import {UtilModule} from "./util/util.module";
             // https://stackoverflow.com/questions/63991157/how-do-i-upload-multiple-files-with-nestjs-graphql
             uploads: false,
         }),
+        BullModule.forRoot({
+            redis: {
+                host: config.redis.host,
+                port: config.redis.port,
+                password: config.redis.password,
+                tls: config.redis.secure
+                    ? {
+                            host: config.redis.host,
+                            servername: config.redis.host,
+                        }
+                    : undefined,
+                keyPrefix: `${config.redis.prefix}:bull`,
+            },
+        }),
         OrganizationModule,
         IdentityModule,
         DatabaseModule,
@@ -55,7 +70,7 @@ import {UtilModule} from "./util/util.module";
         ImageGenerationModule,
         SprocketRatingModule,
         UtilModule,
-        EloConnectorModule,
+        EloModule,
     ],
 })
 export class AppModule implements NestModule {

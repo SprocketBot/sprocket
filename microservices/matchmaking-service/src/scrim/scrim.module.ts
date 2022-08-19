@@ -31,6 +31,7 @@ import {ScrimMetricsService} from "./scrim-metrics/scrim-metrics.service";
                             servername: config.redis.host,
                         }
                     : undefined,
+                keyPrefix: `${config.redis.prefix}:bull`,
             },
         }),
         BullModule.registerQueue({name: "scrim"}),

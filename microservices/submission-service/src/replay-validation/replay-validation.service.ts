@@ -1,11 +1,19 @@
 import {Injectable, Logger} from "@nestjs/common";
 import type {
-    BallchasingResponse, CoreSuccessResponse, ReplaySubmission, ScrimReplaySubmission,
+    BallchasingResponse,
+    CoreSuccessResponse,
+    MatchReplaySubmission,
+    ReplaySubmission,
+    ScrimReplaySubmission,
 } from "@sprocketbot/common";
 import {
     config,
-    CoreEndpoint, CoreService, MatchmakingEndpoint,
-    MatchmakingService, MinioService, readToString,
+    CoreEndpoint,
+    CoreService,
+    MatchmakingEndpoint,
+    MatchmakingService,
+    MinioService,
+    readToString,
     ReplaySubmissionType,
     ResponseStatus,
 } from "@sprocketbot/common";
@@ -22,13 +30,14 @@ export class ReplayValidationService {
         private readonly coreService: CoreService,
         private readonly matchmakingService: MatchmakingService,
         private readonly minioService: MinioService,
-    ) {}
+    ) {
+    }
 
     async validate(submission: ReplaySubmission): Promise<ValidationResult> {
         if (submission.type === ReplaySubmissionType.SCRIM) {
             return this.validateScrimSubmission(submission);
         }
-        return this.validateMatchSubmission();
+        return this.validateMatchSubmission(submission);
     }
 
     private async validateScrimSubmission(submission: ScrimReplaySubmission): Promise<ValidationResult> {
@@ -113,7 +122,10 @@ export class ReplayValidationService {
         }
         const players = playersResponse.data;
 
-        const userIdsResponses = await Promise.all(players.map(async p => this.coreService.send(CoreEndpoint.GetUserByAuthAccount, {accountType: "DISCORD", accountId: p.discordId})));
+        const userIdsResponses = await Promise.all(players.map(async p => this.coreService.send(CoreEndpoint.GetUserByAuthAccount, {
+            accountType: "DISCORD",
+            accountId: p.discordId,
+        })));
         if (userIdsResponses.some(r => r.status === ResponseStatus.ERROR)) {
             this.logger.error(`Unable to validate submission, couldn't map from MLE player to Sprocket user by discordId`, JSON.stringify(userIdsResponses));
             return {
@@ -214,12 +226,101 @@ export class ReplayValidationService {
         return JSON.parse(stats).data as BallchasingResponse;
     }
 
-    private async validateMatchSubmission(): Promise<ValidationResult> {
+    private async validateMatchSubmission(submission: MatchReplaySubmission): Promise<ValidationResult> {
+        const matchResult = await this.coreService.send(CoreEndpoint.GetMatchById, {matchId: submission.matchId});
+        if (matchResult.status === ResponseStatus.ERROR) throw matchResult.error;
+        const match = matchResult.data;
+
+        const homeName = match.homeFranchise!.name;
+        const awayName = match.awayFranchise!.name;
+
+        const errors: ValidationError[] = [];
+
+        for (const item of submission.items) {
+            if (!item.progress?.result) {
+                return {
+                    valid: false,
+                    errors: [ {error: "Incomplete Replay Found, please wait for submission to complete "} ],
+                };
+            }
+
+            const blueBcPlayers = item.progress.result.data.blue.players;
+            const orangeBcPlayers = item.progress.result.data.orange.players;
+            try {
+                const [bluePlayers, orangePlayers] = await Promise.all([
+                    this.coreService.send(CoreEndpoint.GetPlayersByPlatformIds, orangeBcPlayers.map(m => ({
+                        platform: m.id.platform,
+                        platformId: m.id.id,
+                    }))).then(r => {
+                        if (r.status === ResponseStatus.ERROR) throw r.error;
+                        return r.data;
+                    }),
+                    this.coreService.send(CoreEndpoint.GetPlayersByPlatformIds, blueBcPlayers.map(m => ({
+                        platform: m.id.platform,
+                        platformId: m.id.id,
+                    }))).then(r => {
+                        if (r.status === ResponseStatus.ERROR) throw r.error;
+                        return r.data;
+                    }),
+                ]);
+
+                const blueTeam = bluePlayers[0].franchise.name;
+                const orangeTeam = orangePlayers[0].franchise.name;
+
+                if (blueTeam === orangeTeam) {
+                    errors.push({
+                        error: `Players from a single franchise found on both teams in replay ${item.originalFilename}`,
+                    });
+                }
+
+                if (!bluePlayers.every(bp => bp.franchise.name === blueTeam)) {
+                    errors.push({
+                        error: `Multiple franchises found for blue team in replay ${item.originalFilename}`,
+
+                    });
+                }
+                if (!orangePlayers.every(op => op.franchise.name === orangeTeam)) {
+                    errors.push({
+                        error: `Multiple franchises found for orange team in replay ${item.originalFilename}`,
+                    });
+                }
+
+                if (![blueTeam, orangeTeam].includes(awayName)) {
+                    errors.push({
+                        error: `Away team ${awayName} not found in replay ${item.originalFilename}. (Found ${blueTeam} and ${orangeTeam})`,
+                    });
+                }
+                if (![blueTeam, orangeTeam].includes(homeName)) {
+                    errors.push({
+                        error: `Home team ${homeName} not found in replay ${item.originalFilename}. (Found ${blueTeam} and ${orangeTeam})`,
+                    });
+                }
+
+                if (![...bluePlayers, ...orangePlayers].every(p => p.skillGroupId === match.skillGroupId)) {
+                    errors.push({
+                        error: `Player(s) from incorrect skill group found in replay ${item.originalFilename}`,
+                    });
+                    this.logger.verbose(JSON.stringify({
+                        expected: match.skillGroupId,
+                        found: [...bluePlayers.map(bp => [bp.id, bp.skillGroupId]), ...orangePlayers.map(p => [p.id, p.skillGroupId])],
+                    }));
+                }
+
+            } catch (e) {
+                this.logger.error("Error looking up match participants", e);
+                errors.push({
+                    error: `Error looking up match participants in replay ${item.originalFilename}`,
+                });
+            }
+        }
+        if (errors.length) {
+            return {
+                valid: false, errors: errors,
+            };
+        }
+
         return {
-            valid: false,
-            errors: [ {
-                error: "Submitting replays for matches is not yet supported",
-            } ],
+            valid: true,
         };
     }
 }

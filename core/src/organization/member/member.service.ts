@@ -63,7 +63,13 @@ export class MemberService {
     }
 
     async getMemberById(id: number, options?: FindOneOptions<Member>): Promise<Member> {
-        return this.memberRepository.findOneOrFail(id, options);
+        return this.memberRepository.findOneOrFail({
+            ...options,
+            where: {
+                id: id,
+                ...options?.where,
+            },
+        });
     }
 
     async getMembers(query: FindManyOptions<MemberProfile>): Promise<Member[]> {
@@ -72,18 +78,19 @@ export class MemberService {
     }
 
     async updateMemberProfile(memberId: number, data: Omit<Partial<MemberProfile>, "member">): Promise<MemberProfile> {
-        let {profile} = await this.memberRepository.findOneOrFail(
-            memberId,
-            {relations: ["memberProfile"] },
-        );
+        let {profile} = await this.memberRepository.findOneOrFail({
+            where: {id: memberId},
+            relations: {profile: true},
+        });
         profile = this.memberProfileRepository.merge(profile, data);
         await this.memberProfileRepository.save(profile);
         return profile;
     }
 
     async deleteMember(id: number): Promise<Member> {
-        const toDelete = await this.memberRepository.findOneOrFail(id, {
-            relations: ["memberProfile"],
+        const toDelete = await this.memberRepository.findOneOrFail({
+            where: {id},
+            relations: {profile: true},
         });
         await this.memberRepository.delete({id});
         await this.memberProfileRepository.delete({id: toDelete.profile.id});

@@ -1,7 +1,7 @@
-import type {MatchSummary, SeriesStatsPayload} from "./elo.types";
+import type {MatchSummary} from "./elo-connector";
 import {
     GameMode, TeamColor,
-} from "./elo.types";
+} from "./elo-connector";
 
 /* eslint-disable */
 const match1: MatchSummary = {
@@ -109,7 +109,7 @@ const match3: MatchSummary = {
     ],
 };
 
-export const TestPayload1: SeriesStatsPayload = {
+export const TestPayload1 = {
     id: 1,
     numGames: 3,
     isScrim: true,

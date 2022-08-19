@@ -10,4 +10,5 @@ export const GetMatchBySubmissionId_Response = z.object({
     id: z.number(),
     homeFranchise: FranchiseSchema.optional(),
     awayFranchise: FranchiseSchema.optional(),
+    skillGroupId: z.number().optional(),
 });

@@ -1,6 +1,6 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import type {FindConditions} from "typeorm";
+import type {FindOptionsWhere} from "typeorm";
 import {Repository} from "typeorm";
 
 import {ScheduleGroup} from "../../database";
@@ -12,7 +12,7 @@ export class ScheduleGroupService {
     }
 
     async getScheduleGroups(orgId: number, type: string, gameId?: number): Promise<ScheduleGroup[]> {
-        const conditions: FindConditions<ScheduleGroup> = {
+        const conditions: FindOptionsWhere<ScheduleGroup> = {
             type: {
                 code: type,
                 organization: {

@@ -68,8 +68,9 @@ export class ReplaySubmissionRatificationService {
         return false;
     }
 
-    async rejectSubmission(playerId: string, submissionId: string, reason: string): Promise<Boolean> {
-        await this.crudService.addRejection(submissionId, playerId, reason);
+    async rejectSubmission(playerId: string, submissionId: string, reasons: string[]): Promise<Boolean> {
+        await Promise.all(reasons.map(async r => this.crudService.addRejection(submissionId, playerId, r)));
+
         await this.crudService.removeItems(submissionId);
         await this.crudService.updateStatus(submissionId, ReplaySubmissionStatus.REJECTED);
         await this.eventService.publish(EventTopic.SubmissionRejectionAdded, {submissionId: submissionId, redisKey: getSubmissionKey(submissionId)});

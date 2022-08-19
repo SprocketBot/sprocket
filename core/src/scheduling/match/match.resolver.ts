@@ -4,7 +4,7 @@ import {
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 
-import type {GameSkillGroup} from "../../database";
+import type {GameMode, GameSkillGroup} from "../../database";
 import {
     Match,
 } from "../../database";
@@ -32,5 +32,11 @@ export class MatchResolver {
             },
             relations: ["rounds"],
         }).then(v => v.rounds.length > 0 || v.isDummy);
+    }
+
+    @ResolveField()
+    async gameMode(@Root() root: Match): Promise<GameMode | undefined> {
+        if (root.gameMode) return root.gameMode;
+        return this.populate.populateOne(Match, root, "gameMode");
     }
 }
