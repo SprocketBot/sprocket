@@ -99,7 +99,7 @@ export class MledbScrimService {
             return playerEligibility;
         }));
 
-        await this.mleScrimRepository.save(scrim);
+        await runner.manager.save(scrim);
         await this.saveSeries(submission, submissionId, runner, series);
         await runner.manager.save(playerEligibilities);
 

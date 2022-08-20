@@ -1,12 +1,12 @@
 import {Injectable, Logger} from "@nestjs/common";
-import {InjectConnection, InjectRepository} from "@nestjs/typeorm";
+import {InjectRepository} from "@nestjs/typeorm";
 import type {
     BallchasingPlayer, ReplaySubmission, Scrim,
 } from "@sprocketbot/common";
 import {Parser} from "@sprocketbot/common";
 import {flatten} from "lodash";
 import type {QueryRunner} from "typeorm";
-import {Connection, Repository} from "typeorm";
+import {DataSource, Repository} from "typeorm";
 
 import type {User} from "../../database";
 import {
@@ -26,13 +26,13 @@ import {
 } from "../../database";
 import type {League, MLE_Platform} from "../../database/mledb";
 import {LegacyGameMode} from "../../database/mledb";
-import {EloService} from "../../elo";
 import {GameSkillGroupService, PlayerService} from "../../franchise";
 import {IdentityService} from "../../identity";
 import {MledbPlayerService, MledbScrimService} from "../../mledb";
 import {MledbMatchService} from "../../mledb/mledb-match/mledb-match.service";
 import {SprocketRatingService} from "../../sprocket-rating/sprocket-rating.service";
 import {PopulateService} from "../../util/populate/populate.service";
+import {ReplayParseService} from "../replay-parse.service";
 import {BallchasingConverterService} from "./ballchasing-converter";
 import type {SaveScrimFinalizationReturn} from "./finalization.types";
 
@@ -49,9 +49,9 @@ export class FinalizationService {
         private readonly skillGroupService: GameSkillGroupService,
         private readonly identityService: IdentityService,
         private readonly sprocketRatingService: SprocketRatingService,
-        private readonly eloConnectorService: EloService,
         private readonly popService: PopulateService,
-        @InjectConnection() private readonly dbConn: Connection,
+        private readonly dataSource: DataSource,
+        private readonly replayParseService: ReplayParseService,
         @InjectRepository(ScrimMeta) private readonly scrimMetaRepo: Repository<ScrimMeta>,
         @InjectRepository(MatchParent) private readonly matchParentRepo: Repository<MatchParent>,
         @InjectRepository(Match) private readonly matchRepo: Repository<Match>,
@@ -63,7 +63,7 @@ export class FinalizationService {
     ) {}
 
     async saveScrimToDatabase(submission: ReplaySubmission, submissionId: string, scrim: Scrim): Promise<SaveScrimFinalizationReturn> {
-        const runner = this.dbConn.createQueryRunner();
+        const runner = this.dataSource.createQueryRunner();
         await runner.connect();
         await runner.startTransaction();
 
@@ -88,17 +88,19 @@ export class FinalizationService {
             return {
                 scrim: scrimMeta,
                 legacyScrim: mledbScrim,
-
             };
         } catch (e) {
             await runner.rollbackTransaction();
+            await this.replayParseService.rejectSubmission(submissionId, "system", "Failed to save scrim, contact support");
             this.logger.error(e);
             throw e;
+        } finally {
+            await runner.release();
         }
     }
 
     async saveMatchToDatabase(submission: ReplaySubmission, submissionId: string, match: Match): Promise<void> {
-        const runner = this.dbConn.createQueryRunner();
+        const runner = this.dataSource.createQueryRunner();
         await runner.connect();
         await runner.startTransaction();
 
@@ -154,8 +156,11 @@ export class FinalizationService {
             this.logger.log(mledbSeriesId);
         } catch (e) {
             await runner.rollbackTransaction();
+            await this.replayParseService.rejectSubmission(submissionId, "system", "Failed to save scrim, contact support");
             this.logger.error(e);
             throw e;
+        } finally {
+            await runner.release();
         }
 
         this.logger.log("Successfully saved match!");

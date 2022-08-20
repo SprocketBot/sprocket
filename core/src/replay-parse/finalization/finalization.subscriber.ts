@@ -53,7 +53,6 @@ export class FinalizationSubscriber {
                     const scrim = await this.scrimService.getScrimBySubmissionId(payload.submissionId);
                     await this.onScrimComplete(submission, payload.submissionId, scrim!);
                 }
-
             });
         })
             .catch(this.logger.error.bind(this.logger));
