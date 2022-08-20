@@ -154,6 +154,11 @@ export class ReplaySubmissionCrudService {
         await this.redisService.appendToJsonArray(getSubmissionKey(submissionId), "ratifiers", playerId);
     }
 
+    async clearRatifiers(submissionId: string): Promise<void> {
+        const key = getSubmissionKey(submissionId);
+        await this.redisService.setJsonField(key, "ratifiers", []);
+    }
+
     async expireRejections(submissionId: string): Promise<void> {
         const key = getSubmissionKey(submissionId);
         // We need to make sure this array exists, otherwise multipathing breaks
@@ -181,6 +186,7 @@ export class ReplaySubmissionCrudService {
             playerId, reason, rejectedItems, rejectedAt, stale,
         };
 
+        await this.clearRatifiers(submissionId);
         await this.redisService.appendToJsonArray(key, "rejections", rejection);
     }
 

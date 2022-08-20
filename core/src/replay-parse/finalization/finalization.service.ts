@@ -1,17 +1,18 @@
 import {Injectable, Logger} from "@nestjs/common";
-import {InjectConnection, InjectRepository} from "@nestjs/typeorm";
+import {InjectRepository} from "@nestjs/typeorm";
 import type {
     BallchasingPlayer, ReplaySubmission, Scrim,
 } from "@sprocketbot/common";
 import {Parser} from "@sprocketbot/common";
 import {flatten} from "lodash";
 import type {QueryRunner} from "typeorm";
-import {Connection, Repository} from "typeorm";
+import {DataSource, Repository} from "typeorm";
 
 import type {User} from "../../database";
 import {
     EligibilityData,
     Franchise,
+    GameMode,
     GameSkillGroup,
     Match,
     MatchParent,
@@ -25,13 +26,13 @@ import {
 } from "../../database";
 import type {League, MLE_Platform} from "../../database/mledb";
 import {LegacyGameMode} from "../../database/mledb";
-import {EloService} from "../../elo";
-import {PlayerService} from "../../franchise";
+import {GameSkillGroupService, PlayerService} from "../../franchise";
 import {IdentityService} from "../../identity";
 import {MledbPlayerService, MledbScrimService} from "../../mledb";
 import {MledbMatchService} from "../../mledb/mledb-match/mledb-match.service";
 import {SprocketRatingService} from "../../sprocket-rating/sprocket-rating.service";
 import {PopulateService} from "../../util/populate/populate.service";
+import {ReplayParseService} from "../replay-parse.service";
 import {BallchasingConverterService} from "./ballchasing-converter";
 import type {SaveScrimFinalizationReturn} from "./finalization.types";
 
@@ -45,11 +46,12 @@ export class FinalizationService {
         private readonly mledbMatchService: MledbMatchService,
         private readonly ballchasingConverter: BallchasingConverterService,
         private readonly playerService: PlayerService,
+        private readonly skillGroupService: GameSkillGroupService,
         private readonly identityService: IdentityService,
         private readonly sprocketRatingService: SprocketRatingService,
-        private readonly eloConnectorService: EloService,
         private readonly popService: PopulateService,
-        @InjectConnection() private readonly dbConn: Connection,
+        private readonly dataSource: DataSource,
+        private readonly replayParseService: ReplayParseService,
         @InjectRepository(ScrimMeta) private readonly scrimMetaRepo: Repository<ScrimMeta>,
         @InjectRepository(MatchParent) private readonly matchParentRepo: Repository<MatchParent>,
         @InjectRepository(Match) private readonly matchRepo: Repository<Match>,
@@ -57,10 +59,11 @@ export class FinalizationService {
         @InjectRepository(PlayerStatLine) private readonly playerStatRepo: Repository<PlayerStatLine>,
         @InjectRepository(TeamStatLine) private readonly teamStatRepo: Repository<TeamStatLine>,
         @InjectRepository(EligibilityData) private readonly eligibilityDataRepo: Repository<EligibilityData>,
+        @InjectRepository(GameMode) private readonly gameModeRepo: Repository<GameMode>,
     ) {}
 
     async saveScrimToDatabase(submission: ReplaySubmission, submissionId: string, scrim: Scrim): Promise<SaveScrimFinalizationReturn> {
-        const runner = this.dbConn.createQueryRunner();
+        const runner = this.dataSource.createQueryRunner();
         await runner.connect();
         await runner.startTransaction();
 
@@ -77,7 +80,7 @@ export class FinalizationService {
         try {
             const [mledbScrim] = await Promise.all([
                 this.mledbScrimService.saveScrim(submission, submissionId, runner, scrim),
-                this.saveMatch(submission, runner, scrim.players.map(p => p.id), scrim.organizationId, matchParent),
+                this.saveMatch(submission, runner, scrim.players.map(p => p.id), scrim.organizationId, matchParent, scrim.skillGroupId, scrim.gameMode.id),
             ]);
 
             await runner.commitTransaction();
@@ -85,17 +88,19 @@ export class FinalizationService {
             return {
                 scrim: scrimMeta,
                 legacyScrim: mledbScrim,
-
             };
         } catch (e) {
             await runner.rollbackTransaction();
+            await this.replayParseService.rejectSubmission(submissionId, "system", "Failed to save scrim, contact support");
             this.logger.error(e);
             throw e;
+        } finally {
+            await runner.release();
         }
     }
 
     async saveMatchToDatabase(submission: ReplaySubmission, submissionId: string, match: Match): Promise<void> {
-        const runner = this.dbConn.createQueryRunner();
+        const runner = this.dataSource.createQueryRunner();
         await runner.connect();
         await runner.startTransaction();
 
@@ -146,13 +151,16 @@ export class FinalizationService {
 
             const [mledbSeriesId] = await Promise.all([
                 this.mledbScrimService.saveMatch(submission, submissionId, runner, mleMatch),
-                this.saveMatch(submission, runner, users.map(u => u.id), match.skillGroup.organizationId, matchParent),
+                this.saveMatch(submission, runner, users.map(u => u.id), match.skillGroup.organizationId, matchParent, match.skillGroup.id, gameMode.id),
             ]);
             this.logger.log(mledbSeriesId);
         } catch (e) {
             await runner.rollbackTransaction();
+            await this.replayParseService.rejectSubmission(submissionId, "system", "Failed to save scrim, contact support");
             this.logger.error(e);
             throw e;
+        } finally {
+            await runner.release();
         }
 
         this.logger.log("Successfully saved match!");
@@ -168,7 +176,7 @@ export class FinalizationService {
         });
     }
 
-    private async saveMatch(submission: ReplaySubmission, runner: QueryRunner, userIds: number[], organizationId: number, matchParent: MatchParent): Promise<Match> {
+    private async saveMatch(submission: ReplaySubmission, runner: QueryRunner, userIds: number[], organizationId: number, matchParent: MatchParent, skillGroupId: number, gameModeId: number): Promise<Match> {
     // Create Scrim/MatchParent/Match for scrim
         const match = this.matchRepo.create();
 
@@ -303,6 +311,8 @@ export class FinalizationService {
         // Create relationships
         matchParent.match = match;
         match.matchParent = matchParent;
+        match.skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
+        match.gameMode = await this.gameModeRepo.findOneOrFail({where: {id: gameModeId} });
 
         match.rounds = rounds;
         rounds.forEach(r => {
