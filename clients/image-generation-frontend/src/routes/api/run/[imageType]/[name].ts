@@ -3,7 +3,7 @@ import {ReportTemplateDAO} from "$src/utils/server/database/ReportTemplate.dao";
 import type {EndpointOutput, Request} from "@sveltejs/kit";
 
 
-export async function get({url, params}: Request): Promise<EndpointOutput> {
+export async function GET({url, params}: Request): Promise<EndpointOutput> {
 
     try {
     // verify filter values are valid

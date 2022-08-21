@@ -2,7 +2,7 @@ import type {EndpointOutput, Request} from "@sveltejs/kit";
 import { getClient } from "$utils/server/minio";
 import config from "$src/config"
 
-export const get = async ({url}: Request): Promise<EndpointOutput> => {
+export const GET = async ({url}: Request): Promise<EndpointOutput> => {
     const mClient = getClient();
     if (!url.searchParams.has("reportCode")) {
         return {
