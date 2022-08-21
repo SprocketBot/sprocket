@@ -1,5 +1,5 @@
 import {
-    Controller, Get, Logger, Param,
+    Controller, Logger, // Get, Logger, Param,
 } from "@nestjs/common";
 import {MessagePattern, Payload} from "@nestjs/microservices";
 import {CoreEndpoint, CoreSchemas} from "@sprocketbot/common";
