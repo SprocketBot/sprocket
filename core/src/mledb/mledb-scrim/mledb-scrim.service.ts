@@ -135,7 +135,9 @@ export class MledbScrimService {
                         platformId: p.id.id,
                         platform: p.id.platform.toUpperCase() as MLE_Platform,
                     },
-                    relations: ["player"],
+                    relations: {
+                        player: true,
+                    },
                 });
                 const player = playerAccount.player;
 
@@ -193,6 +195,8 @@ export class MledbScrimService {
             };
 
             await Promise.all(data.blue.players.map(async x => convertPlayerToMLE(x, "BLUE")));
+            await Promise.all(data.orange.players.map(async x => convertPlayerToMLE(x, "ORANGE")));
+
             replay.teamCoreStats = [
                 buildTeamStats(data.blue, "BLUE"),
                 buildTeamStats(data.orange, "ORANGE"),
@@ -200,7 +204,15 @@ export class MledbScrimService {
 
             teamStats.push(...replay.teamCoreStats);
 
-            await Promise.all(data.orange.players.map(async x => convertPlayerToMLE(x, "ORANGE")));
+            if (series.fixture) {
+                const firstPlayer = playerStats[0];
+                const firstPlayerFranchise = firstPlayer.player.teamName;
+                const firstPlayerWon = firstPlayer.coreStats.color === replay.winningColor;
+                const homeTeamWon = firstPlayerWon && firstPlayerFranchise === series.fixture.homeName;
+                replay.winningTeamName = homeTeamWon ? series.fixture.homeName : series.fixture.awayName;
+            } else if (series.scrim) {
+                replay.winningTeamName = "FA";
+            } else throw new Error(`Series has neither a fixture or scrim associated with it seriesId=${series.id}`);
 
             return replay;
         }));
@@ -218,6 +230,7 @@ export class MledbScrimService {
 
     async getScrimIdByBallchasingId(ballchasingId: string): Promise<number> {
         const mleReplay = await this.mleSeriesReplayRepositroy.findOneOrFail({where: {ballchasingId}, relations: ["series", "series.scrim"] });
+        if (!mleReplay.series.scrim) throw new Error(`Replay is not for a scrim replayId=${mleReplay.id}`);
         return mleReplay.series.scrim.id;
     }
 

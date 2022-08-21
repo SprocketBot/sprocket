@@ -98,8 +98,12 @@ export class MatchService {
                 },
                 matchParent: {
                     fixture: {
-                        homeFranchise: true,
-                        awayFranchise: true,
+                        homeFranchise: {
+                            profile: true,
+                        },
+                        awayFranchise: {
+                            profile: true,
+                        },
                         scheduleGroup: {
                             type: {
                                 organization: true,

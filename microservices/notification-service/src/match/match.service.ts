@@ -29,6 +29,32 @@ export class MatchService {
             throw reportCardResult.error;
         }
 
+        if (matchReportCardWebhooksResult.data.skillGroupWebhook) await this.botService.send(BotEndpoint.SendWebhookMessage, {
+            webhookUrl: matchReportCardWebhooksResult.data.skillGroupWebhook,
+            payload: {
+                embeds: [ {
+                    title: "Match Results",
+                    image: {
+                        url: "attachment://card.png",
+                    },
+                    timestamp: Date.now(),
+                } ],
+                attachments: [ {name: "card.png", url: `minio:${config.minio.bucketNames.image_generation}/${reportCardResult.data}.png`} ],
+            },
+            brandingOptions: {
+                organizationId: matchReportCardWebhooksResult.data.organizationId,
+                options: {
+                    color: true,
+                    footer: {
+                        icon: true,
+                        text: true,
+                    },
+                    webhookAvatar: true,
+                    webhookUsername: true,
+                },
+            },
+        });
+
         await Promise.all(matchReportCardWebhooksResult.data.franchiseWebhooks.map(async franchiseWebhook => this.botService.send(BotEndpoint.SendWebhookMessage, {
             webhookUrl: franchiseWebhook,
             payload: {

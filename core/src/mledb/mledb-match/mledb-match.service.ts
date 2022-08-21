@@ -98,6 +98,8 @@ export class MledbMatchService {
             match.skillGroup.profile.code.toUpperCase() as League,
         );
 
+        if (!mledbMatch.fixture) throw new Error(`mledb match does not have a fixture matchId=${mledbMatch.id}`);
+
         const mledbFranchiseRelations: FindOptionsRelations<MLE_Team> = {
             franchiseManager: true,
             generalManager: true,
