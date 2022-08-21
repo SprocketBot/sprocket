@@ -35,7 +35,7 @@ export const GET = async ({params}: Request): Promise<EndpointOutput> => {
     }
 };
 
-export const post = async ({params}: Request): Promise<Response> => {
+export const POST = async ({params}: Request): Promise<Response> => {
     const mClient = getClient();
     const {imageType, filename} = params;
     try {

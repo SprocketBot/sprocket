@@ -39,7 +39,7 @@ export async function GET({url, params}: Request): Promise<EndpointOutput> {
     }
 }
 
-export async function post({body, params}: Request): Promise<EndpointOutput> {
+export async function POST({body, params}: Request): Promise<EndpointOutput> {
     const data = JSON.parse(body.toString());
     const results = await ReportTemplateDAO.runReport(params.id, data.filterValues);
 
