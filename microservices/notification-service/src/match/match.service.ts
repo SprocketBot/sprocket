@@ -14,6 +14,12 @@ export class MatchService {
     ) {}
 
     async sendReportCard(databaseIds: MatchDatabaseIds): Promise<void> {
+        const matchResult = await this.coreService.send(CoreEndpoint.GetMatchById, {matchId: databaseIds.id});
+        if (matchResult.status === ResponseStatus.ERROR) throw matchResult.error;
+
+        const mleMatchResult = await this.coreService.send(CoreEndpoint.GetMleMatchInfoAndStakeholders, {sprocketMatchId: databaseIds.id});
+        if (mleMatchResult.status === ResponseStatus.ERROR) throw mleMatchResult.error;
+
         const matchReportCardWebhooksResult = await this.coreService.send(CoreEndpoint.GetMatchReportCardWebhooks, {matchId: databaseIds.id});
         if (matchReportCardWebhooksResult.status !== ResponseStatus.SUCCESS) {
             this.logger.warn("Failed to fetch report card webhook url");
@@ -37,6 +43,20 @@ export class MatchService {
                     image: {
                         url: "attachment://card.png",
                     },
+                    fields: [
+                        {
+                            name: "Game Mode",
+                            value: `${mleMatchResult.data.game} ${mleMatchResult.data.gameMode}`,
+                        },
+                        {
+                            name: "League",
+                            value: `${mleMatchResult.data.skillGroup}`,
+                        },
+                        {
+                            name: "Teams",
+                            value: `${matchResult.data.homeFranchise?.name} vs ${matchResult.data.awayFranchise?.name}`,
+                        },
+                    ],
                     timestamp: Date.now(),
                 } ],
                 attachments: [ {name: "card.png", url: `minio:${config.minio.bucketNames.image_generation}/${reportCardResult.data}.png`} ],
