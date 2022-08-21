@@ -10,7 +10,9 @@ colors AS (
 							(3, '#189666'),
 							(4, '#DE7327'),
 							(5, '#FDBD2A'),
-							(6, '#1D308F')
+							(6, '#1D308F'),
+				   			(7, '#FDBD2A'),
+							(8, '#1D308F')
 				) t1 (number, color)
 ),
 
@@ -289,7 +291,12 @@ player_stats AS (
 				re.losses,
 				gs.team_primary,
 				gs.team_secondary,
-				AVG(COALESCE(gs.gpi, gs.mvpr)) AS rating,
+				AVG(
+					CASE 
+						WHEN gpi=0 THEN mvpr
+						ELSE gpi
+					END
+				) AS rating,
 				SUM(gs.goals) AS goals,
 				SUM(gs.assists) AS assists,
 				SUM(gs.saves) AS saves,
