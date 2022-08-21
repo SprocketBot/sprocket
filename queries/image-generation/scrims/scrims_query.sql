@@ -205,6 +205,9 @@ player_stats_object AS(
 	UNION ALL
    	SELECT   *
    	FROM     blank_player_data_json
+	UNION ALL
+   	SELECT   *
+   	FROM     blank_player_data_json
 	LIMIT 6
 
 ),
@@ -256,6 +259,8 @@ games_data AS(
 
 		from game_stats gs
 		JOIN player_stats ps ON gs.player_name = ps.name
+		UNION ALL
+		SELECT * from empty_player_game_data
 		UNION ALL
 		SELECT * from empty_player_game_data
 	),
