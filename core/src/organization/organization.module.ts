@@ -51,6 +51,7 @@ import {PronounsService} from "./pronouns/pronouns.service";
         MemberPlatformAccountService,
         MemberRestrictionService,
         QueueBanGuard,
+        OrganizationService,
     ],
     controllers: [OrganizationController, MemberController],
 })
