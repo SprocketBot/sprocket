@@ -1,7 +1,7 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class AddReqRatificationsKey1659301588400 implements MigrationInterface {
-    name = 'AddReqRatificationsKey'
+export class Automigration1661096112045 implements MigrationInterface {
+    name = 'Automigration1661096112045'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`ALTER TYPE "sprocket"."organization_configuration_key_code_enum" RENAME TO "organization_configuration_key_code_enum_old"`);
