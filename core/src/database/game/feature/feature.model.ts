@@ -5,13 +5,14 @@ import {
 
 import {BaseModel} from "../../base-model";
 import {GameFeature} from "../game_feature";
+import {FeatureCode} from "./feature.enum";
 
 @Entity({schema: "sprocket"})
 @ObjectType()
 export class Feature extends BaseModel {
-    @Column()
-    @Field(() => String)
-    code: string;
+    @Column({type: "enum", enum: FeatureCode})
+    @Field(() => FeatureCode)
+    code: FeatureCode;
 
     @Column()
     @Field(() => String)

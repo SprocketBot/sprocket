@@ -2,7 +2,7 @@ import {Controller} from "@nestjs/common";
 import {MessagePattern, Payload} from "@nestjs/microservices";
 import {SubmissionEndpoint, SubmissionSchemas} from "@sprocketbot/common";
 
-import {ReplaySubmissionCrudService} from "../replay-submission/replay-submission-crud.service";
+import {ReplaySubmissionCrudService} from "../replay-submission/replay-submission-crud/replay-submission-crud.service";
 import {ReplayValidationService} from "./replay-validation.service";
 import type {ValidationResult} from "./types/validation-result";
 

@@ -1,6 +1,6 @@
 export interface SessionUser {
     userId: number;
     username: string;
-    org: string;
-    orgTeams: string[];
+    currentOrganizationId: number;
+    orgTeams: number[];
 }

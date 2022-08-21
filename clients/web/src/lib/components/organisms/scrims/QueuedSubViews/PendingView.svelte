@@ -41,7 +41,7 @@
                 <dt>Scrim Type:</dt>
                 <dd>{screamingSnakeToHuman(scrim.settings.mode)}</dd>
                 <dt>Competitive:</dt>
-                <dd>{scrim.settings.competitive ? 'Yes' : 'No'}</dd>
+                <dd>{scrim.settings.competitive ? "Yes" : "No"}</dd>
             </dl>
         </div>
         {#if scrim.currentGroup}

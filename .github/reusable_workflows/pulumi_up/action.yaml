@@ -7,7 +7,7 @@ inputs:
     required: true
 
   pulumi_stack_name:
-    description: "Which Pulumi Stack to deploy"
+    description: "Which Pulumi Stack to deploy; it is assumed that this will match the branch name"
     required: true
 
   pulumi_config_passphrase:
@@ -20,8 +20,8 @@ inputs:
 
   pulumi_aws_secret_key:
     description: "AWS Secret Key for Pulumi Backend"
-    required: true  
-  
+    required: true
+
   ssh_user:
     description: "SSH User for Remote Docker Socket"
     required: true
@@ -29,7 +29,7 @@ inputs:
   ssh_key:
     description: "Private SSH Key for Remote Docker Socket"
     required: true
-  
+
   manager_node_hostname:
     description: "Tailwind machine name of manager node, used to auto-detect ip address"
     required: true
@@ -51,14 +51,14 @@ runs:
       with:
         path: infrastructure
         repository: SprocketBot/sprocket-infra
-        ref: main
+        ref: ${{ inputs.pulumi_stack_name }}
         ssh-key: ${{ inputs.infra_deploy_key }}
 
     - name: Tailscale
       uses: tailscale/github-action@main
       with:
         authkey: ${{ inputs.tailscale_ephemeral_authkey }}
-    
+
     - name: Extract Manager Node ip
       id: manager_node_ip
       run: echo "::set-output name=ip::$(sudo tailscale status | grep ${{ inputs.manager_node_hostname }} | awk '{print $1}')"
@@ -78,7 +78,7 @@ runs:
 
     - name: Pulumi Up
       uses: pulumi/actions@v3
-      env: 
+      env:
           PULUMI_CONFIG_PASSPHRASE: ${{ inputs.pulumi_config_passphrase }}
           AWS_ACCESS_KEY_ID: ${{ inputs.pulumi_aws_access_key }}
           AWS_SECRET_ACCESS_KEY: ${{ inputs.pulumi_aws_secret_key }}

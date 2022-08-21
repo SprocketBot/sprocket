@@ -1,10 +1,12 @@
 import {Field, ObjectType} from "@nestjs/graphql";
+import {Parser} from "@sprocketbot/common";
 import GraphQLJSON from "graphql-type-json";
 import {
     Column, Entity, ManyToOne, OneToMany,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
+import {GameMode} from "../../game";
 import {Invalidation} from "../invalidation/invalidation.model";
 import {Match} from "../match/match.model";
 import {PlayerStatLine} from "../player_stat_line";
@@ -22,6 +24,18 @@ export class Round extends BaseModel {
     })
     @Field(() => GraphQLJSON)
     roundStats: unknown;
+
+    @Column({type: "enum", enum: Parser})
+    @Field(() => Parser)
+    parser: Parser;
+
+    @Column()
+    @Field()
+    parserVersion: number;
+
+    @Column()
+    @Field()
+    outputPath: string;
 
     @Column({default: false})
     @Field(() => Boolean, {defaultValue: false})
@@ -42,4 +56,8 @@ export class Round extends BaseModel {
     @OneToMany(() => TeamStatLine, tsl => tsl.round)
     @Field(() => TeamStatLine)
     teamStats: TeamStatLine[];
+
+    @ManyToOne(() => GameMode)
+    @Field(() => GameMode)
+    gameMode: GameMode;
 }

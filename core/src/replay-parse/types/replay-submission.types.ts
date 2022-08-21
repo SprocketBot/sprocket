@@ -2,6 +2,7 @@ import {
     Field, Int, ObjectType, registerEnumType,
 } from "@nestjs/graphql";
 import type {Scrim} from "@sprocketbot/common";
+import {ReplaySubmissionStatus} from "@sprocketbot/common";
 
 import type {Match} from "../../database";
 import {ReplaySubmissionItem} from "./submission-item.types";
@@ -13,6 +14,7 @@ export enum ReplaySubmissionType {
     SCRIM = "SCRIM",
 }
 registerEnumType(ReplaySubmissionType, {name: "ReplaySubmissionType"});
+registerEnumType(ReplaySubmissionStatus, {name: "ReplaySubmissionStatus"});
 
 @ObjectType("ReplaySubmission")
 export class GqlReplaySubmission {
@@ -21,6 +23,9 @@ export class GqlReplaySubmission {
 
     @Field(() => [String])
     taskIds: string[];
+
+    @Field(() => ReplaySubmissionStatus)
+    status: ReplaySubmissionStatus;
 
     @Field(() => [ReplaySubmissionItem])
     items: ReplaySubmissionItem[];

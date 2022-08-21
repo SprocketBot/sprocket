@@ -1,10 +1,16 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {
-    EventsService, EventTopic, MatchmakingEndpoint, MatchmakingService, ResponseStatus, ScrimStatus,
+    EventsService,
+    EventTopic,
+    MatchmakingEndpoint,
+    MatchmakingService,
+    ReplaySubmissionStatus,
+    ResponseStatus,
+    ScrimStatus,
 } from "@sprocketbot/common";
 
 import {getSubmissionKey, submissionIsScrim} from "../../utils";
-import {ReplaySubmissionCrudService} from "../replay-submission-crud.service";
+import {ReplaySubmissionCrudService} from "../replay-submission-crud/replay-submission-crud.service";
 
 @Injectable()
 export class ReplaySubmissionRatificationService {
@@ -37,10 +43,16 @@ export class ReplaySubmissionRatificationService {
     }
 
     async ratifyScrim(playerId: string, submissionId: string): Promise<Boolean> {
-        await this.crudService.addRatifier(submissionId, playerId);
         const submission = await this.crudService.getSubmission(submissionId);
         if (!submission) throw new Error("Submission not found");
+        if (submission.status !== ReplaySubmissionStatus.RATIFYING) throw new Error("Submission is not ready for ratifications");
+
+        await this.crudService.addRatifier(submissionId, playerId);
+        submission.ratifiers.push(parseInt(playerId));
+
         if (submission.ratifiers.length >= submission.requiredRatifications) {
+            await this.crudService.updateStatus(submissionId, ReplaySubmissionStatus.RATIFIED);
+
             await this.eventService.publish(EventTopic.SubmissionRatified, {
                 submissionId: submissionId,
                 redisKey: getSubmissionKey(submissionId),
@@ -56,9 +68,11 @@ export class ReplaySubmissionRatificationService {
         return false;
     }
 
-    async rejectSubmission(playerId: string, submissionId: string, reason: string): Promise<Boolean> {
-        await this.crudService.addRejection(submissionId, playerId, reason);
+    async rejectSubmission(playerId: string, submissionId: string, reasons: string[]): Promise<Boolean> {
+        await Promise.all(reasons.map(async r => this.crudService.addRejection(submissionId, playerId, r)));
+
         await this.crudService.removeItems(submissionId);
+        await this.crudService.updateStatus(submissionId, ReplaySubmissionStatus.REJECTED);
         await this.eventService.publish(EventTopic.SubmissionRejectionAdded, {submissionId: submissionId, redisKey: getSubmissionKey(submissionId)});
 
         // TODO: support for different thresholds

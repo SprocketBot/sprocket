@@ -77,7 +77,7 @@ module.exports = {
     "no-unsafe-negation": "error",                                             /* (r ) disallow negating the left operand of relational operators */
     "no-unsafe-optional-chaining": "error",                                    /* (  ) disallow use of optional chaining in contexts where the `undefined` value is not allowed */
     "no-useless-backreference": "off",                                         /* (  ) disallow useless backreferences in regular expressions */
-    "require-atomic-updates": "error",                                         /* (  ) disallow assignments that can lead to race conditions due to usage of `await` or `yield` */
+    "require-atomic-updates": ["error", {"allowProperties": true}],            /* (  ) disallow assignments that can lead to race conditions due to usage of `await` or `yield` */
     "use-isnan": "error",                                                      /* (r ) require calls to `isNaN()` when checking for `NaN` */
     "valid-typeof": "error",                                                   /* (r ) enforce comparing `typeof` expressions against valid strings */
 

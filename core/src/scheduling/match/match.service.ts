@@ -32,7 +32,7 @@ export class MatchService {
 
     async createMatch(isDummy?: boolean, invalidationId?: number): Promise<Match> {
         let invalidation: Invalidation | undefined;
-        if (invalidationId) invalidation = await this.invalidationRepo.findOneOrFail(invalidationId);
+        if (invalidationId) invalidation = await this.invalidationRepo.findOneOrFail({where: {id: invalidationId} });
 
         const match = this.matchRepo.create({
             isDummy: isDummy,
@@ -49,6 +49,10 @@ export class MatchService {
                 submissionId: submissionId,
             },
         });
+    }
+
+    async getMatchById(matchId: number): Promise<Match> {
+        return this.matchRepo.findOneOrFail({where: {id: matchId}  });
     }
 
     async getMatchParentEntity(matchId: number): Promise<MatchParentResponse> {

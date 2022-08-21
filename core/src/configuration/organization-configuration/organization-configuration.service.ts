@@ -1,6 +1,6 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import type {FindConditions, FindOneOptions} from "typeorm";
+import type {FindOneOptions, FindOptionsWhere} from "typeorm";
 import {Like, Repository} from "typeorm";
 
 import {
@@ -23,17 +23,24 @@ export class OrganizationConfigurationService {
     ) {}
 
     async getOrganizationConfigurations(organizationId: number, code?: OrganizationConfigurationKeyCode): Promise<OrganizationConfiguration[]> {
-        const where: FindConditions<OrganizationConfigurationValue> = {
+        const where: FindOptionsWhere<OrganizationConfigurationValue> = {
             organization: {
                 id: organizationId,
             },
         };
 
         if (code) where.key = {code};
-        
+
         const values = await this.valueRepository.find({
             where: where,
-            relations: ["organization", "organization.profile", "key", "key.allowedValues"],
+            relations: {
+                organization: {
+                    profile: true,
+                },
+                key: {
+                    allowedValues: true,
+                },
+            },
         });
 
         return values.map(v => ({
@@ -48,11 +55,13 @@ export class OrganizationConfigurationService {
         return this.keyRepository.find();
     }
 
-    async getOrganizationConfigurationAllowedValues(code: string): Promise<OrganizationConfigurationAllowedValue[]> {
+    async getOrganizationConfigurationAllowedValues(code: OrganizationConfigurationKeyCode): Promise<OrganizationConfigurationAllowedValue[]> {
         return this.allowedValueRepository.find({
             relations: ["key"],
             where: {
-                key: {code},
+                key: {
+                    code,
+                },
             },
         });
     }
@@ -61,7 +70,9 @@ export class OrganizationConfigurationService {
         const organizationConfigurationValue = await this.valueRepository.findOne({
             relations: ["key"],
             where: {
-                organization: organizationId,
+                organization: {
+                    id: organizationId,
+                },
                 key: {code},
             },
         });
@@ -88,8 +99,9 @@ export class OrganizationConfigurationService {
         }));
     }
 
-    async createOrganizationConfigurationValue(organizationId: number, code: string, value: string): Promise<OrganizationConfigurationValue> {
-        const organization = await this.organizationRepository.findOneOrFail(organizationId);
+    async createOrganizationConfigurationValue(organizationId: number, code: OrganizationConfigurationKeyCode, value: string): Promise<OrganizationConfigurationValue> {
+        // TODO: Use Organization Service
+        const organization = await this.organizationRepository.findOneOrFail({where: {id: organizationId} });
         const key = await this.keyRepository.findOneOrFail({where: {code} });
         const allowedValues = await this.allowedValueRepository.find({
             relations: ["key"],
@@ -108,7 +120,7 @@ export class OrganizationConfigurationService {
         return ocValue;
     }
 
-    async updateOrganizationConfigurationValue(organizationId: number, code: string, newValue: string): Promise<OrganizationConfigurationValue> {
+    async updateOrganizationConfigurationValue(organizationId: number, code: OrganizationConfigurationKeyCode, newValue: string): Promise<OrganizationConfigurationValue> {
         const allowedValues = await this.allowedValueRepository.find({
             relations: ["key"],
             where: {key: {code} },
@@ -121,7 +133,9 @@ export class OrganizationConfigurationService {
         const ocValue = await this.valueRepository.findOneOrFail({
             relations: ["key"],
             where: {
-                organization: organizationId,
+                organization: {
+                    id: organizationId,
+                },
                 key: {code},
             },
         });
@@ -140,7 +154,7 @@ export class OrganizationConfigurationService {
      */
     validateValue(value: string, allowedValues: OrganizationConfigurationAllowedValue[]): boolean {
         if (!allowedValues.length) return true;
-        
+
         for (const allowedValue of allowedValues) {
             if (allowedValue.pattern) {
                 const regex = new RegExp(allowedValue.value);

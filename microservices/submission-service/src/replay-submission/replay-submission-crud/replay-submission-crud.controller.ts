@@ -3,7 +3,7 @@ import {MessagePattern, Payload} from "@nestjs/microservices";
 import type {SubmissionOutput} from "@sprocketbot/common";
 import {SubmissionEndpoint, SubmissionSchemas} from "@sprocketbot/common";
 
-import {ReplaySubmissionCrudService} from "../replay-submission-crud.service";
+import {ReplaySubmissionCrudService} from "./replay-submission-crud.service";
 
 @Controller()
 export class ReplaySubmissionCrudController {
@@ -20,6 +20,6 @@ export class ReplaySubmissionCrudController {
     async getSubmissionRejections(@Payload() payload: unknown): Promise<SubmissionOutput<SubmissionEndpoint.GetSubmissionRejections>> {
         const data = SubmissionSchemas.RemoveSubmission.input.parse(payload);
         const rejections = await this.crudService.getSubmissionRejections(data.submissionId);
-        return rejections.map(r => r.playerId);
+        return rejections.map(r => r.playerId.toString());
     }
 }

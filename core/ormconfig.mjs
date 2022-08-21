@@ -1,17 +1,23 @@
-const config = require("config");
-const fs = require("fs");
+import config from "config";
+import fs from "fs";
+import {DataSource} from "typeorm";
+// const config = require("config");
+// const fs = require("fs");
+// const { DataSource } = require('typeorm');
 
-module.exports = {
+export default new DataSource({
     type: "postgres",
     host: config.get("db.host"),
     port: config.get("db.port"),
     username: config.get("db.username"),
     password: fs.readFileSync("./secret/db-password.txt").toString().trim(),
     database: config.get("db.database"),
+    schema: "public",
     entities: ["src/database/!(mledb)/**/*.model.ts "],
     migrationsTableName: "migrations",
     migrations: ["migrations/*.ts"],
     cli: {
         migrationsDir: "migrations"
     }
-}
+
+})

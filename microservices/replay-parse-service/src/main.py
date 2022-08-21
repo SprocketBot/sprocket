@@ -148,6 +148,7 @@ class ParseReplay(BaseTask):
 
         result = {
             "parser": config["parser"],
+            "parserVersion": PARSER_VERSION,
             "outputPath": parsed_object_path,
             "data": parsed_data,
         }

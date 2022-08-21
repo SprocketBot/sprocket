@@ -4,9 +4,11 @@ import {
 import type {ScrimPlayer} from "@sprocketbot/common";
 import {
     config,
-    EventsService, EventTopic,
+    EventsService,
+    EventTopic,
     MinioService,
-    readToString, RedisService,
+    readToBuffer,
+    RedisService,
     ResponseStatus,
     SubmissionEndpoint,
     SubmissionService,
@@ -31,17 +33,15 @@ export class ReplayParseService {
         private readonly redisService: RedisService,
         private readonly eventsService: EventsService,
         @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
-    ) {
-    }
+    ) {}
 
     async getSubmission(submissionId: string): Promise<ReplaySubmission> {
         const result = await this.submissionService.send(SubmissionEndpoint.GetSubmissionRedisKey, {submissionId});
         if (result.status === ResponseStatus.ERROR) throw result.error;
 
-        // Right now, this is entirely based on faith. If we enounter issues; we can update the graphql types.
+        // Right now, this is entirely based on faith. If we encounter issues; we can update the graphql types.
         // Writing up a zod schema set for this would be suckage to the 10th degree.
         return this.redisService.getJson<ReplaySubmission>(result.data.redisKey);
-
     }
 
     /**
@@ -66,10 +66,12 @@ export class ReplayParseService {
         if (!canSubmitReponse.data.canSubmit) throw new GraphQLError(canSubmitReponse.data.reason);
 
         const filepaths = await Promise.all(streams.map(async s => {
-            const buffer = await readToString(s.stream);
+            const buffer = await readToBuffer(s.stream);
             const objectHash = SHA256(buffer.toString()).toString();
             const replayObjectPath = `replays/${objectHash}${REPLAY_EXT}`;
-            await this.minioService.put(config.minio.bucketNames.replays, replayObjectPath, buffer);
+            const bucket = config.minio.bucketNames.replays;
+            await this.minioService.put(bucket, replayObjectPath, buffer).catch(this.logger.error.bind(this));
+
             return {
                 minioPath: replayObjectPath,
                 originalFilename: s.filename,

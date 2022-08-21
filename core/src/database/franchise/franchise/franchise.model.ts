@@ -1,6 +1,6 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {
-    Entity, JoinColumn, ManyToOne, OneToMany, OneToOne,
+    Entity, ManyToOne, OneToMany, OneToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
@@ -13,9 +13,8 @@ import {FranchiseStaffAppointment} from "../franchise_staff_appointment";
 @Entity({schema: "sprocket"})
 @ObjectType()
 export class Franchise extends BaseModel {
-    @OneToOne(() => FranchiseProfile)
+    @OneToOne(() => FranchiseProfile, p => p.franchise)
     @Field(() => FranchiseProfile)
-    @JoinColumn()
     profile: FranchiseProfile;
 
     @OneToMany(() => FranchiseGroupAssignment, fga => fga.franchise)
@@ -33,6 +32,4 @@ export class Franchise extends BaseModel {
     @ManyToOne(() => Organization)
     @Field(() => Organization)
     organization: Organization;
-
-    profileId: number;
 }

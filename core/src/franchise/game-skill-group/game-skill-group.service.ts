@@ -1,6 +1,6 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import type {FindOneOptions} from "typeorm";
+import type {FindOneOptions, FindOptionsWhere} from "typeorm";
 import {Repository} from "typeorm";
 
 import type {GameSkillGroupProfile} from "../../database";
@@ -10,13 +10,19 @@ import {League} from "../../database/mledb";
 @Injectable()
 export class GameSkillGroupService {
     constructor(@InjectRepository(GameSkillGroup) private gameSkillGroupRepository: Repository<GameSkillGroup>) {}
-    
+
     async getGameSkillGroup(query: FindOneOptions<GameSkillGroup>): Promise<GameSkillGroup> {
         return this.gameSkillGroupRepository.findOneOrFail(query);
     }
-    
+
     async getGameSkillGroupById(id: number, options?: FindOneOptions<GameSkillGroup>): Promise<GameSkillGroup> {
-        return this.gameSkillGroupRepository.findOneOrFail(id, options);
+        return this.gameSkillGroupRepository.findOneOrFail({
+            ...options,
+            where: {
+                id,
+                ...options?.where,
+            } as FindOptionsWhere<GameSkillGroup>,
+        });
     }
 
     async getGameSkillGroupProfile(skillGroupId: number): Promise<GameSkillGroupProfile> {
@@ -43,10 +49,12 @@ export class GameSkillGroupService {
                 code = "PL";
                 break;
             default:
-                throw new Error(`Unknown league ${league}`);
+                code = league.toString().toUpperCase();
+                break;
         }
         return this.getGameSkillGroup({
-            where: {code},
+            where: {profile: {code} },
+            relations: ["profile"],
         });
     }
 }

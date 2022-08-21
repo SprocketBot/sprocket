@@ -13,7 +13,7 @@
   <button
     class="btn py-1"
     use:oauthPopup={{
-      windowUrl: `http${$session.secure ? "s" : ""}://${$session.gqlUrl}/login`,
+      windowUrl: `http${$session.config.secure ? "s" : ""}://${$session.config.gqlUrl}/login`,
       callback: discordAuthCallback,
     }}
   >

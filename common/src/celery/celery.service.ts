@@ -87,11 +87,11 @@ export class CeleryService {
                 .then((r: unknown) => {
                     const result = this.parseResult(task, r);
                     const p = opts.cb!(taskId, result, null);
-                    if (p instanceof Promise) p.catch(err => { this.logger.error(`Celery task callback failed name=${name} taskId=${taskId}`, err) });
+                    if (p instanceof Promise) p.catch(err => { this.logger.error(`Celery task callback failed name=${name} taskId=${taskId}`, err);throw err });
                 })
                 .catch((error: Error) => {
                     const p = opts.cb!(taskId, null, error);
-                    if (p instanceof Promise) p.catch(err => { this.logger.error(`Celery task callback failed name=${name} taskId=${taskId}`, err) });
+                    if (p instanceof Promise) p.catch(err => { this.logger.error(`Celery task callback failed name=${name} taskId=${taskId}`, err);throw err });
                 });
         } else {
             await asyncResult.get() as TaskResult<T>;

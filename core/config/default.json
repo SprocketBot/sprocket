@@ -51,6 +51,7 @@
     "host": "",
     "prefix": "",
     "secure": true
-  }
+  },
+  "defaultOrganizationId": 2
 }
 

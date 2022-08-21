@@ -1,17 +1,26 @@
 import {Injectable, Logger} from "@nestjs/common";
 import type {
-    BallchasingResponse, CoreSuccessResponse, ReplaySubmission, ScrimReplaySubmission,
+    BallchasingResponse,
+    CoreSuccessResponse,
+    MatchReplaySubmission,
+    ReplaySubmission,
+    ScrimReplaySubmission,
 } from "@sprocketbot/common";
 import {
     config,
-    CoreEndpoint, CoreService, MatchmakingEndpoint,
-    MatchmakingService, MinioService, readToString,
+    CoreEndpoint,
+    CoreService,
+    MatchmakingEndpoint,
+    MatchmakingService,
+    MinioService,
+    readToString,
     ReplaySubmissionType,
     ResponseStatus,
 } from "@sprocketbot/common";
+import {isEqual} from "lodash";
 
 import type {UserWithPlatformId} from "./types/user-with-platform-id";
-import type {ValidationResult} from "./types/validation-result";
+import type {ValidationError, ValidationResult} from "./types/validation-result";
 import {sortIds} from "./utils";
 
 @Injectable()
@@ -22,13 +31,14 @@ export class ReplayValidationService {
         private readonly coreService: CoreService,
         private readonly matchmakingService: MatchmakingService,
         private readonly minioService: MinioService,
-    ) {}
+    ) {
+    }
 
     async validate(submission: ReplaySubmission): Promise<ValidationResult> {
         if (submission.type === ReplaySubmissionType.SCRIM) {
             return this.validateScrimSubmission(submission);
         }
-        return this.validateMatchSubmission();
+        return this.validateMatchSubmission(submission);
     }
 
     private async validateScrimSubmission(submission: ScrimReplaySubmission): Promise<ValidationResult> {
@@ -45,10 +55,10 @@ export class ReplayValidationService {
         if (!scrim.games) {
             throw new Error(`Unable to validate gameCount for scrim ${scrim.id} because it has no games`);
         }
-        
+
         const submissionGameCount = submission.items.length;
         const scrimGameCount = scrim.games.length;
-        
+
         if (submissionGameCount !== scrimGameCount) {
             return {
                 valid: false,
@@ -59,7 +69,23 @@ export class ReplayValidationService {
         }
 
         const gameCount = submissionGameCount;
-        
+
+        const progressErrors = submission.items.reduce<ValidationError[]>((r, v) => {
+            if (v.progress?.error) {
+                this.logger.error(`Error in submission found, scrim=${scrim.id} submissionId=${scrim.submissionId}\n${v.progress.error}`);
+                r.push({
+                    error: `Error encountered while parsing file ${v.originalFilename}`,
+                });
+            }
+            return r;
+        }, []);
+        if (progressErrors.length) {
+            return {
+                valid: false,
+                errors: progressErrors,
+            };
+        }
+
         // ========================================
         // Validate the correct players played
         // ========================================
@@ -97,7 +123,10 @@ export class ReplayValidationService {
         }
         const players = playersResponse.data;
 
-        const userIdsResponses = await Promise.all(players.map(async p => this.coreService.send(CoreEndpoint.GetUserByAuthAccount, {accountType: "DISCORD", accountId: p.discordId})));
+        const userIdsResponses = await Promise.all(players.map(async p => this.coreService.send(CoreEndpoint.GetUserByAuthAccount, {
+            accountType: "DISCORD",
+            accountId: p.discordId,
+        })));
         if (userIdsResponses.some(r => r.status === ResponseStatus.ERROR)) {
             this.logger.error(`Unable to validate submission, couldn't map from MLE player to Sprocket user by discordId`, JSON.stringify(userIdsResponses));
             return {
@@ -106,7 +135,7 @@ export class ReplayValidationService {
             };
         }
         const userIds = userIdsResponses.map(r => (r as CoreSuccessResponse<CoreEndpoint.GetUserByAuthAccount>).data);
-        
+
         // Add platformIds to players
         const userAndPlatformIds: UserWithPlatformId[] = userIds.map((u, i) => ({
             ...u,
@@ -128,26 +157,31 @@ export class ReplayValidationService {
         const sortedScrimPlayerIds = sortIds(scrimPlayerIds);
         const sortedSubmissionUserIds = sortIds(submissionUserIds);
 
+        const expectedMatchups = Array.from(sortedScrimPlayerIds);
+
         // For each game, make sure the players were on correct teams
         for (let g = 0; g < gameCount; g++) {
-            const scrimGame = sortedScrimPlayerIds[g];
             const submissionGame = sortedSubmissionUserIds[g];
+            let matchupIndex: number;
+
+            if (expectedMatchups.some(expectedMatchup => isEqual(submissionGame, expectedMatchup))) {
+                matchupIndex = expectedMatchups.findIndex(expectedMatchup => isEqual(submissionGame, expectedMatchup));
+                expectedMatchups.splice(matchupIndex, 1);
+            } else {
+                return {
+                    valid: false,
+                    errors: [ {
+                        error: "Mismatched player",
+                        gameIndex: g,
+                    } ],
+                };
+            }
+
+            const scrimGame = sortedScrimPlayerIds[matchupIndex];
+            
             for (let t = 0; t < scrim.settings.teamCount; t++) {
                 const scrimTeam = scrimGame[t];
                 const submissionTeam = submissionGame[t];
-                for (let p = 0; p < scrim.settings.teamSize; p++) {
-                    const scrimPlayerId = scrimTeam[p];
-                    const submissionPlayerId = submissionTeam[p];
-                    if (scrimPlayerId !== submissionPlayerId) {
-                        return {
-                            valid: false,
-                            errors: [ {
-                                error: `Mismatched player`,
-                                gameIndex: g,
-                            } ],
-                        };
-                    }
-                }
                 if (scrimTeam.length !== submissionTeam.length) {
                     return {
                         valid: false,
@@ -198,12 +232,101 @@ export class ReplayValidationService {
         return JSON.parse(stats).data as BallchasingResponse;
     }
 
-    private async validateMatchSubmission(): Promise<ValidationResult> {
+    private async validateMatchSubmission(submission: MatchReplaySubmission): Promise<ValidationResult> {
+        const matchResult = await this.coreService.send(CoreEndpoint.GetMatchById, {matchId: submission.matchId});
+        if (matchResult.status === ResponseStatus.ERROR) throw matchResult.error;
+        const match = matchResult.data;
+
+        const homeName = match.homeFranchise!.name;
+        const awayName = match.awayFranchise!.name;
+
+        const errors: ValidationError[] = [];
+
+        for (const item of submission.items) {
+            if (!item.progress?.result) {
+                return {
+                    valid: false,
+                    errors: [ {error: "Incomplete Replay Found, please wait for submission to complete "} ],
+                };
+            }
+
+            const blueBcPlayers = item.progress.result.data.blue.players;
+            const orangeBcPlayers = item.progress.result.data.orange.players;
+            try {
+                const [bluePlayers, orangePlayers] = await Promise.all([
+                    this.coreService.send(CoreEndpoint.GetPlayersByPlatformIds, orangeBcPlayers.map(m => ({
+                        platform: m.id.platform,
+                        platformId: m.id.id,
+                    }))).then(r => {
+                        if (r.status === ResponseStatus.ERROR) throw r.error;
+                        return r.data;
+                    }),
+                    this.coreService.send(CoreEndpoint.GetPlayersByPlatformIds, blueBcPlayers.map(m => ({
+                        platform: m.id.platform,
+                        platformId: m.id.id,
+                    }))).then(r => {
+                        if (r.status === ResponseStatus.ERROR) throw r.error;
+                        return r.data;
+                    }),
+                ]);
+
+                const blueTeam = bluePlayers[0].franchise.name;
+                const orangeTeam = orangePlayers[0].franchise.name;
+
+                if (blueTeam === orangeTeam) {
+                    errors.push({
+                        error: `Players from a single franchise found on both teams in replay ${item.originalFilename}`,
+                    });
+                }
+
+                if (!bluePlayers.every(bp => bp.franchise.name === blueTeam)) {
+                    errors.push({
+                        error: `Multiple franchises found for blue team in replay ${item.originalFilename}`,
+
+                    });
+                }
+                if (!orangePlayers.every(op => op.franchise.name === orangeTeam)) {
+                    errors.push({
+                        error: `Multiple franchises found for orange team in replay ${item.originalFilename}`,
+                    });
+                }
+
+                if (![blueTeam, orangeTeam].includes(awayName)) {
+                    errors.push({
+                        error: `Away team ${awayName} not found in replay ${item.originalFilename}. (Found ${blueTeam} and ${orangeTeam})`,
+                    });
+                }
+                if (![blueTeam, orangeTeam].includes(homeName)) {
+                    errors.push({
+                        error: `Home team ${homeName} not found in replay ${item.originalFilename}. (Found ${blueTeam} and ${orangeTeam})`,
+                    });
+                }
+
+                if (![...bluePlayers, ...orangePlayers].every(p => p.skillGroupId === match.skillGroupId)) {
+                    errors.push({
+                        error: `Player(s) from incorrect skill group found in replay ${item.originalFilename}`,
+                    });
+                    this.logger.verbose(JSON.stringify({
+                        expected: match.skillGroupId,
+                        found: [...bluePlayers.map(bp => [bp.id, bp.skillGroupId]), ...orangePlayers.map(p => [p.id, p.skillGroupId])],
+                    }));
+                }
+
+            } catch (e) {
+                this.logger.error("Error looking up match participants", e);
+                errors.push({
+                    error: `Error looking up match participants in replay ${item.originalFilename}`,
+                });
+            }
+        }
+        if (errors.length) {
+            return {
+                valid: false, errors: errors,
+            };
+        }
+
         return {
-            valid: false,
-            errors: [ {
-                error: "Submitting replays for matches is not yet supported",
-            } ],
+            valid: true,
         };
     }
 }

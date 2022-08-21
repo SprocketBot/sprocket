@@ -3,7 +3,12 @@
 
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
-import type {SessionUser} from "$lib/types/SessionUser";
+
+import type {SSRData} from "@urql/core/dist/types/exchanges/ssr";
+import type {Config, SessionUser} from "$lib/utils";
+import type {
+    ChatwootGlobal, ChatwootSDK, ChatwootSettings,
+} from "$lib/components/abstract/Chatwoot";
 
 declare global {
     declare namespace App {
@@ -11,16 +16,19 @@ declare global {
             user: SessionUser;
             token: string;
         }
-        // interface Platform {}
+
         interface Session {
-            gqlUrl: string;
-            secure: boolean;
+            config: Config["client"];
     
             token?: string;
             user?: SessionUser;
         }
-    
-        // interface Stuff {}
+    }
+
+    interface Window {
+        __URQL_DATA__?: SSRData;
+        chatwootSettings?: Partial<ChatwootSettings>;
+        chatwootSDK?: ChatwootSDK;
+        $chatwoot?: ChatwootGlobal;
     }
 }
-

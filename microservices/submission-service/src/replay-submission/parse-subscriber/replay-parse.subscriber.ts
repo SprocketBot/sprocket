@@ -13,7 +13,7 @@ import {
 
 import {getSubmissionKey} from "../../utils";
 import {ReplaySubmissionService} from "../replay-submission.service";
-import {ReplaySubmissionCrudService} from "../replay-submission-crud.service";
+import {ReplaySubmissionCrudService} from "../replay-submission-crud/replay-submission-crud.service";
 
 @Injectable()
 export class ReplayParseSubscriber {

@@ -241,9 +241,8 @@ export class ScrimService {
         if (!scrim) {
             throw new RpcException("Scrim not found");
         }
-        if (scrim.status !== ScrimStatus.RATIFYING) {
-            throw new RpcException("Scrim is not ratifying!");
-        }
+        if (!scrim.submissionId) throw new RpcException("Scrim does not yet have a submission, cannot complete.");
+
         // TODO: Override this if player / member is an admin
         if (playerId && !scrim.players.some(p => p.id === playerId)) {
             throw new RpcException("Player not in this scrim");
@@ -296,7 +295,15 @@ export class ScrimService {
     private async publishScrimUpdate(scrimId: string): Promise<Scrim> {
         const scrim = await this.scrimCrudService.getScrim(scrimId);
         if (!scrim) throw new Error("Unexpected null scrim found");
-        await this.eventsService.publish(EventTopic.ScrimUpdated, scrim, scrimId);
+        await Promise.all([
+            // We don't really care about _what_ changed, in this context;
+            // this is more to do with tracking how often a scrim is changed
+            this.analyticsService.send(AnalyticsEndpoint.Analytics, {
+                name: "ScrimUpdated",
+                strings: [ ["scrimId", scrimId] ],
+            }),
+            this.eventsService.publish(EventTopic.ScrimUpdated, scrim, scrimId),
+        ]);
         return scrim;
     }
 }
