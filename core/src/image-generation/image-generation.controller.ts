@@ -21,7 +21,7 @@ export class ImageGenerationController {
     @Get("/series/:series_id")
     async runSeries(@Param() params: {series_id: number;}): Promise<string> {
         this.logger.debug({params});
-        return this.imageGenerationService.createScrimReportCard(params.series_id);
+        return this.imageGenerationService.createSeriesReportCard(params.series_id);
     }
 
     @MessagePattern(CoreEndpoint.GenerateReportCard)
