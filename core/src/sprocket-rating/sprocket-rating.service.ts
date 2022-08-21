@@ -26,15 +26,15 @@ export class SprocketRatingService {
         const DPI_saves_w = 0.5;
         const DPI_shot_w = 0.4;
 
-        const G_2s = 1.5;
-        const A_2s = 0.75;
+        const G_2s = 1.54;
+        const A_2s = 0.79;
         const Sv_2s = 1.75;
-        const Sh_2s = 3.75;
+        const Sh_2s = 3.93;
 
-        const xOPI_2s = 2.03;
-        const yOPI_2s = 1.38;
-        const xDPI_2s = 1.93;
-        const yDPI_2s = 0.85;
+        const xOPI_2s = 2.01;
+        const yOPI_2s = 1.34;
+        const xDPI_2s = 1.94;
+        const yDPI_2s = 1.09;
 
         const OPI_beta = -1 * Math.log(9);
         const DPI_beta = OPI_beta;
@@ -74,15 +74,15 @@ export class SprocketRatingService {
         const DPI_saves_w = 0.5;
         const DPI_shot_w = 0.4;
 
-        const G_3s = 0.75;
-        const A_3s = 0.5;
-        const Sv_3s = 1.25;
-        const Sh_3s = 2.5;
+        const G_3s = 0.77;
+        const A_3s = 0.53;
+        const Sv_3s = 1.24;
+        const Sh_3s = 2.43;
 
-        const xOPI_3s = 2.08;
-        const yOPI_3s = 1.77;
+        const xOPI_3s = 2.00;
+        const yOPI_3s = 1.69;
         const xDPI_3s = 1.96;
-        const yDPI_3s = 0.95;
+        const yDPI_3s = 0.93;
 
         const OPI_beta = -1 * Math.log(9);
         const DPI_beta = OPI_beta;
