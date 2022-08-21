@@ -1,6 +1,6 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import type {FindManyOptions} from "typeorm";
+import type {FindManyOptions, FindOneOptions} from "typeorm";
 import {Repository} from "typeorm";
 
 import type {IrrelevantFields} from "../../database";
@@ -41,7 +41,17 @@ export class OrganizationService {
      * @param query A query to search for matching Organzations.
      * @returns An array containg Organizations matching the given query.
      */
-    async getOrganizations(query: FindManyOptions<OrganizationProfile>): Promise<Organization[]> {
+    async getOrganization(query: FindOneOptions<OrganizationProfile>): Promise<Organization> {
+        const organizationProfile = await this.organizationProfileRepository.findOneOrFail(query);
+        return organizationProfile.organization;
+    }
+
+    /**
+     * Finds Organizations that match a given query.
+     * @param query A query to search for matching Organzations.
+     * @returns An array containg Organizations matching the given query.
+     */
+    async getOrganizations(query?: FindManyOptions<OrganizationProfile>): Promise<Organization[]> {
         const organizationProfiles = await this.organizationProfileRepository.find(query);
         return organizationProfiles.map(op => op.organization);
     }

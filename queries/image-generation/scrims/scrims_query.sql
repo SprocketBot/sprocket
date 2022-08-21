@@ -133,7 +133,12 @@ player_stats AS (
 				gs.salary AS salary,
 				re.wins,
 				re.losses,
-				AVG(COALESCE(gs.gpi, gs.mvpr)) AS rating,
+				AVG(
+					CASE 
+						WHEN gpi=0 THEN mvpr
+						ELSE gpi
+					END
+				) AS rating,
 				SUM(gs.goals) AS goals,
 				SUM(gs.assists) AS assists,
 				SUM(gs.saves) AS saves,
@@ -205,6 +210,9 @@ player_stats_object AS(
 	UNION ALL
    	SELECT   *
    	FROM     blank_player_data_json
+	UNION ALL
+   	SELECT   *
+   	FROM     blank_player_data_json
 	LIMIT 6
 
 ),
@@ -256,6 +264,8 @@ games_data AS(
 
 		from game_stats gs
 		JOIN player_stats ps ON gs.player_name = ps.name
+		UNION ALL
+		SELECT * from empty_player_game_data
 		UNION ALL
 		SELECT * from empty_player_game_data
 	),

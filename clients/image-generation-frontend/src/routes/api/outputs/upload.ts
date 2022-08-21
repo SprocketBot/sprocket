@@ -2,7 +2,7 @@ import type {Request, Response} from "@sveltejs/kit";
 import { getClient } from "$utils/server/minio";
 import config from "$src/config"
 
-export const post = async ({body}: Request): Promise<Response> => {
+export const POST = async ({body}: Request): Promise<Response> => {
     const mClient = getClient();
     const data = JSON.parse(body.toString());
     try {

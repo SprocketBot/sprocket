@@ -99,7 +99,7 @@ export class MledbScrimService {
             return playerEligibility;
         }));
 
-        await this.mleScrimRepository.save(scrim);
+        await runner.manager.save(scrim);
         await this.saveSeries(submission, submissionId, runner, series);
         await runner.manager.save(playerEligibilities);
 
@@ -219,5 +219,16 @@ export class MledbScrimService {
     async getScrimIdByBallchasingId(ballchasingId: string): Promise<number> {
         const mleReplay = await this.mleSeriesReplayRepositroy.findOneOrFail({where: {ballchasingId}, relations: ["series", "series.scrim"] });
         return mleReplay.series.scrim.id;
+    }
+
+    async getMlePlayerByBallchasingPlayer(p: BallchasingPlayer): Promise<MLE_Player> {
+        const playerAccount = await this.mlePlayerAccountRepository.findOneOrFail({
+            where: {
+                platformId: p.id.id,
+                platform: p.id.platform.toUpperCase() as MLE_Platform,
+            },
+            relations: ["player"],
+        });
+        return playerAccount.player;
     }
 }

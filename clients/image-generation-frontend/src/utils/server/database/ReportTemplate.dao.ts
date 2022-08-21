@@ -38,11 +38,16 @@ class ReportTemplateDAO {
 
     async runReport(reportCode: string, reportFilters: Record<string, string>) {
         const template = await this.getByCode(reportCode);
-        
+
+        let arr = []
+        for (let k in reportFilters) {
+            arr.push(reportFilters[k])
+        }
+        console.log(arr)
         
         const { query } = template.query
         const regex = /[$][0-9]/g;
-        const results = await knexClient.raw(query.replace(regex, '?'), [reportFilters.scrim_id, reportFilters.org_id]);
+        const results = await knexClient.raw(query.replace(regex, '?'), arr);
         if (!results.rows.length) throw new Error("No data returned from query!");
         const result = results.rows[0];
         if (!result?.data) throw new Error("Missing required property 'data' from report results");

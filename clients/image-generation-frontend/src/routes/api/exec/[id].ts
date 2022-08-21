@@ -2,7 +2,7 @@
 import {ReportTemplateDAO} from "$utils/server/database/ReportTemplate.dao";
 import {rmqRequest} from "$utils/rabbitmq";
 
-export async function post({request, params}) {
+export async function POST({request, params}) {
     const data = await request.json()
     // const data = JSON.parse(body.toString());
     const results = await ReportTemplateDAO.runReport(params.id, data.filterValues);
