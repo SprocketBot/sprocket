@@ -133,7 +133,12 @@ player_stats AS (
 				gs.salary AS salary,
 				re.wins,
 				re.losses,
-				AVG(COALESCE(gs.gpi, gs.mvpr)) AS rating,
+				AVG(
+					CASE 
+						WHEN gpi=0 THEN mvpr
+						ELSE gpi
+					END
+				) AS rating,
 				SUM(gs.goals) AS goals,
 				SUM(gs.assists) AS assists,
 				SUM(gs.saves) AS saves,
