@@ -151,7 +151,7 @@ export class FinalizationService {
 
             const [mledbSeriesId] = await Promise.all([
                 this.mledbScrimService.saveMatch(submission, submissionId, runner, mleMatch),
-                this.saveMatch(submission, runner, users.map(u => u.id), match.skillGroup.organizationId, matchParent, match.skillGroup.id, gameMode.id),
+                this.saveMatch(submission, runner, users.map(u => u.id), match.skillGroup.organizationId, matchParent, match.skillGroup.id, gameMode.id, match),
             ]);
 
             await runner.commitTransaction();
@@ -180,9 +180,9 @@ export class FinalizationService {
         });
     }
 
-    private async saveMatch(submission: ReplaySubmission, runner: QueryRunner, userIds: number[], organizationId: number, matchParent: MatchParent, skillGroupId: number, gameModeId: number): Promise<Match> {
+    private async saveMatch(submission: ReplaySubmission, runner: QueryRunner, userIds: number[], organizationId: number, matchParent: MatchParent, skillGroupId: number, gameModeId: number, existingMatch?: Match): Promise<Match> {
     // Create Scrim/MatchParent/Match for scrim
-        const match = this.matchRepo.create();
+        const match = existingMatch ?? this.matchRepo.create();
 
         const parsedReplays = submission.items.map(i => i.progress!.result!);
 
