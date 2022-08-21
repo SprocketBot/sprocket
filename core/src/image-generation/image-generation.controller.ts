@@ -18,6 +18,12 @@ export class ImageGenerationController {
     //     return this.imageGenerationService.createScrimReportCard(params.scrim_id);
     // }
 
+    // @Get("/series/:series_id")
+    // async runSeries(@Param() params: {series_id: number;}): Promise<string> {
+    //     this.logger.debug({params});
+    //     return this.imageGenerationService.createSeriesReportCard(params.series_id);
+    // }
+
     @MessagePattern(CoreEndpoint.GenerateReportCard)
     async generateReportCard(@Payload() payload: unknown): Promise<string> {
         const data = CoreSchemas.GenerateReportCard.input.parse(payload);
