@@ -1,20 +1,21 @@
 import {Injectable, Logger} from "@nestjs/common";
-import {InjectConnection, InjectRepository} from "@nestjs/typeorm";
+import {InjectRepository} from "@nestjs/typeorm";
 import {
     config,
     ImageGenerationEndpoint, ImageGenerationService as IGService, ResponseStatus,
 } from "@sprocketbot/common";
-import {Connection, Repository} from "typeorm";
+import {DataSource, Repository} from "typeorm";
 
 import {ImageTemplate} from "../database";
 
 @Injectable()
 export class ImageGenerationService {
     private readonly logger = new Logger(ImageGenerationService.name);
+
     constructor(
         @InjectRepository(ImageTemplate) private imageTemplateRepository: Repository<ImageTemplate>,
-        @InjectConnection() private readonly connection: Connection,
-        private igService: IGService,
+        private readonly dataSource: DataSource,
+        private readonly igService: IGService,
     ) {}
 
     async createScrimReportCard(scrimId: number): Promise<string> {
@@ -22,7 +23,7 @@ export class ImageGenerationService {
         const reportCardRow = await this.imageTemplateRepository.findOneOrFail({where: {reportCode: "scrim_report_cards"} });
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const data = await this.connection.query(reportCardRow.query.query, [scrimId, config.defaultOrganizationId]);
+        const data = await this.dataSource.query(reportCardRow.query.query, [scrimId, config.defaultOrganizationId]);
         const result = await this.igService.send(
             ImageGenerationEndpoint.GenerateImage,
             {
@@ -41,19 +42,18 @@ export class ImageGenerationService {
         const reportCardRow = await this.imageTemplateRepository.findOneOrFail({where: {reportCode: "series_report_cards"} });
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const data = await this.connection.query(reportCardRow.query.query, [seriesId, 1]);
+        const data = await this.dataSource.query(reportCardRow.query.query, [seriesId, 1]);
 
         let reportCard: string = "seriesSixPlayersMax";
         
-        //if more than 6 players, use 8 player report card
-        const seventhPlayer = data?.[0]?.data?.player_data?.[6]?.name;
+        // if more than 6 players, use 8 player report card
+        const seventhPlayer = data?.[0]?.data?.player_data?.[6]?.name as {value?: string;};
         
-        //seventh player will always exist, but its value will only be emplty of no subs were used
-        if (seventhPlayer && seventhPlayer?.value !== "") { 
-            reportCard = "seriesEightPlayersMax"
-            this.logger.log("using 8 player card")
+        // seventh player will always exist, but its value will only be emplty of no subs were used
+        if (seventhPlayer && seventhPlayer?.value !== "") {
+            reportCard = "seriesEightPlayersMax";
+            this.logger.log("using 8 player card");
         }
-
 
         const result = await this.igService.send(
             ImageGenerationEndpoint.GenerateImage,
