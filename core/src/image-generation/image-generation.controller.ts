@@ -12,10 +12,16 @@ export class ImageGenerationController {
 
     constructor(private imageGenerationService: ImageGenerationService) { }
 
-    @Get(":scrim_id")
-    async run(@Param() params: {scrim_id: number;}): Promise<string> {
+    @Get("/scrim/:scrim_id")
+    async runScrim(@Param() params: {scrim_id: number;}): Promise<string> {
         this.logger.debug({params});
         return this.imageGenerationService.createScrimReportCard(params.scrim_id);
+    }
+
+    @Get("/series/:series_id")
+    async runSeries(@Param() params: {series_id: number;}): Promise<string> {
+        this.logger.debug({params});
+        return this.imageGenerationService.createScrimReportCard(params.series_id);
     }
 
     @MessagePattern(CoreEndpoint.GenerateReportCard)

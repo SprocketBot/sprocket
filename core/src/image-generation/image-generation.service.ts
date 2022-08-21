@@ -32,4 +32,26 @@ export class ImageGenerationService {
         if (result.status === ResponseStatus.SUCCESS) return result.data;
         throw result.error;
     }
+
+    async createSeriesReportCard(seriesId: number): Promise<string> {
+        const reportCardRow = await this.imageTemplateRepository.findOneOrFail({where: {reportCode: "series_report_cards"} });
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const data = await this.connection.query(reportCardRow.query.query, [seriesId, 1]);
+        //if more than 6 players, use 8 player report card
+
+
+
+        const result = await this.igService.send(
+            ImageGenerationEndpoint.GenerateImage,
+            {
+                inputFile: `scrim_report_cards/scrimReportCards2/template.svg`,
+                outputFile: `scrim_report_cards/scrimReportCards2/outputs/${seriesId}_1`,
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                template: data[0].data,
+            },
+        );
+        if (result.status === ResponseStatus.SUCCESS) return result.data;
+        throw result.error;
+    }
 }
