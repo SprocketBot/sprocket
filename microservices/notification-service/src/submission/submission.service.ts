@@ -106,8 +106,7 @@ export class SubmissionService {
         const matchResult = await this.coreService.send(CoreEndpoint.GetMatchById, {matchId: submission.matchId});
         if (matchResult.status === ResponseStatus.ERROR) throw matchResult.error;
 
-        // TODO: Get rid of timeout once FDW is removed
-        const mleMatchResult = await this.coreService.send(CoreEndpoint.GetMleMatchInfoAndStakeholders, {sprocketMatchId: submission.matchId}, {timeout: 15000});
+        const mleMatchResult = await this.coreService.send(CoreEndpoint.GetMleMatchInfoAndStakeholders, {sprocketMatchId: submission.matchId});
         if (mleMatchResult.status === ResponseStatus.ERROR) throw mleMatchResult.error;
 
         const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: mleMatchResult.data.organizationId});
@@ -242,8 +241,7 @@ export class SubmissionService {
         const matchResult = await this.coreService.send(CoreEndpoint.GetMatchById, {matchId: submission.matchId});
         if (matchResult.status === ResponseStatus.ERROR) throw matchResult.error;
 
-        // TODO: Get rid of timeout once FDW is removed
-        const mleMatchResult = await this.coreService.send(CoreEndpoint.GetMleMatchInfoAndStakeholders, {sprocketMatchId: submission.matchId}, {timeout: 15000});
+        const mleMatchResult = await this.coreService.send(CoreEndpoint.GetMleMatchInfoAndStakeholders, {sprocketMatchId: submission.matchId});
         if (mleMatchResult.status === ResponseStatus.ERROR) throw mleMatchResult.error;
 
         const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: mleMatchResult.data.organizationId});
