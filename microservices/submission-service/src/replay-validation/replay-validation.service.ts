@@ -123,18 +123,21 @@ export class ReplayValidationService {
         }
         const players = playersResponse.data;
 
-        const userIdsResponses = await Promise.all(players.map(async p => this.coreService.send(CoreEndpoint.GetUserByAuthAccount, {
+        // Using allSettled here to catch any rejections 
+        const userIdsResponses = await Promise.allSettled(players.map(async p => this.coreService.send(CoreEndpoint.GetUserByAuthAccount, {
             accountType: "DISCORD",
             accountId: p.discordId,
         })));
-        if (userIdsResponses.some(r => r.status === ResponseStatus.ERROR)) {
+
+        // Add a check if any of the promises were rejected. This makes it safe to map them later as all PromiseFulfilledResult<T>.
+        if (userIdsResponses.some(r => r.status === "rejected" || r.value.status == ResponseStatus.ERROR)) {
             this.logger.error(`Unable to validate submission, couldn't map from MLE player to Sprocket user by discordId`, JSON.stringify(userIdsResponses));
             return {
                 valid: false,
                 errors: [],
             };
         }
-        const userIds = userIdsResponses.map(r => (r as CoreSuccessResponse<CoreEndpoint.GetUserByAuthAccount>).data);
+        const userIds = userIdsResponses.map(r => (r as PromiseFulfilledResult<CoreSuccessResponse<CoreEndpoint.GetUserByAuthAccount>>).value.data);
 
         // Add platformIds to players
         const userAndPlatformIds: UserWithPlatformId[] = userIds.map((u, i) => ({
