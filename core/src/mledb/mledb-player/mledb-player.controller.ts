@@ -52,6 +52,21 @@ export class MledbPlayerController {
     @MessagePattern(CoreEndpoint.GetPlayersByPlatformIds)
     async getPlayersByPlatformIds(@Payload() payload: unknown): Promise<CoreOutput<CoreEndpoint.GetPlayersByPlatformIds>> {
         const platformIds = CoreSchemas.GetPlayersByPlatformIds.input.parse(payload);
-        return Promise.all(platformIds.map(async d => this.getPlayerByPlatformId(d)));
+        const platformIdsResponse = await Promise.allSettled(platformIds.map(async d => this.getPlayerByPlatformId(d)));
+
+        if (platformIdsResponse.every(r => r.status === "fulfilled")) {
+            return platformIdsResponse.map(r => (r as PromiseFulfilledResult<CoreOutput<CoreEndpoint.GetPlayerByPlatformId>>).value);
+        } else {
+            // Build up a custom error response containing the list of failed platforms + IDs.
+            var failedPlatforms: string[] = [];
+
+            platformIdsResponse.forEach((r,i) => {
+                if (r.status === "rejected") {
+                    failedPlatforms.push(`${platformIds[i].platform}: ${platformIds[i].platformId}`);
+                }
+            });
+
+            throw new Error(`Could not find players associated with the following platforms: ${failedPlatforms.join(", ")}`);
+        }
     }
 }
