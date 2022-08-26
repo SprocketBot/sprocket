@@ -123,19 +123,17 @@ export class ReplayValidationService {
         }
         const players = playersResponse.data;
 
-        // Using allSettled here to catch any rejections 
-        const userIdsResponses = await Promise.allSettled(players.map(async p => this.coreService.send(CoreEndpoint.GetUserByAuthAccount, {
+        const userIdsResponses = await Promise.all(players.map(async p => this.coreService.send(CoreEndpoint.GetUserByAuthAccount, {
             accountType: "DISCORD",
             accountId: p.discordId,
         })));
 
-        // Add a check if any of the promises were rejected. This makes it safe to map them later as all PromiseFulfilledResult<T>.
-        if (userIdsResponses.some(r => r.status === "rejected" || r.value.status == ResponseStatus.ERROR)) {
+        if (userIdsResponses.some(r => r.status == ResponseStatus.ERROR)) {
 
             // Build up a list of failed player Discord IDs to return in the error response.
             var errors: ValidationError[] = [];
             userIdsResponses.forEach((r,i) => {
-                if (r.status === "rejected" || r.value.status == ResponseStatus.ERROR) {
+                if (r.status == ResponseStatus.ERROR) {
                     errors.push({
                         error: `Could not find a Sprocket account for ${players[i].discordId}`,
                         playerIndex: i,
@@ -149,7 +147,7 @@ export class ReplayValidationService {
                 errors: errors,
             };
         }
-        const userIds = userIdsResponses.map(r => (r as PromiseFulfilledResult<CoreSuccessResponse<CoreEndpoint.GetUserByAuthAccount>>).value.data);
+        const userIds = userIdsResponses.map(r => (r as CoreSuccessResponse<CoreEndpoint.GetUserByAuthAccount>).data);
 
         // Add platformIds to players
         const userAndPlatformIds: UserWithPlatformId[] = userIds.map((u, i) => ({
