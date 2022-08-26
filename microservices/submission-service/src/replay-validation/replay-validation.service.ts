@@ -131,10 +131,22 @@ export class ReplayValidationService {
 
         // Add a check if any of the promises were rejected. This makes it safe to map them later as all PromiseFulfilledResult<T>.
         if (userIdsResponses.some(r => r.status === "rejected" || r.value.status == ResponseStatus.ERROR)) {
-            this.logger.error(`Unable to validate submission, couldn't map from MLE player to Sprocket user by discordId`, JSON.stringify(userIdsResponses));
+
+            // Build up a list of failed player Discord IDs to return in the error response.
+            var errors: ValidationError[] = [];
+            userIdsResponses.forEach((r,i) => {
+                if (r.status === "rejected" || r.value.status == ResponseStatus.ERROR) {
+                    errors.push({
+                        error: `Could not find a Sprocket account for ${players[i].discordId}`,
+                        playerIndex: i,
+                    });
+                }
+            });
+
+            this.logger.error(`Unable to validate submission, couldn't map from MLE player(s) to Sprocket user by discordId:`, JSON.stringify(userIdsResponses));
             return {
                 valid: false,
-                errors: [],
+                errors: errors,
             };
         }
         const userIds = userIdsResponses.map(r => (r as PromiseFulfilledResult<CoreSuccessResponse<CoreEndpoint.GetUserByAuthAccount>>).value.data);
