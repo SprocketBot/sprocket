@@ -131,20 +131,20 @@ export class ReplayValidationService {
         if (userIdsResponses.some(r => r.status == ResponseStatus.ERROR)) {
 
             // Build up a list of failed player Discord IDs to return in the error response.
-            const errors: ValidationError[] = [];
+            const sprocketUserErrors: ValidationError[] = [];
             userIdsResponses.forEach((r,i) => {
                 if (r.status == ResponseStatus.ERROR) {
-                    errors.push({
+                    sprocketUserErrors.push({
                         error: `Could not find a Sprocket account for ${players[i].discordId}`,
                         playerIndex: i,
                     });
                 }
             });
 
-            this.logger.error(`Unable to validate submission, couldn't map from MLE player(s) to Sprocket user by discordId:`, JSON.stringify(userIdsResponses));
+            sprocketUserErrors.forEach(err => this.logger.error(err.error));
             return {
                 valid: false,
-                errors: errors,
+                errors: sprocketUserErrors,
             };
         }
         const userIds = userIdsResponses.map(r => (r as CoreSuccessResponse<CoreEndpoint.GetUserByAuthAccount>).data);
