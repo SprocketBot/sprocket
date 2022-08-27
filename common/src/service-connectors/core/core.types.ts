@@ -18,9 +18,12 @@ export enum CoreEndpoint {
     GetFranchiseProfile = "GetFranchiseProfile",
     GetGameSkillGroupProfile = "GetGameSkillGroupProfile",
     GetScrimReportCardWebhooks = "GetScrimReportCardWebhooks",
+    GetMatchReportCardWebhooks = "GetMatchReportCardWebhooks",
     GetUsersLatestScrim = "GetUsersLatestScrim",
+    GetMleMatchInfoAndStakeholders = "GetMleMatchInfoAndStakeholders",
 
     GetMatchBySubmissionId = "GetMatchBySubmissionId",
+    GetMatchById = "GetMatchById",
     GetFranchiseStaff = "GetFranchiseStaff",
     GetPlayerFranchises = "GetPlayerFranchises",
 }
@@ -82,13 +85,25 @@ export const CoreSchemas = {
         input: Schemas.GetScrimReportCardWebhooks_Request,
         output: Schemas.GetScrimReportCardWebhooks_Response,
     },
+    [CoreEndpoint.GetMatchReportCardWebhooks]: {
+        input: Schemas.GetMatchReportCardWebhooks_Request,
+        output: Schemas.GetMatchReportCardWebhooks_Response,
+    },
     [CoreEndpoint.GetUsersLatestScrim]: {
         input: Schemas.GetUsersLastScrim_Request,
         output: Schemas.GetUsersLastScrim_Response,
     },
+    [CoreEndpoint.GetMleMatchInfoAndStakeholders]: {
+        input: Schemas.GetMleMatchInfoAndStakeholders_Request,
+        output: Schemas.GetMleMatchInfoAndStakeholders_Response,
+    },
     [CoreEndpoint.GetMatchBySubmissionId]: {
         input: Schemas.GetMatchBySubmissionId_Request,
         output: Schemas.GetMatchBySubmissionId_Response,
+    },
+    [CoreEndpoint.GetMatchById]: {
+        input: Schemas.GetMatchById_Request,
+        output: Schemas.GetMatchById_Response,
     },
     [CoreEndpoint.GetFranchiseStaff]: {
         input: Schemas.GetFranchiseStaff_Request,

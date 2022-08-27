@@ -7,6 +7,7 @@ import {lastValueFrom, timeout} from "rxjs";
 
 import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
+import {NanoidService} from "../../util/nanoid/nanoid.service";
 import type {
     AnalyticsEndpoint, AnalyticsInput, AnalyticsResponse,
 } from "./analytics.types";
@@ -16,10 +17,14 @@ import {AnalyticsSchemas} from "./analytics.types";
 export class AnalyticsService {
     private logger = new Logger(AnalyticsService.name);
 
-    constructor(@Inject(CommonClient.Analytics) private microServiceClient: ClientProxy) {}
+    constructor(
+        @Inject(CommonClient.Analytics) private microServiceClient: ClientProxy,
+        private readonly nidService: NanoidService,
+    ) {}
 
     async send<E extends AnalyticsEndpoint>(endpoint: E, data: AnalyticsInput<E>, options?: MicroserviceRequestOptions): Promise<AnalyticsResponse<E>> {
-        // this.logger.debug(`Sending message to endpoint \`${endpoint}\` with data \`${JSON.stringify(data, null, 2)}\``);
+        const rid = this.nidService.gen();
+        this.logger.verbose(`| - (${rid}) > | \`${endpoint}\` (${JSON.stringify(data)})`);
 
         const {input: inputSchema, output: outputSchema} = AnalyticsSchemas[endpoint];
 
@@ -33,12 +38,13 @@ export class AnalyticsService {
             // eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
             const output = outputSchema.parse(response);
 
-            this.logger.verbose(`Responding from endpoint \`${endpoint}\` with data \`${JSON.stringify(data, null, 2)}\``);
+            this.logger.verbose(`| < (${rid}) - | \`${endpoint}\` (${JSON.stringify(output)})`);
             return {
                 status: ResponseStatus.SUCCESS,
                 data: output,
             };
         } catch (e) {
+            this.logger.verbose(`| < (${rid}) - | \`${endpoint}\` failed ${(e as Error).message}`);
             return {
                 status: ResponseStatus.ERROR,
                 error: e as Error,

@@ -41,8 +41,7 @@ export class SubmissionRejectionResolver {
     @ResolveField(() => String)
     async reason(@Root() rejection: SubmissionRejection): Promise<string> {
         if (rejection.playerId.toString() !== "system") return rejection.reason;
-        const errors  = JSON.parse(rejection.reason) as Array<{error: string;}>;
-        return errors?.map(e => e.error).join("\n") ?? "";
+        return rejection.reason;
 
     }
 }

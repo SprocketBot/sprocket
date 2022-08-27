@@ -145,7 +145,7 @@ export class ReplaySubmissionService {
         const valid = await this.replayValidationService.validate(submission);
         if (!valid.valid) {
             await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.REJECTED);
-            await this.ratificationService.rejectSubmission("system", submissionId, JSON.stringify(valid.errors, null, 2));
+            await this.ratificationService.rejectSubmission("system", submissionId, valid.errors.map(e => e.error));
             return;
         }
 

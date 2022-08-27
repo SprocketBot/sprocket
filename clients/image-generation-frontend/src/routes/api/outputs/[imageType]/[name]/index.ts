@@ -4,7 +4,7 @@ import type {
 import { getClient } from "$utils/server/minio";
 import config from "$src/config"
 
-export const get = async ({params}: Request): Promise<EndpointOutput> => {
+export const GET = async ({params}: Request): Promise<EndpointOutput> => {
     const mClient = getClient();
     const {imageType, name} = params;
     try {
@@ -35,7 +35,7 @@ export const get = async ({params}: Request): Promise<EndpointOutput> => {
     }
 };
 
-export const post = async ({params}: Request): Promise<Response> => {
+export const POST = async ({params}: Request): Promise<Response> => {
     const mClient = getClient();
     const {imageType, filename} = params;
     try {

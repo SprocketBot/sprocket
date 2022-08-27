@@ -4,7 +4,7 @@
     import FaInfoCircle from "svelte-icons/fa/FaInfoCircle.svelte";
     import type {Toast} from "./ToastStore";
     import {toasts} from "./ToastStore";
-    export let showTestButton = true;
+    export let showTestButton = false;
 
     function removeToast(t: Toast, node: HTMLLIElement) {
         if (node.parentElement.firstChild === node) {

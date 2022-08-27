@@ -18,6 +18,8 @@ export class ScrimMetaCrudService {
     async getScrimCountInPreviousPeriod(p: Period, previousPeriod: boolean = false): Promise<number> {
         let increment: Duration;
 
+        const UTCHourOffset = new Date().getTimezoneOffset() * -1;
+
         switch (p) {
             case Period.DAY:
                 increment = {days: -1};
@@ -32,15 +34,15 @@ export class ScrimMetaCrudService {
             return this.scrimRepo.count({
                 where: {
                     createdAt: Between(
-                        add(add(new Date(), increment), increment).toUTCString(),
-                        add(new Date(), increment).toUTCString(),
+                        add(add(add(new Date(), increment), increment), {hours: UTCHourOffset}),
+                        add(add(new Date(), increment), {hours: UTCHourOffset}),
                     ),
                 },
             });
         }
         return this.scrimRepo.count({
             where: {
-                createdAt: MoreThan(add(new Date(), increment).toUTCString()),
+                createdAt: MoreThan(add(add(new Date(), increment), {hours: UTCHourOffset})),
             },
         });
 

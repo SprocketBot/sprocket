@@ -8,6 +8,7 @@ import {
     config,
     CoreEndpoint,
     CoreService,
+    GenerateReportCardType,
     MatchmakingEndpoint,
     MatchmakingService,
     ResponseStatus,
@@ -82,7 +83,10 @@ export class ScrimService {
             throw scrimReportCardWebhooksResult.error;
         }
 
-        const reportCardResult = await this.coreService.send(CoreEndpoint.GenerateReportCard, {mleScrimId: scrim.databaseIds.legacyId}, {timeout: 300000});
+        const reportCardResult = await this.coreService.send(CoreEndpoint.GenerateReportCard, {
+            type: GenerateReportCardType.SCRIM,
+            mleScrimId: scrim.databaseIds.legacyId,
+        }, {timeout: 300000});
         if (reportCardResult.status !== ResponseStatus.SUCCESS) {
             this.logger.warn("Failed to generate report card");
             throw reportCardResult.error;

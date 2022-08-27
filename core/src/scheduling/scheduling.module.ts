@@ -1,4 +1,4 @@
-import {Module} from "@nestjs/common";
+import {forwardRef, Module} from "@nestjs/common";
 
 import {DatabaseModule} from "../database";
 import {FranchiseModule} from "../franchise";
@@ -15,9 +15,28 @@ import {ScheduleGroupService} from "./schedule-group/schedule-group.service";
 import {ScheduleGroupTypeService} from "./schedule-group/schedule-group-type.service";
 
 @Module({
-    imports: [DatabaseModule, FranchiseModule, UtilModule],
-    providers: [MatchService, RoundService, ScheduleGroupModResolver, ScheduleGroupResolver, ScheduleGroupService, ScheduleGroupTypeService, ScheduleFixtureService, ScheduleFixtureResolver, MatchResolver],
-    exports: [MatchService, RoundService],
-    controllers: [MatchController],
+    imports: [
+        DatabaseModule,
+        forwardRef(() => FranchiseModule),
+        UtilModule,
+    ],
+    providers: [
+        MatchService,
+        RoundService,
+        ScheduleGroupModResolver,
+        ScheduleGroupResolver,
+        ScheduleGroupService,
+        ScheduleGroupTypeService,
+        ScheduleFixtureService,
+        ScheduleFixtureResolver,
+        MatchResolver,
+    ],
+    exports: [
+        MatchService,
+        RoundService,
+    ],
+    controllers: [
+        MatchController,
+    ],
 })
 export class SchedulingModule {}
