@@ -58,7 +58,7 @@ export class MledbPlayerController {
             return platformIdsResponse.map(r => (r as PromiseFulfilledResult<CoreOutput<CoreEndpoint.GetPlayerByPlatformId>>).value);
         } else {
             // Build up a custom error response containing the list of failed platforms + IDs.
-            var failedPlatforms: string[] = [];
+            const failedPlatforms: string[] = [];
 
             platformIdsResponse.forEach((r,i) => {
                 if (r.status === "rejected") {

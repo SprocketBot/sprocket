@@ -131,7 +131,7 @@ export class ReplayValidationService {
         if (userIdsResponses.some(r => r.status == ResponseStatus.ERROR)) {
 
             // Build up a list of failed player Discord IDs to return in the error response.
-            var errors: ValidationError[] = [];
+            const errors: ValidationError[] = [];
             userIdsResponses.forEach((r,i) => {
                 if (r.status == ResponseStatus.ERROR) {
                     errors.push({
