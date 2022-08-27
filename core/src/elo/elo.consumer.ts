@@ -33,10 +33,9 @@ export class EloConsumer {
         const autoRankoutsEnabled = await this.gameFeatureService.featureIsEnabled(FeatureCode.AUTO_RANKOUTS, rocketLeague.id, mleOrg.id);
         const autoSalariesEnabled = await this.gameFeatureService.featureIsEnabled(FeatureCode.AUTO_SALARIES, rocketLeague.id, mleOrg.id);
 
-        if (autoRankoutsEnabled) {
-            await this.eloConnectorService.createJob(EloEndpoint.CalculateSalaries, {doRankouts: true});
-        } else if (autoSalariesEnabled) {
-            await this.eloConnectorService.createJob(EloEndpoint.CalculateSalaries, {doRankouts: false});
-        }
+        if (!autoSalariesEnabled) return;
+        
+        const salaryData = await this.eloConnectorService.createJobAndWait(EloEndpoint.CalculateSalaries, {doRankouts: autoRankoutsEnabled});
+        await this.eloService.saveSalaries(salaryData);
     }
 }

@@ -8,11 +8,7 @@ import {Repository} from "typeorm";
 
 import type {MatchParent, PlayerStatLine} from "../database";
 import {
-    Invalidation,
-    Match,
-    Player,
-    Round,
-    Team,
+    Invalidation, Match, Player, Round, Team,
 } from "../database";
 import {WEEKLY_SALARIES_JOB_NAME} from "./elo.consumer";
 import {EloBullQueue, EloEndpoint} from "./elo-connector";
