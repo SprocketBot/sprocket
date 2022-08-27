@@ -128,12 +128,12 @@ export class ReplayValidationService {
             accountId: p.discordId,
         })));
 
-        if (userIdsResponses.some(r => r.status == ResponseStatus.ERROR)) {
-
+        if (userIdsResponses.some(r => r.status === ResponseStatus.ERROR)) {
             // Build up a list of failed player Discord IDs to return in the error response.
             const sprocketUserErrors: ValidationError[] = [];
-            userIdsResponses.forEach((r,i) => {
-                if (r.status == ResponseStatus.ERROR) {
+            
+            userIdsResponses.forEach((r, i) => {
+                if (r.status === ResponseStatus.ERROR) {
                     sprocketUserErrors.push({
                         error: `Could not find a Sprocket account for ${players[i].discordId}`,
                         playerIndex: i,
@@ -141,7 +141,7 @@ export class ReplayValidationService {
                 }
             });
 
-            sprocketUserErrors.forEach(err => this.logger.error(err.error));
+            sprocketUserErrors.forEach(err => { this.logger.error(err.error) });
             return {
                 valid: false,
                 errors: sprocketUserErrors,

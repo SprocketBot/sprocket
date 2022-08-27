@@ -56,17 +56,17 @@ export class MledbPlayerController {
 
         if (platformIdsResponse.every(r => r.status === "fulfilled")) {
             return platformIdsResponse.map(r => (r as PromiseFulfilledResult<CoreOutput<CoreEndpoint.GetPlayerByPlatformId>>).value);
-        } else {
-            // Build up a custom error response containing the list of failed platforms + IDs.
-            const failedPlatforms: string[] = [];
-
-            platformIdsResponse.forEach((r,i) => {
-                if (r.status === "rejected") {
-                    failedPlatforms.push(`${platformIds[i].platform}: ${platformIds[i].platformId}`);
-                }
-            });
-
-            throw new Error(`Could not find players associated with the following platforms: ${failedPlatforms.join(", ")}`);
         }
+
+        // Build up a custom error response containing the list of failed platforms + IDs.
+        const failedPlatforms: string[] = [];
+
+        platformIdsResponse.forEach((r, i) => {
+            if (r.status === "rejected") {
+                failedPlatforms.push(`${platformIds[i].platform}: ${platformIds[i].platformId}`);
+            }
+        });
+
+        throw new Error(`Could not find players associated with the following platforms: ${failedPlatforms.join(", ")}`);
     }
 }
