@@ -56,18 +56,6 @@ export class EloService {
     }
 
     async saveSalaries(payload: SalaryPayloadItem[][]): Promise<void> {
-        await Promise.all(payload.map(async sg => {
-            await Promise.all(sg.map(async deltaP => {
-                let player = await this.playerRepository.findOneOrFail({where: {id: deltaP.playerId} });
-
-                player = this.playerRepository.merge(player, {
-                    skillGroupId: player.skillGroupId + deltaP.sgDelta,
-                    salary: deltaP.newSalary,
-                });
-                await this.playerRepository.save(player);
-            }));
-        }));
-
         await Promise.allSettled(payload.map(async payloadSkillGroup => Promise.allSettled(payloadSkillGroup.map(async playerDelta => {
             const player = await this.playerService.getPlayer({
                 where: {id: playerDelta.playerId},
