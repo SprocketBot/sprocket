@@ -138,7 +138,7 @@ export class EloService {
                         userId: discordAccount.accountId,
                         payload: {
                             embeds: [ {
-                                title: "Rankdown Availabile",
+                                title: "Rankdown Available",
                                 description: `You have been offered a rankdown from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
                                 author: {
                                     name: `${orgProfile.name}`,
