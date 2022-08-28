@@ -47,8 +47,6 @@
         }
     };
 
-    $: console.log(activeScrimsData);
-
 
 </script>
 
