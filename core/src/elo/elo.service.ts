@@ -2,16 +2,21 @@ import {InjectQueue} from "@nestjs/bull";
 import {Injectable, Logger} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {BallchasingPlayer} from "@sprocketbot/common";
-import {EventsService, EventTopic} from "@sprocketbot/common";
+import {
+    ButtonComponentStyle, ComponentType, config, EventsService, EventTopic, NotificationEndpoint, NotificationService,
+} from "@sprocketbot/common";
+import {NotificationType} from "@sprocketbot/common/lib/service-connectors/notification/schemas";
 import {Queue} from "bull";
-import {previousMonday} from "date-fns";
+import {add, previousMonday} from "date-fns";
 import {Repository} from "typeorm";
 
 import type {MatchParent, PlayerStatLine} from "../database";
 import {
-    Invalidation, Match, Player, Round, Team,
+    Invalidation, Match, Round, Team,
 } from "../database";
 import {GameSkillGroupService, PlayerService} from "../franchise";
+import {UserService} from "../identity";
+import {OrganizationService} from "../organization";
 import {WEEKLY_SALARIES_JOB_NAME} from "./elo.consumer";
 import {EloBullQueue, EloEndpoint} from "./elo-connector";
 import {EloConnectorService} from "./elo-connector/elo-connector.service";
@@ -25,7 +30,6 @@ export class EloService {
     private readonly logger = new Logger(EloService.name);
 
     constructor(
-        @InjectRepository(Player) private readonly playerRepository: Repository<Player>,
         @InjectRepository(Round) private readonly roundRepository: Repository<Round>,
         @InjectRepository(Team) private readonly teamRepository: Repository<Team>,
         @InjectRepository(Match) private readonly matchRepository: Repository<Match>,
@@ -35,6 +39,9 @@ export class EloService {
         private readonly playerService: PlayerService,
         private readonly skillGroupService: GameSkillGroupService,
         private readonly eventsService: EventsService,
+        private readonly notificationService: NotificationService,
+        private readonly userService: UserService,
+        private readonly organizationService: OrganizationService,
     ) {}
 
     async onApplicationBootstrap(): Promise<void> {
@@ -60,6 +67,12 @@ export class EloService {
             const player = await this.playerService.getPlayer({
                 where: {id: playerDelta.playerId},
                 relations: {
+                    member: {
+                        user: {
+                            authenticationAccounts: true,
+                        },
+                        organization: true,
+                    },
                     skillGroup: {
                         organization: true,
                         game: true,
@@ -97,7 +110,82 @@ export class EloService {
                     },
                 });
             } else {
-                // rank down, add a new input into redis for rankdown request
+                const skillGroup = await this.skillGroupService.getGameSkillGroup({
+                    where: {
+                        game: {
+                            id: player.skillGroup.game.id,
+                        },
+                        organization: {
+                            id: player.skillGroup.organization.id,
+                        },
+                        ordinal: player.skillGroup.ordinal + playerDelta.sgDelta,
+                        profile: true,
+                    },
+                });
+
+                const discordAccount = await this.userService.getUserDiscordAccount(player.member.user.id);
+                const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(player.member.organization.id);
+
+                await this.notificationService.send(NotificationEndpoint.SendNotification, {
+                    type: NotificationType.RANKDOWN,
+                    expiration: add(new Date(), {hours: 24}),
+                    payload: {
+                        playerId: playerDelta.playerId,
+                        skillGroupId: skillGroup.id,
+                        salary: playerDelta.newSalary,
+                    },
+                    notification: {
+                        userId: discordAccount.accountId,
+                        payload: {
+                            embeds: [ {
+                                title: "Rankdown Availabile",
+                                description: `You have been offered a rankdown from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
+                                author: {
+                                    name: `${orgProfile.name}`,
+                                },
+                                fields: [
+                                    {
+                                        name: "New League",
+                                        value: `${skillGroup.profile.description}`,
+                                    },
+                                    {
+                                        name: "New Salary",
+                                        value: `${playerDelta.newSalary}`,
+                                    },
+                                ],
+                                footer: {
+                                    text: orgProfile.name,
+                                },
+                                timestamp: Date.now(),
+                            } ],
+                            components: [ {
+                                type: ComponentType.ACTION_ROW,
+                                components: [
+                                    {
+                                        type: ComponentType.BUTTON,
+                                        style: ButtonComponentStyle.LINK,
+                                        label: "Ratify here!",
+                                        // TODO: THIS!
+                                        url: `${config.web.url}/DO SOMETHING HERE`,
+                                    },
+                                ],
+                            } ],
+                        },
+                        brandingOptions: {
+                            organizationId: player.member.organization.id,
+                            options: {
+                                author: {
+                                    icon: true,
+                                },
+                                color: true,
+                                thumbnail: true,
+                                footer: {
+                                    icon: true,
+                                },
+                            },
+                        },
+                    },
+                });
             }
         }))));
     }
