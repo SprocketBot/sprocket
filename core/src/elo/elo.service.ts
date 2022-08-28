@@ -2,6 +2,7 @@ import {InjectQueue} from "@nestjs/bull";
 import {Injectable, Logger} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {BallchasingPlayer} from "@sprocketbot/common";
+import {EventsService, EventTopic} from "@sprocketbot/common";
 import {Queue} from "bull";
 import {previousMonday} from "date-fns";
 import {Repository} from "typeorm";
@@ -10,6 +11,7 @@ import type {MatchParent, PlayerStatLine} from "../database";
 import {
     Invalidation, Match, Player, Round, Team,
 } from "../database";
+import {GameSkillGroupService, PlayerService} from "../franchise";
 import {WEEKLY_SALARIES_JOB_NAME} from "./elo.consumer";
 import {EloBullQueue, EloEndpoint} from "./elo-connector";
 import {EloConnectorService} from "./elo-connector/elo-connector.service";
@@ -30,6 +32,9 @@ export class EloService {
         @InjectRepository(Invalidation) private readonly invalidationRepository: Repository<Invalidation>,
         @InjectQueue(EloBullQueue) private eloQueue: Queue,
         private readonly eloConnectorService: EloConnectorService,
+        private readonly playerService: PlayerService,
+        private readonly skillGroupService: GameSkillGroupService,
+        private readonly eventsService: EventsService,
     ) {}
 
     async onApplicationBootstrap(): Promise<void> {
@@ -62,6 +67,51 @@ export class EloService {
                 await this.playerRepository.save(player);
             }));
         }));
+
+        await Promise.allSettled(payload.map(async payloadSkillGroup => Promise.allSettled(payloadSkillGroup.map(async playerDelta => {
+            const player = await this.playerService.getPlayer({
+                where: {id: playerDelta.playerId},
+                relations: {
+                    skillGroup: {
+                        organization: true,
+                        game: true,
+                        profile: true,
+                    },
+                },
+            });
+            
+            if (playerDelta.sgDelta === 0) await this.playerService.updatePlayerStanding(playerDelta.playerId, playerDelta.newSalary);
+            else if (playerDelta.sgDelta > 0) {
+                const skillGroup = await this.skillGroupService.getGameSkillGroup({
+                    where: {
+                        game: {
+                            id: player.skillGroup.game.id,
+                        },
+                        organization: {
+                            id: player.skillGroup.organization.id,
+                        },
+                        ordinal: player.skillGroup.ordinal + playerDelta.sgDelta,
+                        profile: true,
+                    },
+                });
+
+                await this.playerService.updatePlayerStanding(playerDelta.playerId, playerDelta.newSalary, skillGroup.id);
+                await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
+                    oldSkillGroup: {
+                        id: player.skillGroup.id,
+                        ordinal: player.skillGroup.ordinal,
+                        name: player.skillGroup.profile.description,
+                    },
+                    newSkillGroup: {
+                        id: skillGroup.id,
+                        ordinal: skillGroup.ordinal,
+                        name: skillGroup.profile.description,
+                    },
+                });
+            } else {
+                // rank down, add a new input into redis for rankdown request
+            }
+        }))));
     }
 
     translatePayload(matchParent: MatchParent, isScrim: boolean): CalculateEloForMatchInput {

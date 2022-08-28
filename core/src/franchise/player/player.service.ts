@@ -61,4 +61,20 @@ export class PlayerService {
         await this.playerRepository.save(player);
         return player;
     }
+
+    async updatePlayerStanding(playerId: number, salary: number, skillGroupId?: number): Promise<Player> {
+        let player = await this.playerRepository.findOneOrFail({where: {id: playerId} });
+        
+        if (skillGroupId) {
+            const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
+
+            player = this.playerRepository.merge(player, {salary, skillGroup});
+            await this.playerRepository.save(player);
+        } else {
+            player = this.playerRepository.merge(player, {salary});
+            await this.playerRepository.save(player);
+        }
+
+        return player;
+    }
 }
