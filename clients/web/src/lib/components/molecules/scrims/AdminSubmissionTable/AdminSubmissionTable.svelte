@@ -1,9 +1,18 @@
 <script lang="ts">
     import {activeSubmissionsStore, type Submission} from "$lib/api";
+    import SubmissionDetailModal from "./SubmissionDetailModal.svelte";
     import Row from "./Row.svelte";
 
     let submissions: Submission[] | undefined;
     $: submissions = $activeSubmissionsStore.data?.activeSubmissions;
+
+    let selectedSubmission: Submission | undefined;
+    let detailModalOpen = false;
+
+    const onRowClick = (s: Submission) => {
+        selectedSubmission = s;
+        detailModalOpen = true;
+    };
 </script>
 
 
@@ -19,11 +28,15 @@
     <tbody>
         {#if submissions}
             {#each submissions as submission (submission.creatorId)}
-                <Row submission={submission} />
+                <Row submission={submission} on:click={() => { onRowClick(submission) }} />
             {/each}
         {/if}
     </tbody>
 </table>
+
+{#if selectedSubmission}
+    <SubmissionDetailModal bind:visible={detailModalOpen} submission={selectedSubmission} />
+{/if}
 
 
 <style lang="postcss">
