@@ -3,10 +3,7 @@ import type {
     NotificationEndpoint, NotificationInput, NotificationOutput,
 } from "@sprocketbot/common";
 import {
-    BotEndpoint,
-} from "@sprocketbot/common";
-import {
-    BotService, config, RedisService,
+    BotEndpoint, BotService, config, RedisService,
 } from "@sprocketbot/common";
 import {NotificationMessageType} from "@sprocketbot/common/lib/service-connectors/notification/schemas";
 import {randomUUID} from "crypto";
