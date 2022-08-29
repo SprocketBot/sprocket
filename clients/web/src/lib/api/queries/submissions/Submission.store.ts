@@ -17,6 +17,8 @@ export interface SubmissionStoreSubscriptionVariables {
 
 
 export class SubmissionStore extends LiveQueryStore<SubmissionStoreValue, SubmissionStoreVariables, SubmissionSubscriptionValue, SubmissionStoreSubscriptionVariables> {
+    protected _subVars: SubmissionStoreSubscriptionVariables;
+
     protected queryString = gql<SubmissionStoreValue, SubmissionStoreVariables>`
         query ($submissionId: String!) {
             submission: getSubmission(submissionId: $submissionId) {
@@ -113,6 +115,7 @@ export class SubmissionStore extends LiveQueryStore<SubmissionStoreValue, Submis
         super();
         this.vars = {submissionId};
         this.subscriptionVariables = {submissionId};
+        this._subVars = {submissionId};
     }
 
     protected handleGqlMessage = (message: OperationResult<SubmissionSubscriptionValue, SubmissionStoreSubscriptionVariables>): void => {
