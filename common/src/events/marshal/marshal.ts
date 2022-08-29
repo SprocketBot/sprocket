@@ -12,7 +12,7 @@ import {EventMetaSchema} from "./marshal.types";
 export abstract class EventMarshal {
     readonly logger = new Logger(EventMarshal.name);
 
-    constructor(private readonly eventsService: EventsService) {}
+    constructor(readonly eventsService: EventsService) {}
 
     async onApplicationBootstrap(): Promise<void> {
         const marshalMetadata: unknown = Reflect.getMetadata(EventMarshalMetadataKey, this);

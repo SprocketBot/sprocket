@@ -1,18 +1,30 @@
-import {Injectable, Logger} from "@nestjs/common";
-import type {MatchDatabaseIds} from "@sprocketbot/common";
+import {Injectable} from "@nestjs/common";
 import {
-    BotEndpoint, BotService, config, CoreEndpoint, CoreService, GenerateReportCardType, ResponseStatus,
+    BotEndpoint,
+    BotService,
+    config,
+    CoreEndpoint,
+    CoreService,
+    Event,
+    EventMarshal,
+    EventsService,
+    EventTopic,
+    GenerateReportCardType,
+    MatchDatabaseIds,
+    ResponseStatus,
 } from "@sprocketbot/common";
 
 @Injectable()
-export class MatchService {
-    private readonly logger = new Logger(MatchService.name);
-
+export class MatchService extends EventMarshal {
     constructor(
+        readonly eventsService: EventsService,
         private readonly botService: BotService,
         private readonly coreService: CoreService,
-    ) {}
+    ) {
+        super(eventsService);
+    }
 
+    @Event(EventTopic.MatchSaved)
     async sendReportCard(databaseIds: MatchDatabaseIds): Promise<void> {
         const matchResult = await this.coreService.send(CoreEndpoint.GetMatchById, {matchId: databaseIds.id});
         if (matchResult.status === ResponseStatus.ERROR) throw matchResult.error;

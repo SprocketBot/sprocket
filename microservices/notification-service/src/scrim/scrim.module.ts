@@ -3,7 +3,6 @@ import {
     BotModule, CoreModule, EventsModule, MatchmakingModule,
 } from "@sprocketbot/common";
 
-import {ScrimEventSubscriber} from "./scrim.event-subscriber";
 import {ScrimService} from "./scrim.service";
 
 @Module({
@@ -13,9 +12,6 @@ import {ScrimService} from "./scrim.service";
         MatchmakingModule,
         CoreModule,
     ],
-    providers: [
-        ScrimService,
-        ScrimEventSubscriber,
-    ],
+    providers: [ScrimService],
 })
 export class ScrimModule {}

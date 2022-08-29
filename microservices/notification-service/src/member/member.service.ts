@@ -1,24 +1,30 @@
-import {Injectable, Logger} from "@nestjs/common";
-import type {MemberRestriction} from "@sprocketbot/common";
+import {Injectable} from "@nestjs/common";
 import {
     BotEndpoint,
     BotService,
     CoreEndpoint,
     CoreService,
+    Event,
+    EventMarshal,
+    EventsService,
+    EventTopic,
+    MemberRestriction,
     MemberRestrictionType,
     ResponseStatus,
 } from "@sprocketbot/common";
 import {format, utcToZonedTime} from "date-fns-tz";
 
 @Injectable()
-export class MemberService {
-    private readonly logger = new Logger(MemberService.name);
-
+export class MemberService extends EventMarshal {
     constructor(
+        readonly eventsService: EventsService,
         private readonly botService: BotService,
         private readonly coreService: CoreService,
-    ) {}
+    ) {
+        super(eventsService);
+    }
 
+    @Event(EventTopic.MemberRestrictionCreated)
     async sendQueueBanNotification(restriction: MemberRestriction): Promise<void> {
         if (restriction.type !== MemberRestrictionType.QUEUE_BAN) return;
 
