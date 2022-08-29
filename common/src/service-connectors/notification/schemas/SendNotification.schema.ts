@@ -8,14 +8,38 @@ import {
 
 export enum NotificationType {
     RANKDOWN = "RANKDOWN",
+    TEST = "TEST",
 }
+
+export enum NotificationMessageType {
+    GuildTextMessage = "GuildTextMessage",
+    DirectMessage = "DirectMessage",
+    WebhookMessage = "WebhookMessage",
+}
+
+export const NotificationGuildTextMessageSchema = SendGuildTextMessage_Request.extend({
+    type: z.literal(NotificationMessageType.GuildTextMessage),
+});
+
+export const NotificationDirectMessageSchema = SendDirectMessage_Request.extend({
+    type: z.literal(NotificationMessageType.DirectMessage),
+});
+
+export const NotificationWebhookMessageSchema = SendWebhookMessage_Request.extend({
+    type: z.literal(NotificationMessageType.WebhookMessage),
+});
 
 export const BaseNotificationSchema = z.object({
     type: z.nativeEnum(NotificationType),
     expiration: z.date().nullable()
         .optional(),
     payload: z.object({}),
-    notification: z.union([SendDirectMessage_Request, SendWebhookMessage_Request, SendGuildTextMessage_Request]),
+    notification: z.union([
+        NotificationGuildTextMessageSchema,
+        NotificationDirectMessageSchema,
+        NotificationWebhookMessageSchema,
+    ]).nullable()
+        .optional(),
 });
 
 export const RankdownNotificationSchema = BaseNotificationSchema.extend({
@@ -26,14 +50,21 @@ export const RankdownNotificationSchema = BaseNotificationSchema.extend({
         skillGroupId: z.number(),
         salary: z.number(),
     }),
-    notification: SendDirectMessage_Request,
+    notification: NotificationDirectMessageSchema,
 });
 
 export type RankdownNotification = z.infer<typeof RankdownNotificationSchema>;
 export type RankdownNotificationPayload = RankdownNotification["payload"];
 
-// TODO: Union once we get another notification type
-export const NotificationSchema = /* z.union([ */RankdownNotificationSchema/* ]) */;
+export const TestNotificationSchema = BaseNotificationSchema.extend({
+    type: z.literal(NotificationType.TEST),
+    expiration: z.date(),
+    payload: z.object({
+        number: z.number(),
+    }),
+});
+
+export const NotificationSchema = z.union([RankdownNotificationSchema, TestNotificationSchema]);
 
 export const SendNotification_Request = NotificationSchema;
 

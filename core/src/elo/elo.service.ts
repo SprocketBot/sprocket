@@ -5,7 +5,7 @@ import type {BallchasingPlayer} from "@sprocketbot/common";
 import {
     ButtonComponentStyle, ComponentType, config, EventsService, EventTopic, NotificationEndpoint, NotificationService,
 } from "@sprocketbot/common";
-import {NotificationType} from "@sprocketbot/common/lib/service-connectors/notification/schemas";
+import {NotificationMessageType, NotificationType} from "@sprocketbot/common/lib/service-connectors/notification/schemas";
 import {Queue} from "bull";
 import {add, previousMonday} from "date-fns";
 import {Repository} from "typeorm";
@@ -135,6 +135,7 @@ export class EloService {
                         salary: playerDelta.newSalary,
                     },
                     notification: {
+                        type: NotificationMessageType.DirectMessage,
                         userId: discordAccount.accountId,
                         payload: {
                             embeds: [ {
