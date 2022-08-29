@@ -39,6 +39,7 @@ export class ActiveSubmissionsStore extends QueryStore<ActiveSubmissionsStoreVal
     protected queryString = gql<ActiveSubmissionsStoreValue, ActiveSubmissionsStoreVariables>`
     query {
         activeSubmissions: getActiveSubmissions {
+            id
             type
             scrimId
             matchId

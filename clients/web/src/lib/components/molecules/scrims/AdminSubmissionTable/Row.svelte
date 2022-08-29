@@ -13,6 +13,7 @@
 </script>
 
 <tr on:click={onClick} class="cursor-pointer">
+    <td>{submission.id}</td>
     <td>{submission.type}</td>
     <td>{scrimIdOrMatchId}</td>
     <td>{submission.creatorId}</td>

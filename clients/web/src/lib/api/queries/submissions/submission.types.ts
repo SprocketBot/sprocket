@@ -14,6 +14,7 @@ export interface SubmissionProgress {
 }
 
 export interface Submission {
+    id: string;
     status: string;
     creatorId: number;
     ratifications: number;

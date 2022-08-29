@@ -19,6 +19,7 @@
 <table class="table table-compact table-zebra text-center w-full">
     <thead>
         <tr>
+            <th>Submission ID</th>
             <th>Scrim/Match</th>
             <th>Scrim/Match ID</th>
             <th>Creator</th>

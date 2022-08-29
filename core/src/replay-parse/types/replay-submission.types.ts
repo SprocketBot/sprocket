@@ -18,6 +18,9 @@ registerEnumType(ReplaySubmissionStatus, {name: "ReplaySubmissionStatus"});
 
 @ObjectType("ReplaySubmission")
 export class GqlReplaySubmission {
+    @Field()
+    id: string;
+
     @Field(() => Int)
     creatorId: number;
 

@@ -3,6 +3,7 @@ import {z} from "zod";
 import {ReplaySubmissionStatus, ReplaySubmissionType} from "../types";
 
 const BaseSubmission = z.object({
+    id: z.string(),
     creatorId: z.number(),
     status: z.nativeEnum(ReplaySubmissionStatus),
     taskIds: z.string().array(),

@@ -50,6 +50,7 @@ export class ReplaySubmissionCrudService {
         if (existingSubmission && !existingSubmission.items.length) return existingSubmission;
 
         const commonFields: BaseReplaySubmission = {
+            id: submissionId,
             creatorId: playerId,
             status: ReplaySubmissionStatus.PROCESSING,
             taskIds: [],
