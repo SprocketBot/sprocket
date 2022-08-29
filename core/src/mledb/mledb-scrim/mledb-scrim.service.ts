@@ -100,6 +100,7 @@ export class MledbScrimService {
         }));
 
         await runner.manager.save(scrim);
+        await runner.manager.save(series);
         await this.saveSeries(submission, submissionId, runner, series);
         await runner.manager.save(playerEligibilities);
 
@@ -217,9 +218,13 @@ export class MledbScrimService {
             return replay;
         }));
 
+        mleSeriesReplays.forEach(sr => {
+            sr.series = series;
+            // @ts-expect-error Legacy Models gonna Legacy
+            sr.series_id = series.id;
+        });
         series.seriesReplays = mleSeriesReplays;
 
-        await runner.manager.save(series);
         await runner.manager.save(mleSeriesReplays);
         await runner.manager.save(coreStats);
         await runner.manager.save(playerStats);
