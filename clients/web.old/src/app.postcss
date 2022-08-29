@@ -1,0 +1,32 @@
+/* Write your global styles here, in PostCSS syntax */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    font-family: 'Montserrat', sans-serif;
+
+}
+body {
+    @apply text-gray-100 text-opacity-80 bg-gray-800 min-h-screen;
+}
+h1,h2,h3,h4,h5,h6 {
+    @apply text-opacity-100 text-gray-100;
+}
+
+table.table tr:not(thead tr) {
+    @apply bg-base-200/75;
+    &:nth-child(even) {
+        @apply bg-base-200/50;
+    }
+    &:last-child {
+        td:last-child {
+            @apply rounded-br-lg;
+        }
+        td:first-child {
+            @apply rounded-bl-lg;
+        }
+
+    }
+
+}
