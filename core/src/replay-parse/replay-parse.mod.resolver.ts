@@ -73,12 +73,6 @@ export class ReplayParseModResolver {
         return this.rpService.rejectSubmission(submissionId, user.userId.toString(), reason);
     }
 
-    @Subscription(() => GqlReplaySubmission, {nullable: true})
-    async followSubmission(@Args("submissionId") submissionId: string): Promise<AsyncIterator<GqlReplaySubmission>> {
-        await this.rpService.enableSubscription(submissionId);
-        return this.pubsub.asyncIterator(submissionId);
-    }
-
     @Mutation(() => ValidationResultUnion)
     async validateSubmission(@Args("submissionId") submissionId: string): Promise<ValidationResult> {
         const response = await this.submissionService.send(SubmissionEndpoint.ValidateSubmission, {submissionId});
@@ -87,4 +81,11 @@ export class ReplayParseModResolver {
         }
         return response.data;
     }
+
+    @Subscription(() => GqlReplaySubmission, {nullable: true})
+    async followSubmission(@Args("submissionId") submissionId: string): Promise<AsyncIterator<GqlReplaySubmission>> {
+        await this.rpService.enableSubscription(submissionId);
+        return this.pubsub.asyncIterator(submissionId);
+    }
+
 }

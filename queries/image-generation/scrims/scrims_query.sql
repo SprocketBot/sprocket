@@ -1,5 +1,5 @@
-WITH 
-vars AS (SELECT 
+WITH
+vars AS (SELECT
 		 	$1::numeric AS scrim_id,
 			$2::numeric AS org_id
 		),
