@@ -5,12 +5,11 @@
 import RatificationView from "./RatificationView.svelte";
 
   export let submission: Submission;
-  export let submissionId: string;
 </script>
 
 
 {#if !["RATIFYING", "RATIFIED"].includes(submission.status)}
-	<SubmissionProgressView  {submission} {submissionId} />
+	<SubmissionProgressView  {submission} />
 {:else}
-	<RatificationView {submission} {submissionId}/>
+	<RatificationView {submission} />
 {/if}

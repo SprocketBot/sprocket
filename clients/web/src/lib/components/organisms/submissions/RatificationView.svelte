@@ -6,7 +6,6 @@
 
     export let submission: Submission;
     if (!submission) throw new Error();
-    export let submissionId: string;
 
 
     const submissionResults = [false];
@@ -17,7 +16,7 @@
 
     async function ratifyScrim() {
         if (hasRatified) return;
-        await RatifySubmissionMutation({submissionId});
+        await RatifySubmissionMutation({submissionId: submission.id});
         // eslint-disable-next-line require-atomic-updates
         hasRatified = true;
     }
@@ -61,7 +60,7 @@
 
 </section>
 
-<RejectSubmissionModal bind:visible={rejecting} submissionId={submissionId} />
+<RejectSubmissionModal bind:visible={rejecting} submissionId={submission.id} />
 
 <style lang="postcss">
     h2 {

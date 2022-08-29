@@ -2,6 +2,7 @@ export interface SubmissionRejection {
     playerId: string;
     playerName: string;
     reason: string;
+    stale: boolean;
 }
 export interface SubmissionProgress {
     progress: {
