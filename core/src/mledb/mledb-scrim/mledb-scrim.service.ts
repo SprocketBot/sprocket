@@ -34,7 +34,7 @@ export class MledbScrimService {
     constructor(
         @InjectRepository(MLE_Scrim) private readonly mleScrimRepository: Repository<MLE_Scrim>,
         @InjectRepository(MLE_Series) private readonly mleSeriesRepository: Repository<MLE_Series>,
-        @InjectRepository(MLE_SeriesReplay) private readonly mleSeriesReplayRepositroy: Repository<MLE_SeriesReplay>,
+        @InjectRepository(MLE_SeriesReplay) private readonly mleSeriesReplayRepository: Repository<MLE_SeriesReplay>,
         @InjectRepository(MLE_PlayerStatsCore) private readonly mlePlayerStatsCoreRepository: Repository<MLE_PlayerStatsCore>,
         @InjectRepository(MLE_PlayerStats) private readonly mlePlayerStatsRepository: Repository<MLE_PlayerStats>,
         @InjectRepository(MLE_TeamCoreStats) private readonly mleTeamCoreStatsRepository: Repository<MLE_TeamCoreStats>,
@@ -113,7 +113,7 @@ export class MledbScrimService {
 
         const mleSeriesReplays = await Promise.all(submission.items.map(async item => {
             const data: BallchasingResponse = item.progress!.result!.data;
-            const replay = this.mleSeriesReplayRepositroy.create();
+            const replay = this.mleSeriesReplayRepository.create();
             replay.series = series;
             replay.map = ballchasingMapLookup.get(data.map_code) ?? RocketLeagueMap.UNKNOWN;
             replay.matchGuid = data.match_guid;
@@ -229,7 +229,7 @@ export class MledbScrimService {
     }
 
     async getScrimIdByBallchasingId(ballchasingId: string): Promise<number> {
-        const mleReplay = await this.mleSeriesReplayRepositroy.findOneOrFail({where: {ballchasingId}, relations: ["series", "series.scrim"] });
+        const mleReplay = await this.mleSeriesReplayRepository.findOneOrFail({where: {ballchasingId}, relations: ["series", "series.scrim"] });
         if (!mleReplay.series.scrim) throw new Error(`Replay is not for a scrim replayId=${mleReplay.id}`);
         return mleReplay.series.scrim.id;
     }
