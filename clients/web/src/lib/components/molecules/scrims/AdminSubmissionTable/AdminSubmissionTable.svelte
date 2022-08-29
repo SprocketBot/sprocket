@@ -6,6 +6,9 @@
     let submissions: Submission[] | undefined;
     $: submissions = $activeSubmissionsStore.data?.activeSubmissions;
 
+    let error: string | undefined;
+    $: error = $activeSubmissionsStore.error?.message;
+
     let selectedSubmission: Submission | undefined;
     let detailModalOpen = false;
 
@@ -15,25 +18,33 @@
     };
 </script>
 
+{#if error}
+    <div class="text-error">
+        <p>An error occurred. Check the network tab for more details.</p>
+        <pre>{error}</pre>
+    </div>
+{/if}
 
-<table class="table table-compact table-zebra text-center w-full">
-    <thead>
-        <tr>
-            <th>Submission ID</th>
-            <th>Scrim/Match</th>
-            <th>Scrim/Match ID</th>
-            <th>Creator</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        {#if submissions}
-            {#each submissions as submission (submission.creatorId)}
-                <Row submission={submission} on:click={() => { onRowClick(submission) }} />
-            {/each}
-        {/if}
-    </tbody>
-</table>
+{#if submissions}
+    <table class="table table-compact table-zebra text-center w-full">
+        <thead>
+            <tr>
+                <th>Submission ID</th>
+                <th>Scrim/Match</th>
+                <th>Scrim/Match ID</th>
+                <th>Creator</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {#if submissions}
+                {#each submissions as submission (submission.creatorId)}
+                    <Row submission={submission} on:click={() => { onRowClick(submission) }} />
+                {/each}
+            {/if}
+        </tbody>
+    </table>
+{/if}
 
 {#if selectedSubmission}
     <SubmissionDetailModal bind:visible={detailModalOpen} submission={selectedSubmission} />

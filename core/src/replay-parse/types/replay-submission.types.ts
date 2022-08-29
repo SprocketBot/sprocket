@@ -48,7 +48,7 @@ export class GqlReplaySubmission {
     @Field(() => Boolean)
     userHasRatified: boolean;
 
-    @Field(() => [SubmissionRejection])
+    @Field(() => [SubmissionRejection], {nullable: true})
     rejections?: SubmissionRejection[];
 
     @Field(() => ReplaySubmissionType)
