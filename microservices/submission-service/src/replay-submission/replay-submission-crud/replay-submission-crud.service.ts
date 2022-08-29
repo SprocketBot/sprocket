@@ -32,6 +32,13 @@ export class ReplaySubmissionCrudService {
         private readonly coreService: CoreService,
     ) {}
 
+    async getAllSubmissions(): Promise<ReplaySubmission[]> {
+        // Use wildcard for submissionId to list all matching keys
+        const submissionKeys = await this.redisService.getKeys(getSubmissionKey("*"));
+        const submissions = await Promise.all(submissionKeys.map<Promise<ReplaySubmission>>(async key => this.redisService.getJson<ReplaySubmission>(key)));
+        return submissions;
+    }
+
     async getSubmission(submissionId: string): Promise<ReplaySubmission | undefined> {
         const key = getSubmissionKey(submissionId);
         return this.redisService.getJson<ReplaySubmission | undefined>(key);
