@@ -13,7 +13,7 @@ export const Event = (event: EventTopic): MethodDecorator => <T>(target: Object,
         await originalMethod.apply(this, params);
     };
 
-    const eventMeat: EventMeta = {
+    const eventMeta: EventMeta = {
         functionName: key.toString(),
         event: event,
     };
@@ -23,7 +23,7 @@ export const Event = (event: EventTopic): MethodDecorator => <T>(target: Object,
 
     const classEventMetadatas: unknown[] = unsafeMetadata as unknown[];
 
-    classEventMetadatas.push(eventMeat);
+    classEventMetadatas.push(eventMeta);
     Reflect.defineMetadata(EventMarshalMetadataKey, classEventMetadatas, target);
     
     return descriptor;
