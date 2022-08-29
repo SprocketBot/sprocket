@@ -47,9 +47,10 @@
     };
 </script>
 
-<table class="table text-center w-full">
+<table class="table table-compact table-zebra text-center w-full">
   <thead>
     <tr>
+      <th>Scrim ID</th>
       <th>Game</th>
       <th>Mode</th>
       <th>Status</th>
@@ -76,6 +77,7 @@
     {#if activeScrimsData?.length}
       {#each activeScrimsData as scrim (scrim.id)}
         <tr>
+          <td>{scrim.id}</td>
           <td>{scrim.gameMode?.game?.title ?? ""}</td>
           <td>{scrim.settings?.competitive ? "Competitive" : "Casual"} {screamingSnakeToHuman(scrim.settings?.mode)} {scrim.gameMode?.description}</td>
           <td>{scrim.status}</td>

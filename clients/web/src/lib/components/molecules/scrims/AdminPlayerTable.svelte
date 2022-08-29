@@ -14,13 +14,13 @@
     };
 </script>
 
-<table>
+<table class="table table-compact table-zebra text-center w-full" >
     <thead>
-    <tr>
-        <th>Player Name</th>
-        <th>Player ID</th>
-        <td/>
-    </tr>
+        <tr>
+            <th>Player Name</th>
+            <th>Player ID</th>
+            <td/>
+        </tr>
     </thead>
     <tbody>
     {#if activePlayersData}

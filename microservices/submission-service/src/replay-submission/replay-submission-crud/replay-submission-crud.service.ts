@@ -32,6 +32,13 @@ export class ReplaySubmissionCrudService {
         private readonly coreService: CoreService,
     ) {}
 
+    async getAllSubmissions(): Promise<ReplaySubmission[]> {
+        // Use wildcard for submissionId to list all matching keys
+        const submissionKeys = await this.redisService.getKeys(getSubmissionKey("*"));
+        const submissions = await Promise.all(submissionKeys.map<Promise<ReplaySubmission>>(async key => this.redisService.getJson<ReplaySubmission>(key)));
+        return submissions;
+    }
+
     async getSubmission(submissionId: string): Promise<ReplaySubmission | undefined> {
         const key = getSubmissionKey(submissionId);
         return this.redisService.getJson<ReplaySubmission | undefined>(key);
@@ -43,6 +50,7 @@ export class ReplaySubmissionCrudService {
         if (existingSubmission && !existingSubmission.items.length) return existingSubmission;
 
         const commonFields: BaseReplaySubmission = {
+            id: submissionId,
             creatorId: playerId,
             status: ReplaySubmissionStatus.PROCESSING,
             taskIds: [],
@@ -169,7 +177,7 @@ export class ReplaySubmissionCrudService {
 
     }
 
-    async addRejection(submissionId: string, playerId: string, reason: string): Promise<void> {
+    async addRejection(submissionId: string, playerId: number, reason: string): Promise<void> {
         const key = getSubmissionKey(submissionId);
         const rejectedAt = new Date().toISOString();
 
@@ -182,7 +190,7 @@ export class ReplaySubmissionCrudService {
         });
 
         const stale = false;
-        const rejection = {
+        const rejection: ReplaySubmissionRejection = {
             playerId, reason, rejectedItems, rejectedAt, stale,
         };
 

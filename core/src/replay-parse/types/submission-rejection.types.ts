@@ -18,8 +18,8 @@ export class SubmissionRejection {
     @Field()
     stale: boolean;
 
-    @Field(() => Date)
-    rejectedAt: Date | string;
+    @Field()
+    rejectedAt: string;
 
     rejectedItems?: RejectedItem[];
 }

@@ -2,7 +2,7 @@ import {z} from "zod";
 
 export const RejectSubmission_Request = z.object({
     submissionId: z.string(),
-    playerId: z.string(),
+    playerId: z.number(),
     reason: z.string(),
 });
 

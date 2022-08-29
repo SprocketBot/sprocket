@@ -18,6 +18,9 @@ registerEnumType(ReplaySubmissionStatus, {name: "ReplaySubmissionStatus"});
 
 @ObjectType("ReplaySubmission")
 export class GqlReplaySubmission {
+    @Field()
+    id: string;
+
     @Field(() => Int)
     creatorId: number;
 
@@ -45,7 +48,7 @@ export class GqlReplaySubmission {
     @Field(() => Boolean)
     userHasRatified: boolean;
 
-    @Field(() => [SubmissionRejection])
+    @Field(() => [SubmissionRejection], {nullable: true})
     rejections?: SubmissionRejection[];
 
     @Field(() => ReplaySubmissionType)
@@ -57,6 +60,7 @@ export class GqlReplaySubmission {
     @Field(() => String, {nullable: true})
     matchId?: Match["id"];
 
+    @Field(() => [Number])
     ratifiers: number[];
 }
 
