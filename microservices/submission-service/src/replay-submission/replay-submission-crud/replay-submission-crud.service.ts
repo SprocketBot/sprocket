@@ -177,7 +177,7 @@ export class ReplaySubmissionCrudService {
 
     }
 
-    async addRejection(submissionId: string, playerId: string, reason: string): Promise<void> {
+    async addRejection(submissionId: string, playerId: number, reason: string): Promise<void> {
         const key = getSubmissionKey(submissionId);
         const rejectedAt = new Date().toISOString();
 
@@ -190,7 +190,7 @@ export class ReplaySubmissionCrudService {
         });
 
         const stale = false;
-        const rejection = {
+        const rejection: ReplaySubmissionRejection = {
             playerId, reason, rejectedItems, rejectedAt, stale,
         };
 

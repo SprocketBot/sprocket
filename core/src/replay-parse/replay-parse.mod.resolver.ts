@@ -72,7 +72,7 @@ export class ReplayParseModResolver {
         @Args("submissionId") submissionId: string,
         @Args("reason") reason: string,
     ): Promise<void> {
-        return this.rpService.rejectSubmission(submissionId, user.userId.toString(), reason);
+        return this.rpService.rejectSubmissionByPlayer(submissionId, user.userId, reason);
     }
 
     @Subscription(() => GqlReplaySubmission, {nullable: true})
