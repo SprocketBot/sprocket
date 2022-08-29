@@ -42,8 +42,43 @@ export class ActiveSubmissionsStore extends QueryStore<ActiveSubmissionsStoreVal
             type
             scrimId
             matchId
+
             creatorId
+
             status
+
+            taskIds
+            items {
+                originalFilename
+                progress {
+                    status
+                    progress {
+                        value
+                        message
+                    }
+                }
+            }
+
+            validated
+            stats {
+                games {
+                    teams {
+                        won
+                        score
+                        players {
+                            name
+                            goals
+                        }
+                    }
+                }
+            }
+            ratifiers
+            requiredRatifications
+            rejections {
+                playerId
+                reason
+                rejectedAt
+            }
         }
     }
     `;

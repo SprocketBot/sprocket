@@ -57,6 +57,7 @@ export class GqlReplaySubmission {
     @Field(() => String, {nullable: true})
     matchId?: Match["id"];
 
+    @Field(() => [Number])
     ratifiers: number[];
 }
 
