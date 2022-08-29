@@ -1,13 +1,3 @@
-<script context="module">
-	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-	export function load({error, status}) {
-	    return {
-	        props: {
-	        },
-	    };
-	}
-</script>
-
 <script>
 	import {page} from "$app/stores";
 
