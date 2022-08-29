@@ -14,4 +14,15 @@ export class SubmissionService {
         if (result.status === ResponseStatus.SUCCESS) return result.data;
         throw result.error;
     }
+
+    async adminResetSubmission(submissionId: string): Promise<boolean> {
+        const result = await this.commonService.send(SubmissionEndpoint.ResetSubmission, {
+            submissionId: submissionId,
+            override: true,
+            playerId: "-1", // playerId is not used when `override=true`
+        });
+        
+        if (result.status === ResponseStatus.SUCCESS) return result.data;
+        throw result.error;
+    }
 }

@@ -47,10 +47,10 @@ export class ReplayParseService {
     /**
      * @returns if the scrim has been reset
      */
-    async resetBrokenReplays(submissionId: string, playerId: number): Promise<boolean> {
+    async resetBrokenReplays(submissionId: string, playerId: number, override = false): Promise<boolean> {
         const resetResponse = await this.submissionService.send(SubmissionEndpoint.ResetSubmission, {
             submissionId: submissionId,
-            override: false,
+            override: override,
             playerId: playerId.toString(),
         });
         if (resetResponse.status === ResponseStatus.ERROR) throw resetResponse.error;
