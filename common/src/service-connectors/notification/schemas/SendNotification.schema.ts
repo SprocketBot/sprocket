@@ -31,6 +31,7 @@ export const NotificationWebhookMessageSchema = SendWebhookMessage_Request.exten
 
 export const BaseNotificationSchema = z.object({
     type: z.nativeEnum(NotificationType),
+    userId: z.number(),
     expiration: z.date().nullable()
         .optional(),
     payload: z.object({}),

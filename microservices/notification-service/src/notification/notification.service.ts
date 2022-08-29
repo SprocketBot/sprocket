@@ -26,7 +26,7 @@ export class NotificationService {
         };
 
         // TODO: TTL 14 days
-        await this.redisService.setJson(`${this.prefix}${data.payload.playerId}:${data.type}:${notificationPayload.id}`, notificationPayload);
+        await this.redisService.setJson(`${this.prefix}${data.userId}:${data.type}:${notificationPayload.id}`, notificationPayload);
         
         if (data.notification?.type === NotificationMessageType.GuildTextMessage) {
             await this.botService.send(BotEndpoint.SendGuildTextMessage, data.notification);

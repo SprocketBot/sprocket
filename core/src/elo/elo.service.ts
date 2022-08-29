@@ -128,6 +128,7 @@ export class EloService {
 
                 await this.notificationService.send(NotificationEndpoint.SendNotification, {
                     type: NotificationType.RANKDOWN,
+                    userId: player.member.user.id,
                     expiration: add(new Date(), {hours: 24}),
                     payload: {
                         playerId: playerDelta.playerId,
