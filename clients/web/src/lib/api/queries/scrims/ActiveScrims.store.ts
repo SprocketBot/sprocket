@@ -89,6 +89,9 @@ export class ActiveScrimsStore extends LiveQueryStore<ActiveScrimsStoreValue, Ac
                 status
                 gameMode {
                     description
+                    game {
+                        title
+                    }
                 }
                 settings {
                     competitive
