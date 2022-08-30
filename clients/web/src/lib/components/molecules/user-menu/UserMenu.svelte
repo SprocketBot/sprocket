@@ -1,6 +1,7 @@
 <script lang='ts'>
   import {Avatar, Dropdown} from "$lib/components";
   import {user} from "$lib/stores";
+  import {currentUser} from "$lib/api";
   import {goto} from "$app/navigation";
   import FaChevronDown from "svelte-icons/fa/FaChevronDown.svelte";
 
@@ -13,6 +14,7 @@
 
 {#if $user}
 	<div class="flex items-center gap-8">
+		<span> {$currentUser?.data?.me.members[0].players[0].skillGroup.profile.description}</span>
 		<Dropdown class="dropdown-handle" items={actions}>
 			<button class="btn btn-ghost btn-sm" slot="handle">
 				{$user.username}

@@ -6,15 +6,18 @@ export interface CurrentUserResult {
         id: number;
         members: Array<{
             id: number;
-            players: {
+            players: Array<{
                 skillGroup: {
+                    profile: {
+                        description: string;
+                    };
                     game: {
                         title: string;
                     };
                 };
                 franchisePositions: string[];
                 franchiseName: string;
-            };
+            }>;
         }>;
     };
 }
