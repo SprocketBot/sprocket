@@ -1,10 +1,14 @@
-import {Process, Processor} from "@nestjs/bull";
+import {
+    InjectQueue, Process, Processor,
+} from "@nestjs/bull";
 import {Logger} from "@nestjs/common";
+import {Queue} from "bull";
+import {previousMonday} from "date-fns";
 
 import {FeatureCode} from "../database";
+import {PlayerService} from "../franchise";
 import {GameFeatureService, GameService} from "../game";
 import {OrganizationService} from "../organization";
-import {EloService} from "./elo.service";
 import {
     EloBullQueue, EloConnectorService, EloEndpoint,
 } from "./elo-connector";
@@ -16,7 +20,8 @@ export class EloConsumer {
     private readonly logger = new Logger(EloConsumer.name);
 
     constructor(
-        private readonly eloService: EloService,
+        @InjectQueue(EloBullQueue) private eloQueue: Queue,
+        private readonly playerService: PlayerService,
         private readonly gameService: GameService,
         private readonly gameFeatureService: GameFeatureService,
         private readonly organizationService: OrganizationService,
@@ -36,6 +41,24 @@ export class EloConsumer {
         if (!autoSalariesEnabled) return;
         
         const salaryData = await this.eloConnectorService.createJobAndWait(EloEndpoint.CalculateSalaries, {doRankouts: autoRankoutsEnabled});
-        await this.eloService.saveSalaries(salaryData);
+        await this.playerService.saveSalaries(salaryData);
+    }
+
+    async onApplicationBootstrap(): Promise<void> {
+        const repeatableJobs = await this.eloQueue.getRepeatableJobs();
+
+        if (!repeatableJobs.some(job => job.name === WEEKLY_SALARIES_JOB_NAME)) {
+            this.logger.debug("Found no job for weekly salaries, creating");
+
+            await this.eloQueue.add(WEEKLY_SALARIES_JOB_NAME, null, {
+                repeat: {
+                    cron: "0 12 * * 1",
+                    startDate: previousMonday(new Date()),
+                    tz: "America/New_York",
+                },
+            });
+        } else {
+            this.logger.debug("Job for weekly salaries already exists");
+        }
     }
 }

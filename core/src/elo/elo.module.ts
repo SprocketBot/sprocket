@@ -10,7 +10,6 @@ import {GameModule} from "../game";
 import {IdentityModule} from "../identity";
 import {OrganizationModule} from "../organization";
 import {EloConsumer} from "./elo.consumer";
-import {EloService} from "./elo.service";
 import {EloConnectorModule} from "./elo-connector/elo-connector.module";
 
 @Module({
@@ -27,11 +26,7 @@ import {EloConnectorModule} from "./elo-connector/elo-connector.module";
         IdentityModule,
     ],
     providers: [
-        EloService,
         EloConsumer,
-    ],
-    exports: [
-        EloService,
     ],
 })
 export class EloModule {}

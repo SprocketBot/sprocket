@@ -3,7 +3,7 @@ import type {EventMarshal} from "./marshal";
 import {EventMarshalMetadataKey} from "./marshal.constants";
 import type {EventFunction, EventMeta} from "./marshal.types";
 
-export const Event = (event: EventTopic): MethodDecorator => <T>(target: Object, key: string | symbol, descriptor: TypedPropertyDescriptor<T>): TypedPropertyDescriptor<T> => {
+export const SprocketEvent = (event: EventTopic): MethodDecorator => <T>(target: Object, key: string | symbol, descriptor: TypedPropertyDescriptor<T>): TypedPropertyDescriptor<T> => {
     if (!descriptor.value) throw new Error("Descriptor is undefined??");
 
     const originalMethod: EventFunction<EventTopic> = descriptor.value as unknown as EventFunction<EventTopic>;

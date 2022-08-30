@@ -5,13 +5,13 @@ import {
     config,
     CoreEndpoint,
     CoreService,
-    Event,
     EventMarshal,
     EventsService,
     EventTopic,
     GenerateReportCardType,
     MatchDatabaseIds,
     ResponseStatus,
+    SprocketEvent,
 } from "@sprocketbot/common";
 
 @Injectable()
@@ -24,7 +24,7 @@ export class MatchService extends EventMarshal {
         super(eventsService);
     }
 
-    @Event(EventTopic.MatchSaved)
+    @SprocketEvent(EventTopic.MatchSaved)
     async sendReportCard(databaseIds: MatchDatabaseIds): Promise<void> {
         const matchResult = await this.coreService.send(CoreEndpoint.GetMatchById, {matchId: databaseIds.id});
         if (matchResult.status === ResponseStatus.ERROR) throw matchResult.error;

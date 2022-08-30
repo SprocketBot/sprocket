@@ -12,7 +12,6 @@ import {
     config,
     CoreEndpoint,
     CoreService,
-    Event,
     EventMarshal,
     EventPayload,
     EventsService,
@@ -22,6 +21,7 @@ import {
     RedisService,
     ReplaySubmissionType,
     ResponseStatus,
+    SprocketEvent,
 } from "@sprocketbot/common";
 
 @Injectable()
@@ -36,7 +36,7 @@ export class SubmissionService extends EventMarshal {
         super(eventsService);
     }
 
-    @Event(EventTopic.SubmissionRatifying)
+    @SprocketEvent(EventTopic.SubmissionRatifying)
     async sendSubmissionRatifyingNotifications(payload: EventPayload<EventTopic.SubmissionRatifying>): Promise<void> {
         const submission = await this.redisService.getJson<ReplaySubmission>(payload.redisKey);
 
@@ -52,7 +52,7 @@ export class SubmissionService extends EventMarshal {
         }
     }
 
-    @Event(EventTopic.SubmissionRejected)
+    @SprocketEvent(EventTopic.SubmissionRejected)
     async sendSubmissionRejectedNotifications(payload: EventPayload<EventTopic.SubmissionRejected>): Promise<void> {
         const submission = await this.redisService.getJson<ReplaySubmission>(payload.redisKey);
 

@@ -4,13 +4,13 @@ import {
     BotService,
     CoreEndpoint,
     CoreService,
-    Event,
     EventMarshal,
     EventsService,
     EventTopic,
     MemberRestriction,
     MemberRestrictionType,
     ResponseStatus,
+    SprocketEvent,
 } from "@sprocketbot/common";
 import {format, utcToZonedTime} from "date-fns-tz";
 
@@ -24,7 +24,7 @@ export class MemberService extends EventMarshal {
         super(eventsService);
     }
 
-    @Event(EventTopic.MemberRestrictionCreated)
+    @SprocketEvent(EventTopic.MemberRestrictionCreated)
     async sendQueueBanNotification(restriction: MemberRestriction): Promise<void> {
         if (restriction.type !== MemberRestrictionType.QUEUE_BAN) return;
 

@@ -8,7 +8,6 @@ import {
     config,
     CoreEndpoint,
     CoreService,
-    Event,
     EventMarshal,
     EventsService,
     EventTopic,
@@ -17,6 +16,7 @@ import {
     MatchmakingService,
     ResponseStatus,
     Scrim,
+    SprocketEvent,
 } from "@sprocketbot/common";
 
 @Injectable()
@@ -31,7 +31,7 @@ export class ScrimService extends EventMarshal {
         super(eventsService);
     }
 
-    @Event(EventTopic.ScrimPopped)
+    @SprocketEvent(EventTopic.ScrimPopped)
     async sendQueuePoppedNotifications(scrim: Scrim): Promise<void> {
         const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: scrim.organizationId});
         if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
@@ -84,7 +84,7 @@ export class ScrimService extends EventMarshal {
         }));
     }
 
-    @Event(EventTopic.ScrimSaved)
+    @SprocketEvent(EventTopic.ScrimSaved)
     async sendReportCard(scrim: Scrim & {databaseIds: ScrimDatabaseIds;}): Promise<void> {
         const scrimReportCardWebhooksResult = await this.coreService.send(CoreEndpoint.GetScrimReportCardWebhooks, scrim);
         if (scrimReportCardWebhooksResult.status !== ResponseStatus.SUCCESS) {

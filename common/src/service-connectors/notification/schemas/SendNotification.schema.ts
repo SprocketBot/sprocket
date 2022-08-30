@@ -30,11 +30,15 @@ export const NotificationWebhookMessageSchema = SendWebhookMessage_Request.exten
 });
 
 export const BaseNotificationSchema = z.object({
+    id: z.string().uuid()
+        .nullable()
+        .optional(),
     type: z.nativeEnum(NotificationType),
     userId: z.number(),
     expiration: z.date().nullable()
         .optional(),
-    payload: z.object({}),
+    payload: z.object({}).nullable()
+        .optional(),
     notification: z.union([
         NotificationGuildTextMessageSchema,
         NotificationDirectMessageSchema,
@@ -60,9 +64,6 @@ export type RankdownNotificationPayload = RankdownNotification["payload"];
 export const TestNotificationSchema = BaseNotificationSchema.extend({
     type: z.literal(NotificationType.TEST),
     expiration: z.date(),
-    payload: z.object({
-        number: z.number(),
-    }),
 });
 
 export const NotificationSchema = z.union([RankdownNotificationSchema, TestNotificationSchema]);

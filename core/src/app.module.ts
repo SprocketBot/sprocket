@@ -55,6 +55,7 @@ import {UtilModule} from "./util/util.module";
                     : undefined,
                 keyPrefix: `${config.redis.prefix}:bull`,
             },
+            prefix: `${config.redis.prefix}:bull`,
         }),
         OrganizationModule,
         IdentityModule,

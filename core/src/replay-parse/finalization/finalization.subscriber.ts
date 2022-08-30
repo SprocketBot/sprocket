@@ -11,7 +11,6 @@ import {
 } from "@sprocketbot/common";
 
 import type {Match} from "../../database";
-import {EloService} from "../../elo";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
 import {MatchService} from "../../scheduling";
 import {ScrimService} from "../../scrim";
@@ -28,7 +27,6 @@ export class FinalizationSubscriber {
         private readonly redisService: RedisService,
         private readonly scrimService: ScrimService,
         private readonly matchService: MatchService,
-        private readonly eloService: EloService,
         private readonly eloConnectorService: EloConnectorService,
     ) {}
 
@@ -74,7 +72,7 @@ export class FinalizationSubscriber {
                 },
             });
 
-            const eloPayload = this.eloService.translatePayload(result.scrim.parent, false);
+            const eloPayload = this.matchService.translatePayload(result.scrim.parent, false);
             await this.eloConnectorService.createJob(EloEndpoint.CalculateEloForMatch, eloPayload);
         } catch (_e) {
             const e = _e as Error;

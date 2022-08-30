@@ -1,4 +1,5 @@
 import {forwardRef, Module} from "@nestjs/common";
+import {EventsModule, NotificationModule} from "@sprocketbot/common";
 
 import {DatabaseModule} from "../database";
 import {MledbInterfaceModule} from "../mledb";
@@ -18,6 +19,8 @@ import {PlayerResolver} from "./player/player.resolver";
     imports: [
         DatabaseModule,
         UtilModule,
+        NotificationModule,
+        EventsModule,
         forwardRef(() => OrganizationModule),
         forwardRef(() => MledbInterfaceModule),
     ],

@@ -18,24 +18,28 @@ export class NotificationService {
     ) {}
 
     async sendNotification(data: NotificationInput<NotificationEndpoint.SendNotification>): Promise<NotificationOutput<NotificationEndpoint.SendNotification>> {
-        const notificationPayload = {
-            id: randomUUID(),
-            type: data.type,
-            expiration: data.expiration,
-            ...data.payload,
-        };
-
-        // TODO: TTL 14 days
-        await this.redisService.setJson(`${this.prefix}${data.userId}:${data.type}:${notificationPayload.id}`, notificationPayload);
+        if (data.payload) {
+            const notificationPayload = {
+                id: randomUUID(),
+                type: data.type,
+                expiration: data.expiration,
+                ...data.payload,
+            };
+    
+            // TODO: TTL 14 days
+            await this.redisService.setJson(`${this.prefix}${data.userId}:${data.type}:${notificationPayload.id}`, notificationPayload);
+        }
         
-        if (data.notification?.type === NotificationMessageType.GuildTextMessage) {
-            await this.botService.send(BotEndpoint.SendGuildTextMessage, data.notification);
-        } else if (data.notification?.type === NotificationMessageType.DirectMessage) {
-            await this.botService.send(BotEndpoint.SendDirectMessage, data.notification);
-        } else if (data.notification?.type === NotificationMessageType.WebhookMessage) {
-            await this.botService.send(BotEndpoint.SendWebhookMessage, data.notification);
+        if (data.notification) {
+            if (data.notification.type === NotificationMessageType.GuildTextMessage) {
+                await this.botService.send(BotEndpoint.SendGuildTextMessage, data.notification);
+            } else if (data.notification.type === NotificationMessageType.DirectMessage) {
+                await this.botService.send(BotEndpoint.SendDirectMessage, data.notification);
+            } else {
+                await this.botService.send(BotEndpoint.SendWebhookMessage, data.notification);
+            }
         }
 
-        return false;
+        return true;
     }
 }
