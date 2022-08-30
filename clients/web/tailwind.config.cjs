@@ -3,6 +3,7 @@ const config = {
 
 	theme: {
 		colors: {
+			transparent: "rgba(0,0,0,0)",
 			primary: {
 				'900': 'rgba(145, 107, 23, 1)',
 				'800': 'rgba(181, 134, 29, 1)',
