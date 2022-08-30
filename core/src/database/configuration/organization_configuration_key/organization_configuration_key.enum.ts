@@ -26,9 +26,13 @@ export enum OrganizationConfigurationKeyCode {
       */
     ALTERNATE_DISCORD_GUILD_SNOWFLAKES = "ALTERNATE_DISCORD_GUILD_SNOWFLAKES",
     /**
-     * Disocrd Guild Webhook Url to post report cards to.
+     * Discord Guild Webhook Url to post report cards to.
      */
     REPORT_CARD_DISCORD_WEBHOOK_URL = "REPORT_CARD_DISCORD_WEBHOOK_URL",
+    /**
+     * Required number of ratifications for a scrim. -1 indicates calculating via majority of players.
+     */
+    SCRIM_REQUIRED_RATIFICATIONS = "SCRIM_REQUIRED_RATIFICATIONS",
 }
 
 export enum OrganizationConfigurationKeyType {

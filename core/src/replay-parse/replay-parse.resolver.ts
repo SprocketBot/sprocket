@@ -1,6 +1,7 @@
 import {
     ResolveField, Resolver, Root,
 } from "@nestjs/graphql";
+import {REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID} from "@sprocketbot/common";
 
 import {
     CurrentUser, UserPayload, UserService,
@@ -31,7 +32,7 @@ export class SubmissionRejectionResolver {
     @ResolveField(() => String)
     async playerName(@Root() rejection: SubmissionRejection): Promise<string> {
         if (rejection.playerName) return rejection.playerName;
-        if (rejection.playerId.toString() === "system") return "Sprocket";
+        if (rejection.playerId === REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID) return "Sprocket";
         // TODO: Is it possible to map to an organization from here?
 
         const user = await this.userService.getUserById(parseInt(rejection.playerId.toString()));
@@ -40,8 +41,6 @@ export class SubmissionRejectionResolver {
 
     @ResolveField(() => String)
     async reason(@Root() rejection: SubmissionRejection): Promise<string> {
-        if (rejection.playerId.toString() !== "system") return rejection.reason;
         return rejection.reason;
-
     }
 }

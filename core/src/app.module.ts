@@ -19,6 +19,7 @@ import {ReplayParseModule} from "./replay-parse";
 import {SchedulingModule} from "./scheduling";
 import {ScrimModule} from "./scrim";
 import {SprocketRatingModule} from "./sprocket-rating";
+import {SubmissionModule} from "./submission";
 import {UtilModule} from "./util/util.module";
 
 @Module({
@@ -72,6 +73,7 @@ import {UtilModule} from "./util/util.module";
         SprocketRatingModule,
         UtilModule,
         EloModule,
+        SubmissionModule,
     ],
 })
 export class AppModule implements NestModule {

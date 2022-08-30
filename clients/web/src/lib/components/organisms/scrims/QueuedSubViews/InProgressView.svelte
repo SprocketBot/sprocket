@@ -11,7 +11,7 @@
     export let submission: Submission | undefined;
 
     let uploading: boolean = false;
-    let rejections: SubmissionRejection[];
+    let rejections: SubmissionRejection[] | undefined;
     $: rejections = submission?.rejections;
 </script>
 

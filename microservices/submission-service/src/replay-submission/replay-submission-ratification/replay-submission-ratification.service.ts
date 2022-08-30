@@ -68,7 +68,7 @@ export class ReplaySubmissionRatificationService {
         return false;
     }
 
-    async rejectSubmission(playerId: string, submissionId: string, reasons: string[]): Promise<Boolean> {
+    async rejectSubmission(playerId: number, submissionId: string, reasons: string[]): Promise<Boolean> {
         await Promise.all(reasons.map(async r => this.crudService.addRejection(submissionId, playerId, r)));
 
         await this.crudService.removeItems(submissionId);

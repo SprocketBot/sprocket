@@ -91,7 +91,7 @@ export class FinalizationService {
             };
         } catch (e) {
             await runner.rollbackTransaction();
-            await this.replayParseService.rejectSubmission(submissionId, "system", "Failed to save scrim, contact support");
+            await this.replayParseService.rejectSubmissionBySystem(submissionId, "Failed to save scrim, contact support");
             this.logger.error(e);
             throw e;
         } finally {
@@ -140,7 +140,7 @@ export class FinalizationService {
 
             const gameMode = await this.popService.populateOneOrFail(Match, match, "gameMode");
 
-            const mleMatch = await this.mledbMatchService.getMleSeries(
+            const mleSeries = await this.mledbMatchService.getMleSeries(
                 awayFranchiseProfile.title,
                 homeFranchiseProfile.title,
                 week.start,
@@ -150,7 +150,7 @@ export class FinalizationService {
             );
 
             const [mledbSeriesId] = await Promise.all([
-                this.mledbScrimService.saveMatch(submission, submissionId, runner, mleMatch),
+                this.mledbScrimService.saveMatch(submission, submissionId, runner, mleSeries),
                 this.saveMatch(submission, runner, users.map(u => u.id), match.skillGroup.organizationId, matchParent, match.skillGroup.id, gameMode.id, match),
             ]);
 
@@ -159,11 +159,11 @@ export class FinalizationService {
 
             return {
                 match: match,
-                legacyMatch: mleMatch,
+                legacyMatch: mleSeries,
             };
         } catch (e) {
             await runner.rollbackTransaction();
-            await this.replayParseService.rejectSubmission(submissionId, "system", "Failed to save scrim, contact support");
+            await this.replayParseService.rejectSubmissionBySystem(submissionId, "Failed to save scrim, contact support");
             this.logger.error(e);
             throw e;
         } finally {
@@ -202,10 +202,10 @@ export class FinalizationService {
 
                     const createPlayerStat = async (p: BallchasingPlayer, color: string): Promise<PlayerStatLine> => {
                         const otherStats = this.ballchasingConverter.createPlayerStats(p);
-                        
+
                         const mlePlayer = await this.mledbScrimService.getMlePlayerByBallchasingPlayer(p);
                         if (!mlePlayer.discordId) throw new Error(`Player does not have a Discord Id mleid=${mlePlayer.mleid}`);
-                        
+
                         const sprocketUser = await this.identityService.getUserByAuthAccount(UserAuthenticationAccountType.DISCORD, mlePlayer.discordId);
                         const sprocketPlayer = await this.playerService.getPlayer({
                             where: {
@@ -225,7 +225,7 @@ export class FinalizationService {
                                 },
                             },
                         });
-                        
+
                         const playerStatLine = this.playerStatRepo.create({
                             isHome: color === "BLUE",
                             stats: {

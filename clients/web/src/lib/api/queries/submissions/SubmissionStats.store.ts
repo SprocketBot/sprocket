@@ -1,5 +1,5 @@
 import {gql} from "@urql/core";
-import {QueryStore} from "../core/QueryStore";
+import {QueryStore} from "../../core/QueryStore";
 
 export interface SubmissionStatsData {
     games: Array<{

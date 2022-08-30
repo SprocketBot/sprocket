@@ -11,6 +11,7 @@ import {PubSub} from "apollo-server-express";
 import type {FileUpload} from "graphql-upload";
 import {GraphQLUpload} from "graphql-upload";
 
+import {MLE_OrganizationTeam} from "../database/mledb";
 import {CurrentUser, UserPayload} from "../identity";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard";
 import {ReplayParsePubSub} from "./replay-parse.constants";
@@ -52,7 +53,8 @@ export class ReplayParseModResolver {
         @CurrentUser() user: UserPayload,
         @Args("submissionId") submissionId: string,
     ): Promise<boolean> {
-        await this.rpService.resetBrokenReplays(submissionId, user.userId);
+        const isAdmin = user.orgTeams?.includes(MLE_OrganizationTeam.MLEDB_ADMIN);
+        await this.rpService.resetBrokenReplays(submissionId, user.userId, isAdmin);
         return false;
     }
 
@@ -70,13 +72,7 @@ export class ReplayParseModResolver {
         @Args("submissionId") submissionId: string,
         @Args("reason") reason: string,
     ): Promise<void> {
-        return this.rpService.rejectSubmission(submissionId, user.userId.toString(), reason);
-    }
-
-    @Subscription(() => GqlReplaySubmission, {nullable: true})
-    async followSubmission(@Args("submissionId") submissionId: string): Promise<AsyncIterator<GqlReplaySubmission>> {
-        await this.rpService.enableSubscription(submissionId);
-        return this.pubsub.asyncIterator(submissionId);
+        return this.rpService.rejectSubmissionByPlayer(submissionId, user.userId, reason);
     }
 
     @Mutation(() => ValidationResultUnion)
@@ -87,4 +83,11 @@ export class ReplayParseModResolver {
         }
         return response.data;
     }
+
+    @Subscription(() => GqlReplaySubmission, {nullable: true})
+    async followSubmission(@Args("submissionId") submissionId: string): Promise<AsyncIterator<GqlReplaySubmission>> {
+        await this.rpService.enableSubscription(submissionId);
+        return this.pubsub.asyncIterator(submissionId);
+    }
+
 }

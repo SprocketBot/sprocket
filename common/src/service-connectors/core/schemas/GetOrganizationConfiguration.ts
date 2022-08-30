@@ -8,7 +8,11 @@ export enum OrganizationConfigurationKeyCode {
     PRIMARY_DISCORD_GUILD_SNOWFLAKE = "PRIMARY_DISCORD_GUILD_SNOWFLAKE",
     ALTERNATE_DISCORD_GUILD_SNOWFLAKES = "ALTERNATE_DISCORD_GUILD_SNOWFLAKES",
     REPORT_CARD_DISCORD_WEBHOOK_URL = "REPORT_CARD_DISCORD_WEBHOOK_URL",
+    SCRIM_REQUIRED_RATIFICATIONS = "SCRIM_REQUIRED_RATIFICATIONS",
 }
+
+// Special constant for the SCRIM_REQUIRED_RATIFICATIONS config key.
+export const SCRIM_REQ_RATIFICATION_MAJORITY: number = -1;
 
 export const GetOrganizationConfigurationValue_Request = z.object({
     organizationId: z.number(),
