@@ -22,6 +22,7 @@ export class SubmissionStore extends LiveQueryStore<SubmissionStoreValue, Submis
     protected queryString = gql<SubmissionStoreValue, SubmissionStoreVariables>`
         query ($submissionId: String!) {
             submission: getSubmission(submissionId: $submissionId) {
+                id
                 creatorId
                 ratifications
                 requiredRatifications
