@@ -3,7 +3,6 @@ import {
     BotModule, CoreModule, EventsModule,
 } from "@sprocketbot/common";
 
-import {MemberEventSubscriber} from "./member.event-subscriber";
 import {MemberService} from "./member.service";
 
 @Module({
@@ -12,6 +11,6 @@ import {MemberService} from "./member.service";
         BotModule,
         CoreModule,
     ],
-    providers: [MemberService, MemberEventSubscriber],
+    providers: [MemberService],
 })
 export class MemberModule {}

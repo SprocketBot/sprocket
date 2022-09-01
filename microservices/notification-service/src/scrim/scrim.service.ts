@@ -1,5 +1,5 @@
-import {Injectable, Logger} from "@nestjs/common";
-import type {Scrim, ScrimDatabaseIds} from "@sprocketbot/common";
+import {Injectable} from "@nestjs/common";
+import type {ScrimDatabaseIds} from "@sprocketbot/common";
 import {
     BotEndpoint,
     BotService,
@@ -8,22 +8,29 @@ import {
     config,
     CoreEndpoint,
     CoreService,
+    EventsService,
+    EventTopic,
     GenerateReportCardType,
     MatchmakingEndpoint,
     MatchmakingService,
     ResponseStatus,
+    Scrim,
+    SprocketEvent,
+    SprocketEventMarshal,
 } from "@sprocketbot/common";
 
 @Injectable()
-export class ScrimService {
-    private readonly logger = new Logger(ScrimService.name);
-
+export class ScrimService extends SprocketEventMarshal {
     constructor(
+        readonly eventsService: EventsService,
         private readonly botService: BotService,
         private readonly coreService: CoreService,
         private readonly matchmakingService: MatchmakingService,
-    ) {}
+    ) {
+        super(eventsService);
+    }
 
+    @SprocketEvent(EventTopic.ScrimPopped)
     async sendQueuePoppedNotifications(scrim: Scrim): Promise<void> {
         const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: scrim.organizationId});
         if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
@@ -76,6 +83,7 @@ export class ScrimService {
         }));
     }
 
+    @SprocketEvent(EventTopic.ScrimSaved)
     async sendReportCard(scrim: Scrim & {databaseIds: ScrimDatabaseIds;}): Promise<void> {
         const scrimReportCardWebhooksResult = await this.coreService.send(CoreEndpoint.GetScrimReportCardWebhooks, scrim);
         if (scrimReportCardWebhooksResult.status !== ResponseStatus.SUCCESS) {
