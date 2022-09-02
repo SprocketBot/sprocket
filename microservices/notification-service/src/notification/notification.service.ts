@@ -25,6 +25,7 @@ export class NotificationService {
             const notificationPayload = {
                 id: randomUUID(),
                 type: data.type,
+                userId: data.userId,
                 expiration: data.expiration,
                 ...data.payload,
             };
@@ -33,14 +34,12 @@ export class NotificationService {
             await this.redisService.setJson(`${this.prefix}${data.userId}:${data.type}:${notificationPayload.id}`, notificationPayload);
         }
 
-        if (data.notification) {
-            if (data.notification.type === NotificationMessageType.GuildTextMessage) {
-                await this.botService.send(BotEndpoint.SendGuildTextMessage, data.notification);
-            } else if (data.notification.type === NotificationMessageType.DirectMessage) {
-                await this.botService.send(BotEndpoint.SendDirectMessage, data.notification);
-            } else {
-                await this.botService.send(BotEndpoint.SendWebhookMessage, data.notification);
-            }
+        if (data.notification.type === NotificationMessageType.GuildTextMessage) {
+            await this.botService.send(BotEndpoint.SendGuildTextMessage, data.notification);
+        } else if (data.notification.type === NotificationMessageType.DirectMessage) {
+            await this.botService.send(BotEndpoint.SendDirectMessage, data.notification);
+        } else {
+            await this.botService.send(BotEndpoint.SendWebhookMessage, data.notification);
         }
 
         return true;
