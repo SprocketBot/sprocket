@@ -87,7 +87,7 @@
           {#if scrim.players?.length || scrim.playersAdmin?.length}
             <td>
               <div class="flex flex-col gap-1">
-                {#each scrim.players ?? scrim.playersAdmin as player }
+                {#each scrim.players ?? scrim.playersAdmin as player (player.id)}
                   <button
                     class="p-2 bg-base-300/20 rounded-lg"
                     on:click={() => { selectPlayerInTable(`${player.id}`) }}>

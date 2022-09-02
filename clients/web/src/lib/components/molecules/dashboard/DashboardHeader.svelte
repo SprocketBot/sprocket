@@ -13,7 +13,7 @@
 
 <section class="flex flex-col">
     <!-- TODO: User Data -->
-    <Avatar class="w-1/4"/>
+    <Avatar class="w-1/3"/>
 
     <div>
         {#if $user}
