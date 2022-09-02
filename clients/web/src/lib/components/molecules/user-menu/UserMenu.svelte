@@ -13,7 +13,7 @@
 {#if $user}
     <div class="flex items-center gap:2 md:gap-4">
         <Dropdown class="dropdown-handle dropdown-end" items={actions}>
-            <button class="flex-nowrap btn btn-ghost btn-xs md:btn-sm" slot="handle">
+            <button class="flex-nowrap btn btn-ghost btn-sm" slot="handle">
                 {$user.username}
                 <span class="h-3/4 ml-2 dropdown-icon"><FaChevronDown/></span>
             </button>

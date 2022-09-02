@@ -91,7 +91,7 @@
         }
 
         button {
-            @apply btn btn-outline btn-sm md:btn-md;
+            @apply btn btn-outline btn-sm h-10 md:btn-md md:h-auto;
         }
     }
 </style>
