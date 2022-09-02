@@ -32,6 +32,9 @@ export class CurrentUserStore extends QueryStore<CurrentUserResult, CurrentUserV
                     id
                     players {
                         skillGroup {
+                            profile {
+                                description
+                            }
                             game {
                                 title
                             }
