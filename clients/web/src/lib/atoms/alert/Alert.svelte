@@ -29,17 +29,19 @@
 </script>
 
 {#if !dismissed}
-	<div class="v-{variant}" role="alert" out:fade>
-		{#if iconSrc}
-			<Icon src={iconSrc} class="h-6 w-6"/>
-		{/if}
-		<slot/>
-		{#if dismissable}
-        <span on:click={() => dismissed = true}>
-					<Icon src={X} theme="solid" />
-        </span>
-		{/if}
-	</div>
+    <div class="v-{variant}" role="alert" out:fade>
+        {#if iconSrc}
+            <Icon src={iconSrc} class="h-6 w-6"/>
+        {/if}
+        
+        <slot/>
+        
+        {#if dismissable}
+            <span on:click={() => dismissed = true}>
+                <Icon src={X} theme="solid" />
+            </span>
+        {/if}
+    </div>
 {/if}
 
 <style lang="postcss">
