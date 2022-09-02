@@ -10,7 +10,7 @@
         <div class="navbar-start lg:hidden">
             <label for="nav-drawer" class="btn btn-ghost lg:btn-lg btn-sm drawer-button flex justify-center items-center">
                 <span class=" h-3/4 mr-2">
-                    <FaBars/>
+                    <FaBars />
                 </span>
                 Menu
             </label>
@@ -29,18 +29,19 @@
     <div class="drawer drawer-mobile h-full w-full flex-1">
         <input id="nav-drawer" type="checkbox" class="drawer-toggle">
 
+        <!-- Page -->
         <div class="drawer-content">
-            <!-- Page -->
             <section>
                 <slot/>
             </section>
         </div>
+
+        <!-- Sidebar -->
         <div class="drawer-side">
-            <!-- Sidebar -->
             <label for="nav-drawer" class="drawer-overlay"></label>
-            <div class="px-4 w-56 py-16">
-                <Navigation/>
-                <slot name="sidebar"/>
+            <div class="px-4 w-56 py-16 bg-gray-900">
+                <Navigation />
+                <slot name="sidebar" />
             </div>
         </div>
     </div>
