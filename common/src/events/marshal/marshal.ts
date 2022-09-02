@@ -40,9 +40,9 @@ export abstract class SprocketEventMarshal {
                     }
 
                     try {
-                        // No need to catch; it's in a try-catch block because we don't know if it's a promise or not.
-                        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                        eventFunction(payload.data);
+                        const executed = eventFunction(payload.data);
+
+                        if (executed instanceof Promise) executed.catch(e => { this.logger.error(e) });
                     } catch (e) {
                         this.logger.error(e);
                     }
