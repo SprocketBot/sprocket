@@ -8,7 +8,8 @@
     "bot_queue": "dev-bot",
     "analytics_queue": "dev-analytics",
     "matchmaking_queue": "dev-matchmaking",
-    "image_generation_queue": "dev-image-generation"
+    "image_generation_queue": "dev-image-generation",
+    "notification_queue": "dev-notification"
   },
   "gql": {
     "url": "http://localhost:3001/graphql"
