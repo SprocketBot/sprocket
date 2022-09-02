@@ -49,7 +49,7 @@
         @apply p-4 mb-4 text-sm rounded-lg relative flex justify-between items-center gap-4;
         &.v-info {
             @apply text-info-200 bg-info-800;
-				}
+        }
         &.v-success {
             @apply text-success-200 bg-success-800;
         }
