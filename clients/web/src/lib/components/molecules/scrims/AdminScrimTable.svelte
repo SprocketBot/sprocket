@@ -9,7 +9,6 @@
     } from "$lib/api";
     import FaLockOpen from "svelte-icons/fa/FaLockOpen.svelte";
     import FaLock from "svelte-icons/fa/FaLock.svelte";
-    import scrims from "../../../../routes/scrims/index.svelte";
 
     /*
             TODO: Create/Implement Search
