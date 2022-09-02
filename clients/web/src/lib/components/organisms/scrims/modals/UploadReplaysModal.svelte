@@ -6,25 +6,21 @@
     import {uploadReplaysMutation} from "$lib/api/mutations/UploadReplays.mutation";
     import type {FileUpload} from "graphql-upload";
     import type {CombinedError} from "@urql/core";
+import type {RemovableFile} from "../../../atoms/FileInput.svelte";
 
     export let visible: boolean = true;
-    export let submissionId: string | undefined;
+    export let submissionId: string;
 
-    let rawFiles: FileList;
-    let files: File[] = [];
+    let files: RemovableFile[] = [];
     let submitting: boolean = false;
-
-    $: files = [...files, ...Array.from(rawFiles ?? [])].reduce<File[]>((acc: File[], v: File) => {
-        if (!acc.some(c => c.name === v.name)) acc.push(v);
-        return acc;
-    }, []);
 
     async function handleSubmit() {
         if (!files.length) return;
         submitting = true;
         try {
+            // TODO is okay to just cast File[] to FileUpload[]?
             await uploadReplaysMutation({
-                files: files as FileUpload[],
+                files: files as unknown as FileUpload[],
                 submissionId: submissionId,
             });
             visible = false;
@@ -44,16 +40,19 @@
 <Modal title="Upload Replays" bind:visible id="upload-replays-modal" canClickOutside={false}>
     <section slot="body">
         {#if files}
-            {#each files as file}
+            {#each files as file (file.name)}
                 <div out:fade={{duration: 250}}>
-                    <FileBlock filename={file.name} canRemove={!submitting} loading={submitting}
-                               on:remove={() => { files = files.filter(f => f.name !== file.name) }}
+                    <FileBlock
+                        filename={file.name}
+                        canRemove={!submitting}
+                        loading={submitting}
+                        on:remove={file.remove}
                     />
                 </div>
             {/each}
         {/if}
         <div class="actions">
-            <FileInput label="Upload" bind:files={rawFiles}/>
+            <FileInput label="Upload" bind:files />
 
             {#if files?.length}
                 <button on:click={handleSubmit} class="btn btn-primary">
