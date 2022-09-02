@@ -16,9 +16,9 @@
     <Avatar class="w-1/4"/>
 
     <div>
-        <!-- {#if $user} -->
-            <h2>Hello Test <!--{$user.username} -->!</h2>
-        <!-- {/if} -->
+        {#if $user}
+            <h2>Hello {$user.username}!</h2>
+        {/if}
     </div>
 
     <button class="btn btn-outline btn-error" on:click={async () => goto("/auth/logout")}>
