@@ -16,6 +16,7 @@
         createModalVisible = true;
     };
     const openJoinScrimModal = (scrimId: string) => {
+        console.log("openJoinScrimModal", {scrimId});
         joinModalVisible = true;
         targetId = scrimId;
     };
@@ -35,7 +36,7 @@
 
     <div class="flex md:hidden flex-col gap-4">
         {#each scrims as scrim (scrim.id)}
-            <ScrimCard {scrim} joinScrim={() => { openJoinScrimModal(scrim.id) }} />
+            <ScrimCard {scrim} joinScrim={openJoinScrimModal} />
         {/each}
     </div>
     <div class="hidden md:block">
