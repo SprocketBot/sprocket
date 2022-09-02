@@ -6,18 +6,15 @@ export interface CurrentUserResult {
         id: number;
         members: Array<{
             id: number;
-            players: Array<{
+            players: {
                 skillGroup: {
-                    profile: {
-                        description: string;
-                    };
                     game: {
                         title: string;
                     };
                 };
                 franchisePositions: string[];
                 franchiseName: string;
-            }>;
+            };
         }>;
     };
 }
@@ -34,11 +31,7 @@ export class CurrentUserStore extends QueryStore<CurrentUserResult, CurrentUserV
                 members(orgId: $orgId) {
                     id
                     players {
-                        
                         skillGroup {
-                            profile {
-                                description
-                            }
                             game {
                                 title
                             }
