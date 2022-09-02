@@ -12,15 +12,15 @@
 </script>
 
 {#if $user}
-	<div class="flex items-center gap-8">
+	<div class="flex items-center gap:2 md:gap-4">
 		<Dropdown class="dropdown-handle" items={actions}>
-			<button class="btn btn-ghost btn-sm" slot="handle">
+			<button class="flex-nowrap btn btn-ghost btn-xs md:btn-sm" slot="handle">
 				{$user.username}
-				<span class="h-4 ml-2 dropdown-icon"><FaChevronDown/></span>
+				<span class="h-3/4 ml-2 dropdown-icon"><FaChevronDown/></span>
 			</button>
 		</Dropdown>
 
-		<Avatar class="h-12 w-12 mr-4"/>
+		<Avatar class="hidden h-8 w-8 md:block md:h-12 md:w-12 mr-4"/>
 	</div>
 {:else}
 	<button class='btn btn-outline' on:click={async () => goto("/auth/login")}>Sign In</button>
@@ -33,7 +33,7 @@
     }
 	:global(.dropdown-handle):focus-within
 	.dropdown-icon {
-              @apply rotate-180;
-		}
+		@apply rotate-180;
+	}
 
 </style>

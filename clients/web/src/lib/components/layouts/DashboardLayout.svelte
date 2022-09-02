@@ -1,32 +1,29 @@
 <script lang="ts">
     import FaBars from "svelte-icons/fa/FaBars.svelte";
 
-    import {
-        Navigation, UserMenu,
-    } from "$lib/components";
-
-
+    import {Navigation, UserMenu} from "$lib/components";
 </script>
 
 
 <main>
-    <nav class="navbar border-b-primary/20 border-b-2 pl-4 pr-16 h-20">
-        <header class="navbar-start">
-            <h1 class="hidden">Sprocket</h1>
-            <img src="/img/logo-horizontal.svg" alt="Sprocket" class="h-8"/>
-        </header>
-
-        <div class="navbar-center">
-            <label for="nav-drawer" class="btn btn-ghost drawer-button flex justify-center items-center h-8 px-4 lg:hidden">
-                <span class="w-6 h-6 mr-2">
+    <nav class="navbar border-b-primary/20 border-b-2 px-2 lg:px-4">
+        <div class="navbar-start lg:hidden">
+            <label for="nav-drawer" class="btn btn-ghost lg:btn-lg btn-sm drawer-button flex justify-center items-center">
+                <span class=" h-3/4 mr-2">
                     <FaBars/>
                 </span>
                 Menu
             </label>
         </div>
 
+        <header class="navbar-center lg:navbar-start">
+            <h1 class="hidden">Sprocket</h1>
+            <img src="/img/logo-horizontal.svg" alt="Sprocket" class="hidden lg:block h-8"/>
+            <img src="/img/logo-only.svg" alt="Sprocket" class="block lg:hidden h-8"/>
+        </header>
+
         <div class="navbar-end">
-            <UserMenu/>
+            <UserMenu />
         </div>
     </nav>
     <div class="drawer drawer-mobile h-full w-full flex-1">
