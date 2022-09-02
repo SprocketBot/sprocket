@@ -47,10 +47,10 @@ export class ActiveScrimsStore extends LiveQueryStore<ActiveScrimsStoreValue, Ac
             playerCount
             maxPlayers
             status
-            skillGroup{
-              profile{
-                description
-              }
+            skillGroup {
+                profile {
+                    description
+                }
             }
             gameMode {
                 description
@@ -92,10 +92,10 @@ export class ActiveScrimsStore extends LiveQueryStore<ActiveScrimsStoreValue, Ac
                 playerCount
                 maxPlayers
                 status
-                skillGroup{
-                    profile{
+                skillGroup {
+                    profile {
                         description
-                        }
+                    }
                 }
                 gameMode {
                     description
