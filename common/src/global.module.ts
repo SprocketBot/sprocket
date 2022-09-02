@@ -90,6 +90,20 @@ const client = ClientsModule.register([
             },
         },
     },
+    {
+        name: CommonClient.Notification,
+        transport: Transport.RMQ,
+        options: {
+            urls: [config.transport.url] as string[],
+            queue: config.transport.notification_queue,
+            queueOptions: {
+                durable: true,
+            },
+            socketOptions: {
+                heartbeat: 120,
+            },
+        },
+    },
 ]);
 
 @Global()

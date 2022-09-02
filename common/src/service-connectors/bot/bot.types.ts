@@ -22,7 +22,6 @@ export const BotSchemas = {
         input: Schemas.SendWebhookMessage_Request,
         output: Schemas.SendWebhookMessage_Response,
     },
-
 };
 
 export type BotInput<T extends BotEndpoint> = z.infer<typeof BotSchemas[T]["input"]>;
