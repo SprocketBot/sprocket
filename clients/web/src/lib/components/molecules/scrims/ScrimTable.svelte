@@ -10,6 +10,7 @@
     <thead>
     <tr>
         <th>Game</th>
+        <th>Skill Group</th>
         <th>Game Mode</th>
         <th>Scrim Type</th>
         <th>Players</th>
@@ -21,6 +22,7 @@
     {#each scrims as scrim (scrim.id)}
         <tr>
             <td>{scrim.gameMode.game.title}</td>
+            <td>{scrim.skillGroup?.profile?.description}</td>
             <td>{scrim.gameMode.description}</td>
             <td>{screamingSnakeToHuman(scrim.settings.mode)}</td>
             <td>{scrim.playerCount} / {scrim.maxPlayers}</td>
