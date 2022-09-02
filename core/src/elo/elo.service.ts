@@ -4,7 +4,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 import type {BallchasingPlayer} from "@sprocketbot/common";
 import {Queue} from "bull";
 import {previousMonday} from "date-fns";
-import {Repository} from "typeorm";
+import {DataSource, Repository} from "typeorm";
 
 import type {MatchParent, PlayerStatLine} from "../database";
 import {
@@ -18,7 +18,7 @@ import {WEEKLY_SALARIES_JOB_NAME} from "./elo.consumer";
 import {EloBullQueue, EloEndpoint} from "./elo-connector";
 import {EloConnectorService} from "./elo-connector/elo-connector.service";
 import type {
-    CalculateEloForMatchInput, MatchSummary, PlayerSummary, SalaryPayloadItem,
+    CalculateEloForMatchInput, MatchSummary, NewPlayer, PlayerSummary, SalaryPayloadItem,
 } from "./elo-connector/schemas";
 import {GameMode, TeamColor} from "./elo-connector/schemas";
 
@@ -34,6 +34,7 @@ export class EloService {
         @InjectRepository(Invalidation) private readonly invalidationRepository: Repository<Invalidation>,
         @InjectQueue(EloBullQueue) private eloQueue: Queue,
         private readonly eloConnectorService: EloConnectorService,
+        private readonly dataSource: DataSource,
     ) {}
 
     async onApplicationBootstrap(): Promise<void> {
@@ -260,5 +261,29 @@ export class EloService {
 
         const seriesTypeStr = series.matchParent.fixture ? "fixture" : series.matchParent.scrimMeta ? "scrim" : "unknown";
         return `\`seriesId=${seriesId}\` ${seriesTypeStr ? `(${seriesTypeStr})` : ""} successfully marked \`fullNcp=${isNcp}\` with updated elo, and all connected replays had their elo updated.${numReplays && dummiesNeeded ? ` **${dummiesNeeded} dummy replay(s)** were added to the series.` : ""}`;
+    }
+
+    async prepMigrationData(): Promise<NewPlayer[]> {
+        // Run queries, first refreshing the materialized view
+        await this.dataSource.manager.query("REFRESH MATERIALIZED VIEW mledb.v_current_elo_values");
+
+        // Then querying from it
+        /* eslint-disable @typescript-eslint/no-unsafe-assignment,
+        @typescript-eslint/no-explicit-any */
+        const rawData: any[] = await this.dataSource.manager.query("SELECT player_id, elo, p.league, salary, p.name FROM mledb.v_current_elo_values");
+
+        this.logger.verbose(`Elo Service, querying migration data: ${rawData[0]}`);
+        // Now, we build a NewPlayer instance for each row of data returned from
+        // the query
+        const output: NewPlayer[] = rawData.map(r => ({
+            id: r.player_id,
+            name: r.p.name,
+            salary: r.salary,
+            skillGroup: r.p.league, // Map strings to numbers? not sure yet
+            elo: r.elo,
+        }));
+
+        return output;
+        
     }
 }
