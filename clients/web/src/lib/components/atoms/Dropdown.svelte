@@ -13,9 +13,9 @@
 		<label tabindex="0" class="btn m-1">Click</label>
 	</slot>
 
-	<ul tabindex="0" class="dropdown-content menu p-2 mt-2 shadow bg-base-100 rounded-box w-52">
+	<ul tabindex="0" class="dropdown-content menu p-1 md:p-2 mt-2 shadow bg-base-100 rounded-box">
 		{#each items as item}
-			<li><button on:click={item.action}>{item.label}</button></li>
+			<li><button class="whitespace-nowrap" on:click={item.action}>{item.label}</button></li>
 		{/each}
 	</ul>
 </div>

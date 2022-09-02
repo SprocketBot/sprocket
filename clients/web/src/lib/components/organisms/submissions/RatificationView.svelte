@@ -43,7 +43,7 @@
     <Progress value={submission.ratifications} max={submission.requiredRatifications}/>
 
 
-    <div class="w-full flex justify-around">
+    <div class="w-full flex gap-4 flex-col md:flex-row justify-around">
         {#if !hasRatified}
             {#if readyToRatify}
                 <button class="btn btn-success btn-outline" on:click={ratifyScrim}>Looks good to me!</button>

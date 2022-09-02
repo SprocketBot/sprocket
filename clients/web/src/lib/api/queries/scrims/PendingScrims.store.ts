@@ -2,7 +2,7 @@ import type {OperationResult} from "@urql/core";
 import {gql} from "@urql/core";
 import {LiveQueryStore} from "../../core/LiveQueryStore";
 
-interface PendingScrim {
+export interface PendingScrim {
     id: string;
     playerCount: number;
     maxPlayers: number;

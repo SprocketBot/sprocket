@@ -52,7 +52,7 @@
     {/if}
 
 
-    <button on:click={() => { uploading = true }}>
+    <button on:click={() => { uploading = true }} class="w-full md:w-auto">
         Upload Replays
     </button>
 </section>
