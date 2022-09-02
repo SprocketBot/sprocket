@@ -46,9 +46,8 @@
             console.log(`Failed to ${disabled ? "disable" : "enable"} scrims`);
         }
     };
-
-
 </script>
+
 
 <table class="table table-compact table-zebra text-center w-full">
   <thead>
@@ -119,6 +118,7 @@
     bind:targetScrim
   />
 {/if}
+
 
 <style lang="postcss">
   table {
