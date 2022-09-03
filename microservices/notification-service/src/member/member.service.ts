@@ -4,18 +4,18 @@ import {
     BotService,
     CoreEndpoint,
     CoreService,
-    EventMarshal,
     EventsService,
     EventTopic,
     MemberRestriction,
     MemberRestrictionType,
     ResponseStatus,
     SprocketEvent,
+    SprocketEventMarshal,
 } from "@sprocketbot/common";
 import {format, utcToZonedTime} from "date-fns-tz";
 
 @Injectable()
-export class MemberService extends EventMarshal {
+export class MemberService extends SprocketEventMarshal {
     constructor(
         readonly eventsService: EventsService,
         private readonly botService: BotService,

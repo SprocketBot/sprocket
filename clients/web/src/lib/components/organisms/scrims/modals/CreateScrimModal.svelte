@@ -36,7 +36,7 @@
 
 <Modal title="Create Scrim" bind:visible id="create-scrim-modal">
     <form on:submit|preventDefault={createScrim} slot="body">
-        <div class="divider"></div>
+        <div class="divider my-1"></div>
 
 
         <div class="form-control">
@@ -66,9 +66,6 @@
             </select>
         </div>
 
-        <div class="divider"></div>
-
-
         <div class="form-control">
             <label class="label" for="scrim-type">
                 <span class="label-text">Scrim Type:</span>
@@ -80,9 +77,9 @@
             </select>
         </div>
 
-        <div class="form-control">
+        <div class="form-control inline">
             <label class="cursor-pointer label" for="createGroup">
-                <span class="label-text">Create Group:</span>
+                <span class="label-text">Create Group</span>
                 <input
                   type="checkbox"
                   bind:checked={createGroup}
@@ -93,7 +90,7 @@
         </div>
 
 
-        <div class="form-control">
+        <div class="form-control inline">
             <label class="cursor-pointer label" for="competitive">
                 <span class="label-text">Competitive</span>
                 <input
@@ -104,7 +101,7 @@
                 />
             </label>
         </div>
-        <div class="form-control">
+        <div class="form-control inline">
             <label class="cursor-pointer label" for="observable">
                 <span class="label-text">Observable</span>
                 <input
@@ -117,7 +114,7 @@
         </div>
 
 
-        <div class="divider"></div>
+        <div class="divider my-1"></div>
 
         <button class="btn btn-primary btn-wide flex mx-auto mb-4" disabled={!buttonEnabled}>Create</button>
     </form>
@@ -125,8 +122,11 @@
 
 <style lang="postcss">
     form {
-        @apply space-y-4;
+        @apply flex flex-col gap-2 md:gap-4;
 
+        .form-control.inline {
+            @apply flex flex-row justify-between items-center py-2;
+        }
 
         label {
             @apply contents;

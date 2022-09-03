@@ -1,5 +1,5 @@
 import type {EventTopic} from "../events.types";
-import type {EventMarshal} from "./marshal";
+import type {SprocketEventMarshal} from "./marshal";
 import {EventMarshalMetadataKey} from "./marshal.constants";
 import type {EventFunction, EventMeta} from "./marshal.types";
 
@@ -9,7 +9,7 @@ export const SprocketEvent = (event: EventTopic): MethodDecorator => <T>(target:
     const originalMethod: EventFunction<EventTopic> = descriptor.value as unknown as EventFunction<EventTopic>;
 
     // @ts-expect-error If it was not a func before, then it is using this decorator incorrectly
-    descriptor.value = async function(this: EventMarshal, ...params: Parameters<EventFunction<EventTopic>>): Promise<unknown> {
+    descriptor.value = async function(this: SprocketEventMarshal, ...params: Parameters<EventFunction<EventTopic>>): Promise<unknown> {
         await originalMethod.apply(this, params);
     };
 
@@ -17,7 +17,7 @@ export const SprocketEvent = (event: EventTopic): MethodDecorator => <T>(target:
         functionName: key.toString(),
         event: event,
     };
-    
+
     let unsafeMetadata: unknown = Reflect.getMetadata(EventMarshalMetadataKey, target);
     if (!Array.isArray(unsafeMetadata)) unsafeMetadata = [];
 
@@ -25,6 +25,6 @@ export const SprocketEvent = (event: EventTopic): MethodDecorator => <T>(target:
 
     classEventMetadatas.push(eventMeta);
     Reflect.defineMetadata(EventMarshalMetadataKey, classEventMetadatas, target);
-    
+
     return descriptor;
 };

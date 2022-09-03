@@ -5,17 +5,17 @@ import {
     config,
     CoreEndpoint,
     CoreService,
-    EventMarshal,
     EventsService,
     EventTopic,
     GenerateReportCardType,
     MatchDatabaseIds,
     ResponseStatus,
     SprocketEvent,
+    SprocketEventMarshal,
 } from "@sprocketbot/common";
 
 @Injectable()
-export class MatchService extends EventMarshal {
+export class MatchService extends SprocketEventMarshal {
     constructor(
         readonly eventsService: EventsService,
         private readonly botService: BotService,

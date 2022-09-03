@@ -24,6 +24,8 @@
         <div>
             <h3>Lobby Information</h3>
             <dl>
+                <dt>Skill Group:</dt>
+                <dd>{scrim.skillGroup?.profile?.description}</dd>
                 <dt>Game Mode</dt>
                 <dd>{scrim.settings.competitive ? "Competitive" : "Casual"} {screamingSnakeToHuman(scrim.settings.mode)} {scrim.gameMode.description}</dd>
                 <dt>Name</dt>
@@ -52,7 +54,7 @@
     {/if}
 
 
-    <button on:click={() => { uploading = true }}>
+    <button on:click={() => { uploading = true }} class="w-full md:w-auto">
         Upload Replays
     </button>
 </section>

@@ -34,6 +34,8 @@
         <div class="w-full mb-4">
             <h3>Scrim Details:</h3>
             <dl>
+                <dt>Skill Group:</dt>
+                <dd>{scrim.skillGroup?.profile?.description}</dd>
                 <dt>Game:</dt>
                 <dd>{scrim.gameMode.game.title}</dd>
                 <dt>Game Mode:</dt>

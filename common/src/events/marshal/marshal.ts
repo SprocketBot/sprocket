@@ -9,8 +9,8 @@ import type {EventFunction} from "./marshal.types";
 import {EventMetaSchema} from "./marshal.types";
 
 @Injectable()
-export abstract class EventMarshal {
-    readonly logger = new Logger(EventMarshal.name);
+export abstract class SprocketEventMarshal {
+    readonly logger = new Logger(SprocketEventMarshal.name);
 
     constructor(readonly eventsService: EventsService) {}
 
@@ -26,7 +26,7 @@ export abstract class EventMarshal {
 
         data.forEach(meta => {
             const eventFunction = (Reflect.get(this, meta.functionName) as CallableFunction).bind(this) as EventFunction<EventTopic>;
-            
+
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.eventsService.subscribe(meta.event, false).then(obs => {
                 obs.subscribe((p: EventResponse<EventTopic>) => {
@@ -39,7 +39,13 @@ export abstract class EventMarshal {
                         return;
                     }
 
-                    eventFunction(payload.data).catch(e => { this.logger.error(e) });
+                    try {
+                        const executed = eventFunction(payload.data);
+
+                        if (executed instanceof Promise) executed.catch(e => { this.logger.error(e) });
+                    } catch (e) {
+                        this.logger.error(e);
+                    }
                 });
             });
 

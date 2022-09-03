@@ -8,7 +8,6 @@ import {
     config,
     CoreEndpoint,
     CoreService,
-    EventMarshal,
     EventsService,
     EventTopic,
     GenerateReportCardType,
@@ -17,11 +16,11 @@ import {
     ResponseStatus,
     Scrim,
     SprocketEvent,
+    SprocketEventMarshal,
 } from "@sprocketbot/common";
 
 @Injectable()
-export class ScrimService extends EventMarshal {
-
+export class ScrimService extends SprocketEventMarshal {
     constructor(
         readonly eventsService: EventsService,
         private readonly botService: BotService,

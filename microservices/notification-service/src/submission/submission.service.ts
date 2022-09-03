@@ -12,7 +12,6 @@ import {
     config,
     CoreEndpoint,
     CoreService,
-    EventMarshal,
     EventPayload,
     EventsService,
     EventTopic,
@@ -22,10 +21,11 @@ import {
     ReplaySubmissionType,
     ResponseStatus,
     SprocketEvent,
+    SprocketEventMarshal,
 } from "@sprocketbot/common";
 
 @Injectable()
-export class SubmissionService extends EventMarshal {
+export class SubmissionService extends SprocketEventMarshal {
     constructor(
         readonly eventsService: EventsService,
         private readonly botService: BotService,

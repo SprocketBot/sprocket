@@ -6,6 +6,7 @@ import {
     EventTopic, ScrimStatus,
 } from "@sprocketbot/common";
 
+import {GameSkillGroup} from "../../database";
 import {ScrimGame} from "./ScrimGame";
 import {ScrimPlayer} from "./ScrimPlayer";
 import {ScrimSettings} from "./ScrimSettings";
@@ -60,9 +61,12 @@ export class Scrim implements Omit<IScrim, "id" | "status" | "players"> {
     @Field(() => String, {nullable: true})
     submissionId?: string;
 
-    gameMode: ScrimGameMode;
+    @Field(() => GameSkillGroup)
+    skillGroup: GameSkillGroup;
 
     skillGroupId: number;
+
+    gameMode: ScrimGameMode;
 }
 
 @ObjectType()
