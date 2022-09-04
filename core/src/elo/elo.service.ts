@@ -265,12 +265,14 @@ export class EloService {
 
     async prepMigrationData(): Promise<NewPlayer[]> {
         // Run queries, first refreshing the materialized view
-        await this.dataSource.manager.query("REFRESH MATERIALIZED VIEW mledb.v_current_elo_values");
+        this.logger.verbose("Refreshing materialized view.");
+        // await this.dataSource.manager.query("REFRESH MATERIALIZED VIEW mledb.v_current_elo_values");
 
         // Then querying from it
         /* eslint-disable @typescript-eslint/no-unsafe-assignment,
         @typescript-eslint/no-explicit-any */
-        const rawData: any[] = await this.dataSource.manager.query("SELECT player_id, elo, p.league, salary, p.name FROM mledb.v_current_elo_values");
+        this.logger.verbose("Querying the materialized view.");
+        const rawData: any[] = await this.dataSource.manager.query("SELECT player_id, elo, league, salary FROM mledb.v_current_elo_values");
 
         this.logger.verbose(`Elo Service, querying migration data: ${rawData[0]}`);
         // Now, we build a NewPlayer instance for each row of data returned from
