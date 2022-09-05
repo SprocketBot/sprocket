@@ -7,10 +7,22 @@
     let activePlayersData: Player[] | undefined;
     $: activePlayersData = $activePlayers;
     let targetPlayer: Player;
+    let rankOutsEnabled: boolean;
+    $: rankOutsEnabled = true;
 
     const openPlayerManagementModal = (player: Player) => {
         playerManagementModalVisible = true;
         targetPlayer = player;
+    };
+
+    const toggleRankOuts = async (enabled: boolean) => {
+        try {
+            // await toggleRankOutMutation({enabled});
+            rankOutsEnabled = !rankOutsEnabled;
+            console.log(`RankOuts have been toggled - Currently set to ${enabled ? "enabled" : "disabled"}`);
+        } catch {
+            console.log(`Failed to ${enabled ? "enable" : "disabled"} RankOuts`);
+        }
     };
 </script>
 
@@ -19,7 +31,21 @@
         <tr>
             <th>Player Name</th>
             <th>Player ID</th>
-            <td/>
+            <th>RankOuts: <button
+                    class="btn btn-outline btn-accent btn-sm "
+                    on:click={async () => {
+                        await toggleRankOuts(!rankOutsEnabled);
+                    }}
+            >
+                <span class="justify-center">
+                {#if rankOutsEnabled}
+                    <label class="flex"> On </label>
+                    {:else}
+                    <label class="flex"> Off </label>
+                    {/if}
+                </span>
+                </button>
+            </th>
         </tr>
     </thead>
     <tbody>
