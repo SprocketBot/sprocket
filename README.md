@@ -24,7 +24,7 @@ The platform uses a Microservice pattern, and this repository contains everythin
 npm i
 ```
 
-### Building Projectsnpm
+### Building Projects
 ```bash
 # In the root directory
 npm run build --workspaces --if-present
