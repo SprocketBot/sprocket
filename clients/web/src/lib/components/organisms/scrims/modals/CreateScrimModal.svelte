@@ -70,8 +70,8 @@
             </label>
             <select name="scrim-type" bind:value={scrimType}>
                 <option disabled selected>Make a selection</option>
-                <option value="BEST_OF"> Best Of</option>
                 <option value="ROUND_ROBIN">Round Robin</option>
+                <option value="BEST_OF">Teams</option>
             </select>
         </div>
 
