@@ -1,15 +1,18 @@
 import {
-    forwardRef, Inject, Injectable,
+    forwardRef, Inject, Injectable, Logger,
 } from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {
     ButtonComponentStyle,
     ComponentType,
     config,
-    EventsService, EventTopic, NotificationEndpoint, NotificationService,
+    EventsService,
+    NanoidService,
+    NotificationEndpoint,
+    NotificationMessageType,
+    NotificationService,
+    NotificationType,
 } from "@sprocketbot/common";
-import {NotificationMessageType, NotificationType} from "@sprocketbot/common/lib/service-connectors/notification/schemas";
-import {randomUUID} from "crypto";
 import {add} from "date-fns";
 import type {FindManyOptions, FindOneOptions} from "typeorm";
 import {Repository} from "typeorm";
@@ -18,21 +21,24 @@ import {
     Player, UserAuthenticationAccount, UserAuthenticationAccountType,
 } from "../../database";
 import type {SalaryPayloadItem} from "../../elo/elo-connector";
+import {DegreeOfStiffness, SkillGroupDelta} from "../../elo/elo-connector";
 import {OrganizationService} from "../../organization";
 import {MemberService} from "../../organization/member/member.service";
 import {GameSkillGroupService} from "../game-skill-group";
 
 @Injectable()
 export class PlayerService {
+    private readonly logger = new Logger(PlayerService.name);
+
     constructor(
         @InjectRepository(Player) private playerRepository: Repository<Player>,
         @InjectRepository(UserAuthenticationAccount) private userAuthRepository: Repository<UserAuthenticationAccount>,
-        @Inject(forwardRef(() => MemberService))
-        private readonly memberService: MemberService,
+        @Inject(forwardRef(() => MemberService)) private readonly memberService: MemberService,
+        @Inject(forwardRef(() => OrganizationService)) private readonly organizationService: OrganizationService,
+        private readonly nanoidService: NanoidService,
         private readonly skillGroupService: GameSkillGroupService,
         private readonly eventsService: EventsService,
         private readonly notificationService: NotificationService,
-        @Inject(forwardRef(() => OrganizationService)) private readonly organizationService: OrganizationService,
     ) {}
 
     async getPlayer(query: FindOneOptions<Player>): Promise<Player> {
@@ -113,124 +119,165 @@ export class PlayerService {
                     },
                 },
             });
-            
-            if (playerDelta.sgDelta === 0) await this.updatePlayerStanding(playerDelta.playerId, playerDelta.newSalary);
-            else if (playerDelta.sgDelta > 0) {
-                const skillGroup = await this.skillGroupService.getGameSkillGroup({
-                    where: {
-                        game: {
-                            id: player.skillGroup.game.id,
-                        },
-                        organization: {
-                            id: player.skillGroup.organization.id,
-                        },
-                        ordinal: player.skillGroup.ordinal + playerDelta.sgDelta,
-                        profile: true,
+    
+            const discordAccount = await this.userAuthRepository.findOneOrFail({
+                where: {
+                    user: {
+                        id: player.member.user.id,
                     },
-                });
+                    accountType: UserAuthenticationAccountType.DISCORD,
+                },
+            });
+            const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(player.member.organization.id);
 
-                await this.updatePlayerStanding(playerDelta.playerId, playerDelta.newSalary, skillGroup.id);
-
-                // TODO: Ditch this and send the notification directly with the notification service
-                await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
-                    oldSkillGroup: {
-                        id: player.skillGroup.id,
-                        ordinal: player.skillGroup.ordinal,
-                        name: player.skillGroup.profile.description,
-                    },
-                    newSkillGroup: {
-                        id: skillGroup.id,
-                        ordinal: skillGroup.ordinal,
-                        name: skillGroup.profile.description,
-                    },
-                });
-            } else {
-                const skillGroup = await this.skillGroupService.getGameSkillGroup({
-                    where: {
-                        game: {
-                            id: player.skillGroup.game.id,
+            if (playerDelta.rankout) {
+                if (playerDelta.rankout.degreeOfStiffness === DegreeOfStiffness.HARD) {
+                    const skillGroup = await this.skillGroupService.getGameSkillGroup({
+                        where: {
+                            game: {
+                                id: player.skillGroup.game.id,
+                            },
+                            organization: {
+                                id: player.skillGroup.organization.id,
+                            },
+                            ordinal: player.skillGroup.ordinal - (playerDelta.rankout.skillGroupChange === SkillGroupDelta.UP ? 1 : -1),
                         },
-                        organization: {
-                            id: player.skillGroup.organization.id,
+                        relations: {
+                            profile: true,
                         },
-                        ordinal: player.skillGroup.ordinal + playerDelta.sgDelta,
-                        profile: true,
-                    },
-                });
-
-                const discordAccount = await this.userAuthRepository.findOneOrFail({
-                    where: {
-                        user: {
-                            id: player.member.user.id,
-                        },
-                        accountType: UserAuthenticationAccountType.DISCORD,
-                    },
-                });
-                const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(player.member.organization.id);
-                const notifId = randomUUID();
-
-                await this.notificationService.send(NotificationEndpoint.SendNotification, {
-                    id: notifId,
-                    type: NotificationType.RANKDOWN,
-                    userId: player.member.user.id,
-                    expiration: add(new Date(), {hours: 24}),
-                    payload: {
-                        playerId: playerDelta.playerId,
-                        skillGroupId: skillGroup.id,
-                        salary: playerDelta.newSalary,
-                    },
-                    notification: {
-                        type: NotificationMessageType.DirectMessage,
-                        userId: discordAccount.accountId,
-                        payload: {
-                            embeds: [ {
-                                title: "Rankdown Available",
-                                description: `You have been offered a rankdown from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
-                                author: {
-                                    name: `${orgProfile.name}`,
-                                },
-                                fields: [
-                                    {
-                                        name: "New League",
-                                        value: `${skillGroup.profile.description}`,
+                    });
+    
+                    await this.updatePlayerStanding(playerDelta.playerId, playerDelta.rankout.salary, skillGroup.id);
+    
+                    await this.notificationService.send(NotificationEndpoint.SendNotification, {
+                        type: NotificationType.BASIC,
+                        userId: player.member.user.id,
+                        notification: {
+                            type: NotificationMessageType.DirectMessage,
+                            userId: discordAccount.accountId,
+                            payload: {
+                                embeds: [ {
+                                    title: "You Have Ranked Out",
+                                    description: `You have been ranked out from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
+                                    author: {
+                                        name: `${orgProfile.name}`,
                                     },
-                                    {
-                                        name: "New Salary",
-                                        value: `${playerDelta.newSalary}`,
+                                    fields: [
+                                        {
+                                            name: "New League",
+                                            value: `${skillGroup.profile.description}`,
+                                        },
+                                        {
+                                            name: "New Salary",
+                                            value: `${playerDelta.rankout.salary}`,
+                                        },
+                                    ],
+                                    footer: {
+                                        text: orgProfile.name,
                                     },
-                                ],
-                                footer: {
-                                    text: orgProfile.name,
-                                },
-                                timestamp: Date.now(),
-                            } ],
-                            components: [ {
-                                type: ComponentType.ACTION_ROW,
-                                components: [
-                                    {
-                                        type: ComponentType.BUTTON,
-                                        style: ButtonComponentStyle.LINK,
-                                        label: "Accept it here!",
-                                        url: `${config.web.url}/notifications/${notifId}`,
+                                    timestamp: Date.now(),
+                                } ],
+                            },
+                            brandingOptions: {
+                                organizationId: player.member.organization.id,
+                                options: {
+                                    author: {
+                                        icon: true,
                                     },
-                                ],
-                            } ],
-                        },
-                        brandingOptions: {
-                            organizationId: player.member.organization.id,
-                            options: {
-                                author: {
-                                    icon: true,
-                                },
-                                color: true,
-                                thumbnail: true,
-                                footer: {
-                                    icon: true,
+                                    color: true,
+                                    thumbnail: true,
+                                    footer: {
+                                        icon: true,
+                                    },
                                 },
                             },
                         },
-                    },
-                });
+                    });
+                } else if (playerDelta.rankout.degreeOfStiffness === DegreeOfStiffness.SOFT) {
+                    await this.updatePlayerStanding(playerDelta.playerId, playerDelta.rankout.salary);
+
+                    const skillGroup = await this.skillGroupService.getGameSkillGroup({
+                        where: {
+                            game: {
+                                id: player.skillGroup.game.id,
+                            },
+                            organization: {
+                                id: player.skillGroup.organization.id,
+                            },
+                            ordinal: player.skillGroup.ordinal - (playerDelta.rankout.skillGroupChange === SkillGroupDelta.UP ? 1 : -1),
+                        },
+                        relations: {
+                            profile: true,
+                        },
+                    });
+
+                    const notifId = `${NotificationType.RANKDOWN.toLowerCase()}-${this.nanoidService.gen()}`;
+    
+                    await this.notificationService.send(NotificationEndpoint.SendNotification, {
+                        id: notifId,
+                        type: NotificationType.RANKDOWN,
+                        userId: player.member.user.id,
+                        expiration: add(new Date(), {hours: 24}),
+                        payload: {
+                            playerId: playerDelta.playerId,
+                            skillGroupId: skillGroup.id,
+                            salary: playerDelta.newSalary,
+                        },
+                        notification: {
+                            type: NotificationMessageType.DirectMessage,
+                            userId: discordAccount.accountId,
+                            payload: {
+                                embeds: [ {
+                                    title: "Rankdown Available",
+                                    description: `You have been offered a rankout from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
+                                    author: {
+                                        name: `${orgProfile.name}`,
+                                    },
+                                    fields: [
+                                        {
+                                            name: "New League",
+                                            value: `${skillGroup.profile.description}`,
+                                        },
+                                        {
+                                            name: "New Salary",
+                                            value: `${playerDelta.rankout.salary}`,
+                                        },
+                                    ],
+                                    footer: {
+                                        text: orgProfile.name,
+                                    },
+                                    timestamp: Date.now(),
+                                } ],
+                                components: [ {
+                                    type: ComponentType.ACTION_ROW,
+                                    components: [
+                                        {
+                                            type: ComponentType.BUTTON,
+                                            style: ButtonComponentStyle.LINK,
+                                            label: "Accept it here!",
+                                            url: `${config.web.url}/notifications/${notifId}`,
+                                        },
+                                    ],
+                                } ],
+                            },
+                            brandingOptions: {
+                                organizationId: player.member.organization.id,
+                                options: {
+                                    author: {
+                                        icon: true,
+                                    },
+                                    color: true,
+                                    thumbnail: true,
+                                    footer: {
+                                        icon: true,
+                                    },
+                                },
+                            },
+                        },
+                    });
+                }
+            } else {
+                await this.updatePlayerStanding(playerDelta.playerId, playerDelta.newSalary);
             }
         }))));
     }
