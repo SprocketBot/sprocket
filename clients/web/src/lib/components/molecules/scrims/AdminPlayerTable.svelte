@@ -44,9 +44,9 @@
             >
                 <span class="justify-center">
                 {#if rankOutsEnabled}
-                    <label class="flex"> On </label>
+                    <label class="flex">On</label>
                     {:else}
-                    <label class="flex"> Off </label>
+                    <label class="flex">Off</label>
                     {/if}
                 </span>
                 </button>
