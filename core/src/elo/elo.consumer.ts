@@ -1,8 +1,8 @@
 import {
-    InjectQueue, OnQueueError, OnQueueFailed, Process, Processor,
+    InjectQueue, OnQueueFailed, Process, Processor,
 } from "@nestjs/bull";
 import {Logger} from "@nestjs/common";
-import {Queue} from "bull";
+import {Job, Queue} from "bull";
 import {previousMonday} from "date-fns";
 
 import {FeatureCode} from "../database";
@@ -28,14 +28,8 @@ export class EloConsumer {
         private readonly eloConnectorService: EloConnectorService,
     ) {}
 
-    @OnQueueError()
-    async onError(error: Error): Promise<void> {
-        this.logger.error(error);
-    }
-
     @OnQueueFailed()
-    async onFailure(jobId: number, error: Error): Promise<void> {
-        this.logger.error("ELO CONSUMER ERROR");
+    async onFailure(_: Job, error: Error): Promise<void> {
         this.logger.error(error);
     }
 
