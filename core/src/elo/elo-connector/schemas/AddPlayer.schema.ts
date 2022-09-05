@@ -12,7 +12,7 @@ export const NewPlayerSchema = z.object({
     id: z.number(),
     name: z.string(),
     salary: z.number(),
-    skillGroup: z.nativeEnum(SkillGroups),
+    skillGroup: z.nativeEnum(SkillGroup),
     elo: z.number(),
 });
 
