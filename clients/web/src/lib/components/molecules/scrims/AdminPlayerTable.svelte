@@ -18,8 +18,13 @@
     const toggleRankOuts = async (enabled: boolean) => {
         try {
             // await toggleRankOutMutation({enabled});
-            rankOutsEnabled = !rankOutsEnabled;
-            console.log(`RankOuts have been toggled - Currently set to ${enabled ? "enabled" : "disabled"}`);
+            // eslint-disable-next-line no-alert
+            if (window.confirm(`${enabled ? "Are you sure you want to disable Rankouts?" : "Are you sure you want to enable Rankouts?"}`)) {
+
+                rankOutsEnabled = !rankOutsEnabled;
+                console.log(`RankOuts have been toggled - Currently set to ${enabled ? "enabled" : "disabled"}`);
+            }
+
         } catch {
             console.log(`Failed to ${enabled ? "enable" : "disabled"} RankOuts`);
         }
@@ -33,7 +38,7 @@
             <th>Player ID</th>
             <th>RankOuts: <button
                     class="btn btn-outline btn-accent btn-sm "
-                    on:click={async () => {
+                    on:click= {async () => {
                         await toggleRankOuts(!rankOutsEnabled);
                     }}
             >
