@@ -10,7 +10,6 @@ import {GameModule} from "../game";
 import {IdentityModule} from "../identity";
 import {OrganizationModule} from "../organization";
 import {CORE_WEEKLY_SALARIES_QUEUE, EloConsumer} from "./elo.consumer";
-import {EloResolver} from "./elo.resolver";
 import {EloBullQueue} from "./elo-connector";
 import {EloConnectorModule} from "./elo-connector/elo-connector.module";
 
