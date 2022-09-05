@@ -291,24 +291,27 @@ export class EloService {
     }
 
     skillGroupStringToInt(skillGroup: string): number {
+        // TODO: Change strings here to match skillGroupCode in sprocket schema
+        // once MLEDB migration is complete.
         switch (skillGroup) {
             case "FOUNDATION": {
-                return 1;
+                return 0;
             }
             case "ACADEMY": {
-                return 2;
+                return 1;
             }
             case "CHAMPION": {
-                return 3;
+                return 2;
             }
             case "MASTER": {
-                return 4;
+                return 3;
             }
             case "PREMIER": {
-                return 5;
+                return 4;
             }
             default: {
-                return 6;
+                // throw new Error(`ERROR: SkillGroup ${skillGroup} does not exist!`);
+                return 5;
             }
         }
     }

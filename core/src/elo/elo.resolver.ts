@@ -19,7 +19,7 @@ export class EloResolver {
     @Mutation(() => String)
     async runEloMigration(): Promise<string> {
         const inputData = await this.eloService.prepMigrationData();
-        await this.eloConnectorService.createJob<EloEndpoint.AddNewPlayers>(EloEndpoint.AddNewPlayers, inputData);
+        await this.eloConnectorService.createJob(EloEndpoint.AddNewPlayers, inputData);
         return "Migration started.";
     }
 }
