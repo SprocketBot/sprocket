@@ -1,19 +1,18 @@
 import {z} from "zod";
 
-export enum SkillGroups {
-    FOUNDATION = 1,
-    ACADEMY = 2,
-    CHAMPION = 3,
-    MASTER = 4,
-    PREMIER = 5,
-    NONE = 6,
+export enum SkillGroup {
+    FOUNDATION = 0,
+    ACADEMY = 1,
+    CHAMPION = 2,
+    MASTER = 3,
+    PREMIER = 4,
 }
 
 export const NewPlayerSchema = z.object({
     id: z.number(),
     name: z.string(),
     salary: z.number(),
-    skillGroup: z.nativeEnum(SkillGroups),
+    skillGroup: z.nativeEnum(SkillGroup),
     elo: z.number(),
 });
 

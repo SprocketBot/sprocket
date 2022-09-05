@@ -1,5 +1,5 @@
 import {
-    InjectQueue, Process, Processor,
+    InjectQueue, OnQueueError, OnQueueFailed, Process, Processor,
 } from "@nestjs/bull";
 import {Logger} from "@nestjs/common";
 import {Queue} from "bull";
@@ -9,24 +9,35 @@ import {FeatureCode} from "../database";
 import {PlayerService} from "../franchise";
 import {GameFeatureService, GameService} from "../game";
 import {OrganizationService} from "../organization";
-import {
-    EloBullQueue, EloConnectorService, EloEndpoint,
-} from "./elo-connector";
+import {EloConnectorService, EloEndpoint} from "./elo-connector";
 
 export const WEEKLY_SALARIES_JOB_NAME = "weeklySalaries";
 
-@Processor(EloBullQueue)
+export const CORE_WEEKLY_SALARIES_QUEUE = "coreweeklysalaries";
+
+@Processor(CORE_WEEKLY_SALARIES_QUEUE)
 export class EloConsumer {
     private readonly logger = new Logger(EloConsumer.name);
 
     constructor(
-        @InjectQueue(EloBullQueue) private eloQueue: Queue,
+        @InjectQueue(CORE_WEEKLY_SALARIES_QUEUE) private eloQueue: Queue,
         private readonly playerService: PlayerService,
         private readonly gameService: GameService,
         private readonly gameFeatureService: GameFeatureService,
         private readonly organizationService: OrganizationService,
         private readonly eloConnectorService: EloConnectorService,
     ) {}
+
+    @OnQueueError()
+    async onError(error: Error): Promise<void> {
+        this.logger.error(error);
+    }
+
+    @OnQueueFailed()
+    async onFailure(jobId: number, error: Error): Promise<void> {
+        this.logger.error("ELO CONSUMER ERROR");
+        this.logger.error(error);
+    }
 
     @Process({name: WEEKLY_SALARIES_JOB_NAME})
     async runSalaries(): Promise<void> {
