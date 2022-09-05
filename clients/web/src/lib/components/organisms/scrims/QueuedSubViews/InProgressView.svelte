@@ -3,7 +3,7 @@
         CurrentScrim, Submission, SubmissionRejection,
     } from "$lib/api";
     import UploadReplaysModal from "../modals/UploadReplaysModal.svelte";
-    import {BestOfFixture, RoundRobinFixture} from "$lib/components";
+    import {TeamsFixture, RoundRobinFixture} from "$lib/components";
     import {screamingSnakeToHuman} from "$lib/utils";
 
 
@@ -38,8 +38,8 @@
     <div>
         {#if scrim.settings.mode === "ROUND_ROBIN"}
             <RoundRobinFixture {scrim}/>
-        {:else if scrim.settings.mode === "BEST_OF"}
-            <BestOfFixture {scrim}/>
+        {:else if scrim.settings.mode === "TEAMS"}
+            <TeamsFixture {scrim}/>
         {/if}
     </div>
 

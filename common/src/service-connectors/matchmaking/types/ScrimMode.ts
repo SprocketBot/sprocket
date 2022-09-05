@@ -1,4 +1,4 @@
 export enum ScrimMode {
-    BEST_OF = "BEST_OF",
+    TEAMS = "TEAMS",
     ROUND_ROBIN = "ROUND_ROBIN",
 }

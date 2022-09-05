@@ -8,7 +8,7 @@
 
     let game: GamesAndModesValue["games"][0];
     let mode: GamesAndModesValue["games"][0]["modes"][0];
-    let scrimType: "BEST_OF" | "ROUND_ROBIN";
+    let scrimType: "TEAMS" | "ROUND_ROBIN";
     let competitive: boolean = true;
     let createGroup: boolean = false;
 
@@ -71,7 +71,7 @@
             <select name="scrim-type" bind:value={scrimType}>
                 <option disabled selected>Make a selection</option>
                 <option value="ROUND_ROBIN">Round Robin</option>
-                <option value="BEST_OF">Teams</option>
+                <option value="TEAMS">Teams</option>
             </select>
         </div>
 
