@@ -15,6 +15,9 @@
         targetPlayer = player;
     };
 
+    // TODO: Connect this to back end mutation. Currently just console logs which need to be removed when connected.
+    // Called when On/Off button clicked. Pops up a confirmation window that prompts to confirm whether to enable or disable based on value of rankOutsEnabled.
+    // Confirmation, toggles boolean, after connection to BackEnd, success will toggle.
     const toggleRankOuts = async (enabled: boolean) => {
         try {
             // await toggleRankOutMutation({enabled});
