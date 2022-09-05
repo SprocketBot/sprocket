@@ -19,7 +19,7 @@
         try {
             // await toggleRankOutMutation({enabled});
             // eslint-disable-next-line no-alert
-            if (window.confirm(`${enabled ? "Are you sure you want to disable Rankouts?" : "Are you sure you want to enable Rankouts?"}`)) {
+            if (window.confirm(`${enabled ? "Are you sure you want to enable Rankouts?" : "Are you sure you want to disable Rankouts?"}`)) {
 
                 rankOutsEnabled = !rankOutsEnabled;
                 console.log(`RankOuts have been toggled - Currently set to ${enabled ? "enabled" : "disabled"}`);
