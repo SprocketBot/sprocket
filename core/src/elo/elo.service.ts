@@ -272,20 +272,44 @@ export class EloService {
         /* eslint-disable @typescript-eslint/no-unsafe-assignment,
         @typescript-eslint/no-explicit-any */
         this.logger.verbose("Querying the materialized view.");
-        const rawData: any[] = await this.dataSource.manager.query("SELECT player_id, elo, league, salary FROM mledb.v_current_elo_values");
+        const rawData: any[] = await this.dataSource.manager.query("SELECT player_id, elo, league, salary, name FROM mledb.v_current_elo_values");
 
-        this.logger.verbose(`Elo Service, querying migration data: ${rawData[0]}`);
+        this.logger.verbose(`Elo Service, querying migration data: ${JSON.stringify(rawData[0])}`);
         // Now, we build a NewPlayer instance for each row of data returned from
         // the query
         const output: NewPlayer[] = rawData.map(r => ({
             id: r.player_id,
-            name: r.p.name,
+            name: r.name,
             salary: r.salary,
-            skillGroup: r.p.league, // Map strings to numbers? not sure yet
+            skillGroup: this.skillGroupStringToInt(r.league as string), // Map strings to numbers? not sure yet
             elo: r.elo,
         }));
 
+        this.logger.verbose(`Object build from query: ${JSON.stringify(output[0])}`);
+
         return output;
-        
+    }
+
+    skillGroupStringToInt(skillGroup: string): number {
+        switch (skillGroup) {
+            case "FOUNDATION": {
+                return 1;
+            }
+            case "ACADEMY": {
+                return 2;
+            }
+            case "CHAMPION": {
+                return 3;
+            }
+            case "MASTER": {
+                return 4;
+            }
+            case "PREMIER": {
+                return 5;
+            }
+            default: {
+                return 6;
+            }
+        }
     }
 }

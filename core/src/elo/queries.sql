@@ -1,4 +1,4 @@
-CREATE MATERIALIZED VIEW mledb.v_current_elo_values AS
+CREATE MATERIALIZED VIEW mledb.v_current_elo_values_nigel AS
 WITH all_leaf_nodes AS (SELECT player_id, elo, chain, id
                             FROM mledb.elo_data
                             WHERE next_node_id IS NULL),
