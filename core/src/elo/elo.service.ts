@@ -266,7 +266,7 @@ export class EloService {
     async prepMigrationData(): Promise<NewPlayer[]> {
         // Run queries, first refreshing the materialized view
         this.logger.verbose("Refreshing materialized view.");
-        // await this.dataSource.manager.query("REFRESH MATERIALIZED VIEW mledb.v_current_elo_values");
+        await this.dataSource.manager.query("REFRESH MATERIALIZED VIEW mledb.v_current_elo_values");
 
         // Then querying from it
         /* eslint-disable @typescript-eslint/no-unsafe-assignment,
