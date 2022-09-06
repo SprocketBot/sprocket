@@ -229,7 +229,15 @@ export class ScrimModuleResolver {
         return this.pubSub.asyncIterator(scrim.id);
     }
 
-    @Subscription(() => Scrim)
+    @Subscription(() => Scrim, {
+        async filter(this: ScrimModuleResolver, payload: {followPendingScrims: Scrim;}, variables, context: {req: {user: UserPayload;};}) {
+            const {userId, currentOrganizationId} = context.req.user;
+            if (!currentOrganizationId) return false;
+            const {id: gameModeId} = payload.followPendingScrims.gameMode;
+            const player = await this.playerService.getPlayerByOrganizationAndGameMode(userId, currentOrganizationId, gameModeId);
+            return player.skillGroupId === payload.followPendingScrims.skillGroupId;
+        },
+    })
     async followPendingScrims(): Promise<AsyncIterator<Scrim>> {
         await this.scrimService.enableSubscription();
         return this.pubSub.asyncIterator(this.scrimService.pendingScrimsSubTopic);
