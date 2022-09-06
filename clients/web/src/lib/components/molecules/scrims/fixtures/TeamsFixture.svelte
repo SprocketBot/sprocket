@@ -6,4 +6,4 @@
 </script>
 
 
-<GameCard game={scrim.games[0]} title="Best Of Teams:"/>
+<GameCard game={scrim.games[0]} title="Teams"/>
