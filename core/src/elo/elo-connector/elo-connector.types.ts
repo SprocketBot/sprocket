@@ -4,6 +4,14 @@ import * as Schemas from "./schemas";
 
 export const EloBullQueue = "elo";
 
+export interface CurrentEloValues {
+    player_id: number;
+    elo: number;
+    league: string;
+    salary: number;
+    name: string;
+}
+
 export enum EloEndpoint {
     CalculateSalaries = "CalculateSalaries",
     CalculateEloForMatch = "CalculateEloForMatch",

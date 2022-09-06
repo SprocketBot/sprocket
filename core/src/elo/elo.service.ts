@@ -15,6 +15,7 @@ import {
     Team,
 } from "../database";
 import {WEEKLY_SALARIES_JOB_NAME} from "./elo.consumer";
+import type {CurrentEloValues} from "./elo-connector";
 import {EloBullQueue, EloEndpoint} from "./elo-connector";
 import {EloConnectorService} from "./elo-connector/elo-connector.service";
 import type {
@@ -272,7 +273,7 @@ export class EloService {
         /* eslint-disable @typescript-eslint/no-unsafe-assignment,
         @typescript-eslint/no-explicit-any */
         this.logger.verbose("Querying the materialized view.");
-        const rawData: any[] = await this.dataSource.manager.query("SELECT player_id, elo, league, salary, name FROM mledb.v_current_elo_values");
+        const rawData: CurrentEloValues[] = await this.dataSource.manager.query("SELECT player_id, elo, league, salary, name FROM mledb.v_current_elo_values");
 
         this.logger.verbose(`Elo Service, querying migration data: ${JSON.stringify(rawData[0])}`);
         // Now, we build a NewPlayer instance for each row of data returned from
@@ -281,7 +282,7 @@ export class EloService {
             id: r.player_id,
             name: r.name,
             salary: r.salary,
-            skillGroup: this.skillGroupStringToInt(r.league as string), // Map strings to numbers? not sure yet
+            skillGroup: this.skillGroupStringToInt(r.league), // Map strings to numbers? not sure yet
             elo: r.elo,
         }));
 
