@@ -1,11 +1,10 @@
 import {z} from "zod";
 
-import {SkillGroups} from "../../elo/elo.types";
+import {SkillGroup} from "./AddPlayers.schema";
 
 export const ManualSkillGroupChangeSchema = z.object({
     id: z.number(),
-    name: z.string(),
-    skillGroup: z.nativeEnum(SkillGroups),
+    skillGroup: z.nativeEnum(SkillGroup),
     salary: z.number(),
 });
 
