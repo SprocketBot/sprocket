@@ -17,6 +17,7 @@ export enum EloEndpoint {
     CalculateEloForMatch = "CalculateEloForMatch",
     CalculateEloForNcp = "CalculateEloForNcp",
     AddNewPlayers = "AddNewPlayers",
+    SGChange = "SGChange",
 }
 
 export const EloSchemas = {
@@ -35,6 +36,10 @@ export const EloSchemas = {
     [EloEndpoint.AddNewPlayers]: {
         input: Schemas.AddPlayers_Input,
         output: Schemas.AddPlayers_Output,
+    },
+    [EloEndpoint.SGChange]: {
+        input: Schemas.SGChange_Input,
+        output: Schemas.SGChange_Output,
     },
 };
 
