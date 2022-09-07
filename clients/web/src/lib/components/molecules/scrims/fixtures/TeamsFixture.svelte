@@ -5,9 +5,10 @@
     export let scrim: CurrentScrim;
 </script>
 
+
 {#if scrim.gameMode.description === "Duel"}
     <GameCard game={scrim.games[0]} title="Duel Series - All 5 Games MUST be played"/>
     {:else }
-    <GameCard game={scrim.games[0]} title="Best Of Teams:"/>
+    <GameCard game={scrim.games[0]} title="Teams"/>
 {/if}
 
