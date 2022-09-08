@@ -8,9 +8,8 @@
 
     let game: GamesAndModesValue["games"][0];
     let mode: GamesAndModesValue["games"][0]["modes"][0];
-    let scrimType: "BEST_OF" | "ROUND_ROBIN";
+    let scrimType: "TEAMS" | "ROUND_ROBIN";
     let competitive: boolean = true;
-    let observable: boolean = true;
     let createGroup: boolean = false;
 
     let buttonEnabled = true;
@@ -23,7 +22,7 @@
                     gameModeId: mode.id,
                     mode: scrimType,
                     competitive: competitive,
-                    observable: observable,
+                    observable: false,
                 },
                 createGroup: createGroup,
             });
@@ -38,7 +37,6 @@
     <form on:submit|preventDefault={createScrim} slot="body">
         <div class="divider my-1"></div>
 
-
         <div class="form-control">
             <label class="label" for="game">
                 <span class="label-text">Game:</span>
@@ -47,7 +45,7 @@
                     name="game"
                     bind:value={game}
             >
-                <option disabled selected> Make a Selection</option>
+                <option disabled selected>Make a selection</option>
                 {#each $gamesAndModes?.data?.games ?? [] as g (g.id)}
                     <option value={g}>{g.title}</option>
                 {/each}
@@ -59,7 +57,7 @@
                 <span class="label-text">Game Mode:</span>
             </label>
             <select name="game-mode" bind:value={mode}>
-                <option disabled selected> Make a Selection</option>
+                <option disabled selected>Make a selection</option>
                 {#each game?.modes ?? [] as g (g.id)}
                     <option value={g}>{g.description}</option>
                 {/each}
@@ -71,10 +69,22 @@
                 <span class="label-text">Scrim Type:</span>
             </label>
             <select name="scrim-type" bind:value={scrimType}>
-                <option disabled selected> Make a Selection</option>
-                <option value="BEST_OF"> Best Of</option>
+                <option disabled selected>Make a selection</option>
                 <option value="ROUND_ROBIN">Round Robin</option>
+                <option value="TEAMS">Teams</option>
             </select>
+        </div>
+
+        <div class="form-control inline">
+            <label class="cursor-pointer label" for="competitive">
+                <span class="label-text">Competitive</span>
+                <input
+                        type="checkbox"
+                        bind:checked={competitive}
+                        class="toggle toggle-primary"
+                        name="competitive"
+                />
+            </label>
         </div>
 
         <div class="form-control inline">
@@ -88,31 +98,6 @@
                 />
             </label>
         </div>
-
-
-        <div class="form-control inline">
-            <label class="cursor-pointer label" for="competitive">
-                <span class="label-text">Competitive</span>
-                <input
-                        type="checkbox"
-                        bind:checked={competitive}
-                        class="toggle toggle-primary"
-                        name="competitive"
-                />
-            </label>
-        </div>
-        <div class="form-control inline">
-            <label class="cursor-pointer label" for="observable">
-                <span class="label-text">Observable</span>
-                <input
-                        type="checkbox"
-                        bind:checked={observable}
-                        class="toggle toggle-primary"
-                        name="observable"
-                />
-            </label>
-        </div>
-
 
         <div class="divider my-1"></div>
 

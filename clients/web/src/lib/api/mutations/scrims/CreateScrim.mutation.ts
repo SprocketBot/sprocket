@@ -7,14 +7,14 @@ interface CreateScrimResponse {
     playerCount: number;
     settings: {
         competitive: boolean;
-        mode: "BEST_OF" | "ROUND_ROBIN";
+        mode: "TEAMS" | "ROUND_ROBIN";
     };
 }
 
 interface CreateScrimVariables {
     settings: {
         gameModeId: number;
-        mode: "BEST_OF" | "ROUND_ROBIN";
+        mode: "TEAMS" | "ROUND_ROBIN";
         competitive: boolean;
         observable: boolean;
     };

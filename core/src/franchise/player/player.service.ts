@@ -70,6 +70,39 @@ export class PlayerService {
         });
     }
 
+    async getPlayerByOrganizationAndGameMode(userId: number, organizationId: number, gameModeId: number): Promise<Player> {
+        return this.playerRepository.findOneOrFail({
+            where: {
+                member: {
+                    user: {
+                        id: userId,
+                    },
+                    organization: {
+                        id: organizationId,
+                    },
+                },
+                skillGroup: {
+                    game: {
+                        modes: {
+                            id: gameModeId,
+                        },
+                    },
+                },
+            },
+            relations: {
+                member: {
+                    user: true,
+                    organization: true,
+                },
+                skillGroup: {
+                    game: {
+                        modes: true,
+                    },
+                },
+            },
+        });
+    }
+
     async getPlayers(query?: FindManyOptions<Player>): Promise<Player[]> {
         return this.playerRepository.find(query);
     }
