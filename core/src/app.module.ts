@@ -14,6 +14,7 @@ import {IdentityModule} from "./identity";
 import {AuthModule} from "./identity/auth";
 import {ImageGenerationModule} from "./image-generation";
 import {MledbInterfaceModule} from "./mledb";
+import {NotificationModule} from "./notification/notification.module";
 import {OrganizationModule} from "./organization";
 import {ReplayParseModule} from "./replay-parse";
 import {SchedulingModule} from "./scheduling";
@@ -74,6 +75,7 @@ import {UtilModule} from "./util/util.module";
         UtilModule,
         EloModule,
         SubmissionModule,
+        NotificationModule,
     ],
 })
 export class AppModule implements NestModule {
