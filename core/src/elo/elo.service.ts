@@ -4,7 +4,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 import type {BallchasingPlayer} from "@sprocketbot/common";
 import {Queue} from "bull";
 import {previousMonday} from "date-fns";
-import {Repository} from "typeorm";
+import {DataSource, Repository} from "typeorm";
 
 import type {MatchParent, PlayerStatLine} from "../database";
 import {
@@ -15,10 +15,11 @@ import {
     Team,
 } from "../database";
 import {WEEKLY_SALARIES_JOB_NAME} from "./elo.consumer";
+import type {CurrentEloValues} from "./elo-connector";
 import {EloBullQueue, EloEndpoint} from "./elo-connector";
 import {EloConnectorService} from "./elo-connector/elo-connector.service";
 import type {
-    CalculateEloForMatchInput, MatchSummary, PlayerSummary, SalaryPayloadItem,
+    CalculateEloForMatchInput, MatchSummary, NewPlayer, PlayerSummary, SalaryPayloadItem,
 } from "./elo-connector/schemas";
 import {GameMode, TeamColor} from "./elo-connector/schemas";
 
@@ -34,6 +35,7 @@ export class EloService {
         @InjectRepository(Invalidation) private readonly invalidationRepository: Repository<Invalidation>,
         @InjectQueue(EloBullQueue) private eloQueue: Queue,
         private readonly eloConnectorService: EloConnectorService,
+        private readonly dataSource: DataSource,
     ) {}
 
     async onApplicationBootstrap(): Promise<void> {
@@ -260,5 +262,58 @@ export class EloService {
 
         const seriesTypeStr = series.matchParent.fixture ? "fixture" : series.matchParent.scrimMeta ? "scrim" : "unknown";
         return `\`seriesId=${seriesId}\` ${seriesTypeStr ? `(${seriesTypeStr})` : ""} successfully marked \`fullNcp=${isNcp}\` with updated elo, and all connected replays had their elo updated.${numReplays && dummiesNeeded ? ` **${dummiesNeeded} dummy replay(s)** were added to the series.` : ""}`;
+    }
+
+    async prepMigrationData(): Promise<NewPlayer[]> {
+        // Run queries, first refreshing the materialized view
+        this.logger.verbose("Refreshing materialized view.");
+        await this.dataSource.manager.query("REFRESH MATERIALIZED VIEW mledb.v_current_elo_values");
+
+        // Then querying from it
+        /* eslint-disable @typescript-eslint/no-unsafe-assignment,
+        @typescript-eslint/no-explicit-any */
+        this.logger.verbose("Querying the materialized view.");
+        const rawData: CurrentEloValues[] = await this.dataSource.manager.query("SELECT player_id, elo, league, salary, name FROM mledb.v_current_elo_values");
+
+        this.logger.verbose(`Elo Service, querying migration data: ${JSON.stringify(rawData[0])}`);
+        // Now, we build a NewPlayer instance for each row of data returned from
+        // the query
+        const output: NewPlayer[] = rawData.map(r => ({
+            id: r.player_id,
+            name: r.name,
+            salary: r.salary,
+            skillGroup: this.skillGroupStringToInt(r.league), // Map strings to numbers? not sure yet
+            elo: r.elo,
+        }));
+
+        this.logger.verbose(`Object build from query: ${JSON.stringify(output[0])}`);
+
+        return output;
+    }
+
+    skillGroupStringToInt(skillGroup: string): number {
+        // TODO: Change strings here to match skillGroupCode in sprocket schema
+        // once MLEDB migration is complete.
+        switch (skillGroup) {
+            case "FOUNDATION": {
+                return 0;
+            }
+            case "ACADEMY": {
+                return 1;
+            }
+            case "CHAMPION": {
+                return 2;
+            }
+            case "MASTER": {
+                return 3;
+            }
+            case "PREMIER": {
+                return 4;
+            }
+            default: {
+                // throw new Error(`ERROR: SkillGroup ${skillGroup} does not exist!`);
+                return 5;
+            }
+        }
     }
 }
