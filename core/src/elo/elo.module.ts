@@ -10,10 +10,9 @@ import {GameModule} from "../game";
 import {IdentityModule} from "../identity";
 import {OrganizationModule} from "../organization";
 import {CORE_WEEKLY_SALARIES_QUEUE, EloConsumer} from "./elo.consumer";
-import {EloBullQueue} from "./elo-connector";
-import {EloConsumer} from "./elo.consumer";
 import {EloResolver} from "./elo.resolver";
 import {EloService} from "./elo.service";
+import {EloBullQueue} from "./elo-connector";
 import {EloConnectorModule} from "./elo-connector/elo-connector.module";
 
 @Module({
@@ -33,6 +32,7 @@ import {EloConnectorModule} from "./elo-connector/elo-connector.module";
     providers: [
         EloConsumer,
         EloResolver,
+        EloService,
     ],
 })
 export class EloModule {}
