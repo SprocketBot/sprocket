@@ -8,7 +8,8 @@
     "matchmaking_queue": "dev-matchmaking",
     "image_generation_queue": "dev-ig",
     "celery-queue": "dev-celery",
-    "submission_queue": "dev-submissions"
+    "submission_queue": "dev-submissions",
+    "notification_queue": "dev-notification"
   },
   "logger": {
     "levels": true

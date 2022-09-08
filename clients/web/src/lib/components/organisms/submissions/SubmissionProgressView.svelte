@@ -8,7 +8,6 @@
   import {Spinner} from "$lib/components";
 
   export let submission: Submission;
-  export let submissionId: string;
   let progress: SubmissionProgress[];
   $: progress = submission?.items.map(item => ({
       filename: item.originalFilename,
@@ -17,7 +16,7 @@
 
   async function resetSubmission() {
       await resetSubmissionMutation({
-          submissionId: submissionId!,
+          submissionId: submission.id,
       });
   }
 </script>

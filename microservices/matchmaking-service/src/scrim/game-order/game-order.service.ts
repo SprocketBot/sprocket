@@ -17,8 +17,8 @@ export class GameOrderService {
 
     generateGameOrder(scrim: Scrim): ScrimGame[] {
         switch (scrim.settings.mode) {
-            case ScrimMode.BEST_OF:
-                return this.generateBestOfGameOrder(scrim);
+            case ScrimMode.TEAMS:
+                return this.generateTeamsGameOrder(scrim);
             case ScrimMode.ROUND_ROBIN:
                 return this.generateRoundRobinGameOrder(scrim);
             default:
@@ -26,7 +26,7 @@ export class GameOrderService {
         }
     }
 
-    private generateBestOfGameOrder(scrim: Scrim): ScrimGame[] {
+    private generateTeamsGameOrder(scrim: Scrim): ScrimGame[] {
         const playerCombinations: ScrimPlayer[][] = new Array(scrim.settings.teamCount).fill(null)
             .map(() => []) as ScrimPlayer[][];
         const groups = this.scrimGroupService.getScrimGroups(scrim);

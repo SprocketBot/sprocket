@@ -1,51 +1,6 @@
 import {gql, type OperationResult} from "@urql/core";
-import {LiveQueryStore} from "../core/LiveQueryStore";
-
-export interface SubmissionRejection {
-    playerId: string;
-    playerName: string;
-    reason: string;
-}
-export interface SubmissionProgress {
-    progress: {
-        value: number;
-        message: string;
-    };
-    status: "Pending" | "Error" | "Complete";
-    taskId: string;
-    error?: string;
-}
-
-export interface Submission {
-    status: string;
-    creatorId: number;
-    ratifications: number;
-    requiredRatifications: number;
-    userHasRatified: boolean;
-    type: "MATCH" | "SCRIM";
-    scrimId?: string;
-    matchId?: string;
-    stale: boolean;
-    items: Array<{
-        taskId: string;
-        originalFilename: string;
-        progress: SubmissionProgress;
-    }>;
-    rejections: SubmissionRejection[];
-    validated: boolean;
-    stats: {
-        games: Array<{
-            teams: Array<{
-                won: boolean;
-                score: number;
-                players: Array<{
-                    name: string;
-                    goals: number;
-                }>;
-            }>;
-        }>;
-    };
-}
+import {LiveQueryStore} from "../../core/LiveQueryStore";
+import type {Submission} from "./submission.types";
 
 export interface SubmissionStoreValue {
     submission: Submission;
@@ -62,9 +17,12 @@ export interface SubmissionStoreSubscriptionVariables {
 
 
 export class SubmissionStore extends LiveQueryStore<SubmissionStoreValue, SubmissionStoreVariables, SubmissionSubscriptionValue, SubmissionStoreSubscriptionVariables> {
+    protected _subVars: SubmissionStoreSubscriptionVariables;
+
     protected queryString = gql<SubmissionStoreValue, SubmissionStoreVariables>`
         query ($submissionId: String!) {
             submission: getSubmission(submissionId: $submissionId) {
+                id
                 creatorId
                 ratifications
                 requiredRatifications
@@ -158,6 +116,7 @@ export class SubmissionStore extends LiveQueryStore<SubmissionStoreValue, Submis
         super();
         this.vars = {submissionId};
         this.subscriptionVariables = {submissionId};
+        this._subVars = {submissionId};
     }
 
     protected handleGqlMessage = (message: OperationResult<SubmissionSubscriptionValue, SubmissionStoreSubscriptionVariables>): void => {

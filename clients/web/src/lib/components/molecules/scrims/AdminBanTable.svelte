@@ -16,7 +16,7 @@ import ManuallyExpireRestrictionModal from "../../organisms/scrims/modals/Manual
     };
 </script>
 
-<table class="table text-center w-full" >
+<table class="table table-compact table-zebra text-center w-full" >
     <thead>
     <tr>
         <th>Player Name</th>

@@ -2,7 +2,6 @@ import {Global, Module} from "@nestjs/common";
 import {ClientsModule, Transport} from "@nestjs/microservices";
 
 import {CommonClient} from "./global.types";
-import {SubmissionModule} from "./service-connectors/submission/submission.module";
 import {config} from "./util/config";
 import {UtilModule} from "./util/util.module";
 
@@ -91,11 +90,25 @@ const client = ClientsModule.register([
             },
         },
     },
+    {
+        name: CommonClient.Notification,
+        transport: Transport.RMQ,
+        options: {
+            urls: [config.transport.url] as string[],
+            queue: config.transport.notification_queue,
+            queueOptions: {
+                durable: true,
+            },
+            socketOptions: {
+                heartbeat: 120,
+            },
+        },
+    },
 ]);
 
 @Global()
 @Module({
-    imports: [client, SubmissionModule, UtilModule],
+    imports: [client, UtilModule],
     exports: [client],
 })
 export class GlobalModule {}

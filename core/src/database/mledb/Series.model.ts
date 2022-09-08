@@ -88,16 +88,18 @@ export class MLE_Series {
     @ManyToOne(() => MLE_Fixture, fixture => fixture.series, {
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
+        nullable: true,
     })
     @JoinColumn([ {name: "fixture_id", referencedColumnName: "id"} ])
-    fixture: MLE_Fixture;
+    fixture?: MLE_Fixture;
 
     @OneToOne(() => MLE_Scrim, scrim => scrim.series, {
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
+        nullable: true,
     })
     @JoinColumn([ {name: "scrim_id", referencedColumnName: "id"} ])
-    scrim: MLE_Scrim;
+    scrim?: MLE_Scrim;
 
     @OneToMany(() => MLE_SeriesReplay, seriesReplay => seriesReplay.series)
     seriesReplays: MLE_SeriesReplay[];

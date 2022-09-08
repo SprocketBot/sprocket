@@ -1,7 +1,7 @@
 ------------------------
 -- Sprocketdb Scripts
 ------------------------
-ALTER FOREIGN TABLE mledb.player_stats
+ALTER TABLE mledb.player_stats
     ALTER start_time TYPE NUMERIC,
     ALTER steering_sensitivity TYPE NUMERIC,
     ALTER end_time TYPE NUMERIC,
@@ -12,7 +12,6 @@ ALTER FOREIGN TABLE mledb.player_stats
     ALTER camera_stiffness TYPE NUMERIC,
     ALTER camera_swivel_speed TYPE NUMERIC,
     ALTER camera_transition_speed TYPE NUMERIC,
-    ALTER core_stats_id TYPE NUMERIC,
     ALTER boost_per_minute TYPE NUMERIC,
     ALTER boost_collected_per_minute TYPE NUMERIC,
     ALTER boost_average TYPE NUMERIC,
@@ -89,7 +88,7 @@ ALTER FOREIGN TABLE mledb.player_stats
     ALTER percent_low_air TYPE NUMERIC,
     ALTER percent_high_air TYPE NUMERIC;
 
-ALTER FOREIGN TABLE mledb.team_core_stats
+ALTER TABLE mledb.team_core_stats
     ALTER COLUMN possession_time TYPE NUMERIC,
         ALTER COLUMN time_in_side TYPE NUMERIC
 ;

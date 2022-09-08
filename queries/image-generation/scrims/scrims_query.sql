@@ -1,5 +1,5 @@
-WITH 
-vars AS (SELECT 
+WITH
+vars AS (SELECT
 		 	$1::numeric AS scrim_id,
 			$2::numeric AS org_id
 		),
@@ -82,17 +82,17 @@ game_object AS(
 	SELECT
 		jsonb_build_object('type', 'text', 'value', CONCAT(LEFT(gi.league,1), 'L ',
 						  CASE
-						  	WHEN type = 'BEST_OF' AND mode='STANDARD' THEN '3S BEST OF '
-						   	WHEN type = 'BEST_OF' AND mode='DOUBLES' THEN '2S BEST OF '
+						  	WHEN type = 'TEAMS' AND mode='STANDARD' THEN '3S TEAMS '
+						   	WHEN type = 'TEAMS' AND mode='DOUBLES' THEN '2S TEAMS '
 						   	WHEN type = 'ROUND_ROBIN' AND mode='STANDARD' THEN '3S ROUND ROBIN '
 						   	WHEN type = 'ROUND_ROBIN' AND mode='DOUBLES' THEN '2S ROUND ROBIN '
-							WHEN mode='SOLO' THEN '1S BEST OF '
+							WHEN mode='SOLO' THEN '1S TEAMS '
 						  END
 						  )) AS title,
 		jsonb_build_object('type', 'text', 'value', CONCAT(UPPER(LEFT(mode, 1)),LOWER(SUBSTRING(mode, 2, LENGTH(mode))))) AS scrim_mode,
 		jsonb_build_object('type', 'text', 'value',
 						  CASE
-						   	WHEN type = 'BEST_OF' THEN 'Best Of'
+						   	WHEN type = 'TEAMS' THEN 'Teams'
 						   	WHEN type = 'ROUND_ROBIN' THEN 'Round Robin'
 						  END) AS scrim_type,
 		jsonb_build_object('type', 'text', 'value',
@@ -133,7 +133,12 @@ player_stats AS (
 				gs.salary AS salary,
 				re.wins,
 				re.losses,
-				AVG(COALESCE(gs.gpi, gs.mvpr)) AS rating,
+				AVG(
+					CASE 
+						WHEN gpi=0 THEN mvpr
+						ELSE gpi
+					END
+				) AS rating,
 				SUM(gs.goals) AS goals,
 				SUM(gs.assists) AS assists,
 				SUM(gs.saves) AS saves,
@@ -205,6 +210,9 @@ player_stats_object AS(
 	UNION ALL
    	SELECT   *
    	FROM     blank_player_data_json
+	UNION ALL
+   	SELECT   *
+   	FROM     blank_player_data_json
 	LIMIT 6
 
 ),
@@ -256,6 +264,8 @@ games_data AS(
 
 		from game_stats gs
 		JOIN player_stats ps ON gs.player_name = ps.name
+		UNION ALL
+		SELECT * from empty_player_game_data
 		UNION ALL
 		SELECT * from empty_player_game_data
 	),

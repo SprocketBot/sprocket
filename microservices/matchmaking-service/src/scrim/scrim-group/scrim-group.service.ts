@@ -23,7 +23,7 @@ export class ScrimGroupService {
     }
 
     modeAllowsGroups(mode: ScrimMode): boolean {
-        return mode === ScrimMode.BEST_OF;
+        return mode === ScrimMode.TEAMS;
     }
 
     canCreateNewGroup(scrim: Scrim): boolean {

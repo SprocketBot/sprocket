@@ -20,6 +20,11 @@
     "bucketNames": {
       "image_generation": ""
     }
+  },
+  "redis": {
+    "port": 6379,
+    "host": "",
+    "prefix": "",
+    "secure": true
   }
 }
-  

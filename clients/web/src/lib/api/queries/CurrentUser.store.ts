@@ -31,7 +31,6 @@ export class CurrentUserStore extends QueryStore<CurrentUserResult, CurrentUserV
                 members(orgId: $orgId) {
                     id
                     players {
-                        
                         skillGroup {
                             profile {
                                 description

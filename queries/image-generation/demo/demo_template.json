@@ -1,0 +1,48 @@
+{
+	"team_name": {
+			"type": "text",
+			"description": "team name"
+	 },
+	"league":{
+    "type": "text",
+    "description": "league"
+  },
+	"team_primary_color": {
+    "type": "color",
+    "description": "team color"
+  },
+	"players":[
+    {
+      "type":"text",
+      "description": "player 0 name"
+    },
+    {
+      "type":"text",
+      "description": "player 1 name"
+    },
+    {
+      "type":"text",
+      "description": "player 2 name"
+    },
+    {
+      "type":"text",
+      "description": "player 3 name"
+    },
+    {
+      "type":"text",
+      "description": "player 4 name"
+    },
+    {
+      "type":"text",
+      "description": "player 5 name"
+    },
+    {
+      "type":"text",
+      "description": "player 6 name"
+    },
+    {
+      "type":"text",
+      "description": "player 7 name"
+    }
+	]
+}
