@@ -1,47 +1,34 @@
 <script lang="ts">
-    import {CreateScrimModal, JoinScrimModal} from "$lib/components";
     import {screamingSnakeToHuman} from "$lib/utils";
+    import type {PendingScrim} from "$lib/api";
 
-    export let scrims;
-
-    let createModalVisible = false;
-    let joinModalVisible = false;
-    let targetId;
-
-    const openCreateScrimModal = () => {
-        createModalVisible = true;
-    };
-    const openJoinScrimModal = scrimId => {
-        joinModalVisible = true;
-        targetId = scrimId;
-    };
+    export let scrims: PendingScrim[];
+    export let joinScrim: (scrimId: string) => void;
 </script>
 
 <table class="table text-center w-full">
     <thead>
     <tr>
         <th>Game</th>
+        <th>Skill Group</th>
         <th>Game Mode</th>
         <th>Scrim Type</th>
         <th>Players</th>
-        <th/>
-        <th>
-            <button class="float-right lg:btn-sm btn btn-outline btn-accent" on:click={openCreateScrimModal}>
-                Create Scrim
-            </button>
-        </th>
+        <th>Mode</th>
+        <th />
     </tr>
     </thead>
     <tbody>
     {#each scrims as scrim (scrim.id)}
         <tr>
             <td>{scrim.gameMode.game.title}</td>
+            <td>{scrim.skillGroup?.profile?.description}</td>
             <td>{scrim.gameMode.description}</td>
             <td>{screamingSnakeToHuman(scrim.settings.mode)}</td>
             <td>{scrim.playerCount} / {scrim.maxPlayers}</td>
             <td>{scrim.settings.competitive ? "Competitive" : "Casual"}</td>
             <td>
-                <button on:click={() => { openJoinScrimModal(scrim.id) }} class="btn btn-outline float-right lg:btn-sm">
+                <button on:click={() => { joinScrim(scrim.id) }} class="btn btn-outline float-right lg:btn-sm">
                     Join
                 </button>
             </td>
@@ -49,12 +36,6 @@
     {/each}
     </tbody>
 </table>
-{#if createModalVisible}
-    <CreateScrimModal bind:visible={createModalVisible}/>
-{/if}
-{#if joinModalVisible}
-    <JoinScrimModal scrimId={targetId} bind:visible={joinModalVisible}/>
-{/if}
 
 <style lang="postcss">
     table {
