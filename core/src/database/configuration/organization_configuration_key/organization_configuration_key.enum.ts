@@ -33,6 +33,14 @@ export enum OrganizationConfigurationKeyCode {
      * Required number of ratifications for a scrim. -1 indicates calculating via majority of players.
      */
     SCRIM_REQUIRED_RATIFICATIONS = "SCRIM_REQUIRED_RATIFICATIONS",
+    /**
+     * Discord Guild Webhook Url to post SkillGroup change notifications
+     */
+    SKILL_GROUP_CHANGE_DISCORD_WEBHOOK_URL = "SKILL_GROUP_CHANGE_DISCORD_WEBHOOK_URL",
+    /**
+     * Discord Guild Webhook Url to post transaction notifications
+     */
+    TRANSACTIONS_DISCORD_WEBHOOK_URL = "TRANSACTIONS_DISCORD_WEBHOOK_URL",
 }
 
 export enum OrganizationConfigurationKeyType {
