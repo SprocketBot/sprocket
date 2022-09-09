@@ -76,6 +76,8 @@ export class PlayerController {
         });
         const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(player.member.organization.id);
 
+        if (player.skillGroup.id === payload.skillGroupId) return "ERROR: You are already in this skill group";
+
         const inputData: ManualSkillGroupChange = {
             id: payload.playerId,
             salary: payload.salary,
@@ -146,6 +148,6 @@ export class PlayerController {
             },
         });
 
-        return "RANKDOWN PROCESSED";
+        return "SUCCESS";
     }
 }
