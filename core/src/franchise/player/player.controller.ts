@@ -39,18 +39,6 @@ export class PlayerController {
         const payload = this.jwtService.decode(token) as RankdownPayload | null;
         if (!payload) return "FAILED TO DECODE PAYLOAD";
 
-        const sg = await this.skillGroupService.getGameSkillGroupById(payload.skillGroupId);
-
-        await this.playerService.updatePlayerStanding(payload.playerId, payload.salary, payload.skillGroupId);
-
-        const inputData: ManualSkillGroupChange = {
-            id: payload.playerId,
-            salary: payload.salary,
-            skillGroup: sg.ordinal,
-        };
-
-        await this.eloConnectorService.createJob(EloEndpoint.SGChange, inputData);
-
         const player = await this.playerService.getPlayer({
             where: {id: payload.playerId},
             relations: {
@@ -87,6 +75,16 @@ export class PlayerController {
             },
         });
         const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(player.member.organization.id);
+
+        const inputData: ManualSkillGroupChange = {
+            id: payload.playerId,
+            salary: payload.salary,
+            skillGroup: skillGroup.ordinal,
+        };
+        
+        await this.playerService.updatePlayerStanding(payload.playerId, payload.salary, payload.skillGroupId);
+        await this.playerService.mle_rankDownPlayer(payload.playerId, payload.salary);
+        await this.eloConnectorService.createJob(EloEndpoint.SGChange, inputData);
 
         await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
             playerId: player.id,

@@ -9,7 +9,6 @@ import {
     config,
     EventsService,
     EventTopic,
-    NanoidService,
     NotificationEndpoint,
     NotificationMessageType,
     NotificationService,
@@ -21,6 +20,10 @@ import {Repository} from "typeorm";
 import {
     Player, UserAuthenticationAccount, UserAuthenticationAccountType,
 } from "../../database";
+import type {League} from "../../database/mledb";
+import {
+    LeagueOrdinals, MLE_Player, Role,
+} from "../../database/mledb";
 import type {SalaryPayloadItem} from "../../elo/elo-connector";
 import {DegreeOfStiffness, SkillGroupDelta} from "../../elo/elo-connector";
 import {OrganizationService} from "../../organization";
@@ -34,10 +37,10 @@ export class PlayerService {
 
     constructor(
         @InjectRepository(Player) private playerRepository: Repository<Player>,
+        @InjectRepository(MLE_Player) private mle_playerRepository: Repository<MLE_Player>,
         @InjectRepository(UserAuthenticationAccount) private userAuthRepository: Repository<UserAuthenticationAccount>,
         @Inject(forwardRef(() => MemberService)) private readonly memberService: MemberService,
         @Inject(forwardRef(() => OrganizationService)) private readonly organizationService: OrganizationService,
-        private readonly nanoidService: NanoidService,
         private readonly skillGroupService: GameSkillGroupService,
         private readonly eventsService: EventsService,
         private readonly notificationService: NotificationService,
@@ -185,6 +188,12 @@ export class PlayerService {
                     });
     
                     await this.updatePlayerStanding(playerDelta.playerId, playerDelta.rankout.salary, skillGroup.id);
+
+                    if (playerDelta.rankout.skillGroupChange === SkillGroupDelta.UP) {
+                        await this.mle_rankUpPlayer(player.id, playerDelta.rankout.salary);
+                    } else {
+                        await this.mle_rankDownPlayer(player.id, playerDelta.rankout.salary);
+                    }
 
                     await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
                         playerId: player.id,
@@ -397,5 +406,70 @@ export class PlayerService {
                 await this.updatePlayerStanding(playerDelta.playerId, playerDelta.newSalary);
             }
         }))));
+    }
+
+    mle_nextLeague(league: League, dir: -1 | 1): League {
+        return LeagueOrdinals[LeagueOrdinals.indexOf(league) - dir];
+    }
+
+    async mle_rankDownPlayer(sprocPlayerId: number, salary: number): Promise<MLE_Player> {
+        const sproc = await this.getPlayer({
+            where: {id: sprocPlayerId},
+            relations: {
+                member: {
+                    user: {
+                        authenticationAccounts: true,
+                    },
+                },
+            },
+        });
+        const discId = sproc.member.user.authenticationAccounts.find(aa => aa.accountType === UserAuthenticationAccountType.DISCORD);
+        if (!discId) throw new Error("No discord Id");
+
+        let player = await this.mle_playerRepository.findOneOrFail({
+            where: {
+                discordId: discId.accountId,
+            },
+        });
+
+        player = this.mle_playerRepository.merge(player, {
+            role: Role.NONE,
+            teamName: "WW",
+            league: this.mle_nextLeague(player.league, -1),
+            salary: salary,
+        });
+
+        await this.mle_playerRepository.save(player);
+        return player;
+    }
+
+    async mle_rankUpPlayer(sprocPlayerId: number, salary: number): Promise<MLE_Player> {
+        const sproc = await this.getPlayer({
+            where: {id: sprocPlayerId},
+            relations: {
+                member: {
+                    user: {
+                        authenticationAccounts: true,
+                    },
+                },
+            },
+        });
+        const discId = sproc.member.user.authenticationAccounts.find(aa => aa.accountType === UserAuthenticationAccountType.DISCORD);
+        if (!discId) throw new Error("No discord Id");
+
+        let player = await this.mle_playerRepository.findOneOrFail({
+            where: {
+                discordId: discId.accountId,
+            },
+        });
+
+        player = this.mle_playerRepository.merge(player, {
+            role: Role.NONE,
+            league: this.mle_nextLeague(player.league, 1),
+            salary: salary,
+        });
+
+        await this.mle_playerRepository.save(player);
+        return player;
     }
 }
