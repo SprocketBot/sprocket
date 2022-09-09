@@ -25,6 +25,10 @@ export class GameSkillGroupProfile extends BaseModel {
     @Field({nullable: true})
     matchReportWebhookUrl?: string;
 
+    @Column()
+    @Field(() => String)
+    discordEmojiID: string;
+
     @OneToOne(() => GameSkillGroup)
     @JoinColumn()
     @Field(() => GameSkillGroup)
