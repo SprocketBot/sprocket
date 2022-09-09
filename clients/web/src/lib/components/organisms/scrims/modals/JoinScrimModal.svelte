@@ -66,10 +66,12 @@
 
         </div>
         <div class="divider">or</div>
-        <div class="flex items-center gap-2">
-            <h3 class="flex-1">Play Together</h3>
-            <button on:click={joinAsNewGroup} disabled={joining}>Create group</button>
-            <button on:click={() => { joiningWithExistingGroup = !joiningWithExistingGroup }} disabled={joining}>Join group</button>
+        <div class="flex items-center justify-between gap-2">
+            <h3>Play Together</h3>
+            <div class="flex flex-col md:flex-row gap-2">
+                <button on:click={joinAsNewGroup} disabled={joining}>Create group</button>
+                <button on:click={() => { joiningWithExistingGroup = !joiningWithExistingGroup }} disabled={joining}>Join group</button>
+            </div>
         </div>
         {#if joiningWithExistingGroup}
             <div class='flex items-center gap-2' transition:slide>
@@ -89,8 +91,7 @@
         }
 
         button {
-            @apply btn btn-outline;
-
+            @apply btn btn-outline btn-sm h-10 md:btn-md md:h-auto;
         }
     }
 </style>

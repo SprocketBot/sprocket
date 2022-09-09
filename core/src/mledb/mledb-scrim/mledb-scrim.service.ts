@@ -34,7 +34,7 @@ export class MledbScrimService {
     constructor(
         @InjectRepository(MLE_Scrim) private readonly mleScrimRepository: Repository<MLE_Scrim>,
         @InjectRepository(MLE_Series) private readonly mleSeriesRepository: Repository<MLE_Series>,
-        @InjectRepository(MLE_SeriesReplay) private readonly mleSeriesReplayRepositroy: Repository<MLE_SeriesReplay>,
+        @InjectRepository(MLE_SeriesReplay) private readonly mleSeriesReplayRepository: Repository<MLE_SeriesReplay>,
         @InjectRepository(MLE_PlayerStatsCore) private readonly mlePlayerStatsCoreRepository: Repository<MLE_PlayerStatsCore>,
         @InjectRepository(MLE_PlayerStats) private readonly mlePlayerStatsRepository: Repository<MLE_PlayerStats>,
         @InjectRepository(MLE_TeamCoreStats) private readonly mleTeamCoreStatsRepository: Repository<MLE_TeamCoreStats>,
@@ -100,6 +100,7 @@ export class MledbScrimService {
         }));
 
         await runner.manager.save(scrim);
+        await runner.manager.save(series);
         await this.saveSeries(submission, submissionId, runner, series);
         await runner.manager.save(playerEligibilities);
 
@@ -113,7 +114,7 @@ export class MledbScrimService {
 
         const mleSeriesReplays = await Promise.all(submission.items.map(async item => {
             const data: BallchasingResponse = item.progress!.result!.data;
-            const replay = this.mleSeriesReplayRepositroy.create();
+            const replay = this.mleSeriesReplayRepository.create();
             replay.series = series;
             replay.map = ballchasingMapLookup.get(data.map_code) ?? RocketLeagueMap.UNKNOWN;
             replay.matchGuid = data.match_guid;
@@ -135,7 +136,9 @@ export class MledbScrimService {
                         platformId: p.id.id,
                         platform: p.id.platform.toUpperCase() as MLE_Platform,
                     },
-                    relations: ["player"],
+                    relations: {
+                        player: true,
+                    },
                 });
                 const player = playerAccount.player;
 
@@ -193,6 +196,8 @@ export class MledbScrimService {
             };
 
             await Promise.all(data.blue.players.map(async x => convertPlayerToMLE(x, "BLUE")));
+            await Promise.all(data.orange.players.map(async x => convertPlayerToMLE(x, "ORANGE")));
+
             replay.teamCoreStats = [
                 buildTeamStats(data.blue, "BLUE"),
                 buildTeamStats(data.orange, "ORANGE"),
@@ -200,14 +205,26 @@ export class MledbScrimService {
 
             teamStats.push(...replay.teamCoreStats);
 
-            await Promise.all(data.orange.players.map(async x => convertPlayerToMLE(x, "ORANGE")));
+            if (series.fixture) {
+                const firstPlayer = playerStats[0];
+                const firstPlayerFranchise = firstPlayer.player.teamName;
+                const firstPlayerWon = firstPlayer.coreStats.color === replay.winningColor;
+                const homeTeamWon = firstPlayerWon && firstPlayerFranchise === series.fixture.homeName;
+                replay.winningTeamName = homeTeamWon ? series.fixture.homeName : series.fixture.awayName;
+            } else if (series.scrim) {
+                replay.winningTeamName = "FA";
+            } else throw new Error(`Series has neither a fixture or scrim associated with it seriesId=${series.id}`);
 
             return replay;
         }));
 
+        mleSeriesReplays.forEach(sr => {
+            sr.series = series;
+            // @ts-expect-error Legacy Models gonna Legacy
+            sr.series_id = series.id;
+        });
         series.seriesReplays = mleSeriesReplays;
 
-        await runner.manager.save(series);
         await runner.manager.save(mleSeriesReplays);
         await runner.manager.save(coreStats);
         await runner.manager.save(playerStats);
@@ -217,7 +234,8 @@ export class MledbScrimService {
     }
 
     async getScrimIdByBallchasingId(ballchasingId: string): Promise<number> {
-        const mleReplay = await this.mleSeriesReplayRepositroy.findOneOrFail({where: {ballchasingId}, relations: ["series", "series.scrim"] });
+        const mleReplay = await this.mleSeriesReplayRepository.findOneOrFail({where: {ballchasingId}, relations: ["series", "series.scrim"] });
+        if (!mleReplay.series.scrim) throw new Error(`Replay is not for a scrim replayId=${mleReplay.id}`);
         return mleReplay.series.scrim.id;
     }
 

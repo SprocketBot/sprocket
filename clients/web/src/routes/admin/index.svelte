@@ -3,6 +3,7 @@
         AdminBanTable,
         AdminPlayerTable,
         AdminScrimTable,
+        AdminSubmissionTable,
         DashboardCard,
         DashboardLayout,
     } from "$lib/components";
@@ -29,6 +30,14 @@
     >
         <div class=" flex justify-center">
             <AdminScrimTable />
+        </div>
+    </DashboardCard>
+    <DashboardCard
+        title="Submission Management"
+        class="col-span-6 xl:col-span-5 row-span-2"
+    >
+        <div class=" flex justify-center">
+            <AdminSubmissionTable />
         </div>
     </DashboardCard>
     <DashboardCard

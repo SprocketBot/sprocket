@@ -11,8 +11,8 @@
 	    // 0 === MLEDB ADMIN
 	    if (session.user?.orgTeams.some(s => s === 0)) {
 	        items.push({
-	            target: "/management",
-	            label: "Manage",
+	            target: "/admin",
+	            label: "Admin",
 	        });
 	    }
 

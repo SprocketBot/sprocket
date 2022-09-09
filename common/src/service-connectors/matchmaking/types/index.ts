@@ -1,3 +1,4 @@
+export * from "./MatchDatabaseIds";
 export * from "./Scrim";
 export * from "./ScrimDatabaseIds";
 export * from "./ScrimGame";

@@ -1,5 +1,5 @@
-WITH 
-vars AS (SELECT 
+WITH
+vars AS (SELECT
 		 	$1::numeric AS scrim_id,
 			$2::numeric AS org_id
 		),
@@ -82,17 +82,17 @@ game_object AS(
 	SELECT
 		jsonb_build_object('type', 'text', 'value', CONCAT(LEFT(gi.league,1), 'L ',
 						  CASE
-						  	WHEN type = 'BEST_OF' AND mode='STANDARD' THEN '3S BEST OF '
-						   	WHEN type = 'BEST_OF' AND mode='DOUBLES' THEN '2S BEST OF '
+						  	WHEN type = 'TEAMS' AND mode='STANDARD' THEN '3S TEAMS '
+						   	WHEN type = 'TEAMS' AND mode='DOUBLES' THEN '2S TEAMS '
 						   	WHEN type = 'ROUND_ROBIN' AND mode='STANDARD' THEN '3S ROUND ROBIN '
 						   	WHEN type = 'ROUND_ROBIN' AND mode='DOUBLES' THEN '2S ROUND ROBIN '
-							WHEN mode='SOLO' THEN '1S BEST OF '
+							WHEN mode='SOLO' THEN '1S TEAMS '
 						  END
 						  )) AS title,
 		jsonb_build_object('type', 'text', 'value', CONCAT(UPPER(LEFT(mode, 1)),LOWER(SUBSTRING(mode, 2, LENGTH(mode))))) AS scrim_mode,
 		jsonb_build_object('type', 'text', 'value',
 						  CASE
-						   	WHEN type = 'BEST_OF' THEN 'Best Of'
+						   	WHEN type = 'TEAMS' THEN 'Teams'
 						   	WHEN type = 'ROUND_ROBIN' THEN 'Round Robin'
 						  END) AS scrim_type,
 		jsonb_build_object('type', 'text', 'value',

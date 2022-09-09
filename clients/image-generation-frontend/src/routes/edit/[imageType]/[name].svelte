@@ -1,10 +1,8 @@
 <script lang="ts" context="module">
-  import type {LoadInput, LoadOutput} from "@sveltejs/kit";
-  export async function load({
-      fetch, params, session,
-  }: LoadInput): Promise<LoadOutput> {
+  import type {Load} from "@sveltejs/kit";
+  export const load: Load = async ({fetch, params, session}) => {
       // if session has imageType, we were redirected here with valid imageType already
-      if (session.imageType) {
+      if ('imageType' in session) {
           return {
               props: {
                   imageTypeId: params.imageType,

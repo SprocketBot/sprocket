@@ -3,7 +3,7 @@
         CurrentScrim, Submission, SubmissionRejection,
     } from "$lib/api";
     import UploadReplaysModal from "../modals/UploadReplaysModal.svelte";
-    import {BestOfFixture, RoundRobinFixture} from "$lib/components";
+    import {TeamsFixture, RoundRobinFixture} from "$lib/components";
     import {screamingSnakeToHuman} from "$lib/utils";
 
 
@@ -11,7 +11,7 @@
     export let submission: Submission | undefined;
 
     let uploading: boolean = false;
-    let rejections: SubmissionRejection[];
+    let rejections: SubmissionRejection[] | undefined;
     $: rejections = submission?.rejections;
 </script>
 
@@ -24,6 +24,8 @@
         <div>
             <h3>Lobby Information</h3>
             <dl>
+                <dt>Skill Group:</dt>
+                <dd>{scrim.skillGroup?.profile?.description}</dd>
                 <dt>Game Mode</dt>
                 <dd>{scrim.settings.competitive ? "Competitive" : "Casual"} {screamingSnakeToHuman(scrim.settings.mode)} {scrim.gameMode.description}</dd>
                 <dt>Name</dt>
@@ -36,8 +38,8 @@
     <div>
         {#if scrim.settings.mode === "ROUND_ROBIN"}
             <RoundRobinFixture {scrim}/>
-        {:else if scrim.settings.mode === "BEST_OF"}
-            <BestOfFixture {scrim}/>
+        {:else if scrim.settings.mode === "TEAMS"}
+            <TeamsFixture {scrim}/>
         {/if}
     </div>
 
@@ -52,7 +54,7 @@
     {/if}
 
 
-    <button on:click={() => { uploading = true }}>
+    <button on:click={() => { uploading = true }} class="w-full md:w-auto">
         Upload Replays
     </button>
 </section>

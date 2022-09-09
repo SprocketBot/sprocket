@@ -300,7 +300,7 @@ export class ScrimService {
             // this is more to do with tracking how often a scrim is changed
             this.analyticsService.send(AnalyticsEndpoint.Analytics, {
                 name: "ScrimUpdated",
-                strings: [ ["scrimId", scrimId] ],
+                tags: [ ["scrimId", scrimId] ],
             }),
             this.eventsService.publish(EventTopic.ScrimUpdated, scrim, scrimId),
         ]);

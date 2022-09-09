@@ -9,6 +9,7 @@ import {
     MinioService,
     readToBuffer,
     RedisService,
+    REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
     ResponseStatus,
     SubmissionEndpoint,
     SubmissionService,
@@ -47,10 +48,10 @@ export class ReplayParseService {
     /**
      * @returns if the scrim has been reset
      */
-    async resetBrokenReplays(submissionId: string, playerId: number): Promise<boolean> {
+    async resetBrokenReplays(submissionId: string, playerId: number, override = false): Promise<boolean> {
         const resetResponse = await this.submissionService.send(SubmissionEndpoint.ResetSubmission, {
             submissionId: submissionId,
-            override: false,
+            override: override,
             playerId: playerId.toString(),
         });
         if (resetResponse.status === ResponseStatus.ERROR) throw resetResponse.error;
@@ -96,13 +97,17 @@ export class ReplayParseService {
         if (ratificationResponse.status === ResponseStatus.ERROR) throw ratificationResponse.error;
     }
 
-    async rejectSubmission(submissionId: string, playerId: string, reason: string): Promise<void> {
+    async rejectSubmissionByPlayer(submissionId: string, playerId: number, reason: string): Promise<void> {
         const rejectionResponse = await this.submissionService.send(SubmissionEndpoint.RejectSubmission, {
             submissionId: submissionId,
             playerId: playerId,
             reason: reason,
         });
         if (rejectionResponse.status === ResponseStatus.ERROR) throw rejectionResponse.error;
+    }
+
+    async rejectSubmissionBySystem(submissionId: string, reason: string): Promise<void> {
+        return this.rejectSubmissionByPlayer(submissionId, REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID, reason);
     }
 
     async enableSubscription(submissionId: string): Promise<void> {

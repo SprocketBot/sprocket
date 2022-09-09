@@ -9,6 +9,11 @@ export interface CurrentScrim {
     playerCount: number;
     maxPlayers: number;
     status: string;
+    skillGroup: {
+        profile: {
+            description: string;
+        };
+    };
     currentGroup?: {
         code: string;
         players: string[];
@@ -75,6 +80,11 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
             playerCount
             maxPlayers
             status
+            skillGroup {
+                profile {
+                    description
+                }
+            }
             currentGroup {
                 code
                 players
@@ -118,6 +128,11 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
                 playerCount
                 maxPlayers
                 status
+                skillGroup {
+                    profile {
+                        description
+                        }
+                }
                 currentGroup { 
                     code
                     players

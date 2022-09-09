@@ -1,5 +1,6 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
+import type {CoreEndpoint, CoreOutput} from "@sprocketbot/common";
 import {Repository} from "typeorm";
 
 import type {ScheduledEvent, ScrimMeta} from "../../database";
@@ -86,5 +87,41 @@ export class MatchService {
             data: populatedMatch.matchParent.event,
         };
         throw new Error("Data type not found");
+    }
+
+    async getMatchReportCardWebhooks(matchId: number): Promise<CoreOutput<CoreEndpoint.GetMatchReportCardWebhooks>> {
+        const match = await this.matchRepo.findOneOrFail({
+            where: {id: matchId},
+            relations: {
+                skillGroup: {
+                    profile: true,
+                },
+                matchParent: {
+                    fixture: {
+                        homeFranchise: {
+                            profile: true,
+                        },
+                        awayFranchise: {
+                            profile: true,
+                        },
+                        scheduleGroup: {
+                            type: {
+                                organization: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        if (!match.matchParent.fixture) throw new Error(`Match is not league match matchId=${matchId}`);
+        return {
+            skillGroupWebhook: match.skillGroup.profile.matchReportWebhookUrl,
+            franchiseWebhooks: [
+                match.matchParent.fixture.homeFranchise.profile.matchReportWebhookUrl,
+                match.matchParent.fixture.awayFranchise.profile.matchReportWebhookUrl,
+            ].filter(f => f) as string[],
+            organizationId: match.matchParent.fixture.scheduleGroup.type.organization.id,
+        };
     }
 }

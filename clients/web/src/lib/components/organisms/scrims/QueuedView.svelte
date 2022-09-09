@@ -14,7 +14,7 @@
     $: if (scrim?.submissionId) {
         submissionStore = new SubmissionStore(scrim.submissionId);
     }
-    let submission: SubmissionStoreValue["submission"];
+    let submission: SubmissionStoreValue["submission"] | undefined;
     $: if ($submissionStore) submission = $submissionStore?.data?.submission;
 </script>
 
@@ -27,7 +27,7 @@
         {#if !submission || submission.status === "REJECTED"}
             <InProgressView scrim={scrim} {submission}/>
         {:else if submission}
-            <SubmissionView {submission} submissionId={scrim.submissionId}/>
+            <SubmissionView {submission} />
         {/if}
     {:else if scrim.status === "LOCKED"}
         <LockedView scrim={scrim}/>

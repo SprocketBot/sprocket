@@ -9,6 +9,7 @@ import {
     MinioService,
     Precondition,
     ProgressStatus,
+    REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
     ReplaySubmissionStatus,
     Task,
 } from "@sprocketbot/common";
@@ -145,7 +146,7 @@ export class ReplaySubmissionService {
         const valid = await this.replayValidationService.validate(submission);
         if (!valid.valid) {
             await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.REJECTED);
-            await this.ratificationService.rejectSubmission("system", submissionId, valid.errors.map(e => e.error));
+            await this.ratificationService.rejectSubmission(REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID, submissionId, valid.errors.map(e => e.error));
             return;
         }
 

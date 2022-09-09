@@ -1,7 +1,5 @@
-import {Injectable, Logger} from "@nestjs/common";
+import {Injectable} from "@nestjs/common";
 import type {
-    EventPayload,
-    EventTopic,
     MatchReplaySubmission,
     ReplaySubmission,
     ScrimReplaySubmission,
@@ -14,24 +12,31 @@ import {
     config,
     CoreEndpoint,
     CoreService,
+    EventPayload,
+    EventsService,
+    EventTopic,
     MatchmakingEndpoint,
     MatchmakingService,
     RedisService,
     ReplaySubmissionType,
     ResponseStatus,
+    SprocketEvent,
+    SprocketEventMarshal,
 } from "@sprocketbot/common";
 
 @Injectable()
-export class SubmissionService {
-    private readonly logger = new Logger(SubmissionService.name);
-
+export class SubmissionService extends SprocketEventMarshal {
     constructor(
+        readonly eventsService: EventsService,
         private readonly botService: BotService,
         private readonly coreService: CoreService,
         private readonly redisService: RedisService,
         private readonly matchmakingService: MatchmakingService,
-    ) {}
+    ) {
+        super(eventsService);
+    }
 
+    @SprocketEvent(EventTopic.SubmissionRatifying)
     async sendSubmissionRatifyingNotifications(payload: EventPayload<EventTopic.SubmissionRatifying>): Promise<void> {
         const submission = await this.redisService.getJson<ReplaySubmission>(payload.redisKey);
 
@@ -41,6 +46,22 @@ export class SubmissionService {
                 break;
             case ReplaySubmissionType.SCRIM:
                 await this.sendScrimSubmissionRatifyingNotifications(submission);
+                break;
+            default:
+                this.logger.error("Submission type has not been implemented");
+        }
+    }
+
+    @SprocketEvent(EventTopic.SubmissionRejected)
+    async sendSubmissionRejectedNotifications(payload: EventPayload<EventTopic.SubmissionRejected>): Promise<void> {
+        const submission = await this.redisService.getJson<ReplaySubmission>(payload.redisKey);
+
+        switch (submission.type) {
+            case ReplaySubmissionType.MATCH:
+                await this.sendMatchSubmissionRejectedNotifications({...submission, id: payload.submissionId});
+                break;
+            case ReplaySubmissionType.SCRIM:
+                await this.sendScrimSubmissionRejectedNotifications(submission);
                 break;
             default:
                 this.logger.error("Submission type has not been implemented");
@@ -106,8 +127,7 @@ export class SubmissionService {
         const matchResult = await this.coreService.send(CoreEndpoint.GetMatchById, {matchId: submission.matchId});
         if (matchResult.status === ResponseStatus.ERROR) throw matchResult.error;
 
-        // TODO: Get rid of timeout once FDW is removed
-        const mleMatchResult = await this.coreService.send(CoreEndpoint.GetMleMatchInfoAndStakeholders, {sprocketMatchId: submission.matchId}, {timeout: 15000});
+        const mleMatchResult = await this.coreService.send(CoreEndpoint.GetMleMatchInfoAndStakeholders, {sprocketMatchId: submission.matchId});
         if (mleMatchResult.status === ResponseStatus.ERROR) throw mleMatchResult.error;
 
         const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: mleMatchResult.data.organizationId});
@@ -165,21 +185,6 @@ export class SubmissionService {
                 },
             });
         }));
-    }
-
-    async sendSubmissionRejectedNotifications(payload: EventPayload<EventTopic.SubmissionRejected>): Promise<void> {
-        const submission = await this.redisService.getJson<ReplaySubmission>(payload.redisKey);
-
-        switch (submission.type) {
-            case ReplaySubmissionType.MATCH:
-                await this.sendMatchSubmissionRejectedNotifications({...submission, id: payload.submissionId});
-                break;
-            case ReplaySubmissionType.SCRIM:
-                await this.sendScrimSubmissionRejectedNotifications(submission);
-                break;
-            default:
-                this.logger.error("Submission type has not been implemented");
-        }
     }
 
     async sendScrimSubmissionRejectedNotifications(submission: ScrimReplaySubmission): Promise<void> {
@@ -242,8 +247,7 @@ export class SubmissionService {
         const matchResult = await this.coreService.send(CoreEndpoint.GetMatchById, {matchId: submission.matchId});
         if (matchResult.status === ResponseStatus.ERROR) throw matchResult.error;
 
-        // TODO: Get rid of timeout once FDW is removed
-        const mleMatchResult = await this.coreService.send(CoreEndpoint.GetMleMatchInfoAndStakeholders, {sprocketMatchId: submission.matchId}, {timeout: 15000});
+        const mleMatchResult = await this.coreService.send(CoreEndpoint.GetMleMatchInfoAndStakeholders, {sprocketMatchId: submission.matchId});
         if (mleMatchResult.status === ResponseStatus.ERROR) throw mleMatchResult.error;
 
         const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: mleMatchResult.data.organizationId});

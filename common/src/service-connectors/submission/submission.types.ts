@@ -4,6 +4,7 @@ import type {ResponseStatus} from "../../global.types";
 import * as Schemas from "./schemas";
 
 export enum SubmissionEndpoint {
+    GetAllSubmissions = "GetAllSubmissions",
     SubmitReplays = "SubmitReplays",
     CanSubmitReplays = "CanSubmitReplays",
     RatifySubmission = "RatifySubmission",
@@ -16,6 +17,10 @@ export enum SubmissionEndpoint {
 }
 
 export const SubmissionSchemas = {
+    [SubmissionEndpoint.GetAllSubmissions]: {
+        input: Schemas.GetAllSubmissions_Request,
+        output: Schemas.GetAllSubmissions_Response,
+    },
     [SubmissionEndpoint.SubmitReplays]: {
         input: Schemas.SubmitReplays_Request,
         output: Schemas.SubmitReplays_Response,
