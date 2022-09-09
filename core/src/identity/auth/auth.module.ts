@@ -23,7 +23,6 @@ import {
             secret: JwtConstants.secret,
             signOptions: {expiresIn: config.auth.jwt_expiry},
         }),
-
         AnalyticsModule,
         forwardRef(() => MledbInterfaceModule),
         forwardRef(() => GameModule),

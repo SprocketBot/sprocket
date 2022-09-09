@@ -1,11 +1,11 @@
 import {z} from "zod";
 
 export enum SkillGroup {
-    FOUNDATION = 0,
-    ACADEMY = 1,
-    CHAMPION = 2,
-    MASTER = 3,
-    PREMIER = 4,
+    PREMIER = 1,
+    MASTER = 2,
+    CHAMPION = 3,
+    ACADEMY = 4,
+    FOUNDATION = 5,
 }
 
 export const NewPlayerSchema = z.object({

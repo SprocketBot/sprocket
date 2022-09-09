@@ -1,19 +1,20 @@
 import {
     forwardRef, Inject, Injectable, Logger,
 } from "@nestjs/common";
+import {JwtService} from "@nestjs/jwt";
 import {InjectRepository} from "@nestjs/typeorm";
 import {
     ButtonComponentStyle,
     ComponentType,
     config,
     EventsService,
+    EventTopic,
     NanoidService,
     NotificationEndpoint,
     NotificationMessageType,
     NotificationService,
     NotificationType,
 } from "@sprocketbot/common";
-import {add} from "date-fns";
 import type {FindManyOptions, FindOneOptions} from "typeorm";
 import {Repository} from "typeorm";
 
@@ -25,6 +26,7 @@ import {DegreeOfStiffness, SkillGroupDelta} from "../../elo/elo-connector";
 import {OrganizationService} from "../../organization";
 import {MemberService} from "../../organization/member/member.service";
 import {GameSkillGroupService} from "../game-skill-group";
+import type {RankdownPayload} from "./player.controller";
 
 @Injectable()
 export class PlayerService {
@@ -39,6 +41,7 @@ export class PlayerService {
         private readonly skillGroupService: GameSkillGroupService,
         private readonly eventsService: EventsService,
         private readonly notificationService: NotificationService,
+        private readonly jwtService: JwtService,
     ) {}
 
     async getPlayer(query: FindOneOptions<Player>): Promise<Player> {
@@ -144,6 +147,7 @@ export class PlayerService {
                             authenticationAccounts: true,
                         },
                         organization: true,
+                        profile: true,
                     },
                     skillGroup: {
                         organization: true,
@@ -181,6 +185,21 @@ export class PlayerService {
                     });
     
                     await this.updatePlayerStanding(playerDelta.playerId, playerDelta.rankout.salary, skillGroup.id);
+
+                    await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
+                        playerId: player.id,
+                        name: player.member.profile.name,
+                        old: {
+                            id: player.skillGroup.id,
+                            name: player.skillGroup.profile.description,
+                            salary: player.salary,
+                        },
+                        new: {
+                            id: skillGroup.id,
+                            name: skillGroup.profile.description,
+                            salary: playerDelta.rankout.salary,
+                        },
+                    });
     
                     await this.notificationService.send(NotificationEndpoint.SendNotification, {
                         type: NotificationType.BASIC,
@@ -244,25 +263,24 @@ export class PlayerService {
                         },
                     });
 
-                    const notifId = `${NotificationType.RANKDOWN.toLowerCase()}-${this.nanoidService.gen()}`;
-    
+                    /* TEMPORARY NOTIFICATION */
+                    const rankdownPayload: RankdownPayload = {
+                        playerId: player.id,
+                        salary: playerDelta.rankout.salary,
+                        skillGroupId: skillGroup.id,
+                    };
+                    const jwt = this.jwtService.sign(rankdownPayload, {expiresIn: "24h"});
+
                     await this.notificationService.send(NotificationEndpoint.SendNotification, {
-                        id: notifId,
-                        type: NotificationType.RANKDOWN,
+                        type: NotificationType.BASIC,
                         userId: player.member.user.id,
-                        expiration: add(new Date(), {hours: 24}),
-                        payload: {
-                            playerId: playerDelta.playerId,
-                            skillGroupId: skillGroup.id,
-                            salary: playerDelta.newSalary,
-                        },
                         notification: {
                             type: NotificationMessageType.DirectMessage,
                             userId: discordAccount.accountId,
                             payload: {
                                 embeds: [ {
                                     title: "Rankdown Available",
-                                    description: `You have been offered a rankout from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
+                                    description: `You have been offered a rankout from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.\n\n‼️‼️**__Only click the button below if you accept the rankdown. There is no confirmation.__**‼️‼️`,
                                     author: {
                                         name: `${orgProfile.name}`,
                                     },
@@ -287,8 +305,8 @@ export class PlayerService {
                                         {
                                             type: ComponentType.BUTTON,
                                             style: ButtonComponentStyle.LINK,
-                                            label: "Accept it here!",
-                                            url: `${config.web.url}/notifications/${notifId}`,
+                                            label: "ONLY CLICK HERE IF YOU ACCEPT",
+                                            url: `${config.web.api_root}/player/accept-rankdown/${jwt}`,
                                         },
                                     ],
                                 } ],
@@ -308,6 +326,72 @@ export class PlayerService {
                             },
                         },
                     });
+                    /* /TEMPORARY NOTIFICATION/ */
+
+                    // const notifId = `${NotificationType.RANKDOWN.toLowerCase()}-${this.nanoidService.gen()}`;
+    
+                    // await this.notificationService.send(NotificationEndpoint.SendNotification, {
+                    //     id: notifId,
+                    //     type: NotificationType.RANKDOWN,
+                    //     userId: player.member.user.id,
+                    //     expiration: add(new Date(), {hours: 24}),
+                    //     payload: {
+                    //         playerId: playerDelta.playerId,
+                    //         skillGroupId: skillGroup.id,
+                    //         salary: playerDelta.newSalary,
+                    //     },
+                    //     notification: {
+                    //         type: NotificationMessageType.DirectMessage,
+                    //         userId: discordAccount.accountId,
+                    //         payload: {
+                    //             embeds: [ {
+                    //                 title: "Rankdown Available",
+                    //                 description: `You have been offered a rankout from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
+                    //                 author: {
+                    //                     name: `${orgProfile.name}`,
+                    //                 },
+                    //                 fields: [
+                    //                     {
+                    //                         name: "New League",
+                    //                         value: `${skillGroup.profile.description}`,
+                    //                     },
+                    //                     {
+                    //                         name: "New Salary",
+                    //                         value: `${playerDelta.rankout.salary}`,
+                    //                     },
+                    //                 ],
+                    //                 footer: {
+                    //                     text: orgProfile.name,
+                    //                 },
+                    //                 timestamp: Date.now(),
+                    //             } ],
+                    //             components: [ {
+                    //                 type: ComponentType.ACTION_ROW,
+                    //                 components: [
+                    //                     {
+                    //                         type: ComponentType.BUTTON,
+                    //                         style: ButtonComponentStyle.LINK,
+                    //                         label: "Accept it here!",
+                    //                         url: `${config.web.url}/notifications/${notifId}`,
+                    //                     },
+                    //                 ],
+                    //             } ],
+                    //         },
+                    //         brandingOptions: {
+                    //             organizationId: player.member.organization.id,
+                    //             options: {
+                    //                 author: {
+                    //                     icon: true,
+                    //                 },
+                    //                 color: true,
+                    //                 thumbnail: true,
+                    //                 footer: {
+                    //                     icon: true,
+                    //                 },
+                    //             },
+                    //         },
+                    //     },
+                    // });
                 }
             } else {
                 await this.updatePlayerStanding(playerDelta.playerId, playerDelta.newSalary);

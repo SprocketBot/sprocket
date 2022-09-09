@@ -1,9 +1,12 @@
 import {forwardRef, Module} from "@nestjs/common";
+import {JwtModule} from "@nestjs/jwt";
 import {
     EventsModule, NotificationModule, UtilModule as CommonUtilModule,
 } from "@sprocketbot/common";
 
 import {DatabaseModule} from "../database";
+import {EloConnectorModule} from "../elo/elo-connector";
+import {JwtConstants} from "../identity/auth/oauth/constants";
 import {MledbInterfaceModule} from "../mledb";
 import {OrganizationModule} from "../organization/organization.module";
 import {UtilModule} from "../util/util.module";
@@ -15,6 +18,7 @@ import {
     GameSkillGroupController, GameSkillGroupResolver, GameSkillGroupService,
 } from "./game-skill-group";
 import {PlayerService} from "./player";
+import {PlayerController} from "./player/player.controller";
 import {PlayerResolver} from "./player/player.resolver";
 
 @Module({
@@ -26,6 +30,10 @@ import {PlayerResolver} from "./player/player.resolver";
         forwardRef(() => OrganizationModule),
         forwardRef(() => MledbInterfaceModule),
         CommonUtilModule,
+        EloConnectorModule,
+        JwtModule.register({
+            secret: JwtConstants.secret,
+        }),
     ],
     providers: [
         PlayerService,
@@ -44,6 +52,7 @@ import {PlayerResolver} from "./player/player.resolver";
     controllers: [
         FranchiseController,
         GameSkillGroupController,
+        PlayerController,
     ],
 })
 export class FranchiseModule {}
