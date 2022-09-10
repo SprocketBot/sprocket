@@ -26,7 +26,7 @@ $$
         agm_role_id                numeric;
         captain_role_id            numeric;
     BEGIN
-        INSERT INTO sprocket.organization DEFAULT VALUES RETURNING id INTO mle_org_id;
+        INSERT INTO sprocket.organization (id) VALUES (2) RETURNING id INTO mle_org_id;
         INSERT INTO sprocket.organization_profile ("organizationId", "name", "description", "websiteUrl",
                                                    "primaryColor",
                                                    "secondaryColor",
@@ -88,16 +88,27 @@ $$
 
         INSERT INTO sprocket.franchise ("id", "organizationId") (SELECT "franchiseId", mle_org_id FROM mledb_bridge.team_to_franchise);
 
-        INSERT INTO sprocket.franchise_profile ("franchiseId", "title", "code", "primaryColor", "secondaryColor") (SELECT SPR.id,
-                                                                                                                          MLEDB.name,
-                                                                                                                          MLEDB.callsign,
-                                                                                                                          BRANDING.primary_color,
-                                                                                                                          BRANDING.secondary_color
-                                                                                                                   FROM sprocket.franchise AS SPR
-                                                                                                                            LEFT JOIN mledb_bridge.team_to_franchise AS BRIDGE
-                                                                                                                                      ON BRIDGE."franchiseId" = SPR.id
-                                                                                                                            LEFT JOIN mledb.team AS MLEDB ON MLEDB.name = BRIDGE.team
-                                                                                                                            LEFT JOIN mledb.team_branding AS BRANDING ON BRANDING.team_name = MLEDB.name);
+        WITH PHOTOIDS AS (SELECT id AS franchiseId, nextval('sprocket."photo_id_seq"') AS photoId
+                          FROM sprocket.franchise),
+             PHOTOS AS (INSERT INTO sprocket.photo (id, url) (SELECT P.photoId, TB.logo_img_link
+                                                              FROM PHOTOIDS P
+                                                                       LEFT JOIN mledb_bridge.team_to_franchise BRIDGE
+                                                                                 ON BRIDGE."franchiseId" = P.franchiseId
+                                                                       LEFT JOIN mledb.team_branding TB ON TB.team_name = BRIDGE.team))
+        INSERT
+        INTO sprocket.franchise_profile ("franchiseId", "title", "code", "primaryColor", "secondaryColor",
+                                         "photoId") (SELECT SPR.id,
+                                                            MLEDB.name,
+                                                            MLEDB.callsign,
+                                                            BRANDING.primary_color,
+                                                            BRANDING.secondary_color,
+                                                            P.photoId
+                                                     FROM sprocket.franchise AS SPR
+                                                              LEFT JOIN mledb_bridge.team_to_franchise AS BRIDGE
+                                                                        ON BRIDGE."franchiseId" = SPR.id
+                                                              LEFT JOIN mledb.team AS MLEDB ON MLEDB.name = BRIDGE.team
+                                                              LEFT JOIN mledb.team_branding AS BRANDING ON BRANDING.team_name = MLEDB.name
+                                                              LEFT JOIN PHOTOIDS P ON P.franchiseId = SPR.id);
         /*
         INSERT INTO sprocket.permission_bearer DEFAULT VALUES RETURNING id INTO fr_ldr_bearer_id;
         INSERT INTO sprocket.permission_bearer DEFAULT VALUES RETURNING id INTO fr_stf_bearer_id;
@@ -139,6 +150,13 @@ $$
         al_sg_id = nextval('sprocket."game_skill_group_id_seq"');
         fl_sg_id = nextval('sprocket."game_skill_group_id_seq"');
 
+        INSERT INTO mledb_bridge.league_to_skill_group(league, "skillGroupId")
+        VALUES ('PREMIER', pl_sg_id),
+               ('MASTER', ml_sg_id),
+               ('CHAMPION', cl_sg_id),
+               ('ACADEMY', al_sg_id),
+               ('FOUNDATION', fl_sg_id);
+
         INSERT INTO sprocket.game_skill_group (id, ordinal, "salaryCap", "gameId", "roleUseLimitsId", "organizationId")
         VALUES (pl_sg_id, 1, 95.5, rl_game_id, (SELECT id FROM sprocket.roster_role_use_limits WHERE code = 'PL'),
                 mle_org_id),
@@ -178,6 +196,12 @@ $$
                                                                                         WHERE "id" = mledb_bridge.player_to_user."playerId"),
                                                                                        'unknown@sprocket.gg' AS "email"
                                                                                 FROM mledb_bridge.player_to_user);
+        INSERT INTO sprocket.user_authentication_account ("accountId", "accountType", "userId") (SELECT MLE.discord_id, 'DISCORD', U.id
+                                                                                                 FROM sprocket."user" U
+                                                                                                          INNER JOIN mledb_bridge.player_to_user BRIDGE ON U.id = BRIDGE."userId"
+                                                                                                          INNER JOIN mledb.player MLE ON MLE.id = BRIDGE."playerId"
+                                                                                                 WHERE MLE.discord_id IS NOT NULL
+                                                                                                   AND MLE.discord_id != '');
 
         -- MEMBERS --
         INSERT INTO sprocket.member ("userId", "organizationId") (SELECT id, mle_org_id FROM sprocket."user");
@@ -212,70 +236,77 @@ $$
         INSERT INTO mledb_bridge.season_to_schedule_group ("seasonNumber", "scheduleGroupId") (SELECT S.season_number, nextval('sprocket."schedule_group_id_seq"')
                                                                                                FROM mledb.season S);
 
-        INSERT INTO sprocket.schedule_group (id, start, end, description, "typeId", "gameId") (SELECT BRIDGE."scheduleGroupId",
-                                                                                                      MLE.start_date,
-                                                                                                      MLE.end_date,
-                                                                                                      CONCAT('Season ', MLE.season_number),
-                                                                                                      schedule_group_type_season,
-                                                                                                      rl_game_id
-                                                                                               FROM mledb_bridge.season_to_schedule_group BRIDGE
-                                                                                                        LEFT JOIN mledb.season MLE ON BRIDGE."seasonNumber" = MLE.season_number);
+        INSERT INTO sprocket.schedule_group (id, "start", "end", description, "typeId", "gameId") (SELECT BRIDGE."scheduleGroupId",
+                                                                                                          MLE.start_date,
+                                                                                                          MLE.end_date,
+                                                                                                          CONCAT('Season ', MLE.season_number),
+                                                                                                          schedule_group_type_season,
+                                                                                                          rl_game_id
+                                                                                                   FROM mledb_bridge.season_to_schedule_group BRIDGE
+                                                                                                            LEFT JOIN mledb.season MLE ON BRIDGE."seasonNumber" = MLE.season_number);
 
         INSERT INTO mledb_bridge.match_to_schedule_group ("matchId", "weekScheduleGroupId") (SELECT M.id, nextval('sprocket."schedule_group_id_seq"')
                                                                                              FROM mledb.match M);
 
-        INSERT INTO sprocket.schedule_group (id, start, end, description, "typeId", "gameId") (SELECT BRIDGE."weekScheduleGroupId",
-                                                                                                      MLE.from,
-                                                                                                      MLE.to,
-                                                                                                      CONCAT('Week ', MLE.match_number),
-                                                                                                      schedule_group_type_week,
-                                                                                                      rl_game_id
-                                                                                               FROM mledb_bridge.match_to_schedule_group BRIDGE
-                                                                                                        LEFT JOIN mledb.match MLE ON MLE.id = BRIDGE."matchId");
+        INSERT INTO sprocket.schedule_group (id, "start", "end", description, "typeId", "gameId", "parentGroupId") (SELECT BRIDGE."weekScheduleGroupId",
+                                                                                                                           MLE.from,
+                                                                                                                           MLE.to,
+                                                                                                                           CONCAT('Week ', MLE.match_number),
+                                                                                                                           schedule_group_type_week,
+                                                                                                                           rl_game_id,
+                                                                                                                           BRIDGESSG."scheduleGroupId"
+                                                                                                                    FROM mledb_bridge.match_to_schedule_group BRIDGE
+                                                                                                                             LEFT JOIN mledb.match MLE ON MLE.id = BRIDGE."matchId"
+                                                                                                                             LEFT JOIN mledb_bridge.season_to_schedule_group BRIDGESSG
+                                                                                                                                       ON BRIDGESSG."seasonNumber" = MLE.season);
 
         INSERT INTO mledb_bridge.fixture_to_fixture ("mleFixtureId", "sprocketFixtureId") (SELECT MLE.id, nextval('sprocket."schedule_fixture_id_seq"')
                                                                                            FROM mledb.fixture MLE);
 
-        INSERT INTO sprocket.schedule_fixture ("scheduleGroupId", "homeFranchiseId", "awayFranchiseId") (SELECT BRIDGE."sprocketFixtureId",
-                                                                                                                BRIDGE_HOME."franchiseId",
-                                                                                                                BRIDGE_AWAY."franchiseId"
-                                                                                                         FROM mledb_bridge.fixture_to_fixture BRIDGE
-                                                                                                                  LEFT JOIN mledb.fixture MLE ON MLE.id = BRIDGE."mleFixtureId"
-                                                                                                                  LEFT JOIN mledb_bridge.team_to_franchise BRIDGE_HOME
-                                                                                                                            ON BRIDGE_HOME.team = MLE.home_name
-                                                                                                                  LEFT JOIN mledb_bridge.team_to_franchise BRIDGE_AWAY
-                                                                                                                            ON BRIDGE_AWAY.team = MLE.away_name);
+        INSERT INTO sprocket.schedule_fixture (id, "scheduleGroupId", "homeFranchiseId", "awayFranchiseId") (SELECT BRIDGE."sprocketFixtureId",
+                                                                                                                    BRIDGE_M."weekScheduleGroupId",
+                                                                                                                    BRIDGE_HOME."franchiseId" homeFranchiseId,
+                                                                                                                    BRIDGE_AWAY."franchiseId" awayFranchiseId
+                                                                                                             FROM mledb_bridge.fixture_to_fixture BRIDGE
+                                                                                                                      INNER JOIN mledb.fixture MLE ON MLE.id = BRIDGE."mleFixtureId"
+                                                                                                                      INNER JOIN mledb.match MLE_M ON MLE.match_id = MLE_M.id
+                                                                                                                      INNER JOIN mledb_bridge.match_to_schedule_group BRIDGE_M
+                                                                                                                                 ON BRIDGE_M."matchId" = MLE_M.id
+                                                                                                                      INNER JOIN mledb_bridge.team_to_franchise BRIDGE_HOME
+                                                                                                                                 ON BRIDGE_HOME.team = MLE.home_name
+                                                                                                                      INNER JOIN mledb_bridge.team_to_franchise BRIDGE_AWAY
+                                                                                                                                 ON BRIDGE_AWAY.team = MLE.away_name);
 
-        INSERT INTO sprocket.match_parent ("fixtureId") (SELECT BRIDGE."sprocketFixtureId"
-                                                         FROM mledb.series S
-                                                                  LEFT JOIN mledb.fixture F ON F.id = S.fixture_id
-                                                                  LEFT JOIN mledb_bridge.fixture_to_fixture BRIDGE ON BRIDGE."mleFixtureId" = F.id
-                                                         WHERE S.fixture_id IS NOT NULL
-                                                         GROUP BY S.fixture_id);
+        INSERT INTO mledb_bridge.series_to_match_parent ("seriesId", "matchParentId") (SELECT S.id, nextval('sprocket."match_parent_id_seq"')
+                                                                                       FROM mledb.series S
+                                                                                       WHERE S.fixture_id IS NOT NULL
+                                                                                         AND S.league IN
+                                                                                             ('FOUNDATION', 'ACADEMY',
+                                                                                              'CHAMPION',
+                                                                                              'MASTER', 'PREMIER'));
 
-        INSERT INTO mledb_bridge.series_to_match ("seriesId", "matchId") (SELECT S.id, nextval('sprocket."match_id_seq"')
-                                                                          FROM mledb.series S
-                                                                          WHERE S.fixture_id IS NOT NULL);
+        INSERT INTO sprocket.match_parent (id, "fixtureId") (SELECT BRIDGEMP."matchParentId", BRIDGEFTF."sprocketFixtureId"
+                                                             FROM mledb_bridge.series_to_match_parent BRIDGEMP
+                                                                      LEFT JOIN mledb.series S ON S.id = BRIDGEMP."seriesId"
+                                                                      LEFT JOIN mledb_bridge.fixture_to_fixture BRIDGEFTF
+                                                                                ON BRIDGEFTF."mleFixtureId" = S.fixture_id);
 
-        INSERT INTO sprocket.match ("matchParentId", "gameModeId", "skillGroupId") (SELECT BRIDGE."matchId",
-                                                                                           (SELECT id FROM sprocket.game_mode GM WHERE GM.code = MLE.mode),
-                                                                                           (CASE
-                                                                                                WHEN (MLE.league = 'PREMIER')
-                                                                                                    THEN (pl_sg_id)
-                                                                                                WHEN (MLE.league = 'MASTER')
-                                                                                                    THEN (ml_sg_id)
-                                                                                                WHEN (MLE.league = 'CHAMPION')
-                                                                                                    THEN (cl_sg_id)
-                                                                                                WHEN (MLE.league = 'ACADEMY')
-                                                                                                    THEN (al_sg_id)
-                                                                                                WHEN (MLE.league = 'FOUNDATION')
-                                                                                                    THEN (fl_sg_id) END)
-                                                                                    FROM mledb_bridge.series_to_match BRIDGE
-                                                                                             LEFT JOIN mledb.series MLE ON BRIDGE."seriesId" = MLE.id
-                                                                                    WHERE MLE.league IN
-                                                                                          ('FOUNDATION', 'ACADEMY',
-                                                                                           'CHAMPION',
-                                                                                           'MASTER', 'PREMIER'));
+        INSERT INTO sprocket.match ("skillGroupId", "matchParentId", "gameModeId", "submissionId") (SELECT (SELECT "skillGroupId"
+                                                                                                            FROM mledb_bridge.league_to_skill_group
+                                                                                                            WHERE league = S.league),
+                                                                                                           BRIDGEMP."matchParentId",
+                                                                                                           (SELECT id
+                                                                                                            FROM sprocket.game_mode GM
+                                                                                                            WHERE GM.code = CONCAT('RL_', S.mode)),
+                                                                                                        CONCAT('match-', gen_random_uuid())
+                                                                                                    FROM mledb_bridge.series_to_match_parent BRIDGEMP
+                                                                                                             INNER JOIN mledb.series S ON S.id = BRIDGEMP."seriesId"
+                                                                                                    WHERE S.league IN
+                                                                                                          ('FOUNDATION',
+                                                                                                           'ACADEMY',
+                                                                                                           'CHAMPION',
+                                                                                                           'MASTER',
+                                                                                                           'PREMIER'));
     end
 $$;
 

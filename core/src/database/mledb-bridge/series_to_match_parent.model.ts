@@ -3,7 +3,7 @@ import {
 } from "typeorm";
 
 @Entity({schema: "mledb_bridge"})
-export class SeriesToMatch {
+export class SeriesToMatchParent {
     @PrimaryGeneratedColumn()
     id: number;
     
@@ -11,5 +11,5 @@ export class SeriesToMatch {
     seriesId: number;
 
     @Column({type: "int"})
-    matchId: number;
+    matchParentId: number;
 }

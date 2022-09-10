@@ -12,11 +12,11 @@ export class Automigration1662789295067 implements MigrationInterface {
         await queryRunner.query(`CREATE TABLE "mledb_bridge"."player_to_user" ("id" SERIAL NOT NULL, "playerId" integer NOT NULL, "userId" integer NOT NULL, CONSTRAINT "PK_006742d1c2d56a8fd4dd56f765b" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "mledb_bridge"."season_to_schedule_group" ("id" SERIAL NOT NULL, "seasonNumber" integer NOT NULL, "scheduleGroupId" integer NOT NULL, CONSTRAINT "PK_e5df4f78a0f1cb2178d9aa6d2d0" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "mledb_bridge"."team_to_franchise" ("id" SERIAL NOT NULL, "team" character varying NOT NULL, "franchiseId" integer NOT NULL, CONSTRAINT "PK_360038235154676aac26564281d" PRIMARY KEY ("id"))`);
-        await queryRunner.query(`CREATE TABLE "mledb_bridge"."series_to_match" ("id" SERIAL NOT NULL, "seriesId" integer NOT NULL, "matchId" integer NOT NULL, CONSTRAINT "PK_c6f1d243fd3825a87f7d906517d" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "mledb_bridge"."series_to_match_parent" ("id" SERIAL NOT NULL, "seriesId" integer NOT NULL, "matchParentId" integer NOT NULL, CONSTRAINT "PK_4754d726fb515e21b0197fc055b" PRIMARY KEY ("id"))`);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`DROP TABLE "mledb_bridge"."series_to_match"`);
+        await queryRunner.query(`DROP TABLE "mledb_bridge"."series_to_match_parent"`);
         await queryRunner.query(`DROP TABLE "mledb_bridge"."team_to_franchise"`);
         await queryRunner.query(`DROP TABLE "mledb_bridge"."season_to_schedule_group"`);
         await queryRunner.query(`DROP TABLE "mledb_bridge"."player_to_user"`);
