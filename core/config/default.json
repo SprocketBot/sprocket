@@ -35,7 +35,8 @@
     "queue": ""
   },
   "web": {
-    "url": ""
+    "url": "",
+    "api_root": ""
   },
   "gql": {
     "playground": false
