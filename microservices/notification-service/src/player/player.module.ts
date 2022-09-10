@@ -1,4 +1,17 @@
-import { Module } from '@nestjs/common';
+import {Module} from "@nestjs/common";
+import {
+    BotModule, CoreModule, EventsModule,
+} from "@sprocketbot/common";
 
-@Module({})
+import {PlayerService} from "./player.service";
+
+@Module({
+    imports: [
+        EventsModule,
+        BotModule,
+        CoreModule,
+    ],
+
+    providers: [PlayerService],
+})
 export class PlayerModule {}
