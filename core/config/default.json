@@ -34,6 +34,10 @@
     "backend": "",
     "queue": ""
   },
+  "web": {
+    "url": "",
+    "api_root": ""
+  },
   "gql": {
     "playground": false
   },

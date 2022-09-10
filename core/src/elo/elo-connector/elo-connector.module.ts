@@ -19,7 +19,9 @@ import {EloBullQueue} from "./elo-connector.types";
                             servername: config.redis.host,
                         }
                     : undefined,
+                keyPrefix: `${config.redis.prefix}:bull`,
             },
+            prefix: `${config.redis.prefix}:bull`,
         }),
         BullModule.registerQueue({name: EloBullQueue}),
     ],
