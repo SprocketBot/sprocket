@@ -5,6 +5,7 @@ import {MemberModule} from "./member/member.module";
 import {NotificationModule} from "./notification/notification.module";
 import {ScrimModule} from "./scrim/scrim.module";
 import {SubmissionModule} from "./submission/submission.module";
+import { PlayerModule } from './player/player.module';
 
 @Module({
     imports: [
@@ -13,6 +14,7 @@ import {SubmissionModule} from "./submission/submission.module";
         SubmissionModule,
         MatchModule,
         NotificationModule,
+        PlayerModule,
     ],
 })
 export class AppModule {}
