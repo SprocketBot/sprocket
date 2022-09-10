@@ -157,6 +157,11 @@ $$
                ('AL', 'Academy League', scrimReportWebhook, matchReportWebhook, al_sg_id),
                ('FL', 'Foundation League', scrimReportWebhook, matchReportWebhook, fl_sg_id);
 
+        -- TEAMS --
+        INSERT INTO sprocket.team ("franchiseId", "skillGroupId") (SELECT F.id, GSG.id
+                                                                   FROM sprocket.franchise F
+                                                                            CROSS JOIN sprocket.game_skill_group GSG);
+
         -- USERS --
         INSERT INTO mledb_bridge.player_to_user ("playerId", "userId") (SELECT id, nextval('sprocket."user_id_seq"') FROM mledb.player);
         INSERT INTO sprocket."user" (id) (SELECT "userId" FROM mledb_bridge.player_to_user);
