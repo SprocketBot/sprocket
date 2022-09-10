@@ -1,10 +1,13 @@
 import {Injectable} from "@nestjs/common";
 import {
+    BotEndpoint,
     BotService,
+    CoreEndpoint,
     CoreService,
     EventsService,
     EventTopic,
-    PlayerSkillGroupChanged,
+    PlayerSkillGroupChangedType,
+    ResponseStatus,
     SprocketEvent,
     SprocketEventMarshal,
 } from "@sprocketbot/common";
@@ -20,8 +23,18 @@ export class PlayerService extends SprocketEventMarshal {
     }
 
     @SprocketEvent(EventTopic.PlayerSkillGroupChanged)
-    async sendSkillGroupChanged(sgChangedPayload: PlayerSkillGroupChanged): Promise<void> {
-        console.log(sgChangedPayload.player.id);
+    async sendSkillGroupChanged(sgChangedPayload: PlayerSkillGroupChangedType): Promise<void> {
+        const transactionsWebhooksResult = await this.coreService.send(CoreEndpoint.GetTransactionsDiscordWebhook, {organizationId: sgChangedPayload.organizationId});
+        if (transactionsWebhooksResult.status !== ResponseStatus.SUCCESS) {
+            this.logger.warn("Failed to fetch report card webhook url");
+            throw transactionsWebhooksResult.error;
+        }
+        if (transactionsWebhooksResult.data.transactionsWebhook) await this.botService.send(BotEndpoint.SendWebhookMessage, {
+            webhookUrl: transactionsWebhooksResult.data.transactionsWebhook,
+            payload: {
+                content: `${sgChangedPayload.old.discordEmojiID} ${sgChangedPayload.new.discordEmojiID} ${sgChangedPayload.name} has moved from ${sgChangedPayload.old.discordEmojiID} to ${sgChangedPayload.new.discordEmojiID}`,
+            },
+        });
 
     }
 }
