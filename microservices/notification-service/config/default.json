@@ -7,7 +7,7 @@
     "analytics_queue": "dev-analytics",
     "events_queue": "dev-events",
     "image_generation_queue": "dev-image-gen",
-    "notification_queue": "dev-notifications",
+    "notification_queue": "dev-notification",
     "events_application_key": "notification-service"
   },
   "logger": {

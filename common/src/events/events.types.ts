@@ -5,6 +5,7 @@ import {
     MatchDatabaseIdsSchema,
     ScrimDatabaseIdsSchema, ScrimMetricsSchema, ScrimSchema,
 } from "../service-connectors/matchmaking";
+import {PlayerSkillGroupChanged as PlayerSkillGroupChangedSchema} from "./types/skill-group-changed.schema";
 import {SubmissionEventSchema} from "./types/submission.schemas";
 
 export enum EventTopic {
@@ -45,6 +46,8 @@ export enum EventTopic {
     MemberRestrictionCreated = "member.restrictionCreated",
     MemberRestrictionExpired = "member.restrictionExpired",
 
+    // Player
+    PlayerSkillGroupChanged = "player.skillGroupChanged",
 }
 
 export const EventTopicSchema = z.preprocess(v => {
@@ -104,6 +107,8 @@ export const EventSchemas = {
         MemberRestrictionSchema,
     ]),
 
+    // Player Events
+    [EventTopic.PlayerSkillGroupChanged]: PlayerSkillGroupChangedSchema,
 };
 
 export type EventPayload<T extends EventTopic> = z.infer<typeof EventSchemas[T]>;

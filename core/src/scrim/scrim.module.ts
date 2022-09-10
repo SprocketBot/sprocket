@@ -8,6 +8,7 @@ import {PubSub} from "apollo-server-express";
 import {ConfigurationModule} from "../configuration";
 import {DatabaseModule} from "../database";
 import {SchedulingModule} from "../database/scheduling";
+import {EloConnectorModule} from "../elo/elo-connector";
 import {FranchiseModule} from "../franchise";
 import {GameModule} from "../game";
 import {AuthModule} from "../identity";
@@ -41,6 +42,7 @@ import {ScrimToggleResolver, ScrimToggleService} from "./scrim-toggle";
         OrganizationModule,
         FranchiseModule,
         MledbInterfaceModule,
+        EloConnectorModule,
         BullModule.registerQueue({name: "scrim"}),
     ],
     providers: [
