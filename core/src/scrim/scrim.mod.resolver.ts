@@ -222,10 +222,10 @@ export class ScrimModuleResolver {
      */
 
     @Subscription(() => ScrimEvent)
-    async followCurrentScrim(@CurrentUser() user: UserPayload): Promise<AsyncIterator<ScrimEvent>> {
+    async followCurrentScrim(@CurrentUser() user: UserPayload): Promise<AsyncIterator<ScrimEvent> | undefined> {
         await this.scrimService.enableSubscription();
         const scrim = await this.scrimService.getScrimByPlayer(user.userId);
-        if (!scrim) throw new GraphQLError("You must be in a scrim to subscribe to updates");
+        if (!scrim) return undefined;
         return this.pubSub.asyncIterator(scrim.id);
     }
 
