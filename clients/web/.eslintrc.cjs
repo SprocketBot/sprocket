@@ -98,7 +98,7 @@ module.exports = {
 		"grouped-accessor-pairs": "error",                                         /* (  ) require grouped accessor pairs in object literals and classes */
 		"guard-for-in": "error",                                                   /* (  ) require `for-in` loops to include an `if` statement */
 		"max-classes-per-file": "off",                                             /* (  ) enforce a maximum number of classes per file */
-		"no-alert": "error",                                                       /* (  ) disallow the use of `alert`, `confirm`, and `prompt` */
+		"no-alert": "off",                                                         /* (  ) disallow the use of `alert`, `confirm`, and `prompt` */
 		"no-caller": "error",                                                      /* (  ) disallow the use of `arguments.caller` or `arguments.callee` */
 		"no-case-declarations": "error",                                           /* (r ) disallow lexical declarations in case clauses */
 		"no-constructor-return": "error",                                          /* (  ) disallow returning value from constructor */

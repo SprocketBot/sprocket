@@ -23,8 +23,11 @@
     // =================================
     const toggleScrims = async () => {
         scrimsLoading = true;
+        const newValue = Boolean(scrimsEnabled);
         try {
-            await setScrimsDisabledMutation({disabled: Boolean(scrimsEnabled)});
+            if (window.confirm(`Are you sure you want to ${newValue ? "DISABLE" : "ENABLE"} scrims?`)) {
+                await setScrimsDisabledMutation({disabled: newValue});
+            }
         } catch (e) {
             console.log("Failed to toggle scrims");
         } finally {
@@ -34,12 +37,15 @@
 
     const toggleRankouts = async () => {
         rankoutsLoading = true;
+        const newValue = !rankoutsEnabled;
         try {
-            await setGameFeatureMutation({
-                code: FeatureCode.AUTO_RANKOUTS,
-                gameId: ROCKET_LEAGUE_GAME_ID,
-                value: !rankoutsEnabled,
-            });
+            if (window.confirm(`Are you sure you want to ${newValue ? "ENABLE" : "DISABLE"} rankouts?`)) {
+                await setGameFeatureMutation({
+                    code: FeatureCode.AUTO_RANKOUTS,
+                    gameId: ROCKET_LEAGUE_GAME_ID,
+                    value: newValue,
+                });
+            }
         } catch (e) {
             console.log("Failed to toggle rankouts", e);
         }
