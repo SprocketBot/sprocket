@@ -17,5 +17,4 @@ export class FranchiseStaffSeat extends BaseModel {
     @OneToMany(() => FranchiseStaffAppointment, fsa => fsa.seat)
     @Field(() => [FranchiseStaffAppointment])
     appointments: FranchiseStaffAppointment[];
-    
 }
