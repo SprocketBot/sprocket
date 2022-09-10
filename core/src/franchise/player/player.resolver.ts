@@ -121,7 +121,7 @@ export class PlayerResolver {
         });
         const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(player.member.organization.id);
 
-        if (player.skillGroup.id === skillGroupId) return "ERROR: You are already in this skill group";
+        if (player.skillGroup.id === skillGroupId) return "ERROR: This player is already in this skill group";
 
         const inputData: ManualSkillGroupChange = {
             id: playerId,
