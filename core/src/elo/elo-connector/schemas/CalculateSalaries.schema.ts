@@ -6,7 +6,6 @@ export const CalculateSalaries_Input = z.object({
 
 export enum DegreeOfStiffness {
     SOFT = "SOFT",
-    FIRM = "FIRM",
     HARD = "HARD",
 }
 
