@@ -2,13 +2,8 @@
     import {ScrimManagementModal} from "$lib/components";
     import {screamingSnakeToHuman} from "$lib/utils";
     import {
-        setScrimsDisabledMutation, type CurrentScrim,
-    } from "../../../api";
-    import {
-        scrimsDisabled, activeScrims, type ActiveScrims,
+        activeScrims, type ActiveScrims, type CurrentScrim,
     } from "$lib/api";
-    import FaLockOpen from "svelte-icons/fa/FaLockOpen.svelte";
-    import FaLock from "svelte-icons/fa/FaLock.svelte";
 
     /*
             TODO: Create/Implement Search
@@ -16,9 +11,6 @@
         */
 
     let scrimManagementModalVisible = false;
-
-    let scrimsAreDisabled: boolean;
-    $: scrimsAreDisabled = $scrimsDisabled.data?.getScrimsDisabled;
 
     let activeScrimsData: ActiveScrims | undefined;
     $: activeScrimsData = $activeScrims?.data?.activeScrims;
@@ -37,14 +29,6 @@
         scrimManagementModalVisible = true;
         targetId = scrimId;
     };
-
-    const toggleScrimsDisabled = async (disabled: boolean) => {
-        try {
-            await setScrimsDisabledMutation({disabled});
-        } catch {
-            console.log(`Failed to ${disabled ? "disable" : "enable"} scrims`);
-        }
-    };
 </script>
 
 
@@ -57,22 +41,7 @@
       <th>Mode</th>
       <th>Status</th>
       <th>Players</th>
-      <th>
-        <button
-          class="float-right btn btn-outline btn-accent btn-sm"
-          on:click={async () => {
-            await toggleScrimsDisabled(!scrimsAreDisabled);
-          }}
-        >
-          <span class="h-3.5 w-4">
-            {#if scrimsAreDisabled}
-              <FaLock />
-            {:else}
-              <FaLockOpen />
-            {/if}
-          </span>
-        </button>
-      </th>
+      <th />
     </tr>
   </thead>
   <tbody>

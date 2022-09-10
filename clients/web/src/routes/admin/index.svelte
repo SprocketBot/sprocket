@@ -3,6 +3,7 @@
         AdminBanTable,
         AdminPlayerTable,
         AdminScrimTable,
+        AdminSettings,
         AdminSubmissionTable,
         DashboardCard,
         DashboardLayout,
@@ -24,6 +25,14 @@
 </script>
 
 <DashboardLayout>
+    <DashboardCard
+        title="Admin Settings"
+        class="col-span-6 xl:col-span-5 row-span-2"
+    >
+        <div class=" flex justify-center">
+            <AdminSettings />
+        </div>
+    </DashboardCard>
     <DashboardCard
         title="Scrim Management"
         class="col-span-6 xl:col-span-5 row-span-2"
