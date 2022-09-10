@@ -2,14 +2,28 @@ BEGIN TRANSACTION;
 DO
 $$
     DECLARE
-        mle_org_id               numeric;
-        rl_game_id               numeric;
-        rl_doubles_game_mode_id  numeric;
-        rl_standard_game_mode_id numeric;
-        conference_type_id       numeric;
-        orange_conf_id           numeric;
-        blue_conf_id             numeric;
-        division_type_id         numeric;
+        mle_org_id                 numeric;
+        rl_game_id                 numeric;
+        rl_doubles_game_mode_id    numeric;
+        rl_standard_game_mode_id   numeric;
+        conference_type_id         numeric;
+        orange_conf_id             numeric;
+        blue_conf_id               numeric;
+        division_type_id           numeric;
+        schedule_group_type_season numeric;
+        pl_sg_id                   numeric;
+        ml_sg_id                   numeric;
+        cl_sg_id                   numeric;
+        al_sg_id                   numeric;
+        fl_sg_id                   numeric;
+        scrimReportWebhook         varchar;
+        matchReportWebhook         varchar;
+        fr_stf_bearer_id           numeric;
+        fr_ldr_bearer_id           numeric;
+        fm_role_id                 numeric;
+        gm_role_id                 numeric;
+        agm_role_id                numeric;
+        captain_role_id            numeric;
     BEGIN
         INSERT INTO sprocket.organization DEFAULT VALUES RETURNING id INTO mle_org_id;
         INSERT INTO sprocket.organization_profile ("organizationId", "name", "description", "websiteUrl",
@@ -20,6 +34,7 @@ $$
                 '#FFFFFF',
                 'https://mlesports.gg/wp-content/uploads/logo-mle-256.png');
 
+        -- GAME, GAME MODES --
         INSERT INTO sprocket.game ("title") VALUES ('Rocket League') RETURNING id INTO rl_game_id;
         INSERT INTO sprocket.game_mode ("code", "description", "teamSize", "teamCount", "gameId")
         VALUES ('RL_DOUBLES', 'Doubles', 1, 2, rl_game_id)
@@ -82,6 +97,66 @@ $$
                                                                                                                             LEFT JOIN mledb.team AS MLEDB ON MLEDB.name = BRIDGE.team
                                                                                                                             LEFT JOIN mledb.team_branding AS BRANDING ON BRANDING.team_name = MLEDB.name);
 
+        INSERT INTO sprocket.permission_bearer DEFAULT VALUES RETURNING id INTO fr_ldr_bearer_id;
+        INSERT INTO sprocket.permission_bearer DEFAULT VALUES RETURNING id INTO fr_stf_bearer_id;
+
+        INSERT INTO sprocket.franchise_leadership_role (name, ordinal, "bearerId")
+        VALUES ('Franchise Manager', 1, fr_ldr_bearer_id, rl_game_id);
+        INSERT INTO sprocket.franchise_staff_role (name, ordinal, "bearerId", "gameId")
+        VALUES ('General Manager', 1, fr_stf_bearer_id, rl_game_id),
+               ('Assistant General Manager', 1, fr_stf_bearer_id, rl_game_id),
+               ('Captain', 1, fr_stf_bearer_id, rl_game_id);
+
+        INSERT INTO sprocket.franchise_leadership_seat ("roleId") VALUES (fm_role_id);
+        INSERT INTO sprocket.franchise_staff_seat ("roleId") VALUES (gm_role_id);
+        INSERT INTO sprocket.franchise_staff_seat ("roleId") VALUES (agm_role_id);
+        INSERT INTO sprocket.franchise_staff_seat ("roleId") VALUES (agm_role_id);
+
+        -- SCHEDULE GROUP TYPES --
+        INSERT INTO sprocket.schedule_group_type (name, code, "organizationId")
+        VALUES ('Season', 'SEASON', mle_org_id)
+        RETURNING id INTO schedule_group_type_season;
+
+        -- ROSTER USAGE LIMITS --
+        INSERT INTO sprocket.roster_role_use_limits (code, "perMode", total, "groupTypeId")
+        VALUES ('FL', 7, 12, schedule_group_type_season),
+               ('AL', 7, 12, schedule_group_type_season),
+               ('CL', 7, 12, schedule_group_type_season),
+               ('ML', 7, 12, schedule_group_type_season),
+               ('PL', 7, 12, schedule_group_type_season);
+
+        -- GAME SKILL GROUPS --
+        pl_sg_id = nextval('sprocket."game_skill_group_id_seq"');
+        ml_sg_id = nextval('sprocket."game_skill_group_id_seq"');
+        cl_sg_id = nextval('sprocket."game_skill_group_id_seq"');
+        al_sg_id = nextval('sprocket."game_skill_group_id_seq"');
+        fl_sg_id = nextval('sprocket."game_skill_group_id_seq"');
+
+        INSERT INTO sprocket.game_skill_group (id, ordinal, "salaryCap", "gameId", "roleUseLimitsId", "organizationId")
+        VALUES (pl_sg_id, 1, 95.5, rl_game_id, (SELECT id FROM sprocket.roster_role_use_limits WHERE code = 'PL'),
+                mle_org_id),
+               (ml_sg_id, 2, 83.0, rl_game_id, (SELECT id FROM sprocket.roster_role_use_limits WHERE code = 'ML'),
+                mle_org_id),
+               (cl_sg_id, 3, 70.5, rl_game_id, (SELECT id FROM sprocket.roster_role_use_limits WHERE code = 'CL'),
+                mle_org_id),
+               (al_sg_id, 4, 58.0, rl_game_id, (SELECT id FROM sprocket.roster_role_use_limits WHERE code = 'AL'),
+                mle_org_id),
+               (fl_sg_id, 5, 42.5, rl_game_id, (SELECT id FROM sprocket.roster_role_use_limits WHERE code = 'FL'),
+                mle_org_id);
+
+        scrimReportWebhook =
+                'https://discord.com/api/webhooks/1002240301223653466/xpYxFjommlDnYRZLEot8o5k-NT7GyPO0wkT6QZuhuvTY3DD7LMir57-aiZKAhyGOa5-E';
+        matchReportWebhook =
+                'https://discord.com/api/webhooks/1002240301223653466/xpYxFjommlDnYRZLEot8o5k-NT7GyPO0wkT6QZuhuvTY3DD7LMir57-aiZKAhyGOa5-E';
+
+        INSERT INTO sprocket.game_skill_group_profile (code, description, "scrimReportWebhookUrl",
+                                                       "matchReportWebhookUrl", "skillGroupId")
+        VALUES ('PL', 'Premier League', scrimReportWebhook, matchReportWebhook, pl_sg_id),
+               ('ML', 'Master League', scrimReportWebhook, matchReportWebhook, ml_sg_id),
+               ('CL', 'Champion League', scrimReportWebhook, matchReportWebhook, cl_sg_id),
+               ('AL', 'Academy League', scrimReportWebhook, matchReportWebhook, al_sg_id),
+               ('FL', 'Foundation League', scrimReportWebhook, matchReportWebhook, fl_sg_id);
+
         -- USERS --
         INSERT INTO mledb_bridge.player_to_user ("playerId", "userId") (SELECT id, nextval('sprocket."user_id_seq"') FROM mledb.player);
         INSERT INTO sprocket."user" (id) (SELECT "userId" FROM mledb_bridge.player_to_user);
@@ -91,6 +166,35 @@ $$
                                                                                         WHERE "id" = mledb_bridge.player_to_user."playerId"),
                                                                                        'unknown@sprocket.gg' AS "email"
                                                                                 FROM mledb_bridge.player_to_user);
+
+        -- MEMBERS --
+        INSERT INTO sprocket.member ("userId", "organizationId") (SELECT "userId", mle_org_id FROM sprocket."user");
+        INSERT INTO sprocket.member_profile ("memberId", name) (SELECT M.id, UP."displayName"
+                                                                FROM sprocket.member M
+                                                                         LEFT JOIN sprocket."user" U ON U.id = m."userId"
+                                                                         LEFT JOIN sprocket.user_profile UP ON UP."userId" = U.id);
+
+        -- PLAYERS --
+        INSERT INTO sprocket.player ("memberId", "skillGroupId", salary) (SELECT M.id,
+                                                                                 (CASE
+                                                                                      WHEN (MLE.league = 'PREMIER')
+                                                                                          THEN (pl_sg_id)
+                                                                                      WHEN (MLE.league = 'MASTER')
+                                                                                          THEN (ml_sg_id)
+                                                                                      WHEN (MLE.league = 'CHAMPION')
+                                                                                          THEN (cl_sg_id)
+                                                                                      WHEN (MLE.league = 'ACADEMY')
+                                                                                          THEN (al_sg_id)
+                                                                                      WHEN (MLE.league = 'FOUNDATION')
+                                                                                          THEN (fl_sg_id) END),
+                                                                                 MLE.salary
+                                                                          FROM sprocket.member M
+                                                                                   LEFT JOIN sprocket."user" U on U.id = m."userId"
+                                                                                   LEFT JOIN mledb_bridge.player_to_user BRIDGE ON BRIDGE."userId" = U.id
+                                                                                   LEFT JOIN mledb.player MLE ON MLE.id = BRIDGE."playerId"
+                                                                          WHERE MLE.league IN
+                                                                                ('FOUNDATION', 'ACADEMY', 'CHAMPION',
+                                                                                 'MASTER', 'PREMIER'));
     end
 $$;
 
