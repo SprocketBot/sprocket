@@ -27,7 +27,7 @@ export enum CoreEndpoint {
     GetFranchiseStaff = "GetFranchiseStaff",
     GetPlayerFranchises = "GetPlayerFranchises",
 
-    GetTransactionsDiscordWebhook = "GetTransactionsWebhook",
+    GetTransactionsDiscordWebhook = "GetTransactionsDiscordWebhook",
 }
 
 export const CoreSchemas = {
