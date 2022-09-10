@@ -55,7 +55,7 @@ export class OrganizationController {
     async getTransactionsWebhook(@Payload() payload: unknown): Promise<GetTransactionsDiscordWebhookResponse> {
         const data = CoreSchemas.GetTransactionsDiscordWebhook.input.parse(payload);
 
-        const webhook: string = await this.organizationConfigurationService.getOrganizationConfigurationValue<string>(data.organizationId as number, OrganizationConfigurationKeyCode.TRANSACTIONS_DISCORD_WEBHOOK_URL);
+        const webhook: string = await this.organizationConfigurationService.getOrganizationConfigurationValue<string>(data.organizationId, OrganizationConfigurationKeyCode.TRANSACTIONS_DISCORD_WEBHOOK_URL);
 
         return {
             transactionsWebhook: webhook,
