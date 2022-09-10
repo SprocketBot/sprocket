@@ -91,15 +91,19 @@ export class PlayerController {
         await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
             playerId: player.id,
             name: player.member.profile.name,
+            organizationId: player.skillGroup.organizationId,
+            discordId: discordAccount.accountId,
             old: {
                 id: player.skillGroup.id,
                 name: player.skillGroup.profile.description,
                 salary: Number(player.salary),
+                discordEmojiId: player.skillGroup.profile.discordEmojiId,
             },
             new: {
                 id: skillGroup.id,
                 name: skillGroup.profile.description,
                 salary: Number(payload.salary),
+                discordEmojiId: skillGroup.profile.discordEmojiId,
             },
         });
 

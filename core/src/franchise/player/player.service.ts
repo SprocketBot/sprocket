@@ -198,15 +198,18 @@ export class PlayerService {
                     await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
                         playerId: player.id,
                         name: player.member.profile.name,
+                        organizationId: skillGroup.organization.id,
                         old: {
                             id: player.skillGroup.id,
                             name: player.skillGroup.profile.description,
                             salary: player.salary,
+                            discordEmojiID: player.skillGroup.profile.discordEmojiId,
                         },
                         new: {
                             id: skillGroup.id,
                             name: skillGroup.profile.description,
                             salary: playerDelta.rankout.salary,
+                            discordEmojiID: skillGroup.profile.discordEmojiId,
                         },
                     });
     

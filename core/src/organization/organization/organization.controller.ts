@@ -1,7 +1,13 @@
 import {Controller} from "@nestjs/common";
 import {MessagePattern, Payload} from "@nestjs/microservices";
-import type {GetOrganizationByDiscordGuildResponse, GetOrganizationDiscordGuildsByGuildResponse} from "@sprocketbot/common";
-import {CoreEndpoint, CoreSchemas} from "@sprocketbot/common";
+import type {
+    GetOrganizationByDiscordGuildResponse,
+    GetOrganizationDiscordGuildsByGuildResponse,
+    GetTransactionsDiscordWebhookResponse,
+} from "@sprocketbot/common";
+import {
+    CoreEndpoint, CoreSchemas,
+} from "@sprocketbot/common";
 
 import {OrganizationConfigurationService} from "../../configuration/organization-configuration/organization-configuration.service";
 import type {OrganizationProfile} from "../../database";
@@ -42,6 +48,17 @@ export class OrganizationController {
 
         return {
             id: valueContainingGuildId.organization.id,
+        };
+    }
+
+    @MessagePattern(CoreEndpoint.GetTransactionsDiscordWebhook)
+    async getTransactionsWebhook(@Payload() payload: unknown): Promise<GetTransactionsDiscordWebhookResponse> {
+        const data = CoreSchemas.GetTransactionsDiscordWebhook.input.parse(payload);
+
+        const webhook: string = await this.organizationConfigurationService.getOrganizationConfigurationValue<string>(data.organizationId as number, OrganizationConfigurationKeyCode.TRANSACTIONS_DISCORD_WEBHOOK_URL);
+
+        return {
+            transactionsWebhook: webhook,
         };
     }
 }

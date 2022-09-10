@@ -7,3 +7,4 @@ export * from "./toasts";
 export * from "./scrims";
 export * from "./dashboard";
 export * from "./user-menu";
+export * from "./AdminSettings";
