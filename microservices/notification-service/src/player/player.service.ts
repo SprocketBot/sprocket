@@ -32,7 +32,7 @@ export class PlayerService extends SprocketEventMarshal {
         if (transactionsWebhooksResult.data.transactionsWebhook) await this.botService.send(BotEndpoint.SendWebhookMessage, {
             webhookUrl: transactionsWebhooksResult.data.transactionsWebhook,
             payload: {
-                content: `${sgChangedPayload.old.discordEmojiID} ${sgChangedPayload.new.discordEmojiID} ${sgChangedPayload.name} has moved from ${sgChangedPayload.old.discordEmojiID} to ${sgChangedPayload.new.discordEmojiID}`,
+                content: `${sgChangedPayload.old.discordEmojiId} ${sgChangedPayload.new.discordEmojiId} <@${sgChangedPayload.discordId}> has moved from ${sgChangedPayload.old.discordEmojiId} to ${sgChangedPayload.new.discordEmojiId}`,
             },
         });
 

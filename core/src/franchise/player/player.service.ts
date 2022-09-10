@@ -203,13 +203,13 @@ export class PlayerService {
                             id: player.skillGroup.id,
                             name: player.skillGroup.profile.description,
                             salary: player.salary,
-                            discordEmojiID: player.skillGroup.profile.discordEmojiID,
+                            discordEmojiID: player.skillGroup.profile.discordEmojiId,
                         },
                         new: {
                             id: skillGroup.id,
                             name: skillGroup.profile.description,
                             salary: playerDelta.rankout.salary,
-                            discordEmojiID: skillGroup.profile.discordEmojiID,
+                            discordEmojiID: skillGroup.profile.discordEmojiId,
                         },
                     });
     

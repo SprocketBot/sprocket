@@ -27,7 +27,7 @@ export class GameSkillGroupProfile extends BaseModel {
 
     @Column()
     @Field(() => String)
-    discordEmojiID: string;
+    discordEmojiId: string;
 
     @OneToOne(() => GameSkillGroup)
     @JoinColumn()
