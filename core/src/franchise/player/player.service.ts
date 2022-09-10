@@ -199,17 +199,18 @@ export class PlayerService {
                         playerId: player.id,
                         name: player.member.profile.name,
                         organizationId: skillGroup.organization.id,
+                        discordId: discordAccount.accountId,
                         old: {
                             id: player.skillGroup.id,
                             name: player.skillGroup.profile.description,
                             salary: player.salary,
-                            discordEmojiID: player.skillGroup.profile.discordEmojiId,
+                            discordEmojiId: player.skillGroup.profile.discordEmojiId,
                         },
                         new: {
                             id: skillGroup.id,
                             name: skillGroup.profile.description,
                             salary: playerDelta.rankout.salary,
-                            discordEmojiID: skillGroup.profile.discordEmojiId,
+                            discordEmojiId: skillGroup.profile.discordEmojiId,
                         },
                     });
     
