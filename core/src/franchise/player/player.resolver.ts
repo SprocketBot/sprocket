@@ -3,7 +3,7 @@ import {
     forwardRef, Inject,
 } from "@nestjs/common";
 import {
-    Mutation,
+    Args, Float, Int, Mutation,
     ResolveField, Resolver, Root,
 } from "@nestjs/graphql";
 import {InjectRepository} from "@nestjs/typeorm";
@@ -78,8 +78,12 @@ export class PlayerResolver {
         return this.popService.populateOneOrFail(Player, player, "member");
     }
 
-    @Mutation()
-    async changePlayerSkillGroup(playerId: number, salary: number, skillGroupId: number): Promise<string> {
+    @Mutation(() => String)
+    async changePlayerSkillGroup(
+        @Args("playerId", {type: () => Int}) playerId: number,
+        @Args("salary", {type: () => Float}) salary: number,
+        @Args("skillGroupId", {type: () => Int}) skillGroupId: number,
+    ): Promise<string> {
         const player = await this.playerService.getPlayer({
             where: {id: playerId},
             relations: {
