@@ -19,9 +19,6 @@ export class GameFeatureService {
     ) {}
 
     async featureIsEnabled(code: FeatureCode, gameId: number, organizationId: number): Promise<boolean> {
-        console.log({
-            code, gameId, organizationId,
-        });
         const enabledFeature = await this.enabledFeatureRepository.findOne({
             where: {
                 organization: {
