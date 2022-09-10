@@ -1,16 +1,28 @@
 <script lang="ts">
+    import { createEventDispatcher } from "svelte";
+
     export let label: string;
-    export let value: boolean;
-    export let loading: boolean;
+    export let value: boolean | undefined;
+    export let loading: boolean | undefined;
 
     const id = `game-feature-toggle-${label}`;
+
+    const dispatch = createEventDispatcher();
+    
+    const onToggle = () => {
+        dispatch('toggle')
+    }
 </script>
 
 
 <div>
     <label for={id}>{label}:</label>
-    <span class:enabled={value} class:disabled={!value}>{value ? "Enabled" : "Disabled"}</span>
-    <button type="button" id={id} class:loading>{value ? "Disable" : "Enable"}</button>
+    {#if value !== undefined}
+        <span class:enabled={value} class:disabled={!value}>{value ? "Enabled" : "Disabled"}</span>
+        <button type="button" id={id} class:loading on:click={onToggle}>{value ? "Disable" : "Enable"}</button>
+    {:else}
+        <span>Unknown</span>
+    {/if}
 </div>
 
 
