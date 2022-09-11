@@ -9,6 +9,7 @@ import {EventsModule} from "./events/events.module";
 import {GlobalModule} from "./global.module";
 import {MarshalModule} from "./marshal";
 import {NotificationsModule} from "./notifications";
+import {SprocketEventsModule} from "./sprocket-events/sprocket-events.module";
 
 @Module({
     imports: [
@@ -20,6 +21,7 @@ import {NotificationsModule} from "./notifications";
         NotificationsModule,
         EventsModule,
         CommandsModule,
+        SprocketEventsModule,
     ],
     providers: [
         GlobalModule,

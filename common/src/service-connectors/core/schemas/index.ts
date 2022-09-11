@@ -3,6 +3,7 @@ export * from "./GetDiscordIdByUser.schema";
 export * from "./GetFranchiseProfile.schema";
 export * from "./GetFranchiseStaff.schema";
 export * from "./GetGameSkillGroupProfile.schema";
+export * from "./GetGuildsByOrganizationId.schema";
 export * from "./GetMatchById.schema";
 export * from "./GetMatchBySubmissionId.schema";
 export * from "./GetMatchReportCardWebhooks.schema";

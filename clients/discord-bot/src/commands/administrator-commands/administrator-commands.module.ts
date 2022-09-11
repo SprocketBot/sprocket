@@ -1,5 +1,5 @@
 import {Module} from "@nestjs/common";
-import {CoreModule} from "@sprocketbot/common";
+import {CoreModule, EventsModule} from "@sprocketbot/common";
 
 import {DiscordModule} from "../../discord/discord.module";
 import {EmbedModule} from "../../embed/embed.module";
@@ -17,6 +17,7 @@ import {SprocketStatusMarshal} from "./sprocket-status.marshal";
         CommandsModule,
         EmbedModule,
         CoreModule,
+        EventsModule,
     ],
     providers: [
         DebugCommandsMarshal,

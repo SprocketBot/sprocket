@@ -6,8 +6,6 @@ import {EmbedModule} from "../../embed/embed.module";
 import {CommandsModule} from "../../marshal";
 import {NotificationsModule} from "../../notifications";
 import {HelpMarshal} from "./help";
-import {MemberLookupMarshal} from "./member-lookup.marshal";
-import {OrganizationConfigurationMarshal} from "./organization-configuration.marshal";
 import {ReportCardMarshal} from "./report-card.marshal";
 
 @Module({
@@ -19,8 +17,6 @@ import {ReportCardMarshal} from "./report-card.marshal";
         NotificationsModule,
     ],
     providers: [
-        MemberLookupMarshal,
-        OrganizationConfigurationMarshal,
         HelpMarshal,
         ReportCardMarshal,
     ],
