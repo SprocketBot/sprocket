@@ -21,6 +21,7 @@ export enum CoreEndpoint {
     GetMatchReportCardWebhooks = "GetMatchReportCardWebhooks",
     GetUsersLatestScrim = "GetUsersLatestScrim",
     GetMleMatchInfoAndStakeholders = "GetMleMatchInfoAndStakeholders",
+    GetGuildsByOrganizationId = "GetGuildsByOrganizationId",
 
     GetMatchBySubmissionId = "GetMatchBySubmissionId",
     GetMatchById = "GetMatchById",
@@ -118,6 +119,10 @@ export const CoreSchemas = {
     [CoreEndpoint.GetTransactionsDiscordWebhook]: {
         input: Schemas.GetTransactionsDiscordWebhook_Request,
         output: Schemas.GetTransactionsDiscordWebhook_Response,
+    },
+    [CoreEndpoint.GetGuildsByOrganizationId]: {
+        input: Schemas.GetGuildsByOrganizationId_Request,
+        output: Schemas.GetGuildsByOrganizationId_Response,
     },
 };
 
