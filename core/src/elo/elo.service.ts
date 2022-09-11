@@ -42,23 +42,23 @@ export class EloService {
         // once MLEDB migration is complete.
         switch (skillGroup) {
             case "FOUNDATION": {
-                return 0;
+                return 5;
             }
             case "ACADEMY": {
-                return 1;
+                return 4;
             }
             case "CHAMPION": {
-                return 2;
-            }
-            case "MASTER": {
                 return 3;
             }
+            case "MASTER": {
+                return 2;
+            }
             case "PREMIER": {
-                return 4;
+                return 1;
             }
             default: {
                 // throw new Error(`ERROR: SkillGroup ${skillGroup} does not exist!`);
-                return 5;
+                return 0;
             }
         }
     }

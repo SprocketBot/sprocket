@@ -215,7 +215,7 @@ export class MatchService {
             id: match.id,
             numGames: match.rounds.length,
             isScrim: isScrim,
-            gameMode: (matchParent.event?.gameMode?.teamSize === 2) ? GameMode.DOUBLES : GameMode.STANDARD,
+            gameMode: (matchParent.match.gameMode.code === "RL_DOUBLES") ? GameMode.DOUBLES : GameMode.STANDARD,
             gameStats: [],
         };
 
