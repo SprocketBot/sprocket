@@ -58,7 +58,7 @@ export class EmbedService {
      * @returns The MessageEmbed.
      */
     async embed(options: EmbedOptions, organizationId?: number): Promise<MessageEmbed> {
-        let orgId = 1; // Default to using Sprocket
+        let orgId = 2;
 
         if (organizationId !== undefined) {
             // TODO check if this organization has branding enabled
