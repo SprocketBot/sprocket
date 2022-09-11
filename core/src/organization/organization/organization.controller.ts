@@ -1,6 +1,7 @@
 import {Controller} from "@nestjs/common";
 import {MessagePattern, Payload} from "@nestjs/microservices";
 import type {
+    GetGuildsByOrganizationIdResponse,
     GetOrganizationByDiscordGuildResponse,
     GetOrganizationDiscordGuildsByGuildResponse,
     GetTransactionsDiscordWebhookResponse,
@@ -49,6 +50,27 @@ export class OrganizationController {
         return {
             id: valueContainingGuildId.organization.id,
         };
+    }
+
+    @MessagePattern(CoreEndpoint.GetGuildsByOrganizationId)
+    async getGuildsByOrganizationId(@Payload() payload: unknown): Promise<GetGuildsByOrganizationIdResponse> {
+        const data = CoreSchemas.GetGuildsByOrganizationId.input.parse(payload);
+        
+        // Get primary if it exists
+        let primary: string | null = null;
+        try {
+            primary = await this.organizationConfigurationService.getOrganizationConfigurationValue<string>(data.organizationId, OrganizationConfigurationKeyCode.PRIMARY_DISCORD_GUILD_SNOWFLAKE);
+        // eslint-disable-next-line no-empty
+        } catch {}
+        
+        // Get alternates if they exist
+        let alternates: string[] = [];
+        try {
+            alternates = await this.organizationConfigurationService.getOrganizationConfigurationValue<string[]>(data.organizationId, OrganizationConfigurationKeyCode.ALTERNATE_DISCORD_GUILD_SNOWFLAKES);
+        // eslint-disable-next-line no-empty
+        } catch {}
+
+        return {primary, alternates};
     }
 
     @MessagePattern(CoreEndpoint.GetTransactionsDiscordWebhook)
