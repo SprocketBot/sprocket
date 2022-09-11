@@ -72,8 +72,8 @@ BEGIN
     -- If we are not inserting a row; update the currently accurate row to close the applicable period
     IF TG_OP != 'INSERT' AND old.id IS NOT NULL THEN
         EXECUTE FORMAT(
-            'UPDATE history.%I_history SET applicable_period = tsrange(lower(applicable_period), ''%I'', ''[]'') WHERE "id" = %L AND upper(applicable_period) is null',
-            TG_TABLE_NAME,
+            'UPDATE history.%I SET applicable_period = tsrange(lower(applicable_period), ''%I'', ''[]'') WHERE "id" = %L AND upper(applicable_period) is null',
+            TG_TABLE_NAME || '_history',
             t,
             old.id
         );

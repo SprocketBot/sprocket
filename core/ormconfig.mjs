@@ -1,9 +1,6 @@
 import config from "config";
 import fs from "fs";
 import {DataSource} from "typeorm";
-// const config = require("config");
-// const fs = require("fs");
-// const { DataSource } = require('typeorm');
 
 export default new DataSource({
     type: "postgres",
