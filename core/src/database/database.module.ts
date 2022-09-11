@@ -11,6 +11,7 @@ import {GameModule} from "./game/game.module";
 import {IdentityModule} from "./identity/identity.module";
 import {ImageGenModule} from "./image-gen/image-gen.module";
 import {MledbModule} from "./mledb/mledb.module";
+import {MledbBridgeModule} from "./mledb-bridge/mledb_bridge.module";
 import {OrganizationModule} from "./organization/organization.module";
 import {SchedulingModule} from "./scheduling/scheduling.module";
 
@@ -25,6 +26,7 @@ const modules = [
     SchedulingModule,
     MledbModule,
     ImageGenModule,
+    MledbBridgeModule,
     TypeOrmModule.forRoot({
         type: "postgres",
         host: config.db.host,
