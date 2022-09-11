@@ -298,7 +298,7 @@ $$
                                                                                                            (SELECT id
                                                                                                             FROM sprocket.game_mode GM
                                                                                                             WHERE GM.code = CONCAT('RL_', S.mode)),
-                                                                                                        CONCAT('match-', gen_random_uuid())
+                                                                                                           CONCAT('match-', gen_random_uuid())
                                                                                                     FROM mledb_bridge.series_to_match_parent BRIDGEMP
                                                                                                              INNER JOIN mledb.series S ON S.id = BRIDGEMP."seriesId"
                                                                                                     WHERE S.league IN
