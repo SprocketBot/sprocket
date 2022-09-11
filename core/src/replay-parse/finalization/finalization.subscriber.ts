@@ -72,7 +72,7 @@ export class FinalizationSubscriber {
                 },
             });
 
-            const eloPayload = this.matchService.translatePayload(result.scrim.parent, false);
+            const eloPayload = this.matchService.translatePayload(result.scrim.parent, true);
             await this.eloConnectorService.createJob(EloEndpoint.CalculateEloForMatch, eloPayload);
         } catch (_e) {
             const e = _e as Error;
@@ -93,6 +93,9 @@ export class FinalizationSubscriber {
                 id: result.match.id,
                 legacyId: result.legacyMatch.id,
             });
+
+            const eloPayload = this.matchService.translatePayload(result.match.matchParent, false);
+            await this.eloConnectorService.createJob(EloEndpoint.CalculateEloForMatch, eloPayload);
         } catch (_e) {
             const e = _e as Error;
             this.logger.warn(e.message, e.stack);
