@@ -175,12 +175,12 @@ $$
                 'https://discord.com/api/webhooks/1002240301223653466/xpYxFjommlDnYRZLEot8o5k-NT7GyPO0wkT6QZuhuvTY3DD7LMir57-aiZKAhyGOa5-E';
 
         INSERT INTO sprocket.game_skill_group_profile (code, description, "scrimReportWebhookUrl",
-                                                       "matchReportWebhookUrl", "skillGroupId")
-        VALUES ('PL', 'Premier League', scrimReportWebhook, matchReportWebhook, pl_sg_id),
-               ('ML', 'Master League', scrimReportWebhook, matchReportWebhook, ml_sg_id),
-               ('CL', 'Champion League', scrimReportWebhook, matchReportWebhook, cl_sg_id),
-               ('AL', 'Academy League', scrimReportWebhook, matchReportWebhook, al_sg_id),
-               ('FL', 'Foundation League', scrimReportWebhook, matchReportWebhook, fl_sg_id);
+                                                       "matchReportWebhookUrl", "skillGroupId", "discordEmojiId")
+        VALUES ('PL', 'Premier League', scrimReportWebhook, matchReportWebhook, pl_sg_id, '<:pl:809925633186070599>'),
+               ('ML', 'Master League', scrimReportWebhook, matchReportWebhook, ml_sg_id, '<:ml:809925633618083870>'),
+               ('CL', 'Champion League', scrimReportWebhook, matchReportWebhook, cl_sg_id, '<:_cl:809925633642725427>'),
+               ('AL', 'Academy League', scrimReportWebhook, matchReportWebhook, al_sg_id, '<:al:809925633655570470>'),
+               ('FL', 'Foundation League', scrimReportWebhook, matchReportWebhook, fl_sg_id, '<:fl:809925633471545364>');
 
         -- TEAMS --
         INSERT INTO sprocket.team ("franchiseId", "skillGroupId") (SELECT F.id, GSG.id
