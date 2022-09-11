@@ -1,6 +1,7 @@
 import {forwardRef, Module} from "@nestjs/common";
 
 import {DatabaseModule} from "../database";
+import {EloConnectorModule} from "../elo/elo-connector";
 import {FranchiseModule} from "../franchise";
 import {UtilModule} from "../util/util.module";
 import {MatchService} from "./match";
@@ -16,9 +17,10 @@ import {ScheduleGroupTypeService} from "./schedule-group/schedule-group-type.ser
 
 @Module({
     imports: [
-        DatabaseModule,
-        forwardRef(() => FranchiseModule),
         UtilModule,
+        DatabaseModule,
+        EloConnectorModule,
+        forwardRef(() => FranchiseModule),
     ],
     providers: [
         MatchService,

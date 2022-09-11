@@ -23,7 +23,7 @@ export class EloConnectorService {
         return job.id;
     }
 
-    async createJobAndWait<E extends EloEndpoint>(endpoint: EloEndpoint, data: EloInput<E>): Promise<EloOutput<E>> {
+    async createJobAndWait<E extends EloEndpoint>(endpoint: E, data: EloInput<E>): Promise<EloOutput<E>> {
         return new Promise((resolve, reject) => {
             this.eloQueue.add(endpoint, data)
                 .then(job => {

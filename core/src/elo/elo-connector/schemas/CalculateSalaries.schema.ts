@@ -9,11 +9,21 @@ export enum DegreeOfStiffness {
     HARD = "HARD",
 }
 
+export enum SkillGroupDelta {
+    UP = "UP",
+    DOWN = "DOWN",
+}
+
+export const RankoutSchema = z.object({
+    skillGroupChange: z.nativeEnum(SkillGroupDelta),
+    degreeOfStiffness: z.nativeEnum(DegreeOfStiffness),
+    salary: z.number(),
+});
+
 export const SalaryPayloadItemSchema = z.object({
     playerId: z.number(),
     newSalary: z.number(),
-    sgDelta: z.number(),
-    degreeOfStiffness: z.nativeEnum(DegreeOfStiffness),
+    rankout: RankoutSchema.optional(),
 });
 
 export type SalaryPayloadItem = z.infer<typeof SalaryPayloadItemSchema>;

@@ -9,7 +9,8 @@ import {
     MemberRestriction,
     MemberRestrictionType,
     ResponseStatus,
-    SprocketEvent, SprocketEventMarshal,
+    SprocketEvent,
+    SprocketEventMarshal,
 } from "@sprocketbot/common";
 import {format, utcToZonedTime} from "date-fns-tz";
 

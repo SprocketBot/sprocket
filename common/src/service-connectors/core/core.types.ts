@@ -26,6 +26,8 @@ export enum CoreEndpoint {
     GetMatchById = "GetMatchById",
     GetFranchiseStaff = "GetFranchiseStaff",
     GetPlayerFranchises = "GetPlayerFranchises",
+
+    GetTransactionsDiscordWebhook = "GetTransactionsDiscordWebhook",
 }
 
 export const CoreSchemas = {
@@ -112,6 +114,10 @@ export const CoreSchemas = {
     [CoreEndpoint.GetPlayerFranchises]: {
         input: Schemas.GetPlayerFranchises_Request,
         output: Schemas.GetPlayerFranchises_Response,
+    },
+    [CoreEndpoint.GetTransactionsDiscordWebhook]: {
+        input: Schemas.GetTransactionsDiscordWebhook_Request,
+        output: Schemas.GetTransactionsDiscordWebhook_Response,
     },
 };
 

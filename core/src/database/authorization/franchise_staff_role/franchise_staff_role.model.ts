@@ -1,6 +1,6 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {
-    Column, Entity, JoinColumn, ManyToOne, OneToOne,
+    Column, Entity, JoinColumn, ManyToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
@@ -18,7 +18,7 @@ export class FranchiseStaffRole extends BaseModel {
     @Field(() => Number)
     ordinal: number;
 
-    @OneToOne(() => PermissionBearer)
+    @ManyToOne(() => PermissionBearer)
     @JoinColumn()
     @Field(() => PermissionBearer)
     bearer: PermissionBearer;

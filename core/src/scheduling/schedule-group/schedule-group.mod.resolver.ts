@@ -30,9 +30,9 @@ export class ScheduleGroupModResolver {
 
     @Query(() => [ScheduleGroup])
     async getScheduleGroups(
-    @CurrentUser() user: UserPayload,
-    @Args("type") type: string,
-    @Args("game", {nullable: true}) gameId?: number,
+        @CurrentUser() user: UserPayload,
+        @Args("type") type: string,
+        @Args("game", {nullable: true}) gameId?: number,
     ): Promise<ScheduleGroup[]> {
         if (!user.currentOrganizationId) {
             throw new GraphQLError("You must select an organization");

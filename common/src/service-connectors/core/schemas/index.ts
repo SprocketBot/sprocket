@@ -16,6 +16,7 @@ export * from "./GetPlayerByPlatformId";
 export * from "./GetPlayerFranchises.schema";
 export * from "./GetScrimReportCardWebhooks.schema";
 export * from "./GetSprocketConfiguration.schema";
+export * from "./GetTransactionsDiscordWebhook.schema";
 export * from "./GetUserByAuthAccount.schema";
 export * from "./GetUsersLastScrim.schema";
 export * from "./MemberRestriction.schema";

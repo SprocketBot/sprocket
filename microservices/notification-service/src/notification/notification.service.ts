@@ -1,4 +1,4 @@
-import {Injectable} from "@nestjs/common";
+import {Injectable, Logger} from "@nestjs/common";
 import type {
     NotificationEndpoint, NotificationInput, NotificationOutput,
 } from "@sprocketbot/common";
@@ -6,24 +6,26 @@ import {
     BotEndpoint,
     BotService,
     config,
+    NanoidService,
     NotificationMessageType,
     RedisService,
 } from "@sprocketbot/common";
-import {randomUUID} from "crypto";
-
 @Injectable()
 export class NotificationService {
+    private readonly logger = new Logger(NotificationService.name);
+
     private readonly prefix = `${config.redis.prefix}:notification:`;
 
     constructor(
         private readonly redisService: RedisService,
         private readonly botService: BotService,
+        private readonly nanoidService: NanoidService,
     ) {}
 
     async sendNotification(data: NotificationInput<NotificationEndpoint.SendNotification>): Promise<NotificationOutput<NotificationEndpoint.SendNotification>> {
         if (data.payload) {
             const notificationPayload = {
-                id: randomUUID(),
+                id: data.id ?? `${data.type.toLowerCase()}-${this.nanoidService.gen()}`,
                 type: data.type,
                 userId: data.userId,
                 expiration: data.expiration,

@@ -176,6 +176,9 @@ export const config = {
         get url(): string {
             return _config.get<string>("web.url");
         },
+        get api_root(): string {
+            return _config.get<string>("web.api_root");
+        },
     },
     get defaultOrganizationId(): number {
         return _config.get<number>("defaultOrganizationId");

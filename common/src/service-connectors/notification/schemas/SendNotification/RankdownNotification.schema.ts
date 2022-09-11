@@ -2,11 +2,16 @@ import {z} from "zod";
 
 import {
     BaseNotificationSchema, NotificationDirectMessageSchema, NotificationType,
-} from "../SendNotification.schema";
+} from "./BaseNotification.schema";
 
 export const RankdownNotificationSchema = BaseNotificationSchema.extend({
     type: z.literal(NotificationType.RANKDOWN),
-    expiration: z.date(),
+    expiration: z.preprocess(arg => {
+        if (typeof arg === "string") {
+            return new Date(arg);
+        }
+        return arg;
+    }, z.date()),
     payload: z.object({
         playerId: z.number(),
         skillGroupId: z.number(),
