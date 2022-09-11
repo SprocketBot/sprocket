@@ -1,10 +1,16 @@
-import {Logger} from "@nestjs/common";
+import {Inject, Logger} from "@nestjs/common";
+import {
+    AnalyticsService, CoreService, EventsService, EventTopic,
+} from "@sprocketbot/common";
 import type {MessageComponentInteraction} from "discord.js";
 import {
-    Message, MessageActionRow, MessageButton, MessageEmbed,
+    Client,    Message, MessageActionRow, MessageButton, MessageEmbed,
 } from "discord.js";
 
-import {Command, Marshal} from "../../marshal";
+import {EmbedService} from "../../embed";
+import {
+    Command, CommandManagerService, Marshal,
+} from "../../marshal";
 import {CommandError} from "../../marshal/command-error";
 import type {
     StepOptions, WizardFunction, WizardFunctionOutput,
@@ -15,6 +21,18 @@ import {
 
 export class DebugCommandsMarshal extends Marshal {
     private readonly logger = new Logger(DebugCommandsMarshal.name);
+
+    constructor(
+        protected readonly cms: CommandManagerService,
+        protected readonly coreService: CoreService,
+        protected readonly analyticsService: AnalyticsService,
+        protected readonly embedService: EmbedService,
+        @Inject("DISCORD_CLIENT") protected readonly botClient: Client,
+
+        private readonly eventsService: EventsService,
+    ) {
+        super(cms, coreService, analyticsService, embedService, botClient);
+    }
 
     @Command({
         name: "wizardDebug",
@@ -123,6 +141,27 @@ export class DebugCommandsMarshal extends Marshal {
         });
 
         await wizard.start();
+    }
+
+    @Command({
+        name: "changeTeam",
+        args: [],
+        docs: "Test team change event handler",
+    })
+    async changeTeam(): Promise<void> {
+        await this.eventsService.publish(EventTopic.PlayerTeamChanged, {
+            discordId: "105408136285818880",
+            organizationId: 2,
+            playerId: 69,
+            name: "HyperCoder",
+
+            old: {
+                name: "Pandas",
+            },
+            new: {
+                name: "Waivers",
+            },
+        });
     }
 }
 

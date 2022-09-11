@@ -417,17 +417,18 @@ export class PlayerService {
     }
 
     async mle_rankDownPlayer(sprocPlayerId: number, salary: number): Promise<MLE_Player> {
-        const sproc = await this.getPlayer({
+        const sprocketPlayer = await this.getPlayer({
             where: {id: sprocPlayerId},
             relations: {
                 member: {
+                    profile: true,
                     user: {
                         authenticationAccounts: true,
                     },
                 },
             },
         });
-        const discId = sproc.member.user.authenticationAccounts.find(aa => aa.accountType === UserAuthenticationAccountType.DISCORD);
+        const discId = sprocketPlayer.member.user.authenticationAccounts.find(aa => aa.accountType === UserAuthenticationAccountType.DISCORD);
         if (!discId) throw new Error("No discord Id");
 
         let player = await this.mle_playerRepository.findOneOrFail({
@@ -435,6 +436,7 @@ export class PlayerService {
                 discordId: discId.accountId,
             },
         });
+        const oldTeamName = player.teamName;
 
         player = this.mle_playerRepository.merge(player, {
             role: Role.NONE,
@@ -444,6 +446,23 @@ export class PlayerService {
         });
 
         await this.mle_playerRepository.save(player);
+
+        // Move player to Waiver Wire
+        // TODO fix later when we abstract away from MLE
+        await this.eventsService.publish(EventTopic.PlayerTeamChanged, {
+            organizationId: sprocketPlayer.member.organizationId,
+            discordId: discId.accountId,
+            playerId: sprocketPlayer.id,
+            name: sprocketPlayer.member.profile.name,
+
+            old: {
+                name: oldTeamName,
+            },
+            new: {
+                name: "Waivers",
+            },
+        });
+
         return player;
     }
 
