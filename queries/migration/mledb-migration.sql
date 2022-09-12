@@ -38,10 +38,10 @@ $$
         -- GAME, GAME MODES --
         INSERT INTO sprocket.game ("title") VALUES ('Rocket League') RETURNING id INTO rl_game_id;
         INSERT INTO sprocket.game_mode ("code", "description", "teamSize", "teamCount", "gameId")
-        VALUES ('RL_DOUBLES', 'Doubles', 1, 2, rl_game_id)
+        VALUES ('RL_DOUBLES', 'Doubles', 2, 2, rl_game_id)
         RETURNING id INTO rl_doubles_game_mode_id;
         INSERT INTO sprocket.game_mode ("code", "description", "teamSize", "teamCount", "gameId")
-        VALUES ('RL_STANDARD', 'Standard', 1, 2, rl_game_id)
+        VALUES ('RL_STANDARD', 'Standard', 3, 2, rl_game_id)
         RETURNING id INTO rl_standard_game_mode_id;
 
         -- CONFERENCES --
@@ -180,7 +180,8 @@ $$
                ('ML', 'Master League', scrimReportWebhook, matchReportWebhook, ml_sg_id, '<:ml:809925633618083870>'),
                ('CL', 'Champion League', scrimReportWebhook, matchReportWebhook, cl_sg_id, '<:_cl:809925633642725427>'),
                ('AL', 'Academy League', scrimReportWebhook, matchReportWebhook, al_sg_id, '<:al:809925633655570470>'),
-               ('FL', 'Foundation League', scrimReportWebhook, matchReportWebhook, fl_sg_id, '<:fl:809925633471545364>');
+               ('FL', 'Foundation League', scrimReportWebhook, matchReportWebhook, fl_sg_id,
+                '<:fl:809925633471545364>');
 
         -- TEAMS --
         INSERT INTO sprocket.team ("franchiseId", "skillGroupId") (SELECT F.id, GSG.id
@@ -211,26 +212,33 @@ $$
                                                                          LEFT JOIN sprocket.user_profile UP ON UP."userId" = U.id);
 
         -- PLAYERS --
-        INSERT INTO sprocket.player ("memberId", "skillGroupId", salary) (SELECT M.id,
-                                                                                 (CASE
-                                                                                      WHEN (MLE.league = 'PREMIER')
-                                                                                          THEN (pl_sg_id)
-                                                                                      WHEN (MLE.league = 'MASTER')
-                                                                                          THEN (ml_sg_id)
-                                                                                      WHEN (MLE.league = 'CHAMPION')
-                                                                                          THEN (cl_sg_id)
-                                                                                      WHEN (MLE.league = 'ACADEMY')
-                                                                                          THEN (al_sg_id)
-                                                                                      WHEN (MLE.league = 'FOUNDATION')
-                                                                                          THEN (fl_sg_id) END),
-                                                                                 MLE.salary
-                                                                          FROM sprocket.member M
-                                                                                   LEFT JOIN sprocket."user" U on U.id = m."userId"
-                                                                                   LEFT JOIN mledb_bridge.player_to_user BRIDGE ON BRIDGE."userId" = U.id
-                                                                                   LEFT JOIN mledb.player MLE ON MLE.id = BRIDGE."playerId"
-                                                                          WHERE MLE.league IN
-                                                                                ('FOUNDATION', 'ACADEMY', 'CHAMPION',
-                                                                                 'MASTER', 'PREMIER'));
+        WITH PLAYERS AS (INSERT INTO sprocket.player ("memberId", "skillGroupId", salary) (SELECT M.id,
+                                                                                                  (CASE
+                                                                                                       WHEN (MLE.league = 'PREMIER')
+                                                                                                           THEN (pl_sg_id)
+                                                                                                       WHEN (MLE.league = 'MASTER')
+                                                                                                           THEN (ml_sg_id)
+                                                                                                       WHEN (MLE.league = 'CHAMPION')
+                                                                                                           THEN (cl_sg_id)
+                                                                                                       WHEN (MLE.league = 'ACADEMY')
+                                                                                                           THEN (al_sg_id)
+                                                                                                       WHEN (MLE.league = 'FOUNDATION')
+                                                                                                           THEN (fl_sg_id) END),
+                                                                                                  MLE.salary
+                                                                                           FROM sprocket.member M
+                                                                                                    LEFT JOIN sprocket."user" U on U.id = m."userId"
+                                                                                                    LEFT JOIN mledb_bridge.player_to_user BRIDGE ON BRIDGE."userId" = U.id
+                                                                                                    LEFT JOIN mledb.player MLE ON MLE.id = BRIDGE."playerId"
+                                                                                           WHERE MLE.league IN
+                                                                                                 ('FOUNDATION',
+                                                                                                  'ACADEMY', 'CHAMPION',
+                                                                                                  'MASTER',
+                                                                                                  'PREMIER')) RETURNING id, "memberId")
+        INSERT
+        INTO mledb_bridge.player_to_player ("mledPlayerId", "sprocketPlayerId") (SELECT BRIDGE."playerId", SPR.id
+                                                                                 FROM PLAYERS SPR
+                                                                                          LEFT JOIN sprocket.member M ON M.id = SPR."memberId"
+                                                                                          LEFT JOIN mledb_bridge.player_to_user BRIDGE ON BRIDGE."userId" = M."userId");
 
         -- MATCHES --
         INSERT INTO mledb_bridge.season_to_schedule_group ("seasonNumber", "scheduleGroupId") (SELECT S.season_number, nextval('sprocket."schedule_group_id_seq"')
