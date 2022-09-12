@@ -11,7 +11,7 @@ import IORedis from "ioredis";
 import {config} from "../config";
 
 function createKey(constructorName: string, propertyName: string, args: string[]) {
-    return `${constructorName}.${propertyName}:${args.join("-")}`;
+    return `${constructorName}:${propertyName}:${args.join("-")}`;
 }
 
 const logger = new Logger("Cache");
@@ -110,8 +110,19 @@ export const Cache: (co: CacheOptions) => MethodDecorator = ({
             return v;
         });
 
+        /*
+        MyClass {
+            @Cache()
+            x(a, b, @CacheKey c, @CacheKey d) {}
+        }
+
+        myClass.x(1, 2, 3, 4) -> 7
+        MyClass-x-3-4 -> 7
+         */
+
         // Smash all the cache keys together and make one big redis key
         const key = createKey(target.constructor.name, propertyKey.toString(), cacheValues);
+
         // Grab redis (and connect if we haven't already)
         const r = await getRedisClient();
         // Check for a cached value
@@ -123,15 +134,15 @@ export const Cache: (co: CacheOptions) => MethodDecorator = ({
             ratio.hits++;
 
             if (verbose) {
-                logger.verbose(`
-Subject: ${target.constructor.name}.${subject}
-Key: ${key}
-Status: Hit | ${inUniques.join(";")}
-Stats: ${ratio.hits} Hits | ${ratio.misses} Misses
-Unique Value Stats: ${Object.entries(ratio.uniques).map(([k, v]) => `${k}:${v.size}`)
-        .join(";")} 
-Cached Value: ${JSON.stringify(cachedValue)}
-                  `);
+                //                 logger.verbose(`
+                // Subject: ${target.constructor.name}.${subject}
+                // Key: ${key}
+                // Status: Hit | ${inUniques.join(";")}
+                // Stats: ${ratio.hits} Hits | ${ratio.misses} Misses
+                // Unique Value Stats: ${Object.entries(ratio.uniques).map(([k, v]) => `${k}:${v.size}`)
+                //         .join(";")}
+                // Cached Value: ${JSON.stringify(cachedValue)}
+                //                   `);
             }
 
             return JSON.parse(cachedValue);
@@ -141,19 +152,19 @@ Cached Value: ${JSON.stringify(cachedValue)}
         // Cache the result
         await r.set(key, JSON.stringify(v), "px", ttl);
         ratio.misses++;
-
         if (verbose) {
-            logger.verbose(`
-Subject: ${target.constructor.name}.${subject}
-Key: ${key}
-Status: Miss | ${inUniques.join(";")}
-Stats: ${ratio.hits} Hits | ${ratio.misses} Misses
-Unique Value Stats: ${Object.entries(ratio.uniques).map(([k, set]) => `${k}:${set.size}`)
-        .join(";")} 
-Function Result: ${JSON.stringify(v)}
-Re-Fetch: ${await r.get(key)}
-TTL: ${ttl}
-                  `);
+
+            //             logger.verbose(`
+            // Subject: ${target.constructor.name}.${subject}
+            // Key: ${key}
+            // Status: Miss | ${inUniques.join(";")}
+            // Stats: ${ratio.hits} Hits | ${ratio.misses} Misses
+            // Unique Value Stats: ${Object.entries(ratio.uniques).map(([k, set]) => `${k}:${set.size}`)
+            //         .join(";")}
+            // Function Result: ${JSON.stringify(v)}
+            // Re-Fetch: ${await r.get(key)}
+            // TTL: ${ttl}
+            //                   `);
         }
 
         // Return the result

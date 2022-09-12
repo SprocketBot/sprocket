@@ -11,7 +11,7 @@ export class ScheduleGroupService {
               private readonly scheduleGroupRepo: Repository<ScheduleGroup>) {
     }
 
-    async getScheduleGroups(orgId: number, type: string, gameId?: number, current?: boolean): Promise<ScheduleGroup[]> {
+    async getScheduleGroups(orgId: number, type: string, gameId?: number, current: boolean = true): Promise<ScheduleGroup[]> {
         const conditions: FindOptionsWhere<ScheduleGroup> = {
             type: {
                 code: type,
@@ -26,8 +26,8 @@ export class ScheduleGroupService {
             };
         }
         if (current) {
-            conditions.start = Raw(alias => `${alias} > CURRENT_TIMESTAMP()`);
-            conditions.end = Raw(alias => `${alias} < CURRENT_TIMESTAMP()`);
+            conditions.start = Raw(alias => `${alias} < CURRENT_TIMESTAMP`);
+            conditions.end = Raw(alias => `${alias} > CURRENT_TIMESTAMP`);
         }
 
         return this.scheduleGroupRepo.find({

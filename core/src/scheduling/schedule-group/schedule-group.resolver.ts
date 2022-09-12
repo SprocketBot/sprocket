@@ -1,7 +1,6 @@
 import {
     ResolveField, Resolver, Root,
 } from "@nestjs/graphql";
-import {Cache, CacheKey} from "@sprocketbot/common/lib/util/caching";
 
 import type {
     Game, ScheduleFixture, ScheduleGroupType,
@@ -14,13 +13,7 @@ export class ScheduleGroupResolver {
     constructor(private readonly populate: PopulateService) {}
 
     @ResolveField()
-    @Cache({
-        ttl: 20000,
-        transformers: {
-            root: (root: ScheduleGroup) => root.id.toString(),
-        },
-    })
-    async type(@Root() @CacheKey root: ScheduleGroup): Promise<ScheduleGroupType> {
+    async type(@Root() root: ScheduleGroup): Promise<ScheduleGroupType> {
         if (root.type) return root.type;
         return this.populate.populateOneOrFail(ScheduleGroup, root, "type");
     }

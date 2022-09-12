@@ -30,6 +30,7 @@ export class LeagueScheduleStore extends QueryStore<LeagueScheduleValue, LeagueS
               childGroups {
                   id
                   description
+                  start
                   fixtures {
                       id
                       homeFranchise {

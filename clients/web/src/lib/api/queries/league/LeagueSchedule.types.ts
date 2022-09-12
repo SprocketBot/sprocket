@@ -30,6 +30,7 @@ export interface LeagueScheduleValue {
         };
         childGroups: Array<{
             id: number;
+            start: Date;
             description: string;
             fixtures: LeagueScheduleFixture[];
         }>;
