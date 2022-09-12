@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {FindOptionsWhere} from "typeorm";
-import {Repository} from "typeorm";
+import {Raw, Repository} from "typeorm";
 
 import {ScheduleGroup} from "../../database";
 
@@ -11,7 +11,7 @@ export class ScheduleGroupService {
               private readonly scheduleGroupRepo: Repository<ScheduleGroup>) {
     }
 
-    async getScheduleGroups(orgId: number, type: string, gameId?: number): Promise<ScheduleGroup[]> {
+    async getScheduleGroups(orgId: number, type: string, gameId?: number, current: boolean = true): Promise<ScheduleGroup[]> {
         const conditions: FindOptionsWhere<ScheduleGroup> = {
             type: {
                 code: type,
@@ -24,6 +24,10 @@ export class ScheduleGroupService {
             conditions.game = {
                 id: gameId,
             };
+        }
+        if (current) {
+            conditions.start = Raw(alias => `${alias} < CURRENT_TIMESTAMP`);
+            conditions.end = Raw(alias => `${alias} > CURRENT_TIMESTAMP`);
         }
 
         return this.scheduleGroupRepo.find({

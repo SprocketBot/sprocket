@@ -23,10 +23,10 @@ import {LeagueScheduleStore} from "$lib/api";
 		{:else if schedule}
 			<h2 class="text-2xl text-accent font-bold">{schedule.game.title} | {schedule.description}</h2>
 			<div class="grid grid-cols-1 gap-4">
-			{#each schedule.childGroups as week, wi (week?.id)}
+			{#each schedule.childGroups.sort((a, b) => new Date(a.start) - new Date(b.start)) as week, wi (week?.id)}
 				<div>
 				<h3 class="text-lg text-accent font-bold text-center">{week.description}</h3>
-				<div class="grid grid-cols-2 gap-4">
+				<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
 					{#each week.fixtures as fixture (fixture?.id)}
 						<FixtureCard {fixture}/>
 					{/each}

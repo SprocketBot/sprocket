@@ -30,7 +30,6 @@ export class ScheduleGroupResolver {
         return this.populate.populateOne(ScheduleGroup, root, "parentGroup");
     }
 
-    //
     @ResolveField()
     async childGroups(@Root() root: ScheduleGroup): Promise<ScheduleGroup[]> {
         if (root.childGroups) return root.childGroups;

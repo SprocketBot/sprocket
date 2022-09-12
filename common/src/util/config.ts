@@ -1,5 +1,5 @@
 import _config from "config";
-import {readFileSync} from "fs";
+import {existsSync, readFileSync} from "fs";
 
 export const config = {
     auth: {
@@ -39,13 +39,24 @@ export const config = {
     },
     cache: {
         get port(): number {
-            return _config.get<number>("cache.port");
+            if (_config.has("cache.port")) return _config.get<number>("cache.port");
+            return _config.get<number>("redis.port");
         },
         get host(): string {
-            return _config.get<string>("cache.host");
+            if (_config.has("cache.host")) return _config.get<string>("cache.host");
+            return _config.get<string>("redis.host");
         },
         get password(): string {
-            return _config.get<string>("cache.password");
+            if (existsSync("./secret/cache-password.txt")) {
+                return readFileSync("./secret/cache-password.txt").toString()
+                    .trim();
+            }
+            return readFileSync("./secret/redis-password.txt").toString()
+                .trim();
+        },
+        get secure(): boolean {
+            if (_config.has("cache.secure")) return _config.get<boolean>("cache.secure");
+            return _config.get<boolean>("redis.secure");
         },
     },
     celery: {

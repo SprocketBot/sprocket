@@ -1,10 +1,18 @@
-import {cacheKeyMetadatakey} from "./constants";
+import {Logger} from "@nestjs/common";
 
-export const CacheKey: ParameterDecorator = (target: Object, name: string | Symbol, parameterIndex: number): void => {
+const logger = new Logger("CacheKey");
+
+export function CacheKey(target: Object, name: string | Symbol, parameterIndex: number): void {
     let existingKeys: number[] = [];
-    if (Reflect.getMetadataKeys(target).includes(cacheKeyMetadatakey)) {
-        existingKeys = Reflect.getMetadata(target, cacheKeyMetadatakey) as number[];
+    try {
+        if (Reflect.getMetadataKeys(target).includes(`sprocketcommon-cachekey-${name}`)) {
+            existingKeys = Reflect.getMetadata(`sprocketcommon-cachekey-${name}`, target) as number[];
+        }
+        existingKeys.push(parameterIndex);
+        Reflect.defineMetadata(`sprocketcommon-cachekey-${name}`, existingKeys, target);
+    } catch (e) {
+        logger.error("Failed to create CacheKey", e);
+        throw e;
     }
-    existingKeys.push(parameterIndex);
-    Reflect.defineMetadata(cacheKeyMetadatakey, existingKeys, target);
-};
+
+}
