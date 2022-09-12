@@ -3,6 +3,7 @@ import type {MiddlewareConsumer, NestModule} from "@nestjs/common";
 import {Module} from "@nestjs/common";
 import {GraphQLModule} from "@nestjs/graphql";
 import {config} from "@sprocketbot/common";
+import {RedisCache} from "apollo-server-cache-redis";
 import {graphqlUploadExpress} from "graphql-upload";
 
 import {ConfigurationModule} from "./configuration";
@@ -28,6 +29,19 @@ import {UtilModule} from "./util/util.module";
         GraphQLModule.forRoot({
             autoSchemaFile: true,
             installSubscriptionHandlers: true,
+            cache: new RedisCache({
+                host: config.cache.host,
+                port: config.cache.port,
+                password: config.cache.password,
+                keyPrefix: "gql_cache__",
+                db: 13,
+                tls: config.cache.secure
+                    ? {
+                            host: config.cache.host,
+                            servername: config.cache.host,
+                        }
+                    : undefined,
+            }),
             playground: config.gql.playground,
             fieldResolverEnhancers: ["guards"],
             context: ({
