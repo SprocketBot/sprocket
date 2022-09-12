@@ -431,6 +431,8 @@ export class PlayerService {
         const discId = sprocketPlayer.member.user.authenticationAccounts.find(aa => aa.accountType === UserAuthenticationAccountType.DISCORD);
         if (!discId) throw new Error("No discord Id");
 
+        const sg = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
+
         let player = await this.mle_playerRepository.findOneOrFail({
             where: {
                 discordId: discId.accountId,
@@ -440,7 +442,7 @@ export class PlayerService {
         player = this.mle_playerRepository.merge(player, {
             role: Role.NONE,
             teamName: "WW",
-            league: LeagueOrdinals[skillGroupId],
+            league: LeagueOrdinals[sg.ordinal - 1],
             salary: salary,
         });
 
