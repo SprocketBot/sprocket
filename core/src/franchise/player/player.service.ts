@@ -416,6 +416,39 @@ export class PlayerService {
         return LeagueOrdinals[LeagueOrdinals.indexOf(league) - dir];
     }
 
+    async mle_MovePlayerToLeague(sprocPlayerId: number, salary: number, skillGroupId: number): Promise<MLE_Player> {
+        const sprocketPlayer = await this.getPlayer({
+            where: {id: sprocPlayerId},
+            relations: {
+                member: {
+                    profile: true,
+                    user: {
+                        authenticationAccounts: true,
+                    },
+                },
+            },
+        });
+        const discId = sprocketPlayer.member.user.authenticationAccounts.find(aa => aa.accountType === UserAuthenticationAccountType.DISCORD);
+        if (!discId) throw new Error("No discord Id");
+
+        let player = await this.mle_playerRepository.findOneOrFail({
+            where: {
+                discordId: discId.accountId,
+            },
+        });
+
+        player = this.mle_playerRepository.merge(player, {
+            role: Role.NONE,
+            teamName: "WW",
+            league: LeagueOrdinals[skillGroupId],
+            salary: salary,
+        });
+
+        await this.mle_playerRepository.save(player);
+
+        return player;
+    }
+
     async mle_rankDownPlayer(sprocPlayerId: number, salary: number): Promise<MLE_Player> {
         const sprocketPlayer = await this.getPlayer({
             where: {id: sprocPlayerId},

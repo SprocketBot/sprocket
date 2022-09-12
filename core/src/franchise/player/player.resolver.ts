@@ -130,7 +130,7 @@ export class PlayerResolver {
         };
         
         await this.playerService.updatePlayerStanding(playerId, salary, skillGroupId);
-        await this.playerService.mle_rankDownPlayer(playerId, salary);
+        await this.playerService.mle_MovePlayerToLeague(playerId, salary, skillGroupId);
         await this.eloConnectorService.createJob(EloEndpoint.SGChange, inputData);
 
         await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
