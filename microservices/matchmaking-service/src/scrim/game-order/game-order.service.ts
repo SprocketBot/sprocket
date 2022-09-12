@@ -61,10 +61,7 @@ export class GameOrderService {
             })),
         };
 
-        // Fill out a 5-game order
-        // return [ {...games}, {...games}, {...games}, {...games}, {...games} ];
-
-        // TO:
+        // Fill out a 3-game order
         return [ {...games}, {...games}, {...games} ];
     }
 
