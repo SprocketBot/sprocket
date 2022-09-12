@@ -72,6 +72,7 @@ export class FinalizationSubscriber {
                 },
             });
 
+            if (!scrim.settings.competitive) return;
             const eloPayload = this.matchService.translatePayload(result.scrim.parent, true);
             await this.eloConnectorService.createJob(EloEndpoint.CalculateEloForMatch, eloPayload);
         } catch (_e) {
