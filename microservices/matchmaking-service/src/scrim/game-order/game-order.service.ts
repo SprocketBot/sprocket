@@ -62,7 +62,10 @@ export class GameOrderService {
         };
 
         // Fill out a 5-game order
-        return [ {...games}, {...games}, {...games}, {...games}, {...games} ];
+        // return [ {...games}, {...games}, {...games}, {...games}, {...games} ];
+
+        // TO:
+        return [ {...games}, {...games}, {...games} ];
     }
 
     private generateRoundRobinGameOrder(scrim: Scrim): ScrimGame[] {
@@ -75,7 +78,7 @@ export class GameOrderService {
             check: ([teamA, teamB]) => teamA.every(playerA => !teamB.find(playerB => playerA.id === playerB.id)),
         });
         shuffle(possibleGames);
-        const numGames = 5; // for now
+        const numGames = 3; // for now
         for (let i = 0;i < numGames;i++) {
             output.push({
                 teams: possibleGames[i % possibleGames.length].map(players => ({players})),
