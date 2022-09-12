@@ -2,6 +2,7 @@ import {
     Field, ObjectType,
 } from "@nestjs/graphql";
 import {
+    Column,
     Entity, ManyToOne, OneToMany,
 } from "typeorm";
 
@@ -32,7 +33,9 @@ export class ScheduleFixture extends BaseModel {
     @Field(() => [Match])
     matches: Match[];
 
+    @Column()
     awayFranchiseId: number;
 
+    @Column()
     homeFranchiseId: number;
 }

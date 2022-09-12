@@ -54,6 +54,7 @@ import {UtilModule} from "./util/util.module";
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 return {req};
             },
+            tracing: true,
 
             // https://stackoverflow.com/questions/63991157/how-do-i-upload-multiple-files-with-nestjs-graphql
             uploads: false,

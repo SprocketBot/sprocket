@@ -39,7 +39,7 @@
         <!-- Sidebar -->
         <div class="drawer-side">
             <label for="nav-drawer" class="drawer-overlay"></label>
-            <div class="px-4 w-56 py-16 bg-gray-900">
+            <div class="px-4 w-56 py-16 bg-gray-900 lg:bg-transparent">
                 <Navigation />
                 <slot name="sidebar" />
             </div>

@@ -4,6 +4,7 @@ import {
     ResolveField, Resolver, Root,
 } from "@nestjs/graphql";
 import {InjectRepository} from "@nestjs/typeorm";
+import {Cache, CacheKey} from "@sprocketbot/common/lib/util/caching";
 import {Repository} from "typeorm";
 
 import type {
@@ -37,13 +38,26 @@ export class ScheduleFixtureResolver {
     }
 
     @ResolveField()
-    async homeFranchise(@Root() root: ScheduleFixture): Promise<Franchise> {
+    @Cache({
+        ttl: 20000,
+        verbose: true,
+        transformers: {
+            root: (root: ScheduleFixture) => root.homeFranchiseId.toString(),
+        },
+    })
+    async homeFranchise(@Root() @CacheKey root: ScheduleFixture): Promise<Franchise> {
         if (root.homeFranchise) return root.homeFranchise;
         return this.populate.populateOneOrFail(ScheduleFixture, root, "homeFranchise");
 
     }
 
     @ResolveField()
+    @Cache({
+        ttl: 20000,
+        transformers: {
+            root: (root: ScheduleFixture) => root.awayFranchiseId.toString(),
+        },
+    })
     async awayFranchise(@Root() root: ScheduleFixture): Promise<Franchise> {
         if (root.awayFranchise) return root.awayFranchise;
 

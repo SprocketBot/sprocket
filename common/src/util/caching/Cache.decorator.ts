@@ -48,6 +48,8 @@ async function getRedisClient(): Promise<Redis> {
 export const Cache: (co: CacheOptions) => MethodDecorator = ({
     ttl, transformers, verbose,
 }: CacheOptions = {ttl: 500}) => function(target: Object, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
+
+    // Only for display purposes; when using verbose mode
     const ratio = {
         total: 0, hits: 0, misses: 0, uniques: {} as Record<string, Set<string>>,
     };
@@ -83,6 +85,7 @@ export const Cache: (co: CacheOptions) => MethodDecorator = ({
     if (verbose) logger.verbose(`Caching has been attached to ${subject}. Keyed Params: ${JSON.stringify(cacheKeys.map(i => paramNames[i]))}`);
 
     descriptor.value = async function(...args: any[]) {
+        // Debugging Only
         const inUniques: boolean[] = [];
 
         const cacheValues: string[] = cacheKeys.map(keyIndex => {

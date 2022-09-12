@@ -26,7 +26,7 @@ import {LeagueScheduleStore} from "$lib/api";
 			{#each schedule.childGroups as week, wi (week?.id)}
 				<div>
 				<h3 class="text-lg text-accent font-bold text-center">{week.description}</h3>
-				<div class="grid grid-cols-2 gap-4">
+				<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
 					{#each week.fixtures as fixture (fixture?.id)}
 						<FixtureCard {fixture}/>
 					{/each}
