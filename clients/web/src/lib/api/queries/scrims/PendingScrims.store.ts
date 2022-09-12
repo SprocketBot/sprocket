@@ -17,6 +17,11 @@ export interface PendingScrim {
         competitive: boolean;
         mode: string;
     };
+    skillGroup: {
+        profile: {
+            description: string;
+        };
+    };
 }
 
 
@@ -50,6 +55,11 @@ class PendingScrimsStore extends LiveQueryStore<PendingScrimsData, PendingScrims
                 competitive
                 mode
             }
+            skillGroup {
+                profile {
+                    description
+                }
+            }
         }
     }`;
 
@@ -69,6 +79,11 @@ class PendingScrimsStore extends LiveQueryStore<PendingScrimsData, PendingScrims
                 settings {
                     competitive
                     mode
+                }
+                skillGroup {
+                    profile {
+                        description
+                    }
                 }
             }
         }
