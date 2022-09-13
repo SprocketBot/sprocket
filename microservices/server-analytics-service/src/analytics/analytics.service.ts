@@ -19,11 +19,17 @@ export class AnalyticsService {
     private readonly flush: DebouncedFunc<() => void>;
 
     constructor() {
+        const influxUrl = config.get<string>("influx.address");
+        const influxOrg = config.get<string>("influx.org");
+        const influxBucket = config.get<string>("influx.bucket");
+
         this.influx = new InfluxDB({
-            url: config.get("influx.address"),
+            url: influxUrl,
             token: fs.readFileSync("secret/influx-token").toString(),
         });
-        this.writeApi = this.influx.getWriteApi(config.get("influx.org"), config.get("influx.bucket"), "ms");
+        this.writeApi = this.influx.getWriteApi(influxOrg, influxBucket, "ms");
+        this.logger.log(`Connected to InfluxDB, url='${influxUrl}', org='${influxOrg}', bucket='${influxBucket}'`);
+
         const flushThrottle = 1000;
         this.flush = throttle<() => void>(() => {
             this.writeApi.flush()
