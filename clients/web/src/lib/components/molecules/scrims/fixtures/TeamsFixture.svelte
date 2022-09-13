@@ -6,9 +6,7 @@
 </script>
 
 
-{#if scrim.gameMode.description === "Duel"}
-    <GameCard game={scrim.games[0]} title="Duel Series - All 5 Games MUST be played"/>
-    {:else }
-    <GameCard game={scrim.games[0]} title="Teams"/>
-{/if}
+
+    <GameCard game={scrim.games[0]} title="Teams Series - Play All 5 Games"/>
+
 
