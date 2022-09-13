@@ -3,6 +3,7 @@ import {ClientsModule, Transport} from "@nestjs/microservices";
 
 import {CommonClient} from "./global.types";
 import {config} from "./util/config";
+import {UtilModule} from "./util/util.module";
 
 const client = ClientsModule.register([
     {
@@ -47,12 +48,68 @@ const client = ClientsModule.register([
             },
         },
     },
+    {
+        name: CommonClient.ImageGeneration,
+        transport: Transport.RMQ,
+        options: {
+            urls: [config.transport.url] as string[],
+            queue: config.transport.image_generation_queue,
+            queueOptions: {
+                durable: true,
+            },
+            socketOptions: {
+                heartbeat: 120,
+            },
+        },
+    },
+    {
+        name: CommonClient.Core,
+        transport: Transport.RMQ,
+        options: {
+            urls: [config.transport.url] as string[],
+            queue: config.transport.core_queue,
+            queueOptions: {
+                durable: true,
+            },
+            socketOptions: {
+                heartbeat: 120,
+            },
+        },
+    },
+    {
+        name: CommonClient.Submission,
+        transport: Transport.RMQ,
+        options: {
+            urls: [config.transport.url] as string[],
+            queue: config.transport.submission_queue,
+            queueOptions: {
+                durable: true,
+            },
+            socketOptions: {
+                heartbeat: 120,
+            },
+        },
+    },
+    {
+        name: CommonClient.Notification,
+        transport: Transport.RMQ,
+        options: {
+            urls: [config.transport.url] as string[],
+            queue: config.transport.notification_queue,
+            queueOptions: {
+                durable: true,
+            },
+            socketOptions: {
+                heartbeat: 120,
+            },
+        },
+    },
 ]);
 
 @Global()
 @Module({
-    imports: [client],
+    imports: [client, UtilModule],
     exports: [client],
-    providers: [],
 })
 export class GlobalModule {}
+

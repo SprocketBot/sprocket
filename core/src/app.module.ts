@@ -1,28 +1,49 @@
+import {BullModule} from "@nestjs/bull";
 import type {MiddlewareConsumer, NestModule} from "@nestjs/common";
 import {Module} from "@nestjs/common";
 import {GraphQLModule} from "@nestjs/graphql";
+import {config} from "@sprocketbot/common";
+import {RedisCache} from "apollo-server-cache-redis";
 import {graphqlUploadExpress} from "graphql-upload";
 
-import {ConfigurationModule} from "./configuration/configuration.module";
-import {DatabaseModule} from "./database/database.module";
-import {GameModule} from "./game/game.module";
-import {AuthModule} from "./identity/auth/auth.module";
-import {IdentityModule} from "./identity/identity.module";
-import {UserService} from "./identity/user/user.service";
-import {MledbInterfaceModule} from "./mledb/mledb-interface.module";
-import {OrganizationModule} from "./organization/organization.module";
-import {ReplayParseModule} from "./replay-parse/replay-parse.module";
-import {SchedulingModule} from "./scheduling/scheduling.module";
-import {ScrimModule} from "./scrim/scrim.module";
-import {config} from "./util/config";
-
+import {ConfigurationModule} from "./configuration";
+import {DatabaseModule} from "./database";
+import {EloModule} from "./elo";
+import {FranchiseModule} from "./franchise";
+import {GameModule} from "./game";
+import {IdentityModule} from "./identity";
+import {AuthModule} from "./identity/auth";
+import {ImageGenerationModule} from "./image-generation";
+import {MledbInterfaceModule} from "./mledb";
+import {NotificationModule} from "./notification/notification.module";
+import {OrganizationModule} from "./organization";
+import {ReplayParseModule} from "./replay-parse";
+import {SchedulingModule} from "./scheduling";
+import {ScrimModule} from "./scrim";
+import {SprocketRatingModule} from "./sprocket-rating";
+import {SubmissionModule} from "./submission";
+import {UtilModule} from "./util/util.module";
 
 @Module({
     imports: [
         GraphQLModule.forRoot({
             autoSchemaFile: true,
             installSubscriptionHandlers: true,
+            cache: new RedisCache({
+                host: config.cache.host,
+                port: config.cache.port,
+                password: config.cache.password,
+                keyPrefix: "gql_cache__",
+                db: 13,
+                tls: config.cache.secure
+                    ? {
+                            host: config.cache.host,
+                            servername: config.cache.host,
+                        }
+                    : undefined,
+            }),
             playground: config.gql.playground,
+            fieldResolverEnhancers: ["guards"],
             context: ({
                 connection, req, payload,
             }) => {
@@ -33,9 +54,25 @@ import {config} from "./util/config";
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 return {req};
             },
+            tracing: true,
 
             // https://stackoverflow.com/questions/63991157/how-do-i-upload-multiple-files-with-nestjs-graphql
             uploads: false,
+        }),
+        BullModule.forRoot({
+            redis: {
+                host: config.redis.host,
+                port: config.redis.port,
+                password: config.redis.password,
+                tls: config.redis.secure
+                    ? {
+                            host: config.redis.host,
+                            servername: config.redis.host,
+                        }
+                    : undefined,
+                keyPrefix: `${config.redis.prefix}:bull`,
+            },
+            prefix: `${config.redis.prefix}:bull`,
         }),
         OrganizationModule,
         IdentityModule,
@@ -47,8 +84,14 @@ import {config} from "./util/config";
         AuthModule,
         SchedulingModule,
         MledbInterfaceModule,
+        FranchiseModule,
+        ImageGenerationModule,
+        SprocketRatingModule,
+        UtilModule,
+        EloModule,
+        SubmissionModule,
+        NotificationModule,
     ],
-    providers: [UserService],
 })
 export class AppModule implements NestModule {
     configure(consumer: MiddlewareConsumer): void {

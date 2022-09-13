@@ -16,7 +16,6 @@ export let client: Client;
 export const clientPromise: Promise<void> = new Promise(r => {
     clientAvailable = r;
 });
-import type {App} from "@sveltejs/kit";
 import {session} from "$app/stores";
 
 export function initializeClient(sessionInput: App.Session): void {
@@ -25,8 +24,10 @@ export function initializeClient(sessionInput: App.Session): void {
         sessionData = d;
     });
 
+    const {secure, gqlUrl} = sessionData.config;
+
     const wsClient = browser
-        ? new SubscriptionClient(`ws${sessionData.secure ? "s" : ""}://${sessionData.gqlUrl}`, {
+        ? new SubscriptionClient(`ws${secure ? "s" : ""}://${gqlUrl}/graphql`, {
             minTimeout: 10000,
             reconnect: true,
             lazy: true,
@@ -35,7 +36,7 @@ export function initializeClient(sessionInput: App.Session): void {
         : null;
 
     client = new Client({
-        url: `http${sessionData.secure ? "s" : ""}://${sessionData.gqlUrl}`,
+        url: `http${secure ? "s" : ""}://${gqlUrl}/graphql`,
         exchanges: [
             dedupExchange,
             cacheExchange,

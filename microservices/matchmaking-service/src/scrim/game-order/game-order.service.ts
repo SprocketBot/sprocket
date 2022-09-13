@@ -17,8 +17,8 @@ export class GameOrderService {
 
     generateGameOrder(scrim: Scrim): ScrimGame[] {
         switch (scrim.settings.mode) {
-            case ScrimMode.BEST_OF:
-                return this.generateBestOfGameOrder(scrim);
+            case ScrimMode.TEAMS:
+                return this.generateTeamsGameOrder(scrim);
             case ScrimMode.ROUND_ROBIN:
                 return this.generateRoundRobinGameOrder(scrim);
             default:
@@ -26,7 +26,7 @@ export class GameOrderService {
         }
     }
 
-    private generateBestOfGameOrder(scrim: Scrim): ScrimGame[] {
+    private generateTeamsGameOrder(scrim: Scrim): ScrimGame[] {
         const playerCombinations: ScrimPlayer[][] = new Array(scrim.settings.teamCount).fill(null)
             .map(() => []) as ScrimPlayer[][];
         const groups = this.scrimGroupService.getScrimGroups(scrim);
@@ -61,8 +61,8 @@ export class GameOrderService {
             })),
         };
 
-        // Fill out a 5-game order
-        return [ {...games}, {...games}, {...games}, {...games}, {...games} ];
+        // Fill out a 3-game order
+        return [ {...games}, {...games}, {...games} ];
     }
 
     private generateRoundRobinGameOrder(scrim: Scrim): ScrimGame[] {
@@ -75,7 +75,7 @@ export class GameOrderService {
             check: ([teamA, teamB]) => teamA.every(playerA => !teamB.find(playerB => playerA.id === playerB.id)),
         });
         shuffle(possibleGames);
-        const numGames = 5; // for now
+        const numGames = 3; // for now
         for (let i = 0;i < numGames;i++) {
             output.push({
                 teams: possibleGames[i % possibleGames.length].map(players => ({players})),

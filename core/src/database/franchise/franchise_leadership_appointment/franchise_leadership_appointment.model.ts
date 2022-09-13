@@ -5,7 +5,8 @@ import {FranchiseLeadershipSeat} from "../../authorization/franchise_leadership_
 import {BaseModel} from "../../base-model";
 import {Member} from "../../organization/member";
 import {Franchise} from "../franchise";
-@Entity({ schema: "sprocket" })
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class FranchiseLeadershipAppointment extends BaseModel {
     @ManyToOne(() => Franchise)

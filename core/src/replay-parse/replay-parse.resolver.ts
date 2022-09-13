@@ -1,38 +1,46 @@
-import {Inject, UploadedFiles, UseGuards, UseInterceptors} from "@nestjs/common";
-import {Args, Mutation, Resolver, Subscription} from "@nestjs/graphql";
-import {PubSub} from "apollo-server-express";
+import {
+    ResolveField, Resolver, Root,
+} from "@nestjs/graphql";
+import {REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID} from "@sprocketbot/common";
 
-import {CurrentUser} from "../identity/auth/current-user.decorator";
-import {GqlJwtGuard} from "../identity/auth/gql-auth-guard/gql-jwt-guard";
-import {UserPayload} from "../identity/auth/oauth/types/userpayload.type";
-import {ReplayParsePubSub} from "./replay-parse.constants";
-import {ReplayParseService} from "./replay-parse.service";
-import {ReplayParseProgress} from "./replay-parse.types";
-import {FilesInterceptor} from "@nestjs/platform-express";
+import {
+    CurrentUser, UserPayload, UserService,
+} from "../identity";
+import {
+    GqlReplaySubmission,
+    ReplaySubmission, SubmissionRejection,
+} from "./types";
 
-@Resolver()
-@UseGuards(GqlJwtGuard)
-export class ReplayParseResolver {
-    constructor(
-        private readonly rpService: ReplayParseService,
-        @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
-    ) {
+@Resolver(() => GqlReplaySubmission)
+export class ReplaySubmissionResolver {
+    @ResolveField(() => Number)
+    ratifications(@Root() submission: ReplaySubmission): number {
+        return submission.ratifiers.length;
     }
 
-    @Mutation(() => [String])
-    @UseInterceptors(FilesInterceptor('files'))
-    async parseReplays(
-        @CurrentUser() user: UserPayload,
-        @UploadedFiles() files: Array<Express.Multer.File>,
-        @Args("submissionId", {nullable: true}) submissionId: string,
-    ): Promise<string[]> {
-        const streams = await Promise.all(files.map(async f => f.stream));
-        return this.rpService.parseReplays(streams, submissionId, {id: user.userId, name: user.username});
+    @ResolveField(() => Boolean)
+    userHasRatified(@CurrentUser() cu: UserPayload, @Root() submission: ReplaySubmission): boolean {
+
+        return submission.ratifiers.some(r => r.toString() === cu.userId.toString());
+    }
+}
+
+@Resolver(() => SubmissionRejection)
+export class SubmissionRejectionResolver {
+    constructor(private readonly userService: UserService) {}
+
+    @ResolveField(() => String)
+    async playerName(@Root() rejection: SubmissionRejection): Promise<string> {
+        if (rejection.playerName) return rejection.playerName;
+        if (rejection.playerId === REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID) return "Sprocket";
+        // TODO: Is it possible to map to an organization from here?
+
+        const user = await this.userService.getUserById(parseInt(rejection.playerId.toString()));
+        return user.profile.displayName;
     }
 
-    @Subscription(() => ReplayParseProgress)
-    async followReplayParse(@Args("submissionId") submissionId: string): Promise<AsyncIterator<ReplayParseProgress>> {
-        this.rpService.followReplayParse(submissionId);
-        return this.pubsub.asyncIterator(submissionId);
+    @ResolveField(() => String)
+    async reason(@Root() rejection: SubmissionRejection): Promise<string> {
+        return rejection.reason;
     }
 }

@@ -7,7 +7,8 @@ import {BaseModel} from "../../base-model";
 import {Game} from "../../game/game";
 import {ScheduleFixture} from "../schedule_fixture";
 import {ScheduleGroupType} from "../schedule_group_type";
-@Entity({ schema: "sprocket" })
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class ScheduleGroup extends BaseModel {
     @Column()
@@ -31,11 +32,11 @@ export class ScheduleGroup extends BaseModel {
     game: Game;
 
     @ManyToOne(() => ScheduleGroup)
-    @Field(() => ScheduleGroup)
+    @Field(() => ScheduleGroup, {nullable: true})
     parentGroup: ScheduleGroup;
 
     @OneToMany(() => ScheduleGroup, sg => sg.parentGroup)
-    @Field(() => [ScheduleGroup])
+    @Field(() => [ScheduleGroup], {nullable: "items"})
     childGroups: ScheduleGroup[];
 
     @OneToMany(() => ScheduleFixture, sf => sf.scheduleGroup)

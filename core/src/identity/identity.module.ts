@@ -1,15 +1,23 @@
 import {Module} from "@nestjs/common";
 
 import {DatabaseModule} from "../database";
+import {UtilModule} from "../util/util.module";
+import {IdentityController} from "./identity.controller";
 import {IdentityService} from "./identity.service";
-import {UserResolver} from "./user/user.resolver";
-import {UserService} from "./user/user.service";
-import {UserAuthenticationAccountResolver} from "./user-authentication-account/user-authentication-account.resolver";
+import {
+    UserController, UserResolver, UserService,
+} from "./user";
+import {UserAuthenticationAccountResolver} from "./user-authentication-account";
 
 @Module({
-    imports: [DatabaseModule],
-    providers: [IdentityService, UserResolver, UserAuthenticationAccountResolver, UserService],
-    controllers: [],
-    exports: [UserService],
+    imports: [DatabaseModule, UtilModule],
+    providers: [
+        IdentityService,
+        UserResolver,
+        UserAuthenticationAccountResolver,
+        UserService,
+    ],
+    exports: [IdentityService, UserService],
+    controllers: [IdentityController, UserController],
 })
 export class IdentityModule {}

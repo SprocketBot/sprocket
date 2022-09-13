@@ -1,15 +1,15 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {
-    Column,
-    Entity, JoinColumn, OneToMany, OneToOne,
+    Column, Entity, OneToMany, OneToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
+import {Member} from "../../organization";
 import {UserRolesType} from "../roles/user_roles_type.enum";
 import {UserAuthenticationAccount} from "../user_authentication_account";
 import {UserProfile} from "../user_profile";
 
-@Entity({ schema: "sprocket" })
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class User extends BaseModel {
     @OneToMany(() => UserAuthenticationAccount, uaa => uaa.user)
@@ -17,9 +17,8 @@ export class User extends BaseModel {
     authenticationAccounts: UserAuthenticationAccount[];
 
     @OneToOne(() => UserProfile, profile => profile.user)
-    @JoinColumn()
     @Field(() => UserProfile)
-    userProfile: UserProfile;
+    profile: UserProfile;
 
     @Column({
         name: "type",
@@ -29,4 +28,8 @@ export class User extends BaseModel {
         nullable: true,
     })
     type: UserRolesType[];
+
+    @OneToMany(() => Member, m => m.user)
+    @Field(() => [Member])
+    members: Member[];
 }

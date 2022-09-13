@@ -18,9 +18,9 @@ module.exports = {
   },
   plugins: [
     "@typescript-eslint",
-    "simple-import-sort"
+    "simple-import-sort",
   ],
-  ignorePatterns: ["*.cjs", ".eslintrc.js", "jest.config.js", "ormconfig.js", "scripts/*", "*.json"],
+  ignorePatterns: ["*.cjs", ".eslintrc.js", "jest.config.js", "ormconfig.js", "scripts/*", "*.json", "migrations/*"],
   rules: {
     // Configure import sorting since eslint sort-imports doesn't autofix
     "simple-import-sort/imports": "error",
@@ -77,7 +77,7 @@ module.exports = {
     "no-unsafe-negation": "error",                                             /* (r ) disallow negating the left operand of relational operators */
     "no-unsafe-optional-chaining": "error",                                    /* (  ) disallow use of optional chaining in contexts where the `undefined` value is not allowed */
     "no-useless-backreference": "off",                                         /* (  ) disallow useless backreferences in regular expressions */
-    "require-atomic-updates": "error",                                         /* (  ) disallow assignments that can lead to race conditions due to usage of `await` or `yield` */
+    "require-atomic-updates": ["error", {"allowProperties": true}],            /* (  ) disallow assignments that can lead to race conditions due to usage of `await` or `yield` */
     "use-isnan": "error",                                                      /* (r ) require calls to `isNaN()` when checking for `NaN` */
     "valid-typeof": "error",                                                   /* (r ) enforce comparing `typeof` expressions against valid strings */
 
@@ -250,7 +250,7 @@ module.exports = {
     "no-mixed-spaces-and-tabs": "error",                                       /* (r ) disallow mixed spaces and tabs for indentation */
     "no-multi-assign": "error",                                                /* (  ) disallow use of chained assignment expressions */
     "no-multiple-empty-lines": ["error", {                                     /* ( f) disallow multiple empty lines */
-      "max": 3,
+      "max": 1,
       "maxBOF": 0,
       "maxEOF": 1
     }],
@@ -340,7 +340,7 @@ module.exports = {
     "no-duplicate-imports": "off",                                             /* (  ) disallow duplicate module imports */ // Disabled in favor of typescript-eslint rule below
     "no-new-symbol": "error",                                                  /* (r ) disallow `new` operators with the `Symbol` object */
     "no-restricted-exports": "off",                                            /* (  ) disallow specified names in exports */
-    "no-restricted-imports": "off",                                            /* (  ) disallow specified modules when loaded by `import` */
+    "no-restricted-imports": ["error", { "patterns": ["src/*"], }],            /* (  ) disallow specified modules when loaded by `import` */
     "no-this-before-super": "error",                                           /* (r ) disallow `this`/`super` before calling `super()` in constructors */
     "no-useless-computed-key": "error",                                        /* ( f) disallow unnecessary computed property keys in objects and classes */
     "no-useless-constructor": "off",                                           /* (  ) disallow unnecessary constructors */ // Disabled in favor of typescript-eslint rule below
@@ -440,7 +440,7 @@ module.exports = {
     "@typescript-eslint/no-this-alias": "error",                               /* (r  ) Disallow aliasing this */
     "@typescript-eslint/no-type-alias": "off",                                 /* (   ) Disallow the use of type aliases */
     "@typescript-eslint/no-unnecessary-boolean-literal-compare": "error",      /* ( ft) Flags unnecessary equality comparisons against boolean literals */
-    "@typescript-eslint/no-unnecessary-condition": "error",                    /* ( ft) Prevents conditionals where the type is always truthy or always falsy */
+    "@typescript-eslint/no-unnecessary-condition": "off",                      /* ( ft) Prevents conditionals where the type is always truthy or always falsy */
     "@typescript-eslint/no-unnecessary-qualifier": "error",                    /* ( ft) Warns when a namespace qualifier is unnecessary */
     "@typescript-eslint/no-unnecessary-type-arguments": "off",                 /* ( ft) Enforces that type arguments will not be used if not required */
     "@typescript-eslint/no-unnecessary-type-assertion": "error",               /* (rft) Warns if a type assertion does not change the type of an expression */
@@ -539,7 +539,7 @@ module.exports = {
     "@typescript-eslint/no-dupe-class-members": "error",                       /* (   ) Disallow duplicate class members */
     "@typescript-eslint/no-duplicate-imports": "error",                        /* (   ) Disallow duplicate imports */
     "@typescript-eslint/no-empty-function": "off",                             /* (r  ) Disallow empty functions */
-    "@typescript-eslint/no-extra-parens": "error",                             /* ( f ) Disallow unnecessary parentheses */
+    "@typescript-eslint/no-extra-parens": "off",                               /* ( f ) Disallow unnecessary parentheses */
     "@typescript-eslint/no-extra-semi": "error",                               /* (rf ) Disallow unnecessary semicolons */
     "@typescript-eslint/no-implied-eval": "error",                             /* (r t) Disallow the use of eval()-like methods */
     "@typescript-eslint/no-invalid-this": "error",                             /* (   ) Disallow this keywords outside of classes or class-like objects */

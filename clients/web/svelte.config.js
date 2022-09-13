@@ -1,5 +1,7 @@
 import adapter from "@sveltejs/adapter-node";
+
 import preprocess from "svelte-preprocess";
+
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -13,15 +15,7 @@ const config = {
 
   kit: {
     adapter: adapter(),
-
-    vite: {
-      optimizeDeps: {
-        exclude: ['@urql/core', 'src/lib/config.json'],
-        allowNodeBuiltins: ['fs']
-      }
-    }
   },
-  
 };
 
 export default config;

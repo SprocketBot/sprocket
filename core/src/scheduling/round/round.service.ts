@@ -1,9 +1,10 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
+import {Repository} from "typeorm";
+
 import {
     Invalidation, Match, Round,
-} from "src/database";
-import {Repository} from "typeorm";
+} from "../../database";
 
 @Injectable()
 export class RoundService {
@@ -14,9 +15,9 @@ export class RoundService {
     ) {}
 
     async createRound(matchId: number, stats: unknown, isDummy?: boolean, invalidationId?: number): Promise<Round> {
-        const match = await this.matchRepo.findOneOrFail(matchId);
+        const match = await this.matchRepo.findOneOrFail({where: {id: matchId} });
         let invalidation: Invalidation | undefined;
-        if (invalidationId) invalidation = await this.invalidationRepo.findOneOrFail(invalidationId);
+        if (invalidationId) invalidation = await this.invalidationRepo.findOneOrFail({where: {id: invalidationId} });
 
         const round = this.roundRepo.create({
             match: match,

@@ -1,17 +1,19 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {
-    Entity, OneToMany, OneToOne,
+    Entity, ManyToOne, OneToMany, OneToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
+import {Organization} from "../../organization";
 import {FranchiseGroupAssignment} from "../franchise_group_assignment";
 import {FranchiseLeadershipAppointment} from "../franchise_leadership_appointment";
 import {FranchiseProfile} from "../franchise_profile";
 import {FranchiseStaffAppointment} from "../franchise_staff_appointment";
-@Entity({ schema: "sprocket" })
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class Franchise extends BaseModel {
-    @OneToOne(() => FranchiseProfile)
+    @OneToOne(() => FranchiseProfile, p => p.franchise)
     @Field(() => FranchiseProfile)
     profile: FranchiseProfile;
 
@@ -26,4 +28,8 @@ export class Franchise extends BaseModel {
     @OneToMany(() => FranchiseLeadershipAppointment, fla => fla.franchise)
     @Field(() => [FranchiseLeadershipAppointment])
     leadershipAppointments: FranchiseLeadershipAppointment[];
+
+    @ManyToOne(() => Organization)
+    @Field(() => Organization)
+    organization: Organization;
 }

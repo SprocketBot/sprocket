@@ -1,30 +1,55 @@
-import {Injectable, Logger} from "@nestjs/common";
+import {
+    forwardRef, Inject, Injectable, Logger,
+} from "@nestjs/common";
 import {PassportStrategy} from "@nestjs/passport";
-import {readFileSync} from "fs";
-import type {GuildInfo, Profile} from "passport-discord";
+import {
+    AnalyticsEndpoint, AnalyticsService, config,
+} from "@sprocketbot/common";
+import type {Profile} from "passport-discord";
 import {Strategy} from "passport-discord";
-import type {IrrelevantFields, UserAuthenticationAccount, UserProfile,} from "../../../../database";
+
+import type {
+    IrrelevantFields, User, UserAuthenticationAccount, UserProfile,
+} from "../../../../database";
 import {UserAuthenticationAccountType} from "../../../../database";
-import {User} from "../../../../database/identity/user/user.model";
-import {UserService} from "../../../../identity/user/user.service";
-import {config} from "../../../../util/config";
-import {AnalyticsEndpoint, AnalyticsService} from "@sprocketbot/common";
+import {GameSkillGroupService, PlayerService} from "../../../../franchise";
+import {PlatformService} from "../../../../game";
+import {MledbPlayerAccountService, MledbPlayerService} from "../../../../mledb";
+import {MemberPlatformAccountService, MemberService} from "../../../../organization";
+import {IdentityService} from "../../../identity.service";
+import {UserService} from "../../../user";
 
 export type Done = (err: string, user: User) => void;
-const MLE_GUILD_ID = "172404472637685760";
+const MLE_ORGANIZATION_ID = 2;
 
 @Injectable()
 export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
 
-    private readonly logger = new Logger(DiscordStrategy.name)
+    private readonly logger = new Logger(DiscordStrategy.name);
 
-    constructor(private readonly userService: UserService,
-                private readonly analyticsService: AnalyticsService) {
+    constructor(
+        private readonly identityService: IdentityService,
+        private readonly userService: UserService,
+        private readonly memberService: MemberService,
+        private readonly memberPlatformAccountService: MemberPlatformAccountService,
+        private readonly platformService: PlatformService,
+        @Inject(forwardRef(() => MledbPlayerService))
+        private readonly mledbPlayerService: MledbPlayerService,
+        @Inject(forwardRef(() => MledbPlayerAccountService))
+        private readonly mledbPlayerAccountService: MledbPlayerAccountService,
+        private readonly analyticsService: AnalyticsService,
+        @Inject(forwardRef(() => GameSkillGroupService))
+        private readonly skillGroupService: GameSkillGroupService,
+        @Inject(forwardRef(() => PlayerService))
+        private readonly playerService: PlayerService,
+
+    ) {
         super({
-            clientID: config.auth.discordClientId,
-            clientSecret: config.auth.discordSecret,
-            callbackURL: config.auth.discordCallbackURL,
+            clientID: config.auth.discord.clientId,
+            clientSecret: config.auth.discord.secret,
+            callbackURL: config.auth.discord.callbackURL,
             scope: ["identify", "email", "guilds", "guilds.members.read"],
+            prompt: "none",
         });
     }
 
@@ -34,59 +59,102 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         profile: Profile,
         done: Done,
     ): Promise<User | undefined> {
+        // const guilds: GuildInfo[] = profile.guilds ?? [];
+        // if (!guilds.some(g => g.id === MLE_GUILD_ID)) return undefined;
 
-        const guilds: GuildInfo[] = profile.guilds as GuildInfo[];
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const mleGuild: GuildInfo | undefined = guilds.find(guild => guild.id === MLE_GUILD_ID);
+        const mledbPlayer = await this.mledbPlayerService.getPlayerByDiscordId(profile.id).catch(() => null);
+        if (!mledbPlayer) throw new Error("User is not associated with MLE");
 
-        let user = new User();
-        if (!mleGuild) {
-            // This user is not in MLE, abort.
-            return undefined;
-        }
+        const userByDiscordId = await this.identityService.getUserByAuthAccount(UserAuthenticationAccountType.DISCORD, profile.id).catch(() => undefined);
+        let user = userByDiscordId;
 
-        // First, check if the user already exists
-        const queryResult = await this.userService.getUsers({where: {email: profile.email as string}});
+        // It's possible the email doesn't exist if the user didn't verify it.
+        if (!user && !profile.email) throw new Error("User account could not be found and there is no attached email to the Discord user");
+
+        // TODO: Do we want to actually do this? Theoretically, if a user changes their email, that's a "new user" if we go by email. Hence ^
+        if (!user) user = await this.userService.getUser({where: {email: profile.email} });
 
         // If no users returned from query, create a new one
-        if (queryResult.length === 0) {
+        if (!user) {
             const userProfile: Omit<UserProfile, IrrelevantFields | "id" | "user"> = {
-                email: profile.email as string,
-                displayName: profile.username as string,
+                email: profile.email!,
+                displayName: profile.username,
             };
 
             const authAcct: Omit<UserAuthenticationAccount, IrrelevantFields | "id" | "user"> = {
                 accountType: UserAuthenticationAccountType.DISCORD,
-                accountId: profile.id as string,
+                accountId: profile.id,
                 oauthToken: accessToken,
             };
+
             user = await this.userService.createUser(userProfile, [authAcct]);
+
             this.analyticsService.send(AnalyticsEndpoint.Analytics, {
                 name: "SprocketAccountImported",
                 tags: [
-                    ['source', "MLEDB"],
+                    ["source", "MLEDB"],
                 ],
                 strings: [
-                    ['account_id', profile.id],
-                    ['displayname', profile.username]
-                ]
+                    ["account_id", profile.id],
+                    ["displayname", profile.username],
+                ],
             })
-                .then(() => this.logger.log("Account Import Recorded via Analytics"))
-                .catch(this.logger.error.bind(this.logger))
-        } else {
-            // Else, return the one we found
-            user = queryResult[0];
-            const authAccounts = await this.userService.getUserAuthenticationAccountsForUser(user.id);
-            const discordAccount = authAccounts.find(obj => obj.accountType === UserAuthenticationAccountType.DISCORD);
-            if (!discordAccount) {
-                const authAcct: Omit<UserAuthenticationAccount, IrrelevantFields | "id" | "user"> = {
-                    accountType: UserAuthenticationAccountType.DISCORD,
-                    accountId: profile.id as string,
-                    oauthToken: accessToken,
-                };
-                user = await this.userService.addAuthenticationAccounts(user.id, [authAcct]);
+                .then(() => { this.logger.log("Account Import Recorded via Analytics") })
+                .catch(this.logger.error.bind(this.logger));
+        } else if (!userByDiscordId) {
+            const authAcct: Omit<UserAuthenticationAccount, IrrelevantFields | "id" | "user"> = {
+                accountType: UserAuthenticationAccountType.DISCORD,
+                accountId: profile.id,
+                oauthToken: accessToken,
+            };
+
+            await this.userService.addAuthenticationAccounts(user.id, [authAcct]);
+        }
+
+        let member = await this.memberService.getMember({where: {user: {id: user.id} } }).catch(() => null);
+
+        if (!member) {
+            member = await this.memberService.createMember(
+                {name: mledbPlayer.name},
+                MLE_ORGANIZATION_ID,
+                user.id,
+            );
+        }
+
+        const mledbPlayerAccounts = await this.mledbPlayerAccountService.getPlayerAccounts({where: {player: {id: mledbPlayer.id} } });
+
+        for (const mledbPlayerAccount of mledbPlayerAccounts) {
+            if (!mledbPlayerAccount.platformId) continue;
+
+            const platformAccount = await this.memberPlatformAccountService.getMemberPlatformAccount({
+                where: {
+                    member: {id: member.id},
+                    platform: {code: mledbPlayerAccount.platform},
+                    platformAccountId: mledbPlayerAccount.platformId,
+                },
+                relations: ["member", "platform"],
+            }).catch(e => { this.logger.error(e) });
+
+            if (!platformAccount) {
+                const platform = await this.platformService.getPlatformByCode(mledbPlayerAccount.platform)
+                    .catch(async () => this.platformService.createPlatform(mledbPlayerAccount.platform));
+
+                await this.memberPlatformAccountService.createMemberPlatformAccount(member.id, platform.id, mledbPlayerAccount.platformId);
             }
         }
+
+        if (!["PREMIER", "MASTER", "CHAMPION", "ACADEMY", "FOUNDATION"].includes(mledbPlayer.league)) throw new Error("Player does not belong to a league");
+
+        const skillGroup = await this.skillGroupService.getGameSkillGroup({
+            where: {
+                profile: {
+                    code: `${mledbPlayer.league[0]}L`,
+                },
+            },
+            relations: ["profile"],
+        });
+        const player = await this.playerService.getPlayer({where: {member: {id: member.id} } }).catch(() => null);
+        if (!player) await this.playerService.createPlayer(member.id, skillGroup.id, mledbPlayer.salary);
 
         done("", user);
         return user;

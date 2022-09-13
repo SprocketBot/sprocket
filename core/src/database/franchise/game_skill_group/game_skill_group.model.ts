@@ -1,24 +1,19 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {
-    Column, Entity, JoinColumn, OneToMany, OneToOne,
+    Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
+import {Game} from "../../game";
+import {Organization} from "../../organization";
 import {GameSkillGroupProfile} from "../game_skill_group_profile";
 import {Player} from "../player";
 import {RosterRoleUseLimits} from "../roster_role_use_limits";
 import {Team} from "../team";
-@Entity({ schema: "sprocket" })
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class GameSkillGroup extends BaseModel {
-    @Column()
-    @Field(() => String)
-    code: string;
-
-    @Column()
-    @Field(() => String)
-    description: string;
-
     @Column()
     @Field(() => Number)
     ordinal: number;
@@ -27,10 +22,14 @@ export class GameSkillGroup extends BaseModel {
     @Field(() => Number)
     salaryCap: number;
 
-    @OneToOne(() => GameSkillGroupProfile)
-    @JoinColumn()
+    @OneToOne(() => GameSkillGroupProfile, gsgp => gsgp.skillGroup)
     @Field(() => GameSkillGroupProfile)
     profile: GameSkillGroupProfile;
+
+    @ManyToOne(() => Game, g => g.skillGroups)
+    @JoinColumn()
+    @Field(() => Game)
+    game: Game;
 
     @OneToOne(() => RosterRoleUseLimits)
     @JoinColumn()
@@ -44,4 +43,11 @@ export class GameSkillGroup extends BaseModel {
     @OneToMany(() => Team, t => t.skillGroup)
     @Field(() => [Team])
     teams: Team[];
+
+    @ManyToOne(() => Organization)
+    @Field(() => Organization)
+    organization: Organization;
+
+    @Column()
+    organizationId: number;
 }

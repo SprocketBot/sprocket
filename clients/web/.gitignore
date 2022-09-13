@@ -5,7 +5,8 @@ node_modules
 /package
 .env
 .env.*
-!.env.template
 !.env.example
-config.json
-sprocket-web.iml
+config/*
+!config/default.json
+!config/README.md
+secret/

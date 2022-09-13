@@ -1,19 +1,46 @@
-import {Module} from "@nestjs/common";
-import {TypeOrmModule} from "@nestjs/typeorm";
-import {DatabaseModule} from "src/database";
-import {MLE_Player} from "src/database/mledb/Player.model";
-import {MLE_PlayerToOrg} from "src/database/mledb/PlayerToOrg.model";
+import {forwardRef, Module} from "@nestjs/common";
+import {MatchmakingModule} from "@sprocketbot/common";
 
-import {MledbUserService} from "./mledb-user/mledb-user.service";
+import {DatabaseModule} from "../database";
+import {FranchiseModule} from "../franchise";
+import {GameModule} from "../game";
+import {IdentityModule} from "../identity";
+import {OrganizationModule} from "../organization";
+import {SchedulingModule} from "../scheduling/scheduling.module";
+import {SprocketRatingModule} from "../sprocket-rating";
+import {UtilModule} from "../util/util.module";
+import {MledbMatchController} from "./mledb-match/mledb-match.controller";
+import {MledbMatchService} from "./mledb-match/mledb-match.service";
+import {MledbPlayerService} from "./mledb-player";
+import {MledbPlayerController} from "./mledb-player/mledb-player.controller";
+import {MledbPlayerAccountService} from "./mledb-player-account";
+import {MledbScrimService} from "./mledb-scrim";
+
 @Module({
     imports: [
         DatabaseModule,
-        TypeOrmModule.forFeature([
-            MLE_Player,
-            MLE_PlayerToOrg,
-        ]),
+        GameModule,
+        MatchmakingModule,
+        SprocketRatingModule,
+        UtilModule,
+        forwardRef(() => SchedulingModule),
+        forwardRef(() => FranchiseModule),
+        forwardRef(() => IdentityModule),
+        forwardRef(() => OrganizationModule),
     ],
-    providers: [MledbUserService],
-    exports: [MledbUserService],
+    providers: [
+        MledbPlayerService,
+        MledbPlayerAccountService,
+        MledbScrimService,
+        MledbMatchService,
+    ],
+    exports: [
+        MledbMatchService,
+        MledbPlayerService,
+        MledbPlayerAccountService,
+        MledbScrimService,
+    ],
+    controllers: [MledbPlayerController, MledbMatchController],
 })
-export class MledbInterfaceModule {}
+export class MledbInterfaceModule {
+}

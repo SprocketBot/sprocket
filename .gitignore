@@ -106,3 +106,15 @@ dist
 *.iml
 
 .idea/
+
+.run/
+
+clients/image-generation-frontend/build/
+
+clients/image-generation-frontend/src/ca-certificate.cer
+
+clients/image-generation-frontend/src/config.json
+
+core/config/development.json.bak
+
+core/config/main.json

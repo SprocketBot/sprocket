@@ -1,13 +1,19 @@
-import {Module} from "@nestjs/common";
-import {GqlModule} from "@sprocketbot/common";
+import {forwardRef, Module} from "@nestjs/common";
+import {CoreModule} from "@sprocketbot/common";
 
+import {DiscordModule} from "../discord/discord.module";
 import {EmbedModule} from "../embed/embed.module";
 import {EmbedService} from "../embed/embed.service";
-import {CommandManagerService} from "./command-manager/command-manager.service";
+import {CommandsModule} from "./commands/commands.module";
 
 @Module({
-    imports: [GqlModule, EmbedModule],
-    providers: [CommandManagerService, EmbedService],
-    exports: [CommandManagerService, EmbedService],
+    imports: [
+        forwardRef(() => DiscordModule),
+        EmbedModule,
+        CoreModule,
+        CommandsModule,
+    ],
+    providers: [EmbedService],
+    exports: [EmbedService],
 })
 export class MarshalModule {}

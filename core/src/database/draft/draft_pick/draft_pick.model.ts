@@ -8,7 +8,8 @@ import {GameSkillGroup} from "../../franchise/game_skill_group";
 import {Team} from "../../franchise/team";
 import {ScheduleGroup} from "../../scheduling/schedule_group";
 import {DraftSelection} from "../draft_selection";
-@Entity({ schema: "sprocket" })
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class DraftPick extends BaseModel {
     @Column()
@@ -35,7 +36,7 @@ export class DraftPick extends BaseModel {
     @Field(() => ScheduleGroup)
     scheduleGroup: ScheduleGroup;
 
-    @OneToOne(() => DraftSelection, {nullable: true})
+    @OneToOne(() => DraftSelection, ds => ds.draftPick, {nullable: true})
     @Field(() => DraftSelection, {nullable: true})
     selection?: DraftSelection;
 }

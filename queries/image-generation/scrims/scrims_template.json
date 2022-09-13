@@ -1,0 +1,2124 @@
+{
+  "organization": {
+    "name": {
+      "type": "text",
+      "description": "Org Name"
+    },
+    "description": {
+      "type": "text",
+      "description": "Org Description"
+    },
+    "webisite": {
+      "type": "text",
+      "description": "Org website URL"
+    },
+    "primary_color": {
+      "type": "color",
+      "description": "Org Primary color (#F5C04E)"
+    },
+    "secondary_color": {
+      "type": "color",
+      "description": "Org Secondary color (#0D0E0E)"
+    },
+    "logo_url": {
+      "type": "image",
+      "description": "link to org logo"
+    }
+  },
+  "game": {
+    "title": {
+      "type": "text",
+      "description": "Game Title (CL 2S ROUND ROBIN)"
+    },
+    "scrim_mode": {
+      "type": "text",
+      "description": "Scrim Mode (Doubles)"
+    },
+    "scrim_type": {
+      "type": "text",
+      "description": "Scrim Type (Round Robin)"
+    },
+    "mode_short": {
+      "type": "text",
+      "description": "Shortened Game Mode (2S)"
+    },
+    "league": {
+      "type": "text",
+      "description": "League for Scrim (Champion)"
+    },
+    "league_short": {
+      "type": "text",
+      "description": "Shortened League Name (CL)"
+    },
+    "league_color": {
+      "type": "color",
+      "description": "Color of League (#7E55CE)"
+    },
+    "league_logo": {
+      "type": "image",
+      "description": "League logo url"
+    },
+    "winning_color": {
+      "type": "color",
+      "description": "Color that won more games (#FC7C0C)"
+    },
+    "series_score": {
+      "type": "text",
+      "description": "series scoreline (1 - 2)"
+    }
+  },
+  "player_data": [
+    {
+      "name": {
+        "type": "text",
+        "description": "name of #1 player based on record then rating"
+      },
+      "salary": {
+        "type": "number",
+        "description": "the player's current salary"
+      },
+      "wins": {
+        "type": "number",
+        "description": "# of wins"
+      },
+      "losses": {
+        "type": "number",
+        "description": "# of losses"
+      },
+      "record": {
+        "type": "text",
+        "description": "record"
+      },
+      "rating": {
+        "type": "number",
+        "description": "sprocket rating"
+      },
+      "goals": {
+        "type": "number",
+        "description": "goals"
+      },
+      "assists": {
+        "type": "number",
+        "description": "assists"
+      },
+      "saves": {
+        "type": "number",
+        "description": "saves"
+      },
+      "shots": {
+        "type": "number",
+        "description": "shots"
+      },
+      "player_color": {
+        "type": "color",
+        "description": "assigned player color (#F54C91)"
+      },
+      "team_color": {
+        "type": "color",
+        "description": "team color (#FFFFFF00)"
+      }
+    },
+    {
+      "name": {
+        "type": "text",
+        "description": "name of #2"
+      },
+      "salary": {
+        "type": "number",
+        "description": "the player's current salary"
+      },
+      "wins": {
+        "type": "number",
+        "description": "# of wins"
+      },
+      "losses": {
+        "type": "number",
+        "description": "# of losses"
+      },
+      "record": {
+        "type": "text",
+        "description": "record"
+      },
+      "rating": {
+        "type": "number",
+        "description": "sprocket rating"
+      },
+      "goals": {
+        "type": "number",
+        "description": "goals"
+      },
+      "assists": {
+        "type": "number",
+        "description": "assists"
+      },
+      "saves": {
+        "type": "number",
+        "description": "saves"
+      },
+      "shots": {
+        "type": "number",
+        "description": "shots"
+      },
+      "player_color": {
+        "type": "color",
+        "description": "assigned player color (#F54C91)"
+      },
+      "team_color": {
+        "type": "color",
+        "description": "team color (#FFFFFF00)"
+      }
+    },
+    {
+      "name": {
+        "type": "text",
+        "description": "name of #3"
+      },
+      "salary": {
+        "type": "number",
+        "description": "the player's current salary"
+      },
+      "wins": {
+        "type": "number",
+        "description": "# of wins"
+      },
+      "losses": {
+        "type": "number",
+        "description": "# of losses"
+      },
+      "record": {
+        "type": "text",
+        "description": "record"
+      },
+      "rating": {
+        "type": "number",
+        "description": "sprocket rating"
+      },
+      "goals": {
+        "type": "number",
+        "description": "goals"
+      },
+      "assists": {
+        "type": "number",
+        "description": "assists"
+      },
+      "saves": {
+        "type": "number",
+        "description": "saves"
+      },
+      "shots": {
+        "type": "number",
+        "description": "shots"
+      },
+      "player_color": {
+        "type": "color",
+        "description": "assigned player color (#F54C91)"
+      },
+      "team_color": {
+        "type": "color",
+        "description": "team color (#FFFFFF00)"
+      }
+    },
+    {
+      "name": {
+        "type": "text",
+        "description": "name of #4"
+      },
+      "salary": {
+        "type": "number",
+        "description": "the player's current salary"
+      },
+      "wins": {
+        "type": "number",
+        "description": "# of wins"
+      },
+      "losses": {
+        "type": "number",
+        "description": "# of losses"
+      },
+      "record": {
+        "type": "text",
+        "description": "record"
+      },
+      "rating": {
+        "type": "number",
+        "description": "sprocket rating"
+      },
+      "goals": {
+        "type": "number",
+        "description": "goals"
+      },
+      "assists": {
+        "type": "number",
+        "description": "assists"
+      },
+      "saves": {
+        "type": "number",
+        "description": "saves"
+      },
+      "shots": {
+        "type": "number",
+        "description": "shots"
+      },
+      "player_color": {
+        "type": "color",
+        "description": "assigned player color (#F54C91)"
+      },
+      "team_color": {
+        "type": "color",
+        "description": "team color (#FFFFFF00)"
+      }
+    },
+    {
+      "name": {
+        "type": "text",
+        "description": "name of #5"
+      },
+      "salary": {
+        "type": "number",
+        "description": "the player's current salary"
+      },
+      "wins": {
+        "type": "number",
+        "description": "# of wins"
+      },
+      "losses": {
+        "type": "number",
+        "description": "# of losses"
+      },
+      "record": {
+        "type": "text",
+        "description": "record"
+      },
+      "rating": {
+        "type": "number",
+        "description": "sprocket rating"
+      },
+      "goals": {
+        "type": "number",
+        "description": "goals"
+      },
+      "assists": {
+        "type": "number",
+        "description": "assists"
+      },
+      "saves": {
+        "type": "number",
+        "description": "saves"
+      },
+      "shots": {
+        "type": "number",
+        "description": "shots"
+      },
+      "player_color": {
+        "type": "color",
+        "description": "assigned player color (#F54C91)"
+      },
+      "team_color": {
+        "type": "color",
+        "description": "team color (#FFFFFF00)"
+      }
+    },
+    {
+      "name": {
+        "type": "text",
+        "description": "name of #6"
+      },
+      "salary": {
+        "type": "number",
+        "description": "the player's current salary"
+      },
+      "wins": {
+        "type": "number",
+        "description": "# of wins"
+      },
+      "losses": {
+        "type": "number",
+        "description": "# of losses"
+      },
+      "record": {
+        "type": "text",
+        "description": "record"
+      },
+      "rating": {
+        "type": "number",
+        "description": "sprocket rating"
+      },
+      "goals": {
+        "type": "number",
+        "description": "goals"
+      },
+      "assists": {
+        "type": "number",
+        "description": "assists"
+      },
+      "saves": {
+        "type": "number",
+        "description": "saves"
+      },
+      "shots": {
+        "type": "number",
+        "description": "shots"
+      },
+      "player_color": {
+        "type": "color",
+        "description": "assigned player color (#F54C91)"
+      },
+      "team_color": {
+        "type": "color",
+        "description": "team color (#FFFFFF00)"
+      }
+    }
+  ],
+  "games_data": [
+    {
+      "result": {
+        "type": "text",
+        "description": "result of the first game in the series (1 - 2)"
+      },
+      "winning_color": {
+        "type": "color",
+        "description": "winning team color #FC7C0C"
+      },
+      "blue_goals": {
+        "type": "number",
+        "description": "number of goals scored by blue team"
+      },
+      "orange_goals": {
+        "type": "number",
+        "description": "number of goals scored by blue team"
+      },
+      "blue_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": "name of first player on the blue team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of second player on the blue team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of third player on the blue team (may be empty)"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        }
+      ],
+      "orange_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": "name of first player on the orange team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of second player on the orange team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of third player on the orange team (may be empty)"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        }
+      ]
+    },
+    {
+      "result": {
+        "type": "text",
+        "description": "result of the second game in the series (1 - 2)"
+      },
+      "winning_color": {
+        "type": "color",
+        "description": "winning team color #FC7C0C"
+      },
+      "blue_goals": {
+        "type": "number",
+        "description": "number of goals scored by blue team"
+      },
+      "orange_goals": {
+        "type": "number",
+        "description": "number of goals scored by blue team"
+      },
+      "blue_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": "name of first player on the blue team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of second player on the blue team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of third player on the blue team (may be empty)"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        }
+      ],
+      "orange_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": "name of first player on the orange team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of second player on the orange team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of third player on the orange team (may be empty)"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        }
+      ]
+    },
+    {
+      "result": {
+        "type": "text",
+        "description": "result of the third game in the series (1 - 2)"
+      },
+      "winning_color": {
+        "type": "color",
+        "description": "winning team color #FC7C0C"
+      },
+      "blue_goals": {
+        "type": "number",
+        "description": "number of goals scored by blue team"
+      },
+      "orange_goals": {
+        "type": "number",
+        "description": "number of goals scored by blue team"
+      },
+      "blue_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": "name of first player on the blue team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of second player on the blue team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of third player on the blue team (may be empty)"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        }
+      ],
+      "orange_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": "name of first player on the orange team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of second player on the orange team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of third player on the orange team (may be empty)"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        }
+      ]
+    },
+    {
+      "result": {
+        "type": "text",
+        "description": "result of the fourth game in the series (1 - 2)"
+      },
+      "winning_color": {
+        "type": "color",
+        "description": "winning team color #FC7C0C"
+      },
+      "blue_goals": {
+        "type": "number",
+        "description": "number of goals scored by blue team"
+      },
+      "orange_goals": {
+        "type": "number",
+        "description": "number of goals scored by blue team"
+      },
+      "blue_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": "name of first player on the blue team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of second player on the blue team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of third player on the blue team (may be empty)"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        }
+      ],
+      "orange_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": "name of first player on the orange team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of second player on the orange team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of third player on the orange team (may be empty)"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        }
+      ]
+    },
+    {
+      "result": {
+        "type": "text",
+        "description": "result of the fifth game in the series (1 - 2) (may be empty)"
+      },
+      "winning_color": {
+        "type": "color",
+        "description": "winning team color #FC7C0C"
+      },
+      "blue_goals": {
+        "type": "number",
+        "description": "number of goals scored by blue team"
+      },
+      "orange_goals": {
+        "type": "number",
+        "description": "number of goals scored by blue team"
+      },
+      "blue_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": "name of first player on the blue team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of second player on the blue team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of third player on the blue team (may be empty)"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        }
+      ],
+      "orange_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": "name of first player on the orange team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of second player on the orange team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of third player on the orange team (may be empty)"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        }
+      ]
+    },
+    {
+      "result": {
+        "type": "text",
+        "description": "result of the sixth game in the series (1 - 2) (may be empty)"
+      },
+      "winning_color": {
+        "type": "color",
+        "description": "winning team color #FC7C0C"
+      },
+      "blue_goals": {
+        "type": "number",
+        "description": "number of goals scored by blue team"
+      },
+      "orange_goals": {
+        "type": "number",
+        "description": "number of goals scored by blue team"
+      },
+      "blue_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": "name of first player on the blue team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of second player on the blue team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of third player on the blue team (may be empty)"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        }
+      ],
+      "orange_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": "name of first player on the orange team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of second player on the orange team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of third player on the orange team (may be empty)"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        }
+      ]
+    },
+    {
+      "result": {
+        "type": "text",
+        "description": "result of the seventh game in the series (1 - 2) (may be empty"
+      },
+      "winning_color": {
+        "type": "color",
+        "description": "winning team color #FC7C0C"
+      },
+      "blue_goals": {
+        "type": "number",
+        "description": "number of goals scored by blue team"
+      },
+      "orange_goals": {
+        "type": "number",
+        "description": "number of goals scored by blue team"
+      },
+      "blue_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": "name of first player on the blue team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of second player on the blue team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of third player on the blue team (may be empty)"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        }
+      ],
+      "orange_players": [
+        {
+          "name": {
+            "type": "text",
+            "description": "name of first player on the orange team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of second player on the orange team"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        },
+        {
+          "name": {
+            "type": "text",
+            "description": "name of third player on the orange team (may be empty)"
+          },
+          "goals": {
+            "type": "number",
+            "description": "goals"
+          },
+          "saves": {
+            "type": "number",
+            "description": "saves"
+          },
+          "score": {
+            "type": "number",
+            "description": "scoreboard score"
+          },
+          "shots": {
+            "type": "number",
+            "description": "shots"
+          },
+          "rating": {
+            "type": "number",
+            "description": "sprocket rating"
+          },
+          "assists": {
+            "type": "number",
+            "description": "assists"
+          },
+          "team_color": {
+            "type": "color",
+            "description": "team color for player (#0C2CFC)"
+          },
+          "player_color": {
+            "type": "color",
+            "description": "color assigned to player (#0097D7)"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,10 +1,12 @@
 import {
     Field, Int, ObjectType,
 } from "@nestjs/graphql";
+import type {Scrim as IScrim} from "@sprocketbot/common";
 import {
-    EventTopic, Scrim as IScrim, ScrimStatus,
+    EventTopic, ScrimStatus,
 } from "@sprocketbot/common";
 
+import {GameSkillGroup} from "../../database";
 import {ScrimGame} from "./ScrimGame";
 import {ScrimPlayer} from "./ScrimPlayer";
 import {ScrimSettings} from "./ScrimSettings";
@@ -18,14 +20,28 @@ export class ScrimGameMode {
     description: string;
 }
 
+@ObjectType()
+export class ScrimGroup {
+    @Field(() => String)
+    code: string;
+
+    @Field(() => [String])
+    players: string[];
+}
 
 @ObjectType()
 export class Scrim implements Omit<IScrim, "id" | "status" | "players"> {
     @Field(() => String)
     id: string;
 
+    @Field(() => ScrimGroup, {nullable: true})
+    currentGroup?: ScrimGroup;
+
     @Field(() => ScrimStatus)
     status: ScrimStatus;
+
+    @Field(() => Int)
+    organizationId: number;
 
     @Field(() => [ScrimPlayer], {nullable: true})
     players?: ScrimPlayer[];
@@ -41,23 +57,16 @@ export class Scrim implements Omit<IScrim, "id" | "status" | "players"> {
 
     @Field(() => [ScrimGame], {nullable: true})
     games?: ScrimGame[];
-    
-    @Field(() => ScrimGameMode)
-    gameMode: ScrimGameMode;
 
     @Field(() => String, {nullable: true})
     submissionId?: string;
 
-    constructor(data: IScrim) {
-        this.id = data.id;
-        this.status = data.status;
-        this.players = data.players;
-        this.playerCount = data.players.length;
-        this.settings = data.settings;
-        this.games = data.games;
-        this.gameMode = data.gameMode;
-        this.submissionId = data.submissionId;
-    }
+    @Field(() => GameSkillGroup)
+    skillGroup: GameSkillGroup;
+
+    skillGroupId: number;
+
+    gameMode: ScrimGameMode;
 }
 
 @ObjectType()

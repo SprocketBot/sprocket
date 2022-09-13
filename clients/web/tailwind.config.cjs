@@ -1,12 +1,13 @@
-const colors = require("tailwindcss/colors")
 const daisy = require("daisyui")
 const c = require("color")
 
 const sprocketPalette = {
-  primary: "#F5C04E",
-  secondary: "#307AF7",
-  accent: "#ED367C",
-  purple: "#623FCF",
+  primary: "#FEBF2B",
+  secondary: "#F15A24",
+  accent: "#0097D7",
+  success: "#189666",
+  info: "#635DB2",
+  error: "#D81C0E",
   gray: {
     "100": "#CFD2D3",
     "200": "#AFB1B2",
@@ -22,10 +23,13 @@ const sprocketPalette = {
 
 
 const config = {
-  content: ["./src/**/*.{html,js,svelte,ts}"],
-
+  mode: 'jit',
+  content: ['./src/**/*.{html,js,svelte,ts}'],
   theme: {
     extend: {
+      animation: {
+        "spin-slow": "spin 3s linear infinite"
+      },
       colors: {
         "sprocket": sprocketPalette.primary,
 
@@ -35,7 +39,10 @@ const config = {
         "sprocket-pink": sprocketPalette.accent,
         "sprocket-purple": sprocketPalette.purple,
         "sprocket-blue": sprocketPalette.secondary,
-        gray: sprocketPalette.gray
+        gray: sprocketPalette.gray,
+
+        "context-primary": "var(--primary-color)",
+        "context-secondary": "var(--secondary-color)",
       },
       spacing: {
         '1/10': '10%',
@@ -135,10 +142,10 @@ const config = {
         "base-content": "#ebecf0",
 
         // TODO: This:
-        "info": "#66c7ff",
-        "success": "#87cf3a",
+        "info": sprocketPalette.info,
+        "success": sprocketPalette.success,
         "warning": "#e1d460",
-        "error": "#ff6b6b",
+        "error": sprocketPalette.error,
       },
     },],
     base: true,

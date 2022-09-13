@@ -1,35 +1,29 @@
 module.exports = {
-	env: {
-		browser: true,
-		es2021: true,
-		jest: true
-	},
-	extends: [
-		"eslint:recommended",
-		"plugin:@typescript-eslint/recommended",
-		"plugin:@typescript-eslint/recommended-requiring-type-checking"
-	],
-	parser: "@typescript-eslint/parser",
-	parserOptions: {
-		ecmaVersion: 12,
-		project: ["tsconfig.json"],
-		extraFileExtensions: [".svelte"],
-		tsconfigRootDir: __dirname,
-	},
-	plugins: [
-		"svelte3",
-		"@typescript-eslint",
-	],
-	ignorePatterns: ["*.cjs", ".eslintrc.js", "jest.config.js", "commitlint.config.js", "*.stories.svelte", "docs", "*.json"],
-	overrides: [
-		{
-			files: ["*.svelte"],
-			processor: "svelte3/svelte3"
-		}
-	],
+	root: true,
+	parser: '@typescript-eslint/parser',
+	extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', "plugin:@typescript-eslint/recommended-requiring-type-checking"],
+	plugins: ['svelte3', '@typescript-eslint'],
+	ignorePatterns: ["*.cjs", ".eslintrc.js", "jest.config.js", "commitlint.config.js", "*.stories.svelte", "docs", "*.json", "svelte.config.js", "*.postcss", "*.html", "*.md", "vite.config.js"],
+	overrides: [{ files: ['*.svelte'], processor: 'svelte3/svelte3' }],
 	settings: {
 		"svelte3/typescript": () => require("typescript"),
 		"svelte3/ignore-styles": (attrs) => attrs.lang === "postcss"
+	},
+	globals: {
+		App: true
+	},
+	parserOptions: {
+		sourceType: 'module',
+		project: ["tsconfig.json"],
+		extraFileExtensions: [".svelte"],
+		tsconfigRootDir: __dirname,
+		ecmaVersion: 2020
+	},
+	env: {
+		browser: true,
+		es2017: true,
+		node: true,
+		jest: true
 	},
 	rules: {
 		/**
@@ -104,7 +98,7 @@ module.exports = {
 		"grouped-accessor-pairs": "error",                                         /* (  ) require grouped accessor pairs in object literals and classes */
 		"guard-for-in": "error",                                                   /* (  ) require `for-in` loops to include an `if` statement */
 		"max-classes-per-file": "off",                                             /* (  ) enforce a maximum number of classes per file */
-		"no-alert": "error",                                                       /* (  ) disallow the use of `alert`, `confirm`, and `prompt` */
+		"no-alert": "off",                                                         /* (  ) disallow the use of `alert`, `confirm`, and `prompt` */
 		"no-caller": "error",                                                      /* (  ) disallow the use of `arguments.caller` or `arguments.callee` */
 		"no-case-declarations": "error",                                           /* (r ) disallow lexical declarations in case clauses */
 		"no-constructor-return": "error",                                          /* (  ) disallow returning value from constructor */
@@ -345,7 +339,7 @@ module.exports = {
 		"no-duplicate-imports": "off",                                             /* (  ) disallow duplicate module imports */ // Disabled in favor of typescript-eslint rule below
 		"no-new-symbol": "error",                                                  /* (r ) disallow `new` operators with the `Symbol` object */
 		"no-restricted-exports": "off",                                            /* (  ) disallow specified names in exports */
-		"no-restricted-imports": "off",                                            /* (  ) disallow specified modules when loaded by `import` */
+		"no-restricted-imports": ["error", { "patterns": ["src/*"], }],            /* (  ) disallow specified modules when loaded by `import` */
 		"no-this-before-super": "error",                                           /* (r ) disallow `this`/`super` before calling `super()` in constructors */
 		"no-useless-computed-key": "error",                                        /* ( f) disallow unnecessary computed property keys in objects and classes */
 		"no-useless-constructor": "off",                                           /* (  ) disallow unnecessary constructors */ // Disabled in favor of typescript-eslint rule below
@@ -570,4 +564,4 @@ module.exports = {
 		}],
 		"@typescript-eslint/space-infix-ops": "error",                             /* ( f ) This rule is aimed at ensuring there are spaces around infix operators. */
 	}
-}
+};

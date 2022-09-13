@@ -1,29 +1,51 @@
 from enum import Enum
 import json
+import logging
 
-def get_progress_msg(taskId, status, progressValue, progressMessage, result=None, error=None):
-    """Sends a progress message on the determined progress queue.
-    Note: Must conform to the type TaskProgressMessage in sprocket-common
-
-    Args:
-        status (TaskProgressStatus): The status of the task.
-        progressValue (int): The progress of this task, [0-100].
-        progressMessage (str): A user friendly message describing the task's progress.
-        result (_type_, optional): Data returned by the task. Should only be set when status == Complete. Defaults to None.
-        error (_type_, optional): An error that occurred during task execution. Should only be set when status == Error. Defaults to None.
-    """
-    return json.dumps({
-        "taskId": taskId,
-        "status": status,
-        "progress": {
-            "value": progressValue,
-            "message": progressMessage,
-        },
-        "result": result,
-        "error": error,
-    })
 
 class TaskProgressStatus(str, Enum):
     Pending = "Pending"
     Complete = "Complete"
     Error = "Error"
+
+
+class Progress:
+    _task_id: str
+
+    last_value: int = None
+
+    def __init__(self, task_id: str):
+        self._task_id = task_id
+
+    def _get_msg(
+        self,
+        status: TaskProgressStatus,
+        progress_message: str,
+        progress_value: int = None,
+        result: dict = None,
+        error: str = None,
+    ):
+        value = progress_value or self.last_value
+        payload = {
+            "taskId": self._task_id,
+            "status": status,
+            "progress": {
+                "value": value,
+                "message": progress_message,
+            },
+            "result": result,
+            "error": error,
+        }
+        logging.debug('Sending progress', payload)
+
+        self.last_value = value
+        return json.dumps(payload)
+
+    def pending(self, message: str, value: int = None) -> str:
+        return self._get_msg(TaskProgressStatus.Pending, message, value)
+    
+    def complete(self, result: str) -> str:
+        return self._get_msg(TaskProgressStatus.Complete, "Done!", 100, result, None)
+    
+    def error(self, error: str) -> str:
+        return self._get_msg(TaskProgressStatus.Error, "Failed", 100, None, error)

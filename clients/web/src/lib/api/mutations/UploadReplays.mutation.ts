@@ -12,7 +12,7 @@ export interface UploadReplaysVariables {
 }
 
 const mutationString = gql`
-    mutation($files: [Upload!]!, $submissionId: String) {
+    mutation($files: [Upload!]!, $submissionId: String!) {
         parseReplays(files: $files, submissionId: $submissionId)
     }
 `;
@@ -20,5 +20,5 @@ const mutationString = gql`
 export const uploadReplaysMutation = async (vars: UploadReplaysVariables): Promise<UploadReplaysResponse> => {
     const r = await client.mutation<UploadReplaysResponse, UploadReplaysVariables>(mutationString, vars).toPromise();
     if (r.data) return r.data;
-    throw r.error;
+    throw r.error as Error;
 };

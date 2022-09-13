@@ -1,4 +1,7 @@
-import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,} from "typeorm";
+import {
+    Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,
+} from "typeorm";
+
 import {MLE_PlayerAccount} from "./PlayerAccount.model";
 
 @Index("psyonix_api_result_pkey", ["id"], {unique: true})
@@ -19,7 +22,7 @@ export class MLE_PsyonixApiResult {
     @Column("integer", {name: "division"})
     division: number;
 
-    @Column("integer", {name: "skill"})
+    @Column("numeric", {name: "skill"})
     skill: number;
 
     @Column("integer", {name: "matches_played"})
@@ -28,16 +31,16 @@ export class MLE_PsyonixApiResult {
     @Column("integer", {name: "win_streak"})
     winStreak: number;
 
-    @Column("integer", {name: "sigma"})
+    @Column("numeric", {name: "sigma"})
     sigma: number;
 
-    @Column("integer", {name: "mu"})
+    @Column("numeric", {name: "mu"})
     mu: number;
 
     @ManyToOne(
         () => MLE_PlayerAccount,
-        {onUpdate: "CASCADE"}
+        {onUpdate: "CASCADE"},
     )
-    @JoinColumn([{name: "player_account_id", referencedColumnName: "id"}])
+    @JoinColumn([ {name: "player_account_id", referencedColumnName: "id"} ])
     playerAccount: MLE_PlayerAccount;
 }

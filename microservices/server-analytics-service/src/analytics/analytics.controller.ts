@@ -1,7 +1,11 @@
 import {Controller, Logger} from "@nestjs/common";
-import {MessagePattern, RpcException} from "@nestjs/microservices";
+import {
+    MessagePattern, Payload, RpcException,
+} from "@nestjs/microservices";
+import type {AnalyticsOutput} from "@sprocketbot/common";
+import {AnalyticsEndpoint} from "@sprocketbot/common";
 
-import {serverEventSchema} from "./analytics.schema";
+import {AnalyticsPointSchema} from "./analytics.schema";
 import {AnalyticsService} from "./analytics.service";
 
 @Controller()
@@ -10,13 +14,16 @@ export class AnalyticsController {
 
     constructor(private analyticsService: AnalyticsService) {}
 
-    @MessagePattern("analytics")
-    async track(data: unknown): Promise<void> {
+    @MessagePattern(AnalyticsEndpoint.Analytics)
+    async track(@Payload() data: unknown): Promise<AnalyticsOutput<AnalyticsEndpoint.Analytics>> {
         try {
-            const result = serverEventSchema.parse(data);
+            const result = AnalyticsPointSchema.parse(data);
             this.analyticsService.createPoint(result);
-            this.logger.debug("Logged Point");
+            this.logger.debug("Logged point", {data});
+
+            return true;
         } catch (e) {
+            this.logger.error("Error logging point", {data}, e);
             throw new RpcException(e as Error);
         }
     }

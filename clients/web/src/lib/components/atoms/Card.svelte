@@ -1,5 +1,5 @@
 <script lang="ts">
-    export let compact: boolean | undefined;
+    export let compact: boolean | undefined = undefined;
 
     let _class: string;
     export {_class as class};

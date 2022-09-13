@@ -1,12 +1,15 @@
 {
   "transport": {
     "url": "",
-    "core_queue": "",
-    "bot_queue": "",
-    "analytics_queue": "",
-    "matchmaking_queue": "",
-    "events_queue":  "",
-    "events_application_key": ""
+    "core_queue": "dev-core",
+    "bot_queue": "dev-bot",
+    "analytics_queue": "dev-analytics",
+    "events_queue": "dev-events",
+    "matchmaking_queue": "dev-matchmaking",
+    "image_generation_queue": "dev-ig",
+    "celery-queue": "dev-celery",
+    "submission_queue": "dev-submissions",
+    "notification_queue": "dev-notification"
   },
   "logger": {
     "levels": true
@@ -20,8 +23,10 @@
   },
   "minio": {
     "endPoint": "",
+    "port" : 80,
     "bucketNames": {
-      "replays": ""
+      "replays": "",
+      "image_generation" : ""
     }
   },
   "celery": {
@@ -29,21 +34,29 @@
     "backend": "",
     "queue": ""
   },
-  "redis": {
-    "port": 80,
-    "host": "",
-    "prefix": ""
+  "web": {
+    "url": "",
+    "api_root": ""
   },
   "gql": {
     "playground": false
   },
   "auth": {
-    "googleClientID": "",
-    "googleSecret" : "",
-    "googleCallbackURL": "",
+    "google": {
+      "callbackUrl": ""
+    },
+    "discord": {
+      "callbackUrl": ""
+    },
     "jwt_expiry": "",
-    "discordClientID" : "",
-    "discordSecret" : "",
-    "discordCallbackURL": ""
-  }
+    "frontend_callback": ""
+  },
+  "redis": {
+    "port": 80,
+    "host": "",
+    "prefix": "",
+    "secure": true
+  },
+  "defaultOrganizationId": 2
 }
+

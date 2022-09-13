@@ -5,12 +5,14 @@ import {
 
 import {BaseModel} from "../../base-model";
 import {OrganizationConfigurationAllowedValue} from "../organization_configuration_allowed_value";
-@Entity({ schema: "sprocket" })
+import {OrganizationConfigurationKeyCode, OrganizationConfigurationKeyType} from "./organization_configuration_key.enum";
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class OrganizationConfigurationKey extends BaseModel {
-    @Column()
-    @Field(() => String)
-    code: string;
+    @Column({type: "enum", enum: OrganizationConfigurationKeyCode})
+    @Field(() => OrganizationConfigurationKeyCode)
+    code: OrganizationConfigurationKeyCode;
 
     @Column()
     @Field(() => String)
@@ -19,4 +21,11 @@ export class OrganizationConfigurationKey extends BaseModel {
     @OneToMany(() => OrganizationConfigurationAllowedValue, ocav => ocav.key)
     @Field(() => [OrganizationConfigurationAllowedValue])
     allowedValues: OrganizationConfigurationAllowedValue[];
+
+    @Column({
+        type: "enum",
+        enum: OrganizationConfigurationKeyType,
+    })
+    @Field(() => OrganizationConfigurationKeyType)
+    type: OrganizationConfigurationKeyType;
 }

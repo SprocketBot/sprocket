@@ -1,7 +1,10 @@
-import {Column, Entity, Index, PrimaryGeneratedColumn} from "typeorm";
-import {Role} from "./enums/Role.enum";
-import {Timezone} from "./enums/Timezone.enum";
+import {
+    Column, Entity, Index, PrimaryGeneratedColumn,
+} from "typeorm";
+
 import {League} from "./enums/League.enum";
+import type {Role} from "./enums/Role.enum";
+import {Timezone} from "./enums/Timezone.enum";
 
 @Index("player_history_pkey", ["historyId"], {unique: true})
 @Index("player_history_mleid_index", ["mleid"], {})
@@ -42,7 +45,7 @@ export class MLE_PlayerHistory {
     @Column("character varying", {name: "name", length: 255})
     name: string;
 
-    @Column("real", {name: "salary", default: () => "'-1.0'"})
+    @Column("real", {name: "salary", default: -1})
     salary: number;
 
     @Column("character varying", {
@@ -59,7 +62,9 @@ export class MLE_PlayerHistory {
     })
     league: League;
 
-    @Column("character varying", {name: "role", nullable: true, length: 255})
+    @Column("character varying", {
+        name: "role", nullable: true, length: 255,
+    })
     role: Role | null;
 
     @Column("character varying", {
@@ -69,7 +74,9 @@ export class MLE_PlayerHistory {
     })
     preferredPlatform: string | null;
 
-    @Column("integer", {name: "peak_mmr", nullable: true, default: () => "0"})
+    @Column("integer", {
+        name: "peak_mmr", nullable: true, default: 0,
+    })
     peakMmr: number | null;
 
     @Column("character varying", {

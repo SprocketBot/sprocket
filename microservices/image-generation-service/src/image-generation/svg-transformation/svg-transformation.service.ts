@@ -1,11 +1,15 @@
 import {Injectable, Logger} from "@nestjs/common";
+import type {DataLeaf, TemplateStructure} from "@sprocketbot/common";
 import axios from "axios";
 import * as sharp from "sharp";
 
 import type {
-    Dimension, ImageTransformationsOptions, InputDatum, Operation, TextTransformationOptions,
+    Dimension, ImageTransformationsOptions,
+    SprocketData, TextTransformationOptions,
 } from "../types";
-import {operationSchema, sprocketDataSchema} from "../types";
+import {
+    dataForLinkType, sprocketDataSchema,
+} from "../types";
 
 @Injectable()
 export class SvgTransformationService {
@@ -17,12 +21,12 @@ export class SvgTransformationService {
         const styles = Array.from(el.ownerDocument.querySelectorAll("style"))
             .map(s => s.outerHTML)
             .join("\n");
-        
+
         const str = `<svg>
                 ${styles}
                 ${el.outerHTML}
             </svg>`;
-        
+
         const buf = Buffer.from(str);
         const sharpBuffer = sharp(buf).png();
         const metadata = await sharpBuffer.metadata();
@@ -55,7 +59,7 @@ export class SvgTransformationService {
                 if (use.hasAttribute("xlink:href")) {
                     const newTarget = el.ownerDocument.querySelector(use.getAttribute("xlink:href")!);
                     if (newTarget) {
-                        return await this.resolveTargetImage(newTarget);
+                        return this.resolveTargetImage(newTarget);
                     }
                 }
             }
@@ -63,11 +67,9 @@ export class SvgTransformationService {
         if (el.nodeName === "image") {
             return el;
         }
-    
-        
+
         return false;
     }
-    
 
     async applyImageTransformation(el: Element, value: string, options: ImageTransformationsOptions): Promise<void> {
         let target = el;
@@ -82,7 +84,7 @@ export class SvgTransformationService {
                 return;
             }
         }
-        
+
         /*
          * TODO: Ensure that string generic typing is correct here
          */
@@ -91,7 +93,7 @@ export class SvgTransformationService {
             const response = await axios.get<string>(value, {
                 responseType: "arraybuffer",
             });
-        
+
             if (response.headers?.["content-type"] !== "image/png") {
                 this.logger.warn("Found invalid image format for image transformation! Skipping...");
                 return;
@@ -119,7 +121,7 @@ export class SvgTransformationService {
          * TODO: Image rescaling options
          */
         if (options.rescaleOn === "height") return;
-        
+
     }
 
     async applyTextTransformation(el: Element, value: string, options: TextTransformationOptions): Promise<void> {
@@ -133,8 +135,23 @@ export class SvgTransformationService {
         const originalLeft = Number(target.getAttribute("x") ?? 0);
         const originalBottom = Number(target.getAttribute("y") ?? 0);
         const {height: originalHeight, width: originalWidth} = await this.getElDimension(el);
-        
-        target.textContent = value;
+
+        let newtext = value;
+        const truncate = options["truncate-to"];
+        if (truncate && truncate !== "as-is") {
+            newtext = newtext.slice(0, truncate);
+        }
+        switch (options.case) {
+            case "upper":
+                newtext = newtext.toUpperCase();
+                break;
+            case "lower":
+                newtext = newtext.toLowerCase();
+                break;
+            default: break;
+        }
+
+        target.textContent = newtext;
 
         const {height: newHeight, width: newWidth} = await this.getElDimension(el);
 
@@ -194,7 +211,7 @@ export class SvgTransformationService {
     async applyStrokeTransformation(el: Element, value: string): Promise<void> {
         function swapStroke(target: SVGElement): void {
             if (target.hasAttribute("stroke")) {
-                target.style.fill = value;
+                target.style.stroke = value;
             }
             if (target.hasAttribute("stroke")) {
                 target.setAttribute("stroke", value);
@@ -210,54 +227,62 @@ export class SvgTransformationService {
         }
     }
 
-    extractOperation(key: string, data: InputDatum): Operation | false {
-        // eslint-disable-next-line
-        let val: InputDatum | Operation | object = data;
-    
-        for (const segment of key.split(".")) {
-            // eslint-disable-next-line
+    extractDataFromStructure(key: string, data: TemplateStructure): DataLeaf | false {
+        let val: TemplateStructure | DataLeaf = data;
+        const segments = key.split(".");
+        for (const segment of segments) {
             if (Object.keys(val).includes(segment)) {
-                val = val[segment] as object;
+                val = val[segment] as TemplateStructure | DataLeaf;
             } else {
                 this.logger.warn(`Unknown value ${key} found! Skipping...`);
                 return false;
             }
         }
-        // Console.log(key, data)
-        const checked = operationSchema.safeParse(val);
-        if (!checked.success) {
-            this.logger.warn(`Malformed object at ${key} found! Skipping... (${checked.error})`);
-            return false;
-        }
-        return checked.data;
+        val = val as DataLeaf;
+        return val;
     }
-    
-    async transformElement(el: Element, data: InputDatum): Promise<void> {
-        const rawTransformations = JSON.parse((el as SVGElement).dataset.sprocket ?? "") as unknown;
+
+    async transformElement(el: Element, data: TemplateStructure): Promise<void> {
+        const rawTransformations = JSON.parse((el as SVGElement).dataset.sprocket ?? "") as SprocketData[];
         const transformations = sprocketDataSchema.parse(rawTransformations);
-        await Promise.all(transformations.map(async t => {
-            const operation = this.extractOperation(t.varPath, data);
-            if (operation === false) return Promise.resolve();
-            switch (t.type) {
-                case "text":
-                    await this.applyTextTransformation(el, operation.value.toString(), t.options);
-                    break;
-                case "fill":
-                    await this.applyFillTransformation(el, operation.value.toString());
-                    break;
-                case "stroke":
-                    await this.applyStrokeTransformation(el, operation.value.toString());
-                    break;
-                case "image":
-                    await this.applyImageTransformation(el, operation.value.toString(), t.options);
-                    break;
-                default:
-                    // @ts-expect-error leaving this here for when we create future transformation types
-                    this.logger.warn(`Unknown operation ${t.type} found! Skipping...`);
-            }
-            return Promise.resolve();
-        }));
+
+        try {
+            await Promise.all(transformations.map(async t => {
+                const datum = this.extractDataFromStructure(t.varPath, data);
+                if (!datum) return Promise.resolve();
+                if (!dataForLinkType[t.type].includes(datum.type)) {
+                    this.logger.warn(`Problem parsing operation for ${t.varPath}. ${datum.type} cannot be applied to ${t.type}! Skipping ...`);
+                    return Promise.resolve();
+                }
+                switch (t.type) {
+                    case "number":
+                    case "text":
+                        await this.applyTextTransformation(el, datum.value.toString(), t.options);
+                        this.logger.log(`successfully applied transformation to ${el.id} (Text ${datum.value.toString()})`);
+                        break;
+                    case "fill":
+                        await this.applyFillTransformation(el, datum.value.toString());
+                        this.logger.log(`successfully applied transformation to ${el.id} (Fill ${datum.value.toString()})`);
+                        break;
+                    case "stroke":
+                        await this.applyStrokeTransformation(el, datum.value.toString());
+                        this.logger.log(`successfully applied transformation to ${el.id} (Stroke ${datum.value.toString()})`);
+                        break;
+                    case "image":
+                        await this.applyImageTransformation(el, datum.value.toString(), t.options);
+                        this.logger.log(`successfully applied transformation to ${el.id} (Image)`);
+                        break;
+                    default:
+                        // Leaving this here for when we create future transformation types
+                        this.logger.warn(`Unknown operation ${t} found! Skipping...`);
+                        break;
+                }
+                return Promise.resolve();
+            }));
+        } catch (e) {
+            this.logger.warn(`failed to apply transformation to ${el.id}`);
+            this.logger.error(e, (e as Error).stack);
+        }
         el.removeAttribute("data-sprocket");
-        this.logger.log(`successfully applied transformation to ${el.id}`);
     }
 }

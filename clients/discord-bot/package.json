@@ -9,7 +9,7 @@
     "debug": "nest start --watch --debug",
     "test": "NODE_ENV=test jest --coverage",
     "test:watch": "NODE_ENV=test jest --watch",
-    "lint": "eslint"
+    "lint": "eslint src --fix"
   },
   "repository": {
     "type": "git",
@@ -23,14 +23,15 @@
   },
   "homepage": "https://github.com/SprocketBot/service-template#readme",
   "dependencies": {
-    "@nestjs/common": "^7.6.17",
-    "@nestjs/core": "^7.6.17",
-    "@nestjs/microservices": "^7.6.17",
+    "@nestjs/common": "^8.2.3",
+    "@nestjs/core": "^8.2.3",
+    "@nestjs/microservices": "^8.2.3",
     "@sprocketbot/common": "^0.2.13",
     "bufferutil": "^4.0.5",
     "config": "^3.3.6",
     "discord-api-types": "^0.25.2",
     "discord.js": "13.1.0",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
     "jest": "^27.0.4",
     "jest-junit": "^12.2.0",
     "reflect-metadata": "^0.1.13",
@@ -40,7 +41,7 @@
   "devDependencies": {
     "@commitlint/cli": "^12.1.4",
     "@commitlint/config-conventional": "^12.1.4",
-    "@nestjs/testing": "^7.6.18",
+    "@nestjs/testing": "^8.2.3",
     "@types/config": "^0.0.38",
     "@types/jest": "^26.0.23",
     "@types/node": "^15.14.9",

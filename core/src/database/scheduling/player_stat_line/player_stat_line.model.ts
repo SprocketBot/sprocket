@@ -5,9 +5,11 @@ import {
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
+import {Player} from "../../franchise";
 import {Round} from "../round/round.model";
 import {TeamStatLine} from "../team_stat_line/team_stat_line.model";
-@Entity({ schema: "sprocket" })
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class PlayerStatLine extends BaseModel {
     @Column({
@@ -28,4 +30,7 @@ export class PlayerStatLine extends BaseModel {
     @Field(() => TeamStatLine)
     teamStats: TeamStatLine;
 
+    @ManyToOne(() => Player)
+    @Field(() => Player)
+    player: Player;
 }

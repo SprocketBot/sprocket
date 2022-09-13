@@ -6,7 +6,8 @@ import {
 import {BaseModel} from "../../base-model";
 import {FranchiseStaffAppointment} from "../../franchise/franchise_staff_appointment";
 import {FranchiseStaffRole} from "../franchise_staff_role";
-@Entity({ schema: "sprocket" })
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class FranchiseStaffSeat extends BaseModel {
     @ManyToOne(() => FranchiseStaffRole)
@@ -16,5 +17,4 @@ export class FranchiseStaffSeat extends BaseModel {
     @OneToMany(() => FranchiseStaffAppointment, fsa => fsa.seat)
     @Field(() => [FranchiseStaffAppointment])
     appointments: FranchiseStaffAppointment[];
-    
 }

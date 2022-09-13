@@ -1,11 +1,11 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import type {FindConditions} from "typeorm";
+import type {FindManyOptions, FindOneOptions} from "typeorm";
 import {Repository} from "typeorm";
 
 import {MemberPlatformAccount} from "../../database";
-import {PlatformService} from "../../game/platform/platform.service";
-import {MemberService} from "../member/member.service";
+import {PlatformService} from "../../game/";
+import {MemberService} from "../member/";
 
 @Injectable()
 export class MemberPlatformAccountService {
@@ -14,15 +14,17 @@ export class MemberPlatformAccountService {
         private memberService: MemberService,
         private platformService: PlatformService,
     ) {}
-    
-    async getMemberPlatformAccountById(id: number): Promise<MemberPlatformAccount> {
-        return this.memberPlatformAccountRepository.findOneOrFail(id);
+
+    async getMemberPlatformAccount(query: FindOneOptions<MemberPlatformAccount>): Promise<MemberPlatformAccount> {
+        return this.memberPlatformAccountRepository.findOneOrFail(query);
     }
 
-    async getMemberPlatformAccounts(query: FindConditions<MemberPlatformAccount>): Promise<MemberPlatformAccount[]> {
-        return this.memberPlatformAccountRepository.find({
-            where: query,
-        });
+    async getMemberPlatformAccountById(id: number): Promise<MemberPlatformAccount> {
+        return this.memberPlatformAccountRepository.findOneOrFail({where: {id} });
+    }
+
+    async getMemberPlatformAccounts(query: FindManyOptions<MemberPlatformAccount>): Promise<MemberPlatformAccount[]> {
+        return this.memberPlatformAccountRepository.find(query);
     }
 
     async createMemberPlatformAccount(memberId: number, platformId: number, platformAccountId: string): Promise<MemberPlatformAccount> {

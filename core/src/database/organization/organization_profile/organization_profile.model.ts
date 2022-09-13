@@ -1,11 +1,12 @@
 import {Field, ObjectType} from "@nestjs/graphql/dist";
 import {
-    Column, Entity, OneToOne,
+    Column, Entity, JoinColumn, OneToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {Organization} from "../organization/organization.model";
-@Entity({ schema: "sprocket" })
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class OrganizationProfile extends BaseModel {
     @Column()
@@ -15,10 +16,6 @@ export class OrganizationProfile extends BaseModel {
     @Column()
     @Field(() => String)
     description: string;
-
-    @OneToOne(() => Organization)
-    @Field(() => Organization)
-    organization: Organization;
 
     @Column({default: ""})
     @Field(() => String)
@@ -35,4 +32,9 @@ export class OrganizationProfile extends BaseModel {
     @Column({nullable: true})
     @Field(() => String, {nullable: true})
     logoUrl?: string;
+
+    @OneToOne(() => Organization)
+    @JoinColumn()
+    @Field(() => Organization)
+    organization: Organization;
 }

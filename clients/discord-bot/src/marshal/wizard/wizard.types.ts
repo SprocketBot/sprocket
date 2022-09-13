@@ -17,7 +17,6 @@ export type ReactionCollectorFilterFunction = (reaction: MessageReaction, user: 
 export type InteractionCollectorFilterFunction = (interaction: MessageComponentInteraction) => boolean;
 export type CollectorFilterFunction = MessageCollectorFilterFunction | ReactionCollectorFilterFunction | InteractionCollectorFilterFunction;
 
-
 export type ValidWizardCollector = MessageCollector | ReactionCollector | InteractionCollector<MessageComponentInteraction>;
 
 export enum WizardExitStatus {

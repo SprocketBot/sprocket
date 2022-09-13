@@ -1,24 +1,66 @@
 import {Module} from "@nestjs/common";
 import {
-    CeleryModule, MatchmakingModule, MinioModule, RedisModule,
+    AnalyticsModule,
+    CeleryModule,
+    EventsModule,
+    MatchmakingModule,
+    MinioModule,
+    RedisModule,
+    SubmissionModule,
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
-import {ScrimModule} from "src/scrim/scrim.module";
 
+import {DatabaseModule} from "../database";
+import {EloModule} from "../elo/elo.module";
+import {EloConnectorModule} from "../elo/elo-connector";
+import {FranchiseModule} from "../franchise";
+import {IdentityModule} from "../identity";
+import {MledbInterfaceModule} from "../mledb";
+import {SchedulingModule} from "../scheduling";
+import {ScrimModule} from "../scrim";
+import {SprocketRatingModule} from "../sprocket-rating/sprocket-rating.module";
+import {UtilModule} from "../util/util.module";
+import {
+    BallchasingConverterService, FinalizationService, FinalizationSubscriber,
+} from "./finalization";
 import {ReplayParsePubSub} from "./replay-parse.constants";
-import {ReplayParseResolver} from "./replay-parse.resolver";
+import {ReplayParseModResolver} from "./replay-parse.mod.resolver";
+import {ReplaySubmissionResolver, SubmissionRejectionResolver} from "./replay-parse.resolver";
 import {ReplayParseService} from "./replay-parse.service";
-import {ReplaySubmissionModule} from "./replay-submission/replay-submission.module";
 
 @Module({
-    imports: [CeleryModule, MinioModule, RedisModule, MatchmakingModule, ScrimModule, ReplaySubmissionModule],
+    imports: [
+        SubmissionModule,
+        CeleryModule,
+        MinioModule,
+        RedisModule,
+        MatchmakingModule,
+        ScrimModule,
+        EventsModule,
+        DatabaseModule,
+        MledbInterfaceModule,
+        AnalyticsModule,
+        FranchiseModule,
+        IdentityModule,
+        SprocketRatingModule,
+        EloModule,
+        EloConnectorModule,
+        SchedulingModule,
+        UtilModule,
+    ],
     providers: [
-        ReplayParseResolver,
+        ReplayParseModResolver,
         ReplayParseService,
         {
             provide: ReplayParsePubSub,
             useValue: new PubSub(),
         },
+        ReplaySubmissionResolver,
+        FinalizationService,
+        SubmissionRejectionResolver,
+        BallchasingConverterService,
+        FinalizationSubscriber,
     ],
 })
-export class ReplayParseModule {}
+export class ReplayParseModule {
+}

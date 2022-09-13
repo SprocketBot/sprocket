@@ -1,4 +1,7 @@
-import {Column, Entity, Index, JoinColumn, OneToOne, PrimaryGeneratedColumn,} from "typeorm";
+import {
+    Column, Entity, Index, JoinColumn, OneToOne, PrimaryGeneratedColumn,
+} from "typeorm";
+
 import {MLE_Player} from "./Player.model";
 
 @Index("team_to_captain_pkey", ["id"], {unique: true})
@@ -37,24 +40,23 @@ export class MLE_TeamToCaptain {
     })
     updatedAt: Date;
 
-    @Column("integer", {name: "player_id", unique: true})
+    @Column("integer", {name: "player_id"})
     playerId: number;
 
-    @Column("character varying", {name: "team_name", unique: true, length: 255})
+    @Column("character varying", {name: "team_name", length: 255})
     teamName: string;
 
     @Column("character varying", {
         name: "league",
-        unique: true,
         length: 255,
         default: () => "'UNKNOWN'",
     })
     league: string;
 
-    @OneToOne(() => MLE_Player,{
+    @OneToOne(() => MLE_Player, {
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
     })
-    @JoinColumn([{name: "player_id", referencedColumnName: "id"}])
+    @JoinColumn([ {name: "player_id", referencedColumnName: "id"} ])
     player: MLE_Player;
 }

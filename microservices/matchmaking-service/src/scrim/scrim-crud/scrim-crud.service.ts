@@ -2,11 +2,13 @@ import {Injectable} from "@nestjs/common";
 import type {
     Scrim, ScrimGame, ScrimPlayer,
 } from "@sprocketbot/common";
-import {ScrimStatus} from "@sprocketbot/common";
-import {RedisService} from "@sprocketbot/common";
+import {
+    config, RedisService, ScrimStatus,
+} from "@sprocketbot/common";
+import type {JobId} from "bull";
+import {randomBytes} from "crypto";
 import {v4} from "uuid";
 
-import {config} from "../../util/config";
 import type {CreateScrimOpts} from "./types";
 
 @Injectable()
@@ -17,14 +19,16 @@ export class ScrimCrudService {
     }
 
     async createScrim({
-        settings, author, gameMode,
+        organizationId, settings, author, gameMode, skillGroupId,
     }: CreateScrimOpts): Promise<Scrim> {
         const scrim: Scrim = {
             id: v4(),
+            organizationId: organizationId,
             players: [],
             settings: settings,
             status: ScrimStatus.PENDING,
             gameMode: gameMode,
+            skillGroupId: skillGroupId,
             games: [],
         };
         if (author) {
@@ -47,9 +51,11 @@ export class ScrimCrudService {
         return this.redisService.getJson<Scrim>(`${this.prefix}${id}`);
     }
 
-    async getAllScrims(): Promise<Scrim[]> {
+    async getAllScrims(skillGroupId?: number): Promise<Scrim[]> {
         const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
-        return Promise.all(scrimKeys.map<Promise<Scrim>>(async key => this.redisService.getJson<Scrim>(key)));
+        const scrims = await Promise.all(scrimKeys.map<Promise<Scrim>>(async key => this.redisService.getJson<Scrim>(key)));
+
+        return skillGroupId ? scrims.filter(s => s.skillGroupId === skillGroupId || !s.settings.competitive) : scrims;
     }
 
     async getScrimByPlayer(id: number): Promise<Scrim | null> {
@@ -57,6 +63,15 @@ export class ScrimCrudService {
         for (const key of scrimKeys) {
             const playerIds = await this.redisService.getJson<number[]>(key, "$.players[*].id");
             if (playerIds.includes(id)) return this.redisService.getJson<[Scrim]>(key, "$").then(([r]) => r);
+        }
+        return null;
+    }
+
+    async getScrimBySubmissionId(submissionId: string): Promise<Scrim | null> {
+        const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
+        for (const scrimKey of scrimKeys) {
+            const [_submissionId] = await this.redisService.getJson<string[]>(scrimKey, "$.submissionId");
+            if (_submissionId === submissionId) return this.redisService.getJson<Scrim>(scrimKey);
         }
         return null;
     }
@@ -80,7 +95,7 @@ export class ScrimCrudService {
         await this.redisService.deleteJsonField(`${this.prefix}${scrimId}`, "$.players");
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.players", players);
     }
-    
+
     async playerInAnyScrim(playerId: number): Promise<boolean> {
         const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
         const allScrimPlayers = await Promise.all(scrimKeys.map(async k => this.redisService.getJson(k, "$.players[*].id")));
@@ -91,8 +106,23 @@ export class ScrimCrudService {
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.status", status);
     }
 
-    async setSubmissionGroupId(scrimId: string, submissionGroupId: string): Promise<void> {
-        await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.submissionGroupId", submissionGroupId);
+    async updateScrimUnlockedStatus(scrimId: string, status: ScrimStatus): Promise<void> {
+        await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.unlockedStatus", status);
+    }
+
+    async setSubmissionId(scrimId: string, submissionId: string): Promise<void> {
+        await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.submissionId", submissionId);
+    }
+
+    async setTimeoutJobId(scrimId: string, jobId: JobId): Promise<void> {
+        await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.jobId", jobId);
+    }
+
+    async generateLobby(scrimId: string): Promise<void> {
+        await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.settings.lobby", {
+            name: "sprocket",
+            password: randomBytes(3).toString("hex"),
+        });
     }
 
     async setScrimGames(scrimId: string, games: ScrimGame[]): Promise<void> {
@@ -100,7 +130,9 @@ export class ScrimCrudService {
     }
 
     async getValidated(scrimId: string): Promise<boolean> {
-        const submissionId = await this.redisService.getJson(`${this.prefix}${scrimId}`, "$.submissionGroupId");
+        // Not implemented yet, so just throwing this here to get rid of a warning until it's added.
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const submissionId = await this.redisService.getJson(`${this.prefix}${scrimId}`, "$.submissionId");
         return this.redisService.getJson(`${this.prefix}`);
     }
 }

@@ -1,6 +1,6 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {
-    Entity, JoinColumn, OneToMany, OneToOne,
+    Entity, OneToMany, OneToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
@@ -12,13 +12,13 @@ import {Member} from "../member";
 import {OrganizationMottos} from "../organization_mottos";
 import {OrganizationProfile} from "../organization_profile";
 import {Pronouns} from "../pronouns";
-@Entity({ schema: "sprocket" })
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class Organization extends BaseModel {
-    @OneToOne(() => OrganizationProfile)
-    @JoinColumn()
+    @OneToOne(() => OrganizationProfile, op => op.organization)
     @Field(() => OrganizationProfile)
-    organizationProfile: OrganizationProfile;
+    profile: OrganizationProfile;
 
     @OneToMany(() => OrganizationMottos, om => om.organization)
     @Field(() => [OrganizationMottos])

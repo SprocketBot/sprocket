@@ -51,7 +51,6 @@ async function applyTextTransformation(el: Element, value: string, options: Text
         let halfHeight = originalHeight / 2;
         const originalCenterY = originalBottom - halfHeight;
         target.textContent = value;
-
    
         const {height: newHeight, width: newWidth} = await getElDimension(el);
         halfHeight = newHeight / 2;
@@ -103,7 +102,7 @@ async function resolveTargetImage(el: Element): Promise<Element | false> {
             if (use.hasAttribute("xlink:href")) {
                 const newTarget = el.ownerDocument.querySelector(use.getAttribute("xlink:href")!);
                 if (newTarget) {
-                    return await resolveTargetImage(newTarget);
+                    return resolveTargetImage(newTarget);
                 }
             }
         }
@@ -111,7 +110,6 @@ async function resolveTargetImage(el: Element): Promise<Element | false> {
     if (el.nodeName === "image") {
         return el;
     }
-
     
     return false;
 }
@@ -151,7 +149,6 @@ async function applyImageTransformation(el: Element, value: string): Promise<voi
         target.setAttribute("xlink:href", image);
     }
     // TODO: Deal with figma output ( fill=url(#pattern) )
-    
     
 }
 
@@ -205,7 +202,6 @@ async function transformElement(el: Element, data: InputDatum): Promise<void> {
         }
     }
 }
-
 
 async function recursiveTransform(el: Element, data: InputDatum, debug: boolean = true, depth: number = 0): Promise<void> {
     await transformElement(el, data);

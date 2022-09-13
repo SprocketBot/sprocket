@@ -1,12 +1,16 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import type {FindConditions} from "typeorm";
-import {Repository} from "typeorm";
+import type {FindOneOptions, FindOptionsWhere} from "typeorm";
+import {Like, Repository} from "typeorm";
 
 import {
     Organization,
-    OrganizationConfigurationAllowedValue, OrganizationConfigurationKey, OrganizationConfigurationValue,
+    OrganizationConfigurationAllowedValue,
+    OrganizationConfigurationKey,
+    OrganizationConfigurationValue,
 } from "../../database";
+import type {OrganizationConfigurationKeyCode, OrganizationConfigurationKeyTypes} from "../../database/configuration/organization_configuration_key";
+import {OrganizationConfigurationKeyType} from "../../database/configuration/organization_configuration_key";
 import type {OrganizationConfiguration} from "./organization-configuration.types";
 
 @Injectable()
@@ -18,18 +22,25 @@ export class OrganizationConfigurationService {
         @InjectRepository(OrganizationConfigurationValue) private valueRepository: Repository<OrganizationConfigurationValue>,
     ) {}
 
-    async getOrganizationConfigurations(organizationId: number, keyCode?: string): Promise<OrganizationConfiguration[]> {
-        const where: FindConditions<OrganizationConfigurationValue> = {
+    async getOrganizationConfigurations(organizationId: number, code?: OrganizationConfigurationKeyCode): Promise<OrganizationConfiguration[]> {
+        const where: FindOptionsWhere<OrganizationConfigurationValue> = {
             organization: {
                 id: organizationId,
             },
         };
 
-        if (keyCode) where.key = {code: keyCode};
-        
+        if (code) where.key = {code};
+
         const values = await this.valueRepository.find({
             where: where,
-            relations: ["organization", "organization.organizationProfile", "key", "key.allowedValues"],
+            relations: {
+                organization: {
+                    profile: true,
+                },
+                key: {
+                    allowedValues: true,
+                },
+            },
         });
 
         return values.map(v => ({
@@ -44,27 +55,53 @@ export class OrganizationConfigurationService {
         return this.keyRepository.find();
     }
 
-    async getOrganizationConfigurationAllowedValues(code: string): Promise<OrganizationConfigurationAllowedValue[]> {
+    async getOrganizationConfigurationAllowedValues(code: OrganizationConfigurationKeyCode): Promise<OrganizationConfigurationAllowedValue[]> {
         return this.allowedValueRepository.find({
             relations: ["key"],
             where: {
-                key: {code},
+                key: {
+                    code,
+                },
             },
         });
     }
 
-    async getOrganizationConfigurationValue(organizationId: number, code: string): Promise<OrganizationConfigurationValue> {
-        return this.valueRepository.findOneOrFail({
+    async getOrganizationConfigurationValue<T extends OrganizationConfigurationKeyTypes[keyof OrganizationConfigurationKeyTypes]>(organizationId: number, code: OrganizationConfigurationKeyCode): Promise<T> {
+        const organizationConfigurationValue = await this.valueRepository.findOne({
             relations: ["key"],
             where: {
-                organization: organizationId,
+                organization: {
+                    id: organizationId,
+                },
                 key: {code},
             },
         });
+
+        let organizationConfigurationKey: OrganizationConfigurationKey;
+
+        if (!organizationConfigurationValue) {
+            organizationConfigurationKey = await this.keyRepository.findOneOrFail({
+                where: {code},
+            });
+        }
+
+        return this.parseValue(
+            organizationConfigurationValue?.key ?? organizationConfigurationKey!,
+            organizationConfigurationValue?.value ?? organizationConfigurationKey!.default,
+        ) as T;
     }
 
-    async createOrganizationConfigurationValue(organizationId: number, code: string, value: string): Promise<OrganizationConfigurationValue> {
-        const organization = await this.organizationRepository.findOneOrFail(organizationId);
+    async findOrganizationConfigurationValue(value: string, options?: FindOneOptions<OrganizationConfigurationValue>): Promise<OrganizationConfigurationValue> {
+        return this.valueRepository.findOneOrFail(Object.assign(options ?? {}, {
+            where: {
+                value: Like(`%${value}%`),
+            },
+        }));
+    }
+
+    async createOrganizationConfigurationValue(organizationId: number, code: OrganizationConfigurationKeyCode, value: string): Promise<OrganizationConfigurationValue> {
+        // TODO: Use Organization Service
+        const organization = await this.organizationRepository.findOneOrFail({where: {id: organizationId} });
         const key = await this.keyRepository.findOneOrFail({where: {code} });
         const allowedValues = await this.allowedValueRepository.find({
             relations: ["key"],
@@ -83,7 +120,7 @@ export class OrganizationConfigurationService {
         return ocValue;
     }
 
-    async updateOrganizationConfigurationValue(organizationId: number, code: string, newValue: string): Promise<OrganizationConfigurationValue> {
+    async updateOrganizationConfigurationValue(organizationId: number, code: OrganizationConfigurationKeyCode, newValue: string): Promise<OrganizationConfigurationValue> {
         const allowedValues = await this.allowedValueRepository.find({
             relations: ["key"],
             where: {key: {code} },
@@ -96,7 +133,9 @@ export class OrganizationConfigurationService {
         const ocValue = await this.valueRepository.findOneOrFail({
             relations: ["key"],
             where: {
-                organization: organizationId,
+                organization: {
+                    id: organizationId,
+                },
                 key: {code},
             },
         });
@@ -115,7 +154,7 @@ export class OrganizationConfigurationService {
      */
     validateValue(value: string, allowedValues: OrganizationConfigurationAllowedValue[]): boolean {
         if (!allowedValues.length) return true;
-        
+
         for (const allowedValue of allowedValues) {
             if (allowedValue.pattern) {
                 const regex = new RegExp(allowedValue.value);
@@ -125,4 +164,18 @@ export class OrganizationConfigurationService {
         return false;
     }
 
+    parseValue(key: OrganizationConfigurationKey, value: string): OrganizationConfigurationKeyTypes[keyof OrganizationConfigurationKeyTypes] {
+        switch (key.type) {
+            case OrganizationConfigurationKeyType.ARRAY_STRING:
+                return JSON.parse(value) as string[];
+            case OrganizationConfigurationKeyType.FLOAT:
+                return parseFloat(value);
+            case OrganizationConfigurationKeyType.INTEGER:
+                return parseInt(value);
+            case OrganizationConfigurationKeyType.STRING:
+                return value;
+            default:
+                throw new Error("Invalid key type given");
+        }
+    }
 }

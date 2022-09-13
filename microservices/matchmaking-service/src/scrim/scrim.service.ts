@@ -4,7 +4,10 @@ import type {
     Scrim, ScrimGameMode, ScrimPlayer, ScrimSettings,
 } from "@sprocketbot/common";
 import {
-    AnalyticsEndpoint, AnalyticsService, EventTopic, ScrimStatus,
+    AnalyticsEndpoint,
+    AnalyticsService,
+    EventTopic,
+    ScrimStatus,
 } from "@sprocketbot/common";
 
 import {EventProxyService} from "./event-proxy/event-proxy.service";
@@ -21,10 +24,10 @@ export class ScrimService {
         private readonly eventsService: EventProxyService,
         private readonly scrimLogicService: ScrimLogicService,
         private readonly scrimGroupService: ScrimGroupService,
-        protected readonly analyticsService: AnalyticsService,
+        private readonly analyticsService: AnalyticsService,
     ) {}
 
-    async createScrim(author: ScrimPlayer, settings: ScrimSettings, gameMode: ScrimGameMode, createGroup: boolean): Promise<Scrim> {
+    async createScrim(organizationId: number, author: ScrimPlayer, settings: ScrimSettings, gameMode: ScrimGameMode, skillGroupId: number, createGroup: boolean): Promise<Scrim> {
         if (await this.scrimCrudService.playerInAnyScrim(author.id)) {
             throw new RpcException("Cannot create scrim, player already in another scrim");
         }
@@ -34,7 +37,7 @@ export class ScrimService {
         }
 
         const scrim = await this.scrimCrudService.createScrim({
-            settings, author, gameMode,
+            organizationId, settings, author, gameMode, skillGroupId,
         });
 
         if (createGroup) {
@@ -47,11 +50,8 @@ export class ScrimService {
 
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
             name: "scrimCreated",
-            tags: [
-                ["scrimId", scrim.id],
-                ["submissionGroupId", scrim.submissionGroupId ?? ""],
-                ["authorId", `${author.id}`],
-            ],
+            tags: [ ["playerId", `${author.id}`] ],
+            strings: [ ["scrimId", scrim.id] ],
         }).catch(err => { this.logger.error(err) });
 
         return scrim;
@@ -78,10 +78,8 @@ export class ScrimService {
 
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
             name: "scrimJoined",
-            tags: [
-                ["scrimId", scrim.id],
-                ["playerId", `${player.id}`],
-            ],
+            tags: [ ["playerId", `${player.id}`] ],
+            strings: [ ["scrimId", scrim.id] ],
         }).catch(err => { this.logger.error(err) });
 
         if (scrim.settings.teamSize * scrim.settings.teamCount === scrim.players.length) {
@@ -90,7 +88,7 @@ export class ScrimService {
         }
 
         // Flush Changes
-        await this.eventsService.publish(EventTopic.ScrimUpdated, scrim, scrimId);
+        await this.publishScrimUpdate(scrimId);
 
         return true;
     }
@@ -114,15 +112,13 @@ export class ScrimService {
         }
 
         await this.scrimCrudService.removePlayerFromScrim(scrimId, player);
-        await this.eventsService.publish(EventTopic.ScrimUpdated, scrim, scrimId);
+        await this.publishScrimUpdate(scrimId);
         // refetch it
 
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
             name: "scrimLeft",
-            tags: [
-                ["scrimId", scrim.id],
-                ["playerId", `${player.id}`],
-            ],
+            tags: [ ["playerId", `${player.id}`] ],
+            strings: [ ["scrimId", scrim.id] ],
         }).catch(err => { this.logger.error(err) });
 
         return true;
@@ -147,9 +143,7 @@ export class ScrimService {
         player.checkedIn = true;
         await this.scrimCrudService.updatePlayer(scrimId, player);
 
-        const output = await this.scrimCrudService.getScrim(scrimId);
-        if (output === null) throw new Error("Unexpected null scrim found");
-        await this.eventsService.publish(EventTopic.ScrimUpdated, output, scrimId);
+        const output = await this.publishScrimUpdate(scrimId);
         if (output.players.every(p => p.checkedIn)) {
             // Scrim is ready to be marked as in progress
             await this.scrimLogicService.startScrim(output);
@@ -158,48 +152,88 @@ export class ScrimService {
         return true;
     }
 
-    async endScrim(scrimId: string, player: ScrimPlayer): Promise<Scrim> {
-        this.logger.debug(`Attempting to end scrim, scrimId=${scrimId} playerId=${player.id}`);
+    async cancelScrim(scrimId: string): Promise<Scrim> {
+        this.logger.debug(`Attempting to cancel scrim, scrimId=${scrimId}`);
 
         const scrim = await this.scrimCrudService.getScrim(scrimId);
 
         if (!scrim) {
             throw new RpcException("Scrim not found");
         }
-        if (!scrim.players.some(p => p.id === player.id)) {
-            throw new RpcException("Player not in this scrim");
-        }
-        if (scrim.status === ScrimStatus.RATIFYING) {
-            throw new RpcException("Scrim is already ended");
-        }
-        if (scrim.status !== ScrimStatus.IN_PROGRESS) {
-            throw new RpcException("Scrim is not ready to be ended");
-        }
 
-        scrim.status = ScrimStatus.RATIFYING;
-        await this.scrimCrudService.updateScrimStatus(scrimId, scrim.status);
-        
+        await this.scrimCrudService.removeScrim(scrimId);
+        scrim.status = ScrimStatus.CANCELLED;
+        await this.eventsService.publish(EventTopic.ScrimCancelled, scrim, scrim.id);
+
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
-            name: "scrimRatifying",
-            tags: [
-                ["scrimId", scrim.id],
-            ],
+            name: "scrimCancelled",
+            strings: [ ["scrimId", scrim.id] ],
         }).catch(err => { this.logger.error(err) });
 
         return scrim;
     }
 
-    async ratifyScrim(scrimId: string, player: ScrimPlayer): Promise<Scrim> {
+    async moveToRatification(scrimId: string): Promise<boolean> {
+        this.logger.debug(`Beginning to ratify scrim, scrimId=${scrimId}`);
+
+        const scrim = await this.scrimCrudService.getScrim(scrimId);
+
+        if (!scrim) {
+            throw new RpcException("Scrim not found");
+        }
+        if (scrim.status === ScrimStatus.RATIFYING) {
+            throw new RpcException("Scrim is already ended");
+        }
+        if (scrim.status !== ScrimStatus.SUBMITTING) {
+            throw new RpcException("Scrim is not ready to be ended");
+        }
+
+        scrim.status = ScrimStatus.RATIFYING;
+        await this.scrimCrudService.updateScrimStatus(scrimId, scrim.status);
+
+        this.analyticsService.send(AnalyticsEndpoint.Analytics, {
+            name: "scrimRatifying",
+            strings: [ ["scrimId", scrim.id] ],
+        }).catch(err => { this.logger.error(err) });
+
+        await this.publishScrimUpdate(scrimId);
+
+        return true;
+    }
+
+    async resetScrim(scrimId: string, playerId?: number): Promise<boolean> {
+        this.logger.debug(`Attempting to reset scrim, scrimId=${scrimId} playerId=${playerId}`);
+
+        const scrim = await this.scrimCrudService.getScrim(scrimId);
+
+        if (!scrim) {
+            throw new RpcException("Scrim not found");
+        }
+        if (playerId && !scrim.players.some(p => p.id === playerId)) {
+            throw new RpcException("Player not in this scrim");
+        }
+        if (scrim.status !== ScrimStatus.RATIFYING && scrim.status !== ScrimStatus.SUBMITTING) {
+            throw new RpcException("Scrim is not RATIFYING, can't be reset");
+        }
+
+        scrim.status = ScrimStatus.IN_PROGRESS;
+        await this.scrimCrudService.updateScrimStatus(scrimId, scrim.status);
+
+        await this.publishScrimUpdate(scrimId);
+
+        return true;
+    }
+
+    async completeScrim(scrimId: string, playerId?: number): Promise<Scrim> {
         // Player will be used to track who submitted / completed a scrim
         const scrim = await this.scrimCrudService.getScrim(scrimId);
         if (!scrim) {
             throw new RpcException("Scrim not found");
         }
-        if (scrim.status !== ScrimStatus.IN_PROGRESS) {
-            throw new RpcException("Scrim is not in progress!");
-        }
+        if (!scrim.submissionId) throw new RpcException("Scrim does not yet have a submission, cannot complete.");
+
         // TODO: Override this if player / member is an admin
-        if (!scrim.players.some(p => p.id === player.id)) {
+        if (playerId && !scrim.players.some(p => p.id === playerId)) {
             throw new RpcException("Player not in this scrim");
         }
 
@@ -208,12 +242,54 @@ export class ScrimService {
         await this.eventsService.publish(EventTopic.ScrimComplete, scrim, scrim.id);
 
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
-            name: "scrimRatified",
-            tags: [
-                ["scrimId", scrim.id],
-            ],
+            name: "scrimComplete",
+            tags: [ ["playerId", `${playerId}`] ],
+            strings: [ ["scrimId", scrim.id] ],
         }).catch(err => { this.logger.error(err) });
 
+        return scrim;
+    }
+
+    async forceUpdateScrimStatus(scrimId: string, status: ScrimStatus): Promise<void> {
+        await this.scrimCrudService.updateScrimStatus(scrimId, status);
+        await this.publishScrimUpdate(scrimId);
+    }
+
+    async setScrimLocked(scrimId: string, locked: boolean): Promise<boolean> {
+        const scrim = await this.scrimCrudService.getScrim(scrimId);
+        if (!scrim) {
+            throw new RpcException("Scrim not found");
+        }
+
+        if (locked) {
+            if (scrim.unlockedStatus !== ScrimStatus.LOCKED) await this.scrimCrudService.updateScrimUnlockedStatus(scrimId, scrim.status);
+            scrim.status = ScrimStatus.LOCKED;
+        } else scrim.status = scrim.unlockedStatus ?? ScrimStatus.IN_PROGRESS;
+        await this.scrimCrudService.updateScrimStatus(scrimId, scrim.status);
+
+        this.analyticsService.send(AnalyticsEndpoint.Analytics, {
+            name: `scrimLockStatusUpdated`,
+            tags: [ ["scrimId", scrim.id] ],
+            booleans: [ ["locked", locked] ],
+        }).catch(err => { this.logger.error(err) });
+
+        await this.publishScrimUpdate(scrimId);
+
+        return true;
+    }
+
+    private async publishScrimUpdate(scrimId: string): Promise<Scrim> {
+        const scrim = await this.scrimCrudService.getScrim(scrimId);
+        if (!scrim) throw new Error("Unexpected null scrim found");
+        await Promise.all([
+            // We don't really care about _what_ changed, in this context;
+            // this is more to do with tracking how often a scrim is changed
+            this.analyticsService.send(AnalyticsEndpoint.Analytics, {
+                name: "scrimUpdated",
+                strings: [ ["scrimId", scrimId] ],
+            }),
+            this.eventsService.publish(EventTopic.ScrimUpdated, scrim, scrimId),
+        ]);
         return scrim;
     }
 }

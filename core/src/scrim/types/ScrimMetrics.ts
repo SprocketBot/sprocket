@@ -25,5 +25,4 @@ export class ScrimMetrics implements IScrimMetrics {
 
     @Field(() => Int)
     previousCompletedScrims?: number;
-
 }

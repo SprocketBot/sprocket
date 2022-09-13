@@ -1,12 +1,14 @@
-import {Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn,} from "typeorm";
+import {
+    Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn,
+} from "typeorm";
+
 import {MLE_Match} from "./Match.model";
 import {MLE_Series} from "./Series.model";
-import {MLE_Team} from "./Team.model";
 
 @Index(
     "fixture_home_name_away_name_match_id_unique",
     ["awayName", "homeName", "matchId"],
-    {unique: true}
+    {unique: true},
 )
 @Index("fixture_pkey", ["id"], {unique: true})
 @Entity("fixture", {schema: "mledb"})
@@ -40,13 +42,13 @@ export class MLE_Fixture {
     })
     updatedAt: Date;
 
-    @Column("character varying", {name: "home_name", unique: true, length: 255})
+    @Column("character varying", {name: "home_name", length: 255})
     homeName: string;
 
-    @Column("character varying", {name: "away_name", unique: true, length: 255})
+    @Column("character varying", {name: "away_name", length: 255})
     awayName: string;
 
-    @Column("integer", {name: "match_id", unique: true})
+    @Column("integer", {name: "match_id"})
     matchId: number;
 
     @Column("character varying", {
@@ -56,10 +58,10 @@ export class MLE_Fixture {
     })
     channelId: string;
 
-    @ManyToOne(() => MLE_Match, (match) => match.fixtures, {onUpdate: "CASCADE"})
-    @JoinColumn([{name: "match_id", referencedColumnName: "id"}])
+    @ManyToOne(() => MLE_Match, match => match.fixtures, {onUpdate: "CASCADE"})
+    @JoinColumn([ {name: "match_id", referencedColumnName: "id"} ])
     match: MLE_Match;
 
-    @OneToMany(() => MLE_Series, (series) => series.fixture)
+    @OneToMany(() => MLE_Series, series => series.fixture)
     series: MLE_Series[];
 }

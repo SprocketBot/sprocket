@@ -1,22 +1,19 @@
 import {NestFactory} from "@nestjs/core";
 import {Transport} from "@nestjs/microservices";
-import * as config from "config";
+import {config} from "@sprocketbot/common";
 
 import {AppModule} from "./app.module";
 
 async function bootstrap(): Promise<void> {
     const app = await NestFactory.createMicroservice(AppModule, {
         transport: Transport.RMQ,
-        logger: config.get("logger.levels"),
         options: {
-            urls: [config.get("transport.url")],
-            queue: config.has("transport.queue") && config.get("transport.queue"),
+            urls: [config.transport.url],
+            queue: config.transport.image_generation_queue,
         },
     });
-    app.listen(() => {
-        /* eslint-disable no-console */
-        console.log("Service Started!!");
-    });
+    await app.listen();
 }
 
+// eslint-disable-next-line no-console
 bootstrap().catch(console.error);

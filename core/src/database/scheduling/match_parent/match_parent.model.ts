@@ -1,6 +1,6 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {
-    Entity, ManyToOne, OneToOne,
+    Entity, JoinColumn, ManyToOne, OneToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
@@ -8,7 +8,8 @@ import {Match} from "../match";
 import {ScrimMeta} from "../saved_scrim";
 import {ScheduleFixture} from "../schedule_fixture";
 import {ScheduledEvent} from "../scheduled_event";
-@Entity({ schema: "sprocket" })
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class MatchParent extends BaseModel {
     @ManyToOne(() => ScheduledEvent, {nullable: true})
@@ -17,13 +18,14 @@ export class MatchParent extends BaseModel {
 
     @OneToOne(() => ScrimMeta, {nullable: true})
     @Field(() => ScrimMeta, {nullable: true})
+    @JoinColumn()
     scrimMeta?: ScrimMeta;
 
-    @OneToOne(() => ScheduleFixture, {nullable: true})
+    @ManyToOne(() => ScheduleFixture, {nullable: true})
     @Field(() => ScheduleFixture, {nullable: true})
     fixture?: ScheduleFixture;
 
-    @OneToOne(() => Match)
+    @OneToOne(() => Match, m => m.matchParent)
     @Field(() => Match)
     match: Match;
 }

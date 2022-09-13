@@ -57,7 +57,6 @@ export const table = (data: string[][], headers: string[]): string => {
         if (c === headers.length - 1) header += VERTICAL;
     }
 
-
     let lines = "";
 
     for (const row of data) {

@@ -1,8 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {JwtService} from "@nestjs/jwt";
 
-import type {AccessToken} from "./types/accesstoken.type";
-import type {AuthPayload} from "./types/payload.type";
+import type {AccessToken, AuthPayload} from "./types";
 
 @Injectable()
 export class OauthService {
@@ -15,8 +14,7 @@ export class OauthService {
         };
     }
 
-    async loginDiscord(user): Promise<AccessToken> {
-
+    async loginDiscord(user: AuthPayload): Promise<AccessToken> {
         return {
             access_token: this.jwtService.sign(user),
         };

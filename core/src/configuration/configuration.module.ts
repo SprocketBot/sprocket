@@ -1,20 +1,24 @@
-import {Module} from "@nestjs/common";
+import {forwardRef, Module} from "@nestjs/common";
 
 import {DatabaseModule} from "../database";
-import {OrganizationModule} from "../organization/organization.module";
-import {OrganizationConfigurationResolver} from "./organization-configuration/organization-confguration.resolvers";
-import {OrganizationConfigurationService} from "./organization-configuration/organization-configuration.service";
-import {SprocketConfigurationResolver} from "./sprocket-configuration/sprocket-configuration.resolver";
-import {SprocketConfigurationService} from "./sprocket-configuration/sprocket-configuration.service";
+import {OrganizationModule} from "../organization";
+import {OrganizationConfigurationResolver, OrganizationConfigurationService} from "./organization-configuration";
+import {OrganizationConfigurationController} from "./organization-configuration/organization-configuration.controller";
+import {SprocketConfigurationResolver, SprocketConfigurationService} from "./sprocket-configuration";
+import {SprocketConfigurationController} from "./sprocket-configuration/sprocket-configuration.controller";
 
 @Module({
-    imports: [DatabaseModule, OrganizationModule],
-    controllers: [],
+    imports: [
+        DatabaseModule,
+        forwardRef(() => OrganizationModule),
+    ],
     providers: [
         OrganizationConfigurationResolver,
         OrganizationConfigurationService,
         SprocketConfigurationResolver,
         SprocketConfigurationService,
     ],
+    exports: [OrganizationConfigurationService],
+    controllers: [OrganizationConfigurationController, SprocketConfigurationController],
 })
 export class ConfigurationModule {}

@@ -1,4 +1,7 @@
-import {Column, Entity, Index, OneToMany, PrimaryGeneratedColumn,} from "typeorm";
+import {
+    Column, Entity, Index, OneToMany, PrimaryGeneratedColumn,
+} from "typeorm";
+
 import {MLE_DraftOrder} from "./DraftOrder.model";
 import {MLE_Match} from "./Match.model";
 
@@ -43,12 +46,12 @@ export class MLE_Season {
     @Column("boolean", {name: "roster_locked", default: () => "false"})
     rosterLocked: boolean;
 
-    @Column("integer", {name: "week_length", default: () => "7"})
+    @Column("integer", {name: "week_length", default: 7})
     weekLength: number;
 
-    @OneToMany(() => MLE_DraftOrder, (draftOrder) => draftOrder.seasonSeasonNumber2)
+    @OneToMany(() => MLE_DraftOrder, draftOrder => draftOrder.seasonSeasonNumber2)
     draftOrders: MLE_DraftOrder[];
 
-    @OneToMany(() => MLE_Match, (match) => match.season)
+    @OneToMany(() => MLE_Match, match => match.season)
     matches: MLE_Match[];
 }

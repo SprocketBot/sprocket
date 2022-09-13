@@ -1,0 +1,10 @@
+.DS_Store
+node_modules
+/.svelte-kit
+/package
+
+.husky/_/
+
+src/config.json
+src/ca-certificate.cer
+secret/

@@ -1,6 +1,11 @@
-FROM python:3.8-slim AS app_image
-RUN mkdir /app && python -m venv app/env
-COPY . /app
+FROM python:3.8-slim as app_image
+
 WORKDIR /app
-RUN . /app/env/bin/activate && pip install -r requirements.txt   # Install Python Deps
-ENTRYPOINT ["/app/start.sh"]
+COPY . .
+
+# Install dependencies
+# requests needs to be installed first because python-ballchasing fails installing without it
+RUN python3 -m pip install requests
+RUN python3 -m pip install -r requirements.txt
+
+ENTRYPOINT ["./start.sh"]

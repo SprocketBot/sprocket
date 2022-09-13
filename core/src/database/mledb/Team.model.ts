@@ -1,13 +1,16 @@
-import {Column, Entity, Index, JoinColumn, ManyToOne, OneToOne,} from "typeorm";
-import {MLE_TeamBranding} from "./TeamBranding.model";
+import {
+    Column, Entity, Index, JoinColumn, ManyToOne, OneToOne,
+} from "typeorm";
+
 import {MLE_Division} from "./Division.model";
 import {MLE_Player} from "./Player.model";
+import {MLE_TeamBranding} from "./TeamBranding.model";
 
 @Index("team_branding_id_unique", ["brandingId"], {unique: true})
 @Index(
     "team_doubles_assistant_general_manager_id_unique",
     ["doublesAssistantGeneralManagerId"],
-    {unique: true}
+    {unique: true},
 )
 @Index("team_franchise_manager_id_unique", ["franchiseManagerId"], {
     unique: true,
@@ -18,11 +21,13 @@ import {MLE_Player} from "./Player.model";
 @Index(
     "team_standard_assistant_general_manager_id_unique",
     ["standardAssistantGeneralManagerId"],
-    {unique: true}
+    {unique: true},
 )
 @Entity("team", {schema: "mledb"})
 export class MLE_Team {
-    @Column("character varying", {primary: true, name: "name", length: 255})
+    @Column("character varying", {
+        primary: true, name: "name", length: 255,
+    })
     name: string;
 
     @Column("character varying", {name: "created_by", length: 255})
@@ -65,29 +70,33 @@ export class MLE_Team {
     })
     standardAssistantGeneralManagerId: number | null;
 
-    @Column("integer", {name: "pr_support_id", nullable: true, unique: true})
+    @Column("integer", {
+        name: "pr_support_id", nullable: true, unique: true,
+    })
     prSupportId: number | null;
 
     @Column("character varying", {name: "callsign", length: 255})
     callsign: string;
 
-    @Column("integer", {name: "branding_id", nullable: true, unique: true})
+    @Column("integer", {
+        name: "branding_id", nullable: true, unique: true,
+    })
     brandingId: number | null;
 
-    @OneToOne(() => MLE_TeamBranding, (teamBranding) => teamBranding.team, {
+    @OneToOne(() => MLE_TeamBranding, teamBranding => teamBranding.team, {
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
     })
-    @JoinColumn([{name: "branding_id", referencedColumnName: "id"}])
+    @JoinColumn([ {name: "branding_id", referencedColumnName: "id"} ])
     branding: MLE_TeamBranding;
 
-    @ManyToOne(() => MLE_Division, (division) => division.teams, {
+    @ManyToOne(() => MLE_Division, division => division.teams, {
         onUpdate: "CASCADE",
     })
-    @JoinColumn([{name: "division_name", referencedColumnName: "name"}])
+    @JoinColumn([ {name: "division_name", referencedColumnName: "name"} ])
     divisionName: MLE_Division;
 
-    @OneToOne(() => MLE_Player, (player) => player.teamName, {
+    @OneToOne(() => MLE_Player, player => player.teamName, {
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
     })
@@ -103,30 +112,30 @@ export class MLE_Team {
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
     })
-    @JoinColumn([{name: "franchise_manager_id", referencedColumnName: "id"}])
+    @JoinColumn([ {name: "franchise_manager_id", referencedColumnName: "id"} ])
     franchiseManager: MLE_Player;
 
     @OneToOne(() => MLE_Player, {
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
     })
-    @JoinColumn([{name: "general_manager_id", referencedColumnName: "id"}])
+    @JoinColumn([ {name: "general_manager_id", referencedColumnName: "id"} ])
     generalManager: MLE_Player;
 
     @OneToOne(() => MLE_Player, {
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
     })
-    @JoinColumn([{name: "pr_support_id", referencedColumnName: "id"}])
+    @JoinColumn([ {name: "pr_support_id", referencedColumnName: "id"} ])
     prSupport: MLE_Player;
 
     @OneToOne(() => MLE_Player, {
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
     })
-    @JoinColumn([{
+    @JoinColumn([ {
         name: "standard_assistant_general_manager_id",
         referencedColumnName: "id",
-    },])
+    } ])
     standardAssistantGeneralManager: MLE_Player;
 }

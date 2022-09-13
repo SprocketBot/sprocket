@@ -1,68 +1,105 @@
 <script lang="ts">
-    import type {CurrentScrim} from "$lib/api";
-import Portal from "$lib/components/abstract/Portal.svelte";
-import SubmitReplaysModal from "../modals/SubmitReplaysModal.svelte";
+    import type {
+        CurrentScrim, Submission, SubmissionRejection,
+    } from "$lib/api";
+    import UploadReplaysModal from "../modals/UploadReplaysModal.svelte";
+    import {TeamsFixture, RoundRobinFixture} from "$lib/components";
+    import {screamingSnakeToHuman} from "$lib/utils";
+
 
     export let scrim: CurrentScrim;
+    export let submission: Submission | undefined;
 
-    let submitting: boolean = false;
-    $: console.log(scrim);
+    let uploading: boolean = false;
+    let rejections: SubmissionRejection[] | undefined;
+    $: rejections = submission?.rejections;
 </script>
 
+<section>
+    <h2>Time to Play!</h2>
+    <p class="text-accent font-bold tracking-wider">
+        Don't forget to save replays!
+    </p>
+    <div class="lobby">
+        <div>
+            <h3>Lobby Information</h3>
+            <dl>
+                <dt>Skill Group:</dt>
+                <dd>{scrim.skillGroup?.profile?.description}</dd>
+                <dt>Game Mode</dt>
+                <dd>{scrim.settings.competitive ? "Competitive" : "Casual"} {screamingSnakeToHuman(scrim.settings.mode)} {scrim.gameMode.description}</dd>
+                <dt>Name</dt>
+                <dd>{scrim.lobby.name}</dd>
+                <dt>Password</dt>
+                <dd>{scrim.lobby.password}</dd>
+            </dl>
+        </div>
+    </div>
+    <div>
+        {#if scrim.settings.mode === "ROUND_ROBIN"}
+            <RoundRobinFixture {scrim}/>
+        {:else if scrim.settings.mode === "TEAMS"}
+            <TeamsFixture {scrim}/>
+        {/if}
+    </div>
 
-<h2 class="mb-4">Time to Play!</h2>
-<p class="text-accent font-bold tracking-wider">Don't forget to save replays!</p>
-<table class="table">
-    <colgroup>
-        <col/>
-        {#each scrim.games[0].teams as t, ti}
-            <col span={t.players.length} class="team"/>
+    {#if rejections?.length}
+        <h2 class="text-error">Replays Rejected</h2>
+        <ul class="list-disc list-inside">
+        {#each rejections.filter(r => !r.stale) as rejection}
+            <li>{rejection.playerName} rejected the uploaded replays because "{rejection.reason}"</li>
         {/each}
-    </colgroup>
-    <thead>
-    <tr>
-        <th/>
-        {#each scrim.games[0].teams as t, ti}
-            <th colspan={t.players.length}>Team {ti + 1}</th>
-        {/each}
-    </tr>
-    </thead>
-    {#each scrim.games as game, gameIndex}
-        <tr>
-            <td>Game {gameIndex + 1}</td>
-            {#each game.teams as team, teamIndex}
-                {#each team.players as player}
-                    <td class:alt={teamIndex % 2 === 0}>
-                        {player.name} ({player.id})
-                    </td>
-                {/each}
-            {/each}
-        </tr>
-    {/each}
-</table>
+        </ul>
+        <p class="mt-4">You can upload replays again:</p>
+    {/if}
 
-<button on:click={() => submitting = true}>
-    Submit Replays
-</button>
 
-<Portal>
-    <SubmitReplaysModal bind:visible={submitting} submissionId={scrim.submissionId}/>
-</Portal>
+    <button on:click={() => { uploading = true }} class="w-full md:w-auto">
+        Upload Replays
+    </button>
+</section>
+
+<UploadReplaysModal bind:visible={uploading} submissionId={scrim.submissionId}/>
+
 
 <style lang="postcss">
+    section {
+        @apply space-y-4;
+    }
+
     h2 {
         @apply text-2xl font-bold text-primary;
     }
 
     table {
-        @apply text-center
+        @apply text-center;
     }
 
-    th:not(:last-child):not(:empty) {
-        @apply border-r-gray-500 border-r-2
+    th:not(:last-child) {
+        @apply border-r-gray-500 border-r-2;
+    }
+
+    th:first-child, td:first-child {
+        @apply w-auto;
     }
 
     button {
         @apply btn btn-primary;
+    }
+
+    div.lobby {
+        @apply bg-base-100/20 rounded-lg p-4;
+        h3 {
+            @apply font-bold;
+        }
+        dl {
+            @apply pl-4;
+            dt {
+                @apply font-bold;
+            }
+            dd {
+                @apply pl-4 text-accent;
+            }
+        }
     }
 </style>

@@ -1,0 +1,30 @@
+{
+  "transport": {
+    "url": "",
+    "matchmaking_queue": "dev-matchmaking",
+    "core_queue": "dev-core",
+    "bot_queue": "dev-bot",
+    "analytics_queue": "dev-analytics",
+    "events_queue": "dev-events",
+    "image_generation_queue": "dev-image-gen",
+    "notification_queue": "dev-notification",
+    "events_application_key": "notification-service"
+  },
+  "logger": {
+    "levels": true
+  },
+  "web": {
+    "url": ""
+  },
+  "minio": {
+    "bucketNames": {
+      "image_generation": ""
+    }
+  },
+  "redis": {
+    "port": 6379,
+    "host": "",
+    "prefix": "",
+    "secure": true
+  }
+}

@@ -1,9 +1,13 @@
+import {BullModule} from "@nestjs/bull";
 import {Module} from "@nestjs/common";
-import {EventsModule, RedisModule} from "@sprocketbot/common";
+import {
+    AnalyticsModule, config, EventsModule, RedisModule, SubmissionModule,
+} from "@sprocketbot/common";
 
 import {EventProxyService} from "./event-proxy/event-proxy.service";
 import {GameOrderService} from "./game-order/game-order.service";
 import {ScrimController} from "./scrim.controller";
+import {ScrimEventSubscriber} from "./scrim.event-subscriber";
 import {ScrimService} from "./scrim.service";
 import {ScrimCrudService} from "./scrim-crud/scrim-crud.service";
 import {ScrimGroupService} from "./scrim-group/scrim-group.service";
@@ -11,7 +15,27 @@ import {ScrimLogicService} from "./scrim-logic/scrim-logic.service";
 import {ScrimMetricsService} from "./scrim-metrics/scrim-metrics.service";
 
 @Module({
-    imports: [RedisModule, EventsModule],
+    imports: [
+        RedisModule,
+        EventsModule,
+        AnalyticsModule,
+        SubmissionModule,
+        BullModule.forRoot({
+            redis: {
+                host: config.redis.host,
+                port: config.redis.port,
+                password: config.redis.password,
+                tls: config.redis.secure
+                    ? {
+                            host: config.redis.host,
+                            servername: config.redis.host,
+                        }
+                    : undefined,
+                keyPrefix: `${config.redis.prefix}:bull`,
+            },
+        }),
+        BullModule.registerQueue({name: "scrim"}),
+    ],
     controllers: [ScrimController],
     providers: [
         ScrimCrudService,
@@ -21,6 +45,8 @@ import {ScrimMetricsService} from "./scrim-metrics/scrim-metrics.service";
         ScrimMetricsService,
         ScrimGroupService,
         GameOrderService,
+        ScrimEventSubscriber,
     ],
 })
-export class ScrimModule {}
+export class ScrimModule {
+}

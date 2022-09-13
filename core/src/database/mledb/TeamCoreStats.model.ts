@@ -1,10 +1,13 @@
-import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,} from "typeorm";
+import {
+    Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,
+} from "typeorm";
+
 import {MLE_SeriesReplay} from "./SeriesReplay.model";
 
 @Index("team_core_stats_pkey", ["id"], {unique: true})
 @Entity("team_core_stats", {schema: "mledb"})
 export class MLE_TeamCoreStats {
-    @PrimaryGeneratedColumn({type: "integer", name: "id"})
+    @PrimaryGeneratedColumn({type: "numeric", name: "id"})
     id: number;
 
     @Column("character varying", {
@@ -40,24 +43,26 @@ export class MLE_TeamCoreStats {
     })
     teamName: string | null;
 
-    @Column("character varying", {name: "color", nullable: true, length: 255})
+    @Column("character varying", {
+        name: "color", nullable: true, length: 255,
+    })
     color: string | null;
 
-    @Column("integer", {name: "goals", nullable: true})
+    @Column("numeric", {name: "goals", nullable: true})
     goals: number | null;
 
-    @Column("integer", {name: "goals_against", nullable: true})
+    @Column("numeric", {name: "goals_against", nullable: true})
     goalsAgainst: number | null;
 
-    @Column("integer", {name: "possession_time", nullable: true})
+    @Column("numeric", {name: "possession_time", nullable: true})
     possessionTime: number | null;
 
-    @Column("integer", {name: "time_in_side", nullable: true})
+    @Column("numeric", {name: "time_in_side", nullable: true})
     timeInSide: number | null;
 
-    @ManyToOne(() => MLE_SeriesReplay, (seriesReplay) => seriesReplay.teamCoreStats, {
+    @ManyToOne(() => MLE_SeriesReplay, seriesReplay => seriesReplay.teamCoreStats, {
         onUpdate: "CASCADE",
     })
-    @JoinColumn([{name: "replay_id", referencedColumnName: "id"}])
+    @JoinColumn([ {name: "replay_id", referencedColumnName: "id"} ])
     replay: MLE_SeriesReplay;
 }

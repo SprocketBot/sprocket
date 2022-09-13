@@ -5,7 +5,6 @@ import fetch from "node-fetch";
 
 import {AppModule} from "./app.module";
 
-// @ts-expect-error gql-client needs fetch
 // eslint-disable-next-line no-undef, @typescript-eslint/no-unsafe-assignment
 global.fetch = fetch;
 
@@ -22,11 +21,10 @@ async function bootstrap(): Promise<void> {
             heartbeat: 120,
         },
     });
-    app.listen(() => {
-        /* eslint-disable no-console */
-        console.log("Service Started");
-    });
+    
+    await app.listen();
 
 }
 
+// eslint-disable-next-line no-console
 bootstrap().catch(console.error);

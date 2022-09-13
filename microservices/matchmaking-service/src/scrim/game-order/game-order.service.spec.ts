@@ -48,6 +48,7 @@ describe("GameOrderService", () => {
                 ],
             };
             const result = service.generateGameOrder(scrim);
+            // eslint-disable-next-line no-console
             console.log(JSON.stringify(result, null, 2));
         });
     });

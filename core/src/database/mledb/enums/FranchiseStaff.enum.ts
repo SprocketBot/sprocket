@@ -1,10 +1,10 @@
 export enum FranchiseStaff {
     FRANCHISE_MANAGER = 1,
-    GENERAL_MANAGER,
-    ASSISTANT_GENERAL_MANAGER,
-    CAPTAIN,
-    PR_SUPPORT,
-    NONE,
+    GENERAL_MANAGER = 2,
+    ASSISTANT_GENERAL_MANAGER = 3,
+    CAPTAIN = 4,
+    PR_SUPPORT = 5,
+    NONE = 6,
 }
 
 export function positionToString(position: FranchiseStaff): string {
@@ -20,6 +20,7 @@ export function positionToString(position: FranchiseStaff): string {
         case FranchiseStaff.PR_SUPPORT:
             return "pr support";
         case FranchiseStaff.NONE:
+        default:
             return "none";
     }
 }
@@ -54,6 +55,7 @@ export function positionToStringAbbr(position: FranchiseStaff): string {
         case FranchiseStaff.PR_SUPPORT:
             return "pr";
         case FranchiseStaff.NONE:
+        default:
             return "none";
     }
 }

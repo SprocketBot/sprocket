@@ -1,12 +1,11 @@
 import {Injectable} from "@nestjs/common";
 import {PassportStrategy} from "@nestjs/passport";
+import {config} from "@sprocketbot/common";
 import type {VerifyCallback} from "passport-google-oauth20";
 import {Strategy} from "passport-google-oauth20";
-import {UserAuthenticationAccountType} from "src/database";
-import {User} from "src/database/identity/user/user.model";
-import {UserService} from "src/identity/user/user.service";
-import {config} from "src/util/config";
 
+import {User, UserAuthenticationAccountType} from "../../../../database";
+import {UserService} from "../../../user";
 import type {GoogleProfileType} from "../types/profile.type";
 
 @Injectable()
@@ -14,9 +13,9 @@ export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
 
     constructor(private readonly userService: UserService) {
         super({
-            clientID: config.auth.googleClientID,
-            clientSecret: config.auth.googleSecret,
-            callbackURL: config.auth.googleCallbackURL,
+            clientID: config.auth.google.clientId,
+            clientSecret: config.auth.google.secret,
+            callbackURL: config.auth.google.callbackUrl,
             scope: ["email", "profile"],
         });
     }

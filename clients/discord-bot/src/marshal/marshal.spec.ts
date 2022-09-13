@@ -1,17 +1,16 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import {Test} from "@nestjs/testing";
 import {
-    AnalyticsService, GqlService,
+    AnalyticsService, config, CoreService,
 } from "@sprocketbot/common";
 import type {Message} from "discord.js";
 
-import {EmbedService} from "../embed/embed.service";
-import {appConfig} from "../util/config";
-import {CommandManagerService} from "./command-manager/command-manager.service";
-import {Command} from "./decorators";
-import {CommandNotFound} from "./decorators/command-not-found.decorator";
+import {EmbedService} from "../embed";
+import type {CommandSpec} from "./commands";
+import {
+    Command, CommandManagerService, CommandNotFound,
+} from "./commands";
 import {Marshal} from "./marshal";
-import type {CommandSpec} from "./types";
 
 const command1Spec: CommandSpec = {
     name: "command1",
@@ -69,11 +68,11 @@ class CommandOverloadMarshal extends Marshal {
     @Command(command2OverloadSpec)
     async BaseCommandWithArgument(): Promise<void> { }
 }
-const botPrefix = appConfig.bot.prefix;
+const botPrefix = config.bot.prefix;
 
 jest.mock("@sprocketbot/common", () => ({
-    GqlModule: jest.fn(),
-    GqlService: jest.fn(),
+    CoreModule: jest.fn(),
+    CoreService: jest.fn(),
     AnalyticsModule: jest.fn(),
     AnalyticsService: jest.fn(),
 }));
@@ -87,7 +86,7 @@ describe("Marshal", () => {
                 providers: [
                     TestMarshal,
                     CommandManagerService,
-                    GqlService,
+                    CoreService,
                     AnalyticsService,
                     EmbedService,
                 ],
@@ -159,7 +158,7 @@ describe("Marshal", () => {
                 providers: [
                     NoCommandNotFoundMarshal,
                     CommandManagerService,
-                    GqlService,
+                    CoreService,
                     AnalyticsService,
                     EmbedService,
                 ],
@@ -181,7 +180,7 @@ describe("Marshal", () => {
                 providers: [
                     CommandOverloadMarshal,
                     CommandManagerService,
-                    GqlService,
+                    CoreService,
                     AnalyticsService,
                     EmbedService,
                 ],

@@ -12,7 +12,6 @@ import type {
 import {WizardExitStatus, WizardType} from "./wizard.types";
 import {WizardStepHandler} from "./wizard-step-handler";
 
-
 export class Wizard {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     defaultFilterFunctions: Record<WizardType, (...args: any[]) => boolean> = {
@@ -157,6 +156,7 @@ export class Wizard {
         }
     }
 
+    // eslint-disable-next-line @typescript-eslint/member-ordering
     private get promise(): Promise<void> {
         if (this._promise === undefined) {
             this._promise = new Promise((res, rej) => {

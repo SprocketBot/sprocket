@@ -1,73 +1,57 @@
-import * as zod from "zod";
-const operationTypes = zod.enum(["text", "fill", "stroke", "image"]);
+import {z} from "zod";
 
-const hAlignOptions = zod.enum(["left", "center", "right"]);
-const vAlignOptions = zod.enum(["top", "center", "bottom"]);
-
-const textTransformationOptions = zod.object({
-    "h-align": hAlignOptions,
-    "v-align": vAlignOptions,
+export const dimensionSchema = z.object({
+    height: z.number(),
+    width: z.number(),
 });
+export type Dimension = z.infer<typeof dimensionSchema>;
 
-export type HAlignOption = zod.infer<typeof hAlignOptions>;
-export type VAlignOption = zod.infer<typeof vAlignOptions>;
-export type TextTransformationOptions = zod.infer<typeof textTransformationOptions>;
-
-const rescaleOnOptions = zod.enum(["height", "width"]);
-const imageTransformationOptions = zod.object({
-    rescaleOn: zod.enum(["height", "width"]),
+const textTransformationOptions = z.object({
+    "h-align": z.optional(z.enum(["left", "center", "right"])),
+    "v-align": z.optional(z.enum(["top", "center", "bottom"])),
+    "truncate-to": z.optional(z.union([z.number(), z.literal("as-is")])),
+    "case": z.optional(z.enum(["lower", "upper", "as-is"])),
 });
+export type TextTransformationOptions = z.infer<typeof textTransformationOptions>;
 
-export type RescaleOnOptions = zod.infer<typeof rescaleOnOptions>;
-export type ImageTransformationsOptions = zod.infer<typeof imageTransformationOptions>;
-
-export const operationSchema = zod.object({
-    value: zod.union([zod.string(), zod.number()]),
-    type: operationTypes,
+const imageTransformationOptions = z.object({
+    rescaleOn: z.enum(["height", "width"]),
 });
+export type ImageTransformationsOptions = z.infer<typeof imageTransformationOptions>;
 
-
-export const dimensionSchema = zod.object({
-    height: zod.number(),
-    width: zod.number(),
-});
-
-export type Operation = zod.infer<typeof operationSchema>;
-export type Dimension = zod.infer<typeof dimensionSchema>;
-
-
-/**
- * Recursive type that describes a Tree with Operation Leafs
- */
-// eslint-disable-next-line
-export interface InputDatum extends Record<string | number, InputDatum | Operation | InputDatum[]> { }
-
-// @ts-expect-error Types are hard, but we can safely consider array indexes as keys for the sake of this program
-export const inputDataSchema: zod.ZodSchema<InputDatum> = zod.lazy(() => zod.union([
-    zod.array(zod.union([operationSchema, inputDataSchema])),
-    zod.record(zod.union([operationSchema, inputDataSchema])),
-]));
-
-export const sprocketDataSchema = zod.array(zod.union([
-    zod.object({
-        varPath: zod.string(),
-        type: zod.literal("text"),
+export const sprocketDataSchema = z.array(z.union([
+    z.object({
+        varPath: z.string(),
+        type: z.literal("text"),
         options: textTransformationOptions,
     }),
-    zod.object({
-        varPath: zod.string(),
-        type: zod.literal("fill"),
-        options: zod.object({}),
+    z.object({
+        varPath: z.string(),
+        type: z.literal("number"),
+        options: textTransformationOptions,
     }),
-    zod.object({
-        varPath: zod.string(),
-        type: zod.literal("stroke"),
-        options: zod.object({}),
+    z.object({
+        varPath: z.string(),
+        type: z.literal("fill"),
+        options: z.object({}),
     }),
-    zod.object({
-        varPath: zod.string(),
-        type: zod.literal("image"),
+    z.object({
+        varPath: z.string(),
+        type: z.literal("stroke"),
+        options: z.object({}),
+    }),
+    z.object({
+        varPath: z.string(),
+        type: z.literal("image"),
         options: imageTransformationOptions,
     }),
 ]));
-export type SprocketDataSchema = zod.infer<typeof sprocketDataSchema>;
+export type SprocketData = z.infer<typeof sprocketDataSchema>;
+
+export const dataForLinkType = {
+    "text": ["text", "number"],
+    "number": ["text", "number"],
+    "stroke": ["color"],
+    "fill": ["color"],
+    "image": ["image"],
+};

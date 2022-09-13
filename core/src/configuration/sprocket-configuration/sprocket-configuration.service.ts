@@ -9,7 +9,7 @@ export class SprocketConfigurationService {
     constructor(@InjectRepository(SprocketConfiguration) private sprocketConfigurationRepository: Repository<SprocketConfiguration>) {}
 
     async getSprocketConfiguration(key?: string): Promise<SprocketConfiguration[]> {
-        if (key) return this.sprocketConfigurationRepository.find({key});
+        if (key) return this.sprocketConfigurationRepository.find({where: {key} });
         return this.sprocketConfigurationRepository.find();
     }
 }

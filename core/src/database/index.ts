@@ -7,6 +7,7 @@ export * from "./draft";
 export * from "./franchise";
 export * from "./game";
 export * from "./identity";
+export * from "./image-gen";
 export * from "./organization";
 export * from "./scheduling";
 
