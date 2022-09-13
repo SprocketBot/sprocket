@@ -15,7 +15,7 @@ export class DeveloperCommandsMarshal extends Marshal {
     async brick(m: Message): Promise<void> {
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
             name: "brick",
-            tags: [
+            strings: [
                 ["discordId", m.author.id],
             ],
         }).catch(err => { this.logger.error(err) });
