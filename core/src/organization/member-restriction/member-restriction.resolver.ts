@@ -1,7 +1,4 @@
-// import {UseGuards} from "@nestjs/common";
-// import {MLE_OrganizationTeam} from "../../database/mledb";
-// import {MLEOrganizationTeamGuard} from "../../mledb";
-import {Inject} from "@nestjs/common";
+import {Inject, UseGuards} from "@nestjs/common";
 import {
     Args, Int, Mutation, Query, ResolveField, Resolver, Root, Subscription,
 } from "@nestjs/graphql";
@@ -9,6 +6,9 @@ import {PubSub} from "apollo-server-express";
 
 import type {Member} from "../../database";
 import {MemberRestriction, MemberRestrictionType} from "../../database";
+import {MLE_OrganizationTeam} from "../../database/mledb";
+import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
+import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {MemberPubSub} from "../constants";
 import {MemberService} from "../member/member.service";
 import {MemberRestrictionService} from "./member-restriction.service";
@@ -23,12 +23,13 @@ export class MemberRestrictionResolver {
     ) {}
 
     @Query(() => [MemberRestriction])
-    // @UseGuards(MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async getActiveMemberRestrictions(@Args("type", {type: () => MemberRestrictionType}) type: MemberRestrictionType): Promise<MemberRestriction[]> {
         return this.memberRestrictionService.getActiveMemberRestrictions(type);
     }
 
     @Mutation(() => MemberRestriction)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async createMemberRestriction(
         @Args("type", {type: () => MemberRestrictionType}) type: MemberRestrictionType,
         @Args("expiration", {type: () => Date}) expiration: Date,
@@ -39,6 +40,7 @@ export class MemberRestrictionResolver {
     }
 
     @Mutation(() => MemberRestriction)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async manuallyExpireMemberRestriction(
         @Args("id", {type: () => Int}) id: number,
         @Args("manualExpiration", {type: () => Date}) manualExpiration: Date,

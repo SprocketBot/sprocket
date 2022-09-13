@@ -12,7 +12,7 @@ import {GameSkillGroupService} from "../franchise";
 import {GameModeService} from "../game";
 import {CurrentUser, UserPayload} from "../identity";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard";
-import {MLEOrganizationTeamGuard} from "../mledb";
+import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
 import {OrGuard} from "../util/or.guard";
 import {ScrimResolverPlayerGuard} from "./scrim.guard";
 import type {ScrimGroup} from "./types";

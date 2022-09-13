@@ -1,6 +1,6 @@
 /* eslint-disable require-atomic-updates */
 import {
-    forwardRef, Inject,
+    forwardRef, Inject, UseGuards,
 } from "@nestjs/common";
 import {
     Args, Float, Int, Mutation,
@@ -17,8 +17,11 @@ import type {GameSkillGroup} from "../../database";
 import {
     Member, Player, UserAuthenticationAccount, UserAuthenticationAccountType,
 } from "../../database";
+import {MLE_OrganizationTeam} from "../../database/mledb";
 import type {ManualSkillGroupChange} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
+import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
+import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {OrganizationService} from "../../organization";
 import {PopulateService} from "../../util/populate/populate.service";
 import {FranchiseService} from "../franchise";
@@ -79,6 +82,7 @@ export class PlayerResolver {
     }
 
     @Mutation(() => String)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async changePlayerSkillGroup(
         @Args("playerId", {type: () => Int}) playerId: number,
         @Args("salary", {type: () => Float}) salary: number,
@@ -128,7 +132,7 @@ export class PlayerResolver {
             salary: salary,
             skillGroup: skillGroup.ordinal,
         };
-        
+
         await this.playerService.mle_MovePlayerToLeague(playerId, salary, skillGroupId);
         await this.playerService.updatePlayerStanding(playerId, salary, skillGroupId);
         await this.eloConnectorService.createJob(EloEndpoint.SGChange, inputData);

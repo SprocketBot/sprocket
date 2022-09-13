@@ -6,7 +6,7 @@ import {PubSub} from "apollo-server-express";
 
 import {MLE_OrganizationTeam} from "../../database/mledb";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
-import {MLEOrganizationTeamGuard} from "../../mledb";
+import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {ScrimPubSub} from "../constants";
 import {ScrimToggleService} from "./scrim-toggle.service";
 

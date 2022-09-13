@@ -14,6 +14,7 @@ import {GraphQLUpload} from "graphql-upload";
 import {MLE_OrganizationTeam} from "../database/mledb";
 import {CurrentUser, UserPayload} from "../identity";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard";
+import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
 import {ReplayParsePubSub} from "./replay-parse.constants";
 import {ReplayParseService} from "./replay-parse.service";
 import type {ReplaySubmission} from "./types";
@@ -49,12 +50,12 @@ export class ReplayParseModResolver {
     }
 
     @Mutation(() => Boolean)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async resetSubmission(
         @CurrentUser() user: UserPayload,
         @Args("submissionId") submissionId: string,
     ): Promise<boolean> {
-        const isAdmin = user.orgTeams?.includes(MLE_OrganizationTeam.MLEDB_ADMIN);
-        await this.rpService.resetBrokenReplays(submissionId, user.userId, isAdmin);
+        await this.rpService.resetBrokenReplays(submissionId, user.userId, true);
         return false;
     }
 
