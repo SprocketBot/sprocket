@@ -1,6 +1,6 @@
 /* eslint-disable require-atomic-updates */
 import {
-    forwardRef, Inject,
+    forwardRef, Inject, UseGuards,
 } from "@nestjs/common";
 import {
     Args, Float, Int, Mutation,
@@ -24,6 +24,9 @@ import {PopulateService} from "../../util/populate/populate.service";
 import {FranchiseService} from "../franchise";
 import {GameSkillGroupService} from "../game-skill-group";
 import {PlayerService} from "./player.service";
+import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
+import {MLEOrganizationTeamGuard} from "../../mledb";
+import {MLE_OrganizationTeam} from "../../database/mledb";
 
 @Resolver(() => Player)
 export class PlayerResolver {
@@ -79,6 +82,7 @@ export class PlayerResolver {
     }
 
     @Mutation(() => String)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN),MLEOrganizationTeamGuard(MLE_OrganizationTeam.LEAGUE_OPERATIONS))
     async changePlayerSkillGroup(
         @Args("playerId", {type: () => Int}) playerId: number,
         @Args("salary", {type: () => Float}) salary: number,

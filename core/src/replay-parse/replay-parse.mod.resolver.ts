@@ -20,6 +20,7 @@ import type {ReplaySubmission} from "./types";
 import {GqlReplaySubmission} from "./types";
 import type {ValidationResult} from "./types/validation-result.types";
 import {ValidationResultUnion} from "./types/validation-result.types";
+import {MLEOrganizationTeamGuard} from "../mledb";
 
 @Resolver()
 @UseGuards(GqlJwtGuard)
@@ -49,12 +50,12 @@ export class ReplayParseModResolver {
     }
 
     @Mutation(() => Boolean)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async resetSubmission(
         @CurrentUser() user: UserPayload,
         @Args("submissionId") submissionId: string,
     ): Promise<boolean> {
-        const isAdmin = user.orgTeams?.includes(MLE_OrganizationTeam.MLEDB_ADMIN);
-        await this.rpService.resetBrokenReplays(submissionId, user.userId, isAdmin);
+        await this.rpService.resetBrokenReplays(submissionId, user.userId, true);
         return false;
     }
 

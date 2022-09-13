@@ -30,6 +30,8 @@ import {
     CreateScrimInput, Scrim, ScrimEvent,
 } from "./types";
 import {ScrimMetrics} from "./types/ScrimMetrics";
+import {MLEOrganizationTeamGuard} from "../mledb";
+import {MLE_OrganizationTeam} from "../database/mledb";
 
 @Resolver()
 export class ScrimModuleResolverPublic {
@@ -206,11 +208,13 @@ export class ScrimModuleResolver {
     }
 
     @Mutation(() => Boolean)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async lockScrim(@Args("scrimId") scrimId: string): Promise<boolean> {
         return this.scrimService.setScrimLocked(scrimId, true);
     }
 
     @Mutation(() => Boolean)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async unlockScrim(@Args("scrimId") scrimId: string): Promise<boolean> {
         return this.scrimService.setScrimLocked(scrimId, false);
     }
