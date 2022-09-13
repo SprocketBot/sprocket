@@ -426,6 +426,7 @@ export class PlayerService {
                         authenticationAccounts: true,
                     },
                 },
+                skillGroup: true,
             },
         });
         const discId = sprocketPlayer.member.user.authenticationAccounts.find(aa => aa.accountType === UserAuthenticationAccountType.DISCORD);
@@ -439,7 +440,7 @@ export class PlayerService {
             },
         });
 
-        if (sprocketPlayer.skillGroup.ordinal < sg.ordinal) {
+        if (sg.ordinal > sprocketPlayer.skillGroup.ordinal) {
             player = this.mle_playerRepository.merge(player, {
                 role: Role.NONE,
                 teamName: "WW",
