@@ -439,12 +439,20 @@ export class PlayerService {
             },
         });
 
-        player = this.mle_playerRepository.merge(player, {
-            role: Role.NONE,
-            teamName: "WW",
-            league: LeagueOrdinals[sg.ordinal - 1],
-            salary: salary,
-        });
+        if (sprocketPlayer.skillGroup.ordinal < sg.ordinal) {
+            player = this.mle_playerRepository.merge(player, {
+                role: Role.NONE,
+                teamName: "WW",
+                league: LeagueOrdinals[sg.ordinal - 1],
+                salary: salary,
+            });
+        } else {
+            player = this.mle_playerRepository.merge(player, {
+                role: Role.NONE,
+                league: LeagueOrdinals[sg.ordinal - 1],
+                salary: salary,
+            });
+        }
 
         await this.mle_playerRepository.save(player);
 
