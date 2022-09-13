@@ -79,6 +79,7 @@ export class MledbScrimService {
         scrim.type = scrimObject.settings.mode.toUpperCase();
         scrim.baseScrimPoints = 5;
         scrim.author = author;
+        scrim.host = author;
 
         series.submissionTimestamp = new Date();
         series.fullNcp = false;
