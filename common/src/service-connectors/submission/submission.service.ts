@@ -42,7 +42,7 @@ export class SubmissionService {
                 data: output,
             };
         } catch (e) {
-            this.logger.verbose(`| < (${rid}) - | \`${endpoint}\` failed ${(e as Error).message}`);
+            this.logger.warn(`| < (${rid}) - | \`${endpoint}\` failed ${(e as Error).message}`);
             return {
                 status: ResponseStatus.ERROR,
                 error: e as Error,
