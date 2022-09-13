@@ -20,7 +20,7 @@ export class OrganizationResolver {
     }
 
     @Mutation(() => OrganizationProfile)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN),MLEOrganizationTeamGuard(MLE_OrganizationTeam.COUNCIL))
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.COUNCIL]))
     async updateOrganizationProfile(
         @Args("id", {type: () => Int}) id: number,
         @Args("profile", {type: () => OrganizationProfileInput}) profile: OrganizationProfileInput,

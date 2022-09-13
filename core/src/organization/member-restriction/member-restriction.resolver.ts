@@ -24,13 +24,13 @@ export class MemberRestrictionResolver {
     ) {}
 
     @Query(() => [MemberRestriction])
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN),MLEOrganizationTeamGuard(MLE_OrganizationTeam.LEAGUE_OPERATIONS))
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async getActiveMemberRestrictions(@Args("type", {type: () => MemberRestrictionType}) type: MemberRestrictionType): Promise<MemberRestriction[]> {
         return this.memberRestrictionService.getActiveMemberRestrictions(type);
     }
 
     @Mutation(() => MemberRestriction)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN),MLEOrganizationTeamGuard(MLE_OrganizationTeam.LEAGUE_OPERATIONS))
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async createMemberRestriction(
         @Args("type", {type: () => MemberRestrictionType}) type: MemberRestrictionType,
         @Args("expiration", {type: () => Date}) expiration: Date,
@@ -41,7 +41,7 @@ export class MemberRestrictionResolver {
     }
 
     @Mutation(() => MemberRestriction)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN),MLEOrganizationTeamGuard(MLE_OrganizationTeam.LEAGUE_OPERATIONS))
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async manuallyExpireMemberRestriction(
         @Args("id", {type: () => Int}) id: number,
         @Args("manualExpiration", {type: () => Date}) manualExpiration: Date,

@@ -82,7 +82,7 @@ export class PlayerResolver {
     }
 
     @Mutation(() => String)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN),MLEOrganizationTeamGuard(MLE_OrganizationTeam.LEAGUE_OPERATIONS))
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async changePlayerSkillGroup(
         @Args("playerId", {type: () => Int}) playerId: number,
         @Args("salary", {type: () => Float}) salary: number,
