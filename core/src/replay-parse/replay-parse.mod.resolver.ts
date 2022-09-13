@@ -63,7 +63,7 @@ export class ReplayParseModResolver {
         @CurrentUser() user: UserPayload,
         @Args("submissionId") submissionId: string,
     ): Promise<void> {
-        return this.rpService.ratifySubmission(submissionId, user.userId.toString());
+        return this.rpService.ratifySubmission(submissionId, user.userId);
     }
 
     @Mutation(() => Boolean, {nullable: true})
