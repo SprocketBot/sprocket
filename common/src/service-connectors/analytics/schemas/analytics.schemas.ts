@@ -14,4 +14,4 @@ export const Analytics_InputSchema = z.object({
     strings: stringFieldSchema.array().optional(),
 });
 
-export const Analytics_OutputSchema = z.undefined();
+export const Analytics_OutputSchema = z.literal(true);
