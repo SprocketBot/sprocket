@@ -79,8 +79,8 @@ class Analytics:
         tags = [
             ["taskId", self.__task_id],
             ["hash", self.__get_hash()],
-            ["success", self.__get_success()],
-            ["cached", self.__get_cached()],
+            ["success", str(self.__get_success())],
+            ["cached", str(self.__get_cached())],
             ["parser", PARSER],
         ]
         booleans = [
