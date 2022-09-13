@@ -8,8 +8,6 @@ import {GameModule} from "../../game";
 import {MledbInterfaceModule} from "../../mledb";
 import {OrganizationModule} from "../../organization";
 import {IdentityModule} from "../identity.module";
-import {AnonymousAuthService} from "./anonymous-auth";
-import {AuthModuleResolver} from "./auth.mod.resolver";
 import {GqlJwtGuard} from "./gql-auth-guard";
 import {
     DiscordStrategy, GoogleStrategy, JwtConstants, JwtStrategy, OauthController, OauthService,
@@ -30,8 +28,6 @@ import {
         forwardRef(() => OrganizationModule),
     ],
     providers: [
-        AuthModuleResolver,
-        AnonymousAuthService,
         GqlJwtGuard,
         OauthService,
         JwtStrategy,
