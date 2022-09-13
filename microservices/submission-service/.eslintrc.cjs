@@ -529,7 +529,7 @@ module.exports = {
     "@typescript-eslint/no-dupe-class-members": "error",                       /* (   ) Disallow duplicate class members */
     "@typescript-eslint/no-duplicate-imports": "error",                        /* (   ) Disallow duplicate imports */
     "@typescript-eslint/no-empty-function": "off",                             /* (r  ) Disallow empty functions */
-    "@typescript-eslint/no-extra-parens": "error",                             /* ( f ) Disallow unnecessary parentheses */
+    "@typescript-eslint/no-extra-parens": "off",                               /* ( f ) Disallow unnecessary parentheses */
     "@typescript-eslint/no-extra-semi": "error",                               /* (rf ) Disallow unnecessary semicolons */
     "@typescript-eslint/no-implied-eval": "error",                             /* (r t) Disallow the use of eval()-like methods */
     "@typescript-eslint/no-invalid-this": "error",                             /* (   ) Disallow this keywords outside of classes or class-like objects */
