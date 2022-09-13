@@ -133,7 +133,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
                     platformAccountId: mledbPlayerAccount.platformId,
                 },
                 relations: ["member", "platform"],
-            }).catch(e => { this.logger.error(e) });
+            }).catch(() => null);
 
             if (!platformAccount) {
                 const platform = await this.platformService.getPlatformByCode(mledbPlayerAccount.platform)
