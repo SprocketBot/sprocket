@@ -15,8 +15,9 @@ export class AnalyticsController {
         try {
             const result = serverEventSchema.parse(data);
             this.analyticsService.createPoint(result);
-            this.logger.debug("Logged Point");
+            this.logger.debug("Logged point", {data});
         } catch (e) {
+            this.logger.error("Error logging point", {data}, e);
             throw new RpcException(e as Error);
         }
     }
