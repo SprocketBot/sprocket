@@ -79,8 +79,8 @@ class Analytics:
         tags = [
             ["taskId", self.__task_id],
             ["hash", self.__get_hash()],
-            ["success", str(self.__get_success())],
-            ["cached", str(self.__get_cached())],
+            ["success", Analytics.__stringify_bool(self.__get_success())],
+            ["cached", Analytics.__stringify_bool(self.__get_cached())],
             ["parser", PARSER],
         ]
         booleans = [
@@ -106,10 +106,10 @@ class Analytics:
         })
 
     def __get_success(self) -> bool:
-        return self.__analytics["success"]
+        return bool(self.__analytics["success"])
 
     def __get_cached(self) -> bool:
-        return self.__analytics["cached"]
+        return bool(self.__analytics["cached"])
 
     def __get_hash(self) -> str:
         return self.__analytics["hash"]
@@ -128,3 +128,11 @@ class Analytics:
 
     def __get_total_ms(self) -> int:
         return self.__analytics["total_ms"]
+    
+    @staticmethod
+    def __stringify_bool(b: bool) -> str:
+        if b == True:
+            return 'true'
+        else:
+            return 'false'
+    

@@ -46,6 +46,10 @@
 	initializeClient($session);
 </script>
 
+<svelte:head>
+	<title>Sprocket</title>
+</svelte:head>
+
 <slot />
 
 <ToastContainer showTestButton={false} />
