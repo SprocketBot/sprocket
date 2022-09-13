@@ -89,7 +89,7 @@ export class ReplayParseService {
         return submissionResponse.data;
     }
 
-    async ratifySubmission(submissionId: string, playerId: string): Promise<void> {
+    async ratifySubmission(submissionId: string, playerId: number): Promise<void> {
         const ratificationResponse = await this.submissionService.send(SubmissionEndpoint.RatifySubmission, {
             submissionId: submissionId,
             playerId: playerId,

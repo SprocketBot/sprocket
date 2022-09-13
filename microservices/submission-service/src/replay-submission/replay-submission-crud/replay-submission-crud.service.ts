@@ -1,7 +1,6 @@
 import {Injectable} from "@nestjs/common";
-import {
+import type {
     BaseReplaySubmission,
-    OrganizationConfigurationKeyCode,
     ProgressMessage,
     ReplaySubmission,
     ReplaySubmissionItem,
@@ -9,17 +8,18 @@ import {
     ReplaySubmissionStats,
     ScrimReplaySubmission,
     Task,
-    SCRIM_REQ_RATIFICATION_MAJORITY,
 } from "@sprocketbot/common";
 import {
     CoreEndpoint,
     CoreService,
     MatchmakingEndpoint,
     MatchmakingService,
+    OrganizationConfigurationKeyCode,
     RedisService,
     ReplaySubmissionStatus,
     ReplaySubmissionType,
     ResponseStatus,
+    SCRIM_REQ_RATIFICATION_MAJORITY,
 } from "@sprocketbot/common";
 
 import {
@@ -92,7 +92,7 @@ export class ReplaySubmissionCrudService {
             } as ScrimReplaySubmission;
 
             configMinRatify = await this.getOrgRequiredRatifications(scrim.organizationId);
-            maxRatify = scrim.players!.length;
+            maxRatify = scrim.players.length;
 
         } else if (submissionIsMatch(submissionId)) {
             const result = await this.coreService.send(CoreEndpoint.GetMatchBySubmissionId, {submissionId});
@@ -107,7 +107,7 @@ export class ReplaySubmissionCrudService {
 
             // TODO: Match type does not currently have player/team info or organization ID.
             //       This is currently being hardcoded to 2 to avoid changing existing behavior.
-            configMinRatify = 2; 
+            configMinRatify = 2;
             maxRatify = configMinRatify;
 
         } else {
@@ -137,9 +137,9 @@ export class ReplaySubmissionCrudService {
         return this.redisService.getJson<ReplaySubmissionRejection[]>(key, "rejections");
     }
 
-    async getSubmissionRatifiers(submissionId: string): Promise<string[]> {
+    async getSubmissionRatifiers(submissionId: string): Promise<number[]> {
         const key = getSubmissionKey(submissionId);
-        return this.redisService.getJson<string[]>(key, "ratifiers");
+        return this.redisService.getJson<number[]>(key, "ratifiers");
     }
 
     async removeSubmission(submissionId: string): Promise<void> {
@@ -190,7 +190,7 @@ export class ReplaySubmissionCrudService {
         await this.redisService.setJsonField(key, "stats", stats);
     }
 
-    async addRatifier(submissionId: string, playerId: string): Promise<void> {
+    async addRatifier(submissionId: string, playerId: number): Promise<void> {
         const ratifiers = await this.getSubmissionRatifiers(submissionId);
 
         // Players cannot ratify a scrim twice
