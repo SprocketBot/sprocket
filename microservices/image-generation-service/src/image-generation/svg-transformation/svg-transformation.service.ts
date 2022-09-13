@@ -258,22 +258,25 @@ export class SvgTransformationService {
                     case "number":
                     case "text":
                         await this.applyTextTransformation(el, datum.value.toString(), t.options);
+                        this.logger.log(`successfully applied transformation to ${el.id} (Text ${datum.value.toString()})`);
                         break;
                     case "fill":
                         await this.applyFillTransformation(el, datum.value.toString());
+                        this.logger.log(`successfully applied transformation to ${el.id} (Fill ${datum.value.toString()})`);
                         break;
                     case "stroke":
                         await this.applyStrokeTransformation(el, datum.value.toString());
+                        this.logger.log(`successfully applied transformation to ${el.id} (Stroke ${datum.value.toString()})`);
                         break;
                     case "image":
                         await this.applyImageTransformation(el, datum.value.toString(), t.options);
+                        this.logger.log(`successfully applied transformation to ${el.id} (Image)`);
                         break;
                     default:
                         // Leaving this here for when we create future transformation types
                         this.logger.warn(`Unknown operation ${t} found! Skipping...`);
                         break;
                 }
-                this.logger.log(`successfully applied transformation to ${el.id}`);
                 return Promise.resolve();
             }));
         } catch (e) {
