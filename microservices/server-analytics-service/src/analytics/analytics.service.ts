@@ -26,8 +26,9 @@ export class AnalyticsService {
         this.writeApi = this.influx.getWriteApi(config.get("influx.org"), config.get("influx.bucket"), "ms");
         const flushThrottle = 1000;
         this.flush = throttle<() => void>(() => {
-            this.writeApi.flush().catch(this.logger.error.bind(this.logger));
-            this.logger.log("Flushed InfluxDB Points");
+            this.writeApi.flush()
+                .then(() => { this.logger.log("Flushed InfluxDB Points") })
+                .catch(this.logger.error.bind(this.logger));
         }, flushThrottle);
     }
     
