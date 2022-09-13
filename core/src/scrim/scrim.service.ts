@@ -203,10 +203,17 @@ export class ScrimService {
 
     async getRelevantWebhooks(scrim: CoreInput<CoreEndpoint.GetScrimReportCardWebhooks>): Promise<CoreOutput<CoreEndpoint.GetScrimReportCardWebhooks>> {
         const skillGroupProfile = await this.gameSkillGroupService.getGameSkillGroupProfile(scrim.skillGroupId);
+
+        // TODO: Refactor after we move to sprocket rosters
         const franchiseProfiles = await Promise.all(scrim.players.map(async p => {
-            const member = await this.memberService.getMember({where: {user: {id: p.id} } });
-            const gameMode = await this.gameSkillGroupService.getGameSkillGroupById(scrim.skillGroupId, {relations: ["game"] });
-            const franchise = await this.memberService.getFranchiseByMember(member.id, scrim.organizationId, gameMode.game.id);
+            const mleFranchise = await this.franchiseService.getPlayerFranchises(p.id).catch(() => null);
+            if (!mleFranchise?.length) return undefined;
+            const mleTeam = mleFranchise[0];
+
+            const franchise = await this.franchiseService.getFranchise({
+                where: {profile: {title: mleTeam.name} },
+                relations: {profile: true},
+            }).catch(() => null);
             if (!franchise) return undefined;
 
             return this.franchiseService.getFranchiseProfile(franchise.id);
