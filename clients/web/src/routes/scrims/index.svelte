@@ -31,7 +31,7 @@
         if (ratio === 0) {
             activityChange = "No change";
         } else {
-            activityChange = `${Math.abs(Math.round(ratio * 100))}% ${activityChange > 0 ? "up" : "down"}`;
+            activityChange = `${Math.abs(Math.round(ratio * 100))}% ${ratio > 0 ? "up" : "down"}`;
         }
     }
     $: if (typeof metrics?.completedScrims === "number" || typeof metrics?.previousCompletedScrims === "number") {
