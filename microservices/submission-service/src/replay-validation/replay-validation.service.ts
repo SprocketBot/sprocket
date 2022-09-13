@@ -104,7 +104,7 @@ export class ReplayValidationService {
             this.logger.error(`Unable to validate submission missing stats, scrim=${scrim.id} submissionId=${scrim.submissionId}`);
             return {
                 valid: false,
-                errors: [],
+                errors: [ {error: "The submission is missing stats. Please contact support."} ],
             };
         }
 
@@ -118,7 +118,7 @@ export class ReplayValidationService {
             this.logger.error(`Unable to validate submission, couldn't find all players by their platformIds`, playersResponse.error);
             return {
                 valid: false,
-                errors: [],
+                errors: [ {error: "A player played on an unreported account. Please contact support for help."} ],
             };
         }
         const players = playersResponse.data;
