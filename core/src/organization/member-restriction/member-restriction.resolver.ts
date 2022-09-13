@@ -1,19 +1,18 @@
-// import {UseGuards} from "@nestjs/common";
-// import {MLE_OrganizationTeam} from "../../database/mledb";
-// import {MLEOrganizationTeamGuard} from "../../mledb";
 import {Inject, UseGuards} from "@nestjs/common";
-import {Args, Int, Mutation, Query, ResolveField, Resolver, Root, Subscription,} from "@nestjs/graphql";
+import {
+    Args, Int, Mutation, Query, ResolveField, Resolver, Root, Subscription,
+} from "@nestjs/graphql";
 import {PubSub} from "apollo-server-express";
 
 import type {Member} from "../../database";
 import {MemberRestriction, MemberRestrictionType} from "../../database";
+import {MLE_OrganizationTeam} from "../../database/mledb";
+import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
+import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {MemberPubSub} from "../constants";
 import {MemberService} from "../member/member.service";
 import {MemberRestrictionService} from "./member-restriction.service";
 import {MemberRestrictionEvent} from "./member-restriction.types";
-import {MLEOrganizationTeamGuard} from "../../mledb";
-import {MLE_OrganizationTeam} from "../../database/mledb";
-import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 
 @Resolver(() => MemberRestriction)
 export class MemberRestrictionResolver {

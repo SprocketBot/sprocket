@@ -14,13 +14,13 @@ import {GraphQLUpload} from "graphql-upload";
 import {MLE_OrganizationTeam} from "../database/mledb";
 import {CurrentUser, UserPayload} from "../identity";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard";
+import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
 import {ReplayParsePubSub} from "./replay-parse.constants";
 import {ReplayParseService} from "./replay-parse.service";
 import type {ReplaySubmission} from "./types";
 import {GqlReplaySubmission} from "./types";
 import type {ValidationResult} from "./types/validation-result.types";
 import {ValidationResultUnion} from "./types/validation-result.types";
-import {MLEOrganizationTeamGuard} from "../mledb";
 
 @Resolver()
 @UseGuards(GqlJwtGuard)

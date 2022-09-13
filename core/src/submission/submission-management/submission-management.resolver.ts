@@ -6,7 +6,7 @@ import type {ReplaySubmission} from "@sprocketbot/common";
 
 import {MLE_OrganizationTeam} from "../../database/mledb";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
-import {MLEOrganizationTeamGuard} from "../../mledb";
+import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {GqlReplaySubmission} from "../../replay-parse";
 import {SubmissionService} from "../submission.service";
 

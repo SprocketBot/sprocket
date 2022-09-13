@@ -1,11 +1,11 @@
+import {UseGuards} from "@nestjs/common";
 import {Mutation, Resolver} from "@nestjs/graphql";
 
+import {MLE_OrganizationTeam} from "../database/mledb";
+import {GqlJwtGuard} from "../identity/auth/gql-auth-guard";
+import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
 import {EloService} from "./elo.service";
 import {EloConnectorService, EloEndpoint} from "./elo-connector";
-import {UseGuards} from "@nestjs/common";
-import {GqlJwtGuard} from "../identity/auth/gql-auth-guard";
-import {MLEOrganizationTeamGuard} from "../mledb";
-import {MLE_OrganizationTeam} from "../database/mledb";
 
 @Resolver()
 export class EloResolver {

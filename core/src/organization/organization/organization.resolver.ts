@@ -1,14 +1,14 @@
+import {UseGuards} from "@nestjs/common";
 import {
     Args, Int, Mutation, Query, ResolveField, Resolver, Root,
 } from "@nestjs/graphql";
 
 import {Organization, OrganizationProfile} from "../../database";
+import {MLE_OrganizationTeam} from "../../database/mledb";
+import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
+import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {OrganizationProfileInput} from "./inputs";
 import {OrganizationService} from "./organization.service";
-import {UseGuards} from "@nestjs/common";
-import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
-import {MLEOrganizationTeamGuard} from "../../mledb";
-import {MLE_OrganizationTeam} from "../../database/mledb";
 
 @Resolver(() => Organization)
 export class OrganizationResolver {

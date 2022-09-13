@@ -14,6 +14,7 @@ import {GraphQLError} from "graphql";
 
 import {OrganizationConfigurationService} from "../configuration";
 import {OrganizationConfigurationKeyCode, Player} from "../database";
+import {MLE_OrganizationTeam} from "../database/mledb";
 import {
     CurrentPlayer, GameSkillGroupService, PlayerService,
 } from "../franchise";
@@ -21,6 +22,7 @@ import {GameModeService} from "../game";
 import {CurrentUser} from "../identity";
 import {UserPayload} from "../identity/auth/";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard/gql-jwt-guard";
+import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
 import {QueueBanGuard} from "../organization";
 import {ScrimPubSub} from "./constants";
 import {CreateScrimPlayerGuard, JoinScrimPlayerGuard} from "./scrim.guard";
@@ -30,8 +32,6 @@ import {
     CreateScrimInput, Scrim, ScrimEvent,
 } from "./types";
 import {ScrimMetrics} from "./types/ScrimMetrics";
-import {MLEOrganizationTeamGuard} from "../mledb";
-import {MLE_OrganizationTeam} from "../database/mledb";
 
 @Resolver()
 export class ScrimModuleResolverPublic {
