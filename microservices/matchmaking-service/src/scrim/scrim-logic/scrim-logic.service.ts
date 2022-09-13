@@ -39,10 +39,7 @@ export class ScrimLogicService {
 
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
             name: "scrimPopped",
-            tags: [
-                ["scrimId", scrim.id],
-                ["submissionId", scrim.submissionId],
-            ],
+            strings: [ ["scrimId", scrim.id] ],
         }).catch(err => { this.logger.error(err) });
     }
 

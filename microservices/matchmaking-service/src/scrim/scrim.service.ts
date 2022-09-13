@@ -50,11 +50,8 @@ export class ScrimService {
 
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
             name: "scrimCreated",
-            tags: [
-                ["scrimId", scrim.id],
-                ["submissionId", scrim.submissionId ?? ""],
-                ["authorId", `${author.id}`],
-            ],
+            tags: [ ["playerId", `${author.id}`] ],
+            strings: [ ["scrimId", scrim.id] ],
         }).catch(err => { this.logger.error(err) });
 
         return scrim;
@@ -81,10 +78,8 @@ export class ScrimService {
 
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
             name: "scrimJoined",
-            tags: [
-                ["scrimId", scrim.id],
-                ["playerId", `${player.id}`],
-            ],
+            tags: [ ["playerId", `${player.id}`] ],
+            strings: [ ["scrimId", scrim.id] ],
         }).catch(err => { this.logger.error(err) });
 
         if (scrim.settings.teamSize * scrim.settings.teamCount === scrim.players.length) {
@@ -122,10 +117,8 @@ export class ScrimService {
 
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
             name: "scrimLeft",
-            tags: [
-                ["scrimId", scrim.id],
-                ["playerId", `${player.id}`],
-            ],
+            tags: [ ["playerId", `${player.id}`] ],
+            strings: [ ["scrimId", scrim.id] ],
         }).catch(err => { this.logger.error(err) });
 
         return true;
@@ -174,9 +167,7 @@ export class ScrimService {
 
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
             name: "scrimCancelled",
-            tags: [
-                ["scrimId", scrim.id],
-            ],
+            strings: [ ["scrimId", scrim.id] ],
         }).catch(err => { this.logger.error(err) });
 
         return scrim;
@@ -202,9 +193,7 @@ export class ScrimService {
 
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
             name: "scrimRatifying",
-            tags: [
-                ["scrimId", scrim.id],
-            ],
+            strings: [ ["scrimId", scrim.id] ],
         }).catch(err => { this.logger.error(err) });
 
         await this.publishScrimUpdate(scrimId);
@@ -254,9 +243,8 @@ export class ScrimService {
 
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
             name: "scrimComplete",
-            tags: [
-                ["scrimId", scrim.id],
-            ],
+            tags: [ ["playerId", `${playerId}`] ],
+            strings: [ ["scrimId", scrim.id] ],
         }).catch(err => { this.logger.error(err) });
 
         return scrim;
@@ -281,10 +269,8 @@ export class ScrimService {
 
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
             name: `scrimLockStatusUpdated`,
-            tags: [
-                ["scrimId", scrim.id],
-                ["status", locked ? "locked" : "unlocked"],
-            ],
+            tags: [ ["scrimId", scrim.id] ],
+            booleans: [ ["locked", locked] ],
         }).catch(err => { this.logger.error(err) });
 
         await this.publishScrimUpdate(scrimId);
@@ -299,8 +285,8 @@ export class ScrimService {
             // We don't really care about _what_ changed, in this context;
             // this is more to do with tracking how often a scrim is changed
             this.analyticsService.send(AnalyticsEndpoint.Analytics, {
-                name: "ScrimUpdated",
-                tags: [ ["scrimId", scrimId] ],
+                name: "scrimUpdated",
+                strings: [ ["scrimId", scrimId] ],
             }),
             this.eventsService.publish(EventTopic.ScrimUpdated, scrim, scrimId),
         ]);

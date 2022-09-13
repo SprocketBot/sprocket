@@ -6,7 +6,7 @@ import * as fs from "fs";
 import type {DebouncedFunc} from "lodash";
 import {throttle} from "lodash";
 
-import type {ServerEvent} from "./analytics.schema";
+import type {AnalyticsPoint} from "./analytics.schema";
 
 @Injectable()
 export class AnalyticsService {
@@ -38,7 +38,7 @@ export class AnalyticsService {
         }, flushThrottle);
     }
     
-    createPoint = (data: ServerEvent): void => {
+    createPoint = (data: AnalyticsPoint): void => {
         try {
             const point = new Point();
             if (data.booleans) data.booleans.forEach(([name, value]) => point.booleanField(name, value));
