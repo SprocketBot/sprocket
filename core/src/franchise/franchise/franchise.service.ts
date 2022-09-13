@@ -3,6 +3,7 @@ import {
 } from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {CoreEndpoint, CoreOutput} from "@sprocketbot/common";
+import type {FindOneOptions} from "typeorm";
 import {Repository} from "typeorm";
 
 import type {FranchiseProfile} from "../../database";
@@ -25,8 +26,12 @@ export class FranchiseService {
         return franchise.profile;
     }
 
-    async getFranchise(franchiseId: number): Promise<Franchise> {
+    async getFranchiseById(franchiseId: number): Promise<Franchise> {
         return this.franchiseRepository.findOneOrFail({where: {id: franchiseId} });
+    }
+
+    async getFranchise(query: FindOneOptions<Franchise>): Promise<Franchise> {
+        return this.franchiseRepository.findOneOrFail(query);
     }
 
     async getPlayerFranchises(userId: number): Promise<CoreOutput<CoreEndpoint.GetPlayerFranchises>> {
