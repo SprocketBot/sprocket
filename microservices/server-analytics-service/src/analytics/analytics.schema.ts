@@ -10,6 +10,7 @@ export const AnalyticsPointSchema = z.object({
     name: z.string(),
 
     // Fields, at least one field is required
+    // https://docs.influxdata.com/influxdb/v1.8/write_protocols/line_protocol_tutorial/#field-set
     booleans: z.array(booleanFieldSchema).optional(),
     floats: z.array(floatFieldSchema).optional(),
     ints: z.array(intFieldSchema).optional(),
