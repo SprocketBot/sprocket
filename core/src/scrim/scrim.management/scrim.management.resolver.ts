@@ -1,10 +1,13 @@
-import {Inject} from "@nestjs/common";
+import {Inject, UseGuards} from "@nestjs/common";
 import {
     Args, Int, Mutation, Query, Resolver, Subscription,
 } from "@nestjs/graphql";
 import type {Scrim as IScrim} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 
+import {MLE_OrganizationTeam} from "../../database/mledb/enums";
+import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
+import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {ScrimPubSub} from "../constants";
 import {ScrimService} from "../scrim.service";
 import {Scrim, ScrimEvent} from "../types";
@@ -24,6 +27,7 @@ export class ScrimManagementResolver {
     }
 
     @Mutation(() => Scrim)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async cancelScrim(@Args("scrimId", {type: () => String}) scrimId: string): Promise<IScrim> {
         return this.scrimService.cancelScrim(scrimId);
     }
