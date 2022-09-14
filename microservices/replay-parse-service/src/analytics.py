@@ -1,4 +1,5 @@
 import json
+import logging
 from util import now
 from config import config
 
@@ -22,6 +23,7 @@ class Analytics:
     }
 
     def __init__(self, task_id: str):
+        logging.debug(f"Analytics __init__ {now()}")
         self.__task_id = task_id
         self.__start_ms = now()
 
@@ -53,27 +55,41 @@ class Analytics:
         self.__analytics["replay_size"] = replay_size
         return self
 
-    def timer_start(self) -> 'Analytics':
-        self.__start_ms = now()
-        return self
-    
     def timer_split_get(self) -> 'Analytics':
-        self.__analytics["get_ms"] = now() - self.__start_ms
+        logging.debug(f"Analytics timer_split_get {now()}")
+        start = self.__start_ms
+        if start is not None:
+            self.__analytics["get_ms"] = now() - self.__start_ms
+
         return self
 
     def timer_split_parse(self) -> 'Analytics':
-        self.__analytics["parse_ms"] = now() - self.__start_ms
+        logging.debug(f"Analytics timer_split_parse {now()}")
+        start = self.__start_ms
+        get_ms = self.__analytics["get_ms"]
+        if start is not None and get_ms is not None:
+            self.__analytics["parse_ms"] = now() - self.__start_ms - get_ms
+
         return self
 
     def timer_split_put(self) -> 'Analytics':
-        self.__analytics["put_ms"] = now() - self.__start_ms
+        logging.debug(f"Analytics timer_split_put {now()}")
+        start = self.__start_ms
+        parse_ms = self.__analytics["parse_ms"]
+        get_ms = self.__analytics["get_ms"]
+        if start is not None and parse_ms is not None and get_ms is not None:
+            self.__analytics["put_ms"] = now() - self.__start_ms - parse_ms - get_ms
+
         return self
     
     ###
     # Private setters/getters
     ###
     def __timer_end(self):
-        self.__analytics["total_ms"] = now() - self.__start_ms
+        logging.debug(f"Analytics __timer_end {now()}")
+        start = self.__start_ms
+        if start is not None:
+            self.__analytics["total_ms"] = now() - self.__start_ms
 
     def __get_message(self) -> str:
         tags = [
