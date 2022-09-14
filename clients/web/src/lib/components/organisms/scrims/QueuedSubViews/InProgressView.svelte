@@ -5,18 +5,41 @@
     import UploadReplaysModal from "../modals/UploadReplaysModal.svelte";
     import {TeamsFixture, RoundRobinFixture} from "$lib/components";
     import {screamingSnakeToHuman} from "$lib/utils";
+    import FaExclamationTriangle from "svelte-icons/fa/FaExclamationTriangle.svelte";
 
 
     export let scrim: CurrentScrim;
     export let submission: Submission | undefined;
 
     let uploading: boolean = false;
-    let rejections: SubmissionRejection[] | undefined;
-    $: rejections = submission?.rejections;
+    let lastRejection: SubmissionRejection | undefined;
+    $: lastRejection = submission?.rejections[submission?.rejections.length - 1];
 </script>
 
 <section>
     <h2>Time to Play!</h2>
+
+    {#if lastRejection}
+    <div class="flex flex-col gap-2 mb-20">
+        <div class="alert alert-error justify-start gap-6">
+            <span class="w-6 h-6">
+                <FaExclamationTriangle />
+            </span>
+
+            <div class="flex flex-col gap-1 items-start justify-start text-white">
+                <span class="font-bold">{lastRejection.playerName} rejected the uploaded replays</span>
+                <span>{lastRejection.reason}</span>
+                <span class="mt-2">Please upload the correct replays, or contact support if you think this is a mistake.</span>
+            </div>
+        </div>
+
+        <button on:click={() => { uploading = true }} class="w-full md:w-auto">
+            Upload Replays Again
+        </button>
+    </div>
+
+    {/if}
+    
     <p class="text-accent font-bold tracking-wider">
         Don't forget to save replays!
     </p>
@@ -43,20 +66,11 @@
         {/if}
     </div>
 
-    {#if rejections?.length}
-        <h2 class="text-error">Replays Rejected</h2>
-        <ul class="list-disc list-inside">
-        {#each rejections.filter(r => !r.stale) as rejection}
-            <li>{rejection.playerName} rejected the uploaded replays because "{rejection.reason}"</li>
-        {/each}
-        </ul>
-        <p class="mt-4">You can upload replays again:</p>
+    {#if !lastRejection}
+        <button on:click={() => { uploading = true }} class="w-full md:w-auto">
+            Upload Replays
+        </button>
     {/if}
-
-
-    <button on:click={() => { uploading = true }} class="w-full md:w-auto">
-        Upload Replays
-    </button>
 </section>
 
 <UploadReplaysModal bind:visible={uploading} submissionId={scrim.submissionId}/>
@@ -64,7 +78,7 @@
 
 <style lang="postcss">
     section {
-        @apply space-y-4;
+        @apply flex flex-col gap-4;
     }
 
     h2 {
