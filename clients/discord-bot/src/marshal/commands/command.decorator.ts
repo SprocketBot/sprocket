@@ -73,7 +73,7 @@ export const Command = (commandSpec: CommandSpec): MethodDecorator => <T>(target
                     ["author", message.author.tag],
                     ["guild", message.channel instanceof TextChannel ? message.channel.guild.name : "DMs"],
                     ["channel", message.channel instanceof TextChannel ? message.channel.name : "DMs"],
-                    ["command_name", message.content.split(" ")[0]],
+                    ["command_name", commandSpec.name],
                 ],
                 floats: [
                     ["duration", performance.now() - before],
