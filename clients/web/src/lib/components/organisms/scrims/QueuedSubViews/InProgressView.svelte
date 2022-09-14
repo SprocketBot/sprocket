@@ -29,9 +29,9 @@
                 <dt>Game Mode</dt>
                 <dd>{scrim.settings.competitive ? "Competitive" : "Casual"} {screamingSnakeToHuman(scrim.settings.mode)} {scrim.gameMode.description}</dd>
                 <dt>Name</dt>
-                <dd>{scrim.lobby.name}</dd>
+                <dd><code>{scrim.lobby.name}</code></dd>
                 <dt>Password</dt>
-                <dd>{scrim.lobby.password}</dd>
+                <dd><code>{scrim.lobby.password}</code></dd>
             </dl>
         </div>
     </div>
