@@ -83,6 +83,60 @@ export class ScrimService extends SprocketEventMarshal {
         }));
     }
 
+    @SprocketEvent(EventTopic.ScrimStarted)
+    async sendLobbyNotifications(scrim: Scrim): Promise<void> {
+        const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: scrim.organizationId});
+        if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
+
+        if (!scrim.settings.lobby) return;
+
+        await Promise.all(scrim.players.map(async p => {
+            const userResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, p.id);
+            if (userResult.status === ResponseStatus.ERROR) throw userResult.error;
+            if (!userResult.data) return;
+
+            await this.botService.send(BotEndpoint.SendDirectMessage, {
+                userId: userResult.data,
+                payload: {
+                    embeds: [ {
+                        title: "Your scrim is ready to be played!",
+                        description: `Hey, ${p.name}! Everyone has checked into your ${organizationBrandingResult.data.name} scrim. Here is your scrim's lobby information.`,
+                        author: {
+                            name: `${organizationBrandingResult.data.name} Scrims`,
+                        },
+                        fields: [
+                            {
+                                name: "Name",
+                                value: `\`${scrim.settings.lobby?.name}\``,
+                            },
+                            {
+                                name: "Password",
+                                value: `\`${scrim.settings.lobby?.password}\``,
+                            },
+                        ],
+                        footer: {
+                            text: organizationBrandingResult.data.name,
+                        },
+                        timestamp: Date.now(),
+                    } ],
+                },
+                brandingOptions: {
+                    organizationId: scrim.organizationId,
+                    options: {
+                        author: {
+                            icon: true,
+                        },
+                        color: true,
+                        thumbnail: true,
+                        footer: {
+                            icon: true,
+                        },
+                    },
+                },
+            });
+        }));
+    }
+
     @SprocketEvent(EventTopic.ScrimSaved)
     async sendReportCard(scrim: Scrim & {databaseIds: ScrimDatabaseIds;}): Promise<void> {
         const scrimReportCardWebhooksResult = await this.coreService.send(CoreEndpoint.GetScrimReportCardWebhooks, scrim);
@@ -153,8 +207,6 @@ export class ScrimService extends SprocketEventMarshal {
                         icon: true,
                         text: true,
                     },
-                    webhookAvatar: true,
-                    webhookUsername: true,
                 },
             },
         })));
