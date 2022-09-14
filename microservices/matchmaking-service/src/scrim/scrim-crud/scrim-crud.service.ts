@@ -63,10 +63,9 @@ export class ScrimCrudService {
     async getScrimByPlayer(id: number): Promise<Scrim | null> {
         const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
         for (const key of scrimKeys) {
-            const playerIds = await this.redisService.getJson<number[]>(key, "$.players[*].id");
+            const playerIds = await this.redisService.getJson<number[] | null | undefined>(key, "$.players[*].id");
 
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-            if (!playerIds?.includes) {
+            if (!playerIds) {
                 this.logger.verbose(`GetScrimByPlayer id=${id} key=${key} playerIds is null`);
                 continue;
             }
