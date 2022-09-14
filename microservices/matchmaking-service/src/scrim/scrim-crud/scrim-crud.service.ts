@@ -1,4 +1,4 @@
-import {Injectable} from "@nestjs/common";
+import {Injectable, Logger} from "@nestjs/common";
 import type {
     Scrim, ScrimGame, ScrimPlayer,
 } from "@sprocketbot/common";
@@ -13,6 +13,8 @@ import type {CreateScrimOpts} from "./types";
 
 @Injectable()
 export class ScrimCrudService {
+    private readonly logger = new Logger(ScrimCrudService.name);
+
     private readonly prefix = `${config.redis.prefix}:scrim:`;
 
     constructor(private readonly redisService: RedisService) {
@@ -61,7 +63,13 @@ export class ScrimCrudService {
     async getScrimByPlayer(id: number): Promise<Scrim | null> {
         const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
         for (const key of scrimKeys) {
-            const playerIds = await this.redisService.getJson<number[]>(key, "$.players[*].id");
+            const playerIds = await this.redisService.getJson<number[] | null | undefined>(key, "$.players[*].id");
+
+            if (!playerIds) {
+                this.logger.verbose(`GetScrimByPlayer id=${id} key=${key} playerIds is null`);
+                continue;
+            }
+            
             if (playerIds.includes(id)) return this.redisService.getJson<[Scrim]>(key, "$").then(([r]) => r);
         }
         return null;
