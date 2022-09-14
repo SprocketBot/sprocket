@@ -95,7 +95,7 @@ export class MledbMatchService {
             week.start,
             season.start,
             gameMode.teamSize === 2 ? LegacyGameMode.DOUBLES : LegacyGameMode.STANDARD,
-            match.skillGroup.profile.code.toUpperCase() as League,
+            match.skillGroup.profile.description.split(" ")[0].toUpperCase() as League,
         );
 
         if (!mledbMatch.fixture) throw new Error(`mledb match does not have a fixture matchId=${mledbMatch.id}`);
