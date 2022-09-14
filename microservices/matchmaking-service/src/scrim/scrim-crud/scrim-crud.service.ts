@@ -6,10 +6,10 @@ import {
     config, RedisService, ScrimStatus,
 } from "@sprocketbot/common";
 import type {JobId} from "bull";
-import {randomBytes} from "crypto";
 import {v4} from "uuid";
 
 import type {CreateScrimOpts} from "./types";
+import {words} from "./words";
 
 @Injectable()
 export class ScrimCrudService {
@@ -128,8 +128,8 @@ export class ScrimCrudService {
 
     async generateLobby(scrimId: string): Promise<void> {
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.settings.lobby", {
-            name: "sprocket",
-            password: randomBytes(3).toString("hex"),
+            name: this.randomWord(),
+            password: this.randomWord(),
         });
     }
 
@@ -142,5 +142,9 @@ export class ScrimCrudService {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const submissionId = await this.redisService.getJson(`${this.prefix}${scrimId}`, "$.submissionId");
         return this.redisService.getJson(`${this.prefix}`);
+    }
+
+    randomWord(): string {
+        return words[Math.floor(Math.random() * words.length)];
     }
 }
