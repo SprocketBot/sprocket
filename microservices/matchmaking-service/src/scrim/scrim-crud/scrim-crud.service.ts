@@ -61,7 +61,6 @@ export class ScrimCrudService {
     }
 
     async getScrimByPlayer(id: number): Promise<Scrim | null> {
-        this.logger.verbose(`GetScrimByPlayer id=${id}`);
         const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
         for (const key of scrimKeys) {
             const playerIds = await this.redisService.getJson<number[]>(key, "$.players[*].id");
