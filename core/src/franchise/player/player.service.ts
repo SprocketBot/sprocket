@@ -14,22 +14,46 @@ import {
     NotificationService,
     NotificationType,
 } from "@sprocketbot/common";
-import type {FindManyOptions, FindOneOptions} from "typeorm";
-import {Repository} from "typeorm";
+import type {
+    FindManyOptions, FindOneOptions, QueryRunner,
+} from "typeorm";
+import {DataSource, Repository} from "typeorm";
 
 import {
-    Player, UserAuthenticationAccount, UserAuthenticationAccountType,
+    Member,
+    MemberProfile,
+    Organization,
+    Player,
+    User,
+    UserAuthenticationAccount,
+    UserAuthenticationAccountType,
+    UserProfile,
 } from "../../database";
-import type {League} from "../../database/mledb";
-import {
-    LeagueOrdinals, MLE_Player, Role,
+import type {
+    League,
+    ModePreference,
+    Timezone,
 } from "../../database/mledb";
+import {
+    LeagueOrdinals,
+    MLE_Player,
+    MLE_PlayerAccount,
+    Role,
+} from "../../database/mledb";
+import {PlayerToPlayer} from "../../database/mledb-bridge/player_to_player.model";
+import {PlayerToUser} from "../../database/mledb-bridge/player_to_user.model";
 import type {SalaryPayloadItem} from "../../elo/elo-connector";
-import {DegreeOfStiffness, SkillGroupDelta} from "../../elo/elo-connector";
+import {
+    DegreeOfStiffness,
+    EloConnectorService,
+    EloEndpoint,
+    SkillGroupDelta,
+} from "../../elo/elo-connector";
 import {OrganizationService} from "../../organization";
 import {MemberService} from "../../organization/member/member.service";
 import {GameSkillGroupService} from "../game-skill-group";
 import type {RankdownPayload} from "./player.controller";
+import type {IntakePlayerAccount} from "./player.resolver";
 
 @Injectable()
 export class PlayerService {
@@ -37,14 +61,24 @@ export class PlayerService {
 
     constructor(
         @InjectRepository(Player) private playerRepository: Repository<Player>,
-        @InjectRepository(MLE_Player) private mle_playerRepository: Repository<MLE_Player>,
+        @InjectRepository(User) private userRepository: Repository<User>,
+        @InjectRepository(UserProfile) private userProfileRepository: Repository<UserProfile>,
+        @InjectRepository(Member) private memberRepository: Repository<Member>,
+        @InjectRepository(MemberProfile) private memberProfileRepository: Repository<MemberProfile>,
         @InjectRepository(UserAuthenticationAccount) private userAuthRepository: Repository<UserAuthenticationAccount>,
+        @InjectRepository(Organization) private organizationRepository: Repository<Organization>,
+        @InjectRepository(PlayerToUser) private readonly ptuRepo: Repository<PlayerToUser>,
+        @InjectRepository(PlayerToPlayer) private readonly ptpRepo: Repository<PlayerToPlayer>,
+        @InjectRepository(MLE_Player) private mle_playerRepository: Repository<MLE_Player>,
+        @InjectRepository(MLE_PlayerAccount) private mle_playerAccountRepository: Repository<MLE_PlayerAccount>,
         @Inject(forwardRef(() => MemberService)) private readonly memberService: MemberService,
         @Inject(forwardRef(() => OrganizationService)) private readonly organizationService: OrganizationService,
         private readonly skillGroupService: GameSkillGroupService,
         private readonly eventsService: EventsService,
         private readonly notificationService: NotificationService,
         private readonly jwtService: JwtService,
+        private readonly dataSource: DataSource,
+        private readonly eloConnectorService: EloConnectorService,
     ) {}
 
     async getPlayer(query: FindOneOptions<Player>): Promise<Player> {
@@ -121,6 +155,165 @@ export class PlayerService {
         });
 
         await this.playerRepository.save(player);
+        return player;
+    }
+
+    /* !! Using repositories due to circular dependency issues. Will fix after extended repositories are added, probably. !! */
+    async intakePlayer(
+        name: string,
+        discordId: string,
+        skillGroupId: number,
+        salary: number,
+        platform: string,
+        platforms: IntakePlayerAccount[],
+        timezone: Timezone,
+        modePreference: ModePreference,
+    ): Promise<Player> {
+        const runner = this.dataSource.createQueryRunner();
+        await runner.connect();
+        await runner.startTransaction();
+
+        let player: Player;
+
+        try {
+            const user = this.userRepository.create({});
+            
+            user.profile = this.userProfileRepository.create({
+                user: user,
+                email: "unknown@sprocket.gg",
+                displayName: name,
+            });
+            user.profile.user = user;
+
+            const authAcc = this.userAuthRepository.create({
+                accountType: UserAuthenticationAccountType.DISCORD,
+                accountId: discordId,
+            });
+            authAcc.user = user;
+            user.authenticationAccounts = [authAcc];
+
+            const mleOrg = await this.organizationRepository.findOneOrFail({where: {profile: {name: "Minor League Esports"} } });
+
+            const member = this.memberRepository.create({});
+            member.organization = mleOrg;
+            member.user = user;
+            member.profile = this.memberProfileRepository.create({
+                name: name,
+            });
+            member.profile.member = member;
+
+            const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
+
+            player = this.playerRepository.create({salary});
+            player.member = member;
+            player.skillGroup = skillGroup;
+
+            const [ {mleid} ] = await runner.query("SELECT MAX(mleid) + 1 AS mleid FROM mledb.player") as Array<{mleid?: number;}>;
+            if (!mleid) throw new Error("Failed to generate MLEID");
+
+            await runner.manager.save(user);
+            await runner.manager.save(user.profile);
+            await runner.manager.save(user.authenticationAccounts);
+            await runner.manager.save(member);
+            await runner.manager.save(member.profile);
+            await runner.manager.save(player);
+            await this.mle_createPlayer(
+                user.id,
+                player.id,
+                mleid,
+                discordId,
+                name,
+                LeagueOrdinals[skillGroup.ordinal - 1],
+                salary,
+                platform,
+                timezone,
+                modePreference,
+                platforms,
+                runner,
+            );
+
+            await this.eloConnectorService.createJob(EloEndpoint.AddPlayerBySalary, {
+                id: player.id,
+                name: name,
+                salary: salary,
+                skillGroup: skillGroup.ordinal,
+            });
+            
+            await runner.commitTransaction();
+        } catch (e) {
+            await runner.rollbackTransaction();
+            this.logger.error(e);
+            throw e;
+        } finally {
+            await runner.release();
+        }
+
+        return player;
+    }
+
+    async mle_createPlayer(
+        sprocketUserId: number,
+        sprocketPlayerId: number,
+        mleid: number,
+        discordId: string,
+        name: string,
+        league: League,
+        salary: number,
+        platform: string,
+        timezone: Timezone,
+        preference: ModePreference,
+        accounts: IntakePlayerAccount[],
+        runner?: QueryRunner,
+    ): Promise<MLE_Player> {
+        let player: MLE_Player = {
+            createdBy: "Sprocket FA Intake",
+            updatedBy: "Sprocket FA Intake",
+            mleid: mleid,
+            name: name,
+            salary: salary,
+            league: league,
+            preferredPlatform: platform,
+            peakMmr: 0,
+            timezone: timezone,
+            discordId: discordId,
+            modePreference: preference,
+        } as MLE_Player;
+
+        player = this.mle_playerRepository.create(player);
+
+        const playerAccounts = accounts.map(a => {
+            const acc = this.mle_playerAccountRepository.create(a);
+            acc.player = player;
+            
+            return acc;
+        });
+        
+        if (runner) {
+            await runner.manager.save(player);
+            await runner.manager.save(playerAccounts);
+        } else {
+            await this.mle_playerRepository.save(player);
+            await this.mle_playerAccountRepository.save(player);
+        }
+
+        const ptuBridge = this.ptuRepo.create({
+            userId: sprocketUserId,
+            playerId: player.id,
+        });
+
+        const ptpBridge = this.ptpRepo.create({
+            sprocketPlayerId: sprocketPlayerId,
+            mledPlayerId: player.id,
+        });
+        
+        if (runner) {
+            await runner.manager.save(ptuBridge);
+            await runner.manager.save(ptpBridge);
+        } else {
+            await this.ptuRepo.save(ptuBridge);
+            await this.ptpRepo.save(ptpBridge);
+        }
+
         return player;
     }
 
@@ -416,7 +609,7 @@ export class PlayerService {
         return LeagueOrdinals[LeagueOrdinals.indexOf(league) - dir];
     }
 
-    async mle_MovePlayerToLeague(sprocPlayerId: number, salary: number, skillGroupId: number): Promise<MLE_Player> {
+    async mle_movePlayerToLeague(sprocPlayerId: number, salary: number, skillGroupId: number): Promise<MLE_Player> {
         const sprocketPlayer = await this.getPlayer({
             where: {id: sprocPlayerId},
             relations: {

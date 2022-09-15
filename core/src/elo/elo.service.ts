@@ -1,8 +1,15 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {DataSource} from "typeorm";
 
-import type {CurrentEloValues} from "./elo-connector";
 import type {NewPlayer} from "./elo-connector/schemas";
+
+export interface CurrentEloValues {
+    player_id: number;
+    elo: number;
+    league: string;
+    salary: number;
+    name: string;
+}
 
 @Injectable()
 export class EloService {

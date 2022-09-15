@@ -4,19 +4,12 @@ import * as Schemas from "./schemas";
 
 export const EloBullQueue = "elo";
 
-export interface CurrentEloValues {
-    player_id: number;
-    elo: number;
-    league: string;
-    salary: number;
-    name: string;
-}
-
 export enum EloEndpoint {
     CalculateSalaries = "CalculateSalaries",
     CalculateEloForMatch = "CalculateEloForMatch",
     CalculateEloForNcp = "CalculateEloForNcp",
     AddNewPlayers = "AddNewPlayers",
+    AddPlayerBySalary = "AddPlayerBySalary",
     SGChange = "SGChange",
 }
 
@@ -36,6 +29,14 @@ export const EloSchemas = {
     [EloEndpoint.AddNewPlayers]: {
         input: Schemas.AddPlayers_Input,
         output: Schemas.AddPlayers_Output,
+    },
+    [EloEndpoint.AddNewPlayers]: {
+        input: Schemas.AddPlayers_Input,
+        output: Schemas.AddPlayers_Output,
+    },
+    [EloEndpoint.AddPlayerBySalary]: {
+        input: Schemas.AddPlayerBySalary_Input,
+        output: Schemas.AddPlayerBySalary_Output,
     },
     [EloEndpoint.SGChange]: {
         input: Schemas.SGChange_Input,

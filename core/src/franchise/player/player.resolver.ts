@@ -1,15 +1,25 @@
-/* eslint-disable require-atomic-updates */
 import {
     forwardRef, Inject, UseGuards,
 } from "@nestjs/common";
 import {
-    Args, Float, Int, Mutation,
-    ResolveField, Resolver, Root,
+    Args,
+    Field,
+    Float,
+    InputType,
+    Int,
+    Mutation,
+    ResolveField,
+    Resolver,
+    Root,
 } from "@nestjs/graphql";
 import {InjectRepository} from "@nestjs/typeorm";
 import {
-    EventsService, EventTopic, NotificationEndpoint, NotificationMessageType,
-    NotificationService, NotificationType,
+    EventsService,
+    EventTopic,
+    NotificationEndpoint,
+    NotificationMessageType,
+    NotificationService,
+    NotificationType,
 } from "@sprocketbot/common";
 import {Repository} from "typeorm";
 
@@ -17,7 +27,9 @@ import type {GameSkillGroup} from "../../database";
 import {
     Member, Player, UserAuthenticationAccount, UserAuthenticationAccountType,
 } from "../../database";
-import {MLE_OrganizationTeam} from "../../database/mledb";
+import {
+    League, LeagueOrdinals, MLE_OrganizationTeam, MLE_Platform, ModePreference, Timezone,
+} from "../../database/mledb";
 import type {ManualSkillGroupChange} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
@@ -28,9 +40,20 @@ import {FranchiseService} from "../franchise";
 import {GameSkillGroupService} from "../game-skill-group";
 import {PlayerService} from "./player.service";
 
+@InputType()
+export class IntakePlayerAccount {
+    @Field(() => MLE_Platform)
+    platform: MLE_Platform;
+
+    @Field(() => String)
+    platformId: string;
+
+    @Field(() => String)
+    tracker: string;
+}
+
 @Resolver(() => Player)
 export class PlayerResolver {
-
     constructor(
         private readonly popService: PopulateService,
         private readonly playerService: PlayerService,
@@ -41,7 +64,6 @@ export class PlayerResolver {
         private readonly eloConnectorService: EloConnectorService,
         @InjectRepository(UserAuthenticationAccount) private userAuthRepository: Repository<UserAuthenticationAccount>,
         @Inject(forwardRef(() => OrganizationService)) private readonly organizationService: OrganizationService,
-
     ) {}
 
     @ResolveField()
@@ -133,7 +155,7 @@ export class PlayerResolver {
             skillGroup: skillGroup.ordinal,
         };
 
-        await this.playerService.mle_MovePlayerToLeague(playerId, salary, skillGroupId);
+        await this.playerService.mle_movePlayerToLeague(playerId, salary, skillGroupId);
         await this.playerService.updatePlayerStanding(playerId, salary, skillGroupId);
         await this.eloConnectorService.createJob(EloEndpoint.SGChange, inputData);
 
@@ -204,4 +226,19 @@ export class PlayerResolver {
         return "SUCCESS";
     }
 
+    @Mutation(() => Player)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
+    async intakePlayer(
+        @Args("name") name: string,
+        @Args("discordId") discordId: string,
+        @Args("skillGroup", {type: () => League}) league: League,
+        @Args("salary", {type: () => Float}) salary: number,
+        @Args("preferredPlatform") platform: string,
+        @Args("timezone", {type: () => Timezone}) timezone: Timezone,
+        @Args("preferredMode", {type: () => ModePreference}) mode: ModePreference,
+        @Args("accounts", {type: () => [IntakePlayerAccount]}) accounts: IntakePlayerAccount[],
+    ): Promise<Player> {
+        const sg = await this.skillGroupService.getGameSkillGroup({where: {ordinal: LeagueOrdinals.indexOf(league) + 1} });
+        return this.playerService.intakePlayer(name, discordId, sg.id, salary, platform, accounts, timezone, mode);
+    }
 }
