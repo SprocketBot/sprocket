@@ -37,3 +37,29 @@ npm run dev
 # For the replay parse service
 ./start.sh
 ```
+
+## Building Docker images
+### Build the base image
+```shell
+docker build . -f dockerfiles/node.Dockerfile -t sprocket-base-image --build-arg COMMIT_SHA=$(git log -1 --format=%H)
+
+docker image ls | grep sprocket
+# ->
+#    sprocket-base-image                                   latest             cfb627899675   5 seconds ago   1.01GB
+```
+
+### Build microservice image
+For example, building `clients/web`:
+```shell
+docker build . -f clients/web/Dockerfile -t sprocket-web --build-arg BASE_IMAGE=sprocket-base-image
+
+docker image ls | grep sprocket
+# ->
+#    sprocket-web                                          latest             6661a25ebce4   5 seconds ago    1.01GB
+#    sprocket-base-image                                   latest             cfb627899675   30 seconds ago   1.01GB
+```
+
+## Inspecting `COMMIT_SHA` of Image / Container
+```shell
+docker inspect --format='{{range .Config.Env}}{{println .}}{{end}}' <image/container name or id> | grep COMMIT_SHA
+```

@@ -1,6 +1,6 @@
 ARG BASE_IMAGE
 FROM $BASE_IMAGE AS test_image
-RUN mkdir /app/secret && touch /app/secret/db-password.txt
+RUN mkdir -p /app/secret && touch /app/secret/db-password.txt
 RUN touch /app/secret/googleClientId.txt
 RUN touch /app/secret/googleSecret.txt
 RUN touch /app/secret/jwtSecret.txt

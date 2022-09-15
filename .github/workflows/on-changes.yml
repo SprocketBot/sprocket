@@ -32,17 +32,13 @@ jobs:
       - name: Build and export
         uses: docker/build-push-action@v2
         with:
+          build-args: |
+            COMMIT_SHA=${{ github.sha }}
           context: .
           file: ./dockerfiles/node.Dockerfile
           tags: ${{ secrets.docker_username }}/monorepo-core:${{ steps.extract_branch.outputs.branch }}
           push: true
           platforms: linux/amd64
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: sprocket-core
-          path: /tmp/core.tar
 
   build_microservices:
     name: "Build Node Services"
@@ -77,15 +73,14 @@ jobs:
         id: changes
         with:
           base: ${{ github.ref }}
-          list-files: none
+          list-files: json
           filters: |
-            change:
-              ${{ matrix.directory[1] }}/**
-            common:
-              ./common/**
+            baseDockerfileHasChanges: ./dockerfiles/node.Dockerfile
+            projectHasChanges: ${{ matrix.directory[1] }}/**
+            sprocketCommonHasChanges: ./common/**
 
       - name: Build project
-        if: steps.changes.outputs.change == 'true' || steps.changes.outputs.common == 'true'
+        if: steps.changes.outputs.baseDockerfileHasChanges == 'true' || steps.changes.outputs.projectHasChanges == 'true' || steps.changes.outputs.sprocketCommonHasChanges == 'true'
         uses: ./.github/reusable_workflows/build_container
         with:
           build_directory: ${{ matrix.directory[1] }}
