@@ -101,6 +101,8 @@ class ParseReplay(BaseTask):
         # Check if the replay has already been parsed and stats are in minio
         if DISABLE_CACHE is False:
             try:
+                logging.debug("Checking for results in minio")
+
                 already_parsed = files.get(parsed_object_path)
                 logging.info(f"Replay already parsed {parsed_object_path}")
 
@@ -108,12 +110,13 @@ class ParseReplay(BaseTask):
                     self.progress.complete(already_parsed)
                 )
                 self.publish_analytics(
-                    self.analytics.cached(True).complete()
+                    self.analytics.timer_split_get().cached(True).complete()
                 )
 
                 return already_parsed
             except S3Error as e:
                 if e.code == "NoSuchKey":
+                    logging.debug("No results found in minio, parsing replay")
                     pass
             except:
                 raise

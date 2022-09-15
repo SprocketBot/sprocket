@@ -31,27 +31,35 @@ class Analytics:
     # Completers
     ###
     def complete(self) -> dict:
-        self.__analytics["success"] = True
-        self.__timer_end()
-        return self.__get_message()
+        msg = self.success(True).__timer_end().__get_message()
+        logging.debug(f"Analytics.complete, msg = {json.dumps(msg)}")
+        return msg
 
     def fail(self) -> dict:
-        self.__analytics["success"] = False
-        self.__timer_end()
-        return self.__get_message()
+        msg = self.success(False).__timer_end().__get_message()
+        logging.debug(f"Analytics.fail, msg = {json.dumps(msg)}")
+        return msg
 
     ###
     # Builders
     ###
+    def success(self, success: bool) -> 'Analytics':
+        logging.debug(f"Analytics.success <- {success}")
+        self.__analytics["success"] = success
+        return self
+
     def cached(self, cached: bool) -> 'Analytics':
+        logging.debug(f"Analytics.cached <- {cached}")
         self.__analytics["cached"] = cached
         return self
 
     def hash(self, hash: str) -> 'Analytics':
+        logging.debug(f"Analytics.hash <- {hash}")
         self.__analytics["hash"] = hash
         return self
 
     def replay_size(self, replay_size: int) -> 'Analytics':
+        logging.debug(f"Analytics.replay_size <- {replay_size}")
         self.__analytics["replay_size"] = replay_size
         return self
 
@@ -59,7 +67,9 @@ class Analytics:
         logging.debug(f"Analytics timer_split_get {now()}")
         start = self.__start_ms
         if start is not None:
-            self.__analytics["get_ms"] = now() - self.__start_ms
+            get_ms = now() - self.__start_ms
+            logging.debug(f"Analytics.get_ms <- {get_ms}")
+            self.__analytics["get_ms"] = get_ms
 
         return self
 
@@ -68,7 +78,9 @@ class Analytics:
         start = self.__start_ms
         get_ms = self.__analytics["get_ms"]
         if start is not None and get_ms is not None:
-            self.__analytics["parse_ms"] = now() - self.__start_ms - get_ms
+            parse_ms = now() - self.__start_ms - get_ms
+            logging.debug(f"Analytics.parse_ms <- {parse_ms}")
+            self.__analytics["parse_ms"] = parse_ms
 
         return self
 
@@ -78,18 +90,23 @@ class Analytics:
         parse_ms = self.__analytics["parse_ms"]
         get_ms = self.__analytics["get_ms"]
         if start is not None and parse_ms is not None and get_ms is not None:
-            self.__analytics["put_ms"] = now() - self.__start_ms - parse_ms - get_ms
+            put_ms = now() - self.__start_ms - parse_ms - get_ms
+            logging.debug(f"Analytics.put_ms <- {put_ms}")
+            self.__analytics["put_ms"] = put_ms
 
         return self
     
     ###
     # Private setters/getters
     ###
-    def __timer_end(self):
+    def __timer_end(self) -> 'Analytics':
         logging.debug(f"Analytics __timer_end {now()}")
         start = self.__start_ms
         if start is not None:
+            total_ms = now() - self.__start_ms
+            logging.debug(f"Analytics.total_ms <- {total_ms}")
             self.__analytics["total_ms"] = now() - self.__start_ms
+        return self
 
     def __get_message(self) -> str:
         tags = [
