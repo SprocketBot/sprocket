@@ -77,15 +77,14 @@ jobs:
         id: changes
         with:
           base: ${{ github.ref }}
-          list-files: none
+          list-files: json
           filters: |
-            change:
-              ${{ matrix.directory[1] }}/**
-            common:
-              ./common/**
+            baseDockerfileHasChanges: ./dockerfiles/node.Dockerfile
+            projectHasChanges: ${{ matrix.directory[1] }}/**
+            sprocketCommonHasChanges: ./common/**
 
       - name: Build project
-        if: steps.changes.outputs.change == 'true' || steps.changes.outputs.common == 'true'
+        if: steps.changes.outputs.baseDockerfileHasChanges == 'true' || steps.changes.outputs.projectHasChanges == 'true' || steps.changes.outputs.sprocketCommonHasChanges == 'true'
         uses: ./.github/reusable_workflows/build_container
         with:
           build_directory: ${{ matrix.directory[1] }}
