@@ -32,6 +32,8 @@ jobs:
       - name: Build and export
         uses: docker/build-push-action@v2
         with:
+          build-args: |
+            COMMIT_SHA=${{ github.sha }}
           context: .
           file: ./dockerfiles/node.Dockerfile
           tags: ${{ secrets.docker_username }}/monorepo-core:${{ steps.extract_branch.outputs.branch }}

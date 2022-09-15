@@ -41,7 +41,6 @@ runs:
       with:
         build-args: |
           BASE_IMAGE=${{ inputs.docker_username }}/monorepo-core:${{ inputs.docker_tag }}
-          COMMIT_SHA=${{ github.sha }}
         context: ${{ inputs.build_directory }}
         file: ${{ inputs.build_directory }}/Dockerfile
         target: app_image
