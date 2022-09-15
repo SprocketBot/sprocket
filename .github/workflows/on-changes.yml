@@ -40,12 +40,6 @@ jobs:
           push: true
           platforms: linux/amd64
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: sprocket-core
-          path: /tmp/core.tar
-
   build_microservices:
     name: "Build Node Services"
     runs-on: ubuntu-latest
