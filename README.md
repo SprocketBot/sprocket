@@ -58,3 +58,8 @@ docker image ls | grep sprocket
 #    sprocket-web                                          latest             6661a25ebce4   5 seconds ago    1.01GB
 #    sprocket-base-image                                   latest             cfb627899675   30 seconds ago   1.01GB
 ```
+
+## Inspecting `COMMIT_SHA` of Image / Container
+```shell
+docker inspect --format='{{range .Config.Env}}{{println .}}{{end}}' <image/container name or id> | grep COMMIT_SHA
+```
