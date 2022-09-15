@@ -2,8 +2,6 @@ import type {OperationResult} from "@urql/core";
 import {gql} from "@urql/core";
 import {LiveQueryStore} from "../../core/LiveQueryStore";
 
-console.log("Hi");
-
 export interface MetricsResult {
     metrics: {
         pendingScrims: number;
