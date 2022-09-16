@@ -14,8 +14,8 @@ export async function rmqRequest(pattern: string, data: Record<string, unknown> 
     try {
         const connection = await connect(config.transport.url);
         const channel = await connection.createChannel();
-  
-        const sendQ = await channel.assertQueue(config.transport.queue);
+
+        const sendQ = await channel.assertQueue(config.transport.image_generation_queue);
         const replyQ = await channel.assertQueue(``, {exclusive: true});
         const correlationId = v4();
     

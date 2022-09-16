@@ -1,5 +1,5 @@
 WITH
-vars AS (SELECT 
+vars AS (SELECT
 		 	$1::numeric AS series_id,
 			$2::numeric AS org_id
 		),
@@ -17,16 +17,16 @@ colors AS (
 ),
 
 match_data AS (
-	SELECT 	sr.id as series_replay_id, 
-			sr.duration, 
-			sr.overtime, 
-			sr.overtime_seconds, 
-			sr.winning_team_name, 
-			case when sr.winning_team_name = f.home_name 
+	SELECT 	sr.id as series_replay_id,
+			sr.duration,
+			sr.overtime,
+			sr.overtime_seconds,
+			sr.winning_team_name,
+			case when sr.winning_team_name = f.home_name
 					then f.away_name
 				else f.home_name
 			end as losing_team_name,
-			sr.winning_color, 
+			sr.winning_color,
 			sr.series_id,
 			s.league,
 			s.mode,
@@ -34,7 +34,7 @@ match_data AS (
 			f.away_name,
 			f.match_id
 	FROM 		mledb.series_replay sr
-	INNER JOIN 	vars v 
+	INNER JOIN 	vars v
 	ON 			v.series_id = sr.series_id
 	INNER JOIN 	mledb.series s
 	ON 			v.series_id = s.id
@@ -56,7 +56,7 @@ organization AS (
 
 	FROM sprocket.organization_profile op
 	INNER JOIN vars v
-	ON op.id = v.org_id
+	ON op."organizationId" = v.org_id
 ),
 player_table AS(
 	WITH data AS(
@@ -74,7 +74,7 @@ player_table AS(
 			p.name as player_name,
 			p.salary,
 			psc.color as player_team_color
-			
+
 		FROM		vars v
 		INNER JOIN 	mledb.series s
 		ON 			v.series_id = s.id
@@ -104,11 +104,11 @@ player_table AS(
 		d.player_team_color,
 		m.home_name,
 		case when d.player_team_color = m.winning_color then m.winning_team_name
-			else	m.losing_team_name 
+			else	m.losing_team_name
 			end as player_team_name
 
-	FROM data d 
-	INNER JOIN match_data m 
+	FROM data d
+	INNER JOIN match_data m
 	ON d.replay_id = m.series_replay_id
 	INNER JOIN mledb.team_branding tb
 	on m.winning_team_name=tb.team_name
@@ -118,7 +118,7 @@ game_stats AS(
 			tb.primary_color as team_primary,
 			tb.secondary_color as team_secondary
 	from player_table pt
-	INNER JOIN mledb.team_branding tb 
+	INNER JOIN mledb.team_branding tb
 	on pt.player_team_name = tb.team_name
 ),
 
@@ -131,7 +131,7 @@ match_info AS(
 			Count(DISTINCT md.series_replay_id) filter (WHERE md.winning_team_name = md.home_name) as home_wins,
 			Count(DISTINCT md.series_replay_id) filter (WHERE md.winning_team_name = md.away_name) as away_wins,
 			CONCAT (
-				Count(DISTINCT md.series_replay_id) filter (WHERE md.winning_team_name = md.home_name), 
+				Count(DISTINCT md.series_replay_id) filter (WHERE md.winning_team_name = md.home_name),
 				' - ',
 				Count(DISTINCT md.series_replay_id) filter (WHERE md.winning_team_name = md.away_name)
 			) as series_score,
@@ -141,7 +141,7 @@ match_info AS(
 		FROM match_data md
 		GROUP BY md.series_id, md.mode, md.league, md.home_name, md.away_name, md.match_id
 	)
-	
+
 	SELECT 	ss.series_id,
 			m.season,
 			m.match_number,
@@ -181,12 +181,12 @@ match_info AS(
 	ON			ss.home_name = tb.team_name
 	INNER JOIN 	mledb.team_branding tb2
 	ON			ss.away_name = tb2.team_name
-	
+
 ),
 
 
 empty_players AS(
-	SELECT 
+	SELECT
 		jsonb_build_object('type', 'text', 'value', ''),
 		v.series_id
 	FROM vars v
@@ -195,16 +195,16 @@ empty_players AS(
 home_players AS(
 	with hp as
 	(
-		SELECT 
-			DISTINCT(jsonb_build_object('type', 'text', 'value', player_name)) as home_players, 
-			series_id 
+		SELECT
+			DISTINCT(jsonb_build_object('type', 'text', 'value', player_name)) as home_players,
+			series_id
 		FROM player_table
 		WHERE player_team_name = home_name
-		UNION ALL 
+		UNION ALL
 		SELECT * FROM empty_players
-		UNION ALL 
+		UNION ALL
 		SELECT * FROM empty_players
-	)	
+	)
 	SELECT json_agg(home_players) as home_players,
 		series_id
 	FROM hp
@@ -214,16 +214,16 @@ home_players AS(
 away_players AS(
 	with ap as
 	(
-		SELECT 
-			DISTINCT(jsonb_build_object('type', 'text', 'value', player_name)) as away_players, 
-			series_id 
+		SELECT
+			DISTINCT(jsonb_build_object('type', 'text', 'value', player_name)) as away_players,
+			series_id
 		FROM player_table
 		WHERE player_team_name != home_name
-		UNION ALL 
+		UNION ALL
 		SELECT * FROM empty_players
-		UNION ALL 
+		UNION ALL
 		SELECT * FROM empty_players
-	)	
+	)
 	SELECT json_agg(away_players) as away_players,
 		series_id
 	FROM ap
@@ -292,7 +292,7 @@ player_stats AS (
 				gs.team_primary,
 				gs.team_secondary,
 				AVG(
-					CASE 
+					CASE
 						WHEN gpi=0 THEN mvpr
 						ELSE gpi
 					END
@@ -359,13 +359,13 @@ player_stats_object AS(
 			jsonb_build_object('type', 'number', 'value', saves) AS saves,
 			jsonb_build_object('type', 'number', 'value', shots) AS shots,
 			jsonb_build_object('type', 'color', 'value', player_color) AS player_color,
-		  	jsonb_build_object('type', 'color', 'value', 
-							   CASE 
+		  	jsonb_build_object('type', 'color', 'value',
+							   CASE
 							   		WHEN team_primary IS NULL THEN '#FEBF2B'
 							  		ELSE team_primary
 							   END
 							  ) AS team_primary,
-			jsonb_build_object('type', 'color', 'value', CASE 
+			jsonb_build_object('type', 'color', 'value', CASE
 							   		WHEN team_secondary IS NULL THEN '#F15A24'
 							  		ELSE team_secondary
 							   END
