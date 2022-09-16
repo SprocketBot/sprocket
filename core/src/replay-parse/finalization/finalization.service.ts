@@ -164,7 +164,7 @@ export class FinalizationService {
             };
         } catch (e) {
             await runner.rollbackTransaction();
-            await this.replayParseService.rejectSubmissionBySystem(submissionId, "Failed to save scrim, contact support");
+            await this.replayParseService.rejectSubmissionBySystem(submissionId, "Failed to save match, contact support");
             this.logger.error(e);
             throw e;
         } finally {
