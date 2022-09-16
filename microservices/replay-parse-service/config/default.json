@@ -20,5 +20,6 @@
         "backoffFactor": 4
     },
     "parser": "carball|ballchasing",
-    "tempDir": ""
+    "tempDir": "",
+    "disableCache": false
 }

@@ -21,6 +21,7 @@ PARSER_VERSION = "1"
 
 ANALYTICS_QUEUE = config["transport"]["analytics_queue"]
 PARSED_OBJECT_PREFIX = f"{config['minio']['parsed_object_prefix']}/v{PARSER_VERSION}"
+DISABLE_CACHE = config["disableCache"]
 
 class BaseTask(celery.Task):
     name: str
@@ -98,23 +99,27 @@ class ParseReplay(BaseTask):
         logging.info(f"Parsing replay {replay_object_path} with progress queue {self.progress_queue}")
 
         # Check if the replay has already been parsed and stats are in minio
-        try:
-            already_parsed = files.get(parsed_object_path)
-            logging.info(f"Replay already parsed {parsed_object_path}")
+        if DISABLE_CACHE is False:
+            try:
+                logging.debug("Checking for results in minio")
 
-            self.publish_progress(
-                self.progress.complete(already_parsed)
-            )
-            self.publish_analytics(
-                self.analytics.cached(True).complete()
-            )
+                already_parsed = files.get(parsed_object_path)
+                logging.info(f"Replay already parsed {parsed_object_path}")
 
-            return already_parsed
-        except S3Error as e:
-            if e.code == "NoSuchKey":
-                pass
-        except:
-            raise
+                self.publish_progress(
+                    self.progress.complete(already_parsed)
+                )
+                self.publish_analytics(
+                    self.analytics.timer_split_get().cached(True).complete()
+                )
+
+                return already_parsed
+            except S3Error as e:
+                if e.code == "NoSuchKey":
+                    logging.debug("No results found in minio, parsing replay")
+                    pass
+            except:
+                raise
 
         logging.debug(f"Fetching object {replay_object_path} from minio")
         self.publish_progress(

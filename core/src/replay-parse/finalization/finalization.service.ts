@@ -146,7 +146,8 @@ export class FinalizationService {
                 week.start,
                 season.start,
                 gameMode.teamSize === 2 ? LegacyGameMode.DOUBLES : LegacyGameMode.STANDARD,
-                match.skillGroup.profile.code.toUpperCase() as League,
+                // TODO: This is an awful hack
+                match.skillGroup.profile.description.split(" ")[0].toUpperCase() as League,
             );
 
             const [mledbSeriesId] = await Promise.all([
