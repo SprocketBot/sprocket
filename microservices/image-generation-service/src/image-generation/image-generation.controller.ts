@@ -11,7 +11,7 @@ import {ImageGenerationService} from "./image-generation.service";
 @Controller(ImageGenerationEndpoint.GenerateImage)
 export class ImageGenerationController {
     private logger = new Logger(ImageGenerationController.name);
-  
+
     constructor(private imageGenerationService: ImageGenerationService) {}
 
     @MessagePattern(ImageGenerationEndpoint.GenerateImage)
@@ -24,8 +24,8 @@ export class ImageGenerationController {
     // This is currently still needed for the frontend because of context
     @MessagePattern(`media-gen.img.create`)
     async createImage(@Ctx() context: RmqContext): Promise<boolean> {
-    // eslint-disable-next-line
-    let rawData = JSON.parse(context.getMessage().content).message;
+        const message = context.getMessage() as {content: string;};
+        const rawData = JSON.parse(message.content.toString()).message as unknown;
         // Const data = CreateImageSchema.parse(rawData);
         const data = ImageGenerationSchemas.GenerateImage.input.parse(rawData);
         try {

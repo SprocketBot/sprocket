@@ -4,7 +4,8 @@
 </script>
 
 <div class="flex flex-col items-center">
-<Spinner/>
+
+    <Spinner class="h-12"/>
     <Progress max={$currentScrim?.data?.currentScrim?.maxPlayers}
             value={$currentScrim?.data?.currentScrim?.playerCount}
               />

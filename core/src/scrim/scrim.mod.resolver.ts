@@ -199,7 +199,10 @@ export class ScrimModuleResolver {
         const scrim = await this.scrimService.getScrimByPlayer(user.userId);
         if (!scrim) throw new GraphQLError("You must be in a scrim to check in");
 
-        return this.scrimService.checkIn(this.userToScrimPlayer(user), scrim.id);
+        const player = scrim.players.find(p => p.id === user.userId);
+        if (!player) throw new GraphQLError("You must be in a scrim to checkin");
+
+        return this.scrimService.checkIn(player, scrim.id);
     }
 
     @Mutation(() => Scrim)
