@@ -20,7 +20,6 @@ export class ReplaySubmissionResolver {
 
     @ResolveField(() => Boolean)
     userHasRatified(@CurrentUser() cu: UserPayload, @Root() submission: ReplaySubmission): boolean {
-
         return submission.ratifiers.some(r => r.toString() === cu.userId.toString());
     }
 }
