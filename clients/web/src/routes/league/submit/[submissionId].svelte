@@ -12,15 +12,13 @@
       DashboardLayout, DashboardCard, SubmissionView, UploadReplaysModal, Spinner,
   } from "$lib/components";
   import {
-      MatchStore, SubmissionStore, type Match, type Submission,
+      MatchStore, SubmissionStore, type Match,
   } from "$lib/api";
 
   export let submissionId: string;
 
   const submissionStore: SubmissionStore = new SubmissionStore(submissionId);
-  let submission: Submission | undefined;
-  $: submission = $submissionStore.data?.submission;
-
+  
   const matchStore = new MatchStore(submissionId);
   let match: Match | undefined;
   $: match = $matchStore.data?.getMatchBySubmissionId;
@@ -52,7 +50,7 @@
 						<UploadReplaysModal bind:visible={uploadVisible} {submissionId} />
 					</div>
 				{:else}
-					<SubmissionView submission={$submissionStore.data.submission} {submissionId} />
+					<SubmissionView submission={$submissionStore.data.submission} />
 				{/if}
 			{:else}
 				<button class="btn-large btn-outline btn btn-primary" on:click={() => { uploadVisible = true }}>Upload Replays
