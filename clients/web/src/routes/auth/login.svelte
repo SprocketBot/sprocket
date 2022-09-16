@@ -26,7 +26,7 @@
         $session.user = extractJwt<SessionUser>(token);
         $session.token = token;
 
-        cookies.set(constants.auth_cookie_key, token);
+        cookies.set(constants.auth_cookie_key, token, { expires: 7 });
 
         window.location.pathname = "/scrims";
     }
