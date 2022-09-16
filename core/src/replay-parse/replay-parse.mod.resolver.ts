@@ -90,5 +90,4 @@ export class ReplayParseModResolver {
         await this.rpService.enableSubscription(submissionId);
         return this.pubsub.asyncIterator(submissionId);
     }
-
 }
