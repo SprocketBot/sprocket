@@ -20,7 +20,10 @@ import {
     NotificationMessageType,
     NotificationService,
     NotificationType,
+    readToString,
 } from "@sprocketbot/common";
+import type {FileUpload} from "graphql-upload";
+import {GraphQLUpload} from "graphql-upload";
 import {Repository} from "typeorm";
 
 import type {GameSkillGroup} from "../../database";
@@ -39,6 +42,14 @@ import {PopulateService} from "../../util/populate/populate.service";
 import {FranchiseService} from "../franchise";
 import {GameSkillGroupService} from "../game-skill-group";
 import {PlayerService} from "./player.service";
+import {IntakeSchema} from "./player.types";
+
+const platformTransform = {
+    "epic": MLE_Platform.EPIC,
+    "steam": MLE_Platform.STEAM,
+    "psn": MLE_Platform.PS4,
+    "xbl": MLE_Platform.XBOX,
+};
 
 @InputType()
 export class IntakePlayerAccount {
@@ -240,5 +251,41 @@ export class PlayerResolver {
     ): Promise<Player> {
         const sg = await this.skillGroupService.getGameSkillGroup({where: {ordinal: LeagueOrdinals.indexOf(league) + 1} });
         return this.playerService.intakePlayer(name, discordId, sg.id, salary, platform, accounts, timezone, mode);
+    }
+
+    @Mutation(() => [Player])
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
+    async intakePlayerBulk(@Args("files", {type: () => [GraphQLUpload]}) files: Array<Promise<FileUpload>>): Promise<Player[]> {
+        const csvs = await Promise.all(files.map(async f => f.then(async _f => readToString(_f.createReadStream()))));
+
+        const results = csvs.flatMap(csv => csv.split(/(?:\r)?\n/g).map(l => l.trim().split(","))).filter(r => r.length > 1);
+        const parsed = IntakeSchema.parse(results);
+
+        const imported = await Promise.allSettled(parsed.map(async player => {
+            const sg = await this.skillGroupService.getGameSkillGroup({where: {ordinal: LeagueOrdinals.indexOf(player.skillGroup) + 1} });
+            const accs = player.accounts.map(acc => {
+                const match = acc.match(/rocket-league\/profile\/(\w+)\/([\w _.-]+)/);
+                if (!match) throw new Error("Failed to match tracker");
+
+                return {
+                    platform: platformTransform[match[1]] as MLE_Platform,
+                    platformId: match[2],
+                    tracker: acc,
+                };
+            });
+            return this.playerService.intakePlayer(
+                player.name,
+                player.discordId,
+                sg.id,
+                player.salary,
+                player.preferredPlatform,
+                accs,
+                player.timezone,
+                player.preferredMode,
+            );
+        }));
+
+        // @ts-expect-error Trust that this will work.
+        return imported.filter(i => i.status === "fulfilled").map(i => i.value as Player);
     }
 }
