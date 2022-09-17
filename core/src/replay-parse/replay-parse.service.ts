@@ -115,7 +115,7 @@ export class ReplayParseService {
         this.subscribed = true;
         await this.eventsService.subscribe(EventTopic.AllSubmissionEvents, true).then(rx => {
             rx.subscribe(v => {
-                if (typeof v.payload !== "object" || v.payload.submissionId !== submissionId) {
+                if (typeof v.payload !== "object") {
                     return;
                 }
                 this.redisService.getJson<ReplaySubmission>(v.payload.redisKey)
