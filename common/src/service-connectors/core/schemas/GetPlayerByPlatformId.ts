@@ -18,9 +18,7 @@ export type GetPlayer = z.infer<typeof GetPlayerSchema>;
 
 const GetPlayerSuccessResponse = z.object({
     success: z.literal(true),
-    data: z.object({
-        
-    }),
+    data: GetPlayerSchema,
 });
 
 const GetPlayerErrorResponse = z.object({
