@@ -25,10 +25,8 @@ export class MledbPlayerService {
         @InjectRepository(MLE_PlayerToOrg) private readonly playerToOrgRepository: Repository<MLE_PlayerToOrg>,
         @InjectRepository(MLE_Team) private readonly teamRepo: Repository<MLE_Team>,
         @InjectRepository(MLE_TeamToCaptain) private readonly teamToCaptainRepo: Repository<MLE_TeamToCaptain>,
-        @Inject(forwardRef(() => UserService))
-        private readonly userService: UserService,
-        @Inject(forwardRef(() => GameService))
-        private readonly gameService: GameService,
+        @Inject(forwardRef(() => UserService)) private readonly userService: UserService,
+        @Inject(forwardRef(() => GameService)) private readonly gameService: GameService,
     ) {}
 
     async getPlayerByDiscordId(id: string): Promise<MLE_Player> {

@@ -13,9 +13,8 @@ import {MledbPlayerService} from "../../mledb";
 @Injectable()
 export class FranchiseService {
     constructor(
-    @InjectRepository(Franchise) private readonly franchiseRepository: Repository<Franchise>,
-    @Inject(forwardRef(() => MledbPlayerService))
-    private readonly mledbPlayerService: MledbPlayerService,
+        @InjectRepository(Franchise) private readonly franchiseRepository: Repository<Franchise>,
+        @Inject(forwardRef(() => MledbPlayerService)) private readonly mledbPlayerService: MledbPlayerService,
     ) {}
 
     async getFranchiseProfile(franchiseId: number): Promise<FranchiseProfile> {

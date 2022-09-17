@@ -1,8 +1,10 @@
 import {forwardRef, Module} from "@nestjs/common";
+import {EventsModule} from "@sprocketbot/common";
 
 import {DatabaseModule} from "../database";
 import {EloConnectorModule} from "../elo/elo-connector";
 import {FranchiseModule} from "../franchise";
+import {MledbInterfaceModule} from "../mledb/mledb-interface.module";
 import {UtilModule} from "../util/util.module";
 import {MatchService} from "./match";
 import {MatchController} from "./match/match.controller";
@@ -21,6 +23,8 @@ import {ScheduleGroupTypeService} from "./schedule-group/schedule-group-type.ser
         DatabaseModule,
         EloConnectorModule,
         forwardRef(() => FranchiseModule),
+        forwardRef(() => MledbInterfaceModule),
+        EventsModule,
     ],
     providers: [
         MatchService,

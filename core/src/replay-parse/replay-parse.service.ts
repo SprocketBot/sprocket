@@ -110,7 +110,7 @@ export class ReplayParseService {
         return this.rejectSubmissionByPlayer(submissionId, REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID, reason);
     }
 
-    async enableSubscription(submissionId: string): Promise<void> {
+    async enableSubscription(): Promise<void> {
         if (this.subscribed) return;
         this.subscribed = true;
         await this.eventsService.subscribe(EventTopic.AllSubmissionEvents, true).then(rx => {
@@ -119,7 +119,7 @@ export class ReplayParseService {
                     return;
                 }
                 this.redisService.getJson<ReplaySubmission>(v.payload.redisKey)
-                    .then(async submission => this.pubsub.publish(submissionId, {
+                    .then(async submission => this.pubsub.publish(submission.id, {
                         followSubmission: submission,
                     }))
                     .catch(this.logger.error.bind(this.logger));

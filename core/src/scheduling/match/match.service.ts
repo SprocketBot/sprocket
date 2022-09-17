@@ -3,7 +3,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 import type {
     BallchasingPlayer, CoreEndpoint, CoreOutput,
 } from "@sprocketbot/common";
-import {Repository} from "typeorm";
+import {FindOneOptions, Repository} from "typeorm";
 
 import type {
     MatchParent,
@@ -74,6 +74,10 @@ export class MatchService {
 
     async getMatchById(matchId: number): Promise<Match> {
         return this.matchRepository.findOneOrFail({where: {id: matchId}  });
+    }
+
+    async getMatch(query: FindOneOptions<Match>): Promise<Match> {
+        return this.matchRepository.findOneOrFail(query);
     }
 
     async getMatchParentEntity(matchId: number): Promise<MatchParentResponse> {

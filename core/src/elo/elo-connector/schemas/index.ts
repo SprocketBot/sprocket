@@ -1,3 +1,4 @@
+export * from "./AddPlayerBySalary.schema";
 export * from "./AddPlayers.schema";
 export * from "./CalculateEloForMatch.schema";
 export * from "./CalculateEloForNcp.schema";

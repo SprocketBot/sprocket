@@ -133,9 +133,6 @@ export class MledbMatchService {
         });
 
         const stakeholders = [
-            mledbHomeFranchise.franchiseManager?.discordId,
-            mledbAwayFranchise.franchiseManager?.discordId,
-
             mledbHomeFranchise.generalManager?.discordId,
             mledbAwayFranchise.generalManager?.discordId,
 

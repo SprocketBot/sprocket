@@ -18,7 +18,7 @@ export class EloConnectorService {
 
     constructor(@InjectQueue(EloBullQueue) private eloQueue: Queue) {}
 
-    async createJob<E extends EloEndpoint>(endpoint: EloEndpoint, data: EloInput<E>): Promise<JobId> {
+    async createJob<E extends EloEndpoint>(endpoint: E, data: EloInput<E>): Promise<JobId> {
         const job = await this.eloQueue.add(endpoint, data);
         return job.id;
     }
