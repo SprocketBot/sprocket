@@ -218,9 +218,9 @@ export class ReplayValidationService {
         }
 
         // ========================================
-        // Validate players are in the correct skill group
+        // Validate players are in the correct skill group if the scrim is competitive
         // ========================================
-        for (const player of players) {
+        if (scrim.settings.competitive) for (const player of players) {
             if (player.skillGroupId !== scrim.skillGroupId) {
                 return {
                     valid: false,
