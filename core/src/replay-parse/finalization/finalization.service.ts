@@ -80,7 +80,7 @@ export class FinalizationService {
         try {
             const [mledbScrim] = await Promise.all([
                 this.mledbScrimService.saveScrim(submission, submissionId, runner, scrim),
-                this.saveMatch(submission, runner, scrim.players.map(p => p.id), scrim.organizationId, matchParent, scrim.skillGroupId, scrim.gameMode.id),
+                this.saveMatch(submission, runner, scrim.players.map(p => p.id), scrim.organizationId, matchParent, scrim.skillGroupId, scrim.gameMode.id, scrim.settings.competitive),
             ]);
 
             await runner.commitTransaction();
@@ -152,7 +152,7 @@ export class FinalizationService {
 
             const [mledbSeriesId] = await Promise.all([
                 this.mledbScrimService.saveMatch(submission, submissionId, runner, mleSeries),
-                this.saveMatch(submission, runner, users.map(u => u.id), match.skillGroup.organizationId, matchParent, match.skillGroup.id, gameMode.id, match),
+                this.saveMatch(submission, runner, users.map(u => u.id), match.skillGroup.organizationId, matchParent, match.skillGroup.id, gameMode.id, false, match),
             ]);
 
             await runner.commitTransaction();
@@ -181,8 +181,8 @@ export class FinalizationService {
         });
     }
 
-    private async saveMatch(submission: ReplaySubmission, runner: QueryRunner, userIds: number[], organizationId: number, matchParent: MatchParent, skillGroupId: number, gameModeId: number, existingMatch?: Match): Promise<Match> {
-    // Create Scrim/MatchParent/Match for scrim
+    private async saveMatch(submission: ReplaySubmission, runner: QueryRunner, userIds: number[], organizationId: number, matchParent: MatchParent, skillGroupId: number, gameModeId: number, grantEligibility: boolean, existingMatch?: Match): Promise<Match> {
+        // Create Scrim/MatchParent/Match for scrim
         const match = existingMatch ?? this.matchRepo.create();
 
         const parsedReplays = submission.items.map(i => i.progress!.result!);
@@ -286,7 +286,8 @@ export class FinalizationService {
             }
         }));
 
-        const playerEligibilities: EligibilityData[] = await Promise.all(userIds.map(async userId => {
+        let playerEligibilities: EligibilityData[] | undefined;
+        if (grantEligibility) playerEligibilities = await Promise.all(userIds.map(async userId => {
             const playerEligibility = this.eligibilityDataRepo.create();
             const player = await this.playerService.getPlayer({
                 where: {
@@ -325,7 +326,7 @@ export class FinalizationService {
             r.match = match;
         });
 
-        playerEligibilities.forEach(pe => {
+        if (playerEligibilities) playerEligibilities.forEach(pe => {
             pe.matchParent = matchParent;
         });
 
@@ -337,7 +338,7 @@ export class FinalizationService {
         await runner.manager.save(rounds);
         await runner.manager.save(teamStats);
         await runner.manager.save(playerStats);
-        await runner.manager.save(playerEligibilities);
+        if (playerEligibilities) await runner.manager.save(playerEligibilities);
         return match;
     }
 }

@@ -83,26 +83,29 @@ export class MledbScrimService {
         series.submissionTimestamp = new Date();
         series.fullNcp = false;
 
-        const playerEligibilities: MLE_EligibilityData[] = await Promise.all(scrimObject.players.map(async p => {
-            const playerEligibility = this.mleEligibilityRepository.create();
-            const discordAccount = await this.userService.getUserDiscordAccount(p.id);
-            const player = await this.mlePlayerRepository.findOneOrFail({
-                where: {
-                    discordId: discordAccount.accountId,
-                },
-            });
-
-            playerEligibility.player = player;
-            playerEligibility.scrimPoints = 5;
-            playerEligibility.scrim = scrim;
-
-            return playerEligibility;
-        }));
+        let playerEligibilities: MLE_EligibilityData[] | undefined;
+        if (scrimObject.settings.competitive) {
+            playerEligibilities = await Promise.all(scrimObject.players.map(async p => {
+                const playerEligibility = this.mleEligibilityRepository.create();
+                const discordAccount = await this.userService.getUserDiscordAccount(p.id);
+                const player = await this.mlePlayerRepository.findOneOrFail({
+                    where: {
+                        discordId: discordAccount.accountId,
+                    },
+                });
+    
+                playerEligibility.player = player;
+                playerEligibility.scrimPoints = 5;
+                playerEligibility.scrim = scrim;
+    
+                return playerEligibility;
+            }));
+        }
 
         await runner.manager.save(scrim);
         await runner.manager.save(series);
         await this.saveSeries(submission, submissionId, runner, series);
-        await runner.manager.save(playerEligibilities);
+        if (playerEligibilities) await runner.manager.save(playerEligibilities);
 
         return scrim;
     }
