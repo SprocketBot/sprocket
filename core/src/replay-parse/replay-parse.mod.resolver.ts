@@ -15,6 +15,7 @@ import {MLE_OrganizationTeam} from "../database/mledb";
 import {CurrentUser, UserPayload} from "../identity";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
+import {ScrimService} from "../scrim";
 import {ReplayParsePubSub} from "./replay-parse.constants";
 import {ReplayParseService} from "./replay-parse.service";
 import type {ReplaySubmission} from "./types";
@@ -28,6 +29,7 @@ export class ReplayParseModResolver {
     constructor(
         private readonly rpService: ReplayParseService,
         private readonly submissionService: SubmissionService,
+        private readonly scrimService: ScrimService,
         @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
     ) {}
 
@@ -85,7 +87,15 @@ export class ReplayParseModResolver {
         return response.data;
     }
 
-    @Subscription(() => GqlReplaySubmission, {nullable: true})
+    @Subscription(() => GqlReplaySubmission, {
+        filter: async function(this: ReplayParseModResolver, payload, variables, context: {req: {user: UserPayload;};}) {
+            const {userId, currentOrganizationId} = context.req.user;
+            if (!currentOrganizationId) return false;
+            const scrim = await this.scrimService.getScrimByPlayer(userId);
+            return scrim?.submissionId === variables.submissionId;
+        },
+        nullable: true,
+    })
     async followSubmission(@Args("submissionId") submissionId: string): Promise<AsyncIterator<GqlReplaySubmission>> {
         await this.rpService.enableSubscription(submissionId);
         return this.pubsub.asyncIterator(submissionId);

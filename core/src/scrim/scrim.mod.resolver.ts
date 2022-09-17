@@ -228,14 +228,7 @@ export class ScrimModuleResolver {
      *
      */
 
-    @Subscription(() => ScrimEvent, {
-        async filter(this: ScrimModuleResolver, payload: {followCurrentScrim: ScrimEvent;}, variables, context: {req: {user: UserPayload;};}) {
-            const {userId, currentOrganizationId} = context.req.user;
-            if (!currentOrganizationId) return false;
-            const scrim = await this.scrimService.getScrimByPlayer(userId);
-            return scrim?.submissionId === payload.followCurrentScrim.scrim.submissionId;
-        },
-    })
+    @Subscription(() => ScrimEvent)
     async followCurrentScrim(@CurrentUser() user: UserPayload): Promise<AsyncIterator<ScrimEvent> | undefined> {
         await this.scrimService.enableSubscription();
         const scrim = await this.scrimService.getScrimByPlayer(user.userId);
