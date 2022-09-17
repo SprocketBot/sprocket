@@ -50,7 +50,7 @@ export class ReplayParseModResolver {
     }
 
     @Mutation(() => Boolean)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    @UseGuards(MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async resetSubmission(
         @CurrentUser() user: UserPayload,
         @Args("submissionId") submissionId: string,
@@ -85,9 +85,14 @@ export class ReplayParseModResolver {
         return response.data;
     }
 
-    @Subscription(() => GqlReplaySubmission, {nullable: true})
+    @Subscription(() => GqlReplaySubmission, {
+        nullable: true,
+        filter: async function(this: ReplayParseModResolver, payload: {followSubmission: {id: string;};}, variables: {submissionId: string;}, context): Promise<boolean> {
+            return payload.followSubmission.id === variables.submissionId;
+        },
+    })
     async followSubmission(@Args("submissionId") submissionId: string): Promise<AsyncIterator<GqlReplaySubmission>> {
-        await this.rpService.enableSubscription(submissionId);
+        await this.rpService.enableSubscription();
         return this.pubsub.asyncIterator(submissionId);
     }
 }
