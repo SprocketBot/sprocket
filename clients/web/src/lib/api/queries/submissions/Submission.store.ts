@@ -69,6 +69,7 @@ export class SubmissionStore extends LiveQueryStore<SubmissionStoreValue, Submis
     protected subscriptionString = gql<SubmissionSubscriptionValue, SubmissionStoreSubscriptionVariables>`
         subscription ($submissionId: String!) {
             submission: followSubmission(submissionId: $submissionId) {
+                id
                 creatorId
                 ratifications
                 requiredRatifications
