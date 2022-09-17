@@ -22,7 +22,7 @@
     {#each scrims as scrim (scrim.id)}
         <tr>
             <td>{scrim.gameMode.game.title}</td>
-            <td>{scrim.skillGroup?.profile?.description}</td>
+            <td>{scrim.settings.competitive ? scrim.skillGroup?.profile?.description : "Casual"}</td>
             <td>{scrim.gameMode.description}</td>
             <td>{screamingSnakeToHuman(scrim.settings.mode)}</td>
             <td>{scrim.playerCount} / {scrim.maxPlayers}</td>
