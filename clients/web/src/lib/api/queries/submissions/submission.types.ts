@@ -23,7 +23,7 @@ export interface Submission {
     userHasRatified: boolean;
     type: "MATCH" | "SCRIM";
     scrimId?: string;
-    matchId?: string;
+    matchId?: number;
     stale: boolean;
     items: Array<{
         taskId: string;

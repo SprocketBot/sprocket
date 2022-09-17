@@ -42,7 +42,7 @@ export class ImageGenerationService {
         const reportCardRow = await this.imageTemplateRepository.findOneOrFail({where: {reportCode: "series_report_cards"} });
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const data = await this.dataSource.query(reportCardRow.query.query, [seriesId, 1]);
+        const data = await this.dataSource.query(reportCardRow.query.query, [seriesId, config.defaultOrganizationId]);
 
         let reportCard: string = "seriesSixPlayersMax";
         

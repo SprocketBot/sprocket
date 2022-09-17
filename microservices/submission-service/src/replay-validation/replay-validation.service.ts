@@ -2,6 +2,7 @@ import {Injectable, Logger} from "@nestjs/common";
 import type {
     BallchasingResponse,
     CoreSuccessResponse,
+    GetPlayer,
     MatchReplaySubmission,
     ReplaySubmission,
     ScrimReplaySubmission,
@@ -109,7 +110,11 @@ export class ReplayValidationService {
         }
 
         // Get platformIds from stats
-        const ballchasingIds = stats.flatMap(s => [s.blue, s.orange].flatMap(t => t.players.flatMap(p => p.id)));
+        const ballchasingIds = stats.flatMap(s => [s.blue, s.orange].flatMap(t => t.players.flatMap(p => ({
+            platform: p.id.platform,
+            id: p.id.id,
+            name: p.name,
+        }))));
         const platformIds = ballchasingIds.map(bId => ({platform: bId.platform.toUpperCase(), platformId: bId.id}));
 
         // Look up players by their platformIds
@@ -121,7 +126,21 @@ export class ReplayValidationService {
                 errors: [ {error: "A player played on an unreported account. Please contact support for help."} ],
             };
         }
-        const players = playersResponse.data;
+        const playersData = playersResponse.data;
+        const playerErrors: ValidationError[] = [];
+
+        for (const player of playersData) {
+            if (!player.success) {
+                playerErrors.push({error: `${player.error} (${ballchasingIds.find((id, i) => id.id === platformIds[i].platformId)?.name})`});
+            }
+        }
+
+        if (playerErrors.length) return {
+            valid: false,
+            errors: playerErrors,
+        };
+
+        const players = playersData.map(p => (p.success ? p.data : undefined)) as GetPlayer[];
 
         const userIdsResponses = await Promise.all(players.map(async p => this.coreService.send(CoreEndpoint.GetUserByAuthAccount, {
             accountType: "DISCORD",
@@ -218,9 +237,9 @@ export class ReplayValidationService {
         }
 
         // ========================================
-        // Validate players are in the correct skill group
+        // Validate players are in the correct skill group if the scrim is competitive
         // ========================================
-        for (const player of players) {
+        if (scrim.settings.competitive) for (const player of players) {
             if (player.skillGroupId !== scrim.skillGroupId) {
                 return {
                     valid: false,
@@ -266,7 +285,7 @@ export class ReplayValidationService {
             const blueBcPlayers = item.progress.result.data.blue.players;
             const orangeBcPlayers = item.progress.result.data.orange.players;
             try {
-                const [bluePlayers, orangePlayers] = await Promise.all([
+                const [bluePlayersResponse, orangePlayersResponse] = await Promise.all([
                     this.coreService.send(CoreEndpoint.GetPlayersByPlatformIds, orangeBcPlayers.map(m => ({
                         platform: m.id.platform,
                         platformId: m.id.id,
@@ -282,6 +301,22 @@ export class ReplayValidationService {
                         return r.data;
                     }),
                 ]);
+
+                const playerErrors: ValidationError[] = [];
+
+                for (const player of [...bluePlayersResponse, ...orangePlayersResponse]) {
+                    if (!player.success) {
+                        playerErrors.push({error: player.error});
+                    }
+                }
+
+                if (playerErrors.length) return {
+                    valid: false,
+                    errors: playerErrors,
+                };
+
+                const bluePlayers = bluePlayersResponse.map(p => (p.success ? p.data : undefined)) as GetPlayer[];
+                const orangePlayers = orangePlayersResponse.map(p => (p.success ? p.data : undefined)) as GetPlayer[];
 
                 const blueTeam = bluePlayers[0].franchise.name;
                 const orangeTeam = orangePlayers[0].franchise.name;

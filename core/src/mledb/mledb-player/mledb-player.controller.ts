@@ -1,5 +1,5 @@
 import {
-    Controller, forwardRef, Inject,
+    Controller, forwardRef, Inject, Logger,
 } from "@nestjs/common";
 import {MessagePattern, Payload} from "@nestjs/microservices";
 import type {
@@ -17,6 +17,8 @@ const isMlePlatform = (platformCode: string): platformCode is MLE_Platform => Ob
 
 @Controller("mledb-player")
 export class MledbPlayerController {
+    private readonly logger = new Logger(MledbPlayerController.name);
+
     constructor(
         private readonly mledbPlayerService: MledbPlayerService,
         @Inject(forwardRef(() => GameSkillGroupService))
@@ -31,7 +33,14 @@ export class MledbPlayerController {
             throw new Error(`platformCode must be one of (${Object.values(MLE_Platform)}) (found ${platform})`);
         }
 
-        const player = await this.mledbPlayerService.getPlayerByPlatformId(platform, platformId);
+        const player = await this.mledbPlayerService.getPlayerByPlatformId(platform, platformId).catch(() => {
+            this.logger.error(`Failed to find player by account platform=${platform} platformId=${platformId}`);
+        });
+        if (!player) return {
+            success: false,
+            error: `Failed to find player by account platform=${platform} platformId=${platformId}`,
+        };
+        
         const skillGroup = await this.skillGroupService.getGameSkillGroupByMLEDBLeague(player.league);
 
         // All MLE players should have a discordId
@@ -40,11 +49,14 @@ export class MledbPlayerController {
         }
 
         return {
-            id: player.id,
-            discordId: player.discordId,
-            skillGroupId: skillGroup.id,
-            franchise: {
-                name: player.teamName,
+            success: true,
+            data: {
+                id: player.id,
+                discordId: player.discordId,
+                skillGroupId: skillGroup.id,
+                franchise: {
+                    name: player.teamName,
+                },
             },
         };
     }

@@ -1,3 +1,5 @@
+import {registerEnumType} from "@nestjs/graphql";
+
 export enum Timezone {
     // US
     US_HAWAII = "US_HAWAII",
@@ -19,3 +21,5 @@ export enum Timezone {
     // Misc
     UNKNOWN = "UNKNOWN",
 }
+
+registerEnumType(Timezone, {name: "MLE_Timezone"});

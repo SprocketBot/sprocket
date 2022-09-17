@@ -107,15 +107,13 @@ export class ScrimModuleResolver {
         const scrims = await this.scrimService.getAllScrims();
 
         return scrims.filter(s => s.organizationId === user.currentOrganizationId
-            && players.some(p => s.skillGroupId === p.skillGroupId)
+            && (!s.settings.competitive || players.some(p => s.skillGroupId === p.skillGroupId))
             && s.status === status) as Scrim[];
     }
 
     @Query(() => Scrim, {nullable: true})
     async getCurrentScrim(@CurrentUser() user: UserPayload): Promise<Scrim | null> {
-        const result = await this.scrimService.getScrimByPlayer(user.userId);
-        if (result) return result as Scrim;
-        return null;
+        return this.scrimService.getScrimByPlayer(user.userId) as Promise<Scrim | null>;
     }
 
     /*
@@ -176,7 +174,7 @@ export class ScrimModuleResolver {
         const scrim = await this.scrimService.getScrimById(scrimId).catch(() => null);
         if (!scrim) throw new GraphQLError("Scrim does not exist");
 
-        if (player.skillGroupId !== scrim.skillGroupId) throw new GraphQLError("Player is not in the correct skill group");
+        if (scrim.settings.competitive && player.skillGroupId !== scrim.skillGroupId) throw new GraphQLError("Player is not in the correct skill group");
 
         try {
             return await this.scrimService.joinScrim(this.userToScrimPlayer(user), scrimId, group);
@@ -199,7 +197,10 @@ export class ScrimModuleResolver {
         const scrim = await this.scrimService.getScrimByPlayer(user.userId);
         if (!scrim) throw new GraphQLError("You must be in a scrim to check in");
 
-        return this.scrimService.checkIn(this.userToScrimPlayer(user), scrim.id);
+        const player = scrim.players.find(p => p.id === user.userId);
+        if (!player) throw new GraphQLError("You must be in a scrim to checkin");
+
+        return this.scrimService.checkIn(player, scrim.id);
     }
 
     @Mutation(() => Scrim)
@@ -237,9 +238,11 @@ export class ScrimModuleResolver {
         async filter(this: ScrimModuleResolver, payload: {followPendingScrims: Scrim;}, variables, context: {req: {user: UserPayload;};}) {
             const {userId, currentOrganizationId} = context.req.user;
             if (!currentOrganizationId) return false;
+            
             const {id: gameModeId} = payload.followPendingScrims.gameMode;
             const player = await this.playerService.getPlayerByOrganizationAndGameMode(userId, currentOrganizationId, gameModeId);
-            return player.skillGroupId === payload.followPendingScrims.skillGroupId;
+            
+            return player.skillGroupId === payload.followPendingScrims.skillGroupId || !payload.followPendingScrims.settings.competitive;
         },
     })
     async followPendingScrims(): Promise<AsyncIterator<Scrim>> {

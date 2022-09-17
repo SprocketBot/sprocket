@@ -1,23 +1,38 @@
-/* eslint-disable require-atomic-updates */
 import {
     forwardRef, Inject, UseGuards,
 } from "@nestjs/common";
 import {
-    Args, Float, Int, Mutation,
-    ResolveField, Resolver, Root,
+    Args,
+    Field,
+    Float,
+    InputType,
+    Int,
+    Mutation,
+    ResolveField,
+    Resolver,
+    Root,
 } from "@nestjs/graphql";
 import {InjectRepository} from "@nestjs/typeorm";
 import {
-    EventsService, EventTopic, NotificationEndpoint, NotificationMessageType,
-    NotificationService, NotificationType,
+    EventsService,
+    EventTopic,
+    NotificationEndpoint,
+    NotificationMessageType,
+    NotificationService,
+    NotificationType,
+    readToString,
 } from "@sprocketbot/common";
+import type {FileUpload} from "graphql-upload";
+import {GraphQLUpload} from "graphql-upload";
 import {Repository} from "typeorm";
 
 import type {GameSkillGroup} from "../../database";
 import {
     Member, Player, UserAuthenticationAccount, UserAuthenticationAccountType,
 } from "../../database";
-import {MLE_OrganizationTeam} from "../../database/mledb";
+import {
+    League, LeagueOrdinals, MLE_OrganizationTeam, MLE_Platform, ModePreference, Timezone,
+} from "../../database/mledb";
 import type {ManualSkillGroupChange} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
@@ -27,10 +42,29 @@ import {PopulateService} from "../../util/populate/populate.service";
 import {FranchiseService} from "../franchise";
 import {GameSkillGroupService} from "../game-skill-group";
 import {PlayerService} from "./player.service";
+import {IntakeSchema} from "./player.types";
+
+const platformTransform = {
+    "epic": MLE_Platform.EPIC,
+    "steam": MLE_Platform.STEAM,
+    "psn": MLE_Platform.PS4,
+    "xbl": MLE_Platform.XBOX,
+};
+
+@InputType()
+export class IntakePlayerAccount {
+    @Field(() => MLE_Platform)
+    platform: MLE_Platform;
+
+    @Field(() => String)
+    platformId: string;
+
+    @Field(() => String)
+    tracker: string;
+}
 
 @Resolver(() => Player)
 export class PlayerResolver {
-
     constructor(
         private readonly popService: PopulateService,
         private readonly playerService: PlayerService,
@@ -41,7 +75,6 @@ export class PlayerResolver {
         private readonly eloConnectorService: EloConnectorService,
         @InjectRepository(UserAuthenticationAccount) private userAuthRepository: Repository<UserAuthenticationAccount>,
         @Inject(forwardRef(() => OrganizationService)) private readonly organizationService: OrganizationService,
-
     ) {}
 
     @ResolveField()
@@ -133,7 +166,7 @@ export class PlayerResolver {
             skillGroup: skillGroup.ordinal,
         };
 
-        await this.playerService.mle_MovePlayerToLeague(playerId, salary, skillGroupId);
+        await this.playerService.mle_movePlayerToLeague(playerId, salary, skillGroupId);
         await this.playerService.updatePlayerStanding(playerId, salary, skillGroupId);
         await this.eloConnectorService.createJob(EloEndpoint.SGChange, inputData);
 
@@ -204,4 +237,55 @@ export class PlayerResolver {
         return "SUCCESS";
     }
 
+    @Mutation(() => Player)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
+    async intakePlayer(
+        @Args("name") name: string,
+        @Args("discordId") discordId: string,
+        @Args("skillGroup", {type: () => League}) league: League,
+        @Args("salary", {type: () => Float}) salary: number,
+        @Args("preferredPlatform") platform: string,
+        @Args("timezone", {type: () => Timezone}) timezone: Timezone,
+        @Args("preferredMode", {type: () => ModePreference}) mode: ModePreference,
+        @Args("accounts", {type: () => [IntakePlayerAccount]}) accounts: IntakePlayerAccount[],
+    ): Promise<Player> {
+        const sg = await this.skillGroupService.getGameSkillGroup({where: {ordinal: LeagueOrdinals.indexOf(league) + 1} });
+        return this.playerService.intakePlayer(name, discordId, sg.id, salary, platform, accounts, timezone, mode);
+    }
+
+    @Mutation(() => [Player])
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
+    async intakePlayerBulk(@Args("files", {type: () => [GraphQLUpload]}) files: Array<Promise<FileUpload>>): Promise<Player[]> {
+        const csvs = await Promise.all(files.map(async f => f.then(async _f => readToString(_f.createReadStream()))));
+
+        const results = csvs.flatMap(csv => csv.split(/(?:\r)?\n/g).map(l => l.trim().split(","))).filter(r => r.length > 1);
+        const parsed = IntakeSchema.parse(results);
+
+        const imported = await Promise.allSettled(parsed.map(async player => {
+            const sg = await this.skillGroupService.getGameSkillGroup({where: {ordinal: LeagueOrdinals.indexOf(player.skillGroup) + 1} });
+            const accs = player.accounts.map(acc => {
+                const match = acc.match(/rocket-league\/profile\/(\w+)\/([\w _.-]+)/);
+                if (!match) throw new Error("Failed to match tracker");
+
+                return {
+                    platform: platformTransform[match[1]] as MLE_Platform,
+                    platformId: match[2],
+                    tracker: acc,
+                };
+            });
+            return this.playerService.intakePlayer(
+                player.name,
+                player.discordId,
+                sg.id,
+                player.salary,
+                player.preferredPlatform,
+                accs,
+                player.timezone,
+                player.preferredMode,
+            );
+        }));
+
+        // @ts-expect-error Trust that this will work.
+        return imported.filter(i => i.status === "fulfilled").map(i => i.value as Player);
+    }
 }
