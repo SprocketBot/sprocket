@@ -5,7 +5,7 @@ export const GetPlayerByPlatformId_Request = z.object({
     platformId: z.string(),
 });
 
-export const GetPlayerByPlatformId_Response = z.object({
+export const GetPlayerSchema = z.object({
     id: z.number(),
     discordId: z.string(),
     skillGroupId: z.number(),
@@ -13,5 +13,19 @@ export const GetPlayerByPlatformId_Response = z.object({
         name: z.string(),
     }),
 });
+
+export type GetPlayer = z.infer<typeof GetPlayerSchema>;
+
+const GetPlayerSuccessResponse = z.object({
+    success: z.literal(true),
+    data: GetPlayerSchema,
+});
+
+const GetPlayerErrorResponse = z.object({
+    success: z.literal(false),
+    error: z.string(),
+});
+
+export const GetPlayerByPlatformId_Response = z.union([GetPlayerSuccessResponse, GetPlayerErrorResponse]);
 
 export type GetPlayerByPlatformIdResponse = z.infer<typeof GetPlayerByPlatformId_Response>;
