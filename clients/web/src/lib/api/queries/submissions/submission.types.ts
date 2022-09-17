@@ -22,7 +22,7 @@ export interface Submission {
     requiredRatifications: number;
     userHasRatified: boolean;
     type: "MATCH" | "SCRIM";
-    scrimId?: number;
+    scrimId?: string;
     matchId?: number;
     stale: boolean;
     items: Array<{
