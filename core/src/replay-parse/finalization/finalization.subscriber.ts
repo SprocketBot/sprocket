@@ -1,10 +1,10 @@
 import {Injectable, Logger} from "@nestjs/common";
 import type {ReplaySubmission, Scrim} from "@sprocketbot/common";
 import {
-    EventPayload,    EventsService,
+    EventsService,
     EventTopic,
     RedisService,    ReplaySubmissionType,
-    ResponseStatus, SprocketEvent,
+    ResponseStatus,
     SubmissionEndpoint,
     SubmissionService,
 } from "@sprocketbot/common";
@@ -29,16 +29,22 @@ export class FinalizationSubscriber {
         private readonly eloConnectorService: EloConnectorService,
     ) {}
 
-    @SprocketEvent(EventTopic.SubmissionRatified)
-    async onSubmissionComplete(payload: EventPayload<EventTopic.SubmissionRatified>): Promise<void> {
-        const submission = await this.redisService.getJson<ReplaySubmission>(payload.redisKey);
+    onApplicationBootstrap(): void {
+        // We want to subscribe to ratified submissions, instead of matches or scrims.
+        this.eventsService.subscribe(EventTopic.SubmissionRatified, false).then(rx => {
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            rx.subscribe(async ({payload}) => {
+                const submission = await this.redisService.getJson<ReplaySubmission>(payload.redisKey);
 
-        if (submission.type === ReplaySubmissionType.MATCH) {
-            await this.onMatchSubmissionComplete(submission as MatchReplaySubmission, payload.submissionId);
-        } else if (submission.type === ReplaySubmissionType.SCRIM) {
-            const scrim = await this.scrimService.getScrimBySubmissionId(payload.submissionId);
-            await this.onScrimComplete(submission as ScrimReplaySubmission, payload.submissionId, scrim!);
-        }
+                if (submission.type === ReplaySubmissionType.MATCH) {
+                    await this.onMatchSubmissionComplete(submission as MatchReplaySubmission, payload.submissionId);
+                } else if (submission.type === ReplaySubmissionType.SCRIM) {
+                    const scrim = await this.scrimService.getScrimBySubmissionId(payload.submissionId);
+                    await this.onScrimComplete(submission as ScrimReplaySubmission, payload.submissionId, scrim!);
+                }
+            });
+        })
+            .catch(this.logger.error.bind(this.logger));
     }
 
     onScrimComplete = async (submission: ScrimReplaySubmission, submissionId: string, scrim: Scrim): Promise<void> => {
