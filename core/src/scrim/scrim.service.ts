@@ -25,7 +25,7 @@ import {Repository} from "typeorm";
 import {PlayerStatLine} from "../database";
 import {GameSkillGroupService} from "../franchise";
 import {FranchiseService} from "../franchise/franchise";
-import {MledbScrimService} from "../mledb";
+import {MledbFinalizationService} from "../mledb";
 import {MemberService} from "../organization";
 import {ScrimPubSub} from "./constants";
 import type {Scrim, ScrimGameMode} from "./types";
@@ -42,7 +42,7 @@ export class ScrimService {
         private readonly gameSkillGroupService: GameSkillGroupService,
         private readonly memberService: MemberService,
         private readonly franchiseService: FranchiseService,
-        private readonly mleScrimService: MledbScrimService,
+        private readonly mleScrimService: MledbFinalizationService,
         @Inject(ScrimPubSub) private readonly pubsub: PubSub,
         @InjectRepository(PlayerStatLine) private readonly playerStatLineRepository: Repository<PlayerStatLine>,
     ) {}

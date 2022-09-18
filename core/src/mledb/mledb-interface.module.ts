@@ -14,7 +14,7 @@ import {MledbMatchService} from "./mledb-match/mledb-match.service";
 import {MledbPlayerService} from "./mledb-player";
 import {MledbPlayerController} from "./mledb-player/mledb-player.controller";
 import {MledbPlayerAccountService} from "./mledb-player-account";
-import {MledbScrimService} from "./mledb-scrim";
+import {MledbFinalizationService} from "./mledb-scrim";
 
 @Module({
     imports: [
@@ -31,14 +31,14 @@ import {MledbScrimService} from "./mledb-scrim";
     providers: [
         MledbPlayerService,
         MledbPlayerAccountService,
-        MledbScrimService,
+        MledbFinalizationService,
         MledbMatchService,
     ],
     exports: [
         MledbMatchService,
         MledbPlayerService,
         MledbPlayerAccountService,
-        MledbScrimService,
+        MledbFinalizationService,
     ],
     controllers: [MledbPlayerController, MledbMatchController],
 })

@@ -87,7 +87,7 @@ export class ReplayParseModResolver {
 
     @Subscription(() => GqlReplaySubmission, {
         nullable: true,
-        filter: async function(this: ReplayParseModResolver, payload: {followSubmission: {id: string;};}, variables: {submissionId: string;}, context): Promise<boolean> {
+        filter: async function(this: ReplayParseModResolver, payload: {followSubmission: {id: string;};}, variables: {submissionId: string;}): Promise<boolean> {
             return payload.followSubmission.id === variables.submissionId;
         },
     })
