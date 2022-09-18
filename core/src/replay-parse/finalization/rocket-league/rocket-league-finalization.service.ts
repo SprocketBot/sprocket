@@ -7,12 +7,11 @@ import {
     BallchasingResponseSchema, Parser, ProgressStatus,
 } from "@sprocketbot/common";
 import {EntityManager} from "typeorm";
+import type {QueryDeepPartialEntity} from "typeorm/query-builder/QueryPartialEntity";
 
-import type {
-    GameMode, Player, Team,
-} from "../../../database";
+import type {Player, Team} from "../../../database";
 import {
-    EligibilityData, Match, MatchParent, PlayerStatLine, Round, ScrimMeta, TeamStatLine,
+    EligibilityData, GameMode, Match, MatchParent, PlayerStatLine, Round, ScrimMeta, TeamStatLine,
 } from "../../../database";
 import {PlayerService} from "../../../franchise";
 import {TeamService} from "../../../franchise/team/team.service";
@@ -46,17 +45,20 @@ export class RocketLeagueFinalizationService {
     async finalizeScrim(submission: ScrimReplaySubmission, scrim: Scrim): Promise<SaveScrimFinalizationReturn> {
         return this.entityManager.transaction(async em => {
             try {
+                const gameMode = await em.findOneByOrFail(GameMode, {id: scrim.gameMode.id});
+
                 const scrimMeta = em.create(ScrimMeta);
                 const matchParent = em.create(MatchParent);
                 const match = em.create(Match);
-                await em.save(scrimMeta);
+                await em.insert(ScrimMeta, scrimMeta as QueryDeepPartialEntity<ScrimMeta>);
                 matchParent.scrimMeta = scrimMeta;
 
-                await em.save(matchParent);
+                await em.insert(MatchParent, matchParent as QueryDeepPartialEntity<MatchParent>);
                 match.matchParent = matchParent;
                 match.skillGroupId = scrim.skillGroupId;
+                match.gameMode = gameMode;
 
-                await em.save(match);
+                await em.insert(Match, match as QueryDeepPartialEntity<Match>);
                 await this.saveMatchDependents(submission, scrim.organizationId, match, true, em);
 
                 const mledbScrim = await this.mledbFinalizationService.saveScrim(submission, submission.id, em, scrim);
@@ -73,6 +75,7 @@ export class RocketLeagueFinalizationService {
                 };
 
                 this.logger.error(`Failed to save scrim! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`);
+
                 throw e;
             }
         });
@@ -105,10 +108,6 @@ export class RocketLeagueFinalizationService {
      * Saves objects that depend on the Match (i.e. Rounds, Player Stats, Team Stats)
      */
     async saveMatchDependents(submission: ReplaySubmission, organizationId: number, match: Match, eligibility: boolean, em: EntityManager): Promise<Match> {
-        if (!match.matchParent.fixture) {
-            throw new Error(`Fixture is missing from match ${match.id}; cannot save as match. Is this a scrim?`);
-        }
-
         if (submission.items.some(i => i.progress?.status !== ProgressStatus.Complete)) {
             throw new Error(`Not all items have been completed. Finalization attempted too soon. ${JSON.stringify({submissionId: submission.id, match: match.id})}`);
         }
@@ -129,11 +128,14 @@ export class RocketLeagueFinalizationService {
             };
         });
 
-        const {home, away} = await this.matchService.getFranchisesForMatch(match.id);
-        const [homeTeam, awayTeam] = await Promise.all([
-            await this.teamService.getTeam(home.id, match.skillGroupId),
-            await this.teamService.getTeam(away.id, match.skillGroupId),
-        ]);
+        const isMatch = submission.type === ReplaySubmissionType.MATCH;
+        const {home, away} = isMatch ? await this.matchService.getFranchisesForMatch(match.id) : {home: undefined, away: undefined};
+        const [homeTeam, awayTeam] = isMatch
+            ? await Promise.all([
+                await this.teamService.getTeam(home!.id, match.skillGroupId),
+                await this.teamService.getTeam(away!.id, match.skillGroupId),
+            ])
+            : [undefined, undefined];
 
         const results = await Promise.all(replays.map(async ({
             replay, parser, outputPath,
@@ -155,7 +157,7 @@ export class RocketLeagueFinalizationService {
                 homeColor: "blue" | "orange",
                 orangeTeam: Team | undefined,
                 orangeTeamName: string;
-            if (submission.type === ReplaySubmissionType.MATCH) {
+            if (isMatch) {
                 const blueCaptain = blue[0].player;
                 const orangeCaptain = orange[0].player;
                 const [blueMle, orangeMle] = await Promise.all([
@@ -170,8 +172,8 @@ export class RocketLeagueFinalizationService {
                 /*
                  * Identify which team is home; and which is away
                  */
-                homeColor = blueTeamName === home.profile.title ? "blue" : "orange";
-                awayColor = blueTeamName === home.profile.title ? "orange" : "blue";
+                homeColor = blueTeamName === home!.profile.title ? "blue" : "orange";
+                awayColor = blueTeamName === home!.profile.title ? "orange" : "blue";
                 blueTeam = homeColor === "blue" ? homeTeam : awayTeam;
                 orangeTeam = homeColor === "orange" ? homeTeam : awayTeam;
 
@@ -197,15 +199,15 @@ export class RocketLeagueFinalizationService {
             const orangePlayers = await Promise.all(orange.map(async op => this._createPlayerStatLine(op.rawPlayer, op.player, replay.orange, orangeTeamStats, match.gameMode, homeColor === "orange", round, em)));
 
             // We save the round first; because it does not have the join columns
-            await em.save(round);
-            await em.save(blueTeamStats);
-            await em.save(bluePlayers);
-            await em.save(orangeTeamStats);
-            await em.save(orangePlayers);
+            await em.insert(Round, round as QueryDeepPartialEntity<Round>);
+            await em.insert(TeamStatLine, blueTeamStats as QueryDeepPartialEntity<TeamStatLine>);
+            await em.insert(TeamStatLine, orangeTeamStats as QueryDeepPartialEntity<TeamStatLine>);
+            await em.insert(PlayerStatLine, bluePlayers as QueryDeepPartialEntity<PlayerStatLine>);
+            await em.insert(PlayerStatLine, orangePlayers as QueryDeepPartialEntity<PlayerStatLine>);
 
             if (eligibility) {
-                const eligibilities = [...blue.map(b => b.player), ...orange.map(o => o.player)].map(async p => this._createEligibility(p, match.matchParent, em, submission.items.length));
-                await em.save(eligibilities);
+                const eligibilities = [...blue.map(b => b.player), ...orange.map(o => o.player)].map(p => this._createEligibility(p, match.matchParent, em, submission.items.length));
+                await em.insert(EligibilityData, eligibilities as QueryDeepPartialEntity<EligibilityData>);
             }
 
             round.teamStats = [blueTeamStats, orangeTeamStats];
@@ -285,7 +287,7 @@ export class RocketLeagueFinalizationService {
         return output;
     }
 
-    async _createEligibility(player: Player, matchParent: MatchParent, em: EntityManager, gameCount: number): Promise<EligibilityData> {
+    _createEligibility(player: Player, matchParent: MatchParent, em: EntityManager, gameCount: number): EligibilityData {
         const output = em.create(EligibilityData);
         output.matchParent = matchParent;
         output.player = player;
@@ -324,3 +326,4 @@ export class RocketLeagueFinalizationService {
         return this.sprocketRatingService.calcSprocketRating(sprocketRatingInput);
     }
 }
+

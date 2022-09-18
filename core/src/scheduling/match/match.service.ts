@@ -241,7 +241,7 @@ export class MatchService {
     async translatePayload(matchId: number, isScrim: boolean): Promise<CalculateEloForMatchInput> {
         const match = await this.matchRepository.findOneOrFail({
             where: {id: matchId},
-            relations: {rounds: true, gameMode: true},
+            relations: {rounds: {teamStats: {playerStats: {player: true} } }, gameMode: true},
         });
 
         const payload: CalculateEloForMatchInput = {
