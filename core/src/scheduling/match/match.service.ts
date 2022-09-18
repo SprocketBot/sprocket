@@ -9,7 +9,6 @@ import {
 } from "typeorm";
 
 import type {
-    MatchParent,
     ScheduledEvent,
     ScrimMeta,
 } from "../../database";
@@ -239,13 +238,17 @@ export class MatchService {
         return outStr;
     }
 
-    translatePayload(matchParent: MatchParent, isScrim: boolean): CalculateEloForMatchInput {
-        const match = matchParent.match;
+    async translatePayload(matchId: number, isScrim: boolean): Promise<CalculateEloForMatchInput> {
+        const match = await this.matchRepository.findOneOrFail({
+            where: {id: matchId},
+            relations: {rounds: true, gameMode: true},
+        });
+
         const payload: CalculateEloForMatchInput = {
             id: match.id,
             numGames: match.rounds.length,
             isScrim: isScrim,
-            gameMode: (matchParent.match.gameMode.code === "RL_DOUBLES") ? GameMode.DOUBLES : GameMode.STANDARD,
+            gameMode: (match.gameMode.code === "RL_DOUBLES") ? GameMode.DOUBLES : GameMode.STANDARD,
             gameStats: [],
         };
 

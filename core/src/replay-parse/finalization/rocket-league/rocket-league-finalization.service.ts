@@ -51,6 +51,7 @@ export class RocketLeagueFinalizationService {
                 const match = em.create(Match);
                 await em.save(scrimMeta);
                 matchParent.scrimMeta = scrimMeta;
+
                 await em.save(matchParent);
                 match.matchParent = matchParent;
                 match.skillGroupId = scrim.skillGroupId;
@@ -59,6 +60,10 @@ export class RocketLeagueFinalizationService {
                 await this.saveMatchDependents(submission, scrim.organizationId, match, true, em);
 
                 const mledbScrim = await this.mledbFinalizationService.saveScrim(submission, submission.id, em, scrim);
+
+                // Fix up these relationships
+                scrimMeta.parent = matchParent;
+                matchParent.match = match;
 
                 return {scrim: scrimMeta, legacyScrim: mledbScrim};
             } catch (e) {
@@ -203,6 +208,9 @@ export class RocketLeagueFinalizationService {
                 await em.save(eligibilities);
             }
 
+            round.teamStats = [blueTeamStats, orangeTeamStats];
+            round.playerStats = [...bluePlayers, ...orangePlayers];
+
             return round;
         }));
 
@@ -221,7 +229,7 @@ export class RocketLeagueFinalizationService {
         round.parser = parser.type;
         round.parserVersion = parser.version;
         round.outputPath = outputPath;
-        
+
         return round;
     }
 

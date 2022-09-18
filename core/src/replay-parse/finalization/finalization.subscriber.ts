@@ -66,7 +66,7 @@ export class FinalizationSubscriber {
             });
 
             if (!scrim.settings.competitive) return;
-            const eloPayload = this.matchService.translatePayload(savedScrim.parent, true);
+            const eloPayload = await this.matchService.translatePayload(savedScrim.parent.match.id, true);
             await this.eloConnectorService.createJob(EloEndpoint.CalculateEloForMatch, eloPayload);
         } catch (_e) {
             const e = _e as Error;
@@ -88,7 +88,7 @@ export class FinalizationSubscriber {
                 legacyId: legacyMatch.id,
             });
 
-            const eloPayload = this.matchService.translatePayload(match.matchParent, false);
+            const eloPayload = await this.matchService.translatePayload(match.id, false);
             await this.eloConnectorService.createJob(EloEndpoint.CalculateEloForMatch, eloPayload);
         } catch (_e) {
             const e = _e as Error;
