@@ -229,7 +229,7 @@ export class RocketLeagueFinalizationService {
                     platformAccounts: {
                         platformAccountId: p.id.id,
                         platform: {
-                            code: p.id.platform,
+                            code: p.id.platform.toUpperCase(),
                         },
                     },
                 },
