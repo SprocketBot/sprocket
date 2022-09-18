@@ -3,7 +3,11 @@ import {
 } from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {
-    BallchasingPlayer, BallchasingResponse, BallchasingTeam, ReplaySubmission, Scrim,
+    BallchasingPlayer,
+    BallchasingResponse,
+    BallchasingTeam,
+    ReplaySubmission,
+    Scrim,
 } from "@sprocketbot/common";
 import type {EntityManager} from "typeorm";
 import {Repository} from "typeorm";
@@ -101,10 +105,22 @@ export class MledbFinalizationService {
     }
 
     async saveScrim(submission: ScrimReplaySubmission, submissionId: string, em: EntityManager, scrimObject: Scrim): Promise<MLE_Scrim> {
+        // const mode = scrimObject.settings.teamSize === 2 ? LegacyGameMode.DOUBLES : LegacyGameMode.STANDARD;
+        const {mode, group} = await this.getLeagueAndMode(scrimObject);
         const scrim = em.create(MLE_Scrim);
         const series = em.create(MLE_Series);
 
-        const {mode, group} = await this.getLeagueAndMode(scrimObject);
+        scrim.series = series;
+        series.scrim = scrim;
+
+        series.league = group.profile.description.split(" ")[0].toUpperCase();
+        series.mode = {
+            1: LegacyGameMode.SOLO, 2: LegacyGameMode.DOUBLES, 3: LegacyGameMode.STANDARD,
+        }[mode.teamSize]!;
+
+        series.submissionTimestamp = new Date();
+        series.fullNcp = false;
+
         const author = await this.mlePlayerRepository.findOneOrFail({where: {id: -1} });
 
         scrim.mode = series.mode;
@@ -113,18 +129,10 @@ export class MledbFinalizationService {
         scrim.author = author;
         scrim.host = author;
 
-        await em.save(scrim);
+        await em.insert(MLE_Scrim, scrim);
+        await em.insert(MLE_Series, series);
 
-        series.league = group.profile.description.split(" ")[0].toUpperCase();
-        series.mode = {
-            1: LegacyGameMode.SOLO, 2: LegacyGameMode.DOUBLES, 3: LegacyGameMode.STANDARD,
-        }[mode.teamSize]!;
-        series.scrim = scrim;
-
-        series.submissionTimestamp = new Date();
-        series.fullNcp = false;
-
-        await em.save(series);
+        await this.saveSeries(submission as ReplaySubmission, submissionId, em, series);
 
         if (scrimObject.settings.competitive) {
             const playerEligibilities = await Promise.all(scrimObject.players.map(async p => {
@@ -143,10 +151,8 @@ export class MledbFinalizationService {
                 return playerEligibility;
             }));
 
-            await em.save(playerEligibilities);
+            await em.insert(MLE_EligibilityData, playerEligibilities);
         }
-
-        await this.saveSeries(submission as ReplaySubmission, submissionId, em, series);
 
         return scrim;
     }
@@ -259,10 +265,11 @@ export class MledbFinalizationService {
             // If this is a match
             if (series.fixture) {
                 const firstPlayer = replay.playerStats[0];
-                const firstPlayerFranchise = firstPlayer.player.teamName;
                 const firstPlayerWon = firstPlayer.coreStats.color === replay.winningColor;
-                const homeTeamWon = firstPlayerWon && firstPlayerFranchise === series.fixture.homeName;
-                replay.winningTeamName = homeTeamWon ? series.fixture.homeName : series.fixture.awayName;
+                const firstPlayerIsHome = firstPlayer.player.teamName === series.fixture.homeName;
+                // If the first player is home - and they won, home won. If the first player is away - and they lost, home won.
+                const homeWon = firstPlayerIsHome ? firstPlayerWon : !firstPlayerWon;
+                replay.winningTeamName = homeWon ? series.fixture.homeName : series.fixture.awayName;
             } else if (series.scrim) {
                 replay.winningTeamName = "FA";
             } else throw new Error(`Series has neither a fixture or scrim associated with it seriesId=${series.id}`);
@@ -276,11 +283,10 @@ export class MledbFinalizationService {
             sr.series_id = series.id;
         });
         series.seriesReplays = mleSeriesReplays;
-
-        await em.save(mleSeriesReplays);
-        await em.save(coreStats);
-        await em.save(playerStats);
-        await em.save(teamStats);
+        await em.insert(MLE_SeriesReplay, mleSeriesReplays);
+        await em.insert(MLE_PlayerStatsCore, coreStats);
+        await em.insert(MLE_PlayerStats, playerStats);
+        await em.insert(MLE_TeamCoreStats, teamStats);
 
         return series.id;
     }

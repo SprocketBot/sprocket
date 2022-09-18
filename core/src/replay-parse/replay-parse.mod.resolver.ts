@@ -13,11 +13,14 @@ import {MLE_OrganizationTeam} from "../database/mledb";
 import {CurrentUser, UserPayload} from "../identity";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
+import {ScrimService} from "../scrim";
 import {FinalizationSubscriber} from "./finalization";
 import {ReplayParsePubSub} from "./replay-parse.constants";
 import {ReplayParseService} from "./replay-parse.service";
-import type {MatchReplaySubmission, ReplaySubmission} from "./types";
-import {GqlReplaySubmission} from "./types";
+import type {ReplaySubmission} from "./types";
+import {
+    GqlReplaySubmission, ReplaySubmissionType,
+} from "./types";
 import type {ValidationResult} from "./types/validation-result.types";
 import {ValidationResultUnion} from "./types/validation-result.types";
 
@@ -29,6 +32,7 @@ export class ReplayParseModResolver {
         private readonly submissionService: SubmissionService,
         private readonly finalizationSub: FinalizationSubscriber,
         private readonly redisService: RedisService,
+        private readonly scrimService: ScrimService,
         @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
     ) {}
 
@@ -62,13 +66,19 @@ export class ReplayParseModResolver {
 
     @Mutation(() => Boolean)
     @UseGuards(MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
-    async forceMathSubmissionSave(@Args("submissionId") submissionId: string): Promise<boolean> {
+    async forceSubmissionSave(@Args("submissionId") submissionId: string): Promise<boolean> {
         const redisKey = await this.submissionService.send(SubmissionEndpoint.GetSubmissionRedisKey, {submissionId});
         if (redisKey.status === ResponseStatus.ERROR) throw redisKey.error;
 
-        const submission = await this.redisService.getJson(redisKey.data.redisKey);
+        const submission: ReplaySubmission = await this.redisService.getJson(redisKey.data.redisKey);
 
-        await this.finalizationSub.onMatchSubmissionComplete(submission as MatchReplaySubmission, submissionId);
+        if (submission.type === ReplaySubmissionType.MATCH) {
+            await this.finalizationSub.onMatchSubmissionComplete(submission, submissionId);
+        } else {
+            const scrim = await this.scrimService.getScrimBySubmissionId(submission.id);
+            await this.finalizationSub.onScrimComplete(submission, submission.id, scrim!);
+        }
+
         return true;
     }
 

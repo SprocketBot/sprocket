@@ -14,6 +14,9 @@ export class SprocketRatingService {
             return this.calcSprocketRating2s(core);
         } else if (team_size === 3) {
             return this.calcSprocketRating3s(core);
+        } else if (team_size === 1) {
+            this.logger.warn("Running Sprocket Rating for 1 player teams");
+            return this.calcSprocketRating2s(core);
         }
         throw new Error(`Sprocket rating is not yet available for teams of ${team_size} players`);
 
