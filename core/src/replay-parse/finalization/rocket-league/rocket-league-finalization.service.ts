@@ -76,7 +76,7 @@ export class RocketLeagueFinalizationService {
     async finalizeMatch(submission: MatchReplaySubmission): Promise<SaveMatchFinalizationReturn> {
         return this.entityManager.transaction(async em => {
             try {
-                const match = await this.matchService.getMatchById(submission.matchId, {matchParent: {fixture: {homeFranchise: {organization: true} } } });
+                const match = await this.matchService.getMatchById(submission.matchId, {matchParent: {fixture: {homeFranchise: {organization: true} } }, gameMode: true});
                 const organization = match.matchParent.fixture!.homeFranchise.organization;
 
                 await this.saveMatchDependents(submission, organization.id, match, false, em);
