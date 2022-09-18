@@ -88,8 +88,8 @@ export class MledbFinalizationService {
         } = match.matchParent.fixture!;
 
         const series = await this.mleMatchService.getMleSeries(
-            homeFranchise.profile.title,
             awayFranchise.profile.title,
+            homeFranchise.profile.title,
             week.start,
             week.parentGroup.start,
             match.gameMode.teamSize === 2 ? LegacyGameMode.DOUBLES : LegacyGameMode.STANDARD,
@@ -210,7 +210,7 @@ export class MledbFinalizationService {
                     saves: core.saves,
                     shots: core.shots,
                     shots_against: core.shots_against,
-                    team_size: data.team_size,
+                    team_size: series.mode === "DOUBLES" ? 2 : 3,
                 });
                 core.opi = opi;
                 core.dpi = dpi;
@@ -254,10 +254,7 @@ export class MledbFinalizationService {
             await Promise.all(data.orange.players.map(async x => convertPlayerToMLE(x, "ORANGE")));
 
             // Convert teams to rows
-            buildTeamStats(data.blue, "BLUE");
-            buildTeamStats(data.orange, "ORANGE");
-
-            teamStats.push(...replay.teamCoreStats);
+            teamStats.push(buildTeamStats(data.blue, "BLUE"), buildTeamStats(data.orange, "ORANGE"));
 
             // If this is a match
             if (series.fixture) {
@@ -281,8 +278,8 @@ export class MledbFinalizationService {
         series.seriesReplays = mleSeriesReplays;
 
         await em.save(mleSeriesReplays);
-        await em.save(playerStats);
         await em.save(coreStats);
+        await em.save(playerStats);
         await em.save(teamStats);
 
         return series.id;
