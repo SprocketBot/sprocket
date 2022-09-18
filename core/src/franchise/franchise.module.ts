@@ -50,6 +50,7 @@ import {TeamService} from "./team/team.service";
         PlayerService,
         FranchiseService,
         GameSkillGroupService,
+        TeamService,
     ],
     controllers: [
         FranchiseController,

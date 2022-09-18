@@ -16,7 +16,7 @@ import {
 } from "../../../database";
 import {PlayerService} from "../../../franchise";
 import {TeamService} from "../../../franchise/team/team.service";
-import {MledbPlayerService} from "../../../mledb";
+import {MledbFinalizationService, MledbPlayerService} from "../../../mledb";
 import {MatchService} from "../../../scheduling";
 import {SprocketRatingService} from "../../../sprocket-rating/sprocket-rating.service";
 import type {SprocketRating, SprocketRatingInput} from "../../../sprocket-rating/sprocket-rating.types";
@@ -25,6 +25,7 @@ import type {
 } from "../../types";
 import {ReplaySubmissionType} from "../../types";
 import {BallchasingConverterService} from "../ballchasing-converter";
+import type {SaveMatchFinalizationReturn, SaveScrimFinalizationReturn} from "../finalization.types";
 
 @Injectable()
 export class RocketLeagueFinalizationService {
@@ -38,11 +39,12 @@ export class RocketLeagueFinalizationService {
         private readonly mledbPlayerService: MledbPlayerService,
         private readonly teamService: TeamService,
         private readonly ballchasingConverter: BallchasingConverterService,
+        private readonly mledbFinalizationService: MledbFinalizationService,
         @InjectEntityManager() private readonly entityManager: EntityManager,
     ) {}
 
-    async finalizeScrim(submission: ScrimReplaySubmission, scrim: Scrim): Promise<void> {
-        await this.entityManager.transaction(async em => {
+    async finalizeScrim(submission: ScrimReplaySubmission, scrim: Scrim): Promise<SaveScrimFinalizationReturn> {
+        return this.entityManager.transaction(async em => {
             try {
                 const scrimMeta = em.create(ScrimMeta);
                 const matchParent = em.create(MatchParent);
@@ -55,6 +57,10 @@ export class RocketLeagueFinalizationService {
 
                 await em.save(match);
                 await this.saveMatchDependents(submission, scrim.organizationId, match, true, em);
+
+                const mledbScrim = await this.mledbFinalizationService.saveScrim(submission, submission.id, em, scrim);
+
+                return {scrim: scrimMeta, legacyScrim: mledbScrim};
             } catch (e) {
                 const errorPayload = {
                     submissionId: submission.id,
@@ -64,18 +70,19 @@ export class RocketLeagueFinalizationService {
                 this.logger.error(`Failed to save scrim! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`);
                 throw e;
             }
-
         });
     }
 
-    async finalizeMatch(submission: MatchReplaySubmission): Promise<void> {
-        await this.entityManager.transaction(async em => {
+    async finalizeMatch(submission: MatchReplaySubmission): Promise<SaveMatchFinalizationReturn> {
+        return this.entityManager.transaction(async em => {
             try {
                 const match = await this.matchService.getMatchById(submission.matchId, {matchParent: {fixture: {homeFranchise: {organization: true} } } });
                 const organization = match.matchParent.fixture!.homeFranchise.organization;
 
                 await this.saveMatchDependents(submission, organization.id, match, false, em);
 
+                const mleMatch = await this.mledbFinalizationService.saveMatch(submission, submission.id, em);
+                return {match: match, legacyMatch: mleMatch};
             } catch (e) {
                 const errorPayload = {
                     submissionId: submission.id,
