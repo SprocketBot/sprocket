@@ -265,10 +265,11 @@ export class MledbFinalizationService {
             // If this is a match
             if (series.fixture) {
                 const firstPlayer = replay.playerStats[0];
-                const firstPlayerFranchise = firstPlayer.player.teamName;
                 const firstPlayerWon = firstPlayer.coreStats.color === replay.winningColor;
-                const homeTeamWon = firstPlayerWon && firstPlayerFranchise === series.fixture.homeName;
-                replay.winningTeamName = homeTeamWon ? series.fixture.homeName : series.fixture.awayName;
+                const firstPlayerIsHome = firstPlayer.player.teamName === series.fixture.homeName;
+                // If the first player is home - and they won, home won. If the first player is away - and they lost, home won.
+                const homeWon = firstPlayerIsHome ? firstPlayerWon : !firstPlayerWon;
+                replay.winningTeamName = homeWon ? series.fixture.homeName : series.fixture.awayName;
             } else if (series.scrim) {
                 replay.winningTeamName = "FA";
             } else throw new Error(`Series has neither a fixture or scrim associated with it seriesId=${series.id}`);

@@ -1,12 +1,13 @@
 import {Injectable, Logger} from "@nestjs/common";
-import {InjectEntityManager} from "@nestjs/typeorm";
+import {InjectDataSource} from "@nestjs/typeorm";
 import type {
     BallchasingPlayer, BallchasingResponse, BallchasingTeam, Scrim,
 } from "@sprocketbot/common";
 import {
     BallchasingResponseSchema, Parser, ProgressStatus,
 } from "@sprocketbot/common";
-import {EntityManager} from "typeorm";
+import type {EntityManager} from "typeorm";
+import {DataSource} from "typeorm";
 import type {QueryDeepPartialEntity} from "typeorm/query-builder/QueryPartialEntity";
 
 import type {Player, Team} from "../../../database";
@@ -39,69 +40,80 @@ export class RocketLeagueFinalizationService {
         private readonly teamService: TeamService,
         private readonly ballchasingConverter: BallchasingConverterService,
         private readonly mledbFinalizationService: MledbFinalizationService,
-        @InjectEntityManager() private readonly entityManager: EntityManager,
+        @InjectDataSource() private readonly dataSource: DataSource,
     ) {}
 
     async finalizeScrim(submission: ScrimReplaySubmission, scrim: Scrim): Promise<SaveScrimFinalizationReturn> {
-        return this.entityManager.transaction(async em => {
-            try {
-                const gameMode = await em.findOneByOrFail(GameMode, {id: scrim.gameMode.id});
+        const qr = this.dataSource.createQueryRunner();
 
-                const scrimMeta = em.create(ScrimMeta);
-                const matchParent = em.create(MatchParent);
-                const match = em.create(Match);
-                await em.insert(ScrimMeta, scrimMeta as QueryDeepPartialEntity<ScrimMeta>);
-                matchParent.scrimMeta = scrimMeta;
+        await qr.connect();
+        await qr.startTransaction();
+        const em = qr.manager;
+        try {
+            const gameMode = await em.findOneByOrFail(GameMode, {id: scrim.gameMode.id});
 
-                await em.insert(MatchParent, matchParent as QueryDeepPartialEntity<MatchParent>);
-                match.matchParent = matchParent;
-                match.skillGroupId = scrim.skillGroupId;
-                match.gameMode = gameMode;
+            const scrimMeta = em.create(ScrimMeta);
+            const matchParent = em.create(MatchParent);
+            const match = em.create(Match);
+            await em.insert(ScrimMeta, scrimMeta as QueryDeepPartialEntity<ScrimMeta>);
+            matchParent.scrimMeta = scrimMeta;
 
-                await em.insert(Match, match as QueryDeepPartialEntity<Match>);
-                await this.saveMatchDependents(submission, scrim.organizationId, match, true, em);
+            await em.insert(MatchParent, matchParent as QueryDeepPartialEntity<MatchParent>);
+            match.matchParent = matchParent;
+            match.skillGroupId = scrim.skillGroupId;
+            match.gameMode = gameMode;
 
-                const mledbScrim = await this.mledbFinalizationService.saveScrim(submission, submission.id, em, scrim);
+            await em.insert(Match, match as QueryDeepPartialEntity<Match>);
+            await this.saveMatchDependents(submission, scrim.organizationId, match, true, em);
 
-                // Fix up these relationships
-                scrimMeta.parent = matchParent;
-                matchParent.match = match;
+            const mledbScrim = await this.mledbFinalizationService.saveScrim(submission, submission.id, em, scrim);
 
-                return {scrim: scrimMeta, legacyScrim: mledbScrim};
-            } catch (e) {
-                const errorPayload = {
-                    submissionId: submission.id,
-                    scrim: scrim.id,
-                };
+            // Fix up these relationships
+            scrimMeta.parent = matchParent;
+            matchParent.match = match;
+            await qr.commitTransaction();
 
-                this.logger.error(`Failed to save scrim! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`);
+            return {scrim: scrimMeta, legacyScrim: mledbScrim};
+        } catch (e) {
+            const errorPayload = {
+                submissionId: submission.id,
+                scrim: scrim.id,
+            };
 
-                throw e;
-            }
-        });
+            this.logger.error(`Failed to save scrim! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`);
+            await qr.rollbackTransaction();
+            throw e;
+        }
     }
 
     async finalizeMatch(submission: MatchReplaySubmission): Promise<SaveMatchFinalizationReturn> {
-        return this.entityManager.transaction(async em => {
-            try {
-                const match = await this.matchService.getMatchById(submission.matchId, {matchParent: {fixture: {homeFranchise: {organization: true} } }, gameMode: true});
-                const organization = match.matchParent.fixture!.homeFranchise.organization;
+        const qr = this.dataSource.createQueryRunner();
 
-                await this.saveMatchDependents(submission, organization.id, match, false, em);
+        await qr.connect();
+        await qr.startTransaction();
+        const em = qr.manager;
+        try {
+            const match = await this.matchService.getMatchById(submission.matchId, {matchParent: {fixture: {homeFranchise: {organization: true} } }, gameMode: true});
+            const organization = match.matchParent.fixture!.homeFranchise.organization;
 
-                const mleMatch = await this.mledbFinalizationService.saveMatch(submission, submission.id, em);
-                return {match: match, legacyMatch: mleMatch};
-            } catch (e) {
-                const errorPayload = {
-                    submissionId: submission.id,
-                    matchId: submission.matchId,
-                };
+            await this.saveMatchDependents(submission, organization.id, match, false, em);
 
-                this.logger.error(`Failed to save match! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`);
-                throw e;
-            }
+            const mleMatch = await this.mledbFinalizationService.saveMatch(submission, submission.id, em);
+            await qr.commitTransaction();
+            return {match: match, legacyMatch: mleMatch};
+        } catch (e) {
+            const errorPayload = {
+                submissionId: submission.id,
+                matchId: submission.matchId,
+            };
 
-        });
+            this.logger.error(`Failed to save match! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`);
+            await qr.rollbackTransaction();
+            throw e;
+        } finally {
+            if (qr.isTransactionActive) await qr.rollbackTransaction();
+        }
+
     }
 
     /**
