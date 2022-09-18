@@ -23,6 +23,7 @@ import {UtilModule} from "../util/util.module";
 import {
     BallchasingConverterService, FinalizationService, FinalizationSubscriber,
 } from "./finalization";
+import {RocketLeagueFinalizationService} from "./finalization/rocket-league/rocket-league-finalization.service";
 import {ReplayParsePubSub} from "./replay-parse.constants";
 import {ReplayParseModResolver} from "./replay-parse.mod.resolver";
 import {ReplaySubmissionResolver, SubmissionRejectionResolver} from "./replay-parse.resolver";
@@ -60,6 +61,7 @@ import {ReplayParseService} from "./replay-parse.service";
         SubmissionRejectionResolver,
         BallchasingConverterService,
         FinalizationSubscriber,
+        RocketLeagueFinalizationService,
     ],
 })
 export class ReplayParseModule {
