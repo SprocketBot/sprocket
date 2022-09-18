@@ -105,10 +105,6 @@ export class RocketLeagueFinalizationService {
      * Saves objects that depend on the Match (i.e. Rounds, Player Stats, Team Stats)
      */
     async saveMatchDependents(submission: ReplaySubmission, organizationId: number, match: Match, eligibility: boolean, em: EntityManager): Promise<Match> {
-        if (!match.matchParent.fixture) {
-            throw new Error(`Fixture is missing from match ${match.id}; cannot save as match. Is this a scrim?`);
-        }
-
         if (submission.items.some(i => i.progress?.status !== ProgressStatus.Complete)) {
             throw new Error(`Not all items have been completed. Finalization attempted too soon. ${JSON.stringify({submissionId: submission.id, match: match.id})}`);
         }
