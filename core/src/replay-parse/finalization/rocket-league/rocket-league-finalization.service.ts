@@ -83,6 +83,8 @@ export class RocketLeagueFinalizationService {
             this.logger.error(`Failed to save scrim! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`);
             await qr.rollbackTransaction();
             throw e;
+        } finally {
+            await qr.release();
         }
     }
 
@@ -111,7 +113,7 @@ export class RocketLeagueFinalizationService {
             await qr.rollbackTransaction();
             throw e;
         } finally {
-            if (qr.isTransactionActive) await qr.rollbackTransaction();
+            await qr.release();
         }
 
     }
