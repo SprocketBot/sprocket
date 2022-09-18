@@ -108,7 +108,7 @@ export class RocketLeagueFinalizationService {
             throw new Error(`Not all items have been completed. Finalization attempted too soon. ${JSON.stringify({submissionId: submission.id, match: match.id})}`);
         }
 
-        const replays = submission.items.map<{replay: BallchasingResponse; parser: {type: Parser; version: number;};}>(i => {
+        const replays = submission.items.map<{replay: BallchasingResponse; parser: {type: Parser; version: number;}; outputPath: string;}>(i => {
             const r = BallchasingResponseSchema.safeParse(i.progress?.result?.data);
 
             if (!r.success) {
@@ -118,7 +118,10 @@ export class RocketLeagueFinalizationService {
             if (i.progress?.result?.parser !== Parser.BALLCHASING) {
                 throw new Error(`Saving matches with a non-ballchasing parser is not supported. found ${i.progress?.result?.parser}`);
             }
-            return {replay: r.data, parser: {type: i.progress.result.parser, version: i.progress.result.parserVersion} };
+
+            return {
+                replay: r.data, parser: {type: i.progress.result.parser, version: i.progress.result.parserVersion}, outputPath: i.outputPath!,
+            };
         });
 
         const {home, away} = await this.matchService.getFranchisesForMatch(match.id);
@@ -127,7 +130,9 @@ export class RocketLeagueFinalizationService {
             await this.teamService.getTeam(away.id, match.skillGroupId),
         ]);
 
-        const results = await Promise.all(replays.map(async ({replay, parser}) => {
+        const results = await Promise.all(replays.map(async ({
+            replay, parser, outputPath,
+        }) => {
             // Get players
             const {blue, orange} = await this._getBallchasingPlayers(replay);
             /*
@@ -176,7 +181,7 @@ export class RocketLeagueFinalizationService {
             /*
              * Create the round
              */
-            const round = this._createRound(match, homeWon, replay, parser);
+            const round = this._createRound(match, homeWon, replay, parser, outputPath);
 
             /*
              * Create player and team stat lines
@@ -206,7 +211,7 @@ export class RocketLeagueFinalizationService {
         return match;
     }
 
-    _createRound(match: Match, homeWon: boolean, replay: BallchasingResponse, parser: {type: Parser; version: number;}): Round {
+    _createRound(match: Match, homeWon: boolean, replay: BallchasingResponse, parser: {type: Parser; version: number;}, outputPath: string): Round {
         const round = new Round();
         round.gameMode = match.gameMode;
         round.homeWon = homeWon;
@@ -215,6 +220,8 @@ export class RocketLeagueFinalizationService {
         round.match = match;
         round.parser = parser.type;
         round.parserVersion = parser.version;
+        round.outputPath = outputPath;
+        
         return round;
     }
 
