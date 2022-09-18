@@ -6,7 +6,7 @@ import type {
 import {
     BallchasingResponseSchema, Parser, ProgressStatus,
 } from "@sprocketbot/common";
-import {EntityManager, Like} from "typeorm";
+import {EntityManager} from "typeorm";
 
 import type {
     GameMode, Player, Team,
@@ -89,7 +89,7 @@ export class RocketLeagueFinalizationService {
                     matchId: submission.matchId,
                 };
 
-                this.logger.error(`Failed to save scrim! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`);
+                this.logger.error(`Failed to save match! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`);
                 throw e;
             }
 
@@ -229,7 +229,7 @@ export class RocketLeagueFinalizationService {
                     platformAccounts: {
                         platformAccountId: p.id.id,
                         platform: {
-                            code: Like(p.id.platform),
+                            code: p.id.platform,
                         },
                     },
                 },
