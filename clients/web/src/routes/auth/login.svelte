@@ -21,14 +21,15 @@
     import {session} from "$app/stores";
 
     async function login(e: CustomEvent<string>) {
-        const token = e.detail;
+        const tokens = e.detail.split(",");
 
-        $session.user = extractJwt<SessionUser>(token);
-        $session.token = token;
+        $session.user = extractJwt<SessionUser>(tokens[0]);
+        $session.token = tokens[0];
 
-        cookies.set(constants.auth_cookie_key, token, { expires: 7 });
+        cookies.set(constants.auth_cookie_key, tokens[0], { expires: 1/48 });
+        cookies.set(constants.refresh_token_cookie_key, tokens[1], {expires: 7})
 
-        window.location.pathname = "/scrims";
+        //window.location.pathname = "/scrims";
     }
 </script>
 
