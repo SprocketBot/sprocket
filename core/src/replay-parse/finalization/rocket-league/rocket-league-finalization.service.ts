@@ -43,28 +43,49 @@ export class RocketLeagueFinalizationService {
 
     async finalizeScrim(submission: ScrimReplaySubmission, scrim: Scrim): Promise<void> {
         await this.entityManager.transaction(async em => {
-            const scrimMeta = em.create(ScrimMeta);
-            const matchParent = em.create(MatchParent);
-            const match = em.create(Match);
-            await em.save(scrimMeta);
-            matchParent.scrimMeta = scrimMeta;
-            await em.save(matchParent);
-            match.matchParent = matchParent;
-            match.skillGroupId = scrim.skillGroupId;
+            try {
+                const scrimMeta = em.create(ScrimMeta);
+                const matchParent = em.create(MatchParent);
+                const match = em.create(Match);
+                await em.save(scrimMeta);
+                matchParent.scrimMeta = scrimMeta;
+                await em.save(matchParent);
+                match.matchParent = matchParent;
+                match.skillGroupId = scrim.skillGroupId;
 
-            await em.save(match);
-            await this.saveMatchDependents(submission, scrim.organizationId, match, true, em);
+                await em.save(match);
+                await this.saveMatchDependents(submission, scrim.organizationId, match, true, em);
+            } catch (e) {
+                const errorPayload = {
+                    submissionId: submission.id,
+                    scrim: scrim.id,
+                };
+
+                this.logger.error(`Failed to save scrim! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`);
+                throw e;
+            }
+
         });
     }
 
     async finalizeMatch(submission: MatchReplaySubmission): Promise<void> {
         await this.entityManager.transaction(async em => {
-            // TODO: Find the match
-            // Save the match dependents
-            const match = await this.matchService.getMatchById(submission.matchId, {matchParent: {fixture: {homeFranchise: {organization: true} } } });
-            const organization = match.matchParent.fixture!.homeFranchise.organization;
+            try {
+                const match = await this.matchService.getMatchById(submission.matchId, {matchParent: {fixture: {homeFranchise: {organization: true} } } });
+                const organization = match.matchParent.fixture!.homeFranchise.organization;
 
-            await this.saveMatchDependents(submission, organization.id, match, false, em);
+                await this.saveMatchDependents(submission, organization.id, match, false, em);
+
+            } catch (e) {
+                const errorPayload = {
+                    submissionId: submission.id,
+                    matchId: submission.matchId,
+                };
+
+                this.logger.error(`Failed to save scrim! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`);
+                throw e;
+            }
+
         });
     }
 
