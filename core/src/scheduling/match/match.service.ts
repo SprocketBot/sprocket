@@ -5,7 +5,7 @@ import type {
 } from "@sprocketbot/common";
 import type {FindOneOptions, FindOptionsRelations} from "typeorm";
 import {
-    DataSource,    IsNull, MoreThan, Not, Repository,
+    DataSource, IsNull, Not, Repository,
 } from "typeorm";
 
 import type {
@@ -16,7 +16,6 @@ import {
     Franchise,
     Invalidation,
     Match,
-    MatchParent,
     PlayerStatLineStatsSchema,
     Round,
     ScheduleFixture,
@@ -133,10 +132,11 @@ export class MatchService {
                                 GROUP BY "matchId", mp.id, m.id
                                 ORDER BY 2;`;
 
-        const results = await this.dataSource.manager.query(queryString, [ {start_date: startDate} ]);
+        interface toBeReprocessed {id: number; date: string; is_league_match: boolean;}
+        const results: toBeReprocessed[] = await this.dataSource.manager.query(queryString, [ {start_date: startDate} ]) as toBeReprocessed[];
 
         for (const r of results) {
-            const payload = await this.translatePayload(r[0] as number, r[2] as boolean);
+            const payload = await this.translatePayload(r.id, r.is_league_match);
             await this.eloConnectorService.createJob(EloEndpoint.CalculateEloForMatch, payload);
         }
     }
