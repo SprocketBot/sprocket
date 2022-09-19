@@ -5,7 +5,7 @@ import type {
 } from "@sprocketbot/common";
 import type {FindOneOptions, FindOptionsRelations} from "typeorm";
 import {
-    IsNull, Not, Repository,
+    IsNull, MoreThan, Not, Repository,
 } from "typeorm";
 
 import type {
@@ -16,6 +16,7 @@ import {
     Franchise,
     Invalidation,
     Match,
+    MatchParent,
     PlayerStatLineStatsSchema,
     Round,
     ScheduleFixture,
@@ -46,6 +47,7 @@ export class MatchService {
 
     constructor(
         @InjectRepository(Match) private matchRepository: Repository<Match>,
+        @InjectRepository(MatchParent) private matchParentRepository: Repository<MatchParent>,
         @InjectRepository(Invalidation) private invalidationRepository: Repository<Invalidation>,
         @InjectRepository(Round) private readonly roundRepository: Repository<Round>,
         @InjectRepository(Team) private readonly teamRepository: Repository<Team>,
@@ -113,6 +115,37 @@ export class MatchService {
             data: populatedMatch.matchParent.event,
         };
         throw new Error("Data type not found");
+    }
+
+    async resubmitAllMatchesAfter(startDate: Date): Promise<void> {
+        const matchParents = await this.matchParentRepository.find({
+            where: {
+                createdAt: MoreThan(startDate),
+            },
+            relations: [
+                "matchParent",
+                "matchParent.fixture",
+                "matchParent.scrimMeta",
+                "matchParent.event",
+                "matchParent.match",
+                "matchParent.match.rounds",
+                "matchParent.match.rounds.playerStats",
+                "matchParent.match.rounds.teamStats",
+            ],
+        });
+
+        const jobs = Promise.all(matchParents.map(async mp => {
+            if (mp.event) return;
+            let isScrim = false;
+            if (mp.fixture) {
+                isScrim = true;
+            }
+
+            const payload = await this.translatePayload(mp.match.id, isScrim);
+            await this.eloConnectorService.createJob(EloEndpoint.CalculateEloForMatch, payload);
+        }));
+
+        await jobs;
     }
 
     async getMatchReportCardWebhooks(matchId: number): Promise<CoreOutput<CoreEndpoint.GetMatchReportCardWebhooks>> {
