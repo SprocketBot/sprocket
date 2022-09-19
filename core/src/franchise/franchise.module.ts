@@ -20,6 +20,7 @@ import {
 import {PlayerService} from "./player";
 import {PlayerController} from "./player/player.controller";
 import {PlayerResolver} from "./player/player.resolver";
+import {TeamService} from "./team/team.service";
 
 @Module({
     imports: [
@@ -43,11 +44,13 @@ import {PlayerResolver} from "./player/player.resolver";
         FranchiseResolver,
         FranchiseProfileResolver,
         PlayerResolver,
+        TeamService,
     ],
     exports: [
         PlayerService,
         FranchiseService,
         GameSkillGroupService,
+        TeamService,
     ],
     controllers: [
         FranchiseController,

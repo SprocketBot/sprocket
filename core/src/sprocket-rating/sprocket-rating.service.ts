@@ -8,14 +8,18 @@ export class SprocketRatingService {
 
     calcSprocketRating(core: SprocketRatingInput): SprocketRating {
         // TODO: Make this non-nullable
-        const team_size = core.team_size ?? 2;
-        this.logger.verbose(team_size);
+        const team_size = core.team_size;
 
         if (team_size === 2) {
             return this.calcSprocketRating2s(core);
+        } else if (team_size === 3) {
+            return this.calcSprocketRating3s(core);
+        } else if (team_size === 1) {
+            this.logger.warn("Running Sprocket Rating for 1 player teams");
+            return this.calcSprocketRating2s(core);
         }
+        throw new Error(`Sprocket rating is not yet available for teams of ${team_size} players`);
 
-        return this.calcSprocketRating3s(core);
     }
 
     calcSprocketRating2s(core: SprocketRatingInput): SprocketRating {

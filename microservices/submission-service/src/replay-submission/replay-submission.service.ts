@@ -156,10 +156,13 @@ export class ReplaySubmissionService {
         submission.stats = this.statsConverterService.convertStats(submission.items.map(item => item.progress!.result!));
         await this.submissionCrudService.setStats(submissionId, submission.stats);
 
+        const refreshedSubmission = await this.submissionCrudService.getSubmission(submissionId);
+        if (!refreshedSubmission) throw new Error("Unexpected state found when refreshing submission state with redis.");
+
         await this.eventsService.publish(EventTopic.SubmissionRatifying, {
             submissionId: submissionId,
             redisKey: getSubmissionKey(submissionId),
-            resultPaths: submission.items.map(item => item.outputPath!),
+            resultPaths: refreshedSubmission.items.map(item => item.outputPath!),
         });
         // TODO: Expose endpoint to remove submission.
     }

@@ -3,10 +3,12 @@ import {InjectRepository} from "@nestjs/typeorm";
 import type {
     BallchasingPlayer, CoreEndpoint, CoreOutput,
 } from "@sprocketbot/common";
-import {FindOneOptions, Repository} from "typeorm";
+import type {FindOneOptions, FindOptionsRelations} from "typeorm";
+import {
+    IsNull, Not, Repository,
+} from "typeorm";
 
 import type {
-    MatchParent,
     ScheduledEvent,
     ScrimMeta,
 } from "../../database";
@@ -72,8 +74,8 @@ export class MatchService {
         });
     }
 
-    async getMatchById(matchId: number): Promise<Match> {
-        return this.matchRepository.findOneOrFail({where: {id: matchId}  });
+    async getMatchById(matchId: number, relations?: FindOptionsRelations<Match>): Promise<Match> {
+        return this.matchRepository.findOneOrFail({where: {id: matchId}, relations: relations});
     }
 
     async getMatch(query: FindOneOptions<Match>): Promise<Match> {
@@ -149,6 +151,29 @@ export class MatchService {
         };
     }
 
+    async getFranchisesForMatch(matchId: number): Promise<{home: Franchise; away: Franchise;}> {
+        const match = await this.matchRepository.findOneOrFail({
+            where: {
+                id: matchId,
+                matchParent: {
+                    fixture: Not(IsNull()),
+                },
+            },
+            relations: {
+                matchParent: {
+                    fixture: {
+                        homeFranchise: {profile: true},
+                        awayFranchise: {profile: true},
+                    },
+                },
+            },
+        });
+        return {
+            home: match.matchParent.fixture!.homeFranchise,
+            away: match.matchParent.fixture!.awayFranchise,
+        };
+    }
+
     /**
      * Marks replays as NCP=true/false, and updates the associated Elo of those replays and all connected replays accordingly.
      * "Connected" replays are where replays in which one of the player's in the NCP replay has played. Since the NCP replay will have its elo affects removed,
@@ -190,7 +215,7 @@ export class MatchService {
         // Set replays to NCP true/false and update winning team/color
         for (const replay of replays) {
             if (!isNcp && replay.isDummy) await this.roundRepository.delete(replay.id);
-            
+
             replay.invalidation = invalidation;
             await this.roundRepository.save(replay);
         }
@@ -213,13 +238,17 @@ export class MatchService {
         return outStr;
     }
 
-    translatePayload(matchParent: MatchParent, isScrim: boolean): CalculateEloForMatchInput {
-        const match = matchParent.match;
+    async translatePayload(matchId: number, isScrim: boolean): Promise<CalculateEloForMatchInput> {
+        const match = await this.matchRepository.findOneOrFail({
+            where: {id: matchId},
+            relations: {rounds: {teamStats: {playerStats: {player: true} } }, gameMode: true},
+        });
+
         const payload: CalculateEloForMatchInput = {
             id: match.id,
             numGames: match.rounds.length,
             isScrim: isScrim,
-            gameMode: (matchParent.match.gameMode.code === "RL_DOUBLES") ? GameMode.DOUBLES : GameMode.STANDARD,
+            gameMode: (match.gameMode.code === "RL_DOUBLES") ? GameMode.DOUBLES : GameMode.STANDARD,
             gameStats: [],
         };
 

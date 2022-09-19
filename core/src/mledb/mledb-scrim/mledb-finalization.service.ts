@@ -3,13 +3,18 @@ import {
 } from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {
-    BallchasingPlayer, BallchasingResponse, BallchasingTeam, ReplaySubmission, Scrim,
+    BallchasingPlayer,
+    BallchasingResponse,
+    BallchasingTeam,
+    ReplaySubmission,
+    Scrim,
 } from "@sprocketbot/common";
-import type {QueryRunner} from "typeorm";
+import type {EntityManager} from "typeorm";
 import {Repository} from "typeorm";
 
 import type {GameMode, GameSkillGroup} from "../../database";
-import type {MLE_Platform} from "../../database/mledb";
+import {Match} from "../../database";
+import type {League, MLE_Platform} from "../../database/mledb";
 import {
     LegacyGameMode,
     MLE_EligibilityData,
@@ -20,32 +25,30 @@ import {
     MLE_Scrim,
     MLE_Series,
     MLE_SeriesReplay,
-    MLE_TeamCoreStats, RocketLeagueMap,
+    MLE_TeamCoreStats,
+    RocketLeagueMap,
 } from "../../database/mledb";
 import {GameSkillGroupService} from "../../franchise";
 import {GameModeService} from "../../game";
 import {UserService} from "../../identity";
+import type {MatchReplaySubmission, ScrimReplaySubmission} from "../../replay-parse";
 import {SprocketRatingService} from "../../sprocket-rating/sprocket-rating.service";
+import {MledbMatchService} from "../mledb-match/mledb-match.service";
 import {assignPlayerStats} from "./assign-player-stats";
 import {ballchasingMapLookup} from "./ballchasing-maps";
 
 @Injectable()
-export class MledbScrimService {
+export class MledbFinalizationService {
     constructor(
-        @InjectRepository(MLE_Scrim) private readonly mleScrimRepository: Repository<MLE_Scrim>,
-        @InjectRepository(MLE_Series) private readonly mleSeriesRepository: Repository<MLE_Series>,
         @InjectRepository(MLE_SeriesReplay) private readonly mleSeriesReplayRepository: Repository<MLE_SeriesReplay>,
-        @InjectRepository(MLE_PlayerStatsCore) private readonly mlePlayerStatsCoreRepository: Repository<MLE_PlayerStatsCore>,
-        @InjectRepository(MLE_PlayerStats) private readonly mlePlayerStatsRepository: Repository<MLE_PlayerStats>,
-        @InjectRepository(MLE_TeamCoreStats) private readonly mleTeamCoreStatsRepository: Repository<MLE_TeamCoreStats>,
         @InjectRepository(MLE_PlayerAccount) private readonly mlePlayerAccountRepository: Repository<MLE_PlayerAccount>,
         @InjectRepository(MLE_Player) private readonly mlePlayerRepository: Repository<MLE_Player>,
-        @InjectRepository(MLE_EligibilityData) private readonly mleEligibilityRepository: Repository<MLE_EligibilityData>,
         @Inject(forwardRef(() => GameSkillGroupService))
         private readonly skillGroupService: GameSkillGroupService,
         private readonly gameModeService: GameModeService,
         private readonly userService: UserService,
         private readonly sprocketRatingService: SprocketRatingService,
+        private readonly mleMatchService: MledbMatchService,
     ) {
     }
 
@@ -58,66 +61,113 @@ export class MledbScrimService {
         };
     }
 
-    async saveMatch(submission: ReplaySubmission, submissionId: string, runner: QueryRunner, series: MLE_Series): Promise<number> {
-        return this.saveSeries(submission, submissionId, runner, series);
+    async saveMatch(submission: MatchReplaySubmission, submissionId: string, em: EntityManager): Promise<MLE_Series> {
+        const sprocketMatchId = submission.matchId;
+
+        const match = await em.findOneOrFail(Match, {
+            where: {id: sprocketMatchId},
+            relations: {
+                matchParent: {
+                    fixture: {
+                        awayFranchise: {
+                            profile: true,
+                        },
+                        homeFranchise: {
+                            profile: true,
+                        },
+                        scheduleGroup: { // Match
+                            parentGroup: true, // Season
+                        },
+                    },
+                },
+                gameMode: true,
+                skillGroup: {
+                    profile: true,
+                },
+            },
+        });
+
+        const {
+            homeFranchise, awayFranchise, scheduleGroup: week,
+        } = match.matchParent.fixture!;
+
+        const series = await this.mleMatchService.getMleSeries(
+            awayFranchise.profile.title,
+            homeFranchise.profile.title,
+            week.start,
+            week.parentGroup.start,
+            match.gameMode.teamSize === 2 ? LegacyGameMode.DOUBLES : LegacyGameMode.STANDARD,
+            match.skillGroup.profile.description.split(" ")[0].toUpperCase() as League,
+        );
+
+        await this.saveSeries(submission as ReplaySubmission, submissionId, em, series);
+        return series;
     }
 
-    async saveScrim(submission: ReplaySubmission, submissionId: string, runner: QueryRunner, scrimObject: Scrim): Promise<MLE_Scrim> {
-        const scrim = this.mleScrimRepository.create();
-        const series = this.mleSeriesRepository.create();
-
+    async saveScrim(submission: ScrimReplaySubmission, submissionId: string, em: EntityManager, scrimObject: Scrim): Promise<MLE_Scrim> {
+        // const mode = scrimObject.settings.teamSize === 2 ? LegacyGameMode.DOUBLES : LegacyGameMode.STANDARD;
         const {mode, group} = await this.getLeagueAndMode(scrimObject);
-        const author = await this.mlePlayerRepository.findOneOrFail({where: {id: -1} });
+        const scrim = em.create(MLE_Scrim);
+        const series = em.create(MLE_Series);
+
+        scrim.series = series;
+        series.scrim = scrim;
+
         series.league = group.profile.description.split(" ")[0].toUpperCase();
         series.mode = {
             1: LegacyGameMode.SOLO, 2: LegacyGameMode.DOUBLES, 3: LegacyGameMode.STANDARD,
         }[mode.teamSize]!;
-        scrim.series = series;
-        series.scrim = scrim;
+
+        series.submissionTimestamp = new Date();
+        series.fullNcp = false;
+
+        const author = await this.mlePlayerRepository.findOneOrFail({where: {id: -1} });
 
         scrim.mode = series.mode;
         scrim.type = scrimObject.settings.mode.toUpperCase();
         scrim.baseScrimPoints = 5;
         scrim.author = author;
+        scrim.host = author;
 
-        series.submissionTimestamp = new Date();
-        series.fullNcp = false;
+        await em.insert(MLE_Scrim, scrim);
+        await em.insert(MLE_Series, series);
 
-        let playerEligibilities: MLE_EligibilityData[] | undefined;
+        await this.saveSeries(submission as ReplaySubmission, submissionId, em, series);
+
         if (scrimObject.settings.competitive) {
-            playerEligibilities = await Promise.all(scrimObject.players.map(async p => {
-                const playerEligibility = this.mleEligibilityRepository.create();
+            const playerEligibilities = await Promise.all(scrimObject.players.map(async p => {
+                const playerEligibility = em.create(MLE_EligibilityData);
                 const discordAccount = await this.userService.getUserDiscordAccount(p.id);
                 const player = await this.mlePlayerRepository.findOneOrFail({
                     where: {
                         discordId: discordAccount.accountId,
                     },
                 });
-    
+
                 playerEligibility.player = player;
                 playerEligibility.scrimPoints = 5;
                 playerEligibility.scrim = scrim;
-    
+
                 return playerEligibility;
             }));
-        }
 
-        await runner.manager.save(scrim);
-        await runner.manager.save(series);
-        await this.saveSeries(submission, submissionId, runner, series);
-        if (playerEligibilities) await runner.manager.save(playerEligibilities);
+            await em.insert(MLE_EligibilityData, playerEligibilities);
+        }
 
         return scrim;
     }
 
-    async saveSeries(submission: ReplaySubmission, submissionId: string, runner: QueryRunner, series: MLE_Series): Promise<number> {
+    async saveSeries(submission: ReplaySubmission, submissionId: string, em: EntityManager, series: MLE_Series): Promise<number> {
+        // First; initialize all the arrays to save at the end.
         const coreStats: MLE_PlayerStatsCore[] = [];
         const playerStats: MLE_PlayerStats[] = [];
         const teamStats: MLE_TeamCoreStats[] = [];
 
         const mleSeriesReplays = await Promise.all(submission.items.map(async item => {
+            // Get the ballchasing data that is available
             const data: BallchasingResponse = item.progress!.result!.data;
-            const replay = this.mleSeriesReplayRepository.create();
+            // Create and prep the series entity
+            const replay = em.create(MLE_SeriesReplay);
             replay.series = series;
             replay.map = ballchasingMapLookup.get(data.map_code) ?? RocketLeagueMap.UNKNOWN;
             replay.matchGuid = data.match_guid;
@@ -131,8 +181,8 @@ export class MledbScrimService {
             replay.winningColor = data.orange.stats.core.goals > data.blue.stats.core.goals ? "ORANGE" : "BLUE";
 
             const convertPlayerToMLE = async (p: BallchasingPlayer, color: "BLUE" | "ORANGE"): Promise<void> => {
-                const core = this.mlePlayerStatsCoreRepository.create();
-                const stats = this.mlePlayerStatsRepository.create();
+                const core = em.create(MLE_PlayerStatsCore);
+                const stats = em.create(MLE_PlayerStats);
 
                 const playerAccount = await this.mlePlayerAccountRepository.findOneOrFail({
                     where: {
@@ -166,7 +216,7 @@ export class MledbScrimService {
                     saves: core.saves,
                     shots: core.shots,
                     shots_against: core.shots_against,
-                    team_size: data.team_size,
+                    team_size: series.mode === "DOUBLES" ? 2 : 3,
                 });
                 core.opi = opi;
                 core.dpi = dpi;
@@ -186,8 +236,15 @@ export class MledbScrimService {
             };
 
             const buildTeamStats = (p: BallchasingTeam, color: "BLUE" | "ORANGE"): MLE_TeamCoreStats => {
-                const teamStat = this.mleTeamCoreStatsRepository.create();
+                const teamStat = em.create(MLE_TeamCoreStats);
                 teamStat.color = color;
+
+                if (series.fixture) {
+                    const teamPlayer = replay.playerStatsCores.find(psc => psc.color === color);
+                    teamStat.teamName = teamPlayer!.player.teamName;
+                } else {
+                    teamStat.teamName = "FA";
+                }
 
                 teamStat.goals = p.stats.core.goals;
                 teamStat.goalsAgainst = p.stats.core.goals_against;
@@ -198,22 +255,21 @@ export class MledbScrimService {
                 return teamStat;
             };
 
+            // Convert all players to MLE rows
             await Promise.all(data.blue.players.map(async x => convertPlayerToMLE(x, "BLUE")));
             await Promise.all(data.orange.players.map(async x => convertPlayerToMLE(x, "ORANGE")));
 
-            replay.teamCoreStats = [
-                buildTeamStats(data.blue, "BLUE"),
-                buildTeamStats(data.orange, "ORANGE"),
-            ];
+            // Convert teams to rows
+            teamStats.push(buildTeamStats(data.blue, "BLUE"), buildTeamStats(data.orange, "ORANGE"));
 
-            teamStats.push(...replay.teamCoreStats);
-
+            // If this is a match
             if (series.fixture) {
-                const firstPlayer = playerStats[0];
-                const firstPlayerFranchise = firstPlayer.player.teamName;
+                const firstPlayer = replay.playerStats[0];
                 const firstPlayerWon = firstPlayer.coreStats.color === replay.winningColor;
-                const homeTeamWon = firstPlayerWon && firstPlayerFranchise === series.fixture.homeName;
-                replay.winningTeamName = homeTeamWon ? series.fixture.homeName : series.fixture.awayName;
+                const firstPlayerIsHome = firstPlayer.player.teamName === series.fixture.homeName;
+                // If the first player is home - and they won, home won. If the first player is away - and they lost, home won.
+                const homeWon = firstPlayerIsHome ? firstPlayerWon : !firstPlayerWon;
+                replay.winningTeamName = homeWon ? series.fixture.homeName : series.fixture.awayName;
             } else if (series.scrim) {
                 replay.winningTeamName = "FA";
             } else throw new Error(`Series has neither a fixture or scrim associated with it seriesId=${series.id}`);
@@ -227,17 +283,16 @@ export class MledbScrimService {
             sr.series_id = series.id;
         });
         series.seriesReplays = mleSeriesReplays;
-
-        await runner.manager.save(mleSeriesReplays);
-        await runner.manager.save(coreStats);
-        await runner.manager.save(playerStats);
-        await runner.manager.save(teamStats);
+        await em.insert(MLE_SeriesReplay, mleSeriesReplays);
+        await em.insert(MLE_PlayerStatsCore, coreStats);
+        await em.insert(MLE_PlayerStats, playerStats);
+        await em.insert(MLE_TeamCoreStats, teamStats);
 
         return series.id;
     }
 
     async getScrimIdByBallchasingId(ballchasingId: string): Promise<number> {
-        const mleReplay = await this.mleSeriesReplayRepository.findOneOrFail({where: {ballchasingId}, relations: ["series", "series.scrim"] });
+        const mleReplay = await this.mleSeriesReplayRepository.findOneOrFail({where: {ballchasingId: ballchasingId}, relations: {series: {scrim: true} } });
         if (!mleReplay.series.scrim) throw new Error(`Replay is not for a scrim replayId=${mleReplay.id}`);
         return mleReplay.series.scrim.id;
     }
@@ -248,7 +303,7 @@ export class MledbScrimService {
                 platformId: p.id.id,
                 platform: p.id.platform.toUpperCase() as MLE_Platform,
             },
-            relations: ["player"],
+            relations: {player: true},
         });
         return playerAccount.player;
     }

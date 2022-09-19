@@ -21,8 +21,9 @@ import {ScrimModule} from "../scrim";
 import {SprocketRatingModule} from "../sprocket-rating/sprocket-rating.module";
 import {UtilModule} from "../util/util.module";
 import {
-    BallchasingConverterService, FinalizationService, FinalizationSubscriber,
+    BallchasingConverterService, FinalizationSubscriber,
 } from "./finalization";
+import {RocketLeagueFinalizationService} from "./finalization/rocket-league/rocket-league-finalization.service";
 import {ReplayParsePubSub} from "./replay-parse.constants";
 import {ReplayParseModResolver} from "./replay-parse.mod.resolver";
 import {ReplaySubmissionResolver, SubmissionRejectionResolver} from "./replay-parse.resolver";
@@ -47,6 +48,7 @@ import {ReplayParseService} from "./replay-parse.service";
         EloConnectorModule,
         SchedulingModule,
         UtilModule,
+
     ],
     providers: [
         ReplayParseModResolver,
@@ -56,10 +58,10 @@ import {ReplayParseService} from "./replay-parse.service";
             useValue: new PubSub(),
         },
         ReplaySubmissionResolver,
-        FinalizationService,
         SubmissionRejectionResolver,
         BallchasingConverterService,
         FinalizationSubscriber,
+        RocketLeagueFinalizationService,
     ],
 })
 export class ReplayParseModule {

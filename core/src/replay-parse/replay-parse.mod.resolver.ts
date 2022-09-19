@@ -1,11 +1,9 @@
-import {
-    Inject, UseGuards,
-} from "@nestjs/common";
+import {Inject, UseGuards} from "@nestjs/common";
 import {
     Args, Mutation, Query, Resolver, Subscription,
 } from "@nestjs/graphql";
 import {
-    ResponseStatus, SubmissionEndpoint, SubmissionService,
+    RedisService, ResponseStatus, SubmissionEndpoint, SubmissionService,
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 import type {FileUpload} from "graphql-upload";
@@ -15,10 +13,14 @@ import {MLE_OrganizationTeam} from "../database/mledb";
 import {CurrentUser, UserPayload} from "../identity";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
+import {ScrimService} from "../scrim";
+import {FinalizationSubscriber} from "./finalization";
 import {ReplayParsePubSub} from "./replay-parse.constants";
 import {ReplayParseService} from "./replay-parse.service";
 import type {ReplaySubmission} from "./types";
-import {GqlReplaySubmission} from "./types";
+import {
+    GqlReplaySubmission, ReplaySubmissionType,
+} from "./types";
 import type {ValidationResult} from "./types/validation-result.types";
 import {ValidationResultUnion} from "./types/validation-result.types";
 
@@ -28,6 +30,9 @@ export class ReplayParseModResolver {
     constructor(
         private readonly rpService: ReplayParseService,
         private readonly submissionService: SubmissionService,
+        private readonly finalizationSub: FinalizationSubscriber,
+        private readonly redisService: RedisService,
+        private readonly scrimService: ScrimService,
         @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
     ) {}
 
@@ -59,6 +64,24 @@ export class ReplayParseModResolver {
         return false;
     }
 
+    @Mutation(() => Boolean)
+    @UseGuards(MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    async forceSubmissionSave(@Args("submissionId") submissionId: string): Promise<boolean> {
+        const redisKey = await this.submissionService.send(SubmissionEndpoint.GetSubmissionRedisKey, {submissionId});
+        if (redisKey.status === ResponseStatus.ERROR) throw redisKey.error;
+
+        const submission: ReplaySubmission = await this.redisService.getJson(redisKey.data.redisKey);
+
+        if (submission.type === ReplaySubmissionType.MATCH) {
+            await this.finalizationSub.onMatchSubmissionComplete(submission, submissionId);
+        } else {
+            const scrim = await this.scrimService.getScrimBySubmissionId(submission.id);
+            await this.finalizationSub.onScrimComplete(submission, submission.id, scrim!);
+        }
+
+        return true;
+    }
+
     @Mutation(() => Boolean, {nullable: true})
     async ratifySubmission(
         @CurrentUser() user: UserPayload,
@@ -87,7 +110,7 @@ export class ReplayParseModResolver {
 
     @Subscription(() => GqlReplaySubmission, {
         nullable: true,
-        filter: async function(this: ReplayParseModResolver, payload: {followSubmission: {id: string;};}, variables: {submissionId: string;}, context): Promise<boolean> {
+        filter: async function(this: ReplayParseModResolver, payload: {followSubmission: {id: string;};}, variables: {submissionId: string;}): Promise<boolean> {
             return payload.followSubmission.id === variables.submissionId;
         },
     })
