@@ -5,7 +5,7 @@ import type {
 } from "@sprocketbot/common";
 import type {FindOneOptions, FindOptionsRelations} from "typeorm";
 import {
-    IsNull, MoreThan, Not, Repository,
+    DataSource,    IsNull, MoreThan, Not, Repository,
 } from "typeorm";
 
 import type {
@@ -47,10 +47,10 @@ export class MatchService {
 
     constructor(
         @InjectRepository(Match) private matchRepository: Repository<Match>,
-        @InjectRepository(MatchParent) private matchParentRepository: Repository<MatchParent>,
         @InjectRepository(Invalidation) private invalidationRepository: Repository<Invalidation>,
         @InjectRepository(Round) private readonly roundRepository: Repository<Round>,
         @InjectRepository(Team) private readonly teamRepository: Repository<Team>,
+        private dataSource: DataSource,
         private readonly popService: PopulateService,
         private readonly eloConnectorService: EloConnectorService,
     ) {}
@@ -118,34 +118,27 @@ export class MatchService {
     }
 
     async resubmitAllMatchesAfter(startDate: Date): Promise<void> {
-        const matchParents = await this.matchParentRepository.find({
-            where: {
-                createdAt: MoreThan(startDate),
-            },
-            relations: [
-                "matchParent",
-                "matchParent.fixture",
-                "matchParent.scrimMeta",
-                "matchParent.event",
-                "matchParent.match",
-                "matchParent.match.rounds",
-                "matchParent.match.rounds.playerStats",
-                "matchParent.match.rounds.teamStats",
-            ],
-        });
+        const queryString = `WITH round_played_time AS (SELECT r.id,
+                                  r."matchId",
+                                  (r."roundStats" -> 'date')::TEXT::TIMESTAMP AS played_at
+                               FROM round r)
+                            SELECT "matchId",
+                                   TO_TIMESTAMP(MIN(EXTRACT(EPOCH FROM played_at))),
+                                   mp."fixtureId" IS NOT NULL AND mp."scrimMetaId" IS NULL AS is_league_match,
+                                   mp."fixtureId" IS NULL AND mp."scrimMetaId" IS NULL     AS broken
+                                FROM round_played_time
+                                         INNER JOIN match m ON "matchId" = m.id
+                                         INNER JOIN match_parent mp ON m."matchParentId" = mp.id
+                                WHERE played_at > :start_date
+                                GROUP BY "matchId", mp.id, m.id
+                                ORDER BY 2;`;
 
-        const jobs = Promise.all(matchParents.map(async mp => {
-            if (mp.event) return;
-            let isScrim = false;
-            if (mp.fixture) {
-                isScrim = true;
-            }
+        const results = await this.dataSource.manager.query(queryString, [ {start_date: startDate} ]);
 
-            const payload = await this.translatePayload(mp.match.id, isScrim);
+        for (const r of results) {
+            const payload = await this.translatePayload(r[0] as number, r[2] as boolean);
             await this.eloConnectorService.createJob(EloEndpoint.CalculateEloForMatch, payload);
-        }));
-
-        await jobs;
+        }
     }
 
     async getMatchReportCardWebhooks(matchId: number): Promise<CoreOutput<CoreEndpoint.GetMatchReportCardWebhooks>> {
