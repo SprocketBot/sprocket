@@ -146,15 +146,21 @@ export class MatchService {
             where: {id: matchId},
             relations: {
                 skillGroup: {
-                    profile: true,
+                    profile: {
+                        matchReportCardWebhook: true,
+                    },
                 },
                 matchParent: {
                     fixture: {
                         homeFranchise: {
-                            profile: true,
+                            profile: {
+                                matchReportCardWebhook: true,
+                            },
                         },
                         awayFranchise: {
-                            profile: true,
+                            profile: {
+                                matchReportCardWebhook: true,
+                            },
                         },
                         scheduleGroup: {
                             type: {
@@ -168,10 +174,10 @@ export class MatchService {
 
         if (!match.matchParent.fixture) throw new Error(`Match is not league match matchId=${matchId}`);
         return {
-            skillGroupWebhook: match.skillGroup.profile.matchReportWebhookUrl,
+            skillGroupWebhook: match.skillGroup.profile.matchReportCardWebhook?.url,
             franchiseWebhooks: [
-                match.matchParent.fixture.homeFranchise.profile.matchReportWebhookUrl,
-                match.matchParent.fixture.awayFranchise.profile.matchReportWebhookUrl,
+                match.matchParent.fixture.homeFranchise.profile.matchReportCardWebhook?.url,
+                match.matchParent.fixture.awayFranchise.profile.matchReportCardWebhook?.url,
             ].filter(f => f) as string[],
             organizationId: match.matchParent.fixture.scheduleGroup.type.organization.id,
         };
