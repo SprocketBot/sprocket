@@ -90,6 +90,13 @@ export class MatchResolver {
         return "OKAY";
     }
 
+    @Mutation(() => String)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    async reprocessMatches(@Args("startDate") startDate: Date): Promise<string> {
+        await this.matchService.resubmitAllMatchesAfter(startDate);
+        return "Job started";
+    }
+
     @ResolveField()
     async skillGroup(@Root() root: Match): Promise<GameSkillGroup> {
         if (root.skillGroup) return root.skillGroup;

@@ -5,7 +5,7 @@ import type {
 } from "@sprocketbot/common";
 import type {FindOneOptions, FindOptionsRelations} from "typeorm";
 import {
-    IsNull, Not, Repository,
+    DataSource, IsNull, Not, Repository,
 } from "typeorm";
 
 import type {
@@ -49,6 +49,7 @@ export class MatchService {
         @InjectRepository(Invalidation) private invalidationRepository: Repository<Invalidation>,
         @InjectRepository(Round) private readonly roundRepository: Repository<Round>,
         @InjectRepository(Team) private readonly teamRepository: Repository<Team>,
+        private dataSource: DataSource,
         private readonly popService: PopulateService,
         private readonly eloConnectorService: EloConnectorService,
     ) {}
@@ -113,6 +114,31 @@ export class MatchService {
             data: populatedMatch.matchParent.event,
         };
         throw new Error("Data type not found");
+    }
+
+    async resubmitAllMatchesAfter(startDate: Date): Promise<void> {
+        const queryString = `WITH round_played_time AS (SELECT r.id,
+                                  r."matchId",
+                                  (r."roundStats" -> 'date')::TEXT::TIMESTAMP AS played_at
+                               FROM round r)
+                            SELECT "matchId",
+                                   TO_TIMESTAMP(MIN(EXTRACT(EPOCH FROM played_at))),
+                                   mp."fixtureId" IS NOT NULL AND mp."scrimMetaId" IS NULL AS is_league_match,
+                                   mp."fixtureId" IS NULL AND mp."scrimMetaId" IS NULL     AS broken
+                                FROM round_played_time
+                                         INNER JOIN match m ON "matchId" = m.id
+                                         INNER JOIN match_parent mp ON m."matchParentId" = mp.id
+                                WHERE played_at > $1
+                                GROUP BY "matchId", mp.id, m.id
+                                ORDER BY 2;`;
+
+        interface toBeReprocessed {id: number; date: string; is_league_match: boolean;}
+        const results: toBeReprocessed[] = await this.dataSource.manager.query(queryString, [startDate]) as toBeReprocessed[];
+
+        for (const r of results) {
+            const payload = await this.translatePayload(r.id, r.is_league_match);
+            await this.eloConnectorService.createJob(EloEndpoint.CalculateEloForMatch, payload);
+        }
     }
 
     async getMatchReportCardWebhooks(matchId: number): Promise<CoreOutput<CoreEndpoint.GetMatchReportCardWebhooks>> {
