@@ -29,6 +29,7 @@ export enum CoreEndpoint {
     GetPlayerFranchises = "GetPlayerFranchises",
 
     GetTransactionsDiscordWebhook = "GetTransactionsDiscordWebhook",
+    GetSkillGroupWebhooks = "GetSkillGroupWebhooks",
 }
 
 export const CoreSchemas = {
@@ -123,6 +124,10 @@ export const CoreSchemas = {
     [CoreEndpoint.GetGuildsByOrganizationId]: {
         input: Schemas.GetGuildsByOrganizationId_Request,
         output: Schemas.GetGuildsByOrganizationId_Response,
+    },
+    [CoreEndpoint.GetSkillGroupWebhooks]: {
+        input: Schemas.GetSkillGroupWebhooks_Request,
+        output: Schemas.GetSkillGroupWebhooks_Response,
     },
 };
 

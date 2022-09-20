@@ -46,4 +46,7 @@ export class GameSkillGroupProfile extends BaseModel {
     @JoinColumn()
     @Field(() => GameSkillGroup)
     skillGroup: GameSkillGroup;
+
+    @Column()
+    skillGroupId: number;
 }

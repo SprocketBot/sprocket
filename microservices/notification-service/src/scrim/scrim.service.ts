@@ -30,6 +30,22 @@ export class ScrimService extends SprocketEventMarshal {
         super(eventsService);
     }
 
+    @SprocketEvent(EventTopic.ScrimCreated)
+    async sendScrimCreatedNotifications(scrim: Scrim): Promise<void> {
+        if (!scrim.settings.competitive) return;
+
+        const skillGroupWebhook = await this.coreService.send(CoreEndpoint.GetSkillGroupWebhooks, {skillGroupId: scrim.skillGroupId});
+        if (skillGroupWebhook.status === ResponseStatus.ERROR) throw skillGroupWebhook.error;
+        if (!skillGroupWebhook.data.scrim) return;
+
+        await this.botService.send(BotEndpoint.SendWebhookMessage, {
+            webhookUrl: skillGroupWebhook.data.scrim,
+            payload: {
+                content: `${skillGroupWebhook.data.scrimRole ?? `<@&${skillGroupWebhook.data.scrimRole}> `}A new scrim has been created! <${config.web.url}/scrims>`,
+            },
+        });
+    }
+
     @SprocketEvent(EventTopic.ScrimPopped)
     async sendQueuePoppedNotifications(scrim: Scrim): Promise<void> {
         const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: scrim.organizationId});
