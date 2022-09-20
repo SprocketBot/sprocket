@@ -206,6 +206,60 @@ export class MatchService {
         };
     }
 
+    async getMatchInfoAndStakeholders(matchId: number): Promise<CoreOutput<CoreEndpoint.GetMatchInformationAndStakeholders>> {
+        const match = await this.matchRepository.findOneOrFail({
+            where: {
+                id: matchId,
+            },
+            relations: {
+                skillGroup: {
+                    profile: true,
+                },
+                matchParent: {
+                    fixture: {
+                        homeFranchise: {
+                            profile: {
+                                submissionWebhook: true,
+                            },
+                        },
+                        awayFranchise: {
+                            profile: {
+                                submissionWebhook: true,
+                            },
+                        },
+                        scheduleGroup: {
+                            parentGroup: {
+                                type: {
+                                    organization: true,
+                                },
+                            },
+                        },
+                    },
+                },
+                gameMode: {
+                    game: true,
+                },
+            },
+        });
+
+        if (!match.matchParent.fixture) throw new Error(`Match is not a fixture`);
+
+        return {
+            organizationId: match.matchParent.fixture.scheduleGroup.parentGroup.type.organization.id,
+            game: match.gameMode.game.title,
+            gameMode: match.gameMode.description,
+            skillGroup: match.skillGroup.profile.description,
+            home: {
+                url: match.matchParent.fixture.homeFranchise.profile.submissionWebhook?.url,
+                role: match.matchParent.fixture.homeFranchise.profile.submissionDiscordRoleId,
+            },
+            away: {
+                url: match.matchParent.fixture.awayFranchise.profile.submissionWebhook?.url,
+                role: match.matchParent.fixture.awayFranchise.profile.submissionDiscordRoleId,
+            },
+        };
+    }
+
     /**
      * Marks replays as NCP=true/false, and updates the associated Elo of those replays and all connected replays accordingly.
      * "Connected" replays are where replays in which one of the player's in the NCP replay has played. Since the NCP replay will have its elo affects removed,

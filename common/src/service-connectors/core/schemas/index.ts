@@ -6,6 +6,7 @@ export * from "./GetGameSkillGroupProfile.schema";
 export * from "./GetGuildsByOrganizationId.schema";
 export * from "./GetMatchById.schema";
 export * from "./GetMatchBySubmissionId.schema";
+export * from "./GetMatchInformationAndStakeholders.schema";
 export * from "./GetMatchReportCardWebhooks.schema";
 export * from "./GetMember.schema";
 export * from "./GetMleMatchInfoAndStakeholders.schema";

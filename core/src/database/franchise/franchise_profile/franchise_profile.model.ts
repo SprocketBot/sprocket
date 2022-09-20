@@ -34,6 +34,10 @@ export class FranchiseProfile extends BaseModel {
     @Field(() => Webhook, {nullable: true})
     submissionWebhook?: Webhook;
 
+    @Column({nullable: true})
+    @Field(() => String, {nullable: true})
+    submissionDiscordRoleId?: string;
+
     @OneToOne(() => Photo,  {nullable: true})
     @JoinColumn()
     @Field(() => Photo, {nullable: true})
