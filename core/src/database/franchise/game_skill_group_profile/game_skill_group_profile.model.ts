@@ -1,9 +1,10 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {
-    Column, Entity, JoinColumn, OneToOne,
+    Column, Entity, JoinColumn, ManyToOne, OneToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
+import {Webhook} from "../../webhook";
 import {GameSkillGroup} from "../game_skill_group";
 
 @Entity({schema: "sprocket"})
@@ -17,13 +18,25 @@ export class GameSkillGroupProfile extends BaseModel {
     @Field(() => String)
     description: string;
 
-    @Column({nullable: true})
-    @Field({nullable: true})
-    scrimReportWebhookUrl?: string;
+    // Scrim Report Cards
+    @ManyToOne(() => Webhook, {nullable: true})
+    @Field(() => Webhook, {nullable: true})
+    scrimReportCardWebhook?: Webhook;
 
+    // League Play Report Cards
+    @ManyToOne(() => Webhook, {nullable: true})
+    @Field(() => Webhook, {nullable: true})
+    matchReportCardWebhook?: Webhook;
+
+    // Scrim Updates (Mostly created)
+    @ManyToOne(() => Webhook, {nullable: true})
+    @Field(() => Webhook, {nullable: true})
+    scrimWebhook?: Webhook;
+
+    // Role to ping on scrim creation
     @Column({nullable: true})
-    @Field({nullable: true})
-    matchReportWebhookUrl?: string;
+    @Field(() => String, {nullable: true})
+    scrimDiscordRole?: string;
 
     @Column()
     @Field(() => String)

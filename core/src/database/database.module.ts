@@ -14,6 +14,7 @@ import {MledbModule} from "./mledb/mledb.module";
 import {MledbBridgeModule} from "./mledb-bridge/mledb_bridge.module";
 import {OrganizationModule} from "./organization/organization.module";
 import {SchedulingModule} from "./scheduling/scheduling.module";
+import {WebhookModule} from "./webhook/webhook.module";
 
 const modules = [
     AuthorizationModule,
@@ -27,6 +28,7 @@ const modules = [
     MledbModule,
     ImageGenModule,
     MledbBridgeModule,
+    WebhookModule,
     TypeOrmModule.forRoot({
         type: "postgres",
         host: config.db.host,
