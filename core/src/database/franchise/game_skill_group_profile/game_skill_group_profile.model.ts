@@ -36,7 +36,7 @@ export class GameSkillGroupProfile extends BaseModel {
     // Role to ping on scrim creation
     @Column({nullable: true})
     @Field(() => String, {nullable: true})
-    scrimDiscordRole?: string;
+    scrimDiscordRoleId?: string;
 
     @Column()
     @Field(() => String)

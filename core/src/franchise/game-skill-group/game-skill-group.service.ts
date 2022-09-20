@@ -77,7 +77,7 @@ export class GameSkillGroupService {
             scrimReportCards: skillGroup.scrimReportCardWebhook?.url,
             matchReportCards: skillGroup.matchReportCardWebhook?.url,
             scrim: skillGroup.scrimWebhook?.url,
-            scrimRole: skillGroup.scrimDiscordRole,
+            scrimRole: skillGroup.scrimDiscordRoleId,
         };
     }
 }

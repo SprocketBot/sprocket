@@ -12,7 +12,7 @@ export class Automigration1663638768069 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "franchise_profile" ADD "scrimReportCardWebhookId" integer`);
         await queryRunner.query(`ALTER TABLE "franchise_profile" ADD "matchReportCardWebhookId" integer`);
         await queryRunner.query(`ALTER TABLE "franchise_profile" ADD "submissionWebhookId" integer`);
-        await queryRunner.query(`ALTER TABLE "game_skill_group_profile" ADD "scrimDiscordRole" character varying`);
+        await queryRunner.query(`ALTER TABLE "game_skill_group_profile" ADD "scrimDiscordRoleId" character varying`);
         await queryRunner.query(`ALTER TABLE "game_skill_group_profile" ADD "scrimReportCardWebhookId" integer`);
         await queryRunner.query(`ALTER TABLE "game_skill_group_profile" ADD "matchReportCardWebhookId" integer`);
         await queryRunner.query(`ALTER TABLE "game_skill_group_profile" ADD "scrimWebhookId" integer`);
@@ -39,7 +39,7 @@ export class Automigration1663638768069 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "game_skill_group_profile" DROP COLUMN "scrimWebhookId"`);
         await queryRunner.query(`ALTER TABLE "game_skill_group_profile" DROP COLUMN "matchReportCardWebhookId"`);
         await queryRunner.query(`ALTER TABLE "game_skill_group_profile" DROP COLUMN "scrimReportCardWebhookId"`);
-        await queryRunner.query(`ALTER TABLE "game_skill_group_profile" DROP COLUMN "scrimDiscordRole"`);
+        await queryRunner.query(`ALTER TABLE "game_skill_group_profile" DROP COLUMN "scrimDiscordRoleId"`);
         await queryRunner.query(`ALTER TABLE "franchise_profile" DROP COLUMN "submissionWebhookId"`);
         await queryRunner.query(`ALTER TABLE "franchise_profile" DROP COLUMN "matchReportCardWebhookId"`);
         await queryRunner.query(`ALTER TABLE "franchise_profile" DROP COLUMN "scrimReportCardWebhookId"`);
