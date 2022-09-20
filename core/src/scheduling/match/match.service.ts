@@ -128,12 +128,12 @@ export class MatchService {
                                 FROM round_played_time
                                          INNER JOIN match m ON "matchId" = m.id
                                          INNER JOIN match_parent mp ON m."matchParentId" = mp.id
-                                WHERE played_at > :start_date
+                                WHERE played_at > $1
                                 GROUP BY "matchId", mp.id, m.id
                                 ORDER BY 2;`;
 
         interface toBeReprocessed {id: number; date: string; is_league_match: boolean;}
-        const results: toBeReprocessed[] = await this.dataSource.manager.query(queryString, [ {start_date: startDate} ]) as toBeReprocessed[];
+        const results: toBeReprocessed[] = await this.dataSource.manager.query(queryString, [startDate]) as toBeReprocessed[];
 
         for (const r of results) {
             const payload = await this.translatePayload(r.id, r.is_league_match);
