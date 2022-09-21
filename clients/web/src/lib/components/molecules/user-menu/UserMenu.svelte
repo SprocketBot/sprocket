@@ -11,10 +11,10 @@
 </script>
 
 {#if $user}
-    <div class="flex items-center gap:2 md:gap-4">
-        <Dropdown class="dropdown-handle dropdown-end" items={actions}>
-            <button class="flex-nowrap btn btn-ghost btn-sm" slot="handle">
-                {$user.username}
+    <div class="w-full flex items-center gap:2 md:gap-4">
+        <Dropdown class="w-full dropdown-handle dropdown-end" items={actions}>
+            <button class="w-full flex-nowrap btn btn-ghost btn-sm" slot="handle">
+                <span class="w-full truncate">{$user.username}</span>
                 <span class="h-3/4 ml-2 dropdown-icon"><FaChevronDown/></span>
             </button>
         </Dropdown>
@@ -34,5 +34,4 @@
     .dropdown-icon {
         @apply rotate-180;
     }
-    
 </style>
