@@ -1,19 +1,19 @@
 <script lang="ts">
     import {slide} from "svelte/transition";
     import {
-        joinScrimMutation, pendingScrims,
+        joinScrimMutation, pendingScrims, type PendingScrim,
     } from "$lib/api";
     import {Modal, toasts} from "$lib/components";
 
     export let visible = true;
-    export let scrimId: string;
+    export let scrim: PendingScrim;
 
     let groupCode: string;
     let joiningWithExistingGroup: boolean = false;
     let joining: boolean = false;
 
     $: {
-        if (!$pendingScrims.data?.pendingScrims.some(ps => ps.id === scrimId)) {
+        if (!$pendingScrims.data?.pendingScrims.some(ps => ps.id === scrim.id)) {
             visible = false;
         }
     }
@@ -22,7 +22,7 @@
         joiningWithExistingGroup = false;
         joining = true;
         await joinScrimMutation({
-            scrimId: scrimId,
+            scrimId: scrim.id,
         });
         visible = false;
     }
@@ -31,7 +31,7 @@
         joiningWithExistingGroup = false;
         joining = true;
         await joinScrimMutation({
-            scrimId: scrimId,
+            scrimId: scrim.id,
             createGroup: true,
         });
         visible = false;
@@ -41,7 +41,7 @@
         joining = true;
         try {
             await joinScrimMutation({
-                scrimId: scrimId,
+                scrimId: scrim.id,
                 group: groupCode,
             });
         } catch (_e) {
