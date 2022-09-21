@@ -1,5 +1,6 @@
 import {NestFactory} from "@nestjs/core";
 import {Transport} from "@nestjs/microservices";
+import {AllExceptionsFilter} from "@sprocketbot/common";
 import * as config from "config";
 import fetch from "node-fetch";
 
@@ -21,6 +22,8 @@ async function bootstrap(): Promise<void> {
             heartbeat: 120,
         },
     });
+
+    app.useGlobalFilters(new AllExceptionsFilter());
     
     await app.listen();
 
