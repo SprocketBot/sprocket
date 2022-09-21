@@ -194,4 +194,9 @@ export const config = {
     get defaultOrganizationId(): number {
         return _config.get<number>("defaultOrganizationId");
     },
+    // TODO: Get rid of this once we add sprocket configuration to the database.
+    get rankoutMessagesEnabled(): boolean {
+        if (_config.has("rankoutMessagesEnabled")) return _config.get<boolean>("rankoutMessagesEnabled");
+        return false;
+    },
 };

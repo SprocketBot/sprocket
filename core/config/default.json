@@ -57,6 +57,7 @@
     "prefix": "",
     "secure": true
   },
-  "defaultOrganizationId": 2
+  "defaultOrganizationId": 2,
+  "rankoutMessagesEnabled": false
 }
 
