@@ -1,3 +1,4 @@
+import type {SprocketConfigurationKey} from "@sprocketbot/common";
 import {CoreEndpoint, ResponseStatus} from "@sprocketbot/common";
 import {Message} from "discord.js";
 
@@ -20,7 +21,7 @@ export class SprocketConfigurationMarshal extends Marshal {
         docs: "Gets the value of a sprocket_configuration row by its key",
     })
     async getSprocketConfig(m: Message, context: MarshalCommandContext): Promise<void> {
-        const key = context.args.key as string;
+        const key = context.args.key as SprocketConfigurationKey;
 
         const result = await this.coreService.send(CoreEndpoint.GetSprocketConfiguration, {
             key,
