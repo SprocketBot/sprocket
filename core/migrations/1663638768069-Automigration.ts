@@ -25,9 +25,23 @@ export class Automigration1663638768069 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "game_skill_group_profile" ADD CONSTRAINT "FK_4a1c9f8ab36c38eb9ac0abe5ac6" FOREIGN KEY ("matchReportCardWebhookId") REFERENCES "webhook"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "game_skill_group_profile" ADD CONSTRAINT "FK_7e6f62450ccc87f07b090a340bc" FOREIGN KEY ("scrimWebhookId") REFERENCES "webhook"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "game_skill_group_profile" ADD CONSTRAINT "FK_238a74250d4d8eb06dbc931cfb4" FOREIGN KEY ("skillGroupId") REFERENCES "game_skill_group"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        
+        // <History>
+        await queryRunner.query(`ALTER TABLE "history"."franchise_profile_history" ADD "submissionDiscordRoleId" character varying`);
+        await queryRunner.query(`ALTER TABLE "history"."franchise_profile_history" ADD "scrimReportCardWebhookId" integer`);
+        await queryRunner.query(`ALTER TABLE "history"."franchise_profile_history" ADD "matchReportCardWebhookId" integer`);
+        await queryRunner.query(`ALTER TABLE "history"."franchise_profile_history" ADD "submissionWebhookId" integer`);
+        // </History>
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
+        // <History>
+        await queryRunner.query(`ALTER TABLE "history"."franchise_profile_history" DROP COLUMN "submissionWebhookId"`);
+        await queryRunner.query(`ALTER TABLE "history"."franchise_profile_history" DROP COLUMN "matchReportCardWebhookId"`);
+        await queryRunner.query(`ALTER TABLE "history"."franchise_profile_history" DROP COLUMN "scrimReportCardWebhookId"`);
+        await queryRunner.query(`ALTER TABLE "history"."franchise_profile_history" DROP COLUMN "submissionDiscordRoleId"`);
+        // </History>
+
         await queryRunner.query(`ALTER TABLE "game_skill_group_profile" DROP CONSTRAINT "FK_238a74250d4d8eb06dbc931cfb4"`);
         await queryRunner.query(`ALTER TABLE "game_skill_group_profile" DROP CONSTRAINT "FK_7e6f62450ccc87f07b090a340bc"`);
         await queryRunner.query(`ALTER TABLE "game_skill_group_profile" DROP CONSTRAINT "FK_4a1c9f8ab36c38eb9ac0abe5ac6"`);
