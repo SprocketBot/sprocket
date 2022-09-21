@@ -14,7 +14,6 @@ import {
 } from "@nestjs/graphql";
 import {InjectRepository} from "@nestjs/typeorm";
 import {
-    config,
     EventsService,
     EventTopic,
     NotificationEndpoint,
@@ -171,71 +170,69 @@ export class PlayerResolver {
         await this.playerService.updatePlayerStanding(playerId, salary, skillGroupId);
         await this.eloConnectorService.createJob(EloEndpoint.SGChange, inputData);
 
-        if (config.rankoutMessagesEnabled) {
-            await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
-                playerId: player.id,
-                name: player.member.profile.name,
-                organizationId: player.skillGroup.organizationId,
-                discordId: discordAccount.accountId,
-                old: {
-                    id: player.skillGroup.id,
-                    name: player.skillGroup.profile.description,
-                    salary: Number(player.salary),
-                    discordEmojiId: player.skillGroup.profile.discordEmojiId,
-                },
-                new: {
-                    id: skillGroup.id,
-                    name: skillGroup.profile.description,
-                    salary: Number(salary),
-                    discordEmojiId: skillGroup.profile.discordEmojiId,
-                },
-            });
+        await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
+            playerId: player.id,
+            name: player.member.profile.name,
+            organizationId: player.skillGroup.organizationId,
+            discordId: discordAccount.accountId,
+            old: {
+                id: player.skillGroup.id,
+                name: player.skillGroup.profile.description,
+                salary: Number(player.salary),
+                discordEmojiId: player.skillGroup.profile.discordEmojiId,
+            },
+            new: {
+                id: skillGroup.id,
+                name: skillGroup.profile.description,
+                salary: Number(salary),
+                discordEmojiId: skillGroup.profile.discordEmojiId,
+            },
+        });
 
-            await this.notificationService.send(NotificationEndpoint.SendNotification, {
-                type: NotificationType.BASIC,
-                userId: player.member.user.id,
-                notification: {
-                    type: NotificationMessageType.DirectMessage,
-                    userId: discordAccount.accountId,
-                    payload: {
-                        embeds: [ {
-                            title: "You Have Ranked Out",
-                            description: `You have been ranked out from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
-                            author: {
-                                name: `${orgProfile.name}`,
+        await this.notificationService.send(NotificationEndpoint.SendNotification, {
+            type: NotificationType.BASIC,
+            userId: player.member.user.id,
+            notification: {
+                type: NotificationMessageType.DirectMessage,
+                userId: discordAccount.accountId,
+                payload: {
+                    embeds: [ {
+                        title: "You Have Ranked Out",
+                        description: `You have been ranked out from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
+                        author: {
+                            name: `${orgProfile.name}`,
+                        },
+                        fields: [
+                            {
+                                name: "New League",
+                                value: `${skillGroup.profile.description}`,
                             },
-                            fields: [
-                                {
-                                    name: "New League",
-                                    value: `${skillGroup.profile.description}`,
-                                },
-                                {
-                                    name: "New Salary",
-                                    value: `${salary}`,
-                                },
-                            ],
-                            footer: {
-                                text: orgProfile.name,
+                            {
+                                name: "New Salary",
+                                value: `${salary}`,
                             },
-                            timestamp: Date.now(),
-                        } ],
-                    },
-                    brandingOptions: {
-                        organizationId: player.member.organization.id,
-                        options: {
-                            author: {
-                                icon: true,
-                            },
-                            color: true,
-                            thumbnail: true,
-                            footer: {
-                                icon: true,
-                            },
+                        ],
+                        footer: {
+                            text: orgProfile.name,
+                        },
+                        timestamp: Date.now(),
+                    } ],
+                },
+                brandingOptions: {
+                    organizationId: player.member.organization.id,
+                    options: {
+                        author: {
+                            icon: true,
+                        },
+                        color: true,
+                        thumbnail: true,
+                        footer: {
+                            icon: true,
                         },
                     },
                 },
-            });
-        }
+            },
+        });
 
         return "SUCCESS";
     }

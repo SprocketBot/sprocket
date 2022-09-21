@@ -388,72 +388,69 @@ export class PlayerService {
                         await this.mle_rankDownPlayer(player.id, playerDelta.rankout.salary);
                     }
 
-                    if (config.rankoutMessagesEnabled) {
-                        
-                        await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
-                            playerId: player.id,
-                            name: player.member.profile.name,
-                            organizationId: skillGroup.organization.id,
-                            discordId: discordAccount.accountId,
-                            old: {
-                                id: player.skillGroup.id,
-                                name: player.skillGroup.profile.description,
-                                salary: player.salary,
-                                discordEmojiId: player.skillGroup.profile.discordEmojiId,
-                            },
-                            new: {
-                                id: skillGroup.id,
-                                name: skillGroup.profile.description,
-                                salary: playerDelta.rankout.salary,
-                                discordEmojiId: skillGroup.profile.discordEmojiId,
-                            },
-                        });
+                    await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
+                        playerId: player.id,
+                        name: player.member.profile.name,
+                        organizationId: skillGroup.organization.id,
+                        discordId: discordAccount.accountId,
+                        old: {
+                            id: player.skillGroup.id,
+                            name: player.skillGroup.profile.description,
+                            salary: player.salary,
+                            discordEmojiId: player.skillGroup.profile.discordEmojiId,
+                        },
+                        new: {
+                            id: skillGroup.id,
+                            name: skillGroup.profile.description,
+                            salary: playerDelta.rankout.salary,
+                            discordEmojiId: skillGroup.profile.discordEmojiId,
+                        },
+                    });
     
-                        await this.notificationService.send(NotificationEndpoint.SendNotification, {
-                            type: NotificationType.BASIC,
-                            userId: player.member.user.id,
-                            notification: {
-                                type: NotificationMessageType.DirectMessage,
-                                userId: discordAccount.accountId,
-                                payload: {
-                                    embeds: [ {
-                                        title: "You Have Ranked Out",
-                                        description: `You have been ranked out from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
-                                        author: {
-                                            name: `${orgProfile.name}`,
+                    await this.notificationService.send(NotificationEndpoint.SendNotification, {
+                        type: NotificationType.BASIC,
+                        userId: player.member.user.id,
+                        notification: {
+                            type: NotificationMessageType.DirectMessage,
+                            userId: discordAccount.accountId,
+                            payload: {
+                                embeds: [ {
+                                    title: "You Have Ranked Out",
+                                    description: `You have been ranked out from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
+                                    author: {
+                                        name: `${orgProfile.name}`,
+                                    },
+                                    fields: [
+                                        {
+                                            name: "New League",
+                                            value: `${skillGroup.profile.description}`,
                                         },
-                                        fields: [
-                                            {
-                                                name: "New League",
-                                                value: `${skillGroup.profile.description}`,
-                                            },
-                                            {
-                                                name: "New Salary",
-                                                value: `${playerDelta.rankout.salary}`,
-                                            },
-                                        ],
-                                        footer: {
-                                            text: orgProfile.name,
+                                        {
+                                            name: "New Salary",
+                                            value: `${playerDelta.rankout.salary}`,
                                         },
-                                        timestamp: Date.now(),
-                                    } ],
-                                },
-                                brandingOptions: {
-                                    organizationId: player.member.organization.id,
-                                    options: {
-                                        author: {
-                                            icon: true,
-                                        },
-                                        color: true,
-                                        thumbnail: true,
-                                        footer: {
-                                            icon: true,
-                                        },
+                                    ],
+                                    footer: {
+                                        text: orgProfile.name,
+                                    },
+                                    timestamp: Date.now(),
+                                } ],
+                            },
+                            brandingOptions: {
+                                organizationId: player.member.organization.id,
+                                options: {
+                                    author: {
+                                        icon: true,
+                                    },
+                                    color: true,
+                                    thumbnail: true,
+                                    footer: {
+                                        icon: true,
                                     },
                                 },
                             },
-                        });
-                    }
+                        },
+                    });
                 } else if (playerDelta.rankout.degreeOfStiffness === DegreeOfStiffness.SOFT) {
                     await this.updatePlayerStanding(playerDelta.playerId, playerDelta.rankout.salary);
 
@@ -473,71 +470,68 @@ export class PlayerService {
                     });
 
                     /* TEMPORARY NOTIFICATION */
-                    if (config.rankoutMessagesEnabled) {
-                        
-                        const rankdownPayload: RankdownPayload = {
-                            playerId: player.id,
-                            salary: playerDelta.rankout.salary,
-                            skillGroupId: skillGroup.id,
-                        };
-                        const jwt = this.jwtService.sign(rankdownPayload, {expiresIn: "24h"});
+                    const rankdownPayload: RankdownPayload = {
+                        playerId: player.id,
+                        salary: playerDelta.rankout.salary,
+                        skillGroupId: skillGroup.id,
+                    };
+                    const jwt = this.jwtService.sign(rankdownPayload, {expiresIn: "24h"});
 
-                        await this.notificationService.send(NotificationEndpoint.SendNotification, {
-                            type: NotificationType.BASIC,
-                            userId: player.member.user.id,
-                            notification: {
-                                type: NotificationMessageType.DirectMessage,
-                                userId: discordAccount.accountId,
-                                payload: {
-                                    embeds: [ {
-                                        title: "Rankdown Available",
-                                        description: `You have been offered a rankout from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.\n\n‼️‼️**__Only click the button below if you accept the rankdown. There is no confirmation.__**‼️‼️`,
-                                        author: {
-                                            name: `${orgProfile.name}`,
+                    await this.notificationService.send(NotificationEndpoint.SendNotification, {
+                        type: NotificationType.BASIC,
+                        userId: player.member.user.id,
+                        notification: {
+                            type: NotificationMessageType.DirectMessage,
+                            userId: discordAccount.accountId,
+                            payload: {
+                                embeds: [ {
+                                    title: "Rankdown Available",
+                                    description: `You have been offered a rankout from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.\n\n‼️‼️**__Only click the button below if you accept the rankdown. There is no confirmation.__**‼️‼️`,
+                                    author: {
+                                        name: `${orgProfile.name}`,
+                                    },
+                                    fields: [
+                                        {
+                                            name: "New League",
+                                            value: `${skillGroup.profile.description}`,
                                         },
-                                        fields: [
-                                            {
-                                                name: "New League",
-                                                value: `${skillGroup.profile.description}`,
-                                            },
-                                            {
-                                                name: "New Salary",
-                                                value: `${playerDelta.rankout.salary}`,
-                                            },
-                                        ],
-                                        footer: {
-                                            text: orgProfile.name,
+                                        {
+                                            name: "New Salary",
+                                            value: `${playerDelta.rankout.salary}`,
                                         },
-                                        timestamp: Date.now(),
-                                    } ],
-                                    components: [ {
-                                        type: ComponentType.ACTION_ROW,
-                                        components: [
-                                            {
-                                                type: ComponentType.BUTTON,
-                                                style: ButtonComponentStyle.LINK,
-                                                label: "ONLY CLICK HERE IF YOU ACCEPT",
-                                                url: `${config.web.api_root}/player/accept-rankdown/${jwt}`,
-                                            },
-                                        ],
-                                    } ],
-                                },
-                                brandingOptions: {
-                                    organizationId: player.member.organization.id,
-                                    options: {
-                                        author: {
-                                            icon: true,
+                                    ],
+                                    footer: {
+                                        text: orgProfile.name,
+                                    },
+                                    timestamp: Date.now(),
+                                } ],
+                                components: [ {
+                                    type: ComponentType.ACTION_ROW,
+                                    components: [
+                                        {
+                                            type: ComponentType.BUTTON,
+                                            style: ButtonComponentStyle.LINK,
+                                            label: "ONLY CLICK HERE IF YOU ACCEPT",
+                                            url: `${config.web.api_root}/player/accept-rankdown/${jwt}`,
                                         },
-                                        color: true,
-                                        thumbnail: true,
-                                        footer: {
-                                            icon: true,
-                                        },
+                                    ],
+                                } ],
+                            },
+                            brandingOptions: {
+                                organizationId: player.member.organization.id,
+                                options: {
+                                    author: {
+                                        icon: true,
+                                    },
+                                    color: true,
+                                    thumbnail: true,
+                                    footer: {
+                                        icon: true,
                                     },
                                 },
                             },
-                        });
-                    }
+                        },
+                    });
                     /* /TEMPORARY NOTIFICATION/ */
 
                     // const notifId = `${NotificationType.RANKDOWN.toLowerCase()}-${this.nanoidService.gen()}`;
