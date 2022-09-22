@@ -3,14 +3,18 @@
     import type {LeagueScheduleWeek} from "$lib/api";
 
     export let scheduleGroup: LeagueScheduleWeek;
+    export let isCurrentWeek: boolean = false;
+
+    const title = isCurrentWeek ? `Current Match (${scheduleGroup.description})` : scheduleGroup.description
 </script>
 
-<Accordion>
-    <h3 slot="title" class="text-lg text-accent font-bold mb-2">
-        {scheduleGroup.description}
+
+<Accordion expanded={isCurrentWeek}> 
+    <h3 slot="title" class="text-lg font-bold mb-4 divider">
+        {title}
     </h3>
 
-    <div class="flex flex-row flex-wrap justify-center gap-4 lg:gap-8 border-accent border rounded-3xl p-4 lg:p-8">
+    <div class="flex flex-row flex-wrap justify-center gap-4 pt-2 lg:gap-8 lg:pt-4">
         {#each scheduleGroup.fixtures as fixture (fixture?.id)}
             <FixtureCard {fixture}/>
         {/each}
