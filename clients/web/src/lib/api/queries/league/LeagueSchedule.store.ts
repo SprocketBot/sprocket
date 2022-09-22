@@ -1,8 +1,11 @@
 import {gql} from "@urql/core";
 import {QueryStore} from "../../core/QueryStore";
-import type {LeagueScheduleValue} from "./LeagueSchedule.types";
+import type {LeagueScheduleSeason} from "./LeagueSchedule.types";
 
-export interface LeagueScheduleVars {
+export interface LeagueScheduleVars {}
+
+export interface LeagueScheduleValue {
+    seasons: LeagueScheduleSeason[];
 }
 
 export class LeagueScheduleStore extends QueryStore<LeagueScheduleValue, LeagueScheduleVars> {
@@ -17,7 +20,7 @@ export class LeagueScheduleStore extends QueryStore<LeagueScheduleValue, LeagueS
       }
 
       query {
-          schedule: getScheduleGroups(type:"SEASON") {
+          seasons: getScheduleGroups(type:"SEASON") {
               id
               description
               game {

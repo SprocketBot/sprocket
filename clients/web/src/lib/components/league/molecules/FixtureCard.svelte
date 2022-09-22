@@ -8,10 +8,11 @@
 	export let hidebutton: boolean = false;
 </script>
 
-<section class="w-full flex-1">
-	<div class="flex justify-between items-center w-full">
+
+<section class="w-80 flex flex-col items-center gap-4 bg-gray-700 p-4 rounded-xl">
+	<div class="flex flex-row items-center gap-4 w-full">
 		<FranchiseVsCard profile={fixture.homeFranchise.profile}/>
-		<span class="w-1/10"><VsIcon/></span>
+		<span class="w-6 flex-shrink-0"><VsIcon/></span>
 		<FranchiseVsCard profile={fixture.awayFranchise.profile}/>
 	</div>
 	<div class="flex justify-center items-center">
