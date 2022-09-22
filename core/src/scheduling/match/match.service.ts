@@ -309,11 +309,13 @@ export class MatchService {
                 throw new Error("Failed to convert");
             }
 
+            const orangeScore = orangeStatsResults.reduce((sum, p) => sum + p.stats.core.goals, 0);
+            const blueScore = blueStatsResults.reduce((sum, p) => sum + p.stats.core.goals, 0);
             const summary: MatchSummary = {
                 id: round.id,
-                orangeWon: !round.homeWon,
-                scoreOrange: orangeStatsResults.reduce((sum, p) => sum + p.stats.core.goals, 0),
-                scoreBlue: blueStatsResults.reduce((sum, p) => sum + p.stats.core.goals, 0),
+                orangeWon: (orangeScore > blueScore),
+                scoreOrange: orangeScore,
+                scoreBlue: blueScore,
                 blue: round.teamStats[0].playerStats.map((p, i) => this.translatePlayerStats(p.player.id, blueStatsResults[i], TeamColor.BLUE)),
                 orange: round.teamStats[1].playerStats.map((p, i) => this.translatePlayerStats(p.player.id, orangeStatsResults[i], TeamColor.ORANGE)),
             };
