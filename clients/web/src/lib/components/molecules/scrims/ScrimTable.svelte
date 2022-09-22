@@ -3,7 +3,7 @@
     import type {PendingScrim} from "$lib/api";
 
     export let scrims: PendingScrim[];
-    export let joinScrim: (scrimId: string) => void;
+    export let joinScrim: (scrim: PendingScrim) => void;
 </script>
 
 <table class="table text-center w-full">
@@ -28,7 +28,7 @@
             <td>{scrim.playerCount} / {scrim.maxPlayers}</td>
             <td>{scrim.settings.competitive ? "Competitive" : "Casual"}</td>
             <td>
-                <button on:click={() => { joinScrim(scrim.id) }} class="btn btn-outline float-right lg:btn-sm">
+                <button on:click={() => { joinScrim(scrim) }} class="btn btn-outline float-right lg:btn-sm">
                     Join
                 </button>
             </td>
