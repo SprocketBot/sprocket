@@ -138,11 +138,11 @@ export class MatchService {
         const results: toBeReprocessed[] = await this.dataSource.manager.query(queryString, [startDate]) as toBeReprocessed[];
 
         this.logger.verbose(`Got data ${JSON.stringify(results)} to reprocess matches.`);
-        const sleep = async (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
+        const sleep = async (ms: number): Promise<void> => new Promise(resolve => { setTimeout(() => { resolve() }, ms) });
         for (const r of results) {
             const payload = await this.translatePayload(r.matchId, !r.is_league_match);
             await this.eloConnectorService.createJob(EloEndpoint.CalculateEloForMatch, payload);
-            await sleep(500);
+            await sleep(350);
         }
     }
 
