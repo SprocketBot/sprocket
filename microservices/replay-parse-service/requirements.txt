@@ -17,7 +17,7 @@ numpy==1.18.2
 packaging==21.3
 pandas==1.0.3
 prompt-toolkit==3.0.28
-protobuf==3.6.1
+protobuf==3.18.3
 pyparsing==3.0.7
 python-ballchasing==0.1.19
 python-dateutil==2.8.2
