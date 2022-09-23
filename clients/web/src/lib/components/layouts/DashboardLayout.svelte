@@ -55,7 +55,7 @@
     section {
         @apply p-4 h-full flex flex-col py-20 lg:py-4 grid gap-8
         grid-cols-6;
-        grid-auto-rows: minmax(min-content, 12rem);
+        grid-auto-rows: minmax(min-content, 100%);
 
     }
 </style>
