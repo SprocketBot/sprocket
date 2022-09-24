@@ -154,8 +154,12 @@ export class SubmissionService extends SprocketEventMarshal {
                                 value: `${infoResult.data.game} ${infoResult.data.gameMode}`,
                             },
                             {
-                                name: "Match",
-                                value: `${infoResult.data.skillGroup} ${matchResult.data.homeFranchise?.name} vs ${matchResult.data.awayFranchise?.name}`,
+                                name: "League",
+                                value: `${infoResult.data.skillGroup}`,
+                            },
+                            {
+                                name: "Teams",
+                                value: `${matchResult.data.homeFranchise?.name} vs ${matchResult.data.awayFranchise?.name}`,
                             },
                         ],
                         footer: {
@@ -279,8 +283,12 @@ export class SubmissionService extends SprocketEventMarshal {
                                 value: `${infoResult.data.game} ${infoResult.data.gameMode}`,
                             },
                             {
-                                name: "Match",
-                                value: `${infoResult.data.skillGroup} ${matchResult.data.homeFranchise?.name} vs ${matchResult.data.awayFranchise?.name}`,
+                                name: "League",
+                                value: `${infoResult.data.skillGroup}`,
+                            },
+                            {
+                                name: "Teams",
+                                value: `${matchResult.data.homeFranchise?.name} vs ${matchResult.data.awayFranchise?.name}`,
                             },
                         ],
                         footer: {
