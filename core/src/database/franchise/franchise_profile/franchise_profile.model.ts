@@ -43,4 +43,8 @@ export class FranchiseProfile extends BaseModel {
     @Column()
     @Field()
     secondaryColor: string;
+
+    @Column()
+    @Field()
+    alternateColor: string;
 }

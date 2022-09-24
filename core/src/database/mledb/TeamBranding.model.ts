@@ -48,6 +48,9 @@ export class MLE_TeamBranding {
     @Column("character varying", {name: "secondary_color", length: 255})
     secondaryColor: string;
 
+    @Column("character varying", {name: "alternate_color", length: 255})
+    alternateColor: string;
+
     @Column("character varying", {name: "logo_img_link", length: 255})
     logoImgLink: string;
 
