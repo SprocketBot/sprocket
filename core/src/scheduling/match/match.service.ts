@@ -142,7 +142,7 @@ export class MatchService {
         for (const r of results) {
             const payload = await this.translatePayload(r.matchId, !r.is_league_match);
             await this.eloConnectorService.createJob(EloEndpoint.CalculateEloForMatch, payload);
-            await sleep(350);
+            await sleep(750);
         }
     }
 
