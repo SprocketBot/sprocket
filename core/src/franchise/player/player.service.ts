@@ -352,6 +352,8 @@ export class PlayerService {
                     },
                 },
             });
+
+            if (!playerDelta.rankout && player.salary === playerDelta.newSalary) return;
     
             const discordAccount = await this.userAuthRepository.findOneOrFail({
                 where: {
@@ -377,6 +379,8 @@ export class PlayerService {
                         },
                         relations: {
                             profile: true,
+                            game: true,
+                            organization: true,
                         },
                     });
     
@@ -466,6 +470,8 @@ export class PlayerService {
                         },
                         relations: {
                             profile: true,
+                            organization: true,
+                            game: true,
                         },
                     });
 
