@@ -9,6 +9,7 @@ import {UtilModule} from "../util/util.module";
 import {MatchService} from "./match";
 import {MatchController} from "./match/match.controller";
 import {MatchResolver} from "./match/match.resolver";
+import {MatchParentResolver} from "./match-parent/match-parent.resolver";
 import {RoundService} from "./round";
 import {ScheduleFixtureResolver} from "./schedule-fixture/schedule-fixture.resolver";
 import {ScheduleFixtureService} from "./schedule-fixture/schedule-fixture.service";
@@ -36,6 +37,7 @@ import {ScheduleGroupTypeService} from "./schedule-group/schedule-group-type.ser
         ScheduleFixtureService,
         ScheduleFixtureResolver,
         MatchResolver,
+        MatchParentResolver,
     ],
     exports: [
         MatchService,
