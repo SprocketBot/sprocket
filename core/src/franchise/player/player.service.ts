@@ -352,6 +352,12 @@ export class PlayerService {
                     },
                 },
             });
+
+            const bridge = await this.ptpRepo.findOneOrFail({where: {sprocketPlayerId: player.id} });
+            const mlePlayer = await this.mle_playerRepository.findOneOrFail({where: {id: bridge.mledPlayerId} });
+            
+            if (mlePlayer.teamName === "FP") return;
+            if (!playerDelta.rankout && player.salary === playerDelta.newSalary) return;
     
             const discordAccount = await this.userAuthRepository.findOneOrFail({
                 where: {
@@ -377,6 +383,8 @@ export class PlayerService {
                         },
                         relations: {
                             profile: true,
+                            game: true,
+                            organization: true,
                         },
                     });
     
@@ -466,6 +474,8 @@ export class PlayerService {
                         },
                         relations: {
                             profile: true,
+                            organization: true,
+                            game: true,
                         },
                     });
 
