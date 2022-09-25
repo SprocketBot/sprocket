@@ -27,6 +27,8 @@ export class Automigration1663638768069 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "game_skill_group_profile" ADD CONSTRAINT "FK_238a74250d4d8eb06dbc931cfb4" FOREIGN KEY ("skillGroupId") REFERENCES "game_skill_group"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         
         // <History>
+        await queryRunner.query(`ALTER TABLE "history"."franchise_profile_history" DROP COLUMN "matchReportWebhookUrl"`);
+        await queryRunner.query(`ALTER TABLE "history"."franchise_profile_history" DROP COLUMN "scrimReportWebhookUrl"`);
         await queryRunner.query(`ALTER TABLE "history"."franchise_profile_history" ADD "submissionDiscordRoleId" character varying`);
         await queryRunner.query(`ALTER TABLE "history"."franchise_profile_history" ADD "scrimReportCardWebhookId" integer`);
         await queryRunner.query(`ALTER TABLE "history"."franchise_profile_history" ADD "matchReportCardWebhookId" integer`);
@@ -40,6 +42,8 @@ export class Automigration1663638768069 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "history"."franchise_profile_history" DROP COLUMN "matchReportCardWebhookId"`);
         await queryRunner.query(`ALTER TABLE "history"."franchise_profile_history" DROP COLUMN "scrimReportCardWebhookId"`);
         await queryRunner.query(`ALTER TABLE "history"."franchise_profile_history" DROP COLUMN "submissionDiscordRoleId"`);
+        await queryRunner.query(`ALTER TABLE "history"."franchise_profile_history" ADD "matchReportWebhookUrl" character varying`);
+        await queryRunner.query(`ALTER TABLE "history"."franchise_profile_history" ADD "scrimReportWebhookUrl" character varying`);
         // </History>
 
         await queryRunner.query(`ALTER TABLE "game_skill_group_profile" DROP CONSTRAINT "FK_238a74250d4d8eb06dbc931cfb4"`);
