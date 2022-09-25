@@ -117,12 +117,13 @@ export class MatchService {
     }
 
     async resubmitAllMatchesAfter(startDate: Date): Promise<void> {
+        this.logger.verbose(`Querying date to reprocess matches after ${startDate}`);
         const queryString = `WITH round_played_time AS (SELECT r.id,
                                   r."matchId",
                                   (r."roundStats" -> 'date')::TEXT::TIMESTAMP AS played_at
                                FROM round r)
                             SELECT "matchId",
-                                   TO_TIMESTAMP(MIN(EXTRACT(EPOCH FROM played_at))),
+                                   TO_TIMESTAMP(MIN(EXTRACT(EPOCH FROM played_at))) AS played_at,
                                    mp."fixtureId" IS NOT NULL AND mp."scrimMetaId" IS NULL AS is_league_match,
                                    mp."fixtureId" IS NULL AND mp."scrimMetaId" IS NULL     AS broken
                                 FROM round_played_time
@@ -130,14 +131,18 @@ export class MatchService {
                                          INNER JOIN match_parent mp ON m."matchParentId" = mp.id
                                 WHERE played_at > $1
                                 GROUP BY "matchId", mp.id, m.id
+                                HAVING COUNT(round_played_time.id) > 0
                                 ORDER BY 2;`;
 
-        interface toBeReprocessed {id: number; date: string; is_league_match: boolean;}
+        interface toBeReprocessed {matchId: number; played_at: string; is_league_match: boolean;}
         const results: toBeReprocessed[] = await this.dataSource.manager.query(queryString, [startDate]) as toBeReprocessed[];
 
+        this.logger.verbose(`Got data ${JSON.stringify(results)} to reprocess matches.`);
+        const sleep = async (ms: number): Promise<void> => new Promise(resolve => { setTimeout(() => { resolve() }, ms) });
         for (const r of results) {
-            const payload = await this.translatePayload(r.id, r.is_league_match);
+            const payload = await this.translatePayload(r.matchId, !r.is_league_match);
             await this.eloConnectorService.createJob(EloEndpoint.CalculateEloForMatch, payload);
+            await sleep(500);
         }
     }
 
@@ -327,7 +332,14 @@ export class MatchService {
     async translatePayload(matchId: number, isScrim: boolean): Promise<CalculateEloForMatchInput> {
         const match = await this.matchRepository.findOneOrFail({
             where: {id: matchId},
-            relations: {rounds: {teamStats: {playerStats: {player: true} } }, gameMode: true},
+            relations: {
+                rounds: {
+                    teamStats: {
+                        playerStats: {player: true},
+                    },
+                },
+                gameMode: true,
+            },
         });
 
         const payload: CalculateEloForMatchInput = {
@@ -361,16 +373,27 @@ export class MatchService {
                 throw new Error("Failed to convert");
             }
 
+            const orangeScore = orangeStatsResults.reduce((sum, p) => sum + p.stats.core.goals, 0);
+            const blueScore = blueStatsResults.reduce((sum, p) => sum + p.stats.core.goals, 0);
+            const stats = round.roundStats as {date?: string;};
+            let dateString = "";
+            if (!stats.date) {
+                this.logger.warn("No date found on round.");
+            } else {
+                this.logger.verbose(stats.date);
+                dateString = stats.date;
+            }
             const summary: MatchSummary = {
                 id: round.id,
-                orangeWon: !round.homeWon,
-                scoreOrange: orangeStatsResults.reduce((sum, p) => sum + p.stats.core.goals, 0),
-                scoreBlue: blueStatsResults.reduce((sum, p) => sum + p.stats.core.goals, 0),
+                playedAt: dateString,
+                orangeWon: (orangeScore > blueScore),
+                scoreOrange: orangeScore,
+                scoreBlue: blueScore,
                 blue: round.teamStats[0].playerStats.map((p, i) => this.translatePlayerStats(p.player.id, blueStatsResults[i], TeamColor.BLUE)),
                 orange: round.teamStats[1].playerStats.map((p, i) => this.translatePlayerStats(p.player.id, orangeStatsResults[i], TeamColor.ORANGE)),
             };
 
-            payload.gameStats?.push(summary);
+            payload.gameStats.push(summary);
         }
 
         return payload;

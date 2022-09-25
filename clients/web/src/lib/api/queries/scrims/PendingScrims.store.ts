@@ -15,7 +15,7 @@ export interface PendingScrim {
     };
     settings: {
         competitive: boolean;
-        mode: string;
+        mode: "TEAMS" | "ROUND_ROBIN";
     };
     skillGroup: {
         profile: {

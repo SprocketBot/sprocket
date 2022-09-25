@@ -12,7 +12,7 @@ import {
     CoreEndpoint,
     CoreService,
     MinioService,
-    ResponseStatus,
+    ResponseStatus, SprocketConfigurationKey,
 } from "@sprocketbot/common";
 import type {
     MessageActionRow, MessageOptions,
@@ -24,7 +24,7 @@ import {EmbedService} from "../embed";
 @Injectable()
 export class NotificationsService {
     private logger = new Logger(NotificationsService.name);
-    
+
     constructor(
         @Inject("DISCORD_CLIENT") private readonly discordClient: Client,
         private readonly embedService: EmbedService,
@@ -52,7 +52,7 @@ export class NotificationsService {
 
             return new MessageAttachment(file, name);
         }
-        
+
         return new MessageAttachment(url, name);
     }
 
@@ -65,7 +65,7 @@ export class NotificationsService {
                 content: content.content,
                 components: content.components as unknown as MessageActionRow[],
             };
-            
+
             if (content.embeds?.length) {
                 const newEmbeds: Embed[] = [];
 
@@ -92,9 +92,14 @@ export class NotificationsService {
     }
 
     async sendDirectMessage(userId: string, content: MessageContent, brandingOptions?: BrandingOptions): Promise<boolean> {
+        // First check if we are allowed to send DMs
+        const r = await this.coreService.send(CoreEndpoint.GetSprocketConfiguration, {key: SprocketConfigurationKey.DISABLE_DISCORD_DMS});
+        if (r.status === ResponseStatus.ERROR) throw r.error;
+        if (r.data[0].value === "true") return false;
+
         try {
             const user = await this.discordClient.users.fetch(userId);
-            
+
             if (content.embeds?.length) {
                 const newEmbeds: Embed[] = [];
 
@@ -122,7 +127,7 @@ export class NotificationsService {
 
             const [, id, token] = webhookMatch;
             const webhook = await this.discordClient.fetchWebhook(id, token);
-            
+
             const messageOptions: MessageOptions & WebhookMessageOptions = {
                 content: content.content,
                 components: content.components as unknown as MessageActionRow[],
@@ -137,7 +142,7 @@ export class NotificationsService {
                 if (brandingOptions.options.webhookUsername) messageOptions.username = organizationProfileResult.data.name;
                 if (brandingOptions.options.webhookAvatar && organizationProfileResult.data.logoUrl) messageOptions.avatarURL = organizationProfileResult.data.logoUrl;
             }
-            
+
             if (content.embeds?.length) {
                 const newEmbeds: Embed[] = [];
 
