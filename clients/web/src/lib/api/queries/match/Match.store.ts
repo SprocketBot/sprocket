@@ -6,6 +6,31 @@ export interface Match {
     rounds: Array<{
         id: number;
     }>;
+    skillGroup: {
+        profile: {
+            description: string;
+        };
+    };
+    gameMode: {
+        description: string;
+    };
+    matchParent: {
+        fixture: {
+            scheduleGroup: {
+                description: string;
+            };
+            homeFranchise: {
+                profile: {
+                    title: string;
+                };
+            };
+            awayFranchise: {
+                profile: {
+                    title: string;
+                };
+            };
+        };
+    };
 }
 
 export interface MatchResult {
@@ -23,6 +48,32 @@ export class MatchStore extends QueryStore<MatchResult, MatchVars> {
                 id
                 rounds {
                     id
+                }
+                skillGroup {
+                    profile {
+                        description
+                    }
+                }
+                gameMode {
+                    description
+                }
+                matchParent {
+                    id
+                    fixture {
+                        scheduleGroup {
+                            description
+                        }
+                        homeFranchise {
+                            profile {
+                                title
+                            }
+                        }
+                        awayFranchise {
+                            profile {
+                                title
+                            }
+                        }
+                    }
                 }
             }
         }
