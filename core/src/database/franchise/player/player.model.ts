@@ -26,13 +26,7 @@ export class Player extends BaseModel {
     @Field(() => Int)
     skillGroupId: number;
 
-    @Column({
-        type: "numeric",
-        transformer: {
-            from: (value: string) => parseFloat(value),
-            to: (value: number) => value.toString(),
-        },
-    })
+    @Column({type: "float"})
     @Field(() => Float)
     salary: number;
 
