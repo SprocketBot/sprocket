@@ -11,7 +11,6 @@ import {PlayerService} from "./player.service";
         BotModule,
         CoreModule,
     ],
-
     providers: [PlayerService],
 })
 export class PlayerModule {}

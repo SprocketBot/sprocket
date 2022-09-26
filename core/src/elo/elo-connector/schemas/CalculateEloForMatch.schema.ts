@@ -21,6 +21,7 @@ export type PlayerSummary = z.infer<typeof PlayerSummarySchema>;
 
 export const MatchSummarySchema = z.object({
     id: z.number(),
+    playedAt: z.string(),
     orangeWon: z.boolean(),
     scoreOrange: z.number(),
     scoreBlue: z.number(),

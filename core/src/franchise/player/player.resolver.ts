@@ -178,13 +178,13 @@ export class PlayerResolver {
             old: {
                 id: player.skillGroup.id,
                 name: player.skillGroup.profile.description,
-                salary: Number(player.salary),
+                salary: player.salary,
                 discordEmojiId: player.skillGroup.profile.discordEmojiId,
             },
             new: {
                 id: skillGroup.id,
                 name: skillGroup.profile.description,
-                salary: Number(salary),
+                salary: salary,
                 discordEmojiId: skillGroup.profile.discordEmojiId,
             },
         });

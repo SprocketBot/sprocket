@@ -1,4 +1,4 @@
-import {UseGuards} from "@nestjs/common";
+import {Logger, UseGuards} from "@nestjs/common";
 import {
     Args,
     Mutation,
@@ -28,6 +28,8 @@ import {MatchService} from "./match.service";
 
 @Resolver(() => Match)
 export class MatchResolver {
+    private readonly logger = new Logger(MatchResolver.name);
+
     constructor(
         private readonly populate: PopulateService,
         private readonly matchService: MatchService,
@@ -88,6 +90,15 @@ export class MatchResolver {
         });
 
         return "OKAY";
+    }
+
+    @Mutation(() => String)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    async reprocessMatches(@Args("startDate") startDate: Date): Promise<string> {
+        this.logger.verbose(`Starting to reprocess matches after ${startDate}.`);
+        await this.matchService.resubmitAllMatchesAfter(startDate);
+        this.logger.verbose(`ReprocessMatches job started.`);
+        return "Job started";
     }
 
     @ResolveField()
