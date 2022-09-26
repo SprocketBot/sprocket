@@ -160,8 +160,9 @@ export class PlayerService {
 
     /* !! Using repositories due to circular dependency issues. Will fix after extended repositories are added, probably. !! */
     async intakePlayer(
-        name: string,
+        mleid: number,
         discordId: string,
+        name: string,
         skillGroupId: number,
         salary: number,
         platform: string,
@@ -207,9 +208,6 @@ export class PlayerService {
             player = this.playerRepository.create({salary});
             player.member = member;
             player.skillGroup = skillGroup;
-
-            const [ {mleid} ] = await runner.query("SELECT MAX(mleid) + 1 AS mleid FROM mledb.player") as Array<{mleid?: number;}>;
-            if (!mleid) throw new Error("Failed to generate MLEID");
 
             await runner.manager.save(user);
             await runner.manager.save(user.profile);
