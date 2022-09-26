@@ -275,6 +275,7 @@ export class PlayerService {
             timezone: timezone,
             discordId: discordId,
             modePreference: preference,
+            teamName: "Pend",
         } as MLE_Player;
 
         player = this.mle_playerRepository.create(player);
