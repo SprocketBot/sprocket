@@ -8,7 +8,10 @@ import type {
     ScrimPlayer as IScrimPlayer,
     ScrimSettings as IScrimSettings,
 } from "@sprocketbot/common";
-import {ScrimStatus} from "@sprocketbot/common";
+import {
+    ScrimMode,
+    ScrimStatus,
+} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 import {GraphQLError} from "graphql";
 
@@ -173,6 +176,10 @@ export class ScrimModuleResolver {
 
         const scrim = await this.scrimService.getScrimById(scrimId).catch(() => null);
         if (!scrim) throw new GraphQLError("Scrim does not exist");
+
+        if (group && scrim.settings.mode === ScrimMode.ROUND_ROBIN) {
+            throw new GraphQLError("You cannot create or join a group for a Round Robin scrim");
+        }
 
         if (scrim.settings.competitive && player.skillGroupId !== scrim.skillGroupId) throw new GraphQLError("Player is not in the correct skill group");
 

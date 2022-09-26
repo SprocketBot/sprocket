@@ -10,7 +10,7 @@ import {OrganizationModule} from "../../organization";
 import {IdentityModule} from "../identity.module";
 import {GqlJwtGuard} from "./gql-auth-guard";
 import {
-    DiscordStrategy, GoogleStrategy, JwtConstants, JwtStrategy, OauthController, OauthService,
+    DiscordStrategy, GoogleStrategy, JwtConstants, JwtRefreshStrategy, JwtStrategy, OauthController, OauthService,
 } from "./oauth";
 
 @Module({
@@ -31,6 +31,7 @@ import {
         GqlJwtGuard,
         OauthService,
         JwtStrategy,
+        JwtRefreshStrategy,
         GoogleStrategy,
         DiscordStrategy,
     ],

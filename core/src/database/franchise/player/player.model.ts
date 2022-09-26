@@ -26,7 +26,7 @@ export class Player extends BaseModel {
     @Field(() => Int)
     skillGroupId: number;
 
-    @Column({type: "numeric"})
+    @Column({type: "float"})
     @Field(() => Float)
     salary: number;
 

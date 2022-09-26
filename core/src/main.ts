@@ -1,7 +1,7 @@
 import {ValidationPipe} from "@nestjs/common";
 import {NestFactory} from "@nestjs/core";
 import {Transport} from "@nestjs/microservices";
-import {config} from "@sprocketbot/common";
+import {AllExceptionsFilter, config} from "@sprocketbot/common";
 import {writeFile} from "fs/promises";
 import {SpelunkerModule} from "nestjs-spelunker";
 
@@ -37,6 +37,8 @@ async function bootstrap(): Promise<void> {
     });
     app.enableCors();
     app.useGlobalPipes(new ValidationPipe());
+
+    app.useGlobalFilters(new AllExceptionsFilter());
 
     const port = 3001;
     await app.startAllMicroservices();

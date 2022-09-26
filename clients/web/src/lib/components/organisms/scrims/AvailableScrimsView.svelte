@@ -10,15 +10,14 @@
 
     let createModalVisible = false;
     let joinModalVisible = false;
-    let targetId: string | undefined;
+    let targetScrim: PendingScrim | undefined;
 
     const openCreateScrimModal = () => {
         createModalVisible = true;
     };
-    const openJoinScrimModal = (scrimId: string) => {
-        console.log("openJoinScrimModal", {scrimId});
+    const openJoinScrimModal = (scrim: PendingScrim) => {
+        targetScrim = scrim;
         joinModalVisible = true;
-        targetId = scrimId;
     };
 </script>
 
@@ -47,8 +46,8 @@
 {#if createModalVisible}
     <CreateScrimModal bind:visible={createModalVisible} />
 {/if}
-{#if joinModalVisible && targetId}
-    <JoinScrimModal scrimId={targetId} bind:visible={joinModalVisible} />
+{#if joinModalVisible && targetScrim}
+    <JoinScrimModal scrim={targetScrim} bind:visible={joinModalVisible} />
 {/if}
 
 

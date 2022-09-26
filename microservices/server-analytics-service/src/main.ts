@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import {NestFactory} from "@nestjs/core";
 import {Transport} from "@nestjs/microservices";
+import {AllExceptionsFilter} from "@sprocketbot/common";
 import * as config from "config";
 
 import {AppModule} from "./app.module";
@@ -20,6 +21,9 @@ async function bootstrap(): Promise<void> {
             },
         },
     });
+
+    app.useGlobalFilters(new AllExceptionsFilter());
+
     await app.listen();
 }
 
