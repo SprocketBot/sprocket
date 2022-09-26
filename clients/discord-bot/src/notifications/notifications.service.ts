@@ -95,7 +95,7 @@ export class NotificationsService {
         // First check if we are allowed to send DMs
         const r = await this.coreService.send(CoreEndpoint.GetSprocketConfiguration, {key: SprocketConfigurationKey.DISABLE_DISCORD_DMS});
         if (r.status === ResponseStatus.ERROR) throw r.error;
-        if (r.data[0].value === "true") return false;
+        if (r.data[0]?.value === "true") return false;
 
         try {
             const user = await this.discordClient.users.fetch(userId);
