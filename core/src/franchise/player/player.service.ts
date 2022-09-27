@@ -170,7 +170,7 @@ export class PlayerService {
         timezone: Timezone,
         modePreference: ModePreference,
     ): Promise<Player> {
-        const mleOrg = await this.organizationRepository.findOneOrFail({where: {profile: {name: "Minor League Esports"} } });
+        const mleOrg = await this.organizationRepository.findOneOrFail({where: {profile: {name: "Minor League Esports"} }, relations: {profile: true} });
         const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
 
         const runner = this.dataSource.createQueryRunner();
