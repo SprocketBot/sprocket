@@ -10,7 +10,7 @@ export interface GameAndOrganization {
 }
 
 export const IntakeSchema = z.array(z.tuple([
-    z.number(),
+    z.string(),
     z.string(),
     z.string(),
     z.nativeEnum(League),
@@ -21,7 +21,7 @@ export const IntakeSchema = z.array(z.tuple([
     z.string(),
 ]).rest(z.string())
     .transform(([mleid, discordId, name, skillGroup, salary, preferredPlatform, timezone, preferredMode, primaryAccount, ...accounts]) => ({
-        mleid: mleid,
+        mleid: parseInt(mleid),
         discordId: discordId,
         name: name,
         skillGroup: skillGroup,
