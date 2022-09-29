@@ -172,6 +172,20 @@ export class MatchResolver {
     }
 
     @ResolveField()
+    @UseGuards(GqlJwtGuard, MatchPlayerGuard)
+    async canRatify(@CurrentPlayer() player: Player, @Root() root: Match): Promise<boolean> {
+        if (root.canRatify) return root.canRatify;
+        if (!root.submissionId) throw new Error(`Match has no submissionId`);
+        
+        const result = await this.submissionService.send(SubmissionEndpoint.CanRatifySubmission, {
+            playerId: player.member.id,
+            submissionId: root.submissionId,
+        });
+        if (result.status === ResponseStatus.ERROR) throw result.error;
+        return result.data.canRatify;
+    }
+
+    @ResolveField()
     async gameMode(@Root() root: Match): Promise<GameMode | undefined> {
         if (root.gameMode) return root.gameMode;
         return this.populate.populateOne(Match, root, "gameMode");

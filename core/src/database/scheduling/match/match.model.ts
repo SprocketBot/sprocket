@@ -52,6 +52,9 @@ export class Match extends BaseModel {
     @Field(() => Boolean)
     canSubmit: boolean;
 
+    @Field(() => Boolean)
+    canRatify: boolean;
+
     /**
      * This has been made nullable in case future use-cases involve multiple game modes in a single match.
      * For Rocket League (and pre-mledb transition), we probably want to always have this; hence the non-nullable type

@@ -9,6 +9,7 @@ export enum SubmissionEndpoint {
     SubmitReplays = "SubmitReplays",
     CanSubmitReplays = "CanSubmitReplays",
     RatifySubmission = "RatifySubmission",
+    CanRatifySubmission = "CanRatifySubmission",
     RejectSubmission = "RejectSubmission",
     ResetSubmission = "ResetSubmission",
     RemoveSubmission = "RemoveSubmission",
@@ -37,6 +38,10 @@ export const SubmissionSchemas = {
     [SubmissionEndpoint.RatifySubmission]: {
         input: Schemas.RatifySubmission_Request,
         output: Schemas.RatifySubmission_Response,
+    },
+    [SubmissionEndpoint.CanRatifySubmission]: {
+        input: Schemas.CanRatifySubmission_Request,
+        output: Schemas.CanRatifySubmission_Response,
     },
     [SubmissionEndpoint.RejectSubmission]: {
         input: Schemas.RejectSubmission_Request,

@@ -1,5 +1,5 @@
 import {Injectable, Logger} from "@nestjs/common";
-import type {ICanSubmitReplays_Response} from "@sprocketbot/common";
+import type {CanRatifySubmissionResponse, ICanSubmitReplays_Response} from "@sprocketbot/common";
 import {
     CoreEndpoint,
     CoreService,
@@ -104,5 +104,90 @@ export class ReplaySubmissionUtilService {
         }
 
         return {canSubmit: true};
+    }
+
+    async canRatifySubmission(submissionId: string, playerId: number): Promise<CanRatifySubmissionResponse> {
+        const submission = await this.submissionCrudService.getSubmission(submissionId);
+
+        if (!submission) {
+            return {
+                canRatify: false,
+                reason: "The submission does not exist",
+            };
+        }
+
+        if (!submission.validated) {
+            return {
+                canRatify: false,
+                reason: "The submission has not been validated",
+            };
+        }
+
+        if (submissionIsScrim(submissionId)) {
+            const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
+            if (result.status === ResponseStatus.ERROR) throw result.error;
+            const scrim = result.data;
+            if (!scrim) return {
+                canRatify: false,
+                reason:
+                  `Could not find a associated scrim`,
+            };
+            if (!scrim.players.some(p => p.id === playerId)) {
+                // TODO: Check player's organization teams (i.e. Support override)
+                return {
+                    canRatify: false,
+                    reason: `Player not in scrim.`,
+                };
+            }
+            // TODO is this status used? Should the scrim be IN_PROGRESS or RATIFYING?
+            if (scrim.status !== ScrimStatus.RATIFYING) {
+                return {
+                    canRatify: false,
+                    reason: "Scrim must be ratifying.",
+                };
+            }
+        } else if (submissionIsMatch(submissionId)) {
+            const result = await this.coreService.send(CoreEndpoint.GetMatchBySubmissionId, {submissionId: submissionId});
+            if (result.status === ResponseStatus.ERROR) throw result.error;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const match = result.data;
+            if (!match.awayFranchise || !match.homeFranchise) return {
+                canRatify: false,
+                reason: "Missing franchise information",
+            };
+            const {homeFranchise, awayFranchise} = match;
+
+            const franchiseResult = await this.coreService.send(CoreEndpoint.GetPlayerFranchises, {memberId: playerId});
+            if (franchiseResult.status === ResponseStatus.ERROR) throw franchiseResult.error;
+            const franchises = franchiseResult.data;
+            const targetFranchise = franchises.find(f => f.name === homeFranchise.name || f.name === awayFranchise.name);
+
+            if (!targetFranchise) {
+                // TODO: Check for LO Override
+                this.logger.log(`Player ${playerId} is on ${franchises.map(f => f.name).join(", ")}, not on expected franchises ${homeFranchise.name}, ${awayFranchise.name}`);
+                return {
+                    canRatify: false,
+                    reason: "You are not on the correct franchise",
+                };
+            }
+
+            if (!targetFranchise.staffPositions.length) {
+                return {
+                    canRatify: false,
+                    reason: `You are not allowed to submit for ${targetFranchise.name}`,
+                };
+            }
+
+            return {
+                canRatify: true,
+            };
+        } else {
+            return {
+                canRatify: false,
+                reason: "Unable to identify submission type",
+            };
+        }
+
+        return {canRatify: true};
     }
 }

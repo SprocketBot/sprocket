@@ -49,10 +49,13 @@
 						{#if m.submissionStatus === "completed"}
 							<span>Completed</span>
 						{:else if m.submissionStatus === "ratifying"}
-							<!-- TODO restrict who can ratify -->
-							<a href={`/league/submit/${m.submissionId}`} class="btn btn-outline btn-success mx-auto">
-								Ratify Results
-							</a>
+							{#if m.canRatify}
+								<a href={`/league/submit/${m.submissionId}`} class="btn btn-outline btn-success mx-auto">
+									Ratify Results
+								</a>
+							{:else}
+								<span>Ratifying</span>
+							{/if}
 						{:else}
 							{#if m.canSubmit}
 								<a href={`/league/submit/${m.submissionId}`} class="btn btn-outline btn-primary mx-auto">
