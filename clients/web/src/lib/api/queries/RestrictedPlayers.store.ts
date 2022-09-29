@@ -104,7 +104,6 @@ export class RestrictedPlayersStore extends LiveQueryStore<RestrictedPlayersStor
     protected handleGqlMessage = (message: OperationResult<RestrictedPlayersSubscriptionValue, RestrictedPlayersStoreSubscriptionVariables>): void => {
         if (message?.data) {
             if (!this.currentValue.data?.getActiveMemberRestrictions) {
-                console.log(this.currentValue);
                 console.warn("Received subscription before query completed!");
                 return;
             }
@@ -119,7 +118,7 @@ export class RestrictedPlayersStore extends LiveQueryStore<RestrictedPlayersStor
                     this.currentValue.data.getActiveMemberRestrictions = this.currentValue.data.getActiveMemberRestrictions.filter(s => s.id !== memberRestriction.id);
                     break;
                 default:
-                    console.log("This path shouldn't be hit.");
+                    break;
             }
 
             this.pub();

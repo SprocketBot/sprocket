@@ -90,7 +90,6 @@ export const handle: Handle = async ({event, resolve}) => {
     }
     const result = await resolve(event);
     result.headers.set("Set-Cookie", newCookiesString);
-    console.log(result.headers);
     return result;
 };
 
