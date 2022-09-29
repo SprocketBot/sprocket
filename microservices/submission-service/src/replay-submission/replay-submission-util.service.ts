@@ -139,11 +139,10 @@ export class ReplaySubmissionUtilService {
                     reason: `Player not in scrim.`,
                 };
             }
-            // TODO is this status used? Should the scrim be IN_PROGRESS or RATIFYING?
-            if (scrim.status !== ScrimStatus.RATIFYING) {
+            if (scrim.status !== ScrimStatus.IN_PROGRESS) {
                 return {
                     canRatify: false,
-                    reason: "Scrim must be ratifying.",
+                    reason: "Scrim must be in progress.",
                 };
             }
         } else if (submissionIsMatch(submissionId)) {
