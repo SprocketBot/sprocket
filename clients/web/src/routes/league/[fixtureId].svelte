@@ -3,7 +3,6 @@
 
   export const load = ({params}: unknown): unknown => ({
       props: {
-          fixtureId: params.fixtureId,
           fixtureStore: new LeagueFixtureStore(parseInt(params.fixtureId)),
       },
   });
@@ -18,7 +17,6 @@
   import {goto} from "$app/navigation";
   import {session} from "$app/stores";
 
-  export let fixtureId: number;
   export let fixtureStore: LeagueFixtureStore;
 
   currentUser.vars = {orgId: $session?.user?.currentOrganizationId};
