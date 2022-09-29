@@ -22,6 +22,7 @@ export interface LeagueFixtureValue {
         submissionId: string;
         gameMode: {description: string;};
         submissionStatus: "submitting" | "ratifying" | "completed";
+        canSubmit: boolean;
     }>;
 }
 
@@ -62,6 +63,7 @@ export class LeagueFixtureStore extends QueryStore<LeagueFixtureValue, LeagueFix
                     }
                     submissionId
                     submissionStatus
+                    canSubmit
                 }
             }
         }

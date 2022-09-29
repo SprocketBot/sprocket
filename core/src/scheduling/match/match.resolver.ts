@@ -6,7 +6,9 @@ import {
     ResolveField, Resolver, Root,
 } from "@nestjs/graphql";
 import {InjectRepository} from "@nestjs/typeorm";
-import {EventsService, EventTopic} from "@sprocketbot/common";
+import {
+    EventsService, EventTopic, ReplaySubmissionStatus, ResponseStatus, SubmissionEndpoint, SubmissionService,
+} from "@sprocketbot/common";
 import {Repository} from "typeorm";
 
 import type {GameMode, Round} from "../../database";
@@ -15,15 +17,18 @@ import {
     GameSkillGroup,
     Match,
     MatchParent,
-    ScheduleFixture,
+    Player,    ScheduleFixture,
     ScheduleGroup,
 } from "../../database";
 import type {League} from "../../database/mledb";
 import {LegacyGameMode, MLE_OrganizationTeam} from "../../database/mledb";
+import type {MatchSubmissionStatus} from "../../database/scheduling/match/match.model";
+import {CurrentPlayer} from "../../franchise/player";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MledbMatchService} from "../../mledb/mledb-match/mledb-match.service";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {PopulateService} from "../../util/populate/populate.service";
+import {MatchPlayerGuard} from "./match.guard";
 import {MatchService} from "./match.service";
 
 @Resolver(() => Match)
@@ -36,6 +41,7 @@ export class MatchResolver {
         private readonly mledbMatchService: MledbMatchService,
         private readonly eventsService: EventsService,
         @InjectRepository(Match) private readonly matchRepo: Repository<Match>,
+        private readonly submissionService: SubmissionService,
     ) {}
 
     @Query(() => Match)
@@ -149,6 +155,20 @@ export class MatchResolver {
         if (submission.status === ReplaySubmissionStatus.RATIFYING) return "ratifying";
 
         return "submitting";
+    }
+
+    @ResolveField()
+    @UseGuards(GqlJwtGuard, MatchPlayerGuard)
+    async canSubmit(@CurrentPlayer() player: Player, @Root() root: Match): Promise<boolean> {
+        if (root.canSubmit) return root.canSubmit;
+        if (!root.submissionId) throw new Error(`Match has no submissionId`);
+                
+        const result = await this.submissionService.send(SubmissionEndpoint.CanSubmitReplays, {
+            playerId: player.member.id,
+            submissionId: root.submissionId,
+        });
+        if (result.status === ResponseStatus.ERROR) throw result.error;
+        return result.data.canSubmit;
     }
 
     @ResolveField()

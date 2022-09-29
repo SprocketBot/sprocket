@@ -1,5 +1,5 @@
 import {forwardRef, Module} from "@nestjs/common";
-import {EventsModule} from "@sprocketbot/common";
+import {EventsModule, SubmissionModule} from "@sprocketbot/common";
 
 import {DatabaseModule} from "../database";
 import {EloConnectorModule} from "../elo/elo-connector";
@@ -26,6 +26,7 @@ import {ScheduleGroupTypeService} from "./schedule-group/schedule-group-type.ser
         forwardRef(() => FranchiseModule),
         forwardRef(() => MledbInterfaceModule),
         EventsModule,
+        SubmissionModule,
     ],
     providers: [
         MatchService,

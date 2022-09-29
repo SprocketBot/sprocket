@@ -14,7 +14,6 @@
       DashboardLayout, DashboardCard, Spinner, FixtureCard,
   } from "$lib/components";
   import type {LeagueFixtureValue} from "$lib/api";
-  import {goto} from "$app/navigation";
   import {session} from "$app/stores";
 
   export let fixtureStore: LeagueFixtureStore;
@@ -26,18 +25,6 @@
 
   let fixture: LeagueFixtureValue;
   $: fixture = $fixtureStore.data?.fixture;
-
-  let currentUserFranchises: string[] | undefined;
-  $: currentUserFranchises = $currentUser.data?.me?.members?.flatMap(m => m.players.flatMap(p => p.franchiseName as string) as string[]);
-  $: console.log({currentUser: $currentUser});
-  console.log({currentUserFranchises});
-
-  let currentUserFranchiseStaff: string[] | undefined;
-  $: currentUserFranchiseStaff = $currentUser.data?.me.members.flatMap(m => m.players.flatMap(p => p.franchisePositions as string[]) as string[]);
-
-  let canSubmit = false;
-  $: canSubmit = currentUserFranchises?.some(cuf => cuf === fixture?.awayFranchise.profile.title || fixture?.homeFranchise.profile.title === cuf) && $currentUser.data?.me.members;
-
 </script>
 
 <DashboardLayout>
@@ -59,17 +46,21 @@
 						<header>
 							<h3 class="text-2xl font-bold">{m.gameMode.description} | {m.skillGroup.profile.description}</h3>
 						</header>
-						{#if canSubmit}
-
-							{#if m.submissionStatus === "completed"}
-								<span>Already Submitted</span>
-							{:else}
-								<button on:click={async () => goto(`/league/submit/${m.submissionId}`)}
-												class="btn btn-outline btn-primary mx-auto">Submit Replays
-								</button>
-							{/if}
+						{#if m.submissionStatus === "completed"}
+							<span>Completed</span>
+						{:else if m.submissionStatus === "ratifying"}
+							<!-- TODO restrict who can ratify -->
+							<a href={`/league/submit/${m.submissionId}`} class="btn btn-outline btn-success mx-auto">
+								Ratify Results
+							</a>
 						{:else}
-							<span>You are not allowed to submit for this skill group.</span>
+							{#if m.canSubmit}
+								<a href={`/league/submit/${m.submissionId}`} class="btn btn-outline btn-primary mx-auto">
+									Submit Replays
+								</a>
+							{:else}
+								<span>Submitting</span>
+							{/if}
 						{/if}
 					</section>
 				{/each}
