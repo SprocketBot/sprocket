@@ -170,6 +170,9 @@ export class PlayerService {
         timezone: Timezone,
         modePreference: ModePreference,
     ): Promise<Player> {
+        const mleOrg = await this.organizationRepository.findOneOrFail({where: {profile: {name: "Minor League Esports"} }, relations: {profile: true} });
+        const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
+
         const runner = this.dataSource.createQueryRunner();
         await runner.connect();
         await runner.startTransaction();
@@ -193,8 +196,6 @@ export class PlayerService {
             authAcc.user = user;
             user.authenticationAccounts = [authAcc];
 
-            const mleOrg = await this.organizationRepository.findOneOrFail({where: {profile: {name: "Minor League Esports"} } });
-
             const member = this.memberRepository.create({});
             member.organization = mleOrg;
             member.user = user;
@@ -202,8 +203,6 @@ export class PlayerService {
                 name: name,
             });
             member.profile.member = member;
-
-            const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
 
             player = this.playerRepository.create({salary});
             player.member = member;
