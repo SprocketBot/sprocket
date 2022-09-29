@@ -10,6 +10,8 @@ import {Invalidation} from "../invalidation/invalidation.model";
 import {MatchParent} from "../match_parent";
 import {Round} from "../round/round.model";
 
+export type MatchSubmissionStatus = "submitting" | "ratifying" | "completed";
+
 @Entity({schema: "sprocket"})
 @ObjectType()
 export class Match extends BaseModel {
@@ -44,8 +46,8 @@ export class Match extends BaseModel {
     @Field(() => String)
     submissionId: string;
 
-    @Field(() => Boolean)
-    submitted: boolean;
+    @Field(() => String)
+    submissionStatus: MatchSubmissionStatus;
 
     /**
      * This has been made nullable in case future use-cases involve multiple game modes in a single match.

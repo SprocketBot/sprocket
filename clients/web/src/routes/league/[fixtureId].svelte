@@ -61,7 +61,7 @@
 						</header>
 						{#if canSubmit}
 
-							{#if m.submitted}
+							{#if m.submissionStatus === "completed"}
 								<span>Already Submitted</span>
 							{:else}
 								<button on:click={async () => goto(`/league/submit/${m.submissionId}`)}
@@ -75,8 +75,6 @@
 				{/each}
 			</div>
 		{/if}
-
-
 	</DashboardCard>
 </DashboardLayout>
 

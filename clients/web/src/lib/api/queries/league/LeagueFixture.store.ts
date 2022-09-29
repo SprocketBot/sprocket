@@ -21,6 +21,7 @@ export interface LeagueFixtureValue {
         skillGroup: {description: string; ordinal: number;};
         submissionId: string;
         gameMode: {description: string;};
+        submissionStatus: "submitting" | "ratifying" | "completed";
     }>;
 }
 
@@ -60,6 +61,7 @@ export class LeagueFixtureStore extends QueryStore<LeagueFixtureValue, LeagueFix
                         description
                     }
                     submissionId
+                    submissionStatus
                 }
             }
         }

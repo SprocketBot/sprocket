@@ -108,13 +108,47 @@ export class MatchResolver {
     }
 
     @ResolveField()
-    async submitted(@Root() root: Match): Promise<boolean> {
-        return this.matchRepo.findOneOrFail({
+    async submissionStatus(@Root() root: Match): Promise<MatchSubmissionStatus> {
+        const match = await this.matchRepo.findOneOrFail({
             where: {
                 id: root.id,
             },
-            relations: ["rounds"],
-        }).then(v => v.rounds.length > 0 || v.isDummy);
+            relations: {
+                rounds: true,
+                matchParent: {
+                    scrimMeta: true,
+                    fixture: true,
+                },
+            },
+        });
+
+        const {
+            scrimMeta, fixture, event,
+        } = match.matchParent;
+
+        // If match is related to a scrim, then the submission must be completed because the scrim is saved in the DB
+        if (scrimMeta) return "completed";
+
+        // Matches must relate to either a scrim, fixture, or event
+        if (!fixture && !event) throw new Error(`Match is related to neither a scrim or a fixture`);
+
+        // If the fixture has stats, the submission is completed
+        const isComplete = match.rounds.length > 0 || match.isDummy;
+        if (isComplete) return "completed";
+
+        // Fixtures/Events must have a submissionId
+        if (!match.submissionId) throw new Error(`Match ${match.id} is not a scrim and has no submissionId`);
+
+        // Get submission to check status
+        const result = await this.submissionService.send(SubmissionEndpoint.GetSubmissionIfExists, match.submissionId);
+        if (result.status === ResponseStatus.ERROR) throw result.error;
+        const {submission} = result.data;
+
+        if (!submission) return "submitting";
+
+        if (submission.status === ReplaySubmissionStatus.RATIFYING) return "ratifying";
+
+        return "submitting";
     }
 
     @ResolveField()
