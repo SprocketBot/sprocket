@@ -15,9 +15,9 @@
 		<span class="w-6 flex-shrink-0"><VsIcon/></span>
 		<FranchiseVsCard profile={fixture.awayFranchise.profile}/>
 	</div>
-	<div class="flex justify-center items-center">
-		{#if !hidebutton}
+	{#if !hidebutton}
+		<div class="flex justify-center items-center">
 			<button on:click={async () => goto(`/league/${fixture.id}`)} class="btn btn-outline btn-primary btn-sm">Details</button>
-		{/if}
-	</div>
+		</div>
+	{/if}
 </section>
