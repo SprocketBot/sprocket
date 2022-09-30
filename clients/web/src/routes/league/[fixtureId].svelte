@@ -31,6 +31,8 @@
 
   let currentUserFranchises: string[] | undefined;
   $: currentUserFranchises = $currentUser.data?.me?.members?.flatMap(m => m.players.flatMap(p => p.franchiseName as string) as string[]);
+  $: console.log({currentUser: $currentUser});
+  console.log({currentUserFranchises});
 
   let currentUserFranchiseStaff: string[] | undefined;
   $: currentUserFranchiseStaff = $currentUser.data?.me.members.flatMap(m => m.players.flatMap(p => p.franchisePositions as string[]) as string[]);
@@ -42,7 +44,8 @@
 
 <DashboardLayout>
 	<DashboardCard class="col-span-8 row-span-3"
-								 title={fixture ? `${fixture.scheduleGroup.description} | ${fixture.homeFranchise.profile.title} vs ${fixture.awayFranchise.profile.title}` : ""}>
+		title={fixture ? `${fixture.scheduleGroup.description} | ${fixture.homeFranchise.profile.title} vs ${fixture.awayFranchise.profile.title}` : ""}
+	>
 		{#if fetching}
 			<div class="h-full w-full flex items-center justify-center">
 				<Spinner class="h-16 w-full" />

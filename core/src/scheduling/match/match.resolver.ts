@@ -128,4 +128,10 @@ export class MatchResolver {
         if (root.rounds) return root.rounds;
         return this.populate.populateMany(Match, root, "rounds");
     }
+
+    @ResolveField()
+    async matchParent(@Root() root: Match): Promise<MatchParent> {
+        if (root.matchParent) return root.matchParent;
+        return this.populate.populateOneOrFail(Match, root, "matchParent");
+    }
 }

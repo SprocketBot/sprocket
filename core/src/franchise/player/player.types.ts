@@ -12,6 +12,7 @@ export interface GameAndOrganization {
 export const IntakeSchema = z.array(z.tuple([
     z.string(),
     z.string(),
+    z.string(),
     z.nativeEnum(League),
     z.string(),
     z.enum(["PC", "XBOX", "PSN"]),
@@ -19,9 +20,10 @@ export const IntakeSchema = z.array(z.tuple([
     z.nativeEnum(ModePreference),
     z.string(),
 ]).rest(z.string())
-    .transform(([name, discordId, skillGroup, salary, preferredPlatform, timezone, preferredMode, primaryAccount, ...accounts]) => ({
-        name: name,
+    .transform(([mleid, discordId, name, skillGroup, salary, preferredPlatform, timezone, preferredMode, primaryAccount, ...accounts]) => ({
+        mleid: parseInt(mleid),
         discordId: discordId,
+        name: name,
         skillGroup: skillGroup,
         salary: parseFloat(salary),
         preferredPlatform: preferredPlatform,
