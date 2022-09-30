@@ -22,7 +22,7 @@ export interface Fixture {
         skillGroup: {
             ordinal: number;
             profile: {
-                description: string; ordinal: number;
+                description: string;
             };
         };
         submissionId: string;
@@ -48,7 +48,7 @@ export class LeagueFixtureStore extends QueryStore<LeagueFixtureValue, LeagueFix
                 title
                 primaryColor
                 secondaryColor
-                photo{
+                photo {
                     url
                 }
             }
