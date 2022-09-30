@@ -11,20 +11,30 @@ export interface FixtureFranchise {
     };
 }
 
-export interface LeagueFixtureValue {
+export interface Fixture {
+    id: number;
     homeFranchise: FixtureFranchise;
     awayFranchise: FixtureFranchise;
 
     scheduleGroup: {description: string;};
     matches: Array<{
         id: number;
-        skillGroup: {description: string; ordinal: number;};
+        skillGroup: {
+            ordinal: number;
+            profile: {
+                description: string; ordinal: number;
+            };
+        };
         submissionId: string;
         gameMode: {description: string;};
         submissionStatus: "submitting" | "ratifying" | "completed";
         canSubmit: boolean;
         canRatify: boolean;
     }>;
+}
+
+export interface LeagueFixtureValue {
+    fixture: Fixture;
 }
 
 export interface LeagueFixtureVars {
@@ -46,6 +56,7 @@ export class LeagueFixtureStore extends QueryStore<LeagueFixtureValue, LeagueFix
         
         query($id: Float!) {
             fixture: getFixture(id: $id) {
+                id
                 homeFranchise { ...FranchiseFields }
                 awayFranchise { ...FranchiseFields }
                 scheduleGroup { description }
