@@ -54,12 +54,6 @@ export class ScrimController {
         return this.scrimService.checkIn(data.scrimId, data.player);
     }
 
-    @MessagePattern(MatchmakingEndpoint.EndScrim)
-    async endScrim(@Payload() payload: unknown): Promise<boolean> {
-        const data = MatchmakingSchemas.EndScrim.input.parse(payload);
-        return this.scrimService.moveToRatification(data.scrimId);
-    }
-
     @MessagePattern(MatchmakingEndpoint.CancelScrim)
     async cancelScrim(@Payload() payload: unknown): Promise<Scrim> {
         const data = MatchmakingSchemas.CancelScrim.input.parse(payload);
