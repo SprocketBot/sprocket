@@ -146,7 +146,6 @@ export class ActiveScrimsStore extends LiveQueryStore<ActiveScrimsStoreValue, Ac
                 return;
             }
 
-            console.log(message.data.activeScrims.event);
             const oldScrim = this.currentValue.data.activeScrims.findIndex(s => s.id === scrim.id);
             switch (message.data.activeScrims.event) {
                 case "scrim.created":
@@ -159,7 +158,6 @@ export class ActiveScrimsStore extends LiveQueryStore<ActiveScrimsStoreValue, Ac
                     break;
                 default:
                     this.currentValue.data.activeScrims.splice(oldScrim, 1, scrim);
-                    console.log("This is the update path.");
             }
 
             this.pub();

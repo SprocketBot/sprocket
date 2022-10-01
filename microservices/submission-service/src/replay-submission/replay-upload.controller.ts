@@ -1,6 +1,6 @@
 import {Controller} from "@nestjs/common";
 import {MessagePattern, Payload} from "@nestjs/microservices";
-import type {ICanSubmitReplays_Response} from "@sprocketbot/common";
+import type {CanRatifySubmissionResponse, ICanSubmitReplays_Response} from "@sprocketbot/common";
 import {
     SubmissionEndpoint, SubmissionOutput, SubmissionSchemas,
 } from "@sprocketbot/common";
@@ -21,6 +21,12 @@ export class ReplayUploadController {
     async canSubmitReplays(@Payload() payload: unknown): Promise<ICanSubmitReplays_Response> {
         const data = SubmissionSchemas.CanSubmitReplays.input.parse(payload);
         return this.replaySubmissionUtilService.canSubmitReplays(data.submissionId, data.playerId);
+    }
+
+    @MessagePattern(SubmissionEndpoint.CanRatifySubmission)
+    async canRatifySubmission(@Payload() payload: unknown): Promise<CanRatifySubmissionResponse> {
+        const data = SubmissionSchemas.CanRatifySubmission.input.parse(payload);
+        return this.replaySubmissionUtilService.canRatifySubmission(data.submissionId, data.playerId);
     }
 
     @MessagePattern(SubmissionEndpoint.SubmitReplays)

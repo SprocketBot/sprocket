@@ -173,57 +173,6 @@ export class ScrimService {
         return scrim;
     }
 
-    async moveToRatification(scrimId: string): Promise<boolean> {
-        this.logger.debug(`Beginning to ratify scrim, scrimId=${scrimId}`);
-
-        const scrim = await this.scrimCrudService.getScrim(scrimId);
-
-        if (!scrim) {
-            throw new RpcException("Scrim not found");
-        }
-        if (scrim.status === ScrimStatus.RATIFYING) {
-            throw new RpcException("Scrim is already ended");
-        }
-        if (scrim.status !== ScrimStatus.SUBMITTING) {
-            throw new RpcException("Scrim is not ready to be ended");
-        }
-
-        scrim.status = ScrimStatus.RATIFYING;
-        await this.scrimCrudService.updateScrimStatus(scrimId, scrim.status);
-
-        this.analyticsService.send(AnalyticsEndpoint.Analytics, {
-            name: "scrimRatifying",
-            strings: [ ["scrimId", scrim.id] ],
-        }).catch(err => { this.logger.error(err) });
-
-        await this.publishScrimUpdate(scrimId);
-
-        return true;
-    }
-
-    async resetScrim(scrimId: string, playerId?: number): Promise<boolean> {
-        this.logger.debug(`Attempting to reset scrim, scrimId=${scrimId} playerId=${playerId}`);
-
-        const scrim = await this.scrimCrudService.getScrim(scrimId);
-
-        if (!scrim) {
-            throw new RpcException("Scrim not found");
-        }
-        if (playerId && !scrim.players.some(p => p.id === playerId)) {
-            throw new RpcException("Player not in this scrim");
-        }
-        if (scrim.status !== ScrimStatus.RATIFYING && scrim.status !== ScrimStatus.SUBMITTING) {
-            throw new RpcException("Scrim is not RATIFYING, can't be reset");
-        }
-
-        scrim.status = ScrimStatus.IN_PROGRESS;
-        await this.scrimCrudService.updateScrimStatus(scrimId, scrim.status);
-
-        await this.publishScrimUpdate(scrimId);
-
-        return true;
-    }
-
     async completeScrim(scrimId: string, playerId?: number): Promise<Scrim> {
         // Player will be used to track who submitted / completed a scrim
         const scrim = await this.scrimCrudService.getScrim(scrimId);
