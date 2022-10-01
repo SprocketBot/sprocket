@@ -25,7 +25,9 @@ import {GameModeService} from "../game";
 import {CurrentUser} from "../identity";
 import {UserPayload} from "../identity/auth/";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard/gql-jwt-guard";
+import {MledbPlayerService} from "../mledb";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
+import {FormerPlayerScrimGuard} from "../mledb/mledb-player/mledb-player.guard";
 import {QueueBanGuard} from "../organization";
 import {ScrimPubSub} from "./constants";
 import {CreateScrimPlayerGuard, JoinScrimPlayerGuard} from "./scrim.guard";
@@ -69,6 +71,7 @@ export class ScrimModuleResolver {
         private readonly skillGroupService: GameSkillGroupService,
         private readonly organizationConfigurationService: OrganizationConfigurationService,
         private readonly scrimToggleService: ScrimToggleService,
+        private readonly mlePlayerService: MledbPlayerService,
     ) {}
 
     /*
@@ -78,6 +81,7 @@ export class ScrimModuleResolver {
      */
 
     @Query(() => [Scrim])
+    @UseGuards(FormerPlayerScrimGuard)
     async getAllScrims(
         @CurrentUser() user: UserPayload,
         @Args("status", {
@@ -93,6 +97,7 @@ export class ScrimModuleResolver {
     }
 
     @Query(() => [Scrim])
+    @UseGuards(FormerPlayerScrimGuard)
     async getAvailableScrims(
         @CurrentUser() user: UserPayload,
         @Args("status", {
@@ -126,7 +131,7 @@ export class ScrimModuleResolver {
      */
 
     @Mutation(() => Scrim)
-    @UseGuards(QueueBanGuard, CreateScrimPlayerGuard)
+    @UseGuards(QueueBanGuard, CreateScrimPlayerGuard, FormerPlayerScrimGuard)
     async createScrim(
         @CurrentUser() user: UserPayload,
         @Args("data") data: CreateScrimInput,
@@ -136,6 +141,10 @@ export class ScrimModuleResolver {
 
         const gameMode = await this.gameModeService.getGameModeById(data.settings.gameModeId);
         const player = await this.playerService.getPlayerByOrganizationAndGame(user.userId, user.currentOrganizationId, gameMode.gameId);
+        
+        const mlePlayer = await this.mlePlayerService.getMlePlayerBySprocketUser(player.member.userId);
+        if (mlePlayer.teamName === "FP") throw new GraphQLError("User is a former player");
+
         const skillGroup = await this.skillGroupService.getGameSkillGroupById(player.skillGroupId);
         const checkinTimeout = await this.organizationConfigurationService.getOrganizationConfigurationValue<number>(user.currentOrganizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_CHECKIN_TIMEOUT_MINUTES);
         const settings: IScrimSettings = {
@@ -161,7 +170,7 @@ export class ScrimModuleResolver {
     }
 
     @Mutation(() => Boolean)
-    @UseGuards(QueueBanGuard, JoinScrimPlayerGuard)
+    @UseGuards(QueueBanGuard, JoinScrimPlayerGuard, FormerPlayerScrimGuard)
     async joinScrim(
         @CurrentUser() user: UserPayload,
         @CurrentPlayer() player: Player,
@@ -169,6 +178,9 @@ export class ScrimModuleResolver {
         @Args("group", {nullable: true}) groupKey?: string,
         @Args("createGroup", {nullable: true}) createGroup?: boolean,
     ): Promise<boolean> {
+        const mlePlayer = await this.mlePlayerService.getMlePlayerBySprocketUser(player.member.userId);
+        if (mlePlayer.teamName === "FP") throw new GraphQLError("User is a former player");
+
         if (groupKey && createGroup) {
             throw new GraphQLError("You cannot join a group and create a group. Please provide either group or createGroup, not both.");
         }
