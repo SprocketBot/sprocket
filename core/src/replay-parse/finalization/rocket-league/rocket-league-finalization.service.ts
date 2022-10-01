@@ -151,6 +151,7 @@ export class RocketLeagueFinalizationService {
             ])
             : [undefined, undefined];
 
+        // TODO: Sprocket Team Role Usage
         const results = await Promise.all(replays.map(async ({
             replay, parser, outputPath,
         }) => {
