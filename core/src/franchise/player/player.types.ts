@@ -15,7 +15,7 @@ export const IntakeSchema = z.array(z.tuple([
     z.string(),
     z.nativeEnum(League),
     z.string(),
-    z.enum(["PC", "XBOX", "PSN"]),
+    z.enum(["PC", "XB1", "PS4"]),
     z.nativeEnum(Timezone),
     z.nativeEnum(ModePreference),
     z.string(),
