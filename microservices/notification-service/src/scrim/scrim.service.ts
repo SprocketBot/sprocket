@@ -15,6 +15,7 @@ import {
     MatchmakingService,
     ResponseStatus,
     Scrim,
+    ScrimMode,
     SprocketEvent,
     SprocketEventMarshal,
 } from "@sprocketbot/common";
@@ -38,10 +39,47 @@ export class ScrimService extends SprocketEventMarshal {
         if (skillGroupWebhook.status === ResponseStatus.ERROR) throw skillGroupWebhook.error;
         if (!skillGroupWebhook.data.scrim) return;
 
+        const skillGroupProfile = await this.coreService.send(CoreEndpoint.GetGameSkillGroupProfile, {skillGroupId: scrim.skillGroupId});
+        if (skillGroupProfile.status === ResponseStatus.ERROR) throw skillGroupProfile.error;
+
         await this.botService.send(BotEndpoint.SendWebhookMessage, {
             webhookUrl: skillGroupWebhook.data.scrim,
             payload: {
-                content: `${skillGroupWebhook.data.scrimRole ? `<@&${skillGroupWebhook.data.scrimRole}> ` : ""}A new scrim has been created! <${config.web.url}/scrims>`,
+                content: skillGroupWebhook.data.scrimRole ? `<@&${skillGroupWebhook.data.scrimRole}>` : "",
+                embeds: [ {
+                    title: "Scrim Created",
+                    thumbnail: skillGroupProfile.data.photo
+                        ? {
+                                url: skillGroupProfile.data.photo.url,
+                            }
+                        : undefined,
+                    color: parseInt(skillGroupProfile.data.color.replace("#", ""), 16),
+                    fields: [
+                        {
+                            name: "Game Mode",
+                            value: scrim.gameMode.description,
+                        },
+                        {
+                            name: "Type",
+                            value: scrim.settings.mode === ScrimMode.ROUND_ROBIN ? "Round Robin" : "Teams",
+                        },
+                    ],
+                } ],
+                components: [ {
+                    type: ComponentType.ACTION_ROW,
+                    components: [
+                        {
+                            type: ComponentType.BUTTON,
+                            style: ButtonComponentStyle.LINK,
+                            label: "Join scrim!",
+                            url: `${config.web.url}/scrims`,
+                        },
+                    ],
+                } ],
+            },
+            brandingOptions: {
+                organizationId: scrim.organizationId,
+                options: {},
             },
         });
     }

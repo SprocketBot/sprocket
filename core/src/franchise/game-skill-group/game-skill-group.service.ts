@@ -29,7 +29,7 @@ export class GameSkillGroupService {
     }
 
     async getGameSkillGroupProfile(skillGroupId: number): Promise<GameSkillGroupProfile> {
-        const skillGroup = await this.gameSkillGroupRepository.findOneOrFail({where: {id: skillGroupId}, relations: ["profile"] });
+        const skillGroup = await this.gameSkillGroupRepository.findOneOrFail({where: {id: skillGroupId}, relations: {profile: {photo: true} } });
         return skillGroup.profile;
     }
 

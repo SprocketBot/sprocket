@@ -4,6 +4,7 @@ import {
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
+import {Photo} from "../../organization";
 import {Webhook} from "../../webhook";
 import {GameSkillGroup} from "../game_skill_group";
 
@@ -37,6 +38,15 @@ export class GameSkillGroupProfile extends BaseModel {
     @Column({nullable: true})
     @Field(() => String, {nullable: true})
     scrimDiscordRoleId?: string;
+
+    @Column({default: `#eeeeee`})
+    @Field()
+    color: string;
+
+    @OneToOne(() => Photo,  {nullable: true})
+    @JoinColumn()
+    @Field(() => Photo, {nullable: true})
+    photo?: Photo;
 
     @Column()
     @Field(() => String)
