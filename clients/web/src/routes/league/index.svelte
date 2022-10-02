@@ -1,17 +1,28 @@
 <script lang="ts">
 	import {
-	    DashboardLayout,
-	    DashboardCard,
-	    Spinner,
-	    FixtureCard,
+	    DashboardLayout, DashboardCard, Spinner, LeagueScheduleGroup,
 	} from "$lib/components";
-import {LeagueScheduleStore} from "$lib/api";
+	import {
+	    LeagueScheduleStore, type LeagueScheduleSeason, type LeagueScheduleWeek,
+	} from "$lib/api";
 
 	const store = new LeagueScheduleStore();
 	let fetching = true;
-	$: fetching = $store.fetching;
-	let schedule = undefined;
-	$: schedule = $store.data?.schedule[0];
+	let schedule: LeagueScheduleSeason | undefined;
+	let scheduleGroups: LeagueScheduleWeek[] = [];
+	let currentWeek: LeagueScheduleWeek | undefined;
+
+	$: {
+	    // @ts-expect-error `fetching` exists on the query store but isn't defined in the type
+	    fetching = $store.fetching;
+
+	    schedule = $store.data?.seasons[0];
+	    scheduleGroups = schedule ? schedule?.childGroups.sort((a, b) => Date.parse(a.start) - Date.parse(b.start)) : [];
+
+		const nextWeekIndex = scheduleGroups.findIndex(sg => Date.parse(sg.start) > Date.now());
+		const currentWeekIndex = nextWeekIndex >= 1 ? nextWeekIndex - 1 : -1
+		currentWeek = currentWeekIndex ? scheduleGroups[currentWeekIndex] : undefined
+	}
 </script>
 
 <DashboardLayout>
@@ -21,21 +32,16 @@ import {LeagueScheduleStore} from "$lib/api";
 				<Spinner class="h-16 w-full"/>
 			</div>
 		{:else if schedule}
-			<h2 class="text-2xl text-accent font-bold">{schedule.game.title} | {schedule.description}</h2>
-			<div class="grid grid-cols-1 gap-4">
-			{#each schedule.childGroups.sort((a, b) => new Date(a.start) - new Date(b.start)) as week, wi (week?.id)}
-				<div>
-				<h3 class="text-lg text-accent font-bold text-center">{week.description}</h3>
-				<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-					{#each week.fixtures as fixture (fixture?.id)}
-						<FixtureCard {fixture}/>
-					{/each}
-				</div>
-				</div>
-				{#if wi < schedule.childGroups.length - 1}
-					<hl class="w-2/3 mx-auto border-accent border-b my-2"></hl>
+			<h2 class="text-2xl text-accent font-bold mb-8">{schedule.game.title} | {schedule.description}</h2>
+
+			<div class="flex flex-col gap-10">
+				{#if currentWeek}
+					<LeagueScheduleGroup scheduleGroup={currentWeek} isCurrentWeek />
 				{/if}
-			{/each}
+
+				{#each scheduleGroups as week (week?.id)}
+					<LeagueScheduleGroup scheduleGroup={week} />
+				{/each}
 			</div>
 		{/if}
 	</DashboardCard>

@@ -1,7 +1,7 @@
 <script lang="ts">
     import Gear from "./icons/Gear.svelte";
 
-    let _class;
+    let _class = "";
     export {_class as class};
 </script>
 
