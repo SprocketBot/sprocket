@@ -644,7 +644,7 @@ export class PlayerService {
         if (sg.ordinal > sprocketPlayer.skillGroup.ordinal) {
             player = this.mle_playerRepository.merge(player, {
                 role: Role.NONE,
-                teamName: "WW",
+                teamName: "Waivers",
                 league: LeagueOrdinals[sg.ordinal - 1],
                 salary: salary,
             });
@@ -685,7 +685,7 @@ export class PlayerService {
 
         player = this.mle_playerRepository.merge(player, {
             role: Role.NONE,
-            teamName: "WW",
+            teamName: "Waivers",
             league: this.mle_nextLeague(player.league, -1),
             salary: salary,
         });
