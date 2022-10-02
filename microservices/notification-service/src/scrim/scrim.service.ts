@@ -41,13 +41,14 @@ export class ScrimService extends SprocketEventMarshal {
 
         const skillGroupProfile = await this.coreService.send(CoreEndpoint.GetGameSkillGroupProfile, {skillGroupId: scrim.skillGroupId});
         if (skillGroupProfile.status === ResponseStatus.ERROR) throw skillGroupProfile.error;
-
+        
         await this.botService.send(BotEndpoint.SendWebhookMessage, {
             webhookUrl: skillGroupWebhook.data.scrim,
             payload: {
                 content: skillGroupWebhook.data.scrimRole ? `<@&${skillGroupWebhook.data.scrimRole}>` : "",
                 embeds: [ {
                     title: "Scrim Created",
+                    description: `[Join here!](${config.web.url}/scrims)`,
                     thumbnail: skillGroupProfile.data.photo
                         ? {
                                 url: skillGroupProfile.data.photo.url,
@@ -62,17 +63,6 @@ export class ScrimService extends SprocketEventMarshal {
                         {
                             name: "Type",
                             value: scrim.settings.mode === ScrimMode.ROUND_ROBIN ? "Round Robin" : "Teams",
-                        },
-                    ],
-                } ],
-                components: [ {
-                    type: ComponentType.ACTION_ROW,
-                    components: [
-                        {
-                            type: ComponentType.BUTTON,
-                            style: ButtonComponentStyle.LINK,
-                            label: "Join scrim!",
-                            url: `${config.web.url}/scrims`,
                         },
                     ],
                 } ],
