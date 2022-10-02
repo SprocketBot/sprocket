@@ -39,7 +39,7 @@ export class GameSkillGroupProfile extends BaseModel {
     @Field(() => String, {nullable: true})
     scrimDiscordRoleId?: string;
 
-    @Column({default: `#eeeeee`})
+    @Column()
     @Field()
     color: string;
 
