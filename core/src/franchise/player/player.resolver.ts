@@ -178,13 +178,13 @@ export class PlayerResolver {
             old: {
                 id: player.skillGroup.id,
                 name: player.skillGroup.profile.description,
-                salary: Number(player.salary),
+                salary: player.salary,
                 discordEmojiId: player.skillGroup.profile.discordEmojiId,
             },
             new: {
                 id: skillGroup.id,
                 name: skillGroup.profile.description,
-                salary: Number(salary),
+                salary: salary,
                 discordEmojiId: skillGroup.profile.discordEmojiId,
             },
         });
@@ -240,8 +240,9 @@ export class PlayerResolver {
     @Mutation(() => Player)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async intakePlayer(
-        @Args("name") name: string,
+        @Args("mleid") mleid: number,
         @Args("discordId") discordId: string,
+        @Args("name") name: string,
         @Args("skillGroup", {type: () => League}) league: League,
         @Args("salary", {type: () => Float}) salary: number,
         @Args("preferredPlatform") platform: string,
@@ -250,7 +251,7 @@ export class PlayerResolver {
         @Args("accounts", {type: () => [IntakePlayerAccount]}) accounts: IntakePlayerAccount[],
     ): Promise<Player> {
         const sg = await this.skillGroupService.getGameSkillGroup({where: {ordinal: LeagueOrdinals.indexOf(league) + 1} });
-        return this.playerService.intakePlayer(name, discordId, sg.id, salary, platform, accounts, timezone, mode);
+        return this.playerService.intakePlayer(mleid, name, discordId, sg.id, salary, platform, accounts, timezone, mode);
     }
 
     @Mutation(() => [Player])
@@ -274,8 +275,9 @@ export class PlayerResolver {
                 };
             });
             return this.playerService.intakePlayer(
-                player.name,
+                player.mleid,
                 player.discordId,
+                player.name,
                 sg.id,
                 player.salary,
                 player.preferredPlatform,

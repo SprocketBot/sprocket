@@ -59,43 +59,56 @@ $body$;
 -- Example Usage -> (You don't, create_history_table does)
 --
 
-CREATE OR REPLACE FUNCTION update_history_table()
-    RETURNS trigger
-    LANGUAGE plpgsql AS
-$body$
+CREATE OR REPLACE FUNCTION update_history_table() RETURNS TRIGGER
+    LANGUAGE plpgsql
+AS
+$$
 DECLARE
-    t timestamptz;
+    t                TIMESTAMPTZ;
+    insert_statement TEXT;
 BEGIN
     -- Grab a timestamp to keep it consistent
     t := CURRENT_TIMESTAMP;
-    
+
     -- If we are not inserting a row; update the currently accurate row to close the applicable period
-    IF TG_OP != 'INSERT' AND old.id IS NOT NULL THEN
+    IF tg_op != 'INSERT' AND old.id IS NOT NULL THEN
         EXECUTE FORMAT(
-            'UPDATE history.%I SET applicable_period = tsrange(lower(applicable_period), ''%I'', ''[]'') WHERE "id" = %L AND upper(applicable_period) is null',
-            TG_TABLE_NAME || '_history',
-            t,
-            old.id
-        );
+                'UPDATE history.%I_history SET applicable_period = tsrange(lower(applicable_period), ''%I'', ''[]'') WHERE "id" = %L AND upper(applicable_period) is null',
+                tg_table_name,
+                t,
+                old.id
+            );
     END IF;
 
     -- Insert Next History Row
-    IF TG_OP != 'DELETE' AND new.id IS NOT NULL THEN
-        EXECUTE format('
-        INSERT INTO history.%I
-        SELECT ((n.x)::%I).*, ''[%I,]''::tsrange FROM
-           (VALUES (%L)) AS n (x)
-      ', TG_TABLE_NAME || '_history', TG_TABLE_NAME, t, new);
+    IF tg_op != 'DELETE' AND new.id IS NOT NULL THEN
+        -- First we need to get all the columns
+        WITH all_keys    AS (SELECT column_name AS k
+                                 FROM information_schema.columns
+                                 WHERE table_name = tg_table_name),
+             -- select_cols/insert_cols exist to clean up the final query a little bit
+             select_cols AS (SELECT STRING_AGG(DISTINCT CONCAT('', '(n.x).', k), ', ') AS cs FROM all_keys),
+             insert_cols AS (SELECT CONCAT(STRING_AGG(DISTINCT k, ', '), ', applicable_period') AS ci FROM all_keys)
+             -- Build the insert query, using explicit column references
+        SELECT FORMAT(CONCAT('INSERT INTO history.', tg_table_name, '_history (', ci, ') SELECT ', cs, ', ''[',
+                             CURRENT_TIMESTAMP, ',]''::tsrange FROM (VALUES (%L::', tg_table_name, ')) AS n (x)'), new)
+            INTO insert_statement
+            FROM insert_cols,
+                 select_cols;
+
+        -- Execute
+        EXECUTE insert_statement;
     END IF;
 
     -- Ensure we return the correct values
-    IF TG_OP = 'DELETE' THEN
-        RETURN OLD;
+    IF tg_op = 'DELETE' THEN
+        RETURN old;
     ELSE
-        RETURN NEW;
+        RETURN new;
     END IF;
 END;
-$body$;
+$$;
+
 `);
         await queryRunner.query(`
 CREATE OR REPLACE FUNCTION remove_history_table(target_table text)

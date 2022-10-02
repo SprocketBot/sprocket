@@ -33,6 +33,12 @@
 				<Spinner class="h-16 w-full" />
 			</div>
 		{:else}
+			<header>
+				<h2 class="text-3xl font-bold">{match?.matchParent.fixture.scheduleGroup.description} | {match?.matchParent.fixture.homeFranchise.profile.title} vs {match?.matchParent.fixture.awayFranchise.profile.title}</h2>
+				<h3 class="text-2xl font-bold">{match?.gameMode.description} | {match?.skillGroup.profile.description}</h3>
+			</header>
+
+
 			{#if match?.rounds?.length}
 				<h1>Match has already been submitted.</h1>
 			{:else if $submissionStore.data?.submission}

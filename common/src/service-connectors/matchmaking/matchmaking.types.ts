@@ -14,7 +14,6 @@ export enum MatchmakingEndpoint {
     GetScrim = "GetScrim",
     GetScrimMetrics = "GetScrimMetrics",
     GetScrimByPlayer = "GetScrimByPlayer",
-    EndScrim = "EndScrim",
     CompleteScrim = "CompleteScrim",
     GetScrimBySubmissionId = "GetScrimBySubmissionId",
     CancelScrim = "CancelScrim",
@@ -62,10 +61,6 @@ export const MatchmakingSchemas = {
     [MatchmakingEndpoint.GetScrimByPlayer]: {
         input: Schemas.GetScrimByPlayer_Request,
         output: Schemas.GetScrimByPlayer_Response,
-    },
-    [MatchmakingEndpoint.EndScrim]: {
-        input: Schemas.EndScrim_Request,
-        output: Schemas.EndScrim_Response,
     },
     [MatchmakingEndpoint.CompleteScrim]: {
         input: Schemas.CompleteScrim_Request,

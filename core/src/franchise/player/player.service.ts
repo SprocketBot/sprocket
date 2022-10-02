@@ -160,8 +160,9 @@ export class PlayerService {
 
     /* !! Using repositories due to circular dependency issues. Will fix after extended repositories are added, probably. !! */
     async intakePlayer(
-        name: string,
+        mleid: number,
         discordId: string,
+        name: string,
         skillGroupId: number,
         salary: number,
         platform: string,
@@ -169,6 +170,9 @@ export class PlayerService {
         timezone: Timezone,
         modePreference: ModePreference,
     ): Promise<Player> {
+        const mleOrg = await this.organizationRepository.findOneOrFail({where: {profile: {name: "Minor League Esports"} }, relations: {profile: true} });
+        const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
+
         const runner = this.dataSource.createQueryRunner();
         await runner.connect();
         await runner.startTransaction();
@@ -192,8 +196,6 @@ export class PlayerService {
             authAcc.user = user;
             user.authenticationAccounts = [authAcc];
 
-            const mleOrg = await this.organizationRepository.findOneOrFail({where: {profile: {name: "Minor League Esports"} } });
-
             const member = this.memberRepository.create({});
             member.organization = mleOrg;
             member.user = user;
@@ -202,14 +204,9 @@ export class PlayerService {
             });
             member.profile.member = member;
 
-            const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
-
             player = this.playerRepository.create({salary});
             player.member = member;
             player.skillGroup = skillGroup;
-
-            const [ {mleid} ] = await runner.query("SELECT MAX(mleid) + 1 AS mleid FROM mledb.player") as Array<{mleid?: number;}>;
-            if (!mleid) throw new Error("Failed to generate MLEID");
 
             await runner.manager.save(user);
             await runner.manager.save(user.profile);
@@ -277,6 +274,7 @@ export class PlayerService {
             timezone: timezone,
             discordId: discordId,
             modePreference: preference,
+            teamName: "Pend",
         } as MLE_Player;
 
         player = this.mle_playerRepository.create(player);
@@ -352,6 +350,12 @@ export class PlayerService {
                     },
                 },
             });
+
+            const bridge = await this.ptpRepo.findOneOrFail({where: {sprocketPlayerId: player.id} });
+            const mlePlayer = await this.mle_playerRepository.findOneOrFail({where: {id: bridge.mledPlayerId} });
+            
+            if (mlePlayer.teamName === "FP") return;
+            if (!playerDelta.rankout && player.salary === playerDelta.newSalary) return;
     
             const discordAccount = await this.userAuthRepository.findOneOrFail({
                 where: {
@@ -377,6 +381,8 @@ export class PlayerService {
                         },
                         relations: {
                             profile: true,
+                            game: true,
+                            organization: true,
                         },
                     });
     
@@ -466,6 +472,8 @@ export class PlayerService {
                         },
                         relations: {
                             profile: true,
+                            organization: true,
+                            game: true,
                         },
                     });
 

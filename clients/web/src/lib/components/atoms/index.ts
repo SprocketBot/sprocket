@@ -9,3 +9,4 @@ export {default as DashboardNumberCard} from "./DashboardNumberCard.svelte";
 export {default as Progress} from "./Progress.svelte";
 export {default as Dropdown} from "./Dropdown.svelte";
 export {default as VsIcon} from "./icons/VsIcon.svelte";
+export {default as Accordion} from "./Accordion.svelte";

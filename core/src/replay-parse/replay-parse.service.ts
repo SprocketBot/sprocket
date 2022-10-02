@@ -90,6 +90,13 @@ export class ReplayParseService {
     }
 
     async ratifySubmission(submissionId: string, playerId: number): Promise<void> {
+        const canRatifyReponse = await this.submissionService.send(SubmissionEndpoint.CanRatifySubmission, {
+            playerId: playerId,
+            submissionId: submissionId,
+        });
+        if (canRatifyReponse.status === ResponseStatus.ERROR) throw canRatifyReponse.error;
+        if (!canRatifyReponse.data.canRatify) throw new GraphQLError(canRatifyReponse.data.reason);
+
         const ratificationResponse = await this.submissionService.send(SubmissionEndpoint.RatifySubmission, {
             submissionId: submissionId,
             playerId: playerId,
