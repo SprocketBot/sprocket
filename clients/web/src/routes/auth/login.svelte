@@ -26,10 +26,10 @@
         $session.user = extractJwt<SessionUser>(tokens[0]);
         $session.token = tokens[0];
 
-        cookies.set(constants.auth_cookie_key, tokens[0], { expires: 1/48 });
-        cookies.set(constants.refresh_token_cookie_key, tokens[1], {expires: 7})
+        cookies.set(constants.auth_cookie_key, tokens[0], {expires: 0.25}); // 6 hours
+        cookies.set(constants.refresh_token_cookie_key, tokens[1], {expires: 7}); // 7 days
 
-        //window.location.pathname = "/scrims";
+        // window.location.pathname = "/scrims";
     }
 </script>
 
