@@ -15,6 +15,7 @@ import {
     MatchmakingService,
     ResponseStatus,
     Scrim,
+    ScrimMode,
     SprocketEvent,
     SprocketEventMarshal,
 } from "@sprocketbot/common";
@@ -28,6 +29,49 @@ export class ScrimService extends SprocketEventMarshal {
         private readonly matchmakingService: MatchmakingService,
     ) {
         super(eventsService);
+    }
+
+    @SprocketEvent(EventTopic.ScrimCreated)
+    async sendScrimCreatedNotifications(scrim: Scrim): Promise<void> {
+        if (!scrim.settings.competitive) return;
+
+        const skillGroupWebhook = await this.coreService.send(CoreEndpoint.GetSkillGroupWebhooks, {skillGroupId: scrim.skillGroupId});
+        if (skillGroupWebhook.status === ResponseStatus.ERROR) throw skillGroupWebhook.error;
+        if (!skillGroupWebhook.data.scrim) return;
+
+        const skillGroupProfile = await this.coreService.send(CoreEndpoint.GetGameSkillGroupProfile, {skillGroupId: scrim.skillGroupId});
+        if (skillGroupProfile.status === ResponseStatus.ERROR) throw skillGroupProfile.error;
+        
+        await this.botService.send(BotEndpoint.SendWebhookMessage, {
+            webhookUrl: skillGroupWebhook.data.scrim,
+            payload: {
+                content: skillGroupWebhook.data.scrimRole ? `<@&${skillGroupWebhook.data.scrimRole}>` : "",
+                embeds: [ {
+                    title: "Scrim Created",
+                    description: `[Join here!](${config.web.url}/scrims)`,
+                    thumbnail: skillGroupProfile.data.photo
+                        ? {
+                                url: skillGroupProfile.data.photo.url,
+                            }
+                        : undefined,
+                    color: parseInt(skillGroupProfile.data.color.replace("#", ""), 16),
+                    fields: [
+                        {
+                            name: "Game Mode",
+                            value: scrim.gameMode.description,
+                        },
+                        {
+                            name: "Type",
+                            value: scrim.settings.mode === ScrimMode.ROUND_ROBIN ? "Round Robin" : "Teams",
+                        },
+                    ],
+                } ],
+            },
+            brandingOptions: {
+                organizationId: scrim.organizationId,
+                options: {},
+            },
+        });
     }
 
     @SprocketEvent(EventTopic.ScrimPopped)
