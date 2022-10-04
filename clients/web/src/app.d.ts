@@ -31,4 +31,8 @@ declare global {
         chatwootSDK?: ChatwootSDK;
         $chatwoot?: ChatwootGlobal;
     }
+
+    interface ImportMetaEnv {
+        STACK: string | undefined;
+    }
 }
