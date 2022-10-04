@@ -3,7 +3,7 @@
 	import {initializeClient} from "$lib/api/client";
 	import {session} from "$app/stores";
 	import {
-	    AuthGuard, Chatwoot, ToastContainer,
+	    AuthGuard, Chatwoot, StackBanner, ToastContainer,
 	} from "$lib/components";
 	import {navigationStore, ADMIN_NAV_ITEM} from "$lib/stores";
 
@@ -17,9 +17,12 @@
 	initializeClient($session);
 </script>
 
+
 <svelte:head>
 	<title>Sprocket</title>
 </svelte:head>
+
+<StackBanner />
 
 <slot />
 
