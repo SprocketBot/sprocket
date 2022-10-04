@@ -1,9 +1,11 @@
 import * as z from "zod";
 
 export const SkillGroupProfileSchema = z.object({
-    scrimReportWebhookUrl: z.string().nullable()
-        .optional(),
-    matchReportWebhookUrl: z.string().nullable()
+    description: z.string(),
+    color: z.string(),
+    photo: z.object({
+        url: z.string(),
+    }).nullable()
         .optional(),
 });
 

@@ -198,8 +198,8 @@ export class ScrimService {
         }));
 
         return {
-            skillGroupWebhook: skillGroupProfile.scrimReportWebhookUrl,
-            franchiseWebhooks: Array.from(new Set(franchiseProfiles.map(fp => fp?.scrimReportWebhookUrl).filter(f => f))) as string[],
+            skillGroupWebhook: skillGroupProfile.scrimReportCardWebhook?.url,
+            franchiseWebhooks: Array.from(new Set(franchiseProfiles.map(fp => fp?.scrimReportCardWebhook?.url).filter(f => f))) as string[],
         };
     }
 

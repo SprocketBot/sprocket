@@ -61,4 +61,10 @@ export class MatchController {
         const data = CoreSchemas.GetMatchReportCardWebhooks.input.parse(payload);
         return this.matchService.getMatchReportCardWebhooks(data.matchId);
     }
+
+    @MessagePattern(CoreEndpoint.GetMatchInformationAndStakeholders)
+    async getMatchInformationAndStakeholders(@Payload() payload: unknown): Promise<CoreOutput<CoreEndpoint.GetMatchInformationAndStakeholders>> {
+        const data = CoreSchemas.GetMatchInformationAndStakeholders.input.parse(payload);
+        return this.matchService.getMatchInfoAndStakeholders(data.matchId);
+    }
 }
