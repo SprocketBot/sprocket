@@ -1,3 +1,6 @@
+export type Stack = "local" | "dev" | "staging" | "main";
+
+
 export interface Config {
     client: {
         gqlUrl: string;
@@ -9,10 +12,14 @@ export interface Config {
             url: string;
             websiteToken: string;
         };
+
+        stack: Stack;
     };
     server: {
         chatwoot: {
             hmacKey: string;
         };
+
+        stack: Stack;
     };
 }
