@@ -107,6 +107,16 @@ export class MatchResolver {
         return "Job started";
     }
 
+    @Mutation(() => String)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    async markSeriesNCP(@Args("seriesId") seriesId: number, @Args("isNcp") isNcp: boolean, @Args("winningTeamId", {nullable: true}) winningTeamId?: number, @Args("numReplays", {nullable: true}) numReplays?: number): Promise<string> {
+        this.logger.verbose(`Marking series ${seriesId} as NCP:${isNcp}. Winning team ID: ${winningTeamId}, with ${numReplays} replays.`);
+        await this.matchService.markSeriesNcp(seriesId, isNcp, winningTeamId, numReplays);
+        await this.mledbMatchService.markSeriesNcp(seriesId, isNcp, seriesType, winningTeamId);
+        this.logger.verbose(`Successfully marked series ${seriesId} NCP:${isNcp}`);
+        return "NCP marked successfully";
+    }
+
     @ResolveField()
     async skillGroup(@Root() root: Match): Promise<GameSkillGroup> {
         if (root.skillGroup) return root.skillGroup;
