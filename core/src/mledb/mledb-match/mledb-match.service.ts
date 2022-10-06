@@ -271,7 +271,9 @@ export class MledbMatchService {
             where: {
                 id: rId,
             },
-            relations: ["teamCoreStats.teamName"],
+            relations: {
+                        teamCoreStats: true,
+            },
         }));
         const replays = await Promise.all(replayPromises);
 
