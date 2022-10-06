@@ -121,7 +121,11 @@ export class MatchResolver {
             where: {
                 id: winningTeamId,
             },
-            relations: ["franchise.profile"],
+            relations: {
+                        franchise: {
+                                    profile: true,
+                        },
+            },
         });
 
         await this.mledbMatchService.markSeriesNcp(seriesId, isNcp, team.franchise.profile.title);
