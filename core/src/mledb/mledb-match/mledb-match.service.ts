@@ -169,7 +169,7 @@ export class MledbMatchService {
         };
     }
 
-    async markSeriesNcp(seriesId: number, isNcp: boolean, seriesType: SeriesType, winningTeamName?: string): Promise<string> {
+    async markSeriesNcp(seriesId: number, isNcp: boolean, winningTeamName?: string): Promise<string> {
         const r = Math.floor(Math.random() * 10000);
         this.logger.debug(`(${r}) begin markSeriesNcp: seriesId=${seriesId}, isNcp=${isNcp}, winningTeam=${winningTeamName}`);
 
@@ -181,6 +181,8 @@ export class MledbMatchService {
             },
             relations: ["fixture.homeName", "fixture.awayName"],
         });
+
+        const seriesType: SeriesType = series.fixture ? SeriesType.Fixture : SeriesType.Scrim;
 
         // winningTeam needs to be 'let' here, since we change it to FA for scrims
         let winningTeam = await this.teamRepo.findOne({
@@ -225,8 +227,6 @@ export class MledbMatchService {
             throw new Error();
         }
 
-        // const seriesReplays = await this.srs.getSeriesReplays({series: {id:
-        // seriesId} }, false);
         const seriesReplays = await this.seriesReplayRepo.find({
             where: {
                 series: {
@@ -236,7 +236,6 @@ export class MledbMatchService {
         });
 
         // Set series to Full NCP and set winning team
-        // await this.ss.updateSeries({fullNcp: isNcp}, seriesId);
         series.fullNcp = isNcp;
         await this.seriesRepo.save(series);
 
@@ -268,8 +267,6 @@ export class MledbMatchService {
         replayIds.sort((a, b) => a - b);
 
         // Gather replays
-        // const replayPromises = replayIds.map(rId =>
-        // this.srs.getSeriesReplayById(rId, ["teamStats"]));
         const replayPromises = replayIds.map(async rId => this.seriesReplayRepo.findOneOrFail({
             where: {
                 id: rId,
@@ -283,7 +280,7 @@ export class MledbMatchService {
             for (const replay of replays) {
                 const teamsInReplay = replay?.teamCoreStats.map(tcs => tcs.teamName);
                 if (!teamsInReplay.includes(winningTeam.name)) {
-                    this.logger.warn(`The team \`${winningTeam.name}\` did not play in replay with id \`${replay.id}\` (${teamsInReplay.map(t => t?.name).join(" v. ")}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`);
+                    this.logger.warn(`The team \`${winningTeam.name}\` did not play in replay with id \`${replay.id}\` (${teamsInReplay.map(t => t).join(" v. ")}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`);
                     this.logger.warn(`Could not find team=${winningTeam.name} on replay with id=${replay.id}, cannot mark as NCP`);
                     throw new Error(`Could not find team=${winningTeam.name} on replay with id=${replay.id}, cannot mark as NCP`);
                 }
@@ -292,43 +289,38 @@ export class MledbMatchService {
 
         // Set replays to NCP true/false and update winning team/color
         for (const replay of replays) {
-            let newWinningTeam: MLE_Team            | undefined;
-            let newWinningColor: (Color | null) | undefined;
+            let newWinningTeam: string | undefined;
+            let newWinningColor: string | undefined;
             
             // Handle NCPing/Un-NCPing with non-dummy/dummy replays
             if (isNcp) {
                 // Set winningTeam to newWinningTeam
                 if (!replay.isDummy) {
                     // Set winningColor depending on previous/new winningTeam
-                    newWinningColor = winningTeam === replay.winningTeam
-                        ? replay.winningColor
-                        : this.cs.getOtherColor(replay.winningColor);
+                    newWinningColor = winningTeam?.name === replay.winningTeamName
+                        ? replay.winningColor as (string | undefined)
+                        : "";
                 } else {
                     // Set winningColor to null
-                    newWinningColor = null;
+                    newWinningColor = "";
                 }
             } else if (!replay.isDummy) {
                 // Set winningTeam based on goals scored
-                const winningTeam = (await replay.teamStats.loadItems()).find(tcs => tcs.goals > tcs.goals_against)?.team;
+                const winningTeamName = replay.teamCoreStats.find(tcs => (tcs.goals && tcs.goalsAgainst ? tcs.goals > tcs.goalsAgainst : false))?.teamName as (string | undefined);
+
                 if (!winningTeam) throw new Error(`Could not find winning team when un-NCPing replay with id=${replay.id}`);
-                newWinningTeam = winningTeam;
+                newWinningTeam = winningTeamName;
 
                 // Set winningColor depending on previous/new winningTeam
-                newWinningColor = winningTeam === replay.winningTeam
-                    ? replay.winningColor
-                    : this.cs.getOtherColor(replay.winningColor);
+                newWinningColor = winningTeam.name === replay.winningTeamName
+                    ? replay.winningColor as (string | undefined)
+                    : "";
             }
 
-            // If Un-NCPing a dummy replay, just delete it
-            if (!isNcp && replay.isDummy) {
-                await this.srs.deleteSeriesReplay(replay.id);
-            } else {
-                await this.srs.updateSeriesReplay({
-                    ncp: isNcp,
-                    winningTeam: newWinningTeam,
-                    winningColor: newWinningColor,
-                }, replay.id);
-            }
+            replay.ncp = isNcp;
+            replay.winningTeamName = newWinningTeam as (string | null);
+            replay.winningColor = newWinningColor as (string | null);
+            await this.seriesReplayRepo.save(replay);
 
         }
         this.logger.debug(`(${r}) end markReplaysNcp`);
