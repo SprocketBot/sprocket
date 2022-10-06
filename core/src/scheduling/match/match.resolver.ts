@@ -19,6 +19,7 @@ import {
     MatchParent,
     Player,    ScheduleFixture,
     ScheduleGroup,
+    Team,
 } from "../../database";
 import type {League} from "../../database/mledb";
 import {LegacyGameMode, MLE_OrganizationTeam} from "../../database/mledb";
@@ -40,8 +41,9 @@ export class MatchResolver {
         private readonly matchService: MatchService,
         private readonly mledbMatchService: MledbMatchService,
         private readonly eventsService: EventsService,
-        @InjectRepository(Match) private readonly matchRepo: Repository<Match>,
         private readonly submissionService: SubmissionService,
+        @InjectRepository(Match) private readonly matchRepo: Repository<Match>,
+        @InjectRepository(Team) private readonly teamRepo: Repository<Team>,
     ) {}
 
     @Query(() => Match)
@@ -112,7 +114,17 @@ export class MatchResolver {
     async markSeriesNCP(@Args("seriesId") seriesId: number, @Args("isNcp") isNcp: boolean, @Args("winningTeamId", {nullable: true}) winningTeamId?: number, @Args("numReplays", {nullable: true}) numReplays?: number): Promise<string> {
         this.logger.verbose(`Marking series ${seriesId} as NCP:${isNcp}. Winning team ID: ${winningTeamId}, with ${numReplays} replays.`);
         await this.matchService.markSeriesNcp(seriesId, isNcp, winningTeamId, numReplays);
-        await this.mledbMatchService.markSeriesNcp(seriesId, isNcp, seriesType, winningTeamId);
+
+        // Have to translate from Team ID to Franchise Profile to get name (for
+        // MLEDB schema)
+        const team = await this.teamRepo.findOneOrFail({
+            where: {
+                id: winningTeamId,
+            },
+            relations: ["franchise.profile"],
+        });
+
+        await this.mledbMatchService.markSeriesNcp(seriesId, isNcp, team.franchise.profile.title);
         this.logger.verbose(`Successfully marked series ${seriesId} NCP:${isNcp}`);
         return "NCP marked successfully";
     }
