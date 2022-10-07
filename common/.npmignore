@@ -1,4 +1,3 @@
-.husky/
 src/
 .eslintrc.js
 .gitignore
