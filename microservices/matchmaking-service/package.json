@@ -14,6 +14,7 @@
     "dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
+    "format": "prettier src --write",
     "lint": "eslint src --fix",
     "test": "jest",
     "test:watch": "jest --watch",

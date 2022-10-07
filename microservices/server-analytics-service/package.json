@@ -10,6 +10,7 @@
     "debug": "nest start --watch --debug",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
+    "format": "prettier src --write",
     "lint": "eslint src --fix"
   },
   "keywords": [],

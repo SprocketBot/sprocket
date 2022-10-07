@@ -4,10 +4,13 @@ module.exports = {
   extends: [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
+    // This config extension tells ESLint to ignore things that prettier takes care of
+    'prettier',
   ],
   plugins: [
     '@typescript-eslint',
     'simple-import-sort',
+    // We don't want to use the 'prettier' plugin here, that will make ESLint do prettiers job much slower!
   ],
   env: {
     es2021: true,
