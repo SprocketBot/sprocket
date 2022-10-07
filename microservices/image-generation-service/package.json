@@ -35,7 +35,6 @@
     "amqplib": "^0.8.0",
     "axios": "^0.21.2",
     "config": "^3.3.6",
-    "eslint-plugin-simple-import-sort": "^7.0.0",
     "jest": "^29.0.3",
     "jest-junit": "^12.2.0",
     "jsdom": "^16.6.0",
@@ -48,8 +47,6 @@
     "zod": "^3.2.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "^12.1.4",
-    "@commitlint/config-conventional": "^12.1.4",
     "@nestjs/testing": "^8.2.3",
     "@types/config": "0.0.38",
     "@types/jest": "^26.0.23",
