@@ -12,7 +12,7 @@
   "license": "MIT",
   "scripts": {
     "postinstall": "npm run build:common",
-    "build": "npm run build --workspaces --if-available",
+    "build": "npm run build --workspaces --if-present",
     "build:common": "npm run build --workspace=common",
     "clean": "npm run clean --workspaces --if-available",
     "lint": "npm run lint --workspaces --if-available"
@@ -30,6 +30,10 @@
     "microservices/submission-service"
   ],
   "devDependencies": {
-    "@types/passport-discord": "^0.1.5"
+    "@types/passport-discord": "^0.1.5",
+    "@typescript-eslint/eslint-plugin": "^5.39.0",
+    "@typescript-eslint/parser": "^5.39.0",
+    "eslint": "^8.25.0",
+    "eslint-plugin-simple-import-sort": "^8.0.0"
   }
 }

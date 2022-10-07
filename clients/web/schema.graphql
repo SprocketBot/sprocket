@@ -1,0 +1,502 @@
+input CreateScrimInput {
+  canSaveDemos: Boolean
+  createGroup: Boolean
+  gameModeId: Int!
+
+  """Seconds until player should automatically leave scrim."""
+  leaveAfter: Int!
+  settings: ScrimSettingsInput!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type FranchiseObject {
+  profile: FranchiseProfileObject!
+}
+
+type FranchiseProfileObject {
+  code: String!
+  createdAt: DateTime!
+  franchise: FranchiseObject!
+  franchiseId: Int!
+  id: Int!
+  photo: PhotoObject!
+  primaryColor: String!
+  secondaryColor: String!
+  submissionDiscordRoleId: String
+  title: String!
+  updatedAt: DateTime!
+}
+
+type GameModeObject {
+  code: String!
+  createdAt: DateTime!
+  deletedAt: DateTime
+  description: String!
+  gameId: Int!
+  id: Int!
+  teamCount: Int!
+  teamSize: Int!
+  updatedAt: DateTime
+}
+
+type GameObject {
+  id: Float!
+  modes: [GameModeObject!]!
+  skillGroups: [GameSkillGroupObject!]!
+  supportedPlatforms: [GamePlatformObject!]!
+  title: String!
+}
+
+type GamePlatformObject {
+  createdAt: DateTime!
+  deletedAt: DateTime
+  id: Int!
+  updatedAt: DateTime
+}
+
+type GameSkillGroupObject {
+  createdAt: DateTime!
+  deletedAt: DateTime
+  gameId: Int!
+  id: Int!
+  ordinal: Float!
+  organizationId: Int!
+  profile: GameSkillGroupProfileObject!
+  salaryCap: Float!
+  updatedAt: DateTime
+}
+
+type GameSkillGroupProfileObject {
+  code: String!
+  color: String!
+  description: String!
+}
+
+type GqlProgress {
+  message: String!
+  value: Float!
+}
+
+input IntakePlayerAccount {
+  platform: MLE_Platform!
+  platformId: String!
+  tracker: String!
+}
+
+input JoinScrimInput {
+  """
+  Specifies that the player has opted to save replays, at least one member of a scrim must provide this flag
+  """
+  canSaveDemos: Boolean
+
+  """
+  Specifies that the user would like to create a group; a group key will be included in the response
+  """
+  createGroup: Boolean
+
+  """
+  Key provided to a group creator; used to place players onto preferred teams
+  """
+  groupKey: String
+  leaveAfter: Int!
+  scrimId: String!
+}
+
+type JwtTokenSet {
+  access: String!
+  refresh: String!
+}
+
+enum MLE_League {
+  ACADEMY
+  CHAMPION
+  FOUNDATION
+  MASTER
+  PREMIER
+  UNKNOWN
+}
+
+enum MLE_ModePreference {
+  BOTH
+  DOUBLES_ONLY
+  PREFER_2S
+  PREFER_3S
+  STANDARD_ONLY
+}
+
+enum MLE_Platform {
+  EPIC
+  PS4
+  STEAM
+  XBOX
+}
+
+enum MLE_Timezone {
+  EU_CENTRAL
+  EU_EAST
+  EU_WEST
+  OCE_CENTRAL
+  OCE_EAST
+  OCE_NZ
+  OCE_WEST
+  UNKNOWN
+  US_ALASKA
+  US_ATLANTIC
+  US_CENTRAL
+  US_EAST
+  US_HAWAII
+  US_MOUNTAIN
+  US_PACIFIC
+}
+
+type MatchObject {
+  canRatify: Boolean!
+  canSubmit: Boolean!
+  gameMode: GameModeObject!
+  id: Int!
+  isDummy: Boolean!
+  matchParent: MatchParentObject!
+  rounds: [RoundObject!]!
+  skillGroup: GameSkillGroupObject!
+  skillGroupId: Int!
+  submissionId: String
+  submissionStatus: String
+}
+
+type MatchParentObject {
+  event: ScheduledEventObject!
+  fixture: ScheduleFixtureObject!
+  id: Int!
+  match: MatchObject!
+  scrimMeta: ScrimMetaObject!
+}
+
+type Mutation {
+  addDummyReplay(matchId: Float!, winningTeamId: Float!): Float!
+  cancelScrim(reason: String, scrimId: String!): ScrimObject!
+  checkInToScrim: Boolean!
+
+  """
+  Creates and automatically joins a new scrim. Fails if player is already in a scrim, or if scrims are disabled
+  """
+  createScrim(data: CreateScrimInput!): ScrimObject!
+  disableScrims(reason: String): Boolean!
+  enableScrims: Boolean!
+  intakePlayer(accounts: [IntakePlayerAccount!]!, discordId: String!, mleid: Float!, name: String!, preferredMode: MLE_ModePreference!, preferredPlatform: String!, salary: Float!, skillGroup: MLE_League!, timezone: MLE_Timezone!): Int!
+  intakePlayerBulk(files: [Upload!]!): [Int!]!
+
+  """
+  Joins the specified scrim, if the player is in the correct organization and skill group.
+  """
+  joinScrim(data: JoinScrimInput!): Boolean!
+
+  """Leaves the player's current scrim, if any"""
+  leaveScrim: Boolean!
+  lockScrim(reason: String, scrimId: String!): Boolean!
+  markReplaysNCP(isNcp: Boolean!, roundIds: [Float!]!, winningTeamId: Float): String!
+  markSeriesNCP(isNcp: Boolean!, numReplays: Float, seriesId: Float!, winningTeamId: Float): String!
+  notifyScrimPlayers(message: String!, scrimId: String!): Boolean!
+  parseReplays(files: [Upload!]!, submissionId: String): [String!]!
+  postReportCard(matchId: Float!): String!
+  ratifySubmission(submissionId: String!): Boolean
+  refreshLogin: JwtTokenSet!
+  rejectSubmission(reason: String!, submissionId: String!): Boolean
+  reprocessMatches(startDate: DateTime!): String!
+  resetSubmission(submissionId: String!): Boolean!
+  switchOrganization(organizationId: Int!): JwtTokenSet!
+  unlockScrim(scrimId: String!): Boolean!
+}
+
+type OrganizationObject {
+  createdAt: DateTime!
+  deletedAt: DateTime
+  description: String!
+  id: Int!
+  logoUrl: String
+  name: String!
+  primaryColor: String!
+  secondaryColor: String!
+  updatedAt: DateTime
+  websiteUrl: String!
+}
+
+type PhotoObject {
+  url: String!
+}
+
+enum ProgressStatus {
+  Complete
+  Error
+  Pending
+}
+
+type Query {
+  """Lists all scrims in an organization without filtering by skill group"""
+  getAllScrims(status: ScrimStatus): [ScrimObject!]!
+
+  """Lists all scrims available to a member"""
+  getAvailableScrims(status: ScrimStatus): [ScrimObject!]!
+
+  """
+  Returns the scrim that the player is currently participating in, if any
+  """
+  getCurrentScrim: ScrimObject
+  getFixture(id: Float!): ScheduleFixtureObject!
+  getMatchObjectBySubmissionId(submissionId: String!): MatchObject!
+  getMemberGames: [GameObject!]!
+
+  """
+  Lists all scrims that are current in progress and marked as observable.
+  """
+  getObservableScrims: [ScrimObject!]!
+  getScheduleGroupTypes: [ScheduleGroupTypeObject!]!
+  getScheduleGroups(currentSeason: Boolean = true, game: Float, type: String!): [ScheduleGroupObject!]!
+  getScrimsDisabled: String
+  getSubmission(submissionId: String!): SubmissionObject
+  me: UserObject!
+}
+
+enum ReplaySubmissionStatus {
+  PROCESSING
+  RATIFIED
+  RATIFYING
+  REJECTED
+  VALIDATING
+}
+
+enum ReplaySubmissionType {
+  MATCH
+  SCRIM
+}
+
+type RoundObject {
+  gameMode: GameModeObject!
+  homeWon: Boolean!
+  id: Int!
+  isDummy: Boolean!
+  match: MatchObject!
+  outputPath: String!
+  parser: String!
+  parserVersion: Int!
+  roundStats: String!
+}
+
+type ScheduleFixtureObject {
+  awayFranchise: FranchiseObject!
+  awayFranchiseId: Int!
+  createdAt: DateTime!
+  homeFranchise: FranchiseObject!
+  homeFranchiseId: Int!
+  id: Int!
+  matchParents: [MatchParentObject!]!
+  scheduleGroup: ScheduleGroupObject!
+  updatedAt: DateTime!
+}
+
+type ScheduleGroupObject {
+  childGroups: [ScheduleGroupObject!]!
+  createdAt: DateTime!
+  description: String
+  end: DateTime!
+  fixtures: [ScheduleFixtureObject!]!
+  game: GameObject!
+  id: Int!
+  parentGroup: ScheduleGroupObject!
+  start: DateTime!
+  type: ScheduleGroupTypeObject!
+  updatedAt: DateTime!
+}
+
+type ScheduleGroupTypeObject {
+  code: String!
+  createdAt: DateTime!
+  id: Int!
+  name: String!
+  organizationId: Int!
+  scheduleGroups: ScheduleGroupObject!
+  updatedAt: DateTime!
+}
+
+type ScheduledEventObject {
+  description: String!
+  end: DateTime!
+  start: DateTime!
+  url: String!
+}
+
+type ScrimEvent {
+  event: String!
+  scrim: ScrimObject!
+}
+
+type ScrimGameObject {
+  teams: [ScrimTeamObject!]!
+}
+
+type ScrimGroupObject {
+  code: String!
+  players: [Int!]!
+}
+
+type ScrimLobbyObject {
+  name: String!
+  password: String!
+}
+
+type ScrimMetaObject {
+  parent: MatchParentObject!
+}
+
+enum ScrimMode {
+  ROUND_ROBIN
+  TEAMS
+}
+
+type ScrimObject {
+  author: UserObject!
+  authorUserId: Int!
+  createdAt: DateTime!
+  currentGroup: ScrimGroupObject
+  gameMode: GameModeObject!
+  gameModeId: Int!
+  games: [ScrimGameObject!]
+  id: String!
+  lobby: ScrimLobbyObject
+  lockedReason: String
+  maxPlayers: Int!
+  observable: Boolean
+  organization: OrganizationObject!
+  organizationId: Int!
+  playerCount: Int!
+  players: [ScrimPlayerObject!]
+  settings: ScrimSettingsObject!
+  skillGroup: GameSkillGroupObject!
+  skillGroupId: Int!
+  status: ScrimStatus!
+  submissionId: String
+  timeoutAt: DateTime
+  updatedAt: DateTime!
+}
+
+type ScrimPlayerObject {
+  canSaveDemos: Boolean!
+  checkedIn: Boolean
+  group: String
+  joinedAt: DateTime!
+  leaveAt: DateTime!
+  name: String!
+  user: UserObject!
+  userId: Int!
+}
+
+input ScrimSettingsInput {
+  competitive: Boolean!
+  mode: ScrimMode!
+  observable: Boolean!
+}
+
+type ScrimSettingsObject {
+  checkinTimeout: Int!
+  competitive: Boolean!
+  mode: ScrimMode!
+  observable: Boolean!
+  teamCount: Int!
+  teamSize: Int!
+}
+
+enum ScrimStatus {
+  CANCELLED
+  COMPLETE
+  EMPTY
+  IN_PROGRESS
+  LOCKED
+  PENDING
+  POPPED
+}
+
+type ScrimTeamObject {
+  players: [ScrimPlayerObject!]!
+}
+
+type SubmissionGameObject {
+  teams: [SubmissionTeamObject!]!
+}
+
+type SubmissionItemObject {
+  originalFilename: String!
+  progress: SubmissionProgressMessageObject!
+  taskId: String!
+}
+
+type SubmissionObject {
+  creatorUserId: Int!
+  id: String!
+  items: [SubmissionItemObject!]!
+  matchId: String
+  ratifications: Float!
+  ratifiers: [Float!]!
+  rejections: [SubmissionRejectionObject!]!
+  requiredRatifications: Float!
+  scrimId: String
+  stats: SubmissionStatsObject
+  status: ReplaySubmissionStatus!
+  taskIds: [String!]!
+  type: ReplaySubmissionType!
+  userHasRatified: Boolean!
+  validated: Boolean!
+}
+
+type SubmissionPlayerObject {
+  goals: Int!
+  name: String!
+}
+
+type SubmissionProgressMessageObject {
+  error: String
+  progress: GqlProgress!
+  status: ProgressStatus!
+  taskId: String!
+}
+
+type SubmissionRejectionObject {
+  reason: String!
+  rejectedAt: String!
+  stale: Boolean!
+  userId: Float!
+}
+
+type SubmissionStatsObject {
+  games: [SubmissionGameObject!]!
+}
+
+type SubmissionTeamObject {
+  players: [SubmissionPlayerObject!]!
+  score: Int!
+  won: Boolean!
+}
+
+type Subscription {
+  followCurrentScrim: ScrimEvent!
+  followObservableScrims: ScrimObject!
+  followPendingScrims: ScrimObject!
+  followScrimsDisabled: String
+  followSubmission(submissionId: String!): SubmissionObject
+}
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
+
+type UserObject {
+  createdAt: DateTime!
+  currentOrganization: OrganizationObject
+  deletedAt: DateTime
+  description: String
+  displayName: String!
+  id: Int!
+  organizations: [OrganizationObject!]!
+  updatedAt: DateTime
+}
