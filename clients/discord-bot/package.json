@@ -9,6 +9,7 @@
     "debug": "nest start --watch --debug",
     "test": "NODE_ENV=test jest --coverage",
     "test:watch": "NODE_ENV=test jest --watch",
+    "format": "prettier src --write",
     "lint": "eslint src --fix"
   },
   "repository": {

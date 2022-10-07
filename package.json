@@ -14,6 +14,7 @@
     "postinstall": "npm run build:common",
     "build": "npm run build --workspaces --if-present",
     "build:common": "npm run build --workspace=common",
+    "format": "npm run format --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present"
   },
   "workspaces": [
@@ -33,6 +34,8 @@
     "@typescript-eslint/eslint-plugin": "^5.39.0",
     "@typescript-eslint/parser": "^5.39.0",
     "eslint": "^8.25.0",
-    "eslint-plugin-simple-import-sort": "^8.0.0"
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-simple-import-sort": "^8.0.0",
+    "prettier": "^2.7.1"
   }
 }
