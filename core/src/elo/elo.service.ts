@@ -20,15 +20,23 @@ export class EloService {
     async prepMigrationData(): Promise<NewPlayer[]> {
         // Run queries, first refreshing the materialized view
         this.logger.verbose("Refreshing materialized view.");
-        await this.dataSource.manager.query("REFRESH MATERIALIZED VIEW mledb.v_current_elo_values");
+        await this.dataSource.manager.query(
+            "REFRESH MATERIALIZED VIEW mledb.v_current_elo_values",
+        );
 
         // Then querying from it
         /* eslint-disable @typescript-eslint/no-unsafe-assignment,
         @typescript-eslint/no-explicit-any */
         this.logger.verbose("Querying the materialized view.");
-        const rawData: CurrentEloValues[] = await this.dataSource.manager.query("SELECT player_id, elo, league, salary, name FROM mledb.v_current_elo_values");
+        const rawData: CurrentEloValues[] = await this.dataSource.manager.query(
+            "SELECT player_id, elo, league, salary, name FROM mledb.v_current_elo_values",
+        );
 
-        this.logger.verbose(`Elo Service, querying migration data: ${JSON.stringify(rawData[0])}`);
+        this.logger.verbose(
+            `Elo Service, querying migration data: ${JSON.stringify(
+                rawData[0],
+            )}`,
+        );
         // Now, we build a NewPlayer instance for each row of data returned from
         // the query
         const output: NewPlayer[] = rawData.map(r => ({
@@ -39,7 +47,9 @@ export class EloService {
             elo: r.elo,
         }));
 
-        this.logger.verbose(`Object build from query: ${JSON.stringify(output[0])}`);
+        this.logger.verbose(
+            `Object build from query: ${JSON.stringify(output[0])}`,
+        );
 
         return output;
     }

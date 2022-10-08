@@ -1,6 +1,4 @@
-import {
-    ResolveField, Resolver, Root,
-} from "@nestjs/graphql";
+import {ResolveField, Resolver, Root} from "@nestjs/graphql";
 
 import type {Franchise, Photo} from "../../database";
 import {FranchiseProfile} from "../../database";
@@ -19,6 +17,10 @@ export class FranchiseProfileResolver {
     @ResolveField()
     async franchise(@Root() root: FranchiseProfile): Promise<Franchise> {
         if (root.franchise) return root.franchise;
-        return this.popService.populateOneOrFail(FranchiseProfile, root, "franchise");
+        return this.popService.populateOneOrFail(
+            FranchiseProfile,
+            root,
+            "franchise",
+        );
     }
 }

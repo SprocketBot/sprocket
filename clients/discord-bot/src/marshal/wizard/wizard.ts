@@ -1,11 +1,16 @@
 import {Logger} from "@nestjs/common";
 import type {
-    CollectorFilter, Message, MessageComponentInteraction, MessageReaction, User,
+    CollectorFilter,
+    Message,
+    MessageComponentInteraction,
+    MessageReaction,
+    User,
 } from "discord.js";
 
 import type {
     Step,
-    StepOptions, ValidWizardCollector,
+    StepOptions,
+    ValidWizardCollector,
     WizardFinalFunction,
     WizardFunction,
 } from "./wizard.types";
@@ -15,9 +20,15 @@ import {WizardStepHandler} from "./wizard-step-handler";
 export class Wizard {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     defaultFilterFunctions: Record<WizardType, (...args: any[]) => boolean> = {
-        [WizardType.MESSAGE]: (message: Message): boolean => message.author.id === this.authorId && !message.author.bot,
-        [WizardType.REACTION]: (reaction: MessageReaction, user: User): boolean => !user.bot,
-        [WizardType.COMPONENT]: (interaction: MessageComponentInteraction): boolean => interaction.user.id === this.authorId,
+        [WizardType.MESSAGE]: (message: Message): boolean =>
+            message.author.id === this.authorId && !message.author.bot,
+        [WizardType.REACTION]: (
+            reaction: MessageReaction,
+            user: User,
+        ): boolean => !user.bot,
+        [WizardType.COMPONENT]: (
+            interaction: MessageComponentInteraction,
+        ): boolean => interaction.user.id === this.authorId,
     };
 
     /**
@@ -45,7 +56,9 @@ export class Wizard {
 
     add(func: WizardFunction, opts?: StepOptions): Wizard {
         const defaultOpts = {
-            filter: this.defaultFilterFunctions[opts?.collectorType ?? WizardType.MESSAGE],
+            filter: this.defaultFilterFunctions[
+                opts?.collectorType ?? WizardType.MESSAGE
+            ],
             timeout: 300000,
             max: 0,
         };
@@ -69,12 +82,16 @@ export class Wizard {
         if (this.steps.length) {
             const step = this.steps.pop()!;
             const target = step.opts?.collectorTarget ?? this.initiator;
-            this.logger.verbose(`Initiating ${step.opts?.collectorType ?? WizardType.MESSAGE}`);
+            this.logger.verbose(
+                `Initiating ${step.opts?.collectorType ?? WizardType.MESSAGE}`,
+            );
             let collector: ValidWizardCollector;
             switch (step.opts?.collectorType) {
                 case WizardType.REACTION: {
                     collector = target.createReactionCollector({
-                        filter: step.opts.filter as CollectorFilter<[MessageReaction, User]>,
+                        filter: step.opts.filter as CollectorFilter<
+                            [MessageReaction, User]
+                        >,
                         time: step.opts.timeout,
                         idle: step.opts.timeout,
                         max: step.opts.max,
@@ -83,7 +100,9 @@ export class Wizard {
                 }
                 case WizardType.COMPONENT: {
                     collector = target.createMessageComponentCollector({
-                        filter: step.opts.filter as CollectorFilter<[MessageComponentInteraction]>,
+                        filter: step.opts.filter as CollectorFilter<
+                            [MessageComponentInteraction]
+                        >,
                         time: step.opts.timeout,
                         idle: step.opts.timeout,
                         max: step.opts.max,
@@ -114,13 +133,17 @@ export class Wizard {
                     const result = handler(...args);
                     if (result instanceof Promise) {
                         result.catch(e => {
-                            this.logger.warn(`${e.name} - ${e.message} caught asyncronously in Wizard`);
+                            this.logger.warn(
+                                `${e.name} - ${e.message} caught asyncronously in Wizard`,
+                            );
                             this.reject?.(new Error("This is a new error"));
                         });
                     }
                 } catch (_e) {
                     const e = _e as Error;
-                    this.logger.warn(`${e.name} - ${e.message} caught syncronously in Wizard`);
+                    this.logger.warn(
+                        `${e.name} - ${e.message} caught syncronously in Wizard`,
+                    );
                     this.reject?.(e);
                 }
             });
@@ -131,13 +154,20 @@ export class Wizard {
     }
 
     next(messages: Map<string, Message>, reason: string): void {
-        if (Array.from(messages.values()).some((m: Message) => m.content === "cancel") || reason === WizardExitStatus.EXIT || reason === "time") {
+        if (
+            Array.from(messages.values()).some(
+                (m: Message) => m.content === "cancel",
+            ) ||
+            reason === WizardExitStatus.EXIT ||
+            reason === "time"
+        ) {
             if (this.failFunction) {
-                this.failFunction(messages).then(() => {
-                    if (!this.steps.length) {
-                        this.resolve?.();
-                    }
-                })
+                this.failFunction(messages)
+                    .then(() => {
+                        if (!this.steps.length) {
+                            this.resolve?.();
+                        }
+                    })
                     .catch(this.reject);
             } else {
                 this.resolve?.();
@@ -146,11 +176,14 @@ export class Wizard {
         }
         if (this.steps.length) {
             // eslint-disable-next-line @typescript-eslint/no-empty-function
-            this.start.bind(this)().catch(() => {});
+            this.start
+                .bind(this)()
+                .catch(() => {});
         } else if (this.finalFunction) {
-            this.finalFunction(messages).then(() => {
-                this.resolve?.();
-            })
+            this.finalFunction(messages)
+                .then(() => {
+                    this.resolve?.();
+                })
                 .catch(this.reject);
         } else {
             this.resolve?.();
@@ -171,5 +204,4 @@ export class Wizard {
     private resolve?: () => void;
 
     private reject?: (e?: Error) => void;
-
 }

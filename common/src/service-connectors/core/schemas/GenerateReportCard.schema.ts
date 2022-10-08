@@ -26,4 +26,6 @@ export const GenerateReportCard_Request = z.union([
 
 export const GenerateReportCard_Response = z.string();
 
-export type GenerateReportCardResponse = z.infer<typeof GenerateReportCard_Response>;
+export type GenerateReportCardResponse = z.infer<
+    typeof GenerateReportCard_Response
+>;

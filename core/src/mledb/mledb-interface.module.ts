@@ -42,5 +42,4 @@ import {MledbFinalizationService} from "./mledb-scrim";
     ],
     controllers: [MledbPlayerController, MledbMatchController],
 })
-export class MledbInterfaceModule {
-}
+export class MledbInterfaceModule {}

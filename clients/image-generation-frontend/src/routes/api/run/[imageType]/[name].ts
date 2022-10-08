@@ -3,16 +3,14 @@ import type {EndpointOutput, Request} from "@sveltejs/kit";
 import {rmqRequest} from "$src/utils/rabbitmq";
 import {ReportTemplateDAO} from "$src/utils/server/database/ReportTemplate.dao";
 
-
 export async function GET({url, params}: Request): Promise<EndpointOutput> {
-
     try {
-    // verify filter values are valid
-        const filterValues = await ReportTemplateDAO.getFilterValues(params.imageType);
+        // verify filter values are valid
+        const filterValues = await ReportTemplateDAO.getFilterValues(
+            params.imageType,
+        );
 
-        for (const {
-            data, code, name,
-        } of filterValues) {
+        for (const {data, code, name} of filterValues) {
             const possibleValues: string[] = data.map(v => v.value.toString());
             if (!url.searchParams.has(code)) {
                 return {
@@ -42,17 +40,17 @@ export async function GET({url, params}: Request): Promise<EndpointOutput> {
 
 export async function POST({body, params}: Request): Promise<EndpointOutput> {
     const data = JSON.parse(body.toString());
-    const results = await ReportTemplateDAO.runReport(params.id, data.filterValues);
+    const results = await ReportTemplateDAO.runReport(
+        params.id,
+        data.filterValues,
+    );
 
     try {
-        const res: any = await rmqRequest(
-            "media-gen.img.create",
-            {
-                inputFile: data.inputFile,
-                outputFile: data.outputFile,
-                filterValues: results,
-            },
-        );
+        const res: any = await rmqRequest("media-gen.img.create", {
+            inputFile: data.inputFile,
+            outputFile: data.outputFile,
+            filterValues: results,
+        });
         if (res?.err) {
             throw new Error(res.err);
         }

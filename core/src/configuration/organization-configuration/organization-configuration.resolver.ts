@@ -1,6 +1,4 @@
-import {
-    Args, Query, Resolver,
-} from "@nestjs/graphql";
+import {Args, Query, Resolver} from "@nestjs/graphql";
 
 import {OrganizationConfigurationKeyCode} from "../../database";
 import {OrganizationConfigurationService} from "./organization-configuration.service";
@@ -15,7 +13,10 @@ export class OrganizationConfigurationResolver {
         @Args("organizationId") organizationId: number,
         @Args("key", {nullable: true}) key?: OrganizationConfigurationKeyCode,
     ): Promise<OrganizationConfiguration[]> {
-        const configs = await this.ocService.getOrganizationConfigurations(organizationId, key);
+        const configs = await this.ocService.getOrganizationConfigurations(
+            organizationId,
+            key,
+        );
         return configs;
     }
 }

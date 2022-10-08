@@ -1,7 +1,5 @@
 import {Controller, Logger} from "@nestjs/common";
-import {
-    MessagePattern, Payload, RpcException,
-} from "@nestjs/microservices";
+import {MessagePattern, Payload, RpcException} from "@nestjs/microservices";
 import type {AnalyticsOutput} from "@sprocketbot/common";
 import {AnalyticsEndpoint} from "@sprocketbot/common";
 
@@ -15,7 +13,9 @@ export class AnalyticsController {
     constructor(private analyticsService: AnalyticsService) {}
 
     @MessagePattern(AnalyticsEndpoint.Analytics)
-    async track(@Payload() data: unknown): Promise<AnalyticsOutput<AnalyticsEndpoint.Analytics>> {
+    async track(
+        @Payload() data: unknown,
+    ): Promise<AnalyticsOutput<AnalyticsEndpoint.Analytics>> {
         try {
             const result = AnalyticsPointSchema.parse(data);
             this.analyticsService.createPoint(result);

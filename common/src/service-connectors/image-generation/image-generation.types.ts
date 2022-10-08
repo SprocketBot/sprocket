@@ -16,10 +16,16 @@ export const ImageGenerationSchemas = {
     },
 };
 
-export type ImageGenerationInput<T extends ImageGenerationEndpoint> = z.infer<typeof ImageGenerationSchemas[T]["input"]>;
-export type ImageGenerationOutput<T extends ImageGenerationEndpoint> = z.infer<typeof ImageGenerationSchemas[T]["output"]>;
+export type ImageGenerationInput<T extends ImageGenerationEndpoint> = z.infer<
+    typeof ImageGenerationSchemas[T]["input"]
+>;
+export type ImageGenerationOutput<T extends ImageGenerationEndpoint> = z.infer<
+    typeof ImageGenerationSchemas[T]["output"]
+>;
 
-export interface ImageGenerationSuccessResponse<T extends ImageGenerationEndpoint> {
+export interface ImageGenerationSuccessResponse<
+    T extends ImageGenerationEndpoint,
+> {
     status: ResponseStatus.SUCCESS;
     data: ImageGenerationOutput<T>;
 }
@@ -30,6 +36,5 @@ export interface ImageGenerationErrorResponse {
 }
 
 export type ImageGenerationResponse<T extends ImageGenerationEndpoint> =
-ImageGenerationSuccessResponse<T>
-| ImageGenerationErrorResponse;
-
+    | ImageGenerationSuccessResponse<T>
+    | ImageGenerationErrorResponse;

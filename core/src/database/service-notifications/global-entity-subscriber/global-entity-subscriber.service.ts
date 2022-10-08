@@ -1,19 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-    Inject, Logger,
-} from "@nestjs/common";
+import {Inject, Logger} from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
 import {InjectConnection} from "@nestjs/typeorm";
 import type {
-    EntitySubscriberInterface, InsertEvent, RemoveEvent, UpdateEvent,
+    EntitySubscriberInterface,
+    InsertEvent,
+    RemoveEvent,
+    UpdateEvent,
 } from "typeorm";
 import {Connection, EventSubscriber} from "typeorm";
 
 @EventSubscriber()
-export class GlobalEntitySubscriberService implements EntitySubscriberInterface<unknown> {
+export class GlobalEntitySubscriberService
+    implements EntitySubscriberInterface<unknown>
+{
     private logger = new Logger(GlobalEntitySubscriberService.name);
 
-    constructor(@InjectConnection() connection: Connection, @Inject("Client") protected clientProxy: ClientProxy) {
+    constructor(
+        @InjectConnection() connection: Connection,
+        @Inject("Client") protected clientProxy: ClientProxy,
+    ) {
         connection.subscribers.push(this);
         this.logger.verbose("GlobalEntitySubscriber Initialized");
     }
@@ -23,7 +29,10 @@ export class GlobalEntitySubscriberService implements EntitySubscriberInterface<
      */
     afterInsert(event: InsertEvent<unknown>): void {
         this.logger.verbose(`db.inserted.${event.metadata.name}`);
-        this.clientProxy.emit(`db.inserted.${event.metadata.name}`, event.entity);
+        this.clientProxy.emit(
+            `db.inserted.${event.metadata.name}`,
+            event.entity,
+        );
     }
 
     /**
@@ -44,7 +53,9 @@ export class GlobalEntitySubscriberService implements EntitySubscriberInterface<
      */
     afterRemove(event: RemoveEvent<unknown>): void {
         this.logger.verbose(`db.removed.${event.metadata.name}`);
-        this.clientProxy.emit(`db.removed.${event.metadata.name}`, event.entity);
+        this.clientProxy.emit(
+            `db.removed.${event.metadata.name}`,
+            event.entity,
+        );
     }
-
 }

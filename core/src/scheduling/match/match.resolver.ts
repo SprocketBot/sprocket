@@ -3,11 +3,18 @@ import {
     Args,
     Mutation,
     Query,
-    ResolveField, Resolver, Root,
+    ResolveField,
+    Resolver,
+    Root,
 } from "@nestjs/graphql";
 import {InjectRepository} from "@nestjs/typeorm";
 import {
-    EventsService, EventTopic, ReplaySubmissionStatus, ResponseStatus, SubmissionEndpoint, SubmissionService,
+    EventsService,
+    EventTopic,
+    ReplaySubmissionStatus,
+    ResponseStatus,
+    SubmissionEndpoint,
+    SubmissionService,
 } from "@sprocketbot/common";
 import {Repository} from "typeorm";
 
@@ -17,7 +24,8 @@ import {
     GameSkillGroup,
     Match,
     MatchParent,
-    Player,    ScheduleFixture,
+    Player,
+    ScheduleFixture,
     ScheduleGroup,
 } from "../../database";
 import type {League} from "../../database/mledb";
@@ -45,49 +53,102 @@ export class MatchResolver {
     ) {}
 
     @Query(() => Match)
-    async getMatchBySubmissionId(@Args("submissionId") submissionId: string): Promise<Match> {
-        return this.matchService.getMatch({where: {submissionId} });
+    async getMatchBySubmissionId(
+        @Args("submissionId") submissionId: string,
+    ): Promise<Match> {
+        return this.matchService.getMatch({where: {submissionId}});
     }
-    
+
     @Mutation(() => String)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    @UseGuards(
+        GqlJwtGuard,
+        MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN),
+    )
     async postReportCard(@Args("matchId") matchId: number): Promise<string> {
         const match = await this.matchService.getMatchById(matchId);
 
         if (!match.skillGroup) {
-            match.skillGroup = await this.populate.populateOneOrFail(Match, match, "skillGroup");
+            match.skillGroup = await this.populate.populateOneOrFail(
+                Match,
+                match,
+                "skillGroup",
+            );
         }
         if (!match.skillGroup.profile) {
-            const skillGroupProfile = await this.populate.populateOneOrFail(GameSkillGroup, match.skillGroup, "profile");
+            const skillGroupProfile = await this.populate.populateOneOrFail(
+                GameSkillGroup,
+                match.skillGroup,
+                "profile",
+            );
             match.skillGroup.profile = skillGroupProfile;
         }
         if (!match.matchParent) {
-            match.matchParent = await this.populate.populateOneOrFail(Match, match, "matchParent");
+            match.matchParent = await this.populate.populateOneOrFail(
+                Match,
+                match,
+                "matchParent",
+            );
         }
 
-        const fixture = await this.populate.populateOne(MatchParent, match.matchParent, "fixture");
+        const fixture = await this.populate.populateOne(
+            MatchParent,
+            match.matchParent,
+            "fixture",
+        );
         if (!fixture) {
             throw new Error("Fixture not found, this may not be league play!");
         }
-        const awayFranchise = await this.populate.populateOneOrFail(ScheduleFixture, fixture, "awayFranchise");
-        const homeFranchise = await this.populate.populateOneOrFail(ScheduleFixture, fixture, "homeFranchise");
+        const awayFranchise = await this.populate.populateOneOrFail(
+            ScheduleFixture,
+            fixture,
+            "awayFranchise",
+        );
+        const homeFranchise = await this.populate.populateOneOrFail(
+            ScheduleFixture,
+            fixture,
+            "homeFranchise",
+        );
 
-        const awayFranchiseProfile = await this.populate.populateOneOrFail(Franchise, awayFranchise, "profile");
-        const homeFranchiseProfile = await this.populate.populateOneOrFail(Franchise, homeFranchise, "profile");
+        const awayFranchiseProfile = await this.populate.populateOneOrFail(
+            Franchise,
+            awayFranchise,
+            "profile",
+        );
+        const homeFranchiseProfile = await this.populate.populateOneOrFail(
+            Franchise,
+            homeFranchise,
+            "profile",
+        );
 
-        const week = await this.populate.populateOneOrFail(ScheduleFixture, fixture, "scheduleGroup");
-        const season = await this.populate.populateOneOrFail(ScheduleGroup, week, "parentGroup");
+        const week = await this.populate.populateOneOrFail(
+            ScheduleFixture,
+            fixture,
+            "scheduleGroup",
+        );
+        const season = await this.populate.populateOneOrFail(
+            ScheduleGroup,
+            week,
+            "parentGroup",
+        );
 
-        const gameMode = await this.populate.populateOneOrFail(Match, match, "gameMode");
+        const gameMode = await this.populate.populateOneOrFail(
+            Match,
+            match,
+            "gameMode",
+        );
 
         const mleSeries = await this.mledbMatchService.getMleSeries(
             awayFranchiseProfile.title,
             homeFranchiseProfile.title,
             week.start,
             season.start,
-            gameMode.teamSize === 2 ? LegacyGameMode.DOUBLES : LegacyGameMode.STANDARD,
+            gameMode.teamSize === 2
+                ? LegacyGameMode.DOUBLES
+                : LegacyGameMode.STANDARD,
             // TODO: This is an awful hack
-            match.skillGroup.profile.description.split(" ")[0].toUpperCase() as League,
+            match.skillGroup.profile.description
+                .split(" ")[0]
+                .toUpperCase() as League,
         );
 
         await this.eventsService.publish(EventTopic.MatchSaved, {
@@ -99,9 +160,16 @@ export class MatchResolver {
     }
 
     @Mutation(() => String)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
-    async reprocessMatches(@Args("startDate") startDate: Date): Promise<string> {
-        this.logger.verbose(`Starting to reprocess matches after ${startDate}.`);
+    @UseGuards(
+        GqlJwtGuard,
+        MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN),
+    )
+    async reprocessMatches(
+        @Args("startDate") startDate: Date,
+    ): Promise<string> {
+        this.logger.verbose(
+            `Starting to reprocess matches after ${startDate}.`,
+        );
         await this.matchService.resubmitAllMatchesAfter(startDate);
         this.logger.verbose(`ReprocessMatches job started.`);
         return "Job started";
@@ -114,7 +182,9 @@ export class MatchResolver {
     }
 
     @ResolveField()
-    async submissionStatus(@Root() root: Match): Promise<MatchSubmissionStatus> {
+    async submissionStatus(
+        @Root() root: Match,
+    ): Promise<MatchSubmissionStatus> {
         const match = await this.matchRepo.findOneOrFail({
             where: {
                 id: root.id,
@@ -128,59 +198,77 @@ export class MatchResolver {
             },
         });
 
-        const {
-            scrimMeta, fixture, event,
-        } = match.matchParent;
+        const {scrimMeta, fixture, event} = match.matchParent;
 
         // If match is related to a scrim, then the submission must be completed because the scrim is saved in the DB
         if (scrimMeta) return "completed";
 
         // Matches must relate to either a scrim, fixture, or event
-        if (!fixture && !event) throw new Error(`Match is related to neither a scrim or a fixture`);
+        if (!fixture && !event)
+            throw new Error(`Match is related to neither a scrim or a fixture`);
 
         // If the fixture has stats, the submission is completed
         const isComplete = match.rounds.length > 0 || match.isDummy;
         if (isComplete) return "completed";
 
         // Fixtures/Events must have a submissionId
-        if (!match.submissionId) throw new Error(`Match ${match.id} is not a scrim and has no submissionId`);
+        if (!match.submissionId)
+            throw new Error(
+                `Match ${match.id} is not a scrim and has no submissionId`,
+            );
 
         // Get submission to check status
-        const result = await this.submissionService.send(SubmissionEndpoint.GetSubmissionIfExists, match.submissionId);
+        const result = await this.submissionService.send(
+            SubmissionEndpoint.GetSubmissionIfExists,
+            match.submissionId,
+        );
         if (result.status === ResponseStatus.ERROR) throw result.error;
         const {submission} = result.data;
 
         if (!submission) return "submitting";
 
-        if (submission.status === ReplaySubmissionStatus.RATIFYING) return "ratifying";
+        if (submission.status === ReplaySubmissionStatus.RATIFYING)
+            return "ratifying";
 
         return "submitting";
     }
 
     @ResolveField()
     @UseGuards(GqlJwtGuard, MatchPlayerGuard)
-    async canSubmit(@CurrentPlayer() player: Player, @Root() root: Match): Promise<boolean> {
+    async canSubmit(
+        @CurrentPlayer() player: Player,
+        @Root() root: Match,
+    ): Promise<boolean> {
         if (root.canSubmit) return root.canSubmit;
         if (!root.submissionId) throw new Error(`Match has no submissionId`);
-                
-        const result = await this.submissionService.send(SubmissionEndpoint.CanSubmitReplays, {
-            playerId: player.member.id,
-            submissionId: root.submissionId,
-        });
+
+        const result = await this.submissionService.send(
+            SubmissionEndpoint.CanSubmitReplays,
+            {
+                playerId: player.member.id,
+                submissionId: root.submissionId,
+            },
+        );
         if (result.status === ResponseStatus.ERROR) throw result.error;
         return result.data.canSubmit;
     }
 
     @ResolveField()
     @UseGuards(GqlJwtGuard, MatchPlayerGuard)
-    async canRatify(@CurrentPlayer() player: Player, @Root() root: Match): Promise<boolean> {
+    async canRatify(
+        @CurrentPlayer() player: Player,
+        @Root() root: Match,
+    ): Promise<boolean> {
         if (root.canRatify) return root.canRatify;
         if (!root.submissionId) throw new Error(`Match has no submissionId`);
-        
-        const result = await this.submissionService.send(SubmissionEndpoint.CanRatifySubmission, {
-            playerId: player.member.id,
-            submissionId: root.submissionId,
-        });
+
+        const result = await this.submissionService.send(
+            SubmissionEndpoint.CanRatifySubmission,
+            {
+                playerId: player.member.id,
+                submissionId: root.submissionId,
+            },
+        );
         if (result.status === ResponseStatus.ERROR) throw result.error;
         return result.data.canRatify;
     }

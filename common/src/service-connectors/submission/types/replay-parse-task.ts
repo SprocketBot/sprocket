@@ -1,6 +1,4 @@
-import type {
-    ProgressStatus, Task, TaskResult,
-} from "../../../celery";
+import type {ProgressStatus, Task, TaskResult} from "../../../celery";
 
 export interface ReplayParseTask {
     status: ProgressStatus;

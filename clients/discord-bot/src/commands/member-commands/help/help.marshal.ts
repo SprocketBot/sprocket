@@ -1,9 +1,7 @@
 import {config} from "@sprocketbot/common";
 import {Message} from "discord.js";
 
-import {
-    Command, Marshal, MarshalCommandContext,
-} from "../../../marshal";
+import {Command, Marshal, MarshalCommandContext} from "../../../marshal";
 import * as helpUtil from "./util";
 
 export class HelpMarshal extends Marshal {
@@ -22,7 +20,7 @@ export class HelpMarshal extends Marshal {
             fields: commandSpecs.map(helpUtil.specToField),
         });
 
-        await m.reply({embeds: [embed] });
+        await m.reply({embeds: [embed]});
     }
 
     @Command({
@@ -38,7 +36,9 @@ export class HelpMarshal extends Marshal {
     })
     async helpSpecific(m: Message, c: MarshalCommandContext): Promise<void> {
         const commandName = c.args.command as string;
-        const commandSpecs = this.cms.getCommandSpecs(commandName).sort(helpUtil.specByNameAndArgs);
+        const commandSpecs = this.cms
+            .getCommandSpecs(commandName)
+            .sort(helpUtil.specByNameAndArgs);
 
         if (!commandSpecs.length) {
             await m.reply(`Sorry, \`${commandName}\` is not a valid command.`);
@@ -53,6 +53,6 @@ export class HelpMarshal extends Marshal {
             fields: fields,
         });
 
-        await m.reply({embeds: [embed] });
+        await m.reply({embeds: [embed]});
     }
 }

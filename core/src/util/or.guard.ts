@@ -1,6 +1,4 @@
-import type {
-    CanActivate, ExecutionContext, Type,
-} from "@nestjs/common";
+import type {CanActivate, ExecutionContext, Type} from "@nestjs/common";
 import {Injectable} from "@nestjs/common";
 import {ModuleRef} from "@nestjs/core";
 
@@ -15,26 +13,30 @@ import {ModuleRef} from "@nestjs/core";
  * async function joinScrim(): Promise<void> {}
  * ```
  */
-export function OrGuard(...guards: Array<Type<CanActivate>>): Type<CanActivate> {
+export function OrGuard(
+    ...guards: Array<Type<CanActivate>>
+): Type<CanActivate> {
     @Injectable()
     class _OrGuard implements CanActivate {
         constructor(private readonly moduleRef: ModuleRef) {}
 
         async canActivate(context: ExecutionContext): Promise<boolean> {
             const errors: string[] = [];
-            
+
             for (const _guard of guards) {
                 const guard = await this.moduleRef.create<CanActivate>(_guard);
 
                 try {
-                    const canActivate = guard.canActivate(context) as Promise<boolean>;
+                    const canActivate = guard.canActivate(
+                        context,
+                    ) as Promise<boolean>;
                     if (await canActivate) return true;
                 } catch (e) {
                     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     errors.push((e as Error)?.message ?? "Unknown Error");
                 }
             }
-            
+
             throw new Error(errors.join("\n"));
         }
     }

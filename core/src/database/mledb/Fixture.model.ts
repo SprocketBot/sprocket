@@ -1,5 +1,11 @@
 import {
-    Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn,
+    Column,
+    Entity,
+    Index,
+    JoinColumn,
+    ManyToOne,
+    OneToMany,
+    PrimaryGeneratedColumn,
 } from "typeorm";
 
 import {MLE_Match} from "./Match.model";
@@ -59,7 +65,7 @@ export class MLE_Fixture {
     channelId: string;
 
     @ManyToOne(() => MLE_Match, match => match.fixtures, {onUpdate: "CASCADE"})
-    @JoinColumn([ {name: "match_id", referencedColumnName: "id"} ])
+    @JoinColumn([{name: "match_id", referencedColumnName: "id"}])
     match: MLE_Match;
 
     @OneToMany(() => MLE_Series, series => series.fixture)

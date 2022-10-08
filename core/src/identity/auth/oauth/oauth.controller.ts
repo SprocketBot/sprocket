@@ -1,5 +1,12 @@
 import {
-    Controller, ForbiddenException, forwardRef, Get, Inject, Request, Response, UseGuards,
+    Controller,
+    ForbiddenException,
+    forwardRef,
+    Get,
+    Inject,
+    Request,
+    Response,
+    UseGuards,
 } from "@nestjs/common";
 import {config} from "@sprocketbot/common";
 import {Request as Req, Response as Res} from "express";
@@ -8,9 +15,7 @@ import type {User, UserAuthenticationAccount} from "../../../database";
 import {UserAuthenticationAccountType} from "../../../database";
 import {MledbPlayerService} from "../../../mledb";
 import {UserService} from "../../user";
-import {
-    DiscordAuthGuard,
-} from "./guards";
+import {DiscordAuthGuard} from "./guards";
 import {JwtRefreshGuard} from "./guards/jwt-refresh.guard";
 import {OauthService} from "./oauth.service";
 import type {AccessToken} from "./types";
@@ -23,19 +28,33 @@ export class OauthController {
         private userService: UserService,
         @Inject(forwardRef(() => MledbPlayerService))
         private mledbUserService: MledbPlayerService,
-    ) { }
+    ) {}
 
     @Get("login")
     @Get("discord/redirect")
     @UseGuards(DiscordAuthGuard)
-    async discordAuthRedirect(@Request() req: Req, @Response() res: Res): Promise<void> {
+    async discordAuthRedirect(
+        @Request() req: Req,
+        @Response() res: Res,
+    ): Promise<void> {
         const ourUser = req.user as User;
-        const userProfile = await this.userService.getUserProfileForUser(ourUser.id);
-        const authAccounts: UserAuthenticationAccount[] = await this.userService.getUserAuthenticationAccountsForUser(ourUser.id);
-        const discordAccount = authAccounts.find(obj => obj.accountType === UserAuthenticationAccountType.DISCORD);
+        const userProfile = await this.userService.getUserProfileForUser(
+            ourUser.id,
+        );
+        const authAccounts: UserAuthenticationAccount[] =
+            await this.userService.getUserAuthenticationAccountsForUser(
+                ourUser.id,
+            );
+        const discordAccount = authAccounts.find(
+            obj => obj.accountType === UserAuthenticationAccountType.DISCORD,
+        );
         if (discordAccount) {
-            const player = await this.mledbUserService.getPlayerByDiscordId(discordAccount.accountId);
-            const player_to_orgs = await this.mledbUserService.getPlayerOrgs(player);
+            const player = await this.mledbUserService.getPlayerByDiscordId(
+                discordAccount.accountId,
+            );
+            const player_to_orgs = await this.mledbUserService.getPlayerOrgs(
+                player,
+            );
             const orgs = player_to_orgs.map(pto => pto.orgTeam);
             const payload: AuthPayload = {
                 sub: discordAccount.accountId,
@@ -45,7 +64,9 @@ export class OauthController {
                 orgTeams: orgs,
             };
             const token = await this.authService.loginDiscord(payload);
-            res.redirect(`${config.auth.frontend_callback}?token=${token.access_token},${token.refresh_token}`);
+            res.redirect(
+                `${config.auth.frontend_callback}?token=${token.access_token},${token.refresh_token}`,
+            );
             return;
         }
         throw new ForbiddenException();
@@ -55,12 +76,23 @@ export class OauthController {
     @Get("refresh")
     async refreshTokens(@Request() req: Req): Promise<AccessToken> {
         const ourUser = req.user as User;
-        const userProfile = await this.userService.getUserProfileForUser(ourUser.id);
-        const authAccounts: UserAuthenticationAccount[] = await this.userService.getUserAuthenticationAccountsForUser(ourUser.id);
-        const discordAccount = authAccounts.find(obj => obj.accountType === UserAuthenticationAccountType.DISCORD);
+        const userProfile = await this.userService.getUserProfileForUser(
+            ourUser.id,
+        );
+        const authAccounts: UserAuthenticationAccount[] =
+            await this.userService.getUserAuthenticationAccountsForUser(
+                ourUser.id,
+            );
+        const discordAccount = authAccounts.find(
+            obj => obj.accountType === UserAuthenticationAccountType.DISCORD,
+        );
         if (discordAccount) {
-            const player = await this.mledbUserService.getPlayerByDiscordId(discordAccount.accountId);
-            const player_to_orgs = await this.mledbUserService.getPlayerOrgs(player);
+            const player = await this.mledbUserService.getPlayerByDiscordId(
+                discordAccount.accountId,
+            );
+            const player_to_orgs = await this.mledbUserService.getPlayerOrgs(
+                player,
+            );
             const orgs = player_to_orgs.map(pto => pto.orgTeam);
             const payload: AuthPayload = {
                 sub: discordAccount.accountId,

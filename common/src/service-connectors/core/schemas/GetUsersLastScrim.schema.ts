@@ -9,4 +9,6 @@ export const GetUsersLastScrim_Request = z.object({
 
 export const GetUsersLastScrim_Response = OrganizationSchema;
 
-export type GetUsersLastScrimResponse = z.infer<typeof GetUsersLastScrim_Response>;
+export type GetUsersLastScrimResponse = z.infer<
+    typeof GetUsersLastScrim_Response
+>;

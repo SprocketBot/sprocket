@@ -1,10 +1,6 @@
-import {
-    Args, Int, Query, ResolveField, Resolver, Root,
-} from "@nestjs/graphql";
+import {Args, Int, Query, ResolveField, Resolver, Root} from "@nestjs/graphql";
 
-import type {
-    MemberProfile, Organization, Player,
-} from "../../database";
+import type {MemberProfile, Organization, Player} from "../../database";
 import {Member} from "../../database";
 import {PopulateService} from "../../util/populate/populate.service";
 import {MemberService} from "./member.service";
@@ -26,7 +22,11 @@ export class MemberResolver {
     @ResolveField()
     async organization(@Root() member: Member): Promise<Organization> {
         if (member.organization) return member.organization;
-        return this.popService.populateOneOrFail(Member, member, "organization");
+        return this.popService.populateOneOrFail(
+            Member,
+            member,
+            "organization",
+        );
     }
 
     @ResolveField()
@@ -38,8 +38,10 @@ export class MemberResolver {
     @Query(() => Member)
     async getMemberByUserId(
         @Args("userId", {type: () => Int}) userId: number,
-        @Args("organizationId", {type: () => Int})organizationId: number,
+        @Args("organizationId", {type: () => Int}) organizationId: number,
     ): Promise<Member> {
-        return this.memberService.getMember({where: {organization: {id: organizationId}, user: {id: userId} } });
+        return this.memberService.getMember({
+            where: {organization: {id: organizationId}, user: {id: userId}},
+        });
     }
 }

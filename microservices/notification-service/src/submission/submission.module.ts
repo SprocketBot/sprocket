@@ -1,6 +1,10 @@
 import {Module} from "@nestjs/common";
 import {
-    BotModule, CoreModule, EventsModule, MatchmakingModule, RedisModule,
+    BotModule,
+    CoreModule,
+    EventsModule,
+    MatchmakingModule,
+    RedisModule,
 } from "@sprocketbot/common";
 
 import {SubmissionService} from "./submission.service";

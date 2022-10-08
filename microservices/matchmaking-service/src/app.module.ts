@@ -7,5 +7,4 @@ import {ScrimModule} from "./scrim/scrim.module";
     controllers: [],
     imports: [EventsModule, ScrimModule, RedisModule],
 })
-export class AppModule {
-}
+export class AppModule {}

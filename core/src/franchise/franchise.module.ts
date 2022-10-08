@@ -1,7 +1,9 @@
 import {forwardRef, Module} from "@nestjs/common";
 import {JwtModule} from "@nestjs/jwt";
 import {
-    EventsModule, NotificationModule, UtilModule as CommonUtilModule,
+    EventsModule,
+    NotificationModule,
+    UtilModule as CommonUtilModule,
 } from "@sprocketbot/common";
 
 import {DatabaseModule} from "../database";
@@ -15,7 +17,9 @@ import {FranchiseResolver} from "./franchise/franchise.resolver";
 import {FranchiseService} from "./franchise/franchise.service";
 import {FranchiseProfileResolver} from "./franchise-profile/franchise-profile.resolver";
 import {
-    GameSkillGroupController, GameSkillGroupResolver, GameSkillGroupService,
+    GameSkillGroupController,
+    GameSkillGroupResolver,
+    GameSkillGroupService,
 } from "./game-skill-group";
 import {PlayerService} from "./player";
 import {PlayerController} from "./player/player.controller";

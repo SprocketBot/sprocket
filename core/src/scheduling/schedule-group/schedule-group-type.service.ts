@@ -6,9 +6,10 @@ import {ScheduleGroupType} from "../../database";
 
 @Injectable()
 export class ScheduleGroupTypeService {
-    constructor(@InjectRepository(ScheduleGroupType)
-              private readonly scheduleGroupRepo: Repository<ScheduleGroupType>) {
-    }
+    constructor(
+        @InjectRepository(ScheduleGroupType)
+        private readonly scheduleGroupRepo: Repository<ScheduleGroupType>,
+    ) {}
 
     async getScheduleGroupTypes(orgId: number): Promise<ScheduleGroupType[]> {
         return this.scheduleGroupRepo.find({

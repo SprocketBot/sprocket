@@ -8,8 +8,10 @@ import {OrganizationService} from "../../organization/organization";
 @Injectable()
 export class VerbiageService {
     constructor(
-        @InjectRepository(Verbiage) private verbiageRepository: Repository<Verbiage>,
-        @InjectRepository(VerbiageCode) private verbiageCodeRepository: Repository<VerbiageCode>,
+        @InjectRepository(Verbiage)
+        private verbiageRepository: Repository<Verbiage>,
+        @InjectRepository(VerbiageCode)
+        private verbiageCodeRepository: Repository<VerbiageCode>,
         private organizationService: OrganizationService,
     ) {}
 
@@ -25,8 +27,12 @@ export class VerbiageService {
         organizationId: number,
         verbiageCode: string,
     ): Promise<Verbiage> {
-        const organization = await this.organizationService.getOrganizationById(organizationId);
-        const code = await this.verbiageCodeRepository.findOneOrFail({where: {code: verbiageCode} });
+        const organization = await this.organizationService.getOrganizationById(
+            organizationId,
+        );
+        const code = await this.verbiageCodeRepository.findOneOrFail({
+            where: {code: verbiageCode},
+        });
 
         let verbiage = await this.verbiageRepository.findOne({
             where: {
@@ -39,12 +45,18 @@ export class VerbiageService {
             },
         });
 
-        if (verbiage) verbiage = this.verbiageRepository.merge(verbiage, {
-            term, organization, code,
-        });
-        else verbiage = this.verbiageRepository.create({
-            term, organization, code,
-        });
+        if (verbiage)
+            verbiage = this.verbiageRepository.merge(verbiage, {
+                term,
+                organization,
+                code,
+            });
+        else
+            verbiage = this.verbiageRepository.create({
+                term,
+                organization,
+                code,
+            });
 
         await this.verbiageRepository.save(verbiage);
         return verbiage;
@@ -61,7 +73,9 @@ export class VerbiageService {
         });
         if (verbiage) return verbiage.term;
 
-        const defaultCode = await this.verbiageCodeRepository.findOneOrFail({where: {code} });
+        const defaultCode = await this.verbiageCodeRepository.findOneOrFail({
+            where: {code},
+        });
         return defaultCode.default;
     }
 
@@ -71,7 +85,10 @@ export class VerbiageService {
      * @param code The verbiage code.
      * @returns The deleted verbiage.
      */
-    async deleteVerbiage(organizationId: number, code: VerbiageCode): Promise<Verbiage> {
+    async deleteVerbiage(
+        organizationId: number,
+        code: VerbiageCode,
+    ): Promise<Verbiage> {
         const toDelete = await this.verbiageRepository.findOneOrFail({
             where: {
                 organization: {id: organizationId},

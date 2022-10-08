@@ -8,4 +8,6 @@ export const GetOrganizationByDiscordGuild_Request = z.object({
 
 export const GetOrganizationByDiscordGuild_Response = OrganizationSchema;
 
-export type GetOrganizationByDiscordGuildResponse = z.infer<typeof GetOrganizationByDiscordGuild_Response>;
+export type GetOrganizationByDiscordGuildResponse = z.infer<
+    typeof GetOrganizationByDiscordGuild_Response
+>;

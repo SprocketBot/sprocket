@@ -6,10 +6,16 @@ import {SprocketConfiguration} from "../../database";
 
 @Injectable()
 export class SprocketConfigurationService {
-    constructor(@InjectRepository(SprocketConfiguration) private sprocketConfigurationRepository: Repository<SprocketConfiguration>) {}
+    constructor(
+        @InjectRepository(SprocketConfiguration)
+        private sprocketConfigurationRepository: Repository<SprocketConfiguration>,
+    ) {}
 
-    async getSprocketConfiguration(key?: string): Promise<SprocketConfiguration[]> {
-        if (key) return this.sprocketConfigurationRepository.find({where: {key} });
+    async getSprocketConfiguration(
+        key?: string,
+    ): Promise<SprocketConfiguration[]> {
+        if (key)
+            return this.sprocketConfigurationRepository.find({where: {key}});
         return this.sprocketConfigurationRepository.find();
     }
 }

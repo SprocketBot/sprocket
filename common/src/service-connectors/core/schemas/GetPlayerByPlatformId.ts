@@ -26,6 +26,11 @@ const GetPlayerErrorResponse = z.object({
     error: z.string(),
 });
 
-export const GetPlayerByPlatformId_Response = z.union([GetPlayerSuccessResponse, GetPlayerErrorResponse]);
+export const GetPlayerByPlatformId_Response = z.union([
+    GetPlayerSuccessResponse,
+    GetPlayerErrorResponse,
+]);
 
-export type GetPlayerByPlatformIdResponse = z.infer<typeof GetPlayerByPlatformId_Response>;
+export type GetPlayerByPlatformIdResponse = z.infer<
+    typeof GetPlayerByPlatformId_Response
+>;

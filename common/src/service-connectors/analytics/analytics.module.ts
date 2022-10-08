@@ -12,7 +12,9 @@ import {AnalyticsService} from "./analytics.service";
     exports: [AnalyticsService],
 })
 export class AnalyticsModule {
-    constructor(@Inject(CommonClient.Analytics) private analyticsClient: ClientProxy) {}
+    constructor(
+        @Inject(CommonClient.Analytics) private analyticsClient: ClientProxy,
+    ) {}
 
     async onApplicationBootstrap(): Promise<void> {
         await this.analyticsClient.connect();

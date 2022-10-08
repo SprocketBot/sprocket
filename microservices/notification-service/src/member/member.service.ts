@@ -25,33 +25,50 @@ export class MemberService extends SprocketEventMarshal {
     }
 
     @SprocketEvent(EventTopic.MemberRestrictionCreated)
-    async sendQueueBanNotification(restriction: MemberRestriction): Promise<void> {
+    async sendQueueBanNotification(
+        restriction: MemberRestriction,
+    ): Promise<void> {
         if (restriction.type !== MemberRestrictionType.QUEUE_BAN) return;
 
-        const memberResult = await this.coreService.send(CoreEndpoint.GetMember, restriction.member.id);
-        if (memberResult.status === ResponseStatus.ERROR) throw memberResult.error;
-        
-        const userResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, memberResult.data.user.id);
+        const memberResult = await this.coreService.send(
+            CoreEndpoint.GetMember,
+            restriction.member.id,
+        );
+        if (memberResult.status === ResponseStatus.ERROR)
+            throw memberResult.error;
+
+        const userResult = await this.coreService.send(
+            CoreEndpoint.GetDiscordIdByUser,
+            memberResult.data.user.id,
+        );
         if (userResult.status === ResponseStatus.ERROR) throw userResult.error;
         if (!userResult.data) return;
 
         await this.botService.send(BotEndpoint.SendDirectMessage, {
             userId: userResult.data,
             payload: {
-                embeds: [ {
-                    title: "You've Been Queue Banned",
-                    fields: [
-                        {
-                            name: "Reason",
-                            value: restriction.reason,
-                        },
-                        {
-                            name: "Expiration",
-                            value: format(utcToZonedTime(new Date(restriction.expiration), "America/New_York"), "MMMM do, u 'at' h:mmaaa 'ET"),
-                        },
-                    ],
-                    timestamp: Date.now(),
-                } ],
+                embeds: [
+                    {
+                        title: "You've Been Queue Banned",
+                        fields: [
+                            {
+                                name: "Reason",
+                                value: restriction.reason,
+                            },
+                            {
+                                name: "Expiration",
+                                value: format(
+                                    utcToZonedTime(
+                                        new Date(restriction.expiration),
+                                        "America/New_York",
+                                    ),
+                                    "MMMM do, u 'at' h:mmaaa 'ET",
+                                ),
+                            },
+                        ],
+                        timestamp: Date.now(),
+                    },
+                ],
             },
             brandingOptions: {
                 organizationId: memberResult.data.organization.id,

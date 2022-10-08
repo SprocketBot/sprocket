@@ -3,7 +3,10 @@ export interface clickOutsideOptions {
     callback: CallableFunction;
 }
 
-export default function clickOutside(node: HTMLElement, {callback}: clickOutsideOptions): {destroy: () => void;} {
+export default function clickOutside(
+    node: HTMLElement,
+    {callback}: clickOutsideOptions,
+): {destroy: () => void} {
     const handleClick = (event): void => {
         if (node && !node.contains(event.target) && !event.defaultPrevented) {
             callback();
@@ -11,7 +14,7 @@ export default function clickOutside(node: HTMLElement, {callback}: clickOutside
     };
 
     document.addEventListener("click", handleClick, true);
-  
+
     return {
         destroy() {
             document.removeEventListener("click", handleClick, true);

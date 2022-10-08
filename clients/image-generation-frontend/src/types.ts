@@ -16,7 +16,7 @@ export interface BoundBox {
 export interface OptionType {
     name: string;
     displayName: string;
-    options: (string|number)[];
+    options: (string | number)[];
     default: string | number;
 }
 export type OptionsRecord = Record<SVGProperty, OptionType[]>;
@@ -31,7 +31,6 @@ export interface SprocketData {
     options: Record<string, string>;
     type: SVGProperty;
 }
-
 
 export interface Filter {
     code: string;

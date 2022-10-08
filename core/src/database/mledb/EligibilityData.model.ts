@@ -1,5 +1,10 @@
 import {
-    Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,
+    Column,
+    Entity,
+    Index,
+    JoinColumn,
+    ManyToOne,
+    PrimaryGeneratedColumn,
 } from "typeorm";
 
 import {MLE_Player} from "./Player.model";
@@ -52,12 +57,12 @@ export class MLE_EligibilityData {
     @ManyToOne(() => MLE_Player, {
         onUpdate: "CASCADE",
     })
-    @JoinColumn([ {name: "player_id", referencedColumnName: "id"} ])
+    @JoinColumn([{name: "player_id", referencedColumnName: "id"}])
     player: MLE_Player;
 
     @ManyToOne(() => MLE_Scrim, scrim => scrim.eligibilityData, {
         onUpdate: "CASCADE",
     })
-    @JoinColumn([ {name: "scrim_id", referencedColumnName: "id"} ])
+    @JoinColumn([{name: "scrim_id", referencedColumnName: "id"}])
     scrim: MLE_Scrim;
 }

@@ -1,6 +1,4 @@
-import {
-    Column, Entity, Index, PrimaryGeneratedColumn,
-} from "typeorm";
+import {Column, Entity, Index, PrimaryGeneratedColumn} from "typeorm";
 
 import {League} from "./enums/League.enum";
 import type {Role} from "./enums/Role.enum";
@@ -63,7 +61,9 @@ export class MLE_PlayerHistory {
     league: League;
 
     @Column("character varying", {
-        name: "role", nullable: true, length: 255,
+        name: "role",
+        nullable: true,
+        length: 255,
     })
     role: Role | null;
 
@@ -75,7 +75,9 @@ export class MLE_PlayerHistory {
     preferredPlatform: string | null;
 
     @Column("integer", {
-        name: "peak_mmr", nullable: true, default: 0,
+        name: "peak_mmr",
+        nullable: true,
+        default: 0,
     })
     peakMmr: number | null;
 

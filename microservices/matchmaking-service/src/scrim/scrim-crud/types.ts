@@ -1,5 +1,7 @@
 import type {
-    ScrimGameMode, ScrimPlayer, ScrimSettings,
+    ScrimGameMode,
+    ScrimPlayer,
+    ScrimSettings,
 } from "@sprocketbot/common";
 
 export interface CreateScrimOpts {

@@ -1,10 +1,6 @@
-import {
-    ResolveField, Resolver, Root,
-} from "@nestjs/graphql";
+import {ResolveField, Resolver, Root} from "@nestjs/graphql";
 
-import type {
-    Game, ScheduleFixture, ScheduleGroupType,
-} from "../../database";
+import type {Game, ScheduleFixture, ScheduleGroupType} from "../../database";
 import {ScheduleGroup} from "../../database";
 import {PopulateService} from "../../util/populate/populate.service";
 
@@ -25,7 +21,9 @@ export class ScheduleGroupResolver {
     }
 
     @ResolveField()
-    async parentGroup(@Root() root: ScheduleGroup): Promise<ScheduleGroup | undefined> {
+    async parentGroup(
+        @Root() root: ScheduleGroup,
+    ): Promise<ScheduleGroup | undefined> {
         if (root.parentGroup) return root.parentGroup;
         return this.populate.populateOne(ScheduleGroup, root, "parentGroup");
     }
@@ -41,5 +39,4 @@ export class ScheduleGroupResolver {
         if (root.fixtures) return root.fixtures;
         return this.populate.populateMany(ScheduleGroup, root, "fixtures");
     }
-
 }

@@ -22,9 +22,9 @@ export class RedisService {
             lazyConnect: true,
             tls: config.redis.secure
                 ? {
-                        host: config.redis.host,
-                        servername: config.redis.host,
-                    }
+                      host: config.redis.host,
+                      servername: config.redis.host,
+                  }
                 : undefined,
         };
     }
@@ -38,12 +38,29 @@ export class RedisService {
         this._redis = redis;
     }
 
-    async setJson<T extends Record<string, unknown>>(key: string, input: T): Promise<void> {
-        await this.redis.send_command("json.set", key, ".", JSON.stringify(input));
+    async setJson<T extends Record<string, unknown>>(
+        key: string,
+        input: T,
+    ): Promise<void> {
+        await this.redis.send_command(
+            "json.set",
+            key,
+            ".",
+            JSON.stringify(input),
+        );
     }
 
-    async setJsonField<T extends Record<string, unknown>>(key: string, path: string, input: T): Promise<void> {
-        await this.redis.send_command("json.set", key, path, JSON.stringify(input));
+    async setJsonField<T extends Record<string, unknown>>(
+        key: string,
+        path: string,
+        input: T,
+    ): Promise<void> {
+        await this.redis.send_command(
+            "json.set",
+            key,
+            path,
+            JSON.stringify(input),
+        );
     }
 
     async getJson<T>(key: string, path?: string): Promise<T> {
@@ -51,12 +68,16 @@ export class RedisService {
         if (path) {
             args.push(path);
         }
-        return JSON.parse(await this.redis.send_command("json.get", ...args) as string) as T;
+        return JSON.parse(
+            (await this.redis.send_command("json.get", ...args)) as string,
+        ) as T;
     }
 
     async getJsonIfExists<T>(key: string): Promise<T | undefined> {
         try {
-            const obj = JSON.parse(await this.redis.send_command("json.get", key) as string) as T;
+            const obj = JSON.parse(
+                (await this.redis.send_command("json.get", key)) as string,
+            ) as T;
             return obj;
         } catch (e) {
             return undefined;
@@ -65,7 +86,7 @@ export class RedisService {
 
     async getIfExists<T>(key: string): Promise<T | undefined> {
         try {
-            const obj = await this.redis.send_command("get", key) as T;
+            const obj = (await this.redis.send_command("get", key)) as T;
             return obj;
         } catch (e) {
             return undefined;
@@ -78,8 +99,17 @@ export class RedisService {
         return JSON.parse(res) as T;
     }
 
-    async appendToJsonArray<T extends Record<string, unknown>>(key: string, path: string, value: T): Promise<void> {
-        await this.redis.send_command("json.arrappend", key, path, JSON.stringify(value));
+    async appendToJsonArray<T extends Record<string, unknown>>(
+        key: string,
+        path: string,
+        value: T,
+    ): Promise<void> {
+        await this.redis.send_command(
+            "json.arrappend",
+            key,
+            path,
+            JSON.stringify(value),
+        );
     }
 
     async deleteJsonField(key: string, path: string): Promise<void> {
@@ -96,7 +126,8 @@ export class RedisService {
 
     async keyExists(key: string): Promise<boolean> {
         const keys = await this.getKeys(key);
-        if (keys.length > 1) throw new Error(`Found multiple keys matching ${key}: ${keys}`);
+        if (keys.length > 1)
+            throw new Error(`Found multiple keys matching ${key}: ${keys}`);
         return keys.length === 1;
     }
 

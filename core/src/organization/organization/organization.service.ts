@@ -9,8 +9,10 @@ import {Organization, OrganizationProfile} from "../../database";
 @Injectable()
 export class OrganizationService {
     constructor(
-        @InjectRepository(Organization) private organizationRepository: Repository<Organization>,
-        @InjectRepository(OrganizationProfile) private organizationProfileRepository: Repository<OrganizationProfile>,
+        @InjectRepository(Organization)
+        private organizationRepository: Repository<Organization>,
+        @InjectRepository(OrganizationProfile)
+        private organizationProfileRepository: Repository<OrganizationProfile>,
     ) {}
 
     /**
@@ -18,8 +20,14 @@ export class OrganizationService {
      * @param organizationProfile The profile to give the newly created organization.
      * @returns A promise that resolves to the newly created organization.
      */
-    async createOrganization(organizationProfile: Omit<OrganizationProfile, IrrelevantFields | "id" | "organization">): Promise<Organization> {
-        const profile = this.organizationProfileRepository.create(organizationProfile);
+    async createOrganization(
+        organizationProfile: Omit<
+            OrganizationProfile,
+            IrrelevantFields | "id" | "organization"
+        >,
+    ): Promise<Organization> {
+        const profile =
+            this.organizationProfileRepository.create(organizationProfile);
         const organization = this.organizationRepository.create({profile});
 
         await this.organizationProfileRepository.save(organization.profile);
@@ -33,7 +41,7 @@ export class OrganizationService {
      * @retusn The organization with the given id, if found.
      */
     async getOrganizationById(id: number): Promise<Organization> {
-        return this.organizationRepository.findOneOrFail({where: {id} });
+        return this.organizationRepository.findOneOrFail({where: {id}});
     }
 
     /**
@@ -41,8 +49,11 @@ export class OrganizationService {
      * @param query A query to search for matching Organzations.
      * @returns An array containg Organizations matching the given query.
      */
-    async getOrganization(query: FindOneOptions<OrganizationProfile>): Promise<Organization> {
-        const organizationProfile = await this.organizationProfileRepository.findOneOrFail(query);
+    async getOrganization(
+        query: FindOneOptions<OrganizationProfile>,
+    ): Promise<Organization> {
+        const organizationProfile =
+            await this.organizationProfileRepository.findOneOrFail(query);
         return organizationProfile.organization;
     }
 
@@ -51,8 +62,11 @@ export class OrganizationService {
      * @param query A query to search for matching Organzations.
      * @returns An array containg Organizations matching the given query.
      */
-    async getOrganizations(query?: FindManyOptions<OrganizationProfile>): Promise<Organization[]> {
-        const organizationProfiles = await this.organizationProfileRepository.find(query);
+    async getOrganizations(
+        query?: FindManyOptions<OrganizationProfile>,
+    ): Promise<Organization[]> {
+        const organizationProfiles =
+            await this.organizationProfileRepository.find(query);
         return organizationProfiles.map(op => op.organization);
     }
 
@@ -62,7 +76,10 @@ export class OrganizationService {
      * @param data The fields and values on the OrganizationProfile to update.
      * @returns The updated OrganizationProfile.
      */
-    async updateOrganizationProfile(organizationId: number, data: Omit<Partial<OrganizationProfile>, "organization">): Promise<OrganizationProfile> {
+    async updateOrganizationProfile(
+        organizationId: number,
+        data: Omit<Partial<OrganizationProfile>, "organization">,
+    ): Promise<OrganizationProfile> {
         let {profile} = await this.organizationRepository.findOneOrFail({
             relations: {profile: true},
             where: {id: organizationId},
@@ -83,12 +100,19 @@ export class OrganizationService {
             relations: {profile: true},
         });
         await this.organizationRepository.delete({id});
-        await this.organizationProfileRepository.delete({id: toDelete.profile.id});
+        await this.organizationProfileRepository.delete({
+            id: toDelete.profile.id,
+        });
         return toDelete;
     }
 
-    async getOrganizationProfileForOrganization(organizationId: number): Promise<OrganizationProfile> {
-        const org = await this.organizationRepository.findOneOrFail({where: {id: organizationId}, relations: {profile: true} });
+    async getOrganizationProfileForOrganization(
+        organizationId: number,
+    ): Promise<OrganizationProfile> {
+        const org = await this.organizationRepository.findOneOrFail({
+            where: {id: organizationId},
+            relations: {profile: true},
+        });
         return org.profile;
     }
 }

@@ -1,9 +1,7 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {Parser} from "@sprocketbot/common";
 import GraphQLJSON from "graphql-type-json";
-import {
-    Column, Entity, ManyToOne, OneToMany,
-} from "typeorm";
+import {Column, Entity, ManyToOne, OneToMany} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {GameMode} from "../../game";

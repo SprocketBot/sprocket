@@ -1,6 +1,4 @@
-import {
-    Column, Entity, Index, OneToMany,
-} from "typeorm";
+import {Column, Entity, Index, OneToMany} from "typeorm";
 
 import {Conference} from "./enums/Conference.enum";
 import {MLE_Team} from "./Team.model";
@@ -9,7 +7,9 @@ import {MLE_Team} from "./Team.model";
 @Entity("division", {schema: "mledb"})
 export class MLE_Division {
     @Column("character varying", {
-        primary: true, name: "name", length: 255,
+        primary: true,
+        name: "name",
+        length: 255,
     })
     name: string;
 

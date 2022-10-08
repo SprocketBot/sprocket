@@ -7,7 +7,10 @@ import {JwtConstants} from "../constants";
 import type {AuthPayload, UserPayload} from "../types";
 
 @Injectable()
-export class JwtRefreshStrategy extends PassportStrategy(Strategy, "jwt-refresh") {
+export class JwtRefreshStrategy extends PassportStrategy(
+    Strategy,
+    "jwt-refresh",
+) {
     constructor() {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),

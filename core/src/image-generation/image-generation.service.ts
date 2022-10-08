@@ -2,7 +2,9 @@ import {Injectable, Logger} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {
     config,
-    ImageGenerationEndpoint, ImageGenerationService as IGService, ResponseStatus,
+    ImageGenerationEndpoint,
+    ImageGenerationService as IGService,
+    ResponseStatus,
 } from "@sprocketbot/common";
 import {DataSource, Repository} from "typeorm";
 
@@ -13,17 +15,23 @@ export class ImageGenerationService {
     private readonly logger = new Logger(ImageGenerationService.name);
 
     constructor(
-        @InjectRepository(ImageTemplate) private imageTemplateRepository: Repository<ImageTemplate>,
+        @InjectRepository(ImageTemplate)
+        private imageTemplateRepository: Repository<ImageTemplate>,
         private readonly dataSource: DataSource,
         private readonly igService: IGService,
     ) {}
 
     async createScrimReportCard(scrimId: number): Promise<string> {
         this.logger.log("Creating Scrim Report Card");
-        const reportCardRow = await this.imageTemplateRepository.findOneOrFail({where: {reportCode: "scrim_report_cards"} });
+        const reportCardRow = await this.imageTemplateRepository.findOneOrFail({
+            where: {reportCode: "scrim_report_cards"},
+        });
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const data = await this.dataSource.query(reportCardRow.query.query, [scrimId, config.defaultOrganizationId]);
+        const data = await this.dataSource.query(reportCardRow.query.query, [
+            scrimId,
+            config.defaultOrganizationId,
+        ]);
         const result = await this.igService.send(
             ImageGenerationEndpoint.GenerateImage,
             {
@@ -39,16 +47,23 @@ export class ImageGenerationService {
 
     async createSeriesReportCard(seriesId: number): Promise<string> {
         this.logger.log("Creating Series Report Card");
-        const reportCardRow = await this.imageTemplateRepository.findOneOrFail({where: {reportCode: "series_report_cards"} });
+        const reportCardRow = await this.imageTemplateRepository.findOneOrFail({
+            where: {reportCode: "series_report_cards"},
+        });
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const data = await this.dataSource.query(reportCardRow.query.query, [seriesId, config.defaultOrganizationId]);
+        const data = await this.dataSource.query(reportCardRow.query.query, [
+            seriesId,
+            config.defaultOrganizationId,
+        ]);
 
         let reportCard = "seriesSixPlayersMax";
-        
+
         // if more than 6 players, use 8 player report card
-        const seventhPlayer = data?.[0]?.data?.player_data?.[6]?.name as {value?: string;};
-        
+        const seventhPlayer = data?.[0]?.data?.player_data?.[6]?.name as {
+            value?: string;
+        };
+
         // seventh player will always exist, but its value will only be emplty of no subs were used
         if (seventhPlayer && seventhPlayer?.value !== "") {
             reportCard = "seriesEightPlayersMax";

@@ -21,11 +21,18 @@ export interface AllTaskArgs {
     progressQueue?: string;
 }
 
-export type TaskArgs<T extends Task> = z.infer<typeof TaskSchemas[T]["args"]> & AllTaskArgs;
+export type TaskArgs<T extends Task> = z.infer<typeof TaskSchemas[T]["args"]> &
+    AllTaskArgs;
 
-export type TaskResult<T extends Task> = z.infer<typeof TaskSchemas[T]["result"]>;
+export type TaskResult<T extends Task> = z.infer<
+    typeof TaskSchemas[T]["result"]
+>;
 
 export interface RunOpts<T extends Task> {
     progressQueue?: string;
-    cb?: (taskId: string, result: TaskResult<T> | null, error: Error | null) => void | Promise<void>;
+    cb?: (
+        taskId: string,
+        result: TaskResult<T> | null,
+        error: Error | null,
+    ) => void | Promise<void>;
 }

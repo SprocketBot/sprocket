@@ -1,7 +1,9 @@
 import {z} from "zod";
 
 import {
-    BaseNotificationSchema, NotificationDirectMessageSchema, NotificationType,
+    BaseNotificationSchema,
+    NotificationDirectMessageSchema,
+    NotificationType,
 } from "./BaseNotification.schema";
 
 export const RankdownNotificationSchema = BaseNotificationSchema.extend({

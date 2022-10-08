@@ -3,9 +3,11 @@ import * as z from "zod";
 export const SkillGroupProfileSchema = z.object({
     description: z.string(),
     color: z.string(),
-    photo: z.object({
-        url: z.string(),
-    }).nullable()
+    photo: z
+        .object({
+            url: z.string(),
+        })
+        .nullable()
         .optional(),
 });
 

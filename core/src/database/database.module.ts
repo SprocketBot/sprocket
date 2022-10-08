@@ -34,8 +34,7 @@ const modules = [
         host: config.db.host,
         port: config.db.port,
         username: config.db.username,
-        password: readFileSync("./secret/db-password.txt").toString()
-            .trim(),
+        password: readFileSync("./secret/db-password.txt").toString().trim(),
         database: config.db.database,
         autoLoadEntities: true,
         logging: config.db.enable_logs,
@@ -46,4 +45,4 @@ const modules = [
     imports: modules,
     exports: modules,
 })
-export class DatabaseModule { }
+export class DatabaseModule {}

@@ -1,6 +1,4 @@
-import {
-    Field, InputType, Int, ObjectType,
-} from "@nestjs/graphql";
+import {Field, InputType, Int, ObjectType} from "@nestjs/graphql";
 import type {ScrimPlayer as IScrimPlayer} from "@sprocketbot/common";
 
 @ObjectType()

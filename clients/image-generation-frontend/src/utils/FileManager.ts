@@ -1,11 +1,11 @@
-import {
-    downloadProgress, downloadStatus, uploadProgress,
-} from "../stores";
+import {downloadProgress, downloadStatus, uploadProgress} from "../stores";
 
 class FileManager {
     private _busy = false;
 
-    get busy(): boolean { return this._busy }
+    get busy(): boolean {
+        return this._busy;
+    }
 
     async downloadFile(presignedURL: string, size: number): Promise<Blob> {
         if (this._busy) throw Error("File manager busy");
@@ -14,7 +14,7 @@ class FileManager {
         downloadProgress.set(0);
 
         downloadStatus.set("starting");
-    
+
         const result = new Promise<Blob>((res, rej) => {
             const xhr = new XMLHttpRequest();
             xhr.responseType = "blob";
@@ -46,14 +46,12 @@ class FileManager {
             downloadStatus.set("in progress");
         });
         return result;
-
     }
 
     async uploadFile(presignedURL: string, file: Blob): Promise<unknown> {
         if (this._busy) throw Error("File manager busy");
         uploadProgress.set(0);
         this._busy = true;
-
 
         const result = new Promise<boolean>((res, rej) => {
             const xhr = new XMLHttpRequest();
@@ -81,7 +79,6 @@ class FileManager {
 
         return result;
     }
-
 }
 
 const fileManager = new FileManager();

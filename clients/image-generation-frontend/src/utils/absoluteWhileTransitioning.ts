@@ -6,7 +6,6 @@ export const absoluteWhileTransitioning = (node: HTMLElement): void => {
         originalWidth = node.style.width || undefined;
         node.style.position = "absolute";
         node.style.width = "100%";
-        
     };
     const end = (): void => {
         node.style.position = originalPosition;

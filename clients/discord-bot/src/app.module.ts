@@ -23,9 +23,6 @@ import {SprocketEventsModule} from "./sprocket-events/sprocket-events.module";
         CommandsModule,
         SprocketEventsModule,
     ],
-    providers: [
-        GlobalModule,
-        EmbedService,
-    ],
+    providers: [GlobalModule, EmbedService],
 })
 export class AppModule {}

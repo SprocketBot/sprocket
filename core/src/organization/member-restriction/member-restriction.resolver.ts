@@ -1,6 +1,13 @@
 import {Inject, UseGuards} from "@nestjs/common";
 import {
-    Args, Int, Mutation, Query, ResolveField, Resolver, Root, Subscription,
+    Args,
+    Int,
+    Mutation,
+    Query,
+    ResolveField,
+    Resolver,
+    Root,
+    Subscription,
 } from "@nestjs/graphql";
 import {PubSub} from "apollo-server-express";
 
@@ -23,43 +30,90 @@ export class MemberRestrictionResolver {
     ) {}
 
     @Query(() => [MemberRestriction])
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
-    async getActiveMemberRestrictions(@Args("type", {type: () => MemberRestrictionType}) type: MemberRestrictionType): Promise<MemberRestriction[]> {
+    @UseGuards(
+        GqlJwtGuard,
+        MLEOrganizationTeamGuard([
+            MLE_OrganizationTeam.MLEDB_ADMIN,
+            MLE_OrganizationTeam.LEAGUE_OPERATIONS,
+        ]),
+    )
+    async getActiveMemberRestrictions(
+        @Args("type", {type: () => MemberRestrictionType})
+        type: MemberRestrictionType,
+    ): Promise<MemberRestriction[]> {
         return this.memberRestrictionService.getActiveMemberRestrictions(type);
     }
 
     @Mutation(() => MemberRestriction)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
+    @UseGuards(
+        GqlJwtGuard,
+        MLEOrganizationTeamGuard([
+            MLE_OrganizationTeam.MLEDB_ADMIN,
+            MLE_OrganizationTeam.LEAGUE_OPERATIONS,
+        ]),
+    )
     async createMemberRestriction(
-        @Args("type", {type: () => MemberRestrictionType}) type: MemberRestrictionType,
+        @Args("type", {type: () => MemberRestrictionType})
+        type: MemberRestrictionType,
         @Args("expiration", {type: () => Date}) expiration: Date,
         @Args("reason") reason: string,
         @Args("memberId", {type: () => Int}) memberId: number,
     ): Promise<MemberRestriction> {
-        return this.memberRestrictionService.createMemberRestriction(type, expiration, reason, memberId);
+        return this.memberRestrictionService.createMemberRestriction(
+            type,
+            expiration,
+            reason,
+            memberId,
+        );
     }
 
     @Mutation(() => MemberRestriction)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
+    @UseGuards(
+        GqlJwtGuard,
+        MLEOrganizationTeamGuard([
+            MLE_OrganizationTeam.MLEDB_ADMIN,
+            MLE_OrganizationTeam.LEAGUE_OPERATIONS,
+        ]),
+    )
     async manuallyExpireMemberRestriction(
         @Args("id", {type: () => Int}) id: number,
         @Args("manualExpiration", {type: () => Date}) manualExpiration: Date,
-        @Args("manualExpirationReason", {type: () => String}) manualExpirationReason: string,
+        @Args("manualExpirationReason", {type: () => String})
+        manualExpirationReason: string,
         @Args("forgiven", {
-            type: () => Boolean, nullable: true, defaultValue: false,
-        }) forgiven = false,
+            type: () => Boolean,
+            nullable: true,
+            defaultValue: false,
+        })
+        forgiven = false,
     ): Promise<MemberRestriction> {
-        return this.memberRestrictionService.manuallyExpireMemberRestriction(id, manualExpiration, manualExpirationReason, forgiven);
+        return this.memberRestrictionService.manuallyExpireMemberRestriction(
+            id,
+            manualExpiration,
+            manualExpirationReason,
+            forgiven,
+        );
     }
 
     @ResolveField()
-    async member(@Root() memberRestriction: Partial<MemberRestriction>): Promise<Member> {
-        return memberRestriction.member ?? await this.memberService.getMemberById(memberRestriction.memberId!);
+    async member(
+        @Root() memberRestriction: Partial<MemberRestriction>,
+    ): Promise<Member> {
+        return (
+            memberRestriction.member ??
+            (await this.memberService.getMemberById(
+                memberRestriction.memberId!,
+            ))
+        );
     }
 
     @Subscription(() => MemberRestrictionEvent)
-    async followRestrictedMembers(): Promise<AsyncIterator<MemberRestrictionEvent>> {
+    async followRestrictedMembers(): Promise<
+        AsyncIterator<MemberRestrictionEvent>
+    > {
         await this.memberService.enableSubscription();
-        return this.pubSub.asyncIterator(this.memberService.restrictedMembersSubTopic);
+        return this.pubSub.asyncIterator(
+            this.memberService.restrictedMembersSubTopic,
+        );
     }
 }

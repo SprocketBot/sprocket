@@ -1,21 +1,24 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import type {
-    FindManyOptions, FindOneOptions, FindOptionsWhere,
-} from "typeorm";
+import type {FindManyOptions, FindOneOptions, FindOptionsWhere} from "typeorm";
 import {Repository} from "typeorm";
 
 import type {IrrelevantFields} from "../../database";
 import {
-    User, UserAuthenticationAccount, UserAuthenticationAccountType, UserProfile,
+    User,
+    UserAuthenticationAccount,
+    UserAuthenticationAccountType,
+    UserProfile,
 } from "../../database";
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(User) private userRepository: Repository<User>,
-        @InjectRepository(UserProfile) private userProfileRepository: Repository<UserProfile>,
-        @InjectRepository(UserAuthenticationAccount) private userAuthAcctRepository: Repository<UserAuthenticationAccount>,
+        @InjectRepository(UserProfile)
+        private userProfileRepository: Repository<UserProfile>,
+        @InjectRepository(UserAuthenticationAccount)
+        private userAuthAcctRepository: Repository<UserAuthenticationAccount>,
     ) {}
 
     /**
@@ -25,13 +28,19 @@ export class UserService {
      */
     async createUser(
         userProfile: Omit<UserProfile, IrrelevantFields | "id" | "user">,
-        authenticationAccounts: Array<Omit<UserAuthenticationAccount, IrrelevantFields | "id" | "user">>,
+        authenticationAccounts: Array<
+            Omit<UserAuthenticationAccount, IrrelevantFields | "id" | "user">
+        >,
     ): Promise<User> {
         const profile = this.userProfileRepository.create(userProfile);
-        const authAccts = authenticationAccounts.map(acct => this.userAuthAcctRepository.create(acct));
+        const authAccts = authenticationAccounts.map(acct =>
+            this.userAuthAcctRepository.create(acct),
+        );
         const user = this.userRepository.create({profile});
         user.authenticationAccounts = authAccts;
-        authAccts.forEach(aa => { aa.user = user });
+        authAccts.forEach(aa => {
+            aa.user = user;
+        });
 
         await this.userProfileRepository.save(user.profile);
         await this.userRepository.save(user);
@@ -48,12 +57,18 @@ export class UserService {
      */
     async addAuthenticationAccounts(
         id: number,
-        authenticationAccounts: Array<Omit<UserAuthenticationAccount, IrrelevantFields | "id" | "user">>,
+        authenticationAccounts: Array<
+            Omit<UserAuthenticationAccount, IrrelevantFields | "id" | "user">
+        >,
     ): Promise<User> {
-        const authAccts = authenticationAccounts.map(acct => this.userAuthAcctRepository.create(acct));
-        const user = await this.userRepository.findOneOrFail({where: {id} });
+        const authAccts = authenticationAccounts.map(acct =>
+            this.userAuthAcctRepository.create(acct),
+        );
+        const user = await this.userRepository.findOneOrFail({where: {id}});
         user.authenticationAccounts = authAccts;
-        authAccts.forEach(aa => { aa.user = user });
+        authAccts.forEach(aa => {
+            aa.user = user;
+        });
         await this.userAuthAcctRepository.save(authAccts);
         await this.userRepository.save(user);
         return user;
@@ -62,11 +77,15 @@ export class UserService {
     /**
      * Finds the authentication accounts associated with a user
      */
-    async getUserAuthenticationAccountsForUser(userId: number): Promise<UserAuthenticationAccount[]> {
-        return this.userAuthAcctRepository.find({where: {user: {id: userId} } });
+    async getUserAuthenticationAccountsForUser(
+        userId: number,
+    ): Promise<UserAuthenticationAccount[]> {
+        return this.userAuthAcctRepository.find({where: {user: {id: userId}}});
     }
 
-    async getUserDiscordAccount(userId: number): Promise<UserAuthenticationAccount> {
+    async getUserDiscordAccount(
+        userId: number,
+    ): Promise<UserAuthenticationAccount> {
         return this.userAuthAcctRepository.findOneOrFail({
             where: {
                 accountType: UserAuthenticationAccountType.DISCORD,
@@ -78,7 +97,10 @@ export class UserService {
     /**
      * Finds a User by its id and fails if not found.
      */
-    async getUserById(id: number, options?: FindOneOptions<User>): Promise<User> {
+    async getUserById(
+        id: number,
+        options?: FindOneOptions<User>,
+    ): Promise<User> {
         return this.userRepository.findOneOrFail({
             ...options,
             where: {...options?.where, id} as FindOptionsWhere<User>,
@@ -89,7 +111,9 @@ export class UserService {
         });
     }
 
-    async getUser(query: FindOneOptions<UserProfile>): Promise<User | undefined> {
+    async getUser(
+        query: FindOneOptions<UserProfile>,
+    ): Promise<User | undefined> {
         const userProfile = await this.userProfileRepository.findOne({
             ...query,
             relations: Object.assign({user: true}, query.relations),
@@ -119,7 +143,10 @@ export class UserService {
      * @param data The fields and values on the UserProfile to update.
      * @returns The updated UserProfile.
      */
-    async updateUserProfile(userId: number, data: Omit<Partial<UserProfile>, "user">): Promise<UserProfile> {
+    async updateUserProfile(
+        userId: number,
+        data: Omit<Partial<UserProfile>, "user">,
+    ): Promise<UserProfile> {
         let {profile} = await this.userRepository.findOneOrFail({
             where: {id: userId},
             relations: {profile: true},
@@ -150,7 +177,10 @@ export class UserService {
      * @returns The found UserProfile
      */
     async getUserProfileForUser(userId: number): Promise<UserProfile> {
-        const org = await this.userRepository.findOneOrFail({where: {id: userId}, relations: {profile: true} });
+        const org = await this.userRepository.findOneOrFail({
+            where: {id: userId},
+            relations: {profile: true},
+        });
         return org.profile;
     }
 }
