@@ -1,6 +1,6 @@
 import {
     downloadProgress, downloadStatus, uploadProgress,
-} from "$src/stores";
+} from "../stores";
 
 class FileManager {
     private _busy = false;
@@ -49,7 +49,7 @@ class FileManager {
 
     }
 
-    async uploadFile(presignedURL: string, file: Blob) {
+    async uploadFile(presignedURL: string, file: Blob): Promise<unknown> {
         if (this._busy) throw Error("File manager busy");
         uploadProgress.set(0);
         this._busy = true;

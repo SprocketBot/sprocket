@@ -4,7 +4,7 @@ export interface clickOutsideOptions {
 }
 
 export default function clickOutside(node: HTMLElement, {callback}: clickOutsideOptions): {destroy: () => void;} {
-    const handleClick = event => {
+    const handleClick = (event): void => {
         if (node && !node.contains(event.target) && !event.defaultPrevented) {
             callback();
         }
