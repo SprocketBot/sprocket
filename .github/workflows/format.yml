@@ -1,0 +1,14 @@
+name: Check Formatting
+
+on:
+  pull_request:
+    branches: [dev, staging, main]
+
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: npm ci
+      - run: npm run format:check
