@@ -19,7 +19,7 @@ export class OauthService {
 
     async loginDiscord(user: AuthPayload): Promise<AccessToken> {
         return {
-            access_token: this.jwtService.sign(user, {expiresIn: "6h"}),
+            access_token: this.jwtService.sign(user, {expiresIn: "1m"}),
             refresh_token: this.jwtService.sign(user, {expiresIn: "7d"}),
         };
     }
