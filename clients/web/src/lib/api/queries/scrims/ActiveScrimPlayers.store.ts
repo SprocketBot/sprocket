@@ -1,5 +1,6 @@
 import {derived} from "svelte/store";
-import {activeScrims, type ActiveScrimsStore} from "./ActiveScrims.store";
+
+import {type ActiveScrimsStore,activeScrims} from "./ActiveScrims.store";
 
 export interface Player {
     id: number;

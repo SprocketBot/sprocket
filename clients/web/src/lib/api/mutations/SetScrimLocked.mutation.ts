@@ -1,4 +1,5 @@
 import {gql} from "@urql/core";
+
 import {client} from "../client";
 
 type SetScrimLockedResponse = boolean;

@@ -12,7 +12,7 @@ export enum OrganizationConfigurationKeyCode {
 }
 
 // Special constant for the SCRIM_REQUIRED_RATIFICATIONS config key.
-export const SCRIM_REQ_RATIFICATION_MAJORITY: number = -1;
+export const SCRIM_REQ_RATIFICATION_MAJORITY = -1;
 
 export const GetOrganizationConfigurationValue_Request = z.object({
     organizationId: z.number(),

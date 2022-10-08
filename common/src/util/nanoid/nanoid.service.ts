@@ -8,7 +8,7 @@ export class NanoidService {
         this.genId = await import("nanoid").then(r => r.nanoid);
     }
 
-    gen(size: number = 6): string {
+    gen(size = 6): string {
         return this.genId(size);
     }
 }

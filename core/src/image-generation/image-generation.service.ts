@@ -44,7 +44,7 @@ export class ImageGenerationService {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const data = await this.dataSource.query(reportCardRow.query.query, [seriesId, config.defaultOrganizationId]);
 
-        let reportCard: string = "seriesSixPlayersMax";
+        let reportCard = "seriesSixPlayersMax";
         
         // if more than 6 players, use 8 player report card
         const seventhPlayer = data?.[0]?.data?.player_data?.[6]?.name as {value?: string;};

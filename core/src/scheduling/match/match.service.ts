@@ -464,7 +464,7 @@ export class MatchService {
         const seriesReplays: Round[] = series.rounds;
 
         // Add dummy replays
-        let dummiesNeeded: number = 0;
+        let dummiesNeeded = 0;
         if (numReplays) {
             dummiesNeeded = numReplays - seriesReplays.length;
             for (let i = 0;i < dummiesNeeded;i++) {

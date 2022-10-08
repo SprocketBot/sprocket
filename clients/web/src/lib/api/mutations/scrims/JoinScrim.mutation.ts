@@ -1,6 +1,7 @@
 import {gql} from "@urql/core";
-import {currentScrim} from "../../queries";
+
 import {client} from "../../client";
+import {currentScrim} from "../../queries";
 
 type JoinScrimResponse = boolean;
 

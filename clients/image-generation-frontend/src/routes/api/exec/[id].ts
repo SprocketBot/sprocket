@@ -1,6 +1,6 @@
 // import type {EndpointOutput, Request} from "@sveltejs/kit";
-import {ReportTemplateDAO} from "$utils/server/database/ReportTemplate.dao";
 import {rmqRequest} from "$utils/rabbitmq";
+import {ReportTemplateDAO} from "$utils/server/database/ReportTemplate.dao";
 
 export async function POST({request, params}) {
     const data = await request.json()

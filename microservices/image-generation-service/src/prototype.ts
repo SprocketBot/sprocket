@@ -203,7 +203,7 @@ async function transformElement(el: Element, data: InputDatum): Promise<void> {
     }
 }
 
-async function recursiveTransform(el: Element, data: InputDatum, debug: boolean = true, depth: number = 0): Promise<void> {
+async function recursiveTransform(el: Element, data: InputDatum, debug = true, depth = 0): Promise<void> {
     await transformElement(el, data);
 
     if (debug) {

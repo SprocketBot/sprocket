@@ -1,5 +1,6 @@
 import type {OperationResult} from "@urql/core";
 import {gql} from "@urql/core";
+
 import {LiveQueryStore} from "../../core/LiveQueryStore";
 
 export interface MetricsResult {

@@ -1,6 +1,6 @@
 import {gql} from "@urql/core";
-import {QueryStore} from "../../core/QueryStore";
 
+import {QueryStore} from "../../core/QueryStore";
 import type {Submission} from "./submission.types";
 
 enum EventTopic {

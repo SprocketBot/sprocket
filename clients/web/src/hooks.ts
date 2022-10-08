@@ -1,8 +1,9 @@
 import type {GetSession, Handle} from "@sveltejs/kit";
+
 import {constants, loadConfig} from "$lib/utils";
 
 export const handle: Handle = async ({event, resolve}) => {
-    let newCookiesString: string = "";
+    let newCookiesString = "";
     if (event.request.headers.has("cookie")) {
         try {
             const config = await loadConfig();

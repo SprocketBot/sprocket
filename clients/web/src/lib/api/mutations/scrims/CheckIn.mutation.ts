@@ -1,7 +1,8 @@
 import {gql} from "@urql/core";
+
 import {client} from "../../client";
 
-type CheckInResponse = Boolean;
+type CheckInResponse = boolean;
 
 interface CheckInVariables {
     scrimId: string;

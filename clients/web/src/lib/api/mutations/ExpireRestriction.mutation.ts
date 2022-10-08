@@ -1,4 +1,5 @@
 import {gql} from "@urql/core";
+
 import {client} from "../client";
 
 interface ExpireRestrictionResponse {
@@ -8,7 +9,7 @@ interface ExpireRestrictionResponse {
 interface ExpireRestrictionVariables {
     id: number;
     expiration: Date;
-    reason: String;
+    reason: string;
     forgiven?: boolean;
 }
 

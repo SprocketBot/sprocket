@@ -1,4 +1,5 @@
 import {browser} from "$app/env";
+
 import type {Config, Stack} from "./types";
 
 export let config: Config;

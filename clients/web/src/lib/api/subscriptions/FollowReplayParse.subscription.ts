@@ -1,6 +1,8 @@
-import type {ProgressMessage} from "$lib/utils/types/progress.types";
 import type {OperationResult} from "@urql/core";
 import {gql} from "@urql/core";
+
+import type {ProgressMessage} from "$lib/utils/types/progress.types";
+
 import {SubscriptionStore} from "../core/SubscriptionStore";
 
 // TODO type parsed replay

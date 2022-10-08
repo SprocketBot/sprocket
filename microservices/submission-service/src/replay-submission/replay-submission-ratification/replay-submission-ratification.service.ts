@@ -42,7 +42,7 @@ export class ReplaySubmissionRatificationService {
         await this.eventService.publish(EventTopic.SubmissionReset, {submissionId: submissionId, redisKey: getSubmissionKey(submissionId)});
     }
 
-    async ratifyScrim(playerId: number, submissionId: string): Promise<Boolean> {
+    async ratifyScrim(playerId: number, submissionId: string): Promise<boolean> {
         const submission = await this.crudService.getSubmission(submissionId);
         if (!submission) throw new Error("Submission not found");
         if (submission.status !== ReplaySubmissionStatus.RATIFYING) throw new Error("Submission is not ready for ratifications");
@@ -68,7 +68,7 @@ export class ReplaySubmissionRatificationService {
         return false;
     }
 
-    async rejectSubmission(playerId: number, submissionId: string, reasons: string[]): Promise<Boolean> {
+    async rejectSubmission(playerId: number, submissionId: string, reasons: string[]): Promise<boolean> {
         await Promise.all(reasons.map(async r => this.crudService.addRejection(submissionId, playerId, r)));
 
         await this.crudService.removeItems(submissionId);

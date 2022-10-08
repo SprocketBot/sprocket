@@ -1,6 +1,8 @@
-import {browser} from "$app/env";
 import type {OperationResult, TypedDocumentNode} from "@urql/core";
-import {subscribe, pipe} from "wonka";
+import {pipe,subscribe} from "wonka";
+
+import {browser} from "$app/env";
+
 import {client, clientPromise} from "../client";
 import {QueryStore} from "./QueryStore";
 
