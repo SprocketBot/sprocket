@@ -2,8 +2,8 @@ import {MarshalMetadataKey} from "../types";
 import type {EventMeta, EventSpec} from "./events.types";
 
 export const Event =
-(eventSpec: EventSpec): MethodDecorator =>
-<T>(
+    (eventSpec: EventSpec): MethodDecorator =>
+    <T>(
         // eslint-disable-next-line @typescript-eslint/ban-types
         target: Object,
         key: string | symbol,
