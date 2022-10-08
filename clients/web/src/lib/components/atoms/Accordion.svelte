@@ -1,3 +1,13 @@
+<style lang="postcss">
+    .accordion {
+        @apply w-full;
+    }
+
+    .title {
+        @apply w-full cursor-pointer;
+    }
+</style>
+
 <script lang="ts">
     import {setContext} from "svelte";
     import {slide} from "svelte/transition";
@@ -5,12 +15,15 @@
     export let title: string | undefined = undefined;
     export let expanded = true;
 
-    const toggleExpanded = (): void => { expanded = !expanded };
-    const close = (): void => { expanded = false };
+    const toggleExpanded = (): void => {
+        expanded = !expanded;
+    };
+    const close = (): void => {
+        expanded = false;
+    };
 
     setContext("close", close);
 </script>
-
 
 <div class="accordion">
     <div class="title" on:click={toggleExpanded}>
@@ -26,14 +39,3 @@
         </div>
     {/if}
 </div>
-
-
-<style lang="postcss">
-    .accordion {
-        @apply w-full;
-    }
-
-    .title {
-        @apply w-full cursor-pointer;
-    }
-</style>

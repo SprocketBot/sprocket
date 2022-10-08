@@ -14,9 +14,16 @@ export interface FollowReplayParseProgressVariables {
     submissionId: string;
 }
 
-export class FollowReplayParseStore extends SubscriptionStore<FollowReplayParseProgressMessage, FollowReplayParseProgressVariables, true> {
-    protected subscriptionString = gql<FollowReplayParseProgressMessage, FollowReplayParseProgressVariables>`
-        subscription($submissionId: String!) {
+export class FollowReplayParseStore extends SubscriptionStore<
+    FollowReplayParseProgressMessage,
+    FollowReplayParseProgressVariables,
+    true
+> {
+    protected subscriptionString = gql<
+        FollowReplayParseProgressMessage,
+        FollowReplayParseProgressVariables
+    >`
+        subscription ($submissionId: String!) {
             followReplayParse(submissionId: $submissionId) {
                 taskId
                 status
@@ -37,7 +44,12 @@ export class FollowReplayParseStore extends SubscriptionStore<FollowReplayParseP
         this._vars = _vars;
     }
 
-    protected handleGqlMessage = (message: OperationResult<FollowReplayParseProgressMessage, FollowReplayParseProgressVariables>): void => {
-        this.pub([...this.currentValue ?? [], message]);
+    protected handleGqlMessage = (
+        message: OperationResult<
+            FollowReplayParseProgressMessage,
+            FollowReplayParseProgressVariables
+        >,
+    ): void => {
+        this.pub([...(this.currentValue ?? []), message]);
     };
 }

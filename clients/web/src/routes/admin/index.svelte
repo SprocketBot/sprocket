@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
     import type {Load} from "@sveltejs/kit";
-    
+
     import {
         AdminBanTable,
         AdminPlayerTable,

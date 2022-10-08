@@ -19,22 +19,25 @@ interface SubmissionStatsVars {
     submissionId: string;
 }
 
-export class SubmissionStatsStore extends QueryStore<SubmissionStatsData, SubmissionStatsVars> {
+export class SubmissionStatsStore extends QueryStore<
+    SubmissionStatsData,
+    SubmissionStatsVars
+> {
     protected queryString = gql`
-    query($submissionId: String!) {
-        stats: getSubmissionStats(submissionId:$submissionId) {
-            games{
-                teams {
-                    won
-                    score
-                    players {
-                        name
-                        goals
+        query ($submissionId: String!) {
+            stats: getSubmissionStats(submissionId: $submissionId) {
+                games {
+                    teams {
+                        won
+                        score
+                        players {
+                            name
+                            goals
+                        }
                     }
                 }
             }
         }
-    }
     `;
 
     constructor(submissionId: string) {

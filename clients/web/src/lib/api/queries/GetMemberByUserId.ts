@@ -12,17 +12,22 @@ interface GetMemberByUserIdVariables {
 }
 
 const queryString = gql`
-    query (
-        $orgId: Int!
-        $id: Int!
-    ){
-        getMemberByUserId(organizationId:$orgId, userId: $id) {
-          id
+    query ($orgId: Int!, $id: Int!) {
+        getMemberByUserId(organizationId: $orgId, userId: $id) {
+            id
         }
-    }`;
+    }
+`;
 
-export const getMemberByUserIdQuery = async (vars: GetMemberByUserIdVariables): Promise<GetMemberByUserIdResponse> => {
-    const r = await client.query<{getMemberByUserId: GetMemberByUserIdResponse;}, GetMemberByUserIdVariables>(queryString, vars).toPromise();
+export const getMemberByUserIdQuery = async (
+    vars: GetMemberByUserIdVariables,
+): Promise<GetMemberByUserIdResponse> => {
+    const r = await client
+        .query<
+            {getMemberByUserId: GetMemberByUserIdResponse},
+            GetMemberByUserIdVariables
+        >(queryString, vars)
+        .toPromise();
     if (r.data) {
         return r.data.getMemberByUserId;
     }

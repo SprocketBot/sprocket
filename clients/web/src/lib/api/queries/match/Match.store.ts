@@ -44,7 +44,7 @@ export interface MatchVars {
 
 export class MatchStore extends QueryStore<MatchResult, MatchVars> {
     protected queryString = gql<MatchResult, MatchVars>`
-        query($submissionId: String!) {
+        query ($submissionId: String!) {
             getMatchBySubmissionId(submissionId: $submissionId) {
                 id
                 rounds {

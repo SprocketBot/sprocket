@@ -1,15 +1,20 @@
 import type {OperationResult, TypedDocumentNode} from "@urql/core";
-import {pipe,subscribe} from "wonka";
+import {pipe, subscribe} from "wonka";
 
 import {browser} from "$app/env";
 
 import {client, clientPromise} from "../client";
 import {QueryStore} from "./QueryStore";
 
-export abstract class LiveQueryStore<T, V extends Record<string, unknown>, ST = T, SV extends Record<string, unknown> = Record<string, never>> extends QueryStore<T, V> {
+export abstract class LiveQueryStore<
+    T,
+    V extends Record<string, unknown>,
+    ST = T,
+    SV extends Record<string, unknown> = Record<string, never>,
+> extends QueryStore<T, V> {
     protected gqlUnsub?: () => unknown;
 
-    protected abstract  _subVars: SV;
+    protected abstract _subVars: SV;
 
     protected abstract subscriptionString: TypedDocumentNode<ST, SV>;
 
@@ -53,14 +58,14 @@ export abstract class LiveQueryStore<T, V extends Record<string, unknown>, ST = 
 
     private createGqlSubscription = (): void => {
         if (this.gqlUnsub || !browser || !this._subVars) return;
-        clientPromise.then(() => {
-            const s = pipe(
-                client.subscription(this.subscriptionString, this._subVars),
-                subscribe(this.handleGqlMessage),
-            );
-            this.gqlUnsub = s.unsubscribe;
-        }).catch(console.error);
-
+        clientPromise
+            .then(() => {
+                const s = pipe(
+                    client.subscription(this.subscriptionString, this._subVars),
+                    subscribe(this.handleGqlMessage),
+                );
+                this.gqlUnsub = s.unsubscribe;
+            })
+            .catch(console.error);
     };
-
 }

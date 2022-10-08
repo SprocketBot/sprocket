@@ -30,7 +30,13 @@ export interface ChatwootSettings {
 
 /** https://github.com/chatwoot/chatwoot/blob/develop/app/javascript/packs/sdk.js#L147 */
 export interface ChatwootSDK {
-    run: ({websiteToken, baseUrl}: {websiteToken: string; baseUrl: string;}) => void;
+    run: ({
+        websiteToken,
+        baseUrl,
+    }: {
+        websiteToken: string;
+        baseUrl: string;
+    }) => void;
 }
 
 /** https://www.chatwoot.com/docs/product/channels/live-chat/sdk/setup/#identity-validation-using-hmac */
@@ -71,8 +77,12 @@ export interface ChatwootGlobal {
     toggleBubbleVisibility: (visibility: unknown) => void;
     popoutChatWindow: () => void;
     setUser: (identifier: string, user: ChatwootUser) => void;
-    setCustomAttributes: (customAttributes: Partial<ChatwootCustomAttributes>) => void;
-    deleteCustomAttribute: (customAttribute: keyof ChatwootCustomAttributes) => void;
+    setCustomAttributes: (
+        customAttributes: Partial<ChatwootCustomAttributes>,
+    ) => void;
+    deleteCustomAttribute: (
+        customAttribute: keyof ChatwootCustomAttributes,
+    ) => void;
     setLabel: (label: ChatwootConversationLabel) => void;
     removeLabel: (label: ChatwootConversationLabel) => void;
     setLocale: (localeToBeUsed: string) => void;

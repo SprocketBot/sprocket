@@ -11,16 +11,17 @@ interface JoinScrimVars {
     group?: string;
 }
 const mutationString = gql`
-mutation (
-    $scrimId: String!,
-    $createGroup: Boolean
-    $group: String
-) {
-    joinScrim(scrimId: $scrimId, group: $group, createGroup: $createGroup)
-}`;
+    mutation ($scrimId: String!, $createGroup: Boolean, $group: String) {
+        joinScrim(scrimId: $scrimId, group: $group, createGroup: $createGroup)
+    }
+`;
 
-export const joinScrimMutation = async (vars: JoinScrimVars): Promise<JoinScrimResponse> => {
-    const r = await client.mutation<JoinScrimResponse, JoinScrimVars>(mutationString, vars).toPromise();
+export const joinScrimMutation = async (
+    vars: JoinScrimVars,
+): Promise<JoinScrimResponse> => {
+    const r = await client
+        .mutation<JoinScrimResponse, JoinScrimVars>(mutationString, vars)
+        .toPromise();
     if (r.data) {
         currentScrim.invalidate();
         return r.data;

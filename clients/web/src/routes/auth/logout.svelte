@@ -1,7 +1,7 @@
 <script lang="ts">
     import cookies from "js-cookie";
     import {onMount} from "svelte";
-    
+
     import {browser} from "$app/env";
     import {goto} from "$app/navigation";
     import {session} from "$app/stores";
@@ -15,5 +15,4 @@
             goto("/").catch(console.error);
         }
     });
-
 </script>

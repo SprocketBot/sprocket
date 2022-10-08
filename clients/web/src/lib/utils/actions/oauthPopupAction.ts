@@ -12,7 +12,13 @@ function receiveMessage(e: MessageEvent): void {
 }
 
 if (browser) {
-    window.addEventListener("message", e => { receiveMessage(e) }, false);
+    window.addEventListener(
+        "message",
+        e => {
+            receiveMessage(e);
+        },
+        false,
+    );
 }
 
 function openWindow(windowUrl: string, callback: CallableFunction): void {
@@ -25,7 +31,10 @@ function openWindow(windowUrl: string, callback: CallableFunction): void {
     _callback = callback;
 }
 
-export function oauthPopup(node: HTMLElement, params: {windowUrl: string; callback: (x: MessageEvent) => unknown;}): void {
+export function oauthPopup(
+    node: HTMLElement,
+    params: {windowUrl: string; callback: (x: MessageEvent) => unknown},
+): void {
     node.addEventListener("click", () => {
         openWindow(params.windowUrl, params.callback);
     });

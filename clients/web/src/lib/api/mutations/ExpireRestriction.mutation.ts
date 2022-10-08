@@ -19,16 +19,28 @@ const mutationString = gql`
         $expiration: DateTime!
         $reason: String!
         $forgiven: Boolean
-    ){
-        manuallyExpireMemberRestriction(id: $id, manualExpiration: $expiration, manualExpirationReason: $reason, forgiven: $forgiven) {
+    ) {
+        manuallyExpireMemberRestriction(
+            id: $id
+            manualExpiration: $expiration
+            manualExpirationReason: $reason
+            forgiven: $forgiven
+        ) {
             memberId
             id
         }
     }
 `;
 
-export const expireRestrictionMutation = async (vars: ExpireRestrictionVariables): Promise<ExpireRestrictionResponse> => {
-    const r = await client.mutation<ExpireRestrictionResponse, ExpireRestrictionVariables>(mutationString, vars).toPromise();
+export const expireRestrictionMutation = async (
+    vars: ExpireRestrictionVariables,
+): Promise<ExpireRestrictionResponse> => {
+    const r = await client
+        .mutation<ExpireRestrictionResponse, ExpireRestrictionVariables>(
+            mutationString,
+            vars,
+        )
+        .toPromise();
     if (r.data) {
         return r.data;
     }

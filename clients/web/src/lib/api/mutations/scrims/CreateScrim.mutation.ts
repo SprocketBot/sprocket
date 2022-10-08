@@ -23,10 +23,7 @@ interface CreateScrimVariables {
 }
 
 const mutationString = gql`
-    mutation (
-        $settings: ScrimSettingsInput!
-        $createGroup: Boolean
-    ) {
+    mutation ($settings: ScrimSettingsInput!, $createGroup: Boolean) {
         createScrim(data: {settings: $settings, createGroup: $createGroup}) {
             id
             playerCount
@@ -38,8 +35,15 @@ const mutationString = gql`
     }
 `;
 
-export const createScrimMutation = async (vars: CreateScrimVariables): Promise<CreateScrimResponse> => {
-    const r = await client.mutation<CreateScrimResponse, CreateScrimVariables>(mutationString, vars).toPromise();
+export const createScrimMutation = async (
+    vars: CreateScrimVariables,
+): Promise<CreateScrimResponse> => {
+    const r = await client
+        .mutation<CreateScrimResponse, CreateScrimVariables>(
+            mutationString,
+            vars,
+        )
+        .toPromise();
     if (r.data) {
         currentScrim.invalidate();
         return r.data;

@@ -1,14 +1,12 @@
 <script lang="ts">
     import {onMount} from "svelte";
-    
+
     import {browser} from "$app/env";
     import {session} from "$app/stores";
 
     import {chatwootSettings} from "./Chatwoot.constants";
 
-    const {
-        enabled, url, websiteToken,
-    } = $session.config.chatwoot;
+    const {enabled, url, websiteToken} = $session.config.chatwoot;
 
     let identifier: string;
     let hash: string;
@@ -23,13 +21,13 @@
             if (!res.ok) return;
             ({identifier, hash} = await res.json());
 
-            (function() {
+            (function () {
                 const g = document.createElement("script");
                 g.src = `${_url}/packs/js/sdk.js`;
                 g.defer = true;
                 g.async = true;
                 document.body.append(g);
-                g.onload = function() {
+                g.onload = function () {
                     window.chatwootSettings = chatwootSettings;
                     window.chatwootSDK?.run({
                         websiteToken: websiteToken,
@@ -42,7 +40,8 @@
 
     if (browser) {
         window.addEventListener("chatwoot:ready", () => {
-            if (!$session.user || !window.$chatwoot || !identifier || !hash) return;
+            if (!$session.user || !window.$chatwoot || !identifier || !hash)
+                return;
 
             window.$chatwoot.setUser(identifier, {
                 name: $session.user.username,

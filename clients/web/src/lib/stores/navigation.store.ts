@@ -9,4 +9,7 @@ export interface NavigationItem {
     target: string;
 }
 
-export const navigationStore = writable<NavigationItem[]>([SCRIM_NAV_ITEM, LEAGUE_NAV_ITEM]);
+export const navigationStore = writable<NavigationItem[]>([
+    SCRIM_NAV_ITEM,
+    LEAGUE_NAV_ITEM,
+]);

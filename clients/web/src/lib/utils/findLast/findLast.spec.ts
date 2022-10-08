@@ -3,7 +3,7 @@ import {findLast} from "./findLast";
 describe("findLast", () => {
     it("should return undefined if array is undefined", () => {
         const arr = undefined;
-        
+
         const expected = undefined;
         const actual = findLast(arr, () => true);
 
@@ -12,7 +12,7 @@ describe("findLast", () => {
 
     it("should return undefined if array is empty", () => {
         const arr = [];
-        
+
         const expected = undefined;
         const actual = findLast(arr, () => true);
 

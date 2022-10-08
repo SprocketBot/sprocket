@@ -7,21 +7,35 @@ import {browser} from "$app/env";
 import {client, clientPromise} from "../client";
 import {BaseStore} from "./BaseStore";
 
-type SubscriptionValue<T, V extends Record<string, unknown>, HasHistory = false> = HasHistory extends true
+type SubscriptionValue<
+    T,
+    V extends Record<string, unknown>,
+    HasHistory = false,
+> = HasHistory extends true
     ? Array<OperationResult<T, V>>
     : OperationResult<T, V>;
 
-export abstract class SubscriptionStore<T, V extends Record<string, unknown>, HasHistory = false> extends BaseStore<SubscriptionValue<T, V, HasHistory>> implements Readable<SubscriptionValue<T, V, HasHistory>> {
+export abstract class SubscriptionStore<
+        T,
+        V extends Record<string, unknown>,
+        HasHistory = false,
+    >
+    extends BaseStore<SubscriptionValue<T, V, HasHistory>>
+    implements Readable<SubscriptionValue<T, V, HasHistory>>
+{
     protected gqlUnsub?: () => unknown | undefined;
 
     protected _vars: V | undefined;
 
     protected abstract subscriptionString: TypedDocumentNode<T, V>;
 
-    protected abstract handleGqlMessage: (message: OperationResult<T, V>) => void;
+    protected abstract handleGqlMessage: (
+        message: OperationResult<T, V>,
+    ) => void;
 
     get vars(): V {
-        if (!this._vars) throw new Error(`Cannot access vars before they are set.`);
+        if (!this._vars)
+            throw new Error(`Cannot access vars before they are set.`);
         return this._vars;
     }
 
@@ -30,7 +44,9 @@ export abstract class SubscriptionStore<T, V extends Record<string, unknown>, Ha
         this.createGqlSubscription();
     }
 
-    subscribe(sub: (val: SubscriptionValue<T, V, HasHistory>) => unknown): () => void {
+    subscribe(
+        sub: (val: SubscriptionValue<T, V, HasHistory>) => unknown,
+    ): () => void {
         if (browser && this.subscribers.size === 0 && this._vars) {
             this.createGqlSubscription();
         }
@@ -46,7 +62,9 @@ export abstract class SubscriptionStore<T, V extends Record<string, unknown>, Ha
         this.createGqlSubscription();
     }
 
-    protected cleanup(sub: (val: SubscriptionValue<T, V, HasHistory>) => unknown): void {
+    protected cleanup(
+        sub: (val: SubscriptionValue<T, V, HasHistory>) => unknown,
+    ): void {
         if (this.subscribers.size === 1 && this.gqlUnsub) {
             this.gqlUnsub();
             delete this.gqlUnsub;
@@ -56,12 +74,14 @@ export abstract class SubscriptionStore<T, V extends Record<string, unknown>, Ha
 
     private createGqlSubscription = (): void => {
         if (this.gqlUnsub || !browser || !this._vars) return;
-        clientPromise.then(() => {
-            const s = pipe(
-                client.subscription(this.subscriptionString, this._vars),
-                subscribe(this.handleGqlMessage),
-            );
-            this.gqlUnsub = s.unsubscribe;
-        }).catch(console.error);
+        clientPromise
+            .then(() => {
+                const s = pipe(
+                    client.subscription(this.subscriptionString, this._vars),
+                    subscribe(this.handleGqlMessage),
+                );
+                this.gqlUnsub = s.unsubscribe;
+            })
+            .catch(console.error);
     };
 }

@@ -35,53 +35,59 @@ export interface ActiveSubmissionsStoreVariables {}
 export interface ActiveSubmissionsSubscriptionVariables {}
 
 // TODO use a LiveQueryStore to have realtime updates. This way will require refresh
-export class ActiveSubmissionsStore extends QueryStore<ActiveSubmissionsStoreValue, ActiveSubmissionsStoreVariables> {
-    protected queryString = gql<ActiveSubmissionsStoreValue, ActiveSubmissionsStoreVariables>`
-    query {
-        activeSubmissions: getActiveSubmissions {
-            id
-            type
-            scrimId
-            matchId
+export class ActiveSubmissionsStore extends QueryStore<
+    ActiveSubmissionsStoreValue,
+    ActiveSubmissionsStoreVariables
+> {
+    protected queryString = gql<
+        ActiveSubmissionsStoreValue,
+        ActiveSubmissionsStoreVariables
+    >`
+        query {
+            activeSubmissions: getActiveSubmissions {
+                id
+                type
+                scrimId
+                matchId
 
-            creatorId
+                creatorId
 
-            status
+                status
 
-            taskIds
-            items {
-                originalFilename
-                progress {
-                    status
+                taskIds
+                items {
+                    originalFilename
                     progress {
-                        value
-                        message
-                    }
-                }
-            }
-
-            validated
-            stats {
-                games {
-                    teams {
-                        won
-                        score
-                        players {
-                            name
-                            goals
+                        status
+                        progress {
+                            value
+                            message
                         }
                     }
                 }
-            }
-            ratifiers
-            requiredRatifications
-            rejections {
-                playerId
-                reason
-                rejectedAt
+
+                validated
+                stats {
+                    games {
+                        teams {
+                            won
+                            score
+                            players {
+                                name
+                                goals
+                            }
+                        }
+                    }
+                }
+                ratifiers
+                requiredRatifications
+                rejections {
+                    playerId
+                    reason
+                    rejectedAt
+                }
             }
         }
-    }
     `;
 
     constructor() {
