@@ -1,6 +1,7 @@
 import {MarshalMetadataKey} from "../types";
 import type {EventMeta, EventSpec} from "./events.types";
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export const Event = (eventSpec: EventSpec): MethodDecorator => <T>(target: Object, key: string | symbol, descriptor: TypedPropertyDescriptor<T>): TypedPropertyDescriptor<T> => {
     if (!descriptor.value) throw new Error("Descriptor is undefined??");
 

@@ -14,6 +14,8 @@ import type {
 } from "./commands.types";
 
 const logger = new Logger("CommandDecorator");
+
+// eslint-disable-next-line @typescript-eslint/ban-types
 export const Command = (commandSpec: CommandSpec): MethodDecorator => <T>(target: Object, key: string | symbol, descriptor: TypedPropertyDescriptor<T>): TypedPropertyDescriptor<T> => {
     if (!descriptor.value) throw new Error("Descriptor is undefined??");
 

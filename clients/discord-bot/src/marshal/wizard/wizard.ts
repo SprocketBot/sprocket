@@ -115,13 +115,13 @@ export class Wizard {
                     if (result instanceof Promise) {
                         result.catch(e => {
                             this.logger.warn(`${e.name} - ${e.message} caught asyncronously in Wizard`);
-                            this.reject(new Error("This is a new error"));
+                            this.reject?.(new Error("This is a new error"));
                         });
                     }
                 } catch (_e) {
                     const e = _e as Error;
                     this.logger.warn(`${e.name} - ${e.message} caught syncronously in Wizard`);
-                    this.reject(e);
+                    this.reject?.(e);
                 }
             });
             // @ts-expect-error I literally just need this to let me commit
@@ -135,24 +135,25 @@ export class Wizard {
             if (this.failFunction) {
                 this.failFunction(messages).then(() => {
                     if (!this.steps.length) {
-                        this.resolve();
+                        this.resolve?.();
                     }
                 })
                     .catch(this.reject);
             } else {
-                this.resolve();
+                this.resolve?.();
             }
             return;
         }
         if (this.steps.length) {
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
             this.start.bind(this)().catch(() => {});
         } else if (this.finalFunction) {
             this.finalFunction(messages).then(() => {
-                this.resolve();
+                this.resolve?.();
             })
                 .catch(this.reject);
         } else {
-            this.resolve();
+            this.resolve?.();
         }
     }
 
@@ -167,10 +168,8 @@ export class Wizard {
         return this._promise;
     }
 
-    private resolve = (): void => {
-    };
+    private resolve?: () => void;
 
-    private reject: (e?: Error) => void = (): void => {
-    };
+    private reject?: (e?: Error) => void;
 
 }
