@@ -11,6 +11,7 @@
     "test": "NODE_ENV=test jest --coverage",
     "test:watch": "NODE_ENV=test jest --watch",
     "format": "prettier src --write",
+    "format:check": "prettier src --check",
     "lint": "eslint src --fix"
   },
   "repository": {
