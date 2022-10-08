@@ -1,4 +1,5 @@
-import {gql, type OperationResult} from "@urql/core";
+import {type OperationResult,gql} from "@urql/core";
+
 import {LiveQueryStore} from "../../core/LiveQueryStore";
 import type {Submission} from "./submission.types";
 

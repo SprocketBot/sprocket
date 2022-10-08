@@ -14,7 +14,7 @@ export class EventsService {
 
     constructor(private readonly rmqService: RmqService) {}
 
-    async subscribe<T extends EventTopic>(topic: T, instanceExclusive: boolean, subtopic: string = "*"): Promise<Observable<EventResponse<T>>> {
+    async subscribe<T extends EventTopic>(topic: T, instanceExclusive: boolean, subtopic = "*"): Promise<Observable<EventResponse<T>>> {
         const rawObservable = await this.rmqService.sub(`${topic}.${subtopic}`, instanceExclusive);
         const schema = EventSchemas[topic];
         return rawObservable.pipe(map(message => {
@@ -28,7 +28,7 @@ export class EventsService {
         }));
     }
 
-    async publish<T extends EventTopic>(topic: T, payload: EventPayload<T>, subtopic: string = "default"): Promise<boolean> {
+    async publish<T extends EventTopic>(topic: T, payload: EventPayload<T>, subtopic = "default"): Promise<boolean> {
         EventSchemas[topic].parse(payload);
 
         this.logger.verbose(`Dispatching ${topic} with payload=${JSON.stringify(payload)}`);

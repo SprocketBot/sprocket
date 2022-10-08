@@ -25,7 +25,7 @@ import type {ReplaySubmission} from "./types";
 export class ReplayParseService {
     private readonly logger = new Logger(ReplayParseService.name);
 
-    private subscribed: boolean = false;
+    private subscribed = false;
 
     constructor(
         private readonly minioService: MinioService,

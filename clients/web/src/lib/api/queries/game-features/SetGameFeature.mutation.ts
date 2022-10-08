@@ -1,4 +1,5 @@
 import {gql} from "@urql/core";
+
 import {client} from "../../client";
 import type {FeatureCode} from "./feature.types";
 

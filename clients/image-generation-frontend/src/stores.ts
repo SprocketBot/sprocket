@@ -1,4 +1,5 @@
 import {writable} from "svelte/store";
+
 import type {
     BoundBox, ElementsMap, ImageType, PropertiesMap,
 } from "$src/types";

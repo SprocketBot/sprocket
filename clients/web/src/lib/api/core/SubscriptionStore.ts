@@ -1,7 +1,9 @@
-import {browser} from "$app/env";
 import type {OperationResult, TypedDocumentNode} from "@urql/core";
 import type {Readable} from "svelte/store";
 import {pipe, subscribe} from "wonka";
+
+import {browser} from "$app/env";
+
 import {client, clientPromise} from "../client";
 import {BaseStore} from "./BaseStore";
 

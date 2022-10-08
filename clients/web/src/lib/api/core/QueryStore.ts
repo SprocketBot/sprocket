@@ -1,8 +1,10 @@
 import type {OperationResult, TypedDocumentNode} from "@urql/core";
+import type {Readable} from "svelte/store";
+
+import {browser} from "$app/env";
+
 import {client, clientPromise} from "../client";
 import {BaseStore} from "./BaseStore";
-import type {Readable} from "svelte/store";
-import {browser} from "$app/env";
 
 export abstract class QueryStore<T, V extends Object> extends BaseStore<OperationResult<T, V>> implements Readable<OperationResult<T, V>> {
     protected _vars: V | undefined;

@@ -39,8 +39,8 @@ class ReportTemplateDAO {
     async runReport(reportCode: string, reportFilters: Record<string, string>) {
         const template = await this.getByCode(reportCode);
 
-        let arr = []
-        for (let k in reportFilters) {
+        const arr = []
+        for (const k in reportFilters) {
             arr.push(reportFilters[k])
         }
         console.log(arr)

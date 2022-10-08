@@ -1,6 +1,7 @@
+import type {EndpointOutput, Request} from "@sveltejs/kit";
+
 import {rmqRequest} from "$src/utils/rabbitmq";
 import {ReportTemplateDAO} from "$src/utils/server/database/ReportTemplate.dao";
-import type {EndpointOutput, Request} from "@sveltejs/kit";
 
 
 export async function GET({url, params}: Request): Promise<EndpointOutput> {

@@ -1,4 +1,5 @@
 import {gql} from "@urql/core";
+
 import {QueryStore} from "../../core/QueryStore";
 
 export interface Match {

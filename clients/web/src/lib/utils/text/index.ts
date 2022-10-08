@@ -1,2 +1,2 @@
-export * from "./secsToTime";
 export * from "./screamingSnakeToHuman";
+export * from "./secsToTime";

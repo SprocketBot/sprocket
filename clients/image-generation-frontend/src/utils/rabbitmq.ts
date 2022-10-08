@@ -1,5 +1,6 @@
 import {connect} from "amqplib";
 import {v4} from "uuid";
+
 import config from "../config";
 
 export async function rmqRequest(pattern: string, data: Record<string, unknown> = {}): Promise<unknown> {

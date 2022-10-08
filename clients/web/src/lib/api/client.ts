@@ -1,14 +1,14 @@
-import {browser} from "$app/env";
-import {SubscriptionClient} from "subscriptions-transport-ws";
-
 import {
-    Client,
     cacheExchange,
+    Client,
     dedupExchange,
     ssrExchange,
     subscriptionExchange,
 } from "@urql/core";
 import {multipartFetchExchange} from "@urql/exchange-multipart-fetch";
+import {SubscriptionClient} from "subscriptions-transport-ws";
+
+import {browser} from "$app/env";
 
 let clientAvailable: CallableFunction;
 

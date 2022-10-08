@@ -2,7 +2,7 @@ import {Logger} from "@nestjs/common";
 
 const logger = new Logger("CacheKey");
 
-export function CacheKey(target: Object, name: string | Symbol, parameterIndex: number): void {
+export function CacheKey(target: Object, name: string | symbol, parameterIndex: number): void {
     let existingKeys: number[] = [];
     try {
         if (Reflect.getMetadataKeys(target).includes(`sprocketcommon-cachekey-${name}`)) {

@@ -1,6 +1,7 @@
 import {browser} from "$app/env";
 import type {ImageType, ImageTypeItem} from "$src/types";
 import {FileManager} from "$src/utils/FileManager";
+
 import {handleApiResponse} from "./common.api";
 
 export async function getTemplate(id: string): Promise<ImageType> {

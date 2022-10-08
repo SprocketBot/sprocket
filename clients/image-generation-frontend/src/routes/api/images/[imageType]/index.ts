@@ -1,6 +1,7 @@
 import type {EndpointOutput, Request} from "@sveltejs/kit";
-import { getClient } from "$utils/server/minio";
+
 import config from "$src/config"
+import { getClient } from "$utils/server/minio";
 
 export const GET = async ({params}: Request): Promise<EndpointOutput> => {
     const mClient = getClient();

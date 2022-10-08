@@ -1,4 +1,5 @@
 import {gql} from "@urql/core";
+
 import {QueryStore} from "../../core/QueryStore";
 import type {LeagueScheduleSeason} from "./LeagueSchedule.types";
 

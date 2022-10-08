@@ -47,7 +47,7 @@ export class MemberRestrictionResolver {
         @Args("manualExpirationReason", {type: () => String}) manualExpirationReason: string,
         @Args("forgiven", {
             type: () => Boolean, nullable: true, defaultValue: false,
-        }) forgiven: boolean = false,
+        }) forgiven = false,
     ): Promise<MemberRestriction> {
         return this.memberRestrictionService.manuallyExpireMemberRestriction(id, manualExpiration, manualExpirationReason, forgiven);
     }

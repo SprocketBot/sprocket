@@ -1,4 +1,5 @@
 import {gql} from "@urql/core";
+
 import {client} from "$lib/api/client";
 
 interface AnonLoginResponse {
