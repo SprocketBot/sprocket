@@ -2,8 +2,8 @@ import {Logger} from "@nestjs/common";
 
 const logger = new Logger("CacheKey");
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export function CacheKey(
+    // eslint-disable-next-line @typescript-eslint/ban-types
     target: Object,
     name: string | symbol,
     parameterIndex: number,

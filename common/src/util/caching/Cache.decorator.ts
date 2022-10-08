@@ -44,14 +44,10 @@ async function getRedisClient(): Promise<Redis> {
 
 // eslint-disable-next-line arrow-body-style
 export const Cache: (co: CacheOptions) => MethodDecorator = (
-    {
-        ttl,
-        transformers,
-        verbose,
-    }: // eslint-disable-next-line @typescript-eslint/ban-types
-    CacheOptions = {ttl: 500},
+    {ttl, transformers, verbose}: CacheOptions = {ttl: 500},
 ) =>
     function (
+        // eslint-disable-next-line @typescript-eslint/ban-types
         target: Object,
         propertyKey: string | symbol,
         descriptor: PropertyDescriptor,

@@ -178,7 +178,7 @@ export class Wizard {
             // eslint-disable-next-line @typescript-eslint/no-empty-function
             this.start
                 .bind(this)()
-                .catch(() => {});
+                .catch(() => { /* Do nothing */ });
         } else if (this.finalFunction) {
             this.finalFunction(messages)
                 .then(() => {
