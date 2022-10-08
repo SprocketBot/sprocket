@@ -17,6 +17,7 @@
     "format": "prettier src --write",
     "format:check": "prettier src --check",
     "lint": "eslint src --fix",
+    "lint:check": "eslint src",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",

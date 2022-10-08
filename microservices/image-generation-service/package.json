@@ -13,6 +13,7 @@
     "format": "prettier src --write",
     "format:check": "prettier src --check",
     "lint": "eslint src --fix",
+    "lint:check": "eslint src",
     "start:proto": "ts-node src/prototype.ts"
   },
   "repository": {

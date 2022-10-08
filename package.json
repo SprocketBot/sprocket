@@ -14,8 +14,10 @@
     "postinstall": "npm run build:common",
     "build": "npm run build --workspaces --if-present",
     "build:common": "npm run build --workspace=common",
-    "clean": "npm run clean --workspaces --if-available",
-    "lint": "npm run lint --workspaces --if-available"
+    "format": "npm run format --workspaces --if-present",
+    "format:check": "npm run format:check --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "lint:check": "npm run lint:check --workspaces --if-present"
   },
   "workspaces": [
     "common",

@@ -10,7 +10,8 @@
     "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
     "format": "prettier src --write",
     "format:check": "prettier src --check",
-    "lint": "eslint src --fix"
+    "lint": "eslint src --fix",
+    "lint:check": "eslint src"
   },
   "devDependencies": {
     "@sveltejs/kit": "^1.0.0-next.156",
