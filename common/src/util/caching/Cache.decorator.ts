@@ -1,16 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-
 import {Logger} from "@nestjs/common";
 import type {Redis} from "ioredis";
 import IORedis from "ioredis";
 
 import {config} from "../config";
 
-function createKey(constructorName: string, propertyName: string, args: string[]) {
+function createKey(constructorName: string, propertyName: string, args: string[]): string {
     return `${constructorName}:${propertyName}:${args.join("-")}`;
 }
 
@@ -47,6 +41,7 @@ async function getRedisClient(): Promise<Redis> {
 // eslint-disable-next-line arrow-body-style
 export const Cache: (co: CacheOptions) => MethodDecorator = ({
     ttl, transformers, verbose,
+// eslint-disable-next-line @typescript-eslint/ban-types
 }: CacheOptions = {ttl: 500}) => function(target: Object, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
 
     // Only for display purposes; when using verbose mode

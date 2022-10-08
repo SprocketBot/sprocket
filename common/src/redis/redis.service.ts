@@ -38,11 +38,11 @@ export class RedisService {
         this._redis = redis;
     }
 
-    async setJson<T extends Object>(key: string, input: T): Promise<void> {
+    async setJson<T extends Record<string, unknown>>(key: string, input: T): Promise<void> {
         await this.redis.send_command("json.set", key, ".", JSON.stringify(input));
     }
 
-    async setJsonField<T extends Object>(key: string, path: string, input: T): Promise<void> {
+    async setJsonField<T extends Record<string, unknown>>(key: string, path: string, input: T): Promise<void> {
         await this.redis.send_command("json.set", key, path, JSON.stringify(input));
     }
 
@@ -78,7 +78,7 @@ export class RedisService {
         return JSON.parse(res) as T;
     }
 
-    async appendToJsonArray<T extends Object>(key: string, path: string, value: T): Promise<void> {
+    async appendToJsonArray<T extends Record<string, unknown>>(key: string, path: string, value: T): Promise<void> {
         await this.redis.send_command("json.arrappend", key, path, JSON.stringify(value));
     }
 

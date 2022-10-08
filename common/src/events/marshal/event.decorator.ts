@@ -3,6 +3,7 @@ import type {SprocketEventMarshal} from "./marshal";
 import {EventMarshalMetadataKey} from "./marshal.constants";
 import type {EventFunction, EventMeta} from "./marshal.types";
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export const SprocketEvent = (event: EventTopic): MethodDecorator => <T>(target: Object, key: string | symbol, descriptor: TypedPropertyDescriptor<T>): TypedPropertyDescriptor<T> => {
     if (!descriptor.value) throw new Error("Descriptor is undefined??");
 
