@@ -12,7 +12,8 @@
     "dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "lint": "eslint src --fix"
+    "lint": "eslint src --fix",
+    "lint:check": "eslint src"
   },
   "keywords": [],
   "author": "",
