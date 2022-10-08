@@ -2,15 +2,15 @@
     import type {CurrentScrim} from "$lib/api";
     import {currentScrim, leaveScrimMutation} from "$lib/api";
     import {ScrimFullIndicator} from "$lib/components";
-    import {screamingSnakeToHuman} from "$lib/utils";
     import {user} from "$lib/stores/user";
+    import {screamingSnakeToHuman} from "$lib/utils";
 
     export let scrim: CurrentScrim;
 
 
     let leaveButtonEnabled = true;
 
-    async function abandon() {
+    async function abandon(): Promise<void> {
         leaveButtonEnabled = false;
         try {
             await leaveScrimMutation({

@@ -1,13 +1,13 @@
 <script lang="ts">
     import {
-        activeSubmissionsStore, resetSubmissionMutation, type Submission,
-    } from "$lib/api";
+    type Submission,
+        activeSubmissionsStore, resetSubmissionMutation, } from "$lib/api";
     import {Modal} from "$lib/components";
 
     export let submission: Submission;
     export let visible = false;
 
-    const resetSubmission = async () => {
+    const resetSubmission = async (): Promise<void> => {
         await resetSubmissionMutation({submissionId: submission.id});
 
         // Close modal and refresh submissions table

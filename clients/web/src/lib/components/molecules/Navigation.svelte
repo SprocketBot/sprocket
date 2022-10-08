@@ -1,7 +1,7 @@
 <script lang="ts">
-    import {navigationStore} from "$lib/stores";
-    import {page} from "$app/stores";
     import {goto} from "$app/navigation";
+    import {page} from "$app/stores";
+    import {navigationStore} from "$lib/stores";
 
     const currentRoute = $page.url.pathname;
 </script>
@@ -10,7 +10,7 @@
     <ul class="menu">
         {#each $navigationStore as item}
             <li class:active={item.target === currentRoute} on:click={async () => goto(item.target)}>
-                <a>{item.label}</a>
+                <span>{item.label}</span>
             </li>
         {/each}
     </ul>

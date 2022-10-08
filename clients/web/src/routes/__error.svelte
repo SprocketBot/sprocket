@@ -1,9 +1,8 @@
 <script>
 	import {page} from "$app/stores";
-
-	import {
-	    DashboardLayout,
+import {
 	    DashboardCard,
+	    DashboardLayout,
 	} from "$lib/components";
 </script>
 

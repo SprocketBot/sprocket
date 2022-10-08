@@ -1,8 +1,8 @@
 <script lang="ts">
     export let title: string;
-    export let quietTitle: boolean = false;
+    export let quietTitle = false;
 
-    let _class: string = "";
+    let _class = "";
     export {_class as class};
 </script>
 

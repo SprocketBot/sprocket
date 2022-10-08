@@ -1,11 +1,12 @@
 <script lang="ts">
     import {createEventDispatcher} from "svelte";
     import IoMdClose from "svelte-icons/io/IoMdClose.svelte";
+    
     import {Spinner} from "$lib/components";
 
     export let filename: string;
     export let canRemove: boolean;
-    export let loading: boolean = false;
+    export let loading = false;
 
     const dispatch = createEventDispatcher();
 </script>

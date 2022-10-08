@@ -9,7 +9,7 @@
 
     const dispatch = createEventDispatcher();
     
-    const onToggle = () => {
+    const onToggle = (): void => {
         dispatch('toggle')
     }
 </script>

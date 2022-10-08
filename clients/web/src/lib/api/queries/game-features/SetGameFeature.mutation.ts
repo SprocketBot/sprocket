@@ -34,7 +34,7 @@ const disableGameFeatureMutationString = gql`
 `;
 
 const enableGameFeatureMutation = async (vars: Omit<SetGameFeatureVariables, "value">): Promise<void> => {
-    const r = await client.mutation<{}, Omit<SetGameFeatureVariables, "value">>(enableGameFeatureMutationString, vars).toPromise();
+    const r = await client.mutation<Record<string, never>, Omit<SetGameFeatureVariables, "value">>(enableGameFeatureMutationString, vars).toPromise();
     if (r.data) {
         return;
     }
@@ -42,7 +42,7 @@ const enableGameFeatureMutation = async (vars: Omit<SetGameFeatureVariables, "va
 };
 
 const disableGameFeatureMutation = async (vars: Omit<SetGameFeatureVariables, "value">): Promise<void> => {
-    const r = await client.mutation<{}, Omit<SetGameFeatureVariables, "value">>(disableGameFeatureMutationString, vars).toPromise();
+    const r = await client.mutation<Record<string, never>, Omit<SetGameFeatureVariables, "value">>(disableGameFeatureMutationString, vars).toPromise();
     if (r.data) {
         return;
     }

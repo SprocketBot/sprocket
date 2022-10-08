@@ -1,20 +1,22 @@
 <script lang="ts">
+    import type {CombinedError} from "@urql/core";
+    import type {FileUpload} from "graphql-upload";
+    import {fade} from "svelte/transition";
+    
+    import {uploadReplaysMutation} from "$lib/api/mutations/UploadReplays.mutation";
     import {
         FileBlock, FileInput, Modal, toasts,
     } from "$lib/components";
-    import {fade} from "svelte/transition";
-    import {uploadReplaysMutation} from "$lib/api/mutations/UploadReplays.mutation";
-    import type {FileUpload} from "graphql-upload";
-    import type {CombinedError} from "@urql/core";
+    
 import type {RemovableFile} from "../../../atoms/FileInput.svelte";
 
-    export let visible: boolean = true;
+    export let visible = true;
     export let submissionId: string;
 
     let files: RemovableFile[] = [];
-    let submitting: boolean = false;
+    let submitting = false;
 
-    async function handleSubmit() {
+    async function handleSubmit(): Promise<void> {
         if (!files.length) return;
         submitting = true;
         try {

@@ -4,7 +4,7 @@
 	import FaChevronUp from "svelte-icons/fa/FaChevronUp.svelte";
 
 	export let title: string;
-	export let open: boolean = false;
+	export let open = false;
 </script>
 <div class="bg-base-300/20 px-4 py-4 rounded-lg space-y-4">
 	<div class='flex justify-between items-center cursor-pointer select-none' on:click={() => { open = !open }}>

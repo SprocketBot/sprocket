@@ -1,9 +1,9 @@
 <script lang="ts">
+    import {
+    type ActiveScrims, type CurrentScrim,
+        activeScrims, } from "$lib/api";
     import {ScrimManagementModal} from "$lib/components";
     import {screamingSnakeToHuman} from "$lib/utils";
-    import {
-        activeScrims, type ActiveScrims, type CurrentScrim,
-    } from "$lib/api";
 
     /*
             TODO: Create/Implement Search
@@ -21,11 +21,11 @@
 
     let selectedPlayer: string | undefined;
 
-    const selectPlayerInTable = (playerId: string) => {
+    const selectPlayerInTable = (playerId: string): void => {
         selectedPlayer = playerId;
     };
 
-    const openScrimManagementModal = (scrimId: string) => {
+    const openScrimManagementModal = (scrimId: string): void => {
         scrimManagementModalVisible = true;
         targetId = scrimId;
     };

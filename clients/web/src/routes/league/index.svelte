@@ -1,10 +1,10 @@
 <script lang="ts">
 	import {
-	    DashboardLayout, DashboardCard, Spinner, LeagueScheduleGroup,
-	} from "$lib/components";
+	type LeagueScheduleSeason, type LeagueScheduleWeek,
+	    LeagueScheduleStore, } from "$lib/api";
 	import {
-	    LeagueScheduleStore, type LeagueScheduleSeason, type LeagueScheduleWeek,
-	} from "$lib/api";
+	DashboardCard,     DashboardLayout, LeagueScheduleGroup,
+	Spinner, } from "$lib/components";
 
 	const store = new LeagueScheduleStore();
 	let fetching = true;

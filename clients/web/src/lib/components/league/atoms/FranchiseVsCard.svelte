@@ -1,6 +1,7 @@
 <script lang="ts">
-	import type {LeagueScheduleFranchise} from "../../../api";
 	import Color from "color";
+	
+	import type {LeagueScheduleFranchise} from "../../../api";
 	export let profile: LeagueScheduleFranchise;
 
 

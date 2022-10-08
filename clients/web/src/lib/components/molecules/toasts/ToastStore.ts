@@ -9,9 +9,9 @@ export interface Toast {
 }
 
 class ToastStore extends BaseStore<Toast[]> implements Readable<Toast[]> {
-    currentValue = [];
+    currentValue: Toast[] = [];
 
-    pushToast(t: Toast) {
+    pushToast(t: Toast): void {
         if (!t.id) {
             t.id = Math.random().toString()
                 .split(".")[1];
@@ -20,7 +20,7 @@ class ToastStore extends BaseStore<Toast[]> implements Readable<Toast[]> {
         this.pub([...this.currentValue, t]);
     }
 
-    remove(tid: string) {
+    remove(tid: string): void {
         this.pub(this.currentValue.filter(t => t.id !== tid));
     }
 }

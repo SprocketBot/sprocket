@@ -14,16 +14,16 @@
     $: readyToRatify = Array.from(submissionResults).every(Boolean) && submissionResults.length === submission.stats.games.length;
     let hasRatified = submission.userHasRatified;
 
-    async function ratifyScrim() {
+    async function ratifyScrim(): Promise<void> {
         if (hasRatified) return;
         await RatifySubmissionMutation({submissionId: submission.id});
         // eslint-disable-next-line require-atomic-updates
         hasRatified = true;
     }
 
-    let rejecting: boolean = false;
+    let rejecting = false;
 
-    const reject = () => {
+    const reject = (): void => {
         rejecting = true;
     };
 </script>

@@ -1,8 +1,8 @@
 <script lang='ts'>
   import type {Submission} from "$lib/api";
 
+  import RatificationView from "./RatificationView.svelte";
   import SubmissionProgressView from "./SubmissionProgressView.svelte";
-import RatificationView from "./RatificationView.svelte";
 
   export let submission: Submission;
 </script>

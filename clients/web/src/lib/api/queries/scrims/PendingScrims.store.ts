@@ -31,7 +31,7 @@ interface PendingScrimsData {
 }
 
 interface PendingScrimsVars {
-
+    [key: string]: never
 }
 
 interface FollowScrimsData {
@@ -64,7 +64,7 @@ class PendingScrimsStore extends LiveQueryStore<PendingScrimsData, PendingScrims
         }
     }`;
 
-    protected subscriptionString = gql<FollowScrimsData, {}>`
+    protected subscriptionString = gql<FollowScrimsData, Record<string, never>>`
         subscription {
             pendingScrim: followPendingScrims {
                 id
@@ -97,7 +97,7 @@ class PendingScrimsStore extends LiveQueryStore<PendingScrimsData, PendingScrims
         this.subscriptionVariables = {};
     }
 
-    protected handleGqlMessage = (message: OperationResult<FollowScrimsData>) => {
+    protected handleGqlMessage = (message: OperationResult<FollowScrimsData>): void => {
         if (!message.data) {
             console.warn(`Recieved erroneous message from followPendingScrims: ${message.error}`);
             return;

@@ -1,9 +1,8 @@
 <script lang="ts">
-    import {pendingScrims, type PendingScrim} from "$lib/api";
-
+    import {type PendingScrim,pendingScrims} from "$lib/api";
     import {
-        ScrimCard, ScrimTable, CreateScrimModal, JoinScrimModal,
-    } from "$lib/components";
+    CreateScrimModal, JoinScrimModal,
+        ScrimCard, ScrimTable, } from "$lib/components";
 
     let scrims: PendingScrim[] | undefined;
     $: scrims = $pendingScrims.data?.pendingScrims;
@@ -12,10 +11,10 @@
     let joinModalVisible = false;
     let targetScrim: PendingScrim | undefined;
 
-    const openCreateScrimModal = () => {
+    const openCreateScrimModal = (): void => {
         createModalVisible = true;
     };
-    const openJoinScrimModal = (scrim: PendingScrim) => {
+    const openJoinScrimModal = (scrim: PendingScrim): void => {
         targetScrim = scrim;
         joinModalVisible = true;
     };

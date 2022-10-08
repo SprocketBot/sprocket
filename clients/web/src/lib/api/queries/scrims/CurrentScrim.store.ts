@@ -67,9 +67,11 @@ export interface CurrentScrimSubscriptionValue {
 
 
 export interface CurrentScrimStoreVariables {
+    [key: string]: never
 }
 
 export interface CurrentScrimStoreSubscriptionVariables {
+    [key: string]: never
 }
 
 class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentScrimStoreVariables, CurrentScrimSubscriptionValue, CurrentScrimStoreSubscriptionVariables> {
@@ -177,7 +179,7 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
         this.subscriptionVariables = {};
     }
 
-    protected handleGqlMessage = (message: OperationResult<CurrentScrimSubscriptionValue, CurrentScrimStoreSubscriptionVariables>) => {
+    protected handleGqlMessage = (message: OperationResult<CurrentScrimSubscriptionValue, CurrentScrimStoreSubscriptionVariables>): void => {
         if (message?.data?.currentScrim) {
             const {scrim} = message?.data?.currentScrim ?? {};
             if (scrim?.status === "CANCELLED" || scrim?.status === "COMPLETE") {

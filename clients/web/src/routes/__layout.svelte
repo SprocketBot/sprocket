@@ -1,11 +1,12 @@
 <script lang='ts'>
 	import "../app.postcss";
-	import {initializeClient} from "$lib/api/client";
+	
 	import {session} from "$app/stores";
+	import {initializeClient} from "$lib/api/client";
 	import {
 	    AuthGuard, Chatwoot, StackBanner, ToastContainer,
 	} from "$lib/components";
-	import {navigationStore, ADMIN_NAV_ITEM} from "$lib/stores";
+	import {ADMIN_NAV_ITEM,navigationStore} from "$lib/stores";
 
 	$: {
 	    const isAdmin = $session.user?.orgTeams.some(s => s === 0);

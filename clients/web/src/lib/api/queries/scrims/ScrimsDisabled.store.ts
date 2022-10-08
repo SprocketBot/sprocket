@@ -7,13 +7,13 @@ interface ScrimsDisabledData {
     getScrimsDisabled: boolean;
 }
 
-class ScrimsDisabledStore extends LiveQueryStore<ScrimsDisabledData, {}, ScrimsDisabledData> {
-    protected queryString = gql<ScrimsDisabledData, {}>`
+class ScrimsDisabledStore extends LiveQueryStore<ScrimsDisabledData, Record<string, never>, ScrimsDisabledData> {
+    protected queryString = gql<ScrimsDisabledData, Record<string, never>>`
     query {
         getScrimsDisabled
     }`;
 
-    protected subscriptionString = gql<ScrimsDisabledData, {}>`
+    protected subscriptionString = gql<ScrimsDisabledData, Record<string, never>>`
         subscription {
             getScrimsDisabled: followScrimsDisabled
         }
@@ -26,7 +26,7 @@ class ScrimsDisabledStore extends LiveQueryStore<ScrimsDisabledData, {}, ScrimsD
         this.subscriptionVariables = {};
     }
 
-    protected handleGqlMessage = (message: OperationResult<ScrimsDisabledData>) => {
+    protected handleGqlMessage = (message: OperationResult<ScrimsDisabledData>): void => {
         if (!message.data) {
             console.warn(`Recieved erroneous message from followScrimsDisabled: ${message.error}`);
             return;

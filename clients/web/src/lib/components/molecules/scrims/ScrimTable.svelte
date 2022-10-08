@@ -1,6 +1,6 @@
 <script lang="ts">
-    import {screamingSnakeToHuman} from "$lib/utils";
     import type {PendingScrim} from "$lib/api";
+    import {screamingSnakeToHuman} from "$lib/utils";
 
     export let scrims: PendingScrim[];
     export let joinScrim: (scrim: PendingScrim) => void;

@@ -1,7 +1,8 @@
 <script lang="ts">
     import {
-        restrictedPlayers, type MemberRestriction,
-    } from "$lib/api";
+    type MemberRestriction,
+        restrictedPlayers, } from "$lib/api";
+    
 import ManuallyExpireRestrictionModal from "../../organisms/scrims/modals/ManuallyExpireRestrictionModal.svelte";
 
     let restrictedPlayersData: MemberRestriction[] | undefined;
@@ -10,7 +11,7 @@ import ManuallyExpireRestrictionModal from "../../organisms/scrims/modals/Manual
     let expireRestrictionModalVisible = false;
     let targetRestriction: MemberRestriction;
 
-    const openExpireRestrictionModal = (restriction: MemberRestriction) => {
+    const openExpireRestrictionModal = (restriction: MemberRestriction): void => {
         expireRestrictionModalVisible = true;
         targetRestriction = restriction;
     };

@@ -1,10 +1,11 @@
 <script lang="ts">
     import {createEventDispatcher} from "svelte";
-    import {oauthPopup} from "$lib/utils";
+    
     import {session} from "$app/stores";
+    import {oauthPopup} from "$lib/utils";
     const dispatchEvent = createEventDispatcher();
   
-    async function discordAuthCallback(e: MessageEvent) {
+    async function discordAuthCallback(e: MessageEvent): void {
         const {token} = e.data;
         dispatchEvent("loggedIn", token);
     }

@@ -1,8 +1,9 @@
 <script lang='ts'>
+    import FaChevronDown from "svelte-icons/fa/FaChevronDown.svelte";
+    
+    import {goto} from "$app/navigation";
     import {Avatar, Dropdown} from "$lib/components";
     import {user} from "$lib/stores";
-    import {goto} from "$app/navigation";
-    import FaChevronDown from "svelte-icons/fa/FaChevronDown.svelte";
     
     const actions = [ {
         label: "Sign Out",

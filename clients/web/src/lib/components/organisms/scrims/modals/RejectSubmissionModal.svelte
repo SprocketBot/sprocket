@@ -2,12 +2,12 @@
     import {RejectSubmissionMutation} from "../../../../api/mutations/scrims";
     import {Modal} from "../../../atoms";
 
-    export let visible: boolean = false;
+    export let visible = false;
     export let submissionId: string;
 
     let reason: string;
 
-    const reject = async () => {
+    const reject = async (): Promise<void> => {
         await RejectSubmissionMutation({submissionId, reason});
     };
 </script>

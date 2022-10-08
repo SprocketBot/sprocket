@@ -1,14 +1,18 @@
 <script lang="ts">
-    import {Portal} from "$lib/components";
     import {fade, fly} from "svelte/transition";
     import FaInfoCircle from "svelte-icons/fa/FaInfoCircle.svelte";
+    
+    import {Portal} from "$lib/components";
+    
     import type {Toast} from "./ToastStore";
     import {toasts} from "./ToastStore";
     export let showTestButton = false;
 
-    function removeToast(t: Toast, node: HTMLLIElement) {
-        if (node.parentElement.firstChild === node) {
-            toasts.remove(t.id);
+    function removeToast(t: Toast, node: HTMLLIElement): void {
+        if (node.parentElement?.firstChild === node) {
+            if (t.id) {
+                toasts.remove(t.id);
+            }
         }
     }
 </script>

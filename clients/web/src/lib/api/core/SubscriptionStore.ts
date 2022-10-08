@@ -7,11 +7,11 @@ import {browser} from "$app/env";
 import {client, clientPromise} from "../client";
 import {BaseStore} from "./BaseStore";
 
-type SubscriptionValue<T, V extends Object, HasHistory = false> = HasHistory extends true
+type SubscriptionValue<T, V extends Record<string, unknown>, HasHistory = false> = HasHistory extends true
     ? Array<OperationResult<T, V>>
     : OperationResult<T, V>;
 
-export abstract class SubscriptionStore<T, V extends Object, HasHistory = false> extends BaseStore<SubscriptionValue<T, V, HasHistory>> implements Readable<SubscriptionValue<T, V, HasHistory>> {
+export abstract class SubscriptionStore<T, V extends Record<string, unknown>, HasHistory = false> extends BaseStore<SubscriptionValue<T, V, HasHistory>> implements Readable<SubscriptionValue<T, V, HasHistory>> {
     protected gqlUnsub?: () => unknown | undefined;
 
     protected _vars: V | undefined;
@@ -54,7 +54,7 @@ export abstract class SubscriptionStore<T, V extends Object, HasHistory = false>
         super.cleanup(sub);
     }
 
-    private createGqlSubscription = () => {
+    private createGqlSubscription = (): void => {
         if (this.gqlUnsub || !browser || !this._vars) return;
         clientPromise.then(() => {
             const s = pipe(

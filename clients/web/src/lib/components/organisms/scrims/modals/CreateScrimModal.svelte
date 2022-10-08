@@ -9,12 +9,12 @@
     let game: GamesAndModesValue["games"][0];
     let mode: GamesAndModesValue["games"][0]["modes"][0];
     let scrimType: "TEAMS" | "ROUND_ROBIN";
-    let competitive: boolean = true;
-    let createGroup: boolean = false;
+    let competitive = true;
+    let createGroup = false;
 
     let buttonEnabled = true;
 
-    async function createScrim() {
+    async function createScrim(): Promise<void> {
         buttonEnabled = false;
         try {
             await createScrimMutation({
