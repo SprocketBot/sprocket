@@ -8,14 +8,19 @@ const platformLookup: Map<string, string> = new Map([
     ["epic", "EPIC"],
 ]);
 
-export function assignPlayerStats(stats: MLE_PlayerStats, ballchasing: BallchasingPlayer, coreStats: MLE_PlayerStatsCore): MLE_PlayerStats {
+export function assignPlayerStats(
+    stats: MLE_PlayerStats,
+    ballchasing: BallchasingPlayer,
+    coreStats: MLE_PlayerStatsCore,
+): MLE_PlayerStats {
     stats.startTime = ballchasing.start_time;
     stats.endTime = ballchasing.end_time;
 
     stats.carName = ballchasing.car_name;
     stats.carId = ballchasing.car_id;
     stats.steeringSensitivity = ballchasing.steering_sensitivity;
-    stats.playerPlatform = platformLookup.get(ballchasing.id.platform) ?? "UNKNOWN";
+    stats.playerPlatform =
+        platformLookup.get(ballchasing.id.platform) ?? "UNKNOWN";
     stats.cameraFov = ballchasing.camera.fov;
     stats.cameraHeight = ballchasing.camera.height;
     stats.cameraPitch = ballchasing.camera.pitch;
@@ -36,7 +41,8 @@ export function assignPlayerStats(stats: MLE_PlayerStats, ballchasing: Ballchasi
     stats.boostStolenSmall = ballchasing.stats.boost.amount_stolen_small;
     stats.boostCountCollectedBig = ballchasing.stats.boost.count_collected_big;
     stats.boostCountStolenBig = ballchasing.stats.boost.count_stolen_big;
-    stats.boostCountCollectedSmall = ballchasing.stats.boost.count_collected_small;
+    stats.boostCountCollectedSmall =
+        ballchasing.stats.boost.count_collected_small;
     stats.boostCountStolenSmall = ballchasing.stats.boost.count_stolen_small;
     stats.boostOverfill = ballchasing.stats.boost.amount_overfill;
     stats.boostOverfillStolen = ballchasing.stats.boost.amount_overfill_stolen;
@@ -54,13 +60,19 @@ export function assignPlayerStats(stats: MLE_PlayerStats, ballchasing: Ballchasi
     stats.boostPercent50to75 = ballchasing.stats.boost.percent_boost_50_75;
     stats.boostPercent75to100 = ballchasing.stats.boost.percent_boost_75_100;
     // positioning stats
-    stats.avgDistanceToBall = ballchasing.stats.positioning.avg_distance_to_ball;
-    stats.avgDistanceToBallPossession = ballchasing.stats.positioning.avg_distance_to_ball_possession;
-    stats.avgDistanceToBallNoPossession = ballchasing.stats.positioning.avg_distance_to_ball_no_possession;
-    stats.avgDistanceToMates = ballchasing.stats.positioning.avg_distance_to_mates;
-    stats.timeDefensiveThird = ballchasing.stats.positioning.time_defensive_third;
+    stats.avgDistanceToBall =
+        ballchasing.stats.positioning.avg_distance_to_ball;
+    stats.avgDistanceToBallPossession =
+        ballchasing.stats.positioning.avg_distance_to_ball_possession;
+    stats.avgDistanceToBallNoPossession =
+        ballchasing.stats.positioning.avg_distance_to_ball_no_possession;
+    stats.avgDistanceToMates =
+        ballchasing.stats.positioning.avg_distance_to_mates;
+    stats.timeDefensiveThird =
+        ballchasing.stats.positioning.time_defensive_third;
     stats.timeNeutralThird = ballchasing.stats.positioning.time_neutral_third;
-    stats.timeOffensiveThird = ballchasing.stats.positioning.time_offensive_third;
+    stats.timeOffensiveThird =
+        ballchasing.stats.positioning.time_offensive_third;
     stats.timeDefensiveHalf = ballchasing.stats.positioning.time_defensive_half;
     stats.timeOffensiveHalf = ballchasing.stats.positioning.time_offensive_half;
     stats.timeBehindBall = ballchasing.stats.positioning.time_behind_ball;
@@ -68,27 +80,40 @@ export function assignPlayerStats(stats: MLE_PlayerStats, ballchasing: Ballchasi
     stats.timeMostBack = ballchasing.stats.positioning.time_most_back;
     stats.timeMostForward = ballchasing.stats.positioning.time_most_forward;
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    stats.goalsAgainstWhileLastDefender = ballchasing.stats.positioning.goals_against_while_last_defender ?? 0;
-    stats.timeClosestToBall = ballchasing.stats.positioning.time_closest_to_ball;
-    stats.timeFarthestFromBall = ballchasing.stats.positioning.time_farthest_from_ball;
-    stats.percentDefensiveThird = ballchasing.stats.positioning.percent_defensive_third;
-    stats.percentOffensiveThird = ballchasing.stats.positioning.percent_offensive_third;
-    stats.percentNeutralThird = ballchasing.stats.positioning.percent_neutral_third;
-    stats.percentDefensiveHalf = ballchasing.stats.positioning.percent_defensive_half;
-    stats.percentOffensiveHalf = ballchasing.stats.positioning.percent_offensive_half;
+    stats.goalsAgainstWhileLastDefender =
+        ballchasing.stats.positioning.goals_against_while_last_defender ?? 0;
+    stats.timeClosestToBall =
+        ballchasing.stats.positioning.time_closest_to_ball;
+    stats.timeFarthestFromBall =
+        ballchasing.stats.positioning.time_farthest_from_ball;
+    stats.percentDefensiveThird =
+        ballchasing.stats.positioning.percent_defensive_third;
+    stats.percentOffensiveThird =
+        ballchasing.stats.positioning.percent_offensive_third;
+    stats.percentNeutralThird =
+        ballchasing.stats.positioning.percent_neutral_third;
+    stats.percentDefensiveHalf =
+        ballchasing.stats.positioning.percent_defensive_half;
+    stats.percentOffensiveHalf =
+        ballchasing.stats.positioning.percent_offensive_half;
     stats.percentBehindBall = ballchasing.stats.positioning.percent_behind_ball;
-    stats.percentInfrontBall = ballchasing.stats.positioning.percent_infront_ball;
+    stats.percentInfrontBall =
+        ballchasing.stats.positioning.percent_infront_ball;
     stats.percentMostBack = ballchasing.stats.positioning.percent_most_back;
-    stats.percentMostForward = ballchasing.stats.positioning.percent_most_forward;
-    stats.percentClosestToBall = ballchasing.stats.positioning.percent_closest_to_ball;
-    stats.percentFarthestFromBall = ballchasing.stats.positioning.percent_farthest_from_ball;
+    stats.percentMostForward =
+        ballchasing.stats.positioning.percent_most_forward;
+    stats.percentClosestToBall =
+        ballchasing.stats.positioning.percent_closest_to_ball;
+    stats.percentFarthestFromBall =
+        ballchasing.stats.positioning.percent_farthest_from_ball;
     // demo stats
     stats.demosInflicted = ballchasing.stats.demo.inflicted;
     stats.demosTaken = ballchasing.stats.demo.taken;
     // movement stats
     stats.avgSpeed = ballchasing.stats.movement.avg_speed;
     stats.totalDistance = ballchasing.stats.movement.total_distance;
-    stats.timeSupersonicSpeed = ballchasing.stats.movement.time_supersonic_speed;
+    stats.timeSupersonicSpeed =
+        ballchasing.stats.movement.time_supersonic_speed;
     stats.timeBoostSpeed = ballchasing.stats.movement.time_boost_speed;
     stats.timeSlowSpeed = ballchasing.stats.movement.time_slow_speed;
     stats.timeGround = ballchasing.stats.movement.time_ground;
@@ -96,11 +121,13 @@ export function assignPlayerStats(stats: MLE_PlayerStats, ballchasing: Ballchasi
     stats.timeHighAir = ballchasing.stats.movement.time_high_air;
     stats.timePowerslide = ballchasing.stats.movement.time_powerslide;
     stats.countPowerslide = ballchasing.stats.movement.count_powerslide;
-    stats.avgPowerslideDuration = ballchasing.stats.movement.avg_powerslide_duration;
+    stats.avgPowerslideDuration =
+        ballchasing.stats.movement.avg_powerslide_duration;
     stats.avgSpeedPercentage = ballchasing.stats.movement.avg_speed_percentage;
     stats.percentSlowSpeed = ballchasing.stats.movement.percent_slow_speed;
     stats.percentBoostSpeed = ballchasing.stats.movement.percent_boost_speed;
-    stats.percentSupersonicSpeed = ballchasing.stats.movement.percent_supersonic_speed;
+    stats.percentSupersonicSpeed =
+        ballchasing.stats.movement.percent_supersonic_speed;
     stats.percentGround = ballchasing.stats.movement.percent_ground;
     stats.percentLowAir = ballchasing.stats.movement.percent_low_air;
     stats.percentHighAir = ballchasing.stats.movement.percent_high_air;

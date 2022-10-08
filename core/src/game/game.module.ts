@@ -10,9 +10,7 @@ import {GameModeController} from "./game-mode/game-mode.controller";
 import {PlatformService} from "./platform";
 
 @Module({
-    imports: [
-        DatabaseModule,
-    ],
+    imports: [DatabaseModule],
     providers: [
         GameService,
         GameModeService,

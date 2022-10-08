@@ -18,13 +18,18 @@ export class CreateScrimPlayerGuard extends PlayerGuard {
     constructor(
         private readonly gameModeService: GameModeService,
         readonly playerService: PlayerService,
-    ) { super() }
+    ) {
+        super();
+    }
 
     async getGameAndOrganization(ctx: GraphQLExecutionContext, userPayload: UserPayload): Promise<GameAndOrganization> {
         if (!userPayload.currentOrganizationId) throw new Error("User is not connected to an organization");
         const {data: {gameModeId} } = ctx.getArgs<{data: CreateScrimInput;}>();
 
-        const gameMode = await this.gameModeService.getGameModeById(gameModeId, {relations: ["game"] });
+        const gameMode = await this.gameModeService.getGameModeById(
+            gameModeId,
+            {relations: ["game"]},
+        );
 
         return {
             gameId: gameMode.game.id,
@@ -42,11 +47,17 @@ export class JoinScrimPlayerGuard extends PlayerGuard {
         private readonly scrimService: ScrimService,
         private readonly gameModeService: GameModeService,
         readonly playerService: PlayerService,
-    ) { super() }
+    ) {
+        super();
+    }
 
-    async getGameAndOrganization(ctx: GraphQLExecutionContext): Promise<GameAndOrganization> {
-        const {scrimId} = ctx.getArgs<{scrimId: string;}>();
-        const scrim = await this.scrimService.getScrimById(scrimId).catch(() => null);
+    async getGameAndOrganization(
+        ctx: GraphQLExecutionContext,
+    ): Promise<GameAndOrganization> {
+        const {scrimId} = ctx.getArgs<{scrimId: string}>();
+        const scrim = await this.scrimService
+            .getScrimById(scrimId)
+            .catch(() => null);
         if (!scrim) throw new GraphQLError("Scrim does not exist");
 
         const gameMode = await this.gameModeService.getGameModeById(scrim.gameModeId);
@@ -66,15 +77,22 @@ export class ScrimResolverPlayerGuard extends PlayerGuard {
     constructor(
         private readonly gameModeService: GameModeService,
         readonly playerService: PlayerService,
-    ) { super() }
+    ) {
+        super();
+    }
 
-    async getGameAndOrganization(ctx: GraphQLExecutionContext, userPayload: UserPayload): Promise<GameAndOrganization> {
-        if (!userPayload.currentOrganizationId) throw new Error("User is not connected to an organization");
-        
+    async getGameAndOrganization(
+        ctx: GraphQLExecutionContext,
+        userPayload: UserPayload,
+    ): Promise<GameAndOrganization> {
+        if (!userPayload.currentOrganizationId)
+            throw new Error("User is not connected to an organization");
+
         const scrim = ctx.getRoot<Scrim>();
         const gameMode = await this.gameModeService.getGameModeById(scrim.gameModeId);
 
-        if (!scrim.players.some(p => p.id === userPayload.userId)) throw new Error("Player is not in the scrim");
+        if (!scrim.players.some(p => p.id === userPayload.userId))
+            throw new Error("Player is not in the scrim");
 
         return {
             gameId: gameMode.gameId,

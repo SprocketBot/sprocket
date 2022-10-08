@@ -7,5 +7,4 @@ import {RmqService} from "./rmq.service";
     providers: [EventsService, RmqService],
     exports: [EventsService],
 })
-export class EventsModule {
-}
+export class EventsModule {}

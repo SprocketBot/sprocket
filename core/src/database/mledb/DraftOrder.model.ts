@@ -1,5 +1,11 @@
 import {
-    Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique,
+    Column,
+    Entity,
+    Index,
+    JoinColumn,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+    Unique,
 } from "typeorm";
 
 import {MLE_Season} from "./Season.model";

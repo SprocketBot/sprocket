@@ -21,11 +21,7 @@ export const gameEntities = [
 const ormModule = TypeOrmModule.forFeature(gameEntities);
 
 @Module({
-    imports: [
-        ormModule,
-    ],
-    exports: [
-        ormModule,
-    ],
+    imports: [ormModule],
+    exports: [ormModule],
 })
 export class GameModule {}

@@ -1,5 +1,12 @@
 import {
-    Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn,
+    Column,
+    Entity,
+    Index,
+    JoinColumn,
+    ManyToOne,
+    OneToMany,
+    OneToOne,
+    PrimaryGeneratedColumn,
 } from "typeorm";
 
 import {LegacyGameMode} from "./enums/Mode.enum";
@@ -90,7 +97,7 @@ export class MLE_Series {
         onUpdate: "CASCADE",
         nullable: true,
     })
-    @JoinColumn([ {name: "fixture_id", referencedColumnName: "id"} ])
+    @JoinColumn([{name: "fixture_id", referencedColumnName: "id"}])
     fixture?: MLE_Fixture;
 
     @OneToOne(() => MLE_Scrim, scrim => scrim.series, {
@@ -98,7 +105,7 @@ export class MLE_Series {
         onUpdate: "CASCADE",
         nullable: true,
     })
-    @JoinColumn([ {name: "scrim_id", referencedColumnName: "id"} ])
+    @JoinColumn([{name: "scrim_id", referencedColumnName: "id"}])
     scrim?: MLE_Scrim;
 
     @OneToMany(() => MLE_SeriesReplay, seriesReplay => seriesReplay.series)

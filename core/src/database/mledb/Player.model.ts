@@ -1,5 +1,9 @@
 import {
-    Column, Entity, Index, OneToMany, PrimaryGeneratedColumn,
+    Column,
+    Entity,
+    Index,
+    OneToMany,
+    PrimaryGeneratedColumn,
 } from "typeorm";
 
 import {League} from "./enums/League.enum";
@@ -47,7 +51,9 @@ export class MLE_Player {
     mleid: number;
 
     @Column("character varying", {
-        name: "name", unique: true, length: 255,
+        name: "name",
+        unique: true,
+        length: 255,
     })
     name: string;
 
@@ -69,7 +75,9 @@ export class MLE_Player {
     league: League;
 
     @Column("character varying", {
-        name: "role", nullable: true, length: 255,
+        name: "role",
+        nullable: true,
+        length: 255,
     })
     role: Role | null;
 
@@ -81,7 +89,9 @@ export class MLE_Player {
     preferredPlatform: string | null;
 
     @Column("integer", {
-        name: "peak_mmr", nullable: true, default: 0,
+        name: "peak_mmr",
+        nullable: true,
+        default: 0,
     })
     peakMmr: number | null;
 

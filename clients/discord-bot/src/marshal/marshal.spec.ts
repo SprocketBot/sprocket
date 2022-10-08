@@ -1,15 +1,11 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import {Test} from "@nestjs/testing";
-import {
-    AnalyticsService, config, CoreService,
-} from "@sprocketbot/common";
+import {AnalyticsService, config, CoreService} from "@sprocketbot/common";
 import type {Message} from "discord.js";
 
 import {EmbedService} from "../embed";
 import type {CommandSpec} from "./commands";
-import {
-    Command, CommandManagerService, CommandNotFound,
-} from "./commands";
+import {Command, CommandManagerService, CommandNotFound} from "./commands";
 import {Marshal} from "./marshal";
 
 const command1Spec: CommandSpec = {
@@ -38,35 +34,37 @@ const command2Spec: CommandSpec = {
 
 const command2OverloadSpec: CommandSpec = {
     name: command2Name,
-    args: [ {
-        name: "Argument",
-        type: "string",
-        docs: "docs",
-    } ],
+    args: [
+        {
+            name: "Argument",
+            type: "string",
+            docs: "docs",
+        },
+    ],
     docs: "docs",
 };
 
 class TestMarshal extends Marshal {
     @Command(command1Spec)
-    async MyCommandHandler(): Promise<void> { }
+    async MyCommandHandler(): Promise<void> {}
 
     @CommandNotFound()
-    async MyFirstCommandNotFoundHook(): Promise<void> { }
+    async MyFirstCommandNotFoundHook(): Promise<void> {}
 
     @CommandNotFound()
-    async MySecondCommandNotFoundHook(): Promise<void> { }
+    async MySecondCommandNotFoundHook(): Promise<void> {}
 }
 
 class NoCommandNotFoundMarshal extends Marshal {
     @Command(command2Spec)
-    async MyCommandHandler(): Promise<void> { }
+    async MyCommandHandler(): Promise<void> {}
 }
 class CommandOverloadMarshal extends Marshal {
     @Command(command2Spec)
-    async BaseCommand(): Promise<void> { }
+    async BaseCommand(): Promise<void> {}
 
     @Command(command2OverloadSpec)
-    async BaseCommandWithArgument(): Promise<void> { }
+    async BaseCommandWithArgument(): Promise<void> {}
 }
 const botPrefix = config.bot.prefix;
 
@@ -97,7 +95,10 @@ describe("Marshal", () => {
         });
 
         // We need to spy on the prototype to see the real method, rather than the decorated version
-        const commandHandlerSpy = jest.spyOn(TestMarshal.prototype, "MyCommandHandler");
+        const commandHandlerSpy = jest.spyOn(
+            TestMarshal.prototype,
+            "MyCommandHandler",
+        );
         const commandNotFoundHookSpies = [
             jest.spyOn(TestMarshal.prototype, "MyFirstCommandNotFoundHook"),
             jest.spyOn(TestMarshal.prototype, "MySecondCommandNotFoundHook"),
@@ -128,7 +129,9 @@ describe("Marshal", () => {
 
             await cms.handleMessage(mockedMessage);
 
-            commandNotFoundHookSpies.forEach(spy => { expect(spy).toHaveBeenCalledTimes(1) });
+            commandNotFoundHookSpies.forEach(spy => {
+                expect(spy).toHaveBeenCalledTimes(1);
+            });
         });
 
         it("should recieve a context object with parsed arguments", async () => {
@@ -142,8 +145,8 @@ describe("Marshal", () => {
             expect(commandHandlerSpy).toHaveBeenCalledTimes(1);
             expect(commandHandlerSpy).toHaveBeenCalledWith(mockedMessage, {
                 args: {
-                    "arg1": "arg1 value",
-                    "arg2": 2,
+                    arg1: "arg1 value",
+                    arg2: 2,
                 },
                 author: false,
             });
@@ -190,8 +193,14 @@ describe("Marshal", () => {
 
             jest.resetAllMocks();
         });
-        const noArgumentsSpy = jest.spyOn(CommandOverloadMarshal.prototype, "BaseCommand");
-        const oneArgumentsSpy = jest.spyOn(CommandOverloadMarshal.prototype, "BaseCommandWithArgument");
+        const noArgumentsSpy = jest.spyOn(
+            CommandOverloadMarshal.prototype,
+            "BaseCommand",
+        );
+        const oneArgumentsSpy = jest.spyOn(
+            CommandOverloadMarshal.prototype,
+            "BaseCommandWithArgument",
+        );
 
         it("should register each overload of the command as a seperate command", () => {
             expect(managerService.commands.length).toBe(2);

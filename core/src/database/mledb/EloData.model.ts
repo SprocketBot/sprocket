@@ -1,5 +1,11 @@
 import {
-    Column, Entity, Index, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn,
+    Column,
+    Entity,
+    Index,
+    JoinColumn,
+    ManyToOne,
+    OneToOne,
+    PrimaryGeneratedColumn,
 } from "typeorm";
 
 import {MLE_Player} from "./Player.model";
@@ -61,7 +67,9 @@ export class MLE_EloData {
     chain: number;
 
     @Column("character varying", {
-        name: "league", length: 255, nullable: true,
+        name: "league",
+        length: 255,
+        nullable: true,
     })
     league: string | null;
 
@@ -69,24 +77,24 @@ export class MLE_EloData {
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
     })
-    @JoinColumn([ {name: "next_node_id", referencedColumnName: "id"} ])
+    @JoinColumn([{name: "next_node_id", referencedColumnName: "id"}])
     nextNode: MLE_EloData;
 
     @OneToOne(() => MLE_EloData, eloData => eloData.nextNode, {
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
     })
-    @JoinColumn([ {name: "previous_node_id", referencedColumnName: "id"} ])
+    @JoinColumn([{name: "previous_node_id", referencedColumnName: "id"}])
     previousNode: MLE_EloData;
 
     @ManyToOne(() => MLE_SeriesReplay, seriesReplay => seriesReplay.eloData, {
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
     })
-    @JoinColumn([ {name: "replay_id", referencedColumnName: "id"} ])
+    @JoinColumn([{name: "replay_id", referencedColumnName: "id"}])
     replay: MLE_SeriesReplay;
 
     @ManyToOne(() => MLE_Player, {onUpdate: "CASCADE"})
-    @JoinColumn([ {name: "player_id", referencedColumnName: "id"} ])
+    @JoinColumn([{name: "player_id", referencedColumnName: "id"}])
     player: MLE_Player;
 }

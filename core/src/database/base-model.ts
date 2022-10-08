@@ -1,8 +1,9 @@
+import {Field, Int, ObjectType} from "@nestjs/graphql";
 import {
-    Field, Int, ObjectType,
-} from "@nestjs/graphql";
-import {
-    CreateDateColumn, DeleteDateColumn, PrimaryGeneratedColumn, UpdateDateColumn,
+    CreateDateColumn,
+    DeleteDateColumn,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
 } from "typeorm";
 
 import type {IrrelevantFields} from ".";

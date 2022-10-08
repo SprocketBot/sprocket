@@ -34,26 +34,47 @@ export class FinalizationSubscriber {
 
     onApplicationBootstrap(): void {
         // We want to subscribe to ratified submissions, instead of matches or scrims.
-        this.eventsService.subscribe(EventTopic.SubmissionRatified, false).then(rx => {
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            rx.subscribe(async ({payload}) => {
-                const submission = await this.redisService.getJson<ReplaySubmission>(payload.redisKey);
+        this.eventsService
+            .subscribe(EventTopic.SubmissionRatified, false)
+            .then(rx => {
+                // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                rx.subscribe(async ({payload}) => {
+                    const submission =
+                        await this.redisService.getJson<ReplaySubmission>(
+                            payload.redisKey,
+                        );
 
-                if (submission.type === ReplaySubmissionType.MATCH) {
-                    await this.onMatchSubmissionComplete(submission as MatchReplaySubmission, payload.submissionId);
-                } else if (submission.type === ReplaySubmissionType.SCRIM) {
-                    const scrim = await this.scrimService.getScrimBySubmissionId(payload.submissionId);
-                    await this.onScrimComplete(submission as ScrimReplaySubmission, payload.submissionId, scrim!);
-                }
-            });
-        })
+                    if (submission.type === ReplaySubmissionType.MATCH) {
+                        await this.onMatchSubmissionComplete(
+                            submission as MatchReplaySubmission,
+                            payload.submissionId,
+                        );
+                    } else if (submission.type === ReplaySubmissionType.SCRIM) {
+                        const scrim =
+                            await this.scrimService.getScrimBySubmissionId(
+                                payload.submissionId,
+                            );
+                        await this.onScrimComplete(
+                            submission as ScrimReplaySubmission,
+                            payload.submissionId,
+                            scrim!,
+                        );
+                    }
+                });
+            })
             .catch(this.logger.error.bind(this.logger));
     }
 
-    onScrimComplete = async (submission: ScrimReplaySubmission, submissionId: string, scrim: Scrim): Promise<void> => {
+    onScrimComplete = async (
+        submission: ScrimReplaySubmission,
+        submissionId: string,
+        scrim: Scrim,
+    ): Promise<void> => {
         try {
             if (!submission.validated) {
-                this.logger.warn("Attempted to finalize scrim that did not have validated submission");
+                this.logger.warn(
+                    "Attempted to finalize scrim that did not have validated submission",
+                );
                 return;
             }
 
@@ -65,7 +86,10 @@ export class FinalizationSubscriber {
             });
 
             // const result = await this.finalizationService.saveScrimToDatabase(submission, submissionId, scrim);
-            await this.submissionService.send(SubmissionEndpoint.RemoveSubmission, {submissionId});
+            await this.submissionService.send(
+                SubmissionEndpoint.RemoveSubmission,
+                {submissionId},
+            );
             await this.eventsService.publish(EventTopic.ScrimSaved, {
                 ...scrim,
                 databaseIds: {
@@ -75,16 +99,28 @@ export class FinalizationSubscriber {
             });
 
             if (!scrim.settings.competitive) return;
-            const eloPayload = await this.matchService.translatePayload(savedScrim.parent.match.id, true);
-            await this.eloConnectorService.createJob(EloEndpoint.CalculateEloForMatch, eloPayload);
+            const eloPayload = await this.matchService.translatePayload(
+                savedScrim.parent.match.id,
+                true,
+            );
+            await this.eloConnectorService.createJob(
+                EloEndpoint.CalculateEloForMatch,
+                eloPayload,
+            );
         } catch (_e) {
             const e = _e as Error;
             this.logger.warn(e.message, e.stack);
         }
     };
 
-    onMatchSubmissionComplete = async (submission: MatchReplaySubmission, submissionId: string): Promise<void> => {
-        const keyResponse = await this.submissionService.send(SubmissionEndpoint.GetSubmissionRedisKey, {submissionId});
+    onMatchSubmissionComplete = async (
+        submission: MatchReplaySubmission,
+        submissionId: string,
+    ): Promise<void> => {
+        const keyResponse = await this.submissionService.send(
+            SubmissionEndpoint.GetSubmissionRedisKey,
+            {submissionId},
+        );
         if (keyResponse.status === ResponseStatus.ERROR) {
             this.logger.warn(keyResponse.error.message);
             return;
@@ -102,8 +138,14 @@ export class FinalizationSubscriber {
                 legacyId: legacyMatch.id,
             });
 
-            const eloPayload = await this.matchService.translatePayload(match.id, false);
-            await this.eloConnectorService.createJob(EloEndpoint.CalculateEloForMatch, eloPayload);
+            const eloPayload = await this.matchService.translatePayload(
+                match.id,
+                false,
+            );
+            await this.eloConnectorService.createJob(
+                EloEndpoint.CalculateEloForMatch,
+                eloPayload,
+            );
         } catch (_e) {
             const e = _e as Error;
             this.logger.warn(e.message, e.stack);

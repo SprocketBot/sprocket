@@ -8,7 +8,9 @@ export const ManualSkillGroupChangeSchema = z.object({
     salary: z.number(),
 });
 
-export type ManualSkillGroupChange = z.infer<typeof ManualSkillGroupChangeSchema>;
+export type ManualSkillGroupChange = z.infer<
+    typeof ManualSkillGroupChangeSchema
+>;
 
 export const SGChange_Input = ManualSkillGroupChangeSchema;
 export const SGChange_Output = z.object({});

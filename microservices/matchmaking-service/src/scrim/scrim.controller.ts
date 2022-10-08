@@ -99,5 +99,4 @@ export class ScrimController {
         await this.scrimService.setScrimLocked(data.scrimId, data.locked);
         return true;
     }
-
 }

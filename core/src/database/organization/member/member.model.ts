@@ -1,7 +1,11 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {
     Column,
-    Entity, JoinColumn, ManyToOne, OneToMany, OneToOne,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    OneToMany,
+    OneToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
@@ -46,5 +50,4 @@ export class Member extends BaseModel {
 
     @Column()
     organizationId: number;
-
 }

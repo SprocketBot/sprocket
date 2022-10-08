@@ -1,5 +1,10 @@
 import {
-    Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,
+    Column,
+    Entity,
+    Index,
+    JoinColumn,
+    ManyToOne,
+    PrimaryGeneratedColumn,
 } from "typeorm";
 
 import {MLE_Platform} from "./enums";
@@ -63,6 +68,6 @@ export class MLE_PlayerAccount {
     @ManyToOne(() => MLE_Player, player => player.accounts, {
         onUpdate: "CASCADE",
     })
-    @JoinColumn([ {name: "player_id", referencedColumnName: "id"} ])
+    @JoinColumn([{name: "player_id", referencedColumnName: "id"}])
     player: MLE_Player;
 }

@@ -55,8 +55,7 @@ export enum EventTopic {
 
 export const EventTopicSchema = z.preprocess(v => {
     if (typeof v !== "string") return v;
-    return v.split(".").slice(0, 2)
-        .join(".");
+    return v.split(".").slice(0, 2).join(".");
 }, z.nativeEnum(EventTopic));
 
 const SubmissionRatificationSchema = SubmissionEventSchema.extend({
@@ -72,7 +71,9 @@ export const EventSchemas = {
     [EventTopic.ScrimDestroyed]: ScrimSchema,
     [EventTopic.ScrimStarted]: ScrimSchema,
     [EventTopic.ScrimCancelled]: ScrimSchema,
-    [EventTopic.ScrimSaved]: ScrimSchema.extend({databaseIds: ScrimDatabaseIdsSchema}),
+    [EventTopic.ScrimSaved]: ScrimSchema.extend({
+        databaseIds: ScrimDatabaseIdsSchema,
+    }),
     [EventTopic.AllScrimEvents]: z.union([
         z.number(),
         z.string().uuid(),
@@ -92,7 +93,9 @@ export const EventSchemas = {
     [EventTopic.SubmissionRejectionAdded]: SubmissionEventSchema,
     [EventTopic.SubmissionRatified]: SubmissionEventSchema,
     [EventTopic.SubmissionValidating]: SubmissionEventSchema,
-    [EventTopic.SubmissionRatifying]: SubmissionEventSchema.extend({resultPaths: z.array(z.string())}),
+    [EventTopic.SubmissionRatifying]: SubmissionEventSchema.extend({
+        resultPaths: z.array(z.string()),
+    }),
     [EventTopic.SubmissionRejected]: SubmissionEventSchema,
     [EventTopic.SubmissionReset]: SubmissionEventSchema,
     [EventTopic.SubmissionProgress]: SubmissionEventSchema,
@@ -115,7 +118,9 @@ export const EventSchemas = {
     [EventTopic.PlayerTeamChanged]: PlayerTeamChangedSchema,
 };
 
-export type EventPayload<T extends EventTopic> = z.infer<typeof EventSchemas[T]>;
+export type EventPayload<T extends EventTopic> = z.infer<
+    typeof EventSchemas[T]
+>;
 
 export interface EventResponse<T extends EventTopic> {
     topic: T;

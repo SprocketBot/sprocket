@@ -9,4 +9,6 @@ export const GetGuildsByOrganizationId_Response = z.object({
     alternates: z.array(z.string()),
 });
 
-export type GetGuildsByOrganizationIdResponse = z.infer<typeof GetGuildsByOrganizationId_Response>;
+export type GetGuildsByOrganizationIdResponse = z.infer<
+    typeof GetGuildsByOrganizationId_Response
+>;

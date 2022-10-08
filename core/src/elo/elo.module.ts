@@ -1,7 +1,9 @@
 import {BullModule} from "@nestjs/bull";
 import {Module} from "@nestjs/common";
 import {
-    EventsModule, NotificationModule, RedisModule,
+    EventsModule,
+    NotificationModule,
+    RedisModule,
 } from "@sprocketbot/common";
 
 import {DatabaseModule} from "../database";
@@ -29,10 +31,6 @@ import {EloConnectorModule} from "./elo-connector/elo-connector.module";
         NotificationModule,
         IdentityModule,
     ],
-    providers: [
-        EloConsumer,
-        EloResolver,
-        EloService,
-    ],
+    providers: [EloConsumer, EloResolver, EloService],
 })
 export class EloModule {}

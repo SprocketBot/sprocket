@@ -22,8 +22,7 @@ import {CoreService} from "./core.service";
                     heartbeat: 120,
                 },
             },
-        } ]),
+        ]),
     ],
 })
-export class CoreModule {
-}
+export class CoreModule {}

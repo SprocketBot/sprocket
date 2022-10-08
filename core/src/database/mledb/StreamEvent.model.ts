@@ -1,5 +1,10 @@
 import {
-    Column, Entity, Index, JoinColumn, OneToOne, PrimaryGeneratedColumn,
+    Column,
+    Entity,
+    Index,
+    JoinColumn,
+    OneToOne,
+    PrimaryGeneratedColumn,
 } from "typeorm";
 
 import {EventFormat} from "./enums/EventFormat";
@@ -42,7 +47,9 @@ export class MLE_StreamEvent {
     channel: string;
 
     @Column("integer", {
-        name: "series_id", nullable: true, unique: true,
+        name: "series_id",
+        nullable: true,
+        unique: true,
     })
     seriesId: number | null;
 
@@ -66,6 +73,6 @@ export class MLE_StreamEvent {
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
     })
-    @JoinColumn([ {name: "series_id", referencedColumnName: "id"} ])
+    @JoinColumn([{name: "series_id", referencedColumnName: "id"}])
     series: MLE_Series;
 }

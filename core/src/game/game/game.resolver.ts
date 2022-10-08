@@ -1,6 +1,4 @@
-import {
-    Args, Query, ResolveField, Resolver, Root,
-} from "@nestjs/graphql";
+import {Args, Query, ResolveField, Resolver, Root} from "@nestjs/graphql";
 
 import type {GameMode} from "../../database";
 import {Game} from "../../database";
@@ -34,5 +32,4 @@ export class GameResolver {
             },
         });
     }
-
 }

@@ -1,6 +1,11 @@
 import {Inject, UseGuards} from "@nestjs/common";
 import {
-    Args, Int, Mutation, Query, Resolver, Subscription,
+    Args,
+    Int,
+    Mutation,
+    Query,
+    Resolver,
+    Subscription,
 } from "@nestjs/graphql";
 import type {Scrim as IScrim} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
@@ -20,22 +25,32 @@ export class ScrimManagementResolver {
     ) {}
 
     @Query(() => [Scrim])
-    async getActiveScrims(@Args("skillGroupId", {
-        type: () => Int, nullable: true,
-    }) skillGroupId: number): Promise<IScrim[]> {
+    async getActiveScrims(
+        @Args("skillGroupId", {
+            type: () => Int,
+            nullable: true,
+        })
+        skillGroupId: number,
+    ): Promise<IScrim[]> {
         return this.scrimService.getAllScrims(skillGroupId);
     }
 
     @Mutation(() => Scrim)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
-    async cancelScrim(@Args("scrimId", {type: () => String}) scrimId: string): Promise<IScrim> {
+    @UseGuards(
+        GqlJwtGuard,
+        MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN),
+    )
+    async cancelScrim(
+        @Args("scrimId", {type: () => String}) scrimId: string,
+    ): Promise<IScrim> {
         return this.scrimService.cancelScrim(scrimId);
     }
 
     @Subscription(() => ScrimEvent)
     async followActiveScrims(): Promise<AsyncIterator<ScrimEvent>> {
         await this.scrimService.enableSubscription();
-        return this.pubSub.asyncIterator(this.scrimService.allActiveScrimsSubTopic);
+        return this.pubSub.asyncIterator(
+            this.scrimService.allActiveScrimsSubTopic,
+        );
     }
-
 }

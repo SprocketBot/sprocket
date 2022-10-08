@@ -15,7 +15,9 @@ import {FranchiseResolver} from "./franchise/franchise.resolver";
 import {FranchiseService} from "./franchise/franchise.service";
 import {FranchiseProfileResolver} from "./franchise-profile/franchise-profile.resolver";
 import {
-    GameSkillGroupController, GameSkillGroupResolver, GameSkillGroupService,
+    GameSkillGroupController,
+    GameSkillGroupResolver,
+    GameSkillGroupService,
 } from "./game-skill-group";
 import {PlayerService} from "./player";
 import {PlayerController} from "./player/player.controller";

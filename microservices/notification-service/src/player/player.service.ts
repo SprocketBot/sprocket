@@ -23,18 +23,23 @@ export class PlayerService extends SprocketEventMarshal {
     }
 
     @SprocketEvent(EventTopic.PlayerSkillGroupChanged)
-    async sendSkillGroupChanged(sgChangedPayload: PlayerSkillGroupChangedType): Promise<void> {
-        const transactionsWebhooksResult = await this.coreService.send(CoreEndpoint.GetTransactionsDiscordWebhook, {organizationId: sgChangedPayload.organizationId});
+    async sendSkillGroupChanged(
+        sgChangedPayload: PlayerSkillGroupChangedType,
+    ): Promise<void> {
+        const transactionsWebhooksResult = await this.coreService.send(
+            CoreEndpoint.GetTransactionsDiscordWebhook,
+            {organizationId: sgChangedPayload.organizationId},
+        );
         if (transactionsWebhooksResult.status !== ResponseStatus.SUCCESS) {
             this.logger.warn("Failed to fetch report card webhook url");
             throw transactionsWebhooksResult.error;
         }
-        if (transactionsWebhooksResult.data.transactionsWebhook) await this.botService.send(BotEndpoint.SendWebhookMessage, {
-            webhookUrl: transactionsWebhooksResult.data.transactionsWebhook,
-            payload: {
-                content: `${sgChangedPayload.old.discordEmojiId} ${sgChangedPayload.new.discordEmojiId} <@${sgChangedPayload.discordId}> has moved from ${sgChangedPayload.old.discordEmojiId} to ${sgChangedPayload.new.discordEmojiId}`,
-            },
-        });
-
+        if (transactionsWebhooksResult.data.transactionsWebhook)
+            await this.botService.send(BotEndpoint.SendWebhookMessage, {
+                webhookUrl: transactionsWebhooksResult.data.transactionsWebhook,
+                payload: {
+                    content: `${sgChangedPayload.old.discordEmojiId} ${sgChangedPayload.new.discordEmojiId} <@${sgChangedPayload.discordId}> has moved from ${sgChangedPayload.old.discordEmojiId} to ${sgChangedPayload.new.discordEmojiId}`,
+                },
+            });
     }
 }

@@ -1,11 +1,15 @@
 import {z} from "zod";
 
 import {
-    BrandingOptionsSchema, MessageContentSchema, WebhookMessageOptionsSchema,
+    BrandingOptionsSchema,
+    MessageContentSchema,
+    WebhookMessageOptionsSchema,
 } from "../types";
 
 export const SendWebhookMessage_Request = z.object({
-    webhookUrl: z.string().regex(/^https:\/\/discord\.com\/api\/webhooks\/\d+\/.+$/),
+    webhookUrl: z
+        .string()
+        .regex(/^https:\/\/discord\.com\/api\/webhooks\/\d+\/.+$/),
     payload: MessageContentSchema.merge(WebhookMessageOptionsSchema),
     brandingOptions: BrandingOptionsSchema.optional(),
 });

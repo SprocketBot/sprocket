@@ -5,7 +5,9 @@ export interface MarshalEventContext {
     args: Record<string, unknown>;
 }
 
-export type EventFunction = (e: ClientEvents[keyof ClientEvents]) => Promise<void>;
+export type EventFunction = (
+    e: ClientEvents[keyof ClientEvents],
+) => Promise<void>;
 
 export enum ClientEvent {
     ready = "ready",

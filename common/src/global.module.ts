@@ -111,4 +111,3 @@ const client = ClientsModule.register([
     exports: [client],
 })
 export class GlobalModule {}
-

@@ -13,12 +13,14 @@ export class DeveloperCommandsMarshal extends Marshal {
         args: [],
     })
     async brick(m: Message): Promise<void> {
-        this.analyticsService.send(AnalyticsEndpoint.Analytics, {
-            name: "brick",
-            strings: [
-                ["discordId", m.author.id],
-            ],
-        }).catch(err => { this.logger.error(err) });
+        this.analyticsService
+            .send(AnalyticsEndpoint.Analytics, {
+                name: "brick",
+                strings: [["discordId", m.author.id]],
+            })
+            .catch(err => {
+                this.logger.error(err);
+            });
 
         await m.reply(`<:sprocBrick:978054526059827280>`);
     }

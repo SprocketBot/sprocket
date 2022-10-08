@@ -26,11 +26,7 @@ export const bridgeEntities = [
 const ormModule = TypeOrmModule.forFeature(bridgeEntities);
 
 @Module({
-    imports: [
-        ormModule,
-    ],
-    exports: [
-        ormModule,
-    ],
+    imports: [ormModule],
+    exports: [ormModule],
 })
 export class MledbBridgeModule {}

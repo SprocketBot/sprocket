@@ -96,7 +96,9 @@ export const BallchasingPlayerStatsSchema = z.object({
         avg_distance_to_ball_no_possession: z.number().default(0),
     }),
 });
-export type BallchasingPlayerStates = z.infer<typeof BallchasingPlayerStatsSchema>;
+export type BallchasingPlayerStates = z.infer<
+    typeof BallchasingPlayerStatsSchema
+>;
 
 export const BallchasingPlayerSchema = z.object({
     id: z.object({

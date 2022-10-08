@@ -16,9 +16,6 @@ import {ReportCardMarshal} from "./report-card.marshal";
         EmbedModule,
         NotificationsModule,
     ],
-    providers: [
-        HelpMarshal,
-        ReportCardMarshal,
-    ],
+    providers: [HelpMarshal, ReportCardMarshal],
 })
 export class MemberCommandsModule {}

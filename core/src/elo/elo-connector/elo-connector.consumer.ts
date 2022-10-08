@@ -1,5 +1,7 @@
 import {
-    OnGlobalQueueCompleted, OnGlobalQueueFailed, Processor,
+    OnGlobalQueueCompleted,
+    OnGlobalQueueFailed,
+    Processor,
 } from "@nestjs/bull";
 import {Logger} from "@nestjs/common";
 import {JobId} from "bull";
@@ -19,7 +21,9 @@ export class EloConnectorConsumer {
         if (!listener) return;
 
         try {
-            const data = EloSchemas[listener.endpoint].output.parse(JSON.parse(result));
+            const data = EloSchemas[listener.endpoint].output.parse(
+                JSON.parse(result),
+            );
             await listener.success(data);
         } catch (e) {
             if (e instanceof Error) await listener.failure(e);

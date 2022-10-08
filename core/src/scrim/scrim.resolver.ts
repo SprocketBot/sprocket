@@ -5,9 +5,7 @@ import {
 } from "@nestjs/graphql";
 import {ScrimStatus} from "@sprocketbot/common";
 
-import {
-    GameMode, GameSkillGroup,
-} from "../database";
+import {GameMode, GameSkillGroup} from "../database";
 import {MLE_OrganizationTeam} from "../database/mledb";
 import {GameSkillGroupService} from "../franchise";
 import {GameModeService} from "../game";
@@ -17,9 +15,7 @@ import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-t
 import {OrGuard} from "../util/or.guard";
 import {ScrimResolverPlayerGuard} from "./scrim.guard";
 import type {ScrimGroup} from "./types";
-import {
-    Scrim, ScrimLobby, ScrimPlayer,
-} from "./types";
+import {Scrim, ScrimLobby, ScrimPlayer} from "./types";
 
 @Resolver(() => Scrim)
 export class ScrimResolver {
@@ -45,7 +41,10 @@ export class ScrimResolver {
     }
 
     @ResolveField(() => [ScrimPlayer])
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    @UseGuards(
+        GqlJwtGuard,
+        MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN),
+    )
     playersAdmin(@Root() scrim: Scrim): undefined | ScrimPlayer[] {
         return scrim.players ?? [];
     }
@@ -58,7 +57,10 @@ export class ScrimResolver {
     }
 
     @ResolveField(() => String, {nullable: true})
-    currentGroup(@Root() scrim: Scrim, @CurrentUser() user: UserPayload): ScrimGroup | undefined {
+    currentGroup(
+        @Root() scrim: Scrim,
+        @CurrentUser() user: UserPayload,
+    ): ScrimGroup | undefined {
         const code = scrim.players?.find(p => p.id === user.userId)?.group;
         if (!code) return undefined;
         return {

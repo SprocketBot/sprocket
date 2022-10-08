@@ -37,6 +37,5 @@ import {
     ],
     exports: [OauthService],
     controllers: [OauthController],
-
 })
 export class AuthModule {}

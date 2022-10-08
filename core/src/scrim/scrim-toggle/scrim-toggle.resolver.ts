@@ -1,7 +1,5 @@
 import {Inject, UseGuards} from "@nestjs/common";
-import {
-    Args, Mutation, Query, Resolver, Subscription,
-} from "@nestjs/graphql";
+import {Args, Mutation, Query, Resolver, Subscription} from "@nestjs/graphql";
 import {PubSub} from "apollo-server-express";
 
 import {MLE_OrganizationTeam} from "../../database/mledb";
@@ -23,14 +21,23 @@ export class ScrimToggleResolver {
     }
 
     @Mutation(() => Boolean)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
-    async setScrimsDisabled(@Args("disabled") disabled: boolean): Promise<boolean> {
-        return disabled ? this.scrimToggleService.disableScrims() : this.scrimToggleService.enableScrims();
+    @UseGuards(
+        GqlJwtGuard,
+        MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN),
+    )
+    async setScrimsDisabled(
+        @Args("disabled") disabled: boolean,
+    ): Promise<boolean> {
+        return disabled
+            ? this.scrimToggleService.disableScrims()
+            : this.scrimToggleService.enableScrims();
     }
 
     @Subscription(() => Boolean)
     async followScrimsDisabled(): Promise<AsyncIterator<boolean>> {
         await this.scrimToggleService.enableSubscription();
-        return this.pubSub.asyncIterator(this.scrimToggleService.scrimsDisabledSubTopic);
+        return this.pubSub.asyncIterator(
+            this.scrimToggleService.scrimsDisabledSubTopic,
+        );
     }
 }

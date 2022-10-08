@@ -1,6 +1,4 @@
-import {
-    Field, InputType, Int, ObjectType,
-} from "@nestjs/graphql";
+import {Field, InputType, Int, ObjectType} from "@nestjs/graphql";
 import type {ScrimSettings as IScrimSettings} from "@sprocketbot/common";
 import {ScrimMode} from "@sprocketbot/common";
 

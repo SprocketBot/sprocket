@@ -12,8 +12,9 @@ const HORIZONTAL_AND_VERTICAL = "┼";
 
 export const table = (data: string[][], headers: string[]): string => {
     if (!data.length) return "";
-    if (headers.length !== data[0].length) throw new Error("Number of headers doesn't match number of columns");
-    
+    if (headers.length !== data[0].length)
+        throw new Error("Number of headers doesn't match number of columns");
+
     const widths: number[] = Array<number>(headers.length).fill(0);
     data.forEach(row => {
         widths.forEach((_, w) => {
@@ -27,7 +28,7 @@ export const table = (data: string[][], headers: string[]): string => {
 
     for (let w = 0; w < widths.length; w++) {
         const horizontal = HORIZONTAL.repeat(widths[w] + 2);
-        
+
         if (w === 0) {
             topLine += DOWN_AND_RIGHT;
             middleLine += VERTICAL_AND_RIGHT;

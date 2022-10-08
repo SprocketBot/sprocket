@@ -13,7 +13,9 @@ import {ReplaySubmissionCrudService} from "../replay-submission-crud/replay-subm
 
 @Injectable()
 export class ReplaySubmissionRatificationService {
-    private readonly logger = new Logger(ReplaySubmissionRatificationService.name);
+    private readonly logger = new Logger(
+        ReplaySubmissionRatificationService.name,
+    );
 
     constructor(
         private readonly eventService: EventsService,
@@ -21,12 +23,23 @@ export class ReplaySubmissionRatificationService {
         private readonly matchmakingService: MatchmakingService,
     ) {}
 
-    async resetSubmission(submissionId: string, override: boolean, playerId: string): Promise<void> {
+    async resetSubmission(
+        submissionId: string,
+        override: boolean,
+        playerId: string,
+    ): Promise<void> {
         if (!override) {
             if (submissionIsScrim(submissionId)) {
-                const scrimResponse = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
-                if (scrimResponse.status === ResponseStatus.ERROR || !scrimResponse.data) {
-                    if (scrimResponse.status === ResponseStatus.ERROR) this.logger.error(scrimResponse.error);
+                const scrimResponse = await this.matchmakingService.send(
+                    MatchmakingEndpoint.GetScrimBySubmissionId,
+                    submissionId,
+                );
+                if (
+                    scrimResponse.status === ResponseStatus.ERROR ||
+                    !scrimResponse.data
+                ) {
+                    if (scrimResponse.status === ResponseStatus.ERROR)
+                        this.logger.error(scrimResponse.error);
                     throw new Error("Error fetching scrim");
                 }
                 const scrim = scrimResponse.data;
@@ -37,19 +50,29 @@ export class ReplaySubmissionRatificationService {
         // Delete the submission
         await this.crudService.removeSubmission(submissionId);
         // Let everybody know that we've deleted the submission
-        await this.eventService.publish(EventTopic.SubmissionReset, {submissionId: submissionId, redisKey: getSubmissionKey(submissionId)});
+        await this.eventService.publish(EventTopic.SubmissionReset, {
+            submissionId: submissionId,
+            redisKey: getSubmissionKey(submissionId),
+        });
     }
 
-    async ratifyScrim(playerId: number, submissionId: string): Promise<boolean> {
+    async ratifyScrim(
+        playerId: number,
+        submissionId: string,
+    ): Promise<boolean> {
         const submission = await this.crudService.getSubmission(submissionId);
         if (!submission) throw new Error("Submission not found");
-        if (submission.status !== ReplaySubmissionStatus.RATIFYING) throw new Error("Submission is not ready for ratifications");
+        if (submission.status !== ReplaySubmissionStatus.RATIFYING)
+            throw new Error("Submission is not ready for ratifications");
 
         await this.crudService.addRatifier(submissionId, playerId);
         submission.ratifiers.push(playerId);
 
         if (submission.ratifiers.length >= submission.requiredRatifications) {
-            await this.crudService.updateStatus(submissionId, ReplaySubmissionStatus.RATIFIED);
+            await this.crudService.updateStatus(
+                submissionId,
+                ReplaySubmissionStatus.RATIFIED,
+            );
 
             await this.eventService.publish(EventTopic.SubmissionRatified, {
                 submissionId: submissionId,
@@ -57,21 +80,38 @@ export class ReplaySubmissionRatificationService {
             });
             return true;
         }
-        await this.eventService.publish(EventTopic.SubmissionRatificationAdded, {
-            currentRatifications: submission.ratifiers.length + 1,
-            requiredRatifications: submission.requiredRatifications,
-            submissionId: submissionId,
-            redisKey: getSubmissionKey(submissionId),
-        });
+        await this.eventService.publish(
+            EventTopic.SubmissionRatificationAdded,
+            {
+                currentRatifications: submission.ratifiers.length + 1,
+                requiredRatifications: submission.requiredRatifications,
+                submissionId: submissionId,
+                redisKey: getSubmissionKey(submissionId),
+            },
+        );
         return false;
     }
 
-    async rejectSubmission(playerId: number, submissionId: string, reasons: string[]): Promise<boolean> {
-        await Promise.all(reasons.map(async r => this.crudService.addRejection(submissionId, playerId, r)));
+    async rejectSubmission(
+        playerId: number,
+        submissionId: string,
+        reasons: string[],
+    ): Promise<boolean> {
+        await Promise.all(
+            reasons.map(async r =>
+                this.crudService.addRejection(submissionId, playerId, r),
+            ),
+        );
 
         await this.crudService.removeItems(submissionId);
-        await this.crudService.updateStatus(submissionId, ReplaySubmissionStatus.REJECTED);
-        await this.eventService.publish(EventTopic.SubmissionRejectionAdded, {submissionId: submissionId, redisKey: getSubmissionKey(submissionId)});
+        await this.crudService.updateStatus(
+            submissionId,
+            ReplaySubmissionStatus.REJECTED,
+        );
+        await this.eventService.publish(EventTopic.SubmissionRejectionAdded, {
+            submissionId: submissionId,
+            redisKey: getSubmissionKey(submissionId),
+        });
 
         // TODO: support for different thresholds
         await this.eventService.publish(EventTopic.SubmissionRejected, {
@@ -80,5 +120,4 @@ export class ReplaySubmissionRatificationService {
         });
         return false;
     }
-
 }

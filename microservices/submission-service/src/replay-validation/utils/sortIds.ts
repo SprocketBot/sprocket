@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-confusing-arrow
-const increasingOrder = (a: number, b: number): -1 | 0 | 1 => a < b ? -1 : 1;
+const increasingOrder = (a: number, b: number): -1 | 0 | 1 => (a < b ? -1 : 1);
 
 /**
  * @example

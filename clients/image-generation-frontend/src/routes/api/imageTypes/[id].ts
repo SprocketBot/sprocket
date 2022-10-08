@@ -1,4 +1,4 @@
-import type {EndpointOutput,Request} from "@sveltejs/kit";
+import type {EndpointOutput, Request} from "@sveltejs/kit";
 
 import {ReportTemplateDAO} from "$utils/server/database/ReportTemplate.dao";
 

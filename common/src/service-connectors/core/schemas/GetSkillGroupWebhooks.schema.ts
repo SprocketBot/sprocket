@@ -5,12 +5,8 @@ export const GetSkillGroupWebhooks_Request = z.object({
 });
 
 export const GetSkillGroupWebhooks_Response = z.object({
-    scrimReportCards: z.string().nullable()
-        .optional(),
-    matchReportCards: z.string().nullable()
-        .optional(),
-    scrim: z.string().nullable()
-        .optional(),
-    scrimRole: z.string().nullable()
-        .optional(),
+    scrimReportCards: z.string().nullable().optional(),
+    matchReportCards: z.string().nullable().optional(),
+    scrim: z.string().nullable().optional(),
+    scrimRole: z.string().nullable().optional(),
 });

@@ -7,14 +7,14 @@ import {CommandsModule} from "../marshal";
 import {DiscordService} from "./discord.service";
 
 @Module({
-    imports: [
-        forwardRef(() => CommandsModule),
-    ],
+    imports: [forwardRef(() => CommandsModule)],
     providers: [
         {
             provide: "DISCORD_CLIENT",
             useFactory: async (): Promise<Client> => {
-                const bot_token = (await readFile("./secret/bot-token.txt")).toString().trim();
+                const bot_token = (await readFile("./secret/bot-token.txt"))
+                    .toString()
+                    .trim();
                 const bot_client = new Client({
                     intents: [
                         GatewayIntentBits.Guilds,

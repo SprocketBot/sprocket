@@ -1,5 +1,11 @@
 import {
-    Column, Entity, Index, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn,
+    Column,
+    Entity,
+    Index,
+    JoinColumn,
+    ManyToOne,
+    OneToOne,
+    PrimaryGeneratedColumn,
 } from "typeorm";
 
 import {MLE_Player} from "./Player.model";
@@ -311,18 +317,22 @@ export class MLE_PlayerStats {
         playerStatsCore => playerStatsCore.playerStats,
         {onUpdate: "CASCADE"},
     )
-    @JoinColumn([ {name: "core_stats_id", referencedColumnName: "id"} ])
+    @JoinColumn([{name: "core_stats_id", referencedColumnName: "id"}])
     coreStats: MLE_PlayerStatsCore;
 
     @ManyToOne(() => MLE_Player, {
         onUpdate: "CASCADE",
     })
-    @JoinColumn([ {name: "player_id", referencedColumnName: "id"} ])
+    @JoinColumn([{name: "player_id", referencedColumnName: "id"}])
     player: MLE_Player;
 
-    @ManyToOne(() => MLE_SeriesReplay, seriesReplay => seriesReplay.playerStats, {
-        onUpdate: "CASCADE",
-    })
-    @JoinColumn([ {name: "replay_id", referencedColumnName: "id"} ])
+    @ManyToOne(
+        () => MLE_SeriesReplay,
+        seriesReplay => seriesReplay.playerStats,
+        {
+            onUpdate: "CASCADE",
+        },
+    )
+    @JoinColumn([{name: "replay_id", referencedColumnName: "id"}])
     replay: MLE_SeriesReplay;
 }

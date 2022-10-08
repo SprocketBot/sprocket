@@ -16,4 +16,6 @@ export const PlayerSkillGroupChanged = z.object({
     new: PlayerSkillGroup,
 });
 
-export type PlayerSkillGroupChangedType = z.infer<typeof PlayerSkillGroupChanged>;
+export type PlayerSkillGroupChangedType = z.infer<
+    typeof PlayerSkillGroupChanged
+>;

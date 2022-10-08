@@ -28,5 +28,9 @@ async function bootstrap(): Promise<void> {
 }
 
 bootstrap()
-    .then(() => { console.log(`Microservice started! Connected to RMQ at '${url}', on queue '${queue}'`) })
+    .then(() => {
+        console.log(
+            `Microservice started! Connected to RMQ at '${url}', on queue '${queue}'`,
+        );
+    })
     .catch(console.error);

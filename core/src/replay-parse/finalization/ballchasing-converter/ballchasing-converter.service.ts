@@ -1,6 +1,8 @@
 import {Injectable} from "@nestjs/common";
 import type {
-    BallchasingPlayer, BallchasingResponse, BallchasingTeam,
+    BallchasingPlayer,
+    BallchasingResponse,
+    BallchasingTeam,
 } from "@sprocketbot/common";
 
 @Injectable()

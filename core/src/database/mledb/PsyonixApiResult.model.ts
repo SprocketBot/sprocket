@@ -1,5 +1,10 @@
 import {
-    Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,
+    Column,
+    Entity,
+    Index,
+    JoinColumn,
+    ManyToOne,
+    PrimaryGeneratedColumn,
 } from "typeorm";
 
 import {MLE_PlayerAccount} from "./PlayerAccount.model";
@@ -37,10 +42,7 @@ export class MLE_PsyonixApiResult {
     @Column("numeric", {name: "mu"})
     mu: number;
 
-    @ManyToOne(
-        () => MLE_PlayerAccount,
-        {onUpdate: "CASCADE"},
-    )
-    @JoinColumn([ {name: "player_account_id", referencedColumnName: "id"} ])
+    @ManyToOne(() => MLE_PlayerAccount, {onUpdate: "CASCADE"})
+    @JoinColumn([{name: "player_account_id", referencedColumnName: "id"}])
     playerAccount: MLE_PlayerAccount;
 }

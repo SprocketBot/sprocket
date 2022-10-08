@@ -28,24 +28,42 @@ export class AnalyticsService {
             token: fs.readFileSync("secret/influx-token").toString(),
         });
         this.writeApi = this.influx.getWriteApi(influxOrg, influxBucket, "ms");
-        this.logger.log(`Connected to InfluxDB, url='${influxUrl}', org='${influxOrg}', bucket='${influxBucket}'`);
+        this.logger.log(
+            `Connected to InfluxDB, url='${influxUrl}', org='${influxOrg}', bucket='${influxBucket}'`,
+        );
 
         const flushThrottle = 1000;
         this.flush = throttle<() => void>(() => {
-            this.writeApi.flush()
-                .then(() => { this.logger.log("Flushed InfluxDB Points") })
+            this.writeApi
+                .flush()
+                .then(() => {
+                    this.logger.log("Flushed InfluxDB Points");
+                })
                 .catch(this.logger.error.bind(this.logger));
         }, flushThrottle);
     }
-    
+
     createPoint = (data: AnalyticsPoint): void => {
         try {
             const point = new Point();
-            if (data.booleans) data.booleans.forEach(([name, value]) => point.booleanField(name, value));
-            if (data.floats) data.floats.forEach(([name, value]) => point.floatField(name, value));
-            if (data.ints) data.ints.forEach(([name, value]) => point.intField(name, value));
-            if (data.strings) data.strings.forEach(([name, value]) => point.stringField(name, value));
-            if (data.tags) data.tags.forEach(([name, value]) => point.tag(name, value));
+            if (data.booleans)
+                data.booleans.forEach(([name, value]) =>
+                    point.booleanField(name, value),
+                );
+            if (data.floats)
+                data.floats.forEach(([name, value]) =>
+                    point.floatField(name, value),
+                );
+            if (data.ints)
+                data.ints.forEach(([name, value]) =>
+                    point.intField(name, value),
+                );
+            if (data.strings)
+                data.strings.forEach(([name, value]) =>
+                    point.stringField(name, value),
+                );
+            if (data.tags)
+                data.tags.forEach(([name, value]) => point.tag(name, value));
             point.measurement(data.name);
             point.timestamp(new Date());
             this.writeApi.writePoint(point);
@@ -55,5 +73,4 @@ export class AnalyticsService {
             throw e;
         }
     };
-
 }

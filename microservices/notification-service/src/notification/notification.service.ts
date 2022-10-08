@@ -1,6 +1,8 @@
 import {Injectable, Logger} from "@nestjs/common";
 import type {
-    NotificationEndpoint, NotificationInput, NotificationOutput,
+    NotificationEndpoint,
+    NotificationInput,
+    NotificationOutput,
 } from "@sprocketbot/common";
 import {
     BotEndpoint,
@@ -22,7 +24,9 @@ export class NotificationService {
         private readonly botService: BotService,
     ) {}
 
-    async sendNotification(data: NotificationInput<NotificationEndpoint.SendNotification>): Promise<NotificationOutput<NotificationEndpoint.SendNotification>> {
+    async sendNotification(
+        data: NotificationInput<NotificationEndpoint.SendNotification>,
+    ): Promise<NotificationOutput<NotificationEndpoint.SendNotification>> {
         if (data.payload) {
             const notificationPayload = {
                 id: data.id ?? `${data.type.toLowerCase()}-${v4()}`,
@@ -33,15 +37,31 @@ export class NotificationService {
             };
 
             // TODO: TTL 14 days
-            await this.redisService.setJson(`${this.prefix}${data.userId}:${data.type}:${notificationPayload.id}`, notificationPayload);
+            await this.redisService.setJson(
+                `${this.prefix}${data.userId}:${data.type}:${notificationPayload.id}`,
+                notificationPayload,
+            );
         }
 
-        if (data.notification.type === NotificationMessageType.GuildTextMessage) {
-            await this.botService.send(BotEndpoint.SendGuildTextMessage, data.notification);
-        } else if (data.notification.type === NotificationMessageType.DirectMessage) {
-            await this.botService.send(BotEndpoint.SendDirectMessage, data.notification);
+        if (
+            data.notification.type === NotificationMessageType.GuildTextMessage
+        ) {
+            await this.botService.send(
+                BotEndpoint.SendGuildTextMessage,
+                data.notification,
+            );
+        } else if (
+            data.notification.type === NotificationMessageType.DirectMessage
+        ) {
+            await this.botService.send(
+                BotEndpoint.SendDirectMessage,
+                data.notification,
+            );
         } else {
-            await this.botService.send(BotEndpoint.SendWebhookMessage, data.notification);
+            await this.botService.send(
+                BotEndpoint.SendWebhookMessage,
+                data.notification,
+            );
         }
 
         return true;

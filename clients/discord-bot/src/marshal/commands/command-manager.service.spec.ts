@@ -53,11 +53,13 @@ describe("CommandManagerService", () => {
             spec: {
                 name: name,
                 aliases: [],
-                args: [ {
-                    name: "arg1",
-                    type: "string",
-                    docs: "docs",
-                } ],
+                args: [
+                    {
+                        name: "arg1",
+                        type: "string",
+                        docs: "docs",
+                    },
+                ],
                 docs: "docs",
             },
             function: async () => {},
@@ -84,11 +86,13 @@ describe("CommandManagerService", () => {
             spec: {
                 name: name,
                 aliases: ["alias1", "alias2"],
-                args: [ {
-                    name: "arg1",
-                    type: "string",
-                    docs: "docs",
-                } ],
+                args: [
+                    {
+                        name: "arg1",
+                        type: "string",
+                        docs: "docs",
+                    },
+                ],
                 docs: "docs",
             },
             function: async () => {},
@@ -128,7 +132,11 @@ describe("CommandManagerService", () => {
                 function: async () => {},
                 functionName: "functionName",
             });
-        }).toThrow(new Error(`Error: Command "${name}" with ${0} arguments was declared more than once!`));
+        }).toThrow(
+            new Error(
+                `Error: Command "${name}" with ${0} arguments was declared more than once!`,
+            ),
+        );
     });
 
     it("Should execute a command when given a matching message", async () => {
@@ -175,7 +183,9 @@ describe("CommandManagerService", () => {
 
         const stringArg = "stringArg";
         const stringArgWithSpaces = "stringArg with spaces";
-        const mockedMessage = {content: `${botPrefix}${name} ${stringArg} "${stringArgWithSpaces}"`} as Message;
+        const mockedMessage = {
+            content: `${botPrefix}${name} ${stringArg} "${stringArgWithSpaces}"`,
+        } as Message;
         const expectedContext = {
             args: {
                 arg1: stringArg,
@@ -185,11 +195,13 @@ describe("CommandManagerService", () => {
         };
         await service.handleMessage(mockedMessage);
         expect(commandFunction).toBeCalledTimes(1);
-        expect(commandFunction).toHaveBeenCalledWith(mockedMessage, expectedContext);
+        expect(commandFunction).toHaveBeenCalledWith(
+            mockedMessage,
+            expectedContext,
+        );
     });
 
     it("Should execute a command not found hooks when given a non-matching message that starts with the bot prefix", async () => {
-
         const commandNotFoundHook = jest.fn();
         service.registerNotFoundCommand({
             function: commandNotFoundHook,
@@ -253,11 +265,13 @@ describe("CommandManagerService", () => {
             const command2: LinkedCommandMeta = {
                 spec: {
                     name: name,
-                    args: [ {
-                        name: "numberArg",
-                        type: "number",
-                        docs: "docs",
-                    } ],
+                    args: [
+                        {
+                            name: "numberArg",
+                            type: "number",
+                            docs: "docs",
+                        },
+                    ],
                     aliases: ["alias3"],
                     docs: "docs",
                 },

@@ -4,12 +4,12 @@ import axios from "axios";
 import * as sharp from "sharp";
 
 import type {
-    Dimension, ImageTransformationsOptions,
-    SprocketData, TextTransformationOptions,
+    Dimension,
+    ImageTransformationsOptions,
+    SprocketData,
+    TextTransformationOptions,
 } from "../types";
-import {
-    dataForLinkType, sprocketDataSchema,
-} from "../types";
+import {dataForLinkType, sprocketDataSchema} from "../types";
 
 @Injectable()
 export class SvgTransformationService {
@@ -57,7 +57,9 @@ export class SvgTransformationService {
             const use = children.find(child => child.nodeName === "use");
             if (use) {
                 if (use.hasAttribute("xlink:href")) {
-                    const newTarget = el.ownerDocument.querySelector(use.getAttribute("xlink:href")!);
+                    const newTarget = el.ownerDocument.querySelector(
+                        use.getAttribute("xlink:href")!,
+                    );
                     if (newTarget) {
                         return this.resolveTargetImage(newTarget);
                     }
@@ -71,7 +73,11 @@ export class SvgTransformationService {
         return false;
     }
 
-    async applyImageTransformation(el: Element, value: string, options: ImageTransformationsOptions): Promise<void> {
+    async applyImageTransformation(
+        el: Element,
+        value: string,
+        options: ImageTransformationsOptions,
+    ): Promise<void> {
         let target = el;
         if (target.nodeName !== "image") {
             // Attempt to resolve the actual image
@@ -80,7 +86,9 @@ export class SvgTransformationService {
                 target = attempt;
             } else {
                 // Fail
-                this.logger.warn(`Invalid element type ${el.nodeName} found for image transformation! Skipping...`);
+                this.logger.warn(
+                    `Invalid element type ${el.nodeName} found for image transformation! Skipping...`,
+                );
                 return;
             }
         }
@@ -95,14 +103,19 @@ export class SvgTransformationService {
             });
 
             if (response.headers?.["content-type"] !== "image/png") {
-                this.logger.warn("Found invalid image format for image transformation! Skipping...");
+                this.logger.warn(
+                    "Found invalid image format for image transformation! Skipping...",
+                );
                 return;
             }
             /*
              * TODO: Transform image to retain centering and height
              * TODO: Maintain Height or Maintain Width as an option
              */
-            image = `data:image/png;base64,${Buffer.from(response.data, "binary").toString("base64")}`;
+            image = `data:image/png;base64,${Buffer.from(
+                response.data,
+                "binary",
+            ).toString("base64")}`;
             this.imageLookup.set(value, image);
         }
         if (target.nodeName === "image") {
@@ -121,10 +134,13 @@ export class SvgTransformationService {
          * TODO: Image rescaling options
          */
         if (options.rescaleOn === "height") return;
-
     }
 
-    async applyTextTransformation(el: Element, value: string, options: TextTransformationOptions): Promise<void> {
+    async applyTextTransformation(
+        el: Element,
+        value: string,
+        options: TextTransformationOptions,
+    ): Promise<void> {
         const children = Array.from(el.children);
         // Some editors output text in a tspan (i.e. Figma), we need to account for that
         let target: Element = el;
@@ -134,7 +150,8 @@ export class SvgTransformationService {
         // TODO: Account for editors that use transformations (i.e. Illustrator)
         const originalLeft = Number(target.getAttribute("x") ?? 0);
         const originalBottom = Number(target.getAttribute("y") ?? 0);
-        const {height: originalHeight, width: originalWidth} = await this.getElDimension(el);
+        const {height: originalHeight, width: originalWidth} =
+            await this.getElDimension(el);
 
         let newtext = value;
         const truncate = options["truncate-to"];
@@ -148,12 +165,15 @@ export class SvgTransformationService {
             case "lower":
                 newtext = newtext.toLowerCase();
                 break;
-            default: break;
+            default:
+                break;
         }
 
         target.textContent = newtext;
 
-        const {height: newHeight, width: newWidth} = await this.getElDimension(el);
+        const {height: newHeight, width: newWidth} = await this.getElDimension(
+            el,
+        );
 
         switch (options["h-align"]) {
             case "right": {
@@ -162,14 +182,16 @@ export class SvgTransformationService {
                 target.setAttribute("x", `${newLeft}`);
                 break;
             }
-            case "center": { // Move in x based on half difference in width
+            case "center": {
+                // Move in x based on half difference in width
                 const diffWidth = newWidth - originalWidth;
                 const widthOffset = diffWidth / 2;
                 const newLeft = originalLeft - widthOffset;
                 target.setAttribute("x", `${newLeft}`);
                 break;
             }
-            default: break;
+            default:
+                break;
         }
         switch (options["v-align"]) {
             case "top": {
@@ -178,14 +200,16 @@ export class SvgTransformationService {
                 target.setAttribute("y", `${newBottom}`);
                 break;
             }
-            case "center": { // Move in x based on half difference in width
+            case "center": {
+                // Move in x based on half difference in width
                 const diffHeight = newHeight - originalHeight;
                 const heightOffset = diffHeight / 2;
                 const newBottom = originalBottom + heightOffset;
                 target.setAttribute("y", `${newBottom}`);
                 break;
             }
-            default: break;
+            default:
+                break;
         }
     }
 
@@ -227,7 +251,10 @@ export class SvgTransformationService {
         }
     }
 
-    extractDataFromStructure(key: string, data: TemplateStructure): DataLeaf | false {
+    extractDataFromStructure(
+        key: string,
+        data: TemplateStructure,
+    ): DataLeaf | false {
         let val: TemplateStructure | DataLeaf = data;
         const segments = key.split(".");
         for (const segment of segments) {
@@ -242,43 +269,85 @@ export class SvgTransformationService {
         return val;
     }
 
-    async transformElement(el: Element, data: TemplateStructure): Promise<void> {
-        const rawTransformations = JSON.parse((el as SVGElement).dataset.sprocket ?? "") as SprocketData[];
+    async transformElement(
+        el: Element,
+        data: TemplateStructure,
+    ): Promise<void> {
+        const rawTransformations = JSON.parse(
+            (el as SVGElement).dataset.sprocket ?? "",
+        ) as SprocketData[];
         const transformations = sprocketDataSchema.parse(rawTransformations);
 
         try {
-            await Promise.all(transformations.map(async t => {
-                const datum = this.extractDataFromStructure(t.varPath, data);
-                if (!datum) return Promise.resolve();
-                if (!dataForLinkType[t.type].includes(datum.type)) {
-                    this.logger.warn(`Problem parsing operation for ${t.varPath}. ${datum.type} cannot be applied to ${t.type}! Skipping ...`);
+            await Promise.all(
+                transformations.map(async t => {
+                    const datum = this.extractDataFromStructure(
+                        t.varPath,
+                        data,
+                    );
+                    if (!datum) return Promise.resolve();
+                    if (!dataForLinkType[t.type].includes(datum.type)) {
+                        this.logger.warn(
+                            `Problem parsing operation for ${t.varPath}. ${datum.type} cannot be applied to ${t.type}! Skipping ...`,
+                        );
+                        return Promise.resolve();
+                    }
+                    switch (t.type) {
+                        case "number":
+                        case "text":
+                            await this.applyTextTransformation(
+                                el,
+                                datum.value.toString(),
+                                t.options,
+                            );
+                            this.logger.log(
+                                `successfully applied transformation to ${
+                                    el.id
+                                } (Text ${datum.value.toString()})`,
+                            );
+                            break;
+                        case "fill":
+                            await this.applyFillTransformation(
+                                el,
+                                datum.value.toString(),
+                            );
+                            this.logger.log(
+                                `successfully applied transformation to ${
+                                    el.id
+                                } (Fill ${datum.value.toString()})`,
+                            );
+                            break;
+                        case "stroke":
+                            await this.applyStrokeTransformation(
+                                el,
+                                datum.value.toString(),
+                            );
+                            this.logger.log(
+                                `successfully applied transformation to ${
+                                    el.id
+                                } (Stroke ${datum.value.toString()})`,
+                            );
+                            break;
+                        case "image":
+                            await this.applyImageTransformation(
+                                el,
+                                datum.value.toString(),
+                                t.options,
+                            );
+                            this.logger.log(
+                                `successfully applied transformation to ${el.id} (Image)`,
+                            );
+                            break;
+                        default:
+                            // Leaving this here for when we create future transformation types
+                            this.logger.warn(
+                                `Unknown operation ${t} found! Skipping...`,
+                            );
+                            break;
+                    }
                     return Promise.resolve();
-                }
-                switch (t.type) {
-                    case "number":
-                    case "text":
-                        await this.applyTextTransformation(el, datum.value.toString(), t.options);
-                        this.logger.log(`successfully applied transformation to ${el.id} (Text ${datum.value.toString()})`);
-                        break;
-                    case "fill":
-                        await this.applyFillTransformation(el, datum.value.toString());
-                        this.logger.log(`successfully applied transformation to ${el.id} (Fill ${datum.value.toString()})`);
-                        break;
-                    case "stroke":
-                        await this.applyStrokeTransformation(el, datum.value.toString());
-                        this.logger.log(`successfully applied transformation to ${el.id} (Stroke ${datum.value.toString()})`);
-                        break;
-                    case "image":
-                        await this.applyImageTransformation(el, datum.value.toString(), t.options);
-                        this.logger.log(`successfully applied transformation to ${el.id} (Image)`);
-                        break;
-                    default:
-                        // Leaving this here for when we create future transformation types
-                        this.logger.warn(`Unknown operation ${t} found! Skipping...`);
-                        break;
-                }
-                return Promise.resolve();
-            }));
+                }),
+            );
         } catch (e) {
             this.logger.warn(`failed to apply transformation to ${el.id}`);
             this.logger.error(e, (e as Error).stack);

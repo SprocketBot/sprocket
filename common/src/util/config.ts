@@ -49,23 +49,28 @@ export const config = {
     },
     cache: {
         get port(): number {
-            if (_config.has("cache.port")) return _config.get<number>("cache.port");
+            if (_config.has("cache.port"))
+                return _config.get<number>("cache.port");
             return _config.get<number>("redis.port");
         },
         get host(): string {
-            if (_config.has("cache.host")) return _config.get<string>("cache.host");
+            if (_config.has("cache.host"))
+                return _config.get<string>("cache.host");
             return _config.get<string>("redis.host");
         },
         get password(): string {
             if (existsSync("./secret/cache-password.txt")) {
-                return readFileSync("./secret/cache-password.txt").toString()
+                return readFileSync("./secret/cache-password.txt")
+                    .toString()
                     .trim();
             }
-            return readFileSync("./secret/redis-password.txt").toString()
+            return readFileSync("./secret/redis-password.txt")
+                .toString()
                 .trim();
         },
         get secure(): boolean {
-            if (_config.has("cache.secure")) return _config.get<boolean>("cache.secure");
+            if (_config.has("cache.secure"))
+                return _config.get<boolean>("cache.secure");
             return _config.get<boolean>("redis.secure");
         },
     },
@@ -77,7 +82,9 @@ export const config = {
             const host = config.redis.host;
             const port = config.redis.port;
             const pass = config.redis.password;
-            return `redis${config.redis.secure ? "s" : ""}://:${pass}@${host}:${port}`;
+            return `redis${
+                config.redis.secure ? "s" : ""
+            }://:${pass}@${host}:${port}`;
         },
         get queue(): string {
             return _config.get<string>("transport.celery-queue");
@@ -101,8 +108,12 @@ export const config = {
         },
     },
     gql: {
-        get url(): string { return _config.get<string>("gql.url") },
-        get playground(): boolean { return _config.get<boolean>("gql.playground") },
+        get url(): string {
+            return _config.get<string>("gql.url");
+        },
+        get playground(): boolean {
+            return _config.get<boolean>("gql.playground");
+        },
     },
     logger: {
         get levels(): boolean | string {
@@ -114,19 +125,19 @@ export const config = {
             return _config.get<string>("minio.endPoint");
         },
         get accessKey(): string {
-            return readFileSync("./secret/minio-access.txt").toString()
-                .trim();
+            return readFileSync("./secret/minio-access.txt").toString().trim();
         },
         get secretKey(): string {
-            return readFileSync("./secret/minio-secret.txt").toString()
-                .trim();
+            return readFileSync("./secret/minio-secret.txt").toString().trim();
         },
         bucketNames: {
             get replays(): string {
                 return _config.get<string>("minio.bucketNames.replays");
             },
             get image_generation(): string {
-                return _config.get<string>("minio.bucketNames.image_generation");
+                return _config.get<string>(
+                    "minio.bucketNames.image_generation",
+                );
             },
         },
         get useSSL(): boolean {
@@ -150,14 +161,16 @@ export const config = {
             return _config.get<string>("redis.host");
         },
         get password(): string {
-            return readFileSync("./secret/redis-password.txt").toString()
+            return readFileSync("./secret/redis-password.txt")
+                .toString()
                 .trim();
         },
         get prefix(): string {
             return _config.get<string>("redis.prefix");
         },
         get secure(): boolean {
-            if (_config.has("redis.secure")) return _config.get<boolean>("redis.secure");
+            if (_config.has("redis.secure"))
+                return _config.get<boolean>("redis.secure");
             return false;
         },
     },

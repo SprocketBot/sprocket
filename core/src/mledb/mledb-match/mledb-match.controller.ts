@@ -10,8 +10,13 @@ export class MledbMatchController {
     constructor(private readonly matchService: MledbMatchService) {}
 
     @MessagePattern(CoreEndpoint.GetMleMatchInfoAndStakeholders)
-    async getMleMatchInfoAndStakeholders(@Payload() payload: unknown): Promise<CoreOutput<CoreEndpoint.GetMleMatchInfoAndStakeholders>> {
-        const data = CoreSchemas.GetMleMatchInfoAndStakeholders.input.parse(payload);
-        return this.matchService.getMleMatchInfoAndStakeholders(data.sprocketMatchId);
+    async getMleMatchInfoAndStakeholders(
+        @Payload() payload: unknown,
+    ): Promise<CoreOutput<CoreEndpoint.GetMleMatchInfoAndStakeholders>> {
+        const data =
+            CoreSchemas.GetMleMatchInfoAndStakeholders.input.parse(payload);
+        return this.matchService.getMleMatchInfoAndStakeholders(
+            data.sprocketMatchId,
+        );
     }
 }

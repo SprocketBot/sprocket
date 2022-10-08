@@ -6,8 +6,10 @@ import {ScheduleFixture} from "../../database";
 
 @Injectable()
 export class ScheduleFixtureService {
-    constructor(@InjectRepository(ScheduleFixture)
-    private readonly scheduleFixtureRepo: Repository<ScheduleFixture>) {}
+    constructor(
+        @InjectRepository(ScheduleFixture)
+        private readonly scheduleFixtureRepo: Repository<ScheduleFixture>,
+    ) {}
 
     async getFixturesForGroup(groupId: number): Promise<ScheduleFixture[]> {
         return this.scheduleFixtureRepo.find({
@@ -20,14 +22,21 @@ export class ScheduleFixtureService {
         });
     }
 
-    async getFixtureForMatchParent(matchParentId: number): Promise<ScheduleFixture> {
+    async getFixtureForMatchParent(
+        matchParentId: number,
+    ): Promise<ScheduleFixture> {
         return this.scheduleFixtureRepo.findOneOrFail({
             where: {
                 matchParents: {
                     id: matchParentId,
                 },
             },
-            relations: ["awayFranchise", "awayFranchise.profile", "homeFranchise", "homeFranchise.profile"],
+            relations: [
+                "awayFranchise",
+                "awayFranchise.profile",
+                "homeFranchise",
+                "homeFranchise.profile",
+            ],
         });
     }
 }

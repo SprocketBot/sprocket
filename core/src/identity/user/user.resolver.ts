@@ -39,21 +39,28 @@ export class UserResolver {
     @Query(() => User, {nullable: true})
     async getUserByAuthAccount(
         @Args("accountId") accountId: string,
-        @Args("accountType", {type: () => UserAuthenticationAccountType}) accountType: UserAuthenticationAccountType,
+        @Args("accountType", {type: () => UserAuthenticationAccountType})
+        accountType: UserAuthenticationAccountType,
     ): Promise<User | null> {
-        return this.identityService.getUserByAuthAccount(accountType, accountId);
+        return this.identityService.getUserByAuthAccount(
+            accountType,
+            accountId,
+        );
     }
 
     @Mutation(() => User)
     async registerUser(
         @Args("accountId") accountId: string,
-        @Args("accountType", {type: () => UserAuthenticationAccountType}) accountType: UserAuthenticationAccountType,
+        @Args("accountType", {type: () => UserAuthenticationAccountType})
+        accountType: UserAuthenticationAccountType,
     ): Promise<User> {
         return this.identityService.registerUser(accountType, accountId);
     }
 
     @ResolveField()
-    async authenticationAccounts(@Root() user: Partial<User>): Promise<UserAuthenticationAccount[]> {
+    async authenticationAccounts(
+        @Root() user: Partial<User>,
+    ): Promise<UserAuthenticationAccount[]> {
         if (!Array.isArray(user.authenticationAccounts)) {
             return this.identityService.getAuthAccountsForUser(user.id!);
         }
@@ -62,25 +69,41 @@ export class UserResolver {
 
     @ResolveField()
     async profile(@Root() user: Partial<User>): Promise<UserProfile> {
-        return user.profile ?? await this.userService.getUserProfileForUser(user.id!);
+        return (
+            user.profile ??
+            (await this.userService.getUserProfileForUser(user.id!))
+        );
     }
 
     @ResolveField()
-    async members(@Root() user: User, @Args("orgId", {nullable: true}) orgId?: number): Promise<Member[]> {
+    async members(
+        @Root() user: User,
+        @Args("orgId", {nullable: true}) orgId?: number,
+    ): Promise<Member[]> {
         if (!user.members) {
             // eslint-disable-next-line require-atomic-updates
-            user.members = await this.popService.populateMany(User, user, "members");
+            user.members = await this.popService.populateMany(
+                User,
+                user,
+                "members",
+            );
         }
         if (!orgId) return user.members;
         // Ensure organization is populated on all the members, then filter
-        return Promise.all(user.members.map(async m => {
-            if (typeof m.organization?.id === "undefined") {
-                // eslint-disable-next-line require-atomic-updates
-                m.organization = await this.popService.populateOneOrFail(Member, m, "organization");
-            }
+        return Promise.all(
+            user.members.map(async m => {
+                if (typeof m.organization?.id === "undefined") {
+                    // eslint-disable-next-line require-atomic-updates
+                    m.organization = await this.popService.populateOneOrFail(
+                        Member,
+                        m,
+                        "organization",
+                    );
+                }
 
-            return m;
-        })).then(results => results.filter(m => m.organization.id === orgId));
+                return m;
+            }),
+        ).then(results => results.filter(m => m.organization.id === orgId));
     }
 
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))

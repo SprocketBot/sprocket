@@ -12,13 +12,23 @@ export class MatchPlayerGuard extends PlayerGuard {
     constructor(
         readonly playerService: PlayerService,
         private readonly populateService: PopulateService,
-    ) { super() }
+    ) {
+        super();
+    }
 
-    async getGameAndOrganization(ctx: GraphQLExecutionContext, userPayload: UserPayload): Promise<GameAndOrganization> {
-        if (!userPayload.currentOrganizationId) throw new Error("User is not connected to an organization");
+    async getGameAndOrganization(
+        ctx: GraphQLExecutionContext,
+        userPayload: UserPayload,
+    ): Promise<GameAndOrganization> {
+        if (!userPayload.currentOrganizationId)
+            throw new Error("User is not connected to an organization");
 
         const match = ctx.getRoot<Match>();
-        const gameMode = await this.populateService.populateOneOrFail(Match, match, "gameMode");
+        const gameMode = await this.populateService.populateOneOrFail(
+            Match,
+            match,
+            "gameMode",
+        );
 
         return {
             gameId: gameMode.gameId,

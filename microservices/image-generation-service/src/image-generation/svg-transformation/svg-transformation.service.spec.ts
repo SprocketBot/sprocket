@@ -12,7 +12,9 @@ describe("SvgTransformationService", () => {
             providers: [SvgTransformationService],
         }).compile();
 
-        service = module.get<SvgTransformationService>(SvgTransformationService);
+        service = module.get<SvgTransformationService>(
+            SvgTransformationService,
+        );
     });
 
     it("should be defined", () => {
@@ -29,7 +31,10 @@ describe("SvgTransformationService", () => {
             await service.applyFillTransformation(mockedElement, "myValue");
 
             expect(mockedElement.hasAttribute).toHaveBeenCalledTimes(2);
-            expect(mockedElement.setAttribute).toHaveBeenCalledWith("fill", "myValue");
+            expect(mockedElement.setAttribute).toHaveBeenCalledWith(
+                "fill",
+                "myValue",
+            );
         });
     });
 });

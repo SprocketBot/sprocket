@@ -1,11 +1,10 @@
+import {Field, ObjectType} from "@nestjs/graphql";
+import type {ProgressMessage, Task, TaskResult} from "@sprocketbot/common";
 import {
-    Field, ObjectType,
-} from "@nestjs/graphql";
-import type {
-    ProgressMessage, Task, TaskResult,
-} from "@sprocketbot/common";
-import {
-    BallchasingResponse, Parser, Progress as IProgress, ProgressStatus,
+    BallchasingResponse,
+    Parser,
+    Progress as IProgress,
+    ProgressStatus,
 } from "@sprocketbot/common";
 import GraphQLJSON from "graphql-type-json";
 
@@ -47,8 +46,11 @@ export class ReplayParseProgress implements ProgressMessage<Task.ParseReplay> {
     error: string | null;
 }
 
-export type ParseReplaysTasks = Record<string, {
-    status: ProgressStatus;
-    result: TaskResult<Task.ParseReplay> | null;
-    error: Error | null;
-}>;
+export type ParseReplaysTasks = Record<
+    string,
+    {
+        status: ProgressStatus;
+        result: TaskResult<Task.ParseReplay> | null;
+        error: Error | null;
+    }
+>;

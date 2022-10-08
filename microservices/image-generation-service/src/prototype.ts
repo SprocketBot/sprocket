@@ -5,9 +5,7 @@ import {readFile} from "fs/promises";
 import {JSDOM} from "jsdom";
 import sharp from "sharp";
 
-import type {
-    Dimension, InputDatum, Operation,
-} from "./prototype.types";
+import type {Dimension, InputDatum, Operation} from "./prototype.types";
 import {operationSchema} from "./prototype.types";
 
 const logger = console;
@@ -34,7 +32,11 @@ async function getElDimension(el: Element): Promise<Dimension> {
 }
 
 // TODO: Figure out a way to embed the options into the svg document (or id, I guess)
-async function applyTextTransformation(el: Element, value: string, options: TextTransformationOptions = defaultTextTransformationOptions): Promise<void> {
+async function applyTextTransformation(
+    el: Element,
+    value: string,
+    options: TextTransformationOptions = defaultTextTransformationOptions,
+): Promise<void> {
     const children = Array.from(el.children);
     // Some editors output text in a tspan (i.e. Figma), we need to account for that
     let target: Element = el;
@@ -45,13 +47,14 @@ async function applyTextTransformation(el: Element, value: string, options: Text
         // TODO: Account for editors that use transformations (i.e. Illustrator)
         const originalLeft = Number(target.getAttribute("x") ?? 0);
         const originalBottom = Number(target.getAttribute("y") ?? 0);
-        const {height: originalHeight, width: originalWidth} = await getElDimension(el);
+        const {height: originalHeight, width: originalWidth} =
+            await getElDimension(el);
         let halfWidth = originalWidth / 2;
         const originalCenterX = halfWidth + originalLeft;
         let halfHeight = originalHeight / 2;
         const originalCenterY = originalBottom - halfHeight;
         target.textContent = value;
-   
+
         const {height: newHeight, width: newWidth} = await getElDimension(el);
         halfHeight = newHeight / 2;
         const newBottom = originalCenterY + halfHeight;
@@ -59,13 +62,15 @@ async function applyTextTransformation(el: Element, value: string, options: Text
         const newLeft = originalCenterX - halfWidth;
         target.setAttribute("x", newLeft.toString());
         target.setAttribute("y", newBottom.toString());
-
     } else {
         target.textContent = value;
     }
 }
 
-async function applyFillTransformation(el: Element, value: string): Promise<void> {
+async function applyFillTransformation(
+    el: Element,
+    value: string,
+): Promise<void> {
     function swapFill(target: SVGElement): void {
         if (target.hasAttribute("style")) {
             target.style.fill = value;
@@ -100,7 +105,9 @@ async function resolveTargetImage(el: Element): Promise<Element | false> {
         const use = children.find(child => child.nodeName === "use");
         if (use) {
             if (use.hasAttribute("xlink:href")) {
-                const newTarget = el.ownerDocument.querySelector(use.getAttribute("xlink:href")!);
+                const newTarget = el.ownerDocument.querySelector(
+                    use.getAttribute("xlink:href")!,
+                );
                 if (newTarget) {
                     return resolveTargetImage(newTarget);
                 }
@@ -110,11 +117,14 @@ async function resolveTargetImage(el: Element): Promise<Element | false> {
     if (el.nodeName === "image") {
         return el;
     }
-    
+
     return false;
 }
 
-async function applyImageTransformation(el: Element, value: string): Promise<void> {
+async function applyImageTransformation(
+    el: Element,
+    value: string,
+): Promise<void> {
     let target = el;
     // If(el.nodeName !== "image" && !el.hasAttribute("fill") && !el.getAttribute("fill").startsWith("url(#")) {
     if (target.nodeName !== "image") {
@@ -124,11 +134,13 @@ async function applyImageTransformation(el: Element, value: string): Promise<voi
             target = attempt;
         } else {
             // Fail
-            logger.warn(`Invalid element type ${el.nodeName} found for image transformation! Skipping...`);
+            logger.warn(
+                `Invalid element type ${el.nodeName} found for image transformation! Skipping...`,
+            );
             return;
         }
     }
-    
+
     /*
      * TODO: Memoize
      * TODO: Ensure that string generic typing is correct here
@@ -138,18 +150,22 @@ async function applyImageTransformation(el: Element, value: string): Promise<voi
     });
 
     if (response.headers?.["content-type"] !== "image/png") {
-        logger.warn("Found invalid image format for image transformation! Skipping...");
+        logger.warn(
+            "Found invalid image format for image transformation! Skipping...",
+        );
     }
     /*
      * TODO: Transform image to retain centering and height
      * TODO: Maintain Height or Maintain Width as an option
      */
-    const image = `data:image/png;base64,${Buffer.from(response.data, "binary").toString("base64")}`;
+    const image = `data:image/png;base64,${Buffer.from(
+        response.data,
+        "binary",
+    ).toString("base64")}`;
     if (target.nodeName === "image") {
         target.setAttribute("xlink:href", image);
     }
     // TODO: Deal with figma output ( fill=url(#pattern) )
-    
 }
 
 function extractOperation(key: string, data: InputDatum): Operation | false {
@@ -165,7 +181,9 @@ function extractOperation(key: string, data: InputDatum): Operation | false {
     }
     const checked = operationSchema.safeParse(val);
     if (!checked.success) {
-        logger.warn(`Malformed object at ${key} found! Skipping... (${checked.error})`);
+        logger.warn(
+            `Malformed object at ${key} found! Skipping... (${checked.error})`,
+        );
         return false;
     }
     return checked.data;
@@ -176,14 +194,16 @@ async function transformElement(el: Element, data: InputDatum): Promise<void> {
     if (el.hasAttribute("data-name")) {
         fullValue = el.getAttribute("data-name")!;
     }
-    fullValue = fullValue.toLowerCase()
-    // Escapes for illustrator
+    fullValue = fullValue
+        .toLowerCase()
+        // Escapes for illustrator
         .replace(/_x7b_/g, "{")
         .replace(/_x7d_/, "}");
-    
-    while (fullValue.match(/_[\d]_$/)) fullValue = fullValue.replace(/_[\d]_$/, "");
-        
-    const match  = fullValue.match(/^[{]((?:(?:[\w]+)\.)*(?:[\w]+))[}]$/);
+
+    while (fullValue.match(/_[\d]_$/))
+        fullValue = fullValue.replace(/_[\d]_$/, "");
+
+    const match = fullValue.match(/^[{]((?:(?:[\w]+)\.)*(?:[\w]+))[}]$/);
     if (match) {
         const operation = extractOperation(match[1], data);
         if (!operation) return;
@@ -198,12 +218,19 @@ async function transformElement(el: Element, data: InputDatum): Promise<void> {
                 await applyImageTransformation(el, operation.value.toString());
                 break;
             default:
-                logger.warn(`Unknown operation ${operation.type} found! Skipping...`);
+                logger.warn(
+                    `Unknown operation ${operation.type} found! Skipping...`,
+                );
         }
     }
 }
 
-async function recursiveTransform(el: Element, data: InputDatum, debug = true, depth = 0): Promise<void> {
+async function recursiveTransform(
+    el: Element,
+    data: InputDatum,
+    debug = true,
+    depth = 0,
+): Promise<void> {
     await transformElement(el, data);
 
     if (debug) {
@@ -212,9 +239,12 @@ async function recursiveTransform(el: Element, data: InputDatum, debug = true, d
             .filter(attr => !attr.value.startsWith("data:image"))
             .map(attr => `${attr.name}=${attr.value}`)
             .join(" ");
-        const indent = new Array(depth).fill("  ")
-            .join("");
-        logger.debug(`${indent}${el.tagName} | ${attrString} ${el.textContent?.startsWith("\n") ? "" : ` -> ${el.textContent}`}`);
+        const indent = new Array(depth).fill("  ").join("");
+        logger.debug(
+            `${indent}${el.tagName} | ${attrString} ${
+                el.textContent?.startsWith("\n") ? "" : ` -> ${el.textContent}`
+            }`,
+        );
     }
     // Transform children to an array
     const children = Array.from(el.children);
@@ -225,19 +255,24 @@ async function recursiveTransform(el: Element, data: InputDatum, debug = true, d
     }
 }
 
-async function processSvg(inputFilePath: string, outputFilePath: string, data: InputDatum): Promise<void> {
-    logger.debug(`============================= ${inputFilePath} =============================`);
+async function processSvg(
+    inputFilePath: string,
+    outputFilePath: string,
+    data: InputDatum,
+): Promise<void> {
+    logger.debug(
+        `============================= ${inputFilePath} =============================`,
+    );
     const svg = await readFile(inputFilePath);
     const dom = new JSDOM(svg.toString());
-    
+
     const svgRoot = dom.window.document.body.children[0];
     await recursiveTransform(svgRoot, data);
-    
+
     const newSvg = svgRoot.outerHTML;
     const newSvgBuffer = Buffer.from(newSvg);
-    
-    await sharp(newSvgBuffer).png()
-        .toFile(outputFilePath);
+
+    await sharp(newSvgBuffer).png().toFile(outputFilePath);
 }
 
 async function techDemo(): Promise<void> {
@@ -249,15 +284,30 @@ async function techDemo(): Promise<void> {
                     branding: {
                         primary: {value: "#b20000", type: "fill"},
                         secondary: {value: "#8e8e8e", type: "fill"},
-                        logo: {value: "https://cdn.mlesports.dev/public/img/teams/Knights.png", type: "image"},
+                        logo: {
+                            value: "https://cdn.mlesports.dev/public/img/teams/Knights.png",
+                            type: "image",
+                        },
                     },
                 },
                 name: {value: "...", type: "text"},
                 stats: {
-                    goals: {value: Math.floor(Math.random() * 5).toString(), type: "text"},
-                    shots: {value: Math.floor(Math.random() * 10).toString(), type: "text"},
-                    saves: {value: Math.floor(Math.random() * 10).toString(), type: "text"},
-                    assists: {value: Math.floor(Math.random() * 5).toString(), type: "text"},
+                    goals: {
+                        value: Math.floor(Math.random() * 5).toString(),
+                        type: "text",
+                    },
+                    shots: {
+                        value: Math.floor(Math.random() * 10).toString(),
+                        type: "text",
+                    },
+                    saves: {
+                        value: Math.floor(Math.random() * 10).toString(),
+                        type: "text",
+                    },
+                    assists: {
+                        value: Math.floor(Math.random() * 5).toString(),
+                        type: "text",
+                    },
                 },
                 league: {
                     name: {value: "Premier", type: "text"},
@@ -272,15 +322,27 @@ async function techDemo(): Promise<void> {
                     branding: {
                         primary: {value: "#006847", type: "fill"},
                         secondary: {value: "#b7b7b7", type: "fill"},
-                        logo: {value: "https://cdn.mlesports.dev/public/img/teams/Aviators.png", type: "image"},
+                        logo: {
+                            value: "https://cdn.mlesports.dev/public/img/teams/Aviators.png",
+                            type: "image",
+                        },
                     },
                 },
                 name: {value: "BroskiJAZZ", type: "text"},
                 stats: {
                     goals: {value: ".", type: "text"},
-                    shots: {value: Math.floor(Math.random() * 10).toString(), type: "text"},
-                    saves: {value: Math.floor(Math.random() * 10).toString(), type: "text"},
-                    assists: {value: Math.floor(Math.random() * 5).toString(), type: "text"},
+                    shots: {
+                        value: Math.floor(Math.random() * 10).toString(),
+                        type: "text",
+                    },
+                    saves: {
+                        value: Math.floor(Math.random() * 10).toString(),
+                        type: "text",
+                    },
+                    assists: {
+                        value: Math.floor(Math.random() * 5).toString(),
+                        type: "text",
+                    },
                 },
                 league: {
                     name: {value: "Master", type: "text"},
@@ -295,15 +357,30 @@ async function techDemo(): Promise<void> {
                     branding: {
                         primary: {value: "#00254c", type: "fill"},
                         secondary: {value: "#eeb311", type: "fill"},
-                        logo: {value: "https://cdn.mlesports.dev/public/img/teams/Express.png", type: "image"},
+                        logo: {
+                            value: "https://cdn.mlesports.dev/public/img/teams/Express.png",
+                            type: "image",
+                        },
                     },
                 },
                 name: {value: "C0P3x", type: "text"},
                 stats: {
-                    goals: {value: Math.floor(Math.random() * 5).toString(), type: "text"},
-                    shots: {value: Math.floor(Math.random() * 10).toString(), type: "text"},
-                    saves: {value: Math.floor(Math.random() * 10).toString(), type: "text"},
-                    assists: {value: Math.floor(Math.random() * 5).toString(), type: "text"},
+                    goals: {
+                        value: Math.floor(Math.random() * 5).toString(),
+                        type: "text",
+                    },
+                    shots: {
+                        value: Math.floor(Math.random() * 10).toString(),
+                        type: "text",
+                    },
+                    saves: {
+                        value: Math.floor(Math.random() * 10).toString(),
+                        type: "text",
+                    },
+                    assists: {
+                        value: Math.floor(Math.random() * 5).toString(),
+                        type: "text",
+                    },
                 },
                 league: {
                     name: {value: "Champion", type: "text"},
@@ -318,15 +395,30 @@ async function techDemo(): Promise<void> {
                     branding: {
                         primary: {value: "#c92a06", type: "fill"},
                         secondary: {value: "#f6c432", type: "fill"},
-                        logo: {value: "https://cdn.mlesports.dev/public/img/teams/Flames.png", type: "image"},
+                        logo: {
+                            value: "https://cdn.mlesports.dev/public/img/teams/Flames.png",
+                            type: "image",
+                        },
                     },
                 },
                 name: {value: "FLaMEz", type: "text"},
                 stats: {
-                    goals: {value: Math.floor(Math.random() * 5).toString(), type: "text"},
-                    shots: {value: Math.floor(Math.random() * 10).toString(), type: "text"},
-                    saves: {value: Math.floor(Math.random() * 10).toString(), type: "text"},
-                    assists: {value: Math.floor(Math.random() * 5).toString(), type: "text"},
+                    goals: {
+                        value: Math.floor(Math.random() * 5).toString(),
+                        type: "text",
+                    },
+                    shots: {
+                        value: Math.floor(Math.random() * 10).toString(),
+                        type: "text",
+                    },
+                    saves: {
+                        value: Math.floor(Math.random() * 10).toString(),
+                        type: "text",
+                    },
+                    assists: {
+                        value: Math.floor(Math.random() * 5).toString(),
+                        type: "text",
+                    },
                 },
                 league: {
                     name: {value: "Academy", type: "text"},
@@ -341,15 +433,30 @@ async function techDemo(): Promise<void> {
                     branding: {
                         primary: {value: "#ffa000", type: "fill"},
                         secondary: {value: "#111111", type: "fill"},
-                        logo: {value: "https://cdn.mlesports.dev/public/img/teams/Hive.png", type: "image"},
+                        logo: {
+                            value: "https://cdn.mlesports.dev/public/img/teams/Hive.png",
+                            type: "image",
+                        },
                     },
                 },
                 name: {value: "Novanta", type: "text"},
                 stats: {
-                    goals: {value: Math.floor(Math.random() * 5).toString(), type: "text"},
-                    shots: {value: Math.floor(Math.random() * 10).toString(), type: "text"},
-                    saves: {value: Math.floor(Math.random() * 10).toString(), type: "text"},
-                    assists: {value: Math.floor(Math.random() * 5).toString(), type: "text"},
+                    goals: {
+                        value: Math.floor(Math.random() * 5).toString(),
+                        type: "text",
+                    },
+                    shots: {
+                        value: Math.floor(Math.random() * 10).toString(),
+                        type: "text",
+                    },
+                    saves: {
+                        value: Math.floor(Math.random() * 10).toString(),
+                        type: "text",
+                    },
+                    assists: {
+                        value: Math.floor(Math.random() * 5).toString(),
+                        type: "text",
+                    },
                 },
                 league: {
                     name: {value: "Foundation", type: "text"},
@@ -359,12 +466,27 @@ async function techDemo(): Promise<void> {
                 },
             },
         ],
-        
     };
-    await processSvg("./tmp/sources/techdemo_figma.svg",       "./tmp/output/techdemo_figma_after.png", data);
-    await processSvg("./tmp/sources/techdemo_figma.svg",       "./tmp/output/techdemo_figma_before.png", {});
-    await processSvg("./tmp/sources/techdemo_illustrator.svg", "./tmp/output/techdemo_illustrator_after.png", data);
-    await processSvg("./tmp/sources/techdemo_illustrator.svg", "./tmp/output/techdemo_illustrator_before.png", {});
+    await processSvg(
+        "./tmp/sources/techdemo_figma.svg",
+        "./tmp/output/techdemo_figma_after.png",
+        data,
+    );
+    await processSvg(
+        "./tmp/sources/techdemo_figma.svg",
+        "./tmp/output/techdemo_figma_before.png",
+        {},
+    );
+    await processSvg(
+        "./tmp/sources/techdemo_illustrator.svg",
+        "./tmp/output/techdemo_illustrator_after.png",
+        data,
+    );
+    await processSvg(
+        "./tmp/sources/techdemo_illustrator.svg",
+        "./tmp/output/techdemo_illustrator_before.png",
+        {},
+    );
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -383,7 +505,10 @@ async function main(): Promise<void> {
         branding: {
             team: {
                 primary: {value: "#006100", type: "fill"},
-                logo: {value: "https://cdn.mlesports.dev/public/img/teams/Knights.png", type: "image"},
+                logo: {
+                    value: "https://cdn.mlesports.dev/public/img/teams/Knights.png",
+                    type: "image",
+                },
             },
         },
     };

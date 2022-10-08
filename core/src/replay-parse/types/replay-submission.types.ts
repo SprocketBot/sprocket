@@ -1,6 +1,4 @@
-import {
-    Field, Int, ObjectType, registerEnumType,
-} from "@nestjs/graphql";
+import {Field, Int, ObjectType, registerEnumType} from "@nestjs/graphql";
 import type {Scrim} from "@sprocketbot/common";
 import {ReplaySubmissionStatus} from "@sprocketbot/common";
 
