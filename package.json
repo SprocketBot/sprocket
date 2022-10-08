@@ -30,12 +30,15 @@
     "microservices/submission-service"
   ],
   "devDependencies": {
+    "@commitlint/cli": "^17.1.2",
+    "@commitlint/config-conventional": "^17.1.0",
     "@types/passport-discord": "^0.1.5",
     "@typescript-eslint/eslint-plugin": "^5.39.0",
     "@typescript-eslint/parser": "^5.39.0",
     "eslint": "^8.25.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-simple-import-sort": "^8.0.0",
+    "husky": "^8.0.1",
     "prettier": "^2.7.1"
   }
 }
