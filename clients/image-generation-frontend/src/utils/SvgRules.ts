@@ -1,4 +1,4 @@
-import type {OptionsRecord} from "src/types";
+import type {OptionsRecord} from "../types";
 
 export const friendlyLookup = {
     svg: "Root",

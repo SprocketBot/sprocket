@@ -3,6 +3,13 @@ import type {ReportTemplate} from "./ReportTemplate.model";
 
 export type ReportTemplateGetAll = Array<Omit<ReportTemplate, "templateStructure">>;
 
+export type FilterValue = {
+    name: string
+    description: string
+    code: string
+    data: unknown
+}
+
 /**
  * Create Script:
  * | create table report_template
@@ -36,7 +43,7 @@ class ReportTemplateDAO {
         throw new Error(`No report with code ${reportCode} could be found.`);
     }
 
-    async runReport(reportCode: string, reportFilters: Record<string, string>) {
+    async runReport(reportCode: string, reportFilters: Record<string, string>): Promise<unknown> {
         const template = await this.getByCode(reportCode);
 
         const arr = []
@@ -54,7 +61,7 @@ class ReportTemplateDAO {
         return result.data;
     }
 
-    async getFilterValues(reportCode: string) {
+    async getFilterValues(reportCode: string): Promise<FilterValue[]> {
         const template = await this.getByCode(reportCode);
         const filters = template.query.filters;
         //console.log(filters);
