@@ -53,8 +53,8 @@ export class DiscordSyncMarshal extends Marshal {
             const rolesToRemove = alternateGuildRolesFromPrimaryGuild.filter(r => !primaryGuildMember.roles.cache.some(rr => rr.name === r.name) && alternateGuildMember.roles.cache.some(rr => rr.name === r.name));
 
             await Promise.all([
-                ...rolesToAdd.map(async rta => alternateGuildMember.roles.add(rta).catch(() => {})),
-                ...rolesToRemove.map(async rtr => alternateGuildMember.roles.remove(rtr).catch(() => {})),
+                ...rolesToAdd.map(async rta => alternateGuildMember.roles.add(rta).catch(() => { /* Do nothing */ })),
+                ...rolesToRemove.map(async rtr => alternateGuildMember.roles.remove(rtr).catch(() => { /* Do nothing */ })),
             ]).catch(e => { this.logger.error(e) });
         }
     }
@@ -79,8 +79,8 @@ export class DiscordSyncMarshal extends Marshal {
         const rolesToRemove = alternateGuildRolesFromPrimaryGuild.filter(r => !primaryGuildMember.roles.cache.some(rr => rr.name === r.name) && alternateGuildMember.roles.cache.some(rr => rr.name === r.name));
 
         await Promise.all([
-            ...rolesToAdd.map(async rta => alternateGuildMember.roles.add(rta).catch(() => {})),
-            ...rolesToRemove.map(async rtr => alternateGuildMember.roles.remove(rtr).catch(() => {})),
+            ...rolesToAdd.map(async rta => alternateGuildMember.roles.add(rta).catch(() => { /* Do nothing */ })),
+            ...rolesToRemove.map(async rtr => alternateGuildMember.roles.remove(rtr).catch(() => { /* Do nothing */ })),
         ]).catch(e => { this.logger.error(e) });
     }
 

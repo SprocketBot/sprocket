@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
+/* eslint-disable @typescript-eslint/no-empty-function */
 import {Test} from "@nestjs/testing";
 import {
     AnalyticsService, config, CoreService,

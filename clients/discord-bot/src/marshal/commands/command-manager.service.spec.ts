@@ -1,4 +1,4 @@
-/* eslint-disable no-console, @typescript-eslint/no-magic-numbers, @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable no-console, @typescript-eslint/no-magic-numbers, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-empty-function */
 import type {TestingModule} from "@nestjs/testing";
 import {Test} from "@nestjs/testing";
 import {config as appConfig} from "@sprocketbot/common";

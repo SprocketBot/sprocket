@@ -123,7 +123,7 @@ export class SprocketStatusMarshal extends Marshal {
         });
 
         wizard.finally(async () => {
-            (m.channel as TextChannel).bulkDelete(messagesToDelete).catch(() => {});
+            (m.channel as TextChannel).bulkDelete(messagesToDelete).catch(() => { /* Do nothing */});
         });
 
         wizard.onFail(async () => {

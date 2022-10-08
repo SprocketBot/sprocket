@@ -1,10 +1,12 @@
 import {MarshalMetadataKey} from "../types";
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export const CommandNotFound = (): MethodDecorator => <HookFunction>(target: Object, key: string | symbol, descriptor: TypedPropertyDescriptor<HookFunction>): TypedPropertyDescriptor<HookFunction> => {
     if (!descriptor.value) throw new Error("Descriptor is undefined??");
     const originalMethod: HookFunction = descriptor.value;
 
     // @ts-expect-error If it was not a HookFunction before, then it is using this decorator incorrectly
+    // eslint-disable-next-line @typescript-eslint/ban-types
     descriptor.value = async function(this: Object, ...params: Parameters<HookFunction>): Promise<unknown> {
         /*
          * TODO: Will nest guards work, or do we need our own system?
