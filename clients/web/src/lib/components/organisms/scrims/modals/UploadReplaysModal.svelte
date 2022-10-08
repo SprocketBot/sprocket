@@ -1,14 +1,22 @@
+<style lang="postcss">
+    section {
+        @apply pt-4 space-y-4;
+    }
+
+    .actions {
+        @apply flex flex-row justify-around;
+    }
+</style>
+
 <script lang="ts">
     import type {CombinedError} from "@urql/core";
     import type {FileUpload} from "graphql-upload";
     import {fade} from "svelte/transition";
-    
+
     import {uploadReplaysMutation} from "$lib/api/mutations/UploadReplays.mutation";
-    import {
-        FileBlock, FileInput, Modal, toasts,
-    } from "$lib/components";
-    
-import type {RemovableFile} from "../../../atoms/FileInput.svelte";
+    import {FileBlock, FileInput, Modal, toasts} from "$lib/components";
+
+    import type {RemovableFile} from "../../../atoms/FileInput.svelte";
 
     export let visible = true;
     export let submissionId: string;
@@ -39,7 +47,12 @@ import type {RemovableFile} from "../../../atoms/FileInput.svelte";
     }
 </script>
 
-<Modal title="Upload Replays" bind:visible id="upload-replays-modal" canClickOutside={false}>
+<Modal
+    title="Upload Replays"
+    bind:visible
+    id="upload-replays-modal"
+    canClickOutside={false}
+>
     <section slot="body">
         {#if files}
             {#each files as file (file.name)}
@@ -64,14 +77,3 @@ import type {RemovableFile} from "../../../atoms/FileInput.svelte";
         </div>
     </section>
 </Modal>
-
-
-<style lang="postcss">
-    section {
-        @apply pt-4 space-y-4;
-    }
-
-    .actions {
-        @apply flex flex-row justify-around;
-    }
-</style>

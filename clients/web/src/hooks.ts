@@ -87,7 +87,9 @@ export const handle: Handle = async ({event, resolve}) => {
             const currentCookies = event.request.headers.get("cookie");
 
             if (currentCookies) {
-                const rawToken = currentCookies.split("; ").find(c => c.split("=")[0] === constants.auth_cookie_key)
+                const rawToken = currentCookies
+                    .split("; ")
+                    .find(c => c.split("=")[0] === constants.auth_cookie_key)
                     ?.split("=")[1];
 
                 if (rawToken) {

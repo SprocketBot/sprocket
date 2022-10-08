@@ -27,25 +27,24 @@
         $session.token = tokens[0];
 
         cookies.set(constants.auth_cookie_key, tokens[0], {expires: 0.25}); // 6 hours
-        cookies.set(constants.refresh_token_cookie_key, tokens[1], {expires: 7}); // 7 days
+        cookies.set(constants.refresh_token_cookie_key, tokens[1], {
+            expires: 7,
+        }); // 7 days
 
         // window.location.pathname = "/scrims";
     }
 </script>
 
-
 <CenteredCardLayout>
     <Card class="bg-base-200">
         <div slot="figure" class="px-8 pt-4 pb-0 h-full w-full">
-            <img src="/img/logo.svg" alt="Sprocket"/>
+            <img src="/img/logo.svg" alt="Sprocket" />
         </div>
         <header slot="title">
-            <h1>
-                Login
-            </h1>
+            <h1>Login</h1>
         </header>
         <section class="space-y-4">
-            <DiscordOAuthButton on:loggedIn={login}/>
+            <DiscordOAuthButton on:loggedIn={login} />
         </section>
     </Card>
 </CenteredCardLayout>

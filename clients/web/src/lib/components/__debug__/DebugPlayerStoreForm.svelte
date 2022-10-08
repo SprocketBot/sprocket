@@ -1,3 +1,15 @@
+<style lang="postcss">
+    section {
+        @apply grid grid-cols-2;
+        label {
+            @apply contents;
+        }
+        input {
+            @apply bg-gray-700 outline-none;
+        }
+    }
+</style>
+
 <script lang="ts">
     import {user} from "$lib/stores/user";
 </script>
@@ -12,15 +24,3 @@
         <input type="text" bind:value={$user.username} readonly />
     </label>
 </section>
-
-<style lang="postcss">
-    section {
-        @apply grid grid-cols-2;
-        label {
-            @apply contents;
-        }
-        input {
-            @apply bg-gray-700 outline-none;
-        }
-    }
-</style>

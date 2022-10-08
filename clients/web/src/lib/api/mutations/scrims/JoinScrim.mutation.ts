@@ -21,8 +21,12 @@ mutation (
     joinScrim(scrimId: $scrimId, group: $group, createGroup: $createGroup, leaveAfter: $leaveAfter)
 }`;
 
-export const joinScrimMutation = async (vars: JoinScrimVars): Promise<JoinScrimResponse> => {
-    const r = await client.mutation<JoinScrimResponse, JoinScrimVars>(mutationString, vars).toPromise();
+export const joinScrimMutation = async (
+    vars: JoinScrimVars,
+): Promise<JoinScrimResponse> => {
+    const r = await client
+        .mutation<JoinScrimResponse, JoinScrimVars>(mutationString, vars)
+        .toPromise();
     if (r.data) {
         currentScrim.invalidate();
         return r.data;

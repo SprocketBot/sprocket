@@ -24,14 +24,18 @@
                     targetEl = document.querySelector(target);
                 }
                 if (targetEl === null) {
-                    throw new Error(`No element found matching css selector: "${target}"`);
+                    throw new Error(
+                        `No element found matching css selector: "${target}"`,
+                    );
                 }
             } else if (target instanceof HTMLElement) {
                 targetEl = target;
             } else {
-                throw new TypeError(`Unknown portal target type: ${
-                    target === null ? "null" : typeof target
-                }. Allowed types: string (CSS selector) or HTMLElement.`);
+                throw new TypeError(
+                    `Unknown portal target type: ${
+                        target === null ? "null" : typeof target
+                    }. Allowed types: string (CSS selector) or HTMLElement.`,
+                );
             }
             targetEl.appendChild(el);
             el.hidden = false;
@@ -60,5 +64,5 @@
 </script>
 
 <div use:portal={target} hidden>
-    <slot/>
+    <slot />
 </div>

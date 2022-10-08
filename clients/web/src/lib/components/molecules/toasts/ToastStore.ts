@@ -13,8 +13,7 @@ class ToastStore extends BaseStore<Toast[]> implements Readable<Toast[]> {
 
     pushToast(t: Toast): void {
         if (!t.id) {
-            t.id = Math.random().toString()
-                .split(".")[1];
+            t.id = Math.random().toString().split(".")[1];
         }
 
         this.pub([...this.currentValue, t]);

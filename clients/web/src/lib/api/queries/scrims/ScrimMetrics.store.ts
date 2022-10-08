@@ -16,39 +16,42 @@ export interface MetricsResult {
 }
 
 interface MetricsVariables {
-    [key: string]: never
+    [key: string]: never;
 }
 
-class ScrimMetricsStore extends LiveQueryStore<MetricsResult, MetricsVariables> {
+class ScrimMetricsStore extends LiveQueryStore<
+    MetricsResult,
+    MetricsVariables
+> {
     protected queryString = gql<MetricsResult>`
-    query {
-        metrics: getScrimMetrics{
-            pendingScrims
-            playersQueued
-            playersScrimming
-            totalScrims
-            totalPlayers
-            completedScrims(period:HOUR)
-            previousCompletedScrims(period:HOUR)
+        query {
+            metrics: getScrimMetrics {
+                pendingScrims
+                playersQueued
+                playersScrimming
+                totalScrims
+                totalPlayers
+                completedScrims(period: HOUR)
+                previousCompletedScrims(period: HOUR)
+            }
         }
-    }
     `;
 
     protected subscriptionString = gql<MetricsResult>`
-    subscription {
-        metrics: followScrimMetrics{
-            pendingScrims
-            playersQueued
-            playersScrimming
-            totalScrims
-            totalPlayers
-            completedScrims(period: HOUR)
-            previousCompletedScrims(period: HOUR)
+        subscription {
+            metrics: followScrimMetrics {
+                pendingScrims
+                playersQueued
+                playersScrimming
+                totalScrims
+                totalPlayers
+                completedScrims(period: HOUR)
+                previousCompletedScrims(period: HOUR)
+            }
         }
-    }`;
+    `;
 
     protected _subVars = {};
-
 
     constructor() {
         super();
@@ -56,9 +59,13 @@ class ScrimMetricsStore extends LiveQueryStore<MetricsResult, MetricsVariables> 
         this.subscriptionVariables = {};
     }
 
-    protected handleGqlMessage = (message: OperationResult<MetricsResult>): void => {
-        if (!message.data)  {
-            console.warn(`Recieved erroneous message from followScrimMetrics: ${message.error}`);
+    protected handleGqlMessage = (
+        message: OperationResult<MetricsResult>,
+    ): void => {
+        if (!message.data) {
+            console.warn(
+                `Recieved erroneous message from followScrimMetrics: ${message.error}`,
+            );
             return;
         }
         if (!this.currentValue.data) {

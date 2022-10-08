@@ -1,6 +1,9 @@
+<style lang="postcss">
+</style>
+
 <script lang="ts">
-    import {type Submission,activeSubmissionsStore} from "$lib/api";
-    
+    import {type Submission, activeSubmissionsStore} from "$lib/api";
+
     import Row from "./Row.svelte";
     import SubmissionDetailModal from "./SubmissionDetailModal.svelte";
 
@@ -40,7 +43,12 @@
         <tbody>
             {#if submissions}
                 {#each submissions as submission (submission.creatorId)}
-                    <Row submission={submission} on:click={() => { onRowClick(submission) }} />
+                    <Row
+                        {submission}
+                        on:click={() => {
+                            onRowClick(submission);
+                        }}
+                    />
                 {/each}
             {/if}
         </tbody>
@@ -48,10 +56,8 @@
 {/if}
 
 {#if selectedSubmission}
-    <SubmissionDetailModal bind:visible={detailModalOpen} submission={selectedSubmission} />
+    <SubmissionDetailModal
+        bind:visible={detailModalOpen}
+        submission={selectedSubmission}
+    />
 {/if}
-
-
-<style lang="postcss">
-
-</style>

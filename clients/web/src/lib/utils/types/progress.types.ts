@@ -11,7 +11,7 @@ export interface Progress {
 
 export interface ProgressMessage<TaskResult> {
     taskId: string;
-    
+
     status: ProgressStatus;
     progress: Progress;
 

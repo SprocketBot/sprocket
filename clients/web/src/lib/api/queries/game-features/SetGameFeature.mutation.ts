@@ -33,27 +33,42 @@ const disableGameFeatureMutationString = gql`
     }
 `;
 
-const enableGameFeatureMutation = async (vars: Omit<SetGameFeatureVariables, "value">): Promise<void> => {
-    const r = await client.mutation<Record<string, never>, Omit<SetGameFeatureVariables, "value">>(enableGameFeatureMutationString, vars).toPromise();
+const enableGameFeatureMutation = async (
+    vars: Omit<SetGameFeatureVariables, "value">,
+): Promise<void> => {
+    const r = await client
+        .mutation<
+            Record<string, never>,
+            Omit<SetGameFeatureVariables, "value">
+        >(enableGameFeatureMutationString, vars)
+        .toPromise();
     if (r.data) {
         return;
     }
     throw r.error as Error;
 };
 
-const disableGameFeatureMutation = async (vars: Omit<SetGameFeatureVariables, "value">): Promise<void> => {
-    const r = await client.mutation<Record<string, never>, Omit<SetGameFeatureVariables, "value">>(disableGameFeatureMutationString, vars).toPromise();
+const disableGameFeatureMutation = async (
+    vars: Omit<SetGameFeatureVariables, "value">,
+): Promise<void> => {
+    const r = await client
+        .mutation<
+            Record<string, never>,
+            Omit<SetGameFeatureVariables, "value">
+        >(disableGameFeatureMutationString, vars)
+        .toPromise();
     if (r.data) {
         return;
     }
     throw r.error as Error;
 };
 
-export const setGameFeatureMutation = async (vars: SetGameFeatureVariables): Promise<void> => {
+export const setGameFeatureMutation = async (
+    vars: SetGameFeatureVariables,
+): Promise<void> => {
     const {value, ...rest} = vars;
     if (value) {
         return enableGameFeatureMutation(rest);
     }
     return disableGameFeatureMutation(rest);
-    
 };

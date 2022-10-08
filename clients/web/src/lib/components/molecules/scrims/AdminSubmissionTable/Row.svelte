@@ -1,11 +1,12 @@
 <script lang="ts">
     import {createEventDispatcher} from "svelte";
-    
+
     import type {Submission} from "$lib/api";
 
     export let submission: Submission;
 
-    const scrimIdOrMatchId = submission.type === "SCRIM" ? submission.scrimId : submission.matchId;
+    const scrimIdOrMatchId =
+        submission.type === "SCRIM" ? submission.scrimId : submission.matchId;
 
     const dispatch = createEventDispatcher();
     const onClick = (): void => {

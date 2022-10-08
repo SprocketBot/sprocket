@@ -12,7 +12,10 @@ export interface GameFeatureVariables {
     gameId: number;
 }
 
-export class GameFeatureStore extends QueryStore<GameFeatureResult, GameFeatureVariables> {
+export class GameFeatureStore extends QueryStore<
+    GameFeatureResult,
+    GameFeatureVariables
+> {
     protected queryString = gql<GameFeatureResult, GameFeatureVariables>`
         query ($code: FeatureCode!, $gameId: Float!) {
             getFeatureEnabled(code: $code, gameId: $gameId)

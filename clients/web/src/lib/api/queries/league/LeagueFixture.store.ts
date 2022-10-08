@@ -2,13 +2,12 @@ import {gql} from "@urql/core";
 
 import {QueryStore} from "../../core/QueryStore";
 
-
 export interface FixtureFranchise {
     profile: {
         title: string;
         primaryColor: string;
         secondaryColor: string;
-        photo: {url: string;};
+        photo: {url: string};
     };
 }
 
@@ -17,7 +16,7 @@ export interface Fixture {
     homeFranchise: FixtureFranchise;
     awayFranchise: FixtureFranchise;
 
-    scheduleGroup: {description: string;};
+    scheduleGroup: {description: string};
     matches: Array<{
         id: number;
         skillGroup: {
@@ -27,7 +26,7 @@ export interface Fixture {
             };
         };
         submissionId: string;
-        gameMode: {description: string;};
+        gameMode: {description: string};
         submissionStatus: "submitting" | "ratifying" | "completed";
         canSubmit: boolean;
         canRatify: boolean;
@@ -42,7 +41,10 @@ export interface LeagueFixtureVars {
     id: number;
 }
 
-export class LeagueFixtureStore extends QueryStore<LeagueFixtureValue, LeagueFixtureVars> {
+export class LeagueFixtureStore extends QueryStore<
+    LeagueFixtureValue,
+    LeagueFixtureVars
+> {
     protected queryString = gql<LeagueFixtureValue, LeagueFixtureVars>`
         fragment FranchiseFields on Franchise {
             profile {
@@ -54,22 +56,28 @@ export class LeagueFixtureStore extends QueryStore<LeagueFixtureValue, LeagueFix
                 }
             }
         }
-        
-        query($id: Float!) {
+
+        query ($id: Float!) {
             fixture: getFixture(id: $id) {
                 id
-                homeFranchise { ...FranchiseFields }
-                awayFranchise { ...FranchiseFields }
-                scheduleGroup { description }
-                
+                homeFranchise {
+                    ...FranchiseFields
+                }
+                awayFranchise {
+                    ...FranchiseFields
+                }
+                scheduleGroup {
+                    description
+                }
+
                 matches {
                     id
-                    skillGroup { 
-                        ordinal 
+                    skillGroup {
+                        ordinal
                         profile {
                             id
                             description
-                        } 
+                        }
                     }
                     gameMode {
                         description
@@ -81,7 +89,7 @@ export class LeagueFixtureStore extends QueryStore<LeagueFixtureValue, LeagueFix
                 }
             }
         }
-  `;
+    `;
 
     constructor(id: number) {
         super();

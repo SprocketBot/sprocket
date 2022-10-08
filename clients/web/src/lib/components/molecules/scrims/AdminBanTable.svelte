@@ -1,29 +1,33 @@
+<style lang="postcss">
+</style>
+
 <script lang="ts">
-    import {
-    type MemberRestriction,
-        restrictedPlayers, } from "$lib/api";
-    
-import ManuallyExpireRestrictionModal from "../../organisms/scrims/modals/ManuallyExpireRestrictionModal.svelte";
+    import {type MemberRestriction, restrictedPlayers} from "$lib/api";
+
+    import ManuallyExpireRestrictionModal from "../../organisms/scrims/modals/ManuallyExpireRestrictionModal.svelte";
 
     let restrictedPlayersData: MemberRestriction[] | undefined;
-    $: restrictedPlayersData = $restrictedPlayers?.data?.getActiveMemberRestrictions;
+    $: restrictedPlayersData =
+        $restrictedPlayers?.data?.getActiveMemberRestrictions;
 
     let expireRestrictionModalVisible = false;
     let targetRestriction: MemberRestriction;
 
-    const openExpireRestrictionModal = (restriction: MemberRestriction): void => {
+    const openExpireRestrictionModal = (
+        restriction: MemberRestriction,
+    ): void => {
         expireRestrictionModalVisible = true;
         targetRestriction = restriction;
     };
 </script>
 
-<table class="table table-compact table-zebra text-center w-full" >
+<table class="table table-compact table-zebra text-center w-full">
     <thead>
-    <tr>
-        <th>Player Name</th>
-        <th>Restriction ID</th>
-        <th></th>
-    </tr>
+        <tr>
+            <th>Player Name</th>
+            <th>Restriction ID</th>
+            <th />
+        </tr>
     </thead>
     <tbody>
         {#if restrictedPlayersData}
@@ -32,7 +36,12 @@ import ManuallyExpireRestrictionModal from "../../organisms/scrims/modals/Manual
                     <td>{restrictionEvent.member.profile.name}</td>
                     <td>{restrictionEvent.id}</td>
                     <td>
-                        <button class="btn btn-outline lg:btn-sm" on:click={() => { openExpireRestrictionModal(restrictionEvent) } }>
+                        <button
+                            class="btn btn-outline lg:btn-sm"
+                            on:click={() => {
+                                openExpireRestrictionModal(restrictionEvent);
+                            }}
+                        >
                             Unban
                         </button>
                     </td>
@@ -44,10 +53,7 @@ import ManuallyExpireRestrictionModal from "../../organisms/scrims/modals/Manual
 
 {#if expireRestrictionModalVisible}
     <ManuallyExpireRestrictionModal
-            restriction={targetRestriction}
-            bind:visible={expireRestrictionModalVisible}
+        restriction={targetRestriction}
+        bind:visible={expireRestrictionModalVisible}
     />
 {/if}
-
-<style lang="postcss">
-</style>

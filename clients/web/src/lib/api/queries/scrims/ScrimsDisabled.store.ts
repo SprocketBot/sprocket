@@ -7,13 +7,21 @@ interface ScrimsDisabledData {
     getScrimsDisabled: boolean;
 }
 
-class ScrimsDisabledStore extends LiveQueryStore<ScrimsDisabledData, Record<string, never>, ScrimsDisabledData> {
+class ScrimsDisabledStore extends LiveQueryStore<
+    ScrimsDisabledData,
+    Record<string, never>,
+    ScrimsDisabledData
+> {
     protected queryString = gql<ScrimsDisabledData, Record<string, never>>`
-    query {
-        getScrimsDisabled
-    }`;
+        query {
+            getScrimsDisabled
+        }
+    `;
 
-    protected subscriptionString = gql<ScrimsDisabledData, Record<string, never>>`
+    protected subscriptionString = gql<
+        ScrimsDisabledData,
+        Record<string, never>
+    >`
         subscription {
             getScrimsDisabled: followScrimsDisabled
         }
@@ -26,9 +34,13 @@ class ScrimsDisabledStore extends LiveQueryStore<ScrimsDisabledData, Record<stri
         this.subscriptionVariables = {};
     }
 
-    protected handleGqlMessage = (message: OperationResult<ScrimsDisabledData>): void => {
+    protected handleGqlMessage = (
+        message: OperationResult<ScrimsDisabledData>,
+    ): void => {
         if (!message.data) {
-            console.warn(`Recieved erroneous message from followScrimsDisabled: ${message.error}`);
+            console.warn(
+                `Recieved erroneous message from followScrimsDisabled: ${message.error}`,
+            );
             return;
         }
         if (!this.currentValue.data) {
@@ -36,7 +48,8 @@ class ScrimsDisabledStore extends LiveQueryStore<ScrimsDisabledData, Record<stri
             return;
         }
 
-        this.currentValue.data.getScrimsDisabled = message.data?.getScrimsDisabled;
+        this.currentValue.data.getScrimsDisabled =
+            message.data?.getScrimsDisabled;
         this.pub();
     };
 }

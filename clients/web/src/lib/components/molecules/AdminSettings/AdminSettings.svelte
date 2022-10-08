@@ -1,8 +1,12 @@
 <script lang="ts">
     import {
-    FeatureCode,     GameFeatureStore, scrimsDisabled, setGameFeatureMutation, setScrimsDisabledMutation,
+        FeatureCode,
+        GameFeatureStore,
+        scrimsDisabled,
+        setGameFeatureMutation,
+        setScrimsDisabledMutation,
     } from "$lib/api";
-    
+
     import GameFeatureToggle from "./GameFeatureToggle.svelte";
 
     const ROCKET_LEAGUE_GAME_ID = 2;
@@ -12,13 +16,18 @@
     // =================================
     let scrimsLoading = false;
     let scrimsEnabled: boolean | undefined;
-    $: scrimsEnabled = $scrimsDisabled.data ? !$scrimsDisabled.data.getScrimsDisabled : undefined;
-    
+    $: scrimsEnabled = $scrimsDisabled.data
+        ? !$scrimsDisabled.data.getScrimsDisabled
+        : undefined;
+
     let rankoutsLoading = false;
-    const rankoutsEnabledStore = new GameFeatureStore({code: FeatureCode.AUTO_RANKOUTS, gameId: ROCKET_LEAGUE_GAME_ID});
+    const rankoutsEnabledStore = new GameFeatureStore({
+        code: FeatureCode.AUTO_RANKOUTS,
+        gameId: ROCKET_LEAGUE_GAME_ID,
+    });
     let rankoutsEnabled: boolean | undefined;
     $: rankoutsEnabled = $rankoutsEnabledStore.data?.getFeatureEnabled;
-    
+
     // =================================
     // Handlers
     // =================================
@@ -26,7 +35,13 @@
         scrimsLoading = true;
         const newValue = Boolean(scrimsEnabled);
         try {
-            if (window.confirm(`Are you sure you want to ${newValue ? "DISABLE" : "ENABLE"} scrims?`)) {
+            if (
+                window.confirm(
+                    `Are you sure you want to ${
+                        newValue ? "DISABLE" : "ENABLE"
+                    } scrims?`,
+                )
+            ) {
                 await setScrimsDisabledMutation({disabled: newValue});
             }
         } catch (e) {
@@ -40,7 +55,13 @@
         rankoutsLoading = true;
         const newValue = !rankoutsEnabled;
         try {
-            if (window.confirm(`Are you sure you want to ${newValue ? "ENABLE" : "DISABLE"} rankouts?`)) {
+            if (
+                window.confirm(
+                    `Are you sure you want to ${
+                        newValue ? "ENABLE" : "DISABLE"
+                    } rankouts?`,
+                )
+            ) {
                 await setGameFeatureMutation({
                     code: FeatureCode.AUTO_RANKOUTS,
                     gameId: ROCKET_LEAGUE_GAME_ID,
@@ -55,8 +76,17 @@
     };
 </script>
 
-
 <div>
-    <GameFeatureToggle label="Scrims" value={scrimsEnabled} loading={scrimsLoading} on:toggle={toggleScrims} />
-    <GameFeatureToggle label="Rankouts" value={rankoutsEnabled} loading={rankoutsLoading} on:toggle={toggleRankouts} />
+    <GameFeatureToggle
+        label="Scrims"
+        value={scrimsEnabled}
+        loading={scrimsLoading}
+        on:toggle={toggleScrims}
+    />
+    <GameFeatureToggle
+        label="Rankouts"
+        value={rankoutsEnabled}
+        loading={rankoutsLoading}
+        on:toggle={toggleRankouts}
+    />
 </div>

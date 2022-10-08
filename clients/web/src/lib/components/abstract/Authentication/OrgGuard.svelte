@@ -7,7 +7,7 @@
 </script>
 
 {#if isInOrg}
-    <slot/>
+    <slot />
 {:else}
     <slot name="unauthorized" />
 {/if}
