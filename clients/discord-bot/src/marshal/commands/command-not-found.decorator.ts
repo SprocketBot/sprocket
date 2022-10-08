@@ -1,9 +1,9 @@
 import {MarshalMetadataKey} from "../types";
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export const CommandNotFound =
     (): MethodDecorator =>
     <HookFunction>(
+        // eslint-disable-next-line @typescript-eslint/ban-types
         target: Object,
         key: string | symbol,
         descriptor: TypedPropertyDescriptor<HookFunction>,
@@ -12,8 +12,8 @@ export const CommandNotFound =
         const originalMethod: HookFunction = descriptor.value;
 
         // @ts-expect-error If it was not a HookFunction before, then it is using this decorator incorrectly
-        // eslint-disable-next-line @typescript-eslint/ban-types
         descriptor.value = async function (
+            // eslint-disable-next-line @typescript-eslint/ban-types
             this: Object,
             ...params: Parameters<HookFunction>
         ): Promise<unknown> {

@@ -15,10 +15,10 @@ import type {CommandFunction, CommandMeta, CommandSpec} from "./commands.types";
 
 const logger = new Logger("CommandDecorator");
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export const Command =
-    (commandSpec: CommandSpec): MethodDecorator =>
-    <T>(
+(commandSpec: CommandSpec): MethodDecorator =>
+<T>(
+        // eslint-disable-next-line @typescript-eslint/ban-types
         target: Object,
         key: string | symbol,
         descriptor: TypedPropertyDescriptor<T>,

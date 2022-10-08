@@ -3,10 +3,10 @@ import type {SprocketEventMarshal} from "./marshal";
 import {EventMarshalMetadataKey} from "./marshal.constants";
 import type {EventFunction, EventMeta} from "./marshal.types";
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export const SprocketEvent =
     (event: EventTopic): MethodDecorator =>
     <T>(
+        // eslint-disable-next-line @typescript-eslint/ban-types
         target: Object,
         key: string | symbol,
         descriptor: TypedPropertyDescriptor<T>,
