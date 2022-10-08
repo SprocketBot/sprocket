@@ -1,0 +1,14 @@
+{
+    "tabWidth": 4,
+    "trailingComma": "all",
+    "bracketSpacing": false,
+    "arrowParens": "avoid",
+
+    "plugins": [
+        "prettier-plugin-svelte"
+    ],
+    "svelteSortOrder": "options-styles-scripts-markup",
+    "svelteStrictMode": false,
+    "svelteBracketNewLine": true,
+    "svelteIndentScriptAndStyle": true
+}
