@@ -15,6 +15,7 @@
     "build": "npm run build --workspaces --if-present",
     "build:common": "npm run build --workspace=common",
     "format": "npm run format --workspaces --if-present",
+    "format:check": "npm run format --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present"
   },
   "workspaces": [

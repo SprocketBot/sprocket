@@ -10,6 +10,7 @@
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "format": "prettier src --write",
+    "format:check": "prettier src --check",
     "lint": "eslint src --fix"
   },
   "keywords": [],

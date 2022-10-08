@@ -8,6 +8,7 @@
     "build": "rimraf lib && tsc",
     "build:watch": "tsc -w",
     "format": "prettier src --write",
+    "format:check": "prettier src --check",
     "lint": "eslint src --fix",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepublishOnly": "rimraf lib && tsc"

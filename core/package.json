@@ -10,6 +10,7 @@
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "format": "prettier src --write",
+    "format:check": "prettier src --check",
     "lint": "eslint src --fix",
     "migration:generate": "typeorm-ts-node-esm migration:generate -d ormconfig.mjs ./migrations/Automigration",
     "migration:run": "typeorm-ts-node-esm migration:run -d ormconfig.mjs",
