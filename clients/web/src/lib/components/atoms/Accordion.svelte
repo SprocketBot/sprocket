@@ -3,7 +3,7 @@
     import {slide} from "svelte/transition";
 
     export let title: string | undefined = undefined;
-    export let expanded: boolean = true;
+    export let expanded = true;
 
     const toggleExpanded = (): void => { expanded = !expanded };
     const close = (): void => { expanded = false };

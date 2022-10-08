@@ -10,7 +10,7 @@
   export let targetScrim: CurrentScrim;
 
   let visible = false;
-  async function cancelScrim() {
+  async function cancelScrim(): Promise<void> {
       try {
           await cancelScrimMutation({scrimId: targetScrim?.id ?? ""});
           visible = false;
@@ -19,7 +19,7 @@
       }
   }
 
-  async function lockScrim() {
+  async function lockScrim(): Promise<void> {
       try {
           await lockScrimMutation({scrimId: targetScrim?.id ?? ""});
           visible = false;
@@ -28,7 +28,7 @@
       }
   }
 
-  async function unlockScrim() {
+  async function unlockScrim(): Promise<void> {
       try {
           await unlockScrimMutation({scrimId: targetScrim?.id ?? ""});
           visible = false;
@@ -39,7 +39,7 @@
 
   let uploading = false;
 
-  function uploadReplays() {
+  function uploadReplays(): void {
       uploading = true;
   }
 </script>
@@ -83,7 +83,10 @@
     </div>
   {/if}
 </section>
-<UploadReplaysModal
-  bind:visible={uploading}
-  submissionId={targetScrim?.submissionId}
-/>
+
+{#if targetScrim && targetScrim.submissionId}
+  <UploadReplaysModal
+    bind:visible={uploading}
+    submissionId={targetScrim.submissionId}
+  />
+{/if}

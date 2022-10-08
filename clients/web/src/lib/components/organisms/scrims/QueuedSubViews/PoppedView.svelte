@@ -1,15 +1,15 @@
 <script lang='ts'>
 	import type {CurrentScrim} from "$lib/api";
 	import {checkInMutation} from "$lib/api";
-	import {user} from "$lib/stores/user";
 	import {Card} from "$lib/components";
+	import {user} from "$lib/stores/user";
 
 	export let scrim: CurrentScrim;
 
 
 	let canCheckIn = true;
 
-	async function checkIn() {
+	async function checkIn(): Promise<void> {
 	    try {
 	        canCheckIn = false;
 	        await checkInMutation({

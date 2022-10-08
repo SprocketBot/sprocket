@@ -6,7 +6,7 @@
 
     export let showCheckbox: boolean;
     export let checkboxValue: boolean;
-    export let showResult: boolean = false;
+    export let showResult = false;
 </script>
 
 <div class="bg-base-100/20 p-4 rounded-lg flex flex-col gap-4 md:gap-2 relative">

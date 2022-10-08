@@ -16,8 +16,8 @@
 </script>
 
 <script lang="ts">
-    import FaUpload from "svelte-icons/fa/FaUpload.svelte";
     import type svelte from "svelte";
+    import FaUpload from "svelte-icons/fa/FaUpload.svelte";
 
     export let label: string;
     export let files: RemovableFile[] = [];

@@ -1,8 +1,9 @@
 <script lang="ts">
-    import {session} from "$app/stores";
     import cookies from "js-cookie";
     import FaExclamationTriangle from "svelte-icons/fa/FaExclamationTriangle.svelte";
     import MdClose from "svelte-icons/md/MdClose.svelte";
+    
+    import {session} from "$app/stores";
 
     const BANNER_DISABLED_COOKIE = "sprocket.disable-stack-banner";
 
@@ -14,7 +15,7 @@
     let showBanner: boolean;
     $: showBanner = open && (stack === "dev" || stack === "staging");
 
-    const close = () => {
+    const close = (): void => {
         open = false;
         // Set cookie that expires in one day
         cookies.set(BANNER_DISABLED_COOKIE, "true", {expires: 1});

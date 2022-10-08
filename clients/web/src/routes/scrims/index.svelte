@@ -1,23 +1,20 @@
 <script lang="ts">
-    import {
-        currentUser, currentScrim, scrimsDisabled, scrimMetrics,
-    } from "$lib/api";
+    import FaLock from "svelte-icons/fa/FaLock.svelte";
+    
     import type {MetricsResult} from "$lib/api";
-
     import {
         AvailableScrimsView,
-        DashboardLayout,
         DashboardCard,
+        DashboardLayout,
         DashboardNumberCard,
-        QueuedView,
         DisabledView,
+        QueuedView,
         Spinner,
     } from "$lib/components";
-    import FaLock from "svelte-icons/fa/FaLock.svelte";
 
     let metrics: MetricsResult["metrics"];
     $: metrics = $scrimMetrics.data?.metrics;
-    let activityChange: string = "";
+    let activityChange = "";
 
     let scrimsAreDisabled: boolean;
     $: scrimsAreDisabled = $scrimsDisabled.data?.getScrimsDisabled;
@@ -25,7 +22,7 @@
     let currentUserFranchises: string[] | undefined;
     $: currentUserFranchises = $currentUser.data?.me?.members?.flatMap(m => m.players.flatMap(p => p.franchiseName as string) as string[]);
 
-    function calculateActivityChange() {
+    function calculateActivityChange(): void {
         const prev = metrics.previousCompletedScrims ?? 0;
         const cur = metrics?.completedScrims ?? 0;
 

@@ -1,8 +1,9 @@
 <script lang="ts">
-    import GameFeatureToggle from "./GameFeatureToggle.svelte";
     import {
-        GameFeatureStore, FeatureCode, setGameFeatureMutation, scrimsDisabled, setScrimsDisabledMutation,
+    FeatureCode,     GameFeatureStore, scrimsDisabled, setGameFeatureMutation, setScrimsDisabledMutation,
     } from "$lib/api";
+    
+    import GameFeatureToggle from "./GameFeatureToggle.svelte";
 
     const ROCKET_LEAGUE_GAME_ID = 2;
 
@@ -21,7 +22,7 @@
     // =================================
     // Handlers
     // =================================
-    const toggleScrims = async () => {
+    const toggleScrims = async (): Promise<void> => {
         scrimsLoading = true;
         const newValue = Boolean(scrimsEnabled);
         try {
@@ -35,7 +36,7 @@
         }
     };
 
-    const toggleRankouts = async () => {
+    const toggleRankouts = async (): Promise<void> => {
         rankoutsLoading = true;
         const newValue = !rankoutsEnabled;
         try {

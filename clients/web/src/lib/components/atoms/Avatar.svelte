@@ -1,10 +1,10 @@
 <script lang="ts">
-    export let src: string = "/img/default_profile.png";
-    export let alt: string = "Your Profile Picture";
+    export let src = "/img/default_profile.png";
+    export let alt = "Your Profile Picture";
 
     // Slight hack to expose a prop as "class"
     // Just makes the component more ergonomic
-    let _class: string = "";
+    let _class = "";
     export {_class as class};
 
 </script>

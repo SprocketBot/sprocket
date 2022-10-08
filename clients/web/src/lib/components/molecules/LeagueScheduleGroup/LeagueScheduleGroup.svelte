@@ -1,9 +1,9 @@
 <script lang="ts">
-    import {Accordion, FixtureCard} from "$lib/components";
     import type {LeagueScheduleWeek} from "$lib/api";
+    import {Accordion, FixtureCard} from "$lib/components";
 
     export let scheduleGroup: LeagueScheduleWeek;
-    export let isCurrentWeek: boolean = false;
+    export let isCurrentWeek = false;
 
     const title = isCurrentWeek ? `Current Match (${scheduleGroup.description})` : scheduleGroup.description
 </script>

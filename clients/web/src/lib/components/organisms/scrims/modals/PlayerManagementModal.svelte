@@ -1,17 +1,18 @@
 <script lang="ts">
-    import {Modal} from "$lib/components";
+    import FaHammer from "svelte-icons/fa/FaHammer.svelte";
+    
     import type {Player} from "$lib/api";
     import {createRestrictionMutation, getMemberByUserIdQuery} from "$lib/api";
-    import FaHammer from "svelte-icons/fa/FaHammer.svelte";
+    import {Modal} from "$lib/components";
 
     export let visible = false;
     export let player: Player;
 
     let buttonEnabled = true;
-    let expirationDuration: number = 0;
+    let expirationDuration = 0;
     let reason: string;
 
-    async function createBan() {
+    async function createBan(): Promise<void> {
         buttonEnabled = false;
         // toast
         // remove ban
@@ -39,10 +40,10 @@
         <h4 class='text-lg font-bold'>Selected Player: {player.name}</h4>
 
         <div class="form-control">
-            <label class="label">
+            <label class="label" for="duration">
                 <span class="label-text">Ban Duration</span>
             </label>
-            <select bind:value={expirationDuration} class='select select-bordered'>
+            <select id="duration" bind:value={expirationDuration} class='select select-bordered'>
                 <option disabled selected> Make a Selection</option>
                 <option value={12}> 12 Hours</option>
                 <option value={24}> 24 Hours</option>
@@ -51,8 +52,8 @@
         </div>
 
         <div class="form-control">
-            <label class="label">
-                <span class="label-text">Reason:</span>
+            <label class="label" for="reason">
+                <span id="reason" class="label-text">Reason:</span>
             </label>
             <input bind:value={reason} class="input input-bordered w-full input-sm" required placeholder="Provide Ban Reason:"/>
         </div>

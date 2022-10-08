@@ -1,11 +1,12 @@
 <script lang="ts">
+    import {createEventDispatcher} from "svelte";
+    import {cubicOut} from "svelte/easing";
+    import {tweened} from "svelte/motion";
+    import type {Readable} from "svelte/store";
+    import IoMdClose from "svelte-icons/io/IoMdClose.svelte";
+    
     import type {ProgressMessage} from "$lib/utils/types/progress.types";
     import {ProgressStatus} from "$lib/utils/types/progress.types";
-    import IoMdClose from "svelte-icons/io/IoMdClose.svelte";
-    import {createEventDispatcher} from "svelte";
-    import {tweened} from "svelte/motion";
-    import {cubicOut} from "svelte/easing";
-    import type {Readable} from "svelte/store";
 
     export let filename: string;
     export let progressStore: Readable<ProgressMessage<unknown>>;

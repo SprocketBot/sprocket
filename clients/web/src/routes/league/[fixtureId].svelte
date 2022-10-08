@@ -10,11 +10,11 @@
 </script>
 
 <script lang="ts">
-  import {
-      DashboardLayout, DashboardCard, Spinner, FixtureCard,
-  } from "$lib/components";
-  import type {Fixture} from "$lib/api";
   import {session} from "$app/stores";
+  import type {Fixture} from "$lib/api";
+  import {
+  DashboardCard,     DashboardLayout, FixtureCard,
+  Spinner, } from "$lib/components";
 
   export let fixtureStore: LeagueFixtureStore;
 

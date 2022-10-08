@@ -1,6 +1,7 @@
 <script lang="ts">
-    import type {CurrentScrim} from "$lib/api";
     import FaLock from "svelte-icons/fa/FaLock.svelte";
+    
+    import type {CurrentScrim} from "$lib/api";
 
     export let scrim: CurrentScrim;
     if (!scrim) throw new Error();

@@ -1,14 +1,16 @@
 <script lang="ts">
-    import {activePlayers, type Player} from "$lib/api";
-    import {PlayerManagementModal} from "../../organisms/index.js";
     import FaHammer from "svelte-icons/fa/FaHammer.svelte";
+    
+    import {type Player,activePlayers} from "$lib/api";
+    
+    import {PlayerManagementModal} from "../../organisms/index.js";
 
     let playerManagementModalVisible = false;
     let activePlayersData: Player[] | undefined;
     $: activePlayersData = $activePlayers;
     let targetPlayer: Player;
 
-    const openPlayerManagementModal = (player: Player) => {
+    const openPlayerManagementModal = (player: Player): void => {
         playerManagementModalVisible = true;
         targetPlayer = player;
     };

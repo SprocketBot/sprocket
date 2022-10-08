@@ -1,5 +1,6 @@
 <script lang="ts">
     import type {CurrentScrim} from "$lib/api";
+    
     import GameCard from "./GameCard.svelte";
 
     export let scrim: CurrentScrim;

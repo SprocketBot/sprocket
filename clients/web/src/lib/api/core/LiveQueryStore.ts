@@ -6,7 +6,7 @@ import {browser} from "$app/env";
 import {client, clientPromise} from "../client";
 import {QueryStore} from "./QueryStore";
 
-export abstract class LiveQueryStore<T, V extends Object, ST = T, SV extends Object = {}> extends QueryStore<T, V> {
+export abstract class LiveQueryStore<T, V extends Record<string, unknown>, ST = T, SV extends Record<string, unknown> = Record<string, never>> extends QueryStore<T, V> {
     protected gqlUnsub?: () => unknown;
 
     protected abstract  _subVars: SV;
@@ -51,7 +51,7 @@ export abstract class LiveQueryStore<T, V extends Object, ST = T, SV extends Obj
         super.cleanup(sub);
     }
 
-    private createGqlSubscription = () => {
+    private createGqlSubscription = (): void => {
         if (this.gqlUnsub || !browser || !this._subVars) return;
         clientPromise.then(() => {
             const s = pipe(

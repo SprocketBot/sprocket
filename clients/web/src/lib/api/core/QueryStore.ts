@@ -6,7 +6,7 @@ import {browser} from "$app/env";
 import {client, clientPromise} from "../client";
 import {BaseStore} from "./BaseStore";
 
-export abstract class QueryStore<T, V extends Object> extends BaseStore<OperationResult<T, V>> implements Readable<OperationResult<T, V>> {
+export abstract class QueryStore<T, V extends Record<string, unknown>> extends BaseStore<OperationResult<T, V>> implements Readable<OperationResult<T, V>> {
     protected _vars: V | undefined;
 
     protected currentValue: OperationResult<T, V> = {

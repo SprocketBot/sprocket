@@ -1,11 +1,12 @@
 <script lang="ts">
 	import {goto} from "$app/navigation";
+	import {VsIcon} from "$lib/components/atoms";
+	
 	import type {LeagueScheduleFixture} from "../../../api";
 	import {FranchiseVsCard} from "../atoms";
-	import {VsIcon} from "$lib/components/atoms";
 
 	export let fixture: LeagueScheduleFixture;
-	export let hidebutton: boolean = false;
+	export let hidebutton = false;
 </script>
 
 

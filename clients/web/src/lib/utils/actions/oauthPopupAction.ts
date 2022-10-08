@@ -5,7 +5,7 @@ import {browser} from "$app/env";
    */
 let popup: Window;
 let _callback: CallableFunction;
-function receiveMessage(e: MessageEvent) {
+function receiveMessage(e: MessageEvent): void {
     if (_callback) {
         _callback(e);
     }
@@ -15,7 +15,7 @@ if (browser) {
     window.addEventListener("message", e => { receiveMessage(e) }, false);
 }
 
-function openWindow(windowUrl: string, callback: CallableFunction) {
+function openWindow(windowUrl: string, callback: CallableFunction): void {
     if (popup) {
         popup.close();
     }

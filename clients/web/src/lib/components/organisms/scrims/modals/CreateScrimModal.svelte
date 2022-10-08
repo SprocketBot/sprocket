@@ -14,7 +14,7 @@
 
     let buttonEnabled = true;
 
-    async function createScrim() {
+    async function createScrim(): Promise<void> {
         buttonEnabled = false;
         try {
             await createScrimMutation({

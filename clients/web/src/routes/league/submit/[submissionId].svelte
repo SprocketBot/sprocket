@@ -9,11 +9,11 @@
 
 <script lang='ts'>
   import {
-      DashboardLayout, DashboardCard, SubmissionView, UploadReplaysModal, Spinner,
-  } from "$lib/components";
+  type Match,
+      MatchStore, SubmissionStore, } from "$lib/api";
   import {
-      MatchStore, SubmissionStore, type Match,
-  } from "$lib/api";
+  DashboardCard,     DashboardLayout, Spinner,
+  SubmissionView, UploadReplaysModal, } from "$lib/components";
 
   export let submissionId: string;
 

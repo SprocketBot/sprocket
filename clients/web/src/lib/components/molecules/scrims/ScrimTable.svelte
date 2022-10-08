@@ -1,5 +1,4 @@
 <script lang="ts">
-    import {screamingSnakeToHuman} from "$lib/utils";
     import type {PendingScrim} from "$lib/api";
     import {format} from "date-fns";
     import dateFns from "date-fns-tz";

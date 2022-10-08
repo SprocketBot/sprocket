@@ -1,11 +1,12 @@
 <script lang="ts">
+  import MdErrorOutline from "svelte-icons/md/MdErrorOutline.svelte";
+  
   import type {
       Submission, SubmissionProgress,
   } from "$lib/api";
-  import {ProgressStatus} from "$lib/utils/types/progress.types";
-  import MdErrorOutline from "svelte-icons/md/MdErrorOutline.svelte";
   import {resetSubmissionMutation} from "$lib/api";
   import {Spinner} from "$lib/components";
+  import {ProgressStatus} from "$lib/utils/types/progress.types";
 
   export let submission: Submission;
   let progress: SubmissionProgress[];
@@ -14,7 +15,7 @@
       ...item.progress,
   }));
 
-  async function resetSubmission() {
+  async function resetSubmission(): Promise<void> {
       await resetSubmissionMutation({
           submissionId: submission.id,
       });

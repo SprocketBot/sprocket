@@ -1,8 +1,9 @@
 <script lang="ts">
     import {slide} from "svelte/transition";
+    
     import {
-        joinScrimMutation, pendingScrims, type PendingScrim,
-    } from "$lib/api";
+    type PendingScrim,
+        joinScrimMutation, pendingScrims, } from "$lib/api";
     import {Modal, toasts} from "$lib/components";
 
     export let visible = true;
@@ -19,7 +20,7 @@
         }
     }
 
-    async function joinSolo() {
+    async function joinSolo(): Promise<void> {
         joiningWithExistingGroup = false;
         joining = true;
         await joinScrimMutation({
@@ -29,7 +30,7 @@
         visible = false;
     }
 
-    async function joinAsNewGroup() {
+    async function joinAsNewGroup(): Promise<void> {
         joiningWithExistingGroup = false;
         joining = true;
         await joinScrimMutation({
@@ -40,7 +41,7 @@
         visible = false;
     }
 
-    async function joinExistingGroup() {
+    async function joinExistingGroup(): Promise<void> {
         joining = true;
         try {
             await joinScrimMutation({

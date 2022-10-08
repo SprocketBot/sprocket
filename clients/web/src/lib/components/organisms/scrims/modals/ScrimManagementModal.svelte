@@ -1,12 +1,12 @@
 <script lang="ts">
+  import {
+  type CurrentScrim,
+      activeScrims, } from "$lib/api";
   import {Collapse, Modal} from "$lib/components";
   import {
       ScrimManagementActions,
       ScrimManagementPlayerTable,
   } from "$lib/components/molecules/scrims/modals";
-  import {
-      activeScrims, type CurrentScrim,
-  } from "$lib/api";
 
   export let visible = false;
   export let targetScrim: CurrentScrim;

@@ -13,19 +13,20 @@
 
 
 <script lang="ts">
-    import {FileInput, Modal} from "$lib/components";
-    import ReplayUpload from "$lib/components/molecules/scrims/ReplayUpload.svelte";
+    import shortid from "shortid";
     import type {Readable} from "svelte/store";
     import {derived} from "svelte/store";
-    import shortid from "shortid";
     import {fade} from "svelte/transition";
-    import {uploadReplaysMutation} from "$lib/api/mutations/UploadReplays.mutation";
     import FaCheckCircle from "svelte-icons/fa/FaCheckCircle.svelte";
     import FaTimesCircle from "svelte-icons/fa/FaTimesCircle.svelte";
+    
+    import {uploadReplaysMutation} from "$lib/api/mutations/UploadReplays.mutation";
     import {FollowReplayParseStore} from "$lib/api/subscriptions/FollowReplayParse.subscription";
+    import {FileInput, Modal} from "$lib/components";
+    import ReplayUpload from "$lib/components/molecules/scrims/ReplayUpload.svelte";
     import {findLast} from "$lib/utils/findLast";
 
-    export let visible: boolean = true;
+    export let visible = true;
     export let submissionId: string | undefined;
 
     // ////////
@@ -45,12 +46,12 @@
     // ////////
     // Handlers
     // ////////
-    const handleRemove = (id: string) => {
+    const handleRemove = (id: string): void => {
         replays = replays.filter(r => r.id !== id);
         if (replays.length === 0) status = "init";
     };
 
-    const handleUpload = async (f: FileList) => {
+    const handleUpload = (f: FileList): void => {
         if (!f || !f.length) return;
 
         const _replays = Array.from(f).map(file => ({
@@ -62,7 +63,7 @@
         status = "uploaded";
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (): Promise<void> => {
         if (!replays.length) return;
 
         followReplayParseStore = new FollowReplayParseStore({submissionId});

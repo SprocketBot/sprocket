@@ -1,15 +1,15 @@
 <script lang="ts">
-    import {Portal} from "$lib/components/abstract";
+    import {onMount,setContext} from "svelte";
     import IoMdClose from "svelte-icons/io/IoMdClose.svelte";
-
-    import {setContext, onMount} from "svelte";
+    
+    import {Portal} from "$lib/components/abstract";
     import {clickOutside} from "$lib/utils";
 
     export let title: string;
-    export let visible: boolean = false;
-    export let canClickOutside: boolean =  true;
+    export let visible = false;
+    export let canClickOutside =  true;
     export let id: string;
-    let mounted: boolean = false;
+    let mounted = false;
     const close = (): void => {
         visible = false;
     };

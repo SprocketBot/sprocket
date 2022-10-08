@@ -15,7 +15,10 @@ export interface MetricsResult {
     };
 }
 
-interface MetricsVariables {}
+interface MetricsVariables {
+    [key: string]: never
+}
+
 class ScrimMetricsStore extends LiveQueryStore<MetricsResult, MetricsVariables> {
     protected queryString = gql<MetricsResult>`
     query {
@@ -53,7 +56,7 @@ class ScrimMetricsStore extends LiveQueryStore<MetricsResult, MetricsVariables> 
         this.subscriptionVariables = {};
     }
 
-    protected handleGqlMessage = (message: OperationResult<MetricsResult>) => {
+    protected handleGqlMessage = (message: OperationResult<MetricsResult>): void => {
         if (!message.data)  {
             console.warn(`Recieved erroneous message from followScrimMetrics: ${message.error}`);
             return;

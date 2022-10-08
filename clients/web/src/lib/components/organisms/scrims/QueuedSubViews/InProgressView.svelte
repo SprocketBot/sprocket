@@ -1,17 +1,19 @@
 <script lang="ts">
+    import FaExclamationTriangle from "svelte-icons/fa/FaExclamationTriangle.svelte";
+    
     import type {
         CurrentScrim, Submission, SubmissionRejection,
     } from "$lib/api";
-    import UploadReplaysModal from "../modals/UploadReplaysModal.svelte";
-    import {TeamsFixture, RoundRobinFixture} from "$lib/components";
+    import {RoundRobinFixture,TeamsFixture} from "$lib/components";
     import {screamingSnakeToHuman} from "$lib/utils";
-    import FaExclamationTriangle from "svelte-icons/fa/FaExclamationTriangle.svelte";
+    
+    import UploadReplaysModal from "../modals/UploadReplaysModal.svelte";
 
 
     export let scrim: CurrentScrim;
     export let submission: Submission | undefined;
 
-    let uploading: boolean = false;
+    let uploading = false;
     let lastRejection: SubmissionRejection | undefined;
     $: lastRejection = submission?.rejections[submission?.rejections.length - 1];
 </script>
