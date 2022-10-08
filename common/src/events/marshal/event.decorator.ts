@@ -20,7 +20,7 @@ export const SprocketEvent =
         descriptor.value = async function (
             this: SprocketEventMarshal,
             ...params: Parameters<EventFunction<EventTopic>>
-        ): Promise<unknown> {
+        ): Promise<void> {
             await originalMethod.apply(this, params);
         };
 
