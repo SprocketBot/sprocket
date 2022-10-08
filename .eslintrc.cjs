@@ -18,6 +18,9 @@ module.exports = {
     node: true,
   },
   rules: {
+    // TODO turn back on after cleaning up code
+    "@typescript-eslint/no-non-null-assertion": "off",
+
     // Configure import sorting since eslint sort-imports doesn't autofix
     "simple-import-sort/imports": "error",
     "simple-import-sort/exports": "error",

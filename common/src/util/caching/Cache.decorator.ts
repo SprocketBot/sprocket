@@ -20,7 +20,7 @@ export interface CacheOptions {
      * Object that maps transformation functions to parameter names
      * Used to enable caching on objects / arrays
      */
-    transformers?: Record<string, (a: any) => string>;
+    transformers?: Record<string, (a: unknown) => string>;
     verbose?: boolean;
 }
 
@@ -102,7 +102,7 @@ export const Cache: (co: CacheOptions) => MethodDecorator = (
                 )}`,
             );
 
-        descriptor.value = async function (...args: any[]) {
+        descriptor.value = async function (...args: unknown[]) {
             // Debugging Only
             const inUniques: boolean[] = [];
 
@@ -121,11 +121,11 @@ export const Cache: (co: CacheOptions) => MethodDecorator = (
                     return v;
                 }
                 // Otherwise, return direct to string or empty string.
-                if (!args[keyIndex].toString)
+                if (!args[keyIndex]?.toString)
                     throw new Error(
                         "CacheKey value must have a transformer or toString function",
                     );
-                const v: string = args[keyIndex].toString().trim();
+                const v: string = args[keyIndex]!.toString().trim();
                 inUniques[keyIndex] = set.has(v);
                 set.add(v);
                 return v;
