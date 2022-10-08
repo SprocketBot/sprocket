@@ -181,7 +181,7 @@ export class CommandManagerService {
     private parseArgs(
         inputArgs: string[],
         args: CommandArg[],
-    ): Record<string, any> {
+    ): Record<string, unknown> {
         if (inputArgs.length !== args.length) {
             throw new Error(
                 `Cannot parse arguments with mismatching length, (${inputArgs.length} !== ${args.length})`,
