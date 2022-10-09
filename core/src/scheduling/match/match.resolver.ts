@@ -5,24 +5,28 @@ import {
     Query,
     ResolveField, Resolver, Root,
 } from "@nestjs/graphql";
-import {InjectRepository} from "@nestjs/typeorm";
+import {InjectDataSource, InjectRepository} from "@nestjs/typeorm";
 import {
     EventsService, EventTopic, ReplaySubmissionStatus, ResponseStatus, SubmissionEndpoint, SubmissionService,
 } from "@sprocketbot/common";
-import {Repository} from "typeorm";
+import {DataSource, Repository} from "typeorm";
 
 import type {GameMode, Round} from "../../database";
 import {
     Franchise,
     GameSkillGroup,
+    Invalidation,
     Match,
     MatchParent,
-    Player,    ScheduleFixture,
+    Player,
+    ScheduleFixture,
     ScheduleGroup,
     Team,
 } from "../../database";
 import type {League} from "../../database/mledb";
-import {LegacyGameMode, MLE_OrganizationTeam} from "../../database/mledb";
+import {
+    LegacyGameMode, MLE_OrganizationTeam, MLE_Team,
+} from "../../database/mledb";
 import type {MatchSubmissionStatus} from "../../database/scheduling/match/match.model";
 import {CurrentPlayer} from "../../franchise/player";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
@@ -44,6 +48,9 @@ export class MatchResolver {
         private readonly submissionService: SubmissionService,
         @InjectRepository(Match) private readonly matchRepo: Repository<Match>,
         @InjectRepository(Team) private readonly teamRepo: Repository<Team>,
+        @InjectRepository(MLE_Team) private readonly mleTeamRepo: Repository<MLE_Team>,
+        @InjectRepository(Invalidation) private readonly invalidationRepo: Repository<Invalidation>,
+        @InjectDataSource() private readonly dataSource: DataSource,
     ) {}
 
     @Query(() => Match)
@@ -112,25 +119,90 @@ export class MatchResolver {
     @Mutation(() => String)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async markSeriesNCP(@Args("seriesId") seriesId: number, @Args("isNcp") isNcp: boolean, @Args("winningTeamId", {nullable: true}) winningTeamId?: number, @Args("numReplays", {nullable: true}) numReplays?: number): Promise<string> {
-        this.logger.verbose(`Marking series ${seriesId} as NCP:${isNcp}. Winning team ID: ${winningTeamId}, with ${numReplays} replays.`);
-        await this.matchService.markSeriesNcp(seriesId, isNcp, winningTeamId, numReplays);
 
-        // Have to translate from Team ID to Franchise Profile to get name (for
-        // MLEDB schema)
-        const team = await this.teamRepo.findOneOrFail({
-            where: {
-                id: winningTeamId,
-            },
-            relations: {
-                        franchise: {
-                                    profile: true,
-                        },
-            },
-        });
+        // Perform NCPs in a single transaction
+        const qr = this.dataSource.createQueryRunner();
+        await qr.connect();
+        await qr.startTransaction();
 
-        await this.mledbMatchService.markSeriesNcp(seriesId, isNcp, team.franchise.profile.title);
-        this.logger.verbose(`Successfully marked series ${seriesId} NCP:${isNcp}`);
-        return "NCP marked successfully";
+        try {
+            this.logger.verbose(`Marking series ${seriesId} as NCP:${isNcp}. Winning team ID: ${winningTeamId}, with ${numReplays} replays.`);
+            await this.matchService.markSeriesNcp(seriesId, isNcp, winningTeamId, numReplays);
+
+            // Have to translate from Team ID to Franchise Profile to get name (for
+            // MLEDB schema)
+            const team = await this.teamRepo.findOneOrFail({
+                where: {
+                    id: winningTeamId,
+                },
+                relations: {
+                    franchise: {
+                        profile: true,
+                    },
+                },
+            });
+
+            await this.mledbMatchService.markSeriesNcp(seriesId, isNcp, team.franchise.profile.title);
+
+            await qr.commitTransaction();
+            this.logger.verbose(`Successfully marked series ${seriesId} NCP:${isNcp}`);
+            return "NCP marked successfully";
+        } catch (e) {
+            this.logger.error(`Failed to mark series ${seriesId} NCP. Got error ${e}`);
+            await qr.rollbackTransaction();
+            throw e;
+        } finally {
+            await qr.release();
+        }
+    }
+
+    @Mutation(() => String)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    async markReplaysNCP(replayIds: number[], isNcp: boolean, winningTeamId: number): Promise<string> {
+        // Perform NCPs in a single transaction
+        const qr = this.dataSource.createQueryRunner();
+        await qr.connect();
+        await qr.startTransaction();
+
+        try {
+            this.logger.verbose(`Marking replays ${replayIds} as NCP:${isNcp}. Winning team ID: ${winningTeamId}`);
+            // We need the actual team object from the DB for replay level NCPs
+            const winningTeamInput = await this.teamRepo.findOneOrFail({
+                where: {
+                    id: winningTeamId,
+                },
+                relations: {
+                    franchise: {
+                        profile: true,
+                    },
+                },
+            });
+
+            // Invalidations apply at the series level, not replay, so we don't
+            // apply one here. Save to Sprocket schema.
+            await this.matchService.markReplaysNcp(replayIds, isNcp, winningTeamInput, undefined);
+
+            // Have to translate from Team ID to Franchise Profile to get name (for
+            // MLEDB schema)
+            const winningMLETeam = await this.mleTeamRepo.findOneOrFail({
+                where: {
+                    name: winningTeamInput.franchise.profile.title,
+                },
+            });
+
+            // Save round NCPs to MLEDB schema
+            await this.mledbMatchService.markReplaysNcp(replayIds, isNcp, winningMLETeam);
+
+            await qr.commitTransaction();
+            this.logger.verbose(`Successfully marked replays ${replayIds} NCP:${isNcp}`);
+            return "NCP marked successfully";
+        } catch (e) {
+            this.logger.error(`Failed to mark replays ${replayIds} NCP. Got error ${e}`);
+            await qr.rollbackTransaction();
+            throw e;
+        } finally {
+            await qr.release();
+        }
     }
 
     @ResolveField()
