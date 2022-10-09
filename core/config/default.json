@@ -49,6 +49,8 @@
       "callbackUrl": ""
     },
     "jwt_expiry": "",
+    "access_expiry": "",
+    "refresh_expiry": "",
     "frontend_callback": ""
   },
   "redis": {
