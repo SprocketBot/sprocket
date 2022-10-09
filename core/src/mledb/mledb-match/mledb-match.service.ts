@@ -185,7 +185,7 @@ export class MledbMatchService {
             },
         });
 
-        if (seriesType === SeriesType.Fixture) {
+        if (series.fixture) {
         
             // Winning team must be specified if NCPing replays
             if (isNcp && !winningTeam) {
