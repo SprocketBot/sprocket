@@ -184,8 +184,16 @@ export class PlayerService {
 
             if (mlePlayer)  {
                 const bridge = await this.ptpRepo.findOneOrFail({where: {mledPlayerId: mlePlayer.id} });
-                player = await this.playerRepository.findOneOrFail({where: {id: bridge.sprocketPlayerId}, relations: {member: {user: true} } });
+                player = await this.playerRepository.findOneOrFail({
+                    where: {id: bridge.sprocketPlayerId},
+                    relations: {member: {user: true, profile: true} },
+                });
 
+                player = this.playerRepository.merge(player, {skillGroup, salary});
+                this.memberProfileRepository.merge(player.member.profile, {name});
+
+                await runner.manager.save(player);
+                await runner.manager.save(player.member.profile);
                 await this.mle_updatePlayer(
                     mlePlayer,
                     name,
@@ -198,7 +206,7 @@ export class PlayerService {
                     runner,
                 );
 
-                await this.eloConnectorService.createJob(EloEndpoint.SGChange, {
+                if (skillGroup.id !== player.skillGroupId) await this.eloConnectorService.createJob(EloEndpoint.SGChange, {
                     id: player.id,
                     salary: salary,
                     skillGroup: skillGroup.ordinal,
@@ -293,6 +301,7 @@ export class PlayerService {
             timezone: timezone,
             modePreference: preference,
             teamName: "Pend",
+            role: Role.NONE,
         });
 
         const playerAccounts: MLE_PlayerAccount[] = [];
@@ -787,7 +796,6 @@ export class PlayerService {
             discordId: discId.accountId,
             playerId: sprocketPlayer.id,
             name: sprocketPlayer.member.profile.name,
-
             old: {
                 name: oldTeamName,
             },
