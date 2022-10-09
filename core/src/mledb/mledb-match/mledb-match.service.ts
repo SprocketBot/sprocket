@@ -195,13 +195,13 @@ export class MledbMatchService {
         
             if (!series.fixture) {
                 this.logger.error(`Error: series with id=\`${seriesId}\` has no associated fixture. If this is a scrim, please use \`!ncpScrim\` or \`!unNcpScrim\`. If this actually is a league play series, ping Bot Team.`);
-                return "Failure";
+                throw new Error(`Error: series with id=\`${seriesId}\` has no associated fixture. If this is a scrim, please use \`!ncpScrim\` or \`!unNcpScrim\`. If this actually is a league play series, ping Bot Team.`);
             }
         
             // Winning team must be specified if NCPing replays
             if (isNcp && !winningTeam) {
                 this.logger.error("When NCPing a series associated with a fixture, you must specify a winningTeam");
-                return "Failure";
+                throw new Error("When NCPing a series associated with a fixture, you must specify a winningTeam");
             }
         
             // Check to make sure the winning team played in the series/fixture
@@ -209,13 +209,13 @@ export class MledbMatchService {
                     && series.fixture.homeName !== winningTeam.name
                     && series.fixture.awayName !== winningTeam.name) {
                 this.logger.error(`The team \`${winningTeam?.name}\` did not play in series with id \`${series.id}\` (${series.fixture.awayName} v. ${series.fixture.homeName}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`);
-                return "Failure";
+                throw new Error(`The team \`${winningTeam?.name}\` did not play in series with id \`${series.id}\` (${series.fixture.awayName} v. ${series.fixture.homeName}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`);
             }
         
         } else if (seriesType === SeriesType.Scrim) {
             if (!series.scrim) {
                 this.logger.error(`Error: series with id=\`${seriesId}\` has no associated scrim. If this is a league play series, please use \`!ncpSeries\` or \`!unNcpSeries\`. If this actually is a scrim, ping Bot Team.`);
-                return "Failure";
+                throw new Error(`Error: series with id=\`${seriesId}\` has no associated scrim. If this is a league play series, please use \`!ncpSeries\` or \`!unNcpSeries\`. If this actually is a scrim, ping Bot Team.`);
             }
 
             winningTeam = await this.teamRepo.findOneOrFail({
@@ -257,8 +257,7 @@ export class MledbMatchService {
      * @returns A string containing status of what was updated.
      */
     async markReplaysNcp(replayIds: number[], isNcp: boolean, winningTeam?: MLE_Team): Promise<string> {
-        const r = Math.floor(Math.random() * 10000);
-        this.logger.debug(`(${r}) begin markReplaysNcp: replayIds=${replayIds}, isNcp=${isNcp}, winningTeam=${winningTeam}`);
+        this.logger.debug(`Begin markReplaysNcp: replayIds=${replayIds}, isNcp=${isNcp}, winningTeam=${winningTeam}`);
 
         // Winning team must be specified if NCPing replays
         if (isNcp && !winningTeam) return "Can't mark an NCP without a winning team";
@@ -272,7 +271,7 @@ export class MledbMatchService {
                 id: rId,
             },
             relations: {
-                        teamCoreStats: true,
+                teamCoreStats: true,
             },
         }));
         const replays = await Promise.all(replayPromises);
@@ -292,7 +291,7 @@ export class MledbMatchService {
         // Set replays to NCP true/false and update winning team/color
         for (const replay of replays) {
             let newWinningTeam: string | undefined;
-            let newWinningColor: string | undefined;
+            let newWinningColor: string | null | undefined;
             
             // Handle NCPing/Un-NCPing with non-dummy/dummy replays
             if (isNcp) {
@@ -304,7 +303,7 @@ export class MledbMatchService {
                         : "";
                 } else {
                     // Set winningColor to null
-                    newWinningColor = "";
+                    newWinningColor = null;
                 }
             } else if (!replay.isDummy) {
                 // Set winningTeam based on goals scored
@@ -325,7 +324,7 @@ export class MledbMatchService {
             await this.seriesReplayRepo.save(replay);
 
         }
-        this.logger.debug(`(${r}) end markReplaysNcp`);
+        this.logger.debug(`End markReplaysNcp`);
 
         return `\`${
             replayIds.length === 1
