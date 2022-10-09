@@ -1,12 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import type {Embed, EmbedBrandingOptions} from "@sprocketbot/common";
 import {CoreEndpoint, CoreService, ResponseStatus} from "@sprocketbot/common";
-import type {
-    EmbedFieldData,
-    HexColorString,
-    MessageEmbedFooter,
-    MessageEmbedOptions,
-} from "discord.js";
+import type {EmbedFieldData, HexColorString, MessageEmbedFooter, MessageEmbedOptions} from "discord.js";
 import {MessageEmbed} from "discord.js";
 
 export interface EmbedOptions {
@@ -20,11 +15,7 @@ export interface EmbedOptions {
 export class EmbedService {
     constructor(private readonly coreService: CoreService) {}
 
-    async brandEmbed(
-        data: Embed,
-        options: EmbedBrandingOptions = {},
-        _organizationId?: number,
-    ): Promise<MessageEmbed> {
+    async brandEmbed(data: Embed, options: EmbedBrandingOptions = {}, _organizationId?: number): Promise<MessageEmbed> {
         let organizationId = 1;
 
         if (_organizationId !== undefined) {
@@ -35,12 +26,10 @@ export class EmbedService {
             if (brandingEnabled) organizationId = _organizationId;
         }
 
-        const organizationProfileResult = await this.coreService.send(
-            CoreEndpoint.GetOrganizationProfile,
-            {id: organizationId},
-        );
-        if (organizationProfileResult.status === ResponseStatus.ERROR)
-            throw organizationProfileResult.error;
+        const organizationProfileResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {
+            id: organizationId,
+        });
+        if (organizationProfileResult.status === ResponseStatus.ERROR) throw organizationProfileResult.error;
 
         const profile = organizationProfileResult.data;
         const embed = new MessageEmbed(data);
@@ -48,22 +37,16 @@ export class EmbedService {
         if (options.author)
             embed.setAuthor(
                 data.author?.name ?? profile.name,
-                options.author.icon && profile.logoUrl
-                    ? profile.logoUrl
-                    : data.author?.url,
+                options.author.icon && profile.logoUrl ? profile.logoUrl : data.author?.url,
                 options.author.url ? profile.websiteUrl : data.author?.url,
             );
-        if (options.color)
-            embed.setColor(profile.primaryColor as HexColorString);
+        if (options.color) embed.setColor(profile.primaryColor as HexColorString);
         if (options.footer)
             embed.setFooter(
                 data.footer?.text ?? profile.name,
-                options.footer.icon && profile.logoUrl
-                    ? profile.logoUrl
-                    : data.footer?.icon_url,
+                options.footer.icon && profile.logoUrl ? profile.logoUrl : data.footer?.icon_url,
             );
-        if (options.thumbnail && profile.logoUrl)
-            embed.setThumbnail(profile.logoUrl);
+        if (options.thumbnail && profile.logoUrl) embed.setThumbnail(profile.logoUrl);
 
         return embed;
     }
@@ -74,10 +57,7 @@ export class EmbedService {
      * @param options Configuration for the embed.
      * @returns The MessageEmbed.
      */
-    async embed(
-        options: EmbedOptions,
-        organizationId?: number,
-    ): Promise<MessageEmbed> {
+    async embed(options: EmbedOptions, organizationId?: number): Promise<MessageEmbed> {
         let orgId = 2;
 
         if (organizationId !== undefined) {
@@ -90,10 +70,7 @@ export class EmbedService {
             }
         }
 
-        const response = await this.coreService.send(
-            CoreEndpoint.GetOrganizationProfile,
-            {id: orgId},
-        );
+        const response = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: orgId});
         if (response.status === ResponseStatus.ERROR) throw response.error;
         const profile = response.data;
         // TODO what should our overall embed system look like, and what should the defaults be?

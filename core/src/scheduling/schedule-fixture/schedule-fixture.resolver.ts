@@ -23,32 +23,20 @@ export class ScheduleFixtureResolver {
     async scheduleGroup(@Root() root: ScheduleFixture): Promise<ScheduleGroup> {
         if (root.scheduleGroup) return root.scheduleGroup;
 
-        return this.populate.populateOneOrFail(
-            ScheduleFixture,
-            root,
-            "scheduleGroup",
-        );
+        return this.populate.populateOneOrFail(ScheduleFixture, root, "scheduleGroup");
     }
 
     @ResolveField()
     async homeFranchise(@Root() root: ScheduleFixture): Promise<Franchise> {
         if (root.homeFranchise) return root.homeFranchise;
-        return this.populate.populateOneOrFail(
-            ScheduleFixture,
-            root,
-            "homeFranchise",
-        );
+        return this.populate.populateOneOrFail(ScheduleFixture, root, "homeFranchise");
     }
 
     @ResolveField()
     async awayFranchise(@Root() root: ScheduleFixture): Promise<Franchise> {
         if (root.awayFranchise) return root.awayFranchise;
 
-        return this.populate.populateOneOrFail(
-            ScheduleFixture,
-            root,
-            "awayFranchise",
-        );
+        return this.populate.populateOneOrFail(ScheduleFixture, root, "awayFranchise");
     }
 
     @ResolveField()

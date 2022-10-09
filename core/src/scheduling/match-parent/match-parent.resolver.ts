@@ -9,9 +9,7 @@ export class MatchParentResolver {
     constructor(private readonly populate: PopulateService) {}
 
     @ResolveField()
-    async fixture(
-        @Root() root: MatchParent,
-    ): Promise<ScheduleFixture | undefined> {
+    async fixture(@Root() root: MatchParent): Promise<ScheduleFixture | undefined> {
         if (root.fixture) return root.fixture;
         return this.populate.populateOne(MatchParent, root, "fixture");
     }

@@ -47,8 +47,7 @@ async function applyTextTransformation(
         // TODO: Account for editors that use transformations (i.e. Illustrator)
         const originalLeft = Number(target.getAttribute("x") ?? 0);
         const originalBottom = Number(target.getAttribute("y") ?? 0);
-        const {height: originalHeight, width: originalWidth} =
-            await getElDimension(el);
+        const {height: originalHeight, width: originalWidth} = await getElDimension(el);
         let halfWidth = originalWidth / 2;
         const originalCenterX = halfWidth + originalLeft;
         let halfHeight = originalHeight / 2;
@@ -67,10 +66,7 @@ async function applyTextTransformation(
     }
 }
 
-async function applyFillTransformation(
-    el: Element,
-    value: string,
-): Promise<void> {
+async function applyFillTransformation(el: Element, value: string): Promise<void> {
     function swapFill(target: SVGElement): void {
         if (target.hasAttribute("style")) {
             target.style.fill = value;
@@ -105,9 +101,7 @@ async function resolveTargetImage(el: Element): Promise<Element | false> {
         const use = children.find(child => child.nodeName === "use");
         if (use) {
             if (use.hasAttribute("xlink:href")) {
-                const newTarget = el.ownerDocument.querySelector(
-                    use.getAttribute("xlink:href")!,
-                );
+                const newTarget = el.ownerDocument.querySelector(use.getAttribute("xlink:href")!);
                 if (newTarget) {
                     return resolveTargetImage(newTarget);
                 }
@@ -121,10 +115,7 @@ async function resolveTargetImage(el: Element): Promise<Element | false> {
     return false;
 }
 
-async function applyImageTransformation(
-    el: Element,
-    value: string,
-): Promise<void> {
+async function applyImageTransformation(el: Element, value: string): Promise<void> {
     let target = el;
     // If(el.nodeName !== "image" && !el.hasAttribute("fill") && !el.getAttribute("fill").startsWith("url(#")) {
     if (target.nodeName !== "image") {
@@ -134,9 +125,7 @@ async function applyImageTransformation(
             target = attempt;
         } else {
             // Fail
-            logger.warn(
-                `Invalid element type ${el.nodeName} found for image transformation! Skipping...`,
-            );
+            logger.warn(`Invalid element type ${el.nodeName} found for image transformation! Skipping...`);
             return;
         }
     }
@@ -150,18 +139,13 @@ async function applyImageTransformation(
     });
 
     if (response.headers?.["content-type"] !== "image/png") {
-        logger.warn(
-            "Found invalid image format for image transformation! Skipping...",
-        );
+        logger.warn("Found invalid image format for image transformation! Skipping...");
     }
     /*
      * TODO: Transform image to retain centering and height
      * TODO: Maintain Height or Maintain Width as an option
      */
-    const image = `data:image/png;base64,${Buffer.from(
-        response.data,
-        "binary",
-    ).toString("base64")}`;
+    const image = `data:image/png;base64,${Buffer.from(response.data, "binary").toString("base64")}`;
     if (target.nodeName === "image") {
         target.setAttribute("xlink:href", image);
     }
@@ -181,9 +165,7 @@ function extractOperation(key: string, data: InputDatum): Operation | false {
     }
     const checked = operationSchema.safeParse(val);
     if (!checked.success) {
-        logger.warn(
-            `Malformed object at ${key} found! Skipping... (${checked.error})`,
-        );
+        logger.warn(`Malformed object at ${key} found! Skipping... (${checked.error})`);
         return false;
     }
     return checked.data;
@@ -200,8 +182,7 @@ async function transformElement(el: Element, data: InputDatum): Promise<void> {
         .replace(/_x7b_/g, "{")
         .replace(/_x7d_/, "}");
 
-    while (fullValue.match(/_[\d]_$/))
-        fullValue = fullValue.replace(/_[\d]_$/, "");
+    while (fullValue.match(/_[\d]_$/)) fullValue = fullValue.replace(/_[\d]_$/, "");
 
     const match = fullValue.match(/^[{]((?:(?:[\w]+)\.)*(?:[\w]+))[}]$/);
     if (match) {
@@ -218,19 +199,12 @@ async function transformElement(el: Element, data: InputDatum): Promise<void> {
                 await applyImageTransformation(el, operation.value.toString());
                 break;
             default:
-                logger.warn(
-                    `Unknown operation ${operation.type} found! Skipping...`,
-                );
+                logger.warn(`Unknown operation ${operation.type} found! Skipping...`);
         }
     }
 }
 
-async function recursiveTransform(
-    el: Element,
-    data: InputDatum,
-    debug = true,
-    depth = 0,
-): Promise<void> {
+async function recursiveTransform(el: Element, data: InputDatum, debug = true, depth = 0): Promise<void> {
     await transformElement(el, data);
 
     if (debug) {
@@ -241,9 +215,7 @@ async function recursiveTransform(
             .join(" ");
         const indent = new Array(depth).fill("  ").join("");
         logger.debug(
-            `${indent}${el.tagName} | ${attrString} ${
-                el.textContent?.startsWith("\n") ? "" : ` -> ${el.textContent}`
-            }`,
+            `${indent}${el.tagName} | ${attrString} ${el.textContent?.startsWith("\n") ? "" : ` -> ${el.textContent}`}`,
         );
     }
     // Transform children to an array
@@ -255,14 +227,8 @@ async function recursiveTransform(
     }
 }
 
-async function processSvg(
-    inputFilePath: string,
-    outputFilePath: string,
-    data: InputDatum,
-): Promise<void> {
-    logger.debug(
-        `============================= ${inputFilePath} =============================`,
-    );
+async function processSvg(inputFilePath: string, outputFilePath: string, data: InputDatum): Promise<void> {
+    logger.debug(`============================= ${inputFilePath} =============================`);
     const svg = await readFile(inputFilePath);
     const dom = new JSDOM(svg.toString());
 
@@ -467,26 +433,10 @@ async function techDemo(): Promise<void> {
             },
         ],
     };
-    await processSvg(
-        "./tmp/sources/techdemo_figma.svg",
-        "./tmp/output/techdemo_figma_after.png",
-        data,
-    );
-    await processSvg(
-        "./tmp/sources/techdemo_figma.svg",
-        "./tmp/output/techdemo_figma_before.png",
-        {},
-    );
-    await processSvg(
-        "./tmp/sources/techdemo_illustrator.svg",
-        "./tmp/output/techdemo_illustrator_after.png",
-        data,
-    );
-    await processSvg(
-        "./tmp/sources/techdemo_illustrator.svg",
-        "./tmp/output/techdemo_illustrator_before.png",
-        {},
-    );
+    await processSvg("./tmp/sources/techdemo_figma.svg", "./tmp/output/techdemo_figma_after.png", data);
+    await processSvg("./tmp/sources/techdemo_figma.svg", "./tmp/output/techdemo_figma_before.png", {});
+    await processSvg("./tmp/sources/techdemo_illustrator.svg", "./tmp/output/techdemo_illustrator_after.png", data);
+    await processSvg("./tmp/sources/techdemo_illustrator.svg", "./tmp/output/techdemo_illustrator_before.png", {});
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

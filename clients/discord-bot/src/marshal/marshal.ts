@@ -32,14 +32,9 @@ export abstract class Marshal {
     }
 
     private registerAllCommands(cms: CommandManagerService): void {
-        const marshalMetadata: unknown = Reflect.getMetadata(
-            MarshalMetadataKey.Command,
-            this,
-        );
+        const marshalMetadata: unknown = Reflect.getMetadata(MarshalMetadataKey.Command, this);
         if (!marshalMetadata) return;
-        const parseResult = zod
-            .array(CommandMetaSchema)
-            .safeParse(marshalMetadata);
+        const parseResult = zod.array(CommandMetaSchema).safeParse(marshalMetadata);
         if (!parseResult.success) {
             this._logger.error(parseResult);
             return;
@@ -52,23 +47,16 @@ export abstract class Marshal {
                 ...meta,
                 // We kinda need to act on faith here, if the implementer has decorated an unsafe function, we can't tell until runtime.
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
-                function: Reflect.get(this, meta.functionName).bind(
-                    this,
-                ) as CommandFunction,
+                function: Reflect.get(this, meta.functionName).bind(this) as CommandFunction,
             });
             this._logger.debug(`Registered Command ${meta.spec.name}`);
         });
     }
 
     private registerAllCommandNotFoundHooks(cms: CommandManagerService): void {
-        const marshalMetadata: unknown = Reflect.getMetadata(
-            MarshalMetadataKey.CommandNotFound,
-            this,
-        );
+        const marshalMetadata: unknown = Reflect.getMetadata(MarshalMetadataKey.CommandNotFound, this);
         if (!marshalMetadata) return;
-        const parseResult = zod
-            .array(CommandNotFoundMetaSchema)
-            .safeParse(marshalMetadata);
+        const parseResult = zod.array(CommandNotFoundMetaSchema).safeParse(marshalMetadata);
         if (!parseResult.success) {
             this._logger.error(parseResult);
             return;
@@ -87,14 +75,9 @@ export abstract class Marshal {
     }
 
     private registerAllEvents(): void {
-        const marshalMetadata: unknown = Reflect.getMetadata(
-            MarshalMetadataKey.Event,
-            this,
-        );
+        const marshalMetadata: unknown = Reflect.getMetadata(MarshalMetadataKey.Event, this);
         if (!marshalMetadata) return;
-        const parseResult = zod
-            .array(EventMetaSchema)
-            .safeParse(marshalMetadata);
+        const parseResult = zod.array(EventMetaSchema).safeParse(marshalMetadata);
         if (!parseResult.success) {
             this._logger.error(parseResult);
             return;
@@ -104,20 +87,13 @@ export abstract class Marshal {
         data.forEach(meta => {
             // We kinda need to act on faith here, if the implementer has decorated an unsafe function, we can't tell until runtime.
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
-            const f = Reflect.get(this, meta.functionName).bind(
-                this,
-            ) as EventFunction;
+            const f = Reflect.get(this, meta.functionName).bind(this) as EventFunction;
             // Do things
-            this.botClient.on(
-                meta.spec.event,
-                async (
-                    ...args: ClientEvents[keyof ClientEvents]
-                ): Promise<void> => {
-                    await f(args).catch(e => {
-                        this._logger.error(e);
-                    });
-                },
-            );
+            this.botClient.on(meta.spec.event, async (...args: ClientEvents[keyof ClientEvents]): Promise<void> => {
+                await f(args).catch(e => {
+                    this._logger.error(e);
+                });
+            });
             this._logger.debug(`Registered Event ${meta.spec.event}`);
         });
     }

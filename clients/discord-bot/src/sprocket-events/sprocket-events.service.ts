@@ -23,13 +23,10 @@ export class SprocketEventsService extends SprocketEventMarshal {
     }
 
     @SprocketEvent(EventTopic.PlayerSkillGroupChanged)
-    async onSkillGroupChange(
-        payload: PlayerSkillGroupChangedType,
-    ): Promise<void> {
-        const response = await this.coreService.send(
-            CoreEndpoint.GetGuildsByOrganizationId,
-            {organizationId: payload.organizationId},
-        );
+    async onSkillGroupChange(payload: PlayerSkillGroupChangedType): Promise<void> {
+        const response = await this.coreService.send(CoreEndpoint.GetGuildsByOrganizationId, {
+            organizationId: payload.organizationId,
+        });
         if (response.status === ResponseStatus.ERROR) throw response.error;
         const {primary} = response.data;
 
@@ -47,14 +44,8 @@ export class SprocketEventsService extends SprocketEventMarshal {
         const newRoleName = payload.new.name;
         const newRole = roles.find(r => r.name === newRoleName);
 
-        if (!oldRole)
-            throw new Error(
-                `Couldn't find role with name '${oldRoleName}' in guild with id '${primary}'`,
-            );
-        if (!newRole)
-            throw new Error(
-                `Couldn't find role with name '${newRoleName}' in guild with id '${primary}'`,
-            );
+        if (!oldRole) throw new Error(`Couldn't find role with name '${oldRoleName}' in guild with id '${primary}'`);
+        if (!newRole) throw new Error(`Couldn't find role with name '${newRoleName}' in guild with id '${primary}'`);
 
         await member.roles.remove(oldRole.id);
         await member.roles.add(newRole.id);
@@ -62,10 +53,9 @@ export class SprocketEventsService extends SprocketEventMarshal {
 
     @SprocketEvent(EventTopic.PlayerTeamChanged)
     async onTeamChange(payload: PlayerTeamChanged): Promise<void> {
-        const response = await this.coreService.send(
-            CoreEndpoint.GetGuildsByOrganizationId,
-            {organizationId: payload.organizationId},
-        );
+        const response = await this.coreService.send(CoreEndpoint.GetGuildsByOrganizationId, {
+            organizationId: payload.organizationId,
+        });
         if (response.status === ResponseStatus.ERROR) throw response.error;
         const {primary} = response.data;
 
@@ -83,14 +73,8 @@ export class SprocketEventsService extends SprocketEventMarshal {
         const newRoleName = payload.new.name;
         const newRole = roles.find(r => r.name === newRoleName);
 
-        if (!oldRole)
-            throw new Error(
-                `Couldn't find role with name '${oldRoleName}' in guild with id '${primary}'`,
-            );
-        if (!newRole)
-            throw new Error(
-                `Couldn't find role with name '${newRoleName}' in guild with id '${primary}'`,
-            );
+        if (!oldRole) throw new Error(`Couldn't find role with name '${oldRoleName}' in guild with id '${primary}'`);
+        if (!newRole) throw new Error(`Couldn't find role with name '${newRoleName}' in guild with id '${primary}'`);
 
         await member.roles.remove(oldRole.id);
         await member.roles.add(newRole.id);

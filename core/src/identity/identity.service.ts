@@ -16,19 +16,14 @@ export class IdentityService {
     /**
      *  Registers a user with sprocket; given the account information for their first authentication account.
      */
-    async registerUser(
-        accountType: AccountType,
-        accountId: string,
-    ): Promise<User> {
+    async registerUser(accountType: AccountType, accountId: string): Promise<User> {
         const user = this.userRepository.create({});
         await this.userRepository.save(user);
-        const userAuthenticationAccount = this.userAuthAccountRepository.create(
-            {
-                accountType,
-                accountId,
-                user,
-            },
-        );
+        const userAuthenticationAccount = this.userAuthAccountRepository.create({
+            accountType,
+            accountId,
+            user,
+        });
         await this.userAuthAccountRepository.save(userAuthenticationAccount);
         return user;
     }
@@ -37,10 +32,7 @@ export class IdentityService {
      * Looks up a sprocket user by a given account type and id
      * @throws When a matching user is not found
      */
-    async getUserByAuthAccount(
-        accountType: AccountType,
-        accountId: string,
-    ): Promise<User> {
+    async getUserByAuthAccount(accountType: AccountType, accountId: string): Promise<User> {
         return this.userRepository
             .createQueryBuilder("user")
             .leftJoin("user.authenticationAccounts", "authAccounts")
@@ -49,9 +41,7 @@ export class IdentityService {
             .getOneOrFail();
     }
 
-    async getAuthAccountsForUser(
-        userId: number,
-    ): Promise<UserAuthenticationAccount[]> {
+    async getAuthAccountsForUser(userId: number): Promise<UserAuthenticationAccount[]> {
         return this.userAuthAccountRepository.find({
             where: {
                 user: {

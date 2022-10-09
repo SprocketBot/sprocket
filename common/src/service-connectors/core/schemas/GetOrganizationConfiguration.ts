@@ -19,8 +19,4 @@ export const GetOrganizationConfigurationValue_Request = z.object({
     code: z.nativeEnum(OrganizationConfigurationKeyCode),
 });
 
-export const GetOrganizationConfigurationValue_Response = z.union([
-    z.array(z.string()),
-    z.string(),
-    z.number(),
-]);
+export const GetOrganizationConfigurationValue_Response = z.union([z.array(z.string()), z.string(), z.number()]);

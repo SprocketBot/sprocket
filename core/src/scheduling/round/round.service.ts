@@ -13,12 +13,7 @@ export class RoundService {
         private invalidationRepo: Repository<Invalidation>,
     ) {}
 
-    async createRound(
-        matchId: number,
-        stats: unknown,
-        isDummy?: boolean,
-        invalidationId?: number,
-    ): Promise<Round> {
+    async createRound(matchId: number, stats: unknown, isDummy?: boolean, invalidationId?: number): Promise<Round> {
         const match = await this.matchRepo.findOneOrFail({
             where: {id: matchId},
         });

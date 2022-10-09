@@ -22,21 +22,14 @@ export class ScheduleFixtureService {
         });
     }
 
-    async getFixtureForMatchParent(
-        matchParentId: number,
-    ): Promise<ScheduleFixture> {
+    async getFixtureForMatchParent(matchParentId: number): Promise<ScheduleFixture> {
         return this.scheduleFixtureRepo.findOneOrFail({
             where: {
                 matchParents: {
                     id: matchParentId,
                 },
             },
-            relations: [
-                "awayFranchise",
-                "awayFranchise.profile",
-                "homeFranchise",
-                "homeFranchise.profile",
-            ],
+            relations: ["awayFranchise", "awayFranchise.profile", "homeFranchise", "homeFranchise.profile"],
         });
     }
 }

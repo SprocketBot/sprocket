@@ -1,17 +1,7 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {RpcException} from "@nestjs/microservices";
-import type {
-    Scrim,
-    ScrimGameMode,
-    ScrimPlayer,
-    ScrimSettings,
-} from "@sprocketbot/common";
-import {
-    AnalyticsEndpoint,
-    AnalyticsService,
-    EventTopic,
-    ScrimStatus,
-} from "@sprocketbot/common";
+import type {Scrim, ScrimGameMode, ScrimPlayer, ScrimSettings} from "@sprocketbot/common";
+import {AnalyticsEndpoint, AnalyticsService, EventTopic, ScrimStatus} from "@sprocketbot/common";
 
 import {EventProxyService} from "./event-proxy/event-proxy.service";
 import {ScrimCrudService} from "./scrim-crud/scrim-crud.service";
@@ -39,18 +29,11 @@ export class ScrimService {
         createGroup: boolean,
     ): Promise<Scrim> {
         if (await this.scrimCrudService.playerInAnyScrim(author.id)) {
-            throw new RpcException(
-                "Cannot create scrim, player already in another scrim",
-            );
+            throw new RpcException("Cannot create scrim, player already in another scrim");
         }
 
-        if (
-            !this.scrimGroupService.modeAllowsGroups(settings.mode) &&
-            createGroup
-        ) {
-            throw new RpcException(
-                "Cannot create scrim, this mode does not allow groups",
-            );
+        if (!this.scrimGroupService.modeAllowsGroups(settings.mode) && createGroup) {
+            throw new RpcException("Cannot create scrim, this mode does not allow groups");
         }
 
         const scrim = await this.scrimCrudService.createScrim({
@@ -70,11 +53,7 @@ export class ScrimService {
             });
         }
 
-        await this.eventsService.publish(
-            EventTopic.ScrimCreated,
-            scrim,
-            scrim.id,
-        );
+        await this.eventsService.publish(EventTopic.ScrimCreated, scrim, scrim.id);
 
         this.analyticsService
             .send(AnalyticsEndpoint.Analytics, {
@@ -89,11 +68,7 @@ export class ScrimService {
         return scrim;
     }
 
-    async joinScrim(
-        scrimId: string,
-        player: ScrimPlayer,
-        groupKey: boolean | string | undefined,
-    ): Promise<boolean> {
+    async joinScrim(scrimId: string, player: ScrimPlayer, groupKey: boolean | string | undefined): Promise<boolean> {
         const scrim = await this.scrimCrudService.getScrim(scrimId);
 
         if (!scrim) {
@@ -107,10 +82,7 @@ export class ScrimService {
         }
 
         // eslint-disable-next-line require-atomic-updates
-        player.group = this.scrimGroupService.resolveGroupKey(
-            scrim,
-            groupKey ?? false,
-        );
+        player.group = this.scrimGroupService.resolveGroupKey(scrim, groupKey ?? false);
 
         await this.scrimCrudService.addPlayerToScrim(scrimId, player);
         scrim.players.push(player);
@@ -125,10 +97,7 @@ export class ScrimService {
                 this.logger.error(err);
             });
 
-        if (
-            scrim.settings.teamSize * scrim.settings.teamCount ===
-            scrim.players.length
-        ) {
+        if (scrim.settings.teamSize * scrim.settings.teamCount === scrim.players.length) {
             await this.scrimLogicService.popScrim(scrim);
             return true;
         }
@@ -213,11 +182,7 @@ export class ScrimService {
 
         await this.scrimCrudService.removeScrim(scrimId);
         scrim.status = ScrimStatus.CANCELLED;
-        await this.eventsService.publish(
-            EventTopic.ScrimCancelled,
-            scrim,
-            scrim.id,
-        );
+        await this.eventsService.publish(EventTopic.ScrimCancelled, scrim, scrim.id);
 
         this.analyticsService
             .send(AnalyticsEndpoint.Analytics, {
@@ -237,10 +202,7 @@ export class ScrimService {
         if (!scrim) {
             throw new RpcException("Scrim not found");
         }
-        if (!scrim.submissionId)
-            throw new RpcException(
-                "Scrim does not yet have a submission, cannot complete.",
-            );
+        if (!scrim.submissionId) throw new RpcException("Scrim does not yet have a submission, cannot complete.");
 
         // TODO: Override this if player / member is an admin
         if (playerId && !scrim.players.some(p => p.id === playerId)) {
@@ -249,11 +211,7 @@ export class ScrimService {
 
         await this.scrimCrudService.removeScrim(scrimId);
         scrim.status = ScrimStatus.COMPLETE;
-        await this.eventsService.publish(
-            EventTopic.ScrimComplete,
-            scrim,
-            scrim.id,
-        );
+        await this.eventsService.publish(EventTopic.ScrimComplete, scrim, scrim.id);
 
         this.analyticsService
             .send(AnalyticsEndpoint.Analytics, {
@@ -268,10 +226,7 @@ export class ScrimService {
         return scrim;
     }
 
-    async forceUpdateScrimStatus(
-        scrimId: string,
-        status: ScrimStatus,
-    ): Promise<void> {
+    async forceUpdateScrimStatus(scrimId: string, status: ScrimStatus): Promise<void> {
         await this.scrimCrudService.updateScrimStatus(scrimId, status);
         await this.publishScrimUpdate(scrimId);
     }
@@ -284,10 +239,7 @@ export class ScrimService {
 
         if (locked) {
             if (scrim.unlockedStatus !== ScrimStatus.LOCKED)
-                await this.scrimCrudService.updateScrimUnlockedStatus(
-                    scrimId,
-                    scrim.status,
-                );
+                await this.scrimCrudService.updateScrimUnlockedStatus(scrimId, scrim.status);
             scrim.status = ScrimStatus.LOCKED;
         } else scrim.status = scrim.unlockedStatus ?? ScrimStatus.IN_PROGRESS;
         await this.scrimCrudService.updateScrimStatus(scrimId, scrim.status);

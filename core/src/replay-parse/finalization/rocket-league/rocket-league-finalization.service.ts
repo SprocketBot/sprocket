@@ -1,16 +1,7 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {InjectDataSource} from "@nestjs/typeorm";
-import type {
-    BallchasingPlayer,
-    BallchasingResponse,
-    BallchasingTeam,
-    Scrim,
-} from "@sprocketbot/common";
-import {
-    BallchasingResponseSchema,
-    Parser,
-    ProgressStatus,
-} from "@sprocketbot/common";
+import type {BallchasingPlayer, BallchasingResponse, BallchasingTeam, Scrim} from "@sprocketbot/common";
+import {BallchasingResponseSchema, Parser, ProgressStatus} from "@sprocketbot/common";
 import type {EntityManager} from "typeorm";
 import {DataSource} from "typeorm";
 import type {QueryDeepPartialEntity} from "typeorm/query-builder/QueryPartialEntity";
@@ -31,21 +22,11 @@ import {TeamService} from "../../../franchise/team/team.service";
 import {MledbFinalizationService, MledbPlayerService} from "../../../mledb";
 import {MatchService} from "../../../scheduling";
 import {SprocketRatingService} from "../../../sprocket-rating/sprocket-rating.service";
-import type {
-    SprocketRating,
-    SprocketRatingInput,
-} from "../../../sprocket-rating/sprocket-rating.types";
-import type {
-    MatchReplaySubmission,
-    ReplaySubmission,
-    ScrimReplaySubmission,
-} from "../../types";
+import type {SprocketRating, SprocketRatingInput} from "../../../sprocket-rating/sprocket-rating.types";
+import type {MatchReplaySubmission, ReplaySubmission, ScrimReplaySubmission} from "../../types";
 import {ReplaySubmissionType} from "../../types";
 import {BallchasingConverterService} from "../ballchasing-converter";
-import type {
-    SaveMatchFinalizationReturn,
-    SaveScrimFinalizationReturn,
-} from "../finalization.types";
+import type {SaveMatchFinalizationReturn, SaveScrimFinalizationReturn} from "../finalization.types";
 
 @Injectable()
 export class RocketLeagueFinalizationService {
@@ -62,10 +43,7 @@ export class RocketLeagueFinalizationService {
         @InjectDataSource() private readonly dataSource: DataSource,
     ) {}
 
-    async finalizeScrim(
-        submission: ScrimReplaySubmission,
-        scrim: Scrim,
-    ): Promise<SaveScrimFinalizationReturn> {
+    async finalizeScrim(submission: ScrimReplaySubmission, scrim: Scrim): Promise<SaveScrimFinalizationReturn> {
         const qr = this.dataSource.createQueryRunner();
 
         await qr.connect();
@@ -79,35 +57,18 @@ export class RocketLeagueFinalizationService {
             const scrimMeta = em.create(ScrimMeta);
             const matchParent = em.create(MatchParent);
             const match = em.create(Match);
-            await em.insert(
-                ScrimMeta,
-                scrimMeta as QueryDeepPartialEntity<ScrimMeta>,
-            );
+            await em.insert(ScrimMeta, scrimMeta as QueryDeepPartialEntity<ScrimMeta>);
             matchParent.scrimMeta = scrimMeta;
 
-            await em.insert(
-                MatchParent,
-                matchParent as QueryDeepPartialEntity<MatchParent>,
-            );
+            await em.insert(MatchParent, matchParent as QueryDeepPartialEntity<MatchParent>);
             match.matchParent = matchParent;
             match.skillGroupId = scrim.skillGroupId;
             match.gameMode = gameMode;
 
             await em.insert(Match, match as QueryDeepPartialEntity<Match>);
-            await this.saveMatchDependents(
-                submission,
-                scrim.organizationId,
-                match,
-                true,
-                em,
-            );
+            await this.saveMatchDependents(submission, scrim.organizationId, match, true, em);
 
-            const mledbScrim = await this.mledbFinalizationService.saveScrim(
-                submission,
-                submission.id,
-                em,
-                scrim,
-            );
+            const mledbScrim = await this.mledbFinalizationService.saveScrim(submission, submission.id, em, scrim);
 
             // Fix up these relationships
             scrimMeta.parent = matchParent;
@@ -121,11 +82,7 @@ export class RocketLeagueFinalizationService {
                 scrim: scrim.id,
             };
 
-            this.logger.error(
-                `Failed to save scrim! ${
-                    (e as Error).message
-                } | ${JSON.stringify(errorPayload)}`,
-            );
+            this.logger.error(`Failed to save scrim! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`);
             await qr.rollbackTransaction();
             throw e;
         } finally {
@@ -133,40 +90,24 @@ export class RocketLeagueFinalizationService {
         }
     }
 
-    async finalizeMatch(
-        submission: MatchReplaySubmission,
-    ): Promise<SaveMatchFinalizationReturn> {
+    async finalizeMatch(submission: MatchReplaySubmission): Promise<SaveMatchFinalizationReturn> {
         const qr = this.dataSource.createQueryRunner();
 
         await qr.connect();
         await qr.startTransaction();
         const em = qr.manager;
         try {
-            const match = await this.matchService.getMatchById(
-                submission.matchId,
-                {
-                    matchParent: {
-                        fixture: {homeFranchise: {organization: true}},
-                    },
-                    gameMode: true,
+            const match = await this.matchService.getMatchById(submission.matchId, {
+                matchParent: {
+                    fixture: {homeFranchise: {organization: true}},
                 },
-            );
-            const organization =
-                match.matchParent.fixture!.homeFranchise.organization;
+                gameMode: true,
+            });
+            const organization = match.matchParent.fixture!.homeFranchise.organization;
 
-            await this.saveMatchDependents(
-                submission,
-                organization.id,
-                match,
-                false,
-                em,
-            );
+            await this.saveMatchDependents(submission, organization.id, match, false, em);
 
-            const mleMatch = await this.mledbFinalizationService.saveMatch(
-                submission,
-                submission.id,
-                em,
-            );
+            const mleMatch = await this.mledbFinalizationService.saveMatch(submission, submission.id, em);
             await qr.commitTransaction();
             return {match: match, legacyMatch: mleMatch};
         } catch (e) {
@@ -175,11 +116,7 @@ export class RocketLeagueFinalizationService {
                 matchId: submission.matchId,
             };
 
-            this.logger.error(
-                `Failed to save match! ${
-                    (e as Error).message
-                } | ${JSON.stringify(errorPayload)}`,
-            );
+            this.logger.error(`Failed to save match! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`);
             await qr.rollbackTransaction();
             throw e;
         } finally {
@@ -197,15 +134,12 @@ export class RocketLeagueFinalizationService {
         eligibility: boolean,
         em: EntityManager,
     ): Promise<Match> {
-        if (
-            submission.items.some(
-                i => i.progress?.status !== ProgressStatus.Complete,
-            )
-        ) {
+        if (submission.items.some(i => i.progress?.status !== ProgressStatus.Complete)) {
             throw new Error(
-                `Not all items have been completed. Finalization attempted too soon. ${JSON.stringify(
-                    {submissionId: submission.id, match: match.id},
-                )}`,
+                `Not all items have been completed. Finalization attempted too soon. ${JSON.stringify({
+                    submissionId: submission.id,
+                    match: match.id,
+                })}`,
             );
         }
 
@@ -214,15 +148,11 @@ export class RocketLeagueFinalizationService {
             parser: {type: Parser; version: number};
             outputPath: string;
         }>(i => {
-            const r = BallchasingResponseSchema.safeParse(
-                i.progress?.result?.data,
-            );
+            const r = BallchasingResponseSchema.safeParse(i.progress?.result?.data);
 
             if (!r.success) {
                 throw new Error(
-                    `${
-                        i.originalFilename
-                    } does not contain expected values. ${JSON.stringify(
+                    `${i.originalFilename} does not contain expected values. ${JSON.stringify(
                         r.error.errors.map(e => e.message),
                     )}`,
                 );
@@ -259,9 +189,7 @@ export class RocketLeagueFinalizationService {
         const results = await Promise.all(
             replays.map(async ({replay, parser, outputPath}) => {
                 // Get players
-                const {blue, orange} = await this._getBallchasingPlayers(
-                    replay,
-                );
+                const {blue, orange} = await this._getBallchasingPlayers(replay);
                 /*
              First, identify which team is home.
              It is safe to assume that all players are on the same team here;
@@ -281,12 +209,8 @@ export class RocketLeagueFinalizationService {
                     const blueCaptain = blue[0].player;
                     const orangeCaptain = orange[0].player;
                     const [blueMle, orangeMle] = await Promise.all([
-                        this.mledbPlayerService.getMlePlayerBySprocketUser(
-                            blueCaptain.member.userId,
-                        ),
-                        this.mledbPlayerService.getMlePlayerBySprocketUser(
-                            orangeCaptain.member.userId,
-                        ),
+                        this.mledbPlayerService.getMlePlayerBySprocketUser(blueCaptain.member.userId),
+                        this.mledbPlayerService.getMlePlayerBySprocketUser(orangeCaptain.member.userId),
                     ]);
                     /*
                      * Now we have the team names; so we'll need to look up the fixture.
@@ -296,14 +220,8 @@ export class RocketLeagueFinalizationService {
                     /*
                      * Identify which team is home; and which is away
                      */
-                    homeColor =
-                        blueTeamName === home!.profile.title
-                            ? "blue"
-                            : "orange";
-                    awayColor =
-                        blueTeamName === home!.profile.title
-                            ? "orange"
-                            : "blue";
+                    homeColor = blueTeamName === home!.profile.title ? "blue" : "orange";
+                    awayColor = blueTeamName === home!.profile.title ? "orange" : "blue";
                     blueTeam = homeColor === "blue" ? homeTeam : awayTeam;
                     orangeTeam = homeColor === "orange" ? homeTeam : awayTeam;
                 } else {
@@ -313,30 +231,16 @@ export class RocketLeagueFinalizationService {
                     blueTeamName = "Blue Team";
                     orangeTeamName = "Orange Team";
                 }
-                const homeWon =
-                    replay[homeColor].stats.core.goals >
-                    replay[awayColor].stats.core.goals;
+                const homeWon = replay[homeColor].stats.core.goals > replay[awayColor].stats.core.goals;
                 /*
                  * Create the round
                  */
-                const round = this._createRound(
-                    match,
-                    homeWon,
-                    replay,
-                    parser,
-                    outputPath,
-                );
+                const round = this._createRound(match, homeWon, replay, parser, outputPath);
 
                 /*
                  * Create player and team stat lines
                  */
-                const blueTeamStats = await this._createTeamStatLine(
-                    replay.blue,
-                    round,
-                    blueTeamName,
-                    em,
-                    blueTeam,
-                );
+                const blueTeamStats = await this._createTeamStatLine(replay.blue, round, blueTeamName, em, blueTeam);
                 const bluePlayers = await Promise.all(
                     blue.map(async bp =>
                         this._createPlayerStatLine(
@@ -375,39 +279,16 @@ export class RocketLeagueFinalizationService {
 
                 // We save the round first; because it does not have the join columns
                 await em.insert(Round, round as QueryDeepPartialEntity<Round>);
-                await em.insert(
-                    TeamStatLine,
-                    blueTeamStats as QueryDeepPartialEntity<TeamStatLine>,
-                );
-                await em.insert(
-                    TeamStatLine,
-                    orangeTeamStats as QueryDeepPartialEntity<TeamStatLine>,
-                );
-                await em.insert(
-                    PlayerStatLine,
-                    bluePlayers as QueryDeepPartialEntity<PlayerStatLine>,
-                );
-                await em.insert(
-                    PlayerStatLine,
-                    orangePlayers as QueryDeepPartialEntity<PlayerStatLine>,
-                );
+                await em.insert(TeamStatLine, blueTeamStats as QueryDeepPartialEntity<TeamStatLine>);
+                await em.insert(TeamStatLine, orangeTeamStats as QueryDeepPartialEntity<TeamStatLine>);
+                await em.insert(PlayerStatLine, bluePlayers as QueryDeepPartialEntity<PlayerStatLine>);
+                await em.insert(PlayerStatLine, orangePlayers as QueryDeepPartialEntity<PlayerStatLine>);
 
                 if (eligibility) {
-                    const eligibilities = [
-                        ...blue.map(b => b.player),
-                        ...orange.map(o => o.player),
-                    ].map(p =>
-                        this._createEligibility(
-                            p,
-                            match.matchParent,
-                            em,
-                            submission.items.length,
-                        ),
+                    const eligibilities = [...blue.map(b => b.player), ...orange.map(o => o.player)].map(p =>
+                        this._createEligibility(p, match.matchParent, em, submission.items.length),
                     );
-                    await em.insert(
-                        EligibilityData,
-                        eligibilities as QueryDeepPartialEntity<EligibilityData>,
-                    );
+                    await em.insert(EligibilityData, eligibilities as QueryDeepPartialEntity<EligibilityData>);
                 }
 
                 round.teamStats = [blueTeamStats, orangeTeamStats];
@@ -540,11 +421,7 @@ export class RocketLeagueFinalizationService {
     ): Promise<PlayerStatLine> {
         const output = em.create(PlayerStatLine);
 
-        const sprocketRating = this._getSprocketRating(
-            rawPlayer,
-            opposingTeam,
-            gameMode,
-        );
+        const sprocketRating = this._getSprocketRating(rawPlayer, opposingTeam, gameMode);
 
         output.teamStats = teamStats;
         output.player = player;
@@ -578,8 +455,6 @@ export class RocketLeagueFinalizationService {
             ),
             team_size: gameMode.teamSize,
         };
-        return this.sprocketRatingService.calcSprocketRating(
-            sprocketRatingInput,
-        );
+        return this.sprocketRatingService.calcSprocketRating(sprocketRatingInput);
     }
 }

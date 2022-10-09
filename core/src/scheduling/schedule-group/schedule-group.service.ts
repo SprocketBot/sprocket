@@ -12,12 +12,7 @@ export class ScheduleGroupService {
         private readonly scheduleGroupRepo: Repository<ScheduleGroup>,
     ) {}
 
-    async getScheduleGroups(
-        orgId: number,
-        type: string,
-        gameId?: number,
-        current = true,
-    ): Promise<ScheduleGroup[]> {
+    async getScheduleGroups(orgId: number, type: string, gameId?: number, current = true): Promise<ScheduleGroup[]> {
         const conditions: FindOptionsWhere<ScheduleGroup> = {
             type: {
                 code: type,

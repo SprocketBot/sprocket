@@ -11,10 +11,7 @@ import {
 } from "@sprocketbot/common";
 import {Repository} from "typeorm";
 
-import {
-    UserAuthenticationAccount,
-    UserAuthenticationAccountType,
-} from "../../database";
+import {UserAuthenticationAccount, UserAuthenticationAccountType} from "../../database";
 import type {ManualSkillGroupChange} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
 import {OrganizationService} from "../../organization";
@@ -82,13 +79,11 @@ export class PlayerController {
                 accountType: UserAuthenticationAccountType.DISCORD,
             },
         });
-        const orgProfile =
-            await this.organizationService.getOrganizationProfileForOrganization(
-                player.member.organization.id,
-            );
+        const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(
+            player.member.organization.id,
+        );
 
-        if (player.skillGroup.id === payload.skillGroupId)
-            return "ERROR: You are already in this skill group";
+        if (player.skillGroup.id === payload.skillGroupId) return "ERROR: You are already in this skill group";
 
         const inputData: ManualSkillGroupChange = {
             id: payload.playerId,
@@ -96,19 +91,9 @@ export class PlayerController {
             skillGroup: skillGroup.ordinal,
         };
 
-        await this.playerService.updatePlayerStanding(
-            payload.playerId,
-            payload.salary,
-            payload.skillGroupId,
-        );
-        await this.playerService.mle_rankDownPlayer(
-            payload.playerId,
-            payload.salary,
-        );
-        await this.eloConnectorService.createJob(
-            EloEndpoint.SGChange,
-            inputData,
-        );
+        await this.playerService.updatePlayerStanding(payload.playerId, payload.salary, payload.skillGroupId);
+        await this.playerService.mle_rankDownPlayer(payload.playerId, payload.salary);
+        await this.eloConnectorService.createJob(EloEndpoint.SGChange, inputData);
 
         await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
             playerId: player.id,
@@ -129,55 +114,52 @@ export class PlayerController {
             },
         });
 
-        await this.notificationService.send(
-            NotificationEndpoint.SendNotification,
-            {
-                type: NotificationType.BASIC,
-                userId: player.member.user.id,
-                notification: {
-                    type: NotificationMessageType.DirectMessage,
-                    userId: discordAccount.accountId,
-                    payload: {
-                        embeds: [
-                            {
-                                title: "You Have Ranked Out",
-                                description: `You have been ranked out from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
-                                author: {
-                                    name: `${orgProfile.name}`,
-                                },
-                                fields: [
-                                    {
-                                        name: "New League",
-                                        value: `${skillGroup.profile.description}`,
-                                    },
-                                    {
-                                        name: "New Salary",
-                                        value: `${payload.salary}`,
-                                    },
-                                ],
-                                footer: {
-                                    text: orgProfile.name,
-                                },
-                                timestamp: Date.now(),
-                            },
-                        ],
-                    },
-                    brandingOptions: {
-                        organizationId: player.member.organization.id,
-                        options: {
+        await this.notificationService.send(NotificationEndpoint.SendNotification, {
+            type: NotificationType.BASIC,
+            userId: player.member.user.id,
+            notification: {
+                type: NotificationMessageType.DirectMessage,
+                userId: discordAccount.accountId,
+                payload: {
+                    embeds: [
+                        {
+                            title: "You Have Ranked Out",
+                            description: `You have been ranked out from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
                             author: {
-                                icon: true,
+                                name: `${orgProfile.name}`,
                             },
-                            color: true,
-                            thumbnail: true,
+                            fields: [
+                                {
+                                    name: "New League",
+                                    value: `${skillGroup.profile.description}`,
+                                },
+                                {
+                                    name: "New Salary",
+                                    value: `${payload.salary}`,
+                                },
+                            ],
                             footer: {
-                                icon: true,
+                                text: orgProfile.name,
                             },
+                            timestamp: Date.now(),
+                        },
+                    ],
+                },
+                brandingOptions: {
+                    organizationId: player.member.organization.id,
+                    options: {
+                        author: {
+                            icon: true,
+                        },
+                        color: true,
+                        thumbnail: true,
+                        footer: {
+                            icon: true,
                         },
                     },
                 },
             },
-        );
+        });
 
         return "SUCCESS";
     }

@@ -4,11 +4,7 @@ import IORedis from "ioredis";
 
 import {config} from "../config";
 
-function createKey(
-    constructorName: string,
-    propertyName: string,
-    args: string[],
-): string {
+function createKey(constructorName: string, propertyName: string, args: string[]): string {
     return `${constructorName}:${propertyName}:${args.join("-")}`;
 }
 
@@ -43,9 +39,7 @@ async function getRedisClient(): Promise<Redis> {
 }
 
 // eslint-disable-next-line arrow-body-style
-export const Cache: (co: CacheOptions) => MethodDecorator = (
-    {ttl, transformers, verbose}: CacheOptions = {ttl: 500},
-) =>
+export const Cache: (co: CacheOptions) => MethodDecorator = ({ttl, transformers, verbose}: CacheOptions = {ttl: 500}) =>
     function (
         // eslint-disable-next-line @typescript-eslint/ban-types
         target: Object,
@@ -64,9 +58,7 @@ export const Cache: (co: CacheOptions) => MethodDecorator = (
         const originalFunction = descriptor.value;
         // Get the cache keys from the constructor metadata
         const subject = descriptor.value.name;
-        const cacheKeys: number[] =
-            Reflect.getMetadata(`sprocketcommon-cachekey-${subject}`, target) ??
-            [];
+        const cacheKeys: number[] = Reflect.getMetadata(`sprocketcommon-cachekey-${subject}`, target) ?? [];
         /*
          * Convert the function to a string (
          * i.e. myFunction(a,b,c,d) {
@@ -84,12 +76,7 @@ export const Cache: (co: CacheOptions) => MethodDecorator = (
          *
          * Use that to lookup based on paramter index (which is all that we can get from a parameter decorator)
          */
-        const paramNames = descriptor.value
-            .toString()
-            .split("\n")[0]
-            .split("(")[1]
-            .split(")")[0]
-            .split(",");
+        const paramNames = descriptor.value.toString().split("\n")[0].split("(")[1].split(")")[0].split(",");
 
         paramNames.forEach(pn => {
             ratio.uniques[pn.trim()] = new Set();
@@ -123,9 +110,7 @@ export const Cache: (co: CacheOptions) => MethodDecorator = (
                 }
                 // Otherwise, return direct to string or empty string.
                 if (!args[keyIndex]?.toString)
-                    throw new Error(
-                        "CacheKey value must have a transformer or toString function",
-                    );
+                    throw new Error("CacheKey value must have a transformer or toString function");
                 const v: string = args[keyIndex]!.toString().trim();
                 inUniques[keyIndex] = set.has(v);
                 set.add(v);
@@ -143,11 +128,7 @@ export const Cache: (co: CacheOptions) => MethodDecorator = (
          */
 
             // Smash all the cache keys together and make one big redis key
-            const key = createKey(
-                target.constructor.name,
-                propertyKey.toString(),
-                cacheValues,
-            );
+            const key = createKey(target.constructor.name, propertyKey.toString(), cacheValues);
 
             // Grab redis (and connect if we haven't already)
             const r = await getRedisClient();

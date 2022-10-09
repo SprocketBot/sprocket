@@ -17,9 +17,7 @@ export class StatsConverterService {
             switch (parser) {
                 case Parser.BALLCHASING: {
                     // teams = [blue, orange]
-                    const blueWon =
-                        data.blue.stats.core.goals >
-                        data.orange.stats.core.goals;
+                    const blueWon = data.blue.stats.core.goals > data.orange.stats.core.goals;
                     const teams = [
                         {
                             won: blueWon,

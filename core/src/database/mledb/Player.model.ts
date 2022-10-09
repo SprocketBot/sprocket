@@ -1,10 +1,4 @@
-import {
-    Column,
-    Entity,
-    Index,
-    OneToMany,
-    PrimaryGeneratedColumn,
-} from "typeorm";
+import {Column, Entity, Index, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 
 import {League} from "./enums/League.enum";
 import {ModePreference} from "./enums/ModePreference.enum";

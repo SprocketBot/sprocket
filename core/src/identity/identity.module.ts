@@ -9,12 +9,7 @@ import {UserAuthenticationAccountResolver} from "./user-authentication-account";
 
 @Module({
     imports: [DatabaseModule, UtilModule],
-    providers: [
-        IdentityService,
-        UserResolver,
-        UserAuthenticationAccountResolver,
-        UserService,
-    ],
+    providers: [IdentityService, UserResolver, UserAuthenticationAccountResolver, UserService],
     exports: [IdentityService, UserService],
     controllers: [IdentityController, UserController],
 })

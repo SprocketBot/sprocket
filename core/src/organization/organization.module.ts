@@ -11,16 +11,8 @@ import {UtilModule} from "../util/util.module";
 import {MemberPubSub} from "./constants";
 import {MemberController, MemberResolver, MemberService} from "./member";
 import {MemberPlatformAccountService} from "./member-platform-account";
-import {
-    MemberRestrictionResolver,
-    MemberRestrictionService,
-    QueueBanGuard,
-} from "./member-restriction/";
-import {
-    OrganizationController,
-    OrganizationResolver,
-    OrganizationService,
-} from "./organization";
+import {MemberRestrictionResolver, MemberRestrictionService, QueueBanGuard} from "./member-restriction/";
+import {OrganizationController, OrganizationResolver, OrganizationService} from "./organization";
 import {PronounsService} from "./pronouns/pronouns.service";
 
 @Module({

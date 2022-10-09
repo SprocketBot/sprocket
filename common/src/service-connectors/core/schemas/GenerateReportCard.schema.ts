@@ -19,13 +19,8 @@ export const GenerateReportCardMatch = GenerateReportCardBase.extend({
     mleSeriesId: z.number(),
 });
 
-export const GenerateReportCard_Request = z.union([
-    GenerateReportCardScrim,
-    GenerateReportCardMatch,
-]);
+export const GenerateReportCard_Request = z.union([GenerateReportCardScrim, GenerateReportCardMatch]);
 
 export const GenerateReportCard_Response = z.string();
 
-export type GenerateReportCardResponse = z.infer<
-    typeof GenerateReportCard_Response
->;
+export type GenerateReportCardResponse = z.infer<typeof GenerateReportCard_Response>;

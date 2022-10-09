@@ -1,15 +1,5 @@
 import {forwardRef, Inject, UseGuards} from "@nestjs/common";
-import {
-    Args,
-    Field,
-    Float,
-    InputType,
-    Int,
-    Mutation,
-    ResolveField,
-    Resolver,
-    Root,
-} from "@nestjs/graphql";
+import {Args, Field, Float, InputType, Int, Mutation, ResolveField, Resolver, Root} from "@nestjs/graphql";
 import {InjectRepository} from "@nestjs/typeorm";
 import {
     EventsService,
@@ -25,12 +15,7 @@ import {GraphQLUpload} from "graphql-upload";
 import {Repository} from "typeorm";
 
 import type {GameSkillGroup} from "../../database";
-import {
-    Member,
-    Player,
-    UserAuthenticationAccount,
-    UserAuthenticationAccountType,
-} from "../../database";
+import {Member, Player, UserAuthenticationAccount, UserAuthenticationAccountType} from "../../database";
 import {
     League,
     LeagueOrdinals,
@@ -94,22 +79,11 @@ export class PlayerResolver {
     async franchiseName(@Root() player: Player): Promise<string> {
         if (player.franchiseName) return player.franchiseName;
 
-        if (!player.member)
-            player.member = await this.popService.populateOneOrFail(
-                Player,
-                player,
-                "member",
-            );
+        if (!player.member) player.member = await this.popService.populateOneOrFail(Player, player, "member");
         if (!player.member.user)
-            player.member.user = await this.popService.populateOneOrFail(
-                Member,
-                player.member,
-                "user",
-            );
+            player.member.user = await this.popService.populateOneOrFail(Member, player.member, "user");
 
-        const franchiseResult = await this.franchiseService.getPlayerFranchises(
-            player.member.user.id,
-        );
+        const franchiseResult = await this.franchiseService.getPlayerFranchises(player.member.user.id);
         // Because we are using MLEDB right now; assume that we only have one
         return franchiseResult[0].name;
     }
@@ -119,16 +93,10 @@ export class PlayerResolver {
         if (player.franchisePositions) return player.franchisePositions;
 
         if (!player.member) {
-            player.member = await this.popService.populateOneOrFail(
-                Player,
-                player,
-                "member",
-            );
+            player.member = await this.popService.populateOneOrFail(Player, player, "member");
         }
 
-        const franchiseResult = await this.franchiseService.getPlayerFranchises(
-            player.member.userId,
-        );
+        const franchiseResult = await this.franchiseService.getPlayerFranchises(player.member.userId);
         // Because we are using MLEDB right now; assume that we only have one
         return franchiseResult[0].staffPositions.map(sp => sp.name);
     }
@@ -143,10 +111,7 @@ export class PlayerResolver {
     @Mutation(() => String)
     @UseGuards(
         GqlJwtGuard,
-        MLEOrganizationTeamGuard([
-            MLE_OrganizationTeam.MLEDB_ADMIN,
-            MLE_OrganizationTeam.LEAGUE_OPERATIONS,
-        ]),
+        MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]),
     )
     async changePlayerSkillGroup(
         @Args("playerId", {type: () => Int}) playerId: number,
@@ -188,13 +153,11 @@ export class PlayerResolver {
                 accountType: UserAuthenticationAccountType.DISCORD,
             },
         });
-        const orgProfile =
-            await this.organizationService.getOrganizationProfileForOrganization(
-                player.member.organization.id,
-            );
+        const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(
+            player.member.organization.id,
+        );
 
-        if (player.skillGroup.id === skillGroupId)
-            return "ERROR: This player is already in this skill group";
+        if (player.skillGroup.id === skillGroupId) return "ERROR: This player is already in this skill group";
 
         const inputData: ManualSkillGroupChange = {
             id: playerId,
@@ -202,20 +165,9 @@ export class PlayerResolver {
             skillGroup: skillGroup.ordinal,
         };
 
-        await this.playerService.mle_movePlayerToLeague(
-            playerId,
-            salary,
-            skillGroupId,
-        );
-        await this.playerService.updatePlayerStanding(
-            playerId,
-            salary,
-            skillGroupId,
-        );
-        await this.eloConnectorService.createJob(
-            EloEndpoint.SGChange,
-            inputData,
-        );
+        await this.playerService.mle_movePlayerToLeague(playerId, salary, skillGroupId);
+        await this.playerService.updatePlayerStanding(playerId, salary, skillGroupId);
+        await this.eloConnectorService.createJob(EloEndpoint.SGChange, inputData);
 
         await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
             playerId: player.id,
@@ -236,55 +188,52 @@ export class PlayerResolver {
             },
         });
 
-        await this.notificationService.send(
-            NotificationEndpoint.SendNotification,
-            {
-                type: NotificationType.BASIC,
-                userId: player.member.user.id,
-                notification: {
-                    type: NotificationMessageType.DirectMessage,
-                    userId: discordAccount.accountId,
-                    payload: {
-                        embeds: [
-                            {
-                                title: "You Have Ranked Out",
-                                description: `You have been ranked out from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
-                                author: {
-                                    name: `${orgProfile.name}`,
-                                },
-                                fields: [
-                                    {
-                                        name: "New League",
-                                        value: `${skillGroup.profile.description}`,
-                                    },
-                                    {
-                                        name: "New Salary",
-                                        value: `${salary}`,
-                                    },
-                                ],
-                                footer: {
-                                    text: orgProfile.name,
-                                },
-                                timestamp: Date.now(),
-                            },
-                        ],
-                    },
-                    brandingOptions: {
-                        organizationId: player.member.organization.id,
-                        options: {
+        await this.notificationService.send(NotificationEndpoint.SendNotification, {
+            type: NotificationType.BASIC,
+            userId: player.member.user.id,
+            notification: {
+                type: NotificationMessageType.DirectMessage,
+                userId: discordAccount.accountId,
+                payload: {
+                    embeds: [
+                        {
+                            title: "You Have Ranked Out",
+                            description: `You have been ranked out from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
                             author: {
-                                icon: true,
+                                name: `${orgProfile.name}`,
                             },
-                            color: true,
-                            thumbnail: true,
+                            fields: [
+                                {
+                                    name: "New League",
+                                    value: `${skillGroup.profile.description}`,
+                                },
+                                {
+                                    name: "New Salary",
+                                    value: `${salary}`,
+                                },
+                            ],
                             footer: {
-                                icon: true,
+                                text: orgProfile.name,
                             },
+                            timestamp: Date.now(),
+                        },
+                    ],
+                },
+                brandingOptions: {
+                    organizationId: player.member.organization.id,
+                    options: {
+                        author: {
+                            icon: true,
+                        },
+                        color: true,
+                        thumbnail: true,
+                        footer: {
+                            icon: true,
                         },
                     },
                 },
             },
-        );
+        });
 
         return "SUCCESS";
     }
@@ -292,10 +241,7 @@ export class PlayerResolver {
     @Mutation(() => Player)
     @UseGuards(
         GqlJwtGuard,
-        MLEOrganizationTeamGuard([
-            MLE_OrganizationTeam.MLEDB_ADMIN,
-            MLE_OrganizationTeam.LEAGUE_OPERATIONS,
-        ]),
+        MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]),
     )
     async intakePlayer(
         @Args("mleid") mleid: number,
@@ -329,25 +275,16 @@ export class PlayerResolver {
     @Mutation(() => [Player])
     @UseGuards(
         GqlJwtGuard,
-        MLEOrganizationTeamGuard([
-            MLE_OrganizationTeam.MLEDB_ADMIN,
-            MLE_OrganizationTeam.LEAGUE_OPERATIONS,
-        ]),
+        MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]),
     )
     async intakePlayerBulk(
         @Args("files", {type: () => [GraphQLUpload]})
         files: Array<Promise<FileUpload>>,
     ): Promise<Player[]> {
-        const csvs = await Promise.all(
-            files.map(async f =>
-                f.then(async _f => readToString(_f.createReadStream())),
-            ),
-        );
+        const csvs = await Promise.all(files.map(async f => f.then(async _f => readToString(_f.createReadStream()))));
 
         const results = csvs
-            .flatMap(csv =>
-                csv.split(/(?:\r)?\n/g).map(l => l.trim().split(",")),
-            )
+            .flatMap(csv => csv.split(/(?:\r)?\n/g).map(l => l.trim().split(",")))
             .filter(r => r.length > 1);
         const parsed = IntakeSchema.parse(results);
 
@@ -359,9 +296,7 @@ export class PlayerResolver {
                     },
                 });
                 const accs = player.accounts.map(acc => {
-                    const match = acc.match(
-                        /rocket-league\/profile\/(\w+)\/([\w _.-]+)/,
-                    );
+                    const match = acc.match(/rocket-league\/profile\/(\w+)\/([\w _.-]+)/);
                     if (!match) throw new Error("Failed to match tracker");
 
                     return {
@@ -385,8 +320,6 @@ export class PlayerResolver {
         );
 
         // @ts-expect-error Trust that this will work.
-        return imported
-            .filter(i => i.status === "fulfilled")
-            .map(i => i.value as Player);
+        return imported.filter(i => i.status === "fulfilled").map(i => i.value as Player);
     }
 }

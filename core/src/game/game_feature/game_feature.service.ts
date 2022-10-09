@@ -19,11 +19,7 @@ export class GameFeatureService {
         private readonly organizationRepository: Repository<Organization>,
     ) {}
 
-    async featureIsEnabled(
-        code: FeatureCode,
-        gameId: number,
-        organizationId: number,
-    ): Promise<boolean> {
+    async featureIsEnabled(code: FeatureCode, gameId: number, organizationId: number): Promise<boolean> {
         const enabledFeature = await this.enabledFeatureRepository.findOne({
             where: {
                 organization: {
@@ -62,11 +58,7 @@ export class GameFeatureService {
         return true;
     }
 
-    async enableFeature(
-        code: FeatureCode,
-        gameId: number,
-        organizationId: number,
-    ): Promise<EnabledFeature> {
+    async enableFeature(code: FeatureCode, gameId: number, organizationId: number): Promise<EnabledFeature> {
         const feature = await this.gameFeatureRepository.findOneOrFail({
             where: {feature: {code}},
             relations: {feature: {dependencies: true}},
@@ -76,9 +68,7 @@ export class GameFeatureService {
         });
 
         const featureDependenciesEnabled = await Promise.all(
-            feature.feature.dependencies.map(async dep =>
-                this.featureIsEnabled(dep.code, gameId, organizationId),
-            ),
+            feature.feature.dependencies.map(async dep => this.featureIsEnabled(dep.code, gameId, organizationId)),
         );
         if (!featureDependenciesEnabled.every(fde => fde))
             throw new GraphQLError(`Dependencies for code=${code} are missing`);
@@ -92,34 +82,29 @@ export class GameFeatureService {
         return enabledFeature;
     }
 
-    async disableFeature(
-        code: FeatureCode,
-        gameId: number,
-        organizationId: number,
-    ): Promise<EnabledFeature> {
-        const enabledFeature =
-            await this.enabledFeatureRepository.findOneOrFail({
-                where: {
+    async disableFeature(code: FeatureCode, gameId: number, organizationId: number): Promise<EnabledFeature> {
+        const enabledFeature = await this.enabledFeatureRepository.findOneOrFail({
+            where: {
+                feature: {
                     feature: {
-                        feature: {
-                            code: code,
-                        },
-                        game: {
-                            id: gameId,
-                        },
+                        code: code,
                     },
-                    organization: {
-                        id: organizationId,
+                    game: {
+                        id: gameId,
                     },
                 },
-                relations: {
-                    feature: {
-                        feature: true,
-                        game: true,
-                    },
-                    organization: true,
+                organization: {
+                    id: organizationId,
                 },
-            });
+            },
+            relations: {
+                feature: {
+                    feature: true,
+                    game: true,
+                },
+                organization: true,
+            },
+        });
 
         const allGameFeatures = await this.gameFeatureRepository.find({
             where: {
@@ -141,19 +126,13 @@ export class GameFeatureService {
         if (
             allGameFeatures.some(
                 gameFeature =>
-                    gameFeature.feature.dependencies.some(
-                        dep => dep.code === code,
-                    ) &&
+                    gameFeature.feature.dependencies.some(dep => dep.code === code) &&
                     gameFeature.enabledOrgs.some(
-                        orgEnabledFeature =>
-                            orgEnabledFeature.organization.id ===
-                            organizationId,
+                        orgEnabledFeature => orgEnabledFeature.organization.id === organizationId,
                     ),
             )
         )
-            throw new GraphQLError(
-                `Enabled feature code=${code} is a dependency to an enabled feature`,
-            );
+            throw new GraphQLError(`Enabled feature code=${code} is a dependency to an enabled feature`);
 
         await this.enabledFeatureRepository.delete(enabledFeature.id);
 

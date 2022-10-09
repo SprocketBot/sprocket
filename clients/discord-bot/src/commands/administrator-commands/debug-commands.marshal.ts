@@ -1,27 +1,12 @@
 import {Inject, Logger} from "@nestjs/common";
-import {
-    AnalyticsService,
-    CoreService,
-    EventsService,
-    EventTopic,
-} from "@sprocketbot/common";
+import {AnalyticsService, CoreService, EventsService, EventTopic} from "@sprocketbot/common";
 import type {MessageComponentInteraction} from "discord.js";
-import {
-    Client,
-    Message,
-    MessageActionRow,
-    MessageButton,
-    MessageEmbed,
-} from "discord.js";
+import {Client, Message, MessageActionRow, MessageButton, MessageEmbed} from "discord.js";
 
 import {EmbedService} from "../../embed";
 import {Command, CommandManagerService, Marshal} from "../../marshal";
 import {CommandError} from "../../marshal/command-error";
-import type {
-    StepOptions,
-    WizardFunction,
-    WizardFunctionOutput,
-} from "../../marshal/wizard";
+import type {StepOptions, WizardFunction, WizardFunctionOutput} from "../../marshal/wizard";
 import {Wizard, WizardExitStatus, WizardType} from "../../marshal/wizard";
 
 export class DebugCommandsMarshal extends Marshal {
@@ -54,9 +39,7 @@ export class DebugCommandsMarshal extends Marshal {
 
         const embed = new MessageEmbed()
             .setColor("#f5c04e")
-            .setThumbnail(
-                "https://avatars.githubusercontent.com/u/82424226?s=200&v=4",
-            )
+            .setThumbnail("https://avatars.githubusercontent.com/u/82424226?s=200&v=4")
             .setTitle("Wizard Debugger");
 
         const response = await m.reply({
@@ -87,13 +70,9 @@ export class DebugCommandsMarshal extends Marshal {
                     collectorType: WizardType.REACTION,
                     collectorTarget: response,
                 },
-                instructions:
-                    "React to the Wizard Debugger to throw an error within the Wizard Step.",
+                instructions: "React to the Wizard Debugger to throw an error within the Wizard Step.",
                 func: async (): Promise<WizardFunctionOutput> => {
-                    throw new CommandError(
-                        "InternalError",
-                        "This is the test exception",
-                    );
+                    throw new CommandError("InternalError", "This is the test exception");
                 },
             },
             {
@@ -103,8 +82,7 @@ export class DebugCommandsMarshal extends Marshal {
                     .setLabel("Throw Error on Message")
                     .setCustomId("throw error on message"),
                 options: {},
-                instructions:
-                    "Send a message to throw an error within the Wizard Step.",
+                instructions: "Send a message to throw an error within the Wizard Step.",
                 func: (r: Message): WizardFunctionOutput => {
                     throw new Error(r.toString());
                 },
@@ -116,9 +94,7 @@ export class DebugCommandsMarshal extends Marshal {
         ): Promise<WizardFunctionOutput> => {
             await response.reactions.removeAll();
             // Acknowledge it
-            const opts = debugFunctions.find(
-                df => df.customId === interaction.customId,
-            );
+            const opts = debugFunctions.find(df => df.customId === interaction.customId);
             if (opts) {
                 // Handle it
                 wizard.add(opts.func, opts.options);
@@ -131,10 +107,7 @@ export class DebugCommandsMarshal extends Marshal {
                 return [WizardExitStatus.SUCCESS];
             }
             // Something is wrong.
-            throw new CommandError(
-                "InternalError",
-                "Unknown customId somehow found in the wizard debug tool",
-            );
+            throw new CommandError("InternalError", "Unknown customId somehow found in the wizard debug tool");
         };
 
         /*
@@ -149,9 +122,7 @@ export class DebugCommandsMarshal extends Marshal {
         });
 
         const actionRow = new MessageActionRow();
-        actionRow.addComponents(
-            Object.values(debugFunctions).map(df => df.button),
-        );
+        actionRow.addComponents(Object.values(debugFunctions).map(df => df.button));
 
         await response.edit({
             components: [actionRow],

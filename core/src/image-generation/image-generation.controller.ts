@@ -1,10 +1,6 @@
 import {Controller} from "@nestjs/common";
 import {MessagePattern, Payload} from "@nestjs/microservices";
-import {
-    CoreEndpoint,
-    CoreSchemas,
-    GenerateReportCardType,
-} from "@sprocketbot/common";
+import {CoreEndpoint, CoreSchemas, GenerateReportCardType} from "@sprocketbot/common";
 
 import {ImageGenerationService} from "./image-generation.service";
 
@@ -17,13 +13,9 @@ export class ImageGenerationController {
         const data = CoreSchemas.GenerateReportCard.input.parse(payload);
 
         if (data.type === GenerateReportCardType.SERIES) {
-            return this.imageGenerationService.createSeriesReportCard(
-                data.mleSeriesId,
-            );
+            return this.imageGenerationService.createSeriesReportCard(data.mleSeriesId);
         }
 
-        return this.imageGenerationService.createScrimReportCard(
-            data.mleScrimId,
-        );
+        return this.imageGenerationService.createScrimReportCard(data.mleScrimId);
     }
 }

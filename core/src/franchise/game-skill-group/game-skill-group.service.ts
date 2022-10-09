@@ -16,16 +16,11 @@ export class GameSkillGroupService {
         private gameSkillGroupProfileRepository: Repository<GameSkillGroupProfile>,
     ) {}
 
-    async getGameSkillGroup(
-        query: FindOneOptions<GameSkillGroup>,
-    ): Promise<GameSkillGroup> {
+    async getGameSkillGroup(query: FindOneOptions<GameSkillGroup>): Promise<GameSkillGroup> {
         return this.gameSkillGroupRepository.findOneOrFail(query);
     }
 
-    async getGameSkillGroupById(
-        id: number,
-        options?: FindOneOptions<GameSkillGroup>,
-    ): Promise<GameSkillGroup> {
+    async getGameSkillGroupById(id: number, options?: FindOneOptions<GameSkillGroup>): Promise<GameSkillGroup> {
         return this.gameSkillGroupRepository.findOneOrFail({
             ...options,
             where: {
@@ -35,9 +30,7 @@ export class GameSkillGroupService {
         });
     }
 
-    async getGameSkillGroupProfile(
-        skillGroupId: number,
-    ): Promise<GameSkillGroupProfile> {
+    async getGameSkillGroupProfile(skillGroupId: number): Promise<GameSkillGroupProfile> {
         const skillGroup = await this.gameSkillGroupRepository.findOneOrFail({
             where: {id: skillGroupId},
             relations: {profile: {photo: true}},
@@ -45,9 +38,7 @@ export class GameSkillGroupService {
         return skillGroup.profile;
     }
 
-    async getGameSkillGroupByMLEDBLeague(
-        league: League,
-    ): Promise<GameSkillGroup> {
+    async getGameSkillGroupByMLEDBLeague(league: League): Promise<GameSkillGroup> {
         let code: string;
         switch (league) {
             case League.FOUNDATION:
@@ -75,20 +66,17 @@ export class GameSkillGroupService {
         });
     }
 
-    async getSkillGroupWebhooks(
-        skillGroupId: number,
-    ): Promise<CoreOutput<CoreEndpoint.GetSkillGroupWebhooks>> {
-        const skillGroup =
-            await this.gameSkillGroupProfileRepository.findOneOrFail({
-                where: {
-                    skillGroupId: skillGroupId,
-                },
-                relations: {
-                    scrimReportCardWebhook: true,
-                    matchReportCardWebhook: true,
-                    scrimWebhook: true,
-                },
-            });
+    async getSkillGroupWebhooks(skillGroupId: number): Promise<CoreOutput<CoreEndpoint.GetSkillGroupWebhooks>> {
+        const skillGroup = await this.gameSkillGroupProfileRepository.findOneOrFail({
+            where: {
+                skillGroupId: skillGroupId,
+            },
+            relations: {
+                scrimReportCardWebhook: true,
+                matchReportCardWebhook: true,
+                scrimWebhook: true,
+            },
+        });
 
         return {
             scrimReportCards: skillGroup.scrimReportCardWebhook?.url,

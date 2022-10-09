@@ -21,37 +21,23 @@ export class MledbPlayerController {
     ) {}
 
     @MessagePattern(CoreEndpoint.GetPlayerByPlatformId)
-    async getPlayerByPlatformId(
-        @Payload() payload: unknown,
-    ): Promise<CoreOutput<CoreEndpoint.GetPlayerByPlatformId>> {
-        const {platform, platformId} =
-            CoreSchemas.GetPlayerByPlatformId.input.parse(payload);
+    async getPlayerByPlatformId(@Payload() payload: unknown): Promise<CoreOutput<CoreEndpoint.GetPlayerByPlatformId>> {
+        const {platform, platformId} = CoreSchemas.GetPlayerByPlatformId.input.parse(payload);
 
         if (!isMlePlatform(platform)) {
-            throw new Error(
-                `platformCode must be one of (${Object.values(
-                    MLE_Platform,
-                )}) (found ${platform})`,
-            );
+            throw new Error(`platformCode must be one of (${Object.values(MLE_Platform)}) (found ${platform})`);
         }
 
-        const player = await this.mledbPlayerService
-            .getPlayerByPlatformId(platform, platformId)
-            .catch(() => {
-                this.logger.error(
-                    `Failed to find player by account platform=${platform} platformId=${platformId}`,
-                );
-            });
+        const player = await this.mledbPlayerService.getPlayerByPlatformId(platform, platformId).catch(() => {
+            this.logger.error(`Failed to find player by account platform=${platform} platformId=${platformId}`);
+        });
         if (!player)
             return {
                 success: false,
                 error: `Failed to find player by account platform=${platform} platformId=${platformId}`,
             };
 
-        const skillGroup =
-            await this.skillGroupService.getGameSkillGroupByMLEDBLeague(
-                player.league,
-            );
+        const skillGroup = await this.skillGroupService.getGameSkillGroupByMLEDBLeague(player.league);
 
         // All MLE players should have a discordId
         if (!player.discordId) {
@@ -75,20 +61,12 @@ export class MledbPlayerController {
     async getPlayersByPlatformIds(
         @Payload() payload: unknown,
     ): Promise<CoreOutput<CoreEndpoint.GetPlayersByPlatformIds>> {
-        const platformIds =
-            CoreSchemas.GetPlayersByPlatformIds.input.parse(payload);
-        const platformIdsResponse = await Promise.allSettled(
-            platformIds.map(async d => this.getPlayerByPlatformId(d)),
-        );
+        const platformIds = CoreSchemas.GetPlayersByPlatformIds.input.parse(payload);
+        const platformIdsResponse = await Promise.allSettled(platformIds.map(async d => this.getPlayerByPlatformId(d)));
 
         if (platformIdsResponse.every(r => r.status === "fulfilled")) {
             return platformIdsResponse.map(
-                r =>
-                    (
-                        r as PromiseFulfilledResult<
-                            CoreOutput<CoreEndpoint.GetPlayerByPlatformId>
-                        >
-                    ).value,
+                r => (r as PromiseFulfilledResult<CoreOutput<CoreEndpoint.GetPlayerByPlatformId>>).value,
             );
         }
 
@@ -97,16 +75,12 @@ export class MledbPlayerController {
 
         platformIdsResponse.forEach((r, i) => {
             if (r.status === "rejected") {
-                failedPlatforms.push(
-                    `${platformIds[i].platform}: ${platformIds[i].platformId}`,
-                );
+                failedPlatforms.push(`${platformIds[i].platform}: ${platformIds[i].platformId}`);
             }
         });
 
         throw new Error(
-            `Could not find players associated with the following platforms: ${failedPlatforms.join(
-                ", ",
-            )}`,
+            `Could not find players associated with the following platforms: ${failedPlatforms.join(", ")}`,
         );
     }
 }

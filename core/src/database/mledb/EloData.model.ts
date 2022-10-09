@@ -1,12 +1,4 @@
-import {
-    Column,
-    Entity,
-    Index,
-    JoinColumn,
-    ManyToOne,
-    OneToOne,
-    PrimaryGeneratedColumn,
-} from "typeorm";
+import {Column, Entity, Index, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn} from "typeorm";
 
 import {MLE_Player} from "./Player.model";
 import {MLE_SeriesReplay} from "./SeriesReplay.model";

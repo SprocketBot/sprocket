@@ -69,12 +69,8 @@ export const SubmissionSchemas = {
     },
 };
 
-export type SubmissionInput<T extends SubmissionEndpoint> = z.infer<
-    typeof SubmissionSchemas[T]["input"]
->;
-export type SubmissionOutput<T extends SubmissionEndpoint> = z.infer<
-    typeof SubmissionSchemas[T]["output"]
->;
+export type SubmissionInput<T extends SubmissionEndpoint> = z.infer<typeof SubmissionSchemas[T]["input"]>;
+export type SubmissionOutput<T extends SubmissionEndpoint> = z.infer<typeof SubmissionSchemas[T]["output"]>;
 
 export interface SubmissionSuccessResponse<T extends SubmissionEndpoint> {
     status: ResponseStatus.SUCCESS;
@@ -86,6 +82,4 @@ export interface SubmissionErrorResponse {
     error: Error;
 }
 
-export type SubmissionResponse<T extends SubmissionEndpoint> =
-    | SubmissionSuccessResponse<T>
-    | SubmissionErrorResponse;
+export type SubmissionResponse<T extends SubmissionEndpoint> = SubmissionSuccessResponse<T> | SubmissionErrorResponse;

@@ -9,6 +9,4 @@ export const GetOrganizationDiscordGuildsByGuild_Response = z.object({
     alternate: z.array(z.string().regex(/\d{17,20}/)),
 });
 
-export type GetOrganizationDiscordGuildsByGuildResponse = z.infer<
-    typeof GetOrganizationDiscordGuildsByGuild_Response
->;
+export type GetOrganizationDiscordGuildsByGuildResponse = z.infer<typeof GetOrganizationDiscordGuildsByGuild_Response>;

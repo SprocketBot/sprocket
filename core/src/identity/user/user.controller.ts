@@ -10,12 +10,9 @@ export class UserController {
     constructor(private readonly userService: UserService) {}
 
     @MessagePattern(CoreEndpoint.GetDiscordIdByUser)
-    async getDiscordIdByUser(
-        @Payload() payload: unknown,
-    ): Promise<string | undefined> {
+    async getDiscordIdByUser(@Payload() payload: unknown): Promise<string | undefined> {
         const data = CoreSchemas.GetDiscordIdByUser.input.parse(payload);
-        const authenticationAccounts =
-            await this.userService.getUserAuthenticationAccountsForUser(data);
+        const authenticationAccounts = await this.userService.getUserAuthenticationAccountsForUser(data);
         const discordAccount = authenticationAccounts.find(
             aa => aa.accountType === UserAuthenticationAccountType.DISCORD,
         );

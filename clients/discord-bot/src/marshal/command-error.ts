@@ -11,11 +11,7 @@ export class CommandError extends Error {
 
     private id: string;
 
-    constructor(
-        private type: CommandErrorType,
-        private cause?: string,
-        private resolution?: string,
-    ) {
+    constructor(private type: CommandErrorType, private cause?: string, private resolution?: string) {
         super(cause);
 
         let uuid = randomUUID();
@@ -33,9 +29,7 @@ export class CommandError extends Error {
         if (this.type === "UnknownError") {
             response = "An unknown error occurred, please contact a developer"; // TODO this could direct people to #bot-support
         } else {
-            response = `An error occurred because ${this.cause}.${
-                this.resolution ? ` Please ${this.resolution}` : ""
-            }`;
+            response = `An error occurred because ${this.cause}.${this.resolution ? ` Please ${this.resolution}` : ""}`;
         }
 
         await m.reply(`${response} (Code ${this.id}).`);

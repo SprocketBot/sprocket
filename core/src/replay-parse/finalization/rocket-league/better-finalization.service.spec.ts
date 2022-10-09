@@ -28,9 +28,7 @@ describe("BetterFinalizationService", () => {
             ],
         }).compile();
 
-        service = module.get<RocketLeagueFinalizationService>(
-            RocketLeagueFinalizationService,
-        );
+        service = module.get<RocketLeagueFinalizationService>(RocketLeagueFinalizationService);
         playerService = module.get<PlayerService>(PlayerService);
     });
 
@@ -42,13 +40,9 @@ describe("BetterFinalizationService", () => {
         it("Should be do one lookup for each player", async () => {
             jest.spyOn(playerService, "getPlayer");
 
-            const allResults = MATCH_SUBMISSION_FIXTURE_RATIFYING.items.map(
-                x => x.progress.result.data,
-            );
+            const allResults = MATCH_SUBMISSION_FIXTURE_RATIFYING.items.map(x => x.progress.result.data);
 
-            await service._getBallchasingPlayers(
-                allResults[0] as BallchasingResponse,
-            );
+            await service._getBallchasingPlayers(allResults[0] as BallchasingResponse);
 
             expect(playerService.getPlayer).toBeCalledTimes(4);
         });

@@ -1,10 +1,5 @@
 import {Injectable, Logger} from "@nestjs/common";
-import type {
-    Scrim,
-    ScrimGame,
-    ScrimPlayer,
-    ScrimTeam,
-} from "@sprocketbot/common";
+import type {Scrim, ScrimGame, ScrimPlayer, ScrimTeam} from "@sprocketbot/common";
 import {ScrimMode} from "@sprocketbot/common";
 import shuffle from "lodash.shuffle";
 
@@ -31,9 +26,7 @@ export class GameOrderService {
     }
 
     private generateTeamsGameOrder(scrim: Scrim): ScrimGame[] {
-        const playerCombinations: ScrimPlayer[][] = new Array(
-            scrim.settings.teamCount,
-        )
+        const playerCombinations: ScrimPlayer[][] = new Array(scrim.settings.teamCount)
             .fill(null)
             .map(() => []) as ScrimPlayer[][];
         const groups = this.scrimGroupService.getScrimGroups(scrim);
@@ -52,9 +45,7 @@ export class GameOrderService {
             while (playerCombinations[i].length === scrim.settings.teamSize) {
                 i = (i + 1) % playerCombinations.length;
                 if (i === initialI) {
-                    throw new Error(
-                        "Performed full loop while attempting to assign player to a team.",
-                    );
+                    throw new Error("Performed full loop while attempting to assign player to a team.");
                 }
             }
             playerCombinations[i].push(everyoneElse.shift()!);
@@ -63,9 +54,7 @@ export class GameOrderService {
         // Assert that things are as expected
         if (playerCombinations.length !== scrim.settings.teamCount)
             throw new Error("Unexpected number of teams generated");
-        if (
-            !playerCombinations.every(t => t.length === scrim.settings.teamSize)
-        )
+        if (!playerCombinations.every(t => t.length === scrim.settings.teamSize))
             throw new Error("Unexpected number of players placed onto team");
 
         const games: ScrimGame = {
@@ -84,17 +73,9 @@ export class GameOrderService {
         const possibleTeams = createCombinations(scrim.players, teamSize, {
             sort: (a, b) => a.id - b.id,
         });
-        const possibleGames = createCombinations<ScrimPlayer[]>(
-            possibleTeams,
-            teamCount,
-            {
-                check: ([teamA, teamB]) =>
-                    teamA.every(
-                        playerA =>
-                            !teamB.find(playerB => playerA.id === playerB.id),
-                    ),
-            },
-        );
+        const possibleGames = createCombinations<ScrimPlayer[]>(possibleTeams, teamCount, {
+            check: ([teamA, teamB]) => teamA.every(playerA => !teamB.find(playerB => playerA.id === playerB.id)),
+        });
         shuffle(possibleGames);
         const numGames = 3; // for now
         for (let i = 0; i < numGames; i++) {

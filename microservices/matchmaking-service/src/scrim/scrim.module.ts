@@ -1,12 +1,6 @@
 import {BullModule} from "@nestjs/bull";
 import {Module} from "@nestjs/common";
-import {
-    AnalyticsModule,
-    config,
-    EventsModule,
-    RedisModule,
-    SubmissionModule,
-} from "@sprocketbot/common";
+import {AnalyticsModule, config, EventsModule, RedisModule, SubmissionModule} from "@sprocketbot/common";
 
 import {EventProxyService} from "./event-proxy/event-proxy.service";
 import {GameOrderService} from "./game-order/game-order.service";

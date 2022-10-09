@@ -22,14 +22,8 @@ export class VerbiageService {
      * @param verbiageCode The verbiage code.
      * @returns The inserted or updated verbiage.
      */
-    async upsertVerbiage(
-        term: string,
-        organizationId: number,
-        verbiageCode: string,
-    ): Promise<Verbiage> {
-        const organization = await this.organizationService.getOrganizationById(
-            organizationId,
-        );
+    async upsertVerbiage(term: string, organizationId: number, verbiageCode: string): Promise<Verbiage> {
+        const organization = await this.organizationService.getOrganizationById(organizationId);
         const code = await this.verbiageCodeRepository.findOneOrFail({
             where: {code: verbiageCode},
         });
@@ -85,10 +79,7 @@ export class VerbiageService {
      * @param code The verbiage code.
      * @returns The deleted verbiage.
      */
-    async deleteVerbiage(
-        organizationId: number,
-        code: VerbiageCode,
-    ): Promise<Verbiage> {
+    async deleteVerbiage(organizationId: number, code: VerbiageCode): Promise<Verbiage> {
         const toDelete = await this.verbiageRepository.findOneOrFail({
             where: {
                 organization: {id: organizationId},

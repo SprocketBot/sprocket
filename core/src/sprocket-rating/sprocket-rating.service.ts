@@ -1,9 +1,6 @@
 import {Injectable, Logger} from "@nestjs/common";
 
-import type {
-    SprocketRating,
-    SprocketRatingInput,
-} from "./sprocket-rating.types";
+import type {SprocketRating, SprocketRatingInput} from "./sprocket-rating.types";
 
 @Injectable()
 export class SprocketRatingService {
@@ -21,9 +18,7 @@ export class SprocketRatingService {
             this.logger.warn("Running Sprocket Rating for 1 player teams");
             return this.calcSprocketRating2s(core);
         }
-        throw new Error(
-            `Sprocket rating is not yet available for teams of ${team_size} players`,
-        );
+        throw new Error(`Sprocket rating is not yet available for teams of ${team_size} players`);
     }
 
     calcSprocketRating2s(core: SprocketRatingInput): SprocketRating {
@@ -47,28 +42,18 @@ export class SprocketRatingService {
         const OPI_beta = -1 * Math.log(9);
         const DPI_beta = OPI_beta;
 
-        const {goals, assists, shots, saves, goals_against, shots_against} =
-            core;
+        const {goals, assists, shots, saves, goals_against, shots_against} = core;
 
-        if (
-            goals + assists + shots + saves + goals_against + shots_against >
-            0
-        ) {
+        if (goals + assists + shots + saves + goals_against + shots_against > 0) {
             const opi_raw =
-                OPI_goal_w * (goals / G_2s) +
-                OPI_assist_w * (assists / A_2s) +
-                OPI_shot_w * (shots / Sh_2s);
-            const opi =
-                100.0 /
-                (1 + Math.exp(OPI_beta * ((opi_raw - xOPI_2s) / yOPI_2s)));
+                OPI_goal_w * (goals / G_2s) + OPI_assist_w * (assists / A_2s) + OPI_shot_w * (shots / Sh_2s);
+            const opi = 100.0 / (1 + Math.exp(OPI_beta * ((opi_raw - xOPI_2s) / yOPI_2s)));
 
             const dpi_raw =
                 DPI_goal_w * (2.0 - goals_against / 2.0 / G_2s) +
                 DPI_saves_w * (saves / Sv_2s) +
                 DPI_shot_w * (2.0 - shots_against / 2.0 / Sh_2s);
-            const dpi =
-                100.0 /
-                (1 + Math.exp(DPI_beta * ((dpi_raw - xDPI_2s) / yDPI_2s)));
+            const dpi = 100.0 / (1 + Math.exp(DPI_beta * ((dpi_raw - xDPI_2s) / yDPI_2s)));
 
             const gpi = (opi + dpi) / 2.0;
 
@@ -110,28 +95,18 @@ export class SprocketRatingService {
         const OPI_beta = -1 * Math.log(9);
         const DPI_beta = OPI_beta;
 
-        const {goals, assists, shots, saves, goals_against, shots_against} =
-            core;
+        const {goals, assists, shots, saves, goals_against, shots_against} = core;
 
-        if (
-            goals + assists + shots + saves + goals_against + shots_against >
-            0
-        ) {
+        if (goals + assists + shots + saves + goals_against + shots_against > 0) {
             const opi_raw =
-                OPI_goal_w * (goals / G_3s) +
-                OPI_assist_w * (assists / A_3s) +
-                OPI_shot_w * (shots / Sh_3s);
-            const opi =
-                100.0 /
-                (1 + Math.exp(OPI_beta * ((opi_raw - xOPI_3s) / yOPI_3s)));
+                OPI_goal_w * (goals / G_3s) + OPI_assist_w * (assists / A_3s) + OPI_shot_w * (shots / Sh_3s);
+            const opi = 100.0 / (1 + Math.exp(OPI_beta * ((opi_raw - xOPI_3s) / yOPI_3s)));
 
             const dpi_raw =
                 DPI_goal_w * (2.0 - goals_against / 3.0 / G_3s) +
                 DPI_saves_w * (saves / Sv_3s) +
                 DPI_shot_w * (2.0 - shots_against / 3.0 / Sh_3s);
-            const dpi =
-                100.0 /
-                (1 + Math.exp(DPI_beta * ((dpi_raw - xDPI_3s) / yDPI_3s)));
+            const dpi = 100.0 / (1 + Math.exp(DPI_beta * ((dpi_raw - xDPI_3s) / yDPI_3s)));
 
             const gpi = (opi + dpi) / 2.0;
 

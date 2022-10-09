@@ -1,10 +1,5 @@
 import {Module} from "@nestjs/common";
-import {
-    BotModule,
-    CoreModule,
-    EventsModule,
-    MatchmakingModule,
-} from "@sprocketbot/common";
+import {BotModule, CoreModule, EventsModule, MatchmakingModule} from "@sprocketbot/common";
 
 import {ScrimService} from "./scrim.service";
 

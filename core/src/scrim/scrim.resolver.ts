@@ -28,10 +28,7 @@ export class ScrimResolver {
     }
 
     @ResolveField(() => [ScrimPlayer])
-    @UseGuards(
-        GqlJwtGuard,
-        MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN),
-    )
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     playersAdmin(@Root() scrim: Scrim): undefined | ScrimPlayer[] {
         return scrim.players ?? [];
     }
@@ -47,17 +44,12 @@ export class ScrimResolver {
     }
 
     @ResolveField(() => String, {nullable: true})
-    currentGroup(
-        @Root() scrim: Scrim,
-        @CurrentUser() user: UserPayload,
-    ): ScrimGroup | undefined {
+    currentGroup(@Root() scrim: Scrim, @CurrentUser() user: UserPayload): ScrimGroup | undefined {
         const code = scrim.players?.find(p => p.id === user.userId)?.group;
         if (!code) return undefined;
         return {
             code: code,
-            players: scrim
-                .players!.filter(p => p.group === code && p.id !== user.userId)
-                .map(p => p.name),
+            players: scrim.players!.filter(p => p.group === code && p.id !== user.userId).map(p => p.name),
         };
     }
 
@@ -75,8 +67,6 @@ export class ScrimResolver {
 
     @ResolveField(() => GameSkillGroup)
     async skillGroup(@Root() scrim: Scrim): Promise<GameSkillGroup> {
-        return this.gameSkillGroupService.getGameSkillGroupById(
-            scrim.skillGroupId,
-        );
+        return this.gameSkillGroupService.getGameSkillGroupById(scrim.skillGroupId);
     }
 }

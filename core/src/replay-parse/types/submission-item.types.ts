@@ -7,9 +7,7 @@ import {GqlProgress} from "../../util/types/celery-progress";
 registerEnumType(Parser, {name: "Parser"});
 
 @ObjectType()
-export class SubmissionProgressMessage
-    implements ProgressMessage<Task.ParseReplay>
-{
+export class SubmissionProgressMessage implements ProgressMessage<Task.ParseReplay> {
     @Field(() => String, {nullable: true})
     error: string | null;
 

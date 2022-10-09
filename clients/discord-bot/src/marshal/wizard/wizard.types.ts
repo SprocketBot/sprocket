@@ -15,20 +15,11 @@ export enum WizardType {
     COMPONENT = "COMPONENT",
 }
 
-export type WizardFunctionOutput =
-    | [boolean, string?]
-    | [WizardExitStatus, string?];
-export type WizardFunction = (
-    ...args: any[]
-) => Promise<WizardFunctionOutput> | WizardFunctionOutput;
+export type WizardFunctionOutput = [boolean, string?] | [WizardExitStatus, string?];
+export type WizardFunction = (...args: any[]) => Promise<WizardFunctionOutput> | WizardFunctionOutput;
 export type MessageCollectorFilterFunction = (message: Message) => boolean;
-export type ReactionCollectorFilterFunction = (
-    reaction: MessageReaction,
-    user: User,
-) => boolean;
-export type InteractionCollectorFilterFunction = (
-    interaction: MessageComponentInteraction,
-) => boolean;
+export type ReactionCollectorFilterFunction = (reaction: MessageReaction, user: User) => boolean;
+export type InteractionCollectorFilterFunction = (interaction: MessageComponentInteraction) => boolean;
 export type CollectorFilterFunction =
     | MessageCollectorFilterFunction
     | ReactionCollectorFilterFunction
@@ -69,6 +60,4 @@ export const defaultStepOptions = {
     resetTimerOnWait: false,
 };
 
-export type WizardFinalFunction = (
-    messages: Map<string, Message>,
-) => Promise<any>;
+export type WizardFinalFunction = (messages: Map<string, Message>) => Promise<any>;

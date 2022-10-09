@@ -1,9 +1,5 @@
 import {Injectable, Logger} from "@nestjs/common";
-import type {
-    NotificationEndpoint,
-    NotificationInput,
-    NotificationOutput,
-} from "@sprocketbot/common";
+import type {NotificationEndpoint, NotificationInput, NotificationOutput} from "@sprocketbot/common";
 import {
     BotEndpoint,
     BotService,
@@ -29,9 +25,7 @@ export class NotificationService {
     ): Promise<NotificationOutput<NotificationEndpoint.SendNotification>> {
         if (data.payload) {
             const notificationPayload = {
-                id:
-                    data.id ??
-                    `${data.type.toLowerCase()}-${this.nanoidService.gen()}`,
+                id: data.id ?? `${data.type.toLowerCase()}-${this.nanoidService.gen()}`,
                 type: data.type,
                 userId: data.userId,
                 expiration: data.expiration,
@@ -45,25 +39,12 @@ export class NotificationService {
             );
         }
 
-        if (
-            data.notification.type === NotificationMessageType.GuildTextMessage
-        ) {
-            await this.botService.send(
-                BotEndpoint.SendGuildTextMessage,
-                data.notification,
-            );
-        } else if (
-            data.notification.type === NotificationMessageType.DirectMessage
-        ) {
-            await this.botService.send(
-                BotEndpoint.SendDirectMessage,
-                data.notification,
-            );
+        if (data.notification.type === NotificationMessageType.GuildTextMessage) {
+            await this.botService.send(BotEndpoint.SendGuildTextMessage, data.notification);
+        } else if (data.notification.type === NotificationMessageType.DirectMessage) {
+            await this.botService.send(BotEndpoint.SendDirectMessage, data.notification);
         } else {
-            await this.botService.send(
-                BotEndpoint.SendWebhookMessage,
-                data.notification,
-            );
+            await this.botService.send(BotEndpoint.SendWebhookMessage, data.notification);
         }
 
         return true;

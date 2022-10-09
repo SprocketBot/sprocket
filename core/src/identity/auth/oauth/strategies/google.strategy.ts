@@ -35,9 +35,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
         if (queryResult.length === 0) {
             const userProfile = {
                 email: profile.emails[0].value,
-                displayName: `${
-                    profile.name.givenName
-                } ${profile.name.familyName.charAt(0)}`,
+                displayName: `${profile.name.givenName} ${profile.name.familyName.charAt(0)}`,
                 firstName: profile.name.givenName,
                 lastName: profile.name.familyName,
             };

@@ -17,6 +17,4 @@ export const GetUserByAuthAccount_Response = z.object({
     }),
 });
 
-export type GetUserByAuthAccountResponse = z.infer<
-    typeof GetUserByAuthAccount_Response
->;
+export type GetUserByAuthAccountResponse = z.infer<typeof GetUserByAuthAccount_Response>;

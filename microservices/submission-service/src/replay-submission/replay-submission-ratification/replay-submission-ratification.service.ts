@@ -14,9 +14,7 @@ import {ReplaySubmissionCrudService} from "../replay-submission-crud/replay-subm
 
 @Injectable()
 export class ReplaySubmissionRatificationService {
-    private readonly logger = new Logger(
-        ReplaySubmissionRatificationService.name,
-    );
+    private readonly logger = new Logger(ReplaySubmissionRatificationService.name);
 
     constructor(
         private readonly eventService: EventsService,
@@ -24,28 +22,19 @@ export class ReplaySubmissionRatificationService {
         private readonly matchmakingService: MatchmakingService,
     ) {}
 
-    async resetSubmission(
-        submissionId: string,
-        override: boolean,
-        playerId: string,
-    ): Promise<void> {
+    async resetSubmission(submissionId: string, override: boolean, playerId: string): Promise<void> {
         if (!override) {
             if (submissionIsScrim(submissionId)) {
                 const scrimResponse = await this.matchmakingService.send(
                     MatchmakingEndpoint.GetScrimBySubmissionId,
                     submissionId,
                 );
-                if (
-                    scrimResponse.status === ResponseStatus.ERROR ||
-                    !scrimResponse.data
-                ) {
-                    if (scrimResponse.status === ResponseStatus.ERROR)
-                        this.logger.error(scrimResponse.error);
+                if (scrimResponse.status === ResponseStatus.ERROR || !scrimResponse.data) {
+                    if (scrimResponse.status === ResponseStatus.ERROR) this.logger.error(scrimResponse.error);
                     throw new Error("Error fetching scrim");
                 }
                 const scrim = scrimResponse.data;
-                if (scrim.status !== ScrimStatus.SUBMITTING)
-                    throw new Error("You cannot reset this scrim");
+                if (scrim.status !== ScrimStatus.SUBMITTING) throw new Error("You cannot reset this scrim");
                 if (!scrim.players.some(p => p.id.toString() === playerId))
                     throw new Error("You cannot reset this scrim");
             }
@@ -60,10 +49,7 @@ export class ReplaySubmissionRatificationService {
         });
     }
 
-    async ratifyScrim(
-        playerId: number,
-        submissionId: string,
-    ): Promise<boolean> {
+    async ratifyScrim(playerId: number, submissionId: string): Promise<boolean> {
         const submission = await this.crudService.getSubmission(submissionId);
         if (!submission) throw new Error("Submission not found");
         if (submission.status !== ReplaySubmissionStatus.RATIFYING)
@@ -73,10 +59,7 @@ export class ReplaySubmissionRatificationService {
         submission.ratifiers.push(playerId);
 
         if (submission.ratifiers.length >= submission.requiredRatifications) {
-            await this.crudService.updateStatus(
-                submissionId,
-                ReplaySubmissionStatus.RATIFIED,
-            );
+            await this.crudService.updateStatus(submissionId, ReplaySubmissionStatus.RATIFIED);
 
             await this.eventService.publish(EventTopic.SubmissionRatified, {
                 submissionId: submissionId,
@@ -84,34 +67,20 @@ export class ReplaySubmissionRatificationService {
             });
             return true;
         }
-        await this.eventService.publish(
-            EventTopic.SubmissionRatificationAdded,
-            {
-                currentRatifications: submission.ratifiers.length + 1,
-                requiredRatifications: submission.requiredRatifications,
-                submissionId: submissionId,
-                redisKey: getSubmissionKey(submissionId),
-            },
-        );
+        await this.eventService.publish(EventTopic.SubmissionRatificationAdded, {
+            currentRatifications: submission.ratifiers.length + 1,
+            requiredRatifications: submission.requiredRatifications,
+            submissionId: submissionId,
+            redisKey: getSubmissionKey(submissionId),
+        });
         return false;
     }
 
-    async rejectSubmission(
-        playerId: number,
-        submissionId: string,
-        reasons: string[],
-    ): Promise<boolean> {
-        await Promise.all(
-            reasons.map(async r =>
-                this.crudService.addRejection(submissionId, playerId, r),
-            ),
-        );
+    async rejectSubmission(playerId: number, submissionId: string, reasons: string[]): Promise<boolean> {
+        await Promise.all(reasons.map(async r => this.crudService.addRejection(submissionId, playerId, r)));
 
         await this.crudService.removeItems(submissionId);
-        await this.crudService.updateStatus(
-            submissionId,
-            ReplaySubmissionStatus.REJECTED,
-        );
+        await this.crudService.updateStatus(submissionId, ReplaySubmissionStatus.REJECTED);
         await this.eventService.publish(EventTopic.SubmissionRejectionAdded, {
             submissionId: submissionId,
             redisKey: getSubmissionKey(submissionId),

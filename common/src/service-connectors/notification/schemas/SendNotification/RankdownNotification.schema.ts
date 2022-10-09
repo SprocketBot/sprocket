@@ -1,10 +1,6 @@
 import {z} from "zod";
 
-import {
-    BaseNotificationSchema,
-    NotificationDirectMessageSchema,
-    NotificationType,
-} from "./BaseNotification.schema";
+import {BaseNotificationSchema, NotificationDirectMessageSchema, NotificationType} from "./BaseNotification.schema";
 
 export const RankdownNotificationSchema = BaseNotificationSchema.extend({
     type: z.literal(NotificationType.RANKDOWN),

@@ -13,10 +13,7 @@ export class OrganizationConfigurationResolver {
         @Args("organizationId") organizationId: number,
         @Args("key", {nullable: true}) key?: OrganizationConfigurationKeyCode,
     ): Promise<OrganizationConfiguration[]> {
-        const configs = await this.ocService.getOrganizationConfigurations(
-            organizationId,
-            key,
-        );
+        const configs = await this.ocService.getOrganizationConfigurations(organizationId, key);
         return configs;
     }
 }

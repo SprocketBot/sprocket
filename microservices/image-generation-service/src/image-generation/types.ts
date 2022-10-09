@@ -12,16 +12,12 @@ const textTransformationOptions = z.object({
     "truncate-to": z.optional(z.union([z.number(), z.literal("as-is")])),
     case: z.optional(z.enum(["lower", "upper", "as-is"])),
 });
-export type TextTransformationOptions = z.infer<
-    typeof textTransformationOptions
->;
+export type TextTransformationOptions = z.infer<typeof textTransformationOptions>;
 
 const imageTransformationOptions = z.object({
     rescaleOn: z.enum(["height", "width"]),
 });
-export type ImageTransformationsOptions = z.infer<
-    typeof imageTransformationOptions
->;
+export type ImageTransformationsOptions = z.infer<typeof imageTransformationOptions>;
 
 export const sprocketDataSchema = z.array(
     z.union([

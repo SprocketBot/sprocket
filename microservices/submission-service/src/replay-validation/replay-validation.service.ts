@@ -21,10 +21,7 @@ import {
 import {isEqual} from "lodash";
 
 import type {UserWithPlatformId} from "./types/user-with-platform-id";
-import type {
-    ValidationError,
-    ValidationResult,
-} from "./types/validation-result";
+import type {ValidationError, ValidationResult} from "./types/validation-result";
 import {sortIds} from "./utils";
 
 @Injectable()
@@ -44,13 +41,8 @@ export class ReplayValidationService {
         return this.validateMatchSubmission(submission);
     }
 
-    private async validateScrimSubmission(
-        submission: ScrimReplaySubmission,
-    ): Promise<ValidationResult> {
-        const scrimResponse = await this.matchmakingService.send(
-            MatchmakingEndpoint.GetScrim,
-            submission.scrimId,
-        );
+    private async validateScrimSubmission(submission: ScrimReplaySubmission): Promise<ValidationResult> {
+        const scrimResponse = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, submission.scrimId);
         if (scrimResponse.status === ResponseStatus.ERROR) {
             throw scrimResponse.error;
         }
@@ -61,9 +53,7 @@ export class ReplayValidationService {
         // Validate number of games
         // ========================================
         if (!scrim.games) {
-            throw new Error(
-                `Unable to validate gameCount for scrim ${scrim.id} because it has no games`,
-            );
+            throw new Error(`Unable to validate gameCount for scrim ${scrim.id} because it has no games`);
         }
 
         const submissionGameCount = submission.items.length;
@@ -82,20 +72,17 @@ export class ReplayValidationService {
 
         const gameCount = submissionGameCount;
 
-        const progressErrors = submission.items.reduce<ValidationError[]>(
-            (r, v) => {
-                if (v.progress?.error) {
-                    this.logger.error(
-                        `Error in submission found, scrim=${scrim.id} submissionId=${scrim.submissionId}\n${v.progress.error}`,
-                    );
-                    r.push({
-                        error: `Error encountered while parsing file ${v.originalFilename}`,
-                    });
-                }
-                return r;
-            },
-            [],
-        );
+        const progressErrors = submission.items.reduce<ValidationError[]>((r, v) => {
+            if (v.progress?.error) {
+                this.logger.error(
+                    `Error in submission found, scrim=${scrim.id} submissionId=${scrim.submissionId}\n${v.progress.error}`,
+                );
+                r.push({
+                    error: `Error encountered while parsing file ${v.originalFilename}`,
+                });
+            }
+            return r;
+        }, []);
         if (progressErrors.length) {
             return {
                 valid: false,
@@ -118,9 +105,7 @@ export class ReplayValidationService {
         }
 
         // We should have stats for every game
-        const stats = await Promise.all(
-            submission.items.map(async i => this.getStats(i.outputPath!)),
-        );
+        const stats = await Promise.all(submission.items.map(async i => this.getStats(i.outputPath!)));
         if (stats.length !== gameCount) {
             this.logger.error(
                 `Unable to validate submission missing stats, scrim=${scrim.id} submissionId=${scrim.submissionId}`,
@@ -151,10 +136,7 @@ export class ReplayValidationService {
         }));
 
         // Look up players by their platformIds
-        const playersResponse = await this.coreService.send(
-            CoreEndpoint.GetPlayersByPlatformIds,
-            platformIds,
-        );
+        const playersResponse = await this.coreService.send(CoreEndpoint.GetPlayersByPlatformIds, platformIds);
         if (playersResponse.status === ResponseStatus.ERROR) {
             this.logger.error(
                 `Unable to validate submission, couldn't find all players by their platformIds`,
@@ -176,9 +158,7 @@ export class ReplayValidationService {
             if (!player.success) {
                 playerErrors.push({
                     error: `${player.error} (${
-                        ballchasingIds.find(
-                            (id, i) => id.id === platformIds[i].platformId,
-                        )?.name
+                        ballchasingIds.find((id, i) => id.id === platformIds[i].platformId)?.name
                     })`,
                 });
             }
@@ -190,9 +170,7 @@ export class ReplayValidationService {
                 errors: playerErrors,
             };
 
-        const players = playersData.map(p =>
-            p.success ? p.data : undefined,
-        ) as GetPlayer[];
+        const players = playersData.map(p => (p.success ? p.data : undefined)) as GetPlayer[];
 
         const userIdsResponses = await Promise.all(
             players.map(async p =>
@@ -224,35 +202,25 @@ export class ReplayValidationService {
                 errors: sprocketUserErrors,
             };
         }
-        const userIds = userIdsResponses.map(
-            r =>
-                (r as CoreSuccessResponse<CoreEndpoint.GetUserByAuthAccount>)
-                    .data,
-        );
+        const userIds = userIdsResponses.map(r => (r as CoreSuccessResponse<CoreEndpoint.GetUserByAuthAccount>).data);
 
         // Add platformIds to players
-        const userAndPlatformIds: UserWithPlatformId[] = userIds.map(
-            (u, i) => ({
-                ...u,
-                // Arrays should be in the same order
-                platform: platformIds[i].platform,
-                platformId: platformIds[i].platformId,
-            }),
-        );
+        const userAndPlatformIds: UserWithPlatformId[] = userIds.map((u, i) => ({
+            ...u,
+            // Arrays should be in the same order
+            platform: platformIds[i].platform,
+            platformId: platformIds[i].platformId,
+        }));
 
         // Get 3D array of scrim player ids
-        const scrimPlayerIds = scrim.games.map(g =>
-            g.teams.map(t => t.players.map(p => p.id)),
-        );
+        const scrimPlayerIds = scrim.games.map(g => g.teams.map(t => t.players.map(p => p.id)));
 
         // Get 3D array of submission player ids
         const submissionUserIds = stats.map(s =>
             [s.blue, s.orange].map(t =>
                 t.players.map(({id}) => {
                     const user = userAndPlatformIds.find(
-                        p =>
-                            p.platform === id.platform.toUpperCase() &&
-                            p.platformId === id.id,
+                        p => p.platform === id.platform.toUpperCase() && p.platformId === id.id,
                     )!;
                     return user.id;
                 }),
@@ -270,14 +238,8 @@ export class ReplayValidationService {
             const submissionGame = sortedSubmissionUserIds[g];
             let matchupIndex: number;
 
-            if (
-                expectedMatchups.some(expectedMatchup =>
-                    isEqual(submissionGame, expectedMatchup),
-                )
-            ) {
-                matchupIndex = expectedMatchups.findIndex(expectedMatchup =>
-                    isEqual(submissionGame, expectedMatchup),
-                );
+            if (expectedMatchups.some(expectedMatchup => isEqual(submissionGame, expectedMatchup))) {
+                matchupIndex = expectedMatchups.findIndex(expectedMatchup => isEqual(submissionGame, expectedMatchup));
                 expectedMatchups.splice(matchupIndex, 1);
             } else {
                 return {
@@ -348,23 +310,14 @@ export class ReplayValidationService {
     }
 
     private async getStats(outputPath: string): Promise<BallchasingResponse> {
-        const r = await this.minioService.get(
-            config.minio.bucketNames.replays,
-            outputPath,
-        );
+        const r = await this.minioService.get(config.minio.bucketNames.replays, outputPath);
         const stats = await readToString(r);
         return JSON.parse(stats).data as BallchasingResponse;
     }
 
-    private async validateMatchSubmission(
-        submission: MatchReplaySubmission,
-    ): Promise<ValidationResult> {
-        const matchResult = await this.coreService.send(
-            CoreEndpoint.GetMatchById,
-            {matchId: submission.matchId},
-        );
-        if (matchResult.status === ResponseStatus.ERROR)
-            throw matchResult.error;
+    private async validateMatchSubmission(submission: MatchReplaySubmission): Promise<ValidationResult> {
+        const matchResult = await this.coreService.send(CoreEndpoint.GetMatchById, {matchId: submission.matchId});
+        if (matchResult.status === ResponseStatus.ERROR) throw matchResult.error;
         const match = matchResult.data;
 
         const homeName = match.homeFranchise!.name;
@@ -387,42 +340,36 @@ export class ReplayValidationService {
             const blueBcPlayers = item.progress.result.data.blue.players;
             const orangeBcPlayers = item.progress.result.data.orange.players;
             try {
-                const [bluePlayersResponse, orangePlayersResponse] =
-                    await Promise.all([
-                        this.coreService
-                            .send(
-                                CoreEndpoint.GetPlayersByPlatformIds,
-                                orangeBcPlayers.map(m => ({
-                                    platform: m.id.platform,
-                                    platformId: m.id.id,
-                                })),
-                            )
-                            .then(r => {
-                                if (r.status === ResponseStatus.ERROR)
-                                    throw r.error;
-                                return r.data;
-                            }),
-                        this.coreService
-                            .send(
-                                CoreEndpoint.GetPlayersByPlatformIds,
-                                blueBcPlayers.map(m => ({
-                                    platform: m.id.platform,
-                                    platformId: m.id.id,
-                                })),
-                            )
-                            .then(r => {
-                                if (r.status === ResponseStatus.ERROR)
-                                    throw r.error;
-                                return r.data;
-                            }),
-                    ]);
+                const [bluePlayersResponse, orangePlayersResponse] = await Promise.all([
+                    this.coreService
+                        .send(
+                            CoreEndpoint.GetPlayersByPlatformIds,
+                            orangeBcPlayers.map(m => ({
+                                platform: m.id.platform,
+                                platformId: m.id.id,
+                            })),
+                        )
+                        .then(r => {
+                            if (r.status === ResponseStatus.ERROR) throw r.error;
+                            return r.data;
+                        }),
+                    this.coreService
+                        .send(
+                            CoreEndpoint.GetPlayersByPlatformIds,
+                            blueBcPlayers.map(m => ({
+                                platform: m.id.platform,
+                                platformId: m.id.id,
+                            })),
+                        )
+                        .then(r => {
+                            if (r.status === ResponseStatus.ERROR) throw r.error;
+                            return r.data;
+                        }),
+                ]);
 
                 const playerErrors: ValidationError[] = [];
 
-                for (const player of [
-                    ...bluePlayersResponse,
-                    ...orangePlayersResponse,
-                ]) {
+                for (const player of [...bluePlayersResponse, ...orangePlayersResponse]) {
                     if (!player.success) {
                         playerErrors.push({error: player.error});
                     }
@@ -434,12 +381,8 @@ export class ReplayValidationService {
                         errors: playerErrors,
                     };
 
-                const bluePlayers = bluePlayersResponse.map(p =>
-                    p.success ? p.data : undefined,
-                ) as GetPlayer[];
-                const orangePlayers = orangePlayersResponse.map(p =>
-                    p.success ? p.data : undefined,
-                ) as GetPlayer[];
+                const bluePlayers = bluePlayersResponse.map(p => (p.success ? p.data : undefined)) as GetPlayer[];
+                const orangePlayers = orangePlayersResponse.map(p => (p.success ? p.data : undefined)) as GetPlayer[];
 
                 const blueTeam = bluePlayers[0].franchise.name;
                 const orangeTeam = orangePlayers[0].franchise.name;
@@ -455,9 +398,7 @@ export class ReplayValidationService {
                         error: `Multiple franchises found for blue team in replay ${item.originalFilename}`,
                     });
                 }
-                if (
-                    !orangePlayers.every(op => op.franchise.name === orangeTeam)
-                ) {
+                if (!orangePlayers.every(op => op.franchise.name === orangeTeam)) {
                     errors.push({
                         error: `Multiple franchises found for orange team in replay ${item.originalFilename}`,
                     });
@@ -474,11 +415,7 @@ export class ReplayValidationService {
                     });
                 }
 
-                if (
-                    ![...bluePlayers, ...orangePlayers].every(
-                        p => p.skillGroupId === match.skillGroupId,
-                    )
-                ) {
+                if (![...bluePlayers, ...orangePlayers].every(p => p.skillGroupId === match.skillGroupId)) {
                     errors.push({
                         error: `Player(s) from incorrect skill group found in replay ${item.originalFilename}`,
                     });
@@ -486,14 +423,8 @@ export class ReplayValidationService {
                         JSON.stringify({
                             expected: match.skillGroupId,
                             found: [
-                                ...bluePlayers.map(bp => [
-                                    bp.id,
-                                    bp.skillGroupId,
-                                ]),
-                                ...orangePlayers.map(p => [
-                                    p.id,
-                                    p.skillGroupId,
-                                ]),
+                                ...bluePlayers.map(bp => [bp.id, bp.skillGroupId]),
+                                ...orangePlayers.map(p => [p.id, p.skillGroupId]),
                             ],
                         }),
                     );

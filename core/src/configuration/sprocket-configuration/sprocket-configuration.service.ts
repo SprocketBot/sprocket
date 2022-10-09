@@ -11,11 +11,8 @@ export class SprocketConfigurationService {
         private sprocketConfigurationRepository: Repository<SprocketConfiguration>,
     ) {}
 
-    async getSprocketConfiguration(
-        key?: string,
-    ): Promise<SprocketConfiguration[]> {
-        if (key)
-            return this.sprocketConfigurationRepository.find({where: {key}});
+    async getSprocketConfiguration(key?: string): Promise<SprocketConfiguration[]> {
+        if (key) return this.sprocketConfigurationRepository.find({where: {key}});
         return this.sprocketConfigurationRepository.find();
     }
 }

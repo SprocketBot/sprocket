@@ -46,9 +46,7 @@ import {UtilModule} from "./util/util.module";
             fieldResolverEnhancers: ["guards"],
             context: ({connection, req, payload}) => {
                 if (connection) {
-                    const token = payload?.context?.authorization as
-                        | string
-                        | undefined;
+                    const token = payload?.context?.authorization as string | undefined;
                     return {
                         req: {
                             authorization: token,

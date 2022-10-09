@@ -13,10 +13,7 @@ export class MledbMatchController {
     async getMleMatchInfoAndStakeholders(
         @Payload() payload: unknown,
     ): Promise<CoreOutput<CoreEndpoint.GetMleMatchInfoAndStakeholders>> {
-        const data =
-            CoreSchemas.GetMleMatchInfoAndStakeholders.input.parse(payload);
-        return this.matchService.getMleMatchInfoAndStakeholders(
-            data.sprocketMatchId,
-        );
+        const data = CoreSchemas.GetMleMatchInfoAndStakeholders.input.parse(payload);
+        return this.matchService.getMleMatchInfoAndStakeholders(data.sprocketMatchId);
     }
 }

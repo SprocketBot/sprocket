@@ -1,12 +1,4 @@
-import {
-    Column,
-    Entity,
-    Index,
-    JoinColumn,
-    ManyToOne,
-    OneToOne,
-    PrimaryGeneratedColumn,
-} from "typeorm";
+import {Column, Entity, Index, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn} from "typeorm";
 
 import {MLE_Player} from "./Player.model";
 import {MLE_PlayerStatsCore} from "./PlayerStatsCore.model";
@@ -312,11 +304,7 @@ export class MLE_PlayerStats {
     @Column("numeric", {name: "percent_high_air"})
     percentHighAir: number;
 
-    @OneToOne(
-        () => MLE_PlayerStatsCore,
-        playerStatsCore => playerStatsCore.playerStats,
-        {onUpdate: "CASCADE"},
-    )
+    @OneToOne(() => MLE_PlayerStatsCore, playerStatsCore => playerStatsCore.playerStats, {onUpdate: "CASCADE"})
     @JoinColumn([{name: "core_stats_id", referencedColumnName: "id"}])
     coreStats: MLE_PlayerStatsCore;
 
@@ -326,13 +314,9 @@ export class MLE_PlayerStats {
     @JoinColumn([{name: "player_id", referencedColumnName: "id"}])
     player: MLE_Player;
 
-    @ManyToOne(
-        () => MLE_SeriesReplay,
-        seriesReplay => seriesReplay.playerStats,
-        {
-            onUpdate: "CASCADE",
-        },
-    )
+    @ManyToOne(() => MLE_SeriesReplay, seriesReplay => seriesReplay.playerStats, {
+        onUpdate: "CASCADE",
+    })
     @JoinColumn([{name: "replay_id", referencedColumnName: "id"}])
     replay: MLE_SeriesReplay;
 }

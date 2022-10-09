@@ -28,10 +28,7 @@ export class RolesGuard extends AuthGuard("jwt") {
     }
 
     fromHeaderOrQueryString(@Request() req: Req): string {
-        if (
-            req.headers.authorization &&
-            req.headers.authorization.split(" ")[0] === "Bearer"
-        ) {
+        if (req.headers.authorization && req.headers.authorization.split(" ")[0] === "Bearer") {
             return req.headers.authorization.split(" ")[1];
         } else if (req.query.token) {
             return req.query.token[0] as string;
@@ -40,10 +37,7 @@ export class RolesGuard extends AuthGuard("jwt") {
     }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
-        const roles = this.reflector.get<string[]>(
-            "roles",
-            context.getHandler(),
-        );
+        const roles = this.reflector.get<string[]>("roles", context.getHandler());
         /* eslint-disable */
         if (!roles) {
             return true;
@@ -51,13 +45,9 @@ export class RolesGuard extends AuthGuard("jwt") {
         /* eslint-enable */
         const request: Req = context.switchToHttp().getRequest();
         const token = this.fromHeaderOrQueryString(request);
-        const jwtPayload: AuthPayload = this.jwtService.decode(
-            token,
-        ) as AuthPayload;
+        const jwtPayload: AuthPayload = this.jwtService.decode(token) as AuthPayload;
         if (jwtPayload.sub && (super.canActivate(context) as boolean)) {
-            const ourUser = await this.userService.getUserById(
-                jwtPayload.userId,
-            );
+            const ourUser = await this.userService.getUserById(jwtPayload.userId);
             return this.matchRoles(roles, ourUser.type);
         }
         return false;

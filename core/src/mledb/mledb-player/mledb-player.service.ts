@@ -6,13 +6,7 @@ import {Repository} from "typeorm";
 import type {Player, User} from "../../database";
 import {UserAuthenticationAccountType} from "../../database";
 import type {MLE_Platform} from "../../database/mledb";
-import {
-    MLE_Player,
-    MLE_PlayerAccount,
-    MLE_PlayerToOrg,
-    MLE_Team,
-    MLE_TeamToCaptain,
-} from "../../database/mledb";
+import {MLE_Player, MLE_PlayerAccount, MLE_PlayerToOrg, MLE_Team, MLE_TeamToCaptain} from "../../database/mledb";
 import {GameService} from "../../game";
 import {UserService} from "../../identity";
 
@@ -52,10 +46,7 @@ export class MledbPlayerService {
         return playerToOrgs;
     }
 
-    async getPlayerByPlatformId(
-        platform: MLE_Platform,
-        platformId: string,
-    ): Promise<MLE_Player> {
+    async getPlayerByPlatformId(platform: MLE_Platform, platformId: string): Promise<MLE_Player> {
         const playerAccount = await this.playerAccountRepository.findOneOrFail({
             where: {platform, platformId},
             relations: {player: true},
@@ -101,10 +92,7 @@ export class MledbPlayerService {
         return ttc.length > 0;
     }
 
-    async getSprocketUserByPlatformInformation(
-        platform: MLE_Platform,
-        platformId: string,
-    ): Promise<User> {
+    async getSprocketUserByPlatformInformation(platform: MLE_Platform, platformId: string): Promise<User> {
         const playerAccount = await this.playerAccountRepository.findOneOrFail({
             where: {platform, platformId},
             relations: {player: true},
@@ -112,9 +100,7 @@ export class MledbPlayerService {
         const {discordId} = playerAccount.player;
 
         if (!discordId) {
-            throw new Error(
-                `No discord account found for player ${playerAccount.player.name}`,
-            );
+            throw new Error(`No discord account found for player ${playerAccount.player.name}`);
         }
 
         const user = await this.userService.getUser({
@@ -140,18 +126,13 @@ export class MledbPlayerService {
             },
         });
         if (!user) {
-            throw new Error(
-                `No sprocket user found (${platform} | ${platformId})`,
-            );
+            throw new Error(`No sprocket user found (${platform} | ${platformId})`);
         }
 
         return user;
     }
 
-    async getSprocketPlayerByPlatformInformation(
-        platform: MLE_Platform,
-        platformId: string,
-    ): Promise<Player> {
+    async getSprocketPlayerByPlatformInformation(platform: MLE_Platform, platformId: string): Promise<Player> {
         const playerAccount = await this.playerAccountRepository.findOneOrFail({
             where: {platform, platformId},
             relations: {player: true},
@@ -159,9 +140,7 @@ export class MledbPlayerService {
         const {discordId} = playerAccount.player;
 
         if (!discordId) {
-            throw new Error(
-                `No discord account found for player ${playerAccount.player.name}`,
-            );
+            throw new Error(`No discord account found for player ${playerAccount.player.name}`);
         }
 
         const user = await this.userService.getUser({
@@ -188,30 +167,20 @@ export class MledbPlayerService {
         });
 
         if (!user) {
-            throw new Error(
-                `No sprocket user found (${platform} | ${platformId})`,
-            );
+            throw new Error(`No sprocket user found (${platform} | ${platformId})`);
         }
 
-        const member = user.members.find(
-            m => m.organizationId === config.defaultOrganizationId,
-        );
+        const member = user.members.find(m => m.organizationId === config.defaultOrganizationId);
         if (!member) {
             throw new Error(`Member not found in MLE for user ${user.id}`);
         }
 
-        const rocketLeague = await this.gameService.getGameByTitle(
-            "Rocket League",
-        );
+        const rocketLeague = await this.gameService.getGameByTitle("Rocket League");
 
-        const player = member.players.find(
-            p => p.skillGroup.game.id === rocketLeague.id,
-        );
+        const player = member.players.find(p => p.skillGroup.game.id === rocketLeague.id);
 
         if (!player) {
-            throw new Error(
-                `Player not found in MLE rocket league { user: ${user.id}, member: ${member.id} }`,
-            );
+            throw new Error(`Player not found in MLE rocket league { user: ${user.id}, member: ${member.id} }`);
         }
 
         return player;

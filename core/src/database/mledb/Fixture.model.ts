@@ -1,21 +1,9 @@
-import {
-    Column,
-    Entity,
-    Index,
-    JoinColumn,
-    ManyToOne,
-    OneToMany,
-    PrimaryGeneratedColumn,
-} from "typeorm";
+import {Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 
 import {MLE_Match} from "./Match.model";
 import {MLE_Series} from "./Series.model";
 
-@Index(
-    "fixture_home_name_away_name_match_id_unique",
-    ["awayName", "homeName", "matchId"],
-    {unique: true},
-)
+@Index("fixture_home_name_away_name_match_id_unique", ["awayName", "homeName", "matchId"], {unique: true})
 @Index("fixture_pkey", ["id"], {unique: true})
 @Entity("fixture", {schema: "mledb"})
 export class MLE_Fixture {

@@ -7,10 +7,7 @@ import {MemberService} from "./member.service";
 
 @Resolver(() => Member)
 export class MemberResolver {
-    constructor(
-        private readonly memberService: MemberService,
-        private readonly popService: PopulateService,
-    ) {}
+    constructor(private readonly memberService: MemberService, private readonly popService: PopulateService) {}
 
     @ResolveField()
     async profile(@Root() member: Member): Promise<MemberProfile> {
@@ -22,11 +19,7 @@ export class MemberResolver {
     @ResolveField()
     async organization(@Root() member: Member): Promise<Organization> {
         if (member.organization) return member.organization;
-        return this.popService.populateOneOrFail(
-            Member,
-            member,
-            "organization",
-        );
+        return this.popService.populateOneOrFail(Member, member, "organization");
     }
 
     @ResolveField()

@@ -36,9 +36,7 @@ export type OrganizationTeamGuardOptions =
  * async function doSomethingRisky(): Promise<void> {}
  * ```
  */
-export function MLEOrganizationTeamGuard(
-    organizationTeams: OrganizationTeamGuardOptions,
-): Type<CanActivate> {
+export function MLEOrganizationTeamGuard(organizationTeams: OrganizationTeamGuardOptions): Type<CanActivate> {
     @Injectable()
     class _MLEOrganizationTeamGuard implements CanActivate {
         canActivate(context: ExecutionContext): boolean {
@@ -50,9 +48,7 @@ export function MLEOrganizationTeamGuard(
             if (organizationTeams instanceof Function) {
                 return organizationTeams(user.orgTeams);
             } else if (Array.isArray(organizationTeams)) {
-                return organizationTeams.some(orgTeam =>
-                    user.orgTeams!.some(userOrgTeam => userOrgTeam === orgTeam),
-                );
+                return organizationTeams.some(orgTeam => user.orgTeams!.some(userOrgTeam => userOrgTeam === orgTeam));
             }
 
             return user.orgTeams.some(orgTeam => orgTeam === organizationTeams);

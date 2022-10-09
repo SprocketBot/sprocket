@@ -10,10 +10,7 @@ export interface MarshalCommandContext {
         | false;
 }
 
-export type CommandFunction = (
-    m: Message,
-    c: MarshalCommandContext,
-) => Promise<unknown>;
+export type CommandFunction = (m: Message, c: MarshalCommandContext) => Promise<unknown>;
 export type HookFunction = (m: Message) => Promise<unknown>;
 
 export const CommandRoleSchema = z.enum(["MEMBER"]);

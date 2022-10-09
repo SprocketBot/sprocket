@@ -9,32 +9,20 @@ import {EloConnectorService, EloEndpoint} from "./elo-connector";
 
 @Resolver()
 export class EloResolver {
-    constructor(
-        private readonly eloService: EloService,
-        private readonly eloConnectorService: EloConnectorService,
-    ) {}
+    constructor(private readonly eloService: EloService, private readonly eloConnectorService: EloConnectorService) {}
 
     @Mutation(() => String)
-    @UseGuards(
-        GqlJwtGuard,
-        MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN),
-    )
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async generateMigrationData(): Promise<string> {
         await this.eloService.prepMigrationData();
         return "Done.";
     }
 
     @Mutation(() => String)
-    @UseGuards(
-        GqlJwtGuard,
-        MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN),
-    )
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async runEloMigration(): Promise<string> {
         const inputData = await this.eloService.prepMigrationData();
-        await this.eloConnectorService.createJob(
-            EloEndpoint.AddNewPlayers,
-            inputData,
-        );
+        await this.eloConnectorService.createJob(EloEndpoint.AddNewPlayers, inputData);
         return "Migration started.";
     }
 }

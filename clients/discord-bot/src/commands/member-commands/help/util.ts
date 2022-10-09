@@ -10,9 +10,7 @@ export const specToField = (spec: CommandSpec): EmbedFieldData => {
         : undefined;
     const docs: string = spec.longDocs ?? spec.docs;
     return {
-        name: `\`${config.bot.prefix}${spec.name}${spec.args
-            .map(a => ` [${a.name}]`)
-            .join("")}\``,
+        name: `\`${config.bot.prefix}${spec.name}${spec.args.map(a => ` [${a.name}]`).join("")}\``,
         value: `${aliases ? `**Aliases:** ${aliases}` : ""}\n${docs}`,
         inline: false,
     };
@@ -26,24 +24,18 @@ export const specsToFields = (specs: CommandSpec[]): EmbedFieldData[] => {
         const spec = specs[i];
 
         if (spec.name !== name) {
-            throw new Error(
-                `specsToFields should only be used with commands of the same name (overloads)`,
-            );
+            throw new Error(`specsToFields should only be used with commands of the same name (overloads)`);
         }
 
         fields.push({
             name: "Usage",
-            value: `\`\`\`${config.bot.prefix}${spec.name}${spec.args
-                .map(arg => ` [${arg.name}]`)
-                .join("")}\`\`\``,
+            value: `\`\`\`${config.bot.prefix}${spec.name}${spec.args.map(arg => ` [${arg.name}]`).join("")}\`\`\``,
         });
 
         if (spec.aliases) {
             fields.push({
                 name: "Aliases",
-                value: spec.aliases
-                    .map(alias => `\`${config.bot.prefix}${alias}\``)
-                    .join(", "),
+                value: spec.aliases.map(alias => `\`${config.bot.prefix}${alias}\``).join(", "),
             });
         }
 
@@ -55,9 +47,7 @@ export const specsToFields = (specs: CommandSpec[]): EmbedFieldData[] => {
         if (spec.args.length) {
             fields.push({
                 name: "Arguments",
-                value: `${spec.args
-                    .map(arg => `\`${arg.name}\`: ${arg.docs}`)
-                    .join("\n")}`,
+                value: `${spec.args.map(arg => `\`${arg.name}\`: ${arg.docs}`).join("\n")}`,
             });
         }
 
@@ -72,10 +62,7 @@ export const specsToFields = (specs: CommandSpec[]): EmbedFieldData[] => {
     return fields;
 };
 
-export const specByNameAndArgs = (
-    spec1: CommandSpec,
-    spec2: CommandSpec,
-): number => {
+export const specByNameAndArgs = (spec1: CommandSpec, spec2: CommandSpec): number => {
     if (spec1.name < spec2.name) return -1;
     if (spec1.name > spec2.name) return 1;
     if (spec1.args.length < spec2.args.length) return -1;

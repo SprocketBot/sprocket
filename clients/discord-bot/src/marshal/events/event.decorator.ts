@@ -17,20 +17,13 @@ export const Event =
             functionName: key.toString(),
         };
         // Check for existing metadata attached to the class
-        let unsafeMetadata: unknown = Reflect.getMetadata(
-            MarshalMetadataKey.Event,
-            target,
-        );
+        let unsafeMetadata: unknown = Reflect.getMetadata(MarshalMetadataKey.Event, target);
         if (!Array.isArray(unsafeMetadata)) unsafeMetadata = [];
         const classEventMetadatas: unknown[] = unsafeMetadata as unknown[];
 
         // Add our metadata for this command to the class
         classEventMetadatas.push(eventMeta);
-        Reflect.defineMetadata(
-            MarshalMetadataKey.Event,
-            classEventMetadatas,
-            target,
-        );
+        Reflect.defineMetadata(MarshalMetadataKey.Event, classEventMetadatas, target);
         // </ Metadata>
         return descriptor;
     };

@@ -3,11 +3,7 @@ interface CombinationOptions<T> {
     sort?: (a: T, b: T) => number;
 }
 
-export function createCombinations<T>(
-    array: T[],
-    n: number,
-    {check, sort}: CombinationOptions<T>,
-): T[][] {
+export function createCombinations<T>(array: T[], n: number, {check, sort}: CombinationOptions<T>): T[][] {
     const out = new Set<T[]>();
 
     const r: T[] = new Array<T>(n);

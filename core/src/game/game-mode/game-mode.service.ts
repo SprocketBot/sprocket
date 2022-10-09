@@ -12,10 +12,7 @@ export class GameModeService {
         private gameModeRepository: Repository<GameMode>,
     ) {}
 
-    async getGameModeById(
-        id: number,
-        options?: FindOneOptions<GameMode>,
-    ): Promise<GameMode> {
+    async getGameModeById(id: number, options?: FindOneOptions<GameMode>): Promise<GameMode> {
         return this.gameModeRepository.findOneOrFail({
             ...options,
             where: {...options?.where, id} as FindOptionsWhere<GameMode>,

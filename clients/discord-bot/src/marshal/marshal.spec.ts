@@ -81,13 +81,7 @@ describe("Marshal", () => {
         let cms: CommandManagerService;
         beforeEach(async () => {
             const moduleRef = await Test.createTestingModule({
-                providers: [
-                    TestMarshal,
-                    CommandManagerService,
-                    CoreService,
-                    AnalyticsService,
-                    EmbedService,
-                ],
+                providers: [TestMarshal, CommandManagerService, CoreService, AnalyticsService, EmbedService],
             }).compile();
             marshal = moduleRef.get(TestMarshal);
             cms = moduleRef.get(CommandManagerService);
@@ -95,10 +89,7 @@ describe("Marshal", () => {
         });
 
         // We need to spy on the prototype to see the real method, rather than the decorated version
-        const commandHandlerSpy = jest.spyOn(
-            TestMarshal.prototype,
-            "MyCommandHandler",
-        );
+        const commandHandlerSpy = jest.spyOn(TestMarshal.prototype, "MyCommandHandler");
         const commandNotFoundHookSpies = [
             jest.spyOn(TestMarshal.prototype, "MyFirstCommandNotFoundHook"),
             jest.spyOn(TestMarshal.prototype, "MySecondCommandNotFoundHook"),
@@ -180,27 +171,15 @@ describe("Marshal", () => {
         let managerService: CommandManagerService;
         beforeEach(async () => {
             const moduleRef = await Test.createTestingModule({
-                providers: [
-                    CommandOverloadMarshal,
-                    CommandManagerService,
-                    CoreService,
-                    AnalyticsService,
-                    EmbedService,
-                ],
+                providers: [CommandOverloadMarshal, CommandManagerService, CoreService, AnalyticsService, EmbedService],
             }).compile();
 
             managerService = moduleRef.get(CommandManagerService);
 
             jest.resetAllMocks();
         });
-        const noArgumentsSpy = jest.spyOn(
-            CommandOverloadMarshal.prototype,
-            "BaseCommand",
-        );
-        const oneArgumentsSpy = jest.spyOn(
-            CommandOverloadMarshal.prototype,
-            "BaseCommandWithArgument",
-        );
+        const noArgumentsSpy = jest.spyOn(CommandOverloadMarshal.prototype, "BaseCommand");
+        const oneArgumentsSpy = jest.spyOn(CommandOverloadMarshal.prototype, "BaseCommandWithArgument");
 
         it("should register each overload of the command as a seperate command", () => {
             expect(managerService.commands.length).toBe(2);

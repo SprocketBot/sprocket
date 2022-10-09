@@ -13,9 +13,7 @@ export enum MLE_OrganizationTeam {
     AFFILIATE_BROADCASTER = 11,
 }
 
-export function organizationTeamToString(
-    organizationTeam: MLE_OrganizationTeam,
-): string {
+export function organizationTeamToString(organizationTeam: MLE_OrganizationTeam): string {
     switch (organizationTeam) {
         case MLE_OrganizationTeam.MLEDB_ADMIN:
             return "MLEDB Admin";

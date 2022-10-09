@@ -14,13 +14,9 @@ export class ReplayValidationController {
     ) {}
 
     @MessagePattern(SubmissionEndpoint.ValidateSubmission)
-    async validateSubmission(
-        @Payload() payload: unknown,
-    ): Promise<ValidationResult> {
+    async validateSubmission(@Payload() payload: unknown): Promise<ValidationResult> {
         const data = SubmissionSchemas.ValidateSubmission.input.parse(payload);
-        const submission = await this.replaySubmissionCrudService.getSubmission(
-            data.submissionId,
-        );
+        const submission = await this.replaySubmissionCrudService.getSubmission(data.submissionId);
         return this.replayValidationService.validate(submission!);
     }
 }

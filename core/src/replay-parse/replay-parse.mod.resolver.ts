@@ -1,11 +1,6 @@
 import {Inject, UseGuards} from "@nestjs/common";
 import {Args, Mutation, Query, Resolver, Subscription} from "@nestjs/graphql";
-import {
-    RedisService,
-    ResponseStatus,
-    SubmissionEndpoint,
-    SubmissionService,
-} from "@sprocketbot/common";
+import {RedisService, ResponseStatus, SubmissionEndpoint, SubmissionService} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 import type {FileUpload} from "graphql-upload";
 import {GraphQLUpload} from "graphql-upload";
@@ -36,9 +31,7 @@ export class ReplayParseModResolver {
     ) {}
 
     @Query(() => GqlReplaySubmission, {nullable: true})
-    async getSubmission(
-        @Args("submissionId") submissionId: string,
-    ): Promise<ReplaySubmission | null> {
+    async getSubmission(@Args("submissionId") submissionId: string): Promise<ReplaySubmission | null> {
         return this.rpService.getSubmission(submissionId);
     }
 
@@ -69,43 +62,23 @@ export class ReplayParseModResolver {
         @CurrentUser() user: UserPayload,
         @Args("submissionId") submissionId: string,
     ): Promise<boolean> {
-        await this.rpService.resetBrokenReplays(
-            submissionId,
-            user.userId,
-            true,
-        );
+        await this.rpService.resetBrokenReplays(submissionId, user.userId, true);
         return false;
     }
 
     @Mutation(() => Boolean)
     @UseGuards(MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
-    async forceSubmissionSave(
-        @Args("submissionId") submissionId: string,
-    ): Promise<boolean> {
-        const redisKey = await this.submissionService.send(
-            SubmissionEndpoint.GetSubmissionRedisKey,
-            {submissionId},
-        );
+    async forceSubmissionSave(@Args("submissionId") submissionId: string): Promise<boolean> {
+        const redisKey = await this.submissionService.send(SubmissionEndpoint.GetSubmissionRedisKey, {submissionId});
         if (redisKey.status === ResponseStatus.ERROR) throw redisKey.error;
 
-        const submission: ReplaySubmission = await this.redisService.getJson(
-            redisKey.data.redisKey,
-        );
+        const submission: ReplaySubmission = await this.redisService.getJson(redisKey.data.redisKey);
 
         if (submission.type === ReplaySubmissionType.MATCH) {
-            await this.finalizationSub.onMatchSubmissionComplete(
-                submission,
-                submissionId,
-            );
+            await this.finalizationSub.onMatchSubmissionComplete(submission, submissionId);
         } else {
-            const scrim = await this.scrimService.getScrimBySubmissionId(
-                submission.id,
-            );
-            await this.finalizationSub.onScrimComplete(
-                submission,
-                submission.id,
-                scrim!,
-            );
+            const scrim = await this.scrimService.getScrimBySubmissionId(submission.id);
+            await this.finalizationSub.onScrimComplete(submission, submission.id, scrim!);
         }
 
         return true;
@@ -125,21 +98,12 @@ export class ReplayParseModResolver {
         @Args("submissionId") submissionId: string,
         @Args("reason") reason: string,
     ): Promise<void> {
-        return this.rpService.rejectSubmissionByPlayer(
-            submissionId,
-            user.userId,
-            reason,
-        );
+        return this.rpService.rejectSubmissionByPlayer(submissionId, user.userId, reason);
     }
 
     @Mutation(() => ValidationResultUnion)
-    async validateSubmission(
-        @Args("submissionId") submissionId: string,
-    ): Promise<ValidationResult> {
-        const response = await this.submissionService.send(
-            SubmissionEndpoint.ValidateSubmission,
-            {submissionId},
-        );
+    async validateSubmission(@Args("submissionId") submissionId: string): Promise<ValidationResult> {
+        const response = await this.submissionService.send(SubmissionEndpoint.ValidateSubmission, {submissionId});
         if (response.status === ResponseStatus.ERROR) {
             throw response.error;
         }
@@ -156,9 +120,7 @@ export class ReplayParseModResolver {
             return payload.followSubmission.id === variables.submissionId;
         },
     })
-    async followSubmission(
-        @Args("submissionId") submissionId: string,
-    ): Promise<AsyncIterator<GqlReplaySubmission>> {
+    async followSubmission(@Args("submissionId") submissionId: string): Promise<AsyncIterator<GqlReplaySubmission>> {
         await this.rpService.enableSubscription();
         return this.pubsub.asyncIterator(submissionId);
     }

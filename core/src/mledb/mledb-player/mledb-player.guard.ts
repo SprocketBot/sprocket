@@ -13,12 +13,8 @@ export class FormerPlayerScrimGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const ctx = GqlExecutionContext.create(context);
         const payload = ctx.getContext().req.user as UserPayload;
-        const mlePlayer =
-            await this.mledbPlayerService.getMlePlayerBySprocketUser(
-                payload.userId,
-            );
-        if (mlePlayer.teamName === "FP")
-            throw new GraphQLError("User is a former player in MLE");
+        const mlePlayer = await this.mledbPlayerService.getMlePlayerBySprocketUser(payload.userId);
+        if (mlePlayer.teamName === "FP") throw new GraphQLError("User is a former player in MLE");
 
         return true;
     }

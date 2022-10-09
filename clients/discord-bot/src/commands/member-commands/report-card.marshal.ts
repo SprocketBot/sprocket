@@ -11,12 +11,7 @@ import type {MessageOptions} from "discord.js";
 import {Client, Message} from "discord.js";
 
 import {EmbedService} from "../../embed";
-import {
-    Command,
-    CommandManagerService,
-    Marshal,
-    MarshalCommandContext,
-} from "../../marshal";
+import {Command, CommandManagerService, Marshal, MarshalCommandContext} from "../../marshal";
 import {NotificationsService} from "../../notifications";
 
 export class ReportCardMarshal extends Marshal {
@@ -42,25 +37,19 @@ export class ReportCardMarshal extends Marshal {
     async reportCard(m: Message, c: MarshalCommandContext): Promise<void> {
         if (!m.guild || !c.author) return;
 
-        const organizationResult = await this.coreService.send(
-            CoreEndpoint.GetOrganizationByDiscordGuild,
-            {
-                guildId: m.guild.id,
-            },
-        );
+        const organizationResult = await this.coreService.send(CoreEndpoint.GetOrganizationByDiscordGuild, {
+            guildId: m.guild.id,
+        });
         if (organizationResult.status === ResponseStatus.ERROR) {
             this.logger.error(organizationResult.error);
             await m.reply("Couldn't resolve organization.");
             return;
         }
 
-        const scrimResult = await this.coreService.send(
-            CoreEndpoint.GetUsersLatestScrim,
-            {
-                userId: c.author.id,
-                organizationId: organizationResult.data.id,
-            },
-        );
+        const scrimResult = await this.coreService.send(CoreEndpoint.GetUsersLatestScrim, {
+            userId: c.author.id,
+            organizationId: organizationResult.data.id,
+        });
         if (scrimResult.status === ResponseStatus.ERROR) {
             this.logger.error(scrimResult.error);
             await m.reply("Couldn't find a scrim for you.");
@@ -98,11 +87,10 @@ export class ReportCardMarshal extends Marshal {
             },
             organizationResult.data.id,
         );
-        const messageAttachment =
-            await this.notificationsService.downloadAttachment({
-                name: "card.png",
-                url: `minio:${config.minio.bucketNames.image_generation}/${reportCardResult.data}.png`,
-            });
+        const messageAttachment = await this.notificationsService.downloadAttachment({
+            name: "card.png",
+            url: `minio:${config.minio.bucketNames.image_generation}/${reportCardResult.data}.png`,
+        });
         const messageContent: MessageOptions = {
             embeds: [embed],
             files: [messageAttachment],

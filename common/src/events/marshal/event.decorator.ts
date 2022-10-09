@@ -13,8 +13,7 @@ export const SprocketEvent =
     ): TypedPropertyDescriptor<T> => {
         if (!descriptor.value) throw new Error("Descriptor is undefined??");
 
-        const originalMethod: EventFunction<EventTopic> =
-            descriptor.value as unknown as EventFunction<EventTopic>;
+        const originalMethod: EventFunction<EventTopic> = descriptor.value as unknown as EventFunction<EventTopic>;
 
         // @ts-expect-error If it was not a func before, then it is using this decorator incorrectly
         descriptor.value = async function (
@@ -29,20 +28,13 @@ export const SprocketEvent =
             event: event,
         };
 
-        let unsafeMetadata: unknown = Reflect.getMetadata(
-            EventMarshalMetadataKey,
-            target,
-        );
+        let unsafeMetadata: unknown = Reflect.getMetadata(EventMarshalMetadataKey, target);
         if (!Array.isArray(unsafeMetadata)) unsafeMetadata = [];
 
         const classEventMetadatas: unknown[] = unsafeMetadata as unknown[];
 
         classEventMetadatas.push(eventMeta);
-        Reflect.defineMetadata(
-            EventMarshalMetadataKey,
-            classEventMetadatas,
-            target,
-        );
+        Reflect.defineMetadata(EventMarshalMetadataKey, classEventMetadatas, target);
 
         return descriptor;
     };

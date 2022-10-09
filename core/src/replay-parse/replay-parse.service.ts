@@ -35,37 +35,24 @@ export class ReplayParseService {
     ) {}
 
     async getSubmission(submissionId: string): Promise<ReplaySubmission> {
-        const result = await this.submissionService.send(
-            SubmissionEndpoint.GetSubmissionRedisKey,
-            {submissionId},
-        );
+        const result = await this.submissionService.send(SubmissionEndpoint.GetSubmissionRedisKey, {submissionId});
         if (result.status === ResponseStatus.ERROR) throw result.error;
 
         // Right now, this is entirely based on faith. If we encounter issues; we can update the graphql types.
         // Writing up a zod schema set for this would be suckage to the 10th degree.
-        return this.redisService.getJson<ReplaySubmission>(
-            result.data.redisKey,
-        );
+        return this.redisService.getJson<ReplaySubmission>(result.data.redisKey);
     }
 
     /**
      * @returns if the scrim has been reset
      */
-    async resetBrokenReplays(
-        submissionId: string,
-        playerId: number,
-        override = false,
-    ): Promise<boolean> {
-        const resetResponse = await this.submissionService.send(
-            SubmissionEndpoint.ResetSubmission,
-            {
-                submissionId: submissionId,
-                override: override,
-                playerId: playerId.toString(),
-            },
-        );
-        if (resetResponse.status === ResponseStatus.ERROR)
-            throw resetResponse.error;
+    async resetBrokenReplays(submissionId: string, playerId: number, override = false): Promise<boolean> {
+        const resetResponse = await this.submissionService.send(SubmissionEndpoint.ResetSubmission, {
+            submissionId: submissionId,
+            override: override,
+            playerId: playerId.toString(),
+        });
+        if (resetResponse.status === ResponseStatus.ERROR) throw resetResponse.error;
         return true;
     }
 
@@ -74,17 +61,12 @@ export class ReplayParseService {
         submissionId: string,
         player: ScrimPlayer,
     ): Promise<string[]> {
-        const canSubmitReponse = await this.submissionService.send(
-            SubmissionEndpoint.CanSubmitReplays,
-            {
-                playerId: player.id,
-                submissionId: submissionId,
-            },
-        );
-        if (canSubmitReponse.status === ResponseStatus.ERROR)
-            throw canSubmitReponse.error;
-        if (!canSubmitReponse.data.canSubmit)
-            throw new GraphQLError(canSubmitReponse.data.reason);
+        const canSubmitReponse = await this.submissionService.send(SubmissionEndpoint.CanSubmitReplays, {
+            playerId: player.id,
+            submissionId: submissionId,
+        });
+        if (canSubmitReponse.status === ResponseStatus.ERROR) throw canSubmitReponse.error;
+        if (!canSubmitReponse.data.canSubmit) throw new GraphQLError(canSubmitReponse.data.reason);
 
         const filepaths = await Promise.all(
             streams.map(async s => {
@@ -92,9 +74,7 @@ export class ReplayParseService {
                 const objectHash = SHA256(buffer.toString()).toString();
                 const replayObjectPath = `replays/${objectHash}${REPLAY_EXT}`;
                 const bucket = config.minio.bucketNames.replays;
-                await this.minioService
-                    .put(bucket, replayObjectPath, buffer)
-                    .catch(this.logger.error.bind(this));
+                await this.minioService.put(bucket, replayObjectPath, buffer).catch(this.logger.error.bind(this));
 
                 return {
                     minioPath: replayObjectPath,
@@ -103,94 +83,61 @@ export class ReplayParseService {
             }),
         );
 
-        const submissionResponse = await this.submissionService.send(
-            SubmissionEndpoint.SubmitReplays,
-            {
-                submissionId: submissionId,
-                filepaths: filepaths,
-                creatorId: player.id,
-            },
-        );
-        if (submissionResponse.status === ResponseStatus.ERROR)
-            throw submissionResponse.error;
+        const submissionResponse = await this.submissionService.send(SubmissionEndpoint.SubmitReplays, {
+            submissionId: submissionId,
+            filepaths: filepaths,
+            creatorId: player.id,
+        });
+        if (submissionResponse.status === ResponseStatus.ERROR) throw submissionResponse.error;
         // Return taskIds, directly correspond to the files that were uploaded
         return submissionResponse.data;
     }
 
-    async ratifySubmission(
-        submissionId: string,
-        playerId: number,
-    ): Promise<void> {
-        const canRatifyReponse = await this.submissionService.send(
-            SubmissionEndpoint.CanRatifySubmission,
-            {
-                playerId: playerId,
-                submissionId: submissionId,
-            },
-        );
-        if (canRatifyReponse.status === ResponseStatus.ERROR)
-            throw canRatifyReponse.error;
-        if (!canRatifyReponse.data.canRatify)
-            throw new GraphQLError(canRatifyReponse.data.reason);
+    async ratifySubmission(submissionId: string, playerId: number): Promise<void> {
+        const canRatifyReponse = await this.submissionService.send(SubmissionEndpoint.CanRatifySubmission, {
+            playerId: playerId,
+            submissionId: submissionId,
+        });
+        if (canRatifyReponse.status === ResponseStatus.ERROR) throw canRatifyReponse.error;
+        if (!canRatifyReponse.data.canRatify) throw new GraphQLError(canRatifyReponse.data.reason);
 
-        const ratificationResponse = await this.submissionService.send(
-            SubmissionEndpoint.RatifySubmission,
-            {
-                submissionId: submissionId,
-                playerId: playerId,
-            },
-        );
-        if (ratificationResponse.status === ResponseStatus.ERROR)
-            throw ratificationResponse.error;
+        const ratificationResponse = await this.submissionService.send(SubmissionEndpoint.RatifySubmission, {
+            submissionId: submissionId,
+            playerId: playerId,
+        });
+        if (ratificationResponse.status === ResponseStatus.ERROR) throw ratificationResponse.error;
     }
 
-    async rejectSubmissionByPlayer(
-        submissionId: string,
-        playerId: number,
-        reason: string,
-    ): Promise<void> {
-        const rejectionResponse = await this.submissionService.send(
-            SubmissionEndpoint.RejectSubmission,
-            {
-                submissionId: submissionId,
-                playerId: playerId,
-                reason: reason,
-            },
-        );
-        if (rejectionResponse.status === ResponseStatus.ERROR)
-            throw rejectionResponse.error;
+    async rejectSubmissionByPlayer(submissionId: string, playerId: number, reason: string): Promise<void> {
+        const rejectionResponse = await this.submissionService.send(SubmissionEndpoint.RejectSubmission, {
+            submissionId: submissionId,
+            playerId: playerId,
+            reason: reason,
+        });
+        if (rejectionResponse.status === ResponseStatus.ERROR) throw rejectionResponse.error;
     }
 
-    async rejectSubmissionBySystem(
-        submissionId: string,
-        reason: string,
-    ): Promise<void> {
-        return this.rejectSubmissionByPlayer(
-            submissionId,
-            REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
-            reason,
-        );
+    async rejectSubmissionBySystem(submissionId: string, reason: string): Promise<void> {
+        return this.rejectSubmissionByPlayer(submissionId, REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID, reason);
     }
 
     async enableSubscription(): Promise<void> {
         if (this.subscribed) return;
         this.subscribed = true;
-        await this.eventsService
-            .subscribe(EventTopic.AllSubmissionEvents, true)
-            .then(rx => {
-                rx.subscribe(v => {
-                    if (typeof v.payload !== "object") {
-                        return;
-                    }
-                    this.redisService
-                        .getJson<ReplaySubmission>(v.payload.redisKey)
-                        .then(async submission =>
-                            this.pubsub.publish(submission.id, {
-                                followSubmission: submission,
-                            }),
-                        )
-                        .catch(this.logger.error.bind(this.logger));
-                });
+        await this.eventsService.subscribe(EventTopic.AllSubmissionEvents, true).then(rx => {
+            rx.subscribe(v => {
+                if (typeof v.payload !== "object") {
+                    return;
+                }
+                this.redisService
+                    .getJson<ReplaySubmission>(v.payload.redisKey)
+                    .then(async submission =>
+                        this.pubsub.publish(submission.id, {
+                            followSubmission: submission,
+                        }),
+                    )
+                    .catch(this.logger.error.bind(this.logger));
             });
+        });
     }
 }

@@ -1,13 +1,5 @@
 import {Field, ObjectType} from "@nestjs/graphql";
-import {
-    Column,
-    Entity,
-    JoinColumn,
-    JoinTable,
-    ManyToOne,
-    OneToMany,
-    OneToOne,
-} from "typeorm";
+import {Column, Entity, JoinColumn, JoinTable, ManyToOne, OneToMany, OneToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {GameSkillGroup} from "../../franchise";

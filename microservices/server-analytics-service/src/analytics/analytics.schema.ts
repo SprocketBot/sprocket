@@ -22,18 +22,11 @@ export const AnalyticsPointSchema = z
     })
     .refine(
         obj => {
-            const hasBooleanField =
-                obj.booleans !== undefined && obj.booleans.length > 0;
-            const hasFloatField =
-                obj.floats !== undefined && obj.floats.length > 0;
+            const hasBooleanField = obj.booleans !== undefined && obj.booleans.length > 0;
+            const hasFloatField = obj.floats !== undefined && obj.floats.length > 0;
             const hasIntField = obj.ints !== undefined && obj.ints.length > 0;
-            const hasStringField =
-                obj.strings !== undefined && obj.strings.length > 0;
-            const hasAtLeastOneField =
-                hasBooleanField ||
-                hasFloatField ||
-                hasIntField ||
-                hasStringField;
+            const hasStringField = obj.strings !== undefined && obj.strings.length > 0;
+            const hasAtLeastOneField = hasBooleanField || hasFloatField || hasIntField || hasStringField;
 
             return hasAtLeastOneField;
         },

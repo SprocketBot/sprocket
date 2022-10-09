@@ -1,12 +1,7 @@
 import type {TextChannel} from "discord.js";
 import {Message} from "discord.js";
 
-import type {
-    StepOptions,
-    ValidWizardCollector,
-    WizardFunction,
-    WizardFunctionOutput,
-} from "./wizard.types";
+import type {StepOptions, ValidWizardCollector, WizardFunction, WizardFunctionOutput} from "./wizard.types";
 import {defaultStepOptions, WizardExitStatus} from "./wizard.types";
 
 export const WizardStepHandler =
@@ -43,9 +38,7 @@ export const WizardStepHandler =
 
         switch (result[0]) {
             case WizardExitStatus.FAIL:
-                await context.send(
-                    `${result[1] ?? ""} Please try again, or enter \`cancel\`.`,
-                );
+                await context.send(`${result[1] ?? ""} Please try again, or enter \`cancel\`.`);
                 if (opts.resetTimerOnFail) {
                     collector.resetTimer();
                 }

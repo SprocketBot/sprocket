@@ -35,18 +35,13 @@ export class FranchiseService {
         return this.franchiseRepository.findOneOrFail(query);
     }
 
-    async getPlayerFranchises(
-        userId: number,
-    ): Promise<CoreOutput<CoreEndpoint.GetPlayerFranchises>> {
-        const mlePlayer =
-            await this.mledbPlayerService.getMlePlayerBySprocketUser(userId);
+    async getPlayerFranchises(userId: number): Promise<CoreOutput<CoreEndpoint.GetPlayerFranchises>> {
+        const mlePlayer = await this.mledbPlayerService.getMlePlayerBySprocketUser(userId);
 
         const playerId = mlePlayer.id;
 
         const team = await this.mledbPlayerService.getPlayerFranchise(playerId);
-        const isCaptain = await this.mledbPlayerService.playerIsCaptain(
-            playerId,
-        );
+        const isCaptain = await this.mledbPlayerService.playerIsCaptain(playerId);
 
         const staffPositions: Array<{id: number; name: string}> = [];
 
@@ -56,10 +51,7 @@ export class FranchiseService {
         if (team.generalManagerId === playerId) {
             staffPositions.push({id: 0, name: "GM"});
         }
-        if (
-            team.doublesAssistantGeneralManagerId === playerId ||
-            team.standardAssistantGeneralManagerId === playerId
-        ) {
+        if (team.doublesAssistantGeneralManagerId === playerId || team.standardAssistantGeneralManagerId === playerId) {
             staffPositions.push({id: 0, name: "AGM"});
         }
         if (isCaptain) {

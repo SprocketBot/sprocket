@@ -4,20 +4,12 @@ import {AnalyticsEndpoint, AnalyticsService, config} from "@sprocketbot/common";
 import type {Profile} from "passport-discord";
 import {Strategy} from "passport-discord";
 
-import type {
-    IrrelevantFields,
-    User,
-    UserAuthenticationAccount,
-    UserProfile,
-} from "../../../../database";
+import type {IrrelevantFields, User, UserAuthenticationAccount, UserProfile} from "../../../../database";
 import {UserAuthenticationAccountType} from "../../../../database";
 import {GameSkillGroupService, PlayerService} from "../../../../franchise";
 import {PlatformService} from "../../../../game";
 import {MledbPlayerAccountService, MledbPlayerService} from "../../../../mledb";
-import {
-    MemberPlatformAccountService,
-    MemberService,
-} from "../../../../organization";
+import {MemberPlatformAccountService, MemberService} from "../../../../organization";
 import {IdentityService} from "../../../identity.service";
 import {UserService} from "../../../user";
 
@@ -53,30 +45,18 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         });
     }
 
-    async validate(
-        accessToken: string,
-        refreshToken: string,
-        profile: Profile,
-        done: Done,
-    ): Promise<User | undefined> {
-        const mledbPlayer = await this.mledbPlayerService
-            .getPlayerByDiscordId(profile.id)
-            .catch(() => null);
+    async validate(accessToken: string, refreshToken: string, profile: Profile, done: Done): Promise<User | undefined> {
+        const mledbPlayer = await this.mledbPlayerService.getPlayerByDiscordId(profile.id).catch(() => null);
         if (!mledbPlayer) throw new Error("User is not associated with MLE");
 
         const userByDiscordId = await this.identityService
-            .getUserByAuthAccount(
-                UserAuthenticationAccountType.DISCORD,
-                profile.id,
-            )
+            .getUserByAuthAccount(UserAuthenticationAccountType.DISCORD, profile.id)
             .catch(() => undefined);
         let user = userByDiscordId;
 
         // It's possible the email doesn't exist if the user didn't verify it.
         if (!user && !profile.email)
-            throw new Error(
-                "User account could not be found and there is no attached email to the Discord user",
-            );
+            throw new Error("User account could not be found and there is no attached email to the Discord user");
 
         // TODO: Do we want to actually do this? Theoretically, if a user changes their email, that's a "new user" if we go by email. Hence ^
         if (!user)
@@ -86,18 +66,12 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
 
         // If no users returned from query, create a new one
         if (!user) {
-            const userProfile: Omit<
-                UserProfile,
-                IrrelevantFields | "id" | "user"
-            > = {
+            const userProfile: Omit<UserProfile, IrrelevantFields | "id" | "user"> = {
                 email: profile.email!,
                 displayName: profile.username,
             };
 
-            const authAcct: Omit<
-                UserAuthenticationAccount,
-                IrrelevantFields | "id" | "user"
-            > = {
+            const authAcct: Omit<UserAuthenticationAccount, IrrelevantFields | "id" | "user"> = {
                 accountType: UserAuthenticationAccountType.DISCORD,
                 accountId: profile.id,
                 oauthToken: accessToken,
@@ -119,36 +93,24 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
                 })
                 .catch(this.logger.error.bind(this.logger));
         } else if (!userByDiscordId) {
-            const authAcct: Omit<
-                UserAuthenticationAccount,
-                IrrelevantFields | "id" | "user"
-            > = {
+            const authAcct: Omit<UserAuthenticationAccount, IrrelevantFields | "id" | "user"> = {
                 accountType: UserAuthenticationAccountType.DISCORD,
                 accountId: profile.id,
                 oauthToken: accessToken,
             };
 
-            await this.userService.addAuthenticationAccounts(user.id, [
-                authAcct,
-            ]);
+            await this.userService.addAuthenticationAccounts(user.id, [authAcct]);
         }
 
-        let member = await this.memberService
-            .getMember({where: {user: {id: user.id}}})
-            .catch(() => null);
+        let member = await this.memberService.getMember({where: {user: {id: user.id}}}).catch(() => null);
 
         if (!member) {
-            member = await this.memberService.createMember(
-                {name: mledbPlayer.name},
-                MLE_ORGANIZATION_ID,
-                user.id,
-            );
+            member = await this.memberService.createMember({name: mledbPlayer.name}, MLE_ORGANIZATION_ID, user.id);
         }
 
-        const mledbPlayerAccounts =
-            await this.mledbPlayerAccountService.getPlayerAccounts({
-                where: {player: {id: mledbPlayer.id}},
-            });
+        const mledbPlayerAccounts = await this.mledbPlayerAccountService.getPlayerAccounts({
+            where: {player: {id: mledbPlayer.id}},
+        });
 
         for (const mledbPlayerAccount of mledbPlayerAccounts) {
             if (!mledbPlayerAccount.platformId) continue;
@@ -167,11 +129,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
             if (!platformAccount) {
                 const platform = await this.platformService
                     .getPlatformByCode(mledbPlayerAccount.platform)
-                    .catch(async () =>
-                        this.platformService.createPlatform(
-                            mledbPlayerAccount.platform,
-                        ),
-                    );
+                    .catch(async () => this.platformService.createPlatform(mledbPlayerAccount.platform));
 
                 await this.memberPlatformAccountService.createMemberPlatformAccount(
                     member.id,
@@ -181,15 +139,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
             }
         }
 
-        if (
-            ![
-                "PREMIER",
-                "MASTER",
-                "CHAMPION",
-                "ACADEMY",
-                "FOUNDATION",
-            ].includes(mledbPlayer.league)
-        )
+        if (!["PREMIER", "MASTER", "CHAMPION", "ACADEMY", "FOUNDATION"].includes(mledbPlayer.league))
             throw new Error("Player does not belong to a league");
 
         const skillGroup = await this.skillGroupService.getGameSkillGroup({
@@ -200,15 +150,8 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
             },
             relations: ["profile"],
         });
-        const player = await this.playerService
-            .getPlayer({where: {member: {id: member.id}}})
-            .catch(() => null);
-        if (!player)
-            await this.playerService.createPlayer(
-                member.id,
-                skillGroup.id,
-                mledbPlayer.salary,
-            );
+        const player = await this.playerService.getPlayer({where: {member: {id: member.id}}}).catch(() => null);
+        if (!player) await this.playerService.createPlayer(member.id, skillGroup.id, mledbPlayer.salary);
 
         done("", user);
         return user;

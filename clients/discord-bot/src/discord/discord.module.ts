@@ -12,9 +12,7 @@ import {DiscordService} from "./discord.service";
         {
             provide: "DISCORD_CLIENT",
             useFactory: async (): Promise<Client> => {
-                const bot_token = (await readFile("./secret/bot-token.txt"))
-                    .toString()
-                    .trim();
+                const bot_token = (await readFile("./secret/bot-token.txt")).toString().trim();
                 const bot_client = new Client({
                     intents: [
                         GatewayIntentBits.Guilds,

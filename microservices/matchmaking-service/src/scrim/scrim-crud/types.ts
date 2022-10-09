@@ -1,8 +1,4 @@
-import type {
-    ScrimGameMode,
-    ScrimPlayer,
-    ScrimSettings,
-} from "@sprocketbot/common";
+import type {ScrimGameMode, ScrimPlayer, ScrimSettings} from "@sprocketbot/common";
 
 export interface CreateScrimOpts {
     organizationId: number;

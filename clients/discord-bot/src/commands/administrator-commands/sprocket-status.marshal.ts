@@ -15,9 +15,7 @@ export class SprocketStatusMarshal extends Marshal {
         args: [],
     })
     async status(m: Message): Promise<void> {
-        const statusChannel = (await m.client.channels.fetch(
-            "866420216653414400",
-        )) as TextChannel;
+        const statusChannel = (await m.client.channels.fetch("866420216653414400")) as TextChannel;
         const wizard = new Wizard(m);
 
         const messagesToDelete: Message[] = [m];
@@ -55,11 +53,7 @@ export class SprocketStatusMarshal extends Marshal {
                 embeds: [messageEmbed],
             });
 
-            messagesToDelete.push(
-                await m.channel.send(
-                    "Enter a description for the status message.",
-                ),
-            );
+            messagesToDelete.push(await m.channel.send("Enter a description for the status message."));
 
             return [WizardExitStatus.SUCCESS];
         });
@@ -96,9 +90,7 @@ export class SprocketStatusMarshal extends Marshal {
             messagesToDelete.push(confirmationPreview);
 
             wizard.add(
-                async (
-                    interaction: MessageComponentInteraction,
-                ): Promise<WizardFunctionOutput> => {
+                async (interaction: MessageComponentInteraction): Promise<WizardFunctionOutput> => {
                     if (interaction.customId === "confirm") {
                         await statusChannel.send({
                             embeds: [
@@ -123,8 +115,7 @@ export class SprocketStatusMarshal extends Marshal {
                 {
                     collectorType: WizardType.COMPONENT,
                     collectorTarget: confirmationPreview,
-                    filter: (interaction: MessageComponentInteraction) =>
-                        interaction.user.id === m.author.id,
+                    filter: (interaction: MessageComponentInteraction) => interaction.user.id === m.author.id,
                 },
             );
 
@@ -132,20 +123,16 @@ export class SprocketStatusMarshal extends Marshal {
         });
 
         wizard.finally(async () => {
-            (m.channel as TextChannel)
-                .bulkDelete(messagesToDelete)
-                .catch(() => {
-                    /* Do nothing */
-                });
+            (m.channel as TextChannel).bulkDelete(messagesToDelete).catch(() => {
+                /* Do nothing */
+            });
         });
 
         wizard.onFail(async () => {
             await m.channel.send("Canceled.");
         });
 
-        messagesToDelete.push(
-            await m.channel.send("Enter a title for the status message."),
-        );
+        messagesToDelete.push(await m.channel.send("Enter a title for the status message."));
         await wizard.start();
     }
 }

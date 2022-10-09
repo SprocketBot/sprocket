@@ -2,8 +2,7 @@ import {z} from "zod";
 
 // Hex color with or without alpha -- not quite right..
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const hexColorRegex =
-    /#[a-f\d]{3}(?:[a-f\d]?|(?:[a-f\d]{3}(?:[a-f\d]{2})?)?)\b/i;
+const hexColorRegex = /#[a-f\d]{3}(?:[a-f\d]?|(?:[a-f\d]{3}(?:[a-f\d]{2})?)?)\b/i;
 
 export const dataLeafSchema = z.union([
     z.object({
@@ -31,11 +30,7 @@ export type DataLeaf = z.infer<typeof dataLeafSchema>;
 // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
 export type Template = DataLeaf | {[key: string]: Template} | Template[];
 export const templateStructureSchema: z.ZodType<Template> = z.lazy(() =>
-    z.union([
-        dataLeafSchema,
-        z.array(templateStructureSchema),
-        z.record(templateStructureSchema),
-    ]),
+    z.union([dataLeafSchema, z.array(templateStructureSchema), z.record(templateStructureSchema)]),
 );
 
 export type TemplateStructure = z.infer<typeof templateStructureSchema>;

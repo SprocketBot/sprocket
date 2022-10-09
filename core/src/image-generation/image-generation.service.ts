@@ -28,19 +28,13 @@ export class ImageGenerationService {
         });
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const data = await this.dataSource.query(reportCardRow.query.query, [
-            scrimId,
-            config.defaultOrganizationId,
-        ]);
-        const result = await this.igService.send(
-            ImageGenerationEndpoint.GenerateImage,
-            {
-                inputFile: `scrim_report_cards/scrimReportCards2/template.svg`,
-                outputFile: `scrim_report_cards/scrimReportCards2/outputs/${scrimId}_1`,
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                template: data[0].data,
-            },
-        );
+        const data = await this.dataSource.query(reportCardRow.query.query, [scrimId, config.defaultOrganizationId]);
+        const result = await this.igService.send(ImageGenerationEndpoint.GenerateImage, {
+            inputFile: `scrim_report_cards/scrimReportCards2/template.svg`,
+            outputFile: `scrim_report_cards/scrimReportCards2/outputs/${scrimId}_1`,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            template: data[0].data,
+        });
         if (result.status === ResponseStatus.SUCCESS) return result.data;
         throw result.error;
     }
@@ -52,10 +46,7 @@ export class ImageGenerationService {
         });
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const data = await this.dataSource.query(reportCardRow.query.query, [
-            seriesId,
-            config.defaultOrganizationId,
-        ]);
+        const data = await this.dataSource.query(reportCardRow.query.query, [seriesId, config.defaultOrganizationId]);
 
         let reportCard = "seriesSixPlayersMax";
 
@@ -70,15 +61,12 @@ export class ImageGenerationService {
             this.logger.log("using 8 player card");
         }
 
-        const result = await this.igService.send(
-            ImageGenerationEndpoint.GenerateImage,
-            {
-                inputFile: `series_report_cards/${reportCard}/template.svg`,
-                outputFile: `series_report_cards/${reportCard}/outputs/${seriesId}_1`,
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                template: data[0].data,
-            },
-        );
+        const result = await this.igService.send(ImageGenerationEndpoint.GenerateImage, {
+            inputFile: `series_report_cards/${reportCard}/template.svg`,
+            outputFile: `series_report_cards/${reportCard}/outputs/${seriesId}_1`,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            template: data[0].data,
+        });
         if (result.status === ResponseStatus.SUCCESS) return result.data;
         throw result.error;
     }
