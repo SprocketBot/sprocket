@@ -425,19 +425,31 @@ export class MatchService {
      * @returns A string containing a summary of the actions that took place when the processing has completed.
      */
     async markSeriesNcp(seriesId: number, isNcp: boolean, winningTeamId?: number, numReplays?: number): Promise<string> {
-        const r = Math.floor(Math.random() * 10000);
-        this.logger.verbose(`(${r}) begin markSeriesNcp: seriesId=${seriesId}, isNcp=${isNcp}, winningTeam=${winningTeamId}`);
+        this.logger.verbose(`Begin markSeriesNcp: seriesId=${seriesId}, isNcp=${isNcp}, winningTeam=${winningTeamId}`);
 
         // Find the winning team and it's franchise profile, since that's where
         // team names are in Sprocket.
-        const winningTeam = await this.teamRepository.findOne({where: {id: winningTeamId}, relations: {franchise: {profile: true} } });
+        const winningTeam = await this.teamRepository.findOneOrFail({
+            where: {
+                id: winningTeamId,
+            },
+            relations: {
+                franchise: {
+                    profile: true,
+                },
+            },
+        });
         const series = await this.matchRepository.findOneOrFail({
             where: {id: seriesId},
             relations: {
                 matchParent: {
                     fixture: {
-                        homeFranchise: true,
-                        awayFranchise: true,
+                        homeFranchise: {
+                            profile: true,
+                        },
+                        awayFranchise: {
+                            profile: true,
+                        },
                     },
                     scrimMeta: true,
                 },
@@ -495,7 +507,7 @@ export class MatchService {
         const replayIds = seriesReplays.map(replay => replay.id);
         await this.markReplaysNcp(replayIds, isNcp, winningTeam ?? undefined, invalidation);
 
-        this.logger.verbose(`(${r}) end markSeriesNcp`);
+        this.logger.verbose(`End markSeriesNcp`);
 
         const seriesTypeStr = series.matchParent.fixture ? "fixture" : series.matchParent.scrimMeta ? "scrim" : "unknown";
         return `\`seriesId=${seriesId}\` ${seriesTypeStr ? `(${seriesTypeStr})` : ""} successfully marked \`fullNcp=${isNcp}\` with updated elo, and all connected replays had their elo updated.${numReplays && dummiesNeeded ? ` **${dummiesNeeded} dummy replay(s)** were added to the series.` : ""}`;
