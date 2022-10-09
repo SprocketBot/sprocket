@@ -176,8 +176,6 @@ export class MledbMatchService {
             relations: ["fixture.homeName", "fixture.awayName"],
         });
 
-        const seriesType: SeriesType = series.fixture ? SeriesType.Fixture : SeriesType.Scrim;
-
         // winningTeam needs to be 'let' here, since we change it to FA for scrims
         let winningTeam = await this.teamRepo.findOne({
             where: {
