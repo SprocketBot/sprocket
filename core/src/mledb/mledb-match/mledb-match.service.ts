@@ -173,7 +173,9 @@ export class MledbMatchService {
             where: {
                 id: seriesId,
             },
-            relations: ["fixture.homeName", "fixture.awayName"],
+            relations: {
+                fixture: true,
+            },
         });
 
         // winningTeam needs to be 'let' here, since we change it to FA for scrims
