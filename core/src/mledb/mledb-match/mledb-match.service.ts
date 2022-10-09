@@ -17,11 +17,6 @@ import {
 import {MatchService} from "../../scheduling";
 import {PopulateService} from "../../util/populate/populate.service";
 
-export enum SeriesType {
-    // eslint-disable-next-line @typescript-eslint/prefer-enum-initializers
-    Fixture, Scrim,
-}
-
 @Injectable()
 export class MledbMatchService {
     private readonly logger = new Logger(MledbMatchService.name);
