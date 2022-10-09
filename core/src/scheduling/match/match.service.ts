@@ -465,8 +465,8 @@ export class MatchService {
 
             // Check to make sure the winning team played in the series/fixture
             if (winningTeam
-                && series.matchParent.fixture.homeFranchise.profile.title !== winningTeam.franchise.profile.title
-                && series.matchParent.fixture.awayFranchise.profile.title !== winningTeam.franchise.profile.title) {
+                && series.matchParent.fixture.homeFranchise.id !== winningTeam.franchise.id
+                && series.matchParent.fixture.awayFranchise.id !== winningTeam.franchise.id) {
                 throw new Error(`The team \`${winningTeam?.franchise.profile.title}\` did not play in series with id \`${series.id}\` (${series.matchParent.fixture.awayFranchise.profile.title} v. ${series.matchParent.fixture.homeFranchise.profile.title}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`);
             }
         } else if (!series.matchParent.scrimMeta) {
@@ -494,18 +494,21 @@ export class MatchService {
             }
         }
 
-        const invalidation = this.invalidationRepository.create({
-            favorsHomeTeam: winningTeamId === series.matchParent.fixture?.homeFranchise.id,
-            description: series.matchParent.fixture ? "Series NCP" : "Scrim NCP",
-        });
-        await this.invalidationRepository.save(invalidation);
+        let invalidation: Invalidation;
+        if (isNcp) {
+            invalidation = this.invalidationRepository.create({
+                favorsHomeTeam: winningTeamId === series.matchParent.fixture?.homeFranchise.id,
+                description: series.matchParent.fixture ? "Series NCP" : "Scrim NCP",
+            });
+            await this.invalidationRepository.save(invalidation);
 
-        series.invalidation = invalidation;
-        await this.matchRepository.save(series);
+            series.invalidation = invalidation;
+            await this.matchRepository.save(series);
+        }
 
         // Update each series replay (including any dummies) to NCP
         const replayIds = seriesReplays.map(replay => replay.id);
-        await this.markReplaysNcp(replayIds, isNcp, winningTeam ?? undefined, invalidation);
+        await this.markReplaysNcp(replayIds, isNcp, winningTeam ?? undefined, invalidation ?? undefined);
 
         this.logger.verbose(`End markSeriesNcp`);
 
