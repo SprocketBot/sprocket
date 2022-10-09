@@ -200,11 +200,6 @@ export class MledbMatchService {
             }
         
         } else if (series.scrim) {
-            if (!series.scrim) {
-                this.logger.error(`Error: series with id=\`${seriesId}\` has no associated scrim. If this is a league play series, please use \`!ncpSeries\` or \`!unNcpSeries\`. If this actually is a scrim, ping Bot Team.`);
-                throw new Error(`Error: series with id=\`${seriesId}\` has no associated scrim. If this is a league play series, please use \`!ncpSeries\` or \`!unNcpSeries\`. If this actually is a scrim, ping Bot Team.`);
-            }
-
             winningTeam = await this.teamRepo.findOneOrFail({
                 where: {
                     name: "FA",
