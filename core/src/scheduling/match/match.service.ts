@@ -465,8 +465,8 @@ export class MatchService {
 
             // Check to make sure the winning team played in the series/fixture
             if (winningTeam
-                && series.matchParent.fixture.homeFranchise !== winningTeam.franchise
-                && series.matchParent.fixture.awayFranchise !== winningTeam.franchise) {
+                && series.matchParent.fixture.homeFranchise.profile.title !== winningTeam.franchise.profile.title
+                && series.matchParent.fixture.awayFranchise.profile.title !== winningTeam.franchise.profile.title) {
                 throw new Error(`The team \`${winningTeam?.franchise.profile.title}\` did not play in series with id \`${series.id}\` (${series.matchParent.fixture.awayFranchise.profile.title} v. ${series.matchParent.fixture.homeFranchise.profile.title}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`);
             }
         } else if (!series.matchParent.scrimMeta) {
