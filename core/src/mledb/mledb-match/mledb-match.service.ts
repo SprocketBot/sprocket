@@ -185,11 +185,6 @@ export class MledbMatchService {
 
         if (seriesType === SeriesType.Fixture) {
         
-            if (!series.fixture) {
-                this.logger.error(`Error: series with id=\`${seriesId}\` has no associated fixture. If this is a scrim, please use \`!ncpScrim\` or \`!unNcpScrim\`. If this actually is a league play series, ping Bot Team.`);
-                throw new Error(`Error: series with id=\`${seriesId}\` has no associated fixture. If this is a scrim, please use \`!ncpScrim\` or \`!unNcpScrim\`. If this actually is a league play series, ping Bot Team.`);
-            }
-        
             // Winning team must be specified if NCPing replays
             if (isNcp && !winningTeam) {
                 this.logger.error("When NCPing a series associated with a fixture, you must specify a winningTeam");
