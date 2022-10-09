@@ -298,13 +298,21 @@ export class PlayerService {
         const playerAccounts: MLE_PlayerAccount[] = [];
         await Promise.all(accounts.map(async a => {
             const currAcc = await this.mle_playerAccountRepository.findOne({
-                where: {
-                    platform: a.platform,
-                    platformId: a.platformId,
-                    player: {
-                        id: player.id,
+                where: [
+                    {
+                        platform: a.platform,
+                        platformId: a.platformId,
+                        player: {
+                            id: player.id,
+                        },
                     },
-                },
+                    {
+                        tracker: a.tracker,
+                        player: {
+                            id: player.id,
+                        },
+                    },
+                ],
                 relations: {
                     player: true,
                 },
