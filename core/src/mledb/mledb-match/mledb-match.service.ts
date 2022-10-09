@@ -242,7 +242,7 @@ export class MledbMatchService {
         const replayIds = seriesReplays.map(seriesReplay => seriesReplay.id);
         await this.markReplaysNcp(replayIds, isNcp, winningTeam ? winningTeam : undefined);
 
-        this.logger.debug(`(${r}) end markSeriesNcp`);
+        this.logger.debug(`End markSeriesNcp`);
 
         return `seriesId=${seriesId} successfully marked fullNcp=${isNcp} with updated elo, and all connected replays had their elo updated.`;
     }
