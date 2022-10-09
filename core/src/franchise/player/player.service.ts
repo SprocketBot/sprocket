@@ -180,61 +180,86 @@ export class PlayerService {
         let player: Player;
 
         try {
-            const user = this.userRepository.create({});
+            const mlePlayer = await this.mle_playerRepository.findOne({where: {mleid} });
+
+            if (mlePlayer)  {
+                const bridge = await this.ptpRepo.findOneOrFail({where: {mledPlayerId: mlePlayer.id} });
+                player = await this.playerRepository.findOneOrFail({where: {id: bridge.sprocketPlayerId}, relations: {member: {user: true} } });
+
+                await this.mle_updatePlayer(
+                    mlePlayer,
+                    name,
+                    LeagueOrdinals[skillGroup.ordinal - 1],
+                    salary,
+                    platform,
+                    timezone,
+                    modePreference,
+                    platforms,
+                    runner,
+                );
+
+                await this.eloConnectorService.createJob(EloEndpoint.SGChange, {
+                    id: player.id,
+                    salary: salary,
+                    skillGroup: skillGroup.ordinal,
+                });
+            } else {
+                const user = this.userRepository.create({});
             
-            user.profile = this.userProfileRepository.create({
-                user: user,
-                email: "unknown@sprocket.gg",
-                displayName: name,
-            });
-            user.profile.user = user;
+                user.profile = this.userProfileRepository.create({
+                    user: user,
+                    email: "unknown@sprocket.gg",
+                    displayName: name,
+                });
+                user.profile.user = user;
 
-            const authAcc = this.userAuthRepository.create({
-                accountType: UserAuthenticationAccountType.DISCORD,
-                accountId: discordId,
-            });
-            authAcc.user = user;
-            user.authenticationAccounts = [authAcc];
+                const authAcc = this.userAuthRepository.create({
+                    accountType: UserAuthenticationAccountType.DISCORD,
+                    accountId: discordId,
+                });
+                authAcc.user = user;
+                user.authenticationAccounts = [authAcc];
 
-            const member = this.memberRepository.create({});
-            member.organization = mleOrg;
-            member.user = user;
-            member.profile = this.memberProfileRepository.create({
-                name: name,
-            });
-            member.profile.member = member;
+                const member = this.memberRepository.create({});
+                member.organization = mleOrg;
+                member.user = user;
+                member.profile = this.memberProfileRepository.create({
+                    name: name,
+                });
+                member.profile.member = member;
 
-            player = this.playerRepository.create({salary});
-            player.member = member;
-            player.skillGroup = skillGroup;
+                player = this.playerRepository.create({salary});
+                player.member = member;
+                player.skillGroup = skillGroup;
 
-            await runner.manager.save(user);
-            await runner.manager.save(user.profile);
-            await runner.manager.save(user.authenticationAccounts);
-            await runner.manager.save(member);
-            await runner.manager.save(member.profile);
-            await runner.manager.save(player);
-            await this.mle_createPlayer(
-                user.id,
-                player.id,
-                mleid,
-                discordId,
-                name,
-                LeagueOrdinals[skillGroup.ordinal - 1],
-                salary,
-                platform,
-                timezone,
-                modePreference,
-                platforms,
-                runner,
-            );
+                await runner.manager.save(user);
+                await runner.manager.save(user.profile);
+                await runner.manager.save(user.authenticationAccounts);
+                await runner.manager.save(member);
+                await runner.manager.save(member.profile);
+                await runner.manager.save(player);
+                await this.mle_createPlayer(
+                    user.id,
+                    player.id,
+                    mleid,
+                    discordId,
+                    name,
+                    LeagueOrdinals[skillGroup.ordinal - 1],
+                    salary,
+                    platform,
+                    timezone,
+                    modePreference,
+                    platforms,
+                    runner,
+                );
 
-            await this.eloConnectorService.createJob(EloEndpoint.AddPlayerBySalary, {
-                id: player.id,
-                name: name,
-                salary: salary,
-                skillGroup: skillGroup.ordinal,
-            });
+                await this.eloConnectorService.createJob(EloEndpoint.AddPlayerBySalary, {
+                    id: player.id,
+                    name: name,
+                    salary: salary,
+                    skillGroup: skillGroup.ordinal,
+                });
+            }
             
             await runner.commitTransaction();
         } catch (e) {
@@ -246,6 +271,61 @@ export class PlayerService {
         }
 
         return player;
+    }
+
+    async mle_updatePlayer(
+        player: MLE_Player,
+        name: string,
+        league: League,
+        salary: number,
+        platform: string,
+        timezone: Timezone,
+        preference: ModePreference,
+        accounts: IntakePlayerAccount[],
+        runner?: QueryRunner,
+    ): Promise<MLE_Player> {
+        const updatedPlayer = this.mle_playerRepository.merge(player, {
+            updatedBy: "Sprocket FA Intake",
+            name: name,
+            salary: salary,
+            league: league,
+            preferredPlatform: platform,
+            timezone: timezone,
+            modePreference: preference,
+            teamName: "Pend",
+        });
+
+        const playerAccounts: MLE_PlayerAccount[] = [];
+        await Promise.all(accounts.map(async a => {
+            const currAcc = await this.mle_playerAccountRepository.findOne({
+                where: {
+                    platform: a.platform,
+                    platformId: a.platformId,
+                    player: {
+                        id: player.id,
+                    },
+                },
+                relations: {
+                    player: true,
+                },
+            });
+            if (currAcc) return;
+
+            const acc = this.mle_playerAccountRepository.create(a);
+            acc.player = player;
+            
+            playerAccounts.push(acc);
+        }));
+
+        if (runner) {
+            await runner.manager.save(player);
+            await runner.manager.save(playerAccounts);
+        } else {
+            await this.mle_playerRepository.save(player);
+            await this.mle_playerAccountRepository.save(playerAccounts);
+        }
+
+        return updatedPlayer;
     }
 
     async mle_createPlayer(
@@ -291,7 +371,7 @@ export class PlayerService {
             await runner.manager.save(playerAccounts);
         } else {
             await this.mle_playerRepository.save(player);
-            await this.mle_playerAccountRepository.save(player);
+            await this.mle_playerAccountRepository.save(playerAccounts);
         }
 
         const ptuBridge = this.ptuRepo.create({
