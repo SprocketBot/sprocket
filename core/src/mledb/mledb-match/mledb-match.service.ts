@@ -199,7 +199,7 @@ export class MledbMatchService {
                 throw new Error(`The team \`${winningTeam?.name}\` did not play in series with id \`${series.id}\` (${series.fixture.awayName} v. ${series.fixture.homeName}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`);
             }
         
-        } else if (seriesType === SeriesType.Scrim) {
+        } else if (series.scrim) {
             if (!series.scrim) {
                 this.logger.error(`Error: series with id=\`${seriesId}\` has no associated scrim. If this is a league play series, please use \`!ncpSeries\` or \`!unNcpSeries\`. If this actually is a scrim, ping Bot Team.`);
                 throw new Error(`Error: series with id=\`${seriesId}\` has no associated scrim. If this is a league play series, please use \`!ncpSeries\` or \`!unNcpSeries\`. If this actually is a scrim, ping Bot Team.`);
