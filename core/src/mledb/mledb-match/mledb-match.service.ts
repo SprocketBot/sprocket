@@ -186,7 +186,6 @@ export class MledbMatchService {
         });
 
         if (series.fixture) {
-        
             // Winning team must be specified if NCPing replays
             if (isNcp && !winningTeam) {
                 this.logger.error("When NCPing a series associated with a fixture, you must specify a winningTeam");
@@ -208,7 +207,7 @@ export class MledbMatchService {
                 },
             });
         } else {
-            throw new Error();
+            throw new Error(`Somehow you've tried to NCP a series which is neither a scrim nor a fixture. Series details: ${JSON.stringify(series)}`);
         }
 
         const seriesReplays = await this.seriesReplayRepo.find({
