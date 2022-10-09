@@ -7,12 +7,7 @@ import {EmbedService} from "../embed/embed.service";
 import {CommandsModule} from "./commands/commands.module";
 
 @Module({
-    imports: [
-        forwardRef(() => DiscordModule),
-        EmbedModule,
-        CoreModule,
-        CommandsModule,
-    ],
+    imports: [forwardRef(() => DiscordModule), EmbedModule, CoreModule, CommandsModule],
     providers: [EmbedService],
     exports: [EmbedService],
 })

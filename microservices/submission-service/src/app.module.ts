@@ -6,11 +6,6 @@ import {ReplayValidationModule} from "./replay-validation/replay-validation.modu
 
 @Module({
     controllers: [],
-    imports: [
-        EventsModule,
-        RedisModule,
-        ReplaySubmissionModule,
-        ReplayValidationModule,
-    ],
+    imports: [EventsModule, RedisModule, ReplaySubmissionModule, ReplayValidationModule],
 })
 export class AppModule {}

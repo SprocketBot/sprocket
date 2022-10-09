@@ -69,12 +69,8 @@ export const MatchmakingSchemas = {
     },
 };
 
-export type MatchmakingInput<T extends MatchmakingEndpoint> = z.infer<
-    typeof MatchmakingSchemas[T]["input"]
->;
-export type MatchmakingOutput<T extends MatchmakingEndpoint> = z.infer<
-    typeof MatchmakingSchemas[T]["output"]
->;
+export type MatchmakingInput<T extends MatchmakingEndpoint> = z.infer<typeof MatchmakingSchemas[T]["input"]>;
+export type MatchmakingOutput<T extends MatchmakingEndpoint> = z.infer<typeof MatchmakingSchemas[T]["output"]>;
 
 export interface MatchmakingSuccessResponse<T extends MatchmakingEndpoint> {
     status: ResponseStatus.SUCCESS;

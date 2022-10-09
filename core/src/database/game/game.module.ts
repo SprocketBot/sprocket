@@ -8,15 +8,7 @@ import {GameFeature} from "./game_feature";
 import {GameMode} from "./game_mode";
 import {Platform} from "./platform";
 
-export const gameEntities = [
-    EnabledFeature,
-    Feature,
-    Platform,
-    GameMode,
-    Game,
-    GameFeature,
-    Feature,
-];
+export const gameEntities = [EnabledFeature, Feature, Platform, GameMode, Game, GameFeature, Feature];
 
 const ormModule = TypeOrmModule.forFeature(gameEntities);
 

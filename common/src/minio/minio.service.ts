@@ -26,11 +26,7 @@ export class MinioService {
      * @param objectPath The name to give the uploaded object.
      * @param object The data to upload.
      */
-    async put(
-        bucket: string,
-        objectPath: string,
-        object: Buffer | string,
-    ): Promise<void> {
+    async put(bucket: string, objectPath: string, object: Buffer | string): Promise<void> {
         if (object.length === 0) {
             throw new Error(`Cannot upload empty object ${objectPath}`);
         }

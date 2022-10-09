@@ -14,6 +14,4 @@ export const CanRatifySubmission_Response = z.union([
         canRatify: z.literal(true),
     }),
 ]);
-export type CanRatifySubmissionResponse = z.infer<
-    typeof CanRatifySubmission_Response
->;
+export type CanRatifySubmissionResponse = z.infer<typeof CanRatifySubmission_Response>;

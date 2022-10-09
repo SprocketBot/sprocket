@@ -149,12 +149,8 @@ export const CoreSchemas = {
     },
 };
 
-export type CoreInput<T extends CoreEndpoint> = z.infer<
-    typeof CoreSchemas[T]["input"]
->;
-export type CoreOutput<T extends CoreEndpoint> = z.infer<
-    typeof CoreSchemas[T]["output"]
->;
+export type CoreInput<T extends CoreEndpoint> = z.infer<typeof CoreSchemas[T]["input"]>;
+export type CoreOutput<T extends CoreEndpoint> = z.infer<typeof CoreSchemas[T]["output"]>;
 
 export interface CoreSuccessResponse<T extends CoreEndpoint> {
     status: ResponseStatus.SUCCESS;
@@ -166,6 +162,4 @@ export interface CoreErrorResponse {
     error: Error;
 }
 
-export type CoreResponse<T extends CoreEndpoint> =
-    | CoreSuccessResponse<T>
-    | CoreErrorResponse;
+export type CoreResponse<T extends CoreEndpoint> = CoreSuccessResponse<T> | CoreErrorResponse;

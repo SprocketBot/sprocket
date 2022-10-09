@@ -24,12 +24,8 @@ export const BotSchemas = {
     },
 };
 
-export type BotInput<T extends BotEndpoint> = z.infer<
-    typeof BotSchemas[T]["input"]
->;
-export type BotOutput<T extends BotEndpoint> = z.infer<
-    typeof BotSchemas[T]["output"]
->;
+export type BotInput<T extends BotEndpoint> = z.infer<typeof BotSchemas[T]["input"]>;
+export type BotOutput<T extends BotEndpoint> = z.infer<typeof BotSchemas[T]["output"]>;
 
 export interface BotSuccessResponse<T extends BotEndpoint> {
     status: ResponseStatus.SUCCESS;
@@ -41,6 +37,4 @@ export interface BotErrorResponse {
     error: Error;
 }
 
-export type BotResponse<T extends BotEndpoint> =
-    | BotSuccessResponse<T>
-    | BotErrorResponse;
+export type BotResponse<T extends BotEndpoint> = BotSuccessResponse<T> | BotErrorResponse;

@@ -9,9 +9,7 @@ export class UserAuthenticationAccountResolver {
     constructor(private readonly identityService: IdentityService) {}
 
     @ResolveField()
-    async user(
-        @Root() authenticationAccount: Partial<UserAuthenticationAccount>,
-    ): Promise<User> {
+    async user(@Root() authenticationAccount: Partial<UserAuthenticationAccount>): Promise<User> {
         return (
             authenticationAccount.user ??
             (await this.identityService.getUserByAuthAccount(

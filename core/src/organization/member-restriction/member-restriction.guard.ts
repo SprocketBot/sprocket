@@ -31,15 +31,13 @@ export abstract class MemberRestrictionGuard implements CanActivate {
                 },
             })
             .catch(() => null);
-        if (!member)
-            throw new GraphQLError("User is not a member of the organization");
+        if (!member) throw new GraphQLError("User is not a member of the organization");
 
-        const restrictions =
-            await this.memberRestrictionService.getActiveMemberRestrictions(
-                this.restrictionType,
-                new Date(),
-                member.id,
-            );
+        const restrictions = await this.memberRestrictionService.getActiveMemberRestrictions(
+            this.restrictionType,
+            new Date(),
+            member.id,
+        );
 
         if (restrictions.length) throw new GraphQLError(this.failureResponse);
 
@@ -48,16 +46,13 @@ export abstract class MemberRestrictionGuard implements CanActivate {
 }
 
 export class QueueBanGuard extends MemberRestrictionGuard {
-    readonly restrictionType: MemberRestrictionType =
-        MemberRestrictionType.QUEUE_BAN;
+    readonly restrictionType: MemberRestrictionType = MemberRestrictionType.QUEUE_BAN;
 
     readonly failureResponse = "You are currently queue banned";
 }
 
 export class RatificationBanGuard extends MemberRestrictionGuard {
-    readonly restrictionType: MemberRestrictionType =
-        MemberRestrictionType.RATIFICATION_BAN;
+    readonly restrictionType: MemberRestrictionType = MemberRestrictionType.RATIFICATION_BAN;
 
-    readonly failureResponse =
-        "You have been banned from ratifying or rejecting ratification of scrims.";
+    readonly failureResponse = "You have been banned from ratifying or rejecting ratification of scrims.";
 }

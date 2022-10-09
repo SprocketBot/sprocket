@@ -1,9 +1,5 @@
 import {Logger} from "@nestjs/common";
-import {
-    AnalyticsEndpoint,
-    CoreEndpoint,
-    ResponseStatus,
-} from "@sprocketbot/common";
+import {AnalyticsEndpoint, CoreEndpoint, ResponseStatus} from "@sprocketbot/common";
 import type {Message} from "discord.js";
 import {TextChannel} from "discord.js";
 import {performance} from "perf_hooks";
@@ -26,14 +22,10 @@ export const Command =
         if (!descriptor.value) throw new Error("Descriptor is undefined??");
 
         // <  Decorator>
-        const originalMethod: CommandFunction =
-            descriptor.value as unknown as CommandFunction;
+        const originalMethod: CommandFunction = descriptor.value as unknown as CommandFunction;
 
         // @ts-expect-error If it was not a CommandFunction before, then it is using this decorator incorrectly
-        descriptor.value = async function (
-            this: Marshal,
-            ...params: Parameters<CommandFunction>
-        ): Promise<unknown> {
+        descriptor.value = async function (this: Marshal, ...params: Parameters<CommandFunction>): Promise<unknown> {
             /*
              * TODO: Will nest guards work, or do we need our own system?
              * If we need our own system, it should go here.
@@ -41,15 +33,11 @@ export const Command =
             const before = performance.now();
 
             try {
-                const response = await this.coreService.send(
-                    CoreEndpoint.GetUserByAuthAccount,
-                    {
-                        accountId: params[0].author.id,
-                        accountType: "DISCORD",
-                    },
-                );
-                if (response.status === ResponseStatus.ERROR)
-                    throw response.error;
+                const response = await this.coreService.send(CoreEndpoint.GetUserByAuthAccount, {
+                    accountId: params[0].author.id,
+                    accountType: "DISCORD",
+                });
+                if (response.status === ResponseStatus.ERROR) throw response.error;
                 const user = response.data;
                 const context = {...params[1]};
                 context.author = {
@@ -66,10 +54,7 @@ export const Command =
 
             try {
                 // eslint-disable-next-line @typescript-eslint/return-await
-                return (await originalMethod.apply(
-                    this,
-                    params,
-                )) as ReturnType<CommandFunction>;
+                return (await originalMethod.apply(this, params)) as ReturnType<CommandFunction>;
             } catch (_e) {
                 logger.error(_e);
 
@@ -91,18 +76,8 @@ export const Command =
                         name: "commandRun",
                         tags: [
                             ["author", message.author.tag],
-                            [
-                                "guild",
-                                message.channel instanceof TextChannel
-                                    ? message.channel.guild.name
-                                    : "DMs",
-                            ],
-                            [
-                                "channel",
-                                message.channel instanceof TextChannel
-                                    ? message.channel.name
-                                    : "DMs",
-                            ],
+                            ["guild", message.channel instanceof TextChannel ? message.channel.guild.name : "DMs"],
+                            ["channel", message.channel instanceof TextChannel ? message.channel.name : "DMs"],
                             ["command_name", commandSpec.name],
                         ],
                         floats: [["duration", performance.now() - before]],
@@ -121,20 +96,13 @@ export const Command =
             functionName: key.toString(),
         };
         // Check for existing metadata attached to the class
-        let unsafeMetadata: unknown = Reflect.getMetadata(
-            MarshalMetadataKey.Command,
-            target,
-        );
+        let unsafeMetadata: unknown = Reflect.getMetadata(MarshalMetadataKey.Command, target);
         if (!Array.isArray(unsafeMetadata)) unsafeMetadata = [];
         const classCommandMetadatas: unknown[] = unsafeMetadata as unknown[];
 
         // Add our metadata for this command to the class
         classCommandMetadatas.push(commandMeta);
-        Reflect.defineMetadata(
-            MarshalMetadataKey.Command,
-            classCommandMetadatas,
-            target,
-        );
+        Reflect.defineMetadata(MarshalMetadataKey.Command, classCommandMetadatas, target);
         // </ Metadata>
         return descriptor;
     };

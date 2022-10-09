@@ -21,23 +21,14 @@ export class ScrimToggleResolver {
     }
 
     @Mutation(() => Boolean)
-    @UseGuards(
-        GqlJwtGuard,
-        MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN),
-    )
-    async setScrimsDisabled(
-        @Args("disabled") disabled: boolean,
-    ): Promise<boolean> {
-        return disabled
-            ? this.scrimToggleService.disableScrims()
-            : this.scrimToggleService.enableScrims();
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    async setScrimsDisabled(@Args("disabled") disabled: boolean): Promise<boolean> {
+        return disabled ? this.scrimToggleService.disableScrims() : this.scrimToggleService.enableScrims();
     }
 
     @Subscription(() => Boolean)
     async followScrimsDisabled(): Promise<AsyncIterator<boolean>> {
         await this.scrimToggleService.enableSubscription();
-        return this.pubSub.asyncIterator(
-            this.scrimToggleService.scrimsDisabledSubTopic,
-        );
+        return this.pubSub.asyncIterator(this.scrimToggleService.scrimsDisabledSubTopic);
     }
 }

@@ -1,12 +1,5 @@
 import {forwardRef, Module} from "@nestjs/common";
-import {
-    CeleryModule,
-    CoreModule,
-    EventsModule,
-    MatchmakingModule,
-    MinioModule,
-    RedisModule,
-} from "@sprocketbot/common";
+import {CeleryModule, CoreModule, EventsModule, MatchmakingModule, MinioModule, RedisModule} from "@sprocketbot/common";
 
 import {ReplayValidationModule} from "../replay-validation/replay-validation.module";
 import {ReplayParseSubscriber} from "./parse-subscriber/replay-parse.subscriber";
@@ -39,11 +32,7 @@ import {StatsConverterService} from "./stats-converter/stats-converter.service";
         ReplaySubmissionRatificationService,
         StatsConverterService,
     ],
-    controllers: [
-        ReplayUploadController,
-        ReplaySubmissionRatificationController,
-        ReplaySubmissionCrudController,
-    ],
+    controllers: [ReplayUploadController, ReplaySubmissionRatificationController, ReplaySubmissionCrudController],
     exports: [ReplaySubmissionCrudService],
 })
 export class ReplaySubmissionModule {}

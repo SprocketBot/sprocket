@@ -33,12 +33,7 @@ import {
     UserProfile,
 } from "../../database";
 import type {League, ModePreference, Timezone} from "../../database/mledb";
-import {
-    LeagueOrdinals,
-    MLE_Player,
-    MLE_PlayerAccount,
-    Role,
-} from "../../database/mledb";
+import {LeagueOrdinals, MLE_Player, MLE_PlayerAccount, Role} from "../../database/mledb";
 import {PlayerToPlayer} from "../../database/mledb-bridge/player_to_player.model";
 import {PlayerToUser} from "../../database/mledb-bridge/player_to_user.model";
 import type {SalaryPayloadItem} from "../../elo/elo-connector";
@@ -100,11 +95,7 @@ export class PlayerService {
         return this.playerRepository.findOneOrFail({where: {id}});
     }
 
-    async getPlayerByOrganizationAndGame(
-        userId: number,
-        organizationId: number,
-        gameId: number,
-    ): Promise<Player> {
+    async getPlayerByOrganizationAndGame(userId: number, organizationId: number, gameId: number): Promise<Player> {
         return this.playerRepository.findOneOrFail({
             where: {
                 member: {
@@ -166,15 +157,9 @@ export class PlayerService {
         return this.playerRepository.find(query);
     }
 
-    async createPlayer(
-        memberId: number,
-        skillGroupId: number,
-        salary: number,
-    ): Promise<Player> {
+    async createPlayer(memberId: number, skillGroupId: number, salary: number): Promise<Player> {
         const member = await this.memberService.getMemberById(memberId);
-        const skillGroup = await this.skillGroupService.getGameSkillGroupById(
-            skillGroupId,
-        );
+        const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
         const player = this.playerRepository.create({
             member,
             skillGroup,
@@ -201,9 +186,7 @@ export class PlayerService {
             where: {profile: {name: "Minor League Esports"}},
             relations: {profile: true},
         });
-        const skillGroup = await this.skillGroupService.getGameSkillGroupById(
-            skillGroupId,
-        );
+        const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
 
         const runner = this.dataSource.createQueryRunner();
         await runner.connect();
@@ -446,20 +429,13 @@ export class PlayerService {
         return player;
     }
 
-    async updatePlayerStanding(
-        playerId: number,
-        salary: number,
-        skillGroupId?: number,
-    ): Promise<Player> {
+    async updatePlayerStanding(playerId: number, salary: number, skillGroupId?: number): Promise<Player> {
         let player = await this.playerRepository.findOneOrFail({
             where: {id: playerId},
         });
 
         if (skillGroupId) {
-            const skillGroup =
-                await this.skillGroupService.getGameSkillGroupById(
-                    skillGroupId,
-                );
+            const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
 
             player = this.playerRepository.merge(player, {salary, skillGroup});
             await this.playerRepository.save(player);
@@ -623,10 +599,9 @@ export class PlayerService {
                         const bridge = await this.ptpRepo.findOneOrFail({
                             where: {sprocketPlayerId: player.id},
                         });
-                        const mlePlayer =
-                            await this.mle_playerRepository.findOneOrFail({
-                                where: {id: bridge.mledPlayerId},
-                            });
+                        const mlePlayer = await this.mle_playerRepository.findOneOrFail({
+                            where: {id: bridge.mledPlayerId},
+                        });
 
                     /* TEMPORARY NOTIFICATION */
                     const rankdownPayload: RankdownJwtPayload = {
@@ -690,11 +665,12 @@ export class PlayerService {
                                     accountType:
                                         UserAuthenticationAccountType.DISCORD,
                                 },
-                            });
-                        const orgProfile =
-                            await this.organizationService.getOrganizationProfileForOrganization(
-                                player.member.organization.id,
-                            );
+                                accountType: UserAuthenticationAccountType.DISCORD,
+                            },
+                        });
+                        const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(
+                            player.member.organization.id,
+                        );
 
                     // const notifId = `${NotificationType.RANKDOWN.toLowerCase()}-${this.nanoidService.gen()}`;
     
@@ -776,11 +752,7 @@ export class PlayerService {
         return LeagueOrdinals[LeagueOrdinals.indexOf(league) - dir];
     }
 
-    async mle_movePlayerToLeague(
-        sprocPlayerId: number,
-        salary: number,
-        skillGroupId: number,
-    ): Promise<MLE_Player> {
+    async mle_movePlayerToLeague(sprocPlayerId: number, salary: number, skillGroupId: number): Promise<MLE_Player> {
         const sprocketPlayer = await this.getPlayer({
             where: {id: sprocPlayerId},
             relations: {
@@ -798,9 +770,7 @@ export class PlayerService {
         );
         if (!discId) throw new Error("No discord Id");
 
-        const sg = await this.skillGroupService.getGameSkillGroupById(
-            skillGroupId,
-        );
+        const sg = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
 
         let player = await this.mle_playerRepository.findOneOrFail({
             where: {
@@ -828,10 +798,7 @@ export class PlayerService {
         return player;
     }
 
-    async mle_rankDownPlayer(
-        sprocPlayerId: number,
-        salary: number,
-    ): Promise<MLE_Player> {
+    async mle_rankDownPlayer(sprocPlayerId: number, salary: number): Promise<MLE_Player> {
         const sprocketPlayer = await this.getPlayer({
             where: {id: sprocPlayerId},
             relations: {
@@ -882,10 +849,7 @@ export class PlayerService {
         return player;
     }
 
-    async mle_rankUpPlayer(
-        sprocPlayerId: number,
-        salary: number,
-    ): Promise<MLE_Player> {
+    async mle_rankUpPlayer(sprocPlayerId: number, salary: number): Promise<MLE_Player> {
         const sproc = await this.getPlayer({
             where: {id: sprocPlayerId},
             relations: {

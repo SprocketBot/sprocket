@@ -61,9 +61,7 @@ export class OrganizationConfigurationService {
         }));
     }
 
-    async getOrganizationConfigurationKeys(): Promise<
-        OrganizationConfigurationKey[]
-    > {
+    async getOrganizationConfigurationKeys(): Promise<OrganizationConfigurationKey[]> {
         return this.keyRepository.find();
     }
 
@@ -82,35 +80,28 @@ export class OrganizationConfigurationService {
 
     async getOrganizationConfigurationValue<
         T extends OrganizationConfigurationKeyTypes[keyof OrganizationConfigurationKeyTypes],
-    >(
-        organizationId: number,
-        code: OrganizationConfigurationKeyCode,
-    ): Promise<T> {
-        const organizationConfigurationValue =
-            await this.valueRepository.findOne({
-                relations: ["key"],
-                where: {
-                    organization: {
-                        id: organizationId,
-                    },
-                    key: {code},
+    >(organizationId: number, code: OrganizationConfigurationKeyCode): Promise<T> {
+        const organizationConfigurationValue = await this.valueRepository.findOne({
+            relations: ["key"],
+            where: {
+                organization: {
+                    id: organizationId,
                 },
-            });
+                key: {code},
+            },
+        });
 
         let organizationConfigurationKey: OrganizationConfigurationKey;
 
         if (!organizationConfigurationValue) {
-            organizationConfigurationKey =
-                await this.keyRepository.findOneOrFail({
-                    where: {code},
-                });
+            organizationConfigurationKey = await this.keyRepository.findOneOrFail({
+                where: {code},
+            });
         }
 
         return this.parseValue(
-            organizationConfigurationValue?.key ??
-                organizationConfigurationKey!,
-            organizationConfigurationValue?.value ??
-                organizationConfigurationKey!.default,
+            organizationConfigurationValue?.key ?? organizationConfigurationKey!,
+            organizationConfigurationValue?.value ?? organizationConfigurationKey!.default,
         ) as T;
     }
 
@@ -143,9 +134,7 @@ export class OrganizationConfigurationService {
         });
 
         if (!this.validateValue(value, allowedValues)) {
-            throw new Error(
-                `Value ${value} does not conform to the allowed values`,
-            );
+            throw new Error(`Value ${value} does not conform to the allowed values`);
         }
 
         const ocValue = this.valueRepository.create({
@@ -169,9 +158,7 @@ export class OrganizationConfigurationService {
         });
 
         if (!this.validateValue(newValue, allowedValues)) {
-            throw new Error(
-                `Value ${newValue} does not conform to the allowed values`,
-            );
+            throw new Error(`Value ${newValue} does not conform to the allowed values`);
         }
 
         const ocValue = await this.valueRepository.findOneOrFail({
@@ -196,10 +183,7 @@ export class OrganizationConfigurationService {
      * @param allowedValues The allowed values to check the given value against.
      * @returns True if the given value matches at least one of the given allowedValues, false otherwise.
      */
-    validateValue(
-        value: string,
-        allowedValues: OrganizationConfigurationAllowedValue[],
-    ): boolean {
+    validateValue(value: string, allowedValues: OrganizationConfigurationAllowedValue[]): boolean {
         if (!allowedValues.length) return true;
 
         for (const allowedValue of allowedValues) {

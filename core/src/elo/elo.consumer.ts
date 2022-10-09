@@ -35,42 +35,35 @@ export class EloConsumer {
     async runSalaries(): Promise<void> {
         this.logger.debug("Running weekly salaries!");
 
-        const rocketLeague = await this.gameService.getGameByTitle(
-            "Rocket League",
-        );
+        const rocketLeague = await this.gameService.getGameByTitle("Rocket League");
         const mleOrg = await this.organizationService.getOrganization({
             where: {name: "Minor League Esports"},
             relations: {organization: true},
         });
 
-        const autoRankoutsEnabled =
-            await this.gameFeatureService.featureIsEnabled(
-                FeatureCode.AUTO_RANKOUTS,
-                rocketLeague.id,
-                mleOrg.id,
-            );
-        const autoSalariesEnabled =
-            await this.gameFeatureService.featureIsEnabled(
-                FeatureCode.AUTO_SALARIES,
-                rocketLeague.id,
-                mleOrg.id,
-            );
+        const autoRankoutsEnabled = await this.gameFeatureService.featureIsEnabled(
+            FeatureCode.AUTO_RANKOUTS,
+            rocketLeague.id,
+            mleOrg.id,
+        );
+        const autoSalariesEnabled = await this.gameFeatureService.featureIsEnabled(
+            FeatureCode.AUTO_SALARIES,
+            rocketLeague.id,
+            mleOrg.id,
+        );
 
         if (!autoSalariesEnabled) return;
 
-        const salaryData = await this.eloConnectorService.createJobAndWait(
-            EloEndpoint.CalculateSalaries,
-            {doRankouts: autoRankoutsEnabled},
-        );
+        const salaryData = await this.eloConnectorService.createJobAndWait(EloEndpoint.CalculateSalaries, {
+            doRankouts: autoRankoutsEnabled,
+        });
         await this.playerService.saveSalaries(salaryData);
     }
 
     async onApplicationBootstrap(): Promise<void> {
         const repeatableJobs = await this.eloQueue.getRepeatableJobs();
 
-        if (
-            !repeatableJobs.some(job => job.name === WEEKLY_SALARIES_JOB_NAME)
-        ) {
+        if (!repeatableJobs.some(job => job.name === WEEKLY_SALARIES_JOB_NAME)) {
             this.logger.debug("Found no job for weekly salaries, creating");
 
             await this.eloQueue.add(WEEKLY_SALARIES_JOB_NAME, null, {

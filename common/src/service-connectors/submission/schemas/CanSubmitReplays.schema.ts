@@ -14,6 +14,4 @@ export const CanSubmitReplays_Response = z.union([
         canSubmit: z.literal(true),
     }),
 ]);
-export type ICanSubmitReplays_Response = z.infer<
-    typeof CanSubmitReplays_Response
->;
+export type ICanSubmitReplays_Response = z.infer<typeof CanSubmitReplays_Response>;

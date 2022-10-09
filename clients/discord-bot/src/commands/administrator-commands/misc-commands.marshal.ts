@@ -20,8 +20,7 @@ export class MiscCommandsMarshal extends Marshal {
     @Command({
         name: "error",
         docs: "Triggers an error",
-        longDocs:
-            "Triggers an error for debugging and testing of command error handling/reporting",
+        longDocs: "Triggers an error for debugging and testing of command error handling/reporting",
         args: [
             {
                 name: "type",
@@ -35,18 +34,13 @@ export class MiscCommandsMarshal extends Marshal {
 
         await m.reply(`Triggering an error of type ${type}...`);
 
-        throw new CommandError(
-            type,
-            "you used the `error` command",
-            "thank Zach for building this error handling",
-        );
+        throw new CommandError(type, "you used the `error` command", "thank Zach for building this error handling");
     }
 
     @Command({
         name: "embed",
         docs: "Generates a test embed",
-        longDocs:
-            "Generates a test embed for an organization using their organization branding",
+        longDocs: "Generates a test embed for an organization using their organization branding",
         args: [
             {
                 name: "orgId",

@@ -14,10 +14,7 @@ export class ScrimMetaCrudService {
         private readonly scrimRepo: Repository<ScrimMeta>,
     ) {}
 
-    async getScrimCountInPreviousPeriod(
-        p: Period,
-        previousPeriod = false,
-    ): Promise<number> {
+    async getScrimCountInPreviousPeriod(p: Period, previousPeriod = false): Promise<number> {
         let increment: Duration;
 
         const UTCHourOffset = new Date().getTimezoneOffset() * -1;
@@ -46,9 +43,7 @@ export class ScrimMetaCrudService {
         }
         return this.scrimRepo.count({
             where: {
-                createdAt: MoreThan(
-                    add(add(new Date(), increment), {hours: UTCHourOffset}),
-                ),
+                createdAt: MoreThan(add(add(new Date(), increment), {hours: UTCHourOffset})),
             },
         });
     }

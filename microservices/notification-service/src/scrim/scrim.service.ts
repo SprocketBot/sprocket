@@ -35,12 +35,10 @@ export class ScrimService extends SprocketEventMarshal {
     async sendScrimCreatedNotifications(scrim: Scrim): Promise<void> {
         if (!scrim.settings.competitive) return;
 
-        const skillGroupWebhook = await this.coreService.send(
-            CoreEndpoint.GetSkillGroupWebhooks,
-            {skillGroupId: scrim.skillGroupId},
-        );
-        if (skillGroupWebhook.status === ResponseStatus.ERROR)
-            throw skillGroupWebhook.error;
+        const skillGroupWebhook = await this.coreService.send(CoreEndpoint.GetSkillGroupWebhooks, {
+            skillGroupId: scrim.skillGroupId,
+        });
+        if (skillGroupWebhook.status === ResponseStatus.ERROR) throw skillGroupWebhook.error;
         if (!skillGroupWebhook.data.scrim) return;
 
         const skillGroupProfile = await this.coreService.send(CoreEndpoint.GetGameSkillGroupProfile, {skillGroupId: scrim.skillGroupId});
@@ -83,21 +81,15 @@ export class ScrimService extends SprocketEventMarshal {
 
     @SprocketEvent(EventTopic.ScrimPopped)
     async sendQueuePoppedNotifications(scrim: Scrim): Promise<void> {
-        const organizationBrandingResult = await this.coreService.send(
-            CoreEndpoint.GetOrganizationProfile,
-            {id: scrim.organizationId},
-        );
-        if (organizationBrandingResult.status === ResponseStatus.ERROR)
-            throw organizationBrandingResult.error;
+        const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {
+            id: scrim.organizationId,
+        });
+        if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
 
         await Promise.all(
             scrim.players.map(async p => {
-                const userResult = await this.coreService.send(
-                    CoreEndpoint.GetDiscordIdByUser,
-                    p.id,
-                );
-                if (userResult.status === ResponseStatus.ERROR)
-                    throw userResult.error;
+                const userResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, p.id);
+                if (userResult.status === ResponseStatus.ERROR) throw userResult.error;
                 if (!userResult.data) return;
 
                 await this.botService.send(BotEndpoint.SendDirectMessage, {
@@ -150,23 +142,17 @@ export class ScrimService extends SprocketEventMarshal {
 
     @SprocketEvent(EventTopic.ScrimStarted)
     async sendLobbyNotifications(scrim: Scrim): Promise<void> {
-        const organizationBrandingResult = await this.coreService.send(
-            CoreEndpoint.GetOrganizationProfile,
-            {id: scrim.organizationId},
-        );
-        if (organizationBrandingResult.status === ResponseStatus.ERROR)
-            throw organizationBrandingResult.error;
+        const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {
+            id: scrim.organizationId,
+        });
+        if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
 
         if (!scrim.lobby) return;
 
         await Promise.all(
             scrim.players.map(async p => {
-                const userResult = await this.coreService.send(
-                    CoreEndpoint.GetDiscordIdByUser,
-                    p.id,
-                );
-                if (userResult.status === ResponseStatus.ERROR)
-                    throw userResult.error;
+                const userResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, p.id);
+                if (userResult.status === ResponseStatus.ERROR) throw userResult.error;
                 if (!userResult.data) return;
 
                 await this.botService.send(BotEndpoint.SendDirectMessage, {
@@ -202,9 +188,7 @@ export class ScrimService extends SprocketEventMarshal {
     }
 
     @SprocketEvent(EventTopic.ScrimSaved)
-    async sendReportCard(
-        scrim: Scrim & {databaseIds: ScrimDatabaseIds},
-    ): Promise<void> {
+    async sendReportCard(scrim: Scrim & {databaseIds: ScrimDatabaseIds}): Promise<void> {
         const scrimReportCardWebhooksResult = await this.coreService.send(
             CoreEndpoint.GetScrimReportCardWebhooks,
             scrim,
@@ -229,12 +213,8 @@ export class ScrimService extends SprocketEventMarshal {
 
         const discordUserIds = await Promise.all(
             scrim.players.map(async player => {
-                const discordUserResult = await this.coreService.send(
-                    CoreEndpoint.GetDiscordIdByUser,
-                    player.id,
-                );
-                if (discordUserResult.status !== ResponseStatus.SUCCESS)
-                    return undefined;
+                const discordUserResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, player.id);
+                if (discordUserResult.status !== ResponseStatus.SUCCESS) return undefined;
 
                 return discordUserResult.data;
             }),
@@ -242,8 +222,7 @@ export class ScrimService extends SprocketEventMarshal {
 
         if (scrimReportCardWebhooksResult.data.skillGroupWebhook)
             await this.botService.send(BotEndpoint.SendWebhookMessage, {
-                webhookUrl:
-                    scrimReportCardWebhooksResult.data.skillGroupWebhook,
+                webhookUrl: scrimReportCardWebhooksResult.data.skillGroupWebhook,
                 payload: {
                     content: discordUserIds
                         .filter(u => u)
@@ -278,47 +257,43 @@ export class ScrimService extends SprocketEventMarshal {
             });
 
         await Promise.all(
-            scrimReportCardWebhooksResult.data.franchiseWebhooks.map(
-                async franchiseWebhook =>
-                    this.botService.send(BotEndpoint.SendWebhookMessage, {
-                        webhookUrl: franchiseWebhook,
-                        payload: {
-                            embeds: [
-                                {
-                                    title: "Scrim Results",
-                                    image: {
-                                        url: "attachment://card.png",
-                                    },
-                                    timestamp: Date.now(),
+            scrimReportCardWebhooksResult.data.franchiseWebhooks.map(async franchiseWebhook =>
+                this.botService.send(BotEndpoint.SendWebhookMessage, {
+                    webhookUrl: franchiseWebhook,
+                    payload: {
+                        embeds: [
+                            {
+                                title: "Scrim Results",
+                                image: {
+                                    url: "attachment://card.png",
                                 },
-                            ],
-                            attachments: [
-                                {
-                                    name: "card.png",
-                                    url: `minio:${config.minio.bucketNames.image_generation}/${reportCardResult.data}.png`,
-                                },
-                            ],
-                        },
-                        brandingOptions: {
-                            organizationId: scrim.organizationId,
-                            options: {
-                                color: true,
-                                footer: {
-                                    icon: true,
-                                    text: true,
-                                },
+                                timestamp: Date.now(),
+                            },
+                        ],
+                        attachments: [
+                            {
+                                name: "card.png",
+                                url: `minio:${config.minio.bucketNames.image_generation}/${reportCardResult.data}.png`,
+                            },
+                        ],
+                    },
+                    brandingOptions: {
+                        organizationId: scrim.organizationId,
+                        options: {
+                            color: true,
+                            footer: {
+                                icon: true,
+                                text: true,
                             },
                         },
-                    }),
+                    },
+                }),
             ),
         );
     }
 
     async getScrim(scrimId: string): Promise<Scrim | null> {
-        const result = await this.matchmakingService.send(
-            MatchmakingEndpoint.GetScrim,
-            scrimId,
-        );
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, scrimId);
         if (result.status === ResponseStatus.SUCCESS) {
             return result.data;
         }

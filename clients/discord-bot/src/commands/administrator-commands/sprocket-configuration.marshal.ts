@@ -17,18 +17,12 @@ export class SprocketConfigurationMarshal extends Marshal {
         ],
         docs: "Gets the value of a sprocket_configuration row by its key",
     })
-    async getSprocketConfig(
-        m: Message,
-        context: MarshalCommandContext,
-    ): Promise<void> {
+    async getSprocketConfig(m: Message, context: MarshalCommandContext): Promise<void> {
         const key = context.args.key as SprocketConfigurationKey;
 
-        const result = await this.coreService.send(
-            CoreEndpoint.GetSprocketConfiguration,
-            {
-                key,
-            },
-        );
+        const result = await this.coreService.send(CoreEndpoint.GetSprocketConfiguration, {
+            key,
+        });
         if (result.status === ResponseStatus.ERROR) throw result.error;
 
         const arr = result.data.map(c => [c.key, c.value]);

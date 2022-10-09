@@ -1,13 +1,4 @@
-import {
-    Column,
-    Entity,
-    Index,
-    JoinColumn,
-    ManyToOne,
-    OneToMany,
-    OneToOne,
-    PrimaryGeneratedColumn,
-} from "typeorm";
+import {Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn} from "typeorm";
 
 import {MLE_EligibilityData} from "./EligibilityData.model";
 import {MLE_Player} from "./Player.model";
@@ -54,10 +45,7 @@ export class MLE_Scrim {
     @Column("integer", {name: "base_scrim_points"})
     baseScrimPoints: number;
 
-    @OneToMany(
-        () => MLE_EligibilityData,
-        eligibilityData => eligibilityData.scrim,
-    )
+    @OneToMany(() => MLE_EligibilityData, eligibilityData => eligibilityData.scrim)
     eligibilityData: MLE_EligibilityData[];
 
     @ManyToOne(() => MLE_Player, {onUpdate: "CASCADE"})

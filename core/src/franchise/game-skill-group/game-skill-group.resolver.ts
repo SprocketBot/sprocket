@@ -9,15 +9,9 @@ export class GameSkillGroupResolver {
     constructor(private readonly popService: PopulateService) {}
 
     @ResolveField()
-    async profile(
-        @Root() root: GameSkillGroup,
-    ): Promise<GameSkillGroupProfile> {
+    async profile(@Root() root: GameSkillGroup): Promise<GameSkillGroupProfile> {
         if (root.profile) return root.profile;
-        return this.popService.populateOneOrFail(
-            GameSkillGroup,
-            root,
-            "profile",
-        );
+        return this.popService.populateOneOrFail(GameSkillGroup, root, "profile");
     }
 
     @ResolveField()

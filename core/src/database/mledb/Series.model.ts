@@ -1,13 +1,4 @@
-import {
-    Column,
-    Entity,
-    Index,
-    JoinColumn,
-    ManyToOne,
-    OneToMany,
-    OneToOne,
-    PrimaryGeneratedColumn,
-} from "typeorm";
+import {Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn} from "typeorm";
 
 import {LegacyGameMode} from "./enums/Mode.enum";
 import {MLE_Fixture} from "./Fixture.model";
@@ -16,11 +7,7 @@ import {MLE_SeriesReplay} from "./SeriesReplay.model";
 import {MLE_StreamEvent} from "./StreamEvent.model";
 import {MLE_TeamRoleUsage} from "./TeamRoleUsage.model";
 
-@Index(
-    "series_league_fixture_id_mode_unique",
-    ["fixtureId", "league", "mode"],
-    {unique: true},
-)
+@Index("series_league_fixture_id_mode_unique", ["fixtureId", "league", "mode"], {unique: true})
 @Index("series_pkey", ["id"], {unique: true})
 @Index("series_scrim_id_unique", ["scrimId"], {unique: true})
 @Entity("series", {schema: "mledb"})

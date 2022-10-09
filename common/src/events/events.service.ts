@@ -17,16 +17,11 @@ export class EventsService {
         instanceExclusive: boolean,
         subtopic = "*",
     ): Promise<Observable<EventResponse<T>>> {
-        const rawObservable = await this.rmqService.sub(
-            `${topic}.${subtopic}`,
-            instanceExclusive,
-        );
+        const rawObservable = await this.rmqService.sub(`${topic}.${subtopic}`, instanceExclusive);
         const schema = EventSchemas[topic];
         return rawObservable.pipe(
             map(message => {
-                const rawValue = JSON.parse(
-                    message.content.toString(),
-                ) as unknown;
+                const rawValue = JSON.parse(message.content.toString()) as unknown;
                 const value = schema.parse(rawValue);
 
                 return {
@@ -37,16 +32,10 @@ export class EventsService {
         );
     }
 
-    async publish<T extends EventTopic>(
-        topic: T,
-        payload: EventPayload<T>,
-        subtopic = "default",
-    ): Promise<boolean> {
+    async publish<T extends EventTopic>(topic: T, payload: EventPayload<T>, subtopic = "default"): Promise<boolean> {
         EventSchemas[topic].parse(payload);
 
-        this.logger.verbose(
-            `Dispatching ${topic} with payload=${JSON.stringify(payload)}`,
-        );
+        this.logger.verbose(`Dispatching ${topic} with payload=${JSON.stringify(payload)}`);
         const buf = Buffer.from(JSON.stringify(payload));
         return this.rmqService.pub(`${topic}.${subtopic}`, buf);
     }

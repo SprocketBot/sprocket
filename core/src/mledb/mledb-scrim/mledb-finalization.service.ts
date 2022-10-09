@@ -30,10 +30,7 @@ import {
 import {GameSkillGroupService} from "../../franchise";
 import {GameModeService} from "../../game";
 import {UserService} from "../../identity";
-import type {
-    MatchReplaySubmission,
-    ScrimReplaySubmission,
-} from "../../replay-parse";
+import type {MatchReplaySubmission, ScrimReplaySubmission} from "../../replay-parse";
 import {SprocketRatingService} from "../../sprocket-rating/sprocket-rating.service";
 import {MledbMatchService} from "../mledb-match/mledb-match.service";
 import {assignPlayerStats} from "./assign-player-stats";
@@ -65,11 +62,7 @@ export class MledbFinalizationService {
         };
     }
 
-    async saveMatch(
-        submission: MatchReplaySubmission,
-        submissionId: string,
-        em: EntityManager,
-    ): Promise<MLE_Series> {
+    async saveMatch(submission: MatchReplaySubmission, submissionId: string, em: EntityManager): Promise<MLE_Series> {
         const sprocketMatchId = submission.matchId;
 
         const match = await em.findOneOrFail(Match, {
@@ -96,31 +89,18 @@ export class MledbFinalizationService {
             },
         });
 
-        const {
-            homeFranchise,
-            awayFranchise,
-            scheduleGroup: week,
-        } = match.matchParent.fixture!;
+        const {homeFranchise, awayFranchise, scheduleGroup: week} = match.matchParent.fixture!;
 
         const series = await this.mleMatchService.getMleSeries(
             awayFranchise.profile.title,
             homeFranchise.profile.title,
             week.start,
             week.parentGroup.start,
-            match.gameMode.teamSize === 2
-                ? LegacyGameMode.DOUBLES
-                : LegacyGameMode.STANDARD,
-            match.skillGroup.profile.description
-                .split(" ")[0]
-                .toUpperCase() as League,
+            match.gameMode.teamSize === 2 ? LegacyGameMode.DOUBLES : LegacyGameMode.STANDARD,
+            match.skillGroup.profile.description.split(" ")[0].toUpperCase() as League,
         );
 
-        await this.saveSeries(
-            submission as ReplaySubmission,
-            submissionId,
-            em,
-            series,
-        );
+        await this.saveSeries(submission as ReplaySubmission, submissionId, em, series);
         return series;
     }
 
@@ -161,26 +141,18 @@ export class MledbFinalizationService {
         await em.insert(MLE_Scrim, scrim);
         await em.insert(MLE_Series, series);
 
-        await this.saveSeries(
-            submission as ReplaySubmission,
-            submissionId,
-            em,
-            series,
-        );
+        await this.saveSeries(submission as ReplaySubmission, submissionId, em, series);
 
         if (scrimObject.settings.competitive) {
             const playerEligibilities = await Promise.all(
                 scrimObject.players.map(async p => {
                     const playerEligibility = em.create(MLE_EligibilityData);
-                    const discordAccount =
-                        await this.userService.getUserDiscordAccount(p.id);
-                    const player = await this.mlePlayerRepository.findOneOrFail(
-                        {
-                            where: {
-                                discordId: discordAccount.accountId,
-                            },
+                    const discordAccount = await this.userService.getUserDiscordAccount(p.id);
+                    const player = await this.mlePlayerRepository.findOneOrFail({
+                        where: {
+                            discordId: discordAccount.accountId,
                         },
-                    );
+                    });
 
                     playerEligibility.player = player;
                     playerEligibility.scrimPoints = 5;
@@ -215,9 +187,7 @@ export class MledbFinalizationService {
                 // Create and prep the series entity
                 const replay = em.create(MLE_SeriesReplay);
                 replay.series = series;
-                replay.map =
-                    ballchasingMapLookup.get(data.map_code) ??
-                    RocketLeagueMap.UNKNOWN;
+                replay.map = ballchasingMapLookup.get(data.map_code) ?? RocketLeagueMap.UNKNOWN;
                 replay.matchGuid = data.match_guid;
                 replay.ballchasingId = data.id;
                 replay.duration = data.duration;
@@ -226,30 +196,22 @@ export class MledbFinalizationService {
                 replay.played = new Date(data.date);
                 replay.playerStats = [];
                 replay.playerStatsCores = [];
-                replay.winningColor =
-                    data.orange.stats.core.goals > data.blue.stats.core.goals
-                        ? "ORANGE"
-                        : "BLUE";
+                replay.winningColor = data.orange.stats.core.goals > data.blue.stats.core.goals ? "ORANGE" : "BLUE";
 
-                const convertPlayerToMLE = async (
-                    p: BallchasingPlayer,
-                    color: "BLUE" | "ORANGE",
-                ): Promise<void> => {
+                const convertPlayerToMLE = async (p: BallchasingPlayer, color: "BLUE" | "ORANGE"): Promise<void> => {
                     const core = em.create(MLE_PlayerStatsCore);
                     const stats = em.create(MLE_PlayerStats);
                     const usage = em.create(MLE_TeamRoleUsage);
 
-                    const playerAccount =
-                        await this.mlePlayerAccountRepository.findOneOrFail({
-                            where: {
-                                platformId: p.id.id,
-                                platform:
-                                    p.id.platform.toUpperCase() as MLE_Platform,
-                            },
-                            relations: {
-                                player: true,
-                            },
-                        });
+                    const playerAccount = await this.mlePlayerAccountRepository.findOneOrFail({
+                        where: {
+                            platformId: p.id.id,
+                            platform: p.id.platform.toUpperCase() as MLE_Platform,
+                        },
+                        relations: {
+                            player: true,
+                        },
+                    });
                     const player = playerAccount.player;
 
                     core.replay = replay;
@@ -263,21 +225,16 @@ export class MledbFinalizationService {
                     core.mvp = p.stats.core.mvp;
                     core.score = p.stats.core.score;
                     // eslint-disable-next-line @typescript-eslint/no-extra-parens
-                    core.mvpr =
-                        core.goals +
-                        core.assists * 0.75 +
-                        core.saves * 0.6 +
-                        core.shots / 3;
-                    const {opi, dpi, gpi} =
-                        this.sprocketRatingService.calcSprocketRating({
-                            assists: core.assists,
-                            goals: core.goals,
-                            goals_against: core.goals_against,
-                            saves: core.saves,
-                            shots: core.shots,
-                            shots_against: core.shots_against,
-                            team_size: series.mode === "DOUBLES" ? 2 : 3,
-                        });
+                    core.mvpr = core.goals + core.assists * 0.75 + core.saves * 0.6 + core.shots / 3;
+                    const {opi, dpi, gpi} = this.sprocketRatingService.calcSprocketRating({
+                        assists: core.assists,
+                        goals: core.goals,
+                        goals_against: core.goals_against,
+                        saves: core.saves,
+                        shots: core.shots,
+                        shots_against: core.shots_against,
+                        team_size: series.mode === "DOUBLES" ? 2 : 3,
+                    });
                     core.opi = opi;
                     core.dpi = dpi;
                     core.gpi = gpi;
@@ -301,17 +258,12 @@ export class MledbFinalizationService {
                     roleUsages.push(usage);
                 };
 
-                const buildTeamStats = (
-                    p: BallchasingTeam,
-                    color: "BLUE" | "ORANGE",
-                ): MLE_TeamCoreStats => {
+                const buildTeamStats = (p: BallchasingTeam, color: "BLUE" | "ORANGE"): MLE_TeamCoreStats => {
                     const teamStat = em.create(MLE_TeamCoreStats);
                     teamStat.color = color;
 
                     if (series.fixture) {
-                        const teamPlayer = replay.playerStatsCores.find(
-                            psc => psc.color === color,
-                        );
+                        const teamPlayer = replay.playerStatsCores.find(psc => psc.color === color);
                         teamStat.teamName = teamPlayer!.player.teamName;
                     } else {
                         teamStat.teamName = "FA";
@@ -327,43 +279,24 @@ export class MledbFinalizationService {
                 };
 
                 // Convert all players to MLE rows
-                await Promise.all(
-                    data.blue.players.map(async x =>
-                        convertPlayerToMLE(x, "BLUE"),
-                    ),
-                );
-                await Promise.all(
-                    data.orange.players.map(async x =>
-                        convertPlayerToMLE(x, "ORANGE"),
-                    ),
-                );
+                await Promise.all(data.blue.players.map(async x => convertPlayerToMLE(x, "BLUE")));
+                await Promise.all(data.orange.players.map(async x => convertPlayerToMLE(x, "ORANGE")));
 
                 // Convert teams to rows
-                teamStats.push(
-                    buildTeamStats(data.blue, "BLUE"),
-                    buildTeamStats(data.orange, "ORANGE"),
-                );
+                teamStats.push(buildTeamStats(data.blue, "BLUE"), buildTeamStats(data.orange, "ORANGE"));
 
                 // If this is a match
                 if (series.fixture) {
                     const firstPlayer = replay.playerStats[0];
-                    const firstPlayerWon =
-                        firstPlayer.coreStats.color === replay.winningColor;
-                    const firstPlayerIsHome =
-                        firstPlayer.player.teamName === series.fixture.homeName;
+                    const firstPlayerWon = firstPlayer.coreStats.color === replay.winningColor;
+                    const firstPlayerIsHome = firstPlayer.player.teamName === series.fixture.homeName;
                     // If the first player is home - and they won, home won. If the first player is away - and they lost, home won.
-                    const homeWon = firstPlayerIsHome
-                        ? firstPlayerWon
-                        : !firstPlayerWon;
-                    replay.winningTeamName = homeWon
-                        ? series.fixture.homeName
-                        : series.fixture.awayName;
+                    const homeWon = firstPlayerIsHome ? firstPlayerWon : !firstPlayerWon;
+                    replay.winningTeamName = homeWon ? series.fixture.homeName : series.fixture.awayName;
                 } else if (series.scrim) {
                     replay.winningTeamName = "FA";
                 } else
-                    throw new Error(
-                        `Series has neither a fixture or scrim associated with it seriesId=${series.id}`,
-                    );
+                    throw new Error(`Series has neither a fixture or scrim associated with it seriesId=${series.id}`);
 
                 return replay;
             }),
@@ -389,24 +322,18 @@ export class MledbFinalizationService {
             where: {ballchasingId: ballchasingId},
             relations: {series: {scrim: true}},
         });
-        if (!mleReplay.series.scrim)
-            throw new Error(
-                `Replay is not for a scrim replayId=${mleReplay.id}`,
-            );
+        if (!mleReplay.series.scrim) throw new Error(`Replay is not for a scrim replayId=${mleReplay.id}`);
         return mleReplay.series.scrim.id;
     }
 
-    async getMlePlayerByBallchasingPlayer(
-        p: BallchasingPlayer,
-    ): Promise<MLE_Player> {
-        const playerAccount =
-            await this.mlePlayerAccountRepository.findOneOrFail({
-                where: {
-                    platformId: p.id.id,
-                    platform: p.id.platform.toUpperCase() as MLE_Platform,
-                },
-                relations: {player: true},
-            });
+    async getMlePlayerByBallchasingPlayer(p: BallchasingPlayer): Promise<MLE_Player> {
+        const playerAccount = await this.mlePlayerAccountRepository.findOneOrFail({
+            where: {
+                platformId: p.id.id,
+                platform: p.id.platform.toUpperCase() as MLE_Platform,
+            },
+            relations: {player: true},
+        });
         return playerAccount.player;
     }
 }

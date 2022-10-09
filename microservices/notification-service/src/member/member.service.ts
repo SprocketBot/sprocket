@@ -26,22 +26,13 @@ export class MemberService extends SprocketEventMarshal {
     }
 
     @SprocketEvent(EventTopic.MemberRestrictionCreated)
-    async sendQueueBanNotification(
-        restriction: MemberRestriction,
-    ): Promise<void> {
+    async sendQueueBanNotification(restriction: MemberRestriction): Promise<void> {
         if (restriction.type !== MemberRestrictionType.QUEUE_BAN) return;
 
-        const memberResult = await this.coreService.send(
-            CoreEndpoint.GetMember,
-            restriction.member.id,
-        );
-        if (memberResult.status === ResponseStatus.ERROR)
-            throw memberResult.error;
+        const memberResult = await this.coreService.send(CoreEndpoint.GetMember, restriction.member.id);
+        if (memberResult.status === ResponseStatus.ERROR) throw memberResult.error;
 
-        const userResult = await this.coreService.send(
-            CoreEndpoint.GetDiscordIdByUser,
-            memberResult.data.user.id,
-        );
+        const userResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, memberResult.data.user.id);
         if (userResult.status === ResponseStatus.ERROR) throw userResult.error;
         if (!userResult.data) return;
 
@@ -59,10 +50,7 @@ export class MemberService extends SprocketEventMarshal {
                             {
                                 name: "Expiration",
                                 value: format(
-                                    utcToZonedTime(
-                                        new Date(restriction.expiration),
-                                        "America/New_York",
-                                    ),
+                                    utcToZonedTime(new Date(restriction.expiration), "America/New_York"),
                                     "MMMM do, u 'at' h:mmaaa 'ET",
                                 ),
                             },

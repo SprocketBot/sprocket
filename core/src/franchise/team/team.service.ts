@@ -6,14 +6,9 @@ import {Team} from "../../database";
 
 @Injectable()
 export class TeamService {
-    constructor(
-        @InjectRepository(Team) private readonly teamRepo: Repository<Team>,
-    ) {}
+    constructor(@InjectRepository(Team) private readonly teamRepo: Repository<Team>) {}
 
-    async getTeam(
-        franchiseId: number,
-        gameSkillGroupId: number,
-    ): Promise<Team> {
+    async getTeam(franchiseId: number, gameSkillGroupId: number): Promise<Team> {
         return this.teamRepo.findOneOrFail({
             where: {
                 franchise: {

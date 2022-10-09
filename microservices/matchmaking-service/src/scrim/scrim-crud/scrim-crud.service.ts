@@ -63,33 +63,20 @@ export class ScrimCrudService {
         const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
         const scrims = await Promise.all(scrimKeys.map<Promise<Scrim>>(async key => this.redisService.getJson<Scrim>(key, undefined, ScrimSchema)));
 
-        return skillGroupId
-            ? scrims.filter(
-                  s =>
-                      s.skillGroupId === skillGroupId ||
-                      !s.settings.competitive,
-              )
-            : scrims;
+        return skillGroupId ? scrims.filter(s => s.skillGroupId === skillGroupId || !s.settings.competitive) : scrims;
     }
 
     async getScrimByPlayer(id: number): Promise<Scrim | null> {
         const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
         for (const key of scrimKeys) {
-            const playerIds = await this.redisService.getJson<
-                number[] | null | undefined
-            >(key, "$.players[*].id");
+            const playerIds = await this.redisService.getJson<number[] | null | undefined>(key, "$.players[*].id");
 
             if (!playerIds) {
-                this.logger.verbose(
-                    `GetScrimByPlayer id=${id} key=${key} playerIds is null`,
-                );
+                this.logger.verbose(`GetScrimByPlayer id=${id} key=${key} playerIds is null`);
                 continue;
             }
 
-            if (playerIds.includes(id))
-                return this.redisService
-                    .getJson<[Scrim]>(key, "$")
-                    .then(([r]) => r);
+            if (playerIds.includes(id)) return this.redisService.getJson<[Scrim]>(key, "$").then(([r]) => r);
         }
         return null;
     }
@@ -97,12 +84,8 @@ export class ScrimCrudService {
     async getScrimBySubmissionId(submissionId: string): Promise<Scrim | null> {
         const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
         for (const scrimKey of scrimKeys) {
-            const [_submissionId] = await this.redisService.getJson<string[]>(
-                scrimKey,
-                "$.submissionId",
-            );
-            if (_submissionId === submissionId)
-                return this.redisService.getJson<Scrim>(scrimKey);
+            const [_submissionId] = await this.redisService.getJson<string[]>(scrimKey, "$.submissionId");
+            if (_submissionId === submissionId) return this.redisService.getJson<Scrim>(scrimKey);
         }
         return null;
     }
@@ -121,10 +104,7 @@ export class ScrimCrudService {
     }
 
     async updatePlayer(scrimId: string, player: ScrimPlayer): Promise<void> {
-        const [players] = await this.redisService.getJson<ScrimPlayer[][]>(
-            `${this.prefix}${scrimId}`,
-            "$.players",
-        );
+        const [players] = await this.redisService.getJson<ScrimPlayer[][]>(`${this.prefix}${scrimId}`, "$.players");
         const pi = players.findIndex(p => p.id === player.id);
         if (pi === -1) throw new Error("Player not in scrim!");
         players[pi] = player;
@@ -136,9 +116,7 @@ export class ScrimCrudService {
     async playerInAnyScrim(playerId: number): Promise<boolean> {
         const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
         const allScrimPlayers = await Promise.all(
-            scrimKeys.map(async k =>
-                this.redisService.getJson(k, "$.players[*].id"),
-            ),
+            scrimKeys.map(async k => this.redisService.getJson(k, "$.players[*].id")),
         );
         return allScrimPlayers.flat().includes(playerId);
     }

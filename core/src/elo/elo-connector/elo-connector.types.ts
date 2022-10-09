@@ -45,16 +45,10 @@ export const EloSchemas = {
     },
 };
 
-export type EloInput<T extends EloEndpoint> = z.infer<
-    typeof EloSchemas[T]["input"]
->;
-export type EloOutput<T extends EloEndpoint> = z.infer<
-    typeof EloSchemas[T]["output"]
->;
+export type EloInput<T extends EloEndpoint> = z.infer<typeof EloSchemas[T]["input"]>;
+export type EloOutput<T extends EloEndpoint> = z.infer<typeof EloSchemas[T]["output"]>;
 
-export type JobListener<E extends EloEndpoint> = (
-    d: EloOutput<E>,
-) => Promise<void>;
+export type JobListener<E extends EloEndpoint> = (d: EloOutput<E>) => Promise<void>;
 
 export interface JobListenerPayload {
     endpoint: EloEndpoint;

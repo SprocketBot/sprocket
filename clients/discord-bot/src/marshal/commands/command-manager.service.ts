@@ -2,12 +2,7 @@ import {Injectable, Logger} from "@nestjs/common";
 import * as config from "config";
 import type {Message} from "discord.js";
 
-import type {
-    CommandArg,
-    CommandSpec,
-    LinkedCommandMeta,
-    LinkedCommandNotFoundMeta,
-} from "./commands.types";
+import type {CommandArg, CommandSpec, LinkedCommandMeta, LinkedCommandNotFoundMeta} from "./commands.types";
 
 @Injectable()
 export class CommandManagerService {
@@ -52,11 +47,7 @@ export class CommandManagerService {
                 await meta.function(message, {args: args, author: false});
             } else {
                 // Otherwise, if the prefix matches execute all CommandNotFound hooks
-                await Promise.all(
-                    Array.from(this._commandNotFoundHooks).map(async hook =>
-                        hook.function(message),
-                    ),
-                );
+                await Promise.all(Array.from(this._commandNotFoundHooks).map(async hook => hook.function(message)));
             }
         }
     }
@@ -116,9 +107,7 @@ export class CommandManagerService {
     getCommandSpecs(commandName: string): CommandSpec[] {
         const keys = [...this._commands.keys()];
         const matchingKeys = keys.filter(k =>
-            k.startsWith(
-                `${commandName}${CommandManagerService.COMMAND_ARG_KEY_SEP}`,
-            ),
+            k.startsWith(`${commandName}${CommandManagerService.COMMAND_ARG_KEY_SEP}`),
         );
 
         const matchingSpecs: CommandSpec[] = [];
@@ -136,9 +125,7 @@ export class CommandManagerService {
     private extractCommandName(message: string): string | undefined {
         let commandKey = message.split(" ")[0].toLowerCase();
 
-        const prefix = config.has("bot.prefix")
-            ? `${config.get("bot.prefix")}`
-            : "";
+        const prefix = config.has("bot.prefix") ? `${config.get("bot.prefix")}` : "";
         if (commandKey.startsWith(prefix)) {
             commandKey = commandKey.slice(prefix.length);
             return commandKey.toLowerCase();
@@ -159,11 +146,7 @@ export class CommandManagerService {
                 do {
                     localArg.push(argChunks[i].replace(/(?<!\\)"/, ""));
 
-                    if (
-                        argChunks[i].endsWith('"') &&
-                        !argChunks[i].endsWith('\\"')
-                    )
-                        break;
+                    if (argChunks[i].endsWith('"') && !argChunks[i].endsWith('\\"')) break;
                 } while (++i < argChunks.length);
 
                 args.push(localArg.join(" "));
@@ -178,14 +161,9 @@ export class CommandManagerService {
     // TODO refactor this into another service?
     // TODO increase test coverage
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private parseArgs(
-        inputArgs: string[],
-        args: CommandArg[],
-    ): Record<string, unknown> {
+    private parseArgs(inputArgs: string[], args: CommandArg[]): Record<string, unknown> {
         if (inputArgs.length !== args.length) {
-            throw new Error(
-                `Cannot parse arguments with mismatching length, (${inputArgs.length} !== ${args.length})`,
-            );
+            throw new Error(`Cannot parse arguments with mismatching length, (${inputArgs.length} !== ${args.length})`);
         }
 
         const parsed = {};
@@ -204,9 +182,7 @@ export class CommandManagerService {
                 case "mention": {
                     const m = input.match(/^<@!(\d+)>$/);
                     if (!m) {
-                        throw new Error(
-                            `Unable to parse mention argument \`${input}\``,
-                        );
+                        throw new Error(`Unable to parse mention argument \`${input}\``);
                     }
                     // const member = // TODO find org Member by mention ID
                     parsed[arg.name] = {
@@ -216,9 +192,7 @@ export class CommandManagerService {
                     break;
                 }
                 default:
-                    throw new Error(
-                        `Unable to parse arg with unknown arg type=${arg.type}`,
-                    );
+                    throw new Error(`Unable to parse arg with unknown arg type=${arg.type}`);
             }
         }
 

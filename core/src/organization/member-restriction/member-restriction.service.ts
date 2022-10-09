@@ -34,10 +34,7 @@ export class MemberRestrictionService {
         });
 
         await this.memberRestrictionRepository.save(memberRestriction);
-        await this.eventsService.publish(
-            EventTopic.MemberRestrictionCreated,
-            memberRestriction,
-        );
+        await this.eventsService.publish(EventTopic.MemberRestrictionCreated, memberRestriction);
 
         return memberRestriction;
     }
@@ -55,9 +52,7 @@ export class MemberRestrictionService {
         });
     }
 
-    async getMemberRestrictions(
-        query: FindManyOptions<MemberRestriction>,
-    ): Promise<MemberRestriction[]> {
+    async getMemberRestrictions(query: FindManyOptions<MemberRestriction>): Promise<MemberRestriction[]> {
         return this.memberRestrictionRepository.find(query);
     }
 
@@ -92,30 +87,23 @@ export class MemberRestrictionService {
         manualExpirationReason: string,
         forgiven: boolean,
     ): Promise<MemberRestriction> {
-        let memberRestriction =
-            await this.memberRestrictionRepository.findOneOrFail({
-                where: {id: memberRestrictionId},
-                relations: {
-                    member: {
-                        profile: true,
-                    },
+        let memberRestriction = await this.memberRestrictionRepository.findOneOrFail({
+            where: {id: memberRestrictionId},
+            relations: {
+                member: {
+                    profile: true,
                 },
-            });
-
-        memberRestriction = this.memberRestrictionRepository.merge(
-            memberRestriction,
-            {
-                manualExpiration: manualExpiration,
-                manualExpirationReason: manualExpirationReason,
-                forgiven: forgiven,
             },
-        );
+        });
+
+        memberRestriction = this.memberRestrictionRepository.merge(memberRestriction, {
+            manualExpiration: manualExpiration,
+            manualExpirationReason: manualExpirationReason,
+            forgiven: forgiven,
+        });
 
         await this.memberRestrictionRepository.save(memberRestriction);
-        await this.eventsService.publish(
-            EventTopic.MemberRestrictionExpired,
-            memberRestriction,
-        );
+        await this.eventsService.publish(EventTopic.MemberRestrictionExpired, memberRestriction);
 
         return memberRestriction;
     }

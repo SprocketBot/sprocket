@@ -14,12 +14,8 @@ export const AnalyticsSchemas = {
     },
 };
 
-export type AnalyticsInput<T extends AnalyticsEndpoint> = z.infer<
-    typeof AnalyticsSchemas[T]["input"]
->;
-export type AnalyticsOutput<T extends AnalyticsEndpoint> = z.infer<
-    typeof AnalyticsSchemas[T]["output"]
->;
+export type AnalyticsInput<T extends AnalyticsEndpoint> = z.infer<typeof AnalyticsSchemas[T]["input"]>;
+export type AnalyticsOutput<T extends AnalyticsEndpoint> = z.infer<typeof AnalyticsSchemas[T]["output"]>;
 
 export interface AnalyticsSuccessResponse<T extends AnalyticsEndpoint> {
     status: ResponseStatus.SUCCESS;
@@ -31,6 +27,4 @@ export interface AnalyticsErrorResponse {
     error: Error;
 }
 
-export type AnalyticsResponse<T extends AnalyticsEndpoint> =
-    | AnalyticsSuccessResponse<T>
-    | AnalyticsErrorResponse;
+export type AnalyticsResponse<T extends AnalyticsEndpoint> = AnalyticsSuccessResponse<T> | AnalyticsErrorResponse;

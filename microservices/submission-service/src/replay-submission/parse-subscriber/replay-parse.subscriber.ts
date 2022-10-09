@@ -1,11 +1,6 @@
 import {forwardRef, Inject, Injectable, Logger} from "@nestjs/common";
 import type {ProgressMessage} from "@sprocketbot/common";
-import {
-    CeleryService,
-    EventsService,
-    EventTopic,
-    Task,
-} from "@sprocketbot/common";
+import {CeleryService, EventsService, EventTopic, Task} from "@sprocketbot/common";
 
 import {getSubmissionKey} from "../../utils";
 import {ReplaySubmissionService} from "../replay-submission.service";
@@ -35,10 +30,7 @@ export class ReplayParseSubscriber {
         if (this.existingSubscriptions.has(submissionId)) return;
         this.existingSubscriptions.add(submissionId);
 
-        const observable = this.celeryService.subscribe<Task.ParseReplay>(
-            Task.ParseReplay,
-            submissionId,
-        );
+        const observable = this.celeryService.subscribe<Task.ParseReplay>(Task.ParseReplay, submissionId);
 
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         observable.subscribe(async (p: ProgressMessage<Task.ParseReplay>) => {

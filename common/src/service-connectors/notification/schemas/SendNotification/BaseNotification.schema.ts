@@ -17,21 +17,17 @@ export enum NotificationMessageType {
     WebhookMessage = "WebhookMessage",
 }
 
-export const NotificationGuildTextMessageSchema =
-    SendGuildTextMessage_Request.extend({
-        type: z.literal(NotificationMessageType.GuildTextMessage),
-    });
+export const NotificationGuildTextMessageSchema = SendGuildTextMessage_Request.extend({
+    type: z.literal(NotificationMessageType.GuildTextMessage),
+});
 
-export const NotificationDirectMessageSchema = SendDirectMessage_Request.extend(
-    {
-        type: z.literal(NotificationMessageType.DirectMessage),
-    },
-);
+export const NotificationDirectMessageSchema = SendDirectMessage_Request.extend({
+    type: z.literal(NotificationMessageType.DirectMessage),
+});
 
-export const NotificationWebhookMessageSchema =
-    SendWebhookMessage_Request.extend({
-        type: z.literal(NotificationMessageType.WebhookMessage),
-    });
+export const NotificationWebhookMessageSchema = SendWebhookMessage_Request.extend({
+    type: z.literal(NotificationMessageType.WebhookMessage),
+});
 
 export const BaseNotificationSchema = z.object({
     id: z.string().nullable().optional(),

@@ -39,9 +39,7 @@ export const CalculateEloForMatch_Input = z.object({
     gameStats: z.array(MatchSummarySchema),
 });
 
-export type CalculateEloForMatchInput = z.infer<
-    typeof CalculateEloForMatch_Input
->;
+export type CalculateEloForMatchInput = z.infer<typeof CalculateEloForMatch_Input>;
 
 export const CalculateEloForMatch_Output = z.object({});
 

@@ -36,9 +36,7 @@ export class HelpMarshal extends Marshal {
     })
     async helpSpecific(m: Message, c: MarshalCommandContext): Promise<void> {
         const commandName = c.args.command as string;
-        const commandSpecs = this.cms
-            .getCommandSpecs(commandName)
-            .sort(helpUtil.specByNameAndArgs);
+        const commandSpecs = this.cms.getCommandSpecs(commandName).sort(helpUtil.specByNameAndArgs);
 
         if (!commandSpecs.length) {
             await m.reply(`Sorry, \`${commandName}\` is not a valid command.`);

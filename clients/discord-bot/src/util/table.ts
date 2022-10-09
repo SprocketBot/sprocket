@@ -12,8 +12,7 @@ const HORIZONTAL_AND_VERTICAL = "┼";
 
 export const table = (data: string[][], headers: string[]): string => {
     if (!data.length) return "";
-    if (headers.length !== data[0].length)
-        throw new Error("Number of headers doesn't match number of columns");
+    if (headers.length !== data[0].length) throw new Error("Number of headers doesn't match number of columns");
 
     const widths: number[] = Array<number>(headers.length).fill(0);
     data.forEach(row => {

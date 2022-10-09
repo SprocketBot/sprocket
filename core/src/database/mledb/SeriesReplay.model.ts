@@ -1,12 +1,4 @@
-import {
-    Column,
-    Entity,
-    Index,
-    JoinColumn,
-    ManyToOne,
-    OneToMany,
-    PrimaryGeneratedColumn,
-} from "typeorm";
+import {Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 
 import {MLE_EloData} from "./EloData.model";
 import type {RocketLeagueMap} from "./enums/Map.enum";
@@ -105,10 +97,7 @@ export class MLE_SeriesReplay {
     @OneToMany(() => MLE_PlayerStats, playerStats => playerStats.replay)
     playerStats: MLE_PlayerStats[];
 
-    @OneToMany(
-        () => MLE_PlayerStatsCore,
-        playerStatsCore => playerStatsCore.replay,
-    )
+    @OneToMany(() => MLE_PlayerStatsCore, playerStatsCore => playerStatsCore.replay)
     playerStatsCores: MLE_PlayerStatsCore[];
 
     @ManyToOne(() => MLE_Series, series => series.seriesReplays, {

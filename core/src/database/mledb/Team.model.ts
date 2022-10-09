@@ -5,22 +5,14 @@ import {MLE_Player} from "./Player.model";
 import {MLE_TeamBranding} from "./TeamBranding.model";
 
 @Index("team_branding_id_unique", ["brandingId"], {unique: true})
-@Index(
-    "team_doubles_assistant_general_manager_id_unique",
-    ["doublesAssistantGeneralManagerId"],
-    {unique: true},
-)
+@Index("team_doubles_assistant_general_manager_id_unique", ["doublesAssistantGeneralManagerId"], {unique: true})
 @Index("team_franchise_manager_id_unique", ["franchiseManagerId"], {
     unique: true,
 })
 @Index("team_general_manager_id_unique", ["generalManagerId"], {unique: true})
 @Index("team_pkey", ["name"], {unique: true})
 @Index("team_pr_support_id_unique", ["prSupportId"], {unique: true})
-@Index(
-    "team_standard_assistant_general_manager_id_unique",
-    ["standardAssistantGeneralManagerId"],
-    {unique: true},
-)
+@Index("team_standard_assistant_general_manager_id_unique", ["standardAssistantGeneralManagerId"], {unique: true})
 @Entity("team", {schema: "mledb"})
 export class MLE_Team {
     @Column("character varying", {

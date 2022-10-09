@@ -9,15 +9,10 @@ import {UserService} from "./user";
 
 @Controller("identity")
 export class IdentityController {
-    constructor(
-        private readonly identityService: IdentityService,
-        private readonly userService: UserService,
-    ) {}
+    constructor(private readonly identityService: IdentityService, private readonly userService: UserService) {}
 
     @MessagePattern(CoreEndpoint.GetUserByAuthAccount)
-    async getUserByAuthAccount(
-        @Payload() payload: unknown,
-    ): Promise<GetUserByAuthAccountResponse> {
+    async getUserByAuthAccount(@Payload() payload: unknown): Promise<GetUserByAuthAccountResponse> {
         const data = CoreSchemas.GetUserByAuthAccount.input.parse(payload);
         const user = await this.identityService.getUserByAuthAccount(
             data.accountType as UserAuthenticationAccountType,

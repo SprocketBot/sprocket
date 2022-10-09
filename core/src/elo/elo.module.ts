@@ -1,10 +1,6 @@
 import {BullModule} from "@nestjs/bull";
 import {Module} from "@nestjs/common";
-import {
-    EventsModule,
-    NotificationModule,
-    RedisModule,
-} from "@sprocketbot/common";
+import {EventsModule, NotificationModule, RedisModule} from "@sprocketbot/common";
 
 import {DatabaseModule} from "../database";
 import {FranchiseModule} from "../franchise";

@@ -18,15 +18,11 @@ export class ScheduleGroupModResolver {
 
     // TODO: ScheduleGroupType resolver?
     @Query(() => [ScheduleGroupType])
-    async getScheduleGroupTypes(
-        @CurrentUser() user: UserPayload,
-    ): Promise<ScheduleGroupType[]> {
+    async getScheduleGroupTypes(@CurrentUser() user: UserPayload): Promise<ScheduleGroupType[]> {
         if (!user.currentOrganizationId) {
             throw new GraphQLError("You must select an organization");
         }
-        return this.scheduleGroupTypeService.getScheduleGroupTypes(
-            user.currentOrganizationId,
-        );
+        return this.scheduleGroupTypeService.getScheduleGroupTypes(user.currentOrganizationId);
     }
 
     @Query(() => [ScheduleGroup])
@@ -38,10 +34,6 @@ export class ScheduleGroupModResolver {
         if (!user.currentOrganizationId) {
             throw new GraphQLError("You must select an organization");
         }
-        return this.scheduleGroupService.getScheduleGroups(
-            user.currentOrganizationId,
-            type,
-            gameId,
-        );
+        return this.scheduleGroupService.getScheduleGroups(user.currentOrganizationId, type, gameId);
     }
 }

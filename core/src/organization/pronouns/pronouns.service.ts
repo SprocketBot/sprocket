@@ -19,9 +19,7 @@ export class PronounsService {
         organizationId: number,
         pronouns: Omit<Pronouns, IrrelevantFields | "organization" | "id">,
     ): Promise<Pronouns> {
-        const organization = await this.organizationService.getOrganizationById(
-            organizationId,
-        );
+        const organization = await this.organizationService.getOrganizationById(organizationId);
 
         const toCreate: Omit<Pronouns, IrrelevantFields | "id"> = {
             organization,
@@ -33,10 +31,7 @@ export class PronounsService {
         return created;
     }
 
-    async getPronounsById(
-        organizationId: number,
-        pronounsId: number,
-    ): Promise<Pronouns> {
+    async getPronounsById(organizationId: number, pronounsId: number): Promise<Pronouns> {
         const conditions: FindOptionsWhere<Pronouns> = {
             organization: {
                 id: organizationId,
@@ -50,10 +45,7 @@ export class PronounsService {
     }
 
     // TODO type this
-    async getPronouns(
-        query: FindOptionsWhere<Pronouns>,
-        organizationId: number,
-    ): Promise<Pronouns[]> {
+    async getPronouns(query: FindOptionsWhere<Pronouns>, organizationId: number): Promise<Pronouns[]> {
         const pronouns = await this.pronounsRepository.find({
             where: {
                 ...query,

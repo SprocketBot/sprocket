@@ -29,26 +29,18 @@ export class BotService {
         try {
             const input = inputSchema.parse(data);
 
-            const rx = this.microserviceClient
-                .send(endpoint, input)
-                .pipe(timeout(options?.timeout ?? 5000));
+            const rx = this.microserviceClient.send(endpoint, input).pipe(timeout(options?.timeout ?? 5000));
 
             const response = (await lastValueFrom(rx)) as unknown;
 
             const output = outputSchema.parse(response);
-            this.logger.verbose(
-                `<-| \`${endpoint}\` (${JSON.stringify(output)})`,
-            );
+            this.logger.verbose(`<-| \`${endpoint}\` (${JSON.stringify(output)})`);
             return {
                 status: ResponseStatus.SUCCESS,
                 data: output,
             };
         } catch (e) {
-            this.logger.warn(
-                `| < (${rid}) - | \`${endpoint}\` failed ${
-                    (e as Error).message
-                }`,
-            );
+            this.logger.warn(`| < (${rid}) - | \`${endpoint}\` failed ${(e as Error).message}`);
             return {
                 status: ResponseStatus.ERROR,
                 error: e as Error,

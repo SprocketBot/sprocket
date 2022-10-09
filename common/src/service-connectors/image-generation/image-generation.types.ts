@@ -23,9 +23,7 @@ export type ImageGenerationOutput<T extends ImageGenerationEndpoint> = z.infer<
     typeof ImageGenerationSchemas[T]["output"]
 >;
 
-export interface ImageGenerationSuccessResponse<
-    T extends ImageGenerationEndpoint,
-> {
+export interface ImageGenerationSuccessResponse<T extends ImageGenerationEndpoint> {
     status: ResponseStatus.SUCCESS;
     data: ImageGenerationOutput<T>;
 }

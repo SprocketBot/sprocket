@@ -67,11 +67,7 @@ export class ScrimService {
             await this.scrimCrudService.updatePlayer(scrim.id, Object.assign(player, {group}));
         }
 
-        await this.eventsService.publish(
-            EventTopic.ScrimCreated,
-            scrim,
-            scrim.id,
-        );
+        await this.eventsService.publish(EventTopic.ScrimCreated, scrim, scrim.id);
 
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
             name: "scrimCreated",
@@ -112,10 +108,7 @@ export class ScrimService {
                 this.logger.error(err);
             });
 
-        if (
-            scrim.settings.teamSize * scrim.settings.teamCount ===
-            scrim.players.length
-        ) {
+        if (scrim.settings.teamSize * scrim.settings.teamCount === scrim.players.length) {
             await this.scrimLogicService.popScrim(scrim);
             return scrim;
         }
@@ -185,11 +178,7 @@ export class ScrimService {
 
         await this.scrimCrudService.removeScrim(scrimId);
         scrim.status = ScrimStatus.CANCELLED;
-        await this.eventsService.publish(
-            EventTopic.ScrimCancelled,
-            scrim,
-            scrim.id,
-        );
+        await this.eventsService.publish(EventTopic.ScrimCancelled, scrim, scrim.id);
 
         this.analyticsService
             .send(AnalyticsEndpoint.Analytics, {
@@ -213,11 +202,7 @@ export class ScrimService {
 
         await this.scrimCrudService.removeScrim(scrimId);
         scrim.status = ScrimStatus.COMPLETE;
-        await this.eventsService.publish(
-            EventTopic.ScrimComplete,
-            scrim,
-            scrim.id,
-        );
+        await this.eventsService.publish(EventTopic.ScrimComplete, scrim, scrim.id);
 
         this.analyticsService
             .send(AnalyticsEndpoint.Analytics, {
@@ -238,10 +223,7 @@ export class ScrimService {
 
         if (locked) {
             if (scrim.unlockedStatus !== ScrimStatus.LOCKED)
-                await this.scrimCrudService.updateScrimUnlockedStatus(
-                    scrimId,
-                    scrim.status,
-                );
+                await this.scrimCrudService.updateScrimUnlockedStatus(scrimId, scrim.status);
             scrim.status = ScrimStatus.LOCKED;
         } else scrim.status = scrim.unlockedStatus ?? ScrimStatus.IN_PROGRESS;
         await this.scrimCrudService.updateScrimStatus(scrimId, scrim.status);

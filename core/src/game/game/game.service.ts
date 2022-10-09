@@ -7,9 +7,7 @@ import {Game} from "../../database";
 
 @Injectable()
 export class GameService {
-    constructor(
-        @InjectRepository(Game) private gameRepository: Repository<Game>,
-    ) {}
+    constructor(@InjectRepository(Game) private gameRepository: Repository<Game>) {}
 
     async getGameByTitle(title: string): Promise<Game> {
         return this.gameRepository.findOneOrFail({

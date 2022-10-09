@@ -1,9 +1,5 @@
 import {Injectable} from "@nestjs/common";
-import type {
-    MatchReplaySubmission,
-    ReplaySubmission,
-    ScrimReplaySubmission,
-} from "@sprocketbot/common";
+import type {MatchReplaySubmission, ReplaySubmission, ScrimReplaySubmission} from "@sprocketbot/common";
 import {
     BotEndpoint,
     BotService,
@@ -37,12 +33,8 @@ export class SubmissionService extends SprocketEventMarshal {
     }
 
     @SprocketEvent(EventTopic.SubmissionRatifying)
-    async sendSubmissionRatifyingNotifications(
-        payload: EventPayload<EventTopic.SubmissionRatifying>,
-    ): Promise<void> {
-        const submission = await this.redisService.getJson<ReplaySubmission>(
-            payload.redisKey,
-        );
+    async sendSubmissionRatifyingNotifications(payload: EventPayload<EventTopic.SubmissionRatifying>): Promise<void> {
+        const submission = await this.redisService.getJson<ReplaySubmission>(payload.redisKey);
 
         switch (submission.type) {
             case ReplaySubmissionType.MATCH:
@@ -52,9 +44,7 @@ export class SubmissionService extends SprocketEventMarshal {
                 });
                 break;
             case ReplaySubmissionType.SCRIM:
-                await this.sendScrimSubmissionRatifyingNotifications(
-                    submission,
-                );
+                await this.sendScrimSubmissionRatifyingNotifications(submission);
                 break;
             default:
                 this.logger.error("Submission type has not been implemented");
@@ -62,12 +52,8 @@ export class SubmissionService extends SprocketEventMarshal {
     }
 
     @SprocketEvent(EventTopic.SubmissionRejected)
-    async sendSubmissionRejectedNotifications(
-        payload: EventPayload<EventTopic.SubmissionRejected>,
-    ): Promise<void> {
-        const submission = await this.redisService.getJson<ReplaySubmission>(
-            payload.redisKey,
-        );
+    async sendSubmissionRejectedNotifications(payload: EventPayload<EventTopic.SubmissionRejected>): Promise<void> {
+        const submission = await this.redisService.getJson<ReplaySubmission>(payload.redisKey);
 
         switch (submission.type) {
             case ReplaySubmissionType.MATCH:
@@ -94,24 +80,15 @@ export class SubmissionService extends SprocketEventMarshal {
         const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: scrim.organizationId});
         if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
 
-        const organizationBrandingResult = await this.coreService.send(
-            CoreEndpoint.GetOrganizationProfile,
-            {id: scrim.organizationId},
-        );
-        if (organizationBrandingResult.status === ResponseStatus.ERROR)
-            throw organizationBrandingResult.error;
+        const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {
+            id: scrim.organizationId,
+        });
+        if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
 
         await Promise.all(
             scrim.players.map(async p => {
-                const userResult = await this.coreService.send(
-                    CoreEndpoint.GetDiscordIdByUser,
-                    p.id,
-                );
-                if (
-                    userResult.status === ResponseStatus.ERROR ||
-                    !userResult.data
-                )
-                    return;
+                const userResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, p.id);
+                if (userResult.status === ResponseStatus.ERROR || !userResult.data) return;
 
                 await this.botService.send(BotEndpoint.SendDirectMessage, {
                     userId: userResult.data,
@@ -161,34 +138,23 @@ export class SubmissionService extends SprocketEventMarshal {
         );
     }
 
-    async sendMatchSubmissionRatifyingNotifications(
-        submission: MatchReplaySubmission,
-    ): Promise<void> {
-        const matchResult = await this.coreService.send(
-            CoreEndpoint.GetMatchById,
-            {matchId: submission.matchId},
-        );
-        if (matchResult.status === ResponseStatus.ERROR)
-            throw matchResult.error;
+    async sendMatchSubmissionRatifyingNotifications(submission: MatchReplaySubmission): Promise<void> {
+        const matchResult = await this.coreService.send(CoreEndpoint.GetMatchById, {matchId: submission.matchId});
+        if (matchResult.status === ResponseStatus.ERROR) throw matchResult.error;
 
-        const infoResult = await this.coreService.send(
-            CoreEndpoint.GetMatchInformationAndStakeholders,
-            {matchId: submission.matchId},
-        );
+        const infoResult = await this.coreService.send(CoreEndpoint.GetMatchInformationAndStakeholders, {
+            matchId: submission.matchId,
+        });
         if (infoResult.status === ResponseStatus.ERROR) throw infoResult.error;
 
-        const organizationBrandingResult = await this.coreService.send(
-            CoreEndpoint.GetOrganizationProfile,
-            {id: infoResult.data.organizationId},
-        );
-        if (organizationBrandingResult.status === ResponseStatus.ERROR)
-            throw organizationBrandingResult.error;
+        const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {
+            id: infoResult.data.organizationId,
+        });
+        if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
 
         const webhooks: Array<{url: string; role?: string}> = [];
-        if (infoResult.data.home.url)
-            webhooks.push(infoResult.data.home as {url: string; role?: string});
-        if (infoResult.data.away.url)
-            webhooks.push(infoResult.data.away as {url: string; role?: string});
+        if (infoResult.data.home.url) webhooks.push(infoResult.data.home as {url: string; role?: string});
+        if (infoResult.data.away.url) webhooks.push(infoResult.data.away as {url: string; role?: string});
 
         await Promise.all(
             webhooks.map(async w => {
@@ -265,21 +231,15 @@ export class SubmissionService extends SprocketEventMarshal {
         const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: scrim.organizationId});
         if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
 
-        const organizationBrandingResult = await this.coreService.send(
-            CoreEndpoint.GetOrganizationProfile,
-            {id: scrim.organizationId},
-        );
-        if (organizationBrandingResult.status === ResponseStatus.ERROR)
-            throw organizationBrandingResult.error;
+        const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {
+            id: scrim.organizationId,
+        });
+        if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
 
         await Promise.all(
             scrim.players.map(async p => {
-                const userResult = await this.coreService.send(
-                    CoreEndpoint.GetDiscordIdByUser,
-                    p.id,
-                );
-                if (userResult.status === ResponseStatus.ERROR)
-                    throw userResult.error;
+                const userResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, p.id);
+                if (userResult.status === ResponseStatus.ERROR) throw userResult.error;
                 if (!userResult.data) return;
 
                 await this.botService.send(BotEndpoint.SendDirectMessage, {
@@ -330,34 +290,23 @@ export class SubmissionService extends SprocketEventMarshal {
         );
     }
 
-    async sendMatchSubmissionRejectedNotifications(
-        submission: MatchReplaySubmission & {id: string},
-    ): Promise<void> {
-        const matchResult = await this.coreService.send(
-            CoreEndpoint.GetMatchById,
-            {matchId: submission.matchId},
-        );
-        if (matchResult.status === ResponseStatus.ERROR)
-            throw matchResult.error;
+    async sendMatchSubmissionRejectedNotifications(submission: MatchReplaySubmission & {id: string}): Promise<void> {
+        const matchResult = await this.coreService.send(CoreEndpoint.GetMatchById, {matchId: submission.matchId});
+        if (matchResult.status === ResponseStatus.ERROR) throw matchResult.error;
 
-        const infoResult = await this.coreService.send(
-            CoreEndpoint.GetMatchInformationAndStakeholders,
-            {matchId: submission.matchId},
-        );
+        const infoResult = await this.coreService.send(CoreEndpoint.GetMatchInformationAndStakeholders, {
+            matchId: submission.matchId,
+        });
         if (infoResult.status === ResponseStatus.ERROR) throw infoResult.error;
 
-        const organizationBrandingResult = await this.coreService.send(
-            CoreEndpoint.GetOrganizationProfile,
-            {id: infoResult.data.organizationId},
-        );
-        if (organizationBrandingResult.status === ResponseStatus.ERROR)
-            throw organizationBrandingResult.error;
+        const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {
+            id: infoResult.data.organizationId,
+        });
+        if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
 
         const webhooks: Array<{url: string; role?: string}> = [];
-        if (infoResult.data.home.url)
-            webhooks.push(infoResult.data.home as {url: string; role?: string});
-        if (infoResult.data.away.url)
-            webhooks.push(infoResult.data.away as {url: string; role?: string});
+        if (infoResult.data.home.url) webhooks.push(infoResult.data.home as {url: string; role?: string});
+        if (infoResult.data.away.url) webhooks.push(infoResult.data.away as {url: string; role?: string});
 
         await Promise.all(
             webhooks.map(async w => {

@@ -27,14 +27,7 @@ import {
         forwardRef(() => FranchiseModule),
         forwardRef(() => OrganizationModule),
     ],
-    providers: [
-        GqlJwtGuard,
-        OauthService,
-        JwtStrategy,
-        JwtRefreshStrategy,
-        GoogleStrategy,
-        DiscordStrategy,
-    ],
+    providers: [GqlJwtGuard, OauthService, JwtStrategy, JwtRefreshStrategy, GoogleStrategy, DiscordStrategy],
     exports: [OauthService],
     controllers: [OauthController],
 })

@@ -25,10 +25,7 @@ export class OauthService {
         };
     }
 
-    async refreshTokens(
-        user: AuthPayload,
-        refreshToken: string,
-    ): Promise<AccessToken> {
+    async refreshTokens(user: AuthPayload, refreshToken: string): Promise<AccessToken> {
         this.logger.verbose(refreshToken);
         const tokens = await this.loginDiscord(user);
         return tokens;

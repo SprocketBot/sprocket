@@ -48,10 +48,7 @@ export class RmqService {
      * @param instanceExclusive {boolean} Identifies if the subscription should be created at an application or instance level
      * @returns {Observable<ConsumeMessage>} An observable that will complete when the subscription is destroyed
      */
-    async sub(
-        topic: string,
-        instanceExclusive: boolean,
-    ): Promise<Observable<ConsumeMessage>> {
+    async sub(topic: string, instanceExclusive: boolean): Promise<Observable<ConsumeMessage>> {
         /*
          * Build some application scoped queue name
          * If this is used, then the application (i.e. sprocket-core) as a whole should receive each event once
@@ -84,9 +81,7 @@ export class RmqService {
          * This will allow messages matching the topic to enter our queue
          */
         await this.channel.bindQueue(queue, this.exchangeKey, topic);
-        this.logger.debug(
-            `Creating events subscription ${this.exchangeKey}-[${topic}]>${queue}`,
-        );
+        this.logger.debug(`Creating events subscription ${this.exchangeKey}-[${topic}]>${queue}`);
 
         const output = new Observable<ConsumeMessage>(sub => {
             // Consume messages from our queue, into an observable
@@ -118,9 +113,7 @@ export class RmqService {
                 )
                 .catch(sub.error.bind(sub));
             return (): void => {
-                this.logger.debug(
-                    `Destroying events subscription ${this.exchangeKey}-[${topic}]>${queue}`,
-                );
+                this.logger.debug(`Destroying events subscription ${this.exchangeKey}-[${topic}]>${queue}`);
                 this.channel.deleteQueue(queue).catch(sub.error.bind(sub));
             };
         });
@@ -142,9 +135,7 @@ export class RmqService {
         }
         this.channel = await this.connection.createChannel();
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        this.channel.on("closed", async () =>
-            this.buildChannel().catch(this.logger.error.bind(this.logger)),
-        );
+        this.channel.on("closed", async () => this.buildChannel().catch(this.logger.error.bind(this.logger)));
         /*
          * Assert that our exchange exists, and meets the specification we are expecting
          * If it does not exist, this creates it

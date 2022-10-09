@@ -39,9 +39,7 @@ export class MemberService {
         organizationId: number,
         userId: number,
     ): Promise<Member> {
-        const organization = await this.organizationService.getOrganizationById(
-            organizationId,
-        );
+        const organization = await this.organizationService.getOrganizationById(organizationId);
         const user = await this.userService.getUserById(userId);
 
         const profile = this.memberProfileRepository.create(memberProfile);
@@ -62,10 +60,7 @@ export class MemberService {
         return this.memberRepository.findOneOrFail(query);
     }
 
-    async getMemberById(
-        id: number,
-        options?: FindOneOptions<Member>,
-    ): Promise<Member> {
+    async getMemberById(id: number, options?: FindOneOptions<Member>): Promise<Member> {
         return this.memberRepository.findOneOrFail({
             ...options,
             where: {
@@ -80,10 +75,7 @@ export class MemberService {
         return memberProfiles.map(mp => mp.member);
     }
 
-    async updateMemberProfile(
-        memberId: number,
-        data: Omit<Partial<MemberProfile>, "member">,
-    ): Promise<MemberProfile> {
+    async updateMemberProfile(memberId: number, data: Omit<Partial<MemberProfile>, "member">): Promise<MemberProfile> {
         let {profile} = await this.memberRepository.findOneOrFail({
             where: {id: memberId},
             relations: {profile: true},
@@ -140,38 +132,36 @@ export class MemberService {
     async enableSubscription(): Promise<void> {
         if (this.subscribed) return;
         this.subscribed = true;
-        await this.eventsService
-            .subscribe(EventTopic.AllMemberEvents, true)
-            .then(rx => {
-                rx.subscribe(v => {
-                    if (typeof v.payload !== "object") {
-                        return;
-                    }
+        await this.eventsService.subscribe(EventTopic.AllMemberEvents, true).then(rx => {
+            rx.subscribe(v => {
+                if (typeof v.payload !== "object") {
+                    return;
+                }
 
-                    const payload = {eventType: 0, ...v.payload};
+                const payload = {eventType: 0, ...v.payload};
 
-                    switch (v.topic as EventTopic) {
-                        case EventTopic.MemberRestrictionCreated:
-                            payload.eventType = 1;
-                            this.pubsub
-                                .publish(this.restrictedMembersSubTopic, {
-                                    followRestrictedMembers: payload,
-                                })
-                                .catch(this.logger.error.bind(this.logger));
-                            break;
-                        case EventTopic.MemberRestrictionExpired:
-                            payload.eventType = 2;
-                            this.pubsub
-                                .publish(this.restrictedMembersSubTopic, {
-                                    followRestrictedMembers: payload,
-                                })
-                                .catch(this.logger.error.bind(this.logger));
-                            break;
-                        default: {
-                            break;
-                        }
+                switch (v.topic as EventTopic) {
+                    case EventTopic.MemberRestrictionCreated:
+                        payload.eventType = 1;
+                        this.pubsub
+                            .publish(this.restrictedMembersSubTopic, {
+                                followRestrictedMembers: payload,
+                            })
+                            .catch(this.logger.error.bind(this.logger));
+                        break;
+                    case EventTopic.MemberRestrictionExpired:
+                        payload.eventType = 2;
+                        this.pubsub
+                            .publish(this.restrictedMembersSubTopic, {
+                                followRestrictedMembers: payload,
+                            })
+                            .catch(this.logger.error.bind(this.logger));
+                        break;
+                    default: {
+                        break;
                     }
-                });
+                }
             });
+        });
     }
 }

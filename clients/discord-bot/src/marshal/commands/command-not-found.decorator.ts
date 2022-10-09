@@ -22,28 +22,22 @@ export const CommandNotFound =
              * If we need our own system, it should go here.
              */
 
-            const result: unknown = await (
-                originalMethod as HookFunction & {apply: CallableFunction}
-            ).apply(this, ...params);
+            const result: unknown = await (originalMethod as HookFunction & {apply: CallableFunction}).apply(
+                this,
+                ...params,
+            );
             return result;
         };
         const commandMetadata = {
             functionName: key.toString(),
         };
         // Check for existing metadata attached to the class
-        let unsafeMetadata: unknown = Reflect.getMetadata(
-            MarshalMetadataKey.CommandNotFound,
-            target,
-        );
+        let unsafeMetadata: unknown = Reflect.getMetadata(MarshalMetadataKey.CommandNotFound, target);
         if (!Array.isArray(unsafeMetadata)) unsafeMetadata = [];
         const classCommandMetadatas: unknown[] = unsafeMetadata as unknown[];
 
         // Add our metadata for this command to the class
         classCommandMetadatas.push(commandMetadata);
-        Reflect.defineMetadata(
-            MarshalMetadataKey.CommandNotFound,
-            classCommandMetadatas,
-            target,
-        );
+        Reflect.defineMetadata(MarshalMetadataKey.CommandNotFound, classCommandMetadatas, target);
         return descriptor;
     };

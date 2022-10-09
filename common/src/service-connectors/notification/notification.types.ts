@@ -14,12 +14,8 @@ export const NotificationSchemas = {
     },
 };
 
-export type NotificationInput<T extends NotificationEndpoint> = z.infer<
-    typeof NotificationSchemas[T]["input"]
->;
-export type NotificationOutput<T extends NotificationEndpoint> = z.infer<
-    typeof NotificationSchemas[T]["output"]
->;
+export type NotificationInput<T extends NotificationEndpoint> = z.infer<typeof NotificationSchemas[T]["input"]>;
+export type NotificationOutput<T extends NotificationEndpoint> = z.infer<typeof NotificationSchemas[T]["output"]>;
 
 export interface NotificationSuccessResponse<T extends NotificationEndpoint> {
     status: ResponseStatus.SUCCESS;

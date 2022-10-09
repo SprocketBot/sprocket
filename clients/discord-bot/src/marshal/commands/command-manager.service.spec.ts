@@ -132,11 +132,7 @@ describe("CommandManagerService", () => {
                 function: async () => {},
                 functionName: "functionName",
             });
-        }).toThrow(
-            new Error(
-                `Error: Command "${name}" with ${0} arguments was declared more than once!`,
-            ),
-        );
+        }).toThrow(new Error(`Error: Command "${name}" with ${0} arguments was declared more than once!`));
     });
 
     it("Should execute a command when given a matching message", async () => {
@@ -195,10 +191,7 @@ describe("CommandManagerService", () => {
         };
         await service.handleMessage(mockedMessage);
         expect(commandFunction).toBeCalledTimes(1);
-        expect(commandFunction).toHaveBeenCalledWith(
-            mockedMessage,
-            expectedContext,
-        );
+        expect(commandFunction).toHaveBeenCalledWith(mockedMessage, expectedContext);
     });
 
     it("Should execute a command not found hooks when given a non-matching message that starts with the bot prefix", async () => {

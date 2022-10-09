@@ -21,9 +21,7 @@ export class ScheduleGroupResolver {
     }
 
     @ResolveField()
-    async parentGroup(
-        @Root() root: ScheduleGroup,
-    ): Promise<ScheduleGroup | undefined> {
+    async parentGroup(@Root() root: ScheduleGroup): Promise<ScheduleGroup | undefined> {
         if (root.parentGroup) return root.parentGroup;
         return this.populate.populateOne(ScheduleGroup, root, "parentGroup");
     }

@@ -1,14 +1,8 @@
 import {z} from "zod";
 
-import {
-    BaseNotificationSchema,
-    RankdownNotificationSchema,
-} from "./SendNotification";
+import {BaseNotificationSchema, RankdownNotificationSchema} from "./SendNotification";
 
-export const NotificationSchema = z.union([
-    BaseNotificationSchema,
-    RankdownNotificationSchema,
-]);
+export const NotificationSchema = z.union([BaseNotificationSchema, RankdownNotificationSchema]);
 
 export const SendNotification_Request = NotificationSchema;
 

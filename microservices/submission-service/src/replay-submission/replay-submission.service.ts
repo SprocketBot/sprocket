@@ -44,17 +44,11 @@ export class ReplaySubmissionService {
         submissionId: string,
         creatorId: number,
     ): Promise<string[]> {
-        await this.submissionCrudService.getOrCreateSubmission(
-            submissionId,
-            creatorId,
-        );
+        await this.submissionCrudService.getOrCreateSubmission(submissionId, creatorId);
         const tasks: ReplayParseTask[] = [];
         // Subscribe before doing anything to ensure that we don't drop events
         this.replayParseSubscriber.subscribe(submissionId);
-        await this.submissionCrudService.updateStatus(
-            submissionId,
-            ReplaySubmissionStatus.PROCESSING,
-        );
+        await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.PROCESSING);
         const celeryPromises = filePaths.map(async fp => {
             const taskId = v4();
 
@@ -95,10 +89,7 @@ export class ReplaySubmissionService {
                         }
                         if (error) {
                             // Handle error case.
-                            this.logger.warn(
-                                `Replay submission failed! ${error.message}`,
-                                error.stack,
-                            );
+                            this.logger.warn(`Replay submission failed! ${error.message}`, error.stack);
                             item.progress!.status = ProgressStatus.Error;
                             item.progress!.progress = {
                                 message: "Parsing Failed",
@@ -146,10 +137,7 @@ export class ReplaySubmissionService {
         return tasks.map(t => t.taskId);
     }
 
-    async completeSubmission(
-        submission: ReplaySubmission,
-        submissionId: string,
-    ): Promise<void> {
+    async completeSubmission(submission: ReplaySubmission, submissionId: string): Promise<void> {
         if (
             !submission.items.every(item => [ProgressStatus.Complete, ProgressStatus.Error].includes(item.progress?.status ?? ProgressStatus.Pending))
         ) {
@@ -161,10 +149,7 @@ export class ReplaySubmissionService {
         });
 
         await this.submissionCrudService.expireRejections(submissionId);
-        await this.submissionCrudService.updateStatus(
-            submissionId,
-            ReplaySubmissionStatus.VALIDATING,
-        );
+        await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.VALIDATING);
 
         await this.eventsService.publish(EventTopic.SubmissionValidating, {
             submissionId: submissionId,
@@ -173,10 +158,7 @@ export class ReplaySubmissionService {
 
         const valid = await this.replayValidationService.validate(submission);
         if (!valid.valid) {
-            await this.submissionCrudService.updateStatus(
-                submissionId,
-                ReplaySubmissionStatus.REJECTED,
-            );
+            await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.REJECTED);
             await this.ratificationService.rejectSubmission(
                 REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
                 submissionId,
@@ -186,32 +168,21 @@ export class ReplaySubmissionService {
         }
 
         await this.submissionCrudService.setValidatedTrue(submissionId);
-        await this.submissionCrudService.updateStatus(
-            submissionId,
-            ReplaySubmissionStatus.RATIFYING,
-        );
+        await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.RATIFYING);
 
         submission.stats = this.statsConverterService.convertStats(
             submission.items.map(item => item.progress!.result!),
         );
-        await this.submissionCrudService.setStats(
-            submissionId,
-            submission.stats,
-        );
+        await this.submissionCrudService.setStats(submissionId, submission.stats);
 
-        const refreshedSubmission =
-            await this.submissionCrudService.getSubmission(submissionId);
+        const refreshedSubmission = await this.submissionCrudService.getSubmission(submissionId);
         if (!refreshedSubmission)
-            throw new Error(
-                "Unexpected state found when refreshing submission state with redis.",
-            );
+            throw new Error("Unexpected state found when refreshing submission state with redis.");
 
         await this.eventsService.publish(EventTopic.SubmissionRatifying, {
             submissionId: submissionId,
             redisKey: getSubmissionKey(submissionId),
-            resultPaths: refreshedSubmission.items.map(
-                item => item.outputPath!,
-            ),
+            resultPaths: refreshedSubmission.items.map(item => item.outputPath!),
         });
     // TODO: Expose endpoint to remove submission.
     }

@@ -14,10 +14,7 @@ export class PopulateService {
         private readonly repo: Connection,
     ) {}
 
-    async populateOneOrFail<
-        Entity extends BaseModel,
-        RelationPath extends keyof Entity & string,
-    >(
+    async populateOneOrFail<Entity extends BaseModel, RelationPath extends keyof Entity & string>(
         base: Class<Entity>,
         root: Entity,
         relation: RelationPath,
@@ -27,17 +24,11 @@ export class PopulateService {
             .relation(base, relation)
             .of(root)
             .loadOne();
-        if (!result)
-            throw new GraphQLError(
-                `Unable to find ${relation} for ${base.name} (id = ${root.id})`,
-            );
+        if (!result) throw new GraphQLError(`Unable to find ${relation} for ${base.name} (id = ${root.id})`);
         return result;
     }
 
-    async populateOne<
-        Entity extends BaseModel,
-        RelationPath extends keyof Entity & string,
-    >(
+    async populateOne<Entity extends BaseModel, RelationPath extends keyof Entity & string>(
         base: Class<Entity>,
         root: Entity,
         relation: RelationPath,
@@ -50,10 +41,7 @@ export class PopulateService {
         return result;
     }
 
-    async populateMany<
-        Entity extends BaseModel,
-        RelationPath extends keyof Entity & string,
-    >(
+    async populateMany<Entity extends BaseModel, RelationPath extends keyof Entity & string>(
         base: Class<Entity>,
         root: Entity,
         relation: RelationPath,

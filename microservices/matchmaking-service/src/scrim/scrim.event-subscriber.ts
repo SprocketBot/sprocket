@@ -38,6 +38,10 @@ export class ScrimEventSubscriber {
                         break;
                 }
             });
+        });
+        await this.eventsService.subscribe(EventTopic.ScrimSaved, false).then(obs => {
+            obs.subscribe(this.onScrimSaved);
+        });
     }
 
     onSubmissionReset = async (d: EventResponse<EventTopic.SubmissionReset | EventTopic>): Promise<void> => {
@@ -45,23 +49,14 @@ export class ScrimEventSubscriber {
 
         const {payload} = d as EventResponse<EventTopic.SubmissionReset>;
         const targetSubmissionId = payload.submissionId;
-        const scrim = await this.scrimCrudService.getScrimBySubmissionId(
-            targetSubmissionId,
-        );
+        const scrim = await this.scrimCrudService.getScrimBySubmissionId(targetSubmissionId);
 
         if (!scrim) return;
 
-        await this.scrimCrudService.updateScrimStatus(
-            scrim.id,
-            ScrimStatus.IN_PROGRESS,
-        );
+        await this.scrimCrudService.updateScrimStatus(scrim.id, ScrimStatus.IN_PROGRESS);
         scrim.status = ScrimStatus.IN_PROGRESS;
 
-        await this.eventsService.publish(
-            EventTopic.ScrimUpdated,
-            scrim,
-            scrim.id,
-        );
+        await this.eventsService.publish(EventTopic.ScrimUpdated, scrim, scrim.id);
     };
 
     onSubmissionRejectionAdded = async (
@@ -69,12 +64,9 @@ export class ScrimEventSubscriber {
     ): Promise<void> => {
         if (d.topic !== EventTopic.SubmissionRejectionAdded) return;
 
-        const {payload} =
-            d as EventResponse<EventTopic.SubmissionRejectionAdded>;
+        const {payload} = d as EventResponse<EventTopic.SubmissionRejectionAdded>;
         const targetSubmissionId = payload.submissionId;
-        const scrim = await this.scrimCrudService.getScrimBySubmissionId(
-            targetSubmissionId,
-        );
+        const scrim = await this.scrimCrudService.getScrimBySubmissionId(targetSubmissionId);
         const submissionRejectionsResult = await this.submissionService.send(
             SubmissionEndpoint.GetSubmissionRejections,
             {submissionId: targetSubmissionId},
@@ -86,13 +78,10 @@ export class ScrimEventSubscriber {
 
         if (!scrim) return;
 
-        if (submissionRejectionsResult.data.length >= 3)
-            await this.scrimService.setScrimLocked(scrim.id, true);
+        if (submissionRejectionsResult.data.length >= 3) await this.scrimService.setScrimLocked(scrim.id, true);
     };
 
-    onScrimSaved = (
-        d: EventResponse<EventTopic.ScrimSaved | EventTopic>,
-    ): void => {
+    onScrimSaved = (d: EventResponse<EventTopic.ScrimSaved | EventTopic>): void => {
         if (d.topic !== EventTopic.ScrimSaved) return;
 
         const {payload: scrim} = d as EventResponse<EventTopic.ScrimSaved>;

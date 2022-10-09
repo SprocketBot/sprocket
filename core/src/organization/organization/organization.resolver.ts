@@ -1,13 +1,5 @@
 import {UseGuards} from "@nestjs/common";
-import {
-    Args,
-    Int,
-    Mutation,
-    Query,
-    ResolveField,
-    Resolver,
-    Root,
-} from "@nestjs/graphql";
+import {Args, Int, Mutation, Query, ResolveField, Resolver, Root} from "@nestjs/graphql";
 
 import {Organization, OrganizationProfile} from "../../database";
 import {MLE_OrganizationTeam} from "../../database/mledb";
@@ -21,20 +13,12 @@ export class OrganizationResolver {
     constructor(private readonly organizationService: OrganizationService) {}
 
     @Query(() => Organization)
-    async getOrganizationById(
-        @Args("id", {type: () => Int}) id: number,
-    ): Promise<Organization> {
+    async getOrganizationById(@Args("id", {type: () => Int}) id: number): Promise<Organization> {
         return this.organizationService.getOrganizationById(id);
     }
 
     @Mutation(() => OrganizationProfile)
-    @UseGuards(
-        GqlJwtGuard,
-        MLEOrganizationTeamGuard([
-            MLE_OrganizationTeam.MLEDB_ADMIN,
-            MLE_OrganizationTeam.COUNCIL,
-        ]),
-    )
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.COUNCIL]))
     async updateOrganizationProfile(
         @Args("id", {type: () => Int}) id: number,
         @Args("profile", {type: () => OrganizationProfileInput})
@@ -44,14 +28,10 @@ export class OrganizationResolver {
     }
 
     @ResolveField()
-    async profile(
-        @Root() organization: Partial<Organization>,
-    ): Promise<OrganizationProfile> {
+    async profile(@Root() organization: Partial<Organization>): Promise<OrganizationProfile> {
         return (
             organization.profile ??
-            (await this.organizationService.getOrganizationProfileForOrganization(
-                organization.id!,
-            ))
+            (await this.organizationService.getOrganizationProfileForOrganization(organization.id!))
         );
     }
 }

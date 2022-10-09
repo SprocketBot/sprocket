@@ -1,18 +1,6 @@
 import {Inject, Injectable, Logger} from "@nestjs/common";
-import type {
-    Attachment,
-    BrandingOptions,
-    Embed,
-    MessageContent,
-    WebhookMessageOptions,
-} from "@sprocketbot/common";
-import {
-    CoreEndpoint,
-    CoreService,
-    MinioService,
-    ResponseStatus,
-    SprocketConfigurationKey,
-} from "@sprocketbot/common";
+import type {Attachment, BrandingOptions, Embed, MessageContent, WebhookMessageOptions} from "@sprocketbot/common";
+import {CoreEndpoint, CoreService, MinioService, ResponseStatus, SprocketConfigurationKey} from "@sprocketbot/common";
 import type {MessageActionRow, MessageOptions} from "discord.js";
 import {Client, MessageAttachment} from "discord.js";
 
@@ -38,13 +26,9 @@ export class NotificationsService {
      * // External File
      * downloadAttachment("https://cdn.discordapp.com/icons/222078108977594368/6e1019b3179d71046e463a75915e7244.png?size=2048")
      */
-    async downloadAttachment(
-        attachment: Attachment | string,
-    ): Promise<MessageAttachment> {
-        const url =
-            typeof attachment === "string" ? attachment : attachment.url;
-        const name =
-            typeof attachment === "string" ? undefined : attachment.name;
+    async downloadAttachment(attachment: Attachment | string): Promise<MessageAttachment> {
+        const url = typeof attachment === "string" ? attachment : attachment.url;
+        const name = typeof attachment === "string" ? undefined : attachment.name;
 
         if (url.startsWith("minio:")) {
             const [bucket, ...objPath] = url.split(":")[1].split("/");
@@ -63,9 +47,7 @@ export class NotificationsService {
         brandingOptions?: BrandingOptions,
     ): Promise<boolean> {
         try {
-            const guildChannel = await this.discordClient.channels.fetch(
-                channelId,
-            );
+            const guildChannel = await this.discordClient.channels.fetch(channelId);
             if (!guildChannel?.isText()) return false;
 
             const messageOptions: MessageOptions = {
@@ -89,9 +71,7 @@ export class NotificationsService {
 
             if (content.attachments?.length) {
                 const newAttachments = await Promise.all(
-                    content.attachments.map(async a =>
-                        this.downloadAttachment(a),
-                    ),
+                    content.attachments.map(async a => this.downloadAttachment(a)),
                 );
                 messageOptions.files = newAttachments;
             }
@@ -111,10 +91,9 @@ export class NotificationsService {
         brandingOptions?: BrandingOptions,
     ): Promise<boolean> {
         // First check if we are allowed to send DMs
-        const r = await this.coreService.send(
-            CoreEndpoint.GetSprocketConfiguration,
-            {key: SprocketConfigurationKey.DISABLE_DISCORD_DMS},
-        );
+        const r = await this.coreService.send(CoreEndpoint.GetSprocketConfiguration, {
+            key: SprocketConfigurationKey.DISABLE_DISCORD_DMS,
+        });
         if (r.status === ResponseStatus.ERROR) throw r.error;
         if (r.data[0]?.value === "true") return false;
 
@@ -150,9 +129,7 @@ export class NotificationsService {
         brandingOptions?: BrandingOptions,
     ): Promise<boolean> {
         try {
-            const webhookMatch = webhookUrl.match(
-                /^https:\/\/discord\.com\/api\/webhooks\/(\d+)\/(.+)$/,
-            );
+            const webhookMatch = webhookUrl.match(/^https:\/\/discord\.com\/api\/webhooks\/(\d+)\/(.+)$/);
             if (!webhookMatch) return false;
 
             const [, id, token] = webhookMatch;
@@ -167,25 +144,17 @@ export class NotificationsService {
 
             if (
                 brandingOptions?.organizationId &&
-                (brandingOptions.options.webhookAvatar ||
-                    brandingOptions.options.webhookUsername)
+                (brandingOptions.options.webhookAvatar || brandingOptions.options.webhookUsername)
             ) {
-                const organizationProfileResult = await this.coreService.send(
-                    CoreEndpoint.GetOrganizationProfile,
-                    {id: brandingOptions.organizationId},
-                );
-                if (organizationProfileResult.status === ResponseStatus.ERROR)
-                    throw organizationProfileResult.error;
+                const organizationProfileResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {
+                    id: brandingOptions.organizationId,
+                });
+                if (organizationProfileResult.status === ResponseStatus.ERROR) throw organizationProfileResult.error;
 
                 if (brandingOptions.options.webhookUsername)
-                    messageOptions.username =
-                        organizationProfileResult.data.name;
-                if (
-                    brandingOptions.options.webhookAvatar &&
-                    organizationProfileResult.data.logoUrl
-                )
-                    messageOptions.avatarURL =
-                        organizationProfileResult.data.logoUrl;
+                    messageOptions.username = organizationProfileResult.data.name;
+                if (brandingOptions.options.webhookAvatar && organizationProfileResult.data.logoUrl)
+                    messageOptions.avatarURL = organizationProfileResult.data.logoUrl;
             }
 
             if (content.embeds?.length) {
@@ -204,9 +173,7 @@ export class NotificationsService {
 
             if (content.attachments?.length) {
                 const newAttachments = await Promise.all(
-                    content.attachments.map(async a =>
-                        this.downloadAttachment(a),
-                    ),
+                    content.attachments.map(async a => this.downloadAttachment(a)),
                 );
                 messageOptions.files = newAttachments;
             }

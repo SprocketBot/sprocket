@@ -15,10 +15,7 @@ export abstract class SprocketEventMarshal {
     constructor(readonly eventsService: EventsService) {}
 
     async onApplicationBootstrap(): Promise<void> {
-        const marshalMetadata: unknown = Reflect.getMetadata(
-            EventMarshalMetadataKey,
-            this,
-        );
+        const marshalMetadata: unknown = Reflect.getMetadata(EventMarshalMetadataKey, this);
         if (!marshalMetadata) return;
         const parseResult = z.array(EventMetaSchema).safeParse(marshalMetadata);
         if (!parseResult.success) {
@@ -28,18 +25,16 @@ export abstract class SprocketEventMarshal {
         const {data} = parseResult;
 
         data.forEach(meta => {
-            const eventFunction = (
-                Reflect.get(this, meta.functionName) as CallableFunction
-            ).bind(this) as EventFunction<EventTopic>;
+            const eventFunction = (Reflect.get(this, meta.functionName) as CallableFunction).bind(
+                this,
+            ) as EventFunction<EventTopic>;
 
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.eventsService.subscribe(meta.event, false).then(obs => {
                 obs.subscribe((p: EventResponse<EventTopic>) => {
                     if (p.topic !== meta.event) return;
 
-                    const payload = EventSchemas[meta.event].safeParse(
-                        p.payload,
-                    );
+                    const payload = EventSchemas[meta.event].safeParse(p.payload);
 
                     if (!payload.success) {
                         this.logger.error(payload);

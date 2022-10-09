@@ -1,11 +1,6 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import type {ProgressMessage, Task, TaskResult} from "@sprocketbot/common";
-import {
-    BallchasingResponse,
-    Parser,
-    Progress as IProgress,
-    ProgressStatus,
-} from "@sprocketbot/common";
+import {BallchasingResponse, Parser, Progress as IProgress, ProgressStatus} from "@sprocketbot/common";
 import GraphQLJSON from "graphql-type-json";
 
 import {GqlProgress} from "../../util/types/celery-progress";

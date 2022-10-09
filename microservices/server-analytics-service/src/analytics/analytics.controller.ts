@@ -13,9 +13,7 @@ export class AnalyticsController {
     constructor(private analyticsService: AnalyticsService) {}
 
     @MessagePattern(AnalyticsEndpoint.Analytics)
-    async track(
-        @Payload() data: unknown,
-    ): Promise<AnalyticsOutput<AnalyticsEndpoint.Analytics>> {
+    async track(@Payload() data: unknown): Promise<AnalyticsOutput<AnalyticsEndpoint.Analytics>> {
         try {
             const result = AnalyticsPointSchema.parse(data);
             this.analyticsService.createPoint(result);

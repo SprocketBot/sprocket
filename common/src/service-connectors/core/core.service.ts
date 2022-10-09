@@ -24,33 +24,24 @@ export class CoreService {
         const rid = uuidv4();
         this.logger.verbose(`| - (${rid}) > | \`${endpoint}\` (${JSON.stringify(data)})`);
 
-        const {input: inputSchema, output: outputSchema} =
-            CoreSchemas[endpoint];
+        const {input: inputSchema, output: outputSchema} = CoreSchemas[endpoint];
 
         try {
             const input = inputSchema.parse(data);
 
-            const rx = this.microserviceClient
-                .send(endpoint, input)
-                .pipe(timeout(options?.timeout ?? 5000));
+            const rx = this.microserviceClient.send(endpoint, input).pipe(timeout(options?.timeout ?? 5000));
 
             const response = (await lastValueFrom(rx)) as unknown;
 
             const output = outputSchema.parse(response);
 
-            this.logger.verbose(
-                `| < (${rid}) - | \`${endpoint}\` (${JSON.stringify(output)})`,
-            );
+            this.logger.verbose(`| < (${rid}) - | \`${endpoint}\` (${JSON.stringify(output)})`);
             return {
                 status: ResponseStatus.SUCCESS,
                 data: output,
             };
         } catch (e) {
-            this.logger.warn(
-                `| < (${rid}) - | \`${endpoint}\` failed ${
-                    (e as Error).message
-                }`,
-            );
+            this.logger.warn(`| < (${rid}) - | \`${endpoint}\` failed ${(e as Error).message}`);
             ``;
             return {
                 status: ResponseStatus.ERROR,
@@ -59,10 +50,7 @@ export class CoreService {
         }
     }
 
-    parseInput<E extends CoreEndpoint>(
-        endpoint: E,
-        data: unknown,
-    ): CoreInput<E> {
+    parseInput<E extends CoreEndpoint>(endpoint: E, data: unknown): CoreInput<E> {
         const {input: inputSchema} = CoreSchemas[endpoint];
         return inputSchema.parse(data);
     }

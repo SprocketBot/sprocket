@@ -12,9 +12,7 @@ export class MledbPlayerAccountService {
         private playerAccountRepository: Repository<MLE_PlayerAccount>,
     ) {}
 
-    async getPlayerAccounts(
-        query: FindManyOptions<MLE_PlayerAccount>,
-    ): Promise<MLE_PlayerAccount[]> {
+    async getPlayerAccounts(query: FindManyOptions<MLE_PlayerAccount>): Promise<MLE_PlayerAccount[]> {
         return this.playerAccountRepository.find(query);
     }
 }

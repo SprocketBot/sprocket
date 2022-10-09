@@ -74,12 +74,7 @@ export const EventSchemas = {
     [EventTopic.ScrimSaved]: ScrimSchema.extend({
         databaseIds: ScrimDatabaseIdsSchema,
     }),
-    [EventTopic.AllScrimEvents]: z.union([
-        z.number(),
-        z.string().uuid(),
-        ScrimSchema,
-        ScrimMetricsSchema,
-    ]),
+    [EventTopic.AllScrimEvents]: z.union([z.number(), z.string().uuid(), ScrimSchema, ScrimMetricsSchema]),
     [EventTopic.ScrimMetricsUpdate]: ScrimMetricsSchema,
 
     [EventTopic.ScrimsDisabled]: z.boolean(),
@@ -99,28 +94,19 @@ export const EventSchemas = {
     [EventTopic.SubmissionRejected]: SubmissionEventSchema,
     [EventTopic.SubmissionReset]: SubmissionEventSchema,
     [EventTopic.SubmissionProgress]: SubmissionEventSchema,
-    [EventTopic.AllSubmissionEvents]: z.union([
-        SubmissionRatificationSchema,
-        SubmissionEventSchema,
-    ]),
+    [EventTopic.AllSubmissionEvents]: z.union([SubmissionRatificationSchema, SubmissionEventSchema]),
 
     // Member Events
     [EventTopic.MemberRestrictionCreated]: MemberRestrictionSchema,
     [EventTopic.MemberRestrictionExpired]: MemberRestrictionSchema,
-    [EventTopic.AllMemberEvents]: z.union([
-        z.number(),
-        z.string().uuid(),
-        MemberRestrictionSchema,
-    ]),
+    [EventTopic.AllMemberEvents]: z.union([z.number(), z.string().uuid(), MemberRestrictionSchema]),
 
     // Player Events
     [EventTopic.PlayerSkillGroupChanged]: PlayerSkillGroupChangedSchema,
     [EventTopic.PlayerTeamChanged]: PlayerTeamChangedSchema,
 };
 
-export type EventPayload<T extends EventTopic> = z.infer<
-    typeof EventSchemas[T]
->;
+export type EventPayload<T extends EventTopic> = z.infer<typeof EventSchemas[T]>;
 
 export interface EventResponse<T extends EventTopic> {
     topic: T;

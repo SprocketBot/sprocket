@@ -7,16 +7,14 @@ export const MATCH_SUBMISSION_FIXTURE_RATIFYING = {
         {
             originalFilename: "212020374223BEA733F231AAB7516131.replay",
             taskId: "b403fc41-9b7a-4e84-af08-359bda6d7d1e",
-            inputPath:
-                "replays/d58bcc398270994b76cea08ee4eab2fbab9778238b439f2fc74c3d924ce5c448.replay",
+            inputPath: "replays/d58bcc398270994b76cea08ee4eab2fbab9778238b439f2fc74c3d924ce5c448.replay",
             progress: {
                 status: "Complete",
                 taskId: "b403fc41-9b7a-4e84-af08-359bda6d7d1e",
                 result: {
                     parser: "ballchasing",
                     parserVersion: 1,
-                    outputPath:
-                        "dev/v1/d58bcc398270994b76cea08ee4eab2fbab9778238b439f2fc74c3d924ce5c448.json",
+                    outputPath: "dev/v1/d58bcc398270994b76cea08ee4eab2fbab9778238b439f2fc74c3d924ce5c448.json",
                     data: {
                         id: "8dae4a59-1a11-4f11-8eca-b03b526114ac",
                         link: "https://ballchasing.com/api/replays/8dae4a59-1a11-4f11-8eca-b03b526114ac",
@@ -33,8 +31,7 @@ export const MATCH_SUBMISSION_FIXTURE_RATIFYING = {
                             name: "Minor League Esports",
                             avatar: "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/4b/4bf053d8136197c9cf3da5f5527ec8127bb04b33.jpg",
                             steam_id: "76561199058542636",
-                            profile_url:
-                                "https://steamcommunity.com/id/mlesportsgg/",
+                            profile_url: "https://steamcommunity.com/id/mlesportsgg/",
                         },
                         match_type: "Private",
                         playlist_id: "private",
@@ -652,22 +649,19 @@ export const MATCH_SUBMISSION_FIXTURE_RATIFYING = {
                 },
                 error: null,
             },
-            outputPath:
-                "dev/v1/d58bcc398270994b76cea08ee4eab2fbab9778238b439f2fc74c3d924ce5c448.json",
+            outputPath: "dev/v1/d58bcc398270994b76cea08ee4eab2fbab9778238b439f2fc74c3d924ce5c448.json",
         },
         {
             originalFilename: "510DA13141820685535FB9BDBF7BBF87.replay",
             taskId: "791f8096-c848-4c9e-a877-3b844c9359cf",
-            inputPath:
-                "replays/3d61a9e1ec8d604bd8ee1f67429ff1897c09d7c0e642f5a06cdc46a477f470d3.replay",
+            inputPath: "replays/3d61a9e1ec8d604bd8ee1f67429ff1897c09d7c0e642f5a06cdc46a477f470d3.replay",
             progress: {
                 status: "Complete",
                 taskId: "791f8096-c848-4c9e-a877-3b844c9359cf",
                 result: {
                     parser: "ballchasing",
                     parserVersion: 1,
-                    outputPath:
-                        "dev/v1/3d61a9e1ec8d604bd8ee1f67429ff1897c09d7c0e642f5a06cdc46a477f470d3.json",
+                    outputPath: "dev/v1/3d61a9e1ec8d604bd8ee1f67429ff1897c09d7c0e642f5a06cdc46a477f470d3.json",
                     data: {
                         id: "ca44c7bb-5201-4dab-b640-e0ca73c0198d",
                         link: "https://ballchasing.com/api/replays/ca44c7bb-5201-4dab-b640-e0ca73c0198d",
@@ -684,8 +678,7 @@ export const MATCH_SUBMISSION_FIXTURE_RATIFYING = {
                             name: "Minor League Esports",
                             avatar: "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/4b/4bf053d8136197c9cf3da5f5527ec8127bb04b33.jpg",
                             steam_id: "76561199058542636",
-                            profile_url:
-                                "https://steamcommunity.com/id/mlesportsgg/",
+                            profile_url: "https://steamcommunity.com/id/mlesportsgg/",
                         },
                         match_type: "Private",
                         playlist_id: "private",
@@ -1303,22 +1296,19 @@ export const MATCH_SUBMISSION_FIXTURE_RATIFYING = {
                 },
                 error: null,
             },
-            outputPath:
-                "dev/v1/3d61a9e1ec8d604bd8ee1f67429ff1897c09d7c0e642f5a06cdc46a477f470d3.json",
+            outputPath: "dev/v1/3d61a9e1ec8d604bd8ee1f67429ff1897c09d7c0e642f5a06cdc46a477f470d3.json",
         },
         {
             originalFilename: "32B53E44496CB285F6DFB5AFC77F13AB.replay",
             taskId: "fa293ffa-e591-49e3-9a62-a6b3a6ad267e",
-            inputPath:
-                "replays/afaecc50c861612a90d206291374e47417339ee0973ec43b2c4162247b3a1625.replay",
+            inputPath: "replays/afaecc50c861612a90d206291374e47417339ee0973ec43b2c4162247b3a1625.replay",
             progress: {
                 status: "Complete",
                 taskId: "fa293ffa-e591-49e3-9a62-a6b3a6ad267e",
                 result: {
                     parser: "ballchasing",
                     parserVersion: 1,
-                    outputPath:
-                        "dev/v1/afaecc50c861612a90d206291374e47417339ee0973ec43b2c4162247b3a1625.json",
+                    outputPath: "dev/v1/afaecc50c861612a90d206291374e47417339ee0973ec43b2c4162247b3a1625.json",
                     data: {
                         id: "17ce47b1-92cf-456b-8195-2724520def85",
                         link: "https://ballchasing.com/api/replays/17ce47b1-92cf-456b-8195-2724520def85",
@@ -1335,8 +1325,7 @@ export const MATCH_SUBMISSION_FIXTURE_RATIFYING = {
                             name: "Minor League Esports",
                             avatar: "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/4b/4bf053d8136197c9cf3da5f5527ec8127bb04b33.jpg",
                             steam_id: "76561199058542636",
-                            profile_url:
-                                "https://steamcommunity.com/id/mlesportsgg/",
+                            profile_url: "https://steamcommunity.com/id/mlesportsgg/",
                         },
                         match_type: "Private",
                         playlist_id: "private",
@@ -1954,22 +1943,19 @@ export const MATCH_SUBMISSION_FIXTURE_RATIFYING = {
                 },
                 error: null,
             },
-            outputPath:
-                "dev/v1/afaecc50c861612a90d206291374e47417339ee0973ec43b2c4162247b3a1625.json",
+            outputPath: "dev/v1/afaecc50c861612a90d206291374e47417339ee0973ec43b2c4162247b3a1625.json",
         },
         {
             originalFilename: "4340DCC648D278D7BAED30A3305FFC09.replay",
             taskId: "15cbecbc-91fb-471f-8a38-68e0db0a8c4a",
-            inputPath:
-                "replays/86f99ef3a4cf2d8108e743079249ae3a778d5e87280de7a1d6ebb027a6b65e11.replay",
+            inputPath: "replays/86f99ef3a4cf2d8108e743079249ae3a778d5e87280de7a1d6ebb027a6b65e11.replay",
             progress: {
                 status: "Complete",
                 taskId: "15cbecbc-91fb-471f-8a38-68e0db0a8c4a",
                 result: {
                     parser: "ballchasing",
                     parserVersion: 1,
-                    outputPath:
-                        "dev/v1/86f99ef3a4cf2d8108e743079249ae3a778d5e87280de7a1d6ebb027a6b65e11.json",
+                    outputPath: "dev/v1/86f99ef3a4cf2d8108e743079249ae3a778d5e87280de7a1d6ebb027a6b65e11.json",
                     data: {
                         id: "845a4565-c92e-4b8d-92d3-ef53e208a3ac",
                         link: "https://ballchasing.com/api/replays/845a4565-c92e-4b8d-92d3-ef53e208a3ac",
@@ -1986,8 +1972,7 @@ export const MATCH_SUBMISSION_FIXTURE_RATIFYING = {
                             name: "Minor League Esports",
                             avatar: "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/4b/4bf053d8136197c9cf3da5f5527ec8127bb04b33.jpg",
                             steam_id: "76561199058542636",
-                            profile_url:
-                                "https://steamcommunity.com/id/mlesportsgg/",
+                            profile_url: "https://steamcommunity.com/id/mlesportsgg/",
                         },
                         match_type: "Private",
                         playlist_id: "private",
@@ -2605,22 +2590,19 @@ export const MATCH_SUBMISSION_FIXTURE_RATIFYING = {
                 },
                 error: null,
             },
-            outputPath:
-                "dev/v1/86f99ef3a4cf2d8108e743079249ae3a778d5e87280de7a1d6ebb027a6b65e11.json",
+            outputPath: "dev/v1/86f99ef3a4cf2d8108e743079249ae3a778d5e87280de7a1d6ebb027a6b65e11.json",
         },
         {
             originalFilename: "3BE9DCE74260C3ACB4C4C68FE4E6084F.replay",
             taskId: "12c2ef13-43e5-42f9-9b3a-6aa569976432",
-            inputPath:
-                "replays/f43131e95f4e82d32eb6b4ef26f58152f774365ab6fa8e61a564c2e61bfa6a37.replay",
+            inputPath: "replays/f43131e95f4e82d32eb6b4ef26f58152f774365ab6fa8e61a564c2e61bfa6a37.replay",
             progress: {
                 status: "Complete",
                 taskId: "12c2ef13-43e5-42f9-9b3a-6aa569976432",
                 result: {
                     parser: "ballchasing",
                     parserVersion: 1,
-                    outputPath:
-                        "dev/v1/f43131e95f4e82d32eb6b4ef26f58152f774365ab6fa8e61a564c2e61bfa6a37.json",
+                    outputPath: "dev/v1/f43131e95f4e82d32eb6b4ef26f58152f774365ab6fa8e61a564c2e61bfa6a37.json",
                     data: {
                         id: "772b45f3-7a3a-4b1a-bdc5-86a852726d7f",
                         link: "https://ballchasing.com/api/replays/772b45f3-7a3a-4b1a-bdc5-86a852726d7f",
@@ -2637,8 +2619,7 @@ export const MATCH_SUBMISSION_FIXTURE_RATIFYING = {
                             name: "Minor League Esports",
                             avatar: "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/4b/4bf053d8136197c9cf3da5f5527ec8127bb04b33.jpg",
                             steam_id: "76561199058542636",
-                            profile_url:
-                                "https://steamcommunity.com/id/mlesportsgg/",
+                            profile_url: "https://steamcommunity.com/id/mlesportsgg/",
                         },
                         match_type: "Private",
                         playlist_id: "private",
@@ -3256,8 +3237,7 @@ export const MATCH_SUBMISSION_FIXTURE_RATIFYING = {
                 },
                 error: null,
             },
-            outputPath:
-                "dev/v1/f43131e95f4e82d32eb6b4ef26f58152f774365ab6fa8e61a564c2e61bfa6a37.json",
+            outputPath: "dev/v1/f43131e95f4e82d32eb6b4ef26f58152f774365ab6fa8e61a564c2e61bfa6a37.json",
         },
     ],
     validated: true,
@@ -3270,42 +3250,32 @@ export const MATCH_SUBMISSION_FIXTURE_RATIFYING = {
                 {
                     originalFilename: "45661EFB42256E028CF7B09696553552.replay",
                     taskId: "328c6363-1240-4334-9e3e-59f74e061ef4",
-                    inputPath:
-                        "replays/124f92aad5b4279abc6bcddd9e3c0bc04f14f2b957ebaf8597e0819e18ec0ad5.replay",
-                    outputPath:
-                        "dev/v1/124f92aad5b4279abc6bcddd9e3c0bc04f14f2b957ebaf8597e0819e18ec0ad5.json",
+                    inputPath: "replays/124f92aad5b4279abc6bcddd9e3c0bc04f14f2b957ebaf8597e0819e18ec0ad5.replay",
+                    outputPath: "dev/v1/124f92aad5b4279abc6bcddd9e3c0bc04f14f2b957ebaf8597e0819e18ec0ad5.json",
                 },
                 {
                     originalFilename: "A626E99147046A665D1CA5AC530AA9AC.replay",
                     taskId: "5420da30-0637-4a61-83e6-27fdf3f35ced",
-                    inputPath:
-                        "replays/7bf86133398eb993dad8970b95fb01e36b4918841f6f85cdc36459580ea399f6.replay",
-                    outputPath:
-                        "dev/v1/7bf86133398eb993dad8970b95fb01e36b4918841f6f85cdc36459580ea399f6.json",
+                    inputPath: "replays/7bf86133398eb993dad8970b95fb01e36b4918841f6f85cdc36459580ea399f6.replay",
+                    outputPath: "dev/v1/7bf86133398eb993dad8970b95fb01e36b4918841f6f85cdc36459580ea399f6.json",
                 },
                 {
                     originalFilename: "38B70F0C4C6A0B8B44E705836D59A3E4.replay",
                     taskId: "fe4a8cde-e382-4b94-8724-93c577f8ba02",
-                    inputPath:
-                        "replays/13b15bdc5a6b4581b4d3af447a630fd175ecc221a13b116826ce34e0fee72936.replay",
-                    outputPath:
-                        "dev/v1/13b15bdc5a6b4581b4d3af447a630fd175ecc221a13b116826ce34e0fee72936.json",
+                    inputPath: "replays/13b15bdc5a6b4581b4d3af447a630fd175ecc221a13b116826ce34e0fee72936.replay",
+                    outputPath: "dev/v1/13b15bdc5a6b4581b4d3af447a630fd175ecc221a13b116826ce34e0fee72936.json",
                 },
                 {
                     originalFilename: "C84FE5DA4D124F625755D6BBEACB7E6F.replay",
                     taskId: "da4772ea-4119-4a05-b12e-85b9ce9f040e",
-                    inputPath:
-                        "replays/f1b8bbbc3ed22ade85606e713c99e8b357c6aa3affc6b1cbf75a1b22d3aac404.replay",
-                    outputPath:
-                        "dev/v1/f1b8bbbc3ed22ade85606e713c99e8b357c6aa3affc6b1cbf75a1b22d3aac404.json",
+                    inputPath: "replays/f1b8bbbc3ed22ade85606e713c99e8b357c6aa3affc6b1cbf75a1b22d3aac404.replay",
+                    outputPath: "dev/v1/f1b8bbbc3ed22ade85606e713c99e8b357c6aa3affc6b1cbf75a1b22d3aac404.json",
                 },
                 {
                     originalFilename: "E9E95C09454D74F63EF97FA94B94CC03.replay",
                     taskId: "88837fb0-b546-4943-b4d4-2ad5b8f3ce40",
-                    inputPath:
-                        "replays/0b63fa85cf8711ed74c5fb65c647ce8944c064b0b425d9ad026862a8bc55686b.replay",
-                    outputPath:
-                        "dev/v1/0b63fa85cf8711ed74c5fb65c647ce8944c064b0b425d9ad026862a8bc55686b.json",
+                    inputPath: "replays/0b63fa85cf8711ed74c5fb65c647ce8944c064b0b425d9ad026862a8bc55686b.replay",
+                    outputPath: "dev/v1/0b63fa85cf8711ed74c5fb65c647ce8944c064b0b425d9ad026862a8bc55686b.json",
                 },
             ],
             rejectedAt: "2022-09-16T01:47:15.353Z",

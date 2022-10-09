@@ -5,24 +5,14 @@ import {createClient} from "celery-node";
 import {Observable} from "rxjs";
 
 import {config} from "../util/config";
-import type {
-    ProgressMessage,
-    RunOpts,
-    Task,
-    TaskArgs,
-    TaskResult,
-} from "./types";
+import type {ProgressMessage, RunOpts, Task, TaskArgs, TaskResult} from "./types";
 import {CELERY_TASK_REDIS_RESULT_PREFIX, taskNames, TaskSchemas} from "./types";
 
 @Injectable()
 export class CeleryService {
     private readonly logger = new Logger(CeleryService.name);
 
-    private readonly celeryClient = createClient(
-        config.celery.broker,
-        config.celery.backend,
-        config.celery.queue,
-    );
+    private readonly celeryClient = createClient(config.celery.broker, config.celery.backend, config.celery.queue);
 
     private progressChannel: Channel;
 
@@ -50,24 +40,17 @@ export class CeleryService {
      * @param args Arguments for the specified task.
      * @returns The return value from the task.
      */
-    async runSync<T extends Task>(
-        task: T,
-        args: TaskArgs<T>,
-    ): Promise<TaskResult<T>> {
+    async runSync<T extends Task>(task: T, args: TaskArgs<T>): Promise<TaskResult<T>> {
         const name = taskNames[task];
         if (!name) throw new Error(`Unsupported Celery task ${task}`);
 
         const t = this.celeryClient.createTask(name);
         const asyncResult = t.applyAsync([], args);
-        this.logger.debug(
-            `Running celery task synchronously name=${name} taskId=${asyncResult.taskId}`,
-        );
+        this.logger.debug(`Running celery task synchronously name=${name} taskId=${asyncResult.taskId}`);
 
         const r = (await asyncResult.get()) as TaskResult<T>;
         const result = this.parseResult(task, r);
-        this.logger.debug(
-            `Celery task completed synchronously name=${name} taskId=${asyncResult.taskId}`,
-        );
+        this.logger.debug(`Celery task completed synchronously name=${name} taskId=${asyncResult.taskId}`);
         // this.logger.verbose(`Celery task completed synchronously name=${name} taskId=${asyncResult.taskId} result=${JSON.stringify(result)}`);
 
         return result;
@@ -80,11 +63,7 @@ export class CeleryService {
      * @param args Arguments for the specified task.
      * @returns The taskId of the created task. Also used as the name of the queue where task progress messages are published.
      */
-    async run<T extends Task>(
-        task: T,
-        args: TaskArgs<T>,
-        opts?: RunOpts<T>,
-    ): Promise<string> {
+    async run<T extends Task>(task: T, args: TaskArgs<T>, opts?: RunOpts<T>): Promise<string> {
         const name = taskNames[task];
         if (!name) throw new Error(`Unsupported Celery task ${task}`);
 
@@ -94,9 +73,7 @@ export class CeleryService {
         }, opts?.taskId);
         const taskId = asyncResult.taskId;
 
-        this.logger.debug(
-            `Running celery task asynchronously name=${name} taskId=${taskId}`,
-        );
+        this.logger.debug(`Running celery task asynchronously name=${name} taskId=${taskId}`);
 
         if (opts?.cb) {
             asyncResult
@@ -106,10 +83,7 @@ export class CeleryService {
                     const p = opts.cb!(taskId, result, null);
                     if (p instanceof Promise) {
                         p.catch(err => {
-                            this.logger.error(
-                                `Celery task callback failed name=${name} taskId=${taskId}`,
-                                err,
-                            );
+                            this.logger.error(`Celery task callback failed name=${name} taskId=${taskId}`, err);
                         });
                     }
                 })
@@ -117,18 +91,13 @@ export class CeleryService {
                     const p = opts.cb!(taskId, null, error);
                     if (p instanceof Promise) {
                         p.catch(err => {
-                            this.logger.error(
-                                `Celery task callback failed name=${name} taskId=${taskId}`,
-                                err,
-                            );
+                            this.logger.error(`Celery task callback failed name=${name} taskId=${taskId}`, err);
                         });
                     }
                 });
         } else {
             (await asyncResult.get()) as TaskResult<T>;
-            this.logger.debug(
-                `Celery task completed asynchronously name=${name} taskId=${taskId}`,
-            );
+            this.logger.debug(`Celery task completed asynchronously name=${name} taskId=${taskId}`);
         }
 
         return taskId;
@@ -143,10 +112,7 @@ export class CeleryService {
      * @param queue The name of the queue to subscribe to.
      * @returns An observable that yields messages from the queue.
      */
-    subscribe<T extends Task>(
-        task: T,
-        queue: string,
-    ): Observable<ProgressMessage<T>> {
+    subscribe<T extends Task>(task: T, queue: string): Observable<ProgressMessage<T>> {
         const observable = new Observable<ProgressMessage<T>>(sub => {
             // Create queue if doesn't exist
             this.progressChannel
@@ -157,22 +123,14 @@ export class CeleryService {
                             queue,
                             v => {
                                 if (!v) return;
-                                const message = JSON.parse(
-                                    v.content.toString(),
-                                ) as ProgressMessage<T>;
+                                const message = JSON.parse(v.content.toString()) as ProgressMessage<T>;
                                 if (message.result) {
-                                    message.result = this.parseResult(
-                                        task,
-                                        message.result,
-                                    );
+                                    message.result = this.parseResult(task, message.result);
                                 }
                                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                                const {result, ...messageWithoutResult} =
-                                    message;
+                                const {result, ...messageWithoutResult} = message;
                                 this.logger.debug(
-                                    `Progress queue=${queue} message=${JSON.stringify(
-                                        messageWithoutResult,
-                                    )}`,
+                                    `Progress queue=${queue} message=${JSON.stringify(messageWithoutResult)}`,
                                 );
                                 sub.next(message);
 
@@ -196,9 +154,7 @@ export class CeleryService {
                         });
                 })
                 .catch(err => {
-                    this.logger.error(
-                        `Unable to assert queue ${queue}, cannot subscribe. ${err}`,
-                    );
+                    this.logger.error(`Unable to assert queue ${queue}, cannot subscribe. ${err}`);
                 });
         });
 

@@ -26,24 +26,17 @@ export class MatchService extends SprocketEventMarshal {
 
     @SprocketEvent(EventTopic.MatchSaved)
     async sendReportCard(databaseIds: MatchDatabaseIds): Promise<void> {
-        const matchResult = await this.coreService.send(
-            CoreEndpoint.GetMatchById,
-            {matchId: databaseIds.id},
-        );
-        if (matchResult.status === ResponseStatus.ERROR)
-            throw matchResult.error;
+        const matchResult = await this.coreService.send(CoreEndpoint.GetMatchById, {matchId: databaseIds.id});
+        if (matchResult.status === ResponseStatus.ERROR) throw matchResult.error;
 
-        const mleMatchResult = await this.coreService.send(
-            CoreEndpoint.GetMleMatchInfoAndStakeholders,
-            {sprocketMatchId: databaseIds.id},
-        );
-        if (mleMatchResult.status === ResponseStatus.ERROR)
-            throw mleMatchResult.error;
+        const mleMatchResult = await this.coreService.send(CoreEndpoint.GetMleMatchInfoAndStakeholders, {
+            sprocketMatchId: databaseIds.id,
+        });
+        if (mleMatchResult.status === ResponseStatus.ERROR) throw mleMatchResult.error;
 
-        const matchReportCardWebhooksResult = await this.coreService.send(
-            CoreEndpoint.GetMatchReportCardWebhooks,
-            {matchId: databaseIds.id},
-        );
+        const matchReportCardWebhooksResult = await this.coreService.send(CoreEndpoint.GetMatchReportCardWebhooks, {
+            matchId: databaseIds.id,
+        });
         if (matchReportCardWebhooksResult.status !== ResponseStatus.SUCCESS) {
             this.logger.warn("Failed to fetch report card webhook url");
             throw matchReportCardWebhooksResult.error;
@@ -64,8 +57,7 @@ export class MatchService extends SprocketEventMarshal {
 
         if (matchReportCardWebhooksResult.data.skillGroupWebhook)
             await this.botService.send(BotEndpoint.SendWebhookMessage, {
-                webhookUrl:
-                    matchReportCardWebhooksResult.data.skillGroupWebhook,
+                webhookUrl: matchReportCardWebhooksResult.data.skillGroupWebhook,
                 payload: {
                     embeds: [
                         {
@@ -98,8 +90,7 @@ export class MatchService extends SprocketEventMarshal {
                     ],
                 },
                 brandingOptions: {
-                    organizationId:
-                        matchReportCardWebhooksResult.data.organizationId,
+                    organizationId: matchReportCardWebhooksResult.data.organizationId,
                     options: {
                         color: true,
                         footer: {
@@ -113,42 +104,39 @@ export class MatchService extends SprocketEventMarshal {
             });
 
         await Promise.all(
-            matchReportCardWebhooksResult.data.franchiseWebhooks.map(
-                async franchiseWebhook =>
-                    this.botService.send(BotEndpoint.SendWebhookMessage, {
-                        webhookUrl: franchiseWebhook,
-                        payload: {
-                            embeds: [
-                                {
-                                    title: "Match Results",
-                                    image: {
-                                        url: "attachment://card.png",
-                                    },
-                                    timestamp: Date.now(),
+            matchReportCardWebhooksResult.data.franchiseWebhooks.map(async franchiseWebhook =>
+                this.botService.send(BotEndpoint.SendWebhookMessage, {
+                    webhookUrl: franchiseWebhook,
+                    payload: {
+                        embeds: [
+                            {
+                                title: "Match Results",
+                                image: {
+                                    url: "attachment://card.png",
                                 },
-                            ],
-                            attachments: [
-                                {
-                                    name: "card.png",
-                                    url: `minio:${config.minio.bucketNames.image_generation}/${reportCardResult.data}.png`,
-                                },
-                            ],
-                        },
-                        brandingOptions: {
-                            organizationId:
-                                matchReportCardWebhooksResult.data
-                                    .organizationId,
-                            options: {
-                                color: true,
-                                footer: {
-                                    icon: true,
-                                    text: true,
-                                },
-                                webhookAvatar: true,
-                                webhookUsername: true,
+                                timestamp: Date.now(),
                             },
+                        ],
+                        attachments: [
+                            {
+                                name: "card.png",
+                                url: `minio:${config.minio.bucketNames.image_generation}/${reportCardResult.data}.png`,
+                            },
+                        ],
+                    },
+                    brandingOptions: {
+                        organizationId: matchReportCardWebhooksResult.data.organizationId,
+                        options: {
+                            color: true,
+                            footer: {
+                                icon: true,
+                                text: true,
+                            },
+                            webhookAvatar: true,
+                            webhookUsername: true,
                         },
-                    }),
+                    },
+                }),
             ),
         );
     }

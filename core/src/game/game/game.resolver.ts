@@ -7,10 +7,7 @@ import {GameService} from "./game.service";
 
 @Resolver(() => Game)
 export class GameResolver {
-    constructor(
-        private readonly gameService: GameService,
-        private readonly gameModeService: GameModeService,
-    ) {}
+    constructor(private readonly gameService: GameService, private readonly gameModeService: GameModeService) {}
 
     @Query(() => Game)
     async getGame(@Args("title") title: string): Promise<Game> {

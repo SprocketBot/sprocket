@@ -32,6 +32,4 @@ export const GetPlayerErrorResponseSchema = z.object({
 
 export const GetPlayerByPlatformId_Response = z.union([GetPlayerSuccessResponseSchema, GetPlayerErrorResponseSchema]);
 
-export type GetPlayerByPlatformIdResponse = z.infer<
-    typeof GetPlayerByPlatformId_Response
->;
+export type GetPlayerByPlatformIdResponse = z.infer<typeof GetPlayerByPlatformId_Response>;

@@ -1,21 +1,10 @@
-import {
-    Column,
-    Entity,
-    Index,
-    JoinColumn,
-    ManyToOne,
-    PrimaryGeneratedColumn,
-} from "typeorm";
+import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
 
 import {MLE_Platform} from "./enums";
 import {MLE_Player} from "./Player.model";
 
 @Index("player_account_pkey", ["id"], {unique: true})
-@Index(
-    "player_account_platform_id_platform_unique",
-    ["platform", "platformId"],
-    {unique: true},
-)
+@Index("player_account_platform_id_platform_unique", ["platform", "platformId"], {unique: true})
 @Index("player_account_tracker_unique", ["tracker"], {unique: true})
 @Entity("player_account", {schema: "mledb"})
 export class MLE_PlayerAccount {
