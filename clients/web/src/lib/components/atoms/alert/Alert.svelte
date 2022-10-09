@@ -10,7 +10,7 @@
 
     export let variant: AlertVariant;
     export let withIcon = true;
-    export let dismissable = true;
+    export let dismissible = true;
 
     let iconSrc: IconSource | undefined;
     switch (variant) {
@@ -57,7 +57,7 @@
                 <slot />
             </h3>
 
-            {#if dismissable}
+            {#if dismissible}
                 <button
                     on:click={() => dismissed = true}
                     type="button"
