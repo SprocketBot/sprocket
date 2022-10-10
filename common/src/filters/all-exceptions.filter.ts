@@ -1,11 +1,10 @@
 import type {
     ArgumentsHost,
     ExceptionFilter,
-    HttpException,
 } from "@nestjs/common";
 import {
     Catch,
-    Logger,
+    HttpException,    Logger,
 } from "@nestjs/common";
 import type {Response} from "express";
 
@@ -26,18 +25,21 @@ import type {Response} from "express";
 export class AllExceptionsFilter implements ExceptionFilter {
     private readonly logger = new Logger(AllExceptionsFilter.name);
 
-    catch(exception: HttpException, host: ArgumentsHost): void {
-        const ctx = host.switchToHttp();
-        const response = ctx.getResponse<Response>();
-        const status = exception.getStatus();
+    catch(exception: unknown, host: ArgumentsHost): void {
+        this.logger.error(exception);
 
-        response
-            .status(status)
-            .json({
-                statusCode: status,
-                timestamp: new Date().toISOString(),
-                message: exception.message,
-            });
+        if (exception instanceof HttpException) {
+            const ctx = host.switchToHttp();
+            const response = ctx.getResponse<Response>();
+            const status = exception.getStatus();
 
+            response
+                .status(status)
+                .json({
+                    statusCode: status,
+                    timestamp: new Date().toISOString(),
+                    message: exception.message,
+                });
+        }
     }
 }
