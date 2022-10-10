@@ -1,12 +1,8 @@
 import {UseGuards} from "@nestjs/common";
-import {
-    ResolveField, Resolver, Root,
-} from "@nestjs/graphql";
+import {ResolveField, Resolver, Root} from "@nestjs/graphql";
 import {ScrimStatus} from "@sprocketbot/common";
 
-import {
-    GameMode, GameSkillGroup,
-} from "../database";
+import {GameMode, GameSkillGroup} from "../database";
 import {MLE_OrganizationTeam} from "../database/mledb";
 import {GameSkillGroupService} from "../franchise";
 import {GameModeService} from "../game";
@@ -16,9 +12,7 @@ import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-t
 import {OrGuard} from "../util/or.guard";
 import {ScrimResolverPlayerGuard} from "./scrim.guard";
 import type {ScrimGroup} from "./types";
-import {
-    Scrim, ScrimLobby, ScrimPlayer,
-} from "./types";
+import {Scrim, ScrimLobby, ScrimPlayer} from "./types";
 
 @Resolver(() => Scrim)
 export class ScrimResolver {

@@ -1,6 +1,4 @@
-import type {
-    CanActivate, ExecutionContext, Type,
-} from "@nestjs/common";
+import type {CanActivate, ExecutionContext, Type} from "@nestjs/common";
 import {Injectable} from "@nestjs/common";
 import {GqlExecutionContext} from "@nestjs/graphql";
 
@@ -10,7 +8,10 @@ import type {UserPayload} from "../../identity";
 // TODO: If someone logs in with something that isn't Discord, their org teams will be undefined
 // See src/identity/auth/oauth/oauth.controller.ts - Only gets set on discord authentication
 
-export type OrganizationTeamGuardOptions = MLE_OrganizationTeam | MLE_OrganizationTeam[] | ((orgTeams: MLE_OrganizationTeam[]) => boolean);
+export type OrganizationTeamGuardOptions =
+    | MLE_OrganizationTeam
+    | MLE_OrganizationTeam[]
+    | ((orgTeams: MLE_OrganizationTeam[]) => boolean);
 
 /**
  * Verifies a player has the correct MLE organization teams.

@@ -7,9 +7,7 @@ import {CommandsModule} from "../marshal";
 import {DiscordService} from "./discord.service";
 
 @Module({
-    imports: [
-        forwardRef(() => CommandsModule),
-    ],
+    imports: [forwardRef(() => CommandsModule)],
     providers: [
         {
             provide: "DISCORD_CLIENT",

@@ -1,6 +1,4 @@
-import type {
-    CanActivate, ExecutionContext, Type,
-} from "@nestjs/common";
+import type {CanActivate, ExecutionContext, Type} from "@nestjs/common";
 import {Injectable} from "@nestjs/common";
 import {ModuleRef} from "@nestjs/core";
 
@@ -22,7 +20,7 @@ export function OrGuard(...guards: Array<Type<CanActivate>>): Type<CanActivate> 
 
         async canActivate(context: ExecutionContext): Promise<boolean> {
             const errors: string[] = [];
-            
+
             for (const _guard of guards) {
                 const guard = await this.moduleRef.create<CanActivate>(_guard);
 
@@ -34,7 +32,7 @@ export function OrGuard(...guards: Array<Type<CanActivate>>): Type<CanActivate> 
                     errors.push((e as Error)?.message ?? "Unknown Error");
                 }
             }
-            
+
             throw new Error(errors.join("\n"));
         }
     }

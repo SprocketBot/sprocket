@@ -30,6 +30,5 @@ export const ProgressMessageSchema = z.object({
         value: z.number(),
         message: z.string(),
     }),
-    error: z.string().nullable()
-        .optional(),
+    error: z.string().nullable().optional(),
 });

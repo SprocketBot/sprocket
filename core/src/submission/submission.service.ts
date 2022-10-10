@@ -1,8 +1,6 @@
 import {Injectable} from "@nestjs/common";
 import type {ReplaySubmission} from "@sprocketbot/common";
-import {
-    ResponseStatus, SubmissionEndpoint, SubmissionService as CommonSubmissionService,
-} from "@sprocketbot/common";
+import {ResponseStatus, SubmissionEndpoint, SubmissionService as CommonSubmissionService} from "@sprocketbot/common";
 
 @Injectable()
 export class SubmissionService {
@@ -21,7 +19,7 @@ export class SubmissionService {
             override: true,
             playerId: "-1", // playerId is not used when `override=true`
         });
-        
+
         if (result.status === ResponseStatus.SUCCESS) return result.data;
         throw result.error;
     }

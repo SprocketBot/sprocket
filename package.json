@@ -12,9 +12,12 @@
   "license": "MIT",
   "scripts": {
     "postinstall": "npm run build:common",
-    "build": "npm run build --workspaces --if-available",
+    "build": "npm run build --workspaces --if-present",
     "build:common": "npm run build --workspace=common",
-    "lint": "npm run lint --workspaces --if-available"
+    "format": "npm run format --workspaces --if-present",
+    "format:check": "npm run format:check --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "lint:check": "npm run lint:check --workspaces --if-present"
   },
   "workspaces": [
     "common",
@@ -29,20 +32,15 @@
     "microservices/submission-service"
   ],
   "devDependencies": {
-    "@commitlint/cli": "^16.2.4",
-    "@commitlint/config-conventional": "^16.2.4",
+    "@commitlint/cli": "^17.1.2",
+    "@commitlint/config-conventional": "^17.1.0",
     "@types/passport-discord": "^0.1.5",
-    "@typescript-eslint/eslint-plugin": "^5.22.0",
-    "@typescript-eslint/parser": "^5.21.0",
-    "eslint": "^8.14.0",
+    "@typescript-eslint/eslint-plugin": "^5.39.0",
+    "@typescript-eslint/parser": "^5.39.0",
+    "eslint": "^8.25.0",
     "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-simple-import-sort": "^7.0.0",
-    "eslint-plugin-svelte3": "^3.4.1",
-    "husky": "^7.0.4"
-  },
-  "lint-staged": {
-    "*.ts": "eslint --fix",
-    "*.svelte": "eslint --fix",
-    "*.js": "eslint --fix"
+    "eslint-plugin-simple-import-sort": "^8.0.0",
+    "husky": "^8.0.1",
+    "prettier": "^2.7.1"
   }
 }

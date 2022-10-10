@@ -1,4 +1,4 @@
-/* eslint-disable no-console, @typescript-eslint/no-magic-numbers, @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable no-console, @typescript-eslint/no-magic-numbers, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-empty-function */
 import type {TestingModule} from "@nestjs/testing";
 import {Test} from "@nestjs/testing";
 import {config as appConfig} from "@sprocketbot/common";
@@ -53,11 +53,13 @@ describe("CommandManagerService", () => {
             spec: {
                 name: name,
                 aliases: [],
-                args: [ {
-                    name: "arg1",
-                    type: "string",
-                    docs: "docs",
-                } ],
+                args: [
+                    {
+                        name: "arg1",
+                        type: "string",
+                        docs: "docs",
+                    },
+                ],
                 docs: "docs",
             },
             function: async () => {},
@@ -84,11 +86,13 @@ describe("CommandManagerService", () => {
             spec: {
                 name: name,
                 aliases: ["alias1", "alias2"],
-                args: [ {
-                    name: "arg1",
-                    type: "string",
-                    docs: "docs",
-                } ],
+                args: [
+                    {
+                        name: "arg1",
+                        type: "string",
+                        docs: "docs",
+                    },
+                ],
                 docs: "docs",
             },
             function: async () => {},
@@ -175,7 +179,9 @@ describe("CommandManagerService", () => {
 
         const stringArg = "stringArg";
         const stringArgWithSpaces = "stringArg with spaces";
-        const mockedMessage = {content: `${botPrefix}${name} ${stringArg} "${stringArgWithSpaces}"`} as Message;
+        const mockedMessage = {
+            content: `${botPrefix}${name} ${stringArg} "${stringArgWithSpaces}"`,
+        } as Message;
         const expectedContext = {
             args: {
                 arg1: stringArg,
@@ -189,7 +195,6 @@ describe("CommandManagerService", () => {
     });
 
     it("Should execute a command not found hooks when given a non-matching message that starts with the bot prefix", async () => {
-
         const commandNotFoundHook = jest.fn();
         service.registerNotFoundCommand({
             function: commandNotFoundHook,
@@ -253,11 +258,13 @@ describe("CommandManagerService", () => {
             const command2: LinkedCommandMeta = {
                 spec: {
                     name: name,
-                    args: [ {
-                        name: "numberArg",
-                        type: "number",
-                        docs: "docs",
-                    } ],
+                    args: [
+                        {
+                            name: "numberArg",
+                            type: "number",
+                            docs: "docs",
+                        },
+                    ],
                     aliases: ["alias3"],
                     docs: "docs",
                 },

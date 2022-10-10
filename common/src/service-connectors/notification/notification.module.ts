@@ -12,7 +12,10 @@ import {NotificationService} from "./notification.service";
     exports: [NotificationService],
 })
 export class NotificationModule {
-    constructor(@Inject(CommonClient.Notification) private notificationClient: ClientProxy) {}
+    constructor(
+        @Inject(CommonClient.Notification)
+        private notificationClient: ClientProxy,
+    ) {}
 
     async onApplicationBootstrap(): Promise<void> {
         await this.notificationClient.connect();

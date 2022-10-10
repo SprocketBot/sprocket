@@ -1,14 +1,7 @@
 import {Logger} from "@nestjs/common";
-import type {
-    CollectorFilter, Message, MessageComponentInteraction, MessageReaction, User,
-} from "discord.js";
+import type {CollectorFilter, Message, MessageComponentInteraction, MessageReaction, User} from "discord.js";
 
-import type {
-    Step,
-    StepOptions, ValidWizardCollector,
-    WizardFinalFunction,
-    WizardFunction,
-} from "./wizard.types";
+import type {Step, StepOptions, ValidWizardCollector, WizardFinalFunction, WizardFunction} from "./wizard.types";
 import {WizardExitStatus, WizardType} from "./wizard.types";
 import {WizardStepHandler} from "./wizard-step-handler";
 
@@ -17,7 +10,8 @@ export class Wizard {
     defaultFilterFunctions: Record<WizardType, (...args: any[]) => boolean> = {
         [WizardType.MESSAGE]: (message: Message): boolean => message.author.id === this.authorId && !message.author.bot,
         [WizardType.REACTION]: (reaction: MessageReaction, user: User): boolean => !user.bot,
-        [WizardType.COMPONENT]: (interaction: MessageComponentInteraction): boolean => interaction.user.id === this.authorId,
+        [WizardType.COMPONENT]: (interaction: MessageComponentInteraction): boolean =>
+            interaction.user.id === this.authorId,
     };
 
     /**
@@ -101,12 +95,7 @@ export class Wizard {
                 }
             }
 
-            const handler = WizardStepHandler(
-                collector,
-                this.initiator,
-                step.opts,
-                step.func,
-            );
+            const handler = WizardStepHandler(collector, this.initiator, step.opts, step.func);
 
             // @ts-expect-error I literally just need this to let me commit
             collector.on("collect", (...args: unknown[]) => {
@@ -115,13 +104,13 @@ export class Wizard {
                     if (result instanceof Promise) {
                         result.catch(e => {
                             this.logger.warn(`${e.name} - ${e.message} caught asyncronously in Wizard`);
-                            this.reject(new Error("This is a new error"));
+                            this.reject?.(new Error("This is a new error"));
                         });
                     }
                 } catch (_e) {
                     const e = _e as Error;
                     this.logger.warn(`${e.name} - ${e.message} caught syncronously in Wizard`);
-                    this.reject(e);
+                    this.reject?.(e);
                 }
             });
             // @ts-expect-error I literally just need this to let me commit
@@ -131,28 +120,39 @@ export class Wizard {
     }
 
     next(messages: Map<string, Message>, reason: string): void {
-        if (Array.from(messages.values()).some((m: Message) => m.content === "cancel") || reason === WizardExitStatus.EXIT || reason === "time") {
+        if (
+            Array.from(messages.values()).some((m: Message) => m.content === "cancel") ||
+            reason === WizardExitStatus.EXIT ||
+            reason === "time"
+        ) {
             if (this.failFunction) {
-                this.failFunction(messages).then(() => {
-                    if (!this.steps.length) {
-                        this.resolve();
-                    }
-                })
+                this.failFunction(messages)
+                    .then(() => {
+                        if (!this.steps.length) {
+                            this.resolve?.();
+                        }
+                    })
                     .catch(this.reject);
             } else {
-                this.resolve();
+                this.resolve?.();
             }
             return;
         }
         if (this.steps.length) {
-            this.start.bind(this)().catch(() => {});
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            this.start
+                .bind(this)()
+                .catch(() => {
+                    /* Do nothing */
+                });
         } else if (this.finalFunction) {
-            this.finalFunction(messages).then(() => {
-                this.resolve();
-            })
+            this.finalFunction(messages)
+                .then(() => {
+                    this.resolve?.();
+                })
                 .catch(this.reject);
         } else {
-            this.resolve();
+            this.resolve?.();
         }
     }
 
@@ -167,10 +167,7 @@ export class Wizard {
         return this._promise;
     }
 
-    private resolve = (): void => {
-    };
+    private resolve?: () => void;
 
-    private reject: (e?: Error) => void = (): void => {
-    };
-
+    private reject?: (e?: Error) => void;
 }

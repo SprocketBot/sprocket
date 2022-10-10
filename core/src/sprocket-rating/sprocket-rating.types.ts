@@ -13,4 +13,3 @@ export interface SprocketRating {
     dpi: number;
     gpi: number;
 }
-

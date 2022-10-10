@@ -1,7 +1,5 @@
 import {Field, ObjectType} from "@nestjs/graphql";
-import {
-    Column, Entity, JoinTable, ManyToMany, OneToMany,
-} from "typeorm";
+import {Column, Entity, JoinTable, ManyToMany, OneToMany} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {GameSkillGroup} from "../../franchise";
@@ -23,7 +21,7 @@ export class Game extends BaseModel {
     @OneToMany(() => GameSkillGroup, gsg => gsg.game)
     @Field(() => [GameSkillGroup])
     skillGroups: GameSkillGroup[];
-    
+
     @ManyToMany(() => Platform)
     @JoinTable({name: "game_platform"})
     @Field(() => [Platform])

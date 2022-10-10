@@ -12,13 +12,7 @@ import {DeveloperCommandsMarshal} from "./developer-commands.marshal";
 // import {SprocketStatusMarshal} from "./sprocket-status.marshal";
 
 @Module({
-    imports: [
-        DiscordModule,
-        CommandsModule,
-        EmbedModule,
-        CoreModule,
-        EventsModule,
-    ],
+    imports: [DiscordModule, CommandsModule, EmbedModule, CoreModule, EventsModule],
     providers: [
         // TODO scope by role before re-adding
         // DebugCommandsMarshal,

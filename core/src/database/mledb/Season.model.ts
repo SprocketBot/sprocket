@@ -1,6 +1,4 @@
-import {
-    Column, Entity, Index, OneToMany, PrimaryGeneratedColumn,
-} from "typeorm";
+import {Column, Entity, Index, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 
 import {MLE_DraftOrder} from "./DraftOrder.model";
 import {MLE_Match} from "./Match.model";

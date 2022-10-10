@@ -9,10 +9,9 @@ import {PopulateService} from "../../util/populate/populate.service";
 
 @Injectable()
 export class MatchPlayerGuard extends PlayerGuard {
-    constructor(
-        readonly playerService: PlayerService,
-        private readonly populateService: PopulateService,
-    ) { super() }
+    constructor(readonly playerService: PlayerService, private readonly populateService: PopulateService) {
+        super();
+    }
 
     async getGameAndOrganization(ctx: GraphQLExecutionContext, userPayload: UserPayload): Promise<GameAndOrganization> {
         if (!userPayload.currentOrganizationId) throw new Error("User is not connected to an organization");

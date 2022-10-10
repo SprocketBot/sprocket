@@ -8,13 +8,6 @@ import {ScrimModule} from "./scrim/scrim.module";
 import {SubmissionModule} from "./submission/submission.module";
 
 @Module({
-    imports: [
-        ScrimModule,
-        MemberModule,
-        SubmissionModule,
-        MatchModule,
-        NotificationModule,
-        PlayerModule,
-    ],
+    imports: [ScrimModule, MemberModule, SubmissionModule, MatchModule, NotificationModule, PlayerModule],
 })
 export class AppModule {}

@@ -1,8 +1,6 @@
 import {BullModule} from "@nestjs/bull";
 import {Module} from "@nestjs/common";
-import {
-    EventsModule, MatchmakingModule, RedisModule,
-} from "@sprocketbot/common";
+import {EventsModule, MatchmakingModule, RedisModule} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 
 import {ConfigurationModule} from "../configuration";

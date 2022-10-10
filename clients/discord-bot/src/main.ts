@@ -24,9 +24,8 @@ async function bootstrap(): Promise<void> {
     });
 
     app.useGlobalFilters(new AllExceptionsFilter());
-    
-    await app.listen();
 
+    await app.listen();
 }
 
 // eslint-disable-next-line no-console

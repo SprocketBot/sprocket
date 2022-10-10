@@ -1,6 +1,4 @@
-import type {
-    ReplaySubmissionItem,
-} from "./replay-submission-item";
+import type {ReplaySubmissionItem} from "./replay-submission-item";
 
 export type RejectedItem = Omit<ReplaySubmissionItem, "progress">;
 

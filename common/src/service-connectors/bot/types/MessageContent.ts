@@ -6,8 +6,7 @@ import {EmbedSchema} from "./Embed";
 
 export const MessageContentSchema = z.object({
     content: z.string().optional(),
-    embeds: z.array(EmbedSchema).max(1)
-        .optional(),
+    embeds: z.array(EmbedSchema).max(1).optional(),
     components: z.array(ActionRowComponentSchema).optional(),
     attachments: z.array(z.union([z.string(), AttachmentSchema])).optional(),
 });

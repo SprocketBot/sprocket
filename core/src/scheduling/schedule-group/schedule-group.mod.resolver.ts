@@ -1,7 +1,5 @@
 import {UseGuards} from "@nestjs/common";
-import {
-    Args, Query, Resolver,
-} from "@nestjs/graphql";
+import {Args, Query, Resolver} from "@nestjs/graphql";
 import {GraphQLError} from "graphql";
 
 import {ScheduleGroup, ScheduleGroupType} from "../../database";
@@ -16,8 +14,7 @@ export class ScheduleGroupModResolver {
     constructor(
         private readonly scheduleGroupService: ScheduleGroupService,
         private readonly scheduleGroupTypeService: ScheduleGroupTypeService,
-    ) {
-    }
+    ) {}
 
     // TODO: ScheduleGroupType resolver?
     @Query(() => [ScheduleGroupType])

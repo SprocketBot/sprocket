@@ -17,18 +17,19 @@ describe("BetterFinalizationService", () => {
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            providers: [RocketLeagueFinalizationService,
+            providers: [
+                RocketLeagueFinalizationService,
                 {
                     provide: PlayerService,
                     useValue: {
                         getPlayer: jest.fn,
                     },
-                } ],
+                },
+            ],
         }).compile();
 
         service = module.get<RocketLeagueFinalizationService>(RocketLeagueFinalizationService);
         playerService = module.get<PlayerService>(PlayerService);
-
     });
 
     it("should be defined", () => {
@@ -49,27 +50,55 @@ describe("BetterFinalizationService", () => {
 
     describe("saveMatch", () => {
         it("Should throw an error if the submission contains incomplete values", async () => {
-            const mockedValue = {id: -1, items: [ {progress: {status: ProgressStatus.Pending, result: {data: {} } } } ] } as unknown as MatchReplaySubmission;
-            await expect(service.saveMatchDependents(
-                mockedValue,
-                -1,
-                {id: 0} as unknown as Match,
-                false,
-                {} as unknown as EntityManager,
-            ).catch((e: Error) => e.message.toString())).resolves.toContain("Not all items have been completed.");
+            const mockedValue = {
+                id: -1,
+                items: [
+                    {
+                        progress: {
+                            status: ProgressStatus.Pending,
+                            result: {data: {}},
+                        },
+                    },
+                ],
+            } as unknown as MatchReplaySubmission;
+            await expect(
+                service
+                    .saveMatchDependents(
+                        mockedValue,
+                        -1,
+                        {id: 0} as unknown as Match,
+                        false,
+                        {} as unknown as EntityManager,
+                    )
+                    .catch((e: Error) => e.message.toString()),
+            ).resolves.toContain("Not all items have been completed.");
         });
 
         it("Should throw an error if the replays do not match the expected values.", async () => {
             const filename = "somefile.replay";
-            const mockedValue = {items: [ {originalFilename: filename,  progress: {status: ProgressStatus.Complete, result: {data: {} } } } ] } as unknown as MatchReplaySubmission;
+            const mockedValue = {
+                items: [
+                    {
+                        originalFilename: filename,
+                        progress: {
+                            status: ProgressStatus.Complete,
+                            result: {data: {}},
+                        },
+                    },
+                ],
+            } as unknown as MatchReplaySubmission;
 
-            await expect(service.saveMatchDependents(
-                mockedValue,
-                -1,
-                undefined as unknown as Match,
-                false,
-                {} as unknown as EntityManager,
-            ).catch((e: Error) => e.message.toString())).resolves.toContain(filename);
+            await expect(
+                service
+                    .saveMatchDependents(
+                        mockedValue,
+                        -1,
+                        undefined as unknown as Match,
+                        false,
+                        {} as unknown as EntityManager,
+                    )
+                    .catch((e: Error) => e.message.toString()),
+            ).resolves.toContain(filename);
         });
     });
 });

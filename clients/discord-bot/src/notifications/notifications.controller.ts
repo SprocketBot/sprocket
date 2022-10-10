@@ -1,9 +1,6 @@
 import {Controller} from "@nestjs/common";
 import {MessagePattern, Payload} from "@nestjs/microservices";
-import {
-    BotEndpoint,
-    BotSchemas,
-} from "@sprocketbot/common";
+import {BotEndpoint, BotSchemas} from "@sprocketbot/common";
 
 import {NotificationsService} from "./notifications.service";
 

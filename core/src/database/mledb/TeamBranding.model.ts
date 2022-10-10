@@ -1,6 +1,4 @@
-import {
-    Column, Entity, Index, OneToOne, PrimaryGeneratedColumn,
-} from "typeorm";
+import {Column, Entity, Index, OneToOne, PrimaryGeneratedColumn} from "typeorm";
 
 import {MLE_Team} from "./Team.model";
 
@@ -38,7 +36,9 @@ export class MLE_TeamBranding {
     updatedAt: Date;
 
     @Column("character varying", {
-        name: "team_name", unique: true, length: 255,
+        name: "team_name",
+        unique: true,
+        length: 255,
     })
     teamName: string;
 

@@ -8,8 +8,9 @@ export const GetSprocketConfiguration_Request = z.object({
     key: z.nativeEnum(SprocketConfigurationKey).optional(),
 });
 
-export const GetSprocketConfiguration_Response = z.array(z.object({
-    key: z.nativeEnum(SprocketConfigurationKey),
-    value: z.string(),
-}));
-
+export const GetSprocketConfiguration_Response = z.array(
+    z.object({
+        key: z.nativeEnum(SprocketConfigurationKey),
+        value: z.string(),
+    }),
+);

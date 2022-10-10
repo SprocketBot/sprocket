@@ -26,7 +26,9 @@ export class EloService {
         /* eslint-disable @typescript-eslint/no-unsafe-assignment,
         @typescript-eslint/no-explicit-any */
         this.logger.verbose("Querying the materialized view.");
-        const rawData: CurrentEloValues[] = await this.dataSource.manager.query("SELECT player_id, elo, league, salary, name FROM mledb.v_current_elo_values");
+        const rawData: CurrentEloValues[] = await this.dataSource.manager.query(
+            "SELECT player_id, elo, league, salary, name FROM mledb.v_current_elo_values",
+        );
 
         this.logger.verbose(`Elo Service, querying migration data: ${JSON.stringify(rawData[0])}`);
         // Now, we build a NewPlayer instance for each row of data returned from

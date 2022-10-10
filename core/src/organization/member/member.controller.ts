@@ -12,6 +12,8 @@ export class MemberController {
     @MessagePattern(CoreEndpoint.GetMember)
     async getMember(@Payload() payload: unknown): Promise<GetMemberResponse> {
         const data = CoreSchemas.GetMember.input.parse(payload);
-        return this.memberService.getMemberById(data, {relations: ["user", "organization"] });
+        return this.memberService.getMemberById(data, {
+            relations: ["user", "organization"],
+        });
     }
 }
