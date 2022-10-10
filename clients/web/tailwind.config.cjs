@@ -184,6 +184,8 @@ const config = {
     theme: {
         // Colors are defined here and not in `extend` so that we don't have the default Tailwind colors to confuse us (e.g. red vs danger)
         colors: {
+            white: "#FFFFFF",
+            black: "#000000",
             transparent: "transparent",
             ...palette,
         },
