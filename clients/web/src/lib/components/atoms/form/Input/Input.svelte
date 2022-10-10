@@ -3,7 +3,9 @@
 </script>
 
 <script lang="ts">
+    import {slide} from "svelte/transition";
     import shortid from "shortid";
+
     import type {FormControlState} from "../form.types";
 
     export let label: string;
@@ -11,13 +13,19 @@
     export let placeholder: string | undefined = undefined;
     export let disabled: boolean = false;
     export let state: FormControlState = "none";
+    export let error: string | undefined = undefined;
 
-    const id = shortid.generate();
+    const labelId = `input_${shortid.generate()}`;
+    const errorId = `input-error_${shortid.generate()}`;
 </script>
 
 <div class="size-{size} state-{state}">
-    <label for="input-{id}">{label}</label>
-    <input type="text" id="input-{id}" {placeholder} {disabled} />
+    <label for={labelId}>{label}</label>
+    <input id={labelId} type="text" aria-describedby={error ? errorId : undefined} {placeholder} {disabled} />
+
+    {#if error && state === "invalid"}
+        <span class="error" id={errorId} transition:slide>{error}</span>
+    {/if}
 </div>
 
 <style lang="postcss">
@@ -57,8 +65,8 @@
             @apply text-success-700 dark:text-success-500;
         }
         input:not(:disabled) {
-            @apply bg-success-50 border-success-500 ring-success-500 text-success-900 placeholder-success-700
-                dark:bg-gray-700 dark:border-success-500 dark:ring-success-500 text-success-500 dark:placeholder-success-500;
+            @apply bg-success-50 border-success-500 ring-success-500 text-success-700 placeholder-success-700
+                dark:bg-gray-700 dark:border-success-500 dark:ring-success-500 dark:text-success-500 dark:placeholder-success-500;
         }
     }
 
@@ -67,8 +75,11 @@
             @apply text-danger-700 dark:text-danger-500;
         }
         input:not(:disabled) {
-            @apply bg-danger-50 border-danger-500 ring-danger-500 text-danger-900 placeholder-danger-700
-                dark:bg-gray-700 dark:border-danger-500 dark:ring-danger-500 text-danger-500 dark:placeholder-danger-500;
+            @apply bg-danger-50 border-danger-500 ring-danger-500 text-danger-700 placeholder-danger-700
+                dark:bg-gray-700 dark:border-danger-500 dark:ring-danger-500 dark:text-danger-500 dark:placeholder-danger-500;
+        }
+        .error {
+            @apply text-danger-600 dark:text-danger-500;
         }
     }
 </style>
