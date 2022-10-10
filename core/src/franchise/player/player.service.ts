@@ -3,6 +3,7 @@ import {
 } from "@nestjs/common";
 import {JwtService} from "@nestjs/jwt";
 import {InjectRepository} from "@nestjs/typeorm";
+import type {NotificationInput} from "@sprocketbot/common";
 import {
     ButtonComponentStyle,
     ComponentType,
@@ -52,8 +53,8 @@ import {
 import {OrganizationService} from "../../organization";
 import {MemberService} from "../../organization/member/member.service";
 import {GameSkillGroupService} from "../game-skill-group";
-import type {RankdownPayload} from "./player.controller";
 import type {IntakePlayerAccount} from "./player.resolver";
+import type {RankdownJwtPayload} from "./player.types";
 
 @Injectable()
 export class PlayerService {
@@ -331,6 +332,61 @@ export class PlayerService {
         return player;
     }
 
+    buildRankdownNotification(
+        userId: number,
+        discordId: string,
+        orgId: number,
+        orgName: string,
+        oldSkillGroupName: string,
+        newSkillGroupName: string,
+        salary: number,
+    ): NotificationInput<NotificationEndpoint.SendNotification> {
+        return {
+            type: NotificationType.BASIC,
+            userId: userId,
+            notification: {
+                type: NotificationMessageType.DirectMessage,
+                userId: discordId,
+                payload: {
+                    embeds: [ {
+                        title: "You Have Ranked Out",
+                        description: `You have been ranked out from ${oldSkillGroupName} to ${newSkillGroupName}.`,
+                        author: {
+                            name: `${orgName}`,
+                        },
+                        fields: [
+                            {
+                                name: "New League",
+                                value: `${newSkillGroupName}`,
+                            },
+                            {
+                                name: "New Salary",
+                                value: `${salary}`,
+                            },
+                        ],
+                        footer: {
+                            text: orgName,
+                        },
+                        timestamp: Date.now(),
+                    } ],
+                },
+                brandingOptions: {
+                    organizationId: orgId,
+                    options: {
+                        author: {
+                            icon: true,
+                        },
+                        color: true,
+                        thumbnail: true,
+                        footer: {
+                            icon: true,
+                        },
+                    },
+                },
+            },
+        };
+    }
+
     async saveSalaries(payload: SalaryPayloadItem[][]): Promise<void> {
         await Promise.allSettled(payload.map(async payloadSkillGroup => Promise.allSettled(payloadSkillGroup.map(async playerDelta => {
             const player = await this.getPlayer({
@@ -413,50 +469,15 @@ export class PlayerService {
                         },
                     });
     
-                    await this.notificationService.send(NotificationEndpoint.SendNotification, {
-                        type: NotificationType.BASIC,
-                        userId: player.member.user.id,
-                        notification: {
-                            type: NotificationMessageType.DirectMessage,
-                            userId: discordAccount.accountId,
-                            payload: {
-                                embeds: [ {
-                                    title: "You Have Ranked Out",
-                                    description: `You have been ranked out from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
-                                    author: {
-                                        name: `${orgProfile.name}`,
-                                    },
-                                    fields: [
-                                        {
-                                            name: "New League",
-                                            value: `${skillGroup.profile.description}`,
-                                        },
-                                        {
-                                            name: "New Salary",
-                                            value: `${playerDelta.rankout.salary}`,
-                                        },
-                                    ],
-                                    footer: {
-                                        text: orgProfile.name,
-                                    },
-                                    timestamp: Date.now(),
-                                } ],
-                            },
-                            brandingOptions: {
-                                organizationId: player.member.organization.id,
-                                options: {
-                                    author: {
-                                        icon: true,
-                                    },
-                                    color: true,
-                                    thumbnail: true,
-                                    footer: {
-                                        icon: true,
-                                    },
-                                },
-                            },
-                        },
-                    });
+                    await this.notificationService.send(NotificationEndpoint.SendNotification, this.buildRankdownNotification(
+                        player.member.user.id,
+                        discordAccount.accountId,
+                        player.member.organization.id,
+                        orgProfile.name,
+                        player.skillGroup.profile.description,
+                        skillGroup.profile.description,
+                        playerDelta.rankout.salary,
+                    ));
                 } else if (playerDelta.rankout.degreeOfStiffness === DegreeOfStiffness.SOFT) {
                     await this.updatePlayerStanding(playerDelta.playerId, playerDelta.rankout.salary);
 
@@ -478,7 +499,7 @@ export class PlayerService {
                     });
 
                     /* TEMPORARY NOTIFICATION */
-                    const rankdownPayload: RankdownPayload = {
+                    const rankdownPayload: RankdownJwtPayload = {
                         playerId: player.id,
                         salary: playerDelta.rankout.salary,
                         skillGroupId: skillGroup.id,
