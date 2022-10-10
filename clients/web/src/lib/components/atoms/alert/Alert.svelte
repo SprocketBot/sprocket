@@ -4,9 +4,9 @@
 
 <script lang="ts">
     import {fade} from "svelte/transition";
-    import { Icon } from "@steeze-ui/svelte-icon";
-    import { CheckCircle, ExclamationCircle, InformationCircle, XMark } from "@steeze-ui/heroicons";
-    import type { IconSource } from "@steeze-ui/svelte-icon/types";
+    import {Icon} from "@steeze-ui/svelte-icon";
+    import {CheckCircle, ExclamationCircle, InformationCircle, XMark} from "@steeze-ui/heroicons";
+    import type {IconSource} from "@steeze-ui/svelte-icon/types";
 
     export let variant: AlertVariant;
     export let withIcon = true;
@@ -15,25 +15,24 @@
     let iconSrc: IconSource | undefined;
     switch (variant) {
         case "info":
-            iconSrc = InformationCircle
+            iconSrc = InformationCircle;
             break;
         case "success":
-            iconSrc = CheckCircle
+            iconSrc = CheckCircle;
             break;
         case "warning":
         case "error":
-            iconSrc = ExclamationCircle
+            iconSrc = ExclamationCircle;
             break;
         default:
             break;
     }
 
-    const hasDetails = $$slots.details
-    const hasActions = $$slots.actions
+    const hasDetails = $$slots.details;
+    const hasActions = $$slots.actions;
 
-    let dismissed = false
+    let dismissed = false;
 </script>
-
 
 <!-- https://flowbite.com/docs/components/alerts/ -->
 {#if !dismissed}
@@ -51,7 +50,11 @@
             </h3>
 
             {#if dismissible}
-                <button on:click={() => dismissed = true} type="button" class="ml-auto -mx-1.5 -my-1.5 rounded-lg focus:ring-2 p-1.5 inline-flex h-8 w-8">
+                <button
+                    on:click={() => (dismissed = true)}
+                    type="button"
+                    class="ml-auto -mx-1.5 -my-1.5 rounded-lg focus:ring-2 p-1.5 inline-flex h-8 w-8"
+                >
                     <span class="sr-only">Close</span>
                     <Icon class="w-5 h-5" src={XMark} />
                 </button>
@@ -72,25 +75,32 @@
     </div>
 {/if}
 
-
 <style lang="postcss">
     .v-info {
         @apply border-blue-300 bg-blue-300 text-blue-900;
-        button { @apply text-blue-800 focus:ring-blue-400 hover:bg-blue-400/50; }
+        button {
+            @apply text-blue-800 focus:ring-blue-400 hover:bg-blue-400/50;
+        }
     }
-    
+
     .v-success {
         @apply border-green-300 bg-green-300 text-green-900;
-        button { @apply text-green-800 focus:ring-green-400 hover:bg-green-400/50; }
+        button {
+            @apply text-green-800 focus:ring-green-400 hover:bg-green-400/50;
+        }
     }
 
     .v-warning {
         @apply border-orange-300 bg-orange-300 text-orange-900;
-        button { @apply text-orange-800 focus:ring-orange-400 hover:bg-orange-400/50; }
+        button {
+            @apply text-orange-800 focus:ring-orange-400 hover:bg-orange-400/50;
+        }
     }
 
     .v-error {
         @apply border-red-300 bg-red-300 text-red-900;
-        button { @apply text-red-800 focus:ring-red-400 hover:bg-red-400/50; }
+        button {
+            @apply text-red-800 focus:ring-red-400 hover:bg-red-400/50;
+        }
     }
 </style>
