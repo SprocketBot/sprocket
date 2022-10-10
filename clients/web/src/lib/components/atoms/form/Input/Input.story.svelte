@@ -1,15 +1,18 @@
 <script lang="ts">
     import type {Hst as _Hst} from "@histoire/plugin-svelte";
+    import type {FormControlState} from "../form.types";
     import Input, {type InputSize} from "./Input.svelte";
 
     export let Hst: _Hst;
 
     const sizes: InputSize[] = ["sm", "md", "lg"];
+    const states: FormControlState[] = ["none", "valid", "invalid"];
 
     let label = "Username";
     let size: InputSize = "md";
     let placeholder = "";
     let disabled = false;
+    let state: FormControlState = "none";
 </script>
 
 <Hst.Story title="Atoms/Input" layout={{type: "grid", width: 500}}>
@@ -18,9 +21,10 @@
         <Hst.Select title="Size" bind:value={size} options={sizes} />
         <Hst.Text title="Placeholder" bind:value={placeholder} />
         <Hst.Checkbox title="Disabled" bind:value={disabled} />
+        <Hst.Select title="State" bind:value={state} options={states} />
     </svelte:fragment>
 
-    <Hst.Variant title="Default" {label} {size} {placeholder} {disabled}>
-        <Input {label} {size} {placeholder} {disabled} />
+    <Hst.Variant title="Default" {label} {size} {placeholder} {disabled} {state}>
+        <Input {label} {size} {placeholder} {disabled} {state} />
     </Hst.Variant>
 </Hst.Story>
