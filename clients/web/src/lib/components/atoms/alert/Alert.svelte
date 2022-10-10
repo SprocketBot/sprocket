@@ -29,6 +29,7 @@
     }
 
     const hasDetails = $$slots.details
+    const hasActions = $$slots.actions
 
     let dismissed = false
 </script>
@@ -57,13 +58,17 @@
             {/if}
         </div>
 
-        {#if $$slots.details}
+        {#if hasDetails}
             <div class="mt-2 text-sm">
                 <slot name="details" />
             </div>
         {/if}
 
-        <slot name="actions" />
+        {#if hasActions}
+            <div class="mt-3">
+                <slot name="actions" />
+            </div>
+        {/if}
     </div>
 {/if}
 
