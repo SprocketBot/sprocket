@@ -8,13 +8,14 @@
     export let label: string;
     export let size: InputSize = "md";
     export let placeholder: string | undefined = undefined;
+    export let disabled: boolean = false;
 
     const id = shortid.generate();
 </script>
 
 <div class="size-{size}">
     <label for="input-{id}">{label}</label>
-    <input type="text" id="input-{id}" {placeholder} />
+    <input type="text" id="input-{id}" {placeholder} {disabled} />
 </div>
 
 <style lang="postcss">
@@ -28,6 +29,10 @@
             outline-none focus:ring-1 focus:ring-primary focus:border-primary
             bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-600
             dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400;
+
+        &:disabled {
+            @apply cursor-not-allowed text-gray-400 placeholder-gray-500;
+        }
     }
 
     .size-sm input {
