@@ -1,11 +1,10 @@
 <script lang="ts">
     import type {Hst as _Hst} from "@histoire/plugin-svelte";
-    import {stringify} from "postcss";
     import Alert, {type AlertVariant} from "./Alert.svelte";
 
     export let Hst: _Hst;
 
-    const variants: AlertVariant[] = ["info", "success", "warning", "error"];
+    const variants: AlertVariant[] = ["info", "success", "warning", "danger"];
 
     let variant: AlertVariant = "info";
     let dismissible = true;
@@ -83,6 +82,7 @@
                         >
                         View more
                     </button>
+                    <!-- TODO this is ugly right now, we can replace with our Button component once that's written -->
                     <button
                         type="button"
                         class="text-gray-900 bg-transparent border border-gray-900 hover:bg-gray-900 hover:text-white focus:ring-4 focus:outline-none focus:ring-gray-200 font-medium rounded-lg text-xs px-3 py-1.5 text-center dark:border-gray-800 dark:text-gray-800 dark:hover:text-white"

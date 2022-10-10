@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-    export type AlertVariant = "info" | "success" | "warning" | "error";
+    export type AlertVariant = "info" | "success" | "warning" | "danger";
 </script>
 
 <script lang="ts">
@@ -21,7 +21,7 @@
             iconSrc = CheckCircle;
             break;
         case "warning":
-        case "error":
+        case "danger":
             iconSrc = ExclamationCircle;
             break;
         default:
@@ -77,30 +77,30 @@
 
 <style lang="postcss">
     .v-info {
-        @apply border-blue-300 bg-blue-300 text-blue-900;
+        @apply border-info-300 bg-info-300 text-info-900;
         button {
-            @apply text-blue-800 focus:ring-blue-400 hover:bg-blue-400/50;
+            @apply text-info-800 focus:ring-info-400 hover:bg-info-400/50;
         }
     }
 
     .v-success {
-        @apply border-green-300 bg-green-300 text-green-900;
+        @apply border-success-300 bg-success-300 text-success-900;
         button {
-            @apply text-green-800 focus:ring-green-400 hover:bg-green-400/50;
+            @apply text-success-800 focus:ring-success-400 hover:bg-success-400/50;
         }
     }
 
     .v-warning {
-        @apply border-orange-300 bg-orange-300 text-orange-900;
+        @apply border-warning-300 bg-warning-300 text-warning-900;
         button {
-            @apply text-orange-800 focus:ring-orange-400 hover:bg-orange-400/50;
+            @apply text-warning-800 focus:ring-warning-400 hover:bg-warning-400/50;
         }
     }
 
-    .v-error {
-        @apply border-red-300 bg-red-300 text-red-900;
+    .v-danger {
+        @apply border-danger-300 bg-danger-300 text-danger-900;
         button {
-            @apply text-red-800 focus:ring-red-400 hover:bg-red-400/50;
+            @apply text-danger-800 focus:ring-danger-400 hover:bg-danger-400/50;
         }
     }
 </style>
