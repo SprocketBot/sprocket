@@ -494,20 +494,24 @@ export class MatchService {
             }
         }
 
-        let invalidation: Invalidation;
+        this.logger.debug("Creating invalidation");
+        const invalidation = this.invalidationRepository.create({
+            favorsHomeTeam: winningTeamId === series.matchParent.fixture?.homeFranchise.id,
+            description: series.matchParent.fixture ? "Series NCP" : "Scrim NCP",
+        });
+
         if (isNcp) {
-            invalidation = this.invalidationRepository.create({
-                favorsHomeTeam: winningTeamId === series.matchParent.fixture?.homeFranchise.id,
-                description: series.matchParent.fixture ? "Series NCP" : "Scrim NCP",
-            });
             await this.invalidationRepository.save(invalidation);
 
+            this.logger.debug("Invalidation saved, trying series");
             series.invalidation = invalidation;
             await this.matchRepository.save(series);
+            this.logger.debug("Series saved with invalidation");
         }
 
         // Update each series replay (including any dummies) to NCP
         const replayIds = seriesReplays.map(replay => replay.id);
+        this.logger.debug("Marking replays in series");
         await this.markReplaysNcp(replayIds, isNcp, winningTeam ?? undefined, invalidation ?? undefined);
 
         this.logger.verbose(`End markSeriesNcp`);
