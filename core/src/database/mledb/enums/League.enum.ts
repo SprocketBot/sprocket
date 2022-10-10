@@ -11,10 +11,4 @@ export enum League {
 
 registerEnumType(League, {name: "MLE_League"});
 
-export const LeagueOrdinals = [
-    League.PREMIER,
-    League.MASTER,
-    League.CHAMPION,
-    League.ACADEMY,
-    League.FOUNDATION,
-];
+export const LeagueOrdinals = [League.PREMIER, League.MASTER, League.CHAMPION, League.ACADEMY, League.FOUNDATION];

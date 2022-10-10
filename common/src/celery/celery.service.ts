@@ -5,16 +5,8 @@ import {createClient} from "celery-node";
 import {Observable} from "rxjs";
 
 import {config} from "../util/config";
-import type {
-    ProgressMessage, RunOpts,
-    Task, TaskArgs,
-    TaskResult,
-} from "./types";
-import {
-    CELERY_TASK_REDIS_RESULT_PREFIX,
-    taskNames,
-    TaskSchemas,
-} from "./types";
+import type {ProgressMessage, RunOpts, Task, TaskArgs, TaskResult} from "./types";
+import {CELERY_TASK_REDIS_RESULT_PREFIX, taskNames, TaskSchemas} from "./types";
 
 @Injectable()
 export class CeleryService {
@@ -34,7 +26,9 @@ export class CeleryService {
         }
 
         this.logger.log(`Connecting to RabbitMQ @ ${config.celery.broker}`);
-        const connection = await connect(config.celery.broker, {heartbeat: 120});
+        const connection = await connect(config.celery.broker, {
+            heartbeat: 120,
+        });
 
         this.progressChannel = await connection.createChannel();
         this.logger.log("Connected to RabbitMQ");
@@ -54,7 +48,7 @@ export class CeleryService {
         const asyncResult = t.applyAsync([], args);
         this.logger.debug(`Running celery task synchronously name=${name} taskId=${asyncResult.taskId}`);
 
-        const r = await asyncResult.get() as TaskResult<T>;
+        const r = (await asyncResult.get()) as TaskResult<T>;
         const result = this.parseResult(task, r);
         this.logger.debug(`Celery task completed synchronously name=${name} taskId=${asyncResult.taskId}`);
         // this.logger.verbose(`Celery task completed synchronously name=${name} taskId=${asyncResult.taskId} result=${JSON.stringify(result)}`);
@@ -83,7 +77,8 @@ export class CeleryService {
         this.logger.debug(`Running celery task asynchronously name=${name} taskId=${taskId}`);
 
         if (opts?.cb) {
-            asyncResult.get()
+            asyncResult
+                .get()
                 .then((r: unknown) => {
                     const result = this.parseResult(task, r);
                     const p = opts.cb!(taskId, result, null);
@@ -102,7 +97,7 @@ export class CeleryService {
                     }
                 });
         } else {
-            await asyncResult.get() as TaskResult<T>;
+            (await asyncResult.get()) as TaskResult<T>;
             this.logger.debug(`Celery task completed asynchronously name=${name} taskId=${taskId}`);
         }
 
@@ -121,31 +116,43 @@ export class CeleryService {
     subscribe<T extends Task>(task: T, queue: string): Observable<ProgressMessage<T>> {
         const observable = new Observable<ProgressMessage<T>>(sub => {
             // Create queue if doesn't exist
-            this.progressChannel.assertQueue(queue)
+            this.progressChannel
+                .assertQueue(queue)
                 .then(() => {
-                    this.progressChannel.consume(queue, v => {
-                        if (!v) return;
-                        const message = JSON.parse(v.content.toString()) as ProgressMessage<T>;
-                        if (message.result) {
-                            message.result = this.parseResult(task, message.result);
-                        }
-                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                        const {result, ...messageWithoutResult} = message;
-                        this.logger.debug(`Progress queue=${queue} message=${JSON.stringify(messageWithoutResult)}`);
-                        sub.next(message);
+                    this.progressChannel
+                        .consume(
+                            queue,
+                            v => {
+                                if (!v) return;
+                                const message = JSON.parse(v.content.toString()) as ProgressMessage<T>;
+                                if (message.result) {
+                                    message.result = this.parseResult(task, message.result);
+                                }
+                                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                const {result, ...messageWithoutResult} = message;
+                                this.logger.debug(
+                                    `Progress queue=${queue} message=${JSON.stringify(messageWithoutResult)}`,
+                                );
+                                sub.next(message);
 
-                        // How to complete subscription/delete queue here, without knowing if other tasks are complete?
-                        // if (msg.status === ProgressStatus.Complete) {
-                        //     this.progressChannel.deleteQueue(queue)
-                        //         .then(() => { sub.complete() })
-                        //         .catch(this.logger.error.bind(this.logger));
-                        // }
-                    }, {noAck: true}).catch(e => {
-                        this.progressChannel.deleteQueue(queue)
-                            .then(() => { sub.complete() })
-                            .catch(this.logger.error.bind(this.logger));
-                        this.logger.error(e);
-                    });
+                                // How to complete subscription/delete queue here, without knowing if other tasks are complete?
+                                // if (msg.status === ProgressStatus.Complete) {
+                                //     this.progressChannel.deleteQueue(queue)
+                                //         .then(() => { sub.complete() })
+                                //         .catch(this.logger.error.bind(this.logger));
+                                // }
+                            },
+                            {noAck: true},
+                        )
+                        .catch(e => {
+                            this.progressChannel
+                                .deleteQueue(queue)
+                                .then(() => {
+                                    sub.complete();
+                                })
+                                .catch(this.logger.error.bind(this.logger));
+                            this.logger.error(e);
+                        });
                 })
                 .catch(err => {
                     this.logger.error(`Unable to assert queue ${queue}, cannot subscribe. ${err}`);

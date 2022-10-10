@@ -1,7 +1,5 @@
 import {Field, ObjectType} from "@nestjs/graphql";
-import {
-    Column, Entity, JoinColumn, ManyToOne, OneToOne,
-} from "typeorm";
+import {Column, Entity, JoinColumn, ManyToOne, OneToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {Photo} from "../../organization";
@@ -38,7 +36,7 @@ export class FranchiseProfile extends BaseModel {
     @Field(() => String, {nullable: true})
     submissionDiscordRoleId?: string;
 
-    @OneToOne(() => Photo,  {nullable: true})
+    @OneToOne(() => Photo, {nullable: true})
     @JoinColumn()
     @Field(() => Photo, {nullable: true})
     photo?: Photo;

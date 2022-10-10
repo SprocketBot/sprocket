@@ -11,21 +11,22 @@ import {CoreService} from "./core.service";
     exports: [CoreService],
     imports: [
         UtilModule,
-        ClientsModule.register([ {
-            name: CommonClient.Core,
-            transport: Transport.RMQ,
-            options: {
-                urls: [config.transport.url] as string[],
-                queue: config.transport.core_queue,
-                queueOptions: {
-                    durable: true,
-                },
-                socketOptions: {
-                    heartbeat: 120,
+        ClientsModule.register([
+            {
+                name: CommonClient.Core,
+                transport: Transport.RMQ,
+                options: {
+                    urls: [config.transport.url] as string[],
+                    queue: config.transport.core_queue,
+                    queueOptions: {
+                        durable: true,
+                    },
+                    socketOptions: {
+                        heartbeat: 120,
+                    },
                 },
             },
-        } ]),
+        ]),
     ],
 })
-export class CoreModule {
-}
+export class CoreModule {}

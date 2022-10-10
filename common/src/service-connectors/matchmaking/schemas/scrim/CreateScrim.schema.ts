@@ -1,9 +1,6 @@
 import {z} from "zod";
 
-import {
-    ScrimGameModeSchema,
-    ScrimPlayerSchema, ScrimSchema, ScrimSettingsSchema,
-} from "../../types";
+import {ScrimGameModeSchema, ScrimPlayerSchema, ScrimSchema, ScrimSettingsSchema} from "../../types";
 
 export const CreateScrim_Request = z.object({
     settings: ScrimSettingsSchema,
@@ -11,8 +8,7 @@ export const CreateScrim_Request = z.object({
     organizationId: z.number(),
     gameMode: ScrimGameModeSchema,
     skillGroupId: z.number(),
-    createGroup: z.boolean().optional()
-        .default(false),
+    createGroup: z.boolean().optional().default(false),
 });
 
 export const CreateScrim_Response = ScrimSchema;

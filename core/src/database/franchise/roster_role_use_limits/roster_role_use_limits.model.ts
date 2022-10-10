@@ -1,7 +1,5 @@
 import {Field, ObjectType} from "@nestjs/graphql";
-import {
-    Column, Entity, ManyToOne, OneToOne,
-} from "typeorm";
+import {Column, Entity, ManyToOne, OneToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {ScheduleGroupType} from "../../scheduling/schedule_group_type";

@@ -1,15 +1,14 @@
-<script lang='ts'>
-  import type {Submission} from "$lib/api";
+<script lang="ts">
+    import type {Submission} from "$lib/api";
 
-  import SubmissionProgressView from "./SubmissionProgressView.svelte";
-import RatificationView from "./RatificationView.svelte";
+    import RatificationView from "./RatificationView.svelte";
+    import SubmissionProgressView from "./SubmissionProgressView.svelte";
 
-  export let submission: Submission;
+    export let submission: Submission;
 </script>
 
-
 {#if !["RATIFYING", "RATIFIED"].includes(submission.status)}
-	<SubmissionProgressView  {submission} />
+    <SubmissionProgressView {submission} />
 {:else}
-	<RatificationView {submission} />
+    <RatificationView {submission} />
 {/if}

@@ -1,6 +1,4 @@
-import {
-    OnGlobalQueueCompleted, OnGlobalQueueFailed, Processor,
-} from "@nestjs/bull";
+import {OnGlobalQueueCompleted, OnGlobalQueueFailed, Processor} from "@nestjs/bull";
 import {Logger} from "@nestjs/common";
 import {JobId} from "bull";
 

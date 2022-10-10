@@ -17,7 +17,7 @@ describe("SprocketRatingService", () => {
     it("should be defined", () => {
         expect(service).toBeDefined();
     });
-    
+
     it("Should return all zeros", () => {
         const input = {
             goals: 0.0,
@@ -28,11 +28,12 @@ describe("SprocketRatingService", () => {
             shots_against: 0.0,
         };
         const result = {
-            opi: 0.0, dpi: 0.0, gpi: 0.0,
+            opi: 0.0,
+            dpi: 0.0,
+            gpi: 0.0,
         };
 
         expect(service.calcSprocketRating(input)).toStrictEqual(result);
-
     });
 
     it("GT's SR Test #1, Fresh", () => {
@@ -53,7 +54,6 @@ describe("SprocketRatingService", () => {
         expect(Math.round(service.calcSprocketRating(input).opi * 10.0) / 10.0).toStrictEqual(result.opi);
         expect(Math.round(service.calcSprocketRating(input).dpi * 10.0) / 10.0).toStrictEqual(result.dpi);
         expect(Math.round(service.calcSprocketRating(input).gpi * 10.0) / 10.0).toStrictEqual(result.gpi);
-
     });
 
     it("GT's SR Test #2, Zyta", () => {
@@ -74,7 +74,6 @@ describe("SprocketRatingService", () => {
         expect(Math.round(service.calcSprocketRating(input).opi * 10.0) / 10.0).toStrictEqual(result.opi);
         expect(Math.round(service.calcSprocketRating(input).dpi * 10.0) / 10.0).toStrictEqual(result.dpi);
         expect(Math.round(service.calcSprocketRating(input).gpi * 10.0) / 10.0).toStrictEqual(result.gpi);
-
     });
 
     it("GT's SR Test #3, AJBinky", () => {
@@ -95,7 +94,6 @@ describe("SprocketRatingService", () => {
         expect(Math.round(service.calcSprocketRating(input).opi * 10.0) / 10.0).toStrictEqual(result.opi);
         expect(Math.round(service.calcSprocketRating(input).dpi * 10.0) / 10.0).toStrictEqual(result.dpi);
         expect(Math.round(service.calcSprocketRating(input).gpi * 10.0) / 10.0).toStrictEqual(result.gpi);
-
     });
 
     it("GT's SR Test #4, Maple", () => {
@@ -116,7 +114,6 @@ describe("SprocketRatingService", () => {
         expect(Math.round(service.calcSprocketRating(input).opi * 10.0) / 10.0).toStrictEqual(result.opi);
         expect(Math.round(service.calcSprocketRating(input).dpi * 10.0) / 10.0).toStrictEqual(result.dpi);
         expect(Math.round(service.calcSprocketRating(input).gpi * 10.0) / 10.0).toStrictEqual(result.gpi);
-
     });
 
     it("Nigel's 3s Test #1", () => {
@@ -137,7 +134,6 @@ describe("SprocketRatingService", () => {
         expect(Math.round(service.calcSprocketRating3s(input).opi * 10.0) / 10.0).toStrictEqual(result.opi);
         expect(Math.round(service.calcSprocketRating3s(input).dpi * 10.0) / 10.0).toStrictEqual(result.dpi);
         expect(Math.round(service.calcSprocketRating3s(input).gpi * 10.0) / 10.0).toStrictEqual(result.gpi);
-
     });
 
     it("Nigels' 3s Test #2", () => {
@@ -150,11 +146,11 @@ describe("SprocketRatingService", () => {
             shots_against: 0.0,
         };
         const result = {
-            opi: 0.0, dpi: 0.0, gpi: 0.0,
+            opi: 0.0,
+            dpi: 0.0,
+            gpi: 0.0,
         };
 
         expect(service.calcSprocketRating3s(input)).toStrictEqual(result);
-
     });
-
 });

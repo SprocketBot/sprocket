@@ -5,27 +5,45 @@ import type {FindOperator, FindOptionsRelations} from "typeorm";
 import {Raw, Repository} from "typeorm";
 
 import {
-    Franchise, GameMode, GameSkillGroup, Match, MatchParent, ScheduleFixture, ScheduleGroup, ScheduleGroupType,
+    Franchise,
+    GameMode,
+    GameSkillGroup,
+    Match,
+    MatchParent,
+    ScheduleFixture,
+    ScheduleGroup,
+    ScheduleGroupType,
 } from "../../database";
 import type {League, MLE_Series} from "../../database/mledb";
-import {
-    LegacyGameMode, MLE_Fixture, MLE_Team, MLE_TeamToCaptain,
-} from "../../database/mledb";
+import {LegacyGameMode, MLE_Fixture, MLE_Team, MLE_TeamToCaptain} from "../../database/mledb";
 import {MatchService} from "../../scheduling";
 import {PopulateService} from "../../util/populate/populate.service";
 
 @Injectable()
 export class MledbMatchService {
     constructor(
-        @InjectRepository(MLE_Fixture) private readonly fixtureRepo: Repository<MLE_Fixture>,
-        @InjectRepository(MLE_Team) private readonly teamRepo: Repository<MLE_Team>,
-        @InjectRepository(MLE_TeamToCaptain) private readonly teamCaptainRepo: Repository<MLE_TeamToCaptain>,
+        @InjectRepository(MLE_Fixture)
+        private readonly fixtureRepo: Repository<MLE_Fixture>,
+        @InjectRepository(MLE_Team)
+        private readonly teamRepo: Repository<MLE_Team>,
+        @InjectRepository(MLE_TeamToCaptain)
+        private readonly teamCaptainRepo: Repository<MLE_TeamToCaptain>,
         private readonly sprocketMatchService: MatchService,
         private readonly popService: PopulateService,
     ) {}
 
-    async getMleSeries(awayName: string, homeName: string, matchStart: Date, seasonStart: Date, mode: LegacyGameMode, league: League): Promise<MLE_Series> {
-        const matchByDay: (d: Date) => FindOperator<Date> = (d: Date) => Raw<Date>((alias: string) => `DATE_TRUNC('day', ${alias}) = '${d.toISOString().split("T")[0]}'`) as unknown as FindOperator<Date>;
+    async getMleSeries(
+        awayName: string,
+        homeName: string,
+        matchStart: Date,
+        seasonStart: Date,
+        mode: LegacyGameMode,
+        league: League,
+    ): Promise<MLE_Series> {
+        const matchByDay: (d: Date) => FindOperator<Date> = (d: Date) =>
+            Raw<Date>(
+                (alias: string) => `DATE_TRUNC('day', ${alias}) = '${d.toISOString().split("T")[0]}'`,
+            ) as unknown as FindOperator<Date>;
 
         const mleFixture = await this.fixtureRepo.findOneOrFail({
             where: {
@@ -51,24 +69,36 @@ export class MledbMatchService {
         });
 
         if (mleFixture.series.length !== 1) {
-            throw new Error(`Found more than one series matching params ${JSON.stringify({
-                awayName, homeName, matchStart, seasonStart, mode,
-            })}`);
+            throw new Error(
+                `Found more than one series matching params ${JSON.stringify({
+                    awayName,
+                    homeName,
+                    matchStart,
+                    seasonStart,
+                    mode,
+                })}`,
+            );
         }
 
         return mleFixture.series[0];
     }
 
-    async getMleMatchInfoAndStakeholders(sprocketMatchId: number): Promise<CoreOutput<CoreEndpoint.GetMleMatchInfoAndStakeholders>> {
+    async getMleMatchInfoAndStakeholders(
+        sprocketMatchId: number,
+    ): Promise<CoreOutput<CoreEndpoint.GetMleMatchInfoAndStakeholders>> {
         const match = await this.sprocketMatchService.getMatchById(sprocketMatchId);
         if (!match.skillGroup) {
             match.skillGroup = await this.popService.populateOneOrFail(Match, match, "skillGroup");
         }
         if (!match.skillGroup.profile) {
-            const skillGroupProfile = await this.popService.populateOneOrFail(GameSkillGroup, match.skillGroup, "profile");
+            const skillGroupProfile = await this.popService.populateOneOrFail(
+                GameSkillGroup,
+                match.skillGroup,
+                "profile",
+            );
             match.skillGroup.profile = skillGroupProfile;
         }
-        
+
         const matchParent = await this.popService.populateOneOrFail(Match, match, "matchParent");
 
         const fixture = await this.popService.populateOne(MatchParent, matchParent, "fixture");
@@ -106,7 +136,7 @@ export class MledbMatchService {
             doublesAssistantGeneralManager: true,
             standardAssistantGeneralManager: true,
         };
-        
+
         const mledbHomeFranchise = await this.teamRepo.findOneOrFail({
             where: {name: mledbMatch.fixture.homeName},
             relations: mledbFranchiseRelations,

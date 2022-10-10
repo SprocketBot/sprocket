@@ -6,11 +6,10 @@
 </script>
 
 <div class="card {_class ?? ''}" class:card-compact={compact}>
-    <figure><slot name="figure"/></figure>
-    
+    <figure><slot name="figure" /></figure>
+
     <div class="card-body">
-        <div class="card-title"><slot name="title"/></div>
-        <slot/>
+        <div class="card-title"><slot name="title" /></div>
+        <slot />
     </div>
 </div>
-

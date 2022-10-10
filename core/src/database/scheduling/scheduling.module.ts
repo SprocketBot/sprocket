@@ -32,11 +32,7 @@ export const schedulingEntities = [
 const ormModule = TypeOrmModule.forFeature(schedulingEntities);
 
 @Module({
-    imports: [
-        ormModule,
-    ],
-    exports: [
-        ormModule,
-    ],
+    imports: [ormModule],
+    exports: [ormModule],
 })
 export class SchedulingModule {}

@@ -40,12 +40,7 @@ import {ScheduleGroupTypeService} from "./schedule-group/schedule-group-type.ser
         MatchResolver,
         MatchParentResolver,
     ],
-    exports: [
-        MatchService,
-        RoundService,
-    ],
-    controllers: [
-        MatchController,
-    ],
+    exports: [MatchService, RoundService],
+    controllers: [MatchController],
 })
 export class SchedulingModule {}

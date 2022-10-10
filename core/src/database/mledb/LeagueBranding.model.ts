@@ -1,6 +1,4 @@
-import {
-    Column, Entity, Index, PrimaryGeneratedColumn,
-} from "typeorm";
+import {Column, Entity, Index, PrimaryGeneratedColumn} from "typeorm";
 
 import {League} from "./enums/League.enum";
 
@@ -38,7 +36,9 @@ export class MLE_LeagueBranding {
     updatedAt: Date;
 
     @Column("character varying", {
-        name: "league", unique: true, length: 255,
+        name: "league",
+        unique: true,
+        length: 255,
     })
     league: League;
 

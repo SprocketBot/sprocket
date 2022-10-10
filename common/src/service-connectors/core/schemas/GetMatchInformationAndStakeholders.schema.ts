@@ -5,10 +5,8 @@ export const GetMatchInformationAndStakeholders_Request = z.object({
 });
 
 const FranchiseWebhook = z.object({
-    url: z.string().nullable()
-        .optional(),
-    role: z.string().nullable()
-        .optional(),
+    url: z.string().nullable().optional(),
+    role: z.string().nullable().optional(),
 });
 
 export const GetMatchInformationAndStakeholders_Response = z.object({

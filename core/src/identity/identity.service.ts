@@ -8,10 +8,10 @@ import {User, UserAuthenticationAccount} from "../database";
 @Injectable()
 export class IdentityService {
     constructor(
-        @InjectRepository(UserAuthenticationAccount) private userAuthAccountRepository: Repository<UserAuthenticationAccount>,
+        @InjectRepository(UserAuthenticationAccount)
+        private userAuthAccountRepository: Repository<UserAuthenticationAccount>,
         @InjectRepository(User) private userRepository: Repository<User>,
-    ) {
-    }
+    ) {}
 
     /**
      *  Registers a user with sprocket; given the account information for their first authentication account.
@@ -33,13 +33,14 @@ export class IdentityService {
      * @throws When a matching user is not found
      */
     async getUserByAuthAccount(accountType: AccountType, accountId: string): Promise<User> {
-        return this.userRepository.createQueryBuilder("user")
+        return this.userRepository
+            .createQueryBuilder("user")
             .leftJoin("user.authenticationAccounts", "authAccounts")
             .where("authAccounts.accountId = :aId", {aId: accountId})
             .andWhere("authAccounts.accountType = :aType", {aType: accountType})
             .getOneOrFail();
     }
-    
+
     async getAuthAccountsForUser(userId: number): Promise<UserAuthenticationAccount[]> {
         return this.userAuthAccountRepository.find({
             where: {

@@ -1,8 +1,6 @@
 import {z} from "zod";
 
-import {
-    ScrimPlayerSchema,
-} from "../../types";
+import {ScrimPlayerSchema} from "../../types";
 
 export const CheckInToScrim_Request = z.object({
     scrimId: z.string().uuid(),

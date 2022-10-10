@@ -1,11 +1,7 @@
 import {Injectable, Logger} from "@nestjs/common";
 import type {Template} from "@sprocketbot/common";
-import {
-    config, MinioService, readToString,
-} from "@sprocketbot/common";
-import {
-    existsSync, mkdirSync, writeFileSync,
-} from "fs";
+import {config, MinioService, readToString} from "@sprocketbot/common";
+import {existsSync, mkdirSync, writeFileSync} from "fs";
 import {JSDOM} from "jsdom";
 import * as sharp from "sharp";
 
@@ -15,10 +11,7 @@ import {SvgTransformationService} from "./svg-transformation/svg-transformation.
 export class ImageGenerationService {
     private logger = new Logger(ImageGenerationService.name);
 
-    constructor(
-        private minioService: MinioService,
-        private svgTransformationService: SvgTransformationService,
-    ) {
+    constructor(private minioService: MinioService, private svgTransformationService: SvgTransformationService) {
         process.env.FONTCONFIG_PATH = "./fonts";
     }
 
@@ -44,28 +37,32 @@ export class ImageGenerationService {
         // Const createdFiles: string[] = [];
 
         if (fonts.length) {
-            await Promise.all(fonts.map(async font => {
-                const fontname = font.getAttribute("data-font-name");
-                const filename = `./fonts/${fontname}`;
-                const fontData = font.getAttribute("href");
-                const matches = fontData?.match(/^data:([A-Za-z-+/]+);base64,(.+)$/);
-                if (matches?.[2]) {
-                    const buffer = Buffer.from(matches[2], "base64");
-                    this.logger.log(`Saving font: ${filename}`);
-                    writeFileSync(filename, buffer);
-                    // CreatedFiles.push(filename);
-                }
-            }));
+            await Promise.all(
+                fonts.map(async font => {
+                    const fontname = font.getAttribute("data-font-name");
+                    const filename = `./fonts/${fontname}`;
+                    const fontData = font.getAttribute("href");
+                    const matches = fontData?.match(/^data:([A-Za-z-+/]+);base64,(.+)$/);
+                    if (matches?.[2]) {
+                        const buffer = Buffer.from(matches[2], "base64");
+                        this.logger.log(`Saving font: ${filename}`);
+                        writeFileSync(filename, buffer);
+                        // CreatedFiles.push(filename);
+                    }
+                }),
+            );
             svgRoot.removeChild(svgRoot.querySelector("#fonts")!);
         }
 
         const dataNodes = Array.from(svgRoot.querySelectorAll("[data-sprocket]"));
         this.logger.debug(`Found ${dataNodes.length} nodes with data`);
-        await Promise.all(dataNodes.map(async dn => {
-            await this.svgTransformationService.transformElement(dn, data);
-            // Ensure any updates to the node are correctly flushed.
-            dn.parentElement?.replaceChild(dn, dn);
-        }));
+        await Promise.all(
+            dataNodes.map(async dn => {
+                await this.svgTransformationService.transformElement(dn, data);
+                // Ensure any updates to the node are correctly flushed.
+                dn.parentElement?.replaceChild(dn, dn);
+            }),
+        );
         this.logger.debug(`Transformations successfully applied`);
 
         const newSvg = svgRoot.outerHTML;
@@ -80,16 +77,11 @@ export class ImageGenerationService {
 
         this.logger.debug(`Buffer Created, uploading to Minio`);
         // Save output to minio
-        await this.minioService.put(
-            config.minio.bucketNames.image_generation,
-            `${outputFileKey}.svg`,
-            newSvgBuffer,
-        );
+        await this.minioService.put(config.minio.bucketNames.image_generation, `${outputFileKey}.svg`, newSvgBuffer);
         await this.minioService.put(
             config.minio.bucketNames.image_generation,
             `${outputFileKey}.png`,
-            await sharp(newSvgBuffer).png()
-                .toBuffer(),
+            await sharp(newSvgBuffer).png().toBuffer(),
         );
 
         /*

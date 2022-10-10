@@ -1,4 +1,5 @@
 import type {EndpointOutput} from "@sveltejs/kit";
+
 import {ReportTemplateDAO} from "$utils/server/database/ReportTemplate.dao";
 
 export async function GET(): Promise<EndpointOutput> {

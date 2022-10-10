@@ -6,7 +6,6 @@ export const GetMatchReportCardWebhooks_Request = z.object({
 
 export const GetMatchReportCardWebhooks_Response = z.object({
     organizationId: z.number(),
-    skillGroupWebhook: z.string().nullable()
-        .optional(),
+    skillGroupWebhook: z.string().nullable().optional(),
     franchiseWebhooks: z.array(z.string()),
 });

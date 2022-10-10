@@ -1,12 +1,8 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {EventsService, EventTopic} from "@sprocketbot/common";
-import type {
-    FindManyOptions, FindOneOptions, FindOptionsWhere,
-} from "typeorm";
-import {
-    IsNull, MoreThan, Repository,
-} from "typeorm";
+import type {FindManyOptions, FindOneOptions, FindOptionsWhere} from "typeorm";
+import {IsNull, MoreThan, Repository} from "typeorm";
 
 import type {MemberRestrictionType} from "../../database";
 import {MemberRestriction} from "../../database";
@@ -15,7 +11,8 @@ import {MemberService} from "../member/member.service";
 @Injectable()
 export class MemberRestrictionService {
     constructor(
-        @InjectRepository(MemberRestriction) private readonly memberRestrictionRepository: Repository<MemberRestriction>,
+        @InjectRepository(MemberRestriction)
+        private readonly memberRestrictionRepository: Repository<MemberRestriction>,
         private readonly memberService: MemberService,
         private readonly eventsService: EventsService,
     ) {}
@@ -42,7 +39,10 @@ export class MemberRestrictionService {
         return memberRestriction;
     }
 
-    async getMemberRestrictionById(id: number, options?: FindOneOptions<MemberRestriction>): Promise<MemberRestriction> {
+    async getMemberRestrictionById(
+        id: number,
+        options?: FindOneOptions<MemberRestriction>,
+    ): Promise<MemberRestriction> {
         return this.memberRestrictionRepository.findOneOrFail({
             ...options,
             where: {
@@ -56,7 +56,11 @@ export class MemberRestrictionService {
         return this.memberRestrictionRepository.find(query);
     }
 
-    async getActiveMemberRestrictions(type: MemberRestrictionType, date: Date = new Date(), memberId?: number): Promise<MemberRestriction[]> {
+    async getActiveMemberRestrictions(
+        type: MemberRestrictionType,
+        date: Date = new Date(),
+        memberId?: number,
+    ): Promise<MemberRestriction[]> {
         const whereA: FindOptionsWhere<MemberRestriction> = {
             type: type,
             expiration: MoreThan(date),
@@ -77,7 +81,12 @@ export class MemberRestrictionService {
         });
     }
 
-    async manuallyExpireMemberRestriction(memberRestrictionId: number, manualExpiration: Date, manualExpirationReason: string, forgiven: boolean): Promise<MemberRestriction> {
+    async manuallyExpireMemberRestriction(
+        memberRestrictionId: number,
+        manualExpiration: Date,
+        manualExpirationReason: string,
+        forgiven: boolean,
+    ): Promise<MemberRestriction> {
         let memberRestriction = await this.memberRestrictionRepository.findOneOrFail({
             where: {id: memberRestrictionId},
             relations: {

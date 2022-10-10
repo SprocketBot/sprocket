@@ -6,8 +6,7 @@ export const OrganizationProfileSchema = z.object({
     websiteUrl: z.string(),
     primaryColor: z.string(),
     secondaryColor: z.string(),
-    logoUrl: z.string().nullable()
-        .optional(),
+    logoUrl: z.string().nullable().optional(),
 });
 
 export const OrganizationSchema = z.object({

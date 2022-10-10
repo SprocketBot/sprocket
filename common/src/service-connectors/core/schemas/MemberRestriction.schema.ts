@@ -15,15 +15,16 @@ export const MemberRestrictionSchema = z.object({
         return arg;
     }, z.date()),
     reason: z.string(),
-    manualExpiration: z.preprocess(arg => {
-        if (typeof arg === "string") {
-            return new Date(arg);
-        }
-        return arg;
-    }, z.date()).nullable()
+    manualExpiration: z
+        .preprocess(arg => {
+            if (typeof arg === "string") {
+                return new Date(arg);
+            }
+            return arg;
+        }, z.date())
+        .nullable()
         .optional(),
-    manualExpirationReason: z.string().nullable()
-        .optional(),
+    manualExpirationReason: z.string().nullable().optional(),
     member: z.object({
         id: z.number(),
     }),

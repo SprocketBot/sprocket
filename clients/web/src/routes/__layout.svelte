@@ -1,25 +1,28 @@
-<script lang='ts'>
-	import "../app.postcss";
-	import {initializeClient} from "$lib/api/client";
-	import {session} from "$app/stores";
-	import {
-	    AuthGuard, Chatwoot, StackBanner, ToastContainer,
-	} from "$lib/components";
-	import {navigationStore, ADMIN_NAV_ITEM} from "$lib/stores";
+<script lang="ts">
+    import "../app.postcss";
 
-	$: {
-	    const isAdmin = $session.user?.orgTeams.some(s => s === 0);
-	    if (isAdmin) {
-	        navigationStore.update(prev => [...prev, ADMIN_NAV_ITEM]);
-	    }
-	}
+    import {session} from "$app/stores";
+    import {initializeClient} from "$lib/api/client";
+    import {
+        AuthGuard,
+        Chatwoot,
+        StackBanner,
+        ToastContainer,
+    } from "$lib/components";
+    import {ADMIN_NAV_ITEM, navigationStore} from "$lib/stores";
 
-	initializeClient($session);
+    $: {
+        const isAdmin = $session.user?.orgTeams.some(s => s === 0);
+        if (isAdmin) {
+            navigationStore.update(prev => [...prev, ADMIN_NAV_ITEM]);
+        }
+    }
+
+    initializeClient($session);
 </script>
 
-
 <svelte:head>
-	<title>Sprocket</title>
+    <title>Sprocket</title>
 </svelte:head>
 
 <StackBanner />
@@ -29,5 +32,5 @@
 <ToastContainer showTestButton={false} />
 
 <AuthGuard>
-	<Chatwoot />
+    <Chatwoot />
 </AuthGuard>

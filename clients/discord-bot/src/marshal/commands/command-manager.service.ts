@@ -2,9 +2,7 @@ import {Injectable, Logger} from "@nestjs/common";
 import * as config from "config";
 import type {Message} from "discord.js";
 
-import type {
-    CommandArg, CommandSpec, LinkedCommandMeta, LinkedCommandNotFoundMeta,
-} from "./commands.types";
+import type {CommandArg, CommandSpec, LinkedCommandMeta, LinkedCommandNotFoundMeta} from "./commands.types";
 
 @Injectable()
 export class CommandManagerService {
@@ -58,15 +56,17 @@ export class CommandManagerService {
      * Registers a command so that it can be called by discord messages
      */
     registerCommand(meta: LinkedCommandMeta): void {
-        const originalAliases = [meta.spec.name, ...meta.spec.aliases ?? []];
+        const originalAliases = [meta.spec.name, ...(meta.spec.aliases ?? [])];
 
         for (const alias of originalAliases) {
-            const _aliases = [...meta.spec.aliases ?? []];
+            const _aliases = [...(meta.spec.aliases ?? [])];
 
             // Build command using aliasName and number of arguments
             const key = this.buildKey(alias, meta.spec.args.length);
             if (this._commands.has(key)) {
-                throw new Error(`Error: Command "${alias}" with ${meta.spec.args.length} arguments was declared more than once!`);
+                throw new Error(
+                    `Error: Command "${alias}" with ${meta.spec.args.length} arguments was declared more than once!`,
+                );
             }
             this._logger.debug(`Registering command ${key}`);
 
@@ -106,7 +106,9 @@ export class CommandManagerService {
 
     getCommandSpecs(commandName: string): CommandSpec[] {
         const keys = [...this._commands.keys()];
-        const matchingKeys = keys.filter(k => k.startsWith(`${commandName}${CommandManagerService.COMMAND_ARG_KEY_SEP}`));
+        const matchingKeys = keys.filter(k =>
+            k.startsWith(`${commandName}${CommandManagerService.COMMAND_ARG_KEY_SEP}`),
+        );
 
         const matchingSpecs: CommandSpec[] = [];
         for (const mk of matchingKeys) {
@@ -140,11 +142,11 @@ export class CommandManagerService {
         for (let i = 0; i < argChunks.length; i++) {
             const localArg: string[] = [];
 
-            if (argChunks[i].startsWith("\"")) {
+            if (argChunks[i].startsWith('"')) {
                 do {
                     localArg.push(argChunks[i].replace(/(?<!\\)"/, ""));
 
-                    if (argChunks[i].endsWith("\"") && !argChunks[i].endsWith("\\\"")) break;
+                    if (argChunks[i].endsWith('"') && !argChunks[i].endsWith('\\"')) break;
                 } while (++i < argChunks.length);
 
                 args.push(localArg.join(" "));
@@ -159,7 +161,7 @@ export class CommandManagerService {
     // TODO refactor this into another service?
     // TODO increase test coverage
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private parseArgs(inputArgs: string[], args: CommandArg[]): Record<string, any> {
+    private parseArgs(inputArgs: string[], args: CommandArg[]): Record<string, unknown> {
         if (inputArgs.length !== args.length) {
             throw new Error(`Cannot parse arguments with mismatching length, (${inputArgs.length} !== ${args.length})`);
         }

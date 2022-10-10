@@ -25,7 +25,9 @@ export abstract class SprocketEventMarshal {
         const {data} = parseResult;
 
         data.forEach(meta => {
-            const eventFunction = (Reflect.get(this, meta.functionName) as CallableFunction).bind(this) as EventFunction<EventTopic>;
+            const eventFunction = (Reflect.get(this, meta.functionName) as CallableFunction).bind(
+                this,
+            ) as EventFunction<EventTopic>;
 
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.eventsService.subscribe(meta.event, false).then(obs => {
@@ -42,7 +44,10 @@ export abstract class SprocketEventMarshal {
                     try {
                         const executed = eventFunction(payload.data);
 
-                        if (executed instanceof Promise) executed.catch(e => { this.logger.error(e) });
+                        if (executed instanceof Promise)
+                            executed.catch(e => {
+                                this.logger.error(e);
+                            });
                     } catch (e) {
                         this.logger.error(e);
                     }

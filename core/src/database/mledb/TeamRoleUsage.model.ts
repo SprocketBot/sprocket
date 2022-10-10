@@ -1,6 +1,4 @@
-import {
-    Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,
-} from "typeorm";
+import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
 
 import {Role} from "./enums/Role.enum";
 import {MLE_Series} from "./Series.model";
@@ -49,6 +47,6 @@ export class MLE_TeamRoleUsage {
     @ManyToOne(() => MLE_Series, series => series.teamRoleUsages, {
         onUpdate: "CASCADE",
     })
-    @JoinColumn([ {name: "series_id", referencedColumnName: "id"} ])
+    @JoinColumn([{name: "series_id", referencedColumnName: "id"}])
     series: MLE_Series;
 }

@@ -32,12 +32,15 @@ export class AnalyticsService {
 
         const flushThrottle = 1000;
         this.flush = throttle<() => void>(() => {
-            this.writeApi.flush()
-                .then(() => { this.logger.log("Flushed InfluxDB Points") })
+            this.writeApi
+                .flush()
+                .then(() => {
+                    this.logger.log("Flushed InfluxDB Points");
+                })
                 .catch(this.logger.error.bind(this.logger));
         }, flushThrottle);
     }
-    
+
     createPoint = (data: AnalyticsPoint): void => {
         try {
             const point = new Point();
@@ -55,5 +58,4 @@ export class AnalyticsService {
             throw e;
         }
     };
-
 }

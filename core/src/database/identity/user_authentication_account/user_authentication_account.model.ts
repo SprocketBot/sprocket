@@ -1,7 +1,5 @@
 import {Field, ObjectType} from "@nestjs/graphql";
-import {
-    Column, Entity, ManyToOne, Unique,
-} from "typeorm";
+import {Column, Entity, ManyToOne, Unique} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {User} from "../user/user.model";

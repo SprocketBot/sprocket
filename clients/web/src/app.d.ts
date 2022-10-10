@@ -5,10 +5,13 @@
 // for information about these interfaces
 
 import type {SSRData} from "@urql/core/dist/types/exchanges/ssr";
-import type {Config, SessionUser} from "$lib/utils";
+
 import type {
-    ChatwootGlobal, ChatwootSDK, ChatwootSettings,
+    ChatwootGlobal,
+    ChatwootSDK,
+    ChatwootSettings,
 } from "$lib/components/abstract/Chatwoot";
+import type {Config, SessionUser} from "$lib/utils";
 
 declare global {
     declare namespace App {
@@ -19,7 +22,7 @@ declare global {
 
         interface Session {
             config: Config["client"];
-    
+
             token?: string;
             user?: SessionUser;
         }

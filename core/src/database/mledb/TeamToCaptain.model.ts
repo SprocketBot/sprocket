@@ -1,6 +1,4 @@
-import {
-    Column, Entity, Index, JoinColumn, OneToOne, PrimaryGeneratedColumn,
-} from "typeorm";
+import {Column, Entity, Index, JoinColumn, OneToOne, PrimaryGeneratedColumn} from "typeorm";
 
 import {MLE_Player} from "./Player.model";
 
@@ -57,6 +55,6 @@ export class MLE_TeamToCaptain {
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
     })
-    @JoinColumn([ {name: "player_id", referencedColumnName: "id"} ])
+    @JoinColumn([{name: "player_id", referencedColumnName: "id"}])
     player: MLE_Player;
 }

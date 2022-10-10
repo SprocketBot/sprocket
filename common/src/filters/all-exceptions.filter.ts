@@ -1,6 +1,4 @@
-import {
-    type ExceptionFilter, Catch, Logger,
-} from "@nestjs/common";
+import {type ExceptionFilter, Catch, Logger} from "@nestjs/common";
 
 /**
  * Catches any unhandled error in a NestJS microservice

@@ -22,8 +22,8 @@ export enum OrganizationConfigurationKeyCode {
      */
     PRIMARY_DISCORD_GUILD_SNOWFLAKE = "PRIMARY_DISCORD_GUILD_SNOWFLAKE",
     /**
-      * Alterate guilds of the organization that names and roles will be synced to.
-      */
+     * Alterate guilds of the organization that names and roles will be synced to.
+     */
     ALTERNATE_DISCORD_GUILD_SNOWFLAKES = "ALTERNATE_DISCORD_GUILD_SNOWFLAKES",
     /**
      * Discord Guild Webhook Url to post report cards to.

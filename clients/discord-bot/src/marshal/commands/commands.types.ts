@@ -3,24 +3,20 @@ import {z} from "zod";
 
 export interface MarshalCommandContext {
     args: Record<string, unknown>;
-    author: {
-        id: number;
-    } | false;
+    author:
+        | {
+              id: number;
+          }
+        | false;
 }
 
 export type CommandFunction = (m: Message, c: MarshalCommandContext) => Promise<unknown>;
 export type HookFunction = (m: Message) => Promise<unknown>;
 
-export const CommandRoleSchema = z.enum([
-    "MEMBER",
-]);
+export const CommandRoleSchema = z.enum(["MEMBER"]);
 export type CommandRole = z.infer<typeof CommandRoleSchema>;
 
-export const CommandArgTypeSchema = z.enum([
-    "number",
-    "string",
-    "mention",
-]);
+export const CommandArgTypeSchema = z.enum(["number", "string", "mention"]);
 export type CommandArgType = z.infer<typeof CommandArgTypeSchema>;
 
 export const CommandArgSchema = z.object({

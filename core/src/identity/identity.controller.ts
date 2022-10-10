@@ -9,11 +9,7 @@ import {UserService} from "./user";
 
 @Controller("identity")
 export class IdentityController {
-    constructor(
-        private readonly identityService: IdentityService,
-        private readonly userService: UserService,
-    ) {
-    }
+    constructor(private readonly identityService: IdentityService, private readonly userService: UserService) {}
 
     @MessagePattern(CoreEndpoint.GetUserByAuthAccount)
     async getUserByAuthAccount(@Payload() payload: unknown): Promise<GetUserByAuthAccountResponse> {

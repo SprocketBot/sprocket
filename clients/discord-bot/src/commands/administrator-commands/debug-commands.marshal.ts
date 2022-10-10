@@ -1,23 +1,13 @@
 import {Inject, Logger} from "@nestjs/common";
-import {
-    AnalyticsService, CoreService, EventsService, EventTopic,
-} from "@sprocketbot/common";
+import {AnalyticsService, CoreService, EventsService, EventTopic} from "@sprocketbot/common";
 import type {MessageComponentInteraction} from "discord.js";
-import {
-    Client,    Message, MessageActionRow, MessageButton, MessageEmbed,
-} from "discord.js";
+import {Client, Message, MessageActionRow, MessageButton, MessageEmbed} from "discord.js";
 
 import {EmbedService} from "../../embed";
-import {
-    Command, CommandManagerService, Marshal,
-} from "../../marshal";
+import {Command, CommandManagerService, Marshal} from "../../marshal";
 import {CommandError} from "../../marshal/command-error";
-import type {
-    StepOptions, WizardFunction, WizardFunctionOutput,
-} from "../../marshal/wizard";
-import {
-    Wizard, WizardExitStatus, WizardType,
-} from "../../marshal/wizard";
+import type {StepOptions, WizardFunction, WizardFunctionOutput} from "../../marshal/wizard";
+import {Wizard, WizardExitStatus, WizardType} from "../../marshal/wizard";
 
 export class DebugCommandsMarshal extends Marshal {
     private readonly logger = new Logger(DebugCommandsMarshal.name);
@@ -91,8 +81,7 @@ export class DebugCommandsMarshal extends Marshal {
                     .setStyle("DANGER")
                     .setLabel("Throw Error on Message")
                     .setCustomId("throw error on message"),
-                options: {
-                },
+                options: {},
                 instructions: "Send a message to throw an error within the Wizard Step.",
                 func: (r: Message): WizardFunctionOutput => {
                     throw new Error(r.toString());
@@ -100,16 +89,15 @@ export class DebugCommandsMarshal extends Marshal {
             },
         ];
 
-        const baseInteractionHandler = async (interaction: MessageComponentInteraction): Promise<WizardFunctionOutput> => {
+        const baseInteractionHandler = async (
+            interaction: MessageComponentInteraction,
+        ): Promise<WizardFunctionOutput> => {
             await response.reactions.removeAll();
             // Acknowledge it
             const opts = debugFunctions.find(df => df.customId === interaction.customId);
             if (opts) {
                 // Handle it
-                wizard.add(
-                    opts.func,
-                    opts.options,
-                );
+                wizard.add(opts.func, opts.options);
                 // Return to sender
                 wizard.add(baseInteractionHandler, {
                     collectorType: WizardType.COMPONENT,
@@ -164,4 +152,3 @@ export class DebugCommandsMarshal extends Marshal {
         });
     }
 }
-

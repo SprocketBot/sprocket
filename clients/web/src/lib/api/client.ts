@@ -1,14 +1,14 @@
-import {browser} from "$app/env";
-import {SubscriptionClient} from "subscriptions-transport-ws";
-
 import {
-    Client,
     cacheExchange,
+    Client,
     dedupExchange,
     ssrExchange,
     subscriptionExchange,
 } from "@urql/core";
 import {multipartFetchExchange} from "@urql/exchange-multipart-fetch";
+import {SubscriptionClient} from "subscriptions-transport-ws";
+
+import {browser} from "$app/env";
 
 let clientAvailable: CallableFunction;
 
@@ -28,11 +28,11 @@ export function initializeClient(sessionInput: App.Session): void {
 
     const wsClient = browser
         ? new SubscriptionClient(`ws${secure ? "s" : ""}://${gqlUrl}/graphql`, {
-            minTimeout: 10000,
-            reconnect: true,
-            lazy: true,
-            reconnectionAttempts: 10,
-        })
+              minTimeout: 10000,
+              reconnect: true,
+              lazy: true,
+              reconnectionAttempts: 10,
+          })
         : null;
 
     client = new Client({
@@ -42,7 +42,10 @@ export function initializeClient(sessionInput: App.Session): void {
             cacheExchange,
             subscriptionExchange({
                 forwardSubscription: op => {
-                    if (!browser || !wsClient)  throw new Error("You cannot initialize subscriptions on the server. Gate your gql subscription on `browser` from `$app/env`");
+                    if (!browser || !wsClient)
+                        throw new Error(
+                            "You cannot initialize subscriptions on the server. Gate your gql subscription on `browser` from `$app/env`",
+                        );
                     const r = wsClient?.request({
                         ...op,
                         context: {
@@ -70,9 +73,9 @@ export function initializeClient(sessionInput: App.Session): void {
                         Authorization: `Bearer ${sessionData.token}`,
                     },
                 };
-            } return {};
+            }
+            return {};
         },
     });
     if (clientAvailable) clientAvailable();
 }
-

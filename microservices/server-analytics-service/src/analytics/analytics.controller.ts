@@ -1,7 +1,5 @@
 import {Controller, Logger} from "@nestjs/common";
-import {
-    MessagePattern, Payload, RpcException,
-} from "@nestjs/microservices";
+import {MessagePattern, Payload, RpcException} from "@nestjs/microservices";
 import type {AnalyticsOutput} from "@sprocketbot/common";
 import {AnalyticsEndpoint} from "@sprocketbot/common";
 

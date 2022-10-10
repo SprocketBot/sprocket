@@ -1,6 +1,4 @@
-import {
-    Inject, Injectable, Logger,
-} from "@nestjs/common";
+import {Inject, Injectable, Logger} from "@nestjs/common";
 import {AnalyticsService, CoreService} from "@sprocketbot/common";
 import type {ClientEvents} from "discord.js";
 import {Client} from "discord.js";
@@ -8,11 +6,7 @@ import * as zod from "zod";
 
 import {EmbedService} from "../embed/embed.service";
 import type {EventFunction} from ".";
-import {
-    CommandMetaSchema,
-    EventMetaSchema,
-    MarshalMetadataKey,
-} from ".";
+import {CommandMetaSchema, EventMetaSchema, MarshalMetadataKey} from ".";
 import type {CommandFunction} from "./commands";
 import {CommandNotFoundMetaSchema} from "./commands";
 import {CommandManagerService} from "./commands/command-manager.service";
@@ -96,7 +90,9 @@ export abstract class Marshal {
             const f = Reflect.get(this, meta.functionName).bind(this) as EventFunction;
             // Do things
             this.botClient.on(meta.spec.event, async (...args: ClientEvents[keyof ClientEvents]): Promise<void> => {
-                await f(args).catch(e => { this._logger.error(e) });
+                await f(args).catch(e => {
+                    this._logger.error(e);
+                });
             });
             this._logger.debug(`Registered Event ${meta.spec.event}`);
         });

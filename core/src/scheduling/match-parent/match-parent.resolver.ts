@@ -1,6 +1,4 @@
-import {
-    ResolveField, Resolver, Root,
-} from "@nestjs/graphql";
+import {ResolveField, Resolver, Root} from "@nestjs/graphql";
 
 import type {ScheduleFixture} from "../../database";
 import {MatchParent} from "../../database";

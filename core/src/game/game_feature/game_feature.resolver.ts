@@ -1,7 +1,5 @@
 import {UseGuards} from "@nestjs/common";
-import {
-    Args, Mutation, Query, Resolver,
-} from "@nestjs/graphql";
+import {Args, Mutation, Query, Resolver} from "@nestjs/graphql";
 import {GraphQLError} from "graphql";
 
 import {EnabledFeature, FeatureCode} from "../../database";

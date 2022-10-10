@@ -64,11 +64,17 @@ export class RmqService {
              * Create some non-durable (i.e. dies when the consumer dies), exclusive queue (i.e. nobody else can consume from this)
              * By providing a blank queue name, RabbitMQ will assign us one
              */
-            const queueResponse = await this.channel.assertQueue("", {durable: false, exclusive: true});
+            const queueResponse = await this.channel.assertQueue("", {
+                durable: false,
+                exclusive: true,
+            });
             queue = queueResponse.queue;
         } else {
             // Use our generated, application-scoped
-            await this.channel.assertQueue(queue, {durable: false, exclusive: false});
+            await this.channel.assertQueue(queue, {
+                durable: false,
+                exclusive: false,
+            });
         }
         /*
          * Bind our new queue to the exchange, based on the specified topic
@@ -79,34 +85,44 @@ export class RmqService {
 
         const output = new Observable<ConsumeMessage>(sub => {
             // Consume messages from our queue, into an observable
-            this.channel.consume(queue, (v: null | ConsumeMessage) => {
-                // RabbitMQ provides null if the consumer is destroyed from the server-side
-                if (v === null) {
-                    this.logger.debug(`Events subscription ${this.exchangeKey}-[${topic}]>${queue} has been destroyed`);
-                    sub.complete();
-                    return;
-                }
-                sub.next(v);
-            }, {
-                /*
-                 * Allow local events to be consumed (i.e. within the same service)
-                 * Disallowing this could lead to weird behavior, especially for multi-instanced services
-                 */
-                noLocal: false,
-                /*
-                 * Acknowledge a message upon receipt, because there is no expectation of response, this should be okay
-                 */
-                noAck: true,
-            }).catch(sub.error.bind(sub));
+            this.channel
+                .consume(
+                    queue,
+                    (v: null | ConsumeMessage) => {
+                        // RabbitMQ provides null if the consumer is destroyed from the server-side
+                        if (v === null) {
+                            this.logger.debug(
+                                `Events subscription ${this.exchangeKey}-[${topic}]>${queue} has been destroyed`,
+                            );
+                            sub.complete();
+                            return;
+                        }
+                        sub.next(v);
+                    },
+                    {
+                        /*
+                         * Allow local events to be consumed (i.e. within the same service)
+                         * Disallowing this could lead to weird behavior, especially for multi-instanced services
+                         */
+                        noLocal: false,
+                        /*
+                         * Acknowledge a message upon receipt, because there is no expectation of response, this should be okay
+                         */
+                        noAck: true,
+                    },
+                )
+                .catch(sub.error.bind(sub));
             return (): void => {
                 this.logger.debug(`Destroying events subscription ${this.exchangeKey}-[${topic}]>${queue}`);
                 this.channel.deleteQueue(queue).catch(sub.error.bind(sub));
             };
         });
 
-        output.pipe(tap(v => {
-            this.logger.debug(v);
-        }));
+        output.pipe(
+            tap(v => {
+                this.logger.debug(v);
+            }),
+        );
         return output;
     }
 
@@ -124,7 +140,8 @@ export class RmqService {
          * Assert that our exchange exists, and meets the specification we are expecting
          * If it does not exist, this creates it
          */
-        await this.channel.assertExchange(this.exchangeKey, "topic", {durable: false});
+        await this.channel.assertExchange(this.exchangeKey, "topic", {
+            durable: false,
+        });
     };
-
 }

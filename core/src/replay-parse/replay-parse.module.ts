@@ -21,9 +21,7 @@ import {SchedulingModule} from "../scheduling";
 import {ScrimModule} from "../scrim";
 import {SprocketRatingModule} from "../sprocket-rating/sprocket-rating.module";
 import {UtilModule} from "../util/util.module";
-import {
-    BallchasingConverterService, FinalizationSubscriber,
-} from "./finalization";
+import {BallchasingConverterService, FinalizationSubscriber} from "./finalization";
 import {RocketLeagueFinalizationService} from "./finalization/rocket-league/rocket-league-finalization.service";
 import {ReplayParsePubSub} from "./replay-parse.constants";
 import {ReplayParseModResolver} from "./replay-parse.mod.resolver";
@@ -50,7 +48,6 @@ import {ReplayParseService} from "./replay-parse.service";
         SchedulingModule,
         UtilModule,
         CommonUtilModule,
-
     ],
     providers: [
         ReplayParseModResolver,
@@ -66,5 +63,4 @@ import {ReplayParseService} from "./replay-parse.service";
         RocketLeagueFinalizationService,
     ],
 })
-export class ReplayParseModule {
-}
+export class ReplayParseModule {}

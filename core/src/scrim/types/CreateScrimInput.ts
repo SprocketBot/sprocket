@@ -1,6 +1,4 @@
-import {
-    Field, InputType,
-} from "@nestjs/graphql";
+import {Field, InputType} from "@nestjs/graphql";
 
 import {ScrimSettingsInput} from "./ScrimSettings";
 

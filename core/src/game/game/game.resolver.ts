@@ -1,6 +1,4 @@
-import {
-    Args, Query, ResolveField, Resolver, Root,
-} from "@nestjs/graphql";
+import {Args, Query, ResolveField, Resolver, Root} from "@nestjs/graphql";
 
 import type {GameMode} from "../../database";
 import {Game} from "../../database";
@@ -9,10 +7,7 @@ import {GameService} from "./game.service";
 
 @Resolver(() => Game)
 export class GameResolver {
-    constructor(
-        private readonly gameService: GameService,
-        private readonly gameModeService: GameModeService,
-    ) {}
+    constructor(private readonly gameService: GameService, private readonly gameModeService: GameModeService) {}
 
     @Query(() => Game)
     async getGame(@Args("title") title: string): Promise<Game> {
@@ -34,5 +29,4 @@ export class GameResolver {
             },
         });
     }
-
 }

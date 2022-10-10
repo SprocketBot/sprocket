@@ -1,7 +1,5 @@
 import {Field, ObjectType} from "@nestjs/graphql";
-import {
-    Column, Entity, ManyToOne,
-} from "typeorm";
+import {Column, Entity, ManyToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {Player} from "../../franchise/player";
@@ -21,5 +19,4 @@ export class EligibilityData extends BaseModel {
     @ManyToOne(() => Player)
     @Field(() => Player)
     player: Player;
-
 }

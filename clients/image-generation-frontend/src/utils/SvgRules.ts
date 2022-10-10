@@ -1,4 +1,4 @@
-import type {OptionsRecord} from "src/types";
+import type {OptionsRecord} from "../types";
 
 export const friendlyLookup = {
     svg: "Root",
@@ -17,7 +17,7 @@ export const applicableOperations = {
 
 export const variableOperations = {
     text: ["text"],
-    number:["text"],
+    number: ["text"],
     color: ["fill", "stroke"],
     image: ["image"],
 };
@@ -27,7 +27,7 @@ export const variableForOperation = {
     stroke: "color",
     image: "image",
     text: "text",
-    number:"number"
+    number: "number",
 };
 
 export const optionTypes: OptionsRecord = {
@@ -47,15 +47,42 @@ export const optionTypes: OptionsRecord = {
         {
             name: "truncate-to",
             displayName: "Trunkate Text to",
-            options: ["as-is", 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25],
+            options: [
+                "as-is",
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24,
+                25,
+            ],
             default: "as-is",
         },
         {
-            name: 'case',
-            displayName: 'Adjust Case',
+            name: "case",
+            displayName: "Adjust Case",
             options: ["lower", "upper", "as-is"],
-            default: "as-is"
-        }
+            default: "as-is",
+        },
     ],
     image: [
         {
@@ -70,7 +97,4 @@ export const optionTypes: OptionsRecord = {
 };
 
 export const selectableElements = Object.keys(applicableOperations);
-export const hiddenElements = [
-    "tspan",
-    "defs",
-];
+export const hiddenElements = ["tspan", "defs"];

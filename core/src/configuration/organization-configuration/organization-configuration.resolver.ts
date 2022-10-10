@@ -1,6 +1,4 @@
-import {
-    Args, Query, Resolver,
-} from "@nestjs/graphql";
+import {Args, Query, Resolver} from "@nestjs/graphql";
 
 import {OrganizationConfigurationKeyCode} from "../../database";
 import {OrganizationConfigurationService} from "./organization-configuration.service";

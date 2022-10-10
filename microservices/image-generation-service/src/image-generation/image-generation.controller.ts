@@ -1,9 +1,5 @@
-import {
-    Controller, Logger,
-} from "@nestjs/common";
-import {
-    Ctx, MessagePattern, Payload, RmqContext,
-} from "@nestjs/microservices";
+import {Controller, Logger} from "@nestjs/common";
+import {Ctx, MessagePattern, Payload, RmqContext} from "@nestjs/microservices";
 import {ImageGenerationEndpoint, ImageGenerationSchemas} from "@sprocketbot/common";
 
 import {ImageGenerationService} from "./image-generation.service";
@@ -24,7 +20,7 @@ export class ImageGenerationController {
     // This is currently still needed for the frontend because of context
     @MessagePattern(`media-gen.img.create`)
     async createImage(@Ctx() context: RmqContext): Promise<boolean> {
-        const message = context.getMessage() as {content: string;};
+        const message = context.getMessage() as {content: string};
         const rawData = JSON.parse(message.content.toString()).message as unknown;
         // Const data = CreateImageSchema.parse(rawData);
         const data = ImageGenerationSchemas.GenerateImage.input.parse(rawData);

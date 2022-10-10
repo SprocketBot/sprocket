@@ -8,9 +8,7 @@ import {GameModeResolver, GameModeService} from "./game-mode";
 import {PlatformService} from "./platform";
 
 @Module({
-    imports: [
-        DatabaseModule,
-    ],
+    imports: [DatabaseModule],
     providers: [
         GameService,
         GameModeService,
