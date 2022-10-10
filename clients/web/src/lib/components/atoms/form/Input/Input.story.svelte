@@ -13,6 +13,7 @@
     let placeholder = "";
     let disabled = false;
     let state: FormControlState = "none";
+    let error = "";
 </script>
 
 <Hst.Story title="Atoms/Input" layout={{type: "grid", width: 500}}>
@@ -22,9 +23,10 @@
         <Hst.Text title="Placeholder" bind:value={placeholder} />
         <Hst.Checkbox title="Disabled" bind:value={disabled} />
         <Hst.Select title="State" bind:value={state} options={states} />
+        <Hst.Text title="Error" bind:value={error} />
     </svelte:fragment>
 
-    <Hst.Variant title="Default" {label} {size} {placeholder} {disabled} {state}>
-        <Input {label} {size} {placeholder} {disabled} {state} />
+    <Hst.Variant title="Default" {label} {size} {placeholder} {disabled} {state} {error}>
+        <Input {label} {size} {placeholder} {disabled} {state} {error} />
     </Hst.Variant>
 </Hst.Story>
