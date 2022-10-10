@@ -274,8 +274,7 @@ export class MatchService {
      * @returns A string containing status of what was updated.
      */
     async markReplaysNcp(replayIds: number[], isNcp: boolean, winningTeamInput?: Team, invalidation?: Invalidation): Promise<string> {
-        const r = Math.floor(Math.random() * 10000);
-        this.logger.verbose(`(${r}) begin markReplaysNcp: replayIds=${replayIds}, isNcp=${isNcp}, winningTeam=${winningTeamInput}`);
+        this.logger.verbose(`Begin markReplaysNcp: replayIds=${replayIds}, isNcp=${isNcp}, winningTeam=${winningTeamInput}`);
 
         // Find the winning team and it's franchise profile, since that's where
         // team names are in Sprocket.
@@ -287,28 +286,38 @@ export class MatchService {
         replayIds.sort((r1, r2) => r1 - r2);
 
         // Gather replays
-        const replayPromises = replayIds.map(async rId => this.roundRepository.findOneOrFail({where: {id: rId} }));
+        const replayPromises = replayIds.map(async rId => this.roundRepository.findOneOrFail({
+            where: {
+                id: rId,
+            },
+            relations: {
+                teamStats: true,
+            },
+        }));
         const replays = await Promise.all(replayPromises);
 
         // Check to make sure the winning team played in each replay
-        if (winningTeam) {
-            for (const replay of replays) {
-                if (replay.isDummy) continue; // Don't need to check dummy replays
-                const teamsInReplay = replay.teamStats.map(tsl => tsl.teamName);
-                if (!teamsInReplay.includes(winningTeam.franchise.profile.title)) {
-                    this.logger.error(`The team \`${winningTeam.franchise.profile.title}\` did not play in replay with id \`${replay.id}\` (${teamsInReplay.join(" v. ")}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`);
-                    this.logger.warn(`Could not find team=${winningTeam.franchise.profile.title} on replay with id=${replay.id}, cannot mark as NCP`);
-                    throw new Error(`Could not find team=${winningTeam.franchise.profile.title} on replay with id=${replay.id}, cannot mark as NCP`);
-                }
-            }
-        }
+        // if (winningTeam) {
+        //     for (const replay of replays) {
+        //         if (replay.isDummy) continue; // Don't need to check dummy replays
+        //         this.logger.verbose(`Team stats: ${JSON.stringify(replay.teamStats)}`);
+        //         const teamsInReplay = replay.teamStats.map(tsl => tsl.teamName);
+        //         if (!teamsInReplay.includes(winningTeam.franchise.profile.title)) {
+        //             this.logger.error(`The team \`${winningTeam.franchise.profile.title}\` did not play in replay with id \`${replay.id}\` (${teamsInReplay.join(" v. ")}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`);
+        //             this.logger.error(`Could not find team=${winningTeam.franchise.profile.title} on replay with id=${replay.id}, cannot mark as NCP`);
+        //             throw new Error(`Could not find team=${winningTeam.franchise.profile.title} on replay with id=${replay.id}, cannot mark as NCP`);
+        //         }
+        //     }
+        // }
 
         // Set replays to NCP true/false and update winning team/color
         for (const replay of replays) {
-            if (!isNcp && replay.isDummy) await this.roundRepository.delete(replay.id);
-
-            replay.invalidation = invalidation;
-            await this.roundRepository.save(replay);
+            if (!isNcp && replay.isDummy) {
+                await this.roundRepository.delete(replay.id);
+            } else {
+                replay.invalidation = invalidation;
+                await this.roundRepository.save(replay);
+            }
         }
 
         // Magic happens here to talk to the ELO service

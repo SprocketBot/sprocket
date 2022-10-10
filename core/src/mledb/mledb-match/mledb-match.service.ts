@@ -283,7 +283,7 @@ export class MledbMatchService {
                     // Set winningColor depending on previous/new winningTeam
                     newWinningColor = winningTeam?.name === replay.winningTeamName
                         ? replay.winningColor as (string | undefined)
-                        : "";
+                        : null;
                 } else {
                     // Set winningColor to null
                     newWinningColor = null;
@@ -298,12 +298,13 @@ export class MledbMatchService {
                 // Set winningColor depending on previous/new winningTeam
                 newWinningColor = winningTeam.name === replay.winningTeamName
                     ? replay.winningColor as (string | undefined)
-                    : "";
+                    : null;
             }
 
             replay.ncp = isNcp;
             replay.winningTeamName = newWinningTeam as (string | null);
             replay.winningColor = newWinningColor as (string | null);
+            this.logger.debug(`Trying to save series replay ${JSON.stringify(replay)}`);
             await this.seriesReplayRepo.save(replay);
 
         }
