@@ -10,19 +10,17 @@
         <Accordion>
             <span slot="title">Accordion 1</span>
             <p>
-                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Maxime
-                nulla dolorem non accusamus aperiam, distinctio earum placeat
-                debitis vel repellat ex quia aut nostrum facere error veritatis.
-                Iusto, dolorum quaerat?
+                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Maxime nulla dolorem non accusamus aperiam,
+                distinctio earum placeat debitis vel repellat ex quia aut nostrum facere error veritatis. Iusto, dolorum
+                quaerat?
             </p>
         </Accordion>
         <Accordion>
             <span slot="title">Accordion 2</span>
             <p>
-                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Maxime
-                nulla dolorem non accusamus aperiam, distinctio earum placeat
-                debitis vel repellat ex quia aut nostrum facere error veritatis.
-                Iusto, dolorum quaerat?
+                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Maxime nulla dolorem non accusamus aperiam,
+                distinctio earum placeat debitis vel repellat ex quia aut nostrum facere error veritatis. Iusto, dolorum
+                quaerat?
             </p>
         </Accordion>
     </Hst.Variant>
@@ -30,19 +28,17 @@
         <Accordion flush>
             <span slot="title">Accordion 1</span>
             <p>
-                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Maxime
-                nulla dolorem non accusamus aperiam, distinctio earum placeat
-                debitis vel repellat ex quia aut nostrum facere error veritatis.
-                Iusto, dolorum quaerat?
+                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Maxime nulla dolorem non accusamus aperiam,
+                distinctio earum placeat debitis vel repellat ex quia aut nostrum facere error veritatis. Iusto, dolorum
+                quaerat?
             </p>
         </Accordion>
         <Accordion flush>
             <span slot="title">Accordion 2</span>
             <p>
-                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Maxime
-                nulla dolorem non accusamus aperiam, distinctio earum placeat
-                debitis vel repellat ex quia aut nostrum facere error veritatis.
-                Iusto, dolorum quaerat?
+                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Maxime nulla dolorem non accusamus aperiam,
+                distinctio earum placeat debitis vel repellat ex quia aut nostrum facere error veritatis. Iusto, dolorum
+                quaerat?
             </p>
         </Accordion>
     </Hst.Variant>

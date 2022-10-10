@@ -4,9 +4,9 @@
 
 <script lang="ts">
     import {fade} from "svelte/transition";
-    import { Icon } from "@steeze-ui/svelte-icon";
-    import { CheckCircle, ExclamationCircle, InformationCircle, XMark } from "@steeze-ui/heroicons";
-    import type { IconSource } from "@steeze-ui/svelte-icon/types";
+    import {Icon} from "@steeze-ui/svelte-icon";
+    import {CheckCircle, ExclamationCircle, InformationCircle, XMark} from "@steeze-ui/heroicons";
+    import type {IconSource} from "@steeze-ui/svelte-icon/types";
 
     export let variant: AlertVariant;
     export let withIcon = true;
@@ -15,25 +15,24 @@
     let iconSrc: IconSource | undefined;
     switch (variant) {
         case "info":
-            iconSrc = InformationCircle
+            iconSrc = InformationCircle;
             break;
         case "success":
-            iconSrc = CheckCircle
+            iconSrc = CheckCircle;
             break;
         case "warning":
         case "error":
-            iconSrc = ExclamationCircle
+            iconSrc = ExclamationCircle;
             break;
         default:
             break;
     }
 
-    const hasDetails = $$slots.details
-    const hasActions = $$slots.actions
+    const hasDetails = $$slots.details;
+    const hasActions = $$slots.actions;
 
-    let dismissed = false
+    let dismissed = false;
 </script>
-
 
 <!-- https://flowbite.com/docs/components/alerts/ -->
 {#if !dismissed}
@@ -51,7 +50,11 @@
             </h3>
 
             {#if dismissible}
-                <button on:click={() => dismissed = true} type="button" class="ml-auto -mx-1.5 -my-1.5 rounded-lg focus:ring-2 p-1.5 inline-flex h-8 w-8">
+                <button
+                    on:click={() => (dismissed = true)}
+                    type="button"
+                    class="ml-auto -mx-1.5 -my-1.5 rounded-lg focus:ring-2 p-1.5 inline-flex h-8 w-8"
+                >
                     <span class="sr-only">Close</span>
                     <Icon class="w-5 h-5" src={XMark} />
                 </button>
@@ -71,7 +74,6 @@
         {/if}
     </div>
 {/if}
-
 
 <style lang="postcss">
     .info {
