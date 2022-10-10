@@ -7,13 +7,14 @@
 
     export let label: string;
     export let size: InputSize = "md";
+    export let placeholder: string | undefined = undefined;
 
     const id = shortid.generate();
 </script>
 
 <div class="size-{size}">
     <label for="input-{id}">{label}</label>
-    <input type="text" id="input-{id}" />
+    <input type="text" id="input-{id}" {placeholder} />
 </div>
 
 <style lang="postcss">
@@ -22,7 +23,11 @@
     }
 
     input {
-        @apply block w-full text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-info-500 focus:border-info-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-info-500 dark:focus:border-info-500;
+        @apply block w-full
+            rounded-lg border
+            outline-none focus:ring-1 focus:ring-primary focus:border-primary
+            bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-600
+            dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400;
     }
 
     .size-sm input {
