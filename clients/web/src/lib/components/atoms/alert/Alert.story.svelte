@@ -1,11 +1,10 @@
 <script lang="ts">
     import type {Hst as _Hst} from "@histoire/plugin-svelte";
-    import {stringify} from "postcss";
     import Alert, {type AlertVariant} from "./Alert.svelte";
 
     export let Hst: _Hst;
 
-    const variants: AlertVariant[] = ["info", "success", "warning", "error"];
+    const variants: AlertVariant[] = ["info", "success", "warning", "danger"];
 
     let variant: AlertVariant = "info";
     let dismissible = true;
