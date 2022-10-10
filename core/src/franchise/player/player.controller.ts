@@ -1,10 +1,19 @@
 import {
-    Controller, forwardRef, Get, HttpException, Inject, Logger, Param,
+    Controller,
+    forwardRef,
+    Get,
+    HttpException,
+    Inject,
+    Logger,
+    Param,
 } from "@nestjs/common";
 import {JwtService} from "@nestjs/jwt";
 import {InjectRepository} from "@nestjs/typeorm";
 import {
-    EventsService, EventTopic, NotificationEndpoint, NotificationService,
+    EventsService,
+    EventTopic,
+    NotificationEndpoint,
+    NotificationService,
 } from "@sprocketbot/common";
 import {Repository} from "typeorm";
 
