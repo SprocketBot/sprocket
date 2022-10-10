@@ -34,11 +34,7 @@ export class PlayerController {
     @Get("accept-rankdown/:token")
     async acceptRankdown(@Param("token") token: string): Promise<string> {
         try {
-            const payload = await RankdownJwtPayloadSchema
-                .parseAsync(this.jwtService.verify(token))
-                .catch(() => {
-                    throw new Error("Failed to verify payload - request expired");
-                });
+            const payload = RankdownJwtPayloadSchema.parse(this.jwtService.verify(token));
 
             const player = await this.playerService.getPlayer({
                 where: {id: payload.playerId},
@@ -121,7 +117,9 @@ export class PlayerController {
             return "Successfully accepted rankdown";
         } catch (e) {
             this.logger.error(e);
+            
             if (e instanceof Error) {
+                if (e.name === "TokenExpiredError") throw new HttpException("Rankdown request expired", 400);
                 throw new HttpException(e.message, 400);
             } else if (e instanceof String) {
                 throw new HttpException(e, 400);
