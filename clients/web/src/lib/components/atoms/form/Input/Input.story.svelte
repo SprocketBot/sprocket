@@ -6,15 +6,19 @@
 
     const sizes: InputSize[] = ["sm", "md", "lg"];
 
+    let label: string = "Username";
     let size: InputSize = "md";
+    let placeholder: string = "";
 </script>
 
 <Hst.Story title="Atoms/Input" layout={{type: "grid", width: 500}}>
     <svelte:fragment slot="controls">
+        <Hst.Text title="Label" bind:value={label} />
         <Hst.Select title="Size" bind:value={size} options={sizes} />
+        <Hst.Text title="Placeholder" bind:value={placeholder} />
     </svelte:fragment>
 
-    <Hst.Variant title="Default" {size}>
-        <Input label="This is an input" {size} />
+    <Hst.Variant title="Default" {label} {size} {placeholder}>
+        <Input {label} {size} {placeholder} />
     </Hst.Variant>
 </Hst.Story>
