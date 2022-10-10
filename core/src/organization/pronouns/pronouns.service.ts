@@ -10,15 +10,21 @@ import {OrganizationService} from "../organization";
 @Injectable()
 export class PronounsService {
     constructor(
-        @InjectRepository(Pronouns) private pronounsRepository: Repository<Pronouns>,
+        @InjectRepository(Pronouns)
+        private pronounsRepository: Repository<Pronouns>,
         private organizationService: OrganizationService,
-    ) {
-    }
+    ) {}
 
-    async createPronouns(organizationId: number, pronouns: Omit<Pronouns, IrrelevantFields | "organization" | "id">): Promise<Pronouns> {
+    async createPronouns(
+        organizationId: number,
+        pronouns: Omit<Pronouns, IrrelevantFields | "organization" | "id">,
+    ): Promise<Pronouns> {
         const organization = await this.organizationService.getOrganizationById(organizationId);
 
-        const toCreate: Omit<Pronouns, IrrelevantFields | "id"> = {organization, ...pronouns};
+        const toCreate: Omit<Pronouns, IrrelevantFields | "id"> = {
+            organization,
+            ...pronouns,
+        };
         const created = this.pronounsRepository.create(toCreate);
         await this.pronounsRepository.save(created);
 
@@ -32,7 +38,9 @@ export class PronounsService {
             },
             id: pronounsId,
         };
-        const pronouns = await this.pronounsRepository.findOneOrFail({where: conditions});
+        const pronouns = await this.pronounsRepository.findOneOrFail({
+            where: conditions,
+        });
         return pronouns;
     }
 
@@ -50,7 +58,9 @@ export class PronounsService {
     }
 
     async deletePronouns(id: number): Promise<Pronouns> {
-        const toDelete = await this.pronounsRepository.findOneOrFail({where: {id} });
+        const toDelete = await this.pronounsRepository.findOneOrFail({
+            where: {id},
+        });
         await this.pronounsRepository.softDelete({id: toDelete.id});
         return toDelete;
     }

@@ -40,11 +40,7 @@ export const franchiseEntities = [
 const ormModule = TypeOrmModule.forFeature(franchiseEntities);
 
 @Module({
-    imports: [
-        ormModule,
-    ],
-    exports: [
-        ormModule,
-    ],
+    imports: [ormModule],
+    exports: [ormModule],
 })
 export class FranchiseModule {}

@@ -1,10 +1,12 @@
 import {z} from "zod";
 
 export const SubmitReplays_Request = z.object({
-    filepaths: z.array(z.object({
-        minioPath: z.string(),
-        originalFilename: z.string(),
-    })),
+    filepaths: z.array(
+        z.object({
+            minioPath: z.string(),
+            originalFilename: z.string(),
+        }),
+    ),
     submissionId: z.string(),
     creatorId: z.number(),
 });

@@ -10,7 +10,13 @@ import {OrganizationModule} from "../../organization";
 import {IdentityModule} from "../identity.module";
 import {GqlJwtGuard} from "./gql-auth-guard";
 import {
-    DiscordStrategy, GoogleStrategy, JwtConstants, JwtRefreshStrategy, JwtStrategy, OauthController, OauthService,
+    DiscordStrategy,
+    GoogleStrategy,
+    JwtConstants,
+    JwtRefreshStrategy,
+    JwtStrategy,
+    OauthController,
+    OauthService,
 } from "./oauth";
 
 @Module({
@@ -27,16 +33,8 @@ import {
         forwardRef(() => FranchiseModule),
         forwardRef(() => OrganizationModule),
     ],
-    providers: [
-        GqlJwtGuard,
-        OauthService,
-        JwtStrategy,
-        JwtRefreshStrategy,
-        GoogleStrategy,
-        DiscordStrategy,
-    ],
+    providers: [GqlJwtGuard, OauthService, JwtStrategy, JwtRefreshStrategy, GoogleStrategy, DiscordStrategy],
     exports: [OauthService],
     controllers: [OauthController],
-
 })
 export class AuthModule {}

@@ -1,7 +1,5 @@
 import {Field, ObjectType} from "@nestjs/graphql";
-import {
-    Column, Entity, JoinColumn, ManyToOne, OneToOne,
-} from "typeorm";
+import {Column, Entity, JoinColumn, ManyToOne, OneToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {Photo} from "../../organization";
@@ -43,7 +41,7 @@ export class GameSkillGroupProfile extends BaseModel {
     @Field()
     color: string;
 
-    @OneToOne(() => Photo,  {nullable: true})
+    @OneToOne(() => Photo, {nullable: true})
     @JoinColumn()
     @Field(() => Photo, {nullable: true})
     photo?: Photo;

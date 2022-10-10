@@ -1,7 +1,5 @@
 import {Field, ObjectType} from "@nestjs/graphql";
-import {
-    Column, Entity,
-} from "typeorm";
+import {Column, Entity} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {UserRolesType} from "./user_roles_type.enum";
@@ -15,5 +13,4 @@ export class UserRoles extends BaseModel {
     })
     @Field(() => UserRolesType)
     accountType: UserRolesType;
-
 }

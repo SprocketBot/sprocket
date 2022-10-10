@@ -29,11 +29,7 @@ export const authorizationEntities = [
 const ormModule = TypeOrmModule.forFeature(authorizationEntities);
 
 @Module({
-    imports: [
-        ormModule,
-    ],
-    exports: [
-        ormModule,
-    ],
+    imports: [ormModule],
+    exports: [ormModule],
 })
 export class AuthorizationModule {}

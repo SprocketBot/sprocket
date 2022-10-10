@@ -8,14 +8,12 @@ import {MatchService} from "./match.service";
 
 @Controller("match")
 export class MatchController {
-    constructor(
-        private readonly matchService: MatchService,
-        private readonly fixtureService: ScheduleFixtureService,
-    ) {
-    }
+    constructor(private readonly matchService: MatchService, private readonly fixtureService: ScheduleFixtureService) {}
 
     @MessagePattern(CoreEndpoint.GetMatchBySubmissionId)
-    async getMatchBySubmissionId(@Payload() payload: unknown): Promise<CoreOutput<CoreEndpoint.GetMatchBySubmissionId>> {
+    async getMatchBySubmissionId(
+        @Payload() payload: unknown,
+    ): Promise<CoreOutput<CoreEndpoint.GetMatchBySubmissionId>> {
         const data = CoreSchemas.GetMatchBySubmissionId.input.parse(payload);
         const match = await this.matchService.getMatchBySubmissionId(data.submissionId);
         const matchParent = await this.matchService.getMatchParentEntity(match.id);
@@ -57,13 +55,17 @@ export class MatchController {
     }
 
     @MessagePattern(CoreEndpoint.GetMatchReportCardWebhooks)
-    async getMatchReportCardWebhooks(@Payload() payload: unknown): Promise<CoreOutput<CoreEndpoint.GetMatchReportCardWebhooks>> {
+    async getMatchReportCardWebhooks(
+        @Payload() payload: unknown,
+    ): Promise<CoreOutput<CoreEndpoint.GetMatchReportCardWebhooks>> {
         const data = CoreSchemas.GetMatchReportCardWebhooks.input.parse(payload);
         return this.matchService.getMatchReportCardWebhooks(data.matchId);
     }
 
     @MessagePattern(CoreEndpoint.GetMatchInformationAndStakeholders)
-    async getMatchInformationAndStakeholders(@Payload() payload: unknown): Promise<CoreOutput<CoreEndpoint.GetMatchInformationAndStakeholders>> {
+    async getMatchInformationAndStakeholders(
+        @Payload() payload: unknown,
+    ): Promise<CoreOutput<CoreEndpoint.GetMatchInformationAndStakeholders>> {
         const data = CoreSchemas.GetMatchInformationAndStakeholders.input.parse(payload);
         return this.matchService.getMatchInfoAndStakeholders(data.matchId);
     }

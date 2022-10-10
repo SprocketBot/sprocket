@@ -10,8 +10,10 @@ import {League} from "../../database/mledb";
 @Injectable()
 export class GameSkillGroupService {
     constructor(
-        @InjectRepository(GameSkillGroup) private gameSkillGroupRepository: Repository<GameSkillGroup>,
-        @InjectRepository(GameSkillGroupProfile) private gameSkillGroupProfileRepository: Repository<GameSkillGroupProfile>,
+        @InjectRepository(GameSkillGroup)
+        private gameSkillGroupRepository: Repository<GameSkillGroup>,
+        @InjectRepository(GameSkillGroupProfile)
+        private gameSkillGroupProfileRepository: Repository<GameSkillGroupProfile>,
     ) {}
 
     async getGameSkillGroup(query: FindOneOptions<GameSkillGroup>): Promise<GameSkillGroup> {
@@ -29,7 +31,10 @@ export class GameSkillGroupService {
     }
 
     async getGameSkillGroupProfile(skillGroupId: number): Promise<GameSkillGroupProfile> {
-        const skillGroup = await this.gameSkillGroupRepository.findOneOrFail({where: {id: skillGroupId}, relations: {profile: {photo: true} } });
+        const skillGroup = await this.gameSkillGroupRepository.findOneOrFail({
+            where: {id: skillGroupId},
+            relations: {profile: {photo: true}},
+        });
         return skillGroup.profile;
     }
 
@@ -56,7 +61,7 @@ export class GameSkillGroupService {
                 break;
         }
         return this.getGameSkillGroup({
-            where: {profile: {code} },
+            where: {profile: {code}},
             relations: ["profile"],
         });
     }

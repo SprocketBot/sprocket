@@ -20,12 +20,7 @@ export const configurationEntities = [
 const ormModule = TypeOrmModule.forFeature(configurationEntities);
 
 @Module({
-    imports: [
-        ormModule,
-    ],
-    exports: [
-        ormModule,
-    ],
-
+    imports: [ormModule],
+    exports: [ormModule],
 })
 export class ConfigurationModule {}

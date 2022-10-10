@@ -1,21 +1,19 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import type {
-    FindManyOptions, FindOneOptions, FindOptionsWhere,
-} from "typeorm";
+import type {FindManyOptions, FindOneOptions, FindOptionsWhere} from "typeorm";
 import {Repository} from "typeorm";
 
 import type {IrrelevantFields} from "../../database";
-import {
-    User, UserAuthenticationAccount, UserAuthenticationAccountType, UserProfile,
-} from "../../database";
+import {User, UserAuthenticationAccount, UserAuthenticationAccountType, UserProfile} from "../../database";
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(User) private userRepository: Repository<User>,
-        @InjectRepository(UserProfile) private userProfileRepository: Repository<UserProfile>,
-        @InjectRepository(UserAuthenticationAccount) private userAuthAcctRepository: Repository<UserAuthenticationAccount>,
+        @InjectRepository(UserProfile)
+        private userProfileRepository: Repository<UserProfile>,
+        @InjectRepository(UserAuthenticationAccount)
+        private userAuthAcctRepository: Repository<UserAuthenticationAccount>,
     ) {}
 
     /**
@@ -31,7 +29,9 @@ export class UserService {
         const authAccts = authenticationAccounts.map(acct => this.userAuthAcctRepository.create(acct));
         const user = this.userRepository.create({profile});
         user.authenticationAccounts = authAccts;
-        authAccts.forEach(aa => { aa.user = user });
+        authAccts.forEach(aa => {
+            aa.user = user;
+        });
 
         await this.userProfileRepository.save(user.profile);
         await this.userRepository.save(user);
@@ -51,9 +51,11 @@ export class UserService {
         authenticationAccounts: Array<Omit<UserAuthenticationAccount, IrrelevantFields | "id" | "user">>,
     ): Promise<User> {
         const authAccts = authenticationAccounts.map(acct => this.userAuthAcctRepository.create(acct));
-        const user = await this.userRepository.findOneOrFail({where: {id} });
+        const user = await this.userRepository.findOneOrFail({where: {id}});
         user.authenticationAccounts = authAccts;
-        authAccts.forEach(aa => { aa.user = user });
+        authAccts.forEach(aa => {
+            aa.user = user;
+        });
         await this.userAuthAcctRepository.save(authAccts);
         await this.userRepository.save(user);
         return user;
@@ -63,7 +65,7 @@ export class UserService {
      * Finds the authentication accounts associated with a user
      */
     async getUserAuthenticationAccountsForUser(userId: number): Promise<UserAuthenticationAccount[]> {
-        return this.userAuthAcctRepository.find({where: {user: {id: userId} } });
+        return this.userAuthAcctRepository.find({where: {user: {id: userId}}});
     }
 
     async getUserDiscordAccount(userId: number): Promise<UserAuthenticationAccount> {
@@ -150,7 +152,10 @@ export class UserService {
      * @returns The found UserProfile
      */
     async getUserProfileForUser(userId: number): Promise<UserProfile> {
-        const org = await this.userRepository.findOneOrFail({where: {id: userId}, relations: {profile: true} });
+        const org = await this.userRepository.findOneOrFail({
+            where: {id: userId},
+            relations: {profile: true},
+        });
         return org.profile;
     }
 }

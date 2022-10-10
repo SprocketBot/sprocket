@@ -1,25 +1,18 @@
 import {Logger, UseGuards} from "@nestjs/common";
-import {
-    Args,
-    Mutation,
-    Query,
-    ResolveField, Resolver, Root,
-} from "@nestjs/graphql";
+import {Args, Mutation, Query, ResolveField, Resolver, Root} from "@nestjs/graphql";
 import {InjectRepository} from "@nestjs/typeorm";
 import {
-    EventsService, EventTopic, ReplaySubmissionStatus, ResponseStatus, SubmissionEndpoint, SubmissionService,
+    EventsService,
+    EventTopic,
+    ReplaySubmissionStatus,
+    ResponseStatus,
+    SubmissionEndpoint,
+    SubmissionService,
 } from "@sprocketbot/common";
 import {Repository} from "typeorm";
 
 import type {GameMode, Round} from "../../database";
-import {
-    Franchise,
-    GameSkillGroup,
-    Match,
-    MatchParent,
-    Player,    ScheduleFixture,
-    ScheduleGroup,
-} from "../../database";
+import {Franchise, GameSkillGroup, Match, MatchParent, Player, ScheduleFixture, ScheduleGroup} from "../../database";
 import type {League} from "../../database/mledb";
 import {LegacyGameMode, MLE_OrganizationTeam} from "../../database/mledb";
 import type {MatchSubmissionStatus} from "../../database/scheduling/match/match.model";
@@ -46,9 +39,9 @@ export class MatchResolver {
 
     @Query(() => Match)
     async getMatchBySubmissionId(@Args("submissionId") submissionId: string): Promise<Match> {
-        return this.matchService.getMatch({where: {submissionId} });
+        return this.matchService.getMatch({where: {submissionId}});
     }
-    
+
     @Mutation(() => String)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async postReportCard(@Args("matchId") matchId: number): Promise<string> {
@@ -58,7 +51,11 @@ export class MatchResolver {
             match.skillGroup = await this.populate.populateOneOrFail(Match, match, "skillGroup");
         }
         if (!match.skillGroup.profile) {
-            const skillGroupProfile = await this.populate.populateOneOrFail(GameSkillGroup, match.skillGroup, "profile");
+            const skillGroupProfile = await this.populate.populateOneOrFail(
+                GameSkillGroup,
+                match.skillGroup,
+                "profile",
+            );
             match.skillGroup.profile = skillGroupProfile;
         }
         if (!match.matchParent) {
@@ -128,9 +125,7 @@ export class MatchResolver {
             },
         });
 
-        const {
-            scrimMeta, fixture, event,
-        } = match.matchParent;
+        const {scrimMeta, fixture, event} = match.matchParent;
 
         // If match is related to a scrim, then the submission must be completed because the scrim is saved in the DB
         if (scrimMeta) return "completed";
@@ -162,7 +157,7 @@ export class MatchResolver {
     async canSubmit(@CurrentPlayer() player: Player, @Root() root: Match): Promise<boolean> {
         if (root.canSubmit) return root.canSubmit;
         if (!root.submissionId) throw new Error(`Match has no submissionId`);
-                
+
         const result = await this.submissionService.send(SubmissionEndpoint.CanSubmitReplays, {
             playerId: player.member.id,
             submissionId: root.submissionId,
@@ -176,7 +171,7 @@ export class MatchResolver {
     async canRatify(@CurrentPlayer() player: Player, @Root() root: Match): Promise<boolean> {
         if (root.canRatify) return root.canRatify;
         if (!root.submissionId) throw new Error(`Match has no submissionId`);
-        
+
         const result = await this.submissionService.send(SubmissionEndpoint.CanRatifySubmission, {
             playerId: player.member.id,
             submissionId: root.submissionId,

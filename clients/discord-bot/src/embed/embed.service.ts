@@ -1,11 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import type {Embed, EmbedBrandingOptions} from "@sprocketbot/common";
-import {
-    CoreEndpoint, CoreService, ResponseStatus,
-} from "@sprocketbot/common";
-import type {
-    EmbedFieldData, HexColorString, MessageEmbedFooter, MessageEmbedOptions,
-} from "discord.js";
+import {CoreEndpoint, CoreService, ResponseStatus} from "@sprocketbot/common";
+import type {EmbedFieldData, HexColorString, MessageEmbedFooter, MessageEmbedOptions} from "discord.js";
 import {MessageEmbed} from "discord.js";
 
 export interface EmbedOptions {
@@ -30,22 +26,26 @@ export class EmbedService {
             if (brandingEnabled) organizationId = _organizationId;
         }
 
-        const organizationProfileResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: organizationId});
+        const organizationProfileResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {
+            id: organizationId,
+        });
         if (organizationProfileResult.status === ResponseStatus.ERROR) throw organizationProfileResult.error;
 
         const profile = organizationProfileResult.data;
         const embed = new MessageEmbed(data);
 
-        if (options.author) embed.setAuthor(
-            data.author?.name ?? profile.name,
-            options.author.icon && profile.logoUrl ? profile.logoUrl : data.author?.url,
-            options.author.url ? profile.websiteUrl : data.author?.url,
-        );
+        if (options.author)
+            embed.setAuthor(
+                data.author?.name ?? profile.name,
+                options.author.icon && profile.logoUrl ? profile.logoUrl : data.author?.url,
+                options.author.url ? profile.websiteUrl : data.author?.url,
+            );
         if (options.color) embed.setColor(profile.primaryColor as HexColorString);
-        if (options.footer) embed.setFooter(
-            data.footer?.text ?? profile.name,
-            options.footer.icon && profile.logoUrl ? profile.logoUrl : data.footer?.icon_url,
-        );
+        if (options.footer)
+            embed.setFooter(
+                data.footer?.text ?? profile.name,
+                options.footer.icon && profile.logoUrl ? profile.logoUrl : data.footer?.icon_url,
+            );
         if (options.thumbnail && profile.logoUrl) embed.setThumbnail(profile.logoUrl);
 
         return embed;

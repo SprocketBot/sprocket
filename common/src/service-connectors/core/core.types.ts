@@ -134,7 +134,6 @@ export const CoreSchemas = {
         input: Schemas.GetMatchInformationAndStakeholders_Request,
         output: Schemas.GetMatchInformationAndStakeholders_Response,
     },
-
 };
 
 export type CoreInput<T extends CoreEndpoint> = z.infer<typeof CoreSchemas[T]["input"]>;

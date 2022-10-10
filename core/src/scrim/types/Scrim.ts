@@ -1,10 +1,6 @@
-import {
-    Field, Int, ObjectType,
-} from "@nestjs/graphql";
+import {Field, Int, ObjectType} from "@nestjs/graphql";
 import type {Scrim as IScrim} from "@sprocketbot/common";
-import {
-    EventTopic, ScrimStatus,
-} from "@sprocketbot/common";
+import {EventTopic, ScrimStatus} from "@sprocketbot/common";
 
 import {GameSkillGroup} from "../../database";
 import {ScrimGame} from "./ScrimGame";

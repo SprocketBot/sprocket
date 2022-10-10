@@ -1,14 +1,17 @@
 import {Inject, Logger} from "@nestjs/common";
 import {
-    AnalyticsService, config, CoreEndpoint, CoreService, GenerateReportCardType, ResponseStatus,
+    AnalyticsService,
+    config,
+    CoreEndpoint,
+    CoreService,
+    GenerateReportCardType,
+    ResponseStatus,
 } from "@sprocketbot/common";
 import type {MessageOptions} from "discord.js";
 import {Client, Message} from "discord.js";
 
 import {EmbedService} from "../../embed";
-import {
-    Command, CommandManagerService, Marshal, MarshalCommandContext,
-} from "../../marshal";
+import {Command, CommandManagerService, Marshal, MarshalCommandContext} from "../../marshal";
 import {NotificationsService} from "../../notifications";
 
 export class ReportCardMarshal extends Marshal {
@@ -53,29 +56,37 @@ export class ReportCardMarshal extends Marshal {
             return;
         }
 
-        const reportCardResult = await this.coreService.send(CoreEndpoint.GenerateReportCard, {
-            type: GenerateReportCardType.SCRIM,
-            mleScrimId: scrimResult.data.id,
-        }, {timeout: 300000});
+        const reportCardResult = await this.coreService.send(
+            CoreEndpoint.GenerateReportCard,
+            {
+                type: GenerateReportCardType.SCRIM,
+                mleScrimId: scrimResult.data.id,
+            },
+            {timeout: 300000},
+        );
         if (reportCardResult.status === ResponseStatus.ERROR) {
             this.logger.error(reportCardResult.error);
             await m.reply("Couldn't generate report card.");
             return;
         }
 
-        const embed = await this.embedService.brandEmbed({
-            title: "Scrim Results",
-            image: {
-                url: "attachment://card.png",
+        const embed = await this.embedService.brandEmbed(
+            {
+                title: "Scrim Results",
+                image: {
+                    url: "attachment://card.png",
+                },
+                timestamp: Date.now(),
             },
-            timestamp: Date.now(),
-        }, {
-            color: true,
-            footer: {
-                icon: true,
-                text: true,
+            {
+                color: true,
+                footer: {
+                    icon: true,
+                    text: true,
+                },
             },
-        }, organizationResult.data.id);
+            organizationResult.data.id,
+        );
         const messageAttachment = await this.notificationsService.downloadAttachment({
             name: "card.png",
             url: `minio:${config.minio.bucketNames.image_generation}/${reportCardResult.data}.png`,

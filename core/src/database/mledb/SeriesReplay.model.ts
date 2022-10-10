@@ -1,6 +1,4 @@
-import {
-    Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn,
-} from "typeorm";
+import {Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 
 import {MLE_EloData} from "./EloData.model";
 import type {RocketLeagueMap} from "./enums/Map.enum";
@@ -45,7 +43,9 @@ export class MLE_SeriesReplay {
     updatedAt: Date;
 
     @Column("character varying", {
-        name: "map", nullable: true, length: 255,
+        name: "map",
+        nullable: true,
+        length: 255,
     })
     map: RocketLeagueMap | null;
 
@@ -103,7 +103,7 @@ export class MLE_SeriesReplay {
     @ManyToOne(() => MLE_Series, series => series.seriesReplays, {
         onUpdate: "CASCADE",
     })
-    @JoinColumn([ {name: "series_id", referencedColumnName: "id"} ])
+    @JoinColumn([{name: "series_id", referencedColumnName: "id"}])
     series: MLE_Series;
 
     @OneToMany(() => MLE_TeamCoreStats, teamCoreStats => teamCoreStats.replay)

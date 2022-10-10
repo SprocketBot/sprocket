@@ -1,6 +1,4 @@
-import {
-    Field, Int, ObjectType,
-} from "@nestjs/graphql";
+import {Field, Int, ObjectType} from "@nestjs/graphql";
 import type {ScrimMetrics as IScrimMetrics} from "@sprocketbot/common";
 
 @ObjectType()

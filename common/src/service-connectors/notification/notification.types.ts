@@ -27,5 +27,6 @@ export interface NotificationErrorResponse {
     error: Error;
 }
 
-export type NotificationResponse<T extends NotificationEndpoint> = NotificationSuccessResponse<T> | NotificationErrorResponse;
-
+export type NotificationResponse<T extends NotificationEndpoint> =
+    | NotificationSuccessResponse<T>
+    | NotificationErrorResponse;

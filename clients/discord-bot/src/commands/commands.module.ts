@@ -4,9 +4,6 @@ import {AdministratorCommandsModule} from "./administrator-commands/administrato
 import {MemberCommandsModule} from "./member-commands/member-commands.module";
 
 @Module({
-    imports: [
-        AdministratorCommandsModule,
-        MemberCommandsModule,
-    ],
+    imports: [AdministratorCommandsModule, MemberCommandsModule],
 })
 export class CommandsModule {}

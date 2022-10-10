@@ -23,27 +23,36 @@ describe("GameOrderService", () => {
                 gameMode: {description: "", id: 0},
                 id: "",
                 settings: {
-                    competitive: false, mode: ScrimMode.ROUND_ROBIN, teamCount: 2, teamSize: 3,
+                    competitive: false,
+                    mode: ScrimMode.ROUND_ROBIN,
+                    teamCount: 2,
+                    teamSize: 3,
                 },
                 status: ScrimStatus.POPPED,
                 players: [
                     {
-                        id: 8, name: "A",
+                        id: 8,
+                        name: "A",
                     },
                     {
-                        id: 9, name: "B",
+                        id: 9,
+                        name: "B",
                     },
                     {
-                        id: 10, name: "C",
+                        id: 10,
+                        name: "C",
                     },
                     {
-                        id: 11011588, name: "D",
+                        id: 11011588,
+                        name: "D",
                     },
                     {
-                        id: 11010578, name: "E",
+                        id: 11010578,
+                        name: "E",
                     },
                     {
-                        id: 4975, name: "F",
+                        id: 4975,
+                        name: "F",
                     },
                 ],
             };

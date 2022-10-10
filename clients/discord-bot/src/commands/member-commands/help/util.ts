@@ -5,7 +5,9 @@ import {Unicode} from "../../../enums/unicode";
 import type {CommandSpec} from "../../../marshal";
 
 export const specToField = (spec: CommandSpec): EmbedFieldData => {
-    const aliases: string | undefined = spec.aliases ? spec.aliases.map(a => `\`${config.bot.prefix}${a}\``).join(", ") : undefined;
+    const aliases: string | undefined = spec.aliases
+        ? spec.aliases.map(a => `\`${config.bot.prefix}${a}\``).join(", ")
+        : undefined;
     const docs: string = spec.longDocs ?? spec.docs;
     return {
         name: `\`${config.bot.prefix}${spec.name}${spec.args.map(a => ` [${a.name}]`).join("")}\``,

@@ -1,7 +1,5 @@
 import {UseGuards} from "@nestjs/common";
-import {
-    Args, Mutation, Query, Resolver,
-} from "@nestjs/graphql";
+import {Args, Mutation, Query, Resolver} from "@nestjs/graphql";
 import type {ReplaySubmission} from "@sprocketbot/common";
 
 import {MLE_OrganizationTeam} from "../../database/mledb";

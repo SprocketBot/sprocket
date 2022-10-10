@@ -28,8 +28,10 @@ export type DataLeaf = z.infer<typeof dataLeafSchema>;
  * Recursive type that describes the JSON Object Tree with DataLeaf Nodes
  */
 // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
-export type Template = DataLeaf | { [key: string]: Template;} | Template[];
-export const templateStructureSchema: z.ZodType<Template> = z.lazy(() => z.union([dataLeafSchema, z.array(templateStructureSchema), z.record(templateStructureSchema)]));
+export type Template = DataLeaf | {[key: string]: Template} | Template[];
+export const templateStructureSchema: z.ZodType<Template> = z.lazy(() =>
+    z.union([dataLeafSchema, z.array(templateStructureSchema), z.record(templateStructureSchema)]),
+);
 
 export type TemplateStructure = z.infer<typeof templateStructureSchema>;
 
@@ -40,4 +42,3 @@ export const GenerateImage_Request = z.object({
 });
 
 export const GenerateImage_Response = z.string();
-

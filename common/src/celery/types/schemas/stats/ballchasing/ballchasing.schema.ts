@@ -20,7 +20,7 @@ export const BallchasingResponseSchema = z.object({
     status: z.literal("ok"),
     created: z.string(),
     visibility: z.string(), // TODO enum
-    
+
     // Rocket League meta
     rocket_league_id: z.string(),
     season: z.number(),
@@ -29,23 +29,23 @@ export const BallchasingResponseSchema = z.object({
     // Uploader
     recorder: z.string().optional(),
     uploader: BallchasingUploaderSchema,
-    
+
     // Match
     match_type: z.string(), // TODO enum
-    
+
     // Playlist
     playlist_id: z.string(), // TODO enum
     playlist_name: z.string(), // TODO enum
-    
+
     // Map
     map_code: z.string(), // TODO enum for maps
     map_name: z.string().default("UNKNOWN"),
-    
+
     // Duration
     duration: z.number(),
     overtime: z.boolean(),
     overtime_seconds: z.number().optional(),
-    
+
     // Team stats
     team_size: z.number(),
     blue: BallchasingTeamSchema,

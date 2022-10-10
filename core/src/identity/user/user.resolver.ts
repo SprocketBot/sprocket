@@ -1,12 +1,8 @@
 import {UseGuards} from "@nestjs/common";
-import {
-    Args, Mutation, Query, ResolveField, Resolver, Root,
-} from "@nestjs/graphql";
+import {Args, Mutation, Query, ResolveField, Resolver, Root} from "@nestjs/graphql";
 
 import type {UserAuthenticationAccount, UserProfile} from "../../database";
-import {
-    Member, User, UserAuthenticationAccountType,
-} from "../../database";
+import {Member, User, UserAuthenticationAccountType} from "../../database";
 import {PopulateService} from "../../util/populate/populate.service";
 import {UserPayload} from "../auth";
 import {CurrentUser} from "../auth/current-user.decorator";
@@ -31,7 +27,8 @@ export class UserResolver {
     @Query(() => User, {nullable: true})
     async getUserByAuthAccount(
         @Args("accountId") accountId: string,
-        @Args("accountType", {type: () => UserAuthenticationAccountType}) accountType: UserAuthenticationAccountType,
+        @Args("accountType", {type: () => UserAuthenticationAccountType})
+        accountType: UserAuthenticationAccountType,
     ): Promise<User | null> {
         return this.identityService.getUserByAuthAccount(accountType, accountId);
     }
@@ -39,7 +36,8 @@ export class UserResolver {
     @Mutation(() => User)
     async registerUser(
         @Args("accountId") accountId: string,
-        @Args("accountType", {type: () => UserAuthenticationAccountType}) accountType: UserAuthenticationAccountType,
+        @Args("accountType", {type: () => UserAuthenticationAccountType})
+        accountType: UserAuthenticationAccountType,
     ): Promise<User> {
         return this.identityService.registerUser(accountType, accountId);
     }
@@ -54,7 +52,7 @@ export class UserResolver {
 
     @ResolveField()
     async profile(@Root() user: Partial<User>): Promise<UserProfile> {
-        return user.profile ?? await this.userService.getUserProfileForUser(user.id!);
+        return user.profile ?? (await this.userService.getUserProfileForUser(user.id!));
     }
 
     @ResolveField()
@@ -65,13 +63,15 @@ export class UserResolver {
         }
         if (!orgId) return user.members;
         // Ensure organization is populated on all the members, then filter
-        return Promise.all(user.members.map(async m => {
-            if (typeof m.organization?.id === "undefined") {
-                // eslint-disable-next-line require-atomic-updates
-                m.organization = await this.popService.populateOneOrFail(Member, m, "organization");
-            }
+        return Promise.all(
+            user.members.map(async m => {
+                if (typeof m.organization?.id === "undefined") {
+                    // eslint-disable-next-line require-atomic-updates
+                    m.organization = await this.popService.populateOneOrFail(Member, m, "organization");
+                }
 
-            return m;
-        })).then(results => results.filter(m => m.organization.id === orgId));
+                return m;
+            }),
+        ).then(results => results.filter(m => m.organization.id === orgId));
     }
 }

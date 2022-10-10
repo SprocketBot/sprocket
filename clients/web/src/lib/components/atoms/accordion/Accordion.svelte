@@ -10,9 +10,7 @@
 <section class:flush>
     <button on:click={() => (open = !open)}>
         <slot name="title" />
-        <span class:active={open}
-            ><Icon class="w-4 h-4" src={ChevronDown} /></span
-        >
+        <span class:active={open}><Icon class="w-4 h-4" src={ChevronDown} /></span>
     </button>
     {#if open}
         <div transition:slide>

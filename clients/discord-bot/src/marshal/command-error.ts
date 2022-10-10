@@ -6,7 +6,7 @@ export type CommandErrorType = "UserError" | "InternalError" | "UnknownError";
 
 export class CommandError extends Error {
     name = CommandError.name;
-    
+
     private logger = new Logger(CommandError.name);
 
     private id: string;
@@ -17,8 +17,7 @@ export class CommandError extends Error {
         let uuid = randomUUID();
         uuid = uuid.slice(uuid.length - 5, uuid.length);
 
-        let ms = new Date().getUTCMilliseconds()
-            .toString();
+        let ms = new Date().getUTCMilliseconds().toString();
         ms = ms.slice(ms.length - 3, ms.length);
 
         this.id = uuid + ms;
@@ -30,23 +29,22 @@ export class CommandError extends Error {
         if (this.type === "UnknownError") {
             response = "An unknown error occurred, please contact a developer"; // TODO this could direct people to #bot-support
         } else {
-            response = `An error occurred because ${this.cause}.${
-                this.resolution
-                    ? ` Please ${this.resolution}`
-                    : ""
-            }`;
+            response = `An error occurred because ${this.cause}.${this.resolution ? ` Please ${this.resolution}` : ""}`;
         }
 
         await m.reply(`${response} (Code ${this.id}).`);
     }
 
     log(): void {
-        this.logger.error({
-            name: this.name,
-            type: this.type,
-            cause: this.cause,
-            resolution: this.resolution,
-            id: this.id,
-        }, this.stack);
+        this.logger.error(
+            {
+                name: this.name,
+                type: this.type,
+                cause: this.cause,
+                resolution: this.resolution,
+                id: this.id,
+            },
+            this.stack,
+        );
     }
 }

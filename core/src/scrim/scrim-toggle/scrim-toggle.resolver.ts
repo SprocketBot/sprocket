@@ -1,7 +1,5 @@
 import {Inject, UseGuards} from "@nestjs/common";
-import {
-    Args, Mutation, Query, Resolver, Subscription,
-} from "@nestjs/graphql";
+import {Args, Mutation, Query, Resolver, Subscription} from "@nestjs/graphql";
 import {PubSub} from "apollo-server-express";
 
 import {MLE_OrganizationTeam} from "../../database/mledb";
