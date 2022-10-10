@@ -36,15 +36,7 @@
 
 <!-- https://flowbite.com/docs/components/alerts/ -->
 {#if !dismissed}
-    <div
-        role="alert"
-        class="p-4 mb-4 border rounded-lg"
-        class:info={variant === "info"}
-        class:success={variant === "success"}
-        class:warning={variant === "warning"}
-        class:error={variant === "error"}
-        out:fade
-    >
+    <div role="alert" class="v-{variant} p-4 mb-4 border rounded-lg" out:fade>
         <div class="flex items-center">
             {#if withIcon && iconSrc}
                 <Icon class="w-5 h-5 mr-2 flex-shrink-0" src={iconSrc} />
@@ -58,13 +50,7 @@
             </h3>
 
             {#if dismissible}
-                <button
-                    on:click={() => dismissed = true}
-                    type="button"
-                    class="ml-auto -mx-1.5 -my-1.5 rounded-lg focus:ring-2 p-1.5 inline-flex h-8 w-8"
-                    data-dismiss-target="#alert-1"
-                    aria-label="Close"
-                >
+                <button on:click={() => dismissed = true} type="button" class="ml-auto -mx-1.5 -my-1.5 rounded-lg focus:ring-2 p-1.5 inline-flex h-8 w-8">
                     <span class="sr-only">Close</span>
                     <Icon class="w-5 h-5" src={XMark} />
                 </button>
