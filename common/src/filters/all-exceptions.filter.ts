@@ -26,8 +26,6 @@ import type {Response} from "express";
 export class AllExceptionsFilter implements ExceptionFilter {
     private readonly logger = new Logger(AllExceptionsFilter.name);
 
-    // constructor(private readonly httpAdapterHost: HttpAdapterHost)
-
     catch(exception: HttpException, host: ArgumentsHost): void {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
