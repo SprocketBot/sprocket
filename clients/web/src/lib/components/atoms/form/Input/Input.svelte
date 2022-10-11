@@ -45,15 +45,14 @@
 <style lang="postcss">
     /* General styling */
     label {
-        @apply block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300;
+        @apply block mb-2 text-sm font-medium text-gray-300;
     }
 
     .input-container {
         @apply flex items-stretch
             rounded-lg border overflow-hidden
             focus-within:ring-1 focus-within:ring-primary focus-within:border-primary
-            bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-600
-            dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400;
+            bg-gray-700 border-gray-600 text-white placeholder-gray-400;
 
         input {
             @apply min-h-[fit-content] flex-1 outline-none bg-transparent;
@@ -69,7 +68,7 @@
 
             /* Default styling for addon */
             & > :global(*) {
-                @apply w-full flex items-center justify-center text-gray-600 dark:text-gray-400;
+                @apply w-full flex items-center justify-center text-gray-400;
             }
         }
     }
@@ -105,24 +104,22 @@
     /* State styling */
     .state-valid {
         label {
-            @apply text-success-700 dark:text-success-500;
+            @apply text-success-500;
         }
         .input-container {
-            @apply bg-success-50 border-success-500 ring-success-500 text-success-700 placeholder-success-700
-                dark:bg-gray-700 dark:border-success-500 dark:ring-success-500 dark:text-success-500 dark:placeholder-success-500;
+            @apply dark:bg-gray-700 dark:border-success-500 dark:ring-success-500 dark:text-success-500 dark:placeholder-success-500;
         }
     }
 
     .state-invalid {
         label {
-            @apply text-danger-700 dark:text-danger-500;
+            @apply text-danger-500;
         }
         .input-container {
-            @apply bg-danger-50 border-danger-500 ring-danger-500 text-danger-700 placeholder-danger-700
-                dark:bg-gray-700 dark:border-danger-500 dark:ring-danger-500 dark:text-danger-500 dark:placeholder-danger-500;
+            @apply dark:bg-gray-700 dark:border-danger-500 dark:ring-danger-500 dark:text-danger-500 dark:placeholder-danger-500;
         }
         .error {
-            @apply text-danger-600 dark:text-danger-500;
+            @apply text-danger-500;
         }
     }
 </style>
