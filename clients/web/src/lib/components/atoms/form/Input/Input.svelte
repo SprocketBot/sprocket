@@ -1,14 +1,13 @@
 <script lang="ts" context="module">
-    export type InputSize = "sm" | "md" | "lg";
 </script>
 
 <script lang="ts">
     import {slide} from "svelte/transition";
     import {nanoid} from "nanoid";
 
-    import type {FormControlState} from "../form.types";
+    import type {FormControlSize, FormControlState} from "../form.types";
 
-    export let size: InputSize = "md";
+    export let size: FormControlSize = "md";
     export let label: string;
     export let placeholder: string | undefined = undefined;
     export let disabled: boolean = false;

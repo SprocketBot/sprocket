@@ -2,16 +2,16 @@
     import type {Hst as _Hst} from "@histoire/plugin-svelte";
     import {Icon} from "@steeze-ui/svelte-icon";
     import {Pencil} from "@steeze-ui/heroicons";
-    import type {FormControlState} from "../form.types";
-    import Input, {type InputSize} from "./Input.svelte";
+    import type {FormControlState, FormControlSize} from "../form.types";
+    import Input from "./Input.svelte";
 
     export let Hst: _Hst;
 
-    const sizes: InputSize[] = ["sm", "md", "lg"];
+    const sizes: FormControlSize[] = ["sm", "md", "lg"];
     const states: FormControlState[] = ["none", "valid", "invalid"];
 
     let label = "Username";
-    let size: InputSize = "md";
+    let size: FormControlSize = "md";
     let placeholder = "";
     let disabled = false;
     let state: FormControlState = "none";
