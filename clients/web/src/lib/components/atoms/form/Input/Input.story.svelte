@@ -1,5 +1,7 @@
 <script lang="ts">
     import type {Hst as _Hst} from "@histoire/plugin-svelte";
+    import {Icon} from "@steeze-ui/svelte-icon";
+    import {Pencil} from "@steeze-ui/heroicons";
     import type {FormControlState} from "../form.types";
     import Input, {type InputSize} from "./Input.svelte";
 
@@ -28,5 +30,19 @@
 
     <Hst.Variant title="Default" {label} {size} {placeholder} {disabled} {state} {error}>
         <Input {label} {size} {placeholder} {disabled} {state} {error} />
+    </Hst.Variant>
+
+    <Hst.Variant title="With addonLeft" {label} {size} {placeholder} {disabled} {state} {error}>
+        <Input {label} {size} {placeholder} {disabled} {state} {error}>
+            <!-- Addons can be anything, including icons! -->
+            <Icon slot="addonLeft" class="h-3/6" src={Pencil} />
+        </Input>
+    </Hst.Variant>
+
+    <Hst.Variant title="With addonRight" {label} {size} {placeholder} {disabled} {state} {error}>
+        <Input {label} {size} {placeholder} {disabled} {state} {error}>
+            <!-- Addons can be anything, including text with additional styling! -->
+            <span slot="addonRight" class="h-full text-xl font-bold bg-gray-600">%</span>
+        </Input>
     </Hst.Variant>
 </Hst.Story>

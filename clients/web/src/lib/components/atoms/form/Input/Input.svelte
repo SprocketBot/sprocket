@@ -8,8 +8,8 @@
 
     import type {FormControlState} from "../form.types";
 
-    export let label: string;
     export let size: InputSize = "md";
+    export let label: string;
     export let placeholder: string | undefined = undefined;
     export let disabled: boolean = false;
     export let state: FormControlState = "none";
@@ -21,7 +21,22 @@
 
 <div class="size-{size} state-{state}">
     <label for={labelId}>{label}</label>
-    <input id={labelId} type="text" aria-describedby={error ? errorId : undefined} {placeholder} {disabled} />
+
+    <div class="input-container">
+        {#if $$slots.addonLeft}
+            <div class="addon">
+                <slot name="addonLeft" />
+            </div>
+        {/if}
+
+        <input id={labelId} type="text" aria-describedby={error ? errorId : undefined} {placeholder} {disabled} />
+
+        {#if $$slots.addonRight}
+            <div class="addon">
+                <slot name="addonRight" />
+            </div>
+        {/if}
+    </div>
 
     {#if error && state === "invalid"}
         <span class="error" id={errorId} transition:slide>{error}</span>
@@ -34,29 +49,58 @@
         @apply block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300;
     }
 
-    input {
-        @apply block w-full
-            rounded-lg border
-            outline-none focus:ring-1 focus:ring-primary focus:border-primary
+    .input-container {
+        @apply flex items-stretch
+            rounded-lg border overflow-hidden
+            focus-within:ring-1 focus-within:ring-primary focus-within:border-primary
             bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-600
             dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400;
 
-        &:disabled {
-            @apply cursor-not-allowed text-gray-400 placeholder-gray-500;
+        input {
+            @apply min-h-[fit-content] flex-1 outline-none bg-transparent;
+            &:disabled {
+                @apply cursor-not-allowed text-gray-400 placeholder-gray-500;
+            }
+        }
+
+        .addon {
+            @apply aspect-square flex-shrink-0
+                flex items-center justify-center
+                pointer-events-none select-none;
+
+            /* Default styling for addon */
+            & > :global(*) {
+                @apply w-full flex items-center justify-center text-gray-600 dark:text-gray-400;
+            }
         }
     }
 
     /* Size styling */
-    .size-sm input {
-        @apply p-2 sm:text-xs;
+    .size-sm {
+        input {
+            @apply p-2 sm:text-xs;
+        }
+        .addon {
+            @apply h-8;
+        }
     }
 
-    .size-md input {
-        @apply p-2.5 text-sm;
+    .size-md {
+        input {
+            @apply p-2.5 text-sm;
+        }
+        .addon {
+            @apply h-10;
+        }
     }
 
-    .size-lg input {
-        @apply p-4 sm:text-base;
+    .size-lg {
+        input {
+            @apply p-4 sm:text-base;
+        }
+        .addon {
+            @apply h-14;
+        }
     }
 
     /* State styling */
@@ -64,7 +108,7 @@
         label {
             @apply text-success-700 dark:text-success-500;
         }
-        input:not(:disabled) {
+        .input-container {
             @apply bg-success-50 border-success-500 ring-success-500 text-success-700 placeholder-success-700
                 dark:bg-gray-700 dark:border-success-500 dark:ring-success-500 dark:text-success-500 dark:placeholder-success-500;
         }
@@ -74,7 +118,7 @@
         label {
             @apply text-danger-700 dark:text-danger-500;
         }
-        input:not(:disabled) {
+        .input-container {
             @apply bg-danger-50 border-danger-500 ring-danger-500 text-danger-700 placeholder-danger-700
                 dark:bg-gray-700 dark:border-danger-500 dark:ring-danger-500 dark:text-danger-500 dark:placeholder-danger-500;
         }
