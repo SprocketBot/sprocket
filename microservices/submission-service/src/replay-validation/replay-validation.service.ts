@@ -1,8 +1,7 @@
 import {Injectable, Logger} from "@nestjs/common";
 import type {
     BallchasingResponse,
-    CoreSuccessResponse,
-    GetPlayer,
+    GetPlayerSuccessResponse,
     MatchReplaySubmission,
     ReplaySubmission,
     ScrimReplaySubmission,
@@ -20,7 +19,6 @@ import {
 } from "@sprocketbot/common";
 import {isEqual} from "lodash";
 
-import type {UserWithPlatformId} from "./types/user-with-platform-id";
 import type {ValidationError, ValidationResult} from "./types/validation-result";
 import {sortIds} from "./utils";
 
@@ -32,8 +30,7 @@ export class ReplayValidationService {
         private readonly coreService: CoreService,
         private readonly matchmakingService: MatchmakingService,
         private readonly minioService: MinioService,
-    ) {
-    }
+    ) {}
 
     async validate(submission: ReplaySubmission): Promise<ValidationResult> {
         if (submission.type === ReplaySubmissionType.SCRIM) {
@@ -109,80 +106,61 @@ export class ReplayValidationService {
             };
         }
 
-        // Get platformIds from stats
-        const ballchasingIds = stats.flatMap(s => [s.blue, s.orange].flatMap(t => t.players.flatMap(p => ({
-            platform: p.id.platform,
-            id: p.id.id,
-            name: p.name,
-        }))));
-        const platformIds = ballchasingIds.map(bId => ({platform: bId.platform.toUpperCase(), platformId: bId.id}));
+        const gameResult = await this.coreService.send(CoreEndpoint.GetGameByGameMode, {gameModeId: scrim.gameMode.id});
+        if (gameResult.status === ResponseStatus.ERROR) {
+            this.logger.error(`Unable to get game gameMode=${scrim.gameMode.id}`);
+            return {
+                valid: false,
+                errors: [ {error: `Failed to find associated game. Please contact support.`} ],
+            };
+        }
 
+        // Get platformIds from stats
+        // Don't send the same request for multiple players
+        const uniqueBallchasingPlayerIds = Array.from(new Set(stats.flatMap(s => [s.blue, s.orange].flatMap(t => t.players.flatMap(p => ({
+            name: p.name,
+            platform: p.id.platform.toUpperCase(),
+            id: p.id.id,
+        }))))));
+        
         // Look up players by their platformIds
-        const playersResponse = await this.coreService.send(CoreEndpoint.GetPlayersByPlatformIds, platformIds);
+        const playersResponse = await this.coreService.send(CoreEndpoint.GetPlayersByPlatformIds, uniqueBallchasingPlayerIds.map(bId => ({
+            gameId: gameResult.data.id,
+            platform: bId.platform,
+            platformId: bId.id,
+        })));
         if (playersResponse.status === ResponseStatus.ERROR) {
             this.logger.error(`Unable to validate submission, couldn't find all players by their platformIds`, playersResponse.error);
             return {
                 valid: false,
-                errors: [ {error: "A player played on an unreported account. Please contact support for help."} ],
+                errors: [ {error: "Failed to find all players by their platform Ids. Please contact support."} ],
             };
         }
-        const playersData = playersResponse.data;
-        const playerErrors: ValidationError[] = [];
-
-        for (const player of playersData) {
+        
+        const playerErrors: string[] = [];
+        for (const player of playersResponse.data) {
             if (!player.success) {
-                playerErrors.push({error: `${player.error} (${ballchasingIds.find((id, i) => id.id === platformIds[i].platformId)?.name})`});
+                playerErrors.push(uniqueBallchasingPlayerIds.find(bcPlayer => bcPlayer.platform === player.request.platform && bcPlayer.id === player.request.platformId)!.name);
             }
         }
 
         if (playerErrors.length) return {
             valid: false,
-            errors: playerErrors,
+            errors: [
+                {
+                    error: `One or more players played on an unreported account: ${playerErrors.join(", ")}`,
+                },
+            ],
         };
 
-        const players = playersData.map(p => (p.success ? p.data : undefined)) as GetPlayer[];
-
-        const userIdsResponses = await Promise.all(players.map(async p => this.coreService.send(CoreEndpoint.GetUserByAuthAccount, {
-            accountType: "DISCORD",
-            accountId: p.discordId,
-        })));
-
-        if (userIdsResponses.some(r => r.status === ResponseStatus.ERROR)) {
-            // Build up a list of failed player Discord IDs to return in the error response.
-            const sprocketUserErrors: ValidationError[] = [];
-            
-            userIdsResponses.forEach((r, i) => {
-                if (r.status === ResponseStatus.ERROR) {
-                    sprocketUserErrors.push({
-                        error: `Could not find a Sprocket account for ${players[i].discordId}`,
-                        playerIndex: i,
-                    });
-                }
-            });
-
-            sprocketUserErrors.forEach(err => { this.logger.error(err.error) });
-            return {
-                valid: false,
-                errors: sprocketUserErrors,
-            };
-        }
-        const userIds = userIdsResponses.map(r => (r as CoreSuccessResponse<CoreEndpoint.GetUserByAuthAccount>).data);
-
-        // Add platformIds to players
-        const userAndPlatformIds: UserWithPlatformId[] = userIds.map((u, i) => ({
-            ...u,
-            // Arrays should be in the same order
-            platform: platformIds[i].platform,
-            platformId: platformIds[i].platformId,
-        }));
-
+        const players = playersResponse.data as GetPlayerSuccessResponse[];
         // Get 3D array of scrim player ids
         const scrimPlayerIds = scrim.games.map(g => g.teams.map(t => t.players.map(p => p.id)));
 
         // Get 3D array of submission player ids
         const submissionUserIds = stats.map(s => [s.blue, s.orange].map(t => t.players.map(({id}) => {
-            const user = userAndPlatformIds.find(p => p.platform === id.platform.toUpperCase() && p.platformId === id.id)!;
-            return user.id;
+            const user = players.find(p => p.request.platform === id.platform.toUpperCase() && p.request.platformId === id.id)!;
+            return user.data.userId;
         })));
 
         // Sort IDs so that they are in the same order ready to compare
@@ -240,7 +218,7 @@ export class ReplayValidationService {
         // Validate players are in the correct skill group if the scrim is competitive
         // ========================================
         if (scrim.settings.competitive) for (const player of players) {
-            if (player.skillGroupId !== scrim.skillGroupId) {
+            if (player.data.skillGroupId !== scrim.skillGroupId) {
                 return {
                     valid: false,
                     errors: [ {
@@ -269,54 +247,72 @@ export class ReplayValidationService {
         if (matchResult.status === ResponseStatus.ERROR) throw matchResult.error;
         const match = matchResult.data;
 
+        const gameResult = await this.coreService.send(CoreEndpoint.GetGameByGameMode, {gameModeId: match.gameModeId});
+        if (gameResult.status === ResponseStatus.ERROR) {
+            this.logger.error(`Unable to get game gameMode=${match.gameModeId}`);
+            return {
+                valid: false,
+                errors: [ {error: `Failed to find associated game. Please contact support.`} ],
+            };
+        }
+
         const homeName = match.homeFranchise!.name;
         const awayName = match.awayFranchise!.name;
 
         const errors: ValidationError[] = [];
 
-        for (const item of submission.items) {
-            if (!item.progress?.result) {
-                return {
-                    valid: false,
-                    errors: [ {error: "Incomplete Replay Found, please wait for submission to complete "} ],
-                };
+        if (!submission.items.every(i => i.progress?.result)) {
+            return {
+                valid: false,
+                errors: [ {error: "Incomplete Replay Found, please wait for submission to complete"} ],
+            };
+        }
+
+        const uniqueBallchasingPlayerIds = Array.from(new Set(submission.items.flatMap(s => [s.progress!.result!.data.blue, s.progress!.result!.data.orange].flatMap(t => t.players.flatMap(p => ({
+            name: p.name,
+            platform: p.id.platform.toUpperCase(),
+            id: p.id.id,
+        }))))));
+        
+        // Look up players by their platformIds
+        const playersResponse = await this.coreService.send(CoreEndpoint.GetPlayersByPlatformIds, uniqueBallchasingPlayerIds.map(bId => ({
+            gameId: gameResult.data.id,
+            platform: bId.platform,
+            platformId: bId.id,
+        })));
+        if (playersResponse.status === ResponseStatus.ERROR) {
+            this.logger.error(`Unable to validate submission, couldn't find all players by their platformIds`, playersResponse.error);
+            return {
+                valid: false,
+                errors: [ {error: "Failed to find all players by their platform Ids. Please contact support."} ],
+            };
+        }
+        
+        const playerErrors: string[] = [];
+        for (const player of playersResponse.data) {
+            if (!player.success) {
+                playerErrors.push(uniqueBallchasingPlayerIds.find(bcPlayer => bcPlayer.platform === player.request.platform && bcPlayer.id === player.request.platformId)!.name);
             }
+        }
 
-            const blueBcPlayers = item.progress.result.data.blue.players;
-            const orangeBcPlayers = item.progress.result.data.orange.players;
+        if (playerErrors.length) return {
+            valid: false,
+            errors: [
+                {
+                    error: `One or more players played on an unreported account: ${playerErrors.join(", ")}`,
+                },
+            ],
+        };
+
+        const players = playersResponse.data as GetPlayerSuccessResponse[];
+
+        for (const item of submission.items) {
+            const blueBcPlayers = item.progress!.result!.data.blue.players;
+            const orangeBcPlayers = item.progress!.result!.data.orange.players;
+
             try {
-                const [bluePlayersResponse, orangePlayersResponse] = await Promise.all([
-                    this.coreService.send(CoreEndpoint.GetPlayersByPlatformIds, orangeBcPlayers.map(m => ({
-                        platform: m.id.platform,
-                        platformId: m.id.id,
-                    }))).then(r => {
-                        if (r.status === ResponseStatus.ERROR) throw r.error;
-                        return r.data;
-                    }),
-                    this.coreService.send(CoreEndpoint.GetPlayersByPlatformIds, blueBcPlayers.map(m => ({
-                        platform: m.id.platform,
-                        platformId: m.id.id,
-                    }))).then(r => {
-                        if (r.status === ResponseStatus.ERROR) throw r.error;
-                        return r.data;
-                    }),
-                ]);
-
-                const playerErrors: ValidationError[] = [];
-
-                for (const player of [...bluePlayersResponse, ...orangePlayersResponse]) {
-                    if (!player.success) {
-                        playerErrors.push({error: player.error});
-                    }
-                }
-
-                if (playerErrors.length) return {
-                    valid: false,
-                    errors: playerErrors,
-                };
-
-                const bluePlayers = bluePlayersResponse.map(p => (p.success ? p.data : undefined)) as GetPlayer[];
-                const orangePlayers = orangePlayersResponse.map(p => (p.success ? p.data : undefined)) as GetPlayer[];
+                const bluePlayers = blueBcPlayers.map(bcp => players.find(p => p.request.platform === bcp.id.platform.toUpperCase() && p.request.platformId === bcp.id.id)!.data);
+                const orangePlayers = orangeBcPlayers.map(bcp => players.find(p => p.request.platform === bcp.id.platform.toUpperCase() && p.request.platformId === bcp.id.id)!.data);
 
                 const blueTeam = bluePlayers[0].franchise.name;
                 const orangeTeam = orangePlayers[0].franchise.name;

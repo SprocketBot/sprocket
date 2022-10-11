@@ -2,15 +2,25 @@ import {
     Controller, forwardRef, Get, Inject, Param,
 } from "@nestjs/common";
 import {JwtService} from "@nestjs/jwt";
+import {MessagePattern, Payload} from "@nestjs/microservices";
 import {InjectRepository} from "@nestjs/typeorm";
+import type {CoreOutput} from "@sprocketbot/common";
 import {
-    EventsService, EventTopic, NotificationEndpoint, NotificationMessageType, NotificationService, NotificationType,
+    CoreEndpoint,
+    CoreSchemas,
+    EventsService,
+    EventTopic,
+    NotificationEndpoint,
+    NotificationMessageType,
+    NotificationService,
+    NotificationType,
 } from "@sprocketbot/common";
 import {Repository} from "typeorm";
 
 import {UserAuthenticationAccount, UserAuthenticationAccountType} from "../../database";
 import type {ManualSkillGroupChange} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
+import {GameService, PlatformService} from "../../game";
 import {OrganizationService} from "../../organization";
 import {GameSkillGroupService} from "../game-skill-group";
 import {PlayerService} from "./player.service";
@@ -30,6 +40,8 @@ export class PlayerController {
         private readonly skillGroupService: GameSkillGroupService,
         private readonly eventsService: EventsService,
         private readonly notificationService: NotificationService,
+        private readonly gameService: GameService,
+        private readonly platformService: PlatformService,
         @InjectRepository(UserAuthenticationAccount) private userAuthRepository: Repository<UserAuthenticationAccount>,
         @Inject(forwardRef(() => OrganizationService)) private readonly organizationService: OrganizationService,
     ) {}
@@ -153,5 +165,78 @@ export class PlayerController {
         });
 
         return "SUCCESS";
+    }
+
+    @MessagePattern(CoreEndpoint.GetPlayerByPlatformId)
+    async getPlayerByPlatformId(@Payload() payload: unknown): Promise<CoreOutput<CoreEndpoint.GetPlayerByPlatformId>> {
+        const data = CoreSchemas[CoreEndpoint.GetPlayerByPlatformId].input.parse(payload);
+
+        const game = await this.gameService.getGameById(data.gameId);
+        const platform = await this.platformService.getPlatformByCode(data.platform);
+        const player = await this.playerService.getPlayerByGameAndPlatform(game.id, platform.id, data.platformId).catch(() => null);
+
+        if (!player) return {
+            success: false,
+            request: data,
+        };
+
+        const mlePlayer = await this.playerService.getMlePlayerBySprocketPlayer(player.id);
+
+        return {
+            success: true,
+            data: {
+                id: player.id,
+                userId: player.member.user.id,
+                skillGroupId: player.skillGroupId,
+                franchise: {
+                    name: mlePlayer.teamName,
+                },
+            },
+            request: data,
+        };
+    }
+
+    @MessagePattern(CoreEndpoint.GetPlayersByPlatformIds)
+    async getPlayersByPlatformIds(@Payload() payload: unknown): Promise<CoreOutput<CoreEndpoint.GetPlayersByPlatformIds>> {
+        const data = CoreSchemas[CoreEndpoint.GetPlayersByPlatformIds].input.parse(payload);
+
+        const allResults = await Promise.allSettled(data.map(async p => {
+            const game = await this.gameService.getGameById(p.gameId);
+            const platform = await this.platformService.getPlatformByCode(p.platform);
+            const player = await this.playerService.getPlayerByGameAndPlatform(game.id, platform.id, p.platformId).catch(() => null);
+    
+            if (!player) return {
+                success: false,
+                error: `Failed to find player by account platform=${p.platform} platformId=${p.platformId}`,
+                request: p,
+            };
+    
+            const mlePlayer = await this.playerService.getMlePlayerBySprocketPlayer(player.id);
+    
+            return {
+                success: true,
+                data: {
+                    id: player.id,
+                    userId: player.member.user.id,
+                    skillGroupId: player.skillGroupId,
+                    franchise: {
+                        name: mlePlayer.teamName,
+                    },
+                },
+                request: p,
+            };
+        }));
+
+        if (allResults.every(r => r.status === "fulfilled")) {
+            return allResults.map(r => (r as PromiseFulfilledResult<CoreOutput<CoreEndpoint.GetPlayerByPlatformId>>).value);
+        }
+
+        throw new Error(`Failed to fetch players by platform accounts: ${
+            allResults.filter(r => r.status === "rejected").map(failed => {
+                const result = failed as PromiseRejectedResult;
+                return (result.reason as Error).message;
+            })
+                .join(", ")
+        }`);
     }
 }

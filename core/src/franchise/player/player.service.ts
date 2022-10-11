@@ -15,7 +15,7 @@ import {
     NotificationType,
 } from "@sprocketbot/common";
 import type {
-    FindManyOptions, FindOneOptions, QueryRunner,
+    FindManyOptions, FindOneOptions, FindOptionsRelations, QueryRunner,
 } from "typeorm";
 import {DataSource, Repository} from "typeorm";
 
@@ -739,5 +739,43 @@ export class PlayerService {
 
         await this.mle_playerRepository.save(player);
         return player;
+    }
+
+    // Have this because circular dependencies suck. Temp only for MLEDB integration so /shrug
+    // Can refactor after extended repos is a thing
+    async getMlePlayerBySprocketPlayer(playerId: number): Promise<MLE_Player> {
+        const bridge = await this.ptpRepo.findOneOrFail({where: {sprocketPlayerId: playerId} });
+        return this.mle_playerRepository.findOneOrFail({where: {id: bridge.mledPlayerId} });
+    }
+
+    async getPlayerByGameAndPlatform(gameId: number, platformId: number, platformAccountId: string, relations?: FindOptionsRelations<Player>): Promise<Player> {
+        return this.playerRepository.findOneOrFail({
+            where: {
+                skillGroup: {
+                    game: {
+                        id: gameId,
+                    },
+                },
+                member: {
+                    platformAccounts: {
+                        platform: {
+                            id: platformId,
+                        },
+                        platformAccountId: platformAccountId,
+                    },
+                },
+            },
+            relations: Object.assign({
+                skillGroup: {
+                    game: true,
+                },
+                member: {
+                    user: true,
+                    platformAccounts: {
+                        platform: true,
+                    },
+                },
+            }, relations),
+        });
     }
 }
