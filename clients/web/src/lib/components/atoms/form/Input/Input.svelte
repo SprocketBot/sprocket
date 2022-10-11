@@ -4,7 +4,7 @@
 
 <script lang="ts">
     import {slide} from "svelte/transition";
-    import shortid from "shortid";
+    import {nanoid} from "nanoid";
 
     import type {FormControlState} from "../form.types";
 
@@ -15,8 +15,8 @@
     export let state: FormControlState = "none";
     export let error: string | undefined = undefined;
 
-    const labelId = `input_${shortid.generate()}`;
-    const errorId = `input-error_${shortid.generate()}`;
+    const labelId = `input_${nanoid()}`;
+    const errorId = `input-error_${nanoid()}`;
 </script>
 
 <div class="size-{size} state-{state}">
