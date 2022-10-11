@@ -8,10 +8,17 @@ export default defineConfig({
     plugins: [HstSvelte()],
 
     // https://histoire.dev/guide/config.html#global-js-and-css
-    setupFile: "./src/histoire.setup.ts",
+    setupFile: "/src/histoire.setup.ts",
 
     theme: {
         title: "Histoire | Sprocket",
+        logo: {
+            // For some reason, these want `/` while favicon wants `./` 🤷🏼‍♂️
+            square: "/static/img/logo-square-primary.png",
+            dark: "/static/img/logo-full-dark.png",
+            light: "/static/img/logo-full-light.png",
+        },
+        favicon: "./static/favicon-32x32.png",
         colors: {
             primary: primary,
             gray: {
