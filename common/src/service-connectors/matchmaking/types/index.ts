@@ -1,3 +1,4 @@
+export * from "./MatchmakingError.enum";
 export * from "./Scrim";
 export * from "./ScrimGame";
 export * from "./ScrimGameMode";

@@ -1,7 +1,11 @@
 import {Controller} from "@nestjs/common";
-import {MessagePattern, Payload} from "@nestjs/microservices";
+import {
+    MessagePattern, Payload, RpcException,
+} from "@nestjs/microservices";
 import type {Scrim, ScrimMetrics} from "@sprocketbot/common";
-import {MatchmakingEndpoint, MatchmakingSchemas} from "@sprocketbot/common";
+import {
+    MatchmakingEndpoint, MatchmakingError, MatchmakingSchemas,
+} from "@sprocketbot/common";
 
 import {ScrimService} from "./scrim.service";
 import {ScrimCrudService} from "./scrim-crud/scrim-crud.service";
@@ -32,8 +36,9 @@ export class ScrimController {
     async getScrim(@Payload() payload: unknown): Promise<Scrim> {
         const data = MatchmakingSchemas.GetScrim.input.parse(payload);
         const scrim = await this.scrimCrudService.getScrim(data);
-        if (scrim) return scrim;
-        throw new Error("Not Found!");
+
+        if (!scrim) throw new RpcException(MatchmakingError.ScrimNotFound);
+        return scrim;
     }
 
     @MessagePattern(MatchmakingEndpoint.JoinScrim)
@@ -75,8 +80,9 @@ export class ScrimController {
     async getScrimBySubmissionId(@Payload() payload: unknown): Promise<Scrim> {
         const data = MatchmakingSchemas.GetScrimBySubmissionId.input.parse(payload);
         const result =  await this.scrimCrudService.getScrimBySubmissionId(data);
-        if (result !== null) return result;
-        throw new Error(`No scrim for submission ${data}`);
+
+        if (!result) throw new RpcException(MatchmakingError.ScrimSubmissionNotFound);
+        return result;
     }
 
     @MessagePattern(MatchmakingEndpoint.CompleteScrim)
