@@ -24,16 +24,6 @@ export enum ScrimStatus {
     IN_PROGRESS = "IN_PROGRESS",
 
     /**
-     * Replays have been submitted, but have not yet finished parsing
-     */
-    SUBMITTING = "SUBMITTING",
-
-    /**
-     * Replays are uploaded, scrim players are ratifying the results
-     */
-    RATIFYING = "RATIFYING",
-
-    /**
      * All players have left before scrim popped.
      * Scrim is being removed, this state is used for event broadcast
      */
