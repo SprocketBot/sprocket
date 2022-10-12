@@ -209,7 +209,6 @@ export class ScrimModuleResolver {
         } catch (e) {
             throw new GraphQLError((e as Error).message);
         }
-
     }
 
     @Mutation(() => Boolean)

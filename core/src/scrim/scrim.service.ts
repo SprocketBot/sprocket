@@ -7,10 +7,9 @@ import type {
     CoreInput,
     CoreOutput,
     CreateScrimOptions,
+    JoinScrimOptions,
     Scrim as IScrim,
-    ScrimJoinOptions,
     ScrimMetrics as IScrimMetrics,
-    ScrimPlayer as IScrimPlayer,
 } from "@sprocketbot/common";
 import {
     EventsService,
@@ -99,7 +98,7 @@ export class ScrimService {
         throw result.error;
     }
 
-    async joinScrim(data: ScrimJoinOptions): Promise<boolean> {
+    async joinScrim(data: JoinScrimOptions): Promise<boolean> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.JoinScrim, data);
 
         if (result.status === ResponseStatus.SUCCESS) return result.data;

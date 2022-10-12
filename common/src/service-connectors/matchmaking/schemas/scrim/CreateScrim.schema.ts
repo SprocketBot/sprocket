@@ -12,7 +12,7 @@ export const CreateScrim_Request = z.object({
     gameModeId: z.number(),
     skillGroupId: z.number(),
     settings: ScrimSettingsSchema,
-    join: ScrimJoinOptionsSchema.omit({scrimId: true}).optional(),
+    join: ScrimJoinOptionsSchema.optional(),
 });
 
 export type CreateScrimOptions = z.infer<typeof CreateScrim_Request>;

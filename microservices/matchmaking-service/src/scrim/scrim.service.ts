@@ -2,8 +2,8 @@ import {Injectable, Logger} from "@nestjs/common";
 import {RpcException} from "@nestjs/microservices";
 import type {
     CreateScrimOptions,
+    JoinScrimOptions,
     Scrim,
-    ScrimJoinOptions,
     ScrimPlayer,
 } from "@sprocketbot/common";
 import {
@@ -80,7 +80,7 @@ export class ScrimService {
 
     async joinScrim({
         scrimId, playerId, playerName, leaveAfter, createGroup, joinGroup,
-    }: ScrimJoinOptions): Promise<boolean> {
+    }: JoinScrimOptions): Promise<boolean> {
         const scrim = await this.scrimCrudService.getScrim(scrimId);
 
         if (!scrim) throw new RpcException(MatchmakingError.ScrimNotFound);

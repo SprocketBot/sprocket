@@ -1,7 +1,6 @@
 import {z} from "zod";
 
 export const ScrimJoinOptionsSchema = z.object({
-    scrimId: z.string().uuid(),
     playerId: z.number(),
     playerName: z.string(),
     leaveAfter: z.number().min(0),
