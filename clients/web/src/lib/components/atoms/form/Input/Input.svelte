@@ -104,7 +104,7 @@
             @apply text-success-500;
         }
         .input-container {
-            @apply dark:bg-gray-700 dark:border-success-500 dark:ring-success-500 dark:text-success-500 dark:placeholder-success-500;
+            @apply dark:bg-gray-700 dark:border-success-500 dark:ring-success-500 dark:text-success-500 dark:placeholder-success-700;
         }
     }
 
@@ -113,7 +113,7 @@
             @apply text-danger-500;
         }
         .input-container {
-            @apply dark:bg-gray-700 dark:border-danger-500 dark:ring-danger-500 dark:text-danger-500 dark:placeholder-danger-500;
+            @apply dark:bg-gray-700 dark:border-danger-500 dark:ring-danger-500 dark:text-danger-500 dark:placeholder-danger-700;
         }
         .error {
             @apply text-danger-500;
