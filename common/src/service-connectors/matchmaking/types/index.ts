@@ -1,6 +1,4 @@
-export * from "./MatchDatabaseIds";
 export * from "./Scrim";
-export * from "./ScrimDatabaseIds";
 export * from "./ScrimGame";
 export * from "./ScrimGameMode";
 export * from "./ScrimLobby";
