@@ -6,10 +6,11 @@ import type {
     CoreEndpoint,
     CoreInput,
     CoreOutput,
+    CreateScrimOptions,
     Scrim as IScrim,
+    ScrimJoinOptions,
     ScrimMetrics as IScrimMetrics,
     ScrimPlayer as IScrimPlayer,
-    ScrimSettings as IScrimSettings,
 } from "@sprocketbot/common";
 import {
     EventsService,
@@ -28,7 +29,7 @@ import {FranchiseService} from "../franchise/franchise";
 import {MledbFinalizationService} from "../mledb";
 import {MemberService} from "../organization";
 import {ScrimPubSub} from "./constants";
-import type {Scrim, ScrimGameMode} from "./types";
+import type {Scrim} from "./types";
 
 @Injectable()
 export class ScrimService {
@@ -91,34 +92,23 @@ export class ScrimService {
         throw result.error;
     }
 
-    async createScrim(organizationId: number, player: Omit<IScrimPlayer, "joinedAt">, settings: IScrimSettings, gameMode: ScrimGameMode, skillGroupId: number, createGroup?: boolean): Promise<IScrim> {
-        const result = await this.matchmakingService.send(MatchmakingEndpoint.CreateScrim, {
-            organizationId: organizationId,
-            author: player,
-            settings: settings,
-            gameMode: gameMode,
-            skillGroupId: skillGroupId,
-            createGroup: Boolean(createGroup),
-        });
+    async createScrim(data: CreateScrimOptions): Promise<IScrim> {
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.CreateScrim, data);
 
         if (result.status === ResponseStatus.SUCCESS) return result.data;
         throw result.error;
     }
 
-    async joinScrim(player: Omit<IScrimPlayer, "joinedAt">, scrimId: string, group: string | boolean | undefined): Promise<boolean> {
-        const result = await this.matchmakingService.send(MatchmakingEndpoint.JoinScrim, {
-            player,
-            scrimId,
-            group,
-        });
+    async joinScrim(data: ScrimJoinOptions): Promise<boolean> {
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.JoinScrim, data);
 
         if (result.status === ResponseStatus.SUCCESS) return result.data;
         throw result.error;
     }
 
-    async leaveScrim(player: Omit<IScrimPlayer, "joinedAt" | "leaveAfter">, scrimId: string): Promise<boolean> {
+    async leaveScrim(playerId: number, scrimId: string): Promise<boolean> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.LeaveScrim, {
-            playerId: player.id,
+            playerId: playerId,
             scrimId: scrimId,
         });
 

@@ -1,7 +1,10 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {RpcException} from "@nestjs/microservices";
 import type {
-    Scrim, ScrimGameMode, ScrimPlayer, ScrimSettings,
+    CreateScrimOptions,
+    Scrim,
+    ScrimJoinOptions,
+    ScrimPlayer,
 } from "@sprocketbot/common";
 import {
     AnalyticsEndpoint,
@@ -10,6 +13,7 @@ import {
     MatchmakingError,
     ScrimStatus,
 } from "@sprocketbot/common";
+import {add} from "date-fns";
 
 import {EventProxyService} from "./event-proxy/event-proxy.service";
 import {ScrimCrudService} from "./scrim-crud/scrim-crud.service";
@@ -28,49 +32,71 @@ export class ScrimService {
         private readonly analyticsService: AnalyticsService,
     ) {}
 
-    async createScrim(organizationId: number, author: Omit<ScrimPlayer, "joinedAt">, settings: ScrimSettings, gameMode: ScrimGameMode, skillGroupId: number, createGroup: boolean): Promise<Scrim> {
-        if (await this.scrimCrudService.playerInAnyScrim(author.id)) throw new RpcException(MatchmakingError.PlayerAlreadyInScrim);
-        if (!this.scrimGroupService.modeAllowsGroups(settings.mode) && createGroup) throw new RpcException(MatchmakingError.ScrimGroupNotSupportedInMode);
+    async createScrim({
+        authorId,
+        organizationId,
+        gameModeId,
+        skillGroupId,
+        settings,
+        join,
+    }: CreateScrimOptions): Promise<Scrim> {
+        if (join && await this.scrimCrudService.playerInAnyScrim(join.playerId)) throw new RpcException(MatchmakingError.PlayerAlreadyInScrim);
+        if (join?.createGroup && !this.scrimGroupService.modeAllowsGroups(settings.mode)) throw new RpcException(MatchmakingError.ScrimGroupNotSupportedInMode);
+        
+        let player: ScrimPlayer | undefined;
+        if (join) player = {
+            id: join.playerId,
+            name: join.playerName,
+            joinedAt: new Date(),
+            leaveAt: add(new Date(), {seconds: join.leaveAfter}),
+        };
 
-        const scAuthor = {...author, joinedAt: new Date()};
         const scrim = await this.scrimCrudService.createScrim({
-            organizationId: organizationId,
-            settings: settings,
-            author: scAuthor,
-            gameMode: gameMode,
-            skillGroupId: skillGroupId,
+            authorId,
+            organizationId,
+            gameModeId,
+            skillGroupId,
+            settings,
+            player,
         });
 
-        if (createGroup) {
+        if (player && join?.createGroup) {
             const group = this.scrimGroupService.resolveGroupKey(scrim, true);
             scrim.players[0].group = group;
-            await this.scrimCrudService.updatePlayer(scrim.id, {...scAuthor, group});
+
+            await this.scrimCrudService.updatePlayer(scrim.id, Object.assign(player, {group}));
         }
 
         await this.eventsService.publish(EventTopic.ScrimCreated, scrim, scrim.id);
 
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
             name: "scrimCreated",
-            tags: [ ["playerId", `${author.id}`] ],
+            tags: [ ["playerId", `${authorId}`] ],
             strings: [ ["scrimId", scrim.id] ],
         }).catch(err => { this.logger.error(err) });
 
         return scrim;
     }
 
-    async joinScrim(scrimId: string, player: Omit<ScrimPlayer, "joinedAt">, groupKey: boolean | string | undefined): Promise<boolean> {
+    async joinScrim({
+        scrimId, playerId, playerName, leaveAfter, createGroup, joinGroup,
+    }: ScrimJoinOptions): Promise<boolean> {
         const scrim = await this.scrimCrudService.getScrim(scrimId);
 
         if (!scrim) throw new RpcException(MatchmakingError.ScrimNotFound);
         if (scrim.status !== ScrimStatus.PENDING) throw new RpcException(MatchmakingError.ScrimAlreadyInProgress);
-        if (await this.scrimCrudService.playerInAnyScrim(player.id)) throw new RpcException(MatchmakingError.PlayerAlreadyInScrim);
+        if (await this.scrimCrudService.playerInAnyScrim(playerId)) throw new RpcException(MatchmakingError.PlayerAlreadyInScrim);
 
-        // eslint-disable-next-line require-atomic-updates
-        player.group = this.scrimGroupService.resolveGroupKey(scrim, groupKey ?? false);
+        const player: ScrimPlayer = {
+            id: playerId,
+            name: playerName,
+            joinedAt: new Date(),
+            leaveAt: add(new Date(), {seconds: leaveAfter}),
+            group: this.scrimGroupService.resolveGroupKey(scrim, joinGroup ?? createGroup ?? false),
+        };
 
-        const scPlayer = {...player, joinedAt: new Date()};
-        await this.scrimCrudService.addPlayerToScrim(scrimId, scPlayer);
-        scrim.players.push(scPlayer);
+        await this.scrimCrudService.addPlayerToScrim(scrimId, player);
+        scrim.players.push(player);
 
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
             name: "scrimJoined",
@@ -104,8 +130,8 @@ export class ScrimService {
         }
 
         await this.scrimCrudService.removePlayerFromScrim(scrimId, playerId);
+        // Flush Changes
         await this.publishScrimUpdate(scrimId);
-        // refetch it
 
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
             name: "scrimLeft",
@@ -135,6 +161,7 @@ export class ScrimService {
             await this.scrimLogicService.startScrim(output);
             return true;
         }
+
         return true;
     }
 
@@ -176,11 +203,6 @@ export class ScrimService {
         }).catch(err => { this.logger.error(err) });
 
         return scrim;
-    }
-
-    async forceUpdateScrimStatus(scrimId: string, status: ScrimStatus): Promise<void> {
-        await this.scrimCrudService.updateScrimStatus(scrimId, status);
-        await this.publishScrimUpdate(scrimId);
     }
 
     async setScrimLocked(scrimId: string, locked: boolean): Promise<boolean> {

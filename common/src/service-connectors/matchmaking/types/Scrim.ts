@@ -1,85 +1,34 @@
 import {z} from "zod";
 
+import {DateSchema} from "../../../types";
 import {ScrimGameSchema} from "./ScrimGame";
-import {ScrimGameModeSchema} from "./ScrimGameMode";
+import {ScrimLobbySchema} from "./ScrimLobby";
 import {ScrimPlayerSchema} from "./ScrimPlayer";
 import {ScrimSettingsSchema} from "./ScrimSettings";
-
-export enum ScrimStatus {
-    // Active scrim states
-
-    /**
-     * Scrim is waiting for players
-     */
-    PENDING = "PENDING",
-
-    /**
-     * Scrim has filled, and players are checking in
-     */
-    POPPED = "POPPED",
-
-    /**
-     * Players are playing
-     */
-    IN_PROGRESS = "IN_PROGRESS",
-
-    /**
-     * All players have left before scrim popped.
-     * Scrim is being removed, this state is used for event broadcast
-     */
-    EMPTY = "EMPTY",
-
-    /**
-     * Replays are submitted, this scrim is being removed
-     * This state is used for event broadcast
-     */
-    COMPLETE = "COMPLETE",
-
-    /**
-     * One or more players have not checked into the queue
-     * Players will be queue banned and scrim will be removed
-     */
-    CANCELLED = "CANCELLED",
-
-    /**
-     * A locked scrim has manually been moved to this state by a support member,
-     * and needs to be handled by a support team member
-     */
-    LOCKED = "LOCKED",
-}
+import {ScrimStatus} from "./ScrimStatus.enum";
 
 export const ScrimSchema = z.object({
     id: z.string().uuid(),
-    createdAt: z.preprocess(arg => {
-        if (typeof arg === "string") {
-            return new Date(arg);
-        }
-        return arg;
-    }, z.date()),
-    updatedAt: z.preprocess(arg => {
-        if (typeof arg === "string") {
-            return new Date(arg);
-        }
-        return arg;
-    }, z.date()),
+    createdAt: DateSchema,
+    updatedAt: DateSchema,
 
     status: z.nativeEnum(ScrimStatus),
     unlockedStatus: z.nativeEnum(ScrimStatus).optional(),
 
+    authorId: z.number(),
     organizationId: z.number(),
-    players: z.array(ScrimPlayerSchema),
-    gameMode: ScrimGameModeSchema,
+    gameModeId: z.number(),
     skillGroupId: z.number(),
+    submissionId: z.string().optional(),
+    timeoutJobId: z.number().optional(),
 
-    settings: ScrimSettingsSchema,
-
+    players: z.array(ScrimPlayerSchema),
     games: z.array(ScrimGameSchema)
         .default([])
         .optional(),
 
-    submissionId: z.string().optional(),
-
-    timeoutJobId: z.number().optional(),
+    lobby: ScrimLobbySchema.optional(),
+    settings: ScrimSettingsSchema,
 });
 
 export type Scrim = z.infer<typeof ScrimSchema>;

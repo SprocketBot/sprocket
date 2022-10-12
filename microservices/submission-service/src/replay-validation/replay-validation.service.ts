@@ -44,10 +44,9 @@ export class ReplayValidationService {
 
     private async validateScrimSubmission(submission: ScrimReplaySubmission): Promise<ValidationResult> {
         const scrimResponse = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, submission.scrimId);
-        if (scrimResponse.status === ResponseStatus.ERROR) {
-            throw scrimResponse.error;
-        }
-
+        if (scrimResponse.status === ResponseStatus.ERROR) throw scrimResponse.error;
+        if (!scrimResponse.data) throw new Error("Scrim not found");
+        
         const scrim = scrimResponse.data;
 
         // ========================================

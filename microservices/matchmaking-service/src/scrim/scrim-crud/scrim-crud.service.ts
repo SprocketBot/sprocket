@@ -1,5 +1,6 @@
 import {Injectable, Logger} from "@nestjs/common";
 import type {
+    CreateScrimOptions,
     Scrim, ScrimGame, ScrimPlayer,
 } from "@sprocketbot/common";
 import {
@@ -8,7 +9,6 @@ import {
 import type {JobId} from "bull";
 import {v4} from "uuid";
 
-import type {CreateScrimOpts} from "./types";
 import {words} from "./words";
 
 @Injectable()
@@ -21,26 +21,31 @@ export class ScrimCrudService {
     }
 
     async createScrim({
-        organizationId, settings, author, gameMode, skillGroupId,
-    }: CreateScrimOpts): Promise<Scrim> {
+        authorId,
+        organizationId,
+        gameModeId,
+        skillGroupId,
+        settings,
+        player,
+    }: Omit<CreateScrimOptions, "join"> & {
+        player?: ScrimPlayer;
+    }): Promise<Scrim> {
         const at = new Date();
         const scrim: Scrim = {
             id: v4(),
             createdAt: at,
             updatedAt: at,
-            organizationId: organizationId,
-            players: [],
-            settings: settings,
             status: ScrimStatus.PENDING,
-            gameMode: gameMode,
+            authorId: authorId,
+            organizationId: organizationId,
+            gameModeId: gameModeId,
             skillGroupId: skillGroupId,
+            players: [],
             games: [],
+            settings: settings,
         };
 
-        if (author) scrim.players.push({
-            ...author,
-            joinedAt: new Date(),
-        });
+        if (player) scrim.players.push(player);
 
         await this.redisService.setJson(
             `${this.prefix}${scrim.id}`,
@@ -143,7 +148,7 @@ export class ScrimCrudService {
     }
 
     async generateLobby(scrimId: string): Promise<void> {
-        await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.settings.lobby", {
+        await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.lobby", {
             name: this.randomWord(),
             password: this.randomWord(),
         });
@@ -155,14 +160,7 @@ export class ScrimCrudService {
         await this.updateScrimUpdatedAt(scrimId);
     }
 
-    async getValidated(scrimId: string): Promise<boolean> {
-        // Not implemented yet, so just throwing this here to get rid of a warning until it's added.
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const submissionId = await this.redisService.getJson(`${this.prefix}${scrimId}`, "$.submissionId");
-        return this.redisService.getJson(`${this.prefix}`);
-    }
-
-    randomWord(): string {
+    private randomWord(): string {
         return words[Math.floor(Math.random() * words.length)];
     }
 }

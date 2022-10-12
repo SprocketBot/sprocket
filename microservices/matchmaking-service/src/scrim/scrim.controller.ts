@@ -17,13 +17,12 @@ export class ScrimController {
         private readonly scrimCrudService: ScrimCrudService,
         private readonly scrimService: ScrimService,
         private readonly scrimMetricsService: ScrimMetricsService,
-    ) {
-    }
+    ) {}
 
     @MessagePattern(MatchmakingEndpoint.CreateScrim)
     async createScrim(@Payload() payload: unknown): Promise<Scrim> {
         const data = MatchmakingSchemas.CreateScrim.input.parse(payload);
-        return this.scrimService.createScrim(data.organizationId, data.author, data.settings, data.gameMode, data.skillGroupId, data.createGroup);
+        return this.scrimService.createScrim(data);
     }
 
     @MessagePattern(MatchmakingEndpoint.GetAllScrims)
@@ -44,7 +43,7 @@ export class ScrimController {
     @MessagePattern(MatchmakingEndpoint.JoinScrim)
     async joinScrim(@Payload() payload: unknown): Promise<boolean> {
         const data = MatchmakingSchemas.JoinScrim.input.parse(payload);
-        return this.scrimService.joinScrim(data.scrimId, data.player, data.group);
+        return this.scrimService.joinScrim(data);
     }
 
     @MessagePattern(MatchmakingEndpoint.LeaveScrim)
@@ -89,13 +88,6 @@ export class ScrimController {
     async completeScrim(@Payload() payload: unknown): Promise<Scrim | null> {
         const data = MatchmakingSchemas.CompleteScrim.input.parse(payload);
         return this.scrimService.completeScrim(data.scrimId, data.playerId);
-    }
-
-    @MessagePattern(MatchmakingEndpoint.ForceUpdateScrimStatus)
-    async forceUpdateStatus(@Payload() payload: unknown): Promise<boolean | null> {
-        const data = MatchmakingSchemas.ForceUpdateScrimStatus.input.parse(payload);
-        await this.scrimService.forceUpdateScrimStatus(data.scrimId, data.status);
-        return true;
     }
 
     @MessagePattern(MatchmakingEndpoint.SetScrimLocked)

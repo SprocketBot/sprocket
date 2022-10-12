@@ -6,6 +6,9 @@ import {ScrimSettingsInput} from "./ScrimSettings";
 
 @InputType()
 export class CreateScrimInput {
+    @Field(() => Int)
+    gameModeId: number;
+
     @Field()
     settings: ScrimSettingsInput;
 

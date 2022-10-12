@@ -6,8 +6,9 @@ import {
     EventTopic, ScrimStatus,
 } from "@sprocketbot/common";
 
-import {GameSkillGroup} from "../../database";
+import {GameMode, GameSkillGroup} from "../../database";
 import {ScrimGame} from "./ScrimGame";
+import {ScrimLobby} from "./ScrimLobby";
 import {ScrimPlayer} from "./ScrimPlayer";
 import {ScrimSettings} from "./ScrimSettings";
 
@@ -30,7 +31,7 @@ export class ScrimGroup {
 }
 
 @ObjectType()
-export class Scrim implements Omit<IScrim, "id" | "status" | "players"> {
+export class Scrim implements IScrim {
     @Field(() => String)
     id: string;
 
@@ -40,39 +41,52 @@ export class Scrim implements Omit<IScrim, "id" | "status" | "players"> {
     @Field(() => Date)
     updatedAt: Date;
 
-    @Field(() => ScrimGroup, {nullable: true})
-    currentGroup?: ScrimGroup;
-
     @Field(() => ScrimStatus)
     status: ScrimStatus;
 
     @Field(() => Int)
+    authorId: number;
+    
+    @Field(() => Int)
     organizationId: number;
 
+    @Field(() => Int)
+    gameModeId: number;
+
+    @Field(() => GameMode)
+    gameMode: GameMode;
+
+    @Field(() => Int)
+    skillGroupId: number;
+
+    @Field(() => GameSkillGroup)
+    skillGroup: GameSkillGroup;
+
+    @Field(() => String, {nullable: true})
+    submissionId?: string;
+
     @Field(() => [ScrimPlayer], {nullable: true})
-    players?: ScrimPlayer[];
+    players: ScrimPlayer[];
+
+    @Field(() => [ScrimGame], {nullable: true})
+    games?: ScrimGame[];
+
+    @Field(() => ScrimLobby, {nullable: true})
+    lobby?: ScrimLobby;
+
+    @Field(() => ScrimSettings)
+    settings: ScrimSettings;
+
+    // Helpers
+
+    @Field(() => ScrimGroup, {nullable: true})
+    currentGroup?: ScrimGroup;
 
     @Field(() => Int)
     playerCount: number;
 
     @Field(() => Int)
     maxPlayers: number;
-
-    @Field(() => ScrimSettings)
-    settings: ScrimSettings;
-
-    @Field(() => [ScrimGame], {nullable: true})
-    games?: ScrimGame[];
-
-    @Field(() => String, {nullable: true})
-    submissionId?: string;
-
-    @Field(() => GameSkillGroup)
-    skillGroup: GameSkillGroup;
-
-    skillGroupId: number;
-
-    gameMode: ScrimGameMode;
 }
 
 @ObjectType()

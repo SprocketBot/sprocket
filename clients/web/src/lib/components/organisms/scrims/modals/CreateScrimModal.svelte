@@ -19,11 +19,11 @@
         try {
             await createScrimMutation({
                 settings: {
-                    gameModeId: mode.id,
                     mode: scrimType,
                     competitive: competitive,
                     observable: false,
                 },
+                gameModeId: mode.id,
                 createGroup: createGroup,
                 leaveAfter: leaveAfter,
             });

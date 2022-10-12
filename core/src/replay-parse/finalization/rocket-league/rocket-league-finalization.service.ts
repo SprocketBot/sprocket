@@ -50,7 +50,7 @@ export class RocketLeagueFinalizationService {
         await qr.startTransaction();
         const em = qr.manager;
         try {
-            const gameMode = await em.findOneByOrFail(GameMode, {id: scrim.gameMode.id});
+            const gameMode = await em.findOneByOrFail(GameMode, {id: scrim.gameModeId});
 
             const scrimMeta = em.create(ScrimMeta);
             const matchParent = em.create(MatchParent);

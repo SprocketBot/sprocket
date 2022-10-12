@@ -14,12 +14,12 @@ export class ScrimPlayer implements IScrimPlayer {
     @Field(() => Date)
     joinedAt: Date;
 
-    @Field(() => Int)
-    leaveAfter: number;
-
-    @Field(() => Boolean, {nullable: true})
-    checkedIn?: boolean;
+    @Field(() => Date)
+    leaveAt: Date;
 
     @Field(() => String, {nullable: true})
     group?: string;
+
+    @Field(() => Boolean, {nullable: true})
+    checkedIn?: boolean;
 }

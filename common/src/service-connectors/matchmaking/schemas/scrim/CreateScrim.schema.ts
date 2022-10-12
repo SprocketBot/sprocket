@@ -1,18 +1,20 @@
 import {z} from "zod";
 
 import {
-    ScrimGameModeSchema,
-    ScrimPlayerSchema, ScrimSchema, ScrimSettingsSchema,
+    ScrimJoinOptionsSchema,
+    ScrimSchema,
+    ScrimSettingsSchema,
 } from "../../types";
 
 export const CreateScrim_Request = z.object({
-    settings: ScrimSettingsSchema,
-    author: ScrimPlayerSchema.omit({joinedAt: true}),
+    authorId: z.number(),
     organizationId: z.number(),
-    gameMode: ScrimGameModeSchema,
+    gameModeId: z.number(),
     skillGroupId: z.number(),
-    createGroup: z.boolean().optional()
-        .default(false),
+    settings: ScrimSettingsSchema,
+    join: ScrimJoinOptionsSchema.omit({scrimId: true}).optional(),
 });
+
+export type CreateScrimOptions = z.infer<typeof CreateScrim_Request>;
 
 export const CreateScrim_Response = ScrimSchema;
