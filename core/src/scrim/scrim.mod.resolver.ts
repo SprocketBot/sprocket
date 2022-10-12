@@ -215,12 +215,7 @@ export class ScrimModuleResolver {
         const scrim = await this.scrimService.getScrimByPlayer(user.userId);
         if (!scrim) throw new GraphQLError("You must be in a scrim to leave");
 
-        return this.scrimService.leaveScrim(
-            Object.assign(this.userToScrimPlayer(user), {
-                joinedAt: new Date(),
-            }),
-            scrim.id,
-        );
+        return this.scrimService.leaveScrim(this.userToScrimPlayer(user), scrim.id);
     }
 
     @Mutation(() => Boolean)
