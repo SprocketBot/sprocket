@@ -8,7 +8,7 @@
     let game: GamesAndModesValue["games"][0];
     let mode: GamesAndModesValue["games"][0]["modes"][0];
     let scrimType: "TEAMS" | "ROUND_ROBIN";
-    let leaveAfter: number | undefined = 1800;
+    let leaveAfter: number = 1800;
     let competitive: boolean = true;
     let createGroup: boolean = false;
 
@@ -85,7 +85,6 @@
                 <option value={3600}>1 Hour</option>
                 <option value={10800}>3 Hours</option>
                 <option value={21600}>6 Hours</option>
-                <option value={undefined}>Never</option>
             </select>
         </div>
 

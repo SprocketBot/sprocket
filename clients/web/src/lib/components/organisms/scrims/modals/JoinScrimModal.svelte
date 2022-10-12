@@ -11,7 +11,7 @@
     let groupCode: string;
     let joiningWithExistingGroup: boolean = false;
     let joining: boolean = false;
-    let leaveAfter: number | undefined = 1800;
+    let leaveAfter: number = 1800;
 
     $: {
         if (!$pendingScrims.data?.pendingScrims.some(ps => ps.id === scrim.id)) {
@@ -69,7 +69,6 @@
                 <option value={3600}>1 Hour</option>
                 <option value={10800}>3 Hours</option>
                 <option value={21600}>6 Hours</option>
-                <option value={undefined}>Never</option>
             </select>
         </div>
         <hr/>

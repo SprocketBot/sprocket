@@ -175,9 +175,9 @@ export class ScrimModuleResolver {
         @CurrentUser() user: UserPayload,
         @CurrentPlayer() player: Player,
         @Args("scrimId") scrimId: string,
+        @Args("leaveAfter", {type: () => Int}) leaveAfter: number,
         @Args("group", {nullable: true}) groupKey?: string,
         @Args("createGroup", {nullable: true}) createGroup?: boolean,
-        @Args("leaveAfter", {type: () => Int, nullable: true}) leaveAfter?: number,
     ): Promise<boolean> {
         const mlePlayer = await this.mlePlayerService.getMlePlayerBySprocketUser(player.member.userId);
         if (mlePlayer.teamName === "FP") throw new GraphQLError("User is a former player");

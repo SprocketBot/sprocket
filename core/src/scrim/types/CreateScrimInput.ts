@@ -12,6 +12,6 @@ export class CreateScrimInput {
     @Field({nullable: true})
     createGroup: boolean;
 
-    @Field(() => Int, {nullable: true})
-    leaveAfter?: number;
+    @Field(() => Int)
+    leaveAfter: number;
 }

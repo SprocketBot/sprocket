@@ -9,7 +9,7 @@ export const ScrimPlayerSchema = z.object({
         }
         return arg;
     }, z.date()),
-    leaveAfter: z.number().optional(),
+    leaveAfter: z.number(),
     checkedIn: z.boolean().default(false)
         .optional(),
     group: z.string().optional(),

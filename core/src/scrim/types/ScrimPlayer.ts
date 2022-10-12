@@ -15,7 +15,7 @@ export class ScrimPlayer implements IScrimPlayer {
     joinedAt: Date;
 
     @Field(() => Int)
-    leaveAfter?: number;
+    leaveAfter: number;
 
     @Field(() => Boolean, {nullable: true})
     checkedIn?: boolean;

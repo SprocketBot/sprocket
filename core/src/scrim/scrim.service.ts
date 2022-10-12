@@ -116,7 +116,7 @@ export class ScrimService {
         throw result.error;
     }
 
-    async leaveScrim(player: Omit<IScrimPlayer, "joinedAt">, scrimId: string): Promise<boolean> {
+    async leaveScrim(player: Omit<IScrimPlayer, "joinedAt" | "leaveAfter">, scrimId: string): Promise<boolean> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.LeaveScrim, {
             playerId: player.id,
             scrimId: scrimId,
