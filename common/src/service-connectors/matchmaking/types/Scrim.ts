@@ -60,6 +60,19 @@ export enum ScrimStatus {
 
 export const ScrimSchema = z.object({
     id: z.string().uuid(),
+    createdAt: z.preprocess(arg => {
+        if (typeof arg === "string") {
+            return new Date(arg);
+        }
+        return arg;
+    }, z.date()),
+    updatedAt: z.preprocess(arg => {
+        if (typeof arg === "string") {
+            return new Date(arg);
+        }
+        return arg;
+    }, z.date()),
+
     status: z.nativeEnum(ScrimStatus),
     unlockedStatus: z.nativeEnum(ScrimStatus).optional(),
 

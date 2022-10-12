@@ -3,7 +3,7 @@ import type {
     Scrim, ScrimGame, ScrimPlayer,
 } from "@sprocketbot/common";
 import {
-    config, RedisService, ScrimStatus,
+    config, RedisService, ScrimSchema, ScrimStatus,
 } from "@sprocketbot/common";
 import type {JobId} from "bull";
 import {v4} from "uuid";
@@ -23,8 +23,11 @@ export class ScrimCrudService {
     async createScrim({
         organizationId, settings, author, gameMode, skillGroupId,
     }: CreateScrimOpts): Promise<Scrim> {
+        const at = new Date();
         const scrim: Scrim = {
             id: v4(),
+            createdAt: at,
+            updatedAt: at,
             organizationId: organizationId,
             players: [],
             settings: settings,
@@ -33,9 +36,11 @@ export class ScrimCrudService {
             skillGroupId: skillGroupId,
             games: [],
         };
-        if (author) {
-            scrim.players.push(author);
-        }
+
+        if (author) scrim.players.push({
+            ...author,
+            joinedAt: new Date(),
+        });
 
         await this.redisService.setJson(
             `${this.prefix}${scrim.id}`,
@@ -50,12 +55,12 @@ export class ScrimCrudService {
     }
 
     async getScrim(id: string): Promise<Scrim | null> {
-        return this.redisService.getJson<Scrim>(`${this.prefix}${id}`);
+        return this.redisService.getJson<Scrim>(`${this.prefix}${id}`, undefined, ScrimSchema);
     }
 
     async getAllScrims(skillGroupId?: number): Promise<Scrim[]> {
         const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
-        const scrims = await Promise.all(scrimKeys.map<Promise<Scrim>>(async key => this.redisService.getJson<Scrim>(key)));
+        const scrims = await Promise.all(scrimKeys.map<Promise<Scrim>>(async key => this.redisService.getJson<Scrim>(key, undefined, ScrimSchema)));
 
         return skillGroupId ? scrims.filter(s => s.skillGroupId === skillGroupId || !s.settings.competitive) : scrims;
     }
@@ -86,13 +91,15 @@ export class ScrimCrudService {
 
     async addPlayerToScrim(scrimId: string, player: ScrimPlayer): Promise<void> {
         await this.redisService.appendToJsonArray<ScrimPlayer>(`${this.prefix}${scrimId}`, "players", player);
+        await this.updateScrimUpdatedAt(scrimId);
     }
 
-    async removePlayerFromScrim(scrimId: string, player: ScrimPlayer): Promise<void> {
+    async removePlayerFromScrim(scrimId: string, playerId: number): Promise<void> {
         let [players] = await this.redisService.getJson<ScrimPlayer[][]>(`${this.prefix}${scrimId}`, "$.players");
-        players = players.filter(p => p.id !== player.id);
+        players = players.filter(p => p.id !== playerId);
         await this.redisService.deleteJsonField(`${this.prefix}${scrimId}`, "$.players");
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.players", players);
+        await this.updateScrimUpdatedAt(scrimId);
     }
 
     async updatePlayer(scrimId: string, player: ScrimPlayer): Promise<void> {
@@ -102,6 +109,7 @@ export class ScrimCrudService {
         players[pi] = player;
         await this.redisService.deleteJsonField(`${this.prefix}${scrimId}`, "$.players");
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.players", players);
+        await this.updateScrimUpdatedAt(scrimId);
     }
 
     async playerInAnyScrim(playerId: number): Promise<boolean> {
@@ -110,20 +118,28 @@ export class ScrimCrudService {
         return allScrimPlayers.flat().includes(playerId);
     }
 
+    async updateScrimUpdatedAt(scrimId: string): Promise<void> {
+        await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.updatedAt", new Date());
+    }
+
     async updateScrimStatus(scrimId: string, status: ScrimStatus): Promise<void> {
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.status", status);
+        await this.updateScrimUpdatedAt(scrimId);
     }
 
     async updateScrimUnlockedStatus(scrimId: string, status: ScrimStatus): Promise<void> {
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.unlockedStatus", status);
+        await this.updateScrimUpdatedAt(scrimId);
     }
 
     async setSubmissionId(scrimId: string, submissionId: string): Promise<void> {
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.submissionId", submissionId);
+        await this.updateScrimUpdatedAt(scrimId);
     }
 
     async setTimeoutJobId(scrimId: string, jobId: JobId): Promise<void> {
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.jobId", jobId);
+        await this.updateScrimUpdatedAt(scrimId);
     }
 
     async generateLobby(scrimId: string): Promise<void> {
@@ -131,10 +147,12 @@ export class ScrimCrudService {
             name: this.randomWord(),
             password: this.randomWord(),
         });
+        await this.updateScrimUpdatedAt(scrimId);
     }
 
     async setScrimGames(scrimId: string, games: ScrimGame[]): Promise<void> {
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.games", games);
+        await this.updateScrimUpdatedAt(scrimId);
     }
 
     async getValidated(scrimId: string): Promise<boolean> {

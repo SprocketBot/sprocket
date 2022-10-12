@@ -91,7 +91,7 @@ export class ScrimService {
         throw result.error;
     }
 
-    async createScrim(organizationId: number, player: IScrimPlayer, settings: IScrimSettings, gameMode: ScrimGameMode, skillGroupId: number, createGroup?: boolean): Promise<IScrim> {
+    async createScrim(organizationId: number, player: Omit<IScrimPlayer, "joinedAt">, settings: IScrimSettings, gameMode: ScrimGameMode, skillGroupId: number, createGroup?: boolean): Promise<IScrim> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.CreateScrim, {
             organizationId: organizationId,
             author: player,
@@ -105,7 +105,7 @@ export class ScrimService {
         throw result.error;
     }
 
-    async joinScrim(player: IScrimPlayer, scrimId: string, group: string | boolean | undefined): Promise<boolean> {
+    async joinScrim(player: Omit<IScrimPlayer, "joinedAt">, scrimId: string, group: string | boolean | undefined): Promise<boolean> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.JoinScrim, {
             player,
             scrimId,
@@ -118,19 +118,16 @@ export class ScrimService {
 
     async leaveScrim(player: IScrimPlayer, scrimId: string): Promise<boolean> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.LeaveScrim, {
-            player,
-            scrimId,
+            playerId: player.id,
+            scrimId: scrimId,
         });
 
         if (result.status === ResponseStatus.SUCCESS) return result.data;
         throw result.error;
     }
 
-    async checkIn(player: IScrimPlayer, scrimId: string): Promise<boolean> {
-        const result = await this.matchmakingService.send(MatchmakingEndpoint.CheckInToScrim, {
-            player,
-            scrimId,
-        });
+    async checkIn(playerId: number, scrimId: string): Promise<boolean> {
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.CheckInToScrim, {playerId, scrimId});
 
         if (result.status === ResponseStatus.SUCCESS) return result.data;
         throw result.error;

@@ -6,6 +6,7 @@ import {
 
 import {EventProxyService} from "./event-proxy/event-proxy.service";
 import {GameOrderService} from "./game-order/game-order.service";
+import {MATCHMAKING_QUEUE, ScrimConsumer} from "./scrim.consumer";
 import {ScrimController} from "./scrim.controller";
 import {ScrimEventSubscriber} from "./scrim.event-subscriber";
 import {ScrimService} from "./scrim.service";
@@ -35,9 +36,11 @@ import {ScrimMetricsService} from "./scrim-metrics/scrim-metrics.service";
             },
         }),
         BullModule.registerQueue({name: "scrim"}),
+        BullModule.registerQueue({name: MATCHMAKING_QUEUE}),
     ],
     controllers: [ScrimController],
     providers: [
+        ScrimConsumer,
         ScrimCrudService,
         ScrimService,
         ScrimLogicService,

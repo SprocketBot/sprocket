@@ -1,6 +1,7 @@
 import {Injectable, Logger} from "@nestjs/common";
 import type {Redis, RedisOptions} from "ioredis";
 import IORedis from "ioredis";
+import type {ZodSchema} from "zod";
 
 import {config} from "../util/config";
 
@@ -46,12 +47,16 @@ export class RedisService {
         await this.redis.send_command("json.set", key, path, JSON.stringify(input));
     }
 
-    async getJson<T>(key: string, path?: string): Promise<T> {
+    async getJson<T, S extends ZodSchema = ZodSchema>(key: string, path?: string, schema?: S): Promise<T> {
         const args: string[] = [key];
         if (path) {
             args.push(path);
         }
-        return JSON.parse(await this.redis.send_command("json.get", ...args) as string) as T;
+
+        const data = JSON.parse(await this.redis.send_command("json.get", ...args) as string) as unknown;
+
+        return (schema ? schema.parse(data) : data) as T;
+        
     }
 
     async getJsonIfExists<T>(key: string): Promise<T | undefined> {

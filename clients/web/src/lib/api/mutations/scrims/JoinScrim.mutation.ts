@@ -8,14 +8,16 @@ interface JoinScrimVars {
     scrimId: string;
     createGroup?: boolean;
     group?: string;
+    leaveAfter?: number;
 }
 const mutationString = gql`
 mutation (
     $scrimId: String!,
     $createGroup: Boolean
     $group: String
+    $leaveAfter: Int
 ) {
-    joinScrim(scrimId: $scrimId, group: $group, createGroup: $createGroup)
+    joinScrim(scrimId: $scrimId, group: $group, createGroup: $createGroup, leaveAfter: $leaveAfter)
 }`;
 
 export const joinScrimMutation = async (vars: JoinScrimVars): Promise<JoinScrimResponse> => {

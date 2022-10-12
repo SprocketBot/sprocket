@@ -34,6 +34,12 @@ export class Scrim implements Omit<IScrim, "id" | "status" | "players"> {
     @Field(() => String)
     id: string;
 
+    @Field(() => Date)
+    createdAt: Date;
+
+    @Field(() => Date)
+    updatedAt: Date;
+
     @Field(() => ScrimGroup, {nullable: true})
     currentGroup?: ScrimGroup;
 

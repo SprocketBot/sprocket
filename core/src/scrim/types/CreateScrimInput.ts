@@ -1,5 +1,5 @@
 import {
-    Field, InputType,
+    Field, InputType, Int,
 } from "@nestjs/graphql";
 
 import {ScrimSettingsInput} from "./ScrimSettings";
@@ -11,4 +11,7 @@ export class CreateScrimInput {
 
     @Field({nullable: true})
     createGroup: boolean;
+
+    @Field(() => Int, {nullable: true})
+    leaveAfter?: number;
 }

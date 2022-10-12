@@ -2,10 +2,9 @@ import {
     Inject, Logger, UseGuards,
 } from "@nestjs/common";
 import {
-    Args, Mutation, Query, Resolver, Subscription,
+    Args, Int, Mutation, Query, Resolver, Subscription,
 } from "@nestjs/graphql";
 import type {
-    ScrimPlayer as IScrimPlayer,
     ScrimSettings as IScrimSettings,
 } from "@sprocketbot/common";
 import {
@@ -41,9 +40,8 @@ import {ScrimMetrics} from "./types/ScrimMetrics";
 @Resolver()
 export class ScrimModuleResolverPublic {
     constructor(
-        private readonly scrimService: ScrimService,
         @Inject(ScrimPubSub) private readonly pubSub: PubSub,
-        private readonly gameModeService: GameModeService,
+        private readonly scrimService: ScrimService,
     ) {}
 
     @Query(() => ScrimMetrics)
@@ -158,7 +156,9 @@ export class ScrimModuleResolver {
 
         return this.scrimService.createScrim(
             user.currentOrganizationId,
-            this.userToScrimPlayer(user),
+            Object.assign(this.userToScrimPlayer(user), {
+                leaveAfter: data.leaveAfter,
+            }),
             settings,
             {
                 id: gameMode.id,
@@ -177,6 +177,7 @@ export class ScrimModuleResolver {
         @Args("scrimId") scrimId: string,
         @Args("group", {nullable: true}) groupKey?: string,
         @Args("createGroup", {nullable: true}) createGroup?: boolean,
+        @Args("leaveAfter", {type: () => Int, nullable: true}) leaveAfter?: number,
     ): Promise<boolean> {
         const mlePlayer = await this.mlePlayerService.getMlePlayerBySprocketUser(player.member.userId);
         if (mlePlayer.teamName === "FP") throw new GraphQLError("User is a former player");
@@ -196,7 +197,13 @@ export class ScrimModuleResolver {
         if (scrim.settings.competitive && player.skillGroupId !== scrim.skillGroupId) throw new GraphQLError("Player is not in the correct skill group");
 
         try {
-            return await this.scrimService.joinScrim(this.userToScrimPlayer(user), scrimId, group);
+            return await this.scrimService.joinScrim(
+                Object.assign(this.userToScrimPlayer(user), {
+                    leaveAfter: leaveAfter,
+                }),
+                scrimId,
+                group,
+            );
         } catch (e) {
             throw new GraphQLError((e as Error).message);
         }
@@ -208,7 +215,12 @@ export class ScrimModuleResolver {
         const scrim = await this.scrimService.getScrimByPlayer(user.userId);
         if (!scrim) throw new GraphQLError("You must be in a scrim to leave");
 
-        return this.scrimService.leaveScrim(this.userToScrimPlayer(user), scrim.id);
+        return this.scrimService.leaveScrim(
+            Object.assign(this.userToScrimPlayer(user), {
+                joinedAt: new Date(),
+            }),
+            scrim.id,
+        );
     }
 
     @Mutation(() => Boolean)
@@ -219,7 +231,7 @@ export class ScrimModuleResolver {
         const player = scrim.players.find(p => p.id === user.userId);
         if (!player) throw new GraphQLError("You must be in a scrim to checkin");
 
-        return this.scrimService.checkIn(player, scrim.id);
+        return this.scrimService.checkIn(player.id, scrim.id);
     }
 
     @Mutation(() => Scrim)
@@ -269,5 +281,7 @@ export class ScrimModuleResolver {
         return this.pubSub.asyncIterator(this.scrimService.pendingScrimsSubTopic);
     }
 
-    private userToScrimPlayer = (u: UserPayload): IScrimPlayer => ({id: u.userId, name: u.username});
+    private userToScrimPlayer = (u: UserPayload): {id: number; name: string;} => ({
+        id: u.userId, name: u.username,
+    });
 }

@@ -7,7 +7,7 @@ import {
 
 export const CreateScrim_Request = z.object({
     settings: ScrimSettingsSchema,
-    author: ScrimPlayerSchema,
+    author: ScrimPlayerSchema.omit({joinedAt: true}),
     organizationId: z.number(),
     gameMode: ScrimGameModeSchema,
     skillGroupId: z.number(),

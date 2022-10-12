@@ -45,13 +45,13 @@ export class ScrimController {
     @MessagePattern(MatchmakingEndpoint.LeaveScrim)
     async leaveScrim(@Payload() payload: unknown): Promise<boolean> {
         const data = MatchmakingSchemas.LeaveScrim.input.parse(payload);
-        return this.scrimService.leaveScrim(data.scrimId, data.player);
+        return this.scrimService.leaveScrim(data.scrimId, data.playerId);
     }
 
     @MessagePattern(MatchmakingEndpoint.CheckInToScrim)
     async checkIn(@Payload() payload: unknown): Promise<boolean> {
         const data = MatchmakingSchemas.CheckInToScrim.input.parse(payload);
-        return this.scrimService.checkIn(data.scrimId, data.player);
+        return this.scrimService.checkIn(data.scrimId, data.playerId);
     }
 
     @MessagePattern(MatchmakingEndpoint.CancelScrim)

@@ -1,5 +1,5 @@
 import {
-    Field, InputType, Int, ObjectType,
+    Field, Int, ObjectType,
 } from "@nestjs/graphql";
 import type {ScrimPlayer as IScrimPlayer} from "@sprocketbot/common";
 
@@ -11,20 +11,15 @@ export class ScrimPlayer implements IScrimPlayer {
     @Field(() => String)
     name: string;
 
+    @Field(() => Date)
+    joinedAt: Date;
+
+    @Field(() => Int)
+    leaveAfter?: number;
+
     @Field(() => Boolean, {nullable: true})
-    checkedIn?: boolean | undefined;
+    checkedIn?: boolean;
 
     @Field(() => String, {nullable: true})
-    group?: string | undefined;
-}
-
-@InputType()
-export class ScrimPlayerInput implements IScrimPlayer {
-    @Field(() => Int)
-    id: number;
-
-    @Field(() => String)
-    name: string;
-
-    group: undefined;
+    group?: string;
 }

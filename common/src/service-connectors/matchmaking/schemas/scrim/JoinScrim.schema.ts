@@ -4,7 +4,7 @@ import {ScrimPlayerSchema} from "../../types";
 
 export const JoinScrim_Request = z.object({
     scrimId: z.string().uuid(),
-    player: ScrimPlayerSchema.omit({group: true}),
+    player: ScrimPlayerSchema.omit({group: true, joinedAt: true}),
     /**
      * Boolean -> Should create a new group (or not)
      * String -> Should join an existing group (or fail)

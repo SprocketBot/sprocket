@@ -19,14 +19,16 @@ interface CreateScrimVariables {
         observable: boolean;
     };
     createGroup: boolean;
+    leaveAfter?: number;
 }
 
 const mutationString = gql`
     mutation (
         $settings: ScrimSettingsInput!
         $createGroup: Boolean
+        $leaveAfter: Int
     ) {
-        createScrim(data: {settings: $settings, createGroup: $createGroup}) {
+        createScrim(data: {settings: $settings, createGroup: $createGroup, leaveAfter: $leaveAfter}) {
             id
             playerCount
             settings {
