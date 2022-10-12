@@ -1,6 +1,3 @@
-<script lang="ts" context="module">
-</script>
-
 <script lang="ts">
     import {slide} from "svelte/transition";
     import {nanoid} from "nanoid";
