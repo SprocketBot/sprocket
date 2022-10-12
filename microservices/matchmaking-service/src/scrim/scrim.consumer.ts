@@ -53,8 +53,7 @@ export class ScrimConsumer {
 
             await this.eloQueue.add(SCRIM_CLOCK_JOB, null, {
                 repeat: {
-                    // cron: "*/5 * * * *",
-                    cron: "* * * * *",
+                    cron: "*/5 * * * *",
                 },
                 removeOnComplete: true,
             });
