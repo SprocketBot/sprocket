@@ -34,7 +34,7 @@ export class ScrimConsumer {
 
         for (const scrim of scrims.filter(s => s.status === ScrimStatus.PENDING)) {
             for (const player of scrim.players) {
-                if (player.leaveAfter && compareAsc(now(), add(scrim.createdAt, {seconds: player.leaveAfter})) > 0) {
+                if (compareAsc(now(), add(scrim.createdAt, {seconds: player.leaveAfter})) > 0) {
                     if (scrim.players.length === 1) {
                         await this.scrimService.cancelScrim(scrim.id);
                     } else {
