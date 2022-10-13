@@ -29,13 +29,13 @@ export class ScrimResolver {
     ) {}
 
     @ResolveField(() => GameMode)
-    async gameMode(@Root() scrim: Scrim): Promise<GameMode> {
-        return this.gameModeService.getGameModeById(scrim.gameModeId);
+    async gameMode(@Root() scrim: Partial<Scrim>): Promise<GameMode> {
+        return scrim.gameMode ?? this.gameModeService.getGameModeById(scrim.gameModeId!);
     }
 
     @ResolveField(() => GameSkillGroup)
-    async skillGroup(@Root() scrim: Scrim): Promise<GameSkillGroup> {
-        return this.gameSkillGroupService.getGameSkillGroupById(scrim.skillGroupId);
+    async skillGroup(@Root() scrim: Partial<Scrim>): Promise<GameSkillGroup> {
+        return scrim.skillGroup ?? this.gameSkillGroupService.getGameSkillGroupById(scrim.skillGroupId!);
     }
 
     @ResolveField(() => [ScrimPlayer], {nullable: true})
