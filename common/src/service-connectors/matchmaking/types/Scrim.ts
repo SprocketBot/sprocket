@@ -70,9 +70,7 @@ export const ScrimSchema = z.object({
 
     settings: ScrimSettingsSchema,
 
-    games: z.array(ScrimGameSchema)
-        .default([])
-        .optional(),
+    games: z.array(ScrimGameSchema).default([]).optional(),
 
     submissionId: z.string().optional(),
 

@@ -14,6 +14,7 @@ import {MledbModule} from "./mledb/mledb.module";
 import {MledbBridgeModule} from "./mledb-bridge/mledb_bridge.module";
 import {OrganizationModule} from "./organization/organization.module";
 import {SchedulingModule} from "./scheduling/scheduling.module";
+import {WebhookModule} from "./webhook/webhook.module";
 
 const modules = [
     AuthorizationModule,
@@ -27,13 +28,13 @@ const modules = [
     MledbModule,
     ImageGenModule,
     MledbBridgeModule,
+    WebhookModule,
     TypeOrmModule.forRoot({
         type: "postgres",
         host: config.db.host,
         port: config.db.port,
         username: config.db.username,
-        password: readFileSync("./secret/db-password.txt").toString()
-            .trim(),
+        password: readFileSync("./secret/db-password.txt").toString().trim(),
         database: config.db.database,
         autoLoadEntities: true,
         logging: config.db.enable_logs,
@@ -44,4 +45,4 @@ const modules = [
     imports: modules,
     exports: modules,
 })
-export class DatabaseModule { }
+export class DatabaseModule {}

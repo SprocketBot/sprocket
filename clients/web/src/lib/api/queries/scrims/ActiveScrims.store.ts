@@ -1,9 +1,10 @@
 import type {OperationResult} from "@urql/core";
 import {gql} from "@urql/core";
+
 import {LiveQueryStore} from "../../core/LiveQueryStore";
 import type {CurrentScrim} from "./CurrentScrim.store";
 
-export type ActiveScrims = Array<CurrentScrim & {organizationId: number;}>;
+export type ActiveScrims = Array<CurrentScrim & {organizationId: number}>;
 
 enum EventTopic {
     // Scrims
@@ -32,61 +33,22 @@ export interface ActiveScrimsSubscriptionValue {
     };
 }
 
-export interface ActiveScrimsStoreVariables {
-}
+export interface ActiveScrimsStoreVariables {}
 
-export interface ActiveScrimsStoreSubscriptionVariables {
-}
+export interface ActiveScrimsStoreSubscriptionVariables {}
 
-export class ActiveScrimsStore extends LiveQueryStore<ActiveScrimsStoreValue, ActiveScrimsStoreVariables, ActiveScrimsSubscriptionValue, ActiveScrimsStoreSubscriptionVariables> {
-    protected queryString = gql<ActiveScrimsStoreValue, ActiveScrimsStoreVariables>`
-    query {
-        activeScrims: getActiveScrims {
-            id
-            organizationId
-            playerCount
-            maxPlayers
-            status
-            skillGroup {
-                profile {
-                    description
-                }
-            }
-            gameMode {
-                description
-                game {
-                    title
-                }
-            }
-            settings {
-                competitive
-                mode
-            }
-            players {
-                id
-                name
-                checkedIn
-            }
-            playersAdmin {
-                id
-                name
-            }
-            games {
-                teams {
-                    players {
-                        id
-                        name
-                    }
-                }
-            }
-            submissionId
-        }
-    }`;
-
-    protected subscriptionString = gql<ActiveScrimsSubscriptionValue, ActiveScrimsStoreSubscriptionVariables>`
-    subscription {
-        activeScrims: followActiveScrims {
-            scrim {
+export class ActiveScrimsStore extends LiveQueryStore<
+    ActiveScrimsStoreValue,
+    ActiveScrimsStoreVariables,
+    ActiveScrimsSubscriptionValue,
+    ActiveScrimsStoreSubscriptionVariables
+> {
+    protected queryString = gql<
+        ActiveScrimsStoreValue,
+        ActiveScrimsStoreVariables
+    >`
+        query {
+            activeScrims: getActiveScrims {
                 id
                 organizationId
                 playerCount
@@ -108,7 +70,7 @@ export class ActiveScrimsStore extends LiveQueryStore<ActiveScrimsStoreValue, Ac
                     mode
                 }
                 players {
-                    id 
+                    id
                     name
                     checkedIn
                 }
@@ -126,9 +88,58 @@ export class ActiveScrimsStore extends LiveQueryStore<ActiveScrimsStoreValue, Ac
                 }
                 submissionId
             }
-            event
         }
-    }
+    `;
+
+    protected subscriptionString = gql<
+        ActiveScrimsSubscriptionValue,
+        ActiveScrimsStoreSubscriptionVariables
+    >`
+        subscription {
+            activeScrims: followActiveScrims {
+                scrim {
+                    id
+                    organizationId
+                    playerCount
+                    maxPlayers
+                    status
+                    skillGroup {
+                        profile {
+                            description
+                        }
+                    }
+                    gameMode {
+                        description
+                        game {
+                            title
+                        }
+                    }
+                    settings {
+                        competitive
+                        mode
+                    }
+                    players {
+                        id
+                        name
+                        checkedIn
+                    }
+                    playersAdmin {
+                        id
+                        name
+                    }
+                    games {
+                        teams {
+                            players {
+                                id
+                                name
+                            }
+                        }
+                    }
+                    submissionId
+                }
+                event
+            }
+        }
     `;
 
     constructor() {
@@ -137,7 +148,12 @@ export class ActiveScrimsStore extends LiveQueryStore<ActiveScrimsStoreValue, Ac
         this.subscriptionVariables = {};
     }
 
-    protected handleGqlMessage = (message: OperationResult<ActiveScrimsSubscriptionValue, ActiveScrimsStoreSubscriptionVariables>): void => {
+    protected handleGqlMessage = (
+        message: OperationResult<
+            ActiveScrimsSubscriptionValue,
+            ActiveScrimsStoreSubscriptionVariables
+        >,
+    ): void => {
         if (message?.data?.activeScrims) {
             const {scrim} = message?.data?.activeScrims ?? {};
 
@@ -146,8 +162,9 @@ export class ActiveScrimsStore extends LiveQueryStore<ActiveScrimsStoreValue, Ac
                 return;
             }
 
-            console.log(message.data.activeScrims.event);
-            const oldScrim = this.currentValue.data.activeScrims.findIndex(s => s.id === scrim.id);
+            const oldScrim = this.currentValue.data.activeScrims.findIndex(
+                s => s.id === scrim.id,
+            );
             switch (message.data.activeScrims.event) {
                 case "scrim.created":
                     this.currentValue.data.activeScrims.push(scrim);
@@ -155,11 +172,17 @@ export class ActiveScrimsStore extends LiveQueryStore<ActiveScrimsStoreValue, Ac
                 case EventTopic.ScrimCancelled:
                 case EventTopic.ScrimComplete:
                 case EventTopic.ScrimDestroyed:
-                    this.currentValue.data.activeScrims = this.currentValue.data.activeScrims.filter(s => s.id !== scrim.id);
+                    this.currentValue.data.activeScrims =
+                        this.currentValue.data.activeScrims.filter(
+                            s => s.id !== scrim.id,
+                        );
                     break;
                 default:
-                    this.currentValue.data.activeScrims.splice(oldScrim, 1, scrim);
-                    console.log("This is the update path.");
+                    this.currentValue.data.activeScrims.splice(
+                        oldScrim,
+                        1,
+                        scrim,
+                    );
             }
 
             this.pub();

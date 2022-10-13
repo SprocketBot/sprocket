@@ -1,9 +1,9 @@
 import {z} from "zod";
 
 const booleanFieldSchema = z.tuple([z.string(), z.boolean()]);
-const floatFieldSchema   = z.tuple([z.string(), z.number()]);
-const intFieldSchema     = z.tuple([z.string(), z.number().int()]);
-const stringFieldSchema  = z.tuple([z.string(), z.string()]);
+const floatFieldSchema = z.tuple([z.string(), z.number()]);
+const intFieldSchema = z.tuple([z.string(), z.number().int()]);
+const stringFieldSchema = z.tuple([z.string(), z.string()]);
 
 export const Analytics_InputSchema = z.object({
     name: z.string(),

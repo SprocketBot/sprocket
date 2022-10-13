@@ -29,11 +29,7 @@ export const organizationEntities = [
 const ormModule = TypeOrmModule.forFeature(organizationEntities);
 
 @Module({
-    imports: [
-        ormModule,
-    ],
-    exports: [
-        ormModule,
-    ],
+    imports: [ormModule],
+    exports: [ormModule],
 })
 export class OrganizationModule {}

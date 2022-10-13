@@ -1,6 +1,4 @@
-import {
-    Controller, ForbiddenException, forwardRef, Get, Inject, Request, Response, UseGuards,
-} from "@nestjs/common";
+import {Controller, ForbiddenException, forwardRef, Get, Inject, Request, Response, UseGuards} from "@nestjs/common";
 import {config} from "@sprocketbot/common";
 import {Request as Req, Response as Res} from "express";
 
@@ -8,9 +6,7 @@ import type {User, UserAuthenticationAccount} from "../../../database";
 import {UserAuthenticationAccountType} from "../../../database";
 import {MledbPlayerService} from "../../../mledb";
 import {UserService} from "../../user";
-import {
-    DiscordAuthGuard,
-} from "./guards";
+import {DiscordAuthGuard} from "./guards";
 import {JwtRefreshGuard} from "./guards/jwt-refresh.guard";
 import {OauthService} from "./oauth.service";
 import type {AccessToken} from "./types";
@@ -23,7 +19,7 @@ export class OauthController {
         private userService: UserService,
         @Inject(forwardRef(() => MledbPlayerService))
         private mledbUserService: MledbPlayerService,
-    ) { }
+    ) {}
 
     @Get("login")
     @Get("discord/redirect")
@@ -31,7 +27,9 @@ export class OauthController {
     async discordAuthRedirect(@Request() req: Req, @Response() res: Res): Promise<void> {
         const ourUser = req.user as User;
         const userProfile = await this.userService.getUserProfileForUser(ourUser.id);
-        const authAccounts: UserAuthenticationAccount[] = await this.userService.getUserAuthenticationAccountsForUser(ourUser.id);
+        const authAccounts: UserAuthenticationAccount[] = await this.userService.getUserAuthenticationAccountsForUser(
+            ourUser.id,
+        );
         const discordAccount = authAccounts.find(obj => obj.accountType === UserAuthenticationAccountType.DISCORD);
         if (discordAccount) {
             const player = await this.mledbUserService.getPlayerByDiscordId(discordAccount.accountId);
@@ -56,7 +54,9 @@ export class OauthController {
     async refreshTokens(@Request() req: Req): Promise<AccessToken> {
         const ourUser = req.user as User;
         const userProfile = await this.userService.getUserProfileForUser(ourUser.id);
-        const authAccounts: UserAuthenticationAccount[] = await this.userService.getUserAuthenticationAccountsForUser(ourUser.id);
+        const authAccounts: UserAuthenticationAccount[] = await this.userService.getUserAuthenticationAccountsForUser(
+            ourUser.id,
+        );
         const discordAccount = authAccounts.find(obj => obj.accountType === UserAuthenticationAccountType.DISCORD);
         if (discordAccount) {
             const player = await this.mledbUserService.getPlayerByDiscordId(discordAccount.accountId);

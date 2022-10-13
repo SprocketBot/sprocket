@@ -1,15 +1,6 @@
-import {
-    forwardRef,
-    Inject,
-    Injectable, Logger,
-} from "@nestjs/common";
-import type {
-    ProgressMessage,
-} from "@sprocketbot/common";
-import {
-    CeleryService, EventsService, EventTopic,
-    Task,
-} from "@sprocketbot/common";
+import {forwardRef, Inject, Injectable, Logger} from "@nestjs/common";
+import type {ProgressMessage} from "@sprocketbot/common";
+import {CeleryService, EventsService, EventTopic, Task} from "@sprocketbot/common";
 
 import {getSubmissionKey} from "../../utils";
 import {ReplaySubmissionService} from "../replay-submission.service";
@@ -27,9 +18,7 @@ export class ReplayParseSubscriber {
         private readonly submissionService: ReplaySubmissionService,
         private readonly submissionCrudService: ReplaySubmissionCrudService,
         private readonly eventsService: EventsService,
-
-    ) {
-    }
+    ) {}
 
     /**
      * Subscribes to replay parse progress updates via a submissionId returned by parseReplay.

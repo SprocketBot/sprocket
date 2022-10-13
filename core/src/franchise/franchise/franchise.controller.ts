@@ -1,11 +1,7 @@
-import {
-    Controller,
-} from "@nestjs/common";
+import {Controller} from "@nestjs/common";
 import {MessagePattern, Payload} from "@nestjs/microservices";
 import type {CoreOutput} from "@sprocketbot/common";
-import {
-    CoreEndpoint, CoreSchemas,
-} from "@sprocketbot/common";
+import {CoreEndpoint, CoreSchemas} from "@sprocketbot/common";
 
 import type {FranchiseProfile} from "../../database";
 import {FranchiseService} from "./franchise.service";

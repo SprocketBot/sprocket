@@ -1,6 +1,4 @@
-import {
-    Inject, Injectable, Logger,
-} from "@nestjs/common";
+import {Inject, Injectable, Logger} from "@nestjs/common";
 import type {ScrimPlayer} from "@sprocketbot/common";
 import {
     config,
@@ -26,7 +24,7 @@ import type {ReplaySubmission} from "./types";
 export class ReplayParseService {
     private readonly logger = new Logger(ReplayParseService.name);
 
-    private subscribed: boolean = false;
+    private subscribed = false;
 
     constructor(
         private readonly minioService: MinioService,
@@ -58,7 +56,11 @@ export class ReplayParseService {
         return true;
     }
 
-    async parseReplays(streams: Array<{stream: Readable; filename: string;}>, submissionId: string, player: ScrimPlayer): Promise<string[]> {
+    async parseReplays(
+        streams: Array<{stream: Readable; filename: string}>,
+        submissionId: string,
+        player: ScrimPlayer,
+    ): Promise<string[]> {
         const canSubmitReponse = await this.submissionService.send(SubmissionEndpoint.CanSubmitReplays, {
             playerId: player.id,
             submissionId: submissionId,
@@ -66,18 +68,20 @@ export class ReplayParseService {
         if (canSubmitReponse.status === ResponseStatus.ERROR) throw canSubmitReponse.error;
         if (!canSubmitReponse.data.canSubmit) throw new GraphQLError(canSubmitReponse.data.reason);
 
-        const filepaths = await Promise.all(streams.map(async s => {
-            const buffer = await readToBuffer(s.stream);
-            const objectHash = SHA256(buffer.toString()).toString();
-            const replayObjectPath = `replays/${objectHash}${REPLAY_EXT}`;
-            const bucket = config.minio.bucketNames.replays;
-            await this.minioService.put(bucket, replayObjectPath, buffer).catch(this.logger.error.bind(this));
+        const filepaths = await Promise.all(
+            streams.map(async s => {
+                const buffer = await readToBuffer(s.stream);
+                const objectHash = SHA256(buffer.toString()).toString();
+                const replayObjectPath = `replays/${objectHash}${REPLAY_EXT}`;
+                const bucket = config.minio.bucketNames.replays;
+                await this.minioService.put(bucket, replayObjectPath, buffer).catch(this.logger.error.bind(this));
 
-            return {
-                minioPath: replayObjectPath,
-                originalFilename: s.filename,
-            };
-        }));
+                return {
+                    minioPath: replayObjectPath,
+                    originalFilename: s.filename,
+                };
+            }),
+        );
 
         const submissionResponse = await this.submissionService.send(SubmissionEndpoint.SubmitReplays, {
             submissionId: submissionId,
@@ -90,6 +94,13 @@ export class ReplayParseService {
     }
 
     async ratifySubmission(submissionId: string, playerId: number): Promise<void> {
+        const canRatifyReponse = await this.submissionService.send(SubmissionEndpoint.CanRatifySubmission, {
+            playerId: playerId,
+            submissionId: submissionId,
+        });
+        if (canRatifyReponse.status === ResponseStatus.ERROR) throw canRatifyReponse.error;
+        if (!canRatifyReponse.data.canRatify) throw new GraphQLError(canRatifyReponse.data.reason);
+
         const ratificationResponse = await this.submissionService.send(SubmissionEndpoint.RatifySubmission, {
             submissionId: submissionId,
             playerId: playerId,
@@ -118,10 +129,13 @@ export class ReplayParseService {
                 if (typeof v.payload !== "object") {
                     return;
                 }
-                this.redisService.getJson<ReplaySubmission>(v.payload.redisKey)
-                    .then(async submission => this.pubsub.publish(submission.id, {
-                        followSubmission: submission,
-                    }))
+                this.redisService
+                    .getJson<ReplaySubmission>(v.payload.redisKey)
+                    .then(async submission =>
+                        this.pubsub.publish(submission.id, {
+                            followSubmission: submission,
+                        }),
+                    )
                     .catch(this.logger.error.bind(this.logger));
             });
         });

@@ -1,6 +1,4 @@
-import {
-    Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,
-} from "typeorm";
+import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
 
 import {MLE_SeriesReplay} from "./SeriesReplay.model";
 
@@ -44,7 +42,9 @@ export class MLE_TeamCoreStats {
     teamName: string | null;
 
     @Column("character varying", {
-        name: "color", nullable: true, length: 255,
+        name: "color",
+        nullable: true,
+        length: 255,
     })
     color: string | null;
 
@@ -63,6 +63,6 @@ export class MLE_TeamCoreStats {
     @ManyToOne(() => MLE_SeriesReplay, seriesReplay => seriesReplay.teamCoreStats, {
         onUpdate: "CASCADE",
     })
-    @JoinColumn([ {name: "replay_id", referencedColumnName: "id"} ])
+    @JoinColumn([{name: "replay_id", referencedColumnName: "id"}])
     replay: MLE_SeriesReplay;
 }

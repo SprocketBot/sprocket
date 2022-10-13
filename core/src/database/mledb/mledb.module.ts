@@ -64,12 +64,7 @@ export const mledbEntities = [
 const ormModule = TypeOrmModule.forFeature(mledbEntities);
 
 @Module({
-    imports: [
-        ormModule,
-    ],
-    exports: [
-        ormModule,
-    ],
+    imports: [ormModule],
+    exports: [ormModule],
 })
-export class MledbModule {
-}
+export class MledbModule {}

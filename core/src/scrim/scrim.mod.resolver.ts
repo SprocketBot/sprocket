@@ -1,39 +1,27 @@
-import {
-    Inject, Logger, UseGuards,
-} from "@nestjs/common";
-import {
-    Args, Mutation, Query, Resolver, Subscription,
-} from "@nestjs/graphql";
-import type {
-    ScrimPlayer as IScrimPlayer,
-    ScrimSettings as IScrimSettings,
-} from "@sprocketbot/common";
-import {
-    ScrimMode,
-    ScrimStatus,
-} from "@sprocketbot/common";
+import {Inject, Logger, UseGuards} from "@nestjs/common";
+import {Args, Mutation, Query, Resolver, Subscription} from "@nestjs/graphql";
+import type {ScrimPlayer as IScrimPlayer, ScrimSettings as IScrimSettings} from "@sprocketbot/common";
+import {ScrimMode, ScrimStatus} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 import {GraphQLError} from "graphql";
 
 import {OrganizationConfigurationService} from "../configuration";
 import {OrganizationConfigurationKeyCode, Player} from "../database";
 import {MLE_OrganizationTeam} from "../database/mledb";
-import {
-    CurrentPlayer, GameSkillGroupService, PlayerService,
-} from "../franchise";
+import {CurrentPlayer, GameSkillGroupService, PlayerService} from "../franchise";
 import {GameModeService} from "../game";
 import {CurrentUser} from "../identity";
 import {UserPayload} from "../identity/auth/";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard/gql-jwt-guard";
+import {MledbPlayerService} from "../mledb";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
+import {FormerPlayerScrimGuard} from "../mledb/mledb-player/mledb-player.guard";
 import {QueueBanGuard} from "../organization";
 import {ScrimPubSub} from "./constants";
 import {CreateScrimPlayerGuard, JoinScrimPlayerGuard} from "./scrim.guard";
 import {ScrimService} from "./scrim.service";
 import {ScrimToggleService} from "./scrim-toggle";
-import {
-    CreateScrimInput, Scrim, ScrimEvent,
-} from "./types";
+import {CreateScrimInput, Scrim, ScrimEvent} from "./types";
 import {ScrimMetrics} from "./types/ScrimMetrics";
 
 @Resolver()
@@ -69,6 +57,7 @@ export class ScrimModuleResolver {
         private readonly skillGroupService: GameSkillGroupService,
         private readonly organizationConfigurationService: OrganizationConfigurationService,
         private readonly scrimToggleService: ScrimToggleService,
+        private readonly mlePlayerService: MledbPlayerService,
     ) {}
 
     /*
@@ -78,12 +67,14 @@ export class ScrimModuleResolver {
      */
 
     @Query(() => [Scrim])
+    @UseGuards(FormerPlayerScrimGuard)
     async getAllScrims(
         @CurrentUser() user: UserPayload,
         @Args("status", {
             type: () => ScrimStatus,
             nullable: true,
-        }) status?: ScrimStatus,
+        })
+        status?: ScrimStatus,
     ): Promise<Scrim[]> {
         if (!user.currentOrganizationId) throw new GraphQLError("Player is not connected to an organization");
 
@@ -93,25 +84,30 @@ export class ScrimModuleResolver {
     }
 
     @Query(() => [Scrim])
+    @UseGuards(FormerPlayerScrimGuard)
     async getAvailableScrims(
         @CurrentUser() user: UserPayload,
         @Args("status", {
             type: () => ScrimStatus,
             nullable: true,
             defaultValue: ScrimStatus.PENDING,
-        }) status: ScrimStatus = ScrimStatus.PENDING,
+        })
+        status: ScrimStatus = ScrimStatus.PENDING,
     ): Promise<Scrim[]> {
         if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organiazation");
 
         const players = await this.playerService.getPlayers({
-            where: {member: {user: {id: user.userId} } },
+            where: {member: {user: {id: user.userId}}},
             relations: ["member", "skillGroup"],
         });
         const scrims = await this.scrimService.getAllScrims();
 
-        return scrims.filter(s => s.organizationId === user.currentOrganizationId
-            && (!s.settings.competitive || players.some(p => s.skillGroupId === p.skillGroupId))
-            && s.status === status) as Scrim[];
+        return scrims.filter(
+            s =>
+                s.organizationId === user.currentOrganizationId &&
+                (!s.settings.competitive || players.some(p => s.skillGroupId === p.skillGroupId)) &&
+                s.status === status,
+        ) as Scrim[];
     }
 
     @Query(() => Scrim, {nullable: true})
@@ -126,18 +122,26 @@ export class ScrimModuleResolver {
      */
 
     @Mutation(() => Scrim)
-    @UseGuards(QueueBanGuard, CreateScrimPlayerGuard)
-    async createScrim(
-        @CurrentUser() user: UserPayload,
-        @Args("data") data: CreateScrimInput,
-    ): Promise<Scrim> {
+    @UseGuards(QueueBanGuard, CreateScrimPlayerGuard, FormerPlayerScrimGuard)
+    async createScrim(@CurrentUser() user: UserPayload, @Args("data") data: CreateScrimInput): Promise<Scrim> {
         if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organization");
         if (await this.scrimToggleService.scrimsAreDisabled()) throw new GraphQLError("Scrims are disabled");
 
         const gameMode = await this.gameModeService.getGameModeById(data.settings.gameModeId);
-        const player = await this.playerService.getPlayerByOrganizationAndGame(user.userId, user.currentOrganizationId, gameMode.gameId);
+        const player = await this.playerService.getPlayerByOrganizationAndGame(
+            user.userId,
+            user.currentOrganizationId,
+            gameMode.gameId,
+        );
+
+        const mlePlayer = await this.mlePlayerService.getMlePlayerBySprocketUser(player.member.userId);
+        if (mlePlayer.teamName === "FP") throw new GraphQLError("User is a former player");
+
         const skillGroup = await this.skillGroupService.getGameSkillGroupById(player.skillGroupId);
-        const checkinTimeout = await this.organizationConfigurationService.getOrganizationConfigurationValue<number>(user.currentOrganizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_CHECKIN_TIMEOUT_MINUTES);
+        const checkinTimeout = await this.organizationConfigurationService.getOrganizationConfigurationValue<number>(
+            user.currentOrganizationId,
+            OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_CHECKIN_TIMEOUT_MINUTES,
+        );
         const settings: IScrimSettings = {
             competitive: data.settings.competitive,
             mode: data.settings.mode,
@@ -161,7 +165,7 @@ export class ScrimModuleResolver {
     }
 
     @Mutation(() => Boolean)
-    @UseGuards(QueueBanGuard, JoinScrimPlayerGuard)
+    @UseGuards(QueueBanGuard, JoinScrimPlayerGuard, FormerPlayerScrimGuard)
     async joinScrim(
         @CurrentUser() user: UserPayload,
         @CurrentPlayer() player: Player,
@@ -169,8 +173,13 @@ export class ScrimModuleResolver {
         @Args("group", {nullable: true}) groupKey?: string,
         @Args("createGroup", {nullable: true}) createGroup?: boolean,
     ): Promise<boolean> {
+        const mlePlayer = await this.mlePlayerService.getMlePlayerBySprocketUser(player.member.userId);
+        if (mlePlayer.teamName === "FP") throw new GraphQLError("User is a former player");
+
         if (groupKey && createGroup) {
-            throw new GraphQLError("You cannot join a group and create a group. Please provide either group or createGroup, not both.");
+            throw new GraphQLError(
+                "You cannot join a group and create a group. Please provide either group or createGroup, not both.",
+            );
         }
         const group = groupKey ?? createGroup ?? undefined;
 
@@ -181,14 +190,14 @@ export class ScrimModuleResolver {
             throw new GraphQLError("You cannot create or join a group for a Round Robin scrim");
         }
 
-        if (scrim.settings.competitive && player.skillGroupId !== scrim.skillGroupId) throw new GraphQLError("Player is not in the correct skill group");
+        if (scrim.settings.competitive && player.skillGroupId !== scrim.skillGroupId)
+            throw new GraphQLError("Player is not in the correct skill group");
 
         try {
             return await this.scrimService.joinScrim(this.userToScrimPlayer(user), scrimId, group);
         } catch (e) {
             throw new GraphQLError((e as Error).message);
         }
-
     }
 
     @Mutation(() => Boolean)
@@ -242,14 +251,26 @@ export class ScrimModuleResolver {
     }
 
     @Subscription(() => Scrim, {
-        async filter(this: ScrimModuleResolver, payload: {followPendingScrims: Scrim;}, variables, context: {req: {user: UserPayload;};}) {
+        async filter(
+            this: ScrimModuleResolver,
+            payload: {followPendingScrims: Scrim},
+            variables,
+            context: {req: {user: UserPayload}},
+        ) {
             const {userId, currentOrganizationId} = context.req.user;
             if (!currentOrganizationId) return false;
-            
+
             const {id: gameModeId} = payload.followPendingScrims.gameMode;
-            const player = await this.playerService.getPlayerByOrganizationAndGameMode(userId, currentOrganizationId, gameModeId);
-            
-            return player.skillGroupId === payload.followPendingScrims.skillGroupId || !payload.followPendingScrims.settings.competitive;
+            const player = await this.playerService.getPlayerByOrganizationAndGameMode(
+                userId,
+                currentOrganizationId,
+                gameModeId,
+            );
+
+            return (
+                player.skillGroupId === payload.followPendingScrims.skillGroupId ||
+                !payload.followPendingScrims.settings.competitive
+            );
         },
     })
     async followPendingScrims(): Promise<AsyncIterator<Scrim>> {
@@ -257,5 +278,8 @@ export class ScrimModuleResolver {
         return this.pubSub.asyncIterator(this.scrimService.pendingScrimsSubTopic);
     }
 
-    private userToScrimPlayer = (u: UserPayload): IScrimPlayer => ({id: u.userId, name: u.username});
+    private userToScrimPlayer = (u: UserPayload): IScrimPlayer => ({
+        id: u.userId,
+        name: u.username,
+    });
 }

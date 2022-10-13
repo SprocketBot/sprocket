@@ -1,7 +1,5 @@
 import {Field, ObjectType} from "@nestjs/graphql";
-import {
-    Entity, ManyToOne, OneToMany,
-} from "typeorm";
+import {Entity, ManyToOne, OneToMany} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {EnabledFeature} from "../enabled_feature";

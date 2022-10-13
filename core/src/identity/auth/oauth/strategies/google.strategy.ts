@@ -10,7 +10,6 @@ import type {GoogleProfileType} from "../types/profile.type";
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
-
     constructor(private readonly userService: UserService) {
         super({
             clientID: config.auth.google.clientId,
@@ -20,9 +19,16 @@ export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
         });
     }
 
-    async validate(accessToken: string, refreshToken: string, profile: GoogleProfileType, done: VerifyCallback): Promise<User | undefined> {
+    async validate(
+        accessToken: string,
+        refreshToken: string,
+        profile: GoogleProfileType,
+        done: VerifyCallback,
+    ): Promise<User | undefined> {
         // First, check if the user already exists
-        const queryResult = await this.userService.getUsers({where: {email: profile.emails[0].value} });
+        const queryResult = await this.userService.getUsers({
+            where: {email: profile.emails[0].value},
+        });
 
         let user = new User();
         // If no users returned from query, create a new one
@@ -41,7 +47,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
             };
             user = await this.userService.createUser(userProfile, [authAcct]);
         } else {
-        // Else, return the one we found
+            // Else, return the one we found
             user = queryResult[0];
         }
         done(null, user);

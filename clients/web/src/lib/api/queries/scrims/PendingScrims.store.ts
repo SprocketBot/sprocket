@@ -1,5 +1,6 @@
 import type {OperationResult} from "@urql/core";
 import {gql} from "@urql/core";
+
 import {LiveQueryStore} from "../../core/LiveQueryStore";
 
 export interface PendingScrim {
@@ -24,46 +25,50 @@ export interface PendingScrim {
     };
 }
 
-
 interface PendingScrimsData {
     pendingScrims: PendingScrim[];
 }
 
 interface PendingScrimsVars {
-
+    [key: string]: never;
 }
 
 interface FollowScrimsData {
     pendingScrim: PendingScrim;
 }
 
-class PendingScrimsStore extends LiveQueryStore<PendingScrimsData, PendingScrimsVars, FollowScrimsData> {
+class PendingScrimsStore extends LiveQueryStore<
+    PendingScrimsData,
+    PendingScrimsVars,
+    FollowScrimsData
+> {
     protected queryString = gql<PendingScrimsData, PendingScrimsVars>`
-    query {
-        pendingScrims: getAvailableScrims(status: PENDING) {
-            id
-            playerCount
-            maxPlayers
-            status
-            gameMode {
-                description
-                game {
-                    title
-                }
-            }
-            settings {
-                competitive
-                mode
-            }
-            skillGroup {
-                profile {
+        query {
+            pendingScrims: getAvailableScrims(status: PENDING) {
+                id
+                playerCount
+                maxPlayers
+                status
+                gameMode {
                     description
+                    game {
+                        title
+                    }
+                }
+                settings {
+                    competitive
+                    mode
+                }
+                skillGroup {
+                    profile {
+                        description
+                    }
                 }
             }
         }
-    }`;
+    `;
 
-    protected subscriptionString = gql<FollowScrimsData, {}>`
+    protected subscriptionString = gql<FollowScrimsData, Record<string, never>>`
         subscription {
             pendingScrim: followPendingScrims {
                 id
@@ -96,9 +101,13 @@ class PendingScrimsStore extends LiveQueryStore<PendingScrimsData, PendingScrims
         this.subscriptionVariables = {};
     }
 
-    protected handleGqlMessage = (message: OperationResult<FollowScrimsData>) => {
+    protected handleGqlMessage = (
+        message: OperationResult<FollowScrimsData>,
+    ): void => {
         if (!message.data) {
-            console.warn(`Recieved erroneous message from followPendingScrims: ${message.error}`);
+            console.warn(
+                `Recieved erroneous message from followPendingScrims: ${message.error}`,
+            );
             return;
         }
         if (!this.currentValue.data) {
@@ -109,7 +118,9 @@ class PendingScrimsStore extends LiveQueryStore<PendingScrimsData, PendingScrims
         let existingScrims = [...this.currentValue.data.pendingScrims];
         switch (scrim.status) {
             case "PENDING": {
-                const existingScrim = existingScrims.findIndex(s => s.id === scrim.id);
+                const existingScrim = existingScrims.findIndex(
+                    s => s.id === scrim.id,
+                );
                 if (existingScrim >= 0) {
                     existingScrims[existingScrim] = scrim;
                 } else {

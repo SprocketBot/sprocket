@@ -1,4 +1,5 @@
 import {gql} from "@urql/core";
+
 import {client} from "../../client";
 
 type RejectSubmissionResponse = boolean;
@@ -9,16 +10,20 @@ interface RejectSubmissionVariables {
 }
 
 const mutationString = gql`
-    mutation (
-        $submissionId: String!,
-        $reason: String!,
-    ) {
+    mutation ($submissionId: String!, $reason: String!) {
         rejectSubmission(submissionId: $submissionId, reason: $reason)
     }
 `;
 
-export const RejectSubmissionMutation = async (vars: RejectSubmissionVariables): Promise<RejectSubmissionResponse> => {
-    const r = await client.mutation<RejectSubmissionResponse, RejectSubmissionVariables>(mutationString, vars).toPromise();
+export const RejectSubmissionMutation = async (
+    vars: RejectSubmissionVariables,
+): Promise<RejectSubmissionResponse> => {
+    const r = await client
+        .mutation<RejectSubmissionResponse, RejectSubmissionVariables>(
+            mutationString,
+            vars,
+        )
+        .toPromise();
     if (r.data) {
         return r.data;
     }

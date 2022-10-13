@@ -4,9 +4,7 @@ import {CoreEndpoint, ResponseStatus} from "@sprocketbot/common";
 import type {ClientEvents, GuildMember} from "discord.js";
 import {Message} from "discord.js";
 
-import {
-    ClientEvent, Command, Event, Marshal,
-} from "../marshal";
+import {ClientEvent, Command, Event, Marshal} from "../marshal";
 
 export class DiscordSyncMarshal extends Marshal {
     private readonly logger = new Logger(DiscordSyncMarshal.name);
@@ -19,7 +17,8 @@ export class DiscordSyncMarshal extends Marshal {
     async syncMe(m: Message): Promise<void> {
         if (!m.member) return;
 
-        this.syncMember(m.member).then(async () => m.reply("Done!"))
+        this.syncMember(m.member)
+            .then(async () => m.reply("Done!"))
             .catch(async () => m.reply("Something happened...contact an admin."));
     }
 
@@ -37,25 +36,54 @@ export class DiscordSyncMarshal extends Marshal {
         const primaryGuildMember = newMember;
         const primaryGuildRoles = await primaryGuild.roles.fetch();
 
-        const alternateGuilds = await Promise.all(organizationGuilds.alternate.map(async g => this.botClient.guilds.fetch(g)));
+        const alternateGuilds = await Promise.all(
+            organizationGuilds.alternate.map(async g => this.botClient.guilds.fetch(g)),
+        );
         await Promise.all(alternateGuilds.map(async g => g.members.fetch(primaryGuildMember.user.id)));
-        const alternateGuildsWithMember = alternateGuilds.filter(g => g.members.cache.some(m => m.user.id === primaryGuildMember.user.id));
+        const alternateGuildsWithMember = alternateGuilds.filter(g =>
+            g.members.cache.some(m => m.user.id === primaryGuildMember.user.id),
+        );
 
         for (const alternateGuild of alternateGuildsWithMember) {
             const alternateGuildMember = await alternateGuild.members.fetch(primaryGuildMember.user.id);
             const alternateGuildRoles = await alternateGuild.roles.fetch();
 
-            if (primaryGuildMember.displayName !== alternateGuildMember.displayName) alternateGuildMember.setNickname(primaryGuildMember.displayName).catch(e => { this.logger.error(e) });
+            if (primaryGuildMember.displayName !== alternateGuildMember.displayName)
+                alternateGuildMember.setNickname(primaryGuildMember.displayName).catch(e => {
+                    this.logger.error(e);
+                });
 
-            const primaryGuildRolesInAlternateGuild = primaryGuildRoles.filter(pgr => alternateGuildRoles.some(agr => agr.name === pgr.name) && pgr.id !== pgr.guild.id);
-            const alternateGuildRolesFromPrimaryGuild = primaryGuildRolesInAlternateGuild.map(r => alternateGuild.roles.cache.find(rr => rr.name === r.name)!);
-            const rolesToAdd = alternateGuildRolesFromPrimaryGuild.filter(r => primaryGuildMember.roles.cache.some(rr => rr.name === r.name) && !alternateGuildMember.roles.cache.some(rr => rr.name === r.name));
-            const rolesToRemove = alternateGuildRolesFromPrimaryGuild.filter(r => !primaryGuildMember.roles.cache.some(rr => rr.name === r.name) && alternateGuildMember.roles.cache.some(rr => rr.name === r.name));
+            const primaryGuildRolesInAlternateGuild = primaryGuildRoles.filter(
+                pgr => alternateGuildRoles.some(agr => agr.name === pgr.name) && pgr.id !== pgr.guild.id,
+            );
+            const alternateGuildRolesFromPrimaryGuild = primaryGuildRolesInAlternateGuild.map(
+                r => alternateGuild.roles.cache.find(rr => rr.name === r.name)!,
+            );
+            const rolesToAdd = alternateGuildRolesFromPrimaryGuild.filter(
+                r =>
+                    primaryGuildMember.roles.cache.some(rr => rr.name === r.name) &&
+                    !alternateGuildMember.roles.cache.some(rr => rr.name === r.name),
+            );
+            const rolesToRemove = alternateGuildRolesFromPrimaryGuild.filter(
+                r =>
+                    !primaryGuildMember.roles.cache.some(rr => rr.name === r.name) &&
+                    alternateGuildMember.roles.cache.some(rr => rr.name === r.name),
+            );
 
             await Promise.all([
-                ...rolesToAdd.map(async rta => alternateGuildMember.roles.add(rta).catch(() => {})),
-                ...rolesToRemove.map(async rtr => alternateGuildMember.roles.remove(rtr).catch(() => {})),
-            ]).catch(e => { this.logger.error(e) });
+                ...rolesToAdd.map(async rta =>
+                    alternateGuildMember.roles.add(rta).catch(() => {
+                        /* Do nothing */
+                    }),
+                ),
+                ...rolesToRemove.map(async rtr =>
+                    alternateGuildMember.roles.remove(rtr).catch(() => {
+                        /* Do nothing */
+                    }),
+                ),
+            ]).catch(e => {
+                this.logger.error(e);
+            });
         }
     }
 
@@ -71,17 +99,42 @@ export class DiscordSyncMarshal extends Marshal {
         const alternateGuildMember = member;
         const alternateGuildRoles = await alternateGuild.roles.fetch();
 
-        if (primaryGuildMember.displayName !== alternateGuildMember.displayName) alternateGuildMember.setNickname(primaryGuildMember.displayName).catch(e => { this.logger.error(e) });
+        if (primaryGuildMember.displayName !== alternateGuildMember.displayName)
+            alternateGuildMember.setNickname(primaryGuildMember.displayName).catch(e => {
+                this.logger.error(e);
+            });
 
-        const primaryGuildRolesInAlternateGuild = primaryGuildRoles.filter(pgr => alternateGuildRoles.some(agr => agr.name === pgr.name) && pgr.id !== pgr.guild.id);
-        const alternateGuildRolesFromPrimaryGuild = primaryGuildRolesInAlternateGuild.map(r => alternateGuild.roles.cache.find(rr => rr.name === r.name)!);
-        const rolesToAdd = alternateGuildRolesFromPrimaryGuild.filter(r => primaryGuildMember.roles.cache.some(rr => rr.name === r.name) && !alternateGuildMember.roles.cache.some(rr => rr.name === r.name));
-        const rolesToRemove = alternateGuildRolesFromPrimaryGuild.filter(r => !primaryGuildMember.roles.cache.some(rr => rr.name === r.name) && alternateGuildMember.roles.cache.some(rr => rr.name === r.name));
+        const primaryGuildRolesInAlternateGuild = primaryGuildRoles.filter(
+            pgr => alternateGuildRoles.some(agr => agr.name === pgr.name) && pgr.id !== pgr.guild.id,
+        );
+        const alternateGuildRolesFromPrimaryGuild = primaryGuildRolesInAlternateGuild.map(
+            r => alternateGuild.roles.cache.find(rr => rr.name === r.name)!,
+        );
+        const rolesToAdd = alternateGuildRolesFromPrimaryGuild.filter(
+            r =>
+                primaryGuildMember.roles.cache.some(rr => rr.name === r.name) &&
+                !alternateGuildMember.roles.cache.some(rr => rr.name === r.name),
+        );
+        const rolesToRemove = alternateGuildRolesFromPrimaryGuild.filter(
+            r =>
+                !primaryGuildMember.roles.cache.some(rr => rr.name === r.name) &&
+                alternateGuildMember.roles.cache.some(rr => rr.name === r.name),
+        );
 
         await Promise.all([
-            ...rolesToAdd.map(async rta => alternateGuildMember.roles.add(rta).catch(() => {})),
-            ...rolesToRemove.map(async rtr => alternateGuildMember.roles.remove(rtr).catch(() => {})),
-        ]).catch(e => { this.logger.error(e) });
+            ...rolesToAdd.map(async rta =>
+                alternateGuildMember.roles.add(rta).catch(() => {
+                    /* Do nothing */
+                }),
+            ),
+            ...rolesToRemove.map(async rtr =>
+                alternateGuildMember.roles.remove(rtr).catch(() => {
+                    /* Do nothing */
+                }),
+            ),
+        ]).catch(e => {
+            this.logger.error(e);
+        });
     }
 
     async getOrganizationDiscordGuildsByGuild(guildId: string): Promise<GetOrganizationDiscordGuildsByGuildResponse> {

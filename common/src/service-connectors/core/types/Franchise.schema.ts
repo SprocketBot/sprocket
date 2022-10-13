@@ -3,10 +3,8 @@ import * as z from "zod";
 export const FranchiseProfileSchema = z.object({
     title: z.string(),
     code: z.string(),
-    scrimReportWebhookUrl: z.string().nullable()
-        .optional(),
-    matchReportWebhookUrl: z.string().nullable()
-        .optional(),
+    scrimReportWebhookUrl: z.string().nullable().optional(),
+    matchReportWebhookUrl: z.string().nullable().optional(),
 });
 
 export const FranchiseSchema = z.object({

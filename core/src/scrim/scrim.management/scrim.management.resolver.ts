@@ -1,7 +1,5 @@
 import {Inject, UseGuards} from "@nestjs/common";
-import {
-    Args, Int, Mutation, Query, Resolver, Subscription,
-} from "@nestjs/graphql";
+import {Args, Int, Mutation, Query, Resolver, Subscription} from "@nestjs/graphql";
 import type {Scrim as IScrim} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 
@@ -14,15 +12,16 @@ import {Scrim, ScrimEvent} from "../types";
 
 @Resolver()
 export class ScrimManagementResolver {
-    constructor(
-        private readonly scrimService: ScrimService,
-        @Inject(ScrimPubSub) private readonly pubSub: PubSub,
-    ) {}
+    constructor(private readonly scrimService: ScrimService, @Inject(ScrimPubSub) private readonly pubSub: PubSub) {}
 
     @Query(() => [Scrim])
-    async getActiveScrims(@Args("skillGroupId", {
-        type: () => Int, nullable: true,
-    }) skillGroupId: number): Promise<IScrim[]> {
+    async getActiveScrims(
+        @Args("skillGroupId", {
+            type: () => Int,
+            nullable: true,
+        })
+        skillGroupId: number,
+    ): Promise<IScrim[]> {
         return this.scrimService.getAllScrims(skillGroupId);
     }
 
@@ -37,5 +36,4 @@ export class ScrimManagementResolver {
         await this.scrimService.enableSubscription();
         return this.pubSub.asyncIterator(this.scrimService.allActiveScrimsSubTopic);
     }
-
 }

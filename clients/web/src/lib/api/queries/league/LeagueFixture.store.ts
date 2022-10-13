@@ -1,69 +1,95 @@
 import {gql} from "@urql/core";
-import {QueryStore} from "../../core/QueryStore";
 
+import {QueryStore} from "../../core/QueryStore";
 
 export interface FixtureFranchise {
     profile: {
         title: string;
         primaryColor: string;
         secondaryColor: string;
-        photo: {url: string;};
+        photo: {url: string};
     };
 }
 
-export interface LeagueFixtureValue {
+export interface Fixture {
+    id: number;
     homeFranchise: FixtureFranchise;
     awayFranchise: FixtureFranchise;
 
-    scheduleGroup: {description: string;};
+    scheduleGroup: {description: string};
     matches: Array<{
         id: number;
-        skillGroup: {description: string; ordinal: number;};
+        skillGroup: {
+            ordinal: number;
+            profile: {
+                description: string;
+            };
+        };
         submissionId: string;
-        gameMode: {description: string;};
+        gameMode: {description: string};
+        submissionStatus: "submitting" | "ratifying" | "completed";
+        canSubmit: boolean;
+        canRatify: boolean;
     }>;
+}
+
+export interface LeagueFixtureValue {
+    fixture: Fixture;
 }
 
 export interface LeagueFixtureVars {
     id: number;
 }
 
-export class LeagueFixtureStore extends QueryStore<LeagueFixtureValue, LeagueFixtureVars> {
+export class LeagueFixtureStore extends QueryStore<
+    LeagueFixtureValue,
+    LeagueFixtureVars
+> {
     protected queryString = gql<LeagueFixtureValue, LeagueFixtureVars>`
         fragment FranchiseFields on Franchise {
             profile {
                 title
                 primaryColor
                 secondaryColor
-                photo{
+                photo {
                     url
                 }
             }
         }
-        
-        query($id: Float!) {
+
+        query ($id: Float!) {
             fixture: getFixture(id: $id) {
-                homeFranchise { ...FranchiseFields }
-                awayFranchise { ...FranchiseFields }
-                scheduleGroup { description }
-                
+                id
+                homeFranchise {
+                    ...FranchiseFields
+                }
+                awayFranchise {
+                    ...FranchiseFields
+                }
+                scheduleGroup {
+                    description
+                }
+
                 matches {
                     id
-                    skillGroup { 
-                        ordinal 
+                    skillGroup {
+                        ordinal
                         profile {
                             id
                             description
-                        } 
+                        }
                     }
                     gameMode {
                         description
                     }
                     submissionId
+                    submissionStatus
+                    canSubmit
+                    canRatify
                 }
             }
         }
-  `;
+    `;
 
     constructor(id: number) {
         super();

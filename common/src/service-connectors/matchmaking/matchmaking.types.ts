@@ -14,7 +14,6 @@ export enum MatchmakingEndpoint {
     GetScrim = "GetScrim",
     GetScrimMetrics = "GetScrimMetrics",
     GetScrimByPlayer = "GetScrimByPlayer",
-    EndScrim = "EndScrim",
     CompleteScrim = "CompleteScrim",
     GetScrimBySubmissionId = "GetScrimBySubmissionId",
     CancelScrim = "CancelScrim",
@@ -63,10 +62,6 @@ export const MatchmakingSchemas = {
         input: Schemas.GetScrimByPlayer_Request,
         output: Schemas.GetScrimByPlayer_Response,
     },
-    [MatchmakingEndpoint.EndScrim]: {
-        input: Schemas.EndScrim_Request,
-        output: Schemas.EndScrim_Response,
-    },
     [MatchmakingEndpoint.CompleteScrim]: {
         input: Schemas.CompleteScrim_Request,
         output: Schemas.CompleteScrim_Response,
@@ -108,6 +103,6 @@ export interface MatchmakingErrorResponse {
 }
 
 export type MatchmakingResponse<T extends MatchmakingEndpoint> =
-    MatchmakingSuccessResponse<T>
+    | MatchmakingSuccessResponse<T>
     | MatchmakingErrorResponse;
 export * from "./types";

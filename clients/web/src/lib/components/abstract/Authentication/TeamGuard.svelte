@@ -7,7 +7,7 @@
 </script>
 
 {#if isInTeam}
-    <slot/>
+    <slot />
 {:else}
     <slot name="unauthorized" />
 {/if}

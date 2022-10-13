@@ -1,10 +1,6 @@
 import {Inject, UseGuards} from "@nestjs/common";
-import {
-    Args, Mutation, Query, Resolver, Subscription,
-} from "@nestjs/graphql";
-import {
-    RedisService, ResponseStatus, SubmissionEndpoint, SubmissionService,
-} from "@sprocketbot/common";
+import {Args, Mutation, Query, Resolver, Subscription} from "@nestjs/graphql";
+import {RedisService, ResponseStatus, SubmissionEndpoint, SubmissionService} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 import type {FileUpload} from "graphql-upload";
 import {GraphQLUpload} from "graphql-upload";
@@ -18,9 +14,7 @@ import {FinalizationSubscriber} from "./finalization";
 import {ReplayParsePubSub} from "./replay-parse.constants";
 import {ReplayParseService} from "./replay-parse.service";
 import type {ReplaySubmission} from "./types";
-import {
-    GqlReplaySubmission, ReplaySubmissionType,
-} from "./types";
+import {GqlReplaySubmission, ReplaySubmissionType} from "./types";
 import type {ValidationResult} from "./types/validation-result.types";
 import {ValidationResultUnion} from "./types/validation-result.types";
 
@@ -44,14 +38,22 @@ export class ReplayParseModResolver {
     @Mutation(() => [String])
     async parseReplays(
         @CurrentUser() user: UserPayload,
-        @Args("files", {type: () => [GraphQLUpload]}) files: Array<Promise<FileUpload>>,
+        @Args("files", {type: () => [GraphQLUpload]})
+        files: Array<Promise<FileUpload>>,
         @Args("submissionId", {nullable: true}) submissionId: string,
     ): Promise<string[]> {
-        const streams = await Promise.all(files.map(async f => f.then(_f => ({
-            stream: _f.createReadStream(),
-            filename: _f.filename,
-        }))));
-        return this.rpService.parseReplays(streams, submissionId, {id: user.userId, name: user.username});
+        const streams = await Promise.all(
+            files.map(async f =>
+                f.then(_f => ({
+                    stream: _f.createReadStream(),
+                    filename: _f.filename,
+                })),
+            ),
+        );
+        return this.rpService.parseReplays(streams, submissionId, {
+            id: user.userId,
+            name: user.username,
+        });
     }
 
     @Mutation(() => Boolean)
@@ -110,7 +112,11 @@ export class ReplayParseModResolver {
 
     @Subscription(() => GqlReplaySubmission, {
         nullable: true,
-        filter: async function(this: ReplayParseModResolver, payload: {followSubmission: {id: string;};}, variables: {submissionId: string;}): Promise<boolean> {
+        filter: async function (
+            this: ReplayParseModResolver,
+            payload: {followSubmission: {id: string}},
+            variables: {submissionId: string},
+        ): Promise<boolean> {
             return payload.followSubmission.id === variables.submissionId;
         },
     })

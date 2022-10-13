@@ -1,10 +1,6 @@
-import {
-    ResolveField, Resolver, Root,
-} from "@nestjs/graphql";
+import {ResolveField, Resolver, Root} from "@nestjs/graphql";
 
-import type {
-    FranchiseProfile, Organization,
-} from "../../database";
+import type {FranchiseProfile, Organization} from "../../database";
 import {Franchise} from "../../database";
 import {PopulateService} from "../../util/populate/populate.service";
 

@@ -1,29 +1,27 @@
 import {Logger, UseGuards} from "@nestjs/common";
-import {
-    Args,
-    Mutation,
-    Query,
-    ResolveField, Resolver, Root,
-} from "@nestjs/graphql";
+import {Args, Mutation, Query, ResolveField, Resolver, Root} from "@nestjs/graphql";
 import {InjectRepository} from "@nestjs/typeorm";
-import {EventsService, EventTopic} from "@sprocketbot/common";
+import {
+    EventsService,
+    EventTopic,
+    ReplaySubmissionStatus,
+    ResponseStatus,
+    SubmissionEndpoint,
+    SubmissionService,
+} from "@sprocketbot/common";
 import {Repository} from "typeorm";
 
 import type {GameMode, Round} from "../../database";
-import {
-    Franchise,
-    GameSkillGroup,
-    Match,
-    MatchParent,
-    ScheduleFixture,
-    ScheduleGroup,
-} from "../../database";
+import {Franchise, GameSkillGroup, Match, MatchParent, Player, ScheduleFixture, ScheduleGroup} from "../../database";
 import type {League} from "../../database/mledb";
 import {LegacyGameMode, MLE_OrganizationTeam} from "../../database/mledb";
+import type {MatchSubmissionStatus} from "../../database/scheduling/match/match.model";
+import {CurrentPlayer} from "../../franchise/player";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MledbMatchService} from "../../mledb/mledb-match/mledb-match.service";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {PopulateService} from "../../util/populate/populate.service";
+import {MatchPlayerGuard} from "./match.guard";
 import {MatchService} from "./match.service";
 
 @Resolver(() => Match)
@@ -36,13 +34,14 @@ export class MatchResolver {
         private readonly mledbMatchService: MledbMatchService,
         private readonly eventsService: EventsService,
         @InjectRepository(Match) private readonly matchRepo: Repository<Match>,
+        private readonly submissionService: SubmissionService,
     ) {}
 
     @Query(() => Match)
     async getMatchBySubmissionId(@Args("submissionId") submissionId: string): Promise<Match> {
-        return this.matchService.getMatch({where: {submissionId} });
+        return this.matchService.getMatch({where: {submissionId}});
     }
-    
+
     @Mutation(() => String)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async postReportCard(@Args("matchId") matchId: number): Promise<string> {
@@ -52,7 +51,11 @@ export class MatchResolver {
             match.skillGroup = await this.populate.populateOneOrFail(Match, match, "skillGroup");
         }
         if (!match.skillGroup.profile) {
-            const skillGroupProfile = await this.populate.populateOneOrFail(GameSkillGroup, match.skillGroup, "profile");
+            const skillGroupProfile = await this.populate.populateOneOrFail(
+                GameSkillGroup,
+                match.skillGroup,
+                "profile",
+            );
             match.skillGroup.profile = skillGroupProfile;
         }
         if (!match.matchParent) {
@@ -108,13 +111,73 @@ export class MatchResolver {
     }
 
     @ResolveField()
-    async submitted(@Root() root: Match): Promise<boolean> {
-        return this.matchRepo.findOneOrFail({
+    async submissionStatus(@Root() root: Match): Promise<MatchSubmissionStatus> {
+        const match = await this.matchRepo.findOneOrFail({
             where: {
                 id: root.id,
             },
-            relations: ["rounds"],
-        }).then(v => v.rounds.length > 0 || v.isDummy);
+            relations: {
+                rounds: true,
+                matchParent: {
+                    scrimMeta: true,
+                    fixture: true,
+                },
+            },
+        });
+
+        const {scrimMeta, fixture, event} = match.matchParent;
+
+        // If match is related to a scrim, then the submission must be completed because the scrim is saved in the DB
+        if (scrimMeta) return "completed";
+
+        // Matches must relate to either a scrim, fixture, or event
+        if (!fixture && !event) throw new Error(`Match is related to neither a scrim or a fixture`);
+
+        // If the fixture has stats, the submission is completed
+        const isComplete = match.rounds.length > 0 || match.isDummy;
+        if (isComplete) return "completed";
+
+        // Fixtures/Events must have a submissionId
+        if (!match.submissionId) throw new Error(`Match ${match.id} is not a scrim and has no submissionId`);
+
+        // Get submission to check status
+        const result = await this.submissionService.send(SubmissionEndpoint.GetSubmissionIfExists, match.submissionId);
+        if (result.status === ResponseStatus.ERROR) throw result.error;
+        const {submission} = result.data;
+
+        if (!submission) return "submitting";
+
+        if (submission.status === ReplaySubmissionStatus.RATIFYING) return "ratifying";
+
+        return "submitting";
+    }
+
+    @ResolveField()
+    @UseGuards(GqlJwtGuard, MatchPlayerGuard)
+    async canSubmit(@CurrentPlayer() player: Player, @Root() root: Match): Promise<boolean> {
+        if (root.canSubmit) return root.canSubmit;
+        if (!root.submissionId) throw new Error(`Match has no submissionId`);
+
+        const result = await this.submissionService.send(SubmissionEndpoint.CanSubmitReplays, {
+            playerId: player.member.id,
+            submissionId: root.submissionId,
+        });
+        if (result.status === ResponseStatus.ERROR) throw result.error;
+        return result.data.canSubmit;
+    }
+
+    @ResolveField()
+    @UseGuards(GqlJwtGuard, MatchPlayerGuard)
+    async canRatify(@CurrentPlayer() player: Player, @Root() root: Match): Promise<boolean> {
+        if (root.canRatify) return root.canRatify;
+        if (!root.submissionId) throw new Error(`Match has no submissionId`);
+
+        const result = await this.submissionService.send(SubmissionEndpoint.CanRatifySubmission, {
+            playerId: player.member.id,
+            submissionId: root.submissionId,
+        });
+        if (result.status === ResponseStatus.ERROR) throw result.error;
+        return result.data.canRatify;
     }
 
     @ResolveField()
@@ -127,5 +190,11 @@ export class MatchResolver {
     async rounds(@Root() root: Match): Promise<Round[]> {
         if (root.rounds) return root.rounds;
         return this.populate.populateMany(Match, root, "rounds");
+    }
+
+    @ResolveField()
+    async matchParent(@Root() root: Match): Promise<MatchParent> {
+        if (root.matchParent) return root.matchParent;
+        return this.populate.populateOneOrFail(Match, root, "matchParent");
     }
 }

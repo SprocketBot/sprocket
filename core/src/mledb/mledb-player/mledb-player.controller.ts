@@ -1,19 +1,14 @@
-import {
-    Controller, forwardRef, Inject, Logger,
-} from "@nestjs/common";
+import {Controller, forwardRef, Inject, Logger} from "@nestjs/common";
 import {MessagePattern, Payload} from "@nestjs/microservices";
-import type {
-    CoreOutput,
-} from "@sprocketbot/common";
-import {
-    CoreEndpoint, CoreSchemas,
-} from "@sprocketbot/common";
+import type {CoreOutput} from "@sprocketbot/common";
+import {CoreEndpoint, CoreSchemas} from "@sprocketbot/common";
 
 import {MLE_Platform} from "../../database/mledb";
 import {GameSkillGroupService} from "../../franchise";
 import {MledbPlayerService} from "./mledb-player.service";
 
-const isMlePlatform = (platformCode: string): platformCode is MLE_Platform => Object.values(MLE_Platform).includes(platformCode as MLE_Platform);
+const isMlePlatform = (platformCode: string): platformCode is MLE_Platform =>
+    Object.values(MLE_Platform).includes(platformCode as MLE_Platform);
 
 @Controller("mledb-player")
 export class MledbPlayerController {
@@ -36,11 +31,12 @@ export class MledbPlayerController {
         const player = await this.mledbPlayerService.getPlayerByPlatformId(platform, platformId).catch(() => {
             this.logger.error(`Failed to find player by account platform=${platform} platformId=${platformId}`);
         });
-        if (!player) return {
-            success: false,
-            error: `Failed to find player by account platform=${platform} platformId=${platformId}`,
-        };
-        
+        if (!player)
+            return {
+                success: false,
+                error: `Failed to find player by account platform=${platform} platformId=${platformId}`,
+            };
+
         const skillGroup = await this.skillGroupService.getGameSkillGroupByMLEDBLeague(player.league);
 
         // All MLE players should have a discordId
@@ -62,12 +58,16 @@ export class MledbPlayerController {
     }
 
     @MessagePattern(CoreEndpoint.GetPlayersByPlatformIds)
-    async getPlayersByPlatformIds(@Payload() payload: unknown): Promise<CoreOutput<CoreEndpoint.GetPlayersByPlatformIds>> {
+    async getPlayersByPlatformIds(
+        @Payload() payload: unknown,
+    ): Promise<CoreOutput<CoreEndpoint.GetPlayersByPlatformIds>> {
         const platformIds = CoreSchemas.GetPlayersByPlatformIds.input.parse(payload);
         const platformIdsResponse = await Promise.allSettled(platformIds.map(async d => this.getPlayerByPlatformId(d)));
 
         if (platformIdsResponse.every(r => r.status === "fulfilled")) {
-            return platformIdsResponse.map(r => (r as PromiseFulfilledResult<CoreOutput<CoreEndpoint.GetPlayerByPlatformId>>).value);
+            return platformIdsResponse.map(
+                r => (r as PromiseFulfilledResult<CoreOutput<CoreEndpoint.GetPlayerByPlatformId>>).value,
+            );
         }
 
         // Build up a custom error response containing the list of failed platforms + IDs.
@@ -79,6 +79,8 @@ export class MledbPlayerController {
             }
         });
 
-        throw new Error(`Could not find players associated with the following platforms: ${failedPlatforms.join(", ")}`);
+        throw new Error(
+            `Could not find players associated with the following platforms: ${failedPlatforms.join(", ")}`,
+        );
     }
 }

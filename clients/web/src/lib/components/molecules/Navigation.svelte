@@ -1,29 +1,3 @@
-<script lang="ts">
-    import type {NavigationItem} from "$lib/types";
-    import {NavigationContextKey} from "$lib/types";
-    import {getContext} from "svelte";
-    import {page} from "$app/stores";
-    import {goto} from "$app/navigation";
-
-    // Use context so items can remain dynamic at the page level.
-    const items = getContext<NavigationItem[]>(NavigationContextKey);
-
-    const currentRoute = $page.url.pathname;
-
-    const nav = async (target: string): Promise<unknown> => goto(target);
-</script>
-
-<nav>
-    <ul class="menu">
-        {#each items as item}
-            <li class:active={item.target === currentRoute} on:click={async () => nav(item.target)}>
-                <a>{item.label}</a>
-            </li>
-        {/each}
-    </ul>
-</nav>
-
-
 <style lang="postcss">
     nav {
         @apply w-full;
@@ -47,3 +21,24 @@
         }
     }
 </style>
+
+<script lang="ts">
+    import {goto} from "$app/navigation";
+    import {page} from "$app/stores";
+    import {navigationStore} from "$lib/stores";
+
+    const currentRoute = $page.url.pathname;
+</script>
+
+<nav>
+    <ul class="menu">
+        {#each $navigationStore as item}
+            <li
+                class:active={item.target === currentRoute}
+                on:click={async () => goto(item.target)}
+            >
+                <span>{item.label}</span>
+            </li>
+        {/each}
+    </ul>
+</nav>

@@ -6,8 +6,10 @@ import {ScheduleFixture} from "../../database";
 
 @Injectable()
 export class ScheduleFixtureService {
-    constructor(@InjectRepository(ScheduleFixture)
-    private readonly scheduleFixtureRepo: Repository<ScheduleFixture>) {}
+    constructor(
+        @InjectRepository(ScheduleFixture)
+        private readonly scheduleFixtureRepo: Repository<ScheduleFixture>,
+    ) {}
 
     async getFixturesForGroup(groupId: number): Promise<ScheduleFixture[]> {
         return this.scheduleFixtureRepo.find({

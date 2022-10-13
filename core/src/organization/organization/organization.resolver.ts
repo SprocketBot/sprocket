@@ -1,7 +1,5 @@
 import {UseGuards} from "@nestjs/common";
-import {
-    Args, Int, Mutation, Query, ResolveField, Resolver, Root,
-} from "@nestjs/graphql";
+import {Args, Int, Mutation, Query, ResolveField, Resolver, Root} from "@nestjs/graphql";
 
 import {Organization, OrganizationProfile} from "../../database";
 import {MLE_OrganizationTeam} from "../../database/mledb";
@@ -23,13 +21,17 @@ export class OrganizationResolver {
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.COUNCIL]))
     async updateOrganizationProfile(
         @Args("id", {type: () => Int}) id: number,
-        @Args("profile", {type: () => OrganizationProfileInput}) profile: OrganizationProfileInput,
+        @Args("profile", {type: () => OrganizationProfileInput})
+        profile: OrganizationProfileInput,
     ): Promise<OrganizationProfile> {
         return this.organizationService.updateOrganizationProfile(id, profile);
     }
 
     @ResolveField()
     async profile(@Root() organization: Partial<Organization>): Promise<OrganizationProfile> {
-        return organization.profile ?? await this.organizationService.getOrganizationProfileForOrganization(organization.id!);
+        return (
+            organization.profile ??
+            (await this.organizationService.getOrganizationProfileForOrganization(organization.id!))
+        );
     }
 }

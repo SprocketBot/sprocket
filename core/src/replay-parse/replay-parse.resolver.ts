@@ -1,15 +1,8 @@
-import {
-    ResolveField, Resolver, Root,
-} from "@nestjs/graphql";
+import {ResolveField, Resolver, Root} from "@nestjs/graphql";
 import {REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID} from "@sprocketbot/common";
 
-import {
-    CurrentUser, UserPayload, UserService,
-} from "../identity";
-import {
-    GqlReplaySubmission,
-    ReplaySubmission, SubmissionRejection,
-} from "./types";
+import {CurrentUser, UserPayload, UserService} from "../identity";
+import {GqlReplaySubmission, ReplaySubmission, SubmissionRejection} from "./types";
 
 @Resolver(() => GqlReplaySubmission)
 export class ReplaySubmissionResolver {

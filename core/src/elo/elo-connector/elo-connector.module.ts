@@ -15,9 +15,9 @@ import {EloBullQueue} from "./elo-connector.types";
                 password: config.redis.password,
                 tls: config.redis.secure
                     ? {
-                            host: config.redis.host,
-                            servername: config.redis.host,
-                        }
+                          host: config.redis.host,
+                          servername: config.redis.host,
+                      }
                     : undefined,
                 keyPrefix: `${config.redis.prefix}:bull`,
             },
@@ -25,10 +25,7 @@ import {EloBullQueue} from "./elo-connector.types";
         }),
         BullModule.registerQueue({name: EloBullQueue}),
     ],
-    providers: [
-        EloConnectorService,
-        EloConnectorConsumer,
-    ],
+    providers: [EloConnectorService, EloConnectorConsumer],
     exports: [EloConnectorService],
 })
 export class EloConnectorModule {}

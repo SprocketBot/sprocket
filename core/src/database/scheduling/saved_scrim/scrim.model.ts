@@ -1,7 +1,5 @@
 import {Field, ObjectType} from "@nestjs/graphql";
-import {
-    Entity, OneToOne,
-} from "typeorm";
+import {Entity, OneToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {MatchParent} from "../match_parent/match_parent.model";

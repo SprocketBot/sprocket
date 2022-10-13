@@ -9,10 +9,7 @@ import {EloConnectorService, EloEndpoint} from "./elo-connector";
 
 @Resolver()
 export class EloResolver {
-    constructor(
-        private readonly eloService: EloService,
-        private readonly eloConnectorService: EloConnectorService,
-    ) {}
+    constructor(private readonly eloService: EloService, private readonly eloConnectorService: EloConnectorService) {}
 
     @Mutation(() => String)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))

@@ -3,7 +3,7 @@
 </script>
 
 {#if Boolean($session.user)}
-    <slot/>
+    <slot />
 {:else}
     <slot name="unauthenticated" />
 {/if}

@@ -4,10 +4,12 @@ import type {ResponseStatus} from "../../global.types";
 import * as Schemas from "./schemas";
 
 export enum SubmissionEndpoint {
+    GetSubmissionIfExists = "GetSubmissionIfExists",
     GetAllSubmissions = "GetAllSubmissions",
     SubmitReplays = "SubmitReplays",
     CanSubmitReplays = "CanSubmitReplays",
     RatifySubmission = "RatifySubmission",
+    CanRatifySubmission = "CanRatifySubmission",
     RejectSubmission = "RejectSubmission",
     ResetSubmission = "ResetSubmission",
     RemoveSubmission = "RemoveSubmission",
@@ -17,6 +19,10 @@ export enum SubmissionEndpoint {
 }
 
 export const SubmissionSchemas = {
+    [SubmissionEndpoint.GetSubmissionIfExists]: {
+        input: Schemas.GetSubmissionIfExists_Request,
+        output: Schemas.GetSubmissionIfExists_Response,
+    },
     [SubmissionEndpoint.GetAllSubmissions]: {
         input: Schemas.GetAllSubmissions_Request,
         output: Schemas.GetAllSubmissions_Response,
@@ -32,6 +38,10 @@ export const SubmissionSchemas = {
     [SubmissionEndpoint.RatifySubmission]: {
         input: Schemas.RatifySubmission_Request,
         output: Schemas.RatifySubmission_Response,
+    },
+    [SubmissionEndpoint.CanRatifySubmission]: {
+        input: Schemas.CanRatifySubmission_Request,
+        output: Schemas.CanRatifySubmission_Response,
     },
     [SubmissionEndpoint.RejectSubmission]: {
         input: Schemas.RejectSubmission_Request,
@@ -73,4 +83,3 @@ export interface SubmissionErrorResponse {
 }
 
 export type SubmissionResponse<T extends SubmissionEndpoint> = SubmissionSuccessResponse<T> | SubmissionErrorResponse;
-

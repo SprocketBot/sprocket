@@ -1,6 +1,4 @@
-import {
-    ResolveField, Resolver, Root,
-} from "@nestjs/graphql";
+import {ResolveField, Resolver, Root} from "@nestjs/graphql";
 
 import type {Franchise, Photo} from "../../database";
 import {FranchiseProfile} from "../../database";

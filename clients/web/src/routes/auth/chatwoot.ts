@@ -1,6 +1,7 @@
 import type {RequestHandler} from "@sveltejs/kit";
-import {config} from "$lib/utils";
 import {sha256} from "js-sha256";
+
+import {config} from "$lib/utils";
 
 export const GET: RequestHandler = async ({locals}) => {
     const {user} = locals;

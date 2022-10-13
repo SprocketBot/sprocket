@@ -1,6 +1,4 @@
-import {
-    Inject, Injectable, Logger,
-} from "@nestjs/common";
+import {Inject, Injectable, Logger} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {
     CoreEndpoint,
@@ -44,14 +42,21 @@ export class ScrimService {
         private readonly franchiseService: FranchiseService,
         private readonly mleScrimService: MledbFinalizationService,
         @Inject(ScrimPubSub) private readonly pubsub: PubSub,
-        @InjectRepository(PlayerStatLine) private readonly playerStatLineRepository: Repository<PlayerStatLine>,
+        @InjectRepository(PlayerStatLine)
+        private readonly playerStatLineRepository: Repository<PlayerStatLine>,
     ) {}
 
-    get metricsSubTopic(): string { return "metrics.update" }
+    get metricsSubTopic(): string {
+        return "metrics.update";
+    }
 
-    get pendingScrimsSubTopic(): string { return "scrims.created" }
+    get pendingScrimsSubTopic(): string {
+        return "scrims.created";
+    }
 
-    get allActiveScrimsSubTopic(): string { return "scrims.updated" }
+    get allActiveScrimsSubTopic(): string {
+        return "scrims.updated";
+    }
 
     async getAllScrims(skillGroupId?: number): Promise<IScrim[]> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.GetAllScrims, {skillGroupId});
@@ -91,7 +96,14 @@ export class ScrimService {
         throw result.error;
     }
 
-    async createScrim(organizationId: number, player: IScrimPlayer, settings: IScrimSettings, gameMode: ScrimGameMode, skillGroupId: number, createGroup?: boolean): Promise<IScrim> {
+    async createScrim(
+        organizationId: number,
+        player: IScrimPlayer,
+        settings: IScrimSettings,
+        gameMode: ScrimGameMode,
+        skillGroupId: number,
+        createGroup?: boolean,
+    ): Promise<IScrim> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.CreateScrim, {
             organizationId: organizationId,
             author: player,
@@ -136,28 +148,6 @@ export class ScrimService {
         throw result.error;
     }
 
-    async endScrim(player: IScrimPlayer, scrimId: string): Promise<boolean> {
-        this.logger.log(`endScrim player=${player.id} scrimId=${scrimId}`);
-        const result = await this.matchmakingService.send(MatchmakingEndpoint.EndScrim, {
-            player,
-            scrimId,
-        });
-
-        if (result.status === ResponseStatus.SUCCESS) return result.data;
-        throw result.error;
-    }
-
-    async resetScrim(scrimId: string, playerId?: number): Promise<boolean> {
-        this.logger.log(`resetScrim player=${playerId} scrimId=${scrimId}`);
-        const result = await this.matchmakingService.send(MatchmakingEndpoint.ForceUpdateScrimStatus, {
-            scrimId: scrimId,
-            status: ScrimStatus.IN_PROGRESS,
-        });
-
-        if (result.status === ResponseStatus.SUCCESS) return result.data;
-        throw result.error;
-    }
-
     async cancelScrim(scrimId: string): Promise<IScrim> {
         this.logger.log(`cancelScrim scrimId=${scrimId}`);
         const result = await this.matchmakingService.send(MatchmakingEndpoint.CancelScrim, {
@@ -171,7 +161,8 @@ export class ScrimService {
     async setScrimLocked(scrimId: string, locked: boolean): Promise<boolean> {
         this.logger.log(`lockScrim scrimId=${scrimId} locked=${locked}`);
         const result = await this.matchmakingService.send(MatchmakingEndpoint.SetScrimLocked, {
-            scrimId, locked,
+            scrimId,
+            locked,
         });
 
         if (result.status === ResponseStatus.SUCCESS) return result.data;
@@ -193,35 +184,41 @@ export class ScrimService {
                 },
             },
             order: {id: "DESC"},
-            relations: [
-                "player", "player.member", "player.member.user", "round",
-            ],
+            relations: ["player", "player.member", "player.member.user", "round"],
         });
-        const roundStats = psl.round.roundStats as {"ballchasingId": string;};
+        const roundStats = psl.round.roundStats as {ballchasingId: string};
         return this.mleScrimService.getScrimIdByBallchasingId(roundStats.ballchasingId);
     }
 
-    async getRelevantWebhooks(scrim: CoreInput<CoreEndpoint.GetScrimReportCardWebhooks>): Promise<CoreOutput<CoreEndpoint.GetScrimReportCardWebhooks>> {
+    async getRelevantWebhooks(
+        scrim: CoreInput<CoreEndpoint.GetScrimReportCardWebhooks>,
+    ): Promise<CoreOutput<CoreEndpoint.GetScrimReportCardWebhooks>> {
         const skillGroupProfile = await this.gameSkillGroupService.getGameSkillGroupProfile(scrim.skillGroupId);
 
         // TODO: Refactor after we move to sprocket rosters
-        const franchiseProfiles = await Promise.all(scrim.players.map(async p => {
-            const mleFranchise = await this.franchiseService.getPlayerFranchises(p.id).catch(() => null);
-            if (!mleFranchise?.length) return undefined;
-            const mleTeam = mleFranchise[0];
+        const franchiseProfiles = await Promise.all(
+            scrim.players.map(async p => {
+                const mleFranchise = await this.franchiseService.getPlayerFranchises(p.id).catch(() => null);
+                if (!mleFranchise?.length) return undefined;
+                const mleTeam = mleFranchise[0];
 
-            const franchise = await this.franchiseService.getFranchise({
-                where: {profile: {title: mleTeam.name} },
-                relations: {profile: true},
-            }).catch(() => null);
-            if (!franchise) return undefined;
+                const franchise = await this.franchiseService
+                    .getFranchise({
+                        where: {profile: {title: mleTeam.name}},
+                        relations: {profile: true},
+                    })
+                    .catch(() => null);
+                if (!franchise) return undefined;
 
-            return this.franchiseService.getFranchiseProfile(franchise.id);
-        }));
+                return this.franchiseService.getFranchiseProfile(franchise.id);
+            }),
+        );
 
         return {
-            skillGroupWebhook: skillGroupProfile.scrimReportWebhookUrl,
-            franchiseWebhooks: Array.from(new Set(franchiseProfiles.map(fp => fp?.scrimReportWebhookUrl).filter(f => f))) as string[],
+            skillGroupWebhook: skillGroupProfile.scrimReportCardWebhook?.url,
+            franchiseWebhooks: Array.from(
+                new Set(franchiseProfiles.map(fp => fp?.scrimReportCardWebhook?.url).filter(f => f)),
+            ) as string[],
         };
     }
 
@@ -234,38 +231,58 @@ export class ScrimService {
                     return;
                 }
 
-                if (v.topic as EventTopic !== EventTopic.ScrimMetricsUpdate) {
-                    this.pubsub.publish(this.allActiveScrimsSubTopic, {
-                        followActiveScrims: {
-                            scrim: v.payload,
-                            event: v.topic,
-                        },
-                    }).catch(this.logger.error.bind(this.logger));
+                if ((v.topic as EventTopic) !== EventTopic.ScrimMetricsUpdate) {
+                    this.pubsub
+                        .publish(this.allActiveScrimsSubTopic, {
+                            followActiveScrims: {
+                                scrim: v.payload,
+                                event: v.topic,
+                            },
+                        })
+                        .catch(this.logger.error.bind(this.logger));
 
                     const payload = v.payload as IScrim;
-                    this.pubsub.publish(payload.id, {
-                        followCurrentScrim: {
-                            scrim: payload,
-                            event: v.topic,
-                        },
-                    }).catch(this.logger.error.bind(this.logger));
+                    this.pubsub
+                        .publish(payload.id, {
+                            followCurrentScrim: {
+                                scrim: payload,
+                                event: v.topic,
+                            },
+                        })
+                        .catch(this.logger.error.bind(this.logger));
                 }
 
                 switch (v.topic as EventTopic) {
                     case EventTopic.ScrimMetricsUpdate:
-                        this.pubsub.publish(this.metricsSubTopic, {followScrimMetrics: v.payload}).catch(this.logger.error.bind(this.logger));
+                        this.pubsub
+                            .publish(this.metricsSubTopic, {
+                                followScrimMetrics: v.payload,
+                            })
+                            .catch(this.logger.error.bind(this.logger));
                         break;
                     case EventTopic.ScrimCreated:
-                        this.pubsub.publish(this.pendingScrimsSubTopic, {followPendingScrims: v.payload}).catch(this.logger.error.bind(this.logger));
+                        this.pubsub
+                            .publish(this.pendingScrimsSubTopic, {
+                                followPendingScrims: v.payload,
+                            })
+                            .catch(this.logger.error.bind(this.logger));
                         break;
                     case EventTopic.ScrimDestroyed:
                     case EventTopic.ScrimCancelled:
-                        this.pubsub.publish(this.pendingScrimsSubTopic, {followPendingScrims: v.payload}).catch(this.logger.error.bind(this.logger));
+                        this.pubsub
+                            .publish(this.pendingScrimsSubTopic, {
+                                followPendingScrims: v.payload,
+                            })
+                            .catch(this.logger.error.bind(this.logger));
                         break;
                     default: {
                         const payload = v.payload as IScrim;
                         if (payload.status === ScrimStatus.PENDING || payload.status === ScrimStatus.POPPED) {
-                            this.pubsub.publish(this.pendingScrimsSubTopic, {followPendingScrims: payload as Scrim}).catch(this.logger.error.bind(this.logger));
+                            this.pubsub
+                                .publish(this.pendingScrimsSubTopic, {
+                                    followPendingScrims: payload as Scrim,
+                                })
+                                .catch(this.logger.error.bind(this.logger));
                         }
                         break;
                     }

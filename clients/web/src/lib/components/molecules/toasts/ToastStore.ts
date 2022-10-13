@@ -1,4 +1,5 @@
 import type {Readable} from "svelte/store";
+
 import {BaseStore} from "$lib/api/core/BaseStore";
 
 export interface Toast {
@@ -8,18 +9,17 @@ export interface Toast {
 }
 
 class ToastStore extends BaseStore<Toast[]> implements Readable<Toast[]> {
-    currentValue = [];
+    currentValue: Toast[] = [];
 
-    pushToast(t: Toast) {
+    pushToast(t: Toast): void {
         if (!t.id) {
-            t.id = Math.random().toString()
-                .split(".")[1];
+            t.id = Math.random().toString().split(".")[1];
         }
 
         this.pub([...this.currentValue, t]);
     }
 
-    remove(tid: string) {
+    remove(tid: string): void {
         this.pub(this.currentValue.filter(t => t.id !== tid));
     }
 }

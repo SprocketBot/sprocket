@@ -1,22 +1,7 @@
-import {
-    Inject, Injectable, Logger,
-} from "@nestjs/common";
-import type {
-    Attachment,
-    BrandingOptions,
-    Embed,
-    MessageContent,
-    WebhookMessageOptions,
-} from "@sprocketbot/common";
-import {
-    CoreEndpoint,
-    CoreService,
-    MinioService,
-    ResponseStatus, SprocketConfigurationKey,
-} from "@sprocketbot/common";
-import type {
-    MessageActionRow, MessageOptions,
-} from "discord.js";
+import {Inject, Injectable, Logger} from "@nestjs/common";
+import type {Attachment, BrandingOptions, Embed, MessageContent, WebhookMessageOptions} from "@sprocketbot/common";
+import {CoreEndpoint, CoreService, MinioService, ResponseStatus, SprocketConfigurationKey} from "@sprocketbot/common";
+import type {MessageActionRow, MessageOptions} from "discord.js";
 import {Client, MessageAttachment} from "discord.js";
 
 import {EmbedService} from "../embed";
@@ -56,7 +41,11 @@ export class NotificationsService {
         return new MessageAttachment(url, name);
     }
 
-    async sendGuildTextMessage(channelId: string, content: MessageContent, brandingOptions?: BrandingOptions): Promise<boolean> {
+    async sendGuildTextMessage(
+        channelId: string,
+        content: MessageContent,
+        brandingOptions?: BrandingOptions,
+    ): Promise<boolean> {
         try {
             const guildChannel = await this.discordClient.channels.fetch(channelId);
             if (!guildChannel?.isText()) return false;
@@ -69,16 +58,21 @@ export class NotificationsService {
             if (content.embeds?.length) {
                 const newEmbeds: Embed[] = [];
 
-                for (const embed of content.embeds) newEmbeds.push(await this.embedService.brandEmbed(
-                    embed,
-                    brandingOptions?.options,
-                    brandingOptions?.organizationId,
-                ) as Embed);
+                for (const embed of content.embeds)
+                    newEmbeds.push(
+                        (await this.embedService.brandEmbed(
+                            embed,
+                            brandingOptions?.options,
+                            brandingOptions?.organizationId,
+                        )) as Embed,
+                    );
                 messageOptions.embeds = newEmbeds;
             }
 
             if (content.attachments?.length) {
-                const newAttachments = await Promise.all(content.attachments.map(async a => this.downloadAttachment(a)));
+                const newAttachments = await Promise.all(
+                    content.attachments.map(async a => this.downloadAttachment(a)),
+                );
                 messageOptions.files = newAttachments;
             }
 
@@ -91,11 +85,17 @@ export class NotificationsService {
         return true;
     }
 
-    async sendDirectMessage(userId: string, content: MessageContent, brandingOptions?: BrandingOptions): Promise<boolean> {
+    async sendDirectMessage(
+        userId: string,
+        content: MessageContent,
+        brandingOptions?: BrandingOptions,
+    ): Promise<boolean> {
         // First check if we are allowed to send DMs
-        const r = await this.coreService.send(CoreEndpoint.GetSprocketConfiguration, {key: SprocketConfigurationKey.DISABLE_DISCORD_DMS});
+        const r = await this.coreService.send(CoreEndpoint.GetSprocketConfiguration, {
+            key: SprocketConfigurationKey.DISABLE_DISCORD_DMS,
+        });
         if (r.status === ResponseStatus.ERROR) throw r.error;
-        if (r.data[0].value === "true") return false;
+        if (r.data[0]?.value === "true") return false;
 
         try {
             const user = await this.discordClient.users.fetch(userId);
@@ -103,11 +103,14 @@ export class NotificationsService {
             if (content.embeds?.length) {
                 const newEmbeds: Embed[] = [];
 
-                for (const embed of content.embeds) newEmbeds.push(await this.embedService.brandEmbed(
-                    embed,
-                    brandingOptions?.options,
-                    brandingOptions?.organizationId,
-                ) as Embed);
+                for (const embed of content.embeds)
+                    newEmbeds.push(
+                        (await this.embedService.brandEmbed(
+                            embed,
+                            brandingOptions?.options,
+                            brandingOptions?.organizationId,
+                        )) as Embed,
+                    );
                 content.embeds = newEmbeds;
             }
 
@@ -120,7 +123,11 @@ export class NotificationsService {
         return true;
     }
 
-    async sendWebhookMessage(webhookUrl: string, content: MessageContent & WebhookMessageOptions, brandingOptions?: BrandingOptions): Promise<boolean> {
+    async sendWebhookMessage(
+        webhookUrl: string,
+        content: MessageContent & WebhookMessageOptions,
+        brandingOptions?: BrandingOptions,
+    ): Promise<boolean> {
         try {
             const webhookMatch = webhookUrl.match(/^https:\/\/discord\.com\/api\/webhooks\/(\d+)\/(.+)$/);
             if (!webhookMatch) return false;
@@ -135,27 +142,39 @@ export class NotificationsService {
                 avatarURL: content.avatarURL,
             };
 
-            if (brandingOptions?.organizationId && (brandingOptions.options.webhookAvatar || brandingOptions.options.webhookUsername)) {
-                const organizationProfileResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: brandingOptions.organizationId});
+            if (
+                brandingOptions?.organizationId &&
+                (brandingOptions.options.webhookAvatar || brandingOptions.options.webhookUsername)
+            ) {
+                const organizationProfileResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {
+                    id: brandingOptions.organizationId,
+                });
                 if (organizationProfileResult.status === ResponseStatus.ERROR) throw organizationProfileResult.error;
 
-                if (brandingOptions.options.webhookUsername) messageOptions.username = organizationProfileResult.data.name;
-                if (brandingOptions.options.webhookAvatar && organizationProfileResult.data.logoUrl) messageOptions.avatarURL = organizationProfileResult.data.logoUrl;
+                if (brandingOptions.options.webhookUsername)
+                    messageOptions.username = organizationProfileResult.data.name;
+                if (brandingOptions.options.webhookAvatar && organizationProfileResult.data.logoUrl)
+                    messageOptions.avatarURL = organizationProfileResult.data.logoUrl;
             }
 
             if (content.embeds?.length) {
                 const newEmbeds: Embed[] = [];
 
-                for (const embed of content.embeds) newEmbeds.push(await this.embedService.brandEmbed(
-                    embed,
-                    brandingOptions?.options,
-                    brandingOptions?.organizationId,
-                ) as Embed);
+                for (const embed of content.embeds)
+                    newEmbeds.push(
+                        (await this.embedService.brandEmbed(
+                            embed,
+                            brandingOptions?.options,
+                            brandingOptions?.organizationId,
+                        )) as Embed,
+                    );
                 messageOptions.embeds = newEmbeds;
             }
 
             if (content.attachments?.length) {
-                const newAttachments = await Promise.all(content.attachments.map(async a => this.downloadAttachment(a)));
+                const newAttachments = await Promise.all(
+                    content.attachments.map(async a => this.downloadAttachment(a)),
+                );
                 messageOptions.files = newAttachments;
             }
 

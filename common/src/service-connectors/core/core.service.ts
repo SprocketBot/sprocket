@@ -1,16 +1,12 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import {
-    Inject, Injectable, Logger,
-} from "@nestjs/common";
+import {Inject, Injectable, Logger} from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
 import {lastValueFrom, timeout} from "rxjs";
 
 import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
 import {NanoidService} from "../../util/nanoid/nanoid.service";
-import type {
-    CoreEndpoint, CoreInput, CoreResponse,
-} from "./core.types";
+import type {CoreEndpoint, CoreInput, CoreResponse} from "./core.types";
 import {CoreSchemas} from "./core.types";
 
 @Injectable()
@@ -22,7 +18,11 @@ export class CoreService {
         private readonly nidService: NanoidService,
     ) {}
 
-    async send<E extends CoreEndpoint>(endpoint: E, data: CoreInput<E>, options?: MicroserviceRequestOptions): Promise<CoreResponse<E>> {
+    async send<E extends CoreEndpoint>(
+        endpoint: E,
+        data: CoreInput<E>,
+        options?: MicroserviceRequestOptions,
+    ): Promise<CoreResponse<E>> {
         const rid = this.nidService.gen();
         this.logger.verbose(`| - (${rid}) > | \`${endpoint}\` (${JSON.stringify(data)})`);
 
@@ -33,7 +33,7 @@ export class CoreService {
 
             const rx = this.microserviceClient.send(endpoint, input).pipe(timeout(options?.timeout ?? 5000));
 
-            const response = await lastValueFrom(rx) as unknown;
+            const response = (await lastValueFrom(rx)) as unknown;
 
             const output = outputSchema.parse(response);
 
@@ -43,7 +43,8 @@ export class CoreService {
                 data: output,
             };
         } catch (e) {
-            this.logger.warn(`| < (${rid}) - | \`${endpoint}\` failed ${(e as Error).message}`);``;
+            this.logger.warn(`| < (${rid}) - | \`${endpoint}\` failed ${(e as Error).message}`);
+            ``;
             return {
                 status: ResponseStatus.ERROR,
                 error: e as Error,

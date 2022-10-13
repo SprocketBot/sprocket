@@ -7,12 +7,7 @@ import {NotificationsController} from "./notifications.controller";
 import {NotificationsService} from "./notifications.service";
 
 @Module({
-    imports: [
-        DiscordModule,
-        EmbedModule,
-        MinioModule,
-        CoreModule,
-    ],
+    imports: [DiscordModule, EmbedModule, MinioModule, CoreModule],
     controllers: [NotificationsController],
     providers: [NotificationsService],
     exports: [NotificationsService],

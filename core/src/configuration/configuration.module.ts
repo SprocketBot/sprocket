@@ -8,10 +8,7 @@ import {SprocketConfigurationResolver, SprocketConfigurationService} from "./spr
 import {SprocketConfigurationController} from "./sprocket-configuration/sprocket-configuration.controller";
 
 @Module({
-    imports: [
-        DatabaseModule,
-        forwardRef(() => OrganizationModule),
-    ],
+    imports: [DatabaseModule, forwardRef(() => OrganizationModule)],
     providers: [
         OrganizationConfigurationResolver,
         OrganizationConfigurationService,

@@ -1,10 +1,9 @@
 import {Field, ObjectType} from "@nestjs/graphql";
-import {
-    Column, Entity, JoinColumn, OneToOne,
-} from "typeorm";
+import {Column, Entity, JoinColumn, ManyToOne, OneToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {Photo} from "../../organization";
+import {Webhook} from "../../webhook";
 import {Franchise} from "../franchise";
 
 @Entity({schema: "sprocket"})
@@ -18,15 +17,26 @@ export class FranchiseProfile extends BaseModel {
     @Field(() => String)
     code: string;
 
-    @Column({nullable: true})
-    @Field({nullable: true})
-    scrimReportWebhookUrl?: string;
+    // Scrim Report Cards
+    @ManyToOne(() => Webhook, {nullable: true})
+    @Field(() => Webhook, {nullable: true})
+    scrimReportCardWebhook?: Webhook;
+
+    // League Play Report Cards
+    @ManyToOne(() => Webhook, {nullable: true})
+    @Field(() => Webhook, {nullable: true})
+    matchReportCardWebhook?: Webhook;
+
+    // Submissions Ready for Ratification or Failed
+    @ManyToOne(() => Webhook, {nullable: true})
+    @Field(() => Webhook, {nullable: true})
+    submissionWebhook?: Webhook;
 
     @Column({nullable: true})
-    @Field({nullable: true})
-    matchReportWebhookUrl?: string;
+    @Field(() => String, {nullable: true})
+    submissionDiscordRoleId?: string;
 
-    @OneToOne(() => Photo,  {nullable: true})
+    @OneToOne(() => Photo, {nullable: true})
     @JoinColumn()
     @Field(() => Photo, {nullable: true})
     photo?: Photo;

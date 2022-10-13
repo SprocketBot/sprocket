@@ -1,6 +1,4 @@
-import {
-    InjectQueue, OnQueueFailed, Process, Processor,
-} from "@nestjs/bull";
+import {InjectQueue, OnQueueFailed, Process, Processor} from "@nestjs/bull";
 import {Logger} from "@nestjs/common";
 import {Job, Queue} from "bull";
 import {previousMonday} from "date-fns";
@@ -38,14 +36,27 @@ export class EloConsumer {
         this.logger.debug("Running weekly salaries!");
 
         const rocketLeague = await this.gameService.getGameByTitle("Rocket League");
-        const mleOrg = await this.organizationService.getOrganization({where: {name: "Minor League Esports"} });
+        const mleOrg = await this.organizationService.getOrganization({
+            where: {name: "Minor League Esports"},
+            relations: {organization: true},
+        });
 
-        const autoRankoutsEnabled = await this.gameFeatureService.featureIsEnabled(FeatureCode.AUTO_RANKOUTS, rocketLeague.id, mleOrg.id);
-        const autoSalariesEnabled = await this.gameFeatureService.featureIsEnabled(FeatureCode.AUTO_SALARIES, rocketLeague.id, mleOrg.id);
+        const autoRankoutsEnabled = await this.gameFeatureService.featureIsEnabled(
+            FeatureCode.AUTO_RANKOUTS,
+            rocketLeague.id,
+            mleOrg.id,
+        );
+        const autoSalariesEnabled = await this.gameFeatureService.featureIsEnabled(
+            FeatureCode.AUTO_SALARIES,
+            rocketLeague.id,
+            mleOrg.id,
+        );
 
         if (!autoSalariesEnabled) return;
-        
-        const salaryData = await this.eloConnectorService.createJobAndWait(EloEndpoint.CalculateSalaries, {doRankouts: autoRankoutsEnabled});
+
+        const salaryData = await this.eloConnectorService.createJobAndWait(EloEndpoint.CalculateSalaries, {
+            doRankouts: autoRankoutsEnabled,
+        });
         await this.playerService.saveSalaries(salaryData);
     }
 

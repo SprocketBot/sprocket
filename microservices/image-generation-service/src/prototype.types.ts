@@ -19,8 +19,6 @@ export interface InputDatum {
     [key: string]: InputDatum | Operation | InputDatum[];
 }
 
-export const inputDataSchema: zod.ZodSchema<InputDatum> = zod.lazy(() => zod.record(zod.union([
-    operationSchema,
-    inputDataSchema,
-])));
-
+export const inputDataSchema: zod.ZodSchema<InputDatum> = zod.lazy(() =>
+    zod.record(zod.union([operationSchema, inputDataSchema])),
+);

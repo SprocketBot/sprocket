@@ -1,4 +1,5 @@
-import {gql, type OperationResult} from "@urql/core";
+import {type OperationResult, gql} from "@urql/core";
+
 import {LiveQueryStore} from "../../core/LiveQueryStore";
 import type {Submission} from "./submission.types";
 
@@ -15,8 +16,12 @@ export interface SubmissionStoreSubscriptionVariables {
     submissionId: string;
 }
 
-
-export class SubmissionStore extends LiveQueryStore<SubmissionStoreValue, SubmissionStoreVariables, SubmissionSubscriptionValue, SubmissionStoreSubscriptionVariables> {
+export class SubmissionStore extends LiveQueryStore<
+    SubmissionStoreValue,
+    SubmissionStoreVariables,
+    SubmissionSubscriptionValue,
+    SubmissionStoreSubscriptionVariables
+> {
     protected _subVars: SubmissionStoreSubscriptionVariables;
 
     protected queryString = gql<SubmissionStoreValue, SubmissionStoreVariables>`
@@ -66,7 +71,10 @@ export class SubmissionStore extends LiveQueryStore<SubmissionStoreValue, Submis
         }
     `;
 
-    protected subscriptionString = gql<SubmissionSubscriptionValue, SubmissionStoreSubscriptionVariables>`
+    protected subscriptionString = gql<
+        SubmissionSubscriptionValue,
+        SubmissionStoreSubscriptionVariables
+    >`
         subscription ($submissionId: String!) {
             submission: followSubmission(submissionId: $submissionId) {
                 id
@@ -120,7 +128,12 @@ export class SubmissionStore extends LiveQueryStore<SubmissionStoreValue, Submis
         this._subVars = {submissionId};
     }
 
-    protected handleGqlMessage = (message: OperationResult<SubmissionSubscriptionValue, SubmissionStoreSubscriptionVariables>): void => {
+    protected handleGqlMessage = (
+        message: OperationResult<
+            SubmissionSubscriptionValue,
+            SubmissionStoreSubscriptionVariables
+        >,
+    ): void => {
         if (message.data?.submission) {
             this.currentValue.data = message.data;
         }

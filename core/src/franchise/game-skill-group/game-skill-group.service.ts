@@ -1,15 +1,20 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
+import type {CoreEndpoint, CoreOutput} from "@sprocketbot/common";
 import type {FindOneOptions, FindOptionsWhere} from "typeorm";
 import {Repository} from "typeorm";
 
-import type {GameSkillGroupProfile} from "../../database";
-import {GameSkillGroup} from "../../database";
+import {GameSkillGroup, GameSkillGroupProfile} from "../../database";
 import {League} from "../../database/mledb";
 
 @Injectable()
 export class GameSkillGroupService {
-    constructor(@InjectRepository(GameSkillGroup) private gameSkillGroupRepository: Repository<GameSkillGroup>) {}
+    constructor(
+        @InjectRepository(GameSkillGroup)
+        private gameSkillGroupRepository: Repository<GameSkillGroup>,
+        @InjectRepository(GameSkillGroupProfile)
+        private gameSkillGroupProfileRepository: Repository<GameSkillGroupProfile>,
+    ) {}
 
     async getGameSkillGroup(query: FindOneOptions<GameSkillGroup>): Promise<GameSkillGroup> {
         return this.gameSkillGroupRepository.findOneOrFail(query);
@@ -26,7 +31,10 @@ export class GameSkillGroupService {
     }
 
     async getGameSkillGroupProfile(skillGroupId: number): Promise<GameSkillGroupProfile> {
-        const skillGroup = await this.gameSkillGroupRepository.findOneOrFail({where: {id: skillGroupId}, relations: ["profile"] });
+        const skillGroup = await this.gameSkillGroupRepository.findOneOrFail({
+            where: {id: skillGroupId},
+            relations: {profile: {photo: true}},
+        });
         return skillGroup.profile;
     }
 
@@ -53,8 +61,28 @@ export class GameSkillGroupService {
                 break;
         }
         return this.getGameSkillGroup({
-            where: {profile: {code} },
+            where: {profile: {code}},
             relations: ["profile"],
         });
+    }
+
+    async getSkillGroupWebhooks(skillGroupId: number): Promise<CoreOutput<CoreEndpoint.GetSkillGroupWebhooks>> {
+        const skillGroup = await this.gameSkillGroupProfileRepository.findOneOrFail({
+            where: {
+                skillGroupId: skillGroupId,
+            },
+            relations: {
+                scrimReportCardWebhook: true,
+                matchReportCardWebhook: true,
+                scrimWebhook: true,
+            },
+        });
+
+        return {
+            scrimReportCards: skillGroup.scrimReportCardWebhook?.url,
+            matchReportCards: skillGroup.matchReportCardWebhook?.url,
+            scrim: skillGroup.scrimWebhook?.url,
+            scrimRole: skillGroup.scrimDiscordRoleId,
+        };
     }
 }

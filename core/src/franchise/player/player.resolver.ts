@@ -1,17 +1,5 @@
-import {
-    forwardRef, Inject, UseGuards,
-} from "@nestjs/common";
-import {
-    Args,
-    Field,
-    Float,
-    InputType,
-    Int,
-    Mutation,
-    ResolveField,
-    Resolver,
-    Root,
-} from "@nestjs/graphql";
+import {forwardRef, Inject, UseGuards} from "@nestjs/common";
+import {Args, Field, Float, InputType, Int, Mutation, ResolveField, Resolver, Root} from "@nestjs/graphql";
 import {InjectRepository} from "@nestjs/typeorm";
 import {
     EventsService,
@@ -27,11 +15,14 @@ import {GraphQLUpload} from "graphql-upload";
 import {Repository} from "typeorm";
 
 import type {GameSkillGroup} from "../../database";
+import {Member, Player, UserAuthenticationAccount, UserAuthenticationAccountType} from "../../database";
 import {
-    Member, Player, UserAuthenticationAccount, UserAuthenticationAccountType,
-} from "../../database";
-import {
-    League, LeagueOrdinals, MLE_OrganizationTeam, MLE_Platform, ModePreference, Timezone,
+    League,
+    LeagueOrdinals,
+    MLE_OrganizationTeam,
+    MLE_Platform,
+    ModePreference,
+    Timezone,
 } from "../../database/mledb";
 import type {ManualSkillGroupChange} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
@@ -45,10 +36,10 @@ import {PlayerService} from "./player.service";
 import {IntakeSchema} from "./player.types";
 
 const platformTransform = {
-    "epic": MLE_Platform.EPIC,
-    "steam": MLE_Platform.STEAM,
-    "psn": MLE_Platform.PS4,
-    "xbl": MLE_Platform.XBOX,
+    epic: MLE_Platform.EPIC,
+    steam: MLE_Platform.STEAM,
+    psn: MLE_Platform.PS4,
+    xbl: MLE_Platform.XBOX,
 };
 
 @InputType()
@@ -73,8 +64,10 @@ export class PlayerResolver {
         private readonly eventsService: EventsService,
         private readonly notificationService: NotificationService,
         private readonly eloConnectorService: EloConnectorService,
-        @InjectRepository(UserAuthenticationAccount) private userAuthRepository: Repository<UserAuthenticationAccount>,
-        @Inject(forwardRef(() => OrganizationService)) private readonly organizationService: OrganizationService,
+        @InjectRepository(UserAuthenticationAccount)
+        private userAuthRepository: Repository<UserAuthenticationAccount>,
+        @Inject(forwardRef(() => OrganizationService))
+        private readonly organizationService: OrganizationService,
     ) {}
 
     @ResolveField()
@@ -87,7 +80,8 @@ export class PlayerResolver {
         if (player.franchiseName) return player.franchiseName;
 
         if (!player.member) player.member = await this.popService.populateOneOrFail(Player, player, "member");
-        if (!player.member.user) player.member.user = await this.popService.populateOneOrFail(Member, player.member, "user");
+        if (!player.member.user)
+            player.member.user = await this.popService.populateOneOrFail(Member, player.member, "user");
 
         const franchiseResult = await this.franchiseService.getPlayerFranchises(player.member.user.id);
         // Because we are using MLEDB right now; assume that we only have one
@@ -115,7 +109,10 @@ export class PlayerResolver {
     }
 
     @Mutation(() => String)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
+    @UseGuards(
+        GqlJwtGuard,
+        MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]),
+    )
     async changePlayerSkillGroup(
         @Args("playerId", {type: () => Int}) playerId: number,
         @Args("salary", {type: () => Float}) salary: number,
@@ -156,7 +153,9 @@ export class PlayerResolver {
                 accountType: UserAuthenticationAccountType.DISCORD,
             },
         });
-        const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(player.member.organization.id);
+        const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(
+            player.member.organization.id,
+        );
 
         if (player.skillGroup.id === skillGroupId) return "ERROR: This player is already in this skill group";
 
@@ -178,13 +177,13 @@ export class PlayerResolver {
             old: {
                 id: player.skillGroup.id,
                 name: player.skillGroup.profile.description,
-                salary: Number(player.salary),
+                salary: player.salary,
                 discordEmojiId: player.skillGroup.profile.discordEmojiId,
             },
             new: {
                 id: skillGroup.id,
                 name: skillGroup.profile.description,
-                salary: Number(salary),
+                salary: salary,
                 discordEmojiId: skillGroup.profile.discordEmojiId,
             },
         });
@@ -196,27 +195,29 @@ export class PlayerResolver {
                 type: NotificationMessageType.DirectMessage,
                 userId: discordAccount.accountId,
                 payload: {
-                    embeds: [ {
-                        title: "You Have Ranked Out",
-                        description: `You have been ranked out from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
-                        author: {
-                            name: `${orgProfile.name}`,
-                        },
-                        fields: [
-                            {
-                                name: "New League",
-                                value: `${skillGroup.profile.description}`,
+                    embeds: [
+                        {
+                            title: "You Have Ranked Out",
+                            description: `You have been ranked out from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
+                            author: {
+                                name: `${orgProfile.name}`,
                             },
-                            {
-                                name: "New Salary",
-                                value: `${salary}`,
+                            fields: [
+                                {
+                                    name: "New League",
+                                    value: `${skillGroup.profile.description}`,
+                                },
+                                {
+                                    name: "New Salary",
+                                    value: `${salary}`,
+                                },
+                            ],
+                            footer: {
+                                text: orgProfile.name,
                             },
-                        ],
-                        footer: {
-                            text: orgProfile.name,
+                            timestamp: Date.now(),
                         },
-                        timestamp: Date.now(),
-                    } ],
+                    ],
                 },
                 brandingOptions: {
                     organizationId: player.member.organization.id,
@@ -238,52 +239,85 @@ export class PlayerResolver {
     }
 
     @Mutation(() => Player)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
+    @UseGuards(
+        GqlJwtGuard,
+        MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]),
+    )
     async intakePlayer(
-        @Args("name") name: string,
+        @Args("mleid") mleid: number,
         @Args("discordId") discordId: string,
+        @Args("name") name: string,
         @Args("skillGroup", {type: () => League}) league: League,
         @Args("salary", {type: () => Float}) salary: number,
         @Args("preferredPlatform") platform: string,
         @Args("timezone", {type: () => Timezone}) timezone: Timezone,
-        @Args("preferredMode", {type: () => ModePreference}) mode: ModePreference,
-        @Args("accounts", {type: () => [IntakePlayerAccount]}) accounts: IntakePlayerAccount[],
+        @Args("preferredMode", {type: () => ModePreference})
+        mode: ModePreference,
+        @Args("accounts", {type: () => [IntakePlayerAccount]})
+        accounts: IntakePlayerAccount[],
     ): Promise<Player> {
-        const sg = await this.skillGroupService.getGameSkillGroup({where: {ordinal: LeagueOrdinals.indexOf(league) + 1} });
-        return this.playerService.intakePlayer(name, discordId, sg.id, salary, platform, accounts, timezone, mode);
+        const sg = await this.skillGroupService.getGameSkillGroup({
+            where: {ordinal: LeagueOrdinals.indexOf(league) + 1},
+        });
+        return this.playerService.intakePlayer(
+            mleid,
+            name,
+            discordId,
+            sg.id,
+            salary,
+            platform,
+            accounts,
+            timezone,
+            mode,
+        );
     }
 
     @Mutation(() => [Player])
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
-    async intakePlayerBulk(@Args("files", {type: () => [GraphQLUpload]}) files: Array<Promise<FileUpload>>): Promise<Player[]> {
+    @UseGuards(
+        GqlJwtGuard,
+        MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]),
+    )
+    async intakePlayerBulk(
+        @Args("files", {type: () => [GraphQLUpload]})
+        files: Array<Promise<FileUpload>>,
+    ): Promise<Player[]> {
         const csvs = await Promise.all(files.map(async f => f.then(async _f => readToString(_f.createReadStream()))));
 
-        const results = csvs.flatMap(csv => csv.split(/(?:\r)?\n/g).map(l => l.trim().split(","))).filter(r => r.length > 1);
+        const results = csvs
+            .flatMap(csv => csv.split(/(?:\r)?\n/g).map(l => l.trim().split(",")))
+            .filter(r => r.length > 1);
         const parsed = IntakeSchema.parse(results);
 
-        const imported = await Promise.allSettled(parsed.map(async player => {
-            const sg = await this.skillGroupService.getGameSkillGroup({where: {ordinal: LeagueOrdinals.indexOf(player.skillGroup) + 1} });
-            const accs = player.accounts.map(acc => {
-                const match = acc.match(/rocket-league\/profile\/(\w+)\/([\w _.-]+)/);
-                if (!match) throw new Error("Failed to match tracker");
+        const imported = await Promise.allSettled(
+            parsed.map(async player => {
+                const sg = await this.skillGroupService.getGameSkillGroup({
+                    where: {
+                        ordinal: LeagueOrdinals.indexOf(player.skillGroup) + 1,
+                    },
+                });
+                const accs = player.accounts.map(acc => {
+                    const match = acc.match(/rocket-league\/profile\/(\w+)\/([\w _.-]+)/);
+                    if (!match) throw new Error("Failed to match tracker");
 
-                return {
-                    platform: platformTransform[match[1]] as MLE_Platform,
-                    platformId: match[2],
-                    tracker: acc,
-                };
-            });
-            return this.playerService.intakePlayer(
-                player.name,
-                player.discordId,
-                sg.id,
-                player.salary,
-                player.preferredPlatform,
-                accs,
-                player.timezone,
-                player.preferredMode,
-            );
-        }));
+                    return {
+                        platform: platformTransform[match[1]] as MLE_Platform,
+                        platformId: match[2],
+                        tracker: acc,
+                    };
+                });
+                return this.playerService.intakePlayer(
+                    player.mleid,
+                    player.discordId,
+                    player.name,
+                    sg.id,
+                    player.salary,
+                    player.preferredPlatform,
+                    accs,
+                    player.timezone,
+                    player.preferredMode,
+                );
+            }),
+        );
 
         // @ts-expect-error Trust that this will work.
         return imported.filter(i => i.status === "fulfilled").map(i => i.value as Player);

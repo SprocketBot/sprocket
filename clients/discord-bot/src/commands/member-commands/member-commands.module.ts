@@ -9,16 +9,7 @@ import {HelpMarshal} from "./help";
 import {ReportCardMarshal} from "./report-card.marshal";
 
 @Module({
-    imports: [
-        DiscordModule,
-        CommandsModule,
-        CoreModule,
-        EmbedModule,
-        NotificationsModule,
-    ],
-    providers: [
-        HelpMarshal,
-        ReportCardMarshal,
-    ],
+    imports: [DiscordModule, CommandsModule, CoreModule, EmbedModule, NotificationsModule],
+    providers: [HelpMarshal, ReportCardMarshal],
 })
 export class MemberCommandsModule {}

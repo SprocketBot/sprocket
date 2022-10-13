@@ -1,15 +1,11 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
+/* eslint-disable @typescript-eslint/no-empty-function */
 import {Test} from "@nestjs/testing";
-import {
-    AnalyticsService, config, CoreService,
-} from "@sprocketbot/common";
+import {AnalyticsService, config, CoreService} from "@sprocketbot/common";
 import type {Message} from "discord.js";
 
 import {EmbedService} from "../embed";
 import type {CommandSpec} from "./commands";
-import {
-    Command, CommandManagerService, CommandNotFound,
-} from "./commands";
+import {Command, CommandManagerService, CommandNotFound} from "./commands";
 import {Marshal} from "./marshal";
 
 const command1Spec: CommandSpec = {
@@ -38,35 +34,37 @@ const command2Spec: CommandSpec = {
 
 const command2OverloadSpec: CommandSpec = {
     name: command2Name,
-    args: [ {
-        name: "Argument",
-        type: "string",
-        docs: "docs",
-    } ],
+    args: [
+        {
+            name: "Argument",
+            type: "string",
+            docs: "docs",
+        },
+    ],
     docs: "docs",
 };
 
 class TestMarshal extends Marshal {
     @Command(command1Spec)
-    async MyCommandHandler(): Promise<void> { }
+    async MyCommandHandler(): Promise<void> {}
 
     @CommandNotFound()
-    async MyFirstCommandNotFoundHook(): Promise<void> { }
+    async MyFirstCommandNotFoundHook(): Promise<void> {}
 
     @CommandNotFound()
-    async MySecondCommandNotFoundHook(): Promise<void> { }
+    async MySecondCommandNotFoundHook(): Promise<void> {}
 }
 
 class NoCommandNotFoundMarshal extends Marshal {
     @Command(command2Spec)
-    async MyCommandHandler(): Promise<void> { }
+    async MyCommandHandler(): Promise<void> {}
 }
 class CommandOverloadMarshal extends Marshal {
     @Command(command2Spec)
-    async BaseCommand(): Promise<void> { }
+    async BaseCommand(): Promise<void> {}
 
     @Command(command2OverloadSpec)
-    async BaseCommandWithArgument(): Promise<void> { }
+    async BaseCommandWithArgument(): Promise<void> {}
 }
 const botPrefix = config.bot.prefix;
 
@@ -83,13 +81,7 @@ describe("Marshal", () => {
         let cms: CommandManagerService;
         beforeEach(async () => {
             const moduleRef = await Test.createTestingModule({
-                providers: [
-                    TestMarshal,
-                    CommandManagerService,
-                    CoreService,
-                    AnalyticsService,
-                    EmbedService,
-                ],
+                providers: [TestMarshal, CommandManagerService, CoreService, AnalyticsService, EmbedService],
             }).compile();
             marshal = moduleRef.get(TestMarshal);
             cms = moduleRef.get(CommandManagerService);
@@ -128,7 +120,9 @@ describe("Marshal", () => {
 
             await cms.handleMessage(mockedMessage);
 
-            commandNotFoundHookSpies.forEach(spy => { expect(spy).toHaveBeenCalledTimes(1) });
+            commandNotFoundHookSpies.forEach(spy => {
+                expect(spy).toHaveBeenCalledTimes(1);
+            });
         });
 
         it("should recieve a context object with parsed arguments", async () => {
@@ -142,8 +136,8 @@ describe("Marshal", () => {
             expect(commandHandlerSpy).toHaveBeenCalledTimes(1);
             expect(commandHandlerSpy).toHaveBeenCalledWith(mockedMessage, {
                 args: {
-                    "arg1": "arg1 value",
-                    "arg2": 2,
+                    arg1: "arg1 value",
+                    arg2: 2,
                 },
                 author: false,
             });
@@ -177,13 +171,7 @@ describe("Marshal", () => {
         let managerService: CommandManagerService;
         beforeEach(async () => {
             const moduleRef = await Test.createTestingModule({
-                providers: [
-                    CommandOverloadMarshal,
-                    CommandManagerService,
-                    CoreService,
-                    AnalyticsService,
-                    EmbedService,
-                ],
+                providers: [CommandOverloadMarshal, CommandManagerService, CoreService, AnalyticsService, EmbedService],
             }).compile();
 
             managerService = moduleRef.get(CommandManagerService);

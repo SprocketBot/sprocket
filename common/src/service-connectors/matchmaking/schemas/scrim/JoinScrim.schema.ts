@@ -9,10 +9,7 @@ export const JoinScrim_Request = z.object({
      * Boolean -> Should create a new group (or not)
      * String -> Should join an existing group (or fail)
      */
-    group: z.union([
-        z.boolean(),
-        z.string(),
-    ]).optional(),
+    group: z.union([z.boolean(), z.string()]).optional(),
 });
 
 export const JoinScrim_Response = z.boolean();

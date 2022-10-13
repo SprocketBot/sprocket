@@ -23,4 +23,3 @@ export class SubmissionRejection {
 
     rejectedItems?: RejectedItem[];
 }
-

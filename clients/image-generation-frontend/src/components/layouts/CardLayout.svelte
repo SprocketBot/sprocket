@@ -1,20 +1,3 @@
-<script lang="ts">
-    import PageHeader from "$components/molecules/PageHeader.svelte";
-</script>
-
-<main>
-    <section class="content">
-        <slot />
-    </section>
-    <!-- Right Panel -->
-    <aside class="side-panel">
-        <PageHeader />
-        <section>
-            <slot name="sidePanel" />
-        </section>
-    </aside>
-</main>
-
 <style lang="postcss">
     main {
         @apply h-screen max-h-screen w-screen
@@ -45,3 +28,20 @@
         @apply flex-1 overflow-y-auto;
     }
 </style>
+
+<script lang="ts">
+    import PageHeader from "$components/molecules/PageHeader.svelte";
+</script>
+
+<main>
+    <section class="content">
+        <slot />
+    </section>
+    <!-- Right Panel -->
+    <aside class="side-panel">
+        <PageHeader />
+        <section>
+            <slot name="sidePanel" />
+        </section>
+    </aside>
+</main>

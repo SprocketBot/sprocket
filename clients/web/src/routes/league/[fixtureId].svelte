@@ -1,82 +1,89 @@
 <script context="module" lang="ts">
-  import {currentUser, LeagueFixtureStore} from "$lib/api";
+    import {currentUser, LeagueFixtureStore} from "$lib/api";
 
-  export const load = ({params}: unknown): unknown => ({
-      props: {
-          fixtureId: params.fixtureId,
-          fixtureStore: new LeagueFixtureStore(parseInt(params.fixtureId)),
-      },
-  });
-
+    export const load = ({params}: unknown): unknown => ({
+        props: {
+            fixtureStore: new LeagueFixtureStore(parseInt(params.fixtureId)),
+        },
+    });
 </script>
 
 <script lang="ts">
-  import {
-      DashboardLayout, DashboardCard, Spinner, FixtureCard,
-  } from "$lib/components";
-  import type {LeagueFixtureValue} from "$lib/api";
-  import {goto} from "$app/navigation";
-  import {session} from "$app/stores";
+    import {session} from "$app/stores";
+    import type {Fixture} from "$lib/api";
+    import {
+        DashboardCard,
+        DashboardLayout,
+        FixtureCard,
+        Spinner,
+    } from "$lib/components";
 
-  export let fixtureId: number;
-  export let fixtureStore: LeagueFixtureStore;
+    export let fixtureStore: LeagueFixtureStore;
 
-  currentUser.vars = {orgId: $session?.user?.currentOrganizationId};
+    currentUser.vars = {orgId: $session?.user?.currentOrganizationId};
 
-  let fetching = true;
-  $: fetching = $fixtureStore.fetching;
+    let fetching = true;
+    $: fetching = $fixtureStore.fetching;
 
-  let fixture: LeagueFixtureValue;
-  $: fixture = $fixtureStore.data?.fixture;
-
-  let currentUserFranchises: string[] | undefined;
-  $: currentUserFranchises = $currentUser.data?.me?.members?.flatMap(m => m.players.flatMap(p => p.franchiseName as string) as string[]);
-
-  let currentUserFranchiseStaff: string[] | undefined;
-  $: currentUserFranchiseStaff = $currentUser.data?.me.members.flatMap(m => m.players.flatMap(p => p.franchisePositions as string[]) as string[]);
-
-  let canSubmit = false;
-  $: canSubmit = currentUserFranchises?.some(cuf => cuf === fixture?.awayFranchise.profile.title || fixture?.homeFranchise.profile.title === cuf) && $currentUser.data?.me.members;
-
+    let fixture: Fixture | undefined;
+    $: fixture = $fixtureStore.data?.fixture;
 </script>
 
 <DashboardLayout>
-	<DashboardCard class="col-span-8 row-span-3"
-								 title={fixture ? `${fixture.scheduleGroup.description} | ${fixture.homeFranchise.profile.title} vs ${fixture.awayFranchise.profile.title}` : ""}>
-		{#if fetching}
-			<div class="h-full w-full flex items-center justify-center">
-				<Spinner class="h-16 w-full" />
-			</div>
-		{:else if fixture}
-			<div class="w-96 mx-auto mb-8">
-				<FixtureCard {fixture} hidebutton />
-			</div>
+    <DashboardCard
+        class="col-span-8 row-span-3"
+        title={fixture
+            ? `${fixture.scheduleGroup.description} | ${fixture.homeFranchise.profile.title} vs ${fixture.awayFranchise.profile.title}`
+            : ""}
+    >
+        {#if fetching}
+            <div class="h-full w-full flex items-center justify-center">
+                <Spinner class="h-16 w-full" />
+            </div>
+        {:else if fixture}
+            <div class="w-fit mx-auto mb-8">
+                <FixtureCard {fixture} hidebutton />
+            </div>
 
-			<div class="w-full grid grid-cols-2 lg:grid-cols-3 gap-8">
-				{#each fixture.matches.sort((a, b) => a.skillGroup.ordinal - b.skillGroup.ordinal) as m}
-					<section class="space-y-4">
-						<header>
-							<h3 class="text-2xl font-bold">{m.gameMode.description} | {m.skillGroup.profile.description}</h3>
-						</header>
-						{#if canSubmit}
-
-							{#if m.submitted}
-								<span>Already Submitted</span>
-							{:else}
-								<button on:click={async () => goto(`/league/submit/${m.submissionId}`)}
-												class="btn btn-outline btn-primary mx-auto">Submit Replays
-								</button>
-							{/if}
-						{:else}
-							<span>You are not allowed to submit for this skill group.</span>
-						{/if}
-					</section>
-				{/each}
-			</div>
-		{/if}
-
-
-	</DashboardCard>
+            <div class="w-full grid grid-cols-2 2xl:grid-cols-3 gap-8">
+                {#each fixture.matches.sort((a, b) => a.skillGroup.ordinal - b.skillGroup.ordinal) as m}
+                    <section
+                        class="bg-gray-700 flex flex-col items-center gap-4 p-4 rounded-xl"
+                    >
+                        <header>
+                            <h3 class="text-2xl font-bold">
+                                {m.gameMode.description} | {m.skillGroup.profile
+                                    .description}
+                            </h3>
+                        </header>
+                        {#if m.submissionStatus === "completed"}
+                            <span class="btn btn-outline btn-disabled"
+                                >Completed</span
+                            >
+                        {:else if m.submissionStatus === "ratifying"}
+                            {#if m.canRatify}
+                                <a
+                                    href={`/league/submit/${m.submissionId}`}
+                                    class="btn btn-outline btn-success mx-auto"
+                                >
+                                    Ratify Results
+                                </a>
+                            {:else}
+                                <span>Ratifying</span>
+                            {/if}
+                        {:else if m.canSubmit}
+                            <a
+                                href={`/league/submit/${m.submissionId}`}
+                                class="btn btn-outline btn-primary mx-auto"
+                            >
+                                Submit Replays
+                            </a>
+                        {:else}
+                            <span>Submitting</span>
+                        {/if}
+                    </section>
+                {/each}
+            </div>
+        {/if}
+    </DashboardCard>
 </DashboardLayout>
-
-

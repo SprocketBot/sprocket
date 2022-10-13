@@ -2,8 +2,10 @@ import {Injectable, Logger} from "@nestjs/common";
 import type {ReplaySubmission, Scrim} from "@sprocketbot/common";
 import {
     EventsService,
-    EventTopic, NanoidService,
-    RedisService, ReplaySubmissionType,
+    EventTopic,
+    NanoidService,
+    RedisService,
+    ReplaySubmissionType,
     ResponseStatus,
     SubmissionEndpoint,
     SubmissionService,
@@ -34,19 +36,21 @@ export class FinalizationSubscriber {
 
     onApplicationBootstrap(): void {
         // We want to subscribe to ratified submissions, instead of matches or scrims.
-        this.eventsService.subscribe(EventTopic.SubmissionRatified, false).then(rx => {
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            rx.subscribe(async ({payload}) => {
-                const submission = await this.redisService.getJson<ReplaySubmission>(payload.redisKey);
+        this.eventsService
+            .subscribe(EventTopic.SubmissionRatified, false)
+            .then(rx => {
+                // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                rx.subscribe(async ({payload}) => {
+                    const submission = await this.redisService.getJson<ReplaySubmission>(payload.redisKey);
 
-                if (submission.type === ReplaySubmissionType.MATCH) {
-                    await this.onMatchSubmissionComplete(submission as MatchReplaySubmission, payload.submissionId);
-                } else if (submission.type === ReplaySubmissionType.SCRIM) {
-                    const scrim = await this.scrimService.getScrimBySubmissionId(payload.submissionId);
-                    await this.onScrimComplete(submission as ScrimReplaySubmission, payload.submissionId, scrim!);
-                }
-            });
-        })
+                    if (submission.type === ReplaySubmissionType.MATCH) {
+                        await this.onMatchSubmissionComplete(submission as MatchReplaySubmission, payload.submissionId);
+                    } else if (submission.type === ReplaySubmissionType.SCRIM) {
+                        const scrim = await this.scrimService.getScrimBySubmissionId(payload.submissionId);
+                        await this.onScrimComplete(submission as ScrimReplaySubmission, payload.submissionId, scrim!);
+                    }
+                });
+            })
             .catch(this.logger.error.bind(this.logger));
     }
 
@@ -57,12 +61,17 @@ export class FinalizationSubscriber {
                 return;
             }
 
-            const {scrim: savedScrim, legacyScrim} = await this.rocketLeagueFinalizationService.finalizeScrim(submission, scrim).catch(async e => {
-                const issueId = this.nanoidService.gen();
-                await this.replayParseService.rejectSubmissionBySystem(submission.id, `Failed to save scrim. Please contact support with this issue id: ${issueId}`);
-                this.logger.error(`Issue saving scrim: ${issueId}`, e);
-                throw e;
-            });
+            const {scrim: savedScrim, legacyScrim} = await this.rocketLeagueFinalizationService
+                .finalizeScrim(submission, scrim)
+                .catch(async e => {
+                    const issueId = this.nanoidService.gen();
+                    await this.replayParseService.rejectSubmissionBySystem(
+                        submission.id,
+                        `Failed to save scrim. Please contact support with this issue id: ${issueId}`,
+                    );
+                    this.logger.error(`Issue saving scrim: ${issueId}`, e);
+                    throw e;
+                });
 
             // const result = await this.finalizationService.saveScrimToDatabase(submission, submissionId, scrim);
             await this.submissionService.send(SubmissionEndpoint.RemoveSubmission, {submissionId});
@@ -90,12 +99,17 @@ export class FinalizationSubscriber {
             return;
         }
         try {
-            const {match, legacyMatch} = await this.rocketLeagueFinalizationService.finalizeMatch(submission).catch(async e => {
-                const issueId = this.nanoidService.gen();
-                await this.replayParseService.rejectSubmissionBySystem(submission.id, `Failed to save match. Please contact support with this issue id: ${issueId}`);
-                this.logger.error(`Issue saving scrim: ${issueId}`, e);
-                throw e;
-            });
+            const {match, legacyMatch} = await this.rocketLeagueFinalizationService
+                .finalizeMatch(submission)
+                .catch(async e => {
+                    const issueId = this.nanoidService.gen();
+                    await this.replayParseService.rejectSubmissionBySystem(
+                        submission.id,
+                        `Failed to save match. Please contact support with this issue id: ${issueId}`,
+                    );
+                    this.logger.error(`Issue saving scrim: ${issueId}`, e);
+                    throw e;
+                });
             await this.submissionService.send(SubmissionEndpoint.RemoveSubmission, {submissionId});
             await this.eventsService.publish(EventTopic.MatchSaved, {
                 id: match.id,

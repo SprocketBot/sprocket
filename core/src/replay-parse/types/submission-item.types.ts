@@ -1,9 +1,5 @@
-import {
-    Field, ObjectType, registerEnumType,
-} from "@nestjs/graphql";
-import type {
-    ProgressMessage, Task,
-} from "@sprocketbot/common";
+import {Field, ObjectType, registerEnumType} from "@nestjs/graphql";
+import type {ProgressMessage, Task} from "@sprocketbot/common";
 import {Parser, ProgressStatus} from "@sprocketbot/common";
 
 import {GqlProgress} from "../../util/types/celery-progress";
@@ -25,7 +21,6 @@ export class SubmissionProgressMessage implements ProgressMessage<Task.ParseRepl
     taskId: string;
 
     result: ProgressMessage<Task.ParseReplay>["result"];
-
 }
 
 @ObjectType()
@@ -42,5 +37,4 @@ export class ReplaySubmissionItem {
     inputPath: string;
 
     outputPath?: string;
-
 }

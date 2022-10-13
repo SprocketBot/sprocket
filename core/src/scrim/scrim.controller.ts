@@ -10,7 +10,9 @@ export class ScrimController {
     constructor(private readonly scrimService: ScrimService) {}
 
     @MessagePattern(CoreEndpoint.GetScrimReportCardWebhooks)
-    async getScrimReportCardWebhooks(@Payload() payload: unknown): Promise<CoreOutput<CoreEndpoint.GetScrimReportCardWebhooks>> {
+    async getScrimReportCardWebhooks(
+        @Payload() payload: unknown,
+    ): Promise<CoreOutput<CoreEndpoint.GetScrimReportCardWebhooks>> {
         const data = CoreSchemas.GetScrimReportCardWebhooks.input.parse(payload);
         return this.scrimService.getRelevantWebhooks(data);
     }

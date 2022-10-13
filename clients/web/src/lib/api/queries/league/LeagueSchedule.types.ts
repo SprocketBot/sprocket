@@ -1,3 +1,5 @@
+// TODO abstract to arbitrarily deep schedule groups, not just season -> week
+
 export interface LeagueScheduleFranchise {
     title: string;
     primaryColor: string;
@@ -17,22 +19,22 @@ export interface LeagueScheduleFixture {
     };
 }
 
-export interface LeagueScheduleValue {
-    schedule: {
+export interface LeagueScheduleWeek {
+    id: number;
+    start: string;
+    description: string;
+    fixtures: LeagueScheduleFixture[];
+}
+
+export interface LeagueScheduleSeason {
+    id: number;
+    description: string;
+    game: {
         id: number;
-        description: string;
-        game: {
-            id: number;
-            title: string;
-        };
-        type: {
-            name: string;
-        };
-        childGroups: Array<{
-            id: number;
-            start: Date;
-            description: string;
-            fixtures: LeagueScheduleFixture[];
-        }>;
+        title: string;
     };
+    type: {
+        name: string;
+    };
+    childGroups: LeagueScheduleWeek[];
 }

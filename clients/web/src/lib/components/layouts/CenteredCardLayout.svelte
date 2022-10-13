@@ -1,7 +1,3 @@
-<main>
-    <slot/>
-</main>
-
 <style lang="postcss">
     main {
         @apply w-screen h-screen flex justify-center items-center bg-cover bg-center relative;
@@ -12,6 +8,9 @@
         background-size: cover;
         background-position: center;
         background-image: url("/img/login-bg.svg");
-
     }
 </style>
+
+<main>
+    <slot />
+</main>

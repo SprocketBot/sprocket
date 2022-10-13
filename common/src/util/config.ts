@@ -48,11 +48,9 @@ export const config = {
         },
         get password(): string {
             if (existsSync("./secret/cache-password.txt")) {
-                return readFileSync("./secret/cache-password.txt").toString()
-                    .trim();
+                return readFileSync("./secret/cache-password.txt").toString().trim();
             }
-            return readFileSync("./secret/redis-password.txt").toString()
-                .trim();
+            return readFileSync("./secret/redis-password.txt").toString().trim();
         },
         get secure(): boolean {
             if (_config.has("cache.secure")) return _config.get<boolean>("cache.secure");
@@ -91,8 +89,12 @@ export const config = {
         },
     },
     gql: {
-        get url(): string { return _config.get<string>("gql.url") },
-        get playground(): boolean { return _config.get<boolean>("gql.playground") },
+        get url(): string {
+            return _config.get<string>("gql.url");
+        },
+        get playground(): boolean {
+            return _config.get<boolean>("gql.playground");
+        },
     },
     logger: {
         get levels(): boolean | string {
@@ -104,12 +106,10 @@ export const config = {
             return _config.get<string>("minio.endPoint");
         },
         get accessKey(): string {
-            return readFileSync("./secret/minio-access.txt").toString()
-                .trim();
+            return readFileSync("./secret/minio-access.txt").toString().trim();
         },
         get secretKey(): string {
-            return readFileSync("./secret/minio-secret.txt").toString()
-                .trim();
+            return readFileSync("./secret/minio-secret.txt").toString().trim();
         },
         bucketNames: {
             get replays(): string {
@@ -140,8 +140,7 @@ export const config = {
             return _config.get<string>("redis.host");
         },
         get password(): string {
-            return readFileSync("./secret/redis-password.txt").toString()
-                .trim();
+            return readFileSync("./secret/redis-password.txt").toString().trim();
         },
         get prefix(): string {
             return _config.get<string>("redis.prefix");

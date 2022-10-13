@@ -1,6 +1,4 @@
-import {
-    createUnionType, Field, ObjectType,
-} from "@nestjs/graphql";
+import {createUnionType, Field, ObjectType} from "@nestjs/graphql";
 
 @ObjectType()
 export class ValidationSuccess {
@@ -27,7 +25,7 @@ export class ValidationError {
 export class ValidationFailure {
     @Field(() => Boolean)
     valid: false;
-    
+
     @Field(() => [ValidationError])
     errors: ValidationError[];
 }

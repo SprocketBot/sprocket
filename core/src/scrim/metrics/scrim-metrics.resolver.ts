@@ -1,8 +1,5 @@
 import {Inject} from "@nestjs/common";
-import {
-    Args,
-    Query, ResolveField, Resolver, Subscription,
-} from "@nestjs/graphql";
+import {Args, Query, ResolveField, Resolver, Subscription} from "@nestjs/graphql";
 import {PubSub} from "apollo-server-express";
 
 import {Period} from "../../util/types/period.enum";
@@ -17,8 +14,7 @@ export class ScrimMetricsResolver {
         private readonly scrimService: ScrimService,
         private readonly scrimCrudService: ScrimMetaCrudService,
         @Inject(ScrimPubSub) private readonly pubSub: PubSub,
-    ) {
-    }
+    ) {}
 
     @Query(() => ScrimMetrics)
     async getScrimMetrics(): Promise<ScrimMetrics> {
@@ -40,5 +36,4 @@ export class ScrimMetricsResolver {
     async previousCompletedScrims(@Args("period", {type: () => Period}) period: Period): Promise<number> {
         return this.scrimCrudService.getScrimCountInPreviousPeriod(period, true);
     }
-
 }

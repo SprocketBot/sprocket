@@ -1,8 +1,16 @@
-<script lang="ts">
-    import {pendingScrims, type PendingScrim} from "$lib/api";
+<style lang="postcss">
+    h2 {
+        @apply text-4xl font-bold text-sprocket mb-2;
+    }
+</style>
 
+<script lang="ts">
+    import {type PendingScrim, pendingScrims} from "$lib/api";
     import {
-        ScrimCard, ScrimTable, CreateScrimModal, JoinScrimModal,
+        CreateScrimModal,
+        JoinScrimModal,
+        ScrimCard,
+        ScrimTable,
     } from "$lib/components";
 
     let scrims: PendingScrim[] | undefined;
@@ -12,23 +20,24 @@
     let joinModalVisible = false;
     let targetScrim: PendingScrim | undefined;
 
-    const openCreateScrimModal = () => {
+    const openCreateScrimModal = (): void => {
         createModalVisible = true;
     };
-    const openJoinScrimModal = (scrim: PendingScrim) => {
+    const openJoinScrimModal = (scrim: PendingScrim): void => {
         targetScrim = scrim;
         joinModalVisible = true;
     };
 </script>
-
-
 
 {#if scrims === undefined}
     Loading...
 {:else}
     <div class="flex flex-col md:flex-row justify-between mb-4">
         <h2>Available Scrims</h2>
-        <button class="btn btn-primary w-full md:w-auto" on:click={openCreateScrimModal}>
+        <button
+            class="btn btn-primary w-full md:w-auto"
+            on:click={openCreateScrimModal}
+        >
             Create Scrim
         </button>
     </div>
@@ -49,11 +58,3 @@
 {#if joinModalVisible && targetScrim}
     <JoinScrimModal scrim={targetScrim} bind:visible={joinModalVisible} />
 {/if}
-
-
-
-<style lang="postcss">
-    h2 {
-        @apply text-4xl font-bold text-sprocket mb-2;
-    }
-</style>

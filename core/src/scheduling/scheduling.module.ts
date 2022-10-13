@@ -1,5 +1,5 @@
 import {forwardRef, Module} from "@nestjs/common";
-import {EventsModule} from "@sprocketbot/common";
+import {EventsModule, SubmissionModule} from "@sprocketbot/common";
 
 import {DatabaseModule} from "../database";
 import {EloConnectorModule} from "../elo/elo-connector";
@@ -9,6 +9,7 @@ import {UtilModule} from "../util/util.module";
 import {MatchService} from "./match";
 import {MatchController} from "./match/match.controller";
 import {MatchResolver} from "./match/match.resolver";
+import {MatchParentResolver} from "./match-parent/match-parent.resolver";
 import {RoundService} from "./round";
 import {ScheduleFixtureResolver} from "./schedule-fixture/schedule-fixture.resolver";
 import {ScheduleFixtureService} from "./schedule-fixture/schedule-fixture.service";
@@ -25,6 +26,7 @@ import {ScheduleGroupTypeService} from "./schedule-group/schedule-group-type.ser
         forwardRef(() => FranchiseModule),
         forwardRef(() => MledbInterfaceModule),
         EventsModule,
+        SubmissionModule,
     ],
     providers: [
         MatchService,
@@ -36,13 +38,9 @@ import {ScheduleGroupTypeService} from "./schedule-group/schedule-group-type.ser
         ScheduleFixtureService,
         ScheduleFixtureResolver,
         MatchResolver,
+        MatchParentResolver,
     ],
-    exports: [
-        MatchService,
-        RoundService,
-    ],
-    controllers: [
-        MatchController,
-    ],
+    exports: [MatchService, RoundService],
+    controllers: [MatchController],
 })
 export class SchedulingModule {}
