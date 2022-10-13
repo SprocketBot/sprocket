@@ -2,6 +2,7 @@
     import type {Hst as _Hst} from "@histoire/plugin-svelte";
     import {Icon} from "@steeze-ui/svelte-icon";
     import {Pencil} from "@steeze-ui/heroicons";
+    import {Props} from "../../../../histoire";
     import type {FormControlState, FormControlSize} from "../form.types";
     import Input from "./Input.svelte";
 
@@ -26,6 +27,8 @@
         <Hst.Checkbox title="Disabled" bind:value={disabled} />
         <Hst.Select title="State" bind:value={state} options={states} />
         <Hst.Text title="Error" bind:value={error} />
+
+        <Props props={{label, size, placeholder, disabled, state, error}} />
     </svelte:fragment>
 
     <Hst.Variant title="Default" {label} {size} {placeholder} {disabled} {state} {error}>

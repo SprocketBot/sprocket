@@ -1,5 +1,6 @@
 <script lang="ts">
     import type {Hst as _Hst} from "@histoire/plugin-svelte";
+    import {Props} from "../../../histoire";
     import Alert, {type AlertVariant} from "./Alert.svelte";
 
     export let Hst: _Hst;
@@ -16,7 +17,8 @@
         <Hst.Select title="Variant" bind:value={variant} options={variants} />
         <Hst.Checkbox title="Dismissible" bind:value={dismissible} />
         <Hst.Checkbox title="With Icon" bind:value={withIcon} />
-        <pre class="m-2 p-2 bg-black/20 ">{JSON.stringify({variant, dismissible, withIcon}, null, 2)}</pre>
+
+        <Props props={{variant, dismissible, withIcon}} />
     </svelte:fragment>
 
     <Hst.Variant title="Default" {variant} {dismissible} {withIcon}>
