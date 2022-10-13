@@ -53,16 +53,21 @@ export class RedisService {
             args.push(path);
         }
 
-        const data = JSON.parse(await this.redis.send_command("json.get", ...args) as string) as unknown;
-
-        return (schema ? schema.parse(data) : data) as T;
+        const rawData = await this.redis.send_command("json.get", ...args) as string;
+        const parsedData = JSON.parse(rawData) as unknown;
         
+        if (schema) return schema.parse(parsedData) as T;
+        return parsedData as T;
     }
 
     async getJsonIfExists<T, S extends ZodSchema = ZodSchema>(key: string, schema?: S): Promise<T | null> {
         try {
-            const data = JSON.parse(await this.redis.send_command("json.get", key) as string) as unknown | null;
-            return data ? (schema ? schema.parse(data) : data) as T : null;
+            const rawData = await this.redis.send_command("json.get", key) as string;
+            const parsedData = JSON.parse(rawData) as unknown | null;
+        
+            if (!parsedData) return null;
+            if (schema) return schema.parse(parsedData) as T;
+            return parsedData as T;
         } catch (e) {
             return null;
         }
