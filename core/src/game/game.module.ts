@@ -5,6 +5,7 @@ import {GameResolver, GameService} from "./game";
 import {GameFeatureResolver} from "./game_feature";
 import {GameFeatureService} from "./game_feature/game_feature.service";
 import {GameModeResolver, GameModeService} from "./game-mode";
+import {GameModeController} from "./game-mode/game-mode.controller";
 import {PlatformService} from "./platform";
 
 @Module({
@@ -20,7 +21,7 @@ import {PlatformService} from "./platform";
         GameFeatureService,
         GameFeatureResolver,
     ],
-    controllers: [],
+    controllers: [GameModeController],
     exports: [PlatformService, GameModeService, GameService, GameFeatureService],
 })
 export class GameModule {}
