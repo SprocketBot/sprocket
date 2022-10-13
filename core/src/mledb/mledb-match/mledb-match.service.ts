@@ -167,8 +167,6 @@ export class MledbMatchService {
     async markSeriesNcp(seriesId: number, isNcp: boolean, winningTeamName?: string): Promise<string> {
         this.logger.debug(`Begin markSeriesNcp: seriesId=${seriesId}, isNcp=${isNcp}, winningTeam=${winningTeamName}`);
 
-        // const series = await this.ss.getSeriesById(seriesId, ["fixture.home",
-        // "fixture.away"]);
         const series = await this.seriesRepo.findOneOrFail({
             where: {
                 id: seriesId,

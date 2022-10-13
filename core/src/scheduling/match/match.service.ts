@@ -296,20 +296,6 @@ export class MatchService {
         }));
         const replays = await Promise.all(replayPromises);
 
-        // Check to make sure the winning team played in each replay
-        // if (winningTeam) {
-        //     for (const replay of replays) {
-        //         if (replay.isDummy) continue; // Don't need to check dummy replays
-        //         this.logger.verbose(`Team stats: ${JSON.stringify(replay.teamStats)}`);
-        //         const teamsInReplay = replay.teamStats.map(tsl => tsl.teamName);
-        //         if (!teamsInReplay.includes(winningTeam.franchise.profile.title)) {
-        //             this.logger.error(`The team \`${winningTeam.franchise.profile.title}\` did not play in replay with id \`${replay.id}\` (${teamsInReplay.join(" v. ")}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`);
-        //             this.logger.error(`Could not find team=${winningTeam.franchise.profile.title} on replay with id=${replay.id}, cannot mark as NCP`);
-        //             throw new Error(`Could not find team=${winningTeam.franchise.profile.title} on replay with id=${replay.id}, cannot mark as NCP`);
-        //         }
-        //     }
-        // }
-
         // Set replays to NCP true/false and update winning team/color
         for (const replay of replays) {
             if (!isNcp && replay.isDummy) {
