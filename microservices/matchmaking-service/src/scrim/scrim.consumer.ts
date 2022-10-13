@@ -18,7 +18,7 @@ export class ScrimConsumer {
     private readonly logger = new Logger(ScrimConsumer.name);
 
     constructor(
-        @InjectQueue(MATCHMAKING_QUEUE) private eloQueue: Queue,
+        @InjectQueue(MATCHMAKING_QUEUE) private matchmakingQueue: Queue,
         private readonly scrimService: ScrimService,
         private readonly scrimCrudService: ScrimCrudService,
     ) {}
@@ -46,12 +46,12 @@ export class ScrimConsumer {
     }
 
     async onApplicationBootstrap(): Promise<void> {
-        const repeatableJobs = await this.eloQueue.getRepeatableJobs();
+        const repeatableJobs = await this.matchmakingQueue.getRepeatableJobs();
 
         if (!repeatableJobs.some(job => job.name === SCRIM_CLOCK_JOB)) {
             this.logger.debug("Found no job for scrim clock, creating");
 
-            await this.eloQueue.add(SCRIM_CLOCK_JOB, null, {
+            await this.matchmakingQueue.add(SCRIM_CLOCK_JOB, null, {
                 repeat: {
                     cron: "*/5 * * * *",
                 },
