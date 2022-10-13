@@ -22,15 +22,14 @@ export enum CoreEndpoint {
     GetUsersLatestScrim = "GetUsersLatestScrim",
     GetMleMatchInfoAndStakeholders = "GetMleMatchInfoAndStakeholders",
     GetGuildsByOrganizationId = "GetGuildsByOrganizationId",
-
     GetMatchBySubmissionId = "GetMatchBySubmissionId",
     GetMatchById = "GetMatchById",
     GetFranchiseStaff = "GetFranchiseStaff",
     GetPlayerFranchises = "GetPlayerFranchises",
-
     GetTransactionsDiscordWebhook = "GetTransactionsDiscordWebhook",
     GetSkillGroupWebhooks = "GetSkillGroupWebhooks",
     GetMatchInformationAndStakeholders = "GetMatchInformationAndStakeholders",
+    GetGameModeById = "GetGameModeById",
 }
 
 export const CoreSchemas = {
@@ -134,7 +133,10 @@ export const CoreSchemas = {
         input: Schemas.GetMatchInformationAndStakeholders_Request,
         output: Schemas.GetMatchInformationAndStakeholders_Response,
     },
-
+    [CoreEndpoint.GetGameModeById]: {
+        input: Schemas.GetGameModeById_Request,
+        output: Schemas.GetGameModeById_Response,
+    },
 };
 
 export type CoreInput<T extends CoreEndpoint> = z.infer<typeof CoreSchemas[T]["input"]>;
