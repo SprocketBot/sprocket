@@ -1,7 +1,6 @@
 <script>
     import {page} from "$app/stores";
-
-    import {DashboardLayout, DashboardCard, SprocketBot} from "$lib/components";
+import {DashboardCard, DashboardLayout, SprocketBot} from "$lib/components";
 </script>
 
 <DashboardLayout>
