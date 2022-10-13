@@ -7,4 +7,7 @@ export enum MatchmakingError {
     ScrimAlreadyInProgress = "ScrimAlreadyInProgress",
     ScrimStatusNotPopped = "ScrimStatusNotPopped",
     ScrimSubmissionNotFound = "ScrimSubmissionNotFound",
+    MaxGroupsCreated = "MaxGroupsCreated",
+    GroupNotFound = "GroupNotFound",
+    GroupFull = "GroupFull",
 }
