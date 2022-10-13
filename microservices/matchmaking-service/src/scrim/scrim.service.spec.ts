@@ -1,10 +1,17 @@
 import type {TestingModule} from "@nestjs/testing";
 import {Test} from "@nestjs/testing";
 import type {
-    AnalyticsEndpoint, AnalyticsResponse, CreateScrimOptions, Scrim,
+    AnalyticsEndpoint,
+    AnalyticsResponse,
+    CreateScrimOptions,
+    Scrim,
 } from "@sprocketbot/common";
 import {
-    AnalyticsModule, AnalyticsService, MatchmakingError, ScrimMode, ScrimStatus,
+    AnalyticsModule,
+    AnalyticsService,
+    MatchmakingError,
+    ScrimMode,
+    ScrimStatus,
 } from "@sprocketbot/common";
 import {add} from "date-fns";
 
@@ -27,7 +34,9 @@ describe("ScrimService", () => {
                 ScrimModule,
                 AnalyticsModule,
             ],
-            providers: [ScrimService],
+            providers: [
+                ScrimService,
+            ],
         }).compile();
 
         service = module.get<ScrimService>(ScrimService);
