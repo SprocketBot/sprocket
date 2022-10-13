@@ -14,11 +14,6 @@ import {ScrimService} from "./scrim.service";
 import {ScrimCrudService} from "./scrim-crud/scrim-crud.service";
 import {ScrimGroupService} from "./scrim-group/scrim-group.service";
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-let {v4} = jest.createMockFromModule<typeof import("uuid")>("uuid");
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-v4 = jest.fn(() => "hello!") as typeof v4;
-
 describe("ScrimService", () => {
     let service: ScrimService;
     let scrimCrudService: ScrimCrudService;
