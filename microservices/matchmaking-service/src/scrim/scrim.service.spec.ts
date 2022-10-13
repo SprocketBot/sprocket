@@ -5,6 +5,8 @@ import type {
     AnalyticsResponse,
     CreateScrimOptions,
     Scrim,
+    ScrimPlayer,
+    ScrimSettings,
 } from "@sprocketbot/common";
 import {
     AnalyticsModule,
@@ -20,6 +22,47 @@ import {ScrimModule} from "./scrim.module";
 import {ScrimService} from "./scrim.service";
 import {ScrimCrudService} from "./scrim-crud/scrim-crud.service";
 import {ScrimGroupService} from "./scrim-group/scrim-group.service";
+
+function scrimSettings(
+    teamSize: number,
+    teamCount: number,
+    mode: ScrimMode,
+    competitive: boolean,
+    observable: boolean,
+    checkinTimeout: number,
+): ScrimSettings {
+    return {
+        teamSize, teamCount, mode, competitive, observable, checkinTimeout,
+    };
+}
+
+function scrimPlayer(
+    id: number,
+    name: string,
+    joinedAt: Date,
+    leaveAt: Date,
+    group?: string,
+): ScrimPlayer {
+    return {
+        id, name, joinedAt, leaveAt, group,
+    };
+}
+
+function scrimIds(
+    authorId: number = 1,
+    organizationId: number = 1,
+    gameModeId: number = 1,
+    skillGroupId: number = 1,
+): {
+        authorId: number;
+        organizationId: number;
+        gameModeId: number;
+        skillGroupId: number;
+    } {
+    return {
+        authorId, organizationId, gameModeId, skillGroupId,
+    };
+}
 
 describe("ScrimService", () => {
     let service: ScrimService;
@@ -52,18 +95,8 @@ describe("ScrimService", () => {
 
     it("Should reject if already in a scrim", async () => {
         const createScrimData: CreateScrimOptions = {
-            authorId: 1,
-            organizationId: 1,
-            gameModeId: 1,
-            skillGroupId: 1,
-            settings: {
-                teamSize: 3,
-                teamCount: 2,
-                mode: ScrimMode.ROUND_ROBIN,
-                competitive: true,
-                observable: false,
-                checkinTimeout: 1234567890,
-            },
+            ...scrimIds(),
+            settings: scrimSettings(3, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             join: {
                 playerId: 1,
                 playerName: "HyperCoder",
@@ -77,18 +110,8 @@ describe("ScrimService", () => {
 
     it("Should reject if round robin doesn't support groups", async () => {
         const createScrimData: CreateScrimOptions = {
-            authorId: 1,
-            organizationId: 1,
-            gameModeId: 1,
-            skillGroupId: 1,
-            settings: {
-                teamSize: 3,
-                teamCount: 2,
-                mode: ScrimMode.ROUND_ROBIN,
-                competitive: true,
-                observable: false,
-                checkinTimeout: 1234567890,
-            },
+            ...scrimIds(),
+            settings: scrimSettings(3, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             join: {
                 playerId: 1,
                 playerName: "HyperCoder",
@@ -103,18 +126,8 @@ describe("ScrimService", () => {
 
     it("Should create a teams scrim with a group", async () => {
         const createScrimData: CreateScrimOptions = {
-            authorId: 1,
-            organizationId: 1,
-            gameModeId: 1,
-            skillGroupId: 1,
-            settings: {
-                teamSize: 3,
-                teamCount: 2,
-                mode: ScrimMode.TEAMS,
-                competitive: true,
-                observable: false,
-                checkinTimeout: 1234567890,
-            },
+            ...scrimIds(),
+            settings: scrimSettings(3, 2, ScrimMode.TEAMS, true, false, 1000),
             join: {
                 playerId: 1,
                 playerName: "HyperCoder",
@@ -130,27 +143,12 @@ describe("ScrimService", () => {
             createdAt: startDate,
             updatedAt: startDate,
             status: ScrimStatus.PENDING,
-            authorId: 1,
-            organizationId: 1,
-            gameModeId: 1,
-            skillGroupId: 1,
+            ...scrimIds(),
             players: [
-                {
-                    id: 1,
-                    name: "HyperCoder",
-                    joinedAt: startDate,
-                    leaveAt: add(startDate, {seconds: 1000}),
-                },
+                scrimPlayer(1, "HyperCoder", startDate, add(startDate, {seconds: 1000})),
             ],
             games: undefined,
-            settings: {
-                teamSize: 3,
-                teamCount: 2,
-                mode: ScrimMode.ROUND_ROBIN,
-                competitive: true,
-                observable: false,
-                checkinTimeout: 1234567890,
-            },
+            settings: scrimSettings(3, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
         };
 
         const scrimAfter: Scrim = {
@@ -158,28 +156,12 @@ describe("ScrimService", () => {
             createdAt: startDate,
             updatedAt: startDate,
             status: ScrimStatus.PENDING,
-            authorId: 1,
-            organizationId: 1,
-            gameModeId: 1,
-            skillGroupId: 1,
+            ...scrimIds(),
             players: [
-                {
-                    id: 1,
-                    name: "HyperCoder",
-                    joinedAt: startDate,
-                    leaveAt: add(startDate, {seconds: 1000}),
-                    group: "tekssxisbad",
-                },
+                scrimPlayer(1, "HyperCoder", startDate, add(startDate, {seconds: 1000}), "tekssx"),
             ],
             games: undefined,
-            settings: {
-                teamSize: 3,
-                teamCount: 2,
-                mode: ScrimMode.ROUND_ROBIN,
-                competitive: true,
-                observable: false,
-                checkinTimeout: 1234567890,
-            },
+            settings: scrimSettings(3, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
         };
         
         jest.spyOn(scrimCrudService, "playerInAnyScrim").mockImplementation(async () => false);
