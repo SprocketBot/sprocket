@@ -12,6 +12,7 @@ import {EventProxyService} from "./event-proxy/event-proxy.service";
 import {ScrimModule} from "./scrim.module";
 import {ScrimService} from "./scrim.service";
 import {ScrimCrudService} from "./scrim-crud/scrim-crud.service";
+import {ScrimGroupService} from "./scrim-group/scrim-group.service";
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 let {v4} = jest.createMockFromModule<typeof import("uuid")>("uuid");
@@ -23,6 +24,7 @@ describe("ScrimService", () => {
     let scrimCrudService: ScrimCrudService;
     let eventProxyService: EventProxyService;
     let analyticsService: AnalyticsService;
+    let scrimGroupService: ScrimGroupService;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
@@ -37,6 +39,7 @@ describe("ScrimService", () => {
         scrimCrudService = module.get<ScrimCrudService>(ScrimCrudService);
         eventProxyService = module.get<EventProxyService>(EventProxyService);
         analyticsService = module.get<AnalyticsService>(AnalyticsService);
+        scrimGroupService = module.get<ScrimGroupService>(ScrimGroupService);
     });
 
     it("should be defined", () => {
@@ -94,7 +97,7 @@ describe("ScrimService", () => {
         await expect(async () => service.createScrim(createScrimData)).rejects.toThrow(MatchmakingError.ScrimGroupNotSupportedInMode);
     });
 
-    it("Should reject if round robin doesn't support groups", async () => {
+    it("Should create a teams scrim with a group", async () => {
         const createScrimData: CreateScrimOptions = {
             authorId: 1,
             organizationId: 1,
@@ -116,10 +119,12 @@ describe("ScrimService", () => {
             },
         };
 
+        const startDate = new Date();
+
         const scrim: Scrim = {
             id: "hello world!",
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            createdAt: startDate,
+            updatedAt: startDate,
             status: ScrimStatus.PENDING,
             authorId: 1,
             organizationId: 1,
@@ -129,8 +134,37 @@ describe("ScrimService", () => {
                 {
                     id: 1,
                     name: "HyperCoder",
-                    joinedAt: new Date(),
-                    leaveAt: add(new Date(), {seconds: 1000}),
+                    joinedAt: startDate,
+                    leaveAt: add(startDate, {seconds: 1000}),
+                },
+            ],
+            games: undefined,
+            settings: {
+                teamSize: 3,
+                teamCount: 2,
+                mode: ScrimMode.ROUND_ROBIN,
+                competitive: true,
+                observable: false,
+                checkinTimeout: 1234567890,
+            },
+        };
+
+        const scrimAfter: Scrim = {
+            id: "hello world!",
+            createdAt: startDate,
+            updatedAt: startDate,
+            status: ScrimStatus.PENDING,
+            authorId: 1,
+            organizationId: 1,
+            gameModeId: 1,
+            skillGroupId: 1,
+            players: [
+                {
+                    id: 1,
+                    name: "HyperCoder",
+                    joinedAt: startDate,
+                    leaveAt: add(startDate, {seconds: 1000}),
+                    group: "tekssxisbad",
                 },
             ],
             games: undefined,
@@ -146,9 +180,10 @@ describe("ScrimService", () => {
         
         jest.spyOn(scrimCrudService, "playerInAnyScrim").mockImplementation(async () => false);
         jest.spyOn(scrimCrudService, "createScrim").mockImplementation(async () => scrim);
+        jest.spyOn(scrimGroupService, "resolveGroupKey").mockImplementation(() => "tekssxisbad");
         jest.spyOn(scrimCrudService, "updatePlayer").mockImplementation(async () => {});
         jest.spyOn(eventProxyService, "publish").mockImplementation(async () => true);
         jest.spyOn(analyticsService, "send").mockImplementation(async () => ({} as AnalyticsResponse<AnalyticsEndpoint.Analytics>));
-        expect(await service.createScrim(createScrimData)).toBe(scrim);
+        expect(await service.createScrim(createScrimData)).toEqual(scrimAfter);
     });
 });
