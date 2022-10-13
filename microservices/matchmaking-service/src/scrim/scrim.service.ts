@@ -226,7 +226,7 @@ export class ScrimService {
         return true;
     }
 
-    private async publishScrimUpdate(scrimId: string): Promise<Scrim> {
+    async publishScrimUpdate(scrimId: string): Promise<Scrim> {
         const scrim = await this.scrimCrudService.getScrim(scrimId);
         if (!scrim) throw new Error(MatchmakingError.ScrimNotFound);
 
