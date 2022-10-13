@@ -15,7 +15,7 @@ export default defineConfig({
     },
 
     // https://histoire.dev/guide/config.html#global-js-and-css
-    setupFile: "/src/histoire.setup.ts",
+    setupFile: "/src/lib/histoire/setup.ts",
 
     theme: {
         title: "Histoire | Sprocket",
