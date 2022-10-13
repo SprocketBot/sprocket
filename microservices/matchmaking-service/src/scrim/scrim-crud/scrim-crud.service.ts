@@ -60,7 +60,7 @@ export class ScrimCrudService {
     }
 
     async getScrim(id: string): Promise<Scrim | null> {
-        return this.redisService.getJson<Scrim>(`${this.prefix}${id}`, undefined, ScrimSchema);
+        return this.redisService.getJsonIfExists<Scrim>(`${this.prefix}${id}`, ScrimSchema);
     }
 
     async getAllScrims(skillGroupId?: number): Promise<Scrim[]> {

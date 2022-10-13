@@ -59,12 +59,12 @@ export class RedisService {
         
     }
 
-    async getJsonIfExists<T>(key: string): Promise<T | undefined> {
+    async getJsonIfExists<T, S extends ZodSchema = ZodSchema>(key: string, schema?: S): Promise<T | null> {
         try {
-            const obj = JSON.parse(await this.redis.send_command("json.get", key) as string) as T;
-            return obj;
+            const data = JSON.parse(await this.redis.send_command("json.get", key) as string) as unknown | null;
+            return data ? (schema ? schema.parse(data) : data) as T : null;
         } catch (e) {
-            return undefined;
+            return null;
         }
     }
 
