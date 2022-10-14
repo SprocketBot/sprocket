@@ -606,7 +606,7 @@ describe("ScrimService", () => {
             };
 
             expect(actual).toStrictEqual(expected);
-            expect(removePlayerFromScrim).toHaveBeenCalledWith(players.shuckle(startDate).id);
+            expect(removePlayerFromScrim).toHaveBeenCalledWith(scrim.id, players.shuckle(startDate).id);
         });
     });
 
