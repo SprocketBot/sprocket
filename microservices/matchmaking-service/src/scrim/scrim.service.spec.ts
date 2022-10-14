@@ -38,6 +38,7 @@ describe("ScrimService", () => {
     let updatePlayer: jest.SpyInstance;
     let getScrim: jest.SpyInstance;
     let addPlayerToScrim: jest.SpyInstance;
+    let removePlayerFromScrim: jest.SpyInstance;
 
     let popScrim: jest.SpyInstance;
     let deleteScrim: jest.SpyInstance;
@@ -71,6 +72,7 @@ describe("ScrimService", () => {
         updatePlayer = jest.spyOn(scrimCrudService, "updatePlayer");
         getScrim = jest.spyOn(scrimCrudService, "getScrim");
         addPlayerToScrim = jest.spyOn(scrimCrudService, "addPlayerToScrim");
+        removePlayerFromScrim = jest.spyOn(scrimCrudService, "removePlayerFromScrim");
 
         popScrim = jest.spyOn(scrimLogicService, "popScrim");
         deleteScrim = jest.spyOn(scrimLogicService, "deleteScrim");
@@ -421,7 +423,7 @@ describe("ScrimService", () => {
                 players: [
                     players.hyper(startDate),
                     players.shuckle(startDate),
-                    players.tekssx(startDate),
+                    players.tekssx(expect.any(Date) as Date),
                 ],
                 games: undefined,
                 settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
@@ -587,7 +589,7 @@ describe("ScrimService", () => {
             };
 
             getScrim.mockImplementationOnce(async () => scrim);
-            deleteScrim.mockImplementationOnce(async () => {});
+            removePlayerFromScrim.mockImplementationOnce(async () => {});
 
             const actual = await service.leaveScrim("hello world!", players.shuckle(startDate).id);
             const expected: Scrim = {
@@ -604,7 +606,7 @@ describe("ScrimService", () => {
             };
 
             expect(actual).toStrictEqual(expected);
-            expect(deleteScrim).toHaveBeenCalledWith(expected);
+            expect(removePlayerFromScrim).toHaveBeenCalledWith(players.shuckle(startDate).id);
         });
     });
 
