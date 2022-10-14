@@ -45,6 +45,8 @@ describe("ScrimService", () => {
 
     let resolveGroupKey: jest.SpyInstance;
 
+    const someDate = new Date();
+
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             imports: [
@@ -130,15 +132,14 @@ describe("ScrimService", () => {
                     leaveAfter: 1000,
                 },
             };
-            const startDate = new Date();
             const scrim: Scrim = {
                 id: "hello world!",
-                createdAt: startDate,
-                updatedAt: startDate,
+                createdAt: someDate,
+                updatedAt: someDate,
                 status: ScrimStatus.PENDING,
                 ...scrimIds(),
                 players: [
-                    players.hyper(startDate),
+                    players.hyper(someDate),
                 ],
                 games: undefined,
                 settings: createScrimData.settings,
@@ -149,18 +150,7 @@ describe("ScrimService", () => {
             updatePlayer.mockImplementationOnce(async () => {});
 
             const actual = await service.createScrim(createScrimData);
-            const expected: Scrim = {
-                id: "hello world!",
-                createdAt: startDate,
-                updatedAt: startDate,
-                status: ScrimStatus.PENDING,
-                ...scrimIds(),
-                players: [
-                    players.hyper(startDate),
-                ],
-                games: undefined,
-                settings: createScrimData.settings,
-            };
+            const expected: Scrim = scrim;
 
             expect(actual).toEqual(expected);
         });
@@ -176,15 +166,14 @@ describe("ScrimService", () => {
                     createGroup: true,
                 },
             };
-            const startDate = new Date();
             const scrim: Scrim = {
                 id: "hello world!",
-                createdAt: startDate,
-                updatedAt: startDate,
+                createdAt: someDate,
+                updatedAt: someDate,
                 status: ScrimStatus.PENDING,
                 ...scrimIds(),
                 players: [
-                    players.hyper(startDate),
+                    players.hyper(someDate),
                 ],
                 games: undefined,
                 settings: createScrimData.settings,
@@ -197,16 +186,10 @@ describe("ScrimService", () => {
 
             const actual = await service.createScrim(createScrimData);
             const expected: Scrim = {
-                id: "hello world!",
-                createdAt: startDate,
-                updatedAt: startDate,
-                status: ScrimStatus.PENDING,
-                ...scrimIds(),
+                ...scrim,
                 players: [
-                    players.hyper(startDate, "tekssxisbad"),
+                    players.hyper(someDate, "tekssxisbad"),
                 ],
-                games: undefined,
-                settings: createScrimData.settings,
             };
 
             expect(actual).toEqual(expected);
@@ -237,16 +220,15 @@ describe("ScrimService", () => {
                 playerName: "tekssx",
                 leaveAfter: 1000,
             };
-            const startDate = new Date();
             const scrim: Scrim = {
                 id: "hello world!",
-                createdAt: startDate,
-                updatedAt: startDate,
+                createdAt: someDate,
+                updatedAt: someDate,
                 status: ScrimStatus.IN_PROGRESS,
                 ...scrimIds(),
                 players: [
-                    players.hyper(startDate),
-                    players.shuckle(startDate),
+                    players.hyper(someDate),
+                    players.shuckle(someDate),
                 ],
                 games: undefined,
                 settings: scrimSettings(1, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
@@ -267,16 +249,15 @@ describe("ScrimService", () => {
                 playerName: "tekssx",
                 leaveAfter: 1000,
             };
-            const startDate = new Date();
             const scrim: Scrim = {
                 id: "hello world!",
-                createdAt: startDate,
-                updatedAt: startDate,
+                createdAt: someDate,
+                updatedAt: someDate,
                 status: ScrimStatus.PENDING,
                 ...scrimIds(),
                 players: [
-                    players.hyper(startDate),
-                    players.shuckle(startDate),
+                    players.hyper(someDate),
+                    players.shuckle(someDate),
                 ],
                 games: undefined,
                 settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
@@ -299,16 +280,15 @@ describe("ScrimService", () => {
                 leaveAfter: 1000,
                 joinGroup: "tekssxisawful",
             };
-            const startDate = new Date();
             const scrim: Scrim = {
                 id: "hello world!",
-                createdAt: startDate,
-                updatedAt: startDate,
+                createdAt: someDate,
+                updatedAt: someDate,
                 status: ScrimStatus.PENDING,
                 ...scrimIds(),
                 players: [
-                    players.hyper(startDate, "tekssxisbad"),
-                    players.shuckle(startDate),
+                    players.hyper(someDate, "tekssxisbad"),
+                    players.shuckle(someDate),
                 ],
                 games: undefined,
                 settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
@@ -331,16 +311,15 @@ describe("ScrimService", () => {
                 leaveAfter: 1000,
                 joinGroup: "tekssxisbad",
             };
-            const startDate = new Date();
             const scrim: Scrim = {
                 id: "hello world!",
-                createdAt: startDate,
-                updatedAt: startDate,
+                createdAt: someDate,
+                updatedAt: someDate,
                 status: ScrimStatus.PENDING,
                 ...scrimIds(),
                 players: [
-                    players.hyper(startDate, "tekssxisbad"),
-                    players.shuckle(startDate, "tekssxisbad"),
+                    players.hyper(someDate, "tekssxisbad"),
+                    players.shuckle(someDate, "tekssxisbad"),
                 ],
                 games: undefined,
                 settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
@@ -363,16 +342,15 @@ describe("ScrimService", () => {
                 leaveAfter: 1000,
                 createGroup: true,
             };
-            const startDate = new Date();
             const scrim: Scrim = {
                 id: "hello world!",
-                createdAt: startDate,
-                updatedAt: startDate,
+                createdAt: someDate,
+                updatedAt: someDate,
                 status: ScrimStatus.PENDING,
                 ...scrimIds(),
                 players: [
-                    players.hyper(startDate, "tekssxisbad"),
-                    players.shuckle(startDate, "tekssxisawful"),
+                    players.hyper(someDate, "tekssxisbad"),
+                    players.shuckle(someDate, "tekssxisawful"),
                 ],
                 games: undefined,
                 settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
@@ -394,16 +372,15 @@ describe("ScrimService", () => {
                 playerName: "tekssx",
                 leaveAfter: 1000,
             };
-            const startDate = new Date();
             const scrim: Scrim = {
                 id: "hello world!",
-                createdAt: startDate,
-                updatedAt: startDate,
+                createdAt: someDate,
+                updatedAt: someDate,
                 status: ScrimStatus.PENDING,
                 ...scrimIds(),
                 players: [
-                    players.hyper(startDate),
-                    players.shuckle(startDate),
+                    players.hyper(someDate),
+                    players.shuckle(someDate),
                 ],
                 games: undefined,
                 settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
@@ -415,18 +392,12 @@ describe("ScrimService", () => {
 
             const actual = await service.joinScrim(joinScrimData);
             const expected: Scrim = {
-                id: "hello world!",
-                createdAt: startDate,
-                updatedAt: startDate,
-                status: ScrimStatus.PENDING,
-                ...scrimIds(),
+                ...scrim,
                 players: [
-                    players.hyper(startDate),
-                    players.shuckle(startDate),
+                    players.hyper(someDate),
+                    players.shuckle(someDate),
                     players.tekssx(expect.any(Date) as Date),
                 ],
-                games: undefined,
-                settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
 
             expect(actual).toEqual(expected);
@@ -439,17 +410,16 @@ describe("ScrimService", () => {
                 playerName: "Nigel Thornbrake",
                 leaveAfter: 1000,
             };
-            const startDate = new Date();
             const scrim: Scrim = {
                 id: "hello world!",
-                createdAt: startDate,
-                updatedAt: startDate,
+                createdAt: someDate,
+                updatedAt: someDate,
                 status: ScrimStatus.PENDING,
                 ...scrimIds(),
                 players: [
-                    players.hyper(startDate),
-                    players.shuckle(startDate),
-                    players.tekssx(startDate),
+                    players.hyper(someDate),
+                    players.shuckle(someDate),
+                    players.tekssx(someDate),
                 ],
                 games: undefined,
                 settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
@@ -462,19 +432,13 @@ describe("ScrimService", () => {
 
             const actual = await service.joinScrim(joinScrimData);
             const expected: Scrim = {
-                id: "hello world!",
-                createdAt: startDate,
-                updatedAt: startDate,
-                status: ScrimStatus.PENDING,
-                ...scrimIds(),
+                ...scrim,
                 players: [
-                    players.hyper(startDate),
-                    players.shuckle(startDate),
-                    players.tekssx(startDate),
+                    players.hyper(someDate),
+                    players.shuckle(someDate),
+                    players.tekssx(someDate),
                     players.nigel(expect.any(Date) as Date),
                 ],
-                games: undefined,
-                settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
 
             expect(actual).toEqual(expected);
@@ -490,16 +454,15 @@ describe("ScrimService", () => {
         });
 
         it("Should throw with ScrimAlreadyInProgress when a player tires to leave a scrim that is no longer pending", async () => {
-            const startDate = new Date();
             const scrim: Scrim = {
                 id: "hello world!",
-                createdAt: startDate,
-                updatedAt: startDate,
+                createdAt: someDate,
+                updatedAt: someDate,
                 status: ScrimStatus.POPPED,
                 ...scrimIds(),
                 players: [
-                    players.hyper(startDate),
-                    players.shuckle(startDate),
+                    players.hyper(someDate),
+                    players.shuckle(someDate),
                 ],
                 games: undefined,
                 settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
@@ -507,24 +470,22 @@ describe("ScrimService", () => {
 
             getScrim.mockImplementationOnce(async () => scrim);
 
-            const actual = async (): Promise<Scrim> => service.leaveScrim("hello world!", players.shuckle(startDate).id);
+            const actual = async (): Promise<Scrim> => service.leaveScrim("hello world!", players.shuckle(someDate).id);
             const expected = MatchmakingError.ScrimAlreadyInProgress;
             
             await expect(actual).rejects.toThrow(expected);
         });
 
         it("Should throw with PlayerNotInScrim when a player tires to leave a scrim they are not in", async () => {
-            const startDate = new Date();
-
             const scrim: Scrim = {
                 id: "hello world!",
-                createdAt: startDate,
-                updatedAt: startDate,
+                createdAt: someDate,
+                updatedAt: someDate,
                 status: ScrimStatus.PENDING,
                 ...scrimIds(),
                 players: [
-                    players.hyper(startDate),
-                    players.shuckle(startDate),
+                    players.hyper(someDate),
+                    players.shuckle(someDate),
                 ],
                 games: undefined,
                 settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
@@ -532,22 +493,21 @@ describe("ScrimService", () => {
 
             getScrim.mockImplementationOnce(async () => scrim);
 
-            const actual = async (): Promise<Scrim> => service.leaveScrim("hello world!", players.tekssx(startDate).id);
+            const actual = async (): Promise<Scrim> => service.leaveScrim("hello world!", players.tekssx(someDate).id);
             const expected = MatchmakingError.PlayerNotInScrim;
 
             await expect(actual).rejects.toThrow(expected);
         });
 
         it("Scrim should be deleted if the player leaving is the only player in the scrim", async () => {
-            const startDate = new Date();
             const scrim: Scrim = {
                 id: "hello world!",
-                createdAt: startDate,
-                updatedAt: startDate,
+                createdAt: someDate,
+                updatedAt: someDate,
                 status: ScrimStatus.PENDING,
                 ...scrimIds(),
                 players: [
-                    players.hyper(startDate),
+                    players.hyper(someDate),
                 ],
                 games: undefined,
                 settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
@@ -556,16 +516,10 @@ describe("ScrimService", () => {
             getScrim.mockImplementationOnce(async () => scrim);
             deleteScrim.mockImplementationOnce(async () => {});
 
-            const actual = await service.leaveScrim("hello world!", players.hyper(startDate).id);
+            const actual = await service.leaveScrim("hello world!", players.hyper(someDate).id);
             const expected: Scrim = {
-                id: "hello world!",
-                createdAt: startDate,
-                updatedAt: startDate,
-                status: ScrimStatus.PENDING,
-                ...scrimIds(),
+                ...scrim,
                 players: [],
-                games: undefined,
-                settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
 
             expect(actual).toEqual(expected);
@@ -573,16 +527,15 @@ describe("ScrimService", () => {
         });
 
         it("Player should be removed from the scrim", async () => {
-            const startDate = new Date();
             const scrim: Scrim = {
                 id: "hello world!",
-                createdAt: startDate,
-                updatedAt: startDate,
+                createdAt: someDate,
+                updatedAt: someDate,
                 status: ScrimStatus.PENDING,
                 ...scrimIds(),
                 players: [
-                    players.hyper(startDate),
-                    players.shuckle(startDate),
+                    players.hyper(someDate),
+                    players.shuckle(someDate),
                 ],
                 games: undefined,
                 settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
@@ -591,22 +544,16 @@ describe("ScrimService", () => {
             getScrim.mockImplementationOnce(async () => scrim);
             removePlayerFromScrim.mockImplementationOnce(async () => {});
 
-            const actual = await service.leaveScrim("hello world!", players.shuckle(startDate).id);
+            const actual = await service.leaveScrim("hello world!", players.shuckle(someDate).id);
             const expected: Scrim = {
-                id: "hello world!",
-                createdAt: startDate,
-                updatedAt: startDate,
-                status: ScrimStatus.PENDING,
-                ...scrimIds(),
+                ...scrim,
                 players: [
-                    players.hyper(startDate),
+                    players.hyper(someDate),
                 ],
-                games: undefined,
-                settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
 
             expect(actual).toStrictEqual(expected);
-            expect(removePlayerFromScrim).toHaveBeenCalledWith(scrim.id, players.shuckle(startDate).id);
+            expect(removePlayerFromScrim).toHaveBeenCalledWith(scrim.id, players.shuckle(someDate).id);
         });
     });
 
