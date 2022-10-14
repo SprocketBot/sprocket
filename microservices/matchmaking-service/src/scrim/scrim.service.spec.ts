@@ -20,7 +20,7 @@ import {ScrimModule} from "./scrim.module";
 import {ScrimService} from "./scrim.service";
 import {
     players, scrimIds, scrimSettings,
-} from "./scrim.service.helpers.spec";
+} from "./scrim.service.spec.helpers";
 import {ScrimCrudService} from "./scrim-crud/scrim-crud.service";
 import {ScrimGroupService} from "./scrim-group/scrim-group.service";
 import {ScrimLogicService} from "./scrim-logic/scrim-logic.service";
