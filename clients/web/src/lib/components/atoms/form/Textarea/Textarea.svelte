@@ -10,6 +10,7 @@
     export let disabled: boolean = false;
     export let state: FormControlState = "none";
     export let error: string | undefined = undefined;
+    export let value: string | undefined = undefined;
 
     const labelId = `textarea_${nanoid()}`;
     const errorId = `textarea-error_${nanoid()}`;
@@ -32,7 +33,7 @@
 
 <div class="size-{size} state-{state}">
     <label for={labelId}>{label}</label>
-    <textarea id={labelId} aria-describedby={error ? errorId : undefined} {rows} {placeholder} {disabled} />
+    <textarea id={labelId} bind:value aria-describedby={error ? errorId : undefined} {rows} {placeholder} {disabled} />
 
     {#if error && state === "invalid"}
         <span class="error" id={errorId} transition:slide>{error}</span>
