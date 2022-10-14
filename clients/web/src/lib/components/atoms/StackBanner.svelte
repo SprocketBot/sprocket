@@ -10,6 +10,7 @@
     let open = cookies.get(BANNER_DISABLED_COOKIE) !== "true";
 
     const stack = $session.config.stack;
+    console.log('StackBanner', {session: $session, stack})
     const prodUrl = "app.sprocket.gg";
 
     let showBanner: boolean;
