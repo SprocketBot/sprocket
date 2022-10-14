@@ -1,5 +1,6 @@
 <script lang="ts">
     import type {Hst as _Hst} from "@histoire/plugin-svelte";
+    import Props from "../../../../histoire/Props.svelte";
     import type {FormControlState, FormControlSize} from "../form.types";
     import Textarea from "./Textarea.svelte";
 
@@ -14,6 +15,7 @@
     let disabled = false;
     let state: FormControlState = "none";
     let error = "";
+    let value = "";
 </script>
 
 <Hst.Story title="Atoms/Textarea" layout={{type: "grid", width: 500}}>
@@ -24,9 +26,12 @@
         <Hst.Checkbox title="Disabled" bind:value={disabled} />
         <Hst.Select title="State" bind:value={state} options={states} />
         <Hst.Text title="Error" bind:value={error} />
+        <Hst.Text title="Value" bind:value={value} />
+
+        <Props props={{label, size, placeholder, disabled, state, error, value}} />
     </svelte:fragment>
 
-    <Hst.Variant title="Default" {label} {size} {placeholder} {disabled} {state} {error}>
-        <Textarea {label} {size} {placeholder} {disabled} {state} {error} />
+    <Hst.Variant title="Default" {label} {size} {placeholder} {disabled} {state} {error} {value}>
+        <Textarea {label} {size} {placeholder} {disabled} {state} {error} bind:value />
     </Hst.Variant>
 </Hst.Story>

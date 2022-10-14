@@ -10,6 +10,7 @@
     export let disabled: boolean = false;
     export let state: FormControlState = "none";
     export let error: string | undefined = undefined;
+    export let value: string | undefined = undefined;
 
     const labelId = `input_${nanoid()}`;
     const errorId = `input-error_${nanoid()}`;
@@ -25,7 +26,7 @@
             </div>
         {/if}
 
-        <input id={labelId} type="text" aria-describedby={error ? errorId : undefined} {placeholder} {disabled} />
+        <input id={labelId} type="text" bind:value aria-describedby={error ? errorId : undefined} {placeholder} {disabled} />
 
         {#if $$slots.addonRight}
             <div class="addon">
