@@ -30,3 +30,11 @@ export const IntakeSchema = z.array(z.tuple([
         preferredMode: preferredMode,
         accounts: accounts.filter(a => a !== ""),
     })));
+
+export const RankdownJwtPayloadSchema = z.object({
+    playerId: z.number(),
+    salary: z.number(),
+    skillGroupId: z.number(),
+});
+
+export type RankdownJwtPayload = z.infer<typeof RankdownJwtPayloadSchema>;
