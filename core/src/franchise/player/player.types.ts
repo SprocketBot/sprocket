@@ -18,9 +18,8 @@ export const IntakeSchema = z.array(z.tuple([
     z.enum(["PC", "XB1", "PS4"]),
     z.nativeEnum(Timezone),
     z.nativeEnum(ModePreference),
-    z.string(),
 ]).rest(z.string())
-    .transform(([mleid, discordId, name, skillGroup, salary, preferredPlatform, timezone, preferredMode, primaryAccount, ...accounts]) => ({
+    .transform(([mleid, discordId, name, skillGroup, salary, preferredPlatform, timezone, preferredMode, ...accounts]) => ({
         mleid: parseInt(mleid),
         discordId: discordId,
         name: name,
@@ -29,5 +28,13 @@ export const IntakeSchema = z.array(z.tuple([
         preferredPlatform: preferredPlatform,
         timezone: timezone,
         preferredMode: preferredMode,
-        accounts: accounts.concat(primaryAccount).filter(a => a !== ""),
+        accounts: accounts.filter(a => a !== ""),
     })));
+
+export const RankdownJwtPayloadSchema = z.object({
+    playerId: z.number(),
+    salary: z.number(),
+    skillGroupId: z.number(),
+});
+
+export type RankdownJwtPayload = z.infer<typeof RankdownJwtPayloadSchema>;

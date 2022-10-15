@@ -30,6 +30,7 @@ export enum CoreEndpoint {
     GetSkillGroupWebhooks = "GetSkillGroupWebhooks",
     GetMatchInformationAndStakeholders = "GetMatchInformationAndStakeholders",
     GetGameModeById = "GetGameModeById",
+    GetGameByGameMode = "GetGameByGameMode",
 }
 
 export const CoreSchemas = {
@@ -136,6 +137,10 @@ export const CoreSchemas = {
     [CoreEndpoint.GetGameModeById]: {
         input: Schemas.GetGameModeById_Request,
         output: Schemas.GetGameModeById_Response,
+    },
+    [CoreEndpoint.GetGameByGameMode]: {
+        input: Schemas.GetGameByGameMode_Request,
+        output: Schemas.GetGameByGameMode_Response,
     },
 };
 
