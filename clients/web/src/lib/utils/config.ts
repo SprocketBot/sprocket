@@ -16,7 +16,7 @@ export const loadConfig = async (): Promise<Config> => {
 
     if (config) return config;
 
-    const stack = (import.meta.env.VITE_STACK ?? "local") as Stack;
+    const stack = _config.has("stack") ? _config.get<Stack>("stack") : "local";
 
     config = {
         client: {
@@ -29,7 +29,7 @@ export const loadConfig = async (): Promise<Config> => {
                     "client.chatwoot.websiteToken",
                 ),
             },
-            stack: stack,
+            stack,
         },
         server: {
             chatwoot: {
@@ -38,7 +38,7 @@ export const loadConfig = async (): Promise<Config> => {
                     .toString()
                     .trim(),
             },
-            stack: stack,
+            stack,
         },
     };
 
