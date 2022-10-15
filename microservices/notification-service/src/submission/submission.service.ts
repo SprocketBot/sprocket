@@ -71,7 +71,9 @@ export class SubmissionService extends SprocketEventMarshal {
     async sendScrimSubmissionRatifyingNotifications(submission: ScrimReplaySubmission): Promise<void> {
         const scrimResult = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, submission.scrimId);
         if (scrimResult.status === ResponseStatus.ERROR) throw scrimResult.error;
+        
         const scrim = scrimResult.data;
+        if (!scrim) throw new Error("Scrim does not exist");
         
         const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: scrim.organizationId});
         if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
@@ -199,7 +201,9 @@ export class SubmissionService extends SprocketEventMarshal {
     async sendScrimSubmissionRejectedNotifications(submission: ScrimReplaySubmission): Promise<void> {
         const scrimResult = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, submission.scrimId);
         if (scrimResult.status === ResponseStatus.ERROR) throw scrimResult.error;
+        
         const scrim = scrimResult.data;
+        if (!scrim) throw new Error("Scrim does not exist");
         
         const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: scrim.organizationId});
         if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;

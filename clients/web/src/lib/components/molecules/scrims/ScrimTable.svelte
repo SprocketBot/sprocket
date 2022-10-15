@@ -1,6 +1,8 @@
 <script lang="ts">
     import {screamingSnakeToHuman} from "$lib/utils";
     import type {PendingScrim} from "$lib/api";
+    import {format} from "date-fns";
+    import {utcToZonedTime} from "date-fns-tz";
 
     export let scrims: PendingScrim[];
     export let joinScrim: (scrim: PendingScrim) => void;
@@ -15,6 +17,7 @@
         <th>Scrim Type</th>
         <th>Players</th>
         <th>Mode</th>
+        <th>Created At</th>
         <th />
     </tr>
     </thead>
@@ -27,6 +30,7 @@
             <td>{screamingSnakeToHuman(scrim.settings.mode)}</td>
             <td>{scrim.playerCount} / {scrim.maxPlayers}</td>
             <td>{scrim.settings.competitive ? "Competitive" : "Casual"}</td>
+            <td>{format(utcToZonedTime(new Date(scrim.createdAt), "America/New_York"), "MM'/'d h:mmaaa 'ET")}</td>
             <td>
                 <button on:click={() => { joinScrim(scrim) }} class="btn btn-outline float-right lg:btn-sm">
                     Join

@@ -9,6 +9,7 @@ export interface CurrentScrim {
     playerCount: number;
     maxPlayers: number;
     status: string;
+    createdAt: Date;
     skillGroup: {
         profile: {
             description: string;
@@ -80,6 +81,7 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
             playerCount
             maxPlayers
             status
+            createdAt
             skillGroup {
                 profile {
                     description
@@ -128,6 +130,7 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
                 playerCount
                 maxPlayers
                 status
+                createdAt
                 skillGroup {
                     profile {
                         description

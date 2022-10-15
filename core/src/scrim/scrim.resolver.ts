@@ -1,5 +1,6 @@
 import {UseGuards} from "@nestjs/common";
 import {
+    Int,
     ResolveField, Resolver, Root,
 } from "@nestjs/graphql";
 import {ScrimStatus} from "@sprocketbot/common";
@@ -27,7 +28,17 @@ export class ScrimResolver {
         private readonly gameModeService: GameModeService,
     ) {}
 
-    @ResolveField()
+    @ResolveField(() => GameMode)
+    async gameMode(@Root() scrim: Partial<Scrim>): Promise<GameMode> {
+        return scrim.gameMode ?? this.gameModeService.getGameModeById(scrim.gameModeId!);
+    }
+
+    @ResolveField(() => GameSkillGroup)
+    async skillGroup(@Root() scrim: Partial<Scrim>): Promise<GameSkillGroup> {
+        return scrim.skillGroup ?? this.gameSkillGroupService.getGameSkillGroupById(scrim.skillGroupId!);
+    }
+
+    @ResolveField(() => [ScrimPlayer], {nullable: true})
     players(@Root() scrim: Scrim): undefined | ScrimPlayer[] {
         if (scrim.status === ScrimStatus.PENDING) return undefined;
         return scrim.players ?? [];
@@ -39,14 +50,11 @@ export class ScrimResolver {
         return scrim.players ?? [];
     }
 
-    @ResolveField()
-    playerCount(@Root() scrim: Scrim): number {
-        return scrim.players?.length ?? 0;
-    }
-
-    @ResolveField()
-    maxPlayers(@Root() scrim: Scrim): number {
-        return scrim.settings.teamCount * scrim.settings.teamSize;
+    @ResolveField(() => ScrimLobby, {nullable: true})
+    // TODO: Guard for checking if person can observe
+    @UseGuards(OrGuard(ScrimResolverPlayerGuard))
+    lobby(@Root() scrim: Scrim): ScrimLobby | undefined {
+        return scrim.lobby;
     }
 
     @ResolveField(() => String, {nullable: true})
@@ -55,24 +63,17 @@ export class ScrimResolver {
         if (!code) return undefined;
         return {
             code: code,
-            players: scrim.players!.filter(p => p.group === code && p.id !== user.userId).map(p => p.name),
+            players: scrim.players.filter(p => p.group === code && p.id !== user.userId).map(p => p.name),
         };
     }
 
-    @ResolveField(() => ScrimLobby, {nullable: true})
-    // TODO: Guard for checking if person can observe
-    @UseGuards(OrGuard(ScrimResolverPlayerGuard))
-    lobby(@Root() scrim: Scrim): ScrimLobby | undefined {
-        return scrim.settings.lobby;
+    @ResolveField(() => Int)
+    playerCount(@Root() scrim: Scrim): number {
+        return scrim.players?.length ?? 0;
     }
 
-    @ResolveField(() => GameMode)
-    async gameMode(@Root() scrim: Scrim): Promise<GameMode> {
-        return this.gameModeService.getGameModeById(scrim.gameMode.id);
-    }
-
-    @ResolveField(() => GameSkillGroup)
-    async skillGroup(@Root() scrim: Scrim): Promise<GameSkillGroup> {
-        return this.gameSkillGroupService.getGameSkillGroupById(scrim.skillGroupId);
+    @ResolveField(() => Int)
+    maxPlayers(@Root() scrim: Scrim): number {
+        return scrim.settings.teamCount * scrim.settings.teamSize;
     }
 }

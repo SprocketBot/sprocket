@@ -4,4 +4,4 @@ import {ScrimSchema} from "../../types";
 
 export const GetScrim_Request = z.string().uuid();
 
-export const GetScrim_Response = ScrimSchema;
+export const GetScrim_Response = ScrimSchema.nullable();
