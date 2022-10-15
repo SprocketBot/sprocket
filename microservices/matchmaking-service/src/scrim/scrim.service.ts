@@ -80,7 +80,7 @@ export class ScrimService {
 
     async joinScrim({
         scrimId, playerId, playerName, leaveAfter, createGroup, joinGroup,
-    }: JoinScrimOptions): Promise<boolean> {
+    }: JoinScrimOptions): Promise<Scrim> {
         const scrim = await this.scrimCrudService.getScrim(scrimId);
 
         if (!scrim) throw new RpcException(MatchmakingError.ScrimNotFound);
@@ -106,16 +106,16 @@ export class ScrimService {
 
         if (scrim.settings.teamSize * scrim.settings.teamCount === scrim.players.length) {
             await this.scrimLogicService.popScrim(scrim);
-            return true;
+            return scrim;
         }
 
         // Flush Changes
         await this.publishScrimUpdate(scrimId);
 
-        return true;
+        return scrim;
     }
 
-    async leaveScrim(scrimId: string, playerId: number): Promise<boolean> {
+    async leaveScrim(scrimId: string, playerId: number): Promise<Scrim> {
         const scrim = await this.scrimCrudService.getScrim(scrimId);
 
         if (!scrim) throw new RpcException(MatchmakingError.ScrimNotFound);
@@ -126,7 +126,7 @@ export class ScrimService {
 
         if (scrim.players.length === 0) {
             await this.scrimLogicService.deleteScrim(scrim);
-            return true;
+            return scrim;
         }
 
         await this.scrimCrudService.removePlayerFromScrim(scrimId, playerId);
@@ -139,10 +139,10 @@ export class ScrimService {
             strings: [ ["scrimId", scrim.id] ],
         }).catch(err => { this.logger.error(err) });
 
-        return true;
+        return scrim;
     }
 
-    async checkIn(scrimId: string, playerId: number): Promise<boolean> {
+    async checkIn(scrimId: string, playerId: number): Promise<Scrim> {
         const scrim = await this.scrimCrudService.getScrim(scrimId);
 
         if (!scrim) throw new RpcException(MatchmakingError.ScrimNotFound);
@@ -159,10 +159,10 @@ export class ScrimService {
         if (output.players.every(p => p.checkedIn)) {
             // Scrim is ready to be marked as in progress
             await this.scrimLogicService.startScrim(output);
-            return true;
+            return scrim;
         }
 
-        return true;
+        return scrim;
     }
 
     async cancelScrim(scrimId: string): Promise<Scrim> {
@@ -205,7 +205,7 @@ export class ScrimService {
         return scrim;
     }
 
-    async setScrimLocked(scrimId: string, locked: boolean): Promise<boolean> {
+    async setScrimLocked(scrimId: string, locked: boolean): Promise<Scrim> {
         const scrim = await this.scrimCrudService.getScrim(scrimId);
         if (!scrim) throw new RpcException(MatchmakingError.ScrimNotFound);
 
@@ -223,10 +223,10 @@ export class ScrimService {
 
         await this.publishScrimUpdate(scrimId);
 
-        return true;
+        return scrim;
     }
 
-    private async publishScrimUpdate(scrimId: string): Promise<Scrim> {
+    async publishScrimUpdate(scrimId: string): Promise<Scrim> {
         const scrim = await this.scrimCrudService.getScrim(scrimId);
         if (!scrim) throw new Error(MatchmakingError.ScrimNotFound);
 
