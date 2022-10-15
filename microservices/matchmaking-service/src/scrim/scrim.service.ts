@@ -109,7 +109,7 @@ export class ScrimService {
             return scrim;
         }
 
-        // Flush Changes
+        // Flush changes
         await this.publishScrimUpdate(scrimId);
 
         return scrim;
@@ -130,7 +130,7 @@ export class ScrimService {
         }
 
         await this.scrimCrudService.removePlayerFromScrim(scrimId, playerId);
-        // Flush Changes
+        // Flush changes
         await this.publishScrimUpdate(scrimId);
 
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {

@@ -53,7 +53,7 @@ export class ScrimConsumer {
 
             await this.matchmakingQueue.add(SCRIM_CLOCK_JOB, null, {
                 repeat: {
-                    cron: "*/5 * * * *",
+                    cron: "*/2 * * * *",
                 },
                 removeOnComplete: true,
             });
