@@ -170,62 +170,14 @@ export class PlayerController {
     @MessagePattern(CoreEndpoint.GetPlayerByPlatformId)
     async getPlayerByPlatformId(@Payload() payload: unknown): Promise<CoreOutput<CoreEndpoint.GetPlayerByPlatformId>> {
         const data = CoreSchemas[CoreEndpoint.GetPlayerByPlatformId].input.parse(payload);
-
-        const game = await this.gameService.getGameById(data.gameId);
-        const platform = await this.platformService.getPlatformByCode(data.platform);
-        const player = await this.playerService.getPlayerByGameAndPlatform(game.id, platform.id, data.platformId).catch(() => null);
-
-        if (!player) return {
-            success: false,
-            request: data,
-        };
-
-        const mlePlayer = await this.playerService.getMlePlayerBySprocketPlayer(player.id);
-
-        return {
-            success: true,
-            data: {
-                id: player.id,
-                userId: player.member.user.id,
-                skillGroupId: player.skillGroupId,
-                franchise: {
-                    name: mlePlayer.teamName,
-                },
-            },
-            request: data,
-        };
+        return this.playerService.getPlayerByGameAndPlatformPayload(data);
     }
 
     @MessagePattern(CoreEndpoint.GetPlayersByPlatformIds)
     async getPlayersByPlatformIds(@Payload() payload: unknown): Promise<CoreOutput<CoreEndpoint.GetPlayersByPlatformIds>> {
         const data = CoreSchemas[CoreEndpoint.GetPlayersByPlatformIds].input.parse(payload);
 
-        const allResults = await Promise.allSettled(data.map(async p => {
-            const game = await this.gameService.getGameById(p.gameId);
-            const platform = await this.platformService.getPlatformByCode(p.platform);
-            const player = await this.playerService.getPlayerByGameAndPlatform(game.id, platform.id, p.platformId).catch(() => null);
-    
-            if (!player) return {
-                success: false,
-                error: `Failed to find player by account platform=${p.platform} platformId=${p.platformId}`,
-                request: p,
-            };
-    
-            const mlePlayer = await this.playerService.getMlePlayerBySprocketPlayer(player.id);
-    
-            return {
-                success: true,
-                data: {
-                    id: player.id,
-                    userId: player.member.user.id,
-                    skillGroupId: player.skillGroupId,
-                    franchise: {
-                        name: mlePlayer.teamName,
-                    },
-                },
-                request: p,
-            };
-        }));
+        const allResults = await Promise.allSettled(data.map(async p => this.playerService.getPlayerByGameAndPlatformPayload(p)));
 
         if (allResults.every(r => r.status === "fulfilled")) {
             return allResults.map(r => (r as PromiseFulfilledResult<CoreOutput<CoreEndpoint.GetPlayerByPlatformId>>).value);

@@ -3,6 +3,7 @@ import {
 } from "@nestjs/common";
 import {JwtService} from "@nestjs/jwt";
 import {InjectRepository} from "@nestjs/typeorm";
+import type {CoreEndpoint, CoreOutput} from "@sprocketbot/common";
 import {
     ButtonComponentStyle,
     ComponentType,
@@ -49,6 +50,7 @@ import {
     EloEndpoint,
     SkillGroupDelta,
 } from "../../elo/elo-connector";
+import {PlatformService} from "../../game";
 import {OrganizationService} from "../../organization";
 import {MemberService} from "../../organization/member/member.service";
 import {GameSkillGroupService} from "../game-skill-group";
@@ -79,6 +81,7 @@ export class PlayerService {
         private readonly jwtService: JwtService,
         private readonly dataSource: DataSource,
         private readonly eloConnectorService: EloConnectorService,
+        private readonly platformService: PlatformService,
     ) {}
 
     async getPlayer(query: FindOneOptions<Player>): Promise<Player> {
@@ -777,5 +780,35 @@ export class PlayerService {
                 },
             }, relations),
         });
+    }
+
+    async getPlayerByGameAndPlatformPayload(data: {
+        platform: string;
+        platformId: string;
+        gameId: number;
+    }): Promise<CoreOutput<CoreEndpoint.GetPlayerByPlatformId>> {
+        try {
+            const platform = await this.platformService.getPlatformByCode(data.platform);
+            const player = await this.getPlayerByGameAndPlatform(data.gameId, platform.id, data.platformId);
+            const mlePlayer = await this.getMlePlayerBySprocketPlayer(player.id);
+
+            return {
+                success: true,
+                data: {
+                    id: player.id,
+                    userId: player.member.user.id,
+                    skillGroupId: player.skillGroupId,
+                    franchise: {
+                        name: mlePlayer.teamName,
+                    },
+                },
+                request: data,
+            };
+        } catch {
+            return {
+                success: false,
+                request: data,
+            };
+        }
     }
 }
