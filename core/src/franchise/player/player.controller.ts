@@ -1,5 +1,11 @@
 import {
-    Controller, forwardRef, Get, Inject, Param,
+    Controller,
+    forwardRef,
+    Get,
+    HttpException,
+    Inject,
+    Logger,
+    Param,
 } from "@nestjs/common";
 import {JwtService} from "@nestjs/jwt";
 import {MessagePattern, Payload} from "@nestjs/microservices";
@@ -24,15 +30,12 @@ import {GameService, PlatformService} from "../../game";
 import {OrganizationService} from "../../organization";
 import {GameSkillGroupService} from "../game-skill-group";
 import {PlayerService} from "./player.service";
-
-export interface RankdownPayload {
-    playerId: number;
-    salary: number;
-    skillGroupId: number;
-}
+import {RankdownJwtPayloadSchema} from "./player.types";
 
 @Controller("player")
 export class PlayerController {
+    private readonly logger = new Logger(PlayerController.name);
+
     constructor(
         private readonly eloConnectorService: EloConnectorService,
         private readonly jwtService: JwtService,
@@ -48,123 +51,101 @@ export class PlayerController {
 
     @Get("accept-rankdown/:token")
     async acceptRankdown(@Param("token") token: string): Promise<string> {
-        const payload = this.jwtService.decode(token) as RankdownPayload | null;
-        if (!payload) return "FAILED TO DECODE PAYLOAD";
+        try {
+            const payload = RankdownJwtPayloadSchema.parse(this.jwtService.verify(token));
 
-        const player = await this.playerService.getPlayer({
-            where: {id: payload.playerId},
-            relations: {
-                member: {
+            const player = await this.playerService.getPlayer({
+                where: {id: payload.playerId},
+                relations: {
+                    member: {
+                        user: {
+                            authenticationAccounts: true,
+                        },
+                        organization: true,
+                        profile: true,
+                    },
+                    skillGroup: {
+                        organization: true,
+                        game: true,
+                        profile: true,
+                    },
+                },
+            });
+
+            const skillGroup = await this.skillGroupService.getGameSkillGroup({
+                where: {
+                    id: payload.skillGroupId,
+                },
+                relations: {
+                    profile: true,
+                },
+            });
+
+            const discordAccount = await this.userAuthRepository.findOneOrFail({
+                where: {
                     user: {
-                        authenticationAccounts: true,
+                        id: player.member.user.id,
                     },
-                    organization: true,
-                    profile: true,
+                    accountType: UserAuthenticationAccountType.DISCORD,
                 },
-                skillGroup: {
-                    organization: true,
-                    game: true,
-                    profile: true,
-                },
-            },
-        });
+            });
+            const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(player.member.organization.id);
 
-        const skillGroup = await this.skillGroupService.getGameSkillGroup({
-            where: {
-                id: payload.skillGroupId,
-            },
-            relations: {
-                profile: true,
-            },
-        });
+            if (player.skillGroup.id === payload.skillGroupId) throw new Error("You are already in this skill group");
 
-        const discordAccount = await this.userAuthRepository.findOneOrFail({
-            where: {
-                user: {
-                    id: player.member.user.id,
-                },
-                accountType: UserAuthenticationAccountType.DISCORD,
-            },
-        });
-        const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(player.member.organization.id);
-
-        if (player.skillGroup.id === payload.skillGroupId) return "ERROR: You are already in this skill group";
-
-        const inputData: ManualSkillGroupChange = {
-            id: payload.playerId,
-            salary: payload.salary,
-            skillGroup: skillGroup.ordinal,
-        };
+            const inputData: ManualSkillGroupChange = {
+                id: payload.playerId,
+                salary: payload.salary,
+                skillGroup: skillGroup.ordinal,
+            };
         
-        await this.playerService.updatePlayerStanding(payload.playerId, payload.salary, payload.skillGroupId);
-        await this.playerService.mle_rankDownPlayer(payload.playerId, payload.salary);
-        await this.eloConnectorService.createJob(EloEndpoint.SGChange, inputData);
+            await this.playerService.updatePlayerStanding(payload.playerId, payload.salary, payload.skillGroupId);
+            await this.playerService.mle_rankDownPlayer(payload.playerId, payload.salary);
+            await this.eloConnectorService.createJob(EloEndpoint.SGChange, inputData);
 
-        await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
-            playerId: player.id,
-            name: player.member.profile.name,
-            organizationId: player.skillGroup.organizationId,
-            discordId: discordAccount.accountId,
-            old: {
-                id: player.skillGroup.id,
-                name: player.skillGroup.profile.description,
-                salary: Number(player.salary),
-                discordEmojiId: player.skillGroup.profile.discordEmojiId,
-            },
-            new: {
-                id: skillGroup.id,
-                name: skillGroup.profile.description,
-                salary: Number(payload.salary),
-                discordEmojiId: skillGroup.profile.discordEmojiId,
-            },
-        });
-
-        await this.notificationService.send(NotificationEndpoint.SendNotification, {
-            type: NotificationType.BASIC,
-            userId: player.member.user.id,
-            notification: {
-                type: NotificationMessageType.DirectMessage,
-                userId: discordAccount.accountId,
-                payload: {
-                    embeds: [ {
-                        title: "You Have Ranked Out",
-                        description: `You have been ranked out from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
-                        author: {
-                            name: `${orgProfile.name}`,
-                        },
-                        fields: [
-                            {
-                                name: "New League",
-                                value: `${skillGroup.profile.description}`,
-                            },
-                            {
-                                name: "New Salary",
-                                value: `${payload.salary}`,
-                            },
-                        ],
-                        footer: {
-                            text: orgProfile.name,
-                        },
-                        timestamp: Date.now(),
-                    } ],
+            await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
+                playerId: player.id,
+                name: player.member.profile.name,
+                organizationId: player.skillGroup.organizationId,
+                discordId: discordAccount.accountId,
+                old: {
+                    id: player.skillGroup.id,
+                    name: player.skillGroup.profile.description,
+                    salary: Number(player.salary),
+                    discordEmojiId: player.skillGroup.profile.discordEmojiId,
                 },
-                brandingOptions: {
-                    organizationId: player.member.organization.id,
-                    options: {
-                        author: {
-                            icon: true,
-                        },
-                        color: true,
-                        thumbnail: true,
-                        footer: {
-                            icon: true,
-                        },
-                    },
+                new: {
+                    id: skillGroup.id,
+                    name: skillGroup.profile.description,
+                    salary: Number(payload.salary),
+                    discordEmojiId: skillGroup.profile.discordEmojiId,
                 },
-            },
-        });
+            });
 
-        return "SUCCESS";
+            await this.notificationService.send(NotificationEndpoint.SendNotification, this.playerService.buildRankdownNotification(
+                player.member.user.id,
+                discordAccount.accountId,
+                player.member.organization.id,
+                orgProfile.name,
+                player.skillGroup.profile.description,
+                skillGroup.profile.description,
+                payload.salary,
+            ));
+
+            return "Successfully accepted rankdown";
+        } catch (e) {
+            this.logger.error(e);
+            
+            if (e instanceof Error) {
+                if (e.name === "TokenExpiredError") throw new HttpException("Rankdown request expired", 400);
+                throw new HttpException(e.message, 400);
+            } else if (e instanceof String) {
+                throw new HttpException(e, 400);
+            } else {
+                throw new HttpException("Unexpected error", 400);
+            }
+            
+        }
     }
 
     @MessagePattern(CoreEndpoint.GetPlayerByPlatformId)

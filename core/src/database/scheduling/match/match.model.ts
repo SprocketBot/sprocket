@@ -1,6 +1,6 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {
-    Column, Entity, JoinColumn, JoinTable, ManyToOne, OneToMany, OneToOne,
+    Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne,
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
@@ -20,7 +20,7 @@ export class Match extends BaseModel {
     isDummy: boolean;
 
     @OneToOne(() => Invalidation, {nullable: true})
-    @JoinTable()
+    @JoinColumn()
     @Field(() => Invalidation, {nullable: true})
     invalidation?: Invalidation;
 

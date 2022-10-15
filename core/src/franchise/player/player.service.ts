@@ -3,7 +3,11 @@ import {
 } from "@nestjs/common";
 import {JwtService} from "@nestjs/jwt";
 import {InjectRepository} from "@nestjs/typeorm";
-import type {CoreEndpoint, CoreOutput} from "@sprocketbot/common";
+import type {
+    CoreEndpoint,
+    CoreOutput,
+    NotificationInput
+} from "@sprocketbot/common";
 import {
     ButtonComponentStyle,
     ComponentType,
@@ -54,8 +58,8 @@ import {PlatformService} from "../../game";
 import {OrganizationService} from "../../organization";
 import {MemberService} from "../../organization/member/member.service";
 import {GameSkillGroupService} from "../game-skill-group";
-import type {RankdownPayload} from "./player.controller";
 import type {IntakePlayerAccount} from "./player.resolver";
+import type {RankdownJwtPayload} from "./player.types";
 
 @Injectable()
 export class PlayerService {
@@ -183,61 +187,94 @@ export class PlayerService {
         let player: Player;
 
         try {
-            const user = this.userRepository.create({});
+            const mlePlayer = await this.mle_playerRepository.findOne({where: {mleid} });
+
+            if (mlePlayer)  {
+                const bridge = await this.ptpRepo.findOneOrFail({where: {mledPlayerId: mlePlayer.id} });
+                player = await this.playerRepository.findOneOrFail({
+                    where: {id: bridge.sprocketPlayerId},
+                    relations: {member: {user: true, profile: true} },
+                });
+
+                player = this.playerRepository.merge(player, {skillGroup, salary});
+                this.memberProfileRepository.merge(player.member.profile, {name});
+
+                await runner.manager.save(player);
+                await runner.manager.save(player.member.profile);
+                await this.mle_updatePlayer(
+                    mlePlayer,
+                    name,
+                    LeagueOrdinals[skillGroup.ordinal - 1],
+                    salary,
+                    platform,
+                    timezone,
+                    modePreference,
+                    platforms,
+                    runner,
+                );
+
+                if (skillGroup.id !== player.skillGroupId) await this.eloConnectorService.createJob(EloEndpoint.SGChange, {
+                    id: player.id,
+                    salary: salary,
+                    skillGroup: skillGroup.ordinal,
+                });
+            } else {
+                const user = this.userRepository.create({});
             
-            user.profile = this.userProfileRepository.create({
-                user: user,
-                email: "unknown@sprocket.gg",
-                displayName: name,
-            });
-            user.profile.user = user;
+                user.profile = this.userProfileRepository.create({
+                    user: user,
+                    email: "unknown@sprocket.gg",
+                    displayName: name,
+                });
+                user.profile.user = user;
 
-            const authAcc = this.userAuthRepository.create({
-                accountType: UserAuthenticationAccountType.DISCORD,
-                accountId: discordId,
-            });
-            authAcc.user = user;
-            user.authenticationAccounts = [authAcc];
+                const authAcc = this.userAuthRepository.create({
+                    accountType: UserAuthenticationAccountType.DISCORD,
+                    accountId: discordId,
+                });
+                authAcc.user = user;
+                user.authenticationAccounts = [authAcc];
 
-            const member = this.memberRepository.create({});
-            member.organization = mleOrg;
-            member.user = user;
-            member.profile = this.memberProfileRepository.create({
-                name: name,
-            });
-            member.profile.member = member;
+                const member = this.memberRepository.create({});
+                member.organization = mleOrg;
+                member.user = user;
+                member.profile = this.memberProfileRepository.create({
+                    name: name,
+                });
+                member.profile.member = member;
 
-            player = this.playerRepository.create({salary});
-            player.member = member;
-            player.skillGroup = skillGroup;
+                player = this.playerRepository.create({salary});
+                player.member = member;
+                player.skillGroup = skillGroup;
 
-            await runner.manager.save(user);
-            await runner.manager.save(user.profile);
-            await runner.manager.save(user.authenticationAccounts);
-            await runner.manager.save(member);
-            await runner.manager.save(member.profile);
-            await runner.manager.save(player);
-            await this.mle_createPlayer(
-                user.id,
-                player.id,
-                mleid,
-                discordId,
-                name,
-                LeagueOrdinals[skillGroup.ordinal - 1],
-                salary,
-                platform,
-                timezone,
-                modePreference,
-                platforms,
-                runner,
-            );
+                await runner.manager.save(user);
+                await runner.manager.save(user.profile);
+                await runner.manager.save(user.authenticationAccounts);
+                await runner.manager.save(member);
+                await runner.manager.save(member.profile);
+                await runner.manager.save(player);
+                await this.mle_createPlayer(
+                    user.id,
+                    player.id,
+                    mleid,
+                    discordId,
+                    name,
+                    LeagueOrdinals[skillGroup.ordinal - 1],
+                    salary,
+                    platform,
+                    timezone,
+                    modePreference,
+                    platforms,
+                    runner,
+                );
 
-            await this.eloConnectorService.createJob(EloEndpoint.AddPlayerBySalary, {
-                id: player.id,
-                name: name,
-                salary: salary,
-                skillGroup: skillGroup.ordinal,
-            });
+                await this.eloConnectorService.createJob(EloEndpoint.AddPlayerBySalary, {
+                    id: player.id,
+                    name: name,
+                    salary: salary,
+                    skillGroup: skillGroup.ordinal,
+                });
+            }
             
             await runner.commitTransaction();
         } catch (e) {
@@ -249,6 +286,70 @@ export class PlayerService {
         }
 
         return player;
+    }
+
+    async mle_updatePlayer(
+        player: MLE_Player,
+        name: string,
+        league: League,
+        salary: number,
+        platform: string,
+        timezone: Timezone,
+        preference: ModePreference,
+        accounts: IntakePlayerAccount[],
+        runner?: QueryRunner,
+    ): Promise<MLE_Player> {
+        const updatedPlayer = this.mle_playerRepository.merge(player, {
+            updatedBy: "Sprocket FA Intake",
+            name: name,
+            salary: salary,
+            league: league,
+            preferredPlatform: platform,
+            timezone: timezone,
+            modePreference: preference,
+            teamName: "Pend",
+            role: Role.NONE,
+        });
+
+        const playerAccounts: MLE_PlayerAccount[] = [];
+        await Promise.all(accounts.map(async a => {
+            const currAcc = await this.mle_playerAccountRepository.findOne({
+                where: [
+                    {
+                        platform: a.platform,
+                        platformId: a.platformId,
+                        player: {
+                            id: player.id,
+                        },
+                    },
+                    {
+                        tracker: a.tracker,
+                        player: {
+                            id: player.id,
+                        },
+                    },
+                ],
+                relations: {
+                    player: true,
+                },
+            });
+            if (currAcc) return;
+
+            const acc = this.mle_playerAccountRepository.create(a);
+            acc.player = player;
+            
+            playerAccounts.push(acc);
+        }));
+
+        if (runner) {
+            await runner.manager.save(player);
+            await runner.manager.save(playerAccounts);
+        } else {
+            await this.mle_playerRepository.save(player);
+            await this.mle_playerAccountRepository.save(playerAccounts);
+        }
+
+        return updatedPlayer;
     }
 
     async mle_createPlayer(
@@ -294,7 +395,7 @@ export class PlayerService {
             await runner.manager.save(playerAccounts);
         } else {
             await this.mle_playerRepository.save(player);
-            await this.mle_playerAccountRepository.save(player);
+            await this.mle_playerAccountRepository.save(playerAccounts);
         }
 
         const ptuBridge = this.ptuRepo.create({
@@ -332,6 +433,61 @@ export class PlayerService {
         }
 
         return player;
+    }
+
+    buildRankdownNotification(
+        userId: number,
+        discordId: string,
+        orgId: number,
+        orgName: string,
+        oldSkillGroupName: string,
+        newSkillGroupName: string,
+        salary: number,
+    ): NotificationInput<NotificationEndpoint.SendNotification> {
+        return {
+            type: NotificationType.BASIC,
+            userId: userId,
+            notification: {
+                type: NotificationMessageType.DirectMessage,
+                userId: discordId,
+                payload: {
+                    embeds: [ {
+                        title: "You Have Ranked Out",
+                        description: `You have been ranked out from ${oldSkillGroupName} to ${newSkillGroupName}.`,
+                        author: {
+                            name: `${orgName}`,
+                        },
+                        fields: [
+                            {
+                                name: "New League",
+                                value: `${newSkillGroupName}`,
+                            },
+                            {
+                                name: "New Salary",
+                                value: `${salary}`,
+                            },
+                        ],
+                        footer: {
+                            text: orgName,
+                        },
+                        timestamp: Date.now(),
+                    } ],
+                },
+                brandingOptions: {
+                    organizationId: orgId,
+                    options: {
+                        author: {
+                            icon: true,
+                        },
+                        color: true,
+                        thumbnail: true,
+                        footer: {
+                            icon: true,
+                        },
+                    },
+                },
+            },
+        };
     }
 
     async saveSalaries(payload: SalaryPayloadItem[][]): Promise<void> {
@@ -416,50 +572,15 @@ export class PlayerService {
                         },
                     });
     
-                    await this.notificationService.send(NotificationEndpoint.SendNotification, {
-                        type: NotificationType.BASIC,
-                        userId: player.member.user.id,
-                        notification: {
-                            type: NotificationMessageType.DirectMessage,
-                            userId: discordAccount.accountId,
-                            payload: {
-                                embeds: [ {
-                                    title: "You Have Ranked Out",
-                                    description: `You have been ranked out from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
-                                    author: {
-                                        name: `${orgProfile.name}`,
-                                    },
-                                    fields: [
-                                        {
-                                            name: "New League",
-                                            value: `${skillGroup.profile.description}`,
-                                        },
-                                        {
-                                            name: "New Salary",
-                                            value: `${playerDelta.rankout.salary}`,
-                                        },
-                                    ],
-                                    footer: {
-                                        text: orgProfile.name,
-                                    },
-                                    timestamp: Date.now(),
-                                } ],
-                            },
-                            brandingOptions: {
-                                organizationId: player.member.organization.id,
-                                options: {
-                                    author: {
-                                        icon: true,
-                                    },
-                                    color: true,
-                                    thumbnail: true,
-                                    footer: {
-                                        icon: true,
-                                    },
-                                },
-                            },
-                        },
-                    });
+                    await this.notificationService.send(NotificationEndpoint.SendNotification, this.buildRankdownNotification(
+                        player.member.user.id,
+                        discordAccount.accountId,
+                        player.member.organization.id,
+                        orgProfile.name,
+                        player.skillGroup.profile.description,
+                        skillGroup.profile.description,
+                        playerDelta.rankout.salary,
+                    ));
                 } else if (playerDelta.rankout.degreeOfStiffness === DegreeOfStiffness.SOFT) {
                     await this.updatePlayerStanding(playerDelta.playerId, playerDelta.rankout.salary);
 
@@ -481,7 +602,7 @@ export class PlayerService {
                     });
 
                     /* TEMPORARY NOTIFICATION */
-                    const rankdownPayload: RankdownPayload = {
+                    const rankdownPayload: RankdownJwtPayload = {
                         playerId: player.id,
                         salary: playerDelta.rankout.salary,
                         skillGroupId: skillGroup.id,
@@ -702,7 +823,6 @@ export class PlayerService {
             discordId: discId.accountId,
             playerId: sprocketPlayer.id,
             name: sprocketPlayer.member.profile.name,
-
             old: {
                 name: oldTeamName,
             },

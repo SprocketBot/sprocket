@@ -12,7 +12,7 @@ export const loadConfig = async (): Promise<Config> => {
 
     if (config) return config;
 
-    const stack = (import.meta.env.VITE_STACK ?? "local") as Stack;
+    const stack = _config.has("stack") ? _config.get<Stack>("stack") : "local";
 
     config = {
         client: {
@@ -23,14 +23,14 @@ export const loadConfig = async (): Promise<Config> => {
                 url: _config.get<string>("client.chatwoot.url"),
                 websiteToken: _config.get<string>("client.chatwoot.websiteToken"),
             },
-            stack: stack,
+            stack,
         },
         server: {
             chatwoot: {
                 hmacKey: fs.readFileSync("secret/chatwoot-hmac-key.txt").toString()
                     .trim(),
             },
-            stack: stack,
+            stack,
         },
     };
     
