@@ -3,7 +3,11 @@ import {
 } from "@nestjs/common";
 import {JwtService} from "@nestjs/jwt";
 import {InjectRepository} from "@nestjs/typeorm";
-import type {NotificationInput} from "@sprocketbot/common";
+import type {
+    CoreEndpoint,
+    CoreOutput,
+    NotificationInput
+} from "@sprocketbot/common";
 import {
     ButtonComponentStyle,
     ComponentType,
@@ -16,7 +20,7 @@ import {
     NotificationType,
 } from "@sprocketbot/common";
 import type {
-    FindManyOptions, FindOneOptions, QueryRunner,
+    FindManyOptions, FindOneOptions, FindOptionsRelations, QueryRunner,
 } from "typeorm";
 import {DataSource, Repository} from "typeorm";
 
@@ -50,6 +54,7 @@ import {
     EloEndpoint,
     SkillGroupDelta,
 } from "../../elo/elo-connector";
+import {PlatformService} from "../../game";
 import {OrganizationService} from "../../organization";
 import {MemberService} from "../../organization/member/member.service";
 import {GameSkillGroupService} from "../game-skill-group";
@@ -80,6 +85,7 @@ export class PlayerService {
         private readonly jwtService: JwtService,
         private readonly dataSource: DataSource,
         private readonly eloConnectorService: EloConnectorService,
+        private readonly platformService: PlatformService,
     ) {}
 
     async getPlayer(query: FindOneOptions<Player>): Promise<Player> {
@@ -856,5 +862,73 @@ export class PlayerService {
 
         await this.mle_playerRepository.save(player);
         return player;
+    }
+
+    // Have this because circular dependencies suck. Temp only for MLEDB integration so /shrug
+    // Can refactor after extended repos is a thing
+    async getMlePlayerBySprocketPlayer(playerId: number): Promise<MLE_Player> {
+        const bridge = await this.ptpRepo.findOneOrFail({where: {sprocketPlayerId: playerId} });
+        return this.mle_playerRepository.findOneOrFail({where: {id: bridge.mledPlayerId} });
+    }
+
+    async getPlayerByGameAndPlatform(gameId: number, platformId: number, platformAccountId: string, relations?: FindOptionsRelations<Player>): Promise<Player> {
+        return this.playerRepository.findOneOrFail({
+            where: {
+                skillGroup: {
+                    game: {
+                        id: gameId,
+                    },
+                },
+                member: {
+                    platformAccounts: {
+                        platform: {
+                            id: platformId,
+                        },
+                        platformAccountId: platformAccountId,
+                    },
+                },
+            },
+            relations: Object.assign({
+                skillGroup: {
+                    game: true,
+                },
+                member: {
+                    user: true,
+                    platformAccounts: {
+                        platform: true,
+                    },
+                },
+            }, relations),
+        });
+    }
+
+    async getPlayerByGameAndPlatformPayload(data: {
+        platform: string;
+        platformId: string;
+        gameId: number;
+    }): Promise<CoreOutput<CoreEndpoint.GetPlayerByPlatformId>> {
+        try {
+            const platform = await this.platformService.getPlatformByCode(data.platform);
+            const player = await this.getPlayerByGameAndPlatform(data.gameId, platform.id, data.platformId);
+            const mlePlayer = await this.getMlePlayerBySprocketPlayer(player.id);
+
+            return {
+                success: true,
+                data: {
+                    id: player.id,
+                    userId: player.member.user.id,
+                    skillGroupId: player.skillGroupId,
+                    franchise: {
+                        name: mlePlayer.teamName,
+                    },
+                },
+                request: data,
+            };
+        } catch {
+            return {
+                success: false,
+                request: data,
+            };
+        }
     }
 }
