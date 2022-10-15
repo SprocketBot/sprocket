@@ -105,9 +105,9 @@ export class ReplayValidationService {
             };
         }
 
-        const gameResult = await this.coreService.send(CoreEndpoint.GetGameByGameMode, {gameModeId: scrim.gameMode.id});
+        const gameResult = await this.coreService.send(CoreEndpoint.GetGameByGameMode, {gameModeId: scrim.gameModeId});
         if (gameResult.status === ResponseStatus.ERROR) {
-            this.logger.error(`Unable to get game gameMode=${scrim.gameMode.id}`);
+            this.logger.error(`Unable to get game gameMode=${scrim.gameModeId}`);
             return {
                 valid: false,
                 errors: [ {error: `Failed to find associated game. Please contact support.`} ],
