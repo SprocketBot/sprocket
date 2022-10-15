@@ -19,7 +19,8 @@ import {EventProxyService} from "./event-proxy/event-proxy.service";
 import {ScrimModule} from "./scrim.module";
 import {ScrimService} from "./scrim.service";
 import {
-    players, scrimIds, scrimSettings,
+    getMockScrimIds, getMockScrimSettings,
+    mockPlayerFactories,
 } from "./scrim.service.spec.helpers";
 import {ScrimCrudService} from "./scrim-crud/scrim-crud.service";
 import {ScrimGroupService} from "./scrim-group/scrim-group.service";
@@ -35,21 +36,21 @@ describe("ScrimService", () => {
 
     let publishScrimUpdate: jest.SpyInstance;
 
-    let playerInAnyScrim: jest.SpyInstance;
-    let createScrim: jest.SpyInstance;
-    let updatePlayer: jest.SpyInstance;
-    let getScrim: jest.SpyInstance;
-    let addPlayerToScrim: jest.SpyInstance;
-    let removePlayerFromScrim: jest.SpyInstance;
-    let removeScrim: jest.SpyInstance;
-    let updateScrimStatus: jest.SpyInstance;
-    let updateScrimUnlockedStatus: jest.SpyInstance;
+    let crudPlayerInAnyScrim: jest.SpyInstance;
+    let crudCreateScrim: jest.SpyInstance;
+    let crudUpdatePlayer: jest.SpyInstance;
+    let crudGetScrim: jest.SpyInstance;
+    let crudAddPlayerToScrim: jest.SpyInstance;
+    let crudRemovePlayerFromScrim: jest.SpyInstance;
+    let crudRemoveScrim: jest.SpyInstance;
+    let crudUpdateScrimStatus: jest.SpyInstance;
+    let crudUpdateScrimUnlockedStatus: jest.SpyInstance;
 
-    let popScrim: jest.SpyInstance;
-    let deleteScrim: jest.SpyInstance;
-    let startScrim: jest.SpyInstance;
+    let logicPopScrim: jest.SpyInstance;
+    let logicDeleteScrim: jest.SpyInstance;
+    let logicStartScrim: jest.SpyInstance;
 
-    let resolveGroupKey: jest.SpyInstance;
+    let groupsResolveGroupKey: jest.SpyInstance;
 
     const someDate = new Date();
 
@@ -71,34 +72,34 @@ describe("ScrimService", () => {
         analyticsService = module.get<AnalyticsService>(AnalyticsService);
         scrimGroupService = module.get<ScrimGroupService>(ScrimGroupService);
         
-        jest.spyOn(eventProxyService, "publish").mockImplementationOnce(async () => true);
-        jest.spyOn(analyticsService, "send").mockImplementationOnce(async () => ({} as AnalyticsResponse<AnalyticsEndpoint.Analytics>));
+        jest.spyOn(eventProxyService, "publish").mockResolvedValueOnce(true);
+        jest.spyOn(analyticsService, "send").mockResolvedValueOnce({} as AnalyticsResponse<AnalyticsEndpoint.Analytics>);
 
         publishScrimUpdate = jest.spyOn(service, "publishScrimUpdate");
-        publishScrimUpdate.mockImplementationOnce(async () => ({} as Scrim));
+        publishScrimUpdate.mockResolvedValueOnce({} as Scrim);
 
-        playerInAnyScrim = jest.spyOn(scrimCrudService, "playerInAnyScrim");
-        createScrim = jest.spyOn(scrimCrudService, "createScrim");
-        updatePlayer = jest.spyOn(scrimCrudService, "updatePlayer");
-        getScrim = jest.spyOn(scrimCrudService, "getScrim");
-        addPlayerToScrim = jest.spyOn(scrimCrudService, "addPlayerToScrim");
-        removePlayerFromScrim = jest.spyOn(scrimCrudService, "removePlayerFromScrim");
-        removeScrim = jest.spyOn(scrimCrudService, "removeScrim");
-        updateScrimStatus = jest.spyOn(scrimCrudService, "updateScrimStatus");
-        updateScrimUnlockedStatus = jest.spyOn(scrimCrudService, "updateScrimUnlockedStatus");
+        crudPlayerInAnyScrim = jest.spyOn(scrimCrudService, "playerInAnyScrim");
+        crudCreateScrim = jest.spyOn(scrimCrudService, "createScrim");
+        crudUpdatePlayer = jest.spyOn(scrimCrudService, "updatePlayer");
+        crudGetScrim = jest.spyOn(scrimCrudService, "getScrim");
+        crudAddPlayerToScrim = jest.spyOn(scrimCrudService, "addPlayerToScrim");
+        crudRemovePlayerFromScrim = jest.spyOn(scrimCrudService, "removePlayerFromScrim");
+        crudRemoveScrim = jest.spyOn(scrimCrudService, "removeScrim");
+        crudUpdateScrimStatus = jest.spyOn(scrimCrudService, "updateScrimStatus");
+        crudUpdateScrimUnlockedStatus = jest.spyOn(scrimCrudService, "updateScrimUnlockedStatus");
 
-        popScrim = jest.spyOn(scrimLogicService, "popScrim");
-        deleteScrim = jest.spyOn(scrimLogicService, "deleteScrim");
-        startScrim = jest.spyOn(scrimLogicService, "startScrim");
+        logicPopScrim = jest.spyOn(scrimLogicService, "popScrim");
+        logicDeleteScrim = jest.spyOn(scrimLogicService, "deleteScrim");
+        logicStartScrim = jest.spyOn(scrimLogicService, "startScrim");
 
-        resolveGroupKey = jest.spyOn(scrimGroupService, "resolveGroupKey");
+        groupsResolveGroupKey = jest.spyOn(scrimGroupService, "resolveGroupKey");
     });
 
     describe("Creating a Scrim", () => {
         it("Should throw with PlayerAlreadyInScrim when a player tries to join a scrim while in another scrim", async () => {
             const createScrimData: CreateScrimOptions = {
-                ...scrimIds(),
-                settings: scrimSettings(3, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
+                ...getMockScrimIds(),
+                settings: getMockScrimSettings(3, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
                 join: {
                     playerId: 1,
                     playerName: "HyperCoder",
@@ -106,18 +107,18 @@ describe("ScrimService", () => {
                 },
             };
     
-            playerInAnyScrim.mockImplementationOnce(async () => true);
+            crudPlayerInAnyScrim.mockResolvedValueOnce(true);
 
-            const actual = async (): Promise<Scrim> => service.createScrim(createScrimData);
-            const expected = MatchmakingError.PlayerAlreadyInScrim;
+            const func = async (): Promise<Scrim> => service.createScrim(createScrimData);
+            const expectedError = MatchmakingError.PlayerAlreadyInScrim;
 
-            await expect(actual).rejects.toThrow(expected);
+            await expect(func).rejects.toThrow(expectedError);
         });
     
         it("Should throw with ScimGroupNotSupported when a player tries to create a round robin scrim with groups", async () => {
             const createScrimData: CreateScrimOptions = {
-                ...scrimIds(),
-                settings: scrimSettings(3, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
+                ...getMockScrimIds(),
+                settings: getMockScrimSettings(3, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
                 join: {
                     playerId: 1,
                     playerName: "HyperCoder",
@@ -126,18 +127,18 @@ describe("ScrimService", () => {
                 },
             };
     
-            playerInAnyScrim.mockImplementationOnce(async () => false);
+            crudPlayerInAnyScrim.mockResolvedValueOnce(false);
 
-            const actual = async (): Promise<Scrim> => service.createScrim(createScrimData);
-            const expected = MatchmakingError.ScrimGroupNotSupportedInMode;
+            const func = async (): Promise<Scrim> => service.createScrim(createScrimData);
+            const expectedError = MatchmakingError.ScrimGroupNotSupportedInMode;
 
-            await expect(actual).rejects.toThrow(expected);
+            await expect(func).rejects.toThrow(expectedError);
         });
     
         it("Should create a Round Robin scrim successfully", async () => {
             const createScrimData: CreateScrimOptions = {
-                ...scrimIds(),
-                settings: scrimSettings(3, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
+                ...getMockScrimIds(),
+                settings: getMockScrimSettings(3, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
                 join: {
                     playerId: 1,
                     playerName: "HyperCoder",
@@ -149,27 +150,39 @@ describe("ScrimService", () => {
                 createdAt: someDate,
                 updatedAt: someDate,
                 status: ScrimStatus.PENDING,
-                ...scrimIds(),
+                ...getMockScrimIds(),
                 players: [
-                    players.hyper(someDate),
+                    mockPlayerFactories.hyper(someDate),
                 ],
                 games: undefined,
                 settings: createScrimData.settings,
             };
             
-            playerInAnyScrim.mockImplementationOnce(async () => false);
-            createScrim.mockImplementationOnce(async () => expected);
-            updatePlayer.mockImplementationOnce(async () => {});
+            crudPlayerInAnyScrim.mockResolvedValueOnce(false);
+            crudCreateScrim.mockResolvedValueOnce(expected);
 
             const actual = await service.createScrim(createScrimData);
 
             expect(actual).toEqual(expected);
+            expect(crudCreateScrim).toHaveBeenCalledWith({
+                authorId: expected.authorId,
+                organizationId: expected.organizationId,
+                gameModeId: expected.gameModeId,
+                skillGroupId: expected.skillGroupId,
+                settings: expected.settings,
+                player: {
+                    id: createScrimData.join?.playerId,
+                    name: createScrimData.join?.playerName,
+                    joinedAt: expect.any(Date) as Date,
+                    leaveAt: expect.any(Date) as Date,
+                },
+            });
         });
     
         it("Should create a Teams scrim with a group successfully", async () => {
             const createScrimData: CreateScrimOptions = {
-                ...scrimIds(),
-                settings: scrimSettings(3, 2, ScrimMode.TEAMS, true, false, 1000),
+                ...getMockScrimIds(),
+                settings: getMockScrimSettings(3, 2, ScrimMode.TEAMS, true, false, 1000),
                 join: {
                     playerId: 1,
                     playerName: "HyperCoder",
@@ -182,28 +195,49 @@ describe("ScrimService", () => {
                 createdAt: someDate,
                 updatedAt: someDate,
                 status: ScrimStatus.PENDING,
-                ...scrimIds(),
+                ...getMockScrimIds(),
                 players: [
-                    players.hyper(someDate),
+                    mockPlayerFactories.hyper(someDate),
                 ],
                 games: undefined,
                 settings: createScrimData.settings,
             };
             
-            playerInAnyScrim.mockImplementationOnce(async () => false);
-            createScrim.mockImplementationOnce(async () => scrim);
-            resolveGroupKey.mockImplementationOnce(() => "tekssxisbad");
-            updatePlayer.mockImplementationOnce(async () => {});
+            crudPlayerInAnyScrim.mockResolvedValueOnce(false);
+            crudCreateScrim.mockResolvedValueOnce(scrim);
+            groupsResolveGroupKey.mockImplementationOnce(() => "tekssxisbad");
+            crudUpdatePlayer.mockResolvedValueOnce({});
 
             const actual = await service.createScrim(createScrimData);
             const expected: Scrim = {
                 ...scrim,
                 players: [
-                    players.hyper(someDate, "tekssxisbad"),
+                    mockPlayerFactories.hyper(someDate, "tekssxisbad"),
                 ],
             };
 
             expect(actual).toEqual(expected);
+            expect(crudCreateScrim).toHaveBeenCalledWith({
+                authorId: expected.authorId,
+                organizationId: expected.organizationId,
+                gameModeId: expected.gameModeId,
+                skillGroupId: expected.skillGroupId,
+                settings: expected.settings,
+                player: {
+                    id: createScrimData.join?.playerId,
+                    name: createScrimData.join?.playerName,
+                    joinedAt: expect.any(Date) as Date,
+                    leaveAt: expect.any(Date) as Date,
+                    group: "tekssxisbad",
+                },
+            });
+            expect(crudUpdatePlayer).toHaveBeenCalledWith(scrim.id, {
+                id: createScrimData.join?.playerId,
+                name: createScrimData.join?.playerName,
+                joinedAt: expect.any(Date) as Date,
+                leaveAt: expect.any(Date) as Date,
+                group: "tekssxisbad",
+            });
         });
     });
 
@@ -216,12 +250,12 @@ describe("ScrimService", () => {
                 leaveAfter: 1000,
             };
     
-            getScrim.mockImplementationOnce(async () => null);
+            crudGetScrim.mockResolvedValueOnce(null);
 
-            const actual = async (): Promise<Scrim> => service.joinScrim(joinScrimData);
-            const expected = MatchmakingError.ScrimNotFound;
+            const func = async (): Promise<Scrim> => service.joinScrim(joinScrimData);
+            const expectedError = MatchmakingError.ScrimNotFound;
 
-            await expect(actual).rejects.toThrow(expected);
+            await expect(func).rejects.toThrow(expectedError);
         });
     
         it("Should throw with ScrimAlreadyInProgress when a player tries to join a scrim when it is already in progress", async () => {
@@ -236,21 +270,21 @@ describe("ScrimService", () => {
                 createdAt: someDate,
                 updatedAt: someDate,
                 status: ScrimStatus.IN_PROGRESS,
-                ...scrimIds(),
+                ...getMockScrimIds(),
                 players: [
-                    players.hyper(someDate),
-                    players.shuckle(someDate),
+                    mockPlayerFactories.hyper(someDate),
+                    mockPlayerFactories.shuckle(someDate),
                 ],
                 games: undefined,
-                settings: scrimSettings(1, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
+                settings: getMockScrimSettings(1, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
     
-            getScrim.mockImplementationOnce(async () => scrim);
+            crudGetScrim.mockResolvedValueOnce(scrim);
 
-            const actual = async (): Promise<Scrim> => service.joinScrim(joinScrimData);
-            const expected = MatchmakingError.ScrimAlreadyInProgress;
+            const func = async (): Promise<Scrim> => service.joinScrim(joinScrimData);
+            const expectedError = MatchmakingError.ScrimAlreadyInProgress;
 
-            await expect(actual).rejects.toThrow(expected);
+            await expect(func).rejects.toThrow(expectedError);
         });
     
         it("Should throw with PlayerAlreadyInScrim when a player tries to join a scrim when they are already in a scrim", async () => {
@@ -265,22 +299,22 @@ describe("ScrimService", () => {
                 createdAt: someDate,
                 updatedAt: someDate,
                 status: ScrimStatus.PENDING,
-                ...scrimIds(),
+                ...getMockScrimIds(),
                 players: [
-                    players.hyper(someDate),
-                    players.shuckle(someDate),
+                    mockPlayerFactories.hyper(someDate),
+                    mockPlayerFactories.shuckle(someDate),
                 ],
                 games: undefined,
-                settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
+                settings: getMockScrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
     
-            getScrim.mockImplementationOnce(async () => scrim);
-            playerInAnyScrim.mockImplementationOnce(async () => true);
+            crudGetScrim.mockResolvedValueOnce(scrim);
+            crudPlayerInAnyScrim.mockResolvedValueOnce(true);
 
-            const actual = async (): Promise<Scrim> => service.joinScrim(joinScrimData);
-            const expected = MatchmakingError.PlayerAlreadyInScrim;
+            const func = async (): Promise<Scrim> => service.joinScrim(joinScrimData);
+            const expectedError = MatchmakingError.PlayerAlreadyInScrim;
 
-            await expect(actual).rejects.toThrow(expected);
+            await expect(func).rejects.toThrow(expectedError);
         });
     
         it("Should throw with GroupNotFound when a player tries to join a group with an invalid group", async () => {
@@ -296,22 +330,22 @@ describe("ScrimService", () => {
                 createdAt: someDate,
                 updatedAt: someDate,
                 status: ScrimStatus.PENDING,
-                ...scrimIds(),
+                ...getMockScrimIds(),
                 players: [
-                    players.hyper(someDate, "tekssxisbad"),
-                    players.shuckle(someDate),
+                    mockPlayerFactories.hyper(someDate, "tekssxisbad"),
+                    mockPlayerFactories.shuckle(someDate),
                 ],
                 games: undefined,
-                settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
+                settings: getMockScrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
     
-            getScrim.mockImplementationOnce(async () => scrim);
-            playerInAnyScrim.mockImplementationOnce(async () => false);
+            crudGetScrim.mockResolvedValueOnce(scrim);
+            crudPlayerInAnyScrim.mockResolvedValueOnce(false);
 
-            const actual = async (): Promise<Scrim> => service.joinScrim(joinScrimData);
-            const expected = MatchmakingError.GroupNotFound;
+            const func = async (): Promise<Scrim> => service.joinScrim(joinScrimData);
+            const expectedError = MatchmakingError.GroupNotFound;
 
-            await expect(actual).rejects.toThrow(expected);
+            await expect(func).rejects.toThrow(expectedError);
         });
     
         it("Should throw with GroupFull when a player tries to join a group when the group has the number of players on a team", async () => {
@@ -327,22 +361,22 @@ describe("ScrimService", () => {
                 createdAt: someDate,
                 updatedAt: someDate,
                 status: ScrimStatus.PENDING,
-                ...scrimIds(),
+                ...getMockScrimIds(),
                 players: [
-                    players.hyper(someDate, "tekssxisbad"),
-                    players.shuckle(someDate, "tekssxisbad"),
+                    mockPlayerFactories.hyper(someDate, "tekssxisbad"),
+                    mockPlayerFactories.shuckle(someDate, "tekssxisbad"),
                 ],
                 games: undefined,
-                settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
+                settings: getMockScrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
     
-            getScrim.mockImplementationOnce(async () => scrim);
-            playerInAnyScrim.mockImplementationOnce(async () => false);
+            crudGetScrim.mockResolvedValueOnce(scrim);
+            crudPlayerInAnyScrim.mockResolvedValueOnce(false);
 
-            const actual = async (): Promise<Scrim> => service.joinScrim(joinScrimData);
-            const expected = MatchmakingError.GroupFull;
+            const func = async (): Promise<Scrim> => service.joinScrim(joinScrimData);
+            const expectedError = MatchmakingError.GroupFull;
 
-            await expect(actual).rejects.toThrow(expected);
+            await expect(func).rejects.toThrow(expectedError);
         });
     
         it("Should throw with MaxGroupsCreated when a player tries to create a group when there are already the number teams being the number of groups", async () => {
@@ -358,22 +392,22 @@ describe("ScrimService", () => {
                 createdAt: someDate,
                 updatedAt: someDate,
                 status: ScrimStatus.PENDING,
-                ...scrimIds(),
+                ...getMockScrimIds(),
                 players: [
-                    players.hyper(someDate, "tekssxisbad"),
-                    players.shuckle(someDate, "tekssxisawful"),
+                    mockPlayerFactories.hyper(someDate, "tekssxisbad"),
+                    mockPlayerFactories.shuckle(someDate, "tekssxisawful"),
                 ],
                 games: undefined,
-                settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
+                settings: getMockScrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
     
-            getScrim.mockImplementationOnce(async () => scrim);
-            playerInAnyScrim.mockImplementationOnce(async () => false);
+            crudGetScrim.mockResolvedValueOnce(scrim);
+            crudPlayerInAnyScrim.mockResolvedValueOnce(false);
 
-            const actual = async (): Promise<Scrim> => service.joinScrim(joinScrimData);
-            const expected = MatchmakingError.MaxGroupsCreated;
+            const func = async (): Promise<Scrim> => service.joinScrim(joinScrimData);
+            const expectedError = MatchmakingError.MaxGroupsCreated;
 
-            await expect(actual).rejects.toThrow(expected);
+            await expect(func).rejects.toThrow(expectedError);
         });
     
         it("Player should join the scrim successfully", async () => {
@@ -388,30 +422,82 @@ describe("ScrimService", () => {
                 createdAt: someDate,
                 updatedAt: someDate,
                 status: ScrimStatus.PENDING,
-                ...scrimIds(),
+                ...getMockScrimIds(),
                 players: [
-                    players.hyper(someDate),
-                    players.shuckle(someDate),
+                    mockPlayerFactories.hyper(someDate),
+                    mockPlayerFactories.shuckle(someDate),
                 ],
                 games: undefined,
-                settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
+                settings: getMockScrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
     
-            getScrim.mockImplementationOnce(async () => scrim);
-            playerInAnyScrim.mockImplementationOnce(async () => false);
-            addPlayerToScrim.mockImplementationOnce(async () => {});
+            crudGetScrim.mockResolvedValueOnce(scrim);
+            crudPlayerInAnyScrim.mockResolvedValueOnce(false);
+            crudAddPlayerToScrim.mockResolvedValueOnce({});
 
             const actual = await service.joinScrim(joinScrimData);
             const expected: Scrim = {
                 ...scrim,
                 players: [
-                    players.hyper(someDate),
-                    players.shuckle(someDate),
-                    players.tekssx(expect.any(Date) as Date),
+                    mockPlayerFactories.hyper(someDate),
+                    mockPlayerFactories.shuckle(someDate),
+                    mockPlayerFactories.tekssx(expect.any(Date) as Date),
                 ],
             };
 
             expect(actual).toEqual(expected);
+            expect(crudAddPlayerToScrim).toHaveBeenCalledWith(scrim.id, {
+                id: joinScrimData.playerId,
+                name: joinScrimData.playerName,
+                joinedAt: expect.any(Date) as Date,
+                leaveAt: expect.any(Date) as Date,
+            });
+        });
+    
+        it("Player should join the scrim and group successfully", async () => {
+            const joinScrimData: JoinScrimOptions = {
+                scrimId: "hello world!",
+                playerId: 2,
+                playerName: "tekssx",
+                leaveAfter: 1000,
+                joinGroup: "tekssxisbad",
+            };
+            const scrim: Scrim = {
+                id: "hello world!",
+                createdAt: someDate,
+                updatedAt: someDate,
+                status: ScrimStatus.PENDING,
+                ...getMockScrimIds(),
+                players: [
+                    mockPlayerFactories.hyper(someDate, "tekssxisbad"),
+                    mockPlayerFactories.shuckle(someDate),
+                ],
+                games: undefined,
+                settings: getMockScrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
+            };
+    
+            crudGetScrim.mockResolvedValueOnce(scrim);
+            crudPlayerInAnyScrim.mockResolvedValueOnce(false);
+            crudAddPlayerToScrim.mockResolvedValueOnce({});
+
+            const actual = await service.joinScrim(joinScrimData);
+            const expected: Scrim = {
+                ...scrim,
+                players: [
+                    mockPlayerFactories.hyper(someDate, "tekssxisbad"),
+                    mockPlayerFactories.shuckle(someDate),
+                    mockPlayerFactories.tekssx(expect.any(Date) as Date, "tekssxisbad"),
+                ],
+            };
+
+            expect(actual).toEqual(expected);
+            expect(crudAddPlayerToScrim).toHaveBeenCalledWith(scrim.id, {
+                id: joinScrimData.playerId,
+                name: joinScrimData.playerName,
+                joinedAt: expect.any(Date) as Date,
+                leaveAt: expect.any(Date) as Date,
+                group: "tekssxisbad",
+            });
         });
     
         it("The scrim should pop when the last player joins and it is full", async () => {
@@ -426,45 +512,45 @@ describe("ScrimService", () => {
                 createdAt: someDate,
                 updatedAt: someDate,
                 status: ScrimStatus.PENDING,
-                ...scrimIds(),
+                ...getMockScrimIds(),
                 players: [
-                    players.hyper(someDate),
-                    players.shuckle(someDate),
-                    players.tekssx(someDate),
+                    mockPlayerFactories.hyper(someDate),
+                    mockPlayerFactories.shuckle(someDate),
+                    mockPlayerFactories.tekssx(someDate),
                 ],
                 games: undefined,
-                settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
+                settings: getMockScrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
     
-            getScrim.mockImplementationOnce(async () => scrim);
-            playerInAnyScrim.mockImplementationOnce(async () => false);
-            addPlayerToScrim.mockImplementationOnce(async () => {});
-            popScrim.mockImplementationOnce(async () => {});
+            crudGetScrim.mockResolvedValueOnce(scrim);
+            crudPlayerInAnyScrim.mockResolvedValueOnce(false);
+            crudAddPlayerToScrim.mockResolvedValueOnce({});
+            logicPopScrim.mockResolvedValueOnce({});
 
             const actual = await service.joinScrim(joinScrimData);
             const expected: Scrim = {
                 ...scrim,
                 players: [
-                    players.hyper(someDate),
-                    players.shuckle(someDate),
-                    players.tekssx(someDate),
-                    players.nigel(expect.any(Date) as Date),
+                    mockPlayerFactories.hyper(someDate),
+                    mockPlayerFactories.shuckle(someDate),
+                    mockPlayerFactories.tekssx(someDate),
+                    mockPlayerFactories.nigel(expect.any(Date) as Date),
                 ],
             };
 
             expect(actual).toEqual(expected);
-            expect(popScrim).toHaveBeenCalledWith(expected);
+            expect(logicPopScrim).toHaveBeenCalledWith(expected);
         });
     });
 
     describe("Leaving a Scrim", () => {
         it("Should throw with ScrimNotFound when a player tires to leave a scrim that doesn't exist", async () => {
-            getScrim.mockImplementationOnce(async () => null);
+            crudGetScrim.mockResolvedValueOnce(null);
 
-            const actual = async (): Promise<Scrim> => service.leaveScrim("hi Nigel", 1);
-            const expected = MatchmakingError.ScrimNotFound;
+            const func = async (): Promise<Scrim> => service.leaveScrim("hi Nigel", 1);
+            const expectedError = MatchmakingError.ScrimNotFound;
 
-            await expect(actual).rejects.toThrow(expected);
+            await expect(func).rejects.toThrow(expectedError);
         });
 
         it("Should throw with ScrimAlreadyInProgress when a player tires to leave a scrim that is no longer pending", async () => {
@@ -473,21 +559,21 @@ describe("ScrimService", () => {
                 createdAt: someDate,
                 updatedAt: someDate,
                 status: ScrimStatus.POPPED,
-                ...scrimIds(),
+                ...getMockScrimIds(),
                 players: [
-                    players.hyper(someDate),
-                    players.shuckle(someDate),
+                    mockPlayerFactories.hyper(someDate),
+                    mockPlayerFactories.shuckle(someDate),
                 ],
                 games: undefined,
-                settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
+                settings: getMockScrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
 
-            getScrim.mockImplementationOnce(async () => scrim);
+            crudGetScrim.mockResolvedValueOnce(scrim);
 
-            const actual = async (): Promise<Scrim> => service.leaveScrim("hello world!", players.shuckle(someDate).id);
-            const expected = MatchmakingError.ScrimAlreadyInProgress;
+            const func = async (): Promise<Scrim> => service.leaveScrim("hello world!", mockPlayerFactories.shuckle(someDate).id);
+            const expectedError = MatchmakingError.ScrimAlreadyInProgress;
             
-            await expect(actual).rejects.toThrow(expected);
+            await expect(func).rejects.toThrow(expectedError);
         });
 
         it("Should throw with PlayerNotInScrim when a player tires to leave a scrim they are not in", async () => {
@@ -496,21 +582,21 @@ describe("ScrimService", () => {
                 createdAt: someDate,
                 updatedAt: someDate,
                 status: ScrimStatus.PENDING,
-                ...scrimIds(),
+                ...getMockScrimIds(),
                 players: [
-                    players.hyper(someDate),
-                    players.shuckle(someDate),
+                    mockPlayerFactories.hyper(someDate),
+                    mockPlayerFactories.shuckle(someDate),
                 ],
                 games: undefined,
-                settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
+                settings: getMockScrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
 
-            getScrim.mockImplementationOnce(async () => scrim);
+            crudGetScrim.mockResolvedValueOnce(scrim);
 
-            const actual = async (): Promise<Scrim> => service.leaveScrim("hello world!", players.tekssx(someDate).id);
-            const expected = MatchmakingError.PlayerNotInScrim;
+            const func = async (): Promise<Scrim> => service.leaveScrim("hello world!", mockPlayerFactories.tekssx(someDate).id);
+            const expectedError = MatchmakingError.PlayerNotInScrim;
 
-            await expect(actual).rejects.toThrow(expected);
+            await expect(func).rejects.toThrow(expectedError);
         });
 
         it("Scrim should be deleted if the player leaving is the only player in the scrim", async () => {
@@ -519,25 +605,26 @@ describe("ScrimService", () => {
                 createdAt: someDate,
                 updatedAt: someDate,
                 status: ScrimStatus.PENDING,
-                ...scrimIds(),
+                ...getMockScrimIds(),
                 players: [
-                    players.hyper(someDate),
+                    mockPlayerFactories.hyper(someDate),
                 ],
                 games: undefined,
-                settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
+                settings: getMockScrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
 
-            getScrim.mockImplementationOnce(async () => scrim);
-            deleteScrim.mockImplementationOnce(async () => {});
+            crudGetScrim.mockResolvedValueOnce(scrim);
+            logicDeleteScrim.mockResolvedValueOnce({});
 
-            const actual = await service.leaveScrim("hello world!", players.hyper(someDate).id);
+            const actual = await service.leaveScrim("hello world!", mockPlayerFactories.hyper(someDate).id);
             const expected: Scrim = {
                 ...scrim,
                 players: [],
             };
 
             expect(actual).toEqual(expected);
-            expect(deleteScrim).toHaveBeenCalledWith(expected);
+            expect(logicDeleteScrim).toHaveBeenCalledWith(expected);
+            expect(crudRemovePlayerFromScrim).toHaveBeenCalledTimes(0);
         });
 
         it("Player should be removed from the scrim", async () => {
@@ -546,39 +633,40 @@ describe("ScrimService", () => {
                 createdAt: someDate,
                 updatedAt: someDate,
                 status: ScrimStatus.PENDING,
-                ...scrimIds(),
+                ...getMockScrimIds(),
                 players: [
-                    players.hyper(someDate),
-                    players.shuckle(someDate),
+                    mockPlayerFactories.hyper(someDate),
+                    mockPlayerFactories.shuckle(someDate),
                 ],
                 games: undefined,
-                settings: scrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
+                settings: getMockScrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
 
-            getScrim.mockImplementationOnce(async () => scrim);
-            removePlayerFromScrim.mockImplementationOnce(async () => {});
+            crudGetScrim.mockResolvedValueOnce(scrim);
+            crudRemovePlayerFromScrim.mockResolvedValueOnce({});
 
-            const actual = await service.leaveScrim("hello world!", players.shuckle(someDate).id);
+            const actual = await service.leaveScrim("hello world!", mockPlayerFactories.shuckle(someDate).id);
             const expected: Scrim = {
                 ...scrim,
                 players: [
-                    players.hyper(someDate),
+                    mockPlayerFactories.hyper(someDate),
                 ],
             };
 
             expect(actual).toStrictEqual(expected);
-            expect(removePlayerFromScrim).toHaveBeenCalledWith(scrim.id, players.shuckle(someDate).id);
+            expect(logicDeleteScrim).toHaveBeenCalledTimes(0);
+            expect(crudRemovePlayerFromScrim).toHaveBeenCalledWith(scrim.id, mockPlayerFactories.shuckle(someDate).id);
         });
     });
 
     describe("Checking Into a Scrim", () => {
         it("Should throw with ScrimNotFound when a player tries to check into a scrim that doesn't exist", async () => {
-            getScrim.mockImplementationOnce(async () => null);
+            crudGetScrim.mockResolvedValueOnce(null);
 
-            const actual = async (): Promise<Scrim> => service.checkIn("hi zach", 1);
-            const expected = MatchmakingError.ScrimNotFound;
+            const func = async (): Promise<Scrim> => service.checkIn("hi zach", 1);
+            const expectedError = MatchmakingError.ScrimNotFound;
 
-            await expect(actual).rejects.toThrow(expected);
+            await expect(func).rejects.toThrow(expectedError);
         });
 
         it("Should throw with ScrimStatusNotPopped when a player tries to check into a scrim that isn't popped", async () => {
@@ -587,12 +675,12 @@ describe("ScrimService", () => {
                 status: ScrimStatus.PENDING,
             } as Scrim;
 
-            getScrim.mockImplementationOnce(async () => scrim);
+            crudGetScrim.mockResolvedValueOnce(scrim);
 
-            const actual = async (): Promise<Scrim> => service.checkIn(scrim.id, 1);
-            const expected = MatchmakingError.ScrimStatusNotPopped;
+            const func = async (): Promise<Scrim> => service.checkIn(scrim.id, 1);
+            const expectedError = MatchmakingError.ScrimStatusNotPopped;
 
-            await expect(actual).rejects.toThrow(expected);
+            await expect(func).rejects.toThrow(expectedError);
         });
 
         it("Should throw with PlayerNotInScrim when a player tries to check into a scrim they are not in", async () => {
@@ -600,17 +688,17 @@ describe("ScrimService", () => {
                 id: "scrim-hihellohowdy",
                 status: ScrimStatus.POPPED,
                 players: [
-                    players.hyper(someDate),
-                    players.tekssx(someDate),
+                    mockPlayerFactories.hyper(someDate),
+                    mockPlayerFactories.tekssx(someDate),
                 ],
             } as Scrim;
 
-            getScrim.mockImplementationOnce(async () => scrim);
+            crudGetScrim.mockResolvedValueOnce(scrim);
 
-            const actual = async (): Promise<Scrim> => service.checkIn(scrim.id, players.shuckle(someDate).id);
-            const expected = MatchmakingError.PlayerNotInScrim;
+            const func = async (): Promise<Scrim> => service.checkIn(scrim.id, mockPlayerFactories.shuckle(someDate).id);
+            const expectedError = MatchmakingError.PlayerNotInScrim;
 
-            await expect(actual).rejects.toThrow(expected);
+            await expect(func).rejects.toThrow(expectedError);
         });
 
         it("Should throw with PlayerAlreadyCheckedIn when a player tries to check into a scrim they already checked into", async () => {
@@ -618,20 +706,20 @@ describe("ScrimService", () => {
                 id: "scrim-hihellohowdy",
                 status: ScrimStatus.POPPED,
                 players: [
-                    players.hyper(someDate),
+                    mockPlayerFactories.hyper(someDate),
                     {
-                        ...players.tekssx(someDate),
+                        ...mockPlayerFactories.tekssx(someDate),
                         checkedIn: true,
                     },
                 ],
             } as Scrim;
 
-            getScrim.mockImplementationOnce(async () => scrim);
+            crudGetScrim.mockResolvedValueOnce(scrim);
 
-            const actual = async (): Promise<Scrim> => service.checkIn(scrim.id, players.tekssx(someDate).id);
-            const expected = MatchmakingError.PlayerAlreadyCheckedIn;
+            const func = async (): Promise<Scrim> => service.checkIn(scrim.id, mockPlayerFactories.tekssx(someDate).id);
+            const expectedError = MatchmakingError.PlayerAlreadyCheckedIn;
 
-            await expect(actual).rejects.toThrow(expected);
+            await expect(func).rejects.toThrow(expectedError);
         });
 
         it("Player should be checked into the scrim", async () => {
@@ -639,92 +727,101 @@ describe("ScrimService", () => {
                 id: "scrim-hihellohowdy",
                 status: ScrimStatus.POPPED,
                 players: [
-                    players.hyper(someDate),
+                    mockPlayerFactories.hyper(someDate),
                     {
-                        ...players.tekssx(someDate),
+                        ...mockPlayerFactories.tekssx(someDate),
                         checkedIn: true,
                     },
-                    players.shuckle(someDate),
-                    players.nigel(someDate),
+                    mockPlayerFactories.shuckle(someDate),
+                    mockPlayerFactories.nigel(someDate),
                 ],
             } as Scrim;
 
-            getScrim.mockImplementationOnce(async () => scrim);
-            updatePlayer.mockImplementationOnce(async () => {});
+            crudGetScrim.mockResolvedValueOnce(scrim);
+            crudUpdatePlayer.mockResolvedValueOnce({});
 
             const expected = {
                 ...scrim,
                 players: [
                     {
-                        ...players.hyper(someDate),
+                        ...mockPlayerFactories.hyper(someDate),
                         checkedIn: true,
                     },
                     {
-                        ...players.tekssx(someDate),
+                        ...mockPlayerFactories.tekssx(someDate),
                         checkedIn: true,
                     },
-                    players.shuckle(someDate),
-                    players.nigel(someDate),
+                    mockPlayerFactories.shuckle(someDate),
+                    mockPlayerFactories.nigel(someDate),
                 ],
             };
 
             publishScrimUpdate.mockReset();
-            publishScrimUpdate.mockImplementationOnce(async () => expected);
+            publishScrimUpdate.mockResolvedValueOnce(expected);
 
-            const actual = await service.checkIn(scrim.id, players.hyper(someDate).id);
+            const func = await service.checkIn(scrim.id, mockPlayerFactories.hyper(someDate).id);
 
-            expect(actual).toEqual(expected);
+            expect(func).toEqual(expected);
+            expect(crudUpdatePlayer).toHaveBeenCalledWith(scrim.id, {
+                ...mockPlayerFactories.hyper(someDate),
+                checkedIn: true,
+            });
+            expect(logicStartScrim).toHaveBeenCalledTimes(0);
         });
 
-        it("Scrim should be started", async () => {
+        it("Scrim should be started when the last player checks in", async () => {
             const scrim: Scrim = {
                 id: "scrim-hihellohowdy",
                 status: ScrimStatus.POPPED,
                 players: [
-                    players.hyper(someDate),
+                    mockPlayerFactories.hyper(someDate),
                     {
-                        ...players.tekssx(someDate),
+                        ...mockPlayerFactories.tekssx(someDate),
                         checkedIn: true,
                     },
                 ],
             } as Scrim;
 
-            getScrim.mockImplementationOnce(async () => scrim);
-            updatePlayer.mockImplementationOnce(async () => {});
-            startScrim.mockImplementationOnce(async () => {});
+            crudGetScrim.mockResolvedValueOnce(scrim);
+            crudUpdatePlayer.mockResolvedValueOnce({});
+            logicStartScrim.mockResolvedValueOnce({});
 
             const expected = {
                 ...scrim,
                 players: [
                     {
-                        ...players.hyper(someDate),
+                        ...mockPlayerFactories.hyper(someDate),
                         checkedIn: true,
                     },
                     {
-                        ...players.tekssx(someDate),
+                        ...mockPlayerFactories.tekssx(someDate),
                         checkedIn: true,
                     },
                 ],
             };
 
             publishScrimUpdate.mockReset();
-            publishScrimUpdate.mockImplementationOnce(async () => expected);
+            publishScrimUpdate.mockResolvedValueOnce(expected);
 
-            const actual = await service.checkIn(scrim.id, players.hyper(someDate).id);
+            const actual = await service.checkIn(scrim.id, mockPlayerFactories.hyper(someDate).id);
 
             expect(actual).toEqual(expected);
-            expect(startScrim).toHaveBeenCalledWith(expected);
+            expect(crudUpdatePlayer).toHaveBeenCalledWith(scrim.id, {
+                ...mockPlayerFactories.hyper(someDate),
+                checkedIn: true,
+            });
+            expect(logicStartScrim).toHaveBeenCalledWith(expected);
         });
     });
 
     describe("Cancelling a Scrim", () => {
         it("Should throw with ScrimNotFound when someone attempts to cancel a scrim that doesn't exist", async () => {
-            getScrim.mockImplementationOnce(async () => null);
+            crudGetScrim.mockResolvedValueOnce(null);
     
-            const actual = async (): Promise<Scrim> => service.cancelScrim("hi shuckle");
-            const expected = MatchmakingError.ScrimNotFound;
+            const func = async (): Promise<Scrim> => service.cancelScrim("hi shuckle");
+            const expectedError = MatchmakingError.ScrimNotFound;
     
-            await expect(actual).rejects.toThrow(expected);
+            await expect(func).rejects.toThrow(expectedError);
         });
 
         it("Scrim should be cancelled", async () => {
@@ -737,24 +834,24 @@ describe("ScrimService", () => {
                 status: ScrimStatus.CANCELLED,
             };
 
-            getScrim.mockImplementationOnce(async () => expected);
-            removeScrim.mockImplementationOnce(async () => {});
+            crudGetScrim.mockResolvedValueOnce(expected);
+            crudRemoveScrim.mockResolvedValueOnce({});
 
             const actual = await service.cancelScrim(expected.id);
     
             expect(actual).toEqual(expected);
-            expect(removeScrim).toHaveBeenCalledWith(scrim.id);
+            expect(crudRemoveScrim).toHaveBeenCalledWith(scrim.id);
         });
     });
 
     describe("Completing a Scrim", () => {
         it("Should throw with ScrimNotFound when someone tries to complete a scrim that doesn't exist", async () => {
-            getScrim.mockImplementationOnce(async () => null);
+            crudGetScrim.mockResolvedValueOnce(null);
     
-            const actual = async (): Promise<Scrim> => service.completeScrim("hi shuckle");
-            const expected = MatchmakingError.ScrimNotFound;
+            const func = async (): Promise<Scrim> => service.completeScrim("hi shuckle");
+            const expectedError = MatchmakingError.ScrimNotFound;
     
-            await expect(actual).rejects.toThrow(expected);
+            await expect(func).rejects.toThrow(expectedError);
         });
 
         it("Should throw with ScrimSubmissionNotFound when someone tries to complete a scrim that has no submission", async () => {
@@ -762,63 +859,64 @@ describe("ScrimService", () => {
                 id: "hi shuckle",
             } as Scrim;
 
-            getScrim.mockImplementationOnce(async () => scrim);
+            crudGetScrim.mockResolvedValueOnce(scrim);
     
-            const actual = async (): Promise<Scrim> => service.completeScrim(scrim.id);
-            const expected = MatchmakingError.ScrimSubmissionNotFound;
+            const func = async (): Promise<Scrim> => service.completeScrim(scrim.id);
+            const expectedError = MatchmakingError.ScrimSubmissionNotFound;
     
-            await expect(actual).rejects.toThrow(expected);
+            await expect(func).rejects.toThrow(expectedError);
         });
 
         it("Should throw with PlayerNotInScrim when a player tries to complete a scrim that they are not in", async () => {
             const scrim: Scrim = {
                 id: "hi shuckle",
                 players: [
-                    players.hyper(someDate),
-                    players.tekssx(someDate),
+                    mockPlayerFactories.hyper(someDate),
+                    mockPlayerFactories.tekssx(someDate),
                 ],
                 submissionId: "howdy, shuckle!",
             } as Scrim;
 
-            getScrim.mockImplementationOnce(async () => scrim);
+            crudGetScrim.mockResolvedValueOnce(scrim);
     
-            const actual = async (): Promise<Scrim> => service.completeScrim(scrim.id, players.shuckle(someDate).id);
-            const expected = MatchmakingError.PlayerNotInScrim;
+            const func = async (): Promise<Scrim> => service.completeScrim(scrim.id, mockPlayerFactories.shuckle(someDate).id);
+            const expectedError = MatchmakingError.PlayerNotInScrim;
     
-            await expect(actual).rejects.toThrow(expected);
+            await expect(func).rejects.toThrow(expectedError);
         });
 
         it("Scrim should be completed", async () => {
             const scrim: Scrim = {
                 id: "hi shuckle",
                 players: [
-                    players.hyper(someDate),
-                    players.tekssx(someDate),
+                    mockPlayerFactories.hyper(someDate),
+                    mockPlayerFactories.tekssx(someDate),
                 ],
                 submissionId: "howdy, shuckle!",
             } as Scrim;
 
-            getScrim.mockImplementationOnce(async () => scrim);
-            removeScrim.mockImplementationOnce(async () => {});
+            crudGetScrim.mockResolvedValueOnce(scrim);
+            crudRemoveScrim.mockResolvedValueOnce({});
     
-            const actual = await service.completeScrim(scrim.id, players.hyper(someDate).id);
+            const actual = await service.completeScrim(scrim.id, mockPlayerFactories.hyper(someDate).id);
             const expected = {
                 ...scrim,
                 status: ScrimStatus.COMPLETE,
             };
     
             expect(actual).toEqual(expected);
+            expect(crudRemoveScrim).toHaveBeenCalledWith(scrim.id);
         });
     });
 
     describe("Locking and Unlocking a Scrim", () => {
         it("Should throw with ScrimNotFound when someone tries to (un)lock a scrim that doesn't exist", async () => {
-            getScrim.mockImplementationOnce(async () => null);
+            crudGetScrim.mockResolvedValueOnce(null);
     
-            const actual = async (): Promise<Scrim> => service.setScrimLocked("bonjour!", false);
-            const expected = MatchmakingError.ScrimNotFound;
+            const func = async (): Promise<Scrim> => service.setScrimLocked("bonjour!", false);
+            const expectedError = MatchmakingError.ScrimNotFound;
     
-            await expect(actual).rejects.toThrow(expected);
+            await expect(func).rejects.toThrow(expectedError);
         });
 
         it("Scrim should be unlocked", async () => {
@@ -828,8 +926,8 @@ describe("ScrimService", () => {
                 unlockedStatus: ScrimStatus.IN_PROGRESS,
             } as Scrim;
 
-            getScrim.mockImplementationOnce(async () => scrim);
-            updateScrimStatus.mockImplementationOnce(async () => {});
+            crudGetScrim.mockResolvedValueOnce(scrim);
+            crudUpdateScrimStatus.mockResolvedValueOnce({});
     
             const actual = await service.setScrimLocked(scrim.id, false);
             const expected = {
@@ -838,7 +936,7 @@ describe("ScrimService", () => {
             };
     
             expect(actual).toEqual(expected);
-            expect(updateScrimStatus).toHaveBeenCalledWith(scrim.id, ScrimStatus.IN_PROGRESS);
+            expect(crudUpdateScrimStatus).toHaveBeenCalledWith(scrim.id, ScrimStatus.IN_PROGRESS);
         });
 
         it("Scrim should be locked", async () => {
@@ -847,9 +945,9 @@ describe("ScrimService", () => {
                 status: ScrimStatus.IN_PROGRESS,
             } as Scrim;
 
-            getScrim.mockImplementationOnce(async () => scrim);
-            updateScrimUnlockedStatus.mockImplementationOnce(async () => {});
-            updateScrimStatus.mockImplementationOnce(async () => {});
+            crudGetScrim.mockResolvedValueOnce(scrim);
+            crudUpdateScrimUnlockedStatus.mockResolvedValueOnce({});
+            crudUpdateScrimStatus.mockResolvedValueOnce({});
     
             const actual = await service.setScrimLocked(scrim.id, true);
             const expected = {
@@ -858,8 +956,8 @@ describe("ScrimService", () => {
             };
     
             expect(actual).toEqual(expected);
-            expect(updateScrimStatus).toHaveBeenCalledWith(scrim.id, ScrimStatus.LOCKED);
-            expect(updateScrimUnlockedStatus).toHaveBeenCalledWith(scrim.id, ScrimStatus.IN_PROGRESS);
+            expect(crudUpdateScrimStatus).toHaveBeenCalledWith(scrim.id, ScrimStatus.LOCKED);
+            expect(crudUpdateScrimUnlockedStatus).toHaveBeenCalledWith(scrim.id, ScrimStatus.IN_PROGRESS);
         });
     });
 
