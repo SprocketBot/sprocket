@@ -1,7 +1,5 @@
 import {Injectable, Logger} from "@nestjs/common";
-import type {
-    NotificationEndpoint, NotificationInput, NotificationOutput,
-} from "@sprocketbot/common";
+import type {NotificationEndpoint, NotificationInput, NotificationOutput} from "@sprocketbot/common";
 import {
     BotEndpoint,
     BotService,
@@ -22,7 +20,9 @@ export class NotificationService {
         private readonly botService: BotService,
     ) {}
 
-    async sendNotification(data: NotificationInput<NotificationEndpoint.SendNotification>): Promise<NotificationOutput<NotificationEndpoint.SendNotification>> {
+    async sendNotification(
+        data: NotificationInput<NotificationEndpoint.SendNotification>,
+    ): Promise<NotificationOutput<NotificationEndpoint.SendNotification>> {
         if (data.payload) {
             const notificationPayload = {
                 id: data.id ?? `${data.type.toLowerCase()}-${v4()}`,
@@ -33,7 +33,10 @@ export class NotificationService {
             };
 
             // TODO: TTL 14 days
-            await this.redisService.setJson(`${this.prefix}${data.userId}:${data.type}:${notificationPayload.id}`, notificationPayload);
+            await this.redisService.setJson(
+                `${this.prefix}${data.userId}:${data.type}:${notificationPayload.id}`,
+                notificationPayload,
+            );
         }
 
         if (data.notification.type === NotificationMessageType.GuildTextMessage) {
