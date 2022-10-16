@@ -22,7 +22,9 @@ import {
     SCRIM_REQ_RATIFICATION_MAJORITY,
 } from "@sprocketbot/common";
 
-import {getSubmissionKey, submissionIsMatch, submissionIsScrim} from "../../utils";
+import {
+    getSubmissionKey, submissionIsMatch, submissionIsScrim,
+} from "../../utils";
 
 @Injectable()
 export class ReplaySubmissionCrudService {
@@ -35,11 +37,7 @@ export class ReplaySubmissionCrudService {
     async getAllSubmissions(): Promise<ReplaySubmission[]> {
         // Use wildcard for submissionId to list all matching keys
         const submissionKeys = await this.redisService.getKeys(getSubmissionKey("*"));
-        const submissions = await Promise.all(
-            submissionKeys.map<Promise<ReplaySubmission>>(async key =>
-                this.redisService.getJson<ReplaySubmission>(key),
-            ),
-        );
+        const submissions = await Promise.all(submissionKeys.map<Promise<ReplaySubmission>>(async key => this.redisService.getJson<ReplaySubmission>(key)));
         return submissions;
     }
 
@@ -78,18 +76,15 @@ export class ReplaySubmissionCrudService {
             requiredRatifications: 2, // TODO Make this configurable.
         };
         let submission: ReplaySubmission;
-        let configMinRatify: number; // From the Organization config.
-        let minRatify: number; // The actual minimum number of ratifiers.
-        let maxRatify: number; // Total number of players.
+        let configMinRatify: number;        // From the Organization config.
+        let minRatify: number;              // The actual minimum number of ratifiers.
+        let maxRatify: number;              // Total number of players.
 
         if (submissionIsScrim(submissionId)) {
             const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
             if (result.status === ResponseStatus.ERROR) throw result.error;
             const scrim = result.data;
-            if (!scrim)
-                throw new Error(
-                    `Unable to create submission, could not find a scrim associated with submissionId=${submissionId}`,
-                );
+            if (!scrim) throw new Error(`Unable to create submission, could not find a scrim associated with submissionId=${submissionId}`);
             submission = {
                 ...commonFields,
                 type: ReplaySubmissionType.SCRIM,
@@ -98,14 +93,12 @@ export class ReplaySubmissionCrudService {
 
             configMinRatify = await this.getOrgRequiredRatifications(scrim.organizationId);
             maxRatify = scrim.players.length;
+
         } else if (submissionIsMatch(submissionId)) {
             const result = await this.coreService.send(CoreEndpoint.GetMatchBySubmissionId, {submissionId});
             if (result.status === ResponseStatus.ERROR) throw result.error;
             const match = result.data;
-            if (typeof match === "undefined")
-                throw new Error(
-                    `Unable to create submission, could not find a match associated with submissionId=${submissionId}`,
-                );
+            if (typeof match === "undefined") throw new Error(`Unable to create submission, could not find a match associated with submissionId=${submissionId}`);
             submission = {
                 ...commonFields,
                 type: ReplaySubmissionType.MATCH,
@@ -116,13 +109,14 @@ export class ReplaySubmissionCrudService {
             //       This is currently being hardcoded to 2 to avoid changing existing behavior.
             configMinRatify = 2;
             maxRatify = configMinRatify;
+
         } else {
             throw new Error("Unable to identify submission type.");
         }
 
         if (configMinRatify === SCRIM_REQ_RATIFICATION_MAJORITY) {
             // The submission is configured to require a majority of ratifiers.
-            minRatify = maxRatify / 2 + 1;
+            minRatify = (maxRatify / 2) + 1;
         } else {
             // Simply take the configured amount, capped to the number of players.
             minRatify = Math.min(configMinRatify, maxRatify);
@@ -213,10 +207,11 @@ export class ReplaySubmissionCrudService {
     async expireRejections(submissionId: string): Promise<void> {
         const key = getSubmissionKey(submissionId);
         // We need to make sure this array exists, otherwise multipathing breaks
-        const len = (await this.redisService.redis.send_command("JSON.ARRLEN", key, "rejections")) as number;
+        const len = await this.redisService.redis.send_command("JSON.ARRLEN", key, "rejections") as number;
         if (len) {
             await this.redisService.setJsonField(key, `rejections..stale`, true);
         }
+
     }
 
     async addRejection(submissionId: string, playerId: number, reason: string): Promise<void> {
@@ -233,14 +228,11 @@ export class ReplaySubmissionCrudService {
 
         const stale = false;
         const rejection: ReplaySubmissionRejection = {
-            playerId,
-            reason,
-            rejectedItems,
-            rejectedAt,
-            stale,
+            playerId, reason, rejectedItems, rejectedAt, stale,
         };
 
         await this.clearRatifiers(submissionId);
         await this.redisService.appendToJsonArray(key, "rejections", rejection);
     }
+
 }
