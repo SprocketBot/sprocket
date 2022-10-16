@@ -3,6 +3,12 @@
 
     import type {MetricsResult} from "$lib/api";
     import {
+        currentScrim,
+        currentUser,
+        scrimMetrics,
+        scrimsDisabled,
+    } from "$lib/api";
+    import {
         AvailableScrimsView,
         DashboardCard,
         DashboardLayout,

@@ -42,9 +42,9 @@
     let game: GamesAndModesValue["games"][0];
     let mode: GamesAndModesValue["games"][0]["modes"][0];
     let scrimType: "TEAMS" | "ROUND_ROBIN";
-    let leaveAfter: number = 1800;
-    let competitive: boolean = true;
-    let createGroup: boolean = false;
+    let leaveAfter = 1800;
+    let competitive = true;
+    let createGroup = false;
 
     let buttonEnabled = true;
 
