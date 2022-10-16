@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
+    "clean": "rimraf .sveltekit",
     "preview": "svelte-kit preview",
     "package": "svelte-kit package",
     "prepare": "svelte-kit sync",

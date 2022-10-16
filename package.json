@@ -18,6 +18,7 @@
     "format:check": "npm run format:check --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "lint:check": "npm run lint:check --workspaces --if-present"
+    "clean": "npm run clean --workspaces --if-available",
   },
   "workspaces": [
     "common",

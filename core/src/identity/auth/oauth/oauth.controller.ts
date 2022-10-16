@@ -1,4 +1,6 @@
-import {Controller, ForbiddenException, forwardRef, Get, Inject, Request, Response, UseGuards} from "@nestjs/common";
+import {
+    Controller, ForbiddenException, forwardRef, Get, Inject, Logger, Request, Response, UseGuards,
+} from "@nestjs/common";
 import {config} from "@sprocketbot/common";
 import {Request as Req, Response as Res} from "express";
 
@@ -14,6 +16,8 @@ import type {AuthPayload} from "./types/payload.type";
 
 @Controller()
 export class OauthController {
+    private readonly logger = new Logger(OauthController.name);
+
     constructor(
         private authService: OauthService,
         private userService: UserService,
@@ -52,11 +56,10 @@ export class OauthController {
     @UseGuards(JwtRefreshGuard)
     @Get("refresh")
     async refreshTokens(@Request() req: Req): Promise<AccessToken> {
-        const ourUser = req.user as User;
-        const userProfile = await this.userService.getUserProfileForUser(ourUser.id);
-        const authAccounts: UserAuthenticationAccount[] = await this.userService.getUserAuthenticationAccountsForUser(
-            ourUser.id,
-        );
+        const ourUser = req.user as AuthPayload;
+        this.logger.verbose(`Refreshing tokens for user ${JSON.stringify(ourUser)}`);
+        const userProfile = await this.userService.getUserProfileForUser(ourUser.userId);
+        const authAccounts: UserAuthenticationAccount[] = await this.userService.getUserAuthenticationAccountsForUser(ourUser.userId);
         const discordAccount = authAccounts.find(obj => obj.accountType === UserAuthenticationAccountType.DISCORD);
         if (discordAccount) {
             const player = await this.mledbUserService.getPlayerByDiscordId(discordAccount.accountId);
@@ -65,7 +68,7 @@ export class OauthController {
             const payload: AuthPayload = {
                 sub: discordAccount.accountId,
                 username: userProfile.displayName,
-                userId: ourUser.id,
+                userId: ourUser.userId,
                 currentOrganizationId: config.defaultOrganizationId,
                 orgTeams: orgs,
             };

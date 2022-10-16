@@ -28,6 +28,12 @@ export const config = {
         get jwt_expiry(): string {
             return _config.get<string>("auth.jwt_expiry");
         },
+        get access_expiry(): string {
+            return _config.get<string>("auth.access_expiry");
+        },
+        get refresh_expiry(): string {
+            return _config.get<string>("auth.refresh_expiry");
+        },
         get frontend_callback(): string {
             return _config.get<string>("auth.frontend_callback");
         },

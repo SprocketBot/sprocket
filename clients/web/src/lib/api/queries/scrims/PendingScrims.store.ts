@@ -8,6 +8,7 @@ export interface PendingScrim {
     playerCount: number;
     maxPlayers: number;
     status: "PENDING" | "EMPTY" | "POPPED";
+    createdAt: Date;
     gameMode: {
         description: string;
         game: {
@@ -43,13 +44,25 @@ class PendingScrimsStore extends LiveQueryStore<
     FollowScrimsData
 > {
     protected queryString = gql<PendingScrimsData, PendingScrimsVars>`
-        query {
-            pendingScrims: getAvailableScrims(status: PENDING) {
-                id
-                playerCount
-                maxPlayers
-                status
-                gameMode {
+    query {
+        pendingScrims: getAvailableScrims(status: PENDING) {
+            id
+            playerCount
+            maxPlayers
+            status
+            createdAt
+            gameMode {
+                description
+                game {
+                    title
+                }
+            }
+            settings {
+                competitive
+                mode
+            }
+            skillGroup {
+                profile {
                     description
                     game {
                         title
@@ -75,6 +88,7 @@ class PendingScrimsStore extends LiveQueryStore<
                 playerCount
                 maxPlayers
                 status
+                createdAt
                 gameMode {
                     description
                     game {

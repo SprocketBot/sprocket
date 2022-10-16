@@ -46,32 +46,33 @@ export class ScrimService extends SprocketEventMarshal {
         });
         if (skillGroupProfile.status === ResponseStatus.ERROR) throw skillGroupProfile.error;
 
+        const gameModeResult = await this.coreService.send(CoreEndpoint.GetGameModeById, {gameModeId: scrim.gameModeId});
+        if (gameModeResult.status === ResponseStatus.ERROR) throw gameModeResult.error;
+        
         await this.botService.send(BotEndpoint.SendWebhookMessage, {
             webhookUrl: skillGroupWebhook.data.scrim,
             payload: {
                 content: skillGroupWebhook.data.scrimRole ? `<@&${skillGroupWebhook.data.scrimRole}>` : "",
-                embeds: [
-                    {
-                        title: "Scrim Created",
-                        description: `[Join here!](${config.web.url}/scrims)`,
-                        thumbnail: skillGroupProfile.data.photo
-                            ? {
-                                  url: skillGroupProfile.data.photo.url,
-                              }
-                            : undefined,
-                        color: parseInt(skillGroupProfile.data.color.replace("#", ""), 16),
-                        fields: [
-                            {
-                                name: "Game Mode",
-                                value: scrim.gameMode.description,
-                            },
-                            {
-                                name: "Type",
-                                value: scrim.settings.mode === ScrimMode.ROUND_ROBIN ? "Round Robin" : "Teams",
-                            },
-                        ],
-                    },
-                ],
+                embeds: [ {
+                    title: "Scrim Created",
+                    description: `[Join here!](${config.web.url}/scrims)`,
+                    thumbnail: skillGroupProfile.data.photo
+                        ? {
+                                url: skillGroupProfile.data.photo.url,
+                            }
+                        : undefined,
+                    color: parseInt(skillGroupProfile.data.color.replace("#", ""), 16),
+                    fields: [
+                        {
+                            name: "Game Mode",
+                            value: gameModeResult.data.description,
+                        },
+                        {
+                            name: "Type",
+                            value: scrim.settings.mode === ScrimMode.ROUND_ROBIN ? "Round Robin" : "Teams",
+                        },
+                    ],
+                } ],
             },
             brandingOptions: {
                 organizationId: scrim.organizationId,
@@ -148,7 +149,7 @@ export class ScrimService extends SprocketEventMarshal {
         });
         if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
 
-        if (!scrim.settings.lobby) return;
+        if (!scrim.lobby) return;
 
         await Promise.all(
             scrim.players.map(async p => {
@@ -161,33 +162,12 @@ export class ScrimService extends SprocketEventMarshal {
                     payload: {
                         embeds: [
                             {
-                                title: "Your scrim is ready to be played!",
-                                description: `Hey, ${p.name}! Everyone has checked into your ${organizationBrandingResult.data.name} scrim. Here is your scrim's lobby information.`,
-                                author: {
-                                    name: `${organizationBrandingResult.data.name} Scrims`,
-                                },
-                                fields: [
-                                    {
-                                        name: "Name",
-                                        value: `\`${scrim.settings.lobby?.name}\``,
-                                    },
-                                    {
-                                        name: "Password",
-                                        value: `\`${scrim.settings.lobby?.password}\``,
-                                    },
-                                ],
-                                footer: {
-                                    text: organizationBrandingResult.data.name,
-                                },
-                                timestamp: Date.now(),
+                                name: "Name",
+                                value: `\`${scrim.lobby?.name}\``,
                             },
-                        ],
-                    },
-                    brandingOptions: {
-                        organizationId: scrim.organizationId,
-                        options: {
-                            author: {
-                                icon: true,
+                            {
+                                name: "Password",
+                                value: `\`${scrim.lobby?.password}\``,
                             },
                             color: true,
                             thumbnail: true,

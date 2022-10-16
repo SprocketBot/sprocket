@@ -1,10 +1,15 @@
 import {z} from "zod";
 
+import {DateSchema} from "../../../types";
+
 export const ScrimPlayerSchema = z.object({
     id: z.number(),
     name: z.string(),
-    checkedIn: z.boolean().default(false).optional(),
+    joinedAt: DateSchema,
+    leaveAt: DateSchema,
     group: z.string().optional(),
+    checkedIn: z.boolean().default(false)
+        .optional(),
 });
 
 export type ScrimPlayer = z.infer<typeof ScrimPlayerSchema>;

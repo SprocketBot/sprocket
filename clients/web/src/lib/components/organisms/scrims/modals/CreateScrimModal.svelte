@@ -33,8 +33,7 @@
 </style>
 
 <script lang="ts">
-    import type {GamesAndModesValue} from "$lib/api";
-    import {createScrimMutation} from "$lib/api";
+    import {type GamesAndModesValue, createScrimMutation} from "$lib/api";
     import {gamesAndModes} from "$lib/api/queries/GamesAndModes.store";
     import {Modal} from "$lib/components";
 
@@ -43,8 +42,9 @@
     let game: GamesAndModesValue["games"][0];
     let mode: GamesAndModesValue["games"][0]["modes"][0];
     let scrimType: "TEAMS" | "ROUND_ROBIN";
-    let competitive = true;
-    let createGroup = false;
+    let leaveAfter: number = 1800;
+    let competitive: boolean = true;
+    let createGroup: boolean = false;
 
     let buttonEnabled = true;
 
@@ -53,12 +53,13 @@
         try {
             await createScrimMutation({
                 settings: {
-                    gameModeId: mode.id,
                     mode: scrimType,
                     competitive: competitive,
                     observable: false,
                 },
+                gameModeId: mode.id,
                 createGroup: createGroup,
+                leaveAfter: leaveAfter,
             });
             visible = false;
         } finally {
@@ -103,6 +104,18 @@
                 <option disabled selected>Make a selection</option>
                 <option value="ROUND_ROBIN">Round Robin</option>
                 <option value="TEAMS">Teams</option>
+            </select>
+        </div>
+
+        <div class="form-control">
+            <label class="label" for="scrim-leave-after">
+                <span class="label-text">Leave After:</span>
+            </label>
+            <select name="scrim-leave-after" bind:value={leaveAfter}>
+                <option value={1800} selected>30 Minutes</option>
+                <option value={3600}>1 Hour</option>
+                <option value={10800}>3 Hours</option>
+                <option value={21600}>6 Hours</option>
             </select>
         </div>
 

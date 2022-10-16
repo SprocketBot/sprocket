@@ -10,6 +10,7 @@
     onMount(() => {
         if (browser) {
             cookies.remove(constants.auth_cookie_key);
+            cookies.remove(constants.refresh_token_cookie_key);
             window.$chatwoot?.reset();
             $session.user = undefined;
             goto("/").catch(console.error);

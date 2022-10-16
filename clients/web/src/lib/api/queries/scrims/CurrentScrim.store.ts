@@ -10,6 +10,7 @@ export interface CurrentScrim {
     playerCount: number;
     maxPlayers: number;
     status: string;
+    createdAt: Date;
     skillGroup: {
         profile: {
             description: string;
@@ -73,23 +74,42 @@ export interface CurrentScrimStoreSubscriptionVariables {
     [key: string]: never;
 }
 
-class CurrentScrimStore extends LiveQueryStore<
-    CurrentScrimStoreValue,
-    CurrentScrimStoreVariables,
-    CurrentScrimSubscriptionValue,
-    CurrentScrimStoreSubscriptionVariables
-> {
-    protected queryString = gql<
-        CurrentScrimStoreValue,
-        CurrentScrimStoreVariables
-    >`
-        query {
-            currentScrim: getCurrentScrim {
+class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentScrimStoreVariables, CurrentScrimSubscriptionValue, CurrentScrimStoreSubscriptionVariables> {
+    protected queryString = gql<CurrentScrimStoreValue, CurrentScrimStoreVariables>`
+    query {
+        currentScrim: getCurrentScrim {
+            id
+            submissionId
+            playerCount
+            maxPlayers
+            status
+            createdAt
+            skillGroup {
+                profile {
+                    description
+                }
+            }
+            currentGroup {
+                code
+                players
+            }
+            gameMode {
+                description
+                game {
+                    title
+                }
+            }
+            settings {
+                competitive
+                mode
+            }
+            players {
                 id
                 submissionId
                 playerCount
                 maxPlayers
                 status
+                createdAt
                 skillGroup {
                     profile {
                         description

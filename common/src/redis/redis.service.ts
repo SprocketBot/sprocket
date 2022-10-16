@@ -1,6 +1,7 @@
 import {Injectable, Logger} from "@nestjs/common";
 import type {Redis, RedisOptions} from "ioredis";
 import IORedis from "ioredis";
+import type {ZodSchema} from "zod";
 
 import {config} from "../util/config";
 
@@ -46,20 +47,29 @@ export class RedisService {
         await this.redis.send_command("json.set", key, path, JSON.stringify(input));
     }
 
-    async getJson<T>(key: string, path?: string): Promise<T> {
+    async getJson<T, S extends ZodSchema = ZodSchema>(key: string, path?: string, schema?: S): Promise<T> {
         const args: string[] = [key];
         if (path) {
             args.push(path);
         }
-        return JSON.parse((await this.redis.send_command("json.get", ...args)) as string) as T;
+
+        const rawData = await this.redis.send_command("json.get", ...args) as string;
+        const parsedData = JSON.parse(rawData) as unknown;
+        
+        if (schema) return schema.parse(parsedData) as T;
+        return parsedData as T;
     }
 
-    async getJsonIfExists<T>(key: string): Promise<T | undefined> {
+    async getJsonIfExists<T, S extends ZodSchema = ZodSchema>(key: string, schema?: S): Promise<T | null> {
         try {
-            const obj = JSON.parse((await this.redis.send_command("json.get", key)) as string) as T;
-            return obj;
+            const rawData = await this.redis.send_command("json.get", key) as string;
+            const parsedData = JSON.parse(rawData) as unknown | null;
+        
+            if (!parsedData) return null;
+            if (schema) return schema.parse(parsedData) as T;
+            return parsedData as T;
         } catch (e) {
-            return undefined;
+            return null;
         }
     }
 

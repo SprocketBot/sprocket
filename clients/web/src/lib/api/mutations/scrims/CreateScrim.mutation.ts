@@ -14,17 +14,23 @@ interface CreateScrimResponse {
 
 interface CreateScrimVariables {
     settings: {
-        gameModeId: number;
         mode: "TEAMS" | "ROUND_ROBIN";
         competitive: boolean;
         observable: boolean;
     };
+    gameModeId: number;
     createGroup: boolean;
+    leaveAfter: number;
 }
 
 const mutationString = gql`
-    mutation ($settings: ScrimSettingsInput!, $createGroup: Boolean) {
-        createScrim(data: {settings: $settings, createGroup: $createGroup}) {
+    mutation (
+        $gameModeId: Int!
+        $settings: ScrimSettingsInput!
+        $leaveAfter: Int!
+        $createGroup: Boolean
+    ) {
+        createScrim(data: {gameModeId: $gameModeId, settings: $settings, createGroup: $createGroup, leaveAfter: $leaveAfter}) {
             id
             playerCount
             settings {

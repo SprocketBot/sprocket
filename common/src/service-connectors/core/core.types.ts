@@ -22,15 +22,15 @@ export enum CoreEndpoint {
     GetUsersLatestScrim = "GetUsersLatestScrim",
     GetMleMatchInfoAndStakeholders = "GetMleMatchInfoAndStakeholders",
     GetGuildsByOrganizationId = "GetGuildsByOrganizationId",
-
     GetMatchBySubmissionId = "GetMatchBySubmissionId",
     GetMatchById = "GetMatchById",
     GetFranchiseStaff = "GetFranchiseStaff",
     GetPlayerFranchises = "GetPlayerFranchises",
-
     GetTransactionsDiscordWebhook = "GetTransactionsDiscordWebhook",
     GetSkillGroupWebhooks = "GetSkillGroupWebhooks",
     GetMatchInformationAndStakeholders = "GetMatchInformationAndStakeholders",
+    GetGameModeById = "GetGameModeById",
+    GetGameByGameMode = "GetGameByGameMode",
 }
 
 export const CoreSchemas = {
@@ -133,6 +133,14 @@ export const CoreSchemas = {
     [CoreEndpoint.GetMatchInformationAndStakeholders]: {
         input: Schemas.GetMatchInformationAndStakeholders_Request,
         output: Schemas.GetMatchInformationAndStakeholders_Response,
+    },
+    [CoreEndpoint.GetGameModeById]: {
+        input: Schemas.GetGameModeById_Request,
+        output: Schemas.GetGameModeById_Response,
+    },
+    [CoreEndpoint.GetGameByGameMode]: {
+        input: Schemas.GetGameByGameMode_Request,
+        output: Schemas.GetGameByGameMode_Response,
     },
 };
 

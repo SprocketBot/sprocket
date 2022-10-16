@@ -1,6 +1,6 @@
 import {z} from "zod";
 
-import {ScrimDatabaseIdsSchema} from "../../types";
+import {ScrimDatabaseIdsSchema} from "../../../../events";
 
 export const CompleteScrim_Request = z.object({
     scrimId: z.string().uuid(),

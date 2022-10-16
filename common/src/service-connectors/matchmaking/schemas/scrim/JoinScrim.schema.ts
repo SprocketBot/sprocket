@@ -1,15 +1,11 @@
 import {z} from "zod";
 
-import {ScrimPlayerSchema} from "../../types";
+import {ScrimJoinOptionsSchema} from "../../types";
 
-export const JoinScrim_Request = z.object({
+export const JoinScrim_Request = ScrimJoinOptionsSchema.extend({
     scrimId: z.string().uuid(),
-    player: ScrimPlayerSchema.omit({group: true}),
-    /**
-     * Boolean -> Should create a new group (or not)
-     * String -> Should join an existing group (or fail)
-     */
-    group: z.union([z.boolean(), z.string()]).optional(),
 });
+
+export type JoinScrimOptions = z.infer<typeof JoinScrim_Request>;
 
 export const JoinScrim_Response = z.boolean();

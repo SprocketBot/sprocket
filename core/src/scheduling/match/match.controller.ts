@@ -36,10 +36,10 @@ export class MatchController {
     @MessagePattern(CoreEndpoint.GetMatchById)
     async getMatchById(@Payload() payload: unknown): Promise<CoreOutput<CoreEndpoint.GetMatchById>> {
         const data = CoreSchemas.GetMatchById.input.parse(payload);
-        const match = await this.matchService.getMatchById(data.matchId);
+        const match = await this.matchService.getMatchById(data.matchId, {gameMode: true});
 
         const matchParent = await this.matchService.getMatchParentEntity(match.id);
-        if (matchParent.type !== "fixture") return {id: match.id};
+        if (matchParent.type !== "fixture") return {id: match.id, gameModeId: match.gameMode.id};
         return {
             id: match.id,
             homeFranchise: {
@@ -51,6 +51,7 @@ export class MatchController {
                 name: matchParent.data.awayFranchise.profile.title,
             },
             skillGroupId: match.skillGroupId,
+            gameModeId: match.gameMode.id,
         };
     }
 

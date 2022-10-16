@@ -53,11 +53,9 @@ export class MledbFinalizationService {
         private readonly mleMatchService: MledbMatchService,
     ) {}
 
-    async getLeagueAndMode(scrim: Scrim): Promise<{mode: GameMode; group: GameSkillGroup}> {
-        const gameMode = await this.gameModeService.getGameModeById(scrim.gameMode.id);
-        const skillGroup = await this.skillGroupService.getGameSkillGroupById(scrim.skillGroupId, {
-            relations: ["profile"],
-        });
+    async getLeagueAndMode(scrim: Scrim): Promise<{mode: GameMode; group: GameSkillGroup;}> {
+        const gameMode = await this.gameModeService.getGameModeById(scrim.gameModeId);
+        const skillGroup = await this.skillGroupService.getGameSkillGroupById(scrim.skillGroupId, {relations: ["profile"] });
         return {
             mode: gameMode,
             group: skillGroup,
