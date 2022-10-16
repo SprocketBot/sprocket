@@ -1,10 +1,5 @@
 import {Logger, UseGuards} from "@nestjs/common";
-import {
-    Args,
-    Mutation,
-    Query,
-    ResolveField, Resolver, Root,
-} from "@nestjs/graphql";
+import {Args, Mutation, Query, ResolveField, Resolver, Root} from "@nestjs/graphql";
 import {InjectDataSource, InjectRepository} from "@nestjs/typeorm";
 import {
     EventsService,
@@ -23,14 +18,13 @@ import {
     Match,
     MatchParent,
     Player,
-    Round,    ScheduleFixture,
+    Round,
+    ScheduleFixture,
     ScheduleGroup,
     Team,
 } from "../../database";
 import type {League} from "../../database/mledb";
-import {
-    LegacyGameMode, MLE_OrganizationTeam, MLE_SeriesReplay, MLE_Team,
-} from "../../database/mledb";
+import {LegacyGameMode, MLE_OrganizationTeam, MLE_SeriesReplay, MLE_Team} from "../../database/mledb";
 import {SeriesToMatchParent} from "../../database/mledb-bridge/series_to_match_parent.model";
 import type {MatchSubmissionStatus} from "../../database/scheduling/match/match.model";
 import {CurrentPlayer} from "../../franchise/player";
@@ -56,7 +50,8 @@ export class MatchResolver {
         @InjectRepository(Team) private readonly teamRepo: Repository<Team>,
         @InjectRepository(MLE_Team) private readonly mleTeamRepo: Repository<MLE_Team>,
         @InjectRepository(MLE_SeriesReplay) private readonly seriesReplayRepo: Repository<MLE_SeriesReplay>,
-        @InjectRepository(SeriesToMatchParent) private readonly seriesToMatchParentRepo: Repository<SeriesToMatchParent>,
+        @InjectRepository(SeriesToMatchParent)
+        private readonly seriesToMatchParentRepo: Repository<SeriesToMatchParent>,
         @InjectDataSource() private readonly dataSource: DataSource,
     ) {}
 
@@ -128,16 +123,25 @@ export class MatchResolver {
     }
 
     @Mutation(() => String)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
-    async markSeriesNCP(@Args("seriesId") seriesId: number, @Args("isNcp") isNcp: boolean, @Args("winningTeamId", {nullable: true}) winningTeamId?: number, @Args("numReplays", {nullable: true}) numReplays?: number): Promise<string> {
-
+    @UseGuards(
+        GqlJwtGuard,
+        MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]),
+    )
+    async markSeriesNCP(
+        @Args("seriesId") seriesId: number,
+        @Args("isNcp") isNcp: boolean,
+        @Args("winningTeamId", {nullable: true}) winningTeamId?: number,
+        @Args("numReplays", {nullable: true}) numReplays?: number,
+    ): Promise<string> {
         // Perform NCPs in a single transaction
         const qr = this.dataSource.createQueryRunner();
         await qr.connect();
         await qr.startTransaction();
 
         try {
-            this.logger.verbose(`Marking series ${seriesId} as NCP:${isNcp}. Winning team ID: ${winningTeamId}, with ${numReplays} replays.`);
+            this.logger.verbose(
+                `Marking series ${seriesId} as NCP:${isNcp}. Winning team ID: ${winningTeamId}, with ${numReplays} replays.`,
+            );
             await this.matchService.markSeriesNcp(seriesId, isNcp, winningTeamId, numReplays);
 
             // Have to translate from Team ID to Franchise Profile to get name (for
@@ -167,7 +171,7 @@ export class MatchResolver {
                     matchParentId: match.matchParent.id,
                 },
             });
-            
+
             await this.mledbMatchService.markSeriesNcp(bridgeObject.seriesId, isNcp, team.franchise.profile.title);
 
             await qr.commitTransaction();
@@ -183,8 +187,15 @@ export class MatchResolver {
     }
 
     @Mutation(() => String)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
-    async markReplaysNCP(@Args("replayIds", {type: () => [Number]}) replayIds: number[], @Args("isNcp") isNcp: boolean, @Args("winningTeamId", {nullable: true}) winningTeamId: number): Promise<string> {
+    @UseGuards(
+        GqlJwtGuard,
+        MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]),
+    )
+    async markReplaysNCP(
+        @Args("replayIds", {type: () => [Number]}) replayIds: number[],
+        @Args("isNcp") isNcp: boolean,
+        @Args("winningTeamId", {nullable: true}) winningTeamId: number,
+    ): Promise<string> {
         // Perform NCPs in a single transaction
         const qr = this.dataSource.createQueryRunner();
         await qr.connect();
@@ -217,27 +228,29 @@ export class MatchResolver {
             });
 
             // Get MLEDB replayIds from the Sprocket replayIds
-            const mleReplayIds = await Promise.all(replayIds.map(async rId => {
-                const round = await this.roundRepo.findOneOrFail({
-                    where: {
-                        id: rId,
-                    },
-                });
+            const mleReplayIds = await Promise.all(
+                replayIds.map(async rId => {
+                    const round = await this.roundRepo.findOneOrFail({
+                        where: {
+                            id: rId,
+                        },
+                    });
 
-                // This is horrifically hacky due to our lack of strict typing
-                // on the ballchasing output. Will not be necessary once we
-                // ditch MLEDB and ballchasing.
-                const BCID: string = (round.roundStats as {ballchasingId: string;}).ballchasingId;
+                    // This is horrifically hacky due to our lack of strict typing
+                    // on the ballchasing output. Will not be necessary once we
+                    // ditch MLEDB and ballchasing.
+                    const BCID: string = (round.roundStats as {ballchasingId: string}).ballchasingId;
 
-                const mleReplay = await this.seriesReplayRepo.findOneOrFail({
-                    where: {
-                        ballchasingId: BCID,
-                    },
-                });
+                    const mleReplay = await this.seriesReplayRepo.findOneOrFail({
+                        where: {
+                            ballchasingId: BCID,
+                        },
+                    });
 
-                return mleReplay.id;
-            }));
-            
+                    return mleReplay.id;
+                }),
+            );
+
             // Save round NCPs to MLEDB schema
             await this.mledbMatchService.markReplaysNcp(mleReplayIds, isNcp, winningMLETeam);
 

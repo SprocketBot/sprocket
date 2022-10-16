@@ -21,7 +21,9 @@ export class CreateScrimPlayerGuard extends PlayerGuard {
 
     async getGameAndOrganization(ctx: GraphQLExecutionContext, userPayload: UserPayload): Promise<GameAndOrganization> {
         if (!userPayload.currentOrganizationId) throw new Error("User is not connected to an organization");
-        const {data: {gameModeId} } = ctx.getArgs<{data: CreateScrimInput;}>();
+        const {
+            data: {gameModeId},
+        } = ctx.getArgs<{data: CreateScrimInput}>();
 
         const gameMode = await this.gameModeService.getGameModeById(gameModeId, {relations: ["game"]});
 

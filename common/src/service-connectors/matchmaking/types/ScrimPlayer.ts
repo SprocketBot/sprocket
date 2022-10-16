@@ -8,8 +8,7 @@ export const ScrimPlayerSchema = z.object({
     joinedAt: DateSchema,
     leaveAt: DateSchema,
     group: z.string().optional(),
-    checkedIn: z.boolean().default(false)
-        .optional(),
+    checkedIn: z.boolean().default(false).optional(),
 });
 
 export type ScrimPlayer = z.infer<typeof ScrimPlayerSchema>;

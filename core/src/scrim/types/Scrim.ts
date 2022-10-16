@@ -42,7 +42,7 @@ export class Scrim implements IScrim {
 
     @Field(() => Int)
     authorId: number;
-    
+
     @Field(() => Int)
     organizationId: number;
 

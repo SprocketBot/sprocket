@@ -1,8 +1,5 @@
 import {UseGuards} from "@nestjs/common";
-import {
-    Int,
-    ResolveField, Resolver, Root,
-} from "@nestjs/graphql";
+import {Int, ResolveField, Resolver, Root} from "@nestjs/graphql";
 import {ScrimStatus} from "@sprocketbot/common";
 
 import {GameMode, GameSkillGroup} from "../database";

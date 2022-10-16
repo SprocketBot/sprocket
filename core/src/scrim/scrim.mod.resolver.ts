@@ -1,16 +1,7 @@
-import {
-    Inject, Logger, UseGuards,
-} from "@nestjs/common";
-import {
-    Args, Int, Mutation, Query, Resolver, Subscription,
-} from "@nestjs/graphql";
-import type {
-    ScrimSettings as IScrimSettings,
-} from "@sprocketbot/common";
-import {
-    ScrimMode,
-    ScrimStatus,
-} from "@sprocketbot/common";
+import {Inject, Logger, UseGuards} from "@nestjs/common";
+import {Args, Int, Mutation, Query, Resolver, Subscription} from "@nestjs/graphql";
+import type {ScrimSettings as IScrimSettings} from "@sprocketbot/common";
+import {ScrimMode, ScrimStatus} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 import {minutesToMilliseconds} from "date-fns";
 import {GraphQLError} from "graphql";
@@ -36,10 +27,7 @@ import {ScrimMetrics} from "./types/ScrimMetrics";
 
 @Resolver()
 export class ScrimModuleResolverPublic {
-    constructor(
-        @Inject(ScrimPubSub) private readonly pubSub: PubSub,
-        private readonly scrimService: ScrimService,
-    ) {}
+    constructor(@Inject(ScrimPubSub) private readonly pubSub: PubSub, private readonly scrimService: ScrimService) {}
 
     @Query(() => ScrimMetrics)
     async getScrimMetrics(): Promise<ScrimMetrics> {
@@ -137,13 +125,20 @@ export class ScrimModuleResolver {
         if (await this.scrimToggleService.scrimsAreDisabled()) throw new GraphQLError("Scrims are disabled");
 
         const gameMode = await this.gameModeService.getGameModeById(data.gameModeId);
-        const player = await this.playerService.getPlayerByOrganizationAndGame(user.userId, user.currentOrganizationId, gameMode.gameId);
-        
+        const player = await this.playerService.getPlayerByOrganizationAndGame(
+            user.userId,
+            user.currentOrganizationId,
+            gameMode.gameId,
+        );
+
         const mlePlayer = await this.mlePlayerService.getMlePlayerBySprocketUser(player.member.userId);
         if (mlePlayer.teamName === "FP") throw new GraphQLError("User is a former player");
 
-        const checkinTimeout = await this.organizationConfigurationService.getOrganizationConfigurationValue<number>(user.currentOrganizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_CHECKIN_TIMEOUT_MINUTES);
-        
+        const checkinTimeout = await this.organizationConfigurationService.getOrganizationConfigurationValue<number>(
+            user.currentOrganizationId,
+            OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_CHECKIN_TIMEOUT_MINUTES,
+        );
+
         const settings: IScrimSettings = {
             teamSize: gameMode.teamSize,
             teamCount: gameMode.teamCount,

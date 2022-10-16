@@ -288,11 +288,14 @@ export class PlayerResolver {
             .filter(r => r.length > 1);
         const parsed = IntakeSchema.parse(results);
 
-        const imported = await Promise.allSettled(parsed.map(async player => {
-            const sg = await this.skillGroupService.getGameSkillGroup({where: {ordinal: LeagueOrdinals.indexOf(player.skillGroup) + 1} });
-            const accs = player.accounts.map(acc => {
-                const match = acc.match(/rocket-league\/profile\/(\w+)\/([\w _.\-%[\]]+)/);
-                if (!match) throw new Error("Failed to match tracker");
+        const imported = await Promise.allSettled(
+            parsed.map(async player => {
+                const sg = await this.skillGroupService.getGameSkillGroup({
+                    where: {ordinal: LeagueOrdinals.indexOf(player.skillGroup) + 1},
+                });
+                const accs = player.accounts.map(acc => {
+                    const match = acc.match(/rocket-league\/profile\/(\w+)\/([\w _.\-%[\]]+)/);
+                    if (!match) throw new Error("Failed to match tracker");
 
                     return {
                         platform: platformTransform[match[1]] as MLE_Platform,

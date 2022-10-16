@@ -297,8 +297,15 @@ export class MatchService {
      * @param isNcp Whether the given replayId should be marked NCP or un-NCP.
      * @returns A string containing status of what was updated.
      */
-    async markReplaysNcp(replayIds: number[], isNcp: boolean, winningTeamInput?: Team, invalidation?: Invalidation): Promise<string> {
-        this.logger.verbose(`Begin markReplaysNcp: replayIds=${replayIds}, isNcp=${isNcp}, winningTeam=${winningTeamInput}`);
+    async markReplaysNcp(
+        replayIds: number[],
+        isNcp: boolean,
+        winningTeamInput?: Team,
+        invalidation?: Invalidation,
+    ): Promise<string> {
+        this.logger.verbose(
+            `Begin markReplaysNcp: replayIds=${replayIds}, isNcp=${isNcp}, winningTeam=${winningTeamInput}`,
+        );
 
         // Find the winning team and it's franchise profile, since that's where
         // team names are in Sprocket.
@@ -313,14 +320,16 @@ export class MatchService {
         replayIds.sort((r1, r2) => r1 - r2);
 
         // Gather replays
-        const replayPromises = replayIds.map(async rId => this.roundRepository.findOneOrFail({
-            where: {
-                id: rId,
-            },
-            relations: {
-                teamStats: true,
-            },
-        }));
+        const replayPromises = replayIds.map(async rId =>
+            this.roundRepository.findOneOrFail({
+                where: {
+                    id: rId,
+                },
+                relations: {
+                    teamStats: true,
+                },
+            }),
+        );
         const replays = await Promise.all(replayPromises);
 
         // Set replays to NCP true/false and update winning team/color
@@ -448,7 +457,12 @@ export class MatchService {
      * @param numReplays The number of replays that should be in the series. Optional. Used to add dummy replays in place of replays that weren't submitted for some reason.
      * @returns A string containing a summary of the actions that took place when the processing has completed.
      */
-    async markSeriesNcp(seriesId: number, isNcp: boolean, winningTeamId?: number, numReplays?: number): Promise<string> {
+    async markSeriesNcp(
+        seriesId: number,
+        isNcp: boolean,
+        winningTeamId?: number,
+        numReplays?: number,
+    ): Promise<string> {
         this.logger.verbose(`Begin markSeriesNcp: seriesId=${seriesId}, isNcp=${isNcp}, winningTeam=${winningTeamId}`);
 
         // Find the winning team and it's franchise profile, since that's where
@@ -488,10 +502,14 @@ export class MatchService {
             }
 
             // Check to make sure the winning team played in the series/fixture
-            if (winningTeam
-                && series.matchParent.fixture.homeFranchise.id !== winningTeam.franchise.id
-                && series.matchParent.fixture.awayFranchise.id !== winningTeam.franchise.id) {
-                throw new Error(`The team \`${winningTeam?.franchise.profile.title}\` did not play in series with id \`${series.id}\` (${series.matchParent.fixture.awayFranchise.profile.title} v. ${series.matchParent.fixture.homeFranchise.profile.title}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`);
+            if (
+                winningTeam &&
+                series.matchParent.fixture.homeFranchise.id !== winningTeam.franchise.id &&
+                series.matchParent.fixture.awayFranchise.id !== winningTeam.franchise.id
+            ) {
+                throw new Error(
+                    `The team \`${winningTeam?.franchise.profile.title}\` did not play in series with id \`${series.id}\` (${series.matchParent.fixture.awayFranchise.profile.title} v. ${series.matchParent.fixture.homeFranchise.profile.title}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`,
+                );
             }
         } else if (!series.matchParent.scrimMeta) {
             throw new Error(`MarkSeriesNCP called with series without a fixtureId or scrimMetaId`);

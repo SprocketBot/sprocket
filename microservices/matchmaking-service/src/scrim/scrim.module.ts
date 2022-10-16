@@ -48,11 +48,6 @@ import {ScrimMetricsService} from "./scrim-metrics/scrim-metrics.service";
         GameOrderService,
         ScrimEventSubscriber,
     ],
-    exports: [
-        ScrimCrudService,
-        EventProxyService,
-        ScrimLogicService,
-        ScrimGroupService,
-    ],
+    exports: [ScrimCrudService, EventProxyService, ScrimLogicService, ScrimGroupService],
 })
 export class ScrimModule {}

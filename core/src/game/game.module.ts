@@ -20,10 +20,7 @@ import {PlatformService} from "./platform";
         GameFeatureService,
         GameFeatureResolver,
     ],
-    controllers: [
-        GameController,
-        GameModeController
-    ],
+    controllers: [GameController, GameModeController],
     exports: [PlatformService, GameModeService, GameService, GameFeatureService],
 })
 export class GameModule {}

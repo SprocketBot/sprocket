@@ -6,7 +6,7 @@ import {ScrimMode} from "@sprocketbot/common";
 export class ScrimSettings implements IScrimSettings {
     @Field(() => Int)
     teamSize: number;
-    
+
     @Field(() => Int)
     teamCount: number;
 

@@ -12,8 +12,8 @@ export class GameController {
     @MessagePattern(CoreEndpoint.GetGameByGameMode)
     async getGameByGameMode(@Payload() payload: unknown): Promise<Game> {
         const data = CoreSchemas[CoreEndpoint.GetGameByGameMode].input.parse(payload);
-        const gameMode = await this.gameModeService.getGameModeById(data.gameModeId, {relations: {game: true} });
-        
+        const gameMode = await this.gameModeService.getGameModeById(data.gameModeId, {relations: {game: true}});
+
         return gameMode.game;
     }
 }

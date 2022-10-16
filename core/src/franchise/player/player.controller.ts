@@ -1,12 +1,4 @@
-import {
-    Controller,
-    forwardRef,
-    Get,
-    HttpException,
-    Inject,
-    Logger,
-    Param,
-} from "@nestjs/common";
+import {Controller, forwardRef, Get, HttpException, Inject, Logger, Param} from "@nestjs/common";
 import {JwtService} from "@nestjs/jwt";
 import {MessagePattern, Payload} from "@nestjs/microservices";
 import {InjectRepository} from "@nestjs/typeorm";
@@ -89,7 +81,9 @@ export class PlayerController {
                     accountType: UserAuthenticationAccountType.DISCORD,
                 },
             });
-            const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(player.member.organization.id);
+            const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(
+                player.member.organization.id,
+            );
 
             if (player.skillGroup.id === payload.skillGroupId) throw new Error("You are already in this skill group");
 
@@ -98,7 +92,7 @@ export class PlayerController {
                 salary: payload.salary,
                 skillGroup: skillGroup.ordinal,
             };
-        
+
             await this.playerService.updatePlayerStanding(payload.playerId, payload.salary, payload.skillGroupId);
             await this.playerService.mle_rankDownPlayer(payload.playerId, payload.salary);
             await this.eloConnectorService.createJob(EloEndpoint.SGChange, inputData);
@@ -122,20 +116,23 @@ export class PlayerController {
                 },
             });
 
-            await this.notificationService.send(NotificationEndpoint.SendNotification, this.playerService.buildRankdownNotification(
-                player.member.user.id,
-                discordAccount.accountId,
-                player.member.organization.id,
-                orgProfile.name,
-                player.skillGroup.profile.description,
-                skillGroup.profile.description,
-                payload.salary,
-            ));
+            await this.notificationService.send(
+                NotificationEndpoint.SendNotification,
+                this.playerService.buildRankdownNotification(
+                    player.member.user.id,
+                    discordAccount.accountId,
+                    player.member.organization.id,
+                    orgProfile.name,
+                    player.skillGroup.profile.description,
+                    skillGroup.profile.description,
+                    payload.salary,
+                ),
+            );
 
             return "Successfully accepted rankdown";
         } catch (e) {
             this.logger.error(e);
-            
+
             if (e instanceof Error) {
                 if (e.name === "TokenExpiredError") throw new HttpException("Rankdown request expired", 400);
                 throw new HttpException(e.message, 400);
@@ -144,7 +141,6 @@ export class PlayerController {
             } else {
                 throw new HttpException("Unexpected error", 400);
             }
-            
         }
     }
 
@@ -155,21 +151,29 @@ export class PlayerController {
     }
 
     @MessagePattern(CoreEndpoint.GetPlayersByPlatformIds)
-    async getPlayersByPlatformIds(@Payload() payload: unknown): Promise<CoreOutput<CoreEndpoint.GetPlayersByPlatformIds>> {
+    async getPlayersByPlatformIds(
+        @Payload() payload: unknown,
+    ): Promise<CoreOutput<CoreEndpoint.GetPlayersByPlatformIds>> {
         const data = CoreSchemas[CoreEndpoint.GetPlayersByPlatformIds].input.parse(payload);
 
-        const allResults = await Promise.allSettled(data.map(async p => this.playerService.getPlayerByGameAndPlatformPayload(p)));
+        const allResults = await Promise.allSettled(
+            data.map(async p => this.playerService.getPlayerByGameAndPlatformPayload(p)),
+        );
 
         if (allResults.every(r => r.status === "fulfilled")) {
-            return allResults.map(r => (r as PromiseFulfilledResult<CoreOutput<CoreEndpoint.GetPlayerByPlatformId>>).value);
+            return allResults.map(
+                r => (r as PromiseFulfilledResult<CoreOutput<CoreEndpoint.GetPlayerByPlatformId>>).value,
+            );
         }
 
-        throw new Error(`Failed to fetch players by platform accounts: ${
-            allResults.filter(r => r.status === "rejected").map(failed => {
-                const result = failed as PromiseRejectedResult;
-                return (result.reason as Error).message;
-            })
-                .join(", ")
-        }`);
+        throw new Error(
+            `Failed to fetch players by platform accounts: ${allResults
+                .filter(r => r.status === "rejected")
+                .map(failed => {
+                    const result = failed as PromiseRejectedResult;
+                    return (result.reason as Error).message;
+                })
+                .join(", ")}`,
+        );
     }
 }

@@ -1,10 +1,6 @@
 import {z} from "zod";
 
-import {
-    ScrimJoinOptionsSchema,
-    ScrimSchema,
-    ScrimSettingsSchema,
-} from "../../types";
+import {ScrimJoinOptionsSchema, ScrimSchema, ScrimSettingsSchema} from "../../types";
 
 export const CreateScrim_Request = z.object({
     authorId: z.number(),
