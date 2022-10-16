@@ -1,11 +1,10 @@
 <script lang="ts">
     import type {PendingScrim} from "$lib/api";
     import {format} from "date-fns";
-    import dateFns from "date-fns-tz";
+    import {utcToZonedTime} from "date-fns-tz";
 
     import type {PendingScrim} from "$lib/api";
     import {screamingSnakeToHuman} from "$lib/utils";
-    const {utcToZonedTime} = dateFns;
 
     export let scrims: PendingScrim[];
     export let joinScrim: (scrim: PendingScrim) => void;
