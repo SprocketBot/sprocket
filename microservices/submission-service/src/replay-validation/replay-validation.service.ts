@@ -59,11 +59,9 @@ export class ReplayValidationService {
         if (submissionGameCount !== scrimGameCount) {
             return {
                 valid: false,
-                errors: [
-                    {
-                        error: `Incorrect number of replays submitted, expected ${scrimGameCount} but found ${submissionGameCount}`,
-                    },
-                ],
+                errors: [ {
+                    error: `Incorrect number of replays submitted, expected ${scrimGameCount} but found ${submissionGameCount}`,
+                } ],
             };
         }
 
@@ -71,9 +69,7 @@ export class ReplayValidationService {
 
         const progressErrors = submission.items.reduce<ValidationError[]>((r, v) => {
             if (v.progress?.error) {
-                this.logger.error(
-                    `Error in submission found, scrim=${scrim.id} submissionId=${scrim.submissionId}\n${v.progress.error}`,
-                );
+                this.logger.error(`Error in submission found, scrim=${scrim.id} submissionId=${scrim.submissionId}\n${v.progress.error}`);
                 r.push({
                     error: `Error encountered while parsing file ${v.originalFilename}`,
                 });
@@ -92,9 +88,7 @@ export class ReplayValidationService {
         // ========================================
         // All items should have an outputPath
         if (!submission.items.every(i => i.outputPath)) {
-            this.logger.error(
-                `Unable to validate submission with missing outputPath, scrim=${scrim.id} submissionId=${scrim.submissionId}`,
-            );
+            this.logger.error(`Unable to validate submission with missing outputPath, scrim=${scrim.id} submissionId=${scrim.submissionId}`);
             return {
                 valid: false,
                 errors: [],
@@ -104,16 +98,10 @@ export class ReplayValidationService {
         // We should have stats for every game
         const stats = await Promise.all(submission.items.map(async i => this.getStats(i.outputPath!)));
         if (stats.length !== gameCount) {
-            this.logger.error(
-                `Unable to validate submission missing stats, scrim=${scrim.id} submissionId=${scrim.submissionId}`,
-            );
+            this.logger.error(`Unable to validate submission missing stats, scrim=${scrim.id} submissionId=${scrim.submissionId}`);
             return {
                 valid: false,
-                errors: [
-                    {
-                        error: "The submission is missing stats. Please contact support.",
-                    },
-                ],
+                errors: [ {error: "The submission is missing stats. Please contact support."} ],
             };
         }
 
@@ -141,10 +129,7 @@ export class ReplayValidationService {
             platformId: bId.id,
         })));
         if (playersResponse.status === ResponseStatus.ERROR) {
-            this.logger.error(
-                `Unable to validate submission, couldn't find all players by their platformIds`,
-                playersResponse.error,
-            );
+            this.logger.error(`Unable to validate submission, couldn't find all players by their platformIds`, playersResponse.error);
             return {
                 valid: false,
                 errors: [ {error: "Failed to find all players by their platform Ids. Please contact support."} ],
@@ -194,42 +179,36 @@ export class ReplayValidationService {
             } else {
                 return {
                     valid: false,
-                    errors: [
-                        {
-                            error: "Mismatched player",
-                            gameIndex: g,
-                        },
-                    ],
+                    errors: [ {
+                        error: "Mismatched player",
+                        gameIndex: g,
+                    } ],
                 };
             }
 
             const scrimGame = sortedScrimPlayerIds[matchupIndex];
-
+            
             for (let t = 0; t < scrim.settings.teamCount; t++) {
                 const scrimTeam = scrimGame[t];
                 const submissionTeam = submissionGame[t];
                 if (scrimTeam.length !== submissionTeam.length) {
                     return {
                         valid: false,
-                        errors: [
-                            {
-                                error: "Invalid team size",
-                                gameIndex: g,
-                                teamIndex: t,
-                            },
-                        ],
+                        errors: [ {
+                            error: "Invalid team size",
+                            gameIndex: g,
+                            teamIndex: t,
+                        } ],
                     };
                 }
             }
             if (scrimGame.length !== submissionGame.length) {
                 return {
                     valid: false,
-                    errors: [
-                        {
-                            error: "Invalid team count",
-                            gameIndex: g,
-                        },
-                    ],
+                    errors: [ {
+                        error: "Invalid team count",
+                        gameIndex: g,
+                    } ],
                 };
             }
         }
@@ -246,6 +225,7 @@ export class ReplayValidationService {
                     } ],
                 };
             }
+        }
 
         // ========================================
         // Submission is valid
@@ -345,6 +325,7 @@ export class ReplayValidationService {
                 if (!bluePlayers.every(bp => bp.franchise.name === blueTeam)) {
                     errors.push({
                         error: `Multiple franchises found for blue team in replay ${item.originalFilename}`,
+
                     });
                 }
                 if (!orangePlayers.every(op => op.franchise.name === orangeTeam)) {
@@ -368,16 +349,12 @@ export class ReplayValidationService {
                     errors.push({
                         error: `Player(s) from incorrect skill group found in replay ${item.originalFilename}`,
                     });
-                    this.logger.verbose(
-                        JSON.stringify({
-                            expected: match.skillGroupId,
-                            found: [
-                                ...bluePlayers.map(bp => [bp.id, bp.skillGroupId]),
-                                ...orangePlayers.map(p => [p.id, p.skillGroupId]),
-                            ],
-                        }),
-                    );
+                    this.logger.verbose(JSON.stringify({
+                        expected: match.skillGroupId,
+                        found: [...bluePlayers.map(bp => [bp.id, bp.skillGroupId]), ...orangePlayers.map(p => [p.id, p.skillGroupId])],
+                    }));
                 }
+
             } catch (e) {
                 this.logger.error("Error looking up match participants", e);
                 errors.push({
@@ -387,8 +364,7 @@ export class ReplayValidationService {
         }
         if (errors.length) {
             return {
-                valid: false,
-                errors: errors,
+                valid: false, errors: errors,
             };
         }
 
