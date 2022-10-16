@@ -14,7 +14,8 @@
 
 <script lang="ts">
     import {format} from "date-fns";
-    import {utcToZonedTime} from "date-fns-tz";
+    import dateFns from "date-fns-tz";
+    const {utcToZonedTime} = dateFns;
 
     import type {PendingScrim} from "$lib/api";
     import {screamingSnakeToHuman} from "$lib/utils";
