@@ -1,6 +1,6 @@
 import {Module} from "@nestjs/common";
 import {
-    BotModule, RedisModule,
+    BotModule, RedisModule, UtilModule,
 } from "@sprocketbot/common";
 
 import {NotificationController} from "./notification.controller";

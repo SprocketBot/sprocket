@@ -10,9 +10,7 @@ export class NotificationController {
     constructor(private readonly notificationService: NotificationService) {}
 
     @MessagePattern(NotificationEndpoint.SendNotification)
-    async sendNotification(
-        @Payload() payload: unknown,
-    ): Promise<NotificationOutput<NotificationEndpoint.SendNotification>> {
+    async sendNotification(@Payload() payload: unknown): Promise<NotificationOutput<NotificationEndpoint.SendNotification>> {
         const data = NotificationSchemas.SendNotification.input.parse(payload);
         return this.notificationService.sendNotification(data);
     }
