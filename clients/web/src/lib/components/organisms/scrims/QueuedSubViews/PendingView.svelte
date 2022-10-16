@@ -19,14 +19,14 @@
 </style>
 
 <script lang="ts">
+    import {format} from "date-fns";
+    import dateFns from "date-fns-tz";
+    
     import type {CurrentScrim} from "$lib/api";
     import {currentScrim, leaveScrimMutation} from "$lib/api";
     import {ScrimFullIndicator} from "$lib/components";
     import {user} from "$lib/stores/user";
     import {screamingSnakeToHuman} from "$lib/utils";
-    import {user} from "$lib/stores/user";
-    import {format} from "date-fns";
-    import dateFns from "date-fns-tz";
     const {utcToZonedTime} = dateFns;
 
     export let scrim: CurrentScrim;

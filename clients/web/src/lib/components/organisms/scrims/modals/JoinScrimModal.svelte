@@ -1,17 +1,3 @@
-<style lang="postcss">
-    section {
-        @apply space-y-4;
-
-        hr {
-            @apply w-full mt-2;
-        }
-
-        button {
-            @apply btn btn-outline btn-sm h-10 md:btn-md md:h-auto;
-        }
-    }
-</style>
-
 <script lang="ts">
     import {slide} from "svelte/transition";
 
@@ -26,9 +12,9 @@
     export let scrim: PendingScrim;
 
     let groupCode: string;
-    let joiningWithExistingGroup: boolean = false;
-    let joining: boolean = false;
-    let leaveAfter: number = 1800;
+    let joiningWithExistingGroup = false;
+    let joining = false;
+    let leaveAfter = 1800;
 
     $: {
         if (
