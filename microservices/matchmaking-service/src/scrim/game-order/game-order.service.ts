@@ -1,8 +1,5 @@
 import {Injectable, Logger} from "@nestjs/common";
-import type {
-    Scrim, ScrimGame, ScrimPlayer,
-    ScrimTeam,
-} from "@sprocketbot/common";
+import type {Scrim, ScrimGame, ScrimPlayer, ScrimTeam} from "@sprocketbot/common";
 import {ScrimMode} from "@sprocketbot/common";
 import shuffle from "lodash.shuffle";
 
@@ -22,12 +19,15 @@ export class GameOrderService {
             case ScrimMode.ROUND_ROBIN:
                 return this.generateRoundRobinGameOrder(scrim);
             default:
-                throw new Error(`Unexpected scrim mode: ${scrim.settings.mode} found while trying to generate game order`);
+                throw new Error(
+                    `Unexpected scrim mode: ${scrim.settings.mode} found while trying to generate game order`,
+                );
         }
     }
 
     private generateTeamsGameOrder(scrim: Scrim): ScrimGame[] {
-        const playerCombinations: ScrimPlayer[][] = new Array(scrim.settings.teamCount).fill(null)
+        const playerCombinations: ScrimPlayer[][] = new Array(scrim.settings.teamCount)
+            .fill(null)
             .map(() => []) as ScrimPlayer[][];
         const groups = this.scrimGroupService.getScrimGroups(scrim);
         // Push each group
@@ -52,8 +52,10 @@ export class GameOrderService {
         }
 
         // Assert that things are as expected
-        if (playerCombinations.length !== scrim.settings.teamCount) throw new Error("Unexpected number of teams generated");
-        if (!playerCombinations.every(t => t.length === scrim.settings.teamSize)) throw new Error("Unexpected number of players placed onto team");
+        if (playerCombinations.length !== scrim.settings.teamCount)
+            throw new Error("Unexpected number of teams generated");
+        if (!playerCombinations.every(t => t.length === scrim.settings.teamSize))
+            throw new Error("Unexpected number of players placed onto team");
 
         const games: ScrimGame = {
             teams: playerCombinations.map<ScrimTeam>((pc: ScrimPlayer[]) => ({
@@ -62,7 +64,7 @@ export class GameOrderService {
         };
 
         // Fill out a 3-game order
-        return [ {...games}, {...games}, {...games} ];
+        return [{...games}, {...games}, {...games}];
     }
 
     private generateRoundRobinGameOrder(scrim: Scrim): ScrimGame[] {
@@ -76,7 +78,7 @@ export class GameOrderService {
         });
         shuffle(possibleGames);
         const numGames = 3; // for now
-        for (let i = 0;i < numGames;i++) {
+        for (let i = 0; i < numGames; i++) {
             output.push({
                 teams: possibleGames[i % possibleGames.length].map(players => ({players})),
             });

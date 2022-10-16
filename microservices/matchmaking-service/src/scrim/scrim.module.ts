@@ -1,8 +1,6 @@
 import {BullModule} from "@nestjs/bull";
 import {Module} from "@nestjs/common";
-import {
-    AnalyticsModule, config, EventsModule, RedisModule, SubmissionModule,
-} from "@sprocketbot/common";
+import {AnalyticsModule, config, EventsModule, RedisModule, SubmissionModule} from "@sprocketbot/common";
 
 import {EventProxyService} from "./event-proxy/event-proxy.service";
 import {GameOrderService} from "./game-order/game-order.service";
@@ -28,9 +26,9 @@ import {ScrimMetricsService} from "./scrim-metrics/scrim-metrics.service";
                 password: config.redis.password,
                 tls: config.redis.secure
                     ? {
-                            host: config.redis.host,
-                            servername: config.redis.host,
-                        }
+                          host: config.redis.host,
+                          servername: config.redis.host,
+                      }
                     : undefined,
                 keyPrefix: `${config.redis.prefix}:bull`,
             },
@@ -50,11 +48,6 @@ import {ScrimMetricsService} from "./scrim-metrics/scrim-metrics.service";
         GameOrderService,
         ScrimEventSubscriber,
     ],
-    exports: [
-        ScrimCrudService,
-        EventProxyService,
-        ScrimLogicService,
-        ScrimGroupService,
-    ],
+    exports: [ScrimCrudService, EventProxyService, ScrimLogicService, ScrimGroupService],
 })
 export class ScrimModule {}

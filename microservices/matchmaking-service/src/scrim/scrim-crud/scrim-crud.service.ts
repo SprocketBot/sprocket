@@ -1,11 +1,6 @@
 import {Injectable, Logger} from "@nestjs/common";
-import type {
-    CreateScrimOptions,
-    Scrim, ScrimGame, ScrimPlayer,
-} from "@sprocketbot/common";
-import {
-    config, RedisService, ScrimSchema, ScrimStatus,
-} from "@sprocketbot/common";
+import type {CreateScrimOptions, Scrim, ScrimGame, ScrimPlayer} from "@sprocketbot/common";
+import {config, RedisService, ScrimSchema, ScrimStatus} from "@sprocketbot/common";
 import type {JobId} from "bull";
 import {v4} from "uuid";
 
@@ -17,8 +12,7 @@ export class ScrimCrudService {
 
     private readonly prefix = `${config.redis.prefix}:scrim:`;
 
-    constructor(private readonly redisService: RedisService) {
-    }
+    constructor(private readonly redisService: RedisService) {}
 
     async createScrim({
         authorId,
@@ -47,10 +41,7 @@ export class ScrimCrudService {
 
         if (player) scrim.players.push(player);
 
-        await this.redisService.setJson(
-            `${this.prefix}${scrim.id}`,
-            scrim,
-        );
+        await this.redisService.setJson(`${this.prefix}${scrim.id}`, scrim);
 
         return scrim;
     }
@@ -65,7 +56,9 @@ export class ScrimCrudService {
 
     async getAllScrims(skillGroupId?: number): Promise<Scrim[]> {
         const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
-        const scrims = await Promise.all(scrimKeys.map<Promise<Scrim>>(async key => this.redisService.getJson<Scrim>(key, undefined, ScrimSchema)));
+        const scrims = await Promise.all(
+            scrimKeys.map<Promise<Scrim>>(async key => this.redisService.getJson<Scrim>(key, undefined, ScrimSchema)),
+        );
 
         return skillGroupId ? scrims.filter(s => s.skillGroupId === skillGroupId || !s.settings.competitive) : scrims;
     }
@@ -79,7 +72,7 @@ export class ScrimCrudService {
                 this.logger.verbose(`GetScrimByPlayer id=${id} key=${key} playerIds is null`);
                 continue;
             }
-            
+
             if (playerIds.includes(id)) return this.redisService.getJson<[Scrim]>(key, "$").then(([r]) => r);
         }
         return null;
@@ -119,7 +112,9 @@ export class ScrimCrudService {
 
     async playerInAnyScrim(playerId: number): Promise<boolean> {
         const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
-        const allScrimPlayers = await Promise.all(scrimKeys.map(async k => this.redisService.getJson(k, "$.players[*].id")));
+        const allScrimPlayers = await Promise.all(
+            scrimKeys.map(async k => this.redisService.getJson(k, "$.players[*].id")),
+        );
         return allScrimPlayers.flat().includes(playerId);
     }
 

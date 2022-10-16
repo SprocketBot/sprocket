@@ -33,7 +33,7 @@ describe("GameOrderService", () => {
                 gameModeId: 2,
                 skillGroupId: 2,
                 submissionId: "scrim-dummydummy321",
-                
+
                 settings: {
                     teamSize: 3,
                     teamCount: 2,
