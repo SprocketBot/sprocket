@@ -1,3 +1,45 @@
+<style lang="postcss">
+    section {
+        @apply space-y-4;
+
+        hr {
+            @apply w-full mt-2;
+        }
+
+        button {
+            @apply btn btn-outline btn-sm h-10 md:btn-md md:h-auto;
+        }
+
+        .form-control.inline {
+            @apply flex flex-row justify-between items-center py-2;
+        }
+
+        label {
+            @apply contents;
+        }
+
+        select {
+            @apply mt-2 outline-1 select select-bordered select-sm;
+
+            option {
+                @apply py-2;
+            }
+
+            &:disabled {
+                @apply bg-gray-700 cursor-not-allowed;
+            }
+        }
+
+        input {
+            @apply ml-auto;
+        }
+
+        input:disabled {
+            @apply text-right px-4 py-1 bg-gray-700;
+        }
+    }
+</style>
+
 <script lang="ts">
     import {slide} from "svelte/transition";
 
@@ -66,7 +108,7 @@
 
 <Modal title="Join Scrim" bind:visible id="join-scrim-modal">
     <section slot="body">
-        <hr/>
+        <hr />
         <div class="form-control">
             <label class="label" for="scrim-leave-after">
                 <span class="label-text">Leave After:</span>
@@ -78,7 +120,7 @@
                 <option value={21600}>6 Hours</option>
             </select>
         </div>
-        <hr/>
+        <hr />
         <div class="flex items-center">
             <h3 class="flex-1">Play Solo</h3>
             <button on:click={joinSolo} disabled={joining}>Join</button>
@@ -114,45 +156,3 @@
         {/if}
     </section>
 </Modal>
-
-<style lang="postcss">
-    section {
-        @apply space-y-4;
-
-        hr {
-            @apply w-full mt-2;
-        }
-
-        button {
-            @apply btn btn-outline btn-sm h-10 md:btn-md md:h-auto;
-        }
-
-        .form-control.inline {
-            @apply flex flex-row justify-between items-center py-2;
-        }
-
-        label {
-            @apply contents;
-        }
-
-        select {
-            @apply mt-2 outline-1 select select-bordered select-sm;
-
-            option {
-                @apply py-2;
-            }
-
-            &:disabled {
-                @apply bg-gray-700 cursor-not-allowed;
-            }
-        }
-
-        input {
-            @apply ml-auto;
-        }
-
-        input:disabled {
-            @apply text-right px-4 py-1 bg-gray-700;
-        }
-    }
-</style>
