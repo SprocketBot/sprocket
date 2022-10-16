@@ -1,5 +1,5 @@
 import {Injectable, Logger} from "@nestjs/common";
-import { Serializable } from "child_process";
+import {Serializable} from "child_process";
 import type {Redis, RedisOptions} from "ioredis";
 import IORedis from "ioredis";
 import type {ZodSchema} from "zod";

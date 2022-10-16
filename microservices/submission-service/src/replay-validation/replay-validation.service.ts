@@ -43,7 +43,7 @@ export class ReplayValidationService {
         const scrimResponse = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, submission.scrimId);
         if (scrimResponse.status === ResponseStatus.ERROR) throw scrimResponse.error;
         if (!scrimResponse.data) throw new Error("Scrim not found");
-        
+
         const scrim = scrimResponse.data;
 
         // ========================================
@@ -59,9 +59,11 @@ export class ReplayValidationService {
         if (submissionGameCount !== scrimGameCount) {
             return {
                 valid: false,
-                errors: [ {
-                    error: `Incorrect number of replays submitted, expected ${scrimGameCount} but found ${submissionGameCount}`,
-                } ],
+                errors: [
+                    {
+                        error: `Incorrect number of replays submitted, expected ${scrimGameCount} but found ${submissionGameCount}`,
+                    },
+                ],
             };
         }
 
@@ -69,7 +71,9 @@ export class ReplayValidationService {
 
         const progressErrors = submission.items.reduce<ValidationError[]>((r, v) => {
             if (v.progress?.error) {
-                this.logger.error(`Error in submission found, scrim=${scrim.id} submissionId=${scrim.submissionId}\n${v.progress.error}`);
+                this.logger.error(
+                    `Error in submission found, scrim=${scrim.id} submissionId=${scrim.submissionId}\n${v.progress.error}`,
+                );
                 r.push({
                     error: `Error encountered while parsing file ${v.originalFilename}`,
                 });
@@ -88,7 +92,9 @@ export class ReplayValidationService {
         // ========================================
         // All items should have an outputPath
         if (!submission.items.every(i => i.outputPath)) {
-            this.logger.error(`Unable to validate submission with missing outputPath, scrim=${scrim.id} submissionId=${scrim.submissionId}`);
+            this.logger.error(
+                `Unable to validate submission with missing outputPath, scrim=${scrim.id} submissionId=${scrim.submissionId}`,
+            );
             return {
                 valid: false,
                 errors: [],
@@ -98,10 +104,12 @@ export class ReplayValidationService {
         // We should have stats for every game
         const stats = await Promise.all(submission.items.map(async i => this.getStats(i.outputPath!)));
         if (stats.length !== gameCount) {
-            this.logger.error(`Unable to validate submission missing stats, scrim=${scrim.id} submissionId=${scrim.submissionId}`);
+            this.logger.error(
+                `Unable to validate submission missing stats, scrim=${scrim.id} submissionId=${scrim.submissionId}`,
+            );
             return {
                 valid: false,
-                errors: [ {error: "The submission is missing stats. Please contact support."} ],
+                errors: [{error: "The submission is missing stats. Please contact support."}],
             };
         }
 
@@ -110,57 +118,83 @@ export class ReplayValidationService {
             this.logger.error(`Unable to get game gameMode=${scrim.gameModeId}`);
             return {
                 valid: false,
-                errors: [ {error: `Failed to find associated game. Please contact support.`} ],
+                errors: [{error: `Failed to find associated game. Please contact support.`}],
             };
         }
 
         // Get platformIds from stats
         // Don't send the same request for multiple players
-        const uniqueBallchasingPlayerIds = Array.from(new Set(stats.flatMap(s => [s.blue, s.orange].flatMap(t => t.players.flatMap(p => ({
-            name: p.name,
-            platform: p.id.platform.toUpperCase(),
-            id: p.id.id,
-        }))))));
-        
+        const uniqueBallchasingPlayerIds = Array.from(
+            new Set(
+                stats.flatMap(s =>
+                    [s.blue, s.orange].flatMap(t =>
+                        t.players.flatMap(p => ({
+                            name: p.name,
+                            platform: p.id.platform.toUpperCase(),
+                            id: p.id.id,
+                        })),
+                    ),
+                ),
+            ),
+        );
+
         // Look up players by their platformIds
-        const playersResponse = await this.coreService.send(CoreEndpoint.GetPlayersByPlatformIds, uniqueBallchasingPlayerIds.map(bId => ({
-            gameId: gameResult.data.id,
-            platform: bId.platform,
-            platformId: bId.id,
-        })));
+        const playersResponse = await this.coreService.send(
+            CoreEndpoint.GetPlayersByPlatformIds,
+            uniqueBallchasingPlayerIds.map(bId => ({
+                gameId: gameResult.data.id,
+                platform: bId.platform,
+                platformId: bId.id,
+            })),
+        );
         if (playersResponse.status === ResponseStatus.ERROR) {
-            this.logger.error(`Unable to validate submission, couldn't find all players by their platformIds`, playersResponse.error);
+            this.logger.error(
+                `Unable to validate submission, couldn't find all players by their platformIds`,
+                playersResponse.error,
+            );
             return {
                 valid: false,
-                errors: [ {error: "Failed to find all players by their platform Ids. Please contact support."} ],
+                errors: [{error: "Failed to find all players by their platform Ids. Please contact support."}],
             };
         }
-        
+
         const playerErrors: string[] = [];
         for (const player of playersResponse.data) {
             if (!player.success) {
-                playerErrors.push(uniqueBallchasingPlayerIds.find(bcPlayer => bcPlayer.platform === player.request.platform && bcPlayer.id === player.request.platformId)!.name);
+                playerErrors.push(
+                    uniqueBallchasingPlayerIds.find(
+                        bcPlayer =>
+                            bcPlayer.platform === player.request.platform && bcPlayer.id === player.request.platformId,
+                    )!.name,
+                );
             }
         }
 
-        if (playerErrors.length) return {
-            valid: false,
-            errors: [
-                {
-                    error: `One or more players played on an unreported account: ${playerErrors.join(", ")}`,
-                },
-            ],
-        };
+        if (playerErrors.length)
+            return {
+                valid: false,
+                errors: [
+                    {
+                        error: `One or more players played on an unreported account: ${playerErrors.join(", ")}`,
+                    },
+                ],
+            };
 
         const players = playersResponse.data as GetPlayerSuccessResponse[];
         // Get 3D array of scrim player ids
         const scrimPlayerIds = scrim.games.map(g => g.teams.map(t => t.players.map(p => p.id)));
 
         // Get 3D array of submission player ids
-        const submissionUserIds = stats.map(s => [s.blue, s.orange].map(t => t.players.map(({id}) => {
-            const user = players.find(p => p.request.platform === id.platform.toUpperCase() && p.request.platformId === id.id)!;
-            return user.data.userId;
-        })));
+        const submissionUserIds = stats.map(s =>
+            [s.blue, s.orange].map(t =>
+                t.players.map(({id}) => {
+                    const user = players.find(
+                        p => p.request.platform === id.platform.toUpperCase() && p.request.platformId === id.id,
+                    )!;
+                    return user.data.userId;
+                }),
+            ),
+        );
 
         // Sort IDs so that they are in the same order ready to compare
         const sortedScrimPlayerIds = sortIds(scrimPlayerIds);
@@ -179,36 +213,42 @@ export class ReplayValidationService {
             } else {
                 return {
                     valid: false,
-                    errors: [ {
-                        error: "Mismatched player",
-                        gameIndex: g,
-                    } ],
+                    errors: [
+                        {
+                            error: "Mismatched player",
+                            gameIndex: g,
+                        },
+                    ],
                 };
             }
 
             const scrimGame = sortedScrimPlayerIds[matchupIndex];
-            
+
             for (let t = 0; t < scrim.settings.teamCount; t++) {
                 const scrimTeam = scrimGame[t];
                 const submissionTeam = submissionGame[t];
                 if (scrimTeam.length !== submissionTeam.length) {
                     return {
                         valid: false,
-                        errors: [ {
-                            error: "Invalid team size",
-                            gameIndex: g,
-                            teamIndex: t,
-                        } ],
+                        errors: [
+                            {
+                                error: "Invalid team size",
+                                gameIndex: g,
+                                teamIndex: t,
+                            },
+                        ],
                     };
                 }
             }
             if (scrimGame.length !== submissionGame.length) {
                 return {
                     valid: false,
-                    errors: [ {
-                        error: "Invalid team count",
-                        gameIndex: g,
-                    } ],
+                    errors: [
+                        {
+                            error: "Invalid team count",
+                            gameIndex: g,
+                        },
+                    ],
                 };
             }
         }
@@ -216,16 +256,19 @@ export class ReplayValidationService {
         // ========================================
         // Validate players are in the correct skill group if the scrim is competitive
         // ========================================
-        if (scrim.settings.competitive) for (const player of players) {
-            if (player.data.skillGroupId !== scrim.skillGroupId) {
-                return {
-                    valid: false,
-                    errors: [ {
-                        error: "One of the players isn't in the correct skill group",
-                    } ],
-                };
+        if (scrim.settings.competitive)
+            for (const player of players) {
+                if (player.data.skillGroupId !== scrim.skillGroupId) {
+                    return {
+                        valid: false,
+                        errors: [
+                            {
+                                error: "One of the players isn't in the correct skill group",
+                            },
+                        ],
+                    };
+                }
             }
-        }
 
         // ========================================
         // Submission is valid
@@ -251,7 +294,7 @@ export class ReplayValidationService {
             this.logger.error(`Unable to get game gameMode=${match.gameModeId}`);
             return {
                 valid: false,
-                errors: [ {error: `Failed to find associated game. Please contact support.`} ],
+                errors: [{error: `Failed to find associated game. Please contact support.`}],
             };
         }
 
@@ -263,45 +306,65 @@ export class ReplayValidationService {
         if (!submission.items.every(i => i.progress?.result)) {
             return {
                 valid: false,
-                errors: [ {error: "Incomplete Replay Found, please wait for submission to complete"} ],
+                errors: [{error: "Incomplete Replay Found, please wait for submission to complete"}],
             };
         }
 
-        const uniqueBallchasingPlayerIds = Array.from(new Set(submission.items.flatMap(s => [s.progress!.result!.data.blue, s.progress!.result!.data.orange].flatMap(t => t.players.flatMap(p => ({
-            name: p.name,
-            platform: p.id.platform.toUpperCase(),
-            id: p.id.id,
-        }))))));
-        
+        const uniqueBallchasingPlayerIds = Array.from(
+            new Set(
+                submission.items.flatMap(s =>
+                    [s.progress!.result!.data.blue, s.progress!.result!.data.orange].flatMap(t =>
+                        t.players.flatMap(p => ({
+                            name: p.name,
+                            platform: p.id.platform.toUpperCase(),
+                            id: p.id.id,
+                        })),
+                    ),
+                ),
+            ),
+        );
+
         // Look up players by their platformIds
-        const playersResponse = await this.coreService.send(CoreEndpoint.GetPlayersByPlatformIds, uniqueBallchasingPlayerIds.map(bId => ({
-            gameId: gameResult.data.id,
-            platform: bId.platform,
-            platformId: bId.id,
-        })));
+        const playersResponse = await this.coreService.send(
+            CoreEndpoint.GetPlayersByPlatformIds,
+            uniqueBallchasingPlayerIds.map(bId => ({
+                gameId: gameResult.data.id,
+                platform: bId.platform,
+                platformId: bId.id,
+            })),
+        );
         if (playersResponse.status === ResponseStatus.ERROR) {
-            this.logger.error(`Unable to validate submission, couldn't find all players by their platformIds`, playersResponse.error);
+            this.logger.error(
+                `Unable to validate submission, couldn't find all players by their platformIds`,
+                playersResponse.error,
+            );
             return {
                 valid: false,
-                errors: [ {error: "Failed to find all players by their platform Ids. Please contact support."} ],
+                errors: [{error: "Failed to find all players by their platform Ids. Please contact support."}],
             };
         }
-        
+
         const playerErrors: string[] = [];
         for (const player of playersResponse.data) {
             if (!player.success) {
-                playerErrors.push(uniqueBallchasingPlayerIds.find(bcPlayer => bcPlayer.platform === player.request.platform && bcPlayer.id === player.request.platformId)!.name);
+                playerErrors.push(
+                    uniqueBallchasingPlayerIds.find(
+                        bcPlayer =>
+                            bcPlayer.platform === player.request.platform && bcPlayer.id === player.request.platformId,
+                    )!.name,
+                );
             }
         }
 
-        if (playerErrors.length) return {
-            valid: false,
-            errors: [
-                {
-                    error: `One or more players played on an unreported account: ${playerErrors.join(", ")}`,
-                },
-            ],
-        };
+        if (playerErrors.length)
+            return {
+                valid: false,
+                errors: [
+                    {
+                        error: `One or more players played on an unreported account: ${playerErrors.join(", ")}`,
+                    },
+                ],
+            };
 
         const players = playersResponse.data as GetPlayerSuccessResponse[];
 
@@ -310,8 +373,22 @@ export class ReplayValidationService {
             const orangeBcPlayers = item.progress!.result!.data.orange.players;
 
             try {
-                const bluePlayers = blueBcPlayers.map(bcp => players.find(p => p.request.platform === bcp.id.platform.toUpperCase() && p.request.platformId === bcp.id.id)!.data);
-                const orangePlayers = orangeBcPlayers.map(bcp => players.find(p => p.request.platform === bcp.id.platform.toUpperCase() && p.request.platformId === bcp.id.id)!.data);
+                const bluePlayers = blueBcPlayers.map(
+                    bcp =>
+                        players.find(
+                            p =>
+                                p.request.platform === bcp.id.platform.toUpperCase() &&
+                                p.request.platformId === bcp.id.id,
+                        )!.data,
+                );
+                const orangePlayers = orangeBcPlayers.map(
+                    bcp =>
+                        players.find(
+                            p =>
+                                p.request.platform === bcp.id.platform.toUpperCase() &&
+                                p.request.platformId === bcp.id.id,
+                        )!.data,
+                );
 
                 const blueTeam = bluePlayers[0].franchise.name;
                 const orangeTeam = orangePlayers[0].franchise.name;
@@ -325,7 +402,6 @@ export class ReplayValidationService {
                 if (!bluePlayers.every(bp => bp.franchise.name === blueTeam)) {
                     errors.push({
                         error: `Multiple franchises found for blue team in replay ${item.originalFilename}`,
-
                     });
                 }
                 if (!orangePlayers.every(op => op.franchise.name === orangeTeam)) {
@@ -349,12 +425,16 @@ export class ReplayValidationService {
                     errors.push({
                         error: `Player(s) from incorrect skill group found in replay ${item.originalFilename}`,
                     });
-                    this.logger.verbose(JSON.stringify({
-                        expected: match.skillGroupId,
-                        found: [...bluePlayers.map(bp => [bp.id, bp.skillGroupId]), ...orangePlayers.map(p => [p.id, p.skillGroupId])],
-                    }));
+                    this.logger.verbose(
+                        JSON.stringify({
+                            expected: match.skillGroupId,
+                            found: [
+                                ...bluePlayers.map(bp => [bp.id, bp.skillGroupId]),
+                                ...orangePlayers.map(p => [p.id, p.skillGroupId]),
+                            ],
+                        }),
+                    );
                 }
-
             } catch (e) {
                 this.logger.error("Error looking up match participants", e);
                 errors.push({
@@ -364,7 +444,8 @@ export class ReplayValidationService {
         }
         if (errors.length) {
             return {
-                valid: false, errors: errors,
+                valid: false,
+                errors: errors,
             };
         }
 

@@ -1,8 +1,6 @@
 import {Controller} from "@nestjs/common";
 import {MessagePattern, Payload} from "@nestjs/microservices";
-import type {
-    GetAllSubmissionsResponse, GetSubmissionIfExistsResponse, SubmissionOutput,
-} from "@sprocketbot/common";
+import type {GetAllSubmissionsResponse, GetSubmissionIfExistsResponse, SubmissionOutput} from "@sprocketbot/common";
 import {SubmissionEndpoint, SubmissionSchemas} from "@sprocketbot/common";
 
 import {ReplaySubmissionCrudService} from "./replay-submission-crud.service";
@@ -14,7 +12,7 @@ export class ReplaySubmissionCrudController {
     @MessagePattern(SubmissionEndpoint.GetSubmissionIfExists)
     async getSubmissionIfExists(@Payload() payload: unknown): Promise<GetSubmissionIfExistsResponse> {
         const submissionId = SubmissionSchemas.GetSubmissionIfExists.input.parse(payload);
-        const submission = await this.crudService.getSubmission(submissionId) ?? null;
+        const submission = (await this.crudService.getSubmission(submissionId)) ?? null;
         return {submission};
     }
 
@@ -25,14 +23,18 @@ export class ReplaySubmissionCrudController {
     }
 
     @MessagePattern(SubmissionEndpoint.RemoveSubmission)
-    async removeSubmission(@Payload() payload: unknown): Promise<SubmissionOutput<SubmissionEndpoint.RemoveSubmission>> {
+    async removeSubmission(
+        @Payload() payload: unknown,
+    ): Promise<SubmissionOutput<SubmissionEndpoint.RemoveSubmission>> {
         const data = SubmissionSchemas.RemoveSubmission.input.parse(payload);
         await this.crudService.removeSubmission(data.submissionId);
         return {removed: true};
     }
 
     @MessagePattern(SubmissionEndpoint.GetSubmissionRejections)
-    async getSubmissionRejections(@Payload() payload: unknown): Promise<SubmissionOutput<SubmissionEndpoint.GetSubmissionRejections>> {
+    async getSubmissionRejections(
+        @Payload() payload: unknown,
+    ): Promise<SubmissionOutput<SubmissionEndpoint.GetSubmissionRejections>> {
         const data = SubmissionSchemas.RemoveSubmission.input.parse(payload);
         const rejections = await this.crudService.getSubmissionRejections(data.submissionId);
         return rejections.map(r => r.playerId.toString());

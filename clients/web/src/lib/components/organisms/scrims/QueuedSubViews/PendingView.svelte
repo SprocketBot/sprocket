@@ -21,7 +21,7 @@
 <script lang="ts">
     import {format} from "date-fns";
     import dateFns from "date-fns-tz";
-    
+
     import type {CurrentScrim} from "$lib/api";
     import {currentScrim, leaveScrimMutation} from "$lib/api";
     import {ScrimFullIndicator} from "$lib/components";
