@@ -325,21 +325,27 @@ export class RocketLeagueFinalizationService {
      * Looks up a set of players based on their ballchasing information
      * Noteworthy; this looks up sprocket players!
      */
-    async _getBallchasingPlayers(ballchasing: BallchasingResponse): Promise<{blue: Array<{player: Player; rawPlayer: BallchasingPlayer;}>; orange: Array<{player: Player; rawPlayer: BallchasingPlayer;}>;}> {
+    async _getBallchasingPlayers(
+        ballchasing: BallchasingResponse,
+    ): Promise<{
+        blue: Array<{player: Player; rawPlayer: BallchasingPlayer}>;
+        orange: Array<{player: Player; rawPlayer: BallchasingPlayer}>;
+    }> {
         // TODO: This won't work when we support multiple games; in theory is an array of players for that member.
-        const lookupFn = async (p: BallchasingPlayer): Promise<Player> => this.playerService.getPlayer({
-            where: {
-                member: {
-                    platformAccounts: {
-                        platformAccountId: p.id.id,
-                        platform: {
-                            code: p.id.platform.toUpperCase(),
+        const lookupFn = async (p: BallchasingPlayer): Promise<Player> =>
+            this.playerService.getPlayer({
+                where: {
+                    member: {
+                        platformAccounts: {
+                            platformAccountId: p.id.id,
+                            platform: {
+                                code: p.id.platform.toUpperCase(),
+                            },
                         },
                     },
                 },
-            },
-            relations: {member: {platformAccounts: {platform: true}}}
-        });
+                relations: {member: {platformAccounts: {platform: true}}},
+            });
 
         const bluePlayerIds = new Array<BallchasingPlayer>();
         const orangePlayerIds = new Array<BallchasingPlayer>();
