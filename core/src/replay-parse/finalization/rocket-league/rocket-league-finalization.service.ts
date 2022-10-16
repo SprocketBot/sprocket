@@ -325,9 +325,7 @@ export class RocketLeagueFinalizationService {
      * Looks up a set of players based on their ballchasing information
      * Noteworthy; this looks up sprocket players!
      */
-    async _getBallchasingPlayers(
-        ballchasing: BallchasingResponse,
-    ): Promise<{
+    async _getBallchasingPlayers(ballchasing: BallchasingResponse): Promise<{
         blue: Array<{player: Player; rawPlayer: BallchasingPlayer}>;
         orange: Array<{player: Player; rawPlayer: BallchasingPlayer}>;
     }> {

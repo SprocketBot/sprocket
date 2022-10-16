@@ -1,4 +1,5 @@
 import {Injectable, Logger} from "@nestjs/common";
+import { Serializable } from "child_process";
 import type {Redis, RedisOptions} from "ioredis";
 import IORedis from "ioredis";
 import type {ZodSchema} from "zod";
@@ -39,11 +40,11 @@ export class RedisService {
         this._redis = redis;
     }
 
-    async setJson<T extends Record<string, unknown>>(key: string, input: T): Promise<void> {
+    async setJson<T extends Serializable>(key: string, input: T): Promise<void> {
         await this.redis.send_command("json.set", key, ".", JSON.stringify(input));
     }
 
-    async setJsonField<T extends Record<string, unknown>>(key: string, path: string, input: T): Promise<void> {
+    async setJsonField<T extends Serializable>(key: string, path: string, input: T): Promise<void> {
         await this.redis.send_command("json.set", key, path, JSON.stringify(input));
     }
 
