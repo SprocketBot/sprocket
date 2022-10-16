@@ -9,9 +9,7 @@ import {
     EventsService,
     EventTopic,
     NotificationEndpoint,
-    NotificationMessageType,
     NotificationService,
-    NotificationType,
 } from "@sprocketbot/common";
 import {Repository} from "typeorm";
 

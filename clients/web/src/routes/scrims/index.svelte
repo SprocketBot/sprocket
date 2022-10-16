@@ -8,8 +8,6 @@
         scrimMetrics,
         scrimsDisabled,
     } from "$lib/api";
-    import type {MetricsResult} from "$lib/api";
-
     import {
         AvailableScrimsView,
         DashboardCard,

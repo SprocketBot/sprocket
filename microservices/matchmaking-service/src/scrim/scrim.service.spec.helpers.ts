@@ -35,10 +35,10 @@ export function getMockScrimPlayer(
 }
 
 export function getMockScrimIds(
-    authorId: number = 1,
-    organizationId: number = 1,
-    gameModeId: number = 1,
-    skillGroupId: number = 1,
+    authorId = 1,
+    organizationId = 1,
+    gameModeId = 1,
+    skillGroupId = 1,
 ): {
     authorId: number;
     organizationId: number;

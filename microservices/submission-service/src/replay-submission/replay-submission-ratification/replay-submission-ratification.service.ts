@@ -47,7 +47,7 @@ export class ReplaySubmissionRatificationService {
         });
     }
 
-    async ratifyScrim(playerId: number, submissionId: string): Promise<Boolean> {
+    async ratifyScrim(playerId: number, submissionId: string): Promise<boolean> {
         const submission = await this.crudService.getSubmission(submissionId);
         if (!submission) throw new Error("Submission not found");
         if (submission.status !== ReplaySubmissionStatus.RATIFYING)
@@ -74,7 +74,7 @@ export class ReplaySubmissionRatificationService {
         return false;
     }
 
-    async rejectSubmission(playerId: number, submissionId: string, reasons: string[]): Promise<Boolean> {
+    async rejectSubmission(playerId: number, submissionId: string, reasons: string[]): Promise<boolean> {
         await Promise.all(reasons.map(async r => this.crudService.addRejection(submissionId, playerId, r)));
 
         await this.crudService.removeItems(submissionId);

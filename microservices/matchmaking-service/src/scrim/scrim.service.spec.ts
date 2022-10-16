@@ -909,11 +909,4 @@ describe("ScrimService", () => {
             expect(crudUpdateScrimUnlockedStatus).toHaveBeenCalledWith(scrim.id, ScrimStatus.IN_PROGRESS);
         });
     });
-
-    describe("Developers", () => {
-        it("Zach should be happy", () => {});
-        it("Nigel should be happy", () => {});
-        it("Shuckle should be...shuckle", () => {});
-        it("Hyper do be writing a lot of tests.....", () => {});
-    });
 });
