@@ -596,12 +596,22 @@ export class PlayerService {
                 } else if (playerDelta.rankout.degreeOfStiffness === DegreeOfStiffness.SOFT) {
                     await this.updatePlayerStanding(playerDelta.playerId, playerDelta.newSalary);
 
-                        const bridge = await this.ptpRepo.findOneOrFail({
-                            where: {sprocketPlayerId: player.id},
-                        });
-                        const mlePlayer = await this.mle_playerRepository.findOneOrFail({
-                            where: {id: bridge.mledPlayerId},
-                        });
+                    const skillGroup = await this.skillGroupService.getGameSkillGroup({
+                        where: {
+                            game: {
+                                id: player.skillGroup.game.id,
+                            },
+                            organization: {
+                                id: player.skillGroup.organization.id,
+                            },
+                            ordinal: player.skillGroup.ordinal - (playerDelta.rankout.skillGroupChange === SkillGroupDelta.UP ? 1 : -1),
+                        },
+                        relations: {
+                            profile: true,
+                            organization: true,
+                            game: true,
+                        },
+                    });
 
                     /* TEMPORARY NOTIFICATION */
                     const rankdownPayload: RankdownJwtPayload = {
@@ -620,7 +630,7 @@ export class PlayerService {
                             payload: {
                                 embeds: [ {
                                     title: "Rankdown Available",
-                                    description: `You have been offered a rankout from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.\n\nThis offer will expire in 24 hours.\n‼️‼️**__Only click the button below if you accept the rankdown. There is no confirmation.__**‼️‼️`,
+                                    description: `You have been offered a rankout from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.\n\n‼️‼️**__Only click the button below if you accept the rankdown. There is no confirmation.__**‼️‼️`,
                                     author: {
                                         name: `${orgProfile.name}`,
                                     },
@@ -662,15 +672,11 @@ export class PlayerService {
                                     footer: {
                                         icon: true,
                                     },
-                                    accountType:
-                                        UserAuthenticationAccountType.DISCORD,
                                 },
-                                accountType: UserAuthenticationAccountType.DISCORD,
                             },
-                        });
-                        const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(
-                            player.member.organization.id,
-                        );
+                        },
+                    });
+                    /* /TEMPORARY NOTIFICATION/ */
 
                     // const notifId = `${NotificationType.RANKDOWN.toLowerCase()}-${this.nanoidService.gen()}`;
     
@@ -739,11 +745,6 @@ export class PlayerService {
                 }
             } else {
                 await this.updatePlayerStanding(playerDelta.playerId, playerDelta.newSalary);
-                const newMlePlayer = this.mle_playerRepository.merge(mlePlayer, {
-                    salary: playerDelta.newSalary,
-                });
-
-                await this.mle_playerRepository.save(newMlePlayer);
             }
         }))));
     }
