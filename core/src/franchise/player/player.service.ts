@@ -501,49 +501,61 @@ export class PlayerService {
     }
 
     async saveSalaries(payload: SalaryPayloadItem[][]): Promise<void> {
-        await Promise.allSettled(
-            payload.map(async payloadSkillGroup =>
-                Promise.allSettled(
-                    payloadSkillGroup.map(async playerDelta => {
-                        const player = await this.getPlayer({
-                            where: {id: playerDelta.playerId},
-                            relations: {
-                                member: {
-                                    user: {
-                                        authenticationAccounts: true,
-                                    },
-                                    organization: true,
-                                    profile: true,
-                                },
-                                skillGroup: {
-                                    organization: true,
-                                    game: true,
-                                    profile: true,
-                                },
+        await Promise.allSettled(payload.map(async payloadSkillGroup => Promise.allSettled(payloadSkillGroup.map(async playerDelta => {
+            const player = await this.getPlayer({
+                where: {id: playerDelta.playerId},
+                relations: {
+                    member: {
+                        user: {
+                            authenticationAccounts: true,
+                        },
+                        organization: true,
+                        profile: true,
+                    },
+                    skillGroup: {
+                        organization: true,
+                        game: true,
+                        profile: true,
+                    },
+                },
+            });
+
+            const bridge = await this.ptpRepo.findOneOrFail({where: {sprocketPlayerId: player.id} });
+            const mlePlayer = await this.mle_playerRepository.findOneOrFail({where: {id: bridge.mledPlayerId} });
+            
+            if (mlePlayer.teamName === "FP") return;
+            if (!playerDelta.rankout && player.salary === playerDelta.newSalary) return;
+    
+            const discordAccount = await this.userAuthRepository.findOneOrFail({
+                where: {
+                    user: {
+                        id: player.member.user.id,
+                    },
+                    accountType: UserAuthenticationAccountType.DISCORD,
+                },
+            });
+            const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(player.member.organization.id);
+
+            if (playerDelta.rankout) {
+                if (playerDelta.rankout.degreeOfStiffness === DegreeOfStiffness.HARD) {
+                    const skillGroup = await this.skillGroupService.getGameSkillGroup({
+                        where: {
+                            game: {
+                                id: player.skillGroup.game.id,
                             },
-                        });
-
-                        const bridge = await this.ptpRepo.findOneOrFail({
-                            where: {sprocketPlayerId: player.id},
-                        });
-                        const mlePlayer = await this.mle_playerRepository.findOneOrFail({
-                            where: {id: bridge.mledPlayerId},
-                        });
-
-                        if (mlePlayer.teamName === "FP") return;
-                        if (!playerDelta.rankout && player.salary === playerDelta.newSalary) return;
-
-                        const discordAccount = await this.userAuthRepository.findOneOrFail({
-                            where: {
-                                user: {
-                                    id: player.member.user.id,
-                                },
-                                accountType: UserAuthenticationAccountType.DISCORD,
+                            organization: {
+                                id: player.skillGroup.organization.id,
                             },
-                        });
-                        const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(
-                            player.member.organization.id,
-                        );
+                            ordinal: player.skillGroup.ordinal - (playerDelta.rankout.skillGroupChange === SkillGroupDelta.UP ? 1 : -1),
+                        },
+                        relations: {
+                            profile: true,
+                            game: true,
+                            organization: true,
+                        },
+                    });
+    
+                    await this.updatePlayerStanding(playerDelta.playerId, playerDelta.rankout.salary, skillGroup.id);
 
                     if (playerDelta.rankout.skillGroupChange === SkillGroupDelta.UP) {
                         await this.mle_rankUpPlayer(player.id, playerDelta.rankout.salary);
@@ -582,11 +594,22 @@ export class PlayerService {
                 } else if (playerDelta.rankout.degreeOfStiffness === DegreeOfStiffness.SOFT) {
                     await this.updatePlayerStanding(playerDelta.playerId, playerDelta.rankout.salary);
 
-                                await this.updatePlayerStanding(
-                                    playerDelta.playerId,
-                                    playerDelta.rankout.salary,
-                                    skillGroup.id,
-                                );
+                    const skillGroup = await this.skillGroupService.getGameSkillGroup({
+                        where: {
+                            game: {
+                                id: player.skillGroup.game.id,
+                            },
+                            organization: {
+                                id: player.skillGroup.organization.id,
+                            },
+                            ordinal: player.skillGroup.ordinal - (playerDelta.rankout.skillGroupChange === SkillGroupDelta.UP ? 1 : -1),
+                        },
+                        relations: {
+                            profile: true,
+                            organization: true,
+                            game: true,
+                        },
+                    });
 
                     /* TEMPORARY NOTIFICATION */
                     const rankdownPayload: RankdownJwtPayload = {
@@ -596,234 +619,132 @@ export class PlayerService {
                     };
                     const jwt = this.jwtService.sign(rankdownPayload, {expiresIn: "24h"});
 
-                                await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
-                                    playerId: player.id,
-                                    name: player.member.profile.name,
-                                    organizationId: skillGroup.organization.id,
-                                    discordId: discordAccount.accountId,
-                                    old: {
-                                        id: player.skillGroup.id,
-                                        name: player.skillGroup.profile.description,
-                                        salary: player.salary,
-                                        discordEmojiId: player.skillGroup.profile.discordEmojiId,
+                    await this.notificationService.send(NotificationEndpoint.SendNotification, {
+                        type: NotificationType.BASIC,
+                        userId: player.member.user.id,
+                        notification: {
+                            type: NotificationMessageType.DirectMessage,
+                            userId: discordAccount.accountId,
+                            payload: {
+                                embeds: [ {
+                                    title: "Rankdown Available",
+                                    description: `You have been offered a rankout from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.\n\n‼️‼️**__Only click the button below if you accept the rankdown. There is no confirmation.__**‼️‼️`,
+                                    author: {
+                                        name: `${orgProfile.name}`,
                                     },
-                                    new: {
-                                        id: skillGroup.id,
-                                        name: skillGroup.profile.description,
-                                        salary: playerDelta.rankout.salary,
-                                        discordEmojiId: skillGroup.profile.discordEmojiId,
+                                    fields: [
+                                        {
+                                            name: "New League",
+                                            value: `${skillGroup.profile.description}`,
+                                        },
+                                        {
+                                            name: "New Salary",
+                                            value: `${playerDelta.rankout.salary}`,
+                                        },
+                                    ],
+                                    footer: {
+                                        text: orgProfile.name,
                                     },
-                                });
-
-                                await this.notificationService.send(NotificationEndpoint.SendNotification, {
-                                    type: NotificationType.BASIC,
-                                    userId: player.member.user.id,
-                                    notification: {
-                                        type: NotificationMessageType.DirectMessage,
-                                        userId: discordAccount.accountId,
-                                        payload: {
-                                            embeds: [
-                                                {
-                                                    title: "You Have Ranked Out",
-                                                    description: `You have been ranked out from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
-                                                    author: {
-                                                        name: `${orgProfile.name}`,
-                                                    },
-                                                    fields: [
-                                                        {
-                                                            name: "New League",
-                                                            value: `${skillGroup.profile.description}`,
-                                                        },
-                                                        {
-                                                            name: "New Salary",
-                                                            value: `${playerDelta.rankout.salary}`,
-                                                        },
-                                                    ],
-                                                    footer: {
-                                                        text: orgProfile.name,
-                                                    },
-                                                    timestamp: Date.now(),
-                                                },
-                                            ],
+                                    timestamp: Date.now(),
+                                } ],
+                                components: [ {
+                                    type: ComponentType.ACTION_ROW,
+                                    components: [
+                                        {
+                                            type: ComponentType.BUTTON,
+                                            style: ButtonComponentStyle.LINK,
+                                            label: "ONLY CLICK HERE IF YOU ACCEPT",
+                                            url: `${config.web.api_root}/player/accept-rankdown/${jwt}`,
                                         },
-                                        brandingOptions: {
-                                            organizationId: player.member.organization.id,
-                                            options: {
-                                                author: {
-                                                    icon: true,
-                                                },
-                                                color: true,
-                                                thumbnail: true,
-                                                footer: {
-                                                    icon: true,
-                                                },
-                                            },
-                                        },
+                                    ],
+                                } ],
+                            },
+                            brandingOptions: {
+                                organizationId: player.member.organization.id,
+                                options: {
+                                    author: {
+                                        icon: true,
                                     },
-                                });
-                            } else if (playerDelta.rankout.degreeOfStiffness === DegreeOfStiffness.SOFT) {
-                                await this.updatePlayerStanding(playerDelta.playerId, playerDelta.rankout.salary);
-
-                                const skillGroup = await this.skillGroupService.getGameSkillGroup({
-                                    where: {
-                                        game: {
-                                            id: player.skillGroup.game.id,
-                                        },
-                                        organization: {
-                                            id: player.skillGroup.organization.id,
-                                        },
-                                        ordinal:
-                                            player.skillGroup.ordinal -
-                                            (playerDelta.rankout.skillGroupChange === SkillGroupDelta.UP ? 1 : -1),
+                                    color: true,
+                                    thumbnail: true,
+                                    footer: {
+                                        icon: true,
                                     },
-                                    relations: {
-                                        profile: true,
-                                        organization: true,
-                                        game: true,
-                                    },
-                                });
+                                },
+                            },
+                        },
+                    });
+                    /* /TEMPORARY NOTIFICATION/ */
 
-                                /* TEMPORARY NOTIFICATION */
-                                const rankdownPayload: RankdownPayload = {
-                                    playerId: player.id,
-                                    salary: playerDelta.rankout.salary,
-                                    skillGroupId: skillGroup.id,
-                                };
-                                const jwt = this.jwtService.sign(rankdownPayload, {expiresIn: "24h"});
-
-                                await this.notificationService.send(NotificationEndpoint.SendNotification, {
-                                    type: NotificationType.BASIC,
-                                    userId: player.member.user.id,
-                                    notification: {
-                                        type: NotificationMessageType.DirectMessage,
-                                        userId: discordAccount.accountId,
-                                        payload: {
-                                            embeds: [
-                                                {
-                                                    title: "Rankdown Available",
-                                                    description: `You have been offered a rankout from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.\n\n‼️‼️**__Only click the button below if you accept the rankdown. There is no confirmation.__**‼️‼️`,
-                                                    author: {
-                                                        name: `${orgProfile.name}`,
-                                                    },
-                                                    fields: [
-                                                        {
-                                                            name: "New League",
-                                                            value: `${skillGroup.profile.description}`,
-                                                        },
-                                                        {
-                                                            name: "New Salary",
-                                                            value: `${playerDelta.rankout.salary}`,
-                                                        },
-                                                    ],
-                                                    footer: {
-                                                        text: orgProfile.name,
-                                                    },
-                                                    timestamp: Date.now(),
-                                                },
-                                            ],
-                                            components: [
-                                                {
-                                                    type: ComponentType.ACTION_ROW,
-                                                    components: [
-                                                        {
-                                                            type: ComponentType.BUTTON,
-                                                            style: ButtonComponentStyle.LINK,
-                                                            label: "ONLY CLICK HERE IF YOU ACCEPT",
-                                                            url: `${config.web.api_root}/player/accept-rankdown/${jwt}`,
-                                                        },
-                                                    ],
-                                                },
-                                            ],
-                                        },
-                                        brandingOptions: {
-                                            organizationId: player.member.organization.id,
-                                            options: {
-                                                author: {
-                                                    icon: true,
-                                                },
-                                                color: true,
-                                                thumbnail: true,
-                                                footer: {
-                                                    icon: true,
-                                                },
-                                            },
-                                        },
-                                    },
-                                });
-                                /* /TEMPORARY NOTIFICATION/ */
-
-                                // const notifId = `${NotificationType.RANKDOWN.toLowerCase()}-${this.nanoidService.gen()}`;
-
-                                // await this.notificationService.send(NotificationEndpoint.SendNotification, {
-                                //     id: notifId,
-                                //     type: NotificationType.RANKDOWN,
-                                //     userId: player.member.user.id,
-                                //     expiration: add(new Date(), {hours: 24}),
-                                //     payload: {
-                                //         playerId: playerDelta.playerId,
-                                //         skillGroupId: skillGroup.id,
-                                //         salary: playerDelta.newSalary,
-                                //     },
-                                //     notification: {
-                                //         type: NotificationMessageType.DirectMessage,
-                                //         userId: discordAccount.accountId,
-                                //         payload: {
-                                //             embeds: [ {
-                                //                 title: "Rankdown Available",
-                                //                 description: `You have been offered a rankout from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
-                                //                 author: {
-                                //                     name: `${orgProfile.name}`,
-                                //                 },
-                                //                 fields: [
-                                //                     {
-                                //                         name: "New League",
-                                //                         value: `${skillGroup.profile.description}`,
-                                //                     },
-                                //                     {
-                                //                         name: "New Salary",
-                                //                         value: `${playerDelta.rankout.salary}`,
-                                //                     },
-                                //                 ],
-                                //                 footer: {
-                                //                     text: orgProfile.name,
-                                //                 },
-                                //                 timestamp: Date.now(),
-                                //             } ],
-                                //             components: [ {
-                                //                 type: ComponentType.ACTION_ROW,
-                                //                 components: [
-                                //                     {
-                                //                         type: ComponentType.BUTTON,
-                                //                         style: ButtonComponentStyle.LINK,
-                                //                         label: "Accept it here!",
-                                //                         url: `${config.web.url}/notifications/${notifId}`,
-                                //                     },
-                                //                 ],
-                                //             } ],
-                                //         },
-                                //         brandingOptions: {
-                                //             organizationId: player.member.organization.id,
-                                //             options: {
-                                //                 author: {
-                                //                     icon: true,
-                                //                 },
-                                //                 color: true,
-                                //                 thumbnail: true,
-                                //                 footer: {
-                                //                     icon: true,
-                                //                 },
-                                //             },
-                                //         },
-                                //     },
-                                // });
-                            }
-                        } else {
-                            await this.updatePlayerStanding(playerDelta.playerId, playerDelta.newSalary);
-                        }
-                    }),
-                ),
-            ),
-        );
+                    // const notifId = `${NotificationType.RANKDOWN.toLowerCase()}-${this.nanoidService.gen()}`;
+    
+                    // await this.notificationService.send(NotificationEndpoint.SendNotification, {
+                    //     id: notifId,
+                    //     type: NotificationType.RANKDOWN,
+                    //     userId: player.member.user.id,
+                    //     expiration: add(new Date(), {hours: 24}),
+                    //     payload: {
+                    //         playerId: playerDelta.playerId,
+                    //         skillGroupId: skillGroup.id,
+                    //         salary: playerDelta.newSalary,
+                    //     },
+                    //     notification: {
+                    //         type: NotificationMessageType.DirectMessage,
+                    //         userId: discordAccount.accountId,
+                    //         payload: {
+                    //             embeds: [ {
+                    //                 title: "Rankdown Available",
+                    //                 description: `You have been offered a rankout from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
+                    //                 author: {
+                    //                     name: `${orgProfile.name}`,
+                    //                 },
+                    //                 fields: [
+                    //                     {
+                    //                         name: "New League",
+                    //                         value: `${skillGroup.profile.description}`,
+                    //                     },
+                    //                     {
+                    //                         name: "New Salary",
+                    //                         value: `${playerDelta.rankout.salary}`,
+                    //                     },
+                    //                 ],
+                    //                 footer: {
+                    //                     text: orgProfile.name,
+                    //                 },
+                    //                 timestamp: Date.now(),
+                    //             } ],
+                    //             components: [ {
+                    //                 type: ComponentType.ACTION_ROW,
+                    //                 components: [
+                    //                     {
+                    //                         type: ComponentType.BUTTON,
+                    //                         style: ButtonComponentStyle.LINK,
+                    //                         label: "Accept it here!",
+                    //                         url: `${config.web.url}/notifications/${notifId}`,
+                    //                     },
+                    //                 ],
+                    //             } ],
+                    //         },
+                    //         brandingOptions: {
+                    //             organizationId: player.member.organization.id,
+                    //             options: {
+                    //                 author: {
+                    //                     icon: true,
+                    //                 },
+                    //                 color: true,
+                    //                 thumbnail: true,
+                    //                 footer: {
+                    //                     icon: true,
+                    //                 },
+                    //             },
+                    //         },
+                    //     },
+                    // });
+                }
+            } else {
+                await this.updatePlayerStanding(playerDelta.playerId, playerDelta.newSalary);
+            }
+        }))));
     }
 
     mle_nextLeague(league: League, dir: -1 | 1): League {
