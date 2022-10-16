@@ -15,6 +15,7 @@ export const CommandNotFound =
         descriptor.value = async function (
             // eslint-disable-next-line @typescript-eslint/ban-types
             this: Object,
+            // @ts-expect-error Ignore this.
             ...params: Parameters<HookFunction>
         ): Promise<unknown> {
             /*

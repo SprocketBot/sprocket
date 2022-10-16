@@ -89,7 +89,7 @@ export class RedisService {
         return JSON.parse(res) as T;
     }
 
-    async appendToJsonArray<T extends Record<string, unknown>>(key: string, path: string, value: T): Promise<void> {
+    async appendToJsonArray<T extends Serializable>(key: string, path: string, value: T): Promise<void> {
         await this.redis.send_command("json.arrappend", key, path, JSON.stringify(value));
     }
 
