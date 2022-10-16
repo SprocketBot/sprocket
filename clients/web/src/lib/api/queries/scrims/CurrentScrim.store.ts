@@ -74,8 +74,16 @@ export interface CurrentScrimStoreSubscriptionVariables {
     [key: string]: never;
 }
 
-class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentScrimStoreVariables, CurrentScrimSubscriptionValue, CurrentScrimStoreSubscriptionVariables> {
-    protected queryString = gql<CurrentScrimStoreValue, CurrentScrimStoreVariables>`
+class CurrentScrimStore extends LiveQueryStore<
+    CurrentScrimStoreValue,
+    CurrentScrimStoreVariables,
+    CurrentScrimSubscriptionValue,
+    CurrentScrimStoreSubscriptionVariables
+> {
+    protected queryString = gql<
+        CurrentScrimStoreValue,
+        CurrentScrimStoreVariables
+    >`
     query {
         currentScrim: getCurrentScrim {
             id

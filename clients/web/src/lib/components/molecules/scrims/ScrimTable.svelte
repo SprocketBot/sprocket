@@ -10,34 +10,51 @@
 
 <table class="table text-center w-full">
     <thead>
-    <tr>
-        <th>Game</th>
-        <th>Skill Group</th>
-        <th>Game Mode</th>
-        <th>Scrim Type</th>
-        <th>Players</th>
-        <th>Mode</th>
-        <th>Created At</th>
-        <th />
-    </tr>
+        <tr>
+            <th>Game</th>
+            <th>Skill Group</th>
+            <th>Game Mode</th>
+            <th>Scrim Type</th>
+            <th>Players</th>
+            <th>Mode</th>
+            <th>Created At</th>
+            <th />
+        </tr>
     </thead>
     <tbody>
-    {#each scrims as scrim (scrim.id)}
-        <tr>
-            <td>{scrim.gameMode.game.title}</td>
-            <td>{scrim.settings.competitive ? scrim.skillGroup?.profile?.description : ""}</td>
-            <td>{scrim.gameMode.description}</td>
-            <td>{screamingSnakeToHuman(scrim.settings.mode)}</td>
-            <td>{scrim.playerCount} / {scrim.maxPlayers}</td>
-            <td>{scrim.settings.competitive ? "Competitive" : "Casual"}</td>
-            <td>{format(utcToZonedTime(new Date(scrim.createdAt), "America/New_York"), "MM'/'d h:mmaaa 'ET")}</td>
-            <td>
-                <button on:click={() => { joinScrim(scrim) }} class="btn btn-outline float-right lg:btn-sm">
-                    Join
-                </button>
-            </td>
-        </tr>
-    {/each}
+        {#each scrims as scrim (scrim.id)}
+            <tr>
+                <td>{scrim.gameMode.game.title}</td>
+                <td
+                    >{scrim.settings.competitive
+                        ? scrim.skillGroup?.profile?.description
+                        : ""}</td
+                >
+                <td>{scrim.gameMode.description}</td>
+                <td>{screamingSnakeToHuman(scrim.settings.mode)}</td>
+                <td>{scrim.playerCount} / {scrim.maxPlayers}</td>
+                <td>{scrim.settings.competitive ? "Competitive" : "Casual"}</td>
+                <td
+                    >{format(
+                        utcToZonedTime(
+                            new Date(scrim.createdAt),
+                            "America/New_York",
+                        ),
+                        "MM'/'d h:mmaaa 'ET",
+                    )}</td
+                >
+                <td>
+                    <button
+                        on:click={() => {
+                            joinScrim(scrim);
+                        }}
+                        class="btn btn-outline float-right lg:btn-sm"
+                    >
+                        Join
+                    </button>
+                </td>
+            </tr>
+        {/each}
     </tbody>
 </table>
 
