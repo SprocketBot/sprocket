@@ -3,6 +3,7 @@
         currentUser, currentScrim, scrimsDisabled, scrimMetrics,
     } from "$lib/api";
     import type {MetricsResult} from "$lib/api";
+    import {format, utcToZonedTime} from "date-fns-tz";
 
     import {
         AvailableScrimsView,
@@ -55,6 +56,12 @@
             </section>
         {:else if $currentScrim.data?.currentScrim}
             <QueuedView/>
+        {:else if $currentUser.data?.me?.members?.some(m => m.restrictions.length)}
+            <section class="flex flex-col justify-center items-center h-full gap-4">
+                <span class="h-32 text-sprocket block"><FaLock/></span>
+                <span class="text-7xl font-bold text-primary">You are Queue Banned</span>
+                <span class="text-1xl">Expires {format(utcToZonedTime(new Date($currentUser.data?.me?.members?.find(m => m.restrictions.length).restrictions[0].expiration), "America/New_York"), "MMMM do, u 'at' h:mmaaa 'ET")}</span>
+            </section>
         {:else if scrimsAreDisabled}
             <DisabledView/>
         {:else}

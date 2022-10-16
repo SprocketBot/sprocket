@@ -15,6 +15,10 @@ export interface CurrentUserResult {
                 franchisePositions: string[];
                 franchiseName: string;
             };
+            restrictions: Array<{
+                id: number;
+                expiration: Date;
+            }>;
         }>;
     };
 }
@@ -41,6 +45,10 @@ export class CurrentUserStore extends QueryStore<CurrentUserResult, CurrentUserV
                         }
                         franchisePositions
                         franchiseName
+                    }
+                    restrictions(type:QUEUE_BAN, active:true) {
+                        id
+                        expiration
                     }
                 }
             }
