@@ -30,7 +30,14 @@ const mutationString = gql`
         $leaveAfter: Int!
         $createGroup: Boolean
     ) {
-        createScrim(data: {gameModeId: $gameModeId, settings: $settings, createGroup: $createGroup, leaveAfter: $leaveAfter}) {
+        createScrim(
+            data: {
+                gameModeId: $gameModeId
+                settings: $settings
+                createGroup: $createGroup
+                leaveAfter: $leaveAfter
+            }
+        ) {
             id
             playerCount
             settings {

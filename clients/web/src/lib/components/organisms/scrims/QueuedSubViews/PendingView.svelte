@@ -71,7 +71,15 @@
                 <dt>Competitive:</dt>
                 <dd>{scrim.settings.competitive ? "Yes" : "No"}</dd>
                 <dt>Created At:</dt>
-                <dd>{format(utcToZonedTime(new Date(scrim.createdAt), "America/New_York"), "MM'/'d h:mmaaa 'ET")}</dd>
+                <dd>
+                    {format(
+                        utcToZonedTime(
+                            new Date(scrim.createdAt),
+                            "America/New_York",
+                        ),
+                        "MM'/'d h:mmaaa 'ET",
+                    )}
+                </dd>
             </dl>
         </div>
         {#if scrim.currentGroup}

@@ -337,8 +337,9 @@ export class RocketLeagueFinalizationService {
                         },
                     },
                 },
-                relations: {member: {platformAccounts: {platform: true}}},
-            });
+            },
+            relations: {member: {platformAccounts: {platform: true}}}
+        });
 
         const bluePlayerIds = new Array<BallchasingPlayer>();
         const orangePlayerIds = new Array<BallchasingPlayer>();

@@ -12,14 +12,20 @@ interface JoinScrimVars {
     group?: string;
 }
 const mutationString = gql`
-mutation (
-    $scrimId: String!
-    $leaveAfter: Int!
-    $createGroup: Boolean
-    $group: String
-) {
-    joinScrim(scrimId: $scrimId, group: $group, createGroup: $createGroup, leaveAfter: $leaveAfter)
-}`;
+    mutation (
+        $scrimId: String!
+        $leaveAfter: Int!
+        $createGroup: Boolean
+        $group: String
+    ) {
+        joinScrim(
+            scrimId: $scrimId
+            group: $group
+            createGroup: $createGroup
+            leaveAfter: $leaveAfter
+        )
+    }
+`;
 
 export const joinScrimMutation = async (
     vars: JoinScrimVars,
