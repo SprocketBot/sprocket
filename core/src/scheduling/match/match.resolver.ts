@@ -20,7 +20,8 @@ import {
     Match,
     MatchParent,
     Player,
-    Round,    ScheduleFixture,
+    Round,
+    ScheduleFixture,
     ScheduleGroup,
     Team,
 } from "../../database";
@@ -55,7 +56,8 @@ export class MatchResolver {
         @InjectRepository(MLE_Team) private readonly mleTeamRepo: Repository<MLE_Team>,
         @InjectRepository(MLE_Series) private readonly mleSeriesRepo: Repository<MLE_Series>,
         @InjectRepository(MLE_SeriesReplay) private readonly seriesReplayRepo: Repository<MLE_SeriesReplay>,
-        @InjectRepository(SeriesToMatchParent) private readonly seriesToMatchParentRepo: Repository<SeriesToMatchParent>,
+        @InjectRepository(SeriesToMatchParent)
+        private readonly seriesToMatchParentRepo: Repository<SeriesToMatchParent>,
         @InjectDataSource() private readonly dataSource: DataSource,
     ) {}
 
@@ -166,7 +168,7 @@ export class MatchResolver {
                     matchParentId: match.matchParent.id,
                 },
             });
-            
+
             await this.mledbMatchService.markSeriesNcp(bridgeObject.seriesId, isNcp, team.franchise.profile.title);
 
             await qr.commitTransaction();
@@ -223,20 +225,21 @@ export class MatchResolver {
                     },
                 });
 
-                // This is horrifically hacky due to our lack of strict typing
-                // on the ballchasing output. Will not be necessary once we
-                // ditch MLEDB and ballchasing.
-                const BCID: string = (round.roundStats as {ballchasingId: string;}).ballchasingId;
+                    // This is horrifically hacky due to our lack of strict typing
+                    // on the ballchasing output. Will not be necessary once we
+                    // ditch MLEDB and ballchasing.
+                    const BCID: string = (round.roundStats as {ballchasingId: string}).ballchasingId;
 
-                const mleReplay = await this.seriesReplayRepo.findOneOrFail({
-                    where: {
-                        ballchasingId: BCID,
-                    },
-                });
+                    const mleReplay = await this.seriesReplayRepo.findOneOrFail({
+                        where: {
+                            ballchasingId: BCID,
+                        },
+                    });
 
-                return mleReplay.id;
-            }));
-            
+                    return mleReplay.id;
+                }),
+            );
+
             // Save round NCPs to MLEDB schema
             await this.mledbMatchService.markReplaysNcp(mleReplayIds, isNcp, winningMLETeam);
 

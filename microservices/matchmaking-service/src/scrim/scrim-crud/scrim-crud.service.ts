@@ -1,11 +1,6 @@
 import {Injectable, Logger} from "@nestjs/common";
-import type {
-    CreateScrimOptions,
-    Scrim, ScrimGame, ScrimPlayer,
-} from "@sprocketbot/common";
-import {
-    config, RedisService, ScrimSchema, ScrimStatus,
-} from "@sprocketbot/common";
+import type {CreateScrimOptions, Scrim, ScrimGame, ScrimPlayer} from "@sprocketbot/common";
+import {config, RedisService, ScrimSchema, ScrimStatus} from "@sprocketbot/common";
 import type {JobId} from "bull";
 import {v4} from "uuid";
 
@@ -61,7 +56,9 @@ export class ScrimCrudService {
 
     async getAllScrims(skillGroupId?: number): Promise<Scrim[]> {
         const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
-        const scrims = await Promise.all(scrimKeys.map<Promise<Scrim>>(async key => this.redisService.getJson<Scrim>(key, undefined, ScrimSchema)));
+        const scrims = await Promise.all(
+            scrimKeys.map<Promise<Scrim>>(async key => this.redisService.getJson<Scrim>(key, undefined, ScrimSchema)),
+        );
 
         return skillGroupId ? scrims.filter(s => s.skillGroupId === skillGroupId || !s.settings.competitive) : scrims;
     }

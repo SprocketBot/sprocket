@@ -23,9 +23,7 @@ export const ScrimSchema = z.object({
     timeoutJobId: z.number().optional(),
 
     players: z.array(ScrimPlayerSchema),
-    games: z.array(ScrimGameSchema)
-        .default([])
-        .optional(),
+    games: z.array(ScrimGameSchema).default([]).optional(),
 
     lobby: ScrimLobbySchema.optional(),
     settings: ScrimSettingsSchema,

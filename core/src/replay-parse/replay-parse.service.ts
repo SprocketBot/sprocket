@@ -1,6 +1,4 @@
-import {
-    Inject, Injectable, Logger,
-} from "@nestjs/common";
+import {Inject, Injectable, Logger} from "@nestjs/common";
 import {
     config,
     EventsService,
@@ -57,7 +55,11 @@ export class ReplayParseService {
         return true;
     }
 
-    async parseReplays(streams: Array<{stream: Readable; filename: string;}>, submissionId: string, playerId: number): Promise<string[]> {
+    async parseReplays(
+        streams: Array<{stream: Readable; filename: string}>,
+        submissionId: string,
+        playerId: number,
+    ): Promise<string[]> {
         const canSubmitReponse = await this.submissionService.send(SubmissionEndpoint.CanSubmitReplays, {
             playerId: playerId,
             submissionId: submissionId,

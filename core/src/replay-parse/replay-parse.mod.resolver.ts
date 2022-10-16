@@ -42,10 +42,14 @@ export class ReplayParseModResolver {
         files: Array<Promise<FileUpload>>,
         @Args("submissionId", {nullable: true}) submissionId: string,
     ): Promise<string[]> {
-        const streams = await Promise.all(files.map(async f => f.then(_f => ({
-            stream: _f.createReadStream(),
-            filename: _f.filename,
-        }))));
+        const streams = await Promise.all(
+            files.map(async f =>
+                f.then(_f => ({
+                    stream: _f.createReadStream(),
+                    filename: _f.filename,
+                })),
+            ),
+        );
         return this.rpService.parseReplays(streams, submissionId, user.userId);
     }
 

@@ -33,7 +33,8 @@ export class ReplaySubmissionRatificationService {
                     throw new Error("Error fetching scrim");
                 }
                 const scrim = scrimResponse.data;
-                if (!scrim.players.some(p => p.id.toString() === playerId)) throw new Error("You cannot reset this scrim");
+                if (!scrim.players.some(p => p.id.toString() === playerId))
+                    throw new Error("You cannot reset this scrim");
             }
         }
 

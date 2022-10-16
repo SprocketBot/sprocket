@@ -7,21 +7,12 @@ import type {
     JoinScrimOptions,
     Scrim,
 } from "@sprocketbot/common";
-import {
-    AnalyticsModule,
-    AnalyticsService,
-    MatchmakingError,
-    ScrimMode,
-    ScrimStatus,
-} from "@sprocketbot/common";
+import {AnalyticsModule, AnalyticsService, MatchmakingError, ScrimMode, ScrimStatus} from "@sprocketbot/common";
 
 import {EventProxyService} from "./event-proxy/event-proxy.service";
 import {ScrimModule} from "./scrim.module";
 import {ScrimService} from "./scrim.service";
-import {
-    getMockScrimIds, getMockScrimSettings,
-    mockPlayerFactories,
-} from "./scrim.service.spec.helpers";
+import {getMockScrimIds, getMockScrimSettings, mockPlayerFactories} from "./scrim.service.spec.helpers";
 import {ScrimCrudService} from "./scrim-crud/scrim-crud.service";
 import {ScrimGroupService} from "./scrim-group/scrim-group.service";
 import {ScrimLogicService} from "./scrim-logic/scrim-logic.service";
@@ -56,13 +47,8 @@ describe("ScrimService", () => {
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            imports: [
-                ScrimModule,
-                AnalyticsModule,
-            ],
-            providers: [
-                ScrimService,
-            ],
+            imports: [ScrimModule, AnalyticsModule],
+            providers: [ScrimService],
         }).compile();
 
         service = module.get<ScrimService>(ScrimService);
@@ -71,9 +57,11 @@ describe("ScrimService", () => {
         eventProxyService = module.get<EventProxyService>(EventProxyService);
         analyticsService = module.get<AnalyticsService>(AnalyticsService);
         scrimGroupService = module.get<ScrimGroupService>(ScrimGroupService);
-        
+
         jest.spyOn(eventProxyService, "publish").mockResolvedValueOnce(true);
-        jest.spyOn(analyticsService, "send").mockResolvedValueOnce({} as AnalyticsResponse<AnalyticsEndpoint.Analytics>);
+        jest.spyOn(analyticsService, "send").mockResolvedValueOnce(
+            {} as AnalyticsResponse<AnalyticsEndpoint.Analytics>,
+        );
 
         publishScrimUpdate = jest.spyOn(service, "publishScrimUpdate");
         publishScrimUpdate.mockResolvedValueOnce({} as Scrim);
@@ -106,7 +94,7 @@ describe("ScrimService", () => {
                     leaveAfter: 1000,
                 },
             };
-    
+
             crudPlayerInAnyScrim.mockResolvedValueOnce(true);
 
             const func = async (): Promise<Scrim> => service.createScrim(createScrimData);
@@ -114,7 +102,7 @@ describe("ScrimService", () => {
 
             await expect(func).rejects.toThrow(expectedError);
         });
-    
+
         it("Should throw with ScimGroupNotSupported when a player tries to create a round robin scrim with groups", async () => {
             const createScrimData: CreateScrimOptions = {
                 ...getMockScrimIds(),
@@ -126,7 +114,7 @@ describe("ScrimService", () => {
                     createGroup: true,
                 },
             };
-    
+
             crudPlayerInAnyScrim.mockResolvedValueOnce(false);
 
             const func = async (): Promise<Scrim> => service.createScrim(createScrimData);
@@ -134,7 +122,7 @@ describe("ScrimService", () => {
 
             await expect(func).rejects.toThrow(expectedError);
         });
-    
+
         it("Should create a Round Robin scrim successfully", async () => {
             const createScrimData: CreateScrimOptions = {
                 ...getMockScrimIds(),
@@ -151,13 +139,11 @@ describe("ScrimService", () => {
                 updatedAt: someDate,
                 status: ScrimStatus.PENDING,
                 ...getMockScrimIds(),
-                players: [
-                    mockPlayerFactories.hyper(someDate),
-                ],
+                players: [mockPlayerFactories.hyper(someDate)],
                 games: undefined,
                 settings: createScrimData.settings,
             };
-            
+
             crudPlayerInAnyScrim.mockResolvedValueOnce(false);
             crudCreateScrim.mockResolvedValueOnce(expected);
 
@@ -178,7 +164,7 @@ describe("ScrimService", () => {
                 },
             });
         });
-    
+
         it("Should create a Teams scrim with a group successfully", async () => {
             const createScrimData: CreateScrimOptions = {
                 ...getMockScrimIds(),
@@ -196,13 +182,11 @@ describe("ScrimService", () => {
                 updatedAt: someDate,
                 status: ScrimStatus.PENDING,
                 ...getMockScrimIds(),
-                players: [
-                    mockPlayerFactories.hyper(someDate),
-                ],
+                players: [mockPlayerFactories.hyper(someDate)],
                 games: undefined,
                 settings: createScrimData.settings,
             };
-            
+
             crudPlayerInAnyScrim.mockResolvedValueOnce(false);
             crudCreateScrim.mockResolvedValueOnce(scrim);
             groupsResolveGroupKey.mockImplementationOnce(() => "tekssxisbad");
@@ -211,9 +195,7 @@ describe("ScrimService", () => {
             const actual = await service.createScrim(createScrimData);
             const expected: Scrim = {
                 ...scrim,
-                players: [
-                    mockPlayerFactories.hyper(someDate, "tekssxisbad"),
-                ],
+                players: [mockPlayerFactories.hyper(someDate, "tekssxisbad")],
             };
 
             expect(actual).toEqual(expected);
@@ -249,7 +231,7 @@ describe("ScrimService", () => {
                 playerName: "tekssx",
                 leaveAfter: 1000,
             };
-    
+
             crudGetScrim.mockResolvedValueOnce(null);
 
             const func = async (): Promise<Scrim> => service.joinScrim(joinScrimData);
@@ -257,7 +239,7 @@ describe("ScrimService", () => {
 
             await expect(func).rejects.toThrow(expectedError);
         });
-    
+
         it("Should throw with ScrimAlreadyInProgress when a player tries to join a scrim when it is already in progress", async () => {
             const joinScrimData: JoinScrimOptions = {
                 scrimId: "hello world!",
@@ -271,14 +253,11 @@ describe("ScrimService", () => {
                 updatedAt: someDate,
                 status: ScrimStatus.IN_PROGRESS,
                 ...getMockScrimIds(),
-                players: [
-                    mockPlayerFactories.hyper(someDate),
-                    mockPlayerFactories.shuckle(someDate),
-                ],
+                players: [mockPlayerFactories.hyper(someDate), mockPlayerFactories.shuckle(someDate)],
                 games: undefined,
                 settings: getMockScrimSettings(1, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
-    
+
             crudGetScrim.mockResolvedValueOnce(scrim);
 
             const func = async (): Promise<Scrim> => service.joinScrim(joinScrimData);
@@ -286,7 +265,7 @@ describe("ScrimService", () => {
 
             await expect(func).rejects.toThrow(expectedError);
         });
-    
+
         it("Should throw with PlayerAlreadyInScrim when a player tries to join a scrim when they are already in a scrim", async () => {
             const joinScrimData: JoinScrimOptions = {
                 scrimId: "hello world!",
@@ -300,14 +279,11 @@ describe("ScrimService", () => {
                 updatedAt: someDate,
                 status: ScrimStatus.PENDING,
                 ...getMockScrimIds(),
-                players: [
-                    mockPlayerFactories.hyper(someDate),
-                    mockPlayerFactories.shuckle(someDate),
-                ],
+                players: [mockPlayerFactories.hyper(someDate), mockPlayerFactories.shuckle(someDate)],
                 games: undefined,
                 settings: getMockScrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
-    
+
             crudGetScrim.mockResolvedValueOnce(scrim);
             crudPlayerInAnyScrim.mockResolvedValueOnce(true);
 
@@ -316,7 +292,7 @@ describe("ScrimService", () => {
 
             await expect(func).rejects.toThrow(expectedError);
         });
-    
+
         it("Should throw with GroupNotFound when a player tries to join a group with an invalid group", async () => {
             const joinScrimData: JoinScrimOptions = {
                 scrimId: "hello world!",
@@ -331,14 +307,11 @@ describe("ScrimService", () => {
                 updatedAt: someDate,
                 status: ScrimStatus.PENDING,
                 ...getMockScrimIds(),
-                players: [
-                    mockPlayerFactories.hyper(someDate, "tekssxisbad"),
-                    mockPlayerFactories.shuckle(someDate),
-                ],
+                players: [mockPlayerFactories.hyper(someDate, "tekssxisbad"), mockPlayerFactories.shuckle(someDate)],
                 games: undefined,
                 settings: getMockScrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
-    
+
             crudGetScrim.mockResolvedValueOnce(scrim);
             crudPlayerInAnyScrim.mockResolvedValueOnce(false);
 
@@ -347,7 +320,7 @@ describe("ScrimService", () => {
 
             await expect(func).rejects.toThrow(expectedError);
         });
-    
+
         it("Should throw with GroupFull when a player tries to join a group when the group has the number of players on a team", async () => {
             const joinScrimData: JoinScrimOptions = {
                 scrimId: "hello world!",
@@ -369,7 +342,7 @@ describe("ScrimService", () => {
                 games: undefined,
                 settings: getMockScrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
-    
+
             crudGetScrim.mockResolvedValueOnce(scrim);
             crudPlayerInAnyScrim.mockResolvedValueOnce(false);
 
@@ -378,7 +351,7 @@ describe("ScrimService", () => {
 
             await expect(func).rejects.toThrow(expectedError);
         });
-    
+
         it("Should throw with MaxGroupsCreated when a player tries to create a group when there are already the number teams being the number of groups", async () => {
             const joinScrimData: JoinScrimOptions = {
                 scrimId: "hello world!",
@@ -400,7 +373,7 @@ describe("ScrimService", () => {
                 games: undefined,
                 settings: getMockScrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
-    
+
             crudGetScrim.mockResolvedValueOnce(scrim);
             crudPlayerInAnyScrim.mockResolvedValueOnce(false);
 
@@ -409,7 +382,7 @@ describe("ScrimService", () => {
 
             await expect(func).rejects.toThrow(expectedError);
         });
-    
+
         it("Player should join the scrim successfully", async () => {
             const joinScrimData: JoinScrimOptions = {
                 scrimId: "hello world!",
@@ -423,14 +396,11 @@ describe("ScrimService", () => {
                 updatedAt: someDate,
                 status: ScrimStatus.PENDING,
                 ...getMockScrimIds(),
-                players: [
-                    mockPlayerFactories.hyper(someDate),
-                    mockPlayerFactories.shuckle(someDate),
-                ],
+                players: [mockPlayerFactories.hyper(someDate), mockPlayerFactories.shuckle(someDate)],
                 games: undefined,
                 settings: getMockScrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
-    
+
             crudGetScrim.mockResolvedValueOnce(scrim);
             crudPlayerInAnyScrim.mockResolvedValueOnce(false);
             crudAddPlayerToScrim.mockResolvedValueOnce({});
@@ -453,7 +423,7 @@ describe("ScrimService", () => {
                 leaveAt: expect.any(Date) as Date,
             });
         });
-    
+
         it("Player should join the scrim and group successfully", async () => {
             const joinScrimData: JoinScrimOptions = {
                 scrimId: "hello world!",
@@ -468,14 +438,11 @@ describe("ScrimService", () => {
                 updatedAt: someDate,
                 status: ScrimStatus.PENDING,
                 ...getMockScrimIds(),
-                players: [
-                    mockPlayerFactories.hyper(someDate, "tekssxisbad"),
-                    mockPlayerFactories.shuckle(someDate),
-                ],
+                players: [mockPlayerFactories.hyper(someDate, "tekssxisbad"), mockPlayerFactories.shuckle(someDate)],
                 games: undefined,
                 settings: getMockScrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
-    
+
             crudGetScrim.mockResolvedValueOnce(scrim);
             crudPlayerInAnyScrim.mockResolvedValueOnce(false);
             crudAddPlayerToScrim.mockResolvedValueOnce({});
@@ -499,7 +466,7 @@ describe("ScrimService", () => {
                 group: "tekssxisbad",
             });
         });
-    
+
         it("The scrim should pop when the last player joins and it is full", async () => {
             const joinScrimData: JoinScrimOptions = {
                 scrimId: "hello world!",
@@ -521,7 +488,7 @@ describe("ScrimService", () => {
                 games: undefined,
                 settings: getMockScrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
-    
+
             crudGetScrim.mockResolvedValueOnce(scrim);
             crudPlayerInAnyScrim.mockResolvedValueOnce(false);
             crudAddPlayerToScrim.mockResolvedValueOnce({});
@@ -560,19 +527,17 @@ describe("ScrimService", () => {
                 updatedAt: someDate,
                 status: ScrimStatus.POPPED,
                 ...getMockScrimIds(),
-                players: [
-                    mockPlayerFactories.hyper(someDate),
-                    mockPlayerFactories.shuckle(someDate),
-                ],
+                players: [mockPlayerFactories.hyper(someDate), mockPlayerFactories.shuckle(someDate)],
                 games: undefined,
                 settings: getMockScrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
 
             crudGetScrim.mockResolvedValueOnce(scrim);
 
-            const func = async (): Promise<Scrim> => service.leaveScrim("hello world!", mockPlayerFactories.shuckle(someDate).id);
+            const func = async (): Promise<Scrim> =>
+                service.leaveScrim("hello world!", mockPlayerFactories.shuckle(someDate).id);
             const expectedError = MatchmakingError.ScrimAlreadyInProgress;
-            
+
             await expect(func).rejects.toThrow(expectedError);
         });
 
@@ -583,17 +548,15 @@ describe("ScrimService", () => {
                 updatedAt: someDate,
                 status: ScrimStatus.PENDING,
                 ...getMockScrimIds(),
-                players: [
-                    mockPlayerFactories.hyper(someDate),
-                    mockPlayerFactories.shuckle(someDate),
-                ],
+                players: [mockPlayerFactories.hyper(someDate), mockPlayerFactories.shuckle(someDate)],
                 games: undefined,
                 settings: getMockScrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
 
             crudGetScrim.mockResolvedValueOnce(scrim);
 
-            const func = async (): Promise<Scrim> => service.leaveScrim("hello world!", mockPlayerFactories.tekssx(someDate).id);
+            const func = async (): Promise<Scrim> =>
+                service.leaveScrim("hello world!", mockPlayerFactories.tekssx(someDate).id);
             const expectedError = MatchmakingError.PlayerNotInScrim;
 
             await expect(func).rejects.toThrow(expectedError);
@@ -606,9 +569,7 @@ describe("ScrimService", () => {
                 updatedAt: someDate,
                 status: ScrimStatus.PENDING,
                 ...getMockScrimIds(),
-                players: [
-                    mockPlayerFactories.hyper(someDate),
-                ],
+                players: [mockPlayerFactories.hyper(someDate)],
                 games: undefined,
                 settings: getMockScrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
@@ -634,10 +595,7 @@ describe("ScrimService", () => {
                 updatedAt: someDate,
                 status: ScrimStatus.PENDING,
                 ...getMockScrimIds(),
-                players: [
-                    mockPlayerFactories.hyper(someDate),
-                    mockPlayerFactories.shuckle(someDate),
-                ],
+                players: [mockPlayerFactories.hyper(someDate), mockPlayerFactories.shuckle(someDate)],
                 games: undefined,
                 settings: getMockScrimSettings(2, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
             };
@@ -648,9 +606,7 @@ describe("ScrimService", () => {
             const actual = await service.leaveScrim("hello world!", mockPlayerFactories.shuckle(someDate).id);
             const expected: Scrim = {
                 ...scrim,
-                players: [
-                    mockPlayerFactories.hyper(someDate),
-                ],
+                players: [mockPlayerFactories.hyper(someDate)],
             };
 
             expect(actual).toStrictEqual(expected);
@@ -687,15 +643,13 @@ describe("ScrimService", () => {
             const scrim: Scrim = {
                 id: "scrim-hihellohowdy",
                 status: ScrimStatus.POPPED,
-                players: [
-                    mockPlayerFactories.hyper(someDate),
-                    mockPlayerFactories.tekssx(someDate),
-                ],
+                players: [mockPlayerFactories.hyper(someDate), mockPlayerFactories.tekssx(someDate)],
             } as Scrim;
 
             crudGetScrim.mockResolvedValueOnce(scrim);
 
-            const func = async (): Promise<Scrim> => service.checkIn(scrim.id, mockPlayerFactories.shuckle(someDate).id);
+            const func = async (): Promise<Scrim> =>
+                service.checkIn(scrim.id, mockPlayerFactories.shuckle(someDate).id);
             const expectedError = MatchmakingError.PlayerNotInScrim;
 
             await expect(func).rejects.toThrow(expectedError);
@@ -817,10 +771,10 @@ describe("ScrimService", () => {
     describe("Cancelling a Scrim", () => {
         it("Should throw with ScrimNotFound when someone attempts to cancel a scrim that doesn't exist", async () => {
             crudGetScrim.mockResolvedValueOnce(null);
-    
+
             const func = async (): Promise<Scrim> => service.cancelScrim("hi shuckle");
             const expectedError = MatchmakingError.ScrimNotFound;
-    
+
             await expect(func).rejects.toThrow(expectedError);
         });
 
@@ -838,7 +792,7 @@ describe("ScrimService", () => {
             crudRemoveScrim.mockResolvedValueOnce({});
 
             const actual = await service.cancelScrim(expected.id);
-    
+
             expect(actual).toEqual(expected);
             expect(crudRemoveScrim).toHaveBeenCalledWith(scrim.id);
         });
@@ -847,10 +801,10 @@ describe("ScrimService", () => {
     describe("Completing a Scrim", () => {
         it("Should throw with ScrimNotFound when someone tries to complete a scrim that doesn't exist", async () => {
             crudGetScrim.mockResolvedValueOnce(null);
-    
+
             const func = async (): Promise<Scrim> => service.completeScrim("hi shuckle");
             const expectedError = MatchmakingError.ScrimNotFound;
-    
+
             await expect(func).rejects.toThrow(expectedError);
         });
 
@@ -860,50 +814,45 @@ describe("ScrimService", () => {
             } as Scrim;
 
             crudGetScrim.mockResolvedValueOnce(scrim);
-    
+
             const func = async (): Promise<Scrim> => service.completeScrim(scrim.id);
             const expectedError = MatchmakingError.ScrimSubmissionNotFound;
-    
+
             await expect(func).rejects.toThrow(expectedError);
         });
 
         it("Should throw with PlayerNotInScrim when a player tries to complete a scrim that they are not in", async () => {
             const scrim: Scrim = {
                 id: "hi shuckle",
-                players: [
-                    mockPlayerFactories.hyper(someDate),
-                    mockPlayerFactories.tekssx(someDate),
-                ],
+                players: [mockPlayerFactories.hyper(someDate), mockPlayerFactories.tekssx(someDate)],
                 submissionId: "howdy, shuckle!",
             } as Scrim;
 
             crudGetScrim.mockResolvedValueOnce(scrim);
-    
-            const func = async (): Promise<Scrim> => service.completeScrim(scrim.id, mockPlayerFactories.shuckle(someDate).id);
+
+            const func = async (): Promise<Scrim> =>
+                service.completeScrim(scrim.id, mockPlayerFactories.shuckle(someDate).id);
             const expectedError = MatchmakingError.PlayerNotInScrim;
-    
+
             await expect(func).rejects.toThrow(expectedError);
         });
 
         it("Scrim should be completed", async () => {
             const scrim: Scrim = {
                 id: "hi shuckle",
-                players: [
-                    mockPlayerFactories.hyper(someDate),
-                    mockPlayerFactories.tekssx(someDate),
-                ],
+                players: [mockPlayerFactories.hyper(someDate), mockPlayerFactories.tekssx(someDate)],
                 submissionId: "howdy, shuckle!",
             } as Scrim;
 
             crudGetScrim.mockResolvedValueOnce(scrim);
             crudRemoveScrim.mockResolvedValueOnce({});
-    
+
             const actual = await service.completeScrim(scrim.id, mockPlayerFactories.hyper(someDate).id);
             const expected = {
                 ...scrim,
                 status: ScrimStatus.COMPLETE,
             };
-    
+
             expect(actual).toEqual(expected);
             expect(crudRemoveScrim).toHaveBeenCalledWith(scrim.id);
         });
@@ -912,10 +861,10 @@ describe("ScrimService", () => {
     describe("Locking and Unlocking a Scrim", () => {
         it("Should throw with ScrimNotFound when someone tries to (un)lock a scrim that doesn't exist", async () => {
             crudGetScrim.mockResolvedValueOnce(null);
-    
+
             const func = async (): Promise<Scrim> => service.setScrimLocked("bonjour!", false);
             const expectedError = MatchmakingError.ScrimNotFound;
-    
+
             await expect(func).rejects.toThrow(expectedError);
         });
 
@@ -928,13 +877,13 @@ describe("ScrimService", () => {
 
             crudGetScrim.mockResolvedValueOnce(scrim);
             crudUpdateScrimStatus.mockResolvedValueOnce({});
-    
+
             const actual = await service.setScrimLocked(scrim.id, false);
             const expected = {
                 ...scrim,
                 status: ScrimStatus.IN_PROGRESS,
             };
-    
+
             expect(actual).toEqual(expected);
             expect(crudUpdateScrimStatus).toHaveBeenCalledWith(scrim.id, ScrimStatus.IN_PROGRESS);
         });
@@ -948,13 +897,13 @@ describe("ScrimService", () => {
             crudGetScrim.mockResolvedValueOnce(scrim);
             crudUpdateScrimUnlockedStatus.mockResolvedValueOnce({});
             crudUpdateScrimStatus.mockResolvedValueOnce({});
-    
+
             const actual = await service.setScrimLocked(scrim.id, true);
             const expected = {
                 ...scrim,
                 status: ScrimStatus.LOCKED,
             };
-    
+
             expect(actual).toEqual(expected);
             expect(crudUpdateScrimStatus).toHaveBeenCalledWith(scrim.id, ScrimStatus.LOCKED);
             expect(crudUpdateScrimUnlockedStatus).toHaveBeenCalledWith(scrim.id, ScrimStatus.IN_PROGRESS);

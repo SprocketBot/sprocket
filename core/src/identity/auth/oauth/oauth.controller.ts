@@ -1,5 +1,13 @@
 import {
-    Controller, ForbiddenException, forwardRef, Get, Inject, Logger, Request, Response, UseGuards,
+    Controller,
+    ForbiddenException,
+    forwardRef,
+    Get,
+    Inject,
+    Logger,
+    Request,
+    Response,
+    UseGuards,
 } from "@nestjs/common";
 import {config} from "@sprocketbot/common";
 import {Request as Req, Response as Res} from "express";
@@ -59,7 +67,9 @@ export class OauthController {
         const ourUser = req.user as AuthPayload;
         this.logger.verbose(`Refreshing tokens for user ${JSON.stringify(ourUser)}`);
         const userProfile = await this.userService.getUserProfileForUser(ourUser.userId);
-        const authAccounts: UserAuthenticationAccount[] = await this.userService.getUserAuthenticationAccountsForUser(ourUser.userId);
+        const authAccounts: UserAuthenticationAccount[] = await this.userService.getUserAuthenticationAccountsForUser(
+            ourUser.userId,
+        );
         const discordAccount = authAccounts.find(obj => obj.accountType === UserAuthenticationAccountType.DISCORD);
         if (discordAccount) {
             const player = await this.mledbUserService.getPlayerByDiscordId(discordAccount.accountId);
