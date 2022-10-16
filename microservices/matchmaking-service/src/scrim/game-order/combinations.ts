@@ -19,7 +19,7 @@ export function createCombinations<T>(array: T[], n: number, {check, sort}: Comb
             return;
         }
 
-        for (let i = start; i <= input.length - len; i++) {
+        for (let i = start;i <= input.length - len;i++) {
             r[r.length - len] = input[i];
             innerCombine(input, len - 1, i + 1);
         }

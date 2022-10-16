@@ -1,4 +1,6 @@
-import {InjectQueue, OnQueueFailed, Process, Processor} from "@nestjs/bull";
+import {
+    InjectQueue, OnQueueFailed, Process, Processor,
+} from "@nestjs/bull";
 import {Logger} from "@nestjs/common";
 import {ScrimStatus} from "@sprocketbot/common";
 import {Job, Queue} from "bull";
