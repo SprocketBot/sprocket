@@ -2,7 +2,8 @@
     import {screamingSnakeToHuman} from "$lib/utils";
     import type {PendingScrim} from "$lib/api";
     import {format} from "date-fns";
-    import {utcToZonedTime} from "date-fns-tz";
+    import dateFns from "date-fns-tz";
+    const {utcToZonedTime} = dateFns;
 
     export let scrims: PendingScrim[];
     export let joinScrim: (scrim: PendingScrim) => void;

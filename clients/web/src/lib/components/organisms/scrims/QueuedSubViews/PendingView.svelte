@@ -5,7 +5,8 @@
     import {screamingSnakeToHuman} from "$lib/utils";
     import {user} from "$lib/stores/user";
     import {format} from "date-fns";
-    import {utcToZonedTime} from "date-fns-tz";
+    import dateFns from "date-fns-tz";
+    const {utcToZonedTime} = dateFns;
 
     export let scrim: CurrentScrim;
 
