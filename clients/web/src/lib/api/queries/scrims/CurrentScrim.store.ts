@@ -84,52 +84,54 @@ class CurrentScrimStore extends LiveQueryStore<
         CurrentScrimStoreValue,
         CurrentScrimStoreVariables
     >`
-    query {
-        currentScrim: getCurrentScrim {
-            id
-            playerCount
-            maxPlayers
-            status
-            createdAt
-            skillGroup {
-                profile {
-                    description
-                }
-            }
-            currentGroup {
-                code
-                players
-            }
-            gameMode {
-                description
-                game {
-                    title
-                }
-            }
-            settings {
-                competitive
-                mode
-            }
-            players {
+        query {
+            currentScrim: getCurrentScrim {
                 id
-                name
-                checkedIn
-            }
-            playersAdmin {
-                id
-                name
-            }
-            lobby {
-                name
-                password
-            }
-            games {
-                teams {
-                    players {
-                        id
-                        name
+                playerCount
+                maxPlayers
+                status
+                createdAt
+                skillGroup {
+                    profile {
+                        description
                     }
                 }
+                currentGroup {
+                    code
+                    players
+                }
+                gameMode {
+                    description
+                    game {
+                        title
+                    }
+                }
+                settings {
+                    competitive
+                    mode
+                }
+                players {
+                    id
+                    name
+                    checkedIn
+                }
+                playersAdmin {
+                    id
+                    name
+                }
+                lobby {
+                    name
+                    password
+                }
+                games {
+                    teams {
+                        players {
+                            id
+                            name
+                        }
+                    }
+                }
+                submissionId
             }
             
         }

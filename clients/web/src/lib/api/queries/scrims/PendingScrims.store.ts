@@ -44,25 +44,14 @@ class PendingScrimsStore extends LiveQueryStore<
     FollowScrimsData
 > {
     protected queryString = gql<PendingScrimsData, PendingScrimsVars>`
-    query {
-        pendingScrims: getAvailableScrims(status: PENDING) {
-            id
-            playerCount
-            maxPlayers
-            status
-            createdAt
-            gameMode {
-                description
-                game {
-                    title
-                }
-            }
-            settings {
-                competitive
-                mode
-            }
-            skillGroup {
-                profile {
+        query {
+            pendingScrims: getAvailableScrims(status: PENDING) {
+                id
+                playerCount
+                maxPlayers
+                status
+                createdAt
+                gameMode {
                     description
                     game {
                         title
@@ -75,6 +64,18 @@ class PendingScrimsStore extends LiveQueryStore<
                 skillGroup {
                     profile {
                         description
+                        game {
+                            title
+                        }
+                    }
+                    settings {
+                        competitive
+                        mode
+                    }
+                    skillGroup {
+                        profile {
+                            description
+                        }
                     }
                 }
             }
