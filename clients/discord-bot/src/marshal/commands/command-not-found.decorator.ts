@@ -1,4 +1,5 @@
 import {MarshalMetadataKey} from "../types";
+import {CommandFunction} from "./commands.types";
 
 export const CommandNotFound =
     (): MethodDecorator =>
@@ -15,8 +16,7 @@ export const CommandNotFound =
         descriptor.value = async function (
             // eslint-disable-next-line @typescript-eslint/ban-types
             this: Object,
-            // @ts-expect-error Ignore this.
-            ...params: Parameters<HookFunction>
+            ...params: Parameters<CommandFunction>
         ): Promise<unknown> {
             /*
              * TODO: Will nest guards work, or do we need our own system?
