@@ -1,5 +1,4 @@
 import {Inject, Injectable, Logger} from "@nestjs/common";
-import type {ScrimPlayer} from "@sprocketbot/common";
 import {
     config,
     EventsService,
@@ -59,10 +58,10 @@ export class ReplayParseService {
     async parseReplays(
         streams: Array<{stream: Readable; filename: string}>,
         submissionId: string,
-        player: ScrimPlayer,
+        playerId: number,
     ): Promise<string[]> {
         const canSubmitReponse = await this.submissionService.send(SubmissionEndpoint.CanSubmitReplays, {
-            playerId: player.id,
+            playerId: playerId,
             submissionId: submissionId,
         });
         if (canSubmitReponse.status === ResponseStatus.ERROR) throw canSubmitReponse.error;
@@ -86,7 +85,7 @@ export class ReplayParseService {
         const submissionResponse = await this.submissionService.send(SubmissionEndpoint.SubmitReplays, {
             submissionId: submissionId,
             filepaths: filepaths,
-            creatorId: player.id,
+            creatorId: playerId,
         });
         if (submissionResponse.status === ResponseStatus.ERROR) throw submissionResponse.error;
         // Return taskIds, directly correspond to the files that were uploaded

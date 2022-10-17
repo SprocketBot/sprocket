@@ -291,12 +291,10 @@ export class PlayerResolver {
         const imported = await Promise.allSettled(
             parsed.map(async player => {
                 const sg = await this.skillGroupService.getGameSkillGroup({
-                    where: {
-                        ordinal: LeagueOrdinals.indexOf(player.skillGroup) + 1,
-                    },
+                    where: {ordinal: LeagueOrdinals.indexOf(player.skillGroup) + 1},
                 });
                 const accs = player.accounts.map(acc => {
-                    const match = acc.match(/rocket-league\/profile\/(\w+)\/([\w _.-]+)/);
+                    const match = acc.match(/rocket-league\/profile\/(\w+)\/([\w _.\-%[\]]+)/);
                     if (!match) throw new Error("Failed to match tracker");
 
                     return {

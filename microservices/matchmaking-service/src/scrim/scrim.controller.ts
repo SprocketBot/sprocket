@@ -1,7 +1,7 @@
 import {Controller} from "@nestjs/common";
-import {MessagePattern, Payload} from "@nestjs/microservices";
+import {MessagePattern, Payload, RpcException} from "@nestjs/microservices";
 import type {Scrim, ScrimMetrics} from "@sprocketbot/common";
-import {MatchmakingEndpoint, MatchmakingSchemas} from "@sprocketbot/common";
+import {MatchmakingEndpoint, MatchmakingError, MatchmakingSchemas} from "@sprocketbot/common";
 
 import {ScrimService} from "./scrim.service";
 import {ScrimCrudService} from "./scrim-crud/scrim-crud.service";
@@ -18,14 +18,7 @@ export class ScrimController {
     @MessagePattern(MatchmakingEndpoint.CreateScrim)
     async createScrim(@Payload() payload: unknown): Promise<Scrim> {
         const data = MatchmakingSchemas.CreateScrim.input.parse(payload);
-        return this.scrimService.createScrim(
-            data.organizationId,
-            data.author,
-            data.settings,
-            data.gameMode,
-            data.skillGroupId,
-            data.createGroup,
-        );
+        return this.scrimService.createScrim(data);
     }
 
     @MessagePattern(MatchmakingEndpoint.GetAllScrims)
@@ -38,26 +31,30 @@ export class ScrimController {
     async getScrim(@Payload() payload: unknown): Promise<Scrim> {
         const data = MatchmakingSchemas.GetScrim.input.parse(payload);
         const scrim = await this.scrimCrudService.getScrim(data);
-        if (scrim) return scrim;
-        throw new Error("Not Found!");
+
+        if (!scrim) throw new RpcException(MatchmakingError.ScrimNotFound);
+        return scrim;
     }
 
     @MessagePattern(MatchmakingEndpoint.JoinScrim)
     async joinScrim(@Payload() payload: unknown): Promise<boolean> {
         const data = MatchmakingSchemas.JoinScrim.input.parse(payload);
-        return this.scrimService.joinScrim(data.scrimId, data.player, data.group);
+        await this.scrimService.joinScrim(data);
+        return true;
     }
 
     @MessagePattern(MatchmakingEndpoint.LeaveScrim)
     async leaveScrim(@Payload() payload: unknown): Promise<boolean> {
         const data = MatchmakingSchemas.LeaveScrim.input.parse(payload);
-        return this.scrimService.leaveScrim(data.scrimId, data.player);
+        await this.scrimService.leaveScrim(data.scrimId, data.playerId);
+        return true;
     }
 
     @MessagePattern(MatchmakingEndpoint.CheckInToScrim)
     async checkIn(@Payload() payload: unknown): Promise<boolean> {
         const data = MatchmakingSchemas.CheckInToScrim.input.parse(payload);
-        return this.scrimService.checkIn(data.scrimId, data.player);
+        await this.scrimService.checkIn(data.scrimId, data.playerId);
+        return true;
     }
 
     @MessagePattern(MatchmakingEndpoint.CancelScrim)
@@ -81,21 +78,15 @@ export class ScrimController {
     async getScrimBySubmissionId(@Payload() payload: unknown): Promise<Scrim> {
         const data = MatchmakingSchemas.GetScrimBySubmissionId.input.parse(payload);
         const result = await this.scrimCrudService.getScrimBySubmissionId(data);
-        if (result !== null) return result;
-        throw new Error(`No scrim for submission ${data}`);
+
+        if (!result) throw new RpcException(MatchmakingError.ScrimSubmissionNotFound);
+        return result;
     }
 
     @MessagePattern(MatchmakingEndpoint.CompleteScrim)
     async completeScrim(@Payload() payload: unknown): Promise<Scrim | null> {
         const data = MatchmakingSchemas.CompleteScrim.input.parse(payload);
         return this.scrimService.completeScrim(data.scrimId, data.playerId);
-    }
-
-    @MessagePattern(MatchmakingEndpoint.ForceUpdateScrimStatus)
-    async forceUpdateStatus(@Payload() payload: unknown): Promise<boolean | null> {
-        const data = MatchmakingSchemas.ForceUpdateScrimStatus.input.parse(payload);
-        await this.scrimService.forceUpdateScrimStatus(data.scrimId, data.status);
-        return true;
     }
 
     @MessagePattern(MatchmakingEndpoint.SetScrimLocked)

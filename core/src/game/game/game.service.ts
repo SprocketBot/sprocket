@@ -1,6 +1,6 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import type {FindManyOptions} from "typeorm";
+import type {FindManyOptions, FindOneOptions} from "typeorm";
 import {Repository} from "typeorm";
 
 import {Game} from "../../database";
@@ -23,5 +23,9 @@ export class GameService {
 
     async getGames(query?: FindManyOptions<Game>): Promise<Game[]> {
         return this.gameRepository.find(query);
+    }
+
+    async getGame(query: FindOneOptions<Game>): Promise<Game> {
+        return this.gameRepository.findOneOrFail(query);
     }
 }

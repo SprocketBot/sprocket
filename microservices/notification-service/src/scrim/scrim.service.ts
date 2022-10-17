@@ -46,6 +46,11 @@ export class ScrimService extends SprocketEventMarshal {
         });
         if (skillGroupProfile.status === ResponseStatus.ERROR) throw skillGroupProfile.error;
 
+        const gameModeResult = await this.coreService.send(CoreEndpoint.GetGameModeById, {
+            gameModeId: scrim.gameModeId,
+        });
+        if (gameModeResult.status === ResponseStatus.ERROR) throw gameModeResult.error;
+
         await this.botService.send(BotEndpoint.SendWebhookMessage, {
             webhookUrl: skillGroupWebhook.data.scrim,
             payload: {
@@ -63,7 +68,7 @@ export class ScrimService extends SprocketEventMarshal {
                         fields: [
                             {
                                 name: "Game Mode",
-                                value: scrim.gameMode.description,
+                                value: gameModeResult.data.description,
                             },
                             {
                                 name: "Type",
@@ -148,7 +153,7 @@ export class ScrimService extends SprocketEventMarshal {
         });
         if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
 
-        if (!scrim.settings.lobby) return;
+        if (!scrim.lobby) return;
 
         await Promise.all(
             scrim.players.map(async p => {
@@ -169,11 +174,11 @@ export class ScrimService extends SprocketEventMarshal {
                                 fields: [
                                     {
                                         name: "Name",
-                                        value: `\`${scrim.settings.lobby?.name}\``,
+                                        value: `\`${scrim.lobby?.name}\``,
                                     },
                                     {
                                         name: "Password",
-                                        value: `\`${scrim.settings.lobby?.password}\``,
+                                        value: `\`${scrim.lobby?.password}\``,
                                     },
                                 ],
                                 footer: {

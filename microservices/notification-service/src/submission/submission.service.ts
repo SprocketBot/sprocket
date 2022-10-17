@@ -38,10 +38,7 @@ export class SubmissionService extends SprocketEventMarshal {
 
         switch (submission.type) {
             case ReplaySubmissionType.MATCH:
-                await this.sendMatchSubmissionRatifyingNotifications({
-                    ...submission,
-                    id: payload.submissionId,
-                });
+                await this.sendMatchSubmissionRatifyingNotifications({...submission, id: payload.submissionId});
                 break;
             case ReplaySubmissionType.SCRIM:
                 await this.sendScrimSubmissionRatifyingNotifications(submission);
@@ -57,10 +54,7 @@ export class SubmissionService extends SprocketEventMarshal {
 
         switch (submission.type) {
             case ReplaySubmissionType.MATCH:
-                await this.sendMatchSubmissionRejectedNotifications({
-                    ...submission,
-                    id: payload.submissionId,
-                });
+                await this.sendMatchSubmissionRejectedNotifications({...submission, id: payload.submissionId});
                 break;
             case ReplaySubmissionType.SCRIM:
                 await this.sendScrimSubmissionRejectedNotifications(submission);
@@ -73,7 +67,9 @@ export class SubmissionService extends SprocketEventMarshal {
     async sendScrimSubmissionRatifyingNotifications(submission: ScrimReplaySubmission): Promise<void> {
         const scrimResult = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, submission.scrimId);
         if (scrimResult.status === ResponseStatus.ERROR) throw scrimResult.error;
+
         const scrim = scrimResult.data;
+        if (!scrim) throw new Error("Scrim does not exist");
 
         const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {
             id: scrim.organizationId,
@@ -219,7 +215,9 @@ export class SubmissionService extends SprocketEventMarshal {
     async sendScrimSubmissionRejectedNotifications(submission: ScrimReplaySubmission): Promise<void> {
         const scrimResult = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, submission.scrimId);
         if (scrimResult.status === ResponseStatus.ERROR) throw scrimResult.error;
+
         const scrim = scrimResult.data;
+        if (!scrim) throw new Error("Scrim does not exist");
 
         const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {
             id: scrim.organizationId,

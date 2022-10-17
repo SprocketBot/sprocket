@@ -10,6 +10,7 @@ export interface CurrentScrim {
     playerCount: number;
     maxPlayers: number;
     status: string;
+    createdAt: Date;
     skillGroup: {
         profile: {
             description: string;
@@ -86,10 +87,10 @@ class CurrentScrimStore extends LiveQueryStore<
         query {
             currentScrim: getCurrentScrim {
                 id
-                submissionId
                 playerCount
                 maxPlayers
                 status
+                createdAt
                 skillGroup {
                     profile {
                         description
@@ -114,6 +115,10 @@ class CurrentScrimStore extends LiveQueryStore<
                     name
                     checkedIn
                 }
+                playersAdmin {
+                    id
+                    name
+                }
                 lobby {
                     name
                     password
@@ -126,6 +131,7 @@ class CurrentScrimStore extends LiveQueryStore<
                         }
                     }
                 }
+                submissionId
             }
         }
     `;

@@ -80,9 +80,7 @@ export class GameOrderService {
         const numGames = 3; // for now
         for (let i = 0; i < numGames; i++) {
             output.push({
-                teams: possibleGames[i % possibleGames.length].map(players => ({
-                    players,
-                })),
+                teams: possibleGames[i % possibleGames.length].map(players => ({players})),
             });
         }
 

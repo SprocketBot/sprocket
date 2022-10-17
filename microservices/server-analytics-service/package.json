@@ -5,6 +5,7 @@
   "scripts": {
     "start": "nest start",
     "build": "nest build",
+    "clean": "rimraf dist",
     "dev": "nest start --watch",
     "debug": "nest start --watch --debug",
     "test": "jest --coverage",

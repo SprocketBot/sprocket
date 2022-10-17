@@ -54,7 +54,7 @@ export class MledbFinalizationService {
     ) {}
 
     async getLeagueAndMode(scrim: Scrim): Promise<{mode: GameMode; group: GameSkillGroup}> {
-        const gameMode = await this.gameModeService.getGameModeById(scrim.gameMode.id);
+        const gameMode = await this.gameModeService.getGameModeById(scrim.gameModeId);
         const skillGroup = await this.skillGroupService.getGameSkillGroupById(scrim.skillGroupId, {
             relations: ["profile"],
         });

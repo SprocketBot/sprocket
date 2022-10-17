@@ -1,10 +1,9 @@
 import {Injectable, Logger} from "@nestjs/common";
-import type {Scrim, ScrimGame, ScrimPlayer} from "@sprocketbot/common";
-import {config, RedisService, ScrimStatus} from "@sprocketbot/common";
+import type {CreateScrimOptions, Scrim, ScrimGame, ScrimPlayer} from "@sprocketbot/common";
+import {config, RedisService, ScrimSchema, ScrimStatus} from "@sprocketbot/common";
 import type {JobId} from "bull";
 import {v4} from "uuid";
 
-import type {CreateScrimOpts} from "./types";
 import {words} from "./words";
 
 @Injectable()
@@ -15,20 +14,32 @@ export class ScrimCrudService {
 
     constructor(private readonly redisService: RedisService) {}
 
-    async createScrim({organizationId, settings, author, gameMode, skillGroupId}: CreateScrimOpts): Promise<Scrim> {
+    async createScrim({
+        authorId,
+        organizationId,
+        gameModeId,
+        skillGroupId,
+        settings,
+        player,
+    }: Omit<CreateScrimOptions, "join"> & {
+        player?: ScrimPlayer;
+    }): Promise<Scrim> {
+        const at = new Date();
         const scrim: Scrim = {
             id: v4(),
-            organizationId: organizationId,
-            players: [],
-            settings: settings,
+            createdAt: at,
+            updatedAt: at,
             status: ScrimStatus.PENDING,
-            gameMode: gameMode,
+            authorId: authorId,
+            organizationId: organizationId,
+            gameModeId: gameModeId,
             skillGroupId: skillGroupId,
+            players: [],
             games: [],
+            settings: settings,
         };
-        if (author) {
-            scrim.players.push(author);
-        }
+
+        if (player) scrim.players.push(player);
 
         await this.redisService.setJson(`${this.prefix}${scrim.id}`, scrim);
 
@@ -40,13 +51,13 @@ export class ScrimCrudService {
     }
 
     async getScrim(id: string): Promise<Scrim | null> {
-        return this.redisService.getJson<Scrim>(`${this.prefix}${id}`);
+        return this.redisService.getJsonIfExists<Scrim>(`${this.prefix}${id}`, ScrimSchema);
     }
 
     async getAllScrims(skillGroupId?: number): Promise<Scrim[]> {
         const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
         const scrims = await Promise.all(
-            scrimKeys.map<Promise<Scrim>>(async key => this.redisService.getJson<Scrim>(key)),
+            scrimKeys.map<Promise<Scrim>>(async key => this.redisService.getJson<Scrim>(key, undefined, ScrimSchema)),
         );
 
         return skillGroupId ? scrims.filter(s => s.skillGroupId === skillGroupId || !s.settings.competitive) : scrims;
@@ -78,13 +89,15 @@ export class ScrimCrudService {
 
     async addPlayerToScrim(scrimId: string, player: ScrimPlayer): Promise<void> {
         await this.redisService.appendToJsonArray<ScrimPlayer>(`${this.prefix}${scrimId}`, "players", player);
+        await this.updateScrimUpdatedAt(scrimId);
     }
 
-    async removePlayerFromScrim(scrimId: string, player: ScrimPlayer): Promise<void> {
+    async removePlayerFromScrim(scrimId: string, playerId: number): Promise<void> {
         let [players] = await this.redisService.getJson<ScrimPlayer[][]>(`${this.prefix}${scrimId}`, "$.players");
-        players = players.filter(p => p.id !== player.id);
+        players = players.filter(p => p.id !== playerId);
         await this.redisService.deleteJsonField(`${this.prefix}${scrimId}`, "$.players");
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.players", players);
+        await this.updateScrimUpdatedAt(scrimId);
     }
 
     async updatePlayer(scrimId: string, player: ScrimPlayer): Promise<void> {
@@ -94,6 +107,7 @@ export class ScrimCrudService {
         players[pi] = player;
         await this.redisService.deleteJsonField(`${this.prefix}${scrimId}`, "$.players");
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.players", players);
+        await this.updateScrimUpdatedAt(scrimId);
     }
 
     async playerInAnyScrim(playerId: number): Promise<boolean> {
@@ -104,41 +118,44 @@ export class ScrimCrudService {
         return allScrimPlayers.flat().includes(playerId);
     }
 
+    async updateScrimUpdatedAt(scrimId: string): Promise<void> {
+        await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.updatedAt", new Date());
+    }
+
     async updateScrimStatus(scrimId: string, status: ScrimStatus): Promise<void> {
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.status", status);
+        await this.updateScrimUpdatedAt(scrimId);
     }
 
     async updateScrimUnlockedStatus(scrimId: string, status: ScrimStatus): Promise<void> {
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.unlockedStatus", status);
+        await this.updateScrimUpdatedAt(scrimId);
     }
 
     async setSubmissionId(scrimId: string, submissionId: string): Promise<void> {
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.submissionId", submissionId);
+        await this.updateScrimUpdatedAt(scrimId);
     }
 
     async setTimeoutJobId(scrimId: string, jobId: JobId): Promise<void> {
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.jobId", jobId);
+        await this.updateScrimUpdatedAt(scrimId);
     }
 
     async generateLobby(scrimId: string): Promise<void> {
-        await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.settings.lobby", {
+        await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.lobby", {
             name: this.randomWord(),
             password: this.randomWord(),
         });
+        await this.updateScrimUpdatedAt(scrimId);
     }
 
     async setScrimGames(scrimId: string, games: ScrimGame[]): Promise<void> {
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.games", games);
+        await this.updateScrimUpdatedAt(scrimId);
     }
 
-    async getValidated(scrimId: string): Promise<boolean> {
-        // Not implemented yet, so just throwing this here to get rid of a warning until it's added.
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const submissionId = await this.redisService.getJson(`${this.prefix}${scrimId}`, "$.submissionId");
-        return this.redisService.getJson(`${this.prefix}`);
-    }
-
-    randomWord(): string {
+    private randomWord(): string {
         return words[Math.floor(Math.random() * words.length)];
     }
 }

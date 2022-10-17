@@ -1,6 +1,8 @@
 import {Injectable, Logger} from "@nestjs/common";
+import {Serializable} from "child_process";
 import type {Redis, RedisOptions} from "ioredis";
 import IORedis from "ioredis";
+import type {ZodSchema} from "zod";
 
 import {config} from "../util/config";
 
@@ -38,28 +40,37 @@ export class RedisService {
         this._redis = redis;
     }
 
-    async setJson<T extends Record<string, unknown>>(key: string, input: T): Promise<void> {
+    async setJson<T extends Serializable>(key: string, input: T): Promise<void> {
         await this.redis.send_command("json.set", key, ".", JSON.stringify(input));
     }
 
-    async setJsonField<T extends Record<string, unknown>>(key: string, path: string, input: T): Promise<void> {
+    async setJsonField<T extends Serializable>(key: string, path: string, input: T): Promise<void> {
         await this.redis.send_command("json.set", key, path, JSON.stringify(input));
     }
 
-    async getJson<T>(key: string, path?: string): Promise<T> {
+    async getJson<T, S extends ZodSchema = ZodSchema>(key: string, path?: string, schema?: S): Promise<T> {
         const args: string[] = [key];
         if (path) {
             args.push(path);
         }
-        return JSON.parse((await this.redis.send_command("json.get", ...args)) as string) as T;
+
+        const rawData = (await this.redis.send_command("json.get", ...args)) as string;
+        const parsedData = JSON.parse(rawData) as unknown;
+
+        if (schema) return schema.parse(parsedData) as T;
+        return parsedData as T;
     }
 
-    async getJsonIfExists<T>(key: string): Promise<T | undefined> {
+    async getJsonIfExists<T, S extends ZodSchema = ZodSchema>(key: string, schema?: S): Promise<T | null> {
         try {
-            const obj = JSON.parse((await this.redis.send_command("json.get", key)) as string) as T;
-            return obj;
+            const rawData = (await this.redis.send_command("json.get", key)) as string;
+            const parsedData = JSON.parse(rawData) as unknown | null;
+
+            if (!parsedData) return null;
+            if (schema) return schema.parse(parsedData) as T;
+            return parsedData as T;
         } catch (e) {
-            return undefined;
+            return null;
         }
     }
 
@@ -78,7 +89,7 @@ export class RedisService {
         return JSON.parse(res) as T;
     }
 
-    async appendToJsonArray<T extends Record<string, unknown>>(key: string, path: string, value: T): Promise<void> {
+    async appendToJsonArray<T extends Serializable>(key: string, path: string, value: T): Promise<void> {
         await this.redis.send_command("json.arrappend", key, path, JSON.stringify(value));
     }
 

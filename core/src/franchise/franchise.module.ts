@@ -4,6 +4,7 @@ import {EventsModule, NotificationModule, UtilModule as CommonUtilModule} from "
 
 import {DatabaseModule} from "../database";
 import {EloConnectorModule} from "../elo/elo-connector";
+import {GameModule} from "../game";
 import {JwtConstants} from "../identity/auth/oauth/constants";
 import {MledbInterfaceModule} from "../mledb";
 import {OrganizationModule} from "../organization/organization.module";
@@ -24,6 +25,7 @@ import {TeamService} from "./team/team.service";
         UtilModule,
         NotificationModule,
         EventsModule,
+        GameModule,
         forwardRef(() => OrganizationModule),
         forwardRef(() => MledbInterfaceModule),
         CommonUtilModule,

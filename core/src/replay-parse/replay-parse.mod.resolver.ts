@@ -50,10 +50,7 @@ export class ReplayParseModResolver {
                 })),
             ),
         );
-        return this.rpService.parseReplays(streams, submissionId, {
-            id: user.userId,
-            name: user.username,
-        });
+        return this.rpService.parseReplays(streams, submissionId, user.userId);
     }
 
     @Mutation(() => Boolean)

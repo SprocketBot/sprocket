@@ -6,7 +6,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es2017",
+    "target": "es2020",
     "sourceMap": true,
     "noImplicitAny": false,
     "skipLibCheck": true,
@@ -14,11 +14,11 @@
     "baseUrl": "./",
     "incremental": true,
     "moduleResolution": "node",
-    "lib": ["es2017", "esnext.asynciterable"],
+    "lib": ["es2020", "esnext.asynciterable"],
     "strictNullChecks": true,
-    "esModuleInterop": true,
     "strict": true,
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
+    "esModuleInterop": true
   },
   "include": ["src/**/*", "src/*"],
   "paths": {

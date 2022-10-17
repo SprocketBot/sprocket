@@ -7,12 +7,23 @@ type JoinScrimResponse = boolean;
 
 interface JoinScrimVars {
     scrimId: string;
+    leaveAfter: number;
     createGroup?: boolean;
     group?: string;
 }
 const mutationString = gql`
-    mutation ($scrimId: String!, $createGroup: Boolean, $group: String) {
-        joinScrim(scrimId: $scrimId, group: $group, createGroup: $createGroup)
+    mutation (
+        $scrimId: String!
+        $leaveAfter: Int!
+        $createGroup: Boolean
+        $group: String
+    ) {
+        joinScrim(
+            scrimId: $scrimId
+            group: $group
+            createGroup: $createGroup
+            leaveAfter: $leaveAfter
+        )
     }
 `;
 

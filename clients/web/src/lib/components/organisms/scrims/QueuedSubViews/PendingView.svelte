@@ -19,11 +19,15 @@
 </style>
 
 <script lang="ts">
+    import {format} from "date-fns";
+    import dateFns from "date-fns-tz";
+
     import type {CurrentScrim} from "$lib/api";
     import {currentScrim, leaveScrimMutation} from "$lib/api";
     import {ScrimFullIndicator} from "$lib/components";
     import {user} from "$lib/stores/user";
     import {screamingSnakeToHuman} from "$lib/utils";
+    const {utcToZonedTime} = dateFns;
 
     export let scrim: CurrentScrim;
 
@@ -66,6 +70,16 @@
                 <dd>{screamingSnakeToHuman(scrim.settings.mode)}</dd>
                 <dt>Competitive:</dt>
                 <dd>{scrim.settings.competitive ? "Yes" : "No"}</dd>
+                <dt>Created At:</dt>
+                <dd>
+                    {format(
+                        utcToZonedTime(
+                            new Date(scrim.createdAt),
+                            "America/New_York",
+                        ),
+                        "MM'/'d h:mmaaa 'ET",
+                    )}
+                </dd>
             </dl>
         </div>
         {#if scrim.currentGroup}

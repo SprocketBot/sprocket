@@ -10,6 +10,7 @@
     "build": "nest build",
     "format": "prettier src --write",
     "format:check": "prettier src --check",
+    "clean": "rimraf dist",
     "start": "nest start",
     "dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",

@@ -8,6 +8,7 @@ export interface PendingScrim {
     playerCount: number;
     maxPlayers: number;
     status: "PENDING" | "EMPTY" | "POPPED";
+    createdAt: Date;
     gameMode: {
         description: string;
         game: {
@@ -49,6 +50,7 @@ class PendingScrimsStore extends LiveQueryStore<
                 playerCount
                 maxPlayers
                 status
+                createdAt
                 gameMode {
                     description
                     game {
@@ -75,6 +77,7 @@ class PendingScrimsStore extends LiveQueryStore<
                 playerCount
                 maxPlayers
                 status
+                createdAt
                 gameMode {
                     description
                     game {
