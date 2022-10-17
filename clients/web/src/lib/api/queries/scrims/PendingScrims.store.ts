@@ -64,18 +64,6 @@ class PendingScrimsStore extends LiveQueryStore<
                 skillGroup {
                     profile {
                         description
-                        game {
-                            title
-                        }
-                    }
-                    settings {
-                        competitive
-                        mode
-                    }
-                    skillGroup {
-                        profile {
-                            description
-                        }
                     }
                 }
             }
