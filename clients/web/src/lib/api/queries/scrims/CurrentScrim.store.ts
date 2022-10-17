@@ -87,7 +87,6 @@ class CurrentScrimStore extends LiveQueryStore<
     query {
         currentScrim: getCurrentScrim {
             id
-            submissionId
             playerCount
             maxPlayers
             status
@@ -115,6 +114,10 @@ class CurrentScrimStore extends LiveQueryStore<
                 id
                 name
                 checkedIn
+            }
+            playersAdmin {
+                id
+                name
             }
             lobby {
                 name
@@ -179,6 +182,7 @@ class CurrentScrimStore extends LiveQueryStore<
                     }
                 }
             }
+            submissionId
         }
     `;
 
