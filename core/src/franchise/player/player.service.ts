@@ -1,4 +1,4 @@
-import {forwardRef, Inject, Injectable, Logger} from "@nestjs/common";
+import {Injectable, Logger} from "@nestjs/common";
 import {JwtService} from "@nestjs/jwt";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {CoreEndpoint, CoreOutput, NotificationInput} from "@sprocketbot/common";
@@ -16,25 +16,15 @@ import {
 import type {FindManyOptions, FindOneOptions, FindOptionsRelations, QueryRunner} from "typeorm";
 import {DataSource, Repository} from "typeorm";
 
-import {
-    Member,
-    MemberProfile,
-    Organization,
-    Player,
-    User,
-    UserAuthenticationAccount,
-    UserAuthenticationAccountType,
-    UserProfile,
-} from "../../database";
+import {Player, User, UserAuthenticationAccount, UserAuthenticationAccountType, UserProfile} from "../../database";
 import type {League, ModePreference, Timezone} from "../../database/mledb";
 import {LeagueOrdinals, MLE_Player, MLE_PlayerAccount, Role} from "../../database/mledb";
 import {PlayerToPlayer} from "../../database/mledb-bridge/player_to_player.model";
 import {PlayerToUser} from "../../database/mledb-bridge/player_to_user.model";
+import {MemberProfiledRepository, OrganizationProfiledRepository} from "../../database/repositories";
 import type {SalaryPayloadItem} from "../../elo/elo-connector";
 import {DegreeOfStiffness, EloConnectorService, EloEndpoint, SkillGroupDelta} from "../../elo/elo-connector";
 import {PlatformService} from "../../game";
-import {OrganizationService} from "../../organization";
-import {MemberService} from "../../organization/member/member.service";
 import {GameSkillGroupService} from "../game-skill-group";
 import type {IntakePlayerAccount} from "./player.resolver";
 import type {RankdownJwtPayload} from "./player.types";
@@ -48,13 +38,8 @@ export class PlayerService {
         @InjectRepository(User) private userRepository: Repository<User>,
         @InjectRepository(UserProfile)
         private userProfileRepository: Repository<UserProfile>,
-        @InjectRepository(Member) private memberRepository: Repository<Member>,
-        @InjectRepository(MemberProfile)
-        private memberProfileRepository: Repository<MemberProfile>,
         @InjectRepository(UserAuthenticationAccount)
         private userAuthRepository: Repository<UserAuthenticationAccount>,
-        @InjectRepository(Organization)
-        private organizationRepository: Repository<Organization>,
         @InjectRepository(PlayerToUser)
         private readonly ptuRepo: Repository<PlayerToUser>,
         @InjectRepository(PlayerToPlayer)
@@ -63,10 +48,8 @@ export class PlayerService {
         private mle_playerRepository: Repository<MLE_Player>,
         @InjectRepository(MLE_PlayerAccount)
         private mle_playerAccountRepository: Repository<MLE_PlayerAccount>,
-        @Inject(forwardRef(() => MemberService))
-        private readonly memberService: MemberService,
-        @Inject(forwardRef(() => OrganizationService))
-        private readonly organizationService: OrganizationService,
+        private readonly memberProfiledRepository: MemberProfiledRepository,
+        private readonly organizationProfiledRepository: OrganizationProfiledRepository,
         private readonly skillGroupService: GameSkillGroupService,
         private readonly eventsService: EventsService,
         private readonly notificationService: NotificationService,
@@ -147,7 +130,7 @@ export class PlayerService {
     }
 
     async createPlayer(memberId: number, skillGroupId: number, salary: number): Promise<Player> {
-        const member = await this.memberService.getMemberById(memberId);
+        const member = await this.memberProfiledRepository.primaryRepository.getById(memberId);
         const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
         const player = this.playerRepository.create({
             member,
@@ -171,7 +154,7 @@ export class PlayerService {
         timezone: Timezone,
         modePreference: ModePreference,
     ): Promise<Player> {
-        const mleOrg = await this.organizationRepository.findOneOrFail({
+        const mleOrg = await this.organizationProfiledRepository.primaryRepository.findOneOrFail({
             where: {profile: {name: "Minor League Esports"}},
             relations: {profile: true},
         });
@@ -194,7 +177,7 @@ export class PlayerService {
                 });
 
                 player = this.playerRepository.merge(player, {skillGroup, salary});
-                this.memberProfileRepository.merge(player.member.profile, {name});
+                this.memberProfiledRepository.profileRepository.merge(player.member.profile, {name});
 
                 await runner.manager.save(player);
                 await runner.manager.save(player.member.profile);
@@ -233,10 +216,10 @@ export class PlayerService {
                 authAcc.user = user;
                 user.authenticationAccounts = [authAcc];
 
-                const member = this.memberRepository.create({});
+                const member = this.memberProfiledRepository.primaryRepository.create({});
                 member.organization = mleOrg;
                 member.user = user;
-                member.profile = this.memberProfileRepository.create({
+                member.profile = this.memberProfiledRepository.profileRepository.create({
                     name: name,
                 });
                 member.profile.member = member;
@@ -533,9 +516,10 @@ export class PlayerService {
                                 accountType: UserAuthenticationAccountType.DISCORD,
                             },
                         });
-                        const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(
-                            player.member.organization.id,
-                        );
+                        const orgProfile =
+                            await this.organizationProfiledRepository.profileRepository.getByOrganizationId(
+                                player.member.organization.id,
+                            );
 
                         if (playerDelta.rankout) {
                             if (playerDelta.rankout.degreeOfStiffness === DegreeOfStiffness.HARD) {
@@ -690,72 +674,6 @@ export class PlayerService {
                                         },
                                     },
                                 });
-                                /* /TEMPORARY NOTIFICATION/ */
-
-                                // const notifId = `${NotificationType.RANKDOWN.toLowerCase()}-${this.nanoidService.gen()}`;
-
-                                // await this.notificationService.send(NotificationEndpoint.SendNotification, {
-                                //     id: notifId,
-                                //     type: NotificationType.RANKDOWN,
-                                //     userId: player.member.user.id,
-                                //     expiration: add(new Date(), {hours: 24}),
-                                //     payload: {
-                                //         playerId: playerDelta.playerId,
-                                //         skillGroupId: skillGroup.id,
-                                //         salary: playerDelta.newSalary,
-                                //     },
-                                //     notification: {
-                                //         type: NotificationMessageType.DirectMessage,
-                                //         userId: discordAccount.accountId,
-                                //         payload: {
-                                //             embeds: [ {
-                                //                 title: "Rankdown Available",
-                                //                 description: `You have been offered a rankout from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
-                                //                 author: {
-                                //                     name: `${orgProfile.name}`,
-                                //                 },
-                                //                 fields: [
-                                //                     {
-                                //                         name: "New League",
-                                //                         value: `${skillGroup.profile.description}`,
-                                //                     },
-                                //                     {
-                                //                         name: "New Salary",
-                                //                         value: `${playerDelta.rankout.salary}`,
-                                //                     },
-                                //                 ],
-                                //                 footer: {
-                                //                     text: orgProfile.name,
-                                //                 },
-                                //                 timestamp: Date.now(),
-                                //             } ],
-                                //             components: [ {
-                                //                 type: ComponentType.ACTION_ROW,
-                                //                 components: [
-                                //                     {
-                                //                         type: ComponentType.BUTTON,
-                                //                         style: ButtonComponentStyle.LINK,
-                                //                         label: "Accept it here!",
-                                //                         url: `${config.web.url}/notifications/${notifId}`,
-                                //                     },
-                                //                 ],
-                                //             } ],
-                                //         },
-                                //         brandingOptions: {
-                                //             organizationId: player.member.organization.id,
-                                //             options: {
-                                //                 author: {
-                                //                     icon: true,
-                                //                 },
-                                //                 color: true,
-                                //                 thumbnail: true,
-                                //                 footer: {
-                                //                     icon: true,
-                                //                 },
-                                //             },
-                                //         },
-                                //     },
-                                // });
                             }
                         } else {
                             await this.updatePlayerStanding(playerDelta.playerId, playerDelta.newSalary);

@@ -1,4 +1,4 @@
-import {forwardRef, Inject, UseGuards} from "@nestjs/common";
+import {UseGuards} from "@nestjs/common";
 import {Args, Field, Float, InputType, Int, Mutation, ResolveField, Resolver, Root} from "@nestjs/graphql";
 import {InjectRepository} from "@nestjs/typeorm";
 import {
@@ -24,11 +24,11 @@ import {
     ModePreference,
     Timezone,
 } from "../../database/mledb";
+import {OrganizationProfileRepository} from "../../database/repositories";
 import type {ManualSkillGroupChange} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
-import {OrganizationService} from "../../organization";
 import {PopulateService} from "../../util/populate/populate.service";
 import {FranchiseService} from "../franchise";
 import {GameSkillGroupService} from "../game-skill-group";
@@ -66,8 +66,7 @@ export class PlayerResolver {
         private readonly eloConnectorService: EloConnectorService,
         @InjectRepository(UserAuthenticationAccount)
         private userAuthRepository: Repository<UserAuthenticationAccount>,
-        @Inject(forwardRef(() => OrganizationService))
-        private readonly organizationService: OrganizationService,
+        private readonly organizationProfileRepository: OrganizationProfileRepository,
     ) {}
 
     @ResolveField()
@@ -153,9 +152,7 @@ export class PlayerResolver {
                 accountType: UserAuthenticationAccountType.DISCORD,
             },
         });
-        const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(
-            player.member.organization.id,
-        );
+        const orgProfile = await this.organizationProfileRepository.getByOrganizationId(player.member.organization.id);
 
         if (player.skillGroup.id === skillGroupId) return "ERROR: This player is already in this skill group";
 

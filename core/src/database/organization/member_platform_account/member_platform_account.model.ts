@@ -14,10 +14,16 @@ export class MemberPlatformAccount extends BaseModel {
     @Field(() => Member)
     member: Member;
 
+    @Column()
+    memberId: number;
+
     @ManyToOne(() => Platform)
     @JoinColumn()
     @Field(() => Platform)
     platform: Platform;
+
+    @Column()
+    platformId: number;
 
     @Column()
     @Field(() => String)

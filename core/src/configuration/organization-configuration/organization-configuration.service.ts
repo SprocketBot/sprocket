@@ -4,7 +4,6 @@ import type {FindOneOptions, FindOptionsWhere} from "typeorm";
 import {Like, Repository} from "typeorm";
 
 import {
-    Organization,
     OrganizationConfigurationAllowedValue,
     OrganizationConfigurationKey,
     OrganizationConfigurationValue,
@@ -14,13 +13,13 @@ import type {
     OrganizationConfigurationKeyTypes,
 } from "../../database/configuration/organization_configuration_key";
 import {OrganizationConfigurationKeyType} from "../../database/configuration/organization_configuration_key";
+import {OrganizationRepository} from "../../database/repositories";
 import type {OrganizationConfiguration} from "./organization-configuration.types";
 
 @Injectable()
 export class OrganizationConfigurationService {
     constructor(
-        @InjectRepository(Organization)
-        private organizationRepository: Repository<Organization>,
+        private organizationRepository: OrganizationRepository,
         @InjectRepository(OrganizationConfigurationKey)
         private keyRepository: Repository<OrganizationConfigurationKey>,
         @InjectRepository(OrganizationConfigurationAllowedValue)

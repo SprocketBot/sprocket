@@ -9,8 +9,7 @@ import {IsNull, MoreThanOrEqual} from "typeorm";
 import {OrganizationConfigurationService} from "../configuration/organization-configuration/organization-configuration.service";
 import type {MemberRestriction} from "../database";
 import {MemberRestrictionType, OrganizationConfigurationKeyCode} from "../database";
-import {MemberService} from "../organization/member/member.service";
-import {MemberRestrictionService} from "../organization/member-restriction";
+import {MemberRepository, MemberRestrictionRepository} from "../database/repositories";
 import {ScrimService} from "./scrim.service";
 
 @Processor("scrim")
@@ -19,8 +18,8 @@ export class ScrimConsumer {
 
     constructor(
         private readonly scrimService: ScrimService,
-        private readonly memberRestrictionService: MemberRestrictionService,
-        private readonly memberService: MemberService,
+        private readonly memberRestrictionRepository: MemberRestrictionRepository,
+        private readonly memberRepository: MemberRepository,
         private readonly organizationConfigurationService: OrganizationConfigurationService,
     ) {}
 
@@ -52,9 +51,9 @@ export class ScrimConsumer {
             );
 
         for (const player of playersNotCheckedIn) {
-            const member = await this.memberService.getMember({
-                relations: ["organization"],
+            const member = await this.memberRepository.get({
                 where: {user: {id: player.id}},
+                relations: {organization: true},
             });
 
             const UTCHourOffset = new Date().getTimezoneOffset() * -1;
@@ -82,19 +81,18 @@ export class ScrimConsumer {
                 forgiven: false,
             };
 
-            const restrictions = await this.memberRestrictionService.getMemberRestrictions({
+            const restrictions = await this.memberRestrictionRepository.getMany({
                 where: [whereA, whereB],
             });
 
-            // eslint-disable-next-line @typescript-eslint/no-extra-parens
             const banMinuteOffset = initialBanDuration + durationModifier * restrictions.length;
 
-            await this.memberRestrictionService.createMemberRestriction(
-                MemberRestrictionType.QUEUE_BAN,
-                add(new Date(), {minutes: banMinuteOffset}),
-                "Failed to check-in to scrim",
-                member.id,
-            );
+            await this.memberRestrictionRepository.createAndSave({
+                type: MemberRestrictionType.QUEUE_BAN,
+                expiration: add(new Date(), {minutes: banMinuteOffset}),
+                reason: "Failed to check-in to scrim",
+                memberId: member.id,
+            });
         }
 
         await this.scrimService.cancelScrim(scrimId);

@@ -1,4 +1,4 @@
-import type {DeepPartial, FindOneOptions} from "typeorm";
+import type {DeepPartial, FindManyOptions, FindOneOptions} from "typeorm";
 import {DataSource, Repository} from "typeorm";
 
 import type {BaseModel} from "../base-model";
@@ -7,6 +7,10 @@ import {Class} from "./repository.types";
 export abstract class ExtendedRepository<T extends BaseModel> extends Repository<T> {
     constructor(readonly c: Class<T>, readonly dataSource: DataSource) {
         super(c, dataSource.createEntityManager());
+    }
+
+    async get(options: FindOneOptions<T>): Promise<T> {
+        return this.findOneOrFail(options);
     }
 
     async getById(id: number, options?: FindOneOptions<T>): Promise<T> {
@@ -18,6 +22,10 @@ export abstract class ExtendedRepository<T extends BaseModel> extends Repository
                 options,
             ),
         );
+    }
+
+    async getMany(options?: FindManyOptions<T>): Promise<T[]> {
+        return this.find(options);
     }
 
     async createAndSave(data: DeepPartial<T>): Promise<T> {
