@@ -2,9 +2,9 @@ import {Field, ObjectType} from "@nestjs/graphql";
 import {Entity, JoinColumn, ManyToOne, OneToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {OrganizationStaffRole} from "../organization_staff_role";
-import {OrganizationStaffTeam} from "../organization_staff_team";
-import {PermissionBearer} from "../permission_bearer";
+import {OrganizationStaffRole} from "../organization_staff_role/organization_staff_role.model";
+import {OrganizationStaffTeam} from "../organization_staff_team/organization_staff_team.model";
+import {PermissionBearer} from "../permission_bearer/permission_bearer.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

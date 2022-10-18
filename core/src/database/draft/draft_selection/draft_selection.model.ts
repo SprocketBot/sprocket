@@ -3,7 +3,7 @@ import {Entity, JoinColumn, ManyToOne, OneToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {Player} from "../../franchise/player";
-import {DraftPick} from "../draft_pick";
+import {DraftPick} from "../draft_pick/draft_pick.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

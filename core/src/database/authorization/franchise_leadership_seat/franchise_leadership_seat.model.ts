@@ -3,7 +3,7 @@ import {Entity, ManyToOne, OneToMany} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {FranchiseLeadershipAppointment} from "../../franchise/franchise_leadership_appointment";
-import {FranchiseLeadershipRole} from "../franchise_leadership_role";
+import {FranchiseLeadershipRole} from "../franchise_leadership_role/franchise_leadership_role.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

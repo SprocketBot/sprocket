@@ -1,7 +1,7 @@
 import {Field, ObjectType} from "@nestjs/graphql/dist/decorators";
 import {Entity, ManyToOne} from "typeorm";
 
-import {FranchiseLeadershipSeat} from "../../authorization/franchise_leadership_seat";
+import {FranchiseLeadershipSeat} from "../../authorization/models";
 import {BaseModel} from "../../base-model";
 import {Member} from "../../organization/models";
 import {Franchise} from "../franchise";
