@@ -3,6 +3,8 @@ import {InjectRepository} from "@nestjs/typeorm";
 import type {FindOneOptions, FindOptionsWhere} from "typeorm";
 import {Like, Repository} from "typeorm";
 
+import {OrganizationRepository} from "$repositories";
+
 import {
     OrganizationConfigurationAllowedValue,
     OrganizationConfigurationKey,
@@ -13,7 +15,6 @@ import type {
     OrganizationConfigurationKeyTypes,
 } from "../../database/configuration/organization_configuration_key";
 import {OrganizationConfigurationKeyType} from "../../database/configuration/organization_configuration_key";
-import {OrganizationRepository} from "../../database/repositories";
 import type {OrganizationConfiguration} from "./organization-configuration.types";
 
 @Injectable()

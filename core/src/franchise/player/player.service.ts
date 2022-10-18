@@ -16,12 +16,13 @@ import {
 import type {FindManyOptions, FindOneOptions, FindOptionsRelations, QueryRunner} from "typeorm";
 import {DataSource, Repository} from "typeorm";
 
+import {MemberProfiledRepository, OrganizationProfiledRepository} from "$repositories";
+
 import {Player, User, UserAuthenticationAccount, UserAuthenticationAccountType, UserProfile} from "../../database";
 import type {League, ModePreference, Timezone} from "../../database/mledb";
 import {LeagueOrdinals, MLE_Player, MLE_PlayerAccount, Role} from "../../database/mledb";
 import {PlayerToPlayer} from "../../database/mledb-bridge/player_to_player.model";
 import {PlayerToUser} from "../../database/mledb-bridge/player_to_user.model";
-import {MemberProfiledRepository, OrganizationProfiledRepository} from "../../database/repositories";
 import type {SalaryPayloadItem} from "../../elo/elo-connector";
 import {DegreeOfStiffness, EloConnectorService, EloEndpoint, SkillGroupDelta} from "../../elo/elo-connector";
 import {PlatformService} from "../../game";

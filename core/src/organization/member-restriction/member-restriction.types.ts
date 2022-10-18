@@ -1,6 +1,6 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 
-import {MemberRestriction} from "../../database/models";
+import {MemberRestriction} from "$models";
 
 @ObjectType()
 export class MemberRestrictionEvent extends MemberRestriction {

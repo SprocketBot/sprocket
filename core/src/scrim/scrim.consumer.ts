@@ -6,11 +6,12 @@ import {add} from "date-fns";
 import type {FindOptionsWhere} from "typeorm";
 import {IsNull, MoreThanOrEqual} from "typeorm";
 
+import type {MemberRestriction} from "$models";
+import {MemberRepository, MemberRestrictionRepository} from "$repositories";
+import {MemberRestrictionType} from "$types";
+
 import {OrganizationConfigurationService} from "../configuration/organization-configuration/organization-configuration.service";
 import {OrganizationConfigurationKeyCode} from "../database";
-import type {MemberRestriction} from "../database/models";
-import {MemberRepository, MemberRestrictionRepository} from "../database/repositories";
-import {MemberRestrictionType} from "../database/types";
 import {ScrimService} from "./scrim.service";
 
 @Processor("scrim")

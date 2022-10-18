@@ -13,8 +13,9 @@ import {
 } from "@sprocketbot/common";
 import {Repository} from "typeorm";
 
+import {OrganizationProfileRepository} from "$repositories";
+
 import {UserAuthenticationAccount, UserAuthenticationAccountType} from "../../database";
-import {OrganizationProfileRepository} from "../../database/repositories";
 import type {ManualSkillGroupChange} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
 import {GameService, PlatformService} from "../../game";

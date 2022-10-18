@@ -5,11 +5,11 @@ import * as models from "./models";
 import * as repositories from "./repositories";
 
 const ormModule = TypeOrmModule.forFeature(Object.values(models));
-const moduleRepositories = Object.values(repositories);
+const providers = Object.values(repositories);
 
 @Module({
     imports: [ormModule],
-    providers: moduleRepositories,
-    exports: moduleRepositories,
+    providers: providers,
+    exports: providers,
 })
 export class WebhookModule {}
