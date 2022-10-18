@@ -6,10 +6,10 @@ import {OrganizationConfigurationValue} from "../../configuration/organization_c
 import {Verbiage} from "../../configuration/verbiage";
 import {EnabledFeature} from "../../game/enabled_feature";
 import {ScheduleGroupType} from "../../scheduling/schedule_group_type";
-import {Member} from "../member";
-import {OrganizationMottos} from "../organization_mottos";
-import {OrganizationProfile} from "../organization_profile";
-import {Pronouns} from "../pronouns";
+import {Member} from "../member/member.model";
+import {OrganizationMottos} from "../organization_mottos/organization_mottos.model";
+import {OrganizationProfile} from "../organization_profile/organization_profile.model";
+import {Pronouns} from "../pronouns/pronouns.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

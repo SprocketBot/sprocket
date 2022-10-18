@@ -2,7 +2,7 @@ import {Field, ObjectType} from "@nestjs/graphql";
 import {Column, Entity, ManyToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {Member} from "../member";
+import {Member} from "../member/member.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

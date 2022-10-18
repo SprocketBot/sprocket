@@ -1,8 +1,9 @@
 import {UseGuards} from "@nestjs/common";
 import {Args, Int, Mutation, Query, ResolveField, Resolver, Root} from "@nestjs/graphql";
 
+import {Organization, OrganizationProfile} from "$models";
+
 import {MLE_OrganizationTeam} from "../../database/mledb";
-import {Organization, OrganizationProfile} from "../../database/organization";
 import {
     OrganizationProfiledRepository,
     OrganizationRepository,

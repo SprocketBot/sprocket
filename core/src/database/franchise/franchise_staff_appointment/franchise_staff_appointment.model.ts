@@ -3,7 +3,7 @@ import {Entity, ManyToOne} from "typeorm";
 
 import {FranchiseStaffSeat} from "../../authorization/franchise_staff_seat";
 import {BaseModel} from "../../base-model";
-import {Member} from "../../organization/member";
+import {Member} from "../../organization/models";
 import {Franchise} from "../franchise";
 
 @Entity({schema: "sprocket"})
