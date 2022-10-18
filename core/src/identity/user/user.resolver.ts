@@ -6,11 +6,8 @@ import {JwtService} from "@nestjs/jwt";
 import {config} from "@sprocketbot/common";
 
 import type {UserAuthenticationAccount, UserProfile} from "../../database";
-import {
-    Member, User, UserAuthenticationAccountType,
-} from "../../database";
-import {MLE_OrganizationTeam} from "../../database/mledb";
-import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
+import {User, UserAuthenticationAccountType} from "../../database";
+import {Member} from "../../database/models";
 import {PopulateService} from "../../util/populate/populate.service";
 import type {AuthPayload} from "../auth";
 import {UserPayload} from "../auth";

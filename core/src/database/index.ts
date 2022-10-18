@@ -8,7 +8,6 @@ export * from "./franchise";
 export * from "./game";
 export * from "./identity";
 export * from "./image-gen";
-export * from "./organization";
 export * from "./scheduling";
 
 export type TypeOrmFields = "hasId" | "save" | "remove" | "softRemove" | "recover" | "reload";

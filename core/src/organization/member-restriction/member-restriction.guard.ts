@@ -3,8 +3,8 @@ import {Injectable} from "@nestjs/common";
 import {GqlExecutionContext} from "@nestjs/graphql";
 import {GraphQLError} from "graphql";
 
-import {MemberRestrictionType} from "../../database";
 import {MemberRepository, MemberRestrictionRepository} from "../../database/repositories";
+import {MemberRestrictionType} from "../../database/types";
 import type {UserPayload} from "../../identity/auth/oauth/types/userpayload.type";
 
 @Injectable()

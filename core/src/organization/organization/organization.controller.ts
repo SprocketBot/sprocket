@@ -9,8 +9,8 @@ import type {
 import {CoreEndpoint, CoreSchemas} from "@sprocketbot/common";
 
 import {OrganizationConfigurationService} from "../../configuration/organization-configuration/organization-configuration.service";
-import type {OrganizationProfile} from "../../database";
 import {OrganizationConfigurationKeyCode} from "../../database";
+import type {OrganizationProfile} from "../../database/models";
 import {OrganizationProfileRepository} from "../../database/repositories";
 
 @Controller("organization")
