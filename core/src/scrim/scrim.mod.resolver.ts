@@ -13,9 +13,10 @@ import {minutesToMilliseconds} from "date-fns";
 import {GraphQLError} from "graphql";
 
 import {GameModeRepository} from "$repositories";
+import {OrganizationConfigurationKeyCode} from "$types";
 
 import {OrganizationConfigurationService} from "../configuration";
-import {OrganizationConfigurationKeyCode, Player} from "../database";
+import {Player} from "../database";
 import {MLE_OrganizationTeam} from "../database/mledb";
 import {CurrentPlayer, PlayerService} from "../franchise";
 import {CurrentUser} from "../identity";
