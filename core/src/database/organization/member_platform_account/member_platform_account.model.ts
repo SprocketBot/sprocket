@@ -3,7 +3,7 @@ import {Column, Entity, JoinColumn, ManyToOne, Unique} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {Platform} from "../../game/platform";
-import {Member} from "../member";
+import {Member} from "../member/member.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

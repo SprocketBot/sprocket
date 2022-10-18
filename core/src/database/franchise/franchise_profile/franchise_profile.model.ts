@@ -2,7 +2,7 @@ import {Field, ObjectType} from "@nestjs/graphql";
 import {Column, Entity, JoinColumn, ManyToOne, OneToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {Photo} from "../../organization";
+import {Photo} from "../../organization/models";
 import {Webhook} from "../../webhook/models";
 import {Franchise} from "../franchise";
 

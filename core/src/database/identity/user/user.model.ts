@@ -2,7 +2,7 @@ import {Field, ObjectType} from "@nestjs/graphql";
 import {Column, Entity, OneToMany, OneToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {Member} from "../../organization";
+import {Member} from "../../organization/models";
 import {UserRolesType} from "../roles/user_roles_type.enum";
 import {UserAuthenticationAccount} from "../user_authentication_account";
 import {UserProfile} from "../user_profile";

@@ -3,7 +3,7 @@ import {Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne} from "typeor
 
 import {BaseModel} from "../../base-model";
 import {Game} from "../../game";
-import {Organization} from "../../organization";
+import {Organization} from "../../organization/models";
 import {GameSkillGroupProfile} from "../game_skill_group_profile";
 import {Player} from "../player";
 import {RosterRoleUseLimits} from "../roster_role_use_limits";

@@ -2,7 +2,7 @@ import {Field, ObjectType} from "@nestjs/graphql";
 import {Entity, ManyToOne, OneToMany, OneToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {Organization} from "../../organization";
+import {Organization} from "../../organization/models";
 import {FranchiseGroupAssignment} from "../franchise_group_assignment";
 import {FranchiseLeadershipAppointment} from "../franchise_leadership_appointment";
 import {FranchiseProfile} from "../franchise_profile";
