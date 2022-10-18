@@ -29,7 +29,7 @@ module.exports = {
     'lines-between-class-members': ['error', 'always'],
 
     // Don't allow `src/` imports
-    "no-restricted-imports": ["error", { "patterns": ["src/*", "**/../database/models", "**/../database/repositories", "**/../database/types"] }],
+    "no-restricted-imports": ["error", { "patterns": ["src/*", "**/../database/*", "**/../database/models", "**/../database/repositories", "**/../database/types"] }],
 
     // Don't allow duplicate imports
     "@typescript-eslint/no-duplicate-imports": "error",

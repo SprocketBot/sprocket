@@ -1,22 +1,20 @@
 import {Injectable, Logger} from "@nestjs/common";
-import {InjectRepository} from "@nestjs/typeorm";
 import {
     config,
     ImageGenerationEndpoint,
     ImageGenerationService as IGService,
     ResponseStatus,
 } from "@sprocketbot/common";
-import {DataSource, Repository} from "typeorm";
+import {DataSource} from "typeorm";
 
-import {ImageTemplate} from "../database";
+import {ImageTemplateRepository} from "$repositories";
 
 @Injectable()
 export class ImageGenerationService {
     private readonly logger = new Logger(ImageGenerationService.name);
 
     constructor(
-        @InjectRepository(ImageTemplate)
-        private imageTemplateRepository: Repository<ImageTemplate>,
+        private readonly imageTemplateRepository: ImageTemplateRepository,
         private readonly dataSource: DataSource,
         private readonly igService: IGService,
     ) {}
