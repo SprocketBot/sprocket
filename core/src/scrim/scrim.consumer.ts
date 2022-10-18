@@ -8,10 +8,9 @@ import {IsNull, MoreThanOrEqual} from "typeorm";
 
 import type {MemberRestriction} from "$models";
 import {MemberRepository, MemberRestrictionRepository} from "$repositories";
-import {MemberRestrictionType} from "$types";
+import {MemberRestrictionType, OrganizationConfigurationKeyCode} from "$types";
 
 import {OrganizationConfigurationService} from "../configuration/organization-configuration/organization-configuration.service";
-import {OrganizationConfigurationKeyCode} from "../database";
 import {ScrimService} from "./scrim.service";
 
 @Processor("scrim")

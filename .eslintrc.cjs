@@ -31,6 +31,9 @@ module.exports = {
     // Don't allow `src/` imports
     "no-restricted-imports": ["error", { "patterns": ["src/*", "**/../database/models", "**/../database/repositories", "**/../database/types"] }],
 
+    // Don't allow duplicate imports
+    "@typescript-eslint/no-duplicate-imports": "error",
+
     // Extra parentheses can improve clarity in complex expressions
     "@typescript-eslint/no-extra-parens": "off",
 
