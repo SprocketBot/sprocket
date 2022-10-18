@@ -35,4 +35,7 @@ export class OrganizationProfile extends BaseModel {
     @JoinColumn()
     @Field(() => Organization)
     organization: Organization;
+
+    @Column()
+    organizationId: number;
 }

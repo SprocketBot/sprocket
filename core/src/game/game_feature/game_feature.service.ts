@@ -4,7 +4,8 @@ import {GraphQLError} from "graphql";
 import {Repository} from "typeorm";
 
 import type {FeatureCode} from "../../database";
-import {EnabledFeature, GameFeature, Organization} from "../../database";
+import {EnabledFeature, GameFeature} from "../../database";
+import {OrganizationRepository} from "../../database/repositories";
 
 @Injectable()
 export class GameFeatureService {
@@ -15,8 +16,7 @@ export class GameFeatureService {
         private readonly gameFeatureRepository: Repository<GameFeature>,
         @InjectRepository(EnabledFeature)
         private readonly enabledFeatureRepository: Repository<EnabledFeature>,
-        @InjectRepository(Organization)
-        private readonly organizationRepository: Repository<Organization>,
+        private readonly organizationRepository: OrganizationRepository,
     ) {}
 
     async featureIsEnabled(code: FeatureCode, gameId: number, organizationId: number): Promise<boolean> {

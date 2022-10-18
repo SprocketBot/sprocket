@@ -6,10 +6,10 @@ import {Strategy} from "passport-discord";
 
 import type {IrrelevantFields, User, UserAuthenticationAccount, UserProfile} from "../../../../database";
 import {UserAuthenticationAccountType} from "../../../../database";
+import {MemberPlatformAccountRepository, MemberRepository} from "../../../../database/repositories";
 import {GameSkillGroupService, PlayerService} from "../../../../franchise";
 import {PlatformService} from "../../../../game";
 import {MledbPlayerAccountService, MledbPlayerService} from "../../../../mledb";
-import {MemberPlatformAccountService, MemberService} from "../../../../organization";
 import {IdentityService} from "../../../identity.service";
 import {UserService} from "../../../user";
 
@@ -23,8 +23,8 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
     constructor(
         private readonly identityService: IdentityService,
         private readonly userService: UserService,
-        private readonly memberService: MemberService,
-        private readonly memberPlatformAccountService: MemberPlatformAccountService,
+        private readonly memberRepository: MemberRepository,
+        private readonly memberPlatformAccountRepository: MemberPlatformAccountRepository,
         private readonly platformService: PlatformService,
         @Inject(forwardRef(() => MledbPlayerService))
         private readonly mledbPlayerService: MledbPlayerService,
@@ -102,10 +102,14 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
             await this.userService.addAuthenticationAccounts(user.id, [authAcct]);
         }
 
-        let member = await this.memberService.getMember({where: {user: {id: user.id}}}).catch(() => null);
+        let member = await this.memberRepository.findOneOrFail({where: {user: {id: user.id}}}).catch(() => null);
 
         if (!member) {
-            member = await this.memberService.createMember({name: mledbPlayer.name}, MLE_ORGANIZATION_ID, user.id);
+            member = await this.memberRepository.createAndSave({
+                organizationId: MLE_ORGANIZATION_ID,
+                userId: user.id,
+                profile: {name: mledbPlayer.name},
+            });
         }
 
         const mledbPlayerAccounts = await this.mledbPlayerAccountService.getPlayerAccounts({
@@ -115,8 +119,8 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         for (const mledbPlayerAccount of mledbPlayerAccounts) {
             if (!mledbPlayerAccount.platformId) continue;
 
-            const platformAccount = await this.memberPlatformAccountService
-                .getMemberPlatformAccount({
+            const platformAccount = await this.memberPlatformAccountRepository
+                .findOneOrFail({
                     where: {
                         member: {id: member.id},
                         platform: {code: mledbPlayerAccount.platform},
@@ -131,11 +135,11 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
                     .getPlatformByCode(mledbPlayerAccount.platform)
                     .catch(async () => this.platformService.createPlatform(mledbPlayerAccount.platform));
 
-                await this.memberPlatformAccountService.createMemberPlatformAccount(
-                    member.id,
-                    platform.id,
-                    mledbPlayerAccount.platformId,
-                );
+                await this.memberPlatformAccountRepository.createAndSave({
+                    memberId: member.id,
+                    platformId: platform.id,
+                    platformAccountId: mledbPlayerAccount.platformId,
+                });
             }
         }
 

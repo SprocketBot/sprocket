@@ -4,9 +4,9 @@ import {Job, Queue} from "bull";
 import {previousMonday} from "date-fns";
 
 import {FeatureCode} from "../database";
+import {OrganizationRepository} from "../database/repositories";
 import {PlayerService} from "../franchise";
 import {GameFeatureService, GameService} from "../game";
-import {OrganizationService} from "../organization";
 import {EloConnectorService, EloEndpoint} from "./elo-connector";
 
 export const WEEKLY_SALARIES_JOB_NAME = "weeklySalaries";
@@ -22,8 +22,8 @@ export class EloConsumer {
         private readonly playerService: PlayerService,
         private readonly gameService: GameService,
         private readonly gameFeatureService: GameFeatureService,
-        private readonly organizationService: OrganizationService,
         private readonly eloConnectorService: EloConnectorService,
+        private readonly organizationRepository: OrganizationRepository,
     ) {}
 
     @OnQueueFailed()
@@ -36,9 +36,9 @@ export class EloConsumer {
         this.logger.debug("Running weekly salaries!");
 
         const rocketLeague = await this.gameService.getGameByTitle("Rocket League");
-        const mleOrg = await this.organizationService.getOrganization({
-            where: {name: "Minor League Esports"},
-            relations: {organization: true},
+        const mleOrg = await this.organizationRepository.findOneOrFail({
+            where: {profile: {name: "Minor League Esports"}},
+            relations: {profile: true},
         });
 
         const autoRankoutsEnabled = await this.gameFeatureService.featureIsEnabled(

@@ -37,10 +37,10 @@ import {
     Timezone,
 } from "../../database/mledb";
 import type {ManualEloChange, ManualSkillGroupChange} from "../../elo/elo-connector";
+import {OrganizationProfileRepository} from "../../database/repositories";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
-import {OrganizationService} from "../../organization";
 import {PopulateService} from "../../util/populate/populate.service";
 import {FranchiseService} from "../franchise";
 import {GameSkillGroupService} from "../game-skill-group";
@@ -78,8 +78,7 @@ export class PlayerResolver {
         private readonly eloConnectorService: EloConnectorService,
         @InjectRepository(UserAuthenticationAccount)
         private userAuthRepository: Repository<UserAuthenticationAccount>,
-        @Inject(forwardRef(() => OrganizationService))
-        private readonly organizationService: OrganizationService,
+        private readonly organizationProfileRepository: OrganizationProfileRepository,
     ) {}
 
     private readonly logger = new Logger(PlayerResolver.name);
@@ -168,9 +167,7 @@ export class PlayerResolver {
                 accountType: UserAuthenticationAccountType.DISCORD,
             },
         });
-        const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(
-            player.member.organization.id,
-        );
+        const orgProfile = await this.organizationProfileRepository.getByOrganizationId(player.member.organization.id);
 
         const inputData: ManualSkillGroupChange = {
             id: playerId,

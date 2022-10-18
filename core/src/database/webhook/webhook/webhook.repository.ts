@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {DataSource} from "typeorm";
 
-import {ExtendedRepository} from "../../repositories/repository";
+import {ExtendedRepository} from "../../extended-repositories/repository";
 import {Webhook} from "./webhook.model";
 
 @Injectable()

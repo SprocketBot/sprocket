@@ -3,6 +3,7 @@ import {JwtModule} from "@nestjs/jwt";
 import {PassportModule} from "@nestjs/passport";
 import {AnalyticsModule, config} from "@sprocketbot/common";
 
+import {DatabaseModule} from "../../database";
 import {FranchiseModule} from "../../franchise/franchise.module";
 import {GameModule} from "../../game";
 import {MledbInterfaceModule} from "../../mledb";
@@ -15,6 +16,7 @@ import {
 
 @Module({
     imports: [
+        DatabaseModule,
         IdentityModule,
         PassportModule,
         JwtModule.register({

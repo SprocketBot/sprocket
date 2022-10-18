@@ -1,4 +1,4 @@
-import {Controller, forwardRef, Get, HttpException, Inject, Logger, Param} from "@nestjs/common";
+import {Controller, Get, HttpException, Logger, Param} from "@nestjs/common";
 import {JwtService} from "@nestjs/jwt";
 import {MessagePattern, Payload} from "@nestjs/microservices";
 import {InjectRepository} from "@nestjs/typeorm";
@@ -14,10 +14,10 @@ import {
 import {Repository} from "typeorm";
 
 import {UserAuthenticationAccount, UserAuthenticationAccountType} from "../../database";
+import {OrganizationProfileRepository} from "../../database/repositories";
 import type {ManualSkillGroupChange} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
 import {GameService, PlatformService} from "../../game";
-import {OrganizationService} from "../../organization";
 import {GameSkillGroupService} from "../game-skill-group";
 import {PlayerService} from "./player.service";
 import {RankdownJwtPayloadSchema} from "./player.types";
@@ -36,7 +36,7 @@ export class PlayerController {
         private readonly gameService: GameService,
         private readonly platformService: PlatformService,
         @InjectRepository(UserAuthenticationAccount) private userAuthRepository: Repository<UserAuthenticationAccount>,
-        @Inject(forwardRef(() => OrganizationService)) private readonly organizationService: OrganizationService,
+        private readonly organizationProfileRepository: OrganizationProfileRepository,
     ) {}
 
     @Get("accept-rankdown/:token")
@@ -79,7 +79,7 @@ export class PlayerController {
                     accountType: UserAuthenticationAccountType.DISCORD,
                 },
             });
-            const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(
+            const orgProfile = await this.organizationProfileRepository.getByOrganizationId(
                 player.member.organization.id,
             );
 
