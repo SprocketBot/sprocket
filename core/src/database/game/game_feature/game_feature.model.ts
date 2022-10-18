@@ -2,9 +2,9 @@ import {Field, ObjectType} from "@nestjs/graphql";
 import {Entity, ManyToOne, OneToMany} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {EnabledFeature} from "../enabled_feature";
-import {Feature} from "../feature";
-import {Game} from "../game";
+import {EnabledFeature} from "../enabled_feature/enabled_feature.model";
+import {Feature} from "../feature/feature.model";
+import {Game} from "../game/game.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

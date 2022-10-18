@@ -22,7 +22,9 @@
         "paths": {
             "$models": ["src/database/models"],
             "$repositories": ["src/database/repositories"],
-            "$types": ["src/database/types"]
+            "$types": ["src/database/types"],
+            "$util": ["src/util"],
+            "$util/*": ["src/util/*"]
         }
     },
     "include": ["src/**/*", "src/*"]

@@ -20,7 +20,7 @@ import {
 import type {FindManyOptions, FindOneOptions, FindOptionsRelations, QueryRunner} from "typeorm";
 import {DataSource, Repository} from "typeorm";
 
-import {MemberProfiledRepository, OrganizationProfiledRepository} from "$repositories";
+import {MemberProfiledRepository, OrganizationProfiledRepository, PlatformRepository} from "$repositories";
 
 import {Player, User, UserAuthenticationAccount, UserAuthenticationAccountType, UserProfile} from "../../database";
 import type {League, ModePreference, Timezone} from "../../database/mledb";
@@ -29,7 +29,6 @@ import {PlayerToPlayer} from "../../database/mledb-bridge/player_to_player.model
 import {PlayerToUser} from "../../database/mledb-bridge/player_to_user.model";
 import type {SalaryPayloadItem} from "../../elo/elo-connector";
 import {DegreeOfStiffness, EloConnectorService, EloEndpoint, SkillGroupDelta} from "../../elo/elo-connector";
-import {PlatformService} from "../../game";
 import {GameSkillGroupService} from "../game-skill-group";
 import type {IntakePlayerAccount} from "./player.resolver";
 import type {RankdownJwtPayload} from "./player.types";
@@ -61,7 +60,7 @@ export class PlayerService {
         private readonly jwtService: JwtService,
         private readonly dataSource: DataSource,
         private readonly eloConnectorService: EloConnectorService,
-        private readonly platformService: PlatformService,
+        private readonly platformRepository: PlatformRepository,
     ) {}
 
     async getPlayer(query: FindOneOptions<Player>): Promise<Player> {
@@ -1033,7 +1032,7 @@ export class PlayerService {
         gameId: number;
     }): Promise<CoreOutput<CoreEndpoint.GetPlayerByPlatformId>> {
         try {
-            const platform = await this.platformService.getPlatformByCode(data.platform);
+            const platform = await this.platformRepository.get({where: {code: data.platform}});
             const player = await this.getPlayerByGameAndPlatform(data.gameId, platform.id, data.platformId);
             const mlePlayer = await this.getMlePlayerBySprocketPlayer(player.id);
 

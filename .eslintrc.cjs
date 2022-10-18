@@ -29,7 +29,7 @@ module.exports = {
     'lines-between-class-members': ['error', 'always'],
 
     // Don't allow `src/` imports
-    "no-restricted-imports": ["error", { "patterns": ["src/*"], }],
+    "no-restricted-imports": ["error", { "patterns": ["src/*", "**/../database/models", "**/../database/repositories", "**/../database/types"] }],
 
     // Extra parentheses can improve clarity in complex expressions
     "@typescript-eslint/no-extra-parens": "off",

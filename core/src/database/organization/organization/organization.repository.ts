@@ -1,5 +1,5 @@
 import {Inject, Injectable} from "@nestjs/common";
-import {DataSource} from "typeorm";
+import {DataSource, FindOneOptions} from "typeorm";
 
 import {ExtendedRepository, ProfiledRepository} from "../../extended-repositories";
 import {OrganizationProfile} from "../organization_profile/organization_profile.model";
@@ -10,6 +10,10 @@ import {Organization} from "./organization.model";
 export class OrganizationRepository extends ExtendedRepository<Organization> {
     constructor(readonly dataSource: DataSource) {
         super(Organization, dataSource);
+    }
+
+    async getByName(name: string, options?: FindOneOptions<Organization>): Promise<Organization> {
+        return this.findOneOrFail(Object.assign({where: {profile: {name}}, relations: {profile: true}}, options));
     }
 }
 

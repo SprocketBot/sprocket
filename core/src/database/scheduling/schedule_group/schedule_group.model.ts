@@ -2,7 +2,7 @@ import {Field, ObjectType} from "@nestjs/graphql";
 import {Column, Entity, ManyToOne, OneToMany} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {Game} from "../../game/game";
+import {Game} from "../../game/models";
 import {ScheduleFixture} from "../schedule_fixture";
 import {ScheduleGroupType} from "../schedule_group_type";
 

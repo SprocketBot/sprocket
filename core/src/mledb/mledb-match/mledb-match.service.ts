@@ -4,9 +4,10 @@ import type {CoreEndpoint, CoreOutput} from "@sprocketbot/common";
 import type {FindOperator, FindOptionsRelations} from "typeorm";
 import {Raw, Repository} from "typeorm";
 
+import {GameMode} from "$models";
+
 import {
     Franchise,
-    GameMode,
     GameSkillGroup,
     Match,
     MatchParent,

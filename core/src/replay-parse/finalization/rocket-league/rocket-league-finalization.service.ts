@@ -6,17 +6,10 @@ import type {EntityManager} from "typeorm";
 import {DataSource} from "typeorm";
 import type {QueryDeepPartialEntity} from "typeorm/query-builder/QueryPartialEntity";
 
+import {GameMode} from "$models";
+
 import type {Player, Team} from "../../../database";
-import {
-    EligibilityData,
-    GameMode,
-    Match,
-    MatchParent,
-    PlayerStatLine,
-    Round,
-    ScrimMeta,
-    TeamStatLine,
-} from "../../../database";
+import {EligibilityData, Match, MatchParent, PlayerStatLine, Round, ScrimMeta, TeamStatLine} from "../../../database";
 import {PlayerService} from "../../../franchise";
 import {TeamService} from "../../../franchise/team/team.service";
 import {MledbFinalizationService, MledbPlayerService} from "../../../mledb";

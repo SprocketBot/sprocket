@@ -4,7 +4,7 @@ import {Entity, OneToMany, OneToOne} from "typeorm";
 import {BaseModel} from "../../base-model";
 import {OrganizationConfigurationValue} from "../../configuration/organization_configuration_value";
 import {Verbiage} from "../../configuration/verbiage";
-import {EnabledFeature} from "../../game/enabled_feature";
+import {EnabledFeature} from "../../game/models";
 import {ScheduleGroupType} from "../../scheduling/schedule_group_type";
 import {Member} from "../member/member.model";
 import {OrganizationMottos} from "../organization_mottos/organization_mottos.model";

@@ -5,7 +5,6 @@ export * from "./configuration";
 export * from "./database.module";
 export * from "./draft";
 export * from "./franchise";
-export * from "./game";
 export * from "./identity";
 export * from "./image-gen";
 export * from "./scheduling";
