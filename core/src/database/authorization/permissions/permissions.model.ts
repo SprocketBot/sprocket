@@ -2,8 +2,8 @@ import {Field, ObjectType} from "@nestjs/graphql";
 import {Entity, ManyToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {Action} from "../action";
-import {PermissionBearer} from "../permission_bearer";
+import {Action} from "../action/action.model";
+import {PermissionBearer} from "../permission_bearer/permission_bearer.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()
