@@ -15,7 +15,7 @@ import {GraphQLUpload} from "graphql-upload";
 import {Repository} from "typeorm";
 
 import type {GameSkillGroup} from "../../database";
-import {Member, Player, UserAuthenticationAccount, UserAuthenticationAccountType} from "../../database";
+import {Player, UserAuthenticationAccount, UserAuthenticationAccountType} from "../../database";
 import {
     League,
     LeagueOrdinals,
@@ -24,6 +24,7 @@ import {
     ModePreference,
     Timezone,
 } from "../../database/mledb";
+import {Member} from "../../database/models";
 import {OrganizationProfileRepository} from "../../database/repositories";
 import type {ManualSkillGroupChange} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";

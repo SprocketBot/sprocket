@@ -7,9 +7,10 @@ import type {FindOptionsWhere} from "typeorm";
 import {IsNull, MoreThanOrEqual} from "typeorm";
 
 import {OrganizationConfigurationService} from "../configuration/organization-configuration/organization-configuration.service";
-import type {MemberRestriction} from "../database";
-import {MemberRestrictionType, OrganizationConfigurationKeyCode} from "../database";
+import {OrganizationConfigurationKeyCode} from "../database";
+import type {MemberRestriction} from "../database/models";
 import {MemberRepository, MemberRestrictionRepository} from "../database/repositories";
+import {MemberRestrictionType} from "../database/types";
 import {ScrimService} from "./scrim.service";
 
 @Processor("scrim")

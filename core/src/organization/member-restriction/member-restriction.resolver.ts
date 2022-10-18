@@ -2,10 +2,10 @@ import {Inject, UseGuards} from "@nestjs/common";
 import {Args, Int, Mutation, Query, ResolveField, Resolver, Root, Subscription} from "@nestjs/graphql";
 import {PubSub} from "apollo-server-express";
 
-import type {Member} from "../../database";
-import {MemberRestriction, MemberRestrictionType} from "../../database";
 import {MLE_OrganizationTeam} from "../../database/mledb";
+import {Member, MemberRestriction} from "../../database/models";
 import {MemberRestrictionRepository} from "../../database/repositories";
+import {MemberRestrictionType} from "../../database/types";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {PopulateService} from "../../util/populate/populate.service";

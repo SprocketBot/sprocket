@@ -3,7 +3,7 @@ import {Column, Entity, JoinColumn, ManyToOne, OneToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {Photo} from "../../organization";
-import {Webhook} from "../../webhook";
+import {Webhook} from "../../webhook/models";
 import {GameSkillGroup} from "../game_skill_group";
 
 @Entity({schema: "sprocket"})

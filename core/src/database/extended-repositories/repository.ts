@@ -13,6 +13,10 @@ export abstract class ExtendedRepository<T extends BaseModel> extends Repository
         return this.findOneOrFail(options);
     }
 
+    async getOrNull(options: FindOneOptions<T>): Promise<T | null> {
+        return this.findOne(options);
+    }
+
     async getById(id: number, options?: FindOneOptions<T>): Promise<T> {
         return this.findOneOrFail(
             Object.assign(
