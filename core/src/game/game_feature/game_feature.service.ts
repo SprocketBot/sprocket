@@ -3,9 +3,10 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {GraphQLError} from "graphql";
 import {Repository} from "typeorm";
 
+import {OrganizationRepository} from "$repositories";
+
 import type {FeatureCode} from "../../database";
 import {EnabledFeature, GameFeature} from "../../database";
-import {OrganizationRepository} from "../../database/repositories";
 
 @Injectable()
 export class GameFeatureService {

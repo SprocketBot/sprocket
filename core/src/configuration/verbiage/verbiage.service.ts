@@ -2,8 +2,9 @@ import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 
+import {OrganizationRepository} from "$repositories";
+
 import {Verbiage, VerbiageCode} from "../../database";
-import {OrganizationRepository} from "../../database/repositories";
 
 @Injectable()
 export class VerbiageService {

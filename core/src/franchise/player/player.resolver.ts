@@ -26,6 +26,9 @@ import type {FileUpload} from "graphql-upload";
 import {GraphQLUpload} from "graphql-upload";
 import {Repository} from "typeorm";
 
+import {Member} from "$models";
+import {OrganizationProfileRepository} from "$repositories";
+
 import type {GameSkillGroup} from "../../database";
 import {Player, UserAuthenticationAccount, UserAuthenticationAccountType} from "../../database";
 import {

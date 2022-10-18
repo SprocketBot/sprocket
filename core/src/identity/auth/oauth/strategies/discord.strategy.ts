@@ -4,9 +4,10 @@ import {AnalyticsEndpoint, AnalyticsService, config} from "@sprocketbot/common";
 import type {Profile} from "passport-discord";
 import {Strategy} from "passport-discord";
 
+import {MemberPlatformAccountRepository, MemberRepository} from "$repositories";
+
 import type {IrrelevantFields, User, UserAuthenticationAccount, UserProfile} from "../../../../database";
 import {UserAuthenticationAccountType} from "../../../../database";
-import {MemberPlatformAccountRepository, MemberRepository} from "../../../../database/repositories";
 import {GameSkillGroupService, PlayerService} from "../../../../franchise";
 import {PlatformService} from "../../../../game";
 import {MledbPlayerAccountService, MledbPlayerService} from "../../../../mledb";

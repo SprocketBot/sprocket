@@ -3,8 +3,9 @@ import {Logger} from "@nestjs/common";
 import {Job, Queue} from "bull";
 import {previousMonday} from "date-fns";
 
+import {OrganizationRepository} from "$repositories";
+
 import {FeatureCode} from "../database";
-import {OrganizationRepository} from "../database/repositories";
 import {PlayerService} from "../franchise";
 import {GameFeatureService, GameService} from "../game";
 import {EloConnectorService, EloEndpoint} from "./elo-connector";

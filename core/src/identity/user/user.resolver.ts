@@ -5,9 +5,10 @@ import {
 import {JwtService} from "@nestjs/jwt";
 import {config} from "@sprocketbot/common";
 
+import {Member} from "$models";
+
 import type {UserAuthenticationAccount, UserProfile} from "../../database";
 import {User, UserAuthenticationAccountType} from "../../database";
-import {Member} from "../../database/models";
 import {PopulateService} from "../../util/populate/populate.service";
 import type {AuthPayload} from "../auth";
 import {UserPayload} from "../auth";

@@ -1,8 +1,9 @@
 import {ResolveField, Resolver, Root} from "@nestjs/graphql";
 
+import {Organization} from "$models";
+
 import type {FranchiseProfile} from "../../database";
 import {Franchise} from "../../database";
-import {Organization} from "../../database/models";
 import {PopulateService} from "../../util/populate/populate.service";
 
 @Resolver(() => Franchise)
