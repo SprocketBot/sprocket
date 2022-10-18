@@ -1,6 +1,8 @@
 import {ResolveField, Resolver, Root} from "@nestjs/graphql";
 
-import type {Game, ScheduleFixture, ScheduleGroupType} from "../../database";
+import {Game} from "$models";
+
+import type {ScheduleFixture, ScheduleGroupType} from "../../database";
 import {ScheduleGroup} from "../../database";
 import {PopulateService} from "../../util/populate/populate.service";
 

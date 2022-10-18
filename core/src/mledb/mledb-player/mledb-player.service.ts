@@ -3,11 +3,12 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {config} from "@sprocketbot/common";
 import {Repository} from "typeorm";
 
+import {GameRepository} from "$repositories";
+
 import type {Player, User} from "../../database";
 import {UserAuthenticationAccountType} from "../../database";
 import type {MLE_Platform} from "../../database/mledb";
 import {MLE_Player, MLE_PlayerAccount, MLE_PlayerToOrg, MLE_Team, MLE_TeamToCaptain} from "../../database/mledb";
-import {GameService} from "../../game";
 import {UserService} from "../../identity";
 
 @Injectable()
@@ -27,8 +28,7 @@ export class MledbPlayerService {
         private readonly teamToCaptainRepo: Repository<MLE_TeamToCaptain>,
         @Inject(forwardRef(() => UserService))
         private readonly userService: UserService,
-        @Inject(forwardRef(() => GameService))
-        private readonly gameService: GameService,
+        private readonly gameRepository: GameRepository,
     ) {}
 
     async getPlayerByDiscordId(id: string): Promise<MLE_Player> {
@@ -175,7 +175,7 @@ export class MledbPlayerService {
             throw new Error(`Member not found in MLE for user ${user.id}`);
         }
 
-        const rocketLeague = await this.gameService.getGameByTitle("Rocket League");
+        const rocketLeague = await this.gameRepository.getByTitle("Rocket League");
 
         const player = member.players.find(p => p.skillGroup.game.id === rocketLeague.id);
 

@@ -1,22 +1,17 @@
 import {Injectable, Logger} from "@nestjs/common";
-import {InjectRepository} from "@nestjs/typeorm";
 import {GraphQLError} from "graphql";
-import {Repository} from "typeorm";
 
-import {OrganizationRepository} from "$repositories";
-
-import type {FeatureCode} from "../../database";
-import {EnabledFeature, GameFeature} from "../../database";
+import {EnabledFeature} from "$models";
+import {EnabledFeatureRepository, GameFeatureRepository, OrganizationRepository} from "$repositories";
+import type {FeatureCode} from "$types";
 
 @Injectable()
 export class GameFeatureService {
     private readonly logger = new Logger(GameFeatureService.name);
 
     constructor(
-        @InjectRepository(GameFeature)
-        private readonly gameFeatureRepository: Repository<GameFeature>,
-        @InjectRepository(EnabledFeature)
-        private readonly enabledFeatureRepository: Repository<EnabledFeature>,
+        private readonly gameFeatureRepository: GameFeatureRepository,
+        private readonly enabledFeatureRepository: EnabledFeatureRepository,
         private readonly organizationRepository: OrganizationRepository,
     ) {}
 

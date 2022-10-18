@@ -3,7 +3,7 @@ import {Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne} from "typeor
 
 import {BaseModel} from "../../base-model";
 import {GameSkillGroup} from "../../franchise";
-import {GameMode} from "../../game";
+import {GameMode} from "../../game/models";
 import {Invalidation} from "../invalidation/invalidation.model";
 import {MatchParent} from "../match_parent";
 import {Round} from "../round/round.model";

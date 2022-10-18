@@ -1,5 +1,5 @@
 import {Injectable} from "@nestjs/common";
-import {DataSource} from "typeorm";
+import {DataSource, FindOneOptions} from "typeorm";
 
 import {ExtendedRepository} from "../../extended-repositories/repository";
 import {Game} from "./game.model";
@@ -8,5 +8,9 @@ import {Game} from "./game.model";
 export class GameRepository extends ExtendedRepository<Game> {
     constructor(readonly dataSource: DataSource) {
         super(Game, dataSource);
+    }
+
+    async getByTitle(title: string, options?: FindOneOptions<Game>): Promise<Game> {
+        return this.findOneOrFail(Object.assign({where: {title}}, options));
     }
 }

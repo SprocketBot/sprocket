@@ -2,10 +2,12 @@ import {UseGuards} from "@nestjs/common";
 import {Int, ResolveField, Resolver, Root} from "@nestjs/graphql";
 import {ScrimStatus} from "@sprocketbot/common";
 
-import {GameMode, GameSkillGroup} from "../database";
+import {GameMode} from "$models";
+import {GameModeRepository} from "$repositories";
+
+import {GameSkillGroup} from "../database";
 import {MLE_OrganizationTeam} from "../database/mledb";
 import {GameSkillGroupService} from "../franchise";
-import {GameModeService} from "../game";
 import {CurrentUser, UserPayload} from "../identity";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
@@ -18,12 +20,12 @@ import {Scrim, ScrimLobby, ScrimPlayer} from "./types";
 export class ScrimResolver {
     constructor(
         private readonly gameSkillGroupService: GameSkillGroupService,
-        private readonly gameModeService: GameModeService,
+        private readonly gameModeRepository: GameModeRepository,
     ) {}
 
     @ResolveField(() => GameMode)
     async gameMode(@Root() scrim: Partial<Scrim>): Promise<GameMode> {
-        return scrim.gameMode ?? this.gameModeService.getGameModeById(scrim.gameModeId!);
+        return scrim.gameMode ?? this.gameModeRepository.getById(scrim.gameModeId!);
     }
 
     @ResolveField(() => GameSkillGroup)

@@ -4,7 +4,7 @@ import GraphQLJSON from "graphql-type-json";
 import {Column, Entity, ManyToOne, OneToMany} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {GameMode} from "../../game";
+import {GameMode} from "../../game/models";
 import {Invalidation} from "../invalidation/invalidation.model";
 import {Match} from "../match/match.model";
 import {PlayerStatLine} from "../player_stat_line";

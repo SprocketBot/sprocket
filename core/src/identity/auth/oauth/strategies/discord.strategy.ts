@@ -4,12 +4,11 @@ import {AnalyticsEndpoint, AnalyticsService, config} from "@sprocketbot/common";
 import type {Profile} from "passport-discord";
 import {Strategy} from "passport-discord";
 
-import {MemberPlatformAccountRepository, MemberRepository} from "$repositories";
+import {MemberPlatformAccountRepository, MemberRepository, PlatformRepository} from "$repositories";
 
 import type {IrrelevantFields, User, UserAuthenticationAccount, UserProfile} from "../../../../database";
 import {UserAuthenticationAccountType} from "../../../../database";
 import {GameSkillGroupService, PlayerService} from "../../../../franchise";
-import {PlatformService} from "../../../../game";
 import {MledbPlayerAccountService, MledbPlayerService} from "../../../../mledb";
 import {IdentityService} from "../../../identity.service";
 import {UserService} from "../../../user";
@@ -26,7 +25,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         private readonly userService: UserService,
         private readonly memberRepository: MemberRepository,
         private readonly memberPlatformAccountRepository: MemberPlatformAccountRepository,
-        private readonly platformService: PlatformService,
+        private readonly platformRepository: PlatformRepository,
         @Inject(forwardRef(() => MledbPlayerService))
         private readonly mledbPlayerService: MledbPlayerService,
         @Inject(forwardRef(() => MledbPlayerAccountService))
@@ -132,9 +131,9 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
                 .catch(() => null);
 
             if (!platformAccount) {
-                const platform = await this.platformService
-                    .getPlatformByCode(mledbPlayerAccount.platform)
-                    .catch(async () => this.platformService.createPlatform(mledbPlayerAccount.platform));
+                let platform = await this.platformRepository.getOrNull({where: {code: mledbPlayerAccount.platform}});
+                if (!platform)
+                    platform = await this.platformRepository.createAndSave({code: mledbPlayerAccount.platform});
 
                 await this.memberPlatformAccountRepository.createAndSave({
                     memberId: member.id,

@@ -18,7 +18,6 @@ import {OrganizationProfileRepository} from "$repositories";
 import {UserAuthenticationAccount, UserAuthenticationAccountType} from "../../database";
 import type {ManualSkillGroupChange} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
-import {GameService, PlatformService} from "../../game";
 import {GameSkillGroupService} from "../game-skill-group";
 import {PlayerService} from "./player.service";
 import {RankdownJwtPayloadSchema} from "./player.types";
@@ -34,8 +33,6 @@ export class PlayerController {
         private readonly skillGroupService: GameSkillGroupService,
         private readonly eventsService: EventsService,
         private readonly notificationService: NotificationService,
-        private readonly gameService: GameService,
-        private readonly platformService: PlatformService,
         @InjectRepository(UserAuthenticationAccount) private userAuthRepository: Repository<UserAuthenticationAccount>,
         private readonly organizationProfileRepository: OrganizationProfileRepository,
     ) {}

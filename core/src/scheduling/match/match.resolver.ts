@@ -11,7 +11,8 @@ import {
 } from "@sprocketbot/common";
 import {DataSource, Repository} from "typeorm";
 
-import type {GameMode} from "../../database";
+import type {GameMode} from "$models";
+
 import {
     Franchise,
     GameSkillGroup,
