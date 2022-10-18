@@ -3,7 +3,7 @@ import GraphQLJSON from "graphql-type-json";
 import {Column, Entity} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {ImageTemplateQuery} from "./image_template_query";
+import {ImageTemplateQuery} from "./image_template_query/image_template_query";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

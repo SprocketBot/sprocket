@@ -3,7 +3,6 @@ import type {ModelLifecycleFields} from "./base-model";
 export * from "./database.module";
 export * from "./franchise";
 export * from "./identity";
-export * from "./image-gen";
 export * from "./scheduling";
 
 export type TypeOrmFields = "hasId" | "save" | "remove" | "softRemove" | "recover" | "reload";
