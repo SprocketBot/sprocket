@@ -2,7 +2,7 @@ import {Inject, Injectable} from "@nestjs/common";
 import {DataSource} from "typeorm";
 
 import {ExtendedRepository, ProfiledRepository} from "../../extended-repositories";
-import {MemberProfile} from "../member_profile/member_profile.model";
+import type {MemberProfile} from "../member_profile/member_profile.model";
 import {MemberProfileRepository} from "../member_profile/member_profile.repository";
 import {Member} from "./member.model";
 

@@ -2,19 +2,19 @@ import {Inject, Logger, UseGuards} from "@nestjs/common";
 import {Args, Int, Mutation, Query, Resolver, Subscription} from "@nestjs/graphql";
 import type {ScrimSettings as IScrimSettings} from "@sprocketbot/common";
 import {ScrimMode, ScrimStatus} from "@sprocketbot/common";
-import {PubSub} from "apollo-server-express";
+import type {PubSub} from "apollo-server-express";
 import {minutesToMilliseconds} from "date-fns";
 import {GraphQLError} from "graphql";
 
+import {MLE_OrganizationTeam} from "$mledb";
+import type {Player} from "$models";
 import {GameModeRepository} from "$repositories";
 import {OrganizationConfigurationKeyCode} from "$types";
 
 import {OrganizationConfigurationService} from "../configuration";
-import {Player} from "../database";
-import {MLE_OrganizationTeam} from "../database/mledb";
 import {CurrentPlayer, PlayerService} from "../franchise";
 import {CurrentUser} from "../identity";
-import {UserPayload} from "../identity/auth/";
+import type {UserPayload} from "../identity/auth/";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard/gql-jwt-guard";
 import {MledbPlayerService} from "../mledb";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
@@ -24,7 +24,8 @@ import {ScrimPubSub} from "./constants";
 import {CreateScrimPlayerGuard, JoinScrimPlayerGuard} from "./scrim.guard";
 import {ScrimService} from "./scrim.service";
 import {ScrimToggleService} from "./scrim-toggle";
-import {CreateScrimInput, Scrim, ScrimEvent} from "./types";
+import type {CreateScrimInput} from "./types";
+import {Scrim, ScrimEvent} from "./types";
 import {ScrimMetrics} from "./types/ScrimMetrics";
 
 @Resolver()

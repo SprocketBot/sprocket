@@ -4,7 +4,7 @@ import {Column, Entity, ManyToOne} from "typeorm";
 import {BaseModel} from "../../base-model";
 import {Game} from "../../game/models";
 import {Organization} from "../../organization/models";
-import {GameSkillGroup} from "../game_skill_group";
+import {GameSkillGroup} from "../game_skill_group/game_skill_group.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

@@ -39,7 +39,7 @@ module.exports = {
 
     // Empty interfaces can be useful for aliasing types and allowing for future extension
     '@typescript-eslint/no-empty-interface': 'off',
-
+    
     // Allow unused variables when they are prefixed with `_`, useful for array destructuring and method overrides
     '@typescript-eslint/no-unused-vars': [
       'error',

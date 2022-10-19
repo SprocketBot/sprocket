@@ -13,19 +13,25 @@ import {
     NotificationService,
     NotificationType,
 } from "@sprocketbot/common";
-import type {FindManyOptions, FindOneOptions, FindOptionsRelations, QueryRunner} from "typeorm";
-import {DataSource, Repository} from "typeorm";
+import type {FindManyOptions, FindOneOptions, FindOptionsRelations, QueryRunner, Repository} from "typeorm";
+import {DataSource} from "typeorm";
 
-import {MemberProfiledRepository, OrganizationProfiledRepository, PlatformRepository} from "$repositories";
+import {PlayerToPlayer} from "$bridge/player_to_player.model";
+import {PlayerToUser} from "$bridge/player_to_user.model";
+import type {League, ModePreference, Timezone} from "$mledb";
+import {LeagueOrdinals, MLE_Player, MLE_PlayerAccount, Role} from "$mledb";
+import {Player} from "$models";
+import {
+    GameSkillGroupRepository,
+    MemberProfiledRepository,
+    OrganizationProfiledRepository,
+    PlatformRepository,
+    PlayerRepository,
+} from "$repositories";
 
-import {Player, User, UserAuthenticationAccount, UserAuthenticationAccountType, UserProfile} from "../../database";
-import type {League, ModePreference, Timezone} from "../../database/mledb";
-import {LeagueOrdinals, MLE_Player, MLE_PlayerAccount, Role} from "../../database/mledb";
-import {PlayerToPlayer} from "../../database/mledb-bridge/player_to_player.model";
-import {PlayerToUser} from "../../database/mledb-bridge/player_to_user.model";
+import {User, UserAuthenticationAccount, UserAuthenticationAccountType, UserProfile} from "../../database";
 import type {SalaryPayloadItem} from "../../elo/elo-connector";
 import {DegreeOfStiffness, EloConnectorService, EloEndpoint, SkillGroupDelta} from "../../elo/elo-connector";
-import {GameSkillGroupService} from "../game-skill-group";
 import type {IntakePlayerAccount} from "./player.resolver";
 import type {RankdownJwtPayload} from "./player.types";
 
@@ -34,7 +40,7 @@ export class PlayerService {
     private readonly logger = new Logger(PlayerService.name);
 
     constructor(
-        @InjectRepository(Player) private playerRepository: Repository<Player>,
+        private readonly playerRepository: PlayerRepository,
         @InjectRepository(User) private userRepository: Repository<User>,
         @InjectRepository(UserProfile)
         private userProfileRepository: Repository<UserProfile>,
@@ -50,7 +56,7 @@ export class PlayerService {
         private mle_playerAccountRepository: Repository<MLE_PlayerAccount>,
         private readonly memberProfiledRepository: MemberProfiledRepository,
         private readonly organizationProfiledRepository: OrganizationProfiledRepository,
-        private readonly skillGroupService: GameSkillGroupService,
+        private readonly skillGroupRepository: GameSkillGroupRepository,
         private readonly eventsService: EventsService,
         private readonly notificationService: NotificationService,
         private readonly jwtService: JwtService,
@@ -131,7 +137,7 @@ export class PlayerService {
 
     async createPlayer(memberId: number, skillGroupId: number, salary: number): Promise<Player> {
         const member = await this.memberProfiledRepository.primaryRepository.getById(memberId);
-        const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
+        const skillGroup = await this.skillGroupRepository.getById(skillGroupId);
         const player = this.playerRepository.create({
             member,
             skillGroup,
@@ -158,7 +164,7 @@ export class PlayerService {
             where: {profile: {name: "Minor League Esports"}},
             relations: {profile: true},
         });
-        const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
+        const skillGroup = await this.skillGroupRepository.getById(skillGroupId);
 
         const runner = this.dataSource.createQueryRunner();
         await runner.connect();
@@ -408,7 +414,7 @@ export class PlayerService {
         });
 
         if (skillGroupId) {
-            const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
+            const skillGroup = await this.skillGroupRepository.getById(skillGroupId);
 
             player = this.playerRepository.merge(player, {salary, skillGroup});
             await this.playerRepository.save(player);
@@ -523,7 +529,7 @@ export class PlayerService {
 
                         if (playerDelta.rankout) {
                             if (playerDelta.rankout.degreeOfStiffness === DegreeOfStiffness.HARD) {
-                                const skillGroup = await this.skillGroupService.getGameSkillGroup({
+                                const skillGroup = await this.skillGroupRepository.get({
                                     where: {
                                         game: {
                                             id: player.skillGroup.game.id,
@@ -588,7 +594,7 @@ export class PlayerService {
                             } else if (playerDelta.rankout.degreeOfStiffness === DegreeOfStiffness.SOFT) {
                                 await this.updatePlayerStanding(playerDelta.playerId, playerDelta.rankout.salary);
 
-                                const skillGroup = await this.skillGroupService.getGameSkillGroup({
+                                const skillGroup = await this.skillGroupRepository.get({
                                     where: {
                                         game: {
                                             id: player.skillGroup.game.id,
@@ -706,7 +712,7 @@ export class PlayerService {
         );
         if (!discId) throw new Error("No discord Id");
 
-        const sg = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
+        const sg = await this.skillGroupRepository.getById(skillGroupId);
 
         let player = await this.mle_playerRepository.findOneOrFail({
             where: {

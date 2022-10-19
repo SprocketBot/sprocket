@@ -6,12 +6,12 @@ import type {EntityManager} from "typeorm";
 import {DataSource} from "typeorm";
 import type {QueryDeepPartialEntity} from "typeorm/query-builder/QueryPartialEntity";
 
+import type {Player, Team} from "$models";
 import {GameMode} from "$models";
+import {TeamRepository} from "$repositories";
 
-import type {Player, Team} from "../../../database";
 import {EligibilityData, Match, MatchParent, PlayerStatLine, Round, ScrimMeta, TeamStatLine} from "../../../database";
 import {PlayerService} from "../../../franchise";
-import {TeamService} from "../../../franchise/team/team.service";
 import {MledbFinalizationService, MledbPlayerService} from "../../../mledb";
 import {MatchService} from "../../../scheduling";
 import {SprocketRatingService} from "../../../sprocket-rating/sprocket-rating.service";
@@ -30,7 +30,7 @@ export class RocketLeagueFinalizationService {
         private readonly matchService: MatchService,
         private readonly sprocketRatingService: SprocketRatingService,
         private readonly mledbPlayerService: MledbPlayerService,
-        private readonly teamService: TeamService,
+        private readonly teamRepository: TeamRepository,
         private readonly ballchasingConverter: BallchasingConverterService,
         private readonly mledbFinalizationService: MledbFinalizationService,
         @InjectDataSource() private readonly dataSource: DataSource,
@@ -171,8 +171,18 @@ export class RocketLeagueFinalizationService {
             : {home: undefined, away: undefined};
         const [homeTeam, awayTeam] = isMatch
             ? await Promise.all([
-                  await this.teamService.getTeam(home!.id, match.skillGroupId),
-                  await this.teamService.getTeam(away!.id, match.skillGroupId),
+                  await this.teamRepository.get({
+                      where: {
+                          franchiseId: home!.id,
+                          skillGroupId: match.skillGroupId,
+                      },
+                  }),
+                  await this.teamRepository.get({
+                      where: {
+                          franchiseId: away!.id,
+                          skillGroupId: match.skillGroupId,
+                      },
+                  }),
               ])
             : [undefined, undefined];
 

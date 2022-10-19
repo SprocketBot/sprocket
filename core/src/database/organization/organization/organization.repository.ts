@@ -1,8 +1,9 @@
 import {Inject, Injectable} from "@nestjs/common";
-import {DataSource, FindOneOptions} from "typeorm";
+import type {FindOneOptions} from "typeorm";
+import {DataSource} from "typeorm";
 
 import {ExtendedRepository, ProfiledRepository} from "../../extended-repositories";
-import {OrganizationProfile} from "../organization_profile/organization_profile.model";
+import type {OrganizationProfile} from "../organization_profile/organization_profile.model";
 import {OrganizationProfileRepository} from "../organization_profile/organization_profile.repository";
 import {Organization} from "./organization.model";
 

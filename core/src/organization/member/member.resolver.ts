@@ -1,9 +1,8 @@
 import {Args, Int, Query, ResolveField, Resolver, Root} from "@nestjs/graphql";
 
-import {Member, MemberProfile, Organization} from "$models";
+import {Member, MemberProfile, Organization, Player} from "$models";
 import {MemberRepository} from "$repositories";
 
-import type {Player} from "../../database";
 import {PopulateService} from "../../util/populate/populate.service";
 
 @Resolver(() => Member)

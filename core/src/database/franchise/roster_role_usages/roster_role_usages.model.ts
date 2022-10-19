@@ -3,9 +3,9 @@ import {Entity, ManyToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {Match} from "../../scheduling/match/match.model";
-import {Player} from "../player";
-import {RosterRole} from "../roster_role";
-import {Team} from "../team";
+import {Player} from "../player/player.model";
+import {RosterRole} from "../roster_role/roster_role.model";
+import {Team} from "../team/team.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

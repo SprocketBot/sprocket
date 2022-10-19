@@ -4,7 +4,12 @@ import {AnalyticsEndpoint, AnalyticsService, config} from "@sprocketbot/common";
 import type {Profile} from "passport-discord";
 import {Strategy} from "passport-discord";
 
-import {MemberPlatformAccountRepository, MemberRepository, PlatformRepository} from "$repositories";
+import {
+    GameSkillGroupRepository,
+    MemberPlatformAccountRepository,
+    MemberRepository,
+    PlatformRepository,
+} from "$repositories";
 
 import type {IrrelevantFields, User, UserAuthenticationAccount, UserProfile} from "../../../../database";
 import {UserAuthenticationAccountType} from "../../../../database";
@@ -32,7 +37,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         private readonly mledbPlayerAccountService: MledbPlayerAccountService,
         private readonly analyticsService: AnalyticsService,
         @Inject(forwardRef(() => GameSkillGroupService))
-        private readonly skillGroupService: GameSkillGroupService,
+        private readonly skillGroupRepository: GameSkillGroupRepository,
         @Inject(forwardRef(() => PlayerService))
         private readonly playerService: PlayerService,
     ) {
@@ -146,13 +151,8 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         if (!["PREMIER", "MASTER", "CHAMPION", "ACADEMY", "FOUNDATION"].includes(mledbPlayer.league))
             throw new Error("Player does not belong to a league");
 
-        const skillGroup = await this.skillGroupService.getGameSkillGroup({
-            where: {
-                profile: {
-                    code: `${mledbPlayer.league[0]}L`,
-                },
-            },
-            relations: ["profile"],
+        const skillGroup = await this.skillGroupRepository.getByCode(`${mledbPlayer.league[0]}L`, {
+            relations: {profile: true},
         });
         const player = await this.playerService.getPlayer({where: {member: {id: member.id}}}).catch(() => null);
         if (!player) await this.playerService.createPlayer(member.id, skillGroup.id, mledbPlayer.salary);

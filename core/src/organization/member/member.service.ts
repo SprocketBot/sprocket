@@ -1,8 +1,10 @@
 import {forwardRef, Inject, Injectable, Logger} from "@nestjs/common";
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import {EventsService, EventTopic} from "@sprocketbot/common";
-import {PubSub} from "apollo-server-express";
+import type {PubSub} from "apollo-server-express";
 
-import type {Franchise} from "../../database";
+import type {Franchise} from "$models";
+
 import {PlayerService} from "../../franchise/player/player.service";
 import {MemberPubSub} from "../constants";
 

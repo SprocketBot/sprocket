@@ -11,14 +11,13 @@ import {
     NotificationEndpoint,
     NotificationService,
 } from "@sprocketbot/common";
-import {Repository} from "typeorm";
+import type {Repository} from "typeorm";
 
-import {OrganizationProfileRepository} from "$repositories";
+import {GameSkillGroupRepository, OrganizationProfileRepository} from "$repositories";
 
 import {UserAuthenticationAccount, UserAuthenticationAccountType} from "../../database";
 import type {ManualSkillGroupChange} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
-import {GameSkillGroupService} from "../game-skill-group";
 import {PlayerService} from "./player.service";
 import {RankdownJwtPayloadSchema} from "./player.types";
 
@@ -30,7 +29,7 @@ export class PlayerController {
         private readonly eloConnectorService: EloConnectorService,
         private readonly jwtService: JwtService,
         private readonly playerService: PlayerService,
-        private readonly skillGroupService: GameSkillGroupService,
+        private readonly skillGroupRepository: GameSkillGroupRepository,
         private readonly eventsService: EventsService,
         private readonly notificationService: NotificationService,
         @InjectRepository(UserAuthenticationAccount) private userAuthRepository: Repository<UserAuthenticationAccount>,
@@ -60,13 +59,8 @@ export class PlayerController {
                 },
             });
 
-            const skillGroup = await this.skillGroupService.getGameSkillGroup({
-                where: {
-                    id: payload.skillGroupId,
-                },
-                relations: {
-                    profile: true,
-                },
+            const skillGroup = await this.skillGroupRepository.getById(payload.skillGroupId, {
+                relations: {profile: true},
             });
 
             const discordAccount = await this.userAuthRepository.findOneOrFail({

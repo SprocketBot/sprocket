@@ -3,8 +3,8 @@ import {Column, Entity, JoinColumn, ManyToOne, OneToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {Member} from "../../organization/models";
-import {GameSkillGroup} from "../game_skill_group";
-import {RosterSlot} from "../roster_slot";
+import {GameSkillGroup} from "../game_skill_group/game_skill_group.model";
+import {RosterSlot} from "../roster_slot/roster_slot.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()
