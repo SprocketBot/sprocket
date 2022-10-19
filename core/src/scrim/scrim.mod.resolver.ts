@@ -8,19 +8,19 @@ import type {
     ScrimSettings as IScrimSettings,
 } from "@sprocketbot/common";
 import {ScrimMode, ScrimStatus} from "@sprocketbot/common";
-import type {PubSub} from "apollo-server-express";
+import {PubSub} from "apollo-server-express";
 import {minutesToMilliseconds} from "date-fns";
 import {GraphQLError} from "graphql";
 
 import {MLE_OrganizationTeam} from "$mledb";
-import type {Player} from "$models";
+import {Player} from "$models";
 import {GameModeRepository} from "$repositories";
 import {OrganizationConfigurationKeyCode} from "$types";
 
 import {OrganizationConfigurationService} from "../configuration";
 import {CurrentPlayer, PlayerService} from "../franchise";
 import {CurrentUser} from "../identity";
-import type {UserPayload} from "../identity/auth/";
+import {UserPayload} from "../identity/auth/";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard/gql-jwt-guard";
 import {MledbPlayerService} from "../mledb";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
@@ -30,8 +30,7 @@ import {ScrimPubSub} from "./constants";
 import {CreateScrimPlayerGuard, JoinScrimPlayerGuard} from "./scrim.guard";
 import {ScrimService} from "./scrim.service";
 import {ScrimToggleService} from "./scrim-toggle";
-import type {CreateScrimInput} from "./types";
-import {Scrim, ScrimEvent} from "./types";
+import {CreateScrimInput, Scrim, ScrimEvent} from "./types";
 import {ScrimMetrics} from "./types/ScrimMetrics";
 
 @Resolver()
@@ -128,7 +127,10 @@ export class ScrimModuleResolver {
 
     @Mutation(() => Scrim)
     @UseGuards(QueueBanGuard, CreateScrimPlayerGuard, FormerPlayerScrimGuard)
-    async createScrim(@CurrentUser() user: UserPayload, @Args("data") data: CreateScrimInput): Promise<Scrim> {
+    async createScrim(
+        @CurrentUser() user: UserPayload,
+        @Args("data", {type: () => CreateScrimInput}) data: CreateScrimInput,
+    ): Promise<Scrim> {
         if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organization");
         if (await this.scrimToggleService.scrimsAreDisabled()) throw new GraphQLError("Scrims are disabled");
 
