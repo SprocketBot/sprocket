@@ -32,7 +32,6 @@ import {ScrimToggleResolver, ScrimToggleService} from "./scrim-toggle";
         GameModule,
         AuthModule,
         RedisModule,
-        MatchmakingModule,
         DatabaseModule,
         OrganizationModule,
         FranchiseModule,
