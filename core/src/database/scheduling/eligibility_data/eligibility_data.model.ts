@@ -3,7 +3,7 @@ import {Column, Entity, ManyToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {Player} from "../../franchise/models";
-import {MatchParent} from "../match_parent";
+import {MatchParent} from "../match_parent/match_parent.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

@@ -1,5 +1,4 @@
 import {Inject, Injectable, Logger} from "@nestjs/common";
-import {InjectRepository} from "@nestjs/typeorm";
 import type {
     CoreEndpoint,
     CoreInput,
@@ -18,11 +17,9 @@ import {
     ScrimStatus,
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
-import {Repository} from "typeorm";
 
-import {FranchiseProfiledRepository, GameSkillGroupProfiledRepository} from "$repositories";
+import {FranchiseProfiledRepository, GameSkillGroupProfiledRepository, PlayerStatLineRepository} from "$repositories";
 
-import {PlayerStatLine} from "../database";
 import {FranchiseService} from "../franchise/franchise";
 import {MledbFinalizationService} from "../mledb";
 import {ScrimPubSub} from "./constants";
@@ -35,15 +32,14 @@ export class ScrimService {
     private subscribed = false;
 
     constructor(
+        @Inject(ScrimPubSub) private readonly pubsub: PubSub,
         private readonly matchmakingService: MatchmakingService,
         private readonly eventsService: EventsService,
         private readonly skillGroupProfiledRepository: GameSkillGroupProfiledRepository,
         private readonly franchiseService: FranchiseService,
         private readonly franchiseProfiledRepository: FranchiseProfiledRepository,
         private readonly mleScrimService: MledbFinalizationService,
-        @Inject(ScrimPubSub) private readonly pubsub: PubSub,
-        @InjectRepository(PlayerStatLine)
-        private readonly playerStatLineRepository: Repository<PlayerStatLine>,
+        private readonly playerStatLineRepository: PlayerStatLineRepository,
     ) {}
 
     get metricsSubTopic(): string {

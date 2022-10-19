@@ -6,10 +6,9 @@ import {DataSource} from "typeorm";
 import type {QueryDeepPartialEntity} from "typeorm/query-builder/QueryPartialEntity";
 
 import type {Player, Team} from "$models";
-import {GameMode} from "$models";
-import {TeamRepository} from "$repositories";
+import {EligibilityData, GameMode, Match, MatchParent, PlayerStatLine, Round, ScrimMeta, TeamStatLine} from "$models";
+import {MatchRepository, TeamRepository} from "$repositories";
 
-import {EligibilityData, Match, MatchParent, PlayerStatLine, Round, ScrimMeta, TeamStatLine} from "../../../database";
 import {PlayerService} from "../../../franchise";
 import {MledbFinalizationService, MledbPlayerService} from "../../../mledb";
 import {MatchService} from "../../../scheduling";
@@ -27,6 +26,7 @@ export class RocketLeagueFinalizationService {
     constructor(
         private readonly playerService: PlayerService,
         private readonly matchService: MatchService,
+        private readonly matchRepository: MatchRepository,
         private readonly sprocketRatingService: SprocketRatingService,
         private readonly mledbPlayerService: MledbPlayerService,
         private readonly teamRepository: TeamRepository,
@@ -87,11 +87,13 @@ export class RocketLeagueFinalizationService {
         await qr.startTransaction();
         const em = qr.manager;
         try {
-            const match = await this.matchService.getMatchById(submission.matchId, {
-                matchParent: {
-                    fixture: {homeFranchise: {organization: true}},
+            const match = await this.matchRepository.getById(submission.matchId, {
+                relations: {
+                    matchParent: {
+                        fixture: {homeFranchise: {organization: true}},
+                    },
+                    gameMode: true,
                 },
-                gameMode: true,
             });
             const organization = match.matchParent.fixture!.homeFranchise.organization;
 

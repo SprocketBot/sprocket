@@ -5,4 +5,5 @@ export * from "./franchise/models";
 export * from "./game/models";
 export * from "./image-gen/models";
 export * from "./organization/models";
+export * from "./scheduling/models";
 export * from "./webhook/models";

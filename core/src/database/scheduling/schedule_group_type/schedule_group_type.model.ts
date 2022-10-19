@@ -3,7 +3,7 @@ import {Column, Entity, ManyToOne, OneToMany} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {Organization} from "../../organization/models";
-import {ScheduleGroup} from "../schedule_group";
+import {ScheduleGroup} from "../schedule_group/schedule_group.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()
@@ -11,6 +11,9 @@ export class ScheduleGroupType extends BaseModel {
     @ManyToOne(() => Organization)
     @Field(() => Organization)
     organization: Organization;
+
+    @Column()
+    organizationId: number;
 
     @Column()
     @Field(() => String)

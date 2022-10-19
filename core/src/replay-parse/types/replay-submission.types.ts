@@ -2,7 +2,8 @@ import {Field, Int, ObjectType, registerEnumType} from "@nestjs/graphql";
 import type {Scrim} from "@sprocketbot/common";
 import {ReplaySubmissionStatus} from "@sprocketbot/common";
 
-import type {Match} from "../../database";
+import type {Match} from "$models";
+
 import {ReplaySubmissionItem} from "./submission-item.types";
 import {SubmissionRejection} from "./submission-rejection.types";
 import {ReplaySubmissionStats} from "./submission-stats.types";

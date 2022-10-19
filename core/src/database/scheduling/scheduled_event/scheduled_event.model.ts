@@ -4,7 +4,7 @@ import {Column, Entity, ManyToOne, OneToMany} from "typeorm";
 import {BaseModel} from "../../base-model";
 import {Game, GameMode} from "../../game/models";
 import {Member} from "../../organization/models";
-import {MatchParent} from "../match_parent";
+import {MatchParent} from "../match_parent/match_parent.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

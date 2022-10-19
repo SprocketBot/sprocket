@@ -6,11 +6,18 @@ import {Raw, Repository} from "typeorm";
 
 import type {League} from "$mledb";
 import {LegacyGameMode, MLE_Fixture, MLE_Series, MLE_SeriesReplay, MLE_Team, MLE_TeamToCaptain} from "$mledb";
-import {Franchise, GameMode, GameSkillGroup} from "$models";
-
-import {Match, MatchParent, ScheduleFixture, ScheduleGroup, ScheduleGroupType} from "../../database";
-import {MatchService} from "../../scheduling";
-import {PopulateService} from "../../util/populate/populate.service";
+import {
+    Franchise,
+    GameMode,
+    GameSkillGroup,
+    Match,
+    MatchParent,
+    ScheduleFixture,
+    ScheduleGroup,
+    ScheduleGroupType,
+} from "$models";
+import {MatchRepository} from "$repositories";
+import {PopulateService} from "$util";
 
 @Injectable()
 export class MledbMatchService {
@@ -22,7 +29,7 @@ export class MledbMatchService {
         @InjectRepository(MLE_Series) private readonly seriesRepo: Repository<MLE_Series>,
         @InjectRepository(MLE_SeriesReplay) private readonly seriesReplayRepo: Repository<MLE_SeriesReplay>,
         @InjectRepository(MLE_TeamToCaptain) private readonly teamCaptainRepo: Repository<MLE_TeamToCaptain>,
-        private readonly sprocketMatchService: MatchService,
+        private readonly sprocketMatchRepository: MatchRepository,
         private readonly popService: PopulateService,
     ) {}
 
@@ -80,7 +87,7 @@ export class MledbMatchService {
     async getMleMatchInfoAndStakeholders(
         sprocketMatchId: number,
     ): Promise<CoreOutput<CoreEndpoint.GetMleMatchInfoAndStakeholders>> {
-        const match = await this.sprocketMatchService.getMatchById(sprocketMatchId);
+        const match = await this.sprocketMatchRepository.getById(sprocketMatchId);
         if (!match.skillGroup) {
             match.skillGroup = await this.popService.populateOneOrFail(Match, match, "skillGroup");
         }

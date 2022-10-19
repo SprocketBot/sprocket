@@ -16,9 +16,9 @@ import {DataSource, Repository} from "typeorm";
 import {SeriesToMatchParent} from "$bridge/series_to_match_parent.model";
 import type {League} from "$mledb";
 import {LegacyGameMode, MLE_OrganizationTeam, MLE_SeriesReplay, MLE_Team} from "$mledb";
-import type {GameMode} from "$models";
-import {Franchise, GameSkillGroup, Player} from "$models";
-import {TeamRepository} from "$repositories";
+import type {GameMode, Round} from "$models";
+import {Franchise, GameSkillGroup, Match, MatchParent, Player, ScheduleFixture, ScheduleGroup} from "$models";
+import {MatchRepository, RoundRepository, TeamRepository} from "$repositories";
 import type {MatchSubmissionStatus} from "$types";
 
 import {
@@ -66,17 +66,19 @@ export class MatchResolver {
         @InjectRepository(SeriesToMatchParent)
         private readonly seriesToMatchParentRepo: Repository<SeriesToMatchParent>,
         private readonly dataSource: DataSource,
+        private readonly matchRepository: MatchRepository,
+        private readonly roundRepository: RoundRepository,
     ) {}
 
     @Query(() => Match)
     async getMatchBySubmissionId(@Args("submissionId") submissionId: string): Promise<Match> {
-        return this.matchService.getMatch({where: {submissionId}});
+        return this.matchRepository.getBySubmissionId(submissionId);
     }
 
     @Mutation(() => String)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async postReportCard(@Args("matchId") matchId: number): Promise<string> {
-        const match = await this.matchService.getMatchById(matchId);
+        const match = await this.matchRepository.getById(matchId);
 
         if (!match.skillGroup) {
             match.skillGroup = await this.populate.populateOneOrFail(Match, match, "skillGroup");

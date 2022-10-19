@@ -1,16 +1,13 @@
 import {Injectable, Logger} from "@nestjs/common";
-import {InjectRepository} from "@nestjs/typeorm";
 import type {BallchasingPlayer, CoreEndpoint, CoreOutput} from "@sprocketbot/common";
-import type {FindOneOptions, FindOptionsRelations} from "typeorm";
-import {DataSource, IsNull, Not, Repository} from "typeorm";
+import {DataSource, IsNull, Not} from "typeorm";
 
-import type {Team} from "$models";
-import {Franchise} from "$models";
-import {TeamRepository} from "$repositories";
+import type {Invalidation, Round, ScheduledEvent, ScrimMeta, Team} from "$models";
+import {Franchise, ScheduleFixture} from "$models";
+import {InvalidationRepository, MatchRepository, RoundRepository, TeamRepository} from "$repositories";
+import {PlayerStatLineStatsSchema} from "$types";
 import {PopulateService} from "$util";
 
-import type {ScheduledEvent, ScrimMeta} from "../../database";
-import {Invalidation, Match, PlayerStatLineStatsSchema, Round, ScheduleFixture} from "../../database";
 import type {CalculateEloForMatchInput, MatchSummary, PlayerSummary} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint, GameMode, TeamColor} from "../../elo/elo-connector";
 
@@ -33,51 +30,14 @@ export class MatchService {
     private readonly logger = new Logger(MatchService.name);
 
     constructor(
-        @InjectRepository(Match) private matchRepository: Repository<Match>,
-        @InjectRepository(Invalidation)
-        private invalidationRepository: Repository<Invalidation>,
-        @InjectRepository(Round)
-        private readonly roundRepository: Repository<Round>,
+        private readonly matchRepository: MatchRepository,
+        private readonly invalidationRepository: InvalidationRepository,
+        private readonly roundRepository: RoundRepository,
         private readonly teamRepository: TeamRepository,
-        private dataSource: DataSource,
+        private readonly dataSource: DataSource,
         private readonly popService: PopulateService,
         private readonly eloConnectorService: EloConnectorService,
     ) {}
-
-    async createMatch(isDummy?: boolean, invalidationId?: number): Promise<Match> {
-        let invalidation: Invalidation | undefined;
-        if (invalidationId)
-            invalidation = await this.invalidationRepository.findOneOrFail({
-                where: {id: invalidationId},
-            });
-
-        const match = this.matchRepository.create({
-            isDummy: isDummy,
-            invalidation: invalidation,
-            rounds: [],
-        });
-
-        return this.matchRepository.save(match);
-    }
-
-    async getMatchBySubmissionId(submissionId: string): Promise<Match> {
-        return this.matchRepository.findOneOrFail({
-            where: {
-                submissionId: submissionId,
-            },
-        });
-    }
-
-    async getMatchById(matchId: number, relations?: FindOptionsRelations<Match>): Promise<Match> {
-        return this.matchRepository.findOneOrFail({
-            where: {id: matchId},
-            relations: relations,
-        });
-    }
-
-    async getMatch(query: FindOneOptions<Match>): Promise<Match> {
-        return this.matchRepository.findOneOrFail(query);
-    }
 
     async getMatchParentEntity(matchId: number): Promise<MatchParentResponse> {
         const populatedMatch = await this.matchRepository.findOneOrFail({

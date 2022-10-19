@@ -5,7 +5,7 @@ import {BaseModel} from "../../base-model";
 import {GameSkillGroup} from "../../franchise/models";
 import {GameMode} from "../../game/models";
 import {Invalidation} from "../invalidation/invalidation.model";
-import {MatchParent} from "../match_parent";
+import {MatchParent} from "../match_parent/match_parent.model";
 import {Round} from "../round/round.model";
 import {MatchSubmissionStatus} from "./match.types";
 
