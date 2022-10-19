@@ -6,8 +6,7 @@ import {MLE_OrganizationTeam} from "$mledb";
 import {GameMode, GameSkillGroup} from "$models";
 import {GameModeRepository, GameSkillGroupRepository} from "$repositories";
 
-import type {UserPayload} from "../identity";
-import {CurrentUser} from "../identity";
+import {CurrentUser,UserPayload} from "../identity";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
 import {OrGuard} from "../util/or.guard";

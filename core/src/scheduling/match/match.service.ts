@@ -1,8 +1,8 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {BallchasingPlayer, CoreEndpoint, CoreOutput} from "@sprocketbot/common";
-import type {FindOneOptions, FindOptionsRelations, Repository} from "typeorm";
-import {DataSource, IsNull, Not} from "typeorm";
+import type {FindOneOptions, FindOptionsRelations} from "typeorm";
+import {DataSource, IsNull, Not, Repository} from "typeorm";
 
 import type {Team} from "$models";
 import {Franchise} from "$models";
@@ -12,7 +12,7 @@ import {PopulateService} from "$util";
 import type {ScheduledEvent, ScrimMeta} from "../../database";
 import {Invalidation, Match, PlayerStatLineStatsSchema, Round, ScheduleFixture} from "../../database";
 import type {CalculateEloForMatchInput, MatchSummary, PlayerSummary} from "../../elo/elo-connector";
-import {EloConnectorService,EloEndpoint, GameMode, TeamColor} from "../../elo/elo-connector";
+import {EloConnectorService, EloEndpoint, GameMode, TeamColor} from "../../elo/elo-connector";
 
 export type MatchParentResponse =
     | {
