@@ -26,7 +26,7 @@ import {
     RocketLeagueMap,
 } from "$mledb";
 import type {GameMode, GameSkillGroup} from "$models";
-import { Match} from "$models";
+import {Match} from "$models";
 import {GameModeRepository, GameSkillGroupRepository} from "$repositories";
 
 import {GameSkillGroupService} from "../../franchise";
