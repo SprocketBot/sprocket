@@ -11,7 +11,6 @@ import {GameModule} from "../game";
 import {AuthModule} from "../identity";
 import {MledbInterfaceModule} from "../mledb";
 import {OrganizationModule} from "../organization";
-import {MatchService, RoundService} from "../scheduling";
 import {UtilModule} from "../util/util.module";
 import {ScrimPubSub} from "./constants";
 import {ScrimMetricsResolver} from "./metrics";
@@ -42,17 +41,15 @@ import {ScrimToggleResolver, ScrimToggleService} from "./scrim-toggle";
         BullModule.registerQueue({name: "scrim"}),
     ],
     providers: [
-        ScrimModuleResolver,
-        ScrimModuleResolverPublic,
         {
             provide: ScrimPubSub,
             useValue: new PubSub(),
         },
+        ScrimModuleResolver,
+        ScrimModuleResolverPublic,
         ScrimConsumer,
         ScrimService,
         ScrimResolver,
-        MatchService,
-        RoundService,
         ScrimMetricsResolver,
         ScrimMetaCrudService,
         ScrimManagementResolver,

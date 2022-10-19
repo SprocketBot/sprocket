@@ -1,24 +1,20 @@
 import {Args, Query, ResolveField, Resolver, Root} from "@nestjs/graphql";
-import {InjectRepository} from "@nestjs/typeorm";
-import {Repository} from "typeorm";
 
-import type {Franchise} from "$models";
+import type {Franchise, Match, ScheduleGroup} from "$models";
+import {ScheduleFixture} from "$models";
+import {ScheduleFixtureRepository} from "$repositories";
 import {PopulateService} from "$util";
-
-import type {Match, ScheduleGroup} from "../../database";
-import {ScheduleFixture} from "../../database";
 
 @Resolver(() => ScheduleFixture)
 export class ScheduleFixtureResolver {
     constructor(
+        private readonly scheduleFixtureRepository: ScheduleFixtureRepository,
         private readonly populate: PopulateService,
-        @InjectRepository(ScheduleFixture)
-        private readonly scheduleFixtureRepo: Repository<ScheduleFixture>,
     ) {}
 
     @Query(() => ScheduleFixture)
     async getFixture(@Args("id") id: number): Promise<ScheduleFixture> {
-        return this.scheduleFixtureRepo.findOneOrFail({where: {id}});
+        return this.scheduleFixtureRepository.findOneOrFail({where: {id}});
     }
 
     @ResolveField()
@@ -44,7 +40,7 @@ export class ScheduleFixtureResolver {
     @ResolveField()
     async matches(@Root() root: ScheduleFixture): Promise<Match[]> {
         if (root.matches) return root.matches;
-        const t = await this.scheduleFixtureRepo.findOneOrFail({
+        const t = await this.scheduleFixtureRepository.findOneOrFail({
             where: {
                 id: root.id,
             },

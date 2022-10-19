@@ -10,13 +10,9 @@ import {MatchService} from "./match";
 import {MatchController} from "./match/match.controller";
 import {MatchResolver} from "./match/match.resolver";
 import {MatchParentResolver} from "./match-parent/match-parent.resolver";
-import {RoundService} from "./round";
-import {ScheduleFixtureResolver} from "./schedule-fixture/schedule-fixture.resolver";
-import {ScheduleFixtureService} from "./schedule-fixture/schedule-fixture.service";
-import {ScheduleGroupModResolver} from "./schedule-group/schedule-group.mod.resolver";
-import {ScheduleGroupResolver} from "./schedule-group/schedule-group.resolver";
-import {ScheduleGroupService} from "./schedule-group/schedule-group.service";
-import {ScheduleGroupTypeService} from "./schedule-group/schedule-group-type.service";
+import {ScheduleFixtureResolver} from "./schedule-fixture";
+import {ScheduleGroupResolver} from "./schedule-group";
+import {ScheduleGroupTypeResolver} from "./schedule-group-type";
 
 @Module({
     imports: [
@@ -30,17 +26,13 @@ import {ScheduleGroupTypeService} from "./schedule-group/schedule-group-type.ser
     ],
     providers: [
         MatchService,
-        RoundService,
-        ScheduleGroupModResolver,
         ScheduleGroupResolver,
-        ScheduleGroupService,
-        ScheduleGroupTypeService,
-        ScheduleFixtureService,
+        ScheduleGroupTypeResolver,
         ScheduleFixtureResolver,
         MatchResolver,
         MatchParentResolver,
     ],
-    exports: [MatchService, RoundService],
+    exports: [MatchService],
     controllers: [MatchController],
 })
 export class SchedulingModule {}

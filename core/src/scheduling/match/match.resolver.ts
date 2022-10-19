@@ -14,12 +14,11 @@ import {DataSource, Repository} from "typeorm";
 import {SeriesToMatchParent} from "$bridge/series_to_match_parent.model";
 import type {League} from "$mledb";
 import {LegacyGameMode, MLE_OrganizationTeam, MLE_SeriesReplay, MLE_Team} from "$mledb";
-import type {GameMode} from "$models";
-import {Franchise, GameSkillGroup, Player} from "$models";
-import {TeamRepository} from "$repositories";
+import type {GameMode, Round} from "$models";
+import {Franchise, GameSkillGroup, Match, MatchParent, Player, ScheduleFixture, ScheduleGroup} from "$models";
+import {MatchRepository, RoundRepository, TeamRepository} from "$repositories";
 import type {MatchSubmissionStatus} from "$types";
 
-import {Match, MatchParent, Round, ScheduleFixture, ScheduleGroup} from "../../database";
 import {CurrentPlayer} from "../../franchise/player";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MledbMatchService} from "../../mledb/mledb-match/mledb-match.service";
@@ -39,24 +38,24 @@ export class MatchResolver {
         private readonly eventsService: EventsService,
         private readonly submissionService: SubmissionService,
         private readonly teamRepository: TeamRepository,
-        @InjectRepository(Match) private readonly matchRepository: Repository<Match>,
-        @InjectRepository(Round) private readonly roundRepository: Repository<Round>,
         @InjectRepository(MLE_Team) private readonly mleTeamRepo: Repository<MLE_Team>,
         @InjectRepository(MLE_SeriesReplay) private readonly seriesReplayRepo: Repository<MLE_SeriesReplay>,
         @InjectRepository(SeriesToMatchParent)
         private readonly seriesToMatchParentRepo: Repository<SeriesToMatchParent>,
         private readonly dataSource: DataSource,
+        private readonly matchRepository: MatchRepository,
+        private readonly roundRepository: RoundRepository,
     ) {}
 
     @Query(() => Match)
     async getMatchBySubmissionId(@Args("submissionId") submissionId: string): Promise<Match> {
-        return this.matchService.getMatch({where: {submissionId}});
+        return this.matchRepository.getBySubmissionId(submissionId);
     }
 
     @Mutation(() => String)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async postReportCard(@Args("matchId") matchId: number): Promise<string> {
-        const match = await this.matchService.getMatchById(matchId);
+        const match = await this.matchRepository.getById(matchId);
 
         if (!match.skillGroup) {
             match.skillGroup = await this.populate.populateOneOrFail(Match, match, "skillGroup");

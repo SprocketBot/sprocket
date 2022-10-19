@@ -26,9 +26,9 @@ import {
     RocketLeagueMap,
 } from "$mledb";
 import type {GameMode, GameSkillGroup} from "$models";
+import { Match} from "$models";
 import {GameModeRepository, GameSkillGroupRepository} from "$repositories";
 
-import {Match} from "../../database";
 import {GameSkillGroupService} from "../../franchise";
 import {UserService} from "../../identity";
 import type {MatchReplaySubmission, ScrimReplaySubmission} from "../../replay-parse";
