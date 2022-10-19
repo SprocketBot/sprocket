@@ -2,8 +2,7 @@ import {Field, ObjectType} from "@nestjs/graphql";
 import {Column, Entity, ManyToOne, OneToMany} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {Game} from "../../game/models";
-import {GameMode} from "../../game/models";
+import {Game, GameMode} from "../../game/models";
 import {Member} from "../../organization/models";
 import {MatchParent} from "../match_parent";
 

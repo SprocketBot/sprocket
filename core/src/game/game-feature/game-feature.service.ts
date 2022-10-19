@@ -1,7 +1,7 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {GraphQLError} from "graphql";
 
-import {EnabledFeature} from "$models";
+import type {EnabledFeature} from "$models";
 import {EnabledFeatureRepository, GameFeatureRepository, OrganizationRepository} from "$repositories";
 import type {FeatureCode} from "$types";
 

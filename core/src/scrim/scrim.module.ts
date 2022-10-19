@@ -5,7 +5,6 @@ import {PubSub} from "apollo-server-express";
 
 import {ConfigurationModule} from "../configuration";
 import {DatabaseModule} from "../database";
-import {SchedulingModule} from "../database/scheduling";
 import {EloConnectorModule} from "../elo/elo-connector";
 import {FranchiseModule} from "../franchise";
 import {GameModule} from "../game";
@@ -34,7 +33,6 @@ import {ScrimToggleResolver, ScrimToggleService} from "./scrim-toggle";
         GameModule,
         AuthModule,
         RedisModule,
-        SchedulingModule,
         MatchmakingModule,
         DatabaseModule,
         OrganizationModule,

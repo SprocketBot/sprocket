@@ -7,7 +7,8 @@ import type {
     ReplaySubmission,
     Scrim,
 } from "@sprocketbot/common";
-import type {EntityManager, Repository} from "typeorm";
+import type {EntityManager} from "typeorm";
+import { Repository} from "typeorm";
 
 import type {League, MLE_Platform} from "$mledb";
 import {

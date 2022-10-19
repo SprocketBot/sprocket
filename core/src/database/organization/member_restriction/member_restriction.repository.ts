@@ -1,6 +1,8 @@
 import {Injectable} from "@nestjs/common";
-import {EventsService, EventTopic, MemberRestrictionType} from "@sprocketbot/common";
-import {DataSource, DeepPartial, FindOptionsWhere, IsNull, MoreThan} from "typeorm";
+import type { MemberRestrictionType} from "@sprocketbot/common";
+import {EventsService, EventTopic} from "@sprocketbot/common";
+import type { DeepPartial, FindOptionsWhere} from "typeorm";
+import {DataSource, IsNull, MoreThan} from "typeorm";
 
 import {ExtendedRepository} from "../../extended-repositories";
 import {MemberRestriction} from "./member_restriction.model";

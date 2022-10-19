@@ -1,5 +1,6 @@
+import type {MLE_Scrim, MLE_Series} from "$mledb";
+
 import type {Match, ScrimMeta} from "../../database";
-import type {MLE_Scrim, MLE_Series} from "../../database/mledb";
 
 export interface SaveScrimFinalizationReturn {
     scrim: ScrimMeta;

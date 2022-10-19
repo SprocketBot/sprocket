@@ -5,7 +5,8 @@ import {PubSub} from "apollo-server-express";
 import type {FileUpload} from "graphql-upload";
 import {GraphQLUpload} from "graphql-upload";
 
-import {MLE_OrganizationTeam} from "../database/mledb";
+import {MLE_OrganizationTeam} from "$mledb";
+
 import {CurrentUser, UserPayload} from "../identity";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";

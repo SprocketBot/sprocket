@@ -2,7 +2,7 @@ import {Module} from "@nestjs/common";
 import {InjectDataSource, TypeOrmModule} from "@nestjs/typeorm";
 import {config} from "@sprocketbot/common";
 import {readFileSync} from "fs";
-import type {DataSource} from "typeorm";
+import {DataSource} from "typeorm";
 
 import {AuthorizationModule} from "./authorization/authorization.module";
 import {ConfigurationModule} from "./configuration/configuration.module";

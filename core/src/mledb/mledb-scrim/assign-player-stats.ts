@@ -1,6 +1,6 @@
 import type {BallchasingPlayer} from "@sprocketbot/common";
 
-import type {MLE_PlayerStats, MLE_PlayerStatsCore} from "../../database/mledb";
+import type {MLE_PlayerStats, MLE_PlayerStatsCore} from "$mledb";
 const platformLookup: Map<string, string> = new Map([
     ["XBox", "XBOX"],
     ["PS4", "PS4"],

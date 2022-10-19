@@ -1,5 +1,4 @@
 import {Inject, Injectable} from "@nestjs/common";
-import {InjectDataSource} from "@nestjs/typeorm";
 import type {FindOneOptions} from "typeorm";
 import {DataSource} from "typeorm";
 

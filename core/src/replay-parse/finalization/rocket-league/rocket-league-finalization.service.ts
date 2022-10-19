@@ -1,5 +1,4 @@
 import {Injectable, Logger} from "@nestjs/common";
-import {InjectDataSource} from "@nestjs/typeorm";
 import type {BallchasingPlayer, BallchasingResponse, BallchasingTeam, Scrim} from "@sprocketbot/common";
 import {BallchasingResponseSchema, Parser, ProgressStatus} from "@sprocketbot/common";
 import type {EntityManager} from "typeorm";
@@ -33,7 +32,7 @@ export class RocketLeagueFinalizationService {
         private readonly teamRepository: TeamRepository,
         private readonly ballchasingConverter: BallchasingConverterService,
         private readonly mledbFinalizationService: MledbFinalizationService,
-        @InjectDataSource() private readonly dataSource: DataSource,
+        private readonly dataSource: DataSource,
     ) {}
 
     async finalizeScrim(submission: ScrimReplaySubmission, scrim: Scrim): Promise<SaveScrimFinalizationReturn> {

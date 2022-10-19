@@ -1,5 +1,6 @@
 import type {ModelLifecycleFields} from "./base-model";
 
+export * from "./base-model";
 export * from "./database.module";
 export * from "./identity";
 export * from "./scheduling";

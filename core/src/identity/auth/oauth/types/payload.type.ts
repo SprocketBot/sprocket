@@ -1,4 +1,4 @@
-import type {MLE_OrganizationTeam} from "../../../../database/mledb";
+import type {MLE_OrganizationTeam} from "$mledb";
 
 export class AuthPayload {
     sub: string;

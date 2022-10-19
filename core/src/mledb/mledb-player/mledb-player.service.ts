@@ -1,7 +1,7 @@
 import {forwardRef, Inject, Injectable, Logger} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {config} from "@sprocketbot/common";
-import type {Repository} from "typeorm";
+import {Repository} from "typeorm";
 
 import type {MLE_Platform} from "$mledb";
 import {MLE_Player, MLE_PlayerAccount, MLE_PlayerToOrg, MLE_Team, MLE_TeamToCaptain} from "$mledb";

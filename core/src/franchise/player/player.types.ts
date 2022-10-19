@@ -1,6 +1,6 @@
 import {z} from "zod";
 
-import {League, ModePreference, Timezone} from "../../database/mledb";
+import {League, ModePreference, Timezone} from "$mledb";
 
 export interface GameAndOrganization {
     gameId: number;

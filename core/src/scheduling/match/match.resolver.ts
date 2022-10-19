@@ -11,14 +11,13 @@ import {InjectDataSource, InjectRepository} from "@nestjs/typeorm";
 import {
     EventsService, EventTopic, Parser, ReplaySubmissionStatus, ResponseStatus, SubmissionEndpoint, SubmissionService,
 } from "@sprocketbot/common";
-import type {Repository} from "typeorm";
-import {DataSource} from "typeorm";
+import {DataSource, Repository} from "typeorm";
 
 import {SeriesToMatchParent} from "$bridge/series_to_match_parent.model";
 import type {League} from "$mledb";
 import {LegacyGameMode, MLE_OrganizationTeam, MLE_SeriesReplay, MLE_Team} from "$mledb";
-import type {GameMode, Player} from "$models";
-import {Franchise, GameSkillGroup} from "$models";
+import type {GameMode} from "$models";
+import {Franchise, GameSkillGroup, Player} from "$models";
 import {TeamRepository} from "$repositories";
 import type {MatchSubmissionStatus} from "$types";
 
