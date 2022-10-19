@@ -24,10 +24,12 @@ import {
 } from "@sprocketbot/common";
 import type {FileUpload} from "graphql-upload";
 import {GraphQLUpload} from "graphql-upload";
-import {Repository} from "typeorm";
+import type {Repository} from "typeorm";
 
-import {Member} from "$models";
-import {OrganizationProfileRepository} from "$repositories";
+import {League, LeagueOrdinals, MLE_OrganizationTeam, MLE_Platform, ModePreference, Timezone} from "$mledb";
+import type {GameSkillGroup} from "$models";
+import {Member, Player} from "$models";
+import {GameSkillGroupRepository, OrganizationProfileRepository} from "$repositories";
 
 import type {GameSkillGroup} from "../../database";
 import {Player, UserAuthenticationAccount, UserAuthenticationAccountType} from "../../database";
@@ -47,7 +49,6 @@ import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {PopulateService} from "../../util/populate/populate.service";
 import {FranchiseService} from "../franchise";
-import {GameSkillGroupService} from "../game-skill-group";
 import {PlayerService} from "./player.service";
 import {EloRedistributionSchema, IntakeSchema} from "./player.types";
 
@@ -76,7 +77,7 @@ export class PlayerResolver {
         private readonly popService: PopulateService,
         private readonly playerService: PlayerService,
         private readonly franchiseService: FranchiseService,
-        private readonly skillGroupService: GameSkillGroupService,
+        private readonly skillGroupRepository: GameSkillGroupRepository,
         private readonly eventsService: EventsService,
         private readonly notificationService: NotificationService,
         private readonly eloConnectorService: EloConnectorService,
@@ -154,14 +155,7 @@ export class PlayerResolver {
             },
         });
 
-        const skillGroup = await this.skillGroupService.getGameSkillGroup({
-            where: {
-                id: skillGroupId,
-            },
-            relations: {
-                profile: true,
-            },
-        });
+        const skillGroup = await this.skillGroupRepository.getById(skillGroupId, {relations: {profile: true}});
 
         const discordAccount = await this.userAuthRepository.findOneOrFail({
             where: {
@@ -341,7 +335,7 @@ export class PlayerResolver {
         @Args("accounts", {type: () => [IntakePlayerAccount]})
         accounts: IntakePlayerAccount[],
     ): Promise<Player> {
-        const sg = await this.skillGroupService.getGameSkillGroup({
+        const sg = await this.skillGroupRepository.get({
             where: {ordinal: LeagueOrdinals.indexOf(league) + 1},
         });
         return this.playerService.intakePlayer(
@@ -373,7 +367,14 @@ export class PlayerResolver {
             .filter(r => r.length > 1);
         const parsed = IntakeSchema.parse(results);
 
-        const imported: Player[] = [];
+        const imported = await Promise.allSettled(
+            parsed.map(async player => {
+                const sg = await this.skillGroupRepository.get({
+                    where: {ordinal: LeagueOrdinals.indexOf(player.skillGroup) + 1},
+                });
+                const accs = player.accounts.map(acc => {
+                    const match = acc.match(/rocket-league\/profile\/(\w+)\/([\w _.\-%[\]]+)/);
+                    if (!match) throw new Error("Failed to match tracker");
 
         for (const player of parsed) {
             const sg = await this.skillGroupService.getGameSkillGroup({where: {ordinal: LeagueOrdinals.indexOf(player.skillGroup) + 1} });

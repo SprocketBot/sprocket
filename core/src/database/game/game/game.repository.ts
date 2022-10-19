@@ -1,5 +1,6 @@
 import {Injectable} from "@nestjs/common";
-import {DataSource, FindOneOptions} from "typeorm";
+import type {FindOneOptions} from "typeorm";
+import {DataSource} from "typeorm";
 
 import {ExtendedRepository} from "../../extended-repositories/repository";
 import {Game} from "./game.model";

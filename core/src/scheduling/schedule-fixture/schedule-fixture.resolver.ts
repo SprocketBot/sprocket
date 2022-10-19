@@ -1,10 +1,12 @@
 import {Args, Query, ResolveField, Resolver, Root} from "@nestjs/graphql";
 import {InjectRepository} from "@nestjs/typeorm";
-import {Repository} from "typeorm";
+import type {Repository} from "typeorm";
 
-import type {Franchise, Match, ScheduleGroup} from "../../database";
+import type {Franchise} from "$models";
+import {PopulateService} from "$util";
+
+import type {Match, ScheduleGroup} from "../../database";
 import {ScheduleFixture} from "../../database";
-import {PopulateService} from "../../util/populate/populate.service";
 
 @Resolver(() => ScheduleFixture)
 export class ScheduleFixtureResolver {

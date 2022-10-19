@@ -2,7 +2,7 @@ import {Field, ObjectType} from "@nestjs/graphql";
 import {Entity, ManyToOne, OneToMany} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {FranchiseLeadershipAppointment} from "../../franchise/franchise_leadership_appointment";
+import {FranchiseLeadershipAppointment} from "../../franchise/models";
 import {FranchiseLeadershipRole} from "../franchise_leadership_role/franchise_leadership_role.model";
 
 @Entity({schema: "sprocket"})

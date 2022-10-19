@@ -17,14 +17,14 @@ import {
     ResponseStatus,
     ScrimStatus,
 } from "@sprocketbot/common";
-import {PubSub} from "apollo-server-express";
-import {Repository} from "typeorm";
+import type {PubSub} from "apollo-server-express";
+import type {Repository} from "typeorm";
+
+import {FranchiseProfiledRepository, GameSkillGroupProfiledRepository} from "$repositories";
 
 import {PlayerStatLine} from "../database";
-import {GameSkillGroupService} from "../franchise";
 import {FranchiseService} from "../franchise/franchise";
 import {MledbFinalizationService} from "../mledb";
-import {MemberService} from "../organization";
 import {ScrimPubSub} from "./constants";
 import type {Scrim} from "./types";
 
@@ -37,9 +37,9 @@ export class ScrimService {
     constructor(
         private readonly matchmakingService: MatchmakingService,
         private readonly eventsService: EventsService,
-        private readonly gameSkillGroupService: GameSkillGroupService,
-        private readonly memberService: MemberService,
+        private readonly skillGroupProfiledRepository: GameSkillGroupProfiledRepository,
         private readonly franchiseService: FranchiseService,
+        private readonly franchiseProfiledRepository: FranchiseProfiledRepository,
         private readonly mleScrimService: MledbFinalizationService,
         @Inject(ScrimPubSub) private readonly pubsub: PubSub,
         @InjectRepository(PlayerStatLine)
@@ -169,13 +169,11 @@ export class ScrimService {
         return this.mleScrimService.getScrimIdByBallchasingId(roundStats.ballchasingId);
     }
 
-    async getRelevantWebhooks(scrim: CoreInput<CoreEndpoint.GetScrimReportCardWebhooks>): Promise<CoreOutput<CoreEndpoint.GetScrimReportCardWebhooks>> {
-        const skillGroup = await this.gameSkillGroupService.getGameSkillGroupById(scrim.skillGroupId, {
-            relations: {
-                profile: {
-                    scrimReportCardWebhook: true,
-                },
-            },
+    async getRelevantWebhooks(
+        scrim: CoreInput<CoreEndpoint.GetScrimReportCardWebhooks>,
+    ): Promise<CoreOutput<CoreEndpoint.GetScrimReportCardWebhooks>> {
+        const skillGroupProfile = await this.skillGroupProfiledRepository.profileRepository.get({
+            where: {skillGroupId: scrim.skillGroupId},
         });
 
         // TODO: Refactor after we move to sprocket rosters
@@ -185,21 +183,18 @@ export class ScrimService {
                 if (!mleFranchise?.length) return undefined;
                 const mleTeam = mleFranchise[0];
 
-            const franchise = await this.franchiseService.getFranchise({
-                where: {profile: {title: mleTeam.name} },
-                relations: {
-                    profile: {
-                        scrimReportCardWebhook: true,
-                    },
-                },
-            }).catch(() => null);
-            if (!franchise) return undefined;
+                const franchise = await this.franchiseProfiledRepository.primaryRepository.getOrNull({
+                    where: {profile: {title: mleTeam.name}},
+                    relations: {profile: true},
+                });
+                if (!franchise) return undefined;
 
-            return franchise.profile;
-        }));
+                return this.franchiseProfiledRepository.profileRepository.getByFranchiseId(franchise.id);
+            }),
+        );
 
         return {
-            skillGroupWebhook: skillGroup.profile.scrimReportCardWebhook?.url,
+            skillGroupWebhook: skillGroupProfile.scrimReportCardWebhook?.url,
             franchiseWebhooks: Array.from(new Set(franchiseProfiles.map(fp => fp?.scrimReportCardWebhook?.url).filter(f => f))) as string[],
         };
     }

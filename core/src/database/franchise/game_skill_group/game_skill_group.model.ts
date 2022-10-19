@@ -4,10 +4,10 @@ import {Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne} from "typeor
 import {BaseModel} from "../../base-model";
 import {Game} from "../../game/models";
 import {Organization} from "../../organization/models";
-import {GameSkillGroupProfile} from "../game_skill_group_profile";
-import {Player} from "../player";
-import {RosterRoleUseLimits} from "../roster_role_use_limits";
-import {Team} from "../team";
+import {GameSkillGroupProfile} from "../game_skill_group_profile/game_skill_group_profile.model";
+import {Player} from "../player/player.model";
+import {RosterRoleUseLimits} from "../roster_role_use_limits/roster_role_use_limits.model";
+import {Team} from "../team/team.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

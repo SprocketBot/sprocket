@@ -1,29 +1,14 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {CoreEndpoint, CoreOutput} from "@sprocketbot/common";
-import type {FindOperator, FindOptionsRelations} from "typeorm";
-import {Raw, Repository} from "typeorm";
+import type {FindOperator, FindOptionsRelations, Repository} from "typeorm";
+import {Raw} from "typeorm";
 
-import {GameMode} from "$models";
+import type {League} from "$mledb";
+import {LegacyGameMode, MLE_Fixture, MLE_Series, MLE_SeriesReplay, MLE_Team, MLE_TeamToCaptain} from "$mledb";
+import {Franchise, GameMode, GameSkillGroup} from "$models";
 
-import {
-    Franchise,
-    GameSkillGroup,
-    Match,
-    MatchParent,
-    ScheduleFixture,
-    ScheduleGroup,
-    ScheduleGroupType,
-} from "../../database";
-import type {League} from "../../database/mledb";
-import {
-    LegacyGameMode,
-    MLE_Fixture,
-    MLE_Series,
-    MLE_SeriesReplay,
-    MLE_Team,
-    MLE_TeamToCaptain,
-} from "../../database/mledb";
+import {Match, MatchParent, ScheduleFixture, ScheduleGroup, ScheduleGroupType} from "../../database";
 import {MatchService} from "../../scheduling";
 import {PopulateService} from "../../util/populate/populate.service";
 

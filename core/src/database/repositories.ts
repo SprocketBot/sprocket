@@ -1,6 +1,7 @@
 export * from "./authorization/repositories";
 export * from "./configuration/repositories";
 export * from "./draft/repositories";
+export * from "./franchise/repositories";
 export * from "./game/repositories";
 export * from "./image-gen/repositories";
 export * from "./organization/repositories";

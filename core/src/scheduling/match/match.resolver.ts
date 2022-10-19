@@ -11,9 +11,16 @@ import {InjectDataSource, InjectRepository} from "@nestjs/typeorm";
 import {
     EventsService, EventTopic, Parser, ReplaySubmissionStatus, ResponseStatus, SubmissionEndpoint, SubmissionService,
 } from "@sprocketbot/common";
-import {DataSource, Repository} from "typeorm";
+import type {Repository} from "typeorm";
+import {DataSource} from "typeorm";
 
-import type {GameMode} from "$models";
+import {SeriesToMatchParent} from "$bridge/series_to_match_parent.model";
+import type {League} from "$mledb";
+import {LegacyGameMode, MLE_OrganizationTeam, MLE_SeriesReplay, MLE_Team} from "$mledb";
+import type {GameMode, Player} from "$models";
+import {Franchise, GameSkillGroup} from "$models";
+import {TeamRepository} from "$repositories";
+import type {MatchSubmissionStatus} from "$types";
 
 import {
     Franchise,
@@ -59,7 +66,7 @@ export class MatchResolver {
         @InjectRepository(MLE_SeriesReplay) private readonly seriesReplayRepo: Repository<MLE_SeriesReplay>,
         @InjectRepository(SeriesToMatchParent)
         private readonly seriesToMatchParentRepo: Repository<SeriesToMatchParent>,
-        @InjectDataSource() private readonly dataSource: DataSource,
+        private readonly dataSource: DataSource,
     ) {}
 
     @Query(() => Match)
@@ -144,10 +151,8 @@ export class MatchResolver {
 
             // Have to translate from Team ID to Franchise Profile to get name (for
             // MLEDB schema)
-            const team = await this.teamRepo.findOneOrFail({
-                where: {
-                    id: winningTeamId,
-                },
+            const team = await this.teamRepository.getOrNull({
+                where: {id: winningTeamId},
                 relations: {
                     franchise: {
                         profile: true,
@@ -155,7 +160,7 @@ export class MatchResolver {
                 },
             });
 
-            const match = await this.matchRepo.findOneOrFail({
+            const match = await this.matchRepository.findOneOrFail({
                 where: {
                     id: matchId,
                 },
@@ -170,7 +175,7 @@ export class MatchResolver {
                 },
             });
 
-            await this.mledbMatchService.markSeriesNcp(bridgeObject.seriesId, isNcp, team.franchise.profile.title);
+            await this.mledbMatchService.markSeriesNcp(bridgeObject.seriesId, isNcp, team?.franchise.profile.title);
 
             await qr.commitTransaction();
             this.logger.verbose(`Successfully marked series ${matchId} NCP:${isNcp}`);
@@ -195,7 +200,7 @@ export class MatchResolver {
         try {
             this.logger.verbose(`Marking replays ${roundIds} as NCP:${isNcp}. Winning team ID: ${winningTeamId}`);
             // We need the actual team object from the DB for replay level NCPs
-            const winningTeamInput = await this.teamRepo.findOneOrFail({
+            const winningTeamInput = await this.teamRepository.findOneOrFail({
                 where: {
                     id: winningTeamId,
                 },
@@ -344,7 +349,7 @@ export class MatchResolver {
 
     @ResolveField()
     async submissionStatus(@Root() root: Match): Promise<MatchSubmissionStatus> {
-        const match = await this.matchRepo.findOneOrFail({
+        const match = await this.matchRepository.findOneOrFail({
             where: {
                 id: root.id,
             },

@@ -1,14 +1,18 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {BallchasingPlayer, CoreEndpoint, CoreOutput} from "@sprocketbot/common";
-import type {FindOneOptions, FindOptionsRelations} from "typeorm";
-import {DataSource, IsNull, Not, Repository} from "typeorm";
+import type {FindOneOptions, FindOptionsRelations, Repository} from "typeorm";
+import {DataSource, IsNull, Not} from "typeorm";
+
+import type {Team} from "$models";
+import {Franchise} from "$models";
+import {TeamRepository} from "$repositories";
+import {PopulateService} from "$util";
 
 import type {ScheduledEvent, ScrimMeta} from "../../database";
-import {Franchise, Invalidation, Match, PlayerStatLineStatsSchema, Round, ScheduleFixture, Team} from "../../database";
+import {Invalidation, Match, PlayerStatLineStatsSchema, Round, ScheduleFixture} from "../../database";
 import type {CalculateEloForMatchInput, MatchSummary, PlayerSummary} from "../../elo/elo-connector";
-import {EloConnectorService, EloEndpoint, GameMode, TeamColor} from "../../elo/elo-connector";
-import {PopulateService} from "../../util/populate/populate.service";
+import {EloConnectorService,EloEndpoint, GameMode, TeamColor} from "../../elo/elo-connector";
 
 export type MatchParentResponse =
     | {
@@ -34,8 +38,7 @@ export class MatchService {
         private invalidationRepository: Repository<Invalidation>,
         @InjectRepository(Round)
         private readonly roundRepository: Repository<Round>,
-        @InjectRepository(Team)
-        private readonly teamRepository: Repository<Team>,
+        private readonly teamRepository: TeamRepository,
         private dataSource: DataSource,
         private readonly popService: PopulateService,
         private readonly eloConnectorService: EloConnectorService,

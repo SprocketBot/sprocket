@@ -7,15 +7,9 @@ import type {
     ReplaySubmission,
     Scrim,
 } from "@sprocketbot/common";
-import type {EntityManager} from "typeorm";
-import {Repository} from "typeorm";
+import type {EntityManager, Repository} from "typeorm";
 
-import {GameMode} from "$models";
-import {GameModeRepository} from "$repositories";
-
-import type {GameSkillGroup} from "../../database";
-import {Match} from "../../database";
-import type {League, MLE_Platform} from "../../database/mledb";
+import type {League, MLE_Platform} from "$mledb";
 import {
     LegacyGameMode,
     MLE_EligibilityData,
@@ -29,7 +23,11 @@ import {
     MLE_TeamCoreStats,
     MLE_TeamRoleUsage,
     RocketLeagueMap,
-} from "../../database/mledb";
+} from "$mledb";
+import type {GameMode, GameSkillGroup} from "$models";
+import {GameModeRepository, GameSkillGroupRepository} from "$repositories";
+
+import {Match} from "../../database";
 import {GameSkillGroupService} from "../../franchise";
 import {UserService} from "../../identity";
 import type {MatchReplaySubmission, ScrimReplaySubmission} from "../../replay-parse";
@@ -48,7 +46,7 @@ export class MledbFinalizationService {
         @InjectRepository(MLE_Player)
         private readonly mlePlayerRepository: Repository<MLE_Player>,
         @Inject(forwardRef(() => GameSkillGroupService))
-        private readonly skillGroupService: GameSkillGroupService,
+        private readonly skillGroupRepository: GameSkillGroupRepository,
         private readonly gameModeRepository: GameModeRepository,
         private readonly userService: UserService,
         private readonly sprocketRatingService: SprocketRatingService,
@@ -57,8 +55,8 @@ export class MledbFinalizationService {
 
     async getLeagueAndMode(scrim: Scrim): Promise<{mode: GameMode; group: GameSkillGroup}> {
         const gameMode = await this.gameModeRepository.getById(scrim.gameModeId);
-        const skillGroup = await this.skillGroupService.getGameSkillGroupById(scrim.skillGroupId, {
-            relations: ["profile"],
+        const skillGroup = await this.skillGroupRepository.getById(scrim.skillGroupId, {
+            relations: {profile: true},
         });
         return {
             mode: gameMode,
