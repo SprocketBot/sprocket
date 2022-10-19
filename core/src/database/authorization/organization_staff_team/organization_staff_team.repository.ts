@@ -1,5 +1,4 @@
 import {Injectable} from "@nestjs/common";
-import {InjectDataSource} from "@nestjs/typeorm";
 import {DataSource} from "typeorm";
 
 import {ExtendedRepository} from "../../extended-repositories/repository";

@@ -1,8 +1,8 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {CoreEndpoint, CoreOutput} from "@sprocketbot/common";
-import type {FindOperator, FindOptionsRelations, Repository} from "typeorm";
-import {Raw} from "typeorm";
+import type {FindOperator, FindOptionsRelations} from "typeorm";
+import {Raw, Repository} from "typeorm";
 
 import type {League} from "$mledb";
 import {LegacyGameMode, MLE_Fixture, MLE_Series, MLE_SeriesReplay, MLE_Team, MLE_TeamToCaptain} from "$mledb";

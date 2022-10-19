@@ -7,7 +7,7 @@ import {GameMode} from "../../game/models";
 import {Invalidation} from "../invalidation/invalidation.model";
 import {MatchParent} from "../match_parent";
 import {Round} from "../round/round.model";
-import type {MatchSubmissionStatus} from "./match.types";
+import {MatchSubmissionStatus} from "./match.types";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

@@ -17,8 +17,8 @@ import {
     ResponseStatus,
     ScrimStatus,
 } from "@sprocketbot/common";
-import type {PubSub} from "apollo-server-express";
-import type {Repository} from "typeorm";
+import {PubSub} from "apollo-server-express";
+import {Repository} from "typeorm";
 
 import {FranchiseProfiledRepository, GameSkillGroupProfiledRepository} from "$repositories";
 

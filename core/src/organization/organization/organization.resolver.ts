@@ -1,13 +1,10 @@
 import {UseGuards} from "@nestjs/common";
 import {Args, Int, Mutation, Query, ResolveField, Resolver, Root} from "@nestjs/graphql";
 
+import {MLE_OrganizationTeam} from "$mledb";
 import {Organization, OrganizationProfile} from "$models";
+import {OrganizationProfiledRepository, OrganizationRepository} from "$repositories";
 
-import {MLE_OrganizationTeam} from "../../database/mledb";
-import {
-    OrganizationProfiledRepository,
-    OrganizationRepository,
-} from "../../database/organization/organization/organization.repository";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {PopulateService} from "../../util/populate/populate.service";

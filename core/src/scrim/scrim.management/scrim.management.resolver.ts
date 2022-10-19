@@ -3,7 +3,8 @@ import {Args, Int, Mutation, Query, Resolver, Subscription} from "@nestjs/graphq
 import type {Scrim as IScrim} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 
-import {MLE_OrganizationTeam} from "../../database/mledb/enums";
+import {MLE_OrganizationTeam} from "$mledb";
+
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {ScrimPubSub} from "../constants";

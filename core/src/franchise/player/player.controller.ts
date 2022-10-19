@@ -11,7 +11,7 @@ import {
     NotificationEndpoint,
     NotificationService,
 } from "@sprocketbot/common";
-import type {Repository} from "typeorm";
+import {Repository} from "typeorm";
 
 import {GameSkillGroupRepository, OrganizationProfileRepository} from "$repositories";
 

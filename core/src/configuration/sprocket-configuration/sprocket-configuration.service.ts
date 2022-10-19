@@ -1,6 +1,6 @@
 import {Injectable} from "@nestjs/common";
 
-import {SprocketConfiguration} from "$models";
+import type {SprocketConfiguration} from "$models";
 import {SprocketConfigurationRepository} from "$repositories";
 
 @Injectable()

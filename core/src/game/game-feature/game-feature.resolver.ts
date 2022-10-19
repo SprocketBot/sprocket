@@ -2,10 +2,10 @@ import {UseGuards} from "@nestjs/common";
 import {Args, Mutation, Query, Resolver} from "@nestjs/graphql";
 import {GraphQLError} from "graphql";
 
+import {MLE_OrganizationTeam} from "$mledb";
 import {EnabledFeature} from "$models";
 import {FeatureCode} from "$types";
 
-import {MLE_OrganizationTeam} from "../../database/mledb";
 import {CurrentUser} from "../../identity/auth/current-user.decorator";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard/gql-jwt-guard";
 import {UserPayload} from "../../identity/auth/oauth/types/userpayload.type";

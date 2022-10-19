@@ -2,7 +2,8 @@ import type {CanActivate, ExecutionContext, Type} from "@nestjs/common";
 import {Injectable} from "@nestjs/common";
 import {GqlExecutionContext} from "@nestjs/graphql";
 
-import type {MLE_OrganizationTeam} from "../../database/mledb";
+import type {MLE_OrganizationTeam} from "$mledb";
+
 import type {UserPayload} from "../../identity";
 
 // TODO: If someone logs in with something that isn't Discord, their org teams will be undefined

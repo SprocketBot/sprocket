@@ -2,7 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {GraphQLError} from "graphql";
 import {DataSource} from "typeorm";
 
-import type {BaseModel} from "../../database/base-model";
+import type {BaseModel} from "../../database";
 
 type Class<T> = new (...args: unknown[]) => T;
 

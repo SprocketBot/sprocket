@@ -1,8 +1,8 @@
-import type {DeepPartial, FindManyOptions, FindOneOptions} from "typeorm";
-import {DataSource, Repository} from "typeorm";
+import type {DataSource,DeepPartial, FindManyOptions, FindOneOptions} from "typeorm";
+import { Repository} from "typeorm";
 
 import type {BaseModel} from "../base-model";
-import {Class} from "./repository.types";
+import type {Class} from "./repository.types";
 
 export abstract class ExtendedRepository<T extends BaseModel> extends Repository<T> {
     constructor(readonly c: Class<T>, readonly dataSource: DataSource) {

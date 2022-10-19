@@ -12,7 +12,7 @@ import {
 } from "@sprocketbot/common";
 import type {FileUpload} from "graphql-upload";
 import {GraphQLUpload} from "graphql-upload";
-import type {Repository} from "typeorm";
+import {Repository} from "typeorm";
 
 import {League, LeagueOrdinals, MLE_OrganizationTeam, MLE_Platform, ModePreference, Timezone} from "$mledb";
 import type {GameSkillGroup} from "$models";

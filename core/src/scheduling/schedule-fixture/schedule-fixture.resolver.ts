@@ -1,6 +1,6 @@
 import {Args, Query, ResolveField, Resolver, Root} from "@nestjs/graphql";
 import {InjectRepository} from "@nestjs/typeorm";
-import type {Repository} from "typeorm";
+import {Repository} from "typeorm";
 
 import type {Franchise} from "$models";
 import {PopulateService} from "$util";

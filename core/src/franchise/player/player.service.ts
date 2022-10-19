@@ -13,14 +13,14 @@ import {
     NotificationService,
     NotificationType,
 } from "@sprocketbot/common";
-import type {FindManyOptions, FindOneOptions, FindOptionsRelations, QueryRunner, Repository} from "typeorm";
-import {DataSource} from "typeorm";
+import type {FindManyOptions, FindOneOptions, FindOptionsRelations, QueryRunner} from "typeorm";
+import {DataSource, Repository} from "typeorm";
 
 import {PlayerToPlayer} from "$bridge/player_to_player.model";
 import {PlayerToUser} from "$bridge/player_to_user.model";
 import type {League, ModePreference, Timezone} from "$mledb";
 import {LeagueOrdinals, MLE_Player, MLE_PlayerAccount, Role} from "$mledb";
-import {Player} from "$models";
+import type {Player} from "$models";
 import {
     GameSkillGroupRepository,
     MemberProfiledRepository,

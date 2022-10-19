@@ -2,7 +2,7 @@ import {Injectable} from "@nestjs/common";
 import type {FindOneOptions, FindOptionsWhere} from "typeorm";
 import {Like} from "typeorm";
 
-import {
+import type {
     OrganizationConfigurationAllowedValue,
     OrganizationConfigurationKey,
     OrganizationConfigurationValue,
