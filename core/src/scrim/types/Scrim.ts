@@ -1,6 +1,6 @@
 import {Field, Int, ObjectType} from "@nestjs/graphql";
-import type { Scrim as IScrim} from "@sprocketbot/common";
-import {EventTopic,ScrimStatus} from "@sprocketbot/common";
+import type {Scrim as IScrim} from "@sprocketbot/common";
+import {EventTopic, ScrimStatus} from "@sprocketbot/common";
 
 import {GameMode, GameSkillGroup} from "$models";
 

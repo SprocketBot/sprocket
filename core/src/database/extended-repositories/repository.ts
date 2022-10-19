@@ -1,5 +1,5 @@
-import type {DataSource,DeepPartial, FindManyOptions, FindOneOptions} from "typeorm";
-import { Repository} from "typeorm";
+import type {DataSource, DeepPartial, FindManyOptions, FindOneOptions} from "typeorm";
+import {Repository} from "typeorm";
 
 import type {BaseModel} from "../base-model";
 import type {Class} from "./repository.types";

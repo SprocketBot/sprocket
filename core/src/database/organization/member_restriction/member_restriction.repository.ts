@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
-import type { MemberRestrictionType} from "@sprocketbot/common";
+import type {MemberRestrictionType} from "@sprocketbot/common";
 import {EventsService, EventTopic} from "@sprocketbot/common";
-import type { DeepPartial, FindOptionsWhere} from "typeorm";
+import type {DeepPartial, FindOptionsWhere} from "typeorm";
 import {DataSource, IsNull, MoreThan} from "typeorm";
 
 import {ExtendedRepository} from "../../extended-repositories";

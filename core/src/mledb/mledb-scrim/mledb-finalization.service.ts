@@ -8,7 +8,7 @@ import type {
     Scrim,
 } from "@sprocketbot/common";
 import type {EntityManager} from "typeorm";
-import { Repository} from "typeorm";
+import {Repository} from "typeorm";
 
 import type {League, MLE_Platform} from "$mledb";
 import {
