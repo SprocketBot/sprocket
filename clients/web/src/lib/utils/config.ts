@@ -29,7 +29,7 @@ export const loadConfig = async (): Promise<Config> => {
                     "client.chatwoot.websiteToken",
                 ),
             },
-            stack,
+            stack: stack,
         },
         server: {
             chatwoot: {
@@ -38,7 +38,7 @@ export const loadConfig = async (): Promise<Config> => {
                     .toString()
                     .trim(),
             },
-            stack,
+            stack: stack,
         },
     };
 

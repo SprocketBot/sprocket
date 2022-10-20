@@ -19,7 +19,7 @@ export const GET = async ({params}: Request): Promise<EndpointOutput> => {
         return {
             status: 200,
             body: JSON.stringify({
-                getURL,
+                getURL: getURL,
                 size: objectStats.size,
             }),
         };
