@@ -1,5 +1,5 @@
 import {Injectable} from "@nestjs/common";
-import type { FindOneOptions} from "typeorm";
+import type {FindOneOptions} from "typeorm";
 import {DataSource} from "typeorm";
 
 import {ExtendedRepository} from "../../extended-repositories/repository";
