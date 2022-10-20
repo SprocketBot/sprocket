@@ -31,4 +31,7 @@ export class UserProfile extends BaseModel {
     @JoinColumn()
     @Field(() => User)
     user: User;
+
+    @Column()
+    userId: number;
 }

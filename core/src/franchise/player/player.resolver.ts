@@ -24,12 +24,15 @@ import {
 } from "@sprocketbot/common";
 import type {FileUpload} from "graphql-upload";
 import {GraphQLUpload} from "graphql-upload";
-import {Repository} from "typeorm";
 
 import {League, LeagueOrdinals, MLE_OrganizationTeam, MLE_Platform, ModePreference, Timezone} from "$mledb";
 import type {GameSkillGroup} from "$models";
 import {Member, Player} from "$models";
-import {GameSkillGroupRepository, OrganizationProfileRepository} from "$repositories";
+import {
+    GameSkillGroupRepository,
+    OrganizationProfileRepository,
+    UserAuthenticationAccountRepository,
+} from "$repositories";
 
 import type {GameSkillGroup} from "../../database";
 import {Player, UserAuthenticationAccount, UserAuthenticationAccountType} from "../../database";
@@ -81,8 +84,7 @@ export class PlayerResolver {
         private readonly eventsService: EventsService,
         private readonly notificationService: NotificationService,
         private readonly eloConnectorService: EloConnectorService,
-        @InjectRepository(UserAuthenticationAccount)
-        private userAuthRepository: Repository<UserAuthenticationAccount>,
+        private readonly userAuthenticationAccountRepository: UserAuthenticationAccountRepository,
         private readonly organizationProfileRepository: OrganizationProfileRepository,
     ) {}
 
@@ -157,14 +159,9 @@ export class PlayerResolver {
 
         const skillGroup = await this.skillGroupRepository.getById(skillGroupId, {relations: {profile: true}});
 
-        const discordAccount = await this.userAuthRepository.findOneOrFail({
-            where: {
-                user: {
-                    id: player.member.user.id,
-                },
-                accountType: UserAuthenticationAccountType.DISCORD,
-            },
-        });
+        const discordAccount = await this.userAuthenticationAccountRepository.getDiscordAccountByUserId(
+            player.member.user.id,
+        );
         const orgProfile = await this.organizationProfileRepository.getByOrganizationId(player.member.organization.id);
 
         const inputData: ManualSkillGroupChange = {

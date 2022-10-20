@@ -4,19 +4,19 @@ import {AnalyticsEndpoint, AnalyticsService, config} from "@sprocketbot/common";
 import type {Profile} from "passport-discord";
 import {Strategy} from "passport-discord";
 
+import type {User} from "$models";
 import {
     GameSkillGroupRepository,
     MemberPlatformAccountRepository,
     MemberRepository,
     PlatformRepository,
+    UserAuthenticationAccountRepository,
+    UserProfiledRepository,
 } from "$repositories";
+import {UserAuthenticationAccountType} from "$types";
 
-import type {IrrelevantFields, User, UserAuthenticationAccount, UserProfile} from "../../../../database";
-import {UserAuthenticationAccountType} from "../../../../database";
 import {GameSkillGroupService, PlayerService} from "../../../../franchise";
 import {MledbPlayerAccountService, MledbPlayerService} from "../../../../mledb";
-import {IdentityService} from "../../../identity.service";
-import {UserService} from "../../../user";
 
 export type Done = (err: string, user: User) => void;
 const MLE_ORGANIZATION_ID = 2;
@@ -26,16 +26,16 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
     private readonly logger = new Logger(DiscordStrategy.name);
 
     constructor(
-        private readonly identityService: IdentityService,
-        private readonly userService: UserService,
+        private readonly userProfiledRepository: UserProfiledRepository,
+        private readonly userAuthenticationAccountRepository: UserAuthenticationAccountRepository,
         private readonly memberRepository: MemberRepository,
         private readonly memberPlatformAccountRepository: MemberPlatformAccountRepository,
         private readonly platformRepository: PlatformRepository,
+        private readonly analyticsService: AnalyticsService,
         @Inject(forwardRef(() => MledbPlayerService))
         private readonly mledbPlayerService: MledbPlayerService,
         @Inject(forwardRef(() => MledbPlayerAccountService))
         private readonly mledbPlayerAccountService: MledbPlayerAccountService,
-        private readonly analyticsService: AnalyticsService,
         @Inject(forwardRef(() => GameSkillGroupService))
         private readonly skillGroupRepository: GameSkillGroupRepository,
         @Inject(forwardRef(() => PlayerService))
@@ -54,35 +54,43 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         const mledbPlayer = await this.mledbPlayerService.getPlayerByDiscordId(profile.id).catch(() => null);
         if (!mledbPlayer) throw new Error("User is not associated with MLE");
 
-        const userByDiscordId = await this.identityService
-            .getUserByAuthAccount(UserAuthenticationAccountType.DISCORD, profile.id)
-            .catch(() => undefined);
-        let user = userByDiscordId;
+        const discordAccount = await this.userAuthenticationAccountRepository.getOrNull({
+            where: {
+                accountType: UserAuthenticationAccountType.DISCORD,
+                accountId: profile.id,
+            },
+            relations: {user: true},
+        });
+        let user = discordAccount?.user;
 
         // It's possible the email doesn't exist if the user didn't verify it.
         if (!user && !profile.email)
             throw new Error("User account could not be found and there is no attached email to the Discord user");
 
         // TODO: Do we want to actually do this? Theoretically, if a user changes their email, that's a "new user" if we go by email. Hence ^
-        if (!user)
-            user = await this.userService.getUser({
+        if (!user) {
+            const userProfile = await this.userProfiledRepository.profileRepository.getOrNull({
                 where: {email: profile.email},
+                relations: {user: true},
             });
+            user = userProfile?.user;
+        }
 
         // If no users returned from query, create a new one
         if (!user) {
-            const userProfile: Omit<UserProfile, IrrelevantFields | "id" | "user"> = {
+            const userProfile = {
                 email: profile.email!,
                 displayName: profile.username,
             };
 
-            const authAcct: Omit<UserAuthenticationAccount, IrrelevantFields | "id" | "user"> = {
+            user = await this.userProfiledRepository.createAndSave({profile: userProfile});
+
+            await this.userAuthenticationAccountRepository.createAndSave({
                 accountType: UserAuthenticationAccountType.DISCORD,
                 accountId: profile.id,
                 oauthToken: accessToken,
-            };
-
-            user = await this.userService.createUser(userProfile, [authAcct]);
+                userId: user.id,
+            });
 
             this.analyticsService
                 .send(AnalyticsEndpoint.Analytics, {
@@ -97,22 +105,21 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
                     this.logger.log("Account Import Recorded via Analytics");
                 })
                 .catch(this.logger.error.bind(this.logger));
-        } else if (!userByDiscordId) {
-            const authAcct: Omit<UserAuthenticationAccount, IrrelevantFields | "id" | "user"> = {
+        } else if (!discordAccount) {
+            await this.userAuthenticationAccountRepository.createAndSave({
                 accountType: UserAuthenticationAccountType.DISCORD,
                 accountId: profile.id,
                 oauthToken: accessToken,
-            };
-
-            await this.userService.addAuthenticationAccounts(user.id, [authAcct]);
+                userId: user.id,
+            });
         }
 
-        let member = await this.memberRepository.findOneOrFail({where: {user: {id: user.id}}}).catch(() => null);
+        let member = await this.memberRepository.findOneOrFail({where: {user: {id: user!.id}}}).catch(() => null);
 
         if (!member) {
             member = await this.memberRepository.createAndSave({
                 organizationId: MLE_ORGANIZATION_ID,
-                userId: user.id,
+                userId: user!.id,
                 profile: {name: mledbPlayer.name},
             });
         }
@@ -157,7 +164,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         const player = await this.playerService.getPlayer({where: {member: {id: member.id}}}).catch(() => null);
         if (!player) await this.playerService.createPlayer(member.id, skillGroup.id, mledbPlayer.salary);
 
-        done("", user);
+        done("", user!);
         return user;
     }
 }

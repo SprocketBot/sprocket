@@ -4,13 +4,18 @@ import {config} from "@sprocketbot/common";
 import type {VerifyCallback} from "passport-google-oauth20";
 import {Strategy} from "passport-google-oauth20";
 
-import {User, UserAuthenticationAccountType} from "../../../../database";
-import {UserService} from "../../../user";
+import type {User} from "$models";
+import {UserAuthenticationAccountRepository, UserProfiledRepository} from "$repositories";
+import {UserAuthenticationAccountType} from "$types";
+
 import type {GoogleProfileType} from "../types/profile.type";
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
-    constructor(private readonly userService: UserService) {
+    constructor(
+        private readonly userProfiledRepository: UserProfiledRepository,
+        private readonly userAuthenticationAccountRepository: UserAuthenticationAccountRepository,
+    ) {
         super({
             clientID: config.auth.google.clientId,
             clientSecret: config.auth.google.secret,
@@ -26,30 +31,28 @@ export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
         done: VerifyCallback,
     ): Promise<User | undefined> {
         // First, check if the user already exists
-        const queryResult = await this.userService.getUsers({
-            where: {email: profile.emails[0].value},
+        let user = await this.userProfiledRepository.primaryRepository.getOrNull({
+            where: {profile: {email: profile.emails[0].value}},
         });
 
-        let user = new User();
         // If no users returned from query, create a new one
-        if (queryResult.length === 0) {
-            const userProfile = {
-                email: profile.emails[0].value,
-                displayName: `${profile.name.givenName} ${profile.name.familyName.charAt(0)}`,
-                firstName: profile.name.givenName,
-                lastName: profile.name.familyName,
-            };
-
-            const authAcct = {
+        if (!user) {
+            user = await this.userProfiledRepository.createAndSave({
+                profile: {
+                    email: profile.emails[0].value,
+                    displayName: `${profile.name.givenName} ${profile.name.familyName.charAt(0)}`,
+                    firstName: profile.name.givenName,
+                    lastName: profile.name.familyName,
+                },
+            });
+            await this.userAuthenticationAccountRepository.createAndSave({
                 accountType: UserAuthenticationAccountType.GOOGLE,
                 accountId: profile.emails[0].value,
                 oauthToken: accessToken,
-            };
-            user = await this.userService.createUser(userProfile, [authAcct]);
-        } else {
-            // Else, return the one we found
-            user = queryResult[0];
+                userId: user.id,
+            });
         }
+
         done(null, user);
         return user;
     }
