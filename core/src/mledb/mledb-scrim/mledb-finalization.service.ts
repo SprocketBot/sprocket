@@ -27,10 +27,9 @@ import {
 } from "$mledb";
 import type {GameMode, GameSkillGroup} from "$models";
 import {Match} from "$models";
-import {GameModeRepository, GameSkillGroupRepository} from "$repositories";
+import {GameModeRepository, GameSkillGroupRepository, UserAuthenticationAccountRepository} from "$repositories";
 
 import {GameSkillGroupService} from "../../franchise";
-import {UserService} from "../../identity";
 import type {MatchReplaySubmission, ScrimReplaySubmission} from "../../replay-parse";
 import {SprocketRatingService} from "../../sprocket-rating/sprocket-rating.service";
 import {MledbMatchService} from "../mledb-match/mledb-match.service";
@@ -49,7 +48,7 @@ export class MledbFinalizationService {
         @Inject(forwardRef(() => GameSkillGroupService))
         private readonly skillGroupRepository: GameSkillGroupRepository,
         private readonly gameModeRepository: GameModeRepository,
-        private readonly userService: UserService,
+        private readonly userAuthenticationAccountRepository: UserAuthenticationAccountRepository,
         private readonly sprocketRatingService: SprocketRatingService,
         private readonly mleMatchService: MledbMatchService,
     ) {}
@@ -150,7 +149,9 @@ export class MledbFinalizationService {
             const playerEligibilities = await Promise.all(
                 scrimObject.players.map(async p => {
                     const playerEligibility = em.create(MLE_EligibilityData);
-                    const discordAccount = await this.userService.getUserDiscordAccount(p.id);
+                    const discordAccount = await this.userAuthenticationAccountRepository.getDiscordAccountByUserId(
+                        p.id,
+                    );
                     const player = await this.mlePlayerRepository.findOneOrFail({
                         where: {
                             discordId: discordAccount.accountId,

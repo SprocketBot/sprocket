@@ -1,7 +1,6 @@
 import {Controller, Get, HttpException, Logger, Param} from "@nestjs/common";
 import {JwtService} from "@nestjs/jwt";
 import {MessagePattern, Payload} from "@nestjs/microservices";
-import {InjectRepository} from "@nestjs/typeorm";
 import type {CoreOutput} from "@sprocketbot/common";
 import {
     CoreEndpoint,
@@ -11,11 +10,14 @@ import {
     NotificationEndpoint,
     NotificationService,
 } from "@sprocketbot/common";
-import {Repository} from "typeorm";
 
-import {GameSkillGroupRepository, OrganizationProfileRepository} from "$repositories";
+import {
+    GameSkillGroupRepository,
+    OrganizationProfileRepository,
+    UserAuthenticationAccountRepository,
+} from "$repositories";
+import {UserAuthenticationAccountType} from "$types";
 
-import {UserAuthenticationAccount, UserAuthenticationAccountType} from "../../database";
 import type {ManualSkillGroupChange} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
 import {PlayerService} from "./player.service";
@@ -32,7 +34,7 @@ export class PlayerController {
         private readonly skillGroupRepository: GameSkillGroupRepository,
         private readonly eventsService: EventsService,
         private readonly notificationService: NotificationService,
-        @InjectRepository(UserAuthenticationAccount) private userAuthRepository: Repository<UserAuthenticationAccount>,
+        private readonly userAuthenitcationAccountRepository: UserAuthenticationAccountRepository,
         private readonly organizationProfileRepository: OrganizationProfileRepository,
     ) {}
 
@@ -63,7 +65,7 @@ export class PlayerController {
                 relations: {profile: true},
             });
 
-            const discordAccount = await this.userAuthRepository.findOneOrFail({
+            const discordAccount = await this.userAuthenitcationAccountRepository.get({
                 where: {
                     user: {
                         id: player.member.user.id,

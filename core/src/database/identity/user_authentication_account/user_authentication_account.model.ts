@@ -14,6 +14,9 @@ export class UserAuthenticationAccount extends BaseModel {
     user: User;
 
     @Column()
+    userId: number;
+
+    @Column()
     @Field(() => String)
     accountId: string;
 

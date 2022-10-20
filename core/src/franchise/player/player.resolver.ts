@@ -1,6 +1,5 @@
 import {UseGuards} from "@nestjs/common";
 import {Args, Field, Float, InputType, Int, Mutation, ResolveField, Resolver, Root} from "@nestjs/graphql";
-import {InjectRepository} from "@nestjs/typeorm";
 import {
     EventsService,
     EventTopic,
@@ -12,14 +11,16 @@ import {
 } from "@sprocketbot/common";
 import type {FileUpload} from "graphql-upload";
 import {GraphQLUpload} from "graphql-upload";
-import {Repository} from "typeorm";
 
 import {League, LeagueOrdinals, MLE_OrganizationTeam, MLE_Platform, ModePreference, Timezone} from "$mledb";
 import type {GameSkillGroup} from "$models";
 import {Member, Player} from "$models";
-import {GameSkillGroupRepository, OrganizationProfileRepository} from "$repositories";
+import {
+    GameSkillGroupRepository,
+    OrganizationProfileRepository,
+    UserAuthenticationAccountRepository,
+} from "$repositories";
 
-import {UserAuthenticationAccount, UserAuthenticationAccountType} from "../../database";
 import type {ManualSkillGroupChange} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
@@ -58,8 +59,7 @@ export class PlayerResolver {
         private readonly eventsService: EventsService,
         private readonly notificationService: NotificationService,
         private readonly eloConnectorService: EloConnectorService,
-        @InjectRepository(UserAuthenticationAccount)
-        private userAuthRepository: Repository<UserAuthenticationAccount>,
+        private readonly userAuthenticationAccountRepository: UserAuthenticationAccountRepository,
         private readonly organizationProfileRepository: OrganizationProfileRepository,
     ) {}
 
@@ -131,14 +131,9 @@ export class PlayerResolver {
 
         const skillGroup = await this.skillGroupRepository.getById(skillGroupId, {relations: {profile: true}});
 
-        const discordAccount = await this.userAuthRepository.findOneOrFail({
-            where: {
-                user: {
-                    id: player.member.user.id,
-                },
-                accountType: UserAuthenticationAccountType.DISCORD,
-            },
-        });
+        const discordAccount = await this.userAuthenticationAccountRepository.getDiscordAccountByUserId(
+            player.member.user.id,
+        );
         const orgProfile = await this.organizationProfileRepository.getByOrganizationId(player.member.organization.id);
 
         if (player.skillGroup.id === skillGroupId) return "ERROR: This player is already in this skill group";

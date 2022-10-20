@@ -27,9 +27,11 @@ import {
     OrganizationProfiledRepository,
     PlatformRepository,
     PlayerRepository,
+    UserAuthenticationAccountRepository,
+    UserProfiledRepository,
 } from "$repositories";
+import {UserAuthenticationAccountType} from "$types";
 
-import {User, UserAuthenticationAccount, UserAuthenticationAccountType, UserProfile} from "../../database";
 import type {SalaryPayloadItem} from "../../elo/elo-connector";
 import {DegreeOfStiffness, EloConnectorService, EloEndpoint, SkillGroupDelta} from "../../elo/elo-connector";
 import type {IntakePlayerAccount} from "./player.resolver";
@@ -41,19 +43,8 @@ export class PlayerService {
 
     constructor(
         private readonly playerRepository: PlayerRepository,
-        @InjectRepository(User) private userRepository: Repository<User>,
-        @InjectRepository(UserProfile)
-        private userProfileRepository: Repository<UserProfile>,
-        @InjectRepository(UserAuthenticationAccount)
-        private userAuthRepository: Repository<UserAuthenticationAccount>,
-        @InjectRepository(PlayerToUser)
-        private readonly ptuRepo: Repository<PlayerToUser>,
-        @InjectRepository(PlayerToPlayer)
-        private readonly ptpRepo: Repository<PlayerToPlayer>,
-        @InjectRepository(MLE_Player)
-        private mle_playerRepository: Repository<MLE_Player>,
-        @InjectRepository(MLE_PlayerAccount)
-        private mle_playerAccountRepository: Repository<MLE_PlayerAccount>,
+        private readonly userProfiledRepository: UserProfiledRepository,
+        private readonly userAuthenticationAccountRepository: UserAuthenticationAccountRepository,
         private readonly memberProfiledRepository: MemberProfiledRepository,
         private readonly organizationProfiledRepository: OrganizationProfiledRepository,
         private readonly skillGroupRepository: GameSkillGroupRepository,
@@ -63,6 +54,14 @@ export class PlayerService {
         private readonly dataSource: DataSource,
         private readonly eloConnectorService: EloConnectorService,
         private readonly platformRepository: PlatformRepository,
+        @InjectRepository(PlayerToUser)
+        private readonly ptuRepo: Repository<PlayerToUser>,
+        @InjectRepository(PlayerToPlayer)
+        private readonly ptpRepo: Repository<PlayerToPlayer>,
+        @InjectRepository(MLE_Player)
+        private readonly mle_playerRepository: Repository<MLE_Player>,
+        @InjectRepository(MLE_PlayerAccount)
+        private readonly mle_playerAccountRepository: Repository<MLE_PlayerAccount>,
     ) {}
 
     async getPlayer(query: FindOneOptions<Player>): Promise<Player> {
@@ -206,16 +205,16 @@ export class PlayerService {
                         skillGroup: skillGroup.ordinal,
                     });
             } else {
-                const user = this.userRepository.create({});
+                const user = this.userProfiledRepository.primaryRepository.create({});
 
-                user.profile = this.userProfileRepository.create({
+                user.profile = this.userProfiledRepository.profileRepository.create({
                     user: user,
                     email: "unknown@sprocket.gg",
                     displayName: name,
                 });
                 user.profile.user = user;
 
-                const authAcc = this.userAuthRepository.create({
+                const authAcc = this.userAuthenticationAccountRepository.create({
                     accountType: UserAuthenticationAccountType.DISCORD,
                     accountId: discordId,
                 });
@@ -514,14 +513,9 @@ export class PlayerService {
                         if (mlePlayer.teamName === "FP") return;
                         if (!playerDelta.rankout && player.salary === playerDelta.newSalary) return;
 
-                        const discordAccount = await this.userAuthRepository.findOneOrFail({
-                            where: {
-                                user: {
-                                    id: player.member.user.id,
-                                },
-                                accountType: UserAuthenticationAccountType.DISCORD,
-                            },
-                        });
+                        const discordAccount = await this.userAuthenticationAccountRepository.getDiscordAccountByUserId(
+                            player.member.user.id,
+                        );
                         const orgProfile =
                             await this.organizationProfiledRepository.profileRepository.getByOrganizationId(
                                 player.member.organization.id,
