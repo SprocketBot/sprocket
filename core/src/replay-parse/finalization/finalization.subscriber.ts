@@ -43,7 +43,7 @@ export class FinalizationSubscriber {
 
                     if (submission.type === ReplaySubmissionType.MATCH) {
                         await this.onMatchSubmissionComplete(submission as MatchReplaySubmission, payload.submissionId);
-                    } else if (submission.type === ReplaySubmissionType.SCRIM) {
+                    } else {
                         const scrim = await this.scrimService.getScrimBySubmissionId(payload.submissionId);
                         await this.onScrimComplete(submission as ScrimReplaySubmission, payload.submissionId, scrim!);
                     }

@@ -35,10 +35,10 @@ export class OrganizationResolver {
     }
 
     @ResolveField()
-    async profile(@Root() organization: Organization): Promise<OrganizationProfile> {
+    async profile(@Root() organization: Partial<Organization>): Promise<OrganizationProfile> {
         return (
             organization.profile ??
-            (await this.populateService.populateOneOrFail(Organization, organization, "profile"))
+            (await this.populateService.populateOneOrFail(Organization, organization as Organization, "profile"))
         );
     }
 }

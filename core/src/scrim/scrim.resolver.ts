@@ -34,13 +34,13 @@ export class ScrimResolver {
     @ResolveField(() => [ScrimPlayer], {nullable: true})
     players(@Root() scrim: Scrim): undefined | ScrimPlayer[] {
         if (scrim.status === ScrimStatus.PENDING) return undefined;
-        return scrim.players ?? [];
+        return scrim.players;
     }
 
     @ResolveField(() => [ScrimPlayer])
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     playersAdmin(@Root() scrim: Scrim): undefined | ScrimPlayer[] {
-        return scrim.players ?? [];
+        return scrim.players;
     }
 
     @ResolveField(() => ScrimLobby, {nullable: true})
@@ -52,7 +52,7 @@ export class ScrimResolver {
 
     @ResolveField(() => String, {nullable: true})
     currentGroup(@Root() scrim: Scrim, @CurrentUser() user: UserPayload): ScrimGroup | undefined {
-        const code = scrim.players?.find(p => p.id === user.userId)?.group;
+        const code = scrim.players.find(p => p.id === user.userId)?.group;
         if (!code) return undefined;
         return {
             code: code,
@@ -62,7 +62,7 @@ export class ScrimResolver {
 
     @ResolveField(() => Int)
     playerCount(@Root() scrim: Scrim): number {
-        return scrim.players?.length ?? 0;
+        return scrim.players.length;
     }
 
     @ResolveField(() => Int)

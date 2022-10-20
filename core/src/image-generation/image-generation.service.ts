@@ -49,12 +49,14 @@ export class ImageGenerationService {
         let reportCard = "seriesSixPlayersMax";
 
         // if more than 6 players, use 8 player report card
-        const seventhPlayer = data?.[0]?.data?.player_data?.[6]?.name as {
-            value?: string;
-        };
+        const seventhPlayer = data?.[0]?.data?.player_data?.[6]?.name as
+            | {
+                  value?: string;
+              }
+            | undefined;
 
         // seventh player will always exist, but its value will only be emplty of no subs were used
-        if (seventhPlayer && seventhPlayer?.value !== "") {
+        if (seventhPlayer && seventhPlayer.value !== "") {
             reportCard = "seriesEightPlayersMax";
             this.logger.log("using 8 player card");
         }

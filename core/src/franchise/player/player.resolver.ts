@@ -96,12 +96,13 @@ export class PlayerResolver {
     }
 
     @ResolveField()
-    async franchiseName(@Root() player: Player): Promise<string> {
+    async franchiseName(@Root() player: Partial<Player>): Promise<string> {
         if (player.franchiseName) return player.franchiseName;
 
-        if (!player.member) player.member = await this.popService.populateOneOrFail(Player, player, "member");
-        if (!player.member.user)
-            player.member.user = await this.popService.populateOneOrFail(Member, player.member, "user");
+        if (!player.member) player.member = await this.popService.populateOneOrFail(Player, player as Player, "member");
+        player.member.user =
+            (player.member as Partial<Member>).user ??
+            (await this.popService.populateOneOrFail(Member, player.member, "user"));
 
         const franchiseResult = await this.franchiseService.getPlayerFranchises(player.member.user.id);
         // Because we are using MLEDB right now; assume that we only have one
@@ -109,11 +110,11 @@ export class PlayerResolver {
     }
 
     @ResolveField()
-    async franchisePositions(@Root() player: Player): Promise<string[]> {
+    async franchisePositions(@Root() player: Partial<Player>): Promise<string[]> {
         if (player.franchisePositions) return player.franchisePositions;
 
         if (!player.member) {
-            player.member = await this.popService.populateOneOrFail(Player, player, "member");
+            player.member = await this.popService.populateOneOrFail(Player, player as Player, "member");
         }
 
         const franchiseResult = await this.franchiseService.getPlayerFranchises(player.member.userId);
@@ -122,10 +123,8 @@ export class PlayerResolver {
     }
 
     @ResolveField()
-    async member(@Root() player: Player): Promise<Member> {
-        if (player.member) return player.member;
-
-        return this.popService.populateOneOrFail(Player, player, "member");
+    async member(@Root() player: Partial<Player>): Promise<Member> {
+        return player.member ?? this.popService.populateOneOrFail(Player, player as Player, "member");
     }
 
     @Mutation(() => String)

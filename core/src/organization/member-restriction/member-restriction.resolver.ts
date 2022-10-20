@@ -77,10 +77,14 @@ export class MemberRestrictionResolver {
     }
 
     @ResolveField()
-    async member(@Root() memberRestriction: MemberRestriction): Promise<Member> {
+    async member(@Root() memberRestriction: Partial<MemberRestriction>): Promise<Member> {
         return (
             memberRestriction.member ??
-            (await this.populateService.populateOne(MemberRestriction, memberRestriction, "member"))
+            (await this.populateService.populateOneOrFail(
+                MemberRestriction,
+                memberRestriction as MemberRestriction,
+                "member",
+            ))
         );
     }
 

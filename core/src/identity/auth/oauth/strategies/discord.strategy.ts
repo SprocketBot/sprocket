@@ -114,12 +114,12 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
             });
         }
 
-        let member = await this.memberRepository.findOneOrFail({where: {user: {id: user!.id}}}).catch(() => null);
+        let member = await this.memberRepository.findOneOrFail({where: {user: {id: user.id}}}).catch(() => null);
 
         if (!member) {
             member = await this.memberRepository.createAndSave({
                 organizationId: MLE_ORGANIZATION_ID,
-                userId: user!.id,
+                userId: user.id,
                 profile: {name: mledbPlayer.name},
             });
         }
@@ -164,7 +164,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         const player = await this.playerService.getPlayer({where: {member: {id: member.id}}}).catch(() => null);
         if (!player) await this.playerService.createPlayer(member.id, skillGroup.id, mledbPlayer.salary);
 
-        done("", user!);
+        done("", user);
         return user;
     }
 }

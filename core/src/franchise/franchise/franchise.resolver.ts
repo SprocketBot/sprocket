@@ -9,14 +9,14 @@ export class FranchiseResolver {
     constructor(private readonly populate: PopulateService) {}
 
     @ResolveField()
-    async profile(@Root() root: Franchise): Promise<FranchiseProfile> {
-        if (root.profile) return root.profile;
-        return this.populate.populateOneOrFail(Franchise, root, "profile");
+    async profile(@Root() franchise: Partial<Franchise>): Promise<FranchiseProfile> {
+        return franchise.profile ?? this.populate.populateOneOrFail(Franchise, franchise as Franchise, "profile");
     }
 
     @ResolveField()
-    async organization(@Root() root: Franchise): Promise<Organization> {
-        if (root.organization) return root.organization;
-        return this.populate.populateOneOrFail(Franchise, root, "organization");
+    async organization(@Root() franchise: Partial<Franchise>): Promise<Organization> {
+        return (
+            franchise.organization ?? this.populate.populateOneOrFail(Franchise, franchise as Franchise, "organization")
+        );
     }
 }
