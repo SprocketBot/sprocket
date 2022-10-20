@@ -430,16 +430,18 @@ export class MatchService {
 
         // Find the winning team and it's franchise profile, since that's where
         // team names are in Sprocket.
-        const winningTeam = await this.teamRepository.findOneOrFail({
-            where: {
-                id: winningTeamId,
-            },
-            relations: {
-                franchise: {
-                    profile: true,
-                },
-            },
-        });
+        const winningTeam = winningTeamId
+            ? await this.teamRepository.findOneOrFail({
+                  where: {
+                      id: winningTeamId,
+                  },
+                  relations: {
+                      franchise: {
+                          profile: true,
+                      },
+                  },
+              })
+            : undefined;
         const series = await this.matchRepository.findOneOrFail({
             where: {id: seriesId},
             relations: {
@@ -471,7 +473,7 @@ export class MatchService {
                 series.matchParent.fixture.awayFranchise.id !== winningTeam.franchise.id
             ) {
                 throw new Error(
-                    `The team \`${winningTeam?.franchise.profile.title}\` did not play in series with id \`${series.id}\` (${series.matchParent.fixture.awayFranchise.profile.title} v. ${series.matchParent.fixture.homeFranchise.profile.title}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`,
+                    `The team \`${winningTeam.franchise.profile.title}\` did not play in series with id \`${series.id}\` (${series.matchParent.fixture.awayFranchise.profile.title} v. ${series.matchParent.fixture.homeFranchise.profile.title}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`,
                 );
             }
         } else if (!series.matchParent.scrimMeta) {
@@ -517,7 +519,7 @@ export class MatchService {
         // Update each series replay (including any dummies) to NCP
         const replayIds = seriesReplays.map(replay => replay.id);
         this.logger.debug("Marking replays in series");
-        await this.markReplaysNcp(replayIds, isNcp, winningTeam ?? undefined, invalidation ?? undefined);
+        await this.markReplaysNcp(replayIds, isNcp, winningTeam ?? undefined, invalidation);
 
         this.logger.verbose(`End markSeriesNcp`);
 
@@ -526,9 +528,7 @@ export class MatchService {
             : series.matchParent.scrimMeta
             ? "scrim"
             : "unknown";
-        return `\`seriesId=${seriesId}\` ${
-            seriesTypeStr ? `(${seriesTypeStr})` : ""
-        } successfully marked \`fullNcp=${isNcp}\` with updated elo, and all connected replays had their elo updated.${
+        return `\`seriesId=${seriesId}\` ${`(${seriesTypeStr})`} successfully marked \`fullNcp=${isNcp}\` with updated elo, and all connected replays had their elo updated.${
             numReplays && dummiesNeeded ? ` **${dummiesNeeded} dummy replay(s)** were added to the series.` : ""
         }`;
     }

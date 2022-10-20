@@ -14,8 +14,8 @@ import {DataSource, Repository} from "typeorm";
 import {SeriesToMatchParent} from "$bridge/series_to_match_parent.model";
 import type {League} from "$mledb";
 import {LegacyGameMode, MLE_OrganizationTeam, MLE_SeriesReplay, MLE_Team} from "$mledb";
-import type {GameMode, Round} from "$models";
-import {Franchise, GameSkillGroup, Match, MatchParent, Player, ScheduleFixture, ScheduleGroup} from "$models";
+import type {GameMode, GameSkillGroup, Round} from "$models";
+import {Franchise, Match, MatchParent, Player, ScheduleFixture, ScheduleGroup} from "$models";
 import {MatchRepository, RoundRepository, TeamRepository} from "$repositories";
 import type {MatchSubmissionStatus} from "$types";
 
@@ -55,22 +55,14 @@ export class MatchResolver {
     @Mutation(() => String)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async postReportCard(@Args("matchId") matchId: number): Promise<string> {
-        const match = await this.matchRepository.getById(matchId);
-
-        if (!match.skillGroup) {
-            match.skillGroup = await this.populate.populateOneOrFail(Match, match, "skillGroup");
-        }
-        if (!match.skillGroup.profile) {
-            const skillGroupProfile = await this.populate.populateOneOrFail(
-                GameSkillGroup,
-                match.skillGroup,
-                "profile",
-            );
-            match.skillGroup.profile = skillGroupProfile;
-        }
-        if (!match.matchParent) {
-            match.matchParent = await this.populate.populateOneOrFail(Match, match, "matchParent");
-        }
+        const match = await this.matchRepository.getById(matchId, {
+            relations: {
+                skillGroup: {
+                    profile: true,
+                },
+                matchParent: true,
+            },
+        });
 
         const fixture = await this.populate.populateOne(MatchParent, match.matchParent, "fixture");
         if (!fixture) {
@@ -257,9 +249,8 @@ export class MatchResolver {
     }
 
     @ResolveField()
-    async skillGroup(@Root() root: Match): Promise<GameSkillGroup> {
-        if (root.skillGroup) return root.skillGroup;
-        return this.populate.populateOneOrFail(Match, root, "skillGroup");
+    async skillGroup(@Root() match: Partial<Match>): Promise<GameSkillGroup> {
+        return match.skillGroup ?? this.populate.populateOneOrFail(Match, match as Match, "skillGroup");
     }
 
     @ResolveField()
@@ -333,20 +324,17 @@ export class MatchResolver {
     }
 
     @ResolveField()
-    async gameMode(@Root() root: Match): Promise<GameMode | undefined> {
-        if (root.gameMode) return root.gameMode;
-        return this.populate.populateOne(Match, root, "gameMode");
+    async gameMode(@Root() match: Partial<Match>): Promise<GameMode | undefined> {
+        return match.gameMode ?? this.populate.populateOne(Match, match as Match, "gameMode");
     }
 
     @ResolveField()
-    async rounds(@Root() root: Match): Promise<Round[]> {
-        if (root.rounds) return root.rounds;
-        return this.populate.populateMany(Match, root, "rounds");
+    async rounds(@Root() match: Partial<Match>): Promise<Round[]> {
+        return match.rounds ?? this.populate.populateMany(Match, match as Match, "rounds");
     }
 
     @ResolveField()
-    async matchParent(@Root() root: Match): Promise<MatchParent> {
-        if (root.matchParent) return root.matchParent;
-        return this.populate.populateOneOrFail(Match, root, "matchParent");
+    async matchParent(@Root() match: Partial<Match>): Promise<MatchParent> {
+        return match.matchParent ?? this.populate.populateOneOrFail(Match, match as Match, "matchParent");
     }
 }

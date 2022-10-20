@@ -20,7 +20,7 @@ export class GameResolver {
     }
 
     @ResolveField()
-    async modes(@Root() game: Game): Promise<GameMode[]> {
-        return game.modes ?? (await this.populateService.populateMany(Game, game, "modes"));
+    async modes(@Root() game: Partial<Game>): Promise<GameMode[]> {
+        return game.modes ?? this.populateService.populateMany(Game, game as Game, "modes");
     }
 }

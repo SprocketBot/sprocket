@@ -9,7 +9,7 @@ export class GameModeResolver {
     constructor(private readonly populateService: PopulateService) {}
 
     @ResolveField()
-    async game(@Root() gameMode: GameMode): Promise<Game> {
-        return gameMode.game ?? this.populateService.populateOneOrFail(GameMode, gameMode, "game");
+    async game(@Root() gameMode: Partial<GameMode>): Promise<Game> {
+        return gameMode.game ?? this.populateService.populateOneOrFail(GameMode, gameMode as GameMode, "game");
     }
 }

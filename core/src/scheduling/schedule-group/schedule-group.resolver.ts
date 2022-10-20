@@ -28,32 +28,40 @@ export class ScheduleGroupResolver {
     }
 
     @ResolveField()
-    async type(@Root() root: ScheduleGroup): Promise<ScheduleGroupType> {
-        if (root.type) return root.type;
-        return this.populate.populateOneOrFail(ScheduleGroup, root, "type");
+    async type(@Root() scheduleGroup: Partial<ScheduleGroup>): Promise<ScheduleGroupType> {
+        return (
+            scheduleGroup.type ?? this.populate.populateOneOrFail(ScheduleGroup, scheduleGroup as ScheduleGroup, "type")
+        );
     }
 
     @ResolveField()
-    async game(@Root() root: ScheduleGroup): Promise<Game> {
-        if (root.game) return root.game;
-        return this.populate.populateOneOrFail(ScheduleGroup, root, "game");
+    async game(@Root() scheduleGroup: Partial<ScheduleGroup>): Promise<Game> {
+        return (
+            scheduleGroup.game ?? this.populate.populateOneOrFail(ScheduleGroup, scheduleGroup as ScheduleGroup, "game")
+        );
     }
 
     @ResolveField()
-    async parentGroup(@Root() root: ScheduleGroup): Promise<ScheduleGroup | undefined> {
-        if (root.parentGroup) return root.parentGroup;
-        return this.populate.populateOne(ScheduleGroup, root, "parentGroup");
+    async parentGroup(@Root() scheduleGroup: Partial<ScheduleGroup>): Promise<ScheduleGroup | undefined> {
+        return (
+            scheduleGroup.parentGroup ??
+            this.populate.populateOne(ScheduleGroup, scheduleGroup as ScheduleGroup, "parentGroup")
+        );
     }
 
     @ResolveField()
-    async childGroups(@Root() root: ScheduleGroup): Promise<ScheduleGroup[]> {
-        if (root.childGroups) return root.childGroups;
-        return this.populate.populateMany(ScheduleGroup, root, "childGroups");
+    async childGroups(@Root() scheduleGroup: Partial<ScheduleGroup>): Promise<ScheduleGroup[]> {
+        return (
+            scheduleGroup.childGroups ??
+            this.populate.populateMany(ScheduleGroup, scheduleGroup as ScheduleGroup, "childGroups")
+        );
     }
 
     @ResolveField()
-    async fixtures(@Root() root: ScheduleGroup): Promise<ScheduleFixture[]> {
-        if (root.fixtures) return root.fixtures;
-        return this.populate.populateMany(ScheduleGroup, root, "fixtures");
+    async fixtures(@Root() scheduleGroup: Partial<ScheduleGroup>): Promise<ScheduleFixture[]> {
+        return (
+            scheduleGroup.fixtures ??
+            this.populate.populateMany(ScheduleGroup, scheduleGroup as ScheduleGroup, "fixtures")
+        );
     }
 }

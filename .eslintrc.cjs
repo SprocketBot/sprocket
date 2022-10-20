@@ -19,8 +19,6 @@ module.exports = {
   },
   rules: {
     "object-shorthand": ["error", "consistent"],
-
-    "@typescript-eslint/no-unnecessary-condition": "error",
     
     // TODO turn back on after cleaning up code
     "@typescript-eslint/no-non-null-assertion": "off",

@@ -18,33 +18,37 @@ export class ScheduleFixtureResolver {
     }
 
     @ResolveField()
-    async scheduleGroup(@Root() root: ScheduleFixture): Promise<ScheduleGroup> {
-        if (root.scheduleGroup) return root.scheduleGroup;
-
-        return this.populate.populateOneOrFail(ScheduleFixture, root, "scheduleGroup");
+    async scheduleGroup(@Root() scheduleFixture: Partial<ScheduleFixture>): Promise<ScheduleGroup> {
+        return (
+            scheduleFixture.scheduleGroup ??
+            this.populate.populateOneOrFail(ScheduleFixture, scheduleFixture as ScheduleFixture, "scheduleGroup")
+        );
     }
 
     @ResolveField()
-    async homeFranchise(@Root() root: ScheduleFixture): Promise<Franchise> {
-        if (root.homeFranchise) return root.homeFranchise;
-        return this.populate.populateOneOrFail(ScheduleFixture, root, "homeFranchise");
+    async homeFranchise(@Root() scheduleFixture: Partial<ScheduleFixture>): Promise<Franchise> {
+        return (
+            scheduleFixture.homeFranchise ??
+            this.populate.populateOneOrFail(ScheduleFixture, scheduleFixture as ScheduleFixture, "homeFranchise")
+        );
     }
 
     @ResolveField()
-    async awayFranchise(@Root() root: ScheduleFixture): Promise<Franchise> {
-        if (root.awayFranchise) return root.awayFranchise;
-
-        return this.populate.populateOneOrFail(ScheduleFixture, root, "awayFranchise");
+    async awayFranchise(@Root() scheduleFixture: Partial<ScheduleFixture>): Promise<Franchise> {
+        return (
+            scheduleFixture.awayFranchise ??
+            this.populate.populateOneOrFail(ScheduleFixture, scheduleFixture as ScheduleFixture, "awayFranchise")
+        );
     }
 
     @ResolveField()
-    async matches(@Root() root: ScheduleFixture): Promise<Match[]> {
-        if (root.matches) return root.matches;
+    async matches(@Root() scheduleFixture: Partial<ScheduleFixture>): Promise<Match[]> {
+        if (scheduleFixture.matches) return scheduleFixture.matches;
         const t = await this.scheduleFixtureRepository.findOneOrFail({
             where: {
-                id: root.id,
+                id: scheduleFixture.id,
             },
-            relations: ["matchParents", "matchParents.match"],
+            relations: {matchParents: {match: true}},
         });
         const matches = t.matchParents.flatMap(mp => mp.match);
         return matches;
