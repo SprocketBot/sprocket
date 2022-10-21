@@ -1,6 +1,7 @@
 import {
     Inject, Injectable, Logger,
 } from "@nestjs/common";
+import type {CoreEndpoint, CoreInput} from "@sprocketbot/common";
 import {
     config,
     EventsService,
@@ -17,6 +18,7 @@ import {PubSub} from "apollo-server-express";
 import {SHA256} from "crypto-js";
 import {GraphQLError} from "graphql";
 import type {Readable} from "stream";
+import {DataSource} from "typeorm";
 
 import {REPLAY_EXT, ReplayParsePubSub} from "./replay-parse.constants";
 import type {ReplaySubmission} from "./types";
@@ -32,6 +34,7 @@ export class ReplayParseService {
         private readonly submissionService: SubmissionService,
         private readonly redisService: RedisService,
         private readonly eventsService: EventsService,
+        private readonly dataSource: DataSource,
         @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
     ) {}
 
@@ -131,5 +134,13 @@ export class ReplayParseService {
                     .catch(this.logger.error.bind(this.logger));
             });
         });
+    }
+
+    async verifySubmissionUniqueness(data: CoreInput<CoreEndpoint.VerifySubmissionUniqueness>): Promise<boolean> {
+        const [ {spr_is_replay_duplicate} ] = await this.dataSource.manager.query(
+            `SELECT spr_is_replay_duplicate($1::JSONB, $2::TIMESTAMP);`,
+            [JSON.stringify(data.data), data.playedAt],
+        ) as Array<{spr_is_replay_duplicate: boolean;}>;
+        return !spr_is_replay_duplicate;
     }
 }

@@ -31,6 +31,7 @@ export enum CoreEndpoint {
     GetMatchInformationAndStakeholders = "GetMatchInformationAndStakeholders",
     GetGameModeById = "GetGameModeById",
     GetGameByGameMode = "GetGameByGameMode",
+    VerifySubmissionUniqueness = "VerifySubmissionUniqueness",
 }
 
 export const CoreSchemas = {
@@ -141,6 +142,10 @@ export const CoreSchemas = {
     [CoreEndpoint.GetGameByGameMode]: {
         input: Schemas.GetGameByGameMode_Request,
         output: Schemas.GetGameByGameMode_Response,
+    },
+    [CoreEndpoint.VerifySubmissionUniqueness]: {
+        input: Schemas.VerifySubmissionUniqueness_Request,
+        output: Schemas.VerifySubmissionUniqueness_Response,
     },
 };
 

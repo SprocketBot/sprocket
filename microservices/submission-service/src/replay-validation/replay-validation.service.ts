@@ -5,6 +5,7 @@ import type {
     MatchReplaySubmission,
     ReplaySubmission,
     ScrimReplaySubmission,
+    VerifySubmissionUniquenessPlayerData,
 } from "@sprocketbot/common";
 import {
     config,
@@ -260,7 +261,7 @@ export class ReplayValidationService {
 
         const errors: ValidationError[] = [];
 
-        if (!submission.items.every(i => i.progress?.result)) {
+        if (!submission.items.every(i => i.progress?.result?.data)) {
             return {
                 valid: false,
                 errors: [ {error: "Incomplete Replay Found, please wait for submission to complete"} ],
@@ -310,8 +311,51 @@ export class ReplayValidationService {
             const orangeBcPlayers = item.progress!.result!.data.orange.players;
 
             try {
-                const bluePlayers = blueBcPlayers.map(bcp => players.find(p => p.request.platform === bcp.id.platform.toUpperCase() && p.request.platformId === bcp.id.id)!.data);
-                const orangePlayers = orangeBcPlayers.map(bcp => players.find(p => p.request.platform === bcp.id.platform.toUpperCase() && p.request.platformId === bcp.id.id)!.data);
+                const bluePlayers = blueBcPlayers.map(bcp => ({
+                    ...players.find(p => p.request.platform === bcp.id.platform.toUpperCase() && p.request.platformId === bcp.id.id)!.data,
+                    bcp,
+                }));
+                const orangePlayers = orangeBcPlayers.map(bcp => ({
+                    ...players.find(p => p.request.platform === bcp.id.platform.toUpperCase() && p.request.platformId === bcp.id.id)!.data,
+                    bcp,
+                }));
+                    
+                const replayUniquenessResult = await this.coreService.send(CoreEndpoint.VerifySubmissionUniqueness, {
+                    data: [
+                        ...bluePlayers.map((p): VerifySubmissionUniquenessPlayerData => ({
+                            player_id: p.id,
+                            shots: p.bcp.stats.core.shots,
+                            saves: p.bcp.stats.core.saves,
+                            goals: p.bcp.stats.core.goals,
+                            assists: p.bcp.stats.core.assists,
+                            color: "BLUE",
+                        })),
+                        ...orangePlayers.map((p): VerifySubmissionUniquenessPlayerData => ({
+                            player_id: p.id,
+                            shots: p.bcp.stats.core.shots,
+                            saves: p.bcp.stats.core.saves,
+                            goals: p.bcp.stats.core.goals,
+                            assists: p.bcp.stats.core.assists,
+                            color: "ORANGE",
+                        })),
+                    ].sort((a, b) => a.player_id - b.player_id),
+                    playedAt: new Date(item.progress!.result!.data.date),
+                });
+                if (replayUniquenessResult.status === ResponseStatus.ERROR) {
+                    this.logger.error(`Unable to verify uniqueness of submission submissionId=${submission.id}`);
+                    return {
+                        valid: false,
+                        errors: [ {error: `Failed to verify if replays are unique. Please contact support.`} ],
+                    };
+                }
+        
+                if (!replayUniquenessResult.data) {
+                    this.logger.error(`Replays are not unique submissionId=${submission.id}`);
+                    return {
+                        valid: false,
+                        errors: [ {error: `Replays do not appear to be unique and have been uploaded previous. Please verify you are submitting the correct replays. Please contact support if you believe this is an error.`} ],
+                    };
+                }
 
                 const blueTeam = bluePlayers[0].franchise.name;
                 const orangeTeam = orangePlayers[0].franchise.name;
