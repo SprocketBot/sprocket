@@ -353,7 +353,7 @@ export class ReplayValidationService {
                     this.logger.error(`Replays are not unique submissionId=${submission.id}`);
                     return {
                         valid: false,
-                        errors: [ {error: `Replays do not appear to be unique and have been uploaded previous. Please verify you are submitting the correct replays. Please contact support if you believe this is an error.`} ],
+                        errors: [ {error: `Replays do not appear to be unique; please verify you are submitting the correct replays. Please contact support if you believe this is an error.`} ],
                     };
                 }
 
