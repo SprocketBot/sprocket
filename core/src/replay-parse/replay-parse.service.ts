@@ -137,10 +137,10 @@ export class ReplayParseService {
     }
 
     async verifySubmissionUniqueness(data: CoreInput<CoreEndpoint.VerifySubmissionUniqueness>): Promise<boolean> {
-        const [ {spr_is_replay_duplicate} ] = await this.dataSource.manager.query(
-            `SELECT spr_is_replay_duplicate($1::JSONB, $2::TIMESTAMP);`,
+        const [ {is_replay_duplicate} ] = await this.dataSource.manager.query(
+            `SELECT is_replay_duplicate($1::JSONB, $2::TIMESTAMP);`,
             [JSON.stringify(data.data), data.playedAt],
-        ) as Array<{spr_is_replay_duplicate: boolean;}>;
-        return !spr_is_replay_duplicate;
+        ) as Array<{is_replay_duplicate: boolean;}>;
+        return !is_replay_duplicate;
     }
 }
