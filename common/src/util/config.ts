@@ -25,6 +25,19 @@ export const config = {
                 return _config.get<string>("auth.discord.callbackUrl");
             },
         },
+        epic: {
+            get clientId(): string {
+                return readFileSync("./secret/epic-client.txt").toString();
+            },
+            get secret(): string {
+                return readFileSync("./secret/epic-secret.txt").toString();
+            },
+        },
+        jwt: {
+            get secret(): string {
+                return readFileSync("./secret/jwtSecret.txt").toString();
+            },
+        },
         get jwt_expiry(): string {
             return _config.get<string>("auth.jwt_expiry");
         },

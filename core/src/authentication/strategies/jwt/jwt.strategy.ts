@@ -1,6 +1,6 @@
 import {Injectable} from "@nestjs/common";
 import {PassportStrategy} from "@nestjs/passport";
-import {readFileSync} from "fs";
+import {config} from "@sprocketbot/common";
 import {ExtractJwt, Strategy} from "passport-jwt";
 
 import type {JwtPayload} from "./jwt.types";
@@ -12,7 +12,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
             ignoreExpiration: false,
-            secretOrKey: readFileSync("./secret/jwt-secret.txt").toString().trim(),
+            secretOrKey: config.auth.jwt.secret,
         });
     }
 
