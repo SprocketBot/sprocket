@@ -24,7 +24,7 @@ export const BallchasingResponseSchema = z.object({
     // Rocket League meta
     rocket_league_id: z.string(),
     season: z.number(),
-    match_guid: z.string(),
+    match_guid: z.string().optional(),
 
     // Uploader
     recorder: z.string().optional(),

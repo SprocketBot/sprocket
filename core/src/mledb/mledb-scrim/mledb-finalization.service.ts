@@ -11,6 +11,7 @@ import type {
 } from "@sprocketbot/common";
 import type {EntityManager} from "typeorm";
 import {Repository} from "typeorm";
+import {v4} from "uuid";
 
 import type {GameMode, GameSkillGroup} from "../../database";
 import {Match} from "../../database";
@@ -172,7 +173,7 @@ export class MledbFinalizationService {
             const replay = em.create(MLE_SeriesReplay);
             replay.series = series;
             replay.map = ballchasingMapLookup.get(data.map_code) ?? RocketLeagueMap.UNKNOWN;
-            replay.matchGuid = data.match_guid;
+            replay.matchGuid = data.match_guid ?? `UNKNOWN-${v4()}`;
             replay.ballchasingId = data.id;
             replay.duration = data.duration;
             replay.overtime = data.overtime;
