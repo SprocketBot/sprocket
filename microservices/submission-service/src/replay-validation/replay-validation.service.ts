@@ -106,6 +106,14 @@ export class ReplayValidationService {
             };
         }
 
+        if (!this.submissionItemsUnique(stats)) {
+            this.logger.error(`Replays are not unique submissionId=${submission.id}`);
+            return {
+                valid: false,
+                errors: [ {error: `Please verify you are uploading the correct replays. Two or more of the same replay have been uploaded.`} ],
+            };
+        }
+
         const gameResult = await this.coreService.send(CoreEndpoint.GetGameByGameMode, {gameModeId: scrim.gameModeId});
         if (gameResult.status === ResponseStatus.ERROR) {
             this.logger.error(`Unable to get game gameMode=${scrim.gameModeId}`);
@@ -154,6 +162,46 @@ export class ReplayValidationService {
         };
 
         const players = playersResponse.data as GetPlayerSuccessResponse[];
+
+        for (const stat of stats) {
+            const replayUniquenessResult = await this.coreService.send(CoreEndpoint.VerifySubmissionUniqueness, {
+                data: [
+                    ...stat.blue.players.map((p): VerifySubmissionUniquenessPlayerData => ({
+                        player_id: players.find(player => player.request.platform === p.id.platform.toUpperCase() && player.request.platformId === p.id.id)!.data.id,
+                        shots: p.stats.core.shots,
+                        saves: p.stats.core.saves,
+                        goals: p.stats.core.goals,
+                        assists: p.stats.core.assists,
+                        color: "BLUE",
+                    })),
+                    ...stat.orange.players.map((p): VerifySubmissionUniquenessPlayerData => ({
+                        player_id: players.find(player => player.request.platform === p.id.platform.toUpperCase() && player.request.platformId === p.id.id)!.data.id,
+                        shots: p.stats.core.shots,
+                        saves: p.stats.core.saves,
+                        goals: p.stats.core.goals,
+                        assists: p.stats.core.assists,
+                        color: "ORANGE",
+                    })),
+                ].sort((a, b) => a.player_id - b.player_id),
+                playedAt: new Date(stat.date),
+            });
+            if (replayUniquenessResult.status === ResponseStatus.ERROR) {
+                this.logger.error(`Unable to verify uniqueness of submission submissionId=${submission.id}`);
+                return {
+                    valid: false,
+                    errors: [ {error: `Failed to verify if replays are unique. Please contact support.`} ],
+                };
+            }
+    
+            if (!replayUniquenessResult.data) {
+                this.logger.error(`Replays are not unique submissionId=${submission.id}`);
+                return {
+                    valid: false,
+                    errors: [ {error: `Replays do not appear to be unique; please verify you are submitting the correct replays. Please contact support if you believe this is an error.`} ],
+                };
+            }
+        }
+
         // Get 3D array of scrim player ids
         const scrimPlayerIds = scrim.games.map(g => g.teams.map(t => t.players.map(p => p.id)));
 
@@ -306,6 +354,14 @@ export class ReplayValidationService {
 
         const players = playersResponse.data as GetPlayerSuccessResponse[];
 
+        if (!this.submissionItemsUnique(submission.items.map(i => i.progress!.result!.data))) {
+            this.logger.error(`Replays are not unique submissionId=${submission.id}`);
+            return {
+                valid: false,
+                errors: [ {error: `Please verify you are uploading the correct replays. Two or more of the same replay have been uploaded.`} ],
+            };
+        }
+
         for (const item of submission.items) {
             const blueBcPlayers = item.progress!.result!.data.blue.players;
             const orangeBcPlayers = item.progress!.result!.data.orange.players;
@@ -415,5 +471,46 @@ export class ReplayValidationService {
         return {
             valid: true,
         };
+    }
+
+    private submissionItemsUnique(items: BallchasingResponse[]): boolean {
+        const hashes: Set<string> = new Set();
+
+        for (const item of items) {
+            const players: Array<{
+                player_id: string;
+                shots: number;
+                saves: number;
+                goals: number;
+                assists: number;
+                color: "BLUE" | "ORANGE";
+            }> = [];
+
+            for (const p of item.blue.players) {
+                players.push({
+                    player_id: p.id.id,
+                    shots: p.stats.core.shots,
+                    saves: p.stats.core.saves,
+                    goals: p.stats.core.goals,
+                    assists: p.stats.core.assists,
+                    color: "BLUE",
+                });
+            }
+
+            for (const p of item.orange.players) {
+                players.push({
+                    player_id: p.id.id,
+                    shots: p.stats.core.shots,
+                    saves: p.stats.core.saves,
+                    goals: p.stats.core.goals,
+                    assists: p.stats.core.assists,
+                    color: "ORANGE",
+                });
+            }
+            
+            hashes.add(JSON.stringify(players.sort((a, b) => (a.player_id < b.player_id ? -1 : 1))));
+        }
+
+        return hashes.size === items.length;
     }
 }
