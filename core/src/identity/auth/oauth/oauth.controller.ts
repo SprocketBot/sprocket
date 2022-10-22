@@ -49,12 +49,13 @@ export class OauthController {
             const player = await this.mledbUserService.getPlayerByDiscordId(discordAccount.accountId);
             const player_to_orgs = await this.mledbUserService.getPlayerOrgs(player);
             const orgs = player_to_orgs.map(pto => pto.orgTeam);
-            const payload: AuthPayload = {
+            const payload: AuthPayload & {type: string} = {
                 sub: discordAccount.accountId,
                 username: userProfile.displayName,
                 userId: ourUser.id,
                 currentOrganizationId: config.defaultOrganizationId,
                 orgTeams: orgs,
+                type: "Authentication",
             };
             const token = await this.authService.loginDiscord(payload);
             res.redirect(`${config.auth.frontend_callback}?token=${token.access_token},${token.refresh_token}`);

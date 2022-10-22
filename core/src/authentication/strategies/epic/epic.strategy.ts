@@ -1,19 +1,19 @@
-import {Injectable, UnauthorizedException} from "@nestjs/common";
+import {Injectable} from "@nestjs/common";
+import {JwtService} from "@nestjs/jwt";
 import {PassportStrategy} from "@nestjs/passport";
 import {config} from "@sprocketbot/common";
+import type {Request} from "express";
+import type {ParamsDictionary} from "express-serve-static-core";
 import type {VerifyCallback} from "passport-oauth2";
 import {InternalOAuthError, Strategy} from "passport-oauth2";
-
-import type {User} from "$models";
-import {UserAuthenticationAccountRepository} from "$repositories";
-import {UserAuthenticationAccountType} from "$types";
+import type {ParsedQs} from "qs";
 
 import type {EpicProfile} from "./epic.types";
-import {EpicProfilePayload} from "./epic.types";
+import {EpicProfileSchema} from "./epic.types";
 
 @Injectable()
 export class EpicStrategy extends PassportStrategy(Strategy, "epic") {
-    constructor(private readonly userAuthenticationAccountRepository: UserAuthenticationAccountRepository) {
+    constructor(private readonly jwtService: JwtService) {
         super({
             authorizationURL: "https://www.epicgames.com/id/authorize",
             tokenURL: "https://api.epicgames.dev/epic/oauth/v1/token",
@@ -32,22 +32,18 @@ export class EpicStrategy extends PassportStrategy(Strategy, "epic") {
         refreshToken: string,
         profile: EpicProfile,
         done: VerifyCallback,
-    ): Promise<User | undefined> {
-        const userAcc = await this.userAuthenticationAccountRepository.getOrNull({
-            where: {
-                accountType: UserAuthenticationAccountType.EPIC,
-                accountId: profile.sub,
-            },
-            relations: {user: true},
-        });
+    ): Promise<EpicProfile | undefined> {
+        done(null, profile);
+        return profile;
+    }
 
-        if (!userAcc) {
-            done(new UnauthorizedException("User not found"));
-            return undefined;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    authenticate(req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, options?: any): void {
+        if (req.query.token) {
+            this.jwtService.verify(req.query.token as string);
+            options.state = req.query.token;
         }
-
-        done(null, userAcc.user);
-        return userAcc.user;
+        super.authenticate(req, options);
     }
 
     async userProfile(
@@ -64,7 +60,7 @@ export class EpicStrategy extends PassportStrategy(Strategy, "epic") {
                 try {
                     if (body instanceof Buffer) body = body.toString();
 
-                    const data = EpicProfilePayload.safeParse(JSON.parse(body));
+                    const data = EpicProfileSchema.safeParse(JSON.parse(body));
                     if (!data.success)
                         return done(new InternalOAuthError("Failed to parse user profile", {statusCode: 500}));
 

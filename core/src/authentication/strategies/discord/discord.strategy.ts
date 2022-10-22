@@ -1,17 +1,18 @@
-import {Injectable, UnauthorizedException} from "@nestjs/common";
+import {Injectable} from "@nestjs/common";
+import {JwtService} from "@nestjs/jwt";
 import {PassportStrategy} from "@nestjs/passport";
 import {config} from "@sprocketbot/common";
-import type {Profile} from "passport-discord";
+import type {Request} from "express";
+import type {ParamsDictionary} from "express-serve-static-core";
 import {Strategy} from "passport-discord";
 import type {VerifyCallback} from "passport-oauth2";
+import type {ParsedQs} from "qs";
 
-import type {User} from "$models";
-import {UserAuthenticationAccountRepository} from "$repositories";
-import {UserAuthenticationAccountType} from "$types";
+import type {DiscordProfile} from "./discord.types";
 
 @Injectable()
 export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
-    constructor(private readonly userAuthenticationAccountRepository: UserAuthenticationAccountRepository) {
+    constructor(private readonly jwtService: JwtService) {
         super({
             clientID: config.auth.discord.clientId,
             clientSecret: config.auth.discord.secret,
@@ -24,23 +25,19 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
     async validate(
         accessToken: string,
         refreshToken: string,
-        profile: Profile,
+        profile: DiscordProfile,
         done: VerifyCallback,
-    ): Promise<User | undefined> {
-        const userAcc = await this.userAuthenticationAccountRepository.getOrNull({
-            where: {
-                accountType: UserAuthenticationAccountType.DISCORD,
-                accountId: profile.id,
-            },
-            relations: {user: true},
-        });
+    ): Promise<DiscordProfile | undefined> {
+        done(null, profile);
+        return profile;
+    }
 
-        if (!userAcc) {
-            done(new UnauthorizedException("User not found"));
-            return undefined;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    authenticate(req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, options?: any): void {
+        if (req.query.token) {
+            this.jwtService.verify(req.query.token as string);
+            options.state = req.query.token;
         }
-
-        done(null, userAcc.user);
-        return userAcc.user;
+        super.authenticate(req, options);
     }
 }

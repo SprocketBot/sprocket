@@ -2,8 +2,10 @@ import {ValidationPipe} from "@nestjs/common";
 import {NestFactory} from "@nestjs/core";
 import {Transport} from "@nestjs/microservices";
 import {AllExceptionsFilter, config} from "@sprocketbot/common";
+import session from "express-session";
 import {writeFile} from "fs/promises";
 import {SpelunkerModule} from "nestjs-spelunker";
+import passport from "passport";
 
 import {AppModule} from "./app.module";
 
@@ -39,6 +41,16 @@ async function bootstrap(): Promise<void> {
     app.useGlobalPipes(new ValidationPipe());
 
     app.useGlobalFilters(new AllExceptionsFilter());
+
+    app.use(
+        session({
+            secret: "shuckle",
+            resave: false,
+            saveUninitialized: false,
+        }),
+    );
+    app.use(passport.initialize());
+    app.use(passport.session());
 
     const port = 3001;
     await app.startAllMicroservices();
