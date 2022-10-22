@@ -6,6 +6,7 @@ import {config} from "@sprocketbot/common";
 import {RedisCache} from "apollo-server-cache-redis";
 import {graphqlUploadExpress} from "graphql-upload";
 
+import {AuthenticationModule} from "./authentication";
 import {ConfigurationModule} from "./configuration";
 import {DatabaseModule} from "./database";
 import {EloModule} from "./elo";
@@ -76,6 +77,7 @@ import {UtilModule} from "./util/util.module";
             },
             prefix: `${config.redis.prefix}:bull`,
         }),
+        AuthenticationModule,
         OrganizationModule,
         IdentityModule,
         DatabaseModule,
