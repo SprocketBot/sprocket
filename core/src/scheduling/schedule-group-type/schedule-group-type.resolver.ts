@@ -5,17 +5,17 @@ import {GraphQLError} from "graphql";
 import {ScheduleGroupType} from "$models";
 import {ScheduleGroupTypeRepository} from "$repositories";
 
-import {CurrentUser} from "../../identity/auth/current-user.decorator";
-import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
-import {UserPayload} from "../../identity/auth/oauth/types/userpayload.type";
+import {AuthenticatedUser} from "../../authentication/decorators";
+import {GraphQLJwtAuthGuard} from "../../authentication/guards";
+import {JwtAuthPayload} from "../../authentication/types";
 
 @Resolver(() => ScheduleGroupType)
-@UseGuards(GqlJwtGuard)
+@UseGuards(GraphQLJwtAuthGuard)
 export class ScheduleGroupTypeResolver {
     constructor(private readonly scheduleGroupTypeRepository: ScheduleGroupTypeRepository) {}
 
     @Query(() => [ScheduleGroupType])
-    async getScheduleGroupTypes(@CurrentUser() user: UserPayload): Promise<ScheduleGroupType[]> {
+    async getScheduleGroupTypes(@AuthenticatedUser() user: JwtAuthPayload): Promise<ScheduleGroupType[]> {
         if (!user.currentOrganizationId) {
             throw new GraphQLError("You must select an organization");
         }

@@ -1,9 +1,12 @@
+import {UseGuards} from "@nestjs/common";
 import {ResolveField, Resolver, Root} from "@nestjs/graphql";
 import {REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID} from "@sprocketbot/common";
 
 import {UserProfileRepository} from "$repositories";
 
-import {CurrentUser, UserPayload} from "../identity";
+import {AuthenticatedUser} from "../authentication/decorators";
+import {GraphQLJwtAuthGuard} from "../authentication/guards";
+import {JwtAuthPayload} from "../authentication/types";
 import {GqlReplaySubmission, ReplaySubmission, SubmissionRejection} from "./types";
 
 @Resolver(() => GqlReplaySubmission)
@@ -14,7 +17,8 @@ export class ReplaySubmissionResolver {
     }
 
     @ResolveField(() => Boolean)
-    userHasRatified(@CurrentUser() cu: UserPayload, @Root() submission: ReplaySubmission): boolean {
+    @UseGuards(GraphQLJwtAuthGuard)
+    userHasRatified(@AuthenticatedUser() cu: JwtAuthPayload, @Root() submission: ReplaySubmission): boolean {
         return submission.ratifiers.some(r => r.toString() === cu.userId.toString());
     }
 }

@@ -4,7 +4,7 @@ import {GqlExecutionContext} from "@nestjs/graphql";
 
 import type {MLE_OrganizationTeam} from "$mledb";
 
-import type {UserPayload} from "../../identity";
+import type {JwtAuthPayload} from "../../authentication/types";
 
 // TODO: If someone logs in with something that isn't Discord, their org teams will be undefined
 // See src/identity/auth/oauth/oauth.controller.ts - Only gets set on discord authentication
@@ -42,14 +42,14 @@ export function MLEOrganizationTeamGuard(organizationTeams: OrganizationTeamGuar
     class _MLEOrganizationTeamGuard implements CanActivate {
         canActivate(context: ExecutionContext): boolean {
             const ctx = GqlExecutionContext.create(context);
-            const user = ctx.getContext().req.user as UserPayload;
+            const user = ctx.getContext().req.user as JwtAuthPayload;
 
             if (!user.orgTeams) return false;
 
             if (organizationTeams instanceof Function) {
                 return organizationTeams(user.orgTeams);
             } else if (Array.isArray(organizationTeams)) {
-                return organizationTeams.some(orgTeam => user.orgTeams!.some(userOrgTeam => userOrgTeam === orgTeam));
+                return organizationTeams.some(orgTeam => user.orgTeams.some(userOrgTeam => userOrgTeam === orgTeam));
             }
 
             return user.orgTeams.some(orgTeam => orgTeam === organizationTeams);

@@ -12,7 +12,7 @@
     import {ADMIN_NAV_ITEM, navigationStore} from "$lib/stores";
 
     $: {
-        const isAdmin = $session.user?.orgTeams.some(s => s === 0);
+        const isAdmin = $session.user?.orgTeams?.some(s => s === 0);
         if (isAdmin) {
             navigationStore.update(prev => [...prev, ADMIN_NAV_ITEM]);
         }

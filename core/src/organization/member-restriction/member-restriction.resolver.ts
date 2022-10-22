@@ -8,7 +8,7 @@ import {MemberRestriction} from "$models";
 import {MemberRestrictionRepository} from "$repositories";
 import {MemberRestrictionType} from "$types";
 
-import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
+import {GraphQLJwtAuthGuard} from "../../authentication/guards";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {PopulateService} from "../../util/populate/populate.service";
 import {MemberPubSub} from "../constants";
@@ -26,7 +26,7 @@ export class MemberRestrictionResolver {
 
     @Query(() => [MemberRestriction])
     @UseGuards(
-        GqlJwtGuard,
+        GraphQLJwtAuthGuard,
         MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]),
     )
     async getActiveMemberRestrictions(
@@ -38,7 +38,7 @@ export class MemberRestrictionResolver {
 
     @Mutation(() => MemberRestriction)
     @UseGuards(
-        GqlJwtGuard,
+        GraphQLJwtAuthGuard,
         MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]),
     )
     async createMemberRestriction(
@@ -53,7 +53,7 @@ export class MemberRestrictionResolver {
 
     @Mutation(() => MemberRestriction)
     @UseGuards(
-        GqlJwtGuard,
+        GraphQLJwtAuthGuard,
         MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]),
     )
     async manuallyExpireMemberRestriction(

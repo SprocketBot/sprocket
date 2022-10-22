@@ -11,11 +11,11 @@ import {Player} from "$models";
 import {GameModeRepository} from "$repositories";
 import {OrganizationConfigurationKeyCode} from "$types";
 
+import {AuthenticatedUser} from "../authentication/decorators";
+import {GraphQLJwtAuthGuard} from "../authentication/guards";
+import {JwtAuthPayload} from "../authentication/types";
 import {OrganizationConfigurationService} from "../configuration";
 import {CurrentPlayer, PlayerService} from "../franchise";
-import {CurrentUser} from "../identity";
-import {UserPayload} from "../identity/auth/";
-import {GqlJwtGuard} from "../identity/auth/gql-auth-guard/gql-jwt-guard";
 import {MledbPlayerService} from "../mledb";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
 import {FormerPlayerScrimGuard} from "../mledb/mledb-player/mledb-player.guard";
@@ -44,7 +44,7 @@ export class ScrimModuleResolverPublic {
 }
 
 @Resolver()
-@UseGuards(GqlJwtGuard)
+@UseGuards(GraphQLJwtAuthGuard)
 export class ScrimModuleResolver {
     private readonly logger = new Logger(ScrimModuleResolver.name);
 
@@ -67,7 +67,7 @@ export class ScrimModuleResolver {
     @Query(() => [Scrim])
     @UseGuards(FormerPlayerScrimGuard)
     async getAllScrims(
-        @CurrentUser() user: UserPayload,
+        @AuthenticatedUser() user: JwtAuthPayload,
         @Args("status", {
             type: () => ScrimStatus,
             nullable: true,
@@ -84,7 +84,7 @@ export class ScrimModuleResolver {
     @Query(() => [Scrim])
     @UseGuards(FormerPlayerScrimGuard)
     async getAvailableScrims(
-        @CurrentUser() user: UserPayload,
+        @AuthenticatedUser() user: JwtAuthPayload,
         @Args("status", {
             type: () => ScrimStatus,
             nullable: true,
@@ -109,7 +109,7 @@ export class ScrimModuleResolver {
     }
 
     @Query(() => Scrim, {nullable: true})
-    async getCurrentScrim(@CurrentUser() user: UserPayload): Promise<Scrim | null> {
+    async getCurrentScrim(@AuthenticatedUser() user: JwtAuthPayload): Promise<Scrim | null> {
         return this.scrimService.getScrimByPlayer(user.userId) as Promise<Scrim | null>;
     }
 
@@ -122,7 +122,7 @@ export class ScrimModuleResolver {
     @Mutation(() => Scrim)
     @UseGuards(QueueBanGuard, CreateScrimPlayerGuard, FormerPlayerScrimGuard)
     async createScrim(
-        @CurrentUser() user: UserPayload,
+        @AuthenticatedUser() user: JwtAuthPayload,
         @Args("data", {type: () => CreateScrimInput}) data: CreateScrimInput,
     ): Promise<Scrim> {
         if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organization");
@@ -170,7 +170,7 @@ export class ScrimModuleResolver {
     @Mutation(() => Boolean)
     @UseGuards(QueueBanGuard, JoinScrimPlayerGuard, FormerPlayerScrimGuard)
     async joinScrim(
-        @CurrentUser() user: UserPayload,
+        @AuthenticatedUser() user: JwtAuthPayload,
         @CurrentPlayer() player: Player,
         @Args("scrimId") scrimId: string,
         @Args("leaveAfter", {type: () => Int}) leaveAfter: number,
@@ -212,7 +212,7 @@ export class ScrimModuleResolver {
     }
 
     @Mutation(() => Boolean)
-    async leaveScrim(@CurrentUser() user: UserPayload): Promise<boolean> {
+    async leaveScrim(@AuthenticatedUser() user: JwtAuthPayload): Promise<boolean> {
         const scrim = await this.scrimService.getScrimByPlayer(user.userId);
         if (!scrim) throw new GraphQLError("You must be in a scrim to leave");
 
@@ -220,7 +220,7 @@ export class ScrimModuleResolver {
     }
 
     @Mutation(() => Boolean)
-    async checkInToScrim(@CurrentUser() user: UserPayload): Promise<boolean> {
+    async checkInToScrim(@AuthenticatedUser() user: JwtAuthPayload): Promise<boolean> {
         const scrim = await this.scrimService.getScrimByPlayer(user.userId);
         if (!scrim) throw new GraphQLError("You must be in a scrim to check in");
 
@@ -236,13 +236,13 @@ export class ScrimModuleResolver {
     }
 
     @Mutation(() => Boolean)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    @UseGuards(GraphQLJwtAuthGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async lockScrim(@Args("scrimId") scrimId: string): Promise<boolean> {
         return this.scrimService.setScrimLocked(scrimId, true);
     }
 
     @Mutation(() => Boolean)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    @UseGuards(GraphQLJwtAuthGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async unlockScrim(@Args("scrimId") scrimId: string): Promise<boolean> {
         return this.scrimService.setScrimLocked(scrimId, false);
     }
@@ -254,7 +254,9 @@ export class ScrimModuleResolver {
      */
 
     @Subscription(() => ScrimEvent)
-    async followCurrentScrim(@CurrentUser() user: UserPayload): Promise<AsyncIterator<ScrimEvent> | undefined> {
+    async followCurrentScrim(
+        @AuthenticatedUser() user: JwtAuthPayload,
+    ): Promise<AsyncIterator<ScrimEvent> | undefined> {
         await this.scrimService.enableSubscription();
         const scrim = await this.scrimService.getScrimByPlayer(user.userId);
         if (!scrim) return undefined;
@@ -266,7 +268,7 @@ export class ScrimModuleResolver {
             this: ScrimModuleResolver,
             payload: {followPendingScrims: Scrim},
             variables,
-            context: {req: {user: UserPayload}},
+            context: {req: {user: JwtAuthPayload}},
         ) {
             const {userId, currentOrganizationId} = context.req.user;
             if (!currentOrganizationId) return false;

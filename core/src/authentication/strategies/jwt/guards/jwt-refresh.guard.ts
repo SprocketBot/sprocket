@@ -9,6 +9,8 @@ export class JwtRefreshGuard extends AuthGuard("jwt") {
     handleRequest(err, payload): any {
         if (err || !payload) throw err || new UnauthorizedException();
 
+        console.log(payload);
+
         const data = JwtRefreshPayloadSchema.safeParse(payload);
         if (!data.success) throw new UnauthorizedException("Token is not valid for refresh authentication");
 
