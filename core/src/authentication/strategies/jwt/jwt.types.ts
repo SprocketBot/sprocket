@@ -6,7 +6,7 @@ export enum JwtType {
 }
 
 export const JwtBasePayloadSchema = z.object({
-    sub: z.string(),
+    sub: z.number(),
     type: z.nativeEnum(JwtType),
     userId: z.number(),
 });
