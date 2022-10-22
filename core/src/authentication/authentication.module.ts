@@ -5,6 +5,9 @@ import {config} from "@sprocketbot/common";
 
 import {DatabaseModule} from "../database";
 import {AuthenticationController} from "./authentication.controller";
+import {AuthenticationResolver} from "./authentication.resolver";
+import {AuthenticationService} from "./authentication.service";
+import {DiscordStrategy} from "./strategies/discord/discord.strategy";
 import {EpicStrategy} from "./strategies/epic/epic.strategy";
 import {GoogleStrategy} from "./strategies/google/google.strategy";
 import {JwtStrategy} from "./strategies/jwt/jwt.strategy";
@@ -18,7 +21,14 @@ import {JwtStrategy} from "./strategies/jwt/jwt.strategy";
             signOptions: {expiresIn: config.auth.jwt_expiry},
         }),
     ],
-    providers: [GoogleStrategy, JwtStrategy, EpicStrategy],
+    providers: [
+        GoogleStrategy,
+        JwtStrategy,
+        EpicStrategy,
+        AuthenticationResolver,
+        AuthenticationService,
+        DiscordStrategy,
+    ],
     controllers: [AuthenticationController],
 })
 export class AuthenticationModule {}
