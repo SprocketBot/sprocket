@@ -32,6 +32,9 @@ export const config = {
             get secret(): string {
                 return readFileSync("./secret/epic-secret.txt").toString();
             },
+            get callbackURL(): string {
+                return _config.get<string>("auth.epic.callbackUrl");
+            },
         },
         jwt: {
             get secret(): string {

@@ -1,14 +1,18 @@
-import {Injectable} from "@nestjs/common";
+import {Injectable, UnauthorizedException} from "@nestjs/common";
 import {PassportStrategy} from "@nestjs/passport";
 import {config} from "@sprocketbot/common";
 import type {VerifyCallback} from "passport-google-oauth20";
 import {Strategy} from "passport-google-oauth20";
 
+import type {User} from "$models";
+import {UserAuthenticationAccountRepository} from "$repositories";
+import {UserAuthenticationAccountType} from "$types";
+
 import type {GoogleProfile} from "./google.types";
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
-    constructor() {
+    constructor(private readonly userAuthenticationAccountRepository: UserAuthenticationAccountRepository) {
         super({
             clientID: config.auth.google.clientId,
             clientSecret: config.auth.google.secret,
@@ -22,12 +26,21 @@ export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
         refreshToken: string,
         profile: GoogleProfile,
         done: VerifyCallback,
-    ): Promise<{id: number}> {
-        console.log(profile);
-        // First, check if the user already exists
-        const user = {id: 10};
+    ): Promise<User | undefined> {
+        const userAcc = await this.userAuthenticationAccountRepository.getOrNull({
+            where: {
+                accountType: UserAuthenticationAccountType.GOOGLE,
+                accountId: profile.id,
+            },
+            relations: {user: true},
+        });
 
-        done(null, user);
-        return user;
+        if (!userAcc) {
+            done(new UnauthorizedException("User not found"));
+            return undefined;
+        }
+
+        done(null, userAcc.user);
+        return userAcc.user;
     }
 }
