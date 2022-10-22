@@ -13,7 +13,6 @@ export class AuthenticationResolver {
     @Mutation(() => String)
     @UseGuards(GraphQLJwtRefreshGuard)
     async refreshLogin(@AuthenticatedUser() user: JwtRefreshPayload): Promise<string> {
-        console.log(user);
-        return "hi";
+        return "not implemented";
     }
 }
