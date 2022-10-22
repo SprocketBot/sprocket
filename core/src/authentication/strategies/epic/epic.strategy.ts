@@ -4,6 +4,7 @@ import {config} from "@sprocketbot/common";
 import type {VerifyCallback} from "passport-oauth2";
 import {InternalOAuthError, Strategy} from "passport-oauth2";
 
+import type {User} from "$models";
 import {UserAuthenticationAccountRepository} from "$repositories";
 import {UserAuthenticationAccountType} from "$types";
 
@@ -18,7 +19,7 @@ export class EpicStrategy extends PassportStrategy(Strategy, "epic") {
             tokenURL: "https://api.epicgames.dev/epic/oauth/v1/token",
             clientID: config.auth.epic.clientId,
             clientSecret: config.auth.epic.secret,
-            callbackURL: "https://code.local.pikaard.com:3001/authentication/epic/login",
+            callbackURL: config.auth.epic.callbackURL,
             scope: "basic_profile",
             customHeaders: {
                 Authorization: `basic ${btoa(`${config.auth.epic.clientId}:${config.auth.epic.secret}`)}`,
@@ -31,7 +32,7 @@ export class EpicStrategy extends PassportStrategy(Strategy, "epic") {
         refreshToken: string,
         profile: EpicProfile,
         done: VerifyCallback,
-    ): Promise<{id: number} | undefined> {
+    ): Promise<User | undefined> {
         const userAcc = await this.userAuthenticationAccountRepository.getOrNull({
             where: {
                 accountType: UserAuthenticationAccountType.EPIC,
