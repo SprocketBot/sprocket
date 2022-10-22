@@ -1,5 +1,5 @@
 import {Field, ObjectType} from "@nestjs/graphql";
-import {Entity, ManyToOne} from "typeorm";
+import {Entity, JoinColumn, ManyToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {Member} from "../../organization/models";
@@ -9,10 +9,12 @@ import {OrganizationStaffPosition} from "../organization_staff_position/organiza
 @ObjectType()
 export class OrganizationStaffSeat extends BaseModel {
     @ManyToOne(() => Member, {nullable: true})
+    @JoinColumn()
     @Field(() => Member, {nullable: true})
     member?: Member;
 
     @ManyToOne(() => OrganizationStaffPosition)
+    @JoinColumn()
     @Field(() => OrganizationStaffPosition)
     position: OrganizationStaffPosition;
 }
