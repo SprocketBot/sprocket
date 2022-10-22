@@ -59,9 +59,6 @@ export class UserAuthenticationAccountRepository extends ExtendedRepository<User
                         accountType: type,
                         accountId: accountId,
                     },
-                    relations: {
-                        user: true,
-                    },
                 },
                 options,
             ),

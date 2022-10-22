@@ -50,7 +50,6 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
     }
 
     async validate(accessToken: string, refreshToken: string, profile: Profile, done: Done): Promise<User | undefined> {
-        console.log(profile);
         const mledbPlayer = await this.mledbPlayerService.getPlayerByDiscordId(profile.id).catch(() => null);
         if (!mledbPlayer) throw new Error("User is not associated with MLE");
 
