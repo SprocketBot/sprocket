@@ -125,7 +125,9 @@ export class AuthenticationController {
     @Get("discord/login")
     @UseGuards(DiscordAuthGuard)
     async discordLogin(@Request() req: Req, @Response() res: Res, @Query("state") state?: string): Promise<void> {
+        console.log(req.user);
         const discordProfile = DiscordProfileSchema.safeParse(req.user);
+        if (!discordProfile.success) console.error(discordProfile.error);
         if (!discordProfile.success) throw new HttpException("Could not validate user", 400);
 
         if (state) {

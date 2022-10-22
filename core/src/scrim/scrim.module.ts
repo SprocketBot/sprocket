@@ -8,7 +8,6 @@ import {DatabaseModule} from "../database";
 import {EloConnectorModule} from "../elo/elo-connector";
 import {FranchiseModule} from "../franchise";
 import {GameModule} from "../game";
-import {AuthModule} from "../identity";
 import {MledbInterfaceModule} from "../mledb";
 import {OrganizationModule} from "../organization";
 import {UtilModule} from "../util/util.module";
@@ -30,7 +29,6 @@ import {ScrimToggleResolver, ScrimToggleService} from "./scrim-toggle";
         MatchmakingModule,
         EventsModule,
         GameModule,
-        AuthModule,
         RedisModule,
         DatabaseModule,
         OrganizationModule,

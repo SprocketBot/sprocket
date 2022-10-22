@@ -15,6 +15,7 @@ export const JwtAuthPayloadSchema = JwtBasePayloadSchema.extend({
     type: z.literal(JwtType.Authentication),
     username: z.string(),
     currentOrganizationId: z.number().optional(),
+    orgTeams: z.array(z.number()),
 });
 
 export const JwtRefreshPayloadSchema = JwtBasePayloadSchema.extend({

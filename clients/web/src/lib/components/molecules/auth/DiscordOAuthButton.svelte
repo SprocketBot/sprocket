@@ -16,7 +16,7 @@
     use:oauthPopup={{
         windowUrl: `http${$session.config.secure ? "s" : ""}://${
             $session.config.gqlUrl
-        }/login`,
+        }/authentication/discord/login`,
         callback: discordAuthCallback,
     }}
 >

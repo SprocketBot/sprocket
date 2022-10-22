@@ -8,12 +8,11 @@ import {config} from "@sprocketbot/common";
 import type {Member, UserAuthenticationAccount, UserProfile} from "$models";
 import {User} from "$models";
 import {UserRepository} from "$repositories";
+import {PopulateService} from "$util";
 
-import {PopulateService} from "../../util/populate/populate.service";
-import type {AuthPayload} from "../auth";
-import {UserPayload} from "../auth";
-import {CurrentUser} from "../auth/current-user.decorator";
-import {GqlJwtGuard} from "../auth/gql-auth-guard";
+import {AuthenticatedUser} from "../../authentication/decorators";
+import {GraphQLJwtAuthGuard} from "../../authentication/guards";
+import {JwtAuthPayload} from "../../authentication/types";
 
 @Resolver(() => User)
 export class UserResolver {
@@ -27,8 +26,8 @@ export class UserResolver {
     ) {}
 
     @Query(() => User)
-    @UseGuards(GqlJwtGuard)
-    async me(@CurrentUser() cu: UserPayload): Promise<User> {
+    @UseGuards(GraphQLJwtAuthGuard)
+    async me(@AuthenticatedUser() cu: JwtAuthPayload): Promise<User> {
         return this.userRepository.getById(cu.userId);
     }
 

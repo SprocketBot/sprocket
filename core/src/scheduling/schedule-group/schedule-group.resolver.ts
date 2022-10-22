@@ -6,8 +6,8 @@ import {ScheduleGroup} from "$models";
 import {ScheduleGroupRepository} from "$repositories";
 import {PopulateService} from "$util";
 
-import {CurrentUser} from "../../identity/auth/current-user.decorator";
-import {UserPayload} from "../../identity/auth/oauth/types/userpayload.type";
+import {AuthenticatedUser} from "../../authentication/decorators";
+import {JwtAuthPayload} from "../../authentication/types";
 
 @Resolver(() => ScheduleGroup)
 export class ScheduleGroupResolver {
@@ -18,7 +18,7 @@ export class ScheduleGroupResolver {
 
     @Query(() => [ScheduleGroup])
     async getScheduleGroups(
-        @CurrentUser() user: UserPayload,
+        @AuthenticatedUser() user: JwtAuthPayload,
         @Args("type") type: string,
         @Args("game", {nullable: true}) gameId?: number,
     ): Promise<ScheduleGroup[]> {

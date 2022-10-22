@@ -5,9 +5,9 @@ import {GraphQLError} from "graphql";
 
 import {GameModeRepository} from "$repositories";
 
+import type {JwtAuthPayload} from "../authentication/types";
 import {PlayerGuard, PlayerService} from "../franchise";
 import type {GameAndOrganization} from "../franchise/player/player.types";
-import type {UserPayload} from "../identity";
 import {ScrimService} from "./scrim.service";
 import type {CreateScrimInput} from "./types";
 
@@ -20,7 +20,10 @@ export class CreateScrimPlayerGuard extends PlayerGuard {
         super();
     }
 
-    async getGameAndOrganization(ctx: GraphQLExecutionContext, userPayload: UserPayload): Promise<GameAndOrganization> {
+    async getGameAndOrganization(
+        ctx: GraphQLExecutionContext,
+        userPayload: JwtAuthPayload,
+    ): Promise<GameAndOrganization> {
         if (!userPayload.currentOrganizationId) throw new Error("User is not connected to an organization");
         const {
             data: {gameModeId},
@@ -71,7 +74,10 @@ export class ScrimResolverPlayerGuard extends PlayerGuard {
         super();
     }
 
-    async getGameAndOrganization(ctx: GraphQLExecutionContext, userPayload: UserPayload): Promise<GameAndOrganization> {
+    async getGameAndOrganization(
+        ctx: GraphQLExecutionContext,
+        userPayload: JwtAuthPayload,
+    ): Promise<GameAndOrganization> {
         if (!userPayload.currentOrganizationId) throw new Error("User is not connected to an organization");
 
         const scrim = ctx.getRoot<Scrim>();

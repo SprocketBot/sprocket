@@ -47,8 +47,9 @@ import {
 import type {ManualEloChange, ManualSkillGroupChange} from "../../elo/elo-connector";
 import {Member} from "../../database/models";
 import {OrganizationProfileRepository} from "../../database/repositories";
+import {GraphQLJwtAuthGuard} from "../../authentication/guards";
+import type {ManualSkillGroupChange} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
-import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {PopulateService} from "../../util/populate/populate.service";
 import {FranchiseService} from "../franchise";
@@ -129,7 +130,7 @@ export class PlayerResolver {
 
     @Mutation(() => String)
     @UseGuards(
-        GqlJwtGuard,
+        GraphQLJwtAuthGuard,
         MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]),
     )
     async changePlayerSkillGroup(
@@ -315,7 +316,7 @@ export class PlayerResolver {
 
     @Mutation(() => Player)
     @UseGuards(
-        GqlJwtGuard,
+        GraphQLJwtAuthGuard,
         MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]),
     )
     async intakePlayer(
@@ -349,7 +350,7 @@ export class PlayerResolver {
 
     @Mutation(() => [Player])
     @UseGuards(
-        GqlJwtGuard,
+        GraphQLJwtAuthGuard,
         MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]),
     )
     async intakePlayerBulk(

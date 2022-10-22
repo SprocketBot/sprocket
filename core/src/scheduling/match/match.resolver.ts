@@ -38,8 +38,8 @@ import {
 } from "../../database/mledb";
 import {SeriesToMatchParent} from "../../database/mledb-bridge/series_to_match_parent.model";
 import type {MatchSubmissionStatus} from "../../database/scheduling/match/match.model";
+import {GraphQLJwtAuthGuard} from "../../authentication/guards";
 import {CurrentPlayer} from "../../franchise/player";
-import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MledbMatchService} from "../../mledb/mledb-match/mledb-match.service";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {PopulateService} from "../../util/populate/populate.service";
@@ -76,7 +76,7 @@ export class MatchResolver {
     }
 
     @Mutation(() => String)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    @UseGuards(GraphQLJwtAuthGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async postReportCard(@Args("matchId") matchId: number): Promise<string> {
         const match = await this.matchRepository.getById(matchId, {
             relations: {
@@ -121,7 +121,7 @@ export class MatchResolver {
     }
 
     @Mutation(() => String)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    @UseGuards(GraphQLJwtAuthGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async reprocessMatches(@Args("startDate") startDate: Date): Promise<string> {
         this.logger.verbose(`Starting to reprocess matches after ${startDate}.`);
         await this.matchService.resubmitAllMatchesAfter(startDate);
@@ -130,9 +130,16 @@ export class MatchResolver {
     }
 
     @Mutation(() => String)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
-    async markSeriesNCP(@Args("matchId") matchId: number, @Args("isNcp") isNcp: boolean, @Args("winningTeamId", {nullable: true}) winningTeamId?: number, @Args("numReplays", {nullable: true}) numReplays?: number): Promise<string> {
-
+    @UseGuards(
+        GraphQLJwtAuthGuard,
+        MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]),
+    )
+    async markSeriesNCP(
+        @Args("seriesId") seriesId: number,
+        @Args("isNcp") isNcp: boolean,
+        @Args("winningTeamId", {nullable: true}) winningTeamId?: number,
+        @Args("numReplays", {nullable: true}) numReplays?: number,
+    ): Promise<string> {
         // Perform NCPs in a single transaction
         const qr = this.dataSource.createQueryRunner();
         await qr.connect();
@@ -183,8 +190,15 @@ export class MatchResolver {
     }
 
     @Mutation(() => String)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
-    async markRoundsNCP(@Args("roundIds", {type: () => [Number]}) roundIds: number[], @Args("isNcp") isNcp: boolean, @Args("winningTeamId", {nullable: true}) winningTeamId: number): Promise<string> {
+    @UseGuards(
+        GraphQLJwtAuthGuard,
+        MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]),
+    )
+    async markReplaysNCP(
+        @Args("replayIds", {type: () => [Number]}) replayIds: number[],
+        @Args("isNcp") isNcp: boolean,
+        @Args("winningTeamId", {nullable: true}) winningTeamId: number,
+    ): Promise<string> {
         // Perform NCPs in a single transaction
         const qr = this.dataSource.createQueryRunner();
         await qr.connect();
@@ -382,7 +396,7 @@ export class MatchResolver {
     }
 
     @ResolveField()
-    @UseGuards(GqlJwtGuard, MatchPlayerGuard)
+    @UseGuards(GraphQLJwtAuthGuard, MatchPlayerGuard)
     async canSubmit(@CurrentPlayer() player: Player, @Root() root: Match): Promise<boolean> {
         if (root.canSubmit) return root.canSubmit;
         if (!root.submissionId) throw new Error(`Match has no submissionId`);
@@ -396,7 +410,7 @@ export class MatchResolver {
     }
 
     @ResolveField()
-    @UseGuards(GqlJwtGuard, MatchPlayerGuard)
+    @UseGuards(GraphQLJwtAuthGuard, MatchPlayerGuard)
     async canRatify(@CurrentPlayer() player: Player, @Root() root: Match): Promise<boolean> {
         if (root.canRatify) return root.canRatify;
         if (!root.submissionId) throw new Error(`Match has no submissionId`);

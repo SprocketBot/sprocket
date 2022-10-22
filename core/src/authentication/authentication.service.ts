@@ -22,6 +22,7 @@ export class AuthenticationService {
             username: user.profile.displayName,
             type: JwtType.Authentication,
             currentOrganizationId: organizationId,
+            orgTeams: [],
         };
         const refreshPayload: JwtRefreshPayload = {
             ...payload,

@@ -5,7 +5,7 @@ import {DataSource} from "typeorm";
 
 import {MLE_OrganizationTeam} from "$mledb";
 
-import {GqlJwtGuard} from "../identity/auth/gql-auth-guard";
+import {GraphQLJwtAuthGuard} from "../authentication/guards";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
 import {EloConsumer} from "./elo.consumer";
 import {EloService} from "./elo.service";
@@ -22,14 +22,14 @@ export class EloResolver {
     ) {}
 
     @Mutation(() => String)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    @UseGuards(GraphQLJwtAuthGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async generateMigrationData(): Promise<string> {
         await this.eloService.prepMigrationData();
         return "Done.";
     }
 
     @Mutation(() => String)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    @UseGuards(GraphQLJwtAuthGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async runEloMigration(): Promise<string> {
         const inputData = await this.eloService.prepMigrationData();
         await this.eloConnectorService.createJob(EloEndpoint.AddNewPlayers, inputData);

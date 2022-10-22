@@ -3,9 +3,9 @@ import type {GraphQLExecutionContext} from "@nestjs/graphql";
 
 import {Match} from "$models";
 
+import type {JwtAuthPayload} from "../../authentication/types";
 import {PlayerGuard, PlayerService} from "../../franchise/player";
 import type {GameAndOrganization} from "../../franchise/player/player.types";
-import type {UserPayload} from "../../identity";
 import {PopulateService} from "../../util/populate/populate.service";
 
 @Injectable()
@@ -14,7 +14,10 @@ export class MatchPlayerGuard extends PlayerGuard {
         super();
     }
 
-    async getGameAndOrganization(ctx: GraphQLExecutionContext, userPayload: UserPayload): Promise<GameAndOrganization> {
+    async getGameAndOrganization(
+        ctx: GraphQLExecutionContext,
+        userPayload: JwtAuthPayload,
+    ): Promise<GameAndOrganization> {
         if (!userPayload.currentOrganizationId) throw new Error("User is not connected to an organization");
 
         const match = ctx.getRoot<Match>();
