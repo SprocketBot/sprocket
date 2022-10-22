@@ -11,11 +11,12 @@ import {DiscordStrategy} from "./strategies/discord/discord.strategy";
 import {EpicStrategy} from "./strategies/epic/epic.strategy";
 import {GoogleStrategy} from "./strategies/google/google.strategy";
 import {JwtStrategy} from "./strategies/jwt/jwt.strategy";
+import {SteamStrategy} from "./strategies/steam/steam.strategy";
 
 @Module({
     imports: [
         DatabaseModule,
-        PassportModule.register({session: true}),
+        PassportModule.register({session: false}),
         JwtModule.register({
             secret: config.auth.jwt.secret,
             signOptions: {expiresIn: config.auth.jwt_expiry},
@@ -28,6 +29,7 @@ import {JwtStrategy} from "./strategies/jwt/jwt.strategy";
         AuthenticationResolver,
         AuthenticationService,
         DiscordStrategy,
+        SteamStrategy,
     ],
     controllers: [AuthenticationController],
 })
