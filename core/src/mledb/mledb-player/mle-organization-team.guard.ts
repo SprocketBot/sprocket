@@ -44,8 +44,6 @@ export function MLEOrganizationTeamGuard(organizationTeams: OrganizationTeamGuar
             const ctx = GqlExecutionContext.create(context);
             const user = ctx.getContext().req.user as JwtAuthPayload;
 
-            if (!user.orgTeams) return false;
-
             if (organizationTeams instanceof Function) {
                 return organizationTeams(user.orgTeams);
             } else if (Array.isArray(organizationTeams)) {
