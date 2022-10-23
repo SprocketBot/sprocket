@@ -1,32 +1,31 @@
 import {Injectable} from "@nestjs/common";
-import {InjectRepository} from "@nestjs/typeorm";
 import type {FindOneOptions, FindOptionsWhere} from "typeorm";
-import {Like, Repository} from "typeorm";
+import {Like} from "typeorm";
 
-import {
-    Organization,
+import type {
     OrganizationConfigurationAllowedValue,
     OrganizationConfigurationKey,
     OrganizationConfigurationValue,
-} from "../../database";
-import type {
-    OrganizationConfigurationKeyCode,
-    OrganizationConfigurationKeyTypes,
-} from "../../database/configuration/organization_configuration_key";
-import {OrganizationConfigurationKeyType} from "../../database/configuration/organization_configuration_key";
+} from "$models";
+import {
+    OrganizationConfigurationAllowedValueRepository,
+    OrganizationConfigurationKeyRepository,
+    OrganizationConfigurationValueRepository,
+    OrganizationRepository,
+} from "$repositories";
+import type {OrganizationConfigurationKeyCode, OrganizationConfigurationKeyTypes} from "$types";
+import {OrganizationConfigurationKeyType} from "$types";
+
 import type {OrganizationConfiguration} from "./organization-configuration.types";
 
+// TODO: Yeet this
 @Injectable()
 export class OrganizationConfigurationService {
     constructor(
-        @InjectRepository(Organization)
-        private organizationRepository: Repository<Organization>,
-        @InjectRepository(OrganizationConfigurationKey)
-        private keyRepository: Repository<OrganizationConfigurationKey>,
-        @InjectRepository(OrganizationConfigurationAllowedValue)
-        private allowedValueRepository: Repository<OrganizationConfigurationAllowedValue>,
-        @InjectRepository(OrganizationConfigurationValue)
-        private valueRepository: Repository<OrganizationConfigurationValue>,
+        private organizationRepository: OrganizationRepository,
+        private keyRepository: OrganizationConfigurationKeyRepository,
+        private allowedValueRepository: OrganizationConfigurationAllowedValueRepository,
+        private valueRepository: OrganizationConfigurationValueRepository,
     ) {}
 
     async getOrganizationConfigurations(

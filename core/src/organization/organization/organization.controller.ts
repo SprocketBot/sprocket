@@ -8,22 +8,23 @@ import type {
 } from "@sprocketbot/common";
 import {CoreEndpoint, CoreSchemas} from "@sprocketbot/common";
 
+import type {OrganizationProfile} from "$models";
+import {OrganizationProfileRepository} from "$repositories";
+import {OrganizationConfigurationKeyCode} from "$types";
+
 import {OrganizationConfigurationService} from "../../configuration/organization-configuration/organization-configuration.service";
-import type {OrganizationProfile} from "../../database";
-import {OrganizationConfigurationKeyCode} from "../../database";
-import {OrganizationService} from "./organization.service";
 
 @Controller("organization")
 export class OrganizationController {
     constructor(
-        private readonly organizationService: OrganizationService,
+        private readonly organiaztionProfileRepository: OrganizationProfileRepository,
         private readonly organizationConfigurationService: OrganizationConfigurationService,
     ) {}
 
     @MessagePattern(CoreEndpoint.GetOrganizationProfile)
     async getOrganizationProfile(@Payload() payload: unknown): Promise<OrganizationProfile> {
         const data = CoreSchemas.GetOrganizationProfile.input.parse(payload);
-        return this.organizationService.getOrganizationProfileForOrganization(data.id);
+        return this.organiaztionProfileRepository.getByOrganizationId(data.id);
     }
 
     @MessagePattern(CoreEndpoint.GetOrganizationDiscordGuildsByGuild)

@@ -2,8 +2,8 @@ import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 
-import {Verbiage, VerbiageCode} from "../../database";
-import {OrganizationService} from "../../organization/organization";
+import {Verbiage, VerbiageCode} from "$models";
+import {OrganizationRepository} from "$repositories";
 
 @Injectable()
 export class VerbiageService {
@@ -12,7 +12,7 @@ export class VerbiageService {
         private verbiageRepository: Repository<Verbiage>,
         @InjectRepository(VerbiageCode)
         private verbiageCodeRepository: Repository<VerbiageCode>,
-        private organizationService: OrganizationService,
+        private readonly organizationRepository: OrganizationRepository,
     ) {}
 
     /**
@@ -23,7 +23,7 @@ export class VerbiageService {
      * @returns The inserted or updated verbiage.
      */
     async upsertVerbiage(term: string, organizationId: number, verbiageCode: string): Promise<Verbiage> {
-        const organization = await this.organizationService.getOrganizationById(organizationId);
+        const organization = await this.organizationRepository.getById(organizationId);
         const code = await this.verbiageCodeRepository.findOneOrFail({
             where: {code: verbiageCode},
         });

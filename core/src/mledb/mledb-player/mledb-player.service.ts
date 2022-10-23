@@ -1,14 +1,13 @@
-import {forwardRef, Inject, Injectable, Logger} from "@nestjs/common";
+import {Injectable, Logger} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {config} from "@sprocketbot/common";
 import {Repository} from "typeorm";
 
-import type {Player, User} from "../../database";
-import {UserAuthenticationAccountType} from "../../database";
-import type {MLE_Platform} from "../../database/mledb";
-import {MLE_Player, MLE_PlayerAccount, MLE_PlayerToOrg, MLE_Team, MLE_TeamToCaptain} from "../../database/mledb";
-import {GameService} from "../../game";
-import {UserService} from "../../identity";
+import type {MLE_Platform} from "$mledb";
+import {MLE_Player, MLE_PlayerAccount, MLE_PlayerToOrg, MLE_Team, MLE_TeamToCaptain} from "$mledb";
+import type {Player, User} from "$models";
+import {GameRepository, UserAuthenticationAccountRepository, UserRepository} from "$repositories";
+import {UserAuthenticationAccountType} from "$types";
 
 @Injectable()
 export class MledbPlayerService {
@@ -25,10 +24,9 @@ export class MledbPlayerService {
         private readonly teamRepo: Repository<MLE_Team>,
         @InjectRepository(MLE_TeamToCaptain)
         private readonly teamToCaptainRepo: Repository<MLE_TeamToCaptain>,
-        @Inject(forwardRef(() => UserService))
-        private readonly userService: UserService,
-        @Inject(forwardRef(() => GameService))
-        private readonly gameService: GameService,
+        private readonly userRepository: UserRepository,
+        private readonly gameRepository: GameRepository,
+        private readonly userAuthenticationAccountRepository: UserAuthenticationAccountRepository,
     ) {}
 
     async getPlayerByDiscordId(id: string): Promise<MLE_Player> {
@@ -55,19 +53,10 @@ export class MledbPlayerService {
     }
 
     async getMlePlayerBySprocketUser(userId: number): Promise<MLE_Player> {
-        const sprocketUser = await this.userService.getUserById(userId, {
-            relations: {authenticationAccounts: true},
-        });
-
-        const account = sprocketUser?.authenticationAccounts.find(
-            aa => aa.accountType === UserAuthenticationAccountType.DISCORD,
-        );
-        if (!account) {
-            throw new Error("Discord Authentication Account not found");
-        }
+        const discordAccount = await this.userAuthenticationAccountRepository.getDiscordAccountByUserId(userId);
         return this.playerRepository.findOneOrFail({
             where: {
-                discordId: account.accountId,
+                discordId: discordAccount.accountId,
             },
         });
     }
@@ -103,7 +92,7 @@ export class MledbPlayerService {
             throw new Error(`No discord account found for player ${playerAccount.player.name}`);
         }
 
-        const user = await this.userService.getUser({
+        const acc = await this.userAuthenticationAccountRepository.get({
             where: {
                 user: {
                     authenticationAccounts: {
@@ -125,11 +114,8 @@ export class MledbPlayerService {
                 },
             },
         });
-        if (!user) {
-            throw new Error(`No sprocket user found (${platform} | ${platformId})`);
-        }
 
-        return user;
+        return acc.user;
     }
 
     async getSprocketPlayerByPlatformInformation(platform: MLE_Platform, platformId: string): Promise<Player> {
@@ -143,7 +129,7 @@ export class MledbPlayerService {
             throw new Error(`No discord account found for player ${playerAccount.player.name}`);
         }
 
-        const user = await this.userService.getUser({
+        const acc = await this.userAuthenticationAccountRepository.get({
             where: {
                 user: {
                     authenticationAccounts: {
@@ -166,21 +152,17 @@ export class MledbPlayerService {
             },
         });
 
-        if (!user) {
-            throw new Error(`No sprocket user found (${platform} | ${platformId})`);
-        }
-
-        const member = user.members.find(m => m.organizationId === config.defaultOrganizationId);
+        const member = acc.user.members.find(m => m.organizationId === config.defaultOrganizationId);
         if (!member) {
-            throw new Error(`Member not found in MLE for user ${user.id}`);
+            throw new Error(`Member not found in MLE for user ${acc.user.id}`);
         }
 
-        const rocketLeague = await this.gameService.getGameByTitle("Rocket League");
+        const rocketLeague = await this.gameRepository.getByTitle("Rocket League");
 
         const player = member.players.find(p => p.skillGroup.game.id === rocketLeague.id);
 
         if (!player) {
-            throw new Error(`Player not found in MLE rocket league { user: ${user.id}, member: ${member.id} }`);
+            throw new Error(`Player not found in MLE rocket league { user: ${acc.user.id}, member: ${member.id} }`);
         }
 
         return player;

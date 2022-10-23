@@ -10,9 +10,7 @@ import type {
 import type {EntityManager} from "typeorm";
 import {Repository} from "typeorm";
 
-import type {GameMode, GameSkillGroup} from "../../database";
-import {Match} from "../../database";
-import type {League, MLE_Platform} from "../../database/mledb";
+import type {League, MLE_Platform} from "$mledb";
 import {
     LegacyGameMode,
     MLE_EligibilityData,
@@ -26,10 +24,12 @@ import {
     MLE_TeamCoreStats,
     MLE_TeamRoleUsage,
     RocketLeagueMap,
-} from "../../database/mledb";
+} from "$mledb";
+import type {GameMode, GameSkillGroup} from "$models";
+import {Match} from "$models";
+import {GameModeRepository, GameSkillGroupRepository, UserAuthenticationAccountRepository} from "$repositories";
+
 import {GameSkillGroupService} from "../../franchise";
-import {GameModeService} from "../../game";
-import {UserService} from "../../identity";
 import type {MatchReplaySubmission, ScrimReplaySubmission} from "../../replay-parse";
 import {SprocketRatingService} from "../../sprocket-rating/sprocket-rating.service";
 import {MledbMatchService} from "../mledb-match/mledb-match.service";
@@ -46,17 +46,17 @@ export class MledbFinalizationService {
         @InjectRepository(MLE_Player)
         private readonly mlePlayerRepository: Repository<MLE_Player>,
         @Inject(forwardRef(() => GameSkillGroupService))
-        private readonly skillGroupService: GameSkillGroupService,
-        private readonly gameModeService: GameModeService,
-        private readonly userService: UserService,
+        private readonly skillGroupRepository: GameSkillGroupRepository,
+        private readonly gameModeRepository: GameModeRepository,
+        private readonly userAuthenticationAccountRepository: UserAuthenticationAccountRepository,
         private readonly sprocketRatingService: SprocketRatingService,
         private readonly mleMatchService: MledbMatchService,
     ) {}
 
     async getLeagueAndMode(scrim: Scrim): Promise<{mode: GameMode; group: GameSkillGroup}> {
-        const gameMode = await this.gameModeService.getGameModeById(scrim.gameModeId);
-        const skillGroup = await this.skillGroupService.getGameSkillGroupById(scrim.skillGroupId, {
-            relations: ["profile"],
+        const gameMode = await this.gameModeRepository.getById(scrim.gameModeId);
+        const skillGroup = await this.skillGroupRepository.getById(scrim.skillGroupId, {
+            relations: {profile: true},
         });
         return {
             mode: gameMode,
@@ -149,7 +149,9 @@ export class MledbFinalizationService {
             const playerEligibilities = await Promise.all(
                 scrimObject.players.map(async p => {
                     const playerEligibility = em.create(MLE_EligibilityData);
-                    const discordAccount = await this.userService.getUserDiscordAccount(p.id);
+                    const discordAccount = await this.userAuthenticationAccountRepository.getDiscordAccountByUserId(
+                        p.id,
+                    );
                     const player = await this.mlePlayerRepository.findOneOrFail({
                         where: {
                             discordId: discordAccount.accountId,

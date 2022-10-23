@@ -1,6 +1,6 @@
 import {Logger, UseGuards} from "@nestjs/common";
 import {Args, Mutation, Query, ResolveField, Resolver, Root} from "@nestjs/graphql";
-import {InjectDataSource, InjectRepository} from "@nestjs/typeorm";
+import {InjectRepository} from "@nestjs/typeorm";
 import {
     EventsService,
     EventTopic,
@@ -11,22 +11,14 @@ import {
 } from "@sprocketbot/common";
 import {DataSource, Repository} from "typeorm";
 
-import type {GameMode} from "../../database";
-import {
-    Franchise,
-    GameSkillGroup,
-    Match,
-    MatchParent,
-    Player,
-    Round,
-    ScheduleFixture,
-    ScheduleGroup,
-    Team,
-} from "../../database";
-import type {League} from "../../database/mledb";
-import {LegacyGameMode, MLE_OrganizationTeam, MLE_SeriesReplay, MLE_Team} from "../../database/mledb";
-import {SeriesToMatchParent} from "../../database/mledb-bridge/series_to_match_parent.model";
-import type {MatchSubmissionStatus} from "../../database/scheduling/match/match.model";
+import {SeriesToMatchParent} from "$bridge/series_to_match_parent.model";
+import type {League} from "$mledb";
+import {LegacyGameMode, MLE_OrganizationTeam, MLE_SeriesReplay, MLE_Team} from "$mledb";
+import type {GameMode, GameSkillGroup, Round} from "$models";
+import {Franchise, Match, MatchParent, Player, ScheduleFixture, ScheduleGroup} from "$models";
+import {MatchRepository, RoundRepository, TeamRepository} from "$repositories";
+import type {MatchSubmissionStatus} from "$types";
+
 import {CurrentPlayer} from "../../franchise/player";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MledbMatchService} from "../../mledb/mledb-match/mledb-match.service";
@@ -45,40 +37,32 @@ export class MatchResolver {
         private readonly mledbMatchService: MledbMatchService,
         private readonly eventsService: EventsService,
         private readonly submissionService: SubmissionService,
-        @InjectRepository(Match) private readonly matchRepo: Repository<Match>,
-        @InjectRepository(Round) private readonly roundRepo: Repository<Round>,
-        @InjectRepository(Team) private readonly teamRepo: Repository<Team>,
+        private readonly teamRepository: TeamRepository,
         @InjectRepository(MLE_Team) private readonly mleTeamRepo: Repository<MLE_Team>,
         @InjectRepository(MLE_SeriesReplay) private readonly seriesReplayRepo: Repository<MLE_SeriesReplay>,
         @InjectRepository(SeriesToMatchParent)
         private readonly seriesToMatchParentRepo: Repository<SeriesToMatchParent>,
-        @InjectDataSource() private readonly dataSource: DataSource,
+        private readonly dataSource: DataSource,
+        private readonly matchRepository: MatchRepository,
+        private readonly roundRepository: RoundRepository,
     ) {}
 
     @Query(() => Match)
     async getMatchBySubmissionId(@Args("submissionId") submissionId: string): Promise<Match> {
-        return this.matchService.getMatch({where: {submissionId}});
+        return this.matchRepository.getBySubmissionId(submissionId);
     }
 
     @Mutation(() => String)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async postReportCard(@Args("matchId") matchId: number): Promise<string> {
-        const match = await this.matchService.getMatchById(matchId);
-
-        if (!match.skillGroup) {
-            match.skillGroup = await this.populate.populateOneOrFail(Match, match, "skillGroup");
-        }
-        if (!match.skillGroup.profile) {
-            const skillGroupProfile = await this.populate.populateOneOrFail(
-                GameSkillGroup,
-                match.skillGroup,
-                "profile",
-            );
-            match.skillGroup.profile = skillGroupProfile;
-        }
-        if (!match.matchParent) {
-            match.matchParent = await this.populate.populateOneOrFail(Match, match, "matchParent");
-        }
+        const match = await this.matchRepository.getById(matchId, {
+            relations: {
+                skillGroup: {
+                    profile: true,
+                },
+                matchParent: true,
+            },
+        });
 
         const fixture = await this.populate.populateOne(MatchParent, match.matchParent, "fixture");
         if (!fixture) {
@@ -146,10 +130,8 @@ export class MatchResolver {
 
             // Have to translate from Team ID to Franchise Profile to get name (for
             // MLEDB schema)
-            const team = await this.teamRepo.findOneOrFail({
-                where: {
-                    id: winningTeamId,
-                },
+            const team = await this.teamRepository.getOrNull({
+                where: {id: winningTeamId},
                 relations: {
                     franchise: {
                         profile: true,
@@ -157,7 +139,7 @@ export class MatchResolver {
                 },
             });
 
-            const match = await this.matchRepo.findOneOrFail({
+            const match = await this.matchRepository.findOneOrFail({
                 where: {
                     id: seriesId,
                 },
@@ -172,7 +154,7 @@ export class MatchResolver {
                 },
             });
 
-            await this.mledbMatchService.markSeriesNcp(bridgeObject.seriesId, isNcp, team.franchise.profile.title);
+            await this.mledbMatchService.markSeriesNcp(bridgeObject.seriesId, isNcp, team?.franchise.profile.title);
 
             await qr.commitTransaction();
             this.logger.verbose(`Successfully marked series ${seriesId} NCP:${isNcp}`);
@@ -204,7 +186,7 @@ export class MatchResolver {
         try {
             this.logger.verbose(`Marking replays ${replayIds} as NCP:${isNcp}. Winning team ID: ${winningTeamId}`);
             // We need the actual team object from the DB for replay level NCPs
-            const winningTeamInput = await this.teamRepo.findOneOrFail({
+            const winningTeamInput = await this.teamRepository.findOneOrFail({
                 where: {
                     id: winningTeamId,
                 },
@@ -230,7 +212,7 @@ export class MatchResolver {
             // Get MLEDB replayIds from the Sprocket replayIds
             const mleReplayIds = await Promise.all(
                 replayIds.map(async rId => {
-                    const round = await this.roundRepo.findOneOrFail({
+                    const round = await this.roundRepository.findOneOrFail({
                         where: {
                             id: rId,
                         },
@@ -267,14 +249,13 @@ export class MatchResolver {
     }
 
     @ResolveField()
-    async skillGroup(@Root() root: Match): Promise<GameSkillGroup> {
-        if (root.skillGroup) return root.skillGroup;
-        return this.populate.populateOneOrFail(Match, root, "skillGroup");
+    async skillGroup(@Root() match: Partial<Match>): Promise<GameSkillGroup> {
+        return match.skillGroup ?? this.populate.populateOneOrFail(Match, match as Match, "skillGroup");
     }
 
     @ResolveField()
     async submissionStatus(@Root() root: Match): Promise<MatchSubmissionStatus> {
-        const match = await this.matchRepo.findOneOrFail({
+        const match = await this.matchRepository.findOneOrFail({
             where: {
                 id: root.id,
             },
@@ -343,20 +324,17 @@ export class MatchResolver {
     }
 
     @ResolveField()
-    async gameMode(@Root() root: Match): Promise<GameMode | undefined> {
-        if (root.gameMode) return root.gameMode;
-        return this.populate.populateOne(Match, root, "gameMode");
+    async gameMode(@Root() match: Partial<Match>): Promise<GameMode | undefined> {
+        return match.gameMode ?? this.populate.populateOne(Match, match as Match, "gameMode");
     }
 
     @ResolveField()
-    async rounds(@Root() root: Match): Promise<Round[]> {
-        if (root.rounds) return root.rounds;
-        return this.populate.populateMany(Match, root, "rounds");
+    async rounds(@Root() match: Partial<Match>): Promise<Round[]> {
+        return match.rounds ?? this.populate.populateMany(Match, match as Match, "rounds");
     }
 
     @ResolveField()
-    async matchParent(@Root() root: Match): Promise<MatchParent> {
-        if (root.matchParent) return root.matchParent;
-        return this.populate.populateOneOrFail(Match, root, "matchParent");
+    async matchParent(@Root() match: Partial<Match>): Promise<MatchParent> {
+        return match.matchParent ?? this.populate.populateOneOrFail(Match, match as Match, "matchParent");
     }
 }

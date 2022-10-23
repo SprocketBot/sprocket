@@ -2,8 +2,8 @@ import {Field, ObjectType} from "@nestjs/graphql";
 import {Entity, ManyToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {Member} from "../../organization/member";
-import {OrganizationStaffPosition} from "../organization_staff_position";
+import {Member} from "../../organization/models";
+import {OrganizationStaffPosition} from "../organization_staff_position/organization_staff_position.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

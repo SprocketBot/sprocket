@@ -1,32 +1,26 @@
 import {Args, Query, ResolveField, Resolver, Root} from "@nestjs/graphql";
 
-import type {GameMode} from "../../database";
-import {Game} from "../../database";
-import {GameModeService} from "../game-mode";
-import {GameService} from "./game.service";
+import type {GameMode} from "$models";
+import {Game} from "$models";
+import {GameRepository} from "$repositories";
+import {PopulateService} from "$util/populate";
 
 @Resolver(() => Game)
 export class GameResolver {
-    constructor(private readonly gameService: GameService, private readonly gameModeService: GameModeService) {}
+    constructor(private readonly gameRepository: GameRepository, private readonly populateService: PopulateService) {}
 
     @Query(() => Game)
     async getGame(@Args("title") title: string): Promise<Game> {
-        return this.gameService.getGameByTitle(title);
+        return this.gameRepository.getByTitle(title);
     }
 
     @Query(() => [Game])
     async getGames(): Promise<Game[]> {
-        return this.gameService.getGames({});
+        return this.gameRepository.getMany();
     }
 
     @ResolveField()
-    async modes(@Root() root: Game): Promise<GameMode[]> {
-        return this.gameModeService.getGameModes({
-            where: {
-                game: {
-                    id: root.id,
-                },
-            },
-        });
+    async modes(@Root() game: Partial<Game>): Promise<GameMode[]> {
+        return game.modes ?? this.populateService.populateMany(Game, game as Game, "modes");
     }
 }

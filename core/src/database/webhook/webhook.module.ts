@@ -1,14 +1,15 @@
 import {Module} from "@nestjs/common";
 import {TypeOrmModule} from "@nestjs/typeorm";
 
-import {Webhook} from "./webhook";
+import * as models from "./models";
+import * as repositories from "./repositories";
 
-export const webhookEntities = [Webhook];
-
-const ormModule = TypeOrmModule.forFeature(webhookEntities);
+const ormModule = TypeOrmModule.forFeature(Object.values(models));
+const providers = Object.values(repositories);
 
 @Module({
     imports: [ormModule],
-    exports: [ormModule],
+    providers: providers,
+    exports: providers,
 })
 export class WebhookModule {}

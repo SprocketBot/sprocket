@@ -1,14 +1,15 @@
 import {Injectable, Logger} from "@nestjs/common";
-import {InjectRepository} from "@nestjs/typeorm";
 import type {BallchasingPlayer, CoreEndpoint, CoreOutput} from "@sprocketbot/common";
-import type {FindOneOptions, FindOptionsRelations} from "typeorm";
-import {DataSource, IsNull, Not, Repository} from "typeorm";
+import {DataSource, IsNull, Not} from "typeorm";
 
-import type {ScheduledEvent, ScrimMeta} from "../../database";
-import {Franchise, Invalidation, Match, PlayerStatLineStatsSchema, Round, ScheduleFixture, Team} from "../../database";
+import type {Invalidation, Round, ScheduledEvent, ScrimMeta, Team} from "$models";
+import {Franchise, ScheduleFixture} from "$models";
+import {InvalidationRepository, MatchRepository, RoundRepository, TeamRepository} from "$repositories";
+import {PlayerStatLineStatsSchema} from "$types";
+import {PopulateService} from "$util";
+
 import type {CalculateEloForMatchInput, MatchSummary, PlayerSummary} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint, GameMode, TeamColor} from "../../elo/elo-connector";
-import {PopulateService} from "../../util/populate/populate.service";
 
 export type MatchParentResponse =
     | {
@@ -29,52 +30,14 @@ export class MatchService {
     private readonly logger = new Logger(MatchService.name);
 
     constructor(
-        @InjectRepository(Match) private matchRepository: Repository<Match>,
-        @InjectRepository(Invalidation)
-        private invalidationRepository: Repository<Invalidation>,
-        @InjectRepository(Round)
-        private readonly roundRepository: Repository<Round>,
-        @InjectRepository(Team)
-        private readonly teamRepository: Repository<Team>,
-        private dataSource: DataSource,
+        private readonly matchRepository: MatchRepository,
+        private readonly invalidationRepository: InvalidationRepository,
+        private readonly roundRepository: RoundRepository,
+        private readonly teamRepository: TeamRepository,
+        private readonly dataSource: DataSource,
         private readonly popService: PopulateService,
         private readonly eloConnectorService: EloConnectorService,
     ) {}
-
-    async createMatch(isDummy?: boolean, invalidationId?: number): Promise<Match> {
-        let invalidation: Invalidation | undefined;
-        if (invalidationId)
-            invalidation = await this.invalidationRepository.findOneOrFail({
-                where: {id: invalidationId},
-            });
-
-        const match = this.matchRepository.create({
-            isDummy: isDummy,
-            invalidation: invalidation,
-            rounds: [],
-        });
-
-        return this.matchRepository.save(match);
-    }
-
-    async getMatchBySubmissionId(submissionId: string): Promise<Match> {
-        return this.matchRepository.findOneOrFail({
-            where: {
-                submissionId: submissionId,
-            },
-        });
-    }
-
-    async getMatchById(matchId: number, relations?: FindOptionsRelations<Match>): Promise<Match> {
-        return this.matchRepository.findOneOrFail({
-            where: {id: matchId},
-            relations: relations,
-        });
-    }
-
-    async getMatch(query: FindOneOptions<Match>): Promise<Match> {
-        return this.matchRepository.findOneOrFail(query);
-    }
 
     async getMatchParentEntity(matchId: number): Promise<MatchParentResponse> {
         const populatedMatch = await this.matchRepository.findOneOrFail({
@@ -467,16 +430,18 @@ export class MatchService {
 
         // Find the winning team and it's franchise profile, since that's where
         // team names are in Sprocket.
-        const winningTeam = await this.teamRepository.findOneOrFail({
-            where: {
-                id: winningTeamId,
-            },
-            relations: {
-                franchise: {
-                    profile: true,
-                },
-            },
-        });
+        const winningTeam = winningTeamId
+            ? await this.teamRepository.findOneOrFail({
+                  where: {
+                      id: winningTeamId,
+                  },
+                  relations: {
+                      franchise: {
+                          profile: true,
+                      },
+                  },
+              })
+            : undefined;
         const series = await this.matchRepository.findOneOrFail({
             where: {id: seriesId},
             relations: {
@@ -508,7 +473,7 @@ export class MatchService {
                 series.matchParent.fixture.awayFranchise.id !== winningTeam.franchise.id
             ) {
                 throw new Error(
-                    `The team \`${winningTeam?.franchise.profile.title}\` did not play in series with id \`${series.id}\` (${series.matchParent.fixture.awayFranchise.profile.title} v. ${series.matchParent.fixture.homeFranchise.profile.title}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`,
+                    `The team \`${winningTeam.franchise.profile.title}\` did not play in series with id \`${series.id}\` (${series.matchParent.fixture.awayFranchise.profile.title} v. ${series.matchParent.fixture.homeFranchise.profile.title}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`,
                 );
             }
         } else if (!series.matchParent.scrimMeta) {
@@ -554,7 +519,7 @@ export class MatchService {
         // Update each series replay (including any dummies) to NCP
         const replayIds = seriesReplays.map(replay => replay.id);
         this.logger.debug("Marking replays in series");
-        await this.markReplaysNcp(replayIds, isNcp, winningTeam ?? undefined, invalidation ?? undefined);
+        await this.markReplaysNcp(replayIds, isNcp, winningTeam ?? undefined, invalidation);
 
         this.logger.verbose(`End markSeriesNcp`);
 
@@ -563,9 +528,7 @@ export class MatchService {
             : series.matchParent.scrimMeta
             ? "scrim"
             : "unknown";
-        return `\`seriesId=${seriesId}\` ${
-            seriesTypeStr ? `(${seriesTypeStr})` : ""
-        } successfully marked \`fullNcp=${isNcp}\` with updated elo, and all connected replays had their elo updated.${
+        return `\`seriesId=${seriesId}\` ${`(${seriesTypeStr})`} successfully marked \`fullNcp=${isNcp}\` with updated elo, and all connected replays had their elo updated.${
             numReplays && dummiesNeeded ? ` **${dummiesNeeded} dummy replay(s)** were added to the series.` : ""
         }`;
     }

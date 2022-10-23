@@ -3,10 +3,10 @@ import {Injectable} from "@nestjs/common";
 import {GqlExecutionContext} from "@nestjs/graphql";
 import {GraphQLError} from "graphql";
 
-import {MemberRestrictionType} from "../../database";
+import {MemberRepository, MemberRestrictionRepository} from "$repositories";
+import {MemberRestrictionType} from "$types";
+
 import type {UserPayload} from "../../identity/auth/oauth/types/userpayload.type";
-import {MemberService} from "../member/member.service";
-import {MemberRestrictionService} from "./member-restriction.service";
 
 @Injectable()
 export abstract class MemberRestrictionGuard implements CanActivate {
@@ -15,16 +15,16 @@ export abstract class MemberRestrictionGuard implements CanActivate {
     abstract readonly failureResponse: string;
 
     constructor(
-        private readonly memberRestrictionService: MemberRestrictionService,
-        private readonly memberService: MemberService,
+        private readonly memberRestrictionRepository: MemberRestrictionRepository,
+        private readonly memberRepository: MemberRepository,
     ) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const ctx = GqlExecutionContext.create(context);
         const payload = ctx.getContext().req.user as UserPayload;
 
-        const member = await this.memberService
-            .getMember({
+        const member = await this.memberRepository
+            .get({
                 where: {
                     user: {id: payload.userId},
                     organization: {id: payload.currentOrganizationId},
@@ -33,7 +33,7 @@ export abstract class MemberRestrictionGuard implements CanActivate {
             .catch(() => null);
         if (!member) throw new GraphQLError("User is not a member of the organization");
 
-        const restrictions = await this.memberRestrictionService.getActiveMemberRestrictions(
+        const restrictions = await this.memberRestrictionRepository.getActiveRestrictions(
             this.restrictionType,
             new Date(),
             member.id,

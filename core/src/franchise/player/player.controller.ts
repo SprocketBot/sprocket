@@ -1,7 +1,6 @@
-import {Controller, forwardRef, Get, HttpException, Inject, Logger, Param} from "@nestjs/common";
+import {Controller, Get, HttpException, Logger, Param} from "@nestjs/common";
 import {JwtService} from "@nestjs/jwt";
 import {MessagePattern, Payload} from "@nestjs/microservices";
-import {InjectRepository} from "@nestjs/typeorm";
 import type {CoreOutput} from "@sprocketbot/common";
 import {
     CoreEndpoint,
@@ -11,14 +10,16 @@ import {
     NotificationEndpoint,
     NotificationService,
 } from "@sprocketbot/common";
-import {Repository} from "typeorm";
 
-import {UserAuthenticationAccount, UserAuthenticationAccountType} from "../../database";
+import {
+    GameSkillGroupRepository,
+    OrganizationProfileRepository,
+    UserAuthenticationAccountRepository,
+} from "$repositories";
+import {UserAuthenticationAccountType} from "$types";
+
 import type {ManualSkillGroupChange} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
-import {GameService, PlatformService} from "../../game";
-import {OrganizationService} from "../../organization";
-import {GameSkillGroupService} from "../game-skill-group";
 import {PlayerService} from "./player.service";
 import {RankdownJwtPayloadSchema} from "./player.types";
 
@@ -30,13 +31,11 @@ export class PlayerController {
         private readonly eloConnectorService: EloConnectorService,
         private readonly jwtService: JwtService,
         private readonly playerService: PlayerService,
-        private readonly skillGroupService: GameSkillGroupService,
+        private readonly skillGroupRepository: GameSkillGroupRepository,
         private readonly eventsService: EventsService,
         private readonly notificationService: NotificationService,
-        private readonly gameService: GameService,
-        private readonly platformService: PlatformService,
-        @InjectRepository(UserAuthenticationAccount) private userAuthRepository: Repository<UserAuthenticationAccount>,
-        @Inject(forwardRef(() => OrganizationService)) private readonly organizationService: OrganizationService,
+        private readonly userAuthenitcationAccountRepository: UserAuthenticationAccountRepository,
+        private readonly organizationProfileRepository: OrganizationProfileRepository,
     ) {}
 
     @Get("accept-rankdown/:token")
@@ -62,16 +61,11 @@ export class PlayerController {
                 },
             });
 
-            const skillGroup = await this.skillGroupService.getGameSkillGroup({
-                where: {
-                    id: payload.skillGroupId,
-                },
-                relations: {
-                    profile: true,
-                },
+            const skillGroup = await this.skillGroupRepository.getById(payload.skillGroupId, {
+                relations: {profile: true},
             });
 
-            const discordAccount = await this.userAuthRepository.findOneOrFail({
+            const discordAccount = await this.userAuthenitcationAccountRepository.get({
                 where: {
                     user: {
                         id: player.member.user.id,
@@ -79,7 +73,7 @@ export class PlayerController {
                     accountType: UserAuthenticationAccountType.DISCORD,
                 },
             });
-            const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(
+            const orgProfile = await this.organizationProfileRepository.getByOrganizationId(
                 player.member.organization.id,
             );
 

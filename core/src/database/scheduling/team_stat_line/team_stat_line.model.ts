@@ -3,9 +3,9 @@ import GraphQLJSON from "graphql-type-json";
 import {Column, Entity, ManyToOne, OneToMany} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {Team} from "../../franchise/team";
-import {PlayerStatLine} from "../player_stat_line";
-import {Round} from "../round";
+import {Team} from "../../franchise/models";
+import {PlayerStatLine} from "../player_stat_line/player_stat_line.model";
+import {Round} from "../round/round.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

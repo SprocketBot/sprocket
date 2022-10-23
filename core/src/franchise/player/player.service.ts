@@ -1,4 +1,4 @@
-import {forwardRef, Inject, Injectable, Logger} from "@nestjs/common";
+import {Injectable, Logger} from "@nestjs/common";
 import {JwtService} from "@nestjs/jwt";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {CoreEndpoint, CoreOutput, NotificationInput} from "@sprocketbot/common";
@@ -16,26 +16,24 @@ import {
 import type {FindManyOptions, FindOneOptions, FindOptionsRelations, QueryRunner} from "typeorm";
 import {DataSource, Repository} from "typeorm";
 
+import {PlayerToPlayer} from "$bridge/player_to_player.model";
+import {PlayerToUser} from "$bridge/player_to_user.model";
+import type {League, ModePreference, Timezone} from "$mledb";
+import {LeagueOrdinals, MLE_Player, MLE_PlayerAccount, Role} from "$mledb";
+import type {Player} from "$models";
 import {
-    Member,
-    MemberProfile,
-    Organization,
-    Player,
-    User,
-    UserAuthenticationAccount,
-    UserAuthenticationAccountType,
-    UserProfile,
-} from "../../database";
-import type {League, ModePreference, Timezone} from "../../database/mledb";
-import {LeagueOrdinals, MLE_Player, MLE_PlayerAccount, Role} from "../../database/mledb";
-import {PlayerToPlayer} from "../../database/mledb-bridge/player_to_player.model";
-import {PlayerToUser} from "../../database/mledb-bridge/player_to_user.model";
+    GameSkillGroupRepository,
+    MemberProfiledRepository,
+    OrganizationProfiledRepository,
+    PlatformRepository,
+    PlayerRepository,
+    UserAuthenticationAccountRepository,
+    UserProfiledRepository,
+} from "$repositories";
+import {UserAuthenticationAccountType} from "$types";
+
 import type {SalaryPayloadItem} from "../../elo/elo-connector";
 import {DegreeOfStiffness, EloConnectorService, EloEndpoint, SkillGroupDelta} from "../../elo/elo-connector";
-import {PlatformService} from "../../game";
-import {OrganizationService} from "../../organization";
-import {MemberService} from "../../organization/member/member.service";
-import {GameSkillGroupService} from "../game-skill-group";
 import type {IntakePlayerAccount} from "./player.resolver";
 import type {RankdownJwtPayload} from "./player.types";
 
@@ -44,36 +42,26 @@ export class PlayerService {
     private readonly logger = new Logger(PlayerService.name);
 
     constructor(
-        @InjectRepository(Player) private playerRepository: Repository<Player>,
-        @InjectRepository(User) private userRepository: Repository<User>,
-        @InjectRepository(UserProfile)
-        private userProfileRepository: Repository<UserProfile>,
-        @InjectRepository(Member) private memberRepository: Repository<Member>,
-        @InjectRepository(MemberProfile)
-        private memberProfileRepository: Repository<MemberProfile>,
-        @InjectRepository(UserAuthenticationAccount)
-        private userAuthRepository: Repository<UserAuthenticationAccount>,
-        @InjectRepository(Organization)
-        private organizationRepository: Repository<Organization>,
-        @InjectRepository(PlayerToUser)
-        private readonly ptuRepo: Repository<PlayerToUser>,
-        @InjectRepository(PlayerToPlayer)
-        private readonly ptpRepo: Repository<PlayerToPlayer>,
-        @InjectRepository(MLE_Player)
-        private mle_playerRepository: Repository<MLE_Player>,
-        @InjectRepository(MLE_PlayerAccount)
-        private mle_playerAccountRepository: Repository<MLE_PlayerAccount>,
-        @Inject(forwardRef(() => MemberService))
-        private readonly memberService: MemberService,
-        @Inject(forwardRef(() => OrganizationService))
-        private readonly organizationService: OrganizationService,
-        private readonly skillGroupService: GameSkillGroupService,
+        private readonly playerRepository: PlayerRepository,
+        private readonly userProfiledRepository: UserProfiledRepository,
+        private readonly userAuthenticationAccountRepository: UserAuthenticationAccountRepository,
+        private readonly memberProfiledRepository: MemberProfiledRepository,
+        private readonly organizationProfiledRepository: OrganizationProfiledRepository,
+        private readonly skillGroupRepository: GameSkillGroupRepository,
         private readonly eventsService: EventsService,
         private readonly notificationService: NotificationService,
         private readonly jwtService: JwtService,
         private readonly dataSource: DataSource,
         private readonly eloConnectorService: EloConnectorService,
-        private readonly platformService: PlatformService,
+        private readonly platformRepository: PlatformRepository,
+        @InjectRepository(PlayerToUser)
+        private readonly ptuRepo: Repository<PlayerToUser>,
+        @InjectRepository(PlayerToPlayer)
+        private readonly ptpRepo: Repository<PlayerToPlayer>,
+        @InjectRepository(MLE_Player)
+        private readonly mle_playerRepository: Repository<MLE_Player>,
+        @InjectRepository(MLE_PlayerAccount)
+        private readonly mle_playerAccountRepository: Repository<MLE_PlayerAccount>,
     ) {}
 
     async getPlayer(query: FindOneOptions<Player>): Promise<Player> {
@@ -147,8 +135,8 @@ export class PlayerService {
     }
 
     async createPlayer(memberId: number, skillGroupId: number, salary: number): Promise<Player> {
-        const member = await this.memberService.getMemberById(memberId);
-        const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
+        const member = await this.memberProfiledRepository.primaryRepository.getById(memberId);
+        const skillGroup = await this.skillGroupRepository.getById(skillGroupId);
         const player = this.playerRepository.create({
             member,
             skillGroup,
@@ -171,11 +159,11 @@ export class PlayerService {
         timezone: Timezone,
         modePreference: ModePreference,
     ): Promise<Player> {
-        const mleOrg = await this.organizationRepository.findOneOrFail({
+        const mleOrg = await this.organizationProfiledRepository.primaryRepository.findOneOrFail({
             where: {profile: {name: "Minor League Esports"}},
             relations: {profile: true},
         });
-        const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
+        const skillGroup = await this.skillGroupRepository.getById(skillGroupId);
 
         const runner = this.dataSource.createQueryRunner();
         await runner.connect();
@@ -194,7 +182,7 @@ export class PlayerService {
                 });
 
                 player = this.playerRepository.merge(player, {skillGroup, salary});
-                this.memberProfileRepository.merge(player.member.profile, {name});
+                this.memberProfiledRepository.profileRepository.merge(player.member.profile, {name});
 
                 await runner.manager.save(player);
                 await runner.manager.save(player.member.profile);
@@ -217,26 +205,26 @@ export class PlayerService {
                         skillGroup: skillGroup.ordinal,
                     });
             } else {
-                const user = this.userRepository.create({});
+                const user = this.userProfiledRepository.primaryRepository.create({});
 
-                user.profile = this.userProfileRepository.create({
+                user.profile = this.userProfiledRepository.profileRepository.create({
                     user: user,
                     email: "unknown@sprocket.gg",
                     displayName: name,
                 });
                 user.profile.user = user;
 
-                const authAcc = this.userAuthRepository.create({
+                const authAcc = this.userAuthenticationAccountRepository.create({
                     accountType: UserAuthenticationAccountType.DISCORD,
                     accountId: discordId,
                 });
                 authAcc.user = user;
                 user.authenticationAccounts = [authAcc];
 
-                const member = this.memberRepository.create({});
+                const member = this.memberProfiledRepository.primaryRepository.create({});
                 member.organization = mleOrg;
                 member.user = user;
-                member.profile = this.memberProfileRepository.create({
+                member.profile = this.memberProfiledRepository.profileRepository.create({
                     name: name,
                 });
                 member.profile.member = member;
@@ -425,7 +413,7 @@ export class PlayerService {
         });
 
         if (skillGroupId) {
-            const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
+            const skillGroup = await this.skillGroupRepository.getById(skillGroupId);
 
             player = this.playerRepository.merge(player, {salary, skillGroup});
             await this.playerRepository.save(player);
@@ -525,21 +513,17 @@ export class PlayerService {
                         if (mlePlayer.teamName === "FP") return;
                         if (!playerDelta.rankout && player.salary === playerDelta.newSalary) return;
 
-                        const discordAccount = await this.userAuthRepository.findOneOrFail({
-                            where: {
-                                user: {
-                                    id: player.member.user.id,
-                                },
-                                accountType: UserAuthenticationAccountType.DISCORD,
-                            },
-                        });
-                        const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(
-                            player.member.organization.id,
+                        const discordAccount = await this.userAuthenticationAccountRepository.getDiscordAccountByUserId(
+                            player.member.user.id,
                         );
+                        const orgProfile =
+                            await this.organizationProfiledRepository.profileRepository.getByOrganizationId(
+                                player.member.organization.id,
+                            );
 
                         if (playerDelta.rankout) {
                             if (playerDelta.rankout.degreeOfStiffness === DegreeOfStiffness.HARD) {
-                                const skillGroup = await this.skillGroupService.getGameSkillGroup({
+                                const skillGroup = await this.skillGroupRepository.get({
                                     where: {
                                         game: {
                                             id: player.skillGroup.game.id,
@@ -601,10 +585,10 @@ export class PlayerService {
                                         playerDelta.rankout.salary,
                                     ),
                                 );
-                            } else if (playerDelta.rankout.degreeOfStiffness === DegreeOfStiffness.SOFT) {
+                            } else {
                                 await this.updatePlayerStanding(playerDelta.playerId, playerDelta.rankout.salary);
 
-                                const skillGroup = await this.skillGroupService.getGameSkillGroup({
+                                const skillGroup = await this.skillGroupRepository.get({
                                     where: {
                                         game: {
                                             id: player.skillGroup.game.id,
@@ -690,72 +674,6 @@ export class PlayerService {
                                         },
                                     },
                                 });
-                                /* /TEMPORARY NOTIFICATION/ */
-
-                                // const notifId = `${NotificationType.RANKDOWN.toLowerCase()}-${this.nanoidService.gen()}`;
-
-                                // await this.notificationService.send(NotificationEndpoint.SendNotification, {
-                                //     id: notifId,
-                                //     type: NotificationType.RANKDOWN,
-                                //     userId: player.member.user.id,
-                                //     expiration: add(new Date(), {hours: 24}),
-                                //     payload: {
-                                //         playerId: playerDelta.playerId,
-                                //         skillGroupId: skillGroup.id,
-                                //         salary: playerDelta.newSalary,
-                                //     },
-                                //     notification: {
-                                //         type: NotificationMessageType.DirectMessage,
-                                //         userId: discordAccount.accountId,
-                                //         payload: {
-                                //             embeds: [ {
-                                //                 title: "Rankdown Available",
-                                //                 description: `You have been offered a rankout from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
-                                //                 author: {
-                                //                     name: `${orgProfile.name}`,
-                                //                 },
-                                //                 fields: [
-                                //                     {
-                                //                         name: "New League",
-                                //                         value: `${skillGroup.profile.description}`,
-                                //                     },
-                                //                     {
-                                //                         name: "New Salary",
-                                //                         value: `${playerDelta.rankout.salary}`,
-                                //                     },
-                                //                 ],
-                                //                 footer: {
-                                //                     text: orgProfile.name,
-                                //                 },
-                                //                 timestamp: Date.now(),
-                                //             } ],
-                                //             components: [ {
-                                //                 type: ComponentType.ACTION_ROW,
-                                //                 components: [
-                                //                     {
-                                //                         type: ComponentType.BUTTON,
-                                //                         style: ButtonComponentStyle.LINK,
-                                //                         label: "Accept it here!",
-                                //                         url: `${config.web.url}/notifications/${notifId}`,
-                                //                     },
-                                //                 ],
-                                //             } ],
-                                //         },
-                                //         brandingOptions: {
-                                //             organizationId: player.member.organization.id,
-                                //             options: {
-                                //                 author: {
-                                //                     icon: true,
-                                //                 },
-                                //                 color: true,
-                                //                 thumbnail: true,
-                                //                 footer: {
-                                //                     icon: true,
-                                //                 },
-                                //             },
-                                //         },
-                                //     },
-                                // });
                             }
                         } else {
                             await this.updatePlayerStanding(playerDelta.playerId, playerDelta.newSalary);
@@ -788,7 +706,7 @@ export class PlayerService {
         );
         if (!discId) throw new Error("No discord Id");
 
-        const sg = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
+        const sg = await this.skillGroupRepository.getById(skillGroupId);
 
         let player = await this.mle_playerRepository.findOneOrFail({
             where: {
@@ -951,7 +869,7 @@ export class PlayerService {
         gameId: number;
     }): Promise<CoreOutput<CoreEndpoint.GetPlayerByPlatformId>> {
         try {
-            const platform = await this.platformService.getPlatformByCode(data.platform);
+            const platform = await this.platformRepository.get({where: {code: data.platform}});
             const player = await this.getPlayerByGameAndPlatform(data.gameId, platform.id, data.platformId);
             const mlePlayer = await this.getMlePlayerBySprocketPlayer(player.id);
 

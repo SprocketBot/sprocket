@@ -2,13 +2,12 @@ import {Field, ObjectType} from "@nestjs/graphql";
 import {Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {GameSkillGroup} from "../../franchise";
-import {GameMode} from "../../game";
+import {GameSkillGroup} from "../../franchise/models";
+import {GameMode} from "../../game/models";
 import {Invalidation} from "../invalidation/invalidation.model";
-import {MatchParent} from "../match_parent";
+import {MatchParent} from "../match_parent/match_parent.model";
 import {Round} from "../round/round.model";
-
-export type MatchSubmissionStatus = "submitting" | "ratifying" | "completed";
+import {MatchSubmissionStatus} from "./match.types";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

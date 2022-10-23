@@ -3,9 +3,10 @@ import type {GraphQLExecutionContext} from "@nestjs/graphql";
 import type {Scrim} from "@sprocketbot/common";
 import {GraphQLError} from "graphql";
 
+import {GameModeRepository} from "$repositories";
+
 import {PlayerGuard, PlayerService} from "../franchise";
 import type {GameAndOrganization} from "../franchise/player/player.types";
-import {GameModeService} from "../game";
 import type {UserPayload} from "../identity";
 import {ScrimService} from "./scrim.service";
 import type {CreateScrimInput} from "./types";
@@ -15,7 +16,7 @@ import type {CreateScrimInput} from "./types";
  */
 @Injectable()
 export class CreateScrimPlayerGuard extends PlayerGuard {
-    constructor(private readonly gameModeService: GameModeService, readonly playerService: PlayerService) {
+    constructor(private readonly gameModeRepository: GameModeRepository, readonly playerService: PlayerService) {
         super();
     }
 
@@ -25,7 +26,7 @@ export class CreateScrimPlayerGuard extends PlayerGuard {
             data: {gameModeId},
         } = ctx.getArgs<{data: CreateScrimInput}>();
 
-        const gameMode = await this.gameModeService.getGameModeById(gameModeId, {relations: ["game"]});
+        const gameMode = await this.gameModeRepository.getById(gameModeId, {relations: ["game"]});
 
         return {
             gameId: gameMode.game.id,
@@ -41,7 +42,7 @@ export class CreateScrimPlayerGuard extends PlayerGuard {
 export class JoinScrimPlayerGuard extends PlayerGuard {
     constructor(
         private readonly scrimService: ScrimService,
-        private readonly gameModeService: GameModeService,
+        private readonly gameModeRepository: GameModeRepository,
         readonly playerService: PlayerService,
     ) {
         super();
@@ -52,7 +53,7 @@ export class JoinScrimPlayerGuard extends PlayerGuard {
         const scrim = await this.scrimService.getScrimById(scrimId).catch(() => null);
         if (!scrim) throw new GraphQLError("Scrim does not exist");
 
-        const gameMode = await this.gameModeService.getGameModeById(scrim.gameModeId);
+        const gameMode = await this.gameModeRepository.getById(scrim.gameModeId);
 
         return {
             gameId: gameMode.gameId,
@@ -66,7 +67,7 @@ export class JoinScrimPlayerGuard extends PlayerGuard {
  */
 @Injectable()
 export class ScrimResolverPlayerGuard extends PlayerGuard {
-    constructor(private readonly gameModeService: GameModeService, readonly playerService: PlayerService) {
+    constructor(private readonly gameModeRepository: GameModeRepository, readonly playerService: PlayerService) {
         super();
     }
 
@@ -74,7 +75,7 @@ export class ScrimResolverPlayerGuard extends PlayerGuard {
         if (!userPayload.currentOrganizationId) throw new Error("User is not connected to an organization");
 
         const scrim = ctx.getRoot<Scrim>();
-        const gameMode = await this.gameModeService.getGameModeById(scrim.gameModeId);
+        const gameMode = await this.gameModeRepository.getById(scrim.gameModeId);
 
         if (!scrim.players.some(p => p.id === userPayload.userId)) throw new Error("Player is not in the scrim");
 

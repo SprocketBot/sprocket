@@ -7,7 +7,6 @@ export const GetUserByAuthAccount_Request = z.object({
 
 export const GetUserByAuthAccount_Response = z.object({
     id: z.number(),
-    roles: z.array(z.string()).nullable(),
     profile: z.object({
         email: z.string(),
         displayName: z.string(),

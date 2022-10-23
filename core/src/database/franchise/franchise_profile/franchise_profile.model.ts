@@ -2,9 +2,9 @@ import {Field, ObjectType} from "@nestjs/graphql";
 import {Column, Entity, JoinColumn, ManyToOne, OneToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {Photo} from "../../organization";
-import {Webhook} from "../../webhook";
-import {Franchise} from "../franchise";
+import {Photo} from "../../organization/models";
+import {Webhook} from "../../webhook/models";
+import {Franchise} from "../franchise/franchise.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()
@@ -45,6 +45,9 @@ export class FranchiseProfile extends BaseModel {
     @JoinColumn()
     @Field(() => Franchise)
     franchise: Franchise;
+
+    @Column()
+    franchiseId: number;
 
     @Column()
     @Field()

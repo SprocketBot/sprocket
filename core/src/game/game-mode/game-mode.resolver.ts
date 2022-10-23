@@ -1,15 +1,15 @@
 import {ResolveField, Resolver, Root} from "@nestjs/graphql";
 
-import type {Game} from "../../database";
-import {GameMode} from "../../database";
-import {GameService} from "../game/game.service";
+import type {Game} from "$models";
+import {GameMode} from "$models";
+import {PopulateService} from "$util/populate";
 
 @Resolver(() => GameMode)
 export class GameModeResolver {
-    constructor(private readonly gameService: GameService) {}
+    constructor(private readonly populateService: PopulateService) {}
 
     @ResolveField()
-    async game(@Root() root: Partial<GameMode>): Promise<Game> {
-        return root.game ?? this.gameService.getGameById(root.gameId!);
+    async game(@Root() gameMode: Partial<GameMode>): Promise<Game> {
+        return gameMode.game ?? this.populateService.populateOneOrFail(GameMode, gameMode as GameMode, "game");
     }
 }

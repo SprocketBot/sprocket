@@ -2,10 +2,10 @@ import {Field, ObjectType} from "@nestjs/graphql";
 import {Column, Entity, ManyToOne, OneToMany} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {Franchise} from "../../franchise/franchise";
-import {Match} from "../match";
-import {MatchParent} from "../match_parent";
-import {ScheduleGroup} from "../schedule_group";
+import {Franchise} from "../../franchise/models";
+import {Match} from "../match/match.model";
+import {MatchParent} from "../match_parent/match_parent.model";
+import {ScheduleGroup} from "../schedule_group/schedule_group.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

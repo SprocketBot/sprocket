@@ -18,6 +18,8 @@ module.exports = {
     node: true,
   },
   rules: {
+    "object-shorthand": ["error", "consistent"],
+    
     // TODO turn back on after cleaning up code
     "@typescript-eslint/no-non-null-assertion": "off",
 
@@ -29,14 +31,17 @@ module.exports = {
     'lines-between-class-members': ['error', 'always'],
 
     // Don't allow `src/` imports
-    "no-restricted-imports": ["error", { "patterns": ["src/*"], }],
+    "no-restricted-imports": ["error", { "patterns": ["src/*", "**/../database/*", "**/../database/models", "**/../database/repositories", "**/../database/types"] }],
+
+    // Don't allow duplicate imports
+    "@typescript-eslint/no-duplicate-imports": "error",
 
     // Extra parentheses can improve clarity in complex expressions
     "@typescript-eslint/no-extra-parens": "off",
 
     // Empty interfaces can be useful for aliasing types and allowing for future extension
     '@typescript-eslint/no-empty-interface': 'off',
-
+    
     // Allow unused variables when they are prefixed with `_`, useful for array destructuring and method overrides
     '@typescript-eslint/no-unused-vars': [
       'error',

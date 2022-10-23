@@ -1,24 +1,15 @@
 import {Injectable, Logger} from "@nestjs/common";
-import {InjectDataSource} from "@nestjs/typeorm";
 import type {BallchasingPlayer, BallchasingResponse, BallchasingTeam, Scrim} from "@sprocketbot/common";
 import {BallchasingResponseSchema, Parser, ProgressStatus} from "@sprocketbot/common";
 import type {EntityManager} from "typeorm";
 import {DataSource} from "typeorm";
 import type {QueryDeepPartialEntity} from "typeorm/query-builder/QueryPartialEntity";
 
-import type {Player, Team} from "../../../database";
-import {
-    EligibilityData,
-    GameMode,
-    Match,
-    MatchParent,
-    PlayerStatLine,
-    Round,
-    ScrimMeta,
-    TeamStatLine,
-} from "../../../database";
+import type {Player, Team} from "$models";
+import {EligibilityData, GameMode, Match, MatchParent, PlayerStatLine, Round, ScrimMeta, TeamStatLine} from "$models";
+import {MatchRepository, TeamRepository} from "$repositories";
+
 import {PlayerService} from "../../../franchise";
-import {TeamService} from "../../../franchise/team/team.service";
 import {MledbFinalizationService, MledbPlayerService} from "../../../mledb";
 import {MatchService} from "../../../scheduling";
 import {SprocketRatingService} from "../../../sprocket-rating/sprocket-rating.service";
@@ -35,12 +26,13 @@ export class RocketLeagueFinalizationService {
     constructor(
         private readonly playerService: PlayerService,
         private readonly matchService: MatchService,
+        private readonly matchRepository: MatchRepository,
         private readonly sprocketRatingService: SprocketRatingService,
         private readonly mledbPlayerService: MledbPlayerService,
-        private readonly teamService: TeamService,
+        private readonly teamRepository: TeamRepository,
         private readonly ballchasingConverter: BallchasingConverterService,
         private readonly mledbFinalizationService: MledbFinalizationService,
-        @InjectDataSource() private readonly dataSource: DataSource,
+        private readonly dataSource: DataSource,
     ) {}
 
     async finalizeScrim(submission: ScrimReplaySubmission, scrim: Scrim): Promise<SaveScrimFinalizationReturn> {
@@ -95,11 +87,13 @@ export class RocketLeagueFinalizationService {
         await qr.startTransaction();
         const em = qr.manager;
         try {
-            const match = await this.matchService.getMatchById(submission.matchId, {
-                matchParent: {
-                    fixture: {homeFranchise: {organization: true}},
+            const match = await this.matchRepository.getById(submission.matchId, {
+                relations: {
+                    matchParent: {
+                        fixture: {homeFranchise: {organization: true}},
+                    },
+                    gameMode: true,
                 },
-                gameMode: true,
             });
             const organization = match.matchParent.fixture!.homeFranchise.organization;
 
@@ -178,8 +172,18 @@ export class RocketLeagueFinalizationService {
             : {home: undefined, away: undefined};
         const [homeTeam, awayTeam] = isMatch
             ? await Promise.all([
-                  await this.teamService.getTeam(home!.id, match.skillGroupId),
-                  await this.teamService.getTeam(away!.id, match.skillGroupId),
+                  await this.teamRepository.get({
+                      where: {
+                          franchiseId: home!.id,
+                          skillGroupId: match.skillGroupId,
+                      },
+                  }),
+                  await this.teamRepository.get({
+                      where: {
+                          franchiseId: away!.id,
+                          skillGroupId: match.skillGroupId,
+                      },
+                  }),
               ])
             : [undefined, undefined];
 

@@ -1,20 +1,26 @@
 import {UseGuards} from "@nestjs/common";
 import {Args, Int, Mutation, Query, ResolveField, Resolver, Root} from "@nestjs/graphql";
 
-import {Organization, OrganizationProfile} from "../../database";
-import {MLE_OrganizationTeam} from "../../database/mledb";
+import {MLE_OrganizationTeam} from "$mledb";
+import {Organization, OrganizationProfile} from "$models";
+import {OrganizationProfiledRepository, OrganizationRepository} from "$repositories";
+
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
+import {PopulateService} from "../../util/populate/populate.service";
 import {OrganizationProfileInput} from "./inputs";
-import {OrganizationService} from "./organization.service";
 
 @Resolver(() => Organization)
 export class OrganizationResolver {
-    constructor(private readonly organizationService: OrganizationService) {}
+    constructor(
+        private readonly organizationRepository: OrganizationRepository,
+        private readonly organizationProfiledRepository: OrganizationProfiledRepository,
+        private readonly populateService: PopulateService,
+    ) {}
 
     @Query(() => Organization)
     async getOrganizationById(@Args("id", {type: () => Int}) id: number): Promise<Organization> {
-        return this.organizationService.getOrganizationById(id);
+        return this.organizationRepository.getById(id);
     }
 
     @Mutation(() => OrganizationProfile)
@@ -24,14 +30,15 @@ export class OrganizationResolver {
         @Args("profile", {type: () => OrganizationProfileInput})
         profile: OrganizationProfileInput,
     ): Promise<OrganizationProfile> {
-        return this.organizationService.updateOrganizationProfile(id, profile);
+        const organization = await this.organizationProfiledRepository.updateAndSave(id, {profile});
+        return organization.profile;
     }
 
     @ResolveField()
     async profile(@Root() organization: Partial<Organization>): Promise<OrganizationProfile> {
         return (
             organization.profile ??
-            (await this.organizationService.getOrganizationProfileForOrganization(organization.id!))
+            (await this.populateService.populateOneOrFail(Organization, organization as Organization, "profile"))
         );
     }
 }

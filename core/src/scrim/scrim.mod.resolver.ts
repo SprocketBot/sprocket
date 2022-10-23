@@ -6,11 +6,13 @@ import {PubSub} from "apollo-server-express";
 import {minutesToMilliseconds} from "date-fns";
 import {GraphQLError} from "graphql";
 
+import {MLE_OrganizationTeam} from "$mledb";
+import {Player} from "$models";
+import {GameModeRepository} from "$repositories";
+import {OrganizationConfigurationKeyCode} from "$types";
+
 import {OrganizationConfigurationService} from "../configuration";
-import {OrganizationConfigurationKeyCode, Player} from "../database";
-import {MLE_OrganizationTeam} from "../database/mledb";
-import {CurrentPlayer, GameSkillGroupService, PlayerService} from "../franchise";
-import {GameModeService} from "../game";
+import {CurrentPlayer, PlayerService} from "../franchise";
 import {CurrentUser} from "../identity";
 import {UserPayload} from "../identity/auth/";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard/gql-jwt-guard";
@@ -50,8 +52,7 @@ export class ScrimModuleResolver {
         @Inject(ScrimPubSub) private readonly pubSub: PubSub,
         private readonly playerService: PlayerService,
         private readonly scrimService: ScrimService,
-        private readonly gameModeService: GameModeService,
-        private readonly skillGroupService: GameSkillGroupService,
+        private readonly gameModeRepository: GameModeRepository,
         private readonly organizationConfigurationService: OrganizationConfigurationService,
         private readonly scrimToggleService: ScrimToggleService,
         private readonly mlePlayerService: MledbPlayerService,
@@ -120,11 +121,14 @@ export class ScrimModuleResolver {
 
     @Mutation(() => Scrim)
     @UseGuards(QueueBanGuard, CreateScrimPlayerGuard, FormerPlayerScrimGuard)
-    async createScrim(@CurrentUser() user: UserPayload, @Args("data") data: CreateScrimInput): Promise<Scrim> {
+    async createScrim(
+        @CurrentUser() user: UserPayload,
+        @Args("data", {type: () => CreateScrimInput}) data: CreateScrimInput,
+    ): Promise<Scrim> {
         if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organization");
         if (await this.scrimToggleService.scrimsAreDisabled()) throw new GraphQLError("Scrims are disabled");
 
-        const gameMode = await this.gameModeService.getGameModeById(data.gameModeId);
+        const gameMode = await this.gameModeRepository.getById(data.gameModeId);
         const player = await this.playerService.getPlayerByOrganizationAndGame(
             user.userId,
             user.currentOrganizationId,

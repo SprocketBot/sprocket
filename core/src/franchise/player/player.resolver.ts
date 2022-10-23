@@ -1,6 +1,5 @@
-import {forwardRef, Inject, UseGuards} from "@nestjs/common";
+import {UseGuards} from "@nestjs/common";
 import {Args, Field, Float, InputType, Int, Mutation, ResolveField, Resolver, Root} from "@nestjs/graphql";
-import {InjectRepository} from "@nestjs/typeorm";
 import {
     EventsService,
     EventTopic,
@@ -12,26 +11,22 @@ import {
 } from "@sprocketbot/common";
 import type {FileUpload} from "graphql-upload";
 import {GraphQLUpload} from "graphql-upload";
-import {Repository} from "typeorm";
 
-import type {GameSkillGroup} from "../../database";
-import {Member, Player, UserAuthenticationAccount, UserAuthenticationAccountType} from "../../database";
+import {League, LeagueOrdinals, MLE_OrganizationTeam, MLE_Platform, ModePreference, Timezone} from "$mledb";
+import type {GameSkillGroup} from "$models";
+import {Member, Player} from "$models";
 import {
-    League,
-    LeagueOrdinals,
-    MLE_OrganizationTeam,
-    MLE_Platform,
-    ModePreference,
-    Timezone,
-} from "../../database/mledb";
+    GameSkillGroupRepository,
+    OrganizationProfileRepository,
+    UserAuthenticationAccountRepository,
+} from "$repositories";
+
 import type {ManualSkillGroupChange} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
-import {OrganizationService} from "../../organization";
 import {PopulateService} from "../../util/populate/populate.service";
 import {FranchiseService} from "../franchise";
-import {GameSkillGroupService} from "../game-skill-group";
 import {PlayerService} from "./player.service";
 import {IntakeSchema} from "./player.types";
 
@@ -60,14 +55,12 @@ export class PlayerResolver {
         private readonly popService: PopulateService,
         private readonly playerService: PlayerService,
         private readonly franchiseService: FranchiseService,
-        private readonly skillGroupService: GameSkillGroupService,
+        private readonly skillGroupRepository: GameSkillGroupRepository,
         private readonly eventsService: EventsService,
         private readonly notificationService: NotificationService,
         private readonly eloConnectorService: EloConnectorService,
-        @InjectRepository(UserAuthenticationAccount)
-        private userAuthRepository: Repository<UserAuthenticationAccount>,
-        @Inject(forwardRef(() => OrganizationService))
-        private readonly organizationService: OrganizationService,
+        private readonly userAuthenticationAccountRepository: UserAuthenticationAccountRepository,
+        private readonly organizationProfileRepository: OrganizationProfileRepository,
     ) {}
 
     @ResolveField()
@@ -76,12 +69,13 @@ export class PlayerResolver {
     }
 
     @ResolveField()
-    async franchiseName(@Root() player: Player): Promise<string> {
+    async franchiseName(@Root() player: Partial<Player>): Promise<string> {
         if (player.franchiseName) return player.franchiseName;
 
-        if (!player.member) player.member = await this.popService.populateOneOrFail(Player, player, "member");
-        if (!player.member.user)
-            player.member.user = await this.popService.populateOneOrFail(Member, player.member, "user");
+        if (!player.member) player.member = await this.popService.populateOneOrFail(Player, player as Player, "member");
+        player.member.user =
+            (player.member as Partial<Member>).user ??
+            (await this.popService.populateOneOrFail(Member, player.member, "user"));
 
         const franchiseResult = await this.franchiseService.getPlayerFranchises(player.member.user.id);
         // Because we are using MLEDB right now; assume that we only have one
@@ -89,11 +83,11 @@ export class PlayerResolver {
     }
 
     @ResolveField()
-    async franchisePositions(@Root() player: Player): Promise<string[]> {
+    async franchisePositions(@Root() player: Partial<Player>): Promise<string[]> {
         if (player.franchisePositions) return player.franchisePositions;
 
         if (!player.member) {
-            player.member = await this.popService.populateOneOrFail(Player, player, "member");
+            player.member = await this.popService.populateOneOrFail(Player, player as Player, "member");
         }
 
         const franchiseResult = await this.franchiseService.getPlayerFranchises(player.member.userId);
@@ -102,10 +96,8 @@ export class PlayerResolver {
     }
 
     @ResolveField()
-    async member(@Root() player: Player): Promise<Member> {
-        if (player.member) return player.member;
-
-        return this.popService.populateOneOrFail(Player, player, "member");
+    async member(@Root() player: Partial<Player>): Promise<Member> {
+        return player.member ?? this.popService.populateOneOrFail(Player, player as Player, "member");
     }
 
     @Mutation(() => String)
@@ -136,26 +128,12 @@ export class PlayerResolver {
             },
         });
 
-        const skillGroup = await this.skillGroupService.getGameSkillGroup({
-            where: {
-                id: skillGroupId,
-            },
-            relations: {
-                profile: true,
-            },
-        });
+        const skillGroup = await this.skillGroupRepository.getById(skillGroupId, {relations: {profile: true}});
 
-        const discordAccount = await this.userAuthRepository.findOneOrFail({
-            where: {
-                user: {
-                    id: player.member.user.id,
-                },
-                accountType: UserAuthenticationAccountType.DISCORD,
-            },
-        });
-        const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(
-            player.member.organization.id,
+        const discordAccount = await this.userAuthenticationAccountRepository.getDiscordAccountByUserId(
+            player.member.user.id,
         );
+        const orgProfile = await this.organizationProfileRepository.getByOrganizationId(player.member.organization.id);
 
         if (player.skillGroup.id === skillGroupId) return "ERROR: This player is already in this skill group";
 
@@ -256,7 +234,7 @@ export class PlayerResolver {
         @Args("accounts", {type: () => [IntakePlayerAccount]})
         accounts: IntakePlayerAccount[],
     ): Promise<Player> {
-        const sg = await this.skillGroupService.getGameSkillGroup({
+        const sg = await this.skillGroupRepository.get({
             where: {ordinal: LeagueOrdinals.indexOf(league) + 1},
         });
         return this.playerService.intakePlayer(
@@ -290,7 +268,7 @@ export class PlayerResolver {
 
         const imported = await Promise.allSettled(
             parsed.map(async player => {
-                const sg = await this.skillGroupService.getGameSkillGroup({
+                const sg = await this.skillGroupRepository.get({
                     where: {ordinal: LeagueOrdinals.indexOf(player.skillGroup) + 1},
                 });
                 const accs = player.accounts.map(acc => {

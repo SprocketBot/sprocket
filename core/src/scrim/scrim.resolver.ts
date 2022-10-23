@@ -2,10 +2,10 @@ import {UseGuards} from "@nestjs/common";
 import {Int, ResolveField, Resolver, Root} from "@nestjs/graphql";
 import {ScrimStatus} from "@sprocketbot/common";
 
-import {GameMode, GameSkillGroup} from "../database";
-import {MLE_OrganizationTeam} from "../database/mledb";
-import {GameSkillGroupService} from "../franchise";
-import {GameModeService} from "../game";
+import {MLE_OrganizationTeam} from "$mledb";
+import {GameMode, GameSkillGroup} from "$models";
+import {GameModeRepository, GameSkillGroupRepository} from "$repositories";
+
 import {CurrentUser, UserPayload} from "../identity";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
@@ -17,30 +17,30 @@ import {Scrim, ScrimLobby, ScrimPlayer} from "./types";
 @Resolver(() => Scrim)
 export class ScrimResolver {
     constructor(
-        private readonly gameSkillGroupService: GameSkillGroupService,
-        private readonly gameModeService: GameModeService,
+        private readonly skillGroupRepository: GameSkillGroupRepository,
+        private readonly gameModeRepository: GameModeRepository,
     ) {}
 
     @ResolveField(() => GameMode)
     async gameMode(@Root() scrim: Partial<Scrim>): Promise<GameMode> {
-        return scrim.gameMode ?? this.gameModeService.getGameModeById(scrim.gameModeId!);
+        return scrim.gameMode ?? this.gameModeRepository.getById(scrim.gameModeId!);
     }
 
     @ResolveField(() => GameSkillGroup)
     async skillGroup(@Root() scrim: Partial<Scrim>): Promise<GameSkillGroup> {
-        return scrim.skillGroup ?? this.gameSkillGroupService.getGameSkillGroupById(scrim.skillGroupId!);
+        return scrim.skillGroup ?? this.skillGroupRepository.getById(scrim.skillGroupId!);
     }
 
     @ResolveField(() => [ScrimPlayer], {nullable: true})
     players(@Root() scrim: Scrim): undefined | ScrimPlayer[] {
         if (scrim.status === ScrimStatus.PENDING) return undefined;
-        return scrim.players ?? [];
+        return scrim.players;
     }
 
     @ResolveField(() => [ScrimPlayer])
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     playersAdmin(@Root() scrim: Scrim): undefined | ScrimPlayer[] {
-        return scrim.players ?? [];
+        return scrim.players;
     }
 
     @ResolveField(() => ScrimLobby, {nullable: true})
@@ -52,7 +52,7 @@ export class ScrimResolver {
 
     @ResolveField(() => String, {nullable: true})
     currentGroup(@Root() scrim: Scrim, @CurrentUser() user: UserPayload): ScrimGroup | undefined {
-        const code = scrim.players?.find(p => p.id === user.userId)?.group;
+        const code = scrim.players.find(p => p.id === user.userId)?.group;
         if (!code) return undefined;
         return {
             code: code,
@@ -62,7 +62,7 @@ export class ScrimResolver {
 
     @ResolveField(() => Int)
     playerCount(@Root() scrim: Scrim): number {
-        return scrim.players?.length ?? 0;
+        return scrim.players.length;
     }
 
     @ResolveField(() => Int)

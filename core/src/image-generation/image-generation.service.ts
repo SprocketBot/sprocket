@@ -1,22 +1,20 @@
 import {Injectable, Logger} from "@nestjs/common";
-import {InjectRepository} from "@nestjs/typeorm";
 import {
     config,
     ImageGenerationEndpoint,
     ImageGenerationService as IGService,
     ResponseStatus,
 } from "@sprocketbot/common";
-import {DataSource, Repository} from "typeorm";
+import {DataSource} from "typeorm";
 
-import {ImageTemplate} from "../database";
+import {ImageTemplateRepository} from "$repositories";
 
 @Injectable()
 export class ImageGenerationService {
     private readonly logger = new Logger(ImageGenerationService.name);
 
     constructor(
-        @InjectRepository(ImageTemplate)
-        private imageTemplateRepository: Repository<ImageTemplate>,
+        private readonly imageTemplateRepository: ImageTemplateRepository,
         private readonly dataSource: DataSource,
         private readonly igService: IGService,
     ) {}
@@ -51,12 +49,14 @@ export class ImageGenerationService {
         let reportCard = "seriesSixPlayersMax";
 
         // if more than 6 players, use 8 player report card
-        const seventhPlayer = data?.[0]?.data?.player_data?.[6]?.name as {
-            value?: string;
-        };
+        const seventhPlayer = data?.[0]?.data?.player_data?.[6]?.name as
+            | {
+                  value?: string;
+              }
+            | undefined;
 
         // seventh player will always exist, but its value will only be emplty of no subs were used
-        if (seventhPlayer && seventhPlayer?.value !== "") {
+        if (seventhPlayer && seventhPlayer.value !== "") {
             reportCard = "seriesEightPlayersMax";
             this.logger.log("using 8 player card");
         }

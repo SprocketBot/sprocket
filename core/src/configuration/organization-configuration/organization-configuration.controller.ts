@@ -2,7 +2,8 @@ import {Controller} from "@nestjs/common";
 import {MessagePattern, Payload} from "@nestjs/microservices";
 import {CoreEndpoint, CoreSchemas} from "@sprocketbot/common";
 
-import type {OrganizationConfigurationKeyTypes} from "../../database";
+import type {OrganizationConfigurationKeyTypes} from "$types";
+
 import {OrganizationConfigurationService} from "./organization-configuration.service";
 
 @Controller("organization-configuration")

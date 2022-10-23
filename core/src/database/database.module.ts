@@ -1,7 +1,8 @@
 import {Module} from "@nestjs/common";
-import {TypeOrmModule} from "@nestjs/typeorm";
+import {InjectDataSource, TypeOrmModule} from "@nestjs/typeorm";
 import {config} from "@sprocketbot/common";
 import {readFileSync} from "fs";
+import {DataSource} from "typeorm";
 
 import {AuthorizationModule} from "./authorization/authorization.module";
 import {ConfigurationModule} from "./configuration/configuration.module";
@@ -17,6 +18,16 @@ import {SchedulingModule} from "./scheduling/scheduling.module";
 import {WebhookModule} from "./webhook/webhook.module";
 
 const modules = [
+    TypeOrmModule.forRoot({
+        type: "postgres",
+        host: config.db.host,
+        port: config.db.port,
+        username: config.db.username,
+        password: readFileSync("./secret/db-password.txt").toString().trim(),
+        database: config.db.database,
+        autoLoadEntities: true,
+        logging: config.db.enable_logs,
+    }),
     AuthorizationModule,
     ConfigurationModule,
     DraftModule,
@@ -29,20 +40,12 @@ const modules = [
     ImageGenModule,
     MledbBridgeModule,
     WebhookModule,
-    TypeOrmModule.forRoot({
-        type: "postgres",
-        host: config.db.host,
-        port: config.db.port,
-        username: config.db.username,
-        password: readFileSync("./secret/db-password.txt").toString().trim(),
-        database: config.db.database,
-        autoLoadEntities: true,
-        logging: config.db.enable_logs,
-    }),
 ];
 
 @Module({
     imports: modules,
     exports: modules,
 })
-export class DatabaseModule {}
+export class DatabaseModule {
+    constructor(@InjectDataSource() private dataSource: DataSource) {}
+}

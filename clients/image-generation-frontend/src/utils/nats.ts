@@ -52,7 +52,7 @@ export async function natsRequest(
     });
 
     const serializedData = JSONCodec().encode({
-        data,
+        data: data,
         id: v4(),
     });
 

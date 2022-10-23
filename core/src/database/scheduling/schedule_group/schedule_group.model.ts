@@ -2,9 +2,9 @@ import {Field, ObjectType} from "@nestjs/graphql";
 import {Column, Entity, ManyToOne, OneToMany} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {Game} from "../../game/game";
-import {ScheduleFixture} from "../schedule_fixture";
-import {ScheduleGroupType} from "../schedule_group_type";
+import {Game} from "../../game/models";
+import {ScheduleFixture} from "../schedule_fixture/schedule_fixture.model";
+import {ScheduleGroupType} from "../schedule_group_type/schedule_group_type.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

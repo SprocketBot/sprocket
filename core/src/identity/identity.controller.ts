@@ -3,25 +3,29 @@ import {MessagePattern, Payload} from "@nestjs/microservices";
 import type {GetUserByAuthAccountResponse} from "@sprocketbot/common";
 import {CoreEndpoint, CoreSchemas} from "@sprocketbot/common";
 
-import type {UserAuthenticationAccountType} from "../database";
-import {IdentityService} from "./identity.service";
-import {UserService} from "./user";
+import {UserAuthenticationAccountRepository, UserProfileRepository} from "$repositories";
+import type {UserAuthenticationAccountType} from "$types";
 
 @Controller("identity")
 export class IdentityController {
-    constructor(private readonly identityService: IdentityService, private readonly userService: UserService) {}
+    constructor(
+        private readonly userProfileRepository: UserProfileRepository,
+        private readonly userAuthenticationAccountRepository: UserAuthenticationAccountRepository,
+    ) {}
 
     @MessagePattern(CoreEndpoint.GetUserByAuthAccount)
     async getUserByAuthAccount(@Payload() payload: unknown): Promise<GetUserByAuthAccountResponse> {
         const data = CoreSchemas.GetUserByAuthAccount.input.parse(payload);
-        const user = await this.identityService.getUserByAuthAccount(
-            data.accountType as UserAuthenticationAccountType,
-            data.accountId,
-        );
-        const profile = await this.userService.getUserProfileForUser(user.id);
+        const acc = await this.userAuthenticationAccountRepository.get({
+            where: {
+                accountType: data.accountType as UserAuthenticationAccountType,
+                accountId: data.accountId,
+            },
+        });
+        const user = acc.user;
+        const profile = await this.userProfileRepository.getByUserId(user.id);
         return {
             id: user.id,
-            roles: user.type,
             profile: {
                 email: profile.email,
                 displayName: profile.displayName,

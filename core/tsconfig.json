@@ -1,27 +1,33 @@
 {
-  "compilerOptions": {
-    "module": "commonjs",
-    "declaration": true,
-    "removeComments": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
-    "target": "es2020",
-    "sourceMap": true,
-    "noImplicitAny": false,
-    "skipLibCheck": true,
-    "outDir": "./dist",
-    "baseUrl": "./",
-    "incremental": true,
-    "moduleResolution": "node",
-    "lib": ["es2020", "esnext.asynciterable"],
-    "strictNullChecks": true,
-    "strict": true,
-    "strictPropertyInitialization": false,
-    "esModuleInterop": true
-  },
-  "include": ["src/**/*", "src/*"],
-  "paths": {
-    "@database/*": ["database/*"]
-  }
+    "compilerOptions": {
+        "module": "commonjs",
+        "declaration": true,
+        "removeComments": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "allowSyntheticDefaultImports": true,
+        "target": "es2020",
+        "sourceMap": true,
+        "noImplicitAny": false,
+        "skipLibCheck": true,
+        "outDir": "./dist",
+        "baseUrl": "./",
+        "incremental": true,
+        "moduleResolution": "node",
+        "lib": ["es2020", "esnext.asynciterable"],
+        "strictNullChecks": true,
+        "strict": true,
+        "strictPropertyInitialization": false,
+        "esModuleInterop": true,
+        "paths": {
+            "$models": ["src/database/models"],
+            "$repositories": ["src/database/repositories"],
+            "$types": ["src/database/types"],
+            "$mledb": ["src/database/mledb"],
+            "$bridge/*": ["src/database/mledb-bridge/*"],
+            "$util": ["src/util"],
+            "$util/*": ["src/util/*"]
+        }
+    },
+    "include": ["src/**/*", "src/*"]
 }

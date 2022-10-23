@@ -2,14 +2,13 @@ import {Field, ObjectType} from "@nestjs/graphql";
 import {Entity, OneToMany, OneToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {OrganizationConfigurationValue} from "../../configuration/organization_configuration_value";
-import {Verbiage} from "../../configuration/verbiage";
-import {EnabledFeature} from "../../game/enabled_feature";
-import {ScheduleGroupType} from "../../scheduling/schedule_group_type";
-import {Member} from "../member";
-import {OrganizationMottos} from "../organization_mottos";
-import {OrganizationProfile} from "../organization_profile";
-import {Pronouns} from "../pronouns";
+import {OrganizationConfigurationValue, Verbiage} from "../../configuration/models";
+import {EnabledFeature} from "../../game/models";
+import {ScheduleGroupType} from "../../scheduling/models";
+import {Member} from "../member/member.model";
+import {OrganizationMottos} from "../organization_mottos/organization_mottos.model";
+import {OrganizationProfile} from "../organization_profile/organization_profile.model";
+import {Pronouns} from "../pronouns/pronouns.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

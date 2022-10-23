@@ -21,7 +21,7 @@ export const GET = async ({params}: Request): Promise<Response> => {
             headers: {},
             status: 200,
             body: JSON.stringify({
-                getURL,
+                getURL: getURL,
                 size: objectStats.size,
             }),
         };

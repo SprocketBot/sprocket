@@ -4,6 +4,8 @@ import type {CoreEndpoint, CoreOutput} from "@sprocketbot/common";
 import type {FindOperator, FindOptionsRelations} from "typeorm";
 import {Raw, Repository} from "typeorm";
 
+import type {League} from "$mledb";
+import {LegacyGameMode, MLE_Fixture, MLE_Series, MLE_SeriesReplay, MLE_Team, MLE_TeamToCaptain} from "$mledb";
 import {
     Franchise,
     GameMode,
@@ -13,18 +15,9 @@ import {
     ScheduleFixture,
     ScheduleGroup,
     ScheduleGroupType,
-} from "../../database";
-import type {League} from "../../database/mledb";
-import {
-    LegacyGameMode,
-    MLE_Fixture,
-    MLE_Series,
-    MLE_SeriesReplay,
-    MLE_Team,
-    MLE_TeamToCaptain,
-} from "../../database/mledb";
-import {MatchService} from "../../scheduling";
-import {PopulateService} from "../../util/populate/populate.service";
+} from "$models";
+import {MatchRepository} from "$repositories";
+import {PopulateService} from "$util";
 
 @Injectable()
 export class MledbMatchService {
@@ -36,7 +29,7 @@ export class MledbMatchService {
         @InjectRepository(MLE_Series) private readonly seriesRepo: Repository<MLE_Series>,
         @InjectRepository(MLE_SeriesReplay) private readonly seriesReplayRepo: Repository<MLE_SeriesReplay>,
         @InjectRepository(MLE_TeamToCaptain) private readonly teamCaptainRepo: Repository<MLE_TeamToCaptain>,
-        private readonly sprocketMatchService: MatchService,
+        private readonly sprocketMatchRepository: MatchRepository,
         private readonly popService: PopulateService,
     ) {}
 
@@ -94,11 +87,11 @@ export class MledbMatchService {
     async getMleMatchInfoAndStakeholders(
         sprocketMatchId: number,
     ): Promise<CoreOutput<CoreEndpoint.GetMleMatchInfoAndStakeholders>> {
-        const match = await this.sprocketMatchService.getMatchById(sprocketMatchId);
+        const match = (await this.sprocketMatchRepository.getById(sprocketMatchId)) as Partial<Match>;
         if (!match.skillGroup) {
-            match.skillGroup = await this.popService.populateOneOrFail(Match, match, "skillGroup");
+            match.skillGroup = await this.popService.populateOneOrFail(Match, match as Match, "skillGroup");
         }
-        if (!match.skillGroup.profile) {
+        if (!(match.skillGroup as Partial<GameSkillGroup>).profile) {
             const skillGroupProfile = await this.popService.populateOneOrFail(
                 GameSkillGroup,
                 match.skillGroup,
@@ -107,7 +100,7 @@ export class MledbMatchService {
             match.skillGroup.profile = skillGroupProfile;
         }
 
-        const matchParent = await this.popService.populateOneOrFail(Match, match, "matchParent");
+        const matchParent = await this.popService.populateOneOrFail(Match, match as Match, "matchParent");
 
         const fixture = await this.popService.populateOne(MatchParent, matchParent, "fixture");
         if (!fixture) {
@@ -124,7 +117,7 @@ export class MledbMatchService {
         const groupType = await this.popService.populateOneOrFail(ScheduleGroup, season, "type");
         const organization = await this.popService.populateOneOrFail(ScheduleGroupType, groupType, "organization");
 
-        const gameMode = await this.popService.populateOneOrFail(Match, match, "gameMode");
+        const gameMode = await this.popService.populateOneOrFail(Match, match as Match, "gameMode");
         const game = await this.popService.populateOneOrFail(GameMode, gameMode, "game");
 
         const mledbMatch = await this.getMleSeries(
@@ -171,18 +164,18 @@ export class MledbMatchService {
         });
 
         const stakeholders = [
-            mledbHomeFranchise.generalManager?.discordId,
-            mledbAwayFranchise.generalManager?.discordId,
+            mledbHomeFranchise.generalManager.discordId,
+            mledbAwayFranchise.generalManager.discordId,
 
-            mledbHomeFranchise.doublesAssistantGeneralManager?.discordId,
-            mledbAwayFranchise.doublesAssistantGeneralManager?.discordId,
+            mledbHomeFranchise.doublesAssistantGeneralManager.discordId,
+            mledbAwayFranchise.doublesAssistantGeneralManager.discordId,
 
-            mledbHomeFranchise.standardAssistantGeneralManager?.discordId,
-            mledbAwayFranchise.standardAssistantGeneralManager?.discordId,
+            mledbHomeFranchise.standardAssistantGeneralManager.discordId,
+            mledbAwayFranchise.standardAssistantGeneralManager.discordId,
 
             ...mledbHomeCaptain.map(c => c.player.discordId),
             ...mledbAwayCaptain.map(c => c.player.discordId),
-        ].filter(s => s !== null && s !== undefined) as string[];
+        ].filter(s => s !== null) as string[];
 
         const stakeholdersSet = new Set(stakeholders);
 
@@ -228,10 +221,10 @@ export class MledbMatchService {
                 series.fixture.awayName !== winningTeam.name
             ) {
                 this.logger.error(
-                    `The team \`${winningTeam?.name}\` did not play in series with id \`${series.id}\` (${series.fixture.awayName} v. ${series.fixture.homeName}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`,
+                    `The team \`${winningTeam.name}\` did not play in series with id \`${series.id}\` (${series.fixture.awayName} v. ${series.fixture.homeName}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`,
                 );
                 throw new Error(
-                    `The team \`${winningTeam?.name}\` did not play in series with id \`${series.id}\` (${series.fixture.awayName} v. ${series.fixture.homeName}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`,
+                    `The team \`${winningTeam.name}\` did not play in series with id \`${series.id}\` (${series.fixture.awayName} v. ${series.fixture.homeName}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`,
                 );
             }
         } else if (series.scrim) {
@@ -302,7 +295,7 @@ export class MledbMatchService {
         // Check to make sure the winning team played in each replay
         if (winningTeam) {
             for (const replay of replays) {
-                const teamsInReplay = replay?.teamCoreStats.map(tcs => tcs.teamName);
+                const teamsInReplay = replay.teamCoreStats.map(tcs => tcs.teamName);
                 if (!teamsInReplay.includes(winningTeam.name)) {
                     this.logger.warn(
                         `The team \`${winningTeam.name}\` did not play in replay with id \`${

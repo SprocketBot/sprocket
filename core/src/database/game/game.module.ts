@@ -1,19 +1,15 @@
 import {Module} from "@nestjs/common";
 import {TypeOrmModule} from "@nestjs/typeorm";
 
-import {EnabledFeature} from "./enabled_feature";
-import {Feature} from "./feature";
-import {Game} from "./game";
-import {GameFeature} from "./game_feature";
-import {GameMode} from "./game_mode";
-import {Platform} from "./platform";
+import * as models from "./models";
+import * as repositories from "./repositories";
 
-export const gameEntities = [EnabledFeature, Feature, Platform, GameMode, Game, GameFeature, Feature];
-
-const ormModule = TypeOrmModule.forFeature(gameEntities);
+const ormModule = TypeOrmModule.forFeature(Object.values(models));
+const providers = Object.values(repositories);
 
 @Module({
     imports: [ormModule],
-    exports: [ormModule],
+    providers: providers,
+    exports: providers,
 })
 export class GameModule {}

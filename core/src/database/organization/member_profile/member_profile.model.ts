@@ -2,9 +2,9 @@ import {Field, ObjectType} from "@nestjs/graphql";
 import {Column, Entity, JoinColumn, ManyToOne, OneToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {Member} from "../member";
-import {Photo} from "../photo";
-import {Pronouns} from "../pronouns";
+import {Member} from "../member/member.model";
+import {Photo} from "../photo/photo.model";
+import {Pronouns} from "../pronouns/pronouns.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

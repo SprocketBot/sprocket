@@ -2,21 +2,25 @@ import {Inject, UseGuards} from "@nestjs/common";
 import {Args, Int, Mutation, Query, ResolveField, Resolver, Root, Subscription} from "@nestjs/graphql";
 import {PubSub} from "apollo-server-express";
 
-import type {Member} from "../../database";
-import {MemberRestriction, MemberRestrictionType} from "../../database";
-import {MLE_OrganizationTeam} from "../../database/mledb";
+import {MLE_OrganizationTeam} from "$mledb";
+import type {Member} from "$models";
+import {MemberRestriction} from "$models";
+import {MemberRestrictionRepository} from "$repositories";
+import {MemberRestrictionType} from "$types";
+
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
+import {PopulateService} from "../../util/populate/populate.service";
 import {MemberPubSub} from "../constants";
 import {MemberService} from "../member/member.service";
-import {MemberRestrictionService} from "./member-restriction.service";
 import {MemberRestrictionEvent} from "./member-restriction.types";
 
 @Resolver(() => MemberRestriction)
 export class MemberRestrictionResolver {
     constructor(
-        private readonly memberRestrictionService: MemberRestrictionService,
+        private readonly memberRestrictionRepository: MemberRestrictionRepository,
         private readonly memberService: MemberService,
+        private readonly populateService: PopulateService,
         @Inject(MemberPubSub) private readonly pubSub: PubSub,
     ) {}
 
@@ -29,7 +33,7 @@ export class MemberRestrictionResolver {
         @Args("type", {type: () => MemberRestrictionType})
         type: MemberRestrictionType,
     ): Promise<MemberRestriction[]> {
-        return this.memberRestrictionService.getActiveMemberRestrictions(type);
+        return this.memberRestrictionRepository.getActiveRestrictions(type);
     }
 
     @Mutation(() => MemberRestriction)
@@ -44,7 +48,7 @@ export class MemberRestrictionResolver {
         @Args("reason") reason: string,
         @Args("memberId", {type: () => Int}) memberId: number,
     ): Promise<MemberRestriction> {
-        return this.memberRestrictionService.createMemberRestriction(type, expiration, reason, memberId);
+        return this.memberRestrictionRepository.createAndSave({type, expiration, reason, memberId});
     }
 
     @Mutation(() => MemberRestriction)
@@ -64,7 +68,7 @@ export class MemberRestrictionResolver {
         })
         forgiven = false,
     ): Promise<MemberRestriction> {
-        return this.memberRestrictionService.manuallyExpireMemberRestriction(
+        return this.memberRestrictionRepository.manuallyExpireRestriction(
             id,
             manualExpiration,
             manualExpirationReason,
@@ -74,7 +78,14 @@ export class MemberRestrictionResolver {
 
     @ResolveField()
     async member(@Root() memberRestriction: Partial<MemberRestriction>): Promise<Member> {
-        return memberRestriction.member ?? (await this.memberService.getMemberById(memberRestriction.memberId!));
+        return (
+            memberRestriction.member ??
+            (await this.populateService.populateOneOrFail(
+                MemberRestriction,
+                memberRestriction as MemberRestriction,
+                "member",
+            ))
+        );
     }
 
     @Subscription(() => MemberRestrictionEvent)

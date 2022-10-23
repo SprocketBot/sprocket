@@ -3,7 +3,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 import type {FindManyOptions} from "typeorm";
 import {Repository} from "typeorm";
 
-import {MLE_PlayerAccount} from "../../database/mledb";
+import {MLE_PlayerAccount} from "$mledb";
 
 @Injectable()
 export class MledbPlayerAccountService {

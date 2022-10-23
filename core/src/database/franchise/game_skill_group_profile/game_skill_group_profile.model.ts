@@ -2,9 +2,9 @@ import {Field, ObjectType} from "@nestjs/graphql";
 import {Column, Entity, JoinColumn, ManyToOne, OneToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {Photo} from "../../organization";
-import {Webhook} from "../../webhook";
-import {GameSkillGroup} from "../game_skill_group";
+import {Photo} from "../../organization/models";
+import {Webhook} from "../../webhook/models";
+import {GameSkillGroup} from "../game_skill_group/game_skill_group.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()
