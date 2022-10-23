@@ -1,5 +1,11 @@
-export interface JwtTokenSet {
+import {Field, ObjectType} from "@nestjs/graphql";
+
+@ObjectType()
+export class JwtTokenSet {
+    @Field()
     access: string;
+
+    @Field()
     refresh: string;
 }
 

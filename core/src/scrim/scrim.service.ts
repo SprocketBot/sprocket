@@ -54,8 +54,11 @@ export class ScrimService {
         return "scrims.updated";
     }
 
-    async getAllScrims(skillGroupId?: number): Promise<IScrim[]> {
-        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetAllScrims, {skillGroupId});
+    async getAllScrims(organizationId?: number, skillGroupId?: number): Promise<IScrim[]> {
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetAllScrims, {
+            organizationId,
+            skillGroupId,
+        });
 
         if (result.status === ResponseStatus.SUCCESS) return result.data;
         throw result.error;

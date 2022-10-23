@@ -29,6 +29,9 @@ export class GameSkillGroup extends BaseModel {
     @Field(() => Game)
     game: Game;
 
+    @Column()
+    gameId: number;
+
     @OneToOne(() => RosterRoleUseLimits)
     @JoinColumn()
     @Field(() => RosterRoleUseLimits)
