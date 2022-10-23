@@ -1,22 +1,10 @@
 import {Injectable} from "@nestjs/common";
 
-import {
-    ActionRepository,
-    MemberRepository,
-    OrganizationStaffPositionRepository,
-    OrganizationStaffRoleRepository,
-    OrganizationStaffTeamRepository,
-} from "$repositories";
+import {MemberRepository} from "$repositories";
 
 @Injectable()
 export class AuthorizationService {
-    constructor(
-        private readonly memberRepository: MemberRepository,
-        private readonly actionRepository: ActionRepository,
-        private readonly organizationStaffTeamRepository: OrganizationStaffTeamRepository,
-        private readonly organizationStaffRoleRepository: OrganizationStaffRoleRepository,
-        private readonly organizationStaffPositionRepository: OrganizationStaffPositionRepository,
-    ) {}
+    constructor(private readonly memberRepository: MemberRepository) {}
 
     async getMemberActions(memberId: number): Promise<string[]> {
         const member = await this.memberRepository.getById(memberId, {
