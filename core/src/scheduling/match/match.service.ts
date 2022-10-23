@@ -300,6 +300,10 @@ export class MatchService {
             if (!isNcp && replay.isDummy) {
                 await this.roundRepository.delete(replay.id);
             } else {
+                if (!replay.teamStats.some(t => t.team?.id === winningTeam?.id)) {
+                    this.logger.error(`ERROR: Round ${replay.id} cannot be NCP'd. Winning team ${winningTeam?.franchise.profile.title} did not participate.`);
+                    throw new Error(`ERROR: Round ${replay.id} cannot be NCP'd. Winning team ${winningTeam?.franchise.profile.title} did not participate.`);
+                }
                 replay.invalidation = invalidation;
                 await this.roundRepository.save(replay);
             }
