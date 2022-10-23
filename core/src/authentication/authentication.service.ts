@@ -15,7 +15,7 @@ export class AuthenticationService {
     async login(userId: number, organizationId?: number): Promise<JwtTokenSet> {
         const user = await this.userRepository.getById(userId, {relations: {profile: true, members: true}});
         const currentOrganizationId =
-            organizationId ?? user.members.length === 1 ? user.members[0].organizationId : undefined;
+            organizationId ?? (user.members.length === 1 ? user.members[0].organizationId : undefined);
 
         const payload = {
             sub: user.id,
