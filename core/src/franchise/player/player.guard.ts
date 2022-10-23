@@ -4,20 +4,22 @@ import type {GraphQLExecutionContext} from "@nestjs/graphql";
 import {GqlExecutionContext} from "@nestjs/graphql";
 import {GraphQLError} from "graphql";
 
+import type {PlayerRepository} from "$repositories";
+
 import type {JwtAuthPayload} from "../../authentication/types";
-import type {PlayerService} from "./player.service";
 import type {GameAndOrganization} from "./player.types";
 
+// TODO: Yeet!
 @Injectable()
 export abstract class PlayerGuard implements CanActivate {
-    abstract playerService: PlayerService;
+    abstract playerRepository: PlayerRepository;
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const ctx = GqlExecutionContext.create(context);
         const payload = ctx.getContext().req.user as JwtAuthPayload;
         const {gameId, organizationId} = await this.getGameAndOrganization(ctx, payload);
-        const player = await this.playerService
-            .getPlayerByOrganizationAndGame(payload.userId, organizationId, gameId)
+        const player = await this.playerRepository
+            .getByOrganizationAndGame(payload.userId, organizationId, gameId)
             .catch(() => null);
 
         if (!player)

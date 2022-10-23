@@ -39,7 +39,7 @@ import {
 import {SeriesToMatchParent} from "../../database/mledb-bridge/series_to_match_parent.model";
 import type {MatchSubmissionStatus} from "../../database/scheduling/match/match.model";
 import {GraphQLJwtAuthGuard} from "../../authentication/guards";
-import {CurrentPlayer} from "../../franchise/player";
+import {CurrentPlayer} from "../../authorization/decorators";
 import {MledbMatchService} from "../../mledb/mledb-match/mledb-match.service";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {PopulateService} from "../../util/populate/populate.service";

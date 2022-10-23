@@ -33,9 +33,9 @@ import {ScrimToggleResolver, ScrimToggleService} from "./scrim-toggle";
         DatabaseModule,
         OrganizationModule,
         FranchiseModule,
-        MledbInterfaceModule,
         EloConnectorModule,
         BullModule.registerQueue({name: "scrim"}),
+        MledbInterfaceModule,
     ],
     providers: [
         {

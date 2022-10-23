@@ -11,15 +11,11 @@ import {
     NotificationService,
 } from "@sprocketbot/common";
 
-import {
-    GameSkillGroupRepository,
-    OrganizationProfileRepository,
-    UserAuthenticationAccountRepository,
-} from "$repositories";
-import {UserAuthenticationAccountType} from "$types";
+import {GameSkillGroupRepository, PlayerRepository, UserAuthenticationAccountRepository} from "$repositories";
 
 import type {ManualSkillGroupChange} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
+import {MledbPlayerService} from "../../mledb";
 import {PlayerService} from "./player.service";
 import {RankdownJwtPayloadSchema} from "./player.types";
 
@@ -35,7 +31,8 @@ export class PlayerController {
         private readonly eventsService: EventsService,
         private readonly notificationService: NotificationService,
         private readonly userAuthenitcationAccountRepository: UserAuthenticationAccountRepository,
-        private readonly organizationProfileRepository: OrganizationProfileRepository,
+        private readonly playerRepository: PlayerRepository,
+        private readonly mlePlayerService: MledbPlayerService,
     ) {}
 
     @Get("accept-rankdown/:token")
@@ -43,14 +40,16 @@ export class PlayerController {
         try {
             const payload = RankdownJwtPayloadSchema.parse(this.jwtService.verify(token));
 
-            const player = await this.playerService.getPlayer({
+            const player = await this.playerRepository.get({
                 where: {id: payload.playerId},
                 relations: {
                     member: {
                         user: {
                             authenticationAccounts: true,
                         },
-                        organization: true,
+                        organization: {
+                            profile: true,
+                        },
                         profile: true,
                     },
                     skillGroup: {
@@ -60,21 +59,11 @@ export class PlayerController {
                     },
                 },
             });
-
             const skillGroup = await this.skillGroupRepository.getById(payload.skillGroupId, {
                 relations: {profile: true},
             });
-
-            const discordAccount = await this.userAuthenitcationAccountRepository.get({
-                where: {
-                    user: {
-                        id: player.member.user.id,
-                    },
-                    accountType: UserAuthenticationAccountType.DISCORD,
-                },
-            });
-            const orgProfile = await this.organizationProfileRepository.getByOrganizationId(
-                player.member.organization.id,
+            const discordAccount = await this.userAuthenitcationAccountRepository.getDiscordAccountByUserId(
+                player.member.user.id,
             );
 
             if (player.skillGroup.id === payload.skillGroupId) throw new Error("You are already in this skill group");
@@ -86,7 +75,10 @@ export class PlayerController {
             };
 
             await this.playerService.updatePlayerStanding(payload.playerId, payload.salary, payload.skillGroupId);
-            await this.playerService.mle_rankDownPlayer(payload.playerId, payload.salary);
+
+            if (player.member.organization.profile.name === "Minor League Esports")
+                await this.mlePlayerService.movePlayerToLeague(payload.playerId, payload.skillGroupId, payload.salary);
+
             await this.eloConnectorService.createJob(EloEndpoint.SGChange, inputData);
 
             await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
@@ -114,7 +106,7 @@ export class PlayerController {
                     player.member.user.id,
                     discordAccount.accountId,
                     player.member.organization.id,
-                    orgProfile.name,
+                    player.member.organization.profile.name,
                     player.skillGroup.profile.description,
                     skillGroup.profile.description,
                     payload.salary,

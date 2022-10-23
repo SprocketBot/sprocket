@@ -1,18 +1,5 @@
-import {
-    forwardRef, Inject, Logger, UseGuards,
-} from "@nestjs/common";
-import {
-    Args,
-    Field,
-    Float,
-    InputType,
-    Int,
-    Mutation,
-    ResolveField,
-    Resolver,
-    Root,
-} from "@nestjs/graphql";
-import {InjectRepository} from "@nestjs/typeorm";
+import {UseGuards} from "@nestjs/common";
+import {Args, Float, Int, Mutation, ResolveField, Resolver, Root} from "@nestjs/graphql";
 import {
     EventsService,
     EventTopic,
@@ -20,17 +7,15 @@ import {
     NotificationMessageType,
     NotificationService,
     NotificationType,
-    readToString,
 } from "@sprocketbot/common";
-import type {FileUpload} from "graphql-upload";
-import {GraphQLUpload} from "graphql-upload";
 
-import {League, LeagueOrdinals, MLE_OrganizationTeam, MLE_Platform, ModePreference, Timezone} from "$mledb";
-import type {GameSkillGroup, User} from "$models";
+import {MLE_OrganizationTeam} from "$mledb";
+import type {GameSkillGroup} from "$models";
 import {Member, Player} from "$models";
 import {
     GameSkillGroupRepository,
     OrganizationProfileRepository,
+    PlayerRepository,
     UserAuthenticationAccountRepository,
 } from "$repositories";
 
@@ -50,30 +35,11 @@ import {OrganizationProfileRepository} from "../../database/repositories";
 import {GraphQLJwtAuthGuard} from "../../authentication/guards";
 import type {ManualSkillGroupChange} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
+import {MledbPlayerService} from "../../mledb";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {PopulateService} from "../../util/populate/populate.service";
 import {FranchiseService} from "../franchise";
 import {PlayerService} from "./player.service";
-import {EloRedistributionSchema, IntakeSchema} from "./player.types";
-
-const platformTransform = {
-    epic: MLE_Platform.EPIC,
-    steam: MLE_Platform.STEAM,
-    psn: MLE_Platform.PS4,
-    xbl: MLE_Platform.XBOX,
-};
-
-@InputType()
-export class IntakePlayerAccount {
-    @Field(() => MLE_Platform)
-    platform: MLE_Platform;
-
-    @Field(() => String)
-    platformId: string;
-
-    @Field(() => String)
-    tracker: string;
-}
 
 @Resolver(() => Player)
 export class PlayerResolver {
@@ -87,6 +53,8 @@ export class PlayerResolver {
         private readonly eloConnectorService: EloConnectorService,
         private readonly userAuthenticationAccountRepository: UserAuthenticationAccountRepository,
         private readonly organizationProfileRepository: OrganizationProfileRepository,
+        private readonly playerRepository: PlayerRepository,
+        private readonly mlePlayerService: MledbPlayerService,
     ) {}
 
     private readonly logger = new Logger(PlayerResolver.name);
@@ -139,14 +107,16 @@ export class PlayerResolver {
         @Args("skillGroupId", {type: () => Int}) skillGroupId: number,
         @Args("silent", {type: () => Boolean, nullable: true}) silent?: boolean,
     ): Promise<string> {
-        const player = await this.playerService.getPlayer({
+        const player = await this.playerRepository.get({
             where: {id: playerId},
             relations: {
                 member: {
                     user: {
                         authenticationAccounts: true,
                     },
-                    organization: true,
+                    organization: {
+                        profile: true,
+                    },
                     profile: true,
                 },
                 skillGroup: {
@@ -170,7 +140,9 @@ export class PlayerResolver {
             skillGroup: skillGroup.ordinal,
         };
 
-        await this.playerService.mle_movePlayerToLeague(playerId, salary, skillGroupId);
+        if (player.member.organization.profile.name === "Minor League Esports")
+            await this.mlePlayerService.movePlayerToLeague(playerId, skillGroupId, salary);
+
         await this.playerService.updatePlayerStanding(playerId, salary, skillGroupId);
         await this.eloConnectorService.createJob(EloEndpoint.SGChange, inputData);
 
@@ -263,146 +235,5 @@ export class PlayerResolver {
         }
 
         return "SUCCESS";
-    }
-
-    @Mutation(() => String)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
-    async changePlayerElo(
-        @Args("playerId", {type: () => Int}) playerId: number,
-        @Args("salary", {type: () => Float}) salary: number,
-        @Args("elo", {type: () => Float}) elo: number,
-    ): Promise<string> {
-        const player = await this.playerService.getPlayer({
-            where: {id: playerId},
-        });
-
-        const inputData: ManualEloChange = {
-            id: playerId,
-            salary: salary,
-            elo: elo,
-        };
-
-        await this.playerService.mle_movePlayerToLeague(playerId, salary, player.skillGroupId);
-        await this.playerService.updatePlayerStanding(playerId, salary, player.skillGroupId);
-        await this.eloConnectorService.createJob(EloEndpoint.EloChange, inputData);
-
-        this.logger.verbose(`Successfully changed ${playerId}'s salary to ${salary} and elo to ${elo}.`);
-        return "SUCCESS";
-    }
-    
-    @Mutation(() => String)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
-    async changePlayerEloBulk(@Args("files", {type: () => [GraphQLUpload]}) files: Array<Promise<FileUpload>>): Promise<string> {
-        const csvs = await Promise.all(files.map(async f => f.then(async _f => readToString(_f.createReadStream()))));
-
-        const results = csvs.flatMap(csv => csv.split(/(?:\r)?\n/g).map(l => l.trim().split(","))).filter(r => r.length > 1);
-        const parsed = EloRedistributionSchema.parse(results);
-        
-        let numFailed = 0;
-        let idsFailed: number[] = [];
-        
-        for (const player of parsed) {
-            try {
-                await this.changePlayerElo(player.playerId, player.salary, player.newElo);
-            } catch {
-                idsFailed.push(player.playerId);
-                numFailed++;
-                continue;
-            }
-        }
-        
-        return (numFailed === 0) ? `Success, all elos changed.` : `${numFailed} elos were unable to be changed. Player IDs who could not be adjusted: ${JSON.stringify(idsFailed)}`;
-    }
-
-    @Mutation(() => Player)
-    @UseGuards(
-        GraphQLJwtAuthGuard,
-        MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]),
-    )
-    async intakePlayer(
-        @Args("mleid") mleid: number,
-        @Args("discordId") discordId: string,
-        @Args("name") name: string,
-        @Args("skillGroup", {type: () => League}) league: League,
-        @Args("salary", {type: () => Float}) salary: number,
-        @Args("preferredPlatform") platform: string,
-        @Args("timezone", {type: () => Timezone}) timezone: Timezone,
-        @Args("preferredMode", {type: () => ModePreference})
-        mode: ModePreference,
-        @Args("accounts", {type: () => [IntakePlayerAccount]})
-        accounts: IntakePlayerAccount[],
-    ): Promise<Player> {
-        const sg = await this.skillGroupRepository.get({
-            where: {ordinal: LeagueOrdinals.indexOf(league) + 1},
-        });
-        return this.playerService.intakePlayer(
-            mleid,
-            name,
-            discordId,
-            sg.id,
-            salary,
-            platform,
-            accounts,
-            timezone,
-            mode,
-        );
-    }
-
-    @Mutation(() => [Player])
-    @UseGuards(
-        GraphQLJwtAuthGuard,
-        MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]),
-    )
-    async intakePlayerBulk(
-        @Args("files", {type: () => [GraphQLUpload]})
-        files: Array<Promise<FileUpload>>,
-    ): Promise<Player[]> {
-        const csvs = await Promise.all(files.map(async f => f.then(async _f => readToString(_f.createReadStream()))));
-
-        const results = csvs
-            .flatMap(csv => csv.split(/(?:\r)?\n/g).map(l => l.trim().split(",")))
-            .filter(r => r.length > 1);
-        const parsed = IntakeSchema.parse(results);
-
-        const imported = await Promise.allSettled(
-            parsed.map(async player => {
-                const sg = await this.skillGroupRepository.get({
-                    where: {ordinal: LeagueOrdinals.indexOf(player.skillGroup) + 1},
-                });
-                const accs = player.accounts.map(acc => {
-                    const match = acc.match(/rocket-league\/profile\/(\w+)\/([\w _.\-%[\]]+)/);
-                    if (!match) throw new Error("Failed to match tracker");
-
-        for (const player of parsed) {
-            const sg = await this.skillGroupService.getGameSkillGroup({where: {ordinal: LeagueOrdinals.indexOf(player.skillGroup) + 1} });
-            const accs = player.accounts.map(acc => {
-                const match = acc.match(/rocket-league\/profile\/(\w+)\/([\w _.\-%[\]]+)/);
-                if (!match) throw new Error("Failed to match tracker");
-    
-                return {
-                    platform: platformTransform[match[1]] as MLE_Platform,
-                    platformId: match[2],
-                    tracker: acc,
-                };
-            });
-
-            try {
-                imported.push(await this.playerService.intakePlayer(
-                    player.mleid,
-                    player.discordId,
-                    player.name,
-                    sg.id,
-                    player.salary,
-                    player.preferredPlatform,
-                    accs,
-                    player.timezone,
-                    player.preferredMode,
-                ));
-            } catch {
-                continue;
-            }
-        }
-
-        return imported;
     }
 }
