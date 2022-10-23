@@ -22,10 +22,7 @@ export abstract class AbstractPlayerGuard implements CanActivate {
         const player = await this.playerRepository.getOrNull({
             where: {
                 skillGroup: {gameId: gameId},
-                member: {
-                    userId: data.data.userId,
-                    organizationId: data.data.currentOrganizationId,
-                },
+                member: {userId: data.data.userId, organizationId: data.data.currentOrganizationId},
             },
         });
         if (!player) return false;
@@ -54,10 +51,7 @@ export abstract class AbstractMemberPlayerGuard implements CanActivate {
         const player = await this.playerRepository.getOrNull({
             where: {
                 skillGroup: {gameId: gameId},
-                member: {
-                    userId: data.data.userId,
-                    organizationId: organizationId,
-                },
+                member: {userId: data.data.userId, organizationId: organizationId},
             },
         });
         if (!player) return false;
