@@ -1,20 +1,16 @@
 import {BullModule} from "@nestjs/bull";
 import {Module} from "@nestjs/common";
-import {
-    EventsModule, MatchmakingModule, RedisModule,
-} from "@sprocketbot/common";
+import {EventsModule, MatchmakingModule, RedisModule} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 
 import {ConfigurationModule} from "../configuration";
 import {DatabaseModule} from "../database";
-import {SchedulingModule} from "../database/scheduling";
 import {EloConnectorModule} from "../elo/elo-connector";
 import {FranchiseModule} from "../franchise";
 import {GameModule} from "../game";
 import {AuthModule} from "../identity";
 import {MledbInterfaceModule} from "../mledb";
 import {OrganizationModule} from "../organization";
-import {MatchService, RoundService} from "../scheduling";
 import {UtilModule} from "../util/util.module";
 import {ScrimPubSub} from "./constants";
 import {ScrimMetricsResolver} from "./metrics";
@@ -36,8 +32,6 @@ import {ScrimToggleResolver, ScrimToggleService} from "./scrim-toggle";
         GameModule,
         AuthModule,
         RedisModule,
-        SchedulingModule,
-        MatchmakingModule,
         DatabaseModule,
         OrganizationModule,
         FranchiseModule,
@@ -46,17 +40,15 @@ import {ScrimToggleResolver, ScrimToggleService} from "./scrim-toggle";
         BullModule.registerQueue({name: "scrim"}),
     ],
     providers: [
-        ScrimModuleResolver,
-        ScrimModuleResolverPublic,
         {
             provide: ScrimPubSub,
             useValue: new PubSub(),
         },
+        ScrimModuleResolver,
+        ScrimModuleResolverPublic,
         ScrimConsumer,
         ScrimService,
         ScrimResolver,
-        MatchService,
-        RoundService,
         ScrimMetricsResolver,
         ScrimMetaCrudService,
         ScrimManagementResolver,

@@ -1,6 +1,6 @@
 import type {BallchasingPlayer} from "@sprocketbot/common";
 
-import type {MLE_PlayerStats, MLE_PlayerStatsCore} from "../../database/mledb";
+import type {MLE_PlayerStats, MLE_PlayerStatsCore} from "$mledb";
 const platformLookup: Map<string, string> = new Map([
     ["XBox", "XBOX"],
     ["PS4", "PS4"],
@@ -8,7 +8,11 @@ const platformLookup: Map<string, string> = new Map([
     ["epic", "EPIC"],
 ]);
 
-export function assignPlayerStats(stats: MLE_PlayerStats, ballchasing: BallchasingPlayer, coreStats: MLE_PlayerStatsCore): MLE_PlayerStats {
+export function assignPlayerStats(
+    stats: MLE_PlayerStats,
+    ballchasing: BallchasingPlayer,
+    coreStats: MLE_PlayerStatsCore,
+): MLE_PlayerStats {
     stats.startTime = ballchasing.start_time;
     stats.endTime = ballchasing.end_time;
 

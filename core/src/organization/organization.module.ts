@@ -9,17 +9,9 @@ import {GameModule} from "../game";
 import {IdentityModule} from "../identity";
 import {UtilModule} from "../util/util.module";
 import {MemberPubSub} from "./constants";
-import {
-    MemberController, MemberResolver, MemberService,
-} from "./member";
-import {MemberPlatformAccountService} from "./member-platform-account";
-import {
-    MemberRestrictionResolver, MemberRestrictionService, QueueBanGuard,
-} from "./member-restriction/";
-import {
-    OrganizationController, OrganizationResolver, OrganizationService,
-} from "./organization";
-import {PronounsService} from "./pronouns/pronouns.service";
+import {MemberController, MemberResolver, MemberService} from "./member";
+import {MemberRestrictionResolver, QueueBanGuard} from "./member-restriction/";
+import {OrganizationController, OrganizationResolver} from "./organization";
 
 @Module({
     imports: [
@@ -32,27 +24,17 @@ import {PronounsService} from "./pronouns/pronouns.service";
         UtilModule,
     ],
     providers: [
-        OrganizationResolver,
-        OrganizationService,
-        MemberService,
         {
             provide: MemberPubSub,
             useValue: new PubSub(),
         },
-        PronounsService,
-        MemberPlatformAccountService,
-        MemberRestrictionService,
+        OrganizationResolver,
+        MemberService,
         MemberRestrictionResolver,
         QueueBanGuard,
         MemberResolver,
     ],
-    exports: [
-        MemberService,
-        MemberPlatformAccountService,
-        MemberRestrictionService,
-        QueueBanGuard,
-        OrganizationService,
-    ],
+    exports: [MemberService, QueueBanGuard],
     controllers: [OrganizationController, MemberController],
 })
 export class OrganizationModule {}

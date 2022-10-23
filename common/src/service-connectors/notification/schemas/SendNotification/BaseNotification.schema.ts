@@ -30,16 +30,17 @@ export const NotificationWebhookMessageSchema = SendWebhookMessage_Request.exten
 });
 
 export const BaseNotificationSchema = z.object({
-    id: z.string().nullable()
-        .optional(),
+    id: z.string().nullable().optional(),
     type: z.nativeEnum(NotificationType),
     userId: z.number(),
-    expiration: z.preprocess(arg => {
-        if (typeof arg === "string") {
-            return new Date(arg);
-        }
-        return arg;
-    }, z.date()).nullable()
+    expiration: z
+        .preprocess(arg => {
+            if (typeof arg === "string") {
+                return new Date(arg);
+            }
+            return arg;
+        }, z.date())
+        .nullable()
         .optional(),
     payload: z.undefined(),
     notification: z.union([

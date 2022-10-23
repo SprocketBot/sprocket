@@ -1,10 +1,11 @@
 <script lang="ts">
+    import cookies from "js-cookie";
+    import {onMount} from "svelte";
+
     import {browser} from "$app/env";
     import {goto} from "$app/navigation";
-    import {onMount} from "svelte";
-    import cookies from "js-cookie";
-    import {constants} from "$lib/utils";
     import {session} from "$app/stores";
+    import {constants} from "$lib/utils";
 
     onMount(() => {
         if (browser) {
@@ -15,5 +16,4 @@
             goto("/").catch(console.error);
         }
     });
-
 </script>

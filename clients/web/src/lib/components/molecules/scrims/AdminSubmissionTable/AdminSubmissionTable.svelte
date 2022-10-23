@@ -1,7 +1,11 @@
+<style lang="postcss">
+</style>
+
 <script lang="ts">
-    import {activeSubmissionsStore, type Submission} from "$lib/api";
-    import SubmissionDetailModal from "./SubmissionDetailModal.svelte";
+    import {type Submission, activeSubmissionsStore} from "$lib/api";
+
     import Row from "./Row.svelte";
+    import SubmissionDetailModal from "./SubmissionDetailModal.svelte";
 
     let submissions: Submission[] | undefined;
     $: submissions = $activeSubmissionsStore.data?.activeSubmissions;
@@ -12,7 +16,7 @@
     let selectedSubmission: Submission | undefined;
     let detailModalOpen = false;
 
-    const onRowClick = (s: Submission) => {
+    const onRowClick = (s: Submission): void => {
         selectedSubmission = s;
         detailModalOpen = true;
     };
@@ -39,7 +43,12 @@
         <tbody>
             {#if submissions}
                 {#each submissions as submission (submission.creatorId)}
-                    <Row submission={submission} on:click={() => { onRowClick(submission) }} />
+                    <Row
+                        {submission}
+                        on:click={() => {
+                            onRowClick(submission);
+                        }}
+                    />
                 {/each}
             {/if}
         </tbody>
@@ -47,10 +56,8 @@
 {/if}
 
 {#if selectedSubmission}
-    <SubmissionDetailModal bind:visible={detailModalOpen} submission={selectedSubmission} />
+    <SubmissionDetailModal
+        bind:visible={detailModalOpen}
+        submission={selectedSubmission}
+    />
 {/if}
-
-
-<style lang="postcss">
-
-</style>

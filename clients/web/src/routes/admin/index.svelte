@@ -1,4 +1,6 @@
 <script lang="ts" context="module">
+    import type {Load} from "@sveltejs/kit";
+
     import {
         AdminBanTable,
         AdminPlayerTable,
@@ -8,8 +10,6 @@
         DashboardCard,
         DashboardLayout,
     } from "$lib/components";
-
-    import type {Load} from "@sveltejs/kit";
 
     const MLEDB_ADMIN = 0;
 

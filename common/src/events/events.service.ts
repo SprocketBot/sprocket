@@ -2,9 +2,7 @@ import {Injectable, Logger} from "@nestjs/common";
 import type {Observable} from "rxjs";
 import {map} from "rxjs";
 
-import type {
-    EventPayload, EventResponse, EventTopic,
-} from "./events.types";
+import type {EventPayload, EventResponse, EventTopic} from "./events.types";
 import {EventSchemas, EventTopicSchema} from "./events.types";
 import {RmqService} from "./rmq.service";
 
@@ -14,21 +12,27 @@ export class EventsService {
 
     constructor(private readonly rmqService: RmqService) {}
 
-    async subscribe<T extends EventTopic>(topic: T, instanceExclusive: boolean, subtopic: string = "*"): Promise<Observable<EventResponse<T>>> {
+    async subscribe<T extends EventTopic>(
+        topic: T,
+        instanceExclusive: boolean,
+        subtopic = "*",
+    ): Promise<Observable<EventResponse<T>>> {
         const rawObservable = await this.rmqService.sub(`${topic}.${subtopic}`, instanceExclusive);
         const schema = EventSchemas[topic];
-        return rawObservable.pipe(map(message => {
-            const rawValue = JSON.parse(message.content.toString()) as unknown;
-            const value = schema.parse(rawValue);
+        return rawObservable.pipe(
+            map(message => {
+                const rawValue = JSON.parse(message.content.toString()) as unknown;
+                const value = schema.parse(rawValue);
 
-            return {
-                topic: EventTopicSchema.parse(message.fields.routingKey),
-                payload: value as EventPayload<T>,
-            } as EventResponse<T>;
-        }));
+                return {
+                    topic: EventTopicSchema.parse(message.fields.routingKey),
+                    payload: value as EventPayload<T>,
+                } as EventResponse<T>;
+            }),
+        );
     }
 
-    async publish<T extends EventTopic>(topic: T, payload: EventPayload<T>, subtopic: string = "default"): Promise<boolean> {
+    async publish<T extends EventTopic>(topic: T, payload: EventPayload<T>, subtopic = "default"): Promise<boolean> {
         EventSchemas[topic].parse(payload);
 
         this.logger.verbose(`Dispatching ${topic} with payload=${JSON.stringify(payload)}`);

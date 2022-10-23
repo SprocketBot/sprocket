@@ -1,3 +1,17 @@
+<style lang="postcss">
+    label {
+        @apply flex flex-row w-fit gap-3 btn;
+
+        &.disabled {
+            @apply cursor-not-allowed btn-disabled;
+        }
+
+        span {
+            @apply w-6 h-6;
+        }
+    }
+</style>
+
 <script lang="ts" context="module">
     export type RemovableFile = File & {
         /** Removes this file from the list of files */
@@ -16,8 +30,8 @@
 </script>
 
 <script lang="ts">
-    import FaUpload from "svelte-icons/fa/FaUpload.svelte";
     import type svelte from "svelte";
+    import FaUpload from "svelte-icons/fa/FaUpload.svelte";
 
     export let label: string;
     export let files: RemovableFile[] = [];
@@ -34,36 +48,37 @@
 
         // Filter out duplicate files by name
         if (unique) {
-            newValue = [...currentValue, ...newValue].reduce<File[]>((acc: File[], v: File) => {
-                if (!acc.some(c => c.name === v.name)) acc.push(v);
-                return acc;
-            }, []);
+            newValue = [...currentValue, ...newValue].reduce<File[]>(
+                (acc: File[], v: File) => {
+                    if (!acc.some(c => c.name === v.name)) acc.push(v);
+                    return acc;
+                },
+                [],
+            );
         }
 
         // Add remove callbacks
         files = newValue.map(f => {
-            (f as RemovableFile).remove = () => { onRemove(f) };
+            (f as RemovableFile).remove = () => {
+                onRemove(f);
+            };
             return f;
         }) as RemovableFile[];
     };
 </script>
 
-
 <!-- Hide the input so we can style the label -->
-<input class="sr-only" id="file-input" type="file" multiple files={filesToFileList(files)} on:change={onChange} disabled={disabled} />
+<input
+    class="sr-only"
+    id="file-input"
+    type="file"
+    multiple
+    files={filesToFileList(files)}
+    on:change={onChange}
+    {disabled}
+/>
 
 <label for="file-input" class:disabled>
     <span><FaUpload /></span>
     {label}
 </label>
-
-
-<style lang="postcss">
-    label {
-        @apply flex flex-row w-fit gap-3 btn;
-
-        &.disabled { @apply cursor-not-allowed btn-disabled; }
-
-        span { @apply w-6 h-6; }
-    }
-</style>

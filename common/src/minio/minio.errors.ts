@@ -117,15 +117,17 @@ export enum MinioErrorCode {
 export const isMinioError = (e: unknown): e is MinioError => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
     const obj = e as any;
-    return typeof obj === "object"
-        && obj !== null
-        && Object.prototype.hasOwnProperty.call(e, "code")
-        && typeof obj.code === "string"
-        && Object.values<string>(MinioErrorCode).includes(obj.code as string)
-        && Object.prototype.hasOwnProperty.call(e, "message")
-        && typeof obj.message === "string"
-        && Object.prototype.hasOwnProperty.call(e, "resource")
-        && typeof obj.resource === "string"
-        && Object.prototype.hasOwnProperty.call(e, "requestid")
-        && typeof obj.requestid === "string";
+    return (
+        typeof obj === "object" &&
+        obj !== null &&
+        Object.prototype.hasOwnProperty.call(e, "code") &&
+        typeof obj.code === "string" &&
+        Object.values<string>(MinioErrorCode).includes(obj.code as string) &&
+        Object.prototype.hasOwnProperty.call(e, "message") &&
+        typeof obj.message === "string" &&
+        Object.prototype.hasOwnProperty.call(e, "resource") &&
+        typeof obj.resource === "string" &&
+        Object.prototype.hasOwnProperty.call(e, "requestid") &&
+        typeof obj.requestid === "string"
+    );
 };

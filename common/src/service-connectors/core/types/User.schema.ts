@@ -3,12 +3,9 @@ import * as z from "zod";
 export const UserProfileSchema = z.object({
     email: z.string(),
     displayName: z.string(),
-    firstName: z.string().nullable()
-        .optional(),
-    lastName: z.string().nullable()
-        .optional(),
-    description: z.string().nullable()
-        .optional(),
+    firstName: z.string().nullable().optional(),
+    lastName: z.string().nullable().optional(),
+    description: z.string().nullable().optional(),
 });
 
 export const UserSchema = z.object({

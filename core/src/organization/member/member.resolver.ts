@@ -1,45 +1,37 @@
-import {
-    Args, Int, Query, ResolveField, Resolver, Root,
-} from "@nestjs/graphql";
+import {Args, Int, Query, ResolveField, Resolver, Root} from "@nestjs/graphql";
 
-import type {
-    MemberProfile, Organization, Player,
-} from "../../database";
-import {Member} from "../../database";
+import type {MemberProfile, Organization, Player} from "$models";
+import {Member} from "$models";
+import {MemberRepository} from "$repositories";
+
 import {PopulateService} from "../../util/populate/populate.service";
-import {MemberService} from "./member.service";
 
 @Resolver(() => Member)
 export class MemberResolver {
-    constructor(
-        private readonly memberService: MemberService,
-        private readonly popService: PopulateService,
-    ) {}
+    constructor(private readonly memberRepository: MemberRepository, private readonly popService: PopulateService) {}
 
     @ResolveField()
-    async profile(@Root() member: Member): Promise<MemberProfile> {
-        if (member.profile) return member.profile;
-
-        return this.popService.populateOneOrFail(Member, member, "profile");
+    async profile(@Root() member: Partial<Member>): Promise<MemberProfile> {
+        return member.profile ?? this.popService.populateOneOrFail(Member, member as Member, "profile");
     }
 
     @ResolveField()
-    async organization(@Root() member: Member): Promise<Organization> {
-        if (member.organization) return member.organization;
-        return this.popService.populateOneOrFail(Member, member, "organization");
+    async organization(@Root() member: Partial<Member>): Promise<Organization> {
+        return member.organization ?? this.popService.populateOneOrFail(Member, member as Member, "organization");
     }
 
     @ResolveField()
-    async players(@Root() member: Member): Promise<Player[]> {
-        if (member.players) return member.players;
-        return this.popService.populateMany(Member, member, "players");
+    async players(@Root() member: Partial<Member>): Promise<Player[]> {
+        return member.players ?? this.popService.populateMany(Member, member as Member, "players");
     }
 
     @Query(() => Member)
     async getMemberByUserId(
         @Args("userId", {type: () => Int}) userId: number,
-        @Args("organizationId", {type: () => Int})organizationId: number,
+        @Args("organizationId", {type: () => Int}) organizationId: number,
     ): Promise<Member> {
-        return this.memberService.getMember({where: {organization: {id: organizationId}, user: {id: userId} } });
+        return this.memberRepository.get({
+            where: {organization: {id: organizationId}, user: {id: userId}},
+        });
     }
 }

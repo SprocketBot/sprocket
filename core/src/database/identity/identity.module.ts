@@ -1,24 +1,15 @@
 import {Module} from "@nestjs/common";
 import {TypeOrmModule} from "@nestjs/typeorm";
 
-import {User} from "./user";
-import {UserAuthenticationAccount} from "./user_authentication_account";
-import {UserProfile} from "./user_profile";
+import * as models from "./models";
+import * as repositories from "./repositories";
 
-export const identityEntities = [
-    User,
-    UserProfile,
-    UserAuthenticationAccount,
-];
-
-const ormModule = TypeOrmModule.forFeature(identityEntities);
+const ormModule = TypeOrmModule.forFeature(Object.values(models));
+const providers = Object.values(repositories);
 
 @Module({
-    imports: [
-        ormModule,
-    ],
-    exports: [
-        ormModule,
-    ],
+    imports: [ormModule],
+    providers: providers,
+    exports: providers,
 })
 export class IdentityModule {}

@@ -37,19 +37,22 @@ import {UtilModule} from "./util/util.module";
                 db: 13,
                 tls: config.cache.secure
                     ? {
-                            host: config.cache.host,
-                            servername: config.cache.host,
-                        }
+                          host: config.cache.host,
+                          servername: config.cache.host,
+                      }
                     : undefined,
             }),
             playground: config.gql.playground,
             fieldResolverEnhancers: ["guards"],
-            context: ({
-                connection, req, payload,
-            }) => {
+            context: ({connection, req, payload}) => {
                 if (connection) {
                     const token = payload?.context?.authorization as string | undefined;
-                    return {req: {authorization: token, headers: {authorization: token}}};
+                    return {
+                        req: {
+                            authorization: token,
+                            headers: {authorization: token},
+                        },
+                    };
                 }
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 return {req};
@@ -66,9 +69,9 @@ import {UtilModule} from "./util/util.module";
                 password: config.redis.password,
                 tls: config.redis.secure
                     ? {
-                            host: config.redis.host,
-                            servername: config.redis.host,
-                        }
+                          host: config.redis.host,
+                          servername: config.redis.host,
+                      }
                     : undefined,
                 keyPrefix: `${config.redis.prefix}:bull`,
             },

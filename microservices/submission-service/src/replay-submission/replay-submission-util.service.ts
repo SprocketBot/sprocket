@@ -44,11 +44,11 @@ export class ReplaySubmissionUtilService {
             const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
             if (result.status === ResponseStatus.ERROR) throw result.error;
             const scrim = result.data;
-            if (!scrim) return {
-                canSubmit: false,
-                reason:
-                  `Could not find a associated scrim`,
-            };
+            if (!scrim)
+                return {
+                    canSubmit: false,
+                    reason: `Could not find a associated scrim`,
+                };
             if (!scrim.players.some(p => p.id === playerId)) {
                 // TODO: Check player's organization teams (i.e. Support override)
                 return {
@@ -63,24 +63,33 @@ export class ReplaySubmissionUtilService {
                 };
             }
         } else if (submissionIsMatch(submissionId)) {
-            const result = await this.coreService.send(CoreEndpoint.GetMatchBySubmissionId, {submissionId: submissionId});
+            const result = await this.coreService.send(CoreEndpoint.GetMatchBySubmissionId, {
+                submissionId: submissionId,
+            });
             if (result.status === ResponseStatus.ERROR) throw result.error;
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const match = result.data;
-            if (!match.awayFranchise || !match.homeFranchise) return {
-                canSubmit: false,
-                reason: "Missing franchise information",
-            };
+            if (!match.awayFranchise || !match.homeFranchise)
+                return {
+                    canSubmit: false,
+                    reason: "Missing franchise information",
+                };
             const {homeFranchise, awayFranchise} = match;
 
             const franchiseResult = await this.coreService.send(CoreEndpoint.GetPlayerFranchises, {memberId: playerId});
             if (franchiseResult.status === ResponseStatus.ERROR) throw franchiseResult.error;
             const franchises = franchiseResult.data;
-            const targetFranchise = franchises.find(f => f.name === homeFranchise.name || f.name === awayFranchise.name);
+            const targetFranchise = franchises.find(
+                f => f.name === homeFranchise.name || f.name === awayFranchise.name,
+            );
 
             if (!targetFranchise) {
                 // TODO: Check for LO Override
-                this.logger.log(`Player ${playerId} is on ${franchises.map(f => f.name).join(", ")}, not on expected franchises ${homeFranchise.name}, ${awayFranchise.name}`);
+                this.logger.log(
+                    `Player ${playerId} is on ${franchises.map(f => f.name).join(", ")}, not on expected franchises ${
+                        homeFranchise.name
+                    }, ${awayFranchise.name}`,
+                );
                 return {
                     canSubmit: false,
                     reason: "You are not on the correct franchise",
@@ -127,11 +136,11 @@ export class ReplaySubmissionUtilService {
             const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
             if (result.status === ResponseStatus.ERROR) throw result.error;
             const scrim = result.data;
-            if (!scrim) return {
-                canRatify: false,
-                reason:
-                  `Could not find a associated scrim`,
-            };
+            if (!scrim)
+                return {
+                    canRatify: false,
+                    reason: `Could not find a associated scrim`,
+                };
             if (!scrim.players.some(p => p.id === playerId)) {
                 // TODO: Check player's organization teams (i.e. Support override)
                 return {
@@ -146,24 +155,33 @@ export class ReplaySubmissionUtilService {
                 };
             }
         } else if (submissionIsMatch(submissionId)) {
-            const result = await this.coreService.send(CoreEndpoint.GetMatchBySubmissionId, {submissionId: submissionId});
+            const result = await this.coreService.send(CoreEndpoint.GetMatchBySubmissionId, {
+                submissionId: submissionId,
+            });
             if (result.status === ResponseStatus.ERROR) throw result.error;
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const match = result.data;
-            if (!match.awayFranchise || !match.homeFranchise) return {
-                canRatify: false,
-                reason: "Missing franchise information",
-            };
+            if (!match.awayFranchise || !match.homeFranchise)
+                return {
+                    canRatify: false,
+                    reason: "Missing franchise information",
+                };
             const {homeFranchise, awayFranchise} = match;
 
             const franchiseResult = await this.coreService.send(CoreEndpoint.GetPlayerFranchises, {memberId: playerId});
             if (franchiseResult.status === ResponseStatus.ERROR) throw franchiseResult.error;
             const franchises = franchiseResult.data;
-            const targetFranchise = franchises.find(f => f.name === homeFranchise.name || f.name === awayFranchise.name);
+            const targetFranchise = franchises.find(
+                f => f.name === homeFranchise.name || f.name === awayFranchise.name,
+            );
 
             if (!targetFranchise) {
                 // TODO: Check for LO Override
-                this.logger.log(`Player ${playerId} is on ${franchises.map(f => f.name).join(", ")}, not on expected franchises ${homeFranchise.name}, ${awayFranchise.name}`);
+                this.logger.log(
+                    `Player ${playerId} is on ${franchises.map(f => f.name).join(", ")}, not on expected franchises ${
+                        homeFranchise.name
+                    }, ${awayFranchise.name}`,
+                );
                 return {
                     canRatify: false,
                     reason: "You are not on the correct franchise",

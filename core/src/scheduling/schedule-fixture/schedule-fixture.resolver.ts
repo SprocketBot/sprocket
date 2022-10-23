@@ -1,63 +1,54 @@
-import {
-    Args,
-    Query,
-    ResolveField, Resolver, Root,
-} from "@nestjs/graphql";
-import {InjectRepository} from "@nestjs/typeorm";
-import {Repository} from "typeorm";
+import {Args, Query, ResolveField, Resolver, Root} from "@nestjs/graphql";
 
-import type {
-    Franchise,
-    Match,
-    ScheduleGroup,
-} from "../../database";
-import {
-    ScheduleFixture,
-} from "../../database";
-import {PopulateService} from "../../util/populate/populate.service";
+import type {Franchise, Match, ScheduleGroup} from "$models";
+import {ScheduleFixture} from "$models";
+import {ScheduleFixtureRepository} from "$repositories";
+import {PopulateService} from "$util";
 
 @Resolver(() => ScheduleFixture)
 export class ScheduleFixtureResolver {
     constructor(
+        private readonly scheduleFixtureRepository: ScheduleFixtureRepository,
         private readonly populate: PopulateService,
-                @InjectRepository(ScheduleFixture)
-                private readonly scheduleFixtureRepo: Repository<ScheduleFixture>,
     ) {}
 
     @Query(() => ScheduleFixture)
     async getFixture(@Args("id") id: number): Promise<ScheduleFixture> {
-        return this.scheduleFixtureRepo.findOneOrFail({where: {id} });
+        return this.scheduleFixtureRepository.findOneOrFail({where: {id}});
     }
 
     @ResolveField()
-    async scheduleGroup(@Root() root: ScheduleFixture): Promise<ScheduleGroup> {
-        if (root.scheduleGroup) return root.scheduleGroup;
-
-        return this.populate.populateOneOrFail(ScheduleFixture, root, "scheduleGroup");
+    async scheduleGroup(@Root() scheduleFixture: Partial<ScheduleFixture>): Promise<ScheduleGroup> {
+        return (
+            scheduleFixture.scheduleGroup ??
+            this.populate.populateOneOrFail(ScheduleFixture, scheduleFixture as ScheduleFixture, "scheduleGroup")
+        );
     }
 
     @ResolveField()
-    async homeFranchise(@Root() root: ScheduleFixture): Promise<Franchise> {
-        if (root.homeFranchise) return root.homeFranchise;
-        return this.populate.populateOneOrFail(ScheduleFixture, root, "homeFranchise");
-
+    async homeFranchise(@Root() scheduleFixture: Partial<ScheduleFixture>): Promise<Franchise> {
+        return (
+            scheduleFixture.homeFranchise ??
+            this.populate.populateOneOrFail(ScheduleFixture, scheduleFixture as ScheduleFixture, "homeFranchise")
+        );
     }
 
     @ResolveField()
-    async awayFranchise(@Root() root: ScheduleFixture): Promise<Franchise> {
-        if (root.awayFranchise) return root.awayFranchise;
-
-        return this.populate.populateOneOrFail(ScheduleFixture, root, "awayFranchise");
+    async awayFranchise(@Root() scheduleFixture: Partial<ScheduleFixture>): Promise<Franchise> {
+        return (
+            scheduleFixture.awayFranchise ??
+            this.populate.populateOneOrFail(ScheduleFixture, scheduleFixture as ScheduleFixture, "awayFranchise")
+        );
     }
 
     @ResolveField()
-    async matches(@Root() root: ScheduleFixture): Promise<Match[]> {
-        if (root.matches) return root.matches;
-        const t = await this.scheduleFixtureRepo.findOneOrFail({
+    async matches(@Root() scheduleFixture: Partial<ScheduleFixture>): Promise<Match[]> {
+        if (scheduleFixture.matches) return scheduleFixture.matches;
+        const t = await this.scheduleFixtureRepository.findOneOrFail({
             where: {
-                id: root.id,
+                id: scheduleFixture.id,
             },
-            relations: ["matchParents", "matchParents.match"],
+            relations: {matchParents: {match: true}},
         });
         const matches = t.matchParents.flatMap(mp => mp.match);
         return matches;

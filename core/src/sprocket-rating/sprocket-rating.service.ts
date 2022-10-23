@@ -19,7 +19,6 @@ export class SprocketRatingService {
             return this.calcSprocketRating2s(core);
         }
         throw new Error(`Sprocket rating is not yet available for teams of ${team_size} players`);
-
     }
 
     calcSprocketRating2s(core: SprocketRatingInput): SprocketRating {
@@ -43,31 +42,36 @@ export class SprocketRatingService {
         const OPI_beta = -1 * Math.log(9);
         const DPI_beta = OPI_beta;
 
-        const {
-            goals, assists, shots, saves, goals_against, shots_against,
-        } = core;
+        const {goals, assists, shots, saves, goals_against, shots_against} = core;
 
-        if ((goals + assists + shots + saves + goals_against + shots_against) > 0) {
-            const opi_raw = (OPI_goal_w * (goals / G_2s)) + (OPI_assist_w * (assists / A_2s)) + (OPI_shot_w * (shots / Sh_2s));
+        if (goals + assists + shots + saves + goals_against + shots_against > 0) {
+            const opi_raw =
+                OPI_goal_w * (goals / G_2s) + OPI_assist_w * (assists / A_2s) + OPI_shot_w * (shots / Sh_2s);
             const opi = 100.0 / (1 + Math.exp(OPI_beta * ((opi_raw - xOPI_2s) / yOPI_2s)));
 
-            const dpi_raw = (DPI_goal_w * (2.0 - (goals_against / 2.0 / G_2s))) + (DPI_saves_w * (saves / Sv_2s)) + (DPI_shot_w * (2.0 - (shots_against / 2.0 / Sh_2s)));
+            const dpi_raw =
+                DPI_goal_w * (2.0 - goals_against / 2.0 / G_2s) +
+                DPI_saves_w * (saves / Sv_2s) +
+                DPI_shot_w * (2.0 - shots_against / 2.0 / Sh_2s);
             const dpi = 100.0 / (1 + Math.exp(DPI_beta * ((dpi_raw - xDPI_2s) / yDPI_2s)));
 
             const gpi = (opi + dpi) / 2.0;
 
             return {
-                opi, dpi, gpi,
+                opi,
+                dpi,
+                gpi,
             };
         }
 
-        this.logger.warn(`Received null data in sprocket rating calculation. ${core.goals}, ${core.assists}, ${core.shots}, ${core.saves}, ${core.goals_against}, ${core.shots_against}.`);
+        this.logger.warn(
+            `Received null data in sprocket rating calculation. ${core.goals}, ${core.assists}, ${core.shots}, ${core.saves}, ${core.goals_against}, ${core.shots_against}.`,
+        );
         return {
             opi: 0.0,
             dpi: 0.0,
             gpi: 0.0,
         };
-
     }
 
     calcSprocketRating3s(core: SprocketRatingInput): SprocketRating {
@@ -83,7 +87,7 @@ export class SprocketRatingService {
         const Sv_3s = 1.24;
         const Sh_3s = 2.43;
 
-        const xOPI_3s = 2.00;
+        const xOPI_3s = 2.0;
         const yOPI_3s = 1.69;
         const xDPI_3s = 1.96;
         const yDPI_3s = 0.93;
@@ -91,30 +95,35 @@ export class SprocketRatingService {
         const OPI_beta = -1 * Math.log(9);
         const DPI_beta = OPI_beta;
 
-        const {
-            goals, assists, shots, saves, goals_against, shots_against,
-        } = core;
+        const {goals, assists, shots, saves, goals_against, shots_against} = core;
 
-        if ((goals + assists + shots + saves + goals_against + shots_against) > 0) {
-            const opi_raw = (OPI_goal_w * (goals / G_3s)) + (OPI_assist_w * (assists / A_3s)) + (OPI_shot_w * (shots / Sh_3s));
+        if (goals + assists + shots + saves + goals_against + shots_against > 0) {
+            const opi_raw =
+                OPI_goal_w * (goals / G_3s) + OPI_assist_w * (assists / A_3s) + OPI_shot_w * (shots / Sh_3s);
             const opi = 100.0 / (1 + Math.exp(OPI_beta * ((opi_raw - xOPI_3s) / yOPI_3s)));
 
-            const dpi_raw = (DPI_goal_w * (2.0 - (goals_against / 3.0 / G_3s))) + (DPI_saves_w * (saves / Sv_3s)) + (DPI_shot_w * (2.0 - (shots_against / 3.0 / Sh_3s)));
+            const dpi_raw =
+                DPI_goal_w * (2.0 - goals_against / 3.0 / G_3s) +
+                DPI_saves_w * (saves / Sv_3s) +
+                DPI_shot_w * (2.0 - shots_against / 3.0 / Sh_3s);
             const dpi = 100.0 / (1 + Math.exp(DPI_beta * ((dpi_raw - xDPI_3s) / yDPI_3s)));
 
             const gpi = (opi + dpi) / 2.0;
 
             return {
-                opi, dpi, gpi,
+                opi,
+                dpi,
+                gpi,
             };
         }
 
-        this.logger.warn(`Received null data in sprocket rating calculation. ${core.goals}, ${core.assists}, ${core.shots}, ${core.saves}, ${core.goals_against}, ${core.shots_against}.`);
+        this.logger.warn(
+            `Received null data in sprocket rating calculation. ${core.goals}, ${core.assists}, ${core.shots}, ${core.saves}, ${core.goals_against}, ${core.shots_against}.`,
+        );
         return {
             opi: 0.0,
             dpi: 0.0,
             gpi: 0.0,
         };
-
     }
 }

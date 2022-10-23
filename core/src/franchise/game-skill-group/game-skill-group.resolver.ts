@@ -1,11 +1,8 @@
-import {
-    ResolveField, Resolver, Root,
-} from "@nestjs/graphql";
+import {ResolveField, Resolver, Root} from "@nestjs/graphql";
 
-import type {
-    Game, GameSkillGroupProfile, Player,
-} from "../../database";
-import {GameSkillGroup} from "../../database";
+import type {Game, GameSkillGroupProfile, Player} from "$models";
+import {GameSkillGroup} from "$models";
+
 import {PopulateService} from "../../util/populate/populate.service";
 
 @Resolver(() => GameSkillGroup)
@@ -13,20 +10,24 @@ export class GameSkillGroupResolver {
     constructor(private readonly popService: PopulateService) {}
 
     @ResolveField()
-    async profile(@Root() root: GameSkillGroup): Promise<GameSkillGroupProfile> {
-        if (root.profile) return root.profile;
-        return this.popService.populateOneOrFail(GameSkillGroup, root, "profile");
+    async profile(@Root() skillGroup: Partial<GameSkillGroup>): Promise<GameSkillGroupProfile> {
+        return (
+            skillGroup.profile ??
+            this.popService.populateOneOrFail(GameSkillGroup, skillGroup as GameSkillGroup, "profile")
+        );
     }
 
     @ResolveField()
-    async game(@Root() root: GameSkillGroup): Promise<Game> {
-        if (root.game) return root.game;
-        return this.popService.populateOneOrFail(GameSkillGroup, root, "game");
+    async game(@Root() skillGroup: Partial<GameSkillGroup>): Promise<Game> {
+        return (
+            skillGroup.game ?? this.popService.populateOneOrFail(GameSkillGroup, skillGroup as GameSkillGroup, "game")
+        );
     }
 
     @ResolveField()
-    async players(@Root() root: GameSkillGroup): Promise<Player[]> {
-        if (root.players) return root.players;
-        return this.popService.populateMany(GameSkillGroup, root, "players");
+    async players(@Root() skillGroup: Partial<GameSkillGroup>): Promise<Player[]> {
+        return (
+            skillGroup.players ?? this.popService.populateMany(GameSkillGroup, skillGroup as GameSkillGroup, "players")
+        );
     }
 }

@@ -8,5 +8,4 @@ import {ReplayValidationModule} from "./replay-validation/replay-validation.modu
     controllers: [],
     imports: [EventsModule, RedisModule, ReplaySubmissionModule, ReplayValidationModule],
 })
-export class AppModule {
-}
+export class AppModule {}

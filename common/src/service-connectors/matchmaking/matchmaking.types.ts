@@ -83,6 +83,6 @@ export interface MatchmakingErrorResponse {
 }
 
 export type MatchmakingResponse<T extends MatchmakingEndpoint> =
-    MatchmakingSuccessResponse<T>
+    | MatchmakingSuccessResponse<T>
     | MatchmakingErrorResponse;
 export * from "./types";

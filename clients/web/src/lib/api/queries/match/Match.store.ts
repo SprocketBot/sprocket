@@ -1,4 +1,5 @@
 import {gql} from "@urql/core";
+
 import {QueryStore} from "../../core/QueryStore";
 
 export interface Match {
@@ -43,7 +44,7 @@ export interface MatchVars {
 
 export class MatchStore extends QueryStore<MatchResult, MatchVars> {
     protected queryString = gql<MatchResult, MatchVars>`
-        query($submissionId: String!) {
+        query ($submissionId: String!) {
             getMatchBySubmissionId(submissionId: $submissionId) {
                 id
                 rounds {

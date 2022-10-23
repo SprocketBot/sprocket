@@ -1,6 +1,4 @@
-import {
-    Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn,
-} from "typeorm";
+import {Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn} from "typeorm";
 
 import {LegacyGameMode} from "./enums/Mode.enum";
 import {MLE_Fixture} from "./Fixture.model";
@@ -9,11 +7,7 @@ import {MLE_SeriesReplay} from "./SeriesReplay.model";
 import {MLE_StreamEvent} from "./StreamEvent.model";
 import {MLE_TeamRoleUsage} from "./TeamRoleUsage.model";
 
-@Index(
-    "series_league_fixture_id_mode_unique",
-    ["fixtureId", "league", "mode"],
-    {unique: true},
-)
+@Index("series_league_fixture_id_mode_unique", ["fixtureId", "league", "mode"], {unique: true})
 @Index("series_pkey", ["id"], {unique: true})
 @Index("series_scrim_id_unique", ["scrimId"], {unique: true})
 @Entity("series", {schema: "mledb"})
@@ -90,7 +84,7 @@ export class MLE_Series {
         onUpdate: "CASCADE",
         nullable: true,
     })
-    @JoinColumn([ {name: "fixture_id", referencedColumnName: "id"} ])
+    @JoinColumn([{name: "fixture_id", referencedColumnName: "id"}])
     fixture?: MLE_Fixture;
 
     @OneToOne(() => MLE_Scrim, scrim => scrim.series, {
@@ -98,7 +92,7 @@ export class MLE_Series {
         onUpdate: "CASCADE",
         nullable: true,
     })
-    @JoinColumn([ {name: "scrim_id", referencedColumnName: "id"} ])
+    @JoinColumn([{name: "scrim_id", referencedColumnName: "id"}])
     scrim?: MLE_Scrim;
 
     @OneToMany(() => MLE_SeriesReplay, seriesReplay => seriesReplay.series)

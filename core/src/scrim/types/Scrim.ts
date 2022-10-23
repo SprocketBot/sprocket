@@ -1,12 +1,9 @@
-import {
-    Field, Int, ObjectType,
-} from "@nestjs/graphql";
+import {Field, Int, ObjectType} from "@nestjs/graphql";
 import type {Scrim as IScrim} from "@sprocketbot/common";
-import {
-    EventTopic, ScrimStatus,
-} from "@sprocketbot/common";
+import {EventTopic, ScrimStatus} from "@sprocketbot/common";
 
-import {GameMode, GameSkillGroup} from "../../database";
+import {GameMode, GameSkillGroup} from "$models";
+
 import {ScrimGame} from "./ScrimGame";
 import {ScrimLobby} from "./ScrimLobby";
 import {ScrimPlayer} from "./ScrimPlayer";
@@ -46,7 +43,7 @@ export class Scrim implements IScrim {
 
     @Field(() => Int)
     authorId: number;
-    
+
     @Field(() => Int)
     organizationId: number;
 

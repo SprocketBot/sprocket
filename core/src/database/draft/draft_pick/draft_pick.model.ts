@@ -1,13 +1,10 @@
 import {Field, ObjectType} from "@nestjs/graphql";
-import {
-    Column, Entity, ManyToOne, OneToOne,
-} from "typeorm";
+import {Column, Entity, ManyToOne, OneToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {GameSkillGroup} from "../../franchise/game_skill_group";
-import {Team} from "../../franchise/team";
-import {ScheduleGroup} from "../../scheduling/schedule_group";
-import {DraftSelection} from "../draft_selection";
+import {GameSkillGroup, Team} from "../../franchise/models";
+import {ScheduleGroup} from "../../scheduling/models";
+import {DraftSelection} from "../draft_selection/draft_selection.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

@@ -1,8 +1,9 @@
 import type {OperationResult} from "@urql/core";
 import {gql} from "@urql/core";
-import {LiveQueryStore} from "../../core/LiveQueryStore";
+
 import {toasts} from "../../../components";
 import {screamingSnakeToHuman} from "../../../utils";
+import {LiveQueryStore} from "../../core/LiveQueryStore";
 
 export interface CurrentScrim {
     id: string;
@@ -65,67 +66,26 @@ export interface CurrentScrimSubscriptionValue {
     };
 }
 
-
 export interface CurrentScrimStoreVariables {
+    [key: string]: never;
 }
 
 export interface CurrentScrimStoreSubscriptionVariables {
+    [key: string]: never;
 }
 
-class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentScrimStoreVariables, CurrentScrimSubscriptionValue, CurrentScrimStoreSubscriptionVariables> {
-    protected queryString = gql<CurrentScrimStoreValue, CurrentScrimStoreVariables>`
-    query {
-        currentScrim: getCurrentScrim {
-            id
-            submissionId
-            playerCount
-            maxPlayers
-            status
-            createdAt
-            skillGroup {
-                profile {
-                    description
-                }
-            }
-            currentGroup {
-                code
-                players
-            }
-            gameMode {
-                description
-                game {
-                    title
-                }
-            }
-            settings {
-                competitive
-                mode
-            }
-            players {
-                id
-                name
-                checkedIn
-            }
-            lobby {
-                name
-                password
-            }
-            games {
-                teams {
-                    players {
-                        id
-                        name
-                    }
-                }
-            }
-            
-        }
-    }`;
-
-    protected subscriptionString = gql<CurrentScrimSubscriptionValue, CurrentScrimStoreSubscriptionVariables>`
-    subscription {
-        currentScrim: followCurrentScrim {
-            scrim {
+class CurrentScrimStore extends LiveQueryStore<
+    CurrentScrimStoreValue,
+    CurrentScrimStoreVariables,
+    CurrentScrimSubscriptionValue,
+    CurrentScrimStoreSubscriptionVariables
+> {
+    protected queryString = gql<
+        CurrentScrimStoreValue,
+        CurrentScrimStoreVariables
+    >`
+        query {
+            currentScrim: getCurrentScrim {
                 id
                 playerCount
                 maxPlayers
@@ -134,9 +94,9 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
                 skillGroup {
                     profile {
                         description
-                        }
+                    }
                 }
-                currentGroup { 
+                currentGroup {
                     code
                     players
                 }
@@ -151,9 +111,13 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
                     mode
                 }
                 players {
-                    id 
+                    id
                     name
                     checkedIn
+                }
+                playersAdmin {
+                    id
+                    name
                 }
                 lobby {
                     name
@@ -170,7 +134,59 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
                 submissionId
             }
         }
-    }
+    `;
+
+    protected subscriptionString = gql<
+        CurrentScrimSubscriptionValue,
+        CurrentScrimStoreSubscriptionVariables
+    >`
+        subscription {
+            currentScrim: followCurrentScrim {
+                scrim {
+                    id
+                    playerCount
+                    maxPlayers
+                    status
+                    skillGroup {
+                        profile {
+                            description
+                        }
+                    }
+                    currentGroup {
+                        code
+                        players
+                    }
+                    gameMode {
+                        description
+                        game {
+                            title
+                        }
+                    }
+                    settings {
+                        competitive
+                        mode
+                    }
+                    players {
+                        id
+                        name
+                        checkedIn
+                    }
+                    lobby {
+                        name
+                        password
+                    }
+                    games {
+                        teams {
+                            players {
+                                id
+                                name
+                            }
+                        }
+                    }
+                    submissionId
+                }
+            }
+        }
     `;
 
     constructor() {
@@ -179,7 +195,12 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
         this.subscriptionVariables = {};
     }
 
-    protected handleGqlMessage = (message: OperationResult<CurrentScrimSubscriptionValue, CurrentScrimStoreSubscriptionVariables>) => {
+    protected handleGqlMessage = (
+        message: OperationResult<
+            CurrentScrimSubscriptionValue,
+            CurrentScrimStoreSubscriptionVariables
+        >,
+    ): void => {
         if (message?.data?.currentScrim) {
             const {scrim} = message?.data?.currentScrim ?? {};
             if (scrim?.status === "CANCELLED" || scrim?.status === "COMPLETE") {
@@ -188,7 +209,8 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
                     status: "info",
                     content: `Scrim ${screamingSnakeToHuman(scrim.status)}`,
                 });
-            } else if (!this.currentValue.data) this.currentValue.data = {currentScrim: scrim};
+            } else if (!this.currentValue.data)
+                this.currentValue.data = {currentScrim: scrim};
             else this.currentValue.data.currentScrim = scrim;
 
             this.pub();

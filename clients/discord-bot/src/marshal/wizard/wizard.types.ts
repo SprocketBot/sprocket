@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {
-    InteractionCollector, Message, MessageCollector,
-    MessageComponentInteraction, MessageReaction, ReactionCollector, User,
+    InteractionCollector,
+    Message,
+    MessageCollector,
+    MessageComponentInteraction,
+    MessageReaction,
+    ReactionCollector,
+    User,
 } from "discord.js";
 
 export enum WizardType {
@@ -15,9 +20,15 @@ export type WizardFunction = (...args: any[]) => Promise<WizardFunctionOutput> |
 export type MessageCollectorFilterFunction = (message: Message) => boolean;
 export type ReactionCollectorFilterFunction = (reaction: MessageReaction, user: User) => boolean;
 export type InteractionCollectorFilterFunction = (interaction: MessageComponentInteraction) => boolean;
-export type CollectorFilterFunction = MessageCollectorFilterFunction | ReactionCollectorFilterFunction | InteractionCollectorFilterFunction;
+export type CollectorFilterFunction =
+    | MessageCollectorFilterFunction
+    | ReactionCollectorFilterFunction
+    | InteractionCollectorFilterFunction;
 
-export type ValidWizardCollector = MessageCollector | ReactionCollector | InteractionCollector<MessageComponentInteraction>;
+export type ValidWizardCollector =
+    | MessageCollector
+    | ReactionCollector
+    | InteractionCollector<MessageComponentInteraction>;
 
 export enum WizardExitStatus {
     SUCCESS = "SUCCESS",

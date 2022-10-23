@@ -50,4 +50,3 @@ export const RoundMetadataSchema = MatchSummarySchema.extend({
 });
 
 export type RoundMetadata = z.infer<typeof RoundMetadataSchema>;
-

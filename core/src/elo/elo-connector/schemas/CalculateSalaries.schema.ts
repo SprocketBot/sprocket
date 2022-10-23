@@ -29,4 +29,3 @@ export const SalaryPayloadItemSchema = z.object({
 export type SalaryPayloadItem = z.infer<typeof SalaryPayloadItemSchema>;
 
 export const CalculateSalaries_Output = z.array(z.array(SalaryPayloadItemSchema));
-

@@ -1,21 +1,15 @@
 import {Module} from "@nestjs/common";
 import {TypeOrmModule} from "@nestjs/typeorm";
 
-import {ImageTemplate} from "./image_template";
+import * as models from "./models";
+import * as repositories from "./repositories";
 
-export const configurationEntities = [
-    ImageTemplate,
-];
-
-const ormModule = TypeOrmModule.forFeature(configurationEntities);
+const ormModule = TypeOrmModule.forFeature(Object.values(models));
+const providers = Object.values(repositories);
 
 @Module({
-    imports: [
-        ormModule,
-    ],
-    exports: [
-        ormModule,
-    ],
-
+    imports: [ormModule],
+    providers: providers,
+    exports: providers,
 })
 export class ImageGenModule {}

@@ -1,5 +1,6 @@
 import type {OperationResult} from "@urql/core";
 import {gql} from "@urql/core";
+
 import {LiveQueryStore} from "$lib/api/core/LiveQueryStore";
 
 enum MemberRestrictionType {
@@ -38,7 +39,7 @@ export interface MemberRestriction {
     memberId: number;
 }
 
-export interface MemberRestrictionEvent extends MemberRestriction{
+export interface MemberRestrictionEvent extends MemberRestriction {
     eventType: MemberRestrictionEventType;
 }
 
@@ -50,14 +51,20 @@ export interface RestrictedPlayersSubscriptionValue {
     followRestrictedMembers: MemberRestrictionEvent;
 }
 
-export interface RestrictedPlayersStoreVariables {
-}
+export interface RestrictedPlayersStoreVariables {}
 
-export interface RestrictedPlayersStoreSubscriptionVariables {
-}
+export interface RestrictedPlayersStoreSubscriptionVariables {}
 
-export class RestrictedPlayersStore extends LiveQueryStore<RestrictedPlayersStoreValue, RestrictedPlayersStoreVariables, RestrictedPlayersSubscriptionValue, RestrictedPlayersStoreSubscriptionVariables> {
-    protected queryString = gql<RestrictedPlayersStoreValue, RestrictedPlayersStoreVariables>`
+export class RestrictedPlayersStore extends LiveQueryStore<
+    RestrictedPlayersStoreValue,
+    RestrictedPlayersStoreVariables,
+    RestrictedPlayersSubscriptionValue,
+    RestrictedPlayersStoreSubscriptionVariables
+> {
+    protected queryString = gql<
+        RestrictedPlayersStoreValue,
+        RestrictedPlayersStoreVariables
+    >`
         query {
             getActiveMemberRestrictions(type: QUEUE_BAN) {
                 id
@@ -73,9 +80,13 @@ export class RestrictedPlayersStore extends LiveQueryStore<RestrictedPlayersStor
                 }
                 memberId
             }
-        }`;
+        }
+    `;
 
-    protected subscriptionString = gql<RestrictedPlayersSubscriptionValue, RestrictedPlayersStoreSubscriptionVariables>`
+    protected subscriptionString = gql<
+        RestrictedPlayersSubscriptionValue,
+        RestrictedPlayersStoreSubscriptionVariables
+    >`
         subscription {
             followRestrictedMembers {
                 id
@@ -101,21 +112,32 @@ export class RestrictedPlayersStore extends LiveQueryStore<RestrictedPlayersStor
         this.subscriptionVariables = {};
     }
 
-    protected handleGqlMessage = (message: OperationResult<RestrictedPlayersSubscriptionValue, RestrictedPlayersStoreSubscriptionVariables>): void => {
+    protected handleGqlMessage = (
+        message: OperationResult<
+            RestrictedPlayersSubscriptionValue,
+            RestrictedPlayersStoreSubscriptionVariables
+        >,
+    ): void => {
         if (message?.data) {
             if (!this.currentValue.data?.getActiveMemberRestrictions) {
                 console.warn("Received subscription before query completed!");
                 return;
             }
 
-            const {eventType, ...memberRestriction} = message.data.followRestrictedMembers;
+            const {eventType, ...memberRestriction} =
+                message.data.followRestrictedMembers;
 
             switch (eventType) {
                 case MemberRestrictionEventType.RESTRICTED:
-                    this.currentValue.data.getActiveMemberRestrictions.push(memberRestriction);
+                    this.currentValue.data.getActiveMemberRestrictions.push(
+                        memberRestriction,
+                    );
                     break;
                 case MemberRestrictionEventType.UNRESTRICTED:
-                    this.currentValue.data.getActiveMemberRestrictions = this.currentValue.data.getActiveMemberRestrictions.filter(s => s.id !== memberRestriction.id);
+                    this.currentValue.data.getActiveMemberRestrictions =
+                        this.currentValue.data.getActiveMemberRestrictions.filter(
+                            s => s.id !== memberRestriction.id,
+                        );
                     break;
                 default:
                     break;

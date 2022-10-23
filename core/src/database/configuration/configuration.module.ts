@@ -1,31 +1,15 @@
 import {Module} from "@nestjs/common";
 import {TypeOrmModule} from "@nestjs/typeorm";
 
-import {OrganizationConfigurationAllowedValue} from "./organization_configuration_allowed_value";
-import {OrganizationConfigurationKey} from "./organization_configuration_key";
-import {OrganizationConfigurationValue} from "./organization_configuration_value";
-import {SprocketConfiguration} from "./sprocket_configuration";
-import {Verbiage} from "./verbiage";
-import {VerbiageCode} from "./verbiage_code";
+import * as models from "./models";
+import * as repositories from "./repositories";
 
-export const configurationEntities = [
-    OrganizationConfigurationAllowedValue,
-    OrganizationConfigurationKey,
-    OrganizationConfigurationValue,
-    SprocketConfiguration,
-    Verbiage,
-    VerbiageCode,
-];
-
-const ormModule = TypeOrmModule.forFeature(configurationEntities);
+const ormModule = TypeOrmModule.forFeature(Object.values(models));
+const providers = Object.values(repositories);
 
 @Module({
-    imports: [
-        ormModule,
-    ],
-    exports: [
-        ormModule,
-    ],
-
+    imports: [ormModule],
+    providers: providers,
+    exports: providers,
 })
 export class ConfigurationModule {}

@@ -1,7 +1,5 @@
 import {Field, ObjectType} from "@nestjs/graphql/dist";
-import {
-    Column, Entity, JoinColumn, OneToOne,
-} from "typeorm";
+import {Column, Entity, JoinColumn, OneToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {Organization} from "../organization/organization.model";
@@ -37,4 +35,7 @@ export class OrganizationProfile extends BaseModel {
     @JoinColumn()
     @Field(() => Organization)
     organization: Organization;
+
+    @Column()
+    organizationId: number;
 }

@@ -1,4 +1,5 @@
 import {gql} from "@urql/core";
+
 import {QueryStore} from "../core/QueryStore";
 
 export interface GamesAndModesValue {
@@ -14,8 +15,11 @@ export interface GamesAndModesValue {
     }>;
 }
 
-export class GamesAndModesStore extends QueryStore<GamesAndModesValue, {}> {
-    protected queryString = gql<GamesAndModesValue, {}>`
+export class GamesAndModesStore extends QueryStore<
+    GamesAndModesValue,
+    Record<string, never>
+> {
+    protected queryString = gql<GamesAndModesValue, Record<string, never>>`
         query {
             games: getGames {
                 id

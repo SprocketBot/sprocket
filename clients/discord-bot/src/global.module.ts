@@ -6,4 +6,4 @@ import {AnalyticsModule} from "@sprocketbot/common";
     imports: [AnalyticsModule],
     exports: [AnalyticsModule],
 })
-export class GlobalModule { }
+export class GlobalModule {}

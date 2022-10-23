@@ -1,6 +1,7 @@
 import type {GetSession, Handle} from "@sveltejs/kit";
-import {constants, loadConfig} from "$lib/utils";
 import {add} from "date-fns";
+
+import {constants, loadConfig} from "$lib/utils";
 
 interface refreshPayload {
     cookies: string[];
@@ -9,12 +10,16 @@ interface refreshPayload {
     refreshToken: string;
 }
 
-const doAuthRefresh = async (refreshUrl: string, currentCookies: string): Promise<refreshPayload> => {
-
+const doAuthRefresh = async (
+    refreshUrl: string,
+    currentCookies: string,
+): Promise<refreshPayload> => {
     let newCookiesString = "";
     // If  refresh it
     // Get the refresh token out of user's cookies
-    const refreshToken = currentCookies.split("; ").find(c => c.split("=")[0] === constants.refresh_token_cookie_key)
+    const refreshToken = currentCookies
+        .split("; ")
+        .find(c => c.split("=")[0] === constants.refresh_token_cookie_key)
         ?.split("=")[1];
     if (refreshToken) {
         // Send that refresh token to the backend, asking
@@ -22,7 +27,7 @@ const doAuthRefresh = async (refreshUrl: string, currentCookies: string): Promis
         const res = await fetch(refreshUrl, {
             method: "GET",
             headers: {
-                "Authorization": `Bearer ${refreshToken}`,
+                Authorization: `Bearer ${refreshToken}`,
             },
         });
 
@@ -36,24 +41,39 @@ const doAuthRefresh = async (refreshUrl: string, currentCookies: string): Promis
 
         // Access token cookie
         let newCookies1: string[];
-        if (newCookies.some(c => c.split("=")[0] === constants.auth_cookie_key)) {
+        if (
+            newCookies.some(c => c.split("=")[0] === constants.auth_cookie_key)
+        ) {
             // Cookie still exists, just update it
             newCookies1 = newCookies.map(c => {
                 if (c.split("=")[0] === constants.auth_cookie_key) {
-                    return `${constants.auth_cookie_key}=${access_token};expires=${add(new Date(), {weeks: 1}).toUTCString()}`;
+                    return `${
+                        constants.auth_cookie_key
+                    }=${access_token};expires=${add(new Date(), {
+                        weeks: 1,
+                    }).toUTCString()}`;
                 }
                 return c;
             });
         } else {
             // Access token cookie doesn't exist, add it.
             newCookies1 = newCookies;
-            newCookies1.push(`${constants.auth_cookie_key}=${access_token};expires=${add(new Date(), {weeks: 1}).toUTCString()}`);
+            newCookies1.push(
+                `${constants.auth_cookie_key}=${access_token};expires=${add(
+                    new Date(),
+                    {weeks: 1},
+                ).toUTCString()}`,
+            );
         }
 
         // Refresh token cookie
         const newCookies2 = newCookies1.map(c => {
             if (c.split("=")[0] === constants.refresh_token_cookie_key) {
-                return `${constants.refresh_token_cookie_key}=${new_refresh_token};expires=${add(new Date(), {weeks: 1}).toUTCString()}`;
+                return `${
+                    constants.refresh_token_cookie_key
+                }=${new_refresh_token};expires=${add(new Date(), {
+                    weeks: 1,
+                }).toUTCString()}`;
             }
             return c;
         });
@@ -86,7 +106,9 @@ export const handle: Handle = async ({event, resolve}) => {
             const currentCookies = event.request.headers.get("cookie");
 
             if (currentCookies) {
-                const rawToken = currentCookies.split("; ").find(c => c.split("=")[0] === constants.auth_cookie_key)
+                const rawToken = currentCookies
+                    .split("; ")
+                    .find(c => c.split("=")[0] === constants.auth_cookie_key)
                     ?.split("=")[1];
 
                 if (rawToken) {
@@ -106,21 +128,34 @@ export const handle: Handle = async ({event, resolve}) => {
                     } else {
                         // Access token exists in cookies, see if we can
                         // refresh it.
-                        const result = await doAuthRefresh(`http://${config.client.gqlUrl}/refresh`, currentCookies);
-                        event.request.headers.set("cookie", result.cookiesString);
+                        const result = await doAuthRefresh(
+                            `http://${config.client.gqlUrl}/refresh`,
+                            currentCookies,
+                        );
+                        event.request.headers.set(
+                            "cookie",
+                            result.cookiesString,
+                        );
                         newCookies = result.cookies;
                         // Refresh the session as well
-                        event.locals.user = JSON.parse(atob(result.accessToken.split(".")[1]));
+                        event.locals.user = JSON.parse(
+                            atob(result.accessToken.split(".")[1]),
+                        );
                         event.locals.token = result.accessToken;
                     }
                 } else {
                     // No access token exists in cookies, see if we can
                     // refresh it anyway.
-                    const result = await doAuthRefresh(`http://${config.client.gqlUrl}/refresh`, currentCookies);
+                    const result = await doAuthRefresh(
+                        `http://${config.client.gqlUrl}/refresh`,
+                        currentCookies,
+                    );
                     event.request.headers.set("cookie", result.cookiesString);
                     newCookies = result.cookies;
                     // Refresh the session as well
-                    event.locals.user = JSON.parse(atob(result.accessToken.split(".")[1]));
+                    event.locals.user = JSON.parse(
+                        atob(result.accessToken.split(".")[1]),
+                    );
                     event.locals.token = result.accessToken;
                 }
             }

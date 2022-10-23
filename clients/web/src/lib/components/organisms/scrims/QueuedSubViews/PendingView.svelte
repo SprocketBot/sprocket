@@ -1,19 +1,39 @@
+<style lang="postcss">
+    h2 {
+        @apply text-2xl font-bold text-primary;
+    }
+    h3 {
+        @apply italic text-opacity-80 text-xl;
+    }
+
+    dl {
+        @apply text-lg lg:text-base;
+
+        dt {
+            @apply font-bold mr-2;
+        }
+
+        dd {
+        }
+    }
+</style>
+
 <script lang="ts">
+    import {format} from "date-fns";
+    import dateFns from "date-fns-tz";
+
     import type {CurrentScrim} from "$lib/api";
     import {currentScrim, leaveScrimMutation} from "$lib/api";
     import {ScrimFullIndicator} from "$lib/components";
-    import {screamingSnakeToHuman} from "$lib/utils";
     import {user} from "$lib/stores/user";
-    import {format} from "date-fns";
-    import dateFns from "date-fns-tz";
+    import {screamingSnakeToHuman} from "$lib/utils";
     const {utcToZonedTime} = dateFns;
 
     export let scrim: CurrentScrim;
 
-
     let leaveButtonEnabled = true;
 
-    async function abandon() {
+    async function abandon(): Promise<void> {
         leaveButtonEnabled = false;
         try {
             await leaveScrimMutation({
@@ -30,8 +50,11 @@
     <div>
         <div class="flex justify-between w-full mb-4">
             <h2>You are currently queued!</h2>
-            <button class="btn btn-error btn-outline lg:btn-sm" disabled={!leaveButtonEnabled} on:click={abandon}>Leave
-                Scrim
+            <button
+                class="btn btn-error btn-outline lg:btn-sm"
+                disabled={!leaveButtonEnabled}
+                on:click={abandon}
+                >Leave Scrim
             </button>
         </div>
         <div class="w-full mb-4">
@@ -48,50 +71,39 @@
                 <dt>Competitive:</dt>
                 <dd>{scrim.settings.competitive ? "Yes" : "No"}</dd>
                 <dt>Created At:</dt>
-                <dd>{format(utcToZonedTime(new Date(scrim.createdAt), "America/New_York"), "MM'/'d h:mmaaa 'ET")}</dd>
+                <dd>
+                    {format(
+                        utcToZonedTime(
+                            new Date(scrim.createdAt),
+                            "America/New_York",
+                        ),
+                        "MM'/'d h:mmaaa 'ET",
+                    )}
+                </dd>
             </dl>
         </div>
         {#if scrim.currentGroup}
-        <div class='w-full'>
-            <h3>You are currently in a group</h3>
-            <div class='flex gap-4 items-center'>
-                <p>Share this code with your friends so they can join your group</p>
-                <span class='inline-block px-4 py-2 text-2xl text-primary/80 bg-base-200/60 rounded-lg'>{scrim.currentGroup.code}</span>
+            <div class="w-full">
+                <h3>You are currently in a group</h3>
+                <div class="flex gap-4 items-center">
+                    <p>
+                        Share this code with your friends so they can join your
+                        group
+                    </p>
+                    <span
+                        class="inline-block px-4 py-2 text-2xl text-primary/80 bg-base-200/60 rounded-lg"
+                        >{scrim.currentGroup.code}</span
+                    >
+                </div>
+                <div>
+                    <p>Other players in your group:</p>
+                    {#each scrim.currentGroup.players as p}
+                        <p>{p}</p>
+                    {/each}
+                </div>
             </div>
-            <div>
-                <p>Other players in your group:</p>
-                {#each scrim.currentGroup.players as p}
-                    <p>{p}</p>
-                {/each}
-            </div>
-
-        </div>
         {/if}
     </div>
 
-    <ScrimFullIndicator/>
+    <ScrimFullIndicator />
 </section>
-
-
-<style lang="postcss">
-    h2 {
-        @apply text-2xl font-bold text-primary;
-    }
-    h3 {
-        @apply italic text-opacity-80 text-xl;
-    }
-
-
-    dl {
-        @apply text-lg lg:text-base;
-
-        dt {
-            @apply font-bold mr-2;
-        }
-
-        dd {
-
-        }
-
-    }
-</style>

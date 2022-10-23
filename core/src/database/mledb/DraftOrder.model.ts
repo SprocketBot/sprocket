@@ -1,6 +1,4 @@
-import {
-    Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique,
-} from "typeorm";
+import {Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique} from "typeorm";
 
 import {MLE_Season} from "./Season.model";
 
@@ -63,8 +61,6 @@ export class MLE_DraftOrder {
     @ManyToOne(() => MLE_Season, season => season.draftOrders, {
         onUpdate: "CASCADE",
     })
-    @JoinColumn([
-        {name: "season_season_number", referencedColumnName: "seasonNumber"},
-    ])
+    @JoinColumn([{name: "season_season_number", referencedColumnName: "seasonNumber"}])
     seasonSeasonNumber2: MLE_Season;
 }

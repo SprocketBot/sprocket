@@ -1,21 +1,16 @@
 import {Injectable} from "@nestjs/common";
-import {InjectRepository} from "@nestjs/typeorm";
 import type {Duration} from "date-fns";
 import {add} from "date-fns";
-import {
-    Between, MoreThan,
-    Repository,
-} from "typeorm";
+import {Between, MoreThan} from "typeorm";
 
-import {ScrimMeta} from "../../database";
-import {Period} from "../../util/types/period.enum";
+import {ScrimMetaRepository} from "$repositories";
+import {Period} from "$util/types/period.enum";
 
 @Injectable()
 export class ScrimMetaCrudService {
+    constructor(private readonly scrimMetaRepository: ScrimMetaRepository) {}
 
-    constructor(@InjectRepository(ScrimMeta) private readonly scrimRepo: Repository<ScrimMeta>) {}
-
-    async getScrimCountInPreviousPeriod(p: Period, previousPeriod: boolean = false): Promise<number> {
+    async getScrimCountInPreviousPeriod(p: Period, previousPeriod = false): Promise<number> {
         let increment: Duration;
 
         const UTCHourOffset = new Date().getTimezoneOffset() * -1;
@@ -31,20 +26,21 @@ export class ScrimMetaCrudService {
                 throw new Error(`Unsupported Period Type ${p}`);
         }
         if (previousPeriod) {
-            return this.scrimRepo.count({
+            return this.scrimMetaRepository.count({
                 where: {
                     createdAt: Between(
-                        add(add(add(new Date(), increment), increment), {hours: UTCHourOffset}),
+                        add(add(add(new Date(), increment), increment), {
+                            hours: UTCHourOffset,
+                        }),
                         add(add(new Date(), increment), {hours: UTCHourOffset}),
                     ),
                 },
             });
         }
-        return this.scrimRepo.count({
+        return this.scrimMetaRepository.count({
             where: {
                 createdAt: MoreThan(add(add(new Date(), increment), {hours: UTCHourOffset})),
             },
         });
-
     }
 }

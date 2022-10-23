@@ -1,14 +1,13 @@
-import {
-    InjectQueue, OnQueueFailed, Process, Processor,
-} from "@nestjs/bull";
+import {InjectQueue, OnQueueFailed, Process, Processor} from "@nestjs/bull";
 import {Logger} from "@nestjs/common";
 import {Job, Queue} from "bull";
 import {previousMonday} from "date-fns";
 
-import {FeatureCode} from "../database";
+import {GameRepository, OrganizationRepository} from "$repositories";
+import {FeatureCode} from "$types";
+
 import {PlayerService} from "../franchise";
-import {GameFeatureService, GameService} from "../game";
-import {OrganizationService} from "../organization";
+import {GameFeatureService} from "../game";
 import {EloConnectorService, EloEndpoint} from "./elo-connector";
 
 export const WEEKLY_SALARIES_JOB_NAME = "weeklySalaries";
@@ -22,10 +21,10 @@ export class EloConsumer {
     constructor(
         @InjectQueue(CORE_WEEKLY_SALARIES_QUEUE) private eloQueue: Queue,
         private readonly playerService: PlayerService,
-        private readonly gameService: GameService,
+        private readonly gameRepository: GameRepository,
         private readonly gameFeatureService: GameFeatureService,
-        private readonly organizationService: OrganizationService,
         private readonly eloConnectorService: EloConnectorService,
+        private readonly organizationRepository: OrganizationRepository,
     ) {}
 
     @OnQueueFailed()
@@ -37,15 +36,25 @@ export class EloConsumer {
     async runSalaries(): Promise<void> {
         this.logger.debug("Running weekly salaries!");
 
-        const rocketLeague = await this.gameService.getGameByTitle("Rocket League");
-        const mleOrg = await this.organizationService.getOrganization({where: {name: "Minor League Esports"}, relations: {organization: true} });
+        const rocketLeague = await this.gameRepository.getByTitle("Rocket League");
+        const mleOrg = await this.organizationRepository.getByName("Minor League Esports");
 
-        const autoRankoutsEnabled = await this.gameFeatureService.featureIsEnabled(FeatureCode.AUTO_RANKOUTS, rocketLeague.id, mleOrg.id);
-        const autoSalariesEnabled = await this.gameFeatureService.featureIsEnabled(FeatureCode.AUTO_SALARIES, rocketLeague.id, mleOrg.id);
+        const autoRankoutsEnabled = await this.gameFeatureService.featureIsEnabled(
+            FeatureCode.AUTO_RANKOUTS,
+            rocketLeague.id,
+            mleOrg.id,
+        );
+        const autoSalariesEnabled = await this.gameFeatureService.featureIsEnabled(
+            FeatureCode.AUTO_SALARIES,
+            rocketLeague.id,
+            mleOrg.id,
+        );
 
         if (!autoSalariesEnabled) return;
-        
-        const salaryData = await this.eloConnectorService.createJobAndWait(EloEndpoint.CalculateSalaries, {doRankouts: autoRankoutsEnabled});
+
+        const salaryData = await this.eloConnectorService.createJobAndWait(EloEndpoint.CalculateSalaries, {
+            doRankouts: autoRankoutsEnabled,
+        });
         await this.playerService.saveSalaries(salaryData);
     }
 

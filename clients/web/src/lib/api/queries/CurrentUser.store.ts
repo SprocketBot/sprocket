@@ -1,4 +1,5 @@
 import {gql} from "@urql/core";
+
 import {QueryStore} from "../core/QueryStore";
 
 export interface CurrentUserResult {
@@ -23,9 +24,12 @@ export interface CurrentUserVars {
     orgId?: number;
 }
 
-export class CurrentUserStore extends QueryStore<CurrentUserResult, CurrentUserVars> {
+export class CurrentUserStore extends QueryStore<
+    CurrentUserResult,
+    CurrentUserVars
+> {
     protected queryString = gql<CurrentUserResult, CurrentUserVars>`
-        query($orgId: Float) {
+        query ($orgId: Float) {
             me {
                 id
                 members(orgId: $orgId) {

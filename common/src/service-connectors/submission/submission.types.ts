@@ -83,4 +83,3 @@ export interface SubmissionErrorResponse {
 }
 
 export type SubmissionResponse<T extends SubmissionEndpoint> = SubmissionSuccessResponse<T> | SubmissionErrorResponse;
-

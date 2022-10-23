@@ -1,6 +1,4 @@
-import {
-    Column, Entity, Index, PrimaryGeneratedColumn,
-} from "typeorm";
+import {Column, Entity, Index, PrimaryGeneratedColumn} from "typeorm";
 
 @Index("footers_pkey", ["id"], {unique: true})
 @Entity("footers", {schema: "mledb"})

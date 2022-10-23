@@ -1,10 +1,8 @@
-import {
-    ResolveField, Resolver, Root,
-} from "@nestjs/graphql";
+import {ResolveField, Resolver, Root} from "@nestjs/graphql";
 
-import type {ScheduleFixture} from "../../database";
-import {MatchParent} from "../../database";
-import {PopulateService} from "../../util/populate/populate.service";
+import type {ScheduleFixture} from "$models";
+import {MatchParent} from "$models";
+import {PopulateService} from "$util";
 
 @Resolver(() => MatchParent)
 export class MatchParentResolver {

@@ -2,15 +2,17 @@ import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 
-import {Verbiage, VerbiageCode} from "../../database";
-import {OrganizationService} from "../../organization/organization";
+import {Verbiage, VerbiageCode} from "$models";
+import {OrganizationRepository} from "$repositories";
 
 @Injectable()
 export class VerbiageService {
     constructor(
-        @InjectRepository(Verbiage) private verbiageRepository: Repository<Verbiage>,
-        @InjectRepository(VerbiageCode) private verbiageCodeRepository: Repository<VerbiageCode>,
-        private organizationService: OrganizationService,
+        @InjectRepository(Verbiage)
+        private verbiageRepository: Repository<Verbiage>,
+        @InjectRepository(VerbiageCode)
+        private verbiageCodeRepository: Repository<VerbiageCode>,
+        private readonly organizationRepository: OrganizationRepository,
     ) {}
 
     /**
@@ -20,13 +22,11 @@ export class VerbiageService {
      * @param verbiageCode The verbiage code.
      * @returns The inserted or updated verbiage.
      */
-    async upsertVerbiage(
-        term: string,
-        organizationId: number,
-        verbiageCode: string,
-    ): Promise<Verbiage> {
-        const organization = await this.organizationService.getOrganizationById(organizationId);
-        const code = await this.verbiageCodeRepository.findOneOrFail({where: {code: verbiageCode} });
+    async upsertVerbiage(term: string, organizationId: number, verbiageCode: string): Promise<Verbiage> {
+        const organization = await this.organizationRepository.getById(organizationId);
+        const code = await this.verbiageCodeRepository.findOneOrFail({
+            where: {code: verbiageCode},
+        });
 
         let verbiage = await this.verbiageRepository.findOne({
             where: {
@@ -39,12 +39,18 @@ export class VerbiageService {
             },
         });
 
-        if (verbiage) verbiage = this.verbiageRepository.merge(verbiage, {
-            term, organization, code,
-        });
-        else verbiage = this.verbiageRepository.create({
-            term, organization, code,
-        });
+        if (verbiage)
+            verbiage = this.verbiageRepository.merge(verbiage, {
+                term,
+                organization,
+                code,
+            });
+        else
+            verbiage = this.verbiageRepository.create({
+                term,
+                organization,
+                code,
+            });
 
         await this.verbiageRepository.save(verbiage);
         return verbiage;
@@ -61,7 +67,9 @@ export class VerbiageService {
         });
         if (verbiage) return verbiage.term;
 
-        const defaultCode = await this.verbiageCodeRepository.findOneOrFail({where: {code} });
+        const defaultCode = await this.verbiageCodeRepository.findOneOrFail({
+            where: {code},
+        });
         return defaultCode.default;
     }
 

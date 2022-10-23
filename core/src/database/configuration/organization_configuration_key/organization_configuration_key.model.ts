@@ -1,11 +1,12 @@
 import {Field, ObjectType} from "@nestjs/graphql";
-import {
-    Column, Entity, OneToMany,
-} from "typeorm";
+import {Column, Entity, OneToMany} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {OrganizationConfigurationAllowedValue} from "../organization_configuration_allowed_value";
-import {OrganizationConfigurationKeyCode, OrganizationConfigurationKeyType} from "./organization_configuration_key.enum";
+import {OrganizationConfigurationAllowedValue} from "../organization_configuration_allowed_value/organization_configuration_allowed_value.model";
+import {
+    OrganizationConfigurationKeyCode,
+    OrganizationConfigurationKeyType,
+} from "./organization_configuration_key.enum";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

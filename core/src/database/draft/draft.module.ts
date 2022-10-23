@@ -1,22 +1,15 @@
 import {Module} from "@nestjs/common";
 import {TypeOrmModule} from "@nestjs/typeorm";
 
-import {DraftPick} from "./draft_pick";
-import {DraftSelection} from "./draft_selection";
+import * as models from "./models";
+import * as repositories from "./repositories";
 
-export const draftEntities = [
-    DraftPick,
-    DraftSelection,
-];
-
-const ormModule = TypeOrmModule.forFeature(draftEntities);
+const ormModule = TypeOrmModule.forFeature(Object.values(models));
+const providers = Object.values(repositories);
 
 @Module({
-    imports: [
-        ormModule,
-    ],
-    exports: [
-        ormModule,
-    ],
+    imports: [ormModule],
+    providers: providers,
+    exports: providers,
 })
 export class DraftModule {}

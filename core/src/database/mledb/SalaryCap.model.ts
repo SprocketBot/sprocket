@@ -1,6 +1,4 @@
-import {
-    Column, Entity, Index, PrimaryGeneratedColumn,
-} from "typeorm";
+import {Column, Entity, Index, PrimaryGeneratedColumn} from "typeorm";
 
 @Index("salary_cap_pkey", ["id"], {unique: true})
 @Index("salary_cap_league_unique", ["league"], {unique: true})
@@ -36,7 +34,9 @@ export class MLE_SalaryCap {
     updatedAt: Date;
 
     @Column("character varying", {
-        name: "league", unique: true, length: 255,
+        name: "league",
+        unique: true,
+        length: 255,
     })
     league: string;
 

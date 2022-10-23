@@ -1,15 +1,10 @@
-import {
-    ResolveField, Resolver, Root,
-} from "@nestjs/graphql";
+import {ResolveField, Resolver, Root} from "@nestjs/graphql";
 import {REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID} from "@sprocketbot/common";
 
-import {
-    CurrentUser, UserPayload, UserService,
-} from "../identity";
-import {
-    GqlReplaySubmission,
-    ReplaySubmission, SubmissionRejection,
-} from "./types";
+import {UserProfileRepository} from "$repositories";
+
+import {CurrentUser, UserPayload} from "../identity";
+import {GqlReplaySubmission, ReplaySubmission, SubmissionRejection} from "./types";
 
 @Resolver(() => GqlReplaySubmission)
 export class ReplaySubmissionResolver {
@@ -26,7 +21,7 @@ export class ReplaySubmissionResolver {
 
 @Resolver(() => SubmissionRejection)
 export class SubmissionRejectionResolver {
-    constructor(private readonly userService: UserService) {}
+    constructor(private readonly userProfileRepository: UserProfileRepository) {}
 
     @ResolveField(() => String)
     async playerName(@Root() rejection: SubmissionRejection): Promise<string> {
@@ -34,8 +29,8 @@ export class SubmissionRejectionResolver {
         if (rejection.playerId === REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID) return "Sprocket";
         // TODO: Is it possible to map to an organization from here?
 
-        const user = await this.userService.getUserById(parseInt(rejection.playerId.toString()));
-        return user.profile.displayName;
+        const profile = await this.userProfileRepository.getByUserId(parseInt(rejection.playerId.toString()));
+        return profile.displayName;
     }
 
     @ResolveField(() => String)

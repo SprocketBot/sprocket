@@ -1,39 +1,16 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import {Module} from "@nestjs/common";
 import {TypeOrmModule} from "@nestjs/typeorm";
+import {EventsModule} from "@sprocketbot/common";
 
-import {Approval} from "./approval";
-import {Member} from "./member";
-import {MemberPlatformAccount} from "./member_platform_account";
-import {MemberProfile} from "./member_profile";
-import {MemberRestriction} from "./member_restriction";
-import {Organization} from "./organization";
-import {OrganizationMottos} from "./organization_mottos";
-import {OrganizationProfile} from "./organization_profile";
-import {Photo} from "./photo";
-import {Pronouns} from "./pronouns";
+import * as models from "./models";
+import * as repositories from "./repositories";
 
-export const organizationEntities = [
-    Approval,
-    Organization,
-    OrganizationMottos,
-    OrganizationProfile,
-    Member,
-    MemberProfile,
-    MemberPlatformAccount,
-    MemberRestriction,
-    Photo,
-    Pronouns,
-];
-
-const ormModule = TypeOrmModule.forFeature(organizationEntities);
+const ormModule = TypeOrmModule.forFeature(Object.values(models));
+const providers = Object.values(repositories);
 
 @Module({
-    imports: [
-        ormModule,
-    ],
-    exports: [
-        ormModule,
-    ],
+    imports: [ormModule, EventsModule],
+    providers: providers,
+    exports: providers,
 })
 export class OrganizationModule {}

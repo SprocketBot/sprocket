@@ -29,10 +29,14 @@ export class ScrimEventSubscriber {
             obs.subscribe(p => {
                 switch (p.topic as EventTopic) {
                     case EventTopic.SubmissionReset:
-                        this.onSubmissionReset(p as EventResponse<EventTopic>).catch(this.logger.error.bind(this.logger));
+                        this.onSubmissionReset(p as EventResponse<EventTopic>).catch(
+                            this.logger.error.bind(this.logger),
+                        );
                         break;
                     case EventTopic.SubmissionRejectionAdded:
-                        this.onSubmissionRejectionAdded(p as EventResponse<EventTopic>).catch(this.logger.error.bind(this.logger));
+                        this.onSubmissionRejectionAdded(p as EventResponse<EventTopic>).catch(
+                            this.logger.error.bind(this.logger),
+                        );
                         break;
                     default:
                         break;
@@ -46,31 +50,36 @@ export class ScrimEventSubscriber {
 
     onSubmissionReset = async (d: EventResponse<EventTopic.SubmissionReset | EventTopic>): Promise<void> => {
         if (d.topic !== EventTopic.SubmissionReset) return;
-        
+
         const {payload} = d as EventResponse<EventTopic.SubmissionReset>;
         const targetSubmissionId = payload.submissionId;
         const scrim = await this.scrimCrudService.getScrimBySubmissionId(targetSubmissionId);
-        
+
         if (!scrim) return;
 
         await this.scrimCrudService.updateScrimStatus(scrim.id, ScrimStatus.IN_PROGRESS);
         scrim.status = ScrimStatus.IN_PROGRESS;
-        
+
         await this.eventsService.publish(EventTopic.ScrimUpdated, scrim, scrim.id);
     };
 
-    onSubmissionRejectionAdded = async (d: EventResponse<EventTopic.SubmissionRejectionAdded | EventTopic>): Promise<void> => {
+    onSubmissionRejectionAdded = async (
+        d: EventResponse<EventTopic.SubmissionRejectionAdded | EventTopic>,
+    ): Promise<void> => {
         if (d.topic !== EventTopic.SubmissionRejectionAdded) return;
-        
+
         const {payload} = d as EventResponse<EventTopic.SubmissionRejectionAdded>;
         const targetSubmissionId = payload.submissionId;
         const scrim = await this.scrimCrudService.getScrimBySubmissionId(targetSubmissionId);
-        const submissionRejectionsResult = await this.submissionService.send(SubmissionEndpoint.GetSubmissionRejections, {submissionId: targetSubmissionId});
+        const submissionRejectionsResult = await this.submissionService.send(
+            SubmissionEndpoint.GetSubmissionRejections,
+            {submissionId: targetSubmissionId},
+        );
         if (submissionRejectionsResult.status === ResponseStatus.ERROR) {
             this.logger.error(submissionRejectionsResult.error);
             return;
         }
-        
+
         if (!scrim) return;
 
         if (submissionRejectionsResult.data.length >= 3) await this.scrimService.setScrimLocked(scrim.id, true);
@@ -78,8 +87,10 @@ export class ScrimEventSubscriber {
 
     onScrimSaved = (d: EventResponse<EventTopic.ScrimSaved | EventTopic>): void => {
         if (d.topic !== EventTopic.ScrimSaved) return;
-        
+
         const {payload: scrim} = d as EventResponse<EventTopic.ScrimSaved>;
-        this.scrimService.completeScrim(scrim.id).catch(e => { this.logger.error(e) });
+        this.scrimService.completeScrim(scrim.id).catch(e => {
+            this.logger.error(e);
+        });
     };
 }

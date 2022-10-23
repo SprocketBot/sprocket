@@ -1,6 +1,7 @@
 import {gql} from "@urql/core";
-import {currentScrim} from "../../queries";
+
 import {client} from "../../client";
+import {currentScrim} from "../../queries";
 
 interface CreateScrimResponse {
     id: string;
@@ -29,7 +30,14 @@ const mutationString = gql`
         $leaveAfter: Int!
         $createGroup: Boolean
     ) {
-        createScrim(data: {gameModeId: $gameModeId, settings: $settings, createGroup: $createGroup, leaveAfter: $leaveAfter}) {
+        createScrim(
+            data: {
+                gameModeId: $gameModeId
+                settings: $settings
+                createGroup: $createGroup
+                leaveAfter: $leaveAfter
+            }
+        ) {
             id
             playerCount
             settings {
@@ -40,8 +48,15 @@ const mutationString = gql`
     }
 `;
 
-export const createScrimMutation = async (vars: CreateScrimVariables): Promise<CreateScrimResponse> => {
-    const r = await client.mutation<CreateScrimResponse, CreateScrimVariables>(mutationString, vars).toPromise();
+export const createScrimMutation = async (
+    vars: CreateScrimVariables,
+): Promise<CreateScrimResponse> => {
+    const r = await client
+        .mutation<CreateScrimResponse, CreateScrimVariables>(
+            mutationString,
+            vars,
+        )
+        .toPromise();
     if (r.data) {
         currentScrim.invalidate();
         return r.data;

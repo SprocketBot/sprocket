@@ -29,4 +29,5 @@ export const AllCurrentScrimsQuery = gql`
             }
             submissionId
         }
-    }`;
+    }
+`;

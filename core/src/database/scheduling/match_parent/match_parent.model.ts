@@ -1,13 +1,11 @@
 import {Field, ObjectType} from "@nestjs/graphql";
-import {
-    Entity, JoinColumn, ManyToOne, OneToOne,
-} from "typeorm";
+import {Entity, JoinColumn, ManyToOne, OneToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {Match} from "../match";
-import {ScrimMeta} from "../saved_scrim";
-import {ScheduleFixture} from "../schedule_fixture";
-import {ScheduledEvent} from "../scheduled_event";
+import {Match} from "../match/match.model";
+import {ScheduleFixture} from "../schedule_fixture/schedule_fixture.model";
+import {ScheduledEvent} from "../scheduled_event/scheduled_event.model";
+import {ScrimMeta} from "../scrim_meta/scrim_meta.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

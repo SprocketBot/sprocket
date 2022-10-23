@@ -1,10 +1,8 @@
 import {Field, ObjectType} from "@nestjs/graphql";
-import {
-    Column, Entity, OneToMany,
-} from "typeorm";
+import {Column, Entity, OneToMany} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {FranchiseGroup} from "../franchise_group";
+import {FranchiseGroup} from "../franchise_group/franchise_group.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()

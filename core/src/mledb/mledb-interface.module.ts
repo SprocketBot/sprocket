@@ -27,19 +27,8 @@ import {MledbFinalizationService} from "./mledb-scrim";
         forwardRef(() => IdentityModule),
         forwardRef(() => OrganizationModule),
     ],
-    providers: [
-        MledbPlayerService,
-        MledbPlayerAccountService,
-        MledbFinalizationService,
-        MledbMatchService,
-    ],
-    exports: [
-        MledbMatchService,
-        MledbPlayerService,
-        MledbPlayerAccountService,
-        MledbFinalizationService,
-    ],
+    providers: [MledbPlayerService, MledbPlayerAccountService, MledbFinalizationService, MledbMatchService],
+    exports: [MledbMatchService, MledbPlayerService, MledbPlayerAccountService, MledbFinalizationService],
     controllers: [MledbMatchController],
 })
-export class MledbInterfaceModule {
-}
+export class MledbInterfaceModule {}

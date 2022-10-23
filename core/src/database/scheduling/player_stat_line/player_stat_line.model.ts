@@ -1,11 +1,9 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import GraphQLJSON from "graphql-type-json";
-import {
-    Column, Entity, ManyToOne,
-} from "typeorm";
+import {Column, Entity, ManyToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {Player} from "../../franchise";
+import {Player} from "../../franchise/models";
 import {Round} from "../round/round.model";
 import {TeamStatLine} from "../team_stat_line/team_stat_line.model";
 

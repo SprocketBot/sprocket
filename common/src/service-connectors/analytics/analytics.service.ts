@@ -1,16 +1,12 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import {
-    Inject, Injectable, Logger,
-} from "@nestjs/common";
+import {Inject, Injectable, Logger} from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
 import {lastValueFrom, timeout} from "rxjs";
 
 import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
 import {NanoidService} from "../../util/nanoid/nanoid.service";
-import type {
-    AnalyticsEndpoint, AnalyticsInput, AnalyticsResponse,
-} from "./analytics.types";
+import type {AnalyticsEndpoint, AnalyticsInput, AnalyticsResponse} from "./analytics.types";
 import {AnalyticsSchemas} from "./analytics.types";
 
 @Injectable()
@@ -22,7 +18,11 @@ export class AnalyticsService {
         private readonly nidService: NanoidService,
     ) {}
 
-    async send<E extends AnalyticsEndpoint>(endpoint: E, data: AnalyticsInput<E>, options?: MicroserviceRequestOptions): Promise<AnalyticsResponse<E>> {
+    async send<E extends AnalyticsEndpoint>(
+        endpoint: E,
+        data: AnalyticsInput<E>,
+        options?: MicroserviceRequestOptions,
+    ): Promise<AnalyticsResponse<E>> {
         const rid = this.nidService.gen();
         this.logger.verbose(`| - (${rid}) > | \`${endpoint}\` (${JSON.stringify(data)})`);
 
@@ -33,7 +33,7 @@ export class AnalyticsService {
 
             const rx = this.microServiceClient.send(endpoint, input).pipe(timeout(options?.timeout ?? 5000));
 
-            const response = await lastValueFrom(rx) as unknown;
+            const response = (await lastValueFrom(rx)) as unknown;
 
             // eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
             const output = outputSchema.parse(response);

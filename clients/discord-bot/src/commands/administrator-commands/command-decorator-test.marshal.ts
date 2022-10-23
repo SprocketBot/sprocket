@@ -1,11 +1,8 @@
 import {Message} from "discord.js";
 
-import {
-    Command, Marshal, MarshalCommandContext,
-} from "../../marshal";
+import {Command, Marshal, MarshalCommandContext} from "../../marshal";
 
 export class CommandDecoratorTestMarshal extends Marshal {
-
     @Command({
         name: "test",
         aliases: ["t"],
@@ -20,7 +17,7 @@ export class CommandDecoratorTestMarshal extends Marshal {
     })
     async test(m: Message, c: MarshalCommandContext): Promise<void> {
         const {args} = c;
-        
+
         await m.reply(`\`\`\`${JSON.stringify(args, null, 2)}\`\`\``);
     }
 
@@ -43,8 +40,7 @@ export class CommandDecoratorTestMarshal extends Marshal {
     })
     async testMoreArgs(m: Message, c: MarshalCommandContext): Promise<void> {
         const {args} = c;
-        
+
         await m.reply(`\`\`\`${JSON.stringify(args, null, 2)}\`\`\``);
     }
-
 }

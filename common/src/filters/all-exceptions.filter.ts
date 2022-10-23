@@ -1,12 +1,5 @@
-import type {
-    ArgumentsHost,
-    ExceptionFilter,
-} from "@nestjs/common";
-import {
-    Catch,
-    HttpException,
-    Logger,
-} from "@nestjs/common";
+import type {ArgumentsHost, ExceptionFilter} from "@nestjs/common";
+import {Catch, HttpException, Logger} from "@nestjs/common";
 import type {Response} from "express";
 
 /**
@@ -34,13 +27,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
             const response = ctx.getResponse<Response>();
             const status = exception.getStatus();
 
-            response
-                .status(status)
-                .json({
-                    statusCode: status,
-                    timestamp: new Date().toISOString(),
-                    message: exception.message,
-                });
+            response.status(status).json({
+                statusCode: status,
+                timestamp: new Date().toISOString(),
+                message: exception.message,
+            });
         }
     }
 }

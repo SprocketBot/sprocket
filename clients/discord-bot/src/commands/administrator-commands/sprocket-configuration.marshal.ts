@@ -2,13 +2,10 @@ import type {SprocketConfigurationKey} from "@sprocketbot/common";
 import {CoreEndpoint, ResponseStatus} from "@sprocketbot/common";
 import {Message} from "discord.js";
 
-import {
-    Command, Marshal, MarshalCommandContext,
-} from "../../marshal";
+import {Command, Marshal, MarshalCommandContext} from "../../marshal";
 import {table} from "../../util/table";
 
 export class SprocketConfigurationMarshal extends Marshal {
-
     @Command({
         name: "getSprocketConfig",
         args: [

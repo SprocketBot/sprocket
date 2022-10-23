@@ -1,10 +1,9 @@
 import {UseGuards} from "@nestjs/common";
-import {
-    Args, Mutation, Query, Resolver,
-} from "@nestjs/graphql";
+import {Args, Mutation, Query, Resolver} from "@nestjs/graphql";
 import type {ReplaySubmission} from "@sprocketbot/common";
 
-import {MLE_OrganizationTeam} from "../../database/mledb";
+import {MLE_OrganizationTeam} from "$mledb";
+
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {GqlReplaySubmission} from "../../replay-parse";

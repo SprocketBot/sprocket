@@ -1,11 +1,9 @@
 import {Field, ObjectType} from "@nestjs/graphql";
-import {
-    Column, Entity, ManyToOne,
-} from "typeorm";
+import {Column, Entity, ManyToOne} from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {Player} from "../../franchise/player";
-import {MatchParent} from "../match_parent";
+import {Player} from "../../franchise/models";
+import {MatchParent} from "../match_parent/match_parent.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()
@@ -21,5 +19,4 @@ export class EligibilityData extends BaseModel {
     @ManyToOne(() => Player)
     @Field(() => Player)
     player: Player;
-
 }
