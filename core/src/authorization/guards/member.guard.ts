@@ -22,7 +22,7 @@ export class MemberGuard implements CanActivate {
             where: {userId: data.data.userId, organizationId: data.data.currentOrganizationId},
         });
         if (!member) return false;
-        
+
         ctx.req.member = member;
         return true;
     }
@@ -43,10 +43,7 @@ export abstract class AbstractMemberGuard implements CanActivate {
         if (data.data.currentOrganizationId !== organizationId) return false;
 
         const member = await this.memberRepository.getOrNull({
-            where: {
-                userId: data.data.userId,
-                organizationId: organizationId,
-            },
+            where: {userId: data.data.userId, organizationId: organizationId},
         });
         if (!member) return false;
 
