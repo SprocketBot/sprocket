@@ -79,12 +79,9 @@ export class ScrimResolverPlayerGuard extends PlayerGuard {
         userPayload: JwtAuthPayload,
     ): Promise<GameAndOrganization> {
         if (!userPayload.currentOrganizationId) throw new Error("User is not connected to an organization");
-
         const scrim = ctx.getRoot<Scrim>();
         const gameMode = await this.gameModeRepository.getById(scrim.gameModeId);
-
         if (!scrim.players.some(p => p.id === userPayload.userId)) throw new Error("Player is not in the scrim");
-
         return {
             gameId: gameMode.gameId,
             organizationId: scrim.organizationId,
