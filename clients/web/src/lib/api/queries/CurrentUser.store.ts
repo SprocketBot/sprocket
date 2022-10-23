@@ -7,6 +7,12 @@ export interface CurrentUserResult {
         id: number;
         members: Array<{
             id: number;
+            organization: {
+                id: number;
+                profile: {
+                    name: string;
+                }
+            }
             players: {
                 skillGroup: {
                     game: {
@@ -34,6 +40,12 @@ export class CurrentUserStore extends QueryStore<
                 id
                 members(orgId: $orgId) {
                     id
+                    organization {
+                        id
+                        profile {
+                            name
+                        }
+                    }
                     players {
                         skillGroup {
                             profile {
