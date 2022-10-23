@@ -17,12 +17,15 @@ export class AuthenticationService {
         const currentOrganizationId =
             organizationId ?? user.members.length === 1 ? user.members[0].organizationId : undefined;
 
-        const payload = {sub: user.id, userId: user.id};
+        const payload = {
+            sub: user.id,
+            userId: user.id,
+            currentOrganizationId: currentOrganizationId,
+        };
         const authPayload: JwtAuthPayload = {
             ...payload,
             username: user.profile.displayName,
             type: JwtType.Authentication,
-            currentOrganizationId: currentOrganizationId,
             orgTeams: [],
         };
         const refreshPayload: JwtRefreshPayload = {

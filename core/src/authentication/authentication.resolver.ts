@@ -6,7 +6,7 @@ import {OrganizationRepository} from "$repositories";
 import {AuthenticationService} from "./authentication.service";
 import {AuthenticatedUser} from "./decorators";
 import {GraphQLJwtAuthGuard, GraphQLJwtRefreshGuard} from "./strategies/jwt/guards";
-import {JwtAuthPayload, JwtTokenSet} from "./types";
+import {JwtAuthPayload, JwtRefreshPayload, JwtTokenSet} from "./types";
 
 @Resolver()
 export class AuthenticationResolver {
@@ -15,10 +15,10 @@ export class AuthenticationResolver {
         private readonly organizationRepository: OrganizationRepository,
     ) {}
 
-    @Mutation(() => String)
+    @Mutation(() => JwtTokenSet)
     @UseGuards(GraphQLJwtRefreshGuard)
-    async refreshLogin(): Promise<string> {
-        return "not implemented";
+    async refreshLogin(@AuthenticatedUser() user: JwtRefreshPayload): Promise<JwtTokenSet> {
+        return this.authenticationService.login(user.userId, user.currentOrganizationId);
     }
 
     @Mutation(() => JwtTokenSet)
