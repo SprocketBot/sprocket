@@ -3,6 +3,7 @@ import type {CoreEndpoint, CoreOutput} from "@sprocketbot/common";
 
 import {MledbPlayerService} from "../../mledb";
 
+// TODO: Yeet!
 @Injectable()
 export class FranchiseService {
     constructor(

@@ -2,15 +2,16 @@ import {Injectable} from "@nestjs/common";
 import type {GraphQLExecutionContext} from "@nestjs/graphql";
 
 import {Match} from "$models";
+import {PlayerRepository} from "$repositories";
 
 import type {JwtAuthPayload} from "../../authentication/types";
-import {PlayerGuard, PlayerService} from "../../franchise/player";
+import {PlayerGuard} from "../../franchise/player";
 import type {GameAndOrganization} from "../../franchise/player/player.types";
 import {PopulateService} from "../../util/populate/populate.service";
 
 @Injectable()
 export class MatchPlayerGuard extends PlayerGuard {
-    constructor(readonly playerService: PlayerService, private readonly populateService: PopulateService) {
+    constructor(readonly playerRepository: PlayerRepository, private readonly populateService: PopulateService) {
         super();
     }
 

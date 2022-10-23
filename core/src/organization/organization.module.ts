@@ -4,9 +4,6 @@ import {PubSub} from "apollo-server-express";
 
 import {ConfigurationModule} from "../configuration";
 import {DatabaseModule} from "../database";
-import {FranchiseModule} from "../franchise";
-import {GameModule} from "../game";
-import {IdentityModule} from "../identity";
 import {UtilModule} from "../util/util.module";
 import {MemberPubSub} from "./constants";
 import {MemberController, MemberResolver, MemberService} from "./member";
@@ -14,15 +11,7 @@ import {MemberRestrictionResolver, QueueBanGuard} from "./member-restriction/";
 import {OrganizationController, OrganizationResolver} from "./organization";
 
 @Module({
-    imports: [
-        DatabaseModule,
-        GameModule,
-        forwardRef(() => IdentityModule),
-        EventsModule,
-        forwardRef(() => ConfigurationModule),
-        forwardRef(() => FranchiseModule),
-        UtilModule,
-    ],
+    imports: [DatabaseModule, EventsModule, forwardRef(() => ConfigurationModule), UtilModule],
     providers: [
         {
             provide: MemberPubSub,

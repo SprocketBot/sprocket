@@ -1,11 +1,7 @@
-import {forwardRef, Inject, Injectable, Logger} from "@nestjs/common";
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import {Inject, Injectable, Logger} from "@nestjs/common";
 import {EventsService, EventTopic} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 
-import type {Franchise} from "$models";
-
-import {PlayerService} from "../../franchise/player/player.service";
 import {MemberPubSub} from "../constants";
 
 @Injectable()
@@ -14,49 +10,10 @@ export class MemberService {
 
     private subscribed = false;
 
-    constructor(
-        private readonly eventsService: EventsService,
-        @Inject(forwardRef(() => PlayerService))
-        private readonly playerService: PlayerService,
-        @Inject(MemberPubSub) private readonly pubsub: PubSub,
-    ) {}
+    constructor(private readonly eventsService: EventsService, @Inject(MemberPubSub) private readonly pubsub: PubSub) {}
 
     get restrictedMembersSubTopic(): string {
         return "member.restricted";
-    }
-
-    async getFranchiseByMember(
-        memberId: number,
-        organizationId: number,
-        gameId: number,
-    ): Promise<Franchise | undefined> {
-        const player = await this.playerService.getPlayer({
-            where: {
-                member: {
-                    id: memberId,
-                    organization: {
-                        id: organizationId,
-                    },
-                },
-                skillGroup: {
-                    game: {
-                        id: gameId,
-                    },
-                },
-            },
-            relations: [
-                "member",
-                "member.user",
-                "member.organization",
-                "skillGroup",
-                "skillGroup.game",
-                "slot",
-                "slot.team",
-                "slot.team.franchise",
-            ],
-        });
-
-        return player.slot?.team.franchise;
     }
 
     async enableSubscription(): Promise<void> {

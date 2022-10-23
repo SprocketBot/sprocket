@@ -8,18 +8,18 @@ import {GraphQLError} from "graphql";
 
 import {MLE_OrganizationTeam} from "$mledb";
 import {Member, Player} from "$models";
-import {GameModeRepository} from "$repositories";
+import {GameModeRepository, PlayerRepository} from "$repositories";
 import {OrganizationConfigurationKeyCode} from "$types";
 import {PopulateService} from "$util";
 
 import {AuthenticatedUser} from "../authentication/decorators";
 import {GraphQLJwtAuthGuard} from "../authentication/guards";
 import {JwtAuthPayload} from "../authentication/types";
+import {CurrentPlayer} from "../authorization/decorators";
 import {CurrentMember} from "../authorization/decorators/current-member.decorator";
 import {MemberGuard} from "../authorization/guards";
 import {OrganizationConfigurationService} from "../configuration";
-import {CurrentPlayer, PlayerService} from "../franchise";
-import {MledbPlayerService} from "../mledb";
+import {PlayerService} from "../franchise";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
 import {FormerPlayerScrimGuard} from "../mledb/mledb-player/mledb-player.guard";
 import {QueueBanGuard} from "../organization";
@@ -58,8 +58,8 @@ export class ScrimModuleResolver {
         private readonly gameModeRepository: GameModeRepository,
         private readonly organizationConfigurationService: OrganizationConfigurationService,
         private readonly scrimToggleService: ScrimToggleService,
-        private readonly mlePlayerService: MledbPlayerService,
         private readonly populateService: PopulateService,
+        private readonly playerRepository: PlayerRepository,
     ) {}
 
     /*
@@ -114,14 +114,11 @@ export class ScrimModuleResolver {
         if (await this.scrimToggleService.scrimsAreDisabled()) throw new GraphQLError("Scrims are disabled");
 
         const gameMode = await this.gameModeRepository.getById(data.gameModeId);
-        const player = await this.playerService.getPlayerByOrganizationAndGame(
+        const player = await this.playerRepository.getByOrganizationAndGame(
             user.userId,
             user.currentOrganizationId,
             gameMode.gameId,
         );
-
-        const mlePlayer = await this.mlePlayerService.getMlePlayerBySprocketUser(player.member.userId);
-        if (mlePlayer.teamName === "FP") throw new GraphQLError("User is a former player");
 
         const checkinTimeout = await this.organizationConfigurationService.getOrganizationConfigurationValue<number>(
             user.currentOrganizationId,
@@ -162,9 +159,6 @@ export class ScrimModuleResolver {
         @Args("group", {nullable: true}) groupKey?: string,
         @Args("createGroup", {nullable: true}) createGroup?: boolean,
     ): Promise<boolean> {
-        const mlePlayer = await this.mlePlayerService.getMlePlayerBySprocketUser(player.member.userId);
-        if (mlePlayer.teamName === "FP") throw new GraphQLError("User is a former player");
-
         if (groupKey && createGroup) {
             throw new GraphQLError(
                 "You cannot join a group and create a group. Please provide either group or createGroup, not both.",

@@ -17,11 +17,11 @@ import {
     ScrimStatus,
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
+import {IsNull, Not} from "typeorm";
 
 import {FranchiseProfiledRepository, GameSkillGroupProfiledRepository, PlayerStatLineRepository} from "$repositories";
 
 import {FranchiseService} from "../franchise/franchise";
-import {MledbFinalizationService} from "../mledb";
 import {ScrimPubSub} from "./constants";
 import type {Scrim} from "./types";
 
@@ -38,7 +38,6 @@ export class ScrimService {
         private readonly skillGroupProfiledRepository: GameSkillGroupProfiledRepository,
         private readonly franchiseService: FranchiseService,
         private readonly franchiseProfiledRepository: FranchiseProfiledRepository,
-        private readonly mleScrimService: MledbFinalizationService,
         private readonly playerStatLineRepository: PlayerStatLineRepository,
     ) {}
 
@@ -160,12 +159,18 @@ export class ScrimService {
                         },
                     },
                 },
+                round: {
+                    match: {
+                        matchParent: {
+                            scrimMeta: Not(IsNull()),
+                        },
+                    },
+                },
             },
             order: {id: "DESC"},
-            relations: ["player", "player.member", "player.member.user", "round"],
+            relations: {player: {member: {user: true}}, round: {match: {matchParent: {scrimMeta: true}}}},
         });
-        const roundStats = psl.round.roundStats as {ballchasingId: string};
-        return this.mleScrimService.getScrimIdByBallchasingId(roundStats.ballchasingId);
+        return psl.round.match.matchParent.scrimMeta!.id;
     }
 
     async getRelevantWebhooks(
