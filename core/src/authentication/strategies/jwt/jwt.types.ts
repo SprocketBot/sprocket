@@ -9,12 +9,12 @@ export const JwtBasePayloadSchema = z.object({
     sub: z.number(),
     type: z.nativeEnum(JwtType),
     userId: z.number(),
+    currentOrganizationId: z.number().optional(),
 });
 
 export const JwtAuthPayloadSchema = JwtBasePayloadSchema.extend({
     type: z.literal(JwtType.Authentication),
     username: z.string(),
-    currentOrganizationId: z.number().optional(),
     orgTeams: z.array(z.number()),
 });
 
