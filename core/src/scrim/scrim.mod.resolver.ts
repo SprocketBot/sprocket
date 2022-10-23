@@ -13,13 +13,16 @@ import {minutesToMilliseconds} from "date-fns";
 import {GraphQLError} from "graphql";
 
 import {MLE_OrganizationTeam} from "$mledb";
-import {Player} from "$models";
+import {Member, Player} from "$models";
 import {GameModeRepository} from "$repositories";
 import {OrganizationConfigurationKeyCode} from "$types";
+import {PopulateService} from "$util";
 
 import {AuthenticatedUser} from "../authentication/decorators";
 import {GraphQLJwtAuthGuard} from "../authentication/guards";
 import {JwtAuthPayload} from "../authentication/types";
+import {CurrentMember} from "../authorization/decorators/current-member.decorator";
+import {MemberGuard} from "../authorization/guards";
 import {OrganizationConfigurationService} from "../configuration";
 import {CurrentPlayer, PlayerService} from "../franchise";
 import {MledbPlayerService} from "../mledb";
@@ -62,6 +65,7 @@ export class ScrimModuleResolver {
         private readonly organizationConfigurationService: OrganizationConfigurationService,
         private readonly scrimToggleService: ScrimToggleService,
         private readonly mlePlayerService: MledbPlayerService,
+        private readonly populateService: PopulateService,
     ) {}
 
     /*
@@ -71,46 +75,27 @@ export class ScrimModuleResolver {
      */
 
     @Query(() => [Scrim])
-    @UseGuards(FormerPlayerScrimGuard)
+    @UseGuards(FormerPlayerScrimGuard, MemberGuard)
     async getAllScrims(
-        @AuthenticatedUser() user: JwtAuthPayload,
+        @CurrentMember() member: Member,
         @Args("status", {
             type: () => ScrimStatus,
             nullable: true,
         })
         status?: ScrimStatus,
     ): Promise<Scrim[]> {
-        if (!user.currentOrganizationId) throw new GraphQLError("Player is not connected to an organization");
-
-        const scrims = await this.scrimService.getAllScrims();
-        if (status) return scrims.filter(s => s.status === status) as Scrim[];
-        return scrims.filter(s => s.organizationId === user.currentOrganizationId) as Scrim[];
+        const scrims = await this.scrimService.getAllScrims(undefined, member.organizationId);
+        return (status ? scrims.filter(scrim => scrim.status === status) : scrims) as Scrim[];
     }
 
     @Query(() => [Scrim])
-    @UseGuards(FormerPlayerScrimGuard)
-    async getAvailableScrims(
-        @AuthenticatedUser() user: JwtAuthPayload,
-        @Args("status", {
-            type: () => ScrimStatus,
-            nullable: true,
-            defaultValue: ScrimStatus.PENDING,
-        })
-        status: ScrimStatus = ScrimStatus.PENDING,
-    ): Promise<Scrim[]> {
-        if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organiazation");
-
-        const players = await this.playerService.getPlayers({
-            where: {member: {user: {id: user.userId}}},
-            relations: ["member", "skillGroup"],
-        });
-        const scrims = await this.scrimService.getAllScrims();
+    @UseGuards(FormerPlayerScrimGuard, MemberGuard)
+    async getAvailableScrims(@CurrentMember() member: Member): Promise<Scrim[]> {
+        const players = await this.populateService.populateMany(Member, member, "players");
+        const scrims = await this.scrimService.getAllScrims(undefined, member.organizationId);
 
         return scrims.filter(
-            s =>
-                s.organizationId === user.currentOrganizationId &&
-                (!s.settings.competitive || players.some(p => s.skillGroupId === p.skillGroupId)) &&
-                s.status === status,
+            scrim => !scrim.settings.competitive || players.some(player => player.skillGroupId === scrim.skillGroupId),
         ) as Scrim[];
     }
 

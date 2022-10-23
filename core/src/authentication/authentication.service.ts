@@ -12,16 +12,17 @@ import type {JwtTokenSet} from "./types";
 export class AuthenticationService {
     constructor(private readonly jwtService: JwtService, private readonly userRepository: UserRepository) {}
 
-    async login(userId: number): Promise<JwtTokenSet> {
+    async login(userId: number, organizationId?: number): Promise<JwtTokenSet> {
         const user = await this.userRepository.getById(userId, {relations: {profile: true, members: true}});
-        const organizationId = user.members.length === 1 ? user.members[0].organizationId : undefined;
+        const currentOrganizationId =
+            organizationId ?? user.members.length === 1 ? user.members[0].organizationId : undefined;
 
         const payload = {sub: user.id, userId: user.id};
         const authPayload: JwtAuthPayload = {
             ...payload,
             username: user.profile.displayName,
             type: JwtType.Authentication,
-            currentOrganizationId: organizationId,
+            currentOrganizationId: currentOrganizationId,
             orgTeams: [],
         };
         const refreshPayload: JwtRefreshPayload = {
