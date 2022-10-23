@@ -733,6 +733,11 @@ export class PlayerService {
                 }
             } else {
                 await this.updatePlayerStanding(playerDelta.playerId, playerDelta.newSalary);
+                const newMlePlayer = this.mle_playerRepository.merge(mlePlayer, {
+                        salary: playerDelta.newSalary,
+                });
+
+                await this.mle_playerRepository.save(newMlePlayer);
             }
         }))));
     }
