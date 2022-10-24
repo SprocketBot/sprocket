@@ -269,9 +269,14 @@ export class MatchResolver {
     }
 
     @Mutation(() => Number)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
-    async addDummyReplay(@Args("matchId") matchId: number, @Args("winningTeamId") winningTeamId: number): Promise<number> {
-
+    @UseGuards(
+        GqlJwtGuard,
+        MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]),
+    )
+    async addDummyReplay(
+        @Args("matchId") matchId: number,
+        @Args("winningTeamId") winningTeamId: number,
+    ): Promise<number> {
         // Get the franchise object of the winning team
         const team = await this.teamRepo.findOneOrFail({
             where: {
@@ -303,7 +308,7 @@ export class MatchResolver {
         }
 
         // Check if homeWon
-        const homeWon = (team.franchise.id === match.matchParent.fixture.homeFranchiseId);
+        const homeWon = team.franchise.id === match.matchParent.fixture.homeFranchiseId;
         if (!homeWon && team.franchise.id !== match.matchParent.fixture.awayFranchiseId) {
             throw new Error("The team ID you've entered did not play in this match.");
         }
