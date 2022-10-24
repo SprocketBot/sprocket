@@ -14,7 +14,7 @@ import {DataSource, Repository} from "typeorm";
 
 import {SeriesToMatchParent} from "$bridge/series_to_match_parent.model";
 import type {League} from "$mledb";
-import {LegacyGameMode, MLE_OrganizationTeam, MLE_SeriesReplay, MLE_Team, MLE_Series} from "$mledb";
+import {LegacyGameMode, MLE_OrganizationTeam, MLE_Series, MLE_SeriesReplay, MLE_Team} from "$mledb";
 import type {GameMode, GameSkillGroup, Round} from "$models";
 import {Franchise, Match, MatchParent, Player, ScheduleFixture, ScheduleGroup} from "$models";
 import {MatchRepository, RoundRepository, TeamRepository} from "$repositories";
