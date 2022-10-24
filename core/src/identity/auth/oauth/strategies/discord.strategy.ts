@@ -15,7 +15,7 @@ import {
 } from "$repositories";
 import {UserAuthenticationAccountType} from "$types";
 
-import {GameSkillGroupService, PlayerService} from "../../../../franchise";
+import {PlayerService} from "../../../../franchise";
 import {MledbPlayerAccountService, MledbPlayerService} from "../../../../mledb";
 
 export type Done = (err: string, user: User) => void;
@@ -36,7 +36,6 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         private readonly mledbPlayerService: MledbPlayerService,
         @Inject(forwardRef(() => MledbPlayerAccountService))
         private readonly mledbPlayerAccountService: MledbPlayerAccountService,
-        @Inject(forwardRef(() => GameSkillGroupService))
         private readonly skillGroupRepository: GameSkillGroupRepository,
         @Inject(forwardRef(() => PlayerService))
         private readonly playerService: PlayerService,
