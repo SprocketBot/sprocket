@@ -27,11 +27,17 @@ export class AllExceptionsFilter implements ExceptionFilter {
     private readonly logger = new Logger(AllExceptionsFilter.name);
 
     catch(exception: unknown, host: ArgumentsHost): void {
-        this.logger.error(exception);
+        if (exception instanceof Error) {
+            this.logger.error({
+                name: exception.name, message: exception.message, stack: exception.stack,
+            });
+        } else {
+            this.logger.error(`[NOT ERROR SUBTYPE] ${exception}`);
+        }
+        const ctx = host.switchToHttp();
+        const response = ctx.getResponse<Response>();
 
         if (exception instanceof HttpException) {
-            const ctx = host.switchToHttp();
-            const response = ctx.getResponse<Response>();
             const status = exception.getStatus();
 
             response
@@ -41,6 +47,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
                     timestamp: new Date().toISOString(),
                     message: exception.message,
                 });
+        } else {
+            response.status(500).json({
+                statusCode: 500, timestamp: new Date().toISOString(), message: "Internal Server Error",
+            });
         }
     }
 }
