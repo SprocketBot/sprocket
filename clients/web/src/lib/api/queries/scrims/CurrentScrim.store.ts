@@ -35,10 +35,6 @@ export interface CurrentScrim {
         name: string;
         checkedIn: boolean;
     }>;
-    playersAdmin: Array<{
-        id: number;
-        name: string;
-    }>;
     lobby: {
         name: string;
         password: string;
@@ -114,10 +110,6 @@ class CurrentScrimStore extends LiveQueryStore<
                     id
                     name
                     checkedIn
-                }
-                playersAdmin {
-                    id
-                    name
                 }
                 lobby {
                     name
