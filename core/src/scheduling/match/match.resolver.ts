@@ -270,7 +270,7 @@ export class MatchResolver {
 
     @Mutation(() => Number)
     @UseGuards(
-        GqlJwtGuard,
+        GraphQLJwtAuthGuard,
         MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]),
     )
     async addDummyReplay(
