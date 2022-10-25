@@ -6,7 +6,8 @@ import {ScheduleGroup} from "$models";
 import {ScheduleGroupRepository} from "$repositories";
 import {PopulateService} from "$util";
 
-import {CurrentUser, UserPayload} from "../../identity";
+import {CurrentUser} from "../../identity/auth/current-user.decorator";
+import {UserPayload} from "../../identity/auth/oauth/types/userpayload.type";
 
 @Resolver(() => ScheduleGroup)
 export class ScheduleGroupResolver {

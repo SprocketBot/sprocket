@@ -5,8 +5,9 @@ import {GraphQLError} from "graphql";
 import {ScheduleGroupType} from "$models";
 import {ScheduleGroupTypeRepository} from "$repositories";
 
-import {CurrentUser, UserPayload} from "../../identity";
+import {CurrentUser} from "../../identity/auth/current-user.decorator";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
+import {UserPayload} from "../../identity/auth/oauth/types/userpayload.type";
 
 @Resolver(() => ScheduleGroupType)
 @UseGuards(GqlJwtGuard)

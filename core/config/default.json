@@ -23,10 +23,10 @@
   },
   "minio": {
     "endPoint": "",
-    "port" : 80,
+    "port": 80,
     "bucketNames": {
       "replays": "",
-      "image_generation" : ""
+      "image_generation": ""
     }
   },
   "celery": {
@@ -48,6 +48,13 @@
     "discord": {
       "callbackUrl": ""
     },
+    "epic": {
+      "callbackUrl": ""
+    },
+    "steam": {
+      "callbackUrl": "",
+      "realm": ""
+    },
     "jwt_expiry": "",
     "access_expiry": "6h",
     "refresh_expiry": "7d",
@@ -61,4 +68,3 @@
   },
   "defaultOrganizationId": 2
 }
-
