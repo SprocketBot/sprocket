@@ -6,9 +6,9 @@ import {MLE_OrganizationTeam} from "$mledb";
 import {EnabledFeature} from "$models";
 import {FeatureCode} from "$types";
 
-import {CurrentUser} from "../../identity/auth/current-user.decorator";
-import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard/gql-jwt-guard";
-import {UserPayload} from "../../identity/auth/oauth/types/userpayload.type";
+import {AuthenticatedUser} from "../../authentication/decorators";
+import {GraphQLJwtAuthGuard} from "../../authentication/guards";
+import {JwtAuthPayload} from "../../authentication/types";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {GameFeatureService} from "./game-feature.service";
 
@@ -17,9 +17,9 @@ export class GameFeatureResolver {
     constructor(private readonly gameFeatureService: GameFeatureService) {}
 
     @Query(() => Boolean)
-    @UseGuards(GqlJwtGuard)
+    @UseGuards(GraphQLJwtAuthGuard)
     async getFeatureEnabled(
-        @CurrentUser() user: UserPayload,
+        @AuthenticatedUser() user: JwtAuthPayload,
         @Args("code", {type: () => FeatureCode}) code: FeatureCode,
         @Args("gameId") gameId: number,
     ): Promise<boolean> {
@@ -28,9 +28,9 @@ export class GameFeatureResolver {
     }
 
     @Mutation(() => EnabledFeature)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    @UseGuards(GraphQLJwtAuthGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async enableFeature(
-        @CurrentUser() user: UserPayload,
+        @AuthenticatedUser() user: JwtAuthPayload,
         @Args("code", {type: () => FeatureCode}) code: FeatureCode,
         @Args("gameId") gameId: number,
     ): Promise<EnabledFeature> {
@@ -39,9 +39,9 @@ export class GameFeatureResolver {
     }
 
     @Mutation(() => EnabledFeature)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    @UseGuards(GraphQLJwtAuthGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async disableFeature(
-        @CurrentUser() user: UserPayload,
+        @AuthenticatedUser() user: JwtAuthPayload,
         @Args("code", {type: () => FeatureCode}) code: FeatureCode,
         @Args("gameId") gameId: number,
     ): Promise<EnabledFeature> {

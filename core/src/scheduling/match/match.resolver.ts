@@ -20,8 +20,8 @@ import {Franchise, Match, MatchParent, Player, ScheduleFixture, ScheduleGroup} f
 import {MatchRepository, RoundRepository, TeamRepository} from "$repositories";
 import type {MatchSubmissionStatus} from "$types";
 
+import {GraphQLJwtAuthGuard} from "../../authentication/guards";
 import {CurrentPlayer} from "../../franchise/player";
-import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MledbMatchService} from "../../mledb/mledb-match/mledb-match.service";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {PopulateService} from "../../util/populate/populate.service";
@@ -55,7 +55,7 @@ export class MatchResolver {
     }
 
     @Mutation(() => String)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    @UseGuards(GraphQLJwtAuthGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async postReportCard(@Args("matchId") matchId: number): Promise<string> {
         const match = await this.matchRepository.getById(matchId, {
             relations: {
@@ -100,7 +100,7 @@ export class MatchResolver {
     }
 
     @Mutation(() => String)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    @UseGuards(GraphQLJwtAuthGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async reprocessMatches(@Args("startDate") startDate: Date): Promise<string> {
         this.logger.verbose(`Starting to reprocess matches after ${startDate}.`);
         await this.matchService.resubmitAllMatchesAfter(startDate);
@@ -110,7 +110,7 @@ export class MatchResolver {
 
     @Mutation(() => String)
     @UseGuards(
-        GqlJwtGuard,
+        GraphQLJwtAuthGuard,
         MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]),
     )
     async markSeriesNCP(
@@ -172,7 +172,7 @@ export class MatchResolver {
 
     @Mutation(() => String)
     @UseGuards(
-        GqlJwtGuard,
+        GraphQLJwtAuthGuard,
         MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]),
     )
     async markReplaysNCP(
@@ -383,7 +383,7 @@ export class MatchResolver {
     }
 
     @ResolveField()
-    @UseGuards(GqlJwtGuard, MatchPlayerGuard)
+    @UseGuards(GraphQLJwtAuthGuard, MatchPlayerGuard)
     async canSubmit(@CurrentPlayer() player: Player, @Root() root: Match): Promise<boolean> {
         if (root.canSubmit) return root.canSubmit;
         if (!root.submissionId) throw new Error(`Match has no submissionId`);
@@ -397,7 +397,7 @@ export class MatchResolver {
     }
 
     @ResolveField()
-    @UseGuards(GqlJwtGuard, MatchPlayerGuard)
+    @UseGuards(GraphQLJwtAuthGuard, MatchPlayerGuard)
     async canRatify(@CurrentPlayer() player: Player, @Root() root: Match): Promise<boolean> {
         if (root.canRatify) return root.canRatify;
         if (!root.submissionId) throw new Error(`Match has no submissionId`);

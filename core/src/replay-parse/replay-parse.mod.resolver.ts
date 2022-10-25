@@ -7,8 +7,9 @@ import {GraphQLUpload} from "graphql-upload";
 
 import {MLE_OrganizationTeam} from "$mledb";
 
-import {CurrentUser, UserPayload} from "../identity";
-import {GqlJwtGuard} from "../identity/auth/gql-auth-guard";
+import {AuthenticatedUser} from "../authentication/decorators";
+import {GraphQLJwtAuthGuard} from "../authentication/guards";
+import {JwtAuthPayload} from "../authentication/types";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
 import {ScrimService} from "../scrim";
 import {FinalizationSubscriber} from "./finalization";
@@ -20,7 +21,7 @@ import type {ValidationResult} from "./types/validation-result.types";
 import {ValidationResultUnion} from "./types/validation-result.types";
 
 @Resolver()
-@UseGuards(GqlJwtGuard)
+@UseGuards(GraphQLJwtAuthGuard)
 export class ReplayParseModResolver {
     constructor(
         private readonly rpService: ReplayParseService,
@@ -38,7 +39,7 @@ export class ReplayParseModResolver {
 
     @Mutation(() => [String])
     async parseReplays(
-        @CurrentUser() user: UserPayload,
+        @AuthenticatedUser() user: JwtAuthPayload,
         @Args("files", {type: () => [GraphQLUpload]})
         files: Array<Promise<FileUpload>>,
         @Args("submissionId", {nullable: true}) submissionId: string,
@@ -57,7 +58,7 @@ export class ReplayParseModResolver {
     @Mutation(() => Boolean)
     @UseGuards(MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async resetSubmission(
-        @CurrentUser() user: UserPayload,
+        @AuthenticatedUser() user: JwtAuthPayload,
         @Args("submissionId") submissionId: string,
     ): Promise<boolean> {
         await this.rpService.resetBrokenReplays(submissionId, user.userId, true);
@@ -84,7 +85,7 @@ export class ReplayParseModResolver {
 
     @Mutation(() => Boolean, {nullable: true})
     async ratifySubmission(
-        @CurrentUser() user: UserPayload,
+        @AuthenticatedUser() user: JwtAuthPayload,
         @Args("submissionId") submissionId: string,
     ): Promise<void> {
         return this.rpService.ratifySubmission(submissionId, user.userId);
@@ -92,7 +93,7 @@ export class ReplayParseModResolver {
 
     @Mutation(() => Boolean, {nullable: true})
     async rejectSubmission(
-        @CurrentUser() user: UserPayload,
+        @AuthenticatedUser() user: JwtAuthPayload,
         @Args("submissionId") submissionId: string,
         @Args("reason") reason: string,
     ): Promise<void> {

@@ -6,13 +6,13 @@ import {config} from "@sprocketbot/common";
 import {RedisCache} from "apollo-server-cache-redis";
 import {graphqlUploadExpress} from "graphql-upload";
 
+import {AuthenticationModule} from "./authentication";
 import {ConfigurationModule} from "./configuration";
 import {DatabaseModule} from "./database";
 import {EloModule} from "./elo";
 import {FranchiseModule} from "./franchise";
 import {GameModule} from "./game";
 import {IdentityModule} from "./identity";
-import {AuthModule} from "./identity/auth";
 import {ImageGenerationModule} from "./image-generation";
 import {MledbInterfaceModule} from "./mledb";
 import {NotificationModule} from "./notification/notification.module";
@@ -77,6 +77,7 @@ import {UtilModule} from "./util/util.module";
             },
             prefix: `${config.redis.prefix}:bull`,
         }),
+        AuthenticationModule,
         OrganizationModule,
         IdentityModule,
         DatabaseModule,
@@ -84,7 +85,6 @@ import {UtilModule} from "./util/util.module";
         GameModule,
         ReplayParseModule,
         ScrimModule,
-        AuthModule,
         SchedulingModule,
         MledbInterfaceModule,
         FranchiseModule,

@@ -5,7 +5,7 @@ import {PubSub} from "apollo-server-express";
 
 import {MLE_OrganizationTeam} from "$mledb";
 
-import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
+import {GraphQLJwtAuthGuard} from "../../authentication/guards";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {ScrimPubSub} from "../constants";
 import {ScrimService} from "../scrim.service";
@@ -27,7 +27,7 @@ export class ScrimManagementResolver {
     }
 
     @Mutation(() => Scrim)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    @UseGuards(GraphQLJwtAuthGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async cancelScrim(@Args("scrimId", {type: () => String}) scrimId: string): Promise<IScrim> {
         return this.scrimService.cancelScrim(scrimId);
     }

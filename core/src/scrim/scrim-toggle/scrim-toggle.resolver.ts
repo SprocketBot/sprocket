@@ -4,7 +4,7 @@ import {PubSub} from "apollo-server-express";
 
 import {MLE_OrganizationTeam} from "$mledb";
 
-import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
+import {GraphQLJwtAuthGuard} from "../../authentication/guards";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {ScrimPubSub} from "../constants";
 import {ScrimToggleService} from "./scrim-toggle.service";
@@ -22,7 +22,7 @@ export class ScrimToggleResolver {
     }
 
     @Mutation(() => Boolean)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    @UseGuards(GraphQLJwtAuthGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async setScrimsDisabled(@Args("disabled") disabled: boolean): Promise<boolean> {
         return disabled ? this.scrimToggleService.disableScrims() : this.scrimToggleService.enableScrims();
     }

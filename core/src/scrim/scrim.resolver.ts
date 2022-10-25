@@ -6,8 +6,9 @@ import {MLE_OrganizationTeam} from "$mledb";
 import {GameMode, GameSkillGroup} from "$models";
 import {GameModeRepository, GameSkillGroupRepository} from "$repositories";
 
-import {CurrentUser, UserPayload} from "../identity";
-import {GqlJwtGuard} from "../identity/auth/gql-auth-guard";
+import {AuthenticatedUser} from "../authentication/decorators";
+import {GraphQLJwtAuthGuard} from "../authentication/guards";
+import {JwtAuthPayload} from "../authentication/types";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
 import {OrGuard} from "../util/or.guard";
 import {ScrimResolverPlayerGuard} from "./scrim.guard";
@@ -38,7 +39,7 @@ export class ScrimResolver {
     }
 
     @ResolveField(() => [ScrimPlayer])
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    @UseGuards(GraphQLJwtAuthGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     playersAdmin(@Root() scrim: Scrim): undefined | ScrimPlayer[] {
         return scrim.players;
     }
@@ -51,7 +52,7 @@ export class ScrimResolver {
     }
 
     @ResolveField(() => String, {nullable: true})
-    currentGroup(@Root() scrim: Scrim, @CurrentUser() user: UserPayload): ScrimGroup | undefined {
+    currentGroup(@Root() scrim: Scrim, @AuthenticatedUser() user: JwtAuthPayload): ScrimGroup | undefined {
         const code = scrim.players.find(p => p.id === user.userId)?.group;
         if (!code) return undefined;
         return {

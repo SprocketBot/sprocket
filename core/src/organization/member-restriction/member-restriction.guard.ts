@@ -6,7 +6,7 @@ import {GraphQLError} from "graphql";
 import {MemberRepository, MemberRestrictionRepository} from "$repositories";
 import {MemberRestrictionType} from "$types";
 
-import type {UserPayload} from "../../identity/auth/oauth/types/userpayload.type";
+import type {JwtAuthPayload} from "../../authentication/types";
 
 @Injectable()
 export abstract class MemberRestrictionGuard implements CanActivate {
@@ -21,7 +21,7 @@ export abstract class MemberRestrictionGuard implements CanActivate {
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const ctx = GqlExecutionContext.create(context);
-        const payload = ctx.getContext().req.user as UserPayload;
+        const payload = ctx.getContext().req.user as JwtAuthPayload;
 
         const member = await this.memberRepository
             .get({

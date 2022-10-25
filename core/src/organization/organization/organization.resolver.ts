@@ -5,7 +5,7 @@ import {MLE_OrganizationTeam} from "$mledb";
 import {Organization, OrganizationProfile} from "$models";
 import {OrganizationProfiledRepository, OrganizationRepository} from "$repositories";
 
-import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
+import {GraphQLJwtAuthGuard} from "../../authentication/guards";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {PopulateService} from "../../util/populate/populate.service";
 import {OrganizationProfileInput} from "./inputs";
@@ -24,7 +24,10 @@ export class OrganizationResolver {
     }
 
     @Mutation(() => OrganizationProfile)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.COUNCIL]))
+    @UseGuards(
+        GraphQLJwtAuthGuard,
+        MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.COUNCIL]),
+    )
     async updateOrganizationProfile(
         @Args("id", {type: () => Int}) id: number,
         @Args("profile", {type: () => OrganizationProfileInput})
