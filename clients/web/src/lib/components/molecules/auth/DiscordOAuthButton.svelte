@@ -5,7 +5,7 @@
     import {oauthPopup} from "$lib/utils";
     const dispatchEvent = createEventDispatcher();
 
-    async function discordAuthCallback(e: MessageEvent): void {
+    async function discordAuthCallback(e: MessageEvent): Promise<void> {
         const {token} = e.data;
         dispatchEvent("loggedIn", token);
     }
