@@ -26,6 +26,7 @@ import {
     MLE_Series,
     MLE_SeriesReplay,
     MLE_TeamCoreStats,
+    MLE_TeamRoleUsage,
     RocketLeagueMap,
 } from "../../database/mledb";
 import {GameSkillGroupService} from "../../franchise";
@@ -53,7 +54,7 @@ export class MledbFinalizationService {
     }
 
     async getLeagueAndMode(scrim: Scrim): Promise<{mode: GameMode; group: GameSkillGroup;}> {
-        const gameMode = await this.gameModeService.getGameModeById(scrim.gameMode.id);
+        const gameMode = await this.gameModeService.getGameModeById(scrim.gameModeId);
         const skillGroup = await this.skillGroupService.getGameSkillGroupById(scrim.skillGroupId, {relations: ["profile"] });
         return {
             mode: gameMode,
@@ -162,6 +163,7 @@ export class MledbFinalizationService {
         const coreStats: MLE_PlayerStatsCore[] = [];
         const playerStats: MLE_PlayerStats[] = [];
         const teamStats: MLE_TeamCoreStats[] = [];
+        const roleUsages: MLE_TeamRoleUsage[] = [];
 
         const mleSeriesReplays = await Promise.all(submission.items.map(async item => {
             // Get the ballchasing data that is available
@@ -183,6 +185,7 @@ export class MledbFinalizationService {
             const convertPlayerToMLE = async (p: BallchasingPlayer, color: "BLUE" | "ORANGE"): Promise<void> => {
                 const core = em.create(MLE_PlayerStatsCore);
                 const stats = em.create(MLE_PlayerStats);
+                const usage = em.create(MLE_TeamRoleUsage);
 
                 const playerAccount = await this.mlePlayerAccountRepository.findOneOrFail({
                     where: {
@@ -233,6 +236,12 @@ export class MledbFinalizationService {
                 const populated = assignPlayerStats(stats, p, core);
                 replay.playerStats.push(populated);
                 playerStats.push(populated);
+
+                usage.league = player.league;
+                usage.role = player.role!;
+                usage.series = series;
+                usage.teamName = player.teamName;
+                roleUsages.push(usage);
             };
 
             const buildTeamStats = (p: BallchasingTeam, color: "BLUE" | "ORANGE"): MLE_TeamCoreStats => {
@@ -287,6 +296,7 @@ export class MledbFinalizationService {
         await em.insert(MLE_PlayerStatsCore, coreStats);
         await em.insert(MLE_PlayerStats, playerStats);
         await em.insert(MLE_TeamCoreStats, teamStats);
+        await em.insert(MLE_TeamRoleUsage, roleUsages);
 
         return series.id;
     }

@@ -15,6 +15,7 @@ import {
     MatchmakingService,
     ResponseStatus,
     Scrim,
+    ScrimMode,
     SprocketEvent,
     SprocketEventMarshal,
 } from "@sprocketbot/common";
@@ -28,6 +29,52 @@ export class ScrimService extends SprocketEventMarshal {
         private readonly matchmakingService: MatchmakingService,
     ) {
         super(eventsService);
+    }
+
+    @SprocketEvent(EventTopic.ScrimCreated)
+    async sendScrimCreatedNotifications(scrim: Scrim): Promise<void> {
+        if (!scrim.settings.competitive) return;
+
+        const skillGroupWebhook = await this.coreService.send(CoreEndpoint.GetSkillGroupWebhooks, {skillGroupId: scrim.skillGroupId});
+        if (skillGroupWebhook.status === ResponseStatus.ERROR) throw skillGroupWebhook.error;
+        if (!skillGroupWebhook.data.scrim) return;
+
+        const skillGroupProfile = await this.coreService.send(CoreEndpoint.GetGameSkillGroupProfile, {skillGroupId: scrim.skillGroupId});
+        if (skillGroupProfile.status === ResponseStatus.ERROR) throw skillGroupProfile.error;
+
+        const gameModeResult = await this.coreService.send(CoreEndpoint.GetGameModeById, {gameModeId: scrim.gameModeId});
+        if (gameModeResult.status === ResponseStatus.ERROR) throw gameModeResult.error;
+        
+        await this.botService.send(BotEndpoint.SendWebhookMessage, {
+            webhookUrl: skillGroupWebhook.data.scrim,
+            payload: {
+                content: skillGroupWebhook.data.scrimRole ? `<@&${skillGroupWebhook.data.scrimRole}>` : "",
+                embeds: [ {
+                    title: "Scrim Created",
+                    description: `[Join here!](${config.web.url}/scrims)`,
+                    thumbnail: skillGroupProfile.data.photo
+                        ? {
+                                url: skillGroupProfile.data.photo.url,
+                            }
+                        : undefined,
+                    color: parseInt(skillGroupProfile.data.color.replace("#", ""), 16),
+                    fields: [
+                        {
+                            name: "Game Mode",
+                            value: gameModeResult.data.description,
+                        },
+                        {
+                            name: "Type",
+                            value: scrim.settings.mode === ScrimMode.ROUND_ROBIN ? "Round Robin" : "Teams",
+                        },
+                    ],
+                } ],
+            },
+            brandingOptions: {
+                organizationId: scrim.organizationId,
+                options: {},
+            },
+        });
     }
 
     @SprocketEvent(EventTopic.ScrimPopped)
@@ -88,7 +135,7 @@ export class ScrimService extends SprocketEventMarshal {
         const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: scrim.organizationId});
         if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
 
-        if (!scrim.settings.lobby) return;
+        if (!scrim.lobby) return;
 
         await Promise.all(scrim.players.map(async p => {
             const userResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, p.id);
@@ -107,11 +154,11 @@ export class ScrimService extends SprocketEventMarshal {
                         fields: [
                             {
                                 name: "Name",
-                                value: `\`${scrim.settings.lobby?.name}\``,
+                                value: `\`${scrim.lobby?.name}\``,
                             },
                             {
                                 name: "Password",
-                                value: `\`${scrim.settings.lobby?.password}\``,
+                                value: `\`${scrim.lobby?.password}\``,
                             },
                         ],
                         footer: {

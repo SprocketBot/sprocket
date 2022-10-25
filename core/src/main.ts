@@ -44,5 +44,6 @@ async function bootstrap(): Promise<void> {
     await app.startAllMicroservices();
     await app.listen(port);
 }
+
 // eslint-disable-next-line no-console
 bootstrap().catch(console.error);

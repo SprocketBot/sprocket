@@ -4,15 +4,13 @@ import {
 import type {ScrimSettings as IScrimSettings} from "@sprocketbot/common";
 import {ScrimMode} from "@sprocketbot/common";
 
-import type {ScrimLobby} from "./ScrimLobby";
-
 @ObjectType()
 export class ScrimSettings implements IScrimSettings {
     @Field(() => Int)
-    teamCount: number;
-
-    @Field(() => Int)
     teamSize: number;
+    
+    @Field(() => Int)
+    teamCount: number;
 
     @Field(() => ScrimMode)
     mode: ScrimMode;
@@ -25,15 +23,10 @@ export class ScrimSettings implements IScrimSettings {
 
     @Field(() => Int)
     checkinTimeout: number;
-
-    lobby?: ScrimLobby;
 }
 
 @InputType()
 export class ScrimSettingsInput {
-    @Field(() => Int)
-    gameModeId: number;
-
     @Field(() => ScrimMode)
     mode: ScrimMode;
 

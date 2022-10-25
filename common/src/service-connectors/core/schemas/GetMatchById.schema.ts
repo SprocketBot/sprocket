@@ -11,4 +11,5 @@ export const GetMatchById_Response = z.object({
     homeFranchise: FranchiseSchema.optional(),
     awayFranchise: FranchiseSchema.optional(),
     skillGroupId: z.number().optional(),
+    gameModeId: z.number(),
 });

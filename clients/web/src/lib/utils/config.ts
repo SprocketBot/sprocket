@@ -1,5 +1,5 @@
 import {browser} from "$app/env";
-import type {Config} from "./types";
+import type {Config, Stack} from "./types";
 
 export let config: Config;
 
@@ -12,6 +12,8 @@ export const loadConfig = async (): Promise<Config> => {
 
     if (config) return config;
 
+    const stack = _config.has("stack") ? _config.get<Stack>("stack") : "local";
+
     config = {
         client: {
             gqlUrl: _config.get<string>("client.gqlUrl"),
@@ -21,12 +23,14 @@ export const loadConfig = async (): Promise<Config> => {
                 url: _config.get<string>("client.chatwoot.url"),
                 websiteToken: _config.get<string>("client.chatwoot.websiteToken"),
             },
+            stack,
         },
         server: {
             chatwoot: {
                 hmacKey: fs.readFileSync("secret/chatwoot-hmac-key.txt").toString()
                     .trim(),
             },
+            stack,
         },
     };
     

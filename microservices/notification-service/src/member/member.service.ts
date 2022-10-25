@@ -12,7 +12,8 @@ import {
     SprocketEvent,
     SprocketEventMarshal,
 } from "@sprocketbot/common";
-import {format, utcToZonedTime} from "date-fns-tz";
+import dateFns from "date-fns-tz";
+const {format, utcToZonedTime} = dateFns;
 
 @Injectable()
 export class MemberService extends SprocketEventMarshal {

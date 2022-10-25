@@ -71,7 +71,9 @@ export class SubmissionService extends SprocketEventMarshal {
     async sendScrimSubmissionRatifyingNotifications(submission: ScrimReplaySubmission): Promise<void> {
         const scrimResult = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, submission.scrimId);
         if (scrimResult.status === ResponseStatus.ERROR) throw scrimResult.error;
+        
         const scrim = scrimResult.data;
+        if (!scrim) throw new Error("Scrim does not exist");
         
         const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: scrim.organizationId});
         if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
@@ -123,20 +125,25 @@ export class SubmissionService extends SprocketEventMarshal {
         }));
     }
 
-    async sendMatchSubmissionRatifyingNotifications(submission: MatchReplaySubmission & {id: string;}): Promise<void> {
+    async sendMatchSubmissionRatifyingNotifications(submission: MatchReplaySubmission): Promise<void> {
         const matchResult = await this.coreService.send(CoreEndpoint.GetMatchById, {matchId: submission.matchId});
         if (matchResult.status === ResponseStatus.ERROR) throw matchResult.error;
 
-        const mleMatchResult = await this.coreService.send(CoreEndpoint.GetMleMatchInfoAndStakeholders, {sprocketMatchId: submission.matchId});
-        if (mleMatchResult.status === ResponseStatus.ERROR) throw mleMatchResult.error;
+        const infoResult = await this.coreService.send(CoreEndpoint.GetMatchInformationAndStakeholders, {matchId: submission.matchId});
+        if (infoResult.status === ResponseStatus.ERROR) throw infoResult.error;
 
-        const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: mleMatchResult.data.organizationId});
+        const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: infoResult.data.organizationId});
         if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
 
-        await Promise.all(mleMatchResult.data.stakeholderDiscordIds.map(async p => {
-            await this.botService.send(BotEndpoint.SendDirectMessage, {
-                userId: p,
+        const webhooks: Array<{url: string; role?: string;}> = [];
+        if (infoResult.data.home.url) webhooks.push(infoResult.data.home as {url: string; role?: string;});
+        if (infoResult.data.away.url) webhooks.push(infoResult.data.away as {url: string; role?: string;});
+
+        await Promise.all(webhooks.map(async w => {
+            await this.botService.send(BotEndpoint.SendWebhookMessage, {
+                webhookUrl: w.url,
                 payload: {
+                    content: w.role ? `<@&${w.role}>` : undefined,
                     embeds: [ {
                         title: "Your match is ready for ratification!",
                         description: `The replays uploaded for your ${organizationBrandingResult.data.name} match have finished processing and are ready to be ratified. Verify they are correct and ratify them [here](${config.web.url}/league/submit/${submission.id}).`,
@@ -146,11 +153,15 @@ export class SubmissionService extends SprocketEventMarshal {
                         fields: [
                             {
                                 name: "Game Mode",
-                                value: `${mleMatchResult.data.game} ${mleMatchResult.data.gameMode}`,
+                                value: `${infoResult.data.game} ${infoResult.data.gameMode}`,
                             },
                             {
-                                name: "Match",
-                                value: `${mleMatchResult.data.skillGroup} ${matchResult.data.homeFranchise?.name} vs ${matchResult.data.awayFranchise?.name}`,
+                                name: "League",
+                                value: `${infoResult.data.skillGroup}`,
+                            },
+                            {
+                                name: "Teams",
+                                value: `${matchResult.data.homeFranchise?.name} vs ${matchResult.data.awayFranchise?.name}`,
                             },
                         ],
                         footer: {
@@ -171,7 +182,7 @@ export class SubmissionService extends SprocketEventMarshal {
                     } ],
                 },
                 brandingOptions: {
-                    organizationId: mleMatchResult.data.organizationId,
+                    organizationId: infoResult.data.organizationId,
                     options: {
                         author: {
                             icon: true,
@@ -190,7 +201,9 @@ export class SubmissionService extends SprocketEventMarshal {
     async sendScrimSubmissionRejectedNotifications(submission: ScrimReplaySubmission): Promise<void> {
         const scrimResult = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, submission.scrimId);
         if (scrimResult.status === ResponseStatus.ERROR) throw scrimResult.error;
+        
         const scrim = scrimResult.data;
+        if (!scrim) throw new Error("Scrim does not exist");
         
         const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: scrim.organizationId});
         if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
@@ -247,16 +260,21 @@ export class SubmissionService extends SprocketEventMarshal {
         const matchResult = await this.coreService.send(CoreEndpoint.GetMatchById, {matchId: submission.matchId});
         if (matchResult.status === ResponseStatus.ERROR) throw matchResult.error;
 
-        const mleMatchResult = await this.coreService.send(CoreEndpoint.GetMleMatchInfoAndStakeholders, {sprocketMatchId: submission.matchId});
-        if (mleMatchResult.status === ResponseStatus.ERROR) throw mleMatchResult.error;
+        const infoResult = await this.coreService.send(CoreEndpoint.GetMatchInformationAndStakeholders, {matchId: submission.matchId});
+        if (infoResult.status === ResponseStatus.ERROR) throw infoResult.error;
 
-        const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: mleMatchResult.data.organizationId});
+        const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {id: infoResult.data.organizationId});
         if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
 
-        await Promise.all(mleMatchResult.data.stakeholderDiscordIds.map(async p => {
-            await this.botService.send(BotEndpoint.SendDirectMessage, {
-                userId: p,
+        const webhooks: Array<{url: string; role?: string;}> = [];
+        if (infoResult.data.home.url) webhooks.push(infoResult.data.home as {url: string; role?: string;});
+        if (infoResult.data.away.url) webhooks.push(infoResult.data.away as {url: string; role?: string;});
+
+        await Promise.all(webhooks.map(async w => {
+            await this.botService.send(BotEndpoint.SendWebhookMessage, {
+                webhookUrl: w.url,
                 payload: {
+                    content: w.role ? `<@&${w.role}>` : undefined,
                     embeds: [ {
                         title: "Your match's submission has failed ratification!",
                         description: `The replays uploaded for your ${organizationBrandingResult.data.name} match have been rejected. Please review the reason [here](${config.web.url}/league/submit/${submission.id}) and upload the correct replays if possible.`,
@@ -266,11 +284,15 @@ export class SubmissionService extends SprocketEventMarshal {
                         fields: [
                             {
                                 name: "Game Mode",
-                                value: `${mleMatchResult.data.game} ${mleMatchResult.data.gameMode}`,
+                                value: `${infoResult.data.game} ${infoResult.data.gameMode}`,
                             },
                             {
-                                name: "Match",
-                                value: `${mleMatchResult.data.skillGroup} ${matchResult.data.homeFranchise?.name} vs ${matchResult.data.awayFranchise?.name}`,
+                                name: "League",
+                                value: `${infoResult.data.skillGroup}`,
+                            },
+                            {
+                                name: "Teams",
+                                value: `${matchResult.data.homeFranchise?.name} vs ${matchResult.data.awayFranchise?.name}`,
                             },
                         ],
                         footer: {
@@ -291,7 +313,7 @@ export class SubmissionService extends SprocketEventMarshal {
                     } ],
                 },
                 brandingOptions: {
-                    organizationId: mleMatchResult.data.organizationId,
+                    organizationId: infoResult.data.organizationId,
                     options: {
                         author: {
                             icon: true,

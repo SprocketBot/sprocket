@@ -2,6 +2,8 @@ import type {TestingModule} from "@nestjs/testing";
 import {Test} from "@nestjs/testing";
 import type {Scrim} from "@sprocketbot/common";
 import {ScrimMode, ScrimStatus} from "@sprocketbot/common";
+import {add, sub} from "date-fns";
+import {now} from "lodash";
 
 import {ScrimGroupService} from "../scrim-group/scrim-group.service";
 import {GameOrderService} from "./game-order.service";
@@ -20,30 +22,62 @@ describe("GameOrderService", () => {
     describe("generateRoundRobinGameOrder", () => {
         it("Should not fail to generate a doubles round robin", () => {
             const scrim: Scrim = {
-                gameMode: {description: "", id: 0},
-                id: "",
-                settings: {
-                    competitive: false, mode: ScrimMode.ROUND_ROBIN, teamCount: 2, teamSize: 3,
-                },
+                id: "scrim-testdummy1234",
+                createdAt: sub(now(), {minutes: 20}),
+                updatedAt: sub(now(), {minutes: 20}),
+
                 status: ScrimStatus.POPPED,
+
+                authorId: 1337,
+                organizationId: 1,
+                gameModeId: 2,
+                skillGroupId: 2,
+                submissionId: "scrim-dummydummy321",
+                
+                settings: {
+                    teamSize: 3,
+                    teamCount: 2,
+                    mode: ScrimMode.ROUND_ROBIN,
+                    competitive: true,
+                    observable: false,
+                    checkinTimeout: 2000,
+                },
                 players: [
                     {
-                        id: 8, name: "A",
+                        id: 8,
+                        name: "A",
+                        joinedAt: sub(now(), {minutes: 20}),
+                        leaveAt: add(now(), {seconds: 360}),
                     },
                     {
-                        id: 9, name: "B",
+                        id: 9,
+                        name: "B",
+                        joinedAt: sub(now(), {minutes: 20}),
+                        leaveAt: add(now(), {seconds: 360}),
                     },
                     {
-                        id: 10, name: "C",
+                        id: 10,
+                        name: "C",
+                        joinedAt: sub(now(), {minutes: 20}),
+                        leaveAt: add(now(), {seconds: 360}),
                     },
                     {
-                        id: 11011588, name: "D",
+                        id: 11011588,
+                        name: "D",
+                        joinedAt: sub(now(), {minutes: 20}),
+                        leaveAt: add(now(), {seconds: 360}),
                     },
                     {
-                        id: 11010578, name: "E",
+                        id: 11010578,
+                        name: "E",
+                        joinedAt: sub(now(), {minutes: 20}),
+                        leaveAt: add(now(), {seconds: 360}),
                     },
                     {
-                        id: 4975, name: "F",
+                        id: 4975,
+                        name: "F",
+                        joinedAt: sub(now(), {minutes: 20}),
+                        leaveAt: add(now(), {seconds: 360}),
                     },
                 ],
             };

@@ -48,7 +48,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
             clientID: config.auth.discord.clientId,
             clientSecret: config.auth.discord.secret,
             callbackURL: config.auth.discord.callbackURL,
-            scope: ["identify", "email", "guilds", "guilds.members.read"],
+            scope: ["identify", "email"],
             prompt: "none",
         });
     }
@@ -59,9 +59,6 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         profile: Profile,
         done: Done,
     ): Promise<User | undefined> {
-        // const guilds: GuildInfo[] = profile.guilds ?? [];
-        // if (!guilds.some(g => g.id === MLE_GUILD_ID)) return undefined;
-
         const mledbPlayer = await this.mledbPlayerService.getPlayerByDiscordId(profile.id).catch(() => null);
         if (!mledbPlayer) throw new Error("User is not associated with MLE");
 

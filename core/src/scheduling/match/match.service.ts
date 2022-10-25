@@ -151,15 +151,21 @@ export class MatchService {
             where: {id: matchId},
             relations: {
                 skillGroup: {
-                    profile: true,
+                    profile: {
+                        matchReportCardWebhook: true,
+                    },
                 },
                 matchParent: {
                     fixture: {
                         homeFranchise: {
-                            profile: true,
+                            profile: {
+                                matchReportCardWebhook: true,
+                            },
                         },
                         awayFranchise: {
-                            profile: true,
+                            profile: {
+                                matchReportCardWebhook: true,
+                            },
                         },
                         scheduleGroup: {
                             type: {
@@ -173,10 +179,10 @@ export class MatchService {
 
         if (!match.matchParent.fixture) throw new Error(`Match is not league match matchId=${matchId}`);
         return {
-            skillGroupWebhook: match.skillGroup.profile.matchReportWebhookUrl,
+            skillGroupWebhook: match.skillGroup.profile.matchReportCardWebhook?.url,
             franchiseWebhooks: [
-                match.matchParent.fixture.homeFranchise.profile.matchReportWebhookUrl,
-                match.matchParent.fixture.awayFranchise.profile.matchReportWebhookUrl,
+                match.matchParent.fixture.homeFranchise.profile.matchReportCardWebhook?.url,
+                match.matchParent.fixture.awayFranchise.profile.matchReportCardWebhook?.url,
             ].filter(f => f) as string[],
             organizationId: match.matchParent.fixture.scheduleGroup.type.organization.id,
         };
@@ -205,6 +211,60 @@ export class MatchService {
         };
     }
 
+    async getMatchInfoAndStakeholders(matchId: number): Promise<CoreOutput<CoreEndpoint.GetMatchInformationAndStakeholders>> {
+        const match = await this.matchRepository.findOneOrFail({
+            where: {
+                id: matchId,
+            },
+            relations: {
+                skillGroup: {
+                    profile: true,
+                },
+                matchParent: {
+                    fixture: {
+                        homeFranchise: {
+                            profile: {
+                                submissionWebhook: true,
+                            },
+                        },
+                        awayFranchise: {
+                            profile: {
+                                submissionWebhook: true,
+                            },
+                        },
+                        scheduleGroup: {
+                            parentGroup: {
+                                type: {
+                                    organization: true,
+                                },
+                            },
+                        },
+                    },
+                },
+                gameMode: {
+                    game: true,
+                },
+            },
+        });
+
+        if (!match.matchParent.fixture) throw new Error(`Match is not a fixture`);
+
+        return {
+            organizationId: match.matchParent.fixture.scheduleGroup.parentGroup.type.organization.id,
+            game: match.gameMode.game.title,
+            gameMode: match.gameMode.description,
+            skillGroup: match.skillGroup.profile.description,
+            home: {
+                url: match.matchParent.fixture.homeFranchise.profile.submissionWebhook?.url,
+                role: match.matchParent.fixture.homeFranchise.profile.submissionDiscordRoleId,
+            },
+            away: {
+                url: match.matchParent.fixture.awayFranchise.profile.submissionWebhook?.url,
+                role: match.matchParent.fixture.awayFranchise.profile.submissionDiscordRoleId,
+            },
+        };
+    }
+
     /**
      * Marks replays as NCP=true/false, and updates the associated Elo of those replays and all connected replays accordingly.
      * "Connected" replays are where replays in which one of the player's in the NCP replay has played. Since the NCP replay will have its elo affects removed,
@@ -214,8 +274,7 @@ export class MatchService {
      * @returns A string containing status of what was updated.
      */
     async markReplaysNcp(replayIds: number[], isNcp: boolean, winningTeamInput?: Team, invalidation?: Invalidation): Promise<string> {
-        const r = Math.floor(Math.random() * 10000);
-        this.logger.verbose(`(${r}) begin markReplaysNcp: replayIds=${replayIds}, isNcp=${isNcp}, winningTeam=${winningTeamInput}`);
+        this.logger.verbose(`Begin markReplaysNcp: replayIds=${replayIds}, isNcp=${isNcp}, winningTeam=${winningTeamInput}`);
 
         // Find the winning team and it's franchise profile, since that's where
         // team names are in Sprocket.
@@ -227,28 +286,24 @@ export class MatchService {
         replayIds.sort((r1, r2) => r1 - r2);
 
         // Gather replays
-        const replayPromises = replayIds.map(async rId => this.roundRepository.findOneOrFail({where: {id: rId} }));
+        const replayPromises = replayIds.map(async rId => this.roundRepository.findOneOrFail({
+            where: {
+                id: rId,
+            },
+            relations: {
+                teamStats: true,
+            },
+        }));
         const replays = await Promise.all(replayPromises);
-
-        // Check to make sure the winning team played in each replay
-        if (winningTeam) {
-            for (const replay of replays) {
-                if (replay.isDummy) continue; // Don't need to check dummy replays
-                const teamsInReplay = replay.teamStats.map(tsl => tsl.teamName);
-                if (!teamsInReplay.includes(winningTeam.franchise.profile.title)) {
-                    this.logger.error(`The team \`${winningTeam.franchise.profile.title}\` did not play in replay with id \`${replay.id}\` (${teamsInReplay.join(" v. ")}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`);
-                    this.logger.warn(`Could not find team=${winningTeam.franchise.profile.title} on replay with id=${replay.id}, cannot mark as NCP`);
-                    throw new Error(`Could not find team=${winningTeam.franchise.profile.title} on replay with id=${replay.id}, cannot mark as NCP`);
-                }
-            }
-        }
 
         // Set replays to NCP true/false and update winning team/color
         for (const replay of replays) {
-            if (!isNcp && replay.isDummy) await this.roundRepository.delete(replay.id);
-
-            replay.invalidation = invalidation;
-            await this.roundRepository.save(replay);
+            if (!isNcp && replay.isDummy) {
+                await this.roundRepository.delete(replay.id);
+            } else {
+                replay.invalidation = invalidation;
+                await this.roundRepository.save(replay);
+            }
         }
 
         // Magic happens here to talk to the ELO service
@@ -365,19 +420,31 @@ export class MatchService {
      * @returns A string containing a summary of the actions that took place when the processing has completed.
      */
     async markSeriesNcp(seriesId: number, isNcp: boolean, winningTeamId?: number, numReplays?: number): Promise<string> {
-        const r = Math.floor(Math.random() * 10000);
-        this.logger.verbose(`(${r}) begin markSeriesNcp: seriesId=${seriesId}, isNcp=${isNcp}, winningTeam=${winningTeamId}`);
+        this.logger.verbose(`Begin markSeriesNcp: seriesId=${seriesId}, isNcp=${isNcp}, winningTeam=${winningTeamId}`);
 
         // Find the winning team and it's franchise profile, since that's where
         // team names are in Sprocket.
-        const winningTeam = await this.teamRepository.findOne({where: {id: winningTeamId}, relations: {franchise: {profile: true} } });
+        const winningTeam = await this.teamRepository.findOneOrFail({
+            where: {
+                id: winningTeamId,
+            },
+            relations: {
+                franchise: {
+                    profile: true,
+                },
+            },
+        });
         const series = await this.matchRepository.findOneOrFail({
             where: {id: seriesId},
             relations: {
                 matchParent: {
                     fixture: {
-                        homeFranchise: true,
-                        awayFranchise: true,
+                        homeFranchise: {
+                            profile: true,
+                        },
+                        awayFranchise: {
+                            profile: true,
+                        },
                     },
                     scrimMeta: true,
                 },
@@ -393,8 +460,8 @@ export class MatchService {
 
             // Check to make sure the winning team played in the series/fixture
             if (winningTeam
-                && series.matchParent.fixture.homeFranchise !== winningTeam.franchise
-                && series.matchParent.fixture.awayFranchise !== winningTeam.franchise) {
+                && series.matchParent.fixture.homeFranchise.id !== winningTeam.franchise.id
+                && series.matchParent.fixture.awayFranchise.id !== winningTeam.franchise.id) {
                 throw new Error(`The team \`${winningTeam?.franchise.profile.title}\` did not play in series with id \`${series.id}\` (${series.matchParent.fixture.awayFranchise.profile.title} v. ${series.matchParent.fixture.homeFranchise.profile.title}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`);
             }
         } else if (!series.matchParent.scrimMeta) {
@@ -422,20 +489,27 @@ export class MatchService {
             }
         }
 
+        this.logger.debug("Creating invalidation");
         const invalidation = this.invalidationRepository.create({
             favorsHomeTeam: winningTeamId === series.matchParent.fixture?.homeFranchise.id,
             description: series.matchParent.fixture ? "Series NCP" : "Scrim NCP",
         });
-        await this.invalidationRepository.save(invalidation);
 
-        series.invalidation = invalidation;
-        await this.matchRepository.save(series);
+        if (isNcp) {
+            await this.invalidationRepository.save(invalidation);
+
+            this.logger.debug("Invalidation saved, trying series");
+            series.invalidation = invalidation;
+            await this.matchRepository.save(series);
+            this.logger.debug("Series saved with invalidation");
+        }
 
         // Update each series replay (including any dummies) to NCP
         const replayIds = seriesReplays.map(replay => replay.id);
-        await this.markReplaysNcp(replayIds, isNcp, winningTeam ?? undefined, invalidation);
+        this.logger.debug("Marking replays in series");
+        await this.markReplaysNcp(replayIds, isNcp, winningTeam ?? undefined, invalidation ?? undefined);
 
-        this.logger.verbose(`(${r}) end markSeriesNcp`);
+        this.logger.verbose(`End markSeriesNcp`);
 
         const seriesTypeStr = series.matchParent.fixture ? "fixture" : series.matchParent.scrimMeta ? "scrim" : "unknown";
         return `\`seriesId=${seriesId}\` ${seriesTypeStr ? `(${seriesTypeStr})` : ""} successfully marked \`fullNcp=${isNcp}\` with updated elo, and all connected replays had their elo updated.${numReplays && dummiesNeeded ? ` **${dummiesNeeded} dummy replay(s)** were added to the series.` : ""}`;

@@ -50,7 +50,7 @@ export class RocketLeagueFinalizationService {
         await qr.startTransaction();
         const em = qr.manager;
         try {
-            const gameMode = await em.findOneByOrFail(GameMode, {id: scrim.gameMode.id});
+            const gameMode = await em.findOneByOrFail(GameMode, {id: scrim.gameModeId});
 
             const scrimMeta = em.create(ScrimMeta);
             const matchParent = em.create(MatchParent);
@@ -151,6 +151,7 @@ export class RocketLeagueFinalizationService {
             ])
             : [undefined, undefined];
 
+        // TODO: Sprocket Team Role Usage
         const results = await Promise.all(replays.map(async ({
             replay, parser, outputPath,
         }) => {
@@ -254,6 +255,7 @@ export class RocketLeagueFinalizationService {
      * Noteworthy; this looks up sprocket players!
      */
     async _getBallchasingPlayers(ballchasing: BallchasingResponse): Promise<{blue: Array<{player: Player; rawPlayer: BallchasingPlayer;}>; orange: Array<{player: Player; rawPlayer: BallchasingPlayer;}>;}> {
+        // TODO: This won't work when we support multiple games; in theory is an array of players for that member.
         const lookupFn = async (p: BallchasingPlayer): Promise<Player> => this.playerService.getPlayer({
             where: {
                 member: {

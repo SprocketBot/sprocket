@@ -1,11 +1,12 @@
 import {z} from "zod";
 
 import {MemberRestrictionSchema} from "../service-connectors/core";
+import {ScrimMetricsSchema, ScrimSchema} from "../service-connectors/matchmaking";
 import {
     MatchDatabaseIdsSchema,
-    ScrimDatabaseIdsSchema, ScrimMetricsSchema, ScrimSchema,
-} from "../service-connectors/matchmaking";
-import {PlayerTeamChangedSchema} from "./types";
+    PlayerTeamChangedSchema,
+    ScrimDatabaseIdsSchema,
+} from "./types";
 import {PlayerSkillGroupChanged as PlayerSkillGroupChangedSchema} from "./types/skill-group-changed.schema";
 import {SubmissionEventSchema} from "./types/submission.schemas";
 

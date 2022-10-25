@@ -28,9 +28,6 @@ export class ScrimEventSubscriber {
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             obs.subscribe(p => {
                 switch (p.topic as EventTopic) {
-                    // case EventTopic.SubmissionStarted:
-                    //     this.onSubmissionStarted(p as unknown as EventResponse<EventTopic.SubmissionStarted>).catch(this.logger.error.bind(this.logger));
-                    //     break;
                     case EventTopic.SubmissionReset:
                         this.onSubmissionReset(p as EventResponse<EventTopic>).catch(this.logger.error.bind(this.logger));
                         break;
@@ -46,17 +43,6 @@ export class ScrimEventSubscriber {
             obs.subscribe(this.onScrimSaved);
         });
     }
-
-    onSubmissionStarted = async (d: EventResponse<EventTopic.SubmissionStarted | EventTopic>): Promise<void> => {
-        if (d.topic !== EventTopic.SubmissionStarted) return;
-        const {payload} = d as EventResponse<EventTopic.SubmissionStarted>;
-        const targetSubmissionId = payload.submissionId;
-        const scrim = await this.scrimCrudService.getScrimBySubmissionId(targetSubmissionId);
-        if (!scrim) return;
-        await this.scrimCrudService.updateScrimStatus(scrim.id, ScrimStatus.SUBMITTING);
-        scrim.status = ScrimStatus.SUBMITTING;
-        await this.eventsService.publish(EventTopic.ScrimUpdated, scrim, scrim.id);
-    };
 
     onSubmissionReset = async (d: EventResponse<EventTopic.SubmissionReset | EventTopic>): Promise<void> => {
         if (d.topic !== EventTopic.SubmissionReset) return;

@@ -1,9 +1,8 @@
 <script lang="ts">
     import {
-        currentScrim, scrimsDisabled, scrimMetrics,
+        currentUser, currentScrim, scrimsDisabled, scrimMetrics,
     } from "$lib/api";
     import type {MetricsResult} from "$lib/api";
-
 
     import {
         AvailableScrimsView,
@@ -14,6 +13,7 @@
         DisabledView,
         Spinner,
     } from "$lib/components";
+    import FaLock from "svelte-icons/fa/FaLock.svelte";
 
     let metrics: MetricsResult["metrics"];
     $: metrics = $scrimMetrics.data?.metrics;
@@ -21,6 +21,9 @@
 
     let scrimsAreDisabled: boolean;
     $: scrimsAreDisabled = $scrimsDisabled.data?.getScrimsDisabled;
+
+    let currentUserFranchises: string[] | undefined;
+    $: currentUserFranchises = $currentUser.data?.me?.members?.flatMap(m => m.players.flatMap(p => p.franchiseName as string) as string[]);
 
     function calculateActivityChange() {
         const prev = metrics.previousCompletedScrims ?? 0;
@@ -41,10 +44,15 @@
 
 <DashboardLayout>
     <DashboardCard class="col-span-6 xl:col-span-5 row-span-3">
-        {#if $currentScrim.fetching}
+        {#if $currentScrim.fetching || $currentUser.fetching}
             <div class="h-full w-full flex items-center justify-center">
                 <Spinner class="h-16 w-full"/>
             </div>
+        {:else if currentUserFranchises?.includes("FP")}
+            <section class="flex flex-col justify-center items-center h-full gap-4">
+                <span class="h-32 text-sprocket block"><FaLock/></span>
+                <span class="text-7xl font-bold text-primary">Former Players Cannot Scrim</span>
+            </section>
         {:else if $currentScrim.data?.currentScrim}
             <QueuedView/>
         {:else if scrimsAreDisabled}

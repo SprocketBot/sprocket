@@ -1,6 +1,6 @@
 import {Injectable} from "@nestjs/common";
 import {RpcException} from "@nestjs/microservices";
-import type {Scrim, ScrimPlayer} from "@sprocketbot/common";
+import {MatchmakingError, Scrim, ScrimPlayer} from "@sprocketbot/common";
 import {ScrimMode} from "@sprocketbot/common";
 import {nanoid} from "nanoid";
 
@@ -36,15 +36,15 @@ export class ScrimGroupService {
         if (typeof groupKey === "string") {
             const scrimGroups = this.getScrimGroups(scrim);
             if (!(groupKey in scrimGroups)) {
-                throw new RpcException("Group not found!");
+                throw new RpcException(MatchmakingError.GroupNotFound);
             }
             if (scrimGroups[groupKey].length === scrim.settings.teamSize) {
-                throw new RpcException("Group is full!");
+                throw new RpcException(MatchmakingError.GroupFull);
             }
             output = groupKey;
         } else if (groupKey) {
             if (!this.canCreateNewGroup(scrim)) {
-                throw new RpcException("This scrim cannot hold any more groups");
+                throw new RpcException(MatchmakingError.MaxGroupsCreated);
             }
             output = nanoid(5).toLowerCase();
         }
