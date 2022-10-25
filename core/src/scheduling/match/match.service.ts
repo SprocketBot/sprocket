@@ -376,7 +376,7 @@ export class MatchService {
 
             team2Players.forEach(stat => {
                 if (stat.success)
-                    team1IsOrange ? orangePlayers.push(stat.data.otherStats) : bluePlayers.push(stat.data.otherStats);
+                    team1IsOrange ? bluePlayers.push(stat.data.otherStats) : orangePlayers.push(stat.data.otherStats);
                 else errors.push(stat.error.toString());
             });
 
