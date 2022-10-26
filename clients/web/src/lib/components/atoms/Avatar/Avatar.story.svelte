@@ -21,10 +21,10 @@
     </svelte:fragment>
 
     <Hst.Variant title="Default" {size} {shape}>
-        <Avatar {size} {shape}/>
+        <Avatar {size} {shape} alt="alt text"/>
     </Hst.Variant>
     <Hst.Variant title="Custom" {size} {shape}>
-        <Avatar url="https://picsum.photos/200/300" {size} {shape}/>
+        <Avatar url="https://picsum.photos/200/300" alt="alt text" {size} {shape}/>
     </Hst.Variant>
 </Hst.Story>
 
