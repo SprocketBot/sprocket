@@ -9,4 +9,7 @@
     <Hst.Variant title="Default">
         <Avatar/>
     </Hst.Variant>
+    <Hst.Variant title="Custom">
+        <Avatar url="https://picsum.photos/200/300"/>
+    </Hst.Variant>
 </Hst.Story>
