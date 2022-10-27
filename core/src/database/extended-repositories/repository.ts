@@ -1,4 +1,4 @@
-import type {DataSource, DeepPartial, FindManyOptions, FindOneOptions} from "typeorm";
+import type {DataSource, DeepPartial, FindManyOptions, FindOneOptions, SelectQueryBuilder} from "typeorm";
 import {Repository} from "typeorm";
 
 import type {BaseModel} from "../base-model";
@@ -52,5 +52,18 @@ export abstract class ExtendedRepository<T extends BaseModel> extends Repository
         await this.delete(id);
 
         return entity;
+    }
+
+    similarityBuilder(query: string, field: keyof T, threshold?: number, limit?: number): SelectQueryBuilder<T> {
+        return this.createQueryBuilder(this.c.name)
+            .addSelect(`SIMILARITY(${String(field)}, :query)`, "similarity")
+            .where(`SIMILARITY(${String(field)}, :query) > :threshold`, {threshold})
+            .setParameter("query", query)
+            .orderBy("similarity", "DESC")
+            .take(limit);
+    }
+
+    async getSimilar(query: string, field: keyof T, threshold?: number, limit?: number): Promise<T[]> {
+        return this.similarityBuilder(query, field, threshold, limit).getMany();
     }
 }
