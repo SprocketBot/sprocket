@@ -54,13 +54,13 @@ export abstract class ExtendedRepository<T extends BaseModel> extends Repository
         return entity;
     }
 
-    similarityBuilder(query: string, field: keyof T, threshold?: number, limit?: number): SelectQueryBuilder<T> {
+    similarityBuilder(query: string, field: keyof T, threshold = 0.5, limit = 10): SelectQueryBuilder<T> {
         return this.createQueryBuilder(this.c.name)
             .addSelect(`SIMILARITY(${String(field)}, :query)`, "similarity")
             .where(`SIMILARITY(${String(field)}, :query) > :threshold`, {threshold})
             .setParameter("query", query)
             .orderBy("similarity", "DESC")
-            .take(limit);
+            .take(limit < 0 ? undefined : limit);
     }
 
     async getSimilar(query: string, field: keyof T, threshold?: number, limit?: number): Promise<T[]> {
