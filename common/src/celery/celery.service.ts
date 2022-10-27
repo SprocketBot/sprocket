@@ -73,34 +73,32 @@ export class CeleryService {
         const name = taskNames[task];
         if (!name) throw new Error(`Unsupported Celery task ${task}`);
 
-        const t = this.celeryClient.createTask(name);
-        const asyncResult = t.applyAsync([], {
+        const asyncResult = this.celeryClient.sendTask(name, [], {
             ...args,
             progressQueue: opts?.progressQueue,
-        });
+        }, opts?.taskId);
         const taskId = asyncResult.taskId;
 
         this.logger.debug(`Running celery task asynchronously name=${name} taskId=${taskId}`);
 
         if (opts?.cb) {
-            asyncResult.get()
-                .then((r: unknown) => {
-                    const result = this.parseResult(task, r);
-                    const p = opts.cb!(taskId, result, null);
-                    if (p instanceof Promise) {
-                        p.catch(err => {
-                            this.logger.error(`Celery task callback failed name=${name} taskId=${taskId}`, err);
-                        });
-                    }
-                })
-                .catch((error: Error) => {
-                    const p = opts.cb!(taskId, null, error);
-                    if (p instanceof Promise) {
-                        p.catch(err => {
-                            this.logger.error(`Celery task callback failed name=${name} taskId=${taskId}`, err);
-                        });
-                    }
-                });
+            try {
+                const r = asyncResult.get();
+                const result = this.parseResult(task, r);
+                const p = opts.cb(taskId, result, null);
+                if (p instanceof Promise) {
+                    p.catch(err => {
+                        this.logger.error(`Celery task callback failed name=${name} taskId=${taskId}`, err);
+                    });
+                }
+            } catch (error) {
+                const p = opts.cb(taskId, null, error as Error);
+                if (p instanceof Promise) {
+                    p.catch(err => {
+                        this.logger.error(`Celery task callback failed name=${name} taskId=${taskId}`, err);
+                    });
+                }
+            }
         } else {
             await asyncResult.get() as TaskResult<T>;
             this.logger.debug(`Celery task completed asynchronously name=${name} taskId=${taskId}`);
