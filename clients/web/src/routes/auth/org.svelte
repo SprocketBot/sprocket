@@ -11,23 +11,20 @@
 </script>
 
 <script lang="ts">
-    import { goto } from "$app/navigation";
+    import {goto} from "$app/navigation";
     import {session} from "$app/stores";
-    import {
-        currentUser,
-    } from "$lib/api";
-    import {
-        Card,
-        CenteredCardLayout,
-    } from "$lib/components";
-    
-    import { switchOrganizationMutation } from "../../lib/api/mutations/SwitchOrganization.mutation";
+    import {currentUser} from "$lib/api";
+    import {Card, CenteredCardLayout} from "$lib/components";
+
+    import {switchOrganizationMutation} from "../../lib/api/mutations/SwitchOrganization.mutation";
     import Spinner from "../../lib/components/atoms/Spinner.svelte";
-    import { type SessionUser,constants,extractJwt } from "../../lib/utils";
+    import {type SessionUser, constants, extractJwt} from "../../lib/utils";
 
     async function login(orgId: number): Promise<void> {
-        const {switchOrganization: {access, refresh}} = await switchOrganizationMutation({organizationId: orgId});
-        
+        const {
+            switchOrganization: {access, refresh},
+        } = await switchOrganizationMutation({organizationId: orgId});
+
         $session.user = extractJwt<SessionUser>(access);
         $session.token = access;
 
@@ -52,7 +49,7 @@
                 <Spinner class="h-16 w-full" />
             </div>
         {:else}
-            {#each $currentUser.data.me.members as {organization: {id, profile: { name }}}}
+            {#each $currentUser.data.me.members as { organization: { id, profile: { name } } }}
                 <section class="space-y-4 text-center">
                     <button class="btn py-1" on:click={() => login(id)}>
                         <span>{name}</span>

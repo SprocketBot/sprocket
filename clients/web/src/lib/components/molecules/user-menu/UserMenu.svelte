@@ -22,7 +22,7 @@
         {
             label: "Switch Organization",
             action: async () => goto("/auth/org"),
-        }
+        },
     ];
 </script>
 

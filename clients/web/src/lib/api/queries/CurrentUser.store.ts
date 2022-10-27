@@ -11,8 +11,8 @@ export interface CurrentUserResult {
                 id: number;
                 profile: {
                     name: string;
-                }
-            }
+                };
+            };
             players: {
                 skillGroup: {
                     game: {
