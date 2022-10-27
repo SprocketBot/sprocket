@@ -73,11 +73,10 @@ export class CeleryService {
         const name = taskNames[task];
         if (!name) throw new Error(`Unsupported Celery task ${task}`);
 
-        const t = this.celeryClient.createTask(name);
-        const asyncResult = t.applyAsync([], {
+        const asyncResult = this.celeryClient.sendTask(name, [], {
             ...args,
             progressQueue: opts?.progressQueue,
-        });
+        }, opts?.taskId);
         const taskId = asyncResult.taskId;
 
         this.logger.debug(`Running celery task asynchronously name=${name} taskId=${taskId}`);
