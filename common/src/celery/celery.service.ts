@@ -83,7 +83,7 @@ export class CeleryService {
 
         if (opts?.cb) {
             try {
-                const r = asyncResult.get();
+                const r: unknown = await asyncResult.get();
                 const result = this.parseResult(task, r);
                 const p = opts.cb(taskId, result, null);
                 if (p instanceof Promise) {
