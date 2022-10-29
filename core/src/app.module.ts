@@ -1,4 +1,3 @@
-import {BullModule} from "@nestjs/bull";
 import type {MiddlewareConsumer, NestModule} from "@nestjs/common";
 import {Module} from "@nestjs/common";
 import {GraphQLModule} from "@nestjs/graphql";
@@ -7,7 +6,7 @@ import {RedisCache} from "apollo-server-cache-redis";
 import {graphqlUploadExpress} from "graphql-upload";
 
 import {InternalModule} from "./internal/internal.module";
-import { PublicModule } from './public/public.module';
+import {PublicModule} from "./public/public.module";
 
 @Module({
     imports: [
@@ -46,21 +45,6 @@ import { PublicModule } from './public/public.module';
 
             // https://stackoverflow.com/questions/63991157/how-do-i-upload-multiple-files-with-nestjs-graphql
             uploads: false,
-        }),
-        BullModule.forRoot({
-            redis: {
-                host: config.redis.host,
-                port: config.redis.port,
-                password: config.redis.password,
-                tls: config.redis.secure
-                    ? {
-                          host: config.redis.host,
-                          servername: config.redis.host,
-                      }
-                    : undefined,
-                keyPrefix: `${config.redis.prefix}:bull`,
-            },
-            prefix: `${config.redis.prefix}:bull`,
         }),
         InternalModule,
         PublicModule,
