@@ -10,7 +10,7 @@ import {
 } from "@sprocketbot/common";
 
 import {MLE_OrganizationTeam} from "$mledb";
-import type {GameSkillGroup} from "$models";
+import type {GameSkillGroup, User} from "$models";
 import {Member, Player} from "$models";
 import {
     GameSkillGroupRepository,
