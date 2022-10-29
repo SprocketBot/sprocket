@@ -2,10 +2,10 @@ import {Field, ObjectType} from "@nestjs/graphql";
 
 import {Organization, OrganizationProfile} from "$models";
 
-import {BaseObject} from "../../base-object";
+import {BaseModel} from "../../../database";
 
 @ObjectType()
-export class SprocketOrganization extends BaseObject {
+export class SprocketOrganization extends BaseModel {
     constructor(
         {id, createdAt, updatedAt, deletedAt}: Organization,
         {name, description, websiteUrl, primaryColor, secondaryColor, logoUrl}: OrganizationProfile,
