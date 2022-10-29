@@ -1,7 +1,7 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne} from "typeorm";
 
-import {OrganizationStaffSeat} from "../../authorization/organization_staff_seat/organization_staff_seat.model";
+import {OrganizationStaffSeat} from "../../authorization/models";
 import {BaseModel} from "../../base-model";
 import {Player} from "../../franchise/player/player.model";
 import {User} from "../../identity/user/user.model";

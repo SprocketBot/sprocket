@@ -1,8 +1,6 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 
-// For some reason this doesn't exist on $models
-// eslint-disable-next-line no-restricted-imports
-import {MemberRestriction} from "../../database/organization/member_restriction/member_restriction.model";
+import {MemberRestriction} from "$models";
 
 @ObjectType()
 export class MemberRestrictionEvent extends MemberRestriction {
