@@ -8,6 +8,7 @@ import {MemberRepository} from "$repositories";
 import {JwtAuthPayloadSchema} from "../../authentication/types";
 import {AuthorizationService} from "../authorization.service";
 import {MetadataKeys} from "../authorization.types";
+import type {ActionsOperator} from "../decorators/actions.decorator";
 
 @Injectable()
 export class ActionGuard implements CanActivate {
@@ -18,10 +19,10 @@ export class ActionGuard implements CanActivate {
     ) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
-        const requiredActions = this.reflector.getAllAndOverride<string[] | undefined>(MetadataKeys.Actions, [
-            context.getHandler(),
-            context.getClass(),
-        ]);
+        const requiredActions = this.reflector.getAllAndOverride<Array<string | ActionsOperator> | undefined>(
+            MetadataKeys.Actions,
+            [context.getHandler(), context.getClass()],
+        );
 
         if (!requiredActions?.length) return true;
 
@@ -37,7 +38,13 @@ export class ActionGuard implements CanActivate {
         if (!member) return false;
 
         const memberActions = await this.authorizationService.getMemberActions(member.id);
-        if (!requiredActions.some(requiredAction => memberActions.includes(requiredAction))) return false;
+        if (
+            !requiredActions.some(requiredAction => {
+                if (requiredAction instanceof Function) return requiredAction(memberActions);
+                return memberActions.includes(requiredAction);
+            })
+        )
+            return false;
         return true;
     }
 }
