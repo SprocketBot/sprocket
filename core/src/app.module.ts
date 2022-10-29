@@ -7,6 +7,7 @@ import {RedisCache} from "apollo-server-cache-redis";
 import {graphqlUploadExpress} from "graphql-upload";
 
 import {InternalModule} from "./internal/internal.module";
+import { PublicModule } from './public/public.module';
 
 @Module({
     imports: [
@@ -62,6 +63,7 @@ import {InternalModule} from "./internal/internal.module";
             prefix: `${config.redis.prefix}:bull`,
         }),
         InternalModule,
+        PublicModule,
     ],
 })
 export class AppModule implements NestModule {
