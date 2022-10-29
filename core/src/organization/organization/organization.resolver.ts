@@ -2,8 +2,9 @@ import {UseGuards} from "@nestjs/common";
 import {Args, Int, Mutation, Query, ResolveField, Resolver, Root} from "@nestjs/graphql";
 
 import {MLE_OrganizationTeam} from "$mledb";
-import {Organization, OrganizationProfile} from "$models";
-import {OrganizationProfiledRepository, OrganizationRepository} from "$repositories";
+import {Member, Organization, OrganizationProfile} from "$models";
+import {MemberProfileRepository, OrganizationProfiledRepository, OrganizationRepository} from "$repositories";
+import {SimilarityOptions} from "$types";
 
 import {GraphQLJwtAuthGuard} from "../../authentication/guards";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
@@ -15,6 +16,7 @@ export class OrganizationResolver {
     constructor(
         private readonly organizationRepository: OrganizationRepository,
         private readonly organizationProfiledRepository: OrganizationProfiledRepository,
+        private readonly memberProfileRepository: MemberProfileRepository,
         private readonly populateService: PopulateService,
     ) {}
 
@@ -43,5 +45,30 @@ export class OrganizationResolver {
             organization.profile ??
             (await this.populateService.populateOneOrFail(Organization, organization as Organization, "profile"))
         );
+    }
+
+    @ResolveField(() => [Member])
+    async members(
+        @Root() organization: Partial<Organization>,
+        @Args("search", {type: () => SimilarityOptions, nullable: true}) search?: SimilarityOptions,
+    ): Promise<Member[]> {
+        if (!search)
+            return (
+                organization.members ??
+                this.populateService.populateMany(Organization, organization as Organization, "members")
+            );
+
+        const similarityBuilder = this.memberProfileRepository.similarityBuilder(
+            search.query,
+            "name",
+            search.threshold,
+            search.limit,
+        );
+        const memberProfiles = await similarityBuilder
+            .innerJoinAndSelect("MemberProfile.member", "member")
+            .andWhere("member.organizationId = :organizationId", {organizationId: organization.id})
+            .getMany();
+
+        return memberProfiles.map(mp => mp.member);
     }
 }

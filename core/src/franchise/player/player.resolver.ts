@@ -9,8 +9,8 @@ import {
     NotificationType,
 } from "@sprocketbot/common";
 
-import {MLE_OrganizationTeam} from "$mledb";
-import type {GameSkillGroup} from "$models";
+import {League, LeagueOrdinals, MLE_OrganizationTeam, MLE_Platform, ModePreference, Timezone} from "$mledb";
+import type {GameSkillGroup, User} from "$models";
 import {Member, Player} from "$models";
 import {
     GameSkillGroupRepository,
@@ -53,12 +53,12 @@ export class PlayerResolver {
     async franchiseName(@Root() player: Partial<Player>): Promise<string> {
         if (player.franchiseName) return player.franchiseName;
 
-        if (!player.member) player.member = await this.popService.populateOneOrFail(Player, player as Player, "member");
-        player.member.user =
-            (player.member as Partial<Member>).user ??
-            (await this.popService.populateOneOrFail(Member, player.member, "user"));
+        const member: Partial<Member> =
+            player.member ?? (await this.popService.populateOneOrFail(Player, player as Player, "member"));
+        const user: Partial<User> =
+            member.user ?? (await this.popService.populateOneOrFail(Member, member as Member, "user"));
+        const franchiseResult = await this.franchiseService.getPlayerFranchises(user.id!);
 
-        const franchiseResult = await this.franchiseService.getPlayerFranchises(player.member.user.id);
         // Because we are using MLEDB right now; assume that we only have one
         return franchiseResult[0].name;
     }

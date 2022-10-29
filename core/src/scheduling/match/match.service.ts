@@ -1,5 +1,6 @@
 import {Injectable, Logger} from "@nestjs/common";
 import type {BallchasingPlayer, CoreEndpoint, CoreOutput} from "@sprocketbot/common";
+import {BallchasingTeamSchema} from "@sprocketbot/common";
 import {DataSource, IsNull, Not} from "typeorm";
 
 import type {Invalidation, Round, ScheduledEvent, ScrimMeta, Team} from "$models";
@@ -300,6 +301,14 @@ export class MatchService {
             if (!isNcp && replay.isDummy) {
                 await this.roundRepository.delete(replay.id);
             } else {
+                if (!replay.teamStats.some(t => t.team?.id === winningTeam?.id)) {
+                    this.logger.error(
+                        `ERROR: Round ${replay.id} cannot be NCP'd. Winning team ${winningTeam?.franchise.profile.title} did not participate.`,
+                    );
+                    throw new Error(
+                        `ERROR: Round ${replay.id} cannot be NCP'd. Winning team ${winningTeam?.franchise.profile.title} did not participate.`,
+                    );
+                }
                 replay.invalidation = invalidation;
                 await this.roundRepository.save(replay);
             }
@@ -343,30 +352,38 @@ export class MatchService {
         };
 
         for (const round of match.rounds) {
-            const orangeStats = round.teamStats[1].playerStats.map(p => PlayerStatLineStatsSchema.safeParse(p.stats));
-            const blueStats = round.teamStats[0].playerStats.map(p => PlayerStatLineStatsSchema.safeParse(p.stats));
+            const team1Stats = BallchasingTeamSchema.safeParse(round.teamStats[0]);
+            const team2Stats = BallchasingTeamSchema.safeParse(round.teamStats[1]);
+            if (!team1Stats.success) throw new Error("Failed to convert");
+            if (!team2Stats.success) throw new Error("Failed to convert");
 
-            const orangeStatsResults: BallchasingPlayer[] = [];
-            const blueStatsResults: BallchasingPlayer[] = [];
+            const team1IsOrange = team1Stats.data.color === "orange";
+            const orangeScore = team1IsOrange ? team1Stats.data.stats.core.goals : team2Stats.data.stats.core.goals;
+            const blueScore = team1IsOrange ? team2Stats.data.stats.core.goals : team1Stats.data.stats.core.goals;
 
-            const errors: Error[] = [];
+            const team1Players = round.teamStats[0].playerStats.map(p => PlayerStatLineStatsSchema.safeParse(p.stats));
+            const team2Players = round.teamStats[1].playerStats.map(p => PlayerStatLineStatsSchema.safeParse(p.stats));
 
-            orangeStats.forEach(stat => {
-                if (stat.success) orangeStatsResults.push(stat.data.otherStats);
-                else errors.push(stat.error);
+            const orangePlayers: BallchasingPlayer[] = [];
+            const bluePlayers: BallchasingPlayer[] = [];
+
+            const errors: string[] = [];
+            team1Players.forEach(stat => {
+                if (stat.success)
+                    team1IsOrange ? orangePlayers.push(stat.data.otherStats) : bluePlayers.push(stat.data.otherStats);
+                else errors.push(stat.error.toString());
             });
 
-            blueStats.forEach(stat => {
-                if (stat.success) blueStatsResults.push(stat.data.otherStats);
-                else errors.push(stat.error);
+            team2Players.forEach(stat => {
+                if (stat.success)
+                    team1IsOrange ? bluePlayers.push(stat.data.otherStats) : orangePlayers.push(stat.data.otherStats);
+                else errors.push(stat.error.toString());
             });
 
             if (errors.length) {
                 throw new Error("Failed to convert");
             }
 
-            const orangeScore = orangeStatsResults.reduce((sum, p) => sum + p.stats.core.goals, 0);
-            const blueScore = blueStatsResults.reduce((sum, p) => sum + p.stats.core.goals, 0);
             const stats = round.roundStats as {date?: string};
             let dateString = "";
             if (!stats.date) {
@@ -382,10 +399,10 @@ export class MatchService {
                 scoreOrange: orangeScore,
                 scoreBlue: blueScore,
                 blue: round.teamStats[0].playerStats.map((p, i) =>
-                    this.translatePlayerStats(p.player.id, blueStatsResults[i], TeamColor.BLUE),
+                    this.translatePlayerStats(p.player.id, bluePlayers[i], TeamColor.BLUE),
                 ),
                 orange: round.teamStats[1].playerStats.map((p, i) =>
-                    this.translatePlayerStats(p.player.id, orangeStatsResults[i], TeamColor.ORANGE),
+                    this.translatePlayerStats(p.player.id, orangePlayers[i], TeamColor.ORANGE),
                 ),
             };
 
