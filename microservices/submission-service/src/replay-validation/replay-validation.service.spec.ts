@@ -1,9 +1,15 @@
-import type {TestingModule} from "@nestjs/testing";
-import {Test} from "@nestjs/testing";
-import {CoreService, MatchmakingService, MinioService} from "@sprocketbot/common";
+import type {ReplaySubmissionItem, Scrim, ScrimReplaySubmission} from "@sprocketbot/common";
+import {ScrimStatus} from "@sprocketbot/common";
+import {ScrimMode} from "@sprocketbot/common";
+import {
+    CoreService,
+    MatchmakingService,
+    MinioService,
+    ReplaySubmissionStatus,
+    ReplaySubmissionType,
+} from "@sprocketbot/common";
 import {mock} from "ts-mockito";
 
-import {ReplaySubmissionModule} from "../replay-submission/replay-submission.module";
 import {ReplayValidationService} from "./replay-validation.service";
 
 describe("ReplayValidationService", () => {
@@ -14,17 +20,71 @@ describe("ReplayValidationService", () => {
     const minioService: MinioService = mock(MinioService);
 
     beforeEach(async () => {
-        // const module: TestingModule = await Test.createTestingModule({
-        //     imports: [CoreModule, MatchmakingModule, MinioModule, ReplaySubmissionModule, UtilModule],
-        //     providers: [ReplayValidationService],
-        // }).compile();
-        //     service =
-        //     module.get<ReplayValidationService>(ReplayValidationService);
-
         service = new ReplayValidationService(coreService, matchmakingService, minioService);
     });
 
     it("should be defined", () => {
         expect(service).toBeDefined();
+    });
+
+    describe("Validate Scrims:", () => {
+        const testSubmission: ScrimReplaySubmission = {
+            items: [],
+            id: "1",
+            type: ReplaySubmissionType.SCRIM,
+            scrimId: "1",
+            creatorId: 1,
+            validated: false,
+            status: ReplaySubmissionStatus.VALIDATING,
+            taskIds: ["1"],
+            ratifiers: [1],
+            requiredRatifications: 2,
+            rejections: [],
+        };
+        const testItem: ReplaySubmissionItem = {
+            taskId: "",
+            originalFilename: "",
+            inputPath: "",
+        };
+        const testScrim: Scrim = {
+            id: "1",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            status: ScrimStatus.IN_PROGRESS,
+            unlockedStatus: ScrimStatus.IN_PROGRESS,
+
+            submissionId: "1",
+            authorId: 1,
+            organizationId: 2,
+            gameModeId: 1,
+            skillGroupId: 5,
+            timeoutJobId: 1,
+
+            players: [],
+            games: [],
+            settings: {
+                teamSize: 2,
+                teamCount: 2,
+                mode: ScrimMode.ROUND_ROBIN,
+                competitive: true,
+                observable: true,
+                checkinTimeout: 4,
+            },
+        };
+        it("Should validate that the two arrays are the same length", () => {
+            expect(service.validateNumberOfGames(testSubmission, testScrim)).toStrictEqual({valid: true});
+        });
+
+        it("Should return an error for different length arrays", () => {
+            testSubmission.items.push(testItem);
+            expect(service.validateNumberOfGames(testSubmission, testScrim)).toStrictEqual({
+                valid: false,
+                errors: [
+                    {
+                        error: "Incorrect number of replays submitted, expected 0 but found 1",
+                    },
+                ],
+            });
+        });
     });
 });
