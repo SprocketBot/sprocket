@@ -13,7 +13,9 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint src --fix",
-    "lint:check": "eslint src"
+    "lint:check": "eslint src",
+    "test": "jest --coverage --config ./jest.config.js",
+    "test:watch": "jest --watch --config ./jest.config.js"
   },
   "keywords": [],
   "author": "",
@@ -32,9 +34,11 @@
     "amqplib": "^0.8.0",
     "config": "^3.3.7",
     "ioredis": "^4.28.3",
+    "jest-mock": "^29.2.2",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.4.0",
+    "ts-mockito": "^2.6.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
