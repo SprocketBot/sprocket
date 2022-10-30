@@ -4,6 +4,7 @@ import type {
     GetPlayerSuccessResponse,
     MatchReplaySubmission,
     ReplaySubmission,
+    Scrim,
     ScrimReplaySubmission,
 } from "@sprocketbot/common";
 import {
@@ -39,24 +40,15 @@ export class ReplayValidationService {
         return this.validateMatchSubmission(submission);
     }
 
-    private async validateScrimSubmission(submission: ScrimReplaySubmission): Promise<ValidationResult> {
-        const scrimResponse = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, submission.scrimId);
-        if (scrimResponse.status === ResponseStatus.ERROR) throw scrimResponse.error;
-        if (!scrimResponse.data) throw new Error("Scrim not found");
-
-        const scrim = scrimResponse.data;
-
-        // ========================================
-        // Validate number of games
-        // ========================================
-        if (!scrim.games) {
-            throw new Error(`Unable to validate gameCount for scrim ${scrim.id} because it has no games`);
-        }
-
+    validateNumberOfGames(submission: ScrimReplaySubmission, scrim: Scrim): ValidationResult {
         const submissionGameCount = submission.items.length;
-        const scrimGameCount = scrim.games.length;
+        const scrimGameCount = scrim?.games?.length;
 
-        if (submissionGameCount !== scrimGameCount) {
+        if (submissionGameCount === scrimGameCount) {
+            return {
+                valid: true,
+            };
+        } else {
             return {
                 valid: false,
                 errors: [
@@ -66,9 +58,9 @@ export class ReplayValidationService {
                 ],
             };
         }
+    }
 
-        const gameCount = submissionGameCount;
-
+    checkForProcessingErrors(submission: ScrimReplaySubmission, scrim: Scrim): ValidationResult {
         const progressErrors = submission.items.reduce<ValidationError[]>((r, v) => {
             if (v.progress?.error) {
                 this.logger.error(
@@ -85,6 +77,39 @@ export class ReplayValidationService {
                 valid: false,
                 errors: progressErrors,
             };
+        } else {
+            return {
+                valid: true,
+            };
+        }
+    }
+
+    private async validateScrimSubmission(submission: ScrimReplaySubmission): Promise<ValidationResult> {
+        const scrimResponse = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, submission.scrimId);
+        if (scrimResponse.status === ResponseStatus.ERROR) throw scrimResponse.error;
+        if (!scrimResponse.data) throw new Error("Scrim not found");
+
+        const scrim = scrimResponse.data;
+        const gameCount = submission.items.length;
+
+        if (!scrim.games) {
+            throw new Error(`Unable to validate gameCount for scrim ${scrim.id} because it has no games`);
+        }
+
+        // ========================================
+        // Validate number of games
+        // ========================================
+        let thisResult = this.validateNumberOfGames(submission, scrim);
+        if (!thisResult.valid) {
+            return thisResult;
+        }
+
+        // ========================================
+        // Validate no errors in processing the replays
+        // ========================================
+        thisResult = this.checkForProcessingErrors(submission, scrim);
+        if (!thisResult.valid) {
+            return thisResult;
         }
 
         // ========================================
