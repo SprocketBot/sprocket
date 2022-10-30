@@ -1,4 +1,5 @@
 import type {ReplaySubmissionItem, Scrim, ScrimReplaySubmission} from "@sprocketbot/common";
+import {ProgressStatus} from "@sprocketbot/common";
 import {ScrimStatus} from "@sprocketbot/common";
 import {ScrimMode} from "@sprocketbot/common";
 import {
@@ -45,6 +46,16 @@ describe("ReplayValidationService", () => {
             taskId: "",
             originalFilename: "",
             inputPath: "",
+            progress: {
+                taskId: "1",
+                status: ProgressStatus.Error,
+                progress: {
+                    value: 10,
+                    message: "Hai",
+                },
+                result: null,
+                error: "Test error",
+            },
         };
         const testScrim: Scrim = {
             id: "1",
@@ -71,8 +82,13 @@ describe("ReplayValidationService", () => {
                 checkinTimeout: 4,
             },
         };
+
         it("Should validate that the two arrays are the same length", () => {
             expect(service.validateNumberOfGames(testSubmission, testScrim)).toStrictEqual({valid: true});
+        });
+
+        it("Should pass validation because there are no error progress messages yet", () => {
+            expect(service.checkForProcessingErrors(testSubmission, testScrim)).toStrictEqual({valid: true});
         });
 
         it("Should return an error for different length arrays", () => {
@@ -82,6 +98,17 @@ describe("ReplayValidationService", () => {
                 errors: [
                     {
                         error: "Incorrect number of replays submitted, expected 0 but found 1",
+                    },
+                ],
+            });
+        });
+
+        it("Should fail validation because there's an error progress message.", () => {
+            expect(service.checkForProcessingErrors(testSubmission, testScrim)).toStrictEqual({
+                valid: false,
+                errors: [
+                    {
+                        error: "Error encountered while parsing file ",
                     },
                 ],
             });
