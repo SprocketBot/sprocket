@@ -73,7 +73,7 @@ describe("AuthorizationService", () => {
     });
 
     describe("authorization.service.ts", () => {
-        it("Do that one thing", async () => {
+        it("Should return the actions a member is permitted to do", async () => {
             const member = getMockMember(["KickShuckle"], ["KickShuckle", "BanShuckle"], ["LaughAtShuckle"]);
 
             memberRepository.getById.mockResolvedValue(member);
