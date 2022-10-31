@@ -1,4 +1,4 @@
-import type {ReplaySubmissionItem, Scrim, ScrimReplaySubmission} from "@sprocketbot/common";
+import type {MatchReplaySubmission, ReplaySubmissionItem, Scrim, ScrimReplaySubmission} from "@sprocketbot/common";
 import {ProgressStatus} from "@sprocketbot/common";
 import {ScrimStatus} from "@sprocketbot/common";
 import {ReplaySubmissionStatus, ReplaySubmissionType, ScrimMode} from "@sprocketbot/common";
@@ -9,6 +9,20 @@ export const testSubmission: ScrimReplaySubmission = {
     type: ReplaySubmissionType.SCRIM,
     scrimId: "1",
     creatorId: 1,
+    validated: false,
+    status: ReplaySubmissionStatus.VALIDATING,
+    taskIds: ["1"],
+    ratifiers: [1],
+    requiredRatifications: 2,
+    rejections: [],
+};
+
+export const testMatchSubmission: MatchReplaySubmission = {
+    items: [],
+    id: "1",
+    type: ReplaySubmissionType.MATCH,
+    creatorId: 1,
+    matchId: 1,
     validated: false,
     status: ReplaySubmissionStatus.VALIDATING,
     taskIds: ["1"],

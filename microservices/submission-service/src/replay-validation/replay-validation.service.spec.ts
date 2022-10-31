@@ -1,9 +1,10 @@
-import {BallchasingResponseSchema, CoreService, MatchmakingService, MinioService} from "@sprocketbot/common";
+import {CoreService, MatchmakingService, MinioService} from "@sprocketbot/common";
+import * as jest from "jest";
 import {mock} from "ts-mockito";
 
 import {ReplayValidationService} from "./replay-validation.service";
 import {testResponse} from "./utils/ballchasing-response.test-data";
-import {testItem, testItem2, testScrim, testSubmission} from "./utils/replay-validation.test-data";
+import {testItem, testItem2, testMatchSubmission, testScrim, testSubmission} from "./utils/replay-validation.test-data";
 import {sortIds} from "./utils/sortIds";
 
 describe("ReplayValidationService", () => {
@@ -54,6 +55,40 @@ describe("ReplayValidationService", () => {
             expect(sortIds(inputGames)).toStrictEqual(expectedOutput);
         });
     });
+
+    describe("Check parent method branches properly:", () => {
+        it("Should validate as a scrim", async () => {
+            const scrimResponseObject = {
+                valid: true,
+                errors: [
+                    {
+                        error: "This is a scrim",
+                    },
+                ],
+            };
+            service.validateScrimSubmission = async _ => {
+                return scrimResponseObject;
+            };
+            expect(await service.validate(testSubmission)).toStrictEqual(scrimResponseObject);
+        });
+
+        it("Should validate as a match", async () => {
+            const matchResponseObject = {
+                valid: true,
+                errors: [
+                    {
+                        error: "This is a match",
+                    },
+                ],
+            };
+            service.validateMatchSubmission = async _ => {
+                return matchResponseObject;
+            };
+
+            expect(await service.validate(testMatchSubmission)).toStrictEqual(matchResponseObject);
+        });
+    });
+
     describe("Validate Scrims:", () => {
         it("Should validate that the two arrays are the same length", () => {
             expect(service.validateNumberOfGames(testSubmission, testScrim)).toStrictEqual({valid: true});

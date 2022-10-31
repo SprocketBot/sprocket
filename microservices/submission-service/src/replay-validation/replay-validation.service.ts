@@ -123,7 +123,7 @@ export class ReplayValidationService {
         }
     }
 
-    private async validateScrimSubmission(submission: ScrimReplaySubmission): Promise<ValidationResult> {
+    async validateScrimSubmission(submission: ScrimReplaySubmission): Promise<ValidationResult> {
         const scrimResponse = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, submission.scrimId);
         if (scrimResponse.status === ResponseStatus.ERROR) throw scrimResponse.error;
         if (!scrimResponse.data) throw new Error("Scrim not found");
@@ -338,7 +338,7 @@ export class ReplayValidationService {
         return JSON.parse(stats).data as BallchasingResponse;
     }
 
-    private async validateMatchSubmission(submission: MatchReplaySubmission): Promise<ValidationResult> {
+    async validateMatchSubmission(submission: MatchReplaySubmission): Promise<ValidationResult> {
         const matchResult = await this.coreService.send(CoreEndpoint.GetMatchById, {matchId: submission.matchId});
         if (matchResult.status === ResponseStatus.ERROR) throw matchResult.error;
         const match = matchResult.data;
