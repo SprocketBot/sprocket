@@ -13,7 +13,7 @@ import {getMockMember} from "./authorization.service.spec.helpers";
 import {ActionsAnd, ActionsOr} from "./decorators/actions.decorator";
 import {ActionGuard} from "./guards/action.guard";
 
-describe("AuthorizationService", () => {
+describe("Authorization", () => {
     let service: AuthorizationService;
     let memberRepository: {getById: jest.Mock; getOrNull: jest.Mock};
     let reflector;
