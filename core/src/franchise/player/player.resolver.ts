@@ -262,32 +262,38 @@ export class PlayerResolver {
         const results = csvs.flatMap(csv => csv.split(/(?:\r)?\n/g).map(l => l.trim().split(","))).filter(r => r.length > 1);
         const parsed = IntakeSchema.parse(results);
 
-        const imported = await Promise.allSettled(parsed.map(async player => {
+        const imported: Player[] = [];
+
+        for (const player of parsed) {
             const sg = await this.skillGroupService.getGameSkillGroup({where: {ordinal: LeagueOrdinals.indexOf(player.skillGroup) + 1} });
             const accs = player.accounts.map(acc => {
                 const match = acc.match(/rocket-league\/profile\/(\w+)\/([\w _.\-%[\]]+)/);
                 if (!match) throw new Error("Failed to match tracker");
-
+    
                 return {
                     platform: platformTransform[match[1]] as MLE_Platform,
                     platformId: match[2],
                     tracker: acc,
                 };
             });
-            return this.playerService.intakePlayer(
-                player.mleid,
-                player.discordId,
-                player.name,
-                sg.id,
-                player.salary,
-                player.preferredPlatform,
-                accs,
-                player.timezone,
-                player.preferredMode,
-            );
-        }));
 
-        // @ts-expect-error Trust that this will work.
-        return imported.filter(i => i.status === "fulfilled").map(i => i.value as Player);
+            try {
+                imported.push(await this.playerService.intakePlayer(
+                    player.mleid,
+                    player.discordId,
+                    player.name,
+                    sg.id,
+                    player.salary,
+                    player.preferredPlatform,
+                    accs,
+                    player.timezone,
+                    player.preferredMode,
+                ));
+            } catch {
+                continue;
+            }
+        }
+
+        return imported;
     }
 }

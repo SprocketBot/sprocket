@@ -6,7 +6,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 import type {
     CoreEndpoint,
     CoreOutput,
-    NotificationInput
+    NotificationInput,
 } from "@sprocketbot/common";
 import {
     ButtonComponentStyle,
@@ -734,7 +734,7 @@ export class PlayerService {
             } else {
                 await this.updatePlayerStanding(playerDelta.playerId, playerDelta.newSalary);
                 const newMlePlayer = this.mle_playerRepository.merge(mlePlayer, {
-                        salary: playerDelta.newSalary,
+                    salary: playerDelta.newSalary,
                 });
 
                 await this.mle_playerRepository.save(newMlePlayer);
