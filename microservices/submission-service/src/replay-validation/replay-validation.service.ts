@@ -64,7 +64,7 @@ export class ReplayValidationService {
         const progressErrors = submission.items.reduce<ValidationError[]>((r, v) => {
             if (v.progress?.error) {
                 this.logger.error(
-                    `Error in submission found, scrim=${scrim.id} submissionId=${scrim.submissionId}\n${v.progress.error}`,
+                    `Error in submission found, scrim=${scrim.id} submissionId=${scrim.submissionId},${v.progress.error}`,
                 );
                 r.push({
                     error: `Error encountered while parsing file ${v.originalFilename}`,
@@ -82,6 +82,25 @@ export class ReplayValidationService {
                 valid: true,
             };
         }
+    }
+
+    checkOutputPathExists(submission: ScrimReplaySubmission, scrim: Scrim): ValidationResult {
+        if (!submission.items.every(i => i.outputPath)) {
+            this.logger.error(
+                `Unable to validate submission with missing outputPath, scrim=${scrim.id} submissionId=${scrim.submissionId}`,
+            );
+            return {
+                valid: false,
+                errors: [
+                    {
+                        error: `Unable to validate submission with missing outputPath, scrim=${scrim.id} submissionId=${scrim.submissionId}`,
+                    },
+                ],
+            };
+        }
+        return {
+            valid: true,
+        };
     }
 
     private async validateScrimSubmission(submission: ScrimReplaySubmission): Promise<ValidationResult> {
@@ -116,14 +135,9 @@ export class ReplayValidationService {
         // Validate the correct players played
         // ========================================
         // All items should have an outputPath
-        if (!submission.items.every(i => i.outputPath)) {
-            this.logger.error(
-                `Unable to validate submission with missing outputPath, scrim=${scrim.id} submissionId=${scrim.submissionId}`,
-            );
-            return {
-                valid: false,
-                errors: [],
-            };
+        thisResult = this.checkOutputPathExists(submission, scrim);
+        if (!thisResult.valid) {
+            return thisResult;
         }
 
         // We should have stats for every game

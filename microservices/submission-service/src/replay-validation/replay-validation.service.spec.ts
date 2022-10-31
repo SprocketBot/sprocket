@@ -12,6 +12,7 @@ import {
 import {mock} from "ts-mockito";
 
 import {ReplayValidationService} from "./replay-validation.service";
+import {sortIds} from "./utils/sortIds";
 
 describe("ReplayValidationService", () => {
     let service: ReplayValidationService;
@@ -28,6 +29,39 @@ describe("ReplayValidationService", () => {
         expect(service).toBeDefined();
     });
 
+    describe("Sort IDs:", () => {
+        it("Should sort properly", () => {
+            const inputGames = [
+                [
+                    [1, 2],
+                    [3, 4],
+                ],
+                [
+                    [2, 1],
+                    [3, 4],
+                ],
+                [
+                    [4, 3],
+                    [2, 1],
+                ],
+            ];
+            const expectedOutput = [
+                [
+                    [1, 2],
+                    [3, 4],
+                ],
+                [
+                    [1, 2],
+                    [3, 4],
+                ],
+                [
+                    [1, 2],
+                    [3, 4],
+                ],
+            ];
+            expect(sortIds(inputGames)).toStrictEqual(expectedOutput);
+        });
+    });
     describe("Validate Scrims:", () => {
         const testSubmission: ScrimReplaySubmission = {
             items: [],
@@ -46,6 +80,22 @@ describe("ReplayValidationService", () => {
             taskId: "",
             originalFilename: "",
             inputPath: "",
+            progress: {
+                taskId: "1",
+                status: ProgressStatus.Error,
+                progress: {
+                    value: 10,
+                    message: "Hai",
+                },
+                result: null,
+                error: "Test error",
+            },
+        };
+        const testItem2: ReplaySubmissionItem = {
+            taskId: "",
+            originalFilename: "",
+            inputPath: "",
+            outputPath: "HAI",
             progress: {
                 taskId: "1",
                 status: ProgressStatus.Error,
@@ -112,6 +162,23 @@ describe("ReplayValidationService", () => {
                     },
                 ],
             });
+        });
+
+        it("Should fail because outputPath is missing.", () => {
+            expect(service.checkOutputPathExists(testSubmission, testScrim)).toStrictEqual({
+                valid: false,
+                errors: [
+                    {
+                        error: "Unable to validate submission with missing outputPath, scrim=1 submissionId=1",
+                    },
+                ],
+            });
+        });
+
+        it("Should pass because outputPath now has a value.", () => {
+            testSubmission.items.splice(0, 1);
+            testSubmission.items.push(testItem2);
+            expect(service.checkOutputPathExists(testSubmission, testScrim)).toStrictEqual({valid: true});
         });
     });
 });
