@@ -103,6 +103,26 @@ export class ReplayValidationService {
         };
     }
 
+    async checkForAllStats(
+        stats: BallchasingResponse[],
+        submission: ScrimReplaySubmission,
+        scrim: Scrim,
+    ): Promise<ValidationResult> {
+        if (stats.length !== submission.items.length) {
+            this.logger.error(
+                `Unable to validate submission: missing stats. Scrim=${scrim.id} submissionId=${scrim.submissionId}`,
+            );
+            return {
+                valid: false,
+                errors: [{error: "The submission is missing stats. Please contact support."}],
+            };
+        } else {
+            return {
+                valid: true,
+            };
+        }
+    }
+
     private async validateScrimSubmission(submission: ScrimReplaySubmission): Promise<ValidationResult> {
         const scrimResponse = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, submission.scrimId);
         if (scrimResponse.status === ResponseStatus.ERROR) throw scrimResponse.error;
@@ -142,14 +162,9 @@ export class ReplayValidationService {
 
         // We should have stats for every game
         const stats = await Promise.all(submission.items.map(async i => this.getStats(i.outputPath!)));
-        if (stats.length !== gameCount) {
-            this.logger.error(
-                `Unable to validate submission missing stats, scrim=${scrim.id} submissionId=${scrim.submissionId}`,
-            );
-            return {
-                valid: false,
-                errors: [{error: "The submission is missing stats. Please contact support."}],
-            };
+        thisResult = await this.checkForAllStats(stats, submission, scrim);
+        if (!thisResult.valid) {
+            return thisResult;
         }
 
         const gameResult = await this.coreService.send(CoreEndpoint.GetGameByGameMode, {gameModeId: scrim.gameModeId});
