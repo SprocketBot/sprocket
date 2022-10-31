@@ -17,13 +17,18 @@ export class ScrimManagementResolver {
 
     @Query(() => [Scrim])
     async getActiveScrims(
-        @Args("skillGroupId", {
+        @Args("organizationId", {
             type: () => Int,
             nullable: true,
         })
-        skillGroupId: number,
+        organizationId: number,
+        @Args("skillGroupIds", {
+            type: () => [Int],
+            nullable: true,
+        })
+        skillGroupIds: number[],
     ): Promise<IScrim[]> {
-        return this.scrimService.getAllScrims(skillGroupId);
+        return this.scrimService.getAllScrims(organizationId, skillGroupIds);
     }
 
     @Mutation(() => Scrim)
