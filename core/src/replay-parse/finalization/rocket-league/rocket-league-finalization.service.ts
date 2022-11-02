@@ -7,9 +7,8 @@ import type {QueryDeepPartialEntity} from "typeorm/query-builder/QueryPartialEnt
 
 import type {Player, Team} from "$models";
 import {EligibilityData, GameMode, Match, MatchParent, PlayerStatLine, Round, ScrimMeta, TeamStatLine} from "$models";
-import {MatchRepository, TeamRepository} from "$repositories";
+import {MatchRepository, PlayerRepository, TeamRepository} from "$repositories";
 
-import {PlayerService} from "../../../franchise";
 import {MledbFinalizationService, MledbPlayerService} from "../../../mledb";
 import {MatchService} from "../../../scheduling";
 import {SprocketRatingService} from "../../../sprocket-rating/sprocket-rating.service";
@@ -24,7 +23,6 @@ export class RocketLeagueFinalizationService {
     private readonly logger = new Logger(RocketLeagueFinalizationService.name);
 
     constructor(
-        private readonly playerService: PlayerService,
         private readonly matchService: MatchService,
         private readonly matchRepository: MatchRepository,
         private readonly sprocketRatingService: SprocketRatingService,
@@ -32,6 +30,7 @@ export class RocketLeagueFinalizationService {
         private readonly teamRepository: TeamRepository,
         private readonly ballchasingConverter: BallchasingConverterService,
         private readonly mledbFinalizationService: MledbFinalizationService,
+        private readonly playerRepository: PlayerRepository,
         private readonly dataSource: DataSource,
     ) {}
 
@@ -335,7 +334,7 @@ export class RocketLeagueFinalizationService {
     }> {
         // TODO: This won't work when we support multiple games; in theory is an array of players for that member.
         const lookupFn = async (p: BallchasingPlayer): Promise<Player> =>
-            this.playerService.getPlayer({
+            this.playerRepository.get({
                 where: {
                     member: {
                         platformAccounts: {

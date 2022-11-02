@@ -9,9 +9,8 @@ export class FranchiseProfileResolver {
     constructor(private readonly popService: PopulateService) {}
 
     @ResolveField()
-    async photo(@Root() root: FranchiseProfile): Promise<Photo | undefined> {
-        if (root.photo) return root.photo;
-        return this.popService.populateOne(FranchiseProfile, root, "photo");
+    async photo(@Root() franchiseProfile: FranchiseProfile): Promise<Photo | undefined> {
+        return franchiseProfile.photo ?? this.popService.populateOne(FranchiseProfile, franchiseProfile, "photo");
     }
 
     @ResolveField()

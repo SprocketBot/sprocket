@@ -3,10 +3,10 @@ import type {GraphQLExecutionContext} from "@nestjs/graphql";
 import type {Scrim} from "@sprocketbot/common";
 import {GraphQLError} from "graphql";
 
-import {GameModeRepository} from "$repositories";
+import {GameModeRepository, PlayerRepository} from "$repositories";
 
 import type {JwtAuthPayload} from "../authentication/types";
-import {PlayerGuard, PlayerService} from "../franchise";
+import {PlayerGuard} from "../franchise";
 import type {GameAndOrganization} from "../franchise/player/player.types";
 import {ScrimService} from "./scrim.service";
 import type {CreateScrimInput} from "./types";
@@ -16,7 +16,7 @@ import type {CreateScrimInput} from "./types";
  */
 @Injectable()
 export class CreateScrimPlayerGuard extends PlayerGuard {
-    constructor(private readonly gameModeRepository: GameModeRepository, readonly playerService: PlayerService) {
+    constructor(private readonly gameModeRepository: GameModeRepository, readonly playerRepository: PlayerRepository) {
         super();
     }
 
@@ -46,7 +46,7 @@ export class JoinScrimPlayerGuard extends PlayerGuard {
     constructor(
         private readonly scrimService: ScrimService,
         private readonly gameModeRepository: GameModeRepository,
-        readonly playerService: PlayerService,
+        readonly playerRepository: PlayerRepository,
     ) {
         super();
     }
@@ -70,7 +70,7 @@ export class JoinScrimPlayerGuard extends PlayerGuard {
  */
 @Injectable()
 export class ScrimResolverPlayerGuard extends PlayerGuard {
-    constructor(private readonly gameModeRepository: GameModeRepository, readonly playerService: PlayerService) {
+    constructor(private readonly gameModeRepository: GameModeRepository, readonly playerRepository: PlayerRepository) {
         super();
     }
 

@@ -21,7 +21,7 @@ import {MatchRepository, RoundRepository, TeamRepository} from "$repositories";
 import type {MatchSubmissionStatus} from "$types";
 
 import {GraphQLJwtAuthGuard} from "../../authentication/guards";
-import {CurrentPlayer} from "../../franchise/player";
+import {CurrentPlayer} from "../../authorization/decorators";
 import {MledbMatchService} from "../../mledb/mledb-match/mledb-match.service";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {PopulateService} from "../../util/populate/populate.service";
