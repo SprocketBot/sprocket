@@ -15,10 +15,17 @@ export class PlayerRepository extends ExtendedRepository<Player> {
         userId: number,
         organizationId: number,
         gameId: number,
-        options?: FindOneOptions<Player>,
+        options?: Omit<FindOneOptions<Player>, "where">,
     ): Promise<Player> {
         return this.get(
             Object.assign(
+                {
+                    relations: {
+                        member: true,
+                        skillGroup: true,
+                    },
+                },
+                options,
                 {
                     where: {
                         member: {
@@ -29,12 +36,7 @@ export class PlayerRepository extends ExtendedRepository<Player> {
                             gameId,
                         },
                     },
-                    relations: {
-                        member: true,
-                        skillGroup: true,
-                    },
                 },
-                options,
             ),
         );
     }

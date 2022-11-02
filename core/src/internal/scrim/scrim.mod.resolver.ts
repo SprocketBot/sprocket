@@ -78,7 +78,7 @@ export class ScrimModuleResolver {
         })
         status?: ScrimStatus,
     ): Promise<Scrim[]> {
-        const scrims = await this.scrimService.getAllScrims(undefined, member.organizationId);
+        const scrims = await this.scrimService.getAllScrims(member.organizationId);
         return (status ? scrims.filter(scrim => scrim.status === status) : scrims) as Scrim[];
     }
 
@@ -86,11 +86,12 @@ export class ScrimModuleResolver {
     @UseGuards(FormerPlayerScrimGuard, MemberGuard)
     async getAvailableScrims(@CurrentMember() member: Member): Promise<Scrim[]> {
         const players = await this.populateService.populateMany(Member, member, "players");
-        const scrims = await this.scrimService.getAllScrims(undefined, member.organizationId);
+        const scrims = await this.scrimService.getAllScrims(
+            member.organizationId,
+            players.map(p => p.skillGroupId),
+        );
 
-        return scrims.filter(
-            scrim => !scrim.settings.competitive || players.some(player => player.skillGroupId === scrim.skillGroupId),
-        ) as Scrim[];
+        return scrims as Scrim[];
     }
 
     @Query(() => Scrim, {nullable: true})

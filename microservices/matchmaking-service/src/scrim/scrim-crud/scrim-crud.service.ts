@@ -54,14 +54,14 @@ export class ScrimCrudService {
         return this.redisService.getJsonIfExists<Scrim>(`${this.prefix}${id}`, ScrimSchema);
     }
 
-    async getAllScrims(organizationId?: number, skillGroupId?: number): Promise<Scrim[]> {
+    async getAllScrims(organizationId?: number, skillGroupIds?: number[]): Promise<Scrim[]> {
         const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
         let scrims = await Promise.all(
             scrimKeys.map(async key => this.redisService.getJson<Scrim>(key, undefined, ScrimSchema)),
         );
 
-        if (skillGroupId)
-            scrims = scrims.filter(scrim => scrim.skillGroupId === skillGroupId && !scrim.settings.competitive);
+        if (skillGroupIds)
+            scrims = scrims.filter(scrim => skillGroupIds.includes(scrim.skillGroupId) && !scrim.settings.competitive);
         if (organizationId) scrims = scrims.filter(scrim => scrim.organizationId === organizationId);
 
         return scrims;

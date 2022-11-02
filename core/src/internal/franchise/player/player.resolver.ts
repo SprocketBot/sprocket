@@ -9,7 +9,7 @@ import {
     NotificationType,
 } from "@sprocketbot/common";
 
-import {League, LeagueOrdinals, MLE_OrganizationTeam, MLE_Platform, ModePreference, Timezone} from "$mledb";
+import {MLE_OrganizationTeam} from "$mledb";
 import type {GameSkillGroup, User} from "$models";
 import {Member, Player} from "$models";
 import {
