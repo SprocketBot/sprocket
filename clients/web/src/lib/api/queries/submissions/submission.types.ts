@@ -1,5 +1,5 @@
 export interface SubmissionRejection {
-    playerId: string;
+    userId: string;
     playerName: string;
     reason: string;
     stale: boolean;
@@ -17,7 +17,7 @@ export interface SubmissionProgress {
 export interface Submission {
     id: string;
     status: string;
-    creatorId: number;
+    creatorUserId: number;
     ratifications: number;
     requiredRatifications: number;
     userHasRatified: boolean;
