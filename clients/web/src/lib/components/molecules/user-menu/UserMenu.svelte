@@ -19,6 +19,10 @@
             label: "Sign Out",
             action: async () => goto("/auth/logout"),
         },
+        {
+            label: "Switch Organization",
+            action: async () => goto("/auth/org"),
+        },
     ];
 </script>
 
