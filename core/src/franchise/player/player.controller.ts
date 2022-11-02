@@ -11,11 +11,11 @@ import {
     NotificationService,
 } from "@sprocketbot/common";
 
+import {MledbPlayerService} from "$mledb";
 import {GameSkillGroupRepository, PlayerRepository, UserAuthenticationAccountRepository} from "$repositories";
 
 import type {ManualSkillGroupChange} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
-import {MledbPlayerService} from "../../mledb";
 import {PlayerService} from "./player.service";
 import {RankdownJwtPayloadSchema} from "./player.types";
 
