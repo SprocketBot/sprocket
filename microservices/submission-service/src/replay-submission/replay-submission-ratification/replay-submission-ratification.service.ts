@@ -21,20 +21,18 @@ export class ReplaySubmissionRatificationService {
         private readonly matchmakingService: MatchmakingService,
     ) {}
 
-    async resetSubmission(submissionId: string, override: boolean, playerId: string): Promise<void> {
+    async resetSubmission(submissionId: string, override: boolean, playerId: number): Promise<void> {
         if (!override) {
             if (submissionIsScrim(submissionId)) {
-                const scrimResponse = await this.matchmakingService.send(
-                    MatchmakingEndpoint.GetScrimBySubmissionId,
+                const scrimResponse = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, {
                     submissionId,
-                );
+                });
                 if (scrimResponse.status === ResponseStatus.ERROR || !scrimResponse.data) {
                     if (scrimResponse.status === ResponseStatus.ERROR) this.logger.error(scrimResponse.error);
                     throw new Error("Error fetching scrim");
                 }
                 const scrim = scrimResponse.data;
-                if (!scrim.players.some(p => p.id.toString() === playerId))
-                    throw new Error("You cannot reset this scrim");
+                if (!scrim.players.some(p => p.userId === playerId)) throw new Error("You cannot reset this scrim");
             }
         }
 

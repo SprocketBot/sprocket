@@ -17,7 +17,7 @@ export class SubmissionService {
         const result = await this.commonService.send(SubmissionEndpoint.ResetSubmission, {
             submissionId: submissionId,
             override: true,
-            playerId: "-1", // playerId is not used when `override=true`
+            userId: -1, // playerId is not used when `override=true`
         });
 
         if (result.status === ResponseStatus.SUCCESS) return result.data;

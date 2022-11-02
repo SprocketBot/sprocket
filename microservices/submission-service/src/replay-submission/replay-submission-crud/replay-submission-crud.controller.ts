@@ -37,6 +37,6 @@ export class ReplaySubmissionCrudController {
     ): Promise<SubmissionOutput<SubmissionEndpoint.GetSubmissionRejections>> {
         const data = SubmissionSchemas.RemoveSubmission.input.parse(payload);
         const rejections = await this.crudService.getSubmissionRejections(data.submissionId);
-        return rejections.map(r => r.playerId.toString());
+        return rejections.map(r => r.userId);
     }
 }

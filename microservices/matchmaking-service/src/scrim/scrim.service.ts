@@ -22,14 +22,14 @@ export class ScrimService {
     ) {}
 
     async createScrim({
-        authorId,
+        authorUserId,
         organizationId,
         gameModeId,
         skillGroupId,
         settings,
         join,
     }: CreateScrimOptions): Promise<Scrim> {
-        if (join && (await this.scrimCrudService.playerInAnyScrim(join.playerId)))
+        if (join && (await this.scrimCrudService.playerInAnyScrim(join.userId)))
             throw new RpcException(MatchmakingError.PlayerAlreadyInScrim);
         if (join?.createGroup && !this.scrimGroupService.modeAllowsGroups(settings.mode))
             throw new RpcException(MatchmakingError.ScrimGroupNotSupportedInMode);
@@ -37,14 +37,14 @@ export class ScrimService {
         let player: ScrimPlayer | undefined;
         if (join)
             player = {
-                id: join.playerId,
+                userId: join.userId,
                 name: join.playerName,
                 joinedAt: new Date(),
                 leaveAt: add(new Date(), {seconds: join.leaveAfter}),
             };
 
         const scrim = await this.scrimCrudService.createScrim({
-            authorId,
+            authorUserId,
             organizationId,
             gameModeId,
             skillGroupId,
@@ -64,7 +64,7 @@ export class ScrimService {
         this.analyticsService
             .send(AnalyticsEndpoint.Analytics, {
                 name: "scrimCreated",
-                tags: [["playerId", `${authorId}`]],
+                tags: [["userId", `${authorUserId}`]],
                 strings: [["scrimId", scrim.id]],
             })
             .catch(err => {
@@ -76,7 +76,7 @@ export class ScrimService {
 
     async joinScrim({
         scrimId,
-        playerId,
+        userId,
         playerName,
         leaveAfter,
         createGroup,
@@ -86,11 +86,11 @@ export class ScrimService {
 
         if (!scrim) throw new RpcException(MatchmakingError.ScrimNotFound);
         if (scrim.status !== ScrimStatus.PENDING) throw new RpcException(MatchmakingError.ScrimAlreadyInProgress);
-        if (await this.scrimCrudService.playerInAnyScrim(playerId))
+        if (await this.scrimCrudService.playerInAnyScrim(userId))
             throw new RpcException(MatchmakingError.PlayerAlreadyInScrim);
 
         const player: ScrimPlayer = {
-            id: playerId,
+            userId: userId,
             name: playerName,
             joinedAt: new Date(),
             leaveAt: add(new Date(), {seconds: leaveAfter}),
@@ -103,7 +103,7 @@ export class ScrimService {
         this.analyticsService
             .send(AnalyticsEndpoint.Analytics, {
                 name: "scrimJoined",
-                tags: [["playerId", `${player.id}`]],
+                tags: [["userId", `${player.userId}`]],
                 strings: [["scrimId", scrim.id]],
             })
             .catch(err => {
@@ -121,28 +121,28 @@ export class ScrimService {
         return scrim;
     }
 
-    async leaveScrim(scrimId: string, playerId: number): Promise<Scrim> {
+    async leaveScrim(scrimId: string, userId: number): Promise<Scrim> {
         const scrim = await this.scrimCrudService.getScrim(scrimId);
 
         if (!scrim) throw new RpcException(MatchmakingError.ScrimNotFound);
         if (scrim.status !== ScrimStatus.PENDING) throw new RpcException(MatchmakingError.ScrimAlreadyInProgress);
-        if (!scrim.players.some(p => p.id === playerId)) throw new RpcException(MatchmakingError.PlayerNotInScrim);
+        if (!scrim.players.some(p => p.userId === userId)) throw new RpcException(MatchmakingError.PlayerNotInScrim);
 
-        scrim.players = scrim.players.filter(p => p.id !== playerId);
+        scrim.players = scrim.players.filter(p => p.userId !== userId);
 
         if (scrim.players.length === 0) {
             await this.scrimLogicService.deleteScrim(scrim);
             return scrim;
         }
 
-        await this.scrimCrudService.removePlayerFromScrim(scrimId, playerId);
+        await this.scrimCrudService.removePlayerFromScrim(scrimId, userId);
         // Flush changes
         await this.publishScrimUpdate(scrimId);
 
         this.analyticsService
             .send(AnalyticsEndpoint.Analytics, {
                 name: "scrimLeft",
-                tags: [["playerId", `${playerId}`]],
+                tags: [["userId", `${userId}`]],
                 strings: [["scrimId", scrim.id]],
             })
             .catch(err => {
@@ -152,16 +152,16 @@ export class ScrimService {
         return scrim;
     }
 
-    async checkIn(scrimId: string, playerId: number): Promise<Scrim> {
+    async checkIn(scrimId: string, userId: number): Promise<Scrim> {
         const scrim = await this.scrimCrudService.getScrim(scrimId);
 
         if (!scrim) throw new RpcException(MatchmakingError.ScrimNotFound);
         if (scrim.status !== ScrimStatus.POPPED) throw new RpcException(MatchmakingError.ScrimStatusNotPopped);
-        if (!scrim.players.some(p => p.id === playerId)) throw new RpcException(MatchmakingError.PlayerNotInScrim);
-        if (scrim.players.find(p => p.id === playerId)!.checkedIn)
+        if (!scrim.players.some(p => p.userId === userId)) throw new RpcException(MatchmakingError.PlayerNotInScrim);
+        if (scrim.players.find(p => p.userId === userId)!.checkedIn)
             throw new RpcException(MatchmakingError.PlayerAlreadyCheckedIn);
 
-        const player = scrim.players.find(p => p.id === playerId)!;
+        const player = scrim.players.find(p => p.userId === userId)!;
         player.checkedIn = true;
 
         await this.scrimCrudService.updatePlayer(scrimId, player);
@@ -199,13 +199,13 @@ export class ScrimService {
         return scrim;
     }
 
-    async completeScrim(scrimId: string, playerId?: number): Promise<Scrim> {
+    async completeScrim(scrimId: string, userId?: number): Promise<Scrim> {
         // Player will be used to track who submitted / completed a scrim
         const scrim = await this.scrimCrudService.getScrim(scrimId);
         if (!scrim) throw new RpcException(MatchmakingError.ScrimNotFound);
         if (!scrim.submissionId) throw new RpcException(MatchmakingError.ScrimSubmissionNotFound);
         // TODO: Override this if player / member is an admin
-        if (playerId && !scrim.players.some(p => p.id === playerId))
+        if (userId && !scrim.players.some(p => p.userId === userId))
             throw new RpcException(MatchmakingError.PlayerNotInScrim);
 
         await this.scrimCrudService.removeScrim(scrimId);
@@ -215,7 +215,7 @@ export class ScrimService {
         this.analyticsService
             .send(AnalyticsEndpoint.Analytics, {
                 name: "scrimComplete",
-                tags: [["playerId", `${playerId}`]],
+                tags: [["playerId", `${userId}`]],
                 strings: [["scrimId", scrim.id]],
             })
             .catch(err => {

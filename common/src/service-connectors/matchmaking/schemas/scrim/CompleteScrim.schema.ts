@@ -4,7 +4,7 @@ import {ScrimDatabaseIdsSchema} from "../../../../events";
 
 export const CompleteScrim_Request = z.object({
     scrimId: z.string().uuid(),
-    playerId: z.number(),
+    userId: z.number(),
     databaseIds: ScrimDatabaseIdsSchema,
 });
 

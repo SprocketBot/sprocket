@@ -70,8 +70,8 @@ export class ScrimService {
         throw result.error;
     }
 
-    async getScrimByPlayer(playerId: number): Promise<IScrim | null> {
-        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimByPlayer, playerId);
+    async getScrimByPlayer(userId: number): Promise<IScrim | null> {
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimByPlayer, {userId});
         if (result.status === ResponseStatus.SUCCESS) {
             return result.data;
         }
@@ -79,7 +79,7 @@ export class ScrimService {
     }
 
     async getScrimBySubmissionId(submissionId: string): Promise<IScrim | null> {
-        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, {submissionId});
         if (result.status === ResponseStatus.SUCCESS) {
             return result.data;
         }
@@ -87,7 +87,7 @@ export class ScrimService {
     }
 
     async getScrimById(scrimId: string): Promise<IScrim | null> {
-        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, scrimId);
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, {scrimId});
         if (result.status === ResponseStatus.SUCCESS) {
             return result.data;
         }
@@ -108,9 +108,9 @@ export class ScrimService {
         throw result.error;
     }
 
-    async leaveScrim(playerId: number, scrimId: string): Promise<boolean> {
+    async leaveScrim(userId: number, scrimId: string): Promise<boolean> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.LeaveScrim, {
-            playerId: playerId,
+            userId: userId,
             scrimId: scrimId,
         });
 
@@ -118,8 +118,8 @@ export class ScrimService {
         throw result.error;
     }
 
-    async checkIn(playerId: number, scrimId: string): Promise<boolean> {
-        const result = await this.matchmakingService.send(MatchmakingEndpoint.CheckInToScrim, {playerId, scrimId});
+    async checkIn(userId: number, scrimId: string): Promise<boolean> {
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.CheckInToScrim, {userId, scrimId});
 
         if (result.status === ResponseStatus.SUCCESS) return result.data;
         throw result.error;
@@ -183,7 +183,7 @@ export class ScrimService {
         // TODO: Refactor after we move to sprocket rosters
         const franchiseProfiles = await Promise.all(
             scrim.players.map(async p => {
-                const mleFranchise = await this.franchiseService.getPlayerFranchises(p.id).catch(() => null);
+                const mleFranchise = await this.franchiseService.getPlayerFranchises(p.userId).catch(() => null);
                 if (!mleFranchise?.length) return undefined;
                 const mleTeam = mleFranchise[0];
 

@@ -45,11 +45,11 @@ export class ReplayParseService {
     /**
      * @returns if the scrim has been reset
      */
-    async resetBrokenReplays(submissionId: string, playerId: number, override = false): Promise<boolean> {
+    async resetBrokenReplays(submissionId: string, userId: number, override = false): Promise<boolean> {
         const resetResponse = await this.submissionService.send(SubmissionEndpoint.ResetSubmission, {
             submissionId: submissionId,
             override: override,
-            playerId: playerId.toString(),
+            userId: userId,
         });
         if (resetResponse.status === ResponseStatus.ERROR) throw resetResponse.error;
         return true;
@@ -58,10 +58,10 @@ export class ReplayParseService {
     async parseReplays(
         streams: Array<{stream: Readable; filename: string}>,
         submissionId: string,
-        playerId: number,
+        userId: number,
     ): Promise<string[]> {
         const canSubmitReponse = await this.submissionService.send(SubmissionEndpoint.CanSubmitReplays, {
-            playerId: playerId,
+            userId: userId,
             submissionId: submissionId,
         });
         if (canSubmitReponse.status === ResponseStatus.ERROR) throw canSubmitReponse.error;
@@ -85,16 +85,16 @@ export class ReplayParseService {
         const submissionResponse = await this.submissionService.send(SubmissionEndpoint.SubmitReplays, {
             submissionId: submissionId,
             filepaths: filepaths,
-            creatorId: playerId,
+            creatorUserId: userId,
         });
         if (submissionResponse.status === ResponseStatus.ERROR) throw submissionResponse.error;
         // Return taskIds, directly correspond to the files that were uploaded
         return submissionResponse.data;
     }
 
-    async ratifySubmission(submissionId: string, playerId: number): Promise<void> {
+    async ratifySubmission(submissionId: string, userId: number): Promise<void> {
         const canRatifyReponse = await this.submissionService.send(SubmissionEndpoint.CanRatifySubmission, {
-            playerId: playerId,
+            userId: userId,
             submissionId: submissionId,
         });
         if (canRatifyReponse.status === ResponseStatus.ERROR) throw canRatifyReponse.error;
@@ -102,15 +102,15 @@ export class ReplayParseService {
 
         const ratificationResponse = await this.submissionService.send(SubmissionEndpoint.RatifySubmission, {
             submissionId: submissionId,
-            playerId: playerId,
+            userId: userId,
         });
         if (ratificationResponse.status === ResponseStatus.ERROR) throw ratificationResponse.error;
     }
 
-    async rejectSubmissionByPlayer(submissionId: string, playerId: number, reason: string): Promise<void> {
+    async rejectSubmissionByPlayer(submissionId: string, userId: number, reason: string): Promise<void> {
         const rejectionResponse = await this.submissionService.send(SubmissionEndpoint.RejectSubmission, {
             submissionId: submissionId,
-            playerId: playerId,
+            userId: userId,
             reason: reason,
         });
         if (rejectionResponse.status === ResponseStatus.ERROR) throw rejectionResponse.error;

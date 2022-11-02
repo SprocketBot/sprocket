@@ -30,7 +30,7 @@ export class ReplaySubmissionUtilService {
         return submission.ratifiers.length >= submission.requiredRatifications;
     }
 
-    async canSubmitReplays(submissionId: string, playerId: number): Promise<ICanSubmitReplays_Response> {
+    async canSubmitReplays(submissionId: string, userId: number): Promise<ICanSubmitReplays_Response> {
         const submission = await this.submissionCrudService.getSubmission(submissionId);
 
         if (submission?.items.length) {
@@ -41,7 +41,9 @@ export class ReplaySubmissionUtilService {
         }
 
         if (submissionIsScrim(submissionId)) {
-            const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
+            const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, {
+                submissionId,
+            });
             if (result.status === ResponseStatus.ERROR) throw result.error;
             const scrim = result.data;
             if (!scrim)
@@ -49,7 +51,7 @@ export class ReplaySubmissionUtilService {
                     canSubmit: false,
                     reason: `Could not find a associated scrim`,
                 };
-            if (!scrim.players.some(p => p.id === playerId)) {
+            if (!scrim.players.some(p => p.userId === userId)) {
                 // TODO: Check player's organization teams (i.e. Support override)
                 return {
                     canSubmit: false,
@@ -76,7 +78,7 @@ export class ReplaySubmissionUtilService {
                 };
             const {homeFranchise, awayFranchise} = match;
 
-            const franchiseResult = await this.coreService.send(CoreEndpoint.GetPlayerFranchises, {memberId: playerId});
+            const franchiseResult = await this.coreService.send(CoreEndpoint.GetPlayerFranchises, {memberId: userId});
             if (franchiseResult.status === ResponseStatus.ERROR) throw franchiseResult.error;
             const franchises = franchiseResult.data;
             const targetFranchise = franchises.find(
@@ -86,7 +88,7 @@ export class ReplaySubmissionUtilService {
             if (!targetFranchise) {
                 // TODO: Check for LO Override
                 this.logger.log(
-                    `Player ${playerId} is on ${franchises.map(f => f.name).join(", ")}, not on expected franchises ${
+                    `Player ${userId} is on ${franchises.map(f => f.name).join(", ")}, not on expected franchises ${
                         homeFranchise.name
                     }, ${awayFranchise.name}`,
                 );
@@ -115,7 +117,7 @@ export class ReplaySubmissionUtilService {
         return {canSubmit: true};
     }
 
-    async canRatifySubmission(submissionId: string, playerId: number): Promise<CanRatifySubmissionResponse> {
+    async canRatifySubmission(submissionId: string, userId: number): Promise<CanRatifySubmissionResponse> {
         const submission = await this.submissionCrudService.getSubmission(submissionId);
 
         if (!submission) {
@@ -133,7 +135,9 @@ export class ReplaySubmissionUtilService {
         }
 
         if (submissionIsScrim(submissionId)) {
-            const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
+            const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, {
+                submissionId,
+            });
             if (result.status === ResponseStatus.ERROR) throw result.error;
             const scrim = result.data;
             if (!scrim)
@@ -141,7 +145,7 @@ export class ReplaySubmissionUtilService {
                     canRatify: false,
                     reason: `Could not find a associated scrim`,
                 };
-            if (!scrim.players.some(p => p.id === playerId)) {
+            if (!scrim.players.some(p => p.userId === userId)) {
                 // TODO: Check player's organization teams (i.e. Support override)
                 return {
                     canRatify: false,
@@ -168,7 +172,7 @@ export class ReplaySubmissionUtilService {
                 };
             const {homeFranchise, awayFranchise} = match;
 
-            const franchiseResult = await this.coreService.send(CoreEndpoint.GetPlayerFranchises, {memberId: playerId});
+            const franchiseResult = await this.coreService.send(CoreEndpoint.GetPlayerFranchises, {memberId: userId});
             if (franchiseResult.status === ResponseStatus.ERROR) throw franchiseResult.error;
             const franchises = franchiseResult.data;
             const targetFranchise = franchises.find(
@@ -178,7 +182,7 @@ export class ReplaySubmissionUtilService {
             if (!targetFranchise) {
                 // TODO: Check for LO Override
                 this.logger.log(
-                    `Player ${playerId} is on ${franchises.map(f => f.name).join(", ")}, not on expected franchises ${
+                    `Player ${userId} is on ${franchises.map(f => f.name).join(", ")}, not on expected franchises ${
                         homeFranchise.name
                     }, ${awayFranchise.name}`,
                 );

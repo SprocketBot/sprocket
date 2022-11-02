@@ -53,7 +53,7 @@ export class ScrimConsumer {
 
         for (const player of playersNotCheckedIn) {
             const member = await this.memberRepository.get({
-                where: {user: {id: player.id}},
+                where: {user: {id: player.userId}},
                 relations: {organization: true},
             });
 

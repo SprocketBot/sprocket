@@ -79,6 +79,7 @@ export class ScrimModuleResolver {
         status?: ScrimStatus,
     ): Promise<Scrim[]> {
         const scrims = await this.scrimService.getAllScrims(member.organizationId);
+
         return (status ? scrims.filter(scrim => scrim.status === status) : scrims) as Scrim[];
     }
 
@@ -136,13 +137,13 @@ export class ScrimModuleResolver {
         };
 
         return this.scrimService.createScrim({
-            authorId: user.userId,
+            authorUserId: user.userId,
             organizationId: user.currentOrganizationId,
             gameModeId: gameMode.id,
             skillGroupId: player.skillGroupId,
             settings: settings,
             join: {
-                playerId: user.userId,
+                userId: user.userId,
                 playerName: user.username,
                 leaveAfter: data.leaveAfter,
                 createGroup: data.createGroup,
@@ -180,7 +181,7 @@ export class ScrimModuleResolver {
         try {
             return await this.scrimService.joinScrim({
                 scrimId: scrimId,
-                playerId: user.userId,
+                userId: user.userId,
                 playerName: user.username,
                 leaveAfter: leaveAfter,
                 createGroup: createGroup,
@@ -204,10 +205,10 @@ export class ScrimModuleResolver {
         const scrim = await this.scrimService.getScrimByPlayer(user.userId);
         if (!scrim) throw new GraphQLError("You must be in a scrim to check in");
 
-        const player = scrim.players.find(p => p.id === user.userId);
+        const player = scrim.players.find(p => p.userId === user.userId);
         if (!player) throw new GraphQLError("You must be in a scrim to checkin");
 
-        return this.scrimService.checkIn(player.id, scrim.id);
+        return this.scrimService.checkIn(player.userId, scrim.id);
     }
 
     @Mutation(() => Scrim)
