@@ -17,7 +17,7 @@ import {SeriesToMatchParent} from "$bridge/series_to_match_parent.model";
 import type {League} from "$mledb";
 import {LegacyGameMode, MLE_OrganizationTeam, MLE_SeriesReplay, MLE_Team} from "$mledb";
 import type {GameMode, GameSkillGroup, Round} from "$models";
-import {Franchise, Match, MatchParent, Player, ScheduleFixture, ScheduleGroup} from "$models";
+import {Franchise, Match, MatchParent, Member, Player, ScheduleFixture, ScheduleGroup} from "$models";
 import {MatchRepository, RoundRepository, TeamRepository} from "$repositories";
 import type {MatchSubmissionStatus} from "$types";
 
@@ -51,7 +51,7 @@ export class MatchResolver {
     private readonly logger = new Logger(MatchResolver.name);
 
     constructor(
-        private readonly populate: PopulateService,
+        private readonly populateService: PopulateService,
         private readonly matchService: MatchService,
         private readonly mledbMatchService: MledbMatchService,
         private readonly eventsService: EventsService,
@@ -87,20 +87,20 @@ export class MatchResolver {
             },
         });
 
-        const fixture = await this.populate.populateOne(MatchParent, match.matchParent, "fixture");
+        const fixture = await this.populateService.populateOne(MatchParent, match.matchParent, "fixture");
         if (!fixture) {
             throw new Error("Fixture not found, this may not be league play!");
         }
-        const awayFranchise = await this.populate.populateOneOrFail(ScheduleFixture, fixture, "awayFranchise");
-        const homeFranchise = await this.populate.populateOneOrFail(ScheduleFixture, fixture, "homeFranchise");
+        const awayFranchise = await this.populateService.populateOneOrFail(ScheduleFixture, fixture, "awayFranchise");
+        const homeFranchise = await this.populateService.populateOneOrFail(ScheduleFixture, fixture, "homeFranchise");
 
-        const awayFranchiseProfile = await this.populate.populateOneOrFail(Franchise, awayFranchise, "profile");
-        const homeFranchiseProfile = await this.populate.populateOneOrFail(Franchise, homeFranchise, "profile");
+        const awayFranchiseProfile = await this.populateService.populateOneOrFail(Franchise, awayFranchise, "profile");
+        const homeFranchiseProfile = await this.populateService.populateOneOrFail(Franchise, homeFranchise, "profile");
 
-        const week = await this.populate.populateOneOrFail(ScheduleFixture, fixture, "scheduleGroup");
-        const season = await this.populate.populateOneOrFail(ScheduleGroup, week, "parentGroup");
+        const week = await this.populateService.populateOneOrFail(ScheduleFixture, fixture, "scheduleGroup");
+        const season = await this.populateService.populateOneOrFail(ScheduleGroup, week, "parentGroup");
 
-        const gameMode = await this.populate.populateOneOrFail(Match, match, "gameMode");
+        const gameMode = await this.populateService.populateOneOrFail(Match, match, "gameMode");
 
         const mleSeries = await this.mledbMatchService.getMleSeries(
             awayFranchiseProfile.title,
@@ -355,7 +355,7 @@ export class MatchResolver {
 
     @ResolveField()
     async skillGroup(@Root() match: Partial<Match>): Promise<GameSkillGroup> {
-        return match.skillGroup ?? this.populate.populateOneOrFail(Match, match as Match, "skillGroup");
+        return match.skillGroup ?? this.populateService.populateOneOrFail(Match, match as Match, "skillGroup");
     }
 
     @ResolveField()
@@ -406,8 +406,11 @@ export class MatchResolver {
         if (root.canSubmit) return root.canSubmit;
         if (!root.submissionId) throw new Error(`Match has no submissionId`);
 
+        const member = await this.populateService.populateOneOrFail(Player, player, "member");
+        const user = await this.populateService.populateOneOrFail(Member, member, "user");
+
         const result = await this.submissionService.send(SubmissionEndpoint.CanSubmitReplays, {
-            playerId: player.member.id,
+            userId: user.id,
             submissionId: root.submissionId,
         });
         if (result.status === ResponseStatus.ERROR) throw result.error;
@@ -420,8 +423,11 @@ export class MatchResolver {
         if (root.canRatify) return root.canRatify;
         if (!root.submissionId) throw new Error(`Match has no submissionId`);
 
+        const member = await this.populateService.populateOneOrFail(Player, player, "member");
+        const user = await this.populateService.populateOneOrFail(Member, member, "user");
+
         const result = await this.submissionService.send(SubmissionEndpoint.CanRatifySubmission, {
-            playerId: player.member.id,
+            userId: user.id,
             submissionId: root.submissionId,
         });
         if (result.status === ResponseStatus.ERROR) throw result.error;
@@ -430,16 +436,16 @@ export class MatchResolver {
 
     @ResolveField()
     async gameMode(@Root() match: Partial<Match>): Promise<GameMode | undefined> {
-        return match.gameMode ?? this.populate.populateOne(Match, match as Match, "gameMode");
+        return match.gameMode ?? this.populateService.populateOne(Match, match as Match, "gameMode");
     }
 
     @ResolveField()
     async rounds(@Root() match: Partial<Match>): Promise<Round[]> {
-        return match.rounds ?? this.populate.populateMany(Match, match as Match, "rounds");
+        return match.rounds ?? this.populateService.populateMany(Match, match as Match, "rounds");
     }
 
     @ResolveField()
     async matchParent(@Root() match: Partial<Match>): Promise<MatchParent> {
-        return match.matchParent ?? this.populate.populateOneOrFail(Match, match as Match, "matchParent");
+        return match.matchParent ?? this.populateService.populateOneOrFail(Match, match as Match, "matchParent");
     }
 }

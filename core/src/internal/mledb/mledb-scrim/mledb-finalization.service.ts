@@ -150,7 +150,7 @@ export class MledbFinalizationService {
                 scrimObject.players.map(async p => {
                     const playerEligibility = em.create(MLE_EligibilityData);
                     const discordAccount = await this.userAuthenticationAccountRepository.getDiscordAccountByUserId(
-                        p.id,
+                        p.userId,
                     );
                     const player = await this.mlePlayerRepository.findOneOrFail({
                         where: {

@@ -1,11 +1,12 @@
 import {Injectable} from "@nestjs/common";
-import type {GraphQLExecutionContext} from "@nestjs/graphql";
+import type {GqlExecutionContext, GraphQLExecutionContext} from "@nestjs/graphql";
 import type {Scrim} from "@sprocketbot/common";
 import {GraphQLError} from "graphql";
 
 import {GameModeRepository, PlayerRepository} from "$repositories";
 
 import type {JwtAuthPayload} from "../authentication/types";
+import {AbstractMemberPlayerGuard} from "../authorization/guards";
 import {PlayerGuard} from "../franchise";
 import type {GameAndOrganization} from "../franchise/player/player.types";
 import {ScrimService} from "./scrim.service";
@@ -81,7 +82,46 @@ export class ScrimResolverPlayerGuard extends PlayerGuard {
         if (!userPayload.currentOrganizationId) throw new Error("User is not connected to an organization");
         const scrim = ctx.getRoot<Scrim>();
         const gameMode = await this.gameModeRepository.getById(scrim.gameModeId);
-        if (!scrim.players.some(p => p.id === userPayload.userId)) throw new Error("Player is not in the scrim");
+        if (!scrim.players.some(p => p.userId === userPayload.userId)) throw new Error("Player is not in the scrim");
+        return {
+            gameId: gameMode.gameId,
+            organizationId: scrim.organizationId,
+        };
+    }
+}
+
+@Injectable()
+export class ScrimFieldResolverPlayerGuard extends AbstractMemberPlayerGuard {
+    constructor(private readonly gameModeRepository: GameModeRepository, readonly playerRepository: PlayerRepository) {
+        super();
+    }
+
+    async getGameAndOrganization(
+        ctx: GqlExecutionContext,
+        userPayload: JwtAuthPayload,
+    ): Promise<{gameId: number; organizationId: number} | undefined> {
+        const scrim = ctx.getRoot<Scrim>();
+        const gameMode = await this.gameModeRepository.getById(scrim.gameModeId);
+
+        const player = await this.playerRepository.getOrNull({
+            where: {
+                member: {
+                    userId: userPayload.userId,
+                    organizationId: scrim.organizationId,
+                },
+                skillGroup: {
+                    gameId: gameMode.gameId,
+                },
+            },
+            relations: {
+                member: true,
+                skillGroup: true,
+            },
+        });
+
+        if (!player) return undefined;
+        if (!scrim.players.some(p => p.userId === player.id)) return undefined;
+
         return {
             gameId: gameMode.gameId,
             organizationId: scrim.organizationId,

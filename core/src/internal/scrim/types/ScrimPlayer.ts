@@ -4,7 +4,7 @@ import type {ScrimPlayer as IScrimPlayer} from "@sprocketbot/common";
 @ObjectType()
 export class ScrimPlayer implements IScrimPlayer {
     @Field(() => Int)
-    id: number;
+    userId: number;
 
     @Field(() => String)
     name: string;

@@ -60,14 +60,14 @@ export class ReplaySubmissionCrudService {
         return requiredRatifications;
     }
 
-    async getOrCreateSubmission(submissionId: string, playerId: number): Promise<ReplaySubmission> {
+    async getOrCreateSubmission(submissionId: string, userId: number): Promise<ReplaySubmission> {
         const key = getSubmissionKey(submissionId);
         const existingSubmission = await this.redisService.getJsonIfExists<ReplaySubmission>(key);
         if (existingSubmission && !existingSubmission.items.length) return existingSubmission;
 
         const commonFields: BaseReplaySubmission = {
             id: submissionId,
-            creatorId: playerId,
+            creatorUserId: userId,
             status: ReplaySubmissionStatus.PROCESSING,
             taskIds: [],
             items: [],
@@ -83,7 +83,9 @@ export class ReplaySubmissionCrudService {
         let maxRatify: number; // Total number of players.
 
         if (submissionIsScrim(submissionId)) {
-            const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
+            const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, {
+                submissionId,
+            });
             if (result.status === ResponseStatus.ERROR) throw result.error;
             const scrim = result.data;
             if (!scrim)
@@ -196,13 +198,13 @@ export class ReplaySubmissionCrudService {
         await this.redisService.setJsonField(key, "stats", stats);
     }
 
-    async addRatifier(submissionId: string, playerId: number): Promise<void> {
+    async addRatifier(submissionId: string, userId: number): Promise<void> {
         const ratifiers = await this.getSubmissionRatifiers(submissionId);
 
         // Players cannot ratify a scrim twice
-        if (ratifiers.includes(playerId)) return;
+        if (ratifiers.includes(userId)) return;
 
-        await this.redisService.appendToJsonArray(getSubmissionKey(submissionId), "ratifiers", playerId);
+        await this.redisService.appendToJsonArray(getSubmissionKey(submissionId), "ratifiers", userId);
     }
 
     async clearRatifiers(submissionId: string): Promise<void> {
@@ -219,7 +221,7 @@ export class ReplaySubmissionCrudService {
         }
     }
 
-    async addRejection(submissionId: string, playerId: number, reason: string): Promise<void> {
+    async addRejection(submissionId: string, userId: number, reason: string): Promise<void> {
         const key = getSubmissionKey(submissionId);
         const rejectedAt = new Date().toISOString();
 
@@ -233,7 +235,7 @@ export class ReplaySubmissionCrudService {
 
         const stale = false;
         const rejection: ReplaySubmissionRejection = {
-            playerId,
+            userId,
             reason,
             rejectedItems,
             rejectedAt,

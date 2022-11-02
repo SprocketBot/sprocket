@@ -238,7 +238,7 @@ export class ReplayValidationService {
 
         const players = playersResponse.data as GetPlayerSuccessResponse[];
         // Get 3D array of scrim player ids
-        const scrimPlayerIds = scrim.games.map(g => g.teams.map(t => t.players.map(p => p.id)));
+        const scrimPlayerIds = scrim.games.map(g => g.teams.map(t => t.players.map(p => p.userId)));
 
         // Get 3D array of submission player ids
         const submissionUserIds = stats.map(s =>

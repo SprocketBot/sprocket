@@ -15,7 +15,7 @@ export class ScrimCrudService {
     constructor(private readonly redisService: RedisService) {}
 
     async createScrim({
-        authorId,
+        authorUserId,
         organizationId,
         gameModeId,
         skillGroupId,
@@ -30,7 +30,7 @@ export class ScrimCrudService {
             createdAt: at,
             updatedAt: at,
             status: ScrimStatus.PENDING,
-            authorId: authorId,
+            authorUserId: authorUserId,
             organizationId: organizationId,
             gameModeId: gameModeId,
             skillGroupId: skillGroupId,
@@ -98,7 +98,7 @@ export class ScrimCrudService {
 
     async removePlayerFromScrim(scrimId: string, playerId: number): Promise<void> {
         let [players] = await this.redisService.getJson<ScrimPlayer[][]>(`${this.prefix}${scrimId}`, "$.players");
-        players = players.filter(p => p.id !== playerId);
+        players = players.filter(p => p.userId !== playerId);
         await this.redisService.deleteJsonField(`${this.prefix}${scrimId}`, "$.players");
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.players", players);
         await this.updateScrimUpdatedAt(scrimId);
@@ -106,7 +106,7 @@ export class ScrimCrudService {
 
     async updatePlayer(scrimId: string, player: ScrimPlayer): Promise<void> {
         const [players] = await this.redisService.getJson<ScrimPlayer[][]>(`${this.prefix}${scrimId}`, "$.players");
-        const pi = players.findIndex(p => p.id === player.id);
+        const pi = players.findIndex(p => p.userId === player.userId);
         if (pi === -1) throw new Error("Player not in scrim!");
         players[pi] = player;
         await this.redisService.deleteJsonField(`${this.prefix}${scrimId}`, "$.players");

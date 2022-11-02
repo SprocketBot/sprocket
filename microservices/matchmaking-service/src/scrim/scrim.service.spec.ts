@@ -89,7 +89,7 @@ describe("ScrimService", () => {
                 ...getMockScrimIds(),
                 settings: getMockScrimSettings(3, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
                 join: {
-                    playerId: 1,
+                    userId: 1,
                     playerName: "HyperCoder",
                     leaveAfter: 1000,
                 },
@@ -108,7 +108,7 @@ describe("ScrimService", () => {
                 ...getMockScrimIds(),
                 settings: getMockScrimSettings(3, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
                 join: {
-                    playerId: 1,
+                    userId: 1,
                     playerName: "HyperCoder",
                     leaveAfter: 1000,
                     createGroup: true,
@@ -128,7 +128,7 @@ describe("ScrimService", () => {
                 ...getMockScrimIds(),
                 settings: getMockScrimSettings(3, 2, ScrimMode.ROUND_ROBIN, true, false, 1000),
                 join: {
-                    playerId: 1,
+                    userId: 1,
                     playerName: "HyperCoder",
                     leaveAfter: 1000,
                 },
@@ -151,13 +151,13 @@ describe("ScrimService", () => {
 
             expect(actual).toEqual(expected);
             expect(crudCreateScrim).toHaveBeenCalledWith({
-                authorId: expected.authorId,
+                authorUserId: expected.authorUserId,
                 organizationId: expected.organizationId,
                 gameModeId: expected.gameModeId,
                 skillGroupId: expected.skillGroupId,
                 settings: expected.settings,
                 player: {
-                    id: createScrimData.join?.playerId,
+                    userId: createScrimData.join?.userId,
                     name: createScrimData.join?.playerName,
                     joinedAt: expect.any(Date) as Date,
                     leaveAt: expect.any(Date) as Date,
@@ -170,7 +170,7 @@ describe("ScrimService", () => {
                 ...getMockScrimIds(),
                 settings: getMockScrimSettings(3, 2, ScrimMode.TEAMS, true, false, 1000),
                 join: {
-                    playerId: 1,
+                    userId: 1,
                     playerName: "HyperCoder",
                     leaveAfter: 1000,
                     createGroup: true,
@@ -200,13 +200,13 @@ describe("ScrimService", () => {
 
             expect(actual).toEqual(expected);
             expect(crudCreateScrim).toHaveBeenCalledWith({
-                authorId: expected.authorId,
+                authorUserId: expected.authorUserId,
                 organizationId: expected.organizationId,
                 gameModeId: expected.gameModeId,
                 skillGroupId: expected.skillGroupId,
                 settings: expected.settings,
                 player: {
-                    id: createScrimData.join?.playerId,
+                    userId: createScrimData.join?.userId,
                     name: createScrimData.join?.playerName,
                     joinedAt: expect.any(Date) as Date,
                     leaveAt: expect.any(Date) as Date,
@@ -214,7 +214,7 @@ describe("ScrimService", () => {
                 },
             });
             expect(crudUpdatePlayer).toHaveBeenCalledWith(scrim.id, {
-                id: createScrimData.join?.playerId,
+                userId: createScrimData.join?.userId,
                 name: createScrimData.join?.playerName,
                 joinedAt: expect.any(Date) as Date,
                 leaveAt: expect.any(Date) as Date,
@@ -227,7 +227,7 @@ describe("ScrimService", () => {
         it("Should throw with ScrimNotFound when a player tries to join a scrim that doesn't exist", async () => {
             const joinScrimData: JoinScrimOptions = {
                 scrimId: "hello world!!!!",
-                playerId: 2,
+                userId: 2,
                 playerName: "tekssx",
                 leaveAfter: 1000,
             };
@@ -243,7 +243,7 @@ describe("ScrimService", () => {
         it("Should throw with ScrimAlreadyInProgress when a player tries to join a scrim when it is already in progress", async () => {
             const joinScrimData: JoinScrimOptions = {
                 scrimId: "hello world!",
-                playerId: 2,
+                userId: 2,
                 playerName: "tekssx",
                 leaveAfter: 1000,
             };
@@ -269,7 +269,7 @@ describe("ScrimService", () => {
         it("Should throw with PlayerAlreadyInScrim when a player tries to join a scrim when they are already in a scrim", async () => {
             const joinScrimData: JoinScrimOptions = {
                 scrimId: "hello world!",
-                playerId: 2,
+                userId: 2,
                 playerName: "tekssx",
                 leaveAfter: 1000,
             };
@@ -296,7 +296,7 @@ describe("ScrimService", () => {
         it("Should throw with GroupNotFound when a player tries to join a group with an invalid group", async () => {
             const joinScrimData: JoinScrimOptions = {
                 scrimId: "hello world!",
-                playerId: 2,
+                userId: 2,
                 playerName: "tekssx",
                 leaveAfter: 1000,
                 joinGroup: "tekssxisawful",
@@ -324,7 +324,7 @@ describe("ScrimService", () => {
         it("Should throw with GroupFull when a player tries to join a group when the group has the number of players on a team", async () => {
             const joinScrimData: JoinScrimOptions = {
                 scrimId: "hello world!",
-                playerId: 2,
+                userId: 2,
                 playerName: "tekssx",
                 leaveAfter: 1000,
                 joinGroup: "tekssxisbad",
@@ -355,7 +355,7 @@ describe("ScrimService", () => {
         it("Should throw with MaxGroupsCreated when a player tries to create a group when there are already the number teams being the number of groups", async () => {
             const joinScrimData: JoinScrimOptions = {
                 scrimId: "hello world!",
-                playerId: 2,
+                userId: 2,
                 playerName: "tekssx",
                 leaveAfter: 1000,
                 createGroup: true,
@@ -386,7 +386,7 @@ describe("ScrimService", () => {
         it("Player should join the scrim successfully", async () => {
             const joinScrimData: JoinScrimOptions = {
                 scrimId: "hello world!",
-                playerId: 2,
+                userId: 2,
                 playerName: "tekssx",
                 leaveAfter: 1000,
             };
@@ -417,7 +417,7 @@ describe("ScrimService", () => {
 
             expect(actual).toEqual(expected);
             expect(crudAddPlayerToScrim).toHaveBeenCalledWith(scrim.id, {
-                id: joinScrimData.playerId,
+                userId: joinScrimData.userId,
                 name: joinScrimData.playerName,
                 joinedAt: expect.any(Date) as Date,
                 leaveAt: expect.any(Date) as Date,
@@ -427,7 +427,7 @@ describe("ScrimService", () => {
         it("Player should join the scrim and group successfully", async () => {
             const joinScrimData: JoinScrimOptions = {
                 scrimId: "hello world!",
-                playerId: 2,
+                userId: 2,
                 playerName: "tekssx",
                 leaveAfter: 1000,
                 joinGroup: "tekssxisbad",
@@ -459,7 +459,7 @@ describe("ScrimService", () => {
 
             expect(actual).toEqual(expected);
             expect(crudAddPlayerToScrim).toHaveBeenCalledWith(scrim.id, {
-                id: joinScrimData.playerId,
+                userId: joinScrimData.userId,
                 name: joinScrimData.playerName,
                 joinedAt: expect.any(Date) as Date,
                 leaveAt: expect.any(Date) as Date,
@@ -470,7 +470,7 @@ describe("ScrimService", () => {
         it("The scrim should pop when the last player joins and it is full", async () => {
             const joinScrimData: JoinScrimOptions = {
                 scrimId: "hello world!",
-                playerId: 4,
+                userId: 4,
                 playerName: "Nigel Thornbrake",
                 leaveAfter: 1000,
             };
@@ -535,7 +535,7 @@ describe("ScrimService", () => {
             crudGetScrim.mockResolvedValueOnce(scrim);
 
             const func = async (): Promise<Scrim> =>
-                service.leaveScrim("hello world!", mockPlayerFactories.shuckle(someDate).id);
+                service.leaveScrim("hello world!", mockPlayerFactories.shuckle(someDate).userId);
             const expectedError = MatchmakingError.ScrimAlreadyInProgress;
 
             await expect(func).rejects.toThrow(expectedError);
@@ -556,7 +556,7 @@ describe("ScrimService", () => {
             crudGetScrim.mockResolvedValueOnce(scrim);
 
             const func = async (): Promise<Scrim> =>
-                service.leaveScrim("hello world!", mockPlayerFactories.tekssx(someDate).id);
+                service.leaveScrim("hello world!", mockPlayerFactories.tekssx(someDate).userId);
             const expectedError = MatchmakingError.PlayerNotInScrim;
 
             await expect(func).rejects.toThrow(expectedError);
@@ -577,7 +577,7 @@ describe("ScrimService", () => {
             crudGetScrim.mockResolvedValueOnce(scrim);
             logicDeleteScrim.mockResolvedValueOnce({});
 
-            const actual = await service.leaveScrim("hello world!", mockPlayerFactories.hyper(someDate).id);
+            const actual = await service.leaveScrim("hello world!", mockPlayerFactories.hyper(someDate).userId);
             const expected: Scrim = {
                 ...scrim,
                 players: [],
@@ -603,7 +603,7 @@ describe("ScrimService", () => {
             crudGetScrim.mockResolvedValueOnce(scrim);
             crudRemovePlayerFromScrim.mockResolvedValueOnce({});
 
-            const actual = await service.leaveScrim("hello world!", mockPlayerFactories.shuckle(someDate).id);
+            const actual = await service.leaveScrim("hello world!", mockPlayerFactories.shuckle(someDate).userId);
             const expected: Scrim = {
                 ...scrim,
                 players: [mockPlayerFactories.hyper(someDate)],
@@ -611,7 +611,10 @@ describe("ScrimService", () => {
 
             expect(actual).toStrictEqual(expected);
             expect(logicDeleteScrim).toHaveBeenCalledTimes(0);
-            expect(crudRemovePlayerFromScrim).toHaveBeenCalledWith(scrim.id, mockPlayerFactories.shuckle(someDate).id);
+            expect(crudRemovePlayerFromScrim).toHaveBeenCalledWith(
+                scrim.id,
+                mockPlayerFactories.shuckle(someDate).userId,
+            );
         });
     });
 
@@ -649,7 +652,7 @@ describe("ScrimService", () => {
             crudGetScrim.mockResolvedValueOnce(scrim);
 
             const func = async (): Promise<Scrim> =>
-                service.checkIn(scrim.id, mockPlayerFactories.shuckle(someDate).id);
+                service.checkIn(scrim.id, mockPlayerFactories.shuckle(someDate).userId);
             const expectedError = MatchmakingError.PlayerNotInScrim;
 
             await expect(func).rejects.toThrow(expectedError);
@@ -670,7 +673,8 @@ describe("ScrimService", () => {
 
             crudGetScrim.mockResolvedValueOnce(scrim);
 
-            const func = async (): Promise<Scrim> => service.checkIn(scrim.id, mockPlayerFactories.tekssx(someDate).id);
+            const func = async (): Promise<Scrim> =>
+                service.checkIn(scrim.id, mockPlayerFactories.tekssx(someDate).userId);
             const expectedError = MatchmakingError.PlayerAlreadyCheckedIn;
 
             await expect(func).rejects.toThrow(expectedError);
@@ -713,7 +717,7 @@ describe("ScrimService", () => {
             publishScrimUpdate.mockReset();
             publishScrimUpdate.mockResolvedValueOnce(expected);
 
-            const func = await service.checkIn(scrim.id, mockPlayerFactories.hyper(someDate).id);
+            const func = await service.checkIn(scrim.id, mockPlayerFactories.hyper(someDate).userId);
 
             expect(func).toEqual(expected);
             expect(crudUpdatePlayer).toHaveBeenCalledWith(scrim.id, {
@@ -757,7 +761,7 @@ describe("ScrimService", () => {
             publishScrimUpdate.mockReset();
             publishScrimUpdate.mockResolvedValueOnce(expected);
 
-            const actual = await service.checkIn(scrim.id, mockPlayerFactories.hyper(someDate).id);
+            const actual = await service.checkIn(scrim.id, mockPlayerFactories.hyper(someDate).userId);
 
             expect(actual).toEqual(expected);
             expect(crudUpdatePlayer).toHaveBeenCalledWith(scrim.id, {
@@ -831,7 +835,7 @@ describe("ScrimService", () => {
             crudGetScrim.mockResolvedValueOnce(scrim);
 
             const func = async (): Promise<Scrim> =>
-                service.completeScrim(scrim.id, mockPlayerFactories.shuckle(someDate).id);
+                service.completeScrim(scrim.id, mockPlayerFactories.shuckle(someDate).userId);
             const expectedError = MatchmakingError.PlayerNotInScrim;
 
             await expect(func).rejects.toThrow(expectedError);
@@ -847,7 +851,7 @@ describe("ScrimService", () => {
             crudGetScrim.mockResolvedValueOnce(scrim);
             crudRemoveScrim.mockResolvedValueOnce({});
 
-            const actual = await service.completeScrim(scrim.id, mockPlayerFactories.hyper(someDate).id);
+            const actual = await service.completeScrim(scrim.id, mockPlayerFactories.hyper(someDate).userId);
             const expected = {
                 ...scrim,
                 status: ScrimStatus.COMPLETE,
