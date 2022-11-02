@@ -1,16 +1,16 @@
-import {
-    CoreEndpoint,
-    CoreService,
-    MatchmakingEndpoint,
-    MatchmakingService,
-    MinioService,
-    ResponseStatus,
-} from "@sprocketbot/common";
+import {CoreEndpoint, CoreService, MatchmakingService, MinioService, ResponseStatus} from "@sprocketbot/common";
 import {anything, instance, mock, when} from "ts-mockito";
 
 import {ReplayValidationService} from "./replay-validation.service";
 import {testResponse} from "./utils/ballchasing-response.test-data";
-import {testItem, testItem2, testMatchSubmission, testScrim, testSubmission} from "./utils/replay-validation.test-data";
+import {
+    testItem,
+    testItem2,
+    testMatchSubmission,
+    testScrim,
+    testScrim2,
+    testSubmission,
+} from "./utils/replay-validation.test-data";
 import {sortIds} from "./utils/sortIds";
 
 describe("ReplayValidationService", () => {
@@ -59,9 +59,14 @@ describe("ReplayValidationService", () => {
             };
         });
 
+        when(minioService.get(anything(), anything())).thenCall(async () => {
+            return Buffer.from(JSON.stringify(testResponse));
+        });
+
         const mmsInstance = instance(matchmakingService);
         const csInstance = instance(coreService);
-        service = new ReplayValidationService(csInstance, mmsInstance, minioService);
+        const msInstance = instance(minioService);
+        service = new ReplayValidationService(csInstance, mmsInstance, msInstance);
     });
 
     it("should be defined", () => {
@@ -204,6 +209,86 @@ describe("ReplayValidationService", () => {
         it("Should run the whole scrim validation method and pass", async () => {
             testSubmission.items.splice(0, 1);
             expect(await service.validateScrimSubmission(testSubmission)).toStrictEqual({valid: true});
+        });
+
+        it("Should fail because one player isn't in the right skillGroup", async () => {
+            when(coreService.send(CoreEndpoint.GetPlayersByPlatformIds, anything())).thenCall(async () => {
+                return {
+                    status: ResponseStatus.SUCCESS,
+                    data: [
+                        {
+                            status: ResponseStatus.SUCCESS,
+                            success: true,
+                            data: {
+                                id: 1,
+                                userId: 1,
+                                skillGroupId: 4,
+                                franchise: {
+                                    name: "Frogs",
+                                },
+                            },
+                        },
+                    ],
+                };
+            });
+
+            const mmsInstance = instance(matchmakingService);
+            const csInstance = instance(coreService);
+            const msInstance = instance(minioService);
+            service = new ReplayValidationService(csInstance, mmsInstance, msInstance);
+
+            expect(await service.validateScrimSubmission(testSubmission)).toStrictEqual({
+                valid: false,
+                errors: [
+                    {
+                        error: "One of the players isn't in the correct skill group",
+                    },
+                ],
+            });
+        });
+
+        it("Should check for scrims with actual games", async () => {
+            when(matchmakingService.send(anything(), anything())).thenCall(async () => {
+                return {
+                    status: ResponseStatus.SUCCESS,
+                    data: testScrim2,
+                };
+            });
+
+            when(coreService.send(CoreEndpoint.GetPlayersByPlatformIds, anything())).thenCall(async () => {
+                return {
+                    status: ResponseStatus.SUCCESS,
+                    data: [
+                        {
+                            status: ResponseStatus.SUCCESS,
+                            success: true,
+                            data: {
+                                id: 1,
+                                userId: 1,
+                                skillGroupId: 5,
+                                franchise: {
+                                    name: "Frogs",
+                                },
+                            },
+                        },
+                    ],
+                };
+            });
+
+            const mmsInstance = instance(matchmakingService);
+            const csInstance = instance(coreService);
+            const msInstance = instance(minioService);
+            service = new ReplayValidationService(csInstance, mmsInstance, msInstance);
+
+            testSubmission.items.push(testItem2);
+            expect(await service.validateScrimSubmission(testSubmission)).toStrictEqual({
+                valid: false,
+                errors: [
+                    {
+                        error: "One of the players isn't in the correct skill group",
+                    },
+                ],
+            });
         });
     });
 });

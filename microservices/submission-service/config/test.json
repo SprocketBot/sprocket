@@ -18,5 +18,10 @@
     "port": 0,
     "host": "",
     "prefix": "dev"
+  },
+  "minio": {
+    "bucketNames": {
+      "replays": "something"
+    }
   }
 }
