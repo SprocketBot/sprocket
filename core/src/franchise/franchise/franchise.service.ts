@@ -3,7 +3,7 @@ import type {CoreEndpoint, CoreOutput} from "@sprocketbot/common";
 
 import {MledbPlayerService} from "../../mledb";
 
-// TODO: Yeet!
+// TODO: Remove this after release 0.3.0. Since rosters will be through Sprocket instead of MLEDB, we won't need this because repositories.
 @Injectable()
 export class FranchiseService {
     constructor(
