@@ -1,4 +1,4 @@
-import {Injectable, Logger} from "@nestjs/common";
+import {ConsoleLogger, Injectable, Logger} from "@nestjs/common";
 import type {
     BallchasingResponse,
     GetPlayerSuccessResponse,
@@ -161,7 +161,9 @@ export class ReplayValidationService {
         }
 
         // We should have stats for every game
-        const stats = await Promise.all(submission.items.map(async i => this.getStats(i.outputPath!)));
+        const promises = submission.items.map(async i => this.getStats(i.outputPath!));
+        const stats = await Promise.all(promises);
+
         thisResult = await this.checkForAllStats(stats, submission, scrim);
         if (!thisResult.valid) {
             return thisResult;
@@ -255,6 +257,7 @@ export class ReplayValidationService {
         const sortedSubmissionUserIds = sortIds(submissionUserIds);
 
         const expectedMatchups = Array.from(sortedScrimPlayerIds);
+        console.log(`Expected matchups: ${expectedMatchups}`);
 
         // For each game, make sure the players were on correct teams
         for (let g = 0; g < gameCount; g++) {
