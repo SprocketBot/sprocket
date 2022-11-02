@@ -6,24 +6,7 @@ import {config} from "@sprocketbot/common";
 import {RedisCache} from "apollo-server-cache-redis";
 import {graphqlUploadExpress} from "graphql-upload";
 
-import {AuthenticationModule} from "./authentication";
-import {AuthorizationModule} from "./authorization/authorization.module";
-import {ConfigurationModule} from "./configuration";
-import {DatabaseModule} from "./database";
-import {EloModule} from "./elo";
-import {FranchiseModule} from "./franchise";
-import {GameModule} from "./game";
-import {IdentityModule} from "./identity";
-import {ImageGenerationModule} from "./image-generation";
-import {MledbInterfaceModule} from "./mledb";
-import {NotificationModule} from "./notification/notification.module";
-import {OrganizationModule} from "./organization";
-import {ReplayParseModule} from "./replay-parse";
-import {SchedulingModule} from "./scheduling";
-import {ScrimModule} from "./scrim";
-import {SprocketRatingModule} from "./sprocket-rating";
-import {SubmissionModule} from "./submission";
-import {UtilModule} from "./util/util.module";
+import {InternalModule} from "./internal/internal.module";
 
 @Module({
     imports: [
@@ -78,24 +61,7 @@ import {UtilModule} from "./util/util.module";
             },
             prefix: `${config.redis.prefix}:bull`,
         }),
-        AuthenticationModule,
-        OrganizationModule,
-        IdentityModule,
-        DatabaseModule,
-        ConfigurationModule,
-        GameModule,
-        ReplayParseModule,
-        ScrimModule,
-        SchedulingModule,
-        MledbInterfaceModule,
-        FranchiseModule,
-        ImageGenerationModule,
-        SprocketRatingModule,
-        UtilModule,
-        EloModule,
-        SubmissionModule,
-        NotificationModule,
-        AuthorizationModule,
+        InternalModule,
     ],
 })
 export class AppModule implements NestModule {
