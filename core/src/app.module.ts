@@ -7,6 +7,7 @@ import {RedisCache} from "apollo-server-cache-redis";
 import {graphqlUploadExpress} from "graphql-upload";
 
 import {AuthenticationModule} from "./authentication";
+import {AuthorizationModule} from "./authorization/authorization.module";
 import {ConfigurationModule} from "./configuration";
 import {DatabaseModule} from "./database";
 import {EloModule} from "./elo";
@@ -94,6 +95,7 @@ import {UtilModule} from "./util/util.module";
         EloModule,
         SubmissionModule,
         NotificationModule,
+        AuthorizationModule,
     ],
 })
 export class AppModule implements NestModule {
