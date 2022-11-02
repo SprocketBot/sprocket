@@ -1,3 +1,4 @@
+import {UseGuards} from "@nestjs/common";
 import {Args, Query, ResolveField, Resolver, Root} from "@nestjs/graphql";
 import {GraphQLError} from "graphql";
 
@@ -7,6 +8,7 @@ import {ScheduleGroupRepository} from "$repositories";
 import {PopulateService} from "$util";
 
 import {AuthenticatedUser} from "../../authentication/decorators";
+import {GraphQLJwtAuthGuard} from "../../authentication/guards";
 import {JwtAuthPayload} from "../../authentication/types";
 
 @Resolver(() => ScheduleGroup)
@@ -17,6 +19,7 @@ export class ScheduleGroupResolver {
     ) {}
 
     @Query(() => [ScheduleGroup])
+    @UseGuards(GraphQLJwtAuthGuard)
     async getScheduleGroups(
         @AuthenticatedUser() user: JwtAuthPayload,
         @Args("type") type: string,
