@@ -5,14 +5,14 @@ import {GraphQLError} from "graphql";
 
 import type {Member} from "$models";
 
-const logger = new Logger("CurrentPlayerDecorator");
+const logger = new Logger("CurrentMemberDecorator");
 
 export const CurrentMember = createParamDecorator((data: unknown, context: ExecutionContext) => {
     const ctx = GqlExecutionContext.create(context);
     const member = ctx.getContext().req.member as Member | undefined;
 
     if (!member) {
-        logger.error("CurrentPlayer decorator used without Player Guard");
+        logger.error("CurrentMember decorator used without Member Guard");
         throw new GraphQLError("Internal Server Error");
     }
 
