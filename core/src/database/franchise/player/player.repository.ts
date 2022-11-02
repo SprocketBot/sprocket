@@ -20,6 +20,13 @@ export class PlayerRepository extends ExtendedRepository<Player> {
         return this.get(
             Object.assign(
                 {
+                    relations: {
+                        member: true,
+                        skillGroup: true,
+                    },
+                },
+                options,
+                {
                     where: {
                         member: {
                             userId,
@@ -29,12 +36,7 @@ export class PlayerRepository extends ExtendedRepository<Player> {
                             gameId,
                         },
                     },
-                    relations: {
-                        member: true,
-                        skillGroup: true,
-                    },
                 },
-                options,
             ),
         );
     }
