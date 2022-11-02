@@ -54,7 +54,7 @@ export class ScrimService extends SprocketEventMarshal {
         await this.botService.send(BotEndpoint.SendWebhookMessage, {
             webhookUrl: skillGroupWebhook.data.scrim,
             payload: {
-                content: skillGroupWebhook.data.scrimRole ? `<@&${skillGroupWebhook.data.scrimRole}>` : "",
+                // content: skillGroupWebhook.data.scrimRole ? `<@&${skillGroupWebhook.data.scrimRole}>` : undefined,
                 embeds: [
                     {
                         title: "Scrim Created",
