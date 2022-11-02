@@ -70,7 +70,7 @@ export class ScrimCrudService {
     async getScrimByPlayer(id: number): Promise<Scrim | null> {
         const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
         for (const key of scrimKeys) {
-            const playerIds = await this.redisService.getJson<number[] | null | undefined>(key, "$.players[*].id");
+            const playerIds = await this.redisService.getJson<number[] | null | undefined>(key, "$.players[*].userId");
 
             if (!playerIds) {
                 this.logger.verbose(`GetScrimByPlayer id=${id} key=${key} playerIds is null`);
@@ -117,7 +117,7 @@ export class ScrimCrudService {
     async playerInAnyScrim(playerId: number): Promise<boolean> {
         const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
         const allScrimPlayers = await Promise.all(
-            scrimKeys.map(async k => this.redisService.getJson(k, "$.players[*].id")),
+            scrimKeys.map(async k => this.redisService.getJson(k, "$.players[*].userId")),
         );
         return allScrimPlayers.flat().includes(playerId);
     }
