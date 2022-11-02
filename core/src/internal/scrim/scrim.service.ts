@@ -178,6 +178,7 @@ export class ScrimService {
     ): Promise<CoreOutput<CoreEndpoint.GetScrimReportCardWebhooks>> {
         const skillGroupProfile = await this.skillGroupProfiledRepository.profileRepository.get({
             where: {skillGroupId: scrim.skillGroupId},
+            relations: {scrimReportCardWebhook: true},
         });
 
         // TODO: Refactor after we move to sprocket rosters
@@ -189,11 +190,11 @@ export class ScrimService {
 
                 const franchise = await this.franchiseProfiledRepository.primaryRepository.getOrNull({
                     where: {profile: {title: mleTeam.name}},
-                    relations: {profile: true},
+                    relations: {profile: {scrimReportCardWebhook: true}},
                 });
                 if (!franchise) return undefined;
 
-                return this.franchiseProfiledRepository.profileRepository.getByFranchiseId(franchise.id);
+                return franchise.profile;
             }),
         );
 
