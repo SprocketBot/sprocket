@@ -54,13 +54,13 @@ export const testItem2: ReplaySubmissionItem = {
     outputPath: "HAI",
     progress: {
         taskId: "1",
-        status: ProgressStatus.Error,
+        status: ProgressStatus.Complete,
         progress: {
             value: 10,
             message: "Hai",
         },
         result: null,
-        error: "Test error",
+        error: null,
     },
 };
 
@@ -87,6 +87,46 @@ export const testScrim: Scrim = {
         },
     ],
     games: [],
+    settings: {
+        teamSize: 2,
+        teamCount: 2,
+        mode: ScrimMode.ROUND_ROBIN,
+        competitive: true,
+        observable: true,
+        checkinTimeout: 4,
+    },
+};
+const testPlayer = {
+    id: 1,
+    name: "Nigel",
+    joinedAt: new Date(),
+    leaveAt: new Date(),
+};
+
+export const testScrim2: Scrim = {
+    id: "2",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    status: ScrimStatus.IN_PROGRESS,
+    unlockedStatus: ScrimStatus.IN_PROGRESS,
+
+    submissionId: "1",
+    authorId: 1,
+    organizationId: 2,
+    gameModeId: 1,
+    skillGroupId: 5,
+    timeoutJobId: 1,
+
+    players: [testPlayer],
+    games: [
+        {
+            teams: [
+                {
+                    players: [testPlayer],
+                },
+            ],
+        },
+    ],
     settings: {
         teamSize: 2,
         teamCount: 2,
