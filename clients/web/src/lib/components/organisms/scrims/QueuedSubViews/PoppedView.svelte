@@ -31,7 +31,7 @@
         }
     }
 
-    $: canCheckIn = !scrim.players.find(p => p.id === $user.userId)!.checkedIn;
+    $: canCheckIn = !scrim.players.find(p => p.userId === $user.userId)!.checkedIn;
 </script>
 
 <section>
@@ -54,7 +54,7 @@
                     Has {#if !p.checkedIn}<strong>not</strong>{/if} checked in.
                 </p>
 
-                {#if p.id === $user.userId}
+                {#if p.userId === $user.userId}
                     <button
                         class="btn btn-accent mr-2"
                         disabled={!canCheckIn}
@@ -75,7 +75,7 @@
 <!--    </thead>-->
 <!--    {#each scrim.players as p}-->
 <!--        <tr class="h-20">-->
-<!--            <td>{p.name} {p.id === $user.userId ? "(You)" : ""}</td>-->
+<!--            <td>{p.name} {p.userId === $user.userId ? "(You)" : ""}</td>-->
 <!--            <td>-->
 <!--                <input type="checkbox" class="toggle" on:click|capture|preventDefault={() => false} checked={Boolean(p.checkedIn)} readonly/>-->
 <!--            </td>-->
