@@ -1,7 +1,11 @@
 import type {MatchReplaySubmission, ReplaySubmissionItem, Scrim, ScrimReplaySubmission} from "@sprocketbot/common";
-import {ProgressStatus} from "@sprocketbot/common";
-import {ScrimStatus} from "@sprocketbot/common";
-import {ReplaySubmissionStatus, ReplaySubmissionType, ScrimMode} from "@sprocketbot/common";
+import {
+    ProgressStatus,
+    ReplaySubmissionStatus,
+    ReplaySubmissionType,
+    ScrimMode,
+    ScrimStatus,
+} from "@sprocketbot/common";
 
 export const testSubmission: ScrimReplaySubmission = {
     items: [],
