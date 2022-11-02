@@ -1,6 +1,12 @@
-import {CoreService, MatchmakingService, MinioService} from "@sprocketbot/common";
-import * as jest from "jest";
-import {mock} from "ts-mockito";
+import {
+    CoreEndpoint,
+    CoreService,
+    MatchmakingEndpoint,
+    MatchmakingService,
+    MinioService,
+    ResponseStatus,
+} from "@sprocketbot/common";
+import {anything, instance, mock, when} from "ts-mockito";
 
 import {ReplayValidationService} from "./replay-validation.service";
 import {testResponse} from "./utils/ballchasing-response.test-data";
@@ -15,7 +21,47 @@ describe("ReplayValidationService", () => {
     const minioService: MinioService = mock(MinioService);
 
     beforeEach(async () => {
-        service = new ReplayValidationService(coreService, matchmakingService, minioService);
+        // Mock matchmakingService's send
+        when(matchmakingService.send(anything(), anything())).thenCall(async () => {
+            return {
+                status: ResponseStatus.SUCCESS,
+                data: testScrim,
+            };
+        });
+
+        when(coreService.send(CoreEndpoint.GetGameByGameMode, anything())).thenCall(async () => {
+            return {
+                status: ResponseStatus.SUCCESS,
+                data: {
+                    id: 1,
+                    title: "Rocket League",
+                },
+            };
+        });
+
+        when(coreService.send(CoreEndpoint.GetPlayersByPlatformIds, anything())).thenCall(async () => {
+            return {
+                status: ResponseStatus.SUCCESS,
+                data: [
+                    {
+                        status: ResponseStatus.SUCCESS,
+                        success: true,
+                        data: {
+                            id: 1,
+                            userId: 1,
+                            skillGroupId: 5,
+                            franchise: {
+                                name: "Frogs",
+                            },
+                        },
+                    },
+                ],
+            };
+        });
+
+        const mmsInstance = instance(matchmakingService);
+        const csInstance = instance(coreService);
+        service = new ReplayValidationService(csInstance, mmsInstance, minioService);
     });
 
     it("should be defined", () => {
@@ -153,6 +199,11 @@ describe("ReplayValidationService", () => {
                     },
                 ],
             });
+        });
+
+        it("Should run the whole scrim validation method and pass", async () => {
+            testSubmission.items.splice(0, 1);
+            expect(await service.validateScrimSubmission(testSubmission)).toStrictEqual({valid: true});
         });
     });
 });

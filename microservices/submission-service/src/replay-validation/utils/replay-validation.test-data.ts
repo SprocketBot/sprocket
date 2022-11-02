@@ -78,7 +78,14 @@ export const testScrim: Scrim = {
     skillGroupId: 5,
     timeoutJobId: 1,
 
-    players: [],
+    players: [
+        {
+            id: 1,
+            name: "Nigel",
+            joinedAt: new Date(),
+            leaveAt: new Date(),
+        },
+    ],
     games: [],
     settings: {
         teamSize: 2,
