@@ -1,14 +1,16 @@
 import {CoreEndpoint, CoreService, MatchmakingService, MinioService, ResponseStatus} from "@sprocketbot/common";
+import {Readable} from "stream";
 import {anything, instance, mock, when} from "ts-mockito";
 
 import {ReplayValidationService} from "./replay-validation.service";
-import {testResponse} from "./utils/ballchasing-response.test-data";
+import {rawResponse, testResponse} from "./utils/ballchasing-response.test-data";
 import {
     testItem,
     testItem2,
     testMatchSubmission,
     testScrim,
     testScrim2,
+    testScrim3,
     testSubmission,
 } from "./utils/replay-validation.test-data";
 import {sortIds} from "./utils/sortIds";
@@ -60,7 +62,8 @@ describe("ReplayValidationService", () => {
         });
 
         when(minioService.get(anything(), anything())).thenCall(async () => {
-            return Buffer.from(JSON.stringify(testResponse));
+            return Readable.from(JSON.stringify({data: rawResponse}));
+            // return rawResponse;
         });
 
         const mmsInstance = instance(matchmakingService);
@@ -260,7 +263,6 @@ describe("ReplayValidationService", () => {
                     status: ResponseStatus.SUCCESS,
                     data: [
                         {
-                            status: ResponseStatus.SUCCESS,
                             success: true,
                             data: {
                                 id: 1,
@@ -269,6 +271,214 @@ describe("ReplayValidationService", () => {
                                 franchise: {
                                     name: "Frogs",
                                 },
+                            },
+                            request: {
+                                platform: "EPIC",
+                                platformId: "80fc09bb4a6f41688c316555a7606a4a",
+                                gameId: 1,
+                            },
+                        },
+                        {
+                            success: true,
+                            data: {
+                                id: 2,
+                                userId: 2,
+                                skillGroupId: 5,
+                                franchise: {
+                                    name: "Frogs",
+                                },
+                            },
+                            request: {
+                                platform: "STEAM",
+                                platformId: "76561198216346683",
+                                gameId: 1,
+                            },
+                        },
+                        {
+                            success: true,
+                            data: {
+                                id: 3,
+                                userId: 3,
+                                skillGroupId: 5,
+                                franchise: {
+                                    name: "Frogs",
+                                },
+                            },
+                            request: {
+                                platform: "STEAM",
+                                platformId: "76561197991590963",
+                                gameId: 1,
+                            },
+                        },
+                        {
+                            success: true,
+                            data: {
+                                id: 4,
+                                userId: 4,
+                                skillGroupId: 5,
+                                franchise: {
+                                    name: "Frogs",
+                                },
+                            },
+                            request: {
+                                platform: "STEAM",
+                                platformId: "76561198120437724",
+                                gameId: 1,
+                            },
+                        },
+                        {
+                            success: true,
+                            data: {
+                                id: 5,
+                                userId: 5,
+                                skillGroupId: 5,
+                                franchise: {
+                                    name: "Frogs",
+                                },
+                            },
+                            request: {
+                                platform: "STEAM",
+                                platformId: "76561198168202408",
+                                gameId: 1,
+                            },
+                        },
+                        {
+                            success: true,
+                            data: {
+                                id: 6,
+                                userId: 6,
+                                skillGroupId: 5,
+                                franchise: {
+                                    name: "Frogs",
+                                },
+                            },
+                            request: {
+                                platform: "STEAM",
+                                platformId: "76561198295649588",
+                                gameId: 1,
+                            },
+                        },
+                    ],
+                };
+            });
+
+            const mmsInstance = instance(matchmakingService);
+            const csInstance = instance(coreService);
+            const msInstance = instance(minioService);
+            service = new ReplayValidationService(csInstance, mmsInstance, msInstance);
+
+            testSubmission.items.push(testItem2);
+            expect(await service.validateScrimSubmission(testSubmission)).toStrictEqual({
+                valid: true,
+            });
+        });
+
+        it("Should fail for mismatched players", async () => {
+            when(matchmakingService.send(anything(), anything())).thenCall(async () => {
+                return {
+                    status: ResponseStatus.SUCCESS,
+                    data: testScrim3,
+                };
+            });
+
+            when(coreService.send(CoreEndpoint.GetPlayersByPlatformIds, anything())).thenCall(async () => {
+                return {
+                    status: ResponseStatus.SUCCESS,
+                    data: [
+                        {
+                            success: true,
+                            data: {
+                                id: 7,
+                                userId: 7,
+                                skillGroupId: 5,
+                                franchise: {
+                                    name: "Frogs",
+                                },
+                            },
+                            request: {
+                                platform: "EPIC",
+                                platformId: "80fc09bb4a6f41688c316555a7606a4a",
+                                gameId: 1,
+                            },
+                        },
+                        {
+                            success: true,
+                            data: {
+                                id: 2,
+                                userId: 2,
+                                skillGroupId: 5,
+                                franchise: {
+                                    name: "Frogs",
+                                },
+                            },
+                            request: {
+                                platform: "STEAM",
+                                platformId: "76561198216346683",
+                                gameId: 1,
+                            },
+                        },
+                        {
+                            success: true,
+                            data: {
+                                id: 3,
+                                userId: 3,
+                                skillGroupId: 5,
+                                franchise: {
+                                    name: "Frogs",
+                                },
+                            },
+                            request: {
+                                platform: "STEAM",
+                                platformId: "76561197991590963",
+                                gameId: 1,
+                            },
+                        },
+                        {
+                            success: true,
+                            data: {
+                                id: 4,
+                                userId: 4,
+                                skillGroupId: 5,
+                                franchise: {
+                                    name: "Frogs",
+                                },
+                            },
+                            request: {
+                                platform: "STEAM",
+                                platformId: "76561198120437724",
+                                gameId: 1,
+                            },
+                        },
+                        {
+                            success: true,
+                            data: {
+                                id: 5,
+                                userId: 5,
+                                skillGroupId: 5,
+                                franchise: {
+                                    name: "Frogs",
+                                },
+                            },
+                            request: {
+                                platform: "STEAM",
+                                platformId: "76561198168202408",
+                                gameId: 1,
+                            },
+                        },
+                        {
+                            success: true,
+                            data: {
+                                id: 6,
+                                userId: 6,
+                                skillGroupId: 5,
+                                franchise: {
+                                    name: "Frogs",
+                                },
+                            },
+                            request: {
+                                platform: "STEAM",
+                                platformId: "76561198295649588",
+                                gameId: 1,
                             },
                         },
                     ],
@@ -285,7 +495,8 @@ describe("ReplayValidationService", () => {
                 valid: false,
                 errors: [
                     {
-                        error: "One of the players isn't in the correct skill group",
+                        error: "Mismatched player",
+                        gameIndex: 0,
                     },
                 ],
             });

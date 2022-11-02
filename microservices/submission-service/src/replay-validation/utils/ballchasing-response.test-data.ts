@@ -1,7 +1,7 @@
 import type {BallchasingResponse} from "@sprocketbot/common";
-import { BallchasingResponseSchema} from "@sprocketbot/common";
+import {BallchasingResponseSchema} from "@sprocketbot/common";
 
-const rawResponse = {
+export const rawResponse = {
     map_name: "",
     id: "f80a36de-378a-4d0d-83cc-97bae49abdce",
     link: "https://ballchasing.com/api/replays/f80a36de-378a-4d0d-83cc-97bae49abdce",
