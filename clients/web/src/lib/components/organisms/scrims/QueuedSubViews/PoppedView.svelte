@@ -31,7 +31,8 @@
         }
     }
 
-    $: canCheckIn = !scrim.players.find(p => p.userId === $user.userId)!.checkedIn;
+    $: canCheckIn = !scrim.players.find(p => p.userId === $user.userId)!
+        .checkedIn;
 </script>
 
 <section>
