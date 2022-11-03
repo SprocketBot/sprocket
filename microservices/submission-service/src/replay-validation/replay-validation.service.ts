@@ -278,35 +278,9 @@ export class ReplayValidationService {
                 };
             }
 
-            const scrimGame = sortedScrimPlayerIds[matchupIndex];
-
-            for (let t = 0; t < scrim.settings.teamCount; t++) {
-                const scrimTeam = scrimGame[t];
-                const submissionTeam = submissionGame[t];
-                if (scrimTeam.length !== submissionTeam.length) {
-                    return {
-                        valid: false,
-                        errors: [
-                            {
-                                error: "Invalid team size",
-                                gameIndex: g,
-                                teamIndex: t,
-                            },
-                        ],
-                    };
-                }
-            }
-            if (scrimGame.length !== submissionGame.length) {
-                return {
-                    valid: false,
-                    errors: [
-                        {
-                            error: "Invalid team count",
-                            gameIndex: g,
-                        },
-                    ],
-                };
-            }
+            // The above permutations check *actually* covers number of players
+            // and teams as well, so the checks that were here previously are
+            // vacuously true, always.
         }
 
         // ========================================
