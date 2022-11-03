@@ -11,6 +11,7 @@ import {
     testScrim,
     testScrim2,
     testScrim3,
+    testScrimNoGames,
     testSubmission,
 } from "./utils/replay-validation.test-data";
 import {sortIds} from "./utils/sortIds";
@@ -500,6 +501,32 @@ describe("ReplayValidationService", () => {
                     },
                 ],
             });
+        });
+
+        it("Should fail for a scrim with no games", async () => {
+            when(matchmakingService.send(anything(), anything())).thenCall(async () => {
+                return {
+                    status: ResponseStatus.SUCCESS,
+                    data: testScrimNoGames,
+                };
+            });
+
+            const mmsInstance = instance(matchmakingService);
+            const csInstance = instance(coreService);
+            const msInstance = instance(minioService);
+            service = new ReplayValidationService(csInstance, mmsInstance, msInstance);
+
+            const testFn = async () => {
+                try {
+                    await service.validateScrimSubmission(testSubmission);
+                } catch (e) {
+                    return e;
+                }
+            };
+
+            expect(await testFn()).toStrictEqual(
+                Error("Unable to validate gameCount for scrim 4 because it has no games"),
+            );
         });
     });
 });

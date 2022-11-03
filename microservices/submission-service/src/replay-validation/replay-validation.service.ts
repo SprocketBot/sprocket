@@ -257,7 +257,6 @@ export class ReplayValidationService {
         const sortedSubmissionUserIds = sortIds(submissionUserIds);
 
         const expectedMatchups = Array.from(sortedScrimPlayerIds);
-        console.log(`Expected matchups: ${expectedMatchups}`);
 
         // For each game, make sure the players were on correct teams
         for (let g = 0; g < gameCount; g++) {

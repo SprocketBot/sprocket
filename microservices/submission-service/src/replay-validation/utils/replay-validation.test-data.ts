@@ -250,3 +250,28 @@ export const testScrim3: Scrim = {
         checkinTimeout: 4,
     },
 };
+
+export const testScrimNoGames: Scrim = {
+    id: "4",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    status: ScrimStatus.IN_PROGRESS,
+    unlockedStatus: ScrimStatus.IN_PROGRESS,
+
+    submissionId: "1",
+    authorId: 1,
+    organizationId: 2,
+    gameModeId: 1,
+    skillGroupId: 5,
+    timeoutJobId: 1,
+
+    players: [testPlayer, testPlayer2, testPlayer3, testPlayer4, testPlayer5, testPlayer6],
+    settings: {
+        teamSize: 2,
+        teamCount: 2,
+        mode: ScrimMode.ROUND_ROBIN,
+        competitive: true,
+        observable: true,
+        checkinTimeout: 4,
+    },
+};
