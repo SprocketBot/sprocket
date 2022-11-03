@@ -503,6 +503,41 @@ describe("ReplayValidationService", () => {
             });
         });
 
+        it("Should fail due to having different numbers of replays and expected games", async () => {
+            when(matchmakingService.send(anything(), anything())).thenCall(async () => {
+                return {
+                    status: ResponseStatus.SUCCESS,
+                    data: testScrim,
+                };
+            });
+
+            const mmsInstance = instance(matchmakingService);
+            const csInstance = instance(coreService);
+            const msInstance = instance(minioService);
+            service = new ReplayValidationService(csInstance, mmsInstance, msInstance);
+
+            testSubmission.items.push(testItem);
+            const testFn = async () => {
+                try {
+                    return await service.validateScrimSubmission(testSubmission);
+                } catch (e) {
+                    return e;
+                }
+            };
+
+            expect(await testFn()).toStrictEqual({
+                valid: false,
+                errors: [
+                    {
+                        error: "Incorrect number of replays submitted, expected 0 but found 3",
+                    },
+                ],
+            });
+
+            // Reset test submission's state
+            testSubmission.items.splice(0, 3);
+        });
+
         it("Should fail for a scrim with no games", async () => {
             when(matchmakingService.send(anything(), anything())).thenCall(async () => {
                 return {
