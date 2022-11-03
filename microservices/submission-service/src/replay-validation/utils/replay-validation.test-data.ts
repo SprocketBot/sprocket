@@ -68,6 +68,22 @@ export const testItem2: ReplaySubmissionItem = {
     },
 };
 
+export const testItemNoOutputPath: ReplaySubmissionItem = {
+    taskId: "4",
+    originalFilename: "something.replay",
+    inputPath: "something.replay",
+    progress: {
+        taskId: "1",
+        status: ProgressStatus.Complete,
+        progress: {
+            value: 10,
+            message: "Hai",
+        },
+        result: null,
+        error: null,
+    },
+};
+
 export const testScrim: Scrim = {
     id: "1",
     createdAt: new Date(),
