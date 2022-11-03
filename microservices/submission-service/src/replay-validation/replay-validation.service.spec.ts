@@ -629,6 +629,69 @@ describe("ReplayValidationService", () => {
                     },
                 ],
             });
+            testSubmission.items.splice(0, 1);
+        });
+
+        it("Should fail for gameResult error response from core service", async () => {
+            when(coreService.send(anything(), anything())).thenCall(async () => {
+                return {
+                    status: ResponseStatus.ERROR,
+                };
+            });
+
+            const mmsInstance = instance(matchmakingService);
+            const csInstance = instance(coreService);
+            const msInstance = instance(minioService);
+            service = new ReplayValidationService(csInstance, mmsInstance, msInstance);
+
+            const testFn = async () => {
+                try {
+                    return await service.validateScrimSubmission(testSubmission);
+                } catch (e) {
+                    return e;
+                }
+            };
+
+            expect(await testFn()).toStrictEqual({
+                valid: false,
+                errors: [
+                    {
+                        error: "Failed to find associated game. Please contact support.",
+                    },
+                ],
+            });
+            testSubmission.items.splice(0, 1);
+        });
+
+        it("Should fail for missing players by platform IDs", async () => {
+            when(coreService.send(CoreEndpoint.GetPlayersByPlatformIds, anything())).thenCall(async () => {
+                return {
+                    status: ResponseStatus.ERROR,
+                };
+            });
+
+            const mmsInstance = instance(matchmakingService);
+            const csInstance = instance(coreService);
+            const msInstance = instance(minioService);
+            service = new ReplayValidationService(csInstance, mmsInstance, msInstance);
+
+            const testFn = async () => {
+                try {
+                    return await service.validateScrimSubmission(testSubmission);
+                } catch (e) {
+                    return e;
+                }
+            };
+
+            expect(await testFn()).toStrictEqual({
+                valid: false,
+                errors: [
+                    {
+                        error: "Failed to find all players by their platform Ids. Please contact support.",
+                    },
+                ],
+            });
+            testSubmission.items.splice(0, 1);
         });
     });
 });
