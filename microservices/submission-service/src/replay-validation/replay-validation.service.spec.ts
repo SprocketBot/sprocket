@@ -3,6 +3,7 @@ import {Readable} from "stream";
 import {anything, instance, mock, when} from "ts-mockito";
 
 import {ReplayValidationService} from "./replay-validation.service";
+import type {ValidationResult} from "./types/validation-result";
 import {rawResponse, testResponse} from "./utils/ballchasing-response.test-data";
 import {
     testItem,
@@ -518,11 +519,11 @@ describe("ReplayValidationService", () => {
             service = new ReplayValidationService(csInstance, mmsInstance, msInstance);
 
             testSubmission.items.push(testItem);
-            const testFn = async () => {
+            const testFn = async (): Promise<ValidationResult | Error> => {
                 try {
                     return await service.validateScrimSubmission(testSubmission);
                 } catch (e) {
-                    return e;
+                    return e as Error;
                 }
             };
 
@@ -552,11 +553,11 @@ describe("ReplayValidationService", () => {
             const msInstance = instance(minioService);
             service = new ReplayValidationService(csInstance, mmsInstance, msInstance);
 
-            const testFn = async () => {
+            const testFn = async (): Promise<ValidationResult | Error> => {
                 try {
-                    await service.validateScrimSubmission(testSubmission);
+                    return await service.validateScrimSubmission(testSubmission);
                 } catch (e) {
-                    return e;
+                    return e as Error;
                 }
             };
 
@@ -579,11 +580,11 @@ describe("ReplayValidationService", () => {
             service = new ReplayValidationService(csInstance, mmsInstance, msInstance);
 
             testSubmission.items.push(testItem);
-            const testFn = async () => {
+            const testFn = async (): Promise<ValidationResult | Error> => {
                 try {
                     return await service.validateScrimSubmission(testSubmission);
                 } catch (e) {
-                    return e;
+                    return e as Error;
                 }
             };
 
@@ -613,11 +614,11 @@ describe("ReplayValidationService", () => {
             service = new ReplayValidationService(csInstance, mmsInstance, msInstance);
 
             testSubmission.items.push(testItemNoOutputPath);
-            const testFn = async () => {
+            const testFn = async (): Promise<ValidationResult | Error> => {
                 try {
                     return await service.validateScrimSubmission(testSubmission);
                 } catch (e) {
-                    return e;
+                    return e as Error;
                 }
             };
 
@@ -644,11 +645,11 @@ describe("ReplayValidationService", () => {
             const msInstance = instance(minioService);
             service = new ReplayValidationService(csInstance, mmsInstance, msInstance);
 
-            const testFn = async () => {
+            const testFn = async (): Promise<ValidationResult | Error> => {
                 try {
                     return await service.validateScrimSubmission(testSubmission);
                 } catch (e) {
-                    return e;
+                    return e as Error;
                 }
             };
 
@@ -675,11 +676,11 @@ describe("ReplayValidationService", () => {
             const msInstance = instance(minioService);
             service = new ReplayValidationService(csInstance, mmsInstance, msInstance);
 
-            const testFn = async () => {
+            const testFn = async (): Promise<ValidationResult | Error> => {
                 try {
                     return await service.validateScrimSubmission(testSubmission);
                 } catch (e) {
-                    return e;
+                    return e as Error;
                 }
             };
 
