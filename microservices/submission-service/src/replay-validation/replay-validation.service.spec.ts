@@ -693,5 +693,54 @@ describe("ReplayValidationService", () => {
             });
             testSubmission.items.splice(0, 1);
         });
+
+        it("Should fail for unsuccessful individual player response", async () => {
+            when(matchmakingService.send(anything(), anything())).thenCall(async () => {
+                return {
+                    status: ResponseStatus.SUCCESS,
+                    data: testScrim3,
+                };
+            });
+
+            when(coreService.send(CoreEndpoint.GetPlayersByPlatformIds, anything())).thenCall(async () => {
+                return {
+                    status: ResponseStatus.SUCCESS,
+                    data: [
+                        {
+                            success: false,
+                            data: {
+                                id: 7,
+                                userId: 7,
+                                skillGroupId: 5,
+                                franchise: {
+                                    name: "Frogs",
+                                },
+                            },
+                            request: {
+                                platform: "EPIC",
+                                platformId: "80fc09bb4a6f41688c316555a7606a4a",
+                                gameId: 1,
+                            },
+                        },
+                    ],
+                };
+            });
+
+            const mmsInstance = instance(matchmakingService);
+            const csInstance = instance(coreService);
+            const msInstance = instance(minioService);
+            service = new ReplayValidationService(csInstance, mmsInstance, msInstance);
+
+            testSubmission.items.push(testItem2);
+            testSubmission.items.push(testItem2);
+            expect(await service.validateScrimSubmission(testSubmission)).toStrictEqual({
+                valid: false,
+                errors: [
+                    {
+                        error: "One or more players played on an unreported account: Nigel Thornbrake",
+                    },
+                ],
+            });
+        });
     });
 });
