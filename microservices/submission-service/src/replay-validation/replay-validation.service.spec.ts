@@ -563,5 +563,37 @@ describe("ReplayValidationService", () => {
                 Error("Unable to validate gameCount for scrim 4 because it has no games"),
             );
         });
+
+        it("Should fail due to processing error in one of the submission items", async () => {
+            when(matchmakingService.send(anything(), anything())).thenCall(async () => {
+                return {
+                    status: ResponseStatus.SUCCESS,
+                    data: testScrim2,
+                };
+            });
+
+            const mmsInstance = instance(matchmakingService);
+            const csInstance = instance(coreService);
+            const msInstance = instance(minioService);
+            service = new ReplayValidationService(csInstance, mmsInstance, msInstance);
+
+            testSubmission.items.push(testItem);
+            const testFn = async () => {
+                try {
+                    return await service.validateScrimSubmission(testSubmission);
+                } catch (e) {
+                    return e;
+                }
+            };
+
+            expect(await testFn()).toStrictEqual({
+                valid: false,
+                errors: [
+                    {
+                        error: "Error encountered while parsing file ",
+                    },
+                ],
+            });
+        });
     });
 });
