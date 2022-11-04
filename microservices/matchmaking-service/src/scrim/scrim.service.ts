@@ -41,6 +41,7 @@ export class ScrimService {
                 name: join.playerName,
                 joinedAt: new Date(),
                 leaveAt: add(new Date(), {seconds: join.leaveAfter}),
+                canSaveDemos: join.canSaveDemos,
             };
 
         const scrim = await this.scrimCrudService.createScrim({
@@ -81,6 +82,7 @@ export class ScrimService {
         leaveAfter,
         createGroup,
         joinGroup,
+        canSaveDemos,
     }: JoinScrimOptions): Promise<Scrim> {
         const scrim = await this.scrimCrudService.getScrim(scrimId);
 
@@ -95,6 +97,7 @@ export class ScrimService {
             joinedAt: new Date(),
             leaveAt: add(new Date(), {seconds: leaveAfter}),
             group: this.scrimGroupService.resolveGroupKey(scrim, joinGroup ?? createGroup ?? false),
+            canSaveDemos: canSaveDemos,
         };
 
         await this.scrimCrudService.addPlayerToScrim(scrimId, player);

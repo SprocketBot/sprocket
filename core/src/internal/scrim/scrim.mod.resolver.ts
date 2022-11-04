@@ -146,6 +146,7 @@ export class ScrimModuleResolver {
                 playerName: user.username,
                 leaveAfter: data.leaveAfter,
                 createGroup: data.createGroup,
+                canSaveDemos: data.canSaveDemos,
             },
         }) as Promise<Scrim>;
     }
@@ -157,6 +158,7 @@ export class ScrimModuleResolver {
         @CurrentPlayer() player: Player,
         @Args("scrimId") scrimId: string,
         @Args("leaveAfter", {type: () => Int}) leaveAfter: number,
+        @Args("canSaveDemos", {type: () => Boolean}) canSaveDemos: boolean,
         @Args("group", {nullable: true}) groupKey?: string,
         @Args("createGroup", {nullable: true}) createGroup?: boolean,
     ): Promise<boolean> {
@@ -185,6 +187,7 @@ export class ScrimModuleResolver {
                 leaveAfter: leaveAfter,
                 createGroup: createGroup,
                 joinGroup: groupKey,
+                canSaveDemos: canSaveDemos,
             });
         } catch (e) {
             throw new GraphQLError((e as Error).message);

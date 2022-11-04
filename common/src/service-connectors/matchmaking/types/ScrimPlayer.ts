@@ -9,6 +9,7 @@ export const ScrimPlayerSchema = z.object({
     leaveAt: DateSchema,
     group: z.string().optional(),
     checkedIn: z.boolean().default(false).optional(),
+    canSaveDemos: z.boolean(),
 });
 
 export type ScrimPlayer = z.infer<typeof ScrimPlayerSchema>;
