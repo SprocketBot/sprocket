@@ -16,6 +16,6 @@ export class CreateScrimInput {
     @Field(() => Int)
     leaveAfter: number;
 
-    @Field(() => Boolean)
-    canSaveDemos: boolean;
+    @Field(() => Boolean, {nullable: true})
+    canSaveDemos?: boolean;
 }
