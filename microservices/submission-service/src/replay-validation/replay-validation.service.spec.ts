@@ -66,7 +66,6 @@ describe("ReplayValidationService", () => {
 
         when(minioService.get(anything(), anything())).thenCall(async () => {
             return Readable.from(JSON.stringify({data: rawResponse}));
-            // return rawResponse;
         });
 
         const mmsInstance = instance(matchmakingService);
