@@ -164,9 +164,11 @@ describe("ReplayValidationService", () => {
                     },
                 ],
             });
+            testSubmission.items.splice(0, 1); // Remove item we just pushed
         });
 
         it("Should fail validation because there's an error progress message.", () => {
+            testSubmission.items.push(testItem);
             expect(service.checkForProcessingErrors(testSubmission, testScrim)).toStrictEqual({
                 valid: false,
                 errors: [
@@ -175,9 +177,11 @@ describe("ReplayValidationService", () => {
                     },
                 ],
             });
+            testSubmission.items.splice(0, 1);
         });
 
         it("Should fail because outputPath is missing.", () => {
+            testSubmission.items.push(testItem);
             expect(service.checkOutputPathExists(testSubmission, testScrim)).toStrictEqual({
                 valid: false,
                 errors: [
@@ -186,21 +190,25 @@ describe("ReplayValidationService", () => {
                     },
                 ],
             });
+            testSubmission.items.splice(0, 1);
         });
 
         it("Should pass because outputPath now has a value.", () => {
-            testSubmission.items.splice(0, 1);
             testSubmission.items.push(testItem2);
             expect(service.checkOutputPathExists(testSubmission, testScrim)).toStrictEqual({valid: true});
+            testSubmission.items.splice(0, 1);
         });
 
         it("Should pass with appropriate stats object", async () => {
+            testSubmission.items.push(testItem2);
             expect(await service.checkForAllStats([testResponse], testSubmission, testScrim)).toStrictEqual({
                 valid: true,
             });
+            testSubmission.items.splice(0, 1);
         });
 
         it("Should fail when there are not enough stats objects", async () => {
+            testSubmission.items.push(testItem2);
             expect(await service.checkForAllStats([], testSubmission, testScrim)).toStrictEqual({
                 valid: false,
                 errors: [
@@ -209,10 +217,10 @@ describe("ReplayValidationService", () => {
                     },
                 ],
             });
+            testSubmission.items.splice(0, 1);
         });
 
         it("Should run the whole scrim validation method and pass", async () => {
-            testSubmission.items.splice(0, 1);
             expect(await service.validateScrimSubmission(testSubmission)).toStrictEqual({valid: true});
         });
 
