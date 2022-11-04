@@ -424,4 +424,26 @@ export class PlayerService {
             };
         }
     }
+
+    async playerCanSaveDemos(playerId: number): Promise<boolean> {
+        const player = await this.playerRepository.getById(playerId, {
+            relations: {
+                member: {
+                    platformAccounts: true,
+                },
+                skillGroup: {
+                    game: {
+                        supportedPlatforms: true,
+                    },
+                },
+            },
+        });
+
+        return player.member.platformAccounts.some(memberAccount =>
+            player.skillGroup.game.supportedPlatforms.some(
+                supportedPlatform =>
+                    supportedPlatform.canSaveDemos && supportedPlatform.platformId === memberAccount.platformId,
+            ),
+        );
+    }
 }
