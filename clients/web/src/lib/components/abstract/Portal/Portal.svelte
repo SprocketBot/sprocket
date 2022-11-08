@@ -15,6 +15,9 @@
 	export function portal(el, target = "body") {
 		let targetEl;
 
+		/**
+		 * @param newTarget {string|HTMLElement}
+		 */
 		async function update(newTarget) {
 			target = newTarget;
 			if (typeof target === "string") {
