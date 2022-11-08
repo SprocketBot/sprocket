@@ -6,7 +6,7 @@
 	import {Icon} from '@steeze-ui/svelte-icon'
 
   export let open = false;
-  export let title: string | undefined;
+  export let title: string | undefined = undefined;
 
   const close = () => {
     open = false;
