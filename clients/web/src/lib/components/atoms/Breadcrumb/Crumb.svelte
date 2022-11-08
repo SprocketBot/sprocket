@@ -20,7 +20,7 @@
 </li>
 <li>
     {#if !active}
-        <div class="w-4">
+        <div class="w-4 text-gray-400">
             <Icon src={ChevronRight} />
         </div>
     {/if}
