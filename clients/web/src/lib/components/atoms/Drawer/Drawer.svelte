@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {XCircle} from "@steeze-ui/heroicons";
+    import {XMark} from "@steeze-ui/heroicons";
     import {Icon} from "@steeze-ui/svelte-icon";
     import {fly, fade, type FlyParams} from "svelte/transition";
     // Specific import to prevent circular dependency issues
@@ -57,7 +57,7 @@
                 class="text-gray-400 bg-transparent rounded-lg text-sm p-1.5 absolute top-2.5 right-2.5 inline-flex items-center hover:bg-gray-600 hover:text-white"
                 on:click={close}
             >
-                <span class="w-5 h-5"><Icon src={XCircle} /></span>
+                <span class="w-5 h-5"><Icon src={XMark} /></span>
                 <span class="sr-only">Close menu</span>
             </button>
             <slot />

@@ -2,7 +2,7 @@
   import { Portal } from '$lib/components';
   import { setContext } from 'svelte';
   import { CLOSE_MODAL_CONTEXT } from './types';
-  import {XCircle} from '@steeze-ui/heroicons'
+  import {XMark} from '@steeze-ui/heroicons'
 	import {Icon} from '@steeze-ui/svelte-icon'
 
   export let open = false;
@@ -31,7 +31,7 @@
 									class="text-gray-400 bg-transparent rounded-lg text-sm p-1.5 ml-auto inline-flex items-center hover:bg-gray-600 hover:text-white absolute top-2 right-2"
 									on:click={close}
 					>
-						<Icon src={XCircle} class="h-8"/>
+						<Icon src={XMark} class="h-8"/>
 						<span class="sr-only">Close modal</span>
 					</button>
 					<!-- Modal header -->
