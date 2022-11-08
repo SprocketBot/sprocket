@@ -7,7 +7,7 @@ export type RejectedItem = Omit<ReplaySubmissionItem, "progress">;
 @ObjectType()
 export class SubmissionRejection {
     @Field()
-    playerId: number;
+    userId: number;
 
     @Field()
     playerName: string;

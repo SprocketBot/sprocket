@@ -50,7 +50,7 @@ export class ActiveSubmissionsStore extends QueryStore<
                 scrimId
                 matchId
 
-                creatorId
+                creatorUserId
 
                 status
 
@@ -82,7 +82,7 @@ export class ActiveSubmissionsStore extends QueryStore<
                 ratifiers
                 requiredRatifications
                 rejections {
-                    playerId
+                    userId
                     reason
                     rejectedAt
                 }

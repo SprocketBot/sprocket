@@ -17,7 +17,7 @@ export enum ReplaySubmissionStatus {
 
 export interface BaseReplaySubmission {
     id: string;
-    creatorId: number;
+    creatorUserId: number;
 
     status: ReplaySubmissionStatus;
 

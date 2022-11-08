@@ -8,6 +8,6 @@ export const SubmitReplays_Request = z.object({
         }),
     ),
     submissionId: z.string(),
-    creatorId: z.number(),
+    creatorUserId: z.number(),
 });
 export const SubmitReplays_Response = z.array(z.string());

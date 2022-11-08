@@ -19,14 +19,14 @@ export function getMockScrimSettings(
 }
 
 export function getMockScrimPlayer(
-    id: number,
+    userId: number,
     name: string,
     joinedAt: Date,
     leaveAt: Date,
     group?: string,
 ): ScrimPlayer {
     return {
-        id,
+        userId,
         name,
         joinedAt,
         leaveAt,
@@ -35,18 +35,18 @@ export function getMockScrimPlayer(
 }
 
 export function getMockScrimIds(
-    authorId = 1,
+    authorUserId = 1,
     organizationId = 1,
     gameModeId = 1,
     skillGroupId = 1,
 ): {
-    authorId: number;
+    authorUserId: number;
     organizationId: number;
     gameModeId: number;
     skillGroupId: number;
 } {
     return {
-        authorId,
+        authorUserId,
         organizationId,
         gameModeId,
         skillGroupId,

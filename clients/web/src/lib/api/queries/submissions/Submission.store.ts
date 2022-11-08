@@ -28,7 +28,7 @@ export class SubmissionStore extends LiveQueryStore<
         query ($submissionId: String!) {
             submission: getSubmission(submissionId: $submissionId) {
                 id
-                creatorId
+                creatorUserId
                 ratifications
                 requiredRatifications
                 userHasRatified
@@ -78,7 +78,7 @@ export class SubmissionStore extends LiveQueryStore<
         subscription ($submissionId: String!) {
             submission: followSubmission(submissionId: $submissionId) {
                 id
-                creatorId
+                creatorUserId
                 ratifications
                 requiredRatifications
                 userHasRatified

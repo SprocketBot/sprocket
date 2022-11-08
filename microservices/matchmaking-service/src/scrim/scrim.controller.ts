@@ -30,7 +30,7 @@ export class ScrimController {
     @MessagePattern(MatchmakingEndpoint.GetScrim)
     async getScrim(@Payload() payload: unknown): Promise<Scrim> {
         const data = MatchmakingSchemas.GetScrim.input.parse(payload);
-        const scrim = await this.scrimCrudService.getScrim(data);
+        const scrim = await this.scrimCrudService.getScrim(data.scrimId);
 
         if (!scrim) throw new RpcException(MatchmakingError.ScrimNotFound);
         return scrim;
@@ -46,14 +46,14 @@ export class ScrimController {
     @MessagePattern(MatchmakingEndpoint.LeaveScrim)
     async leaveScrim(@Payload() payload: unknown): Promise<boolean> {
         const data = MatchmakingSchemas.LeaveScrim.input.parse(payload);
-        await this.scrimService.leaveScrim(data.scrimId, data.playerId);
+        await this.scrimService.leaveScrim(data.scrimId, data.userId);
         return true;
     }
 
     @MessagePattern(MatchmakingEndpoint.CheckInToScrim)
     async checkIn(@Payload() payload: unknown): Promise<boolean> {
         const data = MatchmakingSchemas.CheckInToScrim.input.parse(payload);
-        await this.scrimService.checkIn(data.scrimId, data.playerId);
+        await this.scrimService.checkIn(data.scrimId, data.userId);
         return true;
     }
 
@@ -71,13 +71,13 @@ export class ScrimController {
     @MessagePattern(MatchmakingEndpoint.GetScrimByPlayer)
     async getScrimByPlayer(@Payload() payload: unknown): Promise<Scrim | null> {
         const data = MatchmakingSchemas.GetScrimByPlayer.input.parse(payload);
-        return this.scrimCrudService.getScrimByPlayer(data);
+        return this.scrimCrudService.getScrimByPlayer(data.userId);
     }
 
     @MessagePattern(MatchmakingEndpoint.GetScrimBySubmissionId)
     async getScrimBySubmissionId(@Payload() payload: unknown): Promise<Scrim> {
         const data = MatchmakingSchemas.GetScrimBySubmissionId.input.parse(payload);
-        const result = await this.scrimCrudService.getScrimBySubmissionId(data);
+        const result = await this.scrimCrudService.getScrimBySubmissionId(data.submissionId);
 
         if (!result) throw new RpcException(MatchmakingError.ScrimSubmissionNotFound);
         return result;
@@ -86,7 +86,7 @@ export class ScrimController {
     @MessagePattern(MatchmakingEndpoint.CompleteScrim)
     async completeScrim(@Payload() payload: unknown): Promise<Scrim | null> {
         const data = MatchmakingSchemas.CompleteScrim.input.parse(payload);
-        return this.scrimService.completeScrim(data.scrimId, data.playerId);
+        return this.scrimService.completeScrim(data.scrimId, data.userId);
     }
 
     @MessagePattern(MatchmakingEndpoint.SetScrimLocked)
