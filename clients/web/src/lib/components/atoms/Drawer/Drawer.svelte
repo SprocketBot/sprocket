@@ -49,7 +49,7 @@
             on:click={close}
         />
         <div
-            class="fixed z-40 p-4 overflow-y-auto bg-gray-800 drawer {position} text-gray-200"
+            class="fixed z-40 p-8 overflow-y-auto bg-gray-800 drawer {position} text-gray-200"
             tabindex="-1"
             transition:fly={flyProps}
         >
