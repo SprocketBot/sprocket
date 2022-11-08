@@ -27,15 +27,14 @@
             break;
     }
 
-    function handleKeyPress(e: KeyboardEvent) {
-        if (!open) return;
-        if (e.key !== "Escape") return;
-        open = false;
-    }
-
     function close() {
         open = false;
     }
+
+    function handleKeyPress(e: KeyboardEvent) {
+        if (open && e.key === "Escape") close()
+    }
+
 
     setContext(DRAWER_CLOSE_CONTEXT, close);
 </script>
