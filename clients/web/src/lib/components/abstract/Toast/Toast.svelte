@@ -1,6 +1,7 @@
 <script lang="ts">
     import {fly} from "svelte/transition";
     import {ToastStatus, type IToast} from "./types";
+    import ToastProgress from "./ToastProgress.svelte";
     import {Icon} from "@steeze-ui/svelte-icon";
     import {CheckCircle, ExclamationCircle, InformationCircle, XMark} from "@steeze-ui/heroicons";
     import {removeToast} from "./toast.store";
@@ -27,6 +28,7 @@
 
 <div
     transition:fly={{x: 50}}
+    class:pb-5={toast.ttl}
     class="flex items-start p-4 w-full max-w-xs rounded-lg shadow text-gray-400 bg-gray-800 mt-2"
     role="alert"
 >
@@ -43,6 +45,9 @@
                 <Icon src={XMark} />
             </span>
         </button>
+    {/if}
+    {#if toast.ttl}
+        <ToastProgress {toast} />
     {/if}
 </div>
 
