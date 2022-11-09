@@ -35,7 +35,7 @@
         <Hst.Number title="Value" bind:value />
     </svelte:fragment>
 
-    <Hst.Variant title="Default" {size} {label} {placeholder} {disabled} {state} {error} {value}>
-        <Select {options} {size} {label} {placeholder} {disabled} {state} {error} {value} />
+    <Hst.Variant title="Default" {size} {label} {placeholder} {disabled} {state} {error} bind:value>
+        <Select {options} {size} {label} {placeholder} {disabled} {state} {error} bind:value />
     </Hst.Variant>
 </Hst.Story>
