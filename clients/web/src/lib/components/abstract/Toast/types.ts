@@ -1,10 +1,10 @@
-import type { IconSource } from "@steeze-ui/svelte-icon/types";
+import type {IconSource} from "@steeze-ui/svelte-icon/types";
 
 export enum ToastStatus {
     Info = "info",
     Success = "success",
     Warning = "warning",
-    Danger = "danger"
+    Danger = "danger",
 }
 
 export type IToast = {
@@ -14,4 +14,5 @@ export type IToast = {
     ttl?: number;
     dismissable?: boolean;
     icon?: IconSource;
-}
+    timestamp: number;
+};

@@ -3,7 +3,7 @@
     import {addToast} from "./toast.store";
     import ToastContainer from "./ToastContainer.svelte";
     import {ToastStatus} from "./types";
-    import {PaperAirplane} from "@steeze-ui/heroicons"
+    import {PaperAirplane} from "@steeze-ui/heroicons";
     export let Hst: _Hst;
     let i = 0;
 </script>
@@ -81,7 +81,7 @@
             on:click={() =>
                 addToast({
                     content: `Test ${i++}.`,
-                    icon: PaperAirplane
+                    icon: PaperAirplane,
                 })}
         >
             Add Toast with a custom icon
