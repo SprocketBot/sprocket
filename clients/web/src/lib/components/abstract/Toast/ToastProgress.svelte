@@ -23,6 +23,5 @@
 {#if toast.ttl}
     <div class="absolute bottom-0 left-0 h-1.5 w-full rounded-b-lg overflow-hidden">
         <div class="absolute bottom-0 left-0 bg-primary-500 h-full" style="width: {(lastTime / toast.ttl) * 100}%;" />
-        <!-- <progress min={0} max={toast.ttl} value={lastTime} class="w-full h-1 absolute bottom-0 left-0" /> -->
     </div>
 {/if}
