@@ -32,9 +32,8 @@
     }
 
     function handleKeyPress(e: KeyboardEvent) {
-        if (open && e.key === "Escape") close()
+        if (open && e.key === "Escape") close();
     }
-
 
     setContext(DRAWER_CLOSE_CONTEXT, close);
 </script>

@@ -1,10 +1,10 @@
 <script lang="ts">
-  import type { Hst as _Hst } from '@histoire/plugin-svelte';
-  import Modal from './Modal.svelte';
+    import type {Hst as _Hst} from "@histoire/plugin-svelte";
+    import Modal from "./Modal.svelte";
 
-  export let Hst: _Hst;
+    export let Hst: _Hst;
 
-  let open = false;
+    let open = false;
 </script>
 
 <Hst.Story title="Atoms/Modal" layout={{type: "grid", width: 800}}>
