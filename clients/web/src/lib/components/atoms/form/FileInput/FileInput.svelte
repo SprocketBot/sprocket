@@ -71,7 +71,6 @@
 
     const onFiledrop = (e: CustomEvent<FileDropSelectEvent>): void => {
         const {accepted, rejected} = e.detail.files;
-        console.log({accepted});
         value = accepted;
         rejectedFiles = rejected;
         isDropping = false;
