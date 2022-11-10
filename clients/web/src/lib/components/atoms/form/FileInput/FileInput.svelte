@@ -1,8 +1,6 @@
 <script lang="ts" context="module">
     import type {Files, RejectedFile} from "filedrop-svelte";
-    type FileWithPath = Files["accepted"][number];
-
-    export type FileInputValue<Multi extends boolean = false> = Multi extends true ? FileWithPath[] : FileWithPath;
+    export type FileWithPath = Files["accepted"][number];
     export type FileInputShowDropzone = "never" | "when-dropping" | "always";
 </script>
 
@@ -15,23 +13,9 @@
     import {Icon} from "@steeze-ui/svelte-icon";
     import {CloudArrowUp, DocumentText} from "@steeze-ui/heroicons";
 
-    type Multi = $$Generic<boolean>;
-    interface $$Props {
-        label: string;
-        value?: FileInputValue<Multi>;
-        multiple: Multi;
-        showDropzone?: FileInputShowDropzone;
-
-        size?: FormControlSize;
-        placeholder?: string;
-        disabled?: boolean;
-        state?: FormControlState;
-        error?: string;
-    }
-
     export let label: string;
-    export let value: FileInputValue<Multi> | undefined = undefined;
-    export let multiple: Multi = false as Multi;
+    export let value: FileWithPath[] | undefined = undefined;
+    export let multiple: boolean = false;
     export let showDropzone: FileInputShowDropzone = "when-dropping";
 
     export let size: FormControlSize = "md";
@@ -55,7 +39,6 @@
     let isDropping = false;
 
     $: inputButtonText = multiple ? "Choose Files" : "Choose File";
-    $: hasValue = (!multiple && value !== undefined) || (multiple && (value as FileInputValue<true>)?.length > 0);
 
     // Decide what to render based on `showDropzone` and `isDropping`
     $: {
@@ -68,15 +51,15 @@
         }
     }
 
-    // Determine status text based on `multiple` and `value`
+    // Determine status text based on `value` `multiple`
     $: {
-        if (hasValue) {
+        if (value !== undefined && value.length > 0) {
             if (multiple) {
-                const numFiles = (value as FileInputValue<true>).length;
+                const numFiles = value.length;
                 inputStatusText = `${numFiles} files uploaded`;
                 dropzoneStatusText = `${numFiles} files uploaded`;
             } else {
-                const filename = (value as FileInputValue<false>).name;
+                const filename = value[0].name;
                 inputStatusText = filename;
                 dropzoneStatusText = filename;
             }
@@ -89,7 +72,7 @@
     const onFiledrop = (e: CustomEvent<FileDropSelectEvent>): void => {
         const {accepted, rejected} = e.detail.files;
         console.log({accepted});
-        value = (multiple ? accepted : accepted?.[0]) as FileInputValue<Multi>;
+        value = accepted;
         rejectedFiles = rejected;
         isDropping = false;
     };
