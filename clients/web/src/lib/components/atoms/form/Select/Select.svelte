@@ -41,12 +41,13 @@
 </script>
 
 <div class="size-{size} state-{state}" class:disabled>
-    <label for={labelId}>{label}</label>
+    <label for={labelId} class="block mb-2 text-sm font-medium text-gray-300">{label}</label>
 
-    <div class="select-wrapper">
+    <div class="relative">
         <select
             id={labelId}
             class:placeholder={placeholder && !value}
+            class="appearance-none w-full flex items-stretch rounded-lg border outline-none focus-within:ring-1 focus-within:ring-primary focus-within:border-primary bg-gray-700 border-gray-600 text-white"
             bind:value
             aria-describedby={error ? errorId : undefined}
             {disabled}
@@ -60,7 +61,7 @@
             {/each}
         </select>
 
-        <span class="icon">
+        <span class="icon absolute h-full top-0 flex items-center pointer-events-none">
             <Icon class="h-5/10" src={ChevronDown} />
         </span>
     </div>
@@ -72,29 +73,7 @@
 
 <style lang="postcss">
     /* General styling */
-    label {
-        @apply block mb-2 text-sm font-medium text-gray-300;
-    }
-
-    .select-wrapper {
-        @apply relative;
-    }
-
-    .icon {
-        @apply absolute h-full top-0 flex items-center pointer-events-none;
-    }
-
-    .disabled {
-        @apply text-gray-400;
-    }
-
     select {
-        @apply appearance-none /* Reset default browser styles */
-            w-full flex items-stretch
-            rounded-lg border outline-none
-            focus-within:ring-1 focus-within:ring-primary focus-within:border-primary
-            bg-gray-700 border-gray-600 text-white;
-
         &:disabled {
             @apply cursor-not-allowed placeholder-gray-500;
         }
