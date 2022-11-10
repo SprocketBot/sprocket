@@ -1,14 +1,11 @@
 <script lang="ts">
     import type {Hst as _Hst} from "@histoire/plugin-svelte";
+    import { tooltip } from "./useTooltip.action";
     export let Hst: _Hst;
-
-    import Tooltip from "./Tooltip.svelte";
 </script>
 
 <Hst.Story title="Atoms/Tooltip">
     <Hst.Variant title="Default">
-        <Tooltip>
-            <button>Hello!</button>
-        </Tooltip>
+        <button use:tooltip={{content: "Test", position: "top"}}>Hello!</button>
     </Hst.Variant>
 </Hst.Story>
