@@ -78,7 +78,7 @@
 </script>
 
 <div class="size-{size} state-{state}">
-    <label for={labelId}>{label}</label>
+    <label for={labelId} class="block mb-2 text-sm font-medium text-gray-300">{label}</label>
 
     <div
         class="filedrop"
@@ -98,9 +98,9 @@
                 <div class="status-text">{inputStatusText}</div>
             </div>
         {:else}
-            <div class="dropzone pointer-events-none" class:dropping={isDropping}>
+            <div class="dropzone w-full h-fit flex items-center justify-center border-2 border-dashed rounded-lg transition-colors pointer-events-none" class:dropping={isDropping}>
                 <slot {isDropping} {rejectedFiles}>
-                    <div class="default-dropzone">
+                    <div class="flex flex-col justify-around">
                         {#if hasValue}
                             <span class="icon">
                                 <Icon src={DocumentText} />
@@ -124,11 +124,7 @@
 </div>
 
 <style lang="postcss">
-    /* General styling */
-    label {
-        @apply block mb-2 text-sm font-medium text-gray-300;
-    }
-
+    /* Default styling */
     .filedrop {
         @apply select-none;
     }
@@ -143,18 +139,6 @@
         }
     }
 
-    .dropzone {
-        @apply w-full h-fit
-            flex items-center justify-center
-            border-2 border-dashed rounded-lg
-            transition-colors;
-
-        .default-dropzone {
-            @apply flex flex-col justify-around;
-        }
-    }
-
-    /* Disabled styling */
     .filedrop:not(.disabled) {
         @apply rounded-lg cursor-pointer focus-within:ring-1 focus-within:ring-primary focus-within:border-primary;
 
