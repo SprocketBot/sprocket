@@ -135,11 +135,12 @@ export class ScrimService {
         throw result.error;
     }
 
-    async setScrimLocked(scrimId: string, locked: boolean): Promise<boolean> {
+    async setScrimLocked(scrimId: string, locked: boolean, reason?: string): Promise<boolean> {
         this.logger.log(`lockScrim scrimId=${scrimId} locked=${locked}`);
         const result = await this.matchmakingService.send(MatchmakingEndpoint.SetScrimLocked, {
             scrimId,
             locked,
+            reason,
         });
 
         if (result.status === ResponseStatus.SUCCESS) return result.data;

@@ -224,8 +224,11 @@ export class ScrimModuleResolver {
 
     @Mutation(() => Boolean)
     @UseGuards(GraphQLJwtAuthGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
-    async lockScrim(@Args("scrimId") scrimId: string): Promise<boolean> {
-        return this.scrimService.setScrimLocked(scrimId, true);
+    async lockScrim(
+        @Args("scrimId") scrimId: string,
+        @Args("reason", {nullable: true}) reason?: string,
+    ): Promise<boolean> {
+        return this.scrimService.setScrimLocked(scrimId, true, reason);
     }
 
     @Mutation(() => Boolean)
