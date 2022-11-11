@@ -17,19 +17,19 @@ export class ReplayUploadController {
     @MessagePattern(SubmissionEndpoint.CanSubmitReplays)
     async canSubmitReplays(@Payload() payload: unknown): Promise<ICanSubmitReplays_Response> {
         const data = SubmissionSchemas.CanSubmitReplays.input.parse(payload);
-        return this.replaySubmissionUtilService.canSubmitReplays(data.submissionId, data.playerId);
+        return this.replaySubmissionUtilService.canSubmitReplays(data.submissionId, data.userId);
     }
 
     @MessagePattern(SubmissionEndpoint.CanRatifySubmission)
     async canRatifySubmission(@Payload() payload: unknown): Promise<CanRatifySubmissionResponse> {
         const data = SubmissionSchemas.CanRatifySubmission.input.parse(payload);
-        return this.replaySubmissionUtilService.canRatifySubmission(data.submissionId, data.playerId);
+        return this.replaySubmissionUtilService.canRatifySubmission(data.submissionId, data.userId);
     }
 
     @MessagePattern(SubmissionEndpoint.SubmitReplays)
     async submitReplays(@Payload() payload: unknown): Promise<string[]> {
         const data = SubmissionSchemas.SubmitReplays.input.parse(payload);
-        return this.replaySubmissionService.beginSubmission(data.filepaths, data.submissionId, data.creatorId);
+        return this.replaySubmissionService.beginSubmission(data.filepaths, data.submissionId, data.creatorUserId);
     }
 
     @MessagePattern(SubmissionEndpoint.GetSubmissionRedisKey)

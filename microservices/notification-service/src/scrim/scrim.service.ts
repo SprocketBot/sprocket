@@ -54,7 +54,7 @@ export class ScrimService extends SprocketEventMarshal {
         await this.botService.send(BotEndpoint.SendWebhookMessage, {
             webhookUrl: skillGroupWebhook.data.scrim,
             payload: {
-                content: skillGroupWebhook.data.scrimRole ? `<@&${skillGroupWebhook.data.scrimRole}>` : "",
+                // content: skillGroupWebhook.data.scrimRole ? `<@&${skillGroupWebhook.data.scrimRole}>` : undefined,
                 embeds: [
                     {
                         title: "Scrim Created",
@@ -94,7 +94,7 @@ export class ScrimService extends SprocketEventMarshal {
 
         await Promise.all(
             scrim.players.map(async p => {
-                const userResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, p.id);
+                const userResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, p.userId);
                 if (userResult.status === ResponseStatus.ERROR) throw userResult.error;
                 if (!userResult.data) return;
 
@@ -157,7 +157,7 @@ export class ScrimService extends SprocketEventMarshal {
 
         await Promise.all(
             scrim.players.map(async p => {
-                const userResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, p.id);
+                const userResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, p.userId);
                 if (userResult.status === ResponseStatus.ERROR) throw userResult.error;
                 if (!userResult.data) return;
 
@@ -232,7 +232,7 @@ export class ScrimService extends SprocketEventMarshal {
 
         const discordUserIds = await Promise.all(
             scrim.players.map(async player => {
-                const discordUserResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, player.id);
+                const discordUserResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, player.userId);
                 if (discordUserResult.status !== ResponseStatus.SUCCESS) return undefined;
 
                 return discordUserResult.data;
@@ -312,7 +312,7 @@ export class ScrimService extends SprocketEventMarshal {
     }
 
     async getScrim(scrimId: string): Promise<Scrim | null> {
-        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, scrimId);
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, {scrimId});
         if (result.status === ResponseStatus.SUCCESS) {
             return result.data;
         }

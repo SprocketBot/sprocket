@@ -53,11 +53,14 @@ export class ScrimResolver {
 
     @ResolveField(() => String, {nullable: true})
     currentGroup(@Root() scrim: Scrim, @AuthenticatedUser() user: JwtAuthPayload): ScrimGroup | undefined {
-        const code = scrim.players.find(p => p.id === user.userId)?.group;
-        if (!code) return undefined;
+        const scrimPlayer = scrim.players.find(p => p.userId === user.userId);
+        if (!scrimPlayer?.group) return undefined;
+
         return {
-            code: code,
-            players: scrim.players.filter(p => p.group === code && p.id !== user.userId).map(p => p.name),
+            code: scrimPlayer.group,
+            players: scrim.players
+                .filter(p => p.group === scrimPlayer.group && p.userId !== user.userId)
+                .map(p => p.name),
         };
     }
 

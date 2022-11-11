@@ -21,7 +21,7 @@ export class GqlReplaySubmission {
     id: string;
 
     @Field(() => Int)
-    creatorId: number;
+    creatorUserId: number;
 
     @Field(() => [String])
     taskIds: string[];

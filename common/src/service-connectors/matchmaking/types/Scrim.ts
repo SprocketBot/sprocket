@@ -15,7 +15,7 @@ export const ScrimSchema = z.object({
     status: z.nativeEnum(ScrimStatus),
     unlockedStatus: z.nativeEnum(ScrimStatus).optional(),
 
-    authorId: z.number(),
+    authorUserId: z.number(),
     organizationId: z.number(),
     gameModeId: z.number(),
     skillGroupId: z.number(),

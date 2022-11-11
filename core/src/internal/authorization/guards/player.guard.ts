@@ -31,7 +31,7 @@ export abstract class AbstractPlayerGuard implements CanActivate {
         return true;
     }
 
-    abstract getGame(ctx: GqlExecutionContext, userPayload?: JwtAuthPayload): Promise<{gameId: number}>;
+    abstract getGame(ctx: GqlExecutionContext, userPayload: JwtAuthPayload): Promise<{gameId: number}>;
 }
 
 @Injectable()
@@ -45,7 +45,10 @@ export abstract class AbstractMemberPlayerGuard implements CanActivate {
         const data = JwtAuthPayloadSchema.safeParse(ctx.req.user);
         if (!data.success || !data.data.currentOrganizationId) return false;
 
-        const {gameId, organizationId} = await this.getGameAndOrganization(ctx, data.data);
+        const gameAndOrganization = await this.getGameAndOrganization(ctx, data.data);
+        if (!gameAndOrganization) return false;
+
+        const {gameId, organizationId} = gameAndOrganization;
         if (data.data.currentOrganizationId !== organizationId) return false;
 
         const player = await this.playerRepository.getOrNull({
@@ -62,6 +65,6 @@ export abstract class AbstractMemberPlayerGuard implements CanActivate {
 
     abstract getGameAndOrganization(
         ctx: GqlExecutionContext,
-        userPayload?: JwtAuthPayload,
-    ): Promise<{gameId: number; organizationId: number}>;
+        userPayload: JwtAuthPayload,
+    ): Promise<{gameId: number; organizationId: number} | undefined>;
 }

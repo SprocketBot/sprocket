@@ -30,10 +30,10 @@ export class SubmissionRejectionResolver {
     @ResolveField(() => String)
     async playerName(@Root() rejection: SubmissionRejection): Promise<string> {
         if (rejection.playerName) return rejection.playerName;
-        if (rejection.playerId === REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID) return "Sprocket";
+        if (rejection.userId === REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID) return "Sprocket";
         // TODO: Is it possible to map to an organization from here?
 
-        const profile = await this.userProfileRepository.getByUserId(parseInt(rejection.playerId.toString()));
+        const profile = await this.userProfileRepository.getByUserId(rejection.userId);
         return profile.displayName;
     }
 

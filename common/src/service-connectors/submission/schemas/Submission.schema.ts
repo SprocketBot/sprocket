@@ -4,7 +4,7 @@ import {ReplaySubmissionStatus, ReplaySubmissionType} from "../types";
 
 const BaseSubmission = z.object({
     id: z.string(),
-    creatorId: z.number(),
+    creatorUserId: z.number(),
     status: z.nativeEnum(ReplaySubmissionStatus),
     taskIds: z.string().array(),
     items: z.any().array(), // TODO ReplaySubmissionItem schema
