@@ -20,4 +20,7 @@ export class ScrimPlayer implements IScrimPlayer {
 
     @Field(() => Boolean, {nullable: true})
     checkedIn?: boolean;
+
+    @Field(() => Boolean)
+    canSaveDemos: boolean;
 }

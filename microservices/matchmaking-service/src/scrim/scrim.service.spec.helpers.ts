@@ -24,6 +24,7 @@ export function getMockScrimPlayer(
     joinedAt: Date,
     leaveAt: Date,
     group?: string,
+    canSaveDemos = false,
 ): ScrimPlayer {
     return {
         userId,
@@ -31,6 +32,7 @@ export function getMockScrimPlayer(
         joinedAt,
         leaveAt,
         group,
+        canSaveDemos,
     };
 }
 
