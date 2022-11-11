@@ -32,18 +32,23 @@
 <div class="w-full rounded-full ">
     {#if label}
         {#if labelOutside}
-            <div class="{primaryBarColor} rounded-full size-{size}" style="width: {progress}%" />
+            <div
+                class="{primaryBarColor} rounded-full size-{size}"
+                style="width: {progress}%"
+                aria-valuenow={progress}
+            />
         {:else}
             <div
                 class="{primaryBarColor} font-medium {primaryTextClass} text-center 
                         leading-none rounded-full size-large"
                 style="width: {progress}%"
+                aria-valuenow={progress}
             >
                 {progress}%
             </div>
         {/if}
     {:else}
-        <div class="{primaryBarColor} rounded-full size-{size}" style="width: {progress}%" />
+        <div class="{primaryBarColor} rounded-full size-{size}" style="width: {progress}%" aria-valuenow={progress} />
     {/if}
 </div>
 
