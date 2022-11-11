@@ -81,6 +81,11 @@ export class PlayerResolver {
         return player.member ?? this.popService.populateOneOrFail(Player, player as Player, "member");
     }
 
+    @ResolveField(() => Boolean)
+    async canSaveDemos(@Root() player: Player): Promise<boolean> {
+        return this.playerService.playerCanSaveDemos(player.id);
+    }
+
     @Mutation(() => String)
     @UseGuards(
         GraphQLJwtAuthGuard,
