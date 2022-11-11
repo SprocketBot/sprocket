@@ -225,7 +225,7 @@ export class ScrimService {
         return scrim;
     }
 
-    async setScrimLocked(scrimId: string, locked: boolean): Promise<Scrim> {
+    async setScrimLocked(scrimId: string, locked: boolean, reason?: string): Promise<Scrim> {
         const scrim = await this.scrimCrudService.getScrim(scrimId);
         if (!scrim) throw new RpcException(MatchmakingError.ScrimNotFound);
 
@@ -234,6 +234,7 @@ export class ScrimService {
                 await this.scrimCrudService.updateScrimUnlockedStatus(scrimId, scrim.status);
             scrim.status = ScrimStatus.LOCKED;
         } else scrim.status = scrim.unlockedStatus ?? ScrimStatus.IN_PROGRESS;
+        await this.scrimCrudService.updateScrimLockedReason(scrimId, reason);
         await this.scrimCrudService.updateScrimStatus(scrimId, scrim.status);
 
         this.analyticsService

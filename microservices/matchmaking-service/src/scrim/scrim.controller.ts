@@ -92,7 +92,10 @@ export class ScrimController {
     @MessagePattern(MatchmakingEndpoint.SetScrimLocked)
     async setScrimLocked(@Payload() payload: unknown): Promise<boolean> {
         const data = MatchmakingSchemas.SetScrimLocked.input.parse(payload);
-        await this.scrimService.setScrimLocked(data.scrimId, data.locked);
+
+        if (data.locked) await this.scrimService.setScrimLocked(data.scrimId, data.locked, data.reason);
+        else await this.scrimService.setScrimLocked(data.scrimId, data.locked);
+
         return true;
     }
 }

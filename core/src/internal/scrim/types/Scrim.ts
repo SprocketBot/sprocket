@@ -41,6 +41,9 @@ export class Scrim implements IScrim {
     @Field(() => ScrimStatus)
     status: ScrimStatus;
 
+    @Field({nullable: true})
+    lockedReason?: string;
+
     @Field(() => Int)
     authorUserId: number;
 
