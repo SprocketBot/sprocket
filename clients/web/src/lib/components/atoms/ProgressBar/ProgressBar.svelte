@@ -1,13 +1,12 @@
 <script lang="ts">
     // Obviously, this needs to be its own parameter for the 'filled-ness' of
     // the bar
-    export let progress = 45;
+    export let progress = 0;
 
     // Props to customize which bar you want
     export let size = "default";
-    export let label = false;
     export let labelOutside = true;
-    export let progressLabel = "Default Progress Bar Text";
+    export let label: string | undefined;
 
     // Styling choices
     export let primaryBarColor = "bg-primary-900";
@@ -19,14 +18,14 @@
         <div class="flex justify-between mb-1">
             <span
                 class="text-base font-medium {primaryTextClass}
-            dark:{primaryTextClass}">{progressLabel}</span
+            dark:{primaryTextClass}">{label}</span
             >
             <span class="text-sm font-medium {primaryTextClass} dark:{primaryTextClass}">{progress}%</span>
         </div>
     {/if}
 {/if}
 
-<div class="w-full rounded-full dark:bg-gray-800">
+<div class="w-full rounded-full dark:bg-accent-800">
     {#if label}
         {#if labelOutside}
             <div class="{primaryBarColor} rounded-full size-{size}" style="width: {progress}%" />
