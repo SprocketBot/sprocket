@@ -22,9 +22,9 @@
 
 {#if label}
     {#if labelOutside}
-        <div class="flex justify-between mb-1">
-            <span class="text-base font-medium {primaryTextClass}">{label}</span>
-            <span class="text-sm font-medium {primaryTextClass}">{progress}%</span>
+        <div class="flex justify-between mb-1 {primaryTextClass}">
+            <span class="text-base font-medium">{label}</span>
+            <span class="text-sm font-medium">{progress}%</span>
         </div>
     {/if}
 {/if}
