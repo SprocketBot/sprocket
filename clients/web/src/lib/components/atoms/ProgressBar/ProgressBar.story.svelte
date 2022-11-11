@@ -3,6 +3,7 @@
     import ProgressBar from "./ProgressBar.svelte";
 
     type sizes = "small" | "default" | "large" | "extraLarge";
+
     const sizeOptions = ["small", "default", "large", "extraLarge"];
 
     export let Hst: _Hst;
