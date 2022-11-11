@@ -9,23 +9,27 @@
     export let label: string | undefined;
 
     // Styling choices
-    export let primaryBarColor = "bg-primary-900";
-    export let primaryTextClass = "text-primary-200";
+    export let progressBarVariant = 1;
+    let primaryBarColor: string = "bg-primary-900";
+    let primaryTextClass: string = "text-primary-200";
+
+    // I only have enough design willpower for one variant, add as you see fit
+    if (progressBarVariant === 1) {
+        primaryBarColor = "bg-primary-900";
+        primaryTextClass = "text-primary-200";
+    }
 </script>
 
 {#if label}
     {#if labelOutside}
         <div class="flex justify-between mb-1">
-            <span
-                class="text-base font-medium {primaryTextClass}
-            dark:{primaryTextClass}">{label}</span
-            >
-            <span class="text-sm font-medium {primaryTextClass} dark:{primaryTextClass}">{progress}%</span>
+            <span class="text-base font-medium {primaryTextClass}">{label}</span>
+            <span class="text-sm font-medium {primaryTextClass}">{progress}%</span>
         </div>
     {/if}
 {/if}
 
-<div class="w-full rounded-full dark:bg-accent-800">
+<div class="w-full rounded-full ">
     {#if label}
         {#if labelOutside}
             <div class="{primaryBarColor} rounded-full size-{size}" style="width: {progress}%" />
