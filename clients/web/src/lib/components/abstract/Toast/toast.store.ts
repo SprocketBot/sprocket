@@ -19,7 +19,7 @@ export const addToast = (t: ToastInput) => {
 
     _toasts.update(ts => [...ts, newToast]);
     if (t.ttl) {
-        setTimeout(() => _toasts.update(ts => ts.filter(_t => _t.id !== id)), t.ttl);
+        setTimeout(() => removeToast(id), t.ttl);
     }
 };
 export const removeToast = (id: number) => {
