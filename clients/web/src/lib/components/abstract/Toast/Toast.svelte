@@ -39,7 +39,11 @@
     </div>
     <div class="mx-3 text-sm font-normal">{toast.content}</div>
     {#if toast.dismissable}
-        <button type="button" class="close" on:click={() => removeToast(toast.id)}>
+        <button
+            type="button"
+            class="ml-auto rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 inline-flex h-8 w-8 text-gray-500 hover:text-white bg-gray-800 hover:bg-gray-700"
+            on:click={() => removeToast(toast.id)}
+        >
             <span class="sr-only">Close</span>
             <span class="h-5 w-5">
                 <Icon src={XMark} />
@@ -67,9 +71,5 @@
         &.danger {
             @apply bg-danger-800 text-danger-200;
         }
-    }
-
-    .close {
-        @apply ml-auto rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 inline-flex h-8 w-8 text-gray-500 hover:text-white bg-gray-800 hover:bg-gray-700;
     }
 </style>
