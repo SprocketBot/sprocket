@@ -131,6 +131,16 @@ export class ScrimCrudService {
         await this.updateScrimUpdatedAt(scrimId);
     }
 
+    async updateScrimLockedReason(scrimId: string, reason?: string): Promise<void> {
+        if (reason) {
+            await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.lockedReason", reason);
+        } else {
+            await this.redisService.deleteJsonField(`${this.prefix}${scrimId}`, "$.lockedReason");
+        }
+
+        await this.updateScrimUpdatedAt(scrimId);
+    }
+
     async updateScrimUnlockedStatus(scrimId: string, status: ScrimStatus): Promise<void> {
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.unlockedStatus", status);
         await this.updateScrimUpdatedAt(scrimId);

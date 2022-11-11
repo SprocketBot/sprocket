@@ -14,6 +14,7 @@ export const ScrimSchema = z.object({
 
     status: z.nativeEnum(ScrimStatus),
     unlockedStatus: z.nativeEnum(ScrimStatus).optional(),
+    lockedReason: z.string().optional(),
 
     authorUserId: z.number(),
     organizationId: z.number(),
