@@ -82,7 +82,12 @@ export class ScrimEventSubscriber {
 
         if (!scrim) return;
 
-        if (submissionRejectionsResult.data.length >= 3) await this.scrimService.setScrimLocked(scrim.id, true);
+        if (submissionRejectionsResult.data.length >= 3)
+            await this.scrimService.setScrimLocked(
+                scrim.id,
+                true,
+                "The scrim has failed ratification at least three times. Please contact support through the chat bubble.",
+            );
     };
 
     onScrimSaved = (d: EventResponse<EventTopic.ScrimSaved | EventTopic>): void => {
