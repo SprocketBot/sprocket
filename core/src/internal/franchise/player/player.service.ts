@@ -426,24 +426,18 @@ export class PlayerService {
     }
 
     async playerCanSaveDemos(playerId: number): Promise<boolean> {
-        const player = await this.playerRepository.getById(playerId, {
-            relations: {
-                member: {
-                    platformAccounts: true,
-                },
-                skillGroup: {
-                    game: {
-                        supportedPlatforms: true,
-                    },
-                },
-            },
-        });
+        const player = await this.playerRepository
+            .createQueryBuilder("player")
+            .innerJoinAndSelect("player.skillGroup", "skillGroup")
+            .innerJoinAndSelect("skillGroup.game", "game")
+            .innerJoinAndSelect("player.member", "member")
+            .innerJoinAndSelect("member.platformAccounts", "platformAccount")
+            .innerJoinAndSelect("platformAccount.platform", "platform")
+            .innerJoinAndSelect("platform.supportedGames", "supportedGame", "supportedGame.gameId = game.id")
+            .where("player.id = :id", {id: playerId})
+            .andWhere("supportedGame.canSaveDemos = true")
+            .getOne();
 
-        return player.member.platformAccounts.some(memberAccount =>
-            player.skillGroup.game.supportedPlatforms.some(
-                supportedPlatform =>
-                    supportedPlatform.canSaveDemos && supportedPlatform.platformId === memberAccount.platformId,
-            ),
-        );
+        return Boolean(player?.member.platformAccounts.length);
     }
 }
