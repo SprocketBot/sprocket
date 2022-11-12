@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="7" failures="0" errors="0" time="3.74">
+  <testsuite name="NanoidService" errors="0" failures="0" skipped="0" timestamp="2022-11-12T15:04:00" time="3.141" tests="2">
+    <testcase classname="NanoidService should be defined" name="NanoidService should be defined" time="0.013">
+    </testcase>
+    <testcase classname="NanoidService should properly generate unique nanoids" name="NanoidService should properly generate unique nanoids" time="0.004">
+    </testcase>
+  </testsuite>
+  <testsuite name="cache.decorator.ts" errors="0" failures="0" skipped="0" timestamp="2022-11-12T15:04:00" time="3.579" tests="5">
+    <testcase classname="cache.decorator.ts TestClass sanity checks should pass through behaviors (return value)" name="cache.decorator.ts TestClass sanity checks should pass through behaviors (return value)" time="0.014">
+    </testcase>
+    <testcase classname="cache.decorator.ts TestClass sanity checks should pass through behaviors (parameters)" name="cache.decorator.ts TestClass sanity checks should pass through behaviors (parameters)" time="0.004">
+    </testcase>
+    <testcase classname="cache.decorator.ts TestClass sanity checks should properly bind" name="cache.decorator.ts TestClass sanity checks should properly bind" time="0.003">
+    </testcase>
+    <testcase classname="cache.decorator.ts Cache Decorator should be defined" name="cache.decorator.ts Cache Decorator should be defined" time="0.002">
+    </testcase>
+    <testcase classname="cache.decorator.ts Cache Decorator should inject a copy of the redis service" name="cache.decorator.ts Cache Decorator should inject a copy of the redis service" time="0.004">
+    </testcase>
+  </testsuite>
+</testsuites>
