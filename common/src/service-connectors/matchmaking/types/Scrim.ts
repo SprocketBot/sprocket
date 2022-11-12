@@ -11,6 +11,7 @@ export const ScrimSchema = z.object({
     id: z.string().uuid(),
     createdAt: DateSchema,
     updatedAt: DateSchema,
+    timeoutAt: DateSchema.optional(),
 
     status: z.nativeEnum(ScrimStatus),
     unlockedStatus: z.nativeEnum(ScrimStatus).optional(),
