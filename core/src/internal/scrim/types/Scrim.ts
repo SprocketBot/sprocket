@@ -38,6 +38,9 @@ export class Scrim implements IScrim {
     @Field(() => Date)
     updatedAt: Date;
 
+    @Field(() => Date, {nullable: true})
+    timeoutAt?: Date;
+
     @Field(() => ScrimStatus)
     status: ScrimStatus;
 
