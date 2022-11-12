@@ -14,6 +14,15 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "histoire",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["run-script", "story:dev", "--workspace", "clients/web"],
+            "console": "integratedTerminal"
+        },
+        {
             "name": "image-generation-frontend",
             "type": "node",
             "request": "launch",
@@ -102,7 +111,7 @@
             "runtimeExecutable": "npm",
             "runtimeArgs": ["run-script", "dev", "--workspace", "microservices/submission-service"],
             "console": "integratedTerminal"
-        },
+        }
     ],
     "compounds": [
         {
@@ -117,7 +126,7 @@
                 "notification-service",
                 // "replay-parse-service",
                 "server-analytics-service",
-                "submission-service",
+                "submission-service"
             ]
         }
     ]
