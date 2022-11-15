@@ -1,6 +1,6 @@
 <script lang="ts">
     import type {Hst as _Hst} from "@histoire/plugin-svelte";
-    import Props from "../../../../histoire/Props.svelte";
+    import {Props} from "$lib/histoire";
     import type {FormControlState, FormControlSize} from "../form.types";
     import Textarea from "./Textarea.svelte";
 

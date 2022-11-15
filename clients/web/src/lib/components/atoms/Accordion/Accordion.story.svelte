@@ -1,6 +1,6 @@
 <script lang="ts">
     import type {Hst as _Hst} from "@histoire/plugin-svelte";
-    import {Props} from "../../../histoire";
+    import {Props} from "$lib/histoire";
     import Accordion from "./Accordion.svelte";
 
     export let Hst: _Hst;
