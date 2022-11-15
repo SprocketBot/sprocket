@@ -1,6 +1,6 @@
 <script lang="ts">
     import type {Hst as _Hst} from "@histoire/plugin-svelte";
-    import {Props} from "../../../histoire";
+    import {Props} from "$lib/histoire";
     import Alert, {type AlertVariant} from "./Alert.svelte";
 
     export let Hst: _Hst;

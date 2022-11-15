@@ -1,5 +1,6 @@
 import {defineConfig} from "histoire";
 import {HstSvelte} from "@histoire/plugin-svelte";
+import path from "path";
 
 import * as tailwind from "./tailwind.config.cjs";
 const {primary, gray} = tailwind.theme.colors;
@@ -12,6 +13,14 @@ export default defineConfig({
                 '$lib': '/src/lib'
             },
         },
+    },
+
+    vite: {
+        resolve: {
+            alias: {
+                '$lib': path.resolve(__dirname, "./src/lib")
+            }
+        }
     },
 
     // https://histoire.dev/guide/config.html#global-js-and-css

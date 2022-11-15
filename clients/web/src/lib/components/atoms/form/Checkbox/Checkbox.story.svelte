@@ -1,6 +1,6 @@
 <script lang="ts">
     import type {Hst as _Hst} from "@histoire/plugin-svelte";
-    import {Props} from "../../../../histoire";
+    import {Props} from "$lib/histoire";
     import type {FormControlState} from "../form.types";
     import Checkbox from "./Checkbox.svelte";
 
