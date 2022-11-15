@@ -24,7 +24,7 @@
     let value: number | undefined = undefined;
 </script>
 
-<Hst.Story title="Atoms/Select" layout={{type: "grid", width: 500}}>
+<Hst.Story title="Atoms/Form/Select" layout={{type: "grid", width: 500}}>
     <svelte:fragment slot="controls">
         <Hst.Text title="Label" bind:value={label} />
         <Hst.Select title="Size" bind:value={size} options={sizes} />
