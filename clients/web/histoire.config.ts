@@ -2,11 +2,18 @@ import {defineConfig} from "histoire";
 import {HstSvelte} from "@histoire/plugin-svelte";
 import path from "path";
 
-import tailwind from "./tailwind.config.cjs";
+import * as tailwind from "./tailwind.config.cjs";
 const {primary, gray} = tailwind.theme.colors;
 
 export default defineConfig({
     plugins: [HstSvelte()],
+    vite: {
+        resolve: {
+            alias: {
+                '$lib': '/src/lib'
+            },
+        },
+    },
 
     vite: {
         resolve: {
