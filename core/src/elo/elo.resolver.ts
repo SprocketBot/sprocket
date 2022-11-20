@@ -46,8 +46,7 @@ export class EloResolver {
                      INNER JOIN member_profile mp ON player."memberId" = mp."memberId"
                      INNER JOIN game_skill_group gsg ON player."skillGroupId" = gsg.id
                      INNER JOIN mledb_bridge.player_to_player p2p ON p2p."sprocketPlayerId" = player.id
-                     INNER JOIN mledb.player mlep ON mlep.id = p2p."mledPlayerId"
-            WHERE mlep.team_name != 'FP';
+                     INNER JOIN mledb.player mlep ON mlep.id = p2p."mledPlayerId";
     `) as NewPlayerBySalary[];
 
         for (const p of players) {
