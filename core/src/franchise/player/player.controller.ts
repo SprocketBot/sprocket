@@ -17,9 +17,7 @@ import {
     EventsService,
     EventTopic,
     NotificationEndpoint,
-    NotificationMessageType,
     NotificationService,
-    NotificationType,
 } from "@sprocketbot/common";
 import {Repository} from "typeorm";
 
@@ -98,7 +96,7 @@ export class PlayerController {
                 salary: payload.salary,
                 skillGroup: skillGroup.ordinal,
             };
-        
+
             await this.playerService.updatePlayerStanding(payload.playerId, payload.salary, payload.skillGroupId);
             await this.playerService.mle_rankDownPlayer(payload.playerId, payload.salary);
             await this.eloConnectorService.createJob(EloEndpoint.SGChange, inputData);
@@ -135,7 +133,7 @@ export class PlayerController {
             return "Successfully accepted rankdown";
         } catch (e) {
             this.logger.error(e);
-            
+
             if (e instanceof Error) {
                 if (e.name === "TokenExpiredError") throw new HttpException("Rankdown request expired", 400);
                 throw new HttpException(e.message, 400);
@@ -144,7 +142,7 @@ export class PlayerController {
             } else {
                 throw new HttpException("Unexpected error", 400);
             }
-            
+
         }
     }
 
