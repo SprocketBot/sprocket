@@ -1,6 +1,4 @@
 <script lang="ts">
-    export let header = "This is a Sprocket Card 2.0";
-    export let text = "Here we'll have text to make it look like we know what we're talking about. ";
     export let buttonLink: string;
     export let buttonText: string = "Read more";
 </script>
@@ -14,12 +12,14 @@
     shadow-md 
     hover:bg-primary-400"
 >
-    <h5 class="mb-2 text-2xl font-bold tracking-tight text-primary-50">
-        {header}
-    </h5>
-    <p class="font-normal text-primary-100">
-        {text}
-    </p>
+    <slot name="header">
+        <h5 class="mb-2 text-2xl font-bold tracking-tight text-primary-50">"This is a Sprocket Card 2.0"</h5>
+    </slot>
+    <slot name="text">
+        <p class="font-normal text-primary-100">
+            "Here we'll have text to make it look like we know what we're talking about."
+        </p>
+    </slot>
     {#if buttonLink}
         <a
             href={buttonLink}

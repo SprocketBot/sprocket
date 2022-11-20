@@ -2,10 +2,6 @@
     import type {Hst as _Hst} from "@histoire/plugin-svelte";
     import Card from "./Card.svelte";
 
-    type sizes = "small" | "default" | "large" | "extraLarge";
-
-    const sizeOptions = ["small", "default", "large", "extraLarge"];
-
     export let Hst: _Hst;
     let header: string;
     let text: string;
@@ -21,7 +17,14 @@
         <Hst.Text title="Button Text" bind:value={buttonText} />
     </svelte:fragment>
     <Hst.Variant title="Default Card">
-        <Card {header} {text} {buttonLink} {buttonText} />
+        <Card {buttonLink} {buttonText}>
+            <div slot="header">
+                {header}
+            </div>
+            <div slot="text">
+                {text}
+            </div>
+        </Card>
     </Hst.Variant>
     <Hst.Variant title="With Nav Button">
         <Card {header} {text} buttonLink="https://google.com" />
