@@ -118,3 +118,5 @@ clients/image-generation-frontend/src/config.json
 core/config/development.json.bak
 
 core/config/main.json
+
+core/config/staging.json
