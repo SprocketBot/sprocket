@@ -27,6 +27,13 @@
         </Card>
     </Hst.Variant>
     <Hst.Variant title="With Nav Button">
-        <Card {header} {text} buttonLink="https://google.com" />
+        <Card buttonLink="https://google.com">
+            <div slot="header">
+                {header}
+            </div>
+            <div slot="text">
+                {text}
+            </div>
+        </Card>
     </Hst.Variant>
 </Hst.Story>
