@@ -24,7 +24,7 @@ import {PlatformService} from "./platform";
     ],
     controllers: [
         GameController,
-        GameModeController
+        GameModeController,
     ],
     exports: [PlatformService, GameModeService, GameService, GameFeatureService],
 })

@@ -52,7 +52,6 @@ export class EloResolver {
 
         for (const p of players) {
             await this.eloConnectorService.createJob(EloEndpoint.AddPlayerBySalary, p);
-
         }
 
         return false;
