@@ -3,6 +3,8 @@ import {forwardRef, Inject, Injectable, Logger} from "@nestjs/common";
 import type {Scrim} from "@sprocketbot/common";
 import {AnalyticsEndpoint, AnalyticsService, EventTopic, ScrimStatus} from "@sprocketbot/common";
 import {Queue} from "bull";
+import {add, millisecondsToSeconds} from "date-fns";
+import {now} from "lodash";
 import {v4 as uuid} from "uuid";
 
 import {EventProxyService} from "../event-proxy/event-proxy.service";
@@ -33,6 +35,10 @@ export class ScrimLogicService {
             await this.scrimCrudService.updateScrimStatus(scrim.id, scrim.status);
             await this.scrimCrudService.setSubmissionId(scrim.id, scrim.submissionId);
             await this.scrimCrudService.setTimeoutJobId(scrim.id, job.id);
+            await this.scrimCrudService.updateScrimTimeoutAt(
+                scrim.id,
+                add(now(), {seconds: millisecondsToSeconds(scrim.settings.checkinTimeout)}),
+            );
 
             const updatedScrim = await this.scrimCrudService.getScrim(scrim.id);
             if (!updatedScrim) throw new Error("Scrim is somehow missing!");

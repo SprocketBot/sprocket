@@ -126,6 +126,10 @@ export class ScrimCrudService {
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.updatedAt", new Date());
     }
 
+    async updateScrimTimeoutAt(scrimId: string, timeoutAt: Date): Promise<void> {
+        await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.timeoutAt", timeoutAt);
+    }
+
     async updateScrimStatus(scrimId: string, status: ScrimStatus): Promise<void> {
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.status", status);
         await this.updateScrimUpdatedAt(scrimId);
