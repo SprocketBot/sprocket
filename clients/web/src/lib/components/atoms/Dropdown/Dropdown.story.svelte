@@ -29,4 +29,25 @@
             </Dropdown>
         </div>
     </Hst.Variant>
+    <Hst.Variant title="Transparent Handle">
+        <div class="h-screen w-screen flex justify-center items-start p-8">
+            <Dropdown transparent>
+                <i slot="handle">Handle Text</i>
+                <ul class="py-1 text-sm text-gray-200" aria-labelledby="dropdownDefault">
+                    <li>
+                        <a href="#" class="block py-2 px-4 hover:bg-gray-600 hover:text-white">Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="#" class="block py-2 px-4 hover:bg-gray-600 hover:text-white">Settings</a>
+                    </li>
+                    <li>
+                        <a href="#" class="block py-2 px-4 hover:bg-gray-600 hover:text-white">Earnings</a>
+                    </li>
+                    <li>
+                        <a href="#" class="block py-2 px-4 hover:bg-gray-600 hover:text-white">Sign out</a>
+                    </li>
+                </ul>
+            </Dropdown>
+        </div>
+    </Hst.Variant>
 </Hst.Story>
