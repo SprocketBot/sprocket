@@ -1,6 +1,7 @@
 <script lang="ts">
     import type {Hst as _Hst} from "@histoire/plugin-svelte";
-    import Avatar, {type ShapeVariant, type SizeVariant} from "./Avatar.svelte";
+    import Avatar from "./Avatar.svelte";
+    import type {ShapeVariant, SizeVariant} from "./types";
 
     export let Hst: _Hst;
 
