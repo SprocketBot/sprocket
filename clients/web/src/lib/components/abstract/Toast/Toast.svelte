@@ -1,11 +1,12 @@
 <script lang="ts">
-    import {fly} from "svelte/transition";
-    import {ToastStatus, type IToast} from "./types";
-    import ToastProgress from "./ToastProgress.svelte";
+    import type {IconSource} from "@steeze-ui/svelte-icon/types";
     import {Icon} from "@steeze-ui/svelte-icon";
     import {CheckCircle, ExclamationCircle, InformationCircle, XMark} from "@steeze-ui/heroicons";
+    import {fly} from "svelte/transition";
+
+    import {ToastStatus, type IToast} from "./types";
+    import ToastProgress from "./ToastProgress.svelte";
     import {removeToast} from "./toast.store";
-    import type {IconSource} from "@steeze-ui/svelte-icon/types";
 
     export let toast: IToast;
 
@@ -33,9 +34,7 @@
     role="alert"
 >
     <div class="icon {toast.status}">
-        <span class="h-5 w-5">
-            <Icon src={iconSrc} />
-        </span>
+        <Icon class="h-5 w-5" src={iconSrc} />
     </div>
     <div class="mx-3 text-sm font-normal">{toast.content}</div>
     {#if toast.dismissable}
@@ -45,9 +44,7 @@
             on:click={() => removeToast(toast.id)}
         >
             <span class="sr-only">Close</span>
-            <span class="h-5 w-5">
-                <Icon src={XMark} />
-            </span>
+            <Icon class="h-5 w-5" src={XMark} />
         </button>
     {/if}
     {#if toast.ttl}
