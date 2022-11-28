@@ -6,7 +6,7 @@
     export let progress = 0;
 
     // Props to customize which bar you want
-    export let size: ProgressBarSize = "default";
+    export let size: ProgressBarSize = "md";
     export let progressLocation: ProgressLocation = "hidden";
     export let label: string | undefined;
 
@@ -23,12 +23,12 @@
     </div>
 {/if}
 
-<div class="w-full rounded-full progress {variant}">
+<div class="w-full rounded-full bg-gray-600 {variant}">
     {#if progressLocation !== "inside"}
         <div class="rounded-full size-{size}" style="width: {progress}%" aria-valuenow={progress} />
     {:else}
         <div
-            class="font-medium text-center 
+            class="font-medium text-center
                         leading-none rounded-full size-{size} flex items-center justify-center"
             style="width: {progress}%"
             aria-valuenow={progress}
@@ -39,10 +39,6 @@
 </div>
 
 <style lang="postcss">
-    .progress {
-        @apply bg-gray-600;
-    }
-
     .info {
         &.progress div {
             @apply bg-info-600 text-info-100;
@@ -61,19 +57,19 @@
         }
     }
 
-    .size-small {
+    .size-sm {
         @apply h-1.5;
     }
 
-    .size-default {
+    .size-md {
         @apply h-2.5;
     }
 
-    .size-large {
+    .size-lg {
         @apply h-4;
     }
 
-    .size-extraLarge {
+    .size-xl {
         @apply h-6;
     }
 </style>

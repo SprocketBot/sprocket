@@ -1,3 +1,3 @@
 export type ProgressBarVariant = "info" | "primary";
-export type ProgressBarSize = "small" | "default" | "large" | "extraLarge";
+export type ProgressBarSize = "sm" | "md" | "lg" | "xl";
 export type ProgressLocation = "hidden" | "inside" | "outside";
