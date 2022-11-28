@@ -1,8 +1,3 @@
-<script lang="ts">
-    export let buttonLink: string;
-    export let buttonText = "Read more";
-</script>
-
 <div
     class="block p-6 max-w-sms
     bg-gray-800
