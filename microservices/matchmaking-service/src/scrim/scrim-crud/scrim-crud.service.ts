@@ -61,7 +61,7 @@ export class ScrimCrudService {
         );
 
         if (skillGroupIds)
-            scrims = scrims.filter(scrim => skillGroupIds.includes(scrim.skillGroupId) && !scrim.settings.competitive);
+            scrims = scrims.filter(scrim => skillGroupIds.includes(scrim.skillGroupId) || !scrim.settings.competitive);
         if (organizationId) scrims = scrims.filter(scrim => scrim.organizationId === organizationId);
 
         return scrims;
