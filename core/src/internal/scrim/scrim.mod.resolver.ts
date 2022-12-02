@@ -33,7 +33,7 @@ import {ScrimPubSub} from "./constants";
 import {CreateScrimPlayerGuard, JoinScrimPlayerGuard} from "./scrim.guard";
 import {ScrimService} from "./scrim.service";
 import {ScrimToggleService} from "./scrim-toggle";
-import {CreateScrimInput, Scrim, ScrimEvent} from "./types";
+import {CreateScrimInput, JoinScrimInput, Scrim, ScrimEvent} from "./types";
 import {ScrimMetrics} from "./types/ScrimMetrics";
 
 @Resolver()
@@ -163,20 +163,16 @@ export class ScrimModuleResolver {
     async joinScrim(
         @AuthenticatedUser() user: JwtAuthPayload,
         @CurrentPlayer() player: Player,
-        @Args("scrimId") scrimId: string,
-        @Args("leaveAfter", {type: () => Int}) leaveAfter: number,
-        @Args("group", {nullable: true}) groupKey?: string,
-        @Args("createGroup", {nullable: true}) createGroup?: boolean,
-        @Args("canSaveDemos", {type: () => Boolean, nullable: true}) canSaveDemos?: boolean,
+        @Args("data", {type: () => JoinScrimInput}) data: JoinScrimInput,
     ): Promise<boolean> {
-        if (groupKey && createGroup) {
+        if (data.groupKey && data.createGroup) {
             throw new GraphQLError(
                 "You cannot join a group and create a group. Please provide either group or createGroup, not both.",
             );
         }
-        const group = groupKey ?? createGroup ?? undefined;
+        const group = data.groupKey ?? data.createGroup ?? undefined;
 
-        const scrim = await this.scrimService.getScrimById(scrimId).catch(() => null);
+        const scrim = await this.scrimService.getScrimById(data.scrimId).catch(() => null);
         if (!scrim) throw new GraphQLError("Scrim does not exist");
 
         if (group && scrim.settings.mode === ScrimMode.ROUND_ROBIN) {
@@ -188,13 +184,13 @@ export class ScrimModuleResolver {
 
         try {
             return await this.scrimService.joinScrim({
-                scrimId: scrimId,
+                scrimId: data.scrimId,
                 userId: user.userId,
                 playerName: user.username,
-                leaveAfter: leaveAfter,
-                createGroup: createGroup,
-                joinGroup: groupKey,
-                canSaveDemos: canSaveDemos ?? false,
+                leaveAfter: data.leaveAfter,
+                createGroup: data.createGroup,
+                joinGroup: data.groupKey,
+                canSaveDemos: data.canSaveDemos ?? false,
             });
         } catch (e) {
             throw new GraphQLError((e as Error).message);
