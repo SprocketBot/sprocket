@@ -1,5 +1,5 @@
 import {Inject, Logger, UseGuards} from "@nestjs/common";
-import {Args, Int, Mutation, Query, Resolver, Subscription} from "@nestjs/graphql";
+import {Args, Mutation, Query, Resolver, Subscription} from "@nestjs/graphql";
 import type {ScrimSettings as IScrimSettings} from "@sprocketbot/common";
 import {ScrimMode, ScrimStatus} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
