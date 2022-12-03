@@ -1,0 +1,55 @@
+version: "3.9"
+
+services:
+  rmq:
+    image: rabbitmq:3.9.14-management-alpine
+    volumes:
+      - "./.data/rmq:/var/lib/rabbitmq"
+    ports:
+      - 5672:5672
+      - 15672:15672 # management UI
+
+  redis:
+    image: redislabs/rejson:2.0.7
+    volumes:
+      - "./.data/redis:/data"
+    command: --requirepass $SPR_REDIS_PASSWORD --loadmodule "/usr/lib/redis/modules/rejson.so" --loadmodule "/usr/lib/redis/modules/redisearch.so"
+    ports:
+      - 6379:6379
+
+  postgres:
+    image: timescale/timescaledb:2.6.0-pg13
+    volumes:
+      - "./.data/postgres:/var/lib/postgresql/data"
+    environment:
+      POSTGRES_USER: $SPR_POSTGRES_USER
+      POSTGRES_PASSWORD: $SPR_POSTGRES_PASSWORD
+    ports:
+      - 5432:5432
+
+  minio:
+    image: minio/minio:RELEASE.2022-04-30T22-23-53Z
+    volumes:
+      - "./.data/minio:/data"
+    environment:
+      MINIO_ROOT_USER: $SPR_MINIO_ROOT_USER
+      MINIO_ROOT_PASSWORD: $SPR_MINIO_ROOT_PASSWORD
+    command: server /data --console-address :9001
+    ports:
+      - 9000:9000
+      - 9001:9001 # management UI
+
+  influx:
+    image: influxdb:2.1-alpine
+    volumes:
+      - "./.data/influx:/var/lib/influxdb2"
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: $SPR_INFLUXDB_USERNAME
+      DOCKER_INFLUXDB_INIT_PASSWORD: $SPR_INFLUXDB_PASSWORD
+      DOCKER_INFLUXDB_INIT_RETENTION: 30d
+      DOCKER_INFLUXDB_INIT_ORG: sprocket
+      DOCKER_INFLUXDB_INIT_BUCKET: metrics
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: $SPR_INFLUXDB_ADMIN_TOKEN
+    ports:
+      - 8086:8086

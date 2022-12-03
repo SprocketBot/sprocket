@@ -120,3 +120,5 @@ core/config/development.json.bak
 core/config/main.json
 
 core/config/staging.json
+
+.data/
