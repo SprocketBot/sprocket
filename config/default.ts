@@ -24,7 +24,9 @@ export default {
   "influx": {
     "address": "localhost",
   },
-  "logger": { "levels": true },
+  "logger": {
+    "levels": ["log", "error", "warn", "debug", "verbose"],
+  },
   "minio": {
     "bucketNames": { "image_generation": "image_generation", "replays": "replays" },
     "endPoint": "localhost",

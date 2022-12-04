@@ -189,7 +189,7 @@ export const config = {
         },
     },
     logger: {
-        get levels(): boolean | string {
+        get levels(): false | Array<"log" | "error" | "warn" | "debug" | "verbose"> {
             return _config.get("logger.levels");
         },
     },
