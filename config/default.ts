@@ -22,7 +22,7 @@ export default {
   "defaultOrganizationId": 2,
   "gql": { "playground": false, "url": "http://localhost:3001" },
   "influx": {
-    "address": "localhost",
+    "address": "http://localhost",
   },
   "logger": {
     "levels": ["log", "error", "warn", "debug", "verbose"],
