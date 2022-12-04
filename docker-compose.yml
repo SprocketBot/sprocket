@@ -5,6 +5,9 @@ services:
     image: rabbitmq:3.9.14-management-alpine
     volumes:
       - "./.data/rmq:/var/lib/rabbitmq"
+    environment:
+      RABBITMQ_DEFAULT_USER: sprocket
+      RABBITMQ_DEFAULT_PASS: sprocket
     ports:
       - 5672:5672
       - 15672:15672 # management UI
@@ -47,11 +50,11 @@ services:
       - "./.data/influx:/var/lib/influxdb2"
     environment:
       DOCKER_INFLUXDB_INIT_MODE: setup
-      DOCKER_INFLUXDB_INIT_USERNAME: sprocket
-      DOCKER_INFLUXDB_INIT_PASSWORD: sprocket
       DOCKER_INFLUXDB_INIT_RETENTION: 30d
       DOCKER_INFLUXDB_INIT_ORG: $SPR_INFLUX_ORG
       DOCKER_INFLUXDB_INIT_BUCKET: $SPR_INFLUX_BUCKET
       DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: $SPR_INFLUX_TOKEN
+      DOCKER_INFLUXDB_INIT_USERNAME: sprocket
+      DOCKER_INFLUXDB_INIT_PASSWORD: sprocket
     ports:
       - 8086:8086
