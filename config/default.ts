@@ -17,7 +17,7 @@ export default {
     "database": "postgres",
     "enable_logs": false,
     "host": "localhost",
-    "port": "5432"
+    "port": 5432
   },
   "defaultOrganizationId": 2,
   "gql": { "playground": false, "url": "http://localhost:3001" },
