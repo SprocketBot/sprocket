@@ -5,9 +5,6 @@ services:
     image: rabbitmq:3.9.14-management-alpine
     volumes:
       - "./.data/rmq:/var/lib/rabbitmq"
-    environment:
-      RABBITMQ_DEFAULT_USER: sprocket
-      RABBITMQ_DEFAULT_PASS: sprocket
     ports:
       - 5672:5672
       - 15672:15672 # management UI
