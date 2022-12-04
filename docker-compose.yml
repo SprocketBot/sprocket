@@ -32,8 +32,9 @@ services:
     volumes:
       - "./.data/minio:/data"
     environment:
-      MINIO_ROOT_USER: $SPR_MINIO_ROOT_USER
-      MINIO_ROOT_PASSWORD: $SPR_MINIO_ROOT_PASSWORD
+      # TODO set up access token
+      MINIO_ROOT_USER: minio_root_user
+      MINIO_ROOT_PASSWORD: minio_root_password
     entrypoint: sh 
     command: -c 'mkdir -p /data/image_generation && mkdir -p /data/replays && minio server /data --console-address :9001'
     ports:
@@ -46,8 +47,8 @@ services:
       - "./.data/influx:/var/lib/influxdb2"
     environment:
       DOCKER_INFLUXDB_INIT_MODE: setup
-      DOCKER_INFLUXDB_INIT_USERNAME: $SPR_INFLUX_USERNAME
-      DOCKER_INFLUXDB_INIT_PASSWORD: $SPR_INFLUX_PASSWORD
+      DOCKER_INFLUXDB_INIT_USERNAME: sprocket
+      DOCKER_INFLUXDB_INIT_PASSWORD: sprocket
       DOCKER_INFLUXDB_INIT_RETENTION: 30d
       DOCKER_INFLUXDB_INIT_ORG: $SPR_INFLUX_ORG
       DOCKER_INFLUXDB_INIT_BUCKET: $SPR_INFLUX_BUCKET
