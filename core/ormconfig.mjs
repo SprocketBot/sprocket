@@ -1,14 +1,14 @@
-import config from "config";
-import fs from "fs";
 import {DataSource} from "typeorm";
+
+import {config} from "@sprocketbot/common";
 
 export default new DataSource({
     type: "postgres",
-    host: config.get("db.host"),
-    port: config.get("db.port"),
-    username: config.get("db.username"),
-    password: fs.readFileSync("./secret/db-password.txt").toString().trim(),
-    database: config.get("db.database"),
+    host: config.db.host,
+    port: config.db.port,
+    username: config.db.username,
+    password: config.db.password,
+    database: config.db.database,
     schema: "public",
     entities: ["src/database/!(mledb)/**/*.model.ts "],
     migrationsTableName: "migrations",
