@@ -19,7 +19,6 @@ async function writeDepGraph(app: Awaited<ReturnType<typeof NestFactory.create>>
 }
 
 async function bootstrap(): Promise<void> {
-    // @ts-expect-error I have no idea why this one is broken but I promise it's ok.
     const app = await NestFactory.create(AppModule, {
         logger: config.logger.levels,
     });
