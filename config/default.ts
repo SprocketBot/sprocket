@@ -40,6 +40,7 @@ export default {
     "celery-queue": `${process.env.SPR_PREFIX}-celery`,
     "core_queue": `${process.env.SPR_PREFIX}-core`,
     "events_queue": `${process.env.SPR_PREFIX}-events`,
+    "events_prefix": process.env.SPR_PREFIX,
     "image_generation_queue": `${process.env.SPR_PREFIX}-image-gen`,
     "matchmaking_queue": `${process.env.SPR_PREFIX}-matchmaking`,
     "notification_queue": `${process.env.SPR_PREFIX}-notification`,
