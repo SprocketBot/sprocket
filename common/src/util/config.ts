@@ -189,7 +189,9 @@ export const config = {
         },
     },
     logger: {
-        get levels(): false | Array<"log" | "error" | "warn" | "debug" | "verbose"> {
+        get levels():
+        | false
+        | Array<"log" | "error" | "warn" | "debug" | "verbose"> {
             return _config.get("logger.levels");
         },
     },
@@ -276,9 +278,9 @@ export const config = {
             return _config.get("transport.events_queue");
         },
         get events_application_key(): string {
-            if (!process.env.APP_NAME) throw new Error("Cannot use app events; Environment var APP_NAME is not set");
+            if (!process.env.SPR_APP_NAME) throw new Error("Cannot use app events; Environment var SPR_APP_NAME is not set");
             return `${_config.get("transport.events_prefix")}_${
-                process.env.APP_NAME
+                process.env.SPR_APP_NAME
             }`;
         },
         get image_generation_queue(): string {

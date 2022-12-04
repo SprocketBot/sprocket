@@ -19,6 +19,8 @@ async function writeDepGraph(app: Awaited<ReturnType<typeof NestFactory.create>>
 }
 
 async function bootstrap(): Promise<void> {
+    process.env.SPR_APP_NAME = "core";
+
     const app = await NestFactory.create(AppModule, {
         logger: config.logger.levels,
     });

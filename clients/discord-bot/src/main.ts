@@ -9,6 +9,8 @@ import {AppModule} from "./app.module";
 global.fetch = fetch;
 
 async function bootstrap(): Promise<void> {
+    process.env.SPR_APP_NAME = "discord-bot";
+
     const app = await NestFactory.createMicroservice(AppModule, {
         transport: Transport.RMQ,
         logger: config.logger.levels,

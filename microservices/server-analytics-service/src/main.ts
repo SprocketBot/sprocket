@@ -9,6 +9,8 @@ const url = config.transport.url;
 const queue = config.transport.analytics_queue;
 
 async function bootstrap(): Promise<void> {
+    process.env.SPR_APP_NAME = "server-analytics-service";
+
     const app = await NestFactory.createMicroservice(AppModule, {
         transport: Transport.RMQ,
         logger: config.logger.levels,

@@ -5,6 +5,8 @@ import {AllExceptionsFilter, config} from "@sprocketbot/common";
 import {AppModule} from "./app.module";
 
 async function bootstrap(): Promise<void> {
+    process.env.SPR_APP_NAME = "notification-service";
+
     const app = await NestFactory.createMicroservice(AppModule, {
         transport: Transport.RMQ,
         options: {
