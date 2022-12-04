@@ -1,10 +1,7 @@
 import dotenv from "dotenv";
 import path from "path";
 // Ensure that we are loading from shared config, as well as application config
-const configDirectories = [
-    "./config",
-    `${__dirname}/../../../shared_config`,
-];
+const configDirectories = ["./config", `${__dirname}/../../../config`];
 process.env.NODE_CONFIG_DIR = configDirectories.join(path.delimiter);
 
 const workspaceEnv = `${__dirname}/../../../.env`;
@@ -102,7 +99,9 @@ export const config = {
             const host = config.redis.host;
             const port = config.redis.port;
             const pass = config.redis.password;
-            return `redis${config.redis.secure ? "s" : ""}://:${pass}@${host}:${port}`;
+            return `redis${
+                config.redis.secure ? "s" : ""
+            }://:${pass}@${host}:${port}`;
         },
         get queue(): string {
             return _config.get<string>("transport.celery-queue");
@@ -131,13 +130,23 @@ export const config = {
         },
     },
     gql: {
-        get url(): string { return _config.get<string>("gql.url") },
-        get playground(): boolean { return _config.get<boolean>("gql.playground") },
+        get url(): string {
+            return _config.get<string>("gql.url");
+        },
+        get playground(): boolean {
+            return _config.get<boolean>("gql.playground");
+        },
     },
     influx: {
-        get address(): string { return _config.get<string>("influx.address") },
-        get org(): string { return _config.get<string>("influx.org") },
-        get bucket(): string { return _config.get<string>("influx.bucket") },
+        get address(): string {
+            return _config.get<string>("influx.address");
+        },
+        get org(): string {
+            return _config.get<string>("influx.org");
+        },
+        get bucket(): string {
+            return _config.get<string>("influx.bucket");
+        },
         get token(): string {
             if (_config.has("influx.token")) return _config.get<string>("influx.token");
             return readFileSync("./secret/influx-token").toString()
@@ -228,7 +237,9 @@ export const config = {
         },
         get events_application_key(): string {
             if (!process.env.APP_NAME) throw new Error("Cannot use app events; Environment var APP_NAME is not set");
-            return `${_config.get<string>("transport.events_prefix")}_${process.env.APP_NAME}`;
+            return `${_config.get<string>("transport.events_prefix")}_${
+                process.env.APP_NAME
+            }`;
         },
         get image_generation_queue(): string {
             return _config.get<string>("transport.image_generation_queue");
