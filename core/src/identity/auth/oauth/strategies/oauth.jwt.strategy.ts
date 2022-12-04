@@ -1,8 +1,8 @@
 import {Injectable} from "@nestjs/common";
 import {PassportStrategy} from "@nestjs/passport";
+import { config } from "@sprocketbot/common";
 import {ExtractJwt, Strategy} from "passport-jwt";
 
-import {JwtConstants} from "../constants";
 import type {AuthPayload, UserPayload} from "../types";
 
 @Injectable()
@@ -11,7 +11,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
             ignoreExpiration: false,
-            secretOrKey: JwtConstants.secret,
+            secretOrKey: config.auth.jwt_secret,
         });
     }
 

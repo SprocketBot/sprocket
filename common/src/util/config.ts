@@ -1,3 +1,15 @@
+import dotenv from "dotenv";
+import path from "path";
+// Ensure that we are loading from shared config, as well as application config
+const configDirectories = [
+    "./config",
+    `${__dirname}/../../../shared_config`,
+];
+process.env.NODE_CONFIG_DIR = configDirectories.join(path.delimiter);
+
+const workspaceEnv = `${__dirname}/../../../.env`;
+dotenv.config({path: workspaceEnv});
+
 import _config from "config";
 import {existsSync, readFileSync} from "fs";
 
@@ -5,9 +17,11 @@ export const config = {
     auth: {
         google: {
             get clientId(): string {
+                if (_config.has("auth.google.clientId")) return _config.get<string>("auth.google.clientId");
                 return readFileSync("./secret/googleClientId.txt").toString();
             },
             get secret(): string {
+                if (_config.has("auth.google.secret")) return _config.get<string>("auth.google.secret");
                 return readFileSync("./secret/googleSecret.txt").toString();
             },
             get callbackUrl(): string {
@@ -16,9 +30,11 @@ export const config = {
         },
         discord: {
             get clientId(): string {
+                if (_config.has("auth.discord.clientId")) return _config.get<string>("auth.discord.clientId");
                 return readFileSync("./secret/discord-client.txt").toString();
             },
             get secret(): string {
+                if (_config.has("auth.discord.secret")) return _config.get<string>("auth.discord.secret");
                 return readFileSync("./secret/discord-secret.txt").toString();
             },
             get callbackURL(): string {
@@ -27,6 +43,11 @@ export const config = {
         },
         get jwt_expiry(): string {
             return _config.get<string>("auth.jwt_expiry");
+        },
+        get jwt_secret(): string {
+            if (_config.has("auth.jwt_secret")) return _config.get<string>("auth.jwt_secret");
+            return readFileSync("./secret/jwtSecret.txt").toString()
+                .trim();
         },
         get access_expiry(): string {
             return _config.get<string>("auth.access_expiry");
@@ -42,6 +63,11 @@ export const config = {
         get prefix(): string {
             return _config.get<string>("bot.prefix");
         },
+        get token(): string {
+            if (_config.has("bot.token")) return _config.get<string>("bot.token");
+            return readFileSync("./secret/bot-token.txt").toString()
+                .trim();
+        },
     },
     cache: {
         get port(): number {
@@ -53,6 +79,9 @@ export const config = {
             return _config.get<string>("redis.host");
         },
         get password(): string {
+            if (_config.has("cache.password")) return _config.get<string>("cache.password");
+            if (_config.has("redis.password")) return _config.get<string>("redis.password");
+
             if (existsSync("./secret/cache-password.txt")) {
                 return readFileSync("./secret/cache-password.txt").toString()
                     .trim();
@@ -95,10 +124,25 @@ export const config = {
         get enable_logs(): boolean {
             return _config.get<boolean>("db.enable_logs");
         },
+        get password(): string {
+            if (_config.has("db.password")) return _config.get<string>("db.password");
+            return readFileSync("./secret/db-password.txt").toString()
+                .trim();
+        },
     },
     gql: {
         get url(): string { return _config.get<string>("gql.url") },
         get playground(): boolean { return _config.get<boolean>("gql.playground") },
+    },
+    influx: {
+        get address(): string { return _config.get<string>("influx.address") },
+        get org(): string { return _config.get<string>("influx.org") },
+        get bucket(): string { return _config.get<string>("influx.bucket") },
+        get token(): string {
+            if (_config.has("influx.token")) return _config.get<string>("influx.token");
+            return readFileSync("./secret/influx-token").toString()
+                .trim();
+        },
     },
     logger: {
         get levels(): boolean | string {
@@ -110,10 +154,12 @@ export const config = {
             return _config.get<string>("minio.endPoint");
         },
         get accessKey(): string {
+            if (_config.has("minio.accessKey")) return _config.get<string>("minio.accessKey");
             return readFileSync("./secret/minio-access.txt").toString()
                 .trim();
         },
         get secretKey(): string {
+            if (_config.has("minio.secretKey")) return _config.get<string>("minio.secretKey");
             return readFileSync("./secret/minio-secret.txt").toString()
                 .trim();
         },
@@ -146,6 +192,7 @@ export const config = {
             return _config.get<string>("redis.host");
         },
         get password(): string {
+            if (_config.has("redis.password")) return _config.get<string>("redis.password");
             return readFileSync("./secret/redis-password.txt").toString()
                 .trim();
         },
@@ -180,7 +227,8 @@ export const config = {
             return _config.get<string>("transport.events_queue");
         },
         get events_application_key(): string {
-            return _config.get<string>("transport.events_application_key");
+            if (!process.env.APP_NAME) throw new Error("Cannot use app events; Environment var APP_NAME is not set");
+            return `${_config.get<string>("transport.events_prefix")}_${process.env.APP_NAME}`;
         },
         get image_generation_queue(): string {
             return _config.get<string>("transport.image_generation_queue");
