@@ -1,6 +1,7 @@
 import {
     Field, Float, Int, ObjectType,
 } from "@nestjs/graphql";
+import {Factory} from "nestjs-seeder";
 import {
     Column, Entity, JoinColumn, ManyToOne, OneToOne,
 } from "typeorm";
@@ -28,6 +29,7 @@ export class Player extends BaseModel {
 
     @Column({type: "float"})
     @Field(() => Float)
+    @Factory(f => f?.random.numeric(2))
     salary: number;
 
     @OneToOne(() => RosterSlot, rs => rs.player, {nullable: true})

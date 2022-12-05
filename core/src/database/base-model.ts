@@ -27,5 +27,5 @@ export class BaseModel {
 }
 
 export type ModelLifecycleFields = "createdAt" | "updatedAt" | "deletedAt";
-
+export type ModelDataOnly<T> = Omit<T, ModelLifecycleFields | "id">;
 export type BaseModelCore = Omit<BaseModel, IrrelevantFields>;
