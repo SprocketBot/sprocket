@@ -122,3 +122,7 @@ core/config/main.json
 core/config/staging.json
 
 .data/
+
+config/*
+!config/custom-environment-variables.json
+!config/default.ts
