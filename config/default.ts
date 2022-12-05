@@ -6,7 +6,7 @@ if (!process.env.SPR_PREFIX) {
 export default {
   "auth": {
     "access_expiry": "6h",
-    "discord": { "callbackUrl": "" },
+    "discord": { "callbackUrl": "http://localhost:3001/login" },
     "frontend_callback": "localhost:3000/auth/callback",
     "google": { "callbackUrl": "" },
     "jwt_expiry": 600,
