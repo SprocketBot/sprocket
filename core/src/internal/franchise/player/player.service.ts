@@ -349,6 +349,10 @@ export class PlayerService {
                             }
                         } else {
                             await this.updatePlayerStanding(playerDelta.playerId, playerDelta.newSalary);
+
+                            if (player.member.organization.profile.name === "Minor League Esports") {
+                                await this.mlePlayerService.updatePlayerSalary(player.id, playerDelta.newSalary);
+                            }
                         }
                     }),
                 ),

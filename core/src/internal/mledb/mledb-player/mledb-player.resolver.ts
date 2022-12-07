@@ -128,22 +128,25 @@ export class MledbPlayerResolver {
             .filter(r => r.length > 1);
         const parsed = IntakeSchema.parse(results);
 
-        const imported = await Promise.allSettled(
-            parsed.map(async player => {
-                const sg = await this.sprocketSkillGroupRepository.get({
-                    where: {ordinal: LeagueOrdinals.indexOf(player.skillGroup) + 1},
-                });
-                const accs = player.accounts.map(acc => {
-                    const match = acc.match(/rocket-league\/profile\/(\w+)\/([\w _.\-%[\]]+)/);
-                    if (!match) throw new Error("Failed to match tracker");
+        const imported: number[] = [];
 
-                    return {
-                        platform: platformTransform[match[1]] as MLE_Platform,
-                        platformId: match[2],
-                        tracker: acc,
-                    };
-                });
-                return this.mlePlayerService.intakePlayer(
+        for (const player of parsed) {
+            const sg = await this.sprocketSkillGroupRepository.get({
+                where: {ordinal: LeagueOrdinals.indexOf(player.skillGroup) + 1},
+            });
+            const accs = player.accounts.map(acc => {
+                const match = acc.match(/rocket-league\/profile\/(\w+)\/([\w _.\-%[\]]+)/);
+                if (!match) throw new Error("Failed to match tracker");
+
+                return {
+                    platform: platformTransform[match[1]] as MLE_Platform,
+                    platformId: match[2],
+                    tracker: acc,
+                };
+            });
+
+            try {
+                const newPlayer = await this.mlePlayerService.intakePlayer(
                     player.mleid,
                     player.discordId,
                     player.name,
@@ -154,10 +157,13 @@ export class MledbPlayerResolver {
                     player.timezone,
                     player.preferredMode,
                 );
-            }),
-        );
 
-        // @ts-expect-error Trust that this will work.
-        return imported.filter(i => i.status === "fulfilled").map(i => i.value.mleid);
+                imported.push(newPlayer.mleid);
+            } catch {
+                continue;
+            }
+        }
+
+        return imported;
     }
 }

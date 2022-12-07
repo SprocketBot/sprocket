@@ -99,6 +99,14 @@ export class MledbPlayerService {
         throw new Error("Unknown League");
     }
 
+    async updatePlayerSalary(sprocketPlayerId: number, salary: number): Promise<MLE_Player> {
+        let player = await this.getMlePlayerBySprocketPlayer(sprocketPlayerId);
+        player = this.playerRepository.merge(player, {salary});
+
+        await this.playerRepository.save(player);
+        return player;
+    }
+
     async movePlayerToLeague(sprocketPlayerId: number, skillGroupId: number, salary: number): Promise<MLE_Player> {
         const league = await this.getLeagueFromSkillGroupId(skillGroupId);
 

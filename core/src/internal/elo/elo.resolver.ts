@@ -37,9 +37,9 @@ export class EloResolver {
     }
 
     @Mutation(() => Boolean)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    @UseGuards(GraphQLJwtAuthGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async reinitEloDb(): Promise<boolean> {
-        const players = await this.ds.query(`
+        const players = (await this.ds.query(`
         SELECT player.id,
                mp.name,
                player.salary,
@@ -49,7 +49,7 @@ export class EloResolver {
                      INNER JOIN game_skill_group gsg ON player."skillGroupId" = gsg.id
                      INNER JOIN mledb_bridge.player_to_player p2p ON p2p."sprocketPlayerId" = player.id
                      INNER JOIN mledb.player mlep ON mlep.id = p2p."mledPlayerId";
-    `) as NewPlayerBySalary[];
+    `)) as NewPlayerBySalary[];
 
         for (const p of players) {
             await this.eloConnectorService.createJob(EloEndpoint.AddPlayerBySalary, p);
@@ -59,7 +59,7 @@ export class EloResolver {
     }
 
     @Mutation(() => Boolean)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    @UseGuards(GraphQLJwtAuthGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async runSalaries(): Promise<boolean> {
         await this.eloConsumer.runSalaries();
         return true;
