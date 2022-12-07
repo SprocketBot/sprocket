@@ -22,7 +22,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
     catch(exception: unknown, host: ArgumentsHost): void {
         if (exception instanceof Error) {
             this.logger.error({
-                name: exception.name, message: exception.message, stack: exception.stack,
+                name: exception.name,
+                message: exception.message,
+                stack: exception.stack,
             });
         } else {
             this.logger.error(`[NOT ERROR SUBTYPE] ${exception}`);
@@ -33,16 +35,16 @@ export class AllExceptionsFilter implements ExceptionFilter {
         if (exception instanceof HttpException) {
             const status = exception.getStatus();
 
-            response
-                .status(status)
-                .json({
-                    statusCode: status,
-                    timestamp: new Date().toISOString(),
-                    message: exception.message,
-                });
+            response.status(status).json({
+                statusCode: status,
+                timestamp: new Date().toISOString(),
+                message: exception.message,
+            });
         } else {
             response.status(500).json({
-                statusCode: 500, timestamp: new Date().toISOString(), message: "Internal Server Error",
+                statusCode: 500,
+                timestamp: new Date().toISOString(),
+                message: "Internal Server Error",
             });
         }
     }
