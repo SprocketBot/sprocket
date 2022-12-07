@@ -40,7 +40,7 @@ export class ReplaySubmissionService {
      * @param submissionId {string} Pre-generated Id assigned for this submission
      */
     async beginSubmission(
-        filePaths: Array<{minioPath: string; originalFilename: string;}>,
+        filePaths: Array<{minioPath: string; originalFilename: string}>,
         submissionId: string,
         creatorId: number,
     ): Promise<string[]> {
@@ -139,15 +139,19 @@ export class ReplaySubmissionService {
                     taskId: taskId,
                     progressQueue: submissionId,
                     cb: async (_taskId, result, error) => {
-                        const item = (
-                            await this.submissionCrudService.getSubmissionItems(submissionId)
-                        ).find(i => i.taskId === _taskId);
+                        const item = (await this.submissionCrudService.getSubmissionItems(submissionId)).find(
+                            i => i.taskId === _taskId,
+                        );
                         if (!item) {
-                            this.logger.error(`Got taskId '${_taskId}' with no matching item for submissionId '${submissionId}'`);
+                            this.logger.error(
+                                `Got taskId '${_taskId}' with no matching item for submissionId '${submissionId}'`,
+                            );
                             return;
                         }
                         if (!result && !error) {
-                            this.logger.error(`Unexpected state, no result or error returned from Replay Parse Service`);
+                            this.logger.error(
+                                `Unexpected state, no result or error returned from Replay Parse Service`,
+                            );
                             return;
                         }
                         if (error) {
@@ -162,8 +166,8 @@ export class ReplaySubmissionService {
                             taskId: item.taskId,
                         });
                         if (
-                            tasks.length === filePaths.length
-              && tasks.every(t => [ProgressStatus.Complete, ProgressStatus.Error].includes(t.status))
+                            tasks.length === filePaths.length &&
+                            tasks.every(t => [ProgressStatus.Complete, ProgressStatus.Error].includes(t.status))
                         ) {
                             // We do be kinda done though.
                             const submission = await this.submissionCrudService.getSubmission(submissionId);
@@ -234,6 +238,6 @@ export class ReplaySubmissionService {
             redisKey: getSubmissionKey(submissionId),
             resultPaths: refreshedSubmission.items.map(item => item.outputPath!),
         });
-    // TODO: Expose endpoint to remove submission.
+        // TODO: Expose endpoint to remove submission.
     }
 }
