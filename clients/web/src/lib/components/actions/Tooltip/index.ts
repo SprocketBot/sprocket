@@ -1,2 +1,2 @@
-export * from "./types"
-export * from "./useTooltip.action"
+export * from "./types";
+export * from "./useTooltip.action";
