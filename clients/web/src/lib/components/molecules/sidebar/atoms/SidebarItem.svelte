@@ -18,7 +18,7 @@
 		{#if icon}
 			<Icon src={icon} class="w-6 h-6 transition duration-75 text-gray-400 group-hover:text-white" />
 		{:else}
-			<span class="w-6 text-center text-lg">
+			<span class="w-6 text-center text-lg text-gray-400 group-hover:text-white">
 				{#if context.iconOnly}
 					{label.charAt(0).toUpperCase()}
 				{/if}
