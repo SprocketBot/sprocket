@@ -1,43 +1,35 @@
-<script lang="ts" context="module">
-    export type SizeVariant = "sm" | "md";
-    export type ColorVariant = "info" | "gray" | "danger" | "success" | "warning" | "primary" | "secondary";
-</script>
-
 <script lang="ts">
-    import {fade} from "svelte/transition";
     import {Icon} from "@steeze-ui/svelte-icon";
     import {XMark} from "@steeze-ui/heroicons";
     import type {IconSource} from "@steeze-ui/svelte-icon/types";
+    import type { BadgeColorVariant, BadgeSizeVariant } from './types';
 
-    export let size: SizeVariant = "sm";
-    export let color: ColorVariant = "info";
+    export let size: BadgeSizeVariant = "sm";
+    export let color: BadgeColorVariant = "info";
     export let icon: IconSource | undefined = undefined;
     export let dismissible = false;
-    export let withIcon = true;
 
     let dismissed = false;
 </script>
 
 {#if !dismissed}
     <span
-        id="badge-dismiss-default"
-        class="size-{size} color-{color} inline-flex items-center mr-2 text-sm font-medium text-blue-800 bg-blue-100 rounded dark:bg-blue-200 dark:text-blue-800"
+        class="size-{size} color-{color} inline-flex mr-2 rounded items-center gap-1"
     >
         {#if icon}
             <span class="icon">
-                <Icon src={icon} />
+                <Icon src={icon} class="h-full w-full" />
             </span>
         {/if}
         <slot />
-        
         {#if dismissible}
             <button
                 on:click={() => (dismissed = true)}
                 type="button"
-                class="ml-auto -mx-1.5 -my-1.5 rounded-lg focus:ring-2 p-1.5 inline-flex h-8 w-8"
+                class="ml-auto -mx-1.5 rounded-lg focus:ring-2"
             >
                 <span class="sr-only">Close</span>
-                <Icon class="w-5 h-5" src={XMark} />
+                <Icon class="w-4 h-4" src={XMark} />
             </button>
         {/if}
     </span>
@@ -45,32 +37,32 @@
 
 <style lang="postcss">
     .size-sm {
-        @apply text-xs font-semibold py-1 px-2;
+        @apply text-xs py-1 px-2 leading-none;
         .icon{@apply w-3 h-3}
     }
     .size-md {
-        @apply text-sm font-medium py-1.5 px-2.5;
+        @apply text-sm py-1.5 px-2.5 leading-none;
         .icon{@apply w-3.5 h-3.5}
     }
     .color-primary{
-        @apply bg-primary-100 text-primary-800
+        @apply bg-primary-800 text-primary-100
     }
     .color-secondary{
-        @apply bg-secondary-100 text-secondary-800
+        @apply bg-secondary-800 text-secondary-100
     }
     .color-danger{
-        @apply bg-danger-100 text-danger-800
+        @apply bg-danger-800 text-danger-100
     }
     .color-info{
-        @apply bg-info-100 text-info-800
+        @apply bg-info-800 text-info-100
     }
     .color-gray{
-        @apply bg-gray-100 text-gray-800
+        @apply bg-gray-800 text-gray-100
     }
     .color-success{
-        @apply bg-success-100 text-success-800
+        @apply bg-success-800 text-success-100
     }
     .color-warning{
-        @apply bg-warning-100 text-warning-800
+        @apply bg-warning-800 text-warning-100
     }
 </style>

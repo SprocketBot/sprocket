@@ -1,23 +1,24 @@
 <script lang="ts">
     import type {Hst as _Hst} from "@histoire/plugin-svelte";
-    import Badge, {type ColorVariant, type SizeVariant} from "./Badge.svelte";
+    import Badge from "./Badge.svelte"
     import {FingerPrint, Sparkles, PaperClip, Hashtag, XMark} from "@steeze-ui/heroicons";
     import type {IconSource} from "@steeze-ui/svelte-icon/types";
+    import type { BadgeSizeVariant, BadgeColorVariant } from './types';
     export let Hst: _Hst;
 
-    const SizeOptions: SizeVariant[] = ["sm", "md"];
-    const ColorOptions: ColorVariant[] = ["info", "gray", "danger", "success", "warning", "primary", "secondary"];
+    const SizeOptions: BadgeSizeVariant[] = ["sm", "md"];
+    const ColorOptions: BadgeColorVariant[] = ["info", "gray", "danger", "success", "warning", "primary", "secondary"];
     const IconOptions = [
         {label: "XMark", value: XMark},
         {label: "Hashtag", value: Hashtag},
-        {label: "FingyPrint", value: FingerPrint},
+        {label: "FingerPrint", value: FingerPrint},
         {label: "PaperClip", value: PaperClip},
         {label: "Sparkles", value: Sparkles},
     ];
 
-    let size: SizeVariant = "sm";
-    let color: ColorVariant = "info";
-    let icon: IconSource = XMark;
+    let size: BadgeSizeVariant = "sm";
+    let color: BadgeColorVariant = "info";
+    let icon: IconSource = undefined;
     let dismissible = true;
 </script>
 
@@ -32,7 +33,7 @@
 
     <Hst.Variant title="Default">
         <Badge {size} {icon} {color} {dismissible}>
-            <div>test</div>
+            <span>This is a badge</span>
         </Badge>
     </Hst.Variant>
 </Hst.Story>
