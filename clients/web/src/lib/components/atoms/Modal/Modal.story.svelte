@@ -1,14 +1,14 @@
 <script lang="ts">
-  import type { Hst as _Hst } from '@histoire/plugin-svelte';
-  import Modal from './Modal.svelte';
+    import type {Hst as _Hst} from "@histoire/plugin-svelte";
+    import Modal from "./Modal.svelte";
 
-  export let Hst: _Hst;
+    export let Hst: _Hst;
 
-  let open = false;
+    let open = false;
 </script>
 
 <Hst.Story title="Atoms/Modal" layout={{type: "grid", width: 800}}>
-	<Hst.Variant title="Default" {open}>
+	<Hst.Variant title="Default">
 		<button on:click={() => open = true}>Open the Modal</button>
 		<Modal bind:open>
 			<h3 class="text-xl font-semibold text-white" slot="header">
@@ -37,7 +37,7 @@
 		</Modal>
 	</Hst.Variant>
 
-	<Hst.Variant title="PopUp modal" {open}>
+	<Hst.Variant title="PopUp modal">
 		<button on:click={() => open = true}>Open the Modal</button>
 		<Modal bind:open>
 			<div class="p-6 text-center">

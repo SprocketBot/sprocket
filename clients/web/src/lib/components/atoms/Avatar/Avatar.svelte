@@ -1,9 +1,6 @@
-<script lang="ts" context="module">
-    export type ShapeVariant = "rounded" | "square" | "circle";
-    export type SizeVariant = "sm" | "rg" | "md" | "lg" | "xl";
-</script>
-
 <script lang="ts">
+    import type {ShapeVariant, SizeVariant} from "./types";
+
     export let shape: ShapeVariant = "circle";
     export let size: SizeVariant = "rg";
     export let url: string | undefined = undefined;
