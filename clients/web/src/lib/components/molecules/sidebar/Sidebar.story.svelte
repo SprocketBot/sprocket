@@ -30,7 +30,6 @@
 		</div>
 	</svelte:fragment>
 	<Hst.Variant title="Default">
-		<p class="text-gray-100 text-lg">Default state</p>
 		<div class="h-screen">
 			<Sidebar {withHeader} {fullHeight}>
 				<SidebarItem icon={Banknotes} label="Sidebar Item" />
@@ -54,7 +53,6 @@
 	</Hst.Variant>
 	<Hst.Variant title="Small Width">
 		<div class="h-screen">
-			<p class="text-gray-100 text-lg">Useful for power users; i.e. min/maxing</p>
 			<Sidebar {withHeader} {fullHeight} width="sm">
 				<SidebarItem icon={Banknotes} label="Sidebar Item" />
 				<SidebarDivider />
@@ -73,7 +71,6 @@
 	</Hst.Variant>
 	<Hst.Variant title="Full Width">
 		<div class="h-screen p-8">
-			<p class="text-gray-100 text-lg">Useful for mobile; in a drawer</p>
 			<Sidebar {withHeader} {fullHeight} width="full">
 				<SidebarItem icon={Banknotes} label="Sidebar Item" />
 				<SidebarDivider />
