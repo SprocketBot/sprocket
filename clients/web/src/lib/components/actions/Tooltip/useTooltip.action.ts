@@ -4,7 +4,6 @@ import "./tooltip.postcss";
 export const tooltip = (node: HTMLElement, {content, position = "top", withArrow}: TooltipParams) => {
     const tooltip = document.createElement("div");
     tooltip.classList.add("tooltip");
-    console.log({position, withArrow});
 
     function updatePosition() {
         const bbox = node.getBoundingClientRect();
