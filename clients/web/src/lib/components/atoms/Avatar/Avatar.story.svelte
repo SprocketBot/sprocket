@@ -1,15 +1,15 @@
 <script lang="ts">
     import type {Hst as _Hst} from "@histoire/plugin-svelte";
     import Avatar from "./Avatar.svelte";
-    import type {ShapeVariant, SizeVariant} from "./types";
+    import type {AvatarShapeVariant, AvatarSizeVariant} from "./types";
 
     export let Hst: _Hst;
 
-    const SizeOptions: SizeVariant[] = ["sm", "rg", "md", "lg", "xl"];
-    const ShapeOptions: ShapeVariant[] = ["rounded", "square", "circle"];
+    const SizeOptions: AvatarSizeVariant[] = ["sm", "rg", "md", "lg", "xl"];
+    const ShapeOptions: AvatarShapeVariant[] = ["rounded", "square", "circle"];
 
-    let shape: ShapeVariant = "rounded";
-    let size: SizeVariant = "rg";
+    let shape: AvatarShapeVariant = "rounded";
+    let size: AvatarSizeVariant = "rg";
 </script>
 
 <Hst.Story title="Atoms/Avatar">

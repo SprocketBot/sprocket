@@ -1,8 +1,8 @@
 <script lang="ts">
-    import type {ShapeVariant, SizeVariant} from "./types";
+    import type {AvatarShapeVariant, AvatarSizeVariant} from "./types";
 
-    export let shape: ShapeVariant = "circle";
-    export let size: SizeVariant = "rg";
+    export let shape: AvatarShapeVariant = "circle";
+    export let size: AvatarSizeVariant = "rg";
     export let url: string | undefined = undefined;
     export let alt: string;
 </script>
