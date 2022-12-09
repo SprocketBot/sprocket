@@ -1,12 +1,9 @@
-<script lang="ts" context="module">
-    export type AlertVariant = "info" | "success" | "warning" | "danger";
-</script>
-
 <script lang="ts">
     import {fade} from "svelte/transition";
     import {Icon} from "@steeze-ui/svelte-icon";
     import {CheckCircle, ExclamationCircle, InformationCircle, XMark} from "@steeze-ui/heroicons";
     import type {IconSource} from "@steeze-ui/svelte-icon/types";
+    import type {AlertVariant} from "./types";
 
     export let variant: AlertVariant;
     export let withIcon = true;
