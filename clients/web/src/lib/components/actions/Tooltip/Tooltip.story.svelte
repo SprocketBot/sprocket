@@ -26,9 +26,9 @@
     <Hst.Variant title="Default">
         <div class="w-screen h-screen flex justify-center items-center">
             {#key params}
-                <button class="border border-primary rounded-lg px-2 py-1 text-gray-200" use:tooltip={params}
-                    >{params.position}</button
-                >
+                <button class="border border-primary rounded-lg px-2 py-1 text-gray-200" use:tooltip={params}>
+                    {params.position}
+                </button>
             {/key}
         </div>
     </Hst.Variant>
