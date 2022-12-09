@@ -6,4 +6,4 @@ export * from "./Breadcrumb";
 export * from "./Drawer";
 export * from "./Dropdown";
 export * from "./Modal";
-export * from "./Tooltip";
+export * from "./Tabs";
