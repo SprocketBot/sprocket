@@ -1,7 +1,7 @@
 import type {TooltipParams} from "./types";
 import "./tooltip.postcss";
 
-export const tooltip = (node: HTMLElement, {content, position = "top", withArrow}: TooltipParams) => {
+export const tooltip = (node: HTMLElement, {content, position = "top", withArrow, active}: TooltipParams) => {
     const tooltip = document.createElement("div");
     tooltip.classList.add("tooltip");
 
@@ -42,8 +42,10 @@ export const tooltip = (node: HTMLElement, {content, position = "top", withArrow
     tooltip.textContent = content;
     function renderTooltip() {
         // Render tooltip
-        updatePosition();
-        document.body.appendChild(tooltip);
+        if (active) {
+            updatePosition();
+            document.body.appendChild(tooltip);
+        }
     }
 
     function removeTooltip() {
