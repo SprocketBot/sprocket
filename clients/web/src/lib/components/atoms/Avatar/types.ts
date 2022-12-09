@@ -1,2 +1,2 @@
-export type ShapeVariant = "rounded" | "square" | "circle";
-export type SizeVariant = "sm" | "rg" | "md" | "lg" | "xl";
+export type AvatarShapeVariant = "rounded" | "square" | "circle";
+export type AvatarSizeVariant = "sm" | "rg" | "md" | "lg" | "xl";
