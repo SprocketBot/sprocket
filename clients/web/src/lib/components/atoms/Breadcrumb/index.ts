@@ -1,3 +1,3 @@
 export {default as Breadcrumb} from "./Breadcrumb.svelte";
-export * from "./types"
-export * from "./addCrumb"
+export * from "./types";
+export * from "./addCrumb";

@@ -39,7 +39,6 @@
                     class="inline-block p-2 rounded-t-lg border-2 border-transparent hover:text-gray-600 hover:text-gray-300 flex items-center gap-2 outline-none"
                     class:active={key === activeKey}
                     on:click={() => (activeKey = key)}
-
                     role="tab"
                     id="{id}-but"
                     aria-selected={`${key === activeKey ? "true" : "false"}`}
@@ -60,7 +59,6 @@
         class="relative pt-4"
         class:visible={key === activeKey}
         class:hidden={key !== activeKey}
-
         {id}
         aria-labelledby="{id}-but"
         role="tabpanel"

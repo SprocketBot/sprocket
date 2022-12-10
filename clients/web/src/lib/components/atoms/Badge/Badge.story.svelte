@@ -1,9 +1,9 @@
 <script lang="ts">
     import type {Hst as _Hst} from "@histoire/plugin-svelte";
-    import Badge from "./Badge.svelte"
+    import Badge from "./Badge.svelte";
     import {FingerPrint, Sparkles, PaperClip, Hashtag, XMark} from "@steeze-ui/heroicons";
     import type {IconSource} from "@steeze-ui/svelte-icon/types";
-    import type { BadgeSizeVariant, BadgeColorVariant } from './types';
+    import type {BadgeSizeVariant, BadgeColorVariant} from "./types";
     export let Hst: _Hst;
 
     const SizeOptions: BadgeSizeVariant[] = ["sm", "md"];
