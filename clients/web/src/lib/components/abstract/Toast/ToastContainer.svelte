@@ -5,7 +5,7 @@
 </script>
 
 <Portal>
-    <div class="fixed bottom-4 right-4">
+    <div class="fixed bottom-4 right-4 flex flex-col items-end">
         {#each $toastStore.reverse() as toast (toast.id)}
             <Toast {toast} />
         {/each}
