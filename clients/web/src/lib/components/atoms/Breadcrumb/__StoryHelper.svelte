@@ -1,10 +1,9 @@
 <script lang="ts">
-    import { addCrumb } from "./addCrumb";
-    import type { ICrumb } from "./types";
-
+    import {addCrumb} from "./addCrumb";
+    import type {ICrumb} from "./types";
 
     export let crumb: ICrumb;
-    addCrumb(crumb)
+    addCrumb(crumb);
 </script>
 
-<slot/>
+<slot />

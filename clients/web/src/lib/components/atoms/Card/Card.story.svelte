@@ -3,7 +3,8 @@
     import Card from "./Card.svelte";
 
     export let Hst: _Hst;
-    let text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi justo ante, luctus eget scelerisque ac, pulvinar at leo. Phasellus eu odio nec sem aliquam vestibulum. Donec ultrices dapibus velit, in lobortis urna molestie eget.";
+    let text =
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi justo ante, luctus eget scelerisque ac, pulvinar at leo. Phasellus eu odio nec sem aliquam vestibulum. Donec ultrices dapibus velit, in lobortis urna molestie eget.";
 </script>
 
 <Hst.Story title="Atoms/Card">

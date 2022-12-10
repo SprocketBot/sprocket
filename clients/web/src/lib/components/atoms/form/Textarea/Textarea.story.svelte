@@ -26,7 +26,7 @@
         <Hst.Checkbox title="Disabled" bind:value={disabled} />
         <Hst.Select title="State" bind:value={state} options={states} />
         <Hst.Text title="Error" bind:value={error} />
-        <Hst.Text title="Value" bind:value={value} />
+        <Hst.Text title="Value" bind:value />
 
         <Props props={{label, size, placeholder, disabled, state, error, value}} />
     </svelte:fragment>
