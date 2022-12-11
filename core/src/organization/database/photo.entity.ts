@@ -1,7 +1,7 @@
 import {Column, Entity, JoinColumn, OneToOne} from "typeorm";
 
 import {BaseEntity} from "../../types/base-entity";
-import { Approval } from "./approval.entity";
+import {Approval} from "./approval.entity";
 
 @Entity({schema: "sprocket"})
 export class Photo extends BaseEntity {
