@@ -1,9 +1,9 @@
 import type {DeepPartial, FindOneOptions} from "typeorm";
 
-import type {BaseModel} from "../base-model";
+import type {BaseEntity} from "../base-entity";
 import type {ExtendedRepository} from "./repository";
 
-export abstract class ProfiledRepository<T extends BaseModel & {profile: TProfile}, TProfile extends BaseModel> {
+export abstract class ProfiledRepository<T extends BaseEntity & {profile: TProfile}, TProfile extends BaseEntity> {
     abstract readonly primaryRepository: ExtendedRepository<T>;
 
     abstract readonly profileRepository: ExtendedRepository<TProfile>;
