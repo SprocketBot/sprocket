@@ -44,7 +44,7 @@ export class MemberRestrictionRepository extends ExtendedRepository<MemberRestri
         manualExpirationReason: string,
         forgiven: boolean,
     ): Promise<MemberRestriction> {
-        let memberRestriction = await this.getById(memberRestrictionId, {relations: {member: {profile: true}}});
+        let memberRestriction = await this.findById(memberRestrictionId, {relations: {member: {profile: true}}});
         memberRestriction = await this.updateAndSave(memberRestrictionId, {
             manualExpiration: manualExpiration,
             manualExpirationReason: manualExpirationReason,
