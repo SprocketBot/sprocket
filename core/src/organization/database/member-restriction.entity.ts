@@ -1,9 +1,8 @@
 import {Column, Entity, JoinColumn, ManyToOne} from "typeorm";
 
-import {Member} from "";
-import {MemberRestrictionType} from "";
-
 import {BaseEntity} from "../../types/base-entity";
+import {Member} from "./member.entity";
+import {MemberRestrictionType} from "./member-restriction-type.enum";
 
 @Entity({schema: "sprocket"})
 export class MemberRestriction extends BaseEntity {

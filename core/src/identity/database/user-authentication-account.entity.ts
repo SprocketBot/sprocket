@@ -1,9 +1,8 @@
 import {Column, Entity, ManyToOne, Unique} from "typeorm";
 
-import {User} from "";
-import {UserAuthenticationAccountType} from "";
-
 import {BaseEntity} from "../../types/base-entity";
+import {User} from "./user.entity";
+import {UserAuthenticationAccountType} from "./user-authentication-account-type.enum";
 
 @Entity({schema: "sprocket"})
 @Unique("UserAccounts", ["accountId", "accountType"])

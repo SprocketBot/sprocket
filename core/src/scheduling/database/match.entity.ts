@@ -1,14 +1,11 @@
-import type {MatchSubmissionStatus} from "";
-
 import {Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne} from "typeorm";
 
-import {GameSkillGroup} from "";
-import {GameMode} from "";
-import {Invalidation} from "";
-import {MatchParent} from "";
-import {Round} from "";
-
+import {GameSkillGroup} from "../../franchise/database/game-skill-group.entity";
+import {GameMode} from "../../game/database/game-mode.entity";
 import {BaseEntity} from "../../types/base-entity";
+import {Invalidation} from "./invalidation.entity";
+import {MatchParent} from "./match-parent.entity";
+import {Round} from "./round.entity";
 
 @Entity({schema: "sprocket"})
 export class Match extends BaseEntity {
@@ -36,12 +33,6 @@ export class Match extends BaseEntity {
 
     @Column({nullable: true, unique: true})
     submissionId?: string;
-
-    submissionStatus: MatchSubmissionStatus;
-
-    canSubmit: boolean;
-
-    canRatify: boolean;
 
     /**
      * This has been made nullable in case future use-cases involve multiple game modes in a single match.

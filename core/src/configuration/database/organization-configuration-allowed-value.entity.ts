@@ -1,11 +1,10 @@
 import {Column, Entity, ManyToOne} from "typeorm";
 
-import {OrganizationConfigurationKey} from "";
-
 import {BaseEntity} from "../../types/base-entity";
+import {OrganizationConfigurationKey} from "./organization-configuration-key.entity";
 
 @Entity({schema: "sprocket"})
-export class OrganizationStaffTeam extends BaseEntity {
+export class OrganizationConfigurationAllowedValue extends BaseEntity {
     @Column()
     value: string;
 

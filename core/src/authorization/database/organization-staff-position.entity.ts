@@ -1,10 +1,9 @@
 import {Entity, JoinColumn, ManyToOne, OneToOne} from "typeorm";
 
-import {OrganizationStaffRole} from "";
-import {OrganizationStaffTeam} from "";
-import {PermissionBearer} from "";
-
 import {BaseEntity} from "../../types/base-entity";
+import {OrganizationStaffRole} from "./organization-staff-role.entity";
+import {OrganizationStaffTeam} from "./organization-staff-team.entity";
+import {PermissionBearer} from "./permission-bearer.entity";
 
 @Entity({schema: "sprocket"})
 export class OrganizationStaffPosition extends BaseEntity {

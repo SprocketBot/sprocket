@@ -1,9 +1,8 @@
 import {Entity, ManyToOne, OneToMany, OneToOne} from "typeorm";
 
-import {FranchiseGroupProfile} from "";
-import {FranchiseGroupType} from "";
-
 import {BaseEntity} from "../../types/base-entity";
+import {FranchiseGroupProfile} from "./franchise-group-profile.entity";
+import {FranchiseGroupType} from "./franchise-group-type.entity";
 
 @Entity({schema: "sprocket"})
 export class FranchiseGroup extends BaseEntity {

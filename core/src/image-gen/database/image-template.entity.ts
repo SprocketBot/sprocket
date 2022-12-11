@@ -1,7 +1,5 @@
 import {Column, Entity} from "typeorm";
 
-import {ImageTemplateQuery} from "";
-
 import {BaseEntity} from "../../types/base-entity";
 
 @Entity({schema: "sprocket"})
@@ -19,5 +17,5 @@ export class ImageTemplate extends BaseEntity {
     description: string;
 
     @Column({type: "jsonb"})
-    query: ImageTemplateQuery;
+    query: unknown;
 }

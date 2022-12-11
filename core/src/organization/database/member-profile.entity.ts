@@ -1,10 +1,9 @@
 import {Column, Entity, JoinColumn, ManyToOne, OneToOne} from "typeorm";
 
-import {Member} from "";
-import {Photo} from "";
-import {Pronouns} from "";
-
 import {BaseEntity} from "../../types/base-entity";
+import {Member} from "./member.entity";
+import {Photo} from "./photo.entity";
+import {Pronouns} from "./pronouns.entity";
 
 @Entity({schema: "sprocket"})
 export class MemberProfile extends BaseEntity {

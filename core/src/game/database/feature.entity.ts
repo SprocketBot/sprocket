@@ -1,9 +1,8 @@
 import {Column, Entity, JoinTable, ManyToMany, OneToMany} from "typeorm";
 
-import {GameFeature} from "";
-import {FeatureCode} from "";
-
 import {BaseEntity} from "../../types/base-entity";
+import {FeatureCode} from "./feature-code.enum";
+import {GameFeature} from "./game-feature.entity";
 
 @Entity({schema: "sprocket"})
 export class Feature extends BaseEntity {

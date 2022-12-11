@@ -1,10 +1,9 @@
 import {Column, Entity, ManyToOne, OneToMany} from "typeorm";
 
-import {Team} from "";
-import {PlayerStatLine} from "";
-import {Round} from "";
-
+import {Team} from "../../franchise/database/team.entity";
 import {BaseEntity} from "../../types/base-entity";
+import {PlayerStatLine} from "./player-stat-line.entity";
+import {Round} from "./round.entity";
 
 @Entity({schema: "sprocket"})
 export class TeamStatLine extends BaseEntity {

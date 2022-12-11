@@ -1,8 +1,7 @@
 import {Column, Entity, ManyToOne} from "typeorm";
 
-import {Member} from "";
-
 import {BaseEntity} from "../../types/base-entity";
+import {Member} from "./member.entity";
 
 @Entity({schema: "sprocket"})
 export class Approval extends BaseEntity {

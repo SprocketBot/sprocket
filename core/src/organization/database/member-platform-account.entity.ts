@@ -1,9 +1,8 @@
 import {Column, Entity, JoinColumn, ManyToOne, Unique} from "typeorm";
 
-import {Platform} from "";
-import {Member} from "";
-
+import {Platform} from "../../game/database/platform.entity";
 import {BaseEntity} from "../../types/base-entity";
+import {Member} from "./member.entity";
 
 @Entity({schema: "sprocket"})
 @Unique(["platform", "platformAccountId"])

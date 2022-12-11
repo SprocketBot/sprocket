@@ -1,9 +1,11 @@
 import {Column, Entity, OneToMany} from "typeorm";
 
-import {OrganizationConfigurationAllowedValue} from "";
-import {OrganizationConfigurationKeyCode, OrganizationConfigurationKeyType} from "";
-
 import {BaseEntity} from "../../types/base-entity";
+import {OrganizationConfigurationAllowedValue} from "./organization-configuration-allowed-value.entity";
+import {
+    OrganizationConfigurationKeyCode,
+    OrganizationConfigurationKeyType,
+} from "./organization-configuration-key.enum";
 
 @Entity({schema: "sprocket"})
 export class OrganizationConfigurationKey extends BaseEntity {

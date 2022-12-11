@@ -1,9 +1,8 @@
 import {Column, Entity, JoinColumn, ManyToOne} from "typeorm";
 
-import {Game} from "";
-import {PermissionBearer} from "";
-
+import {Game} from "../../game/database/game.entity";
 import {BaseEntity} from "../../types/base-entity";
+import {PermissionBearer} from "./permission-bearer.entity";
 
 @Entity({schema: "sprocket"})
 export class FranchiseStaffRole extends BaseEntity {

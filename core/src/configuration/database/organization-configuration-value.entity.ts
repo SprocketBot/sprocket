@@ -1,9 +1,8 @@
 import {Column, Entity, ManyToOne} from "typeorm";
 
-import {Organization} from "";
-import {OrganizationConfigurationKey} from "";
-
+import {Organization} from "../../organization/database/organization.entity";
 import {BaseEntity} from "../../types/base-entity";
+import {OrganizationConfigurationKey} from "./organization-configuration-key.entity";
 
 @Entity({schema: "sprocket"})
 export class OrganizationConfigurationValue extends BaseEntity {

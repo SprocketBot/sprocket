@@ -1,16 +1,15 @@
+import {Parser} from "@sprocketbot/common";
 import {Column, Entity, ManyToOne, OneToMany} from "typeorm";
 
-import {GameMode} from "";
-import {Invalidation} from "";
-import {Match} from "";
-import {PlayerStatLine} from "";
-import {TeamStatLine} from "";
-import {Parser} from "";
-
+import {GameMode} from "../../game/database/game-mode.entity";
 import {BaseEntity} from "../../types/base-entity";
+import {Invalidation} from "./invalidation.entity";
+import {Match} from "./match.entity";
+import {PlayerStatLine} from "./player-stat-line.entity";
+import {TeamStatLine} from "./team-stat-line.entity";
 
 @Entity({schema: "sprocket"})
-export class DraftSelection extends BaseEntity {
+export class Round extends BaseEntity {
     @Column()
     homeWon: boolean;
 
