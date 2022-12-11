@@ -2,7 +2,7 @@ import {Injectable} from "@nestjs/common";
 import type {FindOneOptions} from "typeorm";
 import {DataSource} from "typeorm";
 
-import {ExtendedRepository} from "../../types/extended-repositories/repository";
+import {ExtendedRepository} from "../../types/extended-repositories";
 import {Match} from "./match.entity";
 
 @Injectable()

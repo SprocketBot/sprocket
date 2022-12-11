@@ -2,7 +2,7 @@ import {Injectable} from "@nestjs/common";
 import type {FindOptionsWhere} from "typeorm";
 import {DataSource, Raw} from "typeorm";
 
-import {ExtendedRepository} from "../../types/extended-repositories/repository";
+import {ExtendedRepository} from "../../types/extended-repositories";
 import {ScheduleGroup} from "./schedule-group.entity";
 
 @Injectable()
