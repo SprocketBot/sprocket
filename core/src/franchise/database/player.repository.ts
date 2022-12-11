@@ -17,7 +17,7 @@ export class PlayerRepository extends ExtendedRepository<Player> {
         gameId: number,
         options?: Omit<FindOneOptions<Player>, "where">,
     ): Promise<Player> {
-        return this.findOneOrFail(
+        return this.get(
             Object.assign(
                 {
                     relations: {
