@@ -1,10 +1,10 @@
 import type {DataSource, DeepPartial, FindManyOptions, FindOneOptions, SelectQueryBuilder} from "typeorm";
 import {Repository} from "typeorm";
 
-import type {BaseModel} from "../base-model";
+import type {BaseEntity} from "../base-entity";
 import type {Class} from "./repository.types";
 
-export abstract class ExtendedRepository<T extends BaseModel> extends Repository<T> {
+export abstract class ExtendedRepository<T extends BaseEntity> extends Repository<T> {
     constructor(readonly c: Class<T>, readonly dataSource: DataSource) {
         super(c, dataSource.createEntityManager());
     }
