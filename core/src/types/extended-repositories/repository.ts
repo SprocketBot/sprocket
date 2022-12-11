@@ -1,4 +1,4 @@
-import type {DataSource, DeepPartial, FindOneOptions, SelectQueryBuilder} from "typeorm";
+import type {DataSource, DeepPartial, FindManyOptions, FindOneOptions, SelectQueryBuilder} from "typeorm";
 import {Repository} from "typeorm";
 
 import type {BaseEntity} from "../base-entity";
@@ -9,7 +9,15 @@ export abstract class ExtendedRepository<T extends BaseEntity> extends Repositor
         super(c, dataSource.createEntityManager());
     }
 
-    async findById(id: number, options?: FindOneOptions<T>): Promise<T> {
+    async get(options: FindOneOptions<T>): Promise<T> {
+        return this.findOneOrFail(options);
+    }
+
+    async getOrNull(options: FindOneOptions<T>): Promise<T | null> {
+        return this.findOne(options);
+    }
+
+    async getById(id: number, options?: FindOneOptions<T>): Promise<T> {
         return this.findOneOrFail(
             Object.assign(
                 {
@@ -18,6 +26,10 @@ export abstract class ExtendedRepository<T extends BaseEntity> extends Repositor
                 options,
             ),
         );
+    }
+
+    async getMany(options?: FindManyOptions<T>): Promise<T[]> {
+        return this.find(options);
     }
 
     async createAndSave(data: DeepPartial<T>): Promise<T> {
@@ -35,7 +47,7 @@ export abstract class ExtendedRepository<T extends BaseEntity> extends Repositor
         return entity;
     }
 
-    async findAndDelete(id: number): Promise<T> {
+    async deleteAndReturn(id: number): Promise<T> {
         const entity = await this.findOneOrFail({where: {id}} as FindOneOptions<T>);
         await this.delete(id);
 
