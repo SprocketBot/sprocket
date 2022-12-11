@@ -1,7 +1,7 @@
 import {Column, Entity, ManyToOne} from "typeorm";
 
 import {BaseEntity} from "../../types/base-entity";
-import { Organization } from "./organization.entity";
+import {Organization} from "./organization.entity";
 
 @Entity({schema: "sprocket"})
 export class Pronouns extends BaseEntity {
