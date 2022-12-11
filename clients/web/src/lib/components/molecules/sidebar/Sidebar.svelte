@@ -8,7 +8,6 @@
     export let width: SidebarWidth = "md";
     export let fullHeight = true;
 
-    console.log({width});
     const context: SidebarContext = {iconOnly: false, showTooltips: true};
     if (width === "sm") context.iconOnly = true;
     if (width === "full") context.showTooltips = false;
