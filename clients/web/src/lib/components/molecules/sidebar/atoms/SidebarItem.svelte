@@ -9,7 +9,6 @@
     export let label: string;
 
     let context = getContext<SidebarContext>(SidebarContextKey);
-    console.log({context});
 </script>
 
 <li on:click>
