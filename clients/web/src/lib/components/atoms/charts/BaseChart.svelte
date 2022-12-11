@@ -2,7 +2,9 @@
     import * as echarts from "echarts";
     import {onMount} from "svelte";
     import {theme} from "./theme";
+
     export let options: echarts.EChartsOption;
+
     let chart: echarts.ECharts | undefined;
     let container: HTMLElement | undefined;
 
