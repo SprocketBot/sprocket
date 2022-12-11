@@ -1,10 +1,9 @@
 import {Column, Entity, JoinColumn, ManyToOne, OneToOne} from "typeorm";
 
-import {Photo} from "";
-import {Webhook} from "";
-import {GameSkillGroup} from "";
-
+import {Photo} from "../../organization/database/photo.entity";
 import {BaseEntity} from "../../types/base-entity";
+import {Webhook} from "../../webhook/database/webhook.entity";
+import {GameSkillGroup} from "./game-skill-group.entity";
 
 @Entity({schema: "sprocket"})
 export class GameSkillGroupProfile extends BaseEntity {

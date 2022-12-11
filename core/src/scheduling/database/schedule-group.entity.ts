@@ -1,10 +1,9 @@
 import {Column, Entity, ManyToOne, OneToMany} from "typeorm";
 
-import {Game} from "";
-import {ScheduleFixture} from "";
-import {ScheduleGroupType} from "";
-
+import {Game} from "../../game/database/game.entity";
 import {BaseEntity} from "../../types/base-entity";
+import {ScheduleFixture} from "./schedule-fixture.entity";
+import {ScheduleGroupType} from "./schedule-group-type.entity";
 
 @Entity({schema: "sprocket"})
 export class ScheduleGroup extends BaseEntity {

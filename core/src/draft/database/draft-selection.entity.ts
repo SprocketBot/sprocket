@@ -1,9 +1,8 @@
 import {Entity, JoinColumn, ManyToOne, OneToOne} from "typeorm";
 
-import {Player} from "";
-import {DraftPick} from "";
-
+import {Player} from "../../franchise/database/player.entity";
 import {BaseEntity} from "../../types/base-entity";
+import {DraftPick} from "./draft-pick.entity";
 
 @Entity({schema: "sprocket"})
 export class DraftSelection extends BaseEntity {

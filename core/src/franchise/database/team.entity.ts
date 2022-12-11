@@ -1,9 +1,8 @@
 import {Column, Entity, ManyToOne} from "typeorm";
 
-import {Franchise} from "";
-import {GameSkillGroup} from "";
-
 import {BaseEntity} from "../../types/base-entity";
+import {Franchise} from "./franchise.entity";
+import {GameSkillGroup} from "./game-skill-group.entity";
 
 @Entity({schema: "sprocket"})
 export class Team extends BaseEntity {

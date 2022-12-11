@@ -1,9 +1,8 @@
 import {Column, Entity, ManyToOne, OneToMany} from "typeorm";
 
-import {Organization} from "";
-import {ScheduleGroup} from "";
-
+import {Organization} from "../../organization/database/organization.entity";
 import {BaseEntity} from "../../types/base-entity";
+import {ScheduleGroup} from "./schedule-group.entity";
 
 @Entity({schema: "sprocket"})
 export class ScheduleGroupType extends BaseEntity {

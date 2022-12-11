@@ -1,10 +1,10 @@
 import {Column, Entity, ManyToOne, OneToMany} from "typeorm";
 
-import {Member} from "";
-import {MatchParent} from "";
-import {Game, GameMode} from "";
-
+import {Game} from "../../game/database/game.entity";
+import {GameMode} from "../../game/database/game-mode.entity";
+import {Member} from "../../organization/database/member.entity";
 import {BaseEntity} from "../../types/base-entity";
+import {MatchParent} from "./match-parent.entity";
 
 @Entity({schema: "sprocket"})
 export class ScheduledEvent extends BaseEntity {

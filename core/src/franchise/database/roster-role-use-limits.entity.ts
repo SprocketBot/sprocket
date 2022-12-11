@@ -1,12 +1,11 @@
 import {Column, Entity, ManyToOne, OneToOne} from "typeorm";
 
-import {ScheduleGroupType} from "";
-import {GameSkillGroup} from "";
-
+import {ScheduleGroupType} from "../../scheduling/database/schedule-group-type.entity";
 import {BaseEntity} from "../../types/base-entity";
+import {GameSkillGroup} from "./game-skill-group.entity";
 
 @Entity({schema: "sprocket"})
-export class FranchiseGroupProfile extends BaseEntity {
+export class RosterRoleUseLimits extends BaseEntity {
     @Column()
     code: string;
 

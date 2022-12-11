@@ -1,11 +1,10 @@
 import {Entity, ManyToOne} from "typeorm";
 
-import {Match} from "";
-import {Player} from "";
-import {RosterRole} from "";
-import {Team} from "";
-
+import {Match} from "../../scheduling/database/match.entity";
 import {BaseEntity} from "../../types/base-entity";
+import {Player} from "./player.entity";
+import {RosterRole} from "./roster-role.entity";
+import {Team} from "./team.entity";
 
 @Entity({schema: "sprocket"})
 export class RosterRoleUsage extends BaseEntity {

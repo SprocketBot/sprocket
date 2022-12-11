@@ -1,11 +1,10 @@
 import {Entity, JoinColumn, ManyToOne, OneToOne} from "typeorm";
 
-import {Match} from "";
-import {ScheduleFixture} from "";
-import {ScheduledEvent} from "";
-import {ScrimMeta} from "";
-
 import {BaseEntity} from "../../types/base-entity";
+import {Match} from "./match.entity";
+import {ScheduleFixture} from "./schedule-fixture.entity";
+import {ScheduledEvent} from "./scheduled-event.entity";
+import {ScrimMeta} from "./scrim-meta.entity";
 
 @Entity({schema: "sprocket"})
 export class MatchParent extends BaseEntity {

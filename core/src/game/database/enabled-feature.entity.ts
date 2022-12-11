@@ -1,9 +1,8 @@
 import {Entity, ManyToOne} from "typeorm";
 
-import {Organization} from "";
-import {GameFeature} from "";
-
+import {Organization} from "../../organization/database/organization.entity";
 import {BaseEntity} from "../../types/base-entity";
+import {GameFeature} from "./game-feature.entity";
 
 @Entity({schema: "sprocket"})
 export class EnabledFeature extends BaseEntity {

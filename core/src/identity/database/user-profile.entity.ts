@@ -1,8 +1,7 @@
 import {Column, Entity, JoinColumn, OneToOne} from "typeorm";
 
-import {User} from "";
-
 import {BaseEntity} from "../../types/base-entity";
+import {User} from "./user.entity";
 
 @Entity({schema: "sprocket"})
 export class UserProfile extends BaseEntity {

@@ -1,9 +1,8 @@
 import {Entity, ManyToOne, OneToMany} from "typeorm";
 
-import {FranchiseStaffAppointment} from "";
-import {FranchiseStaffRole} from "";
-
+import {FranchiseStaffAppointment} from "../../franchise/database/franchise-staff-appointment.entity";
 import {BaseEntity} from "../../types/base-entity";
+import {FranchiseStaffRole} from "./franchise-staff-role.entity";
 
 @Entity({schema: "sprocket"})
 export class FranchiseStaffSeat extends BaseEntity {

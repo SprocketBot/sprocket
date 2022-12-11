@@ -1,14 +1,13 @@
 import {Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne} from "typeorm";
 
-import {OrganizationStaffSeat} from "";
-import {Player} from "";
-import {User} from "";
-import {MemberPlatformAccount} from "";
-import {MemberProfile} from "";
-import {MemberRestriction} from "";
-import {Organization} from "";
-
+import {OrganizationStaffSeat} from "../../authorization/database/organization-staff-seat.entity";
+import {Player} from "../../franchise/database/player.entity";
+import {User} from "../../identity/database/user.entity";
 import {BaseEntity} from "../../types/base-entity";
+import {MemberPlatformAccount} from "./member-platform-account.entity";
+import {MemberProfile} from "./member-profile.entity";
+import {MemberRestriction} from "./member-restriction.entity";
+import {Organization} from "./organization.entity";
 
 @Entity({schema: "sprocket"})
 export class Member extends BaseEntity {

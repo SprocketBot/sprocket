@@ -1,8 +1,7 @@
 import {Column, Entity, ManyToOne} from "typeorm";
 
-import {Game} from "";
-
 import {BaseEntity} from "../../types/base-entity";
+import {Game} from "./game.entity";
 
 @Entity({schema: "sprocket"})
 export class GameMode extends BaseEntity {

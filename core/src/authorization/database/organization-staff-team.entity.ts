@@ -1,9 +1,8 @@
 import {Column, Entity, JoinColumn, ManyToOne} from "typeorm";
 
-import {Organization} from "";
-import {PermissionBearer} from "";
-
+import {Organization} from "../../organization/database/organization.entity";
 import {BaseEntity} from "../../types/base-entity";
+import {PermissionBearer} from "./permission-bearer.entity";
 
 @Entity({schema: "sprocket"})
 export class OrganizationStaffTeam extends BaseEntity {

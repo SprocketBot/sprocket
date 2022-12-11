@@ -1,13 +1,12 @@
 import {Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne} from "typeorm";
 
-import {Game} from "";
-import {Organization} from "";
-import {GameSkillGroupProfile} from "";
-import {Player} from "";
-import {RosterRoleUseLimits} from "";
-import {Team} from "";
-
+import {Game} from "../../game/database/game.entity";
+import {Organization} from "../../organization/database/organization.entity";
 import {BaseEntity} from "../../types/base-entity";
+import {GameSkillGroupProfile} from "./game-skill-group-profile.entity";
+import {Player} from "./player.entity";
+import {RosterRoleUseLimits} from "./roster-role-use-limits.entity";
+import {Team} from "./team.entity";
 
 @Entity({schema: "sprocket"})
 export class GameSkillGroup extends BaseEntity {

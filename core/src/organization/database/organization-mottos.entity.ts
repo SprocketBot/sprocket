@@ -1,8 +1,7 @@
 import {Column, Entity, ManyToOne} from "typeorm";
 
-import {Organization} from "";
-
 import {BaseEntity} from "../../types/base-entity";
+import {Organization} from "./organization.entity";
 
 @Entity({schema: "sprocket"})
 export class OrganizationMottos extends BaseEntity {

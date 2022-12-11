@@ -1,10 +1,9 @@
 import {Column, Entity, JoinColumn, ManyToOne, OneToOne} from "typeorm";
 
-import {Photo} from "";
-import {Webhook} from "";
-import {Franchise} from "";
-
+import {Photo} from "../../organization/database/photo.entity";
 import {BaseEntity} from "../../types/base-entity";
+import {Webhook} from "../../webhook/database/webhook.entity";
+import {Franchise} from "./franchise.entity";
 
 @Entity({schema: "sprocket"})
 export class FranchiseProfile extends BaseEntity {
@@ -14,11 +13,11 @@ export class FranchiseProfile extends BaseEntity {
     @Column()
     code: string;
 
-    //Scrim Report Cards
+    // Scrim Report Cards
     @ManyToOne(() => Webhook, {nullable: true})
     scrimReportCardWebhook?: Webhook;
 
-    //League Play Report Cards
+    // League Play Report Cards
     @ManyToOne(() => Webhook, {nullable: true})
     matchReportCardWebhook?: Webhook;
 
@@ -27,9 +26,13 @@ export class FranchiseProfile extends BaseEntity {
     submissionWebhook?: Webhook;
 
     @Column({nullable: true})
-    submissionDiscordRoleID?: string;
+    submissionDiscordRoleId?: string;
 
     @OneToOne(() => Photo, {nullable: true})
+    @JoinColumn()
+    photo?: Photo;
+
+    @OneToOne(() => Franchise)
     @JoinColumn()
     franchise: Franchise;
 

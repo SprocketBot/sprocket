@@ -1,12 +1,11 @@
 import {Entity, ManyToOne, OneToMany, OneToOne} from "typeorm";
 
-import {Organization} from "";
-import {FranchiseGroupAssignment} from "";
-import {FranchiseLeadershipAppointment} from "";
-import {FranchiseProfile} from "";
-import {FranchiseStaffAppointment} from "";
-
+import {Organization} from "../../organization/database/organization.entity";
 import {BaseEntity} from "../../types/base-entity";
+import {FranchiseGroupAssignment} from "./franchise-group-assignment.entity";
+import {FranchiseLeadershipAppointment} from "./franchise-leadership-appointment.entity";
+import {FranchiseProfile} from "./franchise-profile.entity";
+import {FranchiseStaffAppointment} from "./franchise-staff-appointment.entity";
 
 @Entity({schema: "sprocket"})
 export class Franchise extends BaseEntity {

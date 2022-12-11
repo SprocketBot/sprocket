@@ -1,13 +1,14 @@
 import {Entity, OneToMany, OneToOne} from "typeorm";
 
-import {OrganizationConfigurationValue, Verbiage} from "";
-import {EnabledFeature} from "";
-import {ScheduleGroupType} from "";
-import {Member} from "";
-import {OrganizationMottos} from "";
-import {OrganizationProfile} from "";
-import {Pronouns} from "";
-import {BaseEntity} from "";
+import {OrganizationConfigurationValue} from "../../configuration/database/organization-configuration-value.entity";
+import {Verbiage} from "../../configuration/database/verbiage.entity";
+import {EnabledFeature} from "../../game/database/enabled-feature.entity";
+import {ScheduleGroupType} from "../../scheduling/database/schedule-group-type.entity";
+import {BaseEntity} from "../../types/base-entity";
+import {Member} from "./member.entity";
+import {OrganizationMottos} from "./organization-mottos.entity";
+import {OrganizationProfile} from "./organization-profile.entity";
+import {Pronouns} from "./pronouns.entity";
 
 @Entity({schema: "sprocket"})
 export class Organization extends BaseEntity {
