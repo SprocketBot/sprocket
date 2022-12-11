@@ -30,7 +30,7 @@
 <div
     transition:fly={{x: 50}}
     class:pb-5={toast.ttl}
-    class="flex items-start p-4 w-full max-w-xs rounded-lg shadow text-gray-400 bg-gray-800 mt-2"
+    class="inline-flex items-start p-4 max-w-xs rounded-lg shadow text-gray-400 bg-gray-800 mt-2"
     role="alert"
 >
     <div class="icon {toast.status}">
