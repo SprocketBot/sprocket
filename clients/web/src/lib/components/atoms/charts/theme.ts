@@ -1,5 +1,20 @@
-const contrastColor = "#eee";
+import {palette} from "$lib/palette";
+
+const includedFamilies: Array<keyof typeof palette> = ["primary", "secondary", "accent", "info", "success"];
+const includedTints: Array<keyof typeof palette["primary"]> = [500];
+
+const colorPalette = includedTints.flatMap(tint => includedFamilies.map(fam => palette[fam][tint]));
+
+const contrastColor = palette.gray[200];
+
 const axisCommon = () => ({
+    nameTextStyle: {
+        fontFamily: "Montserrat",
+        color: contrastColor,
+        fontSize: 14,
+    },
+    nameLocation: "middle",
+    nameGap: 40,
     axisLine: {
         lineStyle: {
             color: contrastColor,
@@ -13,6 +28,7 @@ const axisCommon = () => ({
     axisLabel: {
         textStyle: {
             color: contrastColor,
+            fontFamily: "Montserrat",
         },
     },
     splitLine: {
@@ -29,30 +45,19 @@ const axisCommon = () => ({
     },
 });
 
-const colorPalette = [
-    "#dd6b66",
-    "#759aa0",
-    "#e69d87",
-    "#8dc1a9",
-    "#ea7e53",
-    "#eedd78",
-    "#73a373",
-    "#73b9bc",
-    "#7289ab",
-    "#91ca8c",
-    "#f49f42",
-];
 export const theme = {
     color: colorPalette,
-    backgroundColor: "#333",
+    backgroundColor: "transparent",
     tooltip: {
+        backgroundColor: `${palette.gray[800]}E0`,
+        borderColor: "transparent",
+        textStyle: {
+            color: contrastColor,
+            fontFamily: "Montserrat",
+            fontWeight: "normal",
+        },
         axisPointer: {
-            lineStyle: {
-                color: contrastColor,
-            },
-            crossStyle: {
-                color: contrastColor,
-            },
+            type: "none",
         },
     },
     legend: {

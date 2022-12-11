@@ -1,29 +1,34 @@
 <script lang="ts">
-    import type {EChartsOption, XAXisComponentOption, YAXisComponentOption} from "echarts";
+    import type {BarSeriesOption, EChartsOption, XAXisComponentOption, YAXisComponentOption} from "echarts";
 
-    import {writable} from "svelte/store";
-    import {setContext} from "svelte";
     import BaseChart from "../BaseChart.svelte";
-    import {type IBar, type BarChartContext, BarChartContextKey} from "./types";
+    import type {IBars} from "./types";
     export let horizontal = false;
     export let showTooltip = true;
-    export let title = "";
     export let categoryLabel: string;
     export let valueLabel: string;
 
-    let bars = writable<IBar[]>([]);
-    function addBar(input: IBar) {
-        $bars = [...$bars, input];
-        return () => ($bars = $bars.filter(b => b !== input));
+    export let bars: IBars;
+
+    let categories: string[];
+    let seriesNames: string[];
+    let series: Record<string, number[]>;
+
+    $: if (bars) {
+        categories = Object.keys(bars);
+        seriesNames = Array.from(new Set(Object.values(bars).flatMap(Object.keys)));
+        series = seriesNames.reduce<Record<string, number[]>>((a, seriesName: string) => {
+            if (!a[seriesName]) a[seriesName] = Object.values(bars).map(datum => datum[seriesName]);
+            return a;
+        }, {});
     }
-    setContext<BarChartContext>(BarChartContextKey, {addBar});
 
     let categoryOptions: XAXisComponentOption | YAXisComponentOption;
 
     $: categoryOptions = {
         type: "category",
         name: categoryLabel,
-        data: $bars.map(b => b.label),
+        data: categories,
     };
 
     let valueOptions: XAXisComponentOption | YAXisComponentOption = {
@@ -35,19 +40,23 @@
     $: options = {
         xAxis: (horizontal ? valueOptions : categoryOptions) as XAXisComponentOption,
         yAxis: (horizontal ? categoryOptions : valueOptions) as YAXisComponentOption,
-        series: {
-            data: $bars.map(b => b.value),
+        // series: bars.map((b): BarSeriesOption => ({
+        //     data: b.values,
+        //     type: "bar",
+        //     colorBy: "series",
+        //     name: b.label
+        // })),
+        series: Object.entries(series).map(([k, v]) => ({
+            name: k,
+            data: v,
             type: "bar",
-        },
+        })),
+        legend: {},
         tooltip: {
             show: showTooltip,
             trigger: "axis",
         },
-        title: {
-            text: title,
-        },
     };
 </script>
 
-<slot />
 <BaseChart {options} />
