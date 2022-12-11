@@ -4,8 +4,8 @@ import {DataSource} from "typeorm";
 
 import {ExtendedRepository, ProfiledRepository} from "../../types/extended-repositories";
 import {Organization} from "./organization.entity";
-import {OrganizationProfileRepository} from "./organization_profile.repository";
 import type {OrganizationProfile} from "./organization-profile.entity";
+import {OrganizationProfileRepository} from "./organization-profile.repository";
 
 @Injectable()
 export class OrganizationRepository extends ExtendedRepository<Organization> {
