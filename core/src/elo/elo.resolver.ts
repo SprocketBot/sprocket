@@ -3,9 +3,8 @@ import {Mutation, Resolver} from "@nestjs/graphql";
 import {InjectDataSource} from "@nestjs/typeorm";
 import {DataSource} from "typeorm";
 
-import {MLE_OrganizationTeam} from "$mledb";
-
 import {GraphQLJwtAuthGuard} from "../authentication/guards";
+import {MLE_OrganizationTeam} from "../database/mledb";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
 import {EloConsumer} from "./elo.consumer";
 import {EloService} from "./elo.service";

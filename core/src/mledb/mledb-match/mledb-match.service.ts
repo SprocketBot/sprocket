@@ -4,20 +4,25 @@ import type {CoreEndpoint, CoreOutput} from "@sprocketbot/common";
 import type {FindOperator, FindOptionsRelations} from "typeorm";
 import {Raw, Repository} from "typeorm";
 
-import type {League} from "$mledb";
-import {LegacyGameMode, MLE_Fixture, MLE_Series, MLE_SeriesReplay, MLE_Team, MLE_TeamToCaptain} from "$mledb";
+import type {League} from "../../database/mledb";
 import {
-    Franchise,
-    GameMode,
-    GameSkillGroup,
-    Match,
-    MatchParent,
-    ScheduleFixture,
-    ScheduleGroup,
-    ScheduleGroupType,
-} from "$models";
-import {MatchRepository} from "$repositories";
-import {PopulateService} from "$util";
+    LegacyGameMode,
+    MLE_Fixture,
+    MLE_Series,
+    MLE_SeriesReplay,
+    MLE_Team,
+    MLE_TeamToCaptain,
+} from "../../database/mledb";
+import {Franchise} from "../../franchise/database/franchise.entity";
+import {GameSkillGroup} from "../../franchise/database/game-skill-group.entity";
+import {GameMode} from "../../game/database/game-mode.entity";
+import {Match} from "../../scheduling/database/match.entity";
+import {MatchRepository} from "../../scheduling/database/match.repository";
+import {MatchParent} from "../../scheduling/database/match-parent.entity";
+import {ScheduleFixture} from "../../scheduling/database/schedule-fixture.entity";
+import {ScheduleGroup} from "../../scheduling/database/schedule-group.entity";
+import {ScheduleGroupType} from "../../scheduling/database/schedule-group-type.entity";
+import {PopulateService} from "../../util";
 
 @Injectable()
 export class MledbMatchService {
@@ -87,7 +92,7 @@ export class MledbMatchService {
     async getMleMatchInfoAndStakeholders(
         sprocketMatchId: number,
     ): Promise<CoreOutput<CoreEndpoint.GetMleMatchInfoAndStakeholders>> {
-        const match = (await this.sprocketMatchRepository.getById(sprocketMatchId)) as Partial<Match>;
+        const match = (await this.sprocketMatchRepository.findById(sprocketMatchId)) as Partial<Match>;
         if (!match.skillGroup) {
             match.skillGroup = await this.popService.populateOneOrFail(Match, match as Match, "skillGroup");
         }

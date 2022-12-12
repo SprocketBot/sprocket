@@ -2,8 +2,7 @@ import {UseGuards} from "@nestjs/common";
 import {Args, Mutation, Resolver} from "@nestjs/graphql";
 import {GraphQLError} from "graphql";
 
-import {MemberRepository} from "$repositories";
-
+import {MemberRepository} from "../organization/database/member.repository";
 import {AuthenticationService} from "./authentication.service";
 import {AuthenticatedUser} from "./decorators";
 import {GraphQLJwtAuthGuard, GraphQLJwtRefreshGuard} from "./strategies/jwt/guards";
@@ -28,7 +27,7 @@ export class AuthenticationResolver {
         @AuthenticatedUser() user: JwtAuthPayload,
         @Args("organizationId", {type: () => Int}) organizationId: number,
     ): Promise<JwtTokenSet> {
-        const member = await this.memberRepository.getOrNull({
+        const member = await this.memberRepository.findOne({
             where: {
                 userId: user.userId,
                 organizationId: organizationId,

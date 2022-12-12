@@ -3,7 +3,7 @@ import {createParamDecorator, Logger} from "@nestjs/common";
 import {GqlExecutionContext} from "@nestjs/graphql";
 import {GraphQLError} from "graphql";
 
-import type {Player} from "$models";
+import type {Player} from "../../franchise/database/player.entity";
 
 const logger = new Logger("CurrentPlayerDecorator");
 

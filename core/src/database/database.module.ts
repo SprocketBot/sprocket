@@ -4,18 +4,8 @@ import {config} from "@sprocketbot/common";
 import {readFileSync} from "fs";
 import {DataSource} from "typeorm";
 
-import {AuthorizationModule} from "./authorization/authorization.module";
-import {ConfigurationModule} from "./configuration/configuration.module";
-import {DraftModule} from "./draft/draft.module";
-import {FranchiseModule} from "./franchise/franchise.module";
-import {GameModule} from "./game/game.module";
-import {IdentityModule} from "./identity/identity.module";
-import {ImageGenModule} from "./image-gen/image-gen.module";
 import {MledbModule} from "./mledb/mledb.module";
 import {MledbBridgeModule} from "./mledb-bridge/mledb_bridge.module";
-import {OrganizationModule} from "./organization/organization.module";
-import {SchedulingModule} from "./scheduling/scheduling.module";
-import {WebhookModule} from "./webhook/webhook.module";
 
 const modules = [
     TypeOrmModule.forRoot({
@@ -28,18 +18,8 @@ const modules = [
         autoLoadEntities: true,
         logging: config.db.enable_logs,
     }),
-    AuthorizationModule,
-    ConfigurationModule,
-    DraftModule,
-    FranchiseModule,
-    GameModule,
-    IdentityModule,
-    OrganizationModule,
-    SchedulingModule,
     MledbModule,
-    ImageGenModule,
     MledbBridgeModule,
-    WebhookModule,
 ];
 
 @Module({

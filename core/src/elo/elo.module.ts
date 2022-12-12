@@ -3,10 +3,10 @@ import {Module} from "@nestjs/common";
 import {EventsModule, NotificationModule, RedisModule} from "@sprocketbot/common";
 
 import {DatabaseModule} from "../database";
-import {FranchiseModule} from "../franchise";
-import {GameModule} from "../internal/game";
-import {IdentityModule} from "../internal/identity";
-import {OrganizationModule} from "../internal/organization";
+import {FranchiseModule} from "../franchise/franchise.module";
+import {GameModule} from "../game/game.module";
+import {IdentityModule} from "../identity/identity.module";
+import {OrganizationModule} from "../organization/organization.module";
 import {CORE_WEEKLY_SALARIES_QUEUE, EloConsumer} from "./elo.consumer";
 import {EloResolver} from "./elo.resolver";
 import {EloService} from "./elo.service";

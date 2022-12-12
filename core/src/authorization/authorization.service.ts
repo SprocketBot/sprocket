@@ -1,13 +1,13 @@
 import {Injectable} from "@nestjs/common";
 
-import {MemberRepository} from "$repositories";
+import {MemberRepository} from "../organization/database/member.repository";
 
 @Injectable()
 export class AuthorizationService {
     constructor(private readonly memberRepository: MemberRepository) {}
 
     async getMemberActions(memberId: number): Promise<string[]> {
-        const member = await this.memberRepository.getById(memberId, {
+        const member = await this.memberRepository.findById(memberId, {
             relations: {
                 organizationStaffSeats: {
                     position: {

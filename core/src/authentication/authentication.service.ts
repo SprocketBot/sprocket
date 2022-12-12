@@ -2,8 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {JwtService} from "@nestjs/jwt";
 import {config} from "@sprocketbot/common";
 
-import {UserRepository} from "$repositories";
-
+import {UserRepository} from "../identity/database/user.repository";
 import type {JwtAuthPayload, JwtRefreshPayload} from "./strategies/jwt/jwt.types";
 import {JwtType} from "./strategies/jwt/jwt.types";
 import type {JwtTokenSet} from "./types";
@@ -13,7 +12,7 @@ export class AuthenticationService {
     constructor(private readonly jwtService: JwtService, private readonly userRepository: UserRepository) {}
 
     async login(userId: number, organizationId?: number): Promise<JwtTokenSet> {
-        const user = await this.userRepository.getById(userId, {relations: {profile: true, members: true}});
+        const user = await this.userRepository.findById(userId, {relations: {profile: true, members: true}});
         const currentOrganizationId =
             organizationId ?? (user.members.length === 1 ? user.members[0].organizationId : undefined);
 

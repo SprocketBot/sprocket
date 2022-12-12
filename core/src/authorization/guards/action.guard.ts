@@ -3,9 +3,8 @@ import {Injectable, Logger} from "@nestjs/common";
 import {Reflector} from "@nestjs/core";
 import {GqlExecutionContext} from "@nestjs/graphql";
 
-import {MemberRepository} from "$repositories";
-
-import {JwtAuthPayloadSchema} from "../../../authentication/types";
+import {JwtAuthPayloadSchema} from "../../authentication/types";
+import {MemberRepository} from "../../organization/database/member.repository";
 import {AuthorizationService} from "../authorization.service";
 import {MetadataKeys} from "../authorization.types";
 import type {ActionsOperator} from "../decorators/actions.decorator";
@@ -42,7 +41,7 @@ export class ActionGuard implements CanActivate {
         // TODO: Add Sprocket/global permissions and add fetching here
 
         if (data.data.currentOrganizationId) {
-            const member = await this.memberRepository.getOrNull({
+            const member = await this.memberRepository.findOne({
                 where: {userId: data.data.userId, organizationId: data.data.currentOrganizationId},
             });
             if (!member) return false;

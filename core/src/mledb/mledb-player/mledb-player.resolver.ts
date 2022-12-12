@@ -5,10 +5,16 @@ import type {FileUpload} from "graphql-upload";
 import {GraphQLUpload} from "graphql-upload";
 import {z} from "zod";
 
-import {League, LeagueOrdinals, MLE_OrganizationTeam, MLE_Platform, ModePreference, Timezone} from "$mledb";
-import {GameSkillGroupRepository} from "$repositories";
-
 import {GraphQLJwtAuthGuard} from "../../authentication/guards";
+import {
+    League,
+    LeagueOrdinals,
+    MLE_OrganizationTeam,
+    MLE_Platform,
+    ModePreference,
+    Timezone,
+} from "../../database/mledb";
+import {GameSkillGroupRepository} from "../../franchise/database/game-skill-group.repository";
 import {MLEOrganizationTeamGuard} from "./mle-organization-team.guard";
 import {MledbPlayerService} from "./mledb-player.service";
 
@@ -94,7 +100,7 @@ export class MledbPlayerResolver {
         @Args("accounts", {type: () => [IntakePlayerAccount]})
         accounts: IntakePlayerAccount[],
     ): Promise<number> {
-        const sg = await this.sprocketSkillGroupRepository.get({
+        const sg = await this.sprocketSkillGroupRepository.findOneOrFail({
             where: {ordinal: LeagueOrdinals.indexOf(league) + 1},
         });
         const player = await this.mlePlayerService.intakePlayer(
@@ -131,7 +137,7 @@ export class MledbPlayerResolver {
         const imported: number[] = [];
 
         for (const player of parsed) {
-            const sg = await this.sprocketSkillGroupRepository.get({
+            const sg = await this.sprocketSkillGroupRepository.findOneOrFail({
                 where: {ordinal: LeagueOrdinals.indexOf(player.skillGroup) + 1},
             });
             const accs = player.accounts.map(acc => {

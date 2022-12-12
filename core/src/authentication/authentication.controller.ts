@@ -3,9 +3,9 @@ import {JwtService} from "@nestjs/jwt";
 import {config} from "@sprocketbot/common";
 import {Request as Req, Response as Res} from "express";
 
-import {UserAuthenticationAccountRepository, UserRepository} from "$repositories";
-import {UserAuthenticationAccountType} from "$types";
-
+import {UserRepository} from "../identity/database/user.repository";
+import {UserAuthenticationAccountRepository} from "../identity/database/user-authentication-account.repository";
+import {UserAuthenticationAccountType} from "../identity/database/user-authentication-account-type.enum";
 import {AuthenticationService} from "./authentication.service";
 import {DiscordProfileSchema} from "./strategies/discord/discord.types";
 import {DiscordAuthGuard} from "./strategies/discord/guards/discord.guard";
@@ -40,7 +40,7 @@ export class AuthenticationController {
                 const data = JwtAuthPayloadSchema.safeParse(payload);
                 if (!data.success) throw new HttpException("Could not validate user", 400);
 
-                const user = await this.userRepository.getById(data.data.userId);
+                const user = await this.userRepository.findById(data.data.userId);
                 const acc = await this.userAuthenticationAccountRepository.getAuthAccount(
                     UserAuthenticationAccountType.GOOGLE,
                     googleProfile.data.id,
@@ -87,7 +87,7 @@ export class AuthenticationController {
                 const data = JwtAuthPayloadSchema.safeParse(payload);
                 if (!data.success) throw new HttpException("Could not validate user", 400);
 
-                const user = await this.userRepository.getById(data.data.userId);
+                const user = await this.userRepository.findById(data.data.userId);
                 const acc = await this.userAuthenticationAccountRepository.getAuthAccount(
                     UserAuthenticationAccountType.EPIC,
                     epicProfile.data.sub,
@@ -134,7 +134,7 @@ export class AuthenticationController {
                 const data = JwtAuthPayloadSchema.safeParse(payload);
                 if (!data.success) throw new HttpException("Could not validate user", 400);
 
-                const user = await this.userRepository.getById(data.data.userId);
+                const user = await this.userRepository.findById(data.data.userId);
                 const acc = await this.userAuthenticationAccountRepository.getAuthAccount(
                     UserAuthenticationAccountType.DISCORD,
                     discordProfile.data.id,

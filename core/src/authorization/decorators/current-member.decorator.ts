@@ -3,7 +3,7 @@ import {createParamDecorator, Logger} from "@nestjs/common";
 import {GqlExecutionContext} from "@nestjs/graphql";
 import {GraphQLError} from "graphql";
 
-import type {Member} from "$models";
+import type {Member} from "../../organization/database/member.entity";
 
 const logger = new Logger("CurrentMemberDecorator");
 
