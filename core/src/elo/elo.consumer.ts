@@ -3,11 +3,11 @@ import {Logger} from "@nestjs/common";
 import {Job, Queue} from "bull";
 import {previousMonday} from "date-fns";
 
-import {GameRepository, OrganizationRepository} from "$repositories";
-import {FeatureCode} from "$types";
-
-import {PlayerService} from "../franchise";
-import {GameFeatureService} from "../internal/game";
+import {PlayerService} from "../franchise/player.service";
+import {FeatureCode} from "../game/database/feature-code.enum";
+import {GameRepository} from "../game/database/game.repository";
+import {GameFeatureService} from "../game/game-feature.service";
+import {OrganizationRepository} from "../organization/database/organization.repository";
 import {EloConnectorService, EloEndpoint} from "./elo-connector";
 
 export const WEEKLY_SALARIES_JOB_NAME = "weeklySalaries";

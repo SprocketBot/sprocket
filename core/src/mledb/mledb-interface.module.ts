@@ -3,10 +3,10 @@ import {MatchmakingModule} from "@sprocketbot/common";
 
 import {DatabaseModule} from "../database";
 import {EloConnectorModule} from "../elo/elo-connector";
-import {FranchiseModule} from "../internal/franchise";
-import {GameModule} from "../internal/game";
-import {SchedulingModule} from "../internal/scheduling/scheduling.module";
-import {SprocketRatingModule} from "../internal/sprocket-rating";
+import {FranchiseModule} from "../franchise/franchise.module";
+import {GameModule} from "../game/game.module";
+import {SchedulingModule} from "../scheduling/scheduling.module";
+import {SprocketRatingModule} from "../scheduling/sprocket-rating";
 import {UtilModule} from "../util/util.module";
 import {MledbMatchController} from "./mledb-match/mledb-match.controller";
 import {MledbMatchService} from "./mledb-match/mledb-match.service";

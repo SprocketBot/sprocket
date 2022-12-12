@@ -2,10 +2,9 @@ import type {CanActivate, ExecutionContext} from "@nestjs/common";
 import {Injectable} from "@nestjs/common";
 import {GqlExecutionContext} from "@nestjs/graphql";
 
-import {MemberRepository} from "$repositories";
-
-import type {JwtAuthPayload} from "../../../authentication/types";
-import {JwtAuthPayloadSchema} from "../../../authentication/types";
+import type {JwtAuthPayload} from "../../authentication/types";
+import { JwtAuthPayloadSchema} from "../../authentication/types";
+import {MemberRepository} from "../../organization/database/member.repository";
 
 @Injectable()
 export class MemberGuard implements CanActivate {
@@ -18,7 +17,7 @@ export class MemberGuard implements CanActivate {
         const data = JwtAuthPayloadSchema.safeParse(ctx.req.user);
         if (!data.success || !data.data.currentOrganizationId) return false;
 
-        const member = await this.memberRepository.getOrNull({
+        const member = await this.memberRepository.findOne({
             where: {userId: data.data.userId, organizationId: data.data.currentOrganizationId},
         });
         if (!member) return false;
@@ -42,7 +41,7 @@ export abstract class AbstractMemberGuard implements CanActivate {
         const {organizationId} = await this.getOrganization(ctx, data.data);
         if (data.data.currentOrganizationId !== organizationId) return false;
 
-        const member = await this.memberRepository.getOrNull({
+        const member = await this.memberRepository.findOne({
             where: {userId: data.data.userId, organizationId: organizationId},
         });
         if (!member) return false;

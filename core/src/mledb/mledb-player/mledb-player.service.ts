@@ -3,21 +3,26 @@ import {InjectRepository} from "@nestjs/typeorm";
 import type {QueryRunner} from "typeorm";
 import {DataSource, Repository} from "typeorm";
 
-import {PlayerToPlayer} from "$bridge/player_to_player.model";
-import {PlayerToUser} from "$bridge/player_to_user.model";
-import type {ModePreference, Timezone} from "$mledb";
-import {League, LeagueOrdinals, MLE_Player, MLE_PlayerAccount, MLE_Team, MLE_TeamToCaptain, Role} from "$mledb";
+import type {ModePreference, Timezone} from "../../database/mledb";
 import {
-    GameSkillGroupRepository,
-    MemberProfiledRepository,
-    OrganizationRepository,
-    PlayerRepository,
-    UserAuthenticationAccountRepository,
-    UserProfiledRepository,
-} from "$repositories";
-import {UserAuthenticationAccountType} from "$types";
-
+    League,
+    LeagueOrdinals,
+    MLE_Player,
+    MLE_PlayerAccount,
+    MLE_Team,
+    MLE_TeamToCaptain,
+    Role,
+} from "../../database/mledb";
+import {PlayerToPlayer} from "../../database/mledb-bridge/player_to_player.model";
+import {PlayerToUser} from "../../database/mledb-bridge/player_to_user.model";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
+import {GameSkillGroupRepository} from "../../franchise/database/game-skill-group.repository";
+import {PlayerRepository} from "../../franchise/database/player.repository";
+import {UserProfiledRepository} from "../../identity/database/user.repository";
+import {UserAuthenticationAccountRepository} from "../../identity/database/user-authentication-account.repository";
+import {UserAuthenticationAccountType} from "../../identity/database/user-authentication-account-type.enum";
+import {MemberProfiledRepository} from "../../organization/database/member.repository";
+import {OrganizationRepository} from "../../organization/database/organization.repository";
 import type {IntakePlayerAccount} from "./mledb-player.resolver";
 
 @Injectable()
@@ -89,7 +94,7 @@ export class MledbPlayerService {
     }
 
     async getLeagueFromSkillGroupId(skillGroupId: number): Promise<League> {
-        const skillGroup = await this.sprocketSkillGroupRepository.getById(skillGroupId, {relations: {profile: true}});
+        const skillGroup = await this.sprocketSkillGroupRepository.findById(skillGroupId, {relations: {profile: true}});
 
         if (skillGroup.profile.code === "FL") return League.FOUNDATION;
         if (skillGroup.profile.code === "AL") return League.ACADEMY;
@@ -280,7 +285,7 @@ export class MledbPlayerService {
         modePreference: ModePreference,
     ): Promise<MLE_Player> {
         const mleOrg = await this.sprocketOrganizationRepository.getByName("Minor League Esports");
-        const skillGroup = await this.sprocketSkillGroupRepository.getById(skillGroupId);
+        const skillGroup = await this.sprocketSkillGroupRepository.findById(skillGroupId);
 
         const runner = this.dataSource.createQueryRunner();
         await runner.connect();

@@ -1,4 +1,4 @@
-import type {Member} from "$models";
+import type {Member} from "../organization/database/member.entity";
 
 function codeToPermission(code: string): {action: {code: string}} {
     return {action: {code}};

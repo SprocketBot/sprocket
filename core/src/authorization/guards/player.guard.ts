@@ -33,6 +33,11 @@ export abstract class AbstractPlayerGuard implements CanActivate {
     abstract getGame(ctx: GqlExecutionContext, userPayload: JwtAuthPayload): Promise<{gameId: number}>;
 }
 
+export interface AbstractMemberPlayerGuardGetOptions {
+    gameId: number;
+    organizationId: number;
+}
+
 @Injectable()
 export abstract class AbstractMemberPlayerGuard implements CanActivate {
     abstract playerRepository: PlayerRepository;
@@ -65,5 +70,5 @@ export abstract class AbstractMemberPlayerGuard implements CanActivate {
     abstract getGameAndOrganization(
         ctx: GqlExecutionContext,
         userPayload: JwtAuthPayload,
-    ): Promise<{gameId: number; organizationId: number} | undefined>;
+    ): Promise<AbstractMemberPlayerGuardGetOptions | undefined>;
 }
