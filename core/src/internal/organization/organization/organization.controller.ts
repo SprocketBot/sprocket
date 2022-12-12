@@ -12,7 +12,7 @@ import type {OrganizationProfile} from "$models";
 import {OrganizationProfileRepository} from "$repositories";
 import {OrganizationConfigurationKeyCode} from "$types";
 
-import {OrganizationConfigurationService} from "../../configuration/organization-configuration/organization-configuration.service";
+import {OrganizationConfigurationService} from "../../../configuration/organization-configuration.service";
 
 @Controller("organization")
 export class OrganizationController {

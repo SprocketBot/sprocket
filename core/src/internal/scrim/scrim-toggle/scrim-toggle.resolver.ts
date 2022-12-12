@@ -4,8 +4,8 @@ import {PubSub} from "apollo-server-express";
 
 import {MLE_OrganizationTeam} from "$mledb";
 
-import {GraphQLJwtAuthGuard} from "../../authentication/guards";
-import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
+import {GraphQLJwtAuthGuard} from "../../../authentication/guards";
+import {MLEOrganizationTeamGuard} from "../../../mledb/mledb-player/mle-organization-team.guard";
 import {ScrimPubSub} from "../constants";
 import {ScrimToggleService} from "./scrim-toggle.service";
 

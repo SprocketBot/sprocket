@@ -8,9 +8,9 @@ import {MemberRestriction} from "$models";
 import {MemberRestrictionRepository} from "$repositories";
 import {MemberRestrictionType} from "$types";
 
+import {GraphQLJwtAuthGuard} from "../../../authentication/guards";
+import {MLEOrganizationTeamGuard} from "../../../mledb/mledb-player/mle-organization-team.guard";
 import {PopulateService} from "../../../util/populate/populate.service";
-import {GraphQLJwtAuthGuard} from "../../authentication/guards";
-import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {MemberPubSub} from "../constants";
 import {MemberService} from "../member/member.service";
 import {MemberRestrictionEvent} from "./member-restriction.types";

@@ -5,9 +5,9 @@ import {GraphQLError} from "graphql";
 import {ScheduleGroupType} from "$models";
 import {ScheduleGroupTypeRepository} from "$repositories";
 
-import {AuthenticatedUser} from "../../authentication/decorators";
-import {GraphQLJwtAuthGuard} from "../../authentication/guards";
-import {JwtAuthPayload} from "../../authentication/types";
+import {AuthenticatedUser} from "../../../authentication/decorators";
+import {GraphQLJwtAuthGuard} from "../../../authentication/guards";
+import {JwtAuthPayload} from "../../../authentication/types";
 
 @Resolver(() => ScheduleGroupType)
 @UseGuards(GraphQLJwtAuthGuard)

@@ -9,8 +9,8 @@ import {InvalidationRepository, MatchRepository, RoundRepository, TeamRepository
 import {PlayerStatLineStatsSchema} from "$types";
 import {PopulateService} from "$util";
 
-import type {CalculateEloForMatchInput, MatchSummary, PlayerSummary} from "../../elo/elo-connector";
-import {EloConnectorService, EloEndpoint, GameMode, TeamColor} from "../../elo/elo-connector";
+import type {CalculateEloForMatchInput, MatchSummary, PlayerSummary} from "../../../elo/elo-connector";
+import {EloConnectorService, EloEndpoint, GameMode, TeamColor} from "../../../elo/elo-connector";
 
 export type MatchParentResponse =
     | {

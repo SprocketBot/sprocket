@@ -10,7 +10,7 @@ import {
 } from "@sprocketbot/common";
 import {v4 as uuidv4} from "uuid";
 
-import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
+import {EloConnectorService, EloEndpoint} from "../../../elo/elo-connector";
 import {MatchService} from "../../scheduling";
 import {ScrimService} from "../../scrim";
 import {ReplayParseService} from "../replay-parse.service";

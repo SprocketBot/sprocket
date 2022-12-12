@@ -7,10 +7,10 @@ import {GraphQLUpload} from "graphql-upload";
 
 import {MLE_OrganizationTeam} from "$mledb";
 
-import {AuthenticatedUser} from "../authentication/decorators";
-import {GraphQLJwtAuthGuard} from "../authentication/guards";
-import {JwtAuthPayload} from "../authentication/types";
-import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
+import {AuthenticatedUser} from "../../authentication/decorators";
+import {GraphQLJwtAuthGuard} from "../../authentication/guards";
+import {JwtAuthPayload} from "../../authentication/types";
+import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {ScrimService} from "../scrim";
 import {FinalizationSubscriber} from "./finalization";
 import {ReplayParsePubSub} from "./replay-parse.constants";

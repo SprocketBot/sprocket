@@ -6,9 +6,9 @@ import {Member, Organization, OrganizationProfile} from "$models";
 import {MemberProfileRepository, OrganizationProfiledRepository, OrganizationRepository} from "$repositories";
 import {SimilarityOptions} from "$types";
 
+import {GraphQLJwtAuthGuard} from "../../../authentication/guards";
+import {MLEOrganizationTeamGuard} from "../../../mledb/mledb-player/mle-organization-team.guard";
 import {PopulateService} from "../../../util/populate/populate.service";
-import {GraphQLJwtAuthGuard} from "../../authentication/guards";
-import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {OrganizationProfileInput} from "./inputs";
 
 @Resolver(() => Organization)

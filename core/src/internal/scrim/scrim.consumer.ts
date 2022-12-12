@@ -10,7 +10,7 @@ import type {MemberRestriction} from "$models";
 import {MemberRepository, MemberRestrictionRepository} from "$repositories";
 import {MemberRestrictionType, OrganizationConfigurationKeyCode} from "$types";
 
-import {OrganizationConfigurationService} from "../configuration/organization-configuration/organization-configuration.service";
+import {OrganizationConfigurationService} from "../../configuration/organization-configuration.service";
 import {ScrimService} from "./scrim.service";
 
 @Processor("scrim")
