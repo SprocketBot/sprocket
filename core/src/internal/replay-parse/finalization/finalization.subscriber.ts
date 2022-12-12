@@ -11,7 +11,7 @@ import {
     SubmissionService,
 } from "@sprocketbot/common";
 
-import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
+import {EloConnectorService, EloEndpoint} from "../../../elo/elo-connector";
 import {MatchService} from "../../scheduling";
 import {ScrimService} from "../../scrim";
 import {ReplayParseService} from "../replay-parse.service";

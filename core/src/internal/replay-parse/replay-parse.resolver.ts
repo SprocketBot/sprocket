@@ -4,9 +4,9 @@ import {REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID} from "@sprocketbot/common"
 
 import {UserProfileRepository} from "$repositories";
 
-import {AuthenticatedUser} from "../authentication/decorators";
-import {GraphQLJwtAuthGuard} from "../authentication/guards";
-import {JwtAuthPayload} from "../authentication/types";
+import {AuthenticatedUser} from "../../authentication/decorators";
+import {GraphQLJwtAuthGuard} from "../../authentication/guards";
+import {JwtAuthPayload} from "../../authentication/types";
 import {GqlReplaySubmission, ReplaySubmission, SubmissionRejection} from "./types";
 
 @Resolver(() => GqlReplaySubmission)

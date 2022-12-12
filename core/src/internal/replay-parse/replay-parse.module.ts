@@ -12,12 +12,12 @@ import {
 import {PubSub} from "apollo-server-express";
 
 import {DatabaseModule} from "../../database";
+import {EloModule} from "../../elo/elo.module";
+import {EloConnectorModule} from "../../elo/elo-connector";
+import {MledbInterfaceModule} from "../../mledb";
 import {UtilModule} from "../../util/util.module";
-import {EloModule} from "../elo/elo.module";
-import {EloConnectorModule} from "../elo/elo-connector";
 import {FranchiseModule} from "../franchise";
 import {IdentityModule} from "../identity";
-import {MledbInterfaceModule} from "../mledb";
 import {SchedulingModule} from "../scheduling";
 import {ScrimModule} from "../scrim";
 import {SprocketRatingModule} from "../sprocket-rating/sprocket-rating.module";

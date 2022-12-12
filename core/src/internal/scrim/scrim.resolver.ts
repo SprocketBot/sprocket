@@ -6,11 +6,11 @@ import {MLE_OrganizationTeam} from "$mledb";
 import {GameMode, GameSkillGroup} from "$models";
 import {GameModeRepository, GameSkillGroupRepository} from "$repositories";
 
+import {AuthenticatedUser} from "../../authentication/decorators";
+import {GraphQLJwtAuthGuard} from "../../authentication/guards";
+import {JwtAuthPayload} from "../../authentication/types";
+import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {OrGuard} from "../../util/or.guard";
-import {AuthenticatedUser} from "../authentication/decorators";
-import {GraphQLJwtAuthGuard} from "../authentication/guards";
-import {JwtAuthPayload} from "../authentication/types";
-import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
 import {ScrimResolverPlayerGuard} from "./scrim.guard";
 import type {ScrimGroup} from "./types";
 import {Scrim, ScrimLobby, ScrimPlayer} from "./types";

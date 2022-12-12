@@ -5,7 +5,7 @@ import {GraphQLError} from "graphql";
 
 import {GameModeRepository, PlayerRepository} from "$repositories";
 
-import type {JwtAuthPayload} from "../authentication/types";
+import type {JwtAuthPayload} from "../../authentication/types";
 import {AbstractMemberPlayerGuard} from "../authorization/guards";
 import {PlayerGuard} from "../franchise";
 import type {GameAndOrganization} from "../franchise/player/player.types";

@@ -4,12 +4,12 @@ import {EventsModule, MatchmakingModule, RedisModule} from "@sprocketbot/common"
 import {PubSub} from "apollo-server-express";
 
 import {DatabaseModule} from "../../database";
+import {EloConnectorModule} from "../../elo/elo-connector";
+import {MledbInterfaceModule} from "../../mledb";
 import {UtilModule} from "../../util/util.module";
 import {ConfigurationModule} from "../configuration";
-import {EloConnectorModule} from "../elo/elo-connector";
 import {FranchiseModule} from "../franchise";
 import {GameModule} from "../game";
-import {MledbInterfaceModule} from "../mledb";
 import {OrganizationModule} from "../organization";
 import {ScrimPubSub} from "./constants";
 import {ScrimMetricsResolver} from "./metrics";

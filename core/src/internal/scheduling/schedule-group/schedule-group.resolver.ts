@@ -7,9 +7,9 @@ import {ScheduleGroup} from "$models";
 import {ScheduleGroupRepository} from "$repositories";
 import {PopulateService} from "$util";
 
-import {AuthenticatedUser} from "../../authentication/decorators";
-import {GraphQLJwtAuthGuard} from "../../authentication/guards";
-import {JwtAuthPayload} from "../../authentication/types";
+import {AuthenticatedUser} from "../../../authentication/decorators";
+import {GraphQLJwtAuthGuard} from "../../../authentication/guards";
+import {JwtAuthPayload} from "../../../authentication/types";
 
 @Resolver(() => ScheduleGroup)
 export class ScheduleGroupResolver {

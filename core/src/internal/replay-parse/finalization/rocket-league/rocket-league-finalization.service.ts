@@ -9,7 +9,7 @@ import type {Player, Team} from "$models";
 import {EligibilityData, GameMode, Match, MatchParent, PlayerStatLine, Round, ScrimMeta, TeamStatLine} from "$models";
 import {MatchRepository, PlayerRepository, TeamRepository} from "$repositories";
 
-import {MledbFinalizationService, MledbPlayerService} from "../../../mledb";
+import {MledbFinalizationService, MledbPlayerService} from "../../../../mledb";
 import {MatchService} from "../../../scheduling";
 import {SprocketRatingService} from "../../../sprocket-rating/sprocket-rating.service";
 import type {SprocketRating, SprocketRatingInput} from "../../../sprocket-rating/sprocket-rating.types";

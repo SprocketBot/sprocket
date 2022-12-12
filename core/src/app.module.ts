@@ -6,7 +6,17 @@ import {config} from "@sprocketbot/common";
 import {RedisCache} from "apollo-server-cache-redis";
 import {graphqlUploadExpress} from "graphql-upload";
 
-import {InternalModule} from "./internal/internal.module";
+import {AuthenticationModule} from "./authentication/authentication.module";
+import {AuthorizationModule} from "./authorization/authorization.module";
+import {ConfigurationModule} from "./configuration/configuration.module";
+import {DraftModule} from "./draft/draft.module";
+import {FranchiseModule} from "./franchise/franchise.module";
+import {GameModule} from "./game/game.module";
+import {IdentityModule} from "./identity/identity.module";
+import {ImageGenerationModule} from "./image-generation/image-generation.module";
+import {OrganizationModule} from "./organization/organization.module";
+import {SchedulingModule} from "./scheduling/scheduling.module";
+import {WebhookModule} from "./webhook/webhook.module";
 
 @Module({
     imports: [
@@ -61,7 +71,17 @@ import {InternalModule} from "./internal/internal.module";
             },
             prefix: `${config.redis.prefix}:bull`,
         }),
-        InternalModule,
+        AuthorizationModule,
+        AuthenticationModule,
+        ConfigurationModule,
+        DraftModule,
+        FranchiseModule,
+        GameModule,
+        IdentityModule,
+        ImageGenerationModule,
+        OrganizationModule,
+        SchedulingModule,
+        WebhookModule,
     ],
 })
 export class AppModule implements NestModule {

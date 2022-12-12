@@ -6,7 +6,7 @@ import {GraphQLError} from "graphql";
 import {MemberRepository, MemberRestrictionRepository} from "$repositories";
 import {MemberRestrictionType} from "$types";
 
-import type {JwtAuthPayload} from "../../authentication/types";
+import type {JwtAuthPayload} from "../../../authentication/types";
 
 @Injectable()
 export abstract class MemberRestrictionGuard implements CanActivate {
