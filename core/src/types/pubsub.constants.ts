@@ -1,4 +1,4 @@
-export const enum PubSubKey {
+export enum PubSubKey {
     Scrims = "Scrims",
     ReplayParsing = "ReplayParsing",
 }

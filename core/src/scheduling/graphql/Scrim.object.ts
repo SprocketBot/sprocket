@@ -1,13 +1,15 @@
-import {Field, Int, ObjectType} from "@nestjs/graphql";
+import {Field, Int, ObjectType, registerEnumType} from "@nestjs/graphql";
 import type {Scrim as IScrim} from "@sprocketbot/common";
 import {EventTopic, ScrimStatus} from "@sprocketbot/common";
 
-import {GameSkillGroup} from "../../franchise/database/game-skill-group.entity";
-import {GameMode} from "../../game/database/game-mode.entity";
+import {GameSkillGroupObject} from "../../franchise/graphql/game-skill-group.object";
+import {GameModeObject} from "../../game/graphql/game-mode.object";
 import {ScrimGame} from "./ScrimGame.object";
 import {ScrimLobby} from "./ScrimLobby.object";
 import {ScrimPlayer} from "./ScrimPlayer.object";
 import {ScrimSettings} from "./ScrimSettings.object";
+
+registerEnumType(ScrimStatus, {name: "ScrimStatus"});
 
 @ObjectType()
 export class ScrimGameMode {
@@ -56,14 +58,14 @@ export class Scrim implements IScrim {
     @Field(() => Int)
     gameModeId: number;
 
-    @Field(() => GameMode)
-    gameMode: GameMode;
+    @Field(() => GameModeObject)
+    gameMode: GameModeObject;
 
     @Field(() => Int)
     skillGroupId: number;
 
-    @Field(() => GameSkillGroup)
-    skillGroup: GameSkillGroup;
+    @Field(() => GameSkillGroupObject)
+    skillGroup: GameSkillGroupObject;
 
     @Field(() => String, {nullable: true})
     submissionId?: string;

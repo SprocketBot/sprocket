@@ -6,15 +6,8 @@ import {GraphQLUpload} from "graphql-upload";
 import {z} from "zod";
 
 import {GraphQLJwtAuthGuard} from "../../authentication/guards";
-import {
-    League,
-    LeagueOrdinals,
-    MLE_OrganizationTeam,
-    MLE_Platform,
-    ModePreference,
-    Timezone,
-} from "../../database/mledb";
 import {GameSkillGroupRepository} from "../../franchise/database/game-skill-group.repository";
+import {League, LeagueOrdinals, MLE_OrganizationTeam, MLE_Platform, ModePreference, Timezone} from "../database";
 import {MLEOrganizationTeamGuard} from "./mle-organization-team.guard";
 import {MledbPlayerService} from "./mledb-player.service";
 

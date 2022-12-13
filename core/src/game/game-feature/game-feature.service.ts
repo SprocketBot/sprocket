@@ -1,11 +1,11 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {GraphQLError} from "graphql";
 
-import {OrganizationRepository} from "../organization/database/organization.repository";
-import type {EnabledFeature} from "./database/enabled-feature.entity";
-import {EnabledFeatureRepository} from "./database/enabled-feature.repository";
-import type {FeatureCode} from "./database/feature-code.enum";
-import {GameFeatureRepository} from "./database/game-feature.repository";
+import {OrganizationRepository} from "../../organization/database/organization.repository";
+import type {EnabledFeature} from "../database/enabled-feature.entity";
+import {EnabledFeatureRepository} from "../database/enabled-feature.repository";
+import type {FeatureCode} from "../database/feature-code.enum";
+import {GameFeatureRepository} from "../database/game-feature.repository";
 
 @Injectable()
 export class GameFeatureService {

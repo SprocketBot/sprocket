@@ -2,8 +2,8 @@ import {Controller} from "@nestjs/common";
 import {MessagePattern, Payload} from "@nestjs/microservices";
 import {CoreEndpoint, CoreSchemas} from "@sprocketbot/common";
 
-import type {SprocketConfiguration} from "./database/sprocket-configuration.entity";
-import {SprocketConfigurationRepository} from "./database/sprocket-configuration.repository";
+import type {SprocketConfiguration} from "../database/sprocket-configuration.entity";
+import {SprocketConfigurationRepository} from "../database/sprocket-configuration.repository";
 
 @Controller("sprocket-configuration")
 export class SprocketConfigurationController {

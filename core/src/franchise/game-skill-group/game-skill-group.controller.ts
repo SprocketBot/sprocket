@@ -3,8 +3,8 @@ import {MessagePattern, Payload} from "@nestjs/microservices";
 import type {CoreOutput} from "@sprocketbot/common";
 import {CoreEndpoint, CoreSchemas} from "@sprocketbot/common";
 
-import type {GameSkillGroupProfile} from "./database/game-skill-group-profile.entity";
-import {GameSkillGroupProfileRepository} from "./database/game-skill-group-profile.repository";
+import type {GameSkillGroupProfile} from "../database/game-skill-group-profile.entity";
+import {GameSkillGroupProfileRepository} from "../database/game-skill-group-profile.repository";
 import {GameSkillGroupService} from "./game-skill-group.service";
 
 @Controller("game-skill-group")

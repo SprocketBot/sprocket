@@ -5,20 +5,20 @@ import {DataSource, IsNull, Not} from "typeorm";
 
 import {PopulateService} from "$util";
 
-import type {CalculateEloForMatchInput, MatchSummary, PlayerSummary} from "../elo/elo-connector";
-import {EloConnectorService, EloEndpoint, GameMode, TeamColor} from "../elo/elo-connector";
-import {Franchise} from "../franchise/database/franchise.entity";
-import type {Team} from "../franchise/database/team.entity";
-import {TeamRepository} from "../franchise/database/team.repository";
-import type {Invalidation} from "./database/invalidation.entity";
-import {InvalidationRepository} from "./database/invalidation.repository";
-import {MatchRepository} from "./database/match.repository";
-import type {Round} from "./database/round.entity";
-import {RoundRepository} from "./database/round.repository";
-import {ScheduleFixture} from "./database/schedule-fixture.entity";
-import type {ScheduledEvent} from "./database/scheduled-event.entity";
-import type {ScrimMeta} from "./database/scrim-meta.entity";
-import {PlayerStatLineStatsSchema} from "./schemas/player-stat-line.schema";
+import type {CalculateEloForMatchInput, MatchSummary, PlayerSummary} from "../../elo/elo-connector";
+import {EloConnectorService, EloEndpoint, GameMode, TeamColor} from "../../elo/elo-connector";
+import {Franchise} from "../../franchise/database/franchise.entity";
+import type {Team} from "../../franchise/database/team.entity";
+import {TeamRepository} from "../../franchise/database/team.repository";
+import type {Invalidation} from "../database/invalidation.entity";
+import {InvalidationRepository} from "../database/invalidation.repository";
+import {MatchRepository} from "../database/match.repository";
+import type {Round} from "../database/round.entity";
+import {RoundRepository} from "../database/round.repository";
+import {ScheduleFixture} from "../database/schedule-fixture.entity";
+import type {ScheduledEvent} from "../database/scheduled-event.entity";
+import type {ScrimMeta} from "../database/scrim-meta.entity";
+import {PlayerStatLineStatsSchema} from "../schemas/player-stat-line.schema";
 
 export type MatchParentResponse =
     | {

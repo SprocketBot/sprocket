@@ -3,7 +3,7 @@ import {MessagePattern, Payload} from "@nestjs/microservices";
 import type {CoreOutput} from "@sprocketbot/common";
 import {CoreEndpoint, CoreSchemas} from "@sprocketbot/common";
 
-import {MatchRepository} from "./database/match.repository";
+import {MatchRepository} from "../database/match.repository";
 import {MatchService} from "./match.service";
 
 @Controller("match")

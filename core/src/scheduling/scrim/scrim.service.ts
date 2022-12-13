@@ -21,7 +21,7 @@ import {IsNull, Not} from "typeorm";
 
 import {FranchiseProfiledRepository} from "../../franchise/database/franchise.repository";
 import {GameSkillGroupProfiledRepository} from "../../franchise/database/game-skill-group.repository";
-import {FranchiseService} from "../../franchise/franchise.service";
+import {FranchiseService} from "../../franchise/franchise/franchise.service";
 import {PubSubKey} from "../../types/pubsub.constants";
 import {PlayerStatLineRepository} from "../database/player-stat-line.repository";
 import type {Scrim} from "../graphql/Scrim.object";

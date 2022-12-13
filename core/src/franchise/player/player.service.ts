@@ -14,15 +14,15 @@ import {
 } from "@sprocketbot/common";
 import type {FindOptionsRelations} from "typeorm";
 
-import type {SalaryPayloadItem} from "../elo/elo-connector";
-import {DegreeOfStiffness, SkillGroupDelta} from "../elo/elo-connector";
-import {PlatformRepository} from "../game/database/platform.repository";
-import {UserAuthenticationAccountRepository} from "../identity/database/user-authentication-account.repository";
-import {MledbPlayerService} from "../mledb/mledb-player/mledb-player.service";
-import {GameSkillGroupRepository} from "./database/game-skill-group.repository";
-import type {Player} from "./database/player.entity";
-import {PlayerRepository} from "./database/player.repository";
-import type {RankdownJwtPayload} from "./schemas/RankdownJwt.schema";
+import type {SalaryPayloadItem} from "../../elo/elo-connector";
+import {DegreeOfStiffness, SkillGroupDelta} from "../../elo/elo-connector";
+import {PlatformRepository} from "../../game/database/platform.repository";
+import {UserAuthenticationAccountRepository} from "../../identity/database/user-authentication-account.repository";
+import {MledbPlayerService} from "../../mledb/mledb-player/mledb-player.service";
+import {GameSkillGroupRepository} from "../database/game-skill-group.repository";
+import type {Player} from "../database/player.entity";
+import {PlayerRepository} from "../database/player.repository";
+import type {RankdownJwtPayload} from "../schemas/RankdownJwt.schema";
 
 @Injectable()
 export class PlayerService {

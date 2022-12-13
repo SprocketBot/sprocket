@@ -11,7 +11,7 @@ import {
 import {v4 as uuidv4} from "uuid";
 
 import {EloConnectorService, EloEndpoint} from "../../../elo/elo-connector";
-import {MatchService} from "../../match.service";
+import {MatchService} from "../../match/match.service";
 import {ScrimService} from "../../scrim/scrim.service";
 import {ReplayParseService} from "../replay-parse.service";
 import type {MatchReplaySubmission, ScrimReplaySubmission} from "../types";

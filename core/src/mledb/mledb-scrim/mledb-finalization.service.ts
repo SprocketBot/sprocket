@@ -1,4 +1,4 @@
-import {Injectable} from "@nestjs/common";
+import {forwardRef, Inject, Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {
     BallchasingPlayer,
@@ -10,7 +10,15 @@ import type {
 import type {EntityManager} from "typeorm";
 import {Repository} from "typeorm";
 
-import type {League, MLE_Platform} from "../../database/mledb";
+import type {GameSkillGroup} from "../../franchise/database/game-skill-group.entity";
+import {GameSkillGroupRepository} from "../../franchise/database/game-skill-group.repository";
+import type {GameMode} from "../../game/database/game-mode.entity";
+import {GameModeRepository} from "../../game/database/game-mode.repository";
+import {UserAuthenticationAccountRepository} from "../../identity/database/user-authentication-account.repository";
+import {Match} from "../../scheduling/database/match.entity";
+import type {MatchReplaySubmission, ScrimReplaySubmission} from "../../scheduling/replay-parse";
+import {SprocketRatingService} from "../../scheduling/sprocket-rating/sprocket-rating.service";
+import type {League, MLE_Platform} from "../database";
 import {
     LegacyGameMode,
     MLE_EligibilityData,
@@ -24,15 +32,7 @@ import {
     MLE_TeamCoreStats,
     MLE_TeamRoleUsage,
     RocketLeagueMap,
-} from "../../database/mledb";
-import type {GameSkillGroup} from "../../franchise/database/game-skill-group.entity";
-import {GameSkillGroupRepository} from "../../franchise/database/game-skill-group.repository";
-import type {GameMode} from "../../game/database/game-mode.entity";
-import {GameModeRepository} from "../../game/database/game-mode.repository";
-import {UserAuthenticationAccountRepository} from "../../identity/database/user-authentication-account.repository";
-import {Match} from "../../scheduling/database/match.entity";
-import type {MatchReplaySubmission, ScrimReplaySubmission} from "../../scheduling/replay-parse";
-import {SprocketRatingService} from "../../scheduling/sprocket-rating/sprocket-rating.service";
+} from "../database";
 import {MledbMatchService} from "../mledb-match/mledb-match.service";
 import {assignPlayerStats} from "./assign-player-stats";
 import {ballchasingMapLookup} from "./ballchasing-maps";
@@ -49,7 +49,7 @@ export class MledbFinalizationService {
         private readonly skillGroupRepository: GameSkillGroupRepository,
         private readonly gameModeRepository: GameModeRepository,
         private readonly userAuthenticationAccountRepository: UserAuthenticationAccountRepository,
-        private readonly sprocketRatingService: SprocketRatingService,
+        @Inject(forwardRef(() => SprocketRatingService)) private readonly sprocketRatingService: SprocketRatingService,
         private readonly mleMatchService: MledbMatchService,
     ) {}
 

@@ -2,8 +2,10 @@ import {BullModule} from "@nestjs/bull";
 import type {MiddlewareConsumer, NestModule} from "@nestjs/common";
 import {Module} from "@nestjs/common";
 import {GraphQLModule} from "@nestjs/graphql";
+import {TypeOrmModule} from "@nestjs/typeorm";
 import {config} from "@sprocketbot/common";
 import {RedisCache} from "apollo-server-cache-redis";
+import {readFileSync} from "fs";
 import {graphqlUploadExpress} from "graphql-upload";
 
 import {AuthenticationModule} from "./authentication/authentication.module";
@@ -20,6 +22,16 @@ import {WebhookModule} from "./webhook/webhook.module";
 
 @Module({
     imports: [
+        TypeOrmModule.forRoot({
+            type: "postgres",
+            host: config.db.host,
+            port: config.db.port,
+            username: config.db.username,
+            password: readFileSync("./secret/db-password.txt").toString().trim(),
+            database: config.db.database,
+            autoLoadEntities: true,
+            logging: config.db.enable_logs,
+        }),
         GraphQLModule.forRoot({
             autoSchemaFile: true,
             installSubscriptionHandlers: true,

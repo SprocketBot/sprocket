@@ -4,7 +4,7 @@ import {InjectDataSource} from "@nestjs/typeorm";
 import {DataSource} from "typeorm";
 
 import {GraphQLJwtAuthGuard} from "../authentication/guards";
-import {MLE_OrganizationTeam} from "../database/mledb";
+import {MLE_OrganizationTeam} from "../mledb/database";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
 import {EloConsumer} from "./elo.consumer";
 import {EloService} from "./elo.service";

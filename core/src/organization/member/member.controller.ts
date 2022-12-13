@@ -3,7 +3,7 @@ import {MessagePattern, Payload} from "@nestjs/microservices";
 import type {GetMemberResponse} from "@sprocketbot/common";
 import {CoreEndpoint, CoreSchemas} from "@sprocketbot/common";
 
-import {MemberRepository} from "./database/member.repository";
+import {MemberRepository} from "../database/member.repository";
 
 @Controller("user")
 export class MemberController {
