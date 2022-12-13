@@ -3,7 +3,7 @@ import {Injectable} from "@nestjs/common";
 import {GqlExecutionContext} from "@nestjs/graphql";
 
 import type {JwtAuthPayload} from "../../authentication/types";
-import { JwtAuthPayloadSchema} from "../../authentication/types";
+import {JwtAuthPayloadSchema} from "../../authentication/types";
 import {MemberRepository} from "../../organization/database/member.repository";
 
 @Injectable()
