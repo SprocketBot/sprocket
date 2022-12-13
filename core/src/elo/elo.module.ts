@@ -2,7 +2,6 @@ import {BullModule} from "@nestjs/bull";
 import {Module} from "@nestjs/common";
 import {EventsModule, NotificationModule, RedisModule} from "@sprocketbot/common";
 
-import {DatabaseModule} from "../database";
 import {FranchiseModule} from "../franchise/franchise.module";
 import {GameModule} from "../game/game.module";
 import {IdentityModule} from "../identity/identity.module";
@@ -17,7 +16,6 @@ import {EloConnectorModule} from "./elo-connector/elo-connector.module";
     imports: [
         BullModule.registerQueue({name: EloBullQueue}),
         BullModule.registerQueue({name: CORE_WEEKLY_SALARIES_QUEUE}),
-        DatabaseModule,
         GameModule,
         OrganizationModule,
         EloConnectorModule,
