@@ -2,17 +2,17 @@ import {Column, Entity, JoinColumn, ManyToOne, Unique} from "typeorm";
 
 import {Platform} from "../../game/database/platform.entity";
 import {BaseEntity} from "../../types/base-entity";
-import {Member} from "./member.entity";
+import {User} from "./user.entity";
 
 @Entity({schema: "sprocket"})
 @Unique(["platform", "platformAccountId"])
-export class MemberPlatformAccount extends BaseEntity {
-    @ManyToOne(() => Member)
+export class UserPlatformAccount extends BaseEntity {
+    @ManyToOne(() => User)
     @JoinColumn()
-    member: Member;
+    user: User;
 
     @Column()
-    memberId: number;
+    userId: number;
 
     @ManyToOne(() => Platform)
     @JoinColumn()

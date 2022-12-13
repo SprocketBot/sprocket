@@ -4,16 +4,12 @@ import {OrganizationStaffSeat} from "../../authorization/database/organization-s
 import {Player} from "../../franchise/database/player.entity";
 import {User} from "../../identity/database/user.entity";
 import {BaseEntity} from "../../types/base-entity";
-import {MemberPlatformAccount} from "./member-platform-account.entity";
 import {MemberProfile} from "./member-profile.entity";
 import {MemberRestriction} from "./member-restriction.entity";
 import {Organization} from "./organization.entity";
 
 @Entity({schema: "sprocket"})
 export class Member extends BaseEntity {
-    @OneToMany(() => MemberPlatformAccount, mpa => mpa.member)
-    platformAccounts: MemberPlatformAccount[];
-
     @OneToOne(() => MemberProfile, mp => mp.member)
     profile: MemberProfile;
 
