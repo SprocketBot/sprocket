@@ -65,6 +65,7 @@ export class AuthenticationController {
                 const tokens = await this.authenticationService.login(user.id);
 
                 res.redirect(`${config.auth.frontend_callback}?token=${tokens.access},${tokens.refresh}`);
+                return;
             } catch (e) {
                 this.logger.error(e);
                 throw new HttpException("Failed to login", 400);
@@ -112,6 +113,7 @@ export class AuthenticationController {
                 const tokens = await this.authenticationService.login(user.id);
 
                 res.redirect(`${config.auth.frontend_callback}?token=${tokens.access},${tokens.refresh}`);
+                return;
             } catch (e) {
                 this.logger.error(e);
                 throw new HttpException("Failed to login", 400);
@@ -159,6 +161,7 @@ export class AuthenticationController {
                 const tokens = await this.authenticationService.login(user.id);
 
                 res.redirect(`${config.auth.frontend_callback}?token=${tokens.access},${tokens.refresh}`);
+                return;
             } catch (e) {
                 this.logger.error(e);
                 throw new HttpException("Failed to login", 400);
@@ -184,12 +187,10 @@ export class AuthenticationController {
             const tokens = await this.authenticationService.login(user.id);
 
             res.redirect(`${config.auth.frontend_callback}?token=${tokens.access},${tokens.refresh}`);
+            return;
         } catch (e) {
             this.logger.error(e);
             throw new HttpException("Failed to login", 400);
         }
-
-        res.send(`Hello, ${steamProfile.data.displayName}! Thanks for signing in with Steam!`);
-        return;
     }
 }
