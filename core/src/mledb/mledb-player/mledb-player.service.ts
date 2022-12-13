@@ -3,18 +3,6 @@ import {InjectRepository} from "@nestjs/typeorm";
 import type {QueryRunner} from "typeorm";
 import {DataSource, Repository} from "typeorm";
 
-import type {ModePreference, Timezone} from "../../database/mledb";
-import {
-    League,
-    LeagueOrdinals,
-    MLE_Player,
-    MLE_PlayerAccount,
-    MLE_Team,
-    MLE_TeamToCaptain,
-    Role,
-} from "../../database/mledb";
-import {PlayerToPlayer} from "../../database/mledb-bridge/player_to_player.model";
-import {PlayerToUser} from "../../database/mledb-bridge/player_to_user.model";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
 import {GameSkillGroupRepository} from "../../franchise/database/game-skill-group.repository";
 import {PlayerRepository} from "../../franchise/database/player.repository";
@@ -23,6 +11,10 @@ import {UserAuthenticationAccountRepository} from "../../identity/database/user-
 import {UserAuthenticationAccountType} from "../../identity/database/user-authentication-account-type.enum";
 import {MemberProfiledRepository} from "../../organization/database/member.repository";
 import {OrganizationRepository} from "../../organization/database/organization.repository";
+import type {ModePreference, Timezone} from "../database";
+import {League, LeagueOrdinals, MLE_Player, MLE_PlayerAccount, MLE_Team, MLE_TeamToCaptain, Role} from "../database";
+import {PlayerToPlayer} from "../mledb-bridge/player_to_player.model";
+import {PlayerToUser} from "../mledb-bridge/player_to_user.model";
 import type {IntakePlayerAccount} from "./mledb-player.resolver";
 
 @Injectable()

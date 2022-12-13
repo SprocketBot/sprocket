@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import type {CoreEndpoint, CoreOutput} from "@sprocketbot/common";
 
-import {GameSkillGroupProfiledRepository} from "./database/game-skill-group.repository";
+import {GameSkillGroupProfiledRepository} from "../database/game-skill-group.repository";
 
 @Injectable()
 export class GameSkillGroupService {

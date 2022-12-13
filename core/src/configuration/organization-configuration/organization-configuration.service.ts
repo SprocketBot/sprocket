@@ -2,19 +2,19 @@ import {Injectable} from "@nestjs/common";
 import type {FindOneOptions, FindOptionsWhere} from "typeorm";
 import {Like} from "typeorm";
 
-import {OrganizationRepository} from "../organization/database/organization.repository";
-import type {OrganizationConfigurationAllowedValue} from "./database/organization-configuration-allowed-value.entity";
-import {OrganizationConfigurationAllowedValueRepository} from "./database/organization-configuration-allowed-value.repository";
-import type {OrganizationConfigurationKey} from "./database/organization-configuration-key.entity";
+import {OrganizationRepository} from "../../organization/database/organization.repository";
+import type {OrganizationConfigurationAllowedValue} from "../database/organization-configuration-allowed-value.entity";
+import {OrganizationConfigurationAllowedValueRepository} from "../database/organization-configuration-allowed-value.repository";
+import type {OrganizationConfigurationKey} from "../database/organization-configuration-key.entity";
 import type {
     OrganizationConfigurationKeyCode,
     OrganizationConfigurationKeyTypes,
-} from "./database/organization-configuration-key.enum";
-import {OrganizationConfigurationKeyType} from "./database/organization-configuration-key.enum";
-import {OrganizationConfigurationKeyRepository} from "./database/organization-configuration-key.repository";
-import type {OrganizationConfigurationValue} from "./database/organization-configuration-value.entity";
-import {OrganizationConfigurationValueRepository} from "./database/organization-configuration-value.repository";
-import type {OrganizationConfiguration} from "./graphql/organization-configuration.object";
+} from "../database/organization-configuration-key.enum";
+import {OrganizationConfigurationKeyType} from "../database/organization-configuration-key.enum";
+import {OrganizationConfigurationKeyRepository} from "../database/organization-configuration-key.repository";
+import type {OrganizationConfigurationValue} from "../database/organization-configuration-value.entity";
+import {OrganizationConfigurationValueRepository} from "../database/organization-configuration-value.repository";
+import type {OrganizationConfiguration} from "../graphql/organization-configuration.object";
 
 // TODO: Yeet this
 @Injectable()

@@ -1,4 +1,4 @@
-import type {MLE_Scrim, MLE_Series} from "../../../database/mledb";
+import type {MLE_Scrim, MLE_Series} from "../../../mledb/database";
 import type {Match} from "../../database/match.entity";
 import type {ScrimMeta} from "../../database/scrim-meta.entity";
 

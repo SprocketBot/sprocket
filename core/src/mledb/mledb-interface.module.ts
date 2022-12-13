@@ -1,13 +1,15 @@
 import {forwardRef, Module} from "@nestjs/common";
-import {MatchmakingModule} from "@sprocketbot/common";
 
-import {DatabaseModule} from "../database";
 import {EloConnectorModule} from "../elo/elo-connector";
-import {FranchiseModule} from "../franchise/franchise.module";
-import {GameModule} from "../game/game.module";
+import {FranchiseDatabaseModule} from "../franchise/database/franchise-database.module";
+import {GameDatabaseModule} from "../game/database/game-database.module";
+import {IdentityDatabaseModule} from "../identity/database/identity-database.module";
+import {OrganizationDatabaseModule} from "../organization/database/organization-database.module";
+import {SchedulingDatabaseModule} from "../scheduling/database/scheduling-database.module";
 import {SchedulingModule} from "../scheduling/scheduling.module";
-import {SprocketRatingModule} from "../scheduling/sprocket-rating";
-import {UtilModule} from "../util/util.module";
+import {UtilModule} from "../util";
+import {MledbModule} from "./database";
+import {MledbBridgeModule} from "./mledb-bridge/mledb_bridge.module";
 import {MledbMatchController} from "./mledb-match/mledb-match.controller";
 import {MledbMatchService} from "./mledb-match/mledb-match.service";
 import {MledbPlayerService} from "./mledb-player";
@@ -16,14 +18,16 @@ import {MledbFinalizationService} from "./mledb-scrim";
 
 @Module({
     imports: [
-        DatabaseModule,
-        GameModule,
-        MatchmakingModule,
-        SprocketRatingModule,
-        UtilModule,
+        MledbModule,
+        MledbBridgeModule,
+        IdentityDatabaseModule,
+        FranchiseDatabaseModule,
+        OrganizationDatabaseModule,
         EloConnectorModule,
+        GameDatabaseModule,
         forwardRef(() => SchedulingModule),
-        forwardRef(() => FranchiseModule),
+        SchedulingDatabaseModule,
+        UtilModule,
     ],
     providers: [MledbPlayerService, MledbFinalizationService, MledbMatchService, MledbPlayerResolver],
     exports: [MledbMatchService, MledbPlayerService, MledbFinalizationService],

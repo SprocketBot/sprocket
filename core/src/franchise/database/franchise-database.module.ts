@@ -2,7 +2,7 @@ import {Module} from "@nestjs/common";
 import {TypeOrmModule} from "@nestjs/typeorm";
 
 import {Franchise} from "./franchise.entity";
-import {FranchiseRepository} from "./franchise.repository";
+import {FranchiseProfiledRepository, FranchiseRepository} from "./franchise.repository";
 import {FranchiseGroup} from "./franchise-group.entity";
 import {FranchiseGroupRepository} from "./franchise-group.repository";
 import {FranchiseGroupAssignment} from "./franchise-group-assignment.entity";
@@ -18,7 +18,7 @@ import {FranchiseProfileRepository} from "./franchise-profile.repository";
 import {FranchiseStaffAppointment} from "./franchise-staff-appointment.entity";
 import {FranchiseStaffAppointmentRepository} from "./franchise-staff-appointment.repository";
 import {GameSkillGroup} from "./game-skill-group.entity";
-import {GameSkillGroupRepository} from "./game-skill-group.repository";
+import {GameSkillGroupProfiledRepository, GameSkillGroupRepository} from "./game-skill-group.repository";
 import {GameSkillGroupProfile} from "./game-skill-group-profile.entity";
 import {GameSkillGroupProfileRepository} from "./game-skill-group-profile.repository";
 import {Player} from "./player.entity";
@@ -61,9 +61,11 @@ const providers = [
     FranchiseGroupTypeRepository,
     FranchiseLeadershipAppointmentRepository,
     FranchiseProfileRepository,
+    FranchiseProfiledRepository,
     FranchiseStaffAppointmentRepository,
     GameSkillGroupRepository,
     GameSkillGroupProfileRepository,
+    GameSkillGroupProfiledRepository,
     PlayerRepository,
     RosterRoleRepository,
     RosterRoleUsageRepository,

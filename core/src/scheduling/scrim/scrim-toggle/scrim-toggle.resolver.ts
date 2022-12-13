@@ -3,7 +3,7 @@ import {Args, Mutation, Query, Resolver, Subscription} from "@nestjs/graphql";
 import {PubSub} from "apollo-server-express";
 
 import {GraphQLJwtAuthGuard} from "../../../authentication/guards";
-import {MLE_OrganizationTeam} from "../../../database/mledb";
+import {MLE_OrganizationTeam} from "../../../mledb/database";
 import {MLEOrganizationTeamGuard} from "../../../mledb/mledb-player/mle-organization-team.guard";
 import {PubSubKey} from "../../../types/pubsub.constants";
 import {ScrimToggleService} from "./scrim-toggle.service";

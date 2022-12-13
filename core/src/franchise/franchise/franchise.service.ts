@@ -1,7 +1,7 @@
 import {forwardRef, Inject, Injectable} from "@nestjs/common";
 import type {CoreEndpoint, CoreOutput} from "@sprocketbot/common";
 
-import {MledbPlayerService} from "../mledb";
+import {MledbPlayerService} from "../../mledb";
 
 // TODO: Remove this after release 0.3.0. Since rosters will be through Sprocket instead of MLEDB, we won't need this because repositories.
 @Injectable()

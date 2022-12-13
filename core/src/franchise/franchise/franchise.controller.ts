@@ -3,8 +3,8 @@ import {MessagePattern, Payload} from "@nestjs/microservices";
 import type {CoreOutput} from "@sprocketbot/common";
 import {CoreEndpoint, CoreSchemas} from "@sprocketbot/common";
 
-import type {FranchiseProfile} from "./database/franchise-profile.entity";
-import {FranchiseProfileRepository} from "./database/franchise-profile.repository";
+import type {FranchiseProfile} from "../database/franchise-profile.entity";
+import {FranchiseProfileRepository} from "../database/franchise-profile.repository";
 import {FranchiseService} from "./franchise.service";
 
 @Controller("franchise")

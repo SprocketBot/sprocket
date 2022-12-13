@@ -7,7 +7,7 @@ import type {FindOptionsWhere} from "typeorm";
 import {IsNull, MoreThanOrEqual} from "typeorm";
 
 import {OrganizationConfigurationKeyCode} from "../../configuration/database/organization-configuration-key.enum";
-import {OrganizationConfigurationService} from "../../configuration/organization-configuration.service";
+import {OrganizationConfigurationService} from "../../configuration/organization-configuration/organization-configuration.service";
 import {MemberRepository} from "../../organization/database/member.repository";
 import type {MemberRestriction} from "../../organization/database/member-restriction.entity";
 import {MemberRestrictionRepository} from "../../organization/database/member-restriction.repository";

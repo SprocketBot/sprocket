@@ -1,4 +1,4 @@
-import {Injectable, Logger} from "@nestjs/common";
+import {forwardRef, Inject, Injectable, Logger} from "@nestjs/common";
 import type {BallchasingPlayer, BallchasingResponse, BallchasingTeam, Scrim} from "@sprocketbot/common";
 import {BallchasingResponseSchema, Parser, ProgressStatus} from "@sprocketbot/common";
 import type {EntityManager} from "typeorm";
@@ -19,7 +19,7 @@ import {PlayerStatLine} from "../../../database/player-stat-line.entity";
 import {Round} from "../../../database/round.entity";
 import {ScrimMeta} from "../../../database/scrim-meta.entity";
 import {TeamStatLine} from "../../../database/team-stat-line.entity";
-import {MatchService} from "../../../match.service";
+import {MatchService} from "../../../match/match.service";
 import {SprocketRatingService} from "../../../sprocket-rating/sprocket-rating.service";
 import type {SprocketRating, SprocketRatingInput} from "../../../sprocket-rating/sprocket-rating.types";
 import type {MatchReplaySubmission, ReplaySubmission, ScrimReplaySubmission} from "../../types";
@@ -35,9 +35,10 @@ export class RocketLeagueFinalizationService {
         private readonly matchService: MatchService,
         private readonly matchRepository: MatchRepository,
         private readonly sprocketRatingService: SprocketRatingService,
-        private readonly mledbPlayerService: MledbPlayerService,
+        @Inject(forwardRef(() => MledbPlayerService)) private readonly mledbPlayerService: MledbPlayerService,
         private readonly teamRepository: TeamRepository,
         private readonly ballchasingConverter: BallchasingConverterService,
+        @Inject(forwardRef(() => MledbFinalizationService))
         private readonly mledbFinalizationService: MledbFinalizationService,
         private readonly playerRepository: PlayerRepository,
         private readonly dataSource: DataSource,

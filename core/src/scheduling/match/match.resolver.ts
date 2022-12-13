@@ -12,33 +12,30 @@ import {
 } from "@sprocketbot/common";
 import {DataSource, Repository} from "typeorm";
 
-import {GraphQLJwtAuthGuard} from "../authentication/guards";
-import {CurrentPlayer} from "../authorization/decorators";
-import type {League} from "../database/mledb";
-import {LegacyGameMode, MLE_OrganizationTeam, MLE_Series, MLE_SeriesReplay, MLE_Team} from "../database/mledb";
-import {SeriesToMatchParent} from "../database/mledb-bridge/series_to_match_parent.model";
-import {Franchise} from "../franchise/database/franchise.entity";
-import type {GameSkillGroup} from "../franchise/database/game-skill-group.entity";
-import {Player} from "../franchise/database/player.entity";
-import {TeamRepository} from "../franchise/database/team.repository";
-import type {GameMode} from "../game/database/game-mode.entity";
-import {MledbMatchService} from "../mledb/mledb-match/mledb-match.service";
-import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
-import {Member} from "../organization/database/member.entity";
-import {PopulateService} from "../util";
-import {Match} from "./database/match.entity";
-import {MatchRepository} from "./database/match.repository";
-import {MatchParent} from "./database/match-parent.entity";
-import type {Round} from "./database/round.entity";
-import {RoundRepository} from "./database/round.repository";
-import {ScheduleFixture} from "./database/schedule-fixture.entity";
-import {ScheduleGroup} from "./database/schedule-group.entity";
+import {GraphQLJwtAuthGuard} from "../../authentication/guards";
+import {CurrentPlayer} from "../../authorization/decorators";
+import {Franchise} from "../../franchise/database/franchise.entity";
+import {Player} from "../../franchise/database/player.entity";
+import {TeamRepository} from "../../franchise/database/team.repository";
+import type {League} from "../../mledb/database";
+import {LegacyGameMode, MLE_OrganizationTeam, MLE_Series, MLE_SeriesReplay, MLE_Team} from "../../mledb/database";
+import {SeriesToMatchParent} from "../../mledb/mledb-bridge/series_to_match_parent.model";
+import {MledbMatchService} from "../../mledb/mledb-match/mledb-match.service";
+import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
+import {Member} from "../../organization/database/member.entity";
+import {PopulateService} from "../../util";
+import {Match} from "../database/match.entity";
+import {MatchRepository} from "../database/match.repository";
+import {MatchParent} from "../database/match-parent.entity";
+import {RoundRepository} from "../database/round.repository";
+import {ScheduleFixture} from "../database/schedule-fixture.entity";
+import {ScheduleGroup} from "../database/schedule-group.entity";
 import {MatchPlayerGuard} from "./match.guard";
 import {MatchService} from "./match.service";
 
 export type MatchSubmissionStatus = "submitting" | "ratifying" | "completed";
 
-@Resolver(() => Match)
+@Resolver()
 export class MatchResolver {
     private readonly logger = new Logger(MatchResolver.name);
 
@@ -346,11 +343,6 @@ export class MatchResolver {
     }
 
     @ResolveField()
-    async skillGroup(@Root() match: Partial<Match>): Promise<GameSkillGroup> {
-        return match.skillGroup ?? this.populateService.populateOneOrFail(Match, match as Match, "skillGroup");
-    }
-
-    @ResolveField()
     async submissionStatus(@Root() root: Match): Promise<MatchSubmissionStatus> {
         const match = await this.matchRepository.findOneOrFail({
             where: {
@@ -424,20 +416,5 @@ export class MatchResolver {
         });
         if (result.status === ResponseStatus.ERROR) throw result.error;
         return result.data.canRatify;
-    }
-
-    @ResolveField()
-    async gameMode(@Root() match: Partial<Match>): Promise<GameMode | undefined> {
-        return match.gameMode ?? this.populateService.populateOne(Match, match as Match, "gameMode");
-    }
-
-    @ResolveField()
-    async rounds(@Root() match: Partial<Match>): Promise<Round[]> {
-        return match.rounds ?? this.populateService.populateMany(Match, match as Match, "rounds");
-    }
-
-    @ResolveField()
-    async matchParent(@Root() match: Partial<Match>): Promise<MatchParent> {
-        return match.matchParent ?? this.populateService.populateOneOrFail(Match, match as Match, "matchParent");
     }
 }

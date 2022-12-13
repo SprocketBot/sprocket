@@ -13,12 +13,12 @@ import {CurrentMember, CurrentPlayer} from "../../authorization/decorators";
 import {MemberGuard} from "../../authorization/guards";
 import {QueueBanGuard} from "../../authorization/guards/member-restriction.guard";
 import {OrganizationConfigurationKeyCode} from "../../configuration/database/organization-configuration-key.enum";
-import {OrganizationConfigurationService} from "../../configuration/organization-configuration.service";
-import {MLE_OrganizationTeam} from "../../database/mledb";
+import {OrganizationConfigurationService} from "../../configuration/organization-configuration/organization-configuration.service";
 import {Player} from "../../franchise/database/player.entity";
 import {PlayerRepository} from "../../franchise/database/player.repository";
-import {PlayerService} from "../../franchise/player.service";
+import {PlayerService} from "../../franchise/player/player.service";
 import {GameModeRepository} from "../../game/database/game-mode.repository";
+import {MLE_OrganizationTeam} from "../../mledb/database";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {FormerPlayerScrimGuard} from "../../mledb/mledb-player/mledb-player.guard";
 import {Member} from "../../organization/database/member.entity";
@@ -33,7 +33,7 @@ import {ScrimToggleService} from "./scrim-toggle";
 
 @Resolver()
 @UseGuards(GraphQLJwtAuthGuard)
-export class ScrimModuleResolver {
+export class ScrimResolver {
     constructor(
         @Inject(PubSubKey.Scrims) private readonly pubSub: PubSub,
         private readonly playerService: PlayerService,
@@ -231,7 +231,7 @@ export class ScrimModuleResolver {
 
     @Subscription(() => Scrim, {
         async filter(
-            this: ScrimModuleResolver,
+            this: ScrimResolver,
             payload: {followPendingScrims: Scrim},
             variables,
             context: {req: {user: JwtAuthPayload}},

@@ -8,7 +8,7 @@ import {GraphQLUpload} from "graphql-upload";
 import {AuthenticatedUser} from "../../authentication/decorators";
 import {GraphQLJwtAuthGuard} from "../../authentication/guards";
 import {JwtAuthPayload} from "../../authentication/types";
-import {MLE_OrganizationTeam} from "../../database/mledb";
+import {MLE_OrganizationTeam} from "../../mledb/database";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {PubSubKey} from "../../types/pubsub.constants";
 import {ScrimService} from "../scrim/scrim.service";

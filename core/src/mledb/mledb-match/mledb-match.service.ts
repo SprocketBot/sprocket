@@ -4,15 +4,6 @@ import type {CoreEndpoint, CoreOutput} from "@sprocketbot/common";
 import type {FindOperator, FindOptionsRelations} from "typeorm";
 import {Raw, Repository} from "typeorm";
 
-import type {League} from "../../database/mledb";
-import {
-    LegacyGameMode,
-    MLE_Fixture,
-    MLE_Series,
-    MLE_SeriesReplay,
-    MLE_Team,
-    MLE_TeamToCaptain,
-} from "../../database/mledb";
 import {Franchise} from "../../franchise/database/franchise.entity";
 import {GameSkillGroup} from "../../franchise/database/game-skill-group.entity";
 import {GameMode} from "../../game/database/game-mode.entity";
@@ -23,6 +14,8 @@ import {ScheduleFixture} from "../../scheduling/database/schedule-fixture.entity
 import {ScheduleGroup} from "../../scheduling/database/schedule-group.entity";
 import {ScheduleGroupType} from "../../scheduling/database/schedule-group-type.entity";
 import {PopulateService} from "../../util";
+import type {League} from "../database";
+import {LegacyGameMode, MLE_Fixture, MLE_Series, MLE_SeriesReplay, MLE_Team, MLE_TeamToCaptain} from "../database";
 
 @Injectable()
 export class MledbMatchService {

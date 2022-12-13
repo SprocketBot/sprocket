@@ -12,7 +12,7 @@ import {
 } from "@sprocketbot/common";
 
 import {EloConnectorService, EloEndpoint} from "../../../elo/elo-connector";
-import {MatchService} from "../../match.service";
+import {MatchService} from "../../match/match.service";
 import {ScrimService} from "../../scrim/scrim.service";
 import {ReplayParseService} from "../replay-parse.service";
 import type {MatchReplaySubmission, ScrimReplaySubmission} from "../types";

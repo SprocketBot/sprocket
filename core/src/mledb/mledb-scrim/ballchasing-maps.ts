@@ -1,4 +1,4 @@
-import {RocketLeagueMap} from "../../database/mledb";
+import {RocketLeagueMap} from "../database";
 
 export const ballchasingMapLookup: Map<string, RocketLeagueMap> = new Map([
     ["arc_p", RocketLeagueMap.STARBASE_ARC],

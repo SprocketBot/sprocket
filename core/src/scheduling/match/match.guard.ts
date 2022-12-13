@@ -1,12 +1,12 @@
 import {Injectable} from "@nestjs/common";
 import type {GraphQLExecutionContext} from "@nestjs/graphql";
 
-import type {JwtAuthPayload} from "../authentication/types";
-import type {AbstractMemberPlayerGuardGetOptions} from "../authorization/guards";
-import {AbstractMemberPlayerGuard} from "../authorization/guards";
-import {PlayerRepository} from "../franchise/database/player.repository";
-import {PopulateService} from "../util";
-import {Match} from "./database/match.entity";
+import type {JwtAuthPayload} from "../../authentication/types";
+import type {AbstractMemberPlayerGuardGetOptions} from "../../authorization/guards";
+import {AbstractMemberPlayerGuard} from "../../authorization/guards";
+import {PlayerRepository} from "../../franchise/database/player.repository";
+import {PopulateService} from "../../util";
+import {Match} from "../database/match.entity";
 
 @Injectable()
 export class MatchPlayerGuard extends AbstractMemberPlayerGuard {

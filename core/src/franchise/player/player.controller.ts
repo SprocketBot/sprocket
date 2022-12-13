@@ -11,14 +11,14 @@ import {
     NotificationService,
 } from "@sprocketbot/common";
 
-import type {ManualSkillGroupChange} from "../elo/elo-connector";
-import {EloConnectorService, EloEndpoint} from "../elo/elo-connector";
-import {UserAuthenticationAccountRepository} from "../identity/database/user-authentication-account.repository";
-import {MledbPlayerService} from "../mledb";
-import {GameSkillGroupRepository} from "./database/game-skill-group.repository";
-import {PlayerRepository} from "./database/player.repository";
+import type {ManualSkillGroupChange} from "../../elo/elo-connector";
+import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
+import {UserAuthenticationAccountRepository} from "../../identity/database/user-authentication-account.repository";
+import {MledbPlayerService} from "../../mledb";
+import {GameSkillGroupRepository} from "../database/game-skill-group.repository";
+import {PlayerRepository} from "../database/player.repository";
+import {RankdownJwtPayloadSchema} from "../schemas/RankdownJwt.schema";
 import {PlayerService} from "./player.service";
-import {RankdownJwtPayloadSchema} from "./schemas/RankdownJwt.schema";
 
 @Controller("player")
 export class PlayerController {

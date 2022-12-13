@@ -3,7 +3,8 @@ import {JwtModule} from "@nestjs/jwt";
 import {PassportModule} from "@nestjs/passport";
 import {config} from "@sprocketbot/common";
 
-import {DatabaseModule} from "../database";
+import {IdentityDatabaseModule} from "../identity/database/identity-database.module";
+import {OrganizationDatabaseModule} from "../organization/database/organization-database.module";
 import {AuthenticationController} from "./authentication.controller";
 import {AuthenticationResolver} from "./authentication.resolver";
 import {AuthenticationService} from "./authentication.service";
@@ -15,7 +16,8 @@ import {SteamStrategy} from "./strategies/steam/steam.strategy";
 
 @Module({
     imports: [
-        DatabaseModule,
+        IdentityDatabaseModule,
+        OrganizationDatabaseModule,
         PassportModule.register({session: false}),
         JwtModule.register({
             secret: config.auth.jwt.secret,

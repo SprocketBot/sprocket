@@ -19,6 +19,7 @@ import {OrganizationStaffSeat} from "./organization-staff-seat.entity";
 import {OrganizationStaffSeatRepository} from "./organization-staff-seat.repository";
 import {OrganizationStaffTeam} from "./organization-staff-team.entity";
 import {OrganizationStaffTeamRepository} from "./organization-staff-team.repository";
+import {Permission} from "./permission.entity";
 import {PermissionRepository} from "./permission.repository";
 import {PermissionBearer} from "./permission-bearer.entity";
 import {PermissionBearerRepository} from "./permission-bearer.repository";
@@ -34,7 +35,7 @@ const ormModule = TypeOrmModule.forFeature([
     OrganizationStaffSeat,
     OrganizationStaffTeam,
     PermissionBearer,
-    Permissions,
+    Permission,
 ]);
 
 const providers = [

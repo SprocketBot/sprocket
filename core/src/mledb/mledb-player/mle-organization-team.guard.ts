@@ -3,7 +3,7 @@ import {Injectable} from "@nestjs/common";
 import {GqlExecutionContext} from "@nestjs/graphql";
 
 import type {JwtAuthPayload} from "../../authentication/types";
-import type {MLE_OrganizationTeam} from "../../database/mledb";
+import type {MLE_OrganizationTeam} from "../database";
 
 // TODO: If someone logs in with something that isn't Discord, their org teams will be undefined
 // See src/identity/auth/oauth/oauth.controller.ts - Only gets set on discord authentication

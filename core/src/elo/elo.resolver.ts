@@ -3,7 +3,7 @@ import {Mutation, Resolver} from "@nestjs/graphql";
 import {DataSource} from "typeorm";
 
 import {GraphQLJwtAuthGuard} from "../authentication/guards";
-import {MLE_OrganizationTeam} from "../database/mledb";
+import {MLE_OrganizationTeam} from "../mledb/database";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
 import {EloService} from "./elo.service";
 import type {NewPlayerBySalary} from "./elo-connector";
