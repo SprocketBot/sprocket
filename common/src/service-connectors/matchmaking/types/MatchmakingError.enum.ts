@@ -10,4 +10,5 @@ export enum MatchmakingError {
     MaxGroupsCreated = "MaxGroupsCreated",
     GroupNotFound = "GroupNotFound",
     GroupFull = "GroupFull",
+    ScrimFull = "ScrimFull",
 }
