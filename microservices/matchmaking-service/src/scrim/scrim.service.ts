@@ -91,6 +91,8 @@ export class ScrimService {
         if (await this.scrimCrudService.playerInAnyScrim(userId))
             throw new RpcException(MatchmakingError.PlayerAlreadyInScrim);
 
+        const scrimNumPlayers = scrim.settings.teamSize * scrim.settings.teamCount;
+
         const player: ScrimPlayer = {
             userId: userId,
             name: playerName,
@@ -101,7 +103,9 @@ export class ScrimService {
         };
 
         await this.scrimCrudService.addPlayerToScrim(scrimId, player);
-        scrim.players.push(player);
+        if (scrim.players.length < scrimNumPlayers) {
+            scrim.players.push(player);
+        }
 
         this.analyticsService
             .send(AnalyticsEndpoint.Analytics, {
@@ -113,7 +117,7 @@ export class ScrimService {
                 this.logger.error(err);
             });
 
-        if (scrim.settings.teamSize * scrim.settings.teamCount === scrim.players.length) {
+        if (scrim.players.length === scrimNumPlayers) {
             await this.scrimLogicService.popScrim(scrim);
             return scrim;
         }
