@@ -92,11 +92,7 @@ export class ScrimService {
             throw new RpcException(MatchmakingError.PlayerAlreadyInScrim);
 
         const scrimNumPlayers = scrim.settings.teamSize * scrim.settings.teamCount;
-        if (scrim.players.length >= scrimNumPlayers) {
-            const errStr = `Cannot add player ${playerName} (user with ID: ${userId}) to scrim ${scrim.id} because it is already full!`;
-            this.logger.error(errStr);
-            throw new RpcException(MatchmakingError.ScrimFull);
-        }
+        if (scrim.players.length >= scrimNumPlayers) throw new RpcException(MatchmakingError.ScrimFull);
 
         const player: ScrimPlayer = {
             userId: userId,
