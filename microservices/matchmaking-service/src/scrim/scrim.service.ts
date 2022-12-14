@@ -103,7 +103,9 @@ export class ScrimService {
         };
 
         if (scrim.players.length >= scrimNumPlayers) {
-            const errStr = `Cannot add player ${JSON.stringify(player)} to scrim ${scrim.id} because it is already full!`;
+            const errStr = `Cannot add player ${JSON.stringify(player)} to scrim ${
+                scrim.id
+            } because it is already full!`;
             this.logger.error(errStr);
             throw Error(errStr);
         }
