@@ -92,6 +92,11 @@ export class ScrimService {
             throw new RpcException(MatchmakingError.PlayerAlreadyInScrim);
 
         const scrimNumPlayers = scrim.settings.teamSize * scrim.settings.teamCount;
+        if (scrim.players.length >= scrimNumPlayers) {
+            const errStr = `Cannot add player ${playerName} (user with ID: ${userId}) to scrim ${scrim.id} because it is already full!`;
+            this.logger.error(errStr);
+            throw new RpcException(MatchmakingError.ScrimFull);
+        }
 
         const player: ScrimPlayer = {
             userId: userId,
@@ -101,14 +106,6 @@ export class ScrimService {
             group: this.scrimGroupService.resolveGroupKey(scrim, joinGroup ?? createGroup ?? false),
             canSaveDemos: canSaveDemos,
         };
-
-        if (scrim.players.length >= scrimNumPlayers) {
-            const errStr = `Cannot add player ${JSON.stringify(player)} to scrim ${
-                scrim.id
-            } because it is already full!`;
-            this.logger.error(errStr);
-            throw Error(errStr);
-        }
 
         await this.scrimCrudService.addPlayerToScrim(scrimId, player);
         scrim.players.push(player);
