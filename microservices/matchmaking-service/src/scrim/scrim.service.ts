@@ -102,10 +102,14 @@ export class ScrimService {
             canSaveDemos: canSaveDemos,
         };
 
-        await this.scrimCrudService.addPlayerToScrim(scrimId, player);
-        if (scrim.players.length < scrimNumPlayers) {
-            scrim.players.push(player);
+        if (scrim.players.length >= scrimNumPlayers) {
+            const errStr = `Cannot add player ${JSON.stringify(player)} to scrim ${scrim.id} because it is already full!`;
+            this.logger.error(errStr);
+            throw Error(errStr);
         }
+
+        await this.scrimCrudService.addPlayerToScrim(scrimId, player);
+        scrim.players.push(player);
 
         this.analyticsService
             .send(AnalyticsEndpoint.Analytics, {
