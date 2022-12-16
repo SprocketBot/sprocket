@@ -56,7 +56,7 @@
     </Hst.Variant>
     <Hst.Variant title="Small Width">
         <div class="h-screen">
-            <Sidebar {withHeader} {fullHeight} width="sm">
+            <Sidebar {withHeader} {fullHeight} {showTooltips} width="sm">
                 <SidebarItem icon={Banknotes} label="Sidebar Item" />
                 <SidebarDivider />
                 <SidebarItem icon={Banknotes} label="With Badge">
@@ -74,7 +74,7 @@
     </Hst.Variant>
     <Hst.Variant title="Full Width">
         <div class="h-screen p-8">
-            <Sidebar {withHeader} {fullHeight} width="full">
+            <Sidebar {withHeader} {fullHeight} {showTooltips} width="full">
                 <SidebarItem icon={Banknotes} label="Sidebar Item" />
                 <SidebarDivider />
                 <SidebarItem icon={Banknotes} label="With Badge">
