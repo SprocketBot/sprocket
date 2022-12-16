@@ -21,6 +21,6 @@
         </StoryHelper>
     </Hst.Variant>
     <Hst.Variant title="Without Context">
-        <Breadcrumb/>
+        <Breadcrumb />
     </Hst.Variant>
 </Hst.Story>

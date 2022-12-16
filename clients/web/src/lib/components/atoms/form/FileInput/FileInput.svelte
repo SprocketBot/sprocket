@@ -98,7 +98,10 @@
                 <div class="status-text">{inputStatusText}</div>
             </div>
         {:else}
-            <div class="dropzone w-full h-fit flex items-center justify-center border-2 border-dashed rounded-lg transition-colors pointer-events-none" class:dropping={isDropping}>
+            <div
+                class="dropzone w-full h-fit flex items-center justify-center border-2 border-dashed rounded-lg transition-colors pointer-events-none"
+                class:dropping={isDropping}
+            >
                 <slot {isDropping} {rejectedFiles}>
                     <div class="flex flex-col justify-around">
                         {#if hasValue}

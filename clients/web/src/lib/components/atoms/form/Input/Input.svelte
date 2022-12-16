@@ -26,7 +26,14 @@
             </div>
         {/if}
 
-        <input id={labelId} type="text" bind:value aria-describedby={error ? errorId : undefined} {placeholder} {disabled} />
+        <input
+            id={labelId}
+            type="text"
+            bind:value
+            aria-describedby={error ? errorId : undefined}
+            {placeholder}
+            {disabled}
+        />
 
         {#if $$slots.addonRight}
             <div class="addon">
