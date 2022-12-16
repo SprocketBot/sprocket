@@ -91,6 +91,9 @@ export class ScrimService {
         if (await this.scrimCrudService.playerInAnyScrim(userId))
             throw new RpcException(MatchmakingError.PlayerAlreadyInScrim);
 
+        const scrimNumPlayers = scrim.settings.teamSize * scrim.settings.teamCount;
+        if (scrim.players.length >= scrimNumPlayers) throw new RpcException(MatchmakingError.ScrimFull);
+
         const player: ScrimPlayer = {
             userId: userId,
             name: playerName,
@@ -113,7 +116,7 @@ export class ScrimService {
                 this.logger.error(err);
             });
 
-        if (scrim.settings.teamSize * scrim.settings.teamCount === scrim.players.length) {
+        if (scrim.players.length === scrimNumPlayers) {
             await this.scrimLogicService.popScrim(scrim);
             return scrim;
         }
