@@ -5,6 +5,11 @@ export const tooltip = (node: HTMLElement, {content, position = "top", withArrow
     const tooltip = document.createElement("div");
     tooltip.classList.add("tooltip");
 
+    let _content = content,
+        _position = position,
+        _withArrow = withArrow,
+        _active = active;
+
     function updatePosition() {
         const bbox = node.getBoundingClientRect();
         // Position with javascript.
@@ -12,10 +17,10 @@ export const tooltip = (node: HTMLElement, {content, position = "top", withArrow
         tooltip.style.left = "";
         tooltip.style.right = "";
         tooltip.style.bottom = "";
-        if (withArrow || typeof withArrow === "undefined") tooltip.style.setProperty("--arrow", "block");
+        if (_withArrow || typeof _withArrow === "undefined") tooltip.style.setProperty("--arrow", "block");
         else tooltip.style.setProperty("--arrow", "none");
-        tooltip.classList.add(position);
-        switch (position) {
+        tooltip.classList.add(_position);
+        switch (_position) {
             case "top":
                 tooltip.style.bottom = `${bbox.top + bbox.height + 8}px`;
                 tooltip.style.left = `${bbox.left + bbox.width / 2}px`;
@@ -39,10 +44,10 @@ export const tooltip = (node: HTMLElement, {content, position = "top", withArrow
         }
     }
 
-    tooltip.textContent = content;
+    tooltip.textContent = _content;
     function renderTooltip() {
         // Render tooltip
-        if (active) {
+        if (_active) {
             updatePosition();
             document.body.appendChild(tooltip);
         }
@@ -50,7 +55,10 @@ export const tooltip = (node: HTMLElement, {content, position = "top", withArrow
 
     function removeTooltip() {
         // Remove tooltip
-        document.body.removeChild(tooltip);
+        if (document.body.contains(tooltip)) {
+            document.body.removeChild(tooltip);
+
+        }
     }
     node.addEventListener("mouseenter", renderTooltip);
     node.addEventListener("mouseleave", removeTooltip);
@@ -60,5 +68,11 @@ export const tooltip = (node: HTMLElement, {content, position = "top", withArrow
             node.removeEventListener("mouseenter", renderTooltip);
             node.removeEventListener("mouseleave", removeTooltip);
         },
+        update({content, position = "top", withArrow, active}: TooltipParams) {
+            _content = content;
+            _position = position;
+            _withArrow = withArrow ?? _withArrow;
+            _active = active ?? _active;
+        }
     };
 };
