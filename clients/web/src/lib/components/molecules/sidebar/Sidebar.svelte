@@ -14,9 +14,10 @@
     const context: SidebarContext = writable({iconOnly: false, showTooltips: true});
     $: if (width === "sm")  $context.iconOnly = true;
     $: if (width === "full") $context.showTooltips = false;
+       else if (typeof showTooltips !== "undefined") $context.showTooltips = showTooltips
     
     // prop overrides default behavior
-    $: if (typeof showTooltips !== "undefined") $context.showTooltips = showTooltips
+    
 
     setContext<SidebarContext>(SidebarContextKey, context);
 </script>
