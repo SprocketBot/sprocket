@@ -13,6 +13,7 @@
     export let Hst: _Hst;
 
     let withHeader = true;
+    let showTooltips: boolean | undefined = undefined;
     let fullHeight = true;
 </script>
 
@@ -27,11 +28,15 @@
                 <span>Full Height</span>
                 <input type="checkbox" bind:checked={fullHeight} />
             </label>
+            <label>
+                <span>Show Tooltips</span>
+                <input type="checkbox" bind:checked={showTooltips} />
+            </label>
         </div>
     </svelte:fragment>
     <Hst.Variant title="Default">
         <div class="h-screen">
-            <Sidebar {withHeader} {fullHeight}>
+            <Sidebar {withHeader} {fullHeight} {showTooltips}>
                 <SidebarItem icon={Banknotes} label="Sidebar Item" />
                 <SidebarDivider />
                 <SidebarItem icon={Banknotes} label="With Badge">
