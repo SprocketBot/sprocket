@@ -9,7 +9,7 @@ export class BaseObject {
     createdAt: Date;
 
     @Field(() => Date, {nullable: true})
-    updatedAt: Date;
+    updatedAt?: Date;
 
     @Field(() => Date, {nullable: true})
     deletedAt: Date;
