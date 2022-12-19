@@ -20,11 +20,6 @@
         "strictPropertyInitialization": false,
         "esModuleInterop": true,
         "paths": {
-            "$models": ["src/database/models"],
-            "$repositories": ["src/database/repositories"],
-            "$types": ["src/database/types"],
-            "$mledb": ["src/database/mledb"],
-            "$bridge/*": ["src/database/mledb-bridge/*"],
             "$util": ["src/util"],
             "$util/*": ["src/util/*"]
         }

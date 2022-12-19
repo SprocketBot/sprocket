@@ -1,10 +1,11 @@
 import {Module} from "@nestjs/common";
 import {TypeOrmModule} from "@nestjs/typeorm";
+import {EventsModule} from "@sprocketbot/common";
 
 import {Approval} from "./approval.entity";
 import {ApprovalRepository} from "./approval.repository";
 import {Member} from "./member.entity";
-import {MemberRepository} from "./member.repository";
+import {MemberProfiledRepository, MemberRepository} from "./member.repository";
 import {MemberPlatformAccount} from "./member-platform-account.entity";
 import {MemberPlatformAccountRepository} from "./member-platform-account.repository";
 import {MemberProfile} from "./member-profile.entity";
@@ -12,7 +13,7 @@ import {MemberProfileRepository} from "./member-profile.repository";
 import {MemberRestriction} from "./member-restriction.entity";
 import {MemberRestrictionRepository} from "./member-restriction.repository";
 import {Organization} from "./organization.entity";
-import {OrganizationRepository} from "./organization.repository";
+import {OrganizationProfiledRepository, OrganizationRepository} from "./organization.repository";
 import {OrganizationMottos} from "./organization-mottos.entity";
 import {OrganizationMottosRepository} from "./organization-mottos.repository";
 import {OrganizationProfile} from "./organization-profile.entity";
@@ -40,16 +41,18 @@ const providers = [
     MemberRepository,
     MemberPlatformAccountRepository,
     MemberProfileRepository,
+    MemberProfiledRepository,
     MemberRestrictionRepository,
     OrganizationRepository,
     OrganizationMottosRepository,
     OrganizationProfileRepository,
+    OrganizationProfiledRepository,
     PhotoRepository,
     PronounsRepository,
 ];
 
 @Module({
-    imports: [ormModule],
+    imports: [ormModule, EventsModule],
     providers: providers,
     exports: providers,
 })
