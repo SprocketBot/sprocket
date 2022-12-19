@@ -2,7 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {GraphQLError} from "graphql";
 import {DataSource} from "typeorm";
 
-import type {BaseModel} from "../../database";
+import type {BaseEntity} from "../../types/base-entity";
 
 type Class<T> = new (...args: unknown[]) => T;
 
@@ -10,7 +10,7 @@ type Class<T> = new (...args: unknown[]) => T;
 export class PopulateService {
     constructor(private readonly dataSource: DataSource) {}
 
-    async populateOneOrFail<Entity extends BaseModel, RelationPath extends keyof Entity & string>(
+    async populateOneOrFail<Entity extends BaseEntity, RelationPath extends keyof Entity & string>(
         base: Class<Entity>,
         root: Entity,
         relation: RelationPath,
@@ -24,7 +24,7 @@ export class PopulateService {
         return result;
     }
 
-    async populateOne<Entity extends BaseModel, RelationPath extends keyof Entity & string>(
+    async populateOne<Entity extends BaseEntity, RelationPath extends keyof Entity & string>(
         base: Class<Entity>,
         root: Entity,
         relation: RelationPath,
@@ -37,7 +37,7 @@ export class PopulateService {
         return result;
     }
 
-    async populateMany<Entity extends BaseModel, RelationPath extends keyof Entity & string>(
+    async populateMany<Entity extends BaseEntity, RelationPath extends keyof Entity & string>(
         base: Class<Entity>,
         root: Entity,
         relation: RelationPath,
