@@ -1,10 +1,12 @@
 <script lang="ts">
     import type {Hst as _Hst} from "@histoire/plugin-svelte";
     import Button from "./Button.svelte";
-    import AltButton from "./AltButton.svelte";
 
     export let Hst: _Hst;
     let label:string = "HAI";
+    const onClick = () => {
+        alert("You clicked the button. Congrats!");
+    }
 </script>
 
 <Hst.Story title="Atoms/Button">
@@ -12,9 +14,9 @@
         <Hst.Text title="Label" bind:value={label} />
     </svelte:fragment>
     <Hst.Variant title="Default">
-        <Button {label} />
+        <Button type="primary" on:click={onClick}>{label}</Button>
     </Hst.Variant>
     <Hst.Variant title="Alternate">
-        <AltButton {label} />
+        <Button type="secondary" on:click={onClick}>{label}</Button>
     </Hst.Variant>
 </Hst.Story>
