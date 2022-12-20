@@ -1,4 +1,8 @@
 import {Module} from "@nestjs/common";
 
-@Module({})
+import {WebhookDatabaseModule} from "./database/webhook-database.module";
+
+@Module({
+    imports: [WebhookDatabaseModule],
+})
 export class WebhookModule {}
