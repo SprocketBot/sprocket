@@ -24,7 +24,7 @@ export const words = [
     "alter",
     "among",
     "anger",
-    "Angle",
+    "angle",
     "angry",
     "apart",
     "apple",
