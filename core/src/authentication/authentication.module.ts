@@ -28,10 +28,10 @@ import {SteamStrategy} from "./strategies/steam/steam.strategy";
         AuthenticationResolver,
         AuthenticationService,
         DiscordStrategy,
-        EpicStrategy,
+        // EpicStrategy,
         GoogleStrategy,
         JwtStrategy,
-        SteamStrategy,
+        // SteamStrategy,
     ],
     controllers: [AuthenticationController],
 })

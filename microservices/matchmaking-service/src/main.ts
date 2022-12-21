@@ -1,6 +1,7 @@
 import {NestFactory} from "@nestjs/core";
 import {Transport} from "@nestjs/microservices";
 import {AllExceptionsFilter, config} from "@sprocketbot/common";
+import { Logger } from 'nestjs-pino';
 
 import {AppModule} from "./app.module";
 
@@ -15,7 +16,9 @@ async function bootstrap(): Promise<void> {
             },
             heartbeat: 120,
         },
+        bufferLogs: true
     });
+    app.useLogger(app.get(Logger))
 
     app.useGlobalFilters(new AllExceptionsFilter());
 

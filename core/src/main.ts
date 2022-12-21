@@ -3,6 +3,7 @@ import {NestFactory} from "@nestjs/core";
 import {Transport} from "@nestjs/microservices";
 import {AllExceptionsFilter, config} from "@sprocketbot/common";
 import {writeFile} from "fs/promises";
+import { Logger } from 'nestjs-pino';
 import {SpelunkerModule} from "nestjs-spelunker";
 
 import {AppModule} from "./app.module";
@@ -22,7 +23,9 @@ async function bootstrap(): Promise<void> {
     // @ts-expect-error I have no idea why this one is broken but I promise it's ok.
     const app = await NestFactory.create(AppModule, {
         logger: config.logger.levels,
+        bufferLogs: true
     });
+    app.useLogger(app.get(Logger))
 
     app.connectMicroservice({
         transport: Transport.RMQ,

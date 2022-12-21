@@ -7,6 +7,7 @@ import {config} from "@sprocketbot/common";
 import {RedisCache} from "apollo-server-cache-redis";
 import {readFileSync} from "fs";
 import {graphqlUploadExpress} from "graphql-upload";
+import { LoggerModule } from 'nestjs-pino';
 
 import {AuthenticationModule} from "./authentication/authentication.module";
 import {AuthorizationModule} from "./authorization/authorization.module";
@@ -20,6 +21,7 @@ import {OrganizationModule} from "./organization/organization.module";
 import {SchedulingModule} from "./scheduling/scheduling.module";
 import {WebhookModule} from "./webhook/webhook.module";
 
+
 @Module({
     imports: [
         TypeOrmModule.forRoot({
@@ -32,6 +34,7 @@ import {WebhookModule} from "./webhook/webhook.module";
             autoLoadEntities: true,
             logging: config.db.enable_logs,
         }),
+        LoggerModule.forRoot(),
         GraphQLModule.forRoot({
             autoSchemaFile: true,
             installSubscriptionHandlers: true,
