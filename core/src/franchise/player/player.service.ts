@@ -379,6 +379,7 @@ export class PlayerService {
             discordId: discordId,
             modePreference: preference,
             teamName: "Pend",
+            role: "NONE",
         } as MLE_Player;
 
         player = this.mle_playerRepository.create(player);
