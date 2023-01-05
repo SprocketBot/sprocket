@@ -1,6 +1,5 @@
 import {forwardRef, Module} from "@nestjs/common";
 
-import {EloConnectorModule} from "../elo/elo-connector";
 import {FranchiseDatabaseModule} from "../franchise/database/franchise-database.module";
 import {GameDatabaseModule} from "../game/database/game-database.module";
 import {IdentityDatabaseModule} from "../identity/database/identity-database.module";
@@ -23,7 +22,6 @@ import {MledbFinalizationService} from "./mledb-scrim";
         IdentityDatabaseModule,
         FranchiseDatabaseModule,
         OrganizationDatabaseModule,
-        EloConnectorModule,
         GameDatabaseModule,
         forwardRef(() => SchedulingModule),
         SchedulingDatabaseModule,

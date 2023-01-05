@@ -12,10 +12,9 @@ import {
     NotificationService,
     NotificationType,
 } from "@sprocketbot/common";
+import type {SalaryPayload} from "@sprocketbot/elo-connector";
 import type {FindOptionsRelations} from "typeorm";
 
-import type {SalaryPayloadItem} from "../../elo/elo-connector";
-import {DegreeOfStiffness, SkillGroupDelta} from "../../elo/elo-connector";
 import {PlatformRepository} from "../../game/database/platform.repository";
 import {UserAuthenticationAccountRepository} from "../../identity/database/user-authentication-account.repository";
 import {MledbPlayerService} from "../../mledb/mledb-player/mledb-player.service";
@@ -149,211 +148,181 @@ export class PlayerService {
         };
     }
 
-    async saveSalaries(payload: SalaryPayloadItem[][]): Promise<void> {
+    async saveSalaries(players: SalaryPayload[]): Promise<void> {
         await Promise.allSettled(
-            payload.map(async payloadSkillGroup =>
-                Promise.allSettled(
-                    payloadSkillGroup.map(async playerDelta => {
-                        const player = await this.playerRepository.findOneOrFail({
-                            where: {id: playerDelta.playerId},
+            players.map(async payload => {
+                const player = await this.playerRepository.findOneOrFail({
+                    where: {id: payload.playerId},
+                    relations: {
+                        member: {
+                            user: {
+                                authenticationAccounts: true,
+                            },
+                            organization: {
+                                profile: true,
+                            },
+                            profile: true,
+                        },
+                        skillGroup: {
+                            organization: true,
+                            game: true,
+                            profile: true,
+                        },
+                    },
+                });
+
+                if (
+                    player.member.organization.profile.name === "Minor League Esports" &&
+                    (await this.mlePlayerService.playerIsFormerPlayer(player.id))
+                )
+                    return;
+
+                if (!payload.rankout && player.salary === payload.salary) return;
+
+                const discordAccount = await this.userAuthenticationAccountRepository.getDiscordAccountByUserId(
+                    player.member.user.id,
+                );
+
+                if (payload.rankout) {
+                    if (payload.rankout.forced) {
+                        const skillGroup = await this.skillGroupRepository.findOneOrFail({
+                            where: {id: payload.rankout.skillGroupId},
                             relations: {
-                                member: {
-                                    user: {
-                                        authenticationAccounts: true,
-                                    },
-                                    organization: {
-                                        profile: true,
-                                    },
-                                    profile: true,
-                                },
-                                skillGroup: {
-                                    organization: true,
-                                    game: true,
-                                    profile: true,
-                                },
+                                profile: true,
+                                game: true,
+                                organization: true,
                             },
                         });
 
-                        // Skip MLE Former Players, only if org is MLE
-                        if (
-                            player.member.organization.profile.name === "Minor League Esports" &&
-                            (await this.mlePlayerService.playerIsFormerPlayer(player.id))
-                        )
-                            return;
+                        await this.updatePlayerStanding(payload.playerId, payload.rankout.salary, skillGroup.id);
 
-                        // If there is no rankout, and the player's new salary is what it currently is, skip
-                        if (!playerDelta.rankout && player.salary === playerDelta.newSalary) return;
+                        if (player.member.organization.profile.name === "Minor League Esports") {
+                            await this.mlePlayerService.movePlayerToLeague(
+                                player.id,
+                                skillGroup.id,
+                                payload.rankout.salary,
+                            );
+                        }
 
-                        const discordAccount = await this.userAuthenticationAccountRepository.getDiscordAccountByUserId(
-                            player.member.user.id,
+                        await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
+                            playerId: player.id,
+                            name: player.member.profile.name,
+                            organizationId: skillGroup.organization.id,
+                            discordId: discordAccount.accountId,
+                            old: {
+                                id: player.skillGroup.id,
+                                name: player.skillGroup.profile.description,
+                                salary: player.salary,
+                                discordEmojiId: player.skillGroup.profile.discordEmojiId,
+                            },
+                            new: {
+                                id: skillGroup.id,
+                                name: skillGroup.profile.description,
+                                salary: payload.rankout.salary,
+                                discordEmojiId: skillGroup.profile.discordEmojiId,
+                            },
+                        });
+
+                        await this.notificationService.send(
+                            NotificationEndpoint.SendNotification,
+                            this.buildRankdownNotification(
+                                player.member.user.id,
+                                discordAccount.accountId,
+                                player.member.organization.id,
+                                player.member.organization.profile.name,
+                                player.skillGroup.profile.description,
+                                skillGroup.profile.description,
+                                payload.rankout.salary,
+                            ),
                         );
+                    } else {
+                        await this.updatePlayerStanding(payload.playerId, payload.salary);
 
-                        if (playerDelta.rankout) {
-                            if (playerDelta.rankout.degreeOfStiffness === DegreeOfStiffness.HARD) {
-                                const skillGroup = await this.skillGroupRepository.findOneOrFail({
-                                    where: {
-                                        game: {
-                                            id: player.skillGroup.game.id,
-                                        },
-                                        organization: {
-                                            id: player.skillGroup.organization.id,
-                                        },
-                                        ordinal:
-                                            player.skillGroup.ordinal -
-                                            (playerDelta.rankout.skillGroupChange === SkillGroupDelta.UP ? 1 : -1),
-                                    },
-                                    relations: {
-                                        profile: true,
-                                        game: true,
-                                        organization: true,
-                                    },
-                                });
+                        const skillGroup = await this.skillGroupRepository.findOneOrFail({
+                            where: {id: payload.rankout.skillGroupId},
+                            relations: {
+                                profile: true,
+                                organization: true,
+                                game: true,
+                            },
+                        });
 
-                                await this.updatePlayerStanding(
-                                    playerDelta.playerId,
-                                    playerDelta.rankout.salary,
-                                    skillGroup.id,
-                                );
+                        /* TEMPORARY NOTIFICATION */
+                        const rankdownPayload: RankdownJwtPayload = {
+                            playerId: player.id,
+                            salary: payload.rankout.salary,
+                            skillGroupId: skillGroup.id,
+                        };
+                        const jwt = this.jwtService.sign(rankdownPayload, {expiresIn: "24h"});
 
-                                if (player.member.organization.profile.name === "Minor League Esports") {
-                                    await this.mlePlayerService.movePlayerToLeague(
-                                        player.id,
-                                        skillGroup.id,
-                                        playerDelta.rankout.salary,
-                                    );
-                                }
-
-                                await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
-                                    playerId: player.id,
-                                    name: player.member.profile.name,
-                                    organizationId: skillGroup.organization.id,
-                                    discordId: discordAccount.accountId,
-                                    old: {
-                                        id: player.skillGroup.id,
-                                        name: player.skillGroup.profile.description,
-                                        salary: player.salary,
-                                        discordEmojiId: player.skillGroup.profile.discordEmojiId,
-                                    },
-                                    new: {
-                                        id: skillGroup.id,
-                                        name: skillGroup.profile.description,
-                                        salary: playerDelta.rankout.salary,
-                                        discordEmojiId: skillGroup.profile.discordEmojiId,
-                                    },
-                                });
-
-                                await this.notificationService.send(
-                                    NotificationEndpoint.SendNotification,
-                                    this.buildRankdownNotification(
-                                        player.member.user.id,
-                                        discordAccount.accountId,
-                                        player.member.organization.id,
-                                        player.member.organization.profile.name,
-                                        player.skillGroup.profile.description,
-                                        skillGroup.profile.description,
-                                        playerDelta.rankout.salary,
-                                    ),
-                                );
-                            } else {
-                                await this.updatePlayerStanding(playerDelta.playerId, playerDelta.rankout.salary);
-
-                                const skillGroup = await this.skillGroupRepository.findOneOrFail({
-                                    where: {
-                                        game: {
-                                            id: player.skillGroup.game.id,
-                                        },
-                                        organization: {
-                                            id: player.skillGroup.organization.id,
-                                        },
-                                        ordinal:
-                                            player.skillGroup.ordinal -
-                                            (playerDelta.rankout.skillGroupChange === SkillGroupDelta.UP ? 1 : -1),
-                                    },
-                                    relations: {
-                                        profile: true,
-                                        organization: true,
-                                        game: true,
-                                    },
-                                });
-
-                                /* TEMPORARY NOTIFICATION */
-                                const rankdownPayload: RankdownJwtPayload = {
-                                    playerId: player.id,
-                                    salary: playerDelta.rankout.salary,
-                                    skillGroupId: skillGroup.id,
-                                };
-                                const jwt = this.jwtService.sign(rankdownPayload, {expiresIn: "24h"});
-
-                                await this.notificationService.send(NotificationEndpoint.SendNotification, {
-                                    type: NotificationType.BASIC,
-                                    userId: player.member.user.id,
-                                    notification: {
-                                        type: NotificationMessageType.DirectMessage,
-                                        userId: discordAccount.accountId,
-                                        payload: {
-                                            embeds: [
+                        await this.notificationService.send(NotificationEndpoint.SendNotification, {
+                            type: NotificationType.BASIC,
+                            userId: player.member.user.id,
+                            notification: {
+                                type: NotificationMessageType.DirectMessage,
+                                userId: discordAccount.accountId,
+                                payload: {
+                                    embeds: [
+                                        {
+                                            title: "Rankdown Available",
+                                            description: `You have been offered a rankout from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.\n\n‼️‼️**__Only click the button below if you accept the rankdown. There is no confirmation.__**‼️‼️`,
+                                            author: {
+                                                name: `${player.member.organization.profile.name}`,
+                                            },
+                                            fields: [
                                                 {
-                                                    title: "Rankdown Available",
-                                                    description: `You have been offered a rankout from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.\n\n‼️‼️**__Only click the button below if you accept the rankdown. There is no confirmation.__**‼️‼️`,
-                                                    author: {
-                                                        name: `${player.member.organization.profile.name}`,
-                                                    },
-                                                    fields: [
-                                                        {
-                                                            name: "New League",
-                                                            value: `${skillGroup.profile.description}`,
-                                                        },
-                                                        {
-                                                            name: "New Salary",
-                                                            value: `${playerDelta.rankout.salary}`,
-                                                        },
-                                                    ],
-                                                    footer: {
-                                                        text: player.member.organization.profile.name,
-                                                    },
-                                                    timestamp: Date.now(),
+                                                    name: "New League",
+                                                    value: `${skillGroup.profile.description}`,
+                                                },
+                                                {
+                                                    name: "New Salary",
+                                                    value: `${payload.rankout.salary}`,
                                                 },
                                             ],
+                                            footer: {
+                                                text: player.member.organization.profile.name,
+                                            },
+                                            timestamp: Date.now(),
+                                        },
+                                    ],
+                                    components: [
+                                        {
+                                            type: ComponentType.ACTION_ROW,
                                             components: [
                                                 {
-                                                    type: ComponentType.ACTION_ROW,
-                                                    components: [
-                                                        {
-                                                            type: ComponentType.BUTTON,
-                                                            style: ButtonComponentStyle.LINK,
-                                                            label: "ONLY CLICK HERE IF YOU ACCEPT",
-                                                            url: `${config.web.api_root}/player/accept-rankdown/${jwt}`,
-                                                        },
-                                                    ],
+                                                    type: ComponentType.BUTTON,
+                                                    style: ButtonComponentStyle.LINK,
+                                                    label: "ONLY CLICK HERE IF YOU ACCEPT",
+                                                    url: `${config.web.api_root}/player/accept-rankdown/${jwt}`,
                                                 },
                                             ],
                                         },
-                                        brandingOptions: {
-                                            organizationId: player.member.organization.id,
-                                            options: {
-                                                author: {
-                                                    icon: true,
-                                                },
-                                                color: true,
-                                                thumbnail: true,
-                                                footer: {
-                                                    icon: true,
-                                                },
-                                            },
+                                    ],
+                                },
+                                brandingOptions: {
+                                    organizationId: player.member.organization.id,
+                                    options: {
+                                        author: {
+                                            icon: true,
+                                        },
+                                        color: true,
+                                        thumbnail: true,
+                                        footer: {
+                                            icon: true,
                                         },
                                     },
-                                });
-                            }
-                        } else {
-                            await this.updatePlayerStanding(playerDelta.playerId, playerDelta.newSalary);
+                                },
+                            },
+                        });
+                    }
+                } else {
+                    await this.updatePlayerStanding(payload.playerId, payload.salary);
 
-                            if (player.member.organization.profile.name === "Minor League Esports") {
-                                await this.mlePlayerService.updatePlayerSalary(player.id, playerDelta.newSalary);
-                            }
-                        }
-                    }),
-                ),
-            ),
+                    if (player.member.organization.profile.name === "Minor League Esports") {
+                        await this.mlePlayerService.updatePlayerSalary(player.id, payload.salary);
+                    }
+                }
+            }),
         );
     }
 

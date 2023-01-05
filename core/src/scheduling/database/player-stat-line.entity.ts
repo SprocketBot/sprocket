@@ -23,4 +23,7 @@ export class PlayerStatLine extends BaseEntity {
 
     @ManyToOne(() => Player)
     player: Player;
+
+    @Column()
+    playerId: number;
 }

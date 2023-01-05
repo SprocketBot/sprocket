@@ -4,6 +4,7 @@ import {Module} from "@nestjs/common";
 import {GraphQLModule} from "@nestjs/graphql";
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {config} from "@sprocketbot/common";
+import {ConnectorModule} from "@sprocketbot/elo-connector";
 import {RedisCache} from "apollo-server-cache-redis";
 import {readFileSync} from "fs";
 import {graphqlUploadExpress} from "graphql-upload";
@@ -82,6 +83,14 @@ import {WebhookModule} from "./webhook/webhook.module";
                 keyPrefix: `${config.redis.prefix}:bull`,
             },
             prefix: `${config.redis.prefix}:bull`,
+        }),
+        ConnectorModule.forRoot({
+            redis: {
+                host: config.redis.host,
+                port: config.redis.port,
+                password: config.redis.password,
+            },
+            prefix: config.redis.prefix,
         }),
         AuthorizationModule,
         AuthenticationModule,

@@ -11,7 +11,6 @@ import {
 import {PubSub} from "apollo-server-express";
 
 import {ConfigurationModule} from "../configuration/configuration.module";
-import {EloConnectorModule} from "../elo/elo-connector";
 import {FranchiseDatabaseModule} from "../franchise/database/franchise-database.module";
 import {FranchiseModule} from "../franchise/franchise.module";
 import {GameDatabaseModule} from "../game/database/game-database.module";
@@ -42,7 +41,6 @@ import {SubmissionService} from "./submission/submission.service";
         MinioModule,
         CommonUtilModule,
         UtilModule,
-        EloConnectorModule,
         SchedulingDatabaseModule,
         BullModule.registerQueue({name: "scrim"}),
         forwardRef(() => MledbInterfaceModule),

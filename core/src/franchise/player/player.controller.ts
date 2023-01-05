@@ -10,9 +10,8 @@ import {
     NotificationEndpoint,
     NotificationService,
 } from "@sprocketbot/common";
+import {ConnectorService, EloEndpoint} from "@sprocketbot/elo-connector";
 
-import type {ManualSkillGroupChange} from "../../elo/elo-connector";
-import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
 import {UserAuthenticationAccountRepository} from "../../identity/database/user-authentication-account.repository";
 import {MledbPlayerService} from "../../mledb";
 import {GameSkillGroupRepository} from "../database/game-skill-group.repository";
@@ -25,7 +24,7 @@ export class PlayerController {
     private readonly logger = new Logger(PlayerController.name);
 
     constructor(
-        private readonly eloConnectorService: EloConnectorService,
+        private readonly eloConnectorService: ConnectorService,
         private readonly jwtService: JwtService,
         private readonly playerService: PlayerService,
         private readonly skillGroupRepository: GameSkillGroupRepository,
@@ -69,18 +68,16 @@ export class PlayerController {
 
             if (player.skillGroup.id === payload.skillGroupId) throw new Error("You are already in this skill group");
 
-            const inputData: ManualSkillGroupChange = {
-                id: payload.playerId,
-                salary: payload.salary,
-                skillGroup: skillGroup.ordinal,
-            };
-
             await this.playerService.updatePlayerStanding(payload.playerId, payload.salary, payload.skillGroupId);
 
             if (player.member.organization.profile.name === "Minor League Esports")
                 await this.mlePlayerService.movePlayerToLeague(payload.playerId, payload.skillGroupId, payload.salary);
 
-            await this.eloConnectorService.createJob(EloEndpoint.SGChange, inputData);
+            await this.eloConnectorService.createJob(EloEndpoint.UpdatePlayerSkillGroup, {
+                playerId: payload.playerId,
+                skillGroupId: skillGroup.id,
+                salary: payload.salary,
+            });
 
             await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
                 playerId: player.id,

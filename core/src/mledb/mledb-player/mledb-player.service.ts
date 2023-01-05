@@ -1,9 +1,9 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
+import {ConnectorService, EloEndpoint} from "@sprocketbot/elo-connector";
 import type {QueryRunner} from "typeorm";
 import {DataSource, Repository} from "typeorm";
 
-import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
 import {GameSkillGroupRepository} from "../../franchise/database/game-skill-group.repository";
 import {PlayerRepository} from "../../franchise/database/player.repository";
 import {UserProfiledRepository} from "../../identity/database/user.repository";
@@ -41,7 +41,7 @@ export class MledbPlayerService {
         private readonly sprocketMemberProfiledRepository: MemberProfiledRepository,
         private readonly sprocketUserProfiledRepository: UserProfiledRepository,
         private readonly dataSource: DataSource,
-        private readonly eloConnectorService: EloConnectorService,
+        private readonly eloConnectorService: ConnectorService,
     ) {}
 
     async getMlePlayerBySprocketUser(userId: number): Promise<MLE_Player> {
@@ -313,10 +313,10 @@ export class MledbPlayerService {
                 );
 
                 if (skillGroup.id !== player.skillGroupId)
-                    await this.eloConnectorService.createJob(EloEndpoint.SGChange, {
-                        id: player.id,
+                    await this.eloConnectorService.createJob(EloEndpoint.UpdatePlayerSkillGroup, {
+                        playerId: player.id,
                         salary: salary,
-                        skillGroup: skillGroup.ordinal,
+                        skillGroupId: skillGroup.id,
                     });
             } else {
                 const user = this.sprocketUserProfiledRepository.primaryRepository.create({});
@@ -368,11 +368,12 @@ export class MledbPlayerService {
                     runner,
                 );
 
-                await this.eloConnectorService.createJob(EloEndpoint.AddPlayerBySalary, {
-                    id: player.id,
-                    name: name,
-                    salary: salary,
-                    skillGroup: skillGroup.ordinal,
+                await this.eloConnectorService.createJob(EloEndpoint.ImportPlayer, {
+                    playerId: player.id,
+                    gameId: player.skillGroup.gameId,
+                    organizationId: player.skillGroup.organizationId,
+                    skillGroupId: player.skillGroup.id,
+                    salary: player.salary,
                 });
             }
 

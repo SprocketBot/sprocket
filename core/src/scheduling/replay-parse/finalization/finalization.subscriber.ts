@@ -10,8 +10,8 @@ import {
     SubmissionEndpoint,
     SubmissionService,
 } from "@sprocketbot/common";
+import {ConnectorService, EloEndpoint} from "@sprocketbot/elo-connector";
 
-import {EloConnectorService, EloEndpoint} from "../../../elo/elo-connector";
 import {MatchService} from "../../match/match.service";
 import {ScrimService} from "../../scrim/scrim.service";
 import {ReplayParseService} from "../replay-parse.service";
@@ -29,7 +29,7 @@ export class FinalizationSubscriber {
         private readonly redisService: RedisService,
         private readonly scrimService: ScrimService,
         private readonly matchService: MatchService,
-        private readonly eloConnectorService: EloConnectorService,
+        private readonly eloConnectorService: ConnectorService,
         private readonly replayParseService: ReplayParseService,
         private readonly nanoidService: NanoidService,
     ) {}
@@ -85,8 +85,8 @@ export class FinalizationSubscriber {
             });
 
             if (!scrim.settings.competitive) return;
-            const eloPayload = await this.matchService.translatePayload(savedScrim.parent.match.id, true);
-            await this.eloConnectorService.createJob(EloEndpoint.CalculateEloForMatch, eloPayload);
+            const eloPayload = await this.matchService.buildMatchPayload(savedScrim.parent.match.id, true);
+            await this.eloConnectorService.createJob(EloEndpoint.ProcessMatch, eloPayload);
         } catch (_e) {
             const e = _e as Error;
             this.logger.warn(e.message, e.stack);
@@ -117,8 +117,8 @@ export class FinalizationSubscriber {
                 legacyId: legacyMatch.id,
             });
 
-            const eloPayload = await this.matchService.translatePayload(match.id, false);
-            await this.eloConnectorService.createJob(EloEndpoint.CalculateEloForMatch, eloPayload);
+            const eloPayload = await this.matchService.buildMatchPayload(match.id, false);
+            await this.eloConnectorService.createJob(EloEndpoint.ProcessMatch, eloPayload);
         } catch (_e) {
             const e = _e as Error;
             this.logger.warn(e.message, e.stack);

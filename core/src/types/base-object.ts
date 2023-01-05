@@ -10,7 +10,4 @@ export class BaseObject {
 
     @Field(() => Date, {nullable: true})
     updatedAt?: Date;
-
-    @Field(() => Date, {nullable: true})
-    updatedAt?: Date;
 }

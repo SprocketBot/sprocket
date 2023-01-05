@@ -2,7 +2,6 @@ import {forwardRef, Module} from "@nestjs/common";
 import {JwtModule} from "@nestjs/jwt";
 import {config, EventsModule, NotificationModule} from "@sprocketbot/common";
 
-import {EloConnectorModule} from "../elo/elo-connector";
 import {GameDatabaseModule} from "../game/database/game-database.module";
 import {IdentityDatabaseModule} from "../identity/database/identity-database.module";
 import {MledbInterfaceModule} from "../mledb";
@@ -23,7 +22,6 @@ import {PlayerService} from "./player/player.service";
         EventsModule,
         NotificationModule,
         forwardRef(() => MledbInterfaceModule),
-        EloConnectorModule,
         FranchiseDatabaseModule,
         IdentityDatabaseModule,
         OrganizationDatabaseModule,

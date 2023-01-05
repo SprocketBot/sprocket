@@ -1,18 +1,19 @@
 import {Injectable, Logger} from "@nestjs/common";
 import type {BallchasingPlayer, CoreEndpoint, CoreOutput} from "@sprocketbot/common";
 import {BallchasingTeamSchema} from "@sprocketbot/common";
+import type {ProcessMatch, RoundPlayer, RoundSummary} from "@sprocketbot/elo-connector";
+import {ConnectorService, EloEndpoint} from "@sprocketbot/elo-connector";
 import {DataSource, IsNull, Not} from "typeorm";
 
 import {PopulateService} from "$util";
 
-import type {CalculateEloForMatchInput, MatchSummary, PlayerSummary} from "../../elo/elo-connector";
-import {EloConnectorService, EloEndpoint, GameMode, TeamColor} from "../../elo/elo-connector";
 import {Franchise} from "../../franchise/database/franchise.entity";
 import type {Team} from "../../franchise/database/team.entity";
 import {TeamRepository} from "../../franchise/database/team.repository";
 import type {Invalidation} from "../database/invalidation.entity";
 import {InvalidationRepository} from "../database/invalidation.repository";
 import {MatchRepository} from "../database/match.repository";
+import type {PlayerStatLine} from "../database/player-stat-line.entity";
 import type {Round} from "../database/round.entity";
 import {RoundRepository} from "../database/round.repository";
 import {ScheduleFixture} from "../database/schedule-fixture.entity";
@@ -45,7 +46,7 @@ export class MatchService {
         private readonly teamRepository: TeamRepository,
         private readonly dataSource: DataSource,
         private readonly popService: PopulateService,
-        private readonly eloConnectorService: EloConnectorService,
+        private readonly eloConnectorService: ConnectorService,
     ) {}
 
     async getMatchParentEntity(matchId: number): Promise<MatchParentResponse> {
@@ -134,8 +135,8 @@ export class MatchService {
                 }, ms);
             });
         for (const r of results) {
-            const payload = await this.translatePayload(r.matchId, !r.is_league_match);
-            await this.eloConnectorService.createJob(EloEndpoint.CalculateEloForMatch, payload);
+            const payload = await this.buildMatchPayload(r.matchId, !r.is_league_match);
+            await this.eloConnectorService.createJob(EloEndpoint.ProcessMatch, payload);
             await sleep(500);
         }
     }
@@ -324,10 +325,13 @@ export class MatchService {
 
         // Magic happens here to talk to the ELO service
         const noDummies = replays.filter(rep => !rep.isDummy).map(rep => rep.id);
-        await this.eloConnectorService.createJob(EloEndpoint.CalculateEloForNcp, {
-            roundIds: noDummies,
-            isNcp: isNcp,
-        });
+
+        for (const round of noDummies) {
+            await this.eloConnectorService.createJob(EloEndpoint.InvalidateRound, {
+                roundId: round,
+                invalidated: isNcp,
+            });
+        }
 
         const outStr = `\`${
             replayIds.length === 1 ? `replayId=${replayIds[0]}` : `replayIds=[${replayIds.join(", ")}]`
@@ -338,99 +342,67 @@ export class MatchService {
         return outStr;
     }
 
-    async translatePayload(matchId: number, isScrim: boolean): Promise<CalculateEloForMatchInput> {
-        const match = await this.matchRepository.findOneOrFail({
-            where: {id: matchId},
-            relations: {
-                rounds: {
-                    teamStats: {
-                        playerStats: {player: true},
-                    },
-                },
-                gameMode: true,
-            },
-        });
-
-        const payload: CalculateEloForMatchInput = {
-            id: match.id,
-            numGames: match.rounds.length,
-            isScrim: isScrim,
-            gameMode: match.gameMode.code === "RL_DOUBLES" ? GameMode.DOUBLES : GameMode.STANDARD,
-            gameStats: [],
-        };
-
-        for (const round of match.rounds) {
-            const team1Stats = BallchasingTeamSchema.safeParse(round.teamStats[0]);
-            const team2Stats = BallchasingTeamSchema.safeParse(round.teamStats[1]);
-            if (!team1Stats.success) throw new Error("Failed to convert");
-            if (!team2Stats.success) throw new Error("Failed to convert");
-
-            const team1IsOrange = team1Stats.data.color === "orange";
-            const orangeScore = team1IsOrange ? team1Stats.data.stats.core.goals : team2Stats.data.stats.core.goals;
-            const blueScore = team1IsOrange ? team2Stats.data.stats.core.goals : team1Stats.data.stats.core.goals;
-
-            const team1Players = round.teamStats[0].playerStats.map(p => PlayerStatLineStatsSchema.safeParse(p.stats));
-            const team2Players = round.teamStats[1].playerStats.map(p => PlayerStatLineStatsSchema.safeParse(p.stats));
-
-            const orangePlayers: BallchasingPlayer[] = [];
-            const bluePlayers: BallchasingPlayer[] = [];
-
-            const errors: string[] = [];
-            team1Players.forEach(stat => {
-                if (stat.success)
-                    team1IsOrange ? orangePlayers.push(stat.data.otherStats) : bluePlayers.push(stat.data.otherStats);
-                else errors.push(stat.error.toString());
-            });
-
-            team2Players.forEach(stat => {
-                if (stat.success)
-                    team1IsOrange ? bluePlayers.push(stat.data.otherStats) : orangePlayers.push(stat.data.otherStats);
-                else errors.push(stat.error.toString());
-            });
-
-            if (errors.length) {
-                throw new Error("Failed to convert");
-            }
-
-            const stats = round.roundStats as {date?: string};
-            let dateString = "";
-            if (!stats.date) {
-                this.logger.warn("No date found on round.");
-            } else {
-                this.logger.verbose(stats.date);
-                dateString = stats.date;
-            }
-            const summary: MatchSummary = {
-                id: round.id,
-                playedAt: dateString,
-                orangeWon: orangeScore > blueScore,
-                scoreOrange: orangeScore,
-                scoreBlue: blueScore,
-                blue: round.teamStats[0].playerStats.map((p, i) =>
-                    this.translatePlayerStats(p.player.id, bluePlayers[i], TeamColor.BLUE),
-                ),
-                orange: round.teamStats[1].playerStats.map((p, i) =>
-                    this.translatePlayerStats(p.player.id, orangePlayers[i], TeamColor.ORANGE),
-                ),
-            };
-
-            payload.gameStats.push(summary);
-        }
-
-        return payload;
-    }
-
-    translatePlayerStats(playerId: number, bcPlayer: BallchasingPlayer, team: TeamColor): PlayerSummary {
-        return {
-            id: playerId,
-            name: "",
-            team: team,
-            mvpr: this.calculateMVPR(bcPlayer),
-        } as PlayerSummary;
-    }
-
     calculateMVPR(p: BallchasingPlayer): number {
         return p.stats.core.goals + p.stats.core.assists * 0.75 + p.stats.core.saves * 0.6 + p.stats.core.shots / 3;
+    }
+
+    buildPlayerPayload(statLine: PlayerStatLine): RoundPlayer {
+        const playerStats = PlayerStatLineStatsSchema.parse(statLine.stats);
+
+        return {
+            playerId: statLine.playerId,
+            mvpr: this.calculateMVPR(playerStats.otherStats),
+        };
+    }
+
+    async buildMatchPayload(matchId: number, isScrim: boolean): Promise<ProcessMatch> {
+        try {
+            const match = await this.matchRepository.findOneOrFail({
+                where: {id: matchId},
+                relations: {
+                    rounds: {
+                        teamStats: {
+                            playerStats: {player: true},
+                        },
+                    },
+                    gameMode: true,
+                },
+            });
+
+            const payload: ProcessMatch = {
+                matchId: match.id,
+                isScrim: isScrim,
+                teamSize: match.gameMode.teamSize,
+                rounds: [],
+            };
+
+            for (const round of match.rounds) {
+                const team0Stats = BallchasingTeamSchema.safeParse(round.teamStats[0]);
+                const team1Stats = BallchasingTeamSchema.safeParse(round.teamStats[1]);
+                if (!team0Stats.success) throw new Error("Failed to convert");
+                if (!team1Stats.success) throw new Error("Failed to convert");
+
+                const team0IsOrange = team1Stats.data.color === "orange";
+                const orangeScore = team0IsOrange ? team0Stats.data.stats.core.goals : team1Stats.data.stats.core.goals;
+                const blueScore = team0IsOrange ? team1Stats.data.stats.core.goals : team0Stats.data.stats.core.goals;
+                const orangePlayers = team0IsOrange ? round.teamStats[0].playerStats : round.teamStats[1].playerStats;
+                const bluePlayers = team0IsOrange ? round.teamStats[1].playerStats : round.teamStats[0].playerStats;
+
+                const summary: RoundSummary = {
+                    roundId: round.id,
+                    orangeScore: orangeScore,
+                    orangeTeam: orangePlayers.map(p => this.buildPlayerPayload(p)),
+                    blueScore: blueScore,
+                    blueTeam: bluePlayers.map(p => this.buildPlayerPayload(p)),
+                };
+
+                payload.rounds.push(summary);
+            }
+
+            return payload;
+        } catch {
+            throw new Error("Failed to build payload for match");
+        }
     }
 
     /**
