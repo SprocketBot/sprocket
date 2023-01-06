@@ -1,16 +1,24 @@
 <script lang="ts">
     import {setContext} from "svelte";
-
+    import LogoSquarePrimary from "$lib/images/logo-square-primary.png"    
+    import LogoFullDark from "$lib/images/logo-full-dark.png"
     import type {SidebarWidth} from "./types";
     import {type SidebarContext, SidebarContextKey} from "./types";
+    import { writable } from "svelte/store";
 
     export let withHeader = true;
     export let width: SidebarWidth = "md";
     export let fullHeight = true;
+    export let showTooltips: boolean | undefined = undefined;
 
-    const context: SidebarContext = {iconOnly: false, showTooltips: true};
-    if (width === "sm") context.iconOnly = true;
-    if (width === "full") context.showTooltips = false;
+    const context: SidebarContext = writable({iconOnly: false, showTooltips: true});
+    $: if (width === "sm")  $context.iconOnly = true;
+    $: if (width === "full") $context.showTooltips = false;
+       else if (typeof showTooltips !== "undefined") $context.showTooltips = showTooltips
+    
+    // prop overrides default behavior
+    
+
     setContext<SidebarContext>(SidebarContextKey, context);
 </script>
 
@@ -21,9 +29,9 @@
                 <header class="mb-4">
                     <!-- TODO: remove /static from this URL, that is only to make it work in histoire -->
                     {#if width === "sm"}
-                        <img src="/static/img/logo-square-primary.png" alt="Sprocket" />
+                        <img src={LogoSquarePrimary} alt="Sprocket" />
                     {:else}
-                        <img src="/static/img/logo-full-dark.png" alt="Sprocket" />
+                        <img src={LogoFullDark} alt="Sprocket" />
                     {/if}
                 </header>
             {/if}
