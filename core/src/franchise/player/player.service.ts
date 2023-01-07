@@ -371,11 +371,13 @@ export class PlayerService {
                     },
                 },
                 member: {
-                    platformAccounts: {
-                        platform: {
-                            id: platformId,
+                    user: {
+                        platformAccounts: {
+                            platform: {
+                                id: platformId,
+                            },
+                            platformAccountId: platformAccountId,
                         },
-                        platformAccountId: platformAccountId,
                     },
                 },
             },
@@ -432,13 +434,14 @@ export class PlayerService {
             .innerJoinAndSelect("player.skillGroup", "skillGroup")
             .innerJoinAndSelect("skillGroup.game", "game")
             .innerJoinAndSelect("player.member", "member")
-            .innerJoinAndSelect("member.platformAccounts", "platformAccount")
+            .innerJoinAndSelect("member.user", "user")
+            .innerJoinAndSelect("user.platformAccounts", "platformAccount")
             .innerJoinAndSelect("platformAccount.platform", "platform")
             .innerJoinAndSelect("platform.supportedGames", "supportedGame", "supportedGame.gameId = game.id")
             .where("player.id = :id", {id: playerId})
             .andWhere("supportedGame.canSaveDemos = true")
             .getOne();
 
-        return Boolean(player?.member.platformAccounts.length);
+        return Boolean(player?.member.user.platformAccounts.length);
     }
 }

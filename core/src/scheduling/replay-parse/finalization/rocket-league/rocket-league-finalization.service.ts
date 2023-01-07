@@ -179,22 +179,25 @@ export class RocketLeagueFinalizationService {
         const {home, away} = isMatch
             ? await this.matchService.getFranchisesForMatch(match.id)
             : {home: undefined, away: undefined};
-        const [homeTeam, awayTeam] = isMatch
-            ? await Promise.all([
-                  await this.teamRepository.findOneOrFail({
-                      where: {
-                          franchiseId: home!.id,
-                          skillGroupId: match.skillGroupId,
-                      },
-                  }),
-                  await this.teamRepository.findOneOrFail({
-                      where: {
-                          franchiseId: away!.id,
-                          skillGroupId: match.skillGroupId,
-                      },
-                  }),
-              ])
-            : [undefined, undefined];
+
+        if (isMatch && (!home || !away)) throw new Error("Failed to find associated franchises");
+        const [homeTeam, awayTeam] =
+            isMatch && home && away
+                ? await Promise.all([
+                      await this.teamRepository.findOneOrFail({
+                          where: {
+                              franchiseId: home.id,
+                              skillGroupId: match.skillGroupId,
+                          },
+                      }),
+                      await this.teamRepository.findOneOrFail({
+                          where: {
+                              franchiseId: away.id,
+                              skillGroupId: match.skillGroupId,
+                          },
+                      }),
+                  ])
+                : [undefined, undefined];
 
         // TODO: Sprocket Team Role Usage
         const results = await Promise.all(
@@ -217,6 +220,8 @@ export class RocketLeagueFinalizationService {
                     orangeTeam: Team | undefined,
                     orangeTeamName: string;
                 if (isMatch) {
+                    if (!home || !away) throw new Error("Failed to find associated franchises");
+
                     const blueCaptain = blue[0].player;
                     const orangeCaptain = orange[0].player;
                     const [blueMle, orangeMle] = await Promise.all([
@@ -231,8 +236,8 @@ export class RocketLeagueFinalizationService {
                     /*
                      * Identify which team is home; and which is away
                      */
-                    homeColor = blueTeamName === home!.profile.title ? "blue" : "orange";
-                    awayColor = blueTeamName === home!.profile.title ? "orange" : "blue";
+                    homeColor = blueTeamName === home.profile.title ? "blue" : "orange";
+                    awayColor = blueTeamName === home.profile.title ? "orange" : "blue";
                     blueTeam = homeColor === "blue" ? homeTeam : awayTeam;
                     orangeTeam = homeColor === "orange" ? homeTeam : awayTeam;
                 } else {
@@ -347,15 +352,17 @@ export class RocketLeagueFinalizationService {
             this.playerRepository.findOneOrFail({
                 where: {
                     member: {
-                        platformAccounts: {
-                            platformAccountId: p.id.id,
-                            platform: {
-                                code: p.id.platform.toUpperCase(),
+                        user: {
+                            platformAccounts: {
+                                platformAccountId: p.id.id,
+                                platform: {
+                                    code: p.id.platform.toUpperCase(),
+                                },
                             },
                         },
                     },
                 },
-                relations: {member: {platformAccounts: {platform: true}}},
+                relations: {member: {user: {platformAccounts: {platform: true}}}},
             });
 
         const bluePlayerIds = new Array<BallchasingPlayer>();
