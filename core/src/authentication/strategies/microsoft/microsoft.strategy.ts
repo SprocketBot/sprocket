@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {JwtService} from "@nestjs/jwt";
 import {PassportStrategy} from "@nestjs/passport";
-import { config } from "@sprocketbot/common";
+import {config} from "@sprocketbot/common";
 import type {Request} from "express";
 import type {ParamsDictionary} from "express-serve-static-core";
 import type {Profile, VerifyCallback} from "passport-microsoft";
