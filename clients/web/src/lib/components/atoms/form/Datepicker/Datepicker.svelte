@@ -67,5 +67,9 @@
         :global(.cell) {
             @apply cursor-pointer;
         }
+
+        :global(option) {
+            @apply bg-gray-700 text-gray-50;
+        }
     }
 </style>
