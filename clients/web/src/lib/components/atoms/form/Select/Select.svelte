@@ -53,11 +53,11 @@
             {disabled}
         >
             {#if placeholder}
-                <option value={undefined} disabled selected hidden>{placeholder}</option>
+                <option class="bg-gray-700 text-gray-50" value={undefined} disabled selected hidden>{placeholder}</option>
             {/if}
 
             {#each options as option}
-                <option value={option.value}>{option.label}</option>
+                <option class="bg-gray-700 text-gray-50" value={option.value}>{option.label}</option>
             {/each}
         </select>
 
