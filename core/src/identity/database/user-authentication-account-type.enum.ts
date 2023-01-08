@@ -5,6 +5,8 @@ export enum UserAuthenticationAccountType {
     GOOGLE = "GOOGLE",
     EPIC = "EPIC",
     STEAM = "STEAM",
+    MICROSOFT = "MICROSOFT",
+    XBOX = "XBOX",
 }
 
 registerEnumType(UserAuthenticationAccountType, {
