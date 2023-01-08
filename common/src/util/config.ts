@@ -14,6 +14,22 @@ export const config = {
                 return _config.get<string>("auth.google.callbackUrl");
             },
         },
+        microsoft: {
+            get clientId(): string {
+                return readFileSync("./secret/microsoft-client-id.txt").toString();
+            },
+            get secret(): string {
+                return readFileSync("./secret/microsoft-secret.txt").toString();
+            },
+            get callbackUrl(): string {
+                return _config.get<string>("auth.microsoft.callbackUrl");
+            },
+        },
+        xbox: {
+            get callbackUrl(): string {
+                return _config.get<string>("auth.xbox.callbackUrl");
+            },
+        },
         discord: {
             get clientId(): string {
                 return readFileSync("./secret/discord-client.txt").toString();
