@@ -41,7 +41,7 @@
     
     {#if datepickerVisible}
         <div class="absolute left-0 top-full z-50 mt-2" transition:fly={{ duration: 80, easing: cubicInOut, y: -5 }} use:clickOutside={{ callback: hideDatepicker }}>
-            <!-- TODO accessibility isn't great with this Datepicker -->
+            <!-- TODO accessibility isn't great with this Datepicker. Maybe we could use a native input type="date" for SR users? -->
             <DatePicker bind:value on:focusout={hideDatepicker} on:select={hideDatepicker} />
         </div>
     {/if}
