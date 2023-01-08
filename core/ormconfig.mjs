@@ -10,7 +10,7 @@ export default new DataSource({
     password: fs.readFileSync("./secret/db-password.txt").toString().trim(),
     database: config.get("db.database"),
     schema: "public",
-    entities: ["src/database/!(mledb)/**/*.model.ts "],
+    entities: ["src/**/!(mledb)/database/*.entity.ts"],
     migrationsTableName: "migrations",
     migrations: ["migrations/*.ts"],
     cli: {
