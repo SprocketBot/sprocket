@@ -8,6 +8,7 @@
     export let label: string;
     export let placeholder: string | undefined = undefined;
     export let disabled: boolean = false;
+    export let readonly: boolean = false;
     export let state: FormControlState = "none";
     export let error: string | undefined = undefined;
     export let value: string | undefined = undefined;
@@ -33,6 +34,9 @@
             aria-describedby={error ? errorId : undefined}
             {placeholder}
             {disabled}
+            {readonly}
+            on:focusin
+            on:click
         />
 
         {#if $$slots.addonRight}
