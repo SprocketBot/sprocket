@@ -1,6 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {JwtService} from "@nestjs/jwt";
 import {PassportStrategy} from "@nestjs/passport";
+import {config} from "@sprocketbot/common";
 import axios from "axios";
 import type {Request} from "express";
 import type {ParamsDictionary} from "express-serve-static-core";
@@ -15,9 +16,9 @@ import {AuthenticationRequestBodySchema, XSTSRequestBodySchema} from "./xbox.typ
 export class XboxStrategy extends PassportStrategy(Strategy, "xbox") {
     constructor(private readonly jwtService: JwtService) {
         super({
-            clientID: "56a6147f-7d49-4cb7-9129-6f45cd205850",
-            clientSecret: "9GU8Q~1bst5Xv6l.baFVf4Pd8sengKfQpw8RraZI",
-            callbackURL: "http://localhost:3001/authentication/xbox/login",
+            clientID: config.auth.microsoft.clientId,
+            clientSecret: config.auth.microsoft.secret,
+            callbackURL: config.auth.xbox.callbackUrl,
             scope: ["Xboxlive.signin", "Xboxlive.offline_access"],
             tenant: "common",
             authorizationURL: "https://login.live.com/oauth20_authorize.srf",
