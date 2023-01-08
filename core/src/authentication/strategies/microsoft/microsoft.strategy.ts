@@ -1,6 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {JwtService} from "@nestjs/jwt";
 import {PassportStrategy} from "@nestjs/passport";
+import { config } from "@sprocketbot/common";
 import type {Request} from "express";
 import type {ParamsDictionary} from "express-serve-static-core";
 import type {Profile, VerifyCallback} from "passport-microsoft";
@@ -11,9 +12,9 @@ import type {ParsedQs} from "qs";
 export class MicrosoftStrategy extends PassportStrategy(Strategy, "microsoft") {
     constructor(private readonly jwtService: JwtService) {
         super({
-            clientID: "56a6147f-7d49-4cb7-9129-6f45cd205850",
-            clientSecret: "9GU8Q~1bst5Xv6l.baFVf4Pd8sengKfQpw8RraZI",
-            callbackURL: "http://localhost:3001/authentication/microsoft/login",
+            clientID: config.auth.microsoft.clientId,
+            clientSecret: config.auth.microsoft.secret,
+            callbackURL: config.auth.microsoft.callbackUrl,
             scope: ["user.read"],
             tenant: "common",
         });
