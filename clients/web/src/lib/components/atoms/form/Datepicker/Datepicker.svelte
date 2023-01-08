@@ -6,6 +6,7 @@
     import type { FormControlState, FormControlSize } from '../form.types';
     import { Input } from "../Input";
     import { clickOutside } from "../../../../actions/clickOutside.action";
+    import { Portal } from "../../../abstract";
   
     export let size: FormControlSize = "md";
     export let label: string;
@@ -24,7 +25,7 @@
 </script>
 
 
-<div class="datepicker size-{size} state-{state}">
+<div class="__sprocket_datepicker relative size-{size} state-{state}">
     <Input
         readonly={true}
         bind:size
@@ -39,7 +40,7 @@
     />
     
     {#if datepickerVisible}
-        <div transition:fly={{ duration: 80, easing: cubicInOut, y: -5 }} use:clickOutside={{ callback: hideDatepicker }}>
+        <div class="absolute left-0 top-full z-50 mt-2" transition:fly={{ duration: 80, easing: cubicInOut, y: -5 }} use:clickOutside={{ callback: hideDatepicker }}>
             <!-- TODO accessibility isn't great with this Datepicker -->
             <DatePicker bind:value on:focusout={hideDatepicker} on:select={hideDatepicker} />
         </div>
@@ -58,7 +59,13 @@
         --date-picker-selected-background: #FEBF2B; /* primary-500 */
     }
 
-    .datepicker :global(input) {
-        @apply cursor-pointer;
+    .__sprocket_datepicker {
+        :global(input) {
+            @apply cursor-pointer;
+        }
+
+        :global(.cell) {
+            @apply cursor-pointer;
+        }
     }
 </style>
