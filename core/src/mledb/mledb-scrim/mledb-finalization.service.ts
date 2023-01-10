@@ -184,6 +184,7 @@ export class MledbFinalizationService {
         const teamStats: MLE_TeamCoreStats[] = [];
         const roleUsages: MLE_TeamRoleUsage[] = [];
 
+
         const mleSeriesReplays = await Promise.all(
             submission.items.map(async item => {
                 // Get the ballchasing data that is available
@@ -255,11 +256,14 @@ export class MledbFinalizationService {
                     replay.playerStats.push(populated);
                     playerStats.push(populated);
 
-                    usage.league = player.league;
-                    usage.role = player.role!;
-                    usage.series = series;
-                    usage.teamName = player.teamName;
-                    roleUsages.push(usage);
+                    if (series.fixture && !roleUsages.some(r => r.teamName === player.teamName && r.role === player.role!)) {
+                        usage.league = player.league;
+                        usage.role = player.role!;
+                        usage.series = series;
+                        usage.teamName = player.teamName;
+                        roleUsages.push(usage);
+                    }
+                    
                 };
 
                 const buildTeamStats = (p: BallchasingTeam, color: "BLUE" | "ORANGE"): MLE_TeamCoreStats => {
