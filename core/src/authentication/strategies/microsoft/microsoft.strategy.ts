@@ -26,7 +26,6 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy, "microsoft") {
         profile: Profile,
         done: VerifyCallback,
     ): Promise<Profile | undefined> {
-        console.log(profile);
         done(null, profile);
         return profile;
     }
