@@ -12,5 +12,5 @@ export class BaseObject {
     updatedAt?: Date;
 
     @Field(() => Date, {nullable: true})
-    updatedAt?: Date;
+    deletedAt?: Date;
 }
