@@ -263,7 +263,6 @@ export class MledbFinalizationService {
                         usage.teamName = player.teamName;
                         roleUsages.push(usage);
                     }
-                    
                 };
 
                 const buildTeamStats = (p: BallchasingTeam, color: "BLUE" | "ORANGE"): MLE_TeamCoreStats => {
