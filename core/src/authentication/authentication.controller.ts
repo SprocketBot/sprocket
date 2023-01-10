@@ -14,8 +14,12 @@ import {EpicAuthGuard} from "./strategies/epic/guards/epic.guard";
 import {GoogleProfileSchema} from "./strategies/google/google.types";
 import {GoogleAuthGuard} from "./strategies/google/guards/google.guard";
 import {JwtAuthPayloadSchema} from "./strategies/jwt/jwt.types";
+import {MicrosoftAuthGuard} from "./strategies/microsoft/guards/microsoft.guard";
+import {MicrosoftProfileSchema} from "./strategies/microsoft/microsoft.types";
 import {SteamAuthGuard} from "./strategies/steam/guards/steam.guard";
 import {SteamProfileSchema} from "./strategies/steam/steam.types";
+import {XboxAuthGuard} from "./strategies/xbox/guards/xbox.guard";
+import {XboxProfileSchema} from "./strategies/xbox/xbox.types";
 
 @Controller("authentication")
 export class AuthenticationController {
@@ -192,5 +196,101 @@ export class AuthenticationController {
             this.logger.error(e);
             throw new HttpException("Failed to login", 400);
         }
+    }
+
+    @Get("microsoft/login")
+    @UseGuards(MicrosoftAuthGuard)
+    async microsoftLogin(@Request() req: Req, @Response() res: Res, @Query("state") state?: string): Promise<void> {
+        const microsoftProfile = MicrosoftProfileSchema.safeParse(req.user);
+        if (!microsoftProfile.success) throw new HttpException("Could not validate user", 400);
+
+        if (state) {
+            try {
+                const payload = this.jwtService.verify(state);
+                const data = JwtAuthPayloadSchema.safeParse(payload);
+                if (!data.success) throw new HttpException("Could not validate user", 400);
+
+                const user = await this.userRepository.findById(data.data.userId);
+                const acc = await this.userAuthenticationAccountRepository.getAuthAccount(
+                    UserAuthenticationAccountType.MICROSOFT,
+                    microsoftProfile.data.id,
+                );
+
+                if (!acc)
+                    await this.userAuthenticationAccountRepository.createAndSave({
+                        accountType: UserAuthenticationAccountType.MICROSOFT,
+                        accountId: microsoftProfile.data.id,
+                        userId: user.id,
+                    });
+            } catch (e) {
+                this.logger.error(e);
+                throw new HttpException("Failed to link account", 400);
+            }
+        } else {
+            try {
+                const user = await this.userAuthenticationAccountRepository.getUserByAuthAccount(
+                    UserAuthenticationAccountType.MICROSOFT,
+                    microsoftProfile.data.id,
+                );
+                const tokens = await this.authenticationService.login(user.id);
+
+                res.redirect(`${config.auth.frontend_callback}?token=${tokens.access},${tokens.refresh}`);
+                return;
+            } catch (e) {
+                this.logger.error(e);
+                throw new HttpException("Failed to login", 400);
+            }
+        }
+
+        res.send(`Hello, ${microsoftProfile.data.displayName}! Thanks for signing in with Microsoft!`);
+        return;
+    }
+
+    @Get("xbox/login")
+    @UseGuards(XboxAuthGuard)
+    async xboxLogin(@Request() req: Req, @Response() res: Res, @Query("state") state?: string): Promise<void> {
+        const xboxProfile = XboxProfileSchema.safeParse(req.user);
+        if (!xboxProfile.success) throw new HttpException("Could not validate user", 400);
+
+        if (state) {
+            try {
+                const payload = this.jwtService.verify(state);
+                const data = JwtAuthPayloadSchema.safeParse(payload);
+                if (!data.success) throw new HttpException("Could not validate user", 400);
+
+                const user = await this.userRepository.findById(data.data.userId);
+                const acc = await this.userAuthenticationAccountRepository.getAuthAccount(
+                    UserAuthenticationAccountType.XBOX,
+                    xboxProfile.data.id,
+                );
+
+                if (!acc)
+                    await this.userAuthenticationAccountRepository.createAndSave({
+                        accountType: UserAuthenticationAccountType.XBOX,
+                        accountId: xboxProfile.data.id,
+                        userId: user.id,
+                    });
+            } catch (e) {
+                this.logger.error(e);
+                throw new HttpException("Failed to link account", 400);
+            }
+        } else {
+            try {
+                const user = await this.userAuthenticationAccountRepository.getUserByAuthAccount(
+                    UserAuthenticationAccountType.XBOX,
+                    xboxProfile.data.id,
+                );
+                const tokens = await this.authenticationService.login(user.id);
+
+                res.redirect(`${config.auth.frontend_callback}?token=${tokens.access},${tokens.refresh}`);
+                return;
+            } catch (e) {
+                this.logger.error(e);
+                throw new HttpException("Failed to login", 400);
+            }
+        }
+
+        res.send(`Hello, ${xboxProfile.data.displayName}! Thanks for signing in with Xbox!`);
+        return;
     }
 }

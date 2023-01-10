@@ -12,7 +12,9 @@ import {DiscordStrategy} from "./strategies/discord/discord.strategy";
 import {EpicStrategy} from "./strategies/epic/epic.strategy";
 import {GoogleStrategy} from "./strategies/google/google.strategy";
 import {JwtStrategy} from "./strategies/jwt/jwt.strategy";
+import {MicrosoftStrategy} from "./strategies/microsoft/microsoft.strategy";
 import {SteamStrategy} from "./strategies/steam/steam.strategy";
+import {XboxStrategy} from "./strategies/xbox/xbox.strategy";
 
 @Module({
     imports: [
@@ -32,6 +34,8 @@ import {SteamStrategy} from "./strategies/steam/steam.strategy";
         GoogleStrategy,
         JwtStrategy,
         SteamStrategy,
+        MicrosoftStrategy,
+        XboxStrategy,
     ],
     controllers: [AuthenticationController],
 })
