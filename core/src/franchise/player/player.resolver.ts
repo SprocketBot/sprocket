@@ -120,6 +120,7 @@ export class PlayerResolver {
         @Args("playerId", {type: () => Int}) playerId: number,
         @Args("salary", {type: () => Float}) salary: number,
         @Args("skillGroupId", {type: () => Int}) skillGroupId: number,
+        @Args("silent", {type: () => Boolean, nullable: true}) silent?: boolean,
     ): Promise<string> {
         const player = await this.playerService.getPlayer({
             where: {id: playerId},
@@ -158,8 +159,6 @@ export class PlayerResolver {
         });
         const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(player.member.organization.id);
 
-        if (player.skillGroup.id === skillGroupId) return "ERROR: This player is already in this skill group";
-
         const inputData: ManualSkillGroupChange = {
             id: playerId,
             salary: salary,
@@ -170,69 +169,71 @@ export class PlayerResolver {
         await this.playerService.updatePlayerStanding(playerId, salary, skillGroupId);
         await this.eloConnectorService.createJob(EloEndpoint.SGChange, inputData);
 
-        await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
-            playerId: player.id,
-            name: player.member.profile.name,
-            organizationId: player.skillGroup.organizationId,
-            discordId: discordAccount.accountId,
-            old: {
-                id: player.skillGroup.id,
-                name: player.skillGroup.profile.description,
-                salary: player.salary,
-                discordEmojiId: player.skillGroup.profile.discordEmojiId,
-            },
-            new: {
-                id: skillGroup.id,
-                name: skillGroup.profile.description,
-                salary: salary,
-                discordEmojiId: skillGroup.profile.discordEmojiId,
-            },
-        });
-
-        await this.notificationService.send(NotificationEndpoint.SendNotification, {
-            type: NotificationType.BASIC,
-            userId: player.member.user.id,
-            notification: {
-                type: NotificationMessageType.DirectMessage,
-                userId: discordAccount.accountId,
-                payload: {
-                    embeds: [ {
-                        title: "You Have Ranked Out",
-                        description: `You have been ranked out from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
-                        author: {
-                            name: `${orgProfile.name}`,
-                        },
-                        fields: [
-                            {
-                                name: "New League",
-                                value: `${skillGroup.profile.description}`,
-                            },
-                            {
-                                name: "New Salary",
-                                value: `${salary}`,
-                            },
-                        ],
-                        footer: {
-                            text: orgProfile.name,
-                        },
-                        timestamp: Date.now(),
-                    } ],
+        if (!silent) {
+            await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
+                playerId: player.id,
+                name: player.member.profile.name,
+                organizationId: player.skillGroup.organizationId,
+                discordId: discordAccount.accountId,
+                old: {
+                    id: player.skillGroup.id,
+                    name: player.skillGroup.profile.description,
+                    salary: player.salary,
+                    discordEmojiId: player.skillGroup.profile.discordEmojiId,
                 },
-                brandingOptions: {
-                    organizationId: player.member.organization.id,
-                    options: {
-                        author: {
-                            icon: true,
-                        },
-                        color: true,
-                        thumbnail: true,
-                        footer: {
-                            icon: true,
+                new: {
+                    id: skillGroup.id,
+                    name: skillGroup.profile.description,
+                    salary: salary,
+                    discordEmojiId: skillGroup.profile.discordEmojiId,
+                },
+            });
+
+            await this.notificationService.send(NotificationEndpoint.SendNotification, {
+                type: NotificationType.BASIC,
+                userId: player.member.user.id,
+                notification: {
+                    type: NotificationMessageType.DirectMessage,
+                    userId: discordAccount.accountId,
+                    payload: {
+                        embeds: [ {
+                            title: "You Have Ranked Out",
+                            description: `You have been ranked out from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
+                            author: {
+                                name: `${orgProfile.name}`,
+                            },
+                            fields: [
+                                {
+                                    name: "New League",
+                                    value: `${skillGroup.profile.description}`,
+                                },
+                                {
+                                    name: "New Salary",
+                                    value: `${salary}`,
+                                },
+                            ],
+                            footer: {
+                                text: orgProfile.name,
+                            },
+                            timestamp: Date.now(),
+                        } ],
+                    },
+                    brandingOptions: {
+                        organizationId: player.member.organization.id,
+                        options: {
+                            author: {
+                                icon: true,
+                            },
+                            color: true,
+                            thumbnail: true,
+                            footer: {
+                                icon: true,
+                            },
                         },
                     },
                 },
-            },
-        });
+            });
+        }
 
         return "SUCCESS";
     }

@@ -196,7 +196,7 @@ export class PlayerService {
                     relations: {member: {user: true, profile: true} },
                 });
 
-                player = this.playerRepository.merge(player, {skillGroup, salary});
+                player = this.playerRepository.merge(player, {skillGroupId: skillGroup.id, salary: salary});
                 this.memberProfileRepository.merge(player.member.profile, {name});
 
                 await runner.manager.save(player);
@@ -213,7 +213,7 @@ export class PlayerService {
                     runner,
                 );
 
-                if (skillGroup.id !== player.skillGroupId) await this.eloConnectorService.createJob(EloEndpoint.SGChange, {
+                await this.eloConnectorService.createJob(EloEndpoint.SGChange, {
                     id: player.id,
                     salary: salary,
                     skillGroup: skillGroup.ordinal,
@@ -301,6 +301,7 @@ export class PlayerService {
     ): Promise<MLE_Player> {
         const updatedPlayer = this.mle_playerRepository.merge(player, {
             updatedBy: "Sprocket FA Intake",
+            updatedAt: new Date(),
             name: name,
             salary: salary,
             league: league,
