@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { IconSource } from "@steeze-ui/svelte-icon/types";
+    import type {IconSource} from "@steeze-ui/svelte-icon/types";
 
     import TimelineItemInner from "./TimelineItemInner.svelte";
 
@@ -9,9 +9,8 @@
     export let href: string | undefined = undefined;
 </script>
 
-
 {#if href}
-    <a class="cursor-pointer" href={href}>
+    <a class="cursor-pointer" {href}>
         <TimelineItemInner {title} {date} {icon}>
             <slot />
         </TimelineItemInner>

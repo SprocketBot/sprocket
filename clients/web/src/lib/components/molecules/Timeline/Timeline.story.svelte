@@ -1,8 +1,8 @@
 <script lang="ts">
     import type {Hst as _Hst} from "@histoire/plugin-svelte";
-    import { ChevronDown, ChevronUp, HandThumbDown, PencilSquare, Trophy } from "@steeze-ui/heroicons";
-    import { subMinutes, subDays } from "date-fns";
-    import { faker } from "@faker-js/faker";
+    import {ChevronDown, ChevronUp, HandThumbDown, PencilSquare, Trophy} from "@steeze-ui/heroicons";
+    import {subMinutes, subDays} from "date-fns";
+    import {faker} from "@faker-js/faker";
 
     import Timeline from "./Timeline.svelte";
     import TimelineItem from "./TimelineItem.svelte";
@@ -36,31 +36,11 @@
 
     <Hst.Variant title="With Icons">
         <Timeline>
-            <TimelineItem
-                title="Won MLE Championship"
-                date={subMinutes(now, 3)}
-                icon={Trophy}
-            />
-            <TimelineItem
-                title="Salary increased to 14.5"
-                date={subDays(now, 4)}
-                icon={ChevronUp}
-            />
-            <TimelineItem
-                title="Lost against Puffins"
-                date={subDays(now, 9)}
-                icon={HandThumbDown}
-            />
-            <TimelineItem
-                title="Salary decreased to 14.0"
-                date={subDays(now, 25)}
-                icon={ChevronDown}
-            />
-            <TimelineItem
-                title="Signed to Dodgers"
-                date={subDays(now, 45)}
-                icon={PencilSquare}
-            />
+            <TimelineItem title="Won MLE Championship" date={subMinutes(now, 3)} icon={Trophy} />
+            <TimelineItem title="Salary increased to 14.5" date={subDays(now, 4)} icon={ChevronUp} />
+            <TimelineItem title="Lost against Puffins" date={subDays(now, 9)} icon={HandThumbDown} />
+            <TimelineItem title="Salary decreased to 14.0" date={subDays(now, 25)} icon={ChevronDown} />
+            <TimelineItem title="Signed to Dodgers" date={subDays(now, 45)} icon={PencilSquare} />
         </Timeline>
     </Hst.Variant>
 
