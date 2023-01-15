@@ -3,7 +3,7 @@
     import Button from "./Button.svelte";
 
     export let Hst: _Hst;
-    let label: string = "HAI";
+    let label = "HAI";
     const onClick = () => {
         alert("You clicked the button. Congrats!");
     };

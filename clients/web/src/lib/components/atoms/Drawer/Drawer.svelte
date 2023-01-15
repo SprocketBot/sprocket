@@ -7,7 +7,7 @@
     import {setContext} from "svelte";
     import {DRAWER_CLOSE_CONTEXT, type DrawerPosition} from "./types";
 
-    export let open: boolean = false;
+    export let open = false;
     export let position: DrawerPosition = "left";
 
     let flyProps: FlyParams = {};

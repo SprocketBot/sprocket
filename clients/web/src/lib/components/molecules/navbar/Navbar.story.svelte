@@ -9,6 +9,3 @@
         <Navbar />
     </Hst.Variant>
 </Hst.Story>
-
-<style lang="postcss">
-</style>

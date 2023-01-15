@@ -8,7 +8,7 @@
     export let label: string;
     export let value: boolean | undefined = undefined;
 
-    export let disabled: boolean = false;
+    export let disabled = false;
     export let state: FormControlState = "none";
     export let error: string | undefined = undefined;
 
