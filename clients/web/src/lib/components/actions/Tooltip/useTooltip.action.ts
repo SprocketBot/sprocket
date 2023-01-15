@@ -57,7 +57,6 @@ export const tooltip = (node: HTMLElement, {content, position = "top", withArrow
         // Remove tooltip
         if (document.body.contains(tooltip)) {
             document.body.removeChild(tooltip);
-
         }
     }
     node.addEventListener("mouseenter", renderTooltip);
@@ -73,6 +72,6 @@ export const tooltip = (node: HTMLElement, {content, position = "top", withArrow
             _position = position;
             _withArrow = withArrow ?? _withArrow;
             _active = active ?? _active;
-        }
+        },
     };
 };
