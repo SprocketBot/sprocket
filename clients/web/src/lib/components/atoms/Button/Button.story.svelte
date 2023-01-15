@@ -3,10 +3,10 @@
     import Button from "./Button.svelte";
 
     export let Hst: _Hst;
-    let label:string = "HAI";
+    let label: string = "HAI";
     const onClick = () => {
         alert("You clicked the button. Congrats!");
-    }
+    };
 </script>
 
 <Hst.Story title="Atoms/Button">

@@ -16,7 +16,9 @@
         href="#"
         class="flex items-center p-2 text-base font-normal rounded-lg text-white hover:bg-gray-700 group h-10"
         use:tooltip={{
-            content: label, position: "right", active: $context.showTooltips
+            content: label,
+            position: "right",
+            active: $context.showTooltips,
         }}
     >
         {#if icon}
