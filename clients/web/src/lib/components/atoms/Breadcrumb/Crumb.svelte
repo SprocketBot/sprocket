@@ -3,7 +3,7 @@
     import {ChevronRight} from "@steeze-ui/heroicons";
     import type {ICrumb} from "./types";
 
-    export let active: boolean = false;
+    export let active = false;
     export let crumb: ICrumb;
     const {icon, label, target} = crumb;
 </script>

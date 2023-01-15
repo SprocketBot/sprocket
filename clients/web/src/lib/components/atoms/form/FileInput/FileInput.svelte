@@ -15,12 +15,12 @@
 
     export let label: string;
     export let value: FileWithPath[] | undefined = undefined;
-    export let multiple: boolean = false;
+    export let multiple = false;
     export let showDropzone: FileInputShowDropzone = "when-dropping";
 
     export let size: FormControlSize = "md";
     export let placeholder: string | undefined = undefined;
-    export let disabled: boolean = false;
+    export let disabled = false;
     export let state: FormControlState = "none";
     export let error: string | undefined = undefined;
 

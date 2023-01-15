@@ -10,7 +10,7 @@
     export let Hst: _Hst;
     let label: string;
     let size: ProgressBarSize;
-    let progress: number = 50;
+    let progress = 50;
     let progressLocation: ProgressLocation;
     let variant: ProgressBarVariant;
 </script>

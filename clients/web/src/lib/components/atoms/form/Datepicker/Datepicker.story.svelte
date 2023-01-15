@@ -3,7 +3,7 @@
 
     import {Props} from "$lib/histoire";
 
-    import type { FormControlSize, FormControlState } from "../form.types";
+    import type {FormControlSize, FormControlState} from "../form.types";
     import Datepicker from "./Datepicker.svelte";
 
     export let Hst: _Hst;
@@ -19,7 +19,6 @@
     let error = "";
     let value: Date | undefined = undefined;
 </script>
-
 
 <Hst.Story title="Atoms/Form/Datepicker" layout={{type: "grid", width: 500}}>
     <svelte:fragment slot="controls">
@@ -38,6 +37,9 @@
     </Hst.Variant>
 
     <Hst.Variant title="Note">
-        <div class="bg-gray-600 text-gray-300 text-xs italic p-2 rounded-md">Note: Histoire is a little funky when changing props while the Datepicker has a value (it will not update and there will be errors in the console about a Proxy object). This problem does not exist in real use.</div>
+        <div class="bg-gray-600 text-gray-300 text-xs italic p-2 rounded-md">
+            Note: Histoire is a little funky when changing props while the Datepicker has a value (it will not update
+            and there will be errors in the console about a Proxy object). This problem does not exist in real use.
+        </div>
     </Hst.Variant>
 </Hst.Story>
