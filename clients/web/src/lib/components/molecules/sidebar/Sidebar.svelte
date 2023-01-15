@@ -1,10 +1,10 @@
 <script lang="ts">
     import {setContext} from "svelte";
-    import LogoSquarePrimary from "$lib/images/logo-square-primary.png"    
-    import LogoFullDark from "$lib/images/logo-full-dark.png"
+    import LogoSquarePrimary from "$lib/images/logo-square-primary.png";
+    import LogoFullDark from "$lib/images/logo-full-dark.png";
     import type {SidebarWidth} from "./types";
     import {type SidebarContext, SidebarContextKey} from "./types";
-    import { writable } from "svelte/store";
+    import {writable} from "svelte/store";
 
     export let withHeader = true;
     export let width: SidebarWidth = "md";
@@ -12,12 +12,11 @@
     export let showTooltips: boolean | undefined = undefined;
 
     const context: SidebarContext = writable({iconOnly: false, showTooltips: true});
-    $: if (width === "sm")  $context.iconOnly = true;
+    $: if (width === "sm") $context.iconOnly = true;
     $: if (width === "full") $context.showTooltips = false;
-       else if (typeof showTooltips !== "undefined") $context.showTooltips = showTooltips
-    
+    else if (typeof showTooltips !== "undefined") $context.showTooltips = showTooltips;
+
     // prop overrides default behavior
-    
 
     setContext<SidebarContext>(SidebarContextKey, context);
 </script>
