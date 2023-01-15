@@ -1,9 +1,9 @@
 <script lang="ts">
     import {clickOutside} from "$lib/actions/clickOutside.action";
     import {slide} from "svelte/transition";
-    let open: boolean = false;
+    let open = false;
 
-    export let transparent: boolean = false;
+    export let transparent = false;
 </script>
 
 <div class="relative" use:clickOutside={{callback: () => (open = false)}}>

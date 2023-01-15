@@ -33,18 +33,18 @@
         <Props props={{label, size, placeholder, disabled, state, error, value}} />
     </svelte:fragment>
 
-    <Hst.Variant title="Default" {label} {size} {placeholder} {disabled} {state} {error} {value}>
+    <Hst.Variant title="Default">
         <Input {label} {size} {placeholder} {disabled} {state} {error} bind:value />
     </Hst.Variant>
 
-    <Hst.Variant title="With addonLeft" {label} {size} {placeholder} {disabled} {state} {error} {value}>
+    <Hst.Variant title="With addonLeft">
         <Input {label} {size} {placeholder} {disabled} {state} {error} bind:value>
             <!-- Addons can be anything, including icons! -->
             <Icon slot="addonLeft" class="h-3/6" src={Pencil} />
         </Input>
     </Hst.Variant>
 
-    <Hst.Variant title="With addonRight" {label} {size} {placeholder} {disabled} {state} {error} {value}>
+    <Hst.Variant title="With addonRight">
         <Input {label} {size} {placeholder} {disabled} {state} {error} bind:value>
             <!-- Addons can be anything, including text with additional styling! -->
             <span slot="addonRight" class="h-full text-xl font-bold bg-gray-600">%</span>

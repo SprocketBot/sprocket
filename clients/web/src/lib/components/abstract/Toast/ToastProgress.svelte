@@ -4,8 +4,6 @@
 
     export let toast: IToast;
 
-    const end = toast.timestamp + (toast.ttl ?? 0);
-
     let lastTime = window.performance.now();
     let frameId: number;
 

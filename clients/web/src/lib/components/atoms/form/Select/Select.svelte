@@ -32,7 +32,7 @@
 
     export let size: FormControlSize = "md";
     export let placeholder: string | undefined = undefined;
-    export let disabled: boolean = false;
+    export let disabled = false;
     export let state: FormControlState = "none";
     export let error: string | undefined = undefined;
 
@@ -53,11 +53,13 @@
             {disabled}
         >
             {#if placeholder}
-                <option value={undefined} disabled selected hidden>{placeholder}</option>
+                <option class="bg-gray-700 text-gray-50" value={undefined} disabled selected hidden
+                    >{placeholder}</option
+                >
             {/if}
 
             {#each options as option}
-                <option value={option.value}>{option.label}</option>
+                <option class="bg-gray-700 text-gray-50" value={option.value}>{option.label}</option>
             {/each}
         </select>
 
