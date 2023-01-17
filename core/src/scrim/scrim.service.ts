@@ -190,7 +190,7 @@ export class ScrimService {
             }).catch(() => null);
             if (!franchise) return undefined;
 
-            return this.franchiseService.getFranchiseProfile(franchise.id);
+            return franchise.profile;
         }));
 
         return {
