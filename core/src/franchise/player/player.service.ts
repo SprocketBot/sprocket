@@ -584,7 +584,7 @@ export class PlayerService {
                         playerDelta.rankout.salary,
                     ));
                 } else if (playerDelta.rankout.degreeOfStiffness === DegreeOfStiffness.SOFT) {
-                    await this.updatePlayerStanding(playerDelta.playerId, playerDelta.rankout.salary);
+                    await this.updatePlayerStanding(playerDelta.playerId, playerDelta.newSalary);
 
                     const skillGroup = await this.skillGroupService.getGameSkillGroup({
                         where: {
