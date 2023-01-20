@@ -4,6 +4,7 @@ import type {
     GetPlayerSuccessResponse,
     MatchReplaySubmission,
     ReplaySubmission,
+    Scrim,
     ScrimReplaySubmission,
 } from "@sprocketbot/common";
 import {
@@ -39,26 +40,15 @@ export class ReplayValidationService {
         return this.validateMatchSubmission(submission);
     }
 
-    private async validateScrimSubmission(submission: ScrimReplaySubmission): Promise<ValidationResult> {
-        const scrimResponse = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, {
-            scrimId: submission.scrimId,
-        });
-        if (scrimResponse.status === ResponseStatus.ERROR) throw scrimResponse.error;
-        if (!scrimResponse.data) throw new Error("Scrim not found");
-
-        const scrim = scrimResponse.data;
-
-        // ========================================
-        // Validate number of games
-        // ========================================
-        if (!scrim.games) {
-            throw new Error(`Unable to validate gameCount for scrim ${scrim.id} because it has no games`);
-        }
-
+    validateNumberOfGames(submission: ScrimReplaySubmission, scrim: Scrim): ValidationResult {
         const submissionGameCount = submission.items.length;
-        const scrimGameCount = scrim.games.length;
+        const scrimGameCount = scrim?.games?.length;
 
-        if (submissionGameCount !== scrimGameCount) {
+        if (submissionGameCount === scrimGameCount) {
+            return {
+                valid: true,
+            };
+        } else {
             return {
                 valid: false,
                 errors: [
@@ -68,13 +58,13 @@ export class ReplayValidationService {
                 ],
             };
         }
+    }
 
-        const gameCount = submissionGameCount;
-
+    checkForProcessingErrors(submission: ScrimReplaySubmission, scrim: Scrim): ValidationResult {
         const progressErrors = submission.items.reduce<ValidationError[]>((r, v) => {
             if (v.progress?.error) {
                 this.logger.error(
-                    `Error in submission found, scrim=${scrim.id} submissionId=${scrim.submissionId}\n${v.progress.error}`,
+                    `Error in submission found, scrim=${scrim.id} submissionId=${scrim.submissionId},${v.progress.error}`,
                 );
                 r.push({
                     error: `Error encountered while parsing file ${v.originalFilename}`,
@@ -87,32 +77,98 @@ export class ReplayValidationService {
                 valid: false,
                 errors: progressErrors,
             };
+        } else {
+            return {
+                valid: true,
+            };
         }
+    }
 
-        // ========================================
-        // Validate the correct players played
-        // ========================================
-        // All items should have an outputPath
+    checkOutputPathExists(submission: ScrimReplaySubmission, scrim: Scrim): ValidationResult {
         if (!submission.items.every(i => i.outputPath)) {
             this.logger.error(
                 `Unable to validate submission with missing outputPath, scrim=${scrim.id} submissionId=${scrim.submissionId}`,
             );
             return {
                 valid: false,
-                errors: [],
+                errors: [
+                    {
+                        error: `Unable to validate submission with missing outputPath, scrim=${scrim.id} submissionId=${scrim.submissionId}`,
+                    },
+                ],
             };
         }
+        return {
+            valid: true,
+        };
+    }
 
-        // We should have stats for every game
-        const stats = await Promise.all(submission.items.map(async i => this.getStats(i.outputPath!)));
-        if (stats.length !== gameCount) {
+    async checkForAllStats(
+        stats: BallchasingResponse[],
+        submission: ScrimReplaySubmission,
+        scrim: Scrim,
+    ): Promise<ValidationResult> {
+        if (stats.length !== submission.items.length) {
             this.logger.error(
-                `Unable to validate submission missing stats, scrim=${scrim.id} submissionId=${scrim.submissionId}`,
+                `Unable to validate submission: missing stats. Scrim=${scrim.id} submissionId=${scrim.submissionId}`,
             );
             return {
                 valid: false,
                 errors: [{error: "The submission is missing stats. Please contact support."}],
             };
+        } else {
+            return {
+                valid: true,
+            };
+        }
+    }
+
+    async validateScrimSubmission(submission: ScrimReplaySubmission): Promise<ValidationResult> {
+        const scrimResponse = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, {
+            scrimId: submission.scrimId,
+        });
+        if (scrimResponse.status === ResponseStatus.ERROR) throw scrimResponse.error;
+        if (!scrimResponse.data) throw new Error("Scrim not found");
+
+        const scrim = scrimResponse.data;
+        const gameCount = submission.items.length;
+
+        if (!scrim.games) {
+            throw new Error(`Unable to validate gameCount for scrim ${scrim.id} because it has no games`);
+        }
+
+        // ========================================
+        // Validate number of games
+        // ========================================
+        let thisResult = this.validateNumberOfGames(submission, scrim);
+        if (!thisResult.valid) {
+            return thisResult;
+        }
+
+        // ========================================
+        // Validate no errors in processing the replays
+        // ========================================
+        thisResult = this.checkForProcessingErrors(submission, scrim);
+        if (!thisResult.valid) {
+            return thisResult;
+        }
+
+        // ========================================
+        // Validate the correct players played
+        // ========================================
+        // All items should have an outputPath
+        thisResult = this.checkOutputPathExists(submission, scrim);
+        if (!thisResult.valid) {
+            return thisResult;
+        }
+
+        // We should have stats for every game
+        const promises = submission.items.map(async i => this.getStats(i.outputPath!));
+        const stats = await Promise.all(promises);
+
+        thisResult = await this.checkForAllStats(stats, submission, scrim);
+        if (!thisResult.valid) {
+            return thisResult;
         }
 
         const gameResult = await this.coreService.send(CoreEndpoint.GetGameByGameMode, {gameModeId: scrim.gameModeId});
@@ -224,35 +280,9 @@ export class ReplayValidationService {
                 };
             }
 
-            const scrimGame = sortedScrimPlayerIds[matchupIndex];
-
-            for (let t = 0; t < scrim.settings.teamCount; t++) {
-                const scrimTeam = scrimGame[t];
-                const submissionTeam = submissionGame[t];
-                if (scrimTeam.length !== submissionTeam.length) {
-                    return {
-                        valid: false,
-                        errors: [
-                            {
-                                error: "Invalid team size",
-                                gameIndex: g,
-                                teamIndex: t,
-                            },
-                        ],
-                    };
-                }
-            }
-            if (scrimGame.length !== submissionGame.length) {
-                return {
-                    valid: false,
-                    errors: [
-                        {
-                            error: "Invalid team count",
-                            gameIndex: g,
-                        },
-                    ],
-                };
-            }
+            // The above permutations check *actually* covers number of players
+            // and teams as well, so the checks that were here previously are
+            // vacuously true, always.
         }
 
         // ========================================
@@ -286,7 +316,7 @@ export class ReplayValidationService {
         return JSON.parse(stats).data as BallchasingResponse;
     }
 
-    private async validateMatchSubmission(submission: MatchReplaySubmission): Promise<ValidationResult> {
+    async validateMatchSubmission(submission: MatchReplaySubmission): Promise<ValidationResult> {
         const matchResult = await this.coreService.send(CoreEndpoint.GetMatchById, {matchId: submission.matchId});
         if (matchResult.status === ResponseStatus.ERROR) throw matchResult.error;
         const match = matchResult.data;
