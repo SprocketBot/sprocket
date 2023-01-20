@@ -31,7 +31,7 @@ export interface CurrentScrim {
         mode: string;
     };
     players: Array<{
-        id: number;
+        userId: number;
         name: string;
         checkedIn: boolean;
     }>;
@@ -107,7 +107,7 @@ class CurrentScrimStore extends LiveQueryStore<
                     mode
                 }
                 players {
-                    id
+                    userId
                     name
                     checkedIn
                 }
@@ -118,7 +118,7 @@ class CurrentScrimStore extends LiveQueryStore<
                 games {
                     teams {
                         players {
-                            id
+                            userId
                             name
                         }
                     }
@@ -159,7 +159,7 @@ class CurrentScrimStore extends LiveQueryStore<
                         mode
                     }
                     players {
-                        id
+                        userId
                         name
                         checkedIn
                     }
@@ -170,7 +170,7 @@ class CurrentScrimStore extends LiveQueryStore<
                     games {
                         teams {
                             players {
-                                id
+                                userId
                                 name
                             }
                         }

@@ -65,7 +65,9 @@ export class SubmissionService extends SprocketEventMarshal {
     }
 
     async sendScrimSubmissionRatifyingNotifications(submission: ScrimReplaySubmission): Promise<void> {
-        const scrimResult = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, submission.scrimId);
+        const scrimResult = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, {
+            scrimId: submission.scrimId,
+        });
         if (scrimResult.status === ResponseStatus.ERROR) throw scrimResult.error;
 
         const scrim = scrimResult.data;
@@ -78,7 +80,7 @@ export class SubmissionService extends SprocketEventMarshal {
 
         await Promise.all(
             scrim.players.map(async p => {
-                const userResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, p.id);
+                const userResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, p.userId);
                 if (userResult.status === ResponseStatus.ERROR || !userResult.data) return;
 
                 await this.botService.send(BotEndpoint.SendDirectMessage, {
@@ -213,7 +215,9 @@ export class SubmissionService extends SprocketEventMarshal {
     }
 
     async sendScrimSubmissionRejectedNotifications(submission: ScrimReplaySubmission): Promise<void> {
-        const scrimResult = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, submission.scrimId);
+        const scrimResult = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, {
+            scrimId: submission.scrimId,
+        });
         if (scrimResult.status === ResponseStatus.ERROR) throw scrimResult.error;
 
         const scrim = scrimResult.data;
@@ -226,7 +230,7 @@ export class SubmissionService extends SprocketEventMarshal {
 
         await Promise.all(
             scrim.players.map(async p => {
-                const userResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, p.id);
+                const userResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, p.userId);
                 if (userResult.status === ResponseStatus.ERROR) throw userResult.error;
                 if (!userResult.data) return;
 

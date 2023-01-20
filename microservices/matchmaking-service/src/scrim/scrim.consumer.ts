@@ -36,7 +36,7 @@ export class ScrimConsumer {
                     if (scrim.players.length === 1) {
                         await this.scrimService.cancelScrim(scrim.id);
                     } else {
-                        await this.scrimService.leaveScrim(scrim.id, player.id);
+                        await this.scrimService.leaveScrim(scrim.id, player.userId);
                     }
                 }
             }

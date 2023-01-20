@@ -1,9 +1,9 @@
 import {Field, ObjectType} from "@nestjs/graphql";
-import {Column, Entity, ManyToMany, OneToMany} from "typeorm";
+import {Column, Entity, OneToMany} from "typeorm";
 
 import {BaseModel} from "../../base-model";
 import {MemberPlatformAccount} from "../../organization/models";
-import {Game} from "../game/game.model";
+import {GamePlatform} from "../game_platform/game_platform.model";
 
 @Entity({schema: "sprocket"})
 @ObjectType()
@@ -16,7 +16,7 @@ export class Platform extends BaseModel {
     @Field(() => [MemberPlatformAccount])
     memberAccounts: MemberPlatformAccount[];
 
-    @ManyToMany(() => Game)
-    @Field(() => [Game])
-    supportedGames: Game[];
+    @OneToMany(() => GamePlatform, gp => gp.platform)
+    @Field(() => [GamePlatform])
+    supportedGames: GamePlatform[];
 }

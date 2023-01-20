@@ -15,7 +15,7 @@ export class ScrimCrudService {
     constructor(private readonly redisService: RedisService) {}
 
     async createScrim({
-        authorId,
+        authorUserId,
         organizationId,
         gameModeId,
         skillGroupId,
@@ -30,7 +30,7 @@ export class ScrimCrudService {
             createdAt: at,
             updatedAt: at,
             status: ScrimStatus.PENDING,
-            authorId: authorId,
+            authorUserId: authorUserId,
             organizationId: organizationId,
             gameModeId: gameModeId,
             skillGroupId: skillGroupId,
@@ -54,19 +54,23 @@ export class ScrimCrudService {
         return this.redisService.getJsonIfExists<Scrim>(`${this.prefix}${id}`, ScrimSchema);
     }
 
-    async getAllScrims(skillGroupId?: number): Promise<Scrim[]> {
+    async getAllScrims(organizationId?: number, skillGroupIds?: number[]): Promise<Scrim[]> {
         const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
-        const scrims = await Promise.all(
-            scrimKeys.map<Promise<Scrim>>(async key => this.redisService.getJson<Scrim>(key, undefined, ScrimSchema)),
+        let scrims = await Promise.all(
+            scrimKeys.map(async key => this.redisService.getJson<Scrim>(key, undefined, ScrimSchema)),
         );
 
-        return skillGroupId ? scrims.filter(s => s.skillGroupId === skillGroupId || !s.settings.competitive) : scrims;
+        if (skillGroupIds)
+            scrims = scrims.filter(scrim => skillGroupIds.includes(scrim.skillGroupId) || !scrim.settings.competitive);
+        if (organizationId) scrims = scrims.filter(scrim => scrim.organizationId === organizationId);
+
+        return scrims;
     }
 
     async getScrimByPlayer(id: number): Promise<Scrim | null> {
         const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
         for (const key of scrimKeys) {
-            const playerIds = await this.redisService.getJson<number[] | null | undefined>(key, "$.players[*].id");
+            const playerIds = await this.redisService.getJson<number[] | null | undefined>(key, "$.players[*].userId");
 
             if (!playerIds) {
                 this.logger.verbose(`GetScrimByPlayer id=${id} key=${key} playerIds is null`);
@@ -94,7 +98,7 @@ export class ScrimCrudService {
 
     async removePlayerFromScrim(scrimId: string, playerId: number): Promise<void> {
         let [players] = await this.redisService.getJson<ScrimPlayer[][]>(`${this.prefix}${scrimId}`, "$.players");
-        players = players.filter(p => p.id !== playerId);
+        players = players.filter(p => p.userId !== playerId);
         await this.redisService.deleteJsonField(`${this.prefix}${scrimId}`, "$.players");
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.players", players);
         await this.updateScrimUpdatedAt(scrimId);
@@ -102,7 +106,7 @@ export class ScrimCrudService {
 
     async updatePlayer(scrimId: string, player: ScrimPlayer): Promise<void> {
         const [players] = await this.redisService.getJson<ScrimPlayer[][]>(`${this.prefix}${scrimId}`, "$.players");
-        const pi = players.findIndex(p => p.id === player.id);
+        const pi = players.findIndex(p => p.userId === player.userId);
         if (pi === -1) throw new Error("Player not in scrim!");
         players[pi] = player;
         await this.redisService.deleteJsonField(`${this.prefix}${scrimId}`, "$.players");
@@ -113,7 +117,7 @@ export class ScrimCrudService {
     async playerInAnyScrim(playerId: number): Promise<boolean> {
         const scrimKeys = await this.redisService.redis.keys(`${this.prefix}*`);
         const allScrimPlayers = await Promise.all(
-            scrimKeys.map(async k => this.redisService.getJson(k, "$.players[*].id")),
+            scrimKeys.map(async k => this.redisService.getJson(k, "$.players[*].userId")),
         );
         return allScrimPlayers.flat().includes(playerId);
     }
@@ -122,8 +126,22 @@ export class ScrimCrudService {
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.updatedAt", new Date());
     }
 
+    async updateScrimTimeoutAt(scrimId: string, timeoutAt: Date): Promise<void> {
+        await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.timeoutAt", timeoutAt);
+    }
+
     async updateScrimStatus(scrimId: string, status: ScrimStatus): Promise<void> {
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.status", status);
+        await this.updateScrimUpdatedAt(scrimId);
+    }
+
+    async updateScrimLockedReason(scrimId: string, reason?: string): Promise<void> {
+        if (reason) {
+            await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.lockedReason", reason);
+        } else {
+            await this.redisService.deleteJsonField(`${this.prefix}${scrimId}`, "$.lockedReason");
+        }
+
         await this.updateScrimUpdatedAt(scrimId);
     }
 

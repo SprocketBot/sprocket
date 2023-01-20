@@ -5,12 +5,12 @@ import {
     EventsService,
     EventTopic,
     MinioService,
-    Precondition,
     ProgressStatus,
     REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
     ReplaySubmissionStatus,
     Task,
 } from "@sprocketbot/common";
+import {v4} from "uuid";
 
 import {ReplayValidationService} from "../replay-validation/replay-validation.service";
 import {getSubmissionKey} from "../utils";
@@ -50,16 +50,32 @@ export class ReplaySubmissionService {
         this.replayParseSubscriber.subscribe(submissionId);
         await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.PROCESSING);
         const celeryPromises = filePaths.map(async fp => {
-            const precondition = new Precondition();
+            const taskId = v4();
+
+            await this.submissionCrudService.upsertItem(submissionId, {
+                originalFilename: fp.originalFilename,
+                taskId: taskId,
+                inputPath: fp.minioPath,
+                progress: {
+                    taskId: taskId,
+                    status: ProgressStatus.Pending,
+                    progress: {
+                        value: 0,
+                        message: "Queued for Parsing",
+                    },
+                    result: null,
+                    error: null,
+                },
+            });
 
             // Create the Celery Task
-            const taskId = await this.celeryService.run(
+            await this.celeryService.run(
                 Task.ParseReplay,
                 {replayObjectPath: fp.minioPath},
                 {
+                    taskId: taskId,
                     progressQueue: submissionId,
                     cb: async (_taskId, result, error) => {
-                        await precondition.promise;
                         const item = (await this.submissionCrudService.getSubmissionItems(submissionId)).find(
                             i => i.taskId === _taskId,
                         );
@@ -115,23 +131,6 @@ export class ReplaySubmissionService {
                     },
                 },
             );
-            await this.submissionCrudService.upsertItem(submissionId, {
-                originalFilename: fp.originalFilename,
-                taskId: taskId,
-                inputPath: fp.minioPath,
-                progress: {
-                    taskId: taskId,
-                    status: ProgressStatus.Pending,
-                    progress: {
-                        value: 0,
-                        message: "Queued for Parsing",
-                    },
-                    result: null,
-                    error: null,
-                },
-            });
-
-            precondition.resolve();
         });
 
         await Promise.all(celeryPromises);

@@ -70,18 +70,18 @@ export class ActiveScrimsStore extends LiveQueryStore<
                     mode
                 }
                 players {
-                    id
+                    userId
                     name
                     checkedIn
                 }
                 playersAdmin {
-                    id
+                    userId
                     name
                 }
                 games {
                     teams {
                         players {
-                            id
+                            userId
                             name
                         }
                     }
@@ -119,18 +119,18 @@ export class ActiveScrimsStore extends LiveQueryStore<
                         mode
                     }
                     players {
-                        id
+                        userId
                         name
                         checkedIn
                     }
                     playersAdmin {
-                        id
+                        userId
                         name
                     }
                     games {
                         teams {
                             players {
-                                id
+                                userId
                                 name
                             }
                         }

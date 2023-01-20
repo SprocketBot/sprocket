@@ -11,21 +11,21 @@ export class ReplaySubmissionRatificationController {
     @MessagePattern(SubmissionEndpoint.ResetSubmission)
     async resetSubmission(@Payload() payload: unknown): Promise<true> {
         const data = SubmissionSchemas.ResetSubmission.input.parse(payload);
-        await this.ratificationService.resetSubmission(data.submissionId, data.override, data.playerId);
+        await this.ratificationService.resetSubmission(data.submissionId, data.override, data.userId);
         return true;
     }
 
     @MessagePattern(SubmissionEndpoint.RatifySubmission)
     async ratifySubmission(@Payload() payload: unknown): Promise<true> {
         const data = SubmissionSchemas.RatifySubmission.input.parse(payload);
-        await this.ratificationService.ratifyScrim(data.playerId, data.submissionId);
+        await this.ratificationService.ratifyScrim(data.userId, data.submissionId);
         return true;
     }
 
     @MessagePattern(SubmissionEndpoint.RejectSubmission)
     async rejectSubmission(@Payload() payload: unknown): Promise<true> {
         const data = SubmissionSchemas.RejectSubmission.input.parse(payload);
-        await this.ratificationService.rejectSubmission(data.playerId, data.submissionId, [data.reason]);
+        await this.ratificationService.rejectSubmission(data.userId, data.submissionId, [data.reason]);
         return true;
     }
 }

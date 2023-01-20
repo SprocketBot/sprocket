@@ -71,10 +71,11 @@ export class GameOrderService {
         const output: ScrimGame[] = [];
         const {teamSize, teamCount} = scrim.settings;
         const possibleTeams = createCombinations(scrim.players, teamSize, {
-            sort: (a, b) => a.id - b.id,
+            sort: (a, b) => a.userId - b.userId,
         });
         const possibleGames = createCombinations<ScrimPlayer[]>(possibleTeams, teamCount, {
-            check: ([teamA, teamB]) => teamA.every(playerA => !teamB.find(playerB => playerA.id === playerB.id)),
+            check: ([teamA, teamB]) =>
+                teamA.every(playerA => !teamB.find(playerB => playerA.userId === playerB.userId)),
         });
         shuffle(possibleGames);
         const numGames = 3; // for now

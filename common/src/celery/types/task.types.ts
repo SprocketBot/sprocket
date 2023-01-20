@@ -26,6 +26,7 @@ export type TaskArgs<T extends Task> = z.infer<typeof TaskSchemas[T]["args"]> & 
 export type TaskResult<T extends Task> = z.infer<typeof TaskSchemas[T]["result"]>;
 
 export interface RunOpts<T extends Task> {
+    taskId?: string;
     progressQueue?: string;
     cb?: (taskId: string, result: TaskResult<T> | null, error: Error | null) => void | Promise<void>;
 }

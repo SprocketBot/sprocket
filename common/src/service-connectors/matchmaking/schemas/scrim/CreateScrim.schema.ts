@@ -3,7 +3,7 @@ import {z} from "zod";
 import {ScrimJoinOptionsSchema, ScrimSchema, ScrimSettingsSchema} from "../../types";
 
 export const CreateScrim_Request = z.object({
-    authorId: z.number(),
+    authorUserId: z.number(),
     organizationId: z.number(),
     gameModeId: z.number(),
     skillGroupId: z.number(),

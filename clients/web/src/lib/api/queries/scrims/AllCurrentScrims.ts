@@ -15,7 +15,7 @@ export const AllCurrentScrimsQuery = gql`
                 mode
             }
             players {
-                id
+                userId
                 name
                 checkedIn
             }
