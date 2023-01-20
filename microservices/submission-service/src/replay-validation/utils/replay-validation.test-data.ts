@@ -12,7 +12,7 @@ export const testSubmission: ScrimReplaySubmission = {
     id: "1",
     type: ReplaySubmissionType.SCRIM,
     scrimId: "1",
-    creatorId: 1,
+    creatorUserId: 1,
     validated: false,
     status: ReplaySubmissionStatus.VALIDATING,
     taskIds: ["1"],
@@ -25,7 +25,7 @@ export const testMatchSubmission: MatchReplaySubmission = {
     items: [],
     id: "1",
     type: ReplaySubmissionType.MATCH,
-    creatorId: 1,
+    creatorUserId: 1,
     matchId: 1,
     validated: false,
     status: ReplaySubmissionStatus.VALIDATING,
@@ -92,7 +92,7 @@ export const testScrim: Scrim = {
     unlockedStatus: ScrimStatus.IN_PROGRESS,
 
     submissionId: "1",
-    authorId: 1,
+    authorUserId: 1,
     organizationId: 2,
     gameModeId: 1,
     skillGroupId: 5,
@@ -100,8 +100,9 @@ export const testScrim: Scrim = {
 
     players: [
         {
-            id: 1,
+            userId: 1,
             name: "Nigel",
+            canSaveDemos: true,
             joinedAt: new Date(),
             leaveAt: new Date(),
         },
@@ -118,10 +119,11 @@ export const testScrim: Scrim = {
 };
 
 const testPlayer = {
-    id: 1,
+    userId: 1,
     name: "Nigel",
     joinedAt: new Date(),
     leaveAt: new Date(),
+    canSaveDemos: false,
     request: {
         platform: "EPIC",
         platformId: "80fc09bb4a6f41688c316555a7606a4a",
@@ -129,10 +131,11 @@ const testPlayer = {
 };
 
 const testPlayer2 = {
-    id: 2,
+    userId: 2,
     name: "Precision",
     joinedAt: new Date(),
     leaveAt: new Date(),
+    canSaveDemos: false,
     request: {
         platform: "STEAM",
         platformId: "76561198216346683",
@@ -140,10 +143,11 @@ const testPlayer2 = {
 };
 
 const testPlayer3 = {
-    id: 3,
+    userId: 3,
     name: "Kovalchuk",
     joinedAt: new Date(),
     leaveAt: new Date(),
+    canSaveDemos: false,
     request: {
         platform: "STEAM",
         platformId: "76561197991590963",
@@ -151,10 +155,11 @@ const testPlayer3 = {
 };
 
 const testPlayer4 = {
-    id: 4,
+    userId: 4,
     name: "Andrueninja",
     joinedAt: new Date(),
     leaveAt: new Date(),
+    canSaveDemos: false,
     request: {
         platform: "STEAM",
         platformId: "76561198120437724",
@@ -162,10 +167,11 @@ const testPlayer4 = {
 };
 
 const testPlayer5 = {
-    id: 5,
+    userId: 5,
     name: "David.",
     joinedAt: new Date(),
     leaveAt: new Date(),
+    canSaveDemos: false,
     request: {
         platform: "STEAM",
         platformId: "76561198168202408",
@@ -173,10 +179,11 @@ const testPlayer5 = {
 };
 
 const testPlayer6 = {
-    id: 6,
+    userId: 6,
     name: "Boby Shew",
     joinedAt: new Date(),
     leaveAt: new Date(),
+    canSaveDemos: false,
     request: {
         platform: "STEAM",
         platformId: "76561198295649588",
@@ -191,7 +198,7 @@ export const testScrim2: Scrim = {
     unlockedStatus: ScrimStatus.IN_PROGRESS,
 
     submissionId: "1",
-    authorId: 1,
+    authorUserId: 1,
     organizationId: 2,
     gameModeId: 1,
     skillGroupId: 5,
@@ -228,7 +235,7 @@ export const testScrim3: Scrim = {
     unlockedStatus: ScrimStatus.IN_PROGRESS,
 
     submissionId: "1",
-    authorId: 1,
+    authorUserId: 1,
     organizationId: 2,
     gameModeId: 1,
     skillGroupId: 5,
@@ -275,7 +282,7 @@ export const testScrimNoGames: Scrim = {
     unlockedStatus: ScrimStatus.IN_PROGRESS,
 
     submissionId: "1",
-    authorId: 1,
+    authorUserId: 1,
     organizationId: 2,
     gameModeId: 1,
     skillGroupId: 5,
