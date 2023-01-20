@@ -28,6 +28,7 @@ import {CreateScrimInput} from "../graphql/CreateScrim.input";
 import {JoinScrimInput} from "../graphql/JoinScrim.input";
 import {Scrim, ScrimEvent} from "../graphql/Scrim.object";
 import {CreateScrimPlayerGuard, JoinScrimPlayerGuard} from "./scrim.guard";
+import {ScrimsTopic} from "./scrim.pubsub";
 import {ScrimService} from "./scrim.service";
 import {ScrimToggleService} from "./scrim-toggle";
 
@@ -223,9 +224,9 @@ export class ScrimResolver {
     async followCurrentScrim(
         @AuthenticatedUser() user: JwtAuthPayload,
     ): Promise<AsyncIterator<ScrimEvent> | undefined> {
-        await this.scrimService.enableSubscription();
         const scrim = await this.scrimService.getScrimByPlayer(user.userId);
         if (!scrim) return undefined;
+
         return this.pubSub.asyncIterator(scrim.id);
     }
 
@@ -253,7 +254,6 @@ export class ScrimResolver {
         },
     })
     async followPendingScrims(): Promise<AsyncIterator<Scrim>> {
-        await this.scrimService.enableSubscription();
-        return this.pubSub.asyncIterator(this.scrimService.pendingScrimsSubTopic);
+        return this.pubSub.asyncIterator(ScrimsTopic);
     }
 }

@@ -4,7 +4,7 @@ import {EventMarshalMetadataKey} from "./marshal.constants";
 import type {EventFunction, EventMeta} from "./marshal.types";
 
 export const SprocketEvent =
-    (event: EventTopic): MethodDecorator =>
+    (event: EventTopic, instanceExclusive = false): MethodDecorator =>
     <T>(
         // eslint-disable-next-line @typescript-eslint/ban-types
         target: Object,
@@ -26,6 +26,7 @@ export const SprocketEvent =
         const eventMeta: EventMeta = {
             functionName: key.toString(),
             event: event,
+            instanceExclusive: instanceExclusive,
         };
 
         let unsafeMetadata: unknown = Reflect.getMetadata(EventMarshalMetadataKey, target);

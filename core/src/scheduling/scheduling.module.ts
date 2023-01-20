@@ -29,6 +29,7 @@ import {RocketLeagueFinalizationService} from "./replay-parse/finalization/rocke
 import {ReplayParseModResolver} from "./replay-parse/replay-parse.mod.resolver";
 import {ScrimConsumer} from "./scrim/scrim.consumer";
 import {ScrimController} from "./scrim/scrim.controller";
+import {ScrimPubSub} from "./scrim/scrim.pubsub";
 import {ScrimResolver} from "./scrim/scrim.resolver";
 import {ScrimService} from "./scrim/scrim.service";
 import {ScrimToggleResolver, ScrimToggleService} from "./scrim/scrim-toggle";
@@ -71,6 +72,7 @@ import {SubmissionService} from "./submission/submission.service";
         ScrimConsumer,
         ScrimResolver,
         ScrimService,
+        ScrimPubSub,
         SubmissionService,
         ReplayParseModResolver,
         ReplayParseService,
