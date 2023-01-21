@@ -1,17 +1,22 @@
+import {UseGuards} from "@nestjs/common";
 import {Args, Mutation, Query, Resolver} from "@nestjs/graphql";
 import {ScrimStatus} from "@sprocketbot/common";
 
+import {GraphQLJwtAuthGuard} from "../../authentication/guards";
 import {Actions, CurrentMember} from "../../authorization/decorators";
+import {MemberGuard} from "../../authorization/guards";
 import {Member} from "../../organization/database/member.entity";
 import {ScrimObject} from "../graphql/scrim.object";
 import {ScrimService} from "./scrim.service";
 
 @Resolver()
+@UseGuards(GraphQLJwtAuthGuard)
 export class ScrimAdminResolver {
     constructor(private readonly scrimService: ScrimService) {}
 
     @Query(() => [ScrimObject])
     @Actions("ReadOrganizationScrims")
+    @UseGuards(MemberGuard)
     async getAllScrims(
         @CurrentMember() member: Member,
         @Args("status", {
