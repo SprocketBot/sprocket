@@ -22,7 +22,7 @@ import {JoinScrimInput} from "../graphql/join-scrim.input";
 import {ScrimObject} from "../graphql/scrim.object";
 import {CreateScrimPlayerGuard, JoinScrimPlayerGuard} from "./scrim.guard";
 import {ScrimService} from "./scrim.service";
-import {ScrimToggleService} from "./scrim-toggle";
+import {ScrimToggleService} from "./scrim-toggle/scrim-toggle.service";
 
 @Resolver()
 export class ScrimPlayerResolver {
