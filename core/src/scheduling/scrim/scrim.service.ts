@@ -5,8 +5,7 @@ import type {
     CoreOutput,
     CreateScrimOptions,
     JoinScrimOptions,
-    Scrim as IScrim,
-    ScrimMetrics as IScrimMetrics,
+    Scrim,
 } from "@sprocketbot/common";
 import {MatchmakingEndpoint, MatchmakingService, ResponseStatus} from "@sprocketbot/common";
 import {IsNull, Not} from "typeorm";
@@ -28,7 +27,7 @@ export class ScrimService {
         private readonly playerStatLineRepository: PlayerStatLineRepository,
     ) {}
 
-    async getAllScrims(organizationId?: number, skillGroupIds?: number[]): Promise<IScrim[]> {
+    async getAllScrims(organizationId?: number, skillGroupIds?: number[]): Promise<Scrim[]> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.GetAllScrims, {
             organizationId,
             skillGroupIds,
@@ -38,14 +37,7 @@ export class ScrimService {
         throw result.error;
     }
 
-    async getScrimMetrics(): Promise<IScrimMetrics> {
-        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimMetrics, {});
-
-        if (result.status === ResponseStatus.SUCCESS) return result.data;
-        throw result.error;
-    }
-
-    async getScrimByPlayer(userId: number): Promise<IScrim | null> {
+    async getScrimByPlayer(userId: number): Promise<Scrim | null> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimByPlayer, {userId});
         if (result.status === ResponseStatus.SUCCESS) {
             return result.data;
@@ -53,7 +45,7 @@ export class ScrimService {
         throw result.error;
     }
 
-    async getScrimBySubmissionId(submissionId: string): Promise<IScrim | null> {
+    async getScrimBySubmissionId(submissionId: string): Promise<Scrim | null> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, {submissionId});
         if (result.status === ResponseStatus.SUCCESS) {
             return result.data;
@@ -61,7 +53,7 @@ export class ScrimService {
         throw result.error;
     }
 
-    async getScrimById(scrimId: string): Promise<IScrim | null> {
+    async getScrimById(scrimId: string): Promise<Scrim | null> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, {scrimId});
         if (result.status === ResponseStatus.SUCCESS) {
             return result.data;
@@ -69,7 +61,7 @@ export class ScrimService {
         throw result.error;
     }
 
-    async createScrim(data: CreateScrimOptions): Promise<IScrim> {
+    async createScrim(data: CreateScrimOptions): Promise<Scrim> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.CreateScrim, data);
 
         if (result.status === ResponseStatus.SUCCESS) return result.data;
@@ -100,7 +92,7 @@ export class ScrimService {
         throw result.error;
     }
 
-    async cancelScrim(scrimId: string): Promise<IScrim> {
+    async cancelScrim(scrimId: string): Promise<Scrim> {
         this.logger.log(`cancelScrim scrimId=${scrimId}`);
         const result = await this.matchmakingService.send(MatchmakingEndpoint.CancelScrim, {
             scrimId,

@@ -1,6 +1,6 @@
 import {Field, InputType, Int} from "@nestjs/graphql";
 
-import {ScrimSettingsInput} from "./ScrimSettings.object";
+import {ScrimSettingsInput} from "./scrim-settings.object";
 
 @InputType()
 export class CreateScrimInput {

@@ -1,36 +1,21 @@
 import {Field, Int, ObjectType, registerEnumType} from "@nestjs/graphql";
-import type {Scrim as IScrim} from "@sprocketbot/common";
+import type {Scrim} from "@sprocketbot/common";
 import {EventTopic, ScrimStatus} from "@sprocketbot/common";
 
 import {GameSkillGroupObject} from "../../franchise/graphql/game-skill-group.object";
 import {GameModeObject} from "../../game/graphql/game-mode.object";
-import {ScrimGame} from "./ScrimGame.object";
-import {ScrimLobby} from "./ScrimLobby.object";
-import {ScrimPlayer} from "./ScrimPlayer.object";
-import {ScrimSettings} from "./ScrimSettings.object";
+import {UserObject} from "../../identity/graphql/user.object";
+import {OrganizationObject} from "../../organization/graphql/organization.object";
+import {ScrimGameObject} from "./scrim-game.object";
+import {ScrimGroupObject} from "./scrim-group.object";
+import {ScrimLobbyObject} from "./scrim-lobby.object";
+import {ScrimPlayerObject} from "./scrim-player.object";
+import {ScrimSettingsObject} from "./scrim-settings.object";
 
 registerEnumType(ScrimStatus, {name: "ScrimStatus"});
 
 @ObjectType()
-export class ScrimGameMode {
-    @Field(() => Int)
-    id: number;
-
-    @Field(() => String)
-    description: string;
-}
-
-@ObjectType()
-export class ScrimGroup {
-    @Field(() => String)
-    code: string;
-
-    @Field(() => [String])
-    players: string[];
-}
-
-@ObjectType()
-export class Scrim implements IScrim {
+export class ScrimObject implements Scrim {
     @Field(() => String)
     id: string;
 
@@ -52,8 +37,14 @@ export class Scrim implements IScrim {
     @Field(() => Int)
     authorUserId: number;
 
+    @Field(() => UserObject)
+    author: UserObject;
+
     @Field(() => Int)
     organizationId: number;
+
+    @Field(() => OrganizationObject)
+    organization: OrganizationObject;
 
     @Field(() => Int)
     gameModeId: number;
@@ -70,22 +61,22 @@ export class Scrim implements IScrim {
     @Field(() => String, {nullable: true})
     submissionId?: string;
 
-    @Field(() => [ScrimPlayer], {nullable: true})
-    players: ScrimPlayer[];
+    @Field(() => [ScrimPlayerObject], {nullable: true})
+    players: ScrimPlayerObject[];
 
-    @Field(() => [ScrimGame], {nullable: true})
-    games?: ScrimGame[];
+    @Field(() => [ScrimGameObject], {nullable: true})
+    games?: ScrimGameObject[];
 
-    @Field(() => ScrimLobby, {nullable: true})
-    lobby?: ScrimLobby;
+    @Field(() => ScrimLobbyObject, {nullable: true})
+    lobby?: ScrimLobbyObject;
 
-    @Field(() => ScrimSettings)
-    settings: ScrimSettings;
+    @Field(() => ScrimSettingsObject)
+    settings: ScrimSettingsObject;
 
     // Helpers
 
-    @Field(() => ScrimGroup, {nullable: true})
-    currentGroup?: ScrimGroup;
+    @Field(() => ScrimGroupObject, {nullable: true})
+    currentGroup?: ScrimGroupObject;
 
     @Field(() => Int)
     playerCount: number;
@@ -94,10 +85,11 @@ export class Scrim implements IScrim {
     maxPlayers: number;
 }
 
+// TODO: Get rid of this?
 @ObjectType()
 export class ScrimEvent {
-    @Field(() => Scrim)
-    scrim: Scrim;
+    @Field(() => ScrimObject)
+    scrim: ScrimObject;
 
     @Field(() => String)
     event: EventTopic;
