@@ -1,11 +1,11 @@
 import {Field, InputType, Int, ObjectType, registerEnumType} from "@nestjs/graphql";
-import type {ScrimSettings as IScrimSettings} from "@sprocketbot/common";
+import type {ScrimSettings} from "@sprocketbot/common";
 import {ScrimMode} from "@sprocketbot/common";
 
 registerEnumType(ScrimMode, {name: "ScrimMode"});
 
 @ObjectType()
-export class ScrimSettings implements IScrimSettings {
+export class ScrimSettingsObject implements ScrimSettings {
     @Field(() => Int)
     teamSize: number;
 

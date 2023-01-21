@@ -7,5 +7,6 @@ import {AuthorizationDatabaseModule} from "./database/authorization-database.mod
 @Module({
     imports: [AuthorizationDatabaseModule, OrganizationDatabaseModule],
     providers: [AuthorizationService],
+    exports: [AuthorizationService],
 })
 export class AuthorizationModule {}
