@@ -32,7 +32,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
 
-        if (exception instanceof HttpException) {
+        // @ts-expect-error Trust.
+        if (host.getType() === "graphql") {
+            // GraphQL does not have normal response methods (status/json), so there's nothing else we can do.
+            throw exception;
+        } else if (exception instanceof HttpException) {
             const status = exception.getStatus();
 
             response.status(status).json({

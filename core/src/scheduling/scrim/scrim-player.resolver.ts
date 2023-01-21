@@ -6,6 +6,7 @@ import {minutesToMilliseconds} from "date-fns";
 import {GraphQLError} from "graphql";
 
 import {AuthenticatedUser} from "../../authentication/decorators";
+import {GraphQLJwtAuthGuard} from "../../authentication/guards";
 import {JwtAuthPayload} from "../../authentication/types";
 import {CurrentMember, CurrentPlayer} from "../../authorization/decorators";
 import {MemberGuard} from "../../authorization/guards";
@@ -25,6 +26,7 @@ import {ScrimService} from "./scrim.service";
 import {ScrimToggleService} from "./scrim-toggle/scrim-toggle.service";
 
 @Resolver()
+@UseGuards(GraphQLJwtAuthGuard)
 export class ScrimPlayerResolver {
     constructor(
         private readonly scrimService: ScrimService,
@@ -111,8 +113,8 @@ export class ScrimPlayerResolver {
                 "You cannot join a group and create a group. Please provide either group or createGroup, not both.",
             );
         }
-        const group = data.groupKey ?? data.createGroup ?? undefined;
 
+        const group = data.groupKey ?? data.createGroup ?? undefined;
         const scrim = await this.scrimService.getScrimById(data.scrimId).catch(() => null);
         if (!scrim) throw new GraphQLError("Scrim does not exist");
 

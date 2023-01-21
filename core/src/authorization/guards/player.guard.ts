@@ -11,13 +11,14 @@ export abstract class AbstractPlayerGuard implements CanActivate {
     abstract playerRepository: PlayerRepository;
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
-        const ctx = GqlExecutionContext.create(context).getContext();
+        const gqlctx = GqlExecutionContext.create(context);
+        const ctx = gqlctx.getContext();
         if (!ctx?.req.user) return false;
 
         const data = JwtAuthPayloadSchema.safeParse(ctx.req.user);
         if (!data.success || !data.data.currentOrganizationId) return false;
 
-        const {gameId} = await this.getGame(ctx, data.data);
+        const {gameId} = await this.getGame(gqlctx, data.data);
         const player = await this.playerRepository.findOne({
             where: {
                 skillGroup: {gameId: gameId},
@@ -43,13 +44,14 @@ export abstract class AbstractMemberPlayerGuard implements CanActivate {
     abstract playerRepository: PlayerRepository;
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
-        const ctx = GqlExecutionContext.create(context).getContext();
+        const gqlctx = GqlExecutionContext.create(context);
+        const ctx = gqlctx.getContext();
         if (!ctx?.req.user) return false;
 
         const data = JwtAuthPayloadSchema.safeParse(ctx.req.user);
         if (!data.success || !data.data.currentOrganizationId) return false;
 
-        const gameAndOrganization = await this.getGameAndOrganization(ctx, data.data);
+        const gameAndOrganization = await this.getGameAndOrganization(gqlctx, data.data);
         if (!gameAndOrganization) return false;
 
         const {gameId, organizationId} = gameAndOrganization;
