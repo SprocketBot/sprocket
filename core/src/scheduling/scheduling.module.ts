@@ -35,7 +35,10 @@ import {ScrimService} from "./scrim/scrim.service";
 import {ScrimSubscriber} from "./scrim/scrim.subscriber";
 import {ScrimAdminResolver} from "./scrim/scrim-admin.resolver";
 import {ScrimPlayerResolver} from "./scrim/scrim-player.resolver";
-import {ScrimToggleResolver, ScrimToggleService} from "./scrim/scrim-toggle";
+import {ScrimTogglePubSub} from "./scrim/scrim-toggle/scrim-toggle.pubsub";
+import {ScrimToggleResolver} from "./scrim/scrim-toggle/scrim-toggle.resolver";
+import {ScrimToggleService} from "./scrim/scrim-toggle/scrim-toggle.service";
+import {ScrimToggleSubscriber} from "./scrim/scrim-toggle/scrim-toggle.subscriber";
 import {SprocketRatingService} from "./sprocket-rating/sprocket-rating.service";
 import {SubmissionService} from "./submission/submission.service";
 
@@ -63,16 +66,22 @@ import {SubmissionService} from "./submission/submission.service";
     controllers: [MatchController, ScrimController],
     providers: [
         {
-            provide: PubSubKey.ReplayParsing,
+            provide: PubSubKey.Scrims,
             useValue: new PubSub(),
         },
         {
-            provide: PubSubKey.Scrims,
+            provide: PubSubKey.ScrimToggle,
+            useValue: new PubSub(),
+        },
+        {
+            provide: PubSubKey.ReplayParsing,
             useValue: new PubSub(),
         },
         MatchService,
         ScrimToggleService,
         ScrimToggleResolver,
+        ScrimTogglePubSub,
+        ScrimToggleSubscriber,
         ScrimConsumer,
         ScrimService,
         ScrimPubSub,
