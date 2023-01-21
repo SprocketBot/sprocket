@@ -1,8 +1,8 @@
 import {Field, ObjectType} from "@nestjs/graphql";
-import type {ScrimLobby as IScrimLobby} from "@sprocketbot/common";
+import type {ScrimLobby} from "@sprocketbot/common";
 
 @ObjectType()
-export class ScrimLobby implements IScrimLobby {
+export class ScrimLobbyObject implements ScrimLobby {
     @Field()
     name: string;
 

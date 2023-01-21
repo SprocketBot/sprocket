@@ -10,6 +10,7 @@ import {
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 
+import {AuthorizationModule} from "../authorization/authorization.module";
 import {ConfigurationModule} from "../configuration/configuration.module";
 import {EloConnectorModule} from "../elo/elo-connector";
 import {FranchiseDatabaseModule} from "../franchise/database/franchise-database.module";
@@ -30,8 +31,10 @@ import {ReplayParseModResolver} from "./replay-parse/replay-parse.mod.resolver";
 import {ScrimConsumer} from "./scrim/scrim.consumer";
 import {ScrimController} from "./scrim/scrim.controller";
 import {ScrimPubSub} from "./scrim/scrim.pubsub";
-import {ScrimResolver} from "./scrim/scrim.resolver";
 import {ScrimService} from "./scrim/scrim.service";
+import {ScrimSubscriber} from "./scrim/scrim.subscriber";
+import {ScrimAdminResolver} from "./scrim/scrim-admin.resolver";
+import {ScrimPlayerResolver} from "./scrim/scrim-player.resolver";
 import {ScrimToggleResolver, ScrimToggleService} from "./scrim/scrim-toggle";
 import {SprocketRatingService} from "./sprocket-rating/sprocket-rating.service";
 import {SubmissionService} from "./submission/submission.service";
@@ -55,6 +58,7 @@ import {SubmissionService} from "./submission/submission.service";
         GameDatabaseModule,
         MatchmakingModule,
         IdentityDatabaseModule,
+        AuthorizationModule,
     ],
     controllers: [MatchController, ScrimController],
     providers: [
@@ -70,9 +74,11 @@ import {SubmissionService} from "./submission/submission.service";
         ScrimToggleService,
         ScrimToggleResolver,
         ScrimConsumer,
-        ScrimResolver,
         ScrimService,
         ScrimPubSub,
+        ScrimSubscriber,
+        ScrimAdminResolver,
+        ScrimPlayerResolver,
         SubmissionService,
         ReplayParseModResolver,
         ReplayParseService,
