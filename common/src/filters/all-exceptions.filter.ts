@@ -27,15 +27,15 @@ export class AllExceptionsFilter implements ExceptionFilter {
                 stack: exception.stack,
             });
         } else {
-            this.logger.error(`[NOT ERROR SUBTYPE] ${exception}`);
+            this.logger.error(`[NOT ERROR SUBTYPE] ${JSON.stringify(exception)}`);
         }
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
 
-        // @ts-expect-error Trust.
-        if (host.getType() === "graphql") {
-            // GraphQL does not have normal response methods (status/json), so there's nothing else we can do.
-            throw exception;
+        if (["graphql", "rpc"].includes(host.getType())) {
+            // GraphQL and RPC do not have normal response methods (status/json), so there's nothing else we can do.
+            // Matchmaking service was crashing wish `response.status is not a function` on throwing an error.
+            return;
         } else if (exception instanceof HttpException) {
             const status = exception.getStatus();
 
