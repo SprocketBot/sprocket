@@ -57,17 +57,14 @@ export class ScrimPlayerResolver {
     @UseGuards(QueueBanGuard, CreateScrimPlayerGuard, FormerPlayerScrimGuard)
     async createScrim(
         @AuthenticatedUser() user: JwtAuthPayload,
+        @CurrentMember() member: Member,
+        @CurrentPlayer() player: Player,
         @Args("data", {type: () => CreateScrimInput}) data: CreateScrimInput,
     ): Promise<ScrimObject> {
         if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organization");
         if (await this.scrimToggleService.scrimsAreDisabled()) throw new GraphQLError("Scrims are disabled");
 
         const gameMode = await this.gameModeRepository.findById(data.gameModeId);
-        const player = await this.playerRepository.getByOrganizationAndGame(
-            user.userId,
-            user.currentOrganizationId,
-            gameMode.gameId,
-        );
 
         const checkinTimeout = await this.organizationConfigurationService.getOrganizationConfigurationValue<number>(
             user.currentOrganizationId,
@@ -91,7 +88,7 @@ export class ScrimPlayerResolver {
             settings: settings,
             join: {
                 userId: user.userId,
-                playerName: user.username,
+                playerName: member.profile.name,
                 leaveAfter: data.leaveAfter,
                 createGroup: data.createGroup,
                 canSaveDemos: data.canSaveDemos ?? false,
@@ -103,6 +100,7 @@ export class ScrimPlayerResolver {
     @UseGuards(QueueBanGuard, JoinScrimPlayerGuard, FormerPlayerScrimGuard)
     async joinScrim(
         @AuthenticatedUser() user: JwtAuthPayload,
+        @CurrentMember() member: Member,
         @CurrentPlayer() player: Player,
         @Args("data", {type: () => JoinScrimInput}) data: JoinScrimInput,
     ): Promise<boolean> {
@@ -127,7 +125,7 @@ export class ScrimPlayerResolver {
             return await this.scrimService.joinScrim({
                 scrimId: data.scrimId,
                 userId: user.userId,
-                playerName: user.username,
+                playerName: member.profile.name,
                 leaveAfter: data.leaveAfter,
                 createGroup: data.createGroup,
                 joinGroup: data.groupKey,
