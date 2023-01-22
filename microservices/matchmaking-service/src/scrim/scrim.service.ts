@@ -182,7 +182,7 @@ export class ScrimService {
         return scrim;
     }
 
-    async cancelScrim(scrimId: string): Promise<Scrim> {
+    async cancelScrim(scrimId: string, reason?: string): Promise<Scrim> {
         const scrim = await this.scrimCrudService.getScrim(scrimId);
 
         if (!scrim) {
@@ -191,12 +191,22 @@ export class ScrimService {
 
         await this.scrimCrudService.removeScrim(scrimId);
         scrim.status = ScrimStatus.CANCELLED;
-        await this.eventsService.publish(EventTopic.ScrimCancelled, scrim, scrim.id);
+        await this.eventsService.publish(
+            EventTopic.ScrimCancelled,
+            {
+                ...scrim,
+                cancelReason: reason,
+            },
+            scrim.id,
+        );
 
         this.analyticsService
             .send(AnalyticsEndpoint.Analytics, {
                 name: "scrimCancelled",
-                strings: [["scrimId", scrim.id]],
+                strings: [
+                    ["scrimId", scrim.id],
+                    ["reason", reason ?? "none provided"],
+                ],
             })
             .catch(err => {
                 this.logger.error(err);

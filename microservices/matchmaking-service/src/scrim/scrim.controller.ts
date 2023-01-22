@@ -60,7 +60,7 @@ export class ScrimController {
     @MessagePattern(MatchmakingEndpoint.CancelScrim)
     async cancelScrim(@Payload() payload: unknown): Promise<Scrim> {
         const data = MatchmakingSchemas.CancelScrim.input.parse(payload);
-        return this.scrimService.cancelScrim(data.scrimId);
+        return this.scrimService.cancelScrim(data.scrimId, data.reason);
     }
 
     @MessagePattern(MatchmakingEndpoint.GetScrimMetrics)
