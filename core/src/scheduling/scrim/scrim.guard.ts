@@ -1,5 +1,5 @@
 import {Injectable} from "@nestjs/common";
-import type {GqlExecutionContext, GraphQLExecutionContext} from "@nestjs/graphql";
+import type {GraphQLExecutionContext} from "@nestjs/graphql";
 import type {Scrim} from "@sprocketbot/common";
 import {GraphQLError} from "graphql";
 
@@ -8,7 +8,7 @@ import type {AbstractMemberPlayerGuardGetOptions} from "../../authorization/guar
 import {AbstractMemberPlayerGuard} from "../../authorization/guards";
 import {PlayerRepository} from "../../franchise/database/player.repository";
 import {GameModeRepository} from "../../game/database/game-mode.repository";
-import type {CreateScrimInput} from "../graphql/CreateScrim.input";
+import type {CreateScrimInput} from "../graphql/create-scrim.input";
 import {ScrimService} from "./scrim.service";
 
 /**
@@ -29,7 +29,7 @@ export class CreateScrimPlayerGuard extends AbstractMemberPlayerGuard {
             data: {gameModeId},
         } = ctx.getArgs<{data: CreateScrimInput}>();
 
-        const gameMode = await this.gameModeRepository.findById(gameModeId, {relations: ["game"]});
+        const gameMode = await this.gameModeRepository.findById(gameModeId, {relations: {game: true}});
 
         return {
             gameId: gameMode.game.id,
@@ -54,7 +54,9 @@ export class JoinScrimPlayerGuard extends AbstractMemberPlayerGuard {
     async getGameAndOrganization(
         ctx: GraphQLExecutionContext,
     ): Promise<AbstractMemberPlayerGuardGetOptions | undefined> {
-        const {scrimId} = ctx.getArgs<{scrimId: string}>();
+        const {
+            data: {scrimId},
+        } = ctx.getArgs<{data: {scrimId: string}}>();
         const scrim = await this.scrimService.getScrimById(scrimId).catch(() => null);
         if (!scrim) throw new GraphQLError("Scrim does not exist");
 
@@ -98,7 +100,7 @@ export class ScrimFieldResolverPlayerGuard extends AbstractMemberPlayerGuard {
     }
 
     async getGameAndOrganization(
-        ctx: GqlExecutionContext,
+        ctx: GraphQLExecutionContext,
         userPayload: JwtAuthPayload,
     ): Promise<{gameId: number; organizationId: number} | undefined> {
         const scrim = ctx.getRoot<Scrim>();

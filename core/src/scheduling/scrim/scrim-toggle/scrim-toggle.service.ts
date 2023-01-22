@@ -1,55 +1,32 @@
-import {Inject, Injectable, Logger} from "@nestjs/common";
+import {Injectable} from "@nestjs/common";
 import {config, EventsService, EventTopic, RedisService} from "@sprocketbot/common";
-import {PubSub} from "apollo-server-express";
-
-import {PubSubKey} from "../../../types/pubsub.constants";
 
 @Injectable()
 export class ScrimToggleService {
-    private logger = new Logger(ScrimToggleService.name);
-
     private readonly key = `${config.redis.prefix}:scrims-disabled`;
 
-    private subscribed = false;
+    constructor(private readonly redisService: RedisService, private readonly eventsService: EventsService) {}
 
-    constructor(
-        private readonly redisService: RedisService,
-        private readonly eventsService: EventsService,
-        @Inject(PubSubKey.Scrims) private readonly pubSub: PubSub,
-    ) {}
+    async scrimsAreDisabled(): Promise<string | null> {
+        const disabledReason = await this.redisService.get(this.key);
 
-    get scrimsDisabledSubTopic(): string {
-        return "scrims.disabled";
+        return disabledReason;
     }
 
-    async scrimsAreDisabled(): Promise<boolean> {
-        return (await this.redisService.get(this.key)) === "true";
-    }
+    async disableScrims(reason?: string): Promise<boolean> {
+        await this.redisService.set(this.key, reason ?? "");
+        await this.eventsService.publish(EventTopic.ScrimsDisabled, {
+            disabled: true,
+            reason: reason,
+        });
 
-    async disableScrims(): Promise<boolean> {
-        await this.redisService.set(this.key, "true");
-        await this.eventsService.publish(EventTopic.ScrimsDisabled, true);
         return true;
     }
 
     async enableScrims(): Promise<boolean> {
         await this.redisService.delete(this.key);
-        await this.eventsService.publish(EventTopic.ScrimsDisabled, false);
+        await this.eventsService.publish(EventTopic.ScrimsDisabled, {disabled: false});
+
         return true;
-    }
-
-    async enableSubscription(): Promise<void> {
-        if (this.subscribed) return;
-        this.subscribed = true;
-
-        await this.eventsService.subscribe(EventTopic.ScrimsDisabled, true).then(rx => {
-            rx.subscribe(v => {
-                this.pubSub
-                    .publish(this.scrimsDisabledSubTopic, {
-                        followScrimsDisabled: v.payload,
-                    })
-                    .catch(this.logger.error.bind(this.logger));
-            });
-        });
     }
 }

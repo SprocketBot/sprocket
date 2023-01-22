@@ -1,10 +1,15 @@
 import {Field, Int, ObjectType} from "@nestjs/graphql";
-import type {ScrimPlayer as IScrimPlayer} from "@sprocketbot/common";
+import type {ScrimPlayer} from "@sprocketbot/common";
+
+import {UserObject} from "../../identity/graphql/user.object";
 
 @ObjectType()
-export class ScrimPlayer implements IScrimPlayer {
+export class ScrimPlayerObject implements ScrimPlayer {
     @Field(() => Int)
     userId: number;
+
+    @Field(() => UserObject)
+    user: UserObject;
 
     @Field(() => String)
     name: string;

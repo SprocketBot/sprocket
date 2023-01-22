@@ -10,6 +10,7 @@ import {
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 
+import {AuthorizationModule} from "../authorization/authorization.module";
 import {ConfigurationModule} from "../configuration/configuration.module";
 import {EloConnectorModule} from "../elo/elo-connector";
 import {FranchiseDatabaseModule} from "../franchise/database/franchise-database.module";
@@ -29,9 +30,15 @@ import {RocketLeagueFinalizationService} from "./replay-parse/finalization/rocke
 import {ReplayParseModResolver} from "./replay-parse/replay-parse.mod.resolver";
 import {ScrimConsumer} from "./scrim/scrim.consumer";
 import {ScrimController} from "./scrim/scrim.controller";
-import {ScrimResolver} from "./scrim/scrim.resolver";
+import {ScrimPubSub} from "./scrim/scrim.pubsub";
 import {ScrimService} from "./scrim/scrim.service";
-import {ScrimToggleResolver, ScrimToggleService} from "./scrim/scrim-toggle";
+import {ScrimSubscriber} from "./scrim/scrim.subscriber";
+import {ScrimAdminResolver} from "./scrim/scrim-admin.resolver";
+import {ScrimPlayerResolver} from "./scrim/scrim-player.resolver";
+import {ScrimTogglePubSub} from "./scrim/scrim-toggle/scrim-toggle.pubsub";
+import {ScrimToggleResolver} from "./scrim/scrim-toggle/scrim-toggle.resolver";
+import {ScrimToggleService} from "./scrim/scrim-toggle/scrim-toggle.service";
+import {ScrimToggleSubscriber} from "./scrim/scrim-toggle/scrim-toggle.subscriber";
 import {SprocketRatingService} from "./sprocket-rating/sprocket-rating.service";
 import {SubmissionService} from "./submission/submission.service";
 
@@ -54,23 +61,33 @@ import {SubmissionService} from "./submission/submission.service";
         GameDatabaseModule,
         MatchmakingModule,
         IdentityDatabaseModule,
+        AuthorizationModule,
     ],
     controllers: [MatchController, ScrimController],
     providers: [
         {
-            provide: PubSubKey.ReplayParsing,
+            provide: PubSubKey.Scrims,
             useValue: new PubSub(),
         },
         {
-            provide: PubSubKey.Scrims,
+            provide: PubSubKey.ScrimToggle,
+            useValue: new PubSub(),
+        },
+        {
+            provide: PubSubKey.ReplayParsing,
             useValue: new PubSub(),
         },
         MatchService,
         ScrimToggleService,
         ScrimToggleResolver,
+        ScrimTogglePubSub,
+        ScrimToggleSubscriber,
         ScrimConsumer,
-        ScrimResolver,
         ScrimService,
+        ScrimPubSub,
+        ScrimSubscriber,
+        ScrimAdminResolver,
+        ScrimPlayerResolver,
         SubmissionService,
         ReplayParseModResolver,
         ReplayParseService,
