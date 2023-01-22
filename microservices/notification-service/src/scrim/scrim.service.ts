@@ -8,6 +8,7 @@ import {
     config,
     CoreEndpoint,
     CoreService,
+    EventPayload,
     EventsService,
     EventTopic,
     GenerateReportCardType,
@@ -181,6 +182,64 @@ export class ScrimService extends SprocketEventMarshal {
                                         value: `\`${scrim.lobby?.password}\``,
                                     },
                                 ],
+                                footer: {
+                                    text: organizationBrandingResult.data.name,
+                                },
+                                timestamp: Date.now(),
+                            },
+                        ],
+                    },
+                    brandingOptions: {
+                        organizationId: scrim.organizationId,
+                        options: {
+                            author: {
+                                icon: true,
+                            },
+                            color: true,
+                            thumbnail: true,
+                            footer: {
+                                icon: true,
+                            },
+                        },
+                    },
+                });
+            }),
+        );
+    }
+
+    @SprocketEvent(EventTopic.ScrimCancelled)
+    async sendScrimCancelledNotification(scrim: EventPayload<EventTopic.ScrimCancelled>): Promise<void> {
+        const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {
+            id: scrim.organizationId,
+        });
+        if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
+
+        const discordUserIds = await Promise.all(
+            scrim.players.map(async player => {
+                const discordUserResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, player.userId);
+                if (discordUserResult.status !== ResponseStatus.SUCCESS) return undefined;
+
+                return discordUserResult.data;
+            }),
+        );
+
+        await Promise.all(
+            scrim.players.map(async p => {
+                const userResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, p.userId);
+                if (userResult.status === ResponseStatus.ERROR) throw userResult.error;
+                if (!userResult.data) return;
+
+                await this.botService.send(BotEndpoint.SendDirectMessage, {
+                    userId: userResult.data,
+                    payload: {
+                        embeds: [
+                            {
+                                title: "Your scrim has been cancelled.",
+                                description: `Hey, ${p.name}! Your ${organizationBrandingResult.data.name} scrim was cancelled.`,
+                                fields: scrim.cancelReason ? [{name: "Reason", value: scrim.cancelReason}] : undefined,
+                                author: {
+                                    name: `${organizationBrandingResult.data.name} Scrims`,
+                                },
                                 footer: {
                                     text: organizationBrandingResult.data.name,
                                 },

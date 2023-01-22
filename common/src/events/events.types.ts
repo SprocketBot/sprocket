@@ -66,7 +66,9 @@ export const EventSchemas = {
     [EventTopic.ScrimUpdated]: ScrimSchema,
     [EventTopic.ScrimDestroyed]: ScrimSchema,
     [EventTopic.ScrimStarted]: ScrimSchema,
-    [EventTopic.ScrimCancelled]: ScrimSchema,
+    [EventTopic.ScrimCancelled]: ScrimSchema.extend({
+        cancelReason: z.string().optional(),
+    }),
     [EventTopic.ScrimSaved]: ScrimSchema.extend({
         databaseIds: ScrimDatabaseIdsSchema,
     }),
