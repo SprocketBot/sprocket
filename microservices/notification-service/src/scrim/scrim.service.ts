@@ -201,15 +201,6 @@ export class ScrimService extends SprocketEventMarshal {
         });
         if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
 
-        const discordUserIds = await Promise.all(
-            scrim.players.map(async player => {
-                const discordUserResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, player.userId);
-                if (discordUserResult.status !== ResponseStatus.SUCCESS) return undefined;
-
-                return discordUserResult.data;
-            }),
-        );
-
         await Promise.all(
             scrim.players.map(async p => {
                 const userResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, p.userId);
