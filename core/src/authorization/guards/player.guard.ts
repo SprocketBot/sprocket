@@ -23,10 +23,16 @@ export abstract class AbstractPlayerGuard implements CanActivate {
                 skillGroup: {gameId: gameId},
                 member: {userId: data.data.userId, organizationId: data.data.currentOrganizationId},
             },
+            relations: {
+                member: {
+                    profile: true,
+                },
+            },
         });
         if (!player) return false;
 
         ctx.req.player = player;
+        ctx.req.member = player.member;
         return true;
     }
 
@@ -60,10 +66,16 @@ export abstract class AbstractMemberPlayerGuard implements CanActivate {
                 skillGroup: {gameId: gameId},
                 member: {userId: data.data.userId, organizationId: organizationId},
             },
+            relations: {
+                member: {
+                    profile: true,
+                },
+            },
         });
         if (!player) return false;
 
         ctx.req.player = player;
+        ctx.req.member = player.member;
         return true;
     }
 
