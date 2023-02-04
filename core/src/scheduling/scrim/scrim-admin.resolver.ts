@@ -6,7 +6,7 @@ import {GraphQLJwtAuthGuard} from "../../authentication/guards";
 import {Actions, CurrentMember} from "../../authorization/decorators";
 import {MemberGuard} from "../../authorization/guards";
 import {Member} from "../../organization/database/member.entity";
-import {ScrimObject} from "../graphql/scrim.object";
+import {ScrimObject} from "../graphql/scrim/scrim.object";
 import {ScrimService} from "./scrim.service";
 
 @Resolver()

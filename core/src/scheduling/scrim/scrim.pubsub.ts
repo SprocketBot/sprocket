@@ -17,12 +17,24 @@ export class ScrimPubSub extends SprocketEventMarshal {
         this.pubsub.publish(ScrimsTopic, {
             scrim: scrim,
         });
+        this.pubsub.publish(scrim.id, {
+            followCurrentScrim: {
+                scrim: scrim,
+                event: EventTopic.ScrimCreated,
+            },
+        });
     }
 
     @SprocketEvent(EventTopic.ScrimDestroyed, true)
     async scrimDestroyed(scrim: Scrim): Promise<void> {
         this.pubsub.publish(ScrimsTopic, {
             scrim: scrim,
+        });
+        this.pubsub.publish(scrim.id, {
+            followCurrentScrim: {
+                scrim: scrim,
+                event: EventTopic.ScrimDestroyed,
+            },
         });
     }
 
@@ -31,6 +43,12 @@ export class ScrimPubSub extends SprocketEventMarshal {
         this.pubsub.publish(ScrimsTopic, {
             scrim: scrim,
         });
+        this.pubsub.publish(scrim.id, {
+            followCurrentScrim: {
+                scrim: scrim,
+                event: EventTopic.ScrimCancelled,
+            },
+        });
     }
 
     @SprocketEvent(EventTopic.ScrimPopped, true)
@@ -38,12 +56,44 @@ export class ScrimPubSub extends SprocketEventMarshal {
         this.pubsub.publish(ScrimsTopic, {
             scrim: scrim,
         });
+        this.pubsub.publish(scrim.id, {
+            followCurrentScrim: {
+                scrim: scrim,
+                event: EventTopic.ScrimPopped,
+            },
+        });
     }
 
     @SprocketEvent(EventTopic.ScrimComplete, true)
     async scrimComplete(scrim: Scrim): Promise<void> {
         this.pubsub.publish(ScrimsTopic, {
             scrim: scrim,
+        });
+        this.pubsub.publish(scrim.id, {
+            followCurrentScrim: {
+                scrim: scrim,
+                event: EventTopic.ScrimComplete,
+            },
+        });
+    }
+
+    @SprocketEvent(EventTopic.ScrimStarted)
+    async scrimStarted(scrim: Scrim): Promise<void> {
+        this.pubsub.publish(scrim.id, {
+            followCurrentScrim: {
+                scrim: scrim,
+                event: EventTopic.ScrimStarted,
+            },
+        });
+    }
+
+    @SprocketEvent(EventTopic.ScrimUpdated)
+    async scrimUpdated(scrim: Scrim): Promise<void> {
+        this.pubsub.publish(scrim.id, {
+            followCurrentScrim: {
+                scrim: scrim,
+                event: EventTopic.ScrimUpdated,
+            },
         });
     }
 }

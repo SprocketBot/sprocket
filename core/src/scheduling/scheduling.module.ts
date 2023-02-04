@@ -24,7 +24,7 @@ import {UtilModule} from "../util";
 import {SchedulingDatabaseModule} from "./database/scheduling-database.module";
 import {MatchController} from "./match/match.controller";
 import {MatchService} from "./match/match.service";
-import {ReplayParseService, ReplaySubmissionResolver, SubmissionRejectionResolver} from "./replay-parse";
+import {ReplayParseService, SubmissionRejectionResolver} from "./replay-parse";
 import {BallchasingConverterService, FinalizationSubscriber} from "./replay-parse/finalization";
 import {RocketLeagueFinalizationService} from "./replay-parse/finalization/rocket-league/rocket-league-finalization.service";
 import {ReplayParseModResolver} from "./replay-parse/replay-parse.mod.resolver";
@@ -40,7 +40,9 @@ import {ScrimToggleResolver} from "./scrim/scrim-toggle/scrim-toggle.resolver";
 import {ScrimToggleService} from "./scrim/scrim-toggle/scrim-toggle.service";
 import {ScrimToggleSubscriber} from "./scrim/scrim-toggle/scrim-toggle.subscriber";
 import {SprocketRatingService} from "./sprocket-rating/sprocket-rating.service";
+import {SubmissionPubSub} from "./submission/submission.pubsub";
 import {SubmissionService} from "./submission/submission.service";
+import {SubmissionSubscriber} from "./submission/submission.subscriber";
 
 @Module({
     imports: [
@@ -74,6 +76,10 @@ import {SubmissionService} from "./submission/submission.service";
             useValue: new PubSub(),
         },
         {
+            provide: PubSubKey.Submissions,
+            useValue: new PubSub(),
+        },
+        {
             provide: PubSubKey.ReplayParsing,
             useValue: new PubSub(),
         },
@@ -89,9 +95,10 @@ import {SubmissionService} from "./submission/submission.service";
         ScrimAdminResolver,
         ScrimPlayerResolver,
         SubmissionService,
+        SubmissionPubSub,
+        SubmissionSubscriber,
         ReplayParseModResolver,
         ReplayParseService,
-        ReplaySubmissionResolver,
         SubmissionRejectionResolver,
         BallchasingConverterService,
         FinalizationSubscriber,
