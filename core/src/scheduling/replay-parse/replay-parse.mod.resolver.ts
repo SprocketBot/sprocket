@@ -1,5 +1,5 @@
 import {Inject, UseGuards} from "@nestjs/common";
-import {Args, Mutation, Query, Resolver, Subscription} from "@nestjs/graphql";
+import {Args, Mutation, Query, Resolver} from "@nestjs/graphql";
 import {RedisService, ResponseStatus, SubmissionEndpoint, SubmissionService} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 import type {FileUpload} from "graphql-upload";
@@ -106,20 +106,5 @@ export class ReplayParseModResolver {
             throw response.error;
         }
         return response.data;
-    }
-
-    @Subscription(() => GqlReplaySubmission, {
-        nullable: true,
-        filter: async function (
-            this: ReplayParseModResolver,
-            payload: {followSubmission: {id: string}},
-            variables: {submissionId: string},
-        ): Promise<boolean> {
-            return payload.followSubmission.id === variables.submissionId;
-        },
-    })
-    async followSubmission(@Args("submissionId") submissionId: string): Promise<AsyncIterator<GqlReplaySubmission>> {
-        await this.rpService.enableSubscription();
-        return this.pubsub.asyncIterator(submissionId);
     }
 }

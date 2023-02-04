@@ -1,26 +1,121 @@
-import {Injectable} from "@nestjs/common";
+import {Injectable, Logger} from "@nestjs/common";
 import type {ReplaySubmission} from "@sprocketbot/common";
-import {ResponseStatus, SubmissionEndpoint, SubmissionService as CommonSubmissionService} from "@sprocketbot/common";
+import {
+    config,
+    MinioService,
+    readToBuffer,
+    ResponseStatus,
+    SubmissionEndpoint,
+    SubmissionService as CommonSubmissionService,
+} from "@sprocketbot/common";
+import {SHA256} from "crypto-js";
+import type {Readable} from "stream";
+
+import {REPLAY_EXT} from "../replay-parse";
 
 @Injectable()
 export class SubmissionService {
-    constructor(private readonly commonService: CommonSubmissionService) {}
+    private readonly logger = new Logger(SubmissionService.name);
 
-    async getAllSubmissions(): Promise<ReplaySubmission[]> {
-        const result = await this.commonService.send(SubmissionEndpoint.GetAllSubmissions, {});
+    constructor(
+        private readonly submissionService: CommonSubmissionService,
+        private readonly minioService: MinioService,
+    ) {}
 
-        if (result.status === ResponseStatus.SUCCESS) return result.data;
-        throw result.error;
+    async getSubmissionById(submissionId: string): Promise<ReplaySubmission> {
+        const result = await this.submissionService.send(SubmissionEndpoint.GetSubmissionIfExists, submissionId);
+
+        if (result.status === ResponseStatus.ERROR) throw result.error;
+        if (!result.data.submission) throw new Error("Submission not found");
+        return result.data.submission;
     }
 
-    async adminResetSubmission(submissionId: string): Promise<boolean> {
-        const result = await this.commonService.send(SubmissionEndpoint.ResetSubmission, {
+    async getAllSubmissions(): Promise<ReplaySubmission[]> {
+        const result = await this.submissionService.send(SubmissionEndpoint.GetAllSubmissions, {});
+
+        if (result.status === ResponseStatus.ERROR) throw result.error;
+        return result.data;
+    }
+
+    async userCanSubmit(userId: number, submissionId: string): Promise<boolean> {
+        const result = await this.submissionService.send(SubmissionEndpoint.CanSubmitReplays, {
+            userId: userId,
             submissionId: submissionId,
-            override: true,
-            userId: -1, // playerId is not used when `override=true`
         });
 
-        if (result.status === ResponseStatus.SUCCESS) return result.data;
-        throw result.error;
+        if (result.status === ResponseStatus.ERROR) throw result.error;
+        return result.data.canSubmit;
+    }
+
+    async userCanRatify(userId: number, submissionId: string): Promise<boolean> {
+        const result = await this.submissionService.send(SubmissionEndpoint.CanRatifySubmission, {
+            userId: userId,
+            submissionId: submissionId,
+        });
+
+        if (result.status === ResponseStatus.ERROR) throw result.error;
+        return result.data.canRatify;
+    }
+
+    async resetSubmission(submissionId: string, userId: number, override = false): Promise<boolean> {
+        const result = await this.submissionService.send(SubmissionEndpoint.ResetSubmission, {
+            submissionId,
+            override,
+            userId,
+        });
+
+        if (result.status === ResponseStatus.ERROR) throw result.error;
+        return result.data;
+    }
+
+    async parseReplays(
+        streams: Array<{stream: Readable; filename: string}>,
+        submissionId: string,
+        userId: number,
+    ): Promise<string[]> {
+        const filepaths = await Promise.all(
+            streams.map(async s => {
+                const buffer = await readToBuffer(s.stream);
+                const objectHash = SHA256(buffer.toString()).toString();
+                const replayObjectPath = `replays/${objectHash}${REPLAY_EXT}`;
+                const bucket = config.minio.bucketNames.replays;
+                await this.minioService.put(bucket, replayObjectPath, buffer).catch(this.logger.error.bind(this));
+
+                return {
+                    minioPath: replayObjectPath,
+                    originalFilename: s.filename,
+                };
+            }),
+        );
+
+        const submissionResponse = await this.submissionService.send(SubmissionEndpoint.SubmitReplays, {
+            submissionId: submissionId,
+            filepaths: filepaths,
+            creatorUserId: userId,
+        });
+
+        if (submissionResponse.status === ResponseStatus.ERROR) throw submissionResponse.error;
+        return submissionResponse.data;
+    }
+
+    async ratifySubmission(submissionId: string, userId: number): Promise<true> {
+        const result = await this.submissionService.send(SubmissionEndpoint.RatifySubmission, {
+            submissionId: submissionId,
+            userId: userId,
+        });
+
+        if (result.status === ResponseStatus.ERROR) throw result.error;
+        return result.data;
+    }
+
+    async rejectSubmission(submissionId: string, userId: number, reason: string): Promise<true> {
+        const result = await this.submissionService.send(SubmissionEndpoint.RejectSubmission, {
+            submissionId: submissionId,
+            userId: userId,
+            reason: reason,
+        });
+
+        if (result.status === ResponseStatus.ERROR) throw result.error;
+        return result.data;
     }
 }
