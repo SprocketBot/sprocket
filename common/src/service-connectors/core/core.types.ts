@@ -31,6 +31,7 @@ export enum CoreEndpoint {
     GetMatchInformationAndStakeholders = "GetMatchInformationAndStakeholders",
     GetGameModeById = "GetGameModeById",
     GetGameByGameMode = "GetGameByGameMode",
+    GetNicknameByDiscordUser = "GetNicknameByDiscordUser",
 }
 
 export const CoreSchemas = {
@@ -141,6 +142,10 @@ export const CoreSchemas = {
     [CoreEndpoint.GetGameByGameMode]: {
         input: Schemas.GetGameByGameMode_Request,
         output: Schemas.GetGameByGameMode_Response,
+    },
+    [CoreEndpoint.GetNicknameByDiscordUser]: {
+        input: Schemas.GetNicknameByDiscordUser_Request,
+        output: Schemas.GetNicknameByDiscordUser_Response,
     },
 };
 

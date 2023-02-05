@@ -4,6 +4,7 @@ import {CoreModule, EventsModule} from "@sprocketbot/common";
 import {DiscordModule} from "../../discord/discord.module";
 import {EmbedModule} from "../../embed/embed.module";
 import {CommandsModule} from "../../marshal";
+import {DatabaseSyncMarshal} from "./database-sync.marshal";
 // import {CommandDecoratorTestMarshal} from "./command-decorator-test.marshal";
 // import {DebugCommandsMarshal} from "./debug-commands.marshal";
 import {DeveloperCommandsMarshal} from "./developer-commands.marshal";
@@ -14,13 +15,14 @@ import {DeveloperCommandsMarshal} from "./developer-commands.marshal";
 @Module({
     imports: [DiscordModule, CommandsModule, EmbedModule, CoreModule, EventsModule],
     providers: [
-        // TODO scope by role before re-adding
-        // DebugCommandsMarshal,
-        // SprocketStatusMarshal,
-        // MiscCommandsMarshal,
-        // SprocketConfigurationMarshal,
-        // CommandDecoratorTestMarshal,
+    // TODO scope by role before re-adding
+    // DebugCommandsMarshal,
+    // SprocketStatusMarshal,
+    // MiscCommandsMarshal,
+    // SprocketConfigurationMarshal,
+    // CommandDecoratorTestMarshal,
         DeveloperCommandsMarshal,
+        DatabaseSyncMarshal,
     ],
 })
 export class AdministratorCommandsModule {}

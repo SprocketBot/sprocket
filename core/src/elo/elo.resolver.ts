@@ -5,6 +5,7 @@ import {DataSource} from "typeorm";
 import {GraphQLJwtAuthGuard} from "../authentication/guards";
 import {MLE_OrganizationTeam} from "../mledb/database";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
+import {EloConsumer} from "./elo.consumer";
 import {EloService} from "./elo.service";
 import type {NewPlayerBySalary} from "./elo-connector";
 import {EloConnectorService, EloEndpoint} from "./elo-connector";
@@ -14,6 +15,7 @@ export class EloResolver {
     constructor(
         private readonly eloService: EloService,
         private readonly eloConnectorService: EloConnectorService,
+        private readonly eloConsumer: EloConsumer,
         private readonly dataSource: DataSource,
     ) {}
 
@@ -52,5 +54,12 @@ export class EloResolver {
         }
 
         return false;
+    }
+
+    @Mutation(() => Boolean)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    async runSalaries(): Promise<boolean> {
+        await this.eloConsumer.runSalaries();
+        return true;
     }
 }
