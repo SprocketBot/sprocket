@@ -153,9 +153,6 @@ export class SubmissionService extends SprocketEventMarshal {
                             {
                                 title: "Your match is ready for ratification!",
                                 description: `The replays uploaded for your ${organizationBrandingResult.data.name} match have finished processing and are ready to be ratified. Verify they are correct and ratify them [here](${config.web.url}/league/submit/${submission.id}).`,
-                                author: {
-                                    name: `${organizationBrandingResult.data.name} Match Submission`,
-                                },
                                 fields: [
                                     {
                                         name: "Game Mode",
@@ -295,9 +292,6 @@ export class SubmissionService extends SprocketEventMarshal {
                             {
                                 title: "Your match's submission has failed ratification!",
                                 description: `The replays uploaded for your ${organizationBrandingResult.data.name} match have been rejected. Please review the reason [here](${config.web.url}/league/submit/${submission.id}) and upload the correct replays if possible.`,
-                                author: {
-                                    name: `${organizationBrandingResult.data.name} Match Submission`,
-                                },
                                 fields: [
                                     {
                                         name: "Game Mode",
