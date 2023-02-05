@@ -80,10 +80,6 @@ import {SubmissionPlayerResolver} from "./submission/submission-player.resolver"
             provide: PubSubKey.Submissions,
             useValue: new PubSub(),
         },
-        {
-            provide: PubSubKey.ReplayParsing,
-            useValue: new PubSub(),
-        },
         MatchService,
         ScrimToggleService,
         ScrimToggleResolver,
