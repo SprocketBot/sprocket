@@ -57,7 +57,7 @@ export class EloResolver {
     }
 
     @Mutation(() => Boolean)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    @UseGuards(GraphQLJwtAuthGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async runSalaries(): Promise<boolean> {
         await this.eloConsumer.runSalaries();
         return true;
