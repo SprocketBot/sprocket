@@ -90,9 +90,6 @@ export class SubmissionService extends SprocketEventMarshal {
                             {
                                 title: "Your scrim is ready for ratification!",
                                 description: `Hey, ${p.name}! The replays uploaded for your ${organizationBrandingResult.data.name} scrim have finished processing and are ready to be ratified. Verify they are correct and ratify them [here](${config.web.url}/scrims).`,
-                                author: {
-                                    name: `${organizationBrandingResult.data.name} Scrims`,
-                                },
                                 footer: {
                                     text: organizationBrandingResult.data.name,
                                 },
@@ -116,9 +113,6 @@ export class SubmissionService extends SprocketEventMarshal {
                     brandingOptions: {
                         organizationId: scrim.organizationId,
                         options: {
-                            author: {
-                                icon: true,
-                            },
                             color: true,
                             thumbnail: true,
                             footer: {
@@ -199,9 +193,6 @@ export class SubmissionService extends SprocketEventMarshal {
                     brandingOptions: {
                         organizationId: infoResult.data.organizationId,
                         options: {
-                            author: {
-                                icon: true,
-                            },
                             color: true,
                             thumbnail: true,
                             footer: {
@@ -241,9 +232,6 @@ export class SubmissionService extends SprocketEventMarshal {
                             {
                                 title: "Your scrim's replays have failed ratification!",
                                 description: `Hey, ${p.name}! The replays uploaded for your ${organizationBrandingResult.data.name} scrim have been rejected. Please review the reason [here](${config.web.url}/scrims) and upload the correct replays if possible.`,
-                                author: {
-                                    name: `${organizationBrandingResult.data.name} Scrims`,
-                                },
                                 footer: {
                                     text: organizationBrandingResult.data.name,
                                 },
@@ -267,9 +255,6 @@ export class SubmissionService extends SprocketEventMarshal {
                     brandingOptions: {
                         organizationId: scrim.organizationId,
                         options: {
-                            author: {
-                                icon: true,
-                            },
                             color: true,
                             thumbnail: true,
                             footer: {
@@ -350,9 +335,6 @@ export class SubmissionService extends SprocketEventMarshal {
                     brandingOptions: {
                         organizationId: infoResult.data.organizationId,
                         options: {
-                            author: {
-                                icon: true,
-                            },
                             color: true,
                             thumbnail: true,
                             footer: {
