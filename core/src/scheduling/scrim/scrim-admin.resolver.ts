@@ -53,4 +53,10 @@ export class ScrimAdminResolver {
     async unlockScrim(@Args("scrimId") scrimId: string): Promise<boolean> {
         return this.scrimService.setScrimLocked(scrimId, false);
     }
+
+    @Mutation(() => Boolean)
+    @Actions("MessageOrganizationScrimPlayers")
+    async notifyScrimPlayers(@Args("scrimId") scrimId: string, @Args("message") message: string): Promise<boolean> {
+        return this.scrimService.notifyPlayers(scrimId, message);
+    }
 }
