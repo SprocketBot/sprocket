@@ -4,15 +4,13 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {CoreEndpoint, CoreSchemas} from "@sprocketbot/common";
 import {Repository} from "typeorm";
 
-import {MLE_Player, MLE_Team} from "../../database/mledb";
+import {MLE_Player, MLE_Team} from "../database";
 
 @Controller("mledb-player")
 export class MledbPlayerController {
     constructor(
-        @InjectRepository(MLE_Player)
-        private readonly playerRepository: Repository<MLE_Player>,
-        @InjectRepository(MLE_Team)
-        private readonly teamRepository: Repository<MLE_Team>,
+        @InjectRepository(MLE_Player) private readonly playerRepository: Repository<MLE_Player>,
+        @InjectRepository(MLE_Team) private readonly teamRepository: Repository<MLE_Team>,
     ) {}
 
     @MessagePattern(CoreEndpoint.GetNicknameByDiscordUser)
