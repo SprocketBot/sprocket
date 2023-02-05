@@ -331,6 +331,19 @@ export class ScrimService extends SprocketEventMarshal {
                                 url: `minio:${config.minio.bucketNames.image_generation}/${reportCardResult.data}.png`,
                             },
                         ],
+                        components: [
+                            {
+                                type: ComponentType.ACTION_ROW,
+                                components: [
+                                    {
+                                        type: ComponentType.BUTTON,
+                                        style: ButtonComponentStyle.LINK,
+                                        label: "Join another scrim!",
+                                        url: `${config.web.url}/scrims`,
+                                    },
+                                ],
+                            },
+                        ],
                     },
                     brandingOptions: {
                         organizationId: scrim.organizationId,
