@@ -201,19 +201,26 @@ export class RocketLeagueFinalizationService {
               ])
             : [undefined, undefined];
 
+        const allPlayers: Player[] = [];
+
         // TODO: Sprocket Team Role Usage
         const results = await Promise.all(
             replays.map(async ({replay, parser, outputPath}) => {
                 // Get players
                 const {blue, orange} = await this._getBallchasingPlayers(replay);
-                /*
-             First, identify which team is home.
-             It is safe to assume that all players are on the same team here;
-             This is because the validation service has passed these over.
 
-             We are using MLE Teams right now because Sprocket Roster can't be trusted.
-             TODO: R2 Update this
-            */
+                /* Compile list of unique players to grant eligibility. */
+                for (const p of blue) if (!allPlayers.some(ap => ap.id === p.player.id)) allPlayers.push(p.player);
+                for (const p of orange) if (!allPlayers.some(ap => ap.id === p.player.id)) allPlayers.push(p.player);
+
+                /*
+                    First, identify which team is home.
+                    It is safe to assume that all players are on the same team here;
+                    This is because the validation service has passed these over.
+
+                    We are using MLE Teams right now because Sprocket Roster can't be trusted.
+                    TODO: R2 Update this
+                */
 
                 let awayColor: "blue" | "orange",
                     blueTeam: Team | undefined,
@@ -300,19 +307,19 @@ export class RocketLeagueFinalizationService {
                 await em.insert(PlayerStatLine, bluePlayers as QueryDeepPartialEntity<PlayerStatLine>);
                 await em.insert(PlayerStatLine, orangePlayers as QueryDeepPartialEntity<PlayerStatLine>);
 
-                if (eligibility) {
-                    const eligibilities = [...blue.map(b => b.player), ...orange.map(o => o.player)].map(p =>
-                        this._createEligibility(p, match.matchParent, em, submission.items.length),
-                    );
-                    await em.insert(EligibilityData, eligibilities as QueryDeepPartialEntity<EligibilityData>);
-                }
-
                 round.teamStats = [blueTeamStats, orangeTeamStats];
                 round.playerStats = [...bluePlayers, ...orangePlayers];
 
                 return round;
             }),
         );
+
+        if (eligibility) {
+            const eligibilities = allPlayers.map(p =>
+                this._createEligibility(p, match.matchParent, em, submission.items.length),
+            );
+            await em.insert(EligibilityData, eligibilities as QueryDeepPartialEntity<EligibilityData>);
+        }
 
         match.rounds = results;
 
