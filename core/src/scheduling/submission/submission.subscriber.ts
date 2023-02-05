@@ -4,14 +4,14 @@ import {PubSub} from "apollo-server-express";
 
 import {GraphQLJwtAuthGuard} from "../../authentication/guards";
 import {PubSubKey} from "../../types/pubsub.constants";
-import {GqlReplaySubmission} from "../replay-parse";
+import {SubmissionObject} from "../graphql/submission/submission.object";
 
 @Resolver()
 @UseGuards(GraphQLJwtAuthGuard)
 export class SubmissionSubscriber {
     constructor(@Inject(PubSubKey.Submissions) private readonly pubSub: PubSub) {}
 
-    @Subscription(() => GqlReplaySubmission, {
+    @Subscription(() => SubmissionObject, {
         nullable: true,
         filter: async function (
             this: SubmissionSubscriber,
@@ -21,7 +21,7 @@ export class SubmissionSubscriber {
             return payload.followSubmission.id === variables.submissionId;
         },
     })
-    async followSubmission(@Args("submissionId") submissionId: string): Promise<AsyncIterator<GqlReplaySubmission>> {
+    async followSubmission(@Args("submissionId") submissionId: string): Promise<AsyncIterator<SubmissionObject>> {
         return this.pubSub.asyncIterator(submissionId);
     }
 }

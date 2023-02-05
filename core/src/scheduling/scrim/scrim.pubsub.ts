@@ -12,7 +12,7 @@ export class ScrimPubSub extends SprocketEventMarshal {
         super(eventsService);
     }
 
-    @SprocketEvent(EventTopic.ScrimCreated, true)
+    @SprocketEvent(EventTopic.ScrimCreated)
     async scrimCreated(scrim: Scrim): Promise<void> {
         this.pubsub.publish(ScrimsTopic, {
             scrim: scrim,
@@ -25,7 +25,7 @@ export class ScrimPubSub extends SprocketEventMarshal {
         });
     }
 
-    @SprocketEvent(EventTopic.ScrimDestroyed, true)
+    @SprocketEvent(EventTopic.ScrimDestroyed)
     async scrimDestroyed(scrim: Scrim): Promise<void> {
         this.pubsub.publish(ScrimsTopic, {
             scrim: scrim,
@@ -38,7 +38,7 @@ export class ScrimPubSub extends SprocketEventMarshal {
         });
     }
 
-    @SprocketEvent(EventTopic.ScrimCancelled, true)
+    @SprocketEvent(EventTopic.ScrimCancelled)
     async scrimCancelled(scrim: Scrim): Promise<void> {
         this.pubsub.publish(ScrimsTopic, {
             scrim: scrim,
@@ -51,7 +51,7 @@ export class ScrimPubSub extends SprocketEventMarshal {
         });
     }
 
-    @SprocketEvent(EventTopic.ScrimPopped, true)
+    @SprocketEvent(EventTopic.ScrimPopped)
     async scrimPopped(scrim: Scrim): Promise<void> {
         this.pubsub.publish(ScrimsTopic, {
             scrim: scrim,
@@ -64,7 +64,7 @@ export class ScrimPubSub extends SprocketEventMarshal {
         });
     }
 
-    @SprocketEvent(EventTopic.ScrimComplete, true)
+    @SprocketEvent(EventTopic.ScrimComplete)
     async scrimComplete(scrim: Scrim): Promise<void> {
         this.pubsub.publish(ScrimsTopic, {
             scrim: scrim,
