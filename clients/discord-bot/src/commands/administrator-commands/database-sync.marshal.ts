@@ -21,7 +21,8 @@ export class DatabaseSyncMarshal extends Marshal {
                 "470703275163779084", // Achilles
                 "243430304319143936", // Kunics
             ].includes(m.author.id)
-        ) return;
+        )
+            return;
 
         await m.reply("Starting sync...");
 
@@ -30,10 +31,9 @@ export class DatabaseSyncMarshal extends Marshal {
         await server.members.fetch();
 
         for (const member of server.members.cache.values()) {
-            const nicknameRequest = await this.coreService.send(
-                CoreEndpoint.GetNicknameByDiscordUser,
-                {discordId: member.id},
-            );
+            const nicknameRequest = await this.coreService.send(CoreEndpoint.GetNicknameByDiscordUser, {
+                discordId: member.id,
+            });
             if (nicknameRequest.status === ResponseStatus.ERROR) {
                 this.logger.log(`Failed to get nickname for ${member.id}`);
                 continue;
