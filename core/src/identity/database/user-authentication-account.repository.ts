@@ -13,6 +13,7 @@ export class UserAuthenticationAccountRepository extends ExtendedRepository<User
         super(UserAuthenticationAccount, dataSource);
     }
 
+    // TODO: Allow multiple Discord accounts? How do we handle?
     async getDiscordAccountByUserId(userId: number): Promise<UserAuthenticationAccount> {
         return this.findOneOrFail({where: {userId: userId, accountType: UserAuthenticationAccountType.DISCORD}});
     }

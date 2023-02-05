@@ -1,6 +1,7 @@
 import {BullModule} from "@nestjs/bull";
 import {forwardRef, Module} from "@nestjs/common";
 import {
+    BotModule,
     EventsModule,
     MatchmakingModule,
     MinioModule,
@@ -65,6 +66,7 @@ import {SubmissionPlayerResolver} from "./submission/submission-player.resolver"
         MatchmakingModule,
         IdentityDatabaseModule,
         AuthorizationModule,
+        BotModule,
     ],
     controllers: [MatchController, ScrimController],
     providers: [
