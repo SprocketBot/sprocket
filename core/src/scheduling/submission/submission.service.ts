@@ -11,7 +11,7 @@ import {
 import {SHA256} from "crypto-js";
 import type {Readable} from "stream";
 
-import {REPLAY_EXT} from "../replay-parse";
+const REPLAY_EXT = ".replay";
 
 @Injectable()
 export class SubmissionService {

@@ -17,7 +17,7 @@ export class SubmissionPubSub extends SprocketEventMarshal {
         super(eventsService);
     }
 
-    @SprocketEvent(EventTopic.SubmissionStarted, true)
+    @SprocketEvent(EventTopic.SubmissionStarted)
     async submissionStarted(payload: EventPayload<EventTopic.SubmissionStarted>): Promise<void> {
         const submission = await this.submissionService.getSubmissionById(payload.submissionId);
         this.pubsub.publish(payload.submissionId, {
@@ -25,7 +25,7 @@ export class SubmissionPubSub extends SprocketEventMarshal {
         });
     }
 
-    @SprocketEvent(EventTopic.SubmissionProgress, true)
+    @SprocketEvent(EventTopic.SubmissionProgress)
     async submissionProgress(payload: EventPayload<EventTopic.SubmissionProgress>): Promise<void> {
         const submission = await this.submissionService.getSubmissionById(payload.submissionId);
         this.pubsub.publish(payload.submissionId, {
@@ -33,7 +33,7 @@ export class SubmissionPubSub extends SprocketEventMarshal {
         });
     }
 
-    @SprocketEvent(EventTopic.SubmissionValidating, true)
+    @SprocketEvent(EventTopic.SubmissionValidating)
     async submissionValidating(payload: EventPayload<EventTopic.SubmissionValidating>): Promise<void> {
         const submission = await this.submissionService.getSubmissionById(payload.submissionId);
         this.pubsub.publish(payload.submissionId, {
@@ -41,7 +41,7 @@ export class SubmissionPubSub extends SprocketEventMarshal {
         });
     }
 
-    @SprocketEvent(EventTopic.SubmissionRatifying, true)
+    @SprocketEvent(EventTopic.SubmissionRatifying)
     async submissionRatifying(payload: EventPayload<EventTopic.SubmissionRatifying>): Promise<void> {
         const submission = await this.submissionService.getSubmissionById(payload.submissionId);
         this.pubsub.publish(payload.submissionId, {
@@ -49,7 +49,7 @@ export class SubmissionPubSub extends SprocketEventMarshal {
         });
     }
 
-    @SprocketEvent(EventTopic.SubmissionRatificationAdded, true)
+    @SprocketEvent(EventTopic.SubmissionRatificationAdded)
     async submissionRatificationAdded(payload: EventPayload<EventTopic.SubmissionRatificationAdded>): Promise<void> {
         const submission = await this.submissionService.getSubmissionById(payload.submissionId);
         this.pubsub.publish(payload.submissionId, {
@@ -57,7 +57,7 @@ export class SubmissionPubSub extends SprocketEventMarshal {
         });
     }
 
-    @SprocketEvent(EventTopic.SubmissionRatified, true)
+    @SprocketEvent(EventTopic.SubmissionRatified)
     async submissionRatified(payload: EventPayload<EventTopic.SubmissionRatified>): Promise<void> {
         const submission = await this.submissionService.getSubmissionById(payload.submissionId);
         this.pubsub.publish(payload.submissionId, {
@@ -65,7 +65,7 @@ export class SubmissionPubSub extends SprocketEventMarshal {
         });
     }
 
-    @SprocketEvent(EventTopic.SubmissionRejectionAdded, true)
+    @SprocketEvent(EventTopic.SubmissionRejectionAdded)
     async submissionRejectionAdded(payload: EventPayload<EventTopic.SubmissionRejectionAdded>): Promise<void> {
         const submission = await this.submissionService.getSubmissionById(payload.submissionId);
         this.pubsub.publish(payload.submissionId, {
@@ -73,7 +73,7 @@ export class SubmissionPubSub extends SprocketEventMarshal {
         });
     }
 
-    @SprocketEvent(EventTopic.SubmissionRejected, true)
+    @SprocketEvent(EventTopic.SubmissionRejected)
     async submissionRejected(payload: EventPayload<EventTopic.SubmissionRejected>): Promise<void> {
         const submission = await this.submissionService.getSubmissionById(payload.submissionId);
         this.pubsub.publish(payload.submissionId, {
@@ -81,7 +81,7 @@ export class SubmissionPubSub extends SprocketEventMarshal {
         });
     }
 
-    @SprocketEvent(EventTopic.SubmissionReset, true)
+    @SprocketEvent(EventTopic.SubmissionReset)
     async submissionReset(payload: EventPayload<EventTopic.SubmissionReset>): Promise<void> {
         const submission = await this.submissionService.getSubmissionById(payload.submissionId);
         this.pubsub.publish(payload.submissionId, {
