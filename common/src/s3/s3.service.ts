@@ -26,7 +26,7 @@ export class S3Service {
     }
 
     /**
-     * Upload an object to Minio.
+     * Upload an object to S3.
      * @param bucket The bucket to upload the object to.
      * @param objectPath The name to give the uploaded object.
      * @param object The data to upload.
@@ -51,7 +51,7 @@ export class S3Service {
     }
 
     /**
-     * Fetches an object from Minio.
+     * Fetches an object from S3.
      * @param bucket The bucket to fetch the object from.
      * @param objectPath The name of the object to fetch.
      * @returns A readable stream containing the object's data.
