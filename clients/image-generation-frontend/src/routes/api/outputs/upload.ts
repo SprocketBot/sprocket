@@ -1,8 +1,8 @@
-import type {Request, Response} from "@sveltejs/kit";
+import type {RequestHandler} from "@sveltejs/kit";
 import { getClient } from "$utils/server/minio";
 import config from "$src/config"
 
-export const POST = async ({body}: Request): Promise<Response> => {
+export const POST: RequestHandler = async ({request: {body}}) => {
     const mClient = getClient();
     const data = JSON.parse(body.toString());
     try {

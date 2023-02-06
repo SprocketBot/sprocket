@@ -1,10 +1,8 @@
-import type {
-    EndpointOutput, Response, Request,
-} from "@sveltejs/kit";
+import type {RequestHandler} from "@sveltejs/kit";
 import { getClient } from "$utils/server/minio";
 import config from "$src/config"
 
-export const GET = async ({params}: Request): Promise<EndpointOutput> => {
+export const GET: RequestHandler = async ({params}) => {
     const mClient = getClient();
     const {imageType, name} = params;
     try {
@@ -35,7 +33,7 @@ export const GET = async ({params}: Request): Promise<EndpointOutput> => {
     }
 };
 
-export const POST = async ({params}: Request): Promise<Response> => {
+export const POST: RequestHandler = async ({params}) => {
     const mClient = getClient();
     const {imageType, filename} = params;
     try {

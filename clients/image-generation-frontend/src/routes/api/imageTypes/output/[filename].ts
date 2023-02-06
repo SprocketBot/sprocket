@@ -1,8 +1,8 @@
-import type {Request, Response} from "@sveltejs/kit";
+import type {RequestHandler} from "@sveltejs/kit";
 import { getClient } from "$utils/server/minio";
 import config from "$src/config"
 
-export const GET = async ({params}: Request): Promise<Response> => {
+export const GET: RequestHandler = async ({params}) => {
     const mClient = getClient();
     try {
         const {imageType, filename} = params;

@@ -1,8 +1,8 @@
-import type {EndpointOutput} from "@sveltejs/kit";
+import type {RequestHandler} from "@sveltejs/kit";
 import { getClient } from "$utils/server/minio";
 import config from "$src/config"
 
-export const GET = async (): Promise<EndpointOutput> => {
+export const GET: RequestHandler = async () => {
     const mClient = getClient();
     try {
         const images = await new Promise<string[]>((resolve, reject) => {
