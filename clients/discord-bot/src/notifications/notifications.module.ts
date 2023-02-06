@@ -1,5 +1,5 @@
 import {Module} from "@nestjs/common";
-import {CoreModule, MinioModule} from "@sprocketbot/common";
+import {CoreModule, S3Module} from "@sprocketbot/common";
 
 import {DiscordModule} from "../discord/discord.module";
 import {EmbedModule} from "../embed";
@@ -10,7 +10,7 @@ import {NotificationsService} from "./notifications.service";
     imports: [
         DiscordModule,
         EmbedModule,
-        MinioModule,
+        S3Module,
         CoreModule,
     ],
     controllers: [NotificationsController],

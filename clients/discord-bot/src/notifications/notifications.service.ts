@@ -11,8 +11,9 @@ import type {
 import {
     CoreEndpoint,
     CoreService,
-    MinioService,
-    ResponseStatus, SprocketConfigurationKey,
+    ResponseStatus,
+    S3Service,
+    SprocketConfigurationKey,
 } from "@sprocketbot/common";
 import type {
     MessageActionRow, MessageOptions,
@@ -28,7 +29,7 @@ export class NotificationsService {
     constructor(
         @Inject("DISCORD_CLIENT") private readonly discordClient: Client,
         private readonly embedService: EmbedService,
-        private readonly minioService: MinioService,
+        private readonly s3Service: S3Service,
         private readonly coreService: CoreService,
     ) {}
 
@@ -48,7 +49,7 @@ export class NotificationsService {
         if (url.startsWith("minio:")) {
             const [bucket, ...objPath] = url.split(":")[1].split("/");
             const objectPath = objPath.join("/");
-            const file = await this.minioService.get(bucket, objectPath);
+            const file = await this.s3Service.get(bucket, objectPath);
 
             return new MessageAttachment(file, name);
         }

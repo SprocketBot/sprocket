@@ -138,6 +138,28 @@ export const config = {
             return 9000;
         },
     },
+    s3: {
+        get endpoint(): string {
+            return _config.get<string>("s3.endpoint");
+        },
+        get accessKeyId(): string {
+            return readFileSync("./secret/s3-access-key-id.txt").toString()
+                .trim();
+        },
+        get secretAccessKey(): string {
+            return readFileSync("./secret/s3-secret-access-key.txt")
+                .toString()
+                .trim();
+        },
+        bucketNames: {
+            get replays(): string {
+                return _config.get<string>("s3.bucketNames.replays");
+            },
+            get image_generation(): string {
+                return _config.get<string>("s3.bucketNames.image_generation");
+            },
+        },
+    },
     redis: {
         get port(): number {
             return _config.get<number>("redis.port");

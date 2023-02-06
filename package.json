@@ -45,5 +45,8 @@
     "*.ts": "eslint --fix",
     "*.svelte": "eslint --fix",
     "*.js": "eslint --fix"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.264.0"
   }
 }

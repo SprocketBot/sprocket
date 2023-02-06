@@ -6,10 +6,10 @@ import {
     CeleryService,
     EventsService,
     EventTopic,
-    MinioService,
     ProgressStatus,
     REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
     ReplaySubmissionStatus,
+    S3Service,
     Task,
 } from "@sprocketbot/common";
 import {v4} from "uuid";
@@ -27,7 +27,7 @@ export class ReplaySubmissionService {
 
     constructor(
         private readonly submissionCrudService: ReplaySubmissionCrudService,
-        private readonly minioService: MinioService,
+        private readonly s3Service: S3Service,
         private readonly celeryService: CeleryService,
         private readonly eventsService: EventsService,
         @Inject(forwardRef(() => ReplayParseSubscriber))
