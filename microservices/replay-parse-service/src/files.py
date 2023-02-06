@@ -1,3 +1,4 @@
+import os
 import json
 import logging
 import boto3
@@ -63,6 +64,7 @@ def fget(object_name: str) -> Optional[str]:
     path = f"{TEMP_DIR}/{object_name}"
     print(path)
     try:
+        __mkdir_p(path)
         BUCKET.Object(object_name).download_file(path)
         return path
     except ClientError as error:
@@ -97,3 +99,7 @@ def put(object_name: str, data: dict):
     except Exception as error:
         logging.error(f"Unexpected error when putting object {error}")
         raise error
+
+def __mkdir_p(filepath: str) -> None:
+    """Ensures a directory path exists to allow writing a file"""
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
