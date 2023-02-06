@@ -69,7 +69,7 @@ export class ReplayParseService {
             const buffer = await readToBuffer(s.stream);
             const objectHash = SHA256(buffer.toString()).toString();
             const replayObjectPath = `replays/${objectHash}${REPLAY_EXT}`;
-            const bucket = config.minio.bucketNames.replays;
+            const bucket = config.s3.bucketNames.replays;
             await this.s3Service.put(bucket, replayObjectPath, buffer).catch(this.logger.error.bind(this));
 
             return {

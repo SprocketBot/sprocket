@@ -25,7 +25,7 @@ export class ImageGenerationService {
         // eslint-disable-next-line
         //const data = templateStructureSchema.parse(rawData); //moved to controller
 
-        const file = await this.s3Service.get(config.minio.bucketNames.image_generation, inputFileKey);
+        const file = await this.s3Service.get(config.s3.bucketNames.image_generation, inputFileKey);
         // WriteFileSync("./input.svg", file);
 
         const dom = new JSDOM(file);
@@ -76,15 +76,15 @@ export class ImageGenerationService {
          *  this.logger.debug(`Image rendered!`);
          */
 
-        this.logger.debug(`Buffer Created, uploading to Minio`);
-        // Save output to minio
+        this.logger.debug(`Buffer Created, uploading to S3`);
+        // Save output to S3
         await this.s3Service.put(
-            config.minio.bucketNames.image_generation,
+            config.s3.bucketNames.image_generation,
             `${outputFileKey}.svg`,
             newSvgBuffer,
         );
         await this.s3Service.put(
-            config.minio.bucketNames.image_generation,
+            config.s3.bucketNames.image_generation,
             `${outputFileKey}.png`,
             await sharp(newSvgBuffer).png()
                 .toBuffer(),

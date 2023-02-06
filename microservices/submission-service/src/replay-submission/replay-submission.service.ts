@@ -38,7 +38,7 @@ export class ReplaySubmissionService {
     ) {}
 
     /**
-     * @param filePaths {string[]} Array of keys in minio/s3 that contains the replays
+     * @param filePaths {string[]} Array of keys in s3 that contains the replays
      * @param submissionId {string} Pre-generated Id assigned for this submission
      */
     async beginSubmission(

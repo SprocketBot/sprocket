@@ -235,7 +235,7 @@ export class ReplayValidationService {
     }
 
     private async getStats(outputPath: string): Promise<BallchasingResponse> {
-        const stats = await this.s3Service.get(config.minio.bucketNames.replays, outputPath);
+        const stats = await this.s3Service.get(config.s3.bucketNames.replays, outputPath);
         return JSON.parse(stats).data as BallchasingResponse;
     }
 
