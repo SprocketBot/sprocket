@@ -21,13 +21,13 @@
     "database": "",
     "enable_logs": false
   },
-  "minio": {
-    "endPoint": "",
-    "port" : 80,
+  "s3": {
+    "endpoint": "https://s3.us-west-004.backblazeb2.com",
     "bucketNames": {
-      "replays": "",
-      "image_generation" : ""
-    }
+      "replays": "sprocket-replays-dev",
+      "image_generation": "sprocket-image-gen-dev"
+    },
+    "parsed_object_prefix": "dev"
   },
   "celery": {
     "broker": "",
@@ -61,4 +61,3 @@
   },
   "defaultOrganizationId": 2
 }
-

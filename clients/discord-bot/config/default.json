@@ -14,15 +14,15 @@
   "gql": {
     "url": "http://localhost:3001/graphql"
   },
+  "s3": {
+    "endpoint": "https://s3.us-west-004.backblazeb2.com",
+    "bucketNames": {
+      "replays": "sprocket-replays-dev",
+      "image_generation": "sprocket-image-gen-dev"
+    },
+    "parsed_object_prefix": "dev"
+  },
   "logger": {
     "levels": true
-  },
-  "minio": {
-    "endPoint": "",
-    "bucketNames": {
-      "image_generation": ""
-    },
-    "useSSL": true,
-    "port": 80
   }
 }

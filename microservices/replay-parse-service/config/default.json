@@ -8,12 +8,10 @@
         "url": "",
         "analytics_queue": "dev-analytics"
     },
-    "minio": {
-        "hostname": "",
-        "bucket": "",
-        "parsed_object_prefix": "",
-        "accessKey": "",
-        "secure": true
+    "s3": {
+        "endpoint": "https://s3.us-west-004.backblazeb2.com",
+        "bucket": "sprocket-replays-dev",
+        "parsed_object_prefix": "dev"
     },
     "ballchasing": {
         "maxRetries": 4,
