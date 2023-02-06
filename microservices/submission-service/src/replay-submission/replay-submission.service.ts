@@ -42,7 +42,7 @@ export class ReplaySubmissionService {
      * @param submissionId {string} Pre-generated Id assigned for this submission
      */
     async beginSubmission(
-        filePaths: Array<{minioPath: string; originalFilename: string;}>,
+        filePaths: Array<{s3Path: string; originalFilename: string;}>,
         submissionId: string,
         creatorId: number,
     ): Promise<string[]> {
@@ -63,7 +63,7 @@ export class ReplaySubmissionService {
             await this.submissionCrudService.upsertItem(submissionId, {
                 originalFilename: fp.originalFilename,
                 taskId: taskId,
-                inputPath: fp.minioPath,
+                inputPath: fp.s3Path,
                 progress: {
                     taskId: taskId,
                     status: ProgressStatus.Pending,
@@ -79,7 +79,7 @@ export class ReplaySubmissionService {
             // Create the Celery Task
             await this.celeryService.run(
                 Task.ParseReplay,
-                {replayObjectPath: fp.minioPath},
+                {replayObjectPath: fp.s3Path},
                 {
                     taskId: taskId,
                     progressQueue: submissionId,

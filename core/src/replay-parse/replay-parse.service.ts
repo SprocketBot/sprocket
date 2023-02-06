@@ -73,7 +73,7 @@ export class ReplayParseService {
             await this.s3Service.put(bucket, replayObjectPath, buffer).catch(this.logger.error.bind(this));
 
             return {
-                minioPath: replayObjectPath,
+                s3Path: replayObjectPath,
                 originalFilename: s.filename,
             };
         }));
