@@ -1,6 +1,6 @@
 import {Controller} from "@nestjs/common";
 import {MessagePattern, Payload} from "@nestjs/microservices";
-import type {GetAllSubmissionsResponse, GetSubmissionIfExistsResponse, SubmissionOutput} from "@sprocketbot/common";
+import type {SubmissionOutput} from "@sprocketbot/common";
 import {SubmissionEndpoint, SubmissionSchemas} from "@sprocketbot/common";
 
 import {ReplaySubmissionCrudService} from "./replay-submission-crud.service";
@@ -10,14 +10,22 @@ export class ReplaySubmissionCrudController {
     constructor(private readonly crudService: ReplaySubmissionCrudService) {}
 
     @MessagePattern(SubmissionEndpoint.GetSubmissionIfExists)
-    async getSubmissionIfExists(@Payload() payload: unknown): Promise<GetSubmissionIfExistsResponse> {
+    async getSubmissionIfExists(
+        @Payload() payload: unknown,
+    ): Promise<SubmissionOutput<SubmissionEndpoint.GetSubmissionIfExists>> {
         const submissionId = SubmissionSchemas.GetSubmissionIfExists.input.parse(payload);
-        const submission = (await this.crudService.getSubmission(submissionId)) ?? null;
-        return {submission};
+
+        try {
+            return {submission: await this.crudService.getSubmissionById(submissionId)};
+        } catch {
+            return {submission: null};
+        }
     }
 
     @MessagePattern(SubmissionEndpoint.GetAllSubmissions)
-    async getAllSubmissions(@Payload() payload: unknown): Promise<GetAllSubmissionsResponse> {
+    async getAllSubmissions(
+        @Payload() payload: unknown,
+    ): Promise<SubmissionOutput<SubmissionEndpoint.GetAllSubmissions>> {
         SubmissionSchemas.GetAllSubmissions.input.parse(payload);
         return this.crudService.getAllSubmissions();
     }

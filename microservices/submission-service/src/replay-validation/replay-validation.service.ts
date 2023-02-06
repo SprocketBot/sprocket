@@ -2,10 +2,10 @@ import {Injectable, Logger} from "@nestjs/common";
 import type {
     BallchasingResponse,
     GetPlayerSuccessResponse,
-    MatchReplaySubmission,
-    ReplaySubmission,
+    MatchSubmission,
     Scrim,
-    ScrimReplaySubmission,
+    ScrimSubmission,
+    Submission,
 } from "@sprocketbot/common";
 import {
     config,
@@ -15,8 +15,8 @@ import {
     MatchmakingService,
     MinioService,
     readToString,
-    ReplaySubmissionType,
     ResponseStatus,
+    SubmissionType,
 } from "@sprocketbot/common";
 import {isEqual} from "lodash";
 
@@ -33,14 +33,14 @@ export class ReplayValidationService {
         private readonly minioService: MinioService,
     ) {}
 
-    async validate(submission: ReplaySubmission): Promise<ValidationResult> {
-        if (submission.type === ReplaySubmissionType.SCRIM) {
+    async validate(submission: Submission): Promise<ValidationResult> {
+        if (submission.type === SubmissionType.Scrim) {
             return this.validateScrimSubmission(submission);
         }
         return this.validateMatchSubmission(submission);
     }
 
-    validateNumberOfGames(submission: ScrimReplaySubmission, scrim: Scrim): ValidationResult {
+    validateNumberOfGames(submission: ScrimSubmission, scrim: Scrim): ValidationResult {
         const submissionGameCount = submission.items.length;
         const scrimGameCount = scrim?.games?.length;
 
@@ -60,7 +60,7 @@ export class ReplayValidationService {
         }
     }
 
-    checkForProcessingErrors(submission: ScrimReplaySubmission, scrim: Scrim): ValidationResult {
+    checkForProcessingErrors(submission: ScrimSubmission, scrim: Scrim): ValidationResult {
         const progressErrors = submission.items.reduce<ValidationError[]>((r, v) => {
             if (v.progress?.error) {
                 this.logger.error(
@@ -84,7 +84,7 @@ export class ReplayValidationService {
         }
     }
 
-    checkOutputPathExists(submission: ScrimReplaySubmission, scrim: Scrim): ValidationResult {
+    checkOutputPathExists(submission: ScrimSubmission, scrim: Scrim): ValidationResult {
         if (!submission.items.every(i => i.outputPath)) {
             this.logger.error(
                 `Unable to validate submission with missing outputPath, scrim=${scrim.id} submissionId=${scrim.submissionId}`,
@@ -105,7 +105,7 @@ export class ReplayValidationService {
 
     async checkForAllStats(
         stats: BallchasingResponse[],
-        submission: ScrimReplaySubmission,
+        submission: ScrimSubmission,
         scrim: Scrim,
     ): Promise<ValidationResult> {
         if (stats.length !== submission.items.length) {
@@ -123,7 +123,7 @@ export class ReplayValidationService {
         }
     }
 
-    async validateScrimSubmission(submission: ScrimReplaySubmission): Promise<ValidationResult> {
+    async validateScrimSubmission(submission: ScrimSubmission): Promise<ValidationResult> {
         const scrimResponse = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, {
             scrimId: submission.scrimId,
         });
@@ -316,7 +316,7 @@ export class ReplayValidationService {
         return JSON.parse(stats).data as BallchasingResponse;
     }
 
-    async validateMatchSubmission(submission: MatchReplaySubmission): Promise<ValidationResult> {
+    async validateMatchSubmission(submission: MatchSubmission): Promise<ValidationResult> {
         const matchResult = await this.coreService.send(CoreEndpoint.GetMatchById, {matchId: submission.matchId});
         if (matchResult.status === ResponseStatus.ERROR) throw matchResult.error;
         const match = matchResult.data;

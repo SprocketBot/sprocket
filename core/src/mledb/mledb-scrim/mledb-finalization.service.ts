@@ -4,10 +4,10 @@ import type {
     BallchasingPlayer,
     BallchasingResponse,
     BallchasingTeam,
-    MatchReplaySubmission,
-    ReplaySubmission,
+    MatchSubmission,
     Scrim,
-    ScrimReplaySubmission,
+    ScrimSubmission,
+    Submission,
 } from "@sprocketbot/common";
 import type {EntityManager} from "typeorm";
 import {Repository} from "typeorm";
@@ -65,7 +65,7 @@ export class MledbFinalizationService {
         };
     }
 
-    async saveMatch(submission: MatchReplaySubmission, submissionId: string, em: EntityManager): Promise<MLE_Series> {
+    async saveMatch(submission: MatchSubmission, submissionId: string, em: EntityManager): Promise<MLE_Series> {
         const sprocketMatchId = submission.matchId;
 
         const match = await em.findOneOrFail(Match, {
@@ -103,12 +103,12 @@ export class MledbFinalizationService {
             match.skillGroup.profile.description.split(" ")[0].toUpperCase() as League,
         );
 
-        await this.saveSeries(submission as ReplaySubmission, submissionId, em, series);
+        await this.saveSeries(submission as Submission, submissionId, em, series);
         return series;
     }
 
     async saveScrim(
-        submission: ScrimReplaySubmission,
+        submission: ScrimSubmission,
         submissionId: string,
         em: EntityManager,
         scrimObject: Scrim,
@@ -144,7 +144,7 @@ export class MledbFinalizationService {
         await em.insert(MLE_Scrim, scrim);
         await em.insert(MLE_Series, series);
 
-        await this.saveSeries(submission as ReplaySubmission, submissionId, em, series);
+        await this.saveSeries(submission as Submission, submissionId, em, series);
 
         if (scrimObject.settings.competitive) {
             const playerEligibilities = await Promise.all(
@@ -174,7 +174,7 @@ export class MledbFinalizationService {
     }
 
     async saveSeries(
-        submission: ReplaySubmission,
+        submission: Submission,
         submissionId: string,
         em: EntityManager,
         series: MLE_Series,
@@ -188,7 +188,7 @@ export class MledbFinalizationService {
         const mleSeriesReplays = await Promise.all(
             submission.items.map(async item => {
                 // Get the ballchasing data that is available
-                const data: BallchasingResponse = item.progress!.result!.data;
+                const data: BallchasingResponse = item.progress.result.data;
                 // Create and prep the series entity
                 const replay = em.create(MLE_SeriesReplay);
                 replay.series = series;

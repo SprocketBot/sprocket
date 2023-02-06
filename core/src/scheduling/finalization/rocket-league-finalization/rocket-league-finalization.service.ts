@@ -3,12 +3,12 @@ import type {
     BallchasingPlayer,
     BallchasingResponse,
     BallchasingTeam,
-    MatchReplaySubmission,
-    ReplaySubmission,
+    MatchSubmission,
     Scrim,
-    ScrimReplaySubmission,
+    ScrimSubmission,
+    Submission,
 } from "@sprocketbot/common";
-import {BallchasingResponseSchema, Parser, ProgressStatus, ReplaySubmissionType} from "@sprocketbot/common";
+import {BallchasingResponseSchema, Parser, ProgressStatus, SubmissionType} from "@sprocketbot/common";
 import type {EntityManager} from "typeorm";
 import {DataSource} from "typeorm";
 import type {QueryDeepPartialEntity} from "typeorm/query-builder/QueryPartialEntity";
@@ -49,7 +49,7 @@ export class RocketLeagueFinalizationService {
         private readonly dataSource: DataSource,
     ) {}
 
-    async finalizeScrim(submission: ScrimReplaySubmission, scrim: Scrim): Promise<SaveScrimFinalizationReturn> {
+    async finalizeScrim(submission: ScrimSubmission, scrim: Scrim): Promise<SaveScrimFinalizationReturn> {
         const qr = this.dataSource.createQueryRunner();
 
         await qr.connect();
@@ -94,7 +94,7 @@ export class RocketLeagueFinalizationService {
         }
     }
 
-    async finalizeMatch(submission: MatchReplaySubmission): Promise<SaveMatchFinalizationReturn> {
+    async finalizeMatch(submission: MatchSubmission): Promise<SaveMatchFinalizationReturn> {
         const qr = this.dataSource.createQueryRunner();
 
         await qr.connect();
@@ -134,13 +134,13 @@ export class RocketLeagueFinalizationService {
      * Saves objects that depend on the Match (i.e. Rounds, Player Stats, Team Stats)
      */
     async saveMatchDependents(
-        submission: ReplaySubmission,
+        submission: Submission,
         organizationId: number,
         match: Match,
         eligibility: boolean,
         em: EntityManager,
     ): Promise<Match> {
-        if (submission.items.some(i => i.progress?.status !== ProgressStatus.Complete)) {
+        if (submission.items.some(i => i.progress.status !== ProgressStatus.Complete)) {
             throw new Error(
                 `Not all items have been completed. Finalization attempted too soon. ${JSON.stringify({
                     submissionId: submission.id,
@@ -154,7 +154,7 @@ export class RocketLeagueFinalizationService {
             parser: {type: Parser; version: number};
             outputPath: string;
         }>(i => {
-            const r = BallchasingResponseSchema.safeParse(i.progress?.result?.data);
+            const r = BallchasingResponseSchema.safeParse(i.progress.result?.data);
 
             if (!r.success) {
                 throw new Error(
@@ -164,9 +164,9 @@ export class RocketLeagueFinalizationService {
                 );
             }
 
-            if (i.progress?.result?.parser !== Parser.BALLCHASING) {
+            if (i.progress.result?.parser !== Parser.BALLCHASING) {
                 throw new Error(
-                    `Saving matches with a non-ballchasing parser is not supported. found ${i.progress?.result?.parser}`,
+                    `Saving matches with a non-ballchasing parser is not supported. found ${i.progress.result?.parser}`,
                 );
             }
 
@@ -180,7 +180,7 @@ export class RocketLeagueFinalizationService {
             };
         });
 
-        const isMatch = submission.type === ReplaySubmissionType.MATCH;
+        const isMatch = submission.type === SubmissionType.Match;
         const {home, away} = isMatch
             ? await this.matchService.getFranchisesForMatch(match.id)
             : {home: undefined, away: undefined};

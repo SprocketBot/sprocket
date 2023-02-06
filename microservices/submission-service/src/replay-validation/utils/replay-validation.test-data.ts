@@ -1,41 +1,35 @@
-import type {MatchReplaySubmission, ReplaySubmissionItem, Scrim, ScrimReplaySubmission} from "@sprocketbot/common";
-import {
-    ProgressStatus,
-    ReplaySubmissionStatus,
-    ReplaySubmissionType,
-    ScrimMode,
-    ScrimStatus,
-} from "@sprocketbot/common";
+import type {MatchSubmission, Scrim, ScrimSubmission, SubmissionItem} from "@sprocketbot/common";
+import {ProgressStatus, ScrimMode, ScrimStatus, SubmissionStatus, SubmissionType} from "@sprocketbot/common";
 
-export const testSubmission: ScrimReplaySubmission = {
+export const testSubmission: ScrimSubmission = {
     items: [],
     id: "1",
-    type: ReplaySubmissionType.SCRIM,
+    type: SubmissionType.Scrim,
     scrimId: "1",
-    creatorUserId: 1,
+    uploaderUserId: 1,
     validated: false,
-    status: ReplaySubmissionStatus.VALIDATING,
-    taskIds: ["1"],
-    ratifiers: [1],
+    status: SubmissionStatus.Validating,
+    ratifications: [{userId: 1, ratifiedAt: new Date()}],
     requiredRatifications: 2,
     rejections: [],
+    rounds: [],
 };
 
-export const testMatchSubmission: MatchReplaySubmission = {
+export const testMatchSubmission: MatchSubmission = {
     items: [],
     id: "1",
-    type: ReplaySubmissionType.MATCH,
-    creatorUserId: 1,
+    type: SubmissionType.Match,
+    uploaderUserId: 1,
     matchId: 1,
     validated: false,
-    status: ReplaySubmissionStatus.VALIDATING,
-    taskIds: ["1"],
-    ratifiers: [1],
+    status: SubmissionStatus.Validating,
+    ratifications: [{userId: 1, ratifiedAt: new Date()}],
     requiredRatifications: 2,
     rejections: [],
+    rounds: [],
 };
 
-export const testItem: ReplaySubmissionItem = {
+export const testItem: SubmissionItem = {
     taskId: "",
     originalFilename: "",
     inputPath: "",
@@ -51,7 +45,7 @@ export const testItem: ReplaySubmissionItem = {
     },
 };
 
-export const testItem2: ReplaySubmissionItem = {
+export const testItem2: SubmissionItem = {
     taskId: "4",
     originalFilename: "something.replay",
     inputPath: "something.replay",
@@ -68,7 +62,7 @@ export const testItem2: ReplaySubmissionItem = {
     },
 };
 
-export const testItemNoOutputPath: ReplaySubmissionItem = {
+export const testItemNoOutputPath: SubmissionItem = {
     taskId: "4",
     originalFilename: "something.replay",
     inputPath: "something.replay",

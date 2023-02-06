@@ -4,8 +4,8 @@ import {
     EventTopic,
     MatchmakingEndpoint,
     MatchmakingService,
-    ReplaySubmissionStatus,
     ResponseStatus,
+    SubmissionStatus,
 } from "@sprocketbot/common";
 
 import {getSubmissionKey, submissionIsScrim} from "../../utils";
@@ -21,7 +21,7 @@ export class ReplaySubmissionRatificationService {
         private readonly matchmakingService: MatchmakingService,
     ) {}
 
-    async resetSubmission(submissionId: string, override: boolean, playerId: number): Promise<void> {
+    async resetSubmission(submissionId: string, override: boolean, userId: number): Promise<void> {
         if (!override) {
             if (submissionIsScrim(submissionId)) {
                 const scrimResponse = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, {
@@ -32,7 +32,7 @@ export class ReplaySubmissionRatificationService {
                     throw new Error("Error fetching scrim");
                 }
                 const scrim = scrimResponse.data;
-                if (!scrim.players.some(p => p.userId === playerId)) throw new Error("You cannot reset this scrim");
+                if (!scrim.players.some(p => p.userId === userId)) throw new Error("You cannot reset this scrim");
             }
         }
 
@@ -45,17 +45,17 @@ export class ReplaySubmissionRatificationService {
         });
     }
 
-    async ratifyScrim(playerId: number, submissionId: string): Promise<boolean> {
-        const submission = await this.crudService.getSubmission(submissionId);
-        if (!submission) throw new Error("Submission not found");
-        if (submission.status !== ReplaySubmissionStatus.RATIFYING)
+    async ratifyScrim(userId: number, submissionId: string): Promise<boolean> {
+        const submission = await this.crudService.getSubmissionById(submissionId);
+
+        if (submission.status !== SubmissionStatus.Ratifying)
             throw new Error("Submission is not ready for ratifications");
 
-        await this.crudService.addRatifier(submissionId, playerId);
-        submission.ratifiers.push(playerId);
+        const ratification = await this.crudService.addRatification(submissionId, userId);
+        submission.ratifications.push(ratification);
 
-        if (submission.ratifiers.length >= submission.requiredRatifications) {
-            await this.crudService.updateStatus(submissionId, ReplaySubmissionStatus.RATIFIED);
+        if (submission.ratifications.length >= submission.requiredRatifications) {
+            await this.crudService.updateStatus(submissionId, SubmissionStatus.Ratified);
 
             await this.eventService.publish(EventTopic.SubmissionRatified, {
                 submissionId: submissionId,
@@ -63,20 +63,21 @@ export class ReplaySubmissionRatificationService {
             });
             return true;
         }
+
         await this.eventService.publish(EventTopic.SubmissionRatificationAdded, {
-            currentRatifications: submission.ratifiers.length + 1,
+            currentRatifications: submission.ratifications.length + 1,
             requiredRatifications: submission.requiredRatifications,
             submissionId: submissionId,
             redisKey: getSubmissionKey(submissionId),
         });
+
         return false;
     }
 
-    async rejectSubmission(playerId: number, submissionId: string, reasons: string[]): Promise<boolean> {
-        await Promise.all(reasons.map(async r => this.crudService.addRejection(submissionId, playerId, r)));
+    async rejectSubmission(userId: number, submissionId: string, reasons: string[]): Promise<boolean> {
+        await Promise.all(reasons.map(r => this.crudService.addRejection(submissionId, userId, r)));
 
-        await this.crudService.removeItems(submissionId);
-        await this.crudService.updateStatus(submissionId, ReplaySubmissionStatus.REJECTED);
+        await this.crudService.updateStatus(submissionId, SubmissionStatus.Rejected);
         await this.eventService.publish(EventTopic.SubmissionRejectionAdded, {
             submissionId: submissionId,
             redisKey: getSubmissionKey(submissionId),

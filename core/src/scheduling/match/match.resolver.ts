@@ -5,10 +5,10 @@ import {
     EventsService,
     EventTopic,
     Parser,
-    ReplaySubmissionStatus,
     ResponseStatus,
     SubmissionEndpoint,
     SubmissionService,
+    SubmissionStatus,
 } from "@sprocketbot/common";
 import {DataSource, Repository} from "typeorm";
 
@@ -379,7 +379,7 @@ export class MatchResolver {
 
         if (!submission) return "submitting";
 
-        if (submission.status === ReplaySubmissionStatus.RATIFYING) return "ratifying";
+        if (submission.status === SubmissionStatus.Ratifying) return "ratifying";
 
         return "submitting";
     }

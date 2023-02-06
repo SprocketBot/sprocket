@@ -1,5 +1,5 @@
 import {Field, ObjectType} from "@nestjs/graphql";
-import type {ProgressMessage, ReplaySubmissionItem, Task} from "@sprocketbot/common";
+import type {ProgressMessage, SubmissionItem, Task} from "@sprocketbot/common";
 import {ProgressStatus} from "@sprocketbot/common";
 
 import {GqlProgress} from "../../../util/types/celery-progress";
@@ -7,7 +7,7 @@ import {GqlProgress} from "../../../util/types/celery-progress";
 @ObjectType()
 export class SubmissionProgressMessageObject implements ProgressMessage<Task.ParseReplay> {
     @Field(() => String, {nullable: true})
-    error: string | null;
+    error?: string | null;
 
     @Field(() => GqlProgress)
     progress: GqlProgress;
@@ -18,11 +18,11 @@ export class SubmissionProgressMessageObject implements ProgressMessage<Task.Par
     @Field(() => String)
     taskId: string;
 
-    result: ProgressMessage<Task.ParseReplay>["result"];
+    result?: ProgressMessage<Task.ParseReplay>["result"];
 }
 
 @ObjectType()
-export class SubmissionItemObject implements ReplaySubmissionItem {
+export class SubmissionItemObject implements SubmissionItem {
     @Field(() => String)
     taskId: string;
 
@@ -30,7 +30,7 @@ export class SubmissionItemObject implements ReplaySubmissionItem {
     originalFilename: string;
 
     @Field(() => SubmissionProgressMessageObject)
-    progress?: SubmissionProgressMessageObject;
+    progress: SubmissionProgressMessageObject;
 
     inputPath: string;
 

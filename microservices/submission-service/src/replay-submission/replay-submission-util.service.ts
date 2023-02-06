@@ -1,5 +1,5 @@
 import {Injectable, Logger} from "@nestjs/common";
-import type {CanRatifySubmissionResponse, ICanSubmitReplays_Response} from "@sprocketbot/common";
+import type {SubmissionEndpoint, SubmissionOutput} from "@sprocketbot/common";
 import {
     CoreEndpoint,
     CoreService,
@@ -25,13 +25,15 @@ export class ReplaySubmissionUtilService {
     ) {}
 
     async isRatified(submissionId: string): Promise<boolean> {
-        const submission = await this.submissionCrudService.getSubmission(submissionId);
-        if (!submission) throw new Error(`No submission ${submissionId}`);
-        return submission.ratifiers.length >= submission.requiredRatifications;
+        const submission = await this.submissionCrudService.getSubmissionById(submissionId);
+        return submission.ratifications.length >= submission.requiredRatifications;
     }
 
-    async canSubmitReplays(submissionId: string, userId: number): Promise<ICanSubmitReplays_Response> {
-        const submission = await this.submissionCrudService.getSubmission(submissionId);
+    async canSubmitReplays(
+        submissionId: string,
+        userId: number,
+    ): Promise<SubmissionOutput<SubmissionEndpoint.CanSubmitReplays>> {
+        const submission = await this.submissionCrudService.getSubmissionById(submissionId);
 
         if (submission?.items.length) {
             return {
@@ -117,8 +119,11 @@ export class ReplaySubmissionUtilService {
         return {canSubmit: true};
     }
 
-    async canRatifySubmission(submissionId: string, userId: number): Promise<CanRatifySubmissionResponse> {
-        const submission = await this.submissionCrudService.getSubmission(submissionId);
+    async canRatifySubmission(
+        submissionId: string,
+        userId: number,
+    ): Promise<SubmissionOutput<SubmissionEndpoint.CanRatifySubmission>> {
+        const submission = await this.submissionCrudService.getSubmissionById(submissionId);
 
         if (!submission) {
             return {

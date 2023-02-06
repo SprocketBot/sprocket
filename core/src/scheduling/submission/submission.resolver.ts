@@ -7,19 +7,14 @@ import {GraphQLJwtAuthGuard} from "../../authentication/guards";
 import {JwtAuthPayload} from "../../authentication/types";
 import {UserProfileRepository} from "../../identity/database/user-profile.repository";
 import {SubmissionObject} from "../graphql/submission/submission.object";
-import {SubmissionRejectionObject} from "../graphql/submission/submission-rejection.object";
+import {SubmissionRejectionObject} from "../graphql/submission/submission-ratification.object";
 
 @Resolver(() => SubmissionObject)
 export class SubmissionResolver {
-    @ResolveField(() => Number)
-    ratifications(@Root() submission: SubmissionObject): number {
-        return submission.ratifiers.length;
-    }
-
     @ResolveField(() => Boolean)
     @UseGuards(GraphQLJwtAuthGuard)
     userHasRatified(@AuthenticatedUser() user: JwtAuthPayload, @Root() submission: SubmissionObject): boolean {
-        return submission.ratifiers.some(r => r.toString() === user.userId.toString());
+        return submission.ratifications.some(r => r.toString() === user.userId.toString());
     }
 }
 

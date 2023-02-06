@@ -1,5 +1,5 @@
 import {Injectable, Logger} from "@nestjs/common";
-import type {ReplaySubmission} from "@sprocketbot/common";
+import type {Submission} from "@sprocketbot/common";
 import {
     config,
     MinioService,
@@ -22,7 +22,7 @@ export class SubmissionService {
         private readonly minioService: MinioService,
     ) {}
 
-    async getSubmissionById(submissionId: string): Promise<ReplaySubmission> {
+    async getSubmissionById(submissionId: string): Promise<Submission> {
         const result = await this.submissionService.send(SubmissionEndpoint.GetSubmissionIfExists, submissionId);
 
         if (result.status === ResponseStatus.ERROR) throw result.error;
@@ -30,8 +30,8 @@ export class SubmissionService {
         return result.data.submission;
     }
 
-    async getAllSubmissions(): Promise<ReplaySubmission[]> {
-        const result = await this.submissionService.send(SubmissionEndpoint.GetAllSubmissions, {});
+    async getAllSubmissions(): Promise<Submission[]> {
+        const result = await this.submissionService.send(SubmissionEndpoint.GetAllSubmissions, undefined);
 
         if (result.status === ResponseStatus.ERROR) throw result.error;
         return result.data;
@@ -91,7 +91,7 @@ export class SubmissionService {
         const submissionResponse = await this.submissionService.send(SubmissionEndpoint.SubmitReplays, {
             submissionId: submissionId,
             filepaths: filepaths,
-            creatorUserId: userId,
+            uploaderUserId: userId,
         });
 
         if (submissionResponse.status === ResponseStatus.ERROR) throw submissionResponse.error;
