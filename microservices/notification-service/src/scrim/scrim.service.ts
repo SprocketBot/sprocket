@@ -220,7 +220,7 @@ export class ScrimService extends SprocketEventMarshal {
                     },
                     timestamp: Date.now(),
                 } ],
-                attachments: [ {name: "card.png", url: `minio:${config.s3.bucketNames.image_generation}/${reportCardResult.data}.png`} ],
+                attachments: [ {name: "card.png", url: `s3:${config.s3.bucketNames.image_generation}/${reportCardResult.data}.png`} ],
             },
             brandingOptions: {
                 organizationId: scrim.organizationId,
@@ -244,7 +244,7 @@ export class ScrimService extends SprocketEventMarshal {
                     },
                     timestamp: Date.now(),
                 } ],
-                attachments: [ {name: "card.png", url: `minio:${config.s3.bucketNames.image_generation}/${reportCardResult.data}.png`} ],
+                attachments: [ {name: "card.png", url: `s3:${config.s3.bucketNames.image_generation}/${reportCardResult.data}.png`} ],
             },
             brandingOptions: {
                 organizationId: scrim.organizationId,
