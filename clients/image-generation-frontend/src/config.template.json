@@ -1,21 +1,20 @@
 {
-    "minio":{
-        "endpoint":"",
-        "port": 0,
-        "ssl": true,
-        "access": "",
-        "bucket": "sprocket-image-gen-dev"
-      },
-    "knex":{
-        "host": "",
-        "port":0,
-        "user": "",
-        "database": "",
-        "enable_logs": false,
-        "ssl":{ "rejectUnauthorized": false }
-      },
-    "transport": {
-        "url": "",
-        "queue": "dev-image-generation"
+  "s3": {
+    "endpoint": "https://s3.us-west-004.backblazeb2.com",
+    "bucket": "sprocket-image-gen-dev"
+  },
+  "knex": {
+    "host": "",
+    "port": 0,
+    "user": "",
+    "database": "",
+    "enable_logs": false,
+    "ssl": {
+      "rejectUnauthorized": false
     }
+  },
+  "transport": {
+    "url": "",
+    "queue": "dev-image-generation"
+  }
 }
