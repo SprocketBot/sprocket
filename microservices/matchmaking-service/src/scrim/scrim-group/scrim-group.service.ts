@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {RpcException} from "@nestjs/microservices";
-import {MatchmakingError, Scrim, ScrimPlayer} from "@sprocketbot/common";
-import {ScrimMode} from "@sprocketbot/common";
+import type {Scrim, ScrimPlayer} from "@sprocketbot/common";
+import {MatchmakingError, ScrimMode} from "@sprocketbot/common";
 import {nanoid} from "nanoid";
 
 @Injectable()
@@ -27,11 +27,16 @@ export class ScrimGroupService {
     }
 
     canCreateNewGroup(scrim: Scrim): boolean {
-        // Currently; only 1 group per team is allowed.
-        return scrim.settings.teamCount > Object.keys(this.getScrimGroups(scrim)).length;
+    // Currently; only 1 group per team is allowed.
+        return (
+            scrim.settings.teamCount > Object.keys(this.getScrimGroups(scrim)).length
+        );
     }
 
-    resolveGroupKey(scrim: Scrim, groupKey: string | boolean): string | undefined {
+    resolveGroupKey(
+        scrim: Scrim,
+        groupKey: string | boolean,
+    ): string | undefined {
         let output: string | undefined;
         if (typeof groupKey === "string") {
             const scrimGroups = this.getScrimGroups(scrim);
