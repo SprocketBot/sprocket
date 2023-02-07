@@ -16,10 +16,13 @@
   "web": {
     "url": ""
   },
-  "minio": {
+  "s3": {
+    "endpoint": "",
     "bucketNames": {
+      "replays": "",
       "image_generation": ""
-    }
+    },
+    "parsed_object_prefix": ""
   },
   "redis": {
     "port": 6379,

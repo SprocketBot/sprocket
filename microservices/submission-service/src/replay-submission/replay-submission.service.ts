@@ -6,10 +6,10 @@ import {
     CeleryService,
     EventsService,
     EventTopic,
-    MinioService,
     ProgressStatus,
     REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
     ReplaySubmissionStatus,
+    S3Service,
     Task,
 } from "@sprocketbot/common";
 import {v4} from "uuid";
@@ -27,7 +27,7 @@ export class ReplaySubmissionService {
 
     constructor(
         private readonly submissionCrudService: ReplaySubmissionCrudService,
-        private readonly minioService: MinioService,
+        private readonly s3Service: S3Service,
         private readonly celeryService: CeleryService,
         private readonly eventsService: EventsService,
         @Inject(forwardRef(() => ReplayParseSubscriber))
@@ -38,11 +38,11 @@ export class ReplaySubmissionService {
     ) {}
 
     /**
-     * @param filePaths {string[]} Array of keys in minio/s3 that contains the replays
+     * @param filePaths {string[]} Array of keys in s3 that contains the replays
      * @param submissionId {string} Pre-generated Id assigned for this submission
      */
     async beginSubmission(
-        filePaths: Array<{minioPath: string; originalFilename: string;}>,
+        filePaths: Array<{s3Path: string; originalFilename: string;}>,
         submissionId: string,
         creatorId: number,
     ): Promise<string[]> {
@@ -63,7 +63,7 @@ export class ReplaySubmissionService {
             await this.submissionCrudService.upsertItem(submissionId, {
                 originalFilename: fp.originalFilename,
                 taskId: taskId,
-                inputPath: fp.minioPath,
+                inputPath: fp.s3Path,
                 progress: {
                     taskId: taskId,
                     status: ProgressStatus.Pending,
@@ -79,7 +79,7 @@ export class ReplaySubmissionService {
             // Create the Celery Task
             await this.celeryService.run(
                 Task.ParseReplay,
-                {replayObjectPath: fp.minioPath},
+                {replayObjectPath: fp.s3Path},
                 {
                     taskId: taskId,
                     progressQueue: submissionId,

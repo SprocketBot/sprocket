@@ -3,6 +3,14 @@
     "url": "",
     "analytics_queue": "dev-analytics"
   },
+  "s3": {
+    "endpoint": "",
+    "bucketNames": {
+      "replays": "",
+      "image_generation": ""
+    },
+    "parsed_object_prefix": ""
+  },
   "logger": {
     "levels": true
   }

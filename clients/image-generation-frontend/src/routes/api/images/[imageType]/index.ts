@@ -1,24 +1,20 @@
-import type {EndpointOutput, Request} from "@sveltejs/kit";
-import { getClient } from "$utils/server/minio";
+import type {RequestHandler} from "@sveltejs/kit";
+import { client } from "$utils/server/s3";
 import config from "$src/config"
+import { ListObjectsCommand } from "@aws-sdk/client-s3";
 
-export const GET = async ({params}: Request): Promise<EndpointOutput> => {
-    const mClient = getClient();
+export const GET: RequestHandler = async ({params}) => {
     const {imageType} = params;
+
     try {
-        const names = await new Promise<string[]>((resolve, reject) => {
-            const output = [];
-            mClient.listObjects(config.minio.bucket, `${imageType}/`)
-                .on("data", d => {
-                    if (d.prefix) {
-                        output.push(d.prefix.split("/")[1]);
-                    }
-                })
-                .on("end", () => { resolve(output) })
-                .on("error", e => {
-                    reject(e);
-                });
-        });
+        const response = await client.send(new ListObjectsCommand({
+            Bucket: config.s3.bucket,
+            Delimiter: "/",
+            Prefix: `${imageType}/`,
+        }))
+        const names = (response.CommonPrefixes ?? []).map(o => {
+            return o.Prefix?.split("/")[1]
+        }).filter(x => x !== undefined)
 
         return {
             headers: {},

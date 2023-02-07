@@ -14,15 +14,15 @@
   "gql": {
     "url": "http://localhost:3001/graphql"
   },
-  "logger": {
-    "levels": true
-  },
-  "minio": {
-    "endPoint": "",
+  "s3": {
+    "endpoint": "",
     "bucketNames": {
+      "replays": "",
       "image_generation": ""
     },
-    "useSSL": true,
-    "port": 80
+    "parsed_object_prefix": ""
+  },
+  "logger": {
+    "levels": true
   }
 }

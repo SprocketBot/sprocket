@@ -4,8 +4,8 @@ import {
     CeleryModule,
     EventsModule,
     MatchmakingModule,
-    MinioModule,
     RedisModule,
+    S3Module,
     SubmissionModule,
     UtilModule as CommonUtilModule,
 } from "@sprocketbot/common";
@@ -34,7 +34,7 @@ import {ReplayParseService} from "./replay-parse.service";
     imports: [
         SubmissionModule,
         CeleryModule,
-        MinioModule,
+        S3Module,
         RedisModule,
         MatchmakingModule,
         ScrimModule,

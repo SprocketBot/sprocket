@@ -15,10 +15,17 @@
   "gql": {
     "url": "http://localhost:3001"
   },
+  "s3": {
+    "endpoint": "",
+    "bucketNames": {
+      "replays": "",
+      "image_generation": ""
+    },
+    "parsed_object_prefix": ""
+  },
   "redis": {
     "port": 0,
     "host": "",
     "prefix": "dev"
   }
 }
-  

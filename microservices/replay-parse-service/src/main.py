@@ -3,7 +3,6 @@ import os
 
 import celery
 import logging
-from minio import S3Error
 
 from config import config
 import files
@@ -20,7 +19,7 @@ app = celery.Celery(config_source=celeryconfig)
 PARSER_VERSION = "1"
 
 ANALYTICS_QUEUE = config["transport"]["analytics_queue"]
-PARSED_OBJECT_PREFIX = f"{config['minio']['parsed_object_prefix']}/v{PARSER_VERSION}"
+PARSED_OBJECT_PREFIX = f"{config['s3']['parsed_object_prefix']}/v{PARSER_VERSION}"
 DISABLE_CACHE = config["disableCache"]
 
 class BaseTask(celery.Task):
@@ -98,35 +97,31 @@ class ParseReplay(BaseTask):
 
         logging.info(f"Parsing replay {replay_object_path} with progress queue {self.progress_queue}")
 
-        # Check if the replay has already been parsed and stats are in minio
+        # Check if the replay has already been parsed and stats are in S3
         if DISABLE_CACHE is False:
-            try:
-                logging.debug("Checking for results in minio")
+            logging.debug("Checking for parsed results")
 
-                already_parsed = files.get(parsed_object_path)
+            parsed = files.get(parsed_object_path)
+            if parsed:
                 logging.info(f"Replay already parsed {parsed_object_path}")
 
                 self.publish_progress(
-                    self.progress.complete(already_parsed)
+                    self.progress.complete(parsed)
                 )
                 self.publish_analytics(
                     self.analytics.timer_split_get().cached(True).complete()
                 )
+            else:
+                logging.debug("No parsed results found, parsing replay")
+        else:
+            logging.debug("Cache disabled, not checking for parsed results")
 
-                return already_parsed
-            except S3Error as e:
-                if e.code == "NoSuchKey":
-                    logging.debug("No results found in minio, parsing replay")
-                    pass
-            except:
-                raise
-
-        logging.debug(f"Fetching object {replay_object_path} from minio")
+        logging.debug(f"Fetching object {replay_object_path} from S3")
         self.publish_progress(
             self.progress.pending("Fetching replay...", 20)
         )
 
-        path = files.fget(replay_object_path)
+        path = files.fget(replay_object_path)            
         self.analytics.timer_split_get()
         self.analytics.replay_size(os.path.getsize(path) * 1000)
 
@@ -163,11 +158,8 @@ class ParseReplay(BaseTask):
             self.progress.complete(result)
         )
 
-        try:
-            logging.debug(f"Uploading to minio")
-            files.put(parsed_object_path, result)
-        except Exception as e:
-            logging.warn(f"Failed uploading parsed JSON to minio {e}")
+        logging.debug(f"Uploading to S3")
+        files.put(parsed_object_path, result)
 
         self.publish_progress(
             self.progress.complete(result)

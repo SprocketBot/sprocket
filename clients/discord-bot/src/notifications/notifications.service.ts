@@ -11,8 +11,9 @@ import type {
 import {
     CoreEndpoint,
     CoreService,
-    MinioService,
-    ResponseStatus, SprocketConfigurationKey,
+    ResponseStatus,
+    S3Service,
+    SprocketConfigurationKey,
 } from "@sprocketbot/common";
 import type {
     MessageActionRow, MessageOptions,
@@ -28,16 +29,16 @@ export class NotificationsService {
     constructor(
         @Inject("DISCORD_CLIENT") private readonly discordClient: Client,
         private readonly embedService: EmbedService,
-        private readonly minioService: MinioService,
+        private readonly s3Service: S3Service,
         private readonly coreService: CoreService,
     ) {}
 
     /**
-     * Attachments use either a url for an image or video or to use minio, the following format:
-     * minio:bucket_name/object_key
+     * Attachments use either a url for an image or video or to use S3, the following format:
+     * s3:bucket_name/object_key
      * @example
-     * // Minio File
-     * downloadAttachment("minio:bucket_name/object_key")
+     * // S3 File
+     * downloadAttachment("s3:bucket_name/object_key")
      * // External File
      * downloadAttachment("https://cdn.discordapp.com/icons/222078108977594368/6e1019b3179d71046e463a75915e7244.png?size=2048")
      */
@@ -45,10 +46,10 @@ export class NotificationsService {
         const url = typeof attachment === "string" ? attachment : attachment.url;
         const name = typeof attachment === "string" ? undefined : attachment.name;
 
-        if (url.startsWith("minio:")) {
+        if (url.startsWith("s3:")) {
             const [bucket, ...objPath] = url.split(":")[1].split("/");
             const objectPath = objPath.join("/");
-            const file = await this.minioService.get(bucket, objectPath);
+            const file = await this.s3Service.get(bucket, objectPath);
 
             return new MessageAttachment(file, name);
         }
