@@ -13,6 +13,7 @@ export const testSubmission: ScrimSubmission = {
     requiredRatifications: 2,
     rejections: [],
     rounds: [],
+    rejectionStreak: 0,
 };
 
 export const testMatchSubmission: MatchSubmission = {
@@ -27,6 +28,7 @@ export const testMatchSubmission: MatchSubmission = {
     requiredRatifications: 2,
     rejections: [],
     rounds: [],
+    rejectionStreak: 0,
 };
 
 export const testItem: SubmissionItem = {

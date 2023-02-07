@@ -36,9 +36,8 @@ export class ReplaySubmissionRatificationService {
             }
         }
 
-        // Delete the submission
-        await this.crudService.removeSubmission(submissionId);
-        // Let everybody know that we've deleted the submission
+        await this.crudService.setRejectionStreak(submissionId, 0);
+        await this.crudService.startNewRound(submissionId);
         await this.eventService.publish(EventTopic.SubmissionReset, {
             submissionId: submissionId,
             redisKey: getSubmissionKey(submissionId),
@@ -77,6 +76,7 @@ export class ReplaySubmissionRatificationService {
     async rejectSubmission(userId: number, submissionId: string, reasons: string[]): Promise<boolean> {
         await Promise.all(reasons.map(r => this.crudService.addRejection(submissionId, userId, r)));
 
+        await this.crudService.incrementRejectionStreak(submissionId);
         await this.crudService.updateStatus(submissionId, SubmissionStatus.Rejected);
         await this.eventService.publish(EventTopic.SubmissionRejectionAdded, {
             submissionId: submissionId,

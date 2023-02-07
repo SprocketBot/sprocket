@@ -14,12 +14,7 @@ export class ReplaySubmissionCrudController {
         @Payload() payload: unknown,
     ): Promise<SubmissionOutput<SubmissionEndpoint.GetSubmissionIfExists>> {
         const submissionId = SubmissionSchemas.GetSubmissionIfExists.input.parse(payload);
-
-        try {
-            return {submission: await this.crudService.getSubmissionById(submissionId)};
-        } catch {
-            return {submission: null};
-        }
+        return {submission: await this.crudService.getSubmissionByIdIfExists(submissionId)};
     }
 
     @MessagePattern(SubmissionEndpoint.GetAllSubmissions)

@@ -28,6 +28,7 @@ import {
     SubmissionStatus,
     SubmissionType,
 } from "@sprocketbot/common";
+import {z} from "zod";
 
 import {submissionIsMatch, submissionIsScrim} from "../../utils";
 
@@ -58,9 +59,14 @@ export class ReplaySubmissionCrudService {
         return this.redisService.getJson<Submission>(submissionKey, undefined, SubmissionSchema);
     }
 
+    async getSubmissionByIdIfExists(submissionId: string): Promise<Submission | null> {
+        const submissionKey = `${this.prefix}${submissionId}`;
+        return this.redisService.getJsonIfExists<Submission>(submissionKey, SubmissionSchema);
+    }
+
     async getOrCreateSubmission(submissionId: string, uploaderUserId: number): Promise<Submission> {
         const submissionKey = this.getSubmissionKey(submissionId);
-        const existingSubmission = this.redisService.getJson<Submission>(submissionKey, undefined, SubmissionSchema);
+        const existingSubmission = await this.redisService.getJsonIfExists<Submission>(submissionKey, SubmissionSchema);
 
         if (existingSubmission) {
             await this.startNewRound(submissionId);
@@ -86,10 +92,13 @@ export class ReplaySubmissionCrudService {
                     requiredRatifications: 2, // TODO Make this configurable.
                     ratifications: [],
                     rejections: [],
+                    rejectionStreak: 0,
                     uploaderUserId: uploaderUserId,
                     items: [],
                     rounds: [],
                 };
+
+                await this.redisService.setJson(submissionKey, submission);
                 return submission;
             } else {
                 const scrimResult = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, {
@@ -121,10 +130,13 @@ export class ReplaySubmissionCrudService {
                     requiredRatifications: scrimRequiredRatifications,
                     ratifications: [],
                     rejections: [],
+                    rejectionStreak: 0,
                     uploaderUserId: uploaderUserId,
                     items: [],
                     rounds: [],
                 };
+
+                await this.redisService.setJson(submissionKey, submission);
                 return submission;
             }
         }
@@ -220,6 +232,17 @@ export class ReplaySubmissionCrudService {
         await this.redisService.appendToJsonArray(key, "rejections", rejection);
     }
 
+    async setRejectionStreak(submissionId: string, streak: number): Promise<void> {
+        const key = this.getSubmissionKey(submissionId);
+        await this.redisService.setJsonField(key, "rejectionStreak", streak);
+    }
+
+    async incrementRejectionStreak(submissionId: string): Promise<void> {
+        const key = this.getSubmissionKey(submissionId);
+        const value = await this.redisService.getJson<number>(key, "rejectionStreak", z.number());
+        await this.setRejectionStreak(submissionId, value + 1);
+    }
+
     async startNewRound(submissionId: string): Promise<void> {
         const key = this.getSubmissionKey(submissionId);
         const submission = await this.getSubmissionById(submissionId);
@@ -239,6 +262,7 @@ export class ReplaySubmissionCrudService {
         await this.redisService.setJsonField(key, "ratifications", []);
         await this.redisService.setJsonField(key, "rejections", []);
         await this.redisService.setJsonField(key, "items", []);
-        await this.redisService.setJsonField(key, "stats", []);
+        await this.redisService.deleteJsonField(key, "stats");
+        await this.redisService.setJsonField(key, "status", SubmissionStatus.Pending);
     }
 }

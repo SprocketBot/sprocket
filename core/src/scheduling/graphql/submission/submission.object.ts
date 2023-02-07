@@ -39,11 +39,15 @@ export class SubmissionObject implements BaseSubmission {
     rejections: SubmissionRejectionObject[];
 
     @Field(() => Int)
+    rejectionStreak: number;
+
+    @Field(() => Int)
     uploaderUserId: number;
 
     @Field(() => [SubmissionItemObject])
     items: SubmissionItemObject[];
 
+    // TODO: This!
     @Field(() => Boolean)
     rounds: any[];
 

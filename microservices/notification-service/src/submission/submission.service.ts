@@ -1,5 +1,5 @@
 import {Injectable} from "@nestjs/common";
-import type {MatchReplaySubmission, ReplaySubmission, ScrimReplaySubmission} from "@sprocketbot/common";
+import type {MatchSubmission, ScrimSubmission, Submission} from "@sprocketbot/common";
 import {
     BotEndpoint,
     BotService,
@@ -14,10 +14,10 @@ import {
     MatchmakingEndpoint,
     MatchmakingService,
     RedisService,
-    ReplaySubmissionType,
     ResponseStatus,
     SprocketEvent,
     SprocketEventMarshal,
+    SubmissionType,
 } from "@sprocketbot/common";
 
 @Injectable()
@@ -34,13 +34,13 @@ export class SubmissionService extends SprocketEventMarshal {
 
     @SprocketEvent(EventTopic.SubmissionRatifying)
     async sendSubmissionRatifyingNotifications(payload: EventPayload<EventTopic.SubmissionRatifying>): Promise<void> {
-        const submission = await this.redisService.getJson<ReplaySubmission>(payload.redisKey);
+        const submission = await this.redisService.getJson<Submission>(payload.redisKey);
 
         switch (submission.type) {
-            case ReplaySubmissionType.MATCH:
-                await this.sendMatchSubmissionRatifyingNotifications({...submission, id: payload.submissionId});
+            case SubmissionType.Match:
+                await this.sendMatchSubmissionRatifyingNotifications(submission);
                 break;
-            case ReplaySubmissionType.SCRIM:
+            case SubmissionType.Scrim:
                 await this.sendScrimSubmissionRatifyingNotifications(submission);
                 break;
             default:
@@ -50,13 +50,13 @@ export class SubmissionService extends SprocketEventMarshal {
 
     @SprocketEvent(EventTopic.SubmissionRejected)
     async sendSubmissionRejectedNotifications(payload: EventPayload<EventTopic.SubmissionRejected>): Promise<void> {
-        const submission = await this.redisService.getJson<ReplaySubmission>(payload.redisKey);
+        const submission = await this.redisService.getJson<Submission>(payload.redisKey);
 
         switch (submission.type) {
-            case ReplaySubmissionType.MATCH:
-                await this.sendMatchSubmissionRejectedNotifications({...submission, id: payload.submissionId});
+            case SubmissionType.Match:
+                await this.sendMatchSubmissionRejectedNotifications(submission);
                 break;
-            case ReplaySubmissionType.SCRIM:
+            case SubmissionType.Scrim:
                 await this.sendScrimSubmissionRejectedNotifications(submission);
                 break;
             default:
@@ -64,7 +64,7 @@ export class SubmissionService extends SprocketEventMarshal {
         }
     }
 
-    async sendScrimSubmissionRatifyingNotifications(submission: ScrimReplaySubmission): Promise<void> {
+    async sendScrimSubmissionRatifyingNotifications(submission: ScrimSubmission): Promise<void> {
         const scrimResult = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, {
             scrimId: submission.scrimId,
         });
@@ -131,7 +131,7 @@ export class SubmissionService extends SprocketEventMarshal {
         );
     }
 
-    async sendMatchSubmissionRatifyingNotifications(submission: MatchReplaySubmission): Promise<void> {
+    async sendMatchSubmissionRatifyingNotifications(submission: MatchSubmission): Promise<void> {
         const matchResult = await this.coreService.send(CoreEndpoint.GetMatchById, {matchId: submission.matchId});
         if (matchResult.status === ResponseStatus.ERROR) throw matchResult.error;
 
@@ -214,7 +214,7 @@ export class SubmissionService extends SprocketEventMarshal {
         );
     }
 
-    async sendScrimSubmissionRejectedNotifications(submission: ScrimReplaySubmission): Promise<void> {
+    async sendScrimSubmissionRejectedNotifications(submission: ScrimSubmission): Promise<void> {
         const scrimResult = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, {
             scrimId: submission.scrimId,
         });
@@ -282,7 +282,7 @@ export class SubmissionService extends SprocketEventMarshal {
         );
     }
 
-    async sendMatchSubmissionRejectedNotifications(submission: MatchReplaySubmission & {id: string}): Promise<void> {
+    async sendMatchSubmissionRejectedNotifications(submission: MatchSubmission & {id: string}): Promise<void> {
         const matchResult = await this.coreService.send(CoreEndpoint.GetMatchById, {matchId: submission.matchId});
         if (matchResult.status === ResponseStatus.ERROR) throw matchResult.error;
 

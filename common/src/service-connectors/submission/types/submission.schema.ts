@@ -14,6 +14,7 @@ export enum SubmissionType {
 }
 
 export enum SubmissionStatus {
+    Pending = "Pending",
     Processing = "Processing",
     Ratifying = "Ratifying",
     Validating = "Validating",
@@ -32,6 +33,7 @@ export const BaseSubmissionSchema = z.object({
 
     ratifications: z.array(SubmissionRatificationSchema),
     rejections: z.array(SubmissionRejectionSchema),
+    rejectionStreak: z.number(),
 
     uploaderUserId: z.number(),
     items: z.array(SubmissionItemSchema),

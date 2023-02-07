@@ -8,6 +8,7 @@ import {
     RedisService,
     ResponseStatus,
     ScrimStatus,
+    SubmissionStatus,
 } from "@sprocketbot/common";
 
 import {submissionIsMatch, submissionIsScrim} from "../utils";
@@ -33,9 +34,9 @@ export class ReplaySubmissionUtilService {
         submissionId: string,
         userId: number,
     ): Promise<SubmissionOutput<SubmissionEndpoint.CanSubmitReplays>> {
-        const submission = await this.submissionCrudService.getSubmissionById(submissionId);
+        const submission = await this.submissionCrudService.getSubmissionByIdIfExists(submissionId);
 
-        if (submission?.items.length) {
+        if (submission && ![SubmissionStatus.Pending, SubmissionStatus.Rejected].includes(submission.status)) {
             return {
                 canSubmit: false,
                 reason: "A submission with items already exists",
