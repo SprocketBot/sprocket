@@ -1,6 +1,6 @@
 import {Controller} from "@nestjs/common";
 import {MessagePattern, Payload} from "@nestjs/microservices";
-import type { SubmissionOutput} from "@sprocketbot/common";
+import type {SubmissionOutput} from "@sprocketbot/common";
 import {SubmissionEndpoint, SubmissionSchemas} from "@sprocketbot/common";
 
 import {ReplaySubmissionService} from "./replay-submission.service";
