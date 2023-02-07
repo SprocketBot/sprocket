@@ -16,12 +16,12 @@
     "url": "http://localhost:3001"
   },
   "s3": {
-    "endpoint": "https://s3.us-west-004.backblazeb2.com",
+    "endpoint": "",
     "bucketNames": {
-      "replays": "sprocket-replays-dev",
-      "image_generation": "sprocket-image-gen-dev"
+      "replays": "",
+      "image_generation": ""
     },
-    "parsed_object_prefix": "dev"
+    "parsed_object_prefix": ""
   },
   "redis": {
     "port": 0,

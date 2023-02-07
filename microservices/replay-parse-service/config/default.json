@@ -9,9 +9,9 @@
         "analytics_queue": "dev-analytics"
     },
     "s3": {
-        "endpoint": "https://s3.us-west-004.backblazeb2.com",
-        "bucket": "sprocket-replays-dev",
-        "parsed_object_prefix": "dev"
+        "endpoint": "",
+        "bucket": "",
+        "parsed_object_prefix": ""
     },
     "ballchasing": {
         "maxRetries": 4,

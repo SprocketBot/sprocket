@@ -1,17 +1,17 @@
 {
   "transport": {
     "url": "",
-    "image_generation_queue" : ""
+    "image_generation_queue": ""
   },
   "logger": {
     "levels": true
   },
   "s3": {
-    "endpoint": "https://s3.us-west-004.backblazeb2.com",
+    "endpoint": "",
     "bucketNames": {
-      "replays": "sprocket-replays-dev",
-      "image_generation": "sprocket-image-gen-dev"
+      "replays": "",
+      "image_generation": ""
     },
-    "parsed_object_prefix": "dev"
+    "parsed_object_prefix": ""
   }
 }
