@@ -9,7 +9,11 @@ import {SubmissionStatus, SubmissionType} from "@sprocketbot/common";
 
 import type {Match} from "../../database/match.entity";
 import {SubmissionItemObject} from "./submission-item.object";
-import {SubmissionRatificationObject, SubmissionRejectionObject} from "./submission-ratification.object";
+import {
+    SubmissionRatificationObject,
+    SubmissionRatificationRoundObject,
+    SubmissionRejectionObject,
+} from "./submission-ratification.object";
 import {SubmissionStatsObject} from "./submission-stats.object";
 
 registerEnumType(SubmissionType, {name: "SubmissionType"});
@@ -47,9 +51,8 @@ export class SubmissionObject implements BaseSubmission {
     @Field(() => [SubmissionItemObject])
     items: SubmissionItemObject[];
 
-    // TODO: This!
-    @Field(() => Boolean)
-    rounds: any[];
+    @Field(() => [SubmissionRatificationRoundObject])
+    rounds: SubmissionRatificationRoundObject[];
 
     @Field(() => SubmissionStatsObject, {nullable: true})
     stats?: SubmissionStatsObject;

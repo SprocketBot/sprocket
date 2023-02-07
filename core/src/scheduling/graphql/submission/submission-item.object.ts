@@ -6,7 +6,6 @@ import {GqlProgress} from "../../../util/types/celery-progress";
 
 @ObjectType()
 export class SubmissionProgressMessageObject implements ProgressMessage<Task.ParseReplay> {
-    @Field(() => String, {nullable: true})
     error?: string | null;
 
     @Field(() => GqlProgress)
@@ -15,7 +14,6 @@ export class SubmissionProgressMessageObject implements ProgressMessage<Task.Par
     @Field(() => ProgressStatus)
     status: ProgressStatus;
 
-    @Field(() => String)
     taskId: string;
 
     result?: ProgressMessage<Task.ParseReplay>["result"];
@@ -23,10 +21,8 @@ export class SubmissionProgressMessageObject implements ProgressMessage<Task.Par
 
 @ObjectType()
 export class SubmissionItemObject implements SubmissionItem {
-    @Field(() => String)
     taskId: string;
 
-    @Field(() => String)
     originalFilename: string;
 
     @Field(() => SubmissionProgressMessageObject)

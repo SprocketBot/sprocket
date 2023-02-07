@@ -1,5 +1,10 @@
 import {Field, ObjectType} from "@nestjs/graphql";
-import type {SubmissionRatification, SubmissionRejection} from "@sprocketbot/common";
+import type {
+    SubmissionItem,
+    SubmissionRatification,
+    SubmissionRatificationRound,
+    SubmissionRejection,
+} from "@sprocketbot/common";
 
 import type {SubmissionItemObject} from "./submission-item.object";
 
@@ -24,4 +29,29 @@ export class SubmissionRejectionObject implements SubmissionRejection {
 
     @Field()
     rejectedAt: Date;
+}
+
+@ObjectType()
+export class SubmissionRoundItemObject implements Omit<SubmissionItem, "progress"> {
+    taskId: string;
+
+    originalFilename: string;
+
+    inputPath: string;
+
+    outputPath?: string;
+}
+
+@ObjectType()
+export class SubmissionRatificationRoundObject implements SubmissionRatificationRound {
+    @Field()
+    uploaderUserId: number;
+
+    items: SubmissionRoundItemObject[];
+
+    @Field(() => [SubmissionRatificationObject])
+    ratifications: SubmissionRatificationObject[];
+
+    @Field(() => [SubmissionRejectionObject])
+    rejections: SubmissionRejectionObject[];
 }
