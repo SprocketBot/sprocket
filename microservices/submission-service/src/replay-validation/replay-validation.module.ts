@@ -1,6 +1,6 @@
 import {forwardRef, Module} from "@nestjs/common";
 import {
-    CoreModule, MatchmakingModule, S3Module, UtilModule,
+    CoreModule, MatchmakingModule, MinioModule, UtilModule,
 } from "@sprocketbot/common";
 
 import {ReplaySubmissionModule} from "../replay-submission/replay-submission.module";
@@ -11,7 +11,7 @@ import {ReplayValidationService} from "./replay-validation.service";
     imports: [
         MatchmakingModule,
         CoreModule,
-        S3Module,
+        MinioModule,
         forwardRef(() => ReplaySubmissionModule),
         UtilModule,
     ],

@@ -5,11 +5,11 @@ import {
     config,
     EventsService,
     EventTopic,
+    MinioService,
     readToBuffer,
     RedisService,
     REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
     ResponseStatus,
-    S3Service,
     SubmissionEndpoint,
     SubmissionService,
 } from "@sprocketbot/common";
@@ -28,7 +28,7 @@ export class ReplayParseService {
     private subscribed: boolean = false;
 
     constructor(
-        private readonly s3Service: S3Service,
+        private readonly minioService: MinioService,
         private readonly submissionService: SubmissionService,
         private readonly redisService: RedisService,
         private readonly eventsService: EventsService,
@@ -69,11 +69,11 @@ export class ReplayParseService {
             const buffer = await readToBuffer(s.stream);
             const objectHash = SHA256(buffer.toString()).toString();
             const replayObjectPath = `replays/${objectHash}${REPLAY_EXT}`;
-            const bucket = config.s3.bucketNames.replays;
-            await this.s3Service.put(bucket, replayObjectPath, buffer).catch(this.logger.error.bind(this));
+            const bucket = config.minio.bucketNames.replays;
+            await this.minioService.put(bucket, replayObjectPath, buffer).catch(this.logger.error.bind(this));
 
             return {
-                s3Path: replayObjectPath,
+                minioPath: replayObjectPath,
                 originalFilename: s.filename,
             };
         }));

@@ -8,16 +8,18 @@
         "url": "",
         "analytics_queue": "dev-analytics"
     },
-    "s3": {
-        "endpoint": "",
+    "minio": {
+        "hostname": "",
         "bucket": "",
-        "parsed_object_prefix": ""
+        "parsed_object_prefix": "",
+        "accessKey": "",
+        "secure": true
     },
     "ballchasing": {
         "maxRetries": 4,
         "backoffFactor": 4
     },
     "parser": "carball|ballchasing",
-    "tempDir": "/tmp",
+    "tempDir": "",
     "disableCache": false
 }

@@ -1,6 +1,6 @@
-import type {RequestHandler} from "@sveltejs/kit";
+import type {EndpointOutput} from "@sveltejs/kit";
 
-export const GET: RequestHandler = async () => {
+export async function GET(): Promise<EndpointOutput> {
     return {
         headers: {Location: "/"},
         status: 302,

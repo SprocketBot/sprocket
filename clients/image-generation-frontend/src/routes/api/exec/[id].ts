@@ -1,8 +1,8 @@
-import type {RequestHandler} from "@sveltejs/kit";
+// import type {EndpointOutput, Request} from "@sveltejs/kit";
 import {ReportTemplateDAO} from "$utils/server/database/ReportTemplate.dao";
 import {rmqRequest} from "$utils/rabbitmq";
 
-export const POST: RequestHandler = async ({request, params}) => {
+export async function POST({request, params}) {
     const data = await request.json()
     // const data = JSON.parse(body.toString());
     const results = await ReportTemplateDAO.runReport(params.id, data.filterValues);

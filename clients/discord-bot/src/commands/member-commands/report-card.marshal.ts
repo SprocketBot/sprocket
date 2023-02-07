@@ -78,7 +78,7 @@ export class ReportCardMarshal extends Marshal {
         }, organizationResult.data.id);
         const messageAttachment = await this.notificationsService.downloadAttachment({
             name: "card.png",
-            url: `s3:${config.s3.bucketNames.image_generation}/${reportCardResult.data}.png`,
+            url: `minio:${config.minio.bucketNames.image_generation}/${reportCardResult.data}.png`,
         });
         const messageContent: MessageOptions = {
             embeds: [embed],

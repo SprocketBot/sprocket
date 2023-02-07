@@ -1,9 +1,9 @@
 import {rmqRequest} from "$src/utils/rabbitmq";
 import {ReportTemplateDAO} from "$src/utils/server/database/ReportTemplate.dao";
-import type {RequestHandler} from "@sveltejs/kit";
+import type {EndpointOutput, Request} from "@sveltejs/kit";
 
 
-export const GET: RequestHandler = async ({url, params}) => {
+export async function GET({url, params}: Request): Promise<EndpointOutput> {
 
     try {
     // verify filter values are valid
@@ -39,7 +39,7 @@ export const GET: RequestHandler = async ({url, params}) => {
     }
 }
 
-export const POST: RequestHandler = async ({request: { body }, params}) => {
+export async function POST({body, params}: Request): Promise<EndpointOutput> {
     const data = JSON.parse(body.toString());
     const results = await ReportTemplateDAO.runReport(params.id, data.filterValues);
 

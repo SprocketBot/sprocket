@@ -120,10 +120,10 @@ flowchart
 	CeleryModule-->TypeOrmCoreModule
 	CeleryModule-->GlobalModule
 	CeleryModule-->BullModule
-	ReplayParseModule-->S3Module
-	S3Module-->TypeOrmCoreModule
-	S3Module-->GlobalModule
-	S3Module-->BullModule
+	ReplayParseModule-->MinioModule
+	MinioModule-->TypeOrmCoreModule
+	MinioModule-->GlobalModule
+	MinioModule-->BullModule
 	ReplayParseModule-->RedisModule
 	RedisModule-->TypeOrmCoreModule
 	RedisModule-->GlobalModule

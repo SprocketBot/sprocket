@@ -12,9 +12,10 @@ import {
     CoreService,
     MatchmakingEndpoint,
     MatchmakingService,
+    MinioService,
+    readToString,
     ReplaySubmissionType,
     ResponseStatus,
-    S3Service,
 } from "@sprocketbot/common";
 import {isEqual} from "lodash";
 
@@ -28,7 +29,7 @@ export class ReplayValidationService {
     constructor(
         private readonly coreService: CoreService,
         private readonly matchmakingService: MatchmakingService,
-        private readonly s3Service: S3Service,
+        private readonly minioService: MinioService,
     ) {}
 
     async validate(submission: ReplaySubmission): Promise<ValidationResult> {
@@ -235,7 +236,8 @@ export class ReplayValidationService {
     }
 
     private async getStats(outputPath: string): Promise<BallchasingResponse> {
-        const stats = await this.s3Service.get(config.s3.bucketNames.replays, outputPath);
+        const r = await this.minioService.get(config.minio.bucketNames.replays, outputPath);
+        const stats = await readToString(r);
         return JSON.parse(stats).data as BallchasingResponse;
     }
 
