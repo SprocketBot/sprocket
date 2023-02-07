@@ -1,5 +1,3 @@
 {
-    "typescript.preferences.importModuleSpecifier": "relative",
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
-    "editor.formatOnSave": true,
+    "typescript.preferences.importModuleSpecifier": "relative"
 }

@@ -2,16 +2,23 @@ import type {EndpointOutput, Request} from "@sveltejs/kit";
 import { getClient } from "$utils/server/minio";
 import config from "$src/config"
 
-export const GET = async ({params}: Request): Promise<EndpointOutput> => {
+export const GET = async ({url}: Request): Promise<EndpointOutput> => {
     const mClient = getClient();
-    const {imageType} = params;
+    if (!url.searchParams.has("reportCode")) {
+        return {
+            status: 400,
+            body: {
+                error: "missing reportCode",
+            },
+        };
+    }
     try {
-        const names = await new Promise<string[]>((resolve, reject) => {
+        const reports = await new Promise<unknown[]>((resolve, reject) => {
             const output = [];
-            mClient.listObjects(config.minio.bucket, `${imageType}/`)
+            mClient.listObjects(config.minio.bucket, `${url.searchParams.get("reportCode")}/`)
                 .on("data", d => {
-                    if (d.prefix) {
-                        output.push(d.prefix.split("/")[1]);
+                    if (d.name && d.name.endsWith(".svg")) {
+                        output.push(d.name.split("/")[1]);
                     }
                 })
                 .on("end", () => { resolve(output) })
@@ -23,14 +30,14 @@ export const GET = async ({params}: Request): Promise<EndpointOutput> => {
         return {
             headers: {},
             status: 200,
-            body: names,
+            body: JSON.stringify(reports),
         };
-    } catch (err) {
-        console.log(err)
+    } catch {
         return {
             headers: {},
-            body: err,
             status: 500,
         };
     }
+
+    
 };

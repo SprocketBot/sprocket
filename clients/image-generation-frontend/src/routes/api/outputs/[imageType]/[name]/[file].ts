@@ -1,31 +1,22 @@
-import type {RequestHandler} from "@sveltejs/kit";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { client } from "$utils/server/s3";
+import type {Request, Response} from "@sveltejs/kit";
+import {getClient} from "$utils/server/minio";
 import config from "$src/config"
-import { GetObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
 
-const expiresIn = 60 * 2
-
-export const GET: RequestHandler = async ({params}) => {
-    const {imageType, name, file} = params;
-
+export const GET = async ({params}: Request): Promise<Response> => {
+    const mClient = getClient();
     try {
-        const commandOpts = {
-            Bucket: config.s3.bucket,
-            Key: `${imageType}/${name}/outputs/${file}`,
-        }
-
-        const response = await client.send(new HeadObjectCommand(commandOpts))
-        const size = response.ContentLength
-
-        const getURL = await getSignedUrl(client, new GetObjectCommand(commandOpts), {expiresIn})
+        const {
+            imageType, name, file,
+        } = params;
+        const objectStats = await mClient.statObject(config.minio.bucket, `${imageType}/${name}/outputs/${file}`); // this line checks that file exists
+        const getURL: string = await mClient.presignedGetObject(config.minio.bucket, `${imageType}/${name}/outputs/${file}`, 60 * 2);
 
         return {
             headers: {},
             status: 200,
             body: JSON.stringify({
                 getURL,
-                size,
+                size: objectStats.size,
             }),
         };
     } catch (err) {

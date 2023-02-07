@@ -1,7 +1,7 @@
-import type {RequestHandler} from "@sveltejs/kit";
+import type {Request, EndpointOutput} from "@sveltejs/kit";
 import {ReportTemplateDAO} from "$utils/server/database/ReportTemplate.dao";
 
-export const GET: RequestHandler = async ({params}) => {
+export const GET = async ({params}: Request): Promise<EndpointOutput> => {
     try {
         const values = await ReportTemplateDAO.getFilterValues(params.id);
         return {

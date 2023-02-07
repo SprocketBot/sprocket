@@ -23,14 +23,14 @@ export const loadConfig = async (): Promise<Config> => {
                 url: _config.get<string>("client.chatwoot.url"),
                 websiteToken: _config.get<string>("client.chatwoot.websiteToken"),
             },
-            stack: stack,
+            stack,
         },
         server: {
             chatwoot: {
                 hmacKey: fs.readFileSync("secret/chatwoot-hmac-key.txt").toString()
                     .trim(),
             },
-            stack: stack,
+            stack,
         },
     };
     

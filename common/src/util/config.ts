@@ -105,26 +105,37 @@ export const config = {
             return _config.get<boolean | string>("logger.levels");
         },
     },
-    s3: {
-        get endpoint(): string {
-            return _config.get<string>("s3.endpoint");
+    minio: {
+        get endPoint(): string {
+            return _config.get<string>("minio.endPoint");
         },
-        get accessKeyId(): string {
-            return readFileSync("./secret/s3-access-key-id.txt").toString()
+        get accessKey(): string {
+            return readFileSync("./secret/minio-access.txt").toString()
                 .trim();
         },
-        get secretAccessKey(): string {
-            return readFileSync("./secret/s3-secret-access-key.txt")
-                .toString()
+        get secretKey(): string {
+            return readFileSync("./secret/minio-secret.txt").toString()
                 .trim();
         },
         bucketNames: {
             get replays(): string {
-                return _config.get<string>("s3.bucketNames.replays");
+                return _config.get<string>("minio.bucketNames.replays");
             },
             get image_generation(): string {
-                return _config.get<string>("s3.bucketNames.image_generation");
+                return _config.get<string>("minio.bucketNames.image_generation");
             },
+        },
+        get useSSL(): boolean {
+            if (_config.has("minio.useSSL")) {
+                return _config.get<boolean>("minio.useSSL");
+            }
+            return false;
+        },
+        get port(): number {
+            if (_config.has("minio.port")) {
+                return _config.get<number>("minio.port");
+            }
+            return 9000;
         },
     },
     redis: {

@@ -1,6 +1,8 @@
 import {Injectable, Logger} from "@nestjs/common";
 import type {Template} from "@sprocketbot/common";
-import {config, S3Service} from "@sprocketbot/common";
+import {
+    config, MinioService, readToString,
+} from "@sprocketbot/common";
 import {
     existsSync, mkdirSync, writeFileSync,
 } from "fs";
@@ -14,7 +16,7 @@ export class ImageGenerationService {
     private logger = new Logger(ImageGenerationService.name);
 
     constructor(
-        private s3Service: S3Service,
+        private minioService: MinioService,
         private svgTransformationService: SvgTransformationService,
     ) {
         process.env.FONTCONFIG_PATH = "./fonts";
@@ -25,10 +27,10 @@ export class ImageGenerationService {
         // eslint-disable-next-line
         //const data = templateStructureSchema.parse(rawData); //moved to controller
 
-        const file = await this.s3Service.get(config.s3.bucketNames.image_generation, inputFileKey);
+        const file = await this.minioService.get(config.minio.bucketNames.image_generation, inputFileKey);
         // WriteFileSync("./input.svg", file);
 
-        const dom = new JSDOM(file);
+        const dom = new JSDOM(await readToString(file));
         const svgRoot = dom.window.document.body.children[0];
         svgRoot.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink"); // When base image has no images but rect->img transformation may be neccessary
         if (svgRoot.nodeName !== "svg") throw new Error(`Expected <svg>, found ${svgRoot.nodeName}`);
@@ -76,15 +78,15 @@ export class ImageGenerationService {
          *  this.logger.debug(`Image rendered!`);
          */
 
-        this.logger.debug(`Buffer Created, uploading to S3`);
-        // Save output to S3
-        await this.s3Service.put(
-            config.s3.bucketNames.image_generation,
+        this.logger.debug(`Buffer Created, uploading to Minio`);
+        // Save output to minio
+        await this.minioService.put(
+            config.minio.bucketNames.image_generation,
             `${outputFileKey}.svg`,
             newSvgBuffer,
         );
-        await this.s3Service.put(
-            config.s3.bucketNames.image_generation,
+        await this.minioService.put(
+            config.minio.bucketNames.image_generation,
             `${outputFileKey}.png`,
             await sharp(newSvgBuffer).png()
                 .toBuffer(),
