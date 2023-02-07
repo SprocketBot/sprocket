@@ -56,6 +56,7 @@ export class RedisService {
 
         const rawData = (await this.redis.send_command("json.get", ...args)) as string;
         const parsedData = JSON.parse(rawData) as unknown;
+        if (parsedData === null || typeof parsedData === "undefined") throw new Error(`Found no data at ${key}`);
 
         if (schema) return schema.parse(parsedData) as T;
         return parsedData as T;
