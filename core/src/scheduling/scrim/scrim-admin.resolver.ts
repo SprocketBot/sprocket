@@ -24,6 +24,7 @@ export class ScrimAdminResolver {
     @Query(() => [ScrimObject])
     @UseGuards(MemberGuard)
     async getAllScrims(
+        @AuthenticatedUser() user: JwtAuthPayload,
         @CurrentMember() member: Member,
         @Args("status", {
             type: () => ScrimStatus,
@@ -31,6 +32,9 @@ export class ScrimAdminResolver {
         })
         status?: ScrimStatus,
     ): Promise<ScrimObject[]> {
+        if (!(await this.authorizationService.can(user.userId, member.organizationId, "ListScrims")))
+            throw new GraphQLError("Unauthorized");
+
         const scrims = await this.scrimService.getAllScrims(member.organizationId);
 
         return (status ? scrims.filter(scrim => scrim.status === status) : scrims) as ScrimObject[];
