@@ -6,8 +6,6 @@
 
 <Hst.Story title="Layouts/Dashboard" layout={{type: "single"}}>
     <Hst.Variant title="Default">
-        <Dashboard>
-            Page Content
-        </Dashboard>
+        <Dashboard>Page Content</Dashboard>
     </Hst.Variant>
 </Hst.Story>

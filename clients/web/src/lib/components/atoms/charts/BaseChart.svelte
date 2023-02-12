@@ -3,8 +3,8 @@
     let e: typeof echarts | undefined;
     async function getEcharts(): Promise<typeof echarts> {
         // Dynamically load echarts because ESM/CJS sucks
-        if (!e) e = await import("echarts")
-        return e
+        if (!e) e = await import("echarts");
+        return e;
     }
 </script>
 
@@ -19,7 +19,7 @@
 
     onMount(async () => {
         if (!container) throw new Error("Missing container element!");
-        await getEcharts()
+        await getEcharts();
         chart = e.init(container, theme);
     });
     $: if (chart && options) chart.setOption(options);
