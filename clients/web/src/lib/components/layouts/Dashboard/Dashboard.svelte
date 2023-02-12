@@ -8,7 +8,6 @@
     import SidebarItem from "../../molecules/Sidebar/atoms/SidebarItem.svelte";
     import Sidebar from "../../molecules/Sidebar/Sidebar.svelte";
 
-
     let sidebarExpanded = false;
     let sidebarType: SidebarWidth = "full";
     $: {
