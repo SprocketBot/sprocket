@@ -197,6 +197,11 @@ const config = {
             spacing,
             maxWidth,
             maxHeight,
+            transitionProperty: {
+                size: 'height, width',
+                height: 'height',
+                width: 'width'
+            }
         },
     },
 
