@@ -6,7 +6,7 @@
     import type {SidebarWidth} from "../../molecules/Sidebar";
     import {Navbar} from "../../molecules/Navbar";
     import {Sidebar, SidebarItem} from "../../molecules/Sidebar";
-    import {setContext} from "svelte/types/runtime/internal/lifecycle";
+    import {setContext} from "svelte";
     import {BREADCRUMB_CONTEXT_KEY, type BreadcrumbContext} from "../../atoms/Breadcrumb";
 
     let sidebarExpanded = false;
