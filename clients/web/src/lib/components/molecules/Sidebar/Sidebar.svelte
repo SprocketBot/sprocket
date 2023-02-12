@@ -16,17 +16,14 @@
     $: if (width === "full") $context.showTooltips = false;
     else if (typeof showTooltips !== "undefined") $context.showTooltips = showTooltips;
 
-    // prop overrides default behavior
-
     setContext<SidebarContext>(SidebarContextKey, context);
 </script>
 
 <aside class="size-{width}" aria-label="Sidebar" class:h-full={fullHeight}>
-    <div class="overflow-y-auto py-4 px-3 rounded bg-gray-800 h-full flex flex-col">
+    <div class="overflow-y-auto py-4 px-3 bg-gray-800 h-full flex flex-col">
         <ul class="flex flex-col gap-2 mb-4 flex-1 overflow-y-auto">
             {#if withHeader}
                 <header class="mb-4">
-                    <!-- TODO: remove /static from this URL, that is only to make it work in histoire -->
                     {#if width === "sm"}
                         <img src={LogoSquarePrimary} alt="Sprocket" />
                     {:else}

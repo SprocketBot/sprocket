@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type {BarSeriesOption, EChartsOption, XAXisComponentOption, YAXisComponentOption} from "echarts";
+    import type {EChartsOption, XAXisComponentOption, YAXisComponentOption} from "echarts";
 
     import BaseChart from "../BaseChart.svelte";
     import type {IBars} from "./types";

@@ -11,10 +11,9 @@
     let context = getContext<SidebarContext>(SidebarContextKey);
 </script>
 
-<li on:click>
-    <a
-        href="#"
-        class="flex items-center p-2 text-base font-normal rounded-lg text-white hover:bg-gray-700 group h-10"
+<li on:click on:keydown on:keypress>
+    <button
+        class="flex items-center p-2 text-base font-normal rounded-lg text-white hover:bg-gray-700 group h-10 w-full"
         use:tooltip={{
             content: label,
             position: "right",
@@ -36,6 +35,6 @@
                 <slot />
             </div>
         {/if}
-    </a>
+    </button>
     <slot name="siblings" />
 </li>
