@@ -16,7 +16,7 @@
     $: if (width === "sm") $context.iconOnly = true; 
        else $context.iconOnly = false;
     
-       $: if (width === "full") $context.showTooltips = false;
+       $: if (width === "full" || width === "md") $context.showTooltips = false;
       else if (typeof showTooltips !== "undefined") $context.showTooltips = showTooltips;
       else $context.showTooltips = true
 
