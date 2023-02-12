@@ -1,2 +1,3 @@
-export * from "./navbar";
-export * from "./sidebar";
+export * from "./Navbar";
+export * from "./Sidebar";
+export * from "./Timeline";
