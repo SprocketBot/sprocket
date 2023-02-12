@@ -13,17 +13,17 @@
 
     const context: SidebarContext = writable({iconOnly: false, showTooltips: true});
 
-    $: if (width === "sm") $context.iconOnly = true; 
-       else $context.iconOnly = false;
-    
-       $: if (width === "full" || width === "md") $context.showTooltips = false;
-      else if (typeof showTooltips !== "undefined") $context.showTooltips = showTooltips;
-      else $context.showTooltips = true
+    $: if (width === "sm") $context.iconOnly = true;
+    else $context.iconOnly = false;
+
+    $: if (width === "full" || width === "md") $context.showTooltips = false;
+    else if (typeof showTooltips !== "undefined") $context.showTooltips = showTooltips;
+    else $context.showTooltips = true;
 
     setContext<SidebarContext>(SidebarContextKey, context);
 
-    $: console.log($context)
-    $: console.log({width})
+    $: console.log($context);
+    $: console.log({width});
 </script>
 
 <aside class="size-{width} transition-width" aria-label="Sidebar" class:h-full={fullHeight}>

@@ -34,8 +34,9 @@
 
     <Hst.Variant title="Default">
         <div class="h-96">
-        <Datepicker {label} {size} {placeholder} {disabled} {state} {error} bind:value />
-        </div>clear
+            <Datepicker {label} {size} {placeholder} {disabled} {state} {error} bind:value />
+        </div>
+        clear
     </Hst.Variant>
 
     <Hst.Variant title="Note">
