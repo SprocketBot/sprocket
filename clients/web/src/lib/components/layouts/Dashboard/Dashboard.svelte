@@ -14,6 +14,7 @@
     $: {
         // Order is important here
         if ($XSmallScreenQuery) {
+            // TODO: Make the transition between full/sm configurable as well (i.e. a button a user can press)
             sidebarType = "full";
         } else if ($SmallScreenQuery) {
             sidebarType = "sm";
