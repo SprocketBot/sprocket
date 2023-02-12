@@ -32,10 +32,12 @@
                 <button on:click={() => (sidebarExpanded = true)}><Icon class="w-6 text-gray-50" src={Bars3} /></button>
             {/if}
         </div>
+        <!-- TODO: Build out right side of the navbar -->
     </Navbar>
 
     <!-- TODO: See if there is a way to do this without redeclaring the sidebar -->
     <!-- TODO: See if there is a good way to dynamically add to the navigation; Hard coding that is a pain -->
+    <!-- TODO: Add the footer to the sidebar -->
     {#if $XSmallScreenQuery}
         <Drawer bind:open={sidebarExpanded}>
             <Sidebar withHeader={$XSmallScreenQuery} width={sidebarType}>
