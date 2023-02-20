@@ -19,6 +19,7 @@ export class MemberGuard implements CanActivate {
 
         const member = await this.memberRepository.findOne({
             where: {userId: data.data.userId, organizationId: data.data.currentOrganizationId},
+            relations: {profile: true},
         });
         if (!member) return false;
 
@@ -43,6 +44,7 @@ export abstract class AbstractMemberGuard implements CanActivate {
 
         const member = await this.memberRepository.findOne({
             where: {userId: data.data.userId, organizationId: organizationId},
+            relations: {profile: true},
         });
         if (!member) return false;
 
