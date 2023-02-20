@@ -48,6 +48,7 @@ import {SubmissionPlayerResolver} from "./submission/submission-player.resolver"
 
 @Module({
     imports: [
+        AuthorizationModule,
         RedisModule,
         EventsModule,
         MinioModule,
