@@ -1,5 +1,4 @@
 import {Injectable} from "@nestjs/common";
-import type {ScrimDatabaseIds} from "@sprocketbot/common";
 import {
     BotEndpoint,
     BotService,
@@ -8,6 +7,7 @@ import {
     config,
     CoreEndpoint,
     CoreService,
+    EventPayload,
     EventsService,
     EventTopic,
     GenerateReportCardType,
@@ -105,9 +105,6 @@ export class ScrimService extends SprocketEventMarshal {
                             {
                                 title: "Your scrim has popped!",
                                 description: `Hey, ${p.name}! Your ${organizationBrandingResult.data.name} scrim just popped. Check in [here](${config.web.url}/scrims) to avoid being queue banned.`,
-                                author: {
-                                    name: `${organizationBrandingResult.data.name} Scrims`,
-                                },
                                 footer: {
                                     text: organizationBrandingResult.data.name,
                                 },
@@ -131,9 +128,6 @@ export class ScrimService extends SprocketEventMarshal {
                     brandingOptions: {
                         organizationId: scrim.organizationId,
                         options: {
-                            author: {
-                                icon: true,
-                            },
                             color: true,
                             thumbnail: true,
                             footer: {
@@ -168,9 +162,6 @@ export class ScrimService extends SprocketEventMarshal {
                             {
                                 title: "Your scrim is ready to be played!",
                                 description: `Hey, ${p.name}! Everyone has checked into your ${organizationBrandingResult.data.name} scrim. Here is your scrim's lobby information.`,
-                                author: {
-                                    name: `${organizationBrandingResult.data.name} Scrims`,
-                                },
                                 fields: [
                                     {
                                         name: "Name",
@@ -191,9 +182,6 @@ export class ScrimService extends SprocketEventMarshal {
                     brandingOptions: {
                         organizationId: scrim.organizationId,
                         options: {
-                            author: {
-                                icon: true,
-                            },
                             color: true,
                             thumbnail: true,
                             footer: {
@@ -207,7 +195,12 @@ export class ScrimService extends SprocketEventMarshal {
     }
 
     @SprocketEvent(EventTopic.ScrimSaved)
-    async sendReportCard(scrim: Scrim & {databaseIds: ScrimDatabaseIds}): Promise<void> {
+    async sendReportCard(scrim: EventPayload<EventTopic.ScrimSaved>): Promise<void> {
+        const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {
+            id: scrim.organizationId,
+        });
+        if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
+
         const scrimReportCardWebhooksResult = await this.coreService.send(
             CoreEndpoint.GetScrimReportCardWebhooks,
             scrim,
@@ -308,6 +301,61 @@ export class ScrimService extends SprocketEventMarshal {
                     },
                 }),
             ),
+        );
+
+        await Promise.all(
+            scrim.players.map(async p => {
+                const userResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, p.userId);
+                if (userResult.status === ResponseStatus.ERROR) throw userResult.error;
+                if (!userResult.data) return;
+
+                await this.botService.send(BotEndpoint.SendDirectMessage, {
+                    userId: userResult.data,
+                    payload: {
+                        embeds: [
+                            {
+                                title: "Your scrim has completed!",
+                                description: `Hey, ${p.name}! Your ${organizationBrandingResult.data.name} scrim has completed. Here's your report card.`,
+                                footer: {
+                                    text: organizationBrandingResult.data.name,
+                                },
+                                image: {
+                                    url: "attachment://card.png",
+                                },
+                                timestamp: Date.now(),
+                            },
+                        ],
+                        attachments: [
+                            {
+                                name: "card.png",
+                                url: `minio:${config.minio.bucketNames.image_generation}/${reportCardResult.data}.png`,
+                            },
+                        ],
+                        components: [
+                            {
+                                type: ComponentType.ACTION_ROW,
+                                components: [
+                                    {
+                                        type: ComponentType.BUTTON,
+                                        style: ButtonComponentStyle.LINK,
+                                        label: "Join another scrim!",
+                                        url: `${config.web.url}/scrims`,
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                    brandingOptions: {
+                        organizationId: scrim.organizationId,
+                        options: {
+                            color: true,
+                            footer: {
+                                icon: true,
+                            },
+                        },
+                    },
+                });
+            }),
         );
     }
 
