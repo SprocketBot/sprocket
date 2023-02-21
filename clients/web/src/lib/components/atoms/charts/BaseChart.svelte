@@ -1,5 +1,14 @@
+<script lang="ts" context="module">
+    import type * as echarts from "echarts";
+    let e: typeof echarts | undefined;
+    async function getEcharts(): Promise<typeof echarts> {
+        // Dynamically load echarts because ESM/CJS sucks
+        if (!e) e = await import("echarts");
+        return e;
+    }
+</script>
+
 <script lang="ts">
-    import * as echarts from "echarts";
     import {onMount} from "svelte";
     import {theme} from "./theme";
 
@@ -8,9 +17,10 @@
     let chart: echarts.ECharts | undefined;
     let container: HTMLElement | undefined;
 
-    onMount(() => {
+    onMount(async () => {
         if (!container) throw new Error("Missing container element!");
-        chart = echarts.init(container, theme);
+        await getEcharts();
+        chart = e.init(container, theme);
     });
     $: if (chart && options) chart.setOption(options);
 </script>
