@@ -58,7 +58,7 @@
 
 <style lang="postcss">
     main {
-        @apply h-screen grid bg-gray-900;
+        @apply h-screen grid bg-gray-900 w-full;
 
         grid-template-rows: auto 1fr;
         grid-template-columns: auto 1fr;
