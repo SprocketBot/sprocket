@@ -1,17 +1,22 @@
 <script lang="ts">
+    import type { Action } from "svelte/action";
     import type { ButtonVariant } from "./types";
 
+    type ActionTuple<T> = [Action<HTMLElement, T>, T]
 
     export let variant: ButtonVariant = "default"
-    export let type = "primary";
     let _class: string = ""
 
     export {_class as class}
 
+    export let action: ActionTuple<any> = [() => {}, {}]
+
+    let [a, aParams] = action
+
     // TODO: Needs Sizes and outlines
 </script>
 
-<button class="{_class} button-{variant} focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 focus:outline-none flex items-center justify-between">
+<button class="{_class} button-{variant} focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 focus:outline-none flex items-center justify-between" use:a={aParams}>
     <slot/>
 </button>
 
