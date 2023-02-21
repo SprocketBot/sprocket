@@ -30,7 +30,9 @@ function openWindow(windowUrl: string, callback: CallableFunction): void {
     const newWindow = window.open(windowUrl, "SprocketOAuth", strWindowFeatures);
     if (newWindow === null) {
         // Something is wrong?
-    } else { popup = newWindow }
+    } else {
+        popup = newWindow;
+    }
     _callback = callback;
 }
 
