@@ -1,1 +1,1 @@
-export {default as CenterCard} from "./CenterCard.svelte"
+export {default as CenterCard} from "./CenterCard.svelte";
