@@ -1,13 +1,11 @@
-export default "";
-export {default as Accordion} from "./Accordion.svelte";
-export {default as Avatar} from "./Avatar.svelte";
-export {default as Card} from "./Card.svelte";
-export {default as Collapse} from "./Collapse.svelte";
-export {default as DashboardNumberCard} from "./DashboardNumberCard.svelte";
-export {default as Dropdown} from "./Dropdown.svelte";
-export {default as FileInput} from "./FileInput.svelte";
-export {default as VsIcon} from "./icons/VsIcon.svelte";
-export {default as Modal} from "./Modal.svelte";
-export {default as Progress} from "./Progress.svelte";
-export {default as Spinner} from "./Spinner.svelte";
-export {default as StackBanner} from "./StackBanner.svelte";
+export * from "./form";
+
+export * from "./Accordion";
+export * from "./Alert";
+export * from "./Avatar";
+export * from "./Badge";
+export * from "./Breadcrumb";
+export * from "./Drawer";
+export * from "./Dropdown";
+export * from "./Modal";
+export * from "./Tabs";

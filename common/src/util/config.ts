@@ -242,4 +242,7 @@ export const config = {
     get defaultOrganizationId(): number {
         return _config.get<number>("defaultOrganizationId");
     },
+    get defaultAuthToken(): string | undefined {
+        if (_config.has("defaultAuthToken")) return _config.get<string>("defaultAuthToken");
+    },
 };
