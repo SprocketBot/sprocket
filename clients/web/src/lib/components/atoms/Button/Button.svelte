@@ -5,11 +5,11 @@
     type ActionTuple<T> = [Action<HTMLElement, T>, T];
 
     export let variant: ButtonVariant = "default";
-    let _class: string = "";
+    let _class = "";
 
     export {_class as class};
 
-    export let action: ActionTuple<any> = [() => {}, {}];
+    export let action: ActionTuple<any> = [undefined, {}];
 
     let [a, aParams] = action;
 

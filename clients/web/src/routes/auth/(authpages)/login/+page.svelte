@@ -6,7 +6,7 @@
     import {oauthPopup} from "$lib/actions/useOauthPopup.action";
     import {goto} from "$app/navigation";
 
-    let errorMessage: string = "";
+    let errorMessage = "";
     const handleOauthResult = (e: MessageEvent) => {
         const {token, status, message} = e.data;
         if (status === "error") {
@@ -16,6 +16,7 @@
             localStorage.setItem("sprocket-token", token);
             const location = new URL(window.location.href);
             if (location.searchParams.has("next")) {
+                console.log(`next=${location.searchParams.get("next")}`);
                 goto(location.searchParams.get("next")!);
             } else {
                 goto("/app");

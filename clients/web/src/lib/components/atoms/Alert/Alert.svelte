@@ -12,7 +12,7 @@
     export let variant: AlertVariant;
     export let withIcon = true;
     export let dismissible = true;
-    export let compact: boolean = false;
+    export let compact = false;
 
     let iconSrc: IconSource | undefined;
     switch (variant) {
