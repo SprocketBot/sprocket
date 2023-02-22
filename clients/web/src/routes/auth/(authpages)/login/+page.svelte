@@ -2,7 +2,6 @@
     import {env} from "$env/dynamic/public";
     import {Discord, Steam, Microsoft, Xbox, Epicgames, Google} from "@steeze-ui/simple-icons";
     import {Alert, Button} from "$lib/components";
-    import {QueryParams} from "$lib/stores";
     import {Icon} from "@steeze-ui/svelte-icon";
     import {oauthPopup} from "$lib/actions/useOauthPopup.action";
     import {goto} from "$app/navigation";
