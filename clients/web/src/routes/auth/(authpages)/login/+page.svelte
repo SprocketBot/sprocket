@@ -1,17 +1,40 @@
 <script lang="ts">
     import {env} from "$env/dynamic/public";
     import {Discord, Steam, Microsoft, Xbox, Epicgames, Google} from "@steeze-ui/simple-icons";
-    import {Button} from "$lib/components";
+    import {Alert, Button} from "$lib/components";
+    import {QueryParams} from "$lib/stores";
     import {Icon} from "@steeze-ui/svelte-icon";
     import {oauthPopup} from "$lib/actions/useOauthPopup.action";
+    import {goto} from "$app/navigation";
 
+    let errorMessage: string = "";
     const handleOauthResult = (e: MessageEvent) => {
-        const {token} = e.data;
-        localStorage.setItem("sprocket-token", token);
+        const {token, status, message} = e.data;
+        if (status === "error") {
+            // Handle Error
+            errorMessage = message;
+        } else if (status === "success") {
+            localStorage.setItem("sprocket-token", token);
+            const location = new URL(window.location.href);
+            if (location.searchParams.has("next")) {
+                goto(location.searchParams.get("next")!);
+            } else {
+                goto("/app");
+            }
+        }
     };
 </script>
 
 <p class="text-center my-2 text-lg">Sign in using:</p>
+
+{#if errorMessage}
+    <div class="my-4">
+        <Alert variant="danger" dismissible={false} compact>
+            {errorMessage}
+        </Alert>
+    </div>
+{/if}
+
 <section class="grid grid-cols-2">
     <Button
         variant="alt"
