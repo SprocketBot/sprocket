@@ -12,6 +12,7 @@
     export let variant: AlertVariant;
     export let withIcon = true;
     export let dismissible = true;
+    export let compact: boolean = false;
 
     let iconSrc: IconSource | undefined;
     switch (variant) {
@@ -37,7 +38,7 @@
 
 <!-- https://flowbite.com/docs/components/alerts/ -->
 {#if !dismissed}
-    <div role="alert" class="v-{variant} p-4 border rounded-lg" out:fade>
+    <div role="alert" class="v-{variant} border rounded-lg" class:compact out:fade>
         <div class="flex items-center">
             {#if withIcon && iconSrc}
                 <Icon class="w-5 h-5 mr-2 flex-shrink-0" src={iconSrc} />
