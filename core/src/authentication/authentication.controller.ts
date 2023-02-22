@@ -164,11 +164,12 @@ export class AuthenticationController {
                 );
                 const tokens = await this.authenticationService.login(user.id);
 
-                res.redirect(`${config.auth.frontend_callback}?token=${tokens.access},${tokens.refresh}`);
+                res.redirect(`${config.auth.frontend_callback}?token=${tokens.access},${tokens.refresh}&status=success`);
                 return;
             } catch (e) {
                 this.logger.error(e);
-                throw new HttpException("Failed to login", 400);
+                res.redirect(`${config.auth.frontend_callback}?status=error&message=${(e as Error).message}`);
+                return;
             }
         }
 
