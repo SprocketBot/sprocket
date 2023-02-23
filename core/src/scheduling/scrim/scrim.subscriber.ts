@@ -7,7 +7,7 @@ import {GraphQLJwtAuthGuard} from "../../authentication/guards";
 import {JwtAuthPayload} from "../../authentication/types";
 import {PlayerService} from "../../franchise/player/player.service";
 import {PubSubKey} from "../../types/pubsub.constants";
-import {ScrimEvent, ScrimObject} from "../graphql/scrim.object";
+import {ScrimEvent, ScrimObject} from "../graphql/scrim/scrim.object";
 import {ScrimsTopic} from "./scrim.pubsub";
 import {ScrimService} from "./scrim.service";
 

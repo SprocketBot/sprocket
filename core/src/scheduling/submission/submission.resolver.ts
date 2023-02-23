@@ -6,38 +6,33 @@ import {AuthenticatedUser} from "../../authentication/decorators";
 import {GraphQLJwtAuthGuard} from "../../authentication/guards";
 import {JwtAuthPayload} from "../../authentication/types";
 import {UserProfileRepository} from "../../identity/database/user-profile.repository";
-import {GqlReplaySubmission, ReplaySubmission, SubmissionRejection} from "./types";
+import {SubmissionObject} from "../graphql/submission/submission.object";
+import {SubmissionRejectionObject} from "../graphql/submission/submission-rejection.object";
 
-@Resolver(() => GqlReplaySubmission)
-export class ReplaySubmissionResolver {
+@Resolver(() => SubmissionObject)
+export class SubmissionResolver {
     @ResolveField(() => Number)
-    ratifications(@Root() submission: ReplaySubmission): number {
+    ratifications(@Root() submission: SubmissionObject): number {
         return submission.ratifiers.length;
     }
 
     @ResolveField(() => Boolean)
     @UseGuards(GraphQLJwtAuthGuard)
-    userHasRatified(@AuthenticatedUser() cu: JwtAuthPayload, @Root() submission: ReplaySubmission): boolean {
-        return submission.ratifiers.some(r => r.toString() === cu.userId.toString());
+    userHasRatified(@AuthenticatedUser() user: JwtAuthPayload, @Root() submission: SubmissionObject): boolean {
+        return submission.ratifiers.some(r => r.toString() === user.userId.toString());
     }
 }
 
-@Resolver(() => SubmissionRejection)
+@Resolver(() => SubmissionRejectionObject)
 export class SubmissionRejectionResolver {
     constructor(private readonly userProfileRepository: UserProfileRepository) {}
 
     @ResolveField(() => String)
-    async playerName(@Root() rejection: SubmissionRejection): Promise<string> {
-        if (rejection.playerName) return rejection.playerName;
+    async playerName(@Root() rejection: SubmissionRejectionObject): Promise<string> {
         if (rejection.userId === REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID) return "Sprocket";
         // TODO: Is it possible to map to an organization from here?
 
         const profile = await this.userProfileRepository.getByUserId(rejection.userId);
         return profile.displayName;
-    }
-
-    @ResolveField(() => String)
-    async reason(@Root() rejection: SubmissionRejection): Promise<string> {
-        return rejection.reason;
     }
 }

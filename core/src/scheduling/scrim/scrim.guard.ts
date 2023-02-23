@@ -8,7 +8,7 @@ import type {AbstractMemberPlayerGuardGetOptions} from "../../authorization/guar
 import {AbstractMemberPlayerGuard} from "../../authorization/guards";
 import {PlayerRepository} from "../../franchise/database/player.repository";
 import {GameModeRepository} from "../../game/database/game-mode.repository";
-import type {CreateScrimInput} from "../graphql/create-scrim.input";
+import type {CreateScrimInput} from "../graphql/scrim/create-scrim.input";
 import {ScrimService} from "./scrim.service";
 
 /**

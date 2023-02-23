@@ -1,31 +1,37 @@
 import {forwardRef, Inject, Injectable, Logger} from "@nestjs/common";
-import type {BallchasingPlayer, BallchasingResponse, BallchasingTeam, Scrim} from "@sprocketbot/common";
-import {BallchasingResponseSchema, Parser, ProgressStatus} from "@sprocketbot/common";
+import type {
+    BallchasingPlayer,
+    BallchasingResponse,
+    BallchasingTeam,
+    MatchReplaySubmission,
+    ReplaySubmission,
+    Scrim,
+    ScrimReplaySubmission,
+} from "@sprocketbot/common";
+import {BallchasingResponseSchema, Parser, ProgressStatus, ReplaySubmissionType} from "@sprocketbot/common";
 import type {EntityManager} from "typeorm";
 import {DataSource} from "typeorm";
 import type {QueryDeepPartialEntity} from "typeorm/query-builder/QueryPartialEntity";
 
-import type {Player} from "../../../../franchise/database/player.entity";
-import {PlayerRepository} from "../../../../franchise/database/player.repository";
-import type {Team} from "../../../../franchise/database/team.entity";
-import {TeamRepository} from "../../../../franchise/database/team.repository";
-import {GameMode} from "../../../../game/database/game-mode.entity";
-import {MledbFinalizationService, MledbPlayerService} from "../../../../mledb";
-import {EligibilityData} from "../../../database/eligibility-data.entity";
-import {Match} from "../../../database/match.entity";
-import {MatchRepository} from "../../../database/match.repository";
-import {MatchParent} from "../../../database/match-parent.entity";
-import {PlayerStatLine} from "../../../database/player-stat-line.entity";
-import {Round} from "../../../database/round.entity";
-import {ScrimMeta} from "../../../database/scrim-meta.entity";
-import {TeamStatLine} from "../../../database/team-stat-line.entity";
-import {MatchService} from "../../../match/match.service";
-import {SprocketRatingService} from "../../../sprocket-rating/sprocket-rating.service";
-import type {SprocketRating, SprocketRatingInput} from "../../../sprocket-rating/sprocket-rating.types";
-import type {MatchReplaySubmission, ReplaySubmission, ScrimReplaySubmission} from "../../types";
-import {ReplaySubmissionType} from "../../types";
-import {BallchasingConverterService} from "../ballchasing-converter";
+import type {Player} from "../../../franchise/database/player.entity";
+import {PlayerRepository} from "../../../franchise/database/player.repository";
+import type {Team} from "../../../franchise/database/team.entity";
+import {TeamRepository} from "../../../franchise/database/team.repository";
+import {GameMode} from "../../../game/database/game-mode.entity";
+import {MledbFinalizationService, MledbPlayerService} from "../../../mledb";
+import {EligibilityData} from "../../database/eligibility-data.entity";
+import {Match} from "../../database/match.entity";
+import {MatchRepository} from "../../database/match.repository";
+import {MatchParent} from "../../database/match-parent.entity";
+import {PlayerStatLine} from "../../database/player-stat-line.entity";
+import {Round} from "../../database/round.entity";
+import {ScrimMeta} from "../../database/scrim-meta.entity";
+import {TeamStatLine} from "../../database/team-stat-line.entity";
+import {MatchService} from "../../match/match.service";
+import {SprocketRatingService} from "../../sprocket-rating/sprocket-rating.service";
+import type {SprocketRating, SprocketRatingInput} from "../../sprocket-rating/sprocket-rating.types";
 import type {SaveMatchFinalizationReturn, SaveScrimFinalizationReturn} from "../finalization.types";
+import {createRound} from "./ballchasing-converter";
 
 @Injectable()
 export class RocketLeagueFinalizationService {
@@ -37,7 +43,6 @@ export class RocketLeagueFinalizationService {
         private readonly sprocketRatingService: SprocketRatingService,
         @Inject(forwardRef(() => MledbPlayerService)) private readonly mledbPlayerService: MledbPlayerService,
         private readonly teamRepository: TeamRepository,
-        private readonly ballchasingConverter: BallchasingConverterService,
         @Inject(forwardRef(() => MledbFinalizationService))
         private readonly mledbFinalizationService: MledbFinalizationService,
         private readonly playerRepository: PlayerRepository,
@@ -196,19 +201,26 @@ export class RocketLeagueFinalizationService {
               ])
             : [undefined, undefined];
 
+        const allPlayers: Player[] = [];
+
         // TODO: Sprocket Team Role Usage
         const results = await Promise.all(
             replays.map(async ({replay, parser, outputPath}) => {
                 // Get players
                 const {blue, orange} = await this._getBallchasingPlayers(replay);
-                /*
-             First, identify which team is home.
-             It is safe to assume that all players are on the same team here;
-             This is because the validation service has passed these over.
 
-             We are using MLE Teams right now because Sprocket Roster can't be trusted.
-             TODO: R2 Update this
-            */
+                /* Compile list of unique players to grant eligibility. */
+                for (const p of blue) if (!allPlayers.some(ap => ap.id === p.player.id)) allPlayers.push(p.player);
+                for (const p of orange) if (!allPlayers.some(ap => ap.id === p.player.id)) allPlayers.push(p.player);
+
+                /*
+                    First, identify which team is home.
+                    It is safe to assume that all players are on the same team here;
+                    This is because the validation service has passed these over.
+
+                    We are using MLE Teams right now because Sprocket Roster can't be trusted.
+                    TODO: R2 Update this
+                */
 
                 let awayColor: "blue" | "orange",
                     blueTeam: Team | undefined,
@@ -295,19 +307,19 @@ export class RocketLeagueFinalizationService {
                 await em.insert(PlayerStatLine, bluePlayers as QueryDeepPartialEntity<PlayerStatLine>);
                 await em.insert(PlayerStatLine, orangePlayers as QueryDeepPartialEntity<PlayerStatLine>);
 
-                if (eligibility) {
-                    const eligibilities = [...blue.map(b => b.player), ...orange.map(o => o.player)].map(p =>
-                        this._createEligibility(p, match.matchParent, em, submission.items.length),
-                    );
-                    await em.insert(EligibilityData, eligibilities as QueryDeepPartialEntity<EligibilityData>);
-                }
-
                 round.teamStats = [blueTeamStats, orangeTeamStats];
                 round.playerStats = [...bluePlayers, ...orangePlayers];
 
                 return round;
             }),
         );
+
+        if (eligibility) {
+            const eligibilities = allPlayers.map(p =>
+                this._createEligibility(p, match.matchParent, em, submission.items.length),
+            );
+            await em.insert(EligibilityData, eligibilities as QueryDeepPartialEntity<EligibilityData>);
+        }
 
         match.rounds = results;
 
@@ -325,7 +337,7 @@ export class RocketLeagueFinalizationService {
         round.gameMode = match.gameMode;
         round.homeWon = homeWon;
         round.isDummy = false;
-        round.roundStats = this.ballchasingConverter.createRound(replay);
+        round.roundStats = createRound(replay);
         round.match = match;
         round.parser = parser.type;
         round.parserVersion = parser.version;

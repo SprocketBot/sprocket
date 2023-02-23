@@ -5,22 +5,22 @@ import type {BallchasingResponse} from "@sprocketbot/common";
 import {ProgressStatus} from "@sprocketbot/common";
 import type {EntityManager} from "typeorm";
 
-import type {Match} from "../../../../database";
-import {PlayerService} from "../../../franchise";
-import type {MatchReplaySubmission} from "../../types";
-import {MATCH_SUBMISSION_FIXTURE_RATIFYING} from "./fixtures/MatchSubmission.fixture";
+import {PlayerRepository} from "../../../franchise/database/player.repository";
+import type {Match} from "../../database/match.entity";
+import type {MatchReplaySubmission} from "../../replay-parse/types";
 import {RocketLeagueFinalizationService} from "./rocket-league-finalization.service";
+import {MATCH_SUBMISSION_FIXTURE_RATIFYING} from "./submission-test-data";
 
 describe("BetterFinalizationService", () => {
     let service: RocketLeagueFinalizationService;
-    let playerService: PlayerService;
+    let playerRepository: PlayerRepository;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 RocketLeagueFinalizationService,
                 {
-                    provide: PlayerService,
+                    provide: PlayerRepository,
                     useValue: {
                         getPlayer: jest.fn,
                     },
@@ -29,7 +29,7 @@ describe("BetterFinalizationService", () => {
         }).compile();
 
         service = module.get<RocketLeagueFinalizationService>(RocketLeagueFinalizationService);
-        playerService = module.get<PlayerService>(PlayerService);
+        playerRepository = module.get<PlayerRepository>(PlayerRepository);
     });
 
     it("should be defined", () => {
@@ -38,13 +38,13 @@ describe("BetterFinalizationService", () => {
 
     describe("_getBallchasingPlayers", () => {
         it("Should be do one lookup for each player", async () => {
-            jest.spyOn(playerService, "getPlayer");
+            jest.spyOn(playerRepository, "findOneOrFail");
 
             const allResults = MATCH_SUBMISSION_FIXTURE_RATIFYING.items.map(x => x.progress.result.data);
 
             await service._getBallchasingPlayers(allResults[0] as BallchasingResponse);
 
-            expect(playerService.getPlayer).toBeCalledTimes(4);
+            expect(playerRepository.findOneOrFail).toBeCalledTimes(4);
         });
     });
 

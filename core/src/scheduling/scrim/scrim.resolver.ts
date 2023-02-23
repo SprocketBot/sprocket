@@ -8,7 +8,7 @@ import {UserRepository} from "../../identity/database/user.repository";
 import {UserObject, userObjectFromEntity} from "../../identity/graphql/user.object";
 import {OrganizationRepository} from "../../organization/database/organization.repository";
 import {OrganizationObject, organizationObjectFromEntity} from "../../organization/graphql/organization.object";
-import {ScrimObject} from "../graphql/scrim.object";
+import {ScrimObject} from "../graphql/scrim/scrim.object";
 
 @Resolver(() => ScrimObject)
 export class ScrimResolver {
