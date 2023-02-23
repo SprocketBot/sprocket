@@ -92,10 +92,11 @@ export class ScrimService {
         throw result.error;
     }
 
-    async cancelScrim(scrimId: string): Promise<Scrim> {
+    async cancelScrim(scrimId: string, reason?: string): Promise<Scrim> {
         this.logger.log(`cancelScrim scrimId=${scrimId}`);
         const result = await this.matchmakingService.send(MatchmakingEndpoint.CancelScrim, {
             scrimId,
+            reason,
         });
 
         if (result.status === ResponseStatus.SUCCESS) return result.data;
