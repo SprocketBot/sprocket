@@ -32,8 +32,11 @@ export class ScrimAdminResolver {
 
     @Mutation(() => ScrimObject)
     @Actions("CancelOrganizationScrims")
-    async cancelScrim(@Args("scrimId") scrimId: string): Promise<ScrimObject> {
-        return this.scrimService.cancelScrim(scrimId) as Promise<ScrimObject>;
+    async cancelScrim(
+        @Args("scrimId") scrimId: string,
+        @Args("reason", {nullable: true}) reason?: string,
+    ): Promise<ScrimObject> {
+        return this.scrimService.cancelScrim(scrimId, reason) as Promise<ScrimObject>;
     }
 
     @Mutation(() => Boolean)
