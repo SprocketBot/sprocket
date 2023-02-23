@@ -7,7 +7,7 @@
 <script lang="ts">
     import {slide} from "svelte/transition";
     import {nanoid} from "nanoid";
-    import {filedrop} from "filedrop-svelte";
+    import {filedrop, type FileDropSelectEvent} from "filedrop-svelte";
 
     import type {FormControlSize, FormControlState} from "../form.types";
     import {Icon} from "@steeze-ui/svelte-icon";

@@ -164,7 +164,9 @@ export class AuthenticationController {
                 );
                 const tokens = await this.authenticationService.login(user.id);
 
-                res.redirect(`${config.auth.frontend_callback}?token=${tokens.access},${tokens.refresh}&status=success`);
+                res.redirect(
+                    `${config.auth.frontend_callback}?token=${tokens.access},${tokens.refresh}&status=success`,
+                );
                 return;
             } catch (e) {
                 this.logger.error(e);
