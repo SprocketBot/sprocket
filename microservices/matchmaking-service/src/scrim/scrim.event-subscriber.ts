@@ -71,18 +71,18 @@ export class ScrimEventSubscriber {
         const {payload} = d as EventResponse<EventTopic.SubmissionRejectionAdded>;
         const targetSubmissionId = payload.submissionId;
         const scrim = await this.scrimCrudService.getScrimBySubmissionId(targetSubmissionId);
-        const submissionRejectionsResult = await this.submissionService.send(
-            SubmissionEndpoint.GetSubmissionRejections,
-            {submissionId: targetSubmissionId},
+        const submissionResult = await this.submissionService.send(
+            SubmissionEndpoint.GetSubmissionIfExists,
+            targetSubmissionId,
         );
-        if (submissionRejectionsResult.status === ResponseStatus.ERROR) {
-            this.logger.error(submissionRejectionsResult.error);
+        if (submissionResult.status === ResponseStatus.ERROR) {
+            this.logger.error(submissionResult.error);
             return;
         }
 
-        if (!scrim) return;
+        if (!scrim || !submissionResult.data.submission) return;
 
-        if (submissionRejectionsResult.data.length >= 3)
+        if (submissionResult.data.submission.rejectionStreak >= 3)
             await this.scrimService.setScrimLocked(
                 scrim.id,
                 true,

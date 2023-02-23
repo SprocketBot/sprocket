@@ -1,14 +1,14 @@
 import {Injectable} from "@nestjs/common";
-import type {ParsedReplay, ReplaySubmissionStats} from "@sprocketbot/common";
+import type {ParsedReplay, SubmissionStats} from "@sprocketbot/common";
 import {Parser} from "@sprocketbot/common";
 
 @Injectable()
 export class StatsConverterService {
-    convertStats(rawStats: ParsedReplay[]): ReplaySubmissionStats {
+    convertStats(rawStats: ParsedReplay[]): SubmissionStats {
         // TODO in the future, we will be able to translate the ballchasing player to a Sprocket member
         // in the validation step. Since we don't have that, for now we will just use the names from
         // the replays directly
-        const out: ReplaySubmissionStats = {
+        const out: SubmissionStats = {
             games: [],
         };
 

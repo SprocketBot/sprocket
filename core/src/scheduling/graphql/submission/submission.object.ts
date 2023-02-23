@@ -1,72 +1,79 @@
 import {Field, Int, ObjectType, registerEnumType} from "@nestjs/graphql";
 import type {
-    BaseReplaySubmission,
-    MatchReplaySubmission as CommonMatchReplaySubmission,
+    BaseSubmission,
+    MatchSubmission as CommonMatchSubmission,
     Scrim,
-    ScrimReplaySubmission as CommonScrimReplaySubmission,
+    ScrimSubmission as CommonScrimSubmission,
 } from "@sprocketbot/common";
-import {ReplaySubmissionStatus, ReplaySubmissionType} from "@sprocketbot/common";
+import {SubmissionStatus, SubmissionType} from "@sprocketbot/common";
 
 import type {Match} from "../../database/match.entity";
 import {SubmissionItemObject} from "./submission-item.object";
-import {SubmissionRejectionObject} from "./submission-rejection.object";
+import {
+    SubmissionRatificationObject,
+    SubmissionRatificationRoundObject,
+    SubmissionRejectionObject,
+} from "./submission-ratification.object";
 import {SubmissionStatsObject} from "./submission-stats.object";
 
-registerEnumType(ReplaySubmissionType, {name: "ReplaySubmissionType"});
-registerEnumType(ReplaySubmissionStatus, {name: "ReplaySubmissionStatus"});
+registerEnumType(SubmissionType, {name: "SubmissionType"});
+registerEnumType(SubmissionStatus, {name: "SubmissionStatus"});
 
 @ObjectType()
-export class SubmissionObject implements BaseReplaySubmission {
+export class SubmissionObject implements BaseSubmission {
     @Field()
     id: string;
 
-    @Field(() => Int)
-    creatorUserId: number;
+    @Field(() => SubmissionType)
+    type: SubmissionType;
 
-    @Field(() => [String])
-    taskIds: string[];
-
-    @Field(() => ReplaySubmissionStatus)
-    status: ReplaySubmissionStatus;
-
-    @Field(() => [SubmissionItemObject])
-    items: SubmissionItemObject[];
+    @Field(() => SubmissionStatus)
+    status: SubmissionStatus;
 
     @Field(() => Boolean)
     validated: boolean;
 
-    @Field(() => SubmissionStatsObject, {nullable: true})
-    stats?: SubmissionStatsObject;
-
     @Field(() => Number)
     requiredRatifications: number;
+
+    @Field(() => [SubmissionRatificationObject])
+    ratifications: SubmissionRatificationObject[];
 
     @Field(() => [SubmissionRejectionObject])
     rejections: SubmissionRejectionObject[];
 
-    @Field(() => ReplaySubmissionType)
-    type: ReplaySubmissionType;
+    @Field(() => Int)
+    rejectionStreak: number;
+
+    @Field(() => Int)
+    uploaderUserId: number;
+
+    @Field(() => [SubmissionItemObject])
+    items: SubmissionItemObject[];
+
+    @Field(() => [SubmissionRatificationRoundObject])
+    rounds: SubmissionRatificationRoundObject[];
+
+    @Field(() => SubmissionStatsObject, {nullable: true})
+    stats?: SubmissionStatsObject;
 
     @Field(() => String, {nullable: true})
     scrimId?: Scrim["id"];
 
     @Field(() => String, {nullable: true})
     matchId?: Match["id"];
-
-    @Field(() => [Number])
-    ratifiers: number[];
 }
 
-export class ScrimReplaySubmission extends SubmissionObject implements CommonScrimReplaySubmission {
-    type: ReplaySubmissionType.SCRIM = ReplaySubmissionType.SCRIM;
+export class ScrimSubmission extends SubmissionObject implements CommonScrimSubmission {
+    type: SubmissionType.Scrim = SubmissionType.Scrim;
 
     scrimId: Scrim["id"];
 }
 
-export class MatchReplaySubmission extends SubmissionObject implements CommonMatchReplaySubmission {
-    type: ReplaySubmissionType.MATCH = ReplaySubmissionType.MATCH;
+export class MatchSubmission extends SubmissionObject implements CommonMatchSubmission {
+    type: SubmissionType.Match = SubmissionType.Match;
 
     matchId: Match["id"];
 }
 
-export type ReplaySubmission = MatchReplaySubmission | ScrimReplaySubmission;
+export type ReplaySubmission = MatchSubmission | ScrimSubmission;

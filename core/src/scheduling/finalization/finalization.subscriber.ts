@@ -1,17 +1,16 @@
 import {Injectable} from "@nestjs/common";
-import type {MatchReplaySubmission, Scrim, ScrimReplaySubmission} from "@sprocketbot/common";
+import type {MatchSubmission, Scrim, ScrimSubmission} from "@sprocketbot/common";
 import {
     EventPayload,
     EventsService,
     EventTopic,
     NanoidService,
     REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
-    ReplaySubmissionType,
-    ResponseStatus,
     SprocketEvent,
     SprocketEventMarshal,
     SubmissionEndpoint,
     SubmissionService as CommonSubmissionService,
+    SubmissionType,
 } from "@sprocketbot/common";
 
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
@@ -41,7 +40,7 @@ export class FinalizationSubscriber extends SprocketEventMarshal {
     async submissionRatified(payload: EventPayload<EventTopic.SubmissionRatified>): Promise<void> {
         const submission = await this.submissionService.getSubmissionById(payload.submissionId);
 
-        if (submission.type === ReplaySubmissionType.MATCH) {
+        if (submission.type === SubmissionType.Match) {
             await this.onMatchRatified(submission, payload.submissionId);
         } else {
             const scrim = await this.scrimService.getScrimBySubmissionId(payload.submissionId);
@@ -50,7 +49,7 @@ export class FinalizationSubscriber extends SprocketEventMarshal {
         }
     }
 
-    async onScrimRatified(submission: ScrimReplaySubmission, scrim: Scrim): Promise<void> {
+    async onScrimRatified(submission: ScrimSubmission, scrim: Scrim): Promise<void> {
         try {
             if (!submission.validated) {
                 this.logger.warn("Attempted to finalize scrim that did not have validated submission");
@@ -89,14 +88,7 @@ export class FinalizationSubscriber extends SprocketEventMarshal {
         }
     }
 
-    async onMatchRatified(submission: MatchReplaySubmission, submissionId: string): Promise<void> {
-        const keyResponse = await this.commonSubmissionService.send(SubmissionEndpoint.GetSubmissionRedisKey, {
-            submissionId,
-        });
-        if (keyResponse.status === ResponseStatus.ERROR) {
-            this.logger.warn(keyResponse.error.message);
-            return;
-        }
+    async onMatchRatified(submission: MatchSubmission, submissionId: string): Promise<void> {
         try {
             const {match, legacyMatch} = await this.rocketLeagueFinalizationService
                 .finalizeMatch(submission)

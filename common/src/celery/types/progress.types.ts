@@ -19,8 +19,8 @@ export interface ProgressMessage<T extends Task> {
     status: ProgressStatus;
     progress: Progress;
 
-    result: TaskResult<T> | null;
-    error: string | null;
+    result?: TaskResult<T> | null;
+    error?: string | null;
 }
 
 export const ProgressMessageSchema = z.object({

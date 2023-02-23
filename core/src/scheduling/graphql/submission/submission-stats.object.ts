@@ -1,5 +1,5 @@
 import {Field, Int, ObjectType} from "@nestjs/graphql";
-import type {ReplaySubmissionStats} from "@sprocketbot/common";
+import type {SubmissionStats} from "@sprocketbot/common";
 
 @ObjectType()
 export class SubmissionPlayerObject {
@@ -29,7 +29,7 @@ export class SubmissionGameObject {
 }
 
 @ObjectType()
-export class SubmissionStatsObject implements ReplaySubmissionStats {
+export class SubmissionStatsObject implements SubmissionStats {
     @Field(() => [SubmissionGameObject])
     games: SubmissionGameObject[];
 }

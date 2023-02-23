@@ -1,13 +1,12 @@
 import {forwardRef, Inject, Injectable, Logger} from "@nestjs/common";
-import type {ReplayParseTask, ReplaySubmission} from "@sprocketbot/common";
+import type {ReplayParseTask, Submission} from "@sprocketbot/common";
 import {
     CeleryService,
     EventsService,
     EventTopic,
-    MinioService,
     ProgressStatus,
     REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
-    ReplaySubmissionStatus,
+    SubmissionStatus,
     Task,
 } from "@sprocketbot/common";
 import {v4} from "uuid";
@@ -25,7 +24,6 @@ export class ReplaySubmissionService {
 
     constructor(
         private readonly submissionCrudService: ReplaySubmissionCrudService,
-        private readonly minioService: MinioService,
         private readonly celeryService: CeleryService,
         private readonly eventsService: EventsService,
         @Inject(forwardRef(() => ReplayParseSubscriber))
@@ -48,7 +46,7 @@ export class ReplaySubmissionService {
         const tasks: ReplayParseTask[] = [];
         // Subscribe before doing anything to ensure that we don't drop events
         this.replayParseSubscriber.subscribe(submissionId);
-        await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.PROCESSING);
+        await this.submissionCrudService.updateStatus(submissionId, SubmissionStatus.Processing);
         const celeryPromises = filePaths.map(async fp => {
             const taskId = v4();
 
@@ -124,8 +122,7 @@ export class ReplaySubmissionService {
                             tasks.every(t => [ProgressStatus.Complete, ProgressStatus.Error].includes(t.status))
                         ) {
                             // We do be kinda done though.
-                            const submission = await this.submissionCrudService.getSubmission(submissionId);
-                            if (!submission) throw new Error("Submission is done, but also does not exist?");
+                            const submission = await this.submissionCrudService.getSubmissionById(submissionId);
                             await this.completeSubmission(submission, submissionId);
                         }
                     },
@@ -141,7 +138,7 @@ export class ReplaySubmissionService {
         return tasks.map(t => t.taskId);
     }
 
-    async completeSubmission(submission: ReplaySubmission, submissionId: string): Promise<void> {
+    async completeSubmission(submission: Submission, submissionId: string): Promise<void> {
         if (
             !submission.items.every(item =>
                 [ProgressStatus.Complete, ProgressStatus.Error].includes(
@@ -152,12 +149,7 @@ export class ReplaySubmissionService {
             throw new Error("Submission not yet ready for completion");
         }
 
-        submission.rejections.forEach(r => {
-            r.stale = true;
-        });
-
-        await this.submissionCrudService.expireRejections(submissionId);
-        await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.VALIDATING);
+        await this.submissionCrudService.updateStatus(submissionId, SubmissionStatus.Validating);
 
         await this.eventsService.publish(EventTopic.SubmissionValidating, {
             submissionId: submissionId,
@@ -166,7 +158,7 @@ export class ReplaySubmissionService {
 
         const valid = await this.replayValidationService.validate(submission);
         if (!valid.valid) {
-            await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.REJECTED);
+            await this.submissionCrudService.updateStatus(submissionId, SubmissionStatus.Rejected);
             await this.ratificationService.rejectSubmission(
                 REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
                 submissionId,
@@ -176,16 +168,14 @@ export class ReplaySubmissionService {
         }
 
         await this.submissionCrudService.setValidatedTrue(submissionId);
-        await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.RATIFYING);
+        await this.submissionCrudService.updateStatus(submissionId, SubmissionStatus.Ratified);
 
         submission.stats = this.statsConverterService.convertStats(
             submission.items.map(item => item.progress!.result!),
         );
         await this.submissionCrudService.setStats(submissionId, submission.stats);
 
-        const refreshedSubmission = await this.submissionCrudService.getSubmission(submissionId);
-        if (!refreshedSubmission)
-            throw new Error("Unexpected state found when refreshing submission state with redis.");
+        const refreshedSubmission = await this.submissionCrudService.getSubmissionById(submissionId);
 
         await this.eventsService.publish(EventTopic.SubmissionRatifying, {
             submissionId: submissionId,

@@ -1,8 +1,7 @@
 import {z} from "zod";
 
-import {SubmissionSchema} from "./Submission.schema";
+import {SubmissionSchema} from "../types";
 
-export const GetAllSubmissions_Request = z.object({});
+export const GetAllSubmissions_Request = z.undefined();
 
 export const GetAllSubmissions_Response = z.array(SubmissionSchema);
-export type GetAllSubmissionsResponse = z.infer<typeof GetAllSubmissions_Response>;
