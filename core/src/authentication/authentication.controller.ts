@@ -1,4 +1,4 @@
-import {Controller, Get, HttpException, Logger, Query, Request, Response, UseGuards} from "@nestjs/common";
+import {Controller, Get, Logger, Query, Request, Response, UseGuards} from "@nestjs/common";
 import {JwtService} from "@nestjs/jwt";
 import {config} from "@sprocketbot/common";
 import {Request as Req, Response as Res} from "express";
@@ -36,13 +36,19 @@ export class AuthenticationController {
     @UseGuards(GoogleAuthGuard)
     async googleLogin(@Request() req: Req, @Response() res: Res, @Query("state") state?: string): Promise<void> {
         const googleProfile = GoogleProfileSchema.safeParse(req.user);
-        if (!googleProfile.success) throw new HttpException("Could not validate user", 400);
+        if (!googleProfile.success) {
+            res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Could not validate user"}`);
+            return;
+        }
 
         if (state) {
             try {
                 const payload = this.jwtService.verify(state);
                 const data = JwtAuthPayloadSchema.safeParse(payload);
-                if (!data.success) throw new HttpException("Could not validate user", 400);
+                if (!data.success) {
+                    res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Could not validate user"}`);
+                    return;
+                }
 
                 const user = await this.userRepository.findById(data.data.userId);
                 const acc = await this.userAuthenticationAccountRepository.getAuthAccount(
@@ -57,22 +63,26 @@ export class AuthenticationController {
                         userId: user.id,
                     });
             } catch (e) {
+                res.redirect(`${config.auth.frontend_callback}?status=error&message=${(e as Error).message}`);
                 this.logger.error(e);
-                throw new HttpException("Failed to link account", 400);
+                return;
             }
         } else {
             try {
                 const user = await this.userAuthenticationAccountRepository.getUserByAuthAccount(
                     UserAuthenticationAccountType.GOOGLE,
                     googleProfile.data.id,
-                );
+                ).catch(() => {throw new Error("User not found")});
                 const tokens = await this.authenticationService.login(user.id);
 
-                res.redirect(`${config.auth.frontend_callback}?token=${tokens.access},${tokens.refresh}`);
+                res.redirect(
+                    `${config.auth.frontend_callback}?token=${tokens.access},${tokens.refresh}&status=success`,
+                );
                 return;
             } catch (e) {
+                res.redirect(`${config.auth.frontend_callback}?status=error&message=${(e as Error).message}`);
                 this.logger.error(e);
-                throw new HttpException("Failed to login", 400);
+                return;
             }
         }
 
@@ -84,13 +94,19 @@ export class AuthenticationController {
     @UseGuards(EpicAuthGuard)
     async epicLogin(@Request() req: Req, @Response() res: Res, @Query("state") state?: string): Promise<void> {
         const epicProfile = EpicProfileSchema.safeParse(req.user);
-        if (!epicProfile.success) throw new HttpException("Could not validate user", 400);
+        if (!epicProfile.success) {
+            res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Could not validate user"}`);
+            return;
+        }
 
         if (state) {
             try {
                 const payload = this.jwtService.verify(state);
                 const data = JwtAuthPayloadSchema.safeParse(payload);
-                if (!data.success) throw new HttpException("Could not validate user", 400);
+                if (!data.success) {
+                    res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Could not validate user"}`);
+                    return;
+                }
 
                 const user = await this.userRepository.findById(data.data.userId);
                 const acc = await this.userAuthenticationAccountRepository.getAuthAccount(
@@ -105,22 +121,26 @@ export class AuthenticationController {
                         userId: user.id,
                     });
             } catch (e) {
+                res.redirect(`${config.auth.frontend_callback}?status=error&message=${(e as Error).message}`);
                 this.logger.error(e);
-                throw new HttpException("Failed to link account", 400);
+                return;
             }
         } else {
             try {
                 const user = await this.userAuthenticationAccountRepository.getUserByAuthAccount(
                     UserAuthenticationAccountType.EPIC,
                     epicProfile.data.sub,
-                );
+                ).catch(() => {throw new Error("User not found")});
                 const tokens = await this.authenticationService.login(user.id);
 
-                res.redirect(`${config.auth.frontend_callback}?token=${tokens.access},${tokens.refresh}`);
+                res.redirect(
+                    `${config.auth.frontend_callback}?token=${tokens.access},${tokens.refresh}&status=success`,
+                );
                 return;
             } catch (e) {
+                res.redirect(`${config.auth.frontend_callback}?status=error&message=${(e as Error).message}`);
                 this.logger.error(e);
-                throw new HttpException("Failed to login", 400);
+                return;
             }
         }
 
@@ -132,13 +152,19 @@ export class AuthenticationController {
     @UseGuards(DiscordAuthGuard)
     async discordLogin(@Request() req: Req, @Response() res: Res, @Query("state") state?: string): Promise<void> {
         const discordProfile = DiscordProfileSchema.safeParse(req.user);
-        if (!discordProfile.success) throw new HttpException("Could not validate user", 400);
+        if (!discordProfile.success) {
+            res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Could not validate user"}`);
+            return;
+        }
 
         if (state) {
             try {
                 const payload = this.jwtService.verify(state);
                 const data = JwtAuthPayloadSchema.safeParse(payload);
-                if (!data.success) throw new HttpException("Could not validate user", 400);
+                if (!data.success) {
+                    res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Could not validate user"}`);
+                    return;
+                }
 
                 const user = await this.userRepository.findById(data.data.userId);
                 const acc = await this.userAuthenticationAccountRepository.getAuthAccount(
@@ -153,15 +179,16 @@ export class AuthenticationController {
                         userId: user.id,
                     });
             } catch (e) {
+                res.redirect(`${config.auth.frontend_callback}?status=error&message=${(e as Error).message}`);
                 this.logger.error(e);
-                throw new HttpException("Failed to link account", 400);
+                return;
             }
         } else {
             try {
                 const user = await this.userAuthenticationAccountRepository.getUserByAuthAccount(
                     UserAuthenticationAccountType.DISCORD,
                     discordProfile.data.id,
-                );
+                ).catch(() => {throw new Error("User not found")});
                 const tokens = await this.authenticationService.login(user.id);
 
                 res.redirect(
@@ -184,20 +211,26 @@ export class AuthenticationController {
     // TODO: Steam does not support states, so we need to figure out a way to link accounts
     async steamLogin(@Request() req: Req, @Response() res: Res): Promise<void> {
         const steamProfile = SteamProfileSchema.safeParse(req.user);
-        if (!steamProfile.success) throw new HttpException("Could not validate user", 400);
+        if (!steamProfile.success) {
+            res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Could not validate user"}`);
+            return;
+        }
 
         try {
             const user = await this.userAuthenticationAccountRepository.getUserByAuthAccount(
                 UserAuthenticationAccountType.STEAM,
                 steamProfile.data.id,
-            );
+            ).catch(() => {throw new Error("User not found")});
             const tokens = await this.authenticationService.login(user.id);
 
-            res.redirect(`${config.auth.frontend_callback}?token=${tokens.access},${tokens.refresh}`);
+            res.redirect(
+                    `${config.auth.frontend_callback}?token=${tokens.access},${tokens.refresh}&status=success`,
+                );
             return;
         } catch (e) {
+            res.redirect(`${config.auth.frontend_callback}?status=error&message=${(e as Error).message}`);
             this.logger.error(e);
-            throw new HttpException("Failed to login", 400);
+            return;
         }
     }
 
@@ -205,13 +238,19 @@ export class AuthenticationController {
     @UseGuards(MicrosoftAuthGuard)
     async microsoftLogin(@Request() req: Req, @Response() res: Res, @Query("state") state?: string): Promise<void> {
         const microsoftProfile = MicrosoftProfileSchema.safeParse(req.user);
-        if (!microsoftProfile.success) throw new HttpException("Could not validate user", 400);
+        if (!microsoftProfile.success) {
+            res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Could not validate user"}`);
+            return;
+        }
 
         if (state) {
             try {
                 const payload = this.jwtService.verify(state);
                 const data = JwtAuthPayloadSchema.safeParse(payload);
-                if (!data.success) throw new HttpException("Could not validate user", 400);
+                if (!data.success) {
+                    res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Could not validate user"}`);
+                    return;
+                }
 
                 const user = await this.userRepository.findById(data.data.userId);
                 const acc = await this.userAuthenticationAccountRepository.getAuthAccount(
@@ -226,22 +265,26 @@ export class AuthenticationController {
                         userId: user.id,
                     });
             } catch (e) {
+                res.redirect(`${config.auth.frontend_callback}?status=error&message=${(e as Error).message}`);
                 this.logger.error(e);
-                throw new HttpException("Failed to link account", 400);
+                return;
             }
         } else {
             try {
                 const user = await this.userAuthenticationAccountRepository.getUserByAuthAccount(
                     UserAuthenticationAccountType.MICROSOFT,
                     microsoftProfile.data.id,
-                );
+                ).catch(() => {throw new Error("User not found")});
                 const tokens = await this.authenticationService.login(user.id);
 
-                res.redirect(`${config.auth.frontend_callback}?token=${tokens.access},${tokens.refresh}`);
+                res.redirect(
+                    `${config.auth.frontend_callback}?token=${tokens.access},${tokens.refresh}&status=success`,
+                );
                 return;
             } catch (e) {
+                res.redirect(`${config.auth.frontend_callback}?status=error&message=${(e as Error).message}`);
                 this.logger.error(e);
-                throw new HttpException("Failed to login", 400);
+                return;
             }
         }
 
@@ -253,13 +296,19 @@ export class AuthenticationController {
     @UseGuards(XboxAuthGuard)
     async xboxLogin(@Request() req: Req, @Response() res: Res, @Query("state") state?: string): Promise<void> {
         const xboxProfile = XboxProfileSchema.safeParse(req.user);
-        if (!xboxProfile.success) throw new HttpException("Could not validate user", 400);
+        if (!xboxProfile.success) {
+            res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Could not validate user"}`);
+            return;
+        }
 
         if (state) {
             try {
                 const payload = this.jwtService.verify(state);
                 const data = JwtAuthPayloadSchema.safeParse(payload);
-                if (!data.success) throw new HttpException("Could not validate user", 400);
+                if (!data.success) {
+                    res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Could not validate user"}`);
+                    return;
+                }
 
                 const user = await this.userRepository.findById(data.data.userId);
                 const acc = await this.userAuthenticationAccountRepository.getAuthAccount(
@@ -274,22 +323,26 @@ export class AuthenticationController {
                         userId: user.id,
                     });
             } catch (e) {
+                res.redirect(`${config.auth.frontend_callback}?status=error&message=${(e as Error).message}`);
                 this.logger.error(e);
-                throw new HttpException("Failed to link account", 400);
+                return;
             }
         } else {
             try {
                 const user = await this.userAuthenticationAccountRepository.getUserByAuthAccount(
                     UserAuthenticationAccountType.XBOX,
                     xboxProfile.data.id,
-                );
+                ).catch(() => {throw new Error("User not found")});
                 const tokens = await this.authenticationService.login(user.id);
 
-                res.redirect(`${config.auth.frontend_callback}?token=${tokens.access},${tokens.refresh}`);
+                res.redirect(
+                    `${config.auth.frontend_callback}?token=${tokens.access},${tokens.refresh}&status=success`,
+                );
                 return;
             } catch (e) {
+                res.redirect(`${config.auth.frontend_callback}?status=error&message=${(e as Error).message}`);
                 this.logger.error(e);
-                throw new HttpException("Failed to login", 400);
+                return;
             }
         }
 
