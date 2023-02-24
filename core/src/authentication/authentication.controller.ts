@@ -46,7 +46,9 @@ export class AuthenticationController {
                 const payload = this.jwtService.verify(state);
                 const data = JwtAuthPayloadSchema.safeParse(payload);
                 if (!data.success) {
-                    res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Failed to parse jwt payload"}`);
+                    res.redirect(
+                        `${config.auth.frontend_callback}?status=error&message=${"Failed to parse jwt payload"}`,
+                    );
                     return;
                 }
 
@@ -105,7 +107,9 @@ export class AuthenticationController {
                 const payload = this.jwtService.verify(state);
                 const data = JwtAuthPayloadSchema.safeParse(payload);
                 if (!data.success) {
-                    res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Failed to parse jwt payload"}`);
+                    res.redirect(
+                        `${config.auth.frontend_callback}?status=error&message=${"Failed to parse jwt payload"}`,
+                    );
                     return;
                 }
 
@@ -164,7 +168,9 @@ export class AuthenticationController {
                 const payload = this.jwtService.verify(state);
                 const data = JwtAuthPayloadSchema.safeParse(payload);
                 if (!data.success) {
-                    res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Failed to parse jwt payload"}`);
+                    res.redirect(
+                        `${config.auth.frontend_callback}?status=error&message=${"Failed to parse jwt payload"}`,
+                    );
                     return;
                 }
 
@@ -250,7 +256,9 @@ export class AuthenticationController {
                 const payload = this.jwtService.verify(state);
                 const data = JwtAuthPayloadSchema.safeParse(payload);
                 if (!data.success) {
-                    res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Failed to parse jwt payload"}`);
+                    res.redirect(
+                        `${config.auth.frontend_callback}?status=error&message=${"Failed to parse jwt payload"}`,
+                    );
                     return;
                 }
 
@@ -309,7 +317,9 @@ export class AuthenticationController {
                 const payload = this.jwtService.verify(state);
                 const data = JwtAuthPayloadSchema.safeParse(payload);
                 if (!data.success) {
-                    res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Failed to parse jwt payload"}`);
+                    res.redirect(
+                        `${config.auth.frontend_callback}?status=error&message=${"Failed to parse jwt payload"}`,
+                    );
                     return;
                 }
 
