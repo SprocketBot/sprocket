@@ -37,7 +37,7 @@ export class AuthenticationController {
     async googleLogin(@Request() req: Req, @Response() res: Res, @Query("state") state?: string): Promise<void> {
         const googleProfile = GoogleProfileSchema.safeParse(req.user);
         if (!googleProfile.success) {
-            res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Could not validate user"}`);
+            res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Failed to parse provider profile"}`);
             return;
         }
 
@@ -46,7 +46,7 @@ export class AuthenticationController {
                 const payload = this.jwtService.verify(state);
                 const data = JwtAuthPayloadSchema.safeParse(payload);
                 if (!data.success) {
-                    res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Could not validate user"}`);
+                    res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Failed to parse jwt payload"}`);
                     return;
                 }
 
@@ -96,7 +96,7 @@ export class AuthenticationController {
     async epicLogin(@Request() req: Req, @Response() res: Res, @Query("state") state?: string): Promise<void> {
         const epicProfile = EpicProfileSchema.safeParse(req.user);
         if (!epicProfile.success) {
-            res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Could not validate user"}`);
+            res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Failed to parse provider profile"}`);
             return;
         }
 
@@ -105,7 +105,7 @@ export class AuthenticationController {
                 const payload = this.jwtService.verify(state);
                 const data = JwtAuthPayloadSchema.safeParse(payload);
                 if (!data.success) {
-                    res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Could not validate user"}`);
+                    res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Failed to parse jwt payload"}`);
                     return;
                 }
 
@@ -155,7 +155,7 @@ export class AuthenticationController {
     async discordLogin(@Request() req: Req, @Response() res: Res, @Query("state") state?: string): Promise<void> {
         const discordProfile = DiscordProfileSchema.safeParse(req.user);
         if (!discordProfile.success) {
-            res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Could not validate user"}`);
+            res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Failed to parse provider profile"}`);
             return;
         }
 
@@ -164,7 +164,7 @@ export class AuthenticationController {
                 const payload = this.jwtService.verify(state);
                 const data = JwtAuthPayloadSchema.safeParse(payload);
                 if (!data.success) {
-                    res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Could not validate user"}`);
+                    res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Failed to parse jwt payload"}`);
                     return;
                 }
 
@@ -215,7 +215,7 @@ export class AuthenticationController {
     async steamLogin(@Request() req: Req, @Response() res: Res): Promise<void> {
         const steamProfile = SteamProfileSchema.safeParse(req.user);
         if (!steamProfile.success) {
-            res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Could not validate user"}`);
+            res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Failed to parse provider profile"}`);
             return;
         }
 
@@ -241,7 +241,7 @@ export class AuthenticationController {
     async microsoftLogin(@Request() req: Req, @Response() res: Res, @Query("state") state?: string): Promise<void> {
         const microsoftProfile = MicrosoftProfileSchema.safeParse(req.user);
         if (!microsoftProfile.success) {
-            res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Could not validate user"}`);
+            res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Failed to parse provider profile"}`);
             return;
         }
 
@@ -250,7 +250,7 @@ export class AuthenticationController {
                 const payload = this.jwtService.verify(state);
                 const data = JwtAuthPayloadSchema.safeParse(payload);
                 if (!data.success) {
-                    res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Could not validate user"}`);
+                    res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Failed to parse jwt payload"}`);
                     return;
                 }
 
@@ -300,7 +300,7 @@ export class AuthenticationController {
     async xboxLogin(@Request() req: Req, @Response() res: Res, @Query("state") state?: string): Promise<void> {
         const xboxProfile = XboxProfileSchema.safeParse(req.user);
         if (!xboxProfile.success) {
-            res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Could not validate user"}`);
+            res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Failed to parse provider profile"}`);
             return;
         }
 
@@ -309,7 +309,7 @@ export class AuthenticationController {
                 const payload = this.jwtService.verify(state);
                 const data = JwtAuthPayloadSchema.safeParse(payload);
                 if (!data.success) {
-                    res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Could not validate user"}`);
+                    res.redirect(`${config.auth.frontend_callback}?status=error&message=${"Failed to parse jwt payload"}`);
                     return;
                 }
 
