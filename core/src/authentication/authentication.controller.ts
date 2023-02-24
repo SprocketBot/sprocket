@@ -69,10 +69,11 @@ export class AuthenticationController {
             }
         } else {
             try {
-                const user = await this.userAuthenticationAccountRepository.getUserByAuthAccount(
-                    UserAuthenticationAccountType.GOOGLE,
-                    googleProfile.data.id,
-                ).catch(() => {throw new Error("User not found")});
+                const user = await this.userAuthenticationAccountRepository
+                    .getUserByAuthAccount(UserAuthenticationAccountType.GOOGLE, googleProfile.data.id)
+                    .catch(() => {
+                        throw new Error("User not found");
+                    });
                 const tokens = await this.authenticationService.login(user.id);
 
                 res.redirect(
@@ -127,10 +128,11 @@ export class AuthenticationController {
             }
         } else {
             try {
-                const user = await this.userAuthenticationAccountRepository.getUserByAuthAccount(
-                    UserAuthenticationAccountType.EPIC,
-                    epicProfile.data.sub,
-                ).catch(() => {throw new Error("User not found")});
+                const user = await this.userAuthenticationAccountRepository
+                    .getUserByAuthAccount(UserAuthenticationAccountType.EPIC, epicProfile.data.sub)
+                    .catch(() => {
+                        throw new Error("User not found");
+                    });
                 const tokens = await this.authenticationService.login(user.id);
 
                 res.redirect(
@@ -185,10 +187,11 @@ export class AuthenticationController {
             }
         } else {
             try {
-                const user = await this.userAuthenticationAccountRepository.getUserByAuthAccount(
-                    UserAuthenticationAccountType.DISCORD,
-                    discordProfile.data.id,
-                ).catch(() => {throw new Error("User not found")});
+                const user = await this.userAuthenticationAccountRepository
+                    .getUserByAuthAccount(UserAuthenticationAccountType.DISCORD, discordProfile.data.id)
+                    .catch(() => {
+                        throw new Error("User not found");
+                    });
                 const tokens = await this.authenticationService.login(user.id);
 
                 res.redirect(
@@ -217,15 +220,14 @@ export class AuthenticationController {
         }
 
         try {
-            const user = await this.userAuthenticationAccountRepository.getUserByAuthAccount(
-                UserAuthenticationAccountType.STEAM,
-                steamProfile.data.id,
-            ).catch(() => {throw new Error("User not found")});
+            const user = await this.userAuthenticationAccountRepository
+                .getUserByAuthAccount(UserAuthenticationAccountType.STEAM, steamProfile.data.id)
+                .catch(() => {
+                    throw new Error("User not found");
+                });
             const tokens = await this.authenticationService.login(user.id);
 
-            res.redirect(
-                    `${config.auth.frontend_callback}?token=${tokens.access},${tokens.refresh}&status=success`,
-                );
+            res.redirect(`${config.auth.frontend_callback}?token=${tokens.access},${tokens.refresh}&status=success`);
             return;
         } catch (e) {
             res.redirect(`${config.auth.frontend_callback}?status=error&message=${(e as Error).message}`);
@@ -271,10 +273,11 @@ export class AuthenticationController {
             }
         } else {
             try {
-                const user = await this.userAuthenticationAccountRepository.getUserByAuthAccount(
-                    UserAuthenticationAccountType.MICROSOFT,
-                    microsoftProfile.data.id,
-                ).catch(() => {throw new Error("User not found")});
+                const user = await this.userAuthenticationAccountRepository
+                    .getUserByAuthAccount(UserAuthenticationAccountType.MICROSOFT, microsoftProfile.data.id)
+                    .catch(() => {
+                        throw new Error("User not found");
+                    });
                 const tokens = await this.authenticationService.login(user.id);
 
                 res.redirect(
@@ -329,10 +332,11 @@ export class AuthenticationController {
             }
         } else {
             try {
-                const user = await this.userAuthenticationAccountRepository.getUserByAuthAccount(
-                    UserAuthenticationAccountType.XBOX,
-                    xboxProfile.data.id,
-                ).catch(() => {throw new Error("User not found")});
+                const user = await this.userAuthenticationAccountRepository
+                    .getUserByAuthAccount(UserAuthenticationAccountType.XBOX, xboxProfile.data.id)
+                    .catch(() => {
+                        throw new Error("User not found");
+                    });
                 const tokens = await this.authenticationService.login(user.id);
 
                 res.redirect(
