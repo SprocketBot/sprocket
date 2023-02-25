@@ -51,7 +51,7 @@ export class EpicService {
         return this.getBearerToken(config.auth.epic.clientId, config.auth.epic.secret);
     }
 
-    private async getAccountDetails(data: {displayName: string} | {accountId: string}): Promise<EpicProfile[]> {
+    private async getProfiles(data: {displayName: string} | {accountId: string}): Promise<EpicProfile[]> {
         const params = new URLSearchParams(data);
         const profileRequest = await axios.get(`${this.accountsEndpoint}?${params.toString()}`, {
             headers: {
@@ -66,14 +66,14 @@ export class EpicService {
     }
 
     async getProfileByDisplayName(displayName: string): Promise<EpicProfile | null> {
-        const profiles = await this.getAccountDetails({displayName});
+        const profiles = await this.getProfiles({displayName});
 
         if (profiles.length !== 1) return null;
         return profiles[0];
     }
 
     async getProfileByAccountId(accountId: string): Promise<EpicProfile | null> {
-        const profiles = await this.getAccountDetails({accountId});
+        const profiles = await this.getProfiles({accountId});
 
         if (profiles.length !== 1) return null;
         return profiles[0];
