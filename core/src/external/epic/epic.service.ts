@@ -51,7 +51,7 @@ export class EpicService {
         return this.getBearerToken(config.auth.epic.clientId, config.auth.epic.secret);
     }
 
-    private async getProfiles(data: {displayName: string} | {accountId: string}): Promise<EpicProfile[]> {
+    private async getProfiles(data: {displayName: string} | {accountId: string} | {identityProviderId: "xbl" | "steam" | "psn", externalAccountId: string}): Promise<EpicProfile[]> {
         const params = new URLSearchParams(data);
         const profileRequest = await axios.get(`${this.accountsEndpoint}?${params.toString()}`, {
             headers: {
@@ -77,5 +77,16 @@ export class EpicService {
 
         if (profiles.length !== 1) return null;
         return profiles[0];
+    }
+
+    async getProfileByExternalAccount(identityProviderId: "xbl" | "steam" | "psn", externalAccountId: string): Promise<EpicProfile | null> {
+        const profiles = await this.getProfiles({identityProviderId, externalAccountId});
+
+        if (profiles.length !== 1) return null;
+        return profiles[0];
+    }
+
+    async onApplicationBootstrap(): Promise<void> {
+        console.log(await this.getProfileByExternalAccount("xbl", "2535444375378541"));
     }
 }
