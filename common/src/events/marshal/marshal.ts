@@ -30,7 +30,7 @@ export abstract class SprocketEventMarshal {
             ) as EventFunction<EventTopic>;
 
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.eventsService.subscribe(meta.event, false).then(obs => {
+            this.eventsService.subscribe(meta.event, meta.instanceExclusive).then(obs => {
                 obs.subscribe((p: EventResponse<EventTopic>) => {
                     if (p.topic !== meta.event) return;
 

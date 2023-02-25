@@ -5,4 +5,5 @@ export * from "./global.types";
 export * from "./minio";
 export * from "./redis";
 export * from "./service-connectors";
+export * from "./types";
 export * from "./util";

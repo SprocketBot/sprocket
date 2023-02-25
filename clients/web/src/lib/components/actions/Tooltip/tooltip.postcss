@@ -1,0 +1,25 @@
+.tooltip {
+    @apply inline-block absolute z-50 py-2 px-3 text-sm font-medium text-white rounded-lg shadow-sm duration-300 bg-gray-600;
+    &::after {
+        display: var(--arrow, none);
+        content: "";
+        @apply w-4 h-4 absolute;
+    }
+
+    &.top::after {
+        @apply left-1/2 -translate-x-1/2 top-full
+            border-8 border-x-transparent border-b-transparent border-t-gray-600;
+    }
+    &.bottom::after {
+        @apply left-1/2 -translate-x-1/2 bottom-full
+            border-8 border-x-transparent border-t-transparent border-b-gray-600;
+    }
+    &.left::after {
+        @apply top-1/2 -translate-y-1/2 left-full
+            border-8 border-y-transparent border-r-transparent border-l-gray-600;
+    }
+    &.right::after {
+        @apply top-1/2 -translate-y-1/2 right-full
+            border-8 border-y-transparent border-l-transparent border-r-gray-600;
+    }
+}

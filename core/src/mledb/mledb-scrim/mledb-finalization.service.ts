@@ -4,8 +4,10 @@ import type {
     BallchasingPlayer,
     BallchasingResponse,
     BallchasingTeam,
+    MatchReplaySubmission,
     ReplaySubmission,
     Scrim,
+    ScrimReplaySubmission,
 } from "@sprocketbot/common";
 import type {EntityManager} from "typeorm";
 import {Repository} from "typeorm";
@@ -16,7 +18,6 @@ import type {GameMode} from "../../game/database/game-mode.entity";
 import {GameModeRepository} from "../../game/database/game-mode.repository";
 import {UserAuthenticationAccountRepository} from "../../identity/database/user-authentication-account.repository";
 import {Match} from "../../scheduling/database/match.entity";
-import type {MatchReplaySubmission, ScrimReplaySubmission} from "../../scheduling/replay-parse";
 import {SprocketRatingService} from "../../scheduling/sprocket-rating/sprocket-rating.service";
 import type {League, MLE_Platform} from "../database";
 import {
@@ -255,11 +256,16 @@ export class MledbFinalizationService {
                     replay.playerStats.push(populated);
                     playerStats.push(populated);
 
-                    usage.league = player.league;
-                    usage.role = player.role!;
-                    usage.series = series;
-                    usage.teamName = player.teamName;
-                    roleUsages.push(usage);
+                    if (
+                        series.fixture &&
+                        !roleUsages.some(r => r.teamName === player.teamName && r.role === player.role!)
+                    ) {
+                        usage.league = player.league;
+                        usage.role = player.role!;
+                        usage.series = series;
+                        usage.teamName = player.teamName;
+                        roleUsages.push(usage);
+                    }
                 };
 
                 const buildTeamStats = (p: BallchasingTeam, color: "BLUE" | "ORANGE"): MLE_TeamCoreStats => {

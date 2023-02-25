@@ -8,6 +8,7 @@ export type EventFunction<Event extends EventTopic> = (data: EventPayload<Event>
 export const EventMetaSchema = z.object({
     functionName: z.string(),
     event: z.nativeEnum(EventTopic),
+    instanceExclusive: z.boolean(),
 });
 
 export type EventMeta = z.infer<typeof EventMetaSchema>;

@@ -51,6 +51,12 @@ export const config = {
             get callbackURL(): string {
                 return _config.get<string>("auth.epic.callbackUrl");
             },
+            get rlClientId(): string {
+                return readFileSync("./secret/epic-rl-client.txt").toString();
+            },
+            get rlSecret(): string {
+                return readFileSync("./secret/epic-rl-secret.txt").toString();
+            },
         },
         steam: {
             get key(): string {
@@ -241,5 +247,8 @@ export const config = {
     },
     get defaultOrganizationId(): number {
         return _config.get<number>("defaultOrganizationId");
+    },
+    get defaultAuthToken(): string | undefined {
+        if (_config.has("defaultAuthToken")) return _config.get<string>("defaultAuthToken");
     },
 };

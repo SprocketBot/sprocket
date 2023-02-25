@@ -2,7 +2,7 @@ import {z} from "zod";
 
 import {MemberRestrictionSchema} from "../service-connectors/core";
 import {ScrimMetricsSchema, ScrimSchema} from "../service-connectors/matchmaking";
-import {MatchDatabaseIdsSchema, PlayerTeamChangedSchema, ScrimDatabaseIdsSchema} from "./types";
+import {MatchDatabaseIdsSchema, PlayerTeamChangedSchema, ScrimDatabaseIdsSchema, ScrimsDisabledSchema} from "./types";
 import {PlayerSkillGroupChanged as PlayerSkillGroupChangedSchema} from "./types/skill-group-changed.schema";
 import {SubmissionEventSchema} from "./types/submission.schemas";
 
@@ -66,14 +66,16 @@ export const EventSchemas = {
     [EventTopic.ScrimUpdated]: ScrimSchema,
     [EventTopic.ScrimDestroyed]: ScrimSchema,
     [EventTopic.ScrimStarted]: ScrimSchema,
-    [EventTopic.ScrimCancelled]: ScrimSchema,
+    [EventTopic.ScrimCancelled]: ScrimSchema.extend({
+        cancelReason: z.string().optional(),
+    }),
     [EventTopic.ScrimSaved]: ScrimSchema.extend({
         databaseIds: ScrimDatabaseIdsSchema,
     }),
     [EventTopic.AllScrimEvents]: z.union([z.number(), z.string().uuid(), ScrimSchema, ScrimMetricsSchema]),
     [EventTopic.ScrimMetricsUpdate]: ScrimMetricsSchema,
 
-    [EventTopic.ScrimsDisabled]: z.boolean(),
+    [EventTopic.ScrimsDisabled]: ScrimsDisabledSchema,
 
     // Match Events
     [EventTopic.MatchSaved]: MatchDatabaseIdsSchema,

@@ -1,6 +1,6 @@
 {
-    "name": "Sprocket",
-    "short_name": "Sprocket",
+    "name": "",
+    "short_name": "",
     "icons": [
         {
             "src": "/android-chrome-192x192.png",
@@ -13,7 +13,8 @@
             "type": "image/png"
         }
     ],
-    "theme_color": "#0d0e0e",
-    "background_color": "#0d0e0e",
+    "theme_color": "#0d0d0d",
+    "background_color": "#0d0d0d",
+    "start_url": "https://app.sprocket.gg",
     "display": "standalone"
 }
