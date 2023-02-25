@@ -39,3 +39,17 @@ export function createTeamStats(b: BallchasingTeam): unknown {
 export function createPlayerStats(b: BallchasingPlayer): unknown {
     return b;
 }
+
+export function xboxIdToBC(xboxId: string): string {
+    const idHex = ("0000" + parseInt(xboxId).toString(16)).slice(-16);
+    return idHex
+        .split(/(?=(?:..)*$)/)
+        .reverse()
+        .join("");
+}
+
+export function bcToXboxId(bcId: string): string {
+    const hexGroups = bcId.split(/(?=(?:..)*$)/);
+    const join = hexGroups.reverse().join("");
+    return parseInt(join, 16).toString(10);
+}
