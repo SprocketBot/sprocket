@@ -51,7 +51,12 @@ export class EpicService {
         return this.getBearerToken(config.auth.epic.clientId, config.auth.epic.secret);
     }
 
-    private async getProfiles(data: {displayName: string} | {accountId: string} | {identityProviderId: "xbl" | "steam" | "psn", externalAccountId: string}): Promise<EpicProfile[]> {
+    async getProfile(
+        data:
+            | {displayName: string}
+            | {accountId: string}
+            | {identityProviderId: "xbl" | "steam" | "psn"; externalAccountId: string},
+    ): Promise<EpicProfile | null> {
         const params = new URLSearchParams(data);
         const profileRequest = await axios.get(`${this.accountsEndpoint}?${params.toString()}`, {
             headers: {
@@ -62,27 +67,7 @@ export class EpicService {
         const epicProfile = EpicProfileSchema.array().safeParse(profileRequest.data);
         if (!epicProfile.success) throw new Error("Failed to parse profile");
 
-        return epicProfile.data;
-    }
-
-    async getProfileByDisplayName(displayName: string): Promise<EpicProfile | null> {
-        const profiles = await this.getProfiles({displayName});
-
-        if (profiles.length !== 1) return null;
-        return profiles[0];
-    }
-
-    async getProfileByAccountId(accountId: string): Promise<EpicProfile | null> {
-        const profiles = await this.getProfiles({accountId});
-
-        if (profiles.length !== 1) return null;
-        return profiles[0];
-    }
-
-    async getProfileByExternalAccount(identityProviderId: "xbl" | "steam" | "psn", externalAccountId: string): Promise<EpicProfile | null> {
-        const profiles = await this.getProfiles({identityProviderId, externalAccountId});
-
-        if (profiles.length !== 1) return null;
-        return profiles[0];
+        if (epicProfile.data.length !== 1) return null;
+        return epicProfile.data[0];
     }
 }
