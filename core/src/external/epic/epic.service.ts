@@ -85,8 +85,4 @@ export class EpicService {
         if (profiles.length !== 1) return null;
         return profiles[0];
     }
-
-    async onApplicationBootstrap(): Promise<void> {
-        console.log(await this.getProfileByExternalAccount("xbl", "2535444375378541"));
-    }
 }
