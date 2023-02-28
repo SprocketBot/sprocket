@@ -17,7 +17,7 @@ export const EpicProfileSchema = z.object({
 
 export type EpicProfile = z.infer<typeof EpicProfileSchema>;
 
-export const EpicTokenResponseSchema = z.object({
+export const EpicAccessTokenSchema = z.object({
     token_type: z.literal("bearer"),
     access_token: z.string(),
     expires_in: z.number(),
