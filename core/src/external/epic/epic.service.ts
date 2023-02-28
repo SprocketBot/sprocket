@@ -33,14 +33,14 @@ export class EpicService {
             },
         );
 
-        const acessToken = EpicAccessTokenSchema.safeParse(accessTokenRequest.data);
-        if (!acessToken.success) throw new Error("Failed to fetch bearer token");
+        const accessToken = EpicAccessTokenSchema.safeParse(accessTokenRequest.data);
+        if (!accessToken.success) throw new Error("Failed to fetch bearer token");
 
         this.accessTokens[clientId] = {
-            expiration: acessToken.data.expires_at,
-            token: acessToken.data.access_token,
+            expiration: accessToken.data.expires_at,
+            token: accessToken.data.access_token,
         };
-        return acessToken.data.access_token;
+        return accessToken.data.access_token;
     }
 
     private async getRLToken(): Promise<string> {
