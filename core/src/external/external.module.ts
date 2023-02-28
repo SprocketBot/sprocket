@@ -1,8 +1,9 @@
 import {Module} from "@nestjs/common";
 
-import {EpicModule} from "./epic/epic.module";
+import {EpicService} from "./epic/epic.service";
 
 @Module({
-    imports: [EpicModule],
+    providers: [EpicService],
+    exports: [EpicService],
 })
 export class ExternalModule {}
