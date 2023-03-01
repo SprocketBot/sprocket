@@ -620,7 +620,7 @@ export class PlayerService {
                             payload: {
                                 embeds: [ {
                                     title: "Rankdown Available",
-                                    description: `You have been offered a rankout from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.\n\n‼️‼️**__Only click the button below if you accept the rankdown. There is no confirmation.__**‼️‼️`,
+                                    description: `You have been offered a rankout from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.\n\nThis offer will expire in 24 hours.\n‼️‼️**__Only click the button below if you accept the rankdown. There is no confirmation.__**‼️‼️`,
                                     author: {
                                         name: `${orgProfile.name}`,
                                     },
