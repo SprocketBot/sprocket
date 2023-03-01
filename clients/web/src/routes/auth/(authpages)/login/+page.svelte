@@ -13,13 +13,14 @@
             // Handle Error
             errorMessage = message;
         } else if (status === "success") {
-            localStorage.setItem("sprocket-token", token);
+            const [access, refresh] = token.split(",")
+            localStorage.setItem("sprocket-access-token", access);
+            localStorage.setItem("sprocket-refresh-token", refresh);
             const location = new URL(window.location.href);
             if (location.searchParams.has("next")) {
-                console.log(`next=${location.searchParams.get("next")}`);
                 goto(location.searchParams.get("next")!);
             } else {
-                goto("/app");
+                goto("/auth/organization");
             }
         }
     };
