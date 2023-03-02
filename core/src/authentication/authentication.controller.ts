@@ -39,9 +39,11 @@ export class AuthenticationController {
         const googleProfile = GoogleProfileSchema.safeParse(req.user);
         if (!googleProfile.success) {
             const uuid = v4();
-            this.logger.error(`Failed to parse provider profile (${uuid})`);
+            this.logger.error(`${uuid} ${googleProfile.error}`);
             res.redirect(
-                `${config.auth.frontend_callback}?status=error&message=${"An unknown exception has occurred."}`,
+                `${
+                    config.auth.frontend_callback
+                }?status=error&message=${`An unknown exception has occurred. (${uuid})`}`,
             );
             return;
         }
@@ -52,11 +54,11 @@ export class AuthenticationController {
                 const data = JwtAuthPayloadSchema.safeParse(payload);
                 if (!data.success) {
                     const uuid = v4();
-                    this.logger.error(`Failed to jwt payload (${uuid})`);
+                    this.logger.error(`${uuid} ${data.error}`);
                     res.redirect(
                         `${
                             config.auth.frontend_callback
-                        }?status=error&message=${"Could not resolve authenticated account."}`,
+                        }?status=error&message=${`Could not resolve authenticated account. (${uuid})`}`,
                     );
                     return;
                 }
@@ -74,10 +76,13 @@ export class AuthenticationController {
                         userId: user.id,
                     });
             } catch (e) {
+                const uuid = v4();
+                this.logger.error(`${uuid} ${e}`);
                 res.redirect(
-                    `${config.auth.frontend_callback}?status=error&message=${"An unknown exception has occurred."}`,
+                    `${
+                        config.auth.frontend_callback
+                    }?status=error&message=${`An unknown exception has occurred. (${uuid})`}`,
                 );
-                this.logger.error(e);
                 return;
             }
         } else {
@@ -94,10 +99,13 @@ export class AuthenticationController {
                 );
                 return;
             } catch (e) {
+                const uuid = v4();
+                this.logger.error(`${uuid} ${e}`);
                 res.redirect(
-                    `${config.auth.frontend_callback}?status=error&message=${"An unknown exception has occurred."}`,
+                    `${
+                        config.auth.frontend_callback
+                    }?status=error&message=${`An unknown exception has occurred. (${uuid})`}`,
                 );
-                this.logger.error(e);
                 return;
             }
         }
@@ -112,9 +120,11 @@ export class AuthenticationController {
         const epicProfile = EpicProfileSchema.safeParse(req.user);
         if (!epicProfile.success) {
             const uuid = v4();
-            this.logger.error(`Failed to parse provider profile (${uuid})`);
+            this.logger.error(`${uuid} ${epicProfile.error}`);
             res.redirect(
-                `${config.auth.frontend_callback}?status=error&message=${"An unknown exception has occurred."}`,
+                `${
+                    config.auth.frontend_callback
+                }?status=error&message=${`An unknown exception has occurred. (${uuid})`}`,
             );
             return;
         }
@@ -125,11 +135,11 @@ export class AuthenticationController {
                 const data = JwtAuthPayloadSchema.safeParse(payload);
                 if (!data.success) {
                     const uuid = v4();
-                    this.logger.error(`Failed to jwt payload (${uuid})`);
+                    this.logger.error(`${uuid} ${data.error}`);
                     res.redirect(
                         `${
                             config.auth.frontend_callback
-                        }?status=error&message=${"Could not resolve authenticated account."}`,
+                        }?status=error&message=${`Could not resolve authenticated account. (${uuid})`}`,
                     );
                     return;
                 }
@@ -147,10 +157,13 @@ export class AuthenticationController {
                         userId: user.id,
                     });
             } catch (e) {
+                const uuid = v4();
+                this.logger.error(`${uuid} ${e}`);
                 res.redirect(
-                    `${config.auth.frontend_callback}?status=error&message=${"An unknown exception has occurred."}`,
+                    `${
+                        config.auth.frontend_callback
+                    }?status=error&message=${`An unknown exception has occurred. (${uuid})`}`,
                 );
-                this.logger.error(e);
                 return;
             }
         } else {
@@ -167,10 +180,13 @@ export class AuthenticationController {
                 );
                 return;
             } catch (e) {
+                const uuid = v4();
+                this.logger.error(`${uuid} ${e}`);
                 res.redirect(
-                    `${config.auth.frontend_callback}?status=error&message=${"An unknown exception has occurred."}`,
+                    `${
+                        config.auth.frontend_callback
+                    }?status=error&message=${`An unknown exception has occurred. (${uuid})`}`,
                 );
-                this.logger.error(e);
                 return;
             }
         }
@@ -185,9 +201,11 @@ export class AuthenticationController {
         const discordProfile = DiscordProfileSchema.safeParse(req.user);
         if (!discordProfile.success) {
             const uuid = v4();
-            this.logger.error(`Failed to parse provider profile (${uuid})`);
+            this.logger.error(`${uuid} ${discordProfile.error}`);
             res.redirect(
-                `${config.auth.frontend_callback}?status=error&message=${"An unknown exception has occurred."}`,
+                `${
+                    config.auth.frontend_callback
+                }?status=error&message=${`An unknown exception has occurred. (${uuid})`}`,
             );
             return;
         }
@@ -198,11 +216,11 @@ export class AuthenticationController {
                 const data = JwtAuthPayloadSchema.safeParse(payload);
                 if (!data.success) {
                     const uuid = v4();
-                    this.logger.error(`Failed to jwt payload (${uuid})`);
+                    this.logger.error(`${uuid} ${data.error}`);
                     res.redirect(
                         `${
                             config.auth.frontend_callback
-                        }?status=error&message=${"Could not resolve authenticated account."}`,
+                        }?status=error&message=${`Could not resolve authenticated account. (${uuid})`}`,
                     );
                     return;
                 }
@@ -220,10 +238,13 @@ export class AuthenticationController {
                         userId: user.id,
                     });
             } catch (e) {
+                const uuid = v4();
+                this.logger.error(`${uuid} ${e}`);
                 res.redirect(
-                    `${config.auth.frontend_callback}?status=error&message=${"An unknown exception has occurred."}`,
+                    `${
+                        config.auth.frontend_callback
+                    }?status=error&message=${`An unknown exception has occurred. (${uuid})`}`,
                 );
-                this.logger.error(e);
                 return;
             }
         } else {
@@ -240,9 +261,12 @@ export class AuthenticationController {
                 );
                 return;
             } catch (e) {
-                this.logger.error(e);
+                const uuid = v4();
+                this.logger.error(`${uuid} ${e}`);
                 res.redirect(
-                    `${config.auth.frontend_callback}?status=error&message=${"An unknown exception has occurred."}`,
+                    `${
+                        config.auth.frontend_callback
+                    }?status=error&message=${`An unknown exception has occurred. (${uuid})`}`,
                 );
                 return;
             }
@@ -259,9 +283,11 @@ export class AuthenticationController {
         const steamProfile = SteamProfileSchema.safeParse(req.user);
         if (!steamProfile.success) {
             const uuid = v4();
-            this.logger.error(`Failed to parse provider profile (${uuid})`);
+            this.logger.error(`${uuid} ${steamProfile.error}`);
             res.redirect(
-                `${config.auth.frontend_callback}?status=error&message=${"An unknown exception has occurred."}`,
+                `${
+                    config.auth.frontend_callback
+                }?status=error&message=${`An unknown exception has occurred. (${uuid})`}`,
             );
             return;
         }
@@ -277,10 +303,13 @@ export class AuthenticationController {
             res.redirect(`${config.auth.frontend_callback}?token=${tokens.access},${tokens.refresh}&status=success`);
             return;
         } catch (e) {
+            const uuid = v4();
+            this.logger.error(`${uuid} ${e}`);
             res.redirect(
-                `${config.auth.frontend_callback}?status=error&message=${"An unknown exception has occurred."}`,
+                `${
+                    config.auth.frontend_callback
+                }?status=error&message=${`An unknown exception has occurred. (${uuid})`}`,
             );
-            this.logger.error(e);
             return;
         }
     }
@@ -291,9 +320,11 @@ export class AuthenticationController {
         const microsoftProfile = MicrosoftProfileSchema.safeParse(req.user);
         if (!microsoftProfile.success) {
             const uuid = v4();
-            this.logger.error(`Failed to parse provider profile (${uuid})`);
+            this.logger.error(`${uuid} ${microsoftProfile.error}`);
             res.redirect(
-                `${config.auth.frontend_callback}?status=error&message=${"An unknown exception has occurred."}`,
+                `${
+                    config.auth.frontend_callback
+                }?status=error&message=${`An unknown exception has occurred. (${uuid})`}`,
             );
             return;
         }
@@ -304,11 +335,11 @@ export class AuthenticationController {
                 const data = JwtAuthPayloadSchema.safeParse(payload);
                 if (!data.success) {
                     const uuid = v4();
-                    this.logger.error(`Failed to jwt payload (${uuid})`);
+                    this.logger.error(`${uuid} ${data.error}`);
                     res.redirect(
                         `${
                             config.auth.frontend_callback
-                        }?status=error&message=${"Could not resolve authenticated account."}`,
+                        }?status=error&message=${`Could not resolve authenticated account. (${uuid})`}`,
                     );
                     return;
                 }
@@ -326,10 +357,13 @@ export class AuthenticationController {
                         userId: user.id,
                     });
             } catch (e) {
+                const uuid = v4();
+                this.logger.error(`${uuid} ${e}`);
                 res.redirect(
-                    `${config.auth.frontend_callback}?status=error&message=${"An unknown exception has occurred."}`,
+                    `${
+                        config.auth.frontend_callback
+                    }?status=error&message=${`An unknown exception has occurred. (${uuid})`}`,
                 );
-                this.logger.error(e);
                 return;
             }
         } else {
@@ -346,10 +380,13 @@ export class AuthenticationController {
                 );
                 return;
             } catch (e) {
+                const uuid = v4();
+                this.logger.error(`${uuid} ${e}`);
                 res.redirect(
-                    `${config.auth.frontend_callback}?status=error&message=${"An unknown exception has occurred."}`,
+                    `${
+                        config.auth.frontend_callback
+                    }?status=error&message=${`An unknown exception has occurred. (${uuid})`}`,
                 );
-                this.logger.error(e);
                 return;
             }
         }
@@ -364,9 +401,11 @@ export class AuthenticationController {
         const xboxProfile = XboxProfileSchema.safeParse(req.user);
         if (!xboxProfile.success) {
             const uuid = v4();
-            this.logger.error(`Failed to parse provider profile (${uuid})`);
+            this.logger.error(`${uuid} ${xboxProfile.error}`);
             res.redirect(
-                `${config.auth.frontend_callback}?status=error&message=${"An unknown exception has occurred."}`,
+                `${
+                    config.auth.frontend_callback
+                }?status=error&message=${`An unknown exception has occurred. (${uuid})`}`,
             );
             return;
         }
@@ -377,11 +416,11 @@ export class AuthenticationController {
                 const data = JwtAuthPayloadSchema.safeParse(payload);
                 if (!data.success) {
                     const uuid = v4();
-                    this.logger.error(`Failed to jwt payload (${uuid})`);
+                    this.logger.error(`${uuid} ${data.error}`);
                     res.redirect(
                         `${
                             config.auth.frontend_callback
-                        }?status=error&message=${"Could not resolve authenticated account."}`,
+                        }?status=error&message=${`Could not resolve authenticated account. (${uuid})`}`,
                     );
                     return;
                 }
@@ -399,10 +438,13 @@ export class AuthenticationController {
                         userId: user.id,
                     });
             } catch (e) {
+                const uuid = v4();
+                this.logger.error(`${uuid} ${e}`);
                 res.redirect(
-                    `${config.auth.frontend_callback}?status=error&message=${"An unknown exception has occurred."}`,
+                    `${
+                        config.auth.frontend_callback
+                    }?status=error&message=${`An unknown exception has occurred. (${uuid})`}`,
                 );
-                this.logger.error(e);
                 return;
             }
         } else {
@@ -419,10 +461,13 @@ export class AuthenticationController {
                 );
                 return;
             } catch (e) {
+                const uuid = v4();
+                this.logger.error(`${uuid} ${e}`);
                 res.redirect(
-                    `${config.auth.frontend_callback}?status=error&message=${"An unknown exception has occurred."}`,
+                    `${
+                        config.auth.frontend_callback
+                    }?status=error&message=${`An unknown exception has occurred. (${uuid})`}`,
                 );
-                this.logger.error(e);
                 return;
             }
         }
