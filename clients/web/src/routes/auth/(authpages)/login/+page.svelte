@@ -5,6 +5,7 @@
     import {Icon} from "@steeze-ui/svelte-icon";
     import {oauthPopup} from "$lib/actions/useOauthPopup.action";
     import {goto} from "$app/navigation";
+    import {setCookie} from "typescript-cookie";
 
     let errorMessage = "";
     const handleOauthResult = (e: MessageEvent) => {
@@ -13,14 +14,17 @@
             // Handle Error
             errorMessage = message;
         } else if (status === "success") {
-            const [access, refresh] = token.split(",")
-            localStorage.setItem("sprocket-access-token", access);
-            localStorage.setItem("sprocket-refresh-token", refresh);
+            const [access, refresh] = token.split(",");
+
+            // TODO: Timeout?
+            setCookie("sprocket-access-token", access, {path: "/"});
+            setCookie("sprocket-refresh-token", refresh, {path: "/"});
+
             const location = new URL(window.location.href);
             if (location.searchParams.has("next")) {
-                goto(location.searchParams.get("next")!);
+                goto(location.searchParams.get("next")!, { replaceState: false });
             } else {
-                goto("/auth/organization");
+                goto("/auth/organization", { replaceState: false });
             }
         }
     };
