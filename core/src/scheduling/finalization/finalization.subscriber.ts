@@ -1,61 +1,56 @@
-import {Injectable, Logger} from "@nestjs/common";
-import type {ReplaySubmission, Scrim} from "@sprocketbot/common";
+import {Injectable} from "@nestjs/common";
+import type {MatchReplaySubmission, Scrim, ScrimReplaySubmission} from "@sprocketbot/common";
 import {
+    EventPayload,
     EventsService,
     EventTopic,
     NanoidService,
-    RedisService,
+    REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
     ReplaySubmissionType,
     ResponseStatus,
+    SprocketEvent,
+    SprocketEventMarshal,
     SubmissionEndpoint,
-    SubmissionService,
+    SubmissionService as CommonSubmissionService,
 } from "@sprocketbot/common";
 
-import {EloConnectorService, EloEndpoint} from "../../../elo/elo-connector";
-import {MatchService} from "../../match/match.service";
-import {ScrimService} from "../../scrim/scrim.service";
-import {ReplayParseService} from "../replay-parse.service";
-import type {MatchReplaySubmission, ScrimReplaySubmission} from "../types";
-import {RocketLeagueFinalizationService} from "./rocket-league/rocket-league-finalization.service";
+import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
+import {MatchService} from "../match/match.service";
+import {ScrimService} from "../scrim/scrim.service";
+import {SubmissionService} from "../submission/submission.service";
+import {RocketLeagueFinalizationService} from "./rocket-league-finalization/rocket-league-finalization.service";
+
+export const ScrimsTopic = "scrims";
 
 @Injectable()
-export class FinalizationSubscriber {
-    private readonly logger = new Logger(FinalizationSubscriber.name);
-
+export class FinalizationSubscriber extends SprocketEventMarshal {
     constructor(
-        private readonly eventsService: EventsService,
+        readonly eventsService: EventsService,
         private readonly rocketLeagueFinalizationService: RocketLeagueFinalizationService,
+        private readonly commonSubmissionService: CommonSubmissionService,
         private readonly submissionService: SubmissionService,
-        private readonly redisService: RedisService,
         private readonly scrimService: ScrimService,
         private readonly matchService: MatchService,
         private readonly eloConnectorService: EloConnectorService,
-        private readonly replayParseService: ReplayParseService,
         private readonly nanoidService: NanoidService,
-    ) {}
-
-    onApplicationBootstrap(): void {
-        // We want to subscribe to ratified submissions, instead of matches or scrims.
-        this.eventsService
-            .subscribe(EventTopic.SubmissionRatified, false)
-            .then(rx => {
-                // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                rx.subscribe(async ({payload}) => {
-                    const submission = await this.redisService.getJson<ReplaySubmission>(payload.redisKey);
-
-                    if (submission.type === ReplaySubmissionType.MATCH) {
-                        await this.onMatchSubmissionComplete(submission as MatchReplaySubmission, payload.submissionId);
-                    } else {
-                        const scrim = await this.scrimService.getScrimBySubmissionId(payload.submissionId);
-                        if (!scrim) throw new Error("Scrim not found");
-                        await this.onScrimComplete(submission as ScrimReplaySubmission, payload.submissionId, scrim);
-                    }
-                });
-            })
-            .catch(this.logger.error.bind(this.logger));
+    ) {
+        super(eventsService);
     }
 
-    onScrimComplete = async (submission: ScrimReplaySubmission, submissionId: string, scrim: Scrim): Promise<void> => {
+    @SprocketEvent(EventTopic.SubmissionRatified)
+    async submissionRatified(payload: EventPayload<EventTopic.SubmissionRatified>): Promise<void> {
+        const submission = await this.submissionService.getSubmissionById(payload.submissionId);
+
+        if (submission.type === ReplaySubmissionType.MATCH) {
+            await this.onMatchRatified(submission, payload.submissionId);
+        } else {
+            const scrim = await this.scrimService.getScrimBySubmissionId(payload.submissionId);
+            if (!scrim) throw new Error("Scrim not found");
+            await this.onScrimRatified(submission, scrim);
+        }
+    }
+
+    async onScrimRatified(submission: ScrimReplaySubmission, scrim: Scrim): Promise<void> {
         try {
             if (!submission.validated) {
                 this.logger.warn("Attempted to finalize scrim that did not have validated submission");
@@ -66,8 +61,9 @@ export class FinalizationSubscriber {
                 .finalizeScrim(submission, scrim)
                 .catch(async e => {
                     const issueId = this.nanoidService.gen();
-                    await this.replayParseService.rejectSubmissionBySystem(
+                    await this.submissionService.rejectSubmission(
                         submission.id,
+                        REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
                         `Failed to save scrim. Please contact support with this issue id: ${issueId}`,
                     );
                     this.logger.error(`Issue saving scrim: ${issueId}`, e);
@@ -75,7 +71,7 @@ export class FinalizationSubscriber {
                 });
 
             // const result = await this.finalizationService.saveScrimToDatabase(submission, submissionId, scrim);
-            await this.submissionService.send(SubmissionEndpoint.RemoveSubmission, {submissionId});
+            await this.commonSubmissionService.send(SubmissionEndpoint.RemoveSubmission, {submissionId: submission.id});
             await this.eventsService.publish(EventTopic.ScrimSaved, {
                 ...scrim,
                 databaseIds: {
@@ -91,10 +87,12 @@ export class FinalizationSubscriber {
             const e = _e as Error;
             this.logger.warn(e.message, e.stack);
         }
-    };
+    }
 
-    onMatchSubmissionComplete = async (submission: MatchReplaySubmission, submissionId: string): Promise<void> => {
-        const keyResponse = await this.submissionService.send(SubmissionEndpoint.GetSubmissionRedisKey, {submissionId});
+    async onMatchRatified(submission: MatchReplaySubmission, submissionId: string): Promise<void> {
+        const keyResponse = await this.commonSubmissionService.send(SubmissionEndpoint.GetSubmissionRedisKey, {
+            submissionId,
+        });
         if (keyResponse.status === ResponseStatus.ERROR) {
             this.logger.warn(keyResponse.error.message);
             return;
@@ -104,14 +102,15 @@ export class FinalizationSubscriber {
                 .finalizeMatch(submission)
                 .catch(async e => {
                     const issueId = this.nanoidService.gen();
-                    await this.replayParseService.rejectSubmissionBySystem(
+                    await this.submissionService.rejectSubmission(
                         submission.id,
+                        REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
                         `Failed to save match. Please contact support with this issue id: ${issueId}`,
                     );
                     this.logger.error(`Issue saving scrim: ${issueId}`, e);
                     throw e;
                 });
-            await this.submissionService.send(SubmissionEndpoint.RemoveSubmission, {submissionId});
+            await this.commonSubmissionService.send(SubmissionEndpoint.RemoveSubmission, {submissionId});
             await this.eventsService.publish(EventTopic.MatchSaved, {
                 id: match.id,
                 legacyId: legacyMatch.id,
@@ -123,5 +122,5 @@ export class FinalizationSubscriber {
             const e = _e as Error;
             this.logger.warn(e.message, e.stack);
         }
-    };
+    }
 }

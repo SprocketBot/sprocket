@@ -1,6 +1,7 @@
 import {BullModule} from "@nestjs/bull";
 import {forwardRef, Module} from "@nestjs/common";
 import {
+    BotModule,
     EventsModule,
     MatchmakingModule,
     MinioModule,
@@ -22,12 +23,10 @@ import {OrganizationDatabaseModule} from "../organization/database/organization-
 import {PubSubKey} from "../types/pubsub.constants";
 import {UtilModule} from "../util";
 import {SchedulingDatabaseModule} from "./database/scheduling-database.module";
+import {FinalizationSubscriber} from "./finalization/finalization.subscriber";
+import {RocketLeagueFinalizationService} from "./finalization/rocket-league-finalization/rocket-league-finalization.service";
 import {MatchController} from "./match/match.controller";
 import {MatchService} from "./match/match.service";
-import {ReplayParseService, ReplaySubmissionResolver, SubmissionRejectionResolver} from "./replay-parse";
-import {BallchasingConverterService, FinalizationSubscriber} from "./replay-parse/finalization";
-import {RocketLeagueFinalizationService} from "./replay-parse/finalization/rocket-league/rocket-league-finalization.service";
-import {ReplayParseModResolver} from "./replay-parse/replay-parse.mod.resolver";
 import {ScrimConsumer} from "./scrim/scrim.consumer";
 import {ScrimController} from "./scrim/scrim.controller";
 import {ScrimPubSub} from "./scrim/scrim.pubsub";
@@ -40,7 +39,12 @@ import {ScrimToggleResolver} from "./scrim/scrim-toggle/scrim-toggle.resolver";
 import {ScrimToggleService} from "./scrim/scrim-toggle/scrim-toggle.service";
 import {ScrimToggleSubscriber} from "./scrim/scrim-toggle/scrim-toggle.subscriber";
 import {SprocketRatingService} from "./sprocket-rating/sprocket-rating.service";
+import {SubmissionPubSub} from "./submission/submission.pubsub";
+import {SubmissionResolver} from "./submission/submission.resolver";
 import {SubmissionService} from "./submission/submission.service";
+import {SubmissionSubscriber} from "./submission/submission.subscriber";
+import {SubmissionAdminResolver} from "./submission/submission-admin.resolver";
+import {SubmissionPlayerResolver} from "./submission/submission-player.resolver";
 
 @Module({
     imports: [
@@ -62,6 +66,7 @@ import {SubmissionService} from "./submission/submission.service";
         MatchmakingModule,
         IdentityDatabaseModule,
         AuthorizationModule,
+        BotModule,
     ],
     controllers: [MatchController, ScrimController],
     providers: [
@@ -74,7 +79,7 @@ import {SubmissionService} from "./submission/submission.service";
             useValue: new PubSub(),
         },
         {
-            provide: PubSubKey.ReplayParsing,
+            provide: PubSubKey.Submissions,
             useValue: new PubSub(),
         },
         MatchService,
@@ -89,11 +94,11 @@ import {SubmissionService} from "./submission/submission.service";
         ScrimAdminResolver,
         ScrimPlayerResolver,
         SubmissionService,
-        ReplayParseModResolver,
-        ReplayParseService,
-        ReplaySubmissionResolver,
-        SubmissionRejectionResolver,
-        BallchasingConverterService,
+        SubmissionPubSub,
+        SubmissionSubscriber,
+        SubmissionResolver,
+        SubmissionAdminResolver,
+        SubmissionPlayerResolver,
         FinalizationSubscriber,
         RocketLeagueFinalizationService,
         SprocketRatingService,

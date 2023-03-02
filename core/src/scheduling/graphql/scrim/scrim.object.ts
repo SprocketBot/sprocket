@@ -2,10 +2,10 @@ import {Field, Int, ObjectType, registerEnumType} from "@nestjs/graphql";
 import type {Scrim} from "@sprocketbot/common";
 import {EventTopic, ScrimStatus} from "@sprocketbot/common";
 
-import {GameSkillGroupObject} from "../../franchise/graphql/game-skill-group.object";
-import {GameModeObject} from "../../game/graphql/game-mode.object";
-import {UserObject} from "../../identity/graphql/user.object";
-import {OrganizationObject} from "../../organization/graphql/organization.object";
+import {GameSkillGroupObject} from "../../../franchise/graphql/game-skill-group.object";
+import {GameModeObject} from "../../../game/graphql/game-mode.object";
+import {UserObject} from "../../../identity/graphql/user.object";
+import {OrganizationObject} from "../../../organization/graphql/organization.object";
 import {ScrimGameObject} from "./scrim-game.object";
 import {ScrimGroupObject} from "./scrim-group.object";
 import {ScrimLobbyObject} from "./scrim-lobby.object";
