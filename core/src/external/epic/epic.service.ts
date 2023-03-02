@@ -5,7 +5,7 @@ import {compareAsc} from "date-fns";
 import {now} from "lodash";
 
 import type {EpicProfile} from "./epic.types";
-import {EpicProfileSchema, EpicTokenResponseSchema} from "./epic.types";
+import {EpicAccessTokenSchema, EpicProfileSchema} from "./epic.types";
 
 @Injectable()
 export class EpicService {
@@ -15,7 +15,7 @@ export class EpicService {
 
     private readonly accessTokens: Record<string, {expiration: Date; token: string} | undefined> = {};
 
-    private async getBearerToken(clientId: string, secret: string): Promise<string> {
+    private async getAccessToken(clientId: string, secret: string): Promise<string> {
         const cachedToken = this.accessTokens[clientId];
         if (cachedToken && compareAsc(cachedToken.expiration, now()) > 0) return cachedToken.token;
 
@@ -33,22 +33,22 @@ export class EpicService {
             },
         );
 
-        const accessData = EpicTokenResponseSchema.safeParse(accessTokenRequest.data);
-        if (!accessData.success) throw new Error("Failed to fetch bearer token");
+        const accessToken = EpicAccessTokenSchema.safeParse(accessTokenRequest.data);
+        if (!accessToken.success) throw new Error("Failed to fetch bearer token");
 
         this.accessTokens[clientId] = {
-            expiration: accessData.data.expires_at,
-            token: accessData.data.access_token,
+            expiration: accessToken.data.expires_at,
+            token: accessToken.data.access_token,
         };
-        return accessData.data.access_token;
+        return accessToken.data.access_token;
     }
 
     private async getRLToken(): Promise<string> {
-        return this.getBearerToken(config.auth.epic.rlClientId, config.auth.epic.rlSecret);
+        return this.getAccessToken(config.auth.epic.rlClientId, config.auth.epic.rlSecret);
     }
 
     async getSprocketToken(): Promise<string> {
-        return this.getBearerToken(config.auth.epic.clientId, config.auth.epic.secret);
+        return this.getAccessToken(config.auth.epic.clientId, config.auth.epic.secret);
     }
 
     async getProfile(
