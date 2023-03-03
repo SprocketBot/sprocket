@@ -1,9 +1,8 @@
-<script lang="ts" context="module">
-    export type ColumnDefs<T extends unknown> = ColumnDef<T, T[keyof T]>[];
-</script>
-
 <script lang="ts">
-    import { createSvelteTable, getCoreRowModel, flexRender, type TableOptions, type ColumnDef } from "@tanstack/svelte-table";
+    import { writable } from "svelte/store";
+    import { Icon } from "@steeze-ui/svelte-icon";
+    import { ArrowUp, ArrowDown } from "@steeze-ui/heroicons";
+    import { createSvelteTable, getCoreRowModel, getSortedRowModel, flexRender, type TableOptions, type ColumnDef, type SortingState, type Updater } from "@tanstack/svelte-table";
     
     type T = $$Generic<unknown>;
 
@@ -15,19 +14,42 @@
     export let data: T[];
     export let columns: ColumnDef<T, any>[];
 
-    const options: TableOptions<T> = {
+    let sorting: SortingState = [];
+
+    const onSortingChange = (updaterOrValue: Updater<SortingState>) => {
+        if (typeof updaterOrValue === 'function') {
+            sorting = updaterOrValue(sorting)
+        } else {
+            sorting = updaterOrValue
+        }
+        options.update(old => ({
+            ...old,
+            state: {
+                ...old.state,
+                sorting,
+            },
+        }));
+    }
+
+    const options = writable<TableOptions<T>>({
         data,
         columns,
+        state: { sorting },
+        onSortingChange,
         getCoreRowModel: getCoreRowModel(),
-    }
+        getSortedRowModel: getSortedRowModel(),
+    });
+
     
     const table = createSvelteTable(options)
 
     $: hasHeader = columns.some(column => Boolean(column.header));
     $: hasBody = data.length > 0;
-    $: hasFooter = columns.some(column => Boolean(column.footer))
+    $: hasFooter = columns.some(column => Boolean(column.footer));
 </script>
 
+
+<!-- TODO refactor into separate components! HeaderCell, BodyCell, Row, etc -->
 
 <table>
     {#if hasHeader}
@@ -35,9 +57,26 @@
             {#each $table.getHeaderGroups() as headerGroup}
                 <tr>
                     {#each headerGroup.headers as header}
-                        <th>
+                        {@const sortable = header.column.getCanSort()}
+                        {@const filterable = header.column.getCanFilter()}
+                        {@const onSort = header.column.getToggleSortingHandler()}
+
+                        <th class:sortable class:filterable on:click={onSort} on:keypress={onSort}>
                             {#if !header.isPlaceholder}
                                 <svelte:component this={flexRender(header.column.columnDef.header, header.getContext())} />
+
+                                {#if sortable}
+                                    {@const direction = header.column.getIsSorted()}
+
+                                    {#if direction === 'asc'}
+                                        <Icon src={ArrowUp} size="8px" />
+                                    {:else if direction === 'desc'}
+                                        <Icon src={ArrowDown} size="8px" />
+                                    {:else}
+                                        <Icon src={ArrowUp} size="8px" />
+                                        <Icon src={ArrowDown} size="8px" />
+                                    {/if}
+                                {/if}
                             {/if}
                         </th>
                     {/each}
@@ -81,6 +120,10 @@
 <style lang="postcss">
     thead th {
         @apply p-4 bg-gray-600 border-b border-gray-600 text-sm font-bold text-white uppercase;
+
+        &.sortable {
+            @apply cursor-pointer select-none;
+        }
     }
 
     tbody td {
