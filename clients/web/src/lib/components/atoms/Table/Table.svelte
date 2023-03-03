@@ -1,7 +1,7 @@
 <script lang="ts">
     import { writable } from "svelte/store";
     import { createSvelteTable, getCoreRowModel, getSortedRowModel, flexRender, type TableOptions, type ColumnDef, type SortingState, type Updater } from "@tanstack/svelte-table";
-    import { SortingIcon } from "./SortingIcon";
+    import { HeaderCell } from "./HeaderCell";
     
     type T = $$Generic<unknown>;
 
@@ -49,63 +49,51 @@
 
 <!-- TODO refactor into separate components! HeaderCell, BodyCell, Row, etc -->
 
-<table>
-    {#if hasHeader}
-        <thead>
-            {#each $table.getHeaderGroups() as headerGroup}
-                <tr>
-                    {#each headerGroup.headers as header}
-                        {@const sortable = header.column.getCanSort()}
-                        {@const filterable = header.column.getCanFilter()}
-                        {@const onSort = header.column.getToggleSortingHandler()}
+<div class="overflow-hidden rounded-lg">
+    <table>
+        {#if hasHeader}
+            <thead>
+                {#each $table.getHeaderGroups() as headerGroup}
+                    <tr>
+                        {#each headerGroup.headers as header}
+                            <HeaderCell header={header} colspan={header.colSpan} />
+                        {/each}
+                    </tr>
+                {/each}
+            </thead>
+        {/if}
 
-                        <th>
-                            {#if !header.isPlaceholder}
-                                <div class:sortable class:filterable on:click={onSort} on:keypress={onSort}>
-                                    <svelte:component this={flexRender(header.column.columnDef.header, header.getContext())} />
-    
-                                    {#if sortable}
-                                        <SortingIcon direction={header.column.getIsSorted()} />
-                                    {/if}
-                                </div>
-                            {/if}
-                        </th>
-                    {/each}
-                </tr>
-            {/each}
-        </thead>
-    {/if}
+        {#if hasBody}
+            <tbody>
+                {#each $table.getRowModel().rows as row}
+                    <tr>
+                        {#each row.getVisibleCells() as cell}
+                            <td>
+                                <svelte:component this={flexRender(cell.column.columnDef.cell, cell.getContext())} />
+                            </td>
+                        {/each}
+                    </tr>
+                {/each}
+            </tbody>
+        {/if}
 
-    {#if hasBody}
-        <tbody>
-            {#each $table.getRowModel().rows as row}
-                <tr>
-                    {#each row.getVisibleCells() as cell}
-                        <td>
-                            <svelte:component this={flexRender(cell.column.columnDef.cell, cell.getContext())} />
-                        </td>
-                    {/each}
-                </tr>
-            {/each}
-        </tbody>
-    {/if}
-
-    {#if hasFooter}
-        <tfoot>
-            {#each $table.getFooterGroups() as footerGroup}
-                <tr>
-                    {#each footerGroup.headers as header}
-                        <th>
-                            {#if !header.isPlaceholder}
-                                <svelte:component this={flexRender(header.column.columnDef.footer, header.getContext())} />
-                            {/if}
-                        </th>
-                    {/each}
-                </tr>
-            {/each}
-        </tfoot>
-    {/if}
-</table>
+        {#if hasFooter}
+            <tfoot>
+                {#each $table.getFooterGroups() as footerGroup}
+                    <tr>
+                        {#each footerGroup.headers as header}
+                            <th>
+                                {#if !header.isPlaceholder}
+                                    <svelte:component this={flexRender(header.column.columnDef.footer, header.getContext())} />
+                                {/if}
+                            </th>
+                        {/each}
+                    </tr>
+                {/each}
+            </tfoot>
+        {/if}
+    </table>
+</div>
 
 
 <style lang="postcss">
