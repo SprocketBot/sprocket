@@ -13,20 +13,24 @@
         desc: "desc",
     }
 
-    let value: keyof typeof directionOptions = "false";
-    $: direction = directionOptions[value];
+    let directionValue: keyof typeof directionOptions = "false";
+    $: direction = directionOptions[directionValue];
+
+    let hovered: boolean = false;
 </script>
 
 
 <Hst.Story title="Atoms/Table/SortingIcon" layout={{type: "single"}}>
     <svelte:fragment slot="controls">
-        <Hst.Select title="direction" options={directionOptions} bind:value />
-        <Props props={{direction}} />
+        <Hst.Select title="direction" options={directionOptions} bind:value={directionValue} />
+        <Hst.Checkbox title="hovered" bind:value={hovered} />
+
+        <Props props={{direction, hovered}} />
     </svelte:fragment>
 
     <Hst.Variant>
         <div class="bg-gray-600 w-12 h-12 flex items-center justify-center">
-            <SortingIcon {direction} />
+            <SortingIcon {direction} {hovered} />
         </div>
     </Hst.Variant>
 </Hst.Story>
