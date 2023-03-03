@@ -9,12 +9,12 @@
     export let Hst: _Hst;
 
     interface Player {
-        id: number;
-        name: string;
-        team: string;
-        league: string;
-        salary: number;
         active: boolean;
+        id: number;
+        league: string;
+        name: string;
+        salary: number;
+        team: string;
     }
 
     const randomPlayer = (): Player => ({
@@ -31,12 +31,24 @@
     const columnHelper = createColumnHelper<Player>();
 
     const columns = [
-        columnHelper.accessor("id", {}),
-        columnHelper.accessor("name", {}),
-        columnHelper.accessor("team", {}),
-        columnHelper.accessor("league", {}),
-        columnHelper.accessor("salary", {}),
-        columnHelper.accessor("active", {}),
+        columnHelper.accessor("id", {
+            header: 'ID',
+        }),
+        columnHelper.accessor("name", {
+            header: "Name",
+        }),
+        columnHelper.accessor("team", {
+            header: "Team",
+        }),
+        columnHelper.accessor("league", {
+            header: "League",
+        }),
+        columnHelper.accessor("salary", {
+            header: "Salary"
+        }),
+        columnHelper.accessor("active", {
+            header: "Active"
+        }),
     ];
 </script>
 
@@ -44,6 +56,8 @@
     <svelte:fragment slot="controls" />
 
     <Hst.Variant title="Basic">
-        <Table {data} {columns} />
+        <div class="m-4">
+            <Table {data} {columns} />
+        </div>
     </Hst.Variant>
 </Hst.Story>
