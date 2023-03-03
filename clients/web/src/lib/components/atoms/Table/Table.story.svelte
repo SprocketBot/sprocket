@@ -33,9 +33,11 @@
     const columns = [
         columnHelper.accessor("id", {
             header: 'ID',
+            enableSorting: false,
         }),
         columnHelper.accessor("name", {
             header: "Name",
+            enableSorting: true,
         }),
         columnHelper.accessor("team", {
             header: "Team",
