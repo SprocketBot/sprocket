@@ -1,8 +1,7 @@
 <script lang="ts">
     import { writable } from "svelte/store";
-    import { Icon } from "@steeze-ui/svelte-icon";
-    import { ArrowUp, ArrowDown } from "@steeze-ui/heroicons";
     import { createSvelteTable, getCoreRowModel, getSortedRowModel, flexRender, type TableOptions, type ColumnDef, type SortingState, type Updater } from "@tanstack/svelte-table";
+    import { SortingIcon } from "./SortingIcon";
     
     type T = $$Generic<unknown>;
 
@@ -40,7 +39,6 @@
         getSortedRowModel: getSortedRowModel(),
     });
 
-    
     const table = createSvelteTable(options)
 
     $: hasHeader = columns.some(column => Boolean(column.header));
@@ -61,22 +59,15 @@
                         {@const filterable = header.column.getCanFilter()}
                         {@const onSort = header.column.getToggleSortingHandler()}
 
-                        <th class:sortable class:filterable on:click={onSort} on:keypress={onSort}>
+                        <th>
                             {#if !header.isPlaceholder}
-                                <svelte:component this={flexRender(header.column.columnDef.header, header.getContext())} />
-
-                                {#if sortable}
-                                    {@const direction = header.column.getIsSorted()}
-
-                                    {#if direction === 'asc'}
-                                        <Icon src={ArrowUp} size="8px" />
-                                    {:else if direction === 'desc'}
-                                        <Icon src={ArrowDown} size="8px" />
-                                    {:else}
-                                        <Icon src={ArrowUp} size="8px" />
-                                        <Icon src={ArrowDown} size="8px" />
+                                <div class:sortable class:filterable on:click={onSort} on:keypress={onSort}>
+                                    <svelte:component this={flexRender(header.column.columnDef.header, header.getContext())} />
+    
+                                    {#if sortable}
+                                        <SortingIcon direction={header.column.getIsSorted()} />
                                     {/if}
-                                {/if}
+                                </div>
                             {/if}
                         </th>
                     {/each}
@@ -118,8 +109,13 @@
 
 
 <style lang="postcss">
-    thead th {
-        @apply p-4 bg-gray-600 border-b border-gray-600 text-sm font-bold text-white uppercase;
+    td, th {
+        /* Dummy h-1 needed here to allow children to fill cells https://stackoverflow.com/questions/3215553/make-a-div-fill-an-entire-table-cell */
+        @apply p-0 h-1;
+    }
+
+    thead th div {
+        @apply w-full h-full flex items-center justify-center gap-2 p-4 bg-gray-600 border-b border-gray-600 text-sm font-bold text-white uppercase;
 
         &.sortable {
             @apply cursor-pointer select-none;

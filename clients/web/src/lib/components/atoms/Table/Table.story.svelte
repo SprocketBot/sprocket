@@ -54,7 +54,7 @@
     ];
 </script>
 
-<Hst.Story title="Atoms/Table" layout={{type: "single"}}>
+<Hst.Story title="Atoms/Table/Table" layout={{type: "single"}}>
     <svelte:fragment slot="controls" />
 
     <Hst.Variant title="Basic">
