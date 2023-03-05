@@ -6,7 +6,8 @@ import {goto} from "$app/navigation";
 import {removeCookie} from "typescript-cookie";
 import jwtDecode from "jwt-decode";
 import { browser } from '$app/environment';
-import { updateAuthCookies } from './routes/auth/(authpages)/helpers';
+import { updateAuthCookies } from '$lib/api/auth-cookies';
+import { getExpiryFromJwt } from './lib/utilities/getExpiryFromJwt';
 
 const getAuthToken = ({ session, metadata, useRefresh }: { session?: App.Session; metadata?: App.Metadata; useRefresh?: boolean; } = {}) =>  {
     if (metadata?.accessTokenOverride) return metadata.accessTokenOverride
@@ -22,7 +23,6 @@ export default new HoudiniClient({
     // uncomment this to configure the network call (for things like authentication)
     // for more information, please visit here: https://www.houdinigraphql.com/guides/authentication
     fetchParams({session, metadata}) {
-
         return {
             headers: {
                 authorization: `Bearer ${getAuthToken({ session: session ?? undefined, metadata: metadata ?? undefined, useRefresh: false })}`,
@@ -54,7 +54,7 @@ export default new HoudiniClient({
                     const {session} = ctx
                     // TODO: Actually check the thing
                     if (!session?.access) return;
-                    const expAt = new Date(Number.parseInt(jwtDecode<{exp: number | string}>(session?.access).exp.toString()) * 1000)
+                    const expAt = getExpiryFromJwt(session?.access)
 
                     // If there is at least one minute on the token; do nothing
                     if (expAt.getTime() > new Date().getTime() + 60 * 1000) {
