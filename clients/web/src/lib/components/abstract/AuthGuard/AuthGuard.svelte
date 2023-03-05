@@ -17,6 +17,7 @@
             status: ToastStatus.Danger,
             content: "Session Expired. Please sign in.",
             ttl: 10000,
+            dismissable: true
         });
 
         switch (behavior) {
