@@ -3,11 +3,10 @@ import {HoudiniClient, RefreshLoginStore} from "$houdini";
 import {createClient} from "graphql-ws";
 import {subscription} from "$houdini/plugins";
 import {goto} from "$app/navigation";
-import {removeCookie} from "typescript-cookie";
-import jwtDecode from "jwt-decode";
 import {browser} from "$app/environment";
 import {updateAuthCookies} from "$lib/api/auth-cookies";
 import {getExpiryFromJwt} from "./lib/utilities/getExpiryFromJwt";
+import { clearAuthCookies } from './lib/api/auth-cookies';
 
 const getAuthToken = ({
     session,
@@ -45,8 +44,7 @@ export default new HoudiniClient({
                 //          (e.g. goto with invalidateAll on current path).
                 //          This would create a choppy-ish UX (e.g. page would "soft reload")
                 //          But it would also prevent a user having to log in when they don't need to.
-                removeCookie("sprocket-access-token", {path: "/"});
-                removeCookie("sprocket-refresh-token", {path: "/"});
+                clearAuthCookies()
 
                 goto(`/auth/login?next=${encodeURI(window.location.pathname)}`);
             } else {
@@ -60,7 +58,10 @@ export default new HoudiniClient({
                 beforeNetwork: async (ctx, {next}) => {
                     const {session} = ctx;
                     // TODO: Actually check the thing
-                    if (!session?.access) return;
+                    if (!session?.access) {
+                        next(ctx)
+                        return;
+                    };
                     const expAt = getExpiryFromJwt(session?.access);
 
                     // If there is at least one minute on the token; do nothing
