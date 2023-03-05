@@ -36,13 +36,10 @@ function openWindow(windowUrl: string, callback: CallableFunction): void {
     _callback = callback;
 }
 
-export type OauthPopupArgs ={windowUrl: string; callback: (x: MessageEvent) => unknown}
+export type OauthPopupArgs = {windowUrl: string; callback: (x: MessageEvent) => unknown};
 
-export function oauthPopup(
-    node: HTMLElement,
-    params?: OauthPopupArgs,
-): void {
-    if (!params) throw new Error("Cannot initialize oauth popup without params!")
+export function oauthPopup(node: HTMLElement, params?: OauthPopupArgs): void {
+    if (!params) throw new Error("Cannot initialize oauth popup without params!");
     node.addEventListener("click", () => {
         openWindow(params.windowUrl, params.callback);
     });

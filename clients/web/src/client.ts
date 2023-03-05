@@ -5,17 +5,20 @@ import {subscription} from "$houdini/plugins";
 import {goto} from "$app/navigation";
 import {removeCookie} from "typescript-cookie";
 import jwtDecode from "jwt-decode";
-import { browser } from '$app/environment';
-import { updateAuthCookies } from '$lib/api/auth-cookies';
-import { getExpiryFromJwt } from './lib/utilities/getExpiryFromJwt';
+import {browser} from "$app/environment";
+import {updateAuthCookies} from "$lib/api/auth-cookies";
+import {getExpiryFromJwt} from "./lib/utilities/getExpiryFromJwt";
 
-const getAuthToken = ({ session, metadata, useRefresh }: { session?: App.Session; metadata?: App.Metadata; useRefresh?: boolean; } = {}) =>  {
-    if (metadata?.accessTokenOverride) return metadata.accessTokenOverride
-    if (useRefresh && session?.refresh) return session.refresh
-    if (session?.access) return session.access
-    return ""
-}
-
+const getAuthToken = ({
+    session,
+    metadata,
+    useRefresh,
+}: {session?: App.Session; metadata?: App.Metadata; useRefresh?: boolean} = {}) => {
+    if (metadata?.accessTokenOverride) return metadata.accessTokenOverride;
+    if (useRefresh && session?.refresh) return session.refresh;
+    if (session?.access) return session.access;
+    return "";
+};
 
 export default new HoudiniClient({
     url: `${env.PUBLIC_GQL_URL}/graphql`,
@@ -25,7 +28,11 @@ export default new HoudiniClient({
     fetchParams({session, metadata}) {
         return {
             headers: {
-                authorization: `Bearer ${getAuthToken({ session: session ?? undefined, metadata: metadata ?? undefined, useRefresh: false })}`,
+                authorization: `Bearer ${getAuthToken({
+                    session: session ?? undefined,
+                    metadata: metadata ?? undefined,
+                    useRefresh: false,
+                })}`,
             },
         };
     },
@@ -51,44 +58,52 @@ export default new HoudiniClient({
         () => {
             return {
                 beforeNetwork: async (ctx, {next}) => {
-                    const {session} = ctx
+                    const {session} = ctx;
                     // TODO: Actually check the thing
                     if (!session?.access) return;
-                    const expAt = getExpiryFromJwt(session?.access)
+                    const expAt = getExpiryFromJwt(session?.access);
 
                     // If there is at least one minute on the token; do nothing
                     if (expAt.getTime() > new Date().getTime() + 60 * 1000) {
-                        next(ctx)
+                        next(ctx);
                         return;
                     }
                     if (ctx.artifact.name === "RefreshLogin") {
-                        console.debug("Avoiding infinite loop. Will not try to refresh auth before a refresh auth call.")
-                        next(ctx)
-                        return
+                        console.debug(
+                            "Avoiding infinite loop. Will not try to refresh auth before a refresh auth call.",
+                        );
+                        next(ctx);
+                        return;
                     }
 
                     // Otherwise we need to refresh
-                    console.log("Attempting to refresh authentication")
+                    console.log("Attempting to refresh authentication");
 
                     if (session.refresh) {
                         const s = new RefreshLoginStore();
 
                         try {
-                            const result = await s.mutate(null, {metadata: {
-                                accessTokenOverride: session.refresh
-                                }});
+                            const result = await s.mutate(null, {
+                                metadata: {
+                                    accessTokenOverride: session.refresh,
+                                },
+                            });
                             if (!result.data) {
-                                throw new Error(result.errors?.map(e => e.message).join("\n") ?? "Refresh Login Response Empty");
+                                throw new Error(
+                                    result.errors?.map(e => e.message).join("\n") ?? "Refresh Login Response Empty",
+                                );
                             }
 
-                            ctx.session!.access = result.data.refreshLogin.access
-                            ctx.session!.refresh = result.data.refreshLogin.refresh
+                            ctx.session!.access = result.data.refreshLogin.access;
+                            ctx.session!.refresh = result.data.refreshLogin.refresh;
 
                             if (browser) {
-                                updateAuthCookies(result.data.refreshLogin)
+                                updateAuthCookies(result.data.refreshLogin);
                             } else {
                                 // How do I set cookies here
-                                console.log("Failed to persist auth cookie updates. Setting cookies in a plugin is not possible?")
+                                console.log(
+                                    "Failed to persist auth cookie updates. Setting cookies in a plugin is not possible?",
+                                );
                             }
                             console.debug("Auth has been refreshed");
                         } catch (e) {
@@ -98,9 +113,9 @@ export default new HoudiniClient({
                         console.debug("Skipping Auth Refresh");
                     }
 
-                    next(ctx)
-                }
-            }
+                    next(ctx);
+                },
+            };
         },
         subscription(ctx =>
             createClient({
