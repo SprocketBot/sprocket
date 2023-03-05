@@ -1,13 +1,14 @@
 <script lang="ts">
     import type {ButtonActionTuple, ButtonSize, ButtonVariant} from "./types";
 
-
     export let variant: ButtonVariant = "default";
-    export let size: ButtonSize = "default"
+    export let size: ButtonSize = "default";
     let _class = "";
 
     export {_class as class};
 
+    // We need to have some no-op function
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     export let action: ButtonActionTuple<any> = [() => {}, {}];
 
     let [a, aParams] = action;
@@ -24,12 +25,21 @@
 </button>
 
 <style lang="postcss">
-    .button-size-default { @apply px-5 py-2.5 text-sm; }
-    .button-size-xs { @apply px-3 py-2 text-xs; }
-    .button-size-sm { @apply px-3 py-2 text-sm; }
-    .button-size-lg { @apply px-5 py-3 text-base; }
-    .button-size-xl { @apply px-6 py-3.5 text-base;}
-
+    .button-size-default {
+        @apply px-5 py-2.5 text-sm;
+    }
+    .button-size-xs {
+        @apply px-3 py-2 text-xs;
+    }
+    .button-size-sm {
+        @apply px-3 py-2 text-sm;
+    }
+    .button-size-lg {
+        @apply px-5 py-3 text-base;
+    }
+    .button-size-xl {
+        @apply px-6 py-3.5 text-base;
+    }
 
     .button-default {
         @apply text-white bg-info-600 hover:bg-info-700 focus:ring-info-800;

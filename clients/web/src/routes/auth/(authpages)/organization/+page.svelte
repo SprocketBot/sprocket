@@ -1,8 +1,8 @@
 <script lang="ts">
     import {browser} from "$app/environment";
-    import {MyOrganizationsStore, type MyOrganizations$result } from "$houdini";
+    import {MyOrganizationsStore, type MyOrganizations$result} from "$houdini";
     import {AuthGuard, Button} from "$lib/components";
-    import { selectOrganization } from "../helpers";
+    import {selectOrganization} from "../helpers";
     const orgStore = new MyOrganizationsStore();
 
     $: browser && orgStore.fetch();
@@ -15,11 +15,10 @@
 
     $: loading = $orgStore.fetching && !$orgStore.data;
     $: if ($orgStore.data?.me.organizations.length === 1) {
-        selectOrganization($orgStore.data.me.organizations[0].id, { next: "/app"});
+        selectOrganization($orgStore.data.me.organizations[0].id, {next: "/app"});
     }
-
-
 </script>
+
 <AuthGuard behavior="login">
     {#if loading}
         Loading...
@@ -35,7 +34,6 @@
                     </Button>
                 </div>
             {/each}
-
         </div>
     {/if}
 </AuthGuard>

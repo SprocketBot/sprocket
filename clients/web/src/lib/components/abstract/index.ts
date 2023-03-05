@@ -1,2 +1,2 @@
-export * from "./AuthGuard"
+export * from "./AuthGuard";
 export * from "./Portal";
