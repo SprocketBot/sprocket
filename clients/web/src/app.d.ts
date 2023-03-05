@@ -10,4 +10,11 @@ declare namespace App {
         access?: string;
         refresh?: string;
     }
+    interface Metadata {
+        /**
+         * Used to force the use of a specific access token.
+         * Useful when running mutations / queries before the session updates
+         */
+        accessTokenOverride?: string;
+    }
 }

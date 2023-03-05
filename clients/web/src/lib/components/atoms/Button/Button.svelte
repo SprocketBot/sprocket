@@ -1,15 +1,14 @@
 <script lang="ts">
-    import type {Action} from "svelte/action";
-    import type {ButtonVariant} from "./types";
+    import type {ButtonActionTuple, ButtonSize, ButtonVariant} from "./types";
 
-    type ActionTuple<T> = [Action<HTMLElement, T>, T];
 
     export let variant: ButtonVariant = "default";
+    export let size: ButtonSize = "default"
     let _class = "";
 
     export {_class as class};
 
-    export let action: ActionTuple<any> = [undefined, {}];
+    export let action: ButtonActionTuple<any> = [() => {}, {}];
 
     let [a, aParams] = action;
 
@@ -17,13 +16,21 @@
 </script>
 
 <button
-    class="{_class} button-{variant} focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 focus:outline-none flex items-center justify-between"
+    class="{_class} button-{variant} button-size-{size} focus:ring-4 font-medium rounded-lg focus:outline-none flex items-center justify-between"
     use:a={aParams}
+    on:click
 >
     <slot />
 </button>
 
 <style lang="postcss">
+    .button-size-default { @apply px-5 py-2.5 text-sm; }
+    .button-size-xs { @apply px-3 py-2 text-xs; }
+    .button-size-sm { @apply px-3 py-2 text-sm; }
+    .button-size-lg { @apply px-5 py-3 text-base; }
+    .button-size-xl { @apply px-6 py-3.5 text-base;}
+
+
     .button-default {
         @apply text-white bg-info-600 hover:bg-info-700 focus:ring-info-800;
     }
