@@ -12,6 +12,7 @@ export * from "./GetMatchInformationAndStakeholders.schema";
 export * from "./GetMatchReportCardWebhooks.schema";
 export * from "./GetMember.schema";
 export * from "./GetMleMatchInfoAndStakeholders.schema";
+export * from "./GetNicknameByDiscordUser.schema";
 export * from "./GetOrganizationByDiscordGuild.schema";
 export * from "./GetOrganizationConfiguration";
 export * from "./GetOrganizationDiscordGuildsByGuild.schema";

@@ -159,6 +159,7 @@ export class MledbPlayerService {
             discordId: discordId,
             modePreference: preference,
             teamName: "Pend",
+            role: Role.NONE,
         } as MLE_Player;
 
         player = this.playerRepository.create(player);
@@ -212,6 +213,7 @@ export class MledbPlayerService {
     ): Promise<MLE_Player> {
         const updatedPlayer = this.playerRepository.merge(player, {
             updatedBy: "Sprocket FA Intake",
+            updatedAt: new Date(),
             name: name,
             salary: salary,
             league: league,
@@ -295,7 +297,7 @@ export class MledbPlayerService {
                     relations: {member: {user: true, profile: true}},
                 });
 
-                player = this.sprocketPlayerRepository.merge(player, {skillGroup, salary});
+                player = this.sprocketPlayerRepository.merge(player, {skillGroupId: skillGroup.id, salary: salary});
                 this.sprocketMemberProfiledRepository.profileRepository.merge(player.member.profile, {name});
 
                 await runner.manager.save(player);
@@ -312,12 +314,11 @@ export class MledbPlayerService {
                     runner,
                 );
 
-                if (skillGroup.id !== player.skillGroupId)
-                    await this.eloConnectorService.createJob(EloEndpoint.SGChange, {
-                        id: player.id,
-                        salary: salary,
-                        skillGroup: skillGroup.ordinal,
-                    });
+                await this.eloConnectorService.createJob(EloEndpoint.SGChange, {
+                    id: player.id,
+                    salary: salary,
+                    skillGroup: skillGroup.ordinal,
+                });
             } else {
                 const user = this.sprocketUserProfiledRepository.primaryRepository.create({});
 
