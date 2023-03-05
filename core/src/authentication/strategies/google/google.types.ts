@@ -5,7 +5,7 @@ export const GoogleProfileSchema = z.object({
     displayName: z.string(),
     name: z.object({
         givenName: z.string(),
-        familyName: z.string(),
+        familyName: z.string().optional(),
     }),
     emails: z.array(
         z.object({

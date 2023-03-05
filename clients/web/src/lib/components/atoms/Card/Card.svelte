@@ -1,5 +1,5 @@
 <div
-    class="block p-6 max-w-sms
+    class="block p-6 max-w-sm
     bg-gray-800
     rounded-lg border
     border-gray-400

@@ -1,7 +1,8 @@
 <script lang="ts">
     import type {Hst as _Hst} from "@histoire/plugin-svelte";
     import {Props} from "$lib/histoire";
-    import Alert, {type AlertVariant} from "./Alert.svelte";
+    import Alert from "./Alert.svelte";
+    import type {AlertVariant} from "./types";
 
     export let Hst: _Hst;
 
@@ -10,6 +11,7 @@
     let variant: AlertVariant = "info";
     let dismissible = true;
     let withIcon = true;
+    let compact = false;
 </script>
 
 <Hst.Story title="Atoms/Alert" layout={{type: "grid", width: 800}}>
@@ -17,18 +19,19 @@
         <Hst.Select title="Variant" bind:value={variant} options={variants} />
         <Hst.Checkbox title="Dismissible" bind:value={dismissible} />
         <Hst.Checkbox title="With Icon" bind:value={withIcon} />
+        <Hst.Checkbox title="Compact" bind:value={compact} />
 
         <Props props={{variant, dismissible, withIcon}} />
     </svelte:fragment>
 
-    <Hst.Variant title="Default" {variant} {dismissible} {withIcon}>
-        <Alert {variant} {dismissible} {withIcon}>
+    <Hst.Variant title="Default">
+        <Alert {variant} {dismissible} {withIcon} {compact}>
             <span>This alerts the user of something important!</span>
         </Alert>
     </Hst.Variant>
 
-    <Hst.Variant title="With long content" {variant} {dismissible} {withIcon}>
-        <Alert {variant} {dismissible} {withIcon}>
+    <Hst.Variant title="With long content">
+        <Alert {variant} {dismissible} {withIcon} {compact}>
             <span>
                 <p>
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sed scelerisque enim. Donec congue,
@@ -42,8 +45,8 @@
         </Alert>
     </Hst.Variant>
 
-    <Hst.Variant title="With details" {variant} {dismissible} {withIcon}>
-        <Alert {variant} {dismissible} {withIcon}>
+    <Hst.Variant title="With details">
+        <Alert {variant} {dismissible} {withIcon} {compact}>
             <span>Look at this</span>
             <span slot="details">
                 <p>
@@ -60,8 +63,8 @@
         </Alert>
     </Hst.Variant>
 
-    <Hst.Variant title="With actions" {variant} {dismissible} {withIcon}>
-        <Alert {variant} {dismissible} {withIcon}>
+    <Hst.Variant title="With actions">
+        <Alert {variant} {dismissible} {withIcon} {compact}>
             <span>This alerts the user of something important!</span>
 
             <span slot="actions">

@@ -63,6 +63,8 @@
             "realm": ""
         },
         "jwt_expiry": "",
+        "access_expiry": "6h",
+        "refresh_expiry": "7d",
         "frontend_callback": ""
     },
     "redis": {

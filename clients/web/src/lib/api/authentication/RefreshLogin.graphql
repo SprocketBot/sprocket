@@ -1,0 +1,6 @@
+mutation RefreshLogin {
+    refreshLogin {
+        access
+        refresh
+    }
+}
