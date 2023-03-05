@@ -1,21 +1,22 @@
 import {Field, Int, ObjectType, registerEnumType} from "@nestjs/graphql";
-import type {Scrim} from "@sprocketbot/common";
-import {ReplaySubmissionStatus} from "@sprocketbot/common";
+import type {
+    BaseReplaySubmission,
+    MatchReplaySubmission as CommonMatchReplaySubmission,
+    Scrim,
+    ScrimReplaySubmission as CommonScrimReplaySubmission,
+} from "@sprocketbot/common";
+import {ReplaySubmissionStatus, ReplaySubmissionType} from "@sprocketbot/common";
 
 import type {Match} from "../../database/match.entity";
-import {ReplaySubmissionItem} from "./submission-item.types";
-import {SubmissionRejection} from "./submission-rejection.types";
-import {ReplaySubmissionStats} from "./submission-stats.types";
+import {SubmissionItemObject} from "./submission-item.object";
+import {SubmissionRejectionObject} from "./submission-rejection.object";
+import {SubmissionStatsObject} from "./submission-stats.object";
 
-export enum ReplaySubmissionType {
-    MATCH = "MATCH",
-    SCRIM = "SCRIM",
-}
 registerEnumType(ReplaySubmissionType, {name: "ReplaySubmissionType"});
 registerEnumType(ReplaySubmissionStatus, {name: "ReplaySubmissionStatus"});
 
-@ObjectType("ReplaySubmission")
-export class GqlReplaySubmission {
+@ObjectType()
+export class SubmissionObject implements BaseReplaySubmission {
     @Field()
     id: string;
 
@@ -28,26 +29,20 @@ export class GqlReplaySubmission {
     @Field(() => ReplaySubmissionStatus)
     status: ReplaySubmissionStatus;
 
-    @Field(() => [ReplaySubmissionItem])
-    items: ReplaySubmissionItem[];
+    @Field(() => [SubmissionItemObject])
+    items: SubmissionItemObject[];
 
     @Field(() => Boolean)
     validated: boolean;
 
-    @Field(() => ReplaySubmissionStats, {nullable: true})
-    stats?: ReplaySubmissionStats;
-
-    @Field(() => Number)
-    ratifications: number;
+    @Field(() => SubmissionStatsObject, {nullable: true})
+    stats?: SubmissionStatsObject;
 
     @Field(() => Number)
     requiredRatifications: number;
 
-    @Field(() => Boolean)
-    userHasRatified: boolean;
-
-    @Field(() => [SubmissionRejection], {nullable: true})
-    rejections?: SubmissionRejection[];
+    @Field(() => [SubmissionRejectionObject])
+    rejections: SubmissionRejectionObject[];
 
     @Field(() => ReplaySubmissionType)
     type: ReplaySubmissionType;
@@ -62,13 +57,13 @@ export class GqlReplaySubmission {
     ratifiers: number[];
 }
 
-export class ScrimReplaySubmission extends GqlReplaySubmission {
+export class ScrimReplaySubmission extends SubmissionObject implements CommonScrimReplaySubmission {
     type: ReplaySubmissionType.SCRIM = ReplaySubmissionType.SCRIM;
 
     scrimId: Scrim["id"];
 }
 
-export class MatchReplaySubmission extends GqlReplaySubmission {
+export class MatchReplaySubmission extends SubmissionObject implements CommonMatchReplaySubmission {
     type: ReplaySubmissionType.MATCH = ReplaySubmissionType.MATCH;
 
     matchId: Match["id"];

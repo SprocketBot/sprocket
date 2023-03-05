@@ -7,12 +7,14 @@ import type {
     JoinScrimOptions,
     Scrim,
 } from "@sprocketbot/common";
-import {MatchmakingEndpoint, MatchmakingService, ResponseStatus} from "@sprocketbot/common";
+import {BotEndpoint, BotService, MatchmakingEndpoint, MatchmakingService, ResponseStatus} from "@sprocketbot/common";
 import {IsNull, Not} from "typeorm";
 
 import {FranchiseProfiledRepository} from "../../franchise/database/franchise.repository";
 import {GameSkillGroupProfiledRepository} from "../../franchise/database/game-skill-group.repository";
 import {FranchiseService} from "../../franchise/franchise/franchise.service";
+import {UserAuthenticationAccountRepository} from "../../identity/database/user-authentication-account.repository";
+import {OrganizationProfileRepository} from "../../organization/database/organization-profile.repository";
 import {PlayerStatLineRepository} from "../database/player-stat-line.repository";
 
 @Injectable()
@@ -25,6 +27,9 @@ export class ScrimService {
         private readonly franchiseService: FranchiseService,
         private readonly franchiseProfiledRepository: FranchiseProfiledRepository,
         private readonly playerStatLineRepository: PlayerStatLineRepository,
+        private readonly userAuthAccountRepository: UserAuthenticationAccountRepository,
+        private readonly botService: BotService,
+        private readonly organizationProfileRepository: OrganizationProfileRepository,
     ) {}
 
     async getAllScrims(organizationId?: number, skillGroupIds?: number[]): Promise<Scrim[]> {
@@ -173,5 +178,46 @@ export class ScrimService {
                 new Set(franchiseProfiles.map(fp => fp?.scrimReportCardWebhook?.url).filter(f => f)),
             ) as string[],
         };
+    }
+
+    async notifyPlayers(scrimId: string, message: string): Promise<true> {
+        const scrim = await this.getScrimById(scrimId);
+        if (!scrim) throw new Error("Scrim not found");
+
+        const profile = await this.organizationProfileRepository.getByOrganizationId(scrim.organizationId);
+
+        await Promise.all(
+            scrim.players.map(async p => {
+                const discordAccount = await this.userAuthAccountRepository.getDiscordAccountByUserId(p.userId);
+
+                await this.botService.send(BotEndpoint.SendDirectMessage, {
+                    userId: discordAccount.accountId,
+                    payload: {
+                        embeds: [
+                            {
+                                title: "Message from Support",
+                                description: message,
+                                footer: {
+                                    text: profile.name,
+                                },
+                                timestamp: Date.now(),
+                            },
+                        ],
+                    },
+                    brandingOptions: {
+                        organizationId: scrim.organizationId,
+                        options: {
+                            color: true,
+                            thumbnail: true,
+                            footer: {
+                                icon: true,
+                            },
+                        },
+                    },
+                });
+            }),
+        );
+
+        return true;
     }
 }

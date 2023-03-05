@@ -6,7 +6,7 @@ import {GraphQLJwtAuthGuard} from "../../authentication/guards";
 import {Actions, CurrentMember} from "../../authorization/decorators";
 import {MemberGuard} from "../../authorization/guards";
 import {Member} from "../../organization/database/member.entity";
-import {ScrimObject} from "../graphql/scrim.object";
+import {ScrimObject} from "../graphql/scrim/scrim.object";
 import {ScrimService} from "./scrim.service";
 
 @Resolver()
@@ -52,5 +52,11 @@ export class ScrimAdminResolver {
     @Actions("LockOrganizationScrims")
     async unlockScrim(@Args("scrimId") scrimId: string): Promise<boolean> {
         return this.scrimService.setScrimLocked(scrimId, false);
+    }
+
+    @Mutation(() => Boolean)
+    @Actions("MessageOrganizationScrimPlayers")
+    async notifyScrimPlayers(@Args("scrimId") scrimId: string, @Args("message") message: string): Promise<boolean> {
+        return this.scrimService.notifyPlayers(scrimId, message);
     }
 }

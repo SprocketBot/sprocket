@@ -1,7 +1,7 @@
 import {Field, Int, ObjectType} from "@nestjs/graphql";
 import type {ScrimPlayer} from "@sprocketbot/common";
 
-import {UserObject} from "../../identity/graphql/user.object";
+import {UserObject} from "../../../identity/graphql/user.object";
 
 @ObjectType()
 export class ScrimPlayerObject implements ScrimPlayer {

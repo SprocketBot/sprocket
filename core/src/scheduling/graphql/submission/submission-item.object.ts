@@ -1,14 +1,11 @@
-import {Field, ObjectType, registerEnumType} from "@nestjs/graphql";
-import type {ProgressMessage, Task} from "@sprocketbot/common";
-import {Parser, ProgressStatus} from "@sprocketbot/common";
+import {Field, ObjectType} from "@nestjs/graphql";
+import type {ProgressMessage, ReplaySubmissionItem, Task} from "@sprocketbot/common";
+import {ProgressStatus} from "@sprocketbot/common";
 
 import {GqlProgress} from "../../../util/types/celery-progress";
 
-registerEnumType(Parser, {name: "Parser"});
-registerEnumType(ProgressStatus, {name: "ProgressStatus"});
-
 @ObjectType()
-export class SubmissionProgressMessage implements ProgressMessage<Task.ParseReplay> {
+export class SubmissionProgressMessageObject implements ProgressMessage<Task.ParseReplay> {
     @Field(() => String, {nullable: true})
     error: string | null;
 
@@ -25,15 +22,15 @@ export class SubmissionProgressMessage implements ProgressMessage<Task.ParseRepl
 }
 
 @ObjectType()
-export class ReplaySubmissionItem {
+export class SubmissionItemObject implements ReplaySubmissionItem {
     @Field(() => String)
     taskId: string;
 
     @Field(() => String)
     originalFilename: string;
 
-    @Field(() => SubmissionProgressMessage)
-    progress?: SubmissionProgressMessage;
+    @Field(() => SubmissionProgressMessageObject)
+    progress?: SubmissionProgressMessageObject;
 
     inputPath: string;
 
