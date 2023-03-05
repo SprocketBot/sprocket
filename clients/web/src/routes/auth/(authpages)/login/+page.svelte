@@ -4,10 +4,10 @@
     import {Alert, Button} from "$lib/components";
     import {Icon} from "@steeze-ui/svelte-icon";
     import {oauthPopup, type OauthPopupArgs} from "$lib/actions/useOauthPopup.action";
-    import {setCookie} from "typescript-cookie";
     import {MyOrganizationsStore} from "$houdini";
-    import { next, selectOrganization, updateAuthCookies } from "../helpers";
-    import type { ButtonActionTuple } from "../../../../lib/components/atoms/Button/types";
+    import { next, selectOrganization } from "../helpers";
+    import type { ButtonActionTuple } from "$lib/components/atoms/Button/types";
+    import { updateAuthCookies } from '$lib/api/auth-cookies';
 
     let errorMessage = "";
     const handleOauthResult = async (e: MessageEvent) => {

@@ -1,15 +1,7 @@
 import { goto } from "$app/navigation";
 import { SelectActiveOrganizationStore } from "$houdini";
-import { setCookie } from "typescript-cookie";
+import { updateAuthCookies } from '$lib/api/auth-cookies';
 
-export const updateAuthCookies = ({access, refresh}: { access: string, refresh: string}) => {
-    // TODO: Should these cookies expire when the tokens themselves do?
-    //       That may create a pretty easy mechanism for checking if the tokens themselves have expired.
-
-    setCookie("sprocket-access-token", access, {path: "/"});
-    setCookie("sprocket-refresh-token", refresh, {path: "/"});
-
-}
 
 export const next = (defaultRoute: string, keepNext?: boolean) => {
     const location = new URL(window.location.href);
