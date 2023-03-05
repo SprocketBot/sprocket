@@ -1,0 +1,6 @@
+mutation SelectActiveOrganization($orgId: Int!) {
+    switchOrganization(organizationId: $orgId) {
+        access
+        refresh
+    }
+}

@@ -32,8 +32,8 @@
         "eslint-plugin-svelte3": "^4.0.0",
         "filedrop-svelte": "^0.1.2",
         "histoire": "^0.15.4",
-        "houdini": "^1.0.7",
-        "houdini-svelte": "^1.0.7",
+        "houdini": "^1.0.9",
+        "houdini-svelte": "^1.0.9",
         "lodash.times": "^4.3.2",
         "nanoid": "^4.0.0",
         "postcss": "^8.4.14",
@@ -53,6 +53,7 @@
         "@fontsource/montserrat": "^4.5.14",
         "echarts": "^5.4.1",
         "graphql-ws": "^5.11.3",
+        "jwt-decode": "^3.1.2",
         "typescript-cookie": "^1.0.4"
     }
 }
