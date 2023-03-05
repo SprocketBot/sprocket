@@ -19,7 +19,6 @@ export const next = (defaultRoute: string, keepNext?: boolean) => {
         goto(`${nextPath}?next=${nextQuery}`, {invalidateAll: true});
     } else {
         // There is no next; go to the specific route.
-        console.log({defaultRoute})
         goto(defaultRoute, {invalidateAll: true});
     }
 };

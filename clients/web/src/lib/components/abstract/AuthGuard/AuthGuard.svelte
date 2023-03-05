@@ -17,7 +17,7 @@
             status: ToastStatus.Danger,
             content: "Session Expired. Please sign in.",
             ttl: 10000,
-            dismissable: true
+            dismissable: true,
         });
 
         switch (behavior) {
@@ -31,7 +31,6 @@
 
     const validate = (): string | undefined => {
         const {access, refresh} = JwtContext();
-        console.log({access, refresh});
         if (!access) {
             return "No JWT Available";
         } else {

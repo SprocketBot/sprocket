@@ -21,9 +21,6 @@
     else $context.showTooltips = true;
 
     setContext<SidebarContext>(SidebarContextKey, context);
-
-    $: console.log($context);
-    $: console.log({width});
 </script>
 
 <aside class="size-{width} transition-width" aria-label="Sidebar" class:h-full={fullHeight}>
