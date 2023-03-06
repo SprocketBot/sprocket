@@ -8,4 +8,4 @@ ENTRYPOINT npm run test --workspace=core
 
 FROM $BASE_IMAGE AS app_image
 RUN npm run build --workspace=core
-ENTRYPOINT node /app/core/dist/main.js
+ENTRYPOINT node /app/core/dist/src/main.js
