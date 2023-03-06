@@ -8,8 +8,8 @@ export class BaseEntity {
     createdAt: Date;
 
     @UpdateDateColumn()
-    updatedAt: Date;
+    updatedAt?: Date;
 
     @DeleteDateColumn()
-    deletedAt: Date;
+    deletedAt?: Date;
 }
