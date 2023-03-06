@@ -1,7 +1,23 @@
 import _config from "config";
-import {existsSync, readFileSync} from "fs";
+import { existsSync, readFileSync } from "fs";
 
-export const config = {
+
+const proxyOpts = {
+    get(target, p) {
+        try {
+            if (typeof target[p] === "object") {
+                return new Proxy(target[p], proxyOpts)
+            }
+        } catch (e) { /* no op */ }
+        if (process.env.DISABLE_CONFIG) {
+            return undefined
+        }
+        return target[p]
+    },
+}
+
+
+export const config = new Proxy({
     auth: {
         google: {
             get clientId(): string {
@@ -251,4 +267,5 @@ export const config = {
     get defaultAuthToken(): string | undefined {
         if (_config.has("defaultAuthToken")) return _config.get<string>("defaultAuthToken");
     },
-};
+}, proxyOpts
+)
