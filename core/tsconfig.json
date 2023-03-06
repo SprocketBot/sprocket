@@ -33,6 +33,10 @@
     },
     "include": [
         "src/**/*",
-        "src/*"
-    ]
+        "src/*",
+        "scripts/*"
+    ],
+    "ts-node": {
+        "require": ["tsconfig-paths/register"]
+    }
 }
