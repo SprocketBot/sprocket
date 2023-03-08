@@ -1,7 +1,7 @@
 <script lang="ts">
     import type {Hst as _Hst} from "@histoire/plugin-svelte";
     import {faker} from "@faker-js/faker";
-    import {createColumnHelper, type ColumnDef} from "@tanstack/svelte-table";
+    import {createColumnHelper} from "@tanstack/svelte-table";
     import times from "lodash.times";
 
     import Table from "./Table.svelte";
@@ -31,19 +31,11 @@
     const columnHelper = createColumnHelper<Player>();
 
     const columns = [
-        columnHelper.group({
-            id: 'group',
-            header: 'Group',
-            columns: [
-                columnHelper.accessor("id", {
-                    header: 'ID',
-                    enableSorting: false,
-                }),
-                columnHelper.accessor("name", {
-                    header: "Name",
-                    enableSorting: true,
-                }),
-            ]
+        columnHelper.accessor("id", {
+            header: 'ID',
+        }),
+        columnHelper.accessor("name", {
+            header: "Name",
         }),
         columnHelper.accessor("team", {
             header: "Team",
