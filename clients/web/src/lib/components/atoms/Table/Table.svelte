@@ -1,7 +1,10 @@
 <script lang="ts">
     import { writable } from "svelte/store";
-    import { createSvelteTable, getCoreRowModel, getSortedRowModel, flexRender, type TableOptions, type ColumnDef, type SortingState, type Updater } from "@tanstack/svelte-table";
-    import { HeaderCell } from "./HeaderCell";
+    import { flexRender, createSvelteTable, getCoreRowModel, getSortedRowModel, type TableOptions, type ColumnDef, type SortingState, type Updater } from "@tanstack/svelte-table";
+
+    import HeaderCell from "./HeaderCell.svelte";
+    import BodyCell from "./BodyCell.svelte";
+    import FooterCell from "./FooterCell.svelte";
     
     type T = $$Generic<unknown>;
 
@@ -47,102 +50,80 @@
 </script>
 
 
-<!-- TODO refactor into separate components! HeaderCell, BodyCell, Row, etc -->
+<table>
+    {#if hasHeader}
+        <thead>
+            {#each $table.getHeaderGroups() as headerGroup}
+                <tr>
+                    {#each headerGroup.headers as header}
+                        <HeaderCell header={header} colspan={header.colSpan} />
+                    {/each}
+                </tr>
+            {/each}
+        </thead>
+    {/if}
 
-<div class="overflow-hidden rounded-lg">
-    <table>
-        {#if hasHeader}
-            <thead>
-                {#each $table.getHeaderGroups() as headerGroup}
-                    <tr>
-                        {#each headerGroup.headers as header}
-                            <HeaderCell header={header} colspan={header.colSpan} />
-                        {/each}
-                    </tr>
-                {/each}
-            </thead>
-        {/if}
+    {#if hasBody}
+        <tbody>
+            {#each $table.getRowModel().rows as row}
+                <tr>
+                    {#each row.getVisibleCells() as cell}
+                        <BodyCell cell={cell} />
+                    {/each}
+                </tr>
+            {/each}
+        </tbody>
+    {/if}
 
-        {#if hasBody}
-            <tbody>
-                {#each $table.getRowModel().rows as row}
-                    <tr>
-                        {#each row.getVisibleCells() as cell}
-                            <td>
-                                <svelte:component this={flexRender(cell.column.columnDef.cell, cell.getContext())} />
-                            </td>
-                        {/each}
-                    </tr>
-                {/each}
-            </tbody>
-        {/if}
-
-        {#if hasFooter}
-            <tfoot>
-                {#each $table.getFooterGroups() as footerGroup}
-                    <tr>
-                        {#each footerGroup.headers as header}
-                            <th>
-                                {#if !header.isPlaceholder}
-                                    <svelte:component this={flexRender(header.column.columnDef.footer, header.getContext())} />
-                                {/if}
-                            </th>
-                        {/each}
-                    </tr>
-                {/each}
-            </tfoot>
-        {/if}
-    </table>
-</div>
+    {#if hasFooter}
+        <tfoot>
+            {#each $table.getFooterGroups() as footerGroup}
+                <tr>
+                    {#each footerGroup.headers as footer}
+                        <FooterCell footer={footer} />
+                    {/each}
+                </tr>
+            {/each}
+        </tfoot>
+    {/if}
+</table>
 
 
 <style lang="postcss">
-    td, th {
-        /* Dummy h-1 needed here to allow children to fill cells https://stackoverflow.com/questions/3215553/make-a-div-fill-an-entire-table-cell */
-        @apply p-0 h-1;
-    }
-
-    thead th div {
-        @apply w-full h-full flex items-center justify-center gap-2 p-4 bg-gray-600 border-b border-gray-600 text-sm font-bold text-white uppercase;
-
-        &.sortable {
-            @apply cursor-pointer select-none;
-        }
-    }
-
-    tbody td {
-        @apply p-4 bg-gray-800 border-b border-gray-600 text-sm font-normal text-gray-50;
-    }
-
-    tfoot th {
-        @apply p-4 bg-gray-600 text-sm border-b border-gray-600 text-white font-bold;
-    }
-
     table {
-        /* Round corners */
+        /* Need this in order to round the border at corners */
+        @apply border-separate border-spacing-0;
+
+        /* All cells have a border bottom */
+        :global(th), :global(td) {
+            @apply border-gray-600 border-b;
+        }
+
+        /* Round 4 corners of table */
         *:first-child tr:first-child {
-            th:first-child, td:first-child {
+            :global(th:first-child), :global(td:first-child) {
                 @apply rounded-tl-lg;
             }
-            th:last-child, td:last-child {
+            :global(th:last-child), :global(td:last-child) {
                 @apply rounded-tr-lg;
             }
         }
-
+    
         *:last-child tr:last-child {
-            th:first-child, td:first-child {
+            :global(th:first-child), :global(td:first-child) {
                 @apply rounded-bl-lg;
             }
-            th:last-child, td:last-child {
+            :global(th:last-child), :global(td:last-child) {
                 @apply rounded-br-lg;
             }
         }
 
-        *:last-child tr:last-child {
-            th, td {
-                @apply border-0;
-            }
+        /* Outside border on first and last cell in row */
+        :global(th:first-child), :global(td:first-child) {
+            @apply border-l;
+        }
+        :global(th:last-child), :global(td:last-child) {
+            @apply border-r;
         }
     }
-
 </style>
