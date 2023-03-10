@@ -3,6 +3,7 @@
 
     export let variant: ButtonVariant = "default";
     export let size: ButtonSize = "default";
+    export let outline = false;
     let _class = "";
 
     export {_class as class};
@@ -18,6 +19,7 @@
 
 <button
     class="{_class} button-{variant} button-size-{size} focus:ring-4 font-medium rounded-lg focus:outline-none flex items-center justify-between"
+    class:has-outline={outline}
     use:a={aParams}
     on:click
 >
@@ -42,24 +44,48 @@
     }
 
     .button-default {
-        @apply text-white bg-info-600 hover:bg-info-700 focus:ring-info-800;
+        @apply text-white border focus:ring-info-800;
+        &:not(.has-outline) {
+            @apply bg-info-600 hover:bg-info-700 border-transparent;
+        }
+        &.has-outline {
+            @apply border-info-600 hover:border-info-700;
+        }
     }
     .button-alt {
-        @apply border focus:z-10 focus:ring-gray-700 bg-gray-800 text-gray-100 border-gray-600 hover:text-white hover:bg-gray-800;
-    }
-    .button-dark {
-        @apply text-white bg-gray-800 hover:bg-gray-700 focus:ring-gray-700 border-gray-700;
-    }
-    .button-light {
-        @apply border bg-gray-800 text-white border-gray-600 hover:bg-gray-700 hover:border-gray-600 focus:ring-gray-700;
+        @apply border focus:z-10 focus:ring-gray-700 text-gray-100 hover:text-white;
+        &:not(.has-outline) {
+            @apply bg-gray-800 border-gray-600 hover:bg-gray-900;
+        }
+        &.has-outline {
+            @apply border-gray-800 hover:border-gray-900;
+        }
     }
     .button-success {
-        @apply text-white  bg-success-600 hover:bg-success-700 focus:ring-success-800;
+        @apply border text-white focus:ring-success-800;
+        &:not(.has-outline) {
+            @apply bg-success-600 hover:bg-success-700;
+        }
+        &.has-outline {
+            @apply border-success-600 hover:border-success-700;
+        }
     }
     .button-danger {
-        @apply text-white  bg-danger-600 hover:bg-danger-700 focus:ring-danger-900;
+        @apply border text-white focus:ring-danger-900;
+        &:not(.has-outline) {
+            @apply bg-danger-600 hover:bg-danger-700;
+        }
+        &.has-outline {
+            @apply border-danger-600 hover:border-danger-700;
+        }
     }
     .button-warning {
-        @apply text-white bg-warning-400 hover:bg-warning-500 focus:ring-warning-900;
+        @apply border text-white focus:ring-warning-900;
+        &:not(.has-outline) {
+            @apply bg-warning-400 hover:bg-warning-500;
+        }
+        &.has-outline {
+            @apply border-warning-400 hover:border-warning-500;
+        }
     }
 </style>
