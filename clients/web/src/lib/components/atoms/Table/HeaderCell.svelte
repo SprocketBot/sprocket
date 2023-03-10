@@ -21,7 +21,8 @@
         <div
             on:click={onSort}
             on:keypress={onSort}
-            class="w-full h-full flex items-center justify-center gap-2 p-4 text-sm font-bold text-white uppercase {sortable && 'cursor-pointer'}"
+            class="w-full h-full flex items-center justify-center gap-2 p-4 text-sm font-bold text-white uppercase"
+            class:cursor-pointer={sortable}
             use:hoverable={{ onHoverChange: v => hovered = v }}
         >
             <svelte:component this={content} />
