@@ -1,0 +1,12 @@
+query UserInfo @cache(policy: NetworkOnly) {
+    me @cache(policy: NetworkOnly) {
+        name: displayName
+        organizations {
+            id
+        }
+        currentOrganization {
+            name
+            logoUrl
+        }
+    }
+}
