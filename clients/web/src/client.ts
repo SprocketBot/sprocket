@@ -4,9 +4,11 @@ import {createClient} from "graphql-ws";
 import {subscription} from "$houdini/plugins";
 import {goto} from "$app/navigation";
 import {browser} from "$app/environment";
-import {updateAuthCookies} from "$lib/api/auth-cookies";
+import {getAuthCookies, updateAuthCookies} from "$lib/api/auth-cookies";
 import {getExpiryFromJwt} from "./lib/utilities/getExpiryFromJwt";
 import {clearAuthCookies} from "./lib/api/auth-cookies";
+import {redirect} from "@sveltejs/kit";
+import jwtDecode from "jwt-decode";
 
 const getAuthToken = ({
     session,
@@ -16,6 +18,8 @@ const getAuthToken = ({
     if (metadata?.accessTokenOverride) return metadata.accessTokenOverride;
     if (useRefresh && session?.refresh) return session.refresh;
     if (session?.access) return session.access;
+    const cookies = getAuthCookies();
+    if (cookies.access) return cookies.access;
     return "";
 };
 
@@ -24,14 +28,15 @@ export default new HoudiniClient({
 
     // uncomment this to configure the network call (for things like authentication)
     // for more information, please visit here: https://www.houdinigraphql.com/guides/authentication
-    fetchParams({session, metadata}) {
+    fetchParams({session, metadata, document}) {
+        const authToken = getAuthToken({
+            session: session ?? undefined,
+            metadata: metadata ?? undefined,
+            useRefresh: false,
+        });
         return {
             headers: {
-                authorization: `Bearer ${getAuthToken({
-                    session: session ?? undefined,
-                    metadata: metadata ?? undefined,
-                    useRefresh: false,
-                })}`,
+                authorization: `Bearer ${authToken}`,
             },
         };
     },
@@ -46,7 +51,10 @@ export default new HoudiniClient({
                 //          But it would also prevent a user having to log in when they don't need to.
                 clearAuthCookies();
 
-                goto(`/auth/login?next=${encodeURI(window.location.pathname)}`);
+                if (typeof window !== "undefined") goto(`/auth/login?next=${encodeURI(window.location.pathname)}`);
+                else {
+                    throw redirect(307, "/auth/login");
+                }
             } else {
                 console.error(errors);
             }
@@ -55,8 +63,10 @@ export default new HoudiniClient({
     plugins: [
         () => {
             return {
-                beforeNetwork: async (ctx, {next}) => {
+                beforeNetwork: async (ctx, b) => {
+                    const {next} = b;
                     const {session} = ctx;
+
                     // TODO: Actually check the thing
                     if (!session?.access) {
                         next(ctx);
@@ -82,12 +92,12 @@ export default new HoudiniClient({
 
                     if (session.refresh) {
                         const s = new RefreshLoginStore();
-
                         try {
                             const result = await s.mutate(null, {
                                 metadata: {
                                     accessTokenOverride: session.refresh,
                                 },
+                                fetch: fetch ?? ctx.fetch,
                             });
                             if (!result.data) {
                                 throw new Error(
@@ -95,14 +105,15 @@ export default new HoudiniClient({
                                 );
                             }
 
-                            ctx.session!.access = result.data.refreshLogin.access;
-                            ctx.session!.refresh = result.data.refreshLogin.refresh;
+                            if (!ctx.session) ctx.session = {};
+                            ctx.session.access = result.data.refreshLogin.access;
+                            ctx.session.refresh = result.data.refreshLogin.refresh;
 
                             if (browser) {
                                 updateAuthCookies(result.data.refreshLogin);
                             } else {
                                 // How do I set cookies here
-                                console.log(
+                                console.warn(
                                     "Failed to persist auth cookie updates. Setting cookies in a plugin is not possible?",
                                 );
                             }
