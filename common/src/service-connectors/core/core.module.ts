@@ -3,7 +3,6 @@ import {ClientsModule, Transport} from "@nestjs/microservices";
 
 import {CommonClient} from "../../global.types";
 import {config} from "../../util";
-;
 import {CoreService} from "./core.service";
 
 @Module({
