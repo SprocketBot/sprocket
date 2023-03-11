@@ -7,7 +7,7 @@ import {lastValueFrom, timeout} from "rxjs";
 
 import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
-import {NanoidService} from "../../util/nanoid/nanoid.service";
+import {v4 as uuidv4} from "uuid";
 import type {
     SubmissionEndpoint, SubmissionInput, SubmissionResponse,
 } from "./submission.types";
@@ -19,11 +19,11 @@ export class SubmissionService {
 
     constructor(
         @Inject(CommonClient.Submission) private microserviceClient: ClientProxy,
-        private readonly nidService: NanoidService,
+        
     ) {}
 
     async send<E extends SubmissionEndpoint>(endpoint: E, data: SubmissionInput<E>, options?: MicroserviceRequestOptions): Promise<SubmissionResponse<E>> {
-        const rid = this.nidService.gen();
+        const rid = uuidv4();
         this.logger.verbose(`| - (${rid}) > | \`${endpoint}\` (${JSON.stringify(data)})`);
 
         const {input: inputSchema, output: outputSchema} = SubmissionSchemas[endpoint];
