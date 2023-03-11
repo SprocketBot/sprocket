@@ -3,7 +3,6 @@ import {ClientProxy} from "@nestjs/microservices";
 
 import {GlobalModule} from "../../global.module";
 import {CommonClient} from "../../global.types";
-;
 import {BotService} from "./bot.service";
 
 @Module({
