@@ -3,7 +3,6 @@ import {ClientsModule, Transport} from "@nestjs/microservices";
 
 import {CommonClient} from "./global.types";
 import {config} from "./util/config";
-import {UtilModule} from "./util/util.module";
 
 const client = ClientsModule.register([
     {
@@ -108,7 +107,7 @@ const client = ClientsModule.register([
 
 @Global()
 @Module({
-    imports: [client, UtilModule],
+    imports: [client],
     exports: [client],
 })
 export class GlobalModule {}

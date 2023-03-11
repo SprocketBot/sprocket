@@ -7,7 +7,7 @@ import {lastValueFrom, timeout} from "rxjs";
 
 import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
-import {NanoidService} from "../../util/nanoid/nanoid.service";
+import {v4 as uuidv4} from "uuid";
 import type {
     BotEndpoint, BotInput, BotResponse,
 } from "./bot.types";
@@ -19,11 +19,11 @@ export class BotService {
 
     constructor(
         @Inject(CommonClient.Bot) private microserviceClient: ClientProxy,
-        private readonly nidService: NanoidService,
+        
     ) {}
 
     async send<E extends BotEndpoint>(endpoint: E, data: BotInput<E>, options?: MicroserviceRequestOptions): Promise<BotResponse<E>> {
-        const rid = this.nidService.gen();
+        const rid = uuidv4();
         this.logger.verbose(`| - (${rid}) > | \`${endpoint}\` (${JSON.stringify(data)})`);
 
         const {input: inputSchema, output: outputSchema} = BotSchemas[endpoint];

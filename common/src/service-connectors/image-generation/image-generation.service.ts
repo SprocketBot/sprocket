@@ -7,7 +7,7 @@ import {lastValueFrom, timeout} from "rxjs";
 
 import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
-import {NanoidService} from "../../util/nanoid/nanoid.service";
+import {v4 as uuidv4} from "uuid";
 import type {
     ImageGenerationEndpoint, ImageGenerationInput, ImageGenerationResponse,
 } from "./image-generation.types";
@@ -19,12 +19,12 @@ export class ImageGenerationService {
 
     constructor(
         @Inject(CommonClient.ImageGeneration) private microserviceClient: ClientProxy,
-        private readonly nidService: NanoidService,
+        
     ) {
     }
 
     async send<E extends ImageGenerationEndpoint>(endpoint: E, data: ImageGenerationInput<E>, options?: MicroserviceRequestOptions): Promise<ImageGenerationResponse<E>> {
-        const rid = this.nidService.gen();
+        const rid = uuidv4();
         this.logger.verbose(`| - (${rid}) > | \`${endpoint}\` (${JSON.stringify(data)})`);
 
         const {input: inputSchema, output: outputSchema} = ImageGenerationSchemas[endpoint];

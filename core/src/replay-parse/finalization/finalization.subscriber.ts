@@ -2,13 +2,14 @@ import {Injectable, Logger} from "@nestjs/common";
 import type {ReplaySubmission, Scrim} from "@sprocketbot/common";
 import {
     EventsService,
-    EventTopic, NanoidService,
+    EventTopic,
     RedisService, ReplaySubmissionType,
     ResponseStatus,
     SubmissionEndpoint,
     SubmissionService,
 } from "@sprocketbot/common";
 
+import { v4 as uuidv4 } from 'uuid';
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
 import {MatchService} from "../../scheduling";
 import {ScrimService} from "../../scrim";
@@ -29,7 +30,6 @@ export class FinalizationSubscriber {
         private readonly matchService: MatchService,
         private readonly eloConnectorService: EloConnectorService,
         private readonly replayParseService: ReplayParseService,
-        private readonly nanoidService: NanoidService,
     ) {}
 
     onApplicationBootstrap(): void {
@@ -58,7 +58,7 @@ export class FinalizationSubscriber {
             }
 
             const {scrim: savedScrim, legacyScrim} = await this.rocketLeagueFinalizationService.finalizeScrim(submission, scrim).catch(async e => {
-                const issueId = this.nanoidService.gen();
+                const issueId = uuidv4();
                 await this.replayParseService.rejectSubmissionBySystem(submission.id, `Failed to save scrim. Please contact support with this issue id: ${issueId}`);
                 this.logger.error(`Issue saving scrim: ${issueId}`, e);
                 throw e;
@@ -91,7 +91,7 @@ export class FinalizationSubscriber {
         }
         try {
             const {match, legacyMatch} = await this.rocketLeagueFinalizationService.finalizeMatch(submission).catch(async e => {
-                const issueId = this.nanoidService.gen();
+                const issueId = uuidv4();
                 await this.replayParseService.rejectSubmissionBySystem(submission.id, `Failed to save match. Please contact support with this issue id: ${issueId}`);
                 this.logger.error(`Issue saving scrim: ${issueId}`, e);
                 throw e;
