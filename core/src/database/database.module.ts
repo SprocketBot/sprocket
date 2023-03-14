@@ -1,7 +1,6 @@
 import {Module} from "@nestjs/common";
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {config} from "@sprocketbot/common";
-import {readFileSync} from "fs";
 
 import {AuthorizationModule} from "./authorization/authorization.module";
 import {ConfigurationModule} from "./configuration/configuration.module";
@@ -34,8 +33,7 @@ const modules = [
         host: config.db.host,
         port: config.db.port,
         username: config.db.username,
-        password: readFileSync("./secret/db-password.txt").toString()
-            .trim(),
+        password: config.db.password,
         database: config.db.database,
         autoLoadEntities: true,
         logging: config.db.enable_logs,

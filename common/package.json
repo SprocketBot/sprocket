@@ -47,6 +47,7 @@
     "amqplib": "^0.8.0",
     "celery-node": "^0.5.8",
     "config": "^3.3.6",
+    "dotenv": "^16.0.3",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "ioredis": "^4.28.2",
     "minio": "^7.0.26",

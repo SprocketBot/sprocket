@@ -1,0 +1,35 @@
+{
+    "auth": {
+        "google": {
+            "clientId": "SPR_GOOGLE_CLIENT_ID",
+            "secret": "SPR_GOOGLE_SECRET"
+        },
+        "discord": {
+            "clientId": "SPR_DISCORD_CLIENT_ID",
+            "secret": "SPR_DISCORD_SECRET"
+        }
+    },
+    "bot": {
+        "token": "SPR_BOT_TOKEN"
+    },
+    "cache": {
+        "password": "SPR_CACHE_PASSWORD"
+    },
+    "db": {
+        "username": "SPR_DB_USER",
+        "password": "SPR_DB_PASSWORD"
+    },
+    "influx": {
+        "org": "SPR_INFLUX_ORG",
+        "bucket": "SPR_INFLUX_BUCKET",
+        "token": "SPR_INFLUX_TOKEN"
+    },
+    "minio": {
+        "accessKey": "SPR_MINIO_ACCESS_KEY",
+        "secretKey": "SPR_MINIO_SECRET_KEY"
+    },
+    "redis": {
+        "password": "SPR_REDIS_PASSWORD"
+    }
+    
+}

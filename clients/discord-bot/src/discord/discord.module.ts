@@ -1,7 +1,7 @@
 import {forwardRef, Module} from "@nestjs/common";
 import {Client} from "discord.js";
 import {GatewayIntentBits} from "discord-api-types";
-import {readFile} from "fs/promises";
+import {config} from '@sprocketbot/common';
 
 import {CommandsModule} from "../marshal";
 import {DiscordService} from "./discord.service";
@@ -14,7 +14,7 @@ import {DiscordService} from "./discord.service";
         {
             provide: "DISCORD_CLIENT",
             useFactory: async (): Promise<Client> => {
-                const bot_token = (await readFile("./secret/bot-token.txt")).toString().trim();
+                const bot_token = config.bot.token;
                 const bot_client = new Client({
                     intents: [
                         GatewayIntentBits.Guilds,

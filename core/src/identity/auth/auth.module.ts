@@ -10,7 +10,7 @@ import {OrganizationModule} from "../../organization";
 import {IdentityModule} from "../identity.module";
 import {GqlJwtGuard} from "./gql-auth-guard";
 import {
-    DiscordStrategy, GoogleStrategy, JwtConstants, JwtRefreshStrategy, JwtStrategy, OauthController, OauthService,
+    DiscordStrategy, GoogleStrategy, JwtRefreshStrategy, JwtStrategy, OauthController, OauthService,
 } from "./oauth";
 
 @Module({
@@ -18,7 +18,7 @@ import {
         IdentityModule,
         PassportModule,
         JwtModule.register({
-            secret: JwtConstants.secret,
+            secret: config.auth.jwt_secret,
             signOptions: {expiresIn: config.auth.jwt_expiry},
         }),
         AnalyticsModule,

@@ -1,7 +1,6 @@
 import {NestFactory} from "@nestjs/core";
 import {Transport} from "@nestjs/microservices";
-import {AllExceptionsFilter} from "@sprocketbot/common";
-import * as config from "config";
+import {AllExceptionsFilter, config} from "@sprocketbot/common";
 import fetch from "node-fetch";
 
 import {AppModule} from "./app.module";
@@ -10,12 +9,14 @@ import {AppModule} from "./app.module";
 global.fetch = fetch;
 
 async function bootstrap(): Promise<void> {
+    process.env.SPR_APP_NAME = "discord-bot";
+
     const app = await NestFactory.createMicroservice(AppModule, {
         transport: Transport.RMQ,
-        logger: config.get("logger.levels"),
+        logger: config.logger.levels,
         options: {
-            urls: [config.get("transport.url")],
-            queue: config.get("transport.bot_queue"),
+            urls: [config.transport.url],
+            queue: config.transport.bot_queue,
             queueOptions: {
                 durable: true,
             },
@@ -24,9 +25,8 @@ async function bootstrap(): Promise<void> {
     });
 
     app.useGlobalFilters(new AllExceptionsFilter());
-    
-    await app.listen();
 
+    await app.listen();
 }
 
 // eslint-disable-next-line no-console
