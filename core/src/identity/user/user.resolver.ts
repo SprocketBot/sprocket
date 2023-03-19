@@ -83,13 +83,13 @@ export class UserResolver {
 
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     @Mutation(() => String)
-    async loginAsUser(@Args("userId", {type: () => Int}) userId: number): Promise<string> {
+    async loginAsUser(@Args("userId", {type: () => Int}) userId: number, @Args("organizationId", {type: () => Int, nullable: true}) organizationId?: number): Promise<string> {
         const user = await this.userService.getUserById(userId, {relations: {profile: true} });
         const payload: AuthPayload = {
             sub: `${user.id}`,
             username: user.profile.displayName,
             userId: user.id,
-            currentOrganizationId: config.defaultOrganizationId,
+            currentOrganizationId: organizationId ?? config.defaultOrganizationId,
         };
 
         return this.jwtService.sign(payload, {expiresIn: "5m"});
