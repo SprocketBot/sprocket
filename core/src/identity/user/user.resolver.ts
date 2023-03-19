@@ -1,13 +1,18 @@
 import {UseGuards} from "@nestjs/common";
 import {
-    Args, Mutation, Query, ResolveField, Resolver, Root,
+    Args, Int, Mutation, Query, ResolveField, Resolver, Root,
 } from "@nestjs/graphql";
+import {JwtService} from "@nestjs/jwt";
+import {config} from "@sprocketbot/common";
 
 import type {UserAuthenticationAccount, UserProfile} from "../../database";
 import {
     Member, User, UserAuthenticationAccountType,
 } from "../../database";
+import {MLE_OrganizationTeam} from "../../database/mledb";
+import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {PopulateService} from "../../util/populate/populate.service";
+import type {AuthPayload} from "../auth";
 import {UserPayload} from "../auth";
 import {CurrentUser} from "../auth/current-user.decorator";
 import {GqlJwtGuard} from "../auth/gql-auth-guard";
@@ -20,6 +25,7 @@ export class UserResolver {
         private readonly identityService: IdentityService,
         private readonly userService: UserService,
         private readonly popService: PopulateService,
+        private readonly jwtService: JwtService,
     ) {}
 
     @Query(() => User)
@@ -73,5 +79,19 @@ export class UserResolver {
 
             return m;
         })).then(results => results.filter(m => m.organization.id === orgId));
+    }
+
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    @Mutation(() => String)
+    async loginAsUser(@Args("userId", {type: () => Int}) userId: number): Promise<string> {
+        const user = await this.userService.getUserById(userId, {relations: {profile: true} });
+        const payload: AuthPayload = {
+            sub: `${user.id}`,
+            username: user.profile.displayName,
+            userId: user.id,
+            currentOrganizationId: config.defaultOrganizationId,
+        };
+
+        return this.jwtService.sign(payload, {expiresIn: "5m"});
     }
 }
