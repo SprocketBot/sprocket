@@ -6,10 +6,11 @@ import {
     BotEndpoint,
     BotService,
     config,
-    NanoidService,
     NotificationMessageType,
     RedisService,
 } from "@sprocketbot/common";
+import {v4} from "uuid";
+
 @Injectable()
 export class NotificationService {
     private readonly logger = new Logger(NotificationService.name);
@@ -19,13 +20,12 @@ export class NotificationService {
     constructor(
         private readonly redisService: RedisService,
         private readonly botService: BotService,
-        private readonly nanoidService: NanoidService,
     ) {}
 
     async sendNotification(data: NotificationInput<NotificationEndpoint.SendNotification>): Promise<NotificationOutput<NotificationEndpoint.SendNotification>> {
         if (data.payload) {
             const notificationPayload = {
-                id: data.id ?? `${data.type.toLowerCase()}-${this.nanoidService.gen()}`,
+                id: data.id ?? `${data.type.toLowerCase()}-${v4()}`,
                 type: data.type,
                 userId: data.userId,
                 expiration: data.expiration,
