@@ -1,4 +1,4 @@
-import {UseGuards} from "@nestjs/common";
+import {Logger, UseGuards} from "@nestjs/common";
 import {
     Args, Int, Mutation, Query, ResolveField, Resolver, Root,
 } from "@nestjs/graphql";
@@ -21,6 +21,8 @@ import {UserService} from "./user.service";
 
 @Resolver(() => User)
 export class UserResolver {
+    private readonly logger = new Logger(UserResolver.name);
+
     constructor(
         private readonly identityService: IdentityService,
         private readonly userService: UserService,
@@ -83,7 +85,11 @@ export class UserResolver {
 
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     @Mutation(() => String)
-    async loginAsUser(@Args("userId", {type: () => Int}) userId: number, @Args("organizationId", {type: () => Int, nullable: true}) organizationId?: number): Promise<string> {
+    async loginAsUser(
+        @CurrentUser() authedUser: UserPayload,
+        @Args("userId", {type: () => Int}) userId: number,
+        @Args("organizationId", {type: () => Int, nullable: true}) organizationId?: number,
+    ): Promise<string> {
         const user = await this.userService.getUserById(userId, {relations: {profile: true} });
         const payload: AuthPayload = {
             sub: `${user.id}`,
@@ -91,6 +97,8 @@ export class UserResolver {
             userId: user.id,
             currentOrganizationId: organizationId ?? config.defaultOrganizationId,
         };
+
+        this.logger.log(`${authedUser.username} (${authedUser.userId}) generated an authentication token for ${user.profile.displayName} (${user.id})`);
 
         return this.jwtService.sign(payload, {expiresIn: "5m"});
     }
