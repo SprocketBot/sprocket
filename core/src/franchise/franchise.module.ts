@@ -1,7 +1,7 @@
 import {forwardRef, Module} from "@nestjs/common";
 import {JwtModule} from "@nestjs/jwt";
 import {
-    EventsModule, NotificationModule, UtilModule as CommonUtilModule,
+    EventsModule, NotificationModule,
 } from "@sprocketbot/common";
 
 import {DatabaseModule} from "../database";
@@ -32,7 +32,6 @@ import {TeamService} from "./team/team.service";
         GameModule,
         forwardRef(() => OrganizationModule),
         forwardRef(() => MledbInterfaceModule),
-        CommonUtilModule,
         EloConnectorModule,
         JwtModule.register({
             secret: JwtConstants.secret,
