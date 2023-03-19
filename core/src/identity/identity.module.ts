@@ -1,7 +1,6 @@
 import {Module} from "@nestjs/common";
 import {JwtModule} from "@nestjs/jwt";
 import {config} from "@sprocketbot/common";
-import {readFileSync} from "fs";
 
 import {DatabaseModule} from "../database";
 import {UtilModule} from "../util/util.module";
@@ -17,8 +16,7 @@ import {UserAuthenticationAccountResolver} from "./user-authentication-account";
         DatabaseModule,
         UtilModule,
         JwtModule.register({
-            secret: readFileSync("./secret/jwtSecret.txt").toString()
-                .trim(),
+            secret: config.auth.jwt_secret,
             signOptions: {expiresIn: config.auth.jwt_expiry},
         }),
     ],
