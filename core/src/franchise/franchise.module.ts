@@ -1,13 +1,12 @@
 import {forwardRef, Module} from "@nestjs/common";
 import {JwtModule} from "@nestjs/jwt";
 import {
-    EventsModule, NotificationModule,
+    config, EventsModule, NotificationModule,
 } from "@sprocketbot/common";
 
 import {DatabaseModule} from "../database";
 import {EloConnectorModule} from "../elo/elo-connector";
 import {GameModule} from "../game";
-import {JwtConstants} from "../identity/auth/oauth/constants";
 import {MledbInterfaceModule} from "../mledb";
 import {OrganizationModule} from "../organization/organization.module";
 import {UtilModule} from "../util/util.module";
@@ -34,7 +33,7 @@ import {TeamService} from "./team/team.service";
         forwardRef(() => MledbInterfaceModule),
         EloConnectorModule,
         JwtModule.register({
-            secret: JwtConstants.secret,
+            secret: config.auth.jwt_secret,
         }),
     ],
     providers: [
