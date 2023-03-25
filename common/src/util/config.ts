@@ -37,6 +37,10 @@ export const config = {
         get frontend_callback(): string {
             return _config.get<string>("auth.frontend_callback");
         },
+        get jwt_secret(): string {
+            return readFileSync("./secret/jwtSecret.txt").toString()
+                .trim();
+        },
     },
     bot: {
         get prefix(): string {

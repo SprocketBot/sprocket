@@ -1,4 +1,6 @@
 import {Module} from "@nestjs/common";
+import {JwtModule} from "@nestjs/jwt";
+import {config} from "@sprocketbot/common";
 
 import {DatabaseModule} from "../database";
 import {UtilModule} from "../util/util.module";
@@ -10,7 +12,14 @@ import {
 import {UserAuthenticationAccountResolver} from "./user-authentication-account";
 
 @Module({
-    imports: [DatabaseModule, UtilModule],
+    imports: [
+        DatabaseModule,
+        UtilModule,
+        JwtModule.register({
+            secret: config.auth.jwt_secret,
+            signOptions: {expiresIn: config.auth.jwt_expiry},
+        }),
+    ],
     providers: [
         IdentityService,
         UserResolver,

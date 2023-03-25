@@ -7,7 +7,6 @@ import {
     MinioModule,
     RedisModule,
     SubmissionModule,
-    UtilModule as CommonUtilModule,
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 
@@ -49,8 +48,6 @@ import {ReplayParseService} from "./replay-parse.service";
         EloConnectorModule,
         SchedulingModule,
         UtilModule,
-        CommonUtilModule,
-
     ],
     providers: [
         ReplayParseModResolver,

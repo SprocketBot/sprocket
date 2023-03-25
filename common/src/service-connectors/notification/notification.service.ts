@@ -7,7 +7,7 @@ import {lastValueFrom, timeout} from "rxjs";
 
 import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
-import {NanoidService} from "../../util/nanoid/nanoid.service";
+import {v4 as uuidv4} from "uuid";
 import type {
     NotificationEndpoint, NotificationInput, NotificationResponse,
 } from "./notification.types";
@@ -19,11 +19,11 @@ export class NotificationService {
 
     constructor(
         @Inject(CommonClient.Notification) private microserviceClient: ClientProxy,
-        private readonly nidService: NanoidService,
+        
     ) {}
 
     async send<E extends NotificationEndpoint>(endpoint: E, data: NotificationInput<E>, options?: MicroserviceRequestOptions): Promise<NotificationResponse<E>> {
-        const rid = this.nidService.gen();
+        const rid = uuidv4();
         this.logger.verbose(`| - (${rid}) > | \`${endpoint}\` (${JSON.stringify(data)})`);
 
         const {input: inputSchema, output: outputSchema} = NotificationSchemas[endpoint];
