@@ -96,6 +96,7 @@ export class UserResolver {
             username: user.profile.displayName,
             userId: user.id,
             currentOrganizationId: organizationId ?? config.defaultOrganizationId,
+            orgTeams: [],
         };
 
         this.logger.log(`${authedUser.username} (${authedUser.userId}) generated an authentication token for ${user.profile.displayName} (${user.id})`);
