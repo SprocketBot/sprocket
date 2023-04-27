@@ -1,6 +1,11 @@
 import {Injectable, Logger} from "@nestjs/common";
-import type {
+import {
+    BallchasingPlayerSchema,
     BallchasingResponse,
+    BallchasingResponseSchema,
+    BallchasingTeamSchema,
+    BallchasingTeamStatsSchema,
+    BallchasingUploaderSchema,
     GetPlayerSuccessResponse,
     MatchReplaySubmission,
     ReplaySubmission,
@@ -21,6 +26,7 @@ import {isEqual} from "lodash";
 
 import type {ValidationError, ValidationResult} from "./types/validation-result";
 import {sortIds} from "./utils";
+import {BallchasingConverterService} from "@sprocketbot/core/src/replay-parse/finalization";
 
 @Injectable()
 export class ReplayValidationService {
@@ -238,7 +244,83 @@ export class ReplayValidationService {
     private async getStats(outputPath: string): Promise<BallchasingResponse> {
         const r = await this.minioService.get(config.minio.bucketNames.replays, outputPath);
         const stats = await readToString(r);
+        let parsed = BallchasingResponseSchema.safeParse(stats);
+        if (!parsed.success) {
+            // Call our fancy new routine
+            const output = this.cts.translate(stats);
+            parsed = BallchasingResponseSchema.safeParse(output);
+        }
+        return parsed.data;
         return JSON.parse(stats).data as BallchasingResponse;
+    }
+
+
+    private async translate(inputStats): Promise<BallchasingResponse> {
+        const BallchasingTeamStatsSchema ({
+            ball: inputStats.object
+        })
+
+        const BallchasingUploaderSchema ({
+            name: "Uploader", // Missing from CarBall -> Use who uploads the Replay from Sprocket
+            avatar: "https://ballchasing.com/NotTheBlueAvatars", // Missing from CarBall
+            steam_id: "", // Missing from CarBall
+            profile_url: "https://ballchasing.com/NoProfileHere" // Missing from CarBall
+        })
+
+        const BallchasingTeamSchema = ({
+            name: "", // Determined by isOrange
+            color: "", // Determined by isOrange
+
+            stats: BallchasingTeamStatsSchema,
+            players: inputStats.array(BallchasingPlayerSchema),
+        })
+
+
+
+        return {
+            // Response meta
+            id: "bc_ID", //ID provided by Ballchasing
+            link: "https://ballchsing.com/broken",
+            title: inputStats["gameMetadata"]["name"],
+            date: new Date().toUTCString(),
+            date_has_timezone: false,
+            status: "ok",
+            created: new Date().toUTCString(),
+            visibility: "public",
+
+            // Rocket League meta
+            rocket_league_id: inputStats["gameMetadata"]["id"],
+            season: 10, //Missing from CarBall
+            match_guid: inputStats["matchGuid"],
+
+            // Uploader
+            recorder: "N/A", // Optional
+            uploader: BallchasingUploaderSchema, 
+
+            // Match
+            match_type: "", // Missing from CarBall -> Looking for online/private
+
+            // Playlist
+            playlist_id: inputStats["gameMetadata"]["playlist"], // Carball has _ instead of - 
+            playlist_name: inputStats["gameMetadata"]["playlist"], // Missing from Carball 
+
+            // Map
+            map_code: inputStats["gameMetadata"]["map"],
+            map_name: "", // Missing from CarBall
+
+            // Duration
+            duration: inputStats["gameMetadata"]["length"], // Assuming
+            overtime: false, //Missing from CarBall
+            overtime_seconds: 0, //Missing from CarBall
+
+            // Team stats
+            team_size: inputStats["gameMetadata"]["teamSize"],
+            blue: BallchasingTeamSchema,
+            orange: BallchasingTeamSchema,
+
+
+
+        }
     }
 
     private async validateMatchSubmission(submission: MatchReplaySubmission): Promise<ValidationResult> {
