@@ -3,4 +3,4 @@ export * from "./organization-configuration";
 export * from "./sprocket-configuration";
 export * from "./verbiage";
 
-// Sniper was here hehehehehehehehehehehehehehehehehehehehehehehe
+// Sniper was here hehehehehehehehe
