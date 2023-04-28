@@ -256,25 +256,38 @@ export class ReplayValidationService {
             parsed = BallchasingResponseSchema.safeParse(output);
         }
         return parsed.data;
-        return JSON.parse(stats).data as BallchasingResponse;
+        // return JSON.parse(stats).data as BallchasingResponse;
     }
 
-    private translateTeam(inputStats): BallchasingTeamStats {
+    private translateTeamStats(players: BallchasingPlayer[]): BallchasingTeamStats {
+        let tsc = {
+            goals: 0,
+            saves: 0,
+            score: 0,
+            shots: 0,
+            assists: 0,
+            goals_against: 0,
+            shots_against: 0,
+            shooting_percentage: 0,
+        };
+
+        for (const player of players) {
+            tsc.goals += player.stats.core.goals;
+            tsc.saves += player.stats.core.saves;
+            tsc.score += player.stats.core.score;
+            tsc.shots += player.stats.core.shots;
+            tsc.assists += player.stats.core.assists;
+            tsc.goals_against += player.stats.core.goals_against;
+            tsc.shots_against += player.stats.core.shots_against;
+            tsc.shooting_percentage += player.stats.core.shooting_percentage;
+        }
+
         return {
             ball: {
                 time_in_side: 0,
                 possession_time: 0,
             },
-            core: {
-                goals: 0,
-                saves: 0,
-                score: 0,
-                shots: 0,
-                assists: 0,
-                goals_against: 0,
-                shots_against: 0,
-                shooting_percentage: 0,
-            },
+            core: tsc,
             boost: {
                 bpm: 0,
                 bcpm: 0,
@@ -319,8 +332,8 @@ export class ReplayValidationService {
                 time_defensive_third: 0,
                 time_offensive_third: 0,
             },
-        }
-    }
+        } as unknown as BallchasingTeamStats;
+   }
 
     private translatePlayerStats(inputStats): BallchasingPlayerStats {
         return {
@@ -421,7 +434,7 @@ export class ReplayValidationService {
         }
     }
 
-    private translatePlayer(inputStats): BallchasingPlayer {
+    private translatePlayer(playerStats): BallchasingPlayer {
         return z.object({
             id: z.object({
                 id: z.string(),
@@ -443,14 +456,11 @@ export class ReplayValidationService {
             start_time: z.number(),
             steering_sensitivity: z.number(),
         
-            stats: this.translatePlayerStats(inputStats),
+            stats: this.translatePlayerStats(playerStats),
         })
     }
 
     private translate(inputStats): BallchasingResponse {
-
-        const orangeTeamStats: BallchasingTeamStats = this.translateTeam(inputStats);
-        const blueTeamStats: BallchasingTeamStats = this.translateTeam(inputStats);
 
         const orangePlayers: BallchasingPlayer[] = [];
         const bluePlayers: BallchasingPlayer[] = [];
@@ -465,6 +475,8 @@ export class ReplayValidationService {
             }
         }
         
+        const orangeTeamStats: BallchasingTeamStats = this.translateTeamStats(orangePlayers);
+        const blueTeamStats: BallchasingTeamStats = this.translateTeamStats(bluePlayers);
 
         const blue: BallchasingTeam = {
             name: "blue",
