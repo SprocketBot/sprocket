@@ -335,18 +335,18 @@ export class ReplayValidationService {
         } as unknown as BallchasingTeamStats;
    }
 
-    private translatePlayerStats(inputStats): BallchasingPlayerStats {
+    private translatePlayerStats(input, shots, goals): BallchasingPlayerStats {
         return {
             core: {
                 mvp: false,
-                goals: 0,
-                saves: 0,
-                score: 0,
-                shots: 0,
-                assists: 0,
-                goals_against: 0,
-                shots_against: 0,
-                shooting_percentage: 0,
+                goals: input["goals"],
+                saves: input["saves"],
+                score: input["score"],
+                shots: input["shots"],
+                assists: input["assists"],
+                goals_against: input["isOrange"] === 1 ? goals.blue : goals.orange,
+                shots_against: input["isOrange"] === 1 ? shots.blue : shots.orange,
+                shooting_percentage: input["goals"]/input["shots"],
             },
             demo: {
                 taken: 0,
@@ -443,7 +443,7 @@ export class ReplayValidationService {
         return "epic";
     }
 
-    private translatePlayer(playerStats): BallchasingPlayer {
+    private translatePlayer(playerStats, shots, goals): BallchasingPlayer {
         return {
             id: {
                 id: playerStats["id"]["id"],
@@ -465,7 +465,7 @@ export class ReplayValidationService {
             start_time: 5,
             steering_sensitivity: 1.1,
         
-            stats: this.translatePlayerStats(playerStats),
+            stats: this.translatePlayerStats(playerStats, shots, goals),
         })
     }
 
@@ -474,8 +474,26 @@ export class ReplayValidationService {
         const orangePlayers: BallchasingPlayer[] = [];
         const bluePlayers: BallchasingPlayer[] = [];
 
+        let shots = {
+            blue: 0,
+            orange: 0,
+        };
+        let goals = {
+            blue: 0,
+            orange: 0,
+        };
+
         for (const player of inputStats["players"]) {
-            const newPlayer: BallchasingPlayer = this.translatePlayer(player);
+            if (player["isOrange"] === 1) {
+                shots.orange += player["shots"];
+                goals.orange += player["goals"];
+            } else {
+                shots.blue += player["shots"];
+                shots.orange += player["goals"];
+            }
+        }
+        for (const player of inputStats["players"]) {
+            const newPlayer: BallchasingPlayer = this.translatePlayer(player, shots, goals);
 
             if (player["isOrange"]) {
                 orangePlayers.push(newPlayer); 
