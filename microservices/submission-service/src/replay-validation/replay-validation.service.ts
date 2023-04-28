@@ -434,27 +434,36 @@ export class ReplayValidationService {
         }
     }
 
+    private getPlatformString(input: string): "steam" | "epic" | "xbox" | "ps4" {
+        if (input === "OnlinePlatform_Steam") return "steam";
+        if (input === "OnlinePlatform_Epic") return "epic";
+        if (input === "OnlinePlatform_Dingo") return "xbox";
+        if (input === "OnlinePlatform_PSN") return "ps4";
+        
+        return "epic";
+    }
+
     private translatePlayer(playerStats): BallchasingPlayer {
-        return z.object({
-            id: z.object({
-                id: z.string(),
-                platform: z.enum(["steam", "xbox", "ps4", "epic"]),
-            }),
-            name: z.string(),
-            camera: z.object({
-                fov: z.number(),
-                pitch: z.number(),
-                height: z.number(),
-                distance: z.number(),
-                stiffness: z.number(),
-                swivel_speed: z.number(),
-                transition_speed: z.number(),
-            }),
-            car_id: z.number().default(-1),
-            car_name: z.string().default("UNKNOWN"),
-            end_time: z.number(),
-            start_time: z.number(),
-            steering_sensitivity: z.number(),
+        return {
+            id: {
+                id: playerStats["id"]["id"],
+                platform: this.getPlatformString(playerStats["platform"]),
+            },
+            name: playerStats["name"],
+            camera: {
+                fov: playerStats["cameraSettings"]["fieldOfView"],
+                pitch: playerStats["cameraSettings"]["pitch"],
+                height: playerStats["cameraSettings"]["height"],
+                distance: playerStats["cameraSettings"]["distance"],
+                stiffness: playerStats["cameraSettings"]["stiffness"],
+                swivel_speed: playerStats["cameraSettings"]["swivelSpeed"],
+                transition_speed: playerStats["cameraSettings"]["transitionSpeed"],
+            },
+            car_id: -1,
+            car_name: "UNKNOWN",
+            end_time: 1000,
+            start_time: 5,
+            steering_sensitivity: 1.1,
         
             stats: this.translatePlayerStats(playerStats),
         })
