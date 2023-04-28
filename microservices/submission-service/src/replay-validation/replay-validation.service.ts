@@ -251,12 +251,16 @@ export class ReplayValidationService {
         const stats = await readToString(r);
         let parsed = BallchasingResponseSchema.safeParse(stats);
         if (!parsed.success) {
-            // Call our fancy new routine
-            const output = this.translate(stats);
-            parsed = BallchasingResponseSchema.safeParse(output);
+            const translated = this.translate(stats);
+            const output = BallchasingResponseSchema.safeParse(translated);
+
+            if (output.success) return output.data;
+        } else {
+            return parsed.data;
         }
-        return parsed.data;
-        // return JSON.parse(stats).data as BallchasingResponse;
+        
+        throw new Error("Could not convert parsed file to a usable stats object.");
+        
     }
 
     private translateTeamStats(players: BallchasingPlayer[]): BallchasingTeamStats {
@@ -469,7 +473,7 @@ export class ReplayValidationService {
         })
     }
 
-    private translate(inputStats): BallchasingResponse {
+    private translate(inputStats) {
 
         const orangePlayers: BallchasingPlayer[] = [];
         const bluePlayers: BallchasingPlayer[] = [];
@@ -566,6 +570,9 @@ export class ReplayValidationService {
             team_size: inputStats["gameMetadata"]["teamSize"],
             blue: blue,
             orange: orange,
+            
+            // Raw Carball output
+            raw_data: inputStats,
         }
     }
 
