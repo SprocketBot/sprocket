@@ -1,5 +1,6 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {
+    BallchasingPlayer,
     BallchasingPlayerSchema,
     BallchasingResponse,
     BallchasingResponseSchema,
@@ -258,9 +259,32 @@ export class ReplayValidationService {
 
 
     private async translate(inputStats): Promise<BallchasingResponse> {
-        const BallchasingTeamStatsSchema ({
-            ball: inputStats.object
-        })
+
+        const orangePlayers: BallchasingPlayer[] = [];
+        const bluePlayers: BallchasingPlayer[] = [];
+
+        for (const player of inputStats["players"]) {
+            if (player["isOrange"]) {
+                orangePlayers.push(player); 
+            } else {
+                bluePlayers.push(player);
+            }
+        }
+        
+
+        const blue: BallchasingTeam = {
+            name: "blue",
+            color: "blue",
+            stats: BallchasingTeamStatsSchema,
+            players: bluePlayers,
+        }
+
+        const orange: BallchasingTeam = {
+            name: "orange",
+            color: "orange",
+            stats: BallchasingTeamStatsSchema,
+            players: orangePlayers,
+        }
 
         const uploader: BallchasingUploader = {
             name: "Uploader", // Missing from CarBall -> Use who uploads the Replay from Sprocket
@@ -268,16 +292,6 @@ export class ReplayValidationService {
             steam_id: "", // Missing from CarBall
             profile_url: "https://ballchasing.com/NoProfileHere" // Missing from CarBall
         }
-
-        const blue: BallchasingTeam = {
-            name: "", // Determined by isOrange
-            color: 0, // Determined by isOrange
-
-            stats: BallchasingTeamStatsSchema,
-            players: inputStats.array(BallchasingPlayerSchema),
-        }
-
-
 
         return {
             // Response meta
@@ -317,11 +331,8 @@ export class ReplayValidationService {
 
             // Team stats
             team_size: inputStats["gameMetadata"]["teamSize"],
-            blue: BallchasingTeamSchema,
-            orange: BallchasingTeamSchema,
-
-
-
+            blue: blue,
+            orange: orange,
         }
     }
 
