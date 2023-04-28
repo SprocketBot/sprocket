@@ -3,8 +3,10 @@ import {
     BallchasingPlayerSchema,
     BallchasingResponse,
     BallchasingResponseSchema,
+    BallchasingTeam,
     BallchasingTeamSchema,
     BallchasingTeamStatsSchema,
+    BallchasingUploader,
     BallchasingUploaderSchema,
     GetPlayerSuccessResponse,
     MatchReplaySubmission,
@@ -260,26 +262,26 @@ export class ReplayValidationService {
             ball: inputStats.object
         })
 
-        const BallchasingUploaderSchema ({
+        const uploader: BallchasingUploader = {
             name: "Uploader", // Missing from CarBall -> Use who uploads the Replay from Sprocket
             avatar: "https://ballchasing.com/NotTheBlueAvatars", // Missing from CarBall
             steam_id: "", // Missing from CarBall
             profile_url: "https://ballchasing.com/NoProfileHere" // Missing from CarBall
-        })
+        }
 
-        const BallchasingTeamSchema = ({
+        const blue: BallchasingTeam = {
             name: "", // Determined by isOrange
-            color: "", // Determined by isOrange
+            color: 0, // Determined by isOrange
 
             stats: BallchasingTeamStatsSchema,
             players: inputStats.array(BallchasingPlayerSchema),
-        })
+        }
 
 
 
         return {
             // Response meta
-            id: "bc_ID", //ID provided by Ballchasing
+            id: "bc_ID", // ID provided by Ballchasing
             link: "https://ballchsing.com/broken",
             title: inputStats["gameMetadata"]["name"],
             date: new Date().toUTCString(),
@@ -290,12 +292,12 @@ export class ReplayValidationService {
 
             // Rocket League meta
             rocket_league_id: inputStats["gameMetadata"]["id"],
-            season: 10, //Missing from CarBall
+            season: 10, // Missing from CarBall
             match_guid: inputStats["matchGuid"],
 
             // Uploader
             recorder: "N/A", // Optional
-            uploader: BallchasingUploaderSchema, 
+            uploader: uploader,
 
             // Match
             match_type: "", // Missing from CarBall -> Looking for online/private
