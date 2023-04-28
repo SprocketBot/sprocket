@@ -62,7 +62,7 @@ export const BallchasingTeamStatsSchema = z.object({
         time_offensive_third: z.number().default(0),
     }),
 });
-export type BallchasingTeamState = z.infer<typeof BallchasingTeamSchema>;
+export type BallchasingTeamStats = z.infer<typeof BallchasingTeamSchema>;
 
 export const BallchasingTeamSchema = z.object({
     name: z.string().optional(),

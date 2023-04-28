@@ -1,12 +1,14 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {
     BallchasingPlayer,
+    BallchasingPlayerStats,
     BallchasingPlayerSchema,
     BallchasingResponse,
     BallchasingResponseSchema,
     BallchasingTeam,
     BallchasingTeamSchema,
     BallchasingTeamStatsSchema,
+    BallchasingTeamStats,
     BallchasingUploader,
     BallchasingUploaderSchema,
     GetPlayerSuccessResponse,
@@ -39,7 +41,7 @@ export class ReplayValidationService {
         private readonly coreService: CoreService,
         private readonly matchmakingService: MatchmakingService,
         private readonly minioService: MinioService,
-    ) {}
+    ) { }
 
     async validate(submission: ReplaySubmission): Promise<ValidationResult> {
         if (submission.type === ReplaySubmissionType.SCRIM) {
@@ -68,9 +70,9 @@ export class ReplayValidationService {
         if (submissionGameCount !== scrimGameCount) {
             return {
                 valid: false,
-                errors: [ {
+                errors: [{
                     error: `Incorrect number of replays submitted, expected ${scrimGameCount} but found ${submissionGameCount}`,
-                } ],
+                }],
             };
         }
 
@@ -110,16 +112,16 @@ export class ReplayValidationService {
             this.logger.error(`Unable to validate submission missing stats, scrim=${scrim.id} submissionId=${scrim.submissionId}`);
             return {
                 valid: false,
-                errors: [ {error: "The submission is missing stats. Please contact support."} ],
+                errors: [{ error: "The submission is missing stats. Please contact support." }],
             };
         }
 
-        const gameResult = await this.coreService.send(CoreEndpoint.GetGameByGameMode, {gameModeId: scrim.gameModeId});
+        const gameResult = await this.coreService.send(CoreEndpoint.GetGameByGameMode, { gameModeId: scrim.gameModeId });
         if (gameResult.status === ResponseStatus.ERROR) {
             this.logger.error(`Unable to get game gameMode=${scrim.gameModeId}`);
             return {
                 valid: false,
-                errors: [ {error: `Failed to find associated game. Please contact support.`} ],
+                errors: [{ error: `Failed to find associated game. Please contact support.` }],
             };
         }
 
@@ -141,7 +143,7 @@ export class ReplayValidationService {
             this.logger.error(`Unable to validate submission, couldn't find all players by their platformIds`, playersResponse.error);
             return {
                 valid: false,
-                errors: [ {error: "Failed to find all players by their platform Ids. Please contact support."} ],
+                errors: [{ error: "Failed to find all players by their platform Ids. Please contact support." }],
             };
         }
         
@@ -166,7 +168,7 @@ export class ReplayValidationService {
         const scrimPlayerIds = scrim.games.map(g => g.teams.map(t => t.players.map(p => p.id)));
 
         // Get 3D array of submission player ids
-        const submissionUserIds = stats.map(s => [s.blue, s.orange].map(t => t.players.map(({id}) => {
+        const submissionUserIds = stats.map(s => [s.blue, s.orange].map(t => t.players.map(({ id }) => {
             const user = players.find(p => p.request.platform === id.platform.toUpperCase() && p.request.platformId === id.id)!;
             return user.data.userId;
         })));
@@ -188,10 +190,10 @@ export class ReplayValidationService {
             } else {
                 return {
                     valid: false,
-                    errors: [ {
+                    errors: [{
                         error: "Mismatched player",
                         gameIndex: g,
-                    } ],
+                    }],
                 };
             }
 
@@ -203,21 +205,21 @@ export class ReplayValidationService {
                 if (scrimTeam.length !== submissionTeam.length) {
                     return {
                         valid: false,
-                        errors: [ {
+                        errors: [{
                             error: "Invalid team size",
                             gameIndex: g,
                             teamIndex: t,
-                        } ],
+                        }],
                     };
                 }
             }
             if (scrimGame.length !== submissionGame.length) {
                 return {
                     valid: false,
-                    errors: [ {
+                    errors: [{
                         error: "Invalid team count",
                         gameIndex: g,
-                    } ],
+                    }],
                 };
             }
         }
@@ -229,9 +231,9 @@ export class ReplayValidationService {
             if (player.data.skillGroupId !== scrim.skillGroupId) {
                 return {
                     valid: false,
-                    errors: [ {
+                    errors: [{
                         error: "One of the players isn't in the correct skill group",
-                    } ],
+                    }],
                 };
             }
         }
@@ -250,24 +252,216 @@ export class ReplayValidationService {
         let parsed = BallchasingResponseSchema.safeParse(stats);
         if (!parsed.success) {
             // Call our fancy new routine
-            const output = this.cts.translate(stats);
+            const output = this.translate(stats);
             parsed = BallchasingResponseSchema.safeParse(output);
         }
         return parsed.data;
         return JSON.parse(stats).data as BallchasingResponse;
     }
 
+    private translateTeam(inputStats): BallchasingTeamStats {
+        return {
+            ball: {
+                time_in_side: 0,
+                possession_time: 0,
+            },
+            core: {
+                goals: 0,
+                saves: 0,
+                score: 0,
+                shots: 0,
+                assists: 0,
+                goals_against: 0,
+                shots_against: 0,
+                shooting_percentage: 0,
+            },
+            boost: {
+                bpm: 0,
+                bcpm: 0,
+                avg_amount: 0,
+                amount_stolen: 0,
+                amount_overfill: 0,
+                time_boost_0_25: 0,
+                time_full_boost: 0,
+                time_zero_boost: 0,
+                amount_collected: 0,
+                count_stolen_big: 0,
+                time_boost_25_50: 0,
+                time_boost_50_75: 0,
+                amount_stolen_big: 0,
+                time_boost_75_100: 0,
+                count_stolen_small: 0,
+                amount_stolen_small: 0,
+                count_collected_big: 0,
+                amount_collected_big: 0,
+                count_collected_small: 0,
+                amount_collected_small: 0,
+                amount_overfill_stolen: 0,
+                amount_used_while_supersonic: 0,
+            },
+            movement: {
+                time_ground: 0,
+                time_low_air: 0,
+                time_high_air: 0,
+                total_distance: 0,
+                time_powerslide: 0,
+                time_slow_speed: 0,
+                count_powerslide: 0,
+                time_boost_speed: 0,
+                time_supersonic_speed: 0,
+            },
+            positioning: {
+                time_behind_ball: 0,
+                time_infront_ball: 0,
+                time_neutral_third: 0,
+                time_defensive_half: 0,
+                time_offensive_half: 0,
+                time_defensive_third: 0,
+                time_offensive_third: 0,
+            },
+        }
+    }
 
-    private async translate(inputStats): Promise<BallchasingResponse> {
+    private translatePlayerStats(inputStats): BallchasingPlayerStats {
+        return {
+            core: {
+                mvp: false,
+                goals: 0,
+                saves: 0,
+                score: 0,
+                shots: 0,
+                assists: 0,
+                goals_against: 0,
+                shots_against: 0,
+                shooting_percentage: 0,
+            },
+            demo: {
+                taken: 0,
+                inflicted: 0,
+            },
+            boost: {
+                bpm: 0,
+                bcpm: 0,
+                avg_amount: 0,
+                amount_stolen: 0,
+                amount_overfill: 0,
+                time_boost_0_25: 0,
+                time_full_boost: 0,
+                time_zero_boost: 0,
+                amount_collected: 0,
+                count_stolen_big: 0,
+                time_boost_25_50: 0,
+                time_boost_50_75: 0,
+                amount_stolen_big: 0,
+                time_boost_75_100: 0,
+                count_stolen_small: 0,
+                percent_boost_0_25: 0,
+                percent_full_boost: 0,
+                percent_zero_boost: 0,
+                amount_stolen_small: 0,
+                count_collected_big: 0,
+                percent_boost_25_50: 0,
+                percent_boost_50_75: 0,
+                amount_collected_big: 0,
+                percent_boost_75_100: 0,
+                count_collected_small: 0,
+                amount_collected_small: 0,
+                amount_overfill_stolen: 0,
+                amount_used_while_supersonic: 0,
+            },
+            movement: {
+                avg_speed: 0,
+                time_ground: 0,
+                time_low_air: 0,
+                time_high_air: 0,
+                percent_ground: 0,
+                total_distance: 0,
+                percent_low_air: 0,
+                time_powerslide: 0,
+                time_slow_speed: 0,
+                count_powerslide: 0,
+                percent_high_air: 0,
+                time_boost_speed: 0,
+                percent_slow_speed: 0,
+                percent_boost_speed: 0,
+                avg_speed_percentage: 0,
+                time_supersonic_speed: 0,
+                avg_powerslide_duration: 0,
+                percent_supersonic_speed: 0,
+            },
+            positioning: {
+                time_most_back: 0,
+                time_behind_ball: 0,
+                percent_most_back: 0,
+                time_infront_ball: 0,
+                time_most_forward: 0,
+                time_neutral_third: 0,
+                percent_behind_ball: 0,
+                time_defensive_half: 0,
+                time_offensive_half: 0,
+                avg_distance_to_ball: 0,
+                percent_infront_ball: 0,
+                percent_most_forward: 0,
+                time_closest_to_ball: 0,
+                time_defensive_third: 0,
+                time_offensive_third: 0,
+                avg_distance_to_mates: 0,
+                percent_neutral_third: 0,
+                percent_defensive_half: 0,
+                percent_offensive_half: 0,
+                percent_closest_to_ball: 0,
+                percent_defensive_third: 0,
+                percent_offensive_third: 0,
+                time_farthest_from_ball: 0,
+                percent_farthest_from_ball: 0,
+                avg_distance_to_ball_possession: 0,
+                goals_against_while_last_defender: 0,
+                avg_distance_to_ball_no_possession: 0,
+            },
+        }
+    }
+
+    private translatePlayer(inputStats): BallchasingPlayer {
+        return z.object({
+            id: z.object({
+                id: z.string(),
+                platform: z.enum(["steam", "xbox", "ps4", "epic"]),
+            }),
+            name: z.string(),
+            camera: z.object({
+                fov: z.number(),
+                pitch: z.number(),
+                height: z.number(),
+                distance: z.number(),
+                stiffness: z.number(),
+                swivel_speed: z.number(),
+                transition_speed: z.number(),
+            }),
+            car_id: z.number().default(-1),
+            car_name: z.string().default("UNKNOWN"),
+            end_time: z.number(),
+            start_time: z.number(),
+            steering_sensitivity: z.number(),
+        
+            stats: this.translatePlayerStats(inputStats),
+        })
+    }
+
+    private translate(inputStats): BallchasingResponse {
+
+        const orangeTeamStats: BallchasingTeamStats = this.translateTeam(inputStats);
+        const blueTeamStats: BallchasingTeamStats = this.translateTeam(inputStats);
 
         const orangePlayers: BallchasingPlayer[] = [];
         const bluePlayers: BallchasingPlayer[] = [];
 
         for (const player of inputStats["players"]) {
+            const newPlayer: BallchasingPlayer = this.translatePlayer(player);
+
             if (player["isOrange"]) {
-                orangePlayers.push(player); 
+                orangePlayers.push(newPlayer); 
             } else {
-                bluePlayers.push(player);
+                bluePlayers.push(newPlayer);
             }
         }
         
@@ -275,14 +469,14 @@ export class ReplayValidationService {
         const blue: BallchasingTeam = {
             name: "blue",
             color: "blue",
-            stats: BallchasingTeamStatsSchema,
+            stats: blueTeamStats,
             players: bluePlayers,
         }
 
         const orange: BallchasingTeam = {
             name: "orange",
             color: "orange",
-            stats: BallchasingTeamStatsSchema,
+            stats: orangeTeamStats,
             players: orangePlayers,
         }
 
