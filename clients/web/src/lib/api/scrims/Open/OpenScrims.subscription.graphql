@@ -1,0 +1,5 @@
+subscription OpenScrimsSub {
+    followPendingScrims {
+        ...OpenScrimsFragment @mask_disable
+    }
+}

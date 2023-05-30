@@ -14,5 +14,5 @@
         {/each}
     </SidebarGroup>
 {:else}
-    <SidebarItem label={item.label} icon={item.icon} on:click={() => goto(item.pathPart)} />
+    <SidebarItem label={item.label} icon={item.icon} on:click={() => goto(`/app/${item.pathPart}`)} />
 {/if}

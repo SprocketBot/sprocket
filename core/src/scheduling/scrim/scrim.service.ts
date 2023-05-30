@@ -6,6 +6,7 @@ import type {
     CreateScrimOptions,
     JoinScrimOptions,
     Scrim,
+    ScrimStatus,
 } from "@sprocketbot/common";
 import {BotEndpoint, BotService, MatchmakingEndpoint, MatchmakingService, ResponseStatus} from "@sprocketbot/common";
 import {IsNull, Not} from "typeorm";
@@ -32,11 +33,12 @@ export class ScrimService {
         private readonly organizationProfileRepository: OrganizationProfileRepository,
     ) {}
 
-    async getAllScrims(organizationId?: number, skillGroupIds?: number[]): Promise<Scrim[]> {
-        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetAllScrims, {
-            organizationId,
-            skillGroupIds,
-        });
+    async getAllScrims(payload: {
+        organizationId?: number;
+        skillGroupIds?: number[];
+        status?: ScrimStatus;
+    }): Promise<Scrim[]> {
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetAllScrims, payload);
 
         if (result.status === ResponseStatus.SUCCESS) return result.data;
         throw result.error;

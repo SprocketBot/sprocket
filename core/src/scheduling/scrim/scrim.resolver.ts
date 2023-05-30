@@ -1,7 +1,8 @@
 import {Parent, ResolveField, Resolver} from "@nestjs/graphql";
 
 import {GameSkillGroupRepository} from "../../franchise/database/game-skill-group.repository";
-import {GameSkillGroupObject, gameSkillGroupObjectFromEntity} from "../../franchise/graphql/game-skill-group.object";
+import {GameSkillGroupConverter} from "../../franchise/graphql/game-skill-group.converter";
+import {GameSkillGroupObject} from "../../franchise/graphql/game-skill-group.object";
 import {GameModeRepository} from "../../game/database/game-mode.repository";
 import {GameModeObject, gameModeObjectFromEntity} from "../../game/graphql/game-mode.object";
 import {UserRepository} from "../../identity/database/user.repository";
@@ -17,6 +18,7 @@ export class ScrimResolver {
         private readonly organizationRepository: OrganizationRepository,
         private readonly gameModeRepository: GameModeRepository,
         private readonly gameSkillGroupRepository: GameSkillGroupRepository,
+        private readonly gameSkillGroupConverter: GameSkillGroupConverter,
     ) {}
 
     @ResolveField(() => UserObject)
@@ -61,6 +63,6 @@ export class ScrimResolver {
             relations: {profile: true},
         });
 
-        return gameSkillGroupObjectFromEntity(skillGroup, skillGroup.profile);
+        return this.gameSkillGroupConverter.convertGameSkillGroupToObject(skillGroup);
     }
 }

@@ -1,0 +1,13 @@
+query MemberGames {
+    getMemberGames @list(name: "MemberGames") {
+        id
+        title
+        modes {
+            id
+            code
+            description
+            teamSize
+            teamCount
+        }
+    }
+}

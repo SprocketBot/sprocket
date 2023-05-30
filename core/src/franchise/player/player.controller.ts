@@ -1,7 +1,7 @@
-import {Controller, Get, HttpException, Logger, Param} from "@nestjs/common";
-import {JwtService} from "@nestjs/jwt";
-import {MessagePattern, Payload} from "@nestjs/microservices";
-import type {CoreOutput} from "@sprocketbot/common";
+import { Controller, Get, HttpException, Logger, Param } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import { MessagePattern, Payload } from "@nestjs/microservices";
+import type { CoreOutput } from "@sprocketbot/common";
 import {
     CoreEndpoint,
     CoreSchemas,
@@ -11,14 +11,14 @@ import {
     NotificationService,
 } from "@sprocketbot/common";
 
-import type {ManualSkillGroupChange} from "../../elo/elo-connector";
-import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
-import {UserAuthenticationAccountRepository} from "../../identity/database/user-authentication-account.repository";
-import {MledbPlayerService} from "../../mledb";
-import {GameSkillGroupRepository} from "../database/game-skill-group.repository";
-import {PlayerRepository} from "../database/player.repository";
-import {RankdownJwtPayloadSchema} from "../schemas/RankdownJwt.schema";
-import {PlayerService} from "./player.service";
+import type { ManualSkillGroupChange } from "../../elo/elo-connector";
+import { EloConnectorService, EloEndpoint } from "../../elo/elo-connector";
+import { UserAuthenticationAccountRepository } from "../../identity/database/user-authentication-account.repository";
+import { MledbPlayerService } from "../../mledb";
+import { GameSkillGroupRepository } from "../database/game-skill-group.repository";
+import { PlayerRepository } from "../database/player.repository";
+import { RankdownJwtPayloadSchema } from "../schemas/RankdownJwt.schema";
+import { PlayerService } from "./player.service";
 
 @Controller("player")
 export class PlayerController {
@@ -34,15 +34,16 @@ export class PlayerController {
         private readonly userAuthenitcationAccountRepository: UserAuthenticationAccountRepository,
         private readonly playerRepository: PlayerRepository,
         private readonly mlePlayerService: MledbPlayerService,
-    ) {}
+    ) { }
 
     @Get("accept-rankdown/:token")
+    @MessagePattern("accept-rankdown")
     async acceptRankdown(@Param("token") token: string): Promise<string> {
         try {
             const payload = RankdownJwtPayloadSchema.parse(this.jwtService.verify(token));
 
             const player = await this.playerRepository.findOneOrFail({
-                where: {id: payload.playerId},
+                where: { id: payload.playerId },
                 relations: {
                     member: {
                         user: {
@@ -61,7 +62,7 @@ export class PlayerController {
                 },
             });
             const skillGroup = await this.skillGroupRepository.findById(payload.skillGroupId, {
-                relations: {profile: true},
+                relations: { profile: true },
             });
             const discordAccount = await this.userAuthenitcationAccountRepository.getDiscordAccountByUserId(
                 player.member.user.id,

@@ -38,25 +38,25 @@ export class ScrimObject implements Scrim {
     authorUserId: number;
 
     @Field(() => UserObject)
-    author: UserObject;
+    author?: UserObject;
 
     @Field(() => Int)
     organizationId: number;
 
     @Field(() => OrganizationObject)
-    organization: OrganizationObject;
+    organization?: OrganizationObject;
 
     @Field(() => Int)
     gameModeId: number;
 
     @Field(() => GameModeObject)
-    gameMode: GameModeObject;
+    gameMode?: GameModeObject;
 
     @Field(() => Int)
     skillGroupId: number;
 
     @Field(() => GameSkillGroupObject)
-    skillGroup: GameSkillGroupObject;
+    skillGroup?: GameSkillGroupObject;
 
     @Field(() => String, {nullable: true})
     submissionId?: string;

@@ -1,4 +1,4 @@
-import {Inject, UseGuards} from "@nestjs/common";
+import {Inject, Logger, UseGuards} from "@nestjs/common";
 import {Resolver, Subscription} from "@nestjs/graphql";
 import {PubSub} from "apollo-server-express";
 
@@ -13,43 +13,49 @@ import {ScrimService} from "./scrim.service";
 
 @Resolver()
 @UseGuards(GraphQLJwtAuthGuard)
-export class ScrimSubscriber {
+export class ScrimSubscriptionsResolver {
+    private readonly logger = new Logger(ScrimSubscriptionsResolver.name)
+
     constructor(
         @Inject(PubSubKey.Scrims) private readonly pubSub: PubSub,
         private readonly playerService: PlayerService,
-        private readonly scrimService: ScrimService,
     ) {}
 
-    @Subscription(() => ScrimEvent)
-    async followCurrentScrim(
-        @AuthenticatedUser() user: JwtAuthPayload,
-    ): Promise<AsyncIterator<ScrimEvent> | undefined> {
-        const scrim = await this.scrimService.getScrimByPlayer(user.userId);
-        if (!scrim) return undefined;
-
-        return this.pubSub.asyncIterator(scrim.id);
+    @Subscription(() => ScrimEvent, {
+        resolve(p) { return p.scrim },
+        async filter(
+            this: ScrimSubscriptionsResolver,
+            payload: {scrim: ScrimObject},
+            variables,
+            context: {req: {user: JwtAuthPayload}},
+        ) {
+            return true
+        }
+    })
+    async followCurrentScrim(): Promise<AsyncIterator<ScrimEvent> | undefined> {
+        return this.pubSub.asyncIterator(ScrimsTopic);
     }
 
     @Subscription(() => ScrimObject, {
+        resolve(p) { return p.scrim },
         async filter(
-            this: ScrimSubscriber,
-            payload: {followPendingScrims: ScrimObject},
+            this: ScrimSubscriptionsResolver,
+            payload: {scrim: ScrimObject},
             variables,
             context: {req: {user: JwtAuthPayload}},
         ) {
             const {userId, currentOrganizationId} = context.req.user;
             if (!currentOrganizationId) return false;
-
-            const {id: gameModeId} = payload.followPendingScrims.gameMode;
             const player = await this.playerService.getPlayerByOrganizationAndGameMode(
                 userId,
                 currentOrganizationId,
-                gameModeId,
-            );
-
+                payload.scrim.gameModeId,
+            ).catch(this.logger.error.bind(this.logger));
+            if (!player) return false
+            
             return (
-                player.skillGroupId === payload.followPendingScrims.skillGroupId ||
-                !payload.followPendingScrims.settings.competitive
+                player.skillGroupId === payload.scrim.skillGroupId ||
+                !payload.scrim.settings.competitive
             );
         },
     })

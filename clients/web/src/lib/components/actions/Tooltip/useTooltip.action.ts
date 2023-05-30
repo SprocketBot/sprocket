@@ -1,7 +1,7 @@
 import type {TooltipParams} from "./types";
 import "./tooltip.postcss";
 
-export const tooltip = (node: HTMLElement, {content, position = "top", withArrow, active}: TooltipParams) => {
+export const tooltip = (node: HTMLElement, {content, position = "top", withArrow, active = true}: TooltipParams) => {
     const tooltip = document.createElement("div");
     tooltip.classList.add("tooltip");
 

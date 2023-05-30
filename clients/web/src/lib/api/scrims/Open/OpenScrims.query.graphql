@@ -1,0 +1,5 @@
+query OpenScrims {
+    getAvailableScrims(status: PENDING) @list(name: "OpenScrims") {
+        ...OpenScrimsFragment @mask_disable
+    }
+}
