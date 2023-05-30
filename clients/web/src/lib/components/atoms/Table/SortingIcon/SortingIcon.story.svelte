@@ -16,7 +16,7 @@
     let directionValue: keyof typeof directionOptions = "false";
     $: direction = directionOptions[directionValue];
 
-    let hovered: boolean = false;
+    let hovered = false;
 </script>
 
 

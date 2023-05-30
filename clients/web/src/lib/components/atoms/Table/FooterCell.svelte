@@ -2,7 +2,7 @@
     import { flexRender , type Header } from "@tanstack/svelte-table";
 
     export let footer: Header<any, unknown>;
-    export let colspan: number = 1;
+    export let colspan = 1;
 
     $: content = flexRender(footer.column.columnDef.header, footer.getContext());
 </script>
