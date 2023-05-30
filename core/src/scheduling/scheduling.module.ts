@@ -16,6 +16,7 @@ import {ConfigurationModule} from "../configuration/configuration.module";
 import {EloConnectorModule} from "../elo/elo-connector";
 import {FranchiseDatabaseModule} from "../franchise/database/franchise-database.module";
 import {FranchiseModule} from "../franchise/franchise.module";
+import {GameSkillGroupConverter} from "../franchise/graphql/game-skill-group.converter";
 import {GameDatabaseModule} from "../game/database/game-database.module";
 import {IdentityDatabaseModule} from "../identity/database/identity-database.module";
 import {MledbInterfaceModule} from "../mledb";
@@ -30,10 +31,11 @@ import {MatchService} from "./match/match.service";
 import {ScrimConsumer} from "./scrim/scrim.consumer";
 import {ScrimController} from "./scrim/scrim.controller";
 import {ScrimPubSub} from "./scrim/scrim.pubsub";
+import {ScrimResolver} from "./scrim/scrim.resolver";
 import {ScrimService} from "./scrim/scrim.service";
-import {ScrimSubscriber} from "./scrim/scrim.subscriber";
 import {ScrimAdminResolver} from "./scrim/scrim-admin.resolver";
 import {ScrimPlayerResolver} from "./scrim/scrim-player.resolver";
+import {ScrimSubscriptionsResolver} from "./scrim/scrim-subscriptions.resolver";
 import {ScrimTogglePubSub} from "./scrim/scrim-toggle/scrim-toggle.pubsub";
 import {ScrimToggleResolver} from "./scrim/scrim-toggle/scrim-toggle.resolver";
 import {ScrimToggleService} from "./scrim/scrim-toggle/scrim-toggle.service";
@@ -90,7 +92,8 @@ import {SubmissionPlayerResolver} from "./submission/submission-player.resolver"
         ScrimConsumer,
         ScrimService,
         ScrimPubSub,
-        ScrimSubscriber,
+        ScrimSubscriptionsResolver,
+        ScrimResolver,
         ScrimAdminResolver,
         ScrimPlayerResolver,
         SubmissionService,
@@ -102,6 +105,7 @@ import {SubmissionPlayerResolver} from "./submission/submission-player.resolver"
         FinalizationSubscriber,
         RocketLeagueFinalizationService,
         SprocketRatingService,
+        GameSkillGroupConverter,
     ],
     exports: [SprocketRatingService],
 })

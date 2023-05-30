@@ -9,7 +9,7 @@ export class ScrimMetricsService {
     constructor(private readonly scrimCrudService: ScrimCrudService) {}
 
     async getScrimMetrics(): Promise<ScrimMetrics> {
-        const allScrims = await this.scrimCrudService.getAllScrims();
+        const allScrims = await this.scrimCrudService.getAllScrims({});
 
         return allScrims.reduce<ScrimMetrics>(
             (acc: ScrimMetrics, v: Scrim) => {

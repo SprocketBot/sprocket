@@ -1,9 +1,3 @@
-<script lang="ts" context="module">
-    export type SelectOptionValue = string | number;
-    export type SelectOption<T extends SelectOptionValue> = {label: string; value: T};
-    export type SelectOptions<T extends SelectOptionValue> = SelectOption<T>[];
-</script>
-
 <script lang="ts">
     import {slide} from "svelte/transition";
     import {nanoid} from "nanoid";
@@ -11,6 +5,7 @@
     import type {FormControlSize, FormControlState} from "../form.types";
     import {Icon} from "@steeze-ui/svelte-icon";
     import {ChevronDown} from "@steeze-ui/heroicons";
+    import type {SelectOptions, SelectOptionValue} from "./types";
 
     // Define generic so that options and value have the same type
     type T = $$Generic<SelectOptionValue>;

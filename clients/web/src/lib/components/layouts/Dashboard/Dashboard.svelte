@@ -5,7 +5,7 @@
     import {Drawer} from "../../atoms/Drawer";
     import type {SidebarWidth} from "../../molecules/Sidebar";
     import {Navbar} from "../../molecules/Navbar";
-    import {Sidebar, SidebarItem} from "../../molecules/Sidebar";
+    import {Sidebar} from "../../molecules/Sidebar";
     import {setContext} from "svelte";
     import {BREADCRUMB_CONTEXT_KEY, type BreadcrumbContext} from "../../atoms/Breadcrumb";
     import type {NavTreeItem} from "./types";
@@ -56,6 +56,8 @@
             {#each navTree as navItem}
                 <DashboardNavItem item={navItem} />
             {/each}
+
+            <slot slot="footer" name="sidebar-footer"/>
         </Sidebar>
     {/if}
 

@@ -1,9 +1,8 @@
 <script lang="ts">
     import {ArrowLeftOnRectangle, ArrowRightOnRectangle, Bars3, Identification} from "@steeze-ui/heroicons";
-    import {Icon} from "@steeze-ui/svelte-icon";
     import {goto} from "$app/navigation";
-    import {AuthGuard, Avatar, Button, Dropdown, ListGroup, ListGroupItem} from "$lib/components";
-    import {UserInfoContext} from "$lib/context/UserInfo.context";
+    import {AuthGuard, Avatar, Dropdown, ListGroup, ListGroupItem} from "$lib/components";
+    import {UserInfoContext} from "$lib/api";
 
     const userInfo = UserInfoContext();
 </script>

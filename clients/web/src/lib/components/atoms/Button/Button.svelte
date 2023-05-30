@@ -52,6 +52,15 @@
             @apply border-info-600 hover:border-info-700;
         }
     }
+    .button-primary {
+        @apply text-white border focus:ring-primary-800;
+        &:not(.has-outline) {
+            @apply bg-primary-600 hover:bg-primary-700 border-transparent;
+        }
+        &.has-outline {
+            @apply border-primary-600 hover:border-primary-700;
+        }
+    }
     .button-alt {
         @apply border focus:z-10 focus:ring-gray-700 text-gray-100 hover:text-white;
         &:not(.has-outline) {

@@ -1,6 +1,6 @@
 import { browser } from "$app/environment";
 import { RefreshLoginStore } from "$houdini";
-import { updateAuthCookies } from "$lib/api/auth-cookies";
+import { updateAuthCookies } from "$lib/api";
 import { getExpiryFromJwt } from "$lib/utilities/getExpiryFromJwt";
 import type { ClientPlugin } from "$houdini";
 
