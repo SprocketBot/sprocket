@@ -6,14 +6,14 @@
     import { SortingIcon } from "./SortingIcon";
 
     export let header: Header<any, unknown>;
-    export let colspan: number = 1;
+    export let colspan = 1;
 
     const sortable = header.column.getCanSort();
     const onSort = header.column.getToggleSortingHandler();
 
     $: content = flexRender(header.column.columnDef.header, header.getContext());
 
-    let hovered: boolean = false;
+    let hovered = false;
 </script>
 
 <th class="h-1 bg-gray-600" {colspan}>
