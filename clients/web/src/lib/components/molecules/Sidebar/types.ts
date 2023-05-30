@@ -2,8 +2,8 @@ import type {Writable} from "svelte/store";
 
 export type SidebarWidth = "full" | "md" | "sm";
 
-export const SidebarContextKey = "SIDEBAR_CONTEXT_KEY";
-export type SidebarContext = Writable<{
+export const InternalSidebarContextKey = "INTERNAL_SIDEBAR_CONTEXT_KEY";
+export type InternalSidebarContext = Writable<{
     iconOnly?: boolean;
     showTooltips?: boolean;
 }>;

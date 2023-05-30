@@ -1,9 +1,9 @@
 <script lang="ts">
     import type {Hst as _Hst} from "@histoire/plugin-svelte";
-    
+
     import {Props} from "$lib/histoire";
     import SortingIcon from "./SortingIcon.svelte";
-    import type { SortDirection } from "@tanstack/svelte-table";
+    import type {SortDirection} from "@tanstack/svelte-table";
 
     export let Hst: _Hst;
 
@@ -11,14 +11,13 @@
         false: false,
         asc: "asc",
         desc: "desc",
-    }
+    };
 
     let directionValue: keyof typeof directionOptions = "false";
     $: direction = directionOptions[directionValue];
 
-    let hovered: boolean = false;
+    let hovered = false;
 </script>
-
 
 <Hst.Story title="Atoms/Table/SortingIcon" layout={{type: "single"}}>
     <svelte:fragment slot="controls">

@@ -18,13 +18,13 @@
     }
 
     const randomPlayer = (): Player => ({
-        id: faker.datatype.number({ min: 1, max: 20000 }),
+        id: faker.datatype.number({min: 1, max: 20000}),
         name: faker.internet.userName(),
         team: faker.helpers.arrayElement(["Pandas", "Sharks", "Flames", "Shadow"])!,
         league: faker.helpers.arrayElement(["FL", "AL", "CL", "ML", "PL"]),
-        salary: faker.datatype.number({ max: 20 }) + Math.round(Math.random()) * 0.5,
+        salary: faker.datatype.number({max: 20}) + Math.round(Math.random()) * 0.5,
         active: faker.datatype.boolean(),
-    })
+    });
 
     const data = times(10, randomPlayer);
 
@@ -32,7 +32,7 @@
 
     const columns = [
         columnHelper.accessor("id", {
-            header: 'ID',
+            header: "ID",
         }),
         columnHelper.accessor("name", {
             header: "Name",
@@ -44,10 +44,10 @@
             header: "League",
         }),
         columnHelper.accessor("salary", {
-            header: "Salary"
+            header: "Salary",
         }),
         columnHelper.accessor("active", {
-            header: "Active"
+            header: "Active",
         }),
     ];
 </script>

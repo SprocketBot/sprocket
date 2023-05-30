@@ -13,12 +13,13 @@
     const invalid = (reason?: string) => {
         valid = false;
         console.warn(`AuthGuard failed (${reason})`);
-        addToast({
-            status: ToastStatus.Danger,
-            content: "Session Expired. Please sign in.",
-            ttl: 10000,
-            dismissable: true,
-        });
+        if (behavior !== "hide")
+            addToast({
+                status: ToastStatus.Danger,
+                content: "Session Expired. Please sign in.",
+                ttl: 10000,
+                dismissable: true,
+            });
 
         switch (behavior) {
             case "login":
@@ -35,7 +36,7 @@
             return "No JWT Available";
         } else {
             try {
-                if (getExpiryFromJwt(access) < new Date().getTime()) {
+                if (getExpiryFromJwt(access).getTime() < new Date().getTime()) {
                     return "JWT Expired";
                 } else {
                     // If we wanted to do action based validation; this is the place.

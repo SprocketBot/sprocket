@@ -8,6 +8,7 @@ export * from "./Breadcrumb";
 export * from "./Button";
 export * from "./Drawer";
 export * from "./Dropdown";
+export * from "./ListGroup";
 export * from "./Modal";
 export * from "./Table";
 export * from "./Tabs";

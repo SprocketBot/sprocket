@@ -1,10 +1,10 @@
-export type OnHoverChange = (hovered: boolean) => void
+export type OnHoverChange = (hovered: boolean) => void;
 
 export interface HoveredActionOpts {
-    onHoverChange: OnHoverChange
+    onHoverChange: OnHoverChange;
 }
 
-export const hoverable = (node: HTMLElement, opts: HoveredActionOpts): { destroy: () => void } => {
+export const hoverable = (node: HTMLElement, opts: HoveredActionOpts): {destroy: () => void} => {
     const onMouseEnter = () => opts.onHoverChange(true);
     const onMouseLeave = () => opts.onHoverChange(false);
 
