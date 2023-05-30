@@ -1,2 +1,2 @@
-export * from "./auth-cookies"
-export * from "./auth-refresh-interval"
+export * from "./auth-cookies";
+export * from "./auth-refresh-interval";

@@ -19,7 +19,7 @@
     import {CreateScrimStore, MemberGamesStore} from "$houdini";
     import {onMount} from "svelte";
     import type {SelectOption} from "$lib/components";
-    import { invalidateAll } from "$app/navigation";
+    import {invalidateAll} from "$app/navigation";
     export let open = false;
 
     const memberGames = new MemberGamesStore();
@@ -43,16 +43,15 @@
             .find(g => g.id === gameId)
             ?.modes.map(m => ({label: m.description, value: m.id})) ?? [];
 
-
-    let errors: z.typeToFlattenedError<FormInput>
+    let errors: z.typeToFlattenedError<FormInput>;
     async function submit() {
-        const result = formInput.safeParse(formValues)
+        const result = formInput.safeParse(formValues);
         if (result.success) {
             await createScrim.mutate({options: result.data});
-            invalidateAll()
+            invalidateAll();
             open = false;
         } else {
-            errors = result.error.formErrors
+            errors = result.error.formErrors;
         }
     }
 </script>

@@ -1,2 +1,2 @@
-export * from "./OpenScrims.Live.store"
-export * from "./OpenScrims.context"
+export * from "./OpenScrims.Live.store";
+export * from "./OpenScrims.context";

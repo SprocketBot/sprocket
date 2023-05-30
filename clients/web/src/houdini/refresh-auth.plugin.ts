@@ -1,8 +1,8 @@
-import { browser } from "$app/environment";
-import { RefreshLoginStore } from "$houdini";
-import { updateAuthCookies } from "$lib/api";
-import { getExpiryFromJwt } from "$lib/utilities/getExpiryFromJwt";
-import type { ClientPlugin } from "$houdini";
+import {browser} from "$app/environment";
+import {RefreshLoginStore} from "$houdini";
+import {updateAuthCookies} from "$lib/api";
+import {getExpiryFromJwt} from "$lib/utilities/getExpiryFromJwt";
+import type {ClientPlugin} from "$houdini";
 
 export const refreshAuthPlugin: ClientPlugin = () => {
     return {
@@ -23,9 +23,7 @@ export const refreshAuthPlugin: ClientPlugin = () => {
                 return;
             }
             if (ctx.artifact.name === "RefreshLogin") {
-                console.debug(
-                    "Avoiding infinite loop. Will not try to refresh auth before a refresh auth call.",
-                );
+                console.debug("Avoiding infinite loop. Will not try to refresh auth before a refresh auth call.");
                 next(ctx);
                 return;
             }
@@ -71,4 +69,4 @@ export const refreshAuthPlugin: ClientPlugin = () => {
             next(ctx);
         },
     };
-}
+};

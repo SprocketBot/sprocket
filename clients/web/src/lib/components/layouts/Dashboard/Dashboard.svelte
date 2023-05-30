@@ -57,7 +57,7 @@
                 <DashboardNavItem item={navItem} />
             {/each}
 
-            <slot slot="footer" name="sidebar-footer"/>
+            <slot slot="footer" name="sidebar-footer" />
         </Sidebar>
     {/if}
 
