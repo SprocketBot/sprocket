@@ -1,12 +1,12 @@
 <script lang="ts">
     import {UserProfileStore} from "$houdini";
-    import { onMount } from "svelte";
+    import {onMount} from "svelte";
 
-    const profileStore = new UserProfileStore()
+    const profileStore = new UserProfileStore();
 
     onMount(() => {
-        profileStore.fetch()
-    })
+        profileStore.fetch();
+    });
 </script>
 
 {$profileStore.data?.me.name}

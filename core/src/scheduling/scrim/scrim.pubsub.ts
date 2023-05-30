@@ -3,7 +3,7 @@ import {EventsService, EventTopic, Scrim, SprocketEvent, SprocketEventMarshal} f
 import {PubSub} from "apollo-server-express";
 
 import {PubSubKey} from "../../types/pubsub.constants";
-import { convertScrimToScrimObject } from "./scrim.converter";
+import {convertScrimToScrimObject} from "./scrim.converter";
 
 export const ScrimsTopic = "scrims";
 
@@ -12,12 +12,12 @@ export class ScrimPubSub extends SprocketEventMarshal {
     constructor(readonly eventsService: EventsService, @Inject(PubSubKey.Scrims) private readonly pubsub: PubSub) {
         super(eventsService);
 
-        pubsub.subscribe(ScrimsTopic, console.log)
+        pubsub.subscribe(ScrimsTopic, console.log);
     }
 
     @SprocketEvent(EventTopic.ScrimCreated)
     async scrimCreated(scrim: Scrim): Promise<void> {
-        const scrimObject = convertScrimToScrimObject(scrim)
+        const scrimObject = convertScrimToScrimObject(scrim);
         this.pubsub.publish(ScrimsTopic, {
             scrim: scrimObject,
         });
@@ -31,7 +31,7 @@ export class ScrimPubSub extends SprocketEventMarshal {
 
     @SprocketEvent(EventTopic.ScrimDestroyed)
     async scrimDestroyed(scrim: Scrim): Promise<void> {
-        const scrimObject = convertScrimToScrimObject(scrim)
+        const scrimObject = convertScrimToScrimObject(scrim);
 
         this.pubsub.publish(ScrimsTopic, {
             scrim: scrimObject,
@@ -46,7 +46,7 @@ export class ScrimPubSub extends SprocketEventMarshal {
 
     @SprocketEvent(EventTopic.ScrimCancelled)
     async scrimCancelled(scrim: Scrim): Promise<void> {
-        const scrimObject = convertScrimToScrimObject(scrim)
+        const scrimObject = convertScrimToScrimObject(scrim);
         this.pubsub.publish(ScrimsTopic, {
             scrim: scrimObject,
         });
@@ -60,7 +60,7 @@ export class ScrimPubSub extends SprocketEventMarshal {
 
     @SprocketEvent(EventTopic.ScrimPopped)
     async scrimPopped(scrim: Scrim): Promise<void> {
-        const scrimObject = convertScrimToScrimObject(scrim)
+        const scrimObject = convertScrimToScrimObject(scrim);
 
         this.pubsub.publish(ScrimsTopic, {
             scrim: scrimObject,
@@ -75,7 +75,7 @@ export class ScrimPubSub extends SprocketEventMarshal {
 
     @SprocketEvent(EventTopic.ScrimComplete)
     async scrimComplete(scrim: Scrim): Promise<void> {
-        const scrimObject = convertScrimToScrimObject(scrim)
+        const scrimObject = convertScrimToScrimObject(scrim);
 
         this.pubsub.publish(ScrimsTopic, {
             scrim: scrimObject,
@@ -90,7 +90,7 @@ export class ScrimPubSub extends SprocketEventMarshal {
 
     @SprocketEvent(EventTopic.ScrimStarted)
     async scrimStarted(scrim: Scrim): Promise<void> {
-        const scrimObject = convertScrimToScrimObject(scrim)
+        const scrimObject = convertScrimToScrimObject(scrim);
 
         this.pubsub.publish(scrim.id, {
             followCurrentScrim: {
@@ -102,7 +102,7 @@ export class ScrimPubSub extends SprocketEventMarshal {
 
     @SprocketEvent(EventTopic.ScrimUpdated)
     async scrimUpdated(scrim: Scrim): Promise<void> {
-        const scrimObject = convertScrimToScrimObject(scrim)
+        const scrimObject = convertScrimToScrimObject(scrim);
 
         this.pubsub.publish(scrim.id, {
             followCurrentScrim: {

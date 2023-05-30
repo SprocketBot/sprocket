@@ -5,7 +5,7 @@ import {subscription} from "$houdini/plugins";
 import {goto} from "$app/navigation";
 import {getAuthCookies, clearAuthCookies} from "$lib/api";
 import {redirect} from "@sveltejs/kit";
-import { refreshAuthPlugin } from "./houdini/refresh-auth.plugin";
+import {refreshAuthPlugin} from "./houdini/refresh-auth.plugin";
 
 const getAuthToken = ({
     session,
@@ -59,24 +59,22 @@ export default new HoudiniClient({
     },
     plugins: [
         refreshAuthPlugin,
-        subscription(
-            ctx => {
-                const c = new SubscriptionClient(`${env.PUBLIC_GQL_URL.replace("http", "ws")}/graphql`, {
-                    reconnect: true,
-                    lazy: true,
-                });
-                return {
-                    subscribe(payload, handlers) {
-                        const {unsubscribe} = c
-                            .request({
-                                ...payload,
-                                context: {authorization: getAuthToken() ? `Bearer ${getAuthToken()}` : undefined},
-                            })
-                            .subscribe(handlers);
-                        return unsubscribe;
-                    },
-                };
-            },
-        ),
+        subscription(ctx => {
+            const c = new SubscriptionClient(`${env.PUBLIC_GQL_URL.replace("http", "ws")}/graphql`, {
+                reconnect: true,
+                lazy: true,
+            });
+            return {
+                subscribe(payload, handlers) {
+                    const {unsubscribe} = c
+                        .request({
+                            ...payload,
+                            context: {authorization: getAuthToken() ? `Bearer ${getAuthToken()}` : undefined},
+                        })
+                        .subscribe(handlers);
+                    return unsubscribe;
+                },
+            };
+        }),
     ],
 });
