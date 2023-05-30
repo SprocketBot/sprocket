@@ -1,12 +1,11 @@
 <script lang="ts">
-    import { flexRender , type Header } from "@tanstack/svelte-table";
+    import {flexRender, type Header} from "@tanstack/svelte-table";
 
     export let footer: Header<any, unknown>;
     export let colspan = 1;
 
     $: content = flexRender(footer.column.columnDef.header, footer.getContext());
 </script>
-
 
 <th class="p-0 h-1 bg-gray-600" {colspan}>
     {#if !footer.isPlaceholder}
