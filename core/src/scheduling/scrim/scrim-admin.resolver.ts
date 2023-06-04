@@ -14,7 +14,7 @@ import {ScrimService} from "./scrim.service";
 export class ScrimAdminResolver {
     constructor(private readonly scrimService: ScrimService) {}
 
-    @Query(() => [ScrimObject])
+    @Query(() => [ScrimObject], {description: "Lists all scrims in an organization without filtering by skill group"})
     @Actions("ReadOrganizationScrims")
     @UseGuards(MemberGuard)
     async getAllScrims(
@@ -25,7 +25,7 @@ export class ScrimAdminResolver {
         })
         status?: ScrimStatus,
     ): Promise<ScrimObject[]> {
-        const scrims = await this.scrimService.getAllScrims(member.organizationId);
+        const scrims = await this.scrimService.getAllScrims({organizationId: member.organizationId});
 
         return (status ? scrims.filter(scrim => scrim.status === status) : scrims) as ScrimObject[];
     }

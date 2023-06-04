@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {UserInfoContext} from "../../../context/UserInfo.context";
+    import {UserInfoContext} from "$lib/api";
     import AuthMenu from "./molecules/AuthMenu.svelte";
 
     const userInfo = UserInfoContext();

@@ -1,0 +1,19 @@
+fragment CurrentScrimFragment on ScrimObject {
+    id
+    author {
+        displayName
+    }
+    playerCount
+    maxPlayers
+    status
+    skillGroup {
+        description
+    }
+    gameMode {
+        description
+    }
+    settings {
+        competitive
+        mode
+    }
+}

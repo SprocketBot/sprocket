@@ -7,7 +7,7 @@
     import {MyOrganizationsStore} from "$houdini";
     import {next, selectOrganization} from "../helpers";
     import type {ButtonActionTuple} from "$lib/components/atoms/Button/types";
-    import {updateAuthCookies} from "$lib/api/auth-cookies";
+    import {updateAuthCookies} from "$lib/api";
 
     let errorMessage = "";
     const handleOauthResult = async (e: MessageEvent) => {

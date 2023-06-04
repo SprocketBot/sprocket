@@ -25,7 +25,7 @@
             id="defaultModal"
             tabindex="-1"
             aria-hidden={open ? "false" : "true"}
-            class="overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 w-full md:inset-0 h-full flex justify-center sm:items-center"
+            class="overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 w-full md:inset-0 h-full flex justify-center sm:items-center "
         >
             <div class="relative p-4 w-full max-w-2xl h-full md:h-auto">
                 <!-- Modal content -->
@@ -44,14 +44,14 @@
                             {#if hasHeader}
                                 <slot name="header" />
                             {:else if title}
-                                <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                                <h3 class="text-xl font-semibold text-gray-50">
                                     {title}
                                 </h3>
                             {/if}
                         </div>
                     {/if}
                     <!-- Modal body -->
-                    <div class="p-6">
+                    <div class="p-6 text-gray-50">
                         <slot />
                     </div>
                     <!-- Modal footer -->

@@ -1,6 +1,5 @@
 <script lang="ts">
-    import {UserInfoStore} from "$houdini";
-    import {UserInfoContext} from "$lib/context/UserInfo.context";
+    import {UserInfoContext} from "$lib/api";
     const userInfo = UserInfoContext();
 </script>
 

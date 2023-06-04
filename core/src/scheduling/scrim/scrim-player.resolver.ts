@@ -1,9 +1,11 @@
 import {UseGuards} from "@nestjs/common";
 import {Args, Mutation, Query, Resolver} from "@nestjs/graphql";
 import type {ScrimSettings} from "@sprocketbot/common";
-import {OrganizationConfigurationKeyCode, ScrimMode} from "@sprocketbot/common";
+import {OrganizationConfigurationKeyCode, ScrimMode, ScrimStatus} from "@sprocketbot/common";
 import {minutesToMilliseconds} from "date-fns";
 import {GraphQLError} from "graphql";
+
+import {PopulateService} from "$util";
 
 import {AuthenticatedUser} from "../../authentication/decorators";
 import {GraphQLJwtAuthGuard} from "../../authentication/guards";
@@ -17,10 +19,10 @@ import {PlayerRepository} from "../../franchise/database/player.repository";
 import {GameModeRepository} from "../../game/database/game-mode.repository";
 import {FormerPlayerScrimGuard} from "../../mledb/mledb-player/mledb-player.guard";
 import {Member} from "../../organization/database/member.entity";
-import {PopulateService} from "../../util";
 import {CreateScrimInput} from "../graphql/scrim/create-scrim.input";
 import {JoinScrimInput} from "../graphql/scrim/join-scrim.input";
 import {ScrimObject} from "../graphql/scrim/scrim.object";
+import {convertScrimToScrimObject} from "./scrim.converter";
 import {CreateScrimPlayerGuard, JoinScrimPlayerGuard} from "./scrim.guard";
 import {ScrimService} from "./scrim.service";
 import {ScrimToggleService} from "./scrim-toggle/scrim-toggle.service";
@@ -37,25 +39,38 @@ export class ScrimPlayerResolver {
         private readonly organizationConfigurationService: OrganizationConfigurationService,
     ) {}
 
-    @Query(() => [ScrimObject])
+    @Query(() => [ScrimObject], {description: "Lists all scrims available to a member"})
     // TODO: Get rid of the FormerPlayerScrimGuard after we get member status
     @UseGuards(FormerPlayerScrimGuard, MemberGuard)
-    async getAvailableScrims(@CurrentMember() member: Member): Promise<ScrimObject[]> {
+    async getAvailableScrims(
+        @CurrentMember() member: Member,
+        @Args("status", {
+            type: () => ScrimStatus,
+            nullable: true,
+        })
+        status?: ScrimStatus,
+    ): Promise<ScrimObject[]> {
         const players = await this.populateService.populateMany(Member, member, "players");
-        const scrims = await this.scrimService.getAllScrims(
-            member.organizationId,
-            players.map(p => p.skillGroupId),
-        );
-
-        return scrims as ScrimObject[];
+        const scrims = await this.scrimService.getAllScrims({
+            organizationId: member.organizationId,
+            skillGroupIds: players.map(p => p.skillGroupId),
+            status: status,
+        });
+        return scrims.map(convertScrimToScrimObject);
     }
 
-    @Query(() => ScrimObject, {nullable: true})
+    @Query(() => ScrimObject, {
+        nullable: true,
+        description: "Returns the scrim that the player is currently participating in, if any",
+    })
     async getCurrentScrim(@AuthenticatedUser() user: JwtAuthPayload): Promise<ScrimObject | null> {
-        return this.scrimService.getScrimByPlayer(user.userId) as Promise<ScrimObject | null>;
+        return this.scrimService.getScrimByPlayer(user.userId).then(s => (s ? convertScrimToScrimObject(s) : s));
     }
 
-    @Mutation(() => ScrimObject)
+    @Mutation(() => ScrimObject, {
+        description:
+            "Creates and automatically joins a new scrim. Fails if player is already in a scrim, or if scrims are disabled",
+    })
     @UseGuards(QueueBanGuard, CreateScrimPlayerGuard, FormerPlayerScrimGuard)
     async createScrim(
         @AuthenticatedUser() user: JwtAuthPayload,
@@ -82,23 +97,27 @@ export class ScrimPlayerResolver {
             checkinTimeout: minutesToMilliseconds(checkinTimeout),
         };
 
-        return this.scrimService.createScrim({
-            authorUserId: user.userId,
-            organizationId: user.currentOrganizationId,
-            gameModeId: gameMode.id,
-            skillGroupId: player.skillGroupId,
-            settings: settings,
-            join: {
-                userId: user.userId,
-                playerName: member.profile.name,
-                leaveAfter: data.leaveAfter,
-                createGroup: data.createGroup,
-                canSaveDemos: data.canSaveDemos ?? false,
-            },
-        }) as Promise<ScrimObject>;
+        return this.scrimService
+            .createScrim({
+                authorUserId: user.userId,
+                organizationId: user.currentOrganizationId,
+                gameModeId: gameMode.id,
+                skillGroupId: player.skillGroupId,
+                settings: settings,
+                join: {
+                    userId: user.userId,
+                    playerName: member.profile.name,
+                    leaveAfter: data.leaveAfter,
+                    createGroup: data.createGroup,
+                    canSaveDemos: data.canSaveDemos ?? false,
+                },
+            })
+            .then(convertScrimToScrimObject);
     }
 
-    @Mutation(() => Boolean)
+    @Mutation(() => Boolean, {
+        description: "Joins the specified scrim, if the player is in the correct organization and skill group.",
+    })
     @UseGuards(QueueBanGuard, JoinScrimPlayerGuard, FormerPlayerScrimGuard)
     async joinScrim(
         @AuthenticatedUser() user: JwtAuthPayload,
@@ -138,7 +157,7 @@ export class ScrimPlayerResolver {
         }
     }
 
-    @Mutation(() => Boolean)
+    @Mutation(() => Boolean, {description: "Leaves the player's current scrim, if any"})
     async leaveScrim(@AuthenticatedUser() user: JwtAuthPayload): Promise<boolean> {
         const scrim = await this.scrimService.getScrimByPlayer(user.userId);
         if (!scrim) throw new GraphQLError("You must be in a scrim to leave");
