@@ -337,7 +337,7 @@ export class ReplayValidationService {
                 time_offensive_third: 0,
             },
         } as unknown as BallchasingTeamStats;
-   }
+    }
 
     private translatePlayerStats(input, shots, goals): BallchasingPlayerStats {
         return {
