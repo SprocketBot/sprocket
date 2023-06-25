@@ -1,6 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {RpcException} from "@nestjs/microservices";
-import {MatchmakingError, Scrim, ScrimPlayer} from "@sprocketbot/common";
+import type {Scrim, ScrimPlayer} from "@sprocketbot/common";
+import {MatchmakingError} from "@sprocketbot/common";
 import {ScrimMode} from "@sprocketbot/common";
 import {nanoid} from "nanoid";
 

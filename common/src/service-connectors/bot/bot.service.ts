@@ -4,10 +4,10 @@ import {
 } from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
 import {lastValueFrom, timeout} from "rxjs";
+import {v4 as uuidv4} from "uuid";
 
 import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
-import {v4 as uuidv4} from "uuid";
 import type {
     BotEndpoint, BotInput, BotResponse,
 } from "./bot.types";
@@ -17,10 +17,7 @@ import {BotSchemas} from "./bot.types";
 export class BotService {
     private logger = new Logger(BotService.name);
 
-    constructor(
-        @Inject(CommonClient.Bot) private microserviceClient: ClientProxy,
-        
-    ) {}
+    constructor(@Inject(CommonClient.Bot) private microserviceClient: ClientProxy) {}
 
     async send<E extends BotEndpoint>(endpoint: E, data: BotInput<E>, options?: MicroserviceRequestOptions): Promise<BotResponse<E>> {
         const rid = uuidv4();

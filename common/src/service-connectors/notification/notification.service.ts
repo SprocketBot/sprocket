@@ -4,10 +4,10 @@ import {
 } from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
 import {lastValueFrom, timeout} from "rxjs";
+import {v4 as uuidv4} from "uuid";
 
 import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
-import {v4 as uuidv4} from "uuid";
 import type {
     NotificationEndpoint, NotificationInput, NotificationResponse,
 } from "./notification.types";
@@ -17,10 +17,7 @@ import {NotificationSchemas} from "./notification.types";
 export class NotificationService {
     private logger = new Logger(NotificationService.name);
 
-    constructor(
-        @Inject(CommonClient.Notification) private microserviceClient: ClientProxy,
-        
-    ) {}
+    constructor(@Inject(CommonClient.Notification) private microserviceClient: ClientProxy) {}
 
     async send<E extends NotificationEndpoint>(endpoint: E, data: NotificationInput<E>, options?: MicroserviceRequestOptions): Promise<NotificationResponse<E>> {
         const rid = uuidv4();

@@ -4,10 +4,10 @@ import {
 } from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
 import {lastValueFrom, timeout} from "rxjs";
+import {v4 as uuidv4} from "uuid";
 
 import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
-import {v4 as uuidv4} from "uuid";
 import type {
     SubmissionEndpoint, SubmissionInput, SubmissionResponse,
 } from "./submission.types";
@@ -17,10 +17,7 @@ import {SubmissionSchemas} from "./submission.types";
 export class SubmissionService {
     private logger = new Logger(SubmissionService.name);
 
-    constructor(
-        @Inject(CommonClient.Submission) private microserviceClient: ClientProxy,
-        
-    ) {}
+    constructor(@Inject(CommonClient.Submission) private microserviceClient: ClientProxy) {}
 
     async send<E extends SubmissionEndpoint>(endpoint: E, data: SubmissionInput<E>, options?: MicroserviceRequestOptions): Promise<SubmissionResponse<E>> {
         const rid = uuidv4();
