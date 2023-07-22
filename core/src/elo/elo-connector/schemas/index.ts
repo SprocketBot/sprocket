@@ -4,3 +4,4 @@ export * from "./CalculateEloForMatch.schema";
 export * from "./CalculateEloForNcp.schema";
 export * from "./CalculateSalaries.schema";
 export * from "./ManualRankout.schema";
+export * from "./ManualEloChange.schema";
