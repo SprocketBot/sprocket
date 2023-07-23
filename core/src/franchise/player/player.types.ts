@@ -37,4 +37,15 @@ export const RankdownJwtPayloadSchema = z.object({
     skillGroupId: z.number(),
 });
 
+export const EloRedistributionSchema = z.array(z.tuple([
+    z.string(),
+    z.string(),
+    z.string(),
+]).rest(z.string())
+    .transform(([playerId, salary, newElo]) => ({
+        playerId: parseInt(playerId),
+        salary: parseFloat(salary),
+        newElo: parseFloat(newElo),
+    })));
+
 export type RankdownJwtPayload = z.infer<typeof RankdownJwtPayloadSchema>;

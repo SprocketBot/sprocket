@@ -42,7 +42,7 @@ import {PopulateService} from "../../util/populate/populate.service";
 import {FranchiseService} from "../franchise";
 import {GameSkillGroupService} from "../game-skill-group";
 import {PlayerService} from "./player.service";
-import {IntakeSchema} from "./player.types";
+import {EloRedistributionSchema, IntakeSchema} from "./player.types";
 
 const platformTransform = {
     "epic": MLE_Platform.EPIC,
@@ -277,6 +277,28 @@ export class PlayerResolver {
         return "SUCCESS";
     }
     
+    @Mutation(() => [Player])
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
+    async changePlayerEloBulk(@Args("files", {type: () => [GraphQLUpload]}) files: Array<Promise<FileUpload>>): Promise<string> {
+        const csvs = await Promise.all(files.map(async f => f.then(async _f => readToString(_f.createReadStream()))));
+
+        const results = csvs.flatMap(csv => csv.split(/(?:\r)?\n/g).map(l => l.trim().split(","))).filter(r => r.length > 1);
+        const parsed = EloRedistributionSchema.parse(results);
+        
+        let numFailed = 0;
+        
+        for (const player of parsed) {
+            try {
+                await this.changePlayerElo(player.playerId, player.salary, player.newElo);
+            } catch {
+                numFailed++;
+                continue;
+            }
+        }
+        
+        return (numFailed === 0) ? `Success, all elos changed.` : `${numFailed} elos were unable to be changed.`;
+    }
+
     @Mutation(() => Player)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async intakePlayer(
