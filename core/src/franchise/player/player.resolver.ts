@@ -286,17 +286,19 @@ export class PlayerResolver {
         const parsed = EloRedistributionSchema.parse(results);
         
         let numFailed = 0;
+        let idsFailed: number[] = [];
         
         for (const player of parsed) {
             try {
                 await this.changePlayerElo(player.playerId, player.salary, player.newElo);
             } catch {
+                idsFailed.push(player.playerId);
                 numFailed++;
                 continue;
             }
         }
         
-        return (numFailed === 0) ? `Success, all elos changed.` : `${numFailed} elos were unable to be changed.`;
+        return (numFailed === 0) ? `Success, all elos changed.` : `${numFailed} elos were unable to be changed. Player IDs who could not be adjusted: ${JSON.stringify(idsFailed)}`;
     }
 
     @Mutation(() => Player)
