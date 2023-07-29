@@ -33,7 +33,7 @@ import {
 import {
     League, LeagueOrdinals, MLE_OrganizationTeam, MLE_Platform, ModePreference, Timezone,
 } from "../../database/mledb";
-import type {ManualSkillGroupChange} from "../../elo/elo-connector";
+import type {ManualEloChange, ManualSkillGroupChange} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
@@ -238,6 +238,45 @@ export class PlayerResolver {
         return "SUCCESS";
     }
 
+    @Mutation(() => String)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
+    async changePlayerElo(
+        @Args("playerId", {type: () => Int}) playerId: number,
+        @Args("salary", {type: () => Float}) salary: number,
+        @Args("elo", {type: () => Float}) elo: number,
+    ): Promise<string> {
+        const player = await this.playerService.getPlayer({
+            where: {id: playerId},
+            relations: {
+                member: {
+                    user: {
+                        authenticationAccounts: true,
+                    },
+                    organization: true,
+                    profile: true,
+                },
+                skillGroup: {
+                    id: true,
+                    organization: true,
+                    game: true,
+                    profile: true,
+                },
+            },
+        });
+
+        const inputData: ManualEloChange = {
+            id: playerId,
+            salary: salary,
+            elo: elo,
+        };
+
+        await this.playerService.mle_movePlayerToLeague(playerId, salary, player.skillGroupId);
+        await this.playerService.updatePlayerStanding(playerId, salary, player.skillGroupId);
+        await this.eloConnectorService.createJob(EloEndpoint.EloChange, inputData);
+
+        return "SUCCESS";
+    }
+    
     @Mutation(() => Player)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async intakePlayer(
