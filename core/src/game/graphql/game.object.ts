@@ -15,11 +15,11 @@ export class GameObject {
     // These field are all required because they are oneToMany
     // So whenever we run a conversion we need to have these available
     @Field(() => [GameModeObject])
-    modes: GameModeObject[];
+    modes?: GameModeObject[] | undefined;
 
     @Field(() => [GameSkillGroupObject])
-    skillGroups: GameSkillGroupObject[];
+    skillGroups?: GameSkillGroupObject[] | undefined;
 
     @Field(() => [GamePlatformObject])
-    supportedPlatforms: GamePlatformObject[];
+    supportedPlatforms?: GamePlatformObject[] | undefined;
 }

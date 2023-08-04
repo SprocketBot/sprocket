@@ -19,13 +19,13 @@ export class GameSkillGroupObject extends BaseObject {
     organizationId: number;
 
     @Field(() => String)
-    code: string;
+    code?: string | undefined;
 
     @Field(() => String)
-    description: string;
+    description?: string | undefined;
 
     @Field(() => String)
-    color: string;
+    color?: string | undefined;
 }
 
 export function gameSkillGroupObjectFromEntity(
