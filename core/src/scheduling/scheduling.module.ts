@@ -28,6 +28,7 @@ import {FinalizationSubscriber} from "./finalization/finalization.subscriber";
 import {RocketLeagueFinalizationService} from "./finalization/rocket-league-finalization/rocket-league-finalization.service";
 import {MatchController} from "./match/match.controller";
 import {MatchService} from "./match/match.service";
+import { ScheduleGroupResolver } from "./schedule-group/schedule-group.resolver";
 import {ScrimConsumer} from "./scrim/scrim.consumer";
 import {ScrimController} from "./scrim/scrim.controller";
 import {ScrimPubSub} from "./scrim/scrim.pubsub";
@@ -47,6 +48,8 @@ import {SubmissionService} from "./submission/submission.service";
 import {SubmissionSubscriber} from "./submission/submission.subscriber";
 import {SubmissionAdminResolver} from "./submission/submission-admin.resolver";
 import {SubmissionPlayerResolver} from "./submission/submission-player.resolver";
+import { ScheduleGroupService } from "./schedule-group/schedule-group.service";
+import { ScheduleGroupTypeService } from "./schedule-group/schedule-group-type.service";
 
 @Module({
     imports: [
@@ -85,6 +88,9 @@ import {SubmissionPlayerResolver} from "./submission/submission-player.resolver"
             useValue: new PubSub(),
         },
         MatchService,
+        ScheduleGroupResolver,
+        ScheduleGroupService,
+        ScheduleGroupTypeService,
         ScrimToggleService,
         ScrimToggleResolver,
         ScrimTogglePubSub,

@@ -1,0 +1,41 @@
+query LeagueMatches {
+    seasons: getScheduleGroups(type:"SEASON") {
+        id
+        description
+        game {
+            id
+            title
+        }
+        type {
+            name
+        }
+        childGroups {
+            id
+            description
+            start
+            fixtures {
+                id
+                homeFranchise {
+                    profile {
+                      title
+                      primaryColor
+                      secondaryColor
+                      photo{
+                          url
+                      }
+                    }
+                }
+                awayFranchise {
+                    profile {
+                      title
+                      primaryColor
+                      secondaryColor
+                      photo{
+                          url
+                      }
+                    }
+                }
+            }
+        }
+    }
+}
