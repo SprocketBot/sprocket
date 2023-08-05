@@ -1,7 +1,11 @@
 <script lang="ts">
     import {UserProfileStore, LeagueMatchesStore, type LeagueMatches$result} from "$houdini";
     import {onMount} from "svelte";
-
+    import type {
+        LeagueScheduleSeason, LeagueScheduleWeek
+    } from "$lib/api";
+    import {LeagueScheduleGroup} from "$lib/components";
+    
     const profileStore = new UserProfileStore();
 
     onMount(() => {
@@ -9,7 +13,11 @@
     });
     
     let matchData: LeagueMatches$result;
-    
+    let schedule: LeagueScheduleSeason | undefined;
+    let scheduleGroups: LeagueScheduleWeek[] = [];
+    let currentWeek: LeagueScheduleWeek | undefined;
+
+    const sorter = (a,b) => { return (Date.parse(a.start) - Date.parse(b.start));};
     const matchStore = new LeagueMatchesStore();
     const loadData = async () => {
         console.log("Loading league match data.");
@@ -26,19 +34,16 @@
 {#await loadData()}
     Fetching data, please wait. 
 {:then}
-    Here's that data you ordered, sir. 
     {#each matchData.season as s}
-        <div>
-            {s.description}
-            {#each s.childGroups as sg}
-                <div>{sg.description}</div>
-                <div>{sg.start}</div>
-                {#each sg.fixtures as sf} 
-                    <div>{sf.awayFranchise.profile.title} @ {sf.homeFranchise.profile.title}</div>
-                    <img src={sf.awayFranchise.profile.photo.url} />
-                    <img src={sf.homeFranchise.profile.photo.url} />
-                {/each}
-            {/each}           
+        <h2 class="text-2xl text-accent font-bold mb-8">{s.game.title} | {s.description}</h2>
+        <div class="flex flex-col gap-10">
+            {#if currentWeek}
+                <LeagueScheduleGroup scheduleGroup={currentWeek} isCurrentWeek />
+            {/if}
+
+            {#each s.childGroups.sort(sorter) as week (week?.id)}
+                <LeagueScheduleGroup scheduleGroup={week} />
+            {/each}
         </div>
     {/each}
 
