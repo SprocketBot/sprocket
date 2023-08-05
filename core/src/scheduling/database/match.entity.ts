@@ -6,6 +6,7 @@ import {BaseEntity} from "../../types/base-entity";
 import {Invalidation} from "./invalidation.entity";
 import {MatchParent} from "./match-parent.entity";
 import {Round} from "./round.entity";
+import { MatchSubmissionStatus } from "../match/match.resolver.old";
 
 @Entity({schema: "sprocket"})
 export class Match extends BaseEntity {
@@ -33,6 +34,12 @@ export class Match extends BaseEntity {
 
     @Column({nullable: true, unique: true})
     submissionId?: string;
+    
+    submissionStatus: MatchSubmissionStatus;
+
+    canSubmit: boolean;
+
+    canRatify: boolean;
 
     /**
      * This has been made nullable in case future use-cases involve multiple game modes in a single match.

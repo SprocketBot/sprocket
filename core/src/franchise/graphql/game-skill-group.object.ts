@@ -21,11 +21,12 @@ export class GameSkillGroupObject extends BaseObject {
     @Field(() => String)
     code?: string | undefined;
 
-    @Field(() => String)
+    @Field(() => String, {nullable: true})
     description?: string | undefined;
 
     @Field(() => String)
     color?: string | undefined;
+
 }
 
 export function gameSkillGroupObjectFromEntity(

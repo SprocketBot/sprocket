@@ -50,6 +50,7 @@ import {SubmissionAdminResolver} from "./submission/submission-admin.resolver";
 import {SubmissionPlayerResolver} from "./submission/submission-player.resolver";
 import { ScheduleGroupService } from "./schedule-group/schedule-group.service";
 import { ScheduleGroupTypeService } from "./schedule-group/schedule-group-type.service";
+import { ScheduleFixtureResolver } from "./schedule-fixture/schedule-fixture.resolver";
 
 @Module({
     imports: [
@@ -88,6 +89,7 @@ import { ScheduleGroupTypeService } from "./schedule-group/schedule-group-type.s
             useValue: new PubSub(),
         },
         MatchService,
+        ScheduleFixtureResolver,
         ScheduleGroupResolver,
         ScheduleGroupService,
         ScheduleGroupTypeService,
