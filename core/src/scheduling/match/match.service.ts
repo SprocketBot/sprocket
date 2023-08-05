@@ -20,6 +20,8 @@ import type {ScheduledEvent} from "../database/scheduled-event.entity";
 import type {ScrimMeta} from "../database/scrim-meta.entity";
 import {PlayerStatLineStatsSchema} from "../schemas/player-stat-line.schema";
 
+export type MatchSubmissionStatus = "submitting" | "ratifying" | "completed";
+
 export type MatchParentResponse =
     | {
           type: "fixture";

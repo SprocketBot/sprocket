@@ -1,6 +1,7 @@
 import { Field, ObjectType, Int} from "@nestjs/graphql";
 import { ScheduleGroupObject } from "./schedule-group/schedule-group.object";
 import { FranchiseObject } from "../../franchise/graphql/franchise.object";
+import { MatchParentObject } from "./match/match-parent.object";
 
 @ObjectType()
 export class ScheduleFixtureObject {
@@ -22,8 +23,8 @@ export class ScheduleFixtureObject {
     @Field(() => FranchiseObject)
     awayFranchise: FranchiseObject;
 
-    //@OneToMany(() => MatchParent, mp => mp.fixture)
-    //matchParents: MatchParent[];
+    @Field(() => [MatchParentObject])
+    matchParents: MatchParentObject[];
 
     @Field(() => Int)
     awayFranchiseId: number;

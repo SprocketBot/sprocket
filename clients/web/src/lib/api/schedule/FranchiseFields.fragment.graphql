@@ -1,0 +1,10 @@
+fragment FranchiseFields on FranchiseObject {
+            profile {
+                title
+                primaryColor
+                secondaryColor
+                photo {
+                    url
+                }
+            }
+        }
