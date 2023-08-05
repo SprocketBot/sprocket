@@ -6,7 +6,7 @@ import {BaseEntity} from "../../types/base-entity";
 import {Invalidation} from "./invalidation.entity";
 import {MatchParent} from "./match-parent.entity";
 import {Round} from "./round.entity";
-import { MatchSubmissionStatus } from "../match/match.resolver.old";
+import { MatchSubmissionStatus } from "../match/match.resolver";
 
 @Entity({schema: "sprocket"})
 export class Match extends BaseEntity {

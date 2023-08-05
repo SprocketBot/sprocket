@@ -27,6 +27,7 @@ import {SchedulingDatabaseModule} from "./database/scheduling-database.module";
 import {FinalizationSubscriber} from "./finalization/finalization.subscriber";
 import {RocketLeagueFinalizationService} from "./finalization/rocket-league-finalization/rocket-league-finalization.service";
 import {MatchController} from "./match/match.controller";
+import { MatchResolver } from "./match/match.resolver";
 import {MatchService} from "./match/match.service";
 import { ScheduleGroupResolver } from "./schedule-group/schedule-group.resolver";
 import {ScrimConsumer} from "./scrim/scrim.consumer";
@@ -51,6 +52,7 @@ import {SubmissionPlayerResolver} from "./submission/submission-player.resolver"
 import { ScheduleGroupService } from "./schedule-group/schedule-group.service";
 import { ScheduleGroupTypeService } from "./schedule-group/schedule-group-type.service";
 import { ScheduleFixtureResolver } from "./schedule-fixture/schedule-fixture.resolver";
+import { MledbModule } from "../mledb/database";
 
 @Module({
     imports: [
@@ -73,6 +75,7 @@ import { ScheduleFixtureResolver } from "./schedule-fixture/schedule-fixture.res
         IdentityDatabaseModule,
         AuthorizationModule,
         BotModule,
+        MledbModule,
     ],
     controllers: [MatchController, ScrimController],
     providers: [
@@ -88,6 +91,7 @@ import { ScheduleFixtureResolver } from "./schedule-fixture/schedule-fixture.res
             provide: PubSubKey.Submissions,
             useValue: new PubSub(),
         },
+        MatchResolver,
         MatchService,
         ScheduleFixtureResolver,
         ScheduleGroupResolver,
