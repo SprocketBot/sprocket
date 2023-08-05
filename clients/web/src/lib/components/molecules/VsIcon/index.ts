@@ -1,0 +1,1 @@
+export { default as VsIcon } from "./VsIcon.svelte";
