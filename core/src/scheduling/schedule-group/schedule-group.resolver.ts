@@ -33,10 +33,11 @@ export class ScheduleGroupResolver {
         @CurrentMember() member: Member,
         @Args("type") type: string,
         @Args("game", {nullable: true}) gameId?: number,
+        @Args("currentSeason", {defaultValue: true, nullable: true}) current: boolean = true,
     ): Promise<ScheduleGroupObject[]> {
         if (!member.organizationId) {
             throw new GraphQLError("You must select an organization");
         }
-        return this.scheduleGroupService.getScheduleGroups(member.organizationId, type, gameId);
+        return this.scheduleGroupService.getScheduleGroups(member.organizationId, type, gameId, current);
     }
 }
