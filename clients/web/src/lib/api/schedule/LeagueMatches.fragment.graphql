@@ -1,6 +1,5 @@
-query LeagueMatches {
-    season: getScheduleGroups(type:"SEASON") {
-        id
+fragment LeagueMatchesFragment on ScheduleGroupObject {
+    id
         description
         game {
             id
@@ -37,5 +36,4 @@ query LeagueMatches {
                 }
             }
         }
-    }
 }
