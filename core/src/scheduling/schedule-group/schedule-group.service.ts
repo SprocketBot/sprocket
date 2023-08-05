@@ -31,7 +31,25 @@ export class ScheduleGroupService {
 
         return this.scheduleGroupRepo.find({
             where: conditions,
-            relations: ["type", "game"],
+            //relations: ["type", "game", "childGroups"],
+            relations: {
+                type: true,
+                game: true,
+                childGroups: {
+                    fixtures: {
+                        homeFranchise: {
+                            profile: {
+                                photo: true,
+                            }
+                        },
+                        awayFranchise: {
+                            profile: {
+                                photo: true,
+                            }
+                        }
+                    } 
+                }
+            }
         });
     }
 
