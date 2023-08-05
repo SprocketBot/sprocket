@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {UserProfileStore} from "$houdini";
+    import {UserProfileStore, LeagueMatchesStore, type LeagueMatches$result} from "$houdini";
     import {onMount} from "svelte";
 
     const profileStore = new UserProfileStore();
@@ -8,15 +8,40 @@
         profileStore.fetch();
     });
     
-    let fetching = true;
+    let matchData: LeagueMatches$result;
+    
+    const matchStore = new LeagueMatchesStore();
+    const loadData = async () => {
+        console.log("Loading league match data.");
+        const queryResult = await matchStore.fetch();
+        if (queryResult.data) {
+            matchData = queryResult.data;
+        } else {
+            throw new Error("Could not load the match data.");
+        }
+    }
 
 </script>
 
-"This is where we'll put the league match submissions page."
-<div>
-{#if fetching}
+{#await loadData()}
     Fetching data, please wait. 
-{:else}
+{:then}
     Here's that data you ordered, sir. 
-{/if}
-</div>
+    {#each matchData.season as s}
+        <div>
+            {s.description}
+            {#each s.childGroups as sg}
+                <div>{sg.description}</div>
+                <div>{sg.start}</div>
+                {#each sg.fixtures as sf} 
+                    <div>{sf.awayFranchise.profile.title} @ {sf.homeFranchise.profile.title}</div>
+                    <img src={sf.awayFranchise.profile.photo.url} />
+                    <img src={sf.homeFranchise.profile.photo.url} />
+                {/each}
+            {/each}           
+        </div>
+    {/each}
+
+{:catch someError}
+    System error: {someError.message}
+{/await}
