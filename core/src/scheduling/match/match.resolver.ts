@@ -389,7 +389,7 @@ export class MatchResolver {
     @UseGuards(GraphQLJwtAuthGuard, MatchPlayerGuard)
     async canSubmit(@CurrentPlayer() player: Player, @Root() root: Match & {canSubmit?: boolean}): Promise<boolean> {
         if (root.canSubmit) return root.canSubmit;
-        if (!root.submissionId) throw new Error(`Match has no submissionId`);
+        if (!root.submissionId) return true; //throw new Error(`Match has no submissionId`);
 
         const member = await this.populateService.populateOneOrFail(Player, player, "member");
         const user = await this.populateService.populateOneOrFail(Member, member, "user");
@@ -406,7 +406,7 @@ export class MatchResolver {
     @UseGuards(GraphQLJwtAuthGuard, MatchPlayerGuard)
     async canRatify(@CurrentPlayer() player: Player, @Root() root: Match & {canRatify?: boolean}): Promise<boolean> {
         if (root.canRatify) return root.canRatify;
-        if (!root.submissionId) throw new Error(`Match has no submissionId`);
+        if (!root.submissionId) return false;  // throw new Error(`Match has no submissionId`);
 
         const member = await this.populateService.populateOneOrFail(Player, player, "member");
         const user = await this.populateService.populateOneOrFail(Member, member, "user");

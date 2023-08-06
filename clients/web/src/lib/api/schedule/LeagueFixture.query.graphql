@@ -1,26 +1,27 @@
 query LeagueFixture($id: Float!) {
-            fixture: getFixture(id: $id) {
+    fixture: getFixture(id: $id) {
+        id
+        homeFranchise { ...FranchiseFields }
+        awayFranchise { ...FranchiseFields }
+        scheduleGroup { description }
+        matchParents {
+            match {
                 id
-                homeFranchise { ...FranchiseFields }
-                awayFranchise { ...FranchiseFields }
-                scheduleGroup { description }
-                
-                matchParents {
-                    match {
-                        id
-                        skillGroup { 
-                            ordinal 
-                            id
-                            description
-                        }
-                        gameMode {
-                            description
-                        }
-                        submissionId
-                        submissionStatus
-                        canSubmit
-                        canRatify
+                skillGroup { 
+                    ordinal 
+                    id
+                    profile {
+                        description
                     }
                 }
+                gameMode {
+                    description
+                }
+                submissionId
+                submissionStatus
+                canSubmit
+                canRatify
             }
         }
+    }
+}
