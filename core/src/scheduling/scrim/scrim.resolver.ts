@@ -63,6 +63,6 @@ export class ScrimResolver {
             relations: {profile: true},
         });
 
-        return this.gameSkillGroupConverter.convertGameSkillGroupToObject(skillGroup);
+        return skillGroup;  // this.gameSkillGroupConverter.convertGameSkillGroupToObject(skillGroup);
     }
 }

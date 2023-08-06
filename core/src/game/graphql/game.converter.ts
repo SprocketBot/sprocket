@@ -20,9 +20,9 @@ export class GameConverter {
             id: game.id,
             title: game.title,
             modes: game.modes ?? (await this.populateService.populateMany(Game, game, "modes")) ?? [],
-            skillGroups: await Promise.all(
-                skillGroupEntities.map(sge => this.gameSkillGroupConverter.convertGameSkillGroupToObject(sge)),
-            ),
+            skillGroups: skillGroupEntities, // await Promise.all(
+            //    skillGroupEntities.map(sge => this.gameSkillGroupConverter.convertGameSkillGroupToObject(sge)),
+            // ),
             supportedPlatforms:
                 game.supportedFeatures ??
                 (await this.populateService.populateMany(Game, game, "supportedPlatforms")) ??

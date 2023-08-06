@@ -1,9 +1,7 @@
 <script lang="ts">
     import {UserProfileStore, LeagueMatchesStore, type LeagueMatches$result} from "$houdini";
     import {onMount} from "svelte";
-    import type {
-        LeagueScheduleSeason, LeagueScheduleWeek
-    } from "$lib/api";
+    import type {LeagueScheduleWeek} from "$lib/api";
     import {LeagueScheduleGroup} from "$lib/components";
     
     const profileStore = new UserProfileStore();
@@ -13,8 +11,6 @@
     });
     
     let matchData: LeagueMatches$result;
-    let schedule: LeagueScheduleSeason | undefined;
-    let scheduleGroups: LeagueScheduleWeek[] = [];
     let currentWeek: LeagueScheduleWeek | undefined;
 
     const sorter = (a,b) => { return (Date.parse(a.start) - Date.parse(b.start));};

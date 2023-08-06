@@ -7,7 +7,9 @@ fragment CurrentScrimFragment on ScrimObject {
     maxPlayers
     status
     skillGroup {
-        description
+        profile{
+            description
+        }
     }
     gameMode {
         description

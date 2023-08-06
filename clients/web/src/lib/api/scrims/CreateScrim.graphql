@@ -15,7 +15,9 @@ mutation CreateScrim($options: CreateScrimInput!) {
             teamSize
         }
         skillGroup {
-            description
+            profile{
+                description
+            }
         }
         status
     }
