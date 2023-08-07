@@ -33,10 +33,10 @@ export class MatchObject {
     @Field(() => String, {nullable: true})
     submissionStatus: MatchSubmissionStatus;
 
-    @Field(() => Boolean, {defaultValue: true})
+    @Field(() => Boolean)
     canSubmit: boolean;
 
-    @Field(() => Boolean, {defaultValue: true})
+    @Field(() => Boolean)
     canRatify: boolean;
 
     @Field(() => GameModeObject)
