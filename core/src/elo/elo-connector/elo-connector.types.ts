@@ -11,6 +11,7 @@ export enum EloEndpoint {
     AddNewPlayers = "AddNewPlayers",
     AddPlayerBySalary = "AddPlayerBySalary",
     SGChange = "SGChange",
+    EloChange = "EloChange",
 }
 
 export const EloSchemas = {
@@ -30,10 +31,6 @@ export const EloSchemas = {
         input: Schemas.AddPlayers_Input,
         output: Schemas.AddPlayers_Output,
     },
-    [EloEndpoint.AddNewPlayers]: {
-        input: Schemas.AddPlayers_Input,
-        output: Schemas.AddPlayers_Output,
-    },
     [EloEndpoint.AddPlayerBySalary]: {
         input: Schemas.AddPlayerBySalary_Input,
         output: Schemas.AddPlayerBySalary_Output,
@@ -41,6 +38,10 @@ export const EloSchemas = {
     [EloEndpoint.SGChange]: {
         input: Schemas.SGChange_Input,
         output: Schemas.SGChange_Output,
+    },
+    [EloEndpoint.EloChange]: {
+        input: Schemas.EloChange_Input,
+        output: Schemas.EloChange_Output,
     },
 };
 

@@ -33,7 +33,7 @@ import {
 import {
     League, LeagueOrdinals, MLE_OrganizationTeam, MLE_Platform, ModePreference, Timezone,
 } from "../../database/mledb";
-import type {ManualSkillGroupChange} from "../../elo/elo-connector";
+import type {ManualEloChange, ManualSkillGroupChange} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
@@ -42,7 +42,7 @@ import {PopulateService} from "../../util/populate/populate.service";
 import {FranchiseService} from "../franchise";
 import {GameSkillGroupService} from "../game-skill-group";
 import {PlayerService} from "./player.service";
-import {IntakeSchema} from "./player.types";
+import {EloRedistributionSchema, IntakeSchema} from "./player.types";
 
 const platformTransform = {
     "epic": MLE_Platform.EPIC,
@@ -236,6 +236,69 @@ export class PlayerResolver {
         }
 
         return "SUCCESS";
+    }
+
+    @Mutation(() => String)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
+    async changePlayerElo(
+        @Args("playerId", {type: () => Int}) playerId: number,
+        @Args("salary", {type: () => Float}) salary: number,
+        @Args("elo", {type: () => Float}) elo: number,
+    ): Promise<string> {
+        const player = await this.playerService.getPlayer({
+            where: {id: playerId},
+            relations: {
+                member: {
+                    user: {
+                        authenticationAccounts: true,
+                    },
+                    organization: true,
+                    profile: true,
+                },
+                skillGroup: {
+                    id: true,
+                    organization: true,
+                    game: true,
+                    profile: true,
+                },
+            },
+        });
+
+        const inputData: ManualEloChange = {
+            id: playerId,
+            salary: salary,
+            elo: elo,
+        };
+
+        await this.playerService.mle_movePlayerToLeague(playerId, salary, player.skillGroupId);
+        await this.playerService.updatePlayerStanding(playerId, salary, player.skillGroupId);
+        await this.eloConnectorService.createJob(EloEndpoint.EloChange, inputData);
+
+        return "SUCCESS";
+    }
+    
+    @Mutation(() => [Player])
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
+    async changePlayerEloBulk(@Args("files", {type: () => [GraphQLUpload]}) files: Array<Promise<FileUpload>>): Promise<string> {
+        const csvs = await Promise.all(files.map(async f => f.then(async _f => readToString(_f.createReadStream()))));
+
+        const results = csvs.flatMap(csv => csv.split(/(?:\r)?\n/g).map(l => l.trim().split(","))).filter(r => r.length > 1);
+        const parsed = EloRedistributionSchema.parse(results);
+        
+        let numFailed = 0;
+        let idsFailed: number[] = [];
+        
+        for (const player of parsed) {
+            try {
+                await this.changePlayerElo(player.playerId, player.salary, player.newElo);
+            } catch {
+                idsFailed.push(player.playerId);
+                numFailed++;
+                continue;
+            }
+        }
+        
+        return (numFailed === 0) ? `Success, all elos changed.` : `${numFailed} elos were unable to be changed. Player IDs who could not be adjusted: ${JSON.stringify(idsFailed)}`;
     }
 
     @Mutation(() => Player)
