@@ -16,6 +16,7 @@ import {ScheduleGroupType} from "../../scheduling/database/schedule-group-type.e
 import {PopulateService} from "../../util";
 import type {League} from "../database";
 import {LegacyGameMode, MLE_Fixture, MLE_Series, MLE_SeriesReplay, MLE_Team, MLE_TeamToCaptain} from "../database";
+import { SeriesToMatchParent } from "../mledb-bridge/series_to_match_parent.model";
 
 @Injectable()
 export class MledbMatchService {
@@ -27,6 +28,7 @@ export class MledbMatchService {
         @InjectRepository(MLE_Series) private readonly seriesRepo: Repository<MLE_Series>,
         @InjectRepository(MLE_SeriesReplay) private readonly seriesReplayRepo: Repository<MLE_SeriesReplay>,
         @InjectRepository(MLE_TeamToCaptain) private readonly teamCaptainRepo: Repository<MLE_TeamToCaptain>,
+        @InjectRepository(SeriesToMatchParent) private readonly seriesToMatchParentRepo: Repository<SeriesToMatchParent>,
         private readonly sprocketMatchRepository: MatchRepository,
         private readonly popService: PopulateService,
     ) {}
@@ -186,8 +188,16 @@ export class MledbMatchService {
         };
     }
 
-    async markSeriesNcp(seriesId: number, isNcp: boolean, winningTeamName?: string): Promise<string> {
-        this.logger.debug(`Begin markSeriesNcp: seriesId=${seriesId}, isNcp=${isNcp}, winningTeam=${winningTeamName}`);
+    async markSeriesNcp(matchParentId: number, isNcp: boolean, winningTeamName?: string): Promise<string> {
+        this.logger.debug(`Begin markSeriesNcp: matchParentId=${matchParentId}, isNcp=${isNcp}, winningTeam=${winningTeamName}`);
+
+        const bridgeObject = await this.seriesToMatchParentRepo.findOneOrFail({
+            where: {
+                matchParentId: matchParentId,
+            },
+        });
+        
+        const seriesId = bridgeObject.seriesId;
 
         const series = await this.seriesRepo.findOneOrFail({
             where: {
@@ -252,8 +262,8 @@ export class MledbMatchService {
         await this.seriesRepo.save(series);
 
         // Update each series replay (including any dummies) to NCP
-        const replayIds = seriesReplays.map(seriesReplay => seriesReplay.id);
-        await this.markReplaysNcp(replayIds, isNcp, winningTeam ? winningTeam : undefined);
+        const replayIds = seriesReplays.map(seriesReplay => seriesReplay.ballchasingId ?? "");
+        await this.markReplaysNcp(replayIds, isNcp, winningTeamName ? winningTeamName : undefined);
 
         this.logger.debug(`End markSeriesNcp`);
 
@@ -268,11 +278,34 @@ export class MledbMatchService {
      * @param isNcp Whether the given replayId should be marked NCP or un-NCP.
      * @returns A string containing status of what was updated.
      */
-    async markReplaysNcp(replayIds: number[], isNcp: boolean, winningTeam?: MLE_Team): Promise<string> {
-        this.logger.debug(`Begin markReplaysNcp: replayIds=${replayIds}, isNcp=${isNcp}, winningTeam=${winningTeam}`);
+    async markReplaysNcp(bcids: string[], isNcp: boolean, winningTeamName?: string): Promise<string> {
+        this.logger.debug(`Begin markReplaysNcp: ballchasing IDs=${bcids}, isNcp=${isNcp}, winningTeam=${winningTeamName}`);
+
+        // Have to translate from Team ID to Franchise Profile to get name (for
+        // MLEDB schema)
+        
+        let winningTeam: MLE_Team;
+
+        if (winningTeamName) {
+            winningTeam = await this.teamRepo.findOneOrFail({
+                where: {
+                    name: winningTeamName,
+                },
+            });
+        }
+        
+        const replayIds = await Promise.all(bcids.map(async (BCID) => {
+            const mleReplay = await this.seriesReplayRepo.findOneOrFail({
+                where: {
+                    ballchasingId: BCID,
+                },
+            });
+
+            return mleReplay.id;
+        }));
 
         // Winning team must be specified if NCPing replays
-        if (isNcp && !winningTeam) return "Can't mark an NCP without a winning team";
+        if (isNcp && !winningTeamName) return "Can't mark an NCP without a winning team";
 
         // Make sure we are considering replayIds in chronological order
         replayIds.sort((a, b) => a - b);
@@ -291,12 +324,12 @@ export class MledbMatchService {
         const replays = await Promise.all(replayPromises);
 
         // Check to make sure the winning team played in each replay
-        if (winningTeam) {
+        if (winningTeamName) {
             for (const replay of replays) {
                 const teamsInReplay = replay.teamCoreStats.map(tcs => tcs.teamName);
-                if (!teamsInReplay.includes(winningTeam.name)) {
+                if (!teamsInReplay.includes(winningTeamName)) {
                     this.logger.warn(
-                        `The team \`${winningTeam.name}\` did not play in replay with id \`${
+                        `The team \`${winningTeamName}\` did not play in replay with id \`${
                             replay.id
                         }\` (${teamsInReplay
                             .map(t => t)
@@ -305,10 +338,10 @@ export class MledbMatchService {
                             )}), and therefore cannot be marked as the winner of this NCP. Cancelling process with no action taken.`,
                     );
                     this.logger.warn(
-                        `Could not find team=${winningTeam.name} on replay with id=${replay.id}, cannot mark as NCP`,
+                        `Could not find team=${winningTeamName} on replay with id=${replay.id}, cannot mark as NCP`,
                     );
                     throw new Error(
-                        `Could not find team=${winningTeam.name} on replay with id=${replay.id}, cannot mark as NCP`,
+                        `Could not find team=${winningTeamName} on replay with id=${replay.id}, cannot mark as NCP`,
                     );
                 }
             }
@@ -327,7 +360,7 @@ export class MledbMatchService {
                 if (!replay.isDummy) {
                     // Set winningColor depending on previous/new winningTeam
                     newWinningColor =
-                        winningTeam?.name === replay.winningTeamName
+                        winningTeamName === replay.winningTeamName
                             ? (replay.winningColor as string | undefined)
                             : null;
                 } else {
@@ -340,13 +373,13 @@ export class MledbMatchService {
                     tcs.goals && tcs.goalsAgainst ? tcs.goals > tcs.goalsAgainst : false,
                 )?.teamName as string | undefined;
 
-                if (!winningTeam)
+                if (!winningTeamName)
                     throw new Error(`Could not find winning team when un-NCPing replay with id=${replay.id}`);
                 newWinningTeam = winningTeamName;
 
                 // Set winningColor depending on previous/new winningTeam
                 newWinningColor =
-                    winningTeam.name === replay.winningTeamName ? (replay.winningColor as string | undefined) : null;
+                    winningTeamName === replay.winningTeamName ? (replay.winningColor as string | undefined) : null;
             }
 
             replay.ncp = isNcp;
@@ -359,6 +392,32 @@ export class MledbMatchService {
 
         return `\`${
             replayIds.length === 1 ? `replayId=${replayIds[0]}` : `replayIds=[${replayIds.join(", ")}]`
-        }\` successfully marked \`ncp=${isNcp}\`, ${winningTeam ? `\`winningTeam=${winningTeam.name}\`` : ""}.`;
+        }\` successfully marked \`ncp=${isNcp}\`, ${winningTeamName ? `\`winningTeam=${winningTeamName}\`` : ""}.`;
+    }
+    
+    async addDummyReplay(matchParentId: number, winningTeamName: string): Promise<void> {
+        // This is the 'translation' between Sprocket match ID and MLEDB series ID
+        const bridgeObject = await this.seriesToMatchParentRepo.findOneOrFail({
+            where: {
+                matchParentId: matchParentId,
+            },
+        });
+
+        // And this is the MELDB series object
+        const mleSeries = await this.seriesRepo.findOneOrFail({
+            where: {
+                id: bridgeObject.seriesId,
+            },
+        });
+
+        // Create dummy in MLEDB schema
+        const mleReplay = this.seriesReplayRepo.create();
+        mleReplay.isDummy = true;
+        mleReplay.winningTeamName = winningTeamName;
+        mleReplay.duration = -1;
+        mleReplay.overtime = false;
+        mleReplay.series = mleSeries;
+
+        await this.seriesReplayRepo.save(mleReplay);
     }
 }

@@ -31,7 +31,7 @@
                         Submit Replays
                     </a>
                 {:else}
-                    <span>Already Submitted</span>
+                    <span>Already Submitted, or you can't submit.</span>
                 {/if}
             {/if}
         </section>
