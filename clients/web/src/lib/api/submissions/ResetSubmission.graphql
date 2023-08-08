@@ -1,0 +1,3 @@
+mutation ResetSubmission($submissionId: String!) {
+    resetSubmission(submissionId:$submissionId)
+}

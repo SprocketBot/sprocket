@@ -52,7 +52,7 @@
                     {/if}
                     <!-- Modal body -->
                     <div class="p-6 text-gray-50">
-                        <slot />
+                        <slot name="body"/>
                     </div>
                     <!-- Modal footer -->
 

@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import {LeagueFixtureStore, load_LeagueFixture} from '$houdini';
+import {LeagueFixtureStore} from '$houdini';
 import type { LoadEvent } from '@sveltejs/kit';
 
 export async function load(event: LoadEvent) {

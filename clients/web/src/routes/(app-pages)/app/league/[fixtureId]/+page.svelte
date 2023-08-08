@@ -1,8 +1,8 @@
 <script>
     import {FixtureCard} from "$lib/components";
     export let data;
-    const fixture = data.lfsData.fixture;
-    const matches = fixture.matchParents.map(mp => mp.match);
+    const fixture = data.lfsData?.fixture;
+    const matches = fixture?.matchParents.map(mp => mp.match);
 </script>
 <div class="w-fit mx-auto mb-8">
     <FixtureCard {fixture} hidebutton />
@@ -19,7 +19,7 @@
                 <span class="btn btn-outline btn-disabled">Completed</span>
             {:else if m.submissionStatus === "ratifying"}
                 {#if m.canRatify}
-                    <a href={`/league/submit/${m.submissionId}`} class="btn btn-outline btn-success mx-auto">
+                    <a href={`/app/league/submit/${m.submissionId}`} class="btn btn-outline btn-success mx-auto">
                         Ratify Results
                     </a>
                 {:else}
@@ -27,7 +27,7 @@
                 {/if}
             {:else}
                 {#if m.canSubmit}
-                    <a href={`/league/submit/${m.submissionId}`} class="btn btn-outline btn-primary mx-auto">
+                    <a href={`/app/league/submit/${m.submissionId}`} class="btn btn-outline btn-primary mx-auto">
                         Submit Replays
                     </a>
                 {:else}

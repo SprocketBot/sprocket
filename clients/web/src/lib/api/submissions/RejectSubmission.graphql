@@ -1,0 +1,6 @@
+mutation RejectSubmission(
+        $submissionId: String!,
+        $reason: String!,
+    ) {
+        rejectSubmission(submissionId: $submissionId, reason: $reason)
+    }

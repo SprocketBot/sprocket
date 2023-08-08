@@ -1,0 +1,44 @@
+query Submission($submissionId: String!) {
+    submission: getSubmission(submissionId: $submissionId) {
+        id
+        creatorUserId
+        ratifications
+        requiredRatifications
+        userHasRatified
+        type
+        scrimId
+        matchId
+        status
+        items {
+            taskId
+            originalFilename
+            progress {
+                progress {
+                    value
+                    message
+                }
+                status
+                taskId
+                error
+            }
+        }
+        rejections {
+            userId
+            reason
+            stale
+        }
+        validated
+        stats {
+            games {
+                teams {
+                    won
+                    score
+                    players {
+                        name
+                        goals
+                    }
+                }
+            }
+        }
+    }
+}
