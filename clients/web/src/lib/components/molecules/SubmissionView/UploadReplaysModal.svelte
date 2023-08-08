@@ -20,9 +20,10 @@
         try {
             // TODO is okay to just cast File[] to FileUpload[]?
             const mutator = new UploadReplaysStore();
+            console.log("Trying to upload replays");
             await mutator.mutate({
                 files: files as unknown as FileUpload[],
-                submissionId: submissionId,
+                submissionId: submissionId as string,
             });
             open = false;
         } catch (_e) {

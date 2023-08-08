@@ -1,34 +1,34 @@
 query Match($submissionId: String!) {
-            getMatchBySubmissionId(submissionId: $submissionId) {
-                id
-                rounds {
-                    id
-                }
-                skillGroup {
-                    profile {
-                        description
-                    }
-                }
-                gameMode {
+    getMatchObjectBySubmissionId(submissionId: $submissionId) {
+        id
+        rounds {
+            id
+        }
+        skillGroup {
+            profile {
+                description
+            }
+        }
+        gameMode {
+            description
+        }
+        matchParent {
+            id
+            fixture {
+                scheduleGroup {
                     description
                 }
-                matchParent {
-                    id
-                    fixture {
-                        scheduleGroup {
-                            description
-                        }
-                        homeFranchise {
-                            profile {
-                                title
-                            }
-                        }
-                        awayFranchise {
-                            profile {
-                                title
-                            }
-                        }
+                homeFranchise {
+                    profile {
+                        title
+                    }
+                }
+                awayFranchise {
+                    profile {
+                        title
                     }
                 }
             }
         }
+    }
+}

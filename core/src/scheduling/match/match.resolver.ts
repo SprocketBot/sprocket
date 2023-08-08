@@ -33,6 +33,7 @@ import {ScheduleGroup} from "../database/schedule-group.entity";
 import {MatchPlayerGuard} from "./match.guard";
 import {MatchService} from "./match.service";
 import { MatchObject } from "../graphql/match/match.object";
+import { FindOneOptions } from "typeorm";
 
 export type MatchSubmissionStatus = "submitting" | "ratifying" | "completed";
 
@@ -53,8 +54,29 @@ export class MatchResolver {
     ) {}
 
     @Query(() => MatchObject)
-    async getMatchBySubmissionId(@Args("submissionId") submissionId: string): Promise<Match> {
-        return this.matchRepository.getBySubmissionId(submissionId);
+    async getMatchObjectBySubmissionId(@Args("submissionId") submissionId: string): Promise<MatchObject> {
+        const opts: FindOneOptions<Match> = {
+            relations: {
+                rounds: true,
+                skillGroup: {
+                    profile: true, 
+                },
+                gameMode: true,
+                matchParent: {
+                    fixture: {
+                        scheduleGroup: true,
+                        homeFranchise: {
+                            profile: true,
+                        },
+                        awayFranchise: {
+                            profile: true,
+                        }
+                    },
+                },
+            }
+        };
+
+        return this.matchRepository.getBySubmissionId(submissionId, opts);
     }
 
     @Mutation(() => String)

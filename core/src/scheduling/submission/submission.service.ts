@@ -26,7 +26,7 @@ export class SubmissionService {
         const result = await this.submissionService.send(SubmissionEndpoint.GetSubmissionIfExists, submissionId);
 
         if (result.status === ResponseStatus.ERROR) throw result.error;
-        if (!result.data.submission) throw new Error("Submission not found");
+        if (!result.data.submission) throw new Error("Submission not found, not sure why we throw here. ");
         return result.data.submission;
     }
 
