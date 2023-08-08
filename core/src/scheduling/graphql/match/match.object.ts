@@ -2,6 +2,8 @@ import { Field, Int, ObjectType } from "@nestjs/graphql";
 import { GameModeObject } from "../../../game/graphql/game-mode.object";
 import { GameSkillGroupObject } from "../../../franchise/graphql/game-skill-group.object";
 import { MatchSubmissionStatus } from "../../match/match.service";
+import { MatchParentObject } from "./match-parent.object";
+import { RoundObject } from "./round.object";
 
 @ObjectType()
 export class MatchObject {
@@ -20,12 +22,11 @@ export class MatchObject {
     @Field(() => Int)
     skillGroupId: number;
 
-    //@Field
-    //rounds: Round[];
+    @Field(() => [RoundObject])
+    rounds: RoundObject[];
 
-    // @OneToOne(() => MatchParent, mp => mp.match)
-    // @JoinColumn()
-    // matchParent: MatchParent;
+    @Field(() => MatchParentObject)
+    matchParent: MatchParentObject;
 
     @Field(() => String, {nullable: true})
     submissionId?: string;

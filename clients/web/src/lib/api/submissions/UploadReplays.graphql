@@ -1,0 +1,3 @@
+mutation UploadReplays($files: [Upload!]!, $submissionId: String!) {
+    parseReplays(files: $files, submissionId: $submissionId)
+}

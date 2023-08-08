@@ -1,0 +1,3 @@
+mutation RatifySubmission($submissionId: String!) {
+    ratifySubmission(submissionId: $submissionId)
+}
