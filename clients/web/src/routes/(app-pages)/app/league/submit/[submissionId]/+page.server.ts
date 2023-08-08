@@ -26,6 +26,8 @@ export async function load(event: LoadEvent) {
     } catch (e) {
         console.log(e);
 
+        console.log("Errored out getting submission data.");
+        
         return {
             submissionId: params.submissionId,
             msData: msData,

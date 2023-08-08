@@ -13,24 +13,28 @@
     let submissionResult : Submission$result;
     let submissionData: Submission;
     if (data.ssData) {
+        console.log("We have submission data");
         submissionResult = data.ssData;
         submissionResult?.submission as unknown as Submission;
+    } else {
+        console.log("We do not have submission data.");
     }
 
     let matchResult : Match$result;
     let match : Match;
     if (data.msData) {
         matchResult = data.msData;
-        match = matchResult?.getMatchBySubmissionId;
+        match = matchResult?.getMatchObjectBySubmissionId;
     }
     
     let uploadVisible = false;
 </script>
 
-{#if !submissionResult || !matchResult}
-	<div class="h-full w-full flex items-center justify-center">
+{#if !submissionResult && !matchResult}
+	<!-- <div class="h-full w-full flex items-center justify-center">
 		<Spinner class="h-16 w-full" />
-	</div>
+	</div> -->
+    Sorry, loading the data for you rq. 
 {:else}
 	<header>
 		<h2 class="text-3xl font-bold">{match?.matchParent.fixture.scheduleGroup.description} | {match?.matchParent.fixture.homeFranchise.profile.title} vs {match?.matchParent.fixture.awayFranchise.profile.title}</h2>
@@ -38,7 +42,7 @@
 	</header>
 	{#if match?.rounds?.length}
 		<h1>Match has already been submitted.</h1>
-	{:else if submissionResult.submission}
+	{:else if submissionResult?.submission}
 		{#if submissionResult.submission.status === "REJECTED"}
 			<div>
 				<h3 class="text-error-content text-2xl font-bold">Submission Rejected</h3>
@@ -58,6 +62,6 @@
 	{:else}
 		<button class="btn-large btn-outline btn btn-primary" on:click={() => { uploadVisible = true }}>Upload Replays
 		</button>
-		<UploadReplaysModal bind:open={uploadVisible} {submissionId} />
+		<UploadReplaysModal bind:open={uploadVisible} bind:submissionId={submissionId} />
 	{/if}
 {/if}
