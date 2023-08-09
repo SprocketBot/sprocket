@@ -119,10 +119,10 @@
         undefined} {disabled} on:change={onChange} />
 
         {#if render === "input"}
-            <div class="custom-input">
-                <!-- This is a div and not a real button because it is purely visual, screenreader users will interact with the hidden input to upload files -->
-                <Button variant="warning" size="sm"><div slot="body">{inputButtonText}</div></Button>
-                <div class="status-text">{inputStatusText}</div>
+            <div class="wrapper">
+                    <!-- This is a div and not a real button because it is purely visual, screenreader users will interact with the hidden input to upload files -->
+                    <Button variant="primary" size="sm"><div slot="body">{inputButtonText}</div></Button>
+                    <div class="status-text">{inputStatusText}</div>
             </div>
         {:else}
             <div
@@ -152,3 +152,12 @@
         <span class="error" id={errorId} transition:slide>{error}</span>
     {/if}
 </div>
+
+<style lang="postcss">
+    .wrapper {
+        @apply
+        flex flex-row items-center justify-between
+        gap-4 px-4 py-3
+        rounded-lg shadow-md;
+    }
+</style>

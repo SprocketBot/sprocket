@@ -61,7 +61,7 @@
 			<SubmissionView submission={submissionData} />
 		{/if}
 	{:else}
-		<Button size="xl" variant="warning" on:click={() => { uploadVisible = true }}>
+		<Button size="xl" variant="primary" on:click={() => { uploadVisible = true }}>
 			<div slot="body">Upload Replays</div>
 		</Button>
 		<UploadReplaysModal bind:open={uploadVisible} bind:submissionId={submissionId} />
