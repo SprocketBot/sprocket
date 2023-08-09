@@ -27,6 +27,7 @@
         match = matchResult?.getMatchObjectBySubmissionId;
     }
     
+	if (!submissionId) submissionId = data.submissionId;
     let uploadVisible = false;
 </script>
 
