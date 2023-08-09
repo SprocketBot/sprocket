@@ -28,3 +28,24 @@
         <span class="sr-only">Remove</span>
     </button>
 </div>
+
+<style lang="postcss">
+    .wrapper {
+        @apply
+        flex flex-row items-center justify-between
+        gap-4 px-4 py-3
+        rounded-lg shadow-md;
+    }
+
+    .upload {
+        @apply flex items-start flex-grow flex-shrink min-w-0 pr-8;
+    }
+
+    .filename {
+        @apply overflow-hidden text-ellipsis mb-1 flex-1 whitespace-nowrap min-w-0;
+    }
+
+    .icon {
+        @apply w-4 h-4;
+    }
+</style>

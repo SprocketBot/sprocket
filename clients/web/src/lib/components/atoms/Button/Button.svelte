@@ -23,7 +23,9 @@
     use:a={aParams}
     on:click
 >
-    <slot />
+    <div>
+        <slot name="body"/>
+    </div>
 </button>
 
 <style lang="postcss">
@@ -44,7 +46,7 @@
     }
 
     .button-default {
-        @apply text-white border focus:ring-info-800;
+        @apply text-white border;
         &:not(.has-outline) {
             @apply bg-info-600 hover:bg-info-700 border-transparent;
         }
