@@ -5,6 +5,7 @@
 </script>
 
 <script lang="ts">
+    import {Button} from "$lib/components";
     import {slide} from "svelte/transition";
     import {nanoid} from "nanoid";
     import {filedrop, type FileDropSelectEvent} from "filedrop-svelte";
@@ -94,7 +95,7 @@
         {#if render === "input"}
             <div class="custom-input">
                 <!-- This is a div and not a real button because it is purely visual, screenreader users will interact with the hidden input to upload files -->
-                <div class="upload-button">{inputButtonText}</div>
+                <Button>{inputButtonText}</Button>
                 <div class="status-text">{inputStatusText}</div>
             </div>
         {:else}
