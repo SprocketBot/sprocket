@@ -9,6 +9,7 @@
     import {slide} from "svelte/transition";
     import {nanoid} from "nanoid";
     import {filedrop, type FileDropSelectEvent} from "filedrop-svelte";
+    import type {RemovableFile} from "../form.types";
 
     import type {FormControlSize, FormControlState} from "../form.types";
     import {Icon} from "@steeze-ui/svelte-icon";
@@ -76,6 +77,30 @@
         rejectedFiles = rejected;
         isDropping = false;
     };
+    
+    const onRemove = (file: File): void => {
+        if (value) {
+            value = value.filter(f => f.name !== file.name);
+        }
+    };
+
+    const onChange = e => {
+        const currentValue = value;
+        let newValue = Array.from((e.target as HTMLInputElement).files ?? []) as FileWithPath[];
+
+        // Filter out duplicate files by name
+        const temp = currentValue? newValue.concat(currentValue) : newValue;
+        newValue = temp.reduce<File[]>((acc: File[], v: File) => {
+            if (!acc.some(c => c.name === v.name)) acc.push(v);
+            return acc;
+        }, []);
+
+        // Add remove callbacks
+        value = newValue.map(f => {
+            (f as RemovableFile).remove = () => { onRemove(f) };
+            return f;
+        }) as RemovableFile[];
+    };
 </script>
 
 <div class="size-{size} state-{state}">
@@ -90,12 +115,13 @@
         on:filedragleave={() => (isDropping = false)}
     >
         <!-- Hidden input only for screenreaders -->
-        <input id={labelId} type="file" aria-describedby={error ? errorId : undefined} {disabled} />
+        <input id={labelId} type="file" aria-describedby={error ? errorId :
+        undefined} {disabled} on:change={onChange} />
 
         {#if render === "input"}
             <div class="custom-input">
                 <!-- This is a div and not a real button because it is purely visual, screenreader users will interact with the hidden input to upload files -->
-                <Button>{inputButtonText}</Button>
+                <Button variant="warning" size="sm"><div slot="body">{inputButtonText}</div></Button>
                 <div class="status-text">{inputStatusText}</div>
             </div>
         {:else}

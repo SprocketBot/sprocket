@@ -3,7 +3,7 @@
     console.log(JSON.stringify(data));
 
     import {
-        SubmissionView, UploadReplaysModal, Spinner,
+        Button, SubmissionView, UploadReplaysModal, Spinner,
     } from "$lib/components";
     import type {Match$result, Submission$result} from '$houdini';
     import type { Match, Submission } from "$lib/api";
@@ -61,8 +61,9 @@
 			<SubmissionView submission={submissionData} />
 		{/if}
 	{:else}
-		<button class="btn-large btn-outline btn btn-primary" on:click={() => { uploadVisible = true }}>Upload Replays
-		</button>
+		<Button size="xl" variant="warning" on:click={() => { uploadVisible = true }}>
+			<div slot="body">Upload Replays</div>
+		</Button>
 		<UploadReplaysModal bind:open={uploadVisible} bind:submissionId={submissionId} />
 	{/if}
 {/if}
