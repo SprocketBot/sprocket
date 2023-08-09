@@ -55,7 +55,7 @@
             <FileInput label="Upload" multiple={true} bind:value={files} />
 
             {#if files?.length}
-                <Button on:click={handleSubmit} variant="success" size="xl">
+                <Button on:click={handleSubmit} variant="primary" size="xl">
                     <div slot="body">Submit</div>
                 </Button>
             {/if}
