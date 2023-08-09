@@ -1,6 +1,6 @@
 <script lang="ts">
     import {
-        FileBlock, FileInput, Modal,
+        Button, FileBlock, FileInput, Modal,
     } from "$lib/components";
     import {fade} from "svelte/transition";
     import {UploadReplaysStore} from "$houdini";
@@ -52,12 +52,12 @@
             {/each}
         {/if}
         <div class="actions">
-            <FileInput label="Upload" bind:value={files} />
+            <FileInput label="Upload" multiple={true} bind:value={files} />
 
             {#if files?.length}
-                <button on:click={handleSubmit} class="btn btn-primary">
+                <Button on:click={handleSubmit}>
                     Submit
-                </button>
+                </Button>
             {/if}
         </div>
     </section>
