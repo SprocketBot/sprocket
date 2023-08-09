@@ -3,7 +3,6 @@
         FileBlock, FileInput, Modal,
     } from "$lib/components";
     import {fade} from "svelte/transition";
-    // import {uploadReplaysMutation} from "$lib/api/mutations/UploadReplays.mutation";
     import {UploadReplaysStore} from "$houdini";
     import type {FileUpload} from "graphql-upload";
     import type {RemovableFile} from "$lib/components/atoms";
@@ -21,10 +20,15 @@
             // TODO is okay to just cast File[] to FileUpload[]?
             const mutator = new UploadReplaysStore();
             console.log("Trying to upload replays");
-            await mutator.mutate({
-                files: files as unknown as FileUpload[],
+            console.log(submissionId);
+            let vars = {
                 submissionId: submissionId as string,
-            });
+                files: files as unknown as FileUpload[],
+            };
+            vars.submissionId = submissionId;
+            console.log(JSON.stringify(vars));
+
+            await mutator.mutate(vars);
             open = false;
         } catch (_e) {
             console.log(_e);
