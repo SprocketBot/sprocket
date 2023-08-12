@@ -56,7 +56,7 @@
 
             {#if files?.length}
                 <Button on:click={handleSubmit} variant="primary" size="xl">
-                    <div slot="body">Submit</div>
+                    <div>Submit</div>
                 </Button>
             {/if}
         </div>

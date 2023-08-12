@@ -23,9 +23,7 @@
     use:a={aParams}
     on:click
 >
-    <div>
-        <slot name="body"/>
-    </div>
+    <slot />
 </button>
 
 <style lang="postcss">
