@@ -4,18 +4,18 @@ import type {ObservableScrims$result, ObservableScrimsStore, ObservableScrimsSub
 export const ObservableScrimsLiveStore = (
     queryStore: ObservableScrimsStore,
     subStore: ObservableScrimsSubStore,
-): Readable<ObservableScrims$result["getAvailableScrims"]> => {
-    let value: ObservableScrims$result["getAvailableScrims"] = [];
+): Readable<ObservableScrims$result["getObservableScrims"]> => {
+    let value: ObservableScrims$result["getObservableScrims"] = [];
 
-    return readable<ObservableScrims$result["getAvailableScrims"]>([], set => {
+    return readable<ObservableScrims$result["getObservableScrims"]>([], set => {
         const queryUnsub = queryStore.subscribe($queryResult => {
-            if ($queryResult.data?.getAvailableScrims) {
-                value = $queryResult.data?.getAvailableScrims;
+            if ($queryResult.data?.getObservableScrims) {
+                value = $queryResult.data?.getObservableScrims;
                 set(value);
             }
         });
         const subUnsub = subStore.subscribe($subscriptionMessage => {
-            const updatedScrim = $subscriptionMessage.data?.followPendingScrims;
+            const updatedScrim = $subscriptionMessage.data?.followObservableScrims;
             if (!updatedScrim) return;
 
             if (updatedScrim.status !== "PENDING") {

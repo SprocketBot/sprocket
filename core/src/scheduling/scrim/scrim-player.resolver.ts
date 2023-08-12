@@ -69,7 +69,7 @@ export class ScrimPlayerResolver {
             status: ScrimStatus.IN_PROGRESS,
         });
 
-        return scrims.map(convertScrimToScrimObject);
+        return scrims.filter(s => s.observable).map(convertScrimToScrimObject);
     }
 
     @Query(() => ScrimObject, {
