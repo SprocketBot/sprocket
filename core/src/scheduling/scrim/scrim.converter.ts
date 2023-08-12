@@ -21,5 +21,6 @@ export const convertScrimToScrimObject = (s: Scrim): ScrimObject => {
         submissionId: s.submissionId,
         timeoutAt: s.timeoutAt,
         updatedAt: s.updatedAt,
+        observable: s.observable,
     };
 };

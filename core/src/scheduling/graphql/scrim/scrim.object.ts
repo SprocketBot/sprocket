@@ -83,6 +83,9 @@ export class ScrimObject implements Scrim {
 
     @Field(() => Int)
     maxPlayers: number;
+    
+    @Field(() => Boolean, {nullable: true})
+    observable?: boolean;
 }
 
 // TODO: Get rid of this?

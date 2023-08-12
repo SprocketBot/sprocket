@@ -27,6 +27,7 @@ export const ScrimSchema = z.object({
     players: z.array(ScrimPlayerSchema),
     games: z.array(ScrimGameSchema).default([]).optional(),
 
+    observable: z.boolean().optional(),
     lobby: ScrimLobbySchema.optional(),
     settings: ScrimSettingsSchema,
 });
