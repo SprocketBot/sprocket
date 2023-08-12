@@ -59,6 +59,19 @@ export class ScrimPlayerResolver {
         return scrims.map(convertScrimToScrimObject);
     }
 
+    @Query(() => [ScrimObject], {description: "Lists all scrims that are current in progress and marked as observable."})
+    @UseGuards(MemberGuard)
+    async getObservableScrims(
+        @CurrentMember() member: Member,
+    ): Promise<ScrimObject[]> {
+        const scrims = await this.scrimService.getAllScrims({
+            organizationId: member.organizationId,
+            status: ScrimStatus.IN_PROGRESS,
+        });
+
+        return scrims.map(convertScrimToScrimObject);
+    }
+
     @Query(() => ScrimObject, {
         nullable: true,
         description: "Returns the scrim that the player is currently participating in, if any",

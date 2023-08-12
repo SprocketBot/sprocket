@@ -6,7 +6,9 @@
 </script>
 
 {#each $openScrims ?? [] as scrim}
-    {scrim.id} | {scrim.status}
+    {#if scrim.status === "IN_PROGRESS" && scrim.observable && scrim.lobby}
+    {scrim.id} | {scrim.status} | Lobby Info: {scrim.lobby.name}//{scrim.lobby?.password}
+    {/if}
 {:else}
     "Hi, there are no currently observable scrims available."
 {/each}
