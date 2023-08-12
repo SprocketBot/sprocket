@@ -18,4 +18,9 @@ fragment ObservableScrimsFragment on ScrimObject {
         competitive
         mode
     }
+    observable
+    lobby {
+        name
+        password
+    }
 }

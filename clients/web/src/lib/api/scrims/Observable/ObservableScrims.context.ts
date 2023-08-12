@@ -4,7 +4,7 @@ import type {Readable} from "svelte/store";
 
 const ObservableScrimsContextKey = "OPEN_SCRIMS_CONTEXT_KEY";
 
-export type ObservableScrimsContextValue = Readable<ObservableScrims$result["getAvailableScrims"] | undefined>;
+export type ObservableScrimsContextValue = Readable<ObservableScrims$result["getObservableScrims"] | undefined>;
 
 export const ObservableScrimsContext = () => getContext<ObservableScrimsContextValue>(ObservableScrimsContextKey);
 export const SetObservableScrimsContext = (v: ObservableScrimsContextValue) =>
