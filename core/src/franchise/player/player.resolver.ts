@@ -1,5 +1,5 @@
 import {
-    forwardRef, Inject, UseGuards,
+    forwardRef, Inject, Logger, UseGuards,
 } from "@nestjs/common";
 import {
     Args,
@@ -76,6 +76,8 @@ export class PlayerResolver {
         @InjectRepository(UserAuthenticationAccount) private userAuthRepository: Repository<UserAuthenticationAccount>,
         @Inject(forwardRef(() => OrganizationService)) private readonly organizationService: OrganizationService,
     ) {}
+
+    private readonly logger = new Logger(PlayerResolver.name);
 
     @ResolveField()
     async skillGroup(@Root() player: Player): Promise<GameSkillGroup> {
@@ -247,21 +249,6 @@ export class PlayerResolver {
     ): Promise<string> {
         const player = await this.playerService.getPlayer({
             where: {id: playerId},
-            relations: {
-                member: {
-                    user: {
-                        authenticationAccounts: true,
-                    },
-                    organization: true,
-                    profile: true,
-                },
-                skillGroup: {
-                    id: true,
-                    organization: true,
-                    game: true,
-                    profile: true,
-                },
-            },
         });
 
         const inputData: ManualEloChange = {
@@ -274,10 +261,11 @@ export class PlayerResolver {
         await this.playerService.updatePlayerStanding(playerId, salary, player.skillGroupId);
         await this.eloConnectorService.createJob(EloEndpoint.EloChange, inputData);
 
+        this.logger.verbose(`Successfully changed ${playerId}'s salary to ${salary} and elo to ${elo}.`);
         return "SUCCESS";
     }
     
-    @Mutation(() => [Player])
+    @Mutation(() => String)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async changePlayerEloBulk(@Args("files", {type: () => [GraphQLUpload]}) files: Array<Promise<FileUpload>>): Promise<string> {
         const csvs = await Promise.all(files.map(async f => f.then(async _f => readToString(_f.createReadStream()))));
