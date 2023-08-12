@@ -19,7 +19,7 @@
     {scrim.id} | {scrim.status}
 {:else}
     There are no scrims available; why don't you create one?
-    <Button variant="primary" on:click={() => (openScrimModal = true)}>Create a Scrim</Button>
+    <Button variant="primary" outline size="sm" on:click={() => (openScrimModal = true)}>Create a Scrim</Button>
 {/each}
 
 {#if openScrimModal}

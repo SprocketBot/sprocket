@@ -57,7 +57,7 @@
 </script>
 
 <Modal title="Create Scrim" bind:open>
-    <form on:submit={submit} class="flex flex-col gap-4">
+    <form slot="body" on:submit={submit} class="flex flex-col gap-4">
         {#if formValues.canSaveDemos}
             <Alert variant="warning" compact dismissible={false}>
                 You have agreed to save replays; if you do not, you may be temporarily banned from scrims.

@@ -121,7 +121,7 @@
         {#if render === "input"}
             <div class="wrapper">
                     <!-- This is a div and not a real button because it is purely visual, screenreader users will interact with the hidden input to upload files -->
-                    <Button variant="primary" size="sm"><div slot="body">{inputButtonText}</div></Button>
+                    <Button variant="primary" size="sm"><div>{inputButtonText}</div></Button>
                     <div class="status-text">{inputStatusText}</div>
             </div>
         {:else}

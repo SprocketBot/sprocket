@@ -35,7 +35,7 @@
 	<!-- <div class="h-full w-full flex items-center justify-center">
 		<Spinner class="h-16 w-full" />
 	</div> -->
-    Sorry, loading the data for you rq. 
+    Sorry, loading the data for you right now. 
 {:else}
 	<header>
 		<h2 class="text-3xl font-bold">{match?.matchParent.fixture.scheduleGroup.description} | {match?.matchParent.fixture.homeFranchise.profile.title} vs {match?.matchParent.fixture.awayFranchise.profile.title}</h2>
@@ -62,7 +62,7 @@
 		{/if}
 	{:else}
 		<Button size="xl" variant="primary" on:click={() => { uploadVisible = true }}>
-			<div slot="body">Upload Replays</div>
+			<div>Upload Replays</div>
 		</Button>
 		<UploadReplaysModal bind:open={uploadVisible} bind:submissionId={submissionId} />
 	{/if}
