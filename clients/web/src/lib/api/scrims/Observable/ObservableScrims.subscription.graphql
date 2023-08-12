@@ -1,0 +1,5 @@
+subscription ObservableScrimsSub {
+    followObservableScrims {
+        ...ObservableScrimsFragment @mask_disable
+    }
+}

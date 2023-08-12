@@ -59,4 +59,20 @@ export class ScrimSubscriptionsResolver {
     async followPendingScrims(): Promise<AsyncIterator<ScrimObject>> {
         return this.pubSub.asyncIterator(ScrimsTopic);
     }
+    
+    @Subscription(() => ScrimObject, {
+        resolve(p) {
+            return p.scrim;
+        },
+        async filter(
+            payload: {scrim: ScrimObject},
+            variables,
+            context,
+        ) {
+            return payload.scrim.observable ? payload.scrim.observable : false;
+        },
+    })
+    async followObservableScrims(): Promise<AsyncIterator<ScrimObject>> {
+        return this.pubSub.asyncIterator(ScrimsTopic);
+    }
 }

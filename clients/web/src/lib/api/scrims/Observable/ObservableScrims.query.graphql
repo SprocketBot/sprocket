@@ -1,0 +1,5 @@
+query ObservableScrims {
+    getObservableScrims {
+        ...ObservableScrimsFragment @mask_disable
+    }
+}
