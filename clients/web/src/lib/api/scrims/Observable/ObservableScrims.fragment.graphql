@@ -1,0 +1,21 @@
+fragment ObservableScrimsFragment on ScrimObject {
+    id
+    author {
+        displayName
+    }
+    playerCount
+    maxPlayers
+    status
+    skillGroup {
+        profile {
+            description
+        }
+    }
+    gameMode {
+        description
+    }
+    settings {
+        competitive
+        mode
+    }
+}
