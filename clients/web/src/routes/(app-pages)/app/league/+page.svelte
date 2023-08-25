@@ -31,7 +31,7 @@
     Fetching data, please wait. 
 {:then}
     {#each matchData.season as s}
-        <h2 class="text-2xl text-accent font-bold mb-8">{s.game.title} | {s.description}</h2>
+        <h2 class="text-4xl font-bold mb-8" style="width:auto; text-align:center;">{s.game.title} | {s.description}</h2>
         <div class="flex flex-col gap-10">
             {#if currentWeek}
                 <LeagueScheduleGroup scheduleGroup={currentWeek} isCurrentWeek />

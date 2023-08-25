@@ -1,7 +1,7 @@
 <script lang="ts">
 	import {goto} from "$app/navigation";
 	import type {LeagueScheduleFixture} from "$lib/api";
-	import {FranchiseVsCard, VsIcon} from "$lib/components";
+	import {Button, FranchiseVsCard, VsIcon} from "$lib/components";
 
 	export let fixture: LeagueScheduleFixture;
 	export let hidebutton: boolean = false;
@@ -15,8 +15,9 @@
 		<FranchiseVsCard profile={fixture.awayFranchise.profile}/>
 	</div>
 	{#if !hidebutton}
-		<div class="flex justify-center items-center">
-			<button on:click={async () => goto(`/app/league/${fixture.id}`)} class="btn btn-outline btn-primary btn-sm">Details</button>
+		<div class="flex justify-center items-center" style="margin-top:5px">
+			<Button on:click={async () => goto(`/app/league/${fixture.id}`)}
+			variant="primary">Details</Button>
 		</div>
 	{/if}
 </section>

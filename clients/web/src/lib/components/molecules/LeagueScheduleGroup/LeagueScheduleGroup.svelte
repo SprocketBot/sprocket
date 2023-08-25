@@ -10,7 +10,7 @@
 
 
 <Accordion open={isCurrentWeek}> 
-    <h3 slot="title" class="text-lg font-bold mb-4 divider">
+    <h3 slot="title" class="text-3xl font-bold mb-4 divider">
         {title}
     </h3>
 
@@ -20,3 +20,9 @@
         {/each}
     </div>
 </Accordion>
+
+<style lang="postcss">
+    h3 {
+        padding: 10px;
+    }
+</style>

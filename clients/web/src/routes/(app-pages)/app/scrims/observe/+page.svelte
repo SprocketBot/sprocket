@@ -1,12 +1,11 @@
 <script lang="ts">
     import {ObservableScrimsContext} from "$lib/api";
     import {Card} from "$lib/components";
-    import Accordion from "../../../../../lib/components/atoms/Accordion/Accordion.svelte";
 
     const observableScrims = ObservableScrimsContext();
 </script>
 
-<h2 class="text-2xl text-accent font-bold mb-8"> Currently active observable
+<h2 class="text-2xl font-bold mb-8"> Currently active observable
 scrims </h2>
 {#each $observableScrims ?? [] as scrim}
     <Card>
@@ -20,5 +19,5 @@ scrims </h2>
         {/if}
     </Card>
 {:else}
-    "Hi, there are no currently observable scrims available."
+    "Hi, currently there are no observable scrims available."
 {/each}
