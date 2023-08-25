@@ -23,7 +23,7 @@
   "license": "ISC",
   "dependencies": {
     "@nestjs/common": "^8.2.3",
-    "@nestjs/core": "^8.2.3",
+    "@nestjs/core": "^9.0.5",
     "@nestjs/microservices": "^8.2.5",
     "@nestjs/schematics": "^8.0.11",
     "@sprocketbot/common": "^0.2.18",
