@@ -1,12 +1,11 @@
 import {env} from "$env/dynamic/public";
-import {HoudiniClient, RefreshLoginStore} from "$houdini";
-import {createClient} from "graphql-ws";
+import {HoudiniClient} from "$houdini";
+import {SubscriptionClient} from "subscriptions-transport-ws";
 import {subscription} from "$houdini/plugins";
 import {goto} from "$app/navigation";
-import {browser} from "$app/environment";
-import {updateAuthCookies} from "$lib/api/auth-cookies";
-import {getExpiryFromJwt} from "./lib/utilities/getExpiryFromJwt";
-import {clearAuthCookies} from "./lib/api/auth-cookies";
+import {getAuthCookies, clearAuthCookies} from "$lib/api";
+import {redirect} from "@sveltejs/kit";
+import {refreshAuthPlugin} from "./houdini/refresh-auth.plugin";
 
 const getAuthToken = ({
     session,
@@ -16,6 +15,8 @@ const getAuthToken = ({
     if (metadata?.accessTokenOverride) return metadata.accessTokenOverride;
     if (useRefresh && session?.refresh) return session.refresh;
     if (session?.access) return session.access;
+    const cookies = getAuthCookies();
+    if (cookies.access) return cookies.access;
     return "";
 };
 
@@ -24,14 +25,15 @@ export default new HoudiniClient({
 
     // uncomment this to configure the network call (for things like authentication)
     // for more information, please visit here: https://www.houdinigraphql.com/guides/authentication
-    fetchParams({session, metadata}) {
+    fetchParams({session, metadata, document}) {
+        const authToken = getAuthToken({
+            session: session ?? undefined,
+            metadata: metadata ?? undefined,
+            useRefresh: false,
+        });
         return {
             headers: {
-                authorization: `Bearer ${getAuthToken({
-                    session: session ?? undefined,
-                    metadata: metadata ?? undefined,
-                    useRefresh: false,
-                })}`,
+                authorization: `Bearer ${authToken}`,
             },
         };
     },
@@ -46,85 +48,33 @@ export default new HoudiniClient({
                 //          But it would also prevent a user having to log in when they don't need to.
                 clearAuthCookies();
 
-                goto(`/auth/login?next=${encodeURI(window.location.pathname)}`);
+                if (typeof window !== "undefined") goto(`/auth/login?next=${encodeURI(window.location.pathname)}`);
+                else {
+                    throw redirect(307, "/auth/login");
+                }
             } else {
                 console.error(errors);
             }
         },
     },
     plugins: [
-        () => {
+        refreshAuthPlugin,
+        subscription(ctx => {
+            const c = new SubscriptionClient(`${env.PUBLIC_GQL_URL.replace("http", "ws")}/graphql`, {
+                reconnect: true,
+                lazy: true,
+            });
             return {
-                beforeNetwork: async (ctx, {next}) => {
-                    const {session} = ctx;
-                    // TODO: Actually check the thing
-                    if (!session?.access) {
-                        next(ctx);
-                        return;
-                    }
-                    const expAt = getExpiryFromJwt(session?.access);
-
-                    // If there is at least one minute on the token; do nothing
-                    if (expAt.getTime() > new Date().getTime() + 60 * 1000) {
-                        next(ctx);
-                        return;
-                    }
-                    if (ctx.artifact.name === "RefreshLogin") {
-                        console.debug(
-                            "Avoiding infinite loop. Will not try to refresh auth before a refresh auth call.",
-                        );
-                        next(ctx);
-                        return;
-                    }
-
-                    // Otherwise we need to refresh
-                    console.log("Attempting to refresh authentication");
-
-                    if (session.refresh) {
-                        const s = new RefreshLoginStore();
-
-                        try {
-                            const result = await s.mutate(null, {
-                                metadata: {
-                                    accessTokenOverride: session.refresh,
-                                },
-                            });
-                            if (!result.data) {
-                                throw new Error(
-                                    result.errors?.map(e => e.message).join("\n") ?? "Refresh Login Response Empty",
-                                );
-                            }
-
-                            ctx.session!.access = result.data.refreshLogin.access;
-                            ctx.session!.refresh = result.data.refreshLogin.refresh;
-
-                            if (browser) {
-                                updateAuthCookies(result.data.refreshLogin);
-                            } else {
-                                // How do I set cookies here
-                                console.log(
-                                    "Failed to persist auth cookie updates. Setting cookies in a plugin is not possible?",
-                                );
-                            }
-                            console.debug("Auth has been refreshed");
-                        } catch (e) {
-                            console.warn("Failed to refresh auth token!", e);
-                        }
-                    } else {
-                        console.debug("Skipping Auth Refresh");
-                    }
-
-                    next(ctx);
+                subscribe(payload, handlers) {
+                    const {unsubscribe} = c
+                        .request({
+                            ...payload,
+                            context: {authorization: getAuthToken() ? `Bearer ${getAuthToken()}` : undefined},
+                        })
+                        .subscribe(handlers);
+                    return unsubscribe;
                 },
             };
-        },
-        subscription(ctx =>
-            createClient({
-                url: `${env.PUBLIC_GQL_URL}/graphql`,
-                connectionParams: {
-                    authorization: ctx.session?.access ? `Bearer ${ctx.session.access}` : "",
-                },
-            }),
-        ),
+        }),
     ],
 });

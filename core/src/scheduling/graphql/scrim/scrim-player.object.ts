@@ -9,7 +9,7 @@ export class ScrimPlayerObject implements ScrimPlayer {
     userId: number;
 
     @Field(() => UserObject)
-    user: UserObject;
+    user?: UserObject;
 
     @Field(() => String)
     name: string;

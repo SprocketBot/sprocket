@@ -8,8 +8,11 @@ const config = {
         }
     },
     "plugins": {
-        "houdini-svelte": {}
+        "houdini-svelte": {},
     },
+    scalars: {
+        DateTime: { type: Date.name } 
+    }
 }
 
 export default config

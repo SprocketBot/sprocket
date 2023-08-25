@@ -12,14 +12,14 @@ export class Game extends BaseEntity {
     title: string;
 
     @OneToMany(() => GameMode, gm => gm.game)
-    modes: GameMode[];
+    modes?: GameMode[];
 
     @OneToMany(() => GameSkillGroup, gsg => gsg.game)
-    skillGroups: GameSkillGroup[];
+    skillGroups?: GameSkillGroup[];
 
     @OneToMany(() => GamePlatform, gp => gp.game)
-    supportedPlatforms: GamePlatform[];
+    supportedPlatforms?: GamePlatform[];
 
     @OneToMany(() => GameFeature, gf => gf.game)
-    supportedFeatures: GameFeature[];
+    supportedFeatures?: GameFeature[];
 }

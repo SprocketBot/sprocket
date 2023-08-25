@@ -6,6 +6,9 @@ import type {GameMode} from "../database/game-mode.entity";
 @ObjectType()
 export class GameModeObject extends BaseObject {
     @Field(() => Int)
+    id: number;
+
+    @Field(() => Int)
     gameId: number;
 
     @Field(() => String)

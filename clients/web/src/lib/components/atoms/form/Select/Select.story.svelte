@@ -1,7 +1,8 @@
 <script lang="ts">
     import type {Hst as _Hst} from "@histoire/plugin-svelte";
     import type {FormControlState, FormControlSize} from "../form.types";
-    import Select, {type SelectOptions} from "./Select.svelte";
+    import Select from "./Select.svelte";
+    import type {SelectOptions} from "./types";
 
     export let Hst: _Hst;
 

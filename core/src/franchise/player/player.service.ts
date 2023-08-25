@@ -42,6 +42,7 @@ export class PlayerService {
         organizationId: number,
         gameModeId: number,
     ): Promise<Player> {
+        console.log({userId, organizationId, gameModeId});
         return this.playerRepository.findOneOrFail({
             where: {
                 member: {

@@ -14,7 +14,7 @@
     "lint:check": "eslint src"
   },
   "devDependencies": {
-    "@sveltejs/kit": "^1.0.0-next.156",
+    "@sveltejs/kit": "^1.15.2",
     "@types/amqplib": "^0.8.2",
     "autoprefixer": "^10.3.3",
     "postcss": "^8.3.6",

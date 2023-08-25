@@ -1,6 +1,6 @@
 import {goto} from "$app/navigation";
 import {SelectActiveOrganizationStore} from "$houdini";
-import {updateAuthCookies} from "$lib/api/auth-cookies";
+import {updateAuthCookies} from "$lib/api";
 
 export const next = (defaultRoute: string, keepNext?: boolean) => {
     const location = new URL(window.location.href);

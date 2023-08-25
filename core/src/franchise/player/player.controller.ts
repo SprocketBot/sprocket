@@ -37,6 +37,7 @@ export class PlayerController {
     ) {}
 
     @Get("accept-rankdown/:token")
+    @MessagePattern("accept-rankdown")
     async acceptRankdown(@Param("token") token: string): Promise<string> {
         try {
             const payload = RankdownJwtPayloadSchema.parse(this.jwtService.verify(token));

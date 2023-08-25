@@ -1,0 +1,8 @@
+query UserProfile {
+    me {
+        name: displayName
+        currentOrganization {
+            name
+        }
+    }
+}

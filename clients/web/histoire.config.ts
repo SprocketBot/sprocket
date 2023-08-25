@@ -1,9 +1,9 @@
-import {defineConfig} from "histoire";
-import {HstSvelte} from "@histoire/plugin-svelte";
+import { defineConfig } from "histoire";
+import { HstSvelte } from "@histoire/plugin-svelte";
 import path from "path";
 
-import {palette} from "./src/lib/palette";
-const {primary, gray} = palette;
+import { palette } from "./src/lib/palette";
+const { primary, gray } = palette;
 
 export default defineConfig({
     plugins: [HstSvelte()],
