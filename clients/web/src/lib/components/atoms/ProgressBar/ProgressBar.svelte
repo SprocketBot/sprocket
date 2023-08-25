@@ -23,13 +23,13 @@
     </div>
 {/if}
 
-<div class="w-full rounded-full bg-gray-600 {variant}">
+<div class="w-full rounded-full bg-gray-600 {variant} progress size-{size}">
     {#if progressLocation !== "inside"}
-        <div class="rounded-full size-{size}" style="width: {progress}%" aria-valuenow={progress} />
+        <div class="rounded-full h-full" style="width: {progress}%" aria-valuenow={progress} />
     {:else}
         <div
-            class="font-medium text-center
-                        leading-none rounded-full size-{size} flex items-center justify-center"
+            class="font-medium text-center h-full
+                        leading-none rounded-full flex items-center justify-center"
             style="width: {progress}%"
             aria-valuenow={progress}
         >
@@ -71,5 +71,8 @@
 
     .size-xl {
         @apply h-6;
+    }
+    .size-fill {
+        @apply h-full;
     }
 </style>

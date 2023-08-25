@@ -5,9 +5,13 @@
     import {Drawer} from "../../atoms/Drawer";
     import type {SidebarWidth} from "../../molecules/Sidebar";
     import {Navbar} from "../../molecules/Navbar";
-    import {Sidebar, SidebarItem} from "../../molecules/Sidebar";
+    import {Sidebar} from "../../molecules/Sidebar";
     import {setContext} from "svelte";
     import {BREADCRUMB_CONTEXT_KEY, type BreadcrumbContext} from "../../atoms/Breadcrumb";
+    import type {NavTreeItem} from "./types";
+    import DashboardNavItem from "./DashboardNavItem.svelte";
+
+    export let navTree: NavTreeItem[] = [];
 
     let sidebarExpanded = false;
     let sidebarType: SidebarWidth = "full";
@@ -33,7 +37,7 @@
                 <button on:click={() => (sidebarExpanded = true)}><Icon class="w-6 text-gray-50" src={Bars3} /></button>
             {/if}
         </div>
-        <!-- TODO: Build out right side of the navbar -->
+        <slot slot="contentRight" name="navbarRight" />
     </Navbar>
 
     <!-- TODO: See if there is a way to do this without redeclaring the sidebar -->
@@ -42,12 +46,18 @@
     {#if $XSmallScreenQuery}
         <Drawer bind:open={sidebarExpanded}>
             <Sidebar withHeader={$XSmallScreenQuery} width={sidebarType}>
-                <SidebarItem label="Item 1" />
+                {#each navTree as navItem}
+                    <DashboardNavItem item={navItem} />
+                {/each}
             </Sidebar>
         </Drawer>
     {:else}
         <Sidebar withHeader={false} width={sidebarType}>
-            <SidebarItem label="Item 1" />
+            {#each navTree as navItem}
+                <DashboardNavItem item={navItem} />
+            {/each}
+
+            <slot slot="footer" name="sidebar-footer" />
         </Sidebar>
     {/if}
 

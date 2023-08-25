@@ -28,7 +28,7 @@ export class ScrimConsumer {
 
     @Process({name: SCRIM_CLOCK_JOB})
     async scrimClock(): Promise<void> {
-        const scrims = await this.scrimCrudService.getAllScrims();
+        const scrims = await this.scrimCrudService.getAllScrims({});
 
         for (const scrim of scrims.filter(s => s.status === ScrimStatus.PENDING)) {
             for (const player of scrim.players) {

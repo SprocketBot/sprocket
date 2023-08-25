@@ -2,18 +2,18 @@
     import {getContext} from "svelte";
     import {Icon} from "@steeze-ui/svelte-icon";
     import type {IconSource} from "@steeze-ui/svelte-icon/types";
-    import {type SidebarContext, SidebarContextKey} from "../types";
+    import {type InternalSidebarContext, InternalSidebarContextKey} from "../types";
     import {tooltip, type TooltipParams} from "../../../actions/Tooltip";
 
     export let icon: IconSource | undefined = undefined;
     export let label: string;
 
-    let context = getContext<SidebarContext>(SidebarContextKey);
+    let context = getContext<InternalSidebarContext>(InternalSidebarContextKey);
 </script>
 
 <li on:click on:keydown on:keypress>
     <button
-        class="flex items-center p-2 text-base font-normal rounded-lg text-white hover:bg-gray-700 group h-10 w-full"
+        class="flex items-center p-2 text-base font-normal rounded-lg hover:bg-gray-700 h-10 w-full text-gray-400 hover:text-white"
         use:tooltip={{
             content: label,
             position: "right",
@@ -21,9 +21,9 @@
         }}
     >
         {#if icon}
-            <Icon src={icon} class="w-6 h-6 transition duration-75 text-gray-400 group-hover:text-white" />
+            <Icon src={icon} class="w-6 h-6 transition duration-75" />
         {:else}
-            <span class="w-6 text-center text-lg text-gray-400 group-hover:text-white">
+            <span class="w-6 text-center text-lg">
                 {#if $context.iconOnly}
                     {label.charAt(0).toUpperCase()}
                 {/if}

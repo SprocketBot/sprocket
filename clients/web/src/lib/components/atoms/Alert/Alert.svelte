@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {fade} from "svelte/transition";
+    import {slide} from "svelte/transition";
     import {Icon} from "@steeze-ui/svelte-icon";
     import {CheckCircle, ExclamationCircle, InformationCircle, XMark} from "@steeze-ui/heroicons";
     import type {IconSource} from "@steeze-ui/svelte-icon/types";
@@ -34,7 +34,7 @@
 
 <!-- https://flowbite.com/docs/components/alerts/ -->
 {#if !dismissed}
-    <div role="alert" class="v-{variant} border rounded-lg" class:compact out:fade>
+    <div role="alert" class="v-{variant} border rounded-lg" class:compact transition:slide>
         <div class="flex items-center">
             {#if withIcon && iconSrc}
                 <Icon class="w-5 h-5 mr-2 flex-shrink-0" src={iconSrc} />
@@ -78,7 +78,7 @@
         @apply p-4;
     }
     .compact {
-        @apply px-4 py-1;
+        @apply px-4 py-2;
     }
 
     .v-info {

@@ -13,7 +13,7 @@ export class CreateScrimInput {
     @Field({nullable: true})
     createGroup: boolean;
 
-    @Field(() => Int)
+    @Field(() => Int, {description: "Seconds until player should automatically leave scrim."})
     leaveAfter: number;
 
     @Field(() => Boolean, {nullable: true})

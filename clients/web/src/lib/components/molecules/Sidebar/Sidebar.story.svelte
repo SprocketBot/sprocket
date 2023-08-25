@@ -5,7 +5,7 @@
     import Sidebar from "./Sidebar.svelte";
     import SidebarItem from "./atoms/SidebarItem.svelte";
     import SidebarDivider from "./atoms/SidebarDivider.svelte";
-    import SidebarGroup from "./SidebarGroup.svelte";
+    import SidebarGroup from "./atoms/SidebarGroup.svelte";
 
     import Badge from "$lib/components/atoms/Badge/Badge.svelte";
     import Alert from "$lib/components/atoms/Alert/Alert.svelte";
