@@ -268,10 +268,6 @@ export const config = new Proxy(
         get defaultAuthToken(): string | undefined {
             if (_config.has("defaultAuthToken")) return _config.get<string>("defaultAuthToken");
         },
-        get jwt_secret(): string {
-            return readFileSync("./secret/jwtSecret.txt").toString()
-                .trim();
-        },
     },
     proxyOpts,
 );

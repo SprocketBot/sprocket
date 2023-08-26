@@ -5,10 +5,8 @@ import {lastValueFrom, timeout} from "rxjs";
 
 import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
-import {v4 as uuidv4} from "uuid";
-import type {
-    CoreEndpoint, CoreInput, CoreResponse,
-} from "./core.types";
+import {NanoidService} from "../../util/nanoid/nanoid.service";
+import type {CoreEndpoint, CoreInput, CoreResponse} from "./core.types";
 import {CoreSchemas} from "./core.types";
 
 @Injectable()
@@ -20,8 +18,12 @@ export class CoreService {
         
     ) {}
 
-    async send<E extends CoreEndpoint>(endpoint: E, data: CoreInput<E>, options?: MicroserviceRequestOptions): Promise<CoreResponse<E>> {
-        const rid = uuidv4();
+    async send<E extends CoreEndpoint>(
+        endpoint: E,
+        data: CoreInput<E>,
+        options?: MicroserviceRequestOptions,
+    ): Promise<CoreResponse<E>> {
+        const rid = this.nidService.gen();
         this.logger.verbose(`| - (${rid}) > | \`${endpoint}\` (${JSON.stringify(data)})`);
 
         const {input: inputSchema, output: outputSchema} = CoreSchemas[endpoint];

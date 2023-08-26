@@ -1,7 +1,3 @@
-<script lang="ts" context="module">
-    export type AlertVariant = "info" | "success" | "warning" | "error";
-</script>
-
 <script lang="ts">
     import {slide} from "svelte/transition";
     import {Icon} from "@steeze-ui/svelte-icon";
@@ -23,7 +19,7 @@
             iconSrc = CheckCircle;
             break;
         case "warning":
-        case "error":
+        case "danger":
             iconSrc = ExclamationCircle;
             break;
         default:
@@ -78,23 +74,38 @@
 {/if}
 
 <style lang="postcss">
-    .info {
+    div[role="alert"]:not(.compact) {
+        @apply p-4;
+    }
+    .compact {
+        @apply px-4 py-2;
+    }
+
+    .v-info {
         @apply border-info-300 bg-info-300 text-info-900;
-        button { @apply text-info-800 focus:ring-info-400 hover:bg-info-400/50; }
+        button {
+            @apply text-info-800 focus:ring-info-400 hover:bg-info-400/50;
+        }
     }
-    
-    .success {
+
+    .v-success {
         @apply border-success-300 bg-success-300 text-success-900;
-        button { @apply text-success-800 focus:ring-success-400 hover:bg-success-400/50; }
+        button {
+            @apply text-success-800 focus:ring-success-400 hover:bg-success-400/50;
+        }
     }
 
-    .warning {
+    .v-warning {
         @apply border-warning-300 bg-warning-300 text-warning-900;
-        button { @apply text-warning-800 focus:ring-warning-400 hover:bg-warning-400/50; }
+        button {
+            @apply text-warning-800 focus:ring-warning-400 hover:bg-warning-400/50;
+        }
     }
 
-    .error {
+    .v-danger {
         @apply border-danger-300 bg-danger-300 text-danger-900;
-        button { @apply text-danger-800 focus:ring-danger-400 hover:bg-danger-400/50; }
+        button {
+            @apply text-danger-800 focus:ring-danger-400 hover:bg-danger-400/50;
+        }
     }
 </style>

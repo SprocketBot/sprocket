@@ -1,6 +1,5 @@
 import {UseGuards} from "@nestjs/common";
 import {Mutation, Resolver} from "@nestjs/graphql";
-import {InjectDataSource} from "@nestjs/typeorm";
 import {DataSource} from "typeorm";
 
 import {GraphQLJwtAuthGuard} from "../authentication/guards";
@@ -17,7 +16,7 @@ export class EloResolver {
         private readonly eloService: EloService,
         private readonly eloConnectorService: EloConnectorService,
         private readonly eloConsumer: EloConsumer,
-        @InjectDataSource() private readonly ds: DataSource,
+        private readonly dataSource: DataSource,
     ) {}
 
     @Mutation(() => String)
@@ -38,7 +37,7 @@ export class EloResolver {
     @Mutation(() => Boolean)
     @UseGuards(GraphQLJwtAuthGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async reinitEloDb(): Promise<boolean> {
-        const players = (await this.ds.query(`
+        const players = (await this.dataSource.query(`
         SELECT player.id,
                mp.name,
                player.salary,

@@ -176,7 +176,9 @@ export class ScrimService {
 
         return {
             skillGroupWebhook: skillGroupProfile.scrimReportCardWebhook?.url,
-            franchiseWebhooks: Array.from(new Set(franchiseProfiles.map(fp => fp?.scrimReportCardWebhook?.url).filter(f => f))) as string[],
+            franchiseWebhooks: Array.from(
+                new Set(franchiseProfiles.map(fp => fp?.scrimReportCardWebhook?.url).filter(f => f)),
+            ) as string[],
         };
     }
 

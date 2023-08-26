@@ -5,12 +5,8 @@ import {lastValueFrom, timeout} from "rxjs";
 
 import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
-import {v4 as uuidv4} from "uuid";
-import type {
-    AnalyticsEndpoint,
-    AnalyticsInput,
-    AnalyticsResponse,
-} from "./analytics.types";
+import {NanoidService} from "../../util/nanoid/nanoid.service";
+import type {AnalyticsEndpoint, AnalyticsInput, AnalyticsResponse} from "./analytics.types";
 import {AnalyticsSchemas} from "./analytics.types";
 
 @Injectable()
@@ -21,8 +17,12 @@ export class AnalyticsService {
         @Inject(CommonClient.Analytics) private microServiceClient: ClientProxy,
     ) {}
 
-    async send<E extends AnalyticsEndpoint>(endpoint: E, data: AnalyticsInput<E>, options?: MicroserviceRequestOptions): Promise<AnalyticsResponse<E>> {
-        const rid = uuidv4();
+    async send<E extends AnalyticsEndpoint>(
+        endpoint: E,
+        data: AnalyticsInput<E>,
+        options?: MicroserviceRequestOptions,
+    ): Promise<AnalyticsResponse<E>> {
+        const rid = this.nidService.gen();
         this.logger.verbose(`| - (${rid}) > | \`${endpoint}\` (${JSON.stringify(data)})`);
 
         const {input: inputSchema, output: outputSchema} = AnalyticsSchemas[endpoint];

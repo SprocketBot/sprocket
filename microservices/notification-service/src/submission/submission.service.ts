@@ -78,11 +78,6 @@ export class SubmissionService extends SprocketEventMarshal {
         });
         if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
 
-        const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {
-            id: scrim.organizationId,
-        });
-        if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
-
         await Promise.all(
             scrim.players.map(async p => {
                 const userResult = await this.coreService.send(CoreEndpoint.GetDiscordIdByUser, p.userId);
@@ -215,11 +210,6 @@ export class SubmissionService extends SprocketEventMarshal {
 
         const scrim = scrimResult.data;
         if (!scrim) throw new Error("Scrim does not exist");
-
-        const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {
-            id: scrim.organizationId,
-        });
-        if (organizationBrandingResult.status === ResponseStatus.ERROR) throw organizationBrandingResult.error;
 
         const organizationBrandingResult = await this.coreService.send(CoreEndpoint.GetOrganizationProfile, {
             id: scrim.organizationId,

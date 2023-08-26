@@ -5,8 +5,8 @@
     import {XMark} from "@steeze-ui/heroicons";
     import {Icon} from "@steeze-ui/svelte-icon";
 
-  export let open = false;
-  export let title: string | undefined = undefined;
+    export let open = false;
+    export let title: string | undefined = undefined;
 
     const close = () => {
         open = false;

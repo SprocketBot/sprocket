@@ -1,5 +1,5 @@
 import {UseGuards} from "@nestjs/common";
-import {Args, Mutation, Resolver} from "@nestjs/graphql";
+import {Args, Int, Mutation, Resolver} from "@nestjs/graphql";
 import {GraphQLError} from "graphql";
 
 import {MemberRepository} from "../organization/database/member.repository";

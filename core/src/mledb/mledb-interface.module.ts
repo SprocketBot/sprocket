@@ -13,6 +13,7 @@ import {MledbBridgeModule} from "./mledb-bridge/mledb_bridge.module";
 import {MledbMatchController} from "./mledb-match/mledb-match.controller";
 import {MledbMatchService} from "./mledb-match/mledb-match.service";
 import {MledbPlayerService} from "./mledb-player";
+import {MledbPlayerController} from "./mledb-player/mledb-player.controller";
 import {MledbPlayerResolver} from "./mledb-player/mledb-player.resolver";
 import {MledbFinalizationService} from "./mledb-scrim";
 
@@ -29,8 +30,8 @@ import {MledbFinalizationService} from "./mledb-scrim";
         SchedulingDatabaseModule,
         UtilModule,
     ],
-    providers: [MledbPlayerService, MledbFinalizationService, MledbMatchService, MledbPlayerResolver],
-    exports: [MledbMatchService, MledbPlayerService, MledbFinalizationService],
-    controllers: [MledbMatchController],
+    providers: [MledbPlayerService, MledbPlayerResolver, MledbFinalizationService, MledbMatchService],
+    exports: [MledbMatchService, MledbPlayerService, MledbFinalizationService, MledbModule],
+    controllers: [MledbMatchController, MledbPlayerController],
 })
 export class MledbInterfaceModule {}
