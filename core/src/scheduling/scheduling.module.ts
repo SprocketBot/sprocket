@@ -7,7 +7,6 @@ import {
     MinioModule,
     RedisModule,
     SubmissionModule,
-    UtilModule as CommonUtilModule,
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 
@@ -59,7 +58,6 @@ import { MledbModule } from "../mledb/database";
         RedisModule,
         EventsModule,
         MinioModule,
-        CommonUtilModule,
         UtilModule,
         EloConnectorModule,
         SchedulingDatabaseModule,

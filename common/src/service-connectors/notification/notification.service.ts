@@ -2,10 +2,9 @@
 import {Inject, Injectable, Logger} from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
 import {lastValueFrom, timeout} from "rxjs";
-
+import {v4} from "uuid";
 import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
-import {NanoidService} from "../../util/nanoid/nanoid.service";
 import type {NotificationEndpoint, NotificationInput, NotificationResponse} from "./notification.types";
 import {NotificationSchemas} from "./notification.types";
 
@@ -16,7 +15,6 @@ export class NotificationService {
     constructor(
         @Inject(CommonClient.Notification)
         private microserviceClient: ClientProxy,
-        private readonly nidService: NanoidService,
     ) {}
 
     async send<E extends NotificationEndpoint>(
@@ -24,7 +22,7 @@ export class NotificationService {
         data: NotificationInput<E>,
         options?: MicroserviceRequestOptions,
     ): Promise<NotificationResponse<E>> {
-        const rid = this.nidService.gen();
+        const rid = v4();
         this.logger.verbose(`| - (${rid}) > | \`${endpoint}\` (${JSON.stringify(data)})`);
 
         const {input: inputSchema, output: outputSchema} = NotificationSchemas[endpoint];

@@ -2,10 +2,9 @@
 import {Inject, Injectable, Logger} from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
 import {lastValueFrom, timeout} from "rxjs";
-
+import {v4} from "uuid";
 import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
-import {NanoidService} from "../../util/nanoid/nanoid.service";
 import type {AnalyticsEndpoint, AnalyticsInput, AnalyticsResponse} from "./analytics.types";
 import {AnalyticsSchemas} from "./analytics.types";
 
@@ -22,7 +21,7 @@ export class AnalyticsService {
         data: AnalyticsInput<E>,
         options?: MicroserviceRequestOptions,
     ): Promise<AnalyticsResponse<E>> {
-        const rid = this.nidService.gen();
+        const rid = v4();
         this.logger.verbose(`| - (${rid}) > | \`${endpoint}\` (${JSON.stringify(data)})`);
 
         const {input: inputSchema, output: outputSchema} = AnalyticsSchemas[endpoint];

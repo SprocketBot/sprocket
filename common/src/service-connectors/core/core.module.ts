@@ -9,7 +9,6 @@ import {CoreService} from "./core.service";
     providers: [CoreService],
     exports: [CoreService],
     imports: [
-        UtilModule,
         ClientsModule.register([
             {
                 name: CommonClient.Core,

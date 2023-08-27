@@ -2,10 +2,9 @@
 import {Inject, Injectable, Logger} from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
 import {lastValueFrom, timeout} from "rxjs";
-
+import {v4} from "uuid"
 import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
-import {NanoidService} from "../../util/nanoid/nanoid.service";
 import type {SubmissionEndpoint, SubmissionInput, SubmissionResponse} from "./submission.types";
 import {SubmissionSchemas} from "./submission.types";
 
@@ -16,7 +15,6 @@ export class SubmissionService {
     constructor(
         @Inject(CommonClient.Submission)
         private microserviceClient: ClientProxy,
-        private readonly nidService: NanoidService,
     ) {}
 
     async send<E extends SubmissionEndpoint>(
@@ -24,7 +22,7 @@ export class SubmissionService {
         data: SubmissionInput<E>,
         options?: MicroserviceRequestOptions,
     ): Promise<SubmissionResponse<E>> {
-        const rid = this.nidService.gen();
+        const rid = v4();
         this.logger.verbose(`| - (${rid}) > | \`${endpoint}\` (${JSON.stringify(data)})`);
 
         const {input: inputSchema, output: outputSchema} = SubmissionSchemas[endpoint];

@@ -2,10 +2,9 @@
 import {Inject, Injectable, Logger} from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
 import {lastValueFrom, timeout} from "rxjs";
-
+import {v4} from "uuid";
 import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
-import {NanoidService} from "../../util/nanoid/nanoid.service";
 import type {MatchmakingEndpoint, MatchmakingInput, MatchmakingResponse} from "./matchmaking.types";
 import {MatchmakingSchemas} from "./matchmaking.types";
 
@@ -16,7 +15,6 @@ export class MatchmakingService {
     constructor(
         @Inject(CommonClient.Matchmaking)
         private microserviceClient: ClientProxy,
-        private readonly nidService: NanoidService,
     ) {}
 
     async send<E extends MatchmakingEndpoint>(
@@ -24,7 +22,7 @@ export class MatchmakingService {
         data: MatchmakingInput<E>,
         options?: MicroserviceRequestOptions,
     ): Promise<MatchmakingResponse<E>> {
-        const rid = this.nidService.gen();
+        const rid = v4();
         this.logger.verbose(`| - (${rid}) > | \`${endpoint}\` (${JSON.stringify(data)})`);
 
         const {input: inputSchema, output: outputSchema} = MatchmakingSchemas[endpoint];

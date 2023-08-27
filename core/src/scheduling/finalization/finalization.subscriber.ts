@@ -4,7 +4,6 @@ import {
     EventPayload,
     EventsService,
     EventTopic,
-    NanoidService,
     REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
     ReplaySubmissionType,
     ResponseStatus,
@@ -13,7 +12,7 @@ import {
     SubmissionEndpoint,
     SubmissionService as CommonSubmissionService,
 } from "@sprocketbot/common";
-
+import { v4 } from "uuid";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
 import {MatchService} from "../match/match.service";
 import {ScrimService} from "../scrim/scrim.service";
@@ -32,7 +31,6 @@ export class FinalizationSubscriber extends SprocketEventMarshal {
         private readonly scrimService: ScrimService,
         private readonly matchService: MatchService,
         private readonly eloConnectorService: EloConnectorService,
-        private readonly nanoidService: NanoidService,
     ) {
         super(eventsService);
     }
@@ -60,7 +58,7 @@ export class FinalizationSubscriber extends SprocketEventMarshal {
             const {scrim: savedScrim, legacyScrim} = await this.rocketLeagueFinalizationService
                 .finalizeScrim(submission, scrim)
                 .catch(async e => {
-                    const issueId = this.nanoidService.gen();
+                    const issueId = v4();
                     await this.submissionService.rejectSubmission(
                         submission.id,
                         REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
@@ -101,7 +99,7 @@ export class FinalizationSubscriber extends SprocketEventMarshal {
             const {match, legacyMatch} = await this.rocketLeagueFinalizationService
                 .finalizeMatch(submission)
                 .catch(async e => {
-                    const issueId = this.nanoidService.gen();
+                    const issueId = v4();
                     await this.submissionService.rejectSubmission(
                         submission.id,
                         REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,

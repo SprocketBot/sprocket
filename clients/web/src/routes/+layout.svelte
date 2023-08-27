@@ -2,7 +2,7 @@
     import "@fontsource/montserrat";
     import "../app.postcss";
     import {getAuthCookies} from "$lib/api";
-    import {ToastContainer} from "$lib/components";
+    // import {ToastContainer} from "$lib/components";
     import {SetJwtContext} from "$lib/context";
 
     SetJwtContext({
@@ -15,5 +15,4 @@
     });
 </script>
 
-<ToastContainer />
 <slot />

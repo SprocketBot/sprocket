@@ -355,7 +355,7 @@ export class MledbMatchService {
             // Handle NCPing/Un-NCPing with non-dummy/dummy replays
             if (isNcp) {
                 // Set winningTeam to newWinningTeam
-                newWinningTeam = winningTeam?.name;
+                newWinningTeam = winningTeamName;
                 
                 if (!replay.isDummy) {
                     // Set winningColor depending on previous/new winningTeam
