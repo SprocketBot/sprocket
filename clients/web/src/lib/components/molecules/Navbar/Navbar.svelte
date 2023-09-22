@@ -17,9 +17,7 @@
         </div>
 
         <div class="flex-1 flex justify-between items-center" id="navbar-default">
-            <div>
-                <slot name="contentRight" />
-            </div>
+            <slot name="contentRight" />
         </div>
     </div>
 </nav>

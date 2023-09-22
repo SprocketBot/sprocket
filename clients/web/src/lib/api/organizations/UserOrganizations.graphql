@@ -1,0 +1,12 @@
+query MyOrganizations {
+    me {
+        organizations {
+            id
+            name
+            logoUrl
+            primaryColor
+            secondaryColor
+            description
+        }
+    }
+}

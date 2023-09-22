@@ -8,6 +8,7 @@
     "clean": "rimraf dist",
     "dev": "nest start --watch",
     "debug": "nest start --watch --debug",
+    "gen-sdl": "ts-node -P ./tsconfig.json scripts/gen-sdl.ts",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "format": "prettier src --write",
@@ -32,7 +33,7 @@
   "dependencies": {
     "@nestjs/bull": "^0.5.5",
     "@nestjs/common": "^8.2.3",
-    "@nestjs/core": "^8.2.3",
+    "@nestjs/core": "^9.0.5",
     "@nestjs/graphql": "^8.0.2",
     "@nestjs/jwt": "^8.0.0",
     "@nestjs/mapped-types": "^1.0.0",
@@ -96,6 +97,7 @@
     "@types/uuid": "^8.3.4",
     "faker": "^5.5.3",
     "ts-node": "^10.2.1",
+    "tsconfig-paths": "^4.1.2",
     "typescript": "^4.3.2"
   }
 }

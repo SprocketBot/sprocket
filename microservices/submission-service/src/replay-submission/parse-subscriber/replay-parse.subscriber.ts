@@ -34,13 +34,17 @@ export class ReplayParseSubscriber {
 
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         observable.subscribe(async (p: ProgressMessage<Task.ParseReplay>) => {
-            await this.submissionCrudService.updateItemProgress(submissionId, p);
+            try {
+                await this.submissionCrudService.updateItemProgress(submissionId, p);
 
-            await this.eventsService.publish(EventTopic.SubmissionProgress, {
-                submissionId: submissionId,
-                redisKey: getSubmissionKey(submissionId),
-            });
-            // TODO: Clean up subscription to prevent mem leak
+                await this.eventsService.publish(EventTopic.SubmissionProgress, {
+                    submissionId: submissionId,
+                    redisKey: getSubmissionKey(submissionId),
+                });
+                // TODO: Clean up subscription to prevent mem leak
+            } catch (e) {
+                this.logger.error(e);
+            }
         });
     }
 }

@@ -1,0 +1,22 @@
+mutation CreateScrim($options: CreateScrimInput!) {
+    createScrim(data: $options) {
+        id
+        createdAt
+        gameMode {
+            description
+        }
+        maxPlayers
+        playerCount
+        settings {
+            competitive
+            mode
+            observable
+            teamCount
+            teamSize
+        }
+        skillGroup {
+            description
+        }
+        status
+    }
+}

@@ -113,3 +113,4 @@ reports/
 secret/
 
 gql-client/gql-client.ts
+schema.graphql

@@ -1,4 +1,4 @@
-const palette =  {
+const palette = {
     primary: {
         DEFAULT: "#FEBF2B",
         50: "#FFEFCB",
@@ -205,7 +205,27 @@ const config = {
         },
     },
 
-    plugins: [],
+    plugins: [
+        // Expose colors as css variables
+        function ({ addBase, theme }) {
+            function extractColorVars(colorObj, colorGroup = '') {
+                return Object.keys(colorObj).reduce((vars, colorKey) => {
+                    const value = colorObj[colorKey];
+
+                    const newVars =
+                        typeof value === 'string'
+                            ? { [`--color${colorGroup}-${colorKey}`]: value }
+                            : extractColorVars(value, `-${colorKey}`);
+
+                    return { ...vars, ...newVars };
+                }, {});
+            }
+
+            addBase({
+                ':root': extractColorVars(theme('colors')),
+            });
+        },
+    ],
 };
 
 module.exports = config;

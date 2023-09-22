@@ -3,7 +3,7 @@
     import LogoSquarePrimary from "$lib/images/logo-square-primary.png";
     import LogoFullDark from "$lib/images/logo-full-dark.png";
     import type {SidebarWidth} from "./types";
-    import {type SidebarContext, SidebarContextKey} from "./types";
+    import {type InternalSidebarContext, InternalSidebarContextKey} from "./types";
     import {writable} from "svelte/store";
 
     export let withHeader = true;
@@ -11,7 +11,7 @@
     export let fullHeight = true;
     export let showTooltips: boolean | undefined = undefined;
 
-    const context: SidebarContext = writable({iconOnly: false, showTooltips: true});
+    const context: InternalSidebarContext = writable({iconOnly: false, showTooltips: true});
 
     $: if (width === "sm") $context.iconOnly = true;
     else $context.iconOnly = false;
@@ -20,10 +20,7 @@
     else if (typeof showTooltips !== "undefined") $context.showTooltips = showTooltips;
     else $context.showTooltips = true;
 
-    setContext<SidebarContext>(SidebarContextKey, context);
-
-    $: console.log($context);
-    $: console.log({width});
+    setContext<InternalSidebarContext>(InternalSidebarContextKey, context);
 </script>
 
 <aside class="size-{width} transition-width" aria-label="Sidebar" class:h-full={fullHeight}>
