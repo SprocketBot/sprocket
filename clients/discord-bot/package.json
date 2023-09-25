@@ -29,10 +29,10 @@
   "dependencies": {
     "@nestjs/common": "^8.2.3",
     "@nestjs/core": "^8.2.3",
-    "@nestjs/microservices": "^8.2.3",
-    "@sprocketbot/common": "^0.2.13",
+    "@nestjs/microservices": "^8.2.5",
+    "@sprocketbot/common": "0.2.18",
     "bufferutil": "^4.0.5",
-    "config": "^3.3.6",
+    "config": "^3.3.7",
     "discord-api-types": "^0.25.2",
     "discord.js": "13.1.0",
     "jest": "^29.0.3",
@@ -43,9 +43,9 @@
   },
   "devDependencies": {
     "@nestjs/testing": "^8.2.3",
-    "@types/config": "^0.0.38",
+    "@types/config": "^0.0.41",
     "@types/jest": "^29.0.3",
-    "@types/node": "^15.14.9",
-    "typescript": "^4.3.2"
+    "@types/node": "^17.0.13",
+    "typescript": "^4.7.4"
   }
 }

@@ -18,7 +18,9 @@
     "format:check": "npm run format:check --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "lint:check": "npm run lint:check --workspaces --if-present",
-    "clean": "npm run clean --workspaces --if-available"
+    "clean": "npm run clean --workspaces --if-available",
+    "check-deps:exec": "syncpack-fix-mismatches",
+    "check-deps": "syncpack-list-mismatches"
   },
   "workspaces": [
     "common",
@@ -42,9 +44,7 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-simple-import-sort": "^8.0.0",
     "husky": "^8.0.1",
-    "prettier": "^2.7.1"
-  },
-  "dependencies": {
-    "@tanstack/svelte-table": "^8.7.9"
+    "prettier": "^2.7.1",
+    "syncpack": "^11.2.1"
   }
 }
