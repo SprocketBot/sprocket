@@ -4,7 +4,7 @@ import type {Scrim} from "@sprocketbot/common";
 import {AnalyticsEndpoint, AnalyticsService, EventTopic, ScrimStatus} from "@sprocketbot/common";
 import {Queue} from "bull";
 import {add, millisecondsToSeconds} from "date-fns";
-import {now} from "lodash";
+import now from "lodash.now";
 import {v4 as uuid} from "uuid";
 
 import {EventProxyService} from "../event-proxy/event-proxy.service";

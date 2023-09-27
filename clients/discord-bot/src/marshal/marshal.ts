@@ -42,12 +42,13 @@ export abstract class Marshal {
         const {data} = parseResult;
 
         data.forEach(meta => {
+            const target = Reflect.get(this, meta.functionName)
+            if (typeof target !== 'function') throw new Error(`${target} is not a function`)
             // Do things
             cms.registerCommand({
                 ...meta,
                 // We kinda need to act on faith here, if the implementer has decorated an unsafe function, we can't tell until runtime.
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
-                function: Reflect.get(this, meta.functionName).bind(this) as CommandFunction,
+                function: target.bind(this) as CommandFunction,
             });
             this._logger.debug(`Registered Command ${meta.spec.name}`);
         });
@@ -65,11 +66,12 @@ export abstract class Marshal {
 
         data.forEach(meta => {
             // Do things
+            const target = Reflect.get(this, meta.functionName)
+            if (typeof target !== 'function') throw new Error(`${target} is not a function`)
             cms.registerNotFoundCommand({
                 ...meta,
                 // We kinda need to act on faith here, if the implementer has decorated an unsafe function, we can't tell until runtime.
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
-                function: Reflect.get(this, meta.functionName).bind(this),
+                function: target.bind(this),
             });
         });
     }
@@ -85,9 +87,11 @@ export abstract class Marshal {
         const {data} = parseResult;
 
         data.forEach(meta => {
+            const target = Reflect.get(this, meta.functionName)
+            if (typeof target !== 'function') throw new Error(`${target} is not a function`)
+
             // We kinda need to act on faith here, if the implementer has decorated an unsafe function, we can't tell until runtime.
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
-            const f = Reflect.get(this, meta.functionName).bind(this) as EventFunction;
+            const f = target.bind(this) as EventFunction;
             // Do things
             this.botClient.on(meta.spec.event, async (...args: ClientEvents[keyof ClientEvents]): Promise<void> => {
                 await f(args).catch(e => {

@@ -9,7 +9,7 @@ import {
     SubmissionModule,
     UtilModule as CommonUtilModule,
 } from "@sprocketbot/common";
-import {PubSub} from "apollo-server-express";
+import {PubSub} from "graphql-subscriptions";
 
 import {AuthorizationModule} from "../authorization/authorization.module";
 import {ConfigurationModule} from "../configuration/configuration.module";

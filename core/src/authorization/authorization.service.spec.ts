@@ -10,17 +10,18 @@ import type {JwtAuthPayload} from "../authentication/types";
 import {JwtType} from "../authentication/types";
 import {AuthorizationService} from "./authorization.service";
 import {getMockMember} from "./authorization.service.spec.helpers";
-import {ActionsAnd, ActionsOr} from "./decorators/actions.decorator";
-import {ActionGuard} from "./guards/action.guard";
+import {ActionsAnd, ActionsOr} from "./decorators";
+import {ActionGuard} from "./guards";
 
 describe("Authorization", () => {
     let service: AuthorizationService;
     let memberRepository: {getById: jest.Mock; getOrNull: jest.Mock};
-    let reflector;
+    let reflector: Reflector;
     let actionGuard: ActionGuard;
 
     let getAllAndOverride: jest.SpyInstance;
 
+    // @eslint-ignore @typescript-eslint/no-explicit-any
     let mockExecutionContext: Partial<Record<jest.FunctionPropertyNames<ExecutionContext>, jest.MockedFunction<any>>>;
 
     beforeEach(async () => {
@@ -66,6 +67,7 @@ describe("Authorization", () => {
                             currentOrganizationId: 1,
                             orgTeams: [],
                         } as JwtAuthPayload,
+                        // @eslint-ignore @typescript-eslint/no-explicit-any
                     } as any,
                 }),
             } as unknown;

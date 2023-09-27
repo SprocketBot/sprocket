@@ -3,7 +3,7 @@ import {Logger} from "@nestjs/common";
 import {ScrimStatus} from "@sprocketbot/common";
 import {Job, Queue} from "bull";
 import {compareAsc} from "date-fns";
-import {now} from "lodash";
+import now from "lodash.now";
 
 import {ScrimService} from "./scrim.service";
 import {ScrimCrudService} from "./scrim-crud/scrim-crud.service";

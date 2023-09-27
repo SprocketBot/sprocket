@@ -16,9 +16,6 @@ export class GameSkillGroup extends BaseEntity {
     @Column()
     salaryCap: number;
 
-    @Column()
-    profileId: number;
-
     @OneToOne(() => GameSkillGroupProfile, gsgp => gsgp.skillGroup)
     profile: GameSkillGroupProfile;
 

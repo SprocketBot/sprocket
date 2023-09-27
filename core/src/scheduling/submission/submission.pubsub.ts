@@ -1,6 +1,6 @@
 import {Inject, Injectable} from "@nestjs/common";
 import {EventPayload, EventsService, EventTopic, SprocketEvent, SprocketEventMarshal} from "@sprocketbot/common";
-import {PubSub} from "apollo-server-express";
+import {PubSub} from "graphql-subscriptions";
 
 import {PubSubKey} from "../../types/pubsub.constants";
 import {SubmissionService} from "./submission.service";

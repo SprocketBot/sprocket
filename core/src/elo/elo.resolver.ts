@@ -7,7 +7,6 @@ import {MLE_OrganizationTeam} from "../mledb/database";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
 import {EloConsumer} from "./elo.consumer";
 import {EloService} from "./elo.service";
-import type {NewPlayerBySalary} from "./elo-connector";
 import {EloConnectorService, EloEndpoint} from "./elo-connector";
 
 @Resolver()
@@ -47,7 +46,7 @@ export class EloResolver {
                      INNER JOIN game_skill_group gsg ON player."skillGroupId" = gsg.id
                      INNER JOIN mledb_bridge.player_to_player p2p ON p2p."sprocketPlayerId" = player.id
                      INNER JOIN mledb.player mlep ON mlep.id = p2p."mledPlayerId";
-    `)) as NewPlayerBySalary[];
+    `));
 
         for (const p of players) {
             await this.eloConnectorService.createJob(EloEndpoint.AddPlayerBySalary, p);

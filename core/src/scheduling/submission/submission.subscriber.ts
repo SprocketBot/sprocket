@@ -1,6 +1,6 @@
 import {Inject, UseGuards} from "@nestjs/common";
 import {Args, Resolver, Subscription} from "@nestjs/graphql";
-import {PubSub} from "apollo-server-express";
+import {PubSub} from "graphql-subscriptions";
 
 import {GraphQLJwtAuthGuard} from "../../authentication/guards";
 import {PubSubKey} from "../../types/pubsub.constants";

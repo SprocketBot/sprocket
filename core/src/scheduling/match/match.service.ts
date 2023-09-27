@@ -124,7 +124,7 @@ export class MatchService {
         }
         const results: toBeReprocessed[] = (await this.dataSource.manager.query(queryString, [
             startDate,
-        ])) as toBeReprocessed[];
+        ]));
 
         this.logger.verbose(`Got data ${JSON.stringify(results)} to reprocess matches.`);
         const sleep = async (ms: number): Promise<void> =>
