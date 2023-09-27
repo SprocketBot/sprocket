@@ -1,0 +1,5 @@
+package:
+  - "clients/*"
+  - "common"
+  - "core"
+  - "microservices/*"

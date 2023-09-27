@@ -1,3 +1,4 @@
+import {ApolloDriver} from "@nestjs/apollo";
 import {BullModule} from "@nestjs/bull";
 import type {MiddlewareConsumer, NestModule} from "@nestjs/common";
 import {Module} from "@nestjs/common";
@@ -34,6 +35,7 @@ import {WebhookModule} from "./webhook/webhook.module";
             logging: config.db.enable_logs,
         }),
         GraphQLModule.forRoot({
+            driver: ApolloDriver,
             autoSchemaFile: true,
             installSubscriptionHandlers: true,
             cache: new RedisCache({

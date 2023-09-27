@@ -1,6 +1,6 @@
 import {Inject, Injectable} from "@nestjs/common";
 import {EventsService, EventTopic, Scrim, SprocketEvent, SprocketEventMarshal} from "@sprocketbot/common";
-import {PubSub} from "apollo-server-express";
+import {PubSub} from "graphql-subscriptions";
 
 import {PubSubKey} from "../../types/pubsub.constants";
 import {convertScrimToScrimObject} from "./scrim.converter";

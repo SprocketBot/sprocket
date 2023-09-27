@@ -17,6 +17,8 @@
 
 {#each $openScrims ?? [] as scrim}
     {scrim.id} | {scrim.status}
+
+    <pre>{JSON.stringify(scrim, null, 2)}</pre>
 {:else}
     There are no scrims available; why don't you create one?
     <Button variant="primary" outline size="sm" on:click={() => (openScrimModal = true)}>Create a Scrim</Button>

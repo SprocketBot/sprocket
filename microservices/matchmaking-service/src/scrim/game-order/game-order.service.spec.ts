@@ -3,7 +3,7 @@ import {Test} from "@nestjs/testing";
 import type {Scrim} from "@sprocketbot/common";
 import {ScrimMode, ScrimStatus} from "@sprocketbot/common";
 import {add, sub} from "date-fns";
-import {now} from "lodash";
+import now from "lodash.now";
 
 import {ScrimGroupService} from "../scrim-group/scrim-group.service";
 import {GameOrderService} from "./game-order.service";

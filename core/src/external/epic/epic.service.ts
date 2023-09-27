@@ -2,7 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {config} from "@sprocketbot/common";
 import axios from "axios";
 import {compareAsc} from "date-fns";
-import {now} from "lodash";
+import now from "lodash.now";
 
 import type {EpicProfile} from "./epic.types";
 import {EpicAccessTokenSchema, EpicProfileSchema} from "./epic.types";
