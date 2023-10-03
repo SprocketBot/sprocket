@@ -25,7 +25,7 @@ pytz==2021.3
 redis==4.1.2
 requests==2.31.0
 six==1.16.0
-urllib3==1.26.8
+urllib3==1.26.17
 vine==5.0.0
 wcwidth==0.2.5
 wrapt==1.13.3
