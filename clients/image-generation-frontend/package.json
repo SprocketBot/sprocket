@@ -17,7 +17,7 @@
     "@sveltejs/kit": "^1.15.2",
     "@types/amqplib": "^0.8.2",
     "autoprefixer": "^10.4.7",
-    "postcss": "^8.4.14",
+    "postcss": "^8.4.31",
     "postcss-load-config": "^4.0.1",
     "postcss-nesting": "^8.0.1",
     "prettier-plugin-svelte": "^2.9.0",
