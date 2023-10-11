@@ -6,8 +6,6 @@ import {Approval} from "./approval.entity";
 import {ApprovalRepository} from "./approval.repository";
 import {Member} from "./member.entity";
 import {MemberProfiledRepository, MemberRepository} from "./member.repository";
-import {MemberPlatformAccount} from "./member-platform-account.entity";
-import {MemberPlatformAccountRepository} from "./member-platform-account.repository";
 import {MemberProfile} from "./member-profile.entity";
 import {MemberProfileRepository} from "./member-profile.repository";
 import {MemberRestriction} from "./member-restriction.entity";
@@ -26,7 +24,6 @@ import {PronounsRepository} from "./pronouns.repository";
 const ormModule = TypeOrmModule.forFeature([
     Approval,
     Member,
-    MemberPlatformAccount,
     MemberProfile,
     MemberRestriction,
     Organization,
@@ -39,7 +36,6 @@ const ormModule = TypeOrmModule.forFeature([
 const providers = [
     ApprovalRepository,
     MemberRepository,
-    MemberPlatformAccountRepository,
     MemberProfileRepository,
     MemberProfiledRepository,
     MemberRestrictionRepository,
