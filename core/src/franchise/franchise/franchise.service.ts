@@ -41,7 +41,7 @@ export class FranchiseService {
     memberId: number
   ): Promise<CoreOutput<CoreEndpoint.GetPlayerFranchises>> {
     const member = await this.sprocketMemberService.getMemberById(memberId);
-    const userId = member.userId;
+    const { userId } = member;
     const mlePlayer = await this.mledbPlayerService.getMlePlayerBySprocketUser(
       userId
     );
