@@ -1,5 +1,8 @@
 {
     "typescript.preferences.importModuleSpecifier": "relative",
     "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "[sql]": {
+        "editor.defaultFormatter": "adpyke.vscode-sql-formatter"
+    }
 }
