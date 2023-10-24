@@ -34,12 +34,13 @@ export const refreshAuthPlugin: ClientPlugin = () => {
             if (session.refresh) {
                 const s = new RefreshLoginStore();
                 try {
-                    const result = await s.mutate(null, {
-                        metadata: {
-                            accessTokenOverride: session.refresh,
-                        },
-                        fetch: fetch ?? ctx.fetch,
-                    });
+                    // const result = await s.mutate(null, {
+                    //     metadata: {
+                    //         accessTokenOverride: session.refresh,
+                    //     },
+                    //     fetch: fetch ?? ctx.fetch,
+                    // });
+                    const result = {};
                     if (!result.data) {
                         throw new Error(
                             result.errors?.map(e => e.message).join("\n") ?? "Refresh Login Response Empty",
