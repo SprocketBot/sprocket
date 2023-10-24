@@ -176,7 +176,7 @@ export class ScrimService {
 
         // TODO: Refactor after we move to sprocket rosters
         const franchiseProfiles = await Promise.all(scrim.players.map(async p => {
-            const sprocketMember = await this.memberService.getMember({where: {userId: p.userId} });
+            const sprocketMember = await this.memberService.getMember({where: {userId: p.id} });
             const mleFranchise = await this.franchiseService.getPlayerFranchisesByMemberId(sprocketMember.id).catch(() => null);
             if (!mleFranchise?.length) return undefined;
             const mleTeam = mleFranchise[0];
