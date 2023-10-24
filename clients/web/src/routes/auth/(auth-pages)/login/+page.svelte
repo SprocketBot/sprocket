@@ -76,7 +76,6 @@
 {/if}
 
 <section class="grid grid-cols-2 gap-2">
-<!-- 
     <Button variant="alt" action={getAction("discord")}>
         <Icon src={Discord} class="w-6" />
         Discord
@@ -101,5 +100,4 @@
         <Icon src={Google} class="w-6" />
         Google
     </Button>
--->
 </section>

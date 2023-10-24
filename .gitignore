@@ -122,3 +122,6 @@ core/config/main.json
 core/config/staging.json
 
 clients/web/schema.graphql
+clients/web/..env.un~
+.gitignore
+clients/web/.env~
