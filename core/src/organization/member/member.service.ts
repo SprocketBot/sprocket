@@ -154,4 +154,13 @@ export class MemberService {
             });
         });
     }
+
+    async getMemberByUserIdAndOrganization(userId: number, organizationId: number): Promise<Member> {
+        return this.memberRepository.findOneOrFail({
+            where: {
+                organizationId: organizationId,
+                userId: userId
+            }
+        })
+    }
 }

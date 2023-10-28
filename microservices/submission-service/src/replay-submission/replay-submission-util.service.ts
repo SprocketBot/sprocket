@@ -30,7 +30,7 @@ export class ReplaySubmissionUtilService {
         return submission.ratifiers.length >= submission.requiredRatifications;
     }
 
-    async canSubmitReplays(submissionId: string, playerId: number): Promise<ICanSubmitReplays_Response> {
+    async canSubmitReplays(submissionId: string, memberId: number): Promise<ICanSubmitReplays_Response> {
         const submission = await this.submissionCrudService.getSubmission(submissionId);
 
         if (submission?.items.length) {
@@ -49,7 +49,7 @@ export class ReplaySubmissionUtilService {
                 reason:
                   `Could not find a associated scrim`,
             };
-            if (!scrim.players.some(p => p.id === playerId)) {
+            if (!scrim.players.some(p => p.id === memberId)) {
                 // TODO: Check player's organization teams (i.e. Support override)
                 return {
                     canSubmit: false,
@@ -73,14 +73,14 @@ export class ReplaySubmissionUtilService {
             };
             const {homeFranchise, awayFranchise} = match;
 
-            const franchiseResult = await this.coreService.send(CoreEndpoint.GetPlayerFranchises, {memberId: playerId});
+            const franchiseResult = await this.coreService.send(CoreEndpoint.GetPlayerFranchises, {memberId: memberId});
             if (franchiseResult.status === ResponseStatus.ERROR) throw franchiseResult.error;
             const franchises = franchiseResult.data;
             const targetFranchise = franchises.find(f => f.name === homeFranchise.name || f.name === awayFranchise.name);
 
             if (!targetFranchise) {
                 // TODO: Check for LO Override
-                this.logger.log(`Player ${playerId} is on ${franchises.map(f => f.name).join(", ")}, not on expected franchises ${homeFranchise.name}, ${awayFranchise.name}`);
+                this.logger.log(`Player ${memberId} is on ${franchises.map(f => f.name).join(", ")}, not on expected franchises ${homeFranchise.name}, ${awayFranchise.name}`);
                 return {
                     canSubmit: false,
                     reason: "You are not on the correct franchise",
@@ -106,7 +106,7 @@ export class ReplaySubmissionUtilService {
         return {canSubmit: true};
     }
 
-    async canRatifySubmission(submissionId: string, playerId: number): Promise<CanRatifySubmissionResponse> {
+    async canRatifySubmission(submissionId: string, memberId: number): Promise<CanRatifySubmissionResponse> {
         const submission = await this.submissionCrudService.getSubmission(submissionId);
 
         if (!submission) {
@@ -132,7 +132,7 @@ export class ReplaySubmissionUtilService {
                 reason:
                   `Could not find a associated scrim`,
             };
-            if (!scrim.players.some(p => p.id === playerId)) {
+            if (!scrim.players.some(p => p.id === memberId)) {
                 // TODO: Check player's organization teams (i.e. Support override)
                 return {
                     canRatify: false,
@@ -156,14 +156,14 @@ export class ReplaySubmissionUtilService {
             };
             const {homeFranchise, awayFranchise} = match;
 
-            const franchiseResult = await this.coreService.send(CoreEndpoint.GetPlayerFranchises, {memberId: playerId});
+            const franchiseResult = await this.coreService.send(CoreEndpoint.GetPlayerFranchises, {memberId: memberId});
             if (franchiseResult.status === ResponseStatus.ERROR) throw franchiseResult.error;
             const franchises = franchiseResult.data;
             const targetFranchise = franchises.find(f => f.name === homeFranchise.name || f.name === awayFranchise.name);
 
             if (!targetFranchise) {
                 // TODO: Check for LO Override
-                this.logger.log(`Player ${playerId} is on ${franchises.map(f => f.name).join(", ")}, not on expected franchises ${homeFranchise.name}, ${awayFranchise.name}`);
+                this.logger.log(`Player ${memberId} is on ${franchises.map(f => f.name).join(", ")}, not on expected franchises ${homeFranchise.name}, ${awayFranchise.name}`);
                 return {
                     canRatify: false,
                     reason: "You are not on the correct franchise",
