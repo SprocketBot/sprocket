@@ -20,13 +20,13 @@ export class ReplayUploadController {
     @MessagePattern(SubmissionEndpoint.CanSubmitReplays)
     async canSubmitReplays(@Payload() payload: unknown): Promise<ICanSubmitReplays_Response> {
         const data = SubmissionSchemas.CanSubmitReplays.input.parse(payload);
-        return this.replaySubmissionUtilService.canSubmitReplays(data.submissionId, data.playerId);
+        return this.replaySubmissionUtilService.canSubmitReplays(data.submissionId, data.memberId);
     }
 
     @MessagePattern(SubmissionEndpoint.CanRatifySubmission)
     async canRatifySubmission(@Payload() payload: unknown): Promise<CanRatifySubmissionResponse> {
         const data = SubmissionSchemas.CanRatifySubmission.input.parse(payload);
-        return this.replaySubmissionUtilService.canRatifySubmission(data.submissionId, data.playerId);
+        return this.replaySubmissionUtilService.canRatifySubmission(data.submissionId, data.memberId);
     }
 
     @MessagePattern(SubmissionEndpoint.SubmitReplays)
