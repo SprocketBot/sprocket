@@ -18,6 +18,7 @@ import {SHA256} from "crypto-js";
 import {GraphQLError} from "graphql";
 import type {Readable} from "stream";
 
+import {MemberService} from "../organization";
 import {REPLAY_EXT, ReplayParsePubSub} from "./replay-parse.constants";
 import type {ReplaySubmission} from "./types";
 
@@ -32,6 +33,7 @@ export class ReplayParseService {
         private readonly submissionService: SubmissionService,
         private readonly redisService: RedisService,
         private readonly eventsService: EventsService,
+        private readonly memberService: MemberService,
         @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
     ) {}
 
@@ -57,9 +59,10 @@ export class ReplayParseService {
         return true;
     }
 
-    async parseReplays(streams: Array<{stream: Readable; filename: string;}>, submissionId: string, playerId: number): Promise<string[]> {
+    async parseReplays(streams: Array<{stream: Readable; filename: string;}>, submissionId: string, userId: number, organizationId: number): Promise<string[]> {
+        const member = await this.memberService.getMemberByUserIdAndOrganization(userId, organizationId);
         const canSubmitReponse = await this.submissionService.send(SubmissionEndpoint.CanSubmitReplays, {
-            playerId: playerId,
+            memberId: member.id,
             submissionId: submissionId,
         });
         if (canSubmitReponse.status === ResponseStatus.ERROR) throw canSubmitReponse.error;
@@ -81,16 +84,17 @@ export class ReplayParseService {
         const submissionResponse = await this.submissionService.send(SubmissionEndpoint.SubmitReplays, {
             submissionId: submissionId,
             filepaths: filepaths,
-            creatorId: playerId,
+            creatorId: userId,
         });
         if (submissionResponse.status === ResponseStatus.ERROR) throw submissionResponse.error;
         // Return taskIds, directly correspond to the files that were uploaded
         return submissionResponse.data;
     }
 
-    async ratifySubmission(submissionId: string, playerId: number): Promise<void> {
+    async ratifySubmission(submissionId: string, userId: number, organizationId: number): Promise<void> {
+        const member = await this.memberService.getMemberByUserIdAndOrganization(userId, organizationId);
         const canRatifyReponse = await this.submissionService.send(SubmissionEndpoint.CanRatifySubmission, {
-            playerId: playerId,
+            memberId: member.id,
             submissionId: submissionId,
         });
         if (canRatifyReponse.status === ResponseStatus.ERROR) throw canRatifyReponse.error;
@@ -98,7 +102,7 @@ export class ReplayParseService {
 
         const ratificationResponse = await this.submissionService.send(SubmissionEndpoint.RatifySubmission, {
             submissionId: submissionId,
-            playerId: playerId,
+            playerId: userId,
         });
         if (ratificationResponse.status === ResponseStatus.ERROR) throw ratificationResponse.error;
     }

@@ -51,7 +51,7 @@ export class ReplayParseModResolver {
             stream: _f.createReadStream(),
             filename: _f.filename,
         }))));
-        return this.rpService.parseReplays(streams, submissionId, user.userId);
+        return this.rpService.parseReplays(streams, submissionId, user.userId, user.currentOrganizationId ?? 2);
     }
 
     @Mutation(() => Boolean)
@@ -87,7 +87,7 @@ export class ReplayParseModResolver {
         @CurrentUser() user: UserPayload,
         @Args("submissionId") submissionId: string,
     ): Promise<void> {
-        return this.rpService.ratifySubmission(submissionId, user.userId);
+        return this.rpService.ratifySubmission(submissionId, user.userId, user.currentOrganizationId ?? 2);
     }
 
     @Mutation(() => Boolean, {nullable: true})

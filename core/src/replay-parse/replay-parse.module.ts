@@ -16,6 +16,7 @@ import {EloConnectorModule} from "../elo/elo-connector";
 import {FranchiseModule} from "../franchise";
 import {IdentityModule} from "../identity";
 import {MledbInterfaceModule} from "../mledb";
+import {OrganizationModule} from "../organization";
 import {SchedulingModule} from "../scheduling";
 import {ScrimModule} from "../scrim";
 import {SprocketRatingModule} from "../sprocket-rating/sprocket-rating.module";
@@ -48,6 +49,7 @@ import {ReplayParseService} from "./replay-parse.service";
         EloConnectorModule,
         SchedulingModule,
         UtilModule,
+        OrganizationModule,
     ],
     providers: [
         ReplayParseModResolver,
