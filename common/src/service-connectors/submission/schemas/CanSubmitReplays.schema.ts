@@ -2,7 +2,7 @@ import {z} from "zod";
 
 export const CanSubmitReplays_Request = z.object({
     submissionId: z.string(),
-    playerId: z.number(),
+    memberId: z.number(),
 });
 
 export const CanSubmitReplays_Response = z.union([
