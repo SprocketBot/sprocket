@@ -383,7 +383,7 @@ export class MatchResolver {
         if (!root.submissionId) throw new Error(`Match has no submissionId`);
                 
         const result = await this.submissionService.send(SubmissionEndpoint.CanSubmitReplays, {
-            playerId: player.member.id,
+            memberId: player.member.id,
             submissionId: root.submissionId,
         });
         if (result.status === ResponseStatus.ERROR) throw result.error;
@@ -397,7 +397,7 @@ export class MatchResolver {
         if (!root.submissionId) throw new Error(`Match has no submissionId`);
         
         const result = await this.submissionService.send(SubmissionEndpoint.CanRatifySubmission, {
-            playerId: player.member.id,
+            memberId: player.member.id,
             submissionId: root.submissionId,
         });
         if (result.status === ResponseStatus.ERROR) throw result.error;
