@@ -3,6 +3,7 @@ import {z} from "zod";
 export const CanRatifySubmission_Request = z.object({
     submissionId: z.string(),
     memberId: z.number(),
+    userId: z.number(),
 });
 
 export const CanRatifySubmission_Response = z.union([
