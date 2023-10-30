@@ -63,6 +63,7 @@ export class ReplayParseService {
         const member = await this.memberService.getMemberByUserIdAndOrganization(userId, organizationId);
         const canSubmitReponse = await this.submissionService.send(SubmissionEndpoint.CanSubmitReplays, {
             memberId: member.id,
+            userId: userId,
             submissionId: submissionId,
         });
         if (canSubmitReponse.status === ResponseStatus.ERROR) throw canSubmitReponse.error;
@@ -95,6 +96,7 @@ export class ReplayParseService {
         const member = await this.memberService.getMemberByUserIdAndOrganization(userId, organizationId);
         const canRatifyReponse = await this.submissionService.send(SubmissionEndpoint.CanRatifySubmission, {
             memberId: member.id,
+            userId: userId,
             submissionId: submissionId,
         });
         if (canRatifyReponse.status === ResponseStatus.ERROR) throw canRatifyReponse.error;

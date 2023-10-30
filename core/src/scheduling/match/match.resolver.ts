@@ -384,6 +384,7 @@ export class MatchResolver {
                 
         const result = await this.submissionService.send(SubmissionEndpoint.CanSubmitReplays, {
             memberId: player.member.id,
+            userId: player.member.userId,
             submissionId: root.submissionId,
         });
         if (result.status === ResponseStatus.ERROR) throw result.error;
@@ -398,6 +399,7 @@ export class MatchResolver {
         
         const result = await this.submissionService.send(SubmissionEndpoint.CanRatifySubmission, {
             memberId: player.member.id,
+            userId: player.member.userId,
             submissionId: root.submissionId,
         });
         if (result.status === ResponseStatus.ERROR) throw result.error;

@@ -30,7 +30,7 @@ export class ReplaySubmissionUtilService {
         return submission.ratifiers.length >= submission.requiredRatifications;
     }
 
-    async canSubmitReplays(submissionId: string, memberId: number): Promise<ICanSubmitReplays_Response> {
+    async canSubmitReplays(submissionId: string, memberId: number, userId: number): Promise<ICanSubmitReplays_Response> {
         const submission = await this.submissionCrudService.getSubmission(submissionId);
 
         if (submission?.items.length) {
@@ -49,7 +49,7 @@ export class ReplaySubmissionUtilService {
                 reason:
                   `Could not find a associated scrim`,
             };
-            if (!scrim.players.some(p => p.id === memberId)) {
+            if (!scrim.players.some(p => p.id === userId)) {
                 // TODO: Check player's organization teams (i.e. Support override)
                 return {
                     canSubmit: false,
@@ -106,7 +106,7 @@ export class ReplaySubmissionUtilService {
         return {canSubmit: true};
     }
 
-    async canRatifySubmission(submissionId: string, memberId: number): Promise<CanRatifySubmissionResponse> {
+    async canRatifySubmission(submissionId: string, memberId: number, userId: number): Promise<CanRatifySubmissionResponse> {
         const submission = await this.submissionCrudService.getSubmission(submissionId);
 
         if (!submission) {
@@ -132,8 +132,12 @@ export class ReplaySubmissionUtilService {
                 reason:
                   `Could not find a associated scrim`,
             };
-            if (!scrim.players.some(p => p.id === memberId)) {
-                // TODO: Check player's organization teams (i.e. Support override)
+            if (!scrim.players.some(p => p.id === userId)) {
+                // TODO: Check player's organization teams (i.e. Support
+                // override)
+                // TODO: This is very obviously incorrect: core still creates a
+                // scrim (and allows players to join it) with the *USER* ID, and
+                // not the player ID.
                 return {
                     canRatify: false,
                     reason: `Player not in scrim.`,
