@@ -37,7 +37,7 @@
     "@types/sharp": "^0.28.4",
     "amqp-connection-manager": "^4.0.0",
     "amqplib": "^0.8.0",
-    "axios": "^1.2.2",
+    "axios": "^1.6.0",
     "config": "^3.3.7",
     "jest": "^29.0.3",
     "jest-junit": "^12.2.0",
