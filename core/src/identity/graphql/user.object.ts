@@ -1,5 +1,6 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 
+import { Member } from "../../organization/database/member.entity";
 import {BaseObject} from "../../types/base-object";
 import type {User} from "../database/user.entity";
 import type {UserProfile} from "../database/user-profile.entity";
@@ -11,6 +12,9 @@ export class UserObject extends BaseObject {
 
     @Field(() => String, {nullable: true})
     description?: string;
+
+    @Field(() => Member)
+    members?: Member[];
 }
 
 export function userObjectFromEntity(entity: User, profile: UserProfile): UserObject {
@@ -21,5 +25,6 @@ export function userObjectFromEntity(entity: User, profile: UserProfile): UserOb
         deletedAt: entity.deletedAt,
         displayName: profile.displayName,
         description: profile.description,
+        members: entity.members,
     };
 }

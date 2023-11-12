@@ -1,8 +1,23 @@
-query UserProfile {
+query UserProfile($orgId: Int) {
     me {
         name: displayName
         currentOrganization {
             name
+        }
+        members(orgId: $orgId) {
+            id
+            players {
+                skillGroup {
+                    profile {
+                        description
+                    }
+                    game {
+                        title
+                    }
+                }
+                franchisePositions
+                franchiseName
+            }
         }
     }
 }
