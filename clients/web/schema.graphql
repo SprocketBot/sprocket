@@ -61,6 +61,7 @@ type GamePlatformObject {
 type GameSkillGroupObject {
   createdAt: DateTime!
   deletedAt: DateTime
+  game: GameObject!
   gameId: Int!
   id: Int!
   ordinal: Float!
@@ -175,6 +176,35 @@ type MatchParentObject {
   scrimMeta: ScrimMetaObject!
 }
 
+type MemberObject {
+  createdAt: DateTime!
+  deletedAt: DateTime
+  id: Int!
+  platformAccounts: [MemberPlatformAccountObject!]!
+  players: [PlayerObject!]!
+  profile: MemberProfileObject!
+  restrictions: Int!
+  updatedAt: DateTime
+}
+
+type MemberPlatformAccountObject {
+  createdAt: DateTime!
+  deletedAt: DateTime
+  id: Int!
+  platform: String!
+  platformAccountId: String!
+  platformId: Int!
+  updatedAt: DateTime
+}
+
+type MemberProfileObject {
+  createdAt: DateTime!
+  deletedAt: DateTime
+  id: Int!
+  name: String!
+  updatedAt: DateTime
+}
+
 type Mutation {
   addDummyReplay(matchId: Float!, winningTeamId: Float!): Float!
   cancelScrim(reason: String, scrimId: String!): ScrimObject!
@@ -228,6 +258,20 @@ type PhotoObject {
   url: String!
 }
 
+type PlayerObject {
+  createdAt: DateTime!
+  deletedAt: DateTime
+  franchiseName: String!
+  franchisePositions: [String!]!
+  id: Int!
+  memberId: Int!
+  salary: Int!
+  skillGroup: GameSkillGroupObject!
+  skillGroupId: Int!
+  slot: RosterSlotObject!
+  updatedAt: DateTime
+}
+
 enum ProgressStatus {
   Complete
   Error
@@ -271,6 +315,23 @@ enum ReplaySubmissionStatus {
 enum ReplaySubmissionType {
   MATCH
   SCRIM
+}
+
+type RosterRoleObject {
+  code: String!
+  createdAt: DateTime!
+  deletedAt: DateTime
+  description: String!
+  id: Int!
+  updatedAt: DateTime
+}
+
+type RosterSlotObject {
+  createdAt: DateTime!
+  deletedAt: DateTime
+  id: Int!
+  rosterRole: RosterRoleObject!
+  updatedAt: DateTime
 }
 
 type RoundObject {
@@ -497,6 +558,7 @@ type UserObject {
   description: String
   displayName: String!
   id: Int!
+  members: MemberObject!
   organizations: [OrganizationObject!]!
   updatedAt: DateTime
 }

@@ -1,5 +1,6 @@
 import {Field, Int, ObjectType} from "@nestjs/graphql";
 
+import { GameObject } from "../../game/graphql/game.object";
 import {BaseObject} from "../../types/base-object";
 import { GameSkillGroupProfileObject } from "./game-skill-group-profile.object";
 
@@ -13,6 +14,9 @@ export class GameSkillGroupObject extends BaseObject {
 
     @Field(() => Int)
     gameId: number;
+
+    @Field(() => GameObject)
+    game: GameObject;
 
     @Field(() => Int)
     organizationId: number;

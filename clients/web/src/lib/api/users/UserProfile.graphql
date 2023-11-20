@@ -1,7 +1,8 @@
-query UserProfile($orgId: Int) {
+query UserProfile {
     me {
         name: displayName
-        members(orgId: $orgId) {
+        description
+        members {
             id
             players {
                 skillGroup {

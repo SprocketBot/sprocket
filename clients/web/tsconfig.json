@@ -16,5 +16,6 @@
             "./.svelte-kit/types",
             "./$houdini/types"
         ]
-    }
+    },
+    "extends": "./.svelte-kit/tsconfig.json",
 }
