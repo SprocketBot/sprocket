@@ -1,8 +1,5 @@
 fragment OpenScrimsFragment on ScrimObject {
     id
-    author {
-        displayName
-    }
     playerCount
     maxPlayers
     status
