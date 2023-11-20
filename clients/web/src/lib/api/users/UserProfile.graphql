@@ -1,9 +1,6 @@
 query UserProfile($orgId: Int) {
     me {
         name: displayName
-        currentOrganization {
-            name
-        }
         members(orgId: $orgId) {
             id
             players {
