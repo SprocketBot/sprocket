@@ -20,7 +20,7 @@ export class UserResolver {
     @Query(() => UserObject)
     @UseGuards(GraphQLJwtAuthGuard)
     async me(@AuthenticatedUser() user: JwtAuthPayload): Promise<UserObject> {
-        const userEntity = await this.userRepository.findById(user.userId, {relations: {profile: true, members: true}});
+        const userEntity = await this.userRepository.findById(user.userId, { relations: { profile: true, members: { profile: true }}});
         return userObjectFromEntity(userEntity, userEntity.profile);
     }
 

@@ -1,11 +1,11 @@
 import {Field, Int,ObjectType} from "@nestjs/graphql";
 
-import { PlayerObject } from "../../franchise/graphql/player.object";
+import { PlayerObject, playerObjectFromEntity } from "../../franchise/graphql/player.object";
 import {BaseObject} from "../../types/base-object";
 import type { Member } from "../database/member.entity";
 import type { MemberProfile } from "../database/member-profile.entity";
-import { MemberPlatformAccountObject } from "./member-platform-account.object";
-import { MemberProfileObject } from "./member-profile.object";
+import { MemberPlatformAccountObject, memberPlatformAccountObjectFromEntity } from "./member-platform-account.object";
+import { MemberProfileObject, memberProfileObjectFromEntity } from "./member-profile.object";
 import { MemberRestrictionObject } from "./member-restriction.object";
 
 @ObjectType()
@@ -24,19 +24,17 @@ export class MemberObject extends BaseObject {
 
     @Field(() => Int)
     restrictions: MemberRestrictionObject;
-
-    @Field(() => Int)
-    organizationStaffSeats: OrganizationStaffSeat[];
 }
 
-// export function memberObjectFromEntity(entity: Member, profile: MemberProfile): MemberObject {
-    // return {
-        // id: entity.id,
-        // createdAt: entity.createdAt,
-        // updatedAt: entity.updatedAt,
-        // deletedAt: entity.deletedAt,
-        // players: entity.players,
-
-        // profile: profile,
-    // }
-// }
+export function memberObjectFromEntity(entity: Member, profile: MemberProfile): MemberObject {
+    return {
+        id: entity.id,
+        createdAt: entity.createdAt,
+        updatedAt: entity.updatedAt,
+        deletedAt: entity.deletedAt,
+        platformAccounts: entity.platformAccounts.map(pa => memberPlatformAccountObjectFromEntity(pa)),
+        profile: memberProfileObjectFromEntity(profile),
+        players: entity.players.map(p => playerObjectFromEntity(p)),
+        restrictions: entity.restrictions,
+    }
+}
