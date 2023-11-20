@@ -55,7 +55,7 @@
     "apollo-server-express": "^3.12.1",
     "axios": "^1.2.2",
     "bull": "^4.8.2",
-    "class-transformer": "^0.4.0",
+    "class-transformer": "0.4.0",
     "class-validator": "^0.14.0",
     "config": "^3.3.7",
     "crypto-js": "^4.1.1",
