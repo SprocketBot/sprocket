@@ -8,6 +8,10 @@
     const currentScrim = CurrentScrimContext();
     const currentUser = UserProfileStore();
 
+    const currentUserFranchises = currentUser.members.map(m => {
+        return m.players.map(p => p.franchiseName);
+    })
+
     let openScrimModal = false;
 </script>
 

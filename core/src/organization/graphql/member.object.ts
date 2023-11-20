@@ -27,14 +27,17 @@ export class MemberObject extends BaseObject {
 }
 
 export function memberObjectFromEntity(entity: Member, profile: MemberProfile): MemberObject {
+    const tempAccounts = entity.platformAccounts ?? [];
+    const tempPlayers = entity.players ?? [];
+
     return {
         id: entity.id,
         createdAt: entity.createdAt,
         updatedAt: entity.updatedAt,
         deletedAt: entity.deletedAt,
-        platformAccounts: entity.platformAccounts.map(pa => memberPlatformAccountObjectFromEntity(pa)),
+        platformAccounts: tempAccounts.map(pa => memberPlatformAccountObjectFromEntity(pa)),
         profile: memberProfileObjectFromEntity(profile),
-        players: entity.players.map(p => playerObjectFromEntity(p)),
+        players: tempPlayers.map(p => playerObjectFromEntity(p)),
         restrictions: entity.restrictions,
     }
 }
