@@ -125,3 +125,4 @@ clients/web/schema.graphql
 clients/web/..env.un~
 .gitignore
 clients/web/.env~
+clients/web/secret/*
