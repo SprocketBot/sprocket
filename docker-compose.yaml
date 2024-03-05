@@ -1,0 +1,66 @@
+version: '3.9'
+
+services:
+  traefik:
+    image: traefik
+    command:
+      - "--log.level=DEBUG"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - 8080:80
+
+  core:
+    user: 1000:1000
+    # restart: unless-stopped
+    image: oven/bun:alpine
+    depends_on:
+      - postgres
+      - lavinmq
+    volumes:
+      - .:/app
+      - ./.env:/app/core/.env
+    command: bun --watch ./src/main.ts
+    working_dir: /app/core
+    labels:
+      traefik.enable: true
+      traefik.http.routers.core.rule: Host(`${CORE_URL:-core.localhost}`)
+      traefik.http.routers.core.entrypoints: web
+      traefik.http.services.core.loadbalancer.server.port: 3000
+  
+  web:
+    user: 1000:1000
+    image: oven/bun:alpine
+    depends_on:
+      - core
+    volumes:
+      - .:/app
+      - ./.env:/app/clients/web/.env
+    command: bun run -b dev --host
+    working_dir: /app/clients/web
+    environment:
+      PUBLIC_API_URL: ${CORE_URL:-core.localhost}
+      PUBLIC_API_SECURE: ${SSL:-false}
+      PUBLIC_API_PORT: ${LISTEN_PORT}
+    labels:
+      traefik.enable: true
+      traefik.http.routers.web.rule: Host(`${BASE_URL:-localhost}`)
+      traefik.http.routers.web.entrypoints: web
+      traefik.http.services.web.loadbalancer.server.port: 5173
+
+  
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_PASSWORD: postgres
+
+  lavinmq:
+    image: cloudamqp/lavinmq
+    labels:
+      traefik.enable: true
+      traefik.http.routers.lavinmq.rule: Host(`${LAVIN_URL:-lavin.localhost}`)
+      traefik.http.routers.lavinmq.entrypoints: web
+      traefik.http.services.lavinmq.loadbalancer.server.port: 15672

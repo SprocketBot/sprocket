@@ -1,0 +1,11 @@
+{
+  "workspaces": [
+    "services/*",
+    "clients/*",
+    "lib",
+    "core"
+  ],
+  "dependencies": {
+    "string-env-interpolation": "^1.0.1"
+  }
+}
