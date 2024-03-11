@@ -1,18 +1,13 @@
 import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
-import { AuthZManagementService, AuthZRBACService } from 'nest-authz';
-import { LoggedInGuard } from './auth/logged-in/logged-in.guard';
-import { JwtService } from '@nestjs/jwt';
+import { AuthZManagementService } from 'nest-authz';
 import { AuthorizeGuard } from './auth/authorize/authorize.guard';
-import { Authorize } from './auth/authorize/authorize.decorator';
-import { AuthAction, AuthScope, AuthTarget } from './auth/constants';
+import { AuthTarget, AuthScope, AuthAction } from '@sprocketbot/lib/types';
 
 @Controller()
 export class AppController {
   constructor(
     private readonly appService: AppService,
-    private readonly jwtService: JwtService,
-    private readonly authzService: AuthZRBACService,
     private readonly authManageService: AuthZManagementService,
   ) {}
 
@@ -22,7 +17,7 @@ export class AppController {
   }
 
   @Get('/authenticated')
-  @UseGuards(LoggedInGuard)
+  @UseGuards(AuthorizeGuard())
   getAuthed(): string {
     return 'Hello Authenticated User!';
   }
@@ -40,13 +35,14 @@ export class AppController {
   }
 
   @Get('/authorized/:username')
-  @UseGuards(LoggedInGuard, AuthorizeGuard)
-  @Authorize({
-    target: AuthTarget.USER,
-    action: AuthAction.READ,
-    scope: AuthScope.SELF,
-    inScope: (user, req) => req.params.username === user.username,
-  })
+  @UseGuards(
+    AuthorizeGuard({
+      target: AuthTarget.USER,
+      action: AuthAction.Read,
+      scope: AuthScope.SELF,
+      inScope: (user, req) => req.params.username === user.username,
+    }),
+  )
   async getAuthorized(@Param('username') username: string): Promise<string> {
     return username;
   }

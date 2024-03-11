@@ -1,8 +1,7 @@
+import { type User as SprocketUser } from '@sprocketbot/lib/types';
 declare global {
   namespace Express {
-    export interface User {
-      username: string;
-    }
+    export type User = SprocketUser;
   }
 }
 

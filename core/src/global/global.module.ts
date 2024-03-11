@@ -9,7 +9,6 @@ import { SprocketConfigService } from '@sprocketbot/lib';
     JwtModule.registerAsync({
       inject: [SprocketConfigService],
       useFactory: (cfg: SprocketConfigService) => {
-        console.log(cfg.getOrThrow('auth.jwt.expiry'));
         return {
           secret: cfg.getOrThrow('auth.jwt.secret'),
           signOptions: {

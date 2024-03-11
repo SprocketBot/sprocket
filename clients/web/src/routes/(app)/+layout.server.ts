@@ -1,10 +1,7 @@
-import type { ServerLoad } from "@sveltejs/kit";
+import type { LayoutServerLoad } from './$types';
 
-export const load: ServerLoad = ({
-    locals
-}) => {
-    if (locals.authToken) {
-        return {authToken: locals.authToken}
-    }
-
-}
+export const load: LayoutServerLoad = ({ locals }) => {
+	if (locals.authToken) {
+		return { authToken: locals.authToken };
+	}
+};

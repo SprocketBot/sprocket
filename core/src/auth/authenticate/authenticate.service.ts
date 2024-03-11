@@ -1,7 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { SprocketConfigService } from '@sprocketbot/lib';
+import { UserSchema, type User } from '@sprocketbot/lib/types';
 import type { Request, Response } from 'express';
+import { AuthorizeService } from '../authorize/authorize.service';
+import { parse } from 'valibot';
 
 @Injectable()
 export class AuthenticateService {
@@ -9,22 +12,25 @@ export class AuthenticateService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly config: SprocketConfigService,
+    private readonly authorizeService: AuthorizeService,
   ) {
     this.COOKIE_DOMAIN = `${this.config.getOrThrow('BASE_URL')}`;
   }
 
-  requestHasValidToken(req: Request): Express.User | false {
+  getUserFromRequest(req: Request): User | false {
     const authCookie = req.cookies[this.AUTH_COOKIE_NAME];
 
     const tokenQuery = req.query['token']?.toString();
-    console.log({ authCookie, tokenQuery });
+
+
     if (!authCookie && !tokenQuery) {
       return false;
     }
     const auth = tokenQuery ? decodeURI(tokenQuery) : decodeURI(authCookie);
 
     try {
-      return this.jwtService.verify<Express.User>(auth);
+      const content = this.jwtService.verify<User>(auth);
+      return parse(UserSchema, content);
     } catch (e) {
       this.logger.debug(e);
       return false;
@@ -40,15 +46,21 @@ export class AuthenticateService {
       domain: this.COOKIE_DOMAIN,
       httpOnly: true,
       sameSite: 'lax',
+      secure: this.config.getOrThrow('secure'),
     });
   }
 
-  login(res: Response, user: Express.User): void {
+  async login(res: Response, user: User): Promise<void> {
+    user.allowedActions = (
+      await this.authorizeService.getPermissions(user)
+    ).filter((spec) => spec.target.startsWith('View__'));
     const token = this.jwtService.sign(user);
+
     res.cookie(this.AUTH_COOKIE_NAME, token, {
       domain: this.COOKIE_DOMAIN,
       httpOnly: true,
       sameSite: 'lax',
+      secure: this.config.getOrThrow('secure'),
     });
   }
 }

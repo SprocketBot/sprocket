@@ -1,19 +1,25 @@
 <script lang="ts">
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import { Discord, Microsoft, Steam, Xbox, Playstation, Epicgames } from '@steeze-ui/simple-icons';
-	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
+	import { getToastStore, popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { oauthPopup } from './oauthPopup';
 	import { goto } from '$app/navigation';
+	import { apiUrl } from '$lib/constants';
 
 	const comingSoon: PopupSettings = {
 		event: 'hover',
 		target: 'accountProviderComingSoonPopup'
 	};
+	const toast = getToastStore();
 
 	const authedCallback = (e: MessageEvent<string>) => {
-		console.log({ e, data: e.data });
 		if (e.data === 'logged-in') {
-			console.log("Navving")
+			toast.trigger({
+				timeout: 2000,
+				autohide: true,
+				message: 'Logged In!',
+				background: 'variant-filled-success'
+			});
 			goto('/');
 		}
 	};
@@ -26,7 +32,7 @@
 		class="variant-ringed btn btn-lg"
 		type="button"
 		use:oauthPopup={{
-			windowUrl: 'http://core.one.lan:8080/oauth/callback/discord',
+			windowUrl: `${apiUrl}/oauth/callback/discord`,
 			callback: authedCallback
 		}}
 	>

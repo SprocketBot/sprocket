@@ -2,36 +2,44 @@ version: '3.9'
 
 services:
   traefik:
+    container_name: sprocket-traefik
     image: traefik
+    volumes:
+      - ./config/traefik:/traefik
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     command:
       - "--log.level=DEBUG"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.websecure.http.tls=true"
+      - "--providers.file.filename=/traefik/dyn.yaml"
     ports:
       - 8080:80
+      - 443:443
 
   core:
+    container_name: sprocket-core
     user: 1000:1000
-    # restart: unless-stopped
     image: oven/bun:alpine
+    restart: unless-stopped
     depends_on:
       - postgres
       - lavinmq
     volumes:
       - .:/app
       - ./.env:/app/core/.env
-    command: bun --watch ./src/main.ts
+    command: bun --preload src/tracing.ts -b --watch src/main.ts
     working_dir: /app/core
     labels:
       traefik.enable: true
       traefik.http.routers.core.rule: Host(`${CORE_URL:-core.localhost}`)
-      traefik.http.routers.core.entrypoints: web
+      traefik.http.routers.core.entrypoints: web,websecure
       traefik.http.services.core.loadbalancer.server.port: 3000
-  
+
   web:
+    container_name: sprocket-web
     user: 1000:1000
     image: oven/bun:alpine
     depends_on:
@@ -48,19 +56,55 @@ services:
     labels:
       traefik.enable: true
       traefik.http.routers.web.rule: Host(`${BASE_URL:-localhost}`)
-      traefik.http.routers.web.entrypoints: web
+      traefik.http.routers.web.entrypoints: web,websecure
       traefik.http.services.web.loadbalancer.server.port: 5173
 
-  
   postgres:
+    container_name: sprocket-postgres
     image: postgres:15
     environment:
       POSTGRES_PASSWORD: postgres
 
   lavinmq:
+    container_name: sprocket-lavinmq
     image: cloudamqp/lavinmq
     labels:
       traefik.enable: true
       traefik.http.routers.lavinmq.rule: Host(`${LAVIN_URL:-lavin.localhost}`)
-      traefik.http.routers.lavinmq.entrypoints: web
+      traefik.http.routers.lavinmq.entrypoints: web,websecure
       traefik.http.services.lavinmq.loadbalancer.server.port: 15672
+
+  grafana:
+    image: grafana/grafana:latest
+    profiles: [ monitoring ]
+    volumes:
+      - ./config/grafana/datasources.yaml:/etc/grafana/provisioning/datasources/ds.yaml:ro
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_FEATURE_TOGGLES_ENABLE=traceqlEditor traceQLStreaming metricsSummary
+    labels:
+      traefik.enable: true
+      traefik.http.routers.grafana.rule: Host(`${GRAFANA_URL:-grafana.localhost}`)
+      traefik.http.routers.grafana.entrypoints: web,websecure
+      traefik.http.services.grafana.loadbalancer.server.port: 3000
+
+  tempo:
+    image: grafana/tempo
+    profiles: [ monitoring ]
+    command: [ "-config.file=/etc/tempo.yaml" ]
+
+    volumes:
+      - ./config/tempo/tempo.yaml:/etc/tempo.yaml:ro
+
+  loki:
+    image: grafana/loki:2.9.4
+    profiles: [ monitoring ]
+
+  vector:
+    profiles: [ monitoring ]
+    image: timberio/vector:0.36.X-alpine
+    volumes:
+      - ./config/vector/vector.yaml:/etc/vector/vector.yaml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro

@@ -1,22 +1,26 @@
 # We can access environment variables in our config file
 baseUrl: ${BASE_URL}
+secure: ${SSL}
 
 auth:
   jwt:
-    secret: "${AUTH_JWT_SECRET:localhost}"
-    expiry: "${AUTH_JWT_EXPIRY:3000000}"
+    secret: '${AUTH_JWT_SECRET:localhost}'
+    expiry: '${AUTH_JWT_EXPIRY:3000000}'
   discord:
-    clientId: "${AUTH_DISCORD_CLIENT_ID}"
-    secret: "${AUTH_DISCORD_SECRET}"
-
+    clientId: '${AUTH_DISCORD_CLIENT_ID}'
+    secret: '${AUTH_DISCORD_SECRET}'
 
 frontend:
-  url: "${BASE_URL}"
-  callback: "${BASE_URL}:${LISTEN_PORT}/auth/callback"
-
+  url: '${BASE_URL}'
+  callback: '${BASE_URL}:${LISTEN_PORT}/auth/callback'
 
 pg:
-  host: "${PG_HOST:postgres}"
-  username: "${PG_USER:postgres}"
-  password: "${PG_PASS:postgres}"
-  port: "${PG_PORT:5432}"
+  host: '${PG_HOST:postgres}'
+  username: '${PG_USER:postgres}'
+  password: '${PG_PASS:postgres}'
+  port: '${PG_PORT:5432}'
+  database: '${PG_DATABASE:postgres}'
+
+initialAdmins:
+  - 'shuckle'
+  - 'nigelthornbrake'

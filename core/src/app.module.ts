@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AUTHZ_ENFORCER, AuthZModule } from 'nest-authz';
@@ -8,12 +8,22 @@ import { GlobalModule } from './global/global.module';
 import type { Request } from 'express';
 import { newEnforcer } from 'casbin';
 import PostgresAdapter from 'casbin-pg-adapter';
-import { AuthAction, AuthScope, AuthTarget } from './auth/constants';
 import { SprocketConfigModule, SprocketConfigService } from '@sprocketbot/lib';
+import {
+  AuthTarget,
+  AuthScope,
+  AuthAction,
+  AuthEffect,
+} from '@sprocketbot/lib/types';
+import { DbModule } from './db/db.module';
+import { GqlModule } from './gql/gql.module';
+import { CasbinAuthPolicy } from './auth/constants';
+import { LoggerModule } from 'nestjs-pino';
 
 @Module({
   imports: [
-    SprocketConfigModule(),
+    LoggerModule.forRoot(),
+    SprocketConfigModule,
     AuthZModule.register({
       model: 'auth/model.conf',
       policy: 'auth/policy.csv',
@@ -21,6 +31,7 @@ import { SprocketConfigModule, SprocketConfigService } from '@sprocketbot/lib';
         provide: AUTHZ_ENFORCER,
         inject: [SprocketConfigService],
         async useFactory(cfg: SprocketConfigService) {
+          const logger = new Logger(AuthZModule.name);
           const pgAdapter = await PostgresAdapter.newAdapter({
             migrate: true,
             host: cfg.getOrThrow('pg.host'),
@@ -35,24 +46,47 @@ import { SprocketConfigModule, SprocketConfigService } from '@sprocketbot/lib';
           // TODO: Set up a super-user configuration method
           // Should use https://casbin.org/docs/rbac-with-pattern to get all permissions
           // Could technically loop through AuthTarget AuthAction and AuthScope to get all permissions, but that feels extreme.
-          await Promise.all(
+          const defaultPolicy: CasbinAuthPolicy[] = [
             [
-              [
-                'superuser',
-                AuthTarget.USER,
-                `${AuthAction.READ}:${AuthScope.SELF}`,
-                'Sprocket',
-              ],
-              [
-                'superuser',
-                AuthTarget.USER,
-                `${AuthAction.READ}:${AuthScope.ALL}`,
-                'Sprocket',
-              ],
-            ].map((v) => enforcer.addPolicy(...v)),
-          );
+              'superuser',
+              'Sprocket',
+              AuthTarget.VIEW_GQL_PLAYGROUND,
+              AuthAction.Read,
+              AuthScope.ALL,
+              AuthEffect.Allow,
+            ],
+            [
+              'superuser',
+              'Sprocket',
+              AuthTarget.VIEW_ROLE_CONFIG,
+              AuthAction.Admin,
+              AuthScope.ALL,
+              AuthEffect.Allow,
+            ],
+          ];
+          await Promise.all(defaultPolicy.map((v) => enforcer.addPolicy(...v)));
 
-          await enforcer.addRoleForUser('shuckle', 'superuser', 'Sprocket');
+          const initialAdmins = cfg.getOrThrow('initialAdmins');
+          if (Array.isArray(initialAdmins)) {
+            await Promise.all(
+              initialAdmins.map(async (username) => {
+                if (
+                  await enforcer.addRoleForUser(
+                    username.toString(),
+                    'superuser',
+                    'Sprocket',
+                  )
+                ) {
+                  logger.warn(`"${username}" was made a superuser`);
+                }
+              }),
+            );
+          } else if (initialAdmins) {
+            logger.warn(
+              'Config value for "initialAdmins" was provided, but is not an array. It will be ignored',
+            );
+          }
+
           return enforcer;
         },
       },
@@ -62,6 +96,8 @@ import { SprocketConfigModule, SprocketConfigService } from '@sprocketbot/lib';
     PassportModule,
     AuthModule,
     GlobalModule,
+    DbModule,
+    GqlModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,11 +1,11 @@
-import { z } from 'zod';
+import { Output, object, string } from 'valibot';
 
-export const DiscordProfileSchema = z.object({
-  id: z.string(),
-  username: z.string(),
-  avatar: z.string(),
-  discriminator: z.string(),
-  email: z.string(),
+export const DiscordProfileSchema = object({
+  id: string(),
+  username: string(),
+  avatar: string(),
+  discriminator: string(),
+  email: string(),
 });
 
-export type DiscordProfile = z.infer<typeof DiscordProfileSchema>;
+export type DiscordProfile = Output<typeof DiscordProfileSchema>;
