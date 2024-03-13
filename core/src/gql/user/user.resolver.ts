@@ -18,11 +18,6 @@ export class UserResolver {
   async whoami(@CurrentUser() user: User): Promise<UserObject> {
     await this.a.getAllRoles();
 
-    this.logger.debug('Hello World!');
-    this.logger.log('Hello World!');
-    this.logger.warn('Hello World!');
-    this.logger.error('Hello World!');
-
     return user;
   }
 }

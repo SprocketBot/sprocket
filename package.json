@@ -1,6 +1,6 @@
 {
   "workspaces": [
-    "services/*",
+    "./services/matchmaking",
     "./clients/web",
     "./lib",
     "./core"

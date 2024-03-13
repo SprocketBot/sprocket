@@ -8,7 +8,11 @@ import { GlobalModule } from './global/global.module';
 import type { Request } from 'express';
 import { newEnforcer } from 'casbin';
 import PostgresAdapter from 'casbin-pg-adapter';
-import { SprocketConfigModule, SprocketConfigService } from '@sprocketbot/lib';
+import {
+  RedisModule,
+  BaseSprocketModules,
+  SprocketConfigService,
+} from '@sprocketbot/lib';
 import {
   AuthTarget,
   AuthScope,
@@ -18,12 +22,11 @@ import {
 import { DbModule } from './db/db.module';
 import { GqlModule } from './gql/gql.module';
 import { CasbinAuthPolicy } from './auth/constants';
-import { LoggerModule } from 'nestjs-pino';
+import { MatchmakingConnectorModule } from '@sprocketbot/matchmaking';
 
 @Module({
   imports: [
-    LoggerModule.forRoot(),
-    SprocketConfigModule,
+    ...BaseSprocketModules,
     AuthZModule.register({
       model: 'auth/model.conf',
       policy: 'auth/policy.csv',
@@ -98,6 +101,7 @@ import { LoggerModule } from 'nestjs-pino';
     GlobalModule,
     DbModule,
     GqlModule,
+    MatchmakingConnectorModule,
   ],
   controllers: [AppController],
   providers: [AppService],

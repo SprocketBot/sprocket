@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeormBootstrapService } from './typeorm-bootstrap/typeorm-bootstrap.service';
-import { SprocketConfigModule } from '@sprocketbot/lib';
+import { SprocketConfigService } from '@sprocketbot/lib';
 import { MetaService } from './meta/meta.service';
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
-      imports: [SprocketConfigModule],
+      inject: [SprocketConfigService],
       useClass: TypeormBootstrapService,
     }),
   ],

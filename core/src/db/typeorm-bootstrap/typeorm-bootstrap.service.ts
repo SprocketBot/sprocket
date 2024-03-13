@@ -16,6 +16,14 @@ export class TypeormBootstrapService {
       entities: [],
       synchronize: false,
       autoLoadEntities: true,
+      cache: {
+        type: 'ioredis',
+        alwaysEnabled: true,
+        options: {
+          host: this.cfg.getOrThrow('redis.hostname'),
+          connectionName: 'typeorm-cache',
+        },
+      },
     };
   }
 }

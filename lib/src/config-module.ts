@@ -3,8 +3,11 @@ import { readFileSync } from 'fs';
 import { parse as yamlParse } from 'yaml';
 import * as dotenv from 'dotenv';
 import { env } from 'string-env-interpolation';
+import { LoggerModule } from 'nestjs-pino';
+import { RedisModule } from './redis';
+import { DynamicModule, Type } from '@nestjs/common';
 
-export const SprocketConfigModule = ConfigModule.forRoot({
+const SprocketConfigModule = ConfigModule.forRoot({
   isGlobal: true,
   expandVariables: true,
   load: [
@@ -20,5 +23,26 @@ export const SprocketConfigModule = ConfigModule.forRoot({
     },
   ],
 });
+
+export const BaseSprocketModules: (DynamicModule | Type<any>)[] = [
+  SprocketConfigModule,
+  LoggerModule.forRoot({
+    pinoHttp: {
+      transport: {
+        targets: [
+          {
+            target: 'pino-pretty',
+            level: 'trace',
+            options: {
+              colorize: true,
+              hideObject: true,
+            },
+          },
+        ],
+      },
+    },
+  }),
+  RedisModule,
+];
 
 export { ConfigService as SprocketConfigService };

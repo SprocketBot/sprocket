@@ -1,7 +1,6 @@
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
-import * as process from 'process';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import {
   CompositePropagator,
@@ -10,23 +9,32 @@ import {
 } from '@opentelemetry/core';
 import { B3InjectEncoding, B3Propagator } from '@opentelemetry/propagator-b3';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
+import * as process from 'process';
 
 const traceExporter = new OTLPTraceExporter({
-  url: 'http://tempo:4318/v1/traces',
+  url: process.env.TEMPO_URL ?? 'http://tempo:4318/v1/traces',
 });
 
 const spanProcessor = new BatchSpanProcessor(traceExporter);
 
 const otelSDK = new NodeSDK({
-  serviceName: 'SprocketCore',
+  serviceName: process.env.SERVICE_NAME ?? 'SprocketUnknownService',
   //   metricReader,
-  spanProcessor: spanProcessor,
+  spanProcessors: [spanProcessor],
   contextManager: new AsyncLocalStorageContextManager(),
-  instrumentations: [
-    getNodeAutoInstrumentations({
-      '@opentelemetry/instrumentation-fs': { enabled: false },
-    }),
-  ],
+  instrumentations: getNodeAutoInstrumentations({
+    '@opentelemetry/instrumentation-fs': { enabled: false },
+    '@opentelemetry/instrumentation-amqplib': { enabled: true },
+    '@opentelemetry/instrumentation-http': { enabled: true },
+    '@opentelemetry/instrumentation-nestjs-core': { enabled: true },
+    '@opentelemetry/instrumentation-graphql': { enabled: true },
+    '@opentelemetry/instrumentation-express': { enabled: true },
+    '@opentelemetry/instrumentation-ioredis': {
+      enabled: true,
+    },
+    '@opentelemetry/instrumentation-pino': { enabled: true },
+  }),
+
   textMapPropagator: new CompositePropagator({
     propagators: [
       new W3CTraceContextPropagator(),
@@ -55,3 +63,14 @@ process.on('SIGTERM', () => {
 otelSDK.start();
 
 console.log('SDK Started!');
+// You need to have an explicit require to get instrumentation properly
+function tryRequire(pack: string) {
+  try {
+    require(pack);
+  } catch {
+    console.log(`Package '${pack}' not available`);
+  }
+}
+
+tryRequire('ioredis');
+tryRequire('amqplib');
