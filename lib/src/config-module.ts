@@ -29,6 +29,29 @@ export const BaseSprocketModules: (DynamicModule | Type<any>)[] = [
   SprocketConfigModule,
   LoggerModule.forRoot({
     pinoHttp: {
+      hooks: {
+        logMethod(args, fn) {
+          // This function is responsible for merging any contextual objects that are passed in log methods
+          // e.g. this call does not get passed through properly
+          // this.logger.log("Message!", { key: "some helpful context value" })
+
+          const [ctx, msg, ...rest]: [any, string, ...any[]] = args as [
+            any,
+            string,
+            ...any[],
+          ];
+          for (const r of rest) {
+            if (typeof r === 'object') {
+              Object.assign(ctx, r);
+            } else {
+              if (!Array.isArray(ctx.extra)) ctx.extra = [];
+              ctx.extra.push(r);
+            }
+          }
+          fn.bind(this)(ctx, msg);
+        },
+      },
+      autoLogging: false,
       level:
         process.env.LOG_LEVEL?.toLowerCase() === 'debug' ? 'trace' : 'info',
       transport: {
@@ -38,7 +61,7 @@ export const BaseSprocketModules: (DynamicModule | Type<any>)[] = [
             level: 'trace',
             options: {
               colorize: true,
-              hideObject: true,
+              hideObject: false,
             },
           },
         ],
