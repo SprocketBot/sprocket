@@ -53,7 +53,7 @@ export class AuthenticateService {
     user.allowedActions = (
       await this.authorizeService.getPermissions(user)
     ).filter((spec) => spec.target.startsWith('View__'));
-    const token = this.jwtService.sign(user);
+    const token = this.jwtService.sign(parse(UserSchema, user));
 
     res.cookie(this.AUTH_COOKIE_NAME, token, {
       domain: this.COOKIE_DOMAIN,

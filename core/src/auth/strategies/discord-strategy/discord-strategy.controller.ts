@@ -27,25 +27,12 @@ export class DiscordStrategyController {
   @Get('oauth/callback/discord')
   @UseGuards(DiscordStrategyGuard)
   async discordLogin(@Request() req: Req, @Response() res: Res): Promise<void> {
-    const discordProfile = safeParse(DiscordProfileSchema, req.user);
-
     const redirUrl = `${this.config.getOrThrow('protocol')}://${this.config.getOrThrow('frontend.callback')}`;
-
-    if (discordProfile.success === false) {
-      const uuid = v4();
-      this.logger.error(`${uuid} ${discordProfile.issues}`);
-
-      res.redirect(
-        `${redirUrl}?status=error&message=${`An unknown exception has occurred. (${uuid})`}`,
-      );
-      return;
-    }
-
     // TODO: Actually Authenticate Users
 
-    await this.authenticateService.login(res, {
-      username: discordProfile.output.username,
-    });
+    console.log(req.user);
+
+    await this.authenticateService.login(res, req.user);
     res.redirect(redirUrl);
     res.send();
 

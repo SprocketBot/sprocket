@@ -21,7 +21,7 @@ export type AuthorizationSpec =
       action: AuthAction;
       inScope?: (user: User, request: Request) => Promise<boolean> | boolean;
     };
-export type AuthorizationInput = Resolvable<AuthorizationSpec, []>;
+export type AuthorizationInput = Resolvable<AuthorizationSpec, [], void>;
 
 export type AuthSubject = string;
 export type AuthTenant = string;

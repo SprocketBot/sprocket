@@ -30,6 +30,8 @@ import { ScheduleGroupTypeRepository } from './schedule_group_type/schedule_grou
 import { SkillGroupRepository } from './skill_group/skill_group.repository';
 import { TeamRepository } from './team/team.repository';
 import { UserRepository } from './user/user.repository';
+import { UserAuthAccountEntity } from './user_auth_account/user_auth_account.entity';
+import { UserAuthAccountRepository } from './user_auth_account/user_auth_account.repository';
 
 @Module({
   imports: [
@@ -52,6 +54,7 @@ import { UserRepository } from './user/user.repository';
       SkillGroupEntity,
       TeamEntity,
       UserEntity,
+      UserAuthAccountEntity,
     ]),
   ],
   providers: [
@@ -69,22 +72,24 @@ import { UserRepository } from './user/user.repository';
     SkillGroupRepository,
     TeamRepository,
     UserRepository,
+    UserAuthAccountRepository,
   ],
-  exports: [FranchiseRepository],
+  exports: [
+    FranchiseRepository,
+    GameRepository,
+    GameModeRepository,
+    MatchRepository,
+    ScrimRepository,
+    FixtureRepository,
+    PlayerRepository,
+    PlayerStatRepository,
+    RoundRepository,
+    ScheduleGroupRepository,
+    ScheduleGroupTypeRepository,
+    SkillGroupRepository,
+    TeamRepository,
+    UserRepository,
+    UserAuthAccountRepository,
+  ],
 })
 export class DbModule {}
-
-// Add user.repository.ts to providers list
-// Add player.repository.ts to providers list
-// Add skill_group.repository.ts to providers list
-// Add fixture.repository.ts to providers list
-// Add schedule_group.repository.ts to providers list
-// Add schedule_group_type.repository.ts to providers list
-// Add match.repository.ts to providers list
-// Add game.repository.ts to providers list
-// Add game_mode.repository.ts to providers list
-// Add player_stat.repository.ts to providers list
-// Add team_stat.repository.ts to providers list
-// Add round.repository.ts to providers list
-// Add team.repository.ts to providers list
-// Add franchise.repository.ts to providers list

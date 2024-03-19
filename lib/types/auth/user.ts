@@ -1,10 +1,19 @@
-import { Output, array, enum_, object, optional, string } from 'valibot';
+import {
+  Output,
+  array,
+  boolean,
+  enum_,
+  object,
+  optional,
+  string,
+} from 'valibot';
 import { AuthAction } from './action';
 import { AuthScope } from './scope';
 import { AuthTarget } from './target';
 
 export const UserSchema = object({
   username: string(),
+  active: boolean(),
   avatarUrl: optional(string()),
   allowedActions: optional(
     array(

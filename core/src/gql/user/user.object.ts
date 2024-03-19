@@ -5,8 +5,10 @@ import type { User } from '@sprocketbot/lib/types';
 export class UserObject implements User {
   @Field({ nullable: false })
   username: string;
+
   @Field({ nullable: true })
   avatarUrl?: string;
+
   @Field(() => [Boolean], { defaultValue: [], nullable: false })
   allowedActions?: any[];
 }

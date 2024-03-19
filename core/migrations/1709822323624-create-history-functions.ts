@@ -1,5 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 import fs from 'fs/promises';
+import {query} from "express";
 
 export class CreateHistoryFunctions1709822323624 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {

@@ -14,10 +14,7 @@ import { AuthorizeService } from './authorize/authorize.service';
 @Controller()
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
-  constructor(
-    private readonly authenticateService: AuthenticateService,
-    private readonly authorizeService: AuthorizeService,
-  ) {}
+  constructor(private readonly authenticateService: AuthenticateService) {}
 
   @Get('auth/check')
   async checkAuth(
@@ -28,7 +25,7 @@ export class AuthController {
     if (user) {
       return user;
     } else {
-      await this.authenticateService.logout(res);
+      this.authenticateService.logout(res);
       this.logger.debug('User Not Logged in!');
       return false;
     }
