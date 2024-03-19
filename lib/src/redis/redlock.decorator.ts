@@ -60,40 +60,42 @@ export const RedLock = <
       const activeSpan = opentelemetry.trace.getActiveSpan();
       activeSpan.updateName(propertyKey.toString());
 
-      const lockSpan = tracer?.startSpan('RedLocked');
+      return tracer.startActiveSpan('RedLocked', async (lockSpan) => {
+        // Get reference to redlock
+        const redis = this[redisKey];
+        const locker: Redlock = redis.redlock;
 
-      // Get reference to redlock
-      const redis = this[redisKey];
-      const locker: Redlock = redis.redlock;
+        // Lookup the keys
+        const resolvedKeys: string[] = (
+          await Promise.all(
+            keys.map((k) =>
+              typeof k === 'function' ? k.call(this, ...args) : k,
+            ),
+          )
+        ).map((v) => v.toString());
 
-      // Lookup the keys
-      const resolvedKeys: string[] = (
-        await Promise.all(
-          keys.map((k) =>
-            typeof k === 'function' ? k.call(this, ...args) : k,
-          ),
-        )
-      ).map((v) => v.toString());
+        lockSpan.setAttribute('keys', resolvedKeys);
 
-      lockSpan.setAttribute('keys', resolvedKeys);
-
-      const lock = await locker.acquire(resolvedKeys, 5050);
-      logger.debug(
-        `Aquired lock for ${JSON.stringify(resolvedKeys)} (${lock.value})`,
-      );
-      try {
-        const result = await originalFunction.apply(this, args);
-        return result;
-      } catch (e) {
-        lockSpan.recordException(e);
-        throw e;
-      } finally {
-        await lock.release();
-        logger.debug(
-          `Released lock for ${JSON.stringify(resolvedKeys)} (${lock.value})`,
+        const lock = await locker.acquire(resolvedKeys, 5050);
+        logger.verbose(
+          `Aquired lock for ${JSON.stringify(resolvedKeys)} (${lock.value})`,
+          'Context?',
         );
-        lockSpan?.end();
-      }
+        try {
+          const result = await originalFunction.apply(this, args);
+          return result;
+        } catch (e) {
+          lockSpan.recordException(e);
+          throw e;
+        } finally {
+          await lock.release();
+          logger.verbose(
+            `Released lock for ${JSON.stringify(resolvedKeys)} (${lock.value})`,
+            'Context?',
+          );
+          lockSpan?.end();
+        }
+      });
     } as TargetValue;
   };
 

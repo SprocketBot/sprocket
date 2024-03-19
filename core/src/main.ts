@@ -1,13 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
-import { LogLevel } from '@nestjs/common';
-import { Logger, LoggerErrorInterceptor } from 'nestjs-pino';
+import { Logger, LoggerErrorInterceptor } from '@sprocketbot/lib';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   const log = app.get(Logger);
-  app.useLogger(log);
   // TODO: figure out how to use useLevelLabels to true so that we can actual statuses instead of arbitrary numbers
 
   app.useGlobalInterceptors(new LoggerErrorInterceptor());
@@ -19,18 +17,17 @@ async function bootstrap() {
     ).origin,
   });
 
-  const logLevels: LogLevel[] = [];
+  app.useLogger(log);
 
-  switch (process.env.LOG_LEVEL?.toLowerCase()) {
-    case 'debug':
-      logLevels.push('warn', 'log', 'error', 'fatal', 'debug', 'verbose');
-      break;
-    default:
-      logLevels.push('warn', 'log', 'error', 'fatal');
-      break;
-  }
+  log.fatal('fatal log');
+  log.error('error log');
+  log.warn('warn log');
+  log.log('log log');
+  log.debug('debug log');
+  log.verbose('verbose log');
 
   app.use(cookieParser());
   await app.listen(3000);
 }
+
 bootstrap();

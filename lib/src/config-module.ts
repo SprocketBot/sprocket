@@ -3,9 +3,10 @@ import { readFileSync } from 'fs';
 import { parse as yamlParse } from 'yaml';
 import * as dotenv from 'dotenv';
 import { env } from 'string-env-interpolation';
-import { LoggerModule } from 'nestjs-pino';
+import { Logger, LoggerErrorInterceptor, LoggerModule } from 'nestjs-pino';
 import { RedisModule } from './redis';
 import { DynamicModule, Type } from '@nestjs/common';
+import { GuidModule } from './guid/guid.module';
 
 const SprocketConfigModule = ConfigModule.forRoot({
   isGlobal: true,
@@ -28,6 +29,8 @@ export const BaseSprocketModules: (DynamicModule | Type<any>)[] = [
   SprocketConfigModule,
   LoggerModule.forRoot({
     pinoHttp: {
+      level:
+        process.env.LOG_LEVEL?.toLowerCase() === 'debug' ? 'trace' : 'info',
       transport: {
         targets: [
           {
@@ -43,6 +46,8 @@ export const BaseSprocketModules: (DynamicModule | Type<any>)[] = [
     },
   }),
   RedisModule,
+  GuidModule,
 ];
 
 export { ConfigService as SprocketConfigService };
+export { Logger, LoggerErrorInterceptor };

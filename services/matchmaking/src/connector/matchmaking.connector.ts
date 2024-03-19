@@ -19,9 +19,6 @@ import { MatchmakingQueue, MatchmakingQueueOptions } from '../constants';
                 urls: [cfg.getOrThrow<string>('amqp.url')],
                 queue: MatchmakingQueue,
                 queueOptions: MatchmakingQueueOptions,
-                headers: {
-                  hello: 'world',
-                },
               },
             };
           },

@@ -8,11 +8,7 @@ import { GlobalModule } from './global/global.module';
 import type { Request } from 'express';
 import { newEnforcer } from 'casbin';
 import PostgresAdapter from 'casbin-pg-adapter';
-import {
-  RedisModule,
-  BaseSprocketModules,
-  SprocketConfigService,
-} from '@sprocketbot/lib';
+import { BaseSprocketModules, SprocketConfigService } from '@sprocketbot/lib';
 import {
   AuthTarget,
   AuthScope,

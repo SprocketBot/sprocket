@@ -5,21 +5,25 @@ import {
   UseGuards,
   Request,
   Query,
+  Logger,
 } from '@nestjs/common';
 import type { Request as Req } from 'express';
 import { AppService } from './app.service';
 import { AuthZManagementService } from 'nest-authz';
 import { AuthorizeGuard } from './auth/authorize/authorize.guard';
 import { AuthTarget, AuthScope, AuthAction } from '@sprocketbot/lib/types';
-import { RedLock } from '@sprocketbot/lib';
+import { GuidService, RedLock, RedisJsonService } from '@sprocketbot/lib';
 import { MatchmakingService } from '@sprocketbot/matchmaking';
 
 @Controller()
 export class AppController {
+  private readonly logger = new Logger(AppController.name);
   constructor(
     private readonly appService: AppService,
     private readonly authManageService: AuthZManagementService,
     private readonly matchmaking: MatchmakingService,
+    private readonly redisJsonService: RedisJsonService,
+    private readonly guidService: GuidService,
   ) {}
 
   @Get()
@@ -33,12 +37,16 @@ export class AppController {
     @Request() req: Req,
     @Query('throw') shouldError: string,
   ): Promise<string> {
-    console.log('Start');
     const before = performance.now();
     await new Promise((r) => setTimeout(r, Math.random() * 1000));
     const after = performance.now();
     const message = `Took ${(after - before).toFixed(2)}ms`;
-    console.log('End');
+    const opGuid = this.guidService.getId();
+    await this.redisJsonService.SET(opGuid, '.', { hi: 'Hello World' });
+    await this.redisJsonService.MSET([opGuid, '.one', 1], [opGuid, '.two', 2]);
+
+    this.logger.debug(await this.redisJsonService.GET(opGuid, '$'));
+    this.logger.debug(await this.redisJsonService.GET(opGuid, '$'));
     if (shouldError === 'true') {
       throw new Error(message);
     }

@@ -1,9 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { RedisClient } from '../constants';
 import IORedis from 'ioredis';
 
 @Injectable()
 export class RedisJsonService {
+  private readonly logger = new Logger(RedisJsonService.name);
   constructor(@Inject(RedisClient) private readonly redis: IORedis) {}
   // TODO: Implement functions for the Redis JSON Spec https://redis.io/commands/json.mget/
   async ARRAPPEND() {
@@ -36,17 +37,48 @@ export class RedisJsonService {
   async FORGET() {
     throw new Error('JSON.FORGET not yet implemented');
   }
-  async GET() {
-    throw new Error('JSON.GET not yet implemented');
+  /**
+   * @param key Key to perform GET on
+   * @param paths Set of one or more JSON paths to look up
+   * @returns null when key is not found, T when key is found and all paths exist.
+   * @throws when one or more paths are missing
+   */
+  async GET<T = unknown>(key: string, ...paths: string[]): Promise<T | null> {
+    this.logger.verbose(['JSON.GET', key, ...paths].join(' '));
+    const result = await this.redis.call('JSON.GET', key, ...paths);
+    if (!result) return null;
+    return result as T;
   }
+
   async MERGE() {
     throw new Error('JSON.MERGE not yet implemented');
   }
-  async MGET() {
-    throw new Error('JSON.MGET not yet implemented');
+
+  /**
+   * @param path JSON Path to retrieve from each key
+   * @param keys Set of Redis keys to look up
+   * @returns Array of T or null depending on if the path exists on each key
+   * @thows When redis returns a non-array result (this is unexpected behavior from Redis)
+   */
+  async MGET<T = unknown>(
+    path: string,
+    ...keys: string[]
+  ): Promise<Array<T | null>> {
+    this.logger.verbose(['JSON.MGET', ...keys, path].join(' '));
+    const result = await this.redis.call('JSON.MGET', ...keys, path);
+    if (!Array.isArray(result)) throw new Error(`Recieved unexpected result`);
+    return result.map((item) => (item !== null ? JSON.parse(item) : null));
   }
-  async MSET() {
-    throw new Error('JSON.MSET not yet implemented');
+
+  async MSET(...tuples: [string, string, any][]): Promise<boolean> {
+    const commandTuples = tuples
+      .map(([k, p, v]) => [k, p, JSON.stringify(v)])
+      .flat();
+    this.logger.verbose(['JSON.MSET', ...commandTuples].join(' '));
+
+    const result = await this.redis.call('JSON.MSET', ...commandTuples);
+    if (result === 'OK') return true;
+    return false;
   }
   async NUMINCRBY() {
     throw new Error('JSON.NUMINCRBY not yet implemented');
@@ -63,8 +95,21 @@ export class RedisJsonService {
   async RESP() {
     throw new Error('JSON.RESP not yet implemented');
   }
-  async SET() {
-    throw new Error('JSON.SET not yet implemented');
+
+  async SET(
+    key: string,
+    path: string,
+    value: any,
+    mod?: 'NX' | 'XX',
+  ): Promise<boolean> {
+    // If mod is not provided, there needs to be no argument (not undefined)
+    // So we throw everything into an array, filter it, and then spread it into the redis call
+    const args = [key, path, JSON.stringify(value), mod].filter(Boolean);
+    this.logger.verbose(['JSON.SET', ...args].join(' '));
+
+    const result = await this.redis.call('JSON.SET', ...args);
+    if (result === 'OK') return true;
+    return false;
   }
   async STRAPPEND() {
     throw new Error('JSON.STRAPPEND not yet implemented');

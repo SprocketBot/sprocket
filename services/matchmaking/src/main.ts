@@ -1,11 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { Logger, LoggerErrorInterceptor } from 'nestjs-pino';
-import {
-  MatchmakingQueue,
-  MatchmakingQueueOptions,
-} from './constants';
+import { Logger, LoggerErrorInterceptor } from '@sprocketbot/lib';
+import { MatchmakingQueue, MatchmakingQueueOptions } from './constants';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
@@ -26,4 +23,5 @@ async function bootstrap() {
 
   await app.listen();
 }
+
 bootstrap();

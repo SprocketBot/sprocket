@@ -1,4 +1,6 @@
 export * from './auth';
+export * from './connectors';
+export * from './scrim';
 
 /**
  * Literal or function that returns literal

@@ -5,11 +5,15 @@ import { DbModule } from '../db/db.module';
 import { AuthModule } from '../auth/auth.module';
 import { ScrimResolver } from './scrim/scrim.resolver';
 import { UserResolver } from './user/user.resolver';
+import { MatchmakingConnectorModule } from '@sprocketbot/matchmaking';
 
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
+      subscriptions: {
+        'graphql-ws': true
+      },
       autoSchemaFile: true,
       csrfPrevention: false,
       introspection: true,
@@ -30,6 +34,7 @@ import { UserResolver } from './user/user.resolver';
     }),
     DbModule,
     AuthModule,
+    MatchmakingConnectorModule,
   ],
   providers: [ScrimResolver, UserResolver],
 })
