@@ -81,6 +81,22 @@ services:
       traefik.http.routers.web.entrypoints: web,websecure
       traefik.http.services.web.loadbalancer.server.port: 5173
 
+  discord:
+    container_name: sprocket-discord
+    user: 1000:1000
+    image: oven/bun:alpine
+    depends_on:
+      - lavinmq
+      - redis
+    volumes:
+      - .:/app
+      - ./.env:/app/clients/discord/.env
+      - ./config.yaml:/app/clients/discord/config.yaml
+    command: bun --preload ../../lib/src/tracing.ts -b --watch src/main.ts
+    working_dir: /app/clients/discord
+    environment:
+      SERVICE_NAME: "SprocketDiscord"
+
   postgres:
     container_name: sprocket-postgres
     image: postgres:15

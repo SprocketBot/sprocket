@@ -2,6 +2,7 @@
   "workspaces": [
     "./services/matchmaking",
     "./clients/web",
+    "./clients/discord",
     "./lib",
     "./core"
   ],
