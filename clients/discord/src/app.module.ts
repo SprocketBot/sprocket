@@ -36,8 +36,5 @@ export class AppModule {
       name: '🎓 Learning how to run ESports Leagues',
       url: 'https://github.com/sprocketbot/sprocket',
     });
-
-    const dms = await this.client.users.createDM('112140878637707264');
-    await dms.send('I am awake!');
   }
 }
