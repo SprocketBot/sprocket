@@ -9,10 +9,8 @@ import { AuthorizeGuard } from 'src/auth/authorize/authorize.guard';
 
 @Resolver()
 export class ScrimResolver {
-  constructor (
-    private readonly matchmakingService: MatchmakingService
-  ) {}
-  
+  constructor(private readonly matchmakingService: MatchmakingService) {}
+
   @Subscription(() => ScrimObject)
   async watchScrims(): Promise<Observable<Scrim>> {
     return from([]);
@@ -21,11 +19,11 @@ export class ScrimResolver {
   @Mutation(() => ScrimObject)
   @UseGuards(AuthorizeGuard())
   async createScrim(@CurrentUser() user: User): Promise<Scrim> {
-    const result = await this.matchmakingService.createScrim(user)
-    console.log(result)
+    const result = await this.matchmakingService.createScrim(user);
+    console.log(result);
     return {
       participants: [],
-      scrimId: '5'
-    }
+      scrimId: '5',
+    };
   }
 }

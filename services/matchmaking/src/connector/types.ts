@@ -10,9 +10,9 @@ export type MatchmakingProxy = TypedClientProxy<
       responseData: string;
     };
     [MatchmakingEndpoint.CreateScrim]: {
-      requestData: { memberId: string },
-      responseData: Scrim
-    }
+      requestData: { memberId: string };
+      responseData: Scrim;
+    };
   },
   never
 >;

@@ -22,10 +22,11 @@ export class MatchmakingService {
 
   async createScrim(user: User): Promise<Scrim> {
     const result = await firstValueFrom(
-      this.client.send(MatchmakingEndpoint.CreateScrim, { memberId: user.username })
+      this.client.send(MatchmakingEndpoint.CreateScrim, {
+        memberId: user.username,
+      }),
     );
 
     return result;
-    
   }
 }

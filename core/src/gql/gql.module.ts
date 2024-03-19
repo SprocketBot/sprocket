@@ -12,7 +12,7 @@ import { MatchmakingConnectorModule } from '@sprocketbot/matchmaking';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       subscriptions: {
-        'graphql-ws': true
+        'graphql-ws': true,
       },
       autoSchemaFile: true,
       csrfPrevention: false,

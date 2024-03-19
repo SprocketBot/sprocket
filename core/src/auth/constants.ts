@@ -38,10 +38,6 @@ export type CasbinAuthPolicy = [
 // Policies
 // subject object action scope effect
 
-
-
-
-
 // subject            tenant    object (target)    Action     Scope             Effect
 // shuckle,           Sprocket, Scrims,            Join,      SELF,             ALLOW
 

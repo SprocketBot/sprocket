@@ -22,7 +22,6 @@ export class AuthenticateService {
 
     const tokenQuery = req.query['token']?.toString();
 
-
     if (!authCookie && !tokenQuery) {
       return false;
     }
