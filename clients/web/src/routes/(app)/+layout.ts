@@ -15,7 +15,13 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
 		throw redirect(301, '/login');
 	}
 
+	const result = parse(UserSchema, authValid)
+
+	if (!result.active) {
+		throw redirect(301, '/inactive')
+	}
+
 	return {
-		user: parse(UserSchema, authValid)
+		user: result
 	};
 };
