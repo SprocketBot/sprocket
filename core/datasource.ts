@@ -36,26 +36,32 @@ const datasource = new DataSource({
   database: config.pg.database,
   migrations: migrations,
   logging: 'all',
+  entities: ['./src/db/**/*.entity.ts'],
 });
+export default datasource;
 
-// @ts-expect-error top level await is allowed in bun
-await datasource.initialize();
+const commands = ['up', 'down', 'ls'];
 
-switch (process.argv[2]) {
-  case 'up':
-    // @ts-expect-error top level await is allowed in bun
-    await datasource.runMigrations();
-    break;
-  case 'down':
-    // @ts-expect-error top level await is allowed in bun
-    await datasource.undoLastMigration();
-    break;
-  case 'ls':
-    console.log(migrations.map((m) => m.name));
-    break;
-  default:
-    console.log('Unknown command: ' + process.argv[2]);
-    break;
+if (commands.includes(process.argv[2])) {
+  // @ts-expect-error top level await is allowed in bun
+  await datasource.initialize();
+
+  switch (process.argv[2]) {
+    case 'up':
+      // @ts-expect-error top level await is allowed in bun
+      await datasource.runMigrations();
+      break;
+    case 'down':
+      // @ts-expect-error top level await is allowed in bun
+      await datasource.undoLastMigration();
+      break;
+    case 'ls':
+      console.log(migrations.map((m) => m.name));
+      break;
+    default:
+      console.log('Unknown command: ' + process.argv[2]);
+      break;
+  }
+  // @ts-expect-error top level await is allowed in bun
+  await datasource.destroy();
 }
-// @ts-expect-error top level await is allowed in bun
-await datasource.destroy();

@@ -1,2 +1,4 @@
 #!/usr/bin/env sh
+set -ex
+
 docker compose exec -it core bunx typeorm migration:create ./migrations/$1

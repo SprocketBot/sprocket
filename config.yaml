@@ -5,10 +5,11 @@ secure: ${SSL}
 auth:
   jwt:
     secret: '${AUTH_JWT_SECRET:localhost}'
-    expiry: '${AUTH_JWT_EXPIRY:3000000}'
+    expiry: '${AUTH_JWT_EXPIRY:259200000}' # Default is 72h
   discord:
     clientId: '${AUTH_DISCORD_CLIENT_ID}'
     secret: '${AUTH_DISCORD_SECRET}'
+    botToken: '${AUTH_DISCORD_BOT_TOKEN}'
 
 frontend:
   url: '${BASE_URL}'

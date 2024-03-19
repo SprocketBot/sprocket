@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+set -ex
+docker compose exec -it core bunx typeorm migration:generate ./migrations/$1 -d ./datasource.ts

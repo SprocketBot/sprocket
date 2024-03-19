@@ -5,7 +5,9 @@ import { SprocketConfigService } from '@sprocketbot/lib';
 @Injectable()
 export class TypeormBootstrapService {
   constructor(private readonly cfg: SprocketConfigService) {}
+
   createTypeOrmOptions(): TypeOrmModuleOptions {
+    console.log('Using bootstrap!');
     return {
       type: 'postgres',
       host: this.cfg.getOrThrow('pg.host'),
@@ -13,7 +15,7 @@ export class TypeormBootstrapService {
       username: this.cfg.getOrThrow('pg.username'),
       password: this.cfg.getOrThrow('pg.password'),
       database: this.cfg.getOrThrow('pg.database'),
-      entities: [],
+      //      entities: [],
       synchronize: false,
       autoLoadEntities: true,
       cache: {
@@ -24,6 +26,7 @@ export class TypeormBootstrapService {
           connectionName: 'typeorm-cache',
         },
       },
+      applicationName: 'SprocketCore',
     };
   }
 }
