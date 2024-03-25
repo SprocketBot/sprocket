@@ -1,11 +1,13 @@
 import { Args, Int, Mutation, Resolver } from "@nestjs/graphql";
-import { forwardRef, Inject } from "@nestjs/common";
+import { forwardRef, Inject, UseGuards } from "@nestjs/common";
 import { PlatformService } from "../../game";
 import { MemberPlatformAccountService } from "../member-platform-account";
 import { MledbPlayerAccountService, MledbPlayerService } from "../../mledb";
-import { MLE_Platform, MLE_Player } from "../../database/mledb";
+import { MLE_OrganizationTeam, MLE_Platform, MLE_Player } from "../../database/mledb";
 import { Member } from "../../database";
 import { MemberService } from "./member.service";
+import { GqlJwtGuard } from "../../identity/auth/gql-auth-guard";
+import { MLEOrganizationTeamGuard } from "../../mledb/mledb-player/mle-organization-team.guard";
 
 @Resolver()
 export class MemberModResolver {
@@ -20,6 +22,7 @@ export class MemberModResolver {
 
     ) { }
 
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     @Mutation(() => String)
     async reportMemberPlatformAccount(
         @Args("sprocketUserId", { type: () => Int }) userId: number,
