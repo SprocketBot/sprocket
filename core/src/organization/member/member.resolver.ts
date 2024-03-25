@@ -1,7 +1,6 @@
 import {
     Args, Int, Query, ResolveField, Resolver, Root,
 } from "@nestjs/graphql";
-
 import type {
     MemberProfile, Organization, Player,
 } from "../../database";
