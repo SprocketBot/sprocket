@@ -32,7 +32,7 @@ services:
       - .:/app
       - ./.env:/app/core/.env
       - ./config.yaml:/app/core/config.yaml
-    command: bun --preload ../lib/src/tracing.ts -b --watch src/main.ts
+    command: bun --preload ../lib/src/tracing.ts --bun --watch src/main.ts
     working_dir: /app/core
     labels:
       traefik.enable: true

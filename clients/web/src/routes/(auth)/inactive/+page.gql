@@ -1,0 +1,10 @@
+query CurrentUser {
+	whoami {
+		username
+		accounts {
+			platform
+			platformId
+			platformName
+		}
+	}
+}

@@ -14,7 +14,9 @@ const SprocketConfigModule = ConfigModule.forRoot({
   load: [
     () => {
       dotenv.config();
-      const configFile = env(readFileSync('./config.yaml', 'utf-8'));
+      const configFile = env(
+        readFileSync(process.env.CFG_FILE ?? './config.yaml', 'utf-8'),
+      );
       const config = yamlParse(configFile);
       const protocol = config.secure ? 'https' : 'http';
       return {
@@ -54,18 +56,20 @@ export const BaseSprocketModules: (DynamicModule | Type<any>)[] = [
       autoLogging: false,
       level:
         process.env.LOG_LEVEL?.toLowerCase() === 'debug' ? 'trace' : 'info',
-      transport: {
-        targets: [
-          {
-            target: 'pino-pretty',
-            level: 'trace',
-            options: {
-              colorize: true,
-              hideObject: false,
-            },
+      transport: process.env.PROD
+        ? undefined // disable pretty logs while running on production
+        : {
+            targets: [
+              {
+                target: 'pino-pretty',
+                level: 'trace',
+                options: {
+                  colorize: true,
+                  hideObject: false,
+                },
+              },
+            ],
           },
-        ],
-      },
     },
   }),
   RedisModule,

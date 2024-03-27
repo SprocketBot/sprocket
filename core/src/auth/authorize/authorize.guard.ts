@@ -5,7 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 
-import { AuthorizationInput, AuthorizationSpec } from '../constants';
+import { AuthorizationInput } from '../constants';
 import type { Request } from 'express';
 import { AuthorizeService } from './authorize.service';
 import { getRequestFromContext } from '../../utils/getRequestFromContext';
@@ -23,6 +23,7 @@ export const AuthorizeGuard = (...authorizations: AuthorizationInput[]) => {
     async canActivate(context: ExecutionContext): Promise<boolean> {
       // Extract the user from the request
       const req: Request = getRequestFromContext(context);
+
       const user = this.authenticateService.getUserFromRequest(req);
       if (!user) return false;
       req.user = user;
@@ -30,15 +31,7 @@ export const AuthorizeGuard = (...authorizations: AuthorizationInput[]) => {
       if (authorizations.length === 0)
         return Boolean(user) /* Must be signed in */;
 
-      return await Promise.all(
-        // Iterate over all authorization objects
-        // They all need to match.
-        authorizations.map(async (authIn: AuthorizationInput) => {
-          const auth: AuthorizationSpec =
-            typeof authIn === 'function' ? await authIn() : await authIn;
-          return await this.authService.check(user, auth, req);
-        }),
-      ).then((v) => v.every(Boolean));
+      throw new Error('Authorization is not implemented');
     }
   }
   return _AuthorizeGuard;

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { nanoid } from 'nanoid';
+import { v4 } from 'uuid';
 @Injectable()
 export class GuidService {
   getId(): string {
-    return nanoid();
+    return v4();
   }
 }

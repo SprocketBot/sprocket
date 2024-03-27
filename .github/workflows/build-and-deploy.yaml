@@ -1,0 +1,50 @@
+name: Build and Deploy Monorepo
+
+on:
+  push:
+    branches:
+      # - 'preview/**'
+      # - 'dev/**'
+      # - 'staging/**'
+      # - 'main'
+      - v2
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build and Push Image
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}:${{ github.sha }} .
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker push ghcr.io/${{ github.repository }}:${{ github.sha }}
+
+      - name: Extract Environment
+        id: extract-env
+        run: |
+          BRANCH_NAME=${GITHUB_REF##*/}
+          if [[ $BRANCH_NAME =~ ^preview/ ]]; then
+            ENV="preview"
+          elif [[ $BRANCH_NAME =~ ^dev/ ]]; then
+            ENV="dev"
+          elif [[ $BRANCH_NAME =~ ^staging/ ]]; then
+            ENV="staging"
+          else
+            ENV="main"
+          fi
+          echo "::set-output name=env::$ENV"
+
+      - name: Update Nomad Job
+        run: |
+          IMAGE_TAG=ghcr.io/${{ github.repository }}:${{ github.sha }}
+          sed -i "s#__IMAGE_TAG__#$IMAGE_TAG#g" nomad.job.hcl
+
+      - name: Deploy to Nomad
+        uses: hashicorp/nomad-github-action@v1
+        with:
+          nomad_addr: ${{ secrets.NOMAD_ADDR }}
+          nomad_token: ${{ secrets.NOMAD_TOKEN }}
+          command: job run nomad.job.hcl

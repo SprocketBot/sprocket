@@ -18,14 +18,17 @@ export class TypeormBootstrapService {
       //      entities: [],
       synchronize: false,
       autoLoadEntities: true,
+      migrationsRun: false,
       cache: {
         type: 'ioredis',
         alwaysEnabled: true,
         options: {
           host: this.cfg.getOrThrow('redis.hostname'),
+          port: this.cfg.getOrThrow('redis.port'),
           connectionName: 'typeorm-cache',
         },
       },
+      migrationsTableName: 'public.migrations',
       applicationName: 'SprocketCore',
     };
   }

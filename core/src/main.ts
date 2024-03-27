@@ -1,10 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import cookieParser from 'cookie-parser';
+import { default as cookieParser } from 'cookie-parser';
+import * as cookieParserAlt from 'cookie-parser';
 import { Logger, LoggerErrorInterceptor } from '@sprocketbot/lib';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: Boolean(process.env.PROD),
+  });
   const log = app.get(Logger);
   // TODO: figure out how to use useLevelLabels to true so that we can actual statuses instead of arbitrary numbers
 
@@ -16,6 +19,11 @@ async function bootstrap() {
       `${process.env.SSL.toLowerCase() === 'true' ? 'https' : 'http'}://${process.env.BASE_URL}:${process.env.LISTEN_PORT}`,
     ).origin,
   });
+  console.log(
+    new URL(
+      `${process.env.SSL.toLowerCase() === 'true' ? 'https' : 'http'}://${process.env.BASE_URL}:${process.env.LISTEN_PORT}`,
+    ).origin,
+  );
 
   app.useLogger(log);
 
@@ -26,7 +34,8 @@ async function bootstrap() {
   log.debug('debug log');
   log.verbose('verbose log');
 
-  app.use(cookieParser());
+  if (typeof cookieParser === 'function') app.use(cookieParser());
+  else app.use(cookieParserAlt());
   await app.listen(3000);
 }
 

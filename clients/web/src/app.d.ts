@@ -4,7 +4,7 @@
 // and what to do when importing types
 declare namespace App {
 	interface Locals {
-		authToken?: string
+		authToken?: string;
 	}
 	interface PageData {
 		// You cannot use import/export at the root level, must be written this way or the file stops working

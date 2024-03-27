@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+docker compose exec -it core bun /app/core/src/db/seed.module.ts

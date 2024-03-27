@@ -5,20 +5,27 @@ import { UserSchema } from '@sprocketbot/lib/types';
 import { parse } from 'valibot';
 
 export const load: LayoutLoad = async ({ fetch, data }) => {
-	const authValid: unknown = await fetch(`${apiUrl}/auth/check?token=${data?.authToken ?? ''}`, {
+	const response = await fetch(`${apiUrl}/auth/check?token=${data?.authToken ?? ''}`, {
 		credentials: 'include'
-	})
-		.then((r) => r.json())
-		.catch((e) => console.log(e));
+	}).catch(() => {
+		return { ok: false };
+	});
+
+	if (!response.ok || !('json' in response)) {
+		// handle core down
+		throw redirect(301, '/api-down');
+	}
+
+	const authValid = await response.json();
 
 	if (!authValid) {
 		throw redirect(301, '/login');
 	}
 
-	const result = parse(UserSchema, authValid)
+	const result = parse(UserSchema, authValid);
 
 	if (!result.active) {
-		throw redirect(301, '/inactive')
+		throw redirect(301, '/inactive');
 	}
 
 	return {

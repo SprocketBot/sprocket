@@ -1,5 +1,6 @@
 import { Scrim, TypedClientProxy } from '@sprocketbot/lib/types';
 import { MatchmakingEndpoint } from '../constants';
+import { CreateScrimPayload } from './schemas';
 
 export type MatchmakingProxy = TypedClientProxy<
   MatchmakingEndpoint,
@@ -10,7 +11,7 @@ export type MatchmakingProxy = TypedClientProxy<
       responseData: string;
     };
     [MatchmakingEndpoint.CreateScrim]: {
-      requestData: { memberId: string };
+      requestData: CreateScrimPayload;
       responseData: Scrim;
     };
   },

@@ -1,20 +1,45 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Enforcer } from 'casbin';
 import { AUTHZ_ENFORCER } from 'nest-authz';
-import { AuthorizationSpec } from '../constants';
-import type { Request } from 'express';
-import {
-  AuthAction,
-  AuthScope,
-  toAuthAction,
-  toAuthScope,
-  toAuthTarget,
-  type User,
-} from '@sprocketbot/lib/types';
+import { type User } from '@sprocketbot/lib/types';
+import { UserRepository } from '../../db/user/user.repository';
 
 @Injectable()
 export class AuthorizeService {
   private readonly logger = new Logger(AuthorizeService.name);
+  constructor(
+    @Inject(AUTHZ_ENFORCER)
+    private readonly enforcer: Enforcer,
+    private readonly userRepo: UserRepository,
+  ) {}
+
+  async getAllRoles() {
+    return this.enforcer.getAllRoles();
+  }
+
+  async addUserToRole(role: string, userId: User['id']) {
+    const user = await this.userRepo.findBy({ id: userId });
+    if (!user) throw new Error(`User ${userId} not found!`);
+    const allRoles = await this.getAllRoles();
+    if (!allRoles.includes(role)) {
+      throw new Error(
+        `Role ${role} not found! (Available Roles: ${JSON.stringify(allRoles)})`,
+      );
+    }
+    await this.enforcer.addRoleForUser(userId, role);
+    return true;
+  }
+
+  async check(user: Pick<User, 'id'>): Promise<boolean> {
+    console.log(`Checking for ${user.id}`);
+    return false;
+  }
+}
+
+/*
+@Injectable()
+export class LegacyAuthorizeService {
+  private readonly logger = new Logger(LegacyAuthorizeService.name);
   constructor(
     @Inject(AUTHZ_ENFORCER)
     private readonly enforcer: Enforcer,
@@ -79,10 +104,12 @@ export class AuthorizeService {
     );
 
     const auths: AuthorizationSpec[] = [...permissions].map(
-      ([_, _object, _action, _scope]): AuthorizationSpec => {
+      ([, _object, _action, scope]): AuthorizationSpec => {
         const object = toAuthTarget(_object);
         const action = toAuthAction(_action);
-        const scope = toAuthScope(_scope);
+        if (!isAuthScope(scope)) {
+          throw new Error();
+        }
 
         return {
           target: object,
@@ -98,7 +125,7 @@ export class AuthorizeService {
   async getAllRoles(tenant: 'Sprocket' = 'Sprocket'): Promise<string[]> {
     const allRoles: Set<string> = (
       await this.enforcer.getGroupingPolicy()
-    ).reduce((acc, [gUser, gRole, gTenant]) => {
+    ).reduce((acc, [, gRole, gTenant]) => {
       if (tenant === gTenant) acc.add(gRole);
       return acc;
     }, new Set<string>());
@@ -116,10 +143,10 @@ export class AuthorizeService {
     );
 
     const auths: AuthorizationSpec[] = [...permissions].map(
-      ([_, _object, _action, _scope]): AuthorizationSpec => {
+      ([, _object, _action, scope]): AuthorizationSpec => {
         const object = toAuthTarget(_object);
         const action = toAuthAction(_action);
-        const scope = toAuthScope(_scope);
+        if (!isAuthScope(scope)) throw new Error();
 
         return {
           target: object,
@@ -132,3 +159,4 @@ export class AuthorizeService {
     return auths;
   }
 }
+*/

@@ -1,39 +1,11 @@
-import {
-  AuthTarget,
-  AuthScope,
-  AuthAction,
-  Resolvable,
-  AuthEffect,
-  User,
-} from '@sprocketbot/lib/types';
-import type { Request } from 'express';
+import { Resolvable, AuthEffect, AuthAction } from '@sprocketbot/lib/types';
 
-export type AuthorizationSpec =
-  | {
-      target: AuthTarget;
-      action: AuthAction;
-      scope: Exclude<AuthScope, 'all'>;
-      inScope: (user: User, request: Request) => Promise<boolean> | boolean;
-    }
-  | {
-      scope: AuthScope.ALL;
-      target: AuthTarget;
-      action: AuthAction;
-      inScope?: (user: User, request: Request) => Promise<boolean> | boolean;
-    };
+export type AuthorizationSpec = {
+  action: AuthAction;
+};
 export type AuthorizationInput = Resolvable<AuthorizationSpec, [], void>;
 
-export type AuthSubject = string;
-export type AuthTenant = string;
-
-export type CasbinAuthPolicy = [
-  AuthSubject,
-  AuthTenant,
-  AuthTarget,
-  AuthAction,
-  AuthScope,
-  AuthEffect,
-];
+export type CasbinAuthPolicy = [AuthAction, AuthEffect];
 
 // Policies
 // subject object action scope effect

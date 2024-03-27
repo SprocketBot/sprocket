@@ -1,5 +1,5 @@
 import {
-  Output,
+  type Output,
   array,
   boolean,
   enum_,
@@ -7,24 +7,12 @@ import {
   optional,
   string,
 } from 'valibot';
-import { AuthAction } from './action';
-import { AuthScope } from './scope';
-import { AuthTarget } from './target';
 
 export const UserSchema = object({
+  id: string(),
   username: string(),
   active: boolean(),
   avatarUrl: optional(string()),
-  allowedActions: optional(
-    array(
-      object({
-        target: enum_(AuthTarget),
-        action: enum_(AuthAction),
-        scope: enum_(AuthScope),
-      }),
-    ),
-    [],
-  ),
 });
 
 export type User = Output<typeof UserSchema>;

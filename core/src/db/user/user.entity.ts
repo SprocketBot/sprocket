@@ -2,6 +2,7 @@ import { User } from '@sprocketbot/lib/types';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { UserAuthAccountEntity } from '../user_auth_account/user_auth_account.entity';
+import { PlayerEntity } from '../player/player.entity';
 
 @Entity('user', { schema: 'sprocket' })
 export class UserEntity
@@ -14,9 +15,12 @@ export class UserEntity
   @Column()
   avatarUrl: string;
 
-  @Column({ default: false })
+  @Column('boolean', { default: false })
   active: boolean;
 
-  @OneToMany(() => UserAuthAccountEntity, (uaae) => uaae.userId)
-  accounts: Promise<UserAuthAccountEntity[]> | UserAuthAccountEntity[];
+  @OneToMany(() => UserAuthAccountEntity, (uaae) => uaae.user)
+  accounts: Promise<UserAuthAccountEntity[]>;
+
+  @OneToMany(() => PlayerEntity, (pe) => pe.user)
+  players: Promise<PlayerEntity[]>;
 }

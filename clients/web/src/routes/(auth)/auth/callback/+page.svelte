@@ -4,10 +4,20 @@
 
 	if (browser) {
 		if (window.opener) {
-			window.opener.postMessage('logged-in');
+			const urlParams = new URLSearchParams(window.location.search);
+			const status = urlParams.get('status');
+			const message = urlParams.get('message');
+			if (status || message) {
+				window.opener.postMessage({
+					status,
+					message
+				});
+			} else {
+				window.opener.postMessage('logged-in');
+			}
 			window.close();
 		} else {
-            console.log("Escaping, opener is missing")
+			console.log('Escaping, opener is missing');
 			goto('/');
 		}
 	}

@@ -102,23 +102,15 @@ dist
 
 # TernJS port file
 .tern-port
-
 *.iml
-
 .idea/
-
 .run/
 
 clients/image-generation-frontend/build/
-
 clients/image-generation-frontend/src/ca-certificate.cer
-
 clients/image-generation-frontend/src/config.json
-
 core/config/development.json.bak
-
 core/config/main.json
-
 core/config/staging.json
 
 # Vim/Emacs backup files

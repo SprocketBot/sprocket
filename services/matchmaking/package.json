@@ -29,7 +29,8 @@
     "amqp-connection-manager": "^4.1.14",
     "amqplib": "^0.10.3",
     "reflect-metadata": "^0.2.0",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "valibot": "^0.30.0"
   },
   "peerDependencies": {
     "ioredis": "^5.3.2"
@@ -57,9 +58,15 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.1.3"
   },
+  "exports": {
+    ".": {
+      "import": "./src/connector/matchmaking.connector.ts",
+      "require": "./dist/connector/matchmaking.connector.js",
+      "types": "./src/connector/matchmaking.connector.ts"
+    }
+  },
   "main": "./src/connector/matchmaking.connector.ts",
   "types": "./src/connector/matchmaking.connector.ts",
-  "type": "module",
   "jest": {
     "moduleFileExtensions": [
       "js",

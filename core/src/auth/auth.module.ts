@@ -6,11 +6,22 @@ import { PassportModule } from '@nestjs/passport';
 import { DiscordStrategyController } from './strategies/discord-strategy/discord-strategy.controller';
 import { DiscordStrategyService } from './strategies/discord-strategy/discord-strategy.service';
 import { DbModule } from '../db/db.module';
+import { SteamStrategyController } from './strategies/steam-strategy/steam-strategy.controller';
+import { SteamStrategyService } from './strategies/steam-strategy/steam-strategy.service';
 
 @Module({
   imports: [PassportModule.register({ session: false }), DbModule],
-  providers: [AuthorizeService, AuthenticateService, DiscordStrategyService],
+  providers: [
+    AuthorizeService,
+    AuthenticateService,
+    DiscordStrategyService,
+    SteamStrategyService,
+  ],
   exports: [AuthorizeService, AuthenticateService],
-  controllers: [AuthController, DiscordStrategyController],
+  controllers: [
+    AuthController,
+    DiscordStrategyController,
+    SteamStrategyController,
+  ],
 })
 export class AuthModule {}

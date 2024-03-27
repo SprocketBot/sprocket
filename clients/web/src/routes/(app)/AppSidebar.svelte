@@ -17,11 +17,11 @@
 	</AppRailAnchor>
 
 	<svelte:fragment slot="trail">
-		{#if canView(AuthTarget.VIEW_ROLE_CONFIG)}
-			<AppRailAnchor href="/config/roles" selected={$page.url.pathname === '/config/roles'}>
+		{#if canView(AuthTarget.PermissionsManager)}
+			<AppRailAnchor href="/org-manager" selected={$page.url.pathname.startsWith('/org-manager')}>
 				<div class="flex flex-col items-center justify-center gap-2">
 					<Icon src={Users} class="w-4" />
-					Manage Roles
+					Org Manager
 				</div>
 			</AppRailAnchor>
 		{/if}

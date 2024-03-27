@@ -1,20 +1,15 @@
-import {
-  Controller,
-  Get,
-  HttpException,
-  HttpStatus,
-  Logger,
-  Request,
-  Response,
-} from '@nestjs/common';
+import { Controller, Get, Logger, Request, Response } from '@nestjs/common';
 import type { Request as Req, Response as Res } from 'express';
 import { AuthenticateService } from './authenticate/authenticate.service';
 import { User } from '@sprocketbot/lib/types/auth';
-import { AuthorizeService } from './authorize/authorize.service';
+import { SprocketConfigService } from '@sprocketbot/lib';
 @Controller()
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
-  constructor(private readonly authenticateService: AuthenticateService) {}
+  constructor(
+    private readonly authenticateService: AuthenticateService,
+    private readonly config: SprocketConfigService,
+  ) {}
 
   @Get('auth/check')
   async checkAuth(
@@ -23,7 +18,13 @@ export class AuthController {
   ): Promise<User | false> {
     const user = this.authenticateService.getUserFromRequest(req);
     if (user) {
-      return user;
+      const updatedUser = await this.authenticateService.refreshUser(req, res);
+      if (updatedUser === null) {
+        this.logger.error(`User unexpectedly null, clearing session`, { user });
+        this.authenticateService.logout(res);
+        return false;
+      }
+      return updatedUser;
     } else {
       this.authenticateService.logout(res);
       this.logger.debug('User Not Logged in!');
@@ -32,11 +33,10 @@ export class AuthController {
   }
   @Get('auth/logout')
   async logout(@Request() req: Req, @Response({ passthrough: true }) res: Res) {
-    if (!this.authenticateService.getUserFromRequest(req)) {
-      throw new HttpException('', HttpStatus.UNAUTHORIZED);
-    }
     this.authenticateService.logout(res);
-
-    return true;
+    const redirUrl = `${this.config.getOrThrow('protocol')}://${this.config.getOrThrow('frontend.url')}/login`;
+    res.redirect(redirUrl);
+    res.send();
+    return;
   }
 }

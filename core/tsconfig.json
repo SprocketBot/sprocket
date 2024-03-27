@@ -1,4 +1,6 @@
 {
+  "include": ["./src/**/*.ts",],
+  "files": ["./src/app.d.ts", "./src/main.ts"],
   "compilerOptions": {
     "module": "commonjs",
     "declaration": false,

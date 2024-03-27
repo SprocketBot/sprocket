@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { MatchmakingEndpoint } from '../constants';
 import { type MatchmakingProxy } from './types';
 import { Scrim, User } from '@sprocketbot/lib/types';
+import { CreateScrimPayload } from './schemas';
 
 @Injectable()
 export class MatchmakingService {
@@ -20,13 +21,19 @@ export class MatchmakingService {
     return result;
   }
 
-  async createScrim(user: User): Promise<Scrim> {
+  async createScrim(payload: CreateScrimPayload): Promise<Scrim> {
     const result = await firstValueFrom(
-      this.client.send(MatchmakingEndpoint.CreateScrim, {
-        memberId: user.username,
-      }),
+      this.client.send(MatchmakingEndpoint.CreateScrim, payload),
     );
 
     return result;
+  }
+
+  async joinScrim(user: User, scrimId: string): Promise<Scrim> {
+    throw new Error();
+  }
+
+  async leaveScrim(user: User): Promise<boolean> {
+    throw new Error();
   }
 }

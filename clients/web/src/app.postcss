@@ -3,7 +3,9 @@
 @tailwind utilities;
 @tailwind variants;
 
-html, body, body > div {
+html,
+body,
+body > div {
 	width: 100vw;
 	height: 100vh;
 	overflow-x: hidden;
@@ -13,8 +15,12 @@ html, body, body > div {
 }
 
 [data-theme='my-custom-theme'] {
-	background-image: radial-gradient(at 0% 100%, rgba(var(--color-secondary-500) / 0.1) 0px, transparent 80%),
-					  radial-gradient(at 98% 100%, rgba(var(--color-primary-500) / 0.1) 0px, transparent 80%);
+	background-image: radial-gradient(
+			at 0% 100%,
+			rgba(var(--color-secondary-500) / 0.1) 0px,
+			transparent 80%
+		),
+		radial-gradient(at 98% 100%, rgba(var(--color-primary-500) / 0.1) 0px, transparent 80%);
 	background-attachment: fixed;
 	background-position: center;
 	background-repeat: no-repeat;

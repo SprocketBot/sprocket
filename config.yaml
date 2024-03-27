@@ -1,6 +1,6 @@
 # We can access environment variables in our config file
 baseUrl: ${BASE_URL}
-secure: ${SSL}
+secure: ${SSL:false}
 
 auth:
   jwt:
@@ -10,9 +10,11 @@ auth:
     clientId: '${AUTH_DISCORD_CLIENT_ID}'
     secret: '${AUTH_DISCORD_SECRET}'
     botToken: '${AUTH_DISCORD_BOT_TOKEN}'
+  steam:
+    apiKey: '${AUTH_STEAM_API_KEY}'
 
 frontend:
-  url: '${BASE_URL}'
+  url: '${BASE_URL}:${LISTEN_PORT}'
   callback: '${BASE_URL}:${LISTEN_PORT}/auth/callback'
 
 pg:
@@ -24,6 +26,7 @@ pg:
 
 redis:
   hostname: '${REDIS_HOST:redis}'
+  port: '${REDIS_PORT:6379}'
 
 initialAdmins:
   - 'shuckle'
@@ -32,3 +35,11 @@ initialAdmins:
 
 amqp:
   url: '${AMQP_URL}'
+
+s3:
+  app_key: '${S3_APP_KEY}'
+  key_id: '${S3_KEY_ID}'
+  key_name: '${S3_KEY_NAME}'
+  endpoint: '${S3_ENDPOINT}'
+  bucket: '${S3_BUCKET}'
+  prefix: '${S3_PREFIX}'

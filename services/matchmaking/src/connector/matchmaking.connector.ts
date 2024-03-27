@@ -32,3 +32,4 @@ import { MatchmakingQueue, MatchmakingQueueOptions } from '../constants';
 export class MatchmakingConnectorModule {}
 
 export { MatchmakingService };
+export * from './schemas';
