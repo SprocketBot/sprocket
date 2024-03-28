@@ -136,7 +136,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
                 const platform = await this.platformService.getPlatformByCode(mledbPlayerAccount.platform)
                     .catch(async () => this.platformService.createPlatform(mledbPlayerAccount.platform));
 
-                await this.memberPlatformAccountService.createMemberPlatformAccount(member.id, platform.id, mledbPlayerAccount.platformId);
+                await this.memberPlatformAccountService.createMemberPlatformAccount(member, platform.id, mledbPlayerAccount.platformId);
             }
         }
 
