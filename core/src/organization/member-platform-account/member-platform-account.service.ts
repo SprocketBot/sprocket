@@ -3,15 +3,13 @@ import {InjectRepository} from "@nestjs/typeorm";
 import type {FindManyOptions, FindOneOptions} from "typeorm";
 import {Repository} from "typeorm";
 
-import {MemberPlatformAccount} from "../../database";
+import {Member, MemberPlatformAccount} from "../../database";
 import {PlatformService} from "../../game/";
-import {MemberService} from "../member/";
 
 @Injectable()
 export class MemberPlatformAccountService {
     constructor(
         @InjectRepository(MemberPlatformAccount) private memberPlatformAccountRepository: Repository<MemberPlatformAccount>,
-        private memberService: MemberService,
         private platformService: PlatformService,
     ) {}
 
@@ -27,8 +25,7 @@ export class MemberPlatformAccountService {
         return this.memberPlatformAccountRepository.find(query);
     }
 
-    async createMemberPlatformAccount(memberId: number, platformId: number, platformAccountId: string): Promise<MemberPlatformAccount> {
-        const member = await this.memberService.getMemberById(memberId);
+    async createMemberPlatformAccount(member: Member, platformId: number, platformAccountId: string): Promise<MemberPlatformAccount> {
         const platform = await this.platformService.getPlatformById(platformId);
         const memberPlatformAccount = this.memberPlatformAccountRepository.create({
             member, platform, platformAccountId,

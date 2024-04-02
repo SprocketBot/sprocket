@@ -1,4 +1,3 @@
-import type {Request} from "@nestjs/common";
 import {Injectable} from "@nestjs/common";
 import {PassportStrategy} from "@nestjs/passport";
 import {config} from "@sprocketbot/common";
@@ -17,7 +16,7 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, "jwt-refresh"
         });
     }
 
-    async validate(req: Request, payload: AuthPayload): Promise<UserPayload> {
+    async validate(payload: AuthPayload): Promise<UserPayload> {
         return {
             userId: payload.userId,
             username: payload.username,

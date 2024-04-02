@@ -20,6 +20,8 @@ import {
     OrganizationController, OrganizationResolver, OrganizationService,
 } from "./organization";
 import {PronounsService} from "./pronouns/pronouns.service";
+import { MledbInterfaceModule } from "../mledb";
+import { MemberModResolver } from "./member/member.mod.resolver";
 
 @Module({
     imports: [
@@ -29,6 +31,7 @@ import {PronounsService} from "./pronouns/pronouns.service";
         EventsModule,
         forwardRef(() => ConfigurationModule),
         forwardRef(() => FranchiseModule),
+        forwardRef(() => MledbInterfaceModule),
         UtilModule,
     ],
     providers: [
@@ -45,8 +48,10 @@ import {PronounsService} from "./pronouns/pronouns.service";
         MemberRestrictionResolver,
         QueueBanGuard,
         MemberResolver,
+        MemberModResolver,
     ],
     exports: [
+        MemberResolver,
         MemberService,
         MemberPlatformAccountService,
         MemberRestrictionService,
