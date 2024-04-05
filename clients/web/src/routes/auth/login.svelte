@@ -21,6 +21,7 @@
     import {session} from "$app/stores";
 
     async function login(e: CustomEvent<string>) {
+        console.log("Hello")
         const tokens = e.detail.split(",");
 
         $session.user = extractJwt<SessionUser>(tokens[0]);
@@ -32,7 +33,6 @@
         // window.location.pathname = "/scrims";
     }
 </script>
-
 
 <CenteredCardLayout>
     <Card class="bg-base-200">

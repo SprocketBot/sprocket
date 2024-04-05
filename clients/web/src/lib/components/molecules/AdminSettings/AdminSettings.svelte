@@ -4,7 +4,7 @@
         GameFeatureStore, FeatureCode, setGameFeatureMutation, scrimsDisabled, setScrimsDisabledMutation,
     } from "$lib/api";
 
-    const ROCKET_LEAGUE_GAME_ID = 2;
+    const ROCKET_LEAGUE_GAME_ID = 7;
 
     // =================================
     // State
