@@ -8,7 +8,6 @@ import type {User, UserAuthenticationAccount} from "../../../database";
 import {UserAuthenticationAccountType} from "../../../database";
 import {MledbPlayerService} from "../../../mledb";
 import {UserService} from "../../user";
-import {CurrentUser} from "../current-user.decorator";
 import {
     DiscordAuthGuard,
 } from "./guards";
@@ -49,7 +48,6 @@ export class OauthController {
                 orgTeams: orgs,
             };
             const token = await this.authService.loginDiscord(payload);
-            console.log(token.access_token);
             res.redirect(`${config.auth.frontend_callback}?token=${token.access_token},${token.refresh_token}`);
             return;
         }
