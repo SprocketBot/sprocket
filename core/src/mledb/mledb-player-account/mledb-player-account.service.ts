@@ -3,7 +3,8 @@ import {InjectRepository} from "@nestjs/typeorm";
 import type {FindManyOptions} from "typeorm";
 import {Repository} from "typeorm";
 
-import {MLE_Platform, MLE_Player, MLE_PlayerAccount} from "../../database/mledb";
+import type {MLE_Platform, MLE_Player} from "../../database/mledb";
+import {MLE_PlayerAccount} from "../../database/mledb";
 
 @Injectable()
 export class MledbPlayerAccountService {
@@ -13,12 +14,13 @@ export class MledbPlayerAccountService {
         return this.playerAccountRepository.find(query);
     }
 
-    async createOrUpdatePlayerAccount(platform: MLE_Platform, tracker: string, platform_id: string, player: MLE_Player): Promise<void> {
-        await this.playerAccountRepository.upsert([{
+    async createOrUpdatePlayerAccount(updated_by_user_id: number, platform: MLE_Platform, tracker: string, platform_id: string, player: MLE_Player): Promise<void> {
+        await this.playerAccountRepository.upsert([ {
+            updatedBy: updated_by_user_id.toString(),
             platform: platform,
             tracker: tracker,
             platformId: platform_id,
-            player: player
-        }], ["tracker"])
+            player: player,
+        } ], ["tracker"]);
     }
 }
