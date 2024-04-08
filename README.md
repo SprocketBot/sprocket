@@ -47,3 +47,4 @@ You may **want**
     1. Sprocket uses [Bun workspaces](https://bun.sh/docs/install/workspaces), which means that all dependencies are installed from the root of the project.
     1. When adding a new service or package, ensure that the root [package.json](./package.json) is updated to include it
 1. Once you have configured the environment to your liking, `docker compose up`, and navigate to [localhost:8080](http://localhost:8080).
+1. Run the [`migrate:up`](./migrate:up) and [`seed`](./seed) scripts to initialize the database and populate it with some basic data
