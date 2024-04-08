@@ -1,4 +1,7 @@
 query ScrimPageRoot {
+	whoami {
+		players { id }
+	}
 	currentScrim @Player_delete {
 		...ScrimFlow_Fragment
 		id

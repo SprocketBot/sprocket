@@ -20,7 +20,13 @@
 	new CurrentScrimHydrationStore().listen();
 </script>
 
-{#if $ScrimPageRoot.data?.currentScrim}
+{#if !$ScrimPageRoot.data}
+	Loading...
+{:else if !$ScrimPageRoot.data.whoami.players.length}
+	<section class="card p-4 col-span-full">
+		<p class="text-xl font-bold text-center">You are not registered as a player for any games, and cannot scrim.</p>
+	</section>
+{:else if $ScrimPageRoot.data?.currentScrim}
 	<!-- User is currently in a scrim -->
 	<ScrimFlow
 		pendingScrims={$ScrimPageRoot.data.pendingScrims}

@@ -28,7 +28,7 @@
 	const toastStore = getToastStore();
 
 	async function createPlayer() {
-		if ($user === null || $game === null) {
+		if ($user === null || $game === null || !selectedSkillGroupId) {
 			toastStore.trigger({
 				message: 'Failed to create player!',
 				classes: 'variant-filled-error',
@@ -102,16 +102,15 @@
 
 	$: player = $user?.players.find((p) => p.game.id === $game?.id);
 
-	let selectedSkillGroupId: string;
+	let selectedSkillGroupId: string | undefined;
 
 	onMount(() => {
-		// Fragment data is guarunteed to exist here
-		selectedSkillGroupId = player!.skillGroup.id;
+		selectedSkillGroupId = player?.skillGroup.id ?? $game?.skillGroups[0].id;
 	});
 </script>
 
 {#if $game !== null && $user !== null}
-	<SubjectBox title="Player: {$game.name}">
+	<SubjectBox title="{$game.name}">
 		<p class:text-success-500={player} class:text-warning-500={!player}>
 			{player ? 'Plays' : 'Does not play'}
 		</p>

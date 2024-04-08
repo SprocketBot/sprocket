@@ -9,6 +9,7 @@
 	export let pendingScrims: ScrimList_Fragment[];
 
 	const modalStore = getModalStore();
+
 </script>
 
 <section class="card col-span-1 sm:col-span-4 md:col-span-6 lg:col-span-8 p-4">
