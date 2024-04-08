@@ -32,8 +32,10 @@
 	createScrimData.fetch();
 	const createScrimMutation = new CreateScrimMutationStore();
 
-	let game: CreateScrimData$result['games'][number] | undefined;
-	let gameMode: CreateScrimData$result['games'][number]['gameModes'][number] | undefined;
+	let game: undefined | CreateScrimData$result['whoami']['players'][number]['game'];
+	let gameMode:
+		| undefined
+		| CreateScrimData$result['whoami']['players'][number]['game']['gameModes'][number];
 	let pendingTimeout: number | undefined;
 </script>
 
@@ -50,7 +52,7 @@
 				Game
 				<select class="select text-sm border-none" bind:value={game}>
 					<option disabled>...</option>
-					{#each $createScrimData.data.games as game}
+					{#each $createScrimData.data.whoami.players as { game }}
 						<option value={game}>{game.name}</option>
 					{/each}
 				</select>

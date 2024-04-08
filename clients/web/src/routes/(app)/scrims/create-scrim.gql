@@ -1,10 +1,22 @@
 query CreateScrimData {
-	games {
-		name
-		id
-        gameModes {
-            id
-            name
+    whoami {
+        players {
+            game {
+                name
+                id
+                gameModes {
+                    id
+                    name
+                }
+            }
         }
-	}
+    }
+	# games {
+	# 	name
+	# 	id
+    #     gameModes {
+    #         id
+    #         name
+    #     }
+	# }
 }
