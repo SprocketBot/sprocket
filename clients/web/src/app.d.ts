@@ -12,4 +12,9 @@ declare namespace App {
 	}
 	// interface Error {}
 	// interface Platform {}
+
+	// Houdini
+	interface Session {
+		token: string
+	}
 }

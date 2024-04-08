@@ -1,0 +1,7 @@
+query UserSearch($term: String! = "") {
+	users(query: { username: { term: $term, fuzzy: true } }) {
+		id
+		username
+		active
+	}
+}

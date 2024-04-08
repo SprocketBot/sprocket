@@ -15,7 +15,7 @@ const clientProvider = {
       host: cfg.getOrThrow('redis.hostname'),
       port: cfg.getOrThrow('redis.port'),
     };
-    logger.log(`Connecting to redis`, redisCfg);
+    logger.log(`Connecting to redis`);
     const redis = new IORedis({
       ...redisCfg,
       lazyConnect:

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AUTHZ_ENFORCER, AuthZModule } from 'nest-authz';
@@ -23,6 +23,8 @@ import { HealthModule } from './health/health.module';
         provide: AUTHZ_ENFORCER,
         inject: [SprocketConfigService],
         async useFactory(cfg: SprocketConfigService) {
+          const logger = new Logger(AuthZModule.name);
+          logger.log('Connecting casbin via Postgres');
           const pgAdapter = await PostgresAdapter.newAdapter({
             migrate: true,
             host: cfg.getOrThrow('pg.host'),
@@ -36,7 +38,7 @@ import { HealthModule } from './health/health.module';
 
           const zeroWidthSpace = 'zero-width-space ​';
           await enforcer.addRoleForUser(zeroWidthSpace, 'superuser');
-
+          logger.log('Connected! casbin via Postgres');
           return enforcer;
         },
       },

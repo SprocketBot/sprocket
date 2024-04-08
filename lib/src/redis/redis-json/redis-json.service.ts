@@ -31,8 +31,13 @@ export class RedisJsonService {
   async DEBUG() {
     throw new Error('JSON.DEBUG not yet implemented');
   }
-  async DEL() {
-    throw new Error('JSON.DEL not yet implemented');
+  async DEL<T = unknown>(
+    key: string | symbol,
+    path: string = '.',
+  ): Promise<T | null> {
+    const value = await this.GET<T>(key.toString(), path);
+    await this.redis.call('JSON.DEL', key.toString(), path);
+    return value;
   }
   async FORGET() {
     throw new Error('JSON.FORGET not yet implemented');
@@ -44,10 +49,11 @@ export class RedisJsonService {
    * @throws when one or more paths are missing
    */
   async GET<T = unknown>(key: string, ...paths: string[]): Promise<T | null> {
-    this.logger.verbose(['JSON.GET', key, ...paths].join(' '));
-    const result = await this.redis.call('JSON.GET', key, ...paths);
+    const result = (await this.redis.call('JSON.GET', key, ...paths)) as
+      | string
+      | null;
     if (!result) return null;
-    return result as T;
+    return JSON.parse(result) as T;
   }
 
   async MERGE() {
@@ -64,7 +70,6 @@ export class RedisJsonService {
     path: string,
     ...keys: string[]
   ): Promise<Array<T | null>> {
-    this.logger.verbose(['JSON.MGET', ...keys, path].join(' '));
     const result = await this.redis.call('JSON.MGET', ...keys, path);
     if (!Array.isArray(result)) throw new Error(`Recieved unexpected result`);
     return result.map((item) => (item !== null ? JSON.parse(item) : null));
@@ -74,7 +79,6 @@ export class RedisJsonService {
     const commandTuples = tuples
       .map(([k, p, v]) => [k, p, JSON.stringify(v)])
       .flat();
-    this.logger.verbose(['JSON.MSET', ...commandTuples].join(' '));
 
     const result = await this.redis.call('JSON.MSET', ...commandTuples);
     if (result === 'OK') return true;
@@ -105,7 +109,6 @@ export class RedisJsonService {
     // If mod is not provided, there needs to be no argument (not undefined)
     // So we throw everything into an array, filter it, and then spread it into the redis call
     const args = [key, path, JSON.stringify(value), mod].filter(Boolean);
-    this.logger.verbose(['JSON.SET', ...args].join(' '));
 
     const result = await this.redis.call('JSON.SET', ...args);
     if (result === 'OK') return true;

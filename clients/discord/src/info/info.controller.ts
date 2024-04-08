@@ -6,7 +6,7 @@ export class InfoController {
   @SlashCommand({
     name: 'ping',
     description: 'Test command to check if the bot is reachable',
-    guilds: ['856323300015865896'],
+    guilds: ['984300673787113512'],
   })
   async ping(@Context() [interaction]: SlashCommandContext) {
     await interaction.reply('pong!');

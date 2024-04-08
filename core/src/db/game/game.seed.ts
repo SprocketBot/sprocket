@@ -7,18 +7,12 @@ import { EntityManager } from 'typeorm';
 @Seed()
 export class GameEntitySeed implements Seeder {
   async seed(em: EntityManager) {
-    if (
-      (await em.count(GameEntity, {
-        where: {
-          name: 'Rocket League',
-        },
-      })) > 0
-    )
-      return;
-    const entity = em.create(GameEntity, {
-      name: 'Rocket League',
-    });
-
-    await em.save(entity);
+    await em.upsert(
+      GameEntity,
+      {
+        name: 'Rocket League',
+      },
+      { conflictPaths: ['name'] },
+    );
   }
 }

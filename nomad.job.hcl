@@ -41,31 +41,42 @@ job "Sprocket-%%environment%%" {
       port "lavinmq-http" {
         to = 15672
       }
+      port "lavinmq" {
+        to = 5672
+      }
     }
     task "lavinmq" {
       driver = "docker"
       config {
         image = "cloudamqp/lavinmq"
-        ports = ["lavinmq-http"]
+        ports = ["lavinmq-http", "lavinmq"]
       }
       service {
         name     = "lavinmq-${var.environment}"
+        provider = "consul"
+        port     = "lavinmq"
+      }
+      service {
+        name     = "lavinmq-${var.environment}-ui"
         provider = "consul"
         port     = "lavinmq-http"
 
         tags = [
           "traefik.enable=true",
-          "traefik.http.routers.lavinmq-${var.environment}.rule=Host(`lavinmq.utils.${var.environment}.${var.base_url}`)",
+          "traefik.http.routers.lavinmq-ui-${var.environment}.rule=Host(`lavinmq.utils.${var.environment}.${var.base_url}`)",
 
-          "traefik.http.routers.lavinmq-${var.environment}.tls=true",
-          "traefik.http.routers.lavinmq-${var.environment}.tls.certResolver=lets-encrypt",
-          "traefik.http.routers.lavinmq-${var.environment}.entrypoints=web,websecure",
+          "traefik.http.routers.lavinmq-ui-${var.environment}.tls=true",
+          "traefik.http.routers.lavinmq-ui-${var.environment}.tls.certResolver=lets-encrypt",
+          "traefik.http.routers.lavinmq-ui-${var.environment}.entrypoints=web,websecure",
         ]
       }
     }
   }
 
   group "web" {
+    spread {
+      attribute = "${node.datacenter}"
+    }
     count = 2
     update {
       max_parallel     = 1
@@ -116,6 +127,10 @@ job "Sprocket-%%environment%%" {
 
 
   group "core" {
+    spread {
+      attribute = "${node.datacenter}"
+    }
+
     network {
       port "http" {
         to = 3000
@@ -141,11 +156,13 @@ job "Sprocket-%%environment%%" {
         force_pull = true
       }
       env {
-        BASE_URL    = "${var.environment}.${var.base_url}"
-        CORE_URL    = "api.${var.environment}.${var.base_url}"
-        LISTEN_PORT = 443
-        SSL         = true
-        PROD        = true
+        BASE_URL     = "${var.environment}.${var.base_url}"
+        CORE_URL     = "api.${var.environment}.${var.base_url}"
+        LISTEN_PORT  = 443
+        SSL          = true
+        PROD         = true
+        SERVICE_NAME = "SprocketCore-%%environment%%"
+        LOG_LEVEL    = "debug"
       }
 
       template {
@@ -213,13 +230,13 @@ S3_PREFIX="${var.environment}"
       port     = "http"
 
       check {
-        method = "GET"
-        name = "Sprocket Core /health"
-        path = "/health"
+        method   = "GET"
+        name     = "Sprocket Core /health"
+        path     = "/health"
         interval = "30s"
         protocol = "http"
-        timeout = "5s"
-        type = "http"
+        timeout  = "5s"
+        type     = "http"
       }
 
       tags = [
@@ -232,8 +249,59 @@ S3_PREFIX="${var.environment}"
     }
   }
 
+  group "discord-bot" {
+    update {
+      max_parallel     = 1
+      min_healthy_time = "30s"
+      healthy_deadline = "5m"
+    }
+    task "discord-bot" {
+      resources {
+        memory = 512
+        cpu    = 512
+      }
+      driver = "docker"
+      config {
+        image      = "${var.monorepo_image}"
+        force_pull = true
+        args       = ["exec", "discord"]
+      }
+      env {
+        BASE_URL     = "${var.environment}.${var.base_url}"
+        CORE_URL     = "api.${var.environment}.${var.base_url}"
+        LISTEN_PORT  = 443
+        SSL          = true
+        PROD         = true
+        SERVICE_NAME = "SprocketDiscord-%%environment%%"
+      }
+      template {
+        destination = "/secret/.env"
+        env         = true
+        data        = <<EOF
+{{- range service "redis-${var.environment}" }}
+REDIS_HOST="{{ .Address }}"
+REDIS_PORT="{{ .Port }}"
+{{ end }}
+
+{{- range service "lavinmq-${var.environment}" }}
+# TODO: Should we set up the rabbitmq vault driver? Does it work with LavinMQ?
+AMQP_URL="amqp://{{ .Address }}:{{ .Port }}"
+{{ end }}
+
+{{ with secret "kv2/nomad/${var.environment}/creds/discord" }}
+AUTH_DISCORD_BOT_TOKEN="{{ .Data.data.botToken }}"
+{{ end }}
+        EOF
+      }
+    }
+  }
 
   group "matchmaking" {
+    spread {
+      attribute = "${node.datacenter}"
+    }
+    count = 2
+
     network {
       port "http" {
         to = 3000
@@ -247,8 +315,8 @@ S3_PREFIX="${var.environment}"
 
     task "matchmaking" {
       resources {
-        memory = 512
-        cpu    = 1024
+        memory = 256
+        cpu    = 512
       }
 
       driver = "docker"
@@ -260,11 +328,14 @@ S3_PREFIX="${var.environment}"
       }
 
       env {
-        BASE_URL    = "${var.environment}.${var.base_url}"
-        CORE_URL    = "api.${var.environment}.${var.base_url}"
-        LISTEN_PORT = 443
-        SSL         = true
-        PROD        = true
+        BASE_URL       = "${var.environment}.${var.base_url}"
+        CORE_URL       = "api.${var.environment}.${var.base_url}"
+        LISTEN_PORT    = 443
+        SSL            = true
+        PROD           = true
+        LOGS_NO_BUFFER = true
+        LOG_LEVEL      = "debug"
+        SERVICE_NAME   = "SprocketMatchmaking-%%environment%%"
       }
 
       template {

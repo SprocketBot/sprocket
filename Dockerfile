@@ -1,5 +1,9 @@
 FROM oven/bun:1.0.30-alpine as build
 
+# Bit of a chicken and the egg problem here
+# Web won't build without an API endpoint
+# This might need to be changed to localhost or similar
+# Building at runtime is not an option due to memory constraints
 ENV PUBLIC_API_PORT=443
 ENV PUBLIC_API_URL=api.preview.spr.ocket.gg
 ENV PUBLIC_API_SECURE=true

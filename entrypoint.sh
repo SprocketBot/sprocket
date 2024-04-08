@@ -4,10 +4,8 @@ set -xe
 
 case "$1" in 
     exec)
-        echo "Running a command!"
         case "$2" in
             core)
-                echo "Running Core"
                 # Propagate the config file
                 cp /app/config.yaml /app/core/config.yaml
                 cd /app/core
@@ -16,12 +14,15 @@ case "$1" in
                 node -r /app/lib/dist/src/tracing.js /app/core/dist/main.js
                 ;;
             web)
-                echo "Running Web"
                 cd /app/clients/web
                 node ./build/index.js
                 ;;
+            discord)
+                cd /app/clients/discord
+                cp /app/config.yaml /app/clients/discord/config.yaml
+                node -r /app/lib/dist/src/tracing.js /app/clients/discord/dist/main.js
+                ;;
             service)
-                echo "Running $3"
                 cd /app/services/$3
                 cp /app/config.yaml /app/services/$3/config.yaml
                 node -r /app/lib/dist/src/tracing.js /app/services/$3/dist/main.js

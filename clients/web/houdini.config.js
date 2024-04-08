@@ -13,9 +13,22 @@ const config = {
 		},
 		interval: 1000
 	},
-	// schemaPath: path.join(`${import.meta.dirname}`, 'schema.graphql'),
 	plugins: {
-		'houdini-svelte': {}
+		'houdini-svelte': {
+			framework: 'kit'
+		}
+	},
+	scalars: {
+		DateTime: {
+			type: Date.name,
+			/** @param {Date} v */
+			marshal: (v) => v.toISOString(),
+			/** @param {string} v */
+			unmarshal: (v) => new Date(v)			
+		}
+	},
+	features: {
+		imperativeCache: true
 	}
 };
 

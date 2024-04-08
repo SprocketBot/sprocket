@@ -13,4 +13,10 @@ export class GameModeEntity extends BaseEntity {
 
   @Column()
   name: string;
+
+  @Column()
+  playerCount: number;
+
+  @Column()
+  teamSize: number;
 }

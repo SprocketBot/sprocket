@@ -22,7 +22,7 @@ services:
   core:
     container_name: sprocket-core
     user: 1000:1000
-    image: oven/bun:alpine
+    image: oven/bun:1.0.30-alpine
     restart: unless-stopped
     depends_on:
       - postgres
@@ -45,7 +45,7 @@ services:
   matchmaking:
     container_name: sprocket-matchmaking
     user: 1000:1000
-    image: oven/bun:alpine
+    image: oven/bun:1.0.30-alpine
     restart: unless-stopped
     command: bun --preload ../../lib/src/tracing.ts -b --watch src/main.ts
     depends_on:
@@ -62,7 +62,7 @@ services:
   web:
     container_name: sprocket-web
     user: 1000:1000
-    image: oven/bun:alpine
+    image: oven/bun:1.0.30-alpine
     depends_on:
       - core
     volumes:
@@ -84,7 +84,7 @@ services:
   discord:
     container_name: sprocket-discord
     user: 1000:1000
-    image: oven/bun:alpine
+    image: oven/bun:1.0.30-alpine
     depends_on:
       - lavinmq
       - redis
@@ -119,9 +119,14 @@ services:
   # Recommend using https://redis.tinycraft.cc/ to debug
   redis:
     container_name: sprocket-redis
-    image: redis/redis-stack-server:latest
+    image: redis/redis-stack:latest
     ports:
       - 6379:6379
+    labels:
+      traefik.enable: true
+      traefik.http.routers.redis.rule: Host(`${REDIS_URL:-redis.localhost}`)
+      traefik.http.routers.redis.entrypoints: web,websecure
+      traefik.http.services.redis.loadbalancer.server.port: 8001
 
   ##########
   ##### Monitoring Services
@@ -161,3 +166,9 @@ services:
     volumes:
       - ./config/vector/vector.yaml:/etc/vector/vector.yaml:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
+
+
+networks:
+  default:
+    name: 'sprocket-net'
+    attachable: true 

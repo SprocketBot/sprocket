@@ -25,7 +25,7 @@ export class AppController {
   ) {}
 
   @Get()
-  @RedLock(['x'])
+  @RedLock('x')
   async getHello(
     @Request() req: Req,
     @Query('throw') shouldError: string,
@@ -44,12 +44,6 @@ export class AppController {
       throw new Error(message);
     }
     return message;
-  }
-
-  @Get('/service')
-  async callMatchmaking(): Promise<string> {
-    console.log('Starting');
-    return this.matchmaking.test();
   }
 
   @Get('/authenticated')

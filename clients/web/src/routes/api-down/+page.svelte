@@ -12,6 +12,7 @@
 			if (await okay()) {
 				window.history.back();
 				clearInterval(interval);
+				console.log('Api is back online!')
 			}
 		}, 1000);
 
@@ -25,3 +26,6 @@ the page you were on when we are back!
     TODO: Poll the API for a successful response, then hit 'em with the browser back to send them back to wherever they were
     along with a toast that says "back online" or similar
 -->
+
+
+HMR is actually working?!?!?

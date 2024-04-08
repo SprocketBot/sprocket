@@ -1,0 +1,18 @@
+fragment ManageScrim_Fragment on Scrim {
+	participants(admin: true) {
+		id
+		checkedIn
+        name
+	}
+	id
+	game {
+		name
+		id
+	}
+	skillGroup {
+		name
+		id
+	}
+	state
+	createdAt
+}

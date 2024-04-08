@@ -1,0 +1,6 @@
+query ScrimManagementPage {
+    allScrims @list(name: "AllScrims_ManagementList") {
+        ...ManageScrim_Fragment
+        game { name }
+    }
+}

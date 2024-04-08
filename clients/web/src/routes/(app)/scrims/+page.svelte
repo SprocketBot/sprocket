@@ -1,19 +1,32 @@
 <script lang="ts">
-	import { graphql } from '$houdini';
+	import { PendingScrimHydrationStore, CurrentScrimHydrationStore, cache } from '$houdini';
+	import type { PageData } from './$houdini';
+	import ScrimFlow from './ScrimFlow.svelte';
+	import ScrimList from './ScrimList.svelte';
 
-	const scrims = graphql(`
-		subscription scrims {
-			availableScrims {
-				scrimId
-				participants
-			}
+	export let data: PageData;
+	$: ({ ScrimPageRoot } = data);
+
+	const pendingScrimsHydration = new PendingScrimHydrationStore();
+	pendingScrimsHydration.listen();
+	$: if ($pendingScrimsHydration.data) {
+		const scrimCache = cache.get('Scrim', $pendingScrimsHydration.data.live);
+		if (scrimCache && $pendingScrimsHydration.data.live.complete) {
+			cache.list('ScrimPage_PendingScrims').remove(scrimCache);
+		} else {
+			cache.list('ScrimPage_PendingScrims').append(scrimCache);
 		}
-	`);
-	scrims.listen();
+	}
+	new CurrentScrimHydrationStore().listen();
 </script>
 
-{#if $scrims?.data !== null && $scrims?.data !== undefined}
-	{#each $scrims?.data.availableScrims as scrim}
-		ScrimId: {scrim.scrimId}
-	{/each}
+{#if $ScrimPageRoot.data?.currentScrim}
+	<!-- User is currently in a scrim -->
+	<ScrimFlow
+		pendingScrims={$ScrimPageRoot.data.pendingScrims}
+		currentScrim={$ScrimPageRoot.data.currentScrim}
+	/>
+{:else}
+	<ScrimList pendingScrims={$ScrimPageRoot.data?.pendingScrims ?? []} />
+	<!-- User is not in a scrim -->
 {/if}

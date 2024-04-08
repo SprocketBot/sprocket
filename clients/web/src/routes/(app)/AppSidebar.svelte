@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { canView } from '$lib/auth';
+	import { can } from '$lib/auth';
 	import { AppRail, AppRailAnchor } from '@skeletonlabs/skeleton';
-	import { AuthTarget } from '@sprocketbot/lib/types';
+
 	import { GameController, Users } from '@steeze-ui/phosphor-icons';
 	import { Icon } from '@steeze-ui/svelte-icon';
 
@@ -17,7 +17,7 @@
 	</AppRailAnchor>
 
 	<svelte:fragment slot="trail">
-		{#if canView(AuthTarget.PermissionsManager)}
+		{#if can("ViewPermissionManager")}
 			<AppRailAnchor href="/org-manager" selected={$page.url.pathname.startsWith('/org-manager')}>
 				<div class="flex flex-col items-center justify-center gap-2">
 					<Icon src={Users} class="w-4" />

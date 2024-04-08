@@ -1,0 +1,17 @@
+fragment ScrimList_Fragment on Scrim {
+    id
+    participantCount
+    state
+    game {
+        id
+        name
+    }
+    skillGroup {
+        id
+        name
+    }
+    gameMode {
+        playerCount
+        name
+    }
+}

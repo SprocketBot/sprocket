@@ -1,0 +1,7 @@
+subscription CurrentScrimHydration {
+	currentScrim {
+		...ScrimFlow_Fragment
+		state
+		id
+	}
+}

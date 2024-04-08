@@ -65,6 +65,7 @@ export const houdiniClient = new HoudiniClient({
 				}
 			});
 			return {
+				// TODO: it looks like subscriptions are not automatically picked back up
 				subscribe(payload, handlers) {
 					// send the request
 
@@ -84,15 +85,21 @@ export const houdiniClient = new HoudiniClient({
 					ctx.fetch = globalThis.fetch;
 				}
 				return next(ctx);
-			}
+			},
 		})
 	],
 
 	// uncomment this to configure the network call (for things like authentication)
 	// for more information, please visit here: https://www.houdinigraphql.com/guides/authentication
-	fetchParams() {
+	fetchParams(ctx) {
 		return {
-			credentials: 'include'
+			credentials: 'include',
+			headers: {
+				...(ctx.session?.token ? {
+					// Pass the token as a cookie (as expected)
+					'Cookie': `sprocket-token=${ctx.session.token}`
+				} : {})
+			}
 		};
 	}
 });

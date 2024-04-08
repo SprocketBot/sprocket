@@ -1,0 +1,6 @@
+mutation LeaveScrim {
+    leaveScrim {
+        id
+        state
+    }
+}

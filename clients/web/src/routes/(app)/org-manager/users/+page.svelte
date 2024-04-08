@@ -2,24 +2,23 @@
 	import { browser } from '$app/environment';
 	import { graphql, type UserSearch$input } from '$houdini';
 	import debounce from 'debounce';
-
+	import { can, getUserContext } from '$lib/auth';
+	import { Pencil } from '@steeze-ui/phosphor-icons';
+	import { Icon } from '@steeze-ui/svelte-icon';
+	import type { PageData } from './$houdini';
+	import { onMount } from 'svelte';
+	const currentUser = getUserContext();
 	let term = '';
 
-	const userSearch = graphql(`
-		query UserSearch($term: String!) {
-			userSearch(term: $term) {
-				id
-				username
-				active
-			}
-		}
-	`);
+	export let data: PageData;
 
+	$: ({ UserSearch } = data);
+	
 	const update = debounce((vars: UserSearch$input) => {
-		userSearch.fetch({ variables: vars });
-	});
+		UserSearch.fetch({ variables: vars });
+	}, 500);
 
-	$: browser && update({ term });
+	onMount(() => update({ term }));
 
 	const toggleActive = graphql(`
 		mutation ToggleActiveUser($userId: String!, $active: Boolean!) {
@@ -32,43 +31,71 @@
 	`);
 </script>
 
-<h2 class="text-lg font-bold">User Manager</h2>
+<section class="col-span-1 sm:col-span-4 md:col-span-8 row-span-2 card p-4">
+	<h2 class="text-lg font-bold mb-4">User Manager</h2>
 
-<label class="label flex gap-4 items-center mb-4">
-	<input bind:value={term} class="flex-shrink input px-2 py-1" placeholder="User Search" />
-</label>
-
-<table class="table table-hover table-compact">
-	<thead>
-		<tr>
-			<th class="!p-2">Username</th>
-			<th class="!p-2">Actions</th>
-		</tr>
-	</thead>
-	<tbody>
-		{#each $userSearch?.data?.userSearch ?? [] as user}
+	<label class="label flex gap-4 items-center mb-2">
+		<input
+			bind:value={term}
+			class="flex-shrink text-sm input px-2 py-1"
+			placeholder="User Search"
+		/>
+	</label>
+	<table class="table table-hover table-compact">
+		<thead>
 			<tr>
-				<td>
-					{user.username}
-				</td>
-				<td>
-					<!-- <input type="checkbox" disabled checked={user.active} /> -->
-					<button
-						class="btn btn-sm"
-						class:variant-ghost-success={!user.active}
-						class:variant-ghost-error={user.active}
-						on:click={() => {
-							toggleActive.mutate({
-								userId: user.id,
-								active: !user.active
-							});
-						}}
-					>
-						{user.active ? 'Deactivate' : 'Activate'}
-					</button>
-				</td>
+				<th class="!p-2 w-3/5"> Username </th>
+				<th class="!p-2 w-2/5"></th>
 			</tr>
-		{/each}
-	</tbody>
-	<tfoot></tfoot>
-</table>
+		</thead>
+		<tbody>
+			{#each $UserSearch.data?.users ?? [] as user}
+				<tr>
+					<td>
+						{user.username}
+					</td>
+					<td>
+						<div class="flex gap-2 justify-end">
+							<!-- <input type="checkbox" disabled checked={user.active} /> -->
+							<button
+								disabled={user.id === currentUser.id}
+								class="btn btn-sm"
+								class:variant-soft-success={!user.active}
+								class:variant-soft-error={user.active}
+								on:click={() => {
+									toggleActive.mutate({
+										userId: user.id,
+										active: !user.active
+									});
+								}}
+							>
+								{user.active ? 'Deactivate' : 'Activate'}
+							</button>
+
+							<a href="/org-manager/users/{user.id}" target="_self">
+								<button
+									class="btn btn-sm variant-soft-surface flex gap-2"
+									disabled={!can('EditUserProfile') && !can('EditUserPlayers')}
+								>
+									<Icon src={Pencil} class="h-4 w-4" />
+									Edit
+								</button>
+							</a>
+						</div>
+					</td>
+				</tr>
+			{:else}
+				<tr>
+					<td colspan="2">
+						{#if $UserSearch.data?.users.length === 0 && $UserSearch.variables?.term}
+							No Players Found
+						{:else}
+							Please enter a search term
+						{/if}
+					</td>
+				</tr>
+			{/each}
+		</tbody>
+		<tfoot></tfoot>
+	</table>
+</section>

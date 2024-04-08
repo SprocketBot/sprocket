@@ -8,6 +8,7 @@ import {
   DecoratorReturn,
 } from '../../types';
 import opentelemetry from '@opentelemetry/api';
+import { redlock } from './redlock';
 
 const redisKey = Symbol('redisService');
 
@@ -20,14 +21,14 @@ export const RedLock = <
   // Property (value) that is being decorated, should be a function
   TargetValue extends TargetClass[TargetProperty] = TargetClass[TargetProperty],
 >(
-  keys: Array<
+  ...keys: Array<
     Resolvable<
       // Can be literal, or function that returns literal
       string | symbol, // resolves to string or symbol
       ParamsIfFunction<TargetValue>, // Argument signature of the resolve function. Will accept the same parameters as the decorated function
       TargetClass
     >
-  >,
+  >
 ): DecoratorReturn<TargetClass, TargetProperty> => {
   // Get a redis injector
   const injectRedis = Inject(RedisService);
@@ -51,51 +52,23 @@ export const RedLock = <
     const originalFunction = descriptor.value;
 
     descriptor.value = async function (
-      this: TargetClass,
+      this: TargetClass & { [redisKey]: RedisService },
       ...args: ParamsIfFunction<TargetValue>
     ) {
-      const tracer = opentelemetry.trace.getTracer('what');
+      const resolvedKeys: string[] = (
+        await Promise.all(
+          keys.map((k) =>
+            typeof k === 'function' ? k.call(this, ...args) : k,
+          ),
+        )
+      ).map((v) => v.toString());
 
-      // We need to update the name of the span, otherwise it disappears
-      const activeSpan = opentelemetry.trace.getActiveSpan();
-      activeSpan.updateName(propertyKey.toString());
-
-      return tracer.startActiveSpan('RedLocked', async (lockSpan) => {
-        // Get reference to redlock
-        const redis = this[redisKey];
-        const locker: Redlock = redis.redlock;
-
-        // Lookup the keys
-        const resolvedKeys: string[] = (
-          await Promise.all(
-            keys.map((k) =>
-              typeof k === 'function' ? k.call(this, ...args) : k,
-            ),
-          )
-        ).map((v) => v.toString());
-
-        lockSpan.setAttribute('keys', resolvedKeys);
-
-        const lock = await locker.acquire(resolvedKeys, 5050);
-        logger.verbose(
-          `Aquired lock for ${JSON.stringify(resolvedKeys)} (${lock.value})`,
-          'Context?',
-        );
-        try {
-          const result = await originalFunction.apply(this, args);
-          return result;
-        } catch (e) {
-          lockSpan.recordException(e);
-          throw e;
-        } finally {
-          await lock.release();
-          logger.verbose(
-            `Released lock for ${JSON.stringify(resolvedKeys)} (${lock.value})`,
-            'Context?',
-          );
-          lockSpan?.end();
-        }
-      });
+      return redlock(
+        this[redisKey],
+        resolvedKeys,
+        () => originalFunction.apply(this, args),
+        propertyKey?.toString(),
+      );
     } as TargetValue;
   };
 

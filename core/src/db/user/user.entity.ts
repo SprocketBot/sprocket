@@ -15,7 +15,7 @@ export class UserEntity
   @Column()
   avatarUrl: string;
 
-  @Column('boolean', { default: false })
+  @Column({ default: false })
   active: boolean;
 
   @OneToMany(() => UserAuthAccountEntity, (uaae) => uaae.user)

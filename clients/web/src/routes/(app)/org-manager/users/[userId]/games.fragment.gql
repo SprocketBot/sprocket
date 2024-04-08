@@ -1,0 +1,9 @@
+fragment Fragment_PlayerManagerGames on Game {
+	name
+	id
+	skillGroups {
+		id
+		name
+		code
+	}
+}

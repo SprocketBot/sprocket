@@ -8,7 +8,7 @@ import { RedisModule } from './redis';
 import { DynamicModule, Type } from '@nestjs/common';
 import { GuidModule } from './guid/guid.module';
 
-const SprocketConfigModule = ConfigModule.forRoot({
+export const SprocketConfigModule = ConfigModule.forRoot({
   isGlobal: true,
   expandVariables: true,
   load: [
@@ -77,4 +77,4 @@ export const BaseSprocketModules: (DynamicModule | Type<any>)[] = [
 ];
 
 export { ConfigService as SprocketConfigService };
-export { Logger, LoggerErrorInterceptor };
+export { Logger as PinoLogger, LoggerErrorInterceptor };

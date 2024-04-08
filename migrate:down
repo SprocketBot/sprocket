@@ -1,2 +1,2 @@
 #!/usr/bin/env sh
-docker compose exec -it core bun --bun ./datasource.ts down
+docker compose exec -it core bun --bun ./src/datasource.ts down

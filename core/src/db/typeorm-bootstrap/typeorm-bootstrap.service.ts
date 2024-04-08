@@ -7,7 +7,6 @@ export class TypeormBootstrapService {
   constructor(private readonly cfg: SprocketConfigService) {}
 
   createTypeOrmOptions(): TypeOrmModuleOptions {
-    console.log('Using bootstrap!');
     return {
       type: 'postgres',
       host: this.cfg.getOrThrow('pg.host'),
@@ -15,19 +14,23 @@ export class TypeormBootstrapService {
       username: this.cfg.getOrThrow('pg.username'),
       password: this.cfg.getOrThrow('pg.password'),
       database: this.cfg.getOrThrow('pg.database'),
-      //      entities: [],
+      connectTimeoutMS: 2500,
       synchronize: false,
       autoLoadEntities: true,
       migrationsRun: false,
-      cache: {
-        type: 'ioredis',
-        alwaysEnabled: true,
-        options: {
-          host: this.cfg.getOrThrow('redis.hostname'),
-          port: this.cfg.getOrThrow('redis.port'),
-          connectionName: 'typeorm-cache',
-        },
-      },
+      cache:
+        this.cfg.getOrThrow('pg.cache').toString().toLowerCase() === 'true'
+          ? {
+              type: 'ioredis',
+              alwaysEnabled: true,
+              options: {
+                host: this.cfg.getOrThrow('redis.hostname'),
+                port: this.cfg.getOrThrow('redis.port'),
+                connectionName: 'typeorm-cache',
+              },
+              duration: 5000,
+            }
+          : undefined,
       migrationsTableName: 'public.migrations',
       applicationName: 'SprocketCore',
     };

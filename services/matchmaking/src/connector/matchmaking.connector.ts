@@ -33,3 +33,4 @@ export class MatchmakingConnectorModule {}
 
 export { MatchmakingService };
 export * from './schemas';
+export { MatchmakingEvents, ScrimState } from '../constants';

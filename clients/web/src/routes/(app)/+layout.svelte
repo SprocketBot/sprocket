@@ -21,13 +21,16 @@
 		<a href="/" slot="lead"><img src="/img/wordmark.svg" alt="Sprocket Logo" class="h-8" /></a>
 		<svelte:fragment slot="trail">
 			<span class="font-bold">{data.user.username}</span>
-			<Avatar initials={data.user.username.substring(0, 2)} src={data.user.avatarUrl} width="w-8"
-			></Avatar>
+			<Avatar initials={data.user.username.substring(0, 2)} src={data.user.avatarUrl} width="w-8"/>
 			<AppMenu />
 		</svelte:fragment>
 	</AppBar>
 
 	<AppSidebar slot="sidebarLeft" />
 
-	<slot />
+	<section
+		class="grid grid-cols-1 sm:grid-cols-4 md:grid-cols-8 lg:grid-cols-12 gap-4 md:gap-8 px-12 py-8 grid-flow-dense"
+	>
+		<slot />
+	</section>
 </AppShell>

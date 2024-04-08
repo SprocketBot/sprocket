@@ -39,4 +39,19 @@ export class RedisService {
     if (!result) return null;
     return result;
   }
+
+  /**
+   * Deletes the given key and returns the value of that key, if one exists
+   */
+  async delete(key: string | symbol): Promise<string | null> {
+    const value = await this.redis.get(key.toString())
+    
+    await this.redis.del(key.toString())
+    if (!value) return null;
+    return value;
+  }
+
+  async keys(pattern: string): Promise<string[]> {
+    return this.redis.keys(pattern)
+  }
 }

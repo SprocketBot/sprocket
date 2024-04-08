@@ -1,0 +1,8 @@
+subscription PendingScrimHydration {
+	live: pendingScrims {
+		id
+		state
+		complete
+		...ScrimList_Fragment
+	}
+}

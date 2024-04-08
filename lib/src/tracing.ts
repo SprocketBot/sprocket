@@ -62,7 +62,6 @@ process.on('SIGTERM', () => {
 
 otelSDK.start();
 
-console.log('SDK Started!');
 // You need to have an explicit require to get instrumentation properly
 function tryRequire(pack: string) {
   try {
@@ -74,3 +73,4 @@ function tryRequire(pack: string) {
 
 tryRequire('ioredis');
 tryRequire('amqplib');
+tryRequire('bullmq');

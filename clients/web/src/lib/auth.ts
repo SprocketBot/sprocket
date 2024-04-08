@@ -1,14 +1,16 @@
-// import { AuthAction, type AuthTarget, type User } from '@sprocketbot/lib/types';
-import type { AuthTarget, User } from '@sprocketbot/lib/types';
+import type { User } from '@sprocketbot/lib/types';
 import { getContext, setContext } from 'svelte';
+
 // Use a symbol here to prevent any conflicts
 const UserContext = Symbol('SprocketUserContext');
 export const setUserContext = (v: User) => setContext(UserContext, v);
 export const getUserContext = (): User => getContext(UserContext);
 
-export const canView = (target: AuthTarget, u?: User) => {
+export const can = (target: string, u?: User) => {
 	const user = u ?? getUserContext();
-	
+
+	user;
+	target;
+
 	return true;
 };
-

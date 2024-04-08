@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { Logger, LoggerErrorInterceptor } from '@sprocketbot/lib';
+import { PinoLogger, LoggerErrorInterceptor } from '@sprocketbot/lib';
 import { MatchmakingQueue, MatchmakingQueueOptions } from './constants';
 
 async function bootstrap() {
@@ -10,6 +10,7 @@ async function bootstrap() {
     {
       bufferLogs: Boolean(process.env.PROD),
       transport: Transport.RMQ,
+      abortOnError: false,
       options: {
         urls: [process.env.AMQP_URL],
         queue: MatchmakingQueue.toString(),
@@ -17,7 +18,7 @@ async function bootstrap() {
       },
     },
   );
-  const log = app.get(Logger);
+  const log = app.get(PinoLogger);
   app.useLogger(log);
   app.useGlobalInterceptors(new LoggerErrorInterceptor());
 

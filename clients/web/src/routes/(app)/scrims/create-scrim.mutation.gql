@@ -1,0 +1,5 @@
+mutation CreateScrimMutation($payload: CreateScrimInput!) {
+    createScrim(payload: $payload) {
+        id
+    }
+}

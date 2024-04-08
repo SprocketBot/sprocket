@@ -1,4 +1,11 @@
-import { Request, Response, Controller, Get, UseGuards } from '@nestjs/common';
+import {
+  Request,
+  Response,
+  Controller,
+  Get,
+  UseGuards,
+  Logger,
+} from '@nestjs/common';
 import type { Request as Req, Response as Res } from 'express';
 import { SteamStrategyGuard } from './steam-strategy.guard';
 import { SprocketConfigService } from '@sprocketbot/lib';
@@ -8,6 +15,7 @@ import { AuthPlatform } from '@sprocketbot/lib/types';
 
 @Controller()
 export class SteamStrategyController {
+  private readonly logger = new Logger(SteamStrategyController.name);
   constructor(
     private readonly config: SprocketConfigService,
     private readonly authenticateService: AuthenticateService,
@@ -20,7 +28,7 @@ export class SteamStrategyController {
     // We have a special case here
     const steamUser = req.user as unknown as SteamProfile;
     if (sessionUser) {
-      console.log('Attempting to link');
+      this.logger.log('Attempting to link');
       // We are linking an account
       await this.authenticateService.linkAccount(sessionUser.id, {
         platform: AuthPlatform.STEAM,

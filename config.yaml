@@ -2,6 +2,9 @@
 baseUrl: ${BASE_URL}
 secure: ${SSL:false}
 
+service:
+  name: '${SERVICE_NAME}'
+
 auth:
   jwt:
     secret: '${AUTH_JWT_SECRET:localhost}'
@@ -23,6 +26,7 @@ pg:
   password: '${PG_PASS:postgres}'
   port: '${PG_PORT:5432}'
   database: '${PG_DATABASE:postgres}'
+  cache: '${PG_CACHE:true}'
 
 redis:
   hostname: '${REDIS_HOST:redis}'

@@ -1,0 +1,17 @@
+query ScrimPageRoot {
+	currentScrim @Player_delete {
+		...ScrimFlow_Fragment
+		id
+		state
+	}
+	pendingScrims @list(name: "ScrimPage_PendingScrims") {
+		...ScrimList_Fragment
+		id
+		state
+		participants {
+			id
+			checkedIn
+		}
+		participantCount
+	}
+}

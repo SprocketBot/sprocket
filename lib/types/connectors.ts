@@ -5,6 +5,9 @@ export type MessageSpec = {
   requestData: any;
   responseData: any;
 };
+export type EventSpec = {
+  payload: any;
+};
 
 export declare abstract class TypedClientProxy<
   MessageKeys extends string,
@@ -12,9 +15,7 @@ export declare abstract class TypedClientProxy<
   Messages extends MessageKeys extends never
     ? never
     : Record<MessageKeys, MessageSpec>,
-  Events extends EventKeys extends never
-    ? never
-    : Record<EventKeys, MessageSpec>,
+  Events extends EventKeys extends never ? never : Record<EventKeys, EventSpec>,
 > extends ClientProxy {
   send<Message extends keyof Messages>(
     pattern: Message,
@@ -22,6 +23,6 @@ export declare abstract class TypedClientProxy<
   ): Observable<Messages[Message]['responseData']>;
   emit<Event extends keyof Events>(
     pattern: Event,
-    data: Events[Event]['requestData'],
-  ): Observable<Events[Event]['responseData']>;
+    data: Events[Event]['payload'],
+  ): Observable<Events[Event]['payload']>;
 }

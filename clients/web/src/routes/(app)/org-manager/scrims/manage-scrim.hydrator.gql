@@ -1,0 +1,7 @@
+subscription ManageScrimsHydration {
+    live: allScrims {
+        ...ManageScrim_Fragment
+        id
+        complete
+    }
+}

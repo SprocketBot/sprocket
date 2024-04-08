@@ -1,0 +1,7 @@
+mutation DeletePlayer($playerId: String!, $userId: ID!) {
+	deletePlayer(playerId: $playerId) {
+		...PlayerManager_UserPlayers_remove @parentID(value: $userId)
+		id
+
+	}
+}

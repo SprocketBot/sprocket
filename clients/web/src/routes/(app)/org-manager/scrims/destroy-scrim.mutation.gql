@@ -1,0 +1,7 @@
+mutation DestroyScrim($scrimId: String!) {
+    destroyScrim(payload: { scrimId: $scrimId }) {
+        ...AllScrims_ManagementList_remove
+        id
+        state
+    }
+}

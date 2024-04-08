@@ -31,7 +31,7 @@ export class AuthorizeService {
   }
 
   async check(user: Pick<User, 'id'>): Promise<boolean> {
-    console.log(`Checking for ${user.id}`);
+    this.logger.log(`Checking for ${user.id}`);
     return false;
   }
 }

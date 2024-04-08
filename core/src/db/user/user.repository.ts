@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Raw, Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { UserEntity } from './user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -20,6 +20,7 @@ export class UserRepository extends Repository<UserEntity> {
     term: string,
     limit: number = 10,
     threshold: number = 0,
+    filterOpts: FindOptionsWhere<UserEntity> = {},
   ): Promise<UserEntity[]> {
     const qb = this.createQueryBuilder();
 
@@ -34,6 +35,8 @@ export class UserRepository extends Repository<UserEntity> {
         `similarity(username::text, '${term}'::text) >= ${threshold}`,
       );
     }
+
+    result.where(filterOpts);
 
     return await result.execute();
   }

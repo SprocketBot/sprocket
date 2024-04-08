@@ -1,0 +1,20 @@
+fragment ScrimFlow_Fragment on Scrim {
+    id
+    participants {
+        id
+        checkedIn
+    }
+    participantCount
+    state
+    pendingTtl
+    game {
+        name
+    }
+    gameMode {
+        name
+        playerCount
+    }
+    skillGroup {
+        name
+    }
+}

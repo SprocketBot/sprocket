@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ScrimCrudService } from './scrim-crud.service';
+import { RmqService } from './rmq.service';
 
-describe('ScrimCrudService', () => {
-  let service: ScrimCrudService;
+describe('RmqService', () => {
+  let service: RmqService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ScrimCrudService],
+      providers: [RmqService],
     }).compile();
 
-    service = module.get<ScrimCrudService>(ScrimCrudService);
+    service = module.get<RmqService>(RmqService);
   });
 
   it('should be defined', () => {

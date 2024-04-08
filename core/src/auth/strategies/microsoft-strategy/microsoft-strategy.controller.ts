@@ -1,4 +1,11 @@
-import { Request, Response, Controller, Get, UseGuards } from '@nestjs/common';
+import {
+  Request,
+  Response,
+  Controller,
+  Get,
+  UseGuards,
+  Logger,
+} from '@nestjs/common';
 import type { Request as Req, Response as Res } from 'express';
 import { MicrosoftStrategyGuard } from './microsoft-strategy.guard';
 import { SprocketConfigService } from '@sprocketbot/lib';
@@ -7,6 +14,7 @@ import { AuthPlatform } from '@sprocketbot/lib/types';
 
 @Controller()
 export class MicrosoftStrategyController {
+  private readonly logger = new Logger(MicrosoftStrategyController.name);
   constructor(
     private readonly config: SprocketConfigService,
     private readonly authenticateService: AuthenticateService,
@@ -23,7 +31,7 @@ export class MicrosoftStrategyController {
     // We have a special case here
     const microsoftUser = req.user as any;
     if (sessionUser) {
-      console.log('Attempting to link');
+      this.logger.log('Attempting to link');
       // We are linking an account
       await this.authenticateService.linkAccount(sessionUser.id, {
         platform: AuthPlatform.STEAM,

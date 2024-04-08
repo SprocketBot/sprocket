@@ -1,14 +1,26 @@
 import { Module } from '@nestjs/common';
 import { ApolloDriverConfig, ApolloDriver } from '@nestjs/apollo';
-import { GraphQLModule } from '@nestjs/graphql';
+import { GraphQLModule, MiddlewareContext, NextFn } from '@nestjs/graphql';
 import { DbModule } from '../db/db.module';
 import { AuthModule } from '../auth/auth.module';
-import { ScrimResolver } from './scrim/scrim.resolver';
+import {
+  ScrimParticipantResolver,
+  ScrimResolver,
+} from './scrim/scrim.resolver';
 import { UserResolver } from './user/user.resolver';
 import { MatchmakingConnectorModule } from '@sprocketbot/matchmaking';
 import { PlayerResolver } from './player/player.resolver';
 import { UserAuthAccountResolver } from './user_auth_account/user_auth_account.resolver';
-
+import { GameResolver } from './game/game.resolver';
+import { SkillGroupResolver } from './skill_group/skill_group.resolver';
+import { PubSubProvider } from './constants';
+import { PubSub } from 'graphql-subscriptions';
+import { ScrimSubscriber } from './scrim/scrim.subscriber';
+import { EventsModule } from '@sprocketbot/lib';
+import { GameModeResolver } from './game_mode/game_mode.resolver';
+import opentelemetry from '@opentelemetry/api';
+import { GraphQLResolveInfo } from 'graphql';
+import { ScrimService } from './scrim/scrim.service';
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -26,7 +38,6 @@ import { UserAuthAccountResolver } from './user_auth_account/user_auth_account.r
       csrfPrevention: false,
       introspection: true,
       context: ({ req, res }) => {
-        // console.log(req)
         return {
           request: req,
           response: res,
@@ -39,17 +50,55 @@ import { UserAuthAccountResolver } from './user_auth_account/user_auth_account.r
           'request.credentials': 'include',
         },
       },
+      buildSchemaOptions: {
+        fieldMiddleware: [
+          async (ctx: MiddlewareContext, next: NextFn) => {
+            const tracer = opentelemetry.trace.getTracer('');
+            function getPath(path: GraphQLResolveInfo['path']) {
+              if (path.prev) {
+                return `${getPath(path.prev)}.${path.key}`;
+              } else {
+                return path.key;
+              }
+            }
+            return tracer.startActiveSpan(
+              `Resolve: ${getPath(ctx.info.path)}`,
+              async (lockSpan) => {
+                try {
+                  return await next();
+                } catch (e) {
+                  lockSpan.recordException(e);
+                  throw e;
+                } finally {
+                  lockSpan.end();
+                }
+              },
+            );
+          },
+        ],
+      },
       includeStacktraceInErrorResponses: true, // TODO: False in prod
     }),
     DbModule,
     AuthModule,
     MatchmakingConnectorModule,
+    EventsModule,
   ],
   providers: [
     ScrimResolver,
+    ScrimParticipantResolver,
     UserResolver,
     PlayerResolver,
     UserAuthAccountResolver,
+    GameResolver,
+    SkillGroupResolver,
+    {
+      provide: PubSubProvider,
+      useValue: new PubSub(),
+    },
+    ScrimSubscriber,
+    GameModeResolver,
+    ScrimService,
   ],
 })
 export class GqlModule {}

@@ -4,5 +4,5 @@ import { defineConfig } from 'vite';
 import houdini from 'houdini/vite';
 
 export default defineConfig({
-	plugins: [houdini(), sveltekit(), purgeCss()],
+	plugins: [houdini(), sveltekit(), purgeCss()]
 });

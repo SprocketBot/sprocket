@@ -5,7 +5,7 @@ import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ fetch }) => {
 	const okay = () =>
-		fetch(apiUrl + '/graphql')
+		fetch(apiUrl + '/health')
 			.then(() => true)
 			.catch(() => false);
 	if (await okay()) {

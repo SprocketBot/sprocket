@@ -1,0 +1,17 @@
+mutation UpdatePlayer($data: UpdatePlayerInput!) {
+	updatePlayer(data: $data) {
+		id
+		game {
+			id
+			name
+		}
+		skillGroup {
+			id
+			name
+		}
+		user {
+			id
+			username
+		}
+	}
+}

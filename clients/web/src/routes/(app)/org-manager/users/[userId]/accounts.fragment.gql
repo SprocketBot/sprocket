@@ -1,0 +1,9 @@
+fragment Fragment_UserManagerAccounts on User {
+	username
+    id
+    accounts {
+        platformId
+        platformName
+        platform
+    }
+}

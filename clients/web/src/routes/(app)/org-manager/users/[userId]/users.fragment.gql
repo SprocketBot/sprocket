@@ -1,0 +1,16 @@
+fragment Fragment_PlayerManagerUsers on User {
+	id
+	username
+	players @list(name: "PlayerManager_UserPlayers") {
+		id
+		skillGroup {
+			id
+			code
+			name
+		}
+		game {
+			id
+			name
+		}
+	}
+}

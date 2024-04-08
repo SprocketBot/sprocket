@@ -1,0 +1,18 @@
+mutation CreatePlayer($data: CreatePlayerInput!, $userId: ID!) {
+	createPlayer(data: $data) {
+		...PlayerManager_UserPlayers_insert @parentID(value: $userId)
+		id
+		game {
+			id
+			name
+		}
+		skillGroup {
+			id
+			name
+		}
+		user {
+			id
+			username
+		}
+	}
+}
