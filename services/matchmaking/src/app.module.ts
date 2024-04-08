@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import {
   BaseSprocketModules,
   EventsModule,
@@ -14,6 +13,7 @@ import { ScrimPoppedTimeoutService } from './jobs/scrim-popped-timeout/scrim-pop
 import { ScrimPoppedTimeoutProcessor } from './jobs/scrim-popped-timeout/scrim-popped-timeout.processor';
 import { ScrimPendingTimeoutProcessor } from './jobs/scrim-pending-timeout/scrim-pending-timeout.processor';
 import { ScrimPendingTimeoutService } from './jobs/scrim-pending-timeout/scrim-pending-timeout.service';
+import { ScrimPendingTimeoutQueue } from './jobs/scrim-pending-timeout/schema';
 
 @Module({
   imports: [
@@ -30,13 +30,17 @@ import { ScrimPendingTimeoutService } from './jobs/scrim-pending-timeout/scrim-p
         };
       },
     }),
-    BullModule.registerQueue({
-      name: ScrimPoppedTimeoutQueue,
-    }),
+    BullModule.registerQueue(
+      {
+        name: ScrimPoppedTimeoutQueue,
+      },
+      {
+        name: ScrimPendingTimeoutQueue,
+      },
+    ),
   ],
   controllers: [AppController],
   providers: [
-    AppService,
     ScrimService,
     ScrimCrudService,
     ScrimPoppedTimeoutProcessor,
