@@ -21,7 +21,7 @@ async function bootstrap() {
 
   app.useGlobalInterceptors(new LoggerErrorInterceptor());
 
-  const corsOrigin = new URL(`http://` + process.env.PUBLIC_URL);
+  const corsOrigin = new URL(`http://` + process.env.BASE_URL);
   if (process.env.SSL?.toLowerCase() === 'true') corsOrigin.protocol = 'https';
   corsOrigin.port = process.env.LISTEN_PORT;
 
