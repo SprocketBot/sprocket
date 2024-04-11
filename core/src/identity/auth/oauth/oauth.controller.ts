@@ -14,6 +14,7 @@ import {
 import {JwtRefreshGuard} from "./guards/jwt-refresh.guard";
 import {OauthService} from "./oauth.service";
 import type {AccessToken} from "./types";
+import type {UserPayload} from "./types";
 import type {AuthPayload} from "./types/payload.type";
 
 @Controller()
@@ -56,7 +57,7 @@ export class OauthController {
     @UseGuards(JwtRefreshGuard)
     @Get("refresh")
     async refreshTokens(@Request() req: Req): Promise<AccessToken> {
-        const ourUser = req.user as AuthPayload;
+        const ourUser = req.body.user as UserPayload;
         this.logger.verbose(`Refreshing tokens for user ${JSON.stringify(ourUser)}`);
         const userProfile = await this.userService.getUserProfileForUser(ourUser.userId);
         const authAccounts: UserAuthenticationAccount[] = await this.userService.getUserAuthenticationAccountsForUser(ourUser.userId);
