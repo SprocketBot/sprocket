@@ -49,6 +49,12 @@ export class EloConsumer {
         await this.playerService.saveSalaries(salaryData);
     }
 
+    async compactGraph(): Promise<void> {
+        this.logger.debug("Compacting the elo graph");
+
+        await this.eloConnectorService.createJobAndWait(EloEndpoint.CompactGraph, {});
+    }
+
     async onApplicationBootstrap(): Promise<void> {
         const repeatableJobs = await this.eloQueue.getRepeatableJobs();
 

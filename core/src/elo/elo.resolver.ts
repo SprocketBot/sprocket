@@ -63,4 +63,11 @@ export class EloResolver {
         await this.eloConsumer.runSalaries();
         return true;
     }
+
+    @Mutation(() => Boolean)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    async compactGraph(): Promise<boolean> {
+        await this.eloConsumer.compactGraph();
+        return true;
+    }
 }

@@ -5,3 +5,4 @@ export * from "./CalculateEloForNcp.schema";
 export * from "./CalculateSalaries.schema";
 export * from "./ManualEloChange.schema";
 export * from "./ManualRankout.schema";
+export * from "./CompactGraph.schema";
