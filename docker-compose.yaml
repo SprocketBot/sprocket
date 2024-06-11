@@ -18,7 +18,6 @@ services:
     ports:
       - 8080:80
       - 443:443
-
   core:
     container_name: sprocket-core
     user: 1000:1000
@@ -73,6 +72,8 @@ services:
     working_dir: /app/clients/web
     environment:
       PUBLIC_API_URL: ${CORE_URL:-core.localhost}
+      INTERNAL_API_URL: core
+      INTERNAL_API_PORT: 3000
       PUBLIC_API_SECURE: ${SSL:-false}
       PUBLIC_API_PORT: ${LISTEN_PORT}
     labels:
