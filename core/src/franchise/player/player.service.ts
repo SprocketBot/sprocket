@@ -257,34 +257,7 @@ export class PlayerService {
             const mlePlayer = await this.mle_playerRepository.findOne({where: {mleid} });
 
             if (mlePlayer)  {
-                const bridge = await this.ptpRepo.findOneOrFail({where: {mledPlayerId: mlePlayer.id} });
-                player = await this.playerRepository.findOneOrFail({
-                    where: {id: bridge.sprocketPlayerId},
-                    relations: {member: {user: true, profile: true} },
-                });
-
-                player = this.playerRepository.merge(player, {skillGroupId: skillGroup.id, salary: salary});
-                this.memberProfileRepository.merge(player.member.profile, {name});
-
-                await runner.manager.save(player);
-                await runner.manager.save(player.member.profile);
-                await this.mle_updatePlayer(
-                    mlePlayer,
-                    name,
-                    LeagueOrdinals[skillGroup.ordinal - 1],
-                    salary,
-                    platform,
-                    timezone,
-                    modePreference,
-                    platforms,
-                    runner,
-                );
-
-                await this.eloConnectorService.createJob(EloEndpoint.SGChange, {
-                    id: player.id,
-                    salary: salary,
-                    skillGroup: skillGroup.ordinal,
-                });
+                throw new Error(`You have attempted to intake a new player with MLEID: ${mleid}. However, that MLEID already belongs to player ${mlePlayer.id}.`);
             } else {
                 const user = this.userRepository.create({});
             
