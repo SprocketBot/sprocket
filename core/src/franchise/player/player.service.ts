@@ -166,6 +166,73 @@ export class PlayerService {
     }
 
     /* !! Using repositories due to circular dependency issues. Will fix after extended repositories are added, probably. !! */
+    async updatePlayer(
+        mleid: number,
+        name: string,
+        skillGroupId: number,
+        salary: number,
+        platform: string,
+        platforms: IntakePlayerAccount[],
+        timezone: Timezone,
+        modePreference: ModePreference,
+    ): Promise<Player> {
+        const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
+
+        const runner = this.dataSource.createQueryRunner();
+        await runner.connect();
+        await runner.startTransaction();
+
+        let player: Player;
+
+        try {
+            const mlePlayer = await this.mle_playerRepository.findOne({ where: { mleid } });
+
+            if (mlePlayer) {
+                const bridge = await this.ptpRepo.findOneOrFail({ where: { mledPlayerId: mlePlayer.id } });
+                player = await this.playerRepository.findOneOrFail({
+                    where: { id: bridge.sprocketPlayerId },
+                    relations: { member: { user: true, profile: true } },
+                });
+
+                player = this.playerRepository.merge(player, { skillGroupId: skillGroup.id, salary: salary });
+                this.memberProfileRepository.merge(player.member.profile, { name });
+
+                await runner.manager.save(player);
+                await runner.manager.save(player.member.profile);
+                await this.mle_updatePlayer(
+                    mlePlayer,
+                    name,
+                    LeagueOrdinals[skillGroup.ordinal - 1],
+                    salary,
+                    platform,
+                    timezone,
+                    modePreference,
+                    platforms,
+                    runner,
+                );
+
+                await this.eloConnectorService.createJob(EloEndpoint.SGChange, {
+                    id: player.id,
+                    salary: salary,
+                    skillGroup: skillGroup.ordinal,
+                });
+            } else {
+                // Throw an error, because this is an update
+                throw new Error(`Tried updating player with MLEID: ${mleid}, but that MLEID does not yet exist.`);
+            }
+            await runner.commitTransaction();
+        } catch (e) {
+            await runner.rollbackTransaction();
+            this.logger.error(e);
+            throw e;
+        } finally {
+            await runner.release();
+        }
+
+        return player;
+    }
+
+    /* !! Using repositories due to circular dependency issues. Will fix after extended repositories are added, probably. !! */
     async intakePlayer(
         mleid: number,
         discordId: string,
