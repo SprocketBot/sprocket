@@ -7,6 +7,7 @@ import {
 
 import type {GameSkillGroup, ScheduleFixture} from "../../database";
 import {ScheduleGroup} from "../../database";
+import type {MLE_Fixture} from "../../database/mledb";
 import {MLE_Match, MLE_Season} from "../../database/mledb";
 import {GameSkillGroupService} from "../../franchise";
 import {ScheduleFixtureService} from "../schedule-fixture/schedule-fixture.service";
@@ -56,7 +57,9 @@ export class ScheduleGroupService {
         // Some bookkeeping structures
         const sgs: ScheduleGroup[] = [];
         const sgMap: Map<string, ScheduleGroup> = new Map();
+        const mmMap: Map<string, MLE_Match> = new Map();
         const sfMap: Map<string, ScheduleFixture[]> = new Map();
+        const mfMap: Map<string, MLE_Fixture[]> = new Map();
 
         // First, we do this all as one transaction
         const runner = this.dataSource.createQueryRunner();
@@ -65,7 +68,7 @@ export class ScheduleGroupService {
 
         // Create the season schedule group
         const season_description = `Season ${season_number}`;
-        let season = this.scheduleGroupRepo.create();
+        const season = this.scheduleGroupRepo.create({description: season_description});
         // Need to do the MLEDB side as well
         // MLEDB Needs:
         // - Season(season_number, start_date, end_date, week_length)
@@ -99,6 +102,15 @@ export class ScheduleGroupService {
                     description: desc,
                     parentGroup: season,
                 });
+            // Create the match object in the MLEB schema that corresponds to
+            // this SG
+            const m_match: MLE_Match
+                = mmMap.get(desc) ?? this.m_matchRepo.create({
+                    from: match_week.start,
+                    to: match_week.end,
+                    isDoubleHeader: false,
+                    matchNumber: 1,
+                });
             sgMap.set(desc, match_week);
             sfMap.set(desc, []);
             
@@ -120,24 +132,31 @@ export class ScheduleGroupService {
             }
             
             // Now that the requisite data is in hand, create the ScheduleFixture...
-            const schedule_fixture = await this.scheduleFixtureService.createScheduleFixture(match_week, fixture.home, fixture.away, skill_groups);
+            const [schedule_fixture, m_fixture] = await this.scheduleFixtureService.createScheduleFixture(match_week, m_match, fixture.home, fixture.away, skill_groups);
             // ... and add it to our list for that match week
             const new_list = sfMap.get(desc) ?? [];
             new_list.push(schedule_fixture);
             sfMap.set(desc, new_list);
+            const m_list = mfMap.get(desc) ?? [];
+            m_list.push(m_fixture);
+            mfMap.set(desc, m_list);
         }
 
         // Now that we've looped over all the input and created the fixtures and
-        // matches, merge each list of fixtures to its corresponding match week
-        // SG
+        // matches, loop over all of the resulting match weeks.
         for (const desc of sgMap.keys()) {
             const sg: ScheduleGroup | undefined = sgMap.get(desc);
             const sfs: ScheduleFixture[] | undefined = sfMap.get(desc);
+
+            // merge each list of fixtures to its corresponding match week SG
             if (sg) {
                 this.scheduleGroupRepo.merge(sg, {fixtures: sfs});
             }
+
         }
-        season = this.scheduleGroupRepo.merge(season, {description: season_description});
+        
+        // Finally, build just a list of the schedule groups we've created to
+        // send back
         sgs.push(season);
         for (const sg of sgMap.values()) {
             sgs.push(sg);
