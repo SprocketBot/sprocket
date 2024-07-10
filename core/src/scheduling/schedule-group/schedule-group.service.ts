@@ -16,8 +16,7 @@ export class ScheduleGroupService {
         private readonly scheduleFixtureService: ScheduleFixtureService,
         private readonly gameSkillGroupService: GameSkillGroupService,
         private readonly dataSource: DataSource,
-    ) {
-    }
+    ) {}
 
     async getScheduleGroups(orgId: number, type: string, gameId?: number, current: boolean = true): Promise<ScheduleGroup[]> {
         const conditions: FindOptionsWhere<ScheduleGroup> = {
