@@ -9,6 +9,7 @@ import {
 } from "typeorm";
 
 import type {
+    GameSkillGroup,
     ScheduledEvent,
     ScrimMeta,
 } from "../../database";
@@ -16,6 +17,7 @@ import {
     Franchise,
     Invalidation,
     Match,
+    MatchParent,
     PlayerStatLineStatsSchema,
     Round,
     ScheduleFixture,
@@ -46,6 +48,7 @@ export class MatchService {
 
     constructor(
         @InjectRepository(Match) private matchRepository: Repository<Match>,
+        @InjectRepository(MatchParent) private matchParentRepository: Repository<MatchParent>,
         @InjectRepository(Invalidation) private invalidationRepository: Repository<Invalidation>,
         @InjectRepository(Round) private readonly roundRepository: Repository<Round>,
         @InjectRepository(Team) private readonly teamRepository: Repository<Team>,
@@ -67,6 +70,25 @@ export class MatchService {
         return this.matchRepository.save(match);
     }
 
+    async createMatchWithMatchParent(skill_group:GameSkillGroup, isDummy?: boolean, invalidationId?: number): Promise<[Match, MatchParent]> {
+
+        let invalidation: Invalidation | undefined;
+        if (invalidationId) invalidation = await this.invalidationRepository.findOneOrFail({ where: { id: invalidationId } });
+        
+        const match = this.matchRepository.create({
+            isDummy: isDummy,
+            invalidation: invalidation,
+            rounds: [],
+            skillGroup: skill_group,
+            skillGroupId: skill_group.id
+        });
+
+        const match_parent = this.matchParentRepository.create({
+            match: match
+        });
+        
+        return [match, match_parent];
+    }
     async getMatchBySubmissionId(submissionId: string): Promise<Match> {
         return this.matchRepository.findOneOrFail({
             where: {
