@@ -68,7 +68,8 @@ export class ScheduleGroupService {
 
         // Create the season schedule group
         const season_description = `Season ${season_number}`;
-        const season = this.scheduleGroupRepo.create({description: season_description});
+        let season = this.scheduleGroupRepo.create({description: season_description});
+        let m_season = this.m_seasonRepo.create({seasonNumber: season_number});
         // Need to do the MLEDB side as well
         // MLEDB Needs:
         // - Season(season_number, start_date, end_date, week_length)
@@ -101,13 +102,16 @@ export class ScheduleGroupService {
                 = sgMap.get(desc) ?? this.scheduleGroupRepo.create({
                     description: desc,
                     parentGroup: season,
+                    start: fixture.start,
+                    end: fixture.end,
                 });
+
             // Create the match object in the MLEB schema that corresponds to
             // this SG
             const m_match: MLE_Match
                 = mmMap.get(desc) ?? this.m_matchRepo.create({
-                    from: match_week.start,
-                    to: match_week.end,
+                    from: fixture.start,
+                    to: fixture.end,
                     isDoubleHeader: false,
                     matchNumber: 1,
                 });
@@ -133,10 +137,11 @@ export class ScheduleGroupService {
             
             // Now that the requisite data is in hand, create the ScheduleFixture...
             const [schedule_fixture, m_fixture] = await this.scheduleFixtureService.createScheduleFixture(match_week, m_match, fixture.home, fixture.away, skill_groups);
-            // ... and add it to our list for that match week
+            // ... and add it to our list for that match week's ScheduleGroup
             const new_list = sfMap.get(desc) ?? [];
             new_list.push(schedule_fixture);
             sfMap.set(desc, new_list);
+            // Repeating ourselves for the MLEDB Match
             const m_list = mfMap.get(desc) ?? [];
             m_list.push(m_fixture);
             mfMap.set(desc, m_list);
@@ -147,13 +152,29 @@ export class ScheduleGroupService {
         for (const desc of sgMap.keys()) {
             const sg: ScheduleGroup | undefined = sgMap.get(desc);
             const sfs: ScheduleFixture[] | undefined = sfMap.get(desc);
+            let m_match: MLE_Match | undefined = mmMap.get(desc);
+            const m_fixtures: MLE_Fixture[] | undefined = mfMap.get(desc);
 
             // merge each list of fixtures to its corresponding match week SG
             if (sg) {
                 this.scheduleGroupRepo.merge(sg, {fixtures: sfs});
             }
-
+            
+            // Do the same for the MLEDB match
+            if (m_match) {
+                m_match = this.m_matchRepo.merge(m_match, {fixtures: m_fixtures});
+                
+                // Also, while we're here, update the MLEDB season's match list
+                const m_matches: MLE_Match[] = m_season.matches;
+                m_matches.push(m_match);
+                m_season = this.m_seasonRepo.merge(m_season, {matches: m_matches});
+            }
         }
+        
+        // A last touch on the season objects: we now know how long they will
+        // last.
+        season = this.scheduleGroupRepo.merge(season, {start: startDate, end: endDate});
+        m_season = this.m_seasonRepo.merge(m_season, {startDate: startDate, endDate: endDate});
         
         // Finally, build just a list of the schedule groups we've created to
         // send back
