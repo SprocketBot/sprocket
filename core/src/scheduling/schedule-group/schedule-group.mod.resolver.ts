@@ -2,19 +2,19 @@ import {UseGuards} from "@nestjs/common";
 import {
     Args, Mutation, Query, Resolver,
 } from "@nestjs/graphql";
+import {readToString} from "@sprocketbot/common";
 import {GraphQLError} from "graphql";
+import type {FileUpload} from "graphql-upload";
+import {GraphQLUpload} from "graphql-upload";
 
-import type { FileUpload } from "graphql-upload";
-import { GraphQLUpload } from "graphql-upload";
-import { readToString } from "@sprocketbot/common";
-import { RawFixtureSchema } from "./schedule-groups.types";
 import {ScheduleGroup, ScheduleGroupType} from "../../database";
+import {MLE_OrganizationTeam} from "../../database/mledb";
 import {CurrentUser, UserPayload} from "../../identity";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
+import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {ScheduleGroupService} from "./schedule-group.service";
 import {ScheduleGroupTypeService} from "./schedule-group-type.service";
-import { MLEOrganizationTeamGuard } from "../../mledb/mledb-player/mle-organization-team.guard";
-import { MLE_OrganizationTeam } from "../../database/mledb";
+import {RawFixtureSchema} from "./schedule-groups.types";
 
 @Resolver()
 @UseGuards(GqlJwtGuard)
@@ -50,7 +50,7 @@ export class ScheduleGroupModResolver {
     @UseGuards(MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async createSeason(
         @Args("season_number") num: number,
-        @Args("input_file", { type: () => GraphQLUpload }) file: Promise<FileUpload>
+        @Args("input_file", {type: () => GraphQLUpload}) file: Promise<FileUpload>,
     ): Promise<ScheduleGroup[]> {
         // This method takes in a season number and a csv file of pre-specified
         // format (see the schedule group service for details), which contains
@@ -62,9 +62,11 @@ export class ScheduleGroupModResolver {
 
         const csv = await file.then(async _f => readToString(_f.createReadStream()));
 
-        const splits = csv.split(/(?:\r)?\n/g)
-        const results = splits.map(e => e.trim().split(','));
+        const splits = csv.split(/(?:\r)?\n/g);
+        const results = splits.map(e => e.trim().split(","));
         const parsed = RawFixtureSchema.parse(results);
-        return await this.scheduleGroupService.createSeasonSchedule(num, parsed);
+        const sgs = await this.scheduleGroupService.createSeasonSchedule(num, parsed);
+        
+        return sgs;
     }
 }
