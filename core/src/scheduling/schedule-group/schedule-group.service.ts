@@ -9,6 +9,8 @@ import type {GameSkillGroup, ScheduleFixture} from "../../database";
 import {ScheduleGroup} from "../../database";
 import type {MLE_Fixture} from "../../database/mledb";
 import {MLE_Match, MLE_Season} from "../../database/mledb";
+import {MatchToScheduleGroup} from "../../database/mledb-bridge/match_to_schedule_group.model";
+import {SeasonToScheduleGroup} from "../../database/mledb-bridge/season_to_schedule_group.model";
 import {GameSkillGroupService} from "../../franchise";
 import {ScheduleFixtureService} from "../schedule-fixture/schedule-fixture.service";
 import type {RawFixture} from "./schedule-groups.types";
@@ -23,6 +25,10 @@ export class ScheduleGroupService {
         private readonly m_seasonRepo: Repository<MLE_Season>,
         @InjectRepository(MLE_Match)
         private readonly m_matchRepo: Repository<MLE_Match>,
+        @InjectRepository(SeasonToScheduleGroup)
+        private readonly s2sgRepo: Repository<SeasonToScheduleGroup>,
+        @InjectRepository(MatchToScheduleGroup)
+        private readonly m2sgRepo: Repository<MatchToScheduleGroup>,
         private readonly scheduleFixtureService: ScheduleFixtureService,
         private readonly gameSkillGroupService: GameSkillGroupService,
         private readonly dataSource: DataSource,
@@ -70,18 +76,6 @@ export class ScheduleGroupService {
         const season_description = `Season ${season_number}`;
         let season = this.scheduleGroupRepo.create({description: season_description});
         let m_season = this.m_seasonRepo.create({seasonNumber: season_number});
-        // Need to do the MLEDB side as well
-        // MLEDB Needs:
-        // - Season(season_number, start_date, end_date, week_length)
-        //     - Match(from, to, season, match_number, map = "CHAMPIONS_FIELD")
-        //     - Fixture(home_name, away_name, match_id)
-        //     - Series(league, mode, fixture_id)
-
-        // MLEDB Bridge Needs:
-        // - season_to_schedule_group
-        //     - match_to_schedule_group
-        //     - fixture_to_fixture
-        //     - series_to_match_parent
 
         // Cheeky min and max to determine season datetime extents
         let startDate = new Date("9999-12-31T00:00:00.000Z");
@@ -158,23 +152,45 @@ export class ScheduleGroupService {
             // merge each list of fixtures to its corresponding match week SG
             if (sg) {
                 this.scheduleGroupRepo.merge(sg, {fixtures: sfs});
+                await this.scheduleGroupRepo.save(sg);
             }
             
             // Do the same for the MLEDB match
             if (m_match) {
                 m_match = this.m_matchRepo.merge(m_match, {fixtures: m_fixtures});
+                await this.m_matchRepo.save(m_match);
                 
                 // Also, while we're here, update the MLEDB season's match list
                 const m_matches: MLE_Match[] = m_season.matches;
                 m_matches.push(m_match);
                 m_season = this.m_seasonRepo.merge(m_season, {matches: m_matches});
+                await this.m_seasonRepo.save(m_season);
+            }
+            
+            if (sg && m_match) {
+                // Make an entry in the bridge tables
+                await this.m2sgRepo.insert({
+                    matchId: m_match.id,
+                    weekScheduleGroupId: sg.id,
+                });
             }
         }
         
         // A last touch on the season objects: we now know how long they will
         // last.
         season = this.scheduleGroupRepo.merge(season, {start: startDate, end: endDate});
+        await this.scheduleGroupRepo.save(season);
         m_season = this.m_seasonRepo.merge(m_season, {startDate: startDate, endDate: endDate});
+        await this.m_seasonRepo.save(m_season);
+        
+        // Make sure we update the bridge tables
+        await this.s2sgRepo.insert({
+            scheduleGroupId: season.id,
+            seasonNumber: season_number,
+        });
+        
+        // We're done touching the DB at this point, so we can commit the transaction.
+        await runner.commitTransaction();
         
         // Finally, build just a list of the schedule groups we've created to
         // send back
@@ -183,6 +199,7 @@ export class ScheduleGroupService {
             sgs.push(sg);
         }
 
+        // ... and send them back.
         return sgs;
     }
 }

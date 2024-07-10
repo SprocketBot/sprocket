@@ -1,6 +1,14 @@
-import { z } from "zod";
+import {z} from "zod";
 
 export const MLERL_Leagues = [1, 2, 3, 4, 5];
+
+export const MLERL_SkillGrouptoLeagueString = {
+    1: "PREMIER",
+    2: "MASTER",
+    3: "CHAMPION",
+    4: "ACADEMY",
+    5: "FOUNDATION",
+};
 
 export const RawFixtureSchema = z.array(z.tuple([
     z.string(), // Week number

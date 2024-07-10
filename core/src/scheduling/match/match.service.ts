@@ -15,6 +15,7 @@ import type {
 } from "../../database";
 import {
     Franchise,
+    GameMode,
     Invalidation,
     Match,
     MatchParent,
@@ -27,7 +28,7 @@ import type {
     CalculateEloForMatchInput, MatchSummary, PlayerSummary,
 } from "../../elo/elo-connector";
 import {
-    EloConnectorService, EloEndpoint, GameMode, TeamColor,
+    EloConnectorService, EloEndpoint, GameMode as eloGameMode, TeamColor,
 } from "../../elo/elo-connector";
 import {PopulateService} from "../../util/populate/populate.service";
 
@@ -52,6 +53,7 @@ export class MatchService {
         @InjectRepository(Invalidation) private invalidationRepository: Repository<Invalidation>,
         @InjectRepository(Round) private readonly roundRepository: Repository<Round>,
         @InjectRepository(Team) private readonly teamRepository: Repository<Team>,
+        @InjectRepository(GameMode) private readonly modeRepo: Repository<GameMode>,
         private dataSource: DataSource,
         private readonly popService: PopulateService,
         private readonly eloConnectorService: EloConnectorService,
@@ -70,25 +72,30 @@ export class MatchService {
         return this.matchRepository.save(match);
     }
 
-    async createMatchWithMatchParent(skill_group:GameSkillGroup, isDummy?: boolean, invalidationId?: number): Promise<[Match, MatchParent]> {
+    async createMatchWithMatchParent(skill_group: GameSkillGroup, mode: string, isDummy?: boolean, invalidationId?: number): Promise<[Match, MatchParent]> {
 
         let invalidation: Invalidation | undefined;
-        if (invalidationId) invalidation = await this.invalidationRepository.findOneOrFail({ where: { id: invalidationId } });
-        
+        if (invalidationId) invalidation = await this.invalidationRepository.findOneOrFail({where: {id: invalidationId} });
+        const search_code = `RL_${mode}`;
+        const game_mode = await this.modeRepo.findOneOrFail({where: {code: search_code} });
         const match = this.matchRepository.create({
             isDummy: isDummy,
             invalidation: invalidation,
             rounds: [],
             skillGroup: skill_group,
-            skillGroupId: skill_group.id
+            skillGroupId: skill_group.id,
+            gameMode: game_mode,
         });
+        await this.matchRepository.save(match);
 
         const match_parent = this.matchParentRepository.create({
-            match: match
+            match: match,
         });
+        await this.matchParentRepository.save(match_parent);
         
         return [match, match_parent];
     }
+
     async getMatchBySubmissionId(submissionId: string): Promise<Match> {
         return this.matchRepository.findOneOrFail({
             where: {
@@ -363,7 +370,7 @@ export class MatchService {
             id: match.id,
             numGames: match.rounds.length,
             isScrim: isScrim,
-            gameMode: (match.gameMode.code === "RL_DOUBLES") ? GameMode.DOUBLES : GameMode.STANDARD,
+            gameMode: (match.gameMode.code === "RL_DOUBLES") ? eloGameMode.DOUBLES : eloGameMode.STANDARD,
             gameStats: [],
         };
 
