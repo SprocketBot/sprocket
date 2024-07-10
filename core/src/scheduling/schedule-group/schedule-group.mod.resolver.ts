@@ -25,7 +25,6 @@ export class ScheduleGroupModResolver {
     ) {
     }
 
-    // TODO: ScheduleGroupType resolver?
     @Query(() => [ScheduleGroupType])
     async getScheduleGroupTypes(@CurrentUser() user: UserPayload): Promise<ScheduleGroupType[]> {
         if (!user.currentOrganizationId) {
