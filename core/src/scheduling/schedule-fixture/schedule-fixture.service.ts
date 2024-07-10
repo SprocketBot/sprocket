@@ -51,7 +51,7 @@ export class ScheduleFixtureService {
         fixture.homeFranchiseId = home.id;
         fixture.awayFranchiseId = away.id;
         
-        // Create the match parents
+        // Create the matches and match parents
         let matches: Match[] = [];
         let mps: MatchParent[] = [];
 
