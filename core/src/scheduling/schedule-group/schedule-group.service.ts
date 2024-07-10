@@ -7,6 +7,7 @@ import {
 
 import type {GameSkillGroup, ScheduleFixture} from "../../database";
 import {ScheduleGroup} from "../../database";
+import {MLE_Match, MLE_Season} from "../../database/mledb";
 import {GameSkillGroupService} from "../../franchise";
 import {ScheduleFixtureService} from "../schedule-fixture/schedule-fixture.service";
 import type {RawFixture} from "./schedule-groups.types";
@@ -17,6 +18,10 @@ export class ScheduleGroupService {
     constructor(
         @InjectRepository(ScheduleGroup)
         private readonly scheduleGroupRepo: Repository<ScheduleGroup>,
+        @InjectRepository(MLE_Season)
+        private readonly m_seasonRepo: Repository<MLE_Season>,
+        @InjectRepository(MLE_Match)
+        private readonly m_matchRepo: Repository<MLE_Match>,
         private readonly scheduleFixtureService: ScheduleFixtureService,
         private readonly gameSkillGroupService: GameSkillGroupService,
         private readonly dataSource: DataSource,
@@ -90,7 +95,10 @@ export class ScheduleGroupService {
             // Next, get the match week Schedule Group (or create it)
             const desc = `Week ${fixture.week}`;
             const match_week: ScheduleGroup
-                = sgMap.get(desc) ?? this.scheduleGroupRepo.create({description: desc});
+                = sgMap.get(desc) ?? this.scheduleGroupRepo.create({
+                    description: desc,
+                    parentGroup: season,
+                });
             sgMap.set(desc, match_week);
             sfMap.set(desc, []);
             
@@ -119,6 +127,16 @@ export class ScheduleGroupService {
             sfMap.set(desc, new_list);
         }
 
+        // Now that we've looped over all the input and created the fixtures and
+        // matches, merge each list of fixtures to its corresponding match week
+        // SG
+        for (const desc of sgMap.keys()) {
+            const sg: ScheduleGroup | undefined = sgMap.get(desc);
+            const sfs: ScheduleFixture[] | undefined = sfMap.get(desc);
+            if (sg) {
+                this.scheduleGroupRepo.merge(sg, {fixtures: sfs});
+            }
+        }
         season = this.scheduleGroupRepo.merge(season, {description: season_description});
         sgs.push(season);
         for (const sg of sgMap.values()) {
