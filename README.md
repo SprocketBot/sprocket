@@ -25,6 +25,8 @@ Sprocket comes with a [Docker Compose](./docker-compose.yaml) file that can be u
 
 You will **need**  
 1. A [Discord OAuth Application](https://discord.com/developers/applications)
+    - Make sure that you have set up an OAuth Redirect URL of `http://api.localhost:8080/oauth/callback/discord`
+    - If you are using a base url other than localhost; adjust the redirect url accordingly
 2. [Docker (compose)](https://docs.docker.com/engine/install/) Installed
 3. The [Bun](https://bun.sh/) Javascript Runtime
 4. That's it!
@@ -48,3 +50,4 @@ You may **want**
     1. When adding a new service or package, ensure that the root [package.json](./package.json) is updated to include it
 1. Once you have configured the environment to your liking, `docker compose up`, and navigate to [localhost:8080](http://localhost:8080).
 1. Run the [`migrate:up`](./migrate:up) and [`seed`](./seed) scripts to initialize the database and populate it with some basic data
+    - You run these by using `./migrate:up` and `./seed` in your terminal
