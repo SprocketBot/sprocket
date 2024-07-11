@@ -45,6 +45,14 @@ You may **want**
             - Bot token is only required if running the discord microservice
 1. Install dependencies by running `bun i` from the root of the project.
     1. Sprocket uses [Bun workspaces](https://bun.sh/docs/install/workspaces), which means that all dependencies are installed from the root of the project.
-    1. When adding a new service or package, ensure that the root [package.json](./package.json) is updated to include it
-1. Once you have configured the environment to your liking, `docker compose up`, and navigate to [localhost:8080](http://localhost:8080).
-1. Run the [`migrate:up`](./migrate:up) and [`seed`](./seed) scripts to initialize the database and populate it with some basic data
+    1. When adding a new service or package, ensure that the root
+       [package.json](./package.json) is updated to include it
+    1. **Note for MacOS Users:** Bun needs to be run within a linux container to
+       properly install dependencies, as we're running the whole project within
+       linux containers. To do this, run `docker run -v .:/app -w /app oven/bun
+       bun i` instead of just `bun i` above. Make sure your `node_modules/`
+       folder is deleted before doing this!
+1. Once you have configured the environment to your liking, `docker compose up`,
+   and navigate to [localhost:8080](http://localhost:8080).
+1. Run the [`migrate:up`](./migrate:up) and [`seed`](./seed) scripts to
+   initialize the database and populate it with some basic data
