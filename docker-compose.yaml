@@ -73,6 +73,9 @@ services:
       PUBLIC_API_URL: ${CORE_URL:-api.localhost}
       PUBLIC_API_SECURE: ${SSL:-false}
       PUBLIC_API_PORT: ${LISTEN_PORT}
+      PRIVATE_API_URL: core
+      PRIVATE_API_SECURE: false
+      PRIVATE_API_PORT: 3000
     labels:
       traefik.enable: true
       traefik.http.routers.web.rule: Host(`${BASE_URL:-localhost}`)
