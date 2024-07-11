@@ -43,8 +43,12 @@ You may **want**
     1. You will need to configure:
         - `AUTH_DISCORD_CLIENT_ID`, `AUTH_DISCORD_SECRET` and `AUTH_DISCORD_BOT_TOKEN`
             - Bot token is only required if running the discord microservice
+        - Your Discord application will also need to be configured with the
+          redirect URL which this app uses: `http://localhost:8080/oauth/callback/discord`
 1. Install dependencies by running `bun i` from the root of the project.
-    1. Sprocket uses [Bun workspaces](https://bun.sh/docs/install/workspaces), which means that all dependencies are installed from the root of the project.
+    1. Sprocket uses [Bun workspaces](https://bun.sh/docs/install/workspaces),
+       which means that all dependencies are installed from the root of the
+       project.
     1. When adding a new service or package, ensure that the root
        [package.json](./package.json) is updated to include it
     1. **Note for MacOS Users:** Bun needs to be run within a linux container to
