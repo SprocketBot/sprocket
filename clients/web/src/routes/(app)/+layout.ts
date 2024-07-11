@@ -8,13 +8,11 @@ export const load: LayoutLoad = async ({ fetch, data }) => {
 	const response = await fetch(`${apiUrl}/auth/check?token=${data?.authToken ?? ''}`, {
 		credentials: 'include'
 	}).catch((e) => {
-		console.log({ apiUrl });
 		console.error(e);
 		return { ok: false };
 	});
 
 	if (!response.ok || !('json' in response)) {
-		console.log({ response });
 		// handle core down
 		throw redirect(301, '/api-down');
 	}
