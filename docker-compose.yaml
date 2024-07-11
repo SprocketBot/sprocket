@@ -6,7 +6,7 @@ services:
     image: traefik
     volumes:
       - ./config/traefik:/traefik
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${DOCKER_SOCKET_PATH:-/var/run/docker.sock}:/var/run/docker.sock:ro
     command:
       - "--log.level=DEBUG"
       - "--providers.docker=true"
@@ -17,11 +17,11 @@ services:
       - "--providers.file.filename=/traefik/dyn.yaml"
     ports:
       - 8080:80
-      - 443:443
+      # If using TLS, uncomment
+      # - 443:443
 
   core:
     container_name: sprocket-core
-    user: 1000:1000
     image: oven/bun:1.0.30-alpine
     restart: unless-stopped
     depends_on:
@@ -29,14 +29,14 @@ services:
       - lavinmq
       - redis
     volumes:
-      - .:/app
+      - .:/app:rw
       - ./.env:/app/core/.env
       - ./config.yaml:/app/core/config.yaml
     command: bun --preload ../lib/src/tracing.ts --bun --watch src/main.ts
     working_dir: /app/core
     labels:
       traefik.enable: true
-      traefik.http.routers.core.rule: Host(`${CORE_URL:-core.localhost}`)
+      traefik.http.routers.core.rule: Host(`${CORE_URL:-api.localhost}`)
       traefik.http.routers.core.entrypoints: web,websecure
       traefik.http.services.core.loadbalancer.server.port: 3000
     environment:
@@ -44,7 +44,6 @@ services:
 
   matchmaking:
     container_name: sprocket-matchmaking
-    user: 1000:1000
     image: oven/bun:1.0.30-alpine
     restart: unless-stopped
     command: bun --preload ../../lib/src/tracing.ts -b --watch src/main.ts
@@ -61,7 +60,6 @@ services:
 
   web:
     container_name: sprocket-web
-    user: 1000:1000
     image: oven/bun:1.0.30-alpine
     depends_on:
       - core
@@ -72,7 +70,7 @@ services:
     command: bun run -b dev --host
     working_dir: /app/clients/web
     environment:
-      PUBLIC_API_URL: ${CORE_URL:-core.localhost}
+      PUBLIC_API_URL: ${CORE_URL:-api.localhost}
       PUBLIC_API_SECURE: ${SSL:-false}
       PUBLIC_API_PORT: ${LISTEN_PORT}
     labels:
@@ -83,7 +81,6 @@ services:
 
   discord:
     container_name: sprocket-discord
-    user: 1000:1000
     image: oven/bun:1.0.30-alpine
     depends_on:
       - lavinmq
@@ -165,7 +162,7 @@ services:
     image: timberio/vector:0.36.X-alpine
     volumes:
       - ./config/vector/vector.yaml:/etc/vector/vector.yaml:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${DOCKER_SOCKET_PATH:-/var/run/docker.sock}:/var/run/docker.sock:ro
 
 
 networks:
