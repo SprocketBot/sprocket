@@ -13,19 +13,23 @@
 
 </div>
 
-Sprocket is a platform primarily used to manage and automate organized Esports leagues, one such example being [Minor League Esports](https://mlesports.gg).
-The platform uses a Microservice pattern, and this repository contains everything needed to quickly start a new microservice.
+Sprocket is a platform primarily used to manage and automate organized Esports
+leagues, one such example being [Minor League Esports](https://mlesports.gg).
+
+The platform uses a Microservice pattern, and this repository contains
+everything needed to quickly start a new microservice.
 
 
 ## Running Locally
 
-Sprocket comes with a [Docker Compose](./docker-compose.yaml) file that can be used to easily run the platform locally.
+Sprocket comes with a [Docker Compose](./docker-compose.yaml) file that can be
+used to easily run the platform locally.
 
 ### Pre-requisites
 
 You will **need**  
 1. A [Discord OAuth Application](https://discord.com/developers/applications)
-    - Make sure that you have set up an OAuth Redirect URL of `http://api.localhost:8080/oauth/callback/discord`
+    - Make sure that you have set up an OAuth Redirect URL of `http://api.l.ocket.cloud:8080/oauth/callback/discord`
     - If you are using a base url other than localhost; adjust the redirect url accordingly
 2. [Docker (compose)](https://docs.docker.com/engine/install/) Installed
 3. The [Bun](https://bun.sh/) Javascript Runtime
@@ -41,24 +45,27 @@ You may **want**
 ### Setup
 
 1. Once you have cloned the repository, copy `.env.example` to `.env`
-    1. The root [`config.yaml`](./config.yaml) is shared between all microservices, and can reference environment variables with sensible defaults. Some will be populated automatically (e.g. Postgres configuration), others will need to be set yourself
-    1. You will need to configure:
+    1. The root [`config.yaml`](./config.yaml) is shared between all
+       microservices, and can reference environment variables with sensible
+       defaults. Some will be populated automatically (e.g. Postgres
+       configuration), others will need to be set yourself
+    2. You will need to configure:
         - `AUTH_DISCORD_CLIENT_ID`, `AUTH_DISCORD_SECRET` and `AUTH_DISCORD_BOT_TOKEN`
             - Bot token is only required if running the discord microservice
         - Your Discord application will also need to be configured with the
-          redirect URL which this app uses: `http://localhost:8080/oauth/callback/discord`
-1. Install dependencies by running `bun i` from the root of the project.
+          redirect URL which this app uses: `http://api.l.ocket.cloud:8080/oauth/callback/discord`
+2. Install dependencies by running `bun i` from the root of the project.
     1. Sprocket uses [Bun workspaces](https://bun.sh/docs/install/workspaces),
        which means that all dependencies are installed from the root of the
        project.
-    1. When adding a new service or package, ensure that the root
+    2. When adding a new service or package, ensure that the root
        [package.json](./package.json) is updated to include it
-    1. **Note for MacOS Users:** Bun needs to be run within a linux container to
+    3. **Note for MacOS Users:** Bun needs to be run within a linux container to
        properly install dependencies, as we're running the whole project within
        linux containers. To do this, run `docker run -v .:/app -w /app oven/bun
        bun i` instead of just `bun i` above. Make sure your `node_modules/`
        folder is deleted before doing this!
-1. Once you have configured the environment to your liking, `docker compose up`,
-   and navigate to [localhost:8080](http://localhost:8080).
-1. Run the [`migrate:up`](./migrate:up) and [`seed`](./seed) scripts to
+3. Once you have configured the environment to your liking, `docker compose up`,
+   and navigate to [l.ocket.cloud:8080](http://l.ocket.cloud:8080).
+4. Run the [`migrate:up`](./migrate:up) and [`seed`](./seed) scripts to
    initialize the database and populate it with some basic data

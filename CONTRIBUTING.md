@@ -26,10 +26,18 @@ You can get a feel for what we are working on at our [GitHub Project](https://gi
 
 - Copy `.env.example` to `.env`, this is where your configuration will go
   - You will at least need to set up a [Discord OAuth App](https://discord.com/developers/applications)
+    - This OAuth App needs to have the correct redirect URL added to its
+      configuration (http://api.l.ocket.cloud:8080/oauth/callback/discord)
     - You will need a bot token as well if you are working on the bot, this should be from the same project as your OAuth credentials
   - There are other auth providers that you can enable as well (e.g. Steam), but instructions for those are not available yet
   - You should not need to configure anything else, S3 information, and the URLs are all set up to work out of the box
 
+- Use `bun i` from the root of the project to install the applications'
+  dependencies
+  - If on MacOS, instead use `docker run -v .:/app -w /app oven/bun bun i`, so
+    that the dependency install is run inside of a linux container (which is
+    where the apps will run), otherwise you'll get mac versions of the deps and
+    things won't build.
 - Use `docker compose up` to start all of the applications
   - Hint: use `docker compose up -d` to start everything without holding your terminal hostage, you can then use `docker compose logs [service name]` to see the logs of each service
 
@@ -37,5 +45,4 @@ You can get a feel for what we are working on at our [GitHub Project](https://gi
 
 - Use `./seed` to put in some basic information (e.g. this tells Sprocket about Rocket League, and 2 made up leagues "Pro" and "Amateur")
 
-- You should now be able to access and sign in to [localhost:8080](http://localhost:8080)
-
+- You should now be able to access and sign in to [l.ocket.cloud:8080](http://l.ocket.cloud:8080)
