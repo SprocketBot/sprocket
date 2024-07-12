@@ -348,4 +348,20 @@ export class PlayerResolver {
 
         return imported;
     }
+    
+    @Mutation(() => Player)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
+    async updatePlayer(
+        @Args("mleid") mleid: number,
+        @Args("name") name: string,
+        @Args("skillGroup", {type: () => League}) league: League,
+        @Args("salary", {type: () => Float}) salary: number,
+        @Args("preferredPlatform") platform: string,
+        @Args("timezone", {type: () => Timezone}) timezone: Timezone,
+        @Args("preferredMode", {type: () => ModePreference}) mode: ModePreference,
+        @Args("accounts", { type: () => [IntakePlayerAccount] }) accounts: IntakePlayerAccount[],
+    ): Promise<Player> {
+        const sg = await this.skillGroupService.getGameSkillGroup({ where: { ordinal: LeagueOrdinals.indexOf(league) + 1 } });
+        return await this.playerService.updatePlayer(mleid, name, sg.id, salary, platform, accounts, timezone, mode);
+    }
 }
