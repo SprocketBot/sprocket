@@ -1,12 +1,24 @@
+import {
+    Field, Float, InputType,
+    Int,
+} from "@nestjs/graphql";
 import {z} from "zod";
 
 import {
     League, ModePreference, Timezone,
 } from "../../database/mledb";
-
 export interface GameAndOrganization {
     gameId: number;
     organizationId: number;
+}
+
+@InputType()
+export class CreatePlayerTuple {
+    @Field(() => Int)
+    gameSkillGroupId: number;
+
+    @Field(() => Float)
+    salary: number;
 }
 
 export const IntakeSchema = z.array(z.tuple([

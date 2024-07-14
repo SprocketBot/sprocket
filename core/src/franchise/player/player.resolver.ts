@@ -65,6 +65,9 @@ export class IntakePlayerAccount {
 
 @Resolver(() => Player)
 export class PlayerResolver {
+
+    private readonly logger = new Logger(PlayerResolver.name);
+
     constructor(
         private readonly popService: PopulateService,
         private readonly playerService: PlayerService,
@@ -76,8 +79,6 @@ export class PlayerResolver {
         @InjectRepository(UserAuthenticationAccount) private userAuthRepository: Repository<UserAuthenticationAccount>,
         @Inject(forwardRef(() => OrganizationService)) private readonly organizationService: OrganizationService,
     ) {}
-
-    private readonly logger = new Logger(PlayerResolver.name);
 
     @ResolveField()
     async skillGroup(@Root() player: Player): Promise<GameSkillGroup> {
@@ -359,9 +360,9 @@ export class PlayerResolver {
         @Args("preferredPlatform") platform: string,
         @Args("timezone", {type: () => Timezone}) timezone: Timezone,
         @Args("preferredMode", {type: () => ModePreference}) mode: ModePreference,
-        @Args("accounts", { type: () => [IntakePlayerAccount] }) accounts: IntakePlayerAccount[],
+        @Args("accounts", {type: () => [IntakePlayerAccount]}) accounts: IntakePlayerAccount[],
     ): Promise<Player> {
-        const sg = await this.skillGroupService.getGameSkillGroup({ where: { ordinal: LeagueOrdinals.indexOf(league) + 1 } });
-        return await this.playerService.updatePlayer(mleid, name, sg.id, salary, platform, accounts, timezone, mode);
+        const sg = await this.skillGroupService.getGameSkillGroup({where: {ordinal: LeagueOrdinals.indexOf(league) + 1} });
+        return this.playerService.updatePlayer(mleid, name, sg.id, salary, platform, accounts, timezone, mode);
     }
 }
