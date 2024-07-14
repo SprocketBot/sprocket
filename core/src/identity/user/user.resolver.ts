@@ -5,12 +5,15 @@ import {
 import {JwtService} from "@nestjs/jwt";
 import {config} from "@sprocketbot/common";
 
-import type {UserAuthenticationAccount, UserProfile} from "../../database";
+import type {
+    UserAuthenticationAccount, UserProfile,
+} from "../../database";
 import {
     Member, User, UserAuthenticationAccountType,
 } from "../../database";
 import {MLE_OrganizationTeam} from "../../database/mledb";
 import {PlayerService} from "../../franchise";
+import {IntakePlayerAccount} from "../../franchise/player/player.resolver";
 import {CreatePlayerTuple} from "../../franchise/player/player.types";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {MemberService} from "../../organization";
@@ -117,6 +120,7 @@ export class UserResolver {
         @Args("name", {type: () => String}) name: string,
         @Args("discord_id", {type: () => String}) d_id: string,
         @Args("playersToLink", {type: () => [CreatePlayerTuple]}) ptl: CreatePlayerTuple[],
+        @Args("platformAccounts", {type: () => [IntakePlayerAccount] }) platformAccounts: IntakePlayerAccount[] = [],
     ): Promise<User> {
         // This looks a little backwards, but the identity service actually
         // creates the user object *and* the associated auth account for login
@@ -130,11 +134,24 @@ export class UserResolver {
             user.id,
         );
         
-        // Finally, for each game this user is going to participate in, create
+        // For each game this user is going to participate in, create
         // the corresponding player
+        let pid: number = 0;
+        let sal: number = 0;
         for (const pt of ptl) {
-            await this.playerService.createPlayer(member.id, pt.gameSkillGroupId, pt.salary);
+            const player = await this.playerService.createPlayer(member.id, pt.gameSkillGroupId, pt.salary);
+            pid = player.id;
+            sal = pt.salary;
         }
+        
+        // Finally, create the corresponding MLE Player object
+        await this.playerService.mle_createPlayer(
+            pid,
+            d_id,
+            name,
+            sal,
+            platformAccounts,
+        );
 
         // Send the newly created user back to the caller
         return user;
