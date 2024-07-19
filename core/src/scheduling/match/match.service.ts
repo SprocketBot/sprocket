@@ -321,12 +321,35 @@ export class MatchService {
             },
             relations: {
                 teamStats: true,
+                match: {
+                    id: true,
+                }
             },
         }));
         const replays = await Promise.all(replayPromises);
+        const match_parent = await this.getMatchParentEntity(replays[0].match.id);
+        let fixture : ScheduleFixture;
+        if (match_parent.type === "fixture") {
+            fixture = match_parent.data as ScheduleFixture;
+        } else {
+            return "Can't NCP a scrim or event match";
+        }
+        const home_team = await this.teamRepository.findOneOrFail({
+            where: {
+                franchise: {
+                    id: fixture.homeFranchiseId,
+                },
+                skillGroup: {
+                    id: replays[0].match.skillGroupId,
+                },
+            }
+        });
+
+        const home_won = home_team.id === winningTeam?.id;
 
         // Set replays to NCP true/false and update winning team/color
         for (const replay of replays) {
+            replay.homeWon = home_won;
             if (!isNcp && replay.isDummy) {
                 await this.roundRepository.delete(replay.id);
             } else {
