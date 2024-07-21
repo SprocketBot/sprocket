@@ -184,17 +184,17 @@ export class PlayerService {
         let player: Player;
 
         try {
-            const mlePlayer = await this.mle_playerRepository.findOne({where: {mleid} });
+            const mlePlayer = await this.mle_playerRepository.findOne({ where: { mleid } });
 
             if (mlePlayer) {
-                const bridge = await this.ptpRepo.findOneOrFail({where: {mledPlayerId: mlePlayer.id} });
+                const bridge = await this.ptpRepo.findOneOrFail({ where: { mledPlayerId: mlePlayer.id } });
                 player = await this.playerRepository.findOneOrFail({
-                    where: {id: bridge.sprocketPlayerId},
-                    relations: {member: {user: true, profile: true} },
+                    where: { id: bridge.sprocketPlayerId },
+                    relations: { member: { user: true, profile: true } },
                 });
 
-                player = this.playerRepository.merge(player, {skillGroupId: skillGroup.id, salary: salary});
-                this.memberProfileRepository.merge(player.member.profile, {name});
+                player = this.playerRepository.merge(player, { skillGroupId: skillGroup.id, salary: salary });
+                this.memberProfileRepository.merge(player.member.profile, { name });
 
                 await runner.manager.save(player);
                 await runner.manager.save(player.member.profile);

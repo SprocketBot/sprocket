@@ -360,9 +360,9 @@ export class PlayerResolver {
         @Args("preferredPlatform") platform: string,
         @Args("timezone", {type: () => Timezone}) timezone: Timezone,
         @Args("preferredMode", {type: () => ModePreference}) mode: ModePreference,
-        @Args("accounts", {type: () => [IntakePlayerAccount]}) accounts: IntakePlayerAccount[],
+        @Args("accounts", { type: () => [IntakePlayerAccount] }) accounts: IntakePlayerAccount[],
     ): Promise<Player> {
-        const sg = await this.skillGroupService.getGameSkillGroup({where: {ordinal: LeagueOrdinals.indexOf(league) + 1} });
-        return this.playerService.updatePlayer(mleid, name, sg.id, salary, platform, accounts, timezone, mode);
+        const sg = await this.skillGroupService.getGameSkillGroup({ where: { ordinal: LeagueOrdinals.indexOf(league) + 1 } });
+        return await this.playerService.updatePlayer(mleid, name, sg.id, salary, platform, accounts, timezone, mode);
     }
 }
