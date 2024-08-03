@@ -35,6 +35,11 @@ export class UserResolver {
     async me(@CurrentUser() cu: UserPayload): Promise<User> {
         return this.userService.getUserById(cu.userId);
     }
+    
+    @Query(() => User)
+    async user(@Args("id", {type: () => Int}) id: number): Promise<User> {
+        return this.userService.getUserById(id);
+    }
 
     @Query(() => User, {nullable: true})
     async getUserByAuthAccount(
