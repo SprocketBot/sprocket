@@ -10,7 +10,7 @@ import {
     Member, User, UserAuthenticationAccountType,
 } from "../../database";
 import {MLE_OrganizationTeam} from "../../database/mledb";
-import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
+//import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {PopulateService} from "../../util/populate/populate.service";
 import type {AuthPayload} from "../auth";
 import {UserPayload} from "../auth";
