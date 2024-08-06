@@ -34,16 +34,14 @@ import {
     UserAuthenticationAccountType,
     UserProfile,
 } from "../../database";
-import type {
-    League,
-    ModePreference,
-    Timezone,
-} from "../../database/mledb";
 import {
+    League,
     LeagueOrdinals,
     MLE_Player,
     MLE_PlayerAccount,
+    ModePreference,
     Role,
+    Timezone,
 } from "../../database/mledb";
 import {PlayerToPlayer} from "../../database/mledb-bridge/player_to_player.model";
 import {PlayerToUser} from "../../database/mledb-bridge/player_to_user.model";
@@ -162,6 +160,7 @@ export class PlayerService {
         });
 
         await this.playerRepository.save(player);
+
         return player;
     }
 
@@ -294,17 +293,15 @@ export class PlayerService {
                 await runner.manager.save(member.profile);
                 await runner.manager.save(player);
                 await this.mle_createPlayer(
-                    user.id,
                     player.id,
-                    mleid,
                     discordId,
                     name,
-                    LeagueOrdinals[skillGroup.ordinal - 1],
                     salary,
+                    platforms,
+                    LeagueOrdinals[skillGroup.ordinal - 1],
                     platform,
                     timezone,
                     modePreference,
-                    platforms,
                     runner,
                 );
 
@@ -394,23 +391,20 @@ export class PlayerService {
     }
 
     async mle_createPlayer(
-        sprocketUserId: number,
         sprocketPlayerId: number,
-        mleid: number,
         discordId: string,
         name: string,
-        league: League,
         salary: number,
-        platform: string,
-        timezone: Timezone,
-        preference: ModePreference,
-        accounts: IntakePlayerAccount[],
+        accounts: IntakePlayerAccount[] = [],
+        league: League = League.FOUNDATION,
+        platform: string = "PC",
+        timezone: Timezone = Timezone.US_EAST,
+        preference: ModePreference = ModePreference.BOTH,
         runner?: QueryRunner,
     ): Promise<MLE_Player> {
         let player: MLE_Player = {
             createdBy: "Sprocket FA Intake",
             updatedBy: "Sprocket FA Intake",
-            mleid: mleid,
             name: name,
             salary: salary,
             league: league,
@@ -440,21 +434,14 @@ export class PlayerService {
             await this.mle_playerAccountRepository.save(playerAccounts);
         }
 
-        const ptuBridge = this.ptuRepo.create({
-            userId: sprocketUserId,
-            playerId: player.id,
-        });
-
         const ptpBridge = this.ptpRepo.create({
             sprocketPlayerId: sprocketPlayerId,
             mledPlayerId: player.id,
         });
         
         if (runner) {
-            await runner.manager.save(ptuBridge);
             await runner.manager.save(ptpBridge);
         } else {
-            await this.ptuRepo.save(ptuBridge);
             await this.ptpRepo.save(ptpBridge);
         }
 

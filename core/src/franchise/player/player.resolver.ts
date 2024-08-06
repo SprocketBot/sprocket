@@ -65,6 +65,9 @@ export class IntakePlayerAccount {
 
 @Resolver(() => Player)
 export class PlayerResolver {
+
+    private readonly logger = new Logger(PlayerResolver.name);
+
     constructor(
         private readonly popService: PopulateService,
         private readonly playerService: PlayerService,
@@ -76,8 +79,6 @@ export class PlayerResolver {
         @InjectRepository(UserAuthenticationAccount) private userAuthRepository: Repository<UserAuthenticationAccount>,
         @Inject(forwardRef(() => OrganizationService)) private readonly organizationService: OrganizationService,
     ) {}
-
-    private readonly logger = new Logger(PlayerResolver.name);
 
     @ResolveField()
     async skillGroup(@Root() player: Player): Promise<GameSkillGroup> {
