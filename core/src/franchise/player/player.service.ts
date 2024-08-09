@@ -58,6 +58,7 @@ import {MemberService} from "../../organization/member/member.service";
 import {GameSkillGroupService} from "../game-skill-group";
 import type {IntakePlayerAccount} from "./player.resolver";
 import type {RankdownJwtPayload} from "./player.types";
+import type {CreatePlayerTuple} from "./player.types";
 
 @Injectable()
 export class PlayerService {
@@ -184,17 +185,17 @@ export class PlayerService {
         let player: Player;
 
         try {
-            const mlePlayer = await this.mle_playerRepository.findOne({ where: { mleid } });
+            const mlePlayer = await this.mle_playerRepository.findOne({where: {mleid} });
 
             if (mlePlayer) {
-                const bridge = await this.ptpRepo.findOneOrFail({ where: { mledPlayerId: mlePlayer.id } });
+                const bridge = await this.ptpRepo.findOneOrFail({where: {mledPlayerId: mlePlayer.id} });
                 player = await this.playerRepository.findOneOrFail({
-                    where: { id: bridge.sprocketPlayerId },
-                    relations: { member: { user: true, profile: true } },
+                    where: {id: bridge.sprocketPlayerId},
+                    relations: {member: {user: true, profile: true} },
                 });
 
-                player = this.playerRepository.merge(player, { skillGroupId: skillGroup.id, salary: salary });
-                this.memberProfileRepository.merge(player.member.profile, { name });
+                player = this.playerRepository.merge(player, {skillGroupId: skillGroup.id, salary: salary});
+                this.memberProfileRepository.merge(player.member.profile, {name});
 
                 await runner.manager.save(player);
                 await runner.manager.save(player.member.profile);
@@ -963,6 +964,91 @@ export class PlayerService {
                 success: false,
                 request: data,
             };
+        }
+    }
+    
+    async intakeUser(
+        name: string,
+        d_id: string,
+        ptl: CreatePlayerTuple[],
+        platformAccounts: IntakePlayerAccount[] = [],
+    ): Promise<User | string> {
+        const mleOrg = await this.organizationRepository.findOneOrFail({where: {profile: {name: "Minor League Esports"} }, relations: {profile: true} });
+
+        const runner = this.dataSource.createQueryRunner();
+        await runner.connect();
+        await runner.startTransaction();
+
+        try {
+            const user = this.userRepository.create({});
+        
+            user.profile = this.userProfileRepository.create({
+                user: user,
+                email: "unknown@sprocket.gg",
+                displayName: name,
+            });
+            user.profile.user = user;
+
+            const authAcc = this.userAuthRepository.create({
+                accountType: UserAuthenticationAccountType.DISCORD,
+                accountId: d_id,
+            });
+            authAcc.user = user;
+            user.authenticationAccounts = [authAcc];
+
+            const member = this.memberRepository.create({});
+            member.organization = mleOrg;
+            member.user = user;
+            member.profile = this.memberProfileRepository.create({
+                name: name,
+            });
+            member.profile.member = member;
+
+            // For each game this user is going to participate in, create
+            // the corresponding player
+            let pid: number = 0;
+            let sal: number = 0;
+            let sgid = 0;
+            for (const pt of ptl) {
+                const player = await this.createPlayer(member.id, pt.gameSkillGroupId, pt.salary);
+                sgid = pt.gameSkillGroupId;
+                pid = player.id;
+                sal = pt.salary;
+            }
+
+            // Find the corresponding skill group
+            const skillGroup = await this.skillGroupService.getGameSkillGroupById(sgid);
+
+            // Finally, create the corresponding MLE Player object
+            await this.mle_createPlayer(
+                pid,
+                d_id,
+                name,
+                sal,
+                platformAccounts,
+                LeagueOrdinals[skillGroup.ordinal - 1],
+            );
+
+            await runner.manager.save(user);
+            await runner.manager.save(user.profile);
+            await runner.manager.save(user.authenticationAccounts);
+            await runner.manager.save(member);
+            await runner.manager.save(member.profile);
+
+            await this.eloConnectorService.createJob(EloEndpoint.AddPlayerBySalary, {
+                id: pid,
+                name: name,
+                salary: sal,
+                skillGroup: skillGroup.ordinal,
+            });
+            
+            await runner.commitTransaction();
+            // Send the newly created user back to the caller
+            return user;
+        } catch (e) {
+            this.logger.error(e);
+            await runner.rollbackTransaction();
+            return e as string;
         }
     }
 }
