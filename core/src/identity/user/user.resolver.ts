@@ -12,11 +12,7 @@ import {
     Member, User, UserAuthenticationAccountType,
 } from "../../database";
 import {MLE_OrganizationTeam} from "../../database/mledb";
-import {PlayerService} from "../../franchise";
-import {IntakePlayerAccount} from "../../franchise/player/player.resolver";
-import {CreatePlayerTuple} from "../../franchise/player/player.types";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
-import {MemberService} from "../../organization";
 import {PopulateService} from "../../util/populate/populate.service";
 import type {AuthPayload} from "../auth";
 import {UserPayload} from "../auth";
@@ -25,8 +21,6 @@ import {GqlJwtGuard} from "../auth/gql-auth-guard";
 import {IdentityService} from "../identity.service";
 import {UserService} from "./user.service";
 
-const MLE_ORGANIZATION_ID = 2;
-
 @Resolver(() => User)
 export class UserResolver {
     private readonly logger = new Logger(UserResolver.name);
@@ -34,8 +28,6 @@ export class UserResolver {
     constructor(
         private readonly identityService: IdentityService,
         private readonly userService: UserService,
-        private readonly memberService: MemberService,
-        private readonly playerService: PlayerService,
         private readonly popService: PopulateService,
         private readonly jwtService: JwtService,
     ) {}
@@ -114,46 +106,4 @@ export class UserResolver {
         return this.jwtService.sign(payload, {expiresIn: "5m"});
     }
     
-    @Mutation(() => [User])
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
-    async intakeUser(
-        @Args("name", {type: () => String}) name: string,
-        @Args("discord_id", {type: () => String}) d_id: string,
-        @Args("playersToLink", {type: () => [CreatePlayerTuple]}) ptl: CreatePlayerTuple[],
-        @Args("platformAccounts", {type: () => [IntakePlayerAccount] }) platformAccounts: IntakePlayerAccount[] = [],
-    ): Promise<User> {
-        // This looks a little backwards, but the identity service actually
-        // creates the user object *and* the associated auth account for login
-        // at the same time.
-        const user = await this.identityService.registerUser(UserAuthenticationAccountType.DISCORD, d_id);
-        
-        // Once we have the user, we can create the member as part of MLE
-        const member = await this.memberService.createMember(
-            {name: name},
-            MLE_ORGANIZATION_ID,
-            user.id,
-        );
-        
-        // For each game this user is going to participate in, create
-        // the corresponding player
-        let pid: number = 0;
-        let sal: number = 0;
-        for (const pt of ptl) {
-            const player = await this.playerService.createPlayer(member.id, pt.gameSkillGroupId, pt.salary);
-            pid = player.id;
-            sal = pt.salary;
-        }
-        
-        // Finally, create the corresponding MLE Player object
-        await this.playerService.mle_createPlayer(
-            pid,
-            d_id,
-            name,
-            sal,
-            platformAccounts,
-        );
-
-        // Send the newly created user back to the caller
-        return user;
-    }
 }

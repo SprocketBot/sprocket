@@ -5,13 +5,12 @@ import {
     DataSource, Raw, Repository,
 } from "typeorm";
 
-import type {GameSkillGroup, ScheduleFixture} from "../../database";
-import {ScheduleGroup} from "../../database";
+import type {ScheduleFixture} from "../../database";
+import {GameSkillGroup, ScheduleGroup} from "../../database";
 import type {MLE_Fixture} from "../../database/mledb";
 import {MLE_Match, MLE_Season} from "../../database/mledb";
 import {MatchToScheduleGroup} from "../../database/mledb-bridge/match_to_schedule_group.model";
 import {SeasonToScheduleGroup} from "../../database/mledb-bridge/season_to_schedule_group.model";
-import {GameSkillGroupService} from "../../franchise";
 import {ScheduleFixtureService} from "../schedule-fixture/schedule-fixture.service";
 import type {RawFixture} from "./schedule-groups.types";
 import {MLERL_Leagues} from "./schedule-groups.types";
@@ -30,7 +29,7 @@ export class ScheduleGroupService {
         @InjectRepository(MatchToScheduleGroup)
         private readonly m2sgRepo: Repository<MatchToScheduleGroup>,
         private readonly scheduleFixtureService: ScheduleFixtureService,
-        private readonly gameSkillGroupService: GameSkillGroupService,
+        @InjectRepository(GameSkillGroup) private gameSkillGroupRepository: Repository<GameSkillGroup>,
         private readonly dataSource: DataSource,
     ) {}
 
@@ -125,7 +124,7 @@ export class ScheduleGroupService {
                     continue;
                 }
                 
-                const sg = await this.gameSkillGroupService.getGameSkillGroup({where: {ordinal: val} });
+                const sg = await this.gameSkillGroupRepository.findOneOrFail({where: {ordinal: val} });
                 skill_groups.push(sg);
             }
             
