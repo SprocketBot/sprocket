@@ -159,8 +159,8 @@ export class MemberService {
         return this.memberRepository.findOneOrFail({
             where: {
                 organizationId: organizationId,
-                userId: userId
-            }
-        })
+                userId: userId,
+            },
+        });
     }
 }

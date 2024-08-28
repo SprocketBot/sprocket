@@ -28,13 +28,14 @@ import {Repository} from "typeorm";
 
 import type {GameSkillGroup} from "../../database";
 import {
-    Member, Player, UserAuthenticationAccount, UserAuthenticationAccountType,
+    Member, Player, User, UserAuthenticationAccount, UserAuthenticationAccountType,
 } from "../../database";
 import {
     League, LeagueOrdinals, MLE_OrganizationTeam, MLE_Platform, ModePreference, Timezone,
 } from "../../database/mledb";
 import type {ManualEloChange, ManualSkillGroupChange} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
+import {CreatePlayerTuple} from "../../franchise/player/player.types";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {OrganizationService} from "../../organization";
@@ -65,6 +66,9 @@ export class IntakePlayerAccount {
 
 @Resolver(() => Player)
 export class PlayerResolver {
+
+    private readonly logger = new Logger(PlayerResolver.name);
+
     constructor(
         private readonly popService: PopulateService,
         private readonly playerService: PlayerService,
@@ -76,8 +80,6 @@ export class PlayerResolver {
         @InjectRepository(UserAuthenticationAccount) private userAuthRepository: Repository<UserAuthenticationAccount>,
         @Inject(forwardRef(() => OrganizationService)) private readonly organizationService: OrganizationService,
     ) {}
-
-    private readonly logger = new Logger(PlayerResolver.name);
 
     @ResolveField()
     async skillGroup(@Root() player: Player): Promise<GameSkillGroup> {
@@ -348,4 +350,32 @@ export class PlayerResolver {
 
         return imported;
     }
+    
+    @Mutation(() => Player)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
+    async updatePlayer(
+        @Args("mleid") mleid: number,
+        @Args("name") name: string,
+        @Args("skillGroup", {type: () => League}) league: League,
+        @Args("salary", {type: () => Float}) salary: number,
+        @Args("preferredPlatform") platform: string,
+        @Args("timezone", {type: () => Timezone}) timezone: Timezone,
+        @Args("preferredMode", {type: () => ModePreference}) mode: ModePreference,
+        @Args("accounts", {type: () => [IntakePlayerAccount]}) accounts: IntakePlayerAccount[],
+    ): Promise<Player> {
+        const sg = await this.skillGroupService.getGameSkillGroup({where: {ordinal: LeagueOrdinals.indexOf(league) + 1} });
+        return this.playerService.updatePlayer(mleid, name, sg.id, salary, platform, accounts, timezone, mode);
+    }
+    
+    @Mutation(() => [User])
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
+    async intakeUser(
+        @Args("name", {type: () => String}) name: string,
+        @Args("discord_id", {type: () => String}) d_id: string,
+        @Args("playersToLink", {type: () => [CreatePlayerTuple]}) ptl: CreatePlayerTuple[],
+        @Args("platformAccounts", {type: () => [IntakePlayerAccount] }) platformAccounts: IntakePlayerAccount[] = [],
+    ): Promise<User | string> {
+        return this.playerService.intakeUser(name, d_id, ptl, platformAccounts);
+    }
+
 }

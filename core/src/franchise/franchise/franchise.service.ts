@@ -6,7 +6,7 @@ import type {CoreEndpoint, CoreOutput} from "@sprocketbot/common";
 import type {FindOneOptions} from "typeorm";
 import {Repository} from "typeorm";
 
-import type {FranchiseProfile} from "../../database";
+import {FranchiseProfile} from "../../database";
 import {Franchise} from "../../database";
 import {MledbPlayerService} from "../../mledb";
 import {MemberService} from "../../organization";
@@ -20,7 +20,8 @@ export class FranchiseService {
     @Inject(forwardRef(() => MledbPlayerService))
     private readonly mledbPlayerService: MledbPlayerService,
     private readonly sprocketMemberService: MemberService,
-    private readonly sprocketPlayerService: PlayerService,
+    @InjectRepository(FranchiseProfile)
+    private readonly franchiseProfileRepository: Repository<FranchiseProfile>,
     ) {}
 
     async getFranchiseProfile(franchiseId: number): Promise<FranchiseProfile> {
@@ -39,6 +40,24 @@ export class FranchiseService {
 
     async getFranchise(query: FindOneOptions<Franchise>): Promise<Franchise> {
         return this.franchiseRepository.findOneOrFail(query);
+    }
+
+    async getFranchiseByName(name: string): Promise<Franchise> {
+        const profile = await this.franchiseProfileRepository.findOneOrFail({
+            where: {
+                title: name,
+            },
+            relations: {
+                franchise: true,
+            }
+        });
+        
+        // Have to go back to the DB to get the franchise object with its
+        // profile, rather than the profile with the franchise we had above
+        return this.getFranchise({
+            where: { id: profile.franchise.id },
+            relations: { profile: true }
+        });
     }
 
     async getPlayerFranchisesByMemberId(memberId: number): Promise<CoreOutput<CoreEndpoint.GetPlayerFranchises>> {

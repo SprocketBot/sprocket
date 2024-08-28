@@ -5,7 +5,9 @@ import {
 import {JwtService} from "@nestjs/jwt";
 import {config} from "@sprocketbot/common";
 
-import type {UserAuthenticationAccount, UserProfile} from "../../database";
+import type {
+    UserAuthenticationAccount, UserProfile,
+} from "../../database";
 import {
     Member, User, UserAuthenticationAccountType,
 } from "../../database";
@@ -103,4 +105,5 @@ export class UserResolver {
 
         return this.jwtService.sign(payload, {expiresIn: "5m"});
     }
+    
 }

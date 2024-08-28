@@ -9,13 +9,16 @@ import {
 } from "typeorm";
 
 import type {
+    GameSkillGroup,
     ScheduledEvent,
     ScrimMeta,
 } from "../../database";
 import {
     Franchise,
+    GameMode,
     Invalidation,
     Match,
+    MatchParent,
     PlayerStatLineStatsSchema,
     Round,
     ScheduleFixture,
@@ -25,7 +28,7 @@ import type {
     CalculateEloForMatchInput, MatchSummary, PlayerSummary,
 } from "../../elo/elo-connector";
 import {
-    EloConnectorService, EloEndpoint, GameMode, TeamColor,
+    EloConnectorService, EloEndpoint, GameMode as eloGameMode, TeamColor,
 } from "../../elo/elo-connector";
 import {PopulateService} from "../../util/populate/populate.service";
 
@@ -46,9 +49,11 @@ export class MatchService {
 
     constructor(
         @InjectRepository(Match) private matchRepository: Repository<Match>,
+        @InjectRepository(MatchParent) private matchParentRepository: Repository<MatchParent>,
         @InjectRepository(Invalidation) private invalidationRepository: Repository<Invalidation>,
         @InjectRepository(Round) private readonly roundRepository: Repository<Round>,
         @InjectRepository(Team) private readonly teamRepository: Repository<Team>,
+        @InjectRepository(GameMode) private readonly modeRepo: Repository<GameMode>,
         private dataSource: DataSource,
         private readonly popService: PopulateService,
         private readonly eloConnectorService: EloConnectorService,
@@ -65,6 +70,30 @@ export class MatchService {
         });
 
         return this.matchRepository.save(match);
+    }
+
+    async createMatchWithMatchParent(skill_group: GameSkillGroup, mode: string, isDummy?: boolean, invalidationId?: number): Promise<[Match, MatchParent]> {
+
+        let invalidation: Invalidation | undefined;
+        if (invalidationId) invalidation = await this.invalidationRepository.findOneOrFail({where: {id: invalidationId} });
+        const search_code = `RL_${mode}`;
+        const game_mode = await this.modeRepo.findOneOrFail({where: {code: search_code} });
+        const match = this.matchRepository.create({
+            isDummy: isDummy,
+            invalidation: invalidation,
+            rounds: [],
+            skillGroup: skill_group,
+            skillGroupId: skill_group.id,
+            gameMode: game_mode,
+        });
+        await this.matchRepository.save(match);
+
+        const match_parent = this.matchParentRepository.create({
+            match: match,
+        });
+        await this.matchParentRepository.save(match_parent);
+        
+        return [match, match_parent];
     }
 
     async getMatchBySubmissionId(submissionId: string): Promise<Match> {
@@ -292,12 +321,35 @@ export class MatchService {
             },
             relations: {
                 teamStats: true,
+                match: {
+                    id: true,
+                }
             },
         }));
         const replays = await Promise.all(replayPromises);
+        const match_parent = await this.getMatchParentEntity(replays[0].match.id);
+        let fixture : ScheduleFixture;
+        if (match_parent.type === "fixture") {
+            fixture = match_parent.data as ScheduleFixture;
+        } else {
+            return "Can't NCP a scrim or event match";
+        }
+        const home_team = await this.teamRepository.findOneOrFail({
+            where: {
+                franchise: {
+                    id: fixture.homeFranchiseId,
+                },
+                skillGroup: {
+                    id: replays[0].match.skillGroupId,
+                },
+            }
+        });
+
+        const home_won = home_team.id === winningTeam?.id;
 
         // Set replays to NCP true/false and update winning team/color
         for (const replay of replays) {
+            replay.homeWon = home_won;
             if (!isNcp && replay.isDummy) {
                 await this.roundRepository.delete(replay.id);
             } else {
@@ -341,7 +393,7 @@ export class MatchService {
             id: match.id,
             numGames: match.rounds.length,
             isScrim: isScrim,
-            gameMode: (match.gameMode.code === "RL_DOUBLES") ? GameMode.DOUBLES : GameMode.STANDARD,
+            gameMode: (match.gameMode.code === "RL_DOUBLES") ? eloGameMode.DOUBLES : eloGameMode.STANDARD,
             gameStats: [],
         };
 

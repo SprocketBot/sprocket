@@ -12,6 +12,7 @@ export enum EloEndpoint {
     AddPlayerBySalary = "AddPlayerBySalary",
     SGChange = "SGChange",
     EloChange = "EloChange",
+    CompactGraph = "CompactGraph",
 }
 
 export const EloSchemas = {
@@ -42,6 +43,10 @@ export const EloSchemas = {
     [EloEndpoint.EloChange]: {
         input: Schemas.EloChange_Input,
         output: Schemas.EloChange_Output,
+    },
+    [EloEndpoint.CompactGraph]: {
+        input: Schemas.CompactGraph_Input,
+        output: Schemas.CompactGraph_Output,
     },
 };
 
