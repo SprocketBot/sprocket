@@ -3,8 +3,12 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import type { BaseObject } from '../gql/base.object';
+import { DataOnly } from '../gql/types';
 
-export abstract class BaseEntity {
+export abstract class BaseEntity<ObjectType extends BaseObject<any>>
+  implements BaseEntity<ObjectType>
+{
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -12,5 +16,7 @@ export abstract class BaseEntity {
   createdAt: Date;
 
   @UpdateDateColumn()
-  updateAt: Date;
+  updatedAt: Date;
+
+  abstract toObject(): DataOnly<ObjectType>;
 }

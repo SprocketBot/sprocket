@@ -1,7 +1,8 @@
-fragment Fragment_UserManagerAccounts on User {
+fragment Fragment_UserAccounts on User {
 	username
     id
     accounts {
+        avatarUrl
         platformId
         platformName
         platform

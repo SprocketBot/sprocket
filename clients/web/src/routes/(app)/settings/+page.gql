@@ -1,0 +1,13 @@
+query UserSettingsRoot {
+    whoami {
+        ...Fragment_UserAccounts
+        username
+        players { id }
+        accounts {
+            id
+            platform
+            platformName
+        }
+        createdAt
+    }
+}

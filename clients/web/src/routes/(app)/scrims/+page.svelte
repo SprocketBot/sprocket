@@ -1,8 +1,11 @@
 <script lang="ts">
 	import { PendingScrimHydrationStore, CurrentScrimHydrationStore, cache } from '$houdini';
+	import { Icon } from '@steeze-ui/svelte-icon';
 	import type { PageData } from './$houdini';
 	import ScrimFlow from './ScrimFlow.svelte';
 	import ScrimList from './ScrimList.svelte';
+	import { Warning } from '@steeze-ui/phosphor-icons';
+	import DashboardSection from '$lib/components/DashboardSection.svelte';
 
 	export let data: PageData;
 	$: ({ ScrimPageRoot } = data);
@@ -23,9 +26,17 @@
 {#if !$ScrimPageRoot.data}
 	Loading...
 {:else if !$ScrimPageRoot.data.whoami.players.length}
-	<section class="card p-4 col-span-full">
-		<p class="text-xl font-bold text-center">You are not registered as a player for any games, and cannot scrim.</p>
-	</section>
+	<DashboardSection title="" size="fill">
+		<section class="flex gap-8 items-center">
+			<Icon src={Warning} class="w-16 text-primary-500" />
+			<div>
+				<p class="text-xl font-bold">
+					You are not registered as a player for any games, and cannot scrim.
+				</p>
+				<p>If you believe this is in error, please contact your organization staff</p>
+			</div>
+		</section>
+	</DashboardSection>
 {:else if $ScrimPageRoot.data?.currentScrim}
 	<!-- User is currently in a scrim -->
 	<ScrimFlow

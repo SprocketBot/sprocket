@@ -21,6 +21,8 @@ import { GameModeResolver } from './game_mode/game_mode.resolver';
 import opentelemetry from '@opentelemetry/api';
 import { GraphQLResolveInfo } from 'graphql';
 import { ScrimService } from './scrim/scrim.service';
+import { ResolverLibService } from './resolver-lib/resolver-lib.service';
+import { MetricsResolver } from './metrics/metrics.resolver';
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -99,6 +101,8 @@ import { ScrimService } from './scrim/scrim.service';
     ScrimSubscriber,
     GameModeResolver,
     ScrimService,
+    ResolverLibService,
+    MetricsResolver,
   ],
 })
 export class GqlModule {}

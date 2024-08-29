@@ -29,7 +29,7 @@
 	<AppSidebar slot="sidebarLeft" />
 
 	<section
-		class="grid grid-cols-1 sm:grid-cols-4 md:grid-cols-8 lg:grid-cols-12 gap-4 md:gap-8 px-12 py-8 grid-flow-dense"
+		class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 px-12 py-8 grid-flow-dense h-max"
 	>
 		<slot />
 	</section>

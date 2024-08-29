@@ -5,42 +5,40 @@
 	import ProfileManager from './ProfileManager.svelte';
 	import PlayerBox from './PlayerBox.svelte';
 	import UserAccountsCard from './UserAccountsCard.svelte';
+	import DashboardSection from '$lib/components/DashboardSection.svelte';
 
 	export let data: PageData;
 
 	$: ({ UserManager } = data);
+
+	$: [user] = $UserManager?.data?.users ?? [];
 </script>
 
-<section class="col-span-1 sm:col-span-4 md:col-span-8 row-span-2 card p-4">
+<DashboardSection size="fill" transparent class="row-start-1 flex justify-between">
 	{#if $UserManager.fetching || $UserManager.data === null}
-		<div class="flex justify-center items-center h-full w-full">Loading...</div>
+		<div class="flex justify-center items-center w-full">Loading...</div>
 	{:else if !$UserManager?.data?.users.length}
-		<div class="flex justify-center items-center h-full w-full">User not found!</div>
+		<div class="flex justify-center items-center w-full">User not found!</div>
 	{:else}
 		{@const user = $UserManager.data.users[0]}
-		<header class="w-full flex justify-between">
-			<h2 class="text-lg font-bold">Editing {user.username}</h2>
-			<a href="/org-manager/users">
-				<button class="btn btn-icon btn-icon-sm variant-soft-surface">
-					<Icon src={ArrowLeft} class="w-4" />
-				</button>
-			</a>
-		</header>
+		<h2 class="text-lg font-bold">Editing "{user?.username ?? ''}"</h2>
 
-		<section>
-			<ProfileManager userData={user} />
-		</section>
-
-		<section>
-			{#if $UserManager?.data !== null}
-				{#each $UserManager.data?.games ?? [] as game}
-					<PlayerBox gameData={game} userData={user} />
-				{/each}
-			{/if}
-		</section>
+		<a href="/org-manager/users">
+			<button class="btn btn-icon btn-icon-sm variant-soft-surface">
+				<Icon src={ArrowLeft} class="w-4" />
+			</button>
+		</a>
 	{/if}
-</section>
+</DashboardSection>
+<DashboardSection title="Profile">
+	<ProfileManager userData={user} />
+</DashboardSection>
 
-{#if $UserManager.data?.users[0]}
-	<UserAccountsCard accts={$UserManager.data?.users[0]} />
-{/if}
+<DashboardSection title="Players" size="large">
+	{#if $UserManager?.data !== null}
+		{#each $UserManager.data?.games ?? [] as game}
+			<PlayerBox gameData={game} userData={user} />
+		{/each}
+	{/if}
+</DashboardSection>
+<UserAccountsCard size="large" accts={$UserManager.data?.users[0]} />

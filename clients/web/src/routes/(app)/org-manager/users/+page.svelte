@@ -3,10 +3,11 @@
 	import { graphql, type UserSearch$input } from '$houdini';
 	import debounce from 'debounce';
 	import { can, getUserContext } from '$lib/auth';
-	import { Pencil } from '@steeze-ui/phosphor-icons';
+	import { Pencil, Users } from '@steeze-ui/phosphor-icons';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import type { PageData } from './$houdini';
 	import { onMount } from 'svelte';
+	import DashboardSection from '$lib/components/DashboardSection.svelte';
 	const currentUser = getUserContext();
 	let term = '';
 
@@ -20,6 +21,8 @@
 
 	onMount(() => update({ term }));
 
+	$: if (browser) update({ term });
+
 	const toggleActive = graphql(`
 		mutation ToggleActiveUser($userId: String!, $active: Boolean!) {
 			alterUserActiveStatus(userId: $userId, active: $active) {
@@ -30,15 +33,12 @@
 		}
 	`);
 </script>
-
-<section class="col-span-1 sm:col-span-4 md:col-span-8 row-span-2 card p-4">
-	<h2 class="text-lg font-bold mb-4">User Manager</h2>
-
+<DashboardSection title="User Manager" size="large" icon={Users}>
 	<label class="label flex gap-4 items-center mb-2">
 		<input
 			bind:value={term}
 			class="flex-shrink text-sm input px-2 py-1"
-			placeholder="User Search"
+			placeholder="Search"
 		/>
 	</label>
 	<table class="table table-hover table-compact">
@@ -98,4 +98,4 @@
 		</tbody>
 		<tfoot></tfoot>
 	</table>
-</section>
+</DashboardSection>
