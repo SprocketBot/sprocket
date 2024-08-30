@@ -15,7 +15,6 @@
 	$: if ($manageScrimsHydrator.data) {
 		const scrimCache = cache.get('Scrim', $manageScrimsHydrator.data.live);
 		const listCache = cache.list('AllScrims_ManagementList')
-		console.log({ scrimCache, $manageScrimsHydrator, listCache });
 		if (scrimCache && $manageScrimsHydrator.data.live.complete) {
 			// Remove from cache
 			listCache.remove(scrimCache);

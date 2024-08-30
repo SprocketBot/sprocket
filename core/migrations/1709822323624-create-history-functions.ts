@@ -4,7 +4,6 @@ import {query} from "express";
 
 export class CreateHistoryFunctions1709822323624 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    console.log('I am doing the thing!');
     const updateTable = await fs.readFile(
       `${__dirname}/sql/update_history_table.sql`,
       'utf-8',

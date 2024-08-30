@@ -142,10 +142,7 @@ export class ScrimService {
     }
   }
 
-  @RedLock((scrimId) => {
-    console.log({ scrimId });
-    return scrimId;
-  })
+  @RedLock((scrimId) => scrimId)
   async destroyScrim(
     scrimId: string,
     cancelled: boolean = false,
@@ -155,10 +152,7 @@ export class ScrimService {
     scrim.state = cancelled ? ScrimState.CANCELLED : ScrimState.COMPLETE;
     scrim.removedParticipants = scrim.participants.map((p) => p.id);
     scrim.participants = [];
-    console.log({
-      scrim,
-    });
-
+    
     await this.eventService.publish(MatchmakingEvents.ScrimUpdated, scrim);
     return scrim;
   }
