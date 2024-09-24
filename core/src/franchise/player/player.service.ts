@@ -1052,22 +1052,22 @@ export class PlayerService {
         }
     }
 
-    async swapDiscordAccounts(new: string, old: string): Promise<void> {
+    async swapDiscordAccounts(newAcct: string, oldAcct: string): Promise<void> {
         // First, do the MLEDB Player table
-        const mlePlayer = await this.mle_playerRepository.findOneOrFail({where: {discordId: old} });
-        mlePlayer.discordId = new;
+        const mlePlayer = await this.mle_playerRepository.findOneOrFail({where: {discordId: oldAcct} });
+        mlePlayer.discordId = newAcct;
         await this.mle_playerRepository.save(mlePlayer);
 
         // Then, follow up with Sprocket.
         const uaa = await this.userAuthRepository.findOneOrFail(
             {
                 where: {
-                    accountId: old,
+                    accountId: oldAcct,
                     accountType: UserAuthenticationAccountType.DISCORD
                 }
             }
         );
-        uaa.accountId = new;
+        uaa.accountId = newAcct;
         await this.userAuthRepository.save(uaa);
 
     }
@@ -1083,11 +1083,11 @@ export class PlayerService {
         mlePlayer.name = newName;
         await this.mle_playerRepository.save(mlePlayer);
 
-        const uaa = await this.userAuthRepository.findOneOrFaile(
+        const uaa = await this.userAuthRepository.findOneOrFail(
             {
                 where: {
-                    accountId: mlePlayer.discordId,
-                    accountType: UserAuthentiationAccountType.DISCORD,
+                    accountId: mlePlayer.discordId ?? "",
+                    accountType: UserAuthenticationAccountType.DISCORD,
                 },
                 relations: {
                     user: {
