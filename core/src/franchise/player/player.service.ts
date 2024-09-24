@@ -1051,4 +1051,56 @@ export class PlayerService {
             return e as string;
         }
     }
+
+    async swapDiscordAccounts(new: string, old: string): Promise<void> {
+        // First, do the MLEDB Player table
+        const mlePlayer = await this.mle_playerRepository.findOneOrFail({where: {discordId: old} });
+        mlePlayer.discordId = new;
+        await this.mle_playerRepository.save(mlePlayer);
+
+        // Then, follow up with Sprocket.
+        const uaa = await this.userAuthRepository.findOneOrFail(
+            {
+                where: {
+                    accountId: old,
+                    accountType: UserAuthenticationAccountType.DISCORD
+                }
+            }
+        );
+        uaa.accountId = new;
+        await this.userAuthRepository.save(uaa);
+
+    }
+
+    async forcePlayerToTeam(mleid: number, newTeam: string): Promise<void> {
+        const mlePlayer = await this.mle_playerRepository.findOneOrFail({where: {mleid}});
+        mlePlayer.teamName = newTeam;
+        await this.mle_playerRepository.save(mlePlayer);
+    }
+
+    async changePlayerName(mleid: number, newName: string): Promise<void> {
+        const mlePlayer = await this.mle_playerRepository.findOneOrFail({where: {mleid}});
+        mlePlayer.name = newName;
+        await this.mle_playerRepository.save(mlePlayer);
+
+        const uaa = await this.userAuthRepository.findOneOrFaile(
+            {
+                where: {
+                    accountId: mlePlayer.discordId,
+                    accountType: UserAuthentiationAccountType.DISCORD,
+                },
+                relations: {
+                    user: {
+                        id: true,
+                        profile: {
+                            id: true,
+                            displayName: true,
+                        },
+                    },
+                },
+            });
+        const up = uaa.user.profile;
+        up.displayName = newName;
+        await this.userProfileRepository.save(up);
+    }
 }
