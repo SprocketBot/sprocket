@@ -378,4 +378,34 @@ export class PlayerResolver {
         return this.playerService.intakeUser(name, d_id, ptl, platformAccounts);
     }
 
+
+    @Mutation(() => String)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
+    async swapDiscordAccounts(
+        @Args("newAcct", {type: () => String}) newAcct: string,
+        @Args("oldAcct", {type: () => String}) oldAcct: string,
+    ): Promise<string> {
+        await this.playerService.swapDiscordAccounts(newAcct, oldAcct);
+        return "Success."
+    }
+
+    @Mutation(() => String)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
+    async forcePlayerToTeam(
+        @Args("mleid", {type: () => Int}) mleid: number,
+        @Args("newTeam", {type: () => String}) newTeam: string,
+    ): Promise<string> {
+        await this.playerService.forcePlayerToTeam(mleid, newTeam);
+        return "Success."
+    }
+
+    @Mutation(() => String)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
+    async changePlayerName(
+        @Args("mleid", {type: () => Int}) mleid: number,
+        @Args("newName", {type: () => String}) newName: string,
+    ): Promise<string> {
+        await this.playerService.changePlayerName(mleid, newName);
+        return "Success."
+    }
 }
