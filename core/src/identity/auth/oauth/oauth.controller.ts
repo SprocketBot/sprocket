@@ -54,6 +54,12 @@ export class OauthController {
         throw new ForbiddenException();
     }
 
+    @NewMethodThing(_
+    
+    ALjka;sldjfk;las
+
+
+)
     @UseGuards(JwtRefreshGuard)
     @Get("refresh")
     async refreshTokens(@Request() req: Req): Promise<AccessToken> {
