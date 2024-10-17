@@ -19,7 +19,7 @@ services:
 
   core:
     container_name: sprocket-core
-    image: oven/bun:1.1.20
+    image: oven/bun:1.1.30
     restart: unless-stopped
     depends_on:
       - postgres
@@ -41,7 +41,7 @@ services:
 
   matchmaking:
     container_name: sprocket-matchmaking
-    image: oven/bun:1.1.20
+    image: oven/bun:1.1.30
     restart: unless-stopped
     command: bun --preload ../../lib/src/tracing.ts -b --watch src/main.ts
     depends_on:
@@ -57,7 +57,7 @@ services:
 
   web:
     container_name: sprocket-web
-    image: oven/bun:1.1.20
+    image: oven/bun:1.1.30
     depends_on:
       - core
     volumes:
@@ -81,7 +81,7 @@ services:
 
   discord:
     container_name: sprocket-discord
-    image: oven/bun:1.1.20
+    image: oven/bun:1.1.30
     depends_on:
       - lavinmq
       - redis
