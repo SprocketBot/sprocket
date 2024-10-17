@@ -48,4 +48,30 @@ export class ResolverLibService {
         return output;
       });
   }
+
+  async simpleLookup<
+    EntityType extends BaseEntity<ObjectType>,
+    ObjectType extends BaseObject<EntityType> = BaseObject<EntityType>,
+    Field extends keyof ObjectType & keyof EntityType = keyof ObjectType &
+      keyof EntityType,
+  >(
+    repository: BaseRepository<EntityType, ObjectType>,
+    field: Field,
+    root: ObjectType,
+  ): Promise<ObjectType[Field]> {
+    if (root[field]) return root[field];
+    return repository
+      .findOneOrFail({
+        where: { id: root.id } as FindOptionsWhere<EntityType>,
+        select: [field],
+      })
+      .then((r) => r[field])
+      .then((r) => {
+        if (Array.isArray(r)) return r.map((v) => v.toObject());
+        if (typeof r !== 'object') return r;
+        if ('toObject' in r && typeof r.toObject === 'function')
+          return r.toObject();
+        return r;
+      });
+  }
 }

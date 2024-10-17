@@ -13,9 +13,6 @@
     $: ({metrics} = $OrgManagerDashboard.data ?? {metrics: undefined});
 </script>
 
-<DashboardSection size="large" transparent>
-    <h1 class="text-3xl text-primary-500 font-bold">Organization Manager</h1>
-</DashboardSection>
 
 <DashboardSection title="Membership Metrics">
     <h3 class="font-bold">Active Users</h3>

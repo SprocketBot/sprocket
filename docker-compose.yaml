@@ -62,9 +62,10 @@ services:
       - core
     volumes:
       - .:/app
+      - ./clients/web/src:/app/clients/web/src
       - ./.env:/app/clients/web/.env
       - ./config.yaml:/app/clients/web/config.yaml
-    command: bun run -b dev --host
+    command: bun run -b dev --host 0.0.0.0
     working_dir: /app/clients/web
     environment:
       PUBLIC_API_URL: ${CORE_URL:-api.localhost}

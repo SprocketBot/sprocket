@@ -1,0 +1,13 @@
+query OrgManagerSchedulePage {
+    scheduleGroups {
+        name
+        start
+        end
+        type {
+            name
+        }
+    }
+    scheduleGroupTypes {
+        name
+    }
+}

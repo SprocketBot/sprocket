@@ -43,7 +43,7 @@ const entitiesDir = path.join(__dirname, 'db');
 const entityModules = // @ts-expect-error bun supports top-level await
   (await readdir(entitiesDir, { withFileTypes: true, recursive: true }))
     .filter((f) => f.isFile() && f.name.endsWith('.entity.ts'))
-    .map((f) => path.join(entitiesDir, f.name))
+    .map((f) => path.join(f.path, f.name))
     .map((f) => import(f));
 
 const entities = // @ts-expect-error bun supports top-level await

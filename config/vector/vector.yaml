@@ -5,10 +5,7 @@ sources:
   docker:
     type: docker_logs
     include_containers:
-      - sprocket-lavinmq
-      - sprocket-postgres
-      - sprocket-web
-      - sprocket-core
+      - sprocket-
       - traefik
 
 sinks:
@@ -19,6 +16,6 @@ sinks:
     endpoint: http://loki:3100
     encoding:
       codec: json
-    # labels:
-    #   container_id: "{{ container_id }}"
-    #   container_name: "{{ container_name }}"
+    labels:
+      container_id: "{{ container_id }}"
+      container_name: "{{ container_name }}"
