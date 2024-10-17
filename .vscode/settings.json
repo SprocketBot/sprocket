@@ -1,0 +1,8 @@
+{
+    "files.exclude": {
+        "./old": true
+    },
+    "search.exclude": {
+        "./old": true
+    }
+}
