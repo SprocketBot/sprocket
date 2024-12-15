@@ -1,4 +1,4 @@
-export enum ResourceGroup {
+export enum Resource {
   Franchise = 'franchise',
   Game = 'game',
   GameMode = 'game_mode',
