@@ -15,9 +15,10 @@ import { Logger } from '@nestjs/common';
 import { UserRepository } from '../../db/user/user.repository';
 import { PlayerObject } from '../player/player.object';
 import { UserAuthAccountObject } from '../user_auth_account/user_auth_account.object';
-import { FindManyOptions, FindOptionsWhere } from 'typeorm';
+import { FindOptionsWhere } from 'typeorm';
 import { UserEntity } from '../../db/user/user.entity';
-
+import { AuthPossession, AuthZGuard, UsePermissions } from 'nest-authz';
+import { Resource, ResourceAction } from 'src/db/authorize/constants';
 @Resolver(() => UserObject)
 export class UserResolver {
   private readonly logger = new Logger(UserResolver.name);
@@ -25,7 +26,12 @@ export class UserResolver {
   constructor(private readonly userRepo: UserRepository) {}
 
   @Query(() => UserObject)
-  @UseGuards(AuthorizeGuard())
+  @UseGuards(AuthZGuard)
+  @UsePermissions({
+    resource: Resource.User,
+    action: ResourceAction.Read,
+    possession: AuthPossession.OWN,
+  })
   async whoami(
     @CurrentUser() user: User,
   ): Promise<Omit<UserObject, 'players' | 'accounts'>> {
@@ -33,7 +39,12 @@ export class UserResolver {
   }
 
   @Query(() => [UserObject])
-  @UseGuards(AuthorizeGuard())
+  @UseGuards(AuthZGuard)
+  @UsePermissions({
+    resource: Resource.User,
+    action: ResourceAction.Read,
+    possession: AuthPossession.OWN,
+  })
   async users(@Args('query') query: FindUserInput): Promise<UserObject[]> {
     const filter: FindOptionsWhere<UserEntity> = {};
 

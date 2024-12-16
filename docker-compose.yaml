@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   traefik:
@@ -22,7 +22,7 @@ services:
 
   core:
     container_name: sprocket-core
-    image: oven/bun:1.0.30-alpine
+    image: oven/bun:latest
     restart: unless-stopped
     depends_on:
       - postgres
@@ -33,6 +33,8 @@ services:
       - ./.env:/app/core/.env
       - ./config.yaml:/app/core/config.yaml
     command: bun --preload ../lib/src/tracing.ts --bun --watch src/main.ts
+    ports:
+      - 3000:3000
     working_dir: /app/core
     labels:
       traefik.enable: true
@@ -60,7 +62,7 @@ services:
 
   web:
     container_name: sprocket-web
-    image: oven/bun:1.0.30-alpine
+    image: oven/bun:latest
     depends_on:
       - core
     volumes:
@@ -68,6 +70,8 @@ services:
       - ./.env:/app/clients/web/.env
       - ./config.yaml:/app/clients/web/config.yaml
     command: bun run -b dev --host
+    ports:
+      - 5173:5173
     working_dir: /app/clients/web
     environment:
       PUBLIC_API_URL: ${CORE_URL:-api.localhost}
@@ -134,7 +138,7 @@ services:
 
   grafana:
     image: grafana/grafana:latest
-    profiles: [ monitoring ]
+    profiles: [monitoring]
     volumes:
       - ./config/grafana/datasources.yaml:/etc/grafana/provisioning/datasources/ds.yaml:ro
     environment:
@@ -150,25 +154,24 @@ services:
 
   tempo:
     image: grafana/tempo
-    profiles: [ monitoring ]
-    command: [ "-config.file=/etc/tempo.yaml" ]
+    profiles: [monitoring]
+    command: ["-config.file=/etc/tempo.yaml"]
 
     volumes:
       - ./config/tempo/tempo.yaml:/etc/tempo.yaml:ro
 
   loki:
     image: grafana/loki:2.9.4
-    profiles: [ monitoring ]
+    profiles: [monitoring]
 
   vector:
-    profiles: [ monitoring ]
+    profiles: [monitoring]
     image: timberio/vector:0.36.X-alpine
     volumes:
       - ./config/vector/vector.yaml:/etc/vector/vector.yaml:ro
       - ${DOCKER_SOCKET_PATH:-/var/run/docker.sock}:/var/run/docker.sock:ro
 
-
 networks:
   default:
-    name: 'sprocket-net'
-    attachable: true 
+    name: "sprocket-net"
+    attachable: true
