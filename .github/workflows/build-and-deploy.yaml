@@ -40,6 +40,8 @@ jobs:
             ENV="dev"
           elif [[ $BRANCH_NAME =~ ^staging/ ]]; then
             ENV="staging"
+          elif [[ $BRANCH_NAME = "v2" ]]; then
+            ENV="v2"
           else
             ENV="main"
           fi
@@ -47,8 +49,7 @@ jobs:
 
       - name: Update Nomad Job
         run: |
-          sed -i "s#__IMAGE_TAG__#${{ env.IMAGE_TAG }}#g" nomad.job.hcl
-
+          sed -i "s#%%environment%%#${{ steps.extract-env.outputs.env }}#g" nomad.job.hcl
 
       - name: Setup `nomad`
         uses: hashicorp/setup-nomad@main
@@ -60,6 +61,9 @@ jobs:
         env:
           NOMAD_ADDR: ${{ secrets.NOMAD_ADDR }}
           NOMAD_TOKEN: ${{ secrets.NOMAD_TOKEN }}
+          NOMAD_VAR_base_url: https://api.${{ steps.extract-env.outputs.env }}.spr.ocket.dev
+          NOMAD_VAR_environment: ${{ steps.extract-env.outputs.env }}
+          NOMAD_VAR_monorepo_image: ${{ env.IMAGE_TAG }}
         run: |
           nomad job run nomad.job.hcl
 
