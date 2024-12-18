@@ -1,4 +1,4 @@
-FROM oven/bun:1.0.30-alpine as build
+FROM oven/bun:1.1.40-alpine as build
 
 # Bit of a chicken and the egg problem here
 # Web won't build without an API endpoint
