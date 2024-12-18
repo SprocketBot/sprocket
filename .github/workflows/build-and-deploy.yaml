@@ -58,9 +58,9 @@ jobs:
           version: ${{ env.PRODUCT_VERSION }}
 
       - name: Tailscale
-      uses: tailscale/github-action@main
-      with:
-        authkey: ${{ secrets.tailscale_ephemeral_authkey }}
+        uses: tailscale/github-action@main
+        with:
+          authkey: ${{ secrets.tailscale_ephemeral_authkey }}
 
       - name: Deploy to Nomad
         env:
