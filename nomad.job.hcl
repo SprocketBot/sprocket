@@ -222,6 +222,13 @@ S3_PREFIX="${var.environment}"
 {{ end }}
         EOF
       }
+
+      action "migrate:up" {
+        command = "bun"
+        args = [
+          "/app/core/src/datasource.ts", "up"
+        ]
+      }
     }
 
     service {
