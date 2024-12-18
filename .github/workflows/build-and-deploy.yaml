@@ -9,6 +9,10 @@ on:
       # - 'main'
       - v2
 
+env:
+  PRODUCT_VERSION: "1.8.2" # or: "latest"
+
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -42,9 +46,23 @@ jobs:
           IMAGE_TAG=ghcr.io/${{ github.repository }}:${{ github.sha }}
           sed -i "s#__IMAGE_TAG__#$IMAGE_TAG#g" nomad.job.hcl
 
-      - name: Deploy to Nomad
-        uses: hashicorp/nomad-github-action@v1
+
+      - name: Setup `nomad`
+        uses: hashicorp/setup-nomad@main
+        id: setup
         with:
-          nomad_addr: ${{ secrets.NOMAD_ADDR }}
-          nomad_token: ${{ secrets.NOMAD_TOKEN }}
-          command: job run nomad.job.hcl
+          version: ${{ env.PRODUCT_VERSION }}
+
+      - name: Deploy to Nomad
+        env:
+          NOMAD_ADDR: ${{ secrets.NOMAD_ADDR }}
+          NOMAD_TOKEN: ${{ secrets.NOMAD_TOKEN }}
+        run: |
+          nomad job run nomad.job.hcl
+
+      # - name: Deploy to Nomad
+      #   uses: hashicorp/nomad-github-action@v1
+      #   with:
+      #     nomad_addr: ${{ secrets.NOMAD_ADDR }}
+      #     nomad_token: ${{ secrets.NOMAD_TOKEN }}
+      #     command: job run nomad.job.hcl
