@@ -11,7 +11,7 @@ on:
 
 env:
   PRODUCT_VERSION: "1.8.2" # or: "latest"
-  
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -21,7 +21,7 @@ jobs:
 
       - name: Set up image tag
         run: |
-          echo "IMAGE_TAG=`echo ghcr.io/${{ lowercase(github.repository) }}:${{ lowercase(github.sha) }} | tr '[:upper:]' '[:lower:]'`" >>${GITHUB_ENV}
+          echo "IMAGE_TAG=`echo ghcr.io/${{ github.repository }}:${{ github.sha }} | tr '[:upper:]' '[:lower:]'`" >>${GITHUB_ENV}
 
       - name: Build and Push Image
         run: |
