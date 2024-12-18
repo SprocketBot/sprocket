@@ -43,7 +43,7 @@ jobs:
 
       - name: Update Nomad Job
         run: |
-          IMAGE_TAG=ghcr.io/${{ github.repository }}:${{ github.sha }}
+          IMAGE_TAG=$(echo ghcr.io/${{ github.repository }}:${{ github.sha }} | tr [A-Z] [a-z])
           sed -i "s#__IMAGE_TAG__#$IMAGE_TAG#g" nomad.job.hcl
 
 
