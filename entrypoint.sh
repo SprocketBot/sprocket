@@ -20,7 +20,7 @@ case "$1" in
             discord)
                 cd /app/clients/discord
                 cp /app/config.yaml /app/clients/discord/config.yaml
-                bun --preload /app/lib/src/tracing.ts /app/clients/discord/main.ts
+                bun --preload /app/lib/src/tracing.ts /app/clients/discord/src/main.ts
                 ;;
             service)
                 cd /app/services/$3
