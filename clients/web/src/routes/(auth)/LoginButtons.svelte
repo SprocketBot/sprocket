@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Icon } from '@steeze-ui/svelte-icon';
-	import { Discord, Microsoft, Steam, Xbox, Playstation, Epicgames } from '@steeze-ui/simple-icons';
+	import { Discord, Steam, Playstation, Epicgames } from '@steeze-ui/simple-icons';
+	import { GameController, WindowsLogo } from '@steeze-ui/phosphor-icons';
 	import { oauthPopup } from './oauthPopup';
 	import { apiUrl } from '$lib/constants';
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
@@ -44,7 +45,7 @@
 		disabled
 		use:popup={comingSoon}
 	>
-		<span><Icon src={Xbox} class="h-6" /></span>
+		<span><Icon src={GameController} class="h-6" /></span>
 		<span>Xbox</span>
 	</button>
 	<button
@@ -53,7 +54,7 @@
 		disabled
 		use:popup={comingSoon}
 	>
-		<span><Icon src={Microsoft} class="h-6" /></span>
+		<span><Icon src={WindowsLogo} class="h-6" /></span>
 		<span>Microsoft</span>
 	</button>
 	<button

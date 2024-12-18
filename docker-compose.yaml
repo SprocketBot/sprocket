@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   traefik:
     container_name: sprocket-traefik
@@ -22,7 +20,7 @@ services:
 
   core:
     container_name: sprocket-core
-    image: oven/bun:1.0.30-alpine
+    image: oven/bun:1.1.40-alpine
     restart: unless-stopped
     depends_on:
       - postgres
@@ -44,7 +42,7 @@ services:
 
   matchmaking:
     container_name: sprocket-matchmaking
-    image: oven/bun:1.0.30-alpine
+    image: oven/bun:1.1.40-alpine
     restart: unless-stopped
     command: bun --preload ../../lib/src/tracing.ts -b --watch src/main.ts
     depends_on:
@@ -57,10 +55,16 @@ services:
     working_dir: /app/services/matchmaking
     environment:
       SERVICE_NAME: "SprocketMatchmaking"
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   web:
     container_name: sprocket-web
-    image: oven/bun:1.0.30-alpine
+    image: oven/bun:1.1.40-alpine
     depends_on:
       - core
     volumes:
@@ -84,7 +88,7 @@ services:
 
   discord:
     container_name: sprocket-discord
-    image: oven/bun:1.0.30-alpine
+    image: oven/bun:1.1.40-alpine
     depends_on:
       - lavinmq
       - redis
