@@ -19,6 +19,7 @@ RUN bun i
 # RUN cd /app/services/matchmaking && bun run build
 # RUN cd /app/clients/discord && bun run build
 
+RUN cd /app/core && bun run gen:schema
 RUN cd /app/clients/web && bun run build
 
 FROM oven/bun:1.1.40-alpine

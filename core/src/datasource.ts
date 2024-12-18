@@ -44,7 +44,10 @@ const entityModules = // @ts-expect-error bun supports top-level await
   (await readdir(entitiesDir, { withFileTypes: true, recursive: true }))
     .filter((f) => f.isFile() && f.name.endsWith('.entity.ts'))
     .map((f) => path.join(f.parentPath, f.name))
-    .map((f) => import(f));
+    .map((f) => import(f).catch((e) => {
+      console.error(e);
+      throw e;
+    }));
 
 const entities = // @ts-expect-error bun supports top-level await
   // eslint-disable-next-line @typescript-eslint/ban-types
