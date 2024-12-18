@@ -66,7 +66,7 @@ jobs:
         env:
           NOMAD_ADDR: ${{ secrets.NOMAD_ADDR }}
           NOMAD_TOKEN: ${{ secrets.NOMAD_TOKEN }}
-          NOMAD_VAR_base_url: ${{ steps.extract-env.outputs.env }}.spr.ocket.dev
+          NOMAD_VAR_base_url: spr.ocket.dev
           NOMAD_VAR_environment: ${{ steps.extract-env.outputs.env }}
           NOMAD_VAR_monorepo_image: ${{ env.IMAGE_TAG }}
         run: |
