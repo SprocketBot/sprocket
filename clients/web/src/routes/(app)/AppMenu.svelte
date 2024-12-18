@@ -21,7 +21,9 @@
 
 <div data-popup="app-menu" class="p-0 bg-surface-300-600-token">
 	<div class="btn-group-vertical">
-		<button disabled>Settings</button>
+		<a href="/settings" class="!m-0 !p-0 w-full">
+			<button class="w-full">Settings</button>
+		</a>
 		{#if can('ViewGraphQLPlayground')}
 			<a href="{apiUrl}/graphql" class="!m-0 !p-0"><button>GQL Playground</button></a>
 		{/if}

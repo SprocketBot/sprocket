@@ -30,4 +30,4 @@
 		There are currently no active scrims
 	{/each}
 </section>
-<section class="card col-span-1 sm:col-span-4 md:col-span-2 lg:col-span-4 p-4"></section>
+<!-- <section class="card col-span-1 sm:col-span-4 md:col-span-2 lg:col-span-4 p-4"></section> -->

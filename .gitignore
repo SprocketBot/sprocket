@@ -117,3 +117,4 @@ core/config/staging.json
 *~
 *.swp
 clients/web/schema.graphql
+./old

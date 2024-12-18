@@ -1,0 +1,6 @@
+mutation CreateScheduleGroupTypeMutation($payload: CreateScheduleGroupTypeInput!) {
+    createScheduleGroupType(data: $payload) {
+        id
+        name
+    }
+}

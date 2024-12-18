@@ -33,7 +33,6 @@ export class AppController {
 
   @MessagePattern(MatchmakingEndpoint.DestroyScrim)
   async destroyScrim(payload: DestroyScrimPayload): Promise<Scrim> {
-    console.log({ payload });
     const scrim = await this.scrimService.destroyScrim(payload.scrimId, true);
 
     return scrim;

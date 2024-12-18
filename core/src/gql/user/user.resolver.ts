@@ -15,72 +15,52 @@ import { Logger } from '@nestjs/common';
 import { UserRepository } from '../../db/user/user.repository';
 import { PlayerObject } from '../player/player.object';
 import { UserAuthAccountObject } from '../user_auth_account/user_auth_account.object';
-import { FindManyOptions, FindOptionsWhere } from 'typeorm';
+import { FindOptionsWhere } from 'typeorm';
 import { UserEntity } from '../../db/user/user.entity';
+import { ResolverLibService } from '../resolver-lib/resolver-lib.service';
+import { DataOnly } from '../types';
 
 @Resolver(() => UserObject)
 export class UserResolver {
   private readonly logger = new Logger(UserResolver.name);
 
-  constructor(private readonly userRepo: UserRepository) {}
+  constructor(
+    private readonly userRepo: UserRepository,
+    private readonly resolverLib: ResolverLibService,
+  ) {}
 
   @Query(() => UserObject)
   @UseGuards(AuthorizeGuard())
-  async whoami(
-    @CurrentUser() user: User,
-  ): Promise<Omit<UserObject, 'players' | 'accounts'>> {
-    return user;
+  async whoami(@CurrentUser() user: User): Promise<DataOnly<UserObject>> {
+    const userEntity = await this.userRepo.findOneBy({ id: user.id });
+    return userEntity.toObject();
   }
 
   @Query(() => [UserObject])
   @UseGuards(AuthorizeGuard())
-  async users(@Args('query') query: FindUserInput): Promise<UserObject[]> {
+  async users(
+    @Args('query') query: FindUserInput,
+  ): Promise<DataOnly<UserObject>[]> {
     const filter: FindOptionsWhere<UserEntity> = {};
-
     if ('active' in query) filter.active = query.active;
-    if ('id' in query) {
-      filter.id = query.id;
-      const user = await this.userRepo.findOneBy({
-        ...filter,
-      });
-      if (!user) throw new Error('User not found');
-      return [
-        {
-          ...user,
-          players: undefined,
-          accounts: undefined,
-        },
-      ];
-    }
-    if (query.username) {
-      if (query.username.fuzzy && query.username.term) {
-        return this.userRepo
-          .search(query.username.term, query.limit, 0, filter)
-          .then((r) =>
-            r.map((user) => ({
-              ...user,
-              players: undefined,
-              accounts: undefined,
-            })),
-          );
-      } else if (
-        query.username.term ||
-        (!query.username.term && !query.username.allowEmpty)
-      ) {
-        filter.username = query.username.term;
-      }
-    }
 
-    if (query.limit > 50) throw new Error(`Limit must be <= 50`);
-    const results = await this.userRepo.find({
-      where: filter,
-      take: query.limit,
-    });
-    return results.map((r) => ({
-      ...r,
-      players: undefined,
-      accounts: undefined,
-    }));
+    if ('username' in query)
+      return await this.resolverLib.find<UserEntity, UserObject>(
+        this.userRepo,
+        'username',
+        query.username,
+        filter,
+      );
+    if ('id' in query)
+      return await this.resolverLib.find<UserEntity, UserObject>(
+        this.userRepo,
+        'id',
+        { term: query.id, fuzzy: false, allowEmpty: false },
+        filter,
+      );
+    throw new Error(
+      `Unsupported query: ${JSON.stringify(query)}. Must specify id or username`,
+    );
   }
 
   @Mutation(() => UserObject)
@@ -98,7 +78,7 @@ export class UserResolver {
 
   @ResolveField(() => [PlayerObject])
   async players(@Root() root: UserObject) {
-    if (root.players) return root.players;
+    if (root.players && root.players.length) return root.players;
 
     const user = await this.userRepo.findOne({
       where: { id: root.id },
@@ -112,18 +92,16 @@ export class UserResolver {
   @ResolveField(() => [UserAuthAccountObject])
   async accounts(
     @Root() root: UserObject,
-  ): Promise<Omit<UserAuthAccountObject, 'user'>[]> {
-    if (root.accounts) return root.accounts;
+  ): Promise<Omit<DataOnly<UserAuthAccountObject>, 'user'>[]> {
+    if (root.accounts && root.accounts.length) return root.accounts;
     const user = await this.userRepo.findOne({
       where: { id: root.id },
     });
+    
     return (await user.accounts).map(
-      (accountEntity): Omit<UserAuthAccountObject, 'user'> => ({
-        userId: user.id,
-        platform: accountEntity.platform,
-        platformId: accountEntity.platformId,
-        platformName: accountEntity.platformName,
-      }),
+      (accountEntity): Omit<DataOnly<UserAuthAccountObject>, 'user'> => {
+        return accountEntity.toObject();
+      },
     );
   }
 }

@@ -33,15 +33,27 @@
 		<ScrimFlowHeader scrim={$scrim} />
 		{#if $scrim.state === ScrimState.PENDING}
 			<section class="flex flex-col gap-4">
-				<div class="flex w-full justify-between items-center flex-col md:flex-row">
-					<p class="my-2 font-bold text-lg">Your scrim is currently pending!</p>
-					<div class="flex gap-4">
+				<div class="flex w-full justify-between items-center">
+					<div class="flex flex-col">
+						<p class="font-bold text-sm uppercase">Game</p>
+						<p>{$scrim.game.name}</p>
+					</div>
+					<div class="flex flex-col">
+						<p class="font-bold text-sm uppercase">Game Mode</p>
+						<p>{$scrim.gameMode.name}</p>
+					</div>
+					<div class="flex flex-col">
+						<p class="font-bold text-sm uppercase">Skill Group</p>
+						<p>{$scrim.skillGroup.name}</p>
+					</div>
+					<div class="flex gap-4 h-fit">
 						<div class="flex items-center gap-1 px-2 badge badge-glass">
 							{#if $scrim.pendingTtl}
 								<Icon src={Hourglass} class="w-3" />
 								<Countdown remainingTime={$scrim.pendingTtl / 1000} />
 							{/if}
 						</div>
+						<!-- TODO: Confirm with user before leaving -->
 						<ResponsiveButton
 							src={ArrowBendUpLeft}
 							class="variant-soft-error"
@@ -52,20 +64,7 @@
 					</div>
 				</div>
 
-				<table class="table text-left">
-					<tr>
-						<th>Game</th>
-						<th>Game Mode</th>
-						<th>Skill Group</th>
-					</tr>
-					<tr>
-						<td>{$scrim.game.name}</td>
-						<td>{$scrim.gameMode.name}</td>
-						<td>{$scrim.skillGroup.name}</td>
-					</tr>
-				</table>
-
-				<div class="relative h-6 bg-surface-500">
+				<div class="relative w-full h-6 bg-surface-500">
 					<span
 						class="absolute top-1/2 -translate-y-1/2 -translate-x-full pr-2 text-surface-900"
 						style="left: {$fillProgressState}%">{$scrim.participantCount} / 4</span
@@ -81,7 +80,7 @@
 	<p class="font-bold text-center text-lg">Other Scrims</p>
 
 	<ul>
-		{#each Array.isArray(pendingScrims) ? pendingScrims ?? [] : [] as pend}
+		{#each Array.isArray(pendingScrims) ? (pendingScrims ?? []) : [] as pend}
 			{#if pend.id !== $scrim?.id}
 				<li class="odd:bg-surface-50/10 px-4 py-2">
 					<ScrimFlowScrimListItem pendingScrim={pend} />

@@ -4,9 +4,7 @@
 	export let userData: { username: string };
 </script>
 
-<SubjectBox title="Profile">
-	<label class="label">
-		Username
-		<input value={userData.username} class="input" />
-	</label>
-</SubjectBox>
+<label class="label">
+	Username
+	<input value={userData.username} class="input" />
+</label>

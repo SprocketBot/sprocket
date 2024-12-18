@@ -1,7 +1,7 @@
 query UserManager($userId: String!) {
     users(query: {id: $userId}) {
         ...Fragment_PlayerManagerUsers
-        ...Fragment_UserManagerAccounts
+        ...Fragment_UserAccounts
         id
         username
         players {

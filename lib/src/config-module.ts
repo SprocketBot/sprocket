@@ -31,6 +31,7 @@ export const BaseSprocketModules: (DynamicModule | Type<any>)[] = [
   SprocketConfigModule,
   LoggerModule.forRoot({
     pinoHttp: {
+      quietReqLogger: process.env.PROD ? false : true,
       hooks: {
         logMethod(args, fn) {
           // This function is responsible for merging any contextual objects that are passed in log methods
