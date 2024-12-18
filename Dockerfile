@@ -21,14 +21,6 @@ RUN bun i
 
 RUN cd /app/core && bun run gen:schema
 RUN cd /app/clients/web && bun run build
-
-FROM oven/bun:1.1.40-alpine
-
-ENV PUBLIC_API_PORT=443
-ENV PUBLIC_API_URL=api.preview.spr.ocket.gg
-ENV PUBLIC_API_SECURE=true
-
-COPY --from=build /app /app
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
