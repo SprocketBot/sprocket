@@ -69,3 +69,9 @@ You may **want**
    and navigate to [l.ocket.cloud:8080](http://l.ocket.cloud:8080).
 4. Run the [`migrate:up`](./migrate:up) and [`seed`](./seed) scripts to
    initialize the database and populate it with some basic data
+
+## FAQ
+
+### Updating Bun Version:
+- Update all relevant containers in [docker-compose.yaml](./docker-compose.yaml)
+- Update the base image in [Dockerfile](./Dockerfile)
