@@ -25,7 +25,7 @@ case "$1" in
             service)
                 cd /app/services/$3
                 cp /app/config.yaml /app/services/$3/config.yaml
-                bun --preload /app/lib/src/tracing.ts /app/services/$3/main.ts
+                bun --preload /app/lib/src/tracing.ts /app/services/$3/src/main.ts
         esac
         exit 0;
         ;;
