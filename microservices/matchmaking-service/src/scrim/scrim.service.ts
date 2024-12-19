@@ -189,6 +189,7 @@ export class ScrimService {
         const scrim = await this.scrimCrudService.getScrim(scrimId);
         if (!scrim) throw new RpcException(MatchmakingError.ScrimNotFound);
         if (!scrim.submissionId) throw new RpcException(MatchmakingError.ScrimSubmissionNotFound);
+
         // TODO: Override this if player / member is an admin
         if (playerId && !scrim.players.some(p => p.id === playerId)) throw new RpcException(MatchmakingError.PlayerNotInScrim);
 
