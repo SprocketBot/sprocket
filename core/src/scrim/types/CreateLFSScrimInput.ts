@@ -18,10 +18,13 @@ export class CreateLFSScrimInput {
 
     @Field(() => Int)
     leaveAfter: number;
-    
-    @Field(() => Int)
-    numRounds: number;
 
     @Field()
     players: ScrimPlayer[];
+
+    @Field()
+    teams: ScrimPlayer[][];
+
+    @Field(() => Int)
+    numRounds: number;
 }
