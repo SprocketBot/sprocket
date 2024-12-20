@@ -1,6 +1,7 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {RpcException} from "@nestjs/microservices";
 import type {
+    CreateLFSScrimRequest,
     CreateScrimOptions,
     JoinScrimOptions,
     Scrim,
@@ -66,6 +67,58 @@ export class ScrimService {
 
             await this.scrimCrudService.updatePlayer(scrim.id, Object.assign(player, {group}));
         }
+
+        await this.eventsService.publish(EventTopic.ScrimCreated, scrim, scrim.id);
+
+        this.analyticsService.send(AnalyticsEndpoint.Analytics, {
+            name: "scrimCreated",
+            tags: [ ["playerId", `${authorId}`] ],
+            strings: [ ["scrimId", scrim.id] ],
+        }).catch(err => { this.logger.error(err) });
+
+        return scrim;
+    }
+
+    async createLFSScrim({
+        authorId,
+        organizationId,
+        gameModeId,
+        skillGroupId,
+        settings,
+        numRounds,
+        join,
+    }: CreateLFSScrimRequest): Promise<Scrim> {
+        for (const j of join) {
+            if (await this.scrimCrudService.playerInAnyScrim(j.playerId)) throw new RpcException(MatchmakingError.PlayerAlreadyInScrim);
+        }
+        if (join.filter(j => j.createGroup).length !== 0 && !this.scrimGroupService.modeAllowsGroups(settings.mode)) throw new RpcException(MatchmakingError.ScrimGroupNotSupportedInMode);
+        
+        const players: ScrimPlayer[] = [];
+        const teams: ScrimPlayer[][] = [];
+        teams[0] = [];
+        teams[1] = [];
+
+        for (const j of join) {
+            const player = {
+                id: j.playerId,
+                name: j.playerName,
+                joinedAt: new Date(),
+                leaveAt: add(new Date(), {seconds: j.leaveAfter}),
+            };
+            players.push(player);
+            teams[j.team].push(player);
+        }
+
+        const scrim = await this.scrimCrudService.createLFSScrim({
+            authorId,
+            organizationId,
+            gameModeId,
+            skillGroupId,
+            settings,
+            players,
+            teams,
+            numRounds,
+        });
 
         await this.eventsService.publish(EventTopic.ScrimCreated, scrim, scrim.id);
 
