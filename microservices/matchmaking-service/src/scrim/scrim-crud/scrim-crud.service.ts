@@ -1,6 +1,5 @@
 import {Injectable, Logger} from "@nestjs/common";
 import type {
-    CreateLFSScrimInput,
     CreateScrimOptions,
     Scrim, ScrimGame, ScrimPlayer,
     ScrimSettings,

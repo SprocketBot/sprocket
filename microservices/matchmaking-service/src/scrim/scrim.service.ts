@@ -106,10 +106,10 @@ export class ScrimService {
                 leaveAt: add(new Date(), {seconds: j.leaveAfter}),
             };
             players.push(player);
-            teams[j.team].push(player);
+            if (j.team) teams[j.team].push(player);
         }
 
-        const scrim = await this.scrimCrudService.createLFSScrim({
+        const scrim = await this.scrimCrudService.createLFSScrim(
             authorId,
             organizationId,
             gameModeId,
@@ -118,7 +118,7 @@ export class ScrimService {
             players,
             teams,
             numRounds,
-        });
+        );
 
         await this.eventsService.publish(EventTopic.ScrimCreated, scrim, scrim.id);
 
@@ -243,7 +243,6 @@ export class ScrimService {
         if (!scrim) throw new RpcException(MatchmakingError.ScrimNotFound);
         if (!scrim.submissionId) throw new RpcException(MatchmakingError.ScrimSubmissionNotFound);
 
-        // TODO: Override this if player / member is an admin
         if (playerId && !scrim.players.some(p => p.id === playerId)) throw new RpcException(MatchmakingError.PlayerNotInScrim);
 
         await this.scrimCrudService.removeScrim(scrimId);
