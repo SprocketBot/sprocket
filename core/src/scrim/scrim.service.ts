@@ -97,6 +97,13 @@ export class ScrimService {
         if (result.status === ResponseStatus.SUCCESS) return result.data;
         throw result.error;
     }
+    
+    async createLFSScrim(data: CreateLFSScrimOptions): Promise<IScrim> {
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.CreateLFSScrim, data);
+        
+        if (result.status === ResponseStatus.SUCCESS) return result.data;
+        throw result.error;
+    }
 
     async joinScrim(data: JoinScrimOptions): Promise<boolean> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.JoinScrim, data);

@@ -9,6 +9,7 @@ export enum MatchmakingEndpoint {
     GetScrimBySubmissionId = "GetScrimBySubmissionId",
     GetAllScrims = "GetAllScrims",
     GetScrimMetrics = "GetScrimMetrics",
+    CreateLFSScrim = "CreateLFSScrim",
     CreateScrim = "CreateScrim",
     JoinScrim = "JoinScrim",
     LeaveScrim = "LeaveScrim",
@@ -38,6 +39,10 @@ export const MatchmakingSchemas = {
     [MatchmakingEndpoint.GetScrimMetrics]: {
         input: Schemas.GetScrimMetrics_Request,
         output: Schemas.GetScrimMetrics_Response,
+    },
+    [MatchmakingEndpoint.CreateLFSScrim]: {
+        input: Schemas.CreateLFSScrim_Request,
+        output: Schemas.CreateLFSScrim_Response,
     },
     [MatchmakingEndpoint.CreateScrim]: {
         input: Schemas.CreateScrim_Request,
