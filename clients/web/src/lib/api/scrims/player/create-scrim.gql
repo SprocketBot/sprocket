@@ -11,12 +11,4 @@ query CreateScrimData {
             }
         }
     }
-	# games {
-	# 	name
-	# 	id
-    #     gameModes {
-    #         id
-    #         name
-    #     }
-	# }
 }

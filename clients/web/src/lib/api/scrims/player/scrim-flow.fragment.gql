@@ -17,4 +17,5 @@ fragment ScrimFlow_Fragment on Scrim {
     skillGroup {
         name
     }
+    complete
 }
