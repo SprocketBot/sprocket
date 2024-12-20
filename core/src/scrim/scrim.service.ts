@@ -52,6 +52,8 @@ export class ScrimService {
     get pendingScrimsSubTopic(): string { return "scrims.created" }
 
     get allActiveScrimsSubTopic(): string { return "scrims.updated" }
+    
+    get lfsScrimsSubTopic(): string { return "scrims.lfs" }
 
     async getAllScrims(skillGroupId?: number): Promise<IScrim[]> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.GetAllScrims, {skillGroupId});

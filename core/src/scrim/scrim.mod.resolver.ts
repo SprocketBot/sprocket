@@ -329,4 +329,33 @@ export class ScrimModuleResolver {
         await this.scrimService.enableSubscription();
         return this.pubSub.asyncIterator(this.scrimService.pendingScrimsSubTopic);
     }
+
+    @Subscription(() => Scrim, {
+        async filter(this: ScrimModuleResolver, payload: {followLFSScrims: Scrim;}, variables, context: {req: {user: UserPayload;};}) {
+            // This is pretty janky. Could we do better by just having the
+            // franchise name in the scrim payload?
+            const {userId, currentOrganizationId} = context.req.user;
+            if (!currentOrganizationId) return false;
+            
+            const player = await this.mlePlayerService.getMlePlayerBySprocketUser(userId);
+            const teams = payload.followLFSScrims.players.map(async p => {
+                const other_player = await this.playerService.getPlayer({
+                    where: {id: p.id},
+                    relations: {
+                        member: {
+                            user: true,
+                        },
+                    },
+                });
+                const mle_player = await this.mlePlayerService.getMlePlayerBySprocketUser(other_player.member.userId);
+                return mle_player.teamName;
+            });
+
+            return (await Promise.all(teams)).filter(t => t === player.teamName).length > 0;
+        },
+    })
+    async followLFSScrims(): Promise<AsyncIterator<Scrim>> {
+        await this.scrimService.enableSubscription();
+        return this.pubSub.asyncIterator(this.scrimService.lfsScrimsSubTopic);
+    }
 }
