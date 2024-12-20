@@ -117,6 +117,16 @@ export class ScrimModuleResolver {
             && (!s.settings.competitive || players.some(p => s.skillGroupId === p.skillGroupId))
             && s.status === status) as Scrim[];
     }
+    
+    @Query(() => [Scrim])
+    @UseGuards(FormerPlayerScrimGuard)
+    async getLFSScrims(@CurrentUser() user: UserPayload): Promise<Scrim[]> {
+        if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organization");
+
+        const scrims = await this.scrimService.getAllScrims();
+        return scrims.filter(s => s.organizationId === user.currentOrganizationId
+            && s.settings.lfs) as Scrim[];
+    }
 
     @Query(() => Scrim, {nullable: true})
     async getCurrentScrim(@CurrentUser() user: UserPayload): Promise<Scrim | null> {
@@ -152,6 +162,7 @@ export class ScrimModuleResolver {
             mode: data.settings.mode,
             competitive: data.settings.competitive,
             observable: data.settings.observable,
+            lfs: false,
             checkinTimeout: minutesToMilliseconds(checkinTimeout),
         };
 
@@ -193,6 +204,7 @@ export class ScrimModuleResolver {
             mode: data.settings.mode,
             competitive: data.settings.competitive,
             observable: data.settings.observable,
+            lfs: true,
             checkinTimeout: minutesToMilliseconds(checkinTimeout),
         };
 
