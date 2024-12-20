@@ -1,0 +1,6 @@
+{
+    "search.exclude": {
+        "clients/web/$houdini": true,
+        "old": true
+    }
+}
