@@ -1,1 +1,1 @@
-export const ScrimPubSub = "SCRIM_PUB_SUB" as const;
+export const ScrimPubSub: string = "SCRIM_PUB_SUB";
