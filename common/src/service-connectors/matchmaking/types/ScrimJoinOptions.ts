@@ -6,6 +6,7 @@ export const ScrimJoinOptionsSchema = z.object({
     leaveAfter: z.number().min(0),
     createGroup: z.boolean().optional(),
     joinGroup: z.string().optional(),
+    team: z.number().optional(),
 });
 
 export type ScrimJoinOptions = z.infer<typeof ScrimJoinOptionsSchema>;
