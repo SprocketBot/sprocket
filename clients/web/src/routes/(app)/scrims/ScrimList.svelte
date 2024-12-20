@@ -24,7 +24,10 @@
 			Create Scrim
 		</button>
 	</header>
-	{#each pendingScrims ?? [] as scrim}
+	{#each pendingScrims?.filter(p => {
+		console.log(Object.keys(p))
+		return !p.complete
+	}) ?? [] as scrim}
 		<ScrimListItem pendingScrim={scrim} />
 	{:else}
 		There are currently no active scrims

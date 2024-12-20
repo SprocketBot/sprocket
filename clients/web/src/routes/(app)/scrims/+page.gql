@@ -6,6 +6,7 @@ query ScrimPageRoot {
 		...ScrimFlow_Fragment
 		id
 		state
+		complete
 	}
 	pendingScrims @list(name: "ScrimPage_PendingScrims") {
 		...ScrimList_Fragment
@@ -16,5 +17,6 @@ query ScrimPageRoot {
 			checkedIn
 		}
 		participantCount
+		complete
 	}
 }
