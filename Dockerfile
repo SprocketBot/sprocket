@@ -1,4 +1,4 @@
-FROM oven/bun:1.0.30-alpine as build
+FROM oven/bun:1.1.40-alpine AS build
 
 # Bit of a chicken and the egg problem here
 # Web won't build without an API endpoint
@@ -7,24 +7,20 @@ FROM oven/bun:1.0.30-alpine as build
 ENV PUBLIC_API_PORT=443
 ENV PUBLIC_API_URL=api.preview.spr.ocket.gg
 ENV PUBLIC_API_SECURE=true
+ENV PRIVATE_API_URL=${PUBLIC_API_URL}
+ENV PRIVATE_API_SECURE=${PUBLIC_API_SECURE}
+ENV PRIVATE_API_PORT=${PUBLIC_API_PORT}
 
 COPY . /app
 WORKDIR /app
 RUN bun i
-RUN cd /app/core && bun run build
-RUN cd /app/lib && bun run build
-RUN cd /app/services/matchmaking && bun run build
-RUN cd /app/clients/discord && bun run build
+# RUN cd /app/core && bun run build
+# RUN cd /app/lib && bun run build
+# RUN cd /app/services/matchmaking && bun run build
+# RUN cd /app/clients/discord && bun run build
 
-
-FROM node:20-alpine
-
-ENV PUBLIC_API_PORT=443
-ENV PUBLIC_API_URL=api.preview.spr.ocket.gg
-ENV PUBLIC_API_SECURE=true
-
-COPY --from=build /app /app
-RUN cd /app/clients/web && npm run build
+RUN cd /app/core && bun run gen:schema
+RUN cd /app/clients/web && bun run build
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 

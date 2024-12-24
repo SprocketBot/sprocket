@@ -77,15 +77,6 @@ export const houdiniClient = new HoudiniClient({
 					return unsubscribe;
 				}
 			};
-		}),
-		() => ({
-			beforeNetwork(ctx, { next }) {
-				if (globalThis.fetch) {
-					// This is needed because the default ctx.fetch seems to have issues on the server
-					ctx.fetch = globalThis.fetch;
-				}
-				return next(ctx);
-			},
 		})
 	],
 

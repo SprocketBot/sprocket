@@ -9,18 +9,26 @@ on:
       # - 'main'
       - v2
 
+env:
+  PRODUCT_VERSION: "1.8.2" # or: "latest"
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
+    permissions:
+      packages: write
     steps:
       - uses: actions/checkout@v3
 
+      - name: Set up image tag
+        run: |
+          echo "IMAGE_TAG=`echo ghcr.io/${{ github.repository }}:${{ github.sha }} | tr '[:upper:]' '[:lower:]'`" >>${GITHUB_ENV}
+
       - name: Build and Push Image
         run: |
-          docker build -t ghcr.io/${{ github.repository }}:${{ github.sha }} .
+          docker build -t ${{ env.IMAGE_TAG }} .
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker push ghcr.io/${{ github.repository }}:${{ github.sha }}
+          docker push ${{ env.IMAGE_TAG }}
 
       - name: Extract Environment
         id: extract-env
@@ -32,6 +40,8 @@ jobs:
             ENV="dev"
           elif [[ $BRANCH_NAME =~ ^staging/ ]]; then
             ENV="staging"
+          elif [[ $BRANCH_NAME = "v2" ]]; then
+            ENV="v2"
           else
             ENV="main"
           fi
@@ -39,12 +49,32 @@ jobs:
 
       - name: Update Nomad Job
         run: |
-          IMAGE_TAG=ghcr.io/${{ github.repository }}:${{ github.sha }}
-          sed -i "s#__IMAGE_TAG__#$IMAGE_TAG#g" nomad.job.hcl
+          sed -i "s#%%environment%%#${{ steps.extract-env.outputs.env }}#g" nomad.job.hcl
+
+      - name: Setup `nomad`
+        uses: hashicorp/setup-nomad@main
+        id: setup
+        with:
+          version: ${{ env.PRODUCT_VERSION }}
+
+      - name: Tailscale
+        uses: tailscale/github-action@main
+        with:
+          authkey: ${{ secrets.tailscale_ephemeral_authkey }}
 
       - name: Deploy to Nomad
-        uses: hashicorp/nomad-github-action@v1
-        with:
-          nomad_addr: ${{ secrets.NOMAD_ADDR }}
-          nomad_token: ${{ secrets.NOMAD_TOKEN }}
-          command: job run nomad.job.hcl
+        env:
+          NOMAD_ADDR: ${{ secrets.NOMAD_ADDR }}
+          NOMAD_TOKEN: ${{ secrets.NOMAD_TOKEN }}
+          NOMAD_VAR_base_url: spr.ocket.dev
+          NOMAD_VAR_environment: ${{ steps.extract-env.outputs.env }}
+          NOMAD_VAR_monorepo_image: ${{ env.IMAGE_TAG }}
+        run: |
+          nomad job run nomad.job.hcl
+
+      # - name: Deploy to Nomad
+      #   uses: hashicorp/nomad-github-action@v1
+      #   with:
+      #     nomad_addr: ${{ secrets.NOMAD_ADDR }}
+      #     nomad_token: ${{ secrets.NOMAD_TOKEN }}
+      #     command: job run nomad.job.hcl

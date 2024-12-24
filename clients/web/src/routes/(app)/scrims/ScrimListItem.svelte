@@ -12,9 +12,4 @@
 		<p>Current Participants: {$scrim.participantCount} / {$scrim.gameMode.playerCount}</p>
 		<p>State: {$scrim.state}</p>
 	</SubjectBox>
-	<div>
-		<p>ScrimId: {$scrim.id}</p>
-		<p>ParticipantCount: {$scrim.participantCount}</p>
-		<p>ParticipantCount: {$scrim.participantCount}</p>
-	</div>
 {/if}

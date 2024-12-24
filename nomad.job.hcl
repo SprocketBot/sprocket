@@ -107,6 +107,9 @@ job "Sprocket-%%environment%%" {
         PUBLIC_API_URL    = "api.${var.environment}.${var.base_url}"
         PUBLIC_API_SECURE = true
         PUBLIC_API_PORT   = 443
+        PRIVATE_API_URL    = "api.${var.environment}.${var.base_url}"
+        PRIVATE_API_SECURE = true
+        PRIVATE_API_PORT   = 443
       }
 
       service {
@@ -221,6 +224,13 @@ S3_BUCKET="sprocket-v2"
 S3_PREFIX="${var.environment}"
 {{ end }}
         EOF
+      }
+
+      action "run-migrations" {
+        command = "bun"
+        args = [
+          "/app/core/src/datasource.ts", "up"
+        ]
       }
     }
 

@@ -3,7 +3,8 @@ import { redirect } from '@sveltejs/kit';
 import { apiUrl } from '../../lib/constants';
 import type { PageLoad } from './$types';
 
-export const load: PageLoad = async ({ fetch }) => {
+export const load: PageLoad = async ({ fetch, setHeaders }) => {
+	setHeaders({'Cache-Control': 'no-store'});
 	const okay = () =>
 		fetch(apiUrl + '/health')
 			.then(() => true)

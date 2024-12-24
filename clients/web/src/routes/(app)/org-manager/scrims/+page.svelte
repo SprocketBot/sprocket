@@ -9,6 +9,10 @@
 
 	$: ({ ScrimManagementPage } = data);
 
+	onMount(() => {
+		ScrimManagementPage.fetch();
+	})
+
 	$: groupedScrims = groupBy($ScrimManagementPage?.data?.allScrims ?? [], (s) => s.game.name);
 	const manageScrimsHydrator = new ManageScrimsHydrationStore();
 	manageScrimsHydrator.listen();
