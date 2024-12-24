@@ -31,7 +31,7 @@ const addCookiesToRequest = (req: Request) => {
 
 const AUTH_COOKIE_NAME = 'sprocket-token';
 const jwtService = new JwtService({
-  secret: config.getOrThrow('auth.jwt.secret'),
+  secret: config.get('auth.jwt.secret') ?? 'localhost',
 });
 export function getUserFromRequest(req: Request): User | false {
   // When GraphQL subscriptions initialize, we are given a native Request
@@ -97,7 +97,7 @@ export const authz = AuthZModule.register({
 
     if (user) {
       Logger.log(`Found user from request: ${JSON.stringify(user)}.`);
-      return user;
+      return user.id;
     } else {
       return 'anonymous';
     }
