@@ -5,7 +5,7 @@ import { GameRepository } from '../../db/game/game.repository';
 import { UseGuards } from '@nestjs/common';
 import { GameModeObject } from '../game_mode/game_mode.object';
 import { AuthPossession, AuthZGuard, UsePermissions } from 'nest-authz';
-import { Resource, ResourceAction } from 'src/db/authorize/constants';
+import { Resource, ResourceAction } from '@sprocketbot/lib/types';
 
 @Resolver(() => GameObject)
 export class GameResolver {

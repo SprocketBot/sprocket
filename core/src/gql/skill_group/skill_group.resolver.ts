@@ -4,7 +4,7 @@ import { SkillGroupObject } from './skill_group.object';
 import { UseGuards } from '@nestjs/common';
 import { UsePermissions } from 'nest-authz';
 import { AuthPossession, AuthZGuard } from 'nest-authz';
-import { Resource, ResourceAction } from 'src/db/authorize/constants';
+import { Resource, ResourceAction } from '@sprocketbot/lib/types';
 
 @Resolver()
 export class SkillGroupResolver {

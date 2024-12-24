@@ -18,7 +18,7 @@ import { UserAuthAccountObject } from '../user_auth_account/user_auth_account.ob
 import { FindOptionsWhere } from 'typeorm';
 import { UserEntity } from '../../db/user/user.entity';
 import { AuthPossession, AuthZGuard, UsePermissions } from 'nest-authz';
-import { Resource, ResourceAction } from 'src/db/authorize/constants';
+import { Resource, ResourceAction } from '@sprocketbot/lib/types';
 @Resolver(() => UserObject)
 export class UserResolver {
   private readonly logger = new Logger(UserResolver.name);
