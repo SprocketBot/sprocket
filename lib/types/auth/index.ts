@@ -1,6 +1,7 @@
 export * from './effect';
 export * from './user';
 export * from './platform';
+export * from './resources';
 
 export enum AuthAction {
   View = 'VIEW',

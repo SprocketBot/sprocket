@@ -7,13 +7,21 @@ import { getDataSourceToken } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { type Seeder } from './seeder.decorator';
 import { GameModeEntitySeed } from './game_mode/game_mode.seed';
+import { PolicySeed } from './policy/policy.seed';
 import { SkillGroupEntitySeed } from './skill_group/skill_group.seed';
+import { authz } from 'src/authz.def';
 @Module({
   imports: [
     DbModule,
+    authz,
     ...BaseSprocketModules.filter((mod) => mod !== RedisModule),
   ],
-  providers: [GameEntitySeed, GameModeEntitySeed, SkillGroupEntitySeed],
+  providers: [
+    GameEntitySeed,
+    GameModeEntitySeed,
+    PolicySeed,
+    SkillGroupEntitySeed,
+  ],
 })
 class SeedModule {}
 

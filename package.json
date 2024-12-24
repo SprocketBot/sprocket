@@ -6,5 +6,8 @@
     "./clients/discord",
     "./lib",
     "./core"
-  ]
+  ],
+  "dependencies": {
+    "typeorm-adapter": "^1.7.0"
+  }
 }
