@@ -100,13 +100,13 @@ function getUserFromRequest(req: Request): User | false {
           return enforcer;
         },
       },
-      usernameFromContext: (ctx) => {
+      userFromContext: (ctx) => {
         const req = ctx.getArgs()[2]['request'];
         const user = getUserFromRequest(req);
 
         if (user) {
           Logger.log(`Found user from request: ${JSON.stringify(user)}.`);
-          return user.username;
+          return user.id;
         } else {
           return 'anonymous';
         }
