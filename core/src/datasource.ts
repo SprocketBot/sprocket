@@ -10,6 +10,7 @@ import path from 'path';
 import PostgresAdapter from 'casbin-pg-adapter';
 import { Query } from 'typeorm/driver/Query';
 import camelcase from 'lodash.camelcase';
+import * as fs from 'fs';
 
 // this file makes a primative CLI for running migrations; w/ Typescript
 // Typeorm was not playing nicely with the glob pattern (even when using the noted loaders in the docs)
@@ -43,7 +44,7 @@ const entitiesDir = path.join(__dirname, 'db');
 const entityModules = // @ts-expect-error bun supports top-level await
   (await readdir(entitiesDir, { withFileTypes: true, recursive: true }))
     .filter((f) => f.isFile() && f.name.endsWith('.entity.ts'))
-    .map((f) => path.join(entitiesDir, f.name))
+    .map((f) => path.join(f.parentPath, f.name))
     .map((f) => import(f));
 
 const entities = // @ts-expect-error bun supports top-level await
