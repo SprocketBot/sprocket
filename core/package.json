@@ -51,7 +51,7 @@
     "graphql-ws": "^5.15.0",
     "ioredis": "^5.3.2",
     "lodash.camelcase": "^4.3.0",
-    "nest-authz": "^2.6.0",
+    "nest-authz": "^2.11.0",
     "passport": "^0.7.0",
     "passport-discord": "^0.1.4",
     "passport-steam": "^1.0.18",

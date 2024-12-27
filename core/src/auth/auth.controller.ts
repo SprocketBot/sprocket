@@ -3,11 +3,14 @@ import type { Request as Req, Response as Res } from 'express';
 import { AuthenticateService } from './authenticate/authenticate.service';
 import { User } from '@sprocketbot/lib/types/auth';
 import { SprocketConfigService } from '@sprocketbot/lib';
+import { AuthZService } from 'nest-authz';
+
 @Controller()
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
   constructor(
     private readonly authenticateService: AuthenticateService,
+    private readonly authZService: AuthZService,
     private readonly config: SprocketConfigService,
   ) {}
 
