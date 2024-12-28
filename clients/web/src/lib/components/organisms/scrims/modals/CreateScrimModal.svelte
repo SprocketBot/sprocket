@@ -4,6 +4,7 @@
     import {Modal} from "$lib/components";
 
     export let visible = false;
+    export let lfs = false;
 
     let game: GamesAndModesValue["games"][0];
     let mode: GamesAndModesValue["games"][0]["modes"][0];
@@ -22,6 +23,7 @@
                     mode: scrimType,
                     competitive: competitive,
                     observable: false,
+                    lfs: lfs,
                 },
                 gameModeId: mode.id,
                 createGroup: createGroup,

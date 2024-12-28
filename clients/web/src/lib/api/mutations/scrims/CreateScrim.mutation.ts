@@ -16,6 +16,7 @@ interface CreateScrimVariables {
         mode: "TEAMS" | "ROUND_ROBIN";
         competitive: boolean;
         observable: boolean;
+        lfs: boolean;
     };
     gameModeId: number;
     createGroup: boolean;

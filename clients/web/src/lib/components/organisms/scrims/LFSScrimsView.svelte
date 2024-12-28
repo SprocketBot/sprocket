@@ -44,7 +44,7 @@
 {/if}
 
 {#if createModalVisible}
-    <CreateScrimModal bind:visible={createModalVisible} />
+    <CreateScrimModal bind:visible={createModalVisible} lfs={true} />
 {/if}
 {#if joinModalVisible && targetScrim}
     <JoinScrimModal scrim={targetScrim} bind:visible={joinModalVisible} />
