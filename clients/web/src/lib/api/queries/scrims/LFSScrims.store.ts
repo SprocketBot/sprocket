@@ -111,7 +111,7 @@ class LFSScrimsStore extends LiveQueryStore<LFSScrimsData, LFSScrimsVars, LFSScr
             return;
         }
         const scrim = message.data.LFSScrim;
-        let existingScrims = [...this.currentValue.data.LFSScrims];
+        const existingScrims = [...this.currentValue.data.LFSScrims];
         const existingScrim = existingScrims.findIndex(s => s.id === scrim.id);
         if (existingScrim >= 0) {
             existingScrims[existingScrim] = scrim;
