@@ -17,6 +17,7 @@ export interface LFSScrim {
     settings: {
         competitive: boolean;
         mode: "TEAMS" | "ROUND_ROBIN";
+        lfs: boolean;
     };
     skillGroup: {
         profile: {
@@ -41,7 +42,7 @@ interface LFSScrimsSub {
 class LFSScrimsStore extends LiveQueryStore<LFSScrimsData, LFSScrimsVars, LFSScrimsSub> {
     protected queryString = gql<LFSScrimsData, LFSScrimsVars>`
     query {
-        LFSScrims: getLFSScrims() {
+        LFSScrims: getLFSScrims {
             id
             playerCount
             maxPlayers

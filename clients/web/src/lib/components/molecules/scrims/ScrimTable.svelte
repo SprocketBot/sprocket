@@ -3,8 +3,10 @@
     import type {PendingScrim} from "$lib/api";
     import {format} from "date-fns";
     import dateFns from "date-fns-tz";
+  import { Upload } from "graphql-upload";
     const {utcToZonedTime} = dateFns;
 
+    export let lfs: boolean = false;
     export let scrims: PendingScrim[];
     export let joinScrim: (scrim: PendingScrim) => void;
 </script>
@@ -34,7 +36,11 @@
             <td>{format(utcToZonedTime(new Date(scrim.createdAt), "America/New_York"), "MM'/'d h:mmaaa 'ET")}</td>
             <td>
                 <button on:click={() => { joinScrim(scrim) }} class="btn btn-outline float-right lg:btn-sm">
-                    Join
+                    {#if lfs}
+                        Upload
+                    {:else}
+                        Join
+                    {/if}
                 </button>
             </td>
         </tr>

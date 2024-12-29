@@ -4,6 +4,8 @@
     import {
         ScrimCard, ScrimTable, CreateScrimModal, JoinScrimModal,
     } from "$lib/components";
+    
+    import {redirect} from "@sveltejs/kit";
 
     let scrims: LFSScrim[] | undefined;
     $: scrims = $LFSScrims.data?.LFSScrims;
@@ -16,8 +18,8 @@
         createModalVisible = true;
     };
     const openJoinScrimModal = (scrim: LFSScrim) => {
-        targetScrim = scrim;
-        joinModalVisible = true;
+        // Redirect to /league/scrims/[submissionId].svelte
+        throw redirect(302, `/league/scrims/${scrim.id}`);
     };
 </script>
 
