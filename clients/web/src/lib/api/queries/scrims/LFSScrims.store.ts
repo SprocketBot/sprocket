@@ -39,7 +39,7 @@ interface LFSScrimsSub {
     LFSScrim: LFSScrim;
 }
 
-class LFSScrimsStore extends LiveQueryStore<LFSScrimsData, LFSScrimsVars, LFSScrimsSub> {
+export class LFSScrimsStore extends LiveQueryStore<LFSScrimsData, LFSScrimsVars, LFSScrimsSub> {
     protected queryString = gql<LFSScrimsData, LFSScrimsVars>`
     query {
         LFSScrims: getLFSScrims {
@@ -125,4 +125,3 @@ class LFSScrimsStore extends LiveQueryStore<LFSScrimsData, LFSScrimsVars, LFSScr
     };
 }
 
-export const LFSScrims = new LFSScrimsStore();
