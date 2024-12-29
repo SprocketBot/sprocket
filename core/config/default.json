@@ -16,10 +16,10 @@
         "levels": true
     },
     "db": {
-        "host": "",
-        "port": "",
-        "username": "",
-        "database": "",
+        "host": "localhost",
+        "port": "5432",
+        "username": "postgres",
+        "database": "sprocket_dev",
         "enable_logs": false
     },
     "minio": {
@@ -36,8 +36,8 @@
         "queue": ""
     },
     "web": {
-        "url": "",
-        "api_root": ""
+        "url": "localhost:3000",
+        "api_root": "localhost:3001/graphql"
     },
     "gql": {
         "playground": false
@@ -53,7 +53,7 @@
             "callbackUrl": ""
         },
         "discord": {
-            "callbackUrl": ""
+            "callbackUrl": "http://localhost:3001/login"
         },
         "epic": {
             "callbackUrl": ""
@@ -68,10 +68,10 @@
         "frontend_callback": ""
     },
     "redis": {
-        "port": 80,
-        "host": "",
-        "prefix": "",
-        "secure": true
+        "port": 6379,
+        "host": "localhost",
+        "prefix": "local-",
+        "secure": false
     },
     "defaultOrganizationId": 2,
     "defaultAuthToken": ""
