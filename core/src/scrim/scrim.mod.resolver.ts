@@ -214,6 +214,7 @@ export class ScrimModuleResolver {
             gameModeId: gameMode.id,
             skillGroupId: player.skillGroupId,
             settings: settings,
+            numRounds: data.numRounds,
             join: {
                 playerId: user.userId,
                 playerName: user.username,
