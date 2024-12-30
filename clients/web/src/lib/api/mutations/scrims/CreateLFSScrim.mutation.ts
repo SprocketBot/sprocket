@@ -48,6 +48,7 @@ export const createLFSScrimMutation = async (vars: CreateLFSScrimVariables): Pro
     const r = await client.mutation<CreateLFSScrimResponse, CreateLFSScrimVariables>(mutationString, vars).toPromise();
     if (r.data) {
         currentScrim.invalidate();
+        console.log(`Got response: ${JSON.stringify(r.data)}`);
         return r.data;
     }
     throw r.error as Error;

@@ -43,9 +43,6 @@
 			</div>
 		{:else if scrims}
 			<ScrimTable scrims={scrims} lfs={true} joinScrim={(scrim) => openUploadModal(scrim)}/>
-			{#each scrims as scrim (scrim.id)}
-				<h2 class="text-2xl text-accent font-bold mb-8">{scrim.id}</h2>
-			{/each}
 		{:else}
 			<div class="h-full w-full flex items-center justify-center">
 				No scrims found

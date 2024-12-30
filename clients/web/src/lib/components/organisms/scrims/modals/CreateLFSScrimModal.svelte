@@ -4,11 +4,10 @@
     import {Modal} from "$lib/components";
 
     export let visible = false;
-    export let lfs = false;
 
     let game: GamesAndModesValue["games"][0];
     let mode: GamesAndModesValue["games"][0]["modes"][0];
-    let scrimType: "TEAMS" | "ROUND_ROBIN";
+    let scrimType: "TEAMS" | "ROUND_ROBIN" = "TEAMS";
     let leaveAfter: number = 1800;
     let competitive: boolean = true;
     let createGroup: boolean = false;
@@ -18,11 +17,9 @@
     async function createScrim() {
         buttonEnabled = false;
         try {
-            console.log("Creating scrim:");
-            console.log(`Mode: ${scrimType}, Competitive: ${competitive}, LFS: ${lfs}`);
             const data = {
                 settings: {
-                    mode: "TEAMS",
+                    mode: scrimType,
                     competitive: competitive,
                     observable: false,
                     lfs: true,
@@ -32,7 +29,7 @@
                 leaveAfter: leaveAfter,
                 numRounds: numRounds,
             };
-            await createLFSScrimMutation(data)
+            await createLFSScrimMutation(data);
             visible = false;
         } finally {
             buttonEnabled = true;
