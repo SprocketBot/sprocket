@@ -1,6 +1,6 @@
 {
     "transport": {
-        "url": "",
+        "url": "amqp://localhost",
         "events_application_key": "sprocket-core",
         "core_queue": "dev-core",
         "bot_queue": "dev-bot",
