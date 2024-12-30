@@ -9,9 +9,10 @@ export function getMockScrimSettings(
     competitive: boolean,
     observable: boolean,
     checkinTimeout: number,
+    lfs: boolean = false,
 ): ScrimSettings {
     return {
-        teamSize, teamCount, mode, competitive, observable, checkinTimeout,
+        teamSize, teamCount, mode, competitive, observable, lfs, checkinTimeout,
     };
 }
 

@@ -181,8 +181,8 @@ export class ScrimModuleResolver {
         }) as Promise<Scrim>;
     }
 
-    @Mutation(() => Boolean)
-    @UseGuards(QueueBanGuard, JoinScrimPlayerGuard, FormerPlayerScrimGuard)
+    @Mutation(() => Scrim)
+    @UseGuards(QueueBanGuard, CreateScrimPlayerGuard, FormerPlayerScrimGuard)
     async createLFSScrim(
         @CurrentUser() user: UserPayload,
         @Args("data") data: CreateLFSScrimInput,

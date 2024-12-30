@@ -88,26 +88,22 @@ export class ScrimService {
         numRounds,
         join,
     }: CreateLFSScrimRequest): Promise<Scrim> {
-        for (const j of join) {
-            if (await this.scrimCrudService.playerInAnyScrim(j.playerId)) throw new RpcException(MatchmakingError.PlayerAlreadyInScrim);
-        }
-        if (join.filter(j => j.createGroup).length !== 0 && !this.scrimGroupService.modeAllowsGroups(settings.mode)) throw new RpcException(MatchmakingError.ScrimGroupNotSupportedInMode);
+        if (await this.scrimCrudService.playerInAnyScrim(join.playerId)) throw new RpcException(MatchmakingError.PlayerAlreadyInScrim);
+        if (join.createGroup && !this.scrimGroupService.modeAllowsGroups(settings.mode)) throw new RpcException(MatchmakingError.ScrimGroupNotSupportedInMode);
         
         const players: ScrimPlayer[] = [];
         const teams: ScrimPlayer[][] = [];
         teams[0] = [];
         teams[1] = [];
 
-        for (const j of join) {
-            const player = {
-                id: j.playerId,
-                name: j.playerName,
-                joinedAt: new Date(),
-                leaveAt: add(new Date(), {seconds: j.leaveAfter}),
-            };
-            players.push(player);
-            if (j.team) teams[j.team].push(player);
-        }
+        const player = {
+            id: join.playerId,
+            name: join.playerName,
+            joinedAt: new Date(),
+            leaveAt: add(new Date(), {seconds: join.leaveAfter}),
+        };
+        players.push(player);
+        if (join.team) teams[join.team].push(player);
 
         const scrim = await this.scrimCrudService.createLFSScrim(
             authorId,
