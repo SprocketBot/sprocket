@@ -3,7 +3,6 @@
     import type {PendingScrim} from "$lib/api";
     import {format} from "date-fns";
     import dateFns from "date-fns-tz";
-  import { Upload } from "graphql-upload";
     const {utcToZonedTime} = dateFns;
 
     export let lfs: boolean = false;

@@ -1,34 +1,35 @@
 import type {OperationResult} from "@urql/core";
 import {gql} from "@urql/core";
 import {LiveQueryStore} from "../../core/LiveQueryStore";
+import type {PendingScrim} from "./PendingScrims.store";
 
-export interface LFSScrim {
-    id: string;
-    playerCount: number;
-    maxPlayers: number;
-    status: "PENDING" | "EMPTY" | "POPPED";
-    createdAt: Date;
-    gameMode: {
-        description: string;
-        game: {
-            title: string;
-        };
-    };
-    settings: {
-        competitive: boolean;
-        mode: "TEAMS" | "ROUND_ROBIN";
-        lfs: boolean;
-    };
-    skillGroup: {
-        profile: {
-            description: string;
-        };
-    };
-}
+// export interface LFSScrim {
+//     id: string;
+//     playerCount: number;
+//     maxPlayers: number;
+//     status: "PENDING" | "EMPTY" | "POPPED";
+//     createdAt: Date;
+//     gameMode: {
+//         description: string;
+//         game: {
+//             title: string;
+//         };
+//     };
+//     settings: {
+//         competitive: boolean;
+//         mode: "TEAMS" | "ROUND_ROBIN";
+//         lfs: boolean;
+//     };
+//     skillGroup: {
+//         profile: {
+//             description: string;
+//         };
+//     };
+// }
 
 
 interface LFSScrimsData {
-    LFSScrims: LFSScrim[];
+    LFSScrims: PendingScrim[];
 }
 
 interface LFSScrimsVars {
@@ -36,7 +37,7 @@ interface LFSScrimsVars {
 }
 
 interface LFSScrimsSub {
-    LFSScrim: LFSScrim;
+    LFSScrim: PendingScrim;
 }
 
 export class LFSScrimsStore extends LiveQueryStore<LFSScrimsData, LFSScrimsVars, LFSScrimsSub> {
