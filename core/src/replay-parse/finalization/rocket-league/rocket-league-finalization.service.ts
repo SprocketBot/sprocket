@@ -53,6 +53,7 @@ export class RocketLeagueFinalizationService {
             const gameMode = await em.findOneByOrFail(GameMode, {id: scrim.gameModeId});
 
             const scrimMeta = em.create(ScrimMeta);
+            scrimMeta.isCompetitive = scrim.settings.competitive;
             const matchParent = em.create(MatchParent);
             const match = em.create(Match);
             await em.insert(ScrimMeta, scrimMeta as QueryDeepPartialEntity<ScrimMeta>);

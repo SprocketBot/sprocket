@@ -12,4 +12,7 @@ export class ScrimMeta extends BaseModel {
     @OneToOne(() => MatchParent, mp => mp.scrimMeta)
     @Field(() => MatchParent)
     parent: MatchParent;
+    
+    @Field(() => Boolean)
+    isCompetitive: boolean;
 }
