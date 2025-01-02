@@ -4,7 +4,6 @@ import type {
     CreateLFSScrimRequest,
     CreateScrimOptions,
     JoinScrimOptions,
-    PopLFSScrimRequest,
     Scrim,
     ScrimPlayer,
 } from "@sprocketbot/common";
@@ -122,7 +121,12 @@ export class ScrimService {
         scrim.submissionId = sId;
         await this.scrimCrudService.setSubmissionId(scrim.id, sId);
         await this.eventsService.publish(EventTopic.ScrimCreated, scrim, scrim.id);
+        
+        // For the same reason, set the scrim in PENDING status
+        scrim.status = ScrimStatus.IN_PROGRESS;
+        await this.scrimCrudService.updateScrimStatus(scrim.id, scrim.status);
 
+        console.log(`Created LFS scrim: ${JSON.stringify(scrim)}`);
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
             name: "scrimCreated",
             tags: [ ["playerId", `${authorId}`] ],
