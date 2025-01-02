@@ -3,7 +3,7 @@
 	    CreateLFSScrimModal, DashboardLayout, DashboardCard, ScrimTable, Spinner, UploadReplaysModal
 	} from "$lib/components";
 	import {
-		LFSScrimsStore, type PendingScrim
+		LFSScrimsStore, type CurrentScrim
 	} from "$lib/api";
 
 	const store = new LFSScrimsStore();
@@ -11,7 +11,7 @@
 	let uploading = false;
 	let creating = false;
 	let submissionId: string = "";
-	let scrims: PendingScrim[] | undefined = [];
+	let scrims: CurrentScrim[] | undefined = [];
 
 	$: {
 		// @ts-expect-error `fetching` exists on the query store but isn't defined in the type
@@ -19,8 +19,9 @@
 		scrims = $store.data?.LFSScrims;
 	}
 
-	const openUploadModal = (scrim: PendingScrim) => {
-        submissionId = scrim.id;
+	const openUploadModal = (scrim: CurrentScrim) => {
+		console.log(JSON.stringify(scrim));
+        submissionId = scrim.submissionId ?? "";
         uploading = true;
     };
 	

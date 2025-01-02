@@ -4,6 +4,7 @@ import type {
     CreateLFSScrimRequest,
     CreateScrimOptions,
     JoinScrimOptions,
+    PopLFSScrimRequest,
     Scrim,
     ScrimPlayer,
 } from "@sprocketbot/common";
@@ -116,6 +117,10 @@ export class ScrimService {
             numRounds,
         );
 
+        // Set the submissionId right away for LFS scrims, there is no Pop event
+        const sId = `scrim-${scrim.id}`;
+        scrim.submissionId = sId;
+        await this.scrimCrudService.setSubmissionId(scrim.id, sId);
         await this.eventsService.publish(EventTopic.ScrimCreated, scrim, scrim.id);
 
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {

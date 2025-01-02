@@ -1,54 +1,42 @@
 import type {OperationResult} from "@urql/core";
 import {gql} from "@urql/core";
 import {LiveQueryStore} from "../../core/LiveQueryStore";
-import type {PendingScrim} from "./PendingScrims.store";
-
-// export interface LFSScrim {
-//     id: string;
-//     playerCount: number;
-//     maxPlayers: number;
-//     status: "PENDING" | "EMPTY" | "POPPED";
-//     createdAt: Date;
-//     gameMode: {
-//         description: string;
-//         game: {
-//             title: string;
-//         };
-//     };
-//     settings: {
-//         competitive: boolean;
-//         mode: "TEAMS" | "ROUND_ROBIN";
-//         lfs: boolean;
-//     };
-//     skillGroup: {
-//         profile: {
-//             description: string;
-//         };
-//     };
-// }
-
+import type {CurrentScrim} from "./CurrentScrim.store";
 
 interface LFSScrimsData {
-    LFSScrims: PendingScrim[];
+    LFSScrims: CurrentScrim[];
 }
 
 interface LFSScrimsVars {
 
 }
 
-interface LFSScrimsSub {
-    LFSScrim: PendingScrim;
+interface LFSScrimsSubscriptionValue {
+    LFSScrim: CurrentScrim;
 }
 
-export class LFSScrimsStore extends LiveQueryStore<LFSScrimsData, LFSScrimsVars, LFSScrimsSub> {
+interface LFSScrimsSubscriptionVars {
+}
+
+export class LFSScrimsStore extends LiveQueryStore<LFSScrimsData, LFSScrimsVars, LFSScrimsSubscriptionValue, LFSScrimsSubscriptionVars> {
     protected queryString = gql<LFSScrimsData, LFSScrimsVars>`
     query {
         LFSScrims: getLFSScrims {
             id
+            submissionId
             playerCount
             maxPlayers
             status
             createdAt
+            skillGroup {
+                profile {
+                    description
+                }
+            }
+            currentGroup {
+                code
+                players
+            }
             gameMode {
                 description
                 game {
@@ -59,15 +47,27 @@ export class LFSScrimsStore extends LiveQueryStore<LFSScrimsData, LFSScrimsVars,
                 competitive
                 mode
             }
-            skillGroup {
-                profile {
-                    description
+            players {
+                id
+                name
+                checkedIn
+            }
+            lobby {
+                name
+                password
+            }
+            games {
+                teams {
+                    players {
+                        id
+                        name
+                    }
                 }
             }
         }
     }`;
 
-    protected subscriptionString = gql<LFSScrimsSub, {}>`
+    protected subscriptionString = gql<LFSScrimsSubscriptionValue, LFSScrimsSubscriptionVars>`
         subscription {
             LFSScrim: followLFSScrims {
                 id
@@ -94,7 +94,7 @@ export class LFSScrimsStore extends LiveQueryStore<LFSScrimsData, LFSScrimsVars,
         }
     `;
     
-    protected _subVars = {};
+    protected _subVars: LFSScrimsSubscriptionVars = {};
 
     constructor() {
         super();
@@ -103,7 +103,7 @@ export class LFSScrimsStore extends LiveQueryStore<LFSScrimsData, LFSScrimsVars,
         this.subscriptionVariables = {};
     }
 
-    protected handleGqlMessage = (message: OperationResult<LFSScrimsSub>) => {
+    protected handleGqlMessage = (message: OperationResult<LFSScrimsSubscriptionValue, LFSScrimsSubscriptionVars>) => {
         if (!message.data) {
             console.warn(`Recieved erroneous message from followLFSScrims: ${message.error}`);
             return;
