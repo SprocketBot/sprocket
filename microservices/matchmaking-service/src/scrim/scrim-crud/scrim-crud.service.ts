@@ -2,6 +2,7 @@ import {Injectable, Logger} from "@nestjs/common";
 import type {
     CreateScrimOptions,
     Scrim, ScrimGame, ScrimPlayer,
+    ScrimSettings,
 } from "@sprocketbot/common";
 import {
     config, RedisService, ScrimSchema, ScrimStatus,
@@ -46,6 +47,49 @@ export class ScrimCrudService {
         };
 
         if (player) scrim.players.push(player);
+
+        await this.redisService.setJson(
+            `${this.prefix}${scrim.id}`,
+            scrim,
+        );
+
+        return scrim;
+    }
+
+    async createLFSScrim(
+        authorId: number,
+        organizationId: number,
+        gameModeId: number,
+        skillGroupId: number,
+        settings: ScrimSettings,
+        players: ScrimPlayer[],
+        teams: ScrimPlayer[][],
+        numRounds: number,
+    ): Promise<Scrim> {
+        const at = new Date();
+        const scrim: Scrim = {
+            id: v4(),
+            createdAt: at,
+            updatedAt: at,
+            status: ScrimStatus.PENDING,
+            authorId: authorId,
+            organizationId: organizationId,
+            gameModeId: gameModeId,
+            skillGroupId: skillGroupId,
+            players: [],
+            games: [],
+            settings: settings,
+        };
+
+        players.map(p => scrim.players.push(p));
+        for (let i = 0;i < numRounds;i++) {
+            const game = {
+                teams: teams.map(t => ({
+                    players: t.map(p => p),
+                })),
+            };
+            scrim.games?.push(game);
+        }
 
         await this.redisService.setJson(
             `${this.prefix}${scrim.id}`,

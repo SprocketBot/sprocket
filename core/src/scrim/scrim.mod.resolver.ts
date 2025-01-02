@@ -34,7 +34,7 @@ import {CreateScrimPlayerGuard, JoinScrimPlayerGuard} from "./scrim.guard";
 import {ScrimService} from "./scrim.service";
 import {ScrimToggleService} from "./scrim-toggle";
 import {
-    CreateScrimInput, Scrim, ScrimEvent,
+    CreateLFSScrimInput, CreateScrimInput, Scrim, ScrimEvent,
 } from "./types";
 import {ScrimMetrics} from "./types/ScrimMetrics";
 
@@ -156,6 +156,47 @@ export class ScrimModuleResolver {
         };
 
         return this.scrimService.createScrim({
+            authorId: user.userId,
+            organizationId: user.currentOrganizationId,
+            gameModeId: gameMode.id,
+            skillGroupId: player.skillGroupId,
+            settings: settings,
+            join: {
+                playerId: user.userId,
+                playerName: user.username,
+                leaveAfter: data.leaveAfter,
+                createGroup: data.createGroup,
+            },
+        }) as Promise<Scrim>;
+    }
+
+    @Mutation(() => Boolean)
+    @UseGuards(QueueBanGuard, JoinScrimPlayerGuard, FormerPlayerScrimGuard)
+    async createLFSScrim(
+        @CurrentUser() user: UserPayload,
+        @Args("data") data: CreateLFSScrimInput,
+    ): Promise<Scrim> {
+        if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organization");
+        if (await this.scrimToggleService.scrimsAreDisabled()) throw new GraphQLError("Scrims are disabled");
+
+        const gameMode = await this.gameModeService.getGameModeById(data.gameModeId);
+        const player = await this.playerService.getPlayerByOrganizationAndGame(user.userId, user.currentOrganizationId, gameMode.gameId);
+        
+        const mlePlayer = await this.mlePlayerService.getMlePlayerBySprocketUser(player.member.userId);
+        if (mlePlayer.teamName === "FP") throw new GraphQLError("User is a former player");
+
+        const checkinTimeout = await this.organizationConfigurationService.getOrganizationConfigurationValue<number>(user.currentOrganizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_CHECKIN_TIMEOUT_MINUTES);
+        
+        const settings: IScrimSettings = {
+            teamSize: gameMode.teamSize,
+            teamCount: gameMode.teamCount,
+            mode: data.settings.mode,
+            competitive: data.settings.competitive,
+            observable: data.settings.observable,
+            checkinTimeout: minutesToMilliseconds(checkinTimeout),
+        };
+
+        return this.scrimService.createLFSScrim({
             authorId: user.userId,
             organizationId: user.currentOrganizationId,
             gameModeId: gameMode.id,
