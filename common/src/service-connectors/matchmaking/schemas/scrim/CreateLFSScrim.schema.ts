@@ -13,7 +13,7 @@ export const CreateLFSScrim_Request = z.object({
     skillGroupId: z.number(),
     settings: ScrimSettingsSchema,
     numRounds: z.number(),
-    join: z.array(ScrimJoinOptionsSchema),
+    join: ScrimJoinOptionsSchema,
 });
 
 export type CreateLFSScrimRequest = z.infer<typeof CreateLFSScrim_Request>;

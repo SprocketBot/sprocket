@@ -28,6 +28,7 @@ export interface CurrentScrim {
     settings: {
         competitive: boolean;
         mode: string;
+        lfs: boolean;
     };
     players: Array<{
         id: number;
@@ -172,6 +173,8 @@ class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentSc
         }
     }
     `;
+
+    protected _subVars: CurrentScrimStoreSubscriptionVariables = {};
 
     constructor() {
         super();

@@ -117,6 +117,16 @@ export class ScrimModuleResolver {
             && (!s.settings.competitive || players.some(p => s.skillGroupId === p.skillGroupId))
             && s.status === status) as Scrim[];
     }
+    
+    @Query(() => [Scrim])
+    @UseGuards(FormerPlayerScrimGuard)
+    async getLFSScrims(@CurrentUser() user: UserPayload): Promise<Scrim[]> {
+        if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organization");
+
+        const scrims = await this.scrimService.getAllScrims();
+        return scrims.filter(s => s.organizationId === user.currentOrganizationId
+            && s.settings.lfs) as Scrim[];
+    }
 
     @Query(() => Scrim, {nullable: true})
     async getCurrentScrim(@CurrentUser() user: UserPayload): Promise<Scrim | null> {
@@ -152,6 +162,7 @@ export class ScrimModuleResolver {
             mode: data.settings.mode,
             competitive: data.settings.competitive,
             observable: data.settings.observable,
+            lfs: false,
             checkinTimeout: minutesToMilliseconds(checkinTimeout),
         };
 
@@ -170,8 +181,8 @@ export class ScrimModuleResolver {
         }) as Promise<Scrim>;
     }
 
-    @Mutation(() => Boolean)
-    @UseGuards(QueueBanGuard, JoinScrimPlayerGuard, FormerPlayerScrimGuard)
+    @Mutation(() => Scrim)
+    @UseGuards(QueueBanGuard, CreateScrimPlayerGuard, FormerPlayerScrimGuard)
     async createLFSScrim(
         @CurrentUser() user: UserPayload,
         @Args("data") data: CreateLFSScrimInput,
@@ -193,6 +204,7 @@ export class ScrimModuleResolver {
             mode: data.settings.mode,
             competitive: data.settings.competitive,
             observable: data.settings.observable,
+            lfs: true,
             checkinTimeout: minutesToMilliseconds(checkinTimeout),
         };
 
@@ -202,6 +214,7 @@ export class ScrimModuleResolver {
             gameModeId: gameMode.id,
             skillGroupId: player.skillGroupId,
             settings: settings,
+            numRounds: data.numRounds,
             join: {
                 playerId: user.userId,
                 playerName: user.username,
@@ -316,5 +329,34 @@ export class ScrimModuleResolver {
     async followPendingScrims(): Promise<AsyncIterator<Scrim>> {
         await this.scrimService.enableSubscription();
         return this.pubSub.asyncIterator(this.scrimService.pendingScrimsSubTopic);
+    }
+
+    @Subscription(() => Scrim, {
+        async filter(this: ScrimModuleResolver, payload: {followLFSScrims: Scrim;}, variables, context: {req: {user: UserPayload;};}) {
+            // This is pretty janky. Could we do better by just having the
+            // franchise name in the scrim payload?
+            const {userId, currentOrganizationId} = context.req.user;
+            if (!currentOrganizationId) return false;
+            
+            const player = await this.mlePlayerService.getMlePlayerBySprocketUser(userId);
+            const teams = payload.followLFSScrims.players.map(async p => {
+                const other_player = await this.playerService.getPlayer({
+                    where: {id: p.id},
+                    relations: {
+                        member: {
+                            user: true,
+                        },
+                    },
+                });
+                const mle_player = await this.mlePlayerService.getMlePlayerBySprocketUser(other_player.member.userId);
+                return mle_player.teamName;
+            });
+
+            return (await Promise.all(teams)).filter(t => t === player.teamName).length > 0;
+        },
+    })
+    async followLFSScrims(): Promise<AsyncIterator<Scrim>> {
+        await this.scrimService.enableSubscription();
+        return this.pubSub.asyncIterator(this.scrimService.lfsScrimsSubTopic);
     }
 }

@@ -6,6 +6,7 @@ import type {
     CoreEndpoint,
     CoreInput,
     CoreOutput,
+    CreateLFSScrimRequest,
     CreateScrimOptions,
     JoinScrimOptions,
     Scrim as IScrim,
@@ -52,6 +53,8 @@ export class ScrimService {
     get pendingScrimsSubTopic(): string { return "scrims.created" }
 
     get allActiveScrimsSubTopic(): string { return "scrims.updated" }
+    
+    get lfsScrimsSubTopic(): string { return "scrims.lfs" }
 
     async getAllScrims(skillGroupId?: number): Promise<IScrim[]> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.GetAllScrims, {skillGroupId});
@@ -98,7 +101,7 @@ export class ScrimService {
         throw result.error;
     }
     
-    async createLFSScrim(data: CreateLFSScrimOptions): Promise<IScrim> {
+    async createLFSScrim(data: CreateLFSScrimRequest): Promise<IScrim> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.CreateLFSScrim, data);
         
         if (result.status === ResponseStatus.SUCCESS) return result.data;

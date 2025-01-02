@@ -20,6 +20,9 @@ export class ScrimSettings implements IScrimSettings {
 
     @Field(() => Boolean)
     observable: boolean;
+    
+    @Field(() => Boolean)
+    lfs: boolean;
 
     @Field(() => Int)
     checkinTimeout: number;
@@ -35,4 +38,8 @@ export class ScrimSettingsInput {
 
     @Field(() => Boolean)
     observable: boolean;
+
+    @Field(() => Boolean)
+    lfs: boolean;
+
 }

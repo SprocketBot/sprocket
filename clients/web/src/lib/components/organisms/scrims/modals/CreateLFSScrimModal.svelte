@@ -1,34 +1,35 @@
 <script lang="ts">
-    import {type GamesAndModesValue, createScrimMutation} from "$lib/api";
+    import {type GamesAndModesValue, createLFSScrimMutation} from "$lib/api";
     import {gamesAndModes} from "$lib/api/queries/GamesAndModes.store";
     import {Modal} from "$lib/components";
 
     export let visible = false;
-    export let lfs = false;
 
     let game: GamesAndModesValue["games"][0];
     let mode: GamesAndModesValue["games"][0]["modes"][0];
-    let scrimType: "TEAMS" | "ROUND_ROBIN";
+    let scrimType: "TEAMS" | "ROUND_ROBIN" = "TEAMS";
     let leaveAfter: number = 1800;
     let competitive: boolean = true;
     let createGroup: boolean = false;
-
+    let numRounds: number = 0;
     let buttonEnabled = true;
 
     async function createScrim() {
         buttonEnabled = false;
         try {
-            await createScrimMutation({
+            const data = {
                 settings: {
                     mode: scrimType,
                     competitive: competitive,
                     observable: false,
-                    lfs: lfs,
+                    lfs: true,
                 },
                 gameModeId: mode.id,
                 createGroup: createGroup,
                 leaveAfter: leaveAfter,
-            });
+                numRounds: numRounds,
+            };
+            await createLFSScrimMutation(data);
             visible = false;
         } finally {
             buttonEnabled = true;
@@ -36,7 +37,7 @@
     }
 </script>
 
-<Modal title="Create Scrim" bind:visible id="create-scrim-modal">
+<Modal title="Create LFS (Team) Scrim" bind:visible id="create-scrim-modal">
     <form on:submit|preventDefault={createScrim} slot="body">
         <div class="divider my-1"></div>
 
@@ -69,13 +70,9 @@
 
         <div class="form-control">
             <label class="label" for="scrim-type">
-                <span class="label-text">Scrim Type:</span>
+                <span class="label-text">Number of Games:</span>
             </label>
-            <select name="scrim-type" bind:value={scrimType}>
-                <option disabled selected>Make a selection</option>
-                <option value="ROUND_ROBIN">Round Robin</option>
-                <option value="TEAMS">Teams</option>
-            </select>
+            <input type="number" name="num-rounds" bind:value={numRounds} />
         </div>
 
         <div class="form-control">
@@ -101,20 +98,6 @@
                 />
             </label>
         </div>
-
-        <div class="form-control inline">
-            <label class="cursor-pointer label" for="createGroup">
-                <span class="label-text">Create Group</span>
-                <input
-                    type="checkbox"
-                    bind:checked={createGroup}
-                    class="toggle toggle-primary"
-                    name="createGroup"
-                />
-            </label>
-        </div>
-
-        <div class="divider my-1"></div>
 
         <button class="btn btn-primary btn-wide flex mx-auto mb-4" disabled={!buttonEnabled}>Create</button>
     </form>

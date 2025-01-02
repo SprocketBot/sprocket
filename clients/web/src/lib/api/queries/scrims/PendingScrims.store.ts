@@ -17,6 +17,7 @@ export interface PendingScrim {
     settings: {
         competitive: boolean;
         mode: "TEAMS" | "ROUND_ROBIN";
+        lfs: boolean;
     };
     skillGroup: {
         profile: {
@@ -91,6 +92,8 @@ class PendingScrimsStore extends LiveQueryStore<PendingScrimsData, PendingScrims
             }
         }
     `;
+
+    protected _subVars = [];
 
     constructor() {
         super();
