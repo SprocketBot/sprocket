@@ -11,3 +11,4 @@ export * from "./GetScrimMetrics.schema";
 export * from "./JoinScrim.schema";
 export * from "./LeaveScrim.schema";
 export * from "./SetScrimLocked.schema";
+export * from "./UpdateLFSScrimPlayers.schema";

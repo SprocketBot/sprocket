@@ -126,7 +126,6 @@ export class ScrimService {
         scrim.status = ScrimStatus.IN_PROGRESS;
         await this.scrimCrudService.updateScrimStatus(scrim.id, scrim.status);
 
-        console.log(`Created LFS scrim: ${JSON.stringify(scrim)}`);
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
             name: "scrimCreated",
             tags: [ ["playerId", `${authorId}`] ],
@@ -134,6 +133,12 @@ export class ScrimService {
         }).catch(err => { this.logger.error(err) });
 
         return scrim;
+    }
+
+    async updateLFSScrimPlayers({
+
+    }): Promise<boolean> {
+        
     }
 
     async joinScrim({
