@@ -6,12 +6,15 @@ import type {
     JoinScrimOptions,
     Scrim,
     ScrimPlayer,
+    UpdateLFSScrimPlayersRequest,
 } from "@sprocketbot/common";
 import {
     AnalyticsEndpoint,
     AnalyticsService,
     EventTopic,
     MatchmakingError,
+    ScrimGameSchema,
+    ScrimSchema,
     ScrimStatus,
 } from "@sprocketbot/common";
 import {add} from "date-fns";
@@ -136,9 +139,21 @@ export class ScrimService {
     }
 
     async updateLFSScrimPlayers({
-
-    }): Promise<boolean> {
-        
+        scrimId,
+        players,
+        games,
+    }: UpdateLFSScrimPlayersRequest): Promise<boolean> {
+        const rawscrim = await this.scrimCrudService.getScrim(scrimId);
+        if (!rawscrim) return false;
+        const scrim = ScrimSchema.parse(rawscrim);
+        scrim.players = players;
+        for (const g of games) {
+            const game = ScrimGameSchema.parse(g);
+            if (scrim.games?.includes(game)) continue;
+            scrim.games?.push(game);
+        }
+        await this.scrimCrudService.updateLFSScrim(scrim);
+        return true;
     }
 
     async joinScrim({

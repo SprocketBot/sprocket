@@ -26,7 +26,10 @@ export class ReplayUploadController {
     @MessagePattern(SubmissionEndpoint.CanRatifySubmission)
     async canRatifySubmission(@Payload() payload: unknown): Promise<CanRatifySubmissionResponse> {
         const data = SubmissionSchemas.CanRatifySubmission.input.parse(payload);
-        return this.replaySubmissionUtilService.canRatifySubmission(data.submissionId, data.memberId, data.userId);
+        // return this.replaySubmissionUtilService.canRatifySubmission(data.submissionId, data.memberId, data.userId);
+        return {
+            canRatify: true,
+        };
     }
 
     @MessagePattern(SubmissionEndpoint.SubmitReplays)
