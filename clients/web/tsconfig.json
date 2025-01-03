@@ -19,7 +19,6 @@
 			"DOM",
 			"DOM.Iterable"
 		],
-		"verbatimModuleSyntax": true,
 		"moduleResolution": "node",
 		"module": "esnext",
 		"target": "esnext",
