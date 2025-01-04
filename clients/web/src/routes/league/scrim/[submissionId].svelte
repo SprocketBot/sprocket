@@ -21,11 +21,6 @@
   let submission: SubmissionStoreValue["submission"] | undefined;
   $: if ($submissionStore) {
     submission = $submissionStore?.data?.submission;
-    if (submission && submission.games) {
-      for (const game of submission.games) {
-        console.log(JSON.stringify(game));
-      }
-    }
   }
 </script>
 
