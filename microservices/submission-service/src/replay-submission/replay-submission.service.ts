@@ -6,11 +6,9 @@ import {
     CeleryService,
     EventsService,
     EventTopic,
-    MinioService,
     ProgressStatus,
     REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
     ReplaySubmissionStatus,
-    ReplaySubmissionType,
     Task,
 } from "@sprocketbot/common";
 import {v4} from "uuid";
@@ -28,7 +26,6 @@ export class ReplaySubmissionService {
 
     constructor(
         private readonly submissionCrudService: ReplaySubmissionCrudService,
-        private readonly minioService: MinioService,
         private readonly celeryService: CeleryService,
         private readonly eventsService: EventsService,
         @Inject(forwardRef(() => ReplayParseSubscriber))
@@ -210,6 +207,5 @@ export class ReplaySubmissionService {
             redisKey: getSubmissionKey(submissionId),
             resultPaths: refreshedSubmission.items.map(item => item.outputPath!),
         });
-    // TODO: Expose endpoint to remove submission.
     }
 }

@@ -13,7 +13,6 @@ import {
     AnalyticsService,
     EventTopic,
     MatchmakingError,
-    ScrimGameSchema,
     ScrimSchema,
     ScrimStatus,
 } from "@sprocketbot/common";
@@ -120,7 +119,7 @@ export class ScrimService {
         );
 
         // Set the submissionId right away for LFS scrims, there is no Pop event
-        const sId = `scrim-${scrim.id}`;
+        const sId = `lfs-${scrim.id}`;
         scrim.submissionId = sId;
         await this.scrimCrudService.setSubmissionId(scrim.id, sId);
         await this.eventsService.publish(EventTopic.ScrimCreated, scrim, scrim.id);
@@ -148,7 +147,11 @@ export class ScrimService {
         const scrim = ScrimSchema.parse(rawscrim);
         scrim.players = players;
         for (const g of games) {
-            const game = ScrimGameSchema.parse(g);
+            const game = {
+                teams: g.map(t => ({
+                    players: t.map(p => p),
+                })),
+            };
             if (scrim.games?.includes(game)) continue;
             scrim.games?.push(game);
         }

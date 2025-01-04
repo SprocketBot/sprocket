@@ -21,7 +21,7 @@ import {MatchService} from "../../../scheduling";
 import {SprocketRatingService} from "../../../sprocket-rating/sprocket-rating.service";
 import type {SprocketRating, SprocketRatingInput} from "../../../sprocket-rating/sprocket-rating.types";
 import type {
-    MatchReplaySubmission, ReplaySubmission, ScrimReplaySubmission,
+    LFSReplaySubmission, MatchReplaySubmission, ReplaySubmission, ScrimReplaySubmission,
 } from "../../types";
 import {ReplaySubmissionType} from "../../types";
 import {BallchasingConverterService} from "../ballchasing-converter";
@@ -42,6 +42,60 @@ export class RocketLeagueFinalizationService {
         private readonly mledbFinalizationService: MledbFinalizationService,
         @InjectDataSource() private readonly dataSource: DataSource,
     ) {}
+
+    async finalizeLFS(submission: LFSReplaySubmission, scrim: Scrim): Promise<SaveScrimFinalizationReturn> {
+        const qr = this.dataSource.createQueryRunner();
+
+        await qr.connect();
+        await qr.startTransaction();
+        const em = qr.manager;
+        try {
+            const gameMode = await em.findOneByOrFail(GameMode, {id: scrim.gameModeId});
+
+            const scrimMeta = em.create(ScrimMeta);
+            scrimMeta.isCompetitive = scrim.settings.competitive;
+            const matchParent = em.create(MatchParent);
+            const match = em.create(Match);
+            await em.insert(ScrimMeta, scrimMeta as QueryDeepPartialEntity<ScrimMeta>);
+            matchParent.scrimMeta = scrimMeta;
+
+            await em.insert(MatchParent, matchParent as QueryDeepPartialEntity<MatchParent>);
+            match.matchParent = matchParent;
+            match.skillGroupId = scrim.skillGroupId;
+            match.gameMode = gameMode;
+
+            await em.insert(Match, match as QueryDeepPartialEntity<Match>);
+            const uniquePlayers = await this.saveMatchDependents(submission, match, em);
+
+            this.logger.debug(`Update eligibilities for ${JSON.stringify(uniquePlayers)}`);
+            if (scrim.settings.competitive) {
+                const eligibilities = uniquePlayers.map(p => this._createEligibility(p, match.matchParent, em));
+                this.logger.debug(`Got eligibilities: ${JSON.stringify(eligibilities)}`);
+                await em.insert(EligibilityData, eligibilities as QueryDeepPartialEntity<EligibilityData>);
+            }
+
+            this.logger.debug(`Finalizing in MLEDB schema`);
+            const mledbScrim = await this.mledbFinalizationService.saveScrim(submission, submission.id, em, scrim);
+
+            // Fix up these relationships
+            scrimMeta.parent = matchParent;
+            matchParent.match = match;
+            await qr.commitTransaction();
+
+            return {scrim: scrimMeta, legacyScrim: mledbScrim};
+        } catch (e) {
+            const errorPayload = {
+                submissionId: submission.id,
+                scrim: scrim.id,
+            };
+
+            this.logger.error(`Failed to save LFS scrim! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`);
+            await qr.rollbackTransaction();
+            throw e;
+        } finally {
+            await qr.release();
+        }
+    }
 
     async finalizeScrim(submission: ScrimReplaySubmission, scrim: Scrim): Promise<SaveScrimFinalizationReturn> {
         const qr = this.dataSource.createQueryRunner();
@@ -65,7 +119,12 @@ export class RocketLeagueFinalizationService {
             match.gameMode = gameMode;
 
             await em.insert(Match, match as QueryDeepPartialEntity<Match>);
-            await this.saveMatchDependents(submission, scrim.organizationId, match, true, em);
+            const uniquePlayers = await this.saveMatchDependents(submission, match, em);
+
+            if (scrim.settings.competitive) {
+                const eligibilities = uniquePlayers.map(p => this._createEligibility(p, match.matchParent, em));
+                await em.insert(EligibilityData, eligibilities as QueryDeepPartialEntity<EligibilityData>);
+            }
 
             const mledbScrim = await this.mledbFinalizationService.saveScrim(submission, submission.id, em, scrim);
 
@@ -97,9 +156,8 @@ export class RocketLeagueFinalizationService {
         const em = qr.manager;
         try {
             const match = await this.matchService.getMatchById(submission.matchId, {matchParent: {fixture: {homeFranchise: {organization: true} } }, gameMode: true});
-            const organization = match.matchParent.fixture!.homeFranchise.organization;
 
-            await this.saveMatchDependents(submission, organization.id, match, false, em);
+            await this.saveMatchDependents(submission, match, em);
 
             const mleMatch = await this.mledbFinalizationService.saveMatch(submission, submission.id, em);
             await qr.commitTransaction();
@@ -122,7 +180,7 @@ export class RocketLeagueFinalizationService {
     /**
      * Saves objects that depend on the Match (i.e. Rounds, Player Stats, Team Stats)
      */
-    async saveMatchDependents(submission: ReplaySubmission, organizationId: number, match: Match, eligibility: boolean, em: EntityManager): Promise<Match> {
+    async saveMatchDependents(submission: ReplaySubmission, match: Match, em: EntityManager): Promise<Player[]> {
         if (submission.items.some(i => i.progress?.status !== ProgressStatus.Complete)) {
             throw new Error(`Not all items have been completed. Finalization attempted too soon. ${JSON.stringify({submissionId: submission.id, match: match.id})}`);
         }
@@ -152,12 +210,16 @@ export class RocketLeagueFinalizationService {
             ])
             : [undefined, undefined];
 
+        const uniquePlayers = new Set<Player>();
+
         // TODO: Sprocket Team Role Usage
         const results = await Promise.all(replays.map(async ({
             replay, parser, outputPath,
         }) => {
             // Get players
             const {blue, orange} = await this._getBallchasingPlayers(replay);
+            blue.map(p => uniquePlayers.add(p.player));
+            orange.map(p => uniquePlayers.add(p.player));
             /*
              First, identify which team is home.
              It is safe to assume that all players are on the same team here;
@@ -221,11 +283,6 @@ export class RocketLeagueFinalizationService {
             await em.insert(PlayerStatLine, bluePlayers as QueryDeepPartialEntity<PlayerStatLine>);
             await em.insert(PlayerStatLine, orangePlayers as QueryDeepPartialEntity<PlayerStatLine>);
 
-            if (eligibility) {
-                const eligibilities = [...blue.map(b => b.player), ...orange.map(o => o.player)].map(p => this._createEligibility(p, match.matchParent, em, submission.items.length));
-                await em.insert(EligibilityData, eligibilities as QueryDeepPartialEntity<EligibilityData>);
-            }
-
             round.teamStats = [blueTeamStats, orangeTeamStats];
             round.playerStats = [...bluePlayers, ...orangePlayers];
 
@@ -234,7 +291,7 @@ export class RocketLeagueFinalizationService {
 
         match.rounds = results;
 
-        return match;
+        return Array.from(uniquePlayers);
     }
 
     _createRound(match: Match, homeWon: boolean, replay: BallchasingResponse, parser: {type: Parser; version: number;}, outputPath: string): Round {
@@ -304,11 +361,11 @@ export class RocketLeagueFinalizationService {
         return output;
     }
 
-    _createEligibility(player: Player, matchParent: MatchParent, em: EntityManager, gameCount: number): EligibilityData {
+    _createEligibility(player: Player, matchParent: MatchParent, em: EntityManager): EligibilityData {
         const output = em.create(EligibilityData);
         output.matchParent = matchParent;
         output.player = player;
-        output.points = Math.floor(gameCount * 5 / 3);
+        output.points = 5;
         return output;
     }
 

@@ -6,11 +6,14 @@ import type {
     MatchReplaySubmission,
     ReplaySubmission,
     ScrimPlayer,    ScrimReplaySubmission,
+    UpdateLFSScrimPlayersRequest,
 } from "@sprocketbot/common";
 import {
     config,
     CoreEndpoint,
     CoreService,
+    EventsService,
+    EventTopic,
     MatchmakingEndpoint,
     MatchmakingService,
     MinioService,
@@ -20,6 +23,7 @@ import {
 } from "@sprocketbot/common";
 import {isEqual} from "lodash";
 
+import {getSubmissionKey} from "../utils";
 import type {ValidationError, ValidationResult} from "./types/validation-result";
 import {sortIds} from "./utils";
 
@@ -31,6 +35,7 @@ export class ReplayValidationService {
         private readonly coreService: CoreService,
         private readonly matchmakingService: MatchmakingService,
         private readonly minioService: MinioService,
+        private readonly eventsService: EventsService,
     ) {}
 
     async validate(submission: ReplaySubmission): Promise<ValidationResult> {
@@ -43,6 +48,7 @@ export class ReplayValidationService {
     }
 
     private async validateLFSSubmission(submission: LFSReplaySubmission): Promise<ValidationResult> {
+        this.logger.debug(`Validating LFS submission ${submission.scrimId}`);
         const scrimResponse = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, submission.scrimId);
         if (scrimResponse.status === ResponseStatus.ERROR) throw scrimResponse.error;
         if (!scrimResponse.data) throw new Error("Scrim not found");
@@ -179,16 +185,21 @@ export class ReplayValidationService {
             return scrimPlayer;
         })));
 
+        const req: UpdateLFSScrimPlayersRequest = {
+            scrimId: submission.scrimId,
+            players: uniquePlayers,
+            games: submissionUserIds,
+        };
         const scrimUpdateResponse = await this.matchmakingService.send(
             MatchmakingEndpoint.UpdateLFSScrimPlayers,
-            {
-                scrimId: submission.scrimId,
-                players: uniquePlayers,
-                games: submissionUserIds,
-            },
+            req,
         );
         if (scrimUpdateResponse.status === ResponseStatus.ERROR) throw scrimUpdateResponse.error;
         if (!scrimUpdateResponse.data) throw new Error("Could not add players to LFS scrim.");
+        await this.eventsService.publish(EventTopic.SubmissionUpdated, {
+            submissionId: submission.id,
+            redisKey: getSubmissionKey(submission.id),
+        });
 
         // ========================================
         // Validate players are in the correct skill group if the scrim is competitive
@@ -269,9 +280,23 @@ export class ReplayValidationService {
         }
 
         // We should have stats for every game
-        const stats = await Promise.all(submission.items.map(async i => this.getStats(i.outputPath!)));
+        let stats: BallchasingResponse[] = [];
+        try {
+            stats = await Promise.all(submission.items.map(async i => {
+                this.logger.debug(`Getting stats for ${i.outputPath}`);
+                const stat = await this.getStats(i.outputPath!);
+                this.logger.debug(`Got stats for ${i.outputPath}`);
+                return stat;
+            }));
+        } catch (e) {
+            this.logger.error(`Could not get stats from minio, scrim=${scrim.id} submissionId=${scrim.submissionId}. Error: ${e}`);
+            // return {
+            //     valid: false,
+            //     errors: [ {error: "The submission is missing stats. Please contact support."} ],
+            // };
+        }
         if (stats.length !== gameCount) {
-            this.logger.error(`Unable to validate submission missing stats, scrim=${scrim.id} submissionId=${scrim.submissionId}`);
+            this.logger.error(`Unable to validate submission with missing stats, scrim=${scrim.id} submissionId=${scrim.submissionId}`);
             return {
                 valid: false,
                 errors: [ {error: "The submission is missing stats. Please contact support."} ],
