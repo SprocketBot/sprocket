@@ -185,6 +185,15 @@ export class ReplayValidationService {
             return scrimPlayer;
         })));
 
+        const requiredUniquePlayers: number = (gameResult.data.mode?.teamCount ?? 0) * (gameResult.data.mode?.teamSize ?? 0);
+        if (uniquePlayers.length !== requiredUniquePlayers) {
+            return {
+                valid: false,
+                errors: [ {
+                    error: `An incorrect number of unique players played in this game. Required: ${requiredUniquePlayers} Found: ${uniquePlayers.length}`,
+                } ],
+            };
+        }
         const req: UpdateLFSScrimPlayersRequest = {
             scrimId: submission.scrimId,
             players: uniquePlayers,

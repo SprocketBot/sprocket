@@ -69,7 +69,7 @@ export class RocketLeagueFinalizationService {
 
             this.logger.debug(`Update eligibilities for ${JSON.stringify(uniquePlayers)}`);
             if (scrim.settings.competitive) {
-                const eligibilities = uniquePlayers.map(p => this._createEligibility(p, match.matchParent, em));
+                const eligibilities = uniquePlayers.map(p => this._createEligibility(3, p, match.matchParent, em));
                 this.logger.debug(`Got eligibilities: ${JSON.stringify(eligibilities)}`);
                 await em.insert(EligibilityData, eligibilities as QueryDeepPartialEntity<EligibilityData>);
             }
@@ -122,7 +122,7 @@ export class RocketLeagueFinalizationService {
             const uniquePlayers = await this.saveMatchDependents(submission, match, em);
 
             if (scrim.settings.competitive) {
-                const eligibilities = uniquePlayers.map(p => this._createEligibility(p, match.matchParent, em));
+                const eligibilities = uniquePlayers.map(p => this._createEligibility(5, p, match.matchParent, em));
                 await em.insert(EligibilityData, eligibilities as QueryDeepPartialEntity<EligibilityData>);
             }
 
@@ -361,11 +361,11 @@ export class RocketLeagueFinalizationService {
         return output;
     }
 
-    _createEligibility(player: Player, matchParent: MatchParent, em: EntityManager): EligibilityData {
+    _createEligibility(points: number, player: Player, matchParent: MatchParent, em: EntityManager): EligibilityData {
         const output = em.create(EligibilityData);
         output.matchParent = matchParent;
         output.player = player;
-        output.points = 5;
+        output.points = points;
         return output;
     }
 
