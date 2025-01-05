@@ -3,7 +3,6 @@ import {MessagePattern, Payload} from "@nestjs/microservices";
 import type {GetGameByGameModeResponse} from "@sprocketbot/common";
 import {CoreEndpoint, CoreSchemas} from "@sprocketbot/common";
 
-import type {Game} from "../../database";
 import {GameModeService} from "../game-mode";
 
 @Controller("game")
