@@ -9,9 +9,12 @@
 <script lang="ts">
   import type { SubmissionStoreValue } from "$lib/api";
   import { SubmissionStore } from "$lib/api";
-  import { SubmissionView } from "$lib/components";
-  import DashboardLayout from "../../../lib/components/layouts/DashboardLayout.svelte";
-  import UploadReplaysModal from "../../../lib/components/organisms/scrims/modals/UploadReplaysModal.svelte";
+  import {
+    DashboardCard,
+    DashboardLayout,
+    SubmissionView,
+    UploadReplaysModal,
+  } from "$lib/components";
 
   export let submissionId: string;
   let submissionStore: SubmissionStore | undefined;
@@ -19,15 +22,15 @@
     submissionStore = new SubmissionStore(submissionId);
   }
   let submission: SubmissionStoreValue["submission"] | undefined;
-  $: if ($submissionStore) {
-    submission = $submissionStore?.data?.submission;
-  }
+  $: if ($submissionStore) submission = $submissionStore?.data?.submission;
 </script>
 
 <DashboardLayout>
-  {#if submission}
-    <SubmissionView {submission} />
-  {:else}
-    <UploadReplaysModal {submissionId} />
-  {/if}
+  <DashboardCard class="col-span-6 xl:col-span-5 row-span-3">
+    {#if submission}
+      <SubmissionView {submission} />
+    {:else}
+      <UploadReplaysModal {submissionId} />
+    {/if}
+  </DashboardCard>
 </DashboardLayout>

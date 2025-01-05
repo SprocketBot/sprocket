@@ -8,6 +8,7 @@
     UploadReplaysModal,
   } from "$lib/components";
   import { LFSScrimsStore, type CurrentScrim } from "$lib/api";
+  import { goto } from "$app/navigation";
 
   const store = new LFSScrimsStore();
   let fetching = true;
@@ -17,15 +18,13 @@
   let scrims: CurrentScrim[] | undefined = [];
 
   $: {
-    // @ts-expect-error `fetching` exists on the query store but isn't defined in the type
     fetching = $store.fetching;
     scrims = $store.data?.LFSScrims;
   }
 
   const openUploadModal = (scrim: CurrentScrim) => {
-    console.log(JSON.stringify(scrim));
     submissionId = scrim.submissionId ?? "";
-    window.location.href = `/league/scrim/${submissionId}`;
+    goto(`/league/scrim/${submissionId}`);
   };
 
   const openCreateScrimModal = () => {
