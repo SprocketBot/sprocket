@@ -82,7 +82,7 @@ runs:
 
     
     - name: Connect to remote docker socket
-      uses: pcjun97/action-setup-docker-host-ssh@v2
+      uses: khaledez/action-setup-docker-host-ssh@v2
       with:
         host: ${{ steps.manager_node_ip.outputs.ip }}
         port: 22
