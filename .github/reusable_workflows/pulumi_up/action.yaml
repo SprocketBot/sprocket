@@ -64,13 +64,20 @@ runs:
       run: echo "::set-output name=ip::$(sudo tailscale status | grep ${{ inputs.manager_node_hostname }} | awk '{print $1}')"
       shell: bash
 
-    - name: Connect to remote docker socket
-      uses: pcjun97/action-setup-docker-host-ssh@v1
-      with:
-        host: ${{ steps.manager_node_ip.outputs.ip }}
-        port: 22
-        user: ${{ inputs.ssh_user }}
-        key: ${{ inputs.ssh_key }}
+    - name: Write ssh key to ~/.ssh/pulumi_key
+      run: echo "${{ inputs.ssh_key }}" > ~/.ssh/pulumi_key
+      shell: bash
+    
+    - name: Use SSH key for manager node ip
+      run: echo "Host ${{ steps.manager_node_ip.outputs.ip }}\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile=/dev/null\n\tIdentityFile ~/.ssh/pulumi_key" >> ~/.ssh/config
+
+    # - name: Connect to remote docker socket
+    #   uses: pcjun97/action-setup-docker-host-ssh@v1
+    #   with:
+    #     host: ${{ steps.manager_node_ip.outputs.ip }}
+    #     port: 22
+    #     user: ${{ inputs.ssh_user }}
+    #     key: ${{ inputs.ssh_key }}
 
     - name: Install Infra Dependencies
       run: cd /home/runner/work/sprocket/sprocket/infrastructure/platform && npm install && cd ../global && npm install
@@ -83,6 +90,7 @@ runs:
           AWS_ACCESS_KEY_ID: ${{ inputs.pulumi_aws_access_key }}
           AWS_SECRET_ACCESS_KEY: ${{ inputs.pulumi_aws_secret_key }}
           AWS_REGION: nyc3
+          DOCKER_HOST: ssh://${{ inputs.ssh_user }}@${{ steps.manager_node_ip.outputs.ip }}
       with:
         command: up
         stack-name: ${{ inputs.pulumi_stack_name }}
