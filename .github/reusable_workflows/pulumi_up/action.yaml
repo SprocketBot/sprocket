@@ -73,9 +73,14 @@ runs:
       shell: bash
     
     - name: Use SSH key for manager node ip
-      run: echo "Host ${{ steps.manager_node_ip.outputs.ip }}\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile=/dev/null\n\tIdentityFile ~/.ssh/pulumi_key" >> ~/.ssh/config
+      run: echo "IdentityFile ~/.ssh/pulumi_key" >> ~/.ssh/config
       shell: bash
 
+    - name: Install the hostkey for manager node ip
+      run: ssh-keyscan ${{ steps.manager_node_ip.outputs.ip }} >> ~/.ssh/known_hosts
+      shell: bash
+
+    
     # - name: Connect to remote docker socket
     #   uses: pcjun97/action-setup-docker-host-ssh@v1
     #   with:
