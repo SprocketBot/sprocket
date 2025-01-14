@@ -83,9 +83,18 @@ export class ScrimCrudService {
 
         players.map(p => scrim.players.push(p));
         for (let i = 0;i < numRounds;i++) {
+            const now = new Date();
             const game = {
-                teams: teams.map(t => ({
-                    players: t.map(p => p),
+                teams: ["orange", "blue"].map(() => ({
+                    players: [
+                        {
+                            id: 1,
+                            name: "Placeholder",
+                            joinedAt: now,
+                            // eslint-disable-next-line no-mixed-operators
+                            leaveAt: new Date(now.getTime() + 30 * 60 * 1000),
+                        },
+                    ],
                 })),
             };
             scrim.games?.push(game);
@@ -97,6 +106,13 @@ export class ScrimCrudService {
         );
 
         return scrim;
+    }
+
+    async updateLFSScrim(scrim: Scrim): Promise<void> {
+        await this.redisService.setJson(
+            `${this.prefix}${scrim.id}`,
+            scrim,
+        );
     }
 
     async removeScrim(id: string): Promise<void> {

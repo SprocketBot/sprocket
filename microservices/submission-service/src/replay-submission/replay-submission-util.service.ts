@@ -10,7 +10,9 @@ import {
     ScrimStatus,
 } from "@sprocketbot/common";
 
-import {submissionIsMatch, submissionIsScrim} from "../utils";
+import {
+    submissionIsLFS, submissionIsMatch, submissionIsScrim,
+} from "../utils";
 import {ReplaySubmissionCrudService} from "./replay-submission-crud/replay-submission-crud.service";
 
 @Injectable()
@@ -40,7 +42,7 @@ export class ReplaySubmissionUtilService {
             };
         }
 
-        if (submissionIsScrim(submissionId)) {
+        if (submissionIsLFS(submissionId) || submissionIsScrim(submissionId)) {
             const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
             if (result.status === ResponseStatus.ERROR) throw result.error;
             const scrim = result.data;
@@ -49,7 +51,7 @@ export class ReplaySubmissionUtilService {
                 reason:
                   `Could not find a associated scrim`,
             };
-            if (!scrim.players.some(p => p.id === userId)) {
+            if (submissionIsScrim(submissionId) && !scrim.players.some(p => p.id === userId)) {
                 // TODO: Check player's organization teams (i.e. Support override)
                 return {
                     canSubmit: false,

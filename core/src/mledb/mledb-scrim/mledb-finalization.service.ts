@@ -1,5 +1,5 @@
 import {
-    forwardRef, Inject, Injectable,
+    forwardRef, Inject, Injectable, Logger,
 } from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {
@@ -9,6 +9,7 @@ import type {
     ReplaySubmission,
     Scrim,
 } from "@sprocketbot/common";
+import {ReplaySubmissionType} from "@sprocketbot/common";
 import type {EntityManager} from "typeorm";
 import {Repository} from "typeorm";
 
@@ -32,7 +33,9 @@ import {
 import {GameSkillGroupService} from "../../franchise";
 import {GameModeService} from "../../game";
 import {UserService} from "../../identity";
-import type {MatchReplaySubmission, ScrimReplaySubmission} from "../../replay-parse";
+import type {
+    LFSReplaySubmission, MatchReplaySubmission, ScrimReplaySubmission,
+} from "../../replay-parse";
 import {SprocketRatingService} from "../../sprocket-rating/sprocket-rating.service";
 import {MledbMatchService} from "../mledb-match/mledb-match.service";
 import {assignPlayerStats} from "./assign-player-stats";
@@ -40,6 +43,9 @@ import {ballchasingMapLookup} from "./ballchasing-maps";
 
 @Injectable()
 export class MledbFinalizationService {
+    
+    private readonly logger = new Logger(MledbFinalizationService.name);
+
     constructor(
         @InjectRepository(MLE_SeriesReplay) private readonly mleSeriesReplayRepository: Repository<MLE_SeriesReplay>,
         @InjectRepository(MLE_PlayerAccount) private readonly mlePlayerAccountRepository: Repository<MLE_PlayerAccount>,
@@ -105,7 +111,7 @@ export class MledbFinalizationService {
         return series;
     }
 
-    async saveScrim(submission: ScrimReplaySubmission, submissionId: string, em: EntityManager, scrimObject: Scrim): Promise<MLE_Scrim> {
+    async saveScrim(submission: LFSReplaySubmission | ScrimReplaySubmission, submissionId: string, em: EntityManager, scrimObject: Scrim): Promise<MLE_Scrim> {
         // const mode = scrimObject.settings.teamSize === 2 ? LegacyGameMode.DOUBLES : LegacyGameMode.STANDARD;
         const {mode, group} = await this.getLeagueAndMode(scrimObject);
         const scrim = em.create(MLE_Scrim);
@@ -237,11 +243,13 @@ export class MledbFinalizationService {
                 replay.playerStats.push(populated);
                 playerStats.push(populated);
 
-                usage.league = player.league;
-                usage.role = player.role!;
-                usage.series = series;
-                usage.teamName = player.teamName;
-                roleUsages.push(usage);
+                if (submission.type === ReplaySubmissionType.MATCH) {
+                    usage.league = player.league;
+                    usage.role = player.role!;
+                    usage.series = series;
+                    usage.teamName = player.teamName;
+                    roleUsages.push(usage);
+                }
             };
 
             const buildTeamStats = (p: BallchasingTeam, color: "BLUE" | "ORANGE"): MLE_TeamCoreStats => {

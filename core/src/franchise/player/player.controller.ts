@@ -154,12 +154,15 @@ export class PlayerController {
 
     @MessagePattern(CoreEndpoint.GetPlayersByPlatformIds)
     async getPlayersByPlatformIds(@Payload() payload: unknown): Promise<CoreOutput<CoreEndpoint.GetPlayersByPlatformIds>> {
+        this.logger.verbose(`Getting players by platform ids: ${JSON.stringify(payload)}`);
         const data = CoreSchemas[CoreEndpoint.GetPlayersByPlatformIds].input.parse(payload);
 
         const allResults = await Promise.allSettled(data.map(async p => this.playerService.getPlayerByGameAndPlatformPayload(p)));
 
         if (allResults.every(r => r.status === "fulfilled")) {
-            return allResults.map(r => (r as PromiseFulfilledResult<CoreOutput<CoreEndpoint.GetPlayerByPlatformId>>).value);
+            const result = allResults.map(r => (r as PromiseFulfilledResult<CoreOutput<CoreEndpoint.GetPlayerByPlatformId>>).value);
+            this.logger.verbose(`Successfully fetched players by platform ids: ${JSON.stringify(result)}`);
+            return result;
         }
 
         throw new Error(`Failed to fetch players by platform accounts: ${

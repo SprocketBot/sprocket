@@ -6,12 +6,14 @@ import type {
     JoinScrimOptions,
     Scrim,
     ScrimPlayer,
+    UpdateLFSScrimPlayersRequest,
 } from "@sprocketbot/common";
 import {
     AnalyticsEndpoint,
     AnalyticsService,
     EventTopic,
     MatchmakingError,
+    ScrimSchema,
     ScrimStatus,
 } from "@sprocketbot/common";
 import {add} from "date-fns";
@@ -117,7 +119,7 @@ export class ScrimService {
         );
 
         // Set the submissionId right away for LFS scrims, there is no Pop event
-        const sId = `scrim-${scrim.id}`;
+        const sId = `lfs-${scrim.id}`;
         scrim.submissionId = sId;
         await this.scrimCrudService.setSubmissionId(scrim.id, sId);
         await this.eventsService.publish(EventTopic.ScrimCreated, scrim, scrim.id);
@@ -126,7 +128,6 @@ export class ScrimService {
         scrim.status = ScrimStatus.IN_PROGRESS;
         await this.scrimCrudService.updateScrimStatus(scrim.id, scrim.status);
 
-        console.log(`Created LFS scrim: ${JSON.stringify(scrim)}`);
         this.analyticsService.send(AnalyticsEndpoint.Analytics, {
             name: "scrimCreated",
             tags: [ ["playerId", `${authorId}`] ],
@@ -134,6 +135,28 @@ export class ScrimService {
         }).catch(err => { this.logger.error(err) });
 
         return scrim;
+    }
+
+    async updateLFSScrimPlayers({
+        scrimId,
+        players,
+        games,
+    }: UpdateLFSScrimPlayersRequest): Promise<boolean> {
+        const rawscrim = await this.scrimCrudService.getScrim(scrimId);
+        if (!rawscrim) return false;
+        const scrim = ScrimSchema.parse(rawscrim);
+        scrim.players = players;
+        for (const g of games) {
+            const game = {
+                teams: g.map(t => ({
+                    players: t.map(p => p),
+                })),
+            };
+            if (scrim.games?.includes(game)) continue;
+            scrim.games?.push(game);
+        }
+        await this.scrimCrudService.updateLFSScrim(scrim);
+        return true;
     }
 
     async joinScrim({
