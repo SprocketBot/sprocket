@@ -118,3 +118,8 @@ core/config/staging.json
 *.swp
 clients/web/schema.graphql
 bun.lockb
+
+# Docusaurus
+docs/build/
+docs/node_modules/
+.docusaurus/
