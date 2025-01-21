@@ -1,38 +1,34 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-const lightCodeTheme = require('prism-react-renderer/themes/github');
-const darkCodeTheme = require('prism-react-renderer/themes/dracula');
+const lightCodeTheme = require("prism-react-renderer/themes/github");
+const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'Sprocket Documentation',
-  tagline: 'Documentation for the Sprocket platform',
-  favicon: 'img/favicon.ico',
-  url: 'https://sprocketbot.github.io',
-  baseUrl: '/sprocket/',
-  organizationName: 'sprocketbot',
-  projectName: 'sprocket',
-  onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
+  title: "Sprocket Documentation",
+  tagline: "Documentation for the Sprocket platform",
+  favicon: "img/favicon.ico",
+  url: "https://sprocketbot.github.io",
+  baseUrl: "/sprocket/",
+  organizationName: "sprocketbot",
+  projectName: "sprocket",
+  onBrokenLinks: "throw",
+  onBrokenMarkdownLinks: "warn",
 
   i18n: {
-    defaultLocale: 'en',
-    locales: ['en'],
+    defaultLocale: "en",
+    locales: ["en"],
   },
 
   presets: [
     [
-      'classic',
+      "classic",
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          sidebarPath: require.resolve('./sidebars.js'),
-          editUrl:
-            'https://github.com/sprocketbot/sprocket/tree/main/docs/',
-        },
-        theme: {
-          customCss: require.resolve('./src/css/custom.css'),
+          sidebarPath: require.resolve("./sidebars.js"),
+          editUrl: "https://github.com/sprocketbot/sprocket/tree/main/docs/",
         },
       }),
     ],
@@ -42,47 +38,48 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       navbar: {
-        title: 'Sprocket Docs',
+        title: "Sprocket Docs",
         logo: {
-          alt: 'Sprocket Logo',
-          src: 'img/logo.svg',
+          alt: "Sprocket Logo",
+          src: "img/logo.svg",
+          href: "/sprocket/index",
         },
         items: [
           {
-            type: 'docSidebar',
-            sidebarId: 'tutorialSidebar',
-            position: 'left',
-            label: 'Documentation',
+            type: "docSidebar",
+            sidebarId: "tutorialSidebar",
+            position: "left",
+            label: "Documentation",
           },
           {
-            href: 'https://github.com/sprocketbot/sprocket',
-            label: 'GitHub',
-            position: 'right',
+            href: "https://github.com/sprocketbot/sprocket",
+            label: "GitHub",
+            position: "right",
           },
         ],
       },
       footer: {
-        style: 'dark',
+        style: "dark",
         links: [
           {
-            title: 'Docs',
+            title: "Docs",
             items: [
               {
-                label: 'Getting Started',
-                to: '/docs/getting-started',
+                label: "Getting Started",
+                to: "/docs/getting-started",
               },
             ],
           },
           {
-            title: 'Community',
+            title: "Community",
             items: [
               {
-                label: 'Discord',
-                href: 'https://discord.gg/hJ3YAvHucb',
+                label: "Discord",
+                href: "https://discord.gg/hJ3YAvHucb",
               },
               {
-                label: 'GitHub',
-                href: 'https://github.com/sprocketbot/sprocket',
+                label: "GitHub",
+                href: "https://github.com/sprocketbot/sprocket",
               },
             ],
           },

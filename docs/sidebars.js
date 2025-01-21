@@ -5,18 +5,18 @@ const sidebars = {
     {
       type: 'category',
       label: 'Core',
-      items: ['core/overview', 'core/module', 'core/service', 'core/types'],
+      items: ['core/overview'],
     },
-    {
-      type: 'category',
-      label: 'Authentication',
-      items: ['auth/overview', 'auth/guards', 'auth/jwt'],
-    },
-    {
-      type: 'category',
-      label: 'GraphQL',
-      items: ['graphql/overview', 'graphql/resolvers'],
-    },
+    // {
+    //   type: 'category',
+    //   label: 'Authentication',
+    //   items: ['auth/overview', 'auth/guards', 'auth/jwt'],
+    // },
+    // {
+    //   type: 'category',
+    //   label: 'GraphQL',
+    //   items: ['graphql/overview', 'graphql/resolvers'],
+    // },
   ],
 };
 
