@@ -42,7 +42,7 @@ const config = {
         logo: {
           alt: "Sprocket Logo",
           src: "img/logo.svg",
-          href: "/sprocket/index",
+          href: "/sprocket/docs",
         },
         items: [
           {
