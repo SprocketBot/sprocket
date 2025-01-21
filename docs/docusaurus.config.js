@@ -47,7 +47,7 @@ const config = {
         items: [
           {
             type: "docSidebar",
-            sidebarId: "tutorialSidebar",
+            sidebarId: "sprocketSidebar",
             position: "left",
             label: "Documentation",
           },
