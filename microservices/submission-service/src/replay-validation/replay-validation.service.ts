@@ -5,7 +5,8 @@ import type {
     LFSReplaySubmission,
     MatchReplaySubmission,
     ReplaySubmission,
-    ScrimPlayer,    ScrimReplaySubmission,
+    ScrimPlayer,
+    ScrimReplaySubmission,
     UpdateLFSScrimPlayersRequest,
 } from "@sprocketbot/common";
 import {
@@ -130,7 +131,7 @@ export class ReplayValidationService {
             platform: p.id.platform.toUpperCase(),
             id: p.id.id,
         }))))));
-        
+
         // Look up players by their platformIds
         const playersResponse = await this.coreService.send(CoreEndpoint.GetPlayersByPlatformIds, uniqueBallchasingPlayerIds.map(bId => ({
             gameId: gameResult.data.id,
@@ -146,7 +147,7 @@ export class ReplayValidationService {
                 errors: [ {error: "Failed to find all players by their platform Ids. Please contact support."} ],
             };
         }
-        
+
         // If any of the players were not found, submission is invalid (this
         // usually happens with unreported accounts)
         const playerErrors: string[] = [];
@@ -236,7 +237,7 @@ export class ReplayValidationService {
         const scrimResponse = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, submission.scrimId);
         if (scrimResponse.status === ResponseStatus.ERROR) throw scrimResponse.error;
         if (!scrimResponse.data) throw new Error("Scrim not found");
-        
+
         const scrim = scrimResponse.data;
 
         // ========================================
@@ -328,7 +329,7 @@ export class ReplayValidationService {
             platform: p.id.platform.toUpperCase(),
             id: p.id.id,
         }))))));
-        
+
         // Look up players by their platformIds
         const playersResponse = await this.coreService.send(CoreEndpoint.GetPlayersByPlatformIds, uniqueBallchasingPlayerIds.map(bId => ({
             gameId: gameResult.data.id,
@@ -342,7 +343,7 @@ export class ReplayValidationService {
                 errors: [ {error: "Failed to find all players by their platform Ids. Please contact support."} ],
             };
         }
-        
+
         const playerErrors: string[] = [];
         for (const player of playersResponse.data) {
             if (!player.success) {
@@ -394,7 +395,7 @@ export class ReplayValidationService {
             }
 
             const scrimGame = sortedScrimPlayerIds[matchupIndex];
-            
+
             for (let t = 0; t < scrim.settings.teamCount; t++) {
                 const scrimTeam = scrimGame[t];
                 const submissionTeam = submissionGame[t];
@@ -479,7 +480,7 @@ export class ReplayValidationService {
             platform: p.id.platform.toUpperCase(),
             id: p.id.id,
         }))))));
-        
+
         // Look up players by their platformIds
         const playersResponse = await this.coreService.send(CoreEndpoint.GetPlayersByPlatformIds, uniqueBallchasingPlayerIds.map(bId => ({
             gameId: gameResult.data.id,
@@ -493,7 +494,7 @@ export class ReplayValidationService {
                 errors: [ {error: "Failed to find all players by their platform Ids. Please contact support."} ],
             };
         }
-        
+
         const playerErrors: string[] = [];
         for (const player of playersResponse.data) {
             if (!player.success) {
@@ -569,6 +570,28 @@ export class ReplayValidationService {
                 });
             }
         }
+
+        // Determine constraints based on gameModeId
+        let uniquePlayersLimit: number;
+        let perFilePlayerLimit: number;
+
+        if (match.gameModeId === 13) { // DOUBLES
+            uniquePlayersLimit = 3;
+            perFilePlayerLimit = 3;
+        } else if (match.gameModeId === 14) { // STANDARD
+            uniquePlayersLimit = 4;
+            perFilePlayerLimit = 4;
+        } else {
+            return {
+                valid: false,
+                errors: [ {error: `Unsupported game mode: ${match.gameModeId}`} ],
+            };
+        }
+
+        // Validate that we have the correct number of players in the submission
+        const validateErrors = this.validateTeams(uniquePlayersLimit, perFilePlayerLimit, submission.items);
+        errors.push(...validateErrors);
+
         if (errors.length) {
             return {
                 valid: false, errors: errors,
@@ -579,4 +602,68 @@ export class ReplayValidationService {
             valid: true,
         };
     }
+
+    private validateTeams(
+        uniquePlayersLimit: number,
+        perFilePlayerLimit: number,
+        items: MatchReplaySubmission["items"],
+    ): ValidationError[] {
+        const errors: ValidationError[] = [];
+        const uniquePlayersPerTeam: Record<string, Set<string>> = {};
+        const substitutionCount: Record<string, number> = {
+            blue: 0,
+            orange: 0,
+        };
+        const maxSubstitutions = 1;
+
+        uniquePlayersPerTeam.blue = new Set();
+        uniquePlayersPerTeam.orange = new Set();
+
+        for (const item of items) {
+            const bluePlayers = item.progress!.result!.data.blue.players.map(p => p.id.id);
+            const orangePlayers = item.progress!.result!.data.orange.players.map(p => p.id.id);
+
+            if (bluePlayers.length > perFilePlayerLimit) {
+                errors.push({
+                    error: `Too many players on blue team in replay ${item.originalFilename}`,
+                });
+            }
+            if (orangePlayers.length > perFilePlayerLimit) {
+                errors.push({
+                    error: `Too many players on orange team in replay ${item.originalFilename}`,
+                });
+            }
+
+            // Record excessive players (substitutions)
+            if (bluePlayers.length > perFilePlayerLimit - 1) {
+                substitutionCount.blue++;
+            }
+            if (orangePlayers.length > perFilePlayerLimit - 1) {
+                substitutionCount.orange++;
+            }
+            
+            bluePlayers.forEach(p => uniquePlayersPerTeam.blue.add(p));
+            orangePlayers.forEach(p => uniquePlayersPerTeam.orange.add(p));
+        }
+
+        for (const [team, playersSet] of Object.entries(uniquePlayersPerTeam)) {
+            if (playersSet.size > uniquePlayersLimit) {
+                errors.push({
+                    error: `Too many unique players on ${team} team across replays`,
+                });
+            }
+        }
+
+        // Validate substitution constraints
+        for (const [team, count] of Object.entries(substitutionCount)) {
+            if (count > maxSubstitutions) {
+                errors.push({
+                    error: `Illegal substitution, more than one substitution in the same match for team ${team}.`,
+                });
+            }
+        }
+    
+        return errors;
+    }
 }
+
