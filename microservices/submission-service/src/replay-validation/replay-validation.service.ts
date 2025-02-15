@@ -572,13 +572,16 @@ export class ReplayValidationService {
         }
 
         // Determine constraints based on gameModeId
+        let minimumUniquePlayers: number;
         let uniquePlayersLimit: number;
         let perFilePlayerLimit: number;
 
         if (match.gameModeId === 13) { // DOUBLES
+            minimumUniquePlayers = 2;
             uniquePlayersLimit = 3;
             perFilePlayerLimit = 3;
         } else if (match.gameModeId === 14) { // STANDARD
+            minimumUniquePlayers = 3;
             uniquePlayersLimit = 4;
             perFilePlayerLimit = 4;
         } else {
@@ -589,7 +592,7 @@ export class ReplayValidationService {
         }
 
         // Validate that we have the correct number of players in the submission
-        const validateErrors = this.validateTeams(uniquePlayersLimit, perFilePlayerLimit, submission.items);
+        const validateErrors = this.validateTeams(uniquePlayersLimit, perFilePlayerLimit, minimumUniquePlayers, submission.items);
         errors.push(...validateErrors);
 
         if (errors.length) {
@@ -606,6 +609,7 @@ export class ReplayValidationService {
     private validateTeams(
         uniquePlayersLimit: number,
         perFilePlayerLimit: number,
+        minimumUniquePlayers: number,
         items: MatchReplaySubmission["items"],
     ): ValidationError[] {
         const errors: ValidationError[] = [];
@@ -627,10 +631,18 @@ export class ReplayValidationService {
                 errors.push({
                     error: `Too many players on blue team in replay ${item.originalFilename}`,
                 });
+            } else if (bluePlayers.length < minimumUniquePlayers) {
+                errors.push({
+                    error: `Not enough players on blue team in replay ${item.originalFilename}`,
+                });
             }
             if (orangePlayers.length > perFilePlayerLimit) {
                 errors.push({
                     error: `Too many players on orange team in replay ${item.originalFilename}`,
+                });
+            } else if (orangePlayers.length < minimumUniquePlayers) {
+                errors.push({
+                    error: `Not enough players on orange team in replay ${item.originalFilename}`,
                 });
             }
 
