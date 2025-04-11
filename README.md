@@ -33,6 +33,7 @@ You will **need**
     - If you are using a base url other than localhost; adjust the redirect url accordingly
 2. [Docker (compose)](https://docs.docker.com/engine/install/) Installed
 3. The [Bun](https://bun.sh/) Javascript Runtime
+3. If you're on Windows, you'll need to install [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) and [Node.js/NPM](https://learn.microsoft.com/en-us/windows/dev-environment/javascript/nodejs-on-wsl)
 4. That's it!
 
 You may **want**  
@@ -67,7 +68,7 @@ You may **want**
        folder is deleted before doing this!
 3. Once you have configured the environment to your liking, `docker compose up`,
    and navigate to [l.ocket.cloud:8080](http://l.ocket.cloud:8080).
-4. Run the [`migrate:up`](./migrate:up) and [`seed`](./seed) scripts to
+4. Run the [`./migrate:up`](./migrate:up) and [`./seed`](./seed) scripts to
    initialize the database and populate it with some basic data
 
 ## FAQ
