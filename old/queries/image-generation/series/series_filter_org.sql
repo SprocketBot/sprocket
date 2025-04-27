@@ -1,1 +1,0 @@
-SELECT id as value, description FROM sprocket.organization_profile

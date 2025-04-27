@@ -1,1 +1,0 @@
-export * from "./pronouns.service";

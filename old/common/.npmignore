@@ -1,6 +1,0 @@
-.husky/
-src/
-.eslintrc.js
-.gitignore
-commitlint.config.js
-tsconfig.json
