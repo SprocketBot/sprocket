@@ -118,3 +118,4 @@ core/config/staging.json
 *.swp
 clients/web/schema.graphql
 bun.lockb
+.DS_Store
