@@ -41,7 +41,7 @@ You can get a feel for what we are working on at our [GitHub Project](https://gi
 - Use `docker compose up` to start all of the applications
   - Hint: use `docker compose up -d` to start everything without holding your terminal hostage, you can then use `docker compose logs [service name]` to see the logs of each service
 
-- Use `./migrate:up` to apply the schema to your shiny new database
+- Use `./migrate-up` to apply the schema to your shiny new database
 
 - Use `./seed` to put in some basic information (e.g. this tells Sprocket about Rocket League, and 2 made up leagues "Pro" and "Amateur")
 

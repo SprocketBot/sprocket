@@ -68,7 +68,7 @@ You may **want**
        folder is deleted before doing this!
 3. Once you have configured the environment to your liking, `docker compose up`,
    and navigate to [l.ocket.cloud:8080](http://l.ocket.cloud:8080).
-4. Run the [`./migrate:up`](./migrate:up) and [`./seed`](./seed) scripts to
+4. Run the [`./migrate-up`](./migrate-up) and [`./seed`](./seed) scripts to
    initialize the database and populate it with some basic data
 
 ## FAQ
