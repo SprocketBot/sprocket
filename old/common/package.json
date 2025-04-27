@@ -36,7 +36,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@nestjs/common": "^8.2.3",
+    "@nestjs/common": "^10.4.16",
     "@nestjs/microservices": "^8.2.3",
     "@sprocketbot/gql-client": "^0.0.3",
     "@types/amqplib": "^0.8.2",

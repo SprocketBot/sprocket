@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/SprocketBot/service-template#readme",
   "dependencies": {
-    "@nestjs/common": "^8.2.3",
+    "@nestjs/common": "^10.4.16",
     "@nestjs/core": "^8.2.3",
     "@nestjs/microservices": "^8.2.3",
     "@sprocketbot/common": "^0.2.13",
