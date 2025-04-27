@@ -119,3 +119,5 @@ core/config/staging.json
 clients/web/schema.graphql
 bun.lockb
 .DS_Store
+*.docusaurus*
+docs/build/
