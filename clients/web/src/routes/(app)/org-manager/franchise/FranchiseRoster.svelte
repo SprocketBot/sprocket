@@ -1,14 +1,9 @@
 <script lang="ts">
 	import type { Player } from '../Player';
 	import type { Role } from '../Role';
-	import type { League } from '../League';
-	import { getContext, setContext } from 'svelte';
+	import { franchise, roles, leagues, players } from '../MockDataService.svelte';
 
 	let searchString: string = '';
-	const franchise = getContext('franchise');
-	const players: Player[] = getContext('players');
-	const roles: Role[] = getContext('roles');
-	const leagues: League[] = getContext('leagues');
 
 	enum Action {
 		Appoint = 'Appoint',
@@ -21,7 +16,7 @@
 	}
 
 	function canBeActioned(action: String, player: Player, area: Area): boolean {
-		if (action == Action.Appoint && area == Area.Leadership) {
+		if (action == Action.Appoint /*  && area == Area.Leadership */) {
 			return false;
 		}
 		if (action == Action.Dismiss) {
@@ -46,40 +41,41 @@
 			});
 		}
 		if (action == Action.Release) {
-			players.forEach((item: Player, index: number) => {
-				if (item === player) players.splice(index, 1);
+			$players.forEach((item: Player, index: number) => {
+				if (item === player) $players.splice(index, 1);
 			});
 		}
-		setContext('players', players);
+		$players = $players;
 		console.log(player);
 	}
 	function addUserToRoster(searchUser: string) {
 		let newPlayer: Player = {
+			id: 0,
 			name: searchUser,
-			league: { leagueID: 1, leagueName: 'Foundation League' },
+			league: { id: 1, name: 'Foundation League' },
 			salary: 5
 		};
 
-		players.push(newPlayer);
+		$players.push(newPlayer);
+		$players = $players;
 		searchString = '';
-		setContext('players', players);
-		console.log(players);
+		console.log($players);
 	}
 </script>
 
 <section>
-	<h1>{franchise}</h1>
+	<u><b>{$franchise}</b></u>
 	<ul>
-		{#each roles as role}
-			<h2><b>{role.roleName}</b></h2>
-			{#each players as player}
+		{#each $roles as role}
+			<h2><b>{role.name}</b></h2>
+			{#each $players as player}
 				<li>
 					{#if player.roles?.includes(role)}
 						{player.name}
 						{#each Object.entries(Action) as [key, action]}
 							{#if canBeActioned(action, player, Area.Leadership)}
 								<button
-									class="btn variant-soft-primary btn-sm flex justify-between gap-2 items-center"
+									class="btn variant-soft-primary btn-sm"
 									on:click={() => onClickAction(action, player, role)}>{action}</button
 								>
 							{/if}
@@ -91,16 +87,16 @@
 		{/each}
 	</ul>
 	<ul>
-		{#each leagues as league}
-			<h2><b>{league.leagueName}</b></h2>
-			{#each players as player}
+		{#each $leagues as league}
+			<h2><b>{league.name}</b></h2>
+			{#each $players as player}
 				<li>
-					{#if player.league.leagueID === league.leagueID}
+					{#if player.league.id === league.id}
 						{player.name}
 						{#each Object.entries(Action) as [key, action]}
 							{#if canBeActioned(action, player, Area.Roster)}
 								<button
-									class="btn variant-soft-primary btn-sm flex justify-between gap-2 items-center"
+									class="btn variant-soft-primary btn-sm"
 									on:click={() => onClickAction(action, player)}>{action}</button
 								>
 							{/if}

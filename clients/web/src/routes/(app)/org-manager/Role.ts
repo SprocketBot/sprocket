@@ -1,5 +1,5 @@
-export interface Role {
-	roleID: number;
+import type { DataObject } from './DataObject';
+
+export interface Role extends DataObject {
 	roleCategory: string;
-	roleName: string;
 }

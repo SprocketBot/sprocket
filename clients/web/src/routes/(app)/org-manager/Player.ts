@@ -1,10 +1,9 @@
-import type { League } from './League';
+import type { DataObject } from './DataObject';
 import type { Role } from './Role';
 
-export interface Player {
-	name: string;
+export interface Player extends DataObject {
 	roles?: Role[];
-	league: League;
+	league: DataObject;
 	salary: number;
 	playing?: boolean;
 }

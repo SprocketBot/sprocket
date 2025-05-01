@@ -1,51 +1,93 @@
-<script lang="ts">
-	import { setContext } from 'svelte';
+<script context="module" lang="ts">
+	import { writable, get, type Writable } from 'svelte/store';
 	import type { Player } from './Player';
 	import type { Role } from './Role';
-	import type { League } from './League';
+	import type { DataObject } from './DataObject';
 
-	export const franchise = setContext('franchise', 'Express');
+	export const franchise = writable('Express');
 
-	export const roles: Role[] = setContext('roles', [
-		{ roleID: 1, roleCategory: 'Franchise', roleName: 'Franchise Manager' },
-		{ roleID: 2, roleCategory: 'Team', roleName: 'General Manager' },
-		{ roleID: 3, roleCategory: 'Team', roleName: 'Assistant General Manager' },
-		{ roleID: 4, roleCategory: 'Team', roleName: 'Captain' }
+	export const roles = writable<Role[]>([
+		{ id: 1, roleCategory: 'Franchise', name: 'Franchise Manager' },
+		{ id: 2, roleCategory: 'Team', name: 'General Manager' },
+		{ id: 3, roleCategory: 'Team', name: 'Assistant General Manager' },
+		{ id: 4, roleCategory: 'Team', name: 'Captain' }
 	]);
 
-	export const leagues: League[] = setContext('leagues', [
-		{ leagueID: 1, leagueName: 'Foundation League' },
-		{ leagueID: 2, leagueName: 'Academy League' },
-		{ leagueID: 3, leagueName: 'Champion League' },
-		{ leagueID: 4, leagueName: 'Master League' },
-		{ leagueID: 5, leagueName: 'Premier League' }
+	export const leagues = writable<DataObject[]>([
+		{ id: 1, name: 'Foundation League' },
+		{ id: 2, name: 'Academy League' },
+		{ id: 3, name: 'Champion League' },
+		{ id: 4, name: 'Master League' },
+		{ id: 5, name: 'Premier League' }
 	]);
 
-	export const players: Player[] = setContext('players', [
-		{ name: 'hermod', roles: [getRole(1)], league: getLeague(4), salary: 15.5 },
-		{ name: 'mattdamon', roles: [getRole(2)], league: getLeague(3), salary: 13 },
-		{ name: 'copex', roles: [getRole(3)], league: getLeague(4), salary: 16, playing: false },
-		{ name: 'gogurt', roles: [getRole(3)], league: getLeague(3), salary: 13, playing: false },
-		{ name: 'fatality', roles: [getRole(4)], league: getLeague(4), salary: 16.5 },
-		{ name: 'hobo', roles: [getRole(4)], league: getLeague(4), salary: 14.5 },
-		{ name: 'massimo', roles: [getRole(4)], league: getLeague(5), salary: 20 },
-		{ name: 'ouiiid', roles: [getRole(4)], league: getLeague(2), salary: 11 }
+	export const players = writable<Player[]>([
+		{
+			id: 1,
+			name: 'hermod',
+			roles: [findItemInArray(1, roles)],
+			league: findItemInArray(4, leagues),
+			salary: 15.5
+		},
+		{
+			id: 2,
+			name: 'mattdamon',
+			roles: [findItemInArray(2, roles)],
+			league: findItemInArray(3, leagues),
+			salary: 13
+		},
+		{
+			id: 3,
+			name: 'copex',
+			roles: [findItemInArray(3, roles)],
+			league: findItemInArray(4, leagues),
+			salary: 16,
+			playing: false
+		},
+		{
+			id: 4,
+			name: 'gogurt',
+			roles: [findItemInArray(3, roles)],
+			league: findItemInArray(3, leagues),
+			salary: 13,
+			playing: false
+		},
+		{
+			id: 5,
+			name: 'fatality',
+			roles: [findItemInArray(4, roles)],
+			league: findItemInArray(4, leagues),
+			salary: 16.5
+		},
+		{
+			id: 6,
+			name: 'hobo',
+			roles: [findItemInArray(4, roles)],
+			league: findItemInArray(4, leagues),
+			salary: 14.5
+		},
+		{
+			id: 7,
+			name: 'massimo',
+			roles: [findItemInArray(4, roles)],
+			league: findItemInArray(5, leagues),
+			salary: 20
+		},
+		{
+			id: 8,
+			name: 'ouiiid',
+			roles: [findItemInArray(4, roles)],
+			league: findItemInArray(2, leagues),
+			salary: 11
+		}
 	]);
 
-	function getRole(id: number): Role {
-		let role: Role | undefined;
-		role = roles.find((item) => item.roleID === id);
-		if (role === undefined || role === null) {
+	function findItemInArray<T extends DataObject>(id: number, array: Writable<T[]>): T {
+		let object: T | undefined;
+		object = get(array).find((item) => item.id === id);
+		if (object === undefined || object === null) {
 			throw new TypeError('This value was promised to be there.');
 		}
-		return role;
-	}
-	function getLeague(id: number): League {
-		let league: League | undefined;
-		league = leagues.find((i) => i.leagueID == id);
-		if (league === undefined || league === null) {
-			throw new TypeError('This value was promised to be there.');
-		}
-		return league;
+		return object;
 	}
 </script>
