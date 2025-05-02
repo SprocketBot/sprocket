@@ -1,9 +1,11 @@
 <script lang="ts">
-	import type { Player } from '../Player';
-	import type { Role } from '../Role';
-	import { franchise, roles, leagues, players } from '../MockDataService.svelte';
+	import type { Player } from '$lib/store/models/Player';
+	import { franchises, roles, leagues, players } from '$lib/store/MockDataService.svelte';
+	import type { Role } from '$lib/store/models/Role';
+	import UtilService, { findItemInArray } from '$lib/util/UtilService.svelte';
 
 	let searchString: string = '';
+	let util: UtilService;
 
 	enum Action {
 		Appoint = 'Appoint',
@@ -13,6 +15,13 @@
 	enum Area {
 		Leadership = 'Leadership',
 		Roster = 'Roster'
+	}
+	function getRoleCount(player: Player, roleCategory: string): number {
+		let count = 0;
+		player.roles?.forEach((role) => {
+			if (role.roleCategory == roleCategory) count++;
+		});
+		return count;
 	}
 
 	function canBeActioned(action: String, player: Player, area: Area): boolean {
@@ -27,7 +36,7 @@
 		}
 		if (action == Action.Release) {
 			if (area == Area.Leadership) return false;
-			if (player.roles !== undefined && player.roles.length != 0) {
+			if (getRoleCount(player, 'Franchise') || getRoleCount(player, 'Team')) {
 				return false;
 			}
 		}
@@ -42,7 +51,9 @@
 		}
 		if (action == Action.Release) {
 			$players.forEach((item: Player, index: number) => {
-				if (item === player) $players.splice(index, 1);
+				if (item === player) {
+					$players.splice(index, 1);
+				}
 			});
 		}
 		$players = $players;
@@ -52,7 +63,8 @@
 		let newPlayer: Player = {
 			id: 0,
 			name: searchUser,
-			league: { id: 1, name: 'Foundation League' },
+			roles: [util.findItemInArray(3, roles)],
+			league: util.findItemInArray(1, leagues),
 			salary: 5
 		};
 
@@ -64,26 +76,29 @@
 </script>
 
 <section>
-	<u><b>{$franchise}</b></u>
+	<UtilService bind:this={util} />
+	<u><b>{$franchises}</b></u>
 	<ul>
 		{#each $roles as role}
-			<h2><b>{role.name}</b></h2>
-			{#each $players as player}
-				<li>
-					{#if player.roles?.includes(role)}
-						{player.name}
-						{#each Object.entries(Action) as [key, action]}
-							{#if canBeActioned(action, player, Area.Leadership)}
-								<button
-									class="btn variant-soft-primary btn-sm"
-									on:click={() => onClickAction(action, player, role)}>{action}</button
-								>
-							{/if}
-						{/each}
-					{/if}
-				</li>
-			{/each}
-			<br />
+			{#if role.name != 'Playing' && role.name != 'Non-Playing'}
+				<h2><b>{role.name}</b></h2>
+				{#each $players as player}
+					<li>
+						{#if player.roles?.includes(role)}
+							{player.name}
+							{#each Object.entries(Action) as [key, action]}
+								{#if canBeActioned(action, player, Area.Leadership)}
+									<button
+										class="btn variant-soft-primary btn-sm"
+										on:click={() => onClickAction(action, player, role)}>{action}</button
+									>
+								{/if}
+							{/each}
+						{/if}
+					</li>
+				{/each}
+				<br />
+			{/if}
 		{/each}
 	</ul>
 	<ul>
@@ -91,7 +106,7 @@
 			<h2><b>{league.name}</b></h2>
 			{#each $players as player}
 				<li>
-					{#if player.league.id === league.id}
+					{#if player.league.id === league.id && player.roles?.find((role) => role.name == 'Playing')}
 						{player.name}
 						{#each Object.entries(Action) as [key, action]}
 							{#if canBeActioned(action, player, Area.Roster)}

@@ -5,5 +5,4 @@ export interface Player extends DataObject {
 	roles?: Role[];
 	league: DataObject;
 	salary: number;
-	playing?: boolean;
 }
