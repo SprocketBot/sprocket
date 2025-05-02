@@ -32,7 +32,6 @@
 		});
 		$players = $players;
 		playerCount = countLeaguePlayersInFranchise(league);
-		console.log($players);
 	}
 
 	function playingForFranchise(player: Player): boolean {
@@ -68,7 +67,6 @@
 		$players = $players;
 		playerCount = countLeaguePlayersInFranchise(league);
 		searchString = '';
-		console.log($players);
 	}
 </script>
 

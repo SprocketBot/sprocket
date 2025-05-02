@@ -28,12 +28,12 @@
 		{ id: 6, roleCategory: 'Player', name: 'Non-Playing' }
 	]);
 
-	/*export const roleSeats = writable<Seat[]>([
+	export const roleSeats = writable<Seat[]>([
 		{ roleID: 1, minimumSeats: 1, maximumSeats: 1 },
 		{ roleID: 2, minimumSeats: 1, maximumSeats: 1 },
-		{ id: 3, roleCategory: 'Team', name: 'Assistant General Manager' },
-		{ id: 4, roleCategory: 'Team', name: 'Captain' }
-	]);*/
+		{ roleID: 3, minimumSeats: 0, maximumSeats: 2 },
+		{ roleID: 4, minimumSeats: 0, maximumSeats: 4 }
+	]);
 
 	export const leagues = writable<DataObject[]>([
 		{ id: 1, name: 'Foundation League' },
@@ -98,7 +98,7 @@
 				addToRole(findItemInArray(4, roles), 1, 1),
 				addToRole(findItemInArray(5, roles), 1, 1)
 			],
-			league: findItemInArray(4, leagues),
+			league: findItemInArray(3, leagues),
 			salary: 14.5
 		},
 		{
