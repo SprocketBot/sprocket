@@ -6,14 +6,20 @@
 
 	export let role: Role;
 	export let selectedFranchise: DataObject;
-	export let selectedGame: DataObject;
+	export let selectedGame: DataObject = { id: 0, name: '' };
 
 	function getTemplateSeat(): Seat {
-		return {
+		let templateSeatForFranchiseRoles = {
+			id: 0,
+			roleID: role.id
+		};
+		let templateSeatForTeamRoles = {
 			id: 0,
 			roleID: role.id,
 			gameID: selectedGame.id
 		};
+		if (selectedGame.id == 0) return templateSeatForFranchiseRoles;
+		else return templateSeatForTeamRoles;
 	}
 </script>
 

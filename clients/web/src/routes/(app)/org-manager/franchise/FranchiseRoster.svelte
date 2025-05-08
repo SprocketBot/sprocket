@@ -12,7 +12,9 @@
 	<u><b>{selectedFranchise.name}</b></u>
 	<ul>
 		{#each $roles as role}
-			{#if role.roleCategory != 'Player'}
+			{#if role.roleCategory == 'Franchise'}
+				<LeadershipCard {role} {selectedFranchise} />
+			{:else if role.roleCategory == 'Team'}
 				<LeadershipCard {role} {selectedFranchise} {selectedGame} />
 			{/if}
 		{/each}
