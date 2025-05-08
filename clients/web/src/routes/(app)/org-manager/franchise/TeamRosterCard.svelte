@@ -1,90 +1,92 @@
 <script lang="ts">
 	import type { DataObject } from '$lib/store/models/DataObject';
 	import type { Player } from '$lib/store/models/Player';
-	import { players } from '$lib/store/MockDataService.svelte';
-	import type { Role } from '$lib/store/models/Role';
+	import { players, roleAssignments, roleSeats, roles } from '$lib/store/MockDataService.svelte';
+	import type { Seat } from '$lib/store/models/Seat';
+	import type { Assignment } from '$lib/store/models/Assignment';
+	import AssignmentCard from './AssignmentCard.svelte';
 
 	export let league: DataObject;
 	export let selectedFranchise: DataObject;
+	let textEntry: string;
 
-	const maxSlotCount = 2;
-	let playerCount = countLeaguePlayersInFranchise(league);
+	let staffRoleAssignmentsCount = findRoleAssignments(league).length;
+	let seatCount = findRoleSeats(league).length;
+
 	let searchString = '';
 
-	function onClickAction(player: Player) {
-		$players.forEach((item: Player) => {
-			if (item.id === player.id) {
-				let franchiseRole: Role | undefined = player.roles?.find((role) => role.name == 'Playing');
-				if (franchiseRole != undefined) {
-					let waiverRole: Role = {
-						id: 5,
-						roleCategory: 'Player',
-						name: 'Playing',
-						franchiseAssociationID: 98
-					};
-					player.roles?.splice(
-						player.roles.findIndex((role) => role.name == 'Playing'),
-						1,
-						waiverRole
-					);
+	function addUserToRoster(searchUser: string, league: DataObject) {
+		let newStaff = $players.find((player) => player.name == searchUser);
+		let seatsForRole = $roleSeats.filter((seat) => seat.roleID === 5); //TODO
+		let availableSeats: Seat[] = [];
+		for (var seat of seatsForRole) {
+			let found = false;
+			for (var assignment of $roleAssignments) {
+				if (assignment.seatID == seat.id && league.id == seat.leagueID) {
+					found = true;
 				}
 			}
-		});
-		$players = $players;
-		playerCount = countLeaguePlayersInFranchise(league);
+			if (!found) availableSeats.push(seat);
+		}
+		if (availableSeats != undefined && newStaff != undefined) {
+			let newAssignment: Assignment = {
+				id: 0,
+				playerID: newStaff?.id,
+				seatID: availableSeats[0].id,
+				franchiseID: selectedFranchise.id
+			};
+
+			$roleAssignments.push(newAssignment);
+			$roleAssignments = $roleAssignments;
+			searchString = '';
+		}
 	}
 
-	function playingForFranchise(player: Player): boolean {
-		let role = player.roles?.find(
-			(role) => role.name == 'Playing' && role.franchiseAssociationID == selectedFranchise.id
-		);
-		return role != undefined;
-	}
-
-	function countLeaguePlayersInFranchise(league: DataObject): number {
-		let count = $players.filter(
-			(player) => player.league.id == league.id && playingForFranchise(player)
-		).length;
-		return count;
-	}
-
-	function addUserToRoster(searchUser: string, league: DataObject) {
-		let newPlayer: Player = {
-			id: 0,
-			name: searchUser,
-			roles: [
-				{
-					id: 5,
-					roleCategory: 'Player',
-					name: 'Playing',
-					franchiseAssociationID: selectedFranchise.id
+	function findRoleAssignments(league: DataObject): Assignment[] {
+		let roleAssignments: Assignment[] = [];
+		$roleAssignments.filter((assignment) => {
+			findRoleSeats(league).find((seat) => {
+				if (
+					seat.id == assignment.seatID &&
+					assignment.franchiseID == selectedFranchise.id &&
+					seat.leagueID == league.id
+				) {
+					roleAssignments.push(assignment);
 				}
-			],
-			league: league,
-			salary: 0
-		};
-		$players.push(newPlayer);
-		$players = $players;
-		playerCount = countLeaguePlayersInFranchise(league);
-		searchString = '';
+			});
+		});
+		return roleAssignments;
+	}
+
+	function findRoleSeats(league: DataObject): Seat[] {
+		return $roleSeats.filter((seat) => seat.leagueID == league.id);
 	}
 </script>
 
 <section>
 	<h2><b>{league.name}</b></h2>
-	{#each $players as player}
-		<li>
-			{#if player.league.id === league.id && playingForFranchise(player)}
-				{player.name} - {player.salary}
-				{#if !player.roles?.find((role) => role.roleCategory == 'Team' || role.roleCategory == 'Franchise')}
-					<button class="btn variant-soft-primary btn-sm" on:click={() => onClickAction(player)}
-						>Release</button
-					>
+	{#each $roleAssignments as assignment}
+		{#if assignment.franchiseID == selectedFranchise.id}
+			{#each $roleSeats as seat}
+				{#if assignment.seatID == seat.id && seat.leagueID == league.id}
+					{#each $players as player}
+						<li>
+							{#if player.id === assignment.playerID}
+								<AssignmentCard
+									{selectedFranchise}
+									{seat}
+									{player}
+									textEntry={player.name + ' - ' + player.salary}
+									buttonText="Release"
+								/>
+							{/if}
+						</li>
+					{/each}
 				{/if}
-			{/if}
-		</li>
+			{/each}
+		{/if}
 	{/each}
-	{#if playerCount < maxSlotCount}
+	{#if staffRoleAssignmentsCount < seatCount}
 		<input bind:value={searchString} />
 		<button on:click={() => addUserToRoster(searchString, league)}>Offer</button>
 	{/if}

@@ -1,5 +1,6 @@
 export interface Seat {
+	id: number;
 	roleID: number;
-	minimumSeats: number;
-	maximumSeats: number;
+	gameID?: number;
+	leagueID?: number;
 }
