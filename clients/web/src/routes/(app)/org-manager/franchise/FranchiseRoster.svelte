@@ -13,7 +13,7 @@
 	<ul>
 		{#each $roles as role}
 			{#if role.roleCategory != 'Player'}
-				<LeadershipCard {role} {selectedFranchise} />
+				<LeadershipCard {role} {selectedFranchise} {selectedGame} />
 			{/if}
 		{/each}
 	</ul>
@@ -21,7 +21,7 @@
 	<br />
 	<ul>
 		{#each $leagues as league}
-			<TeamRosterCard {league} {selectedFranchise} />
+			<TeamRosterCard {league} {selectedFranchise} {selectedGame} />
 			<br />
 		{/each}
 	</ul>
