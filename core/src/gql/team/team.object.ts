@@ -1,7 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 
-@ObjectType('Franchise')
-export class FranchiseObject {
+@ObjectType('Team')
+export class TeamObject {
   @Field()
   id: string;
 
@@ -10,7 +10,4 @@ export class FranchiseObject {
 
   @Field()
   updateAt: Date;
-
-  @Field()
-  franchise_name: string;
 }
