@@ -7,11 +7,11 @@ import { BaseSeatAssignmentObject } from './base_seat_assignment.object';
 @ObjectType('ClubSeatAssignment')
 export class ClubSeatAssignmentObject extends BaseSeatAssignmentObject {
   @Field(() => SeatObject)
-  seat?: SeatObject;
+  seat: SeatObject;
 
   @Field(() => PlayerObject)
-  player?: PlayerObject;
+  player: PlayerObject;
 
   @Field(() => ClubObject)
-  club?: ClubObject;
+  club: ClubObject;
 }
