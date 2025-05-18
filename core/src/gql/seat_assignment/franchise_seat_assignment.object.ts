@@ -2,24 +2,16 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { SeatObject } from '../seat/seat.object';
 import { PlayerObject } from '../player/player.object';
 import { FranchiseObject } from '../franchise/franchise.object';
+import { BaseSeatAssignmentObject } from './base_seat_assignment.object';
 
 @ObjectType('FranchiseSeatAssignment')
-export class FranchiseSeatAssignmentObject {
-  @Field()
-  id: string;
-
-  @Field()
-  createdAt: Date;
-
-  @Field()
-  updateAt: Date;
-
-  @Field(() => SeatObject, { nullable: true })
+export class FranchiseSeatAssignmentObject extends BaseSeatAssignmentObject {
+  @Field(() => SeatObject)
   seat?: SeatObject;
 
-  @Field(() => PlayerObject, { nullable: true })
+  @Field(() => PlayerObject)
   player?: PlayerObject;
 
-  @Field(() => FranchiseObject, { nullable: true })
+  @Field(() => FranchiseObject)
   franchise?: FranchiseObject;
 }

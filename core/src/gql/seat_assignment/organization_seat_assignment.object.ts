@@ -1,21 +1,13 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { SeatObject } from '../seat/seat.object';
 import { UserObject } from '../user/user.object';
+import { BaseSeatAssignmentObject } from './base_seat_assignment.object';
 
 @ObjectType('OrganizationSeatAssignment')
-export class OrganizationSeatAssignmentObject {
-  @Field()
-  id: string;
-
-  @Field()
-  createdAt: Date;
-
-  @Field()
-  updateAt: Date;
-
-  @Field(() => SeatObject, { nullable: true })
+export class OrganizationSeatAssignmentObject extends BaseSeatAssignmentObject {
+  @Field(() => SeatObject)
   seat?: SeatObject;
 
-  @Field(() => UserObject, { nullable: true })
+  @Field(() => UserObject)
   user?: UserObject;
 }
