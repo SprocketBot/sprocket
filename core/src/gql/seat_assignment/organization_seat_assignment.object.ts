@@ -6,8 +6,8 @@ import { BaseSeatAssignmentObject } from './base_seat_assignment.object';
 @ObjectType('OrganizationSeatAssignment')
 export class OrganizationSeatAssignmentObject extends BaseSeatAssignmentObject {
   @Field(() => SeatObject)
-  seat?: SeatObject;
+  seat: SeatObject;
 
   @Field(() => UserObject)
-  user?: UserObject;
+  user: UserObject;
 }

@@ -18,6 +18,6 @@ export class SeatObject {
   @Field()
   description: string;
 
-  @Field(() => RoleObject, { nullable: true })
-  role?: RoleObject;
+  @Field(() => RoleObject)
+  role: RoleObject;
 }
