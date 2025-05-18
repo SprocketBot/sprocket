@@ -1,4 +1,4 @@
-import { Resolver, ResolveField, Root } from '@nestjs/graphql';
+import { Resolver, ResolveField } from '@nestjs/graphql';
 import { FranchiseObject } from './franchise.object';
 
 @Resolver(() => FranchiseObject)
