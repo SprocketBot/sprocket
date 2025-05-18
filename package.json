@@ -9,5 +9,8 @@
   ],
   "dependencies": {
     "typeorm-adapter": "^1.7.0"
+  },
+  "scripts": {
+    "test": "bun run test --cwd core"
   }
 }
