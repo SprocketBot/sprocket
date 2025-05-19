@@ -37,7 +37,9 @@ describe('FranchiseEntity', () => {
     }).compile();
 
     franchiseRepository = module.get(getRepositoryToken(FranchiseEntity));
-    franchiseSeatAssignmentRepository = module.get(getRepositoryToken(FranchiseSeatAssignmentEntity));
+    franchiseSeatAssignmentRepository = module.get(
+      getRepositoryToken(FranchiseSeatAssignmentEntity),
+    );
     playerRepository = module.get(getRepositoryToken(PlayerEntity));
     seatRepository = module.get(getRepositoryToken(SeatEntity));
   });
@@ -84,7 +86,7 @@ describe('FranchiseEntity', () => {
       const franchise = new FranchiseEntity();
       franchise.franchise_name = 'Test Franchise';
       jest.spyOn(franchiseRepository, 'save').mockResolvedValueOnce(franchise);
-      
+
       const savedFranchise = await franchiseRepository.save(franchise);
       expect(savedFranchise).toBeDefined();
       expect(savedFranchise).toBeInstanceOf(FranchiseEntity);
@@ -94,9 +96,13 @@ describe('FranchiseEntity', () => {
     it('should find a franchise by id', async () => {
       const franchise = new FranchiseEntity();
       franchise.franchise_name = 'Test Franchise';
-      jest.spyOn(franchiseRepository, 'findOne').mockResolvedValueOnce(franchise);
-      
-      const foundFranchise = await franchiseRepository.findOne({ where: { id: 'test-id' } });
+      jest
+        .spyOn(franchiseRepository, 'findOne')
+        .mockResolvedValueOnce(franchise);
+
+      const foundFranchise = await franchiseRepository.findOne({
+        where: { id: 'test-id' },
+      });
       expect(foundFranchise).toBeDefined();
       expect(foundFranchise).toBeInstanceOf(FranchiseEntity);
       expect(foundFranchise?.franchise_name).toBe('Test Franchise');
@@ -116,7 +122,9 @@ describe('FranchiseEntity', () => {
       seatAssignment.seat = Promise.resolve(seat);
 
       // Mock the relationships
-      jest.spyOn(franchiseSeatAssignmentRepository, 'findOne').mockResolvedValueOnce(seatAssignment);
+      jest
+        .spyOn(franchiseSeatAssignmentRepository, 'findOne')
+        .mockResolvedValueOnce(seatAssignment);
       jest.spyOn(playerRepository, 'findOne').mockResolvedValueOnce(player);
       jest.spyOn(seatRepository, 'findOne').mockResolvedValueOnce(seat);
 

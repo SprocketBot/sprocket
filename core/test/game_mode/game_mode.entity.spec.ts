@@ -65,7 +65,9 @@ describe('GameModeRepository', () => {
     const gameMode = new GameModeEntity();
     jest.spyOn(gameModeRepository, 'findOne').mockResolvedValueOnce(gameMode);
 
-    const foundGameMode = await gameModeRepository.findOne({ where: { id: 'test-id' } });
+    const foundGameMode = await gameModeRepository.findOne({
+      where: { id: 'test-id' },
+    });
     expect(foundGameMode).toBeDefined();
     expect(foundGameMode).toBeInstanceOf(GameModeEntity);
   });

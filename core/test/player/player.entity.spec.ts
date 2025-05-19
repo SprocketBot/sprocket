@@ -41,7 +41,9 @@ describe('PlayerRepository', () => {
       ],
     }).compile();
 
-    playerRepository = module.get(NestjsTypeorm.getRepositoryToken(PlayerEntity));
+    playerRepository = module.get(
+      NestjsTypeorm.getRepositoryToken(PlayerEntity),
+    );
   });
 
   afterAll(async () => {
@@ -65,7 +67,9 @@ describe('PlayerRepository', () => {
     const player = new PlayerEntity();
     jest.spyOn(playerRepository, 'findOne').mockResolvedValueOnce(player);
 
-    const foundPlayer = await playerRepository.findOne({ where: { id: 'test-id' } });
+    const foundPlayer = await playerRepository.findOne({
+      where: { id: 'test-id' },
+    });
     expect(foundPlayer).toBeDefined();
     expect(foundPlayer).toBeInstanceOf(PlayerEntity);
   });

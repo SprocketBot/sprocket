@@ -3,7 +3,7 @@
     "./src/**/*.ts",
     "./src/datasource.ts",
     "./datasource.ts",
-    "./test/**/*.ts"
+    "./test/**/**/*.ts"
   ],
   "files": ["./src/app.d.ts", "./src/main.ts"],
   "compilerOptions": {
