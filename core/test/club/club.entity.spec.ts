@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -74,20 +75,22 @@ describe('ClubEntity', () => {
 
     it('should create a new club', async () => {
       const club = new ClubEntity();
-      jest.spyOn(clubRepository, 'save').mockResolvedValueOnce(club);
-      
+      const spy = vi.spyOn(clubRepository, 'save').mockResolvedValueOnce(club);
+
       const savedClub = await clubRepository.save(club);
       expect(savedClub).toBeDefined();
       expect(savedClub).toBeInstanceOf(ClubEntity);
+      spy.mockRestore();
     });
 
     it('should find a club by id', async () => {
       const club = new ClubEntity();
-      jest.spyOn(clubRepository, 'findOne').mockResolvedValueOnce(club);
-      
+      const spy = vi.spyOn(clubRepository, 'findOne').mockResolvedValueOnce(club);
+
       const foundClub = await clubRepository.findOne({ where: { id: 'test-id' } });
       expect(foundClub).toBeDefined();
       expect(foundClub).toBeInstanceOf(ClubEntity);
+      spy.mockRestore();
     });
   });
 
@@ -102,9 +105,9 @@ describe('ClubEntity', () => {
       seatAssignment.seat = Promise.resolve(seat);
 
       // Mock the relationships
-      jest.spyOn(clubSeatAssignmentRepository, 'findOne').mockResolvedValueOnce(seatAssignment);
-      jest.spyOn(playerRepository, 'findOne').mockResolvedValueOnce(player);
-      jest.spyOn(seatRepository, 'findOne').mockResolvedValueOnce(seat);
+      const clubSpy = vi.spyOn(clubSeatAssignmentRepository, 'findOne').mockResolvedValueOnce(seatAssignment);
+      const playerSpy = vi.spyOn(playerRepository, 'findOne').mockResolvedValueOnce(player);
+      const seatSpy = vi.spyOn(seatRepository, 'findOne').mockResolvedValueOnce(seat);
 
       // Test the relationship
       const foundAssignment = await clubSeatAssignmentRepository.findOne({
@@ -116,6 +119,9 @@ describe('ClubEntity', () => {
       expect(foundAssignment?.club).toBeDefined();
       expect(foundAssignment?.player).toBeDefined();
       expect(foundAssignment?.seat).toBeDefined();
+      clubSpy.mockRestore();
+      playerSpy.mockRestore();
+      seatSpy.mockRestore();
     });
   });
 });

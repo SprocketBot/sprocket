@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -57,7 +58,7 @@ describe('TeamSeatAssignmentRepository', () => {
 
   it('should create a new team seat assignment', async () => {
     const teamSeatAssignment = new TeamSeatAssignmentEntity();
-    jest
+    const spy = vi
       .spyOn(teamSeatAssignmentRepository, 'save')
       .mockResolvedValueOnce(teamSeatAssignment);
 
@@ -65,11 +66,12 @@ describe('TeamSeatAssignmentRepository', () => {
       await teamSeatAssignmentRepository.save(teamSeatAssignment);
     expect(savedTeamSeatAssignment).toBeDefined();
     expect(savedTeamSeatAssignment).toBeInstanceOf(TeamSeatAssignmentEntity);
+    spy.mockRestore();
   });
 
   it('should find a team seat assignment by id', async () => {
     const teamSeatAssignment = new TeamSeatAssignmentEntity();
-    jest
+    const spy = vi
       .spyOn(teamSeatAssignmentRepository, 'findOne')
       .mockResolvedValueOnce(teamSeatAssignment);
 
@@ -78,5 +80,6 @@ describe('TeamSeatAssignmentRepository', () => {
     });
     expect(foundTeamSeatAssignment).toBeDefined();
     expect(foundTeamSeatAssignment).toBeInstanceOf(TeamSeatAssignmentEntity);
+    spy.mockRestore();
   });
 });

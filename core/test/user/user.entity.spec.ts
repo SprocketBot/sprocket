@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -55,21 +56,23 @@ describe('UserRepository', () => {
 
   it('should create a new user', async () => {
     const user = new UserEntity();
-    jest.spyOn(userRepository, 'save').mockResolvedValueOnce(user);
+    const spy = vi.spyOn(userRepository, 'save').mockResolvedValueOnce(user);
 
     const savedUser = await userRepository.save(user);
     expect(savedUser).toBeDefined();
     expect(savedUser).toBeInstanceOf(UserEntity);
+    spy.mockRestore();
   });
 
   it('should find a user by id', async () => {
     const user = new UserEntity();
-    jest.spyOn(userRepository, 'findOne').mockResolvedValueOnce(user);
+    const spy = vi.spyOn(userRepository, 'findOne').mockResolvedValueOnce(user);
 
     const foundUser = await userRepository.findOne({
       where: { id: 'test-id' },
     });
     expect(foundUser).toBeDefined();
     expect(foundUser).toBeInstanceOf(UserEntity);
+    spy.mockRestore();
   });
 });

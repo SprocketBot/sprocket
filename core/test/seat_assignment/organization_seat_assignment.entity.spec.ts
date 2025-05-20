@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -57,7 +58,7 @@ describe('OrganizationSeatAssignmentRepository', () => {
 
   it('should create a new organization seat assignment', async () => {
     const organizationSeatAssignment = new OrganizationSeatAssignmentEntity();
-    jest
+    const spy = vi
       .spyOn(organizationSeatAssignmentRepository, 'save')
       .mockResolvedValueOnce(organizationSeatAssignment);
 
@@ -69,11 +70,12 @@ describe('OrganizationSeatAssignmentRepository', () => {
     expect(savedOrganizationSeatAssignment).toBeInstanceOf(
       OrganizationSeatAssignmentEntity,
     );
+    spy.mockRestore();
   });
 
   it('should find a organization seat assignment by id', async () => {
     const organizationSeatAssignment = new OrganizationSeatAssignmentEntity();
-    jest
+    const spy = vi
       .spyOn(organizationSeatAssignmentRepository, 'findOne')
       .mockResolvedValueOnce(organizationSeatAssignment);
 
@@ -85,5 +87,6 @@ describe('OrganizationSeatAssignmentRepository', () => {
     expect(foundOrganizationSeatAssignment).toBeInstanceOf(
       OrganizationSeatAssignmentEntity,
     );
+    spy.mockRestore();
   });
 });

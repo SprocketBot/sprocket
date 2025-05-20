@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -57,7 +58,7 @@ describe('ScheduleGroupTypeRepository', () => {
 
   it('should create a new schedule group type', async () => {
     const scheduleGroupType = new ScheduleGroupTypeEntity();
-    jest
+    const spy = vi
       .spyOn(scheduleGroupTypeRepository, 'save')
       .mockResolvedValueOnce(scheduleGroupType);
 
@@ -65,11 +66,12 @@ describe('ScheduleGroupTypeRepository', () => {
       await scheduleGroupTypeRepository.save(scheduleGroupType);
     expect(savedScheduleGroupType).toBeDefined();
     expect(savedScheduleGroupType).toBeInstanceOf(ScheduleGroupTypeEntity);
+    spy.mockRestore();
   });
 
   it('should find a schedule group type by id', async () => {
     const scheduleGroupType = new ScheduleGroupTypeEntity();
-    jest
+    const spy = vi
       .spyOn(scheduleGroupTypeRepository, 'findOne')
       .mockResolvedValueOnce(scheduleGroupType);
 
@@ -78,5 +80,6 @@ describe('ScheduleGroupTypeRepository', () => {
     });
     expect(foundScheduleGroupType).toBeDefined();
     expect(foundScheduleGroupType).toBeInstanceOf(ScheduleGroupTypeEntity);
+    spy.mockRestore();
   });
 });

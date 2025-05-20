@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -55,16 +56,17 @@ describe('SkillGroupRepository', () => {
 
   it('should create a new skill group', async () => {
     const skillGroup = new SkillGroupEntity();
-    jest.spyOn(skillGroupRepository, 'save').mockResolvedValueOnce(skillGroup);
+    const spy = vi.spyOn(skillGroupRepository, 'save').mockResolvedValueOnce(skillGroup);
 
     const savedSkillGroup = await skillGroupRepository.save(skillGroup);
     expect(savedSkillGroup).toBeDefined();
     expect(savedSkillGroup).toBeInstanceOf(SkillGroupEntity);
+    spy.mockRestore();
   });
 
   it('should find a skill group by id', async () => {
     const skillGroup = new SkillGroupEntity();
-    jest
+    const spy = vi
       .spyOn(skillGroupRepository, 'findOne')
       .mockResolvedValueOnce(skillGroup);
 
@@ -73,5 +75,6 @@ describe('SkillGroupRepository', () => {
     });
     expect(foundSkillGroup).toBeDefined();
     expect(foundSkillGroup).toBeInstanceOf(SkillGroupEntity);
+    spy.mockRestore();
   });
 });

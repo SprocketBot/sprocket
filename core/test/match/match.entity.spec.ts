@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -13,14 +14,6 @@ import {
 } from '../../src/db/match/match.repository';
 
 describe('MatchEntity', () => {
-  let module: TestingModule;
-
-  beforeAll(async () => {
-    module = await Test.createTestingModule({
-      providers: [],
-    }).compile();
-  });
-
   it('should be defined', () => {
     expect(MatchEntity).toBeDefined();
   });
@@ -70,34 +63,28 @@ describe('MatchRepository', () => {
 
   it('should create a new match', async () => {
     const match = new MatchEntity();
-    jest.spyOn(matchRepository, 'save').mockResolvedValueOnce(match);
+    const spy = vi.spyOn(matchRepository, 'save').mockResolvedValueOnce(match);
 
     const savedMatch = await matchRepository.save(match);
     expect(savedMatch).toBeDefined();
     expect(savedMatch).toBeInstanceOf(MatchEntity);
+    spy.mockRestore();
   });
 
   it('should find a match by id', async () => {
     const match = new MatchEntity();
-    jest.spyOn(matchRepository, 'findOne').mockResolvedValueOnce(match);
+    const spy = vi.spyOn(matchRepository, 'findOne').mockResolvedValueOnce(match);
 
     const foundMatch = await matchRepository.findOne({
       where: { id: 'test-id' },
     });
     expect(foundMatch).toBeDefined();
     expect(foundMatch).toBeInstanceOf(MatchEntity);
+    spy.mockRestore();
   });
 });
 
 describe('FixtureEntity', () => {
-  let module: TestingModule;
-
-  beforeAll(async () => {
-    module = await Test.createTestingModule({
-      providers: [],
-    }).compile();
-  });
-
   it('should be defined', () => {
     expect(FixtureEntity).toBeDefined();
   });
@@ -147,34 +134,28 @@ describe('FixtureRepository', () => {
 
   it('should create a new fixture', async () => {
     const fixture = new FixtureEntity();
-    jest.spyOn(fixtureRepository, 'save').mockResolvedValueOnce(fixture);
+    const spy = vi.spyOn(fixtureRepository, 'save').mockResolvedValueOnce(fixture);
 
     const savedFixture = await fixtureRepository.save(fixture);
     expect(savedFixture).toBeDefined();
     expect(savedFixture).toBeInstanceOf(FixtureEntity);
+    spy.mockRestore();
   });
 
   it('should find a fixture by id', async () => {
     const fixture = new FixtureEntity();
-    jest.spyOn(fixtureRepository, 'findOne').mockResolvedValueOnce(fixture);
+    const spy = vi.spyOn(fixtureRepository, 'findOne').mockResolvedValueOnce(fixture);
 
     const foundFixture = await fixtureRepository.findOne({
       where: { id: 'test-id' },
     });
     expect(foundFixture).toBeDefined();
     expect(foundFixture).toBeInstanceOf(FixtureEntity);
+    spy.mockRestore();
   });
 });
 
 describe('ScrimEntity', () => {
-  let module: TestingModule;
-
-  beforeAll(async () => {
-    module = await Test.createTestingModule({
-      providers: [],
-    }).compile();
-  });
-
   it('should be defined', () => {
     expect(ScrimEntity).toBeDefined();
   });
@@ -224,21 +205,23 @@ describe('ScrimRepository', () => {
 
   it('should create a new scrim', async () => {
     const scrim = new ScrimEntity();
-    jest.spyOn(scrimRepository, 'save').mockResolvedValueOnce(scrim);
+    const spy = vi.spyOn(scrimRepository, 'save').mockResolvedValueOnce(scrim);
 
     const savedScrim = await scrimRepository.save(scrim);
     expect(savedScrim).toBeDefined();
     expect(savedScrim).toBeInstanceOf(ScrimEntity);
+    spy.mockRestore();
   });
 
   it('should find a scrim by id', async () => {
     const scrim = new ScrimEntity();
-    jest.spyOn(scrimRepository, 'findOne').mockResolvedValueOnce(scrim);
+    const spy = vi.spyOn(scrimRepository, 'findOne').mockResolvedValueOnce(scrim);
 
     const foundScrim = await scrimRepository.findOne({
       where: { id: 'test-id' },
     });
     expect(foundScrim).toBeDefined();
     expect(foundScrim).toBeInstanceOf(ScrimEntity);
+    spy.mockRestore();
   });
 });

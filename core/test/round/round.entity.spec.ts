@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -55,21 +56,23 @@ describe('RoundRepository', () => {
 
   it('should create a new round', async () => {
     const round = new RoundEntity();
-    jest.spyOn(roundRepository, 'save').mockResolvedValueOnce(round);
+    const spy = vi.spyOn(roundRepository, 'save').mockResolvedValueOnce(round);
 
     const savedRound = await roundRepository.save(round);
     expect(savedRound).toBeDefined();
     expect(savedRound).toBeInstanceOf(RoundEntity);
+    spy.mockRestore();
   });
 
   it('should find a round by id', async () => {
     const round = new RoundEntity();
-    jest.spyOn(roundRepository, 'findOne').mockResolvedValueOnce(round);
+    const spy = vi.spyOn(roundRepository, 'findOne').mockResolvedValueOnce(round);
 
     const foundRound = await roundRepository.findOne({
       where: { id: 'test-id' },
     });
     expect(foundRound).toBeDefined();
     expect(foundRound).toBeInstanceOf(RoundEntity);
+    spy.mockRestore();
   });
 });

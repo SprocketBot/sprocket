@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -85,18 +86,19 @@ describe('FranchiseEntity', () => {
     it('should create a new franchise', async () => {
       const franchise = new FranchiseEntity();
       franchise.franchise_name = 'Test Franchise';
-      jest.spyOn(franchiseRepository, 'save').mockResolvedValueOnce(franchise);
+      const spy = vi.spyOn(franchiseRepository, 'save').mockResolvedValueOnce(franchise);
 
       const savedFranchise = await franchiseRepository.save(franchise);
       expect(savedFranchise).toBeDefined();
       expect(savedFranchise).toBeInstanceOf(FranchiseEntity);
       expect(savedFranchise.franchise_name).toBe('Test Franchise');
+      spy.mockRestore();
     });
 
     it('should find a franchise by id', async () => {
       const franchise = new FranchiseEntity();
       franchise.franchise_name = 'Test Franchise';
-      jest
+      const spy = vi
         .spyOn(franchiseRepository, 'findOne')
         .mockResolvedValueOnce(franchise);
 
@@ -106,6 +108,7 @@ describe('FranchiseEntity', () => {
       expect(foundFranchise).toBeDefined();
       expect(foundFranchise).toBeInstanceOf(FranchiseEntity);
       expect(foundFranchise?.franchise_name).toBe('Test Franchise');
+      spy.mockRestore();
     });
   });
 
@@ -122,11 +125,11 @@ describe('FranchiseEntity', () => {
       seatAssignment.seat = Promise.resolve(seat);
 
       // Mock the relationships
-      jest
+      const franchiseSpy = vi
         .spyOn(franchiseSeatAssignmentRepository, 'findOne')
         .mockResolvedValueOnce(seatAssignment);
-      jest.spyOn(playerRepository, 'findOne').mockResolvedValueOnce(player);
-      jest.spyOn(seatRepository, 'findOne').mockResolvedValueOnce(seat);
+      const playerSpy = vi.spyOn(playerRepository, 'findOne').mockResolvedValueOnce(player);
+      const seatSpy = vi.spyOn(seatRepository, 'findOne').mockResolvedValueOnce(seat);
 
       // Test the relationship
       const foundAssignment = await franchiseSeatAssignmentRepository.findOne({
@@ -138,6 +141,9 @@ describe('FranchiseEntity', () => {
       expect(foundAssignment?.franchise).toBeDefined();
       expect(foundAssignment?.player).toBeDefined();
       expect(foundAssignment?.seat).toBeDefined();
+      franchiseSpy.mockRestore();
+      playerSpy.mockRestore();
+      seatSpy.mockRestore();
     });
   });
 });

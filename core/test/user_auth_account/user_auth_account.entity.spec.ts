@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -8,9 +9,7 @@ describe('UserAuthAccountEntity', () => {
   it('should be defined', () => {
     expect(UserAuthAccountEntity).toBeDefined();
   });
-});
 
-describe('Base Entity Fields', () => {
   it('should have id field', () => {
     const userAuthAccount = new UserAuthAccountEntity();
     expect(userAuthAccount.id).toBeUndefined();
@@ -57,7 +56,7 @@ describe('UserAuthAccountRepository', () => {
 
   it('should create a new user auth account', async () => {
     const userAuthAccount = new UserAuthAccountEntity();
-    jest
+    const spy = vi
       .spyOn(userAuthAccountRepository, 'save')
       .mockResolvedValueOnce(userAuthAccount);
 
@@ -65,11 +64,12 @@ describe('UserAuthAccountRepository', () => {
       await userAuthAccountRepository.save(userAuthAccount);
     expect(savedUserAuthAccount).toBeDefined();
     expect(savedUserAuthAccount).toBeInstanceOf(UserAuthAccountEntity);
+    spy.mockRestore();
   });
 
   it('should find a user auth account by id', async () => {
     const userAuthAccount = new UserAuthAccountEntity();
-    jest
+    const spy = vi
       .spyOn(userAuthAccountRepository, 'findOne')
       .mockResolvedValueOnce(userAuthAccount);
 
@@ -78,5 +78,6 @@ describe('UserAuthAccountRepository', () => {
     });
     expect(foundUserAuthAccount).toBeDefined();
     expect(foundUserAuthAccount).toBeInstanceOf(UserAuthAccountEntity);
+    spy.mockRestore();
   });
 });

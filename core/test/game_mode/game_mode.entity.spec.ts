@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -54,21 +55,23 @@ describe('GameModeRepository', () => {
 
   it('should create a new game mode', async () => {
     const gameMode = new GameModeEntity();
-    jest.spyOn(gameModeRepository, 'save').mockResolvedValueOnce(gameMode);
+    const spy = vi.spyOn(gameModeRepository, 'save').mockResolvedValueOnce(gameMode);
 
     const savedGameMode = await gameModeRepository.save(gameMode);
     expect(savedGameMode).toBeDefined();
     expect(savedGameMode).toBeInstanceOf(GameModeEntity);
+    spy.mockRestore();
   });
 
   it('should find a game mode by id', async () => {
     const gameMode = new GameModeEntity();
-    jest.spyOn(gameModeRepository, 'findOne').mockResolvedValueOnce(gameMode);
+    const spy = vi.spyOn(gameModeRepository, 'findOne').mockResolvedValueOnce(gameMode);
 
     const foundGameMode = await gameModeRepository.findOne({
       where: { id: 'test-id' },
     });
     expect(foundGameMode).toBeDefined();
     expect(foundGameMode).toBeInstanceOf(GameModeEntity);
+    spy.mockRestore();
   });
 });
