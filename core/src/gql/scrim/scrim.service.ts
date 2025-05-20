@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { RedLock, SprocketEvent } from '@sprocketbot/lib';
+import { SprocketEvent } from '@sprocketbot/lib';
 import { User } from '@sprocketbot/lib/types';
 import {
   ScrimState,
