@@ -6,19 +6,22 @@ import { SkillGroupEntity } from '../skill_group/skill_group.entity';
 
 @Entity('player', { schema: 'sprocket' })
 export class PlayerEntity extends BaseEntity {
-  @ManyToOne(() => UserEntity)
-  user: Promise<UserEntity>;
-  @Column()
-  userId: string;
+	@ManyToOne(() => UserEntity)
+	user: Promise<UserEntity>;
+	@Column()
+	userId: string;
 
-  @ManyToOne(() => GameEntity)
-  game: Promise<GameEntity>;
-  @Column()
-  gameId: string;
+	@ManyToOne(() => GameEntity)
+	game: Promise<GameEntity>;
+	@Column()
+	gameId: string;
 
-  @ManyToOne(() => SkillGroupEntity)
-  skillGroup: Promise<SkillGroupEntity>;
+	@ManyToOne(() => SkillGroupEntity)
+	skillGroup: Promise<SkillGroupEntity>;
 
-  @Column()
-  skillGroupId: string;
+	@Column()
+	skillGroupId: string;
+
+	@Column()
+	salary: string;
 }
