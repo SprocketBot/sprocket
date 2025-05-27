@@ -1,10 +1,16 @@
-import { Resolver, ResolveField } from '@nestjs/graphql';
+import { Resolver, ResolveField, Args, Query } from '@nestjs/graphql';
 import { FranchiseObject } from './franchise.object';
+import { FranchiseRepository } from '../../db/franchise/franchise.repository';
 
 @Resolver(() => FranchiseObject)
 export class FranchiseResolver {
-  @ResolveField()
-  async getFranchise(): Promise<FranchiseObject> {
-    throw new Error('Not yet implemented');
-  }
+	constructor(private readonly franchiseRepo: FranchiseRepository) {}
+	@Query()
+	async franchise(@Args('id') id: string, @Args('name') name?: string): Promise<FranchiseObject> {
+		const franchise = await this.franchiseRepo.findOneBy({
+			id,
+			name
+		});
+		return franchise;
+	}
 }

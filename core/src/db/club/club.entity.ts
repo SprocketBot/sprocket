@@ -1,5 +1,8 @@
 import { BaseEntity } from '../base.entity';
-import { Entity } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 
 @Entity('club', { schema: 'sprocket' })
-export class ClubEntity extends BaseEntity {}
+export class ClubEntity extends BaseEntity {
+	@Column()
+	franchiseId: string;
+}

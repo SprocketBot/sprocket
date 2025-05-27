@@ -35,7 +35,7 @@ redis:
 initialAdmins:
   - 'shuckle'
   - 'nigelthornbrake'
-
+  - '.hermod.'
 
 amqp:
   url: '${AMQP_URL}'
