@@ -1,4 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
+import { ClubObject } from '../club/club.object';
 
 @ObjectType('Franchise')
 export class FranchiseObject {
@@ -13,4 +14,7 @@ export class FranchiseObject {
 
 	@Field()
 	name: string;
+
+	// Field is implicit because of ResolveField
+	club: ClubObject;
 }

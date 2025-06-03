@@ -1,10 +1,12 @@
-import { Resolver, ResolveField, Args, Query } from '@nestjs/graphql';
+import { Resolver, ResolveField, Root } from '@nestjs/graphql';
 import { FranchiseObject } from './franchise.object';
 import { FranchiseRepository } from '../../db/franchise/franchise.repository';
 
 @Resolver(() => FranchiseObject)
 export class FranchiseResolver {
 	constructor(private readonly franchiseRepo: FranchiseRepository) {}
+	/*TODO
+	
 	@Query()
 	async franchise(@Args('id') id: string, @Args('name') name?: string): Promise<FranchiseObject> {
 		const franchise = await this.franchiseRepo.findOneBy({
@@ -12,5 +14,12 @@ export class FranchiseResolver {
 			name
 		});
 		return franchise;
+	}
+*/
+	@ResolveField()
+	async club(@Root() root: Partial<FranchiseObject>) {
+		if (root.club) return root.club;
+		const franchise = await this.franchiseRepo.findOneByOrFail({ id: root.id });
+		return await franchise.club;
 	}
 }
