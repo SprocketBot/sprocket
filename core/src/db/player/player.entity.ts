@@ -18,7 +18,6 @@ export class PlayerEntity extends BaseEntity {
 
 	@ManyToOne(() => SkillGroupEntity)
 	skillGroup: Promise<SkillGroupEntity>;
-
 	@Column()
 	skillGroupId: string;
 

@@ -10,57 +10,60 @@ import { GameModeEntitySeed } from './game_mode/game_mode.seed';
 import { PolicySeed } from './policy/policy.seed';
 import { SkillGroupEntitySeed } from './skill_group/skill_group.seed';
 import { authz } from 'src/authz.def';
+import { RoleEntitySeed } from './role/role.seed';
+import { SeatEntitySeed } from './seat/seat.seed';
+import { UserEntitySeed } from './user/user.seed';
 @Module({
-  imports: [
-    DbModule,
-    authz,
-    ...BaseSprocketModules.filter((mod) => mod !== RedisModule),
-  ],
-  providers: [
-    GameEntitySeed,
-    GameModeEntitySeed,
-    PolicySeed,
-    SkillGroupEntitySeed,
-  ],
+	imports: [DbModule, authz, ...BaseSprocketModules.filter((mod) => mod !== RedisModule)],
+	providers: [
+		GameEntitySeed,
+		GameModeEntitySeed,
+		PolicySeed,
+		SkillGroupEntitySeed,
+		RoleEntitySeed,
+		SeatEntitySeed,
+		UserEntitySeed
+		/*FranchiseEntitySeed,
+		FranchiseSeatAssignmentEntitySeed,
+		ClubEntitySeed,
+		ClubSeatAssignmentEntitySeed*/
+	]
 })
 class SeedModule {}
 
 async function execSeeds() {
-  process.env.PG_CACHE = 'false'; // never use the cache during seeding
-  const ctx = await NestFactory.createApplicationContext(SeedModule);
+	process.env.PG_CACHE = 'false'; // never use the cache during seeding
+	const ctx = await NestFactory.createApplicationContext(SeedModule);
 
-  const log = new Logger(execSeeds.name);
+	const log = new Logger(execSeeds.name);
 
-  const datasource: DataSource = ctx.get(getDataSourceToken());
+	const datasource: DataSource = ctx.get(getDataSourceToken());
 
-  const providers: Array<{ new (): any }> = Reflect.getMetadata(
-    'providers',
-    SeedModule,
-  );
+	const providers: Array<{ new (): any }> = Reflect.getMetadata('providers', SeedModule);
 
-  for (const provider of providers) {
-    const isSeeder = Reflect.getMetadata('seeder', provider);
-    if (!isSeeder) continue;
+	for (const provider of providers) {
+		const isSeeder = Reflect.getMetadata('seeder', provider);
+		if (!isSeeder) continue;
 
-    const seeder: Seeder = ctx.get(provider);
+		const seeder: Seeder = ctx.get(provider);
 
-    await datasource
-      .transaction(async (em) => {
-        log.log(`Beginning ${provider.name}`);
-        await seeder.seed(em);
-      })
-      .then(() => log.log(`Executed ${provider.name}`))
-      .catch(async (e) => {
-        log.error(`Failed to execute ${provider.name}`, e);
-        await datasource.destroy();
-        await ctx.close();
-        process.exit(1);
-      });
-  }
+		await datasource
+			.transaction(async (em) => {
+				log.log(`Beginning ${provider.name}`);
+				await seeder.seed(em);
+			})
+			.then(() => log.log(`Executed ${provider.name}`))
+			.catch(async (e) => {
+				log.error(`Failed to execute ${provider.name}`, e);
+				await datasource.destroy();
+				await ctx.close();
+				process.exit(1);
+			});
+	}
 
-  await ctx.close();
+	await ctx.close();
 
-  process.exit(0);
+	process.exit(0);
 }
 
 // @ts-expect-error Bun allows top level await

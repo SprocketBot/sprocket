@@ -1,7 +1,8 @@
 import { BaseEntity } from '../base.entity';
-import { Entity } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 
 @Entity('role', { schema: 'sprocket' })
 export class RoleEntity extends BaseEntity {
-  name: string;
+	@Column({ unique: true })
+	name: string;
 }

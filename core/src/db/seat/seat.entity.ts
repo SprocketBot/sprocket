@@ -4,12 +4,12 @@ import { Column, Entity, ManyToOne } from 'typeorm';
 
 @Entity('seat', { schema: 'sprocket' })
 export class SeatEntity extends BaseEntity {
-  @Column()
-  seat_name: string;
+	@Column({ unique: true })
+	name: string;
 
-  @Column()
-  description: string;
+	@Column()
+	description: string;
 
-  @ManyToOne(() => RoleEntity)
-  role: Promise<RoleEntity>;
+	@ManyToOne(() => RoleEntity)
+	role: RoleEntity;
 }
