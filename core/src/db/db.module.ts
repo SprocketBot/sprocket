@@ -28,6 +28,18 @@ import { RoleEntity } from './role/role.entity';
 import { RoleRepository } from './role/role.repository';
 import { SeatEntity } from './seat/seat.entity';
 import { SeatRepository } from './seat/seat.repository';
+import { ClubEntity } from './club/club.entity';
+import { ClubRepository } from './club/club.repository';
+import { FranchiseEntity } from './franchise/franchise.entity';
+import { FranchiseRepository } from './franchise/franchise.repository';
+import { ClubSeatAssignmentEntity } from './seat_assignment/club_seat_assignment/club_seat_assignment.entity';
+import { ClubSeatAssignmentRepository } from './seat_assignment/club_seat_assignment/club_seat_assignment.repository';
+import { FranchiseSeatAssignmentEntity } from './seat_assignment/franchise_seat_assignment/franchise_seat_assignment.entity';
+import { FranchiseSeatAssignmentRepository } from './seat_assignment/franchise_seat_assignment/franchise_seat_assignment.repository';
+import { TeamSeatAssignmentEntity } from './seat_assignment/team_seat_assignment/team_seat_assignment.entity';
+import { TeamSeatAssignmentRepository } from './seat_assignment/team_seat_assignment/team_seat_assignment.repository';
+import { TeamEntity } from './team/team.entity';
+import { TeamRepository } from './team/team.repository';
 
 @Module({
 	imports: [
@@ -40,12 +52,12 @@ import { SeatRepository } from './seat/seat.repository';
 			GameModeEntity,
 			RoleEntity,
 			SeatEntity,
-			/*FranchiseEntity,
+			FranchiseEntity,
 			FranchiseSeatAssignmentEntity,
 			ClubEntity,
 			ClubSeatAssignmentEntity,
 			TeamEntity,
-			TeamSeatAssignmentEntity,*/
+			TeamSeatAssignmentEntity,
 			MatchEntity,
 			ScrimEntity,
 			FixtureEntity,
@@ -64,12 +76,12 @@ import { SeatRepository } from './seat/seat.repository';
 		GameModeRepository,
 		RoleRepository,
 		SeatRepository,
-		/*FranchiseRepository,
+		FranchiseRepository,
 		FranchiseSeatAssignmentRepository,
 		ClubRepository,
 		ClubSeatAssignmentRepository,
 		TeamRepository,
-		TeamSeatAssignmentRepository,*/
+		TeamSeatAssignmentRepository,
 		MatchRepository,
 		ScrimRepository,
 		FixtureRepository,
@@ -87,12 +99,12 @@ import { SeatRepository } from './seat/seat.repository';
 		GameModeRepository,
 		RoleRepository,
 		SeatRepository,
-		/*FranchiseRepository,
+		FranchiseRepository,
 		FranchiseSeatAssignmentRepository,
 		ClubRepository,
 		ClubSeatAssignmentRepository,
 		TeamRepository,
-		TeamSeatAssignmentRepository,*/
+		TeamSeatAssignmentRepository,
 		MatchRepository,
 		ScrimRepository,
 		FixtureRepository,
