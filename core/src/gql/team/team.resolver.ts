@@ -10,8 +10,8 @@ export class TeamResolver {
 	@Query()
 	async team(
 		@Args('id') id: string,
-		@Args('clubId') clubId?: string,
-		@Args('skillGroupId') skillGroupId?: string
+		@Args('clubId') clubId: string,
+		@Args('skillGroupId') skillGroupId: string
 	): Promise<TeamObject> {
 		const team = await this.teamRepo.findOne({
 			where: {

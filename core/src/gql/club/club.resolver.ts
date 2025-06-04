@@ -12,8 +12,8 @@ export class ClubResolver {
 	@Query()
 	async club(
 		@Args('id') id: string,
-		@Args('franchiseId') franchiseId?: string,
-		@Args('gameId') gameId?: string
+		@Args('franchiseId') franchiseId: string,
+		@Args('gameId') gameId: string
 	): Promise<ClubObject> {
 		const club = await this.clubRepo.findOne({
 			where: {

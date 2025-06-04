@@ -7,7 +7,7 @@ export class FranchiseResolver {
 	constructor(private readonly franchiseRepo: FranchiseRepository) {}
 
 	@Query()
-	async franchise(@Args('id') id: string, @Args('name') name?: string): Promise<FranchiseObject> {
+	async franchise(@Args('id') id: string, @Args('name') name: string): Promise<FranchiseObject> {
 		const franchise = await this.franchiseRepo.findOne({
 			where: {
 				id: id,
