@@ -5,18 +5,15 @@ import { GameEntity } from '../game/game.entity';
 @Entity('game_mode', { schema: 'sprocket' })
 @Unique('game-name-unq', ['gameId', 'name'])
 export class GameModeEntity extends BaseEntity {
-  @ManyToOne(() => GameEntity, (ge) => ge.gameModes)
-  game?: Promise<GameEntity>;
+	@ManyToOne(() => GameEntity, (ge) => ge.gameModes)
+	game?: GameEntity;
 
-  @Column()
-  gameId: string;
+	@Column()
+	name: string;
 
-  @Column()
-  name: string;
+	@Column()
+	playerCount: number;
 
-  @Column()
-  playerCount: number;
-
-  @Column()
-  teamSize: number;
+	@Column()
+	teamSize: number;
 }

@@ -3,20 +3,17 @@ import { GameObject } from '../game/game.object';
 
 @ObjectType('GameMode')
 export class GameModeObject {
-  @Field()
-  id: string;
+	@Field()
+	id: string;
 
-  @Field()
-  name: string;
+	@Field()
+	name: string;
 
-  @Field()
-  playerCount: number;
+	@Field()
+	playerCount: number;
 
-  @Field()
-  teamSize: number;
+	@Field()
+	teamSize: number;
 
-  @Field()
-  gameId: string;
-  
-  game?: GameObject;
+	game?: GameObject;
 }

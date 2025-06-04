@@ -5,12 +5,12 @@ import { SkillGroupEntity } from '../skill_group/skill_group.entity';
 
 @Entity('game', { schema: 'sprocket' })
 export class GameEntity extends BaseEntity {
-  @OneToMany(() => GameModeEntity, (gme) => gme.game)
-  gameModes?: Promise<GameModeEntity[]>;
+	@OneToMany(() => GameModeEntity, (gme) => gme.game)
+	gameModes?: GameModeEntity[];
 
-  @OneToMany(() => SkillGroupEntity, (sge) => sge.game)
-  skillGroups?: Promise<SkillGroupEntity[]>;
+	@OneToMany(() => SkillGroupEntity, (sge) => sge.game)
+	skillGroups: SkillGroupEntity[];
 
-  @Column({ unique: true })
-  name: string;
+	@Column({ unique: true })
+	name: string;
 }

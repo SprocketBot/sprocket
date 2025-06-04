@@ -1,4 +1,4 @@
-import { ResolveField, Resolver, Root } from '@nestjs/graphql';
+import { Args, Query, ResolveField, Resolver, Root } from '@nestjs/graphql';
 import { ClubObject } from './club.object';
 import { ClubRepository } from '../../db/club/club.repository';
 import { GameObject } from '../game/game.object';
@@ -8,8 +8,7 @@ import { TeamObject } from '../team/team.object';
 @Resolver(() => ClubObject)
 export class ClubResolver {
 	constructor(private readonly clubRepo: ClubRepository) {}
-	/* TODO
-	
+
 	@Query()
 	async club(
 		@Args('id') id: string,
@@ -24,7 +23,7 @@ export class ClubResolver {
 			}
 		});
 		return club;
-	}*/
+	}
 
 	@ResolveField(() => FranchiseObject)
 	async franchise(@Root() root: Partial<ClubObject>) {
