@@ -16,14 +16,10 @@ export class ClubObject {
 
 	// Field is implicit because of ResolveField
 	franchise: FranchiseObject;
-	@Field()
-	franchiseId: string;
 
 	// Field is implicit because of ResolveField
 	game: GameObject;
-	@Field()
-	gameId: string;
 
 	// Field is implicit because of ResolveField
-	team: TeamObject[];
+	teams: TeamObject[];
 }

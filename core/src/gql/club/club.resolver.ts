@@ -8,7 +8,7 @@ import { TeamObject } from '../team/team.object';
 @Resolver(() => ClubObject)
 export class ClubResolver {
 	constructor(private readonly clubRepo: ClubRepository) {}
-	/*TODO
+	/* TODO
 	
 	@Query()
 	async club(
@@ -16,10 +16,12 @@ export class ClubResolver {
 		@Args('franchiseId') franchiseId?: string,
 		@Args('gameId') gameId?: string
 	): Promise<ClubObject> {
-		const club = await this.clubRepo.findOneBy({
-			id,
-			franchiseId,
-			gameId
+		const club = await this.clubRepo.findOne({
+			where: {
+				id: id,
+				game: { id: gameId },
+				franchise: { id: franchiseId }
+			}
 		});
 		return club;
 	}*/
@@ -39,9 +41,9 @@ export class ClubResolver {
 	}
 
 	@ResolveField(() => TeamObject)
-	async team(@Root() root: Partial<ClubObject>) {
-		if (root.team) return root.team;
+	async teams(@Root() root: Partial<ClubObject>) {
+		if (root.teams) return root.teams;
 		const club = await this.clubRepo.findOneByOrFail({ id: root.id });
-		return await club.team;
+		return await club.teams;
 	}
 }

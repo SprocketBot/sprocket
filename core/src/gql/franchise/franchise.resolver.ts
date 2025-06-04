@@ -18,8 +18,8 @@ export class FranchiseResolver {
 */
 	@ResolveField()
 	async club(@Root() root: Partial<FranchiseObject>) {
-		if (root.club) return root.club;
+		if (root.clubs) return root.clubs;
 		const franchise = await this.franchiseRepo.findOneByOrFail({ id: root.id });
-		return await franchise.club;
+		return await franchise.clubs;
 	}
 }

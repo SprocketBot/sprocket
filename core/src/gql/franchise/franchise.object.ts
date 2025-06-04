@@ -16,5 +16,5 @@ export class FranchiseObject {
 	name: string;
 
 	// Field is implicit because of ResolveField
-	club: ClubObject;
+	clubs: ClubObject[];
 }

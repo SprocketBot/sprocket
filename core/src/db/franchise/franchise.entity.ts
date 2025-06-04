@@ -8,5 +8,5 @@ export class FranchiseEntity extends BaseEntity {
 	name: string;
 
 	@OneToMany(() => ClubEntity, (c) => c.franchise)
-	club: Promise<ClubEntity>;
+	clubs: ClubEntity[];
 }

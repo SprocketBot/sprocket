@@ -13,11 +13,9 @@ export class TeamObject {
 	@Field()
 	updateAt: Date;
 
+	// Field is implicit because of ResolveField
 	club: ClubObject;
-	@Field()
-	clubId: string;
 
+	// Field is implicit because of ResolveField
 	skillGroup: SkillGroupObject;
-	@Field()
-	skillGroupId: string;
 }

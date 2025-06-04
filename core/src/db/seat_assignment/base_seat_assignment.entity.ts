@@ -1,4 +1,4 @@
-import { BaseEntity, OneToOne, PrimaryColumn } from 'typeorm';
+import { BaseEntity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
 import { SeatEntity } from '../seat/seat.entity';
 import { UserEntity } from '../user/user.entity';
 
@@ -6,8 +6,10 @@ export class BaseSeatAssignmentEntity extends BaseEntity {
 	@PrimaryColumn()
 	id: string;
 	@OneToOne(() => SeatEntity)
-	seat: Promise<SeatEntity>;
+	@JoinColumn()
+	seat: SeatEntity;
 
 	@OneToOne(() => UserEntity)
-	user: Promise<UserEntity>;
+	@JoinColumn()
+	user: UserEntity;
 }
