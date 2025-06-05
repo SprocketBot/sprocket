@@ -7,34 +7,32 @@ import { GameModeEntity } from './game_mode.entity';
 @Injectable()
 @Seed()
 export class GameModeEntitySeed implements Seeder {
-  async seed(em: EntityManager) {
-    const rocketLeague = await em.findOneByOrFail(GameEntity, {
-      name: 'Rocket League',
-    });
+	async seed(em: EntityManager) {
+		seedGameMode('Rocket League', 'Doubles', 4, 2);
+		seedGameMode('Rocket League', 'Standard', 6, 3);
 
-    const doubles = await em.findOneBy(GameModeEntity, {
-      name: 'Doubles',
-      gameId: rocketLeague.id,
-    });
-    if (!doubles) {
-      await em.insert(GameModeEntity, {
-        name: 'Doubles',
-        gameId: rocketLeague.id,
-        playerCount: 4,
-        teamSize: 2,
-      });
-    }
-    const standard = await em.findOneBy(GameModeEntity, {
-      name: 'Standard',
-      gameId: rocketLeague.id,
-    });
-    if (!standard) {
-      await em.insert(GameModeEntity, {
-        name: 'Standard',
-        gameId: rocketLeague.id,
-        playerCount: 6,
-        teamSize: 3,
-      });
-    }
-  }
+		async function seedGameMode(
+			gameName: string,
+			gameModeName: string,
+			playerCount: number,
+			teamSize: number
+		) {
+			const game = await em.findOneOrFail(GameEntity, {
+				where: { name: gameName }
+			});
+
+			const gameMode = await em.findOneBy(GameModeEntity, {
+				name: gameModeName,
+				game: { id: game.id }
+			});
+			if (!gameMode) {
+				await em.insert(GameModeEntity, {
+					name: gameModeName,
+					game: { id: game.id },
+					playerCount: playerCount,
+					teamSize: teamSize
+				});
+			}
+		}
+	}
 }
