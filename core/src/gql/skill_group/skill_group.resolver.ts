@@ -5,10 +5,9 @@ import { UseGuards } from '@nestjs/common';
 import { UsePermissions } from 'nest-authz';
 import { AuthPossession, AuthZGuard } from 'nest-authz';
 import { Resource, ResourceAction } from '@sprocketbot/lib/types';
-import { ClubObject } from '../club/club.object';
 import { GameObject } from '../game/game.object';
 
-@Resolver()
+@Resolver(() => SkillGroupObject)
 export class SkillGroupResolver {
 	constructor(private readonly skillGroupRepo: SkillGroupRepository) {}
 
@@ -24,7 +23,7 @@ export class SkillGroupResolver {
 	}
 
 	@ResolveField(() => GameObject)
-	async game(@Root() root: Partial<ClubObject>) {
+	async game(@Root() root: Partial<SkillGroupObject>) {
 		if (root.game) return root.game;
 		const skillGroup = await this.skillGroupRepo.findOneByOrFail({ id: root.id });
 		return await skillGroup.game;
