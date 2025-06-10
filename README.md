@@ -43,6 +43,7 @@ You may **want**
    This is used for Microsoft / Xbox account linking
 3. Other platform OAuth applications as they become available
 4. A database client such as [datagrip](https://www.jetbrains.com/datagrip/) or [dbeaver](https://dbeaver.io/download/)
+   - Make sure to not have a version of Postgres installed, as it could cause conflicting issues when you attempt to access the database using your client
 
 ### Setup
 
