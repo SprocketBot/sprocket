@@ -1,16 +1,8 @@
 import { Field, ObjectType } from '@nestjs/graphql';
+import { BaseObject } from '../base.object';
 
 @ObjectType('Role')
-export class RoleObject {
-  @Field()
-  id: string;
-
-  @Field()
-  createdAt: Date;
-
-  @Field()
-  updateAt: Date;
-
-  @Field()
-  name: string;
+export class RoleObject extends BaseObject {
+	@Field()
+	name: string;
 }

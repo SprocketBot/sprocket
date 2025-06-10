@@ -1,13 +1,16 @@
 import { Field, ObjectType } from '@nestjs/graphql';
+import { SkillGroupObject } from '../skill_group/skill_group.object';
+import { ClubObject } from '../club/club.object';
+import { BaseObject } from '../base.object';
 
 @ObjectType('Team')
-export class TeamObject {
-  @Field()
-  id: string;
+export class TeamObject extends BaseObject {
+	// Field is implicit because of ResolveField
+	club: ClubObject;
+	@Field()
+	clubId: string;
 
-  @Field()
-  createdAt: Date;
-
-  @Field()
-  updateAt: Date;
+	skillGroup: SkillGroupObject;
+	@Field()
+	skillGroupId: string;
 }
