@@ -1,27 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { Seed, type Seeder } from '../../seeder.decorator';
 import { EntityManager } from 'typeorm';
-import { FranchiseEntity } from '../../franchise/franchise.entity';
-import { FranchiseSeatAssignmentEntity } from './franchise_seat_assignment.entity';
-import { SeatEntity } from '../../seat/seat.entity';
-import { UserEntity } from '../../user/user.entity';
+import {
+	FranchiseEntity,
+	FranchiseSeatAssignmentEntity,
+	SeatEntity,
+	UserEntity
+} from '../../internal';
 
 @Injectable()
 @Seed()
 export class FranchiseSeatAssignmentEntitySeed implements Seeder {
 	async seed(em: EntityManager) {
-		seedFranchiseSeatAssignment('Express', 'Franchise Manager', '.hermod.');
-		seedFranchiseSeatAssignment('Express', 'Public Relations 1', 'ilikepie2151');
-		seedFranchiseSeatAssignment('Express', 'Public Relations 2', 'mattdamon');
+		const expressFranchise = await em.findOneByOrFail(FranchiseEntity, {
+			name: 'Express'
+		});
+		await seedFranchiseSeatAssignment(expressFranchise, 'Franchise Manager', '.hermod.');
+		await seedFranchiseSeatAssignment(expressFranchise, 'Public Relations 1', 'ilikepie2151');
+		await seedFranchiseSeatAssignment(expressFranchise, 'Public Relations 2', 'mattdamon');
 
 		async function seedFranchiseSeatAssignment(
-			franchiseName: string,
+			franchise: FranchiseEntity,
 			seatName: string,
 			userName: string
 		) {
-			const franchise = await em.findOneOrFail(FranchiseEntity, {
-				where: { name: franchiseName }
-			});
 			const franchiseSeat = await em.findOneOrFail(SeatEntity, {
 				where: { name: seatName }
 			});
@@ -36,7 +38,11 @@ export class FranchiseSeatAssignmentEntitySeed implements Seeder {
 				}
 			});
 			if (!franchiseSeatAssignment) {
-				await em.insert(FranchiseSeatAssignmentEntity, franchiseSeatAssignment);
+				await em.insert(FranchiseSeatAssignmentEntity, {
+					franchise: franchise,
+					seat: franchiseSeat,
+					user: franchiseUser
+				});
 			}
 		}
 	}

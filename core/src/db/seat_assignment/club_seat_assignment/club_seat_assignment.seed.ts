@@ -1,52 +1,49 @@
 import { Injectable } from '@nestjs/common';
 import { Seed, type Seeder } from '../../seeder.decorator';
 import { EntityManager } from 'typeorm';
-import { ClubSeatAssignmentEntity } from './club_seat_assignment.entity';
-import { ClubEntity } from '../../club/club.entity';
-import { SeatEntity } from '../../seat/seat.entity';
-import { UserEntity } from '../../user/user.entity';
+import { ClubEntity, ClubSeatAssignmentEntity, SeatEntity, UserEntity } from '../../internal';
 
 @Injectable()
 @Seed()
 export class ClubSeatAssignmentEntitySeed implements Seeder {
 	async seed(em: EntityManager) {
-		seedClubSeatAssignment('Rocket League', 'Express', 'General Manager', 'mattdamon');
-		seedClubSeatAssignment('Rocket League', 'Express', 'Assistant General Manager 1', 'c0p3x');
-		seedClubSeatAssignment(
-			'Rocket League',
-			'Express',
+		const expressRocketLeagueClub = await em.findOneByOrFail(ClubEntity, {
+			franchise: { name: 'Express' },
+			game: { name: 'Rocket League' }
+		});
+
+		await seedClubSeatAssignment(expressRocketLeagueClub, 'General Manager', 'mattdamon');
+		await seedClubSeatAssignment(expressRocketLeagueClub, 'Assistant General Manager 1', 'c0p3x');
+		await seedClubSeatAssignment(
+			expressRocketLeagueClub,
 			'Assistant General Manager 2',
 			'gogurtyogurt'
 		);
-		seedClubSeatAssignment('Rocket League', 'Express', 'Captain 1', 'massimo.rl');
-		seedClubSeatAssignment('Rocket League', 'Express', 'Captain 2', 'fatality_fc');
-		seedClubSeatAssignment('Rocket League', 'Express', 'Captain 3', 'hobohoppy');
-		seedClubSeatAssignment('Rocket League', 'Express', 'Captain 4', 'ouiiidsmoker');
+		await seedClubSeatAssignment(expressRocketLeagueClub, 'Captain 1', 'massimo.rl');
+		await seedClubSeatAssignment(expressRocketLeagueClub, 'Captain 2', 'fatality_fc');
+		await seedClubSeatAssignment(expressRocketLeagueClub, 'Captain 3', 'hobohoppy');
+		await seedClubSeatAssignment(expressRocketLeagueClub, 'Captain 4', 'ouiiidsmoker');
 
-		async function seedClubSeatAssignment(
-			gameName: string,
-			franchiseName: string,
-			seatName: string,
-			userName: string
-		) {
-			const club = await em.findOneOrFail(ClubEntity, {
-				where: { franchise: { name: franchiseName }, game: { name: gameName } }
+		async function seedClubSeatAssignment(club: ClubEntity, seatName: string, userName: string) {
+			const clubUser = await em.findOneOrFail(UserEntity, {
+				where: { username: userName }
 			});
 			const clubSeat = await em.findOneOrFail(SeatEntity, {
 				where: { name: seatName }
 			});
-			const clubUser = await em.findOneOrFail(UserEntity, {
-				where: { username: userName }
-			});
 			const clubSeatAssignment = await em.findOne(ClubSeatAssignmentEntity, {
 				where: {
 					club: { id: club.id },
-					seat: { id: clubSeat.id },
-					user: { id: clubUser.id }
+					seat: { name: clubSeat.name },
+					user: { username: clubUser.username }
 				}
 			});
 			if (!clubSeatAssignment) {
-				await em.insert(ClubSeatAssignmentEntity, clubSeatAssignment);
+				await em.insert(ClubSeatAssignmentEntity, {
+					club: club,
+					seat: clubSeat,
+					user: clubUser
+				});
 			}
 		}
 	}

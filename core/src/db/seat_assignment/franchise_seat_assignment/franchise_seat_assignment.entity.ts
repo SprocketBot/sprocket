@@ -1,10 +1,9 @@
-import { FranchiseEntity } from '../../franchise/franchise.entity';
-import { Entity, JoinColumn, OneToOne } from 'typeorm';
-import { BaseSeatAssignmentEntity } from './../base_seat_assignment.entity';
+import { Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { BaseSeatAssignmentEntity, FranchiseEntity } from '../../internal';
 
 @Entity('franchise_seat_assignment', { schema: 'sprocket' })
 export class FranchiseSeatAssignmentEntity extends BaseSeatAssignmentEntity {
-	@OneToOne(() => FranchiseEntity)
+	@ManyToOne(() => FranchiseEntity)
 	@JoinColumn()
 	franchise: FranchiseEntity;
 }

@@ -1,124 +1,49 @@
 import { Injectable } from '@nestjs/common';
 import { Seed, type Seeder } from '../seeder.decorator';
 import { EntityManager } from 'typeorm';
-import { SeatEntity } from './seat.entity';
-import { RoleEntity } from '../role/role.entity';
+import { RoleEntity, SeatEntity } from '../internal';
 
 @Injectable()
 @Seed()
 export class SeatEntitySeed implements Seeder {
 	async seed(em: EntityManager) {
-		const franchiseManagerRole = await em.findOneByOrFail(RoleEntity, {
-			name: 'Franchise Manager'
-		});
-		if (franchiseManagerRole) {
+		await seedSeat('Franchise Manager', 'The owner of the franchise', 'Franchise Manager');
+		await seedSeat('General Manager', 'The manager of the club', 'General Manager');
+		await seedSeat(
+			'Assistant General Manager 1',
+			'An assistant manager of the club',
+			'Assistant General Manager'
+		);
+		await seedSeat(
+			'Assistant General Manager 2',
+			'An assistant manager of the club',
+			'Assistant General Manager'
+		);
+		await seedSeat(
+			'Public Relations 1',
+			'A public relations for the franchise',
+			'Public Relations'
+		);
+		await seedSeat(
+			'Public Relations 2',
+			'A public relations for the franchise',
+			'Public Relations'
+		);
+		await seedSeat('Captain 1', 'A captain of the club', 'Captain');
+		await seedSeat('Captain 2', 'A captain of the club', 'Captain');
+		await seedSeat('Captain 3', 'A captain of the club', 'Captain');
+		await seedSeat('Captain 4', 'A captain of the club', 'Captain');
+
+		async function seedSeat(seatName: string, description: string, roleName: string) {
+			const role = await em.findOneByOrFail(RoleEntity, {
+				name: roleName
+			});
 			await em.upsert(
 				SeatEntity,
 				{
-					name: 'Franchise Manager',
-					description: 'The owner of the franchise',
-					role: franchiseManagerRole
-				},
-				{ conflictPaths: ['name'] }
-			);
-		}
-		const generalManagerRole = await em.findOneByOrFail(RoleEntity, {
-			name: 'General Manager'
-		});
-		if (generalManagerRole) {
-			await em.upsert(
-				SeatEntity,
-				{
-					name: 'General Manager',
-					description: 'The manager of the game for the club',
-					role: generalManagerRole
-				},
-				{ conflictPaths: ['name'] }
-			);
-		}
-		const assistantGeneralManagerRole = await em.findOneByOrFail(RoleEntity, {
-			name: 'Assistant General Manager'
-		});
-		if (assistantGeneralManagerRole) {
-			await em.upsert(
-				SeatEntity,
-				{
-					name: 'Assistant General Manager 1',
-					description: 'The assistant manager of the game for the club',
-					role: assistantGeneralManagerRole
-				},
-				{ conflictPaths: ['name'] }
-			);
-			await em.upsert(
-				SeatEntity,
-				{
-					name: 'Assistant General Manager 2',
-					description: 'The assistant manager of the game for the club',
-					role: assistantGeneralManagerRole
-				},
-				{ conflictPaths: ['name'] }
-			);
-		}
-		const publicRelationsRole = await em.findOneByOrFail(RoleEntity, {
-			name: 'Public Relations'
-		});
-		if (publicRelationsRole) {
-			await em.upsert(
-				SeatEntity,
-				{
-					name: 'Public Relations 1',
-					description: 'In charge of PR for the franchise',
-					role: publicRelationsRole
-				},
-				{ conflictPaths: ['name'] }
-			);
-			await em.upsert(
-				SeatEntity,
-				{
-					name: 'Public Relations 2',
-					description: 'In charge of PR for the franchise',
-					role: publicRelationsRole
-				},
-				{ conflictPaths: ['name'] }
-			);
-		}
-		const captainRole = await em.findOneByOrFail(RoleEntity, {
-			name: 'Captain'
-		});
-		if (captainRole) {
-			await em.upsert(
-				SeatEntity,
-				{
-					name: 'Captain 1',
-					description: 'In charge of scheduling matches',
-					role: captainRole
-				},
-				{ conflictPaths: ['name'] }
-			);
-			await em.upsert(
-				SeatEntity,
-				{
-					name: 'Captain 2',
-					description: 'In charge of PR for the franchise',
-					role: captainRole
-				},
-				{ conflictPaths: ['name'] }
-			);
-			await em.upsert(
-				SeatEntity,
-				{
-					name: 'Captain 3',
-					description: 'In charge of PR for the franchise',
-					role: captainRole
-				},
-				{ conflictPaths: ['name'] }
-			);
-			await em.upsert(
-				SeatEntity,
-				{
-					name: 'Captain 4',
-					description: 'In charge of PR for the franchise',
-					role: captainRole
+					name: seatName,
+					description: description,
+					role: role
 				},
 				{ conflictPaths: ['name'] }
 			);

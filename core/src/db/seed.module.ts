@@ -1,32 +1,40 @@
 import { Logger, Module } from '@nestjs/common';
-import { GameEntitySeed } from './game/game.seed';
+import {
+	ClubEntitySeed,
+	ClubSeatAssignmentEntitySeed,
+	FranchiseEntitySeed,
+	FranchiseSeatAssignmentEntitySeed,
+	GameEntitySeed,
+	GameModeEntitySeed,
+	PolicySeed,
+	RoleEntitySeed,
+	SeatEntitySeed,
+	SkillGroupEntitySeed,
+	TeamEntitySeed,
+	UserEntitySeed
+} from './internal';
 import { NestFactory } from '@nestjs/core';
 import { DbModule } from './db.module';
 import { BaseSprocketModules, RedisModule } from '@sprocketbot/lib';
 import { getDataSourceToken } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { type Seeder } from './seeder.decorator';
-import { GameModeEntitySeed } from './game_mode/game_mode.seed';
-import { PolicySeed } from './policy/policy.seed';
-import { SkillGroupEntitySeed } from './skill_group/skill_group.seed';
 import { authz } from 'src/authz.def';
-import { RoleEntitySeed } from './role/role.seed';
-import { SeatEntitySeed } from './seat/seat.seed';
-import { UserEntitySeed } from './user/user.seed';
 @Module({
 	imports: [DbModule, authz, ...BaseSprocketModules.filter((mod) => mod !== RedisModule)],
 	providers: [
-		GameEntitySeed,
-		GameModeEntitySeed,
-		PolicySeed,
-		SkillGroupEntitySeed,
+		UserEntitySeed,
 		RoleEntitySeed,
+		PolicySeed,
 		SeatEntitySeed,
-		UserEntitySeed
-		/*FranchiseEntitySeed,
-		FranchiseSeatAssignmentEntitySeed,
+		GameEntitySeed,
+		SkillGroupEntitySeed,
+		GameModeEntitySeed,
+		FranchiseEntitySeed,
 		ClubEntitySeed,
-		ClubSeatAssignmentEntitySeed*/
+		TeamEntitySeed,
+		FranchiseSeatAssignmentEntitySeed,
+		ClubSeatAssignmentEntitySeed
 	]
 })
 class SeedModule {}
@@ -46,15 +54,22 @@ async function execSeeds() {
 		if (!isSeeder) continue;
 
 		const seeder: Seeder = ctx.get(provider);
+		const masterQueryRunner = datasource.createQueryRunner('master');
 
-		await datasource
+		await masterQueryRunner.connect();
+
+		await masterQueryRunner.manager
 			.transaction(async (em) => {
 				log.log(`Beginning ${provider.name}`);
 				await seeder.seed(em);
 			})
-			.then(() => log.log(`Executed ${provider.name}`))
+			.then(() => {
+				log.log(`Executed ${provider.name}`);
+				masterQueryRunner.release();
+			})
 			.catch(async (e) => {
 				log.error(`Failed to execute ${provider.name}`, e);
+				await masterQueryRunner.release();
 				await datasource.destroy();
 				await ctx.close();
 				process.exit(1);

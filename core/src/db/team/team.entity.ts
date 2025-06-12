@@ -1,7 +1,5 @@
-import { BaseEntity } from '../base.entity';
 import { Entity, ManyToOne } from 'typeorm';
-import { ClubEntity } from '../club/club.entity';
-import { SkillGroupEntity } from '../skill_group/skill_group.entity';
+import { BaseEntity, ClubEntity, SkillGroupEntity } from '../internal';
 
 @Entity('team', { schema: 'sprocket' })
 export class TeamEntity extends BaseEntity {

@@ -1,7 +1,5 @@
-import { BaseEntity } from '../base.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
-import { GameModeEntity } from '../game_mode/game_mode.entity';
-import { SkillGroupEntity } from '../skill_group/skill_group.entity';
+import { BaseEntity, GameModeEntity, SkillGroupEntity } from '../internal';
 
 @Entity('game', { schema: 'sprocket' })
 export class GameEntity extends BaseEntity {

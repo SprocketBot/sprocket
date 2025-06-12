@@ -1,10 +1,9 @@
-import { Entity, JoinColumn, OneToOne } from 'typeorm';
-import { ClubEntity } from '../../club/club.entity';
-import { BaseSeatAssignmentEntity } from '../base_seat_assignment.entity';
+import { Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { BaseSeatAssignmentEntity, ClubEntity } from '../../internal';
 
 @Entity('club_seat_assignment', { schema: 'sprocket' })
 export class ClubSeatAssignmentEntity extends BaseSeatAssignmentEntity {
-	@OneToOne(() => ClubEntity)
+	@ManyToOne(() => ClubEntity)
 	@JoinColumn()
 	club: ClubEntity;
 }

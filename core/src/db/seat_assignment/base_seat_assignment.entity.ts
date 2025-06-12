@@ -1,15 +1,12 @@
-import { BaseEntity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
-import { SeatEntity } from '../seat/seat.entity';
-import { UserEntity } from '../user/user.entity';
+import { JoinColumn, ManyToOne } from 'typeorm';
+import { BaseEntity, SeatEntity, UserEntity } from '../internal';
 
 export class BaseSeatAssignmentEntity extends BaseEntity {
-	@PrimaryColumn()
-	id: string;
-	@OneToOne(() => SeatEntity)
+	@ManyToOne(() => SeatEntity)
 	@JoinColumn()
 	seat: SeatEntity;
 
-	@OneToOne(() => UserEntity)
+	@ManyToOne(() => UserEntity)
 	@JoinColumn()
 	user: UserEntity;
 }
