@@ -1,5 +1,14 @@
-import { BaseEntity } from '../base.entity';
-import { Entity } from 'typeorm';
+import { Entity, ManyToOne, OneToMany } from 'typeorm';
+import { BaseEntity, GameEntity, FranchiseEntity, TeamEntity } from '../internal';
 
 @Entity('club', { schema: 'sprocket' })
-export class ClubEntity extends BaseEntity {}
+export class ClubEntity extends BaseEntity {
+	@ManyToOne(() => FranchiseEntity)
+	franchise: FranchiseEntity;
+
+	@ManyToOne(() => GameEntity)
+	game: GameEntity;
+
+	@OneToMany(() => TeamEntity, (t) => t.club)
+	teams: TeamEntity[];
+}

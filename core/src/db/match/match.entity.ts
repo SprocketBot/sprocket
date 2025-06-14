@@ -1,14 +1,14 @@
 import { Check, Entity } from 'typeorm';
-import { BaseEntity } from '../base.entity';
+import { BaseEntity } from '../internal';
 
 abstract class BaseMatchEntity extends BaseEntity {}
 
 @Entity('match', { schema: 'sprocket' })
 @Check('(false) no inherit')
 export class MatchEntity extends BaseMatchEntity {
-  // Fields should not go here, but instead into BaseMatchEntity
-  // This class exists so that a check can be applied to _only_
-  // the match table, while still being created for postgres inheritance
+	// Fields should not go here, but instead into BaseMatchEntity
+	// This class exists so that a check can be applied to _only_
+	// the match table, while still being created for postgres inheritance
 }
 
 /*

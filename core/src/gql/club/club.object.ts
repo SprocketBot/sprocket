@@ -1,13 +1,25 @@
 import { Field, ObjectType } from '@nestjs/graphql';
+import { TeamObject } from '../team/team.object';
+import { FranchiseObject } from '../franchise/franchise.object';
+import { GameObject } from '../game/game.object';
 
 @ObjectType('Club')
 export class ClubObject {
-  @Field()
-  id: string;
+	@Field()
+	id: string;
 
-  @Field()
-  createdAt: Date;
+	@Field()
+	createdAt: Date;
 
-  @Field()
-  updateAt: Date;
+	@Field()
+	updateAt: Date;
+
+	// Field is implicit because of ResolveField
+	franchise: FranchiseObject;
+
+	// Field is implicit because of ResolveField
+	game: GameObject;
+
+	// Field is implicit because of ResolveField
+	teams: TeamObject[];
 }

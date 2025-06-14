@@ -1,16 +1,13 @@
-import { BaseEntity } from '../base.entity';
 import { Column, Entity, ManyToOne, Unique } from 'typeorm';
-import { GameEntity } from '../game/game.entity';
+import { BaseEntity, GameEntity } from '../internal';
 
 @Entity('skill_group', { schema: 'sprocket' })
-@Unique(['name', 'code', 'gameId'])
+@Unique(['name', 'code', 'game'])
 export class SkillGroupEntity extends BaseEntity {
-  @Column()
-  name: string;
-  @Column()
-  code: string;
-  @ManyToOne(() => GameEntity, (ge) => ge.skillGroups)
-  game?: Promise<GameEntity>;
-  @Column()
-  gameId: string;
+	@Column()
+	name: string;
+	@Column()
+	code: string;
+	@ManyToOne(() => GameEntity, (ge) => ge.skillGroups)
+	game: GameEntity;
 }

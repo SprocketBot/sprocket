@@ -1,4 +1,4 @@
-import { BaseEntity } from '../base.entity';
+import { BaseEntity } from '../internal';
 import { Entity } from 'typeorm';
 
 @Entity('schedule_group', { schema: 'sprocket' })
