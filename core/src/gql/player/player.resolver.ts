@@ -28,7 +28,7 @@ export class PlayerResolver {
 
 		if (data.destinationSkillGroupId) {
 			// TODO: Elo Side Effects
-			player.skillGroupId = data.destinationSkillGroupId;
+			player.skillGroup.id = data.destinationSkillGroupId;
 		}
 		if (data.destinationSalary) {
 			// TODO: Elo Side Effects
