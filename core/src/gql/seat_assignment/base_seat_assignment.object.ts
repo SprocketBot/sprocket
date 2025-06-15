@@ -1,13 +1,13 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { ObjectType } from '@nestjs/graphql';
+import { BaseObject } from '../base.object';
+import { UserObject } from '../user/user.object';
+import { SeatObject } from '../seat/seat.object';
 
 @ObjectType({ isAbstract: true })
-export abstract class BaseSeatAssignmentObject {
-  @Field()
-  id: string;
+export abstract class BaseSeatAssignmentObject extends BaseObject {
+	// Field is implicit because of ResolveField
+	seat: SeatObject;
 
-  @Field()
-  createdAt: Date;
-
-  @Field()
-  updateAt: Date;
+	// Field is implicit because of ResolveField
+	user: UserObject;
 }

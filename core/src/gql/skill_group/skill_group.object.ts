@@ -1,11 +1,9 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { GameObject } from '../game/game.object';
+import { BaseObject } from '../base.object';
 
 @ObjectType('SkillGroup')
-export class SkillGroupObject {
-	@Field()
-	id: string;
-
+export class SkillGroupObject extends BaseObject {
 	@Field()
 	name: string;
 	@Field()
