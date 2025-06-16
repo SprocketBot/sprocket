@@ -1,0 +1,16 @@
+fragment Fragment_SeatAssignment on SeatAssignment {
+	id
+	seat {
+		id
+		name
+		role {
+			id
+			name
+		}
+	}
+
+	user {
+		id
+		name
+	}
+}

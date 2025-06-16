@@ -1,0 +1,7 @@
+query FranchiseSeatAssignmentSearch(name: String! = "") {
+	...Fragment_SeatAssignment
+	franchise {
+		id
+		name
+	}
+}
