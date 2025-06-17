@@ -6,6 +6,7 @@ import {
 	FranchiseSeatAssignmentEntitySeed,
 	GameEntitySeed,
 	GameModeEntitySeed,
+	PlayerEntitySeed,
 	PolicySeed,
 	RoleEntitySeed,
 	SeatEntitySeed,
@@ -34,7 +35,8 @@ import { authz } from 'src/authz.def';
 		ClubEntitySeed,
 		TeamEntitySeed,
 		FranchiseSeatAssignmentEntitySeed,
-		ClubSeatAssignmentEntitySeed
+		ClubSeatAssignmentEntitySeed,
+		PlayerEntitySeed
 	]
 })
 class SeedModule {}

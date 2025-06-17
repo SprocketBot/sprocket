@@ -25,6 +25,7 @@ export * from './team/team.entity';
 export * from './team/team.seed';
 export * from './match/match.entity';
 export * from './player/player.entity';
+export * from './player/player.seed';
 export * from './player_stat/player_stat.entity';
 export * from './policy/policy.seed';
 export * from './round/round.entity';
