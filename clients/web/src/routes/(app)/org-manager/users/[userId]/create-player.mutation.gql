@@ -14,5 +14,6 @@ mutation CreatePlayer($data: CreatePlayerInput!, $userId: ID!) {
 			id
 			username
 		}
+		salary
 	}
 }
