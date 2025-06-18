@@ -1,23 +1,15 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { RoleObject } from '../role/role.object';
+import { BaseObject } from '../base.object';
 
 @ObjectType('Seat')
-export class SeatObject {
-  @Field()
-  id: string;
+export class SeatObject extends BaseObject {
+	@Field()
+	name: string;
 
-  @Field()
-  createdAt: Date;
+	@Field()
+	description: string;
 
-  @Field()
-  updateAt: Date;
-
-  @Field()
-  seat_name: string;
-
-  @Field()
-  description: string;
-
-  @Field(() => RoleObject)
-  role: RoleObject;
+	// Field is implicit because of ResolveField
+	role: RoleObject;
 }

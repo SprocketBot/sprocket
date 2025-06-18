@@ -2,12 +2,10 @@ import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { UserObject } from '../user/user.object';
 import { GameObject } from '../game/game.object';
 import { SkillGroupObject } from '../skill_group/skill_group.object';
+import { BaseObject } from '../base.object';
 
 @ObjectType('Player')
-export class PlayerObject {
-	@Field()
-	id: string;
-
+export class PlayerObject extends BaseObject {
 	// Field is implicit because of ResolveField
 	user: UserObject;
 

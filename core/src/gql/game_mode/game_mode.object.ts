@@ -1,11 +1,9 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { GameObject } from '../game/game.object';
+import { BaseObject } from '../base.object';
 
 @ObjectType('GameMode')
-export class GameModeObject {
-	@Field()
-	id: string;
-
+export class GameModeObject extends BaseObject {
 	@Field()
 	name: string;
 

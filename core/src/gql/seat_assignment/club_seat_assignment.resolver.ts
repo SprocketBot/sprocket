@@ -1,23 +1,14 @@
-import { Resolver, ResolveField } from '@nestjs/graphql';
+import { Resolver, ResolveField, Root } from '@nestjs/graphql';
 import { ClubSeatAssignmentObject } from './club_seat_assignment.object';
-import { SeatObject } from '../seat/seat.object';
-import { PlayerObject } from '../player/player.object';
 import { ClubObject } from '../club/club.object';
+import { BaseSeatAssignmentResolver } from './base_seat_assignment.resolver';
 
 @Resolver(() => ClubSeatAssignmentObject)
-export class ClubSeatAssignmentResolver {
-  @ResolveField(() => SeatObject)
-  async seat(): Promise<SeatObject> {
-    throw new Error('Not yet implemented');
-  }
-
-  @ResolveField(() => PlayerObject)
-  async player(): Promise<PlayerObject> {
-    throw new Error('Not yet implemented');
-  }
-
-  @ResolveField(() => ClubObject)
-  async club(): Promise<ClubObject> {
-    throw new Error('Not yet implemented');
-  }
+export class ClubSeatAssignmentResolver extends BaseSeatAssignmentResolver {
+	@ResolveField(() => ClubObject)
+	async club(@Root() root: Partial<ClubSeatAssignmentObject>) {
+		if (root.seat) return root.seat;
+		const seatAssignment = await this.seatAssignmentRepo.findOneByOrFail({ id: root.id });
+		return await seatAssignment.seat;
+	}
 }
