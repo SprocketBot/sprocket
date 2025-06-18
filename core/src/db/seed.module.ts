@@ -78,6 +78,7 @@ async function execSeeds() {
 			});
 	}
 
+	await datasource.destroy();
 	await ctx.close();
 
 	process.exit(0);
