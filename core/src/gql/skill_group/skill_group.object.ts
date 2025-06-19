@@ -5,9 +5,6 @@ import { BaseObject } from '../base.object';
 @ObjectType('SkillGroup')
 export class SkillGroupObject extends BaseObject {
 	@Field()
-	id: string;
-
-	@Field()
 	name: string;
 	@Field()
 	code: string;
