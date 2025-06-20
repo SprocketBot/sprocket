@@ -15,6 +15,6 @@ export class GameModeObject extends BaseObject {
 
 	@Field()
 	gameId: string;
-
+  
 	game?: GameObject;
 }

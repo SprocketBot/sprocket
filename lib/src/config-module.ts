@@ -27,7 +27,11 @@ export const SprocketConfigModule = ConfigModule.forRoot({
   ],
 });
 
-export const BaseSprocketModules: (DynamicModule | Type<any>)[] = [
+export const BaseSprocketModules: (
+  | Promise<DynamicModule>
+  | DynamicModule
+  | Type<any>
+)[] = [
   SprocketConfigModule,
   LoggerModule.forRoot({
     pinoHttp: {
