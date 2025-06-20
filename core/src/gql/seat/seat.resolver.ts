@@ -1,11 +1,16 @@
-import { Resolver, ResolveField } from '@nestjs/graphql';
+import { Resolver, ResolveField, Root } from '@nestjs/graphql';
 import { SeatObject } from './seat.object';
 import { RoleObject } from '../role/role.object';
+import { SeatRepository } from '../../db/seat/seat.repository';
 
 @Resolver(() => SeatObject)
 export class SeatResolver {
-  @ResolveField(() => RoleObject)
-  async role(): Promise<RoleObject | undefined> {
-    throw new Error('Not yet implemented');
-  }
+	constructor(private readonly seatRepo: SeatRepository) {}
+
+	@ResolveField(() => RoleObject)
+	async role(@Root() root: Partial<SeatObject>) {
+		if (root.role) return root.role;
+		const seat = await this.seatRepo.findOneByOrFail({ id: root.id });
+		return await seat.role;
+	}
 }

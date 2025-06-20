@@ -1,16 +1,12 @@
 import { Field, ObjectType } from '@nestjs/graphql';
+import { ClubObject } from '../club/club.object';
+import { BaseObject } from '../base.object';
 
 @ObjectType('Franchise')
-export class FranchiseObject {
-  @Field()
-  id: string;
+export class FranchiseObject extends BaseObject {
+	@Field()
+	name: string;
 
-  @Field()
-  createdAt: Date;
-
-  @Field()
-  updateAt: Date;
-
-  @Field()
-  franchise_name: string;
+	@Field() //to be implemented in resolver
+	clubs: ClubObject[];
 }
