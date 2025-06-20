@@ -6,16 +6,16 @@ import { BaseObject } from '../base.object';
 
 @ObjectType('Club')
 export class ClubObject extends BaseObject {
-	// Field is implicit because of ResolveField
+	@Field() //to be implemented in resolver
 	franchise: FranchiseObject;
 	@Field()
 	franchiseId: string;
 
-	// Field is implicit because of ResolveField
+	@Field() //to be implemented in resolver
 	game: GameObject;
 	@Field()
 	gameId: string;
 
-	// Field is implicit because of ResolveField
-	team: TeamObject[];
+	@Field() //to be implemented in resolver
+	teams: TeamObject[];
 }

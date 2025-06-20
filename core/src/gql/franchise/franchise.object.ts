@@ -7,6 +7,6 @@ export class FranchiseObject extends BaseObject {
 	@Field()
 	name: string;
 
-	// Field is implicit because of ResolveField
-	club: ClubObject;
+	@Field() //to be implemented in resolver
+	clubs: ClubObject[];
 }
