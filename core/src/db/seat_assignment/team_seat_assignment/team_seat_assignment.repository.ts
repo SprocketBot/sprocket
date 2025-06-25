@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { ScheduleGroupEntity } from '../internal';
+import { TeamSeatAssignmentEntity } from '../../internal';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
-export class ScheduleGroupRepository extends Repository<ScheduleGroupEntity> {
+export class TeamSeatAssignmentRepository extends Repository<TeamSeatAssignmentEntity> {
 	constructor(
-		@InjectRepository(ScheduleGroupEntity)
-		baseRepository: Repository<ScheduleGroupEntity>
+		@InjectRepository(TeamSeatAssignmentEntity)
+		baseRepository: Repository<TeamSeatAssignmentEntity>
 	) {
 		super(baseRepository.target, baseRepository.manager, baseRepository.queryRunner);
 	}

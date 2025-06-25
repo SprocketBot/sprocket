@@ -14,6 +14,9 @@ export class PlayerObject extends BaseObject {
 
 	// Field is implicit because of ResolveField
 	skillGroup: SkillGroupObject;
+
+	@Field()
+	salary: string;
 }
 
 @InputType()
@@ -26,6 +29,9 @@ export class CreatePlayerInput {
 
 	@Field()
 	skillGroupId: string;
+
+	@Field()
+	salary: string;
 }
 
 @InputType()
@@ -35,4 +41,7 @@ export class UpdatePlayerInput {
 
 	@Field({ nullable: true })
 	destinationSkillGroupId: string;
+
+	@Field({ nullable: true })
+	destinationSalary: string;
 }
