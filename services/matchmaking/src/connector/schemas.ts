@@ -4,14 +4,13 @@ import {
   boolean,
   coerce,
   date,
-  enum_,
-  integer,
+  enum_ as valibotEnum,
   number,
   object,
   optional,
   string,
-  transform,
 } from 'valibot';
+
 import { ScrimState } from '../constants';
 
 export const ScrimParticipantSchema = object({
@@ -21,35 +20,56 @@ export const ScrimParticipantSchema = object({
 
 export type ScrimParticipant = Output<typeof ScrimParticipantSchema>;
 
-export const ScrimSchema = transform(
-  object({
-    id: string(),
-    authorId: string(),
-    participants: array(ScrimParticipantSchema),
-    removedParticipants: optional(array(string())),
-    pendingTtl: optional(number()),
+// Create a type-safe enum schema for validation
+export const ScrimStateSchema = valibotEnum({
+  PENDING: ScrimState.PENDING,
+  POPPED: ScrimState.POPPED,
+  IN_PROGRESS: ScrimState.IN_PROGRESS,
+  RATIFYING: ScrimState.RATIFYING,
+  COMPLETE: ScrimState.COMPLETE,
+  LOCKED: ScrimState.LOCKED,
+  CANCELLED: ScrimState.CANCELLED,
+});
 
-    participantCount: optional(number()),
-    maxParticipants: number(),
+export const ScrimSchema = object({
+  id: string(),
+  authorId: string(),
+  participants: array(ScrimParticipantSchema),
+  removedParticipants: optional(array(string())),
+  pendingTtl: optional(number()),
+  participantCount: optional(number()),
+  maxParticipants: number(),
+  gameId: string(),
+  gameModeId: string(),
+  skillGroupId: string(),
+  state: ScrimStateSchema,
+  createdAt: coerce(
+    date(),
+    (i: unknown) => (i instanceof Date ? i : new Date(i as string | number)),
+  ),
+});
 
-    gameId: string(),
-    gameModeId: string(),
-    skillGroupId: string(),
-    state: enum_(ScrimState),
-    createdAt: coerce(date(), (i: string | Date) => new Date(i)),
-  }),
-  (v) => {
-    return {
-      ...v,
-      // If participants is available, but count for some reason is not
-      participantCount: v.participantCount ?? v.participants.length,
-    };
-  },
-);
-export type Scrim = Output<typeof ScrimSchema>;
+// First define the base type from the schema
+type ScrimBase = Output<typeof ScrimSchema>;
+
+// Then extend it with any additional properties
+export type Scrim = {
+  id: string;
+  authorId: string;
+  participants: ScrimParticipant[];
+  removedParticipants?: string[];
+  pendingTtl?: number;
+  participantCount: number;
+  maxParticipants: number;
+  gameId: string;
+  gameModeId: string;
+  skillGroupId: string;
+  state: ScrimState;
+  createdAt: Date;
+};
 
 export const CreateScrimOptionsSchema = object({
-  pendingTimeout: number([integer()]),
+  pendingTimeout: number(),
 });
 export type CreateScrimOptions = Output<typeof CreateScrimOptionsSchema>;
 
@@ -89,7 +109,7 @@ export type LeaveScrimPayload = Output<typeof LeaveScrimPayloadSchema>;
 export const ListScrimsPayloadSchema = object({
   gameId: optional(string()),
   skillGroupid: optional(string()),
-  state: optional(enum_(ScrimState)),
+  state: optional(ScrimStateSchema),
 });
 
 export type ListScrimsPayload = Output<typeof ListScrimsPayloadSchema>;

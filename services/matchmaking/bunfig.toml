@@ -1,0 +1,47 @@
+# Configure Bun's behavior for this project
+[install]
+# Use the fastest available package manager for installing dependencies
+prefer = "online"
+
+[test]
+# Run tests in watch mode by default
+watch = false
+
+# Setup file to run before tests
+setup = "./test/setup.ts"
+
+# Default test timeout in milliseconds
+timeout = 5000
+
+[types]
+# Enable TypeScript type checking by default
+check = true
+
+[runtime]
+# Use the Bun runtime by default
+bun = true
+
+# Configure Bun's module resolution
+[module]
+# Use ESM modules by default
+format = "esm"
+
+# Configure Bun's TypeScript settings
+[typescript]
+# Enable TypeScript support
+tsconfig = "./tsconfig.json"
+
+# Configure Bun's build settings
+[build]
+# Enable source maps by default
+sourcemap = true
+
+# Configure Bun's dev server
+[dev]
+# Auto-install missing dependencies
+autoinstall = true
+
+# Configure Bun's package manager settings
+[package]
+# Enable workspaces if used
+workspaces = true

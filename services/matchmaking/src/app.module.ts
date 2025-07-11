@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { BullModule } from '@nestjs/bullmq';
+import { DatabaseModule } from './database/database.module';
 import { AppController } from './app.controller';
 import {
   BaseSprocketModules,
   EventsModule,
   SprocketConfigService,
 } from '@sprocketbot/lib';
-import { ScrimService } from './scrim/scrim.service';
 import { ScrimCrudService } from './scrim-crud/scrim-crud.service';
-import { BullModule } from '@nestjs/bullmq';
 import { ScrimPoppedTimeoutQueue } from './jobs/scrim-popped-timeout/schema';
 import { ScrimPoppedTimeoutService } from './jobs/scrim-popped-timeout/scrim-popped-timeout.service';
 import { ScrimPoppedTimeoutProcessor } from './jobs/scrim-popped-timeout/scrim-popped-timeout.processor';
@@ -17,6 +18,11 @@ import { ScrimPendingTimeoutQueue } from './jobs/scrim-pending-timeout/schema';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
+    DatabaseModule.forRoot(),
     ...BaseSprocketModules,
     EventsModule,
     BullModule.forRootAsync({
@@ -41,12 +47,11 @@ import { ScrimPendingTimeoutQueue } from './jobs/scrim-pending-timeout/schema';
   ],
   controllers: [AppController],
   providers: [
-    ScrimService,
     ScrimCrudService,
-    ScrimPoppedTimeoutProcessor,
     ScrimPoppedTimeoutService,
-    ScrimPendingTimeoutProcessor,
+    ScrimPoppedTimeoutProcessor,
     ScrimPendingTimeoutService,
+    ScrimPendingTimeoutProcessor,
   ],
 })
 export class AppModule {}
