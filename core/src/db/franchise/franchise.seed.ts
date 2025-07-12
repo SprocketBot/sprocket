@@ -1,19 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { Seed, type Seeder } from '../seeder.decorator';
 import { EntityManager } from 'typeorm';
-import { GameEntity } from '../internal';
+import { FranchiseEntity } from '../internal';
 
 @Injectable()
 @Seed()
-export class GameEntitySeed implements Seeder {
+export class FranchiseEntitySeed implements Seeder {
 	async seed(em: EntityManager) {
-		await seedGame('Rocket League');
+		await seedFranchise('Express');
 
-		async function seedGame(gameName: string) {
+		async function seedFranchise(franchiseName: string) {
 			await em.upsert(
-				GameEntity,
+				FranchiseEntity,
 				{
-					name: gameName
+					name: franchiseName
 				},
 				{ conflictPaths: ['name'] }
 			);

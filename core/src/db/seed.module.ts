@@ -1,18 +1,43 @@
 import { Logger, Module } from '@nestjs/common';
-import { GameEntitySeed } from './game/game.seed';
+import {
+	ClubEntitySeed,
+	ClubSeatAssignmentEntitySeed,
+	FranchiseEntitySeed,
+	FranchiseSeatAssignmentEntitySeed,
+	GameEntitySeed,
+	GameModeEntitySeed,
+	PlayerEntitySeed,
+	PolicySeed,
+	RoleEntitySeed,
+	SeatEntitySeed,
+	SkillGroupEntitySeed,
+	TeamEntitySeed,
+	UserEntitySeed
+} from './internal';
 import { NestFactory } from '@nestjs/core';
 import { DbModule } from './db.module';
 import { BaseSprocketModules, RedisModule } from '@sprocketbot/lib';
 import { getDataSourceToken } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { type Seeder } from './seeder.decorator';
-import { GameModeEntitySeed } from './game_mode/game_mode.seed';
-import { PolicySeed } from './policy/policy.seed';
-import { SkillGroupEntitySeed } from './skill_group/skill_group.seed';
 import { authz } from 'src/authz.def';
 @Module({
 	imports: [DbModule, authz, ...BaseSprocketModules.filter((mod) => mod !== RedisModule)],
-	providers: [GameEntitySeed, GameModeEntitySeed, PolicySeed, SkillGroupEntitySeed]
+	providers: [
+		UserEntitySeed,
+		RoleEntitySeed,
+		PolicySeed,
+		SeatEntitySeed,
+		GameEntitySeed,
+		SkillGroupEntitySeed,
+		GameModeEntitySeed,
+		FranchiseEntitySeed,
+		ClubEntitySeed,
+		TeamEntitySeed,
+		FranchiseSeatAssignmentEntitySeed,
+		ClubSeatAssignmentEntitySeed,
+		PlayerEntitySeed
+	]
 })
 class SeedModule {}
 
@@ -53,6 +78,7 @@ async function execSeeds() {
 			});
 	}
 
+	await datasource.destroy();
 	await ctx.close();
 
 	process.exit(0);
