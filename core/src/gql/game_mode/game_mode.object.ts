@@ -13,8 +13,5 @@ export class GameModeObject extends BaseObject {
 	@Field()
 	teamSize: number;
 
-	@Field()
-	gameId: string;
-  
 	game?: GameObject;
 }

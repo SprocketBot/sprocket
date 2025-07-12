@@ -1,12 +1,10 @@
-import { BaseEntity } from '../base.entity';
-import { SeatEntity } from '../seat/seat.entity';
-import { OneToOne } from 'typeorm';
-import { UserEntity } from '../user/user.entity';
+import { ManyToOne } from 'typeorm';
+import { BaseEntity, SeatEntity, UserEntity } from '../internal';
 
 export abstract class BaseSeatAssignmentEntity extends BaseEntity {
-	@OneToOne(() => SeatEntity)
-	seat: Promise<SeatEntity>;
+	@ManyToOne(() => SeatEntity)
+	seat: SeatEntity;
 
-	@OneToOne(() => UserEntity)
-	user: Promise<UserEntity>;
+	@ManyToOne(() => UserEntity)
+	user: UserEntity;
 }

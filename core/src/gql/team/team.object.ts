@@ -1,4 +1,4 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { ObjectType } from '@nestjs/graphql';
 import { SkillGroupObject } from '../skill_group/skill_group.object';
 import { ClubObject } from '../club/club.object';
 import { BaseObject } from '../base.object';
@@ -7,10 +7,7 @@ import { BaseObject } from '../base.object';
 export class TeamObject extends BaseObject {
 	// Field is implicit because of ResolveField
 	club: ClubObject;
-	@Field()
-	clubId: string;
 
+	// Field is implicit because of ResolveField
 	skillGroup: SkillGroupObject;
-	@Field()
-	skillGroupId: string;
 }
