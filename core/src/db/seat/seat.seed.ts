@@ -21,12 +21,12 @@ export class SeatEntitySeed implements Seeder {
 		);
 		await seedSeat(
 			'Public Relations 1',
-			'A public relations for the franchise',
+			'A public relations officer for the franchise',
 			'Public Relations'
 		);
 		await seedSeat(
 			'Public Relations 2',
-			'A public relations for the franchise',
+			'A public relations officer for the franchise',
 			'Public Relations'
 		);
 		await seedSeat('Captain 1', 'A captain of the club', 'Captain');
