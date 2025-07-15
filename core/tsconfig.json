@@ -1,5 +1,10 @@
 {
-  "include": ["./src/**/*.ts", "./src/datasource.ts", "./datasource.ts"],
+  "include": [
+    "./src/**/*.ts",
+    "./src/datasource.ts",
+    "./datasource.ts",
+    "./test/**/**/*.ts"
+  ],
   "files": ["./src/app.d.ts", "./src/main.ts"],
   "compilerOptions": {
     "module": "commonjs",

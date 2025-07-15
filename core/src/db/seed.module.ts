@@ -6,6 +6,7 @@ import {
 	FranchiseSeatAssignmentEntitySeed,
 	GameEntitySeed,
 	GameModeEntitySeed,
+	PlayerEntitySeed,
 	PolicySeed,
 	RoleEntitySeed,
 	SeatEntitySeed,
@@ -34,7 +35,8 @@ import { authz } from 'src/authz.def';
 		ClubEntitySeed,
 		TeamEntitySeed,
 		FranchiseSeatAssignmentEntitySeed,
-		ClubSeatAssignmentEntitySeed
+		ClubSeatAssignmentEntitySeed,
+		PlayerEntitySeed
 	]
 })
 class SeedModule {}
@@ -76,6 +78,7 @@ async function execSeeds() {
 			});
 	}
 
+	await datasource.destroy();
 	await ctx.close();
 
 	process.exit(0);

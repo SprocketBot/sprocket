@@ -17,7 +17,8 @@ export class PlayerResolver {
 		let player = this.playerRepo.create({
 			game: { id: data.gameId },
 			user: { id: data.userId },
-			skillGroup: { id: data.skillGroupId }
+			skillGroup: { id: data.skillGroupId },
+			salary: data.salary
 		});
 		player = await this.playerRepo.save(player);
 		// TODO: Elo Side Effects

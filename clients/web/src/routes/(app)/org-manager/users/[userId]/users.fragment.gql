@@ -12,5 +12,6 @@ fragment Fragment_PlayerManagerUsers on User {
 			id
 			name
 		}
+		salary
 	}
 }

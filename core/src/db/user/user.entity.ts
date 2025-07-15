@@ -14,8 +14,8 @@ export class UserEntity extends BaseEntity implements Omit<User, 'allowedActions
 	active: boolean;
 
 	@OneToMany(() => UserAuthAccountEntity, (uaae) => uaae.user)
-	accounts: Promise<UserAuthAccountEntity[]>;
+	accounts: UserAuthAccountEntity[];
 
 	@OneToMany(() => PlayerEntity, (pe) => pe.user)
-	players: Promise<PlayerEntity[]>;
+	players: PlayerEntity[];
 }

@@ -29,6 +29,9 @@ export class CreatePlayerInput {
 
 	@Field()
 	skillGroupId: string;
+
+	@Field()
+	salary: string;
 }
 
 @InputType()

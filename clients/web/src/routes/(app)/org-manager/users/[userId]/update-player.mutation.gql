@@ -13,5 +13,6 @@ mutation UpdatePlayer($data: UpdatePlayerInput!) {
 			id
 			username
 		}
+		salary
 	}
 }

@@ -21,5 +21,5 @@ export class UserAuthAccountEntity extends BaseEntity {
 	userId: string;
 
 	@ManyToOne(() => UserEntity, (ue) => ue.accounts)
-	user: Promise<UserEntity>;
+	user: UserEntity;
 }

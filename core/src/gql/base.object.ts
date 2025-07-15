@@ -1,7 +1,7 @@
-import { Field } from '@nestjs/graphql';
-
+import { Field, ID, InterfaceType } from '@nestjs/graphql';
+@InterfaceType()
 export abstract class BaseObject {
-	@Field()
+	@Field(() => ID)
 	id: string;
 
 	@Field()

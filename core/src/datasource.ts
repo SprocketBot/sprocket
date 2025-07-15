@@ -94,7 +94,6 @@ if (commands.includes(process.argv[2])) {
 			password: config.pg.password.replaceAll(/./g, '*'),
 			database: config.pg.database
 		});
-		console.log(datasource.defaultReplicationModeForReads().toString());
 
 		console.log('Updating role to ensure default ownership is correct');
 
