@@ -17,25 +17,6 @@ job "Sprocket-%%environment%%" {
     disable_file = true
   }
 
-  group "redis" {
-    network {
-      port "redis" {
-        to = 6379
-      }
-    }
-    task "redis" {
-      driver = "docker"
-      config {
-        image = "redis/redis-stack-server:latest"
-        ports = ["redis"]
-      }
-      service {
-        name     = "redis-${var.environment}"
-        provider = "consul"
-        port     = "redis"
-      }
-    }
-  }
   group "lavinmq" {
     network {
       port "lavinmq-http" {
