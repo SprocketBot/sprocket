@@ -17,43 +17,6 @@ job "Sprocket-%%environment%%" {
     disable_file = true
   }
 
-  group "lavinmq" {
-    network {
-      port "lavinmq-http" {
-        to = 15672
-      }
-      port "lavinmq" {
-        to = 5672
-      }
-    }
-    task "lavinmq" {
-      driver = "docker"
-      config {
-        image = "cloudamqp/lavinmq"
-        ports = ["lavinmq-http", "lavinmq"]
-      }
-      service {
-        name     = "lavinmq-${var.environment}"
-        provider = "consul"
-        port     = "lavinmq"
-      }
-      service {
-        name     = "lavinmq-${var.environment}-ui"
-        provider = "consul"
-        port     = "lavinmq-http"
-
-        tags = [
-          "traefik.enable=true",
-          "traefik.http.routers.lavinmq-ui-${var.environment}.rule=Host(`lavinmq.utils.${var.environment}.${var.base_url}`)",
-
-          "traefik.http.routers.lavinmq-ui-${var.environment}.tls=true",
-          "traefik.http.routers.lavinmq-ui-${var.environment}.tls.certResolver=lets-encrypt",
-          "traefik.http.routers.lavinmq-ui-${var.environment}.entrypoints=web,websecure",
-        ]
-      }
-    }
-  }
-
   group "web" {
     spread {
       attribute = "${node.datacenter}"

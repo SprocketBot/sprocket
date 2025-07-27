@@ -24,7 +24,6 @@ services:
     restart: unless-stopped
     depends_on:
       - postgres
-      - lavinmq
     volumes:
       - .:/app:rw
       - ./.env:/app/core/.env
@@ -111,15 +110,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
-
-  lavinmq:
-    container_name: sprocket-lavinmq
-    image: cloudamqp/lavinmq
-    labels:
-      traefik.enable: true
-      traefik.http.routers.lavinmq.rule: Host(`${LAVIN_URL:-lavin.localhost}`)
-      traefik.http.routers.lavinmq.entrypoints: web,websecure
-      traefik.http.services.lavinmq.loadbalancer.server.port: 15672
 
   ##########
   ##### Monitoring Services

@@ -28,9 +28,9 @@ export class RmqService {
   async onApplicationBootstrap(): Promise<void> {
     const rmqUrl = this.config.getOrThrow('amqp.url');
     // Remove authentication information from the URL
-    const displayUrl = new URL(rmqUrl)
-    displayUrl.username = "";
-    displayUrl.password = "";
+    const displayUrl = new URL(rmqUrl);
+    displayUrl.username = '';
+    displayUrl.password = '';
     // Create a connection to RabbitMQ
     try {
       this.connection = await connect(rmqUrl, { heartbeat: 120 });

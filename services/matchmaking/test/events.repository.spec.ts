@@ -1,17 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { EventsService } from './events.service';
-import { Event } from '../../../services/matchmaking/src/entities/event.entity';
+import { Event } from '../src/entities/event.entity';
 import { Repository } from 'typeorm';
 
-describe('EventsService', () => {
-  let service: EventsService;
+describe('EventRepository', () => {
   let eventRepo: Repository<Event>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        EventsService,
         {
           provide: getRepositoryToken(Event),
           useClass: Repository,
@@ -19,14 +16,12 @@ describe('EventsService', () => {
       ],
     }).compile();
 
-    service = module.get<EventsService>(EventsService);
     eventRepo = module.get<Repository<Event>>(getRepositoryToken(Event));
   });
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
     expect(eventRepo).toBeDefined();
   });
 
-  // Add more tests for event publishing/subscription as needed
+  // Add more tests for event CRUD as needed
 });

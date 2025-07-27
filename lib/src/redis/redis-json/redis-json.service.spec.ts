@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { RedisJsonService } from './redis-json.service';
 
 describe('RedisJsonService', () => {
   let service: RedisJsonService;
