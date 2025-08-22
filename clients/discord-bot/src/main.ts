@@ -1,7 +1,6 @@
 import {NestFactory} from "@nestjs/core";
 import {Transport} from "@nestjs/microservices";
-import {AllExceptionsFilter} from "@sprocketbot/common";
-import * as config from "config";
+import {AllExceptionsFilter, config} from "@sprocketbot/common";
 import fetch from "node-fetch";
 
 import {AppModule} from "./app.module";
@@ -12,10 +11,10 @@ global.fetch = fetch;
 async function bootstrap(): Promise<void> {
     const app = await NestFactory.createMicroservice(AppModule, {
         transport: Transport.RMQ,
-        logger: config.get("logger.levels"),
+        logger: config.logger.levels,
         options: {
-            urls: [config.get("transport.url")],
-            queue: config.get("transport.bot_queue"),
+            urls: [config.transport.url],
+            queue: config.transport.bot_queue,
             queueOptions: {
                 durable: true,
             },
