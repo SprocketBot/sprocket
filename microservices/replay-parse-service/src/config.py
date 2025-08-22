@@ -73,6 +73,7 @@ config = {
     "transport": {
         "url": get_config_value("TRANSPORT_URL", base_config, "transport.url"),
         "celery_queue": get_config_value("CELERY_QUEUE", base_config, "transport.celery-queue"),
+        "analytics_queue": get_config_value("TRANSPORT_ANALYTICS_QUEUE", base_config, "transport.analytics_queue"),
     },
 }
 

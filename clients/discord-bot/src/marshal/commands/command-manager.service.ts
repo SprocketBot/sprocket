@@ -1,5 +1,5 @@
 import {Injectable, Logger} from "@nestjs/common";
-import * as config from "config";
+import {config} from "@sprocketbot/common";
 import type {Message} from "discord.js";
 
 import type {
@@ -123,7 +123,7 @@ export class CommandManagerService {
     private extractCommandName(message: string): string | undefined {
         let commandKey = message.split(" ")[0].toLowerCase();
 
-        const prefix = config.has("bot.prefix") ? `${config.get("bot.prefix")}` : "";
+        const prefix = config.bot?.prefix ? `${config.bot.prefix}` : "";
         if (commandKey.startsWith(prefix)) {
             commandKey = commandKey.slice(prefix.length);
             return commandKey.toLowerCase();
