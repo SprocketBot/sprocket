@@ -160,22 +160,22 @@ export const config = {
       return ConfigResolver.getConfig("TRANSPORT_URL", "transport.url");
     },
     get core_queue(): string {
-      return ConfigResolver.getConfig("TRANSPORT_CORE_QUEUE", "transport.core_queue");
+      return ConfigResolver.getConfig("TRANSPORT_CORE_QUEUE", "transport.core_queue", "core");
     },
     get bot_queue(): string {
-      return ConfigResolver.getConfig("TRANSPORT_BOT_QUEUE", "transport.bot_queue");
+      return ConfigResolver.getConfig("TRANSPORT_BOT_QUEUE", "transport.bot_queue", "bot");
     },
     get analytics_queue(): string {
-      return ConfigResolver.getConfig("TRANSPORT_ANALYTICS_QUEUE", "transport.analytics_queue");
+      return ConfigResolver.getConfig("TRANSPORT_ANALYTICS_QUEUE", "transport.analytics_queue", "analytics");
     },
     get matchmaking_queue(): string {
-      return ConfigResolver.getConfig("TRANSPORT_MATCHMAKING_QUEUE", "transport.matchmaking_queue");
+      return ConfigResolver.getConfig("TRANSPORT_MATCHMAKING_QUEUE", "transport.matchmaking_queue", "matchmaking");
     },
     get notification_queue(): string {
-      return ConfigResolver.getConfig("TRANSPORT_NOTIFICATION_QUEUE", "transport.notification_queue");
+      return ConfigResolver.getConfig("TRANSPORT_NOTIFICATION_QUEUE", "transport.notification_queue", "notifications");
     },
     get events_queue(): string {
-      return ConfigResolver.getConfig("TRANSPORT_EVENTS_QUEUE", "transport.events_queue");
+      return ConfigResolver.getConfig("TRANSPORT_EVENTS_QUEUE", "transport.events_queue", "events");
     },
     get events_application_key(): string {
       return ConfigResolver.getConfig("TRANSPORT_EVENTS_APPLICATION_KEY", "transport.events_application_key");
