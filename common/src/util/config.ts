@@ -1,77 +1,75 @@
-import _config from "config";
-import {existsSync, readFileSync} from "fs";
+import {ConfigResolver} from "./config-resolver";
 
 export const config = {
     auth: {
         google: {
             get clientId(): string {
-                return readFileSync("./secret/googleClientId.txt").toString();
+                return ConfigResolver.getSecret("GOOGLE_CLIENT_ID", "./secret/googleClientId.txt");
             },
             get secret(): string {
-                return readFileSync("./secret/googleSecret.txt").toString();
+                return ConfigResolver.getSecret("GOOGLE_SECRET", "./secret/googleSecret.txt");
             },
             get callbackUrl(): string {
-                return _config.get<string>("auth.google.callbackUrl");
+                return ConfigResolver.getConfig("GOOGLE_CALLBACK_URL", "auth.google.callbackUrl");
             },
         },
         discord: {
             get clientId(): string {
-                return readFileSync("./secret/discord-client.txt").toString();
+                return ConfigResolver.getSecret("DISCORD_CLIENT_ID", "./secret/discord-client.txt");
             },
             get secret(): string {
-                return readFileSync("./secret/discord-secret.txt").toString();
+                return ConfigResolver.getSecret("DISCORD_SECRET", "./secret/discord-secret.txt");
             },
             get callbackURL(): string {
-                return _config.get<string>("auth.discord.callbackUrl");
+                return ConfigResolver.getConfig("DISCORD_CALLBACK_URL", "auth.discord.callbackUrl");
             },
         },
         get jwt_expiry(): string {
-            return _config.get<string>("auth.jwt_expiry");
+            return ConfigResolver.getConfig("JWT_EXPIRY", "auth.jwt_expiry");
         },
         get access_expiry(): string {
-            return _config.get<string>("auth.access_expiry");
+            return ConfigResolver.getConfig("ACCESS_EXPIRY", "auth.access_expiry");
         },
         get refresh_expiry(): string {
-            return _config.get<string>("auth.refresh_expiry");
+            return ConfigResolver.getConfig("REFRESH_EXPIRY", "auth.refresh_expiry");
         },
         get frontend_callback(): string {
-            return _config.get<string>("auth.frontend_callback");
+            return ConfigResolver.getConfig("FRONTEND_CALLBACK", "auth.frontend_callback");
         },
         get jwt_secret(): string {
-            return readFileSync("./secret/jwtSecret.txt").toString()
-                .trim();
+            return ConfigResolver.getSecret("JWT_SECRET", "./secret/jwtSecret.txt");
         },
     },
     bot: {
         get prefix(): string {
-            return _config.get<string>("bot.prefix");
+            return ConfigResolver.getConfig("BOT_PREFIX", "bot.prefix");
         },
     },
     cache: {
         get port(): number {
-            if (_config.has("cache.port")) return _config.get<number>("cache.port");
-            return _config.get<number>("redis.port");
+            return ConfigResolver.getNumberConfig("CACHE_PORT", "cache.port") ||
+                   ConfigResolver.getNumberConfig("REDIS_PORT", "redis.port");
         },
         get host(): string {
-            if (_config.has("cache.host")) return _config.get<string>("cache.host");
-            return _config.get<string>("redis.host");
+            return ConfigResolver.getConfig("CACHE_HOST", "cache.host") ||
+                   ConfigResolver.getConfig("REDIS_HOST", "redis.host");
         },
         get password(): string {
-            if (existsSync("./secret/cache-password.txt")) {
-                return readFileSync("./secret/cache-password.txt").toString()
-                    .trim();
+            // Try cache password first, then redis password
+            try {
+                return ConfigResolver.getSecret("CACHE_PASSWORD", "./secret/cache-password.txt");
+            } catch {
+                return ConfigResolver.getSecret("REDIS_PASSWORD", "./secret/redis-password.txt");
             }
-            return readFileSync("./secret/redis-password.txt").toString()
-                .trim();
         },
         get secure(): boolean {
-            if (_config.has("cache.secure")) return _config.get<boolean>("cache.secure");
-            return _config.get<boolean>("redis.secure");
+            return ConfigResolver.getBooleanConfig("CACHE_SECURE", "cache.secure") ||
+                   ConfigResolver.getBooleanConfig("REDIS_SECURE", "redis.secure");
         },
     },
     celery: {
         get broker(): string {
-            return _config.get<string>("transport.url");
+            return ConfigResolver.getConfig("CELERY_BROKER", "transport.url");
         },
         get backend(): string {
             const host = config.redis.host;
@@ -80,128 +78,118 @@ export const config = {
             return `redis${config.redis.secure ? "s" : ""}://:${pass}@${host}:${port}`;
         },
         get queue(): string {
-            return _config.get<string>("transport.celery-queue");
+            return ConfigResolver.getConfig("CELERY_QUEUE", "transport.celery-queue");
         },
     },
     db: {
         get host(): string {
-            return _config.get<string>("db.host");
+            return ConfigResolver.getConfig("DB_HOST", "db.host");
         },
         get port(): number {
-            return _config.get<number>("db.port");
+            return ConfigResolver.getNumberConfig("DB_PORT", "db.port");
         },
         get username(): string {
-            return _config.get<string>("db.username");
+            return ConfigResolver.getConfig("DB_USERNAME", "db.username");
         },
         get database(): string {
-            return _config.get<string>("db.database");
+            return ConfigResolver.getConfig("DB_DATABASE", "db.database");
         },
         get enable_logs(): boolean {
-            return _config.get<boolean>("db.enable_logs");
+            return ConfigResolver.getBooleanConfig("DB_ENABLE_LOGS", "db.enable_logs");
         },
     },
     gql: {
-        get url(): string { return _config.get<string>("gql.url") },
-        get playground(): boolean { return _config.get<boolean>("gql.playground") },
+        get url(): string { return ConfigResolver.getConfig("GQL_URL", "gql.url") },
+        get playground(): boolean { return ConfigResolver.getBooleanConfig("GQL_PLAYGROUND", "gql.playground") },
     },
     logger: {
         get levels(): boolean | string {
-            return _config.get<boolean | string>("logger.levels");
+            return ConfigResolver.getConfig("LOGGER_LEVELS", "logger.levels");
         },
     },
     minio: {
         get endPoint(): string {
-            return _config.get<string>("minio.endPoint");
+            return ConfigResolver.getConfig("MINIO_ENDPOINT", "minio.endPoint");
         },
         get accessKey(): string {
-            return readFileSync("./secret/minio-access.txt").toString()
-                .trim();
+            return ConfigResolver.getSecret("MINIO_ACCESS_KEY", "./secret/minio-access.txt");
         },
         get secretKey(): string {
-            return readFileSync("./secret/minio-secret.txt").toString()
-                .trim();
+            return ConfigResolver.getSecret("MINIO_SECRET_KEY", "./secret/minio-secret.txt");
         },
         bucketNames: {
             get replays(): string {
-                return _config.get<string>("minio.bucketNames.replays");
+                return ConfigResolver.getConfig("MINIO_REPLAYS_BUCKET", "minio.bucketNames.replays");
             },
             get image_generation(): string {
-                return _config.get<string>("minio.bucketNames.image_generation");
+                return ConfigResolver.getConfig("MINIO_IMAGE_GENERATION_BUCKET", "minio.bucketNames.image_generation");
             },
         },
         get useSSL(): boolean {
-            if (_config.has("minio.useSSL")) {
-                return _config.get<boolean>("minio.useSSL");
-            }
-            return false;
+            return ConfigResolver.getBooleanConfig("MINIO_USE_SSL", "minio.useSSL", false);
         },
         get port(): number {
-            if (_config.has("minio.port")) {
-                return _config.get<number>("minio.port");
-            }
-            return 9000;
+            return ConfigResolver.getNumberConfig("MINIO_PORT", "minio.port", 9000);
         },
     },
     redis: {
         get port(): number {
-            return _config.get<number>("redis.port");
+            return ConfigResolver.getNumberConfig("REDIS_PORT", "redis.port");
         },
         get host(): string {
-            return _config.get<string>("redis.host");
+            return ConfigResolver.getConfig("REDIS_HOST", "redis.host");
         },
         get password(): string {
-            return readFileSync("./secret/redis-password.txt").toString()
-                .trim();
+            return ConfigResolver.getSecret("REDIS_PASSWORD", "./secret/redis-password.txt");
         },
         get prefix(): string {
-            return _config.get<string>("redis.prefix");
+            return ConfigResolver.getConfig("REDIS_PREFIX", "redis.prefix");
         },
         get secure(): boolean {
-            if (_config.has("redis.secure")) return _config.get<boolean>("redis.secure");
-            return false;
+            return ConfigResolver.getBooleanConfig("REDIS_SECURE", "redis.secure", false);
         },
     },
     transport: {
         get url(): string {
-            return _config.get<string>("transport.url");
+            return ConfigResolver.getConfig("TRANSPORT_URL", "transport.url");
         },
         get core_queue(): string {
-            return _config.get<string>("transport.core_queue");
+            return ConfigResolver.getConfig("TRANSPORT_CORE_QUEUE", "transport.core_queue");
         },
         get bot_queue(): string {
-            return _config.get<string>("transport.bot_queue");
+            return ConfigResolver.getConfig("TRANSPORT_BOT_QUEUE", "transport.bot_queue");
         },
         get analytics_queue(): string {
-            return _config.get<string>("transport.analytics_queue");
+            return ConfigResolver.getConfig("TRANSPORT_ANALYTICS_QUEUE", "transport.analytics_queue");
         },
         get matchmaking_queue(): string {
-            return _config.get<string>("transport.matchmaking_queue");
+            return ConfigResolver.getConfig("TRANSPORT_MATCHMAKING_QUEUE", "transport.matchmaking_queue");
         },
         get notification_queue(): string {
-            return _config.get<string>("transport.notification_queue");
+            return ConfigResolver.getConfig("TRANSPORT_NOTIFICATION_QUEUE", "transport.notification_queue");
         },
         get events_queue(): string {
-            return _config.get<string>("transport.events_queue");
+            return ConfigResolver.getConfig("TRANSPORT_EVENTS_QUEUE", "transport.events_queue");
         },
         get events_application_key(): string {
-            return _config.get<string>("transport.events_application_key");
+            return ConfigResolver.getConfig("TRANSPORT_EVENTS_APPLICATION_KEY", "transport.events_application_key");
         },
         get image_generation_queue(): string {
-            return _config.get<string>("transport.image_generation_queue");
+            return ConfigResolver.getConfig("TRANSPORT_IMAGE_GENERATION_QUEUE", "transport.image_generation_queue");
         },
         get submission_queue(): string {
-            return _config.get<string>("transport.submission_queue");
+            return ConfigResolver.getConfig("TRANSPORT_SUBMISSION_QUEUE", "transport.submission_queue");
         },
     },
     web: {
         get url(): string {
-            return _config.get<string>("web.url");
+            return ConfigResolver.getConfig("WEB_URL", "web.url");
         },
         get api_root(): string {
-            return _config.get<string>("web.api_root");
+            return ConfigResolver.getConfig("WEB_API_ROOT", "web.api_root");
         },
     },
     get defaultOrganizationId(): number {
-        return _config.get<number>("defaultOrganizationId");
+        return ConfigResolver.getNumberConfig("DEFAULT_ORGANIZATION_ID", "defaultOrganizationId");
     },
 };
