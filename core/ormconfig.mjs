@@ -6,15 +6,24 @@ import dotenv from "dotenv";
 // Load .env file if it exists
 dotenv.config();
 
-// Helper function to get database password from env or file
+// Helper function to get database password using the same pattern as ConfigResolver
 function getDbPassword() {
+    // 1. Check environment variable first
     if (process.env.DB_PASSWORD) {
         return process.env.DB_PASSWORD.trim();
     }
+
+    // 2. Check file-based secret
     if (fs.existsSync("./secret/db-password.txt")) {
         return fs.readFileSync("./secret/db-password.txt").toString().trim();
     }
-    throw new Error("DB_PASSWORD environment variable or ./secret/db-password.txt file required");
+
+    // 3. Fall back to config library if available
+    if (config.has("db.password")) {
+        return config.get("db.password");
+    }
+
+    throw new Error("DB_PASSWORD environment variable, ./secret/db-password.txt file, or db.password config required");
 }
 
 export default new DataSource({

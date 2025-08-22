@@ -91,6 +91,9 @@ export const config = {
         get username(): string {
             return ConfigResolver.getConfig("DB_USERNAME", "db.username");
         },
+        get password(): string {
+            return ConfigResolver.getSecret("DB_PASSWORD", "./secret/db-password.txt");
+        },
         get database(): string {
             return ConfigResolver.getConfig("DB_DATABASE", "db.database");
         },
