@@ -124,3 +124,5 @@ core/config/staging.json
 # Vim/Emacs backup files
 *~
 *.swp
+
+secret/*
