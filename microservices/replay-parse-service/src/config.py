@@ -41,30 +41,6 @@ with open(f"../config/{env}.json", "r") as f:
 # Merge configurations
 base_config = {**defaultConfig, **envConfig}
 
-# Helper function to build RabbitMQ URL with authentication
-def build_rabbitmq_url():
-    """Build RabbitMQ URL with optional authentication from environment variables"""
-    base_url = get_config_value("TRANSPORT_URL", base_config, "transport.url")
-    rmq_user = os.environ.get("RABBITMQ_DEFAULT_USER")
-    rmq_pass = os.environ.get("RABBITMQ_DEFAULT_PASS")
-    
-    if rmq_user and rmq_pass and base_url:
-        # Parse the base URL to inject credentials
-        from urllib.parse import urlparse, urlunparse
-        parsed = urlparse(base_url)
-        
-        # Inject credentials into the URL
-        if parsed.scheme in ['amqp', 'amqps']:
-            # Replace netloc with credentials
-            netloc = f"{rmq_user}:{rmq_pass}@{parsed.hostname}"
-            if parsed.port:
-                netloc += f":{parsed.port}"
-            
-            new_parsed = parsed._replace(netloc=netloc)
-            return urlunparse(new_parsed)
-    
-    return base_url
-
 # Enhanced config with environment variable support
 config = {
     # Database
@@ -95,7 +71,7 @@ config = {
     
     # Transport
     "transport": {
-        "url": build_rabbitmq_url(),
+        "url": get_config_value("TRANSPORT_URL", base_config, "transport.url"),
         "celery_queue": get_config_value("CELERY_QUEUE", base_config, "transport.celery-queue"),
         "analytics_queue": get_config_value("TRANSPORT_ANALYTICS_QUEUE", base_config, "transport.analytics_queue"),
     },

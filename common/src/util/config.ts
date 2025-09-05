@@ -83,22 +83,22 @@ export const config = {
   },
   db: {
     get host(): string {
-      return ConfigResolver.getConfig("POSTGRES_HOST", "db.host");
+      return ConfigResolver.getConfig("DB_HOST", "db.host");
     },
     get port(): number {
-      return ConfigResolver.getNumberConfig("POSTGRES_PORT", "db.port");
+      return ConfigResolver.getNumberConfig("DB_PORT", "db.port");
     },
     get username(): string {
-      return ConfigResolver.getConfig("POSTGRES_USERNAME", "db.username");
+      return ConfigResolver.getConfig("DB_USERNAME", "db.username");
     },
     get password(): string {
-      return ConfigResolver.getSecret("POSTGRES_PASSWORD", "./secret/db-password.txt");
+      return ConfigResolver.getSecret("DB_PASSWORD", "./secret/db-password.txt");
     },
     get database(): string {
-      return ConfigResolver.getConfig("POSTGRES_DATABASE", "db.database");
+      return ConfigResolver.getConfig("DB_DATABASE", "db.database");
     },
     get enable_logs(): boolean {
-      return ConfigResolver.getBooleanConfig("POSTGRES_ENABLE_LOGS", "db.enable_logs");
+      return ConfigResolver.getBooleanConfig("DB_ENABLE_LOGS", "db.enable_logs");
     },
   },
   gql: {
