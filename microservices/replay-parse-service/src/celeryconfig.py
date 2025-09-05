@@ -5,13 +5,13 @@ broker_transport_options = {
     'queue_name_prefix': 'sov-local'
 }
 
-task_default_queue = config["celery"]["queue"]
-broker_url = config["celery"]["broker"]
-result_backend = config["celery"]["backend"]
+task_default_queue = config["transport"]["celery_queue"] or config.get("celery", {}).get("queue", "")
+broker_url = config["transport"]["url"] or config.get("celery", {}).get("broker", "")
+result_backend = config.get("celery", {}).get("backend", "")
 
 
 # If we're using SSL, specify the server_hostname
-_BROKER_URL = urlparse(config["celery"]["broker"])
+_BROKER_URL = urlparse(broker_url)
 SECURE = _BROKER_URL.scheme.endswith("s")
 _SERVER_HOSTNAME = _BROKER_URL.hostname
 
