@@ -5,7 +5,10 @@
     "./datasource.ts",
     "./test/**/**/*.ts"
   ],
-  "files": ["./src/app.d.ts", "./src/main.ts"],
+  "files": [
+    "./src/app.d.ts",
+    "./src/main.ts"
+  ],
   "compilerOptions": {
     "module": "commonjs",
     "declaration": false,
@@ -23,6 +26,16 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "types": [
+      "node",
+      "express",
+      "jest",
+      "supertest",
+      "cookie-parser",
+      "passport-discord",
+      "passport-steam",
+      "lodash.camelcase"
+    ]
   }
 }
