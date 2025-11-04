@@ -37,6 +37,9 @@ const modules = [
         database: config.db.database,
         autoLoadEntities: true,
         logging: config.db.enable_logs,
+        ssl: {
+            rejectUnauthorized: false,
+        },
     }),
 ];
 
