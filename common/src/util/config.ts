@@ -106,12 +106,19 @@ export const config = {
     get playground(): boolean { return ConfigResolver.getBooleanConfig("GQL_PLAYGROUND", "gql.playground") },
   },
   logger: {
-    get levels(): any {
-      const level = ConfigResolver.getConfig("LOGGER_LEVELS", "logger.levels");
-      return level === "debug"
-        ? JSON.stringify(["error", "warn", "log"])
-        : JSON.stringify(["error", "warn", "log", "debug"]);
-    },
+      get levels() {
+          const levelsStr = ConfigResolver.getConfig("LOGGER_LEVELS", "logger.levels");
+          // If it's already an array (from config file), return it
+          if (Array.isArray(levelsStr)) return levelsStr;
+          // If it's a JSON string, parse it
+          if (typeof levelsStr === 'string' && levelsStr.startsWith('[')) {
+              return JSON.parse(levelsStr);
+          }
+          // Legacy support: if it's "debug", return full array
+          return levelsStr === "debug"
+              ? ["error", "warn", "log", "debug"]
+              : ["error", "warn", "log"];
+      },
   },
   minio: {
     get endPoint(): string {
