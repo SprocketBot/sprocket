@@ -82,16 +82,20 @@ config = {
         "host": get_config_value("REDIS_HOST", base_config, "redis.host"),
         "port": int(get_config_value("REDIS_PORT", base_config, "redis.port", 6379)),
         "password": os.environ.get("REDIS_PASSWORD") or load_secret_from_file("../secret/redis-password.txt"),
-        "secure": get_config_value("REDIS_SECURE", base_config, "redis.secure", "false").lower() == "true",
+        "secure": str(get_config_value("REDIS_SECURE", base_config, "redis.secure", "false")).lower() == "true",
     },
     
-    # MinIO
+    # MinIO - preserve both old and new key names for compatibility
     "minio": {
-        "endpoint": get_config_value("MINIO_ENDPOINT", base_config, "minio.endPoint"),
+        "endpoint": get_config_value("MINIO_ENDPOINT", base_config, "minio.hostname") or get_config_value("MINIO_ENDPOINT", base_config, "minio.endPoint"),
+        "hostname": get_config_value("MINIO_ENDPOINT", base_config, "minio.hostname") or get_config_value("MINIO_ENDPOINT", base_config, "minio.endPoint"),
         "port": int(get_config_value("MINIO_PORT", base_config, "minio.port", 9000)),
-        "access_key": os.environ.get("MINIO_ACCESS_KEY") or load_secret_from_file("../secret/minio-access.txt"),
+        "access_key": os.environ.get("MINIO_ACCESS_KEY") or load_secret_from_file("../secret/minio-access.txt") or get_config_value("MINIO_ACCESS_KEY", base_config, "minio.accessKey"),
+        "accessKey": get_config_value("MINIO_ACCESS_KEY", base_config, "minio.accessKey") or os.environ.get("MINIO_ACCESS_KEY") or load_secret_from_file("../secret/minio-access.txt"),
         "secret_key": os.environ.get("MINIO_SECRET_KEY") or load_secret_from_file("../secret/minio-secret.txt"),
-        "secure": get_config_value("MINIO_USE_SSL", base_config, "minio.useSSL", "false").lower() == "true",
+        "secure": str(get_config_value("MINIO_USE_SSL", base_config, "minio.secure", "false")).lower() == "true",
+        "bucket": get_config_value("MINIO_BUCKET", base_config, "minio.bucket"),
+        "parsed_object_prefix": get_config_value("MINIO_PARSED_PREFIX", base_config, "minio.parsed_object_prefix"),
     },
     
     # Transport
