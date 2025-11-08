@@ -32,10 +32,11 @@ def get_config_value(env_key, config_dict, config_key, default=None):
 env = os.environ.get("ENV", "development")
 
 # Load base configurations
-with open("../config/default.json", "r") as f:
+config_dir = os.environ.get("CONFIG_DIR", "/app/config")
+with open(f"{config_dir}/default.json", "r") as f:
     defaultConfig = json.loads(f.read())
 
-with open(f"../config/{env}.json", "r") as f:
+with open(f"{config_dir}/{env}.json", "r") as f:
     envConfig = json.loads(f.read())
 
 # Merge configurations
