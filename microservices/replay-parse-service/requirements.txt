@@ -30,3 +30,4 @@ vine==5.0.0
 wcwidth==0.2.5
 wrapt
 xlrd==1.1.0
+setuptools>=68.0.0
