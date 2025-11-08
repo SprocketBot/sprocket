@@ -3,20 +3,20 @@ import json
 from minio import Minio
 from config import config
 
-# Load minio secretKey from file
-S3_SECRET_FILE = open("../secret/s3-secret", "r")
-S3_SECRET = S3_SECRET_FILE.read()
-if len(S3_SECRET.strip()) == 0:
-    print("Missing required secret: 'secret/s3-secret'`")
-    exit(1)
-S3_SECRET_FILE.close()
+# Lazily initialize client on first use
+_client = None
 
-client = Minio(
-    config["minio"]["hostname"],
-    access_key=config["minio"]["accessKey"],
-    secret_key=S3_SECRET,
-    secure=config["minio"]["secure"],
-)
+def get_client():
+    """Get or create the Minio client instance"""
+    global _client
+    if _client is None:
+        _client = Minio(
+            config["minio"]["hostname"],
+            access_key=config["minio"]["accessKey"],
+            secret_key=config["minio"]["secret_key"],
+            secure=config["minio"]["secure"],
+        )
+    return _client
 
 BUCKET = config["minio"]["bucket"]
 TEMP_DIR = config["tempDir"]
@@ -24,7 +24,7 @@ TEMP_DIR = config["tempDir"]
 def get(object_name):
     """Fetches a file's contents from minio.
     The bucket is configured by config.minio.bucket
-    
+
     Args:
         object_name (str): The name of the object to download.
 
@@ -32,7 +32,7 @@ def get(object_name):
         HTTPResponse: The response from the minio request
 
     """
-    response = client.get_object(BUCKET, object_name)
+    response = get_client().get_object(BUCKET, object_name)
     return json.loads(response.read())
 
 def fget(object_name):
@@ -46,16 +46,16 @@ def fget(object_name):
         str: The path of the local file, <config.tempDir>/<object_name>
     """
     path = f"{TEMP_DIR}/{object_name}"
-    client.fget_object(BUCKET, object_name, path)
+    get_client().fget_object(BUCKET, object_name, path)
     return path
 
 def put(object_name, data):
     """Uploads a file to minio
     The bucket is configured by config.minio.bucket.
-    
+
     Args:
         object_name (str): The name to give the uploaded object.
         data (dict): The data to upload.
     """
     bytes = json.dumps(data).encode("utf-8")
-    client.put_object(BUCKET, object_name, io.BytesIO(bytes), len(bytes))
+    get_client().put_object(BUCKET, object_name, io.BytesIO(bytes), len(bytes))
