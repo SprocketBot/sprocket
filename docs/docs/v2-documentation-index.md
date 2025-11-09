@@ -18,8 +18,9 @@ This document serves as the central index for all Sprocket v2 planning and featu
 
 ### Current Work
 
-- **[Postgres-only Migration](./Postgres-only-migration.md)** - Active work to remove Redis and RabbitMQ
-- **[Detailed Migration Plan](./detailed-migration-plan.md)** - Step-by-step migration details
+- **[Unified Migration to Monolith + PostgreSQL-Only Architecture](./unified-monolith-migration.md)** - **ACTIVE** - Consolidated plan replacing both Redis/RabbitMQ removal and V1 microservices migration
+- ~~[Postgres-only Migration](./Postgres-only-migration.md)~~ - Superseded by unified migration
+- ~~[Detailed Migration Plan](./detailed-migration-plan.md)~~ - Superseded by unified migration
 
 ### Legacy Context
 
@@ -54,23 +55,24 @@ Refactor the Rocket League-centric data model to support multiple game types (Tr
 ---
 
 ### 2. V1 Microservices Migration
-**[feature-v1-microservices-migration.md](./feature-v1-microservices-migration.md)**
+**[feature-v1-microservices-migration.md](./feature-v1-microservices-migration.md)** *(DEPRECATED - see unified migration)*
 
-Migrate five v1 microservices into v2 architecture, removing Redis/RabbitMQ dependencies.
+~~Migrate five v1 microservices into v2 architecture, removing Redis/RabbitMQ dependencies.~~
 
 **Services**:
-1. Notifications (least coupled)
-2. Image Generation (low coupling)
-3. Replay Parse (medium coupling)
-4. Submissions (high coupling - integrate into core)
-5. Matchmaking (highest coupling - integrate into core)
+1. Notifications (remain separate)
+2. Image Generation (remain separate)
+3. Replay Parse (remain separate)
+4. ~~Submissions (integrate into core)~~
+5. ~~Matchmaking (integrate into core)~~
 
 **Key Topics**:
-- PostgreSQL event queue for service communication
-- Docker Compose integration
-- Service consolidation decisions
+- ~~PostgreSQL event queue for service communication~~
+- ~~Docker Compose integration~~
+- ~~Service consolidation decisions~~
 
-**Priority**: P1 (Critical functionality)
+**Note**: This spec has been superseded by the [unified migration plan](./unified-monolith-migration.md) which provides a more efficient approach by integrating high-coupling services (Submissions, Matchmaking) into Core, eliminating their Redis dependencies entirely.
+**Priority**: P1 (Critical functionality - now handled by unified migration)
 
 ---
 
@@ -214,8 +216,8 @@ Quick reference for unresolved design decisions:
 - Where should points calculation logic live (config vs service)?
 
 ### V1 Microservices Migration
-- Which microservices remain separate vs integrate into core?
-- Event queue: pg_notify vs polling vs HTTP webhooks?
+- ~~Which microservices remain separate vs integrate into core?~~ *(Resolved: Submissions & Matchmaking integrate into Core)*
+- ~~Event queue: pg_notify vs polling vs HTTP webhooks?~~ *(Resolved: Polling with PostgreSQL event queue)*
 
 ### Multi-Game ELO
 - Recalculate all dependent matches on invalidation, or limit cascade?

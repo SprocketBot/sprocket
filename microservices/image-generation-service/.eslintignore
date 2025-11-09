@@ -1,0 +1,8 @@
+.eslintrc.js
+jest.config.js
+LICENSE
+package.json
+package-lock.json
+tsconfig.json
+dist
+Dockerfile

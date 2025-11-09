@@ -1,7 +1,12 @@
-# Detailed Migration Plan: Redis & RabbitMQ Removal
+# ~~Detailed Migration Plan: Redis & RabbitMQ Removal~~
+
+## ⚠️ DEPRECATED
+This plan has been superseded by the [Unified Migration to Monolith + PostgreSQL-Only Architecture](./unified-monolith-migration.md) which provides a more efficient approach by integrating Matchmaking and Submissions into Core, eliminating their Redis dependencies entirely.
 
 ## Overview
-This plan details the step-by-step migration to remove Redis and RabbitMQ from the platform, replacing them with PostgreSQL-backed solutions. The migration is split into two phases: Redis removal, then RabbitMQ removal. Each phase includes code, schema, and deployment changes, with references to affected services and files.
+~~This plan details the step-by-step migration to remove Redis and RabbitMQ from the platform, replacing them with PostgreSQL-backed solutions. The migration is split into two phases: Redis removal, then RabbitMQ removal. Each phase includes code, schema, and deployment changes, with references to affected services and files.~~
+
+**Note**: The approach below is retained for historical reference but should not be implemented as-is. Use the unified migration plan instead.
 
 ---
 

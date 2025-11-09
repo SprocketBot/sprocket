@@ -1,8 +1,13 @@
-# Feature Spec: V1 Microservices Migration
+# ~~Feature Spec: V1 Microservices Migration~~
+
+## ⚠️ DEPRECATED
+This plan has been superseded by the [Unified Migration to Monolith + PostgreSQL-Only Architecture](./unified-monolith-migration.md) which provides a more efficient approach by integrating Matchmaking and Submissions into Core, eliminating their Redis dependencies entirely.
 
 ## Overview
 
-Migrate five v1 microservices into the v2 architecture and Docker Compose network, removing dependencies on Redis and RabbitMQ, and integrating with the PostgreSQL-backed data model.
+~~Migrate five v1 microservices into the v2 architecture and Docker Compose network, removing dependencies on Redis and RabbitMQ, and integrating with the PostgreSQL-backed data model.~~
+
+**Note**: The approach below is retained for historical reference but should not be implemented as-is. The unified migration plan provides a more efficient strategy by consolidating services into a monolith where appropriate.
 
 ## Current State
 
@@ -275,6 +280,7 @@ class ReplayFile {
 - Tightly coupled to match data model
 - No benefit to separate deployment
 - Simplifies development (same codebase, shared types)
+- **Eliminates Redis migration complexity** (this was a key insight in the unified plan)
 
 **Migration Plan**:
 1. Replace Redis temporary storage with PostgreSQL tables
@@ -343,6 +349,7 @@ class MatchSubmission {
 - Tightly coupled to player/team/match data
 - Queue state can be managed in PostgreSQL
 - Simplifies deployment and testing
+- **Eliminates Redis migration complexity** (this was a key insight in the unified plan)
 
 **Migration Plan**:
 1. Replace Redis queue with PostgreSQL `ScrimQueue` table

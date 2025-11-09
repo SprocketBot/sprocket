@@ -1,0 +1,9 @@
+{
+  "transport": {
+    "url": "",
+    "analytics_queue": "dev-analytics"
+  },
+  "logger": {
+    "levels": true
+  }
+}
