@@ -1,274 +1,196 @@
-# Submission Service
+# Submission Service - Core Functional Requirements
 
-## Overview
-The Submission Service is a NestJS-based microservice that manages the complete replay submission workflow for the Sprocket platform. It handles replay file uploads, validation, processing, and status tracking, providing a robust and scalable solution for managing Rocket League replay submissions with comprehensive error handling and progress tracking.
+## Purpose
+Manage the complete replay submission workflow, including file upload, validation, processing orchestration, and status tracking for Rocket League replay files.
 
-## Architecture
-- **Language**: TypeScript with NestJS framework
-- **Task Queue**: BullMQ with Redis backend
-- **Storage**: MinIO for file storage
-- **Communication**: RabbitMQ for message-based communication
-- **Validation**: Runtime validation of replay files and metadata
-- **Transport**: RabbitMQ transport for microservice communication
+## Core Functional Requirements
 
-## Core Functionality
+### 1. File Upload Management
+- **Input**: Replay file binary data, filename, player information
+- **Processing**: Validate file format and store securely
+- **Output**: Upload confirmation with file reference
+- **Validation**: Verify file is valid Rocket League replay format
 
-### Submission Workflow
-The service provides a complete replay submission pipeline:
+### 2. Submission Validation
+- **Input**: Uploaded replay file and metadata
+- **Processing**: Comprehensive validation of replay content
+- **Output**: Validation result with detailed error information
+- **Checks**: File integrity, format compliance, duplicate detection
 
-- **File Upload**: Handles replay file uploads with validation
-- **Replay Validation**: Validates replay file format and integrity
-- **Processing Pipeline**: Orchestrates replay processing workflow
-- **Progress Tracking**: Real-time progress updates via RabbitMQ
-- **Status Management**: Comprehensive status tracking throughout the process
-- **Error Handling**: Robust error handling with detailed error reporting
+### 3. Processing Orchestration
+- **Input**: Validated replay submission
+- **Processing**: Coordinate replay parsing and analysis workflow
+- **Output**: Processing job reference and status
+- **Workflow**: Manage submission → validation → parsing → completion pipeline
 
-### Key Components
+### 4. Status Tracking
+- **Input**: Processing job identifier
+- **Processing**: Track submission through processing pipeline
+- **Output**: Real-time status updates and progress information
+- **Visibility**: Provide transparency into processing stages
 
-#### Submission Controller
-- **Message Handler**: Processes submission requests via RabbitMQ
-- **Request Validation**: Validates incoming submission requests
-- **Job Creation**: Creates BullMQ jobs for processing
-- **Response Handling**: Returns job IDs and status information
-- **Error Handling**: Handles validation and processing errors
+## Data Requirements
 
-#### Submission Service
-- **Job Management**: Manages BullMQ job lifecycle
-- **File Operations**: Handles file uploads to MinIO
-- **Validation**: Comprehensive replay file validation
-- **Progress Updates**: Sends progress updates via RabbitMQ
-- **Status Tracking**: Tracks submission status throughout the process
-
-#### Submission Processor
-- **Job Processing**: Processes submission jobs from queue
-- **Replay Validation**: Validates replay file format and metadata
-- **Processing Orchestration**: Orchestrates the complete processing pipeline
-- **Progress Reporting**: Reports progress at each stage
-- **Error Recovery**: Handles processing errors with retry logic
-
-## Data Flow
-
-### Submission Process
-1. **Request Initiation**: Receives submission request with replay file
-2. **File Upload**: Uploads replay file to MinIO storage
-3. **Job Creation**: Creates BullMQ job for processing
-4. **Validation**: Validates replay file format and integrity
-5. **Processing Pipeline**: Orchestrates replay processing workflow
-6. **Progress Updates**: Sends real-time progress updates
-7. **Completion**: Sends final completion status
-
-### Processing Pipeline
-1. **File Validation**: Validates replay file format
-2. **Replay Parsing**: Sends replay to parsing service
-3. **Data Processing**: Processes parsed replay data
-4. **Result Storage**: Stores processing results
-5. **Status Updates**: Updates submission status
-6. **Notification**: Sends completion notifications
-
-## Configuration
-
-### Service Configuration
-```json
-{
-  "transport": {
-    "url": "amqp://rabbitmq:5672",
-    "submission_queue": "submission"
-  },
-  "redis": {
-    "host": "redis",
-    "port": 6379
-  },
-  "bull": {
-    "defaultJobOptions": {
-      "removeOnComplete": 10,
-      "removeOnFail": 5,
-      "attempts": 3,
-      "backoff": {
-        "type": "exponential",
-        "delay": 2000
-      }
-    }
-  },
-  "minio": {
-    "hostname": "minio:9000",
-    "bucket": "replays",
-    "object_prefix": "replays"
-  }
-}
-```
-
-## Data Models
-
-### Submission Request
+### Submission Request Structure
 ```typescript
 interface SubmissionRequest {
   file: Buffer;
   filename: string;
   filehash: string;
-  playerId: number;
+  playerId: string;
   submissionId: string;
+  metadata?: {
+    gameMode?: string;
+    map?: string;
+    date?: Date;
+  };
 }
 ```
 
-### Submission Response
+### Submission Response Structure
 ```typescript
 interface SubmissionResponse {
-  jobId: string;
-  status: string;
-}
-```
-
-### Job Data
-```typescript
-interface JobData {
-  objectName: string;
-  originalFilename: string;
-  filehash: string;
-  playerId: number;
   submissionId: string;
+  status: 'pending' | 'validating' | 'processing' | 'completed' | 'failed';
+  progress: number; // 0-100
+  message: string;
+  result?: {
+    matchId?: string;
+    parsedData?: any;
+    error?: string;
+  };
 }
 ```
 
-## File Storage
+### Processing Status Structure
+```typescript
+interface ProcessingStatus {
+  submissionId: string;
+  stage: 'upload' | 'validation' | 'parsing' | 'completion';
+  progress: number;
+  startedAt: Date;
+  updatedAt: Date;
+  estimatedCompletion?: Date;
+  error?: string;
+}
+```
 
-### MinIO Integration
-- **Bucket Configuration**: Uses dedicated bucket for replays
-- **Object Naming**: Generates unique object names for files
-- **File Organization**: Organizes files by submission ID
-- **Access Control**: Proper access permissions for stored files
-- **Lifecycle Management**: Automatic cleanup of old files
+## Business Logic Requirements
 
-### File Validation
-- **Format Validation**: Validates Rocket League replay format
-- **File Integrity**: Checks file integrity and completeness
-- **Size Validation**: Validates file size constraints
-- **Duplicate Detection**: Detects duplicate submissions
-- **Metadata Validation**: Validates replay metadata
+### File Validation Logic
+- **Format Validation**: Verify file is valid Rocket League replay format
+- **Integrity Check**: Verify file completeness and corruption status
+- **Size Validation**: Enforce reasonable file size limits
+- **Duplicate Detection**: Check if replay has already been submitted
 
-## Progress Tracking
-
-### Progress Updates
-- **Submission Start**: "Submission started..." (0%)
-- **File Upload**: "Uploading replay..." (20%)
-- **Validation**: "Validating replay..." (40%)
-- **Processing**: "Processing replay..." (60%)
-- **Completion**: "Complete!" (100%)
+### Submission Workflow
+1. **File Upload**: Receive and store replay file
+2. **Initial Validation**: Basic file format and integrity checks
+3. **Duplicate Check**: Verify replay hasn't been processed before
+4. **Processing Queue**: Add to processing queue for detailed analysis
+5. **Status Updates**: Provide progress updates throughout process
+6. **Completion**: Store results and notify completion
 
 ### Status Management
-- **Pending**: Submission received and queued
-- **Processing**: Currently being processed
-- **Completed**: Successfully processed
-- **Failed**: Processing failed with error
-- **Cancelled**: Processing was cancelled
-
-### Progress Queue
-- **Real-time Updates**: Sends progress messages to specified queue
-- **Error Handling**: Sends error messages on failure
-- **Completion**: Sends final result on successful completion
-- **Status Tracking**: Tracks processing status throughout
-
-## Error Handling
-
-### Validation Errors
-- **File Format**: Invalid replay file format
-- **File Size**: File size exceeds limits
-- **Metadata**: Missing or invalid metadata
-- **Duplicate**: Duplicate submission detection
-- **Corruption**: Corrupted or incomplete files
-
-### Processing Errors
-- **Network Errors**: Connection failures during processing
-- **Storage Errors**: MinIO upload/download failures
-- **Queue Errors**: BullMQ job processing errors
-- **Validation Errors**: Replay validation failures
-- **Timeout Errors**: Processing timeout errors
-
-### Retry Strategy
-- **Max Retries**: 3 attempts for failed jobs
-- **Backoff Strategy**: Exponential backoff with 2-second delay
-- **Error Recovery**: Automatic retry on recoverable errors
-- **Dead Letter**: Failed jobs moved to dead letter queue
-
-## Performance Considerations
-
-### Queue Management
-- **Job Concurrency**: Configurable job concurrency
-- **Queue Priority**: Priority-based job processing
-- **Resource Management**: Efficient resource utilization
-- **Memory Management**: Proper memory cleanup after processing
-- **Connection Pooling**: Reuses connections where possible
-
-### File Handling
-- **Stream Processing**: Uses streams for large file processing
-- **Chunked Upload**: Chunked uploads for large files
-- **Temporary Files**: Proper cleanup of temporary files
-- **Buffer Management**: Efficient buffer management
-- **Compression**: Optional compression for file storage
-
-## Security Features
-
-### File Security
-- **File Validation**: Validates file content and format
-- **Access Control**: Proper access controls for file operations
-- **Secure Storage**: Secure file storage in MinIO
-- **Audit Trail**: Complete audit trail for file operations
-- **Virus Scanning**: Optional virus scanning for uploaded files
-
-### Data Protection
-- **Input Validation**: Validates all input data
-- **Data Sanitization**: Sanitizes data before processing
-- **Access Control**: Proper access controls for data access
-- **Encryption**: Supports encryption for sensitive data
-- **Privacy**: Handles user data according to privacy regulations
+- **Stage Tracking**: Track current processing stage
+- **Progress Calculation**: Calculate and report completion percentage
+- **Time Estimation**: Estimate remaining processing time
+- **Error Reporting**: Report errors with detailed information
 
 ## Integration Points
 
-### External Services
-- **MinIO**: File storage and retrieval
-- **RabbitMQ**: Progress updates and notifications
-- **Redis**: BullMQ job queue backend
-- **Replay Parse Service**: Replay parsing integration
+### Database Integration
+- **Submission Storage**: Store submission metadata and status
+- **File Storage**: Store replay file content and references
+- **Status Tracking**: Track processing status and history
+- **Result Storage**: Store processing results and parsed data
 
-### Internal Dependencies
-- **NestJS**: Framework for service development
-- **BullMQ**: Job queue management
-- **MinIO Client**: MinIO client library
-- **Validation Libraries**: Runtime validation libraries
+### Processing Integration
+- **Replay Parsing**: Integrate with replay parsing service
+- **Validation Services**: Use validation services for file checking
+- **Queue Management**: Manage processing queue and priorities
+- **Result Processing**: Process and store parsing results
 
-## Monitoring and Observability
+## Error Handling Requirements
 
-### Logging
-- **Structured Logging**: Structured logs for easy parsing
-- **Log Levels**: Configurable log levels (error, warn, info, debug)
-- **Context Logging**: Includes context information in logs
-- **Log Aggregation**: Compatible with log aggregation systems
+### Validation Errors
+- **Invalid Format**: Handle non-replay files or corrupted replays
+- **File Size**: Handle files exceeding size limits
+- **Duplicate Submission**: Handle attempts to submit already-processed replays
+- **Missing Data**: Handle submissions with incomplete metadata
 
-### Metrics
-- **Processing Metrics**: Tracks submission processing performance
-- **Error Metrics**: Tracks error rates and types
-- **Throughput Metrics**: Tracks submission throughput
-- **Latency Metrics**: Tracks processing latency
+### Processing Errors
+- **Upload Failures**: Handle file upload failures
+- **Validation Failures**: Handle validation check failures
+- **Processing Failures**: Handle replay parsing failures
+- **Storage Failures**: Handle database or file storage failures
 
-### Health Monitoring
-- **Service Health**: Monitors service health and availability
-- **Queue Health**: Monitors BullMQ queue health
-- **Storage Health**: Monitors MinIO storage health
-- **Alerting**: Can be configured for alerting on issues
+### Recovery Strategies
+- **Retry Logic**: Implement retry for transient failures
+- **Error Reporting**: Provide detailed error information to users
+- **Graceful Degradation**: Continue operation when individual submissions fail
+- **Manual Recovery**: Support manual retry of failed submissions
 
-## Deployment Considerations
+## Performance Requirements
 
-### Scaling
-- **Horizontal Scaling**: Multiple service instances
-- **Queue Workers**: Multiple BullMQ workers for parallel processing
-- **Load Balancing**: Load balancing across service instances
-- **Resource Allocation**: Proper resource allocation for performance
-- **Auto-scaling**: Can be configured for auto-scaling
+### Response Times
+- **File Upload**: < 5s for file upload and initial validation
+- **Submission Processing**: < 1s to create processing job
+- **Status Queries**: < 100ms for status check requests
+- **Completion Notification**: < 1s to notify completion
 
-### High Availability
-- **Redundancy**: Multiple service instances for redundancy
-- **Failover**: Automatic failover capabilities
-- **Data Replication**: MinIO supports data replication
-- **Backup Strategy**: Proper backup strategy for data protection
-- **Disaster Recovery**: Disaster recovery capabilities
+### Throughput
+- **Concurrent Submissions**: Handle multiple simultaneous submissions
+- **Queue Processing**: Process submissions at sustainable rate
+- **File Size Handling**: Efficiently handle large replay files
+- **Resource Management**: Efficient memory and storage usage
 
-This service is essential for managing the complete replay submission workflow, ensuring reliable file uploads, comprehensive validation, and robust processing with real-time progress tracking and comprehensive error handling.
+## Security Requirements
+
+### File Security
+- **File Validation**: Validate file content before processing
+- **Size Limits**: Enforce reasonable file size limits
+- **Type Restrictions**: Only accept valid replay file types
+- **Virus Scanning**: Optional scanning for malicious content
+
+### Data Protection
+- **User Authentication**: Verify user identity for submissions
+- **Access Control**: Control who can submit and view replays
+- **Privacy Protection**: Handle player data according to privacy policies
+- **Audit Logging**: Log submission attempts for security audit
+
+## Testing Requirements
+
+### Unit Tests
+- **File Validation**: Test replay file validation logic
+- **Status Management**: Test status tracking and updates
+- **Error Handling**: Test error scenarios and recovery
+- **Workflow Logic**: Test submission workflow logic
+
+### Integration Tests
+- **File Upload**: Test file upload and storage integration
+- **Database Integration**: Test database storage and retrieval
+- **Processing Integration**: Test integration with parsing services
+- **End-to-End Tests**: Test complete submission workflows
+
+## Migration Considerations
+
+### Database Schema
+- **Submissions Table**: Store submission metadata and status
+- **Replay Files Table**: Store replay file content and references
+- **Processing Status Table**: Track processing status and history
+- **Submission Results Table**: Store processing results and errors
+
+### Code Organization
+- **Service Layer**: Business logic for submission management
+- **Repository Layer**: Database access for submissions and files
+- **Controller Layer**: API endpoints for submission operations
+- **Workflow Layer**: Orchestrate submission processing workflow
+
+### Configuration
+- **File Limits**: Configure file size and format restrictions
+- **Processing Settings**: Configure validation and processing rules
+- **Storage Settings**: Configure file storage and retention
+- **Queue Settings**: Configure processing queue behavior
+
+This focused documentation captures the essential submission management functionality that needs to be integrated into the monolithic backend, emphasizing file handling, workflow orchestration, and status tracking without microservice-specific implementation details.

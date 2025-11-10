@@ -1,136 +1,187 @@
-# Matchmaking Service
+# Matchmaking Service - Core Functional Requirements
 
-## Overview
-The Matchmaking Service is a sophisticated NestJS-based microservice that manages competitive matchmaking for Rocket League tournaments and scrims. It handles player queueing, team formation, match creation, and lifecycle management with real-time state tracking and timeout handling.
+## Purpose
+Manage competitive matchmaking for players, including skill-based matching, queue management, and scrim (practice match) organization.
 
-## Architecture
-- **Framework**: NestJS with TypeScript
-- **Transport**: RabbitMQ (RMQ)
-- **Queue Management**: BullMQ for job processing
-- **State Management**: Redis for distributed state
-- **Communication**: gRPC-style message patterns with timeout handling
+## Core Functional Requirements
 
-## Core Functionality
+### 1. Player Matchmaking
+- **Input**: Player ID, skill rating, game mode preferences
+- **Processing**: Find suitable opponents based on skill level and availability
+- **Output**: Matched players/teams for competitive play
+- **Skill Matching**: Balance teams based on player skill ratings
 
-### Scrim Management
-The service manages competitive matches called "scrims" with the following capabilities:
+### 2. Scrim Management
+- **Scrim Creation**: Create practice matches with configurable settings
+- **Player Invitations**: Invite players to join scrims
+- **Scrim Status**: Track scrim lifecycle (pending, active, completed)
+- **Settings Management**: Configure scrim rules, maps, and parameters
 
-- **Scrim Creation**: Create new scrims with specific game modes and settings
-- **Player Queueing**: Handle player joining and leaving scrims
-- **Team Formation**: Automatically form balanced teams
-- **State Management**: Track scrim lifecycle from pending to completion
-- **Timeout Handling**: Automatic timeout for pending and popped scrims
+### 3. Queue Management
+- **Queue Entry**: Add players to matchmaking queues
+- **Queue Status**: Track player position and estimated wait time
+- **Queue Exit**: Remove players from queues (voluntary or timeout)
+- **Multiple Queues**: Support different game modes and skill brackets
 
-### Key Components
+### 4. Timeout Handling
+- **Pending Timeout**: Auto-cancel scrims that remain pending too long
+- **Popped Timeout**: Handle scrims that don't start after being matched
+- **Queue Timeout**: Remove inactive players from queues
+- **Grace Periods**: Configurable timeout durations
 
-#### MatchmakingService
-- **Client Interface**: Provides clean API for other services to interact with
-- **Timeout Handling**: 2-second timeout for all operations
-- **Error Handling**: Comprehensive error propagation and logging
-- **State Validation**: Ensures data consistency across operations
+## Data Requirements
 
-#### ScrimService & ScrimCrudService
-- **Scrim Lifecycle**: Manages scrim creation, updates, and deletion
-- **Player Management**: Handles player joining/leaving scrims
-- **State Transitions**: Manages scrim state changes (pending, popped, in-progress, complete)
-- **Validation**: Ensures scrim data integrity
-
-#### Timeout Processors
-- **ScrimPendingTimeoutProcessor**: Handles timeout for scrims in pending state
-- **ScrimPoppedTimeoutProcessor**: Handles timeout for scrims that have been "popped" (teams formed)
-- **Queue Management**: Uses BullMQ for reliable job processing
-- **Redis Integration**: Stores timeout jobs in Redis
-
-## Data Models
-
-### Scrim
+### Player Data Structure
 ```typescript
-interface Scrim {
+interface Player {
   id: string;
-  gameModeId: number;
-  skillGroupId: number;
-  status: ScrimState;
-  players: Player[];
-  teams?: Team[];
-  settings: ScrimSettings;
-  createdAt: Date;
-  updatedAt: Date;
+  name: string;
+  skillRating: number;
+  rank: string;
+  gamePreferences: {
+    modes: string[];
+    regions: string[];
+  };
+  queueStatus: 'idle' | 'queued' | 'in-scrim';
 }
 ```
 
-### Scrim States
-- **Pending**: Waiting for enough players to join
-- **Popped**: Teams have been formed, waiting for match to start
-- **In Progress**: Match is currently being played
-- **Complete**: Match has finished
+### Scrim Data Structure
+```typescript
+interface Scrim {
+  id: string;
+  status: 'pending' | 'active' | 'completed' | 'cancelled';
+  gameMode: string;
+  skillBracket: string;
+  players: Player[];
+  maxPlayers: number;
+  settings: ScrimSettings;
+  createdAt: Date;
+  startedAt?: Date;
+  completedAt?: Date;
+}
+```
 
-## API Endpoints
+### Queue Data Structure
+```typescript
+interface QueueEntry {
+  playerId: string;
+  gameMode: string;
+  skillRating: number;
+  enteredAt: Date;
+  estimatedWaitTime: number;
+}
+```
 
-### Scrim Operations
-- **List Scrims**: Retrieve all available scrims
-- **Create Scrim**: Create a new scrim with specified parameters
-- **Join Scrim**: Add a player to an existing scrim
-- **Leave Scrim**: Remove a player from a scrim
-- **Get Scrim for User**: Retrieve the scrim a specific user is in
-- **Get Scrim Pending TTL**: Get time-to-live for pending scrim
+## Business Logic Requirements
 
-## Configuration
+### Matchmaking Algorithm
+- **Skill-Based Matching**: Match players within acceptable skill range
+- **Wait Time Balance**: Balance skill accuracy vs. wait time
+- **Geographic Preference**: Consider player location for latency
+- **Game Mode Matching**: Match players for specific game modes
 
-### Queue Configuration
-- **Scrim Pending Timeout Queue**: Handles pending scrim timeouts
-- **Scrim Popped Timeout Queue**: Handles popped scrim timeouts
-- **Redis Connection**: Host and port configuration for Redis
+### Scrim Lifecycle
+1. **Creation**: Player creates scrim with settings
+2. **Invitation**: Players invited or join scrim
+3. **Pending**: Wait for required number of players
+4. **Active**: Scrim starts and gameplay begins
+5. **Completion**: Scrim ends and results recorded
 
-### Timeout Settings
-- **Pending Timeout**: Configurable timeout for scrims in pending state
-- **Popped Timeout**: Configurable timeout for scrims after team formation
-
-## Data Flow
-
-1. **Scrim Creation**: Creates new scrim with initial state
-2. **Player Joining**: Players join scrim, state updates to pending
-3. **Team Formation**: When enough players join, teams are automatically formed
-4. **State Transitions**: Scrim moves through various states based on player actions and timeouts
-5. **Completion**: Scrim completes when match finishes or times out
-
-## Timeout Management
-- **Automatic Timeouts**: Scrims automatically timeout if not enough players join
-- **State-based Timeouts**: Different timeout periods for different scrim states
-- **Job Processing**: Uses BullMQ workers for reliable timeout handling
-- **Redis Persistence**: Timeout jobs persisted in Redis for reliability
-
-## Error Handling
-- **Timeout Protection**: All operations have 2-second timeout protection
-- **State Validation**: Ensures scrim state transitions are valid
-- **Error Propagation**: Proper error handling and logging
-- **Rollback Support**: Ability to revert invalid state changes
-
-## Performance Considerations
-- **Redis Caching**: Fast state retrieval and updates
-- **Queue Processing**: Asynchronous job processing for timeouts
-- **Connection Pooling**: Efficient Redis connection management
-- **Load Balancing**: Multiple workers can process timeout jobs
-
-## Security Features
-- **Input Validation**: Validates all incoming requests
-- **State Authorization**: Ensures only authorized state transitions
-- **Rate Limiting**: Prevents abuse through queue management
+### Timeout Management
+- **Pending Scrim Timeout**: Cancel scrims pending > X minutes
+- **Popped Scrim Timeout**: Cancel scrims not started > Y minutes
+- **Queue Timeout**: Remove players idle > Z minutes
+- **Configurable Durations**: Admin-configurable timeout values
 
 ## Integration Points
-- **Redis**: For state management and job queuing
-- **RabbitMQ**: For inter-service communication
-- **Common Library**: Shared types and utilities from `@sprocketbot/lib`
 
-## Deployment
-- **Container**: Docker-based deployment
-- **Scalability**: Horizontal scaling through Redis clustering
-- **Monitoring**: Health checks and metrics collection
-- **Queue Workers**: Multiple workers for job processing
+### Database Integration
+- **Player Storage**: Store player profiles and skill ratings
+- **Scrim History**: Track scrim results and statistics
+- **Queue State**: Maintain current queue state
+- **Match Records**: Store completed match information
 
-## Testing
-- **Unit Tests**: Individual service testing
-- **Integration Tests**: Redis and queue integration testing
-- **Timeout Testing**: Specific timeout scenario testing
-- **Load Testing**: Performance under high load conditions
+### Real-time Updates
+- **Queue Status**: Notify players of queue position changes
+- **Scrim Updates**: Notify players of scrim status changes
+- **Match Found**: Notify players when match is found
+- **Timeout Warnings**: Warn players before timeouts occur
 
-This service is critical for managing the competitive matchmaking experience, ensuring fair team formation, proper state management, and reliable timeout handling for Rocket League tournaments and scrims within the Sprocket platform.
+## Error Handling Requirements
+
+### Validation Errors
+- **Invalid Player**: Handle non-existent or banned players
+- **Invalid Settings**: Validate scrim configuration parameters
+- **Skill Mismatch**: Handle extreme skill rating differences
+- **Capacity Limits**: Enforce maximum queue/scrim sizes
+
+### Processing Errors
+- **Matchmaking Failures**: Handle cases where no suitable match found
+- **Scrim Creation Failures**: Handle scrim creation errors
+- **Player State Conflicts**: Handle players in multiple queues/scrims
+- **Concurrent Updates**: Handle race conditions in state updates
+
+## Performance Requirements
+
+### Response Times
+- **Queue Entry**: < 200ms to add player to queue
+- **Matchmaking**: < 5s to find initial matches
+- **Scrim Creation**: < 500ms to create new scrim
+- **Status Updates**: < 100ms for state changes
+
+### Scalability
+- **Concurrent Players**: Support hundreds of concurrent players
+- **Queue Capacity**: Handle thousands of queue entries
+- **Scrim Volume**: Support dozens of active scrims
+- **Match Rate**: Process matches at sustainable rate
+
+## Security Requirements
+
+### Access Control
+- **Player Authentication**: Verify player identity
+- **Scrim Permissions**: Control who can create/join scrims
+- **Queue Restrictions**: Enforce rank/mode restrictions
+- **Rate Limiting**: Prevent abuse of matchmaking system
+
+### Data Protection
+- **Skill Rating Privacy**: Protect sensitive player data
+- **Match History**: Secure access to match records
+- **Player State**: Prevent unauthorized state changes
+- **Audit Logging**: Log important state changes
+
+## Testing Requirements
+
+### Unit Tests
+- **Matchmaking Logic**: Test skill-based matching algorithms
+- **Scrim State Machine**: Test scrim lifecycle transitions
+- **Timeout Logic**: Test timeout handling and cleanup
+- **Validation Rules**: Test input validation logic
+
+### Integration Tests
+- **Database Operations**: Test database integration
+- **Concurrent Operations**: Test race condition handling
+- **Performance Tests**: Test under load conditions
+- **End-to-End Tests**: Test complete matchmaking workflows
+
+## Migration Considerations
+
+### Database Schema
+- **Players Table**: Store player profiles and skill ratings
+- **Scrims Table**: Store scrim information and status
+- **Queue Table**: Store current queue state
+- **Match History**: Store completed match records
+
+### Code Organization
+- **Service Layer**: Business logic for matchmaking and scrim management
+- **Repository Layer**: Database access for players, scrims, and queues
+- **Controller Layer**: API endpoints for matchmaking operations
+- **Background Jobs**: Handle timeout and cleanup tasks
+
+### Configuration
+- **Matchmaking Rules**: Configure skill matching parameters
+- **Timeout Settings**: Configure timeout durations
+- **Queue Settings**: Configure queue behavior and limits
+- **Game Mode Settings**: Configure available game modes
+
+This focused documentation captures the essential matchmaking functionality that needs to be integrated into the monolithic backend, emphasizing player matching, scrim management, and queue operations without microservice-specific implementation details.

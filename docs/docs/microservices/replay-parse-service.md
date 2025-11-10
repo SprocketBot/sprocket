@@ -1,224 +1,225 @@
-# Replay Parse Service
+# Replay Parse Service - Core Functional Requirements
 
-## Overview
-The Replay Parse Service is a Python-based microservice that processes Rocket League replay files to extract game statistics and analytics. It integrates with the Ballchasing API for replay parsing and provides a robust, scalable solution for handling replay analysis with caching, progress tracking, and comprehensive error handling.
+## Purpose
+Process Rocket League replay files to extract game statistics, player performance data, and match analytics for competitive analysis and record keeping.
 
-## Architecture
-- **Language**: Python 3.x
-- **Task Queue**: Celery with Redis backend
-- **Storage**: MinIO for file storage
-- **API Integration**: Ballchasing API for replay parsing
-- **Communication**: RabbitMQ for message-based communication
-- **Analytics**: Built-in analytics and progress tracking
+## Core Functional Requirements
 
-## Core Functionality
+### 1. Replay File Validation
+- **Input**: Replay file binary data
+- **Processing**: Validate file format, integrity, and completeness
+- **Output**: Validation result with error details if invalid
+- **Format Support**: Support standard Rocket League replay format (.replay files)
 
-### Replay Processing Pipeline
-The service provides a complete replay processing workflow:
+### 2. Replay Parsing
+- **Input**: Validated replay file
+- **Processing**: Extract game data, player statistics, and match events
+- **Output**: Structured match data with comprehensive statistics
+- **Data Extraction**: Parse goals, saves, shots, assists, and other game events
 
-- **File Retrieval**: Downloads replay files from MinIO storage
-- **API Integration**: Uploads to Ballchasing API for parsing
-- **Progress Tracking**: Real-time progress updates via RabbitMQ
-- **Result Caching**: Caches parsed results in MinIO to avoid reprocessing
-- **Analytics Collection**: Comprehensive timing and performance metrics
+### 3. External API Integration
+- **Input**: Replay file for processing
+- **Processing**: Upload to external parsing service (Ballchasing API)
+- **Output**: Parsed match statistics and analytics
+- **Fallback**: Handle API failures with appropriate error responses
 
-### Key Components
+### 4. Result Processing
+- **Input**: Raw parsed data from external service
+- **Processing**: Transform and normalize data to application format
+- **Output**: Standardized match statistics suitable for storage and display
+- **Data Mapping**: Map external API fields to internal data structure
 
-#### ParseReplay Task
-- **Celery Task**: Main task for replay processing
-- **Progress Updates**: Sends progress messages via RabbitMQ
-- **Error Handling**: Comprehensive error handling with retry logic
-- **Caching**: Checks for existing parsed results before processing
-- **Analytics**: Collects performance metrics throughout the process
+## Data Requirements
 
-#### Ballchasing API Integration
-- **Upload Handling**: Manages replay upload with retry logic
-- **Rate Limit Handling**: Handles API rate limits gracefully
-- **Status Monitoring**: Monitors parsing status (pending, failed, ok)
-- **Duplicate Detection**: Handles already-uploaded replays
-- **Backoff Strategy**: Exponential backoff for retries
-
-#### Analytics System
-- **Timing Metrics**: Tracks get, parse, and put operations
-- **Performance Monitoring**: Measures replay size and processing time
-- **Success Tracking**: Monitors success/failure rates
-- **Cache Hit Tracking**: Tracks cache utilization
-
-## Data Flow
-
-1. **Task Initiation**: Receives replay processing request via Celery
-2. **Cache Check**: Checks if replay has already been processed
-3. **File Retrieval**: Downloads replay file from MinIO
-4. **API Upload**: Uploads replay to Ballchasing API with retries
-5. **Status Monitoring**: Monitors parsing status with progress updates
-6. **Result Retrieval**: Downloads parsed statistics when ready
-7. **Storage**: Uploads results to MinIO for future use
-8. **Analytics**: Sends performance metrics to analytics queue
-
-## Configuration
-
-### Service Configuration
-```json
-{
-  "celery": {
-    "broker": "redis://redis:6379/0",
-    "backend": "redis://redis:6379/0",
-    "queue": "replay-parse"
-  },
-  "transport": {
-    "url": "amqp://rabbitmq:5672",
-    "analytics_queue": "analytics"
-  },
-  "minio": {
-    "hostname": "minio:9000",
-    "bucket": "replays",
-    "parsed_object_prefix": "parsed"
-  },
-  "ballchasing": {
-    "maxRetries": 4,
-    "backoffFactor": 4
-  },
-  "parser": "ballchasing",
-  "disableCache": false
+### Replay File Structure
+```typescript
+interface ReplayFile {
+  filename: string;
+  filehash: string;
+  filesize: number;
+  content: Buffer;
+  uploadedBy: string;
+  uploadedAt: Date;
 }
 ```
 
-## API Integration Details
-
-### Ballchasing API
-- **Token Management**: Reads API token from secret file
-- **Rate Limiting**: Handles 429 responses with retry logic
-- **Status Codes**: 
-  - `200`: Successful parsing
-  - `400`: Failed replay (bad format)
-  - `409`: Duplicate replay (already uploaded)
-  - `429`: Rate limited
-- **Retry Logic**: Up to 4 retries with exponential backoff
-
-### Upload Process
-1. **Initial Upload**: Attempts to upload replay file
-2. **Duplicate Handling**: If duplicate detected, uses existing ID
-3. **Failed Handling**: If replay is invalid, fails immediately
-4. **Rate Limit Handling**: Waits and retries on rate limits
-
-### Status Monitoring
-1. **Pending Status**: Replay is being processed by Ballchasing
-2. **Failed Status**: Replay could not be parsed
-3. **OK Status**: Replay successfully parsed and ready
-
-## Progress Tracking
-
-### Progress Updates
-- **Task Start**: "Task started..." (10%)
-- **File Download**: "Fetching replay..." (20%)
-- **API Upload**: "Uploading replay to Ballchasing" (varies)
-- **API Processing**: "Getting stats from Ballchasing" (varies)
-- **Completion**: "Complete!" (100%)
-
-### Progress Queue
-- **Real-time Updates**: Sends progress messages to specified queue
-- **Error Handling**: Sends error messages on failure
-- **Completion**: Sends final result on successful completion
-
-## Analytics Collection
-
-### Metrics Tracked
-- **Task ID**: Unique identifier for tracking
-- **Success Rate**: Percentage of successful parses
-- **Cache Hit Rate**: Percentage of cached vs. processed replays
-- **Replay Size**: Size of replay files in kilobytes
-- **Timing Metrics**:
-  - **Get Time**: Time to download replay from MinIO
-  - **Parse Time**: Time to parse replay via API
-  - **Put Time**: Time to upload results to MinIO
-  - **Total Time**: Total processing time
-
-### Analytics Format
-```json
-{
-  "pattern": "analytics",
-  "data": {
-    "name": "parseReplay",
-    "tags": [["taskId", "..."], ["hash", "..."], ["parser", "ballchasing"]],
-    "booleans": [["success", true], ["cached", false]],
-    "ints": [["getMs", 123], ["parseMs", 456], ["putMs", 78], ["totalMs", 657], ["replayKb", 1024]]
-  }
+### Parsed Match Data Structure
+```typescript
+interface ParsedMatch {
+  matchId: string;
+  duration: number;
+  date: Date;
+  gameMode: string;
+  map: string;
+  
+  teams: Array<{
+    name: string;
+    color: string;
+    score: number;
+    players: PlayerStats[];
+  }>;
+  
+  players: PlayerStats[];
+  
+  events: Array<{
+    type: 'goal' | 'save' | 'shot' | 'assist';
+    time: number;
+    player: string;
+    team: string;
+  }>;
 }
 ```
 
-## Error Handling
+### Player Statistics Structure
+```typescript
+interface PlayerStats {
+  playerId: string;
+  playerName: string;
+  team: string;
+  
+  // Core stats
+  score: number;
+  goals: number;
+  assists: number;
+  saves: number;
+  shots: number;
+  
+  // Advanced stats
+  shootingPercentage: number;
+  savePercentage: number;
+  scorePerMinute: number;
+  
+  // Performance metrics
+  possessionTime: number;
+  boostUsage: number;
+  distanceTraveled: number;
+  
+  // Position data
+  averagePosition: {
+    x: number;
+    y: number;
+    z: number;
+  };
+}
+```
 
-### Retry Strategy
-- **Max Retries**: 4 attempts for API operations
-- **Backoff Factor**: Exponential backoff with factor of 4
-- **Delay Calculation**: Delays of [0, 4, 16, 64] seconds
-- **Total Delay**: Up to 84 seconds maximum delay
+## Business Logic Requirements
 
-### Error Types
-- **Network Errors**: Connection failures, timeouts
-- **API Errors**: Rate limiting, invalid replays
-- **Storage Errors**: MinIO upload/download failures
-- **Parsing Errors**: Invalid replay format, corrupted files
+### File Validation Logic
+- **Format Validation**: Verify file is valid Rocket League replay format
+- **Integrity Check**: Verify file is not corrupted or incomplete
+- **Size Validation**: Enforce reasonable file size limits
+- **Duplicate Detection**: Check if replay has already been processed
 
-### Error Recovery
-- **Automatic Retry**: Most errors trigger retry logic
-- **Graceful Degradation**: Continues processing on non-critical errors
-- **Progress Updates**: Sends error status via progress queue
-- **Analytics**: Records failure metrics for monitoring
+### Parsing Workflow
+1. **File Upload**: Receive and store replay file
+2. **Validation**: Validate replay file format and integrity
+3. **API Upload**: Upload to external parsing service
+4. **Status Monitoring**: Monitor parsing progress
+5. **Result Retrieval**: Download parsed results when ready
+6. **Data Transformation**: Convert to internal format
+7. **Storage**: Store parsed results in database
 
-## Performance Considerations
-
-### Caching Strategy
-- **Result Caching**: Parsed results stored in MinIO
-- **Cache Key**: Based on replay file hash
-- **Cache Bypass**: Option to disable caching for testing
-- **Cache Validation**: Checks cache before processing
-
-### Concurrency
-- **Celery Workers**: Multiple workers for parallel processing
-- **Rate Limiting**: Respects Ballchasing API rate limits
-- **Queue Management**: Efficient task distribution
-
-### Resource Management
-- **Temporary Files**: Automatic cleanup of downloaded files
-- **Memory Management**: Efficient handling of large replay files
-- **Connection Pooling**: Reuses connections where possible
-
-## Security Features
-
-### API Security
-- **Token Management**: Secure storage of Ballchasing API token
-- **Rate Limiting**: Built-in rate limiting to prevent abuse
-- **Input Validation**: Validates replay file formats
-
-### Data Protection
-- **File Encryption**: Replays stored securely in MinIO
-- **Access Control**: Proper access permissions for storage
-- **Audit Trail**: Complete logging of all operations
+### Data Transformation
+- **Field Mapping**: Map external API fields to internal structure
+- **Data Normalization**: Normalize data formats and units
+- **Statistical Calculations**: Calculate derived statistics
+- **Validation**: Validate transformed data completeness
 
 ## Integration Points
 
-### External Services
-- **Ballchasing API**: Primary parsing service
-- **MinIO**: File storage and retrieval
-- **RabbitMQ**: Progress updates and analytics
-- **Redis**: Celery task queue backend
+### Database Integration
+- **Replay Storage**: Store replay file metadata and content
+- **Parsed Data Storage**: Store parsed match statistics
+- **Processing Status**: Track parsing status and history
+- **Duplicate Prevention**: Prevent reprocessing of existing replays
 
-### Internal Dependencies
-- **Celery**: Task queue management
-- **python-ballchasing**: Ballchasing API client
-- **minio-py**: MinIO client library
+### External Service Integration
+- **API Authentication**: Handle authentication with external parsing service
+- **Rate Limiting**: Respect API rate limits and quotas
+- **Error Handling**: Handle API errors and service unavailability
+- **Retry Logic**: Implement retry logic for transient failures
 
-## Deployment Considerations
+## Error Handling Requirements
 
-### Scaling
-- **Horizontal Scaling**: Multiple Celery workers
-- **Load Balancing**: Distribute tasks across workers
-- **Resource Monitoring**: Monitor CPU and memory usage
+### Validation Errors
+- **Invalid Format**: Handle non-replay files or corrupted replays
+- **File Size**: Handle files that exceed size limits
+- **Duplicate Files**: Handle attempts to process already-processed replays
+- **Missing Data**: Handle replays with incomplete or missing data
 
-### Monitoring
-- **Analytics Metrics**: Comprehensive performance metrics
-- **Error Tracking**: Detailed error logging and tracking
-- **Health Checks**: Service health monitoring
+### Processing Errors
+- **API Failures**: Handle external service failures
+- **Network Issues**: Handle network connectivity problems
+- **Timeout Errors**: Handle processing timeouts
+- **Data Corruption**: Handle corrupted or invalid parsed data
 
-This service is essential for processing Rocket League replays to extract game statistics, enabling detailed match analysis, player performance tracking, and competitive statistics within the Sprocket platform.
+### Recovery Strategies
+- **Retry Attempts**: Configurable retry attempts for failed processing
+- **Fallback Options**: Alternative parsing methods if primary fails
+- **Error Reporting**: Detailed error reporting for debugging
+- **Graceful Degradation**: Continue operation when individual replays fail
+
+## Performance Requirements
+
+### Processing Times
+- **Validation**: < 1s for replay file validation
+- **API Upload**: < 10s for upload to external service
+- **Parsing**: < 60s for complete parsing process
+- **Data Transformation**: < 5s for data transformation
+
+### Throughput
+- **Concurrent Processing**: Handle multiple replays simultaneously
+- **Queue Management**: Manage processing queue efficiently
+- **Resource Usage**: Efficient CPU and memory usage
+- **Storage Efficiency**: Optimize storage for replay files and results
+
+## Security Requirements
+
+### File Security
+- **File Validation**: Validate file content before processing
+- **Size Limits**: Enforce reasonable file size limits
+- **Type Restrictions**: Only accept valid replay file types
+- **Malware Scanning**: Optional virus scanning for uploaded files
+
+### Data Protection
+- **Privacy**: Handle player data according to privacy regulations
+- **Access Control**: Restrict access to parsed match data
+- **Audit Logging**: Log replay processing for security audit
+- **Data Retention**: Implement appropriate data retention policies
+
+## Testing Requirements
+
+### Unit Tests
+- **File Validation**: Test replay file validation logic
+- **Data Transformation**: Test data transformation and mapping
+- **Error Handling**: Test error scenarios and recovery
+- **API Integration**: Test external service integration
+
+### Integration Tests
+- **End-to-End Processing**: Test complete replay processing workflow
+- **External Service Tests**: Test integration with parsing API
+- **Database Tests**: Test data storage and retrieval
+- **Performance Tests**: Test processing performance under load
+
+## Migration Considerations
+
+### Database Schema
+- **Replay Files Table**: Store replay file metadata and content
+- **Parsed Matches Table**: Store parsed match statistics
+- **Processing Queue Table**: Track processing status and history
+- **Player Stats Table**: Store individual player statistics
+
+### Code Organization
+- **Service Layer**: Business logic for replay processing
+- **Repository Layer**: Database access for replays and parsed data
+- **Integration Layer**: External service integration logic
+- **Validation Layer**: File and data validation logic
+
+### Configuration
+- **External API**: Configure external parsing service credentials
+- **Processing Limits**: Configure file size and processing limits
+- **Retry Settings**: Configure retry attempts and timeouts
+- **Storage Settings**: Configure replay file storage settings
+
+This focused documentation captures the essential replay parsing functionality that needs to be integrated into the monolithic backend, emphasizing file processing, data extraction, and external API integration without microservice-specific implementation details.

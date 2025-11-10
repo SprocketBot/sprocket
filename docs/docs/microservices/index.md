@@ -1,141 +1,157 @@
-# V1 Microservices Documentation Index
+# V1 Microservices Core Functional Requirements - Monolith Integration Index
 
 ## Overview
-This directory contains comprehensive documentation for all V1 microservices in the Sprocket platform. These documents serve as the foundation for understanding current functionality and planning the migration to a unified monolith architecture.
+This directory contains core functional requirements for integrating V1 microservices into the unified monolithic backend. The documentation focuses on essential business functionality that needs to be preserved, removing distributed architecture complexity that is unnecessary for the system's scale.
 
-## Documentation Structure
+## Integration Philosophy
 
-### Individual Service Documentation
-Each microservice has been thoroughly analyzed and documented with:
+### Core Principle
+**Simplify by integrating business functionality directly into the PostgreSQL-based monolithic backend, eliminating distributed complexity while preserving essential features.**
 
-1. **Architecture Overview** - Technology stack and design patterns
-2. **Core Functionality** - Primary features and capabilities
-3. **Data Flow** - How data moves through the service
-4. **Configuration** - Service configuration and environment variables
-5. **Integration Points** - External dependencies and APIs
-6. **Error Handling** - Error scenarios and recovery strategies
-7. **Performance Considerations** - Scalability and optimization
-8. **Security Features** - Security measures and best practices
+### Key Transformations
+- **Message Queues → Direct Function Calls**: Replace RabbitMQ with service method calls
+- **Distributed State → Database Transactions**: Replace Redis with PostgreSQL
+- **Multiple Databases → Single PostgreSQL**: Consolidate all data storage
+- **Microservice Transport → Internal APIs**: Remove transport layers
 
-### Available Documentation
+## Service Integration Documentation
 
-#### Service-Specific Documentation
-- **[Image Generation Service](image-generation-service.md)** - SVG template processing and image generation
-- **[Matchmaking Service](matchmaking-service.md)** - Competitive matchmaking and scrim management
-- **[Notification Service](notification-service.md)** - Multi-channel notification delivery
-- **[Replay Parse Service](replay-parse-service.md)** - Rocket League replay file processing
-- **[Server Analytics Service](server-analytics-service.md)** - Analytics data collection and storage
+### Individual Service Requirements
+Each service has been analyzed for core functionality needed in the monolith:
+
+- **[Image Generation Service](image-generation-service.md)** - SVG template processing and dynamic image generation
+- **[Matchmaking Service](matchmaking-service.md)** - Player skill-based matchmaking and scrim management  
+- **[Notification Service](notification-service.md)** - Multi-channel notification delivery (Discord, webhooks, internal)
+- **[Replay Parse Service](replay-parse-service.md)** - Rocket League replay file processing and analysis
+- **[Server Analytics Service](server-analytics-service.md)** - Time-series metrics collection and storage
 - **[Submission Service](submission-service.md)** - Replay submission workflow management
 
-#### Summary Documentation
-- **[Microservices Requirements Summary](microservices-requirements-summary.md)** - Comprehensive requirements overview and migration guidance
+### Integration Summary
+- **[Microservices Requirements Summary](microservices-requirements-summary.md)** - Comprehensive integration strategy and database requirements
 
-## Key Findings
+## Key Integration Patterns
 
-### Service Communication Patterns
-All services follow consistent patterns:
-- **RabbitMQ** for message-based communication
-- **Redis** for caching and job queues
-- **MinIO** for object storage
-- **Standardized message formats** for interoperability
+### 1. Direct Service Integration
+```typescript
+// Before: Distributed microservice call
+await this.rmqService.send('image-generation', request);
 
-### Common Infrastructure Components
-- **Transport Layer**: RabbitMQ with consistent queue naming
-- **Storage**: MinIO for file and object storage
-- **Caching**: Redis for performance optimization
-- **Job Processing**: BullMQ/Celery for background tasks
-- **Validation**: Runtime validation using Zod/schemas
+// After: Direct monolith service call
+const result = await this.imageGenerationService.generate(request);
+```
 
-### Integration Points
-- **External APIs**: Ballchasing API, Discord API, webhook endpoints
-- **Databases**: InfluxDB (time-series), PostgreSQL (relational)
-- **Message Queues**: RabbitMQ for real-time communication
-- **File Storage**: MinIO for replay files and generated images
+### 2. Database-Centric Architecture
+```typescript
+// Before: Redis + separate databases
+await this.redisService.set(`queue:${playerId}`, data);
+await this.influxService.writeMetric(metric);
 
-## Migration Implications
+// After: Single PostgreSQL database
+await this.queueRepository.create({ playerId, data });
+await this.metricsRepository.create(metric);
+```
 
-### API Contracts
-- All services expose consistent message-based APIs
-- Standardized error response formats
-- Progress tracking across all long-running operations
-- Analytics collection for monitoring and observability
+### 3. Simplified Configuration
+- Single configuration object for all services
+- Environment-based configuration management
+- Database-stored configuration where appropriate
+- Reduced operational complexity
 
-### Data Models
-- Service-specific data models with clear boundaries
-- Consistent validation patterns
-- Standardized timestamp and ID generation
-- Clear separation between internal and external data
+## Business Functionality Preservation
 
-### Operational Requirements
-- Comprehensive logging and monitoring
-- Health check endpoints for service discovery
-- Configuration management through environment variables
-- Graceful error handling and recovery
+### Essential Features Maintained
+1. **Image Generation**: SVG template processing with data substitution
+2. **Matchmaking**: Skill-based player matching with timeout handling
+3. **Notifications**: Multi-channel delivery with template support
+4. **Replay Processing**: File validation and external API integration
+5. **Analytics**: Time-series data collection and storage
+6. **Submission Management**: Complete workflow orchestration
 
-## Technical Debt Identified
+### Technical Debt Eliminated
+1. **Message Queue Complexity**: Removed RabbitMQ infrastructure
+2. **Distributed State**: Consolidated Redis state into PostgreSQL
+3. **Multiple Databases**: Unified storage in single PostgreSQL instance
+4. **Service Discovery**: Simplified to internal dependency injection
+5. **Network Latency**: Eliminated inter-service communication overhead
 
-### Areas for Improvement
-1. **Service Boundaries**: Some overlap in responsibilities
-2. **Error Handling**: Inconsistent patterns across services
-3. **Configuration**: Distributed configuration management
-4. **Data Consistency**: Multiple sources of truth for similar data
-5. **Testing**: Limited test coverage in some services
+## Database Integration Strategy
 
-### Migration Opportunities
-1. **Consolidated Services**: Combine related functionality
-2. **Centralized Configuration**: Single configuration management
-3. **Unified Error Handling**: Consistent error management
-4. **Shared Data Models**: Centralized data schemas
-5. **Improved Testing**: Comprehensive test coverage
+### PostgreSQL Schema Design
+Each service requires specific database tables:
 
-## Next Steps
+- **Image Generation**: Templates table, generated images table
+- **Matchmaking**: Players table, scrims table, queue entries table
+- **Notifications**: Templates table, preferences table, history table
+- **Replay Parsing**: Replay files table, parsed matches table, player stats table
+- **Analytics**: Metrics table, tags table, aggregations table
+- **Submissions**: Submissions table, processing status table, results table
 
-### For Migration Planning
-1. **Review individual service requirements** in detail
-2. **Identify consolidation opportunities** based on functionality overlap
-3. **Plan data migration strategies** for each service
-4. **Design unified API contracts** maintaining backward compatibility
-5. **Establish testing strategies** for migrated functionality
+### Data Migration Approach
+1. **Schema Creation**: Create necessary tables in PostgreSQL
+2. **Data Transfer**: Migrate existing data from service-specific databases
+3. **File Storage**: Consolidate file storage (replays, images) with PostgreSQL references
+4. **Validation**: Ensure data integrity during migration
 
-### For Implementation
-1. **Prioritize services** based on complexity and dependencies
-2. **Create migration timeline** with rollback procedures
-3. **Establish monitoring** for both old and new implementations
-4. **Plan feature flags** for gradual rollout
-5. **Document integration points** for comprehensive testing
+## Performance Considerations
 
-## Usage Guidelines
+### Optimization Strategies
+- **Database Indexing**: Create appropriate indexes for common queries
+- **Connection Pooling**: Optimize database connection usage
+- **Query Optimization**: Optimize complex joins and aggregations
+- **Caching**: Implement application-level caching where beneficial
 
-### For Developers
-- Use individual service documentation to understand specific functionality
-- Reference the requirements summary for migration planning
-- Follow established patterns for consistency
-- Consider performance implications of design decisions
+### Resource Management
+- **Memory Usage**: Monitor and optimize memory consumption across services
+- **CPU Utilization**: Balance processing load across integrated services
+- **Storage Efficiency**: Optimize data storage and retention policies
+- **Concurrent Processing**: Handle multiple simultaneous operations
 
-### For Architects
-- Review service boundaries and integration patterns
-- Identify opportunities for consolidation
-- Plan for scalability and maintainability
-- Consider operational requirements and monitoring
+## Testing and Validation
 
-### For Operations
-- Understand service dependencies and infrastructure requirements
-- Plan for monitoring and alerting strategies
-- Consider deployment and scaling requirements
-- Establish backup and recovery procedures
+### Integration Testing
+- **Service Integration**: Test service interactions within monolith
+- **Database Operations**: Test PostgreSQL integration and performance
+- **API Compatibility**: Ensure backward compatibility with existing clients
+- **Performance Validation**: Validate performance meets requirements
 
-## Support and Maintenance
+### Migration Testing
+- **Data Integrity**: Validate data migration accuracy
+- **Functionality Preservation**: Ensure all features work correctly
+- **Rollback Procedures**: Test rollback capabilities if needed
+- **Production Validation**: Validate production deployment success
 
-### Documentation Updates
-- Keep documentation synchronized with code changes
-- Update configuration examples as needed
-- Maintain accurate integration point documentation
-- Reflect operational lessons learned
+## Operational Benefits
 
-### Version Management
-- Track documentation versions alongside code versions
-- Maintain migration guides for different versions
-- Document breaking changes and migration paths
-- Keep compatibility matrices updated
+### Simplified Operations
+- **Single Deployment**: Deploy one application instead of multiple services
+- **Unified Monitoring**: Monitor one application and database
+- **Reduced Infrastructure**: Eliminate message queues, cache servers, and multiple databases
+- **Lower Complexity**: Simplified troubleshooting and maintenance
 
-This documentation serves as the authoritative source for V1 microservice functionality and requirements, enabling informed decisions during the migration to a unified monolith architecture.
+### Cost Reduction
+- **Infrastructure Costs**: Reduce server and service requirements
+- **Operational Overhead**: Simplify deployment and maintenance
+- **Development Efficiency**: Faster development with unified codebase
+- **Debugging Simplicity**: Easier issue identification and resolution
+
+## Migration Timeline
+
+### Phase 1: Service Implementation (Weeks 1-4)
+- Implement services within monolith structure
+- Create PostgreSQL database schemas
+- Develop integration tests
+- Maintain API compatibility
+
+### Phase 2: Data Migration (Weeks 5-6)
+- Migrate existing data to PostgreSQL
+- Transfer file storage and references
+- Validate data integrity
+- Test migration procedures
+
+### Phase 3: Production Cutover (Week 7)
+- Deploy monolith with integrated services
+- Switch traffic from microservices to monolith
+- Monitor performance and stability
+- Decommission microservices infrastructure
+
+This documentation provides the foundation for successfully integrating V1 microservice functionality into the unified monolithic backend while preserving essential business capabilities and eliminating unnecessary distributed complexity.

@@ -1,156 +1,205 @@
-# Notification Service
+# Notification Service - Core Functional Requirements
 
-## Overview
-The Notification Service is a NestJS-based microservice that manages the delivery of notifications across the Sprocket platform. It handles various types of notifications including Discord guild messages, direct messages, webhook messages, and internal notifications with Redis-based persistence.
+## Purpose
+Deliver notifications to users through multiple channels including Discord webhooks, generic webhooks, and internal notifications within the application.
 
-## Architecture
-- **Framework**: NestJS with TypeScript
-- **Transport**: RabbitMQ (RMQ)
-- **Storage**: Redis for notification persistence
-- **Communication**: gRPC-style message patterns
-- **Bot Integration**: Integration with Discord bot service
+## Core Functional Requirements
 
-## Core Functionality
+### 1. Discord Notifications
+- **Input**: Discord webhook URL, message content, embed data
+- **Processing**: Format and send messages to Discord channels
+- **Output**: Successfully delivered Discord message
+- **Rich Embeds**: Support for Discord embeds with titles, descriptions, fields, and images
 
-### Notification Management
-The service provides a unified interface for sending different types of notifications:
+### 2. Webhook Notifications
+- **Input**: Webhook URL, payload data, headers
+- **Processing**: Send HTTP POST requests to external endpoints
+- **Output**: HTTP response confirmation
+- **Retry Logic**: Automatic retry for failed webhook deliveries
 
-- **Guild Text Messages**: Send messages to Discord guild channels
-- **Direct Messages**: Send private messages to users
-- **Webhook Messages**: Send notifications via webhooks
-- **Internal Notifications**: Store notifications in Redis for later retrieval
+### 3. Internal Notifications
+- **Input**: User ID, notification type, message content
+- **Processing**: Store and display notifications within the application
+- **Output**: Notification stored in user inbox
+- **Read Status**: Track notification read/unread status
 
-### Key Components
+### 4. Template-Based Messaging
+- **Input**: Template name, template data variables
+- **Processing**: Replace template placeholders with actual data
+- **Output**: Formatted message ready for delivery
+- **Multi-Channel**: Support templates for different notification channels
 
-#### NotificationController
-- **Endpoint**: `NotificationEndpoint.SendNotification`
-- **Input Validation**: Uses Zod schemas for request validation
-- **Response Handling**: Returns success status for notification delivery
-- **Error Management**: Comprehensive error handling and logging
+## Data Requirements
 
-#### NotificationService
-- **Notification Routing**: Routes notifications to appropriate channels based on type
-- **Redis Integration**: Stores internal notifications with TTL (Time To Live)
-- **Bot Service Integration**: Interfaces with Discord bot for external notifications
-- **UUID Generation**: Generates unique notification IDs for tracking
-
-## Notification Types
-
-### External Notifications
-- **GuildTextMessage**: Messages sent to Discord guild channels
-- **DirectMessage**: Private messages sent to Discord users
-- **WebhookMessage**: HTTP webhook notifications
-
-### Internal Notifications
-- **Redis Storage**: Notifications stored with 14-day TTL
-- **User-specific**: Organized by user ID and notification type
-- **Retrieval**: Can be fetched by users later through Redis queries
-
-## Data Models
-
-### Notification Input
+### Notification Request Structure
 ```typescript
-interface NotificationInput {
-  id?: string;
-  type: NotificationMessageType;
-  userId: number;
-  expiration?: Date;
-  payload?: Record<string, any>;
-  notification: {
-    type: NotificationMessageType;
-    // Additional notification-specific data
+interface NotificationRequest {
+  type: 'discord' | 'webhook' | 'internal';
+  recipient: string; // Discord webhook URL, webhook URL, or user ID
+  template: string;
+  data: Record<string, any>;
+  priority?: 'low' | 'normal' | 'high';
+  retryCount?: number;
+}
+```
+
+### Discord Embed Structure
+```typescript
+interface DiscordEmbed {
+  title?: string;
+  description?: string;
+  url?: string;
+  color?: number;
+  fields?: Array<{
+    name: string;
+    value: string;
+    inline?: boolean;
+  }>;
+  thumbnail?: {
+    url: string;
+  };
+  image?: {
+    url: string;
+  };
+  footer?: {
+    text: string;
+    icon_url?: string;
+  };
+  timestamp?: string;
+}
+```
+
+### Template Data Structure
+```typescript
+interface NotificationTemplate {
+  name: string;
+  channels: ('discord' | 'webhook' | 'internal')[];
+  discord?: {
+    content?: string;
+    embeds?: DiscordEmbed[];
+  };
+  webhook?: {
+    url?: string;
+    method?: string;
+    headers?: Record<string, string>;
+    payload?: any;
+  };
+  internal?: {
+    title: string;
+    message: string;
+    type: 'info' | 'warning' | 'error' | 'success';
   };
 }
 ```
 
-### Notification Types
-```typescript
-enum NotificationMessageType {
-  GuildTextMessage = "GuildTextMessage",
-  DirectMessage = "DirectMessage",
-  WebhookMessage = "WebhookMessage"
-}
-```
+## Business Logic Requirements
 
-## API Endpoints
+### Message Templating
+- **Variable Substitution**: Replace `{{variable}}` placeholders with data
+- **Conditional Logic**: Support basic conditional statements in templates
+- **Looping**: Support iteration over arrays in template data
+- **Formatting**: Apply formatting functions (date, number, etc.)
 
-### Send Notification
-- **Pattern**: `NotificationEndpoint.SendNotification`
-- **Input**: `NotificationInput<NotificationEndpoint.SendNotification>`
-- **Output**: `NotificationOutput<NotificationEndpoint.SendNotification>`
-- **Description**: Processes and sends notifications through appropriate channels
+### Channel Selection
+- **Type-Based Routing**: Route notifications based on type preference
+- **Fallback Logic**: Fallback to alternative channels if primary fails
+- **User Preferences**: Respect user notification preferences
+- **Channel Availability**: Check channel availability before sending
 
-## Configuration
-
-### Transport Configuration
-- **RabbitMQ URL**: Connection string for message broker
-- **Notification Queue**: Queue name for notification processing
-- **Queue Options**: Durable queue with heartbeat configuration
-- **Authentication**: Optional RabbitMQ credentials
-
-### Redis Configuration
-- **Host**: Redis server hostname
-- **Port**: Redis server port
-- **Prefix**: Key prefix for notification storage
-- **Secure**: SSL/TLS configuration
-
-## Data Flow
-
-1. **Request Reception**: Receives notification request via RabbitMQ
-2. **Validation**: Validates input data using Zod schemas
-3. **Internal Storage**: Stores notification in Redis with TTL if payload exists
-4. **Routing**: Determines notification type and routes to appropriate handler
-5. **External Delivery**: Sends notification through bot service for external channels
-6. **Response**: Returns success status
-
-## Key Features
-
-### Multi-channel Support
-- Discord guild messages
-- Direct Discord messages
-- Webhook notifications
-- Internal notification storage
-
-### Redis Integration
-- **TTL Support**: Automatic expiration of notifications
-- **User Organization**: Notifications grouped by user ID
-- **Type-based Storage**: Different notification types handled separately
-- **Scalable Storage**: Redis-based solution for high performance
-
-### Error Handling
-- **Validation Errors**: Comprehensive input validation
-- **Bot Service Failures**: Graceful handling of external service failures
-- **Redis Errors**: Proper error handling for storage operations
-- **Logging**: Detailed error logging for debugging
-
-## Performance Considerations
-- **Asynchronous Processing**: Non-blocking notification delivery
-- **Redis Caching**: Fast storage and retrieval of notifications
-- **Connection Pooling**: Efficient Redis connection management
-- **Message Queuing**: RabbitMQ for reliable message delivery
-
-## Security Features
-- **Input Validation**: Prevents injection attacks through validation
-- **Authentication**: RabbitMQ credential support
-- **Data Sanitization**: Safe handling of notification payloads
-- **Access Control**: User-specific notification access
+### Retry and Error Handling
+- **Failed Delivery**: Detect and handle failed notification deliveries
+- **Retry Attempts**: Configurable retry attempts with exponential backoff
+- **Dead Letter**: Move permanently failed notifications to dead letter queue
+- **Error Reporting**: Log and report notification failures
 
 ## Integration Points
-- **Redis**: For internal notification storage
-- **RabbitMQ**: For message-based communication
-- **Bot Service**: For Discord integration
-- **Common Library**: Shared types from `@sprocketbot/common`
 
-## Deployment
-- **Container**: Docker-based deployment
-- **Scalability**: Horizontal scaling through Redis clustering
-- **Monitoring**: Health checks and metrics collection
-- **Queue Workers**: Multiple workers for notification processing
+### Database Integration
+- **Template Storage**: Store notification templates in database
+- **User Preferences**: Store user notification preferences
+- **Notification History**: Track sent notifications and delivery status
+- **Failed Notifications**: Store failed notifications for retry/analysis
 
-## Testing
-- **Unit Tests**: Individual service testing
-- **Integration Tests**: Redis and RabbitMQ integration testing
-- **Bot Service Mocking**: Testing without external dependencies
-- **Load Testing**: Performance under high notification volume
+### External Service Integration
+- **Discord API**: Send messages to Discord webhooks
+- **HTTP Clients**: Send webhook notifications to external services
+- **Rate Limiting**: Respect rate limits for external services
+- **Authentication**: Handle authentication for external services
 
-This service is essential for maintaining user engagement and communication across the Sprocket platform, providing reliable notification delivery through multiple channels while ensuring proper storage and retrieval of internal notifications.
+## Error Handling Requirements
+
+### Validation Errors
+- **Invalid Recipients**: Handle invalid Discord/webhook URLs
+- **Missing Templates**: Handle requests for non-existent templates
+- **Invalid Data**: Validate template data before processing
+- **Channel Errors**: Handle unsupported notification channels
+
+### Delivery Errors
+- **Network Failures**: Handle network connectivity issues
+- **Service Unavailable**: Handle external service downtime
+- **Authentication Errors**: Handle authentication failures
+- **Rate Limiting**: Handle rate limit exceeded responses
+
+## Performance Requirements
+
+### Response Times
+- **Template Processing**: < 100ms for template rendering
+- **Discord Delivery**: < 1s for Discord webhook delivery
+- **Webhook Delivery**: < 2s for external webhook delivery
+- **Internal Notifications**: < 50ms for internal notification storage
+
+### Throughput
+- **Concurrent Notifications**: Handle hundreds of concurrent notifications
+- **Batch Processing**: Support batch notification delivery
+- **Priority Handling**: Process high-priority notifications first
+- **Resource Usage**: Efficient memory and CPU usage
+
+## Security Requirements
+
+### Input Validation
+- **URL Validation**: Validate Discord/webhook URLs
+- **Content Sanitization**: Sanitize notification content
+- **Template Security**: Prevent template injection attacks
+- **Data Validation**: Validate all input data
+
+### Access Control
+- **User Authentication**: Verify user identity for internal notifications
+- **Webhook Permissions**: Ensure users have permission to send webhooks
+- **Rate Limiting**: Prevent notification spam/abuse
+- **Audit Logging**: Log notification attempts for security
+
+## Testing Requirements
+
+### Unit Tests
+- **Template Rendering**: Test template variable substitution
+- **Channel Routing**: Test notification channel selection
+- **Error Handling**: Test error scenarios and recovery
+- **Retry Logic**: Test retry mechanisms
+
+### Integration Tests
+- **Discord Integration**: Test Discord webhook delivery
+- **Webhook Integration**: Test external webhook delivery
+- **Database Integration**: Test template and preference storage
+- **End-to-End Tests**: Test complete notification workflows
+
+## Migration Considerations
+
+### Database Schema
+- **Templates Table**: Store notification templates
+- **User Preferences Table**: Store user notification settings
+- **Notification History Table**: Track sent notifications
+- **Failed Notifications Table**: Store failed notifications for retry
+
+### Code Organization
+- **Service Layer**: Business logic for notification processing
+- **Repository Layer**: Database access for templates and preferences
+- **Controller Layer**: API endpoints for notification operations
+- **Integration Layer**: External service integrations
+
+### Configuration
+- **Template Configuration**: Configure available templates
+- **Channel Configuration**: Configure notification channels
+- **Retry Configuration**: Configure retry policies
+- **Rate Limit Configuration**: Configure rate limiting rules
+
+This focused documentation captures the essential notification functionality that needs to be integrated into the monolithic backend, emphasizing multi-channel delivery, template processing, and reliable delivery without microservice-specific implementation details.

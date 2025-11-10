@@ -1,239 +1,208 @@
-# Server Analytics Service
+# Server Analytics Service - Core Functional Requirements
 
-## Overview
-The Server Analytics Service is a NestJS-based microservice that collects, processes, and stores analytics data from various sources within the Sprocket platform. It provides real-time metrics collection, time-series data storage in InfluxDB, and comprehensive analytics for monitoring platform performance, user behavior, and system health.
+## Purpose
+Collect, process, and store analytics data for monitoring platform performance, user behavior, and system health using time-series data storage.
 
-## Architecture
-- **Language**: TypeScript with NestJS framework
-- **Database**: InfluxDB for time-series analytics data
-- **Communication**: RabbitMQ for message-based data ingestion
-- **Transport**: RabbitMQ transport for microservice communication
-- **Validation**: Zod for runtime data validation
+## Core Functional Requirements
 
-## Core Functionality
+### 1. Metrics Collection
+- **Input**: Metric name, tags, values, and optional timestamp
+- **Processing**: Validate and normalize metric data
+- **Output**: Stored metric with proper indexing
+- **Metric Types**: Support counters, gauges, booleans, and tagged metrics
 
-### Analytics Data Collection
-The service provides a comprehensive analytics collection system that handles:
+### 2. Time-Series Data Storage
+- **Input**: Timestamped metric data
+- **Processing**: Store data with efficient time-based indexing
+- **Output**: Persisted time-series data
+- **Retention**: Support configurable data retention policies
 
-- **Time-series Metrics**: Stores metrics with timestamps for historical analysis
-- **Multi-dimensional Data**: Supports tags, booleans, integers, and floats
-- **Real-time Processing**: Processes analytics data as it arrives via RabbitMQ
-- **Data Validation**: Validates incoming analytics data using Zod schemas
-- **Error Handling**: Comprehensive error handling and logging
+### 3. Multi-Dimensional Metrics
+- **Input**: Metrics with multiple tag dimensions
+- **Processing**: Index and store tagged metric data
+- **Output**: Queryable multi-dimensional metrics
+- **Flexibility**: Support arbitrary tag key-value pairs
 
-### Key Components
+### 4. Real-Time Processing
+- **Input**: Streaming metric data
+- **Processing**: Process metrics as they arrive
+- **Output**: Immediately available for querying
+- **Throughput**: Handle high-volume metric ingestion
 
-#### Analytics Controller
-- **Message Handler**: Processes analytics messages from RabbitMQ
-- **Data Validation**: Validates incoming analytics data
-- **InfluxDB Integration**: Writes data to InfluxDB with proper formatting
-- **Error Handling**: Handles validation and database errors
-- **Logging**: Comprehensive logging for debugging and monitoring
+## Data Requirements
 
-#### Analytics Service
-- **Database Operations**: Manages InfluxDB write operations
-- **Point Construction**: Builds InfluxDB points from analytics data
-- **Batch Processing**: Supports batch writes for performance
-- **Error Recovery**: Handles database connection issues
-- **Metrics**: Tracks analytics processing performance
-
-## Data Flow
-
-### Message Processing Pipeline
-1. **Message Receipt**: Receives analytics message via RabbitMQ
-2. **Validation**: Validates message format using Zod schema
-3. **Point Construction**: Converts analytics data to InfluxDB points
-4. **Database Write**: Writes points to InfluxDB with timestamp
-5. **Confirmation**: Logs successful processing
-6. **Error Handling**: Handles and logs any processing errors
-
-### Analytics Data Format
-```json
-{
-  "pattern": "analytics",
-  "data": {
-    "name": "metric_name",
-    "tags": [["tag1", "value1"], ["tag2", "value2"]],
-    "booleans": [["bool_field", true]],
-    "ints": [["int_field", 123]],
-    "floats": [["float_field", 123.45]],
-    "timestamp": "2023-01-01T00:00:00.000Z"
-  }
-}
-```
-
-## Configuration
-
-### Service Configuration
-```json
-{
-  "transport": {
-    "url": "amqp://rabbitmq:5672",
-    "queue": "analytics"
-  },
-  "influx": {
-    "url": "http://influxdb:8086",
-    "token": "your-influxdb-token",
-    "org": "sprocket",
-    "bucket": "analytics",
-    "flushInterval": 1000
-  }
-}
-```
-
-### Environment Variables
-- `INFLUX_URL`: InfluxDB server URL
-- `INFLUX_TOKEN`: InfluxDB authentication token
-- `INFLUX_ORG`: InfluxDB organization name
-- `INFLUX_BUCKET`: InfluxDB bucket for analytics data
-
-## Data Models
-
-### Analytics Data Schema
+### Metric Data Structure
 ```typescript
-interface AnalyticsData {
+interface MetricData {
   name: string;
-  tags?: Array<[string, string]>;
-  booleans?: Array<[string, boolean]>;
-  ints?: Array<[string, number]>;
-  floats?: Array<[string, number]>;
-  timestamp?: string;
+  timestamp?: Date;
+  tags?: Record<string, string>;
+  fields?: {
+    booleans?: Record<string, boolean>;
+    integers?: Record<string, number>;
+    floats?: Record<string, number>;
+  };
 }
 ```
 
-### Message Schema
+### Analytics Categories
 ```typescript
-interface AnalyticsMessage {
-  pattern: string;
-  data: AnalyticsData;
+interface AnalyticsCategories {
+  // Performance metrics
+  responseTime: MetricData;
+  throughput: MetricData;
+  errorRate: MetricData;
+  
+  // Business metrics
+  userActivity: MetricData;
+  matchStats: MetricData;
+  replayProcessing: MetricData;
+  
+  // System metrics
+  resourceUsage: MetricData;
+  queueDepth: MetricData;
+  serviceHealth: MetricData;
 }
 ```
 
-## InfluxDB Integration
-
-### Point Construction
-- **Measurement**: Uses `name` field as measurement name
-- **Tags**: Converts tags array to InfluxDB tags
-- **Fields**: Handles boolean, integer, and float fields
-- **Timestamp**: Uses provided timestamp or current time
-- **Batch Writing**: Supports batch writes for performance
-
-### Database Operations
-- **Write API**: Uses InfluxDB write API for data insertion
-- **Error Handling**: Handles write failures and connection issues
-- **Retry Logic**: Implements retry logic for failed writes
-- **Performance**: Optimized for high-throughput data ingestion
-
-## Analytics Types
-
-### Supported Metrics
-- **Counter Metrics**: Integer and float counters
-- **Boolean Metrics**: True/false state tracking
-- **Tagged Metrics**: Multi-dimensional metrics with tags
-- **Time-series Data**: Historical data with timestamps
-
-### Example Metrics
-```json
-{
-  "name": "parseReplay",
-  "tags": [["taskId", "123"], ["parser", "ballchasing"]],
-  "booleans": [["success", true], ["cached", false]],
-  "ints": [["getMs", 123], ["parseMs", 456], ["totalMs", 579]]
+### Tag Structure
+```typescript
+interface MetricTags {
+  // Common tags
+  service?: string;
+  environment?: string;
+  version?: string;
+  
+  // Request tags
+  endpoint?: string;
+  method?: string;
+  statusCode?: string;
+  
+  // Business tags
+  userId?: string;
+  matchId?: string;
+  gameMode?: string;
+  
+  // Performance tags
+  region?: string;
+  instance?: string;
 }
 ```
 
-## Error Handling
+## Business Logic Requirements
 
-### Validation Errors
-- **Schema Validation**: Validates incoming message format
-- **Data Type Validation**: Validates field types and values
-- **Required Fields**: Ensures required fields are present
-- **Error Logging**: Logs validation errors for debugging
+### Metric Validation
+- **Name Validation**: Validate metric names (alphanumeric, underscores)
+- **Tag Validation**: Validate tag keys and values
+- **Field Validation**: Validate field types and values
+- **Timestamp Validation**: Validate timestamp format and range
 
-### Database Errors
-- **Connection Errors**: Handles InfluxDB connection failures
-- **Write Errors**: Handles write operation failures
-- **Retry Logic**: Implements retry logic for failed operations
-- **Fallback Strategy**: Provides fallback strategies for critical errors
+### Data Processing
+- **Type Coercion**: Convert data types as needed
+- **Aggregation**: Support basic aggregation functions
+- **Sampling**: Handle high-frequency data sampling
+- **Deduplication**: Prevent duplicate metric storage
 
-### Message Processing Errors
-- **Malformed Messages**: Handles invalid message formats
-- **Missing Data**: Handles missing required fields
-- **Type Mismatches**: Handles type conversion errors
-- **Logging**: Comprehensive error logging and monitoring
-
-## Performance Considerations
-
-### Throughput Optimization
-- **Batch Processing**: Supports batch writes for high throughput
-- **Connection Pooling**: Reuses database connections
-- **Async Processing**: Asynchronous message processing
-- **Memory Management**: Efficient memory usage for large datasets
-
-### Scalability
-- **Horizontal Scaling**: Multiple service instances can process messages
-- **Load Balancing**: RabbitMQ provides load balancing
-- **Resource Monitoring**: Monitors resource usage and performance
-- **Auto-scaling**: Can be configured for auto-scaling based on load
-
-## Monitoring and Observability
-
-### Logging
-- **Structured Logging**: Structured logs for easy parsing
-- **Log Levels**: Configurable log levels (error, warn, info, debug)
-- **Context Logging**: Includes context information in logs
-- **Log Aggregation**: Compatible with log aggregation systems
-
-### Metrics
-- **Processing Metrics**: Tracks message processing performance
-- **Error Metrics**: Tracks error rates and types
-- **Throughput Metrics**: Tracks message throughput
-- **Latency Metrics**: Tracks processing latency
-
-### Health Monitoring
-- **Service Health**: Monitors service health and availability
-- **Database Health**: Monitors InfluxDB connection health
-- **Queue Health**: Monitors RabbitMQ queue health
-- **Alerting**: Can be configured for alerting on issues
-
-## Security Features
-
-### Data Security
-- **Input Validation**: Validates all incoming data
-- **Data Sanitization**: Sanitizes data before storage
-- **Access Control**: Proper access controls for data access
-- **Audit Trail**: Maintains audit trail for data changes
-
-### Network Security
-- **Secure Connections**: Uses secure connections to InfluxDB
-- **Authentication**: Proper authentication for InfluxDB
-- **Authorization**: Proper authorization for data access
-- **Encryption**: Supports encryption for sensitive data
+### Storage Optimization
+- **Batch Processing**: Batch multiple metrics for efficient storage
+- **Compression**: Compress historical data for storage efficiency
+- **Indexing**: Create efficient indexes for common query patterns
+- **Retention**: Automatically expire old data based on policies
 
 ## Integration Points
 
-### External Services
-- **InfluxDB**: Primary analytics database
-- **RabbitMQ**: Message queue for data ingestion
-- **Monitoring Systems**: Integrates with monitoring systems
+### Database Integration
+- **Time-Series Storage**: Store metrics in time-series optimized database
+- **Metadata Storage**: Store metric metadata and schemas
+- **Query Interface**: Provide efficient querying capabilities
+- **Aggregation Support**: Support time-based aggregations
 
-### Internal Dependencies
-- **NestJS**: Framework for service development
-- **Zod**: Runtime validation library
-- **InfluxDB Client**: InfluxDB client library
+### Application Integration
+- **Metric Collection**: Collect metrics from application components
+- **Event Tracking**: Track business events and user actions
+- **Performance Monitoring**: Monitor application performance
+- **Error Tracking**: Track and categorize application errors
 
-## Deployment Considerations
+## Error Handling Requirements
 
-### Scaling
-- **Horizontal Scaling**: Multiple service instances
-- **Load Balancing**: RabbitMQ provides load balancing
-- **Resource Allocation**: Proper resource allocation for performance
-- **Auto-scaling**: Can be configured for auto-scaling
+### Validation Errors
+- **Invalid Metrics**: Handle malformed or invalid metric data
+- **Type Mismatches**: Handle incorrect field types
+- **Missing Fields**: Handle missing required fields
+- **Timestamp Errors**: Handle invalid timestamp formats
 
-### High Availability
-- **Redundancy**: Multiple service instances for redundancy
-- **Failover**: Automatic failover capabilities
-- **Data Replication**: InfluxDB supports data replication
-- **Backup Strategy**: Proper backup strategy for data protection
+### Storage Errors
+- **Database Failures**: Handle database connection failures
+- **Storage Limits**: Handle storage capacity limitations
+- **Index Errors**: Handle indexing failures
+- **Query Errors**: Handle invalid query parameters
 
-This service is essential for collecting and storing analytics data across the Sprocket platform, enabling comprehensive monitoring, performance analysis, and business intelligence capabilities.
+### Recovery Strategies
+- **Failed Metrics**: Queue failed metrics for retry
+- **Backup Storage**: Provide backup storage for critical metrics
+- **Error Reporting**: Report metric collection errors
+- **Graceful Degradation**: Continue operation when metrics fail
+
+## Performance Requirements
+
+### Ingestion Performance
+- **Single Metric**: < 10ms to process and store single metric
+- **Batch Metrics**: < 100ms to process batch of 100 metrics
+- **Concurrent Ingestion**: Handle thousands of concurrent metrics
+- **Memory Usage**: Efficient memory usage during ingestion
+
+### Query Performance
+- **Recent Data**: < 100ms to query recent metrics (last hour)
+- **Historical Data**: < 1s to query historical metrics (last day)
+- **Aggregated Queries**: < 5s for complex aggregated queries
+- **Concurrent Queries**: Handle multiple concurrent queries
+
+## Security Requirements
+
+### Data Security
+- **Input Validation**: Validate all incoming metric data
+- **Access Control**: Restrict access to sensitive metrics
+- **Data Encryption**: Encrypt sensitive metric data at rest
+- **Audit Logging**: Log metric access for security audit
+
+### Privacy Protection
+- **User Data**: Handle user-related metrics according to privacy policies
+- **Data Anonymization**: Support anonymization of sensitive data
+- **Retention Policies**: Implement data retention and deletion policies
+- **Compliance**: Ensure compliance with data protection regulations
+
+## Testing Requirements
+
+### Unit Tests
+- **Metric Validation**: Test metric validation logic
+- **Data Processing**: Test data transformation and processing
+- **Storage Operations**: Test database storage and retrieval
+- **Error Handling**: Test error scenarios and recovery
+
+### Integration Tests
+- **Database Integration**: Test time-series database integration
+- **Performance Tests**: Test ingestion and query performance
+- **Concurrent Tests**: Test concurrent metric processing
+- **End-to-End Tests**: Test complete analytics workflows
+
+## Migration Considerations
+
+### Database Schema
+- **Metrics Table**: Store time-series metric data
+- **Tags Table**: Store metric tags for efficient querying
+- **Metadata Table**: Store metric metadata and schemas
+- **Aggregation Table**: Store pre-computed aggregations
+
+### Code Organization
+- **Service Layer**: Business logic for metric processing
+- **Repository Layer**: Database access for metrics and tags
+- **Query Layer**: Query building and execution logic
+- **Aggregation Layer**: Metric aggregation and analysis logic
+
+### Configuration
+- **Storage Configuration**: Configure time-series database settings
+- **Retention Policies**: Configure data retention and expiration
+- **Aggregation Rules**: Configure automatic aggregation rules
+- **Performance Tuning**: Configure performance optimization settings
+
+This focused documentation captures the essential analytics functionality that needs to be integrated into the monolithic backend, emphasizing metrics collection, time-series storage, and data analysis without microservice-specific implementation details.
