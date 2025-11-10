@@ -94,10 +94,10 @@ When evaluating technical decisions, ask:
 
 ## Migration Strategy
 
-The Postgres-only migration (see [Postgres-only-migration.md](./Postgres-only-migration.md)) exemplifies this philosophy:
+The unified microservices migration (see [unified-monolith-migration.md](./unified-monolith-migration.md)) exemplifies this philosophy:
 
-- **Remove complexity**: Eliminate Redis and RabbitMQ
-- **Consolidate**: Use PostgreSQL for all persistence and queueing
+- **Remove complexity**: Eliminate Redis and RabbitMQ through service consolidation
+- **Consolidate**: Integrate Matchmaking and Submissions into Core service, use PostgreSQL for all persistence and queueing
 - **Simplify operations**: Fewer services to monitor and maintain
 - **Improve reliability**: ACID guarantees and referential integrity
 

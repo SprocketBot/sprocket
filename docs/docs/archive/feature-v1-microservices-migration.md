@@ -1,7 +1,7 @@
 # ~~Feature Spec: V1 Microservices Migration~~
 
 ## ⚠️ DEPRECATED
-This plan has been superseded by the [Unified Migration to Monolith + PostgreSQL-Only Architecture](./unified-monolith-migration.md) which provides a more efficient approach by integrating Matchmaking and Submissions into Core, eliminating their Redis dependencies entirely.
+This plan has been superseded by the [Unified Migration to Monolith + PostgreSQL-Only Architecture](../unified-monolith-migration.md) which provides a more efficient approach by integrating Matchmaking and Submissions into Core, eliminating their Redis dependencies entirely.
 
 ## Overview
 
@@ -35,7 +35,7 @@ All services integrated into v2 architecture:
 
 ## Design Philosophy
 
-Per our [design philosophy](./design-philosophy.md):
+Per our [design philosophy](../design-philosophy.md):
 - **Consolidate** services where practical (don't maintain separate services if not needed)
 - **Simplify** by removing Redis/RabbitMQ dependencies
 - **Leverage PostgreSQL** for queuing, events, and persistence
@@ -355,7 +355,7 @@ class MatchSubmission {
 1. Replace Redis queue with PostgreSQL `ScrimQueue` table
 2. Implement queue management logic in core
 3. Use database locks for concurrency control
-4. Background worker for matchmaking algorithm (see [unified migration plan](./unified-monolith-migration.md))
+4. Background worker for matchmaking algorithm (see [unified migration plan](../unified-monolith-migration.md))
 5. Trigger match creation when queue ready
 
 **Schema**:
@@ -553,6 +553,6 @@ services:
 
 ## Related Documents
 
-- [Roadmap](./roadmap.md)
-- [Unified Migration Plan](./unified-monolith-migration.md)
-- [Multi-Game Data Model](./feature-multi-game-data-model.md)
+- [Roadmap](../roadmap.md)
+- [Unified Migration Plan](../unified-monolith-migration.md)
+- [Multi-Game Data Model](../feature-multi-game-data-model.md)

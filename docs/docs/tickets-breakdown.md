@@ -7,17 +7,141 @@ This document breaks down all feature specs into granular, actionable tickets. E
 
 ---
 
-## Epic 1: Infrastructure Simplification (P0)
+## Epic 1: V1 Microservices Migration (P0)
 
-**Status**: In Progress (see [Postgres-only-migration.md](./Postgres-only-migration.md))
+**Status**: In Progress (see [unified-monolith-migration.md](./unified-monolith-migration.md))
 
-### Tickets (In Progress or Completed)
+### Phase 1: Core Service Consolidation (Priority: P0)
 
-- [x] Remove Redis dependency for matchmaking queue
-- [x] Remove RabbitMQ dependency for event-driven services
-- [x] Consolidate all data storage in PostgreSQL
-- [ ] Final testing and validation of migration
-- [ ] Update deployment documentation
+#### Core Integration (Priority: P0)
+
+##### MS-CORE-001: Integrate Matchmaking into Core service
+- **Type**: Refactor
+- **Estimate**: XL
+- **Description**: Move matchmaking service into Core, replace Redis with PostgreSQL
+- **Acceptance Criteria**:
+  - [ ] Move matchmaking code to `core/src/matchmaking/`
+  - [ ] Replace Redis queue with PostgreSQL `ScrimQueue` table
+  - [ ] Replace Redis timeout logic with PostgreSQL `ScrimTimeout` table
+  - [ ] Integrate with Core's existing TypeORM setup
+  - [ ] Remove Redis dependencies
+
+##### MS-CORE-002: Integrate Submissions into Core service
+- **Type**: Refactor
+- **Estimate**: XL
+- **Description**: Move submissions service into Core, replace Redis with PostgreSQL
+- **Acceptance Criteria**:
+  - [ ] Move submissions code to `core/src/submissions/`
+  - [ ] Replace Redis temporary storage with PostgreSQL `MatchSubmission` table
+  - [ ] Integrate submission validation into Core's validation pipeline
+  - [ ] Remove Redis dependencies
+
+##### MS-CORE-003: Remove Redis infrastructure
+- **Type**: Refactor
+- **Estimate**: Medium
+- **Description**: Clean up Redis from deployment and configuration
+- **Acceptance Criteria**:
+  - [ ] Remove Redis from `docker-compose.yaml`
+  - [ ] Remove Redis from `nomad.job.hcl`
+  - [ ] Remove Redis-related environment variables from `.env.example`
+  - [ ] Delete `lib/src/redis/` module
+  - [ ] Remove cache interceptor from Core
+
+### Phase 2: PostgreSQL Event System (Priority: P0)
+
+##### MS-EVENT-001: Create EventQueue table and entities
+- **Type**: Feature
+- **Estimate**: Small
+- **Description**: PostgreSQL-based event system for remaining microservices
+- **Acceptance Criteria**:
+  - [ ] `EventQueue` entity with event type, payload, status fields
+  - [ ] Migration script
+  - [ ] Indexes for efficient polling
+
+##### MS-EVENT-002: Implement event producers in Core
+- **Type**: Feature
+- **Estimate**: Medium
+- **Description**: Replace RabbitMQ publishing with PostgreSQL events
+- **Acceptance Criteria**:
+  - [ ] Event creation service in Core
+  - [ ] Replace all RabbitMQ `broker.publish()` calls
+  - [ ] Event schema validation
+
+### Phase 3: Remaining Service Migrations (Priority: P1)
+
+##### MS-SVC-001: Migrate Notifications service
+- **Type**: Refactor
+- **Estimate**: Large
+- **Description**: Convert from RabbitMQ to PostgreSQL event queue
+- **Acceptance Criteria**:
+  - [ ] Replace RabbitMQ consumer with PostgreSQL polling
+  - [ ] Create `Notification` entity for history tracking
+  - [ ] Port Discord notification logic
+  - [ ] Port email notification logic
+  - [ ] Add retry and error handling
+
+##### MS-SVC-002: Migrate Image Generation service
+- **Type**: Refactor
+- **Estimate**: Large
+- **Description**: Convert from RabbitMQ to PostgreSQL event queue
+- **Acceptance Criteria**:
+  - [ ] Replace RabbitMQ consumer with PostgreSQL polling
+  - [ ] Create `GeneratedImage` entity for tracking
+  - [ ] Port image generation logic
+  - [ ] Configure storage backend (S3/local)
+
+##### MS-SVC-003: Migrate Replay Parse service
+- **Type**: Refactor
+- **Estimate**: Large
+- **Description**: Convert from RabbitMQ to PostgreSQL event queue
+- **Acceptance Criteria**:
+  - [ ] Replace RabbitMQ consumer with PostgreSQL polling
+  - [ ] Create `ReplayFile` entity for tracking
+  - [ ] Port Rocket League replay parser
+  - [ ] Implement file upload endpoint
+
+### Phase 4: Final Cleanup (Priority: P1)
+
+##### MS-CLEANUP-001: Remove RabbitMQ infrastructure
+- **Type**: Refactor
+- **Estimate**: Medium
+- **Description**: Clean up RabbitMQ from deployment and configuration
+- **Acceptance Criteria**:
+  - [ ] Remove RabbitMQ from `docker-compose.yaml`
+  - [ ] Remove RabbitMQ from `nomad.job.hcl`
+  - [ ] Delete `lib/src/rmq/` module
+  - [ ] Remove RabbitMQ-related environment variables
+  - [ ] Delete broker files from migrated services
+
+##### MS-CLEANUP-002: Update Docker Compose configuration
+- **Type**: Refactor
+- **Estimate**: Small
+- **Description**: Add remaining services to Docker Compose
+- **Acceptance Criteria**:
+  - [ ] Add notifications service configuration
+  - [ ] Add image generation service configuration
+  - [ ] Add replay parse service configuration
+  - [ ] Configure shared networks and volumes
+
+### Testing & Validation (Priority: P1)
+
+##### MS-TEST-001: Write integration tests for unified Core
+- **Type**: Test
+- **Estimate**: Large
+- **Description**: Test consolidated matchmaking and submissions
+- **Acceptance Criteria**:
+  - [ ] End-to-end matchmaking flows
+  - [ ] Submission validation and processing
+  - [ ] Event publishing from Core
+
+##### MS-TEST-002: Write integration tests for event system
+- **Type**: Test
+- **Estimate**: Medium
+- **Description**: Test PostgreSQL event queue functionality
+- **Acceptance Criteria**:
+  - [ ] Event publishing from Core
+  - [ ] Event consumption by services
+  - [ ] Retry and error handling
 
 ---
 
@@ -256,7 +380,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
 
 ## Epic 3: V1 Microservices Migration (P1)
 
-**Related Spec**: [feature-v1-microservices-migration.md](./feature-v1-microservices-migration.md)
+**Related Spec**: [feature-v1-microservices-migration.md](./archive/feature-v1-microservices-migration.md)
 
 ### Service 1: Notifications (Priority: P1)
 
@@ -1019,14 +1143,14 @@ This document breaks down all feature specs into granular, actionable tickets. E
 ## Summary by Priority
 
 ### P0 (Critical - Must Complete First)
-- Infrastructure Simplification (Epic 1) - mostly complete
-- League Management DB Schema (LM-001 through LM-010)
+- V1 Microservices Migration (Epic 1) - Core consolidation and PostgreSQL events
 - Multi-Game Data Model DB Schema (MGDM-001 through MGDM-008)
+- League Management DB Schema (LM-001 through LM-010)
 
 ### P1 (High - Core Features)
-- Multi-Game Data Model (Epic 2) - remaining items
-- V1 Microservices Migration (Epic 3)
-- League Management (Epic 7) - remaining items
+- Multi-Game Data Model (Epic 2) - remaining implementation
+- Remaining Microservices Migration (Notifications, Image Gen, Replay Parse)
+- League Management (Epic 7) - backend services
 - RBAC System DB Schema and Backend Services
 - Multi-Game ELO DB Schema and Rating Calculation
 
@@ -1044,19 +1168,53 @@ This document breaks down all feature specs into granular, actionable tickets. E
 
 ## Recommended Development Order
 
-1. **Complete Infrastructure Simplification** (Epic 1)
-2. **Multi-Game Data Model** - DB and core logic (Epic 2)
-3. **League Management** - DB and backend services (Epic 7)
-4. **RBAC System** - DB, backend, basic integration (Epic 5)
-5. **V1 Microservices Migration** - in priority order: Notifications, Image Gen, Replay Parse, Submissions, Matchmaking (Epic 3)
-6. **Multi-Game ELO System** - DB and calculation (Epic 4)
-7. **League Management UI** - all UI components (Epic 7)
+1. **V1 Microservices Migration - Phase 1** (Epic 1)
+   - Consolidate Matchmaking into Core service
+   - Consolidate Submissions into Core service
+   - Remove Redis infrastructure
+
+2. **Foundation Data Models** (Epics 2 & 7)
+   - Multi-Game Data Model DB schema
+   - League Management DB schema
+   - Core backend services for both
+
+3. **V1 Microservices Migration - Phase 2** (Epic 1)
+   - Implement PostgreSQL event system
+   - Migrate Notifications service
+   - Migrate Image Generation service
+   - Migrate Replay Parse service
+   - Remove RabbitMQ infrastructure
+
+4. **Multi-Game Data Model Implementation** (Epic 2)
+   - Game configuration system
+   - Validation and business logic
+   - API endpoints
+
+5. **RBAC System** (Epic 5)
+   - Database schema and backend services
+   - Basic integration with existing endpoints
+
+6. **Multi-Game ELO System** (Epic 4)
+   - Database schema and rating calculation
+   - Integration with match completion flow
+
+7. **League Management Implementation** (Epic 7)
+   - Backend services completion
+   - UI components
+
 8. **RBAC Admin UI** (Epic 5)
-9. **API Tokens** (Epic 6)
+   - Role management interfaces
+   - Permission assignment interfaces
+
+9. **API Tokens System** (Epic 6)
+   - Token generation and authentication
+   - User and admin interfaces
+
 10. **Polish, testing, documentation** (All epics)
 
 This order ensures:
-- Foundation is solid before building features
-- Data model supports all future features
+- Unified architecture provides solid foundation
+- Data models support all future features
 - Core workflows work before adding advanced features
 - RBAC is in place before exposing management UIs
+- Infrastructure complexity is reduced early

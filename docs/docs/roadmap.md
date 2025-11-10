@@ -12,23 +12,33 @@ See [design-philosophy.md](./design-philosophy.md) for our core principles. TL;D
 
 ## Major Feature Areas
 
-### 1. Infrastructure Simplification (In Progress)
+### 1. V1 Microservices Migration (In Progress)
 **Status**: Active development
-**Priority**: P0 (Blocker for other work)
+**Priority**: P0 (Foundation for all other work)
 
-Migrate away from Redis and RabbitMQ to a PostgreSQL-only architecture.
+Migrate v1 microservices into the v2 architecture using a unified approach that consolidates Matchmaking and Submissions into Core while maintaining Notifications, Image Generation, and Replay Parse as separate services with PostgreSQL event queues.
 
-- [Detailed Plan](./detailed-migration-plan.md)
-- [Original Context](./Postgres-only-migration.md)
+**Services to Migrate**:
+- **Consolidated into Core**: Matchmaking, Submissions
+- **Remaining Microservices**: Notifications, Image Generation, Replay Parse
 
 **Key Deliverables**:
-- Remove Redis dependency
-- Remove RabbitMQ dependency
-- Consolidate all data storage in PostgreSQL
-- Simplify deployment and operational overhead
+- Unified Core service with integrated matchmaking and submissions
+- PostgreSQL-based event system for remaining microservices
+- Elimination of Redis and RabbitMQ dependencies
+- Simplified deployment and operational overhead
 
-**Dependencies**: None
-**Risks**: Requires careful migration of matchmaking and event-driven services
+**Unified Migration Approach**:
+- [Detailed Plan](./unified-monolith-migration.md)
+- [Original Context](./archive/Postgres-only-migration.md)
+
+**Dependencies**: None (this is the foundation)
+**Risks**: Complex integration requiring careful testing of core workflows
+
+**Questions for Discussion**:
+1. Should we start with consolidating matchmaking or submissions first?
+2. How do we ensure zero-downtime migration of active queues?
+3. What's the current state of each service? Are they actively used in v1?
 
 ---
 
@@ -44,7 +54,7 @@ Refactor the current Rocket League-centric data model to support multiple game t
 - Game-specific metadata handling
 - Backward compatibility with existing Rocket League data
 
-**Dependencies**: Infrastructure simplification should be complete first
+**Dependencies**: Microservices migration should be substantially complete
 **Risks**: Significant schema changes; need migration strategy for existing data
 
 **Questions for Discussion**:
@@ -55,31 +65,19 @@ Refactor the current Rocket League-centric data model to support multiple game t
 
 ---
 
-### 3. V1 Microservices Migration
-**Status**: Planning
-**Priority**: P1 (Critical functionality)
+### 3. Infrastructure Simplification (Completed via Migration)
+**Status**: Completed as part of microservices migration
+**Priority**: P0 (Achieved through unified approach)
 
-Migrate v1 microservices into the v2 architecture and Docker Compose network.
+Redis and RabbitMQ dependencies are eliminated through the unified microservices migration approach, resulting in a PostgreSQL-only architecture.
 
-**Services to Migrate**:
-- Matchmaking
-- Submissions
-- Notifications
-- Image Generation
-- Replay Parse
+**Key Deliverables** (achieved via unified migration):
+- ✅ Remove Redis dependency (via Core consolidation)
+- ✅ Remove RabbitMQ dependency (via PostgreSQL event queues)
+- ✅ Consolidate all data storage in PostgreSQL
+- ✅ Simplify deployment and operational overhead
 
-**Key Considerations**:
-- Should these remain separate services or consolidate into core?
-- What dependencies do they have on Redis/RabbitMQ?
-- How do they integrate with v2's data model?
-
-**Dependencies**: Infrastructure simplification; potentially multi-game data model
-**Risks**: Each service likely needs deep analysis; may uncover hidden dependencies
-
-**Questions for Discussion**:
-1. Which service should we tackle first? (Recommendation: Start with the simplest/least-coupled)
-2. Do all of these need to remain microservices, or can some be consolidated?
-3. What's the current state of each service? Are they actively used in v1?
+**Implementation**: See [Unified Migration Plan](./unified-monolith-migration.md)
 
 ---
 
@@ -186,38 +184,41 @@ Build comprehensive UI for managing leagues, franchises, clubs, teams, and roste
 
 ## Roadmap Phases
 
-### Phase 1: Foundation
-**Goal**: Stable, simplified infrastructure
+### Phase 1: Foundation (Microservices Migration)
+**Goal**: Unified architecture with consolidated Core service and PostgreSQL-only infrastructure
 
-- Complete Redis migration
-- Complete RabbitMQ migration
-- Start multi-game data model design
-- Begin RBAC system planning
+- Consolidate Matchmaking into Core service
+- Consolidate Submissions into Core service
+- Implement PostgreSQL event system for remaining services
+- Migrate Notifications service to PostgreSQL events
+- Remove Redis and RabbitMQ infrastructure
+- Begin multi-game data model design
 
 ### Phase 2: Core Features
-**Goal**: Multi-game support and critical v1 migrations
+**Goal**: Multi-game support and data model modernization
 
 - Complete multi-game data model refactor
-- Migrate matchmaking service
-- Migrate submissions service
 - Implement multi-game ELO system
+- Migrate Image Generation service to PostgreSQL events
+- Migrate Replay Parse service to PostgreSQL events
+- Build league management backend services
 
 ### Phase 3: User-Facing Features
 **Goal**: Admin and user tooling
 
-- Complete RBAC admin UI
-- Migrate notifications service
+- Complete RBAC system with admin UI
 - Build league management UI (Phase 1: hierarchy and basic roster management)
 - Implement API token system
+- Create comprehensive admin interfaces
 
-### Phase 4: Polish & Remaining Migrations
-**Goal**: Feature complete
+### Phase 4: Polish & Optimization
+**Goal**: Production-ready platform
 
-- Migrate image generation service
-- Migrate replay parse service
 - League management UI (Phase 2: advanced features)
-- Documentation and runbooks
-- Performance optimization
+- Performance optimization and monitoring
+- Complete documentation and runbooks
+- Security audit and hardening
+- Load testing and scalability validation
 
 ---
 

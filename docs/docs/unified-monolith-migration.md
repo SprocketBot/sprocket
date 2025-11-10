@@ -7,7 +7,7 @@ title: Unified Migration to Monolith + PostgreSQL-Only Architecture
 
 ## Overview
 
-This document replaces both the [Redis/RabbitMQ removal plan](./detailed-migration-plan.md) and the [V1 microservices migration plan](./feature-v1-microservices-migration.md) with a unified approach that achieves both goals more efficiently.
+This document replaces both the [Redis/RabbitMQ removal plan](./archive/detailed-migration-plan.md) and the [V1 microservices migration plan](./archive/feature-v1-microservices-migration.md) with a unified approach that achieves both goals more efficiently.
 
 **Key Insight**: By migrating Matchmaking and Submissions into the Core service (creating a monolith), we eliminate their Redis dependencies entirely and simplify RabbitMQ removal through direct function calls rather than event queues.
 
