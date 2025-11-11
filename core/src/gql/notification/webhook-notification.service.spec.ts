@@ -67,7 +67,7 @@ describe('WebhookNotificationService', () => {
             const validUrls = [
                 'https://example.com/webhook',
                 'http://example.com/webhook',
-                'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX',
+                'https://example.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX',
                 'https://discord.com/api/webhooks/123456789/abcdefghijklmnopqrstuvwxyz',
                 'https://custom.domain.com/api/v1/webhook/endpoint',
             ];
