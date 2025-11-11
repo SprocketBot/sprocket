@@ -4,7 +4,6 @@
 		type CreateScrimData$result,
 		CreateScrimMutationStore
 	} from '$houdini';
-	import { onMount } from 'svelte';
 
 	export let parent: { onClose: CallableFunction };
 

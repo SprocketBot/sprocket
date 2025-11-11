@@ -1,6 +1,5 @@
 import { AUTHZ_ENFORCER, AuthZModule } from 'nest-authz';
 import { default as cookieParser } from 'cookie-parser';
-import * as cookieParserAlt from 'cookie-parser';
 import { User, UserSchema } from '@sprocketbot/lib/types';
 import { JwtService } from '@nestjs/jwt';
 import { parse } from 'valibot';
@@ -23,10 +22,9 @@ export function getBearerToken(req: Request): string | null {
   return null;
 }
 
-const cookieMiddleware =
-  typeof cookieParser === 'function' ? cookieParser() : cookieParserAlt();
+const cookieMiddleware = cookieParser();
 const addCookiesToRequest = (req: Request) => {
-  cookieMiddleware(req as any, null, () => {});
+  cookieMiddleware(req as any, null, () => { });
 };
 
 const AUTH_COOKIE_NAME = 'sprocket-token';
