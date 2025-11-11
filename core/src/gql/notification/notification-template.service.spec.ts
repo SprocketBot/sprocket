@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotificationTemplateService } from './notification-template.service';
 import { NotificationTemplateRepository } from '../../db/notification/notification_template.repository';
@@ -10,8 +11,8 @@ describe('NotificationTemplateService', () => {
 
     beforeEach(async () => {
         mockTemplateRepository = {
-            findOne: jest.fn(),
-            find: jest.fn(),
+            findOne: vi.fn(),
+            find: vi.fn(),
         };
 
         const module: TestingModule = await Test.createTestingModule({
@@ -28,7 +29,7 @@ describe('NotificationTemplateService', () => {
     });
 
     afterEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         service.clearCache();
     });
 
@@ -168,7 +169,7 @@ describe('NotificationTemplateService', () => {
                 channel: NotificationChannel.IN_APP,
             };
 
-            mockTemplateRepository.findOne = jest.fn().mockResolvedValue(mockTemplate);
+            mockTemplateRepository.findOne = vi.fn().mockResolvedValue(mockTemplate);
 
             const result = await service.renderTemplateFromDatabase('test_template', { name: 'John' });
 
@@ -187,7 +188,7 @@ describe('NotificationTemplateService', () => {
                 channel: NotificationChannel.IN_APP,
             };
 
-            mockTemplateRepository.findOne = jest.fn().mockResolvedValue(mockTemplate);
+            mockTemplateRepository.findOne = vi.fn().mockResolvedValue(mockTemplate);
 
             const result = await service.renderTemplateFromDatabase('test_template', { name: 'John', team: 'Alpha' });
 
@@ -196,7 +197,7 @@ describe('NotificationTemplateService', () => {
         });
 
         it('should handle template not found', async () => {
-            mockTemplateRepository.findOne = jest.fn().mockResolvedValue(null);
+            mockTemplateRepository.findOne = vi.fn().mockResolvedValue(null);
 
             const result = await service.renderTemplateFromDatabase('nonexistent_template', {});
 
@@ -205,12 +206,33 @@ describe('NotificationTemplateService', () => {
         });
 
         it('should handle database errors', async () => {
-            mockTemplateRepository.findOne = jest.fn().mockRejectedValue(new Error('Database connection failed'));
+            mockTemplateRepository.findOne = vi.fn().mockRejectedValue(new Error('Database connection failed'));
 
             const result = await service.renderTemplateFromDatabase('test_template', {});
 
             expect(result.success).toBe(false);
             expect(result.error).toContain('Failed to fetch and render template');
+        });
+
+        it('should not mutate the original data object', async () => {
+            const mockTemplate: Partial<NotificationTemplateEntity> = {
+                name: 'test_template',
+                content: 'User: {{name}}, Role: {{role}}',
+                defaultData: { role: 'Player' },
+                channel: NotificationChannel.IN_APP,
+            };
+
+            mockTemplateRepository.findOne = vi.fn().mockResolvedValue(mockTemplate);
+
+            const originalData = { name: 'John' };
+            const dataCopy = { ...originalData };
+
+            const result = await service.renderTemplateFromDatabase('test_template', originalData);
+
+            expect(result.success).toBe(true);
+            expect(result.rendered).toBe('User: John, Role: Player');
+            expect(originalData).toEqual(dataCopy); // Original data should be unchanged
+            expect(originalData).not.toHaveProperty('role'); // Should not have default data added
         });
     });
 
@@ -257,7 +279,7 @@ describe('NotificationTemplateService', () => {
                 },
             ];
 
-            mockTemplateRepository.find = jest.fn().mockResolvedValue(mockTemplates);
+            mockTemplateRepository.find = vi.fn().mockResolvedValue(mockTemplates);
 
             await service.precompileTemplates();
 
@@ -281,7 +303,7 @@ describe('NotificationTemplateService', () => {
                 },
             ];
 
-            mockTemplateRepository.find = jest.fn().mockResolvedValue(mockTemplates);
+            mockTemplateRepository.find = vi.fn().mockResolvedValue(mockTemplates);
 
             // Should not throw, but log warnings
             await service.precompileTemplates();

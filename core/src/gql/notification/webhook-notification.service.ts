@@ -31,11 +31,29 @@ export class WebhookNotificationService {
     private readonly MAX_RETRIES = 3;
     private readonly BASE_DELAY = 1000;
 
+    // Default allowlist for common webhook services
+    private readonly DEFAULT_ALLOWED_DOMAINS = [
+        'discord.com',
+        'discordapp.com',
+        'hooks.slack.com',
+        'slack.com',
+        'webhook.site',
+        'requestbin.com',
+        'ngrok.io', // For development
+    ];
+
+    private readonly allowedDomains: string[];
+
     constructor(
         private readonly templateService: NotificationTemplateService,
         private readonly historyRepository: NotificationHistoryRepository,
         private readonly preferenceRepository: UserNotificationPreferenceRepository,
     ) {
+        // Load additional domains from environment
+        const configuredDomains = process.env.WEBHOOK_ALLOWED_DOMAINS?.split(',').map(d => d.trim()).filter(d => d) || [];
+        this.allowedDomains = [...this.DEFAULT_ALLOWED_DOMAINS, ...configuredDomains];
+
+        this.logger.log(`Webhook allowlist initialized with ${this.allowedDomains.length} domains`);
         this.httpClient = axios.create({
             timeout: 10000,
             headers: {
@@ -59,14 +77,40 @@ export class WebhookNotificationService {
     }
 
     /**
-     * Validate webhook URL format
+     * Validate webhook URL format and check against allowlist
      */
     private validateWebhookUrl(url: string): boolean {
         try {
             const parsedUrl = new URL(url);
-            // Accept HTTP and HTTPS URLs
-            return ['http:', 'https:'].includes(parsedUrl.protocol);
+
+            // Check protocol
+            if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+                this.logger.warn(`Webhook URL rejected: invalid protocol ${parsedUrl.protocol}`);
+                return false;
+            }
+
+            // Check against allowlist
+            const hostname = parsedUrl.hostname.toLowerCase();
+            const isAllowed = this.allowedDomains.some(domain => {
+                if (domain.startsWith('*.')) {
+                    // Wildcard subdomain support
+                    const rootDomain = domain.slice(2);
+                    return hostname === rootDomain || hostname.endsWith('.' + rootDomain);
+                }
+                return hostname === domain || hostname.endsWith('.' + domain);
+            });
+
+            if (!isAllowed) {
+                this.logger.warn(`Webhook URL rejected: unauthorized domain ${hostname}`, {
+                    allowedDomains: this.allowedDomains,
+                    attemptedUrl: url,
+                });
+                return false;
+            }
+
+            return true;
         } catch (error) {
+            this.logger.warn(`Webhook URL rejected: invalid URL format ${url}`, { error });
             return false;
         }
     }
@@ -163,6 +207,28 @@ export class WebhookNotificationService {
     }
 
     /**
+     * Check if notification should be sent based on user preferences
+     */
+    private async shouldSendNotification(userId: string, channel: NotificationChannel): Promise<boolean> {
+        try {
+            const preference = await this.preferenceRepository.findOne({
+                where: { user: { id: userId }, channel },
+            });
+
+            // If no preference exists, default to enabled (opt-out behavior)
+            const shouldSend = !preference || preference.enabled;
+
+            this.logger.debug(`Notification preference check for user ${userId} on channel ${channel}: ${shouldSend ? 'enabled' : 'disabled'}`);
+
+            return shouldSend;
+        } catch (error) {
+            this.logger.error(`Failed to check notification preference for user ${userId}: ${error.message}`, error);
+            // Default to enabled if preference check fails
+            return true;
+        }
+    }
+
+    /**
      * Create notification history record
      */
     private async createHistoryRecord(
@@ -171,6 +237,7 @@ export class WebhookNotificationService {
         templateData: Record<string, any>,
         status: NotificationStatus,
         errorMessage?: string,
+        userId?: string,
     ): Promise<NotificationHistoryEntity> {
         const history = this.historyRepository.create({
             channel: NotificationChannel.WEBHOOK,
@@ -180,6 +247,7 @@ export class WebhookNotificationService {
             status,
             errorMessage,
             retryCount: 0,
+            user: userId ? { id: userId } as any : undefined,
         });
 
         return this.historyRepository.save(history);
@@ -215,14 +283,47 @@ export class WebhookNotificationService {
     ): Promise<WebhookResponse> {
         // Validate webhook URL
         if (!this.validateWebhookUrl(webhookUrl)) {
-            const errorMessage = `Invalid webhook URL: ${webhookUrl}`;
+            const errorMessage = `Invalid or unauthorized webhook URL: ${webhookUrl}`;
             this.logger.error(errorMessage);
             await this.createHistoryRecord(webhookUrl, templateName, templateData, NotificationStatus.FAILED, errorMessage);
             throw new Error(errorMessage);
         }
 
+        // Extract userId from templateData if available
+        const userId = templateData?.userId || templateData?.user?.id;
+
+        // Check user preferences if userId is available
+        if (userId) {
+            const shouldSend = await this.shouldSendNotification(userId, NotificationChannel.WEBHOOK);
+            if (!shouldSend) {
+                this.logger.log(`Notification skipped for user ${userId} due to preferences`, {
+                    webhookUrl,
+                    templateName,
+                    channel: NotificationChannel.WEBHOOK,
+                });
+
+                // Create history record for skipped notification
+                const history = await this.createHistoryRecord(
+                    webhookUrl,
+                    templateName,
+                    templateData,
+                    NotificationStatus.SENT,
+                    'Notification skipped due to user preferences',
+                    userId
+                );
+
+                // Return a mock successful response since we intentionally skipped
+                return {
+                    status: 200,
+                    statusText: 'OK - Skipped due to user preferences',
+                    headers: {},
+                    data: { skipped: true, reason: 'user_preferences' },
+                };
+            }
+        }
+
         // Create initial history record
-        const history = await this.createHistoryRecord(webhookUrl, templateName, templateData, NotificationStatus.PENDING);
+        const history = await this.createHistoryRecord(webhookUrl, templateName, templateData, NotificationStatus.PENDING, undefined, userId);
 
         try {
             // Render template
@@ -320,7 +421,7 @@ export class WebhookNotificationService {
         requestConfig: WebhookRequestConfig = {},
     ): Promise<WebhookResponse> {
         if (!this.validateWebhookUrl(webhookUrl)) {
-            const errorMessage = `Invalid webhook URL: ${webhookUrl}`;
+            const errorMessage = `Invalid or unauthorized webhook URL: ${webhookUrl}`;
             this.logger.error(errorMessage);
             throw new Error(errorMessage);
         }
@@ -346,7 +447,7 @@ export class WebhookNotificationService {
      */
     public async testWebhook(webhookUrl: string, requestConfig: WebhookRequestConfig = {}): Promise<WebhookResponse> {
         if (!this.validateWebhookUrl(webhookUrl)) {
-            const errorMessage = `Invalid webhook URL: ${webhookUrl}`;
+            const errorMessage = `Invalid or unauthorized webhook URL: ${webhookUrl}`;
             this.logger.error(errorMessage);
             throw new Error(errorMessage);
         }

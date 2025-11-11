@@ -1,10 +1,11 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
-import { WebhookNotificationService, WebhookRequestConfig, WebhookPayload, WebhookResponse } from './webhook-notification.service';
-import { NotificationTemplateService } from './notification-template.service';
-import { NotificationHistoryRepository } from '../../db/notification/notification_history.repository';
-import { UserNotificationPreferenceRepository } from '../../db/notification/user_notification_preference.repository';
-import { NotificationChannel, NotificationStatus } from '../../db/notification/notification.types';
-import { NotificationHistoryEntity } from '../../db/notification/notification_history.entity';
+import { WebhookNotificationService, WebhookRequestConfig, WebhookPayload, WebhookResponse } from '../src/gql/notification/webhook-notification.service';
+import { NotificationTemplateService } from '../src/gql/notification/notification-template.service';
+import { NotificationHistoryRepository } from '../src/db/notification/notification_history.repository';
+import { UserNotificationPreferenceRepository } from '../src/db/notification/user_notification_preference.repository';
+import { NotificationChannel, NotificationStatus } from '../src/db/notification/notification.types';
+import { NotificationHistoryEntity } from '../src/db/notification/notification_history.entity';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 
@@ -15,8 +16,9 @@ describe('WebhookNotificationService', () => {
     let mockPreferenceRepository: Partial<UserNotificationPreferenceRepository>;
     let axiosMock: MockAdapter;
 
-    const validWebhookUrl = 'https://example.com/webhook';
+    const validWebhookUrl = 'https://discord.com/api/webhooks/123456789/abcdefghijklmnopqrstuvwxyz';
     const invalidWebhookUrl = 'not-a-valid-url';
+    const unauthorizedWebhookUrl = 'https://unauthorized-domain.com/webhook';
 
     beforeEach(async () => {
         // Mock axios
@@ -24,16 +26,16 @@ describe('WebhookNotificationService', () => {
 
         // Mock services
         mockTemplateService = {
-            renderTemplateFromDatabase: jest.fn(),
+            renderTemplateFromDatabase: vi.fn(),
         };
 
         mockHistoryRepository = {
-            create: jest.fn(),
-            save: jest.fn(),
+            create: vi.fn(),
+            save: vi.fn(),
         };
 
         mockPreferenceRepository = {
-            find: jest.fn(),
+            find: vi.fn(),
         };
 
         const module: TestingModule = await Test.createTestingModule({
@@ -58,18 +60,23 @@ describe('WebhookNotificationService', () => {
     });
 
     afterEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         axiosMock.reset();
     });
 
     describe('validateWebhookUrl', () => {
-        it('should validate correct HTTP webhook URLs', () => {
+        it('should validate allowed webhook URLs from default allowlist', () => {
             const validUrls = [
-                'https://example.com/webhook',
-                'http://example.com/webhook',
-                'https://example.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX',
                 'https://discord.com/api/webhooks/123456789/abcdefghijklmnopqrstuvwxyz',
-                'https://custom.domain.com/api/v1/webhook/endpoint',
+                'https://discordapp.com/api/webhooks/123456789/abcdefghijklmnopqrstuvwxyz',
+                'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX',
+                'https://slack.com/api/webhooks/endpoint',
+                'https://webhook.site/unique-id',
+                'https://requestbin.com/bin/unique-id',
+                'https://ngrok.io/webhook/endpoint',
+                // Subdomain support
+                'https://subdomain.discord.com/webhook',
+                'https://api.slack.com/webhook',
             ];
 
             validUrls.forEach(url => {
@@ -81,7 +88,7 @@ describe('WebhookNotificationService', () => {
             const invalidUrls = [
                 'not-a-url',
                 '',
-                'ftp://example.com/webhook', // FTP not allowed
+                'ftp://discord.com/webhook', // FTP not allowed
                 'file:///etc/passwd', // File protocol not allowed
                 'javascript:alert(1)', // JavaScript protocol not allowed
             ];
@@ -89,6 +96,57 @@ describe('WebhookNotificationService', () => {
             invalidUrls.forEach(url => {
                 expect(service['validateWebhookUrl'](url)).toBe(false);
             });
+        });
+
+        it('should reject unauthorized domains not in allowlist', () => {
+            const unauthorizedUrls = [
+                'https://unauthorized-domain.com/webhook',
+                'https://internal-service.local/webhook',
+                'https://169.254.169.254/latest/meta-data/', // AWS metadata service
+                'https://localhost:8080/webhook',
+                'https://127.0.0.1/webhook',
+            ];
+
+            unauthorizedUrls.forEach(url => {
+                expect(service['validateWebhookUrl'](url)).toBe(false);
+            });
+        });
+
+        it('should support wildcard subdomains from environment variable', async () => {
+            // Set environment variable for testing
+            process.env.WEBHOOK_ALLOWED_DOMAINS = '*.custom-domain.com,*.another.io';
+
+            // Create new service instance to pick up environment variable
+            const module: TestingModule = await Test.createTestingModule({
+                providers: [
+                    WebhookNotificationService,
+                    {
+                        provide: NotificationTemplateService,
+                        useValue: mockTemplateService,
+                    },
+                    {
+                        provide: NotificationHistoryRepository,
+                        useValue: mockHistoryRepository,
+                    },
+                    {
+                        provide: UserNotificationPreferenceRepository,
+                        useValue: mockPreferenceRepository,
+                    },
+                ],
+            }).compile();
+
+            const newService = module.get<WebhookNotificationService>(WebhookNotificationService);
+
+            // Test wildcard subdomain matching
+            expect(newService['validateWebhookUrl']('https://sub.custom-domain.com/webhook')).toBe(true);
+            expect(newService['validateWebhookUrl']('https://deep.sub.custom-domain.com/webhook')).toBe(true);
+            expect(newService['validateWebhookUrl']('https://api.another.io/webhook')).toBe(true);
+
+            // Test that root domain doesn't match wildcard
+            expect(newService['validateWebhookUrl']('https://custom-domain.com/webhook')).toBe(false);
+
+            // Clean up
+            delete process.env.WEBHOOK_ALLOWED_DOMAINS;
         });
     });
 
@@ -177,7 +235,13 @@ describe('WebhookNotificationService', () => {
         it('should throw error for invalid webhook URL', async () => {
             await expect(
                 service.sendSimplePayload(invalidWebhookUrl, mockPayload)
-            ).rejects.toThrow('Invalid webhook URL');
+            ).rejects.toThrow('Invalid or unauthorized webhook URL');
+        });
+
+        it('should throw error for unauthorized webhook URL', async () => {
+            await expect(
+                service.sendSimplePayload(unauthorizedWebhookUrl, mockPayload)
+            ).rejects.toThrow('Invalid or unauthorized webhook URL');
         });
 
         it('should retry on failure', async () => {
@@ -332,13 +396,27 @@ describe('WebhookNotificationService', () => {
         it('should throw error for invalid webhook URL', async () => {
             await expect(
                 service.sendNotification(invalidWebhookUrl, 'scrim_completed', mockTemplateData)
-            ).rejects.toThrow('Invalid webhook URL');
+            ).rejects.toThrow('Invalid or unauthorized webhook URL');
 
             expect(mockHistoryRepository.create).toHaveBeenCalled();
             expect(mockHistoryRepository.save).toHaveBeenCalledWith(
                 expect.objectContaining({
                     status: NotificationStatus.FAILED,
-                    errorMessage: expect.stringContaining('Invalid webhook URL'),
+                    errorMessage: expect.stringContaining('Invalid or unauthorized webhook URL'),
+                })
+            );
+        });
+
+        it('should throw error for unauthorized webhook URL', async () => {
+            await expect(
+                service.sendNotification(unauthorizedWebhookUrl, 'scrim_completed', mockTemplateData)
+            ).rejects.toThrow('Invalid or unauthorized webhook URL');
+
+            expect(mockHistoryRepository.create).toHaveBeenCalled();
+            expect(mockHistoryRepository.save).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    status: NotificationStatus.FAILED,
+                    errorMessage: expect.stringContaining('Invalid or unauthorized webhook URL'),
                 })
             );
         });
@@ -458,7 +536,13 @@ describe('WebhookNotificationService', () => {
         it('should throw error for invalid webhook URL', async () => {
             await expect(
                 service.testWebhook(invalidWebhookUrl)
-            ).rejects.toThrow('Invalid webhook URL');
+            ).rejects.toThrow('Invalid or unauthorized webhook URL');
+        });
+
+        it('should throw error for unauthorized webhook URL', async () => {
+            await expect(
+                service.testWebhook(unauthorizedWebhookUrl)
+            ).rejects.toThrow('Invalid or unauthorized webhook URL');
         });
     });
 

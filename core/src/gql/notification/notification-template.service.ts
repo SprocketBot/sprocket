@@ -153,8 +153,8 @@ export class NotificationTemplateService {
             const key = templateKey || `inline_${Buffer.from(templateString).toString('base64')}`;
             const compiled = this.compileTemplate(templateString, key);
 
-            // Merge with default data if provided
-            const renderData = data;
+            // Create a copy of data to avoid mutating the original object
+            const renderData = { ...data };
 
             const rendered = compiled(renderData);
 

@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { BaseEntity } from '../internal';
+import { BaseEntity, UserEntity } from '../internal';
 import { NotificationChannel, NotificationStatus } from './notification.types';
 import { NotificationTemplateEntity } from './notification_template.entity';
 
@@ -39,4 +39,8 @@ export class NotificationHistoryEntity extends BaseEntity {
     @ManyToOne(() => NotificationTemplateEntity, { nullable: true })
     @JoinColumn()
     template?: NotificationTemplateEntity;
+
+    @ManyToOne(() => UserEntity, { nullable: true })
+    @JoinColumn()
+    user?: UserEntity;
 }

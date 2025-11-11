@@ -242,6 +242,28 @@ export class DiscordNotificationService {
     }
 
     /**
+     * Check if notification should be sent based on user preferences
+     */
+    private async shouldSendNotification(userId: string, channel: NotificationChannel): Promise<boolean> {
+        try {
+            const preference = await this.preferenceRepository.findOne({
+                where: { user: { id: userId }, channel },
+            });
+
+            // If no preference exists, default to enabled (opt-out behavior)
+            const shouldSend = !preference || preference.enabled;
+
+            this.logger.debug(`Notification preference check for user ${userId} on channel ${channel}: ${shouldSend ? 'enabled' : 'disabled'}`);
+
+            return shouldSend;
+        } catch (error) {
+            this.logger.error(`Failed to check notification preference for user ${userId}: ${error.message}`, error);
+            // Default to enabled if preference check fails
+            return true;
+        }
+    }
+
+    /**
      * Create notification history record
      */
     private async createHistoryRecord(
@@ -250,6 +272,7 @@ export class DiscordNotificationService {
         templateData: Record<string, any>,
         status: NotificationStatus,
         errorMessage?: string,
+        userId?: string,
     ): Promise<NotificationHistoryEntity> {
         const history = this.historyRepository.create({
             channel: NotificationChannel.DISCORD,
@@ -259,6 +282,7 @@ export class DiscordNotificationService {
             status,
             errorMessage,
             retryCount: 0,
+            user: userId ? { id: userId } as any : undefined,
         });
 
         return this.historyRepository.save(history);
@@ -303,8 +327,35 @@ export class DiscordNotificationService {
             throw new Error(errorMessage);
         }
 
+        // Extract userId from templateData if available
+        const userId = templateData?.userId || templateData?.user?.id;
+
+        // Check user preferences if userId is available
+        if (userId) {
+            const shouldSend = await this.shouldSendNotification(userId, NotificationChannel.DISCORD);
+            if (!shouldSend) {
+                this.logger.log(`Notification skipped for user ${userId} due to preferences`, {
+                    webhookUrl,
+                    templateName,
+                    channel: NotificationChannel.DISCORD,
+                });
+
+                // Create history record for skipped notification
+                await this.createHistoryRecord(
+                    webhookUrl,
+                    templateName,
+                    templateData,
+                    NotificationStatus.SENT,
+                    'Notification skipped due to user preferences',
+                    userId
+                );
+
+                return;
+            }
+        }
+
         // Create initial history record
-        const history = await this.createHistoryRecord(webhookUrl, templateName, templateData, NotificationStatus.PENDING);
+        const history = await this.createHistoryRecord(webhookUrl, templateName, templateData, NotificationStatus.PENDING, undefined, userId);
 
         try {
             // Render template
