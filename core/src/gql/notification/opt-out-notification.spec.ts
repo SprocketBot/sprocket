@@ -9,7 +9,6 @@ import { NotificationTemplateRepository } from '../../db/notification/notificati
 import { NotificationChannel, NotificationStatus } from '../../db/notification/notification.types';
 import { NotificationHistoryEntity } from '../../db/notification/notification_history.entity';
 import { UserNotificationPreferenceEntity } from '../../db/notification/user_notification_preference.entity';
-import { NotificationTemplateEntity } from '../../db/notification/notification_template.entity';
 import { UserEntity } from '../../db/user/user.entity';
 
 describe('Opt-out Notification System', () => {
