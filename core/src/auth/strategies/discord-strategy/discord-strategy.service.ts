@@ -102,11 +102,10 @@ export class DiscordStrategyService extends PassportStrategy<typeof Strategy>(
       username: profile.username,
       avatarUrl: `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`,
       active: false,
-      accounts: Promise.resolve([account]),
     });
 
     await this.userRepo.save(user);
-    account.user = Promise.resolve(user);
+    account.user = user;
     await this.userAuthAcctRepo.save(account);
     this.logger.log(
       `Created disabled account for discord user ${user.username}`,

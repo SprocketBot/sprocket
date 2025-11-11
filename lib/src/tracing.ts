@@ -20,7 +20,7 @@ const spanProcessor = new BatchSpanProcessor(traceExporter);
 const otelSDK = new NodeSDK({
   serviceName: process.env.SERVICE_NAME ?? 'SprocketUnknownService',
   //   metricReader,
-  spanProcessors: [spanProcessor],
+  spanProcessors: [spanProcessor as any],
   contextManager: new AsyncLocalStorageContextManager(),
   instrumentations: getNodeAutoInstrumentations({
     '@opentelemetry/instrumentation-fs': { enabled: false },

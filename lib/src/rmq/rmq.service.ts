@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Observable, tap } from 'rxjs';
 
 import type { Channel, Connection, ConsumeMessage } from 'amqplib';
-import { connect } from 'amqplib';
+import * as amqplib from 'amqplib';
 import { SprocketConfigService } from '../config-module';
 import { GuidService } from '../guid/guid.service';
 
@@ -23,7 +23,7 @@ export class RmqService {
   constructor(
     private readonly config: SprocketConfigService,
     private readonly guidService: GuidService,
-  ) {}
+  ) { }
 
   async onApplicationBootstrap(): Promise<void> {
     const rmqUrl = this.config.getOrThrow('amqp.url');
@@ -33,7 +33,7 @@ export class RmqService {
     displayUrl.password = "";
     // Create a connection to RabbitMQ
     try {
-      this.connection = await connect(rmqUrl, { heartbeat: 120 });
+      this.connection = await amqplib.connect(rmqUrl, { heartbeat: 120 }) as unknown as Connection;
       // Create a channel (?)
       await this.buildChannel();
     } catch (e) {
@@ -155,7 +155,7 @@ export class RmqService {
       this.channel.removeAllListeners();
       await this.channel.close();
     }
-    this.channel = await this.connection.createChannel();
+    this.channel = await (this.connection as any).createChannel();
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     this.channel.on('closed', async () =>
       this.buildChannel().catch(this.logger.error.bind(this.logger)),

@@ -72,7 +72,7 @@ export class ScrimService {
     private readonly gameRepo: GameRepository,
     private readonly gameModeRepo: GameModeRepository,
     private readonly matchmakingService: MatchmakingService,
-  ) {}
+  ) { }
 
   async getPendingScrims(
     query: ListScrimsPayload,
@@ -90,12 +90,12 @@ export class ScrimService {
       if (!dbUser) throw new Error('User not found');
       const allScrims: Scrim[] = [];
       for (const player of await dbUser.players) {
-        if (query.gameId && player.gameId !== query.gameId) continue;
-        if (query.skillGroupid && player.skillGroupId !== query.skillGroupid)
+        if (query.gameId && player.game.id !== query.gameId) continue;
+        if (query.skillGroupid && player.skillGroup.id !== query.skillGroupid)
           continue;
         const playerScrims = await this.matchmakingService.listScrims({
-          gameId: player.gameId,
-          skillGroupid: player.skillGroupId,
+          gameId: player.game.id,
+          skillGroupid: player.skillGroup.id,
           state: ScrimState.PENDING,
         });
         // Get the available scrims for the player
@@ -119,7 +119,7 @@ export class ScrimService {
 
   async createScrim(user: User, payload: Partial<CreateScrimPayload>) {
     const player = await this.playerRepo.findOne({
-      where: { userId: user.id, gameId: payload.gameId },
+      where: { user: { id: user.id }, game: { id: payload.gameId } },
     });
     const game = await this.gameRepo.findOne({
       where: { id: payload.gameId },
@@ -141,7 +141,7 @@ export class ScrimService {
     const result = await this.matchmakingService.createScrim({
       authorId: user.id,
       gameId: game.id,
-      skillGroupId: player.skillGroupId,
+      skillGroupId: player.skillGroup.id,
       gameModeId: mode.id,
       maxParticipants: mode.playerCount,
       options: payload.options,

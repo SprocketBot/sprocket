@@ -175,6 +175,24 @@ services:
       - ./config/vector/vector.yaml:/etc/vector/vector.yaml:ro
       - ${DOCKER_SOCKET_PATH:-/var/run/docker.sock}:/var/run/docker.sock:ro
 
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    profiles: [monitoring]
+    ports:
+      - 16686:16686  # Jaeger UI
+      - 14268:14268  # Jaeger collector HTTP
+      - 14250:14250  # Jaeger collector gRPC
+      - 6831:6831/udp  # Jaeger agent compact
+      - 6832:6832/udp  # Jaeger agent binary
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - SPAN_STORAGE_TYPE=elasticsearch
+    labels:
+      traefik.enable: true
+      traefik.http.routers.jaeger.rule: Host(`${JAEGER_URL:-jaeger.localhost}`)
+      traefik.http.routers.jaeger.entrypoints: web,websecure
+      traefik.http.services.jaeger.loadbalancer.server.port: 16686
+
 networks:
   default:
     name: "sprocket-net"

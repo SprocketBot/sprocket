@@ -45,7 +45,11 @@ import {
 	ScheduleGroupRepository,
 	ScheduleGroupTypeRepository,
 	UserRepository,
-	UserAuthAccountRepository
+	UserAuthAccountRepository,
+	LogsEntity,
+	MetricsEntity,
+	LogsRepository,
+	MetricsRepository
 } from './internal';
 
 @Module({
@@ -75,7 +79,9 @@ import {
 			ScheduleGroupEntity,
 			ScheduleGroupTypeEntity,
 			UserEntity,
-			UserAuthAccountEntity
+			UserAuthAccountEntity,
+			LogsEntity,
+			MetricsEntity
 		])
 	],
 	providers: [
@@ -99,7 +105,9 @@ import {
 		ScheduleGroupRepository,
 		ScheduleGroupTypeRepository,
 		UserRepository,
-		UserAuthAccountRepository
+		UserAuthAccountRepository,
+		LogsRepository,
+		MetricsRepository
 	],
 	exports: [
 		GameRepository,
@@ -122,7 +130,9 @@ import {
 		ScheduleGroupRepository,
 		ScheduleGroupTypeRepository,
 		UserRepository,
-		UserAuthAccountRepository
+		UserAuthAccountRepository,
+		LogsRepository,
+		MetricsRepository
 	]
 })
-export class DbModule {}
+export class DbModule { }
