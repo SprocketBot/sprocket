@@ -1,0 +1,25 @@
+{
+    "celery": {
+        "broker": "",
+        "backend": "",
+        "queue": ""
+    },
+    "transport": {
+        "url": "",
+        "analytics_queue": "dev-analytics"
+    },
+    "minio": {
+        "hostname": "",
+        "bucket": "",
+        "parsed_object_prefix": "",
+        "accessKey": "",
+        "secure": true
+    },
+    "ballchasing": {
+        "maxRetries": 4,
+        "backoffFactor": 4
+    },
+    "parser": "carball|ballchasing",
+    "tempDir": "",
+    "disableCache": false
+}
