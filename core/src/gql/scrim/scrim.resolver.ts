@@ -12,9 +12,9 @@ import type { User } from '@sprocketbot/lib/types';
 import { ScrimObject, ScrimParticipantObject } from './scrim.object';
 import {
   MatchmakingEvents,
-  MatchmakingService,
   type Scrim,
-} from '@sprocketbot/matchmaking';
+} from '../../matchmaking/connector/matchmaking.connector';
+import { ScrimService as InternalScrimService } from '../../matchmaking/scrim/scrim.service';
 import { CurrentUser } from 'src/auth/current-user/current-user.decorator';
 import { Inject, UseGuards } from '@nestjs/common';
 import { AuthorizeGuard } from 'src/auth/authorize/authorize.guard';
@@ -32,14 +32,14 @@ import { SkillGroupRepository } from '../../db/skill_group/skill_group.repositor
 import { PlayerRepository } from '../../db/player/player.repository';
 import { PubSubProvider } from '../constants';
 import { PubSubEngine } from 'graphql-subscriptions';
-import { ScrimState } from '@sprocketbot/matchmaking';
+import { ScrimState } from '../../matchmaking/constants';
 import { GameModeObject } from '../game_mode/game_mode.object';
 import { GameModeRepository } from '../../db/game_mode/game_mode.repository';
 import { ScrimService } from './scrim.service';
 
 @Resolver(() => ScrimParticipantObject)
 export class ScrimParticipantResolver {
-  constructor(private readonly userRepo: UserRepository) {}
+  constructor(private readonly userRepo: UserRepository) { }
 
   @ResolveField(() => String)
   async name(@Root() root: ScrimParticipantObject) {
@@ -54,7 +54,7 @@ export class ScrimParticipantResolver {
 export class ScrimResolver {
   constructor(
     private readonly scrimService: ScrimService,
-    private readonly matchmakingService: MatchmakingService,
+    private readonly internalScrimService: InternalScrimService,
     private readonly userRepo: UserRepository,
     private readonly playerRepo: PlayerRepository,
     private readonly gameRepo: GameRepository,
@@ -62,7 +62,7 @@ export class ScrimResolver {
     private readonly skillGroupRepo: SkillGroupRepository,
     @Inject(PubSubProvider)
     private readonly pubsub: PubSubEngine,
-  ) {}
+  ) { }
 
   @Subscription(() => ScrimObject, {
     name: 'currentScrim',
@@ -131,10 +131,7 @@ export class ScrimResolver {
     @Args('payload', { type: () => DestroyScrimInput })
     payload: DestroyScrimInput,
   ): Promise<Scrim> {
-    return await this.scrimService.destroyScrim(user, {
-      ...payload,
-      cancel: true,
-    });
+    return await this.scrimService.destroyScrim(user, payload);
   }
 
   @Mutation(() => ScrimObject)
@@ -143,13 +140,13 @@ export class ScrimResolver {
     @CurrentUser() user: User,
     @Args('scrimId', { type: () => String }) scrimId: string,
   ): Promise<Scrim> {
-    return await this.matchmakingService.joinScrim(user, scrimId);
+    return await this.internalScrimService.joinScrim(user.id, scrimId);
   }
 
   @Mutation(() => ScrimObject)
   @UseGuards(AuthorizeGuard())
   async leaveScrim(@CurrentUser() user: User): Promise<Scrim> {
-    return await this.matchmakingService.removeUserFromScrim(user);
+    return await this.internalScrimService.leaveScrim(user.id);
   }
 
   @ResolveField(() => Boolean)
@@ -204,6 +201,8 @@ export class ScrimResolver {
   async pendingTtl(@Root() root: ScrimObject) {
     if (typeof root.pendingTtl === 'number') return root.pendingTtl;
 
-    return await this.matchmakingService.getScrimPendingTtl(root.id);
+    return await this.internalScrimService.getPendingTTL({
+      scrimId: root.id,
+    });
   }
 }

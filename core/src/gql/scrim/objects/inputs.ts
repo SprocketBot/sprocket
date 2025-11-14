@@ -5,7 +5,7 @@ import {
   type CreateScrimPayload,
   ScrimState,
   DestroyScrimPayload,
-} from '@sprocketbot/matchmaking';
+} from '../../../matchmaking/connector/matchmaking.connector';
 
 @InputType('CreateScrimInputOptions')
 export class CreateScrimInputOptions implements CreateScrimOptions {
@@ -20,8 +20,7 @@ export class CreateScrimInputOptions implements CreateScrimOptions {
 @InputType('CreateScrimInput')
 export class CreateScrimInput
   implements
-    Omit<CreateScrimPayload, 'authorId' | 'skillGroupId' | 'maxParticipants'>
-{
+  Omit<CreateScrimPayload, 'authorId' | 'skillGroupId' | 'maxParticipants'> {
   @Field(() => String)
   gameId: string;
 

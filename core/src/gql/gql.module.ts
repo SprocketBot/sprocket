@@ -8,11 +8,12 @@ import {
   ScrimResolver,
 } from './scrim/scrim.resolver';
 import { UserResolver } from './user/user.resolver';
-import { MatchmakingConnectorModule } from '@sprocketbot/matchmaking';
+import { MatchmakingConnectorModule } from '../matchmaking/connector/matchmaking.connector';
 import { PlayerResolver } from './player/player.resolver';
 import { UserAuthAccountResolver } from './user_auth_account/user_auth_account.resolver';
 import { GameResolver } from './game/game.resolver';
 import { SkillGroupResolver } from './skill_group/skill_group.resolver';
+import { QueueResolver } from './queue/queue.resolver';
 import { PubSubProvider } from './constants';
 import { PubSub } from 'graphql-subscriptions';
 import { ScrimSubscriber } from './scrim/scrim.subscriber';
@@ -92,6 +93,7 @@ import { ScrimService } from './scrim/scrim.service';
     UserAuthAccountResolver,
     GameResolver,
     SkillGroupResolver,
+    QueueResolver,
     {
       provide: PubSubProvider,
       useValue: new PubSub(),
@@ -101,4 +103,4 @@ import { ScrimService } from './scrim/scrim.service';
     ScrimService,
   ],
 })
-export class GqlModule {}
+export class GqlModule { }

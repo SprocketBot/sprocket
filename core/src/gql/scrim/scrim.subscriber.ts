@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { MatchmakingEvents, ScrimSchema } from '@sprocketbot/matchmaking';
+import { MatchmakingEvents, ScrimSchema } from '../../matchmaking/connector/matchmaking.connector';
 import { EventsService } from '@sprocketbot/lib';
 import { PubSubEngine } from 'graphql-subscriptions';
 import { PubSubProvider } from '../constants';
@@ -11,7 +11,7 @@ export class ScrimSubscriber {
     @Inject(PubSubProvider)
     private readonly pubsub: PubSubEngine,
     private readonly eventService: EventsService,
-  ) {}
+  ) { }
 
   async onApplicationBootstrap() {
     const rx = await this.eventService.subscribe(

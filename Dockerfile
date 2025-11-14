@@ -16,7 +16,6 @@ WORKDIR /app
 RUN bun i
 # RUN cd /app/core && bun run build
 # RUN cd /app/lib && bun run build
-# RUN cd /app/services/matchmaking && bun run build
 # RUN cd /app/clients/discord && bun run build
 
 RUN cd /app/core && bun run gen:schema

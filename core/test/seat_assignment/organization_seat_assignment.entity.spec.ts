@@ -2,8 +2,8 @@ import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { OrganizationSeatAssignmentEntity } from '../../src/db/seat_assignment/organization_seat_assignment.entity';
-import { OrganizationSeatAssignmentRepository } from '../../src/db/seat_assignment/organization_seat_assignment.repository';
+import { OrganizationSeatAssignmentEntity } from '../../src/db/seat_assignment/organization_seat_assignment/organization_seat_assignment.entity';
+import { OrganizationSeatAssignmentRepository } from '../../src/db/seat_assignment/organization_seat_assignment/organization_seat_assignment.repository';
 
 describe('OrganizationSeatAssignmentEntity', () => {
   it('should be defined', () => {

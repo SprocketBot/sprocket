@@ -3,9 +3,12 @@
     "./src/**/*.ts",
     "./src/datasource.ts",
     "./datasource.ts",
-    "./test/**/**/*.ts"
+    "./test/**/*.ts"
   ],
-  "files": ["./src/app.d.ts", "./src/main.ts"],
+  "files": [
+    "./src/app.d.ts",
+    "./src/main.ts"
+  ],
   "compilerOptions": {
     "module": "commonjs",
     "declaration": false,
@@ -23,6 +26,10 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "types": [
+      "jest",
+      "node"
+    ]
   }
 }

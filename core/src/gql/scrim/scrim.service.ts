@@ -5,10 +5,10 @@ import {
   ScrimState,
   type Scrim,
   type ListScrimsPayload,
-  MatchmakingService,
   type CreateScrimPayload,
   DestroyScrimPayload,
-} from '@sprocketbot/matchmaking';
+} from '../../matchmaking/connector/matchmaking.connector';
+import { ScrimService as InternalScrimService } from '../../matchmaking/scrim/scrim.service';
 import { Request } from 'express';
 import { UserRepository } from '../../db/user/user.repository';
 import { PlayerRepository } from '../../db/player/player.repository';
@@ -71,8 +71,8 @@ export class ScrimService {
     private readonly playerRepo: PlayerRepository,
     private readonly gameRepo: GameRepository,
     private readonly gameModeRepo: GameModeRepository,
-    private readonly matchmakingService: MatchmakingService,
-  ) {}
+    private readonly internalScrimService: InternalScrimService,
+  ) { }
 
   async getPendingScrims(
     query: ListScrimsPayload,
@@ -90,12 +90,12 @@ export class ScrimService {
       if (!dbUser) throw new Error('User not found');
       const allScrims: Scrim[] = [];
       for (const player of await dbUser.players) {
-        if (query.gameId && player.gameId !== query.gameId) continue;
-        if (query.skillGroupid && player.skillGroupId !== query.skillGroupid)
+        if (query.gameId && player.game.id !== query.gameId) continue;
+        if (query.skillGroupid && player.skillGroup.id !== query.skillGroupid)
           continue;
-        const playerScrims = await this.matchmakingService.listScrims({
-          gameId: player.gameId,
-          skillGroupid: player.skillGroupId,
+        const playerScrims = await this.internalScrimService.listScrims({
+          gameId: player.game.id,
+          skillGroupid: player.skillGroup.id,
           state: ScrimState.PENDING,
         });
         // Get the available scrims for the player
@@ -105,21 +105,21 @@ export class ScrimService {
     }
     // todo: authz
     // If user is an admin, respect the input query
-    return await this.matchmakingService.listScrims(query ?? {});
+    return await this.internalScrimService.listScrims(query ?? {});
   }
 
   async listScrims(payload: ListScrimsPayload) {
     // todo: authz
-    return await this.matchmakingService.listScrims(payload);
+    return await this.internalScrimService.listScrims(payload);
   }
 
   async getScrimForUser(user: User) {
-    return await this.matchmakingService.getScrimForUser(user);
+    return await this.internalScrimService.getScrimByUserId(user.id);
   }
 
   async createScrim(user: User, payload: Partial<CreateScrimPayload>) {
     const player = await this.playerRepo.findOne({
-      where: { userId: user.id, gameId: payload.gameId },
+      where: { user: { id: user.id }, game: { id: payload.gameId } },
     });
     const game = await this.gameRepo.findOne({
       where: { id: payload.gameId },
@@ -138,10 +138,10 @@ export class ScrimService {
       else throw new Error(`${gameMode.name} is not a mode for ${game.name}`);
     }
 
-    const result = await this.matchmakingService.createScrim({
+    const result = await this.internalScrimService.createScrim({
       authorId: user.id,
       gameId: game.id,
-      skillGroupId: player.skillGroupId,
+      skillGroupId: player.skillGroup.id,
       gameModeId: mode.id,
       maxParticipants: mode.playerCount,
       options: payload.options,
@@ -153,6 +153,6 @@ export class ScrimService {
   async destroyScrim(user: User, payload: DestroyScrimPayload): Promise<Scrim> {
     // todo: authz
 
-    return await this.matchmakingService.destroyScrim(payload);
+    return await this.internalScrimService.cancelScrim(payload);
   }
 }
