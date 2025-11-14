@@ -10,6 +10,7 @@ import { GqlModule } from './gql/gql.module';
 import { MatchmakingConnectorModule } from '@sprocketbot/matchmaking';
 import { HealthModule } from './health/health.module';
 import { authz } from './authz.def';
+import { ObservabilityModule } from './observability/observability.module';
 
 @Module({
   imports: [
@@ -22,8 +23,9 @@ import { authz } from './authz.def';
     GqlModule,
     MatchmakingConnectorModule,
     HealthModule,
+    ObservabilityModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

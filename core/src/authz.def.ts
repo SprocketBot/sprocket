@@ -1,5 +1,5 @@
 import { AUTHZ_ENFORCER, AuthZModule } from 'nest-authz';
-import { default as cookieParser } from 'cookie-parser';
+import * as cookieParser from 'cookie-parser';
 import { User, UserSchema } from '@sprocketbot/lib/types';
 import { JwtService } from '@nestjs/jwt';
 import { parse } from 'valibot';

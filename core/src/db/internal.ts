@@ -67,3 +67,7 @@ export * from './notification/notification_history.entity';
 export * from './notification/notification_history.repository';
 export * from './notification/user_notification_preference.entity';
 export * from './notification/user_notification_preference.repository';
+export * from './observability/logs.entity';
+export * from './observability/logs.repository';
+export * from './observability/metrics.entity';
+export * from './observability/metrics.repository';
