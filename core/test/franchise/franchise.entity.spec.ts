@@ -4,15 +4,16 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FranchiseEntity } from '../../src/db/franchise/franchise.entity';
 import { FranchiseRepository } from '../../src/db/franchise/franchise.repository';
-import { FranchiseSeatAssignmentEntity } from '../../src/db/seat_assignment/franchise_seat_assignment.entity';
+import { FranchiseSeatAssignmentEntity } from '../../src/db/seat_assignment/franchise_seat_assignment/franchise_seat_assignment.entity';
 import { PlayerEntity } from '../../src/db/player/player.entity';
 import { SeatEntity } from '../../src/db/seat/seat.entity';
+import { UserEntity } from '../../src/db/user/user.entity';
 
 describe('FranchiseEntity', () => {
   let module: TestingModule;
   let franchiseRepository: Repository<FranchiseEntity>;
   let franchiseSeatAssignmentRepository: Repository<FranchiseSeatAssignmentEntity>;
-  let playerRepository: Repository<PlayerEntity>;
+  let userRepository: Repository<UserEntity>;
   let seatRepository: Repository<SeatEntity>;
 
   beforeAll(async () => {
@@ -27,7 +28,7 @@ describe('FranchiseEntity', () => {
           useClass: Repository,
         },
         {
-          provide: getRepositoryToken(PlayerEntity),
+          provide: getRepositoryToken(UserEntity),
           useClass: Repository,
         },
         {
@@ -41,7 +42,7 @@ describe('FranchiseEntity', () => {
     franchiseSeatAssignmentRepository = module.get(
       getRepositoryToken(FranchiseSeatAssignmentEntity),
     );
-    playerRepository = module.get(getRepositoryToken(PlayerEntity));
+    userRepository = module.get(getRepositoryToken(UserEntity));
     seatRepository = module.get(getRepositoryToken(SeatEntity));
   });
 
@@ -71,10 +72,10 @@ describe('FranchiseEntity', () => {
   });
 
   describe('Franchise Fields', () => {
-    it('should have franchise_name field', () => {
+    it('should have name field', () => {
       const franchise = new FranchiseEntity();
-      franchise.franchise_name = 'Test Franchise';
-      expect(franchise.franchise_name).toBe('Test Franchise');
+      franchise.name = 'Test Franchise';
+      expect(franchise.name).toBe('Test Franchise');
     });
   });
 
@@ -85,19 +86,19 @@ describe('FranchiseEntity', () => {
 
     it('should create a new franchise', async () => {
       const franchise = new FranchiseEntity();
-      franchise.franchise_name = 'Test Franchise';
+      franchise.name = 'Test Franchise';
       const spy = vi.spyOn(franchiseRepository, 'save').mockResolvedValueOnce(franchise);
 
       const savedFranchise = await franchiseRepository.save(franchise);
       expect(savedFranchise).toBeDefined();
       expect(savedFranchise).toBeInstanceOf(FranchiseEntity);
-      expect(savedFranchise.franchise_name).toBe('Test Franchise');
+      expect(savedFranchise.name).toBe('Test Franchise');
       spy.mockRestore();
     });
 
     it('should find a franchise by id', async () => {
       const franchise = new FranchiseEntity();
-      franchise.franchise_name = 'Test Franchise';
+      franchise.name = 'Test Franchise';
       const spy = vi
         .spyOn(franchiseRepository, 'findOne')
         .mockResolvedValueOnce(franchise);
@@ -107,7 +108,7 @@ describe('FranchiseEntity', () => {
       });
       expect(foundFranchise).toBeDefined();
       expect(foundFranchise).toBeInstanceOf(FranchiseEntity);
-      expect(foundFranchise?.franchise_name).toBe('Test Franchise');
+      expect(foundFranchise?.name).toBe('Test Franchise');
       spy.mockRestore();
     });
   });
@@ -115,34 +116,34 @@ describe('FranchiseEntity', () => {
   describe('Franchise Relationships', () => {
     it('should have relationship with FranchiseSeatAssignment', async () => {
       const franchise = new FranchiseEntity();
-      franchise.franchise_name = 'Test Franchise';
+      franchise.name = 'Test Franchise';
       const seatAssignment = new FranchiseSeatAssignmentEntity();
-      const player = new PlayerEntity();
+      const user = new UserEntity();
       const seat = new SeatEntity();
 
-      seatAssignment.franchise = Promise.resolve(franchise);
-      seatAssignment.player = Promise.resolve(player);
-      seatAssignment.seat = Promise.resolve(seat);
+      seatAssignment.franchise = franchise;
+      seatAssignment.user = user;
+      seatAssignment.seat = seat;
 
       // Mock the relationships
       const franchiseSpy = vi
         .spyOn(franchiseSeatAssignmentRepository, 'findOne')
         .mockResolvedValueOnce(seatAssignment);
-      const playerSpy = vi.spyOn(playerRepository, 'findOne').mockResolvedValueOnce(player);
+      const userSpy = vi.spyOn(userRepository, 'findOne').mockResolvedValueOnce(user);
       const seatSpy = vi.spyOn(seatRepository, 'findOne').mockResolvedValueOnce(seat);
 
       // Test the relationship
       const foundAssignment = await franchiseSeatAssignmentRepository.findOne({
         where: { franchise: { id: franchise.id } },
-        relations: ['franchise', 'player', 'seat'],
+        relations: ['franchise', 'user', 'seat'],
       });
 
       expect(foundAssignment).not.toBeNull();
       expect(foundAssignment?.franchise).toBeDefined();
-      expect(foundAssignment?.player).toBeDefined();
+      expect(foundAssignment?.user).toBeDefined();
       expect(foundAssignment?.seat).toBeDefined();
       franchiseSpy.mockRestore();
-      playerSpy.mockRestore();
+      userSpy.mockRestore();
       seatSpy.mockRestore();
     });
   });

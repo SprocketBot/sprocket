@@ -8,6 +8,7 @@
     "./core"
   ],
   "dependencies": {
+    "@nestjs/schedule": "^6.0.1",
     "typeorm-adapter": "^1.7.0"
   },
   "scripts": {

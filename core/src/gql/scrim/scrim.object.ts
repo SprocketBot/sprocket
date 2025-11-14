@@ -3,7 +3,7 @@ import {
   ScrimState,
   type Scrim,
   ScrimParticipant,
-} from '@sprocketbot/matchmaking';
+} from '../../matchmaking/connector/matchmaking.connector';
 import { UserObject } from '../user/user.object';
 import { GameObject } from '../game/game.object';
 import { SkillGroupObject } from '../skill_group/skill_group.object';

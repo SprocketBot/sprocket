@@ -3,11 +3,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
+import { ScheduleModule } from '@nestjs/schedule';
 import { GlobalModule } from './global/global.module';
 import { BaseSprocketModules } from '@sprocketbot/lib';
 import { DbModule } from './db/db.module';
 import { GqlModule } from './gql/gql.module';
-import { MatchmakingConnectorModule } from '@sprocketbot/matchmaking';
+import { MatchmakingModule } from './matchmaking/matchmaking.module';
 import { HealthModule } from './health/health.module';
 import { authz } from './authz.def';
 import { ObservabilityModule } from './observability/observability.module';
@@ -17,11 +18,12 @@ import { ObservabilityModule } from './observability/observability.module';
     ...BaseSprocketModules,
     authz,
     PassportModule,
+    ScheduleModule.forRoot(),
     AuthModule,
     GlobalModule,
     DbModule,
     GqlModule,
-    MatchmakingConnectorModule,
+    MatchmakingModule,
     HealthModule,
     ObservabilityModule,
   ],

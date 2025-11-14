@@ -2,5 +2,9 @@
     "search.exclude": {
         "clients/web/$houdini": true,
         "old": true
-    }
+    },
+    "typescript.preferences.includePackageJsonAutoImports": "on",
+    "typescript.suggest.autoImports": true,
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "typescript.workspaceSymbols.scope": "allOpenProjects"
 }
