@@ -60,3 +60,10 @@ export * from './seat_assignment/club_seat_assignment/club_seat_assignment.repos
 export * from './seat_assignment/franchise_seat_assignment/franchise_seat_assignment.repository';
 export * from './seat_assignment/team_seat_assignment/team_seat_assignment.repository';
 export * from './user_auth_account/user_auth_account.repository';
+export * from './notification/notification.types';
+export * from './notification/notification_template.entity';
+export * from './notification/notification_template.repository';
+export * from './notification/notification_history.entity';
+export * from './notification/notification_history.repository';
+export * from './notification/user_notification_preference.entity';
+export * from './notification/user_notification_preference.repository';

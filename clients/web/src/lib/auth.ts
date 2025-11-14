@@ -9,8 +9,5 @@ export const getUserContext = (): User => getContext(UserContext);
 export const can = (target: string, u?: User) => {
 	const user = u ?? getUserContext();
 
-	user;
-	target;
-
 	return true;
 };

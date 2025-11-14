@@ -9,7 +9,7 @@ export class ScrimPendingTimeoutService {
   constructor(
     @InjectQueue(ScrimPendingTimeoutQueue)
     private readonly queue: Queue<ScrimPendingTimeoutPayload>,
-  ) {}
+  ) { }
 
   async getTtl(scrimId: string) {
     const job = await this.queue.getJob(scrimId);
