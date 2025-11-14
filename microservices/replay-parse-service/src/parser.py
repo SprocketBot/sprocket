@@ -1,6 +1,7 @@
 import logging
 from time import sleep
 from typing import Callable
+import carball
 import ballchasing
 from requests import Response
 
@@ -20,14 +21,39 @@ MAX_RETRIES = config["ballchasing"]["maxRetries"]
 BACKOFF_FACTOR = config["ballchasing"]["backoffFactor"]
 DELAYS = [0, *(BACKOFF_FACTOR**(r + 1) for r in range(MAX_RETRIES))]
 
-if PARSER != "ballchasing":
-    raise Exception(f"Unknown parser {PARSER}. Only 'ballchasing' is currently supported.")
+if PARSER != "carball" and PARSER != "ballchasing":
+    raise Exception(f"Unknown parser {PARSER}. Please specify either 'carball' or 'ballchasing'.")
 
 
 def parse(path: str, on_progress: Callable[[str], None] = None):
+    if PARSER == "carball":
+        return _parse_carball(path, on_progress)
     if PARSER == "ballchasing":
         return _parse_ballchasing(path, on_progress)
     raise Exception(f"Parser {PARSER} not supported")
+
+
+
+###############################
+#
+# Carball
+#
+###############################
+
+def _parse_carball(path: str, on_progress: Callable[[str], None] = None) -> dict:
+    """
+    Parses a Rocket League replay located at a given local path
+
+    Args:
+        path (str): The local path of the replay file to parse
+
+    Returns:
+        dict: A dictionary containing all of the stats returned by carball
+    """
+    logging.info(f"Parsing {path} with carball")
+
+    analysis_manager = carball.analyze_replay_file(path, logging_level=print)
+    return analysis_manager.get_json_data()
 
 
 
