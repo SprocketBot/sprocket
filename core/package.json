@@ -37,7 +37,6 @@
     "@nestjs/typeorm": "^10.0.2",
     "@opentelemetry/api": "^1.8.0",
     "@sprocketbot/lib": "workspace:*",
-    "@sprocketbot/matchmaking": "workspace:*",
     "@types/lodash.camelcase": "^4.3.9",
     "@types/passport-discord": "^0.1.12",
     "@types/passport-steam": "^1.0.5",

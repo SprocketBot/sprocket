@@ -1,7 +1,6 @@
 {
   "private": true,
   "workspaces": [
-    "./services/matchmaking",
     "./clients/web",
     "./clients/discord",
     "./lib",
