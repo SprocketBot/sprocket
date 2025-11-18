@@ -23,4 +23,5 @@ click==8.1.8
 six==1.16.0
 
 # sprocket-carball for local replay parsing (replaces the old carball package)
-sprocket-carball>=0.8.7
+# Version 0.9.0 fixes the xlrd dependency issues
+sprocket-carball>=0.9.0
