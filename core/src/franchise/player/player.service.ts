@@ -1,8 +1,8 @@
 import {
     forwardRef, Inject, Injectable, Logger,
 } from "@nestjs/common";
-import {JwtService} from "@nestjs/jwt";
-import {InjectRepository} from "@nestjs/typeorm";
+import { JwtService } from "@nestjs/jwt";
+import { InjectRepository } from "@nestjs/typeorm";
 import type {
     CoreEndpoint,
     CoreOutput,
@@ -22,7 +22,7 @@ import {
 import type {
     FindManyOptions, FindOneOptions, FindOptionsRelations, QueryRunner,
 } from "typeorm";
-import {DataSource, Repository} from "typeorm";
+import { DataSource, Repository } from "typeorm";
 
 import {
     Member,
@@ -43,22 +43,21 @@ import {
     Role,
     Timezone,
 } from "../../database/mledb";
-import {PlayerToPlayer} from "../../database/mledb-bridge/player_to_player.model";
-import {PlayerToUser} from "../../database/mledb-bridge/player_to_user.model";
-import type {SalaryPayloadItem} from "../../elo/elo-connector";
+import { PlayerToPlayer } from "../../database/mledb-bridge/player_to_player.model";
+import { PlayerToUser } from "../../database/mledb-bridge/player_to_user.model";
+import type { SalaryPayloadItem } from "../../elo/elo-connector";
 import {
     DegreeOfStiffness,
     EloConnectorService,
     EloEndpoint,
     SkillGroupDelta,
 } from "../../elo/elo-connector";
-import {PlatformService} from "../../game";
-import {OrganizationService} from "../../organization";
-import {MemberService} from "../../organization/member/member.service";
-import {GameSkillGroupService} from "../game-skill-group";
-import type {IntakePlayerAccount} from "./player.resolver";
-import type {RankdownJwtPayload} from "./player.types";
-import type {CreatePlayerTuple} from "./player.types";
+import { PlatformService } from "../../game";
+import { OrganizationService } from "../../organization";
+import { MemberService } from "../../organization/member/member.service";
+import { GameSkillGroupService } from "../game-skill-group";
+import type { RankdownJwtPayload } from "./player.types";
+import type { CreatePlayerTuple } from "./player.types";
 
 @Injectable()
 export class PlayerService {
@@ -85,14 +84,14 @@ export class PlayerService {
         private readonly dataSource: DataSource,
         private readonly eloConnectorService: EloConnectorService,
         private readonly platformService: PlatformService,
-    ) {}
+    ) { }
 
     async getPlayer(query: FindOneOptions<Player>): Promise<Player> {
         return this.playerRepository.findOneOrFail(query);
     }
 
     async getPlayerById(id: number): Promise<Player> {
-        return this.playerRepository.findOneOrFail({where: {id} });
+        return this.playerRepository.findOneOrFail({ where: { id } });
     }
 
     async getPlayerByOrganizationAndGame(userId: number, organizationId: number, gameId: number): Promise<Player> {
@@ -172,7 +171,6 @@ export class PlayerService {
         skillGroupId: number,
         salary: number,
         platform: string,
-        platforms: IntakePlayerAccount[],
         timezone: Timezone,
         modePreference: ModePreference,
     ): Promise<Player> {
@@ -185,17 +183,17 @@ export class PlayerService {
         let player: Player;
 
         try {
-            const mlePlayer = await this.mle_playerRepository.findOne({where: {mleid} });
+            const mlePlayer = await this.mle_playerRepository.findOne({ where: { mleid } });
 
             if (mlePlayer) {
-                const bridge = await this.ptpRepo.findOneOrFail({where: {mledPlayerId: mlePlayer.id} });
+                const bridge = await this.ptpRepo.findOneOrFail({ where: { mledPlayerId: mlePlayer.id } });
                 player = await this.playerRepository.findOneOrFail({
-                    where: {id: bridge.sprocketPlayerId},
-                    relations: {member: {user: true, profile: true} },
+                    where: { id: bridge.sprocketPlayerId },
+                    relations: { member: { user: true, profile: true } },
                 });
 
-                player = this.playerRepository.merge(player, {skillGroupId: skillGroup.id, salary: salary});
-                this.memberProfileRepository.merge(player.member.profile, {name});
+                player = this.playerRepository.merge(player, { skillGroupId: skillGroup.id, salary: salary });
+                this.memberProfileRepository.merge(player.member.profile, { name });
 
                 await runner.manager.save(player);
                 await runner.manager.save(player.member.profile);
@@ -207,7 +205,6 @@ export class PlayerService {
                     platform,
                     timezone,
                     modePreference,
-                    platforms,
                     runner,
                 );
 
@@ -240,11 +237,10 @@ export class PlayerService {
         skillGroupId: number,
         salary: number,
         platform: string,
-        platforms: IntakePlayerAccount[],
         timezone: Timezone,
         modePreference: ModePreference,
     ): Promise<Player> {
-        const mleOrg = await this.organizationRepository.findOneOrFail({where: {profile: {name: "Minor League Esports"} }, relations: {profile: true} });
+        const mleOrg = await this.organizationRepository.findOneOrFail({ where: { profile: { name: "Minor League Esports" } }, relations: { profile: true } });
         const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
 
         const runner = this.dataSource.createQueryRunner();
@@ -254,13 +250,13 @@ export class PlayerService {
         let player: Player;
 
         try {
-            const mlePlayer = await this.mle_playerRepository.findOne({where: {mleid} });
+            const mlePlayer = await this.mle_playerRepository.findOne({ where: { mleid } });
 
-            if (mlePlayer)  {
+            if (mlePlayer) {
                 throw new Error(`You have attempted to intake a new player with MLEID: ${mleid}. However, that MLEID already belongs to player ${mlePlayer.id}.`);
             } else {
                 const user = this.userRepository.create({});
-            
+
                 user.profile = this.userProfileRepository.create({
                     user: user,
                     email: "unknown@sprocket.gg",
@@ -283,7 +279,7 @@ export class PlayerService {
                 });
                 member.profile.member = member;
 
-                player = this.playerRepository.create({salary});
+                player = this.playerRepository.create({ salary });
                 player.member = member;
                 player.skillGroup = skillGroup;
 
@@ -298,7 +294,6 @@ export class PlayerService {
                     discordId,
                     name,
                     salary,
-                    platforms,
                     LeagueOrdinals[skillGroup.ordinal - 1],
                     platform,
                     timezone,
@@ -313,7 +308,7 @@ export class PlayerService {
                     skillGroup: skillGroup.ordinal,
                 });
             }
-            
+
             await runner.commitTransaction();
         } catch (e) {
             await runner.rollbackTransaction();
@@ -334,7 +329,6 @@ export class PlayerService {
         platform: string,
         timezone: Timezone,
         preference: ModePreference,
-        accounts: IntakePlayerAccount[],
         runner?: QueryRunner,
     ): Promise<MLE_Player> {
         const updatedPlayer = this.mle_playerRepository.merge(player, {
@@ -350,42 +344,10 @@ export class PlayerService {
             role: Role.NONE,
         });
 
-        const playerAccounts: MLE_PlayerAccount[] = [];
-        await Promise.all(accounts.map(async a => {
-            const currAcc = await this.mle_playerAccountRepository.findOne({
-                where: [
-                    {
-                        platform: a.platform,
-                        platformId: a.platformId,
-                        player: {
-                            id: player.id,
-                        },
-                    },
-                    {
-                        tracker: a.tracker,
-                        player: {
-                            id: player.id,
-                        },
-                    },
-                ],
-                relations: {
-                    player: true,
-                },
-            });
-            if (currAcc) return;
-
-            const acc = this.mle_playerAccountRepository.create(a);
-            acc.player = player;
-            
-            playerAccounts.push(acc);
-        }));
-
         if (runner) {
             await runner.manager.save(player);
-            await runner.manager.save(playerAccounts);
         } else {
             await this.mle_playerRepository.save(player);
-            await this.mle_playerAccountRepository.save(playerAccounts);
         }
 
         return updatedPlayer;
@@ -396,7 +358,6 @@ export class PlayerService {
         discordId: string,
         name: string,
         salary: number,
-        accounts: IntakePlayerAccount[] = [],
         league: League = League.FOUNDATION,
         platform: string = "PC",
         timezone: Timezone = Timezone.US_EAST,
@@ -420,26 +381,17 @@ export class PlayerService {
 
         player = this.mle_playerRepository.create(player);
 
-        const playerAccounts = accounts.map(a => {
-            const acc = this.mle_playerAccountRepository.create(a);
-            acc.player = player;
-            
-            return acc;
-        });
-        
         if (runner) {
             await runner.manager.save(player);
-            await runner.manager.save(playerAccounts);
         } else {
             await this.mle_playerRepository.save(player);
-            await this.mle_playerAccountRepository.save(playerAccounts);
         }
 
         const ptpBridge = this.ptpRepo.create({
             sprocketPlayerId: sprocketPlayerId,
             mledPlayerId: player.id,
         });
-        
+
         if (runner) {
             await runner.manager.save(ptpBridge);
         } else {
@@ -450,15 +402,15 @@ export class PlayerService {
     }
 
     async updatePlayerStanding(playerId: number, salary: number, skillGroupId?: number): Promise<Player> {
-        let player = await this.playerRepository.findOneOrFail({where: {id: playerId} });
-        
+        let player = await this.playerRepository.findOneOrFail({ where: { id: playerId } });
+
         if (skillGroupId) {
             const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
 
-            player = this.playerRepository.merge(player, {salary, skillGroup});
+            player = this.playerRepository.merge(player, { salary, skillGroup });
             await this.playerRepository.save(player);
         } else {
-            player = this.playerRepository.merge(player, {salary});
+            player = this.playerRepository.merge(player, { salary });
             await this.playerRepository.save(player);
         }
 
@@ -481,7 +433,7 @@ export class PlayerService {
                 type: NotificationMessageType.DirectMessage,
                 userId: discordId,
                 payload: {
-                    embeds: [ {
+                    embeds: [{
                         title: "You Have Ranked Out",
                         description: `You have been ranked out from ${oldSkillGroupName} to ${newSkillGroupName}.`,
                         author: {
@@ -501,7 +453,7 @@ export class PlayerService {
                             text: orgName,
                         },
                         timestamp: Date.now(),
-                    } ],
+                    }],
                 },
                 brandingOptions: {
                     organizationId: orgId,
@@ -523,7 +475,7 @@ export class PlayerService {
     async saveSalaries(payload: SalaryPayloadItem[][]): Promise<void> {
         await Promise.allSettled(payload.map(async payloadSkillGroup => Promise.allSettled(payloadSkillGroup.map(async playerDelta => {
             const player = await this.getPlayer({
-                where: {id: playerDelta.playerId},
+                where: { id: playerDelta.playerId },
                 relations: {
                     member: {
                         user: {
@@ -540,12 +492,12 @@ export class PlayerService {
                 },
             });
 
-            const bridge = await this.ptpRepo.findOneOrFail({where: {sprocketPlayerId: player.id} });
-            const mlePlayer = await this.mle_playerRepository.findOneOrFail({where: {id: bridge.mledPlayerId} });
-            
+            const bridge = await this.ptpRepo.findOneOrFail({ where: { sprocketPlayerId: player.id } });
+            const mlePlayer = await this.mle_playerRepository.findOneOrFail({ where: { id: bridge.mledPlayerId } });
+
             if (mlePlayer.teamName === "FP") return;
             if (!playerDelta.rankout && player.salary === playerDelta.newSalary) return;
-    
+
             const discordAccount = await this.userAuthRepository.findOneOrFail({
                 where: {
                     user: {
@@ -574,7 +526,7 @@ export class PlayerService {
                             organization: true,
                         },
                     });
-    
+
                     await this.updatePlayerStanding(playerDelta.playerId, playerDelta.rankout.salary, skillGroup.id);
 
                     if (playerDelta.rankout.skillGroupChange === SkillGroupDelta.UP) {
@@ -601,7 +553,7 @@ export class PlayerService {
                             discordEmojiId: skillGroup.profile.discordEmojiId,
                         },
                     });
-    
+
                     await this.notificationService.send(NotificationEndpoint.SendNotification, this.buildRankdownNotification(
                         player.member.user.id,
                         discordAccount.accountId,
@@ -637,7 +589,7 @@ export class PlayerService {
                         salary: playerDelta.rankout.salary,
                         skillGroupId: skillGroup.id,
                     };
-                    const jwt = this.jwtService.sign(rankdownPayload, {expiresIn: "24h"});
+                    const jwt = this.jwtService.sign(rankdownPayload, { expiresIn: "24h" });
 
                     await this.notificationService.send(NotificationEndpoint.SendNotification, {
                         type: NotificationType.BASIC,
@@ -646,7 +598,7 @@ export class PlayerService {
                             type: NotificationMessageType.DirectMessage,
                             userId: discordAccount.accountId,
                             payload: {
-                                embeds: [ {
+                                embeds: [{
                                     title: "Rankdown Available",
                                     description: `You have been offered a rankout from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.\n\nThis offer will expire in 24 hours.\n‼️‼️**__Only click the button below if you accept the rankdown. There is no confirmation.__**‼️‼️`,
                                     author: {
@@ -666,8 +618,8 @@ export class PlayerService {
                                         text: orgProfile.name,
                                     },
                                     timestamp: Date.now(),
-                                } ],
-                                components: [ {
+                                }],
+                                components: [{
                                     type: ComponentType.ACTION_ROW,
                                     components: [
                                         {
@@ -677,7 +629,7 @@ export class PlayerService {
                                             url: `${config.web.api_root}/player/accept-rankdown/${jwt}`,
                                         },
                                     ],
-                                } ],
+                                }],
                             },
                             brandingOptions: {
                                 organizationId: player.member.organization.id,
@@ -697,7 +649,7 @@ export class PlayerService {
                     /* /TEMPORARY NOTIFICATION/ */
 
                     // const notifId = `${NotificationType.RANKDOWN.toLowerCase()}-${this.nanoidService.gen()}`;
-    
+
                     // await this.notificationService.send(NotificationEndpoint.SendNotification, {
                     //     id: notifId,
                     //     type: NotificationType.RANKDOWN,
@@ -778,7 +730,7 @@ export class PlayerService {
 
     async mle_movePlayerToLeague(sprocPlayerId: number, salary: number, skillGroupId: number): Promise<MLE_Player> {
         const sprocketPlayer = await this.getPlayer({
-            where: {id: sprocPlayerId},
+            where: { id: sprocPlayerId },
             relations: {
                 member: {
                     profile: true,
@@ -822,7 +774,7 @@ export class PlayerService {
 
     async mle_rankDownPlayer(sprocPlayerId: number, salary: number): Promise<MLE_Player> {
         const sprocketPlayer = await this.getPlayer({
-            where: {id: sprocPlayerId},
+            where: { id: sprocPlayerId },
             relations: {
                 member: {
                     profile: true,
@@ -871,7 +823,7 @@ export class PlayerService {
 
     async mle_rankUpPlayer(sprocPlayerId: number, salary: number): Promise<MLE_Player> {
         const sproc = await this.getPlayer({
-            where: {id: sprocPlayerId},
+            where: { id: sprocPlayerId },
             relations: {
                 member: {
                     user: {
@@ -902,8 +854,8 @@ export class PlayerService {
     // Have this because circular dependencies suck. Temp only for MLEDB integration so /shrug
     // Can refactor after extended repos is a thing
     async getMlePlayerBySprocketPlayer(playerId: number): Promise<MLE_Player> {
-        const bridge = await this.ptpRepo.findOneOrFail({where: {sprocketPlayerId: playerId} });
-        return this.mle_playerRepository.findOneOrFail({where: {id: bridge.mledPlayerId} });
+        const bridge = await this.ptpRepo.findOneOrFail({ where: { sprocketPlayerId: playerId } });
+        return this.mle_playerRepository.findOneOrFail({ where: { id: bridge.mledPlayerId } });
     }
 
     async getPlayerByGameAndPlatform(gameId: number, platformId: number, platformAccountId: string, relations?: FindOptionsRelations<Player>): Promise<Player> {
@@ -966,14 +918,13 @@ export class PlayerService {
             };
         }
     }
-    
+
     async intakeUser(
         name: string,
         d_id: string,
         ptl: CreatePlayerTuple[],
-        platformAccounts: IntakePlayerAccount[] = [],
     ): Promise<User | string> {
-        const mleOrg = await this.organizationRepository.findOneOrFail({where: {profile: {name: "Minor League Esports"} }, relations: {profile: true} });
+        const mleOrg = await this.organizationRepository.findOneOrFail({ where: { profile: { name: "Minor League Esports" } }, relations: { profile: true } });
 
         const runner = this.dataSource.createQueryRunner();
         await runner.connect();
@@ -981,7 +932,7 @@ export class PlayerService {
 
         try {
             const user = this.userRepository.create({});
-        
+
             user.profile = this.userProfileRepository.create({
                 user: user,
                 email: "unknown@sprocket.gg",
@@ -1025,7 +976,6 @@ export class PlayerService {
                 d_id,
                 name,
                 sal,
-                platformAccounts,
                 LeagueOrdinals[skillGroup.ordinal - 1],
             );
 
@@ -1041,7 +991,7 @@ export class PlayerService {
                 salary: sal,
                 skillGroup: skillGroup.ordinal,
             });
-            
+
             await runner.commitTransaction();
             // Send the newly created user back to the caller
             return user;
@@ -1054,7 +1004,7 @@ export class PlayerService {
 
     async swapDiscordAccounts(newAcct: string, oldAcct: string): Promise<void> {
         // First, do the MLEDB Player table
-        const mlePlayer = await this.mle_playerRepository.findOneOrFail({where: {discordId: oldAcct} });
+        const mlePlayer = await this.mle_playerRepository.findOneOrFail({ where: { discordId: oldAcct } });
         mlePlayer.discordId = newAcct;
         await this.mle_playerRepository.save(mlePlayer);
 
@@ -1073,13 +1023,13 @@ export class PlayerService {
     }
 
     async forcePlayerToTeam(mleid: number, newTeam: string): Promise<void> {
-        const mlePlayer = await this.mle_playerRepository.findOneOrFail({where: {mleid}});
+        const mlePlayer = await this.mle_playerRepository.findOneOrFail({ where: { mleid } });
         mlePlayer.teamName = newTeam;
         await this.mle_playerRepository.save(mlePlayer);
     }
 
     async changePlayerName(mleid: number, newName: string): Promise<void> {
-        const mlePlayer = await this.mle_playerRepository.findOneOrFail({where: {mleid}});
+        const mlePlayer = await this.mle_playerRepository.findOneOrFail({ where: { mleid } });
         mlePlayer.name = newName;
         await this.mle_playerRepository.save(mlePlayer);
 
