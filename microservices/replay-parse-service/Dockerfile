@@ -1,4 +1,4 @@
-FROM python:3.9 as app_image
+FROM python:3.13 as app_image
 
 WORKDIR /app
 COPY . .
