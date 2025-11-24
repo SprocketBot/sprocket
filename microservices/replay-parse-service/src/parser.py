@@ -15,7 +15,14 @@ if len(BALLCHASING_TOKEN.strip()) == 0:
 BALLCHASING_TOKEN_FILE.close()
 
 # We are handling rate limits, so the library doesn't need to
-BALLCHASING_API = ballchasing.Api(BALLCHASING_TOKEN, sleep_time_on_rate_limit=0, print_on_rate_limit=False)
+BALLCHASING_API = None
+
+def get_ballchasing_api():
+    global BALLCHASING_API
+    if BALLCHASING_API is None:
+        BALLCHASING_API = ballchasing.Api(BALLCHASING_TOKEN, sleep_time_on_rate_limit=0, print_on_rate_limit=False)
+    return BALLCHASING_API
+
 PARSER = config["parser"]
 MAX_RETRIES = config["ballchasing"]["maxRetries"]
 BACKOFF_FACTOR = config["ballchasing"]["backoffFactor"]
@@ -52,7 +59,21 @@ def _parse_carball(path: str, on_progress: Callable[[str], None] = None) -> dict
     """
     logging.info(f"Parsing {path} with carball")
 
-    analysis_manager = carball.analyze_replay_file(path, logging_level=print)
+    from carball.analysis.analysis_manager import AnalysisManager
+    from carball.json_parser.game import Game
+    
+    # We need to initialize the Game object first
+    # The AnalysisManager expects a Game object, not a path string
+    # This seems to be how carball works internally now
+    import carball
+    from carball.json_parser.game import Game
+    
+    _json = carball.decompile_replay(path)
+    game = Game()
+    game.initialize(loaded_json=_json)
+    
+    analysis_manager = AnalysisManager(game)
+    analysis_manager.create_analysis()
     return analysis_manager.get_json_data()
 
 
@@ -148,7 +169,7 @@ def _parse_ballchasing(path: str, on_progress: Callable[[str], None] = None) -> 
                 on_progress(f"Uploading replay to Ballchasing ({i + 1}/{MAX_RETRIES})...")
 
             try:
-                ballchasing_id = BALLCHASING_API.upload_replay(replay_file)["id"]
+                ballchasing_id = get_ballchasing_api().upload_replay(replay_file)["id"]
                 break
             except Exception as e:
                 err_body = e.args[1]
@@ -180,7 +201,7 @@ def _parse_ballchasing(path: str, on_progress: Callable[[str], None] = None) -> 
                 on_progress(f"Getting stats from Ballchasing ({i + 1}/{MAX_RETRIES})...")
 
             try:
-                body = BALLCHASING_API.get_replay(ballchasing_id)
+                body = get_ballchasing_api().get_replay(ballchasing_id)
             except Exception as e:
                 if i == MAX_RETRIES - 1:
                     raise Exception(f"Unable to parse replay {ballchasing_id} after {MAX_RETRIES} retries, total delay of {sum(DELAYS)}")
