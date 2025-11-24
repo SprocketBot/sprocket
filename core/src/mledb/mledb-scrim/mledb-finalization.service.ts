@@ -1,7 +1,7 @@
 import {
     forwardRef, Inject, Injectable,
 } from "@nestjs/common";
-import {InjectRepository} from "@nestjs/typeorm";
+import { InjectRepository } from "@nestjs/typeorm";
 import type {
     BallchasingPlayer,
     BallchasingResponse,
@@ -9,12 +9,12 @@ import type {
     ReplaySubmission,
     Scrim,
 } from "@sprocketbot/common";
-import type {EntityManager} from "typeorm";
-import {Repository} from "typeorm";
+import type { EntityManager } from "typeorm";
+import { Repository } from "typeorm";
 
-import type {GameMode, GameSkillGroup} from "../../database";
-import {Match} from "../../database";
-import type {League, MLE_Platform} from "../../database/mledb";
+import type { GameMode, GameSkillGroup } from "../../database";
+import { Match } from "../../database";
+import type { League, MLE_Platform } from "../../database/mledb";
 import {
     LegacyGameMode,
     MLE_EligibilityData,
@@ -29,14 +29,14 @@ import {
     MLE_TeamRoleUsage,
     RocketLeagueMap,
 } from "../../database/mledb";
-import {GameSkillGroupService} from "../../franchise";
-import {GameModeService} from "../../game";
-import {UserService} from "../../identity";
-import type {MatchReplaySubmission, ScrimReplaySubmission} from "../../replay-parse";
-import {SprocketRatingService} from "../../sprocket-rating/sprocket-rating.service";
-import {MledbMatchService} from "../mledb-match/mledb-match.service";
-import {assignPlayerStats} from "./assign-player-stats";
-import {ballchasingMapLookup} from "./ballchasing-maps";
+import { GameSkillGroupService } from "../../franchise";
+import { GameModeService } from "../../game";
+import { UserService } from "../../identity";
+import type { MatchReplaySubmission, ScrimReplaySubmission } from "../../replay-parse";
+import { SprocketRatingService } from "../../sprocket-rating/sprocket-rating.service";
+import { MledbMatchService } from "../mledb-match/mledb-match.service";
+import { assignPlayerStats } from "./assign-player-stats";
+import { ballchasingMapLookup } from "./ballchasing-maps";
 
 @Injectable()
 export class MledbFinalizationService {
@@ -53,9 +53,9 @@ export class MledbFinalizationService {
     ) {
     }
 
-    async getLeagueAndMode(scrim: Scrim): Promise<{mode: GameMode; group: GameSkillGroup;}> {
+    async getLeagueAndMode(scrim: Scrim): Promise<{ mode: GameMode; group: GameSkillGroup; }> {
         const gameMode = await this.gameModeService.getGameModeById(scrim.gameModeId);
-        const skillGroup = await this.skillGroupService.getGameSkillGroupById(scrim.skillGroupId, {relations: ["profile"] });
+        const skillGroup = await this.skillGroupService.getGameSkillGroupById(scrim.skillGroupId, { relations: ["profile"] });
         return {
             mode: gameMode,
             group: skillGroup,
@@ -66,7 +66,7 @@ export class MledbFinalizationService {
         const sprocketMatchId = submission.matchId;
 
         const match = await em.findOneOrFail(Match, {
-            where: {id: sprocketMatchId},
+            where: { id: sprocketMatchId },
             relations: {
                 matchParent: {
                     fixture: {
@@ -107,7 +107,7 @@ export class MledbFinalizationService {
 
     async saveScrim(submission: ScrimReplaySubmission, submissionId: string, em: EntityManager, scrimObject: Scrim): Promise<MLE_Scrim> {
         // const mode = scrimObject.settings.teamSize === 2 ? LegacyGameMode.DOUBLES : LegacyGameMode.STANDARD;
-        const {mode, group} = await this.getLeagueAndMode(scrimObject);
+        const { mode, group } = await this.getLeagueAndMode(scrimObject);
         const scrim = em.create(MLE_Scrim);
         const series = em.create(MLE_Series);
 
@@ -122,7 +122,7 @@ export class MledbFinalizationService {
         series.submissionTimestamp = new Date();
         series.fullNcp = false;
 
-        const author = await this.mlePlayerRepository.findOneOrFail({where: {id: -1} });
+        const author = await this.mlePlayerRepository.findOneOrFail({ where: { id: -1 } });
 
         scrim.mode = series.mode;
         scrim.type = scrimObject.settings.mode.toUpperCase();
@@ -146,7 +146,7 @@ export class MledbFinalizationService {
                 });
 
                 playerEligibility.player = player;
-                playerEligibility.scrimPoints = 5;
+                playerEligibility.scrimPoints = 3;
                 playerEligibility.scrim = scrim;
 
                 return playerEligibility;
@@ -302,7 +302,7 @@ export class MledbFinalizationService {
     }
 
     async getScrimIdByBallchasingId(ballchasingId: string): Promise<number> {
-        const mleReplay = await this.mleSeriesReplayRepository.findOneOrFail({where: {ballchasingId: ballchasingId}, relations: {series: {scrim: true} } });
+        const mleReplay = await this.mleSeriesReplayRepository.findOneOrFail({ where: { ballchasingId: ballchasingId }, relations: { series: { scrim: true } } });
         if (!mleReplay.series.scrim) throw new Error(`Replay is not for a scrim replayId=${mleReplay.id}`);
         return mleReplay.series.scrim.id;
     }
@@ -313,7 +313,7 @@ export class MledbFinalizationService {
                 platformId: p.id.id,
                 platform: p.id.platform.toUpperCase() as MLE_Platform,
             },
-            relations: {player: true},
+            relations: { player: true },
         });
         return playerAccount.player;
     }
