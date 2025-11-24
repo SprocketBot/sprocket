@@ -3,7 +3,7 @@
     "./src/**/*.ts",
     "./src/datasource.ts",
     "./datasource.ts",
-    "./test/**/**/*.ts"
+    "./test/**/*.ts"
   ],
   "files": [
     "./src/app.d.ts",
@@ -27,6 +27,9 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "types": []
+    "types": [
+      "jest",
+      "node"
+    ]
   }
 }

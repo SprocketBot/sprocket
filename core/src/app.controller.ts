@@ -11,7 +11,7 @@ import { AppService } from './app.service';
 import { AuthZManagementService } from 'nest-authz';
 import { AuthorizeGuard } from './auth/authorize/authorize.guard';
 import { GuidService, RedLock, RedisJsonService } from '@sprocketbot/lib';
-import { MatchmakingService } from '@sprocketbot/matchmaking';
+import { ScrimService } from './matchmaking/scrim/scrim.service';
 
 @Controller()
 export class AppController {
@@ -19,10 +19,10 @@ export class AppController {
   constructor(
     private readonly appService: AppService,
     private readonly authManageService: AuthZManagementService,
-    private readonly matchmaking: MatchmakingService,
+    private readonly scrimService: ScrimService,
     private readonly redisJsonService: RedisJsonService,
     private readonly guidService: GuidService,
-  ) {}
+  ) { }
 
   @Get()
   @RedLock('x')

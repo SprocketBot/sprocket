@@ -1,13 +1,13 @@
 {
   "private": true,
   "workspaces": [
-    "./services/matchmaking",
     "./clients/web",
     "./clients/discord",
     "./lib",
     "./core"
   ],
   "dependencies": {
+    "@nestjs/schedule": "^6.0.1",
     "typeorm-adapter": "^1.7.0"
   },
   "scripts": {

@@ -4,15 +4,15 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ClubEntity } from '../../src/db/club/club.entity';
 import { ClubRepository } from '../../src/db/club/club.repository';
-import { ClubSeatAssignmentEntity } from '../../src/db/seat_assignment/club_seat_assignment.entity';
-import { PlayerEntity } from '../../src/db/player/player.entity';
+import { ClubSeatAssignmentEntity } from '../../src/db/seat_assignment/club_seat_assignment/club_seat_assignment.entity';
+import { UserEntity } from '../../src/db/user/user.entity';
 import { SeatEntity } from '../../src/db/seat/seat.entity';
 
 describe('ClubEntity', () => {
   let module: TestingModule;
   let clubRepository: Repository<ClubEntity>;
   let clubSeatAssignmentRepository: Repository<ClubSeatAssignmentEntity>;
-  let playerRepository: Repository<PlayerEntity>;
+  let userRepository: Repository<UserEntity>;
   let seatRepository: Repository<SeatEntity>;
 
   beforeAll(async () => {
@@ -27,7 +27,7 @@ describe('ClubEntity', () => {
           useClass: Repository,
         },
         {
-          provide: getRepositoryToken(PlayerEntity),
+          provide: getRepositoryToken(UserEntity),
           useClass: Repository,
         },
         {
@@ -39,7 +39,7 @@ describe('ClubEntity', () => {
 
     clubRepository = module.get(getRepositoryToken(ClubEntity));
     clubSeatAssignmentRepository = module.get(getRepositoryToken(ClubSeatAssignmentEntity));
-    playerRepository = module.get(getRepositoryToken(PlayerEntity));
+    userRepository = module.get(getRepositoryToken(UserEntity));
     seatRepository = module.get(getRepositoryToken(SeatEntity));
   });
 
@@ -98,29 +98,29 @@ describe('ClubEntity', () => {
     it('should have relationship with ClubSeatAssignment', async () => {
       const seatAssignment = new ClubSeatAssignmentEntity();
       const club = new ClubEntity();
-      const player = new PlayerEntity();
+      const user = new UserEntity();
       const seat = new SeatEntity();
-      seatAssignment.club = Promise.resolve(club);
-      seatAssignment.player = Promise.resolve(player);
-      seatAssignment.seat = Promise.resolve(seat);
+      seatAssignment.club = club;
+      seatAssignment.user = user;
+      seatAssignment.seat = seat;
 
       // Mock the relationships
       const clubSpy = vi.spyOn(clubSeatAssignmentRepository, 'findOne').mockResolvedValueOnce(seatAssignment);
-      const playerSpy = vi.spyOn(playerRepository, 'findOne').mockResolvedValueOnce(player);
+      const userSpy = vi.spyOn(userRepository, 'findOne').mockResolvedValueOnce(user);
       const seatSpy = vi.spyOn(seatRepository, 'findOne').mockResolvedValueOnce(seat);
 
       // Test the relationship
       const foundAssignment = await clubSeatAssignmentRepository.findOne({
         where: { club: { id: club.id } },
-        relations: ['club', 'player', 'seat'],
+        relations: ['club', 'user', 'seat'],
       });
 
       expect(foundAssignment).not.toBeNull();
       expect(foundAssignment?.club).toBeDefined();
-      expect(foundAssignment?.player).toBeDefined();
+      expect(foundAssignment?.user).toBeDefined();
       expect(foundAssignment?.seat).toBeDefined();
       clubSpy.mockRestore();
-      playerSpy.mockRestore();
+      userSpy.mockRestore();
       seatSpy.mockRestore();
     });
   });

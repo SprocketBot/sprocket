@@ -42,28 +42,6 @@ services:
     environment:
       SERVICE_NAME: "SprocketCore"
 
-  matchmaking:
-    container_name: sprocket-matchmaking
-    image: oven/bun:1.1.40-alpine
-    restart: unless-stopped
-    command: bun --preload ../../lib/src/tracing.ts -b --watch src/main.ts
-    depends_on:
-      - lavinmq
-      - redis
-    volumes:
-      - .:/app
-      - ./.env:/app/services/matchmaking/.env
-      - ./config.yaml:/app/services/matchmaking/config.yaml
-    working_dir: /app/services/matchmaking
-    environment:
-      SERVICE_NAME: "SprocketMatchmaking"
-
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/healthcheck"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   web:
     container_name: sprocket-web
     image: oven/bun:latest
