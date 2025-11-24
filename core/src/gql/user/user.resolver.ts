@@ -23,7 +23,7 @@ import { Resource, ResourceAction } from '@sprocketbot/lib/types';
 export class UserResolver {
   private readonly logger = new Logger(UserResolver.name);
 
-  constructor(private readonly userRepo: UserRepository) {}
+  constructor(private readonly userRepo: UserRepository) { }
 
   @Query(() => UserObject)
   @UseGuards(AuthZGuard)
@@ -35,7 +35,12 @@ export class UserResolver {
   async whoami(
     @CurrentUser() user: User,
   ): Promise<Omit<UserObject, 'players' | 'accounts'>> {
-    return user;
+    // The user from CurrentUser decorator doesn't include createdAt/updateAt
+    // We need to fetch the full user entity
+    const fullUser = await this.userRepo.findOneBy({ id: user.id });
+    if (!fullUser) throw new Error('User not found');
+    const { players, accounts, ...userWithoutRelations } = fullUser;
+    return userWithoutRelations as Omit<UserObject, 'players' | 'accounts'>;
   }
 
   @Query(() => [UserObject])
