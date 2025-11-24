@@ -23,4 +23,3 @@ click==8.1.8
 six==1.16.0
 
 sprocket-carball
-sprocket-boxcars-py>=0.3.0
