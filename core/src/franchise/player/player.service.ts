@@ -741,6 +741,15 @@ export class PlayerService {
                 skillGroup: true,
             },
         });
+
+        if (!sprocketPlayer) throw new Error("No sprocket player found");
+        if (sprocketPlayer.skillGroup.id === skillGroupId) {
+            const mlePlayer = await this.getMlePlayerBySprocketPlayer(sprocPlayerId);
+            mlePlayer.salary = salary;
+            await this.mle_playerRepository.save(mlePlayer);
+            return mlePlayer;
+        }
+
         const discId = sprocketPlayer.member.user.authenticationAccounts.find(aa => aa.accountType === UserAuthenticationAccountType.DISCORD);
         if (!discId) throw new Error("No discord Id");
 
