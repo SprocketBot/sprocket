@@ -25,6 +25,7 @@ import {
 import type { FileUpload } from "graphql-upload";
 import { GraphQLUpload } from "graphql-upload";
 import { Repository } from "typeorm";
+import { z } from "zod"; import { parseAndValidateCsv } from "../../util/csv-parse";
 
 import type { GameSkillGroup } from "../../database";
 import {
@@ -63,6 +64,12 @@ export class IntakePlayerAccount {
     @Field(() => String)
     tracker: string;
 }
+
+const changeSkillGroupSchema = z.object({
+    playerId: z.number().int().positive(),
+    salary: z.number().positive(),
+    skillGroupId: z.number().int().positive(),
+});
 
 @Resolver(() => Player)
 export class PlayerResolver {
@@ -116,6 +123,25 @@ export class PlayerResolver {
         if (player.member) return player.member;
 
         return this.popService.populateOneOrFail(Player, player, "member");
+    }
+
+    @Mutation(() => String)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
+    async changePlayerSkillGroupBulk(@Args("files", { type: () => [GraphQLUpload] }) files: Array<Promise<FileUpload>>): Promise<string> {
+
+        const csvs = await Promise.all(files.map(async f => f.then(async _f => readToString(_f.createReadStream()))));
+        const results = await Promise.all(csvs.map(async csv => {
+            const records = await parseAndValidateCsv(csv, changeSkillGroupSchema);
+            for (const record of records.data) {
+                try {
+                    await this.changePlayerSkillGroup(record.playerId, record.salary, record.skillGroupId, true);
+                } catch (error) {
+                    console.error(`Error processing player ID ${record.playerId}:`, error);
+                }
+            }
+        }));
+
+        return results.join("\n");
     }
 
     @Mutation(() => String)
