@@ -127,16 +127,32 @@ export class PlayerResolver {
 
     @Mutation(() => String)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
-    async changePlayerSkillGroupBulk(@Args("files", { type: () => [GraphQLUpload] }) files: Array<Promise<FileUpload>>): Promise<string> {
+    async changePlayerSkillGroupBulk(
+        @Args("files", { type: () => [GraphQLUpload] })
+        files: Array<Promise<FileUpload>>
+    ): Promise<string> {
 
-        const csvs = await Promise.all(files.map(async f => f.then(async _f => readToString(_f.createReadStream()))));
+        const csvs = await Promise.all(
+            files.map(async f => f.then(
+                async _f => readToString(
+                    _f.createReadStream()
+                ))));
+
         const results = await Promise.all(csvs.map(async csv => {
-            const records = await parseAndValidateCsv(csv, changeSkillGroupSchema);
+            const records = parseAndValidateCsv(
+                csv,
+                changeSkillGroupSchema
+            );
             for (const record of records.data) {
                 try {
-                    await this.changePlayerSkillGroup(record.playerId, record.salary, record.skillGroupId, true);
+                    await this.changePlayerSkillGroup(
+                        record.playerId,
+                        record.salary,
+                        record.skillGroupId,
+                        false
+                    );
                 } catch (error) {
-                    console.error(`Error processing player ID ${record.playerId}:`, error);
+                    this.logger.error(`Error processing player ID ${record.playerId}:`, error);
                 }
             }
         }));
