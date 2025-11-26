@@ -66,9 +66,9 @@ export class IntakePlayerAccount {
 }
 
 const changeSkillGroupSchema = z.object({
-    playerId: z.number().int().positive(),
-    salary: z.number().positive(),
-    skillGroupId: z.number().int().positive(),
+    playerId: z.coerce.number().int().positive(),
+    salary: z.coerce.number().positive(),
+    skillGroupId: z.coerce.number().int().positive(),
 });
 
 @Resolver(() => Player)
