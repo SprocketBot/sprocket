@@ -66,9 +66,21 @@ export class IntakePlayerAccount {
 }
 
 const changeSkillGroupSchema = z.object({
-    playerId: z.coerce.number().int().positive(),
-    salary: z.coerce.number().positive(),
-    skillGroupId: z.coerce.number().int().positive(),
+    playerId: z.preprocess(
+        (val) => Number(val),
+        z.number().int().positive()
+    ),
+
+    // Note: Salary might need to handle decimals, so we don't use .int()
+    salary: z.preprocess(
+        (val) => Number(val),
+        z.number().positive()
+    ),
+
+    skillGroupId: z.preprocess(
+        (val) => Number(val),
+        z.number().int().positive()
+    ),
 });
 
 @Resolver(() => Player)
@@ -141,6 +153,7 @@ export class PlayerResolver {
 
         this.logger.debug("Parsing and validating CSV files");
         const results = await Promise.all(csvs.map(async csv => {
+            this.logger.debug(`Parsing and validating a CSV file: ${csv.substring(0, 50)}...`);
             const records = parseAndValidateCsv(
                 csv,
                 changeSkillGroupSchema
