@@ -146,6 +146,11 @@ export class PlayerResolver {
                 changeSkillGroupSchema
             );
             this.logger.debug(`Processing ${records.data.length} records from CSV`);
+            this.logger.debug(`Found ${records.errors.length} errors in CSV`);
+            for (const error of records.errors) {
+                this.logger.error(`Error in CSV: Row ${error.row}, Field: ${error.field || 'N/A'}, Value: ${error.value || 'N/A'}, Message: ${error.message}`);
+            }
+            this.logger.debug(`Processing ${records.data.length} valid records from CSV`);
             for (const record of records.data) {
                 try {
                     this.logger.debug(`Processing player ID ${record.playerId}`);
@@ -173,6 +178,7 @@ export class PlayerResolver {
         @Args("skillGroupId", { type: () => Int }) skillGroupId: number,
         @Args("silent", { type: () => Boolean, nullable: true }) silent?: boolean,
     ): Promise<string> {
+        this.logger.debug(`Changing skill group for player ID ${playerId} to skill group ID ${skillGroupId} with salary ${salary}`);
         const player = await this.playerService.getPlayer({
             where: { id: playerId },
             relations: {
@@ -191,6 +197,7 @@ export class PlayerResolver {
             },
         });
 
+        this.logger.debug(`Player found: ${player.member.profile.name}`);
         const skillGroup = await this.skillGroupService.getGameSkillGroup({
             where: {
                 id: skillGroupId,
@@ -199,6 +206,7 @@ export class PlayerResolver {
                 profile: true,
             },
         });
+        this.logger.debug(`Target skill group found: ${skillGroup.profile.description}`);
 
         const discordAccount = await this.userAuthRepository.findOneOrFail({
             where: {
@@ -208,8 +216,9 @@ export class PlayerResolver {
                 accountType: UserAuthenticationAccountType.DISCORD,
             },
         });
+        this.logger.debug(`Discord account found: ${discordAccount.accountId}`);
         const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(player.member.organization.id);
-
+        this.logger.debug(`Organization profile found: ${orgProfile.name}`);
         const inputData: ManualSkillGroupChange = {
             id: playerId,
             salary: salary,
@@ -217,8 +226,11 @@ export class PlayerResolver {
         };
 
         await this.playerService.mle_movePlayerToLeague(playerId, salary, skillGroupId);
+        this.logger.debug(`Moved player ID ${playerId} to league with skill group ID ${skillGroupId} and salary ${salary}`);
         await this.playerService.updatePlayerStanding(playerId, salary, skillGroupId);
+        this.logger.debug(`Updated player standing for player ID ${playerId}`);
         await this.eloConnectorService.createJob(EloEndpoint.SGChange, inputData);
+        this.logger.debug(`Created Elo job for player ID ${playerId}`);
 
         if (!silent) {
             await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
