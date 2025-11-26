@@ -126,3 +126,6 @@ core/config/staging.json
 *.swp
 
 secret/*
+
+# MacOS filesystem artifacts
+*DS_store*
