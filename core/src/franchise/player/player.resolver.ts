@@ -132,25 +132,30 @@ export class PlayerResolver {
         files: Array<Promise<FileUpload>>
     ): Promise<string> {
 
+        this.logger.debug("Starting bulk skill group change");
         const csvs = await Promise.all(
             files.map(async f => f.then(
                 async _f => readToString(
                     _f.createReadStream()
                 ))));
 
+        this.logger.debug("Parsing and validating CSV files");
         const results = await Promise.all(csvs.map(async csv => {
             const records = parseAndValidateCsv(
                 csv,
                 changeSkillGroupSchema
             );
+            this.logger.debug(`Processing ${records.data.length} records from CSV`);
             for (const record of records.data) {
                 try {
+                    this.logger.debug(`Processing player ID ${record.playerId}`);
                     await this.changePlayerSkillGroup(
                         record.playerId,
                         record.salary,
                         record.skillGroupId,
                         false
                     );
+                    this.logger.debug(`Successfully processed player ID ${record.playerId}`);
                 } catch (error) {
                     this.logger.error(`Error processing player ID ${record.playerId}:`, error);
                 }
