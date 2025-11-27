@@ -1,19 +1,19 @@
-import {Injectable} from "@nestjs/common";
-import {InjectRepository} from "@nestjs/typeorm";
-import {Repository} from "typeorm";
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 
-import {Platform} from "../../database";
+import { Platform } from "../../database/game/platform/platform.model";
 
 @Injectable()
 export class PlatformService {
-    constructor(@InjectRepository(Platform) private platformRepository: Repository<Platform>) {}
+    constructor(@InjectRepository(Platform) private platformRepository: Repository<Platform>) { }
 
     async getPlatformById(id: number): Promise<Platform> {
-        return this.platformRepository.findOneOrFail({where: {id} });
+        return this.platformRepository.findOneOrFail({ where: { id } });
     }
 
     async getPlatformByCode(code: string): Promise<Platform> {
-        return this.platformRepository.findOneOrFail({where: {code} });
+        return this.platformRepository.findOneOrFail({ where: { code } });
     }
 
     async getPlatforms(): Promise<Platform[]> {
@@ -21,7 +21,7 @@ export class PlatformService {
     }
 
     async createPlatform(code: string): Promise<Platform> {
-        const platform = this.platformRepository.create({code});
+        const platform = this.platformRepository.create({ code });
         await this.platformRepository.save(platform);
 
         return platform;

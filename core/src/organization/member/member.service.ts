@@ -2,20 +2,20 @@ import {
     forwardRef,
     Inject, Injectable, Logger,
 } from "@nestjs/common";
-import {InjectRepository} from "@nestjs/typeorm";
-import {EventsService, EventTopic} from "@sprocketbot/common";
-import {PubSub} from "apollo-server-express";
-import type {FindManyOptions, FindOneOptions} from "typeorm";
-import {Repository} from "typeorm";
+import { InjectRepository } from "@nestjs/typeorm";
+import { EventsService, EventTopic } from "@sprocketbot/common";
+import { PubSub } from "apollo-server-express";
+import type { FindManyOptions, FindOneOptions } from "typeorm";
+import { Repository } from "typeorm";
 
-import type {Franchise, IrrelevantFields} from "../../database";
-import {
-    Member, MemberProfile,
-} from "../../database";
-import {PlayerService} from "../../franchise/player/player.service";
-import {UserService} from "../../identity/user/user.service";
-import {MemberPubSub} from "../constants";
-import {OrganizationService} from "../organization";
+import type { Franchise } from "../../database/franchise/franchise/franchise.model";
+import type { IrrelevantFields } from "../../database";
+import { Member } from "../../database/organization/member/member.model";
+import { MemberProfile } from "../../database/organization/member_profile/member_profile.model";
+import { PlayerService } from "../../franchise/player/player.service";
+import { UserService } from "../../identity/user/user.service";
+import { MemberPubSub } from "../constants";
+import { OrganizationService } from "../organization";
 
 @Injectable()
 export class MemberService {
@@ -32,7 +32,7 @@ export class MemberService {
         @Inject(forwardRef(() => PlayerService))
         private readonly playerService: PlayerService,
         @Inject(MemberPubSub) private readonly pubsub: PubSub,
-    ) {}
+    ) { }
 
     get restrictedMembersSubTopic(): string { return "member.restricted" }
 
@@ -78,9 +78,9 @@ export class MemberService {
     }
 
     async updateMemberProfile(memberId: number, data: Omit<Partial<MemberProfile>, "member">): Promise<MemberProfile> {
-        let {profile} = await this.memberRepository.findOneOrFail({
-            where: {id: memberId},
-            relations: {profile: true},
+        let { profile } = await this.memberRepository.findOneOrFail({
+            where: { id: memberId },
+            relations: { profile: true },
         });
         profile = this.memberProfileRepository.merge(profile, data);
         await this.memberProfileRepository.save(profile);
@@ -89,11 +89,11 @@ export class MemberService {
 
     async deleteMember(id: number): Promise<Member> {
         const toDelete = await this.memberRepository.findOneOrFail({
-            where: {id},
-            relations: {profile: true},
+            where: { id },
+            relations: { profile: true },
         });
-        await this.memberRepository.delete({id});
-        await this.memberProfileRepository.delete({id: toDelete.profile.id});
+        await this.memberRepository.delete({ id });
+        await this.memberProfileRepository.delete({ id: toDelete.profile.id });
         return toDelete;
     }
 
@@ -136,16 +136,16 @@ export class MemberService {
                     return;
                 }
 
-                const payload = {eventType: 0, ...v.payload};
+                const payload = { eventType: 0, ...v.payload };
 
                 switch (v.topic as EventTopic) {
                     case EventTopic.MemberRestrictionCreated:
                         payload.eventType = 1;
-                        this.pubsub.publish(this.restrictedMembersSubTopic, {followRestrictedMembers: payload}).catch(this.logger.error.bind(this.logger));
+                        this.pubsub.publish(this.restrictedMembersSubTopic, { followRestrictedMembers: payload }).catch(this.logger.error.bind(this.logger));
                         break;
                     case EventTopic.MemberRestrictionExpired:
                         payload.eventType = 2;
-                        this.pubsub.publish(this.restrictedMembersSubTopic, {followRestrictedMembers: payload}).catch(this.logger.error.bind(this.logger));
+                        this.pubsub.publish(this.restrictedMembersSubTopic, { followRestrictedMembers: payload }).catch(this.logger.error.bind(this.logger));
                         break;
                     default: {
                         break;

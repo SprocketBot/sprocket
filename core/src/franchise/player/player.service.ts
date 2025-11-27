@@ -36,12 +36,12 @@ import { Organization } from "../../database/organization/organization/organizat
 import {
     League,
     LeagueOrdinals,
-    MLE_Player,
-    MLE_PlayerAccount,
     ModePreference,
     Role,
     Timezone,
 } from "../../database/mledb";
+import { MLE_Player } from "../../database/mledb/Player.model";
+import { MLE_PlayerAccount } from "../../database/mledb/PlayerAccount.model";
 import { PlayerToPlayer } from "../../database/mledb-bridge/player_to_player.model";
 import { PlayerToUser } from "../../database/mledb-bridge/player_to_user.model";
 import type { SalaryPayloadItem } from "../../elo/elo-connector";
