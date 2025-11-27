@@ -359,7 +359,6 @@ export class PlayerResolver {
                     player.preferredPlatform,
                     player.timezone,
                     player.preferredMode,
-                    player.mleid,
                 ));
             } catch {
                 continue;

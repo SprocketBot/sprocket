@@ -2,7 +2,7 @@ import {
     Field, Float, InputType,
     Int,
 } from "@nestjs/graphql";
-import {z} from "zod";
+import { z } from "zod";
 
 import {
     League, ModePreference, Timezone,
@@ -24,15 +24,13 @@ export class CreatePlayerTuple {
 export const IntakeSchema = z.array(z.tuple([
     z.string(),
     z.string(),
-    z.string(),
     z.nativeEnum(League),
     z.string(),
     z.enum(["PC", "XB1", "PS4"]),
     z.nativeEnum(Timezone),
     z.nativeEnum(ModePreference),
 ]).rest(z.string())
-    .transform(([mleid, discordId, name, skillGroup, salary, preferredPlatform, timezone, preferredMode, ...accounts]) => ({
-        mleid: parseInt(mleid),
+    .transform(([discordId, name, skillGroup, salary, preferredPlatform, timezone, preferredMode, ...accounts]) => ({
         discordId: discordId,
         name: name,
         skillGroup: skillGroup,
