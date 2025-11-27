@@ -1,11 +1,12 @@
 import { ValidationPipe } from "@nestjs/common";
-import { NestFactory } from "@nestjs/core";
+import { HttpAdapterHost, NestFactory } from "@nestjs/core";
 import { Transport } from "@nestjs/microservices";
 import { AllExceptionsFilter, config } from "@sprocketbot/common";
 import { writeFile } from "fs/promises";
 import { SpelunkerModule } from "nestjs-spelunker";
 
 import { AppModule } from "./app.module";
+import { ht } from "date-fns/locale";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function writeDepGraph(app: Awaited<ReturnType<typeof NestFactory.create>>): Promise<void> {
@@ -37,7 +38,8 @@ async function bootstrap(): Promise<void> {
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe());
 
-  app.useGlobalFilters(new AllExceptionsFilter());
+  const httpAdapter = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
 
   const port = 3001;
   await app.startAllMicroservices();

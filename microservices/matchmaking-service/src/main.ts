@@ -1,8 +1,8 @@
-import {NestFactory} from "@nestjs/core";
-import {Transport} from "@nestjs/microservices";
-import {AllExceptionsFilter, config} from "@sprocketbot/common";
+import { HttpAdapterHost, NestFactory } from "@nestjs/core";
+import { Transport } from "@nestjs/microservices";
+import { AllExceptionsFilter, config } from "@sprocketbot/common";
 
-import {AppModule} from "./app.module";
+import { AppModule } from "./app.module";
 
 async function bootstrap(): Promise<void> {
     const rmqOptions: any = {
@@ -17,7 +17,7 @@ async function bootstrap(): Promise<void> {
     // Add authentication if environment variables are provided
     const rmqUser = process.env.RABBITMQ_DEFAULT_USER;
     const rmqPass = process.env.RABBITMQ_DEFAULT_PASS;
-    
+
     if (rmqUser && rmqPass) {
         rmqOptions.options = {
             credentials: {
@@ -32,7 +32,8 @@ async function bootstrap(): Promise<void> {
         options: rmqOptions,
     });
 
-    app.useGlobalFilters(new AllExceptionsFilter());
+    const httpAdapter = app.get(HttpAdapterHost);
+    app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
 
     await app.listen();
 }

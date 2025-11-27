@@ -1,8 +1,8 @@
-import {NestFactory} from "@nestjs/core";
-import {Transport} from "@nestjs/microservices";
-import {AllExceptionsFilter, config} from "@sprocketbot/common";
+import { HttpAdapterHost, NestFactory } from "@nestjs/core";
+import { Transport } from "@nestjs/microservices";
+import { AllExceptionsFilter, config } from "@sprocketbot/common";
 
-import {AppModule} from "./app.module";
+import { AppModule } from "./app.module";
 
 async function bootstrap(): Promise<void> {
     const app = await NestFactory.createMicroservice(AppModule, {
@@ -13,7 +13,8 @@ async function bootstrap(): Promise<void> {
         },
     });
 
-    app.useGlobalFilters(new AllExceptionsFilter());
+    const httpAdapter = app.get(HttpAdapterHost);
+    app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
 
     await app.listen();
 }
