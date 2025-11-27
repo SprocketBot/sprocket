@@ -1,62 +1,58 @@
-import type {
-    ArgumentsHost,
-    ExceptionFilter,
-} from "@nestjs/common";
 import {
+    ExceptionFilter,
     Catch,
+    ArgumentsHost,
     HttpException,
+    HttpStatus,
     Logger,
-} from "@nestjs/common";
-import type {Response} from "express";
+} from '@nestjs/common';
+import { HttpAdapterHost } from '@nestjs/core';
 
-/**
- * Catches any unhandled error in a NestJS microservice
- *
- * Should be used when in `main.ts` `bootstrap()` creating a new microservice
- * @example
- * async function bootstrap(): Promise<void> {
- *     const app = await NestFactory.createMicroservice(AppModule, {
- *         // ...
- *     });
- *     app.useGlobalFilters(new AllExceptionsFilter());
- *     await app.listen();
- * }
- */
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
     private readonly logger = new Logger(AllExceptionsFilter.name);
 
+    constructor(private readonly httpAdapterHost: HttpAdapterHost) { }
+
     catch(exception: unknown, host: ArgumentsHost): void {
-        if (exception instanceof Error) {
-            this.logger.error({
-                name: exception.name,
-                message: exception.message,
-                stack: exception.stack,
-            });
-        } else {
-            this.logger.error(`[NOT ERROR SUBTYPE] ${JSON.stringify(exception)}`);
-        }
+        const { httpAdapter } = this.httpAdapterHost;
         const ctx = host.switchToHttp();
-        const response = ctx.getResponse<Response>();
+        const request = ctx.getRequest();
 
-        if (["graphql", "rpc"].includes(host.getType())) {
-            // GraphQL and RPC do not have normal response methods (status/json), so there's nothing else we can do.
-            // Matchmaking service was crashing wish `response.status is not a function` on throwing an error.
-            return;
-        } else if (exception instanceof HttpException) {
-            const status = exception.getStatus();
+        // 1. Determine the Status Code
+        const httpStatus =
+            exception instanceof HttpException
+                ? exception.getStatus()
+                : HttpStatus.INTERNAL_SERVER_ERROR;
 
-            response.status(status).json({
-                statusCode: status,
-                timestamp: new Date().toISOString(),
-                message: exception.message,
-            });
+        // 2. Extract Context (Who and What)
+        // Note: 'request.user' might be undefined for 401s if the AuthGuard failed early
+        const user = request.user ? `User: ${request.user.id || request.user.email}` : 'User: Guest';
+        const contextInfo = `[${request.method}] ${request.url} - ${user}`;
+
+        // 3. Conditional Logging
+        if (httpStatus === HttpStatus.UNAUTHORIZED || httpStatus === HttpStatus.FORBIDDEN) {
+            // WARN LEVEL: No stack trace, just the context.
+            this.logger.warn(`Security Event: ${httpStatus} for ${contextInfo}`);
+        } else if (httpStatus >= 500) {
+            // ERROR LEVEL: Full noise and stack trace needed here.
+            this.logger.error(
+                `System Error: ${httpStatus} for ${contextInfo}`,
+                (exception as Error).stack
+            );
         } else {
-            response.status(500).json({
-                statusCode: 500,
-                timestamp: new Date().toISOString(),
-                message: "Internal Server Error",
-            });
+            // OPTIONAL: Log other 4xx errors (like 400 Bad Request) as verbose/debug
+            this.logger.verbose(`Client Error: ${httpStatus} for ${contextInfo}`);
         }
+
+        // 4. Construct the response body
+        const responseBody = {
+            statusCode: httpStatus,
+            timestamp: new Date().toISOString(),
+            path: httpAdapter.getRequestUrl(ctx.getRequest()),
+            message: (exception instanceof HttpException) ? exception.message : 'Internal server error',
+        };
+
+        httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
     }
 }
