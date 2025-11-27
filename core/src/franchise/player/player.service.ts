@@ -379,6 +379,13 @@ export class PlayerService {
             role: "NONE",
         } as MLE_Player;
 
+        const result = await this.mle_playerRepository
+            .createQueryBuilder("player")
+            .select("MAX(player.mleid)", "max")
+            .getRawOne<{ max: number | null }>();
+
+        player.mleid = (result?.max ?? 0) + 1;
+
         player = this.mle_playerRepository.create(player);
 
         if (runner) {
