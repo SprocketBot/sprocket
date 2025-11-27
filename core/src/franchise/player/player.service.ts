@@ -24,16 +24,15 @@ import type {
 } from "typeorm";
 import { DataSource, Repository } from "typeorm";
 
-import {
-    Member,
-    MemberProfile,
-    Organization,
-    Player,
-    User,
-    UserAuthenticationAccount,
-    UserAuthenticationAccountType,
-    UserProfile,
-} from "../../database";
+import { Player } from "../../database/franchise/player/player.model";
+import { User } from "../../database/identity/user/user.model";
+import { UserAuthenticationAccount } from "../../database/identity/user_authentication_account/user_authentication_account.model";
+import { UserAuthenticationAccountType } from "../../database/identity/user_authentication_account/user_authentication_account_type.enum";
+import { UserProfile } from "../../database/identity/user_profile/user_profile.model";
+import { Member } from "../../database/organization/member/member.model";
+import { MemberProfile } from "../../database/organization/member_profile/member_profile.model";
+import { Organization } from "../../database/organization/organization/organization.model";
+
 import {
     League,
     LeagueOrdinals,
@@ -247,7 +246,7 @@ export class PlayerService {
         await runner.connect();
         await runner.startTransaction();
 
-        let player: Player;
+        let player: Player = this.playerRepository.create({ salary });
 
         try {
             if (mleid) {
@@ -284,7 +283,6 @@ export class PlayerService {
                 });
                 member.profile.member = member;
 
-                player = this.playerRepository.create({ salary });
                 player.member = member;
                 player.skillGroup = skillGroup;
 

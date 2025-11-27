@@ -1,15 +1,15 @@
-import {Field, ObjectType} from "@nestjs/graphql";
+import { Field, ObjectType } from "@nestjs/graphql";
 import {
     Column, Entity, OneToMany, OneToOne,
 } from "typeorm";
 
-import {BaseModel} from "../../base-model";
-import {Member} from "../../organization";
-import {UserRolesType} from "../roles/user_roles_type.enum";
-import {UserAuthenticationAccount} from "../user_authentication_account";
-import {UserProfile} from "../user_profile";
+import { BaseModel } from "../../base-model";
+import { Member } from "../../organization/member/member.model";
+import { UserRolesType } from "../roles/user_roles_type.enum";
+import { UserAuthenticationAccount } from "../user_authentication_account";
+import { UserProfile } from "../user_profile";
 
-@Entity({schema: "sprocket"})
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class User extends BaseModel {
     @OneToMany(() => UserAuthenticationAccount, uaa => uaa.user)

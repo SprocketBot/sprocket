@@ -27,10 +27,12 @@ import { GraphQLUpload } from "graphql-upload";
 import { Repository } from "typeorm";
 import { z } from "zod"; import { parseAndValidateCsv } from "../../util/csv-parse";
 
-import type { GameSkillGroup } from "../../database";
-import {
-    Member, Player, User, UserAuthenticationAccount, UserAuthenticationAccountType,
-} from "../../database";
+import type { GameSkillGroup } from "../../database/franchise/game_skill_group/game_skill_group.model";
+import { Player } from "../../database/franchise/player/player.model";
+import { User } from "../../database/identity/user/user.model";
+import { UserAuthenticationAccount } from "../../database/identity/user_authentication_account/user_authentication_account.model";
+import { UserAuthenticationAccountType } from "../../database/identity/user_authentication_account/user_authentication_account_type.enum";
+import { Member } from "../../database/organization/member/member.model";
 import {
     League, LeagueOrdinals, MLE_OrganizationTeam, MLE_Platform, ModePreference, Timezone,
 } from "../../database/mledb";
