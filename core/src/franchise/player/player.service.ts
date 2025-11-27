@@ -86,14 +86,17 @@ export class PlayerService {
     ) { }
 
     async getPlayer(query: FindOneOptions<Player>): Promise<Player> {
+        this.logger.verbose(`getPlayer: ${JSON.stringify(query)}`);
         return this.playerRepository.findOneOrFail(query);
     }
 
     async getPlayerById(id: number): Promise<Player> {
+        this.logger.verbose(`getPlayerById: ${id}`);
         return this.playerRepository.findOneOrFail({ where: { id } });
     }
 
     async getPlayerByOrganizationAndGame(userId: number, organizationId: number, gameId: number): Promise<Player> {
+        this.logger.verbose(`getPlayerByOrganizationAndGame: userId=${userId}, orgId=${organizationId}, gameId=${gameId}`);
         return this.playerRepository.findOneOrFail({
             where: {
                 member: {
@@ -115,6 +118,7 @@ export class PlayerService {
     }
 
     async getPlayerByOrganizationAndGameMode(userId: number, organizationId: number, gameModeId: number): Promise<Player> {
+        this.logger.verbose(`getPlayerByOrganizationAndGameMode: userId=${userId}, orgId=${organizationId}, gameModeId=${gameModeId}`);
         return this.playerRepository.findOneOrFail({
             where: {
                 member: {
@@ -148,10 +152,12 @@ export class PlayerService {
     }
 
     async getPlayers(query?: FindManyOptions<Player>): Promise<Player[]> {
+        this.logger.verbose(`getPlayers: ${JSON.stringify(query)}`);
         return this.playerRepository.find(query);
     }
 
     async createPlayer(memberId: number, skillGroupId: number, salary: number): Promise<Player> {
+        this.logger.verbose(`createPlayer: memberId=${memberId}, skillGroupId=${skillGroupId}, salary=${salary}`);
         const member = await this.memberService.getMemberById(memberId);
         const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
         const player = this.playerRepository.create({
@@ -173,6 +179,7 @@ export class PlayerService {
         timezone: Timezone,
         modePreference: ModePreference,
     ): Promise<Player> {
+        this.logger.verbose(`updatePlayer: mleid=${mleid}, name=${name}, skillGroupId=${skillGroupId}, salary=${salary}`);
         const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
 
         const runner = this.dataSource.createQueryRunner();
@@ -239,6 +246,7 @@ export class PlayerService {
         modePreference: ModePreference,
         mleid?: number,
     ): Promise<Player> {
+        this.logger.verbose(`intakePlayer: discordId=${discordId}, name=${name}, skillGroupId=${skillGroupId}, salary=${salary}, mleid=${mleid}`);
         const mleOrg = await this.organizationRepository.findOneOrFail({ where: { profile: { name: "Minor League Esports" } }, relations: { profile: true } });
         const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
 
@@ -334,6 +342,7 @@ export class PlayerService {
         preference: ModePreference,
         runner?: QueryRunner,
     ): Promise<MLE_Player> {
+        this.logger.verbose(`mle_updatePlayer: player=${player.id}, name=${name}, league=${league}, salary=${salary}`);
         const updatedPlayer = this.mle_playerRepository.merge(player, {
             updatedBy: "Sprocket FA Intake",
             updatedAt: new Date(),
@@ -367,6 +376,7 @@ export class PlayerService {
         preference: ModePreference = ModePreference.BOTH,
         runner?: QueryRunner,
     ): Promise<MLE_Player> {
+        this.logger.verbose(`mle_createPlayer: sprocketPlayerId=${sprocketPlayerId}, discordId=${discordId}, name=${name}, salary=${salary}`);
         let player: MLE_Player = {
             createdBy: "Sprocket FA Intake",
             updatedBy: "Sprocket FA Intake",
@@ -412,6 +422,7 @@ export class PlayerService {
     }
 
     async updatePlayerStanding(playerId: number, salary: number, skillGroupId?: number): Promise<Player> {
+        this.logger.verbose(`updatePlayerStanding: playerId=${playerId}, salary=${salary}, skillGroupId=${skillGroupId}`);
         let player = await this.playerRepository.findOneOrFail({ where: { id: playerId } });
 
         if (skillGroupId) {
@@ -483,6 +494,7 @@ export class PlayerService {
     }
 
     async saveSalaries(payload: SalaryPayloadItem[][]): Promise<void> {
+        this.logger.verbose(`saveSalaries: ${JSON.stringify(payload)}`);
         await Promise.allSettled(payload.map(async payloadSkillGroup => Promise.allSettled(payloadSkillGroup.map(async playerDelta => {
             const player = await this.getPlayer({
                 where: { id: playerDelta.playerId },
@@ -739,6 +751,7 @@ export class PlayerService {
     }
 
     async mle_movePlayerToLeague(sprocPlayerId: number, salary: number, skillGroupId: number): Promise<MLE_Player> {
+        this.logger.verbose(`mle_movePlayerToLeague: sprocPlayerId=${sprocPlayerId}, salary=${salary}, skillGroupId=${skillGroupId}`);
         const sprocketPlayer = await this.getPlayer({
             where: { id: sprocPlayerId },
             relations: {
@@ -792,6 +805,7 @@ export class PlayerService {
     }
 
     async mle_rankDownPlayer(sprocPlayerId: number, salary: number): Promise<MLE_Player> {
+        this.logger.verbose(`mle_rankDownPlayer: sprocPlayerId=${sprocPlayerId}, salary=${salary}`);
         const sprocketPlayer = await this.getPlayer({
             where: { id: sprocPlayerId },
             relations: {
@@ -841,6 +855,7 @@ export class PlayerService {
     }
 
     async mle_rankUpPlayer(sprocPlayerId: number, salary: number): Promise<MLE_Player> {
+        this.logger.verbose(`mle_rankUpPlayer: sprocPlayerId=${sprocPlayerId}, salary=${salary}`);
         const sproc = await this.getPlayer({
             where: { id: sprocPlayerId },
             relations: {
@@ -878,6 +893,7 @@ export class PlayerService {
     }
 
     async getPlayerByGameAndPlatform(gameId: number, platformId: number, platformAccountId: string, relations?: FindOptionsRelations<Player>): Promise<Player> {
+        this.logger.verbose(`getPlayerByGameAndPlatform: gameId=${gameId}, platformId=${platformId}, platformAccountId=${platformAccountId}`);
         return this.playerRepository.findOneOrFail({
             where: {
                 skillGroup: {
@@ -913,6 +929,7 @@ export class PlayerService {
         platformId: string;
         gameId: number;
     }): Promise<CoreOutput<CoreEndpoint.GetPlayerByPlatformId>> {
+        this.logger.verbose(`getPlayerByGameAndPlatformPayload: ${JSON.stringify(data)}`);
         try {
             const platform = await this.platformService.getPlatformByCode(data.platform);
             const player = await this.getPlayerByGameAndPlatform(data.gameId, platform.id, data.platformId);
@@ -930,7 +947,8 @@ export class PlayerService {
                 },
                 request: data,
             };
-        } catch {
+        } catch (e) {
+            this.logger.error(`getPlayerByGameAndPlatformPayload failed: ${e}`);
             return {
                 success: false,
                 request: data,
@@ -943,6 +961,7 @@ export class PlayerService {
         d_id: string,
         ptl: CreatePlayerTuple[],
     ): Promise<User | string> {
+        this.logger.verbose(`intakeUser: name=${name}, d_id=${d_id}, ptl=${JSON.stringify(ptl)}`);
         const mleOrg = await this.organizationRepository.findOneOrFail({ where: { profile: { name: "Minor League Esports" } }, relations: { profile: true } });
 
         const runner = this.dataSource.createQueryRunner();
@@ -1022,6 +1041,7 @@ export class PlayerService {
     }
 
     async swapDiscordAccounts(newAcct: string, oldAcct: string): Promise<void> {
+        this.logger.verbose(`swapDiscordAccounts: newAcct=${newAcct}, oldAcct=${oldAcct}`);
         // First, do the MLEDB Player table
         const mlePlayer = await this.mle_playerRepository.findOneOrFail({ where: { discordId: oldAcct } });
         mlePlayer.discordId = newAcct;
@@ -1042,12 +1062,14 @@ export class PlayerService {
     }
 
     async forcePlayerToTeam(mleid: number, newTeam: string): Promise<void> {
+        this.logger.verbose(`forcePlayerToTeam: mleid=${mleid}, newTeam=${newTeam}`);
         const mlePlayer = await this.mle_playerRepository.findOneOrFail({ where: { mleid } });
         mlePlayer.teamName = newTeam;
         await this.mle_playerRepository.save(mlePlayer);
     }
 
     async changePlayerName(mleid: number, newName: string): Promise<void> {
+        this.logger.verbose(`changePlayerName: mleid=${mleid}, newName=${newName}`);
         const mlePlayer = await this.mle_playerRepository.findOneOrFail({ where: { mleid } });
         mlePlayer.name = newName;
         await this.mle_playerRepository.save(mlePlayer);
