@@ -21,25 +21,31 @@ export class CreatePlayerTuple {
     salary: number;
 }
 
-export const IntakeSchema = z.array(z.tuple([
-    z.string(),
-    z.string(),
-    z.nativeEnum(League),
-    z.string(),
-    z.enum(["PC", "XB1", "PS4"]),
-    z.nativeEnum(Timezone),
-    z.nativeEnum(ModePreference),
-]).rest(z.string())
-    .transform(([discordId, name, skillGroup, salary, preferredPlatform, timezone, preferredMode, ...accounts]) => ({
-        discordId: discordId,
-        name: name,
-        skillGroup: skillGroup,
-        salary: parseFloat(salary),
-        preferredPlatform: preferredPlatform,
-        timezone: timezone,
-        preferredMode: preferredMode,
-        accounts: accounts.filter(a => a !== ""),
-    })));
+export const IntakeSchema = z.object({
+    discordId: z.preprocess((val) => String(val), z.string()),
+    name: z.string(),
+    skillGroup: z.nativeEnum(League),
+    salary: z.preprocess((val) => parseFloat(String(val)), z.number()),
+    preferredPlatform: z.enum(["PC", "XB1", "PS4"]),
+    timezone: z.nativeEnum(Timezone),
+    preferredMode: z.nativeEnum(ModePreference),
+}).passthrough()
+    .transform((data) => {
+        const {
+            discordId, name, skillGroup, salary, preferredPlatform, timezone, preferredMode, ...rest
+        } = data;
+        const accounts = Object.values(rest).filter(a => typeof a === "string" && a !== "");
+        return {
+            discordId,
+            name,
+            skillGroup,
+            salary,
+            preferredPlatform,
+            timezone,
+            preferredMode,
+            accounts: accounts as string[],
+        };
+    });
 
 export const RankdownJwtPayloadSchema = z.object({
     playerId: z.number(),
