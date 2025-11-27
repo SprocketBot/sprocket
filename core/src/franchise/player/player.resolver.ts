@@ -345,10 +345,18 @@ export class PlayerResolver {
         const parsed = parseAndValidateCsv(
             csvs.join("\n"),
             IntakeSchema
-        ).data;
+        );
+
+        if (parsed.errors.length > 0) {
+            this.logger.error(`Errors encountered during CSV parsing: ${parsed.errors.length} errors found.`);
+            for (const error of parsed.errors) {
+                this.logger.error(`Error in CSV: Row ${error.row}, Field: ${error.field || 'N/A'}, Value: ${error.value || 'N/A'}, Message: ${error.message}`);
+            }
+        }
+
         const imported: Player[] = [];
 
-        for (const player of parsed) {
+        for (const player of parsed.data) {
             const sg = await this.skillGroupService.getGameSkillGroup({ where: { ordinal: LeagueOrdinals.indexOf(player.skillGroup) + 1 } });
 
             try {
