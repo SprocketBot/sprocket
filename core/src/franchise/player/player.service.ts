@@ -231,7 +231,6 @@ export class PlayerService {
 
     /* !! Using repositories due to circular dependency issues. Will fix after extended repositories are added, probably. !! */
     async intakePlayer(
-        mleid: number,
         discordId: string,
         name: string,
         skillGroupId: number,
@@ -239,6 +238,7 @@ export class PlayerService {
         platform: string,
         timezone: Timezone,
         modePreference: ModePreference,
+        mleid?: number,
     ): Promise<Player> {
         const mleOrg = await this.organizationRepository.findOneOrFail({ where: { profile: { name: "Minor League Esports" } }, relations: { profile: true } });
         const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
@@ -250,10 +250,15 @@ export class PlayerService {
         let player: Player;
 
         try {
-            const mlePlayer = await this.mle_playerRepository.findOne({ where: { mleid } });
+            if (mleid) {
+                const mlePlayer = await this.mle_playerRepository
+                    .findOne({ where: { mleid } });
 
-            if (mlePlayer) {
-                throw new Error(`You have attempted to intake a new player with MLEID: ${mleid}. However, that MLEID already belongs to player ${mlePlayer.id}.`);
+                if (mlePlayer) {
+                    throw new Error(`You have attempted to intake a new
+                        player with MLEID: ${mleid}. However, that MLEID
+                        already belongs to player ${mlePlayer.id}.`);
+                }
             } else {
                 const user = this.userRepository.create({});
 

@@ -314,59 +314,9 @@ export class PlayerResolver {
         return "SUCCESS";
     }
 
-    @Mutation(() => String)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
-    async changePlayerElo(
-        @Args("playerId", { type: () => Int }) playerId: number,
-        @Args("salary", { type: () => Float }) salary: number,
-        @Args("elo", { type: () => Float }) elo: number,
-    ): Promise<string> {
-        const player = await this.playerService.getPlayer({
-            where: { id: playerId },
-        });
-
-        const inputData: ManualEloChange = {
-            id: playerId,
-            salary: salary,
-            elo: elo,
-        };
-
-        await this.playerService.mle_movePlayerToLeague(playerId, salary, player.skillGroupId);
-        await this.playerService.updatePlayerStanding(playerId, salary, player.skillGroupId);
-        await this.eloConnectorService.createJob(EloEndpoint.EloChange, inputData);
-
-        this.logger.verbose(`Successfully changed ${playerId}'s salary to ${salary} and elo to ${elo}.`);
-        return "SUCCESS";
-    }
-
-    @Mutation(() => String)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
-    async changePlayerEloBulk(@Args("files", { type: () => [GraphQLUpload] }) files: Array<Promise<FileUpload>>): Promise<string> {
-        const csvs = await Promise.all(files.map(async f => f.then(async _f => readToString(_f.createReadStream()))));
-
-        const results = csvs.flatMap(csv => csv.split(/(?:\r)?\n/g).map(l => l.trim().split(","))).filter(r => r.length > 1);
-        const parsed = EloRedistributionSchema.parse(results);
-
-        let numFailed = 0;
-        const idsFailed: number[] = [];
-
-        for (const player of parsed) {
-            try {
-                await this.changePlayerElo(player.playerId, player.salary, player.newElo);
-            } catch {
-                idsFailed.push(player.playerId);
-                numFailed++;
-                continue;
-            }
-        }
-
-        return (numFailed === 0) ? `Success, all elos changed.` : `${numFailed} elos were unable to be changed. Player IDs who could not be adjusted: ${JSON.stringify(idsFailed)}`;
-    }
-
     @Mutation(() => Player)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async intakePlayer(
-        @Args("mleid") mleid: number,
         @Args("discordId") discordId: string,
         @Args("name") name: string,
         @Args("skillGroup", { type: () => League }) league: League,
@@ -374,20 +324,27 @@ export class PlayerResolver {
         @Args("preferredPlatform") platform: string,
         @Args("timezone", { type: () => Timezone }) timezone: Timezone,
         @Args("preferredMode", { type: () => ModePreference }) mode: ModePreference,
-        @Args("accounts", { type: () => [IntakePlayerAccount], nullable: true }) accounts?: IntakePlayerAccount[],
+        @Args("mleid") mleid?: number,
     ): Promise<Player> {
         const sg = await this.skillGroupService.getGameSkillGroup({ where: { ordinal: LeagueOrdinals.indexOf(league) + 1 } });
-        return this.playerService.intakePlayer(mleid, discordId, name, sg.id, salary, platform, timezone, mode);
+        return this.playerService.intakePlayer(discordId, name, sg.id, salary, platform, timezone, mode, mleid);
     }
 
     @Mutation(() => [Player])
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async intakePlayerBulk(@Args("files", { type: () => [GraphQLUpload] }) files: Array<Promise<FileUpload>>): Promise<Player[]> {
-        const csvs = await Promise.all(files.map(async f => f.then(async _f => readToString(_f.createReadStream()))));
+        const csvs = await Promise.all(files
+            .map(
+                async f => f.then(
+                    async _f => readToString(_f.createReadStream())
+                )
+            )
+        );
 
-        const results = csvs.flatMap(csv => csv.split(/(?:\r)?\n/g).map(l => l.trim().split(","))).filter(r => r.length > 1);
-        const parsed = IntakeSchema.parse(results);
-
+        const parsed = parseAndValidateCsv(
+            csvs.join("\n"),
+            IntakeSchema
+        ).data;
         const imported: Player[] = [];
 
         for (const player of parsed) {
@@ -395,7 +352,6 @@ export class PlayerResolver {
 
             try {
                 imported.push(await this.playerService.intakePlayer(
-                    player.mleid,
                     player.discordId,
                     player.name,
                     sg.id,
@@ -403,6 +359,7 @@ export class PlayerResolver {
                     player.preferredPlatform,
                     player.timezone,
                     player.preferredMode,
+                    player.mleid,
                 ));
             } catch {
                 continue;
