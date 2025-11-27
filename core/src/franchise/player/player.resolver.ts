@@ -352,6 +352,7 @@ export class PlayerResolver {
             const sg = await this.skillGroupService.getGameSkillGroup({ where: { ordinal: LeagueOrdinals.indexOf(player.skillGroup) + 1 } });
 
             try {
+                this.logger.debug(`Intaking player ${player.discordId} ${player.name}`)
                 imported.push(await this.playerService.intakePlayer(
                     player.discordId,
                     player.name,
@@ -361,7 +362,12 @@ export class PlayerResolver {
                     player.timezone,
                     player.preferredMode,
                 ));
-            } catch {
+            } catch (err: unknown) {
+                this.logger
+                    .error(
+                        `Failed to intake player 
+                        ${player.discordId} ${player.name}: 
+                        ${JSON.stringify(err)}`);
                 continue;
             }
         }
