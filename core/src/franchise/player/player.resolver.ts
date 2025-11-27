@@ -324,10 +324,9 @@ export class PlayerResolver {
         @Args("preferredPlatform") platform: string,
         @Args("timezone", { type: () => Timezone }) timezone: Timezone,
         @Args("preferredMode", { type: () => ModePreference }) mode: ModePreference,
-        @Args("mleid") mleid?: number,
     ): Promise<Player> {
         const sg = await this.skillGroupService.getGameSkillGroup({ where: { ordinal: LeagueOrdinals.indexOf(league) + 1 } });
-        return this.playerService.intakePlayer(discordId, name, sg.id, salary, platform, timezone, mode, mleid);
+        return this.playerService.intakePlayer(discordId, name, sg.id, salary, platform, timezone, mode);
     }
 
     @Mutation(() => [Player])
