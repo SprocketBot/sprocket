@@ -10,6 +10,9 @@
     "url": "https://github.com/SprocketBot/sprocket/issues"
   },
   "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "postinstall": "npm run build:common",
     "build": "npm run build --workspaces --if-available",
