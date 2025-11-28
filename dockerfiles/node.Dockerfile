@@ -1,4 +1,4 @@
-FROM node:16-alpine as base
+FROM node:20-alpine as base
 
 # Set current commit SHA in env
 ARG COMMIT_SHA

@@ -1,5 +1,5 @@
 # Base stage with all source code and installed dependencies
-FROM node:16-alpine as base
+FROM node:20-alpine as base
 WORKDIR /app
 
 # Copy all source code and package files
@@ -17,6 +17,7 @@ ARG SERVICE_PATH
 WORKDIR /app
 
 # Build the specific service
+RUN if [[ "${SERVICE_PATH}" == *"clients"* ]]; then npm install --force && npm install -D @esbuild/linux-arm64 --force; fi
 RUN npm run build --workspace=${SERVICE_PATH}
 
 # Set the entrypoint for the service
