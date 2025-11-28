@@ -367,7 +367,7 @@ export class PlayerResolver {
         @Args("name", { type: () => String }) name: string,
         @Args("discord_id", { type: () => String }) d_id: string,
         @Args("playersToLink", { type: () => [CreatePlayerTuple] }) ptl: CreatePlayerTuple[],
-    ): Promise<User | string> {
+    ): Promise<string> {
         return this.playerService.intakeUser(name, d_id, ptl);
     }
 

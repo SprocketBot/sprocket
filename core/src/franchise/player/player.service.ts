@@ -920,7 +920,7 @@ export class PlayerService {
         name: string,
         d_id: string,
         ptl: CreatePlayerTuple[],
-    ): Promise<User | string> {
+    ): Promise<string> {
         this.logger.verbose(`intakeUser: name=${name}, d_id=${d_id}, ptl=${JSON.stringify(ptl)}`);
         const mleOrg = await this.organizationRepository.findOneOrFail({ where: { profile: { name: "Minor League Esports" } }, relations: { profile: true } });
 
@@ -1024,7 +1024,7 @@ export class PlayerService {
 
             await runner.commitTransaction();
             // Send the newly created user back to the caller
-            return user;
+            return user.id as string;
         } catch (e) {
             this.logger.error(e);
             await runner.rollbackTransaction();
