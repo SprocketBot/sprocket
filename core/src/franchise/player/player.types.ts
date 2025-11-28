@@ -53,6 +53,8 @@ export const RankdownJwtPayloadSchema = z.object({
     skillGroupId: z.number(),
 });
 
+export type RankdownJwtPayload = z.infer<typeof RankdownJwtPayloadSchema>;
+
 export const EloRedistributionSchema = z.array(z.tuple([
     z.string(),
     z.string(),
@@ -64,4 +66,28 @@ export const EloRedistributionSchema = z.array(z.tuple([
         newElo: parseFloat(newElo),
     })));
 
-export type RankdownJwtPayload = z.infer<typeof RankdownJwtPayloadSchema>;
+export const changeSkillGroupSchema = z.object({
+    playerId: z.preprocess(
+        (val) => Number(val),
+        z.number().int().positive()
+    ),
+
+    // Note: Salary might need to handle decimals, so we don't use .int()
+    salary: z.preprocess(
+        (val) => Number(val),
+        z.number().positive()
+    ),
+
+    skillGroupId: z.preprocess(
+        (val) => Number(val),
+        z.number().int().positive()
+    ),
+});
+export const IntakeUserBulkSchema = z.object({
+    name: z.string(),
+    discordId: z.preprocess((val) => String(val), z.string()),
+    skillGroupId: z.preprocess((val) => parseInt(String(val)), z.number().int()),
+    salary: z.preprocess((val) => parseFloat(String(val)), z.number()),
+});
+
+

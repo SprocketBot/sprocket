@@ -36,7 +36,7 @@ import { Member } from "../../database/organization/member/member.model";
 import {
     League, LeagueOrdinals, MLE_OrganizationTeam, MLE_Platform, ModePreference, Timezone,
 } from "../../database/mledb";
-import type { ManualEloChange, ManualSkillGroupChange } from "../../elo/elo-connector";
+import type { ManualSkillGroupChange } from "../../elo/elo-connector";
 import { EloConnectorService, EloEndpoint } from "../../elo/elo-connector";
 import { CreatePlayerTuple } from "../../franchise/player/player.types";
 import { GqlJwtGuard } from "../../identity/auth/gql-auth-guard";
@@ -46,14 +46,7 @@ import { PopulateService } from "../../util/populate/populate.service";
 import { FranchiseService } from "../franchise";
 import { GameSkillGroupService } from "../game-skill-group";
 import { PlayerService } from "./player.service";
-import { EloRedistributionSchema, IntakeSchema } from "./player.types";
-
-const platformTransform = {
-    "epic": MLE_Platform.EPIC,
-    "steam": MLE_Platform.STEAM,
-    "psn": MLE_Platform.PS4,
-    "xbl": MLE_Platform.XBOX,
-};
+import { changeSkillGroupSchema, IntakeSchema, IntakeUserBulkSchema } from "./player.types";
 
 @InputType()
 export class IntakePlayerAccount {
@@ -66,24 +59,6 @@ export class IntakePlayerAccount {
     @Field(() => String)
     tracker: string;
 }
-
-const changeSkillGroupSchema = z.object({
-    playerId: z.preprocess(
-        (val) => Number(val),
-        z.number().int().positive()
-    ),
-
-    // Note: Salary might need to handle decimals, so we don't use .int()
-    salary: z.preprocess(
-        (val) => Number(val),
-        z.number().positive()
-    ),
-
-    skillGroupId: z.preprocess(
-        (val) => Number(val),
-        z.number().int().positive()
-    ),
-});
 
 @Resolver(() => Player)
 export class PlayerResolver {
@@ -318,22 +293,17 @@ export class PlayerResolver {
 
     @Mutation(() => Player)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
-    async intakePlayer(
-        @Args("discordId") discordId: string,
-        @Args("name") name: string,
-        @Args("skillGroup", { type: () => League }) league: League,
+    async createPlayer(
+        @Args("memberId", { type: () => Int }) memberId: number,
+        @Args("skillGroupId", { type: () => Int }) skillGroupId: number,
         @Args("salary", { type: () => Float }) salary: number,
-        @Args("preferredPlatform") platform: string,
-        @Args("timezone", { type: () => Timezone }) timezone: Timezone,
-        @Args("preferredMode", { type: () => ModePreference }) mode: ModePreference,
     ): Promise<Player> {
-        const sg = await this.skillGroupService.getGameSkillGroup({ where: { ordinal: LeagueOrdinals.indexOf(league) + 1 } });
-        return this.playerService.intakePlayer(discordId, name, sg.id, salary, platform, timezone, mode);
+        return this.playerService.createPlayer(memberId, skillGroupId, salary);
     }
 
     @Mutation(() => [String])
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
-    async intakePlayerBulk(@Args("files", { type: () => [GraphQLUpload] }) files: Array<Promise<FileUpload>>): Promise<string[]> {
+    async intakeUserBulk(@Args("files", { type: () => [GraphQLUpload] }) files: Array<Promise<FileUpload>>): Promise<string[]> {
         const csvs = await Promise.all(files
             .map(
                 async f => f.then(
@@ -344,14 +314,14 @@ export class PlayerResolver {
 
         this.logger.debug(`Parsing CSV data: ${csvs.join("\n")}`);
 
-        let players: z.infer<typeof IntakeSchema>[] = [];
-        let errors: string[] = [];
+        const users: z.infer<typeof IntakeUserBulkSchema>[] = [];
+        const errors: string[] = [];
 
         for (const csv of csvs) {
             this.logger.debug(`CSV Content: ${csv}`);
             const parsed = parseAndValidateCsv(
                 csv,
-                IntakeSchema
+                IntakeUserBulkSchema
             );
             if (parsed.errors.length > 0) {
                 this.logger.error(`Errors encountered during CSV parsing: ${parsed.errors.length} errors found.`);
@@ -360,51 +330,35 @@ export class PlayerResolver {
                     errors.push(`Row ${error.row}, Field: ${error.field || 'N/A'}, Value: ${error.value || 'N/A'}, Message: ${error.message}`);
                 }
             }
-            players.push(...parsed.data);
+            users.push(...parsed.data);
         }
 
-        for (const player of players) {
-            const sg = await this.skillGroupService.getGameSkillGroup({ where: { ordinal: LeagueOrdinals.indexOf(player.skillGroup) + 1 } });
-
+        for (const user of users) {
             try {
-                this.logger.debug(`Intaking player ${player.discordId} ${player.name}`)
-                await this.playerService.intakePlayer(
-                    player.discordId,
-                    player.name,
-                    sg.id,
-                    player.salary,
-                    player.preferredPlatform,
-                    player.timezone,
-                    player.preferredMode,
+                this.logger.debug(`Intaking user ${user.discordId} ${user.name}`);
+                const result = await this.playerService.intakeUser(
+                    user.name,
+                    user.discordId,
+                    [{
+                        gameSkillGroupId: user.skillGroupId,
+                        salary: user.salary,
+                    }]
                 );
+                if (typeof result === "string") {
+                    errors.push(`Failed to intake user ${user.discordId} ${user.name}: ${result}`);
+                }
             } catch (err: unknown) {
                 this.logger
                     .error(
-                        `Failed to intake player 
-                        ${player.discordId} ${player.name}: 
+                        `Failed to intake user
+                        ${user.discordId} ${user.name}:
                         ${JSON.stringify(err)}`);
-                errors.push(`Failed to intake player ${player.discordId} ${player.name}: ${JSON.stringify(err)}`);
+                errors.push(`Failed to intake user ${user.discordId} ${user.name}: ${JSON.stringify(err)}`);
                 continue;
             }
         }
 
         return errors;
-    }
-
-    @Mutation(() => Player)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
-    async updatePlayer(
-        @Args("mleid") mleid: number,
-        @Args("name") name: string,
-        @Args("skillGroup", { type: () => League }) league: League,
-        @Args("salary", { type: () => Float }) salary: number,
-        @Args("preferredPlatform") platform: string,
-        @Args("timezone", { type: () => Timezone }) timezone: Timezone,
-        @Args("preferredMode", { type: () => ModePreference }) mode: ModePreference,
-        @Args("accounts", { type: () => [IntakePlayerAccount], nullable: true }) accounts?: IntakePlayerAccount[],
-    ): Promise<Player> {
-        const sg = await this.skillGroupService.getGameSkillGroup({ where: { ordinal: LeagueOrdinals.indexOf(league) + 1 } });
-        return this.playerService.updatePlayer(mleid, name, sg.id, salary, platform, timezone, mode);
     }
 
     @Mutation(() => [User])
@@ -413,7 +367,6 @@ export class PlayerResolver {
         @Args("name", { type: () => String }) name: string,
         @Args("discord_id", { type: () => String }) d_id: string,
         @Args("playersToLink", { type: () => [CreatePlayerTuple] }) ptl: CreatePlayerTuple[],
-        @Args("platformAccounts", { type: () => [IntakePlayerAccount], nullable: true }) platformAccounts: IntakePlayerAccount[] = [],
     ): Promise<User | string> {
         return this.playerService.intakeUser(name, d_id, ptl);
     }
