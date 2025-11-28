@@ -331,9 +331,9 @@ export class PlayerResolver {
         return this.playerService.intakePlayer(discordId, name, sg.id, salary, platform, timezone, mode);
     }
 
-    @Mutation(() => [Player])
+    @Mutation(() => [String])
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
-    async intakePlayerBulk(@Args("files", { type: () => [GraphQLUpload] }) files: Array<Promise<FileUpload>>): Promise<Player[]> {
+    async intakePlayerBulk(@Args("files", { type: () => [GraphQLUpload] }) files: Array<Promise<FileUpload>>): Promise<string[]> {
         const csvs = await Promise.all(files
             .map(
                 async f => f.then(
@@ -345,6 +345,7 @@ export class PlayerResolver {
         this.logger.debug(`Parsing CSV data: ${csvs.join("\n")}`);
 
         let players: z.infer<typeof IntakeSchema>[] = [];
+        let errors: string[] = [];
 
         for (const csv of csvs) {
             this.logger.debug(`CSV Content: ${csv}`);
@@ -356,19 +357,18 @@ export class PlayerResolver {
                 this.logger.error(`Errors encountered during CSV parsing: ${parsed.errors.length} errors found.`);
                 for (const error of parsed.errors) {
                     this.logger.error(`Error in CSV: Row ${error.row}, Field: ${error.field || 'N/A'}, Value: ${error.value || 'N/A'}, Message: ${error.message}`);
+                    errors.push(`Row ${error.row}, Field: ${error.field || 'N/A'}, Value: ${error.value || 'N/A'}, Message: ${error.message}`);
                 }
             }
             players.push(...parsed.data);
         }
-
-        const imported: Player[] = [];
 
         for (const player of players) {
             const sg = await this.skillGroupService.getGameSkillGroup({ where: { ordinal: LeagueOrdinals.indexOf(player.skillGroup) + 1 } });
 
             try {
                 this.logger.debug(`Intaking player ${player.discordId} ${player.name}`)
-                imported.push(await this.playerService.intakePlayer(
+                await this.playerService.intakePlayer(
                     player.discordId,
                     player.name,
                     sg.id,
@@ -376,18 +376,19 @@ export class PlayerResolver {
                     player.preferredPlatform,
                     player.timezone,
                     player.preferredMode,
-                ));
+                );
             } catch (err: unknown) {
                 this.logger
                     .error(
                         `Failed to intake player 
                         ${player.discordId} ${player.name}: 
                         ${JSON.stringify(err)}`);
+                errors.push(`Failed to intake player ${player.discordId} ${player.name}: ${JSON.stringify(err)}`);
                 continue;
             }
         }
 
-        return imported;
+        return errors;
     }
 
     @Mutation(() => Player)
