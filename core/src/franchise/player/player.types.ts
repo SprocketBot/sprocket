@@ -83,5 +83,11 @@ export const changeSkillGroupSchema = z.object({
         z.number().int().positive()
     ),
 });
+export const IntakeUserBulkSchema = z.object({
+    name: z.string(),
+    discordId: z.preprocess((val) => String(val), z.string()),
+    skillGroupId: z.preprocess((val) => parseInt(String(val)), z.number().int()),
+    salary: z.preprocess((val) => parseFloat(String(val)), z.number()),
+});
 
 
