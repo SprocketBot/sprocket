@@ -156,7 +156,7 @@ export class PlayerService {
         return this.playerRepository.find(query);
     }
 
-    async createPlayer(memberId: number, skillGroupId: number, salary: number): Promise<Player> {
+    async createPlayer(memberId: number, skillGroupId: number, salary: number, runner?: QueryRunner): Promise<Player> {
         this.logger.verbose(`createPlayer: memberId=${memberId}, skillGroupId=${skillGroupId}, salary=${salary}`);
         const member = await this.memberService.getMemberById(memberId);
         const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
@@ -164,9 +164,48 @@ export class PlayerService {
             member, skillGroup, salary,
         });
 
-        await this.playerRepository.save(player);
+        if (runner) {
+            await runner.manager.save(player);
+        } else {
+            await this.playerRepository.save(player);
+        }
+
+        await this.checkAndCreateMlePlayer(player, member.user.id, skillGroup.id, runner);
 
         return player;
+    }
+
+    async checkAndCreateMlePlayer(player: Player, userId: number, skillGroupId: number, runner?: QueryRunner): Promise<void> {
+        const skillGroup = await this.skillGroupService.getGameSkillGroup({
+            where: { id: skillGroupId },
+            relations: { game: true },
+        });
+        if (skillGroup.game.id !== 7) return;
+
+        const userAuth = await this.userAuthRepository.findOne({
+            where: {
+                user: { id: userId },
+                accountType: UserAuthenticationAccountType.DISCORD,
+            },
+            relations: { user: { profile: true } },
+        });
+
+        if (!userAuth) {
+            this.logger.warn(`Could not find discord account for user ${userId}, skipping MLE player creation`);
+            return;
+        }
+
+        await this.mle_createPlayer(
+            player.id,
+            userAuth.accountId,
+            userAuth.user.profile.displayName,
+            player.salary,
+            LeagueOrdinals[skillGroup.ordinal - 1],
+            "PC",
+            Timezone.US_EAST,
+            ModePreference.BOTH,
+            runner,
+        );
     }
 
     /* !! Using repositories due to circular dependency issues. Will fix after extended repositories are added, probably. !! */
@@ -993,42 +1032,25 @@ export class PlayerService {
             });
             member.profile.member = member;
 
-            // For each game this user is going to participate in, create
-            // the corresponding player
-            let pid: number = 0;
-            let sal: number = 0;
-            let sgid = 0;
-            for (const pt of ptl) {
-                const player = await this.createPlayer(member.id, pt.gameSkillGroupId, pt.salary);
-                sgid = pt.gameSkillGroupId;
-                pid = player.id;
-                sal = pt.salary;
-            }
-
-            // Find the corresponding skill group
-            const skillGroup = await this.skillGroupService.getGameSkillGroupById(sgid);
-
-            // Finally, create the corresponding MLE Player object
-            await this.mle_createPlayer(
-                pid,
-                d_id,
-                name,
-                sal,
-                LeagueOrdinals[skillGroup.ordinal - 1],
-            );
-
             await runner.manager.save(user);
             await runner.manager.save(user.profile);
             await runner.manager.save(user.authenticationAccounts);
             await runner.manager.save(member);
             await runner.manager.save(member.profile);
 
-            await this.eloConnectorService.createJob(EloEndpoint.AddPlayerBySalary, {
-                id: pid,
-                name: name,
-                salary: sal,
-                skillGroup: skillGroup.ordinal,
-            });
+            // For each game this user is going to participate in, create
+            // the corresponding player
+            for (const pt of ptl) {
+                const player = await this.createPlayer(member.id, pt.gameSkillGroupId, pt.salary, runner);
+                const skillGroup = await this.skillGroupService.getGameSkillGroupById(pt.gameSkillGroupId);
+
+                await this.eloConnectorService.createJob(EloEndpoint.AddPlayerBySalary, {
+                    id: player.id,
+                    name: name,
+                    salary: pt.salary,
+                    skillGroup: skillGroup.ordinal,
+                });
+            }
 
             await runner.commitTransaction();
             // Send the newly created user back to the caller

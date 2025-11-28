@@ -36,7 +36,7 @@ import { Member } from "../../database/organization/member/member.model";
 import {
     League, LeagueOrdinals, MLE_OrganizationTeam, MLE_Platform, ModePreference, Timezone,
 } from "../../database/mledb";
-import type { ManualEloChange, ManualSkillGroupChange } from "../../elo/elo-connector";
+import type { ManualSkillGroupChange } from "../../elo/elo-connector";
 import { EloConnectorService, EloEndpoint } from "../../elo/elo-connector";
 import { CreatePlayerTuple } from "../../franchise/player/player.types";
 import { GqlJwtGuard } from "../../identity/auth/gql-auth-guard";
@@ -46,14 +46,7 @@ import { PopulateService } from "../../util/populate/populate.service";
 import { FranchiseService } from "../franchise";
 import { GameSkillGroupService } from "../game-skill-group";
 import { PlayerService } from "./player.service";
-import { EloRedistributionSchema, IntakeSchema } from "./player.types";
-
-const platformTransform = {
-    "epic": MLE_Platform.EPIC,
-    "steam": MLE_Platform.STEAM,
-    "psn": MLE_Platform.PS4,
-    "xbl": MLE_Platform.XBOX,
-};
+import { changeSkillGroupSchema, IntakeSchema } from "./player.types";
 
 @InputType()
 export class IntakePlayerAccount {
@@ -66,24 +59,6 @@ export class IntakePlayerAccount {
     @Field(() => String)
     tracker: string;
 }
-
-const changeSkillGroupSchema = z.object({
-    playerId: z.preprocess(
-        (val) => Number(val),
-        z.number().int().positive()
-    ),
-
-    // Note: Salary might need to handle decimals, so we don't use .int()
-    salary: z.preprocess(
-        (val) => Number(val),
-        z.number().positive()
-    ),
-
-    skillGroupId: z.preprocess(
-        (val) => Number(val),
-        z.number().int().positive()
-    ),
-});
 
 @Resolver(() => Player)
 export class PlayerResolver {
@@ -318,6 +293,16 @@ export class PlayerResolver {
 
     @Mutation(() => Player)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
+    async createPlayer(
+        @Args("memberId", { type: () => Int }) memberId: number,
+        @Args("skillGroupId", { type: () => Int }) skillGroupId: number,
+        @Args("salary", { type: () => Float }) salary: number,
+    ): Promise<Player> {
+        return this.playerService.createPlayer(memberId, skillGroupId, salary);
+    }
+
+    @Mutation(() => Player)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async intakePlayer(
         @Args("discordId") discordId: string,
         @Args("name") name: string,
@@ -391,29 +376,12 @@ export class PlayerResolver {
         return errors;
     }
 
-    @Mutation(() => Player)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
-    async updatePlayer(
-        @Args("mleid") mleid: number,
-        @Args("name") name: string,
-        @Args("skillGroup", { type: () => League }) league: League,
-        @Args("salary", { type: () => Float }) salary: number,
-        @Args("preferredPlatform") platform: string,
-        @Args("timezone", { type: () => Timezone }) timezone: Timezone,
-        @Args("preferredMode", { type: () => ModePreference }) mode: ModePreference,
-        @Args("accounts", { type: () => [IntakePlayerAccount], nullable: true }) accounts?: IntakePlayerAccount[],
-    ): Promise<Player> {
-        const sg = await this.skillGroupService.getGameSkillGroup({ where: { ordinal: LeagueOrdinals.indexOf(league) + 1 } });
-        return this.playerService.updatePlayer(mleid, name, sg.id, salary, platform, timezone, mode);
-    }
-
     @Mutation(() => [User])
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async intakeUser(
         @Args("name", { type: () => String }) name: string,
         @Args("discord_id", { type: () => String }) d_id: string,
         @Args("playersToLink", { type: () => [CreatePlayerTuple] }) ptl: CreatePlayerTuple[],
-        @Args("platformAccounts", { type: () => [IntakePlayerAccount], nullable: true }) platformAccounts: IntakePlayerAccount[] = [],
     ): Promise<User | string> {
         return this.playerService.intakeUser(name, d_id, ptl);
     }
