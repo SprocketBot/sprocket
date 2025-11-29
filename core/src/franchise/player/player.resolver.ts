@@ -46,7 +46,17 @@ import { PopulateService } from "../../util/populate/populate.service";
 import { FranchiseService } from "../franchise";
 import { GameSkillGroupService } from "../game-skill-group";
 import { PlayerService } from "./player.service";
-import { changeSkillGroupSchema, IntakeSchema, IntakeUserBulkSchema } from "./player.types";
+import {
+    changeSkillGroupSchema,
+    IntakeSchema,
+    IntakeUserBulkSchema,
+    OperationError,
+    ChangePlayerSkillGroupResult,
+    IntakeUserResult,
+    SwapDiscordAccountsResult,
+    ForcePlayerToTeamResult,
+    ChangePlayerNameResult
+} from "./player.types";
 
 @InputType()
 export class IntakePlayerAccount {
@@ -114,181 +124,211 @@ export class PlayerResolver {
         return this.popService.populateOneOrFail(Player, player, "member");
     }
 
-    @Mutation(() => String)
+    @Mutation(() => ChangePlayerSkillGroupResult)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async changePlayerSkillGroupBulk(
         @Args("files", { type: () => [GraphQLUpload] })
         files: Array<Promise<FileUpload>>
-    ): Promise<string> {
+    ): Promise<typeof ChangePlayerSkillGroupResult> {
+        try {
+            this.logger.debug("Starting bulk skill group change");
+            const csvs = await Promise.all(
+                files.map(async f => f.then(
+                    async _f => readToString(
+                        _f.createReadStream()
+                    ))));
 
-        this.logger.debug("Starting bulk skill group change");
-        const csvs = await Promise.all(
-            files.map(async f => f.then(
-                async _f => readToString(
-                    _f.createReadStream()
-                ))));
-
-        this.logger.debug("Parsing and validating CSV files");
-        const results = await Promise.all(csvs.map(async csv => {
-            this.logger.debug(`Parsing and validating a CSV file: ${csv.substring(0, 50)}...`);
-            const records = parseAndValidateCsv(
-                csv,
-                changeSkillGroupSchema
-            );
-            this.logger.debug(`Processing ${records.data.length} records from CSV`);
-            this.logger.debug(`Found ${records.errors.length} errors in CSV`);
-            for (const error of records.errors) {
-                this.logger.error(`Error in CSV: Row ${error.row}, Field: ${error.field || 'N/A'}, Value: ${error.value || 'N/A'}, Message: ${error.message}`);
-            }
-            this.logger.debug(`Processing ${records.data.length} valid records from CSV`);
-            for (const record of records.data) {
-                try {
-                    this.logger.debug(`Processing player ID ${record.playerId}`);
-                    await this.changePlayerSkillGroup(
-                        record.playerId,
-                        record.salary,
-                        record.skillGroupId,
-                        false
-                    );
-                    this.logger.debug(`Successfully processed player ID ${record.playerId}`);
-                } catch (error) {
-                    this.logger.error(`Error processing player ID ${record.playerId}:`, error);
+            this.logger.debug("Parsing and validating CSV files");
+            const results = await Promise.all(csvs.map(async csv => {
+                this.logger.debug(`Parsing and validating a CSV file: ${csv.substring(0, 50)}...`);
+                const records = parseAndValidateCsv(
+                    csv,
+                    changeSkillGroupSchema
+                );
+                this.logger.debug(`Processing ${records.data.length} records from CSV`);
+                this.logger.debug(`Found ${records.errors.length} errors in CSV`);
+                for (const error of records.errors) {
+                    this.logger.error(`Error in CSV: Row ${error.row}, Field: ${error.field || 'N/A'}, Value: ${error.value || 'N/A'}, Message: ${error.message}`);
                 }
-            }
-        }));
+                this.logger.debug(`Processing ${records.data.length} valid records from CSV`);
+                for (const record of records.data) {
+                    try {
+                        this.logger.debug(`Processing player ID ${record.playerId}`);
+                        await this.changePlayerSkillGroup(
+                            record.playerId,
+                            record.salary,
+                            record.skillGroupId,
+                            false
+                        );
+                        this.logger.debug(`Successfully processed player ID ${record.playerId}`);
+                    } catch (error) {
+                        this.logger.error(`Error processing player ID ${record.playerId}:`, error);
+                    }
+                }
+            }));
 
-        return results.join("\n");
+            return new OperationError('Bulk skill group change completed successfully', 200);
+        } catch (error) {
+            this.logger.error(`Error in bulk skill group change: ${error}`);
+            return new OperationError(
+                error instanceof Error ? error.message : 'Failed to process bulk skill group change',
+                500
+            );
+        }
     }
 
-    @Mutation(() => String)
+    @Mutation(() => ChangePlayerSkillGroupResult)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async changePlayerSkillGroup(
         @Args("playerId", { type: () => Int }) playerId: number,
         @Args("salary", { type: () => Float }) salary: number,
         @Args("skillGroupId", { type: () => Int }) skillGroupId: number,
         @Args("silent", { type: () => Boolean, nullable: true }) silent?: boolean,
-    ): Promise<string> {
-        this.logger.debug(`Changing skill group for player ID ${playerId} to skill group ID ${skillGroupId} with salary ${salary}`);
-        const player = await this.playerService.getPlayer({
-            where: { id: playerId },
-            relations: {
-                member: {
-                    user: {
-                        authenticationAccounts: true,
+    ): Promise<typeof ChangePlayerSkillGroupResult> {
+        try {
+            this.logger.debug(`Changing skill group for player ID ${playerId} to skill group ID ${skillGroupId} with salary ${salary}`);
+            const player = await this.playerService.getPlayer({
+                where: { id: playerId },
+                relations: {
+                    member: {
+                        user: {
+                            authenticationAccounts: true,
+                        },
+                        organization: true,
+                        profile: true,
                     },
-                    organization: true,
-                    profile: true,
-                },
-                skillGroup: {
-                    organization: true,
-                    game: true,
-                    profile: true,
-                },
-            },
-        });
-
-        this.logger.debug(`Player found: ${player.member.profile.name}`);
-        const skillGroup = await this.skillGroupService.getGameSkillGroup({
-            where: {
-                id: skillGroupId,
-            },
-            relations: {
-                profile: true,
-            },
-        });
-        this.logger.debug(`Target skill group found: ${skillGroup.profile.description}`);
-
-        const discordAccount = await this.userAuthRepository.findOneOrFail({
-            where: {
-                user: {
-                    id: player.member.user.id,
-                },
-                accountType: UserAuthenticationAccountType.DISCORD,
-            },
-        });
-        this.logger.debug(`Discord account found: ${discordAccount.accountId}`);
-        const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(player.member.organization.id);
-        this.logger.debug(`Organization profile found: ${orgProfile.name}`);
-        const inputData: ManualSkillGroupChange = {
-            id: playerId,
-            salary: salary,
-            skillGroup: skillGroup.ordinal,
-        };
-
-        await this.playerService.mle_movePlayerToLeague(playerId, salary, skillGroupId);
-        this.logger.debug(`Moved player ID ${playerId} to league with skill group ID ${skillGroupId} and salary ${salary}`);
-        await this.playerService.updatePlayerStanding(playerId, salary, skillGroupId);
-        this.logger.debug(`Updated player standing for player ID ${playerId}`);
-        await this.eloConnectorService.createJob(EloEndpoint.SGChange, inputData);
-        this.logger.debug(`Created Elo job for player ID ${playerId}`);
-
-        if (!silent) {
-            await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
-                playerId: player.id,
-                name: player.member.profile.name,
-                organizationId: player.skillGroup.organizationId,
-                discordId: discordAccount.accountId,
-                old: {
-                    id: player.skillGroup.id,
-                    name: player.skillGroup.profile.description,
-                    salary: player.salary,
-                    discordEmojiId: player.skillGroup.profile.discordEmojiId,
-                },
-                new: {
-                    id: skillGroup.id,
-                    name: skillGroup.profile.description,
-                    salary: salary,
-                    discordEmojiId: skillGroup.profile.discordEmojiId,
+                    skillGroup: {
+                        organization: true,
+                        game: true,
+                        profile: true,
+                    },
                 },
             });
 
-            await this.notificationService.send(NotificationEndpoint.SendNotification, {
-                type: NotificationType.BASIC,
-                userId: player.member.user.id,
-                notification: {
-                    type: NotificationMessageType.DirectMessage,
-                    userId: discordAccount.accountId,
-                    payload: {
-                        embeds: [{
-                            title: "You Have Ranked Out",
-                            description: `You have been ranked out from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
-                            author: {
-                                name: `${orgProfile.name}`,
-                            },
-                            fields: [
-                                {
-                                    name: "New League",
-                                    value: `${skillGroup.profile.description}`,
-                                },
-                                {
-                                    name: "New Salary",
-                                    value: `${salary}`,
-                                },
-                            ],
-                            footer: {
-                                text: orgProfile.name,
-                            },
-                            timestamp: Date.now(),
-                        }],
+            this.logger.debug(`Player found: ${player.member.profile.name}`);
+            const skillGroup = await this.skillGroupService.getGameSkillGroup({
+                where: {
+                    id: skillGroupId,
+                },
+                relations: {
+                    profile: true,
+                },
+            });
+            this.logger.debug(`Target skill group found: ${skillGroup.profile.description}`);
+
+            const discordAccount = await this.userAuthRepository.findOneOrFail({
+                where: {
+                    user: {
+                        id: player.member.user.id,
                     },
-                    brandingOptions: {
-                        organizationId: player.member.organization.id,
-                        options: {
-                            author: {
-                                icon: true,
-                            },
-                            color: true,
-                            thumbnail: true,
-                            footer: {
-                                icon: true,
+                    accountType: UserAuthenticationAccountType.DISCORD,
+                },
+            });
+            this.logger.debug(`Discord account found: ${discordAccount.accountId}`);
+            const orgProfile = await this.organizationService.getOrganizationProfileForOrganization(player.member.organization.id);
+            this.logger.debug(`Organization profile found: ${orgProfile.name}`);
+            const inputData: ManualSkillGroupChange = {
+                id: playerId,
+                salary: salary,
+                skillGroup: skillGroup.ordinal,
+            };
+
+            await this.playerService.mle_movePlayerToLeague(playerId, salary, skillGroupId);
+            this.logger.debug(`Moved player ID ${playerId} to league with skill group ID ${skillGroupId} and salary ${salary}`);
+            await this.playerService.updatePlayerStanding(playerId, salary, skillGroupId);
+            this.logger.debug(`Updated player standing for player ID ${playerId}`);
+            await this.eloConnectorService.createJob(EloEndpoint.SGChange, inputData);
+            this.logger.debug(`Created Elo job for player ID ${playerId}`);
+
+            if (!silent) {
+                await this.eventsService.publish(EventTopic.PlayerSkillGroupChanged, {
+                    playerId: player.id,
+                    name: player.member.profile.name,
+                    organizationId: player.skillGroup.organizationId,
+                    discordId: discordAccount.accountId,
+                    old: {
+                        id: player.skillGroup.id,
+                        name: player.skillGroup.profile.description,
+                        salary: player.salary,
+                        discordEmojiId: player.skillGroup.profile.discordEmojiId,
+                    },
+                    new: {
+                        id: skillGroup.id,
+                        name: skillGroup.profile.description,
+                        salary: salary,
+                        discordEmojiId: skillGroup.profile.discordEmojiId,
+                    },
+                });
+
+                await this.notificationService.send(NotificationEndpoint.SendNotification, {
+                    type: NotificationType.BASIC,
+                    userId: player.member.user.id,
+                    notification: {
+                        type: NotificationMessageType.DirectMessage,
+                        userId: discordAccount.accountId,
+                        payload: {
+                            embeds: [{
+                                title: "You Have Ranked Out",
+                                description: `You have been ranked out from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
+                                author: {
+                                    name: `${orgProfile.name}`,
+                                },
+                                fields: [
+                                    {
+                                        name: "New League",
+                                        value: `${skillGroup.profile.description}`,
+                                    },
+                                    {
+                                        name: "New Salary",
+                                        value: `${salary}`,
+                                    },
+                                ],
+                                footer: {
+                                    text: orgProfile.name,
+                                },
+                                timestamp: Date.now(),
+                            }],
+                        },
+                        brandingOptions: {
+                            organizationId: player.member.organization.id,
+                            options: {
+                                author: {
+                                    icon: true,
+                                },
+                                color: true,
+                                thumbnail: true,
+                                footer: {
+                                    icon: true,
+                                },
                             },
                         },
                     },
+                });
+            }
+
+            // Return the updated player on success
+            return this.playerService.getPlayer({
+                where: { id: playerId },
+                relations: {
+                    member: {
+                        user: true,
+                        organization: true,
+                        profile: true,
+                    },
+                    skillGroup: {
+                        organization: true,
+                        game: true,
+                        profile: true,
+                    },
                 },
             });
+        } catch (error) {
+            this.logger.error(`Error changing player skill group: ${error}`);
+            return new OperationError(
+                error instanceof Error ? error.message : 'Failed to change player skill group',
+                500
+            );
         }
-
-        return "SUCCESS";
     }
 
     @Mutation(() => Player)
@@ -361,44 +401,89 @@ export class PlayerResolver {
         return errors;
     }
 
-    @Mutation(() => [User])
+    @Mutation(() => IntakeUserResult)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async intakeUser(
         @Args("name", { type: () => String }) name: string,
         @Args("discord_id", { type: () => String }) d_id: string,
         @Args("playersToLink", { type: () => [CreatePlayerTuple] }) ptl: CreatePlayerTuple[],
-    ): Promise<string> {
-        return this.playerService.intakeUser(name, d_id, ptl);
+    ): Promise<typeof IntakeUserResult> {
+        try {
+            const result = await this.playerService.intakeUser(name, d_id, ptl);
+
+            // If the service returns a string, it's an error message
+            if (typeof result === 'string') {
+                return new OperationError(result, 400);
+            }
+
+            // If it returns a Player, return the player
+            if (result instanceof Player) {
+                return result;
+            }
+
+            // Fallback - return success message as OperationError
+            return new OperationError('User intake completed successfully', 200);
+        } catch (error) {
+            this.logger.error(`Error in intakeUser: ${error}`);
+            return new OperationError(
+                error instanceof Error ? error.message : 'Failed to intake user',
+                500
+            );
+        }
     }
 
 
-    @Mutation(() => String)
+    @Mutation(() => SwapDiscordAccountsResult)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async swapDiscordAccounts(
         @Args("newAcct", { type: () => String }) newAcct: string,
         @Args("oldAcct", { type: () => String }) oldAcct: string,
-    ): Promise<string> {
-        await this.playerService.swapDiscordAccounts(newAcct, oldAcct);
-        return "Success."
+    ): Promise<typeof SwapDiscordAccountsResult> {
+        try {
+            await this.playerService.swapDiscordAccounts(newAcct, oldAcct);
+            return new OperationError('Discord accounts swapped successfully', 200);
+        } catch (error) {
+            this.logger.error(`Error swapping Discord accounts: ${error}`);
+            return new OperationError(
+                error instanceof Error ? error.message : 'Failed to swap Discord accounts',
+                500
+            );
+        }
     }
 
-    @Mutation(() => String)
+    @Mutation(() => ForcePlayerToTeamResult)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async forcePlayerToTeam(
         @Args("mleid", { type: () => Int }) mleid: number,
         @Args("newTeam", { type: () => String }) newTeam: string,
-    ): Promise<string> {
-        await this.playerService.forcePlayerToTeam(mleid, newTeam);
-        return "Success."
+    ): Promise<typeof ForcePlayerToTeamResult> {
+        try {
+            await this.playerService.forcePlayerToTeam(mleid, newTeam);
+            return new OperationError('Player forced to team successfully', 200);
+        } catch (error) {
+            this.logger.error(`Error forcing player to team: ${error}`);
+            return new OperationError(
+                error instanceof Error ? error.message : 'Failed to force player to team',
+                500
+            );
+        }
     }
 
-    @Mutation(() => String)
+    @Mutation(() => ChangePlayerNameResult)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async changePlayerName(
         @Args("mleid", { type: () => Int }) mleid: number,
         @Args("newName", { type: () => String }) newName: string,
-    ): Promise<string> {
-        await this.playerService.changePlayerName(mleid, newName);
-        return "Success."
+    ): Promise<typeof ChangePlayerNameResult> {
+        try {
+            await this.playerService.changePlayerName(mleid, newName);
+            return new OperationError('Player name changed successfully', 200);
+        } catch (error) {
+            this.logger.error(`Error changing player name: ${error}`);
+            return new OperationError(
+                error instanceof Error ? error.message : 'Failed to change player name',
+                500
+            );
+        }
     }
 }

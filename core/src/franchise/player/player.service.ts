@@ -920,7 +920,7 @@ export class PlayerService {
         name: string,
         d_id: string,
         ptl: CreatePlayerTuple[],
-    ): Promise<string> {
+    ): Promise<string | Player> {
         this.logger.log(`=== INTAKE USER STARTED ===`);
         this.logger.log(`intakeUser: name="${name}", d_id="${d_id}", ptl_count=${ptl.length}`);
         this.logger.debug(`intakeUser full ptl data: ${JSON.stringify(ptl)}`);
@@ -1085,6 +1085,41 @@ export class PlayerService {
             const result = `Successfully created/updated user with ID ${user.id}.`;
             this.logger.log(`=== INTAKE USER COMPLETED ===`);
             this.logger.log(`Result: ${result}`);
+
+            // Return the first player created as the success result
+            if (playersCreated > 0) {
+                // Get the first player created for this user
+                const firstPlayer = await this.playerRepository.findOne({
+                    where: {
+                        member: {
+                            user: {
+                                authenticationAccounts: {
+                                    accountId: d_id,
+                                    accountType: UserAuthenticationAccountType.DISCORD,
+                                }
+                            }
+                        }
+                    },
+                    relations: {
+                        member: {
+                            user: true,
+                            organization: true,
+                            profile: true,
+                        },
+                        skillGroup: {
+                            organization: true,
+                            game: true,
+                            profile: true,
+                        },
+                    },
+                });
+
+                if (firstPlayer) {
+                    return firstPlayer;
+                }
+            }
+
+            // If no player was created, return success message as string for backward compatibility
             return result;
         } catch (e) {
             this.logger.error(`=== INTAKE USER FAILED ===`);

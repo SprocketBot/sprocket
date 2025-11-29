@@ -1,12 +1,12 @@
 import {
-    Field, Float, InputType,
-    Int,
+    Field, Float, InputType, Int, ObjectType, createUnionType,
 } from "@nestjs/graphql";
 import { z } from "zod";
 
 import {
     League, ModePreference, Timezone,
 } from "../../database/mledb";
+import { Player } from "../../database/franchise/player/player.model";
 export interface GameAndOrganization {
     gameId: number;
     organizationId: number;
@@ -88,6 +88,64 @@ export const IntakeUserBulkSchema = z.object({
     discordId: z.preprocess((val) => String(val), z.string()),
     skillGroupId: z.preprocess((val) => parseInt(String(val)), z.number().int()),
     salary: z.preprocess((val) => parseFloat(String(val)), z.number()),
+});
+
+// Operation Error Type for Union Results
+@ObjectType()
+export class OperationError {
+    @Field(() => String)
+    message: string;
+
+    @Field(() => Int, { nullable: true })
+    code?: number;
+
+    constructor(message: string, code?: number) {
+        this.message = message;
+        this.code = code;
+    }
+}
+
+// Union Types for Mutation Results
+export const ChangePlayerSkillGroupResult = createUnionType({
+    name: "ChangePlayerSkillGroupResult",
+    types: () => [Player, OperationError],
+    resolveType: (value) => {
+        if (value instanceof OperationError) return OperationError;
+        return Player;
+    },
+});
+
+export const IntakeUserResult = createUnionType({
+    name: "IntakeUserResult",
+    types: () => [Player, OperationError],
+    resolveType: (value) => {
+        if (value instanceof OperationError) return OperationError;
+        return Player;
+    },
+});
+
+export const SwapDiscordAccountsResult = createUnionType({
+    name: "SwapDiscordAccountsResult",
+    types: () => [OperationError],
+    resolveType: (value) => {
+        return OperationError;
+    },
+});
+
+export const ForcePlayerToTeamResult = createUnionType({
+    name: "ForcePlayerToTeamResult",
+    types: () => [OperationError],
+    resolveType: (value) => {
+        return OperationError;
+    },
+});
+
+export const ChangePlayerNameResult = createUnionType({
+    name: "ChangePlayerNameResult",
+    types: () => [OperationError],
+    resolveType: (value) => {
+        return OperationError;
+    },
 });
 
 
