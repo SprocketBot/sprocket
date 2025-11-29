@@ -992,6 +992,7 @@ export class PlayerService {
                 if (existingMember) {
                     this.logger.log(`Found existing MLE member: id=${existingMember.id}`);
                     member = existingMember;
+                    member.user = user;
                 } else {
                     this.logger.log(`No MLE member found, creating new member for user ${user.id}`);
                     member = this.memberRepository.create({});
