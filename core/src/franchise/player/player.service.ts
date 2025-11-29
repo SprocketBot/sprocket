@@ -181,6 +181,8 @@ export class PlayerService {
             await this.playerRepository.save(player);
         }
 
+        this.logger.debug(
+            `checkAndCreateMlePlayer: player=${JSON.stringify(player)}, member=${JSON.stringify(member)}, skillGroup=${JSON.stringify(skillGroup)}`);
         await this.checkAndCreateMlePlayer(
             player,
             member.user.id,
