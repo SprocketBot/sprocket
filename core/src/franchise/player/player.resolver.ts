@@ -55,7 +55,8 @@ import {
     IntakeUserResult,
     SwapDiscordAccountsResult,
     ForcePlayerToTeamResult,
-    ChangePlayerNameResult
+    ChangePlayerNameResult,
+    CreatePlayerResult
 } from "./player.types";
 
 @InputType()
@@ -331,14 +332,23 @@ export class PlayerResolver {
         }
     }
 
-    @Mutation(() => Player)
+    @Mutation(() => CreatePlayerResult)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async createPlayer(
         @Args("memberId", { type: () => Int }) memberId: number,
         @Args("skillGroupId", { type: () => Int }) skillGroupId: number,
         @Args("salary", { type: () => Float }) salary: number,
-    ): Promise<Player> {
-        return this.playerService.createPlayer(memberId, skillGroupId, salary);
+    ): Promise<typeof CreatePlayerResult> {
+        try {
+            const result = await this.playerService.createPlayer(memberId, skillGroupId, salary);
+            return result;
+        } catch (error) {
+            this.logger.error(`Error creating player: ${error}`);
+            return new OperationError(
+                error instanceof Error ? error.message : 'Failed to create player',
+                500
+            );
+        }
     }
 
     @Mutation(() => [String])

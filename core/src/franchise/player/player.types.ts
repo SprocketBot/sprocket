@@ -148,4 +148,11 @@ export const ChangePlayerNameResult = createUnionType({
     },
 });
 
-
+export const CreatePlayerResult = createUnionType({
+    name: "CreatePlayerResult",
+    types: () => [Player, OperationError],
+    resolveType: (value) => {
+        if (value instanceof OperationError) return OperationError;
+        return Player;
+    },
+});

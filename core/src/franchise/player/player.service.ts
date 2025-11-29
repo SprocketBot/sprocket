@@ -156,39 +156,40 @@ export class PlayerService {
         return this.playerRepository.find(query);
     }
 
-    async createPlayer(memberOrId: number | Member, skillGroupId: number, salary: number, runner?: QueryRunner): Promise<Player> {
+    async createPlayer(memberOrId: number | Member, skillGroupId: number, salary: number): Promise<Player> {
         this.logger.debug(`createPlayer: memberOrId=${typeof memberOrId === "number" ? memberOrId : memberOrId.id}, skillGroupId=${skillGroupId}, salary=${salary}`);
-        let member: Member;
-        if (typeof memberOrId === "number") {
-            member = await this.memberService.getMemberById(memberOrId);
-        } else {
-            member = memberOrId;
-        }
 
-        const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
-        const player = this.playerRepository.create({
-            member, skillGroup, salary,
-        });
+        try {
+            let member: Member;
+            if (typeof memberOrId === "number") {
+                member = await this.memberService.getMemberById(memberOrId);
+            } else {
+                member = memberOrId;
+            }
 
-        this.logger.debug(`created player entity: ${JSON.stringify(player)}`);
-        if (runner) {
-            await runner.manager.save(player);
-        } else {
+            const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
+            const player = this.playerRepository.create({
+                member, skillGroup, salary,
+            });
+
+            this.logger.debug(`created player entity: ${JSON.stringify(player)}`);
             await this.playerRepository.save(player);
+
+            this.logger.debug(`player=${JSON.stringify(player)}`);
+            this.logger.debug(`member = ${JSON.stringify(member)}`);
+            this.logger.debug(`skillGroup = ${JSON.stringify(skillGroup)}`);
+
+            await this.checkAndCreateMlePlayer(
+                player,
+                member.userId,
+                skillGroup.id
+            );
+
+            return player;
+        } catch (error) {
+            this.logger.error(`Failed to create player: ${error instanceof Error ? error.message : String(error)}`);
+            throw error;
         }
-
-        this.logger.debug(`player=${JSON.stringify(player)}`);
-        this.logger.debug(`member = ${JSON.stringify(member)}`);
-        this.logger.debug(`skillGroup = ${JSON.stringify(skillGroup)}`);
-
-        await this.checkAndCreateMlePlayer(
-            player,
-            member.userId,
-            skillGroup.id,
-            runner
-        );
-
-        return player;
     }
 
     async checkAndCreateMlePlayer(player: Player, userId: number, skillGroupId: number, runner?: QueryRunner): Promise<void> {
@@ -1067,7 +1068,7 @@ export class PlayerService {
                     }
 
                     this.logger.log(`Creating new player for skillGroup ${pt.gameSkillGroupId} with salary ${pt.salary}`);
-                    const player = await this.createPlayer(member, pt.gameSkillGroupId, pt.salary, runner);
+                    const player = await this.createPlayer(member, pt.gameSkillGroupId, pt.salary);
                     this.logger.log(`Created player: id=${player.id}, skillGroupId=${pt.gameSkillGroupId}, salary=${pt.salary}`);
 
                     const skillGroup = await this.skillGroupService.getGameSkillGroupById(pt.gameSkillGroupId);
