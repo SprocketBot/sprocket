@@ -160,14 +160,7 @@ export class PlayerService {
         this.logger.debug(`createPlayer: memberOrId=${typeof memberOrId === "number" ? memberOrId : memberOrId.id}, skillGroupId=${skillGroupId}, salary=${salary}`);
         let member: Member;
         if (typeof memberOrId === "number") {
-            member = await this.memberService.getMemberById(memberOrId, {
-                relations: {
-                    user: {
-                        profile: true,
-                        authenticationAccounts: true,
-                    }
-                }
-            });
+            member = await this.memberService.getMemberById(memberOrId);
         } else {
             member = memberOrId;
         }
@@ -189,7 +182,7 @@ export class PlayerService {
 
         await this.checkAndCreateMlePlayer(
             player,
-            member.user.id,
+            member.userId,
             skillGroup.id,
             runner
         );
