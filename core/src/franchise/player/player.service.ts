@@ -889,7 +889,7 @@ export class PlayerService {
         platformId: string;
         gameId: number;
     }): Promise<CoreOutput<CoreEndpoint.GetPlayerByPlatformId>> {
-        this.logger.verbose(`getPlayerByGameAndPlatformPayload: ${JSON.stringify(data)}`);
+        this.logger.debug(`getPlayerByGameAndPlatformPayload: ${JSON.stringify(data)}`);
         try {
             const platform = await this.platformService.getPlatformByCode(data.platform);
             const player = await this.getPlayerByGameAndPlatform(data.gameId, platform.id, data.platformId);
@@ -921,14 +921,41 @@ export class PlayerService {
         d_id: string,
         ptl: CreatePlayerTuple[],
     ): Promise<string> {
-        this.logger.verbose(`intakeUser: name=${name}, d_id=${d_id}, ptl=${JSON.stringify(ptl)}`);
-        const mleOrg = await this.organizationRepository.findOneOrFail({ where: { profile: { name: "Minor League Esports" } }, relations: { profile: true } });
+        this.logger.log(`=== INTAKE USER STARTED ===`);
+        this.logger.log(`intakeUser: name="${name}", d_id="${d_id}", ptl_count=${ptl.length}`);
+        this.logger.debug(`intakeUser full ptl data: ${JSON.stringify(ptl)}`);
+
+        let mleOrg: Organization;
+        try {
+            this.logger.log(`Looking up MLE organization...`);
+            mleOrg = await this.organizationRepository
+                .findOneOrFail({
+                    where: {
+                        profile: { name: "Minor League Esports" }
+                    },
+                    relations: { profile: true }
+                });
+            this.logger.log(`Found MLE organization: id=${mleOrg.id}, name=${mleOrg.profile.name}`);
+        } catch (e) {
+            this.logger.error(`Failed to find MLE organization: ${e instanceof Error ? e.message : String(e)}`);
+            throw e;
+        }
 
         const runner = this.dataSource.createQueryRunner();
-        await runner.connect();
-        await runner.startTransaction();
+        this.logger.log(`Created query runner for transaction`);
 
         try {
+            await runner.connect();
+            this.logger.log(`Connected to database`);
+            await runner.startTransaction();
+            this.logger.log(`Started database transaction`);
+        } catch (e) {
+            this.logger.error(`Failed to start transaction: ${e instanceof Error ? e.message : String(e)}`);
+            throw e;
+        }
+
+        try {
+            this.logger.log(`Looking up user by Discord ID: ${d_id}`);
             let user = await runner.manager.findOne(User, {
                 where: {
                     authenticationAccounts: {
@@ -949,10 +976,15 @@ export class PlayerService {
             let member: Member;
 
             if (user) {
+                this.logger.log(`Found existing user: id=${user.id}, displayName=${user.profile?.displayName || 'N/A'}`);
+                this.logger.log(`User has ${user.members?.length || 0} members`);
+
                 const existingMember = user.members.find(m => m.organization.id === mleOrg.id);
                 if (existingMember) {
+                    this.logger.log(`Found existing MLE member: id=${existingMember.id}`);
                     member = existingMember;
                 } else {
+                    this.logger.log(`No MLE member found, creating new member for user ${user.id}`);
                     member = this.memberRepository.create({});
                     member.organization = mleOrg;
                     member.user = user;
@@ -961,10 +993,13 @@ export class PlayerService {
                     });
                     member.profile.member = member;
 
+                    this.logger.log(`Saving new member and profile...`);
                     await runner.manager.save(member);
                     await runner.manager.save(member.profile);
+                    this.logger.log(`Created new member: id=${member.id}`);
                 }
             } else {
+                this.logger.log(`No existing user found, creating new user for Discord ID: ${d_id}`);
                 user = this.userRepository.create({});
 
                 user.profile = this.userProfileRepository.create({
@@ -989,46 +1024,82 @@ export class PlayerService {
                 });
                 member.profile.member = member;
 
+                this.logger.log(`Saving new user, profile, auth account, member, and member profile...`);
                 await runner.manager.save(user);
                 await runner.manager.save(user.profile);
                 await runner.manager.save(user.authenticationAccounts);
                 await runner.manager.save(member);
                 await runner.manager.save(member.profile);
+                this.logger.log(`Created new user: id=${user.id}, member: id=${member.id}`);
             }
 
             // For each game this user is going to participate in, create
             // the corresponding player
-            for (const pt of ptl) {
-                const existingPlayer = await runner.manager.findOne(Player, {
-                    where: {
-                        member: { id: member.id },
-                        skillGroup: { id: pt.gameSkillGroupId },
-                    },
-                });
+            this.logger.log(`Processing ${ptl.length} player tuples for member ${member.id}`);
+            let playersCreated = 0;
 
-                if (existingPlayer) {
-                    this.logger.warn(`Player already exists for member ${member.id} and skillGroup ${pt.gameSkillGroupId}. Skipping creation.`);
-                    continue;
+            for (let i = 0; i < ptl.length; i++) {
+                const pt = ptl[i];
+                this.logger.log(`Processing player tuple ${i + 1}/${ptl.length}: skillGroupId=${pt.gameSkillGroupId}, salary=${pt.salary}`);
+
+                try {
+                    const existingPlayer = await runner.manager.findOne(Player, {
+                        where: {
+                            member: { id: member.id },
+                            skillGroup: { id: pt.gameSkillGroupId },
+                        },
+                    });
+
+                    if (existingPlayer) {
+                        this.logger.warn(`Player already exists for member ${member.id} and skillGroup ${pt.gameSkillGroupId}. Skipping creation.`);
+                        continue;
+                    }
+
+                    this.logger.log(`Creating new player for skillGroup ${pt.gameSkillGroupId} with salary ${pt.salary}`);
+                    const player = await this.createPlayer(member, pt.gameSkillGroupId, pt.salary, runner);
+                    this.logger.log(`Created player: id=${player.id}, skillGroupId=${pt.gameSkillGroupId}, salary=${pt.salary}`);
+
+                    const skillGroup = await this.skillGroupService.getGameSkillGroupById(pt.gameSkillGroupId);
+                    this.logger.log(`Found skill group: ${skillGroup.profile.description} (ordinal: ${skillGroup.ordinal})`);
+
+                    this.logger.log(`Creating ELO job for player ${player.id}`);
+                    await this.eloConnectorService.createJob(EloEndpoint.AddPlayerBySalary, {
+                        id: player.id,
+                        name: name,
+                        salary: pt.salary,
+                        skillGroup: skillGroup.ordinal,
+                    });
+                    this.logger.log(`ELO job created successfully for player ${player.id}`);
+
+                    playersCreated++;
+                } catch (playerError) {
+                    this.logger.error(`Failed to create player for tuple ${i + 1}: ${playerError instanceof Error ? playerError.message : String(playerError)}`);
+                    throw playerError;
                 }
-
-                const player = await this.createPlayer(member, pt.gameSkillGroupId, pt.salary, runner);
-                const skillGroup = await this.skillGroupService.getGameSkillGroupById(pt.gameSkillGroupId);
-
-                await this.eloConnectorService.createJob(EloEndpoint.AddPlayerBySalary, {
-                    id: player.id,
-                    name: name,
-                    salary: pt.salary,
-                    skillGroup: skillGroup.ordinal,
-                });
             }
 
+            this.logger.log(`Committing transaction. Created ${playersCreated} new players.`);
             await runner.commitTransaction();
-            // Send the newly created user back to the caller
-            return user.id as string;
+            this.logger.log(`Transaction committed successfully`);
+
+            const result = `Successfully created/updated user with ID ${user.id}.`;
+            this.logger.log(`=== INTAKE USER COMPLETED ===`);
+            this.logger.log(`Result: ${result}`);
+            return result;
         } catch (e) {
-            this.logger.error(e);
+            this.logger.error(`=== INTAKE USER FAILED ===`);
+            this.logger.error(`Error during intake: ${e instanceof Error ? e.message : String(e)}`);
+            this.logger.error(`Stack trace: ${e instanceof Error ? e.stack : 'N/A'}`);
+
+            this.logger.log(`Rolling back transaction...`);
             await runner.rollbackTransaction();
-            return e as string;
+            this.logger.log(`Transaction rolled back`);
+
+            return e instanceof Error ? e.message : String(e);
+        } finally {
+            this.logger.log(`Releasing query runner...`);
+            await runner.release();
+            this.logger.log(`Query runner released`);
         }
     }
 
