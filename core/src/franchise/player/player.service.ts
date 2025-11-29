@@ -162,8 +162,10 @@ export class PlayerService {
         if (typeof memberOrId === "number") {
             member = await this.memberService.getMemberById(memberOrId, {
                 relations: {
-                    profile: true,
-                    user: true,
+                    user: {
+                        profile: true,
+                        authenticationAccounts: true,
+                    }
                 }
             });
         } else {
@@ -181,8 +183,10 @@ export class PlayerService {
             await this.playerRepository.save(player);
         }
 
-        this.logger.debug(
-            `checkAndCreateMlePlayer: player=${JSON.stringify(player)}, member=${JSON.stringify(member)}, skillGroup=${JSON.stringify(skillGroup)}`);
+        this.logger.debug(`player=${JSON.stringify(player)}`);
+        this.logger.debug(`member = ${JSON.stringify(member)}`);
+        this.logger.debug(`skillGroup = ${JSON.stringify(skillGroup)}`);
+
         await this.checkAndCreateMlePlayer(
             player,
             member.user.id,
