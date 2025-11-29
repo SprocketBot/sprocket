@@ -170,6 +170,7 @@ export class PlayerService {
             member, skillGroup, salary,
         });
 
+        this.logger.debug(`created player entity: ${JSON.stringify(player)}`);
         if (runner) {
             await runner.manager.save(player);
         } else {
