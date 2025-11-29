@@ -197,6 +197,9 @@ export class PlayerService {
             where: { id: skillGroupId },
             relations: { game: true },
         });
+
+        // We only create rows in the MLEDB players table for Rocket League
+        // This table is legacy, and not needed for other games.
         if (skillGroup.game.id !== 7) return;
 
         let userAuth: UserAuthenticationAccount | null;
@@ -1012,37 +1015,88 @@ export class PlayerService {
                 }
             } else {
                 this.logger.log(`No existing user found, creating new user for Discord ID: ${d_id}`);
-                user = this.userRepository.create({});
 
-                user.profile = this.userProfileRepository.create({
-                    user: user,
-                    email: "unknown@sprocket.gg",
-                    displayName: name,
+                // Check if a UserAuthenticationAccount with this Discord ID already exists
+                // This can happen if a previous transaction created it but hasn't committed yet
+                const existingAuthAccount = await runner.manager.findOne(UserAuthenticationAccount, {
+                    where: {
+                        accountId: d_id,
+                        accountType: UserAuthenticationAccountType.DISCORD,
+                    },
+                    relations: {
+                        user: {
+                            profile: true,
+                            members: {
+                                organization: true,
+                                profile: true,
+                            },
+                        },
+                    },
                 });
-                user.profile.user = user;
 
-                const authAcc = this.userAuthRepository.create({
-                    accountType: UserAuthenticationAccountType.DISCORD,
-                    accountId: d_id,
-                });
-                authAcc.user = user;
-                user.authenticationAccounts = [authAcc];
+                if (existingAuthAccount) {
+                    this.logger.warn(`UserAuthenticationAccount already exists for Discord ID: ${d_id}. Using existing user instead of creating new one.`);
+                    user = existingAuthAccount.user;
 
-                member = this.memberRepository.create({});
-                member.organization = mleOrg;
-                member.user = user;
-                member.profile = this.memberProfileRepository.create({
-                    name: name,
-                });
-                member.profile.member = member;
+                    // Check if member exists for this user in MLE org
+                    const existingMember = user.members?.find(m => m.organization.id === mleOrg.id);
+                    if (existingMember) {
+                        this.logger.log(`Found existing MLE member: id=${existingMember.id}`);
+                        member = existingMember;
+                        member.user = user;
+                    } else {
+                        this.logger.log(`No MLE member found, creating new member for user ${user.id}`);
+                        member = this.memberRepository.create({});
+                        member.organization = mleOrg;
+                        member.user = user;
+                        member.profile = this.memberProfileRepository.create({
+                            name: name,
+                        });
+                        member.profile.member = member;
 
-                this.logger.log(`Saving new user, profile, auth account, member, and member profile...`);
-                await runner.manager.save(user);
-                await runner.manager.save(user.profile);
-                await runner.manager.save(user.authenticationAccounts);
-                await runner.manager.save(member);
-                await runner.manager.save(member.profile);
-                this.logger.log(`Created new user: id=${user.id}, member: id=${member.id}`);
+                        this.logger.log(`Saving new member and profile...`);
+                        await runner.manager.save(member);
+                        await runner.manager.save(member.profile);
+                        this.logger.log(`Created new member: id=${member.id}`);
+                    }
+                } else {
+                    // Truly new user - create everything
+                    user = this.userRepository.create({});
+
+                    user.profile = this.userProfileRepository.create({
+                        email: "unknown@sprocket.gg",
+                        displayName: name,
+                    });
+
+                    const authAcc = this.userAuthRepository.create({
+                        accountType: UserAuthenticationAccountType.DISCORD,
+                        accountId: d_id,
+                    });
+
+                    member = this.memberRepository.create({});
+                    member.organization = mleOrg;
+                    member.profile = this.memberProfileRepository.create({
+                        name: name,
+                    });
+
+                    this.logger.log(`Saving new user, profile, auth account, member, and member profile...`);
+                    // Save in correct order to avoid circular dependencies
+                    await runner.manager.save(user);
+                    user.profile.user = user;
+                    await runner.manager.save(user.profile);
+
+                    // Save auth account with user reference
+                    authAcc.user = user;
+                    await runner.manager.save(authAcc);
+
+                    // Save member and profile
+                    member.user = user;
+                    member.profile.member = member;
+                    await runner.manager.save(member);
+                    await runner.manager.save(member.profile);
+
+                    this.logger.log(`Created new user: id=${user.id}, member: id=${member.id}`);
+                }
             }
 
             // For each game this user is going to participate in, create
