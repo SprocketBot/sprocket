@@ -35,6 +35,7 @@ echo "Sending GraphQL mutation..."
 ESCAPED_MUTATION=$(echo "$MUTATION" | jq -Rs .)
 RESPONSE=$(curl -s -X POST http://localhost:3001/graphql \
   -H "Content-Type: application/json" \
+  -H "x-test-mode: true" \
   -d "{\"query\": $ESCAPED_MUTATION}")
 
 echo "Response:"
@@ -94,6 +95,7 @@ RESTORE_MUTATION='mutation {
 ESCAPED_RESTORE=$(echo "$RESTORE_MUTATION" | jq -Rs .)
 RESTORE_RESPONSE=$(curl -s -X POST http://localhost:3001/graphql \
   -H "Content-Type: application/json" \
+  -H "x-test-mode: true" \
   -d "{\"query\": $ESCAPED_RESTORE}")
 
 if echo "$RESTORE_RESPONSE" | jq -e '.data.changePlayerName.code == 200' > /dev/null; then

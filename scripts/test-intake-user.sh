@@ -81,6 +81,7 @@ echo "Sending GraphQL mutation..."
 ESCAPED_MUTATION=$(echo "$MUTATION" | jq -Rs .)
 RESPONSE=$(curl -s -X POST http://localhost:3001/graphql \
   -H "Content-Type: application/json" \
+  -H "x-test-mode: true" \
   -d "{\"query\": $ESCAPED_MUTATION}")
 
 echo "Response:"
@@ -139,6 +140,7 @@ if echo "$RESPONSE" | jq -e '.data.intakeUser.id' > /dev/null 2>&1; then
 
   DUPLICATE_RESPONSE=$(curl -s -X POST http://localhost:3001/graphql \
     -H "Content-Type: application/json" \
+    -H "x-test-mode: true" \
     -d "{\"query\": $ESCAPED_MUTATION}")
 
   if echo "$DUPLICATE_RESPONSE" | jq -e '.data.intakeUser.id' > /dev/null 2>&1; then

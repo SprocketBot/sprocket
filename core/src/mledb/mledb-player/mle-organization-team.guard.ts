@@ -40,7 +40,16 @@ export function MLEOrganizationTeamGuard(organizationTeams: OrganizationTeamGuar
     class _MLEOrganizationTeamGuard implements CanActivate {
         canActivate(context: ExecutionContext): boolean {
             const ctx = GqlExecutionContext.create(context);
-            const user = ctx.getContext().req.user as UserPayload;
+            const req = ctx.getContext().req;
+
+            // Allow bypassing org team check in test mode for local development
+            // IMPORTANT: This should ONLY be enabled in local development, never in production
+            if (process.env.ENABLE_TEST_MODE === "true" && req.headers["x-test-mode"] === "true") {
+                // Test mode user already has all org teams injected by GqlJwtGuard
+                return true;
+            }
+
+            const user = req.user as UserPayload;
 
             if (!user.orgTeams) return false;
 
