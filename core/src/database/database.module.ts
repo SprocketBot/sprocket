@@ -37,8 +37,8 @@ const modules = [
         database: config.db.database,
         autoLoadEntities: true,
         logging: config.db.enable_logs,
-        // Only enable SSL if not in local development (postgres host != "postgres")
-        ssl: config.db.host === "postgres" ? false : {
+        // Only enable SSL if not in local development (postgres host != "postgres" or "localhost")
+        ssl: (config.db.host === "postgres" || config.db.host === "localhost") ? false : {
             rejectUnauthorized: false,
         },
     }),
