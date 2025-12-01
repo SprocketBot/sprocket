@@ -1246,11 +1246,7 @@ export class PlayerService {
                 },
                 relations: {
                     user: {
-                        id: true,
-                        profile: {
-                            id: true,
-                            displayName: true,
-                        },
+                        profile: true,
                     },
                 },
             });
