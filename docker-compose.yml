@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   rabbitmq:
     image: rabbitmq:3.10-management-alpine
@@ -43,6 +41,23 @@ services:
       timeout: 5s
       retries: 5
 
+  postgres:
+    image: postgres:14-alpine
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USERNAME:-sprocketbot}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-localdevpassword}
+      - POSTGRES_DB=${POSTGRES_DATABASE:-sprocketbot}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/db-seed:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USERNAME:-sprocketbot}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   core:
     build:
       context: .
@@ -52,12 +67,17 @@ services:
     ports:
       - "3001:3001"
     env_file: .env
+    volumes:
+      - ./core:/app/core
+      - ./common:/app/common
     depends_on:
       rabbitmq:
         condition: service_healthy
       minio:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      postgres:
         condition: service_healthy
 
   image-generation-service:
@@ -162,3 +182,4 @@ services:
 
 volumes:
   minio_data:
+  postgres_data:

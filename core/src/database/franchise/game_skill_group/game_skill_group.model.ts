@@ -1,17 +1,17 @@
-import {Field, ObjectType} from "@nestjs/graphql";
+import { Field, ObjectType } from "@nestjs/graphql";
 import {
     Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne,
 } from "typeorm";
 
-import {BaseModel} from "../../base-model";
-import {Game} from "../../game";
-import {Organization} from "../../organization";
-import {GameSkillGroupProfile} from "../game_skill_group_profile";
-import {Player} from "../player";
-import {RosterRoleUseLimits} from "../roster_role_use_limits";
-import {Team} from "../team";
+import { BaseModel } from "../../base-model";
+import { Game } from "../../game/game/game.model";
+import { Organization } from "../../organization/organization/organization.model";
+import { GameSkillGroupProfile } from "../game_skill_group_profile";
+import { Player } from "../player";
+import { RosterRoleUseLimits } from "../roster_role_use_limits";
+import { Team } from "../team";
 
-@Entity({schema: "sprocket"})
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class GameSkillGroup extends BaseModel {
     @Column()

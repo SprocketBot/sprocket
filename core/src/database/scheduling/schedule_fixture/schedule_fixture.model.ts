@@ -6,13 +6,13 @@ import {
     Entity, ManyToOne, OneToMany,
 } from "typeorm";
 
-import {BaseModel} from "../../base-model";
-import {Franchise} from "../../franchise/franchise";
-import {Match} from "../match";
-import {MatchParent} from "../match_parent";
-import {ScheduleGroup} from "../schedule_group";
+import { BaseModel } from "../../base-model";
+import { Franchise } from "../../franchise/franchise/franchise.model";
+import { Match } from "../match/match.model";
+import { MatchParent } from "../match_parent";
+import { ScheduleGroup } from "../schedule_group/schedule_group.model";
 
-@Entity({schema: "sprocket"})
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class ScheduleFixture extends BaseModel {
     @ManyToOne(() => ScheduleGroup)

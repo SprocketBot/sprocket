@@ -48,7 +48,7 @@
     "bull": "^4.8.2",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.2",
-    "config": "^3.3.6",
+    "config": "^3.3.12",
     "crypto-js": "^4.1.1",
     "date-fns": "^2.28.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",

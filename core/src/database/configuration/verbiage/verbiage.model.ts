@@ -1,13 +1,13 @@
-import {Field, ObjectType} from "@nestjs/graphql";
+import { Field, ObjectType } from "@nestjs/graphql";
 import {
     Column, Entity, ManyToOne, Unique,
 } from "typeorm";
 
-import {BaseModel} from "../../base-model";
-import {Organization} from "../../organization/organization";
-import {VerbiageCode} from "../verbiage_code";
+import { BaseModel } from "../../base-model";
+import { Organization } from "../../organization/organization/organization.model";
+import { VerbiageCode } from "../verbiage_code";
 
-@Entity({schema: "sprocket"})
+@Entity({ schema: "sprocket" })
 @Unique(["organization", "code"])
 @ObjectType()
 export class Verbiage extends BaseModel {

@@ -1,27 +1,27 @@
-import {Field, ObjectType} from "@nestjs/graphql";
+import { Field, ObjectType } from "@nestjs/graphql";
 import {
     Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne,
 } from "typeorm";
 
-import {BaseModel} from "../../base-model";
-import {GameSkillGroup} from "../../franchise";
-import {GameMode} from "../../game";
-import {Invalidation} from "../invalidation/invalidation.model";
-import {MatchParent} from "../match_parent";
-import {Round} from "../round/round.model";
+import { BaseModel } from "../../base-model";
+import { GameSkillGroup } from "../../franchise/game_skill_group/game_skill_group.model";
+import { GameMode } from "../../game/game_mode/game_mode.model";
+import { Invalidation } from "../invalidation/invalidation.model";
+import { MatchParent } from "../match_parent";
+import { Round } from "../round/round.model";
 
 export type MatchSubmissionStatus = "submitting" | "ratifying" | "completed";
 
-@Entity({schema: "sprocket"})
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class Match extends BaseModel {
-    @Column({default: false})
-    @Field(() => Boolean, {defaultValue: false})
+    @Column({ default: false })
+    @Field(() => Boolean, { defaultValue: false })
     isDummy: boolean;
 
-    @OneToOne(() => Invalidation, {nullable: true})
+    @OneToOne(() => Invalidation, { nullable: true })
     @JoinColumn()
-    @Field(() => Invalidation, {nullable: true})
+    @Field(() => Invalidation, { nullable: true })
     invalidation?: Invalidation;
 
     // TODO: Nullable, so that we can save cross-group matches?
@@ -42,7 +42,7 @@ export class Match extends BaseModel {
     @Field(() => MatchParent)
     matchParent: MatchParent;
 
-    @Column({nullable: true, unique: true})
+    @Column({ nullable: true, unique: true })
     @Field(() => String)
     submissionId?: string;
 
@@ -59,7 +59,7 @@ export class Match extends BaseModel {
      * This has been made nullable in case future use-cases involve multiple game modes in a single match.
      * For Rocket League (and pre-mledb transition), we probably want to always have this; hence the non-nullable type
      */
-    @ManyToOne(() => GameMode, {nullable: true})
-    @Field(() => GameMode, {nullable: true})
+    @ManyToOne(() => GameMode, { nullable: true })
+    @Field(() => GameMode, { nullable: true })
     gameMode: GameMode;
 }
