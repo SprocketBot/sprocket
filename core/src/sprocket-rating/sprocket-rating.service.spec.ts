@@ -1,7 +1,7 @@
-import type {TestingModule} from "@nestjs/testing";
-import {Test} from "@nestjs/testing";
+import type { TestingModule } from "@nestjs/testing";
+import { Test } from "@nestjs/testing";
 
-import {SprocketRatingService} from "./sprocket-rating.service";
+import { SprocketRatingService } from "./sprocket-rating.service";
 
 describe("SprocketRatingService", () => {
     let service: SprocketRatingService;
@@ -17,7 +17,7 @@ describe("SprocketRatingService", () => {
     it("should be defined", () => {
         expect(service).toBeDefined();
     });
-    
+
     it("Should return all zeros", () => {
         const input = {
             goals: 0.0,
@@ -26,6 +26,7 @@ describe("SprocketRatingService", () => {
             saves: 0.0,
             goals_against: 0.0,
             shots_against: 0.0,
+            team_size: 2,
         };
         const result = {
             opi: 0.0, dpi: 0.0, gpi: 0.0,
@@ -43,11 +44,12 @@ describe("SprocketRatingService", () => {
             saves: 5.0 / 5.0,
             goals_against: 7.0 / 5.0,
             shots_against: 24.0 / 5.0,
+            team_size: 2,
         };
         const result = {
-            opi: 86.7,
-            dpi: 82.0,
-            gpi: 84.3,
+            opi: 85.1,
+            dpi: 77.1,
+            gpi: 81.1,
         };
 
         expect(Math.round(service.calcSprocketRating(input).opi * 10.0) / 10.0).toStrictEqual(result.opi);
@@ -64,11 +66,12 @@ describe("SprocketRatingService", () => {
             saves: 5.0 / 5.0,
             goals_against: 7.0 / 5.0,
             shots_against: 24.0 / 5.0,
+            team_size: 2,
         };
         const result = {
-            opi: 95.8,
-            dpi: 82.0,
-            gpi: 88.9,
+            opi: 95.4,
+            dpi: 77.1,
+            gpi: 86.2,
         };
 
         expect(Math.round(service.calcSprocketRating(input).opi * 10.0) / 10.0).toStrictEqual(result.opi);
@@ -85,11 +88,12 @@ describe("SprocketRatingService", () => {
             saves: 24.0 / 5.0,
             goals_against: 28.0 / 5.0,
             shots_against: 65.0 / 5.0,
+            team_size: 2,
         };
         const result = {
-            opi: 17.3,
-            dpi: 31.2,
-            gpi: 24.2,
+            opi: 16.0,
+            dpi: 38.6,
+            gpi: 27.3,
         };
 
         expect(Math.round(service.calcSprocketRating(input).opi * 10.0) / 10.0).toStrictEqual(result.opi);
@@ -106,11 +110,12 @@ describe("SprocketRatingService", () => {
             saves: 4.0 / 5.0,
             goals_against: 28.0 / 5.0,
             shots_against: 65.0 / 5.0,
+            team_size: 2,
         };
         const result = {
-            opi: 12.1,
-            dpi: 2.3,
-            gpi: 7.2,
+            opi: 11.4,
+            dpi: 5.9,
+            gpi: 8.7,
         };
 
         expect(Math.round(service.calcSprocketRating(input).opi * 10.0) / 10.0).toStrictEqual(result.opi);
@@ -129,9 +134,9 @@ describe("SprocketRatingService", () => {
             shots_against: 65.0 / 5.0,
         };
         const result = {
-            opi: 33.0,
+            opi: 33.7,
             dpi: 0.8,
-            gpi: 16.9,
+            gpi: 17.3,
         };
 
         expect(Math.round(service.calcSprocketRating3s(input).opi * 10.0) / 10.0).toStrictEqual(result.opi);
