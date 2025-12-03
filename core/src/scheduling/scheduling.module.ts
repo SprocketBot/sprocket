@@ -1,7 +1,7 @@
 import {forwardRef, Module} from "@nestjs/common";
 import {EventsModule, SubmissionModule} from "@sprocketbot/common";
 
-import {DatabaseModule} from "../database";
+import type { DatabaseModule } from "../database/database.module";
 import {EloConnectorModule} from "../elo/elo-connector";
 import {FranchiseModule} from "../franchise";
 import {MledbInterfaceModule} from "../mledb/mledb-interface.module";

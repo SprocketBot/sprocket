@@ -4,16 +4,16 @@ import {
 import type {
     MemberProfile, Organization, Player,
 } from "../../database";
-import {Member} from "../../database";
-import {PopulateService} from "../../util/populate/populate.service";
-import {MemberService} from "./member.service";
+import { Member } from "../../database/organization/member/member.model";
+import { PopulateService } from "../../util/populate/populate.service";
+import { MemberService } from "./member.service";
 
 @Resolver(() => Member)
 export class MemberResolver {
     constructor(
         private readonly memberService: MemberService,
         private readonly popService: PopulateService,
-    ) {}
+    ) { }
 
     @ResolveField()
     async profile(@Root() member: Member): Promise<MemberProfile> {
@@ -36,9 +36,9 @@ export class MemberResolver {
 
     @Query(() => Member)
     async getMemberByUserId(
-        @Args("userId", {type: () => Int}) userId: number,
-        @Args("organizationId", {type: () => Int})organizationId: number,
+        @Args("userId", { type: () => Int }) userId: number,
+        @Args("organizationId", { type: () => Int }) organizationId: number,
     ): Promise<Member> {
-        return this.memberService.getMember({where: {organization: {id: organizationId}, user: {id: userId} } });
+        return this.memberService.getMember({ where: { organization: { id: organizationId }, user: { id: userId } } });
     }
 }

@@ -5,7 +5,7 @@ import {
 import type {
     Game, GameSkillGroupProfile, Player,
 } from "../../database";
-import {GameSkillGroup} from "../../database";
+import type { GameSkillGroup } from "../../database/franchise/game_skill_group/game_skill_group.model";
 import {PopulateService} from "../../util/populate/populate.service";
 
 @Resolver(() => GameSkillGroup)

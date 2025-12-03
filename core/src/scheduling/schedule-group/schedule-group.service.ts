@@ -1,19 +1,20 @@
-import {Injectable} from "@nestjs/common";
-import {InjectRepository} from "@nestjs/typeorm";
-import type {FindOptionsWhere} from "typeorm";
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import type { FindOptionsWhere } from "typeorm";
 import {
     DataSource, Raw, Repository,
 } from "typeorm";
 
-import type {ScheduleFixture} from "../../database";
-import {GameSkillGroup, ScheduleGroup} from "../../database";
-import type {MLE_Fixture} from "../../database/mledb";
-import {MLE_Match, MLE_Season} from "../../database/mledb";
-import {MatchToScheduleGroup} from "../../database/mledb-bridge/match_to_schedule_group.model";
-import {SeasonToScheduleGroup} from "../../database/mledb-bridge/season_to_schedule_group.model";
-import {ScheduleFixtureService} from "../schedule-fixture/schedule-fixture.service";
-import type {RawFixture} from "./schedule-groups.types";
-import {MLERL_Leagues} from "./schedule-groups.types";
+import type { ScheduleFixture } from "../../database";
+import { GameSkillGroup } from "../../database/franchise/game_skill_group/game_skill_group.model";
+import { ScheduleGroup } from "../../database/scheduling/schedule_group/schedule_group.model";
+import type { MLE_Fixture } from "../../database/mledb";
+import { MLE_Match, MLE_Season } from "../../database/mledb";
+import { MatchToScheduleGroup } from "../../database/mledb-bridge/match_to_schedule_group.model";
+import { SeasonToScheduleGroup } from "../../database/mledb-bridge/season_to_schedule_group.model";
+import { ScheduleFixtureService } from "../schedule-fixture/schedule-fixture.service";
+import type { RawFixture } from "./schedule-groups.types";
+import { MLERL_Leagues } from "./schedule-groups.types";
 
 @Injectable()
 export class ScheduleGroupService {
@@ -31,7 +32,7 @@ export class ScheduleGroupService {
         private readonly scheduleFixtureService: ScheduleFixtureService,
         @InjectRepository(GameSkillGroup) private gameSkillGroupRepository: Repository<GameSkillGroup>,
         private readonly dataSource: DataSource,
-    ) {}
+    ) { }
 
     async getScheduleGroups(orgId: number, type: string, gameId?: number, current: boolean = true): Promise<ScheduleGroup[]> {
         const conditions: FindOptionsWhere<ScheduleGroup> = {
@@ -73,8 +74,8 @@ export class ScheduleGroupService {
 
         // Create the season schedule group
         const season_description = `Season ${season_number}`;
-        let season = this.scheduleGroupRepo.create({description: season_description});
-        let m_season = this.m_seasonRepo.create({seasonNumber: season_number});
+        let season = this.scheduleGroupRepo.create({ description: season_description });
+        let m_season = this.m_seasonRepo.create({ seasonNumber: season_number });
 
         // Cheeky min and max to determine season datetime extents
         let startDate = new Date("9999-12-31T00:00:00.000Z");
@@ -88,7 +89,7 @@ export class ScheduleGroupService {
             if (fixture.end > endDate) {
                 endDate = fixture.end;
             }
-            
+
             // Next, get the match week Schedule Group (or create it)
             const desc = `Week ${fixture.week}`;
             const match_week: ScheduleGroup
@@ -110,7 +111,7 @@ export class ScheduleGroupService {
                 });
             sgMap.set(desc, match_week);
             sfMap.set(desc, []);
-            
+
             // Finally, we need to figure out which skill groups are being
             // scheduled. This is currently MLE specific, it should ideally be
             // inferred based on the game specified in the input.
@@ -123,11 +124,11 @@ export class ScheduleGroupService {
                 } else if (val === 5 && fixture.pl) { // 5 is FOUNDATION
                     continue;
                 }
-                
-                const sg = await this.gameSkillGroupRepository.findOneOrFail({where: {ordinal: val} });
+
+                const sg = await this.gameSkillGroupRepository.findOneOrFail({ where: { ordinal: val } });
                 skill_groups.push(sg);
             }
-            
+
             // Now that the requisite data is in hand, create the ScheduleFixture...
             const [schedule_fixture, m_fixture] = await this.scheduleFixtureService.createScheduleFixture(match_week, m_match, fixture.home, fixture.away, skill_groups);
             // ... and add it to our list for that match week's ScheduleGroup
@@ -150,22 +151,22 @@ export class ScheduleGroupService {
 
             // merge each list of fixtures to its corresponding match week SG
             if (sg) {
-                this.scheduleGroupRepo.merge(sg, {fixtures: sfs});
+                this.scheduleGroupRepo.merge(sg, { fixtures: sfs });
                 await this.scheduleGroupRepo.save(sg);
             }
-            
+
             // Do the same for the MLEDB match
             if (m_match) {
-                m_match = this.m_matchRepo.merge(m_match, {fixtures: m_fixtures});
+                m_match = this.m_matchRepo.merge(m_match, { fixtures: m_fixtures });
                 await this.m_matchRepo.save(m_match);
-                
+
                 // Also, while we're here, update the MLEDB season's match list
                 const m_matches: MLE_Match[] = m_season.matches;
                 m_matches.push(m_match);
-                m_season = this.m_seasonRepo.merge(m_season, {matches: m_matches});
+                m_season = this.m_seasonRepo.merge(m_season, { matches: m_matches });
                 await this.m_seasonRepo.save(m_season);
             }
-            
+
             if (sg && m_match) {
                 // Make an entry in the bridge tables
                 await this.m2sgRepo.insert({
@@ -174,23 +175,23 @@ export class ScheduleGroupService {
                 });
             }
         }
-        
+
         // A last touch on the season objects: we now know how long they will
         // last.
-        season = this.scheduleGroupRepo.merge(season, {start: startDate, end: endDate});
+        season = this.scheduleGroupRepo.merge(season, { start: startDate, end: endDate });
         await this.scheduleGroupRepo.save(season);
-        m_season = this.m_seasonRepo.merge(m_season, {startDate: startDate, endDate: endDate});
+        m_season = this.m_seasonRepo.merge(m_season, { startDate: startDate, endDate: endDate });
         await this.m_seasonRepo.save(m_season);
-        
+
         // Make sure we update the bridge tables
         await this.s2sgRepo.insert({
             scheduleGroupId: season.id,
             seasonNumber: season_number,
         });
-        
+
         // We're done touching the DB at this point, so we can commit the transaction.
         await runner.commitTransaction();
-        
+
         // Finally, build just a list of the schedule groups we've created to
         // send back
         sgs.push(season);

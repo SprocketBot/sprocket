@@ -1,28 +1,28 @@
-import {BullModule} from "@nestjs/bull";
-import type {MiddlewareConsumer, NestModule} from "@nestjs/common";
-import {Module} from "@nestjs/common";
-import {GraphQLModule} from "@nestjs/graphql";
-import {config} from "@sprocketbot/common";
-import {RedisCache} from "apollo-server-cache-redis";
-import {graphqlUploadExpress} from "graphql-upload";
+import { BullModule } from "@nestjs/bull";
+import type { MiddlewareConsumer, NestModule } from "@nestjs/common";
+import { Module } from "@nestjs/common";
+import { GraphQLModule } from "@nestjs/graphql";
+import { config } from "@sprocketbot/common";
+import { RedisCache } from "apollo-server-cache-redis";
+import { graphqlUploadExpress } from "graphql-upload";
 
-import {ConfigurationModule} from "./configuration";
-import {DatabaseModule} from "./database";
-import {EloModule} from "./elo";
-import {FranchiseModule} from "./franchise";
-import {GameModule} from "./game";
-import {IdentityModule} from "./identity";
-import {AuthModule} from "./identity/auth";
-import {ImageGenerationModule} from "./image-generation";
-import {MledbInterfaceModule} from "./mledb";
-import {NotificationModule} from "./notification/notification.module";
-import {OrganizationModule} from "./organization";
-import {ReplayParseModule} from "./replay-parse";
-import {SchedulingModule} from "./scheduling";
-import {ScrimModule} from "./scrim";
-import {SprocketRatingModule} from "./sprocket-rating";
-import {SubmissionModule} from "./submission";
-import {UtilModule} from "./util/util.module";
+import { ConfigurationModule } from "./configuration";
+import { DatabaseModule } from "./database/database.module";
+import { EloModule } from "./elo";
+import { FranchiseModule } from "./franchise";
+import { GameModule } from "./game";
+import { IdentityModule } from "./identity";
+import { AuthModule } from "./identity/auth";
+import { ImageGenerationModule } from "./image-generation";
+import { MledbInterfaceModule } from "./mledb";
+import { NotificationModule } from "./notification/notification.module";
+import { OrganizationModule } from "./organization";
+import { ReplayParseModule } from "./replay-parse";
+import { SchedulingModule } from "./scheduling";
+import { ScrimModule } from "./scrim";
+import { SprocketRatingModule } from "./sprocket-rating";
+import { SubmissionModule } from "./submission";
+import { UtilModule } from "./util/util.module";
 
 @Module({
     imports: [
@@ -37,9 +37,9 @@ import {UtilModule} from "./util/util.module";
                 db: 13,
                 tls: config.cache.secure
                     ? {
-                            host: config.cache.host,
-                            servername: config.cache.host,
-                        }
+                        host: config.cache.host,
+                        servername: config.cache.host,
+                    }
                     : undefined,
             }),
             playground: config.gql.playground,
@@ -49,10 +49,10 @@ import {UtilModule} from "./util/util.module";
             }) => {
                 if (connection) {
                     const token = payload?.context?.authorization as string | undefined;
-                    return {req: {authorization: token, headers: {authorization: token}}};
+                    return { req: { authorization: token, headers: { authorization: token } } };
                 }
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                return {req};
+                return { req };
             },
             tracing: true,
 
@@ -66,9 +66,9 @@ import {UtilModule} from "./util/util.module";
                 password: config.redis.password,
                 tls: config.redis.secure
                     ? {
-                            host: config.redis.host,
-                            servername: config.redis.host,
-                        }
+                        host: config.redis.host,
+                        servername: config.redis.host,
+                    }
                     : undefined,
                 keyPrefix: `${config.redis.prefix}:bull`,
             },

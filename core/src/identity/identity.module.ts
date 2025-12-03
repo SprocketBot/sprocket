@@ -2,7 +2,7 @@ import {Module} from "@nestjs/common";
 import {JwtModule} from "@nestjs/jwt";
 import {config} from "@sprocketbot/common";
 
-import {DatabaseModule} from "../database";
+import type { DatabaseModule } from "../database/database.module";
 import {UtilModule} from "../util/util.module";
 import {IdentityController} from "./identity.controller";
 import {IdentityService} from "./identity.service";

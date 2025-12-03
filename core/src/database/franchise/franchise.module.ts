@@ -1,22 +1,22 @@
-import {Module} from "@nestjs/common";
-import {TypeOrmModule} from "@nestjs/typeorm";
+import { Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
 
-import {Franchise} from "./franchise";
-import {FranchiseGroup} from "./franchise_group";
-import {FranchiseGroupAssignment} from "./franchise_group_assignment";
-import {FranchiseGroupProfile} from "./franchise_group_profile";
-import {FranchiseGroupType} from "./franchise_group_type";
-import {FranchiseLeadershipAppointment} from "./franchise_leadership_appointment";
-import {FranchiseProfile} from "./franchise_profile";
-import {FranchiseStaffAppointment} from "./franchise_staff_appointment";
-import {GameSkillGroup} from "./game_skill_group";
-import {GameSkillGroupProfile} from "./game_skill_group_profile";
-import {Player} from "./player";
-import {RosterRole} from "./roster_role";
-import {RosterRoleUsage} from "./roster_role_usages";
-import {RosterRoleUseLimits} from "./roster_role_use_limits";
-import {RosterSlot} from "./roster_slot";
-import {Team} from "./team";
+import { Franchise } from "./franchise/franchise.model";
+import { FranchiseGroup } from "./franchise_group/franchise_group.model";
+import { FranchiseGroupAssignment } from "./franchise_group_assignment/franchise_group_assignment.model";
+import { FranchiseGroupProfile } from "./franchise_group_profile/franchise_group_profile.model";
+import { FranchiseGroupType } from "./franchise_group_type/franchise_group_type.model";
+import { FranchiseLeadershipAppointment } from "./franchise_leadership_appointment/franchise_leadership_appointment.model";
+import { FranchiseProfile } from "./franchise_profile/franchise_profile.model";
+import { FranchiseStaffAppointment } from "./franchise_staff_appointment/franchise_staff_appointment.model";
+import { GameSkillGroup } from "./game_skill_group/game_skill_group.model";
+import { GameSkillGroupProfile } from "./game_skill_group_profile/game_skill_group_profile.model";
+import { Player } from "./player/player.model";
+import { RosterRole } from "./roster_role/roster_role.model";
+import { RosterRoleUsage } from "./roster_role_usages/roster_role_usages.model";
+import { RosterRoleUseLimits } from "./roster_role_use_limits/roster_role_use_limits.model";
+import { RosterSlot } from "./roster_slot/roster_slot.model";
+import { Team } from "./team/team.model";
 
 export const franchiseEntities = [
     FranchiseGroupAssignment,
@@ -47,4 +47,4 @@ const ormModule = TypeOrmModule.forFeature(franchiseEntities);
         ormModule,
     ],
 })
-export class FranchiseModule {}
+export class FranchiseModule { }

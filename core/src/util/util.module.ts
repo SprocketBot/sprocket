@@ -1,6 +1,6 @@
 import {Module} from "@nestjs/common";
 
-import {DatabaseModule} from "../database";
+import type { DatabaseModule } from "../database/database.module";
 import {PopulateService} from "./populate/populate.service";
 
 @Module({

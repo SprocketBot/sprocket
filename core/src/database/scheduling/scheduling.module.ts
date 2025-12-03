@@ -1,8 +1,8 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
-import { EligibilityData } from "./eligibility_data";
-import { Invalidation } from "./invalidation";
+import { EligibilityData } from "./eligibility_data/eligibility_data.model";
+import { Invalidation } from "./invalidation/invalidation.model";
 import { Match } from "./match/match.model";
 import { MatchParent } from "./match_parent/match_parent.model";
 import { PlayerStatLine } from "./player_stat_line/player_stat_line.model";

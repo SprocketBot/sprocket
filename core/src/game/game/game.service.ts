@@ -3,7 +3,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 import type {FindManyOptions, FindOneOptions} from "typeorm";
 import {Repository} from "typeorm";
 
-import {Game} from "../../database";
+import type { Game } from "../../database/game/game/game.model";
 
 @Injectable()
 export class GameService {

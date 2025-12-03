@@ -1,7 +1,7 @@
 import {forwardRef, Module} from "@nestjs/common";
 import {MatchmakingModule} from "@sprocketbot/common";
 
-import {DatabaseModule} from "../database";
+import type { DatabaseModule } from "../database/database.module";
 import {FranchiseModule} from "../franchise";
 import {GameModule} from "../game";
 import {IdentityModule} from "../identity";

@@ -4,7 +4,7 @@ import {
     CoreEndpoint, CoreSchemas,
 } from "@sprocketbot/common";
 
-import {UserAuthenticationAccountType} from "../../database";
+import type { UserAuthenticationAccountType } from "../../database/identity/user_authentication_account/user_authentication_account_type.enum";
 import {UserService} from "./user.service";
 
 @Controller("user")

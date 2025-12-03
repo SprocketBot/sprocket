@@ -1,6 +1,7 @@
-import {Field, ObjectType} from "@nestjs/graphql";
+import { Field, ObjectType } from "@nestjs/graphql";
 
-import {Organization, OrganizationConfigurationAllowedValue} from "../../database";
+import { Organization } from "../../database/organization/organization/organization.model";
+import { OrganizationConfigurationAllowedValue } from "../../database/configuration/organization_configuration_allowed_value/organization_configuration_allowed_value.model";
 
 @ObjectType()
 export class OrganizationConfiguration {

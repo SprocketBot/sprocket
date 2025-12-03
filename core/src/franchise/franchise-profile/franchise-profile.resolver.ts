@@ -3,7 +3,7 @@ import {
 } from "@nestjs/graphql";
 
 import type {Franchise, Photo} from "../../database";
-import {FranchiseProfile} from "../../database";
+import type { FranchiseProfile } from "../../database/franchise/franchise_profile/franchise_profile.model";
 import {PopulateService} from "../../util/populate/populate.service";
 
 @Resolver(() => FranchiseProfile)

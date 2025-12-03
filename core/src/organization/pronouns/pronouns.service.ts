@@ -1,11 +1,11 @@
-import {Injectable} from "@nestjs/common";
-import {InjectRepository} from "@nestjs/typeorm";
-import type {FindOptionsWhere} from "typeorm";
-import {Repository} from "typeorm";
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import type { FindOptionsWhere } from "typeorm";
+import { Repository } from "typeorm";
 
-import type {IrrelevantFields} from "../../database";
-import {Pronouns} from "../../database";
-import {OrganizationService} from "../organization";
+import type { IrrelevantFields } from "../../database/index";
+import { Pronouns } from "../../database/organization/pronouns/pronouns.model";
+import { OrganizationService } from "../organization";
 
 @Injectable()
 export class PronounsService {
@@ -18,7 +18,7 @@ export class PronounsService {
     async createPronouns(organizationId: number, pronouns: Omit<Pronouns, IrrelevantFields | "organization" | "id">): Promise<Pronouns> {
         const organization = await this.organizationService.getOrganizationById(organizationId);
 
-        const toCreate: Omit<Pronouns, IrrelevantFields | "id"> = {organization, ...pronouns};
+        const toCreate: Omit<Pronouns, IrrelevantFields | "id"> = { organization, ...pronouns };
         const created = this.pronounsRepository.create(toCreate);
         await this.pronounsRepository.save(created);
 
@@ -32,7 +32,7 @@ export class PronounsService {
             },
             id: pronounsId,
         };
-        const pronouns = await this.pronounsRepository.findOneOrFail({where: conditions});
+        const pronouns = await this.pronounsRepository.findOneOrFail({ where: conditions });
         return pronouns;
     }
 
@@ -50,8 +50,8 @@ export class PronounsService {
     }
 
     async deletePronouns(id: number): Promise<Pronouns> {
-        const toDelete = await this.pronounsRepository.findOneOrFail({where: {id} });
-        await this.pronounsRepository.softDelete({id: toDelete.id});
+        const toDelete = await this.pronounsRepository.findOneOrFail({ where: { id } });
+        await this.pronounsRepository.softDelete({ id: toDelete.id });
         return toDelete;
     }
 }

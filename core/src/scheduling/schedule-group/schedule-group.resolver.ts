@@ -5,12 +5,12 @@ import {
 import type {
     Game, ScheduleFixture, ScheduleGroupType,
 } from "../../database";
-import {ScheduleGroup} from "../../database";
-import {PopulateService} from "../../util/populate/populate.service";
+import { ScheduleGroup } from "../../database/scheduling/schedule_group/schedule_group.model";
+import { PopulateService } from "../../util/populate/populate.service";
 
 @Resolver(() => ScheduleGroup)
 export class ScheduleGroupResolver {
-    constructor(private readonly populate: PopulateService) {}
+    constructor(private readonly populate: PopulateService) { }
 
     @ResolveField()
     async type(@Root() root: ScheduleGroup): Promise<ScheduleGroupType> {

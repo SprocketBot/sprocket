@@ -3,7 +3,7 @@ import {
 } from "@nestjs/graphql";
 
 import type {User} from "../../database";
-import {UserAuthenticationAccount} from "../../database";
+import type { UserAuthenticationAccount } from "../../database/identity/user_authentication_account/user_authentication_account.model";
 import {IdentityService} from "../identity.service";
 
 @Resolver(() => UserAuthenticationAccount)

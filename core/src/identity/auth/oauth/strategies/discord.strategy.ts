@@ -8,10 +8,11 @@ import {
 import type { Profile } from "passport-discord";
 import { Strategy } from "passport-discord";
 
-import type {
-    IrrelevantFields, User, UserAuthenticationAccount, UserProfile,
-} from "../../../../database";
-import { UserAuthenticationAccountType } from "../../../../database";
+import type { IrrelevantFields } from "../../../../database/index";
+import { User } from "../../../../database/identity/user/user.model";
+import { UserAuthenticationAccount } from "../../../../database/identity/user_authentication_account/user_authentication_account.model";
+import { UserAuthenticationAccountType } from "../../../../database/identity/user_authentication_account/user_authentication_account_type.enum";
+import { UserProfile } from "../../../../database/identity/user_profile/user_profile.model";
 import { GameSkillGroupService, PlayerService } from "../../../../franchise";
 import { PlatformService } from "../../../../game";
 import { MledbPlayerAccountService, MledbPlayerService } from "../../../../mledb";

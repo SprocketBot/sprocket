@@ -5,7 +5,7 @@ import {
 import type {
     FranchiseProfile, Organization,
 } from "../../database";
-import {Franchise} from "../../database";
+import type { Franchise } from "../../database/franchise/franchise/franchise.model";
 import {PopulateService} from "../../util/populate/populate.service";
 
 @Resolver(() => Franchise)

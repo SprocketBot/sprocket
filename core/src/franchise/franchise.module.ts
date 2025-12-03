@@ -4,7 +4,7 @@ import {
     config, EventsModule, NotificationModule,
 } from "@sprocketbot/common";
 
-import {DatabaseModule} from "../database";
+import type { DatabaseModule } from "../database/database.module";
 import {EloConnectorModule} from "../elo/elo-connector";
 import {GameModule} from "../game";
 import {MledbInterfaceModule} from "../mledb";

@@ -2,7 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 
-import {Team} from "../../database";
+import type { Team } from "../../database/franchise/team/team.model";
 
 @Injectable()
 export class TeamService {

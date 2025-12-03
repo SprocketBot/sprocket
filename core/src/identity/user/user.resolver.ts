@@ -1,25 +1,24 @@
-import {Logger, UseGuards} from "@nestjs/common";
+import { Logger, UseGuards } from "@nestjs/common";
 import {
     Args, Int, Mutation, Query, ResolveField, Resolver, Root,
 } from "@nestjs/graphql";
-import {JwtService} from "@nestjs/jwt";
-import {config} from "@sprocketbot/common";
+import { JwtService } from "@nestjs/jwt";
+import { config } from "@sprocketbot/common";
 
-import type {
-    UserAuthenticationAccount, UserProfile,
-} from "../../database";
-import {
-    Member, User, UserAuthenticationAccountType,
-} from "../../database";
-import {MLE_OrganizationTeam} from "../../database/mledb";
-import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
-import {PopulateService} from "../../util/populate/populate.service";
-import type {AuthPayload} from "../auth";
-import {UserPayload} from "../auth";
-import {CurrentUser} from "../auth/current-user.decorator";
-import {GqlJwtGuard} from "../auth/gql-auth-guard";
-import {IdentityService} from "../identity.service";
-import {UserService} from "./user.service";
+import type { UserAuthenticationAccount } from "../../database/identity/user_authentication_account/user_authentication_account.model";
+import type { UserProfile } from "../../database/identity/user_profile/user_profile.model";
+import { Member } from "../../database/organization/member/member.model";
+import { User } from "../../database/identity/user/user.model";
+import { UserAuthenticationAccountType } from "../../database/identity/user_authentication_account/user_authentication_account_type.enum";
+import { MLE_OrganizationTeam } from "../../database/mledb";
+import { MLEOrganizationTeamGuard } from "../../mledb/mledb-player/mle-organization-team.guard";
+import { PopulateService } from "../../util/populate/populate.service";
+import type { AuthPayload } from "../auth";
+import { UserPayload } from "../auth";
+import { CurrentUser } from "../auth/current-user.decorator";
+import { GqlJwtGuard } from "../auth/gql-auth-guard";
+import { IdentityService } from "../identity.service";
+import { UserService } from "./user.service";
 
 @Resolver(() => User)
 export class UserResolver {
@@ -30,7 +29,7 @@ export class UserResolver {
         private readonly userService: UserService,
         private readonly popService: PopulateService,
         private readonly jwtService: JwtService,
-    ) {}
+    ) { }
 
     @Query(() => User)
     @UseGuards(GqlJwtGuard)
@@ -38,10 +37,10 @@ export class UserResolver {
         return this.userService.getUserById(cu.userId);
     }
 
-    @Query(() => User, {nullable: true})
+    @Query(() => User, { nullable: true })
     async getUserByAuthAccount(
         @Args("accountId") accountId: string,
-        @Args("accountType", {type: () => UserAuthenticationAccountType}) accountType: UserAuthenticationAccountType,
+        @Args("accountType", { type: () => UserAuthenticationAccountType }) accountType: UserAuthenticationAccountType,
     ): Promise<User | null> {
         return this.identityService.getUserByAuthAccount(accountType, accountId);
     }
@@ -49,7 +48,7 @@ export class UserResolver {
     @Mutation(() => User)
     async registerUser(
         @Args("accountId") accountId: string,
-        @Args("accountType", {type: () => UserAuthenticationAccountType}) accountType: UserAuthenticationAccountType,
+        @Args("accountType", { type: () => UserAuthenticationAccountType }) accountType: UserAuthenticationAccountType,
     ): Promise<User> {
         return this.identityService.registerUser(accountType, accountId);
     }
@@ -68,7 +67,7 @@ export class UserResolver {
     }
 
     @ResolveField()
-    async members(@Root() user: User, @Args("orgId", {nullable: true}) orgId?: number): Promise<Member[]> {
+    async members(@Root() user: User, @Args("orgId", { nullable: true }) orgId?: number): Promise<Member[]> {
         if (!user.members) {
             // eslint-disable-next-line require-atomic-updates
             user.members = await this.popService.populateMany(User, user, "members");
@@ -89,10 +88,10 @@ export class UserResolver {
     @Mutation(() => String)
     async loginAsUser(
         @CurrentUser() authedUser: UserPayload,
-        @Args("userId", {type: () => Int}) userId: number,
-        @Args("organizationId", {type: () => Int, nullable: true}) organizationId?: number,
+        @Args("userId", { type: () => Int }) userId: number,
+        @Args("organizationId", { type: () => Int, nullable: true }) organizationId?: number,
     ): Promise<string> {
-        const user = await this.userService.getUserById(userId, {relations: {profile: true} });
+        const user = await this.userService.getUserById(userId, { relations: { profile: true } });
         const payload: AuthPayload = {
             sub: `${user.id}`,
             username: user.profile.displayName,
@@ -103,7 +102,7 @@ export class UserResolver {
 
         this.logger.log(`${authedUser.username} (${authedUser.userId}) generated an authentication token for ${user.profile.displayName} (${user.id})`);
 
-        return this.jwtService.sign(payload, {expiresIn: "5m"});
+        return this.jwtService.sign(payload, { expiresIn: "5m" });
     }
-    
+
 }

@@ -3,7 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import type { FindManyOptions, FindOneOptions } from "typeorm";
 import { Repository } from "typeorm";
 
-import type { IrrelevantFields } from "../../database";
+import type { IrrelevantFields } from "../../database/index";
 import { Organization } from "../../database/organization/organization/organization.model";
 import { OrganizationProfile } from "../../database/organization/organization_profile/organization_profile.model";
 

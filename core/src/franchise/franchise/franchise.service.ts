@@ -6,8 +6,8 @@ import type {CoreEndpoint, CoreOutput} from "@sprocketbot/common";
 import type {FindOneOptions} from "typeorm";
 import {Repository} from "typeorm";
 
-import {FranchiseProfile} from "../../database";
-import {Franchise} from "../../database";
+import type { FranchiseProfile } from "../../database/franchise/franchise_profile/franchise_profile.model";
+import type { Franchise } from "../../database/franchise/franchise/franchise.model";
 import {MledbPlayerService} from "../../mledb";
 import {MemberService} from "../../organization";
 import {PlayerService} from "../player";

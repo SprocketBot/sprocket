@@ -1,19 +1,19 @@
 import {
     Process, Processor,
 } from "@nestjs/bull";
-import {Logger} from "@nestjs/common";
-import {ScrimStatus} from "@sprocketbot/common";
-import {Job} from "bull";
-import {add} from "date-fns";
-import type {FindOptionsWhere} from "typeorm";
-import {IsNull, MoreThanOrEqual} from "typeorm";
+import { Logger } from "@nestjs/common";
+import { ScrimStatus } from "@sprocketbot/common";
+import { Job } from "bull";
+import { add } from "date-fns";
+import type { FindOptionsWhere } from "typeorm";
+import { IsNull, MoreThanOrEqual } from "typeorm";
 
-import {OrganizationConfigurationService} from "../configuration/organization-configuration/organization-configuration.service";
-import type {MemberRestriction} from "../database";
-import {MemberRestrictionType, OrganizationConfigurationKeyCode} from "../database";
-import {MemberService} from "../organization/member/member.service";
-import {MemberRestrictionService} from "../organization/member-restriction";
-import {ScrimService} from "./scrim.service";
+import { OrganizationConfigurationService } from "../configuration/organization-configuration/organization-configuration.service";
+import type { MemberRestriction } from "../database";
+import { MemberRestrictionType, OrganizationConfigurationKeyCode } from "../database";
+import { MemberService } from "../organization/member/member.service";
+import { MemberRestrictionService } from "../organization/member-restriction";
+import { ScrimService } from "./scrim.service";
 
 @Processor("scrim")
 export class ScrimConsumer {
@@ -24,9 +24,9 @@ export class ScrimConsumer {
         private readonly memberRestrictionService: MemberRestrictionService,
         private readonly memberService: MemberService,
         private readonly organizationConfigurationService: OrganizationConfigurationService,
-    ) {}
+    ) { }
 
-    @Process({name: "timeoutQueue"})
+    @Process({ name: "timeoutQueue" })
     async timeoutQueue(job: Job<string>): Promise<void> {
         const scrimId = job.data;
         const scrim = await this.scrimService.getScrimById(scrimId);
@@ -43,20 +43,20 @@ export class ScrimConsumer {
         const restrictionFallOffDays = await this.organizationConfigurationService.getOrganizationConfigurationValue<number>(scrim.organizationId, OrganizationConfigurationKeyCode.SCRIM_QUEUE_BAN_MODIFIER_FALL_OFF_DAYS);
 
         for (const player of playersNotCheckedIn) {
-            const member = await this.memberService.getMember({relations: ["organization"], where: {user: {id: player.id} } });
+            const member = await this.memberService.getMember({ relations: ["organization"], where: { user: { id: player.id } } });
 
             const UTCHourOffset = new Date().getTimezoneOffset() * -1;
 
             const whereA: FindOptionsWhere<MemberRestriction> = {
                 type: MemberRestrictionType.QUEUE_BAN,
-                member: {id: member.id},
+                member: { id: member.id },
                 manualExpiration: IsNull(),
-                expiration: MoreThanOrEqual(add(new Date(), {days: -restrictionFallOffDays, hours: UTCHourOffset})),
+                expiration: MoreThanOrEqual(add(new Date(), { days: -restrictionFallOffDays, hours: UTCHourOffset })),
             };
             const whereB: FindOptionsWhere<MemberRestriction> = {
                 type: MemberRestrictionType.QUEUE_BAN,
-                member: {id: member.id},
-                manualExpiration: MoreThanOrEqual(add(new Date(), {days: -restrictionFallOffDays, hours: UTCHourOffset})),
+                member: { id: member.id },
+                manualExpiration: MoreThanOrEqual(add(new Date(), { days: -restrictionFallOffDays, hours: UTCHourOffset })),
                 forgiven: false,
             };
 
@@ -69,7 +69,7 @@ export class ScrimConsumer {
 
             await this.memberRestrictionService.createMemberRestriction(
                 MemberRestrictionType.QUEUE_BAN,
-                add(new Date(), {minutes: banMinuteOffset}),
+                add(new Date(), { minutes: banMinuteOffset }),
                 "Failed to check-in to scrim",
                 member.id,
             );

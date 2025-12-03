@@ -1,11 +1,11 @@
-import {Injectable} from "@nestjs/common";
-import type {GraphQLExecutionContext} from "@nestjs/graphql";
+import { Injectable } from "@nestjs/common";
+import type { GraphQLExecutionContext } from "@nestjs/graphql";
 
-import {Match} from "../../database";
-import {PlayerGuard, PlayerService} from "../../franchise/player";
-import type {GameAndOrganization} from "../../franchise/player/player.types";
-import type {UserPayload} from "../../identity";
-import {PopulateService} from "../../util/populate/populate.service";
+import { Match } from "../../database/scheduling/match/match.model";
+import { PlayerGuard, PlayerService } from "../../franchise/player";
+import type { GameAndOrganization } from "../../franchise/player/player.types";
+import type { UserPayload } from "../../identity";
+import { PopulateService } from "../../util/populate/populate.service";
 
 @Injectable()
 export class MatchPlayerGuard extends PlayerGuard {

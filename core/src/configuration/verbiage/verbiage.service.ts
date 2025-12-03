@@ -1,9 +1,9 @@
-import {Injectable} from "@nestjs/common";
-import {InjectRepository} from "@nestjs/typeorm";
-import {Repository} from "typeorm";
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 
-import {Verbiage, VerbiageCode} from "../../database";
-import {OrganizationService} from "../../organization/organization";
+import { Verbiage, VerbiageCode } from "../../database";
+import { OrganizationService } from "../../organization/organization";
 
 @Injectable()
 export class VerbiageService {
@@ -11,7 +11,7 @@ export class VerbiageService {
         @InjectRepository(Verbiage) private verbiageRepository: Repository<Verbiage>,
         @InjectRepository(VerbiageCode) private verbiageCodeRepository: Repository<VerbiageCode>,
         private organizationService: OrganizationService,
-    ) {}
+    ) { }
 
     /**
      * Insert or update a verbiage.
@@ -26,7 +26,7 @@ export class VerbiageService {
         verbiageCode: string,
     ): Promise<Verbiage> {
         const organization = await this.organizationService.getOrganizationById(organizationId);
-        const code = await this.verbiageCodeRepository.findOneOrFail({where: {code: verbiageCode} });
+        const code = await this.verbiageCodeRepository.findOneOrFail({ where: { code: verbiageCode } });
 
         let verbiage = await this.verbiageRepository.findOne({
             where: {
@@ -53,7 +53,7 @@ export class VerbiageService {
     async getVerbiage(organizationId: number, code: string): Promise<string> {
         const verbiage = await this.verbiageRepository.findOne({
             where: {
-                organization: {id: organizationId},
+                organization: { id: organizationId },
                 code: {
                     code: code,
                 },
@@ -61,7 +61,7 @@ export class VerbiageService {
         });
         if (verbiage) return verbiage.term;
 
-        const defaultCode = await this.verbiageCodeRepository.findOneOrFail({where: {code} });
+        const defaultCode = await this.verbiageCodeRepository.findOneOrFail({ where: { code } });
         return defaultCode.default;
     }
 
@@ -74,12 +74,12 @@ export class VerbiageService {
     async deleteVerbiage(organizationId: number, code: VerbiageCode): Promise<Verbiage> {
         const toDelete = await this.verbiageRepository.findOneOrFail({
             where: {
-                organization: {id: organizationId},
+                organization: { id: organizationId },
                 code: code,
             },
         });
 
-        await this.verbiageRepository.delete({id: toDelete.id});
+        await this.verbiageRepository.delete({ id: toDelete.id });
         return toDelete;
     }
 }

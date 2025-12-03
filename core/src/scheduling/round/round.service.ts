@@ -1,10 +1,10 @@
-import {Injectable} from "@nestjs/common";
-import {InjectRepository} from "@nestjs/typeorm";
-import {Repository} from "typeorm";
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 
-import {
-    Invalidation, Match, Round,
-} from "../../database";
+import { Invalidation } from "../../database/scheduling/invalidation/invalidation.model";
+import { Match } from "../../database/scheduling/match/match.model";
+import { Round } from "../../database/scheduling/round/round.model";
 
 @Injectable()
 export class RoundService {
@@ -12,12 +12,12 @@ export class RoundService {
         @InjectRepository(Round) private roundRepo: Repository<Round>,
         @InjectRepository(Match) private matchRepo: Repository<Match>,
         @InjectRepository(Invalidation) private invalidationRepo: Repository<Invalidation>,
-    ) {}
+    ) { }
 
     async createRound(matchId: number, stats: unknown, isDummy?: boolean, invalidationId?: number): Promise<Round> {
-        const match = await this.matchRepo.findOneOrFail({where: {id: matchId} });
+        const match = await this.matchRepo.findOneOrFail({ where: { id: matchId } });
         let invalidation: Invalidation | undefined;
-        if (invalidationId) invalidation = await this.invalidationRepo.findOneOrFail({where: {id: invalidationId} });
+        if (invalidationId) invalidation = await this.invalidationRepo.findOneOrFail({ where: { id: invalidationId } });
 
         const round = this.roundRepo.create({
             match: match,

@@ -5,8 +5,8 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {config} from "@sprocketbot/common";
 import {Repository} from "typeorm";
 
-import type {Player, User} from "../../database";
-import {UserAuthenticationAccountType} from "../../database";
+import type { User } from "../../database/identity/user/user.model";
+import type { UserAuthenticationAccountType } from "../../database/identity/user_authentication_account/user_authentication_account_type.enum";
 import type {MLE_Platform} from "../../database/mledb";
 import {
     MLE_Player, MLE_PlayerAccount, MLE_PlayerToOrg,

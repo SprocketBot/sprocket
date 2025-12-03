@@ -1,9 +1,9 @@
-import {Injectable, Logger} from "@nestjs/common";
-import {InjectRepository} from "@nestjs/typeorm";
+import { Injectable, Logger } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
 import type {
     BallchasingPlayer, CoreEndpoint, CoreOutput,
 } from "@sprocketbot/common";
-import type {FindOneOptions, FindOptionsRelations} from "typeorm";
+import type { FindOneOptions, FindOptionsRelations } from "typeorm";
 import {
     DataSource, IsNull, Not, Repository,
 } from "typeorm";
@@ -11,10 +11,10 @@ import {
 import type {
     GameSkillGroup,
     ScheduledEvent,
-    ScrimMeta,
 } from "../../database";
 import {
     Franchise,
+    Game,
     GameMode,
     Invalidation,
     Match,
@@ -22,6 +22,7 @@ import {
     PlayerStatLineStatsSchema,
     Round,
     ScheduleFixture,
+    ScrimMeta,
     Team,
 } from "../../database";
 import type {
@@ -30,7 +31,7 @@ import type {
 import {
     EloConnectorService, EloEndpoint, GameMode as eloGameMode, TeamColor,
 } from "../../elo/elo-connector";
-import {PopulateService} from "../../util/populate/populate.service";
+import { PopulateService } from "../../util/populate/populate.service";
 
 export type MatchParentResponse = {
     type: "fixture";
@@ -57,11 +58,11 @@ export class MatchService {
         private dataSource: DataSource,
         private readonly popService: PopulateService,
         private readonly eloConnectorService: EloConnectorService,
-    ) {}
+    ) { }
 
     async createMatch(isDummy?: boolean, invalidationId?: number): Promise<Match> {
         let invalidation: Invalidation | undefined;
-        if (invalidationId) invalidation = await this.invalidationRepository.findOneOrFail({where: {id: invalidationId} });
+        if (invalidationId) invalidation = await this.invalidationRepository.findOneOrFail({ where: { id: invalidationId } });
 
         const match = this.matchRepository.create({
             isDummy: isDummy,
@@ -75,9 +76,9 @@ export class MatchService {
     async createMatchWithMatchParent(skill_group: GameSkillGroup, mode: string, isDummy?: boolean, invalidationId?: number): Promise<[Match, MatchParent]> {
 
         let invalidation: Invalidation | undefined;
-        if (invalidationId) invalidation = await this.invalidationRepository.findOneOrFail({where: {id: invalidationId} });
+        if (invalidationId) invalidation = await this.invalidationRepository.findOneOrFail({ where: { id: invalidationId } });
         const search_code = `RL_${mode}`;
-        const game_mode = await this.modeRepo.findOneOrFail({where: {code: search_code} });
+        const game_mode = await this.modeRepo.findOneOrFail({ where: { code: search_code } });
         const match = this.matchRepository.create({
             isDummy: isDummy,
             invalidation: invalidation,
@@ -92,7 +93,7 @@ export class MatchService {
             match: match,
         });
         await this.matchParentRepository.save(match_parent);
-        
+
         return [match, match_parent];
     }
 
@@ -105,7 +106,7 @@ export class MatchService {
     }
 
     async getMatchById(matchId: number, relations?: FindOptionsRelations<Match>): Promise<Match> {
-        return this.matchRepository.findOneOrFail({where: {id: matchId}, relations: relations});
+        return this.matchRepository.findOneOrFail({ where: { id: matchId }, relations: relations });
     }
 
     async getMatch(query: FindOneOptions<Match>): Promise<Match> {
@@ -163,7 +164,7 @@ export class MatchService {
                                 HAVING COUNT(round_played_time.id) > 0
                                 ORDER BY 2;`;
 
-        interface toBeReprocessed {matchId: number; played_at: string; is_league_match: boolean;}
+        interface toBeReprocessed { matchId: number; played_at: string; is_league_match: boolean; }
         const results: toBeReprocessed[] = await this.dataSource.manager.query(queryString, [startDate]) as toBeReprocessed[];
 
         this.logger.verbose(`Got data ${JSON.stringify(results)} to reprocess matches.`);
@@ -177,7 +178,7 @@ export class MatchService {
 
     async getMatchReportCardWebhooks(matchId: number): Promise<CoreOutput<CoreEndpoint.GetMatchReportCardWebhooks>> {
         const match = await this.matchRepository.findOneOrFail({
-            where: {id: matchId},
+            where: { id: matchId },
             relations: {
                 skillGroup: {
                     profile: {
@@ -217,7 +218,7 @@ export class MatchService {
         };
     }
 
-    async getFranchisesForMatch(matchId: number): Promise<{home: Franchise; away: Franchise;}> {
+    async getFranchisesForMatch(matchId: number): Promise<{ home: Franchise; away: Franchise; }> {
         const match = await this.matchRepository.findOneOrFail({
             where: {
                 id: matchId,
@@ -228,8 +229,8 @@ export class MatchService {
             relations: {
                 matchParent: {
                     fixture: {
-                        homeFranchise: {profile: true},
-                        awayFranchise: {profile: true},
+                        homeFranchise: { profile: true },
+                        awayFranchise: { profile: true },
                     },
                 },
             },
@@ -307,7 +308,7 @@ export class MatchService {
 
         // Find the winning team and it's franchise profile, since that's where
         // team names are in Sprocket.
-        const winningTeam = await this.teamRepository.findOne({where: {id: winningTeamInput?.id}, relations: {franchise: {profile: true} } });
+        const winningTeam = await this.teamRepository.findOne({ where: { id: winningTeamInput?.id }, relations: { franchise: { profile: true } } });
 
         if (isNcp && !winningTeam) return "Winning team must be specified if NCPing replays";
 
@@ -328,7 +329,7 @@ export class MatchService {
         }));
         const replays = await Promise.all(replayPromises);
         const match_parent = await this.getMatchParentEntity(replays[0].match.id);
-        let fixture : ScheduleFixture;
+        let fixture: ScheduleFixture;
         if (match_parent.type === "fixture") {
             fixture = match_parent.data as ScheduleFixture;
         } else {
@@ -368,21 +369,21 @@ export class MatchService {
         const outStr = `\`${replayIds.length === 1
             ? `replayId=${replayIds[0]}`
             : `replayIds=[${replayIds.join(", ")}]`
-        }\` successfully marked \`ncp=${isNcp}\`, ${winningTeam
-            ? `\`winningTeam=${winningTeam.franchise.profile.title}\``
-            : ""
-        } with updated elo, and all connected replays had their elo updated.`;
+            }\` successfully marked \`ncp=${isNcp}\`, ${winningTeam
+                ? `\`winningTeam=${winningTeam.franchise.profile.title}\``
+                : ""
+            } with updated elo, and all connected replays had their elo updated.`;
 
         return outStr;
     }
 
     async translatePayload(matchId: number, isScrim: boolean): Promise<CalculateEloForMatchInput> {
         const match = await this.matchRepository.findOneOrFail({
-            where: {id: matchId},
+            where: { id: matchId },
             relations: {
                 rounds: {
                     teamStats: {
-                        playerStats: {player: true},
+                        playerStats: { player: true },
                     },
                 },
                 gameMode: true,
@@ -422,7 +423,7 @@ export class MatchService {
 
             const orangeScore = orangeStatsResults.reduce((sum, p) => sum + p.stats.core.goals, 0);
             const blueScore = blueStatsResults.reduce((sum, p) => sum + p.stats.core.goals, 0);
-            const stats = round.roundStats as {date?: string;};
+            const stats = round.roundStats as { date?: string; };
             let dateString = "";
             if (!stats.date) {
                 this.logger.warn("No date found on round.");
@@ -487,7 +488,7 @@ export class MatchService {
             },
         });
         const series = await this.matchRepository.findOneOrFail({
-            where: {id: seriesId},
+            where: { id: seriesId },
             relations: {
                 matchParent: {
                     fixture: {
@@ -526,7 +527,7 @@ export class MatchService {
         let dummiesNeeded: number = 0;
         if (numReplays) {
             dummiesNeeded = numReplays - seriesReplays.length;
-            for (let i = 0;i < dummiesNeeded;i++) {
+            for (let i = 0; i < dummiesNeeded; i++) {
                 const dummy: Partial<Round> = {
                     isDummy: true,
                     match: series,

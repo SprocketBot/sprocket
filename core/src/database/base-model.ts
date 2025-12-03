@@ -5,7 +5,7 @@ import {
     CreateDateColumn, DeleteDateColumn, PrimaryGeneratedColumn, UpdateDateColumn,
 } from "typeorm";
 
-import type {IrrelevantFields} from ".";
+import type { IrrelevantFields } from "./index";
 
 @ObjectType()
 export class BaseModel {
@@ -18,11 +18,11 @@ export class BaseModel {
     createdAt: Date;
 
     @UpdateDateColumn()
-    @Field(() => Date, {nullable: true})
+    @Field(() => Date, { nullable: true })
     updatedAt: Date;
 
     @DeleteDateColumn()
-    @Field(() => Date, {nullable: true})
+    @Field(() => Date, { nullable: true })
     deletedAt: Date;
 }
 

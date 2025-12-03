@@ -1,18 +1,18 @@
 import {
     Controller,
 } from "@nestjs/common";
-import {MessagePattern, Payload} from "@nestjs/microservices";
-import type {CoreOutput} from "@sprocketbot/common";
+import { MessagePattern, Payload } from "@nestjs/microservices";
+import type { CoreOutput } from "@sprocketbot/common";
 import {
     CoreEndpoint, CoreSchemas,
 } from "@sprocketbot/common";
 
-import type {FranchiseProfile} from "../../database";
-import {FranchiseService} from "./franchise.service";
+import type { FranchiseProfile } from "../../database/franchise/franchise_profile/franchise_profile.model";
+import { FranchiseService } from "./franchise.service";
 
 @Controller("franchise")
 export class FranchiseController {
-    constructor(private readonly franchiseService: FranchiseService) {}
+    constructor(private readonly franchiseService: FranchiseService) { }
 
     @MessagePattern(CoreEndpoint.GetFranchiseProfile)
     async getFranchiseProfile(@Payload() payload: unknown): Promise<FranchiseProfile> {

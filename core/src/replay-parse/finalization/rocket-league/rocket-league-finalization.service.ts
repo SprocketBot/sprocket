@@ -10,7 +10,7 @@ import type {EntityManager} from "typeorm";
 import {DataSource} from "typeorm";
 import type {QueryDeepPartialEntity} from "typeorm/query-builder/QueryPartialEntity";
 
-import type {Player, Team} from "../../../database";
+import type { Team } from "../../../database/franchise/team/team.model";
 import {
     EligibilityData, GameMode, Match, MatchParent, PlayerStatLine, Round, ScrimMeta, TeamStatLine,
 } from "../../../database";

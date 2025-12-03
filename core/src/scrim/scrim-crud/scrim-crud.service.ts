@@ -7,7 +7,7 @@ import {
     Repository,
 } from "typeorm";
 
-import {ScrimMeta} from "../../database";
+import type { ScrimMeta } from "../../database/scheduling/scrim_meta/scrim_meta.model";
 import {Period} from "../../util/types/period.enum";
 
 @Injectable()

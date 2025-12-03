@@ -1,37 +1,37 @@
-import {Injectable} from "@nestjs/common";
-import {InjectRepository} from "@nestjs/typeorm";
-import {Repository} from "typeorm";
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 
 import type {
     GameSkillGroup, Match, MatchParent, ScheduleGroup,
 } from "../../database";
-import {ScheduleFixture} from "../../database";
-import type {MLE_Match} from "../../database/mledb";
+import { ScheduleFixture } from "../../database/scheduling/schedule_fixture/schedule_fixture.model";
+import type { MLE_Match } from "../../database/mledb";
 import {
     LegacyGameMode, MLE_Fixture, MLE_Series,
 } from "../../database/mledb";
-import {FixtureToFixture} from "../../database/mledb-bridge/fixture_to_fixture.model";
-import {SeriesToMatchParent} from "../../database/mledb-bridge/series_to_match_parent.model";
-import {FranchiseService} from "../../franchise/franchise";
-import {MatchService} from "../match";
-import {MLERL_SkillGrouptoLeagueString} from "../schedule-group/schedule-groups.types";
+import { FixtureToFixture } from "../../database/mledb-bridge/fixture_to_fixture.model";
+import { SeriesToMatchParent } from "../../database/mledb-bridge/series_to_match_parent.model";
+import { FranchiseService } from "../../franchise/franchise";
+import { MatchService } from "../match";
+import { MLERL_SkillGrouptoLeagueString } from "../schedule-group/schedule-groups.types";
 
 @Injectable()
 export class ScheduleFixtureService {
     constructor(
         @InjectRepository(ScheduleFixture)
-            private readonly scheduleFixtureRepo: Repository<ScheduleFixture>,
+        private readonly scheduleFixtureRepo: Repository<ScheduleFixture>,
         @InjectRepository(MLE_Fixture)
-            private readonly m_fixtureRepo: Repository<MLE_Fixture>,
+        private readonly m_fixtureRepo: Repository<MLE_Fixture>,
         @InjectRepository(MLE_Series)
-            private readonly m_seriesRepo: Repository<MLE_Series>,
+        private readonly m_seriesRepo: Repository<MLE_Series>,
         @InjectRepository(FixtureToFixture)
-            private readonly f2fRepo: Repository<FixtureToFixture>,
+        private readonly f2fRepo: Repository<FixtureToFixture>,
         @InjectRepository(SeriesToMatchParent)
-            private readonly s2mpRepo: Repository<SeriesToMatchParent>,
+        private readonly s2mpRepo: Repository<SeriesToMatchParent>,
         private readonly franchiseService: FranchiseService,
         private readonly matchService: MatchService,
-    ) {}
+    ) { }
 
     async getFixturesForGroup(groupId: number): Promise<ScheduleFixture[]> {
         return this.scheduleFixtureRepo.find({
@@ -54,7 +54,7 @@ export class ScheduleFixtureService {
             relations: ["awayFranchise", "awayFranchise.profile", "homeFranchise", "homeFranchise.profile"],
         });
     }
-    
+
     async createScheduleFixture(schedule_group: ScheduleGroup, m_match: MLE_Match, home_name: string, away_name: string, skill_groups: GameSkillGroup[]): Promise<[ScheduleFixture, MLE_Fixture]> {
 
         // Get both franchises involved
@@ -69,7 +69,7 @@ export class ScheduleFixtureService {
             homeFranchiseId: home.id,
             awayFranchiseId: away.id,
         });
-        
+
         // .. as well as the MLEDB one
         let m_fixture = this.m_fixtureRepo.create({
             match: m_match,
@@ -77,7 +77,7 @@ export class ScheduleFixtureService {
             homeName: home_name,
             awayName: away_name,
         });
-        
+
         // Create the matches and match parents
         const matches: Match[] = [];
         const mps: MatchParent[] = [];
@@ -90,7 +90,7 @@ export class ScheduleFixtureService {
                 const [m, mp] = await this.matchService.createMatchWithMatchParent(sg, mode);
                 matches.push(m);
                 mps.push(mp);
-                
+
                 // MLEDB's series are the equivalent concept
                 const m_series = this.m_seriesRepo.create({
                     fixture: m_fixture,
@@ -119,7 +119,7 @@ export class ScheduleFixtureService {
             },
         );
         await this.scheduleFixtureRepo.save(fixture);
-        
+
         // ... and then the MLEDB side
         m_fixture = this.m_fixtureRepo.merge(
             m_fixture,

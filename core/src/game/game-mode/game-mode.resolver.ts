@@ -3,7 +3,7 @@ import {
 } from "@nestjs/graphql";
 
 import type {Game} from "../../database";
-import {GameMode} from "../../database";
+import type { GameMode } from "../../database/game/game_mode/game_mode.model";
 import {GameService} from "../game/game.service";
 
 @Resolver(() => GameMode)

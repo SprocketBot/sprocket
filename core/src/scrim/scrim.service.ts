@@ -22,7 +22,7 @@ import {
 import {PubSub} from "apollo-server-express";
 import {Repository} from "typeorm";
 
-import {PlayerStatLine} from "../database";
+import type { PlayerStatLine } from "../database/franchise/player_stat_line/player_stat_line.model";
 import {GameSkillGroupService} from "../franchise";
 import {FranchiseService} from "../franchise/franchise";
 import {MledbFinalizationService} from "../mledb";
