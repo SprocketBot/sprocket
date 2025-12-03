@@ -16,6 +16,30 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     catch(exception: unknown, host: ArgumentsHost): void {
         const { httpAdapter } = this.httpAdapterHost;
+
+        // Check if this is an HTTP context or RPC/microservices context
+        const isHttp = host.getType() === 'http' && httpAdapter;
+
+        if (!isHttp) {
+            // For RPC/microservices contexts, just log the error
+            const httpStatus =
+                exception instanceof HttpException
+                    ? exception.getStatus()
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
+
+            const contextInfo = `[RPC] ${host.getType()}`;
+
+            if (httpStatus >= 500) {
+                this.logger.error(
+                    `System Error: ${httpStatus} for ${contextInfo}`,
+                    (exception as Error).stack
+                );
+            } else {
+                this.logger.verbose(`Client Error: ${httpStatus} for ${contextInfo}`);
+            }
+            return;
+        }
+
         const ctx = host.switchToHttp();
         const request = ctx.getRequest();
 
