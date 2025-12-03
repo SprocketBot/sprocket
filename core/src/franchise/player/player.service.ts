@@ -1245,17 +1245,14 @@ export class PlayerService {
                     accountType: UserAuthenticationAccountType.DISCORD,
                 },
                 relations: {
-                    user: {
-                        id: true,
-                        profile: {
-                            id: true,
-                            displayName: true,
-                        },
-                    },
+                    user: true,
                 },
             });
-        const up = uaa.user.profile;
-        up.displayName = newName;
-        await this.userProfileRepository.save(up);
+
+        // Use update() instead of save() to avoid TypeORM metadata issues
+        await this.userProfileRepository.update(
+            { user: { id: uaa.user.id } },
+            { displayName: newName }
+        );
     }
 }
