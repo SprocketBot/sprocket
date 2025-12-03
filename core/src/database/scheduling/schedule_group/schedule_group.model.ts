@@ -1,14 +1,14 @@
-import {Field, ObjectType} from "@nestjs/graphql";
+import { Field, ObjectType } from "@nestjs/graphql";
 import {
     Column, Entity, ManyToOne, OneToMany,
 } from "typeorm";
 
-import {BaseModel} from "../../base-model";
-import {Game} from "../../game/game";
-import {ScheduleFixture} from "../schedule_fixture";
-import {ScheduleGroupType} from "../schedule_group_type";
+import { BaseModel } from "../../base-model";
+import { Game } from "../../game/game";
+import { ScheduleFixture } from "../schedule_fixture/schedule_fixture.model";
+import { ScheduleGroupType } from "../schedule_group_type/schedule_group_type.model";
 
-@Entity({schema: "sprocket"})
+@Entity({ schema: "sprocket" })
 @ObjectType()
 export class ScheduleGroup extends BaseModel {
     @Column()
@@ -19,8 +19,8 @@ export class ScheduleGroup extends BaseModel {
     @Field(() => Date)
     end: Date;
 
-    @Column({nullable: true})
-    @Field(() => String, {nullable: true})
+    @Column({ nullable: true })
+    @Field(() => String, { nullable: true })
     description?: string;
 
     @ManyToOne(() => ScheduleGroupType)
@@ -32,11 +32,11 @@ export class ScheduleGroup extends BaseModel {
     game: Game;
 
     @ManyToOne(() => ScheduleGroup)
-    @Field(() => ScheduleGroup, {nullable: true})
+    @Field(() => ScheduleGroup, { nullable: true })
     parentGroup: ScheduleGroup;
 
     @OneToMany(() => ScheduleGroup, sg => sg.parentGroup)
-    @Field(() => [ScheduleGroup], {nullable: "items"})
+    @Field(() => [ScheduleGroup], { nullable: "items" })
     childGroups: ScheduleGroup[];
 
     @OneToMany(() => ScheduleFixture, sf => sf.scheduleGroup)

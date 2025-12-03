@@ -156,7 +156,7 @@ export class PlayerService {
         return this.playerRepository.find(query);
     }
 
-    async createPlayer(memberOrId: number | Member, skillGroupId: number, salary: number): Promise<Player> {
+    async createPlayer(memberOrId: number | Member, skillGroupId: number, salary: number, runner?: QueryRunner): Promise<Player> {
         this.logger.debug(`createPlayer: memberOrId=${typeof memberOrId === "number" ? memberOrId : memberOrId.id}, skillGroupId=${skillGroupId}, salary=${salary}`);
 
         try {
@@ -173,7 +173,13 @@ export class PlayerService {
             });
 
             this.logger.debug(`created player entity: ${JSON.stringify(player)}`);
-            await this.playerRepository.save(player);
+
+            // Use transaction entity manager if provided, otherwise use global repository
+            if (runner) {
+                await runner.manager.save(player);
+            } else {
+                await this.playerRepository.save(player);
+            }
 
             this.logger.debug(`player=${JSON.stringify(player)}`);
             this.logger.debug(`member = ${JSON.stringify(member)}`);
@@ -182,7 +188,8 @@ export class PlayerService {
             await this.checkAndCreateMlePlayer(
                 player,
                 member.userId,
-                skillGroup.id
+                skillGroup.id,
+                runner
             );
 
             return player;
@@ -1122,7 +1129,7 @@ export class PlayerService {
                     }
 
                     this.logger.log(`Creating new player for skillGroup ${pt.gameSkillGroupId} with salary ${pt.salary}`);
-                    const player = await this.createPlayer(member, pt.gameSkillGroupId, pt.salary);
+                    const player = await this.createPlayer(member, pt.gameSkillGroupId, pt.salary, runner);
                     this.logger.log(`Created player: id=${player.id}, skillGroupId=${pt.gameSkillGroupId}, salary=${pt.salary}`);
 
                     const skillGroup = await this.skillGroupService.getGameSkillGroupById(pt.gameSkillGroupId);

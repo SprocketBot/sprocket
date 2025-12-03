@@ -18,6 +18,10 @@ export class Player extends BaseModel {
     @Field(() => Member)
     member: Member;
 
+    @Column()
+    @Field(() => Int)
+    memberId: number;
+
     @ManyToOne(() => GameSkillGroup)
     @Field(() => GameSkillGroup)
     skillGroup: GameSkillGroup;
