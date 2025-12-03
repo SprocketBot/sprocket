@@ -1,0 +1,4 @@
+discordId,name,skillGroupId,salary
+111111111111111111,TestUser1,1,100
+222222222222222222,TestUser2,2,200
+111111111111111111,TestUser1Duplicate,1,100
