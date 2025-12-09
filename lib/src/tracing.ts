@@ -24,14 +24,10 @@ const otelSDK = new NodeSDK({
   contextManager: new AsyncLocalStorageContextManager(),
   instrumentations: getNodeAutoInstrumentations({
     '@opentelemetry/instrumentation-fs': { enabled: false },
-    '@opentelemetry/instrumentation-amqplib': { enabled: true },
     '@opentelemetry/instrumentation-http': { enabled: true },
     '@opentelemetry/instrumentation-nestjs-core': { enabled: true },
     '@opentelemetry/instrumentation-graphql': { enabled: true },
     '@opentelemetry/instrumentation-express': { enabled: true },
-    '@opentelemetry/instrumentation-ioredis': {
-      enabled: true,
-    },
     '@opentelemetry/instrumentation-pino': { enabled: true },
   }),
 
@@ -71,6 +67,4 @@ function tryRequire(pack: string) {
   }
 }
 
-tryRequire('ioredis');
-tryRequire('amqplib');
 tryRequire('bullmq');

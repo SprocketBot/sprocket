@@ -78,7 +78,7 @@ Data model to migrate
 
 a. lib/src/types/scrim.ts
 
-b. Any "queue-timeout" keys are derived from the scrim ID → will become a scrim_timeouts table linked 1-to-1.
+b. Any “queue-timeout” keys are derived from the scrim ID → will become a scrim_timeouts table linked 1-to-1.
 
 New Postgres schema (TypeORM)
 
@@ -108,7 +108,7 @@ Deployment / ops
 Phase 2 — RabbitMQ removal
 RabbitMQ usage inventory ❨code search for @nestjs/microservices, amqplib, amqp://❩
 
-• services/submission/src/broker.ts (Q-1) – publishes "scrim-finished"
+• services/submission/src/broker.ts (Q-1) – publishes “scrim-finished”
 • services/matchmaking/src/broker.ts (Q-2) – publishes match-made + consumes scrim-finished ack
 • services/notifications/src/broker.ts (Q-3) – consumes various events
 • core/src/global/event-bus.ts (Q-4) – thin wrapper around amqplib for domain events
@@ -124,7 +124,7 @@ Replacement pattern
 Steps per service
 
 Producer (matchmaking, submission) • Replace broker.publish() with EventRepository.save() (Q-6).
-• Create "mark handled" stored procedure for outbox pattern if we need reliability later.
+• Create “mark handled” stored procedure for outbox pattern if we need reliability later.
 
 Consumer (notifications, core) • Replace queue listener with periodic job that SELECT … WHERE handled = false FOR UPDATE SKIP LOCKED (Q-7).
 • handled flag update after successful processing.
@@ -144,7 +144,7 @@ Review & deploy to staging; once stable 48 h, schedule cutover.
 RabbitMQ migration PR series (Q-1 … Q-9) – following week
 Final cut of Docker/nomad manifests and infra clean-up.
 Next step
-Please review the plan, especially the proposed tables and service touches (R-6 → R-16, Q-5 → Q-7). Confirm or suggest adjustments, then I can start opening the Redis-migration PRs. b. Any "queue-timeout" keys are derived from the scrim ID → will become a scrim_timeouts table linked 1-to-1.
+Please review the plan, especially the proposed tables and service touches (R-6 → R-16, Q-5 → Q-7). Confirm or suggest adjustments, then I can start opening the Redis-migration PRs. b. Any “queue-timeout” keys are derived from the scrim ID → will become a scrim_timeouts table linked 1-to-1.
 
 New Postgres schema (TypeORM)
 
@@ -174,7 +174,7 @@ Deployment / ops
 Phase 2 — RabbitMQ removal
 RabbitMQ usage inventory ❨code search for @nestjs/microservices, amqplib, amqp://❩
 
-• services/submission/src/broker.ts (Q-1) – publishes "scrim-finished"
+• services/submission/src/broker.ts (Q-1) – publishes “scrim-finished”
 • services/matchmaking/src/broker.ts (Q-2) – publishes match-made + consumes scrim-finished ack
 • services/notifications/src/broker.ts (Q-3) – consumes various events
 • core/src/global/event-bus.ts (Q-4) – thin wrapper around amqplib for domain events
@@ -190,7 +190,7 @@ Replacement pattern
 Steps per service
 
 Producer (matchmaking, submission) • Replace broker.publish() with EventRepository.save() (Q-6).
-• Create "mark handled" stored procedure for outbox pattern if we need reliability later.
+• Create “mark handled” stored procedure for outbox pattern if we need reliability later.
 
 Consumer (notifications, core) • Replace queue listener with periodic job that SELECT … WHERE handled = false FOR UPDATE SKIP LOCKED (Q-7).
 • handled flag update after successful processing.

@@ -42,30 +42,6 @@ with open(f"{config_dir}/{env}.json", "r") as f:
 # Merge configurations
 base_config = {**defaultConfig, **envConfig}
 
-# Helper function to build RabbitMQ URL with authentication
-def build_rabbitmq_url():
-    """Build RabbitMQ URL with optional authentication from environment variables"""
-    base_url = get_config_value("TRANSPORT_URL", base_config, "transport.url")
-    rmq_user = os.environ.get("RABBITMQ_DEFAULT_USER")
-    rmq_pass = os.environ.get("RABBITMQ_DEFAULT_PASS")
-    
-    if rmq_user and rmq_pass and base_url:
-        # Parse the base URL to inject credentials
-        from urllib.parse import urlparse, urlunparse
-        parsed = urlparse(base_url)
-        
-        # Inject credentials into the URL
-        if parsed.scheme in ['amqp', 'amqps']:
-            # Replace netloc with credentials
-            netloc = f"{rmq_user}:{rmq_pass}@{parsed.hostname}"
-            if parsed.port:
-                netloc += f":{parsed.port}"
-            
-            new_parsed = parsed._replace(netloc=netloc)
-            return urlunparse(new_parsed)
-    
-    return base_url
-
 # Enhanced config with environment variable support
 config = {
     # Database
@@ -75,14 +51,6 @@ config = {
         "username": get_config_value("DB_USERNAME", base_config, "db.username"),
         "password": os.environ.get("DB_PASSWORD") or load_secret_from_file("../secret/db-password.txt"),
         "database": get_config_value("DB_DATABASE", base_config, "db.database"),
-    },
-    
-    # Redis
-    "redis": {
-        "host": get_config_value("REDIS_HOST", base_config, "redis.host"),
-        "port": int(get_config_value("REDIS_PORT", base_config, "redis.port", 6379)),
-        "password": os.environ.get("REDIS_PASSWORD") or load_secret_from_file("../secret/redis-password.txt"),
-        "secure": str(get_config_value("REDIS_SECURE", base_config, "redis.secure", "false")).lower() == "true",
     },
     
     # MinIO - preserve both old and new key names for compatibility
@@ -96,13 +64,6 @@ config = {
         "secure": str(get_config_value("MINIO_USE_SSL", base_config, "minio.secure", "false")).lower() == "true",
         "bucket": get_config_value("MINIO_BUCKET", base_config, "minio.bucket"),
         "parsed_object_prefix": get_config_value("MINIO_PARSED_PREFIX", base_config, "minio.parsed_object_prefix"),
-    },
-    
-    # Transport
-    "transport": {
-        "url": build_rabbitmq_url(),
-        "celery_queue": get_config_value("CELERY_QUEUE", base_config, "transport.celery-queue"),
-        "analytics_queue": get_config_value("TRANSPORT_ANALYTICS_QUEUE", base_config, "transport.analytics_queue"),
     },
 }
 

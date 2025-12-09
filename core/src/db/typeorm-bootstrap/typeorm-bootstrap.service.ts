@@ -4,7 +4,7 @@ import { SprocketConfigService } from '@sprocketbot/lib';
 
 @Injectable()
 export class TypeormBootstrapService {
-  constructor(private readonly cfg: SprocketConfigService) {}
+  constructor(private readonly cfg: SprocketConfigService) { }
 
   createTypeOrmOptions(): TypeOrmModuleOptions {
     return {
@@ -18,19 +18,7 @@ export class TypeormBootstrapService {
       synchronize: false,
       autoLoadEntities: true,
       migrationsRun: false,
-      cache:
-        this.cfg.getOrThrow('pg.cache').toString().toLowerCase() === 'true'
-          ? {
-              type: 'ioredis',
-              alwaysEnabled: true,
-              options: {
-                host: this.cfg.getOrThrow('redis.hostname'),
-                port: this.cfg.getOrThrow('redis.port'),
-                connectionName: 'typeorm-cache',
-              },
-              duration: 5000,
-            }
-          : undefined,
+      cache: false,
       migrationsTableName: 'public.migrations',
       applicationName: 'SprocketCore',
     };

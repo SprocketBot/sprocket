@@ -12,6 +12,8 @@ import { MatchmakingModule } from './matchmaking/matchmaking.module';
 import { HealthModule } from './health/health.module';
 import { authz } from './authz.def';
 import { ObservabilityModule } from './observability/observability.module';
+import { SubmissionsModule } from './submissions/submissions.module';
+import { EventQueueModule } from './events/event-queue.module';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { ObservabilityModule } from './observability/observability.module';
     MatchmakingModule,
     HealthModule,
     ObservabilityModule,
+    SubmissionsModule,
+    EventQueueModule,
   ],
   controllers: [AppController],
   providers: [AppService],

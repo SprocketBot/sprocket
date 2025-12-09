@@ -73,4 +73,7 @@ export * from './observability/metrics.repository';
 export * from './scrim_queue/scrim_queue.entity';
 export * from './scrim_queue/scrim_queue.repository';
 export * from './scrim_timeout/scrim_timeout.entity';
+export * from './submission/match_submission.entity';
 export * from './scrim_timeout/scrim_timeout.repository';
+
+export * from './events/event_queue.entity';

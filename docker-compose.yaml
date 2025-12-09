@@ -24,8 +24,6 @@ services:
     restart: unless-stopped
     depends_on:
       - postgres
-      - lavinmq
-      - redis
     volumes:
       - .:/app:rw
       - ./.env:/app/core/.env
@@ -71,9 +69,6 @@ services:
   discord:
     container_name: sprocket-discord
     image: oven/bun:1.1.40-alpine
-    depends_on:
-      - lavinmq
-      - redis
     volumes:
       - .:/app
       - ./.env:/app/clients/discord/.env
@@ -82,6 +77,31 @@ services:
     working_dir: /app/clients/discord
     environment:
       SERVICE_NAME: "SprocketDiscord"
+
+  image-generation:
+    container_name: sprocket-image-generation
+    image: oven/bun:latest
+    volumes:
+      - .:/app
+      - ./.env:/app/microservices/image-generation-service/.env
+      - ./config.yaml:/app/microservices/image-generation-service/config.yaml
+    command: bun --preload ../../lib/src/tracing.ts -b --watch src/main.ts
+    working_dir: /app/microservices/image-generation-service
+    environment:
+      SERVICE_NAME: "SprocketImageGeneration"
+
+  replay-parse:
+    container_name: sprocket-replay-parse
+    build:
+      context: ./microservices/replay-parse-service
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - ./.env:/app/microservices/replay-parse-service/.env
+      - ./config.yaml:/app/microservices/replay-parse-service/config.yaml
+    working_dir: /app/microservices/replay-parse-service
+    environment:
+      SERVICE_NAME: "SprocketReplayParse"
 
   postgres:
     container_name: sprocket-postgres
@@ -93,26 +113,6 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
 
-  lavinmq:
-    container_name: sprocket-lavinmq
-    image: cloudamqp/lavinmq
-    labels:
-      traefik.enable: true
-      traefik.http.routers.lavinmq.rule: Host(`${LAVIN_URL:-lavin.localhost}`)
-      traefik.http.routers.lavinmq.entrypoints: web,websecure
-      traefik.http.services.lavinmq.loadbalancer.server.port: 15672
-
-  # Recommend using https://redis.tinycraft.cc/ to debug
-  redis:
-    container_name: sprocket-redis
-    image: redis/redis-stack:latest
-    ports:
-      - 6379:6379
-    labels:
-      traefik.enable: true
-      traefik.http.routers.redis.rule: Host(`${REDIS_URL:-redis.localhost}`)
-      traefik.http.routers.redis.entrypoints: web,websecure
-      traefik.http.services.redis.loadbalancer.server.port: 8001
 
   ##########
   ##### Monitoring Services

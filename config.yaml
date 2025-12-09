@@ -28,17 +28,10 @@ pg:
   database: '${PG_DATABASE:postgres}'
   cache: '${PG_CACHE:true}'
 
-redis:
-  hostname: '${REDIS_HOST:redis}'
-  port: '${REDIS_PORT:6379}'
-
 initialAdmins:
   - 'shuckle'
   - 'nigelthornbrake'
 
-
-amqp:
-  url: '${AMQP_URL}'
 
 s3:
   app_key: '${S3_APP_KEY}'
