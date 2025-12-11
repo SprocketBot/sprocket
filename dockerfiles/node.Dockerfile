@@ -1,9 +1,12 @@
-FROM node:16-alpine as base
+FROM node:20-alpine as base
 
 # Set current commit SHA in env
 ARG COMMIT_SHA
 ENV COMMIT_SHA=$COMMIT_SHA
 RUN echo "Set env COMMIT_SHA=${COMMIT_SHA}"
+
+# Install build dependencies for native modules
+RUN apk add --no-cache python3 make g++
 
 WORKDIR /app
 
