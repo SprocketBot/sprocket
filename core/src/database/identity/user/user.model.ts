@@ -24,6 +24,7 @@ export class User extends BaseModel {
         name: "type",
         type: "enum",
         enum: UserRolesType,
+        enumName: "user_type_enum",
         array: true,
         nullable: true,
     })
