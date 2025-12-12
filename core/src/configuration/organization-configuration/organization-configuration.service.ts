@@ -3,12 +3,10 @@ import {InjectRepository} from "@nestjs/typeorm";
 import type {FindOneOptions, FindOptionsWhere} from "typeorm";
 import {Like, Repository} from "typeorm";
 
-import {
-    Organization,
-    OrganizationConfigurationAllowedValue,
-    OrganizationConfigurationKey,
-    OrganizationConfigurationValue,
-} from "../../database";
+import {Organization} from '$db/organization/organization/organization.model';
+import {OrganizationConfigurationAllowedValue} from '../../database';;
+import {OrganizationConfigurationKey} from '../../database';;
+import {OrganizationConfigurationValue} from '../../database';;;
 import type {OrganizationConfigurationKeyCode, OrganizationConfigurationKeyTypes} from "../../database/configuration/organization_configuration_key";
 import {OrganizationConfigurationKeyType} from "../../database/configuration/organization_configuration_key";
 import type {OrganizationConfiguration} from "./organization-configuration.types";

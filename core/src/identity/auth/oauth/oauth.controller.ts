@@ -4,8 +4,9 @@ import {
 import {config} from "@sprocketbot/common";
 import {Request as Req, Response as Res} from "express";
 
-import type {User, UserAuthenticationAccount} from "../../../database";
-import {UserAuthenticationAccountType} from "../../../database";
+import {User} from '../../../database';;
+import {UserAuthenticationAccount} from '../../../database';;;
+import {UserAuthenticationAccountType} from '../../../database';;;
 import {MledbPlayerService} from "../../../mledb";
 import {UserService} from "../../user";
 import {

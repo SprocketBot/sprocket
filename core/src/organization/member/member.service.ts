@@ -9,7 +9,7 @@ import type { FindManyOptions, FindOneOptions } from "typeorm";
 import { Repository } from "typeorm";
 
 import type { Franchise } from "../../database/franchise/franchise/franchise.model";
-import type { IrrelevantFields } from "../../database";
+import {IrrelevantFields} from '../../database';;;
 import { Member } from "../../database/organization/member/member.model";
 import { MemberProfile } from "../../database/organization/member_profile/member_profile.model";
 import { PlayerService } from "../../franchise/player/player.service";

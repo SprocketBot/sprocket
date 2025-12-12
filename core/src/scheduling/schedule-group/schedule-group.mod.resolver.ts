@@ -7,7 +7,8 @@ import {GraphQLError} from "graphql";
 import type {FileUpload} from "graphql-upload";
 import {GraphQLUpload} from "graphql-upload";
 
-import {ScheduleGroup, ScheduleGroupType} from "../../database";
+import {ScheduleGroup} from '$db/scheduling/schedule_group/schedule_group.model';
+import {ScheduleGroupType} from '$db/scheduling/schedule_group_type/schedule_group_type.model';
 import {MLE_OrganizationTeam} from "../../database/mledb";
 import {CurrentUser, UserPayload} from "../../identity";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";

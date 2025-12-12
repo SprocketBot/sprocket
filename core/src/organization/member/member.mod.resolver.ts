@@ -5,7 +5,7 @@ import {
     Args, Int, Mutation, Resolver,
 } from "@nestjs/graphql";
 
-import type {Member} from "../../database";
+import {Member} from '$db/organization/member/member.model';
 import type {MLE_Player} from "../../database/mledb";
 import {MLE_OrganizationTeam, MLE_Platform} from "../../database/mledb";
 import {PlatformService} from "../../game";

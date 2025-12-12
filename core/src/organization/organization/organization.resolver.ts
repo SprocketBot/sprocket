@@ -3,7 +3,8 @@ import {
     Args, Int, Mutation, Query, ResolveField, Resolver, Root,
 } from "@nestjs/graphql";
 
-import {Organization, OrganizationProfile} from "../../database";
+import {Organization} from '$db/organization/organization/organization.model';
+import {OrganizationProfile} from '$db/organization/organization_profile/organization_profile.model';
 import {MLE_OrganizationTeam} from "../../database/mledb";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";

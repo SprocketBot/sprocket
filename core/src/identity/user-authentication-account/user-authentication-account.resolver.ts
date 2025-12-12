@@ -2,8 +2,8 @@ import {
     ResolveField, Resolver, Root,
 } from "@nestjs/graphql";
 
-import type {User} from "../../database";
-import {UserAuthenticationAccount} from "../../database";
+import {User} from '../../database';;;
+import {UserAuthenticationAccount} from '../../database';;;
 import {IdentityService} from "../identity.service";
 
 @Resolver(() => UserAuthenticationAccount)

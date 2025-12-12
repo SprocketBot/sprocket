@@ -2,7 +2,7 @@ import {Controller} from "@nestjs/common";
 import {MessagePattern, Payload} from "@nestjs/microservices";
 import {CoreEndpoint, CoreSchemas} from "@sprocketbot/common";
 
-import type {Game} from "../../database";
+import {Game} from '$db/game/game/game.model';
 import {GameModeService} from "../game-mode";
 
 @Controller("game")

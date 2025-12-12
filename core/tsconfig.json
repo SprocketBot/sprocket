@@ -21,15 +21,13 @@
     "strictNullChecks": true,
     "strict": true,
     "strictPropertyInitialization": false,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "paths": {
+      "$db/*": ["src/database/*"]
+    }
   },
   "include": [
     "src/**/*",
     "src/*"
-  ],
-  "paths": {
-    "@database/*": [
-      "database/*"
-    ]
-  }
+  ]
 }

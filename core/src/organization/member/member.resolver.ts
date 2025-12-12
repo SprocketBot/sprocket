@@ -1,10 +1,10 @@
 import {
     Args, Int, Query, ResolveField, Resolver, Root,
 } from "@nestjs/graphql";
-import type {
-    MemberProfile, Organization, Player,
-} from "../../database";
-import {Member} from "../../database";
+import {MemberProfile} from '$db/organization/member_profile/member_profile.model';
+import {Organization} from '$db/organization/organization/organization.model';
+import {Player} from '$db/franchise/player/player.model';
+import {Member} from '$db/organization/member/member.model';
 import {PopulateService} from "../../util/populate/populate.service";
 import {MemberService} from "./member.service";
 

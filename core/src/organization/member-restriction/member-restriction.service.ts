@@ -8,8 +8,8 @@ import {
     IsNull, MoreThan, Repository,
 } from "typeorm";
 
-import type {MemberRestrictionType} from "../../database";
-import {MemberRestriction} from "../../database";
+import {MemberRestrictionType} from '$db/organization/member_restriction/member_restriction_type.enum';
+import {MemberRestriction} from '$db/organization/member_restriction/member_restriction.model';
 import {MemberService} from "../member/member.service";
 
 @Injectable()

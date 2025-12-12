@@ -4,9 +4,14 @@ import type {CoreEndpoint, CoreOutput} from "@sprocketbot/common";
 import type {FindOperator, FindOptionsRelations} from "typeorm";
 import {Raw, Repository} from "typeorm";
 
-import {
-    Franchise, GameMode, GameSkillGroup, Match, MatchParent, ScheduleFixture, ScheduleGroup, ScheduleGroupType,
-} from "../../database";
+import {Franchise} from '$db/franchise/franchise/franchise.model';
+import {GameMode} from '$db/game/game_mode/game_mode.model';
+import {GameSkillGroup} from '$db/franchise/game_skill_group/game_skill_group.model';
+import {Match} from '$db/scheduling/match/match.model';
+import {MatchParent} from '$db/scheduling/match_parent/match_parent.model';
+import {ScheduleFixture} from '$db/scheduling/schedule_fixture/schedule_fixture.model';
+import {ScheduleGroup} from '$db/scheduling/schedule_group/schedule_group.model';
+import {ScheduleGroupType} from '$db/scheduling/schedule_group_type/schedule_group_type.model';
 import type {
     League,
 } from "../../database/mledb";

@@ -4,7 +4,8 @@ import {config} from "@sprocketbot/common";
 import type {VerifyCallback} from "passport-google-oauth20";
 import {Strategy} from "passport-google-oauth20";
 
-import {User, UserAuthenticationAccountType} from "../../../../database";
+import {User} from '../../../../database';;
+import {UserAuthenticationAccountType} from '../../../../database';;;
 import {UserService} from "../../../user";
 import type {GoogleProfileType} from "../types/profile.type";
 

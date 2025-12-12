@@ -4,7 +4,7 @@ import {
 import type {Scrim} from "@sprocketbot/common";
 import {ReplaySubmissionStatus} from "@sprocketbot/common";
 
-import type {Match} from "../../database";
+import {Match} from '$db/scheduling/match/match.model';
 import {ReplaySubmissionItem} from "./submission-item.types";
 import {SubmissionRejection} from "./submission-rejection.types";
 import {ReplaySubmissionStats} from "./submission-stats.types";

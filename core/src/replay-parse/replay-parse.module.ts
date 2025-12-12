@@ -10,7 +10,7 @@ import {
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 
-import {DatabaseModule} from "../database";
+import {DatabaseModule} from '../database';;;
 import {EloModule} from "../elo/elo.module";
 import {EloConnectorModule} from "../elo/elo-connector";
 import {FranchiseModule} from "../franchise";

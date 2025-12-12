@@ -5,10 +5,11 @@ import type {
 } from "typeorm";
 import {Repository} from "typeorm";
 
-import type {IrrelevantFields} from "../../database";
-import {
-    User, UserAuthenticationAccount, UserAuthenticationAccountType, UserProfile,
-} from "../../database";
+import {IrrelevantFields} from '../../database';;;
+import {User} from '../../database';;
+import {UserAuthenticationAccount} from '../../database';;
+import {UserAuthenticationAccountType} from '../../database';;
+import {UserProfile} from '../../database';;;
 
 @Injectable()
 export class UserService {

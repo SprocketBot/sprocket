@@ -2,8 +2,9 @@ import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 
-import type {UserAuthenticationAccountType as AccountType} from "../database";
-import {User, UserAuthenticationAccount} from "../database";
+import {UserAuthenticationAccountType as AccountType} from '../database';;;
+import {User} from '../database';;
+import {UserAuthenticationAccount} from '../database';;;
 
 @Injectable()
 export class IdentityService {

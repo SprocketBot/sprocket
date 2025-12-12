@@ -3,7 +3,8 @@ import {InjectRepository} from "@nestjs/typeorm";
 import type {FindManyOptions, FindOneOptions} from "typeorm";
 import {Repository} from "typeorm";
 
-import {Member, MemberPlatformAccount} from "../../database";
+import {Member} from '$db/organization/member/member.model';
+import {MemberPlatformAccount} from '$db/organization/member_platform_account/member_platform_account.model';
 import {PlatformService} from "../../game/";
 
 @Injectable()

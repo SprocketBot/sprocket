@@ -8,22 +8,18 @@ import {
     DataSource, IsNull, Not, Repository,
 } from "typeorm";
 
-import type {
-    GameSkillGroup,
-    ScheduledEvent,
-    ScrimMeta,
-} from "../../database";
-import {
-    Franchise,
-    GameMode,
-    Invalidation,
-    Match,
-    MatchParent,
-    PlayerStatLineStatsSchema,
-    Round,
-    ScheduleFixture,
-    Team,
-} from "../../database";
+import {GameSkillGroup} from '$db/franchise/game_skill_group/game_skill_group.model';
+import {ScheduledEvent} from '$db/scheduling/scheduled_event/scheduled_event.model';
+import {ScrimMeta} from '$db/scheduling/saved_scrim/scrim.model';
+import {Franchise} from '$db/franchise/franchise/franchise.model';
+import {GameMode} from '$db/game/game_mode/game_mode.model';
+import {Invalidation} from '$db/scheduling/invalidation/invalidation.model';
+import {Match} from '$db/scheduling/match/match.model';
+import {MatchParent} from '$db/scheduling/match_parent/match_parent.model';
+import {PlayerStatLineStatsSchema} from '$db/scheduling/player_stat_line/player_stat_line.schema';
+import {Round} from '$db/scheduling/round/round.model';
+import {ScheduleFixture} from '$db/scheduling/schedule_fixture/schedule_fixture.model';
+import {Team} from '$db/franchise/team/team.model';
 import type {
     CalculateEloForMatchInput, MatchSummary, PlayerSummary,
 } from "../../elo/elo-connector";

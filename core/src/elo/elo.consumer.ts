@@ -5,7 +5,7 @@ import {Logger} from "@nestjs/common";
 import {Job, Queue} from "bull";
 import {previousMonday} from "date-fns";
 
-import {FeatureCode} from "../database";
+import {FeatureCode} from '$db/game/feature/feature.enum';
 import {PlayerService} from "../franchise";
 import {GameFeatureService, GameService} from "../game";
 import {OrganizationService} from "../organization";

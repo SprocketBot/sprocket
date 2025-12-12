@@ -9,8 +9,9 @@ import type {FindOptionsWhere} from "typeorm";
 import {IsNull, MoreThanOrEqual} from "typeorm";
 
 import {OrganizationConfigurationService} from "../configuration/organization-configuration/organization-configuration.service";
-import type {MemberRestriction} from "../database";
-import {MemberRestrictionType, OrganizationConfigurationKeyCode} from "../database";
+import {MemberRestriction} from '$db/organization/member_restriction/member_restriction.model';
+import {MemberRestrictionType} from '$db/organization/member_restriction/member_restriction_type.enum';
+import {OrganizationConfigurationKeyCode} from '../database';;;
 import {MemberService} from "../organization/member/member.service";
 import {MemberRestrictionService} from "../organization/member-restriction";
 import {ScrimService} from "./scrim.service";

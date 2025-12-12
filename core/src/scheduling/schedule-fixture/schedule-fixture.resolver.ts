@@ -6,14 +6,10 @@ import {
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 
-import type {
-    Franchise,
-    Match,
-    ScheduleGroup,
-} from "../../database";
-import {
-    ScheduleFixture,
-} from "../../database";
+import {Franchise} from '$db/franchise/franchise/franchise.model';
+import {Match} from '$db/scheduling/match/match.model';
+import {ScheduleGroup} from '$db/scheduling/schedule_group/schedule_group.model';
+import {ScheduleFixture} from '$db/scheduling/schedule_fixture/schedule_fixture.model';
 import {PopulateService} from "../../util/populate/populate.service";
 
 @Resolver(() => ScheduleFixture)

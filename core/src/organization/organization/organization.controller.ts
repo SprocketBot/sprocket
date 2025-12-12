@@ -11,8 +11,8 @@ import {
 } from "@sprocketbot/common";
 
 import {OrganizationConfigurationService} from "../../configuration/organization-configuration/organization-configuration.service";
-import type {OrganizationProfile} from "../../database";
-import {OrganizationConfigurationKeyCode} from "../../database";
+import {OrganizationProfile} from '$db/organization/organization_profile/organization_profile.model';
+import {OrganizationConfigurationKeyCode} from '../../database';;;
 import {OrganizationService} from "./organization.service";
 
 @Controller("organization")

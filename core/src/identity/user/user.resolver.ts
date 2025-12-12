@@ -5,12 +5,11 @@ import {
 import {JwtService} from "@nestjs/jwt";
 import {config} from "@sprocketbot/common";
 
-import type {
-    UserAuthenticationAccount, UserProfile,
-} from "../../database";
-import {
-    Member, User, UserAuthenticationAccountType,
-} from "../../database";
+import {UserAuthenticationAccount} from '../../database';;
+import {UserProfile} from '../../database';;;
+import {Member} from '$db/organization/member/member.model';
+import {User} from '../../database';;
+import {UserAuthenticationAccountType} from '../../database';;;
 import {MLE_OrganizationTeam} from "../../database/mledb";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {PopulateService} from "../../util/populate/populate.service";

@@ -5,9 +5,8 @@ import {
 } from "@nestjs/graphql";
 import {ScrimStatus} from "@sprocketbot/common";
 
-import {
-    GameMode, GameSkillGroup,
-} from "../database";
+import {GameMode} from '$db/game/game_mode/game_mode.model';
+import {GameSkillGroup} from '$db/franchise/game_skill_group/game_skill_group.model';
 import {MLE_OrganizationTeam} from "../database/mledb";
 import {GameSkillGroupService} from "../franchise";
 import {GameModeService} from "../game";

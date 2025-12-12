@@ -6,7 +6,8 @@ import {
     EventTopic, ScrimStatus,
 } from "@sprocketbot/common";
 
-import {GameMode, GameSkillGroup} from "../../database";
+import {GameMode} from '$db/game/game_mode/game_mode.model';
+import {GameSkillGroup} from '$db/franchise/game_skill_group/game_skill_group.model';
 import {ScrimGame} from "./ScrimGame";
 import {ScrimLobby} from "./ScrimLobby";
 import {ScrimPlayer} from "./ScrimPlayer";

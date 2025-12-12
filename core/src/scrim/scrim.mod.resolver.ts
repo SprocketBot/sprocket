@@ -16,7 +16,8 @@ import {minutesToMilliseconds} from "date-fns";
 import {GraphQLError} from "graphql";
 
 import {OrganizationConfigurationService} from "../configuration";
-import {OrganizationConfigurationKeyCode, Player} from "../database";
+import {OrganizationConfigurationKeyCode} from '../database';;
+import {Player} from '$db/franchise/player/player.model';
 import {MLE_OrganizationTeam} from "../database/mledb";
 import {
     CurrentPlayer, GameSkillGroupService, PlayerService,

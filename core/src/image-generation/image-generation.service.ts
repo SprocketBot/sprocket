@@ -6,7 +6,7 @@ import {
 } from "@sprocketbot/common";
 import {DataSource, Repository} from "typeorm";
 
-import {ImageTemplate} from "../database";
+import {ImageTemplate} from '../database';;;
 
 @Injectable()
 export class ImageGenerationService {

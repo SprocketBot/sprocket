@@ -5,8 +5,9 @@ import {
     DataSource, Raw, Repository,
 } from "typeorm";
 
-import type {ScheduleFixture} from "../../database";
-import {GameSkillGroup, ScheduleGroup} from "../../database";
+import {ScheduleFixture} from '$db/scheduling/schedule_fixture/schedule_fixture.model';
+import {GameSkillGroup} from '$db/franchise/game_skill_group/game_skill_group.model';
+import {ScheduleGroup} from '$db/scheduling/schedule_group/schedule_group.model';
 import type {MLE_Fixture} from "../../database/mledb";
 import {MLE_Match, MLE_Season} from "../../database/mledb";
 import {MatchToScheduleGroup} from "../../database/mledb-bridge/match_to_schedule_group.model";

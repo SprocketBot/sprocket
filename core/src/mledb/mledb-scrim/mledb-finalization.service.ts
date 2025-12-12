@@ -12,8 +12,9 @@ import type {
 import type { EntityManager } from "typeorm";
 import { Repository } from "typeorm";
 
-import type { GameMode, GameSkillGroup } from "../../database";
-import { Match } from "../../database";
+import {GameMode} from '$db/game/game_mode/game_mode.model';
+import {GameSkillGroup} from '$db/franchise/game_skill_group/game_skill_group.model';
+import {Match} from '$db/scheduling/match/match.model';
 import type { League, MLE_Platform } from "../../database/mledb";
 import {
     LegacyGameMode,

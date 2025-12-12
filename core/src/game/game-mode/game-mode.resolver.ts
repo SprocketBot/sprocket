@@ -2,8 +2,8 @@ import {
     ResolveField, Resolver, Root,
 } from "@nestjs/graphql";
 
-import type {Game} from "../../database";
-import {GameMode} from "../../database";
+import {Game} from '$db/game/game/game.model';
+import {GameMode} from '$db/game/game_mode/game_mode.model';
 import {GameService} from "../game/game.service";
 
 @Resolver(() => GameMode)

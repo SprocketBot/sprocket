@@ -1,4 +1,5 @@
-import type {Match, ScrimMeta} from "../../database";
+import {Match} from '$db/scheduling/match/match.model';
+import {ScrimMeta} from '$db/scheduling/saved_scrim/scrim.model';
 import type {MLE_Scrim, MLE_Series} from "../../database/mledb";
 
 export interface SaveScrimFinalizationReturn {

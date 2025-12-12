@@ -2,10 +2,10 @@ import {
     ResolveField, Resolver, Root,
 } from "@nestjs/graphql";
 
-import type {
-    Game, ScheduleFixture, ScheduleGroupType,
-} from "../../database";
-import {ScheduleGroup} from "../../database";
+import {Game} from '$db/game/game/game.model';
+import {ScheduleFixture} from '$db/scheduling/schedule_fixture/schedule_fixture.model';
+import {ScheduleGroupType} from '$db/scheduling/schedule_group_type/schedule_group_type.model';
+import {ScheduleGroup} from '$db/scheduling/schedule_group/schedule_group.model';
 import {PopulateService} from "../../util/populate/populate.service";
 
 @Resolver(() => ScheduleGroup)
