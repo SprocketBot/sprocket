@@ -1,6 +1,6 @@
 import {forwardRef, Module} from "@nestjs/common";
 
-import {DatabaseModule} from '../database';;;
+import {DatabaseModule} from '../database';;;;
 import {OrganizationModule} from "../organization";
 import {OrganizationConfigurationResolver, OrganizationConfigurationService} from "./organization-configuration";
 import {OrganizationConfigurationController} from "./organization-configuration/organization-configuration.controller";

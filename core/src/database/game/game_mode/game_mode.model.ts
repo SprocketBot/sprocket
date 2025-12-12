@@ -6,7 +6,7 @@ import {
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {Game} from "../game";
+import {Game} from '$db/game/game/game.model';
 
 @Entity({schema: "sprocket"})
 @ObjectType()

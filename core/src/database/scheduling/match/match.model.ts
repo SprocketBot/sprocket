@@ -7,7 +7,7 @@ import { BaseModel } from "../../base-model";
 import { GameSkillGroup } from "../../franchise/game_skill_group/game_skill_group.model";
 import { GameMode } from "../../game/game_mode/game_mode.model";
 import { Invalidation } from "../invalidation/invalidation.model";
-import { MatchParent } from "../match_parent";
+import {MatchParent} from '$db/scheduling/match_parent/match_parent.model';
 import { Round } from "../round/round.model";
 
 export type MatchSubmissionStatus = "submitting" | "ratifying" | "completed";

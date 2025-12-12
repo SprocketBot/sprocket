@@ -6,10 +6,10 @@ import {
 import { BaseModel } from "../../base-model";
 import { Game } from "../../game/game/game.model";
 import { Organization } from "../../organization/organization/organization.model";
-import { GameSkillGroupProfile } from "../game_skill_group_profile";
-import { Player } from "../player";
-import { RosterRoleUseLimits } from "../roster_role_use_limits";
-import { Team } from "../team";
+import {GameSkillGroupProfile} from '$db/franchise/game_skill_group_profile/game_skill_group_profile.model';
+import {Player} from '$db/franchise/player/player.model';
+import {RosterRoleUseLimits} from '$db/franchise/roster_role_use_limits/roster_role_use_limits.model';
+import {Team} from '$db/franchise/team/team.model';
 
 @Entity({ schema: "sprocket" })
 @ObjectType()

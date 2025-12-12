@@ -4,8 +4,8 @@ import {
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {FranchiseGroupProfile} from "../franchise_group_profile";
-import {FranchiseGroupType} from "../franchise_group_type";
+import {FranchiseGroupProfile} from '$db/franchise/franchise_group_profile/franchise_group_profile.model';
+import {FranchiseGroupType} from '$db/franchise/franchise_group_type/franchise_group_type.model';
 
 @Entity({schema: "sprocket"})
 @ObjectType()

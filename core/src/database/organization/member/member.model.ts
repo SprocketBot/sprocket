@@ -7,9 +7,9 @@ import {
 import { BaseModel } from "../../base-model";
 import { Player } from "../../franchise/player/player.model";
 import { User } from "../../identity/user/user.model";
-import { MemberPlatformAccount } from "../member_platform_account";
+import {MemberPlatformAccount} from '$db/organization/member_platform_account/member_platform_account.model';
 import { MemberProfile } from "../member_profile/member_profile.model";
-import { MemberRestriction } from "../member_restriction";
+import {MemberRestriction} from '$db/organization/member_restriction/member_restriction.model';
 import { Organization } from "../organization/organization.model";
 
 @Entity({ schema: "sprocket" })

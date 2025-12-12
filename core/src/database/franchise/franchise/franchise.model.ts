@@ -5,10 +5,10 @@ import {
 
 import { BaseModel } from "../../base-model";
 import { Organization } from "../../organization/organization/organization.model";
-import { FranchiseGroupAssignment } from "../franchise_group_assignment";
-import { FranchiseLeadershipAppointment } from "../franchise_leadership_appointment";
-import { FranchiseProfile } from "../franchise_profile";
-import { FranchiseStaffAppointment } from "../franchise_staff_appointment";
+import {FranchiseGroupAssignment} from '$db/franchise/franchise_group_assignment/franchise_group_assignment.model';
+import {FranchiseLeadershipAppointment} from '$db/franchise/franchise_leadership_appointment/franchise_leadership_appointment.model';
+import {FranchiseProfile} from '$db/franchise/franchise_profile/franchise_profile.model';
+import {FranchiseStaffAppointment} from '$db/franchise/franchise_staff_appointment/franchise_staff_appointment.model';
 
 @Entity({ schema: "sprocket" })
 @ObjectType()

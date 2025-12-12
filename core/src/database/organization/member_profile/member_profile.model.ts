@@ -4,9 +4,9 @@ import {
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {Member} from "../member";
-import {Photo} from "../photo";
-import {Pronouns} from "../pronouns";
+import {Member} from '$db/organization/member/member.model';
+import {Photo} from '$db/organization/photo/photo.model';
+import {Pronouns} from '$db/organization/pronouns/pronouns.model';
 
 @Entity({schema: "sprocket"})
 @ObjectType()

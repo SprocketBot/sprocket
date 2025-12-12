@@ -5,9 +5,9 @@ import {
 
 import { BaseModel } from "../../base-model";
 import { GameSkillGroup } from "../../franchise/game_skill_group/game_skill_group.model";
-import { GameFeature } from "../game_feature";
-import { GameMode } from "../game_mode";
-import { Platform } from "../platform";
+import {GameFeature} from '$db/game/game_feature/game_feature.model';
+import {GameMode} from '$db/game/game_mode/game_mode.model';
+import {Platform} from '$db/game/platform/platform.model';
 
 @Entity({ schema: "sprocket" })
 @ObjectType()

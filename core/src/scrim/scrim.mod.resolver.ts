@@ -16,7 +16,7 @@ import {minutesToMilliseconds} from "date-fns";
 import {GraphQLError} from "graphql";
 
 import {OrganizationConfigurationService} from "../configuration";
-import {OrganizationConfigurationKeyCode} from '../database';;
+import {OrganizationConfigurationKeyCode} from '$db/configuration/organization_configuration_key/organization_configuration_key.enum';
 import {Player} from '$db/franchise/player/player.model';
 import {MLE_OrganizationTeam} from "../database/mledb";
 import {

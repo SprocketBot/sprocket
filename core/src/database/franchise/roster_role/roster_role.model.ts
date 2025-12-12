@@ -6,7 +6,7 @@ import {
 import {BaseModel} from "../../base-model";
 import {Game} from "../../game/game";
 import {Organization} from "../../organization/organization";
-import {GameSkillGroup} from "../game_skill_group";
+import {GameSkillGroup} from '$db/franchise/game_skill_group/game_skill_group.model';
 
 @Entity({schema: "sprocket"})
 @ObjectType()

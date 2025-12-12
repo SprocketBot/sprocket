@@ -3,7 +3,7 @@ import { Entity, ManyToOne } from "typeorm";
 
 import { BaseModel } from "../../base-model";
 import { Organization } from "../../organization/organization/organization.model";
-import { GameFeature } from "../game_feature";
+import {GameFeature} from '$db/game/game_feature/game_feature.model';
 
 @Entity({ schema: "sprocket" })
 @ObjectType()

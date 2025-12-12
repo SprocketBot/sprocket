@@ -4,9 +4,9 @@ import {
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {Photo} from "../../organization";
-import {Webhook} from "../../webhook";
-import {GameSkillGroup} from "../game_skill_group";
+import {Photo} from '$db/organization/photo/photo.model';
+import {Webhook} from '$db/webhook/webhook/webhook.model';
+import {GameSkillGroup} from '$db/franchise/game_skill_group/game_skill_group.model';
 
 @Entity({schema: "sprocket"})
 @ObjectType()

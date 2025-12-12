@@ -4,7 +4,7 @@ import {
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {FranchiseGroup} from "../franchise_group";
+import {FranchiseGroup} from '$db/franchise/franchise_group/franchise_group.model';
 
 @Entity({schema: "sprocket"})
 @ObjectType()

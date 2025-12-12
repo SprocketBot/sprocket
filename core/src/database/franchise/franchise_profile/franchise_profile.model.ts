@@ -5,7 +5,7 @@ import {
 
 import { BaseModel } from "../../base-model";
 import { Photo } from "../../organization/photo/photo.model";
-import { Webhook } from "../../webhook";
+import {Webhook} from '$db/webhook/webhook/webhook.model';
 import { Franchise } from "../franchise/franchise.model";
 
 @Entity({ schema: "sprocket" })

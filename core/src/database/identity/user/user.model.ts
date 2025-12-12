@@ -6,8 +6,8 @@ import {
 import { BaseModel } from "../../base-model";
 import { Member } from "../../organization/member/member.model";
 import { UserRolesType } from "../roles/user_roles_type.enum";
-import { UserAuthenticationAccount } from "../user_authentication_account";
-import { UserProfile } from "../user_profile";
+import {UserAuthenticationAccount} from '$db/identity/user_authentication_account/user_authentication_account.model';
+import {UserProfile} from '$db/identity/user_profile/user_profile.model';
 
 @Entity({ schema: "sprocket" })
 @ObjectType()

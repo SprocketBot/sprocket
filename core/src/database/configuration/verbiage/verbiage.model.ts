@@ -5,7 +5,7 @@ import {
 
 import { BaseModel } from "../../base-model";
 import { Organization } from "../../organization/organization/organization.model";
-import { VerbiageCode } from "../verbiage_code";
+import {VerbiageCode} from '$db/configuration/verbiage_code/verbiage_code.model';
 
 @Entity({ schema: "sprocket" })
 @Unique(["organization", "code"])

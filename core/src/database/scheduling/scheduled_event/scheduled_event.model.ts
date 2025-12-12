@@ -7,7 +7,7 @@ import {BaseModel} from "../../base-model";
 import {Game} from "../../game/game";
 import {GameMode} from "../../game/game_mode";
 import {Member} from "../../organization/member";
-import {MatchParent} from "../match_parent";
+import {MatchParent} from '$db/scheduling/match_parent/match_parent.model';
 
 @Entity({schema: "sprocket"})
 @ObjectType()

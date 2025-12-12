@@ -59,6 +59,30 @@ const entityMap = {
   'ScheduleGroupType': 'scheduling/schedule_group_type/schedule_group_type.model',
   'ScheduledEvent': 'scheduling/scheduled_event/scheduled_event.model',
   'TeamStatLine': 'scheduling/team_stat_line/team_stat_line.model',
+
+  // Identity entities
+  'User': 'identity/user/user.model',
+  'UserAuthenticationAccount': 'identity/user_authentication_account/user_authentication_account.model',
+  'UserAuthenticationAccountType': 'identity/user_authentication_account/user_authentication_account_type.enum',
+  'UserProfile': 'identity/user_profile/user_profile.model',
+  'UserRoles': 'identity/roles/user_roles.model',
+  'UserRolesType': 'identity/roles/user_roles_type.enum',
+
+  // Image generation entities
+  'ImageTemplate': 'image-gen/image_template/image_template.model',
+
+  // Configuration entities
+  'OrganizationConfigurationKeyCode': 'configuration/organization_configuration_key/organization_configuration_key.enum',
+  'OrganizationConfigurationKey': 'configuration/organization_configuration_key/organization_configuration_key.model',
+  'OrganizationConfigurationKeyTypes': 'configuration/organization_configuration_key/organization_configuration_key.enum',
+  'OrganizationConfigurationValue': 'configuration/organization_configuration_value/organization_configuration_value.model',
+  'OrganizationConfigurationAllowedValue': 'configuration/organization_configuration_allowed_value/organization_configuration_allowed_value.model',
+  'SprocketConfiguration': 'configuration/sprocket_configuration/sprocket_configuration.model',
+  'Verbiage': 'configuration/verbiage/verbiage.model',
+  'VerbiageCode': 'configuration/verbiage_code/verbiage_code.model',
+
+  // Webhook entities
+  'Webhook': 'webhook/webhook/webhook.model',
 };
 
 function processFile(filePath) {
@@ -95,7 +119,33 @@ function processFile(filePath) {
     });
   }
 
-  // Pattern 2: imports from within database folder ONLY
+  // Pattern 2: imports from module barrel files within database directory
+  // Match patterns like: "../../organization", "../../franchise", "../../game"
+  const moduleBarrelRegex = /import\s+(?:type\s+)?{([^}]+)}\s+from\s+['"](\.\.\/)+([a-z_-]+)['"];?/g;
+  const matches2 = content.match(moduleBarrelRegex);
+
+  if (matches2) {
+    content = content.replace(moduleBarrelRegex, (match, relativePath, moduleName) => {
+      const importList = match.match(/{([^}]+)}/)[1].split(',').map(i => i.trim()).filter(i => i);
+      const newImports = [];
+
+      importList.forEach(importName => {
+        const typeMatch = importName.match(/^type\s+(\w+)$/);
+        const entityName = typeMatch ? typeMatch[1] : importName;
+
+        if (entityMap[entityName]) {
+          const prefix = typeMatch ? 'type ' : '';
+          newImports.push(`import ${prefix}{${entityName}} from '$db/${entityMap[entityName]}';`);
+          modified = true;
+        }
+      });
+
+      // If we replaced some imports, return the new ones; otherwise keep original
+      return newImports.length > 0 ? newImports.join('\n') : match;
+    });
+  }
+
+  // Pattern 3: imports from within database folder ONLY
   // Only match paths that are clearly pointing to database subfolder
   // Match patterns like: "../../database/organization" or "../database/scheduling"
   const relativePatterns = [

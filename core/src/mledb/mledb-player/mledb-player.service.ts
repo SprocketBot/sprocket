@@ -6,8 +6,8 @@ import {config} from "@sprocketbot/common";
 import {Repository} from "typeorm";
 
 import {Player} from '$db/franchise/player/player.model';
-import {User} from '../../database';;;
-import {UserAuthenticationAccountType} from '../../database';;;
+import {User} from '$db/identity/user/user.model';
+import {UserAuthenticationAccountType} from '$db/identity/user_authentication_account/user_authentication_account_type.enum';
 import type {MLE_Platform} from "../../database/mledb";
 import {
     MLE_Player, MLE_PlayerAccount, MLE_PlayerToOrg,

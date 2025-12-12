@@ -3,7 +3,7 @@ import {MessagePattern, Payload} from "@nestjs/microservices";
 import type {GetUserByAuthAccountResponse} from "@sprocketbot/common";
 import {CoreEndpoint, CoreSchemas} from "@sprocketbot/common";
 
-import {UserAuthenticationAccountType} from '../database';;;
+import {UserAuthenticationAccountType} from '$db/identity/user_authentication_account/user_authentication_account_type.enum';
 import {IdentityService} from "./identity.service";
 import {UserService} from "./user";
 

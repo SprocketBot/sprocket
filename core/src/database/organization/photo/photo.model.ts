@@ -4,7 +4,7 @@ import {
 } from "typeorm";
 
 import {BaseModel} from "../../base-model";
-import {Approval} from "../approval";
+import {Approval} from '$db/organization/approval/approval.model';
 
 @Entity({schema: "sprocket"})
 @ObjectType()

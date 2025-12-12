@@ -4,7 +4,7 @@ import { Entity, ManyToOne } from "typeorm";
 import { BaseModel } from "../../base-model";
 import { Game } from "../../game/game";
 import { Franchise } from "../franchise/franchise.model";
-import { FranchiseGroup } from "../franchise_group";
+import {FranchiseGroup} from '$db/franchise/franchise_group/franchise_group.model';
 
 @Entity({ schema: "sprocket" })
 @ObjectType()

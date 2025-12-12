@@ -4,9 +4,9 @@ import type {FindOneOptions, FindOptionsWhere} from "typeorm";
 import {Like, Repository} from "typeorm";
 
 import {Organization} from '$db/organization/organization/organization.model';
-import {OrganizationConfigurationAllowedValue} from '../../database';;
-import {OrganizationConfigurationKey} from '../../database';;
-import {OrganizationConfigurationValue} from '../../database';;;
+import {OrganizationConfigurationAllowedValue} from '$db/configuration/organization_configuration_allowed_value/organization_configuration_allowed_value.model';;
+import {OrganizationConfigurationKey} from '$db/configuration/organization_configuration_key/organization_configuration_key.model';
+import {OrganizationConfigurationValue} from '$db/configuration/organization_configuration_value/organization_configuration_value.model';;
 import type {OrganizationConfigurationKeyCode, OrganizationConfigurationKeyTypes} from "../../database/configuration/organization_configuration_key";
 import {OrganizationConfigurationKeyType} from "../../database/configuration/organization_configuration_key";
 import type {OrganizationConfiguration} from "./organization-configuration.types";

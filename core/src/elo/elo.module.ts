@@ -4,7 +4,7 @@ import {
     EventsModule, NotificationModule, RedisModule,
 } from "@sprocketbot/common";
 
-import {DatabaseModule} from '../database';;;
+import {DatabaseModule} from '../database';;;;
 import {FranchiseModule} from "../franchise";
 import {GameModule} from "../game";
 import {IdentityModule} from "../identity";

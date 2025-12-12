@@ -9,7 +9,7 @@ import {
 import { BaseModel } from "../../base-model";
 import { Franchise } from "../../franchise/franchise/franchise.model";
 import { Match } from "../match/match.model";
-import { MatchParent } from "../match_parent";
+import {MatchParent} from '$db/scheduling/match_parent/match_parent.model';
 import { ScheduleGroup } from "../schedule_group/schedule_group.model";
 
 @Entity({ schema: "sprocket" })

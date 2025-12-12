@@ -5,7 +5,7 @@ import {
 
 import { BaseModel } from "../../base-model";
 import { Organization } from "../../organization/organization/organization.model";
-import { OrganizationConfigurationKey } from "../organization_configuration_key";
+import {OrganizationConfigurationKey} from '$db/configuration/organization_configuration_key/organization_configuration_key.model';
 
 @Entity({ schema: "sprocket" })
 @ObjectType()

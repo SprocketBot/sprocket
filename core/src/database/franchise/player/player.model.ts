@@ -7,8 +7,8 @@ import {
 
 import { BaseModel } from "../../base-model";
 import { Member } from "../../organization/member/member.model";
-import { GameSkillGroup } from "../game_skill_group";
-import { RosterSlot } from "../roster_slot";
+import {GameSkillGroup} from '$db/franchise/game_skill_group/game_skill_group.model';
+import {RosterSlot} from '$db/franchise/roster_slot/roster_slot.model';
 
 @Entity({ schema: "sprocket" })
 @ObjectType()

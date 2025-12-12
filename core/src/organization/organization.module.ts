@@ -3,7 +3,7 @@ import {EventsModule} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 
 import {ConfigurationModule} from "../configuration";
-import {DatabaseModule} from '../database';;;
+import {DatabaseModule} from '../database';;;;
 import {FranchiseModule} from "../franchise";
 import {GameModule} from "../game";
 import {IdentityModule} from "../identity";
