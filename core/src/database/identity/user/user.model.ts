@@ -22,11 +22,19 @@ export class User extends BaseModel {
 
     @Column({
         name: "type",
-        type: "enum",
-        enum: UserRolesType,
-        enumName: "sprocket.user_type_enum",
+        type: "text",
         array: true,
         nullable: true,
+        transformer: {
+            to: (value: UserRolesType[] | null | undefined): string[] | null => {
+                if (!value || value.length === 0) return null;
+                return value;
+            },
+            from: (value: string[] | null): UserRolesType[] => {
+                if (!value) return [];
+                return value as UserRolesType[];
+            },
+        },
     })
     type: UserRolesType[];
 
