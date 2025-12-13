@@ -37,6 +37,9 @@ export default new DataSource({
     entities: ["src/database/!(mledb)/**/*.model.ts "],
     migrationsTableName: "migrations",
     migrations: ["migrations/*.ts"],
+    ssl: process.env.DB_SSL === 'true' ? {
+        rejectUnauthorized: false
+    } : false,
     cli: {
         migrationsDir: "migrations"
     }

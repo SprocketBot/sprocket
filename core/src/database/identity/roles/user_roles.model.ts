@@ -12,6 +12,7 @@ export class UserRoles extends BaseModel {
     @Column({
         type: "enum",
         enum: UserRolesType,
+        enumName: "user_roles_accounttype_enum",
     })
     @Field(() => UserRolesType)
     accountType: UserRolesType;
