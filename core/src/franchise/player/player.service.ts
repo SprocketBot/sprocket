@@ -163,9 +163,19 @@ export class PlayerService {
         try {
             let member: Member;
             if (typeof memberOrId === "number") {
-                member = await this.memberService.getMemberById(memberOrId);
+                // Use transaction entity manager if available to avoid transaction scope issues
+                if (runner) {
+                    member = await runner.manager.findOneOrFail(Member, {
+                        where: { id: memberOrId },
+                    });
+                } else {
+                    member = await this.memberService.getMemberById(memberOrId);
+                }
             } else {
-                member = memberOrId;
+                // Extract just the essential data to avoid circular references
+                member = await (runner ? runner.manager : this.memberRepository).findOneOrFail(Member, {
+                    where: { id: memberOrId.id },
+                });
             }
 
             const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
@@ -1128,7 +1138,7 @@ export class PlayerService {
                     }
 
                     this.logger.log(`Creating new player for skillGroup ${pt.gameSkillGroupId} with salary ${pt.salary}`);
-                    const player = await this.createPlayer(member, pt.gameSkillGroupId, pt.salary, runner);
+                    const player = await this.createPlayer(member.id, pt.gameSkillGroupId, pt.salary, runner);
                     this.logger.log(`Created player: id=${player.id}, skillGroupId=${pt.gameSkillGroupId}, salary=${pt.salary}`);
 
                     const skillGroup = await this.skillGroupService.getGameSkillGroupById(pt.gameSkillGroupId);
