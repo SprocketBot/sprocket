@@ -179,16 +179,20 @@ export class PlayerService {
             }
 
             const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
-            const player = this.playerRepository.create({
-                member, skillGroup, salary,
-            });
-
-            this.logger.debug(`created player entity: id will be assigned on save`);
-
+            
+            let player: Player;
             // Use transaction entity manager if provided, otherwise use global repository
             if (runner) {
+                player = runner.manager.create(Player, {
+                    member, skillGroup, salary,
+                });
+                this.logger.debug(`created player entity: id will be assigned on save`);
                 await runner.manager.save(player);
             } else {
+                player = this.playerRepository.create({
+                    member, skillGroup, salary,
+                });
+                this.logger.debug(`created player entity: id will be assigned on save`);
                 await this.playerRepository.save(player);
             }
 
