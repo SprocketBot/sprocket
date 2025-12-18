@@ -172,7 +172,7 @@ export class PlayerService {
                 member, skillGroup, salary,
             });
 
-            this.logger.debug(`created player entity: ${JSON.stringify(player)}`);
+            this.logger.debug(`created player entity: id will be assigned on save`);
 
             // Use transaction entity manager if provided, otherwise use global repository
             if (runner) {
@@ -181,9 +181,7 @@ export class PlayerService {
                 await this.playerRepository.save(player);
             }
 
-            this.logger.debug(`player=${JSON.stringify(player)}`);
-            this.logger.debug(`member = ${JSON.stringify(member)}`);
-            this.logger.debug(`skillGroup = ${JSON.stringify(skillGroup)}`);
+            this.logger.debug(`player saved: id=${player.id}, memberId=${player.memberId}, skillGroupId=${player.skillGroupId}`);
 
             await this.checkAndCreateMlePlayer(
                 player,
@@ -1129,7 +1127,7 @@ export class PlayerService {
                     }
 
                     this.logger.log(`Creating new player for skillGroup ${pt.gameSkillGroupId} with salary ${pt.salary}`);
-                    const player = await this.createPlayer(member, pt.gameSkillGroupId, pt.salary, runner);
+                    const player = await this.createPlayer(member.id, pt.gameSkillGroupId, pt.salary, runner);
                     this.logger.log(`Created player: id=${player.id}, skillGroupId=${pt.gameSkillGroupId}, salary=${pt.salary}`);
 
                     const skillGroup = await this.skillGroupService.getGameSkillGroupById(pt.gameSkillGroupId);
