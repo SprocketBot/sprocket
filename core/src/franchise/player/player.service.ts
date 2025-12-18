@@ -1127,7 +1127,7 @@ export class PlayerService {
                     }
 
                     this.logger.log(`Creating new player for skillGroup ${pt.gameSkillGroupId} with salary ${pt.salary}`);
-                    const player = await this.createPlayer(member.id, pt.gameSkillGroupId, pt.salary, runner);
+                    const player = await this.createPlayer(member, pt.gameSkillGroupId, pt.salary, runner);
                     this.logger.log(`Created player: id=${player.id}, skillGroupId=${pt.gameSkillGroupId}, salary=${pt.salary}`);
 
                     const skillGroup = await this.skillGroupService.getGameSkillGroupById(pt.gameSkillGroupId);
