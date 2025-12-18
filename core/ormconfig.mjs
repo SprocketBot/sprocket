@@ -34,9 +34,9 @@ export default new DataSource({
     password: getDbPassword(),
     database: process.env.DB_DATABASE || config.get("db.database"),
     schema: "public",
-    entities: ["src/database/!(mledb)/**/*.model.ts "],
+    entities: ["dist/database/**/*.model.js"],
     migrationsTableName: "migrations",
-    migrations: ["migrations/*.ts"],
+    migrations: ["dist/migrations/*.js"],
     ssl: process.env.DB_SSL === 'true' ? {
         rejectUnauthorized: false
     } : false,

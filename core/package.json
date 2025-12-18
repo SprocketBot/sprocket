@@ -11,8 +11,8 @@
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "lint": "eslint src --fix",
-    "migration:generate": "typeorm-ts-node-esm migration:generate -d ormconfig.mjs ./migrations/Automigration",
-    "migration:run": "typeorm-ts-node-esm migration:run -d ormconfig.mjs",
+    "migration:generate": "npm run build && npx tsc migrations/*.ts --outDir dist/migrations --module commonjs --esModuleInterop && typeorm-ts-node-esm migration:generate -d ormconfig.mjs ./migrations/Automigration",
+    "migration:run": "npm run build && npx tsc migrations/*.ts --outDir dist/migrations --module commonjs --esModuleInterop && typeorm-ts-node-esm migration:run -d ormconfig.mjs",
     "migration:revert": "typeorm-ts-node-esm migration:revert -d ormconfig.mjs"
   },
   "repository": {
