@@ -157,7 +157,8 @@ export class PlayerService {
     }
 
     async createPlayer(memberOrId: number | Member, skillGroupId: number, salary: number, runner?: QueryRunner): Promise<Player> {
-        this.logger.debug(`createPlayer: memberOrId=${typeof memberOrId === "number" ? memberOrId : memberOrId.id}, skillGroupId=${skillGroupId}, salary=${salary}`);
+        const memberIdForLog = typeof memberOrId === "number" ? memberOrId : memberOrId?.id || "unknown";
+        this.logger.debug(`createPlayer: memberId=${memberIdForLog}, skillGroupId=${skillGroupId}, salary=${salary}`);
 
         try {
             let member: Member;
