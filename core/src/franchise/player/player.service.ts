@@ -94,7 +94,7 @@ export class PlayerService {
     private readonly dataSource: DataSource,
     private readonly eloConnectorService: EloConnectorService,
     private readonly platformService: PlatformService
-  ) {}
+  ) { }
 
   async getPlayer(query: FindOneOptions<Player>): Promise<Player> {
     this.logger.debug(`getPlayer: ${JSON.stringify(query)}`);
@@ -250,8 +250,7 @@ export class PlayerService {
       return player;
     } catch (error) {
       this.logger.error(
-        `Failed to create player: ${
-          error instanceof Error ? error.message : String(error)
+        `Failed to create player: ${error instanceof Error ? error.message : String(error)
         }`
       );
       throw error;
@@ -632,7 +631,7 @@ export class PlayerService {
                       ordinal:
                         player.skillGroup.ordinal -
                         (playerDelta.rankout.skillGroupChange ===
-                        SkillGroupDelta.UP
+                          SkillGroupDelta.UP
                           ? 1
                           : -1),
                     },
@@ -717,7 +716,7 @@ export class PlayerService {
                       ordinal:
                         player.skillGroup.ordinal -
                         (playerDelta.rankout.skillGroupChange ===
-                        SkillGroupDelta.UP
+                          SkillGroupDelta.UP
                           ? 1
                           : -1),
                     },
@@ -1142,7 +1141,7 @@ export class PlayerService {
     name: string,
     d_id: string,
     ptl: CreatePlayerTuple[]
-  ): Promise<string | Player> {
+  ): Promise<string | Player | User> {
     this.logger.log(`=== INTAKE USER STARTED ===`);
     this.logger.log(
       `intakeUser: name="${name}", d_id="${d_id}", ptl_count=${ptl.length}`
@@ -1163,8 +1162,7 @@ export class PlayerService {
       );
     } catch (e) {
       this.logger.error(
-        `Failed to find MLE organization: ${
-          e instanceof Error ? e.message : String(e)
+        `Failed to find MLE organization: ${e instanceof Error ? e.message : String(e)
         }`
       );
       throw e;
@@ -1180,8 +1178,7 @@ export class PlayerService {
       this.logger.log(`Started database transaction`);
     } catch (e) {
       this.logger.error(
-        `Failed to start transaction: ${
-          e instanceof Error ? e.message : String(e)
+        `Failed to start transaction: ${e instanceof Error ? e.message : String(e)
         }`
       );
       throw e;
@@ -1210,8 +1207,7 @@ export class PlayerService {
 
       if (user) {
         this.logger.log(
-          `Found existing user: id=${user.id}, displayName=${
-            user.profile?.displayName || "N/A"
+          `Found existing user: id=${user.id}, displayName=${user.profile?.displayName || "N/A"
           }`
         );
         this.logger.log(`User has ${user.members?.length || 0} members`);
@@ -1353,8 +1349,7 @@ export class PlayerService {
       for (let i = 0; i < ptl.length; i++) {
         const pt = ptl[i];
         this.logger.log(
-          `Processing player tuple ${i + 1}/${ptl.length}: skillGroupId=${
-            pt.gameSkillGroupId
+          `Processing player tuple ${i + 1}/${ptl.length}: skillGroupId=${pt.gameSkillGroupId
           }, salary=${pt.salary}`
         );
 
@@ -1411,10 +1406,9 @@ export class PlayerService {
           playersCreated++;
         } catch (playerError) {
           this.logger.error(
-            `Failed to create player for tuple ${i + 1}: ${
-              playerError instanceof Error
-                ? playerError.message
-                : String(playerError)
+            `Failed to create player for tuple ${i + 1}: ${playerError instanceof Error
+              ? playerError.message
+              : String(playerError)
             }`
           );
           throw playerError;
@@ -1464,8 +1458,8 @@ export class PlayerService {
         }
       }
 
-      // If no player was created, return success message as string for backward compatibility
-      return result;
+      // If no player was created, return the user object
+      return user;
     } catch (e) {
       this.logger.error(`=== INTAKE USER FAILED ===`);
       this.logger.error(
