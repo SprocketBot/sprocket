@@ -403,13 +403,19 @@ export class MatchService {
             const errors: Error[] = [];
 
             orangeStats.forEach(stat => {
-                if (stat.success) orangeStatsResults.push(stat.data.otherStats);
-                else if (stat.error) errors.push(stat.error);
+                if (!stat.success) {
+                    errors.push(stat.error);
+                } else {
+                    orangeStatsResults.push(stat.data.otherStats);
+                }
             });
 
             blueStats.forEach(stat => {
-                if (stat.success) blueStatsResults.push(stat.data.otherStats);
-                else if (stat.error) errors.push(stat.error);
+                if (!stat.success) {
+                    errors.push(stat.error);
+                } else {
+                    blueStatsResults.push(stat.data.otherStats);
+                }
             });
 
             if (errors.length) {

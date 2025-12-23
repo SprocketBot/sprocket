@@ -136,7 +136,7 @@ export class RocketLeagueFinalizationService {
             const r = BallchasingResponseSchema.safeParse(i.progress?.result?.data);
 
             if (!r.success) {
-                const errors = r.error?.errors?.map(e => e.message) ?? ['Unknown validation error'];
+                const errors = r.error.errors.map(e => e.message);
                 throw new Error(`${i.originalFilename} does not contain expected values. ${JSON.stringify(errors)}`);
             }
 

@@ -52,11 +52,9 @@ export function parseAndValidateCsv<T extends z.ZodTypeAny>(
 
         const validation = schema.safeParse(row);
 
-        if (validation.success) {
-            validData.push(validation.data);
-        } else {
+        if (!validation.success) {
             // Extract detailed Zod error messages
-            validation.error?.issues?.forEach((issue) => {
+            validation.error.issues.forEach((issue) => {
                 errors.push({
                     row: rowIndex,
                     message: issue.message,
@@ -64,6 +62,8 @@ export function parseAndValidateCsv<T extends z.ZodTypeAny>(
                     value: (row as any)[issue.path[0]],
                 });
             });
+        } else {
+            validData.push(validation.data);
         }
     });
 
