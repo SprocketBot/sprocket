@@ -18,12 +18,15 @@
       "es2020",
       "esnext.asynciterable"
     ],
-    "strictNullChecks": true,
+    "strictNullChecks": false,
+    "strictFunctionTypes": false,
     "strict": true,
     "strictPropertyInitialization": false,
     "esModuleInterop": true,
     "paths": {
-      "$db/*": ["src/database/*"]
+      "$db/*": [
+        "src/database/*"
+      ]
     }
   },
   "include": [

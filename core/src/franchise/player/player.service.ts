@@ -42,9 +42,7 @@ import {
   Timezone,
 } from "../../database/mledb";
 import { MLE_Player } from "../../database/mledb/Player.model";
-import { MLE_PlayerAccount } from "../../database/mledb/PlayerAccount.model";
 import { PlayerToPlayer } from "../../database/mledb-bridge/player_to_player.model";
-import { PlayerToUser } from "../../database/mledb-bridge/player_to_user.model";
 import type { SalaryPayloadItem } from "../../elo/elo-connector";
 import {
   DegreeOfStiffness,
@@ -64,6 +62,7 @@ export class PlayerService {
   private readonly logger = new Logger(PlayerService.name);
 
   constructor(
+
     @InjectRepository(Player) private playerRepository: Repository<Player>,
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(UserProfile)
@@ -75,14 +74,10 @@ export class PlayerService {
     private userAuthRepository: Repository<UserAuthenticationAccount>,
     @InjectRepository(Organization)
     private organizationRepository: Repository<Organization>,
-    @InjectRepository(PlayerToUser)
-    private readonly ptuRepo: Repository<PlayerToUser>,
     @InjectRepository(PlayerToPlayer)
     private readonly ptpRepo: Repository<PlayerToPlayer>,
     @InjectRepository(MLE_Player)
     private mle_playerRepository: Repository<MLE_Player>,
-    @InjectRepository(MLE_PlayerAccount)
-    private mle_playerAccountRepository: Repository<MLE_PlayerAccount>,
     @Inject(forwardRef(() => MemberService))
     private readonly memberService: MemberService,
     @Inject(forwardRef(() => OrganizationService))
