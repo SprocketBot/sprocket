@@ -35,8 +35,9 @@ export class EloConnectorConsumer {
 
             // Log summary based on endpoint type
             if (listener.endpoint === "CalculateSalaries") {
-                const totalPlayers = data.flat().length;
-                const playersWithRankouts = data.flat().filter((p: any) => p.rankout).length;
+                const salaryData = data as unknown[][];
+                const totalPlayers = salaryData.flat().length;
+                const playersWithRankouts = salaryData.flat().filter((p: any) => p.rankout).length;
                 this.logger.log(
                     `Job ${job}: Processed ${totalPlayers} players, ${playersWithRankouts} with rankouts`
                 );

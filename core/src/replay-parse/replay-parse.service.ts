@@ -67,7 +67,7 @@ export class ReplayParseService {
             submissionId: submissionId,
         });
         if (canSubmitReponse.status === ResponseStatus.ERROR) throw canSubmitReponse.error;
-        if (!canSubmitReponse.data.canSubmit) throw new GraphQLError(canSubmitReponse.data.reason);
+        if (canSubmitReponse.data.canSubmit === false) throw new GraphQLError(canSubmitReponse.data.reason);
 
         const filepaths = await Promise.all(streams.map(async s => {
             const buffer = await readToBuffer(s.stream);
@@ -100,7 +100,7 @@ export class ReplayParseService {
             submissionId: submissionId,
         });
         if (canRatifyReponse.status === ResponseStatus.ERROR) throw canRatifyReponse.error;
-        if (!canRatifyReponse.data.canRatify) throw new GraphQLError(canRatifyReponse.data.reason);
+        if (canRatifyReponse.data.canRatify === false) throw new GraphQLError(canRatifyReponse.data.reason);
 
         const ratificationResponse = await this.submissionService.send(SubmissionEndpoint.RatifySubmission, {
             submissionId: submissionId,

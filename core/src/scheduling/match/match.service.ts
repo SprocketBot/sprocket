@@ -404,12 +404,12 @@ export class MatchService {
 
             orangeStats.forEach(stat => {
                 if (stat.success) orangeStatsResults.push(stat.data.otherStats);
-                else errors.push(stat.error);
+                else if (stat.error) errors.push(stat.error);
             });
 
             blueStats.forEach(stat => {
                 if (stat.success) blueStatsResults.push(stat.data.otherStats);
-                else errors.push(stat.error);
+                else if (stat.error) errors.push(stat.error);
             });
 
             if (errors.length) {
