@@ -54,13 +54,11 @@ export function parseAndValidateCsv<T extends z.ZodTypeAny>(
 
         if (!validation.success) {
             // Extract detailed Zod error messages
-            validation.error.issues.forEach((issue) => {
-                errors.push({
-                    row: rowIndex,
-                    message: issue.message,
-                    field: issue.path.join('.'),
-                    value: (row as any)[issue.path[0]],
-                });
+            errors.push({
+                row: rowIndex,
+                message: JSON.stringify(validation),
+                field: '',
+                value: undefined,
             });
         } else {
             validData.push(validation.data);

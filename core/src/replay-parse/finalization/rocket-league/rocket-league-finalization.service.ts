@@ -1,37 +1,37 @@
-import {Injectable, Logger} from "@nestjs/common";
-import {InjectDataSource} from "@nestjs/typeorm";
+import { Injectable, Logger } from "@nestjs/common";
+import { InjectDataSource } from "@nestjs/typeorm";
 import type {
     BallchasingPlayer, BallchasingResponse, BallchasingTeam, Scrim,
 } from "@sprocketbot/common";
 import {
     BallchasingResponseSchema, Parser, ProgressStatus,
 } from "@sprocketbot/common";
-import type {EntityManager} from "typeorm";
-import {DataSource} from "typeorm";
-import type {QueryDeepPartialEntity} from "typeorm/query-builder/QueryPartialEntity";
+import type { EntityManager } from "typeorm";
+import { DataSource } from "typeorm";
+import type { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 
-import {Player} from '$db/franchise/player/player.model';
-import {Team} from '$db/franchise/team/team.model';
-import {EligibilityData} from '$db/scheduling/eligibility_data/eligibility_data.model';
-import {GameMode} from '$db/game/game_mode/game_mode.model';
-import {Match} from '$db/scheduling/match/match.model';
-import {MatchParent} from '$db/scheduling/match_parent/match_parent.model';
-import {PlayerStatLine} from '$db/scheduling/player_stat_line/player_stat_line.model';
-import {Round} from '$db/scheduling/round/round.model';
-import {ScrimMeta} from '$db/scheduling/saved_scrim/scrim.model';
-import {TeamStatLine} from '$db/scheduling/team_stat_line/team_stat_line.model';
-import {PlayerService} from "../../../franchise";
-import {TeamService} from "../../../franchise/team/team.service";
-import {MledbFinalizationService, MledbPlayerService} from "../../../mledb";
-import {MatchService} from "../../../scheduling";
-import {SprocketRatingService} from "../../../sprocket-rating/sprocket-rating.service";
-import type {SprocketRating, SprocketRatingInput} from "../../../sprocket-rating/sprocket-rating.types";
+import { Player } from '$db/franchise/player/player.model';
+import { Team } from '$db/franchise/team/team.model';
+import { EligibilityData } from '$db/scheduling/eligibility_data/eligibility_data.model';
+import { GameMode } from '$db/game/game_mode/game_mode.model';
+import { Match } from '$db/scheduling/match/match.model';
+import { MatchParent } from '$db/scheduling/match_parent/match_parent.model';
+import { PlayerStatLine } from '$db/scheduling/player_stat_line/player_stat_line.model';
+import { Round } from '$db/scheduling/round/round.model';
+import { ScrimMeta } from '$db/scheduling/saved_scrim/scrim.model';
+import { TeamStatLine } from '$db/scheduling/team_stat_line/team_stat_line.model';
+import { PlayerService } from "../../../franchise";
+import { TeamService } from "../../../franchise/team/team.service";
+import { MledbFinalizationService, MledbPlayerService } from "../../../mledb";
+import { MatchService } from "../../../scheduling";
+import { SprocketRatingService } from "../../../sprocket-rating/sprocket-rating.service";
+import type { SprocketRating, SprocketRatingInput } from "../../../sprocket-rating/sprocket-rating.types";
 import type {
     MatchReplaySubmission, ReplaySubmission, ScrimReplaySubmission,
 } from "../../types";
-import {ReplaySubmissionType} from "../../types";
-import {BallchasingConverterService} from "../ballchasing-converter";
-import type {SaveMatchFinalizationReturn, SaveScrimFinalizationReturn} from "../finalization.types";
+import { ReplaySubmissionType } from "../../types";
+import { BallchasingConverterService } from "../ballchasing-converter";
+import type { SaveMatchFinalizationReturn, SaveScrimFinalizationReturn } from "../finalization.types";
 
 @Injectable()
 export class RocketLeagueFinalizationService {
@@ -47,7 +47,7 @@ export class RocketLeagueFinalizationService {
         private readonly ballchasingConverter: BallchasingConverterService,
         private readonly mledbFinalizationService: MledbFinalizationService,
         @InjectDataSource() private readonly dataSource: DataSource,
-    ) {}
+    ) { }
 
     async finalizeScrim(submission: ScrimReplaySubmission, scrim: Scrim): Promise<SaveScrimFinalizationReturn> {
         const qr = this.dataSource.createQueryRunner();
@@ -56,7 +56,7 @@ export class RocketLeagueFinalizationService {
         await qr.startTransaction();
         const em = qr.manager;
         try {
-            const gameMode = await em.findOneByOrFail(GameMode, {id: scrim.gameModeId});
+            const gameMode = await em.findOneByOrFail(GameMode, { id: scrim.gameModeId });
 
             const scrimMeta = em.create(ScrimMeta);
             const matchParent = em.create(MatchParent);
@@ -79,7 +79,7 @@ export class RocketLeagueFinalizationService {
             matchParent.match = match;
             await qr.commitTransaction();
 
-            return {scrim: scrimMeta, legacyScrim: mledbScrim};
+            return { scrim: scrimMeta, legacyScrim: mledbScrim };
         } catch (e) {
             const errorPayload = {
                 submissionId: submission.id,
@@ -101,14 +101,14 @@ export class RocketLeagueFinalizationService {
         await qr.startTransaction();
         const em = qr.manager;
         try {
-            const match = await this.matchService.getMatchById(submission.matchId, {matchParent: {fixture: {homeFranchise: {organization: true} } }, gameMode: true});
+            const match = await this.matchService.getMatchById(submission.matchId, { matchParent: { fixture: { homeFranchise: { organization: true } } }, gameMode: true });
             const organization = match.matchParent.fixture!.homeFranchise.organization;
 
             await this.saveMatchDependents(submission, organization.id, match, false, em);
 
             const mleMatch = await this.mledbFinalizationService.saveMatch(submission, submission.id, em);
             await qr.commitTransaction();
-            return {match: match, legacyMatch: mleMatch};
+            return { match: match, legacyMatch: mleMatch };
         } catch (e) {
             const errorPayload = {
                 submissionId: submission.id,
@@ -129,15 +129,14 @@ export class RocketLeagueFinalizationService {
      */
     async saveMatchDependents(submission: ReplaySubmission, organizationId: number, match: Match, eligibility: boolean, em: EntityManager): Promise<Match> {
         if (submission.items.some(i => i.progress?.status !== ProgressStatus.Complete)) {
-            throw new Error(`Not all items have been completed. Finalization attempted too soon. ${JSON.stringify({submissionId: submission.id, match: match.id})}`);
+            throw new Error(`Not all items have been completed. Finalization attempted too soon. ${JSON.stringify({ submissionId: submission.id, match: match.id })}`);
         }
 
-        const replays = submission.items.map<{replay: BallchasingResponse; parser: {type: Parser; version: number;}; outputPath: string;}>(i => {
+        const replays = submission.items.map<{ replay: BallchasingResponse; parser: { type: Parser; version: number; }; outputPath: string; }>(i => {
             const r = BallchasingResponseSchema.safeParse(i.progress?.result?.data);
 
             if (!r.success) {
-                const errors = r.error.errors.map(e => e.message);
-                throw new Error(`${i.originalFilename} does not contain expected values. ${JSON.stringify(errors)}`);
+                throw new Error(`${i.originalFilename} does not contain expected values. ${r}`);
             }
 
             if (i.progress?.result?.parser !== Parser.BALLCHASING) {
@@ -145,12 +144,12 @@ export class RocketLeagueFinalizationService {
             }
 
             return {
-                replay: r.data, parser: {type: i.progress.result.parser, version: i.progress.result.parserVersion}, outputPath: i.outputPath!,
+                replay: r.data, parser: { type: i.progress.result.parser, version: i.progress.result.parserVersion }, outputPath: i.outputPath!,
             };
         });
 
         const isMatch = submission.type === ReplaySubmissionType.MATCH;
-        const {home, away} = isMatch ? await this.matchService.getFranchisesForMatch(match.id) : {home: undefined, away: undefined};
+        const { home, away } = isMatch ? await this.matchService.getFranchisesForMatch(match.id) : { home: undefined, away: undefined };
         const [homeTeam, awayTeam] = isMatch
             ? await Promise.all([
                 await this.teamService.getTeam(home!.id, match.skillGroupId),
@@ -163,7 +162,7 @@ export class RocketLeagueFinalizationService {
             replay, parser, outputPath,
         }) => {
             // Get players
-            const {blue, orange} = await this._getBallchasingPlayers(replay);
+            const { blue, orange } = await this._getBallchasingPlayers(replay);
             /*
              First, identify which team is home.
              It is safe to assume that all players are on the same team here;
@@ -243,7 +242,7 @@ export class RocketLeagueFinalizationService {
         return match;
     }
 
-    _createRound(match: Match, homeWon: boolean, replay: BallchasingResponse, parser: {type: Parser; version: number;}, outputPath: string): Round {
+    _createRound(match: Match, homeWon: boolean, replay: BallchasingResponse, parser: { type: Parser; version: number; }, outputPath: string): Round {
         const round = new Round();
         round.gameMode = match.gameMode;
         round.homeWon = homeWon;
@@ -261,7 +260,7 @@ export class RocketLeagueFinalizationService {
      * Looks up a set of players based on their ballchasing information
      * Noteworthy; this looks up sprocket players!
      */
-    async _getBallchasingPlayers(ballchasing: BallchasingResponse): Promise<{blue: Array<{player: Player; rawPlayer: BallchasingPlayer;}>; orange: Array<{player: Player; rawPlayer: BallchasingPlayer;}>;}> {
+    async _getBallchasingPlayers(ballchasing: BallchasingResponse): Promise<{ blue: Array<{ player: Player; rawPlayer: BallchasingPlayer; }>; orange: Array<{ player: Player; rawPlayer: BallchasingPlayer; }>; }> {
         // TODO: This won't work when we support multiple games; in theory is an array of players for that member.
         const lookupFn = async (p: BallchasingPlayer): Promise<Player> => this.playerService.getPlayer({
             where: {
@@ -274,7 +273,7 @@ export class RocketLeagueFinalizationService {
                     },
                 },
             },
-            relations: {member: {platformAccounts: {platform: true} } },
+            relations: { member: { platformAccounts: { platform: true } } },
         });
 
         const bluePlayerIds = new Array<BallchasingPlayer>();
@@ -292,8 +291,8 @@ export class RocketLeagueFinalizationService {
         });
 
         return {
-            blue: await Promise.all(bluePlayerIds.map(async p => ({player: await lookupFn(p), rawPlayer: p}))),
-            orange: await Promise.all(orangePlayerIds.map(async p => ({player: await lookupFn(p), rawPlayer: p}))),
+            blue: await Promise.all(bluePlayerIds.map(async p => ({ player: await lookupFn(p), rawPlayer: p }))),
+            orange: await Promise.all(orangePlayerIds.map(async p => ({ player: await lookupFn(p), rawPlayer: p }))),
         };
     }
 
@@ -339,11 +338,11 @@ export class RocketLeagueFinalizationService {
     _getSprocketRating(rawPlayer: BallchasingPlayer, opposingTeam: BallchasingTeam, gameMode: GameMode): SprocketRating {
         const sprocketRatingInput: SprocketRatingInput = {
             ...rawPlayer.stats.core,
-            ...opposingTeam.players.reduce<{goals_against: number; shots_against: number;}>((acc, v) => {
+            ...opposingTeam.players.reduce<{ goals_against: number; shots_against: number; }>((acc, v) => {
                 acc.goals_against += v.stats.core.goals;
                 acc.shots_against += v.stats.core.shots;
                 return acc;
-            }, {goals_against: 0, shots_against: 0}),
+            }, { goals_against: 0, shots_against: 0 }),
             team_size: gameMode.teamSize,
         };
         return this.sprocketRatingService.calcSprocketRating(sprocketRatingInput);
