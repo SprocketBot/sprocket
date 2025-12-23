@@ -4,6 +4,7 @@ import {
 import {Logger} from "@nestjs/common";
 import {Job, Queue} from "bull";
 import {previousMonday} from "date-fns";
+import {AnalyticsEndpoint, AnalyticsService} from "@sprocketbot/common";
 
 import {FeatureCode} from '$db/game/feature/feature.enum';
 import {PlayerService} from "../franchise";
@@ -26,16 +27,29 @@ export class EloConsumer {
         private readonly gameFeatureService: GameFeatureService,
         private readonly organizationService: OrganizationService,
         private readonly eloConnectorService: EloConnectorService,
+        private readonly analyticsService: AnalyticsService,
     ) {}
 
     @OnQueueFailed()
-    async onFailure(_: Job, error: Error): Promise<void> {
+    async onFailure(job: Job, error: Error): Promise<void> {
         this.logger.error(error);
+
+        await this.analyticsService.send(AnalyticsEndpoint.Analytics, {
+            name: "weekly_salaries_job",
+            tags: [
+                ["status", "failed"],
+                ["job_name", job.name],
+            ],
+            strings: [
+                ["error_message", error.message],
+            ],
+        });
     }
 
     @Process({name: WEEKLY_SALARIES_JOB_NAME})
     async runSalaries(): Promise<void> {
-        this.logger.debug("Running weekly salaries!");
+        const startTime = Date.now();
+        this.logger.log("Starting weekly salaries job");
 
         const rocketLeague = await this.gameService.getGameByTitle("Rocket League");
         const mleOrg = await this.organizationService.getOrganization({where: {name: "Minor League Esports"}, relations: {organization: true} });
@@ -43,10 +57,46 @@ export class EloConsumer {
         const autoRankoutsEnabled = await this.gameFeatureService.featureIsEnabled(FeatureCode.AUTO_RANKOUTS, rocketLeague.id, mleOrg.id);
         const autoSalariesEnabled = await this.gameFeatureService.featureIsEnabled(FeatureCode.AUTO_SALARIES, rocketLeague.id, mleOrg.id);
 
-        if (!autoSalariesEnabled) return;
-        
+        this.logger.log(
+            `Feature flags: autoSalariesEnabled=${autoSalariesEnabled}, autoRankoutsEnabled=${autoRankoutsEnabled}`
+        );
+
+        if (!autoSalariesEnabled) {
+            this.logger.log("Auto salaries disabled, skipping job");
+            await this.analyticsService.send(AnalyticsEndpoint.Analytics, {
+                name: "weekly_salaries_job",
+                tags: [["status", "skipped"], ["reason", "feature_disabled"]],
+                booleans: [["auto_salaries_enabled", false]],
+            });
+            return;
+        }
+
+        this.logger.log(`Requesting salary calculation from ELO service (doRankouts=${autoRankoutsEnabled})`);
         const salaryData = await this.eloConnectorService.createJobAndWait(EloEndpoint.CalculateSalaries, {doRankouts: autoRankoutsEnabled});
+
+        this.logger.log("Salary calculation received, saving salaries");
         await this.playerService.saveSalaries(salaryData);
+
+        const duration = Date.now() - startTime;
+        this.logger.log(`Weekly salaries job completed in ${duration}ms`);
+
+        const totalPlayers = salaryData.flat().length;
+        const playersWithRankouts = salaryData.flat().filter(p => p.rankout).length;
+
+        await this.analyticsService.send(AnalyticsEndpoint.Analytics, {
+            name: "weekly_salaries_job",
+            tags: [["status", "completed"]],
+            booleans: [
+                ["auto_salaries_enabled", true],
+                ["auto_rankouts_enabled", autoRankoutsEnabled],
+            ],
+            ints: [
+                ["duration_ms", duration],
+                ["total_players", totalPlayers],
+                ["players_with_rankouts", playersWithRankouts],
+                ["players_without_rankouts", totalPlayers - playersWithRankouts],
+            ],
+        });
     }
 
     async compactGraph(): Promise<void> {

@@ -1,7 +1,7 @@
 import {BullModule} from "@nestjs/bull";
 import {Module} from "@nestjs/common";
 import {
-    EventsModule, NotificationModule, RedisModule,
+    AnalyticsModule, EventsModule, NotificationModule, RedisModule,
 } from "@sprocketbot/common";
 
 import {DatabaseModule} from '../database';;;;
@@ -28,6 +28,7 @@ import {EloConnectorModule} from "./elo-connector/elo-connector.module";
         EventsModule,
         NotificationModule,
         IdentityModule,
+        AnalyticsModule,
     ],
     providers: [
         EloConsumer,

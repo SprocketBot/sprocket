@@ -1,6 +1,6 @@
 import {BullModule} from "@nestjs/bull";
 import {Module} from "@nestjs/common";
-import {config} from "@sprocketbot/common";
+import {AnalyticsModule, config} from "@sprocketbot/common";
 
 import {EloConnectorConsumer} from "./elo-connector.consumer";
 import {EloConnectorService} from "./elo-connector.service";
@@ -24,6 +24,7 @@ import {EloBullQueue} from "./elo-connector.types";
             prefix: `${config.redis.prefix}:bull`,
         }),
         BullModule.registerQueue({name: EloBullQueue}),
+        AnalyticsModule,
     ],
     providers: [
         EloConnectorService,

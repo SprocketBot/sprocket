@@ -1,7 +1,7 @@
 import {forwardRef, Module} from "@nestjs/common";
 import {JwtModule} from "@nestjs/jwt";
 import {
-    config, EventsModule, NotificationModule,
+    AnalyticsModule, config, EventsModule, NotificationModule,
 } from "@sprocketbot/common";
 
 import {DatabaseModule} from '../database';;;;
@@ -32,6 +32,7 @@ import {TeamService} from "./team/team.service";
         forwardRef(() => OrganizationModule),
         forwardRef(() => MledbInterfaceModule),
         EloConnectorModule,
+        AnalyticsModule,
         JwtModule.register({
             secret: config.auth.jwt_secret,
         }),

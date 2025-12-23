@@ -7,6 +7,8 @@ import type {
   NotificationInput,
 } from "@sprocketbot/common";
 import {
+  AnalyticsEndpoint,
+  AnalyticsService,
   ButtonComponentStyle,
   ComponentType,
   config,
@@ -88,7 +90,8 @@ export class PlayerService {
     private readonly jwtService: JwtService,
     private readonly dataSource: DataSource,
     private readonly eloConnectorService: EloConnectorService,
-    private readonly platformService: PlatformService
+    private readonly platformService: PlatformService,
+    private readonly analyticsService: AnalyticsService
   ) { }
 
   async getPlayer(query: FindOneOptions<Player>): Promise<Player> {
@@ -563,7 +566,23 @@ export class PlayerService {
   }
 
   async saveSalaries(payload: SalaryPayloadItem[][]): Promise<void> {
-    this.logger.debug(`saveSalaries: ${JSON.stringify(payload)}`);
+    const totalPlayers = payload.flat().length;
+    const playersWithRankouts = payload.flat().filter(p => p.rankout).length;
+    const hardRankouts = payload.flat().filter(p => p.rankout?.degreeOfStiffness === DegreeOfStiffness.HARD).length;
+    const softRankouts = payload.flat().filter(p => p.rankout?.degreeOfStiffness === DegreeOfStiffness.SOFT).length;
+
+    this.logger.log(
+      `saveSalaries: Processing ${totalPlayers} players (${playersWithRankouts} with rankouts: ${hardRankouts} HARD, ${softRankouts} SOFT)`
+    );
+
+    // Metrics tracking
+    let skippedFP = 0;
+    let skippedNoChange = 0;
+    let hardRankoutsProcessed = 0;
+    let softRankoutsProcessed = 0;
+    let regularUpdates = 0;
+    let salaryCapViolations = 0;
+
     await Promise.allSettled(
       payload.map(async (payloadSkillGroup) =>
         Promise.allSettled(
@@ -593,9 +612,33 @@ export class PlayerService {
               where: { id: bridge.mledPlayerId },
             });
 
-            if (mlePlayer.teamName === "FP") return;
-            if (!playerDelta.rankout && player.salary === playerDelta.newSalary)
+            this.logger.debug(
+              `Player ${playerDelta.playerId} (${player.member.profile.name}): ` +
+              `Current: salary=${player.salary}, skillGroup=${player.skillGroup.profile.description} (cap=${player.skillGroup.salaryCap}), ` +
+              `New: salary=${playerDelta.newSalary}${playerDelta.rankout ? `, rankout=${playerDelta.rankout.skillGroupChange} (${playerDelta.rankout.degreeOfStiffness}) to salary=${playerDelta.rankout.salary}` : ''}, ` +
+              `Team: ${mlePlayer.teamName}`
+            );
+
+            if (mlePlayer.teamName === "FP") {
+              this.logger.debug(`Player ${playerDelta.playerId}: Skipping (Free Player)`);
+              skippedFP++;
               return;
+            }
+            if (!playerDelta.rankout && player.salary === playerDelta.newSalary) {
+              this.logger.debug(`Player ${playerDelta.playerId}: Skipping (No change)`);
+              skippedNoChange++;
+              return;
+            }
+
+            // Log potential issues
+            if (!playerDelta.rankout && playerDelta.newSalary > player.skillGroup.salaryCap) {
+              this.logger.warn(
+                `Player ${playerDelta.playerId} (${player.member.profile.name}): ` +
+                `NEW SALARY ${playerDelta.newSalary} EXCEEDS SKILL GROUP CAP ${player.skillGroup.salaryCap} ` +
+                `for ${player.skillGroup.profile.description} BUT NO RANKOUT PROVIDED!`
+              );
+              salaryCapViolations++;
+            }
 
             const discordAccount = await this.userAuthRepository.findOneOrFail({
               where: {
@@ -614,6 +657,13 @@ export class PlayerService {
               if (
                 playerDelta.rankout.degreeOfStiffness === DegreeOfStiffness.HARD
               ) {
+                this.logger.log(
+                  `Player ${playerDelta.playerId} (${player.member.profile.name}): ` +
+                  `Processing HARD rankout ${playerDelta.rankout.skillGroupChange} ` +
+                  `from ${player.skillGroup.profile.description} with salary ${playerDelta.rankout.salary}`
+                );
+                hardRankoutsProcessed++;
+
                 const skillGroup =
                   await this.skillGroupService.getGameSkillGroup({
                     where: {
@@ -636,6 +686,11 @@ export class PlayerService {
                       organization: true,
                     },
                   });
+
+                this.logger.log(
+                  `Player ${playerDelta.playerId}: Moving to ${skillGroup.profile.description} ` +
+                  `(ordinal ${skillGroup.ordinal}, cap ${skillGroup.salaryCap})`
+                );
 
                 await this.updatePlayerStanding(
                   playerDelta.playerId,
@@ -694,6 +749,13 @@ export class PlayerService {
               } else if (
                 playerDelta.rankout.degreeOfStiffness === DegreeOfStiffness.SOFT
               ) {
+                this.logger.log(
+                  `Player ${playerDelta.playerId} (${player.member.profile.name}): ` +
+                  `Processing SOFT rankout ${playerDelta.rankout.skillGroupChange} - ` +
+                  `setting salary to ${playerDelta.newSalary}, offering rankout to ${playerDelta.rankout.salary}`
+                );
+                softRankoutsProcessed++;
+
                 await this.updatePlayerStanding(
                   playerDelta.playerId,
                   playerDelta.newSalary
@@ -721,6 +783,12 @@ export class PlayerService {
                       game: true,
                     },
                   });
+
+                this.logger.log(
+                  `Player ${playerDelta.playerId}: Offering rankout to ${skillGroup.profile.description} ` +
+                  `(ordinal ${skillGroup.ordinal}, cap ${skillGroup.salaryCap}) at salary ${playerDelta.rankout.salary}. ` +
+                  `Player stays in ${player.skillGroup.profile.description} with salary ${playerDelta.newSalary} until accepted.`
+                );
 
                 /* TEMPORARY NOTIFICATION */
                 const rankdownPayload: RankdownJwtPayload = {
@@ -862,6 +930,13 @@ export class PlayerService {
                 // });
               }
             } else {
+              this.logger.log(
+                `Player ${playerDelta.playerId} (${player.member.profile.name}): ` +
+                `No rankout - updating salary from ${player.salary} to ${playerDelta.newSalary} ` +
+                `in ${player.skillGroup.profile.description}`
+              );
+              regularUpdates++;
+
               await this.updatePlayerStanding(
                 playerDelta.playerId,
                 playerDelta.newSalary
@@ -871,11 +946,35 @@ export class PlayerService {
               });
 
               await this.mle_playerRepository.save(newMlePlayer);
+
+              this.logger.debug(
+                `Player ${playerDelta.playerId}: Salary update complete`
+              );
             }
           })
         )
       )
     );
+
+    this.logger.log(`saveSalaries: Completed processing ${totalPlayers} players`);
+
+    // Emit metrics
+    await this.analyticsService.send(AnalyticsEndpoint.Analytics, {
+      name: "salary_processing",
+      ints: [
+        ["total_players", totalPlayers],
+        ["hard_rankouts", hardRankoutsProcessed],
+        ["soft_rankouts", softRankoutsProcessed],
+        ["regular_updates", regularUpdates],
+        ["skipped_fp", skippedFP],
+        ["skipped_no_change", skippedNoChange],
+        ["salary_cap_violations", salaryCapViolations],
+      ],
+    });
+
+    if (salaryCapViolations > 0) {
+      this.logger.warn(`CRITICAL: ${salaryCapViolations} salary cap violations detected!`);
+    }
   }
 
   mle_nextLeague(league: League, dir: -1 | 1): League {
