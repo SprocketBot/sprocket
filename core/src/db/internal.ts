@@ -81,3 +81,7 @@ export * from './scrim_timeout/scrim_timeout.entity';
 export * from './scrim_timeout/scrim_timeout.repository';
 
 export * from './events/event_queue.entity';
+
+export * from './elo/elo-rating-node.entity';
+export * from './elo/match-rating-calculation.entity';
+export * from './elo/game-rating-config.entity';

@@ -70,6 +70,19 @@ export class SubmissionsService {
             submission.rejectionReason = rejectionReason;
         }
 
-        return this.submissionRepository.save(submission);
+        const savedSubmission = await this.submissionRepository.save(submission);
+
+        if (status === SubmissionStatus.RATIFIED) {
+            await this.eventQueueService.publish(
+                EventTarget.ELO_SERVICE,
+                EventType.MATCH_RATIFIED,
+                {
+                    submissionId: savedSubmission.id,
+                    matchId: submission.match.id,
+                },
+            );
+        }
+
+        return savedSubmission;
     }
 }

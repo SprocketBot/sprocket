@@ -6,6 +6,7 @@ export enum EventType {
     MATCH_COMPLETED = 'MATCH_COMPLETED',
     PLAYER_JOINED_QUEUE = 'PLAYER_JOINED_QUEUE',
     SUBMISSION_CREATED = 'SUBMISSION_CREATED',
+    MATCH_RATIFIED = 'MATCH_RATIFIED',
 }
 
 export enum EventStatus {
@@ -18,6 +19,7 @@ export enum EventTarget {
     NOTIFICATIONS = 'NOTIFICATIONS',
     IMAGE_GEN = 'IMAGE_GEN',
     REPLAY_PARSE = 'REPLAY_PARSE',
+    ELO_SERVICE = 'ELO_SERVICE',
 }
 
 @Entity()

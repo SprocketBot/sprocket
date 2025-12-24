@@ -14,6 +14,7 @@ import { authz } from './authz.def';
 import { ObservabilityModule } from './observability/observability.module';
 import { SubmissionsModule } from './submissions/submissions.module';
 import { EventQueueModule } from './events/event-queue.module';
+import { EloModule } from './elo/elo.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { EventQueueModule } from './events/event-queue.module';
     ObservabilityModule,
     SubmissionsModule,
     EventQueueModule,
+    EloModule,
   ],
   controllers: [AppController],
   providers: [AppService],
