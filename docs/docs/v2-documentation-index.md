@@ -5,6 +5,7 @@ This document serves as the central index for all Sprocket v2 planning and featu
 ## Quick Start
 
 **New to the project?** Start here:
+
 1. Read the [Design Philosophy](./design-philosophy.md) to understand our approach
 2. Review the [Roadmap](./roadmap.md) for the big picture
 3. Pick a feature area and dive into its spec
@@ -31,6 +32,7 @@ This document serves as the central index for all Sprocket v2 planning and featu
 ## Feature Specifications
 
 Each feature spec includes:
+
 - Overview and current/target state
 - Data model design
 - API endpoints
@@ -40,11 +42,13 @@ Each feature spec includes:
 - Risks and mitigations
 
 ### 1. Multi-Game Data Model Refactor
+
 **[feature-multi-game-data-model.md](./feature-multi-game-data-model.md)**
 
 Refactor the Rocket League-centric data model to support multiple game types (Trackmania, future games).
 
 **Key Topics**:
+
 - Flexible Match/Round/Result structure
 - Game-specific stat handling via JSONB
 - Rocket League vs Trackmania match flows
@@ -55,11 +59,13 @@ Refactor the Rocket League-centric data model to support multiple game types (Tr
 ---
 
 ### 2. V1 Microservices Migration
-**[feature-v1-microservices-migration.md](./archive/feature-v1-microservices-migration.md)** *(DEPRECATED - see unified migration)*
+
+**[feature-v1-microservices-migration.md](./archive/feature-v1-microservices-migration.md)** _(DEPRECATED - see unified migration)_
 
 ~~Migrate five v1 microservices into v2 architecture, removing Redis/RabbitMQ dependencies.~~
 
 **Services**:
+
 1. Notifications (remain separate)
 2. Image Generation (remain separate)
 3. Replay Parse (remain separate)
@@ -67,6 +73,7 @@ Refactor the Rocket League-centric data model to support multiple game types (Tr
 5. ~~Matchmaking (integrate into core)~~
 
 **Key Topics**:
+
 - ~~PostgreSQL event queue for service communication~~
 - ~~Docker Compose integration~~
 - ~~Service consolidation decisions~~
@@ -77,11 +84,13 @@ Refactor the Rocket League-centric data model to support multiple game types (Tr
 ---
 
 ### 3. Multi-Game ELO System
+
 **[feature-multi-game-elo.md](./feature-multi-game-elo.md)**
 
 Graph-based ELO rating system supporting multiple games and formulae, with invalidation and recalculation.
 
 **Key Topics**:
+
 - Graph structure (rating nodes and match calculations)
 - Match invalidation with dependent recalculation
 - Graph compaction for performance
@@ -93,11 +102,13 @@ Graph-based ELO rating system supporting multiple games and formulae, with inval
 ---
 
 ### 4. RBAC System Enhancement
+
 **[feature-rbac-system.md](./feature-rbac-system.md)**
 
 Comprehensive Role-Based Access Control using Casbin, with admin UI for managing roles and permissions.
 
 **Key Topics**:
+
 - Casbin policy model
 - Role hierarchy (Player → Captain → GM → FM → League Ops → Admin)
 - Scope-based permissions (own, own_team, own_club, own_franchise, all)
@@ -109,11 +120,13 @@ Comprehensive Role-Based Access Control using Casbin, with admin UI for managing
 ---
 
 ### 5. API Token & Impersonation System
+
 **[feature-api-tokens.md](./feature-api-tokens.md)**
 
 Personal Access Token system for third-party integrations and user automations.
 
 **Key Topics**:
+
 - Token generation and secure storage (SHA256 hashing)
 - Scope-based access control
 - Rate limiting per token
@@ -125,11 +138,13 @@ Personal Access Token system for third-party integrations and user automations.
 ---
 
 ### 6. League Management UI
+
 **[feature-league-management.md](./feature-league-management.md)**
 
 Comprehensive UI for managing organizational hierarchy and rosters.
 
 **Key Topics**:
+
 - Entity hierarchy: League → Franchise → Club → Team → Player
 - Roster management with offer system
 - Role assignments (Captain, GM, FM)
@@ -147,6 +162,7 @@ Comprehensive UI for managing organizational hierarchy and rosters.
 Comprehensive breakdown of all features into actionable tickets, organized by epic.
 
 **Structure**:
+
 - 7 Epics (one per major feature area)
 - ~200+ individual tickets
 - Priority labels (P0, P1, P2, P3)
@@ -154,6 +170,7 @@ Comprehensive breakdown of all features into actionable tickets, organized by ep
 - Acceptance criteria
 
 **Use this document to**:
+
 - Create GitHub issues
 - Plan sprints
 - Track progress
@@ -164,17 +181,20 @@ Comprehensive breakdown of all features into actionable tickets, organized by ep
 ## How to Use This Documentation
 
 ### For Product Planning
+
 1. Start with the [Roadmap](./roadmap.md)
 2. Review each feature spec for scope and priorities
 3. Use [tickets-breakdown.md](./tickets-breakdown.md) to create issues
 
 ### For Development
+
 1. Pick a ticket from [tickets-breakdown.md](./tickets-breakdown.md)
 2. Read the corresponding feature spec for context
 3. Refer to [design-philosophy.md](./design-philosophy.md) when making decisions
 4. Update the spec if you discover new requirements
 
 ### For Architecture Decisions
+
 1. Review [design-philosophy.md](./design-philosophy.md)
 2. Check if the decision aligns with simplicity principles
 3. Document exceptions with justification
@@ -187,12 +207,14 @@ Comprehensive breakdown of all features into actionable tickets, organized by ep
 ### When to Update These Docs
 
 **Always update**:
+
 - When scope changes for a feature
 - When new technical decisions are made
 - When open questions are resolved
 - When risks are discovered or mitigated
 
 **Don't update**:
+
 - For every minor code change
 - For implementation details (those belong in code comments or ADRs)
 
@@ -211,30 +233,36 @@ Comprehensive breakdown of all features into actionable tickets, organized by ep
 Quick reference for unresolved design decisions:
 
 ### Multi-Game Data Model
+
 - Should RoundResult point to team XOR player, or support both?
 - How granular should stat validation be (JSON Schema vs separate tables)?
 - Where should points calculation logic live (config vs service)?
 
 ### V1 Microservices Migration
-- ~~Which microservices remain separate vs integrate into core?~~ *(Resolved: Submissions & Matchmaking integrate into Core)*
-- ~~Event queue: pg_notify vs polling vs HTTP webhooks?~~ *(Resolved: Polling with PostgreSQL event queue)*
+
+- ~~Which microservices remain separate vs integrate into core?~~ _(Resolved: Submissions & Matchmaking integrate into Core)_
+- ~~Event queue: pg_notify vs polling vs HTTP webhooks?~~ _(Resolved: Polling with PostgreSQL event queue)_
 
 ### Multi-Game ELO
+
 - Recalculate all dependent matches on invalidation, or limit cascade?
 - Real-time vs batch rating calculation?
 - Single rating system per game, or support multiple simultaneously?
 
 ### RBAC System
+
 - Group-based role assignment, or individual only?
 - Policies in database or config files? (Decision: database)
 - Permission caching strategy?
 
 ### API Tokens
+
 - Default token expiration, or allow "never expires"?
 - Scope granularity: coarse vs resource-level vs endpoint-level?
 - Usage log retention period?
 
 ### League Management
+
 - Player transfer workflow: separate actions vs atomic transfer?
 - Franchise/club naming: auto-generate or allow custom?
 - Historical roster tracking: full history or just current season?
@@ -244,13 +272,15 @@ Quick reference for unresolved design decisions:
 ## Related Resources
 
 ### External Documentation
+
 - [NestJS Documentation](https://docs.nestjs.com/)
 - [TypeORM Documentation](https://typeorm.io/)
 - [Casbin Documentation](https://casbin.org/docs/en/overview)
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
 
 ### Internal Resources
-- API Documentation (to be created)
+
+- [API Documentation (GraphQL)](./core/graphql-api.md)
 - Database ERD (to be created from schemas)
 - Development Setup Guide (update `README.md`)
 
@@ -259,6 +289,7 @@ Quick reference for unresolved design decisions:
 ## Changelog
 
 ### 2025-10-14
+
 - Initial creation of all feature specs
 - Created design philosophy document
 - Created comprehensive roadmap

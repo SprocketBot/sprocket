@@ -13,22 +13,26 @@ See [design-philosophy.md](./design-philosophy.md) for our core principles. TL;D
 ## Major Feature Areas
 
 ### 1. V1 Microservices Migration (In Progress)
+
 **Status**: Active development
 **Priority**: P0 (Foundation for all other work)
 
 Migrate v1 microservices into the v2 architecture using a unified approach that consolidates Matchmaking and Submissions into Core while maintaining Notifications, Image Generation, and Replay Parse as separate services with PostgreSQL event queues.
 
 **Services to Migrate**:
+
 - **Consolidated into Core**: Matchmaking, Submissions
 - **Remaining Microservices**: Notifications, Image Generation, Replay Parse
 
 **Key Deliverables**:
+
 - Unified Core service with integrated matchmaking and submissions
 - PostgreSQL-based event system for remaining microservices
 - Elimination of Redis and RabbitMQ dependencies
 - Simplified deployment and operational overhead
 
 **Unified Migration Approach**:
+
 - [Detailed Plan](./unified-monolith-migration.md)
 - [Original Context](./archive/Postgres-only-migration.md)
 
@@ -36,6 +40,7 @@ Migrate v1 microservices into the v2 architecture using a unified approach that 
 **Risks**: Complex integration requiring careful testing of core workflows
 
 **Questions for Discussion**:
+
 1. Should we start with consolidating matchmaking or submissions first?
 2. How do we ensure zero-downtime migration of active queues?
 3. What's the current state of each service? Are they actively used in v1?
@@ -43,12 +48,14 @@ Migrate v1 microservices into the v2 architecture using a unified approach that 
 ---
 
 ### 2. Multi-Game Data Model Refactor
-**Status**: Planning
+
+**Status**: Completed
 **Priority**: P1 (Critical for expansion)
 
 Refactor the current Rocket League-centric data model to support multiple game types, starting with Trackmania.
 
 **Key Areas**:
+
 - Match/Round structure abstraction
 - Player and team statistics generalization
 - Game-specific metadata handling
@@ -58,6 +65,7 @@ Refactor the current Rocket League-centric data model to support multiple game t
 **Risks**: Significant schema changes; need migration strategy for existing data
 
 **Questions for Discussion**:
+
 1. Should we maintain backward compatibility with v1 data, or is this a clean break?
 2. What are the core differences between Rocket League and Trackmania match structures?
 3. Are there other games on the roadmap we should consider now to avoid another refactor?
@@ -66,12 +74,14 @@ Refactor the current Rocket League-centric data model to support multiple game t
 ---
 
 ### 3. Infrastructure Simplification (Completed via Migration)
+
 **Status**: Completed as part of microservices migration
 **Priority**: P0 (Achieved through unified approach)
 
 Redis and RabbitMQ dependencies are eliminated through the unified microservices migration approach, resulting in a PostgreSQL-only architecture.
 
 **Key Deliverables** (achieved via unified migration):
+
 - ✅ Remove Redis dependency (via Core consolidation)
 - ✅ Remove RabbitMQ dependency (via PostgreSQL event queues)
 - ✅ Consolidate all data storage in PostgreSQL
@@ -82,6 +92,7 @@ Redis and RabbitMQ dependencies are eliminated through the unified microservices
 ---
 
 ### 4. Multi-Game ELO System
+
 **Status**: Planning
 **Priority**: P2 (Important but not blocking)
 
@@ -91,6 +102,7 @@ Design and implement a flexible ELO rating system that supports different formul
 **Proposed State**: Consolidate into PostgreSQL with configurable formulae
 
 **Key Deliverables**:
+
 - ELO calculation engine supporting multiple formulae
 - Configuration system for per-game rating parameters
 - Migration of existing ELO data from DGraph
@@ -100,6 +112,7 @@ Design and implement a flexible ELO rating system that supports different formul
 **Risks**: ELO calculations can be complex; need to ensure correctness
 
 **Questions for Discussion**:
+
 1. What are the specific ELO formula differences between games?
 2. Do we need to support custom/pluggable formulae, or can we pre-define a set?
 3. Should ELO be calculated synchronously (during match submission) or asynchronously?
@@ -108,6 +121,7 @@ Design and implement a flexible ELO rating system that supports different formul
 ---
 
 ### 5. RBAC System Enhancement
+
 **Status**: Planning
 **Priority**: P2 (Security and usability)
 
@@ -116,6 +130,7 @@ Build out the Role-Based Access Control system with an administrative UI.
 **Current State**: Casbin-based RBAC with partial implementation (see [authz-noodles.md](./authz-noodles.md))
 
 **Key Deliverables**:
+
 - Admin UI for role management (create, edit, delete roles)
 - Admin UI for permission assignment (roles → permissions)
 - Admin UI for user/group role assignment
@@ -126,6 +141,7 @@ Build out the Role-Based Access Control system with an administrative UI.
 **Risks**: RBAC complexity can spiral; need clear scope
 
 **Questions for Discussion**:
+
 1. Should we support group-based role assignment, or just individual users?
 2. What's the minimal set of roles/permissions needed for MVP?
 3. Do we need audit logging for permission changes?
@@ -134,12 +150,14 @@ Build out the Role-Based Access Control system with an administrative UI.
 ---
 
 ### 6. API Token & Impersonation System
+
 **Status**: Planning
 **Priority**: P2 (Nice to have for power users)
 
 Create a system for users to generate Personal Access Tokens (PATs) for third-party integrations.
 
 **Key Deliverables**:
+
 - User-facing UI to generate/revoke PATs
 - Admin UI to view/revoke all tokens
 - Token scoping (read-only, specific resources, etc.)
@@ -150,6 +168,7 @@ Create a system for users to generate Personal Access Tokens (PATs) for third-pa
 **Risks**: Security implications of long-lived tokens
 
 **Questions for Discussion**:
+
 1. Should tokens have expiration dates (forced or optional)?
 2. What scopes/permissions should be supported? (e.g., read-only, specific endpoints)
 3. Do we need OAuth2 support, or are simple bearer tokens sufficient?
@@ -158,12 +177,14 @@ Create a system for users to generate Personal Access Tokens (PATs) for third-pa
 ---
 
 ### 7. League Management UI
+
 **Status**: Planning
 **Priority**: P1 (Core functionality)
 
 Build comprehensive UI for managing leagues, franchises, clubs, teams, and rosters.
 
 **Key Features**:
+
 - League creation and configuration
 - Franchise/club/team hierarchy management
 - Roster management (add/remove players, transfer players)
@@ -174,6 +195,7 @@ Build comprehensive UI for managing leagues, franchises, clubs, teams, and roste
 **Risks**: Complex UI with many interrelated entities
 
 **Questions for Discussion**:
+
 1. What's the entity hierarchy? (League → Franchise → Club → Team → Player?)
 2. Can entities exist independently, or must they always be in hierarchy?
 3. How do roster limits work? (Per team? Per franchise? Per skill level?)
@@ -185,6 +207,7 @@ Build comprehensive UI for managing leagues, franchises, clubs, teams, and roste
 ## Roadmap Phases
 
 ### Phase 1: Foundation (Microservices Migration)
+
 **Goal**: Unified architecture with consolidated Core service and PostgreSQL-only infrastructure
 
 - Consolidate Matchmaking into Core service
@@ -195,6 +218,7 @@ Build comprehensive UI for managing leagues, franchises, clubs, teams, and roste
 - Begin multi-game data model design
 
 ### Phase 2: Core Features
+
 **Goal**: Multi-game support and data model modernization
 
 - Complete multi-game data model refactor
@@ -204,6 +228,7 @@ Build comprehensive UI for managing leagues, franchises, clubs, teams, and roste
 - Build league management backend services
 
 ### Phase 3: User-Facing Features
+
 **Goal**: Admin and user tooling
 
 - Complete RBAC system with admin UI
@@ -212,6 +237,7 @@ Build comprehensive UI for managing leagues, franchises, clubs, teams, and roste
 - Create comprehensive admin interfaces
 
 ### Phase 4: Polish & Optimization
+
 **Goal**: Production-ready platform
 
 - League management UI (Phase 2: advanced features)
@@ -234,7 +260,7 @@ Build comprehensive UI for managing leagues, franchises, clubs, teams, and roste
 
 ### Technical Decisions
 
-1. **API Design**: REST? GraphQL? Both?
+1. **API Design**: REST? GraphQL? Both? (Decision: GraphQL for core entities/external, REST for internal)
 2. **Frontend Framework**: What are we using for admin UIs?
 3. **Authentication**: Current state? SSO? Multi-factor?
 4. **File Storage**: Where do replays, images, etc. live?

@@ -27,7 +27,7 @@ Sprocket manages a wide array of data about its playerbase and organizations, in
 - Clients can request exactly the data they need, reducing over-fetching
 - Built-in introspection provides excellent tooling and documentation
 
-You can find detailed documentation of our GraphQL API [here](../api/graphql/overview).
+You can find detailed documentation of our GraphQL API [here](./graphql-api.md).
 
 ## REST (Internal) API
 
