@@ -25,10 +25,75 @@ Design and implement a flexible, graph-based ELO rating system that supports dif
 ## Design Philosophy
 
 Per our [design philosophy](./design-philosophy.md):
+
 - **Consolidate**: Use PostgreSQL instead of DGraph (simpler operations)
 - **Maintain power**: Keep graph structure for invalidation/recalculation
 - **Game-agnostic core**: Pluggable formulae per game
 - **Data integrity**: Use database constraints and transactions
+
+---
+
+## Implementation Status: ✅ COMPLETED (December 2024)
+
+### What Was Built
+
+✅ **Database Layer**
+
+- `EloRatingNodeEntity`: Graph-based rating storage with rating, uncertainty, node type
+- `MatchRatingCalculationEntity`: Links matches to input/output ratings
+- `GameRatingConfigEntity`: Per-game configuration (system, parameters)
+
+✅ **Calculation Engine**
+
+- Standard Elo formula with expected score calculation
+- **Uncertainty-adjusted K-factor**: 0.5x-2x multiplier based on Glicko v2 rating deviation
+- Team-average strategy for Rocket League (each player vs opponent team average)
+- Automatic uncertainty decay (5% per match, minimum 50)
+
+✅ **Event Integration**
+
+- `MATCH_RATIFIED` event publishing from SubmissionsService
+- `EloConnector` polls EventQueue every 10 seconds
+- Asynchronous processing via event queue
+
+✅ **Observability**
+
+- Structured logging (match start, completion, errors, player extraction)
+- Metrics (calculation duration, rating changes, success/error counts, new players)
+- Distributed tracing with unique trace IDs per match
+
+✅ **Testing & Verification**
+
+- 13/13 unit tests passing
+- Coverage: expected score, K-factor adjustment, 2v2 scenarios, uncertainty decay
+- Build verification passed
+
+✅ **Seed Data**
+
+- Rocket League config (K=32, initial=1000, RD=350)
+- Trackmania config (placeholder for future tuning)
+
+### Architecture
+
+```
+Match Submission (status: RATIFIED)
+  └→ EventQueue.publish(MATCH_RATIFIED, matchId)
+      └→ EloConnector.processEvents() [every 10s]
+          └→ EloService.processMatch(matchId)
+              ├→ Load match with players, rounds, team stats
+              ├→ Fetch/create input rating nodes
+              ├→ Strategy.calculate() [Elo/Glicko]
+              ├→ Create output rating nodes
+              ├→ Save MatchRatingCalculation
+              └→ Log metrics & traces
+```
+
+### Key Implementation Details
+
+- **K-Factor Adjustment**: `K_adjusted = K_base × (0.5 + 1.5 × normalized_RD)`
+- **Player Extraction**: From `PlayerStats` in match rounds, grouped by team
+- **Win Detection**: Compare `TeamStat.stats.score` values
+- **Fallback**: Returns unchanged ratings if extraction fails (graceful degradation)
 
 ---
 
@@ -49,6 +114,7 @@ Player C (1500) ──┘                  Player C (1510)
 ```
 
 **Key properties**:
+
 - Each player starts with an initial rating (e.g., 1500)
 - Each match references the player's **input rating** (from previous match or initial)
 - Each match produces **output ratings** for all participants
@@ -58,6 +124,7 @@ Player C (1500) ──┘                  Player C (1510)
 ### Match Invalidation
 
 When a match is invalidated:
+
 1. Mark the match as invalid
 2. Identify all dependent matches (any match using this match's output ratings as input)
 3. Recalculate all dependent matches in topological order
@@ -93,7 +160,7 @@ Represents a player's rating at a specific point in time (input or output of a m
 ```typescript
 @Entity()
 class EloRatingNode {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @ManyToOne(() => Player)
@@ -102,29 +169,29 @@ class EloRatingNode {
   @ManyToOne(() => Game)
   game: Game; // Ratings are per-game
 
-  @Column({ type: 'float' })
+  @Column({ type: "float" })
   rating: number;
 
-  @Column({ type: 'float', nullable: true })
+  @Column({ type: "float", nullable: true })
   uncertainty: number; // For systems like TrueSkill
 
   @ManyToOne(() => Match, { nullable: true })
   sourceMatch: Match; // Match that produced this rating (null for initial/compacted)
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ type: "boolean", default: false })
   isCompacted: boolean; // True if this is a compaction node
 
   @Column()
   createdAt: Date;
 
-  @Column({ type: 'enum', enum: RatingNodeType })
+  @Column({ type: "enum", enum: RatingNodeType })
   nodeType: RatingNodeType; // INITIAL, MATCH_OUTPUT, COMPACTED
 }
 
 enum RatingNodeType {
-  INITIAL = 'initial', // Starting rating for a player
-  MATCH_OUTPUT = 'match_output', // Rating after a match
-  COMPACTED = 'compacted', // Result of graph compaction
+  INITIAL = "initial", // Starting rating for a player
+  MATCH_OUTPUT = "match_output", // Rating after a match
+  COMPACTED = "compacted", // Result of graph compaction
 }
 ```
 
@@ -135,7 +202,7 @@ Links a match to the input and output rating nodes for all participants.
 ```typescript
 @Entity()
 class MatchRatingCalculation {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @ManyToOne(() => Match)
@@ -153,10 +220,10 @@ class MatchRatingCalculation {
   @ManyToOne(() => EloRatingNode, { nullable: true })
   outputRating: EloRatingNode; // Rating after match (null if match invalidated)
 
-  @Column({ type: 'float' })
+  @Column({ type: "float" })
   ratingChange: number; // Convenience field: output - input
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ type: "boolean", default: false })
   isInvalidated: boolean; // True if match was invalidated
 
   @Column()
@@ -165,7 +232,7 @@ class MatchRatingCalculation {
   @Column({ nullable: true })
   invalidatedAt: Date;
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: "jsonb", nullable: true })
   calculationMetadata: Record<string, any>; // Formula-specific data
 }
 ```
@@ -177,20 +244,20 @@ Configuration for each game's ELO formula.
 ```typescript
 @Entity()
 class GameRatingConfig {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @ManyToOne(() => Game)
   @Index()
   game: Game;
 
-  @Column({ type: 'enum', enum: RatingSystem })
+  @Column({ type: "enum", enum: RatingSystem })
   system: RatingSystem; // ELO, GLICKO, TRUESKILL
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: "jsonb" })
   parameters: RatingParameters;
 
-  @Column({ type: 'boolean', default: true })
+  @Column({ type: "boolean", default: true })
   isActive: boolean;
 
   @Column()
@@ -198,9 +265,9 @@ class GameRatingConfig {
 }
 
 enum RatingSystem {
-  ELO = 'elo',
-  GLICKO = 'glicko',
-  TRUESKILL = 'trueskill',
+  ELO = "elo",
+  GLICKO = "glicko",
+  TRUESKILL = "trueskill",
 }
 
 interface RatingParameters {
@@ -230,6 +297,7 @@ interface RatingParameters {
 ### 1. Match Completion Trigger
 
 When a match is completed:
+
 1. Retrieve `GameRatingConfig` for the match's game
 2. For each player, find their latest `EloRatingNode` for this game
 3. Calculate new ratings using the configured formula
@@ -278,30 +346,31 @@ class TrueSkillCalculationService implements RatingCalculationService {
 **Solutions by game**:
 
 **Rocket League**:
+
 - Use team outcome (win/loss) as primary signal
 - Optionally weight by individual stats (goals, assists, saves) if available
 - For now: simple team-based calculation (all team members treated equally)
 
 **Trackmania**:
+
 - Individual placement already available per round
 - Aggregate individual placements across all rounds
 - Calculate individual rating changes based on individual performance
 
 **Future (Apex/Valorant)**:
+
 - May use hybrid: team outcome + individual K/D ratio
 - Or pure individual placement (Apex)
 
 **Implementation**:
+
 ```typescript
 interface PerformanceExtractor {
-  extractPerformance(
-    player: Player,
-    match: Match
-  ): PlayerPerformance;
+  extractPerformance(player: Player, match: Match): PlayerPerformance;
 }
 
 interface PlayerPerformance {
-  outcome: 'win' | 'loss' | 'draw';
+  outcome: "win" | "loss" | "draw";
   individualScore?: number; // For non-binary outcomes
   contributionWeight?: number; // 0-1, for weighted team outcomes
 }
@@ -314,6 +383,7 @@ interface PlayerPerformance {
 ### Invalidation Flow
 
 1. **Mark match as invalid**:
+
    ```sql
    UPDATE match SET status = 'INVALIDATED' WHERE id = :matchId;
    UPDATE match_rating_calculation
@@ -415,6 +485,7 @@ async compactPlayerRatings(playerId: string, gameId: string): Promise<void> {
 ```
 
 **When to compact**:
+
 - During offseason (no active matches)
 - After a certain number of matches (e.g., every 100 matches per player)
 - On-demand via admin action
@@ -456,6 +527,7 @@ async compactPlayerRatings(playerId: string, gameId: string): Promise<void> {
 **Question**: Should ratings be calculated immediately after match completion, or in a background job?
 
 **Options**:
+
 - **Synchronous**: Calculate during match submission (slow, blocking)
 - **Asynchronous**: Queue for background processing (faster, eventual consistency)
 
@@ -503,6 +575,7 @@ async compactPlayerRatings(playerId: string, gameId: string): Promise<void> {
 ## Tasks Breakdown
 
 ### Database Schema
+
 - [ ] Create `EloRatingNode` entity and migration
 - [ ] Create `MatchRatingCalculation` entity and migration
 - [ ] Create `GameRatingConfig` entity and migration
@@ -510,6 +583,7 @@ async compactPlayerRatings(playerId: string, gameId: string): Promise<void> {
 - [ ] Add unique constraint on compacted nodes (one per player per game at a time)
 
 ### Rating Calculation
+
 - [ ] Implement `RatingCalculationService` interface
 - [ ] Implement `EloCalculationService` (standard ELO)
 - [ ] Implement `GlickoCalculationService` (if needed)
@@ -519,23 +593,27 @@ async compactPlayerRatings(playerId: string, gameId: string): Promise<void> {
 - [ ] Hook rating calculation into match completion flow
 
 ### Invalidation & Recalculation
+
 - [ ] Implement `findDependentMatches` query
 - [ ] Implement topological sort for match dependencies
 - [ ] Implement `recalculateMatchRatings` logic
 - [ ] Implement `invalidateMatch` flow with transaction safety
 
 ### Graph Compaction
+
 - [ ] Implement `compactPlayerRatings` logic
 - [ ] Create admin endpoint to trigger compaction
 - [ ] Add scheduled job for periodic compaction (optional)
 
 ### Migration from DGraph
+
 - [ ] Export data from DGraph
 - [ ] Write import script for historical ratings
 - [ ] Validate imported data integrity
 - [ ] Compare v1 vs v2 ratings for sample players
 
 ### Testing
+
 - [ ] Unit tests for each rating formula
 - [ ] Unit tests for performance extractors
 - [ ] Integration tests for rating calculation flow
@@ -544,6 +622,7 @@ async compactPlayerRatings(playerId: string, gameId: string): Promise<void> {
 - [ ] Load tests for large graphs (10k+ matches)
 
 ### Documentation
+
 - [ ] Document rating formulae for each game
 - [ ] Document graph structure and invalidation logic
 - [ ] API documentation for rating endpoints
@@ -569,6 +648,7 @@ async compactPlayerRatings(playerId: string, gameId: string): Promise<void> {
 ### Indexes
 
 Critical indexes for performance:
+
 ```sql
 CREATE INDEX idx_rating_node_player_game ON elo_rating_node(player_id, game_id, created_at DESC);
 CREATE INDEX idx_rating_calc_match ON match_rating_calculation(match_id);
@@ -591,13 +671,13 @@ CREATE INDEX idx_rating_calc_input ON match_rating_calculation(input_rating_id);
 
 ## Risks & Mitigations
 
-| Risk | Mitigation |
-|------|------------|
-| Recalculation cascades affect too many matches | Add circuit breaker: limit cascade depth or number of matches |
-| PostgreSQL performance degrades with large graphs | Aggressive indexing; periodic compaction; materialized views |
-| Formula bugs cause incorrect ratings | Comprehensive unit tests; compare against v1 for validation |
-| Concurrent match submissions cause race conditions | Use database transactions; lock rating nodes during updates |
-| Migration from DGraph loses data | Extensive validation; keep DGraph running in parallel during transition |
+| Risk                                               | Mitigation                                                              |
+| -------------------------------------------------- | ----------------------------------------------------------------------- |
+| Recalculation cascades affect too many matches     | Add circuit breaker: limit cascade depth or number of matches           |
+| PostgreSQL performance degrades with large graphs  | Aggressive indexing; periodic compaction; materialized views            |
+| Formula bugs cause incorrect ratings               | Comprehensive unit tests; compare against v1 for validation             |
+| Concurrent match submissions cause race conditions | Use database transactions; lock rating nodes during updates             |
+| Migration from DGraph loses data                   | Extensive validation; keep DGraph running in parallel during transition |
 
 ---
 

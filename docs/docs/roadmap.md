@@ -93,30 +93,36 @@ Redis and RabbitMQ dependencies are eliminated through the unified microservices
 
 ### 4. Multi-Game ELO System
 
-**Status**: Planning
+**Status**: ✅ Completed (December 2024)
 **Priority**: P2 (Important but not blocking)
 
 Design and implement a flexible ELO rating system that supports different formulae for different games.
 
-**Current State**: v1 uses a separate DGraph microservice
-**Proposed State**: Consolidate into PostgreSQL with configurable formulae
+**Current State**: PostgreSQL-based system with configurable formulae, uncertainty-adjusted K-factor, and comprehensive observability
+**Previous State**: v1 used a separate DGraph microservice
 
 **Key Deliverables**:
 
-- ELO calculation engine supporting multiple formulae
-- Configuration system for per-game rating parameters
-- Migration of existing ELO data from DGraph
-- Historical rating tracking and adjustments
+- ✅ ELO calculation engine with uncertainty-adjusted K-factor (Glicko-inspired 0.5x-2x multiplier)
+- ✅ Team-average calculation strategy for Rocket League
+- ✅ Configuration system for per-game rating parameters (K-factor, initial rating, RD)
+- ✅ Graph-based rating history supporting invalidation and recalculation
+- ✅ Event-driven architecture (MATCH_RATIFIED → EloConnector → EloService)
+- ✅ Comprehensive observability (structured logs, metrics, distributed tracing)
+- ✅ Seed configurations for Rocket League and Trackmania
+- ✅ Unit tests (13/13 passing)
+- ✅ Build verification passed
 
-**Dependencies**: Multi-game data model
-**Risks**: ELO calculations can be complex; need to ensure correctness
+**Implementation Details**:
 
-**Questions for Discussion**:
+- **Database**: EloRatingNodeEntity, MatchRatingCalculationEntity, GameRatingConfigEntity
+- **Calculation**: Standard Elo formula with uncertainty-based K-factor adjustment
+- **Integration**: Polls EventQueue for MATCH_RATIFIED events
+- **Observability**: Logs (start, completion, errors), Metrics (duration, rating changes, success/failure)
+- **Testing**: Full unit test coverage with mocked entities
 
-1. What are the specific ELO formula differences between games?
-2. Do we need to support custom/pluggable formulae, or can we pre-define a set?
-3. Should ELO be calculated synchronously (during match submission) or asynchronously?
-4. How do we handle rating adjustments/resets for new seasons?
+**Dependencies**: ✅ Multi-game data model (completed)
+**Risks**: ✅ Mitigated through comprehensive testing and observability
 
 ---
 
@@ -221,8 +227,8 @@ Build comprehensive UI for managing leagues, franchises, clubs, teams, and roste
 
 **Goal**: Multi-game support and data model modernization
 
-- Complete multi-game data model refactor
-- Implement multi-game ELO system
+- ✅ Complete multi-game data model refactor
+- ✅ Implement multi-game ELO system
 - Migrate Image Generation service to PostgreSQL events
 - Migrate Replay Parse service to PostgreSQL events
 - Build league management backend services
