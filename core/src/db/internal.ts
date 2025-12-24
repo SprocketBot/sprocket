@@ -24,6 +24,7 @@ export * from './club/club.seed';
 export * from './team/team.entity';
 export * from './team/team.seed';
 export * from './match/match.entity';
+export * from './match/fixture.entity';
 export * from './player/player.entity';
 export * from './player/player.seed';
 export * from './player_stat/player_stat.entity';
@@ -73,7 +74,10 @@ export * from './observability/metrics.repository';
 export * from './scrim_queue/scrim_queue.entity';
 export * from './scrim_queue/scrim_queue.repository';
 export * from './scrim_timeout/scrim_timeout.entity';
+export * from './scrim_queue/scrim_queue.repository';
 export * from './submission/match_submission.entity';
+export * from './scrim/scrim.entity';
+export * from './scrim_timeout/scrim_timeout.entity';
 export * from './scrim_timeout/scrim_timeout.repository';
 
 export * from './events/event_queue.entity';

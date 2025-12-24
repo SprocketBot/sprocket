@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { FixtureEntity, MatchEntity, ScrimEntity } from '../internal';
+import { FixtureEntity } from './fixture.entity';
+import { MatchEntity } from './match.entity';
+import { ScrimEntity } from '../scrim/scrim.entity';
+
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()

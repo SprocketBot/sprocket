@@ -1,8 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, ManyToOne } from 'typeorm';
-import { PlayerEntity } from '../player/player.entity';
-import { GameModeEntity } from '../game_mode/game_mode.entity';
-import { SkillGroupEntity } from '../skill_group/skill_group.entity';
-import { GameEntity } from '../game/game.entity';
+import { ChildEntity, Column, ManyToOne, JoinColumn, ManyToMany, JoinTable } from 'typeorm';
+import { MatchEntity, UserEntity, SkillGroupEntity, PlayerEntity } from '../internal';
 
 export enum ScrimState {
     PENDING = 'PENDING',
@@ -14,25 +11,27 @@ export enum ScrimState {
     CANCELLED = 'CANCELLED',
 }
 
-@Entity('scrim', { schema: 'sprocket' })
-export class ScrimEntity {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
-
-    @Column({ type: 'enum', enum: ScrimState })
-    state: ScrimState;
-
+@ChildEntity('scrim')
+export class ScrimEntity extends MatchEntity {
     @Column()
     authorId: string;
 
-    @ManyToOne(() => GameEntity)
-    game: GameEntity;
+    @ManyToOne(() => UserEntity)
+    @JoinColumn({ name: 'authorId' })
+    author: UserEntity;
 
-    @ManyToOne(() => GameModeEntity)
-    gameMode: GameModeEntity;
+    @Column({ nullable: true })
+    organizationId: string;
 
     @ManyToOne(() => SkillGroupEntity)
+    @JoinColumn()
     skillGroup: SkillGroupEntity;
+
+    @Column({ type: 'jsonb', default: {} })
+    settings: Record<string, any>;
+
+    @Column({ type: 'enum', enum: ScrimState, default: ScrimState.PENDING })
+    state: ScrimState;
 
     @ManyToMany(() => PlayerEntity)
     @JoinTable()
@@ -40,18 +39,6 @@ export class ScrimEntity {
 
     @Column()
     maxPlayers: number;
-
-    @Column('jsonb')
-    settings: Record<string, any>;
-
-    @Column()
-    createdAt: Date;
-
-    @Column({ nullable: true })
-    startedAt: Date;
-
-    @Column({ nullable: true })
-    completedAt: Date;
 
     @Column({ nullable: true })
     pendingExpiresAt: Date;

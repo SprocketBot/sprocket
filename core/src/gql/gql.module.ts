@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ApolloDriverConfig, ApolloDriver } from '@nestjs/apollo';
 import { GraphQLModule, MiddlewareContext, NextFn } from '@nestjs/graphql';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { DbModule } from '../db/db.module';
 import { AuthModule } from '../auth/auth.module';
 import {
@@ -22,6 +23,27 @@ import { GameModeResolver } from './game_mode/game_mode.resolver';
 import opentelemetry from '@opentelemetry/api';
 import { GraphQLResolveInfo } from 'graphql';
 import { ScrimService } from './scrim/scrim.service';
+import { CoreEntitiesResolver } from './core_entities.resolver';
+import {
+  MatchSubmissionEntity,
+  RoundEntity,
+  ScheduleGroupEntity,
+  ScheduleGroupTypeEntity,
+  TeamStatEntity,
+  ScrimQueueEntity,
+  ScrimTimeoutEntity,
+  EventQueue,
+  MetricsEntity,
+  LogsEntity,
+  MatchEntity,
+  UserNotificationPreferenceEntity,
+  NotificationHistoryEntity,
+  NotificationTemplateEntity,
+  PlayerStatEntity,
+  UserAuthAccountEntity,
+  FixtureEntity,
+} from '../db/internal';
+
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -84,6 +106,25 @@ import { ScrimService } from './scrim/scrim.service';
     AuthModule,
     MatchmakingConnectorModule,
     EventsModule,
+    TypeOrmModule.forFeature([
+      MatchSubmissionEntity,
+      RoundEntity,
+      ScheduleGroupEntity,
+      ScheduleGroupTypeEntity,
+      TeamStatEntity,
+      ScrimQueueEntity,
+      ScrimTimeoutEntity,
+      EventQueue,
+      MetricsEntity,
+      LogsEntity,
+      MatchEntity,
+      UserNotificationPreferenceEntity,
+      NotificationHistoryEntity,
+      NotificationTemplateEntity,
+      PlayerStatEntity,
+      UserAuthAccountEntity,
+      FixtureEntity,
+    ]),
   ],
   providers: [
     ScrimResolver,
@@ -101,6 +142,7 @@ import { ScrimService } from './scrim/scrim.service';
     ScrimSubscriber,
     GameModeResolver,
     ScrimService,
+    CoreEntitiesResolver,
   ],
 })
 export class GqlModule { }

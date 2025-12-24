@@ -1,23 +1,40 @@
-import { Check, Entity } from 'typeorm';
-import { BaseEntity } from '../internal';
+import { Column, DeepPartial, Entity, JoinColumn, ManyToOne, OneToMany, TableInheritance } from 'typeorm';
+import { BaseEntity, GameEntity, GameModeEntity, RoundEntity } from '../internal';
 
-abstract class BaseMatchEntity extends BaseEntity {}
-
-@Entity('match', { schema: 'sprocket' })
-@Check('(false) no inherit')
-export class MatchEntity extends BaseMatchEntity {
-	// Fields should not go here, but instead into BaseMatchEntity
-	// This class exists so that a check can be applied to _only_
-	// the match table, while still being created for postgres inheritance
+export enum MatchStatus {
+    PENDING = 'PENDING',
+    IN_PROGRESS = 'IN_PROGRESS',
+    COMPLETED = 'COMPLETED',
+    CANCELLED = 'CANCELLED',
 }
 
-/*
-    Important Note:
-    MatchEntity and ScrimEntity both use Postgres inheritance behind the scenes
- */
+@Entity('match', { schema: 'sprocket' })
+@TableInheritance({ column: { type: 'varchar', name: 'type' } })
+export class MatchEntity extends BaseEntity {
+    @ManyToOne(() => GameEntity)
+    @JoinColumn()
+    game: GameEntity;
 
-@Entity('fixture', { schema: 'sprocket' })
-export class FixtureEntity extends BaseMatchEntity {}
+    @ManyToOne(() => GameModeEntity)
+    @JoinColumn()
+    gameMode: GameModeEntity;
 
-@Entity('scrim', { schema: 'sprocket' })
-export class ScrimEntity extends BaseMatchEntity {}
+    @OneToMany(() => RoundEntity, round => round.match)
+    rounds: RoundEntity[];
+
+    @Column({ type: 'enum', enum: MatchStatus, default: MatchStatus.PENDING })
+    status: MatchStatus;
+
+    @Column({ nullable: true })
+    startTime: Date;
+
+    @Column({ nullable: true })
+    endTime: Date;
+
+    constructor(params?: DeepPartial<MatchEntity>) {
+        super();
+        if (params) {
+            Object.assign(this, params);
+        }
+    }
+}

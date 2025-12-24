@@ -9,6 +9,9 @@ export class GameEntity extends BaseEntity {
 	@OneToMany(() => SkillGroupEntity, (sge) => sge.game)
 	skillGroups: SkillGroupEntity[];
 
-	@Column({ unique: true })
-	name: string;
+    @Column({ unique: true })
+    name: string;
+
+    @Column({ type: 'jsonb', default: {} })
+    statDefinitions: Record<string, any>;
 }
