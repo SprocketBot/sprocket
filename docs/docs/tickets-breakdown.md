@@ -1,6 +1,7 @@
 # Sprocket v2 - Issue/Ticket Breakdown
 
 This document breaks down all feature specs into granular, actionable tickets. Each ticket is labeled with:
+
 - **Priority**: P0 (critical), P1 (high), P2 (medium), P3 (low)
 - **Type**: Feature, Bug, Refactor, Documentation
 - **Estimate**: Small (< 1 day), Medium (1-3 days), Large (3-5 days), XL (> 5 days)
@@ -16,6 +17,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
 #### Core Integration (Priority: P0)
 
 ##### MS-CORE-001: Integrate Matchmaking into Core service
+
 - **Type**: Refactor
 - **Estimate**: XL
 - **Description**: Move matchmaking service into Core, replace Redis with PostgreSQL
@@ -27,6 +29,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Remove Redis dependencies
 
 ##### MS-CORE-002: Integrate Submissions into Core service
+
 - **Type**: Refactor
 - **Estimate**: XL
 - **Description**: Move submissions service into Core, replace Redis with PostgreSQL
@@ -37,6 +40,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Remove Redis dependencies
 
 ##### MS-CORE-003: Remove Redis infrastructure
+
 - **Type**: Refactor
 - **Estimate**: Medium
 - **Description**: Clean up Redis from deployment and configuration
@@ -50,6 +54,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
 ### Phase 2: PostgreSQL Event System (Priority: P0)
 
 ##### MS-EVENT-001: Create EventQueue table and entities
+
 - **Type**: Feature
 - **Estimate**: Small
 - **Description**: PostgreSQL-based event system for remaining microservices
@@ -59,6 +64,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Indexes for efficient polling
 
 ##### MS-EVENT-002: Implement event producers in Core
+
 - **Type**: Feature
 - **Estimate**: Medium
 - **Description**: Replace RabbitMQ publishing with PostgreSQL events
@@ -70,17 +76,19 @@ This document breaks down all feature specs into granular, actionable tickets. E
 ### Phase 3: Remaining Service Migrations (Priority: P1)
 
 ##### MS-SVC-001: Migrate Notifications service
+
 - **Type**: Refactor
 - **Estimate**: Large
 - **Description**: Convert from RabbitMQ to PostgreSQL event queue
 - **Acceptance Criteria**:
-  - [ ] Replace RabbitMQ consumer with PostgreSQL polling
-  - [ ] Create `Notification` entity for history tracking
-  - [ ] Port Discord notification logic
-  - [ ] Port email notification logic
-  - [ ] Add retry and error handling
+  - [x] Replace RabbitMQ consumer with PostgreSQL polling
+  - [x] Create `Notification` entity for history tracking
+  - [x] Port Discord notification logic
+  - [x] Port email notification logic
+  - [x] Add retry and error handling
 
 ##### MS-SVC-002: Migrate Image Generation service
+
 - **Type**: Refactor
 - **Estimate**: Large
 - **Description**: Convert from RabbitMQ to PostgreSQL event queue
@@ -91,6 +99,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Configure storage backend (S3/local)
 
 ##### MS-SVC-003: Migrate Replay Parse service
+
 - **Type**: Refactor
 - **Estimate**: Large
 - **Description**: Convert from RabbitMQ to PostgreSQL event queue
@@ -103,6 +112,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
 ### Phase 4: Final Cleanup (Priority: P1)
 
 ##### MS-CLEANUP-001: Remove RabbitMQ infrastructure
+
 - **Type**: Refactor
 - **Estimate**: Medium
 - **Description**: Clean up RabbitMQ from deployment and configuration
@@ -114,6 +124,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Delete broker files from migrated services
 
 ##### MS-CLEANUP-002: Update Docker Compose configuration
+
 - **Type**: Refactor
 - **Estimate**: Small
 - **Description**: Add remaining services to Docker Compose
@@ -126,6 +137,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
 ### Testing & Validation (Priority: P1)
 
 ##### MS-TEST-001: Write integration tests for unified Core
+
 - **Type**: Test
 - **Estimate**: Large
 - **Description**: Test consolidated matchmaking and submissions
@@ -135,6 +147,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Event publishing from Core
 
 ##### MS-TEST-002: Write integration tests for event system
+
 - **Type**: Test
 - **Estimate**: Medium
 - **Description**: Test PostgreSQL event queue functionality
@@ -152,6 +165,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
 ### Database Schema (Priority: P0)
 
 #### MGDM-001: Create Game entity
+
 - **Type**: Feature
 - **Estimate**: Small
 - **Description**: Create `Game` entity with name, slug, config fields
@@ -161,6 +175,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Seed data for Rocket League and Trackmania
 
 #### MGDM-002: Create MatchType entity
+
 - **Type**: Feature
 - **Estimate**: Small
 - **Description**: Create `MatchType` entity for regular season, playoffs, scrims, etc.
@@ -170,6 +185,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Seed data for common match types
 
 #### MGDM-003: Refactor Match entity
+
 - **Type**: Refactor
 - **Estimate**: Medium
 - **Description**: Add `game` FK to Match, add `gameSpecificMetadata` JSONB field
@@ -179,6 +195,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Schema enforces FK constraints
 
 #### MGDM-004: Create Round entity
+
 - **Type**: Feature
 - **Estimate**: Medium
 - **Description**: Create `Round` entity with match FK, round number, map name
@@ -188,6 +205,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Unique constraint on (match_id, round_number)
 
 #### MGDM-005: Create RoundResult entity
+
 - **Type**: Feature
 - **Estimate**: Large
 - **Description**: Create flexible `RoundResult` entity supporting team-based and player-based results
@@ -197,6 +215,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] JSONB stats field for game-specific stats
 
 #### MGDM-006: Create MatchTeam entity
+
 - **Type**: Feature
 - **Estimate**: Small
 - **Description**: Aggregate team results at match level
@@ -205,6 +224,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Total score and isWinner fields
 
 #### MGDM-007: Create MatchPlayer entity
+
 - **Type**: Feature
 - **Estimate**: Small
 - **Description**: Aggregate player results at match level
@@ -213,6 +233,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Aggregate stats JSONB field
 
 #### MGDM-008: Add indexes for match queries
+
 - **Type**: Refactor
 - **Estimate**: Small
 - **Description**: Add indexes on game_id, player_id, team_id for efficient queries
@@ -224,6 +245,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
 ### Game Configuration (Priority: P1)
 
 #### MGDM-009: Define GameConfig interface
+
 - **Type**: Feature
 - **Estimate**: Small
 - **Description**: TypeScript interface for game configuration
@@ -232,6 +254,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Documented with examples
 
 #### MGDM-010: Create Rocket League game config
+
 - **Type**: Feature
 - **Estimate**: Medium
 - **Description**: Define RL stat definitions (goals, assists, saves, etc.)
@@ -241,6 +264,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Includes winner-loser scoring system
 
 #### MGDM-011: Create Trackmania game config
+
 - **Type**: Feature
 - **Estimate**: Medium
 - **Description**: Define Trackmania stat definitions (finish time, placement, etc.)
@@ -252,6 +276,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
 ### Validation & Business Logic (Priority: P1)
 
 #### MGDM-012: Create Zod schemas for RL stats
+
 - **Type**: Feature
 - **Estimate**: Small
 - **Description**: Validate RL-specific stats (goals, assists, saves)
@@ -260,6 +285,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Unit tests for validation
 
 #### MGDM-013: Create Zod schemas for Trackmania stats
+
 - **Type**: Feature
 - **Estimate**: Small
 - **Description**: Validate Trackmania-specific stats (finish time, placement)
@@ -268,6 +294,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Unit tests for validation
 
 #### MGDM-014: Implement game-agnostic match creation service
+
 - **Type**: Feature
 - **Estimate**: Large
 - **Description**: Service to create matches for any game type
@@ -277,6 +304,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Creates match with correct structure
 
 #### MGDM-015: Implement stat validation middleware
+
 - **Type**: Feature
 - **Estimate**: Medium
 - **Description**: Validate stats before persisting to RoundResult
@@ -286,6 +314,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Returns clear error messages
 
 #### MGDM-016: Implement scoring calculation logic
+
 - **Type**: Feature
 - **Estimate**: Large
 - **Description**: Calculate points for placement-based games (Trackmania)
@@ -297,6 +326,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
 ### API Endpoints (Priority: P1)
 
 #### MGDM-017: Update POST /matches endpoint
+
 - **Type**: Refactor
 - **Estimate**: Medium
 - **Description**: Accept game parameter, create game-aware match
@@ -306,6 +336,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] API docs updated
 
 #### MGDM-018: Update POST /matches/:id/rounds endpoint
+
 - **Type**: Feature
 - **Estimate**: Large
 - **Description**: Submit round results for any game type
@@ -315,6 +346,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Creates RoundResult entries
 
 #### MGDM-019: Update GET /matches/:id endpoint
+
 - **Type**: Refactor
 - **Estimate**: Medium
 - **Description**: Return game-aware match structure
@@ -324,6 +356,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Formats stats correctly per game
 
 #### MGDM-020: Update GET /players/:id/stats endpoint
+
 - **Type**: Refactor
 - **Estimate**: Medium
 - **Description**: Filter stats by game
@@ -333,6 +366,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Returns game-specific stat breakdown
 
 #### MGDM-021: Add GET /games endpoint
+
 - **Type**: Feature
 - **Estimate**: Small
 - **Description**: List all available games
@@ -343,36 +377,44 @@ This document breaks down all feature specs into granular, actionable tickets. E
 ### Testing (Priority: P2)
 
 #### MGDM-022: Unit tests for game config parsing
+
 - **Type**: Test
 - **Estimate**: Small
 
 #### MGDM-023: Unit tests for stat validation
+
 - **Type**: Test
 - **Estimate**: Small
 
 #### MGDM-024: Integration tests for RL match flow
+
 - **Type**: Test
 - **Estimate**: Medium
 
 #### MGDM-025: Integration tests for Trackmania match flow
+
 - **Type**: Test
 - **Estimate**: Medium
 
 #### MGDM-026: E2E tests for match creation and retrieval
+
 - **Type**: Test
 - **Estimate**: Medium
 
 ### Documentation (Priority: P2)
 
 #### MGDM-027: Document new schema in ERD
+
 - **Type**: Documentation
 - **Estimate**: Small
 
 #### MGDM-028: API documentation for game-specific endpoints
+
 - **Type**: Documentation
 - **Estimate**: Small
 
 #### MGDM-029: Examples for each supported game type
+
 - **Type**: Documentation
 - **Estimate**: Small
 
@@ -385,39 +427,44 @@ This document breaks down all feature specs into granular, actionable tickets. E
 ### Service 1: Notifications (Priority: P1)
 
 #### MS-001: Create Notification entity
+
 - **Type**: Feature
 - **Estimate**: Small
 - **Description**: Entity for tracking notification history
 - **Acceptance Criteria**:
-  - [ ] Entity created with channel, status, payload fields
-  - [ ] Migration script
+  - [x] Entity created with channel, status, payload fields
+  - [x] Migration script
 
 #### MS-002: Implement PostgreSQL event queue for notifications
+
 - **Type**: Feature
 - **Estimate**: Medium
 - **Description**: Replace RabbitMQ with polling event queue
 - **Acceptance Criteria**:
-  - [ ] EventQueue table created
-  - [ ] Polling worker implemented
-  - [ ] Triggers notifications on events
+  - [x] EventQueue table created
+  - [x] Polling worker implemented
+  - [x] Triggers notifications on events
 
 #### MS-003: Port Discord notification logic
+
 - **Type**: Refactor
 - **Estimate**: Medium
 - **Description**: Migrate Discord notification code
 - **Acceptance Criteria**:
-  - [ ] Sends Discord messages
-  - [ ] Handles errors gracefully
+  - [x] Sends Discord messages
+  - [x] Handles errors gracefully
 
 #### MS-004: Port email notification logic
+
 - **Type**: Refactor
 - **Estimate**: Medium
 - **Description**: Migrate email notification code
 - **Acceptance Criteria**:
-  - [ ] Sends emails via SMTP
-  - [ ] Handles errors gracefully
+  - [x] Sends emails via SMTP
+  - [x] Handles errors gracefully
 
 #### MS-005: Add retry and error handling
+
 - **Type**: Feature
 - **Estimate**: Small
 - **Description**: Retry failed notifications
@@ -427,147 +474,179 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Logs failures
 
 #### MS-006: Update Docker Compose with notifications service
+
 - **Type**: Refactor
 - **Estimate**: Small
 - **Description**: Add notifications service to docker-compose.yml
 - **Acceptance Criteria**:
-  - [ ] Service definition added
-  - [ ] Env vars configured
+  - [x] Service definition added
+  - [x] Env vars configured
 
 #### MS-007: Write integration tests for notifications
+
 - **Type**: Test
 - **Estimate**: Medium
 
 ### Service 2: Image Generation (Priority: P1)
 
 #### MS-008: Create GeneratedImage entity
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### MS-009: Port image generation logic
+
 - **Type**: Refactor
 - **Estimate**: Large
 - **Description**: Migrate Puppeteer/Canvas logic
 
 #### MS-010: Implement event-driven trigger
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### MS-011: Configure storage backend
+
 - **Type**: Feature
 - **Estimate**: Medium
 - **Description**: S3 or local storage for images
 
 #### MS-012: Add to Docker Compose
+
 - **Type**: Refactor
 - **Estimate**: Small
 
 #### MS-013: Write tests for image generation
+
 - **Type**: Test
 - **Estimate**: Medium
 
 ### Service 3: Replay Parse (Priority: P1)
 
 #### MS-014: Create ReplayFile entity
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### MS-015: Implement file upload endpoint
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### MS-016: Port Rocket League replay parser
+
 - **Type**: Refactor
 - **Estimate**: Large
 
 #### MS-017: Port Trackmania replay parser
+
 - **Type**: Feature
 - **Estimate**: XL
 - **Description**: If Trackmania parser exists in v1
 
 #### MS-018: Map parsed data to RoundResult stats
+
 - **Type**: Feature
 - **Estimate**: Large
 
 #### MS-019: Add to Docker Compose
+
 - **Type**: Refactor
 - **Estimate**: Small
 
 #### MS-020: Write tests with sample replay files
+
 - **Type**: Test
 - **Estimate**: Medium
 
 ### Service 4: Submissions (Priority: P1)
 
 #### MS-021: Create MatchSubmission workflow entities
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### MS-022: Migrate submission validation logic to core
+
 - **Type**: Refactor
 - **Estimate**: Large
 
 #### MS-023: Replace Redis storage with PostgreSQL
+
 - **Type**: Refactor
 - **Estimate**: Large
 
 #### MS-024: Implement transaction-based submission flow
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### MS-025: Add submission approval/rejection endpoints
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### MS-026: Trigger notifications on submission events
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### MS-027: Write integration tests for submission flow
+
 - **Type**: Test
 - **Estimate**: Medium
 
 ### Service 5: Matchmaking (Priority: P1)
 
 #### MS-028: Create ScrimQueueEntry and ScrimTimeout entities
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### MS-029: Port queue management logic from Redis to PostgreSQL
+
 - **Type**: Refactor
 - **Estimate**: XL
 
 #### MS-030: Implement matchmaking algorithm
+
 - **Type**: Feature
 - **Estimate**: Large
 
 #### MS-031: Create background worker for queue processing
+
 - **Type**: Feature
 - **Estimate**: Large
 
 #### MS-032: Add queue join/leave endpoints
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### MS-033: Implement timeout/cooldown logic
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### MS-034: Write tests for matchmaking scenarios
+
 - **Type**: Test
 - **Estimate**: Large
 
 ### Cross-Cutting (Priority: P2)
 
 #### MS-035: Create EventQueue table for event-driven communication
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### MS-036: Implement polling worker for event queue
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### MS-037: Document event schema and triggers
+
 - **Type**: Documentation
 - **Estimate**: Small
 
@@ -580,6 +659,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
 ### Database Schema (Priority: P1)
 
 #### ELO-001: Create EloRatingNode entity
+
 - **Type**: Feature
 - **Estimate**: Medium
 - **Description**: Core rating node entity
@@ -589,6 +669,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Indexes on player+game
 
 #### ELO-002: Create MatchRatingCalculation entity
+
 - **Type**: Feature
 - **Estimate**: Medium
 - **Description**: Links match to input/output ratings
@@ -597,6 +678,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Migration script
 
 #### ELO-003: Create GameRatingConfig entity
+
 - **Type**: Feature
 - **Estimate**: Small
 - **Description**: Config for each game's ELO formula
@@ -605,6 +687,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Migration script
 
 #### ELO-004: Add indexes for rating queries
+
 - **Type**: Refactor
 - **Estimate**: Small
 - **Description**: Optimize rating lookups
@@ -616,10 +699,12 @@ This document breaks down all feature specs into granular, actionable tickets. E
 ### Rating Calculation (Priority: P1)
 
 #### ELO-005: Implement RatingCalculationService interface
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### ELO-006: Implement EloCalculationService
+
 - **Type**: Feature
 - **Estimate**: Large
 - **Description**: Standard ELO formula
@@ -629,14 +714,17 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Actual outcome from match result
 
 #### ELO-007: Implement GlickoCalculationService (optional)
+
 - **Type**: Feature
 - **Estimate**: Large
 
 #### ELO-008: Implement TrueSkillCalculationService (optional)
+
 - **Type**: Feature
 - **Estimate**: XL
 
 #### ELO-009: Create PerformanceExtractor for Rocket League
+
 - **Type**: Feature
 - **Estimate**: Medium
 - **Description**: Extract individual performance from team match
@@ -645,6 +733,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Optionally weight by stats
 
 #### ELO-010: Create PerformanceExtractor for Trackmania
+
 - **Type**: Feature
 - **Estimate**: Medium
 - **Description**: Individual placement aggregation
@@ -653,6 +742,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
   - [ ] Calculate individual rating change
 
 #### ELO-011: Hook rating calculation into match completion flow
+
 - **Type**: Feature
 - **Estimate**: Medium
 - **Description**: Trigger ELO calculation when match completes
@@ -663,90 +753,110 @@ This document breaks down all feature specs into granular, actionable tickets. E
 ### Invalidation & Recalculation (Priority: P2)
 
 #### ELO-012: Implement findDependentMatches query
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### ELO-013: Implement topological sort for match dependencies
+
 - **Type**: Feature
 - **Estimate**: Large
 
 #### ELO-014: Implement recalculateMatchRatings logic
+
 - **Type**: Feature
 - **Estimate**: Large
 
 #### ELO-015: Implement invalidateMatch flow with transaction safety
+
 - **Type**: Feature
 - **Estimate**: Large
 
 ### Graph Compaction (Priority: P3)
 
 #### ELO-016: Implement compactPlayerRatings logic
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### ELO-017: Create admin endpoint to trigger compaction
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### ELO-018: Add scheduled job for periodic compaction (optional)
+
 - **Type**: Feature
 - **Estimate**: Small
 
 ### Migration from DGraph (Priority: P2)
 
 #### ELO-019: Export data from DGraph
+
 - **Type**: Refactor
 - **Estimate**: Medium
 
 #### ELO-020: Write import script for historical ratings
+
 - **Type**: Feature
 - **Estimate**: Large
 
 #### ELO-021: Validate imported data integrity
+
 - **Type**: Test
 - **Estimate**: Medium
 
 #### ELO-022: Compare v1 vs v2 ratings for sample players
+
 - **Type**: Test
 - **Estimate**: Medium
 
 ### API Endpoints (Priority: P2)
 
 #### ELO-023: GET /players/:id/ratings/:game
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### ELO-024: GET /players/:id/rating-history/:game
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### ELO-025: GET /leaderboard/:game
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### ELO-026: GET /matches/:id/rating-changes
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### ELO-027: POST /admin/ratings/compact/:game
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### ELO-028: POST /admin/matches/:id/invalidate
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 ### Testing (Priority: P2)
 
 #### ELO-029: Unit tests for each rating formula
+
 - **Type**: Test
 - **Estimate**: Medium
 
 #### ELO-030: Integration tests for rating calculation flow
+
 - **Type**: Test
 - **Estimate**: Large
 
 #### ELO-031: Integration tests for invalidation and recalculation
+
 - **Type**: Test
 - **Estimate**: Large
 
@@ -759,124 +869,152 @@ This document breaks down all feature specs into granular, actionable tickets. E
 ### Database Schema (Priority: P1)
 
 #### RBAC-001: Set up Casbin TypeORM adapter
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### RBAC-002: Create RoleDefinition entity
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### RBAC-003: Create UserRole entity
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### RBAC-004: Create PermissionAuditLog entity
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### RBAC-005: Seed default roles
+
 - **Type**: Feature
 - **Estimate**: Small
 - **Description**: Player, Captain, GM, FM, League Ops, Admin
 
 #### RBAC-006: Seed default policies for each role
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 ### Backend Services (Priority: P1)
 
 #### RBAC-007: Implement RbacService wrapping Casbin enforcer
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### RBAC-008: Implement role management CRUD
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### RBAC-009: Implement permission management
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### RBAC-010: Implement user role assignment
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### RBAC-011: Implement approval workflow for sensitive roles
+
 - **Type**: Feature
 - **Estimate**: Large
 
 #### RBAC-012: Implement audit logging for all permission changes
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### RBAC-013: Implement policy testing endpoint
+
 - **Type**: Feature
 - **Estimate**: Small
 
 ### Admin UI (Priority: P2)
 
 #### RBAC-014: Create role management UI
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### RBAC-015: Create permission assignment UI
+
 - **Type**: Feature
 - **Estimate**: Large
 
 #### RBAC-016: Create user role assignment UI
+
 - **Type**: Feature
 - **Estimate**: Large
 
 #### RBAC-017: Create approval workflow UI
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### RBAC-018: Create policy testing UI
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### RBAC-019: Create audit log viewer UI
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 ### Integration (Priority: P1)
 
 #### RBAC-020: Add RBAC guards to all API endpoints
+
 - **Type**: Refactor
 - **Estimate**: XL
 - **Description**: Apply permission checks across entire API
 
 #### RBAC-021: Implement scope resolution logic
+
 - **Type**: Feature
 - **Estimate**: Large
 
 #### RBAC-022: Add permission checks to roster management
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### RBAC-023: Add permission checks to schedule management
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### RBAC-024: Add permission checks to scrim endpoints
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### RBAC-025: Add permission checks to submission endpoints
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 ### Testing (Priority: P2)
 
 #### RBAC-026: Unit tests for Casbin policy enforcement
+
 - **Type**: Test
 - **Estimate**: Medium
 
 #### RBAC-027: Integration tests for role assignment workflow
+
 - **Type**: Test
 - **Estimate**: Medium
 
 #### RBAC-028: Security tests for privilege escalation
+
 - **Type**: Test
 - **Estimate**: Large
 
@@ -889,100 +1027,122 @@ This document breaks down all feature specs into granular, actionable tickets. E
 ### Database Schema (Priority: P1)
 
 #### TOKEN-001: Create ApiToken entity
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### TOKEN-002: Create ApiTokenUsageLog entity
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### TOKEN-003: Add indexes for token lookup and usage logs
+
 - **Type**: Refactor
 - **Estimate**: Small
 
 ### Backend Services (Priority: P1)
 
 #### TOKEN-004: Implement token generation service
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### TOKEN-005: Implement token authentication guard
+
 - **Type**: Feature
 - **Estimate**: Large
 
 #### TOKEN-006: Implement rate limiting per token
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### TOKEN-007: Implement usage logging
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### TOKEN-008: Implement token CRUD
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 ### User UI (Priority: P2)
 
 #### TOKEN-009: Create token management screen
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### TOKEN-010: Create token creation flow
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### TOKEN-011: Create token revocation flow
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### TOKEN-012: Show token once after creation
+
 - **Type**: Feature
 - **Estimate**: Small
 
 ### Admin UI (Priority: P2)
 
 #### TOKEN-013: Create all tokens list
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### TOKEN-014: Create token detail view
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### TOKEN-015: Create admin token revocation flow
+
 - **Type**: Feature
 - **Estimate**: Small
 
 ### Integration (Priority: P1)
 
 #### TOKEN-016: Add token authentication to all API endpoints
+
 - **Type**: Refactor
 - **Estimate**: Large
 
 #### TOKEN-017: Integrate token scopes with RBAC enforcement
+
 - **Type**: Feature
 - **Estimate**: Large
 
 #### TOKEN-018: Add rate limiting middleware
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### TOKEN-019: Add usage logging middleware
+
 - **Type**: Feature
 - **Estimate**: Small
 
 ### Testing (Priority: P2)
 
 #### TOKEN-020: Unit tests for token generation and hashing
+
 - **Type**: Test
 - **Estimate**: Small
 
 #### TOKEN-021: Integration tests for token authentication flow
+
 - **Type**: Test
 - **Estimate**: Medium
 
 #### TOKEN-022: Security tests for privilege escalation
+
 - **Type**: Test
 - **Estimate**: Medium
 
@@ -995,146 +1155,180 @@ This document breaks down all feature specs into granular, actionable tickets. E
 ### Database Schema (Priority: P0)
 
 #### LM-001: Create League entity
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### LM-002: Create Franchise entity
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### LM-003: Create Club entity
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### LM-004: Create Team entity
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### LM-005: Create SkillGroup entity
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### LM-006: Create RosterSpot entity
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### LM-007: Create RosterOffer entity
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### LM-008: Create Season entity
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### LM-009: Create FranchiseRole, ClubRole, TeamRole entities
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### LM-010: Add indexes for common queries
+
 - **Type**: Refactor
 - **Estimate**: Small
 
 ### Backend Services (Priority: P1)
 
 #### LM-011: Implement franchise CRUD service
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### LM-012: Implement club CRUD service
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### LM-013: Implement team CRUD service
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### LM-014: Implement roster management service
+
 - **Type**: Feature
 - **Estimate**: Large
 
 #### LM-015: Implement roster offer service
+
 - **Type**: Feature
 - **Estimate**: Large
 
 #### LM-016: Implement role assignment service
+
 - **Type**: Feature
 - **Estimate**: Large
 
 #### LM-017: Implement season management service
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### LM-018: Add RBAC permission checks to all endpoints
+
 - **Type**: Feature
 - **Estimate**: Large
 
 ### UI Components (Priority: P1)
 
 #### LM-019: Organizational hierarchy tree view
+
 - **Type**: Feature
 - **Estimate**: Large
 
 #### LM-020: Franchise detail page and edit form
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### LM-021: Club detail page and edit form
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### LM-022: Team detail page and edit form
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### LM-023: Roster management interface
+
 - **Type**: Feature
 - **Estimate**: XL
 
 #### LM-024: Roster offer interface
+
 - **Type**: Feature
 - **Estimate**: Large
 
 #### LM-025: Role assignment interface
+
 - **Type**: Feature
 - **Estimate**: Large
 
 #### LM-026: Season management interface
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 ### Validation & Business Logic (Priority: P1)
 
 #### LM-027: Validate roster size limits
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### LM-028: Prevent duplicate roster spots
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### LM-029: Validate skill group matching for roster adds
+
 - **Type**: Feature
 - **Estimate**: Small
 
 #### LM-030: Implement approval workflow for role assignments
+
 - **Type**: Feature
 - **Estimate**: Medium
 
 #### LM-031: Validate season dates
+
 - **Type**: Feature
 - **Estimate**: Small
 
 ### Testing (Priority: P2)
 
 #### LM-032: Unit tests for roster validation logic
+
 - **Type**: Test
 - **Estimate**: Medium
 
 #### LM-033: Integration tests for roster management flows
+
 - **Type**: Test
 - **Estimate**: Large
 
 #### LM-034: E2E tests for full roster management workflow
+
 - **Type**: Test
 - **Estimate**: Large
 
@@ -1143,11 +1337,13 @@ This document breaks down all feature specs into granular, actionable tickets. E
 ## Summary by Priority
 
 ### P0 (Critical - Must Complete First)
+
 - V1 Microservices Migration (Epic 1) - Core consolidation and PostgreSQL events
 - Multi-Game Data Model DB Schema (MGDM-001 through MGDM-008)
 - League Management DB Schema (LM-001 through LM-010)
 
 ### P1 (High - Core Features)
+
 - Multi-Game Data Model (Epic 2) - remaining implementation
 - Remaining Microservices Migration (Notifications, Image Gen, Replay Parse)
 - League Management (Epic 7) - backend services
@@ -1155,12 +1351,14 @@ This document breaks down all feature specs into granular, actionable tickets. E
 - Multi-Game ELO DB Schema and Rating Calculation
 
 ### P2 (Medium - Important but not blocking)
+
 - RBAC System UI and Integration
 - Multi-Game ELO Invalidation and API Endpoints
 - API Tokens System
 - All Documentation tasks
 
 ### P3 (Low - Nice to have)
+
 - Graph Compaction features
 - Advanced ELO features (Glicko, TrueSkill)
 
@@ -1213,6 +1411,7 @@ This document breaks down all feature specs into granular, actionable tickets. E
 10. **Polish, testing, documentation** (All epics)
 
 This order ensures:
+
 - Unified architecture provides solid foundation
 - Data models support all future features
 - Core workflows work before adding advanced features

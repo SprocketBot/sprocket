@@ -77,6 +77,11 @@ services:
     working_dir: /app/clients/discord
     environment:
       SERVICE_NAME: "SprocketDiscord"
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: postgres
 
   image-generation:
     container_name: sprocket-image-generation

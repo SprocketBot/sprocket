@@ -1,6 +1,5 @@
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
-import { RedLock } from '@sprocketbot/lib';
 import { MatchmakingEndpoint } from './constants';
 import {
   type Scrim,
@@ -22,7 +21,6 @@ export class AppController {
   constructor(private readonly scrimService: ScrimService) {}
 
   @MessagePattern(MatchmakingEndpoint.CreateScrim)
-  @RedLock((mem) => mem.authorId)
   async createScrim(payload: CreateScrimPayload): Promise<Scrim> {
     const scrim = await this.scrimService.createScrim(
       parse(CreateScrimPayloadSchema, payload),

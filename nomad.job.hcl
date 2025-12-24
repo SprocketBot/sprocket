@@ -17,61 +17,8 @@ job "Sprocket-%%environment%%" {
     disable_file = true
   }
 
-  group "redis" {
-    network {
-      port "redis" {
-        to = 6379
-      }
-    }
-    task "redis" {
-      driver = "docker"
-      config {
-        image = "redis/redis-stack-server:latest"
-        ports = ["redis"]
-      }
-      service {
-        name     = "redis-${var.environment}"
-        provider = "consul"
-        port     = "redis"
-      }
-    }
-  }
-  group "lavinmq" {
-    network {
-      port "lavinmq-http" {
-        to = 15672
-      }
-      port "lavinmq" {
-        to = 5672
-      }
-    }
-    task "lavinmq" {
-      driver = "docker"
-      config {
-        image = "cloudamqp/lavinmq"
-        ports = ["lavinmq-http", "lavinmq"]
-      }
-      service {
-        name     = "lavinmq-${var.environment}"
-        provider = "consul"
-        port     = "lavinmq"
-      }
-      service {
-        name     = "lavinmq-${var.environment}-ui"
-        provider = "consul"
-        port     = "lavinmq-http"
 
-        tags = [
-          "traefik.enable=true",
-          "traefik.http.routers.lavinmq-ui-${var.environment}.rule=Host(`lavinmq.utils.${var.environment}.${var.base_url}`)",
 
-          "traefik.http.routers.lavinmq-ui-${var.environment}.tls=true",
-          "traefik.http.routers.lavinmq-ui-${var.environment}.tls.certResolver=lets-encrypt",
-          "traefik.http.routers.lavinmq-ui-${var.environment}.entrypoints=web,websecure",
-        ]
-      }
-    }
-  }
 
   group "web" {
     spread {
@@ -205,15 +152,7 @@ PG_PORT="{{ .Port }}"
 
 PG_DATABASE="sprocket-${var.environment}"
 
-{{- range service "redis-${var.environment}" }}
-REDIS_HOST="{{ .Address }}"
-REDIS_PORT="{{ .Port }}"
-{{ end }}
 
-{{- range service "lavinmq-${var.environment}" }}
-# TODO: Should we set up the rabbitmq vault driver? Does it work with LavinMQ?
-AMQP_URL="amqp://{{ .Address }}:{{ .Port }}"
-{{ end }}
 
 {{ with secret "kv2/nomad/${var.environment}/creds/backblaze" }}
 S3_APP_KEY="{{ .Data.data.keySecret }}"
@@ -288,15 +227,7 @@ S3_PREFIX="${var.environment}"
         destination = "/secret/.env"
         env         = true
         data        = <<EOF
-{{- range service "redis-${var.environment}" }}
-REDIS_HOST="{{ .Address }}"
-REDIS_PORT="{{ .Port }}"
-{{ end }}
 
-{{- range service "lavinmq-${var.environment}" }}
-# TODO: Should we set up the rabbitmq vault driver? Does it work with LavinMQ?
-AMQP_URL="amqp://{{ .Address }}:{{ .Port }}"
-{{ end }}
 
 {{ with secret "kv2/nomad/${var.environment}/creds/discord" }}
 AUTH_DISCORD_BOT_TOKEN="{{ .Data.data.botToken }}"

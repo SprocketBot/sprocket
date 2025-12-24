@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { NecordModule } from 'necord';
+import { NotificationsModule } from './notifications/notifications.module';
 import {
   BaseSprocketModules,
-  RmqModule,
   SprocketConfigService,
 } from '@sprocketbot/lib';
 import { Client, IntentsBitField } from 'discord.js';
@@ -28,7 +28,7 @@ import { InfoController } from './info/info.controller';
         };
       },
     }),
-    RmqModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService, InfoController],

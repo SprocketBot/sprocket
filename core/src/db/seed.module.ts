@@ -16,13 +16,13 @@ import {
 } from './internal';
 import { NestFactory } from '@nestjs/core';
 import { DbModule } from './db.module';
-import { BaseSprocketModules, RedisModule } from '@sprocketbot/lib';
+import { BaseSprocketModules } from '@sprocketbot/lib';
 import { getDataSourceToken } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { type Seeder } from './seeder.decorator';
 import { authz } from 'src/authz.def';
 @Module({
-	imports: [DbModule, authz, ...BaseSprocketModules.filter((mod) => mod !== RedisModule)],
+	imports: [DbModule, authz, ...BaseSprocketModules],
 	providers: [
 		UserEntitySeed,
 		RoleEntitySeed,

@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
 import { EventsService } from './events.service';
-import { RmqModule } from '../rmq/rmq.module';
 
 @Module({
-  imports: [RmqModule],
+  imports: [],
   providers: [EventsService],
   exports: [EventsService],
 })
