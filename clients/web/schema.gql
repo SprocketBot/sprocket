@@ -1,0 +1,182 @@
+scalar DateTime
+
+type Role {
+	id: Int!
+	name: String!
+	displayName: String!
+	description: String
+	hierarchy: Int!
+	isRestricted: Boolean!
+	isActive: Boolean!
+}
+
+type Permission {
+	role: String!
+	resource: String!
+	action: String!
+	scope: String!
+	effect: String!
+}
+
+type PermissionAuditLog {
+	id: ID!
+	actorId: Int
+	action: String!
+	timestamp: DateTime!
+	reason: String
+}
+
+type UserRoleAssignment {
+	id: Int!
+	userId: Int!
+	roleId: Int!
+	status: String
+}
+
+type UserAccount {
+	id: ID!
+	identifier: String!
+	platform: String!
+	platformId: String!
+	platformName: String!
+}
+
+type User {
+	id: Int!
+	username: String!
+	active: Boolean!
+	players: [Player!]!
+	accounts: [UserAccount!]!
+}
+
+type Player {
+	id: Int!
+	game: Game!
+	skillGroup: SkillGroup
+	user: User
+	salary: Float
+}
+
+type Game {
+	id: Int!
+	name: String!
+	gameModes: [GameMode!]!
+	skillGroups: [SkillGroup!]!
+}
+
+type SkillGroup {
+	id: Int!
+	name: String!
+	code: String!
+}
+
+type GameMode {
+	id: Int!
+	name: String!
+	playerCount: Int!
+}
+
+type Scrim {
+	id: ID!
+	state: String!
+	complete: Boolean!
+	participantCount: Int
+	participants(admin: Boolean): [ScrimParticipant!]!
+	game: Game!
+	gameMode: GameMode!
+	skillGroup: SkillGroup
+	pendingTtl: Int
+	createdAt: DateTime!
+}
+
+type ScrimParticipant {
+	id: ID!
+	checkedIn: Boolean!
+	name: String!
+}
+
+type Query {
+	roles: [Role!]!
+	role(name: String!): Role
+	rolePermissions(role: String!): [Permission!]!
+	permissionAuditLogs: [PermissionAuditLog!]!
+	users(query: UserSearchInput): [User!]!
+	whoami: User!
+	currentScrim: Scrim
+	pendingScrims: [Scrim!]!
+	allScrims: [Scrim!]!
+	games: [Game!]!
+}
+
+input UserSearchInput {
+	id: String
+	username: StringSearchInput
+}
+
+input StringSearchInput {
+	term: String
+	fuzzy: Boolean
+}
+
+input CreateScrimInput {
+	gameId: Int!
+	gameModeId: Int!
+	options: CreateScrimOptions
+}
+
+input CreateScrimOptions {
+	pendingTimeout: Int
+}
+
+input CreatePlayerInput {
+	userId: ID!
+	gameId: ID!
+	skillGroupId: String!
+}
+
+input UpdatePlayerInput {
+	playerId: ID!
+	destinationSkillGroupId: String!
+}
+
+input UpdateUserInput {
+	active: Boolean
+}
+
+input DestroyScrimInput {
+	scrimId: String!
+}
+
+type Mutation {
+	createRole(name: String!, displayName: String!, description: String, hierarchy: Int): Role!
+	addPermissionToRole(role: String!, resource: String!, action: String!, scope: String): Boolean!
+	removePermissionFromRole(
+		role: String!
+		resource: String!
+		action: String!
+		scope: String
+	): Boolean!
+	assignRoleToUser(userId: Int!, role: String!, scope: String): UserRoleAssignment!
+	revokeRoleFromUser(userId: Int!, role: String!): Boolean!
+
+	createScrim(payload: CreateScrimInput!): Scrim!
+	leaveScrim: Scrim!
+	destroyScrim(payload: DestroyScrimInput!): Scrim!
+
+	updateUser(id: Int!, data: UpdateUserInput!): User!
+	alterUserActiveStatus(userId: String!, active: Boolean!): User!
+
+	createPlayer(data: CreatePlayerInput!): Player!
+	updatePlayer(data: UpdatePlayerInput!): Player!
+	deletePlayer(playerId: String!): Player!
+}
+
+type Subscription {
+	pendingScrims: Scrim!
+	allScrims: [Scrim!]!
+	currentScrim: Scrim
+}
+
+directive @list(name: String!, connection: Boolean) on FIELD
+directive @Player_delete on FIELD
+directive @parentID(value: ID!) on FIELD

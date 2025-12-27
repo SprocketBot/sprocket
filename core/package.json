@@ -59,7 +59,8 @@
     "uuid": "^9.0.1",
     "valibot": "^0.30.0",
     "vitest": "^3.1.4",
-    "yaml": "^2.4.0"
+    "yaml": "^2.4.0",
+    "typeorm-adapter": "^1.7.0"
   },
   "peerDependencies": {},
   "devDependencies": {

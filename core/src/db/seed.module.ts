@@ -21,8 +21,10 @@ import { getDataSourceToken } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { type Seeder } from './seeder.decorator';
 import { authz } from 'src/authz.def';
+import { RbacModule } from '../auth/rbac/rbac.module';
+import { RbacSeed } from '../auth/rbac/rbac.seed';
 @Module({
-	imports: [DbModule, authz, ...BaseSprocketModules],
+	imports: [DbModule, authz, RbacModule, ...BaseSprocketModules],
 	providers: [
 		UserEntitySeed,
 		RoleEntitySeed,
@@ -36,7 +38,8 @@ import { authz } from 'src/authz.def';
 		TeamEntitySeed,
 		FranchiseSeatAssignmentEntitySeed,
 		ClubSeatAssignmentEntitySeed,
-		PlayerEntitySeed
+		PlayerEntitySeed,
+		RbacSeed
 	]
 })
 class SeedModule {}

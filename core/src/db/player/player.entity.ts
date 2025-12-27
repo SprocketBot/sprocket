@@ -1,4 +1,7 @@
-import { BaseEntity, GameEntity, SkillGroupEntity, UserEntity } from '../internal';
+import { BaseEntity } from '../base.entity';
+import { GameEntity } from '../game/game.entity';
+import { SkillGroupEntity } from '../skill_group/skill_group.entity';
+import { UserEntity } from '../user/user.entity';
 import { Column, Entity, ManyToOne, Unique } from 'typeorm';
 
 @Entity('player', { schema: 'sprocket' })

@@ -6,9 +6,11 @@ Create a Personal Access Token (PAT) system that allows users to generate API to
 
 ## Current State
 
-- No token-based authentication for third-party access
-- Users likely use session-based authentication (cookies/JWT)
-- No mechanism for users to create long-lived credentials for scripts/automations
+## Current State
+
+- **Authentication**: Session/JWT based for users.
+- **External Access**: No dedicated token system for third-party tools.
+- **Foundation**: `Users` entity exists in the unified Postgres database.
 
 ## Target State
 
@@ -22,6 +24,7 @@ Create a Personal Access Token (PAT) system that allows users to generate API to
 ## Design Philosophy
 
 Per our [design philosophy](./design-philosophy.md):
+
 - **Simplicity**: Start with simple bearer tokens; add OAuth2 only if needed
 - **Security-first**: Tokens are sensitive; enforce expiration, scoping, and rate limits
 - **User-friendly**: Easy to create/revoke tokens via UI
@@ -32,19 +35,25 @@ Per our [design philosophy](./design-philosophy.md):
 ## Use Cases
 
 ### 1. User Automations
+
 A user wants to build a Discord bot that fetches their match history and posts to a channel.
+
 - User generates a read-only token scoped to their own data
 - Bot uses token to call `GET /api/players/:id/matches`
 - Token is revoked if bot is compromised
 
 ### 2. Third-Party Integrations
+
 A user wants to integrate Sprocket data with a stats tracking website.
+
 - User generates a token with specific scopes (`matches:read`, `stats:read`)
 - Third-party app uses token to fetch data on user's behalf
 - Token can be revoked at any time by user or admin
 
 ### 3. CI/CD Scripts
+
 A developer wants to automate data exports for analytics.
+
 - Developer generates a long-lived token with read-only access
 - Script runs nightly to export data
 - Token is rotated periodically for security
@@ -58,7 +67,7 @@ A developer wants to automate data exports for analytics.
 ```typescript
 @Entity()
 class ApiToken {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @ManyToOne(() => User)
@@ -73,7 +82,7 @@ class ApiToken {
   @Column()
   name: string; // User-provided name (e.g., 'Discord Bot', 'Stats Exporter')
 
-  @Column({ type: 'text', array: true, nullable: true })
+  @Column({ type: "text", array: true, nullable: true })
   scopes: string[]; // e.g., ['matches:read', 'stats:read', 'profile:write']
 
   @Column({ nullable: true })
@@ -88,7 +97,7 @@ class ApiToken {
   @Column({ default: 0 })
   usageCount: number; // Total number of requests made with this token
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ type: "boolean", default: false })
   isRevoked: boolean;
 
   @Column({ nullable: true })
@@ -97,7 +106,7 @@ class ApiToken {
   @ManyToOne(() => User, { nullable: true })
   revokedBy: User; // Admin who revoked it, or null if user revoked
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: "jsonb", nullable: true })
   metadata: Record<string, any>; // IP whitelist, user agent, etc.
 }
 ```
@@ -109,7 +118,7 @@ Track token usage for security monitoring:
 ```typescript
 @Entity()
 class ApiTokenUsageLog {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @ManyToOne(() => ApiToken)
@@ -121,7 +130,7 @@ class ApiTokenUsageLog {
   @Column()
   method: string; // GET, POST, etc.
 
-  @Column({ type: 'int' })
+  @Column({ type: "int" })
   statusCode: number; // HTTP status code
 
   @Column()
@@ -133,7 +142,7 @@ class ApiTokenUsageLog {
   @Column()
   timestamp: Date;
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ type: "boolean", default: false })
   wasBlocked: boolean; // True if rate limited or permission denied
 }
 ```
@@ -151,6 +160,7 @@ Use a standard format similar to GitHub PATs:
 ```
 
 Example:
+
 ```
 sk_prod_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
 ```
@@ -183,6 +193,7 @@ sk_prod_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
 Scopes follow the pattern: `<resource>:<action>`
 
 Examples:
+
 - `matches:read` - Read match data
 - `stats:read` - Read player/team stats
 - `profile:write` - Update own profile
@@ -194,12 +205,14 @@ Examples:
 Scopes **restrict** the user's existing permissions; they don't grant new ones.
 
 **Example**:
+
 - User has RBAC permission: `roster:manage:own_team`
 - User creates token with scope: `roster:manage`
 - Token can only manage rosters the user already has permission to manage
 - Token **cannot** be used for actions outside its scopes (e.g., `matches:read` if not in scopes)
 
 **Implementation**:
+
 ```typescript
 async validateTokenAccess(
   token: ApiToken,
@@ -257,6 +270,7 @@ X-RateLimit-Reset: 1634567890
 ### User-Facing UI
 
 **Token Management Screen**:
+
 ```
 +------------------------------------------+
 | API Tokens                    [+ Create] |
@@ -269,6 +283,7 @@ X-RateLimit-Reset: 1634567890
 ```
 
 **Token Creation Flow**:
+
 1. User clicks "Create Token"
 2. Modal appears:
    - Name: [text input]
@@ -282,6 +297,7 @@ X-RateLimit-Reset: 1634567890
 ### Admin UI
 
 **All Tokens View** (admin only):
+
 ```
 +------------------------------------------+
 | All API Tokens                           |
@@ -294,6 +310,7 @@ X-RateLimit-Reset: 1634567890
 ```
 
 **Token Detail View** (admin only):
+
 - Token metadata (prefix, scopes, expiration)
 - Usage statistics (total requests, last used)
 - Recent usage log (last 100 requests)
@@ -328,12 +345,14 @@ X-RateLimit-Reset: 1634567890
 ### Using a Token
 
 **Request**:
+
 ```http
 GET /api/players/123/matches
 Authorization: Bearer sk_prod_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
 ```
 
 **Backend Processing**:
+
 1. Extract token from `Authorization` header
 2. Hash token with SHA256
 3. Look up `ApiToken` by `tokenHash`
@@ -345,6 +364,7 @@ Authorization: Bearer sk_prod_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
 9. Proceed with request or deny
 
 **Response** (if denied):
+
 ```http
 HTTP/1.1 403 Forbidden
 {
@@ -363,6 +383,7 @@ HTTP/1.1 403 Forbidden
 **Risk**: User accidentally commits token to GitHub or shares publicly.
 
 **Mitigations**:
+
 - Educate users on token security
 - Provide "Last Used" timestamp to detect unauthorized usage
 - Allow easy revocation via UI
@@ -385,6 +406,7 @@ HTTP/1.1 403 Forbidden
 **Risk**: Long-lived tokens become security liabilities.
 
 **Best Practice**:
+
 - Encourage users to set expiration dates
 - Provide warnings for tokens older than 1 year
 - Optionally force rotation for high-privilege tokens
@@ -417,11 +439,13 @@ Use a library like `@nestjs/passport` with OAuth2 strategy.
 ## Tasks Breakdown
 
 ### Database Schema
+
 - [ ] Create `ApiToken` entity and migration
 - [ ] Create `ApiTokenUsageLog` entity and migration
 - [ ] Add indexes for token lookup and usage logs
 
 ### Backend Services
+
 - [ ] Implement token generation service (random string + hash)
 - [ ] Implement token authentication guard (validate token, check scopes, RBAC)
 - [ ] Implement rate limiting per token
@@ -429,23 +453,27 @@ Use a library like `@nestjs/passport` with OAuth2 strategy.
 - [ ] Implement token CRUD (create, list, revoke)
 
 ### User UI
+
 - [ ] Create token management screen (list user's tokens)
 - [ ] Create token creation flow (modal with name, scopes, expiration)
 - [ ] Create token revocation flow (confirm and delete)
 - [ ] Show token **once** after creation (with copy button)
 
 ### Admin UI
+
 - [ ] Create all tokens list (filter by user, scope, revoked status)
 - [ ] Create token detail view (metadata, usage stats, logs)
 - [ ] Create admin token revocation flow
 
 ### Integration
+
 - [ ] Add token authentication to all API endpoints
 - [ ] Integrate token scopes with RBAC enforcement
 - [ ] Add rate limiting middleware
 - [ ] Add usage logging middleware
 
 ### Testing
+
 - [ ] Unit tests for token generation and hashing
 - [ ] Unit tests for scope validation
 - [ ] Integration tests for token authentication flow
@@ -453,6 +481,7 @@ Use a library like `@nestjs/passport` with OAuth2 strategy.
 - [ ] Security tests for privilege escalation
 
 ### Documentation
+
 - [ ] User guide for creating and managing tokens
 - [ ] Admin guide for monitoring and revoking tokens
 - [ ] API documentation for token endpoints
@@ -467,6 +496,7 @@ Use a library like `@nestjs/passport` with OAuth2 strategy.
 **Question**: Should tokens have a default expiration, or allow "never expires"?
 
 **Options**:
+
 - A) Default 1 year, optional "never expires"
 - B) Force expiration (max 2 years)
 - C) No default, user chooses
@@ -478,6 +508,7 @@ Use a library like `@nestjs/passport` with OAuth2 strategy.
 **Question**: How granular should scopes be?
 
 **Options**:
+
 - A) Coarse-grained: `read`, `write`, `admin`
 - B) Resource-level: `matches:read`, `stats:read`, `roster:manage`
 - C) Endpoint-level: `/api/matches:read`, `/api/stats:read`
@@ -495,6 +526,7 @@ Use a library like `@nestjs/passport` with OAuth2 strategy.
 **Question**: How long should we keep `ApiTokenUsageLog` entries?
 
 **Options**:
+
 - A) Forever (audit trail)
 - B) 90 days (compliance)
 - C) 30 days (space-saving)
@@ -533,13 +565,13 @@ Use a library like `@nestjs/passport` with OAuth2 strategy.
 
 ## Risks & Mitigations
 
-| Risk | Mitigation |
-|------|------------|
-| Token leakage (GitHub, logs) | Education; easy revocation; IP whitelisting |
-| Privilege escalation via scopes | Scopes only narrow permissions; always check RBAC |
-| Rate limit bypass (multiple tokens) | Aggregate rate limits per user |
-| Long-lived tokens become liabilities | Warnings for old tokens; encourage expiration |
-| Brute-force token guessing | Use 256-bit entropy; rate limit authentication attempts |
+| Risk                                 | Mitigation                                              |
+| ------------------------------------ | ------------------------------------------------------- |
+| Token leakage (GitHub, logs)         | Education; easy revocation; IP whitelisting             |
+| Privilege escalation via scopes      | Scopes only narrow permissions; always check RBAC       |
+| Rate limit bypass (multiple tokens)  | Aggregate rate limits per user                          |
+| Long-lived tokens become liabilities | Warnings for old tokens; encourage expiration           |
+| Brute-force token guessing           | Use 256-bit entropy; rate limit authentication attempts |
 
 ---
 

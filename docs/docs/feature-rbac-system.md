@@ -6,11 +6,12 @@ Build out a comprehensive Role-Based Access Control (RBAC) system with an admini
 
 ## Current State
 
-- Casbin integration partially implemented
-- Basic policy model defined (see [authz-noodles.md](./authz-noodles.md))
-- Examples for scheduling, rostering, and scrims documented
-- **No admin UI** for managing policies
-- Policies likely stored in configuration files (not database)
+## Current State
+
+- **Architecture**: Unified V2 Monolith (PostgreSQL-ready).
+- **Authorization**: Basic Casbin integration exists.
+- **Policies**: Defined in code/files, no database backing yet.
+- **Management**: No Admin UI; manual policy updates required.
 
 ## Target State
 
@@ -27,6 +28,7 @@ Build out a comprehensive Role-Based Access Control (RBAC) system with an admini
 ## Design Philosophy
 
 Per our [design philosophy](./design-philosophy.md):
+
 - **Simplicity**: Avoid over-complicating the permission model; start with minimal viable roles
 - **Database-first**: Store policies in PostgreSQL for UI editability
 - **Clear boundaries**: Separate policy definition from enforcement
@@ -135,7 +137,7 @@ For admin UI purposes, we'll create a metadata table to describe roles:
 ```typescript
 @Entity()
 class RoleDefinition {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column({ unique: true })
@@ -144,16 +146,16 @@ class RoleDefinition {
   @Column()
   displayName: string; // 'Team Captain', 'General Manager', etc.
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: "text", nullable: true })
   description: string;
 
-  @Column({ type: 'int', default: 0 })
+  @Column({ type: "int", default: 0 })
   hierarchy: number; // For role inheritance (higher = more permissions)
 
-  @Column({ type: 'boolean', default: true })
+  @Column({ type: "boolean", default: true })
   isActive: boolean;
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: "jsonb", nullable: true })
   metadata: Record<string, any>; // UI hints, icons, etc.
 }
 ```
@@ -163,7 +165,7 @@ class RoleDefinition {
 ```typescript
 @Entity()
 class UserRole {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @ManyToOne(() => User)
@@ -184,7 +186,7 @@ class UserRole {
   @Column({ nullable: true })
   expiresAt: Date; // Optional: for temporary role assignments
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ type: "boolean", default: false })
   requiresApproval: boolean; // For Franchise Manager, General Manager, League Ops, Admin
 }
 ```
@@ -196,16 +198,16 @@ Track all permission changes for accountability:
 ```typescript
 @Entity()
 class PermissionAuditLog {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @ManyToOne(() => User)
   actor: User; // Who made the change
 
-  @Column({ type: 'enum', enum: AuditAction })
+  @Column({ type: "enum", enum: AuditAction })
   action: AuditAction; // GRANT_ROLE, REVOKE_ROLE, ADD_POLICY, REMOVE_POLICY
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: "jsonb" })
   details: Record<string, any>; // What changed
 
   @Column()
@@ -216,12 +218,12 @@ class PermissionAuditLog {
 }
 
 enum AuditAction {
-  GRANT_ROLE = 'grant_role',
-  REVOKE_ROLE = 'revoke_role',
-  ADD_POLICY = 'add_policy',
-  REMOVE_POLICY = 'remove_policy',
-  APPROVE_ROLE = 'approve_role',
-  REJECT_ROLE = 'reject_role',
+  GRANT_ROLE = "grant_role",
+  REVOKE_ROLE = "revoke_role",
+  ADD_POLICY = "add_policy",
+  REMOVE_POLICY = "remove_policy",
+  APPROVE_ROLE = "approve_role",
+  REJECT_ROLE = "reject_role",
 }
 ```
 
@@ -328,18 +330,21 @@ g, captain, player
 ### Features
 
 #### 1. Role Management
+
 - List all roles with metadata (name, description, hierarchy)
 - Create new roles (custom roles beyond MVP set)
 - Edit role metadata (display name, description)
 - Deactivate roles (soft delete)
 
 #### 2. Permission Assignment
+
 - View all permissions for a role
 - Add permissions to a role (resource, action, scope)
 - Remove permissions from a role
 - Bulk import/export policies (CSV or JSON)
 
 #### 3. User Role Assignment
+
 - Search for users
 - View user's current roles
 - Assign role to user (with optional scope and expiration)
@@ -347,11 +352,13 @@ g, captain, player
 - Approve/reject pending role assignments (for Franchise Manager, GM, League Ops, Admin)
 
 #### 4. Policy Testing
+
 - Simulate permission checks (user, resource, action, scope)
 - Show which policies allow/deny the action
 - Helpful for debugging policy conflicts
 
 #### 5. Audit Log Viewer
+
 - View all permission changes
 - Filter by actor, action type, date range
 - Export audit logs for compliance
@@ -359,6 +366,7 @@ g, captain, player
 ### UI Mockups (Wireframes)
 
 **Role Management Screen**:
+
 ```
 +------------------------------------------+
 | Roles                          [+ New]   |
@@ -375,6 +383,7 @@ g, captain, player
 ```
 
 **Permission Assignment Screen** (for a role):
+
 ```
 +------------------------------------------+
 | Permissions for: Captain      [+ Add]    |
@@ -388,6 +397,7 @@ g, captain, player
 ```
 
 **User Role Assignment Screen**:
+
 ```
 +------------------------------------------+
 | User: shuckle                             |
@@ -422,14 +432,18 @@ Certain role assignments require approval (Franchise Manager, General Manager, L
 class UserRole {
   // ... existing fields
 
-  @Column({ type: 'enum', enum: RoleAssignmentStatus, default: RoleAssignmentStatus.ACTIVE })
+  @Column({
+    type: "enum",
+    enum: RoleAssignmentStatus,
+    default: RoleAssignmentStatus.ACTIVE,
+  })
   status: RoleAssignmentStatus; // PENDING, ACTIVE, REJECTED
 }
 
 enum RoleAssignmentStatus {
-  PENDING = 'pending',
-  ACTIVE = 'active',
-  REJECTED = 'rejected',
+  PENDING = "pending",
+  ACTIVE = "active",
+  REJECTED = "rejected",
 }
 ```
 
@@ -471,6 +485,7 @@ enum RoleAssignmentStatus {
 ## Tasks Breakdown
 
 ### Database Schema
+
 - [ ] Set up Casbin TypeORM adapter (`CasbinRule` table)
 - [ ] Create `RoleDefinition` entity and migration
 - [ ] Create `UserRole` entity and migration
@@ -479,6 +494,7 @@ enum RoleAssignmentStatus {
 - [ ] Seed default policies for each role
 
 ### Backend Services
+
 - [ ] Implement `RbacService` wrapping Casbin enforcer
 - [ ] Implement role management CRUD (create, read, update, delete roles)
 - [ ] Implement permission management (add, remove permissions for roles)
@@ -488,6 +504,7 @@ enum RoleAssignmentStatus {
 - [ ] Implement policy testing endpoint
 
 ### Admin UI
+
 - [ ] Create role management UI (list, create, edit roles)
 - [ ] Create permission assignment UI (view, add, remove permissions)
 - [ ] Create user role assignment UI (search users, assign/revoke roles)
@@ -496,6 +513,7 @@ enum RoleAssignmentStatus {
 - [ ] Create audit log viewer UI
 
 ### Integration
+
 - [ ] Add RBAC guards to all API endpoints
 - [ ] Implement scope resolution logic for dynamic scopes
 - [ ] Add permission checks to roster management endpoints
@@ -504,6 +522,7 @@ enum RoleAssignmentStatus {
 - [ ] Add permission checks to submission endpoints
 
 ### Testing
+
 - [ ] Unit tests for Casbin policy enforcement
 - [ ] Unit tests for scope resolution logic
 - [ ] Integration tests for role assignment workflow
@@ -512,6 +531,7 @@ enum RoleAssignmentStatus {
 - [ ] Security tests for privilege escalation
 
 ### Documentation
+
 - [ ] Document all roles and their permissions
 - [ ] Document scope types and resolution logic
 - [ ] API documentation for RBAC endpoints
@@ -527,6 +547,7 @@ enum RoleAssignmentStatus {
 **Question**: Should we support assigning roles to groups (e.g., all members of a team get Captain role)?
 
 **Options**:
+
 - A) Individual assignment only (simpler)
 - B) Support groups with automatic role propagation
 
@@ -549,6 +570,7 @@ enum RoleAssignmentStatus {
 **Question**: Should we cache permission checks for performance?
 
 **Options**:
+
 - A) No caching (always query Casbin)
 - B) Cache with TTL (e.g., 5 minutes)
 - C) Cache with invalidation on policy change
@@ -598,13 +620,13 @@ CREATE INDEX idx_user_role_role ON user_role(role_id);
 
 ## Risks & Mitigations
 
-| Risk | Mitigation |
-|------|------------|
-| Policy conflicts (allow vs deny) | Default-deny; use Casbin's effect resolution; policy testing UI |
-| Privilege escalation | Audit logging; approval workflow for sensitive roles; security testing |
-| Scope resolution bugs | Comprehensive unit tests; integration tests for all scope types |
-| Performance degradation with many policies | Casbin caching; optimize policy count; use role inheritance |
-| Admin accidentally locks themselves out | Always maintain a root admin account; policy testing before applying changes |
+| Risk                                       | Mitigation                                                                   |
+| ------------------------------------------ | ---------------------------------------------------------------------------- |
+| Policy conflicts (allow vs deny)           | Default-deny; use Casbin's effect resolution; policy testing UI              |
+| Privilege escalation                       | Audit logging; approval workflow for sensitive roles; security testing       |
+| Scope resolution bugs                      | Comprehensive unit tests; integration tests for all scope types              |
+| Performance degradation with many policies | Casbin caching; optimize policy count; use role inheritance                  |
+| Admin accidentally locks themselves out    | Always maintain a root admin account; policy testing before applying changes |
 
 ---
 

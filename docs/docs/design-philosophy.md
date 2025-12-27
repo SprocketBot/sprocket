@@ -7,18 +7,21 @@ Sprocket v2 is a fundamental reimagining of the platform with one guiding princi
 ### What Simplicity Means
 
 **Easy to Use**
+
 - Intuitive user interfaces that require minimal training
 - Clear, predictable workflows
 - Consistent patterns across all features
 - Helpful error messages and guidance
 
 **Easy to Operate**
+
 - Reduced infrastructure complexity
 - Fewer moving parts to monitor and maintain
 - Consolidated services where practical
 - Clear operational procedures and runbooks
 
 **Easy to Maintain**
+
 - Clean, well-documented code
 - Consistent patterns and conventions
 - Comprehensive test coverage
@@ -110,6 +113,27 @@ We know we're succeeding when:
 - Bugs are caught by tests, not production users
 - Deployments are boring and predictable
 - The team spends more time on features than infrastructure
+
+## Feature Delivery Standards
+
+To maintain velocity while ensuring quality, every feature must meet these standards before being considered "done":
+
+### 1. Verification Strategy
+
+We value confidence over coverage percentages, but high confidence usually requires code.
+
+- **Check-in Requirement**: All PRs must pass the build and existing test suite.
+- **Unit Tests**: Business logic execution paths must be covered by unit tests.
+- **Integration Tests**: Features interacting with the database or external services must have integration tests running in the Docker Compose environment.
+- **Validation**: Every feature must have a clear validation plan (e.g., "Deploy to staging, log in as user X, click Y").
+
+### 2. Documentation as Code
+
+Documentation is part of the feature, not an afterthought.
+
+- **Feature Specs**: Design docs in `docs/docs` (or `docs/docs/implemented`) must be kept up-to-date with reality.
+- **System Docs**: New systems (e.g., RBAC, API tokens) must have usage guides for other developers.
+- **Runbooks**: Operational procedures for the feature must be documented if applicable.
 
 ## Exceptions and Trade-offs
 

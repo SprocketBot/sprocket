@@ -19,7 +19,7 @@ This document serves as the central index for all Sprocket v2 planning and featu
 
 ### Current Work
 
-- **[Unified Migration to Monolith + PostgreSQL-Only Architecture](./unified-monolith-migration.md)** - **ACTIVE** - Consolidated plan replacing both Redis/RabbitMQ removal and V1 microservices migration
+- **[Unified Migration to Monolith + PostgreSQL-Only Architecture](./implemented/unified-monolith-migration.md)** - **ACTIVE** - Consolidated plan replacing both Redis/RabbitMQ removal and V1 microservices migration
 - ~~[Postgres-only Migration](./archive/Postgres-only-migration.md)~~ - Superseded by unified migration (archived)
 - ~~[Detailed Migration Plan](./archive/detailed-migration-plan.md)~~ - Superseded by unified migration (archived)
 
@@ -43,7 +43,7 @@ Each feature spec includes:
 
 ### 1. Multi-Game Data Model Refactor
 
-**[feature-multi-game-data-model.md](./feature-multi-game-data-model.md)**
+**[feature-multi-game-data-model.md](./implemented/feature-multi-game-data-model.md)**
 
 Refactor the Rocket League-centric data model to support multiple game types (Trackmania, future games).
 
@@ -78,14 +78,14 @@ Refactor the Rocket League-centric data model to support multiple game types (Tr
 - ~~Docker Compose integration~~
 - ~~Service consolidation decisions~~
 
-**Note**: This spec has been superseded by the [unified migration plan](./unified-monolith-migration.md) which provides a more efficient approach by integrating high-coupling services (Submissions, Matchmaking) into Core, eliminating their Redis dependencies entirely. This document is archived for historical reference.
+**Note**: This spec has been superseded by the [unified migration plan](./implemented/unified-monolith-migration.md) which provides a more efficient approach by integrating high-coupling services (Submissions, Matchmaking) into Core, eliminating their Redis dependencies entirely. This document is archived for historical reference.
 **Priority**: P1 (Critical functionality - now handled by unified migration)
 
 ---
 
 ### 3. Multi-Game ELO System
 
-**[feature-multi-game-elo.md](./feature-multi-game-elo.md)**
+**[feature-multi-game-elo.md](./implemented/feature-multi-game-elo.md)**
 
 Graph-based ELO rating system supporting multiple games and formulae, with invalidation and recalculation.
 

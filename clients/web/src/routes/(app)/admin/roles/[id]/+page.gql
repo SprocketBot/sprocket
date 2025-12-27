@@ -1,0 +1,17 @@
+query GetRoleDetails($name: String!) {
+	role(name: $name) {
+		id
+		name
+		displayName
+		description
+		hierarchy
+		isRestricted
+		isActive
+	}
+	rolePermissions(role: $name) {
+		resource
+		action
+		scope
+		effect
+	}
+}

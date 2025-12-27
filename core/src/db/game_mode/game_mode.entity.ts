@@ -1,5 +1,6 @@
 import { Column, Entity, ManyToOne, Unique } from 'typeorm';
-import { BaseEntity, GameEntity } from '../internal';
+import { BaseEntity } from '../base.entity';
+import { GameEntity } from '../game/game.entity';
 
 @Entity('game_mode', { schema: 'sprocket' })
 @Unique('game-name-unq', ['game', 'name'])

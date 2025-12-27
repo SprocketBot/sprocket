@@ -6,10 +6,10 @@ Build a comprehensive UI for managing leagues, franchises, clubs, teams, and ros
 
 ## Current State
 
-- Likely basic CRUD endpoints for entities
-- No comprehensive UI for hierarchy management
-- No roster management workflows
-- Manual database operations for complex changes
+- **Architecture**: Unified Monolith with PostgreSQL (Completed)
+- **Data Model**: Multi-game core data model (Match/Round/etc) is complete (see `feature-multi-game-data-model.md`).
+- **League Hierarchy**: Preliminary entities exist but no comprehensive UI or management logic.
+- **Operations**: Manual database edits required for organizational changes.
 
 ## Target State
 
@@ -23,6 +23,7 @@ Build a comprehensive UI for managing leagues, franchises, clubs, teams, and ros
 ## Design Philosophy
 
 Per our [design philosophy](./design-philosophy.md):
+
 - **User-friendly**: Intuitive workflows that don't require training
 - **Clear hierarchy**: Visual representation of League → Franchise → Club → Team → Player
 - **Safe operations**: Confirmations for destructive actions; undo where possible
@@ -66,7 +67,7 @@ League
 ```typescript
 @Entity()
 class League {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column({ unique: true })
@@ -75,16 +76,16 @@ class League {
   @Column({ unique: true })
   slug: string; // "mle"
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: "text", nullable: true })
   description: string;
 
-  @Column({ type: 'boolean', default: true })
+  @Column({ type: "boolean", default: true })
   isActive: boolean;
 
-  @OneToMany(() => Franchise, franchise => franchise.league)
+  @OneToMany(() => Franchise, (franchise) => franchise.league)
   franchises: Franchise[];
 
-  @OneToMany(() => Season, season => season.league)
+  @OneToMany(() => Season, (season) => season.league)
   seasons: Season[];
 }
 ```
@@ -94,7 +95,7 @@ class League {
 ```typescript
 @Entity()
 class Franchise {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @ManyToOne(() => League)
@@ -106,7 +107,7 @@ class Franchise {
   @Column({ unique: true })
   slug: string; // "brooklyn-guardians"
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: "text", nullable: true })
   description: string;
 
   @Column({ nullable: true })
@@ -115,13 +116,13 @@ class Franchise {
   @Column({ nullable: true })
   primaryColor: string; // Hex color for branding
 
-  @Column({ type: 'boolean', default: true })
+  @Column({ type: "boolean", default: true })
   isActive: boolean;
 
-  @OneToMany(() => Club, club => club.franchise)
+  @OneToMany(() => Club, (club) => club.franchise)
   clubs: Club[];
 
-  @OneToMany(() => FranchiseRole, role => role.franchise)
+  @OneToMany(() => FranchiseRole, (role) => role.franchise)
   roles: FranchiseRole[]; // Franchise Managers
 }
 ```
@@ -131,7 +132,7 @@ class Franchise {
 ```typescript
 @Entity()
 class Club {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @ManyToOne(() => Franchise)
@@ -146,13 +147,13 @@ class Club {
   @Column({ unique: true })
   slug: string; // "brooklyn-guardians-rocket-league"
 
-  @Column({ type: 'boolean', default: true })
+  @Column({ type: "boolean", default: true })
   isActive: boolean;
 
-  @OneToMany(() => Team, team => team.club)
+  @OneToMany(() => Team, (team) => team.club)
   teams: Team[];
 
-  @OneToMany(() => ClubRole, role => role.club)
+  @OneToMany(() => ClubRole, (role) => role.club)
   roles: ClubRole[]; // General Managers
 }
 ```
@@ -162,7 +163,7 @@ class Club {
 ```typescript
 @Entity()
 class Team {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @ManyToOne(() => Club)
@@ -177,16 +178,16 @@ class Team {
   @Column({ unique: true })
   slug: string; // "brooklyn-guardians-pro"
 
-  @Column({ type: 'int' })
+  @Column({ type: "int" })
   rosterSizeLimit: number; // Max players on roster
 
-  @Column({ type: 'boolean', default: true })
+  @Column({ type: "boolean", default: true })
   isActive: boolean;
 
-  @OneToMany(() => RosterSpot, spot => spot.team)
+  @OneToMany(() => RosterSpot, (spot) => spot.team)
   rosterSpots: RosterSpot[];
 
-  @OneToMany(() => TeamRole, role => role.team)
+  @OneToMany(() => TeamRole, (role) => role.team)
   roles: TeamRole[]; // Team Captains
 }
 ```
@@ -196,7 +197,7 @@ class Team {
 ```typescript
 @Entity()
 class SkillGroup {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @ManyToOne(() => Game)
@@ -205,10 +206,10 @@ class SkillGroup {
   @Column()
   name: string; // "Pro", "Master", "Champion"
 
-  @Column({ type: 'int' })
+  @Column({ type: "int" })
   rank: number; // For ordering (1 = highest)
 
-  @Column({ type: 'boolean', default: true })
+  @Column({ type: "boolean", default: true })
   isActive: boolean;
 }
 ```
@@ -220,7 +221,7 @@ Represents a player's position on a team's roster.
 ```typescript
 @Entity()
 class RosterSpot {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @ManyToOne(() => Team)
@@ -232,7 +233,7 @@ class RosterSpot {
   @ManyToOne(() => Season, { nullable: true })
   season: Season; // Roster is per-season
 
-  @Column({ type: 'enum', enum: RosterStatus })
+  @Column({ type: "enum", enum: RosterStatus })
   status: RosterStatus; // ACTIVE, INACTIVE, SUSPENDED
 
   @Column()
@@ -241,14 +242,14 @@ class RosterSpot {
   @Column({ nullable: true })
   leftAt: Date;
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: "jsonb", nullable: true })
   metadata: Record<string, any>; // Custom fields (jersey number, etc.)
 }
 
 enum RosterStatus {
-  ACTIVE = 'active',
-  INACTIVE = 'inactive',
-  SUSPENDED = 'suspended',
+  ACTIVE = "active",
+  INACTIVE = "inactive",
+  SUSPENDED = "suspended",
 }
 ```
 
@@ -259,7 +260,7 @@ For offer-based roster management (players accept/decline offers).
 ```typescript
 @Entity()
 class RosterOffer {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @ManyToOne(() => Team)
@@ -271,7 +272,7 @@ class RosterOffer {
   @ManyToOne(() => Season, { nullable: true })
   season: Season;
 
-  @Column({ type: 'enum', enum: OfferStatus })
+  @Column({ type: "enum", enum: OfferStatus })
   status: OfferStatus; // PENDING, ACCEPTED, DECLINED, WITHDRAWN
 
   @ManyToOne(() => User)
@@ -283,15 +284,15 @@ class RosterOffer {
   @Column({ nullable: true })
   respondedAt: Date;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: "text", nullable: true })
   message: string; // Optional message from offeror
 }
 
 enum OfferStatus {
-  PENDING = 'pending',
-  ACCEPTED = 'accepted',
-  DECLINED = 'declined',
-  WITHDRAWN = 'withdrawn',
+  PENDING = "pending",
+  ACCEPTED = "accepted",
+  DECLINED = "declined",
+  WITHDRAWN = "withdrawn",
 }
 ```
 
@@ -300,7 +301,7 @@ enum OfferStatus {
 ```typescript
 @Entity()
 class Season {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @ManyToOne(() => League)
@@ -309,7 +310,7 @@ class Season {
   @Column()
   name: string; // "Season 20", "Spring 2025"
 
-  @Column({ type: 'int' })
+  @Column({ type: "int" })
   number: number; // Sequential numbering
 
   @Column()
@@ -318,17 +319,17 @@ class Season {
   @Column()
   endDate: Date;
 
-  @Column({ type: 'enum', enum: SeasonStatus })
+  @Column({ type: "enum", enum: SeasonStatus })
   status: SeasonStatus; // UPCOMING, ACTIVE, COMPLETED
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ type: "boolean", default: false })
   isOffseason: boolean;
 }
 
 enum SeasonStatus {
-  UPCOMING = 'upcoming',
-  ACTIVE = 'active',
-  COMPLETED = 'completed',
+  UPCOMING = "upcoming",
+  ACTIVE = "active",
+  COMPLETED = "completed",
 }
 ```
 
@@ -337,7 +338,7 @@ enum SeasonStatus {
 ```typescript
 @Entity()
 class FranchiseRole {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @ManyToOne(() => Franchise)
@@ -346,7 +347,7 @@ class FranchiseRole {
   @ManyToOne(() => User)
   user: User;
 
-  @Column({ type: 'enum', enum: FranchiseRoleType })
+  @Column({ type: "enum", enum: FranchiseRoleType })
   roleType: FranchiseRoleType; // MANAGER, ASSISTANT_MANAGER
 
   @Column()
@@ -355,18 +356,18 @@ class FranchiseRole {
   @ManyToOne(() => User)
   assignedBy: User;
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ type: "boolean", default: false })
   requiresApproval: boolean; // True for Franchise Manager assignments
 }
 
 enum FranchiseRoleType {
-  MANAGER = 'manager',
-  ASSISTANT_MANAGER = 'assistant_manager',
+  MANAGER = "manager",
+  ASSISTANT_MANAGER = "assistant_manager",
 }
 
 @Entity()
 class ClubRole {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @ManyToOne(() => Club)
@@ -375,7 +376,7 @@ class ClubRole {
   @ManyToOne(() => User)
   user: User;
 
-  @Column({ type: 'enum', enum: ClubRoleType })
+  @Column({ type: "enum", enum: ClubRoleType })
   roleType: ClubRoleType; // GENERAL_MANAGER, ASSISTANT_GM
 
   @Column()
@@ -384,18 +385,18 @@ class ClubRole {
   @ManyToOne(() => User)
   assignedBy: User;
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ type: "boolean", default: false })
   requiresApproval: boolean; // True for GM assignments
 }
 
 enum ClubRoleType {
-  GENERAL_MANAGER = 'general_manager',
-  ASSISTANT_GM = 'assistant_gm',
+  GENERAL_MANAGER = "general_manager",
+  ASSISTANT_GM = "assistant_gm",
 }
 
 @Entity()
 class TeamRole {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @ManyToOne(() => Team)
@@ -404,7 +405,7 @@ class TeamRole {
   @ManyToOne(() => User)
   user: User;
 
-  @Column({ type: 'enum', enum: TeamRoleType })
+  @Column({ type: "enum", enum: TeamRoleType })
   roleType: TeamRoleType; // CAPTAIN, ASSISTANT_CAPTAIN
 
   @Column()
@@ -413,13 +414,13 @@ class TeamRole {
   @ManyToOne(() => User)
   assignedBy: User;
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ type: "boolean", default: false })
   requiresApproval: boolean; // False for Captain (immediate)
 }
 
 enum TeamRoleType {
-  CAPTAIN = 'captain',
-  ASSISTANT_CAPTAIN = 'assistant_captain',
+  CAPTAIN = "captain",
+  ASSISTANT_CAPTAIN = "assistant_captain",
 }
 ```
 
@@ -430,6 +431,7 @@ enum TeamRoleType {
 ### 1. Organizational Hierarchy View
 
 **Visual Tree Structure**:
+
 ```
 📁 Minor League Esports
   ├─ 🏢 Brooklyn Guardians
@@ -447,6 +449,7 @@ enum TeamRoleType {
 ```
 
 **Features**:
+
 - Expandable/collapsible tree
 - Click entity to view details
 - Inline editing for names
@@ -455,6 +458,7 @@ enum TeamRoleType {
 ### 2. Franchise Management
 
 **Franchise Detail Page**:
+
 ```
 +------------------------------------------+
 | Brooklyn Guardians              [Edit]   |
@@ -475,6 +479,7 @@ enum TeamRoleType {
 ```
 
 **Actions**:
+
 - Create/edit/delete clubs
 - Assign/remove franchise managers (with approval workflow)
 - Upload logo and set branding colors
@@ -482,6 +487,7 @@ enum TeamRoleType {
 ### 3. Club Management
 
 **Club Detail Page**:
+
 ```
 +------------------------------------------+
 | Brooklyn Guardians - Rocket League       |
@@ -500,6 +506,7 @@ enum TeamRoleType {
 ```
 
 **Actions**:
+
 - Create/edit/delete teams
 - Assign/remove general managers (with approval workflow)
 - View aggregate club stats
@@ -507,6 +514,7 @@ enum TeamRoleType {
 ### 4. Team Management
 
 **Team Detail Page**:
+
 ```
 +------------------------------------------+
 | Brooklyn Guardians Pro                   |
@@ -532,6 +540,7 @@ enum TeamRoleType {
 ```
 
 **Actions**:
+
 - Add/remove players from roster
 - Make roster offers (if using offer system)
 - Assign/remove team captains
@@ -541,11 +550,13 @@ enum TeamRoleType {
 ### 5. Roster Management
 
 **Bulk Roster Operations**:
+
 - **Search for players**: Filter by name, skill group, rostered status
 - **Drag-and-drop**: Drag player from "Available Players" to team roster
 - **Bulk actions**: Select multiple players, apply action (transfer, remove, etc.)
 
 **Offer System**:
+
 1. Captain clicks "Add Player"
 2. Search for player (filters: unrostered, correct skill group)
 3. Click "Make Offer"
@@ -555,6 +566,7 @@ enum TeamRoleType {
 7. If accepted, player added to roster
 
 **Direct Assignment** (League Ops/Admin):
+
 - Bypass offer system
 - Directly assign player to roster
 - Used for administrative actions
@@ -562,6 +574,7 @@ enum TeamRoleType {
 ### 6. Season Management
 
 **Season List**:
+
 ```
 +------------------------------------------+
 | Seasons                      [+ Create]  |
@@ -574,12 +587,14 @@ enum TeamRoleType {
 ```
 
 **Season Creation Flow**:
+
 1. Set season name and number
 2. Set start/end dates
 3. Mark as active (only one active season per league at a time)
 4. Create season
 
 **Offseason Mode**:
+
 - Toggle offseason (allows roster changes without active season)
 - Used for drafts, trades, etc.
 
@@ -590,11 +605,13 @@ enum TeamRoleType {
 ### Validation Rules
 
 **Roster Spot**:
+
 - Player can only be on one team per club (can't be on Pro and Master teams in same club)
 - Player can be on multiple teams across different clubs/games
 - Team cannot exceed roster size limit
 
 **Roster Offers**:
+
 - Only one pending offer per player per team at a time
 - Offers can be withdrawn before acceptance
 - Accepted offers automatically create roster spot
@@ -603,15 +620,15 @@ enum TeamRoleType {
 
 Based on RBAC roles (see [RBAC feature spec](./feature-rbac-system.md)):
 
-| Action | Player | Captain | General Manager | Franchise Manager | League Ops | Admin |
-|--------|--------|---------|-----------------|-------------------|------------|-------|
-| View roster | Own team | Own team | Own club | Own franchise | All | All |
-| Make roster offer | ❌ | Own team | Own club | Own franchise | All | All |
-| Accept roster offer | Own | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Remove from roster | ❌ | Own team | Own club | Own franchise | All | All |
-| Assign captain | ❌ | ❌ | Own club | Own franchise | All | All |
-| Assign GM | ❌ | ❌ | ❌ | Own franchise | Approve | Approve |
-| Assign Franchise Manager | ❌ | ❌ | ❌ | ❌ | Approve | Approve |
+| Action                   | Player   | Captain  | General Manager | Franchise Manager | League Ops | Admin   |
+| ------------------------ | -------- | -------- | --------------- | ----------------- | ---------- | ------- |
+| View roster              | Own team | Own team | Own club        | Own franchise     | All        | All     |
+| Make roster offer        | ❌       | Own team | Own club        | Own franchise     | All        | All     |
+| Accept roster offer      | Own      | ❌       | ❌              | ❌                | ❌         | ❌      |
+| Remove from roster       | ❌       | Own team | Own club        | Own franchise     | All        | All     |
+| Assign captain           | ❌       | ❌       | Own club        | Own franchise     | All        | All     |
+| Assign GM                | ❌       | ❌       | ❌              | Own franchise     | Approve    | Approve |
+| Assign Franchise Manager | ❌       | ❌       | ❌              | ❌                | Approve    | Approve |
 
 ### Approval Workflows
 
@@ -622,6 +639,7 @@ Per your requirements, the following actions require approval:
 - **Assigning General Manager**: Requires League Ops or Admin approval
 
 **Workflow**:
+
 1. User assigns role (e.g., GM to a user)
 2. Role assignment created with `requiresApproval = true`, `status = PENDING`
 3. Notification sent to approvers
@@ -691,11 +709,12 @@ All other actions (roster changes, captain assignments) are immediate (assuming 
 ## Tasks Breakdown
 
 ### Database Schema
-- [ ] Create `League` entity and migration
-- [ ] Create `Franchise` entity and migration
-- [ ] Create `Club` entity and migration
-- [ ] Create `Team` entity and migration
-- [ ] Create `SkillGroup` entity and migration
+
+- [ ] Create `League` entity and migration (Done/Pending verification)
+- [ ] Create `Franchise` entity and migration (Done/Pending verification)
+- [ ] Create `Club` entity and migration (Done/Pending verification)
+- [ ] Create `Team` entity and migration (Done/Pending verification)
+- [ ] Create `SkillGroup` entity and migration (Done/Pending verification)
 - [ ] Create `RosterSpot` entity and migration
 - [ ] Create `RosterOffer` entity and migration
 - [ ] Create `Season` entity and migration
@@ -703,6 +722,7 @@ All other actions (roster changes, captain assignments) are immediate (assuming 
 - [ ] Add indexes for common queries
 
 ### Backend Services
+
 - [ ] Implement franchise CRUD service
 - [ ] Implement club CRUD service
 - [ ] Implement team CRUD service
@@ -713,6 +733,7 @@ All other actions (roster changes, captain assignments) are immediate (assuming 
 - [ ] Add RBAC permission checks to all endpoints
 
 ### UI Components
+
 - [ ] Organizational hierarchy tree view
 - [ ] Franchise detail page and edit form
 - [ ] Club detail page and edit form
@@ -723,6 +744,7 @@ All other actions (roster changes, captain assignments) are immediate (assuming 
 - [ ] Season management interface (list, create, activate)
 
 ### Validation & Business Logic
+
 - [ ] Validate roster size limits
 - [ ] Prevent duplicate roster spots (same player, same club)
 - [ ] Validate skill group matching for roster adds
@@ -730,12 +752,14 @@ All other actions (roster changes, captain assignments) are immediate (assuming 
 - [ ] Validate season dates (no overlapping active seasons)
 
 ### Integration
+
 - [ ] Integrate with RBAC system for permission checks
 - [ ] Trigger notifications for roster offers
 - [ ] Trigger notifications for role assignment approvals
 - [ ] Audit logging for all management actions
 
 ### Testing
+
 - [ ] Unit tests for roster validation logic
 - [ ] Unit tests for approval workflow
 - [ ] Integration tests for roster management flows
@@ -744,6 +768,7 @@ All other actions (roster changes, captain assignments) are immediate (assuming 
 - [ ] E2E tests for season management
 
 ### Documentation
+
 - [ ] User guide for franchise/club/team management
 - [ ] User guide for roster management
 - [ ] User guide for role assignments
@@ -767,6 +792,7 @@ All other actions (roster changes, captain assignments) are immediate (assuming 
 **Question**: How do player transfers between teams work?
 
 **Options**:
+
 - A) Remove from Team A, add to Team B (two separate actions)
 - B) Transfer action (atomic move)
 - C) Trade system (swap players between teams)
@@ -830,13 +856,13 @@ All other actions (roster changes, captain assignments) are immediate (assuming 
 
 ## Risks & Mitigations
 
-| Risk | Mitigation |
-|------|------------|
-| Roster limit violations | Server-side validation before accepting offers/adding players |
-| Conflicting role assignments | Approval workflow; unique constraints on roles |
-| UI becomes overwhelming for large franchises | Pagination; collapsible sections; search/filter |
-| Accidental roster changes | Confirmations for destructive actions; audit logs for rollback |
-| Performance with deep hierarchies | Optimize queries; use caching; lazy load branches |
+| Risk                                         | Mitigation                                                     |
+| -------------------------------------------- | -------------------------------------------------------------- |
+| Roster limit violations                      | Server-side validation before accepting offers/adding players  |
+| Conflicting role assignments                 | Approval workflow; unique constraints on roles                 |
+| UI becomes overwhelming for large franchises | Pagination; collapsible sections; search/filter                |
+| Accidental roster changes                    | Confirmations for destructive actions; audit logs for rollback |
+| Performance with deep hierarchies            | Optimize queries; use caching; lazy load branches              |
 
 ---
 

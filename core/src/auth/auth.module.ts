@@ -8,16 +8,17 @@ import { DiscordStrategyService } from './strategies/discord-strategy/discord-st
 import { DbModule } from '../db/db.module';
 import { SteamStrategyController } from './strategies/steam-strategy/steam-strategy.controller';
 import { SteamStrategyService } from './strategies/steam-strategy/steam-strategy.service';
+import { RbacModule } from './rbac/rbac.module';
 
 @Module({
-  imports: [PassportModule.register({ session: false }), DbModule],
+  imports: [PassportModule.register({ session: false }), DbModule, RbacModule],
   providers: [
     AuthorizeService,
     AuthenticateService,
     DiscordStrategyService,
     SteamStrategyService,
   ],
-  exports: [AuthorizeService, AuthenticateService],
+  exports: [AuthorizeService, AuthenticateService, RbacModule],
   controllers: [
     AuthController,
     DiscordStrategyController,

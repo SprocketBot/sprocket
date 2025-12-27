@@ -12,9 +12,9 @@ See [design-philosophy.md](./design-philosophy.md) for our core principles. TL;D
 
 ## Major Feature Areas
 
-### 1. V1 Microservices Migration (In Progress)
+### 1. V1 Microservices Migration (Completed)
 
-**Status**: Active development
+**Status**: Completed (December 2025)
 **Priority**: P0 (Foundation for all other work)
 
 Migrate v1 microservices into the v2 architecture using a unified approach that consolidates Matchmaking and Submissions into Core while maintaining Notifications, Image Generation, and Replay Parse as separate services with PostgreSQL event queues.
@@ -33,7 +33,7 @@ Migrate v1 microservices into the v2 architecture using a unified approach that 
 
 **Unified Migration Approach**:
 
-- [Detailed Plan](./unified-monolith-migration.md)
+- [Detailed Plan](./implemented/unified-monolith-migration.md)
 - [Original Context](./archive/Postgres-only-migration.md)
 
 **Dependencies**: None (this is the foundation)
@@ -87,13 +87,13 @@ Redis and RabbitMQ dependencies are eliminated through the unified microservices
 - ✅ Consolidate all data storage in PostgreSQL
 - ✅ Simplify deployment and operational overhead
 
-**Implementation**: See [Unified Migration Plan](./unified-monolith-migration.md)
+**Implementation**: See [Unified Migration Plan](./implemented/unified-monolith-migration.md)
 
 ---
 
 ### 4. Multi-Game ELO System
 
-**Status**: ✅ Completed (December 2024)
+**Status**: ✅ Completed (December 2025)
 **Priority**: P2 (Important but not blocking)
 
 Design and implement a flexible ELO rating system that supports different formulae for different games.
@@ -128,20 +128,20 @@ Design and implement a flexible ELO rating system that supports different formul
 
 ### 5. RBAC System Enhancement
 
-**Status**: Planning
+**Status**: ✅ Completed (December 2025)
 **Priority**: P2 (Security and usability)
 
 Build out the Role-Based Access Control system with an administrative UI.
 
-**Current State**: Casbin-based RBAC with partial implementation (see [authz-noodles.md](./authz-noodles.md))
+**Current State**: Implemented with Casbin, TypeORM, and GraphQL API.
 
 **Key Deliverables**:
 
-- Admin UI for role management (create, edit, delete roles)
-- Admin UI for permission assignment (roles → permissions)
-- Admin UI for user/group role assignment
-- Comprehensive policy examples for common scenarios
-- Documentation for policy creation and troubleshooting
+- ✅ Admin API for role management (create, edit, delete roles)
+- ✅ Admin API for permission assignment (roles → permissions)
+- ✅ Admin API for user/group role assignment
+- ✅ Comprehensive policy examples seeded
+- ✅ Audit logging infrastructure
 
 **Dependencies**: None (can be developed in parallel)
 **Risks**: RBAC complexity can spiral; need clear scope

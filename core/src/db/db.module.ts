@@ -33,7 +33,11 @@ import {
 	PlayerRepository,
 	GameRepository,
 	GameModeRepository,
-	SkillGroupRepository
+	SkillGroupRepository,
+	CasbinRule,
+	RoleDefinition,
+	UserRole,
+	PermissionAuditLog
 } from './internal';
 
 @Module({
@@ -63,7 +67,11 @@ import {
 			NotificationHistoryEntity,
 			NotificationTemplateEntity,
 			PlayerStatEntity,
-			UserAuthAccountEntity
+			UserAuthAccountEntity,
+			CasbinRule,
+			RoleDefinition,
+			UserRole,
+			PermissionAuditLog
 		])
 	],
 	providers: [
