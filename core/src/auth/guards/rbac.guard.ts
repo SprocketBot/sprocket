@@ -47,8 +47,20 @@ export class RbacGuard implements CanActivate {
     // We check against 'all' scope by default for admin actions? Or check if ANY scope allows?
     // RbacService.checkPermission(userId, action, resource, scope)
     
-    const [resource, action] = permissions;
-    const scope = 'all'; // Default for simple guard usage. Dynamic scopes require more complex guard.
+    const perm = permissions[0];
+    let resource, action, scope = 'all';
+
+    if (typeof perm === 'string') {
+        resource = perm;
+        action = permissions[1];
+    } else {
+        // Assume object structure from nest-authz
+        resource = perm.resource;
+        action = perm.action;
+        // Scope might be in possession or separate?
+        // nest-authz uses possession. 
+        // For now default scope 'all' is fine.
+    }
     
     // If API Token is present, enforce its scopes first
     // Token scopes are strings like "resource:action:scope" or "*"
