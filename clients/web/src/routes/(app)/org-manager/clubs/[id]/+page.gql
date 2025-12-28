@@ -1,0 +1,29 @@
+query ClubProfile($id: String!) {
+	club(id: $id) {
+		id
+		name
+		slug
+		isActive
+		game {
+			name
+		}
+		franchise {
+			id
+			name
+		}
+		roles {
+			user {
+				username
+			}
+			roleType
+		}
+		teams {
+			id
+			name
+			slug
+			skillGroup {
+				name
+			}
+		}
+	}
+}

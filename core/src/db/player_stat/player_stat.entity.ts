@@ -1,4 +1,6 @@
-import { BaseEntity, PlayerEntity, RoundEntity } from '../internal';
+import { BaseEntity } from '../base.entity';
+import { PlayerEntity } from '../player/player.entity';
+import { RoundEntity } from '../round/round.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
 
 @Entity('player_stat', { schema: 'sprocket' })

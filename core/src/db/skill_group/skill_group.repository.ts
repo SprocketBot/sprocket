@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { SkillGroupEntity } from '../internal';
+import { SkillGroupEntity } from './skill_group.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()

@@ -5,7 +5,8 @@ import {
     JoinColumn,
     ManyToOne,
 } from 'typeorm';
-import { BaseEntity, GameEntity } from '../internal';
+import { BaseEntity } from '../base.entity';
+import { GameEntity } from '../game/game.entity';
 
 export enum RatingSystem {
     ELO = 'elo',

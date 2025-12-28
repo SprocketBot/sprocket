@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, Unique } from 'typeorm';
-import { BaseEntity, UserEntity } from '../internal';
+import { BaseEntity } from '../base.entity';
+import { UserEntity } from '../user/user.entity';
 import { NotificationChannel } from './notification.types';
 
 @Entity('user_notification_preference', { schema: 'sprocket' })

@@ -4,25 +4,22 @@ import { ClubRepository } from '../../db/club/club.repository';
 import { GameObject } from '../game/game.object';
 import { FranchiseObject } from '../franchise/franchise.object';
 import { TeamObject } from '../team/team.object';
+import { ClubRoleObject } from './club-role.object';
 
 @Resolver(() => ClubObject)
 export class ClubResolver {
 	constructor(private readonly clubRepo: ClubRepository) {}
 
-	@Query()
-	async club(
-		@Args('id') id: string,
-		@Args('franchiseId') franchiseId: string,
-		@Args('gameId') gameId: string
-	): Promise<ClubObject> {
-		const club = await this.clubRepo.findOne({
-			where: {
-				id: id,
-				game: { id: gameId },
-				franchise: { id: franchiseId }
-			}
+	@Query(() => ClubObject)
+	async club(@Args('id') id: string): Promise<ClubObject> {
+		return this.clubRepo.findOneOrFail({
+			where: { id }
 		});
-		return club;
+	}
+
+	@Query(() => [ClubObject])
+	async clubs(): Promise<ClubObject[]> {
+		return this.clubRepo.find();
 	}
 
 	@ResolveField(() => FranchiseObject)
@@ -39,10 +36,23 @@ export class ClubResolver {
 		return await club.game;
 	}
 
-	@ResolveField(() => TeamObject)
-	async teams(@Root() root: Partial<ClubObject>) {
+	@ResolveField(() => [TeamObject])
+	async teams(@Root() root: ClubObject) {
 		if (root.teams) return root.teams;
-		const club = await this.clubRepo.findOneByOrFail({ id: root.id });
-		return await club.teams;
+		const club = await this.clubRepo.findOne({
+			where: { id: root.id },
+			relations: ['teams'],
+		});
+		return club?.teams ?? [];
+	}
+
+	@ResolveField(() => [ClubRoleObject])
+	async roles(@Root() root: ClubObject): Promise<ClubRoleObject[]> {
+		if (root.roles) return root.roles;
+		const club = await this.clubRepo.findOne({
+			where: { id: root.id },
+			relations: ['roles', 'roles.user'],
+		});
+		return (club?.roles as unknown as ClubRoleObject[]) ?? [];
 	}
 }

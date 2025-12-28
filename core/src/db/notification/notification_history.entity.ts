@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { BaseEntity, UserEntity } from '../internal';
+import { BaseEntity } from '../base.entity';
+import { UserEntity } from '../user/user.entity';
 import { NotificationChannel, NotificationStatus } from './notification.types';
 import { NotificationTemplateEntity } from './notification_template.entity';
 

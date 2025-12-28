@@ -24,6 +24,9 @@ import { GameModeResolver } from './game_mode/game_mode.resolver';
 import opentelemetry from '@opentelemetry/api';
 import { GraphQLResolveInfo } from 'graphql';
 import { ScrimService } from './scrim/scrim.service';
+import { FranchiseResolver } from './franchise/franchise.resolver';
+import { ClubResolver } from './club/club.resolver';
+import { TeamResolver } from './team/team.resolver';
 import { CoreEntitiesResolver } from './core_entities.resolver';
 import {
   MatchSubmissionEntity,
@@ -44,6 +47,10 @@ import {
   UserAuthAccountEntity,
   FixtureEntity,
 } from '../db/internal';
+import { SeasonResolver } from './season/season.resolver';
+import { SeasonService } from './season/season.service';
+import { RosterResolver } from './roster/roster.resolver';
+import { RosterService } from './roster/roster.service';
 
 @Module({
   imports: [
@@ -58,7 +65,7 @@ import {
           },
         },
       },
-      autoSchemaFile: true,
+      autoSchemaFile: 'schema.gql',
       csrfPrevention: false,
       introspection: true,
       context: ({ req, res }) => {
@@ -145,6 +152,13 @@ import {
     GameModeResolver,
     ScrimService,
     CoreEntitiesResolver,
+    SeasonResolver,
+    SeasonService,
+    RosterResolver,
+    RosterService,
+    FranchiseResolver,
+    ClubResolver,
+    TeamResolver,
   ],
 })
 export class GqlModule { }

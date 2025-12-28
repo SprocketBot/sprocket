@@ -1,5 +1,6 @@
 import { Entity, ManyToOne } from 'typeorm';
-import { BaseSeatAssignmentEntity, FranchiseEntity } from '../../internal';
+import { BaseSeatAssignmentEntity } from '../base_seat_assignment.entity';
+import { FranchiseEntity } from '../../franchise/franchise.entity';
 
 @Entity('franchise_seat_assignment', { schema: 'sprocket' })
 export class FranchiseSeatAssignmentEntity extends BaseSeatAssignmentEntity {

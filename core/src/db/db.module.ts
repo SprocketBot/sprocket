@@ -18,6 +18,18 @@ import { FixtureEntity } from './match/fixture.entity';
 import { FranchiseEntity } from './franchise/franchise.entity';
 import { ClubEntity } from './club/club.entity';
 import { TeamEntity } from './team/team.entity';
+import { SeasonEntity } from './season/season.entity';
+import { RosterSpotEntity } from './roster_spot/roster_spot.entity';
+import { RosterOfferEntity } from './roster_offer/roster_offer.entity';
+import { FranchiseRoleEntity } from './franchise_role/franchise_role.entity';
+import { ClubRoleEntity } from './club_role/club_role.entity';
+import { TeamRoleEntity } from './team_role/team_role.entity';
+import { RoleEntity } from './role/role.entity';
+import { SeatEntity } from './seat/seat.entity';
+import { OrganizationSeatAssignmentEntity } from './seat_assignment/organization_seat_assignment/organization_seat_assignment.entity';
+import { ClubSeatAssignmentEntity } from './seat_assignment/club_seat_assignment/club_seat_assignment.entity';
+import { FranchiseSeatAssignmentEntity } from './seat_assignment/franchise_seat_assignment/franchise_seat_assignment.entity';
+import { TeamSeatAssignmentEntity } from './seat_assignment/team_seat_assignment/team_seat_assignment.entity';
 
 import {
 
@@ -50,7 +62,24 @@ import {
 	UserRole,
 	PermissionAuditLog,
 	ApiTokenEntity,
-	ApiTokenUsageLogEntity
+	ApiTokenUsageLogEntity,
+	SeasonRepository,
+	RosterSpotRepository,
+	RosterOfferRepository,
+	FranchiseRoleEntity as FRE,
+	RoleRepository,
+	MatchRepository,
+	TeamStatRepository,
+	SeatRepository,
+	TeamRepository,
+	FranchiseRepository,
+	ClubRepository,
+	OrganizationSeatAssignmentRepository,
+	RoundRepository,
+	ScheduleGroupRepository,
+	ScheduleGroupTypeRepository,
+	PlayerStatRepository,
+	MatchSubmissionRepository
 } from './internal';
 
 @Module({
@@ -91,7 +120,19 @@ import {
 			FixtureEntity,
 			FranchiseEntity,
 			ClubEntity,
-			TeamEntity
+			TeamEntity,
+			SeasonEntity,
+			RosterSpotEntity,
+			RosterOfferEntity,
+			FranchiseRoleEntity,
+			ClubRoleEntity,
+			TeamRoleEntity,
+			RoleEntity,
+			SeatEntity,
+			OrganizationSeatAssignmentEntity,
+			ClubSeatAssignmentEntity,
+			FranchiseSeatAssignmentEntity,
+			TeamSeatAssignmentEntity,
 		])
 	],
 	providers: [
@@ -105,7 +146,23 @@ import {
 		GameModeRepository,
 		SkillGroupRepository,
 		UserRepository,
-		UserAuthAccountRepository
+		UserAuthAccountRepository,
+		MatchSubmissionRepository,
+		SeasonRepository,
+		RoleRepository,
+		FranchiseRepository,
+		ClubRepository,
+		MatchRepository,
+		PlayerStatRepository,
+		RoundRepository,
+		ScheduleGroupRepository,
+		ScheduleGroupTypeRepository,
+		SeatRepository,
+		TeamRepository,
+		TeamStatRepository,
+		OrganizationSeatAssignmentRepository,
+		RosterSpotRepository,
+		RosterOfferRepository,
 	],
 	exports: [
 		LogsRepository,
@@ -118,7 +175,23 @@ import {
 		GameModeRepository,
 		SkillGroupRepository,
 		UserRepository,
-		UserAuthAccountRepository
+		UserAuthAccountRepository,
+		MatchSubmissionRepository,
+		SeasonRepository,
+		RoleRepository,
+		FranchiseRepository,
+		ClubRepository,
+		MatchRepository,
+		PlayerStatRepository,
+		RoundRepository,
+		ScheduleGroupRepository,
+		ScheduleGroupTypeRepository,
+		SeatRepository,
+		TeamRepository,
+		TeamStatRepository,
+		OrganizationSeatAssignmentRepository,
+		RosterSpotRepository,
+		RosterOfferRepository,
 	]
 })
 export class DbModule { }

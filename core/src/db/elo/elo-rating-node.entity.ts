@@ -5,7 +5,10 @@ import {
     ManyToOne,
     TableInheritance,
 } from 'typeorm';
-import { BaseEntity, GameEntity, MatchEntity, PlayerEntity } from '../internal';
+import { BaseEntity } from '../base.entity';
+import { GameEntity } from '../game/game.entity';
+import { MatchEntity } from '../match/match.entity';
+import { PlayerEntity } from '../player/player.entity';
 
 export enum RatingNodeType {
     INITIAL = 'initial',

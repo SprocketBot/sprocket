@@ -1,4 +1,5 @@
-import { BaseEntity, RoleEntity } from '../internal';
+import { BaseEntity } from '../base.entity';
+import { RoleEntity } from '../role/role.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
 
 @Entity('seat', { schema: 'sprocket' })

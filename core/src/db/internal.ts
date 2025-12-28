@@ -18,12 +18,24 @@ export * from './role/role.seed';
 export * from './seat/seat.entity';
 export * from './seat/seat.seed';
 
+export * from './season/season.entity';
+export * from './season/season.repository';
+
 export * from './franchise/franchise.entity';
 export * from './franchise/franchise.seed';
 export * from './club/club.entity';
 export * from './club/club.seed';
 export * from './team/team.entity';
 export * from './team/team.seed';
+
+export * from './roster_spot/roster_spot.entity';
+export * from './roster_spot/roster_spot.repository';
+export * from './roster_offer/roster_offer.entity';
+export * from './roster_offer/roster_offer.repository';
+export * from './franchise_role/franchise_role.entity';
+export * from './club_role/club_role.entity';
+export * from './team_role/team_role.entity';
+
 export * from './match/match.entity';
 export * from './match/fixture.entity';
 export * from './player/player.entity';
@@ -83,6 +95,7 @@ export * from './scrim_queue/scrim_queue.repository';
 export * from './scrim_timeout/scrim_timeout.entity';
 export * from './scrim_timeout/scrim_timeout.repository';
 export * from './submission/match_submission.entity';
+export * from './submission/match_submission.repository';
 export * from './scrim/scrim.entity';
 export * from './scrim_timeout/scrim_timeout.entity';
 export * from './scrim_timeout/scrim_timeout.repository';

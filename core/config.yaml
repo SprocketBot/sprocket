@@ -1,0 +1,46 @@
+secure: false
+auth:
+  jwt:
+    secret: "super_secret_jwt_key"
+    expiry: "1d"
+    refreshExpiry: "7d"
+  discord:
+    clientId: "dummy_client_id"
+    secret: "dummy_client_secret"
+    callbackUrl: "http://localhost:3000/auth/discord/callback"
+  steam:
+    apiKey: "dummy_steam_key"
+    realm: "http://localhost:3000"
+    callbackUrl: "http://localhost:3000/auth/steam/callback"
+
+db:
+  host: "localhost"
+  port: 5432
+  username: "jacbaile"
+  password: "password"
+  database: "sprocket"
+redis:
+  host: "localhost"
+  port: 6379
+minio:
+  endPoint: "localhost"
+  port: 9000
+  useSSL: false
+  accessKey: "minioadmin"
+  secretKey: "minioadmin"
+  bucket: "sprocket"
+pg:
+  host: "localhost"
+  port: 5432
+  username: "jacbaile"
+  password: "password"
+  database: "sprocket"
+
+CORE_URL: "http://localhost:3000"
+CLIENT_URL: "http://localhost:3001"
+LISTEN_PORT: 3000
+BASE_URL: "http://localhost:3000"
+
+
+
+

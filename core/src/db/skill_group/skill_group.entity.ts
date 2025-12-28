@@ -7,8 +7,16 @@ import { GameEntity } from '../game/game.entity';
 export class SkillGroupEntity extends BaseEntity {
 	@Column()
 	name: string;
+
 	@Column()
 	code: string;
+
 	@ManyToOne(() => GameEntity, (ge) => ge.skillGroups)
-	game: any;
+	game: GameEntity;
+
+	@Column({ type: 'int', default: 0 })
+	rank: number; // For ordering (1 = highest)
+
+	@Column({ type: 'boolean', default: true })
+	isActive: boolean;
 }

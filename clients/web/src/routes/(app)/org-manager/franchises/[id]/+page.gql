@@ -1,0 +1,25 @@
+query GetFranchise($id: String!) {
+	franchise(id: $id) {
+		id
+		name
+		slug
+		description
+		logoUrl
+		primaryColor
+		isActive
+		roles {
+			user {
+				username
+			}
+			roleType
+		}
+		clubs {
+			id
+			name
+			slug
+			game {
+				name
+			}
+		}
+	}
+}

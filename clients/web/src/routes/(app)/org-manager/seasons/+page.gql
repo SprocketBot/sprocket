@@ -1,0 +1,10 @@
+query GetSeasons {
+	seasons {
+		id
+		name
+		slug
+		startDate
+		endDate
+		isActive
+	}
+}

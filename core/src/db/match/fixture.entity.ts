@@ -1,5 +1,6 @@
 import { ChildEntity, ManyToOne, JoinColumn } from 'typeorm';
-import { MatchEntity, FranchiseEntity } from '../internal';
+import { MatchEntity } from '../match/match.entity';
+import { FranchiseEntity } from '../franchise/franchise.entity';
 
 @ChildEntity('fixture')
 export class FixtureEntity extends MatchEntity {

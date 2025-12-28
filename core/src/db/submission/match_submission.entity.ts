@@ -1,5 +1,7 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { BaseEntity, MatchEntity, UserEntity } from '../internal';
+import { BaseEntity } from '../base.entity';
+import { MatchEntity } from '../match/match.entity';
+import { UserEntity } from '../user/user.entity';
 
 export enum SubmissionStatus {
     PENDING = 'PENDING',

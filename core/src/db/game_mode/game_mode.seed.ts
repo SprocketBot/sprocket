@@ -26,7 +26,7 @@ export class GameModeEntitySeed implements Seeder {
 			if (!gameMode) {
 				await em.insert(GameModeEntity, {
 					name: gameModeName,
-					game: game,
+					game: game as any,
 					playerCount: playerCount,
 					teamSize: teamSize
 				});

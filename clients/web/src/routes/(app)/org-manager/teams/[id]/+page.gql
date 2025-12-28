@@ -1,0 +1,35 @@
+query TeamProfile($id: String!) {
+	team(id: $id) {
+		id
+		name
+		slug
+		isActive
+		rosterSizeLimit
+		skillGroup {
+			name
+		}
+		club {
+			id
+			name
+			franchise {
+				id
+				name
+			}
+		}
+		roles {
+			user {
+				username
+			}
+			roleType
+		}
+		rosterSpots {
+			player {
+				user {
+					username
+				}
+			}
+			status
+			joinedAt
+		}
+	}
+}

@@ -1,5 +1,5 @@
 import { Column, Entity } from 'typeorm';
-import { BaseEntity } from '../internal';
+import { BaseEntity } from '../base.entity';
 import { NotificationChannel } from './notification.types';
 
 @Entity('notification_template', { schema: 'sprocket' })

@@ -16,7 +16,7 @@ export class RbacGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const permissions = this.reflector.get<string[]>('permissions', context.getHandler());
+    const permissions = this.reflector.get<any[]>('permissions', context.getHandler());
     if (!permissions) {
       return true; // No permissions required
     }

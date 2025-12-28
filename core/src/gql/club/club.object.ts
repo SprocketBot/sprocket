@@ -1,17 +1,30 @@
-import { ObjectType } from '@nestjs/graphql';
-import { TeamObject } from '../team/team.object';
+import { Field, ObjectType } from '@nestjs/graphql';
+import { BaseObject } from '../base.object';
 import { FranchiseObject } from '../franchise/franchise.object';
 import { GameObject } from '../game/game.object';
-import { BaseObject } from '../base.object';
+import { TeamObject } from '../team/team.object';
+import { ClubRoleObject } from './club-role.object';
 
 @ObjectType('Club')
 export class ClubObject extends BaseObject {
-	// Field is implicit because of ResolveField
+	@Field(() => String)
+	name: string;
+
+	@Field(() => String)
+	slug: string;
+
+	@Field(() => Boolean)
+	isActive: boolean;
+
+	@Field(() => FranchiseObject)
 	franchise: FranchiseObject;
 
-	// Field is implicit because of ResolveField
+	@Field(() => GameObject)
 	game: GameObject;
 
-	// Field is implicit because of ResolveField
+	@Field(() => [TeamObject])
 	teams: TeamObject[];
+
+	@Field(() => [ClubRoleObject])
+	roles: ClubRoleObject[];
 }

@@ -1,0 +1,20 @@
+query GetTeams {
+	franchises {
+		id
+		name
+		clubs {
+			id
+			name
+			teams {
+				id
+				name
+				slug
+				skillGroup {
+					name
+				}
+				isActive
+				rosterSizeLimit
+			}
+		}
+	}
+}

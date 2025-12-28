@@ -1,0 +1,10 @@
+query GetFranchises {
+	franchises {
+		id
+		name
+		slug
+		primaryColor
+		logoUrl
+		isActive
+	}
+}

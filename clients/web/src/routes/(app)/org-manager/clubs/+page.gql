@@ -1,0 +1,14 @@
+query GetClubs {
+	franchises {
+		name
+		clubs {
+			id
+			name
+			slug
+			game {
+				name
+			}
+			isActive
+		}
+	}
+}

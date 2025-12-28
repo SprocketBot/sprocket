@@ -4,7 +4,11 @@ import {
     JoinColumn,
     ManyToOne,
 } from 'typeorm';
-import { BaseEntity, EloRatingNodeEntity, GameEntity, MatchEntity, PlayerEntity } from '../internal';
+import { BaseEntity } from '../base.entity';
+import { EloRatingNodeEntity } from './elo-rating-node.entity';
+import { GameEntity } from '../game/game.entity';
+import { MatchEntity } from '../match/match.entity';
+import { PlayerEntity } from '../player/player.entity';
 
 @Entity('match_rating_calculation', { schema: 'sprocket' })
 export class MatchRatingCalculationEntity extends BaseEntity {
