@@ -24,7 +24,7 @@ export const AuthorizeGuard = (...authorizations: AuthorizationInput[]) => {
       // Extract the user from the request
       const req: Request = getRequestFromContext(context);
 
-      const user = this.authenticateService.getUserFromRequest(req);
+      const user = await this.authenticateService.getUserFromRequest(req);
 
       if (!user) return false;
       req.user = user;

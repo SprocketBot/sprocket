@@ -16,7 +16,7 @@ export class MatchObject extends BaseObject {
     gameMode: GameModeObject;
 
     @Field(() => [RoundObject])
-    rounds: RoundObject[];
+    rounds: any[];
 
     @Field(() => MatchStatus)
     status: MatchStatus;

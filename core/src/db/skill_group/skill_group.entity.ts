@@ -10,5 +10,5 @@ export class SkillGroupEntity extends BaseEntity {
 	@Column()
 	code: string;
 	@ManyToOne(() => GameEntity, (ge) => ge.skillGroups)
-	game: GameEntity;
+	game: any;
 }

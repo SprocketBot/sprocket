@@ -6,7 +6,7 @@ import { GameEntity } from '../game/game.entity';
 @Unique('game-name-unq', ['game', 'name'])
 export class GameModeEntity extends BaseEntity {
 	@ManyToOne(() => GameEntity, (ge) => ge.gameModes)
-	game?: GameEntity;
+	game?: any;
 
 	@Column()
 	name: string;

@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
+import { MatchmakingModule } from '../matchmaking.module';
 import { ScrimService } from '../scrim/scrim.service';
 
 @Module({
-  providers: [ScrimService],
-  exports: [ScrimService],
+  imports: [MatchmakingModule],
+  exports: [MatchmakingModule],
 })
 export class MatchmakingConnectorModule { }
 

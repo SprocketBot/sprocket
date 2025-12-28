@@ -10,6 +10,7 @@ import {
 } from './scrim/scrim.resolver';
 import { UserResolver } from './user/user.resolver';
 import { MatchmakingConnectorModule } from '../matchmaking/connector/matchmaking.connector';
+import { QueueModule } from '../matchmaking/queue/queue.module';
 import { PlayerResolver } from './player/player.resolver';
 import { UserAuthAccountResolver } from './user_auth_account/user_auth_account.resolver';
 import { GameResolver } from './game/game.resolver';
@@ -105,6 +106,7 @@ import {
     DbModule,
     AuthModule,
     MatchmakingConnectorModule,
+    QueueModule,
     EventsModule,
     TypeOrmModule.forFeature([
       MatchSubmissionEntity,

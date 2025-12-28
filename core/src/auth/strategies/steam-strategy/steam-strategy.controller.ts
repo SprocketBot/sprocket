@@ -24,7 +24,7 @@ export class SteamStrategyController {
   @Get('oauth/callback/steam')
   @UseGuards(SteamStrategyGuard)
   async steamLogin(@Request() req: Req, @Response() res: Res): Promise<void> {
-    const sessionUser = this.authenticateService.getUserFromRequest(req);
+    const sessionUser = await this.authenticateService.getUserFromRequest(req);
     // We have a special case here
     const steamUser = req.user as unknown as SteamProfile;
     if (sessionUser) {

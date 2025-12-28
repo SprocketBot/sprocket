@@ -1,5 +1,8 @@
 import { ChildEntity, Column, ManyToOne, JoinColumn, ManyToMany, JoinTable } from 'typeorm';
-import { MatchEntity, UserEntity, SkillGroupEntity, PlayerEntity } from '../internal';
+import { MatchEntity } from '../match/match.entity';
+import { UserEntity } from '../user/user.entity';
+import { SkillGroupEntity } from '../skill_group/skill_group.entity';
+import { PlayerEntity } from '../player/player.entity';
 
 export enum ScrimState {
     PENDING = 'PENDING',

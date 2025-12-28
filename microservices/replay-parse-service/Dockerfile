@@ -9,5 +9,6 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends build-essential python3-dev
 RUN python3 -m pip install requests
 RUN python3 -m pip install -r requirements.txt
+RUN python3 -m pip install opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp
 
 ENTRYPOINT ["./start.sh"]

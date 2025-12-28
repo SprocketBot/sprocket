@@ -1,6 +1,12 @@
 import { Injectable, Logger, OnModuleInit, Inject } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { LogsEntity, LogLevel, LogsRepository, MetricsEntity, MetricType, MetricsRepository } from './observability.providers';
+import { LogLevel, MetricType } from './observability.providers';
+import type { LogsEntity, LogsRepository } from './observability.providers';
+import { Meter, Counter, Histogram, ObservableGauge, UpDownCounter } from '@opentelemetry/api';
+import { MeterProvider, PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
+import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-grpc';
+import { Resource } from '@opentelemetry/resources';
+import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 
 export interface LogEntry {
     timestamp?: Date;
@@ -41,10 +47,36 @@ export interface MetricEntry {
 export class ObservabilityService implements OnModuleInit {
     private readonly logger = new Logger(ObservabilityService.name);
 
+    private meter: Meter;
+    private counters: Map<string, Counter> = new Map();
+    private histograms: Map<string, Histogram> = new Map();
+    private gauges: Map<string, ObservableGauge> = new Map();
+    private upDownCounters: Map<string, UpDownCounter> = new Map();
+
     constructor(
+        @Inject('SERVICE_NAME') private readonly serviceName: string,
         @Inject('LOGS_REPOSITORY') private readonly logsRepository?: LogsRepository,
-        @Inject('METRICS_REPOSITORY') private readonly metricsRepository?: MetricsRepository
-    ) { }
+    ) {
+        const exporter = new OTLPMetricExporter({
+            url: process.env.OTEL_EXPORTER_OTLP_METRICS_ENDPOINT || 'http://otel-collector:4317',
+        });
+        
+        const metricReader = new PeriodicExportingMetricReader({
+            exporter,
+            exportIntervalMillis: 15000,
+        });
+
+        const myServiceResource = new Resource({
+            [SemanticResourceAttributes.SERVICE_NAME]: this.serviceName,
+        });
+
+        const meterProvider = new MeterProvider({
+            resource: myServiceResource,
+            readers: [metricReader],
+        });
+
+        this.meter = meterProvider.getMeter(this.serviceName);
+    }
 
     async onModuleInit() {
         this.logger.log('ObservabilityService initialized');
@@ -83,32 +115,45 @@ export class ObservabilityService implements OnModuleInit {
     }
 
     async recordMetric(entry: MetricEntry): Promise<void> {
-        try {
-            const metricEntry: Partial<MetricsEntity> = {
-                timestamp: entry.timestamp || new Date(),
-                name: entry.name,
-                value: entry.value,
-                type: entry.type,
-                unit: entry.unit,
-                service: entry.service,
-                method: entry.method,
-                path: entry.path,
-                labels: entry.labels,
-                userId: entry.userId,
-                requestId: entry.requestId,
-                traceId: entry.traceId,
-                spanId: entry.spanId,
-            };
+        // Legacy support mapping to OTel
+        const labels = entry.labels || {};
+        const attributes = { 
+            ...labels,
+            service: entry.service,
+            method: entry.method,
+            path: entry.path
+        };
 
-            if (this.metricsRepository) {
-                await this.metricsRepository.save(metricEntry);
-            } else {
-                // Fallback to debug logging if repository is not available
-                this.logger.debug(`Metric: ${entry.name}=${entry.value} (${entry.type})`);
-            }
-        } catch (error) {
-            this.logger.error(`Failed to save metric: ${error.message}`);
+        if (entry.type === MetricType.COUNTER) {
+            this.getOrCreateCounter(entry.name).add(entry.value, attributes);
+        } else if (entry.type === MetricType.HISTOGRAM || entry.type === MetricType.SUMMARY) {
+            this.getOrCreateHistogram(entry.name).record(entry.value, attributes);
+        } else if (entry.type === MetricType.GAUGE) {
+             // Gauges are observableCallback based in OTel, handling ad-hoc recording is tricky.
+             // For now we map to UpDownCounter which is the closest active equivalent or log mismatch
+             this.getOrCreateUpDownCounter(entry.name).add(entry.value, attributes);
         }
+    }
+
+    private getOrCreateCounter(name: string): Counter {
+        if (!this.counters.has(name)) {
+            this.counters.set(name, this.meter.createCounter(name));
+        }
+        return this.counters.get(name)!;
+    }
+
+    private getOrCreateHistogram(name: string): Histogram {
+        if (!this.histograms.has(name)) {
+            this.histograms.set(name, this.meter.createHistogram(name));
+        }
+        return this.histograms.get(name)!;
+    }
+
+    private getOrCreateUpDownCounter(name: string): UpDownCounter {
+        if (!this.upDownCounters.has(name)) {
+            this.upDownCounters.set(name, this.meter.createUpDownCounter(name));
+        }
+        return this.upDownCounters.get(name)!;
     }
 
     async info(message: string, context?: string, metadata?: Record<string, any>): Promise<void> {

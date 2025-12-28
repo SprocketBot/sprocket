@@ -4,7 +4,7 @@ import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 @Entity('round', { schema: 'sprocket' })
 export class RoundEntity extends BaseEntity {
     @ManyToOne(() => MatchEntity, match => match.rounds)
-    match: MatchEntity;
+    match: any;
 
     @Column()
     roundNumber: number;

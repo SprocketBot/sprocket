@@ -41,11 +41,11 @@ export class QueueResolver {
         }
     }
 
-    @Query(() => QueueStatus, { nullable: true })
+    @Query(() => PlayerQueueStatus, { nullable: true })
     @UseGuards(AuthorizeGuard())
     async getQueueStatus(
         @CurrentUser() user: UserObject,
-    ): Promise<QueueStatus | null> {
+    ): Promise<PlayerQueueStatus | null> {
         try {
             const status = await this.scrimService.getQueueStatus(user.id);
             if (!status) return null;
@@ -102,7 +102,7 @@ export class QueueResolver {
 import { ObjectType, Field, ID } from '@nestjs/graphql';
 
 @ObjectType()
-class QueueStatus {
+class PlayerQueueStatus {
     @Field(() => ID)
     playerId: string;
 

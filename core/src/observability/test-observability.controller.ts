@@ -7,7 +7,6 @@ export class TestObservabilityController {
     private readonly logger = new Logger(TestObservabilityController.name);
 
     constructor(
-        @Inject('OBSERVABILITY_SERVICE')
         private readonly observabilityService: ObservabilityService
     ) { }
 

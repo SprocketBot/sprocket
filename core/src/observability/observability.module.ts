@@ -1,20 +1,23 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ObservabilityModule as LibObservabilityModule } from '@sprocketbot/lib';
-import { LogsEntity, MetricsEntity, LogsRepository, MetricsRepository } from '../db/internal';
+import { LogsEntity } from '../db/observability/logs.entity';
+import { MetricsEntity } from '../db/observability/metrics.entity';
+import { LogsRepository } from '../db/observability/logs.repository';
+import { MetricsRepository } from '../db/observability/metrics.repository';
 import { TestObservabilityController } from './test-observability.controller';
+
+import { DbModule } from '../db/db.module';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([
-            LogsEntity,
-            MetricsEntity
-        ]),
+        DbModule, // Import DbModule directly
         LibObservabilityModule.forRootAsync({
-            useFactory: (logsRepository: LogsRepository, metricsRepository: MetricsRepository) => ({
+            imports: [DbModule],
+            useFactory: () => ({
                 serviceName: 'sprocket-core',
-                logsRepository,
-                metricsRepository,
+                logsRepository: null,
+                metricsRepository: null,
                 interceptorOptions: {
                     serviceName: 'sprocket-core',
                     logRequests: true,
@@ -24,19 +27,17 @@ import { TestObservabilityController } from './test-observability.controller';
                     excludePaths: ['/health', '/metrics', '/favicon.ico', '/graphql'],
                 }
             }),
-            inject: [LogsRepository, MetricsRepository]
+            inject: []
         })
     ],
+
     providers: [
-        LogsRepository,
-        MetricsRepository
+        // Repositories provided by DbModule
     ],
     controllers: [
         TestObservabilityController
     ],
     exports: [
-        LogsRepository,
-        MetricsRepository,
         LibObservabilityModule
     ]
 })

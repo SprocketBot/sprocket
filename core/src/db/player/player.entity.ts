@@ -8,7 +8,7 @@ import { Column, Entity, ManyToOne, Unique } from 'typeorm';
 @Unique(['game', 'user'])
 export class PlayerEntity extends BaseEntity {
 	@ManyToOne(() => UserEntity)
-	user: UserEntity;
+	user: any;
 
 	@ManyToOne(() => GameEntity)
 	game: GameEntity;

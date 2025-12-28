@@ -2,6 +2,8 @@ import {
     CallHandler,
     ExecutionContext,
     Injectable,
+    Optional,
+    Inject,
     Logger,
     NestInterceptor,
 } from '@nestjs/common';
@@ -23,7 +25,8 @@ export class ObservabilityInterceptor implements NestInterceptor {
     private readonly logger = new Logger(ObservabilityInterceptor.name);
 
     constructor(
-        private readonly options: ObservabilityOptions = {
+        @Optional() @Inject('OBSERVABILITY_OPTIONS')
+        private readonly options: any = {
             serviceName: 'unknown-service',
             logRequests: true,
             logResponses: true,

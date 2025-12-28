@@ -34,8 +34,10 @@
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/terminus": "^10.2.3",
+    "@nestjs/throttler": "^6.5.0",
     "@nestjs/typeorm": "^10.0.2",
     "@opentelemetry/api": "^1.8.0",
+    "@opentelemetry/exporter-metrics-otlp-grpc": "^0.45.1",
     "@sprocketbot/lib": "workspace:*",
     "@types/lodash.camelcase": "^4.3.9",
     "@types/passport-discord": "^0.1.12",
@@ -56,11 +58,11 @@
     "reflect-metadata": "^0.2.1",
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.20",
+    "typeorm-adapter": "^1.7.0",
     "uuid": "^9.0.1",
     "valibot": "^0.30.0",
     "vitest": "^3.1.4",
-    "yaml": "^2.4.0",
-    "typeorm-adapter": "^1.7.0"
+    "yaml": "^2.4.0"
   },
   "peerDependencies": {},
   "devDependencies": {

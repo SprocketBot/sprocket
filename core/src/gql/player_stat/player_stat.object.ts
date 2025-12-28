@@ -10,7 +10,7 @@ export class PlayerStatObject extends BaseObject {
     player: PlayerObject;
 
     @Field(() => RoundObject)
-    round: RoundObject;
+    round: any;
 
     @Field(() => String, { defaultValue: '{}' })
     stats: string;

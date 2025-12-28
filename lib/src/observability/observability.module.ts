@@ -1,12 +1,11 @@
 import { DynamicModule, Global, Module, Provider } from '@nestjs/common';
 import { ObservabilityService } from './observability.service';
 import { ObservabilityInterceptor, ObservabilityOptions } from './observability.interceptor';
-import { LogsRepository, MetricsRepository } from './observability.providers';
+import { LogsRepository } from './observability.providers';
 
 export interface ObservabilityModuleOptions {
     serviceName: string;
     logsRepository?: LogsRepository;
-    metricsRepository?: MetricsRepository;
     interceptorOptions?: Partial<ObservabilityOptions>;
 }
 
@@ -27,10 +26,6 @@ export class ObservabilityModule {
             {
                 provide: 'LOGS_REPOSITORY',
                 useValue: options.logsRepository || null,
-            },
-            {
-                provide: 'METRICS_REPOSITORY',
-                useValue: options.metricsRepository || null,
             },
         ];
 
@@ -57,6 +52,7 @@ export class ObservabilityModule {
     }
 
     static forRootAsync(options: {
+        imports?: any[];
         useFactory: (...args: any[]) => Promise<ObservabilityModuleOptions> | ObservabilityModuleOptions;
         inject?: any[];
     }): DynamicModule {
@@ -77,17 +73,25 @@ export class ObservabilityModule {
                 useFactory: (opts: ObservabilityModuleOptions) => opts.logsRepository || null,
                 inject: ['OBSERVABILITY_OPTIONS'],
             },
-            {
-                provide: 'METRICS_REPOSITORY',
-                useFactory: (opts: ObservabilityModuleOptions) => opts.metricsRepository || null,
-                inject: ['OBSERVABILITY_OPTIONS'],
-            },
         ];
 
         return {
             module: ObservabilityModule,
-            providers,
-            exports: [ObservabilityService],
+            imports: options.imports || [],
+            providers: [
+                ...providers,
+                {
+                    provide: 'OBSERVABILITY_INTERCEPTOR',
+                    useFactory: (opts: ObservabilityModuleOptions) => {
+                        return new ObservabilityInterceptor({
+                            serviceName: opts.serviceName,
+                            ...opts.interceptorOptions,
+                        });
+                    },
+                    inject: ['OBSERVABILITY_OPTIONS'],
+                }
+            ],
+            exports: [ObservabilityService, 'OBSERVABILITY_INTERCEPTOR'],
             global: true,
         };
     }

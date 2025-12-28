@@ -17,3 +17,11 @@ datasources:
     isDefault: false
     version: 1
     editable: false
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    orgId: 1
+    url: http://prometheus:9090
+    isDefault: false
+    version: 1
+    editable: false

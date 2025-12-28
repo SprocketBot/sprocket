@@ -31,6 +31,46 @@ export class RbacService {
     return this.enforcer.enforce(String(userId), resource, action, scope);
   }
 
+  /**
+   * Get all implicit permissions for a user.
+   * Returns a list of permission strings in the format "resource:action:scope"
+   */
+  async getAllPermissionsForUser(userId: number): Promise<string[]> {
+      // getImplicitPermissionsForUser returns 2D array: [[resource, action, scope], ...] (or whatever p matches)
+      // Our p definition is: p = sub, obj, act, scope, eft
+      // So implicit permissions will exclude sub, but include obj, act, scope, eft?
+      // Actually casbin returns the policy definition values.
+      const permissions = await this.enforcer.getImplicitPermissionsForUser(String(userId));
+      const scopes = new Set<string>();
+
+      for (const p of permissions) {
+          // p matches policy definition.
+          // Model: p = sub, obj, act, scope, eft
+          // The result of getImplicitPermissionsForUser generally includes the full policy rule minus the subject? 
+          // No, it usually returns the policy lines that apply.
+          // Let's assume standard behavior: [sub, obj, act, scope, eft] or [obj, act, scope, eft] depends on API.
+          // In standard RBAC, getImplicitPermissionsForUser returns `[subject, ...policy_args]` or just policy args?
+          // Docs say: "GetImplicitPermissionsForUser gets implicit permissions for a user or role."
+          // It returns the policy values.
+          // Given `p = sub, obj, act, scope, eft`, and `getImplicitPermissionsForUser(sub)`,
+          // it likely returns `[sub, obj, act, scope, eft]`.
+          
+          // Let's verify by checking the array length or just mapping safely.
+          // We want `resource:action:scope`.
+          // resource = p[1], action = p[2], scope = p[3]
+          
+          if (p.length >= 4) {
+              const resource = p[1];
+              const action = p[2];
+              const scope = p[3];
+              // Scope 'all' means global access. We can represent it as 'resource:action:*' or stick to 'resource:action:all'.
+              // We'll stick to exact strings for now.
+              scopes.add(`${resource}:${action}:${scope}`);
+          }
+      }
+      return Array.from(scopes);
+  }
+
   // --- Role Management ---
 
   async createRole(name: string, displayName: string, description?: string, hierarchy: number = 0, actorId?: number): Promise<RoleDefinition> {

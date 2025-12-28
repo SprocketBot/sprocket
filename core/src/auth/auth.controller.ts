@@ -19,7 +19,7 @@ export class AuthController {
     @Request() req: Req,
     @Response({ passthrough: true }) res: Res,
   ): Promise<User | false> {
-    const user = this.authenticateService.getUserFromRequest(req);
+    const user = await this.authenticateService.getUserFromRequest(req);
     if (user) {
       const updatedUser = await this.authenticateService.refreshUser(req, res);
       if (updatedUser === null) {

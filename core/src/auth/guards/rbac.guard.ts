@@ -50,6 +50,36 @@ export class RbacGuard implements CanActivate {
     const [resource, action] = permissions;
     const scope = 'all'; // Default for simple guard usage. Dynamic scopes require more complex guard.
     
+    // If API Token is present, enforce its scopes first
+    // Token scopes are strings like "resource:action:scope" or "*"
+    if (user && (user as any).apiToken) {
+        // We need to access apiToken from request. 
+        // In GqlAuthGuard/ApiTokenGuard we attached apiToken to request. Use that if available.
+        // It should be on the same object as user if we attached it to request.
+        // However, `user` here is `request.user`. The token is `request.apiToken`.
+        // Let's get the request object again to access apiToken.
+        let req;
+        if (context.getType() === 'http') {
+            req = context.switchToHttp().getRequest();
+        } else if ((context.getType() as string) === 'graphql') {
+            const ctx = GqlExecutionContext.create(context);
+            req = ctx.getContext().request;
+        }
+
+        if (req && req.apiToken) {
+            const requiredScope = `${resource}:${action}:${scope}`;
+            const tokenScopes = req.apiToken.scopes as string[];
+
+            // Check if token has * or exact scope match
+            const hasScope = tokenScopes.includes('*') || tokenScopes.includes(requiredScope);
+            
+            if (!hasScope) {
+                 this.logger.warn(`API Token ${req.apiToken.id} denied access to ${requiredScope}`);
+                 return false;
+            }
+        }
+    }
+
     return this.rbacService.checkPermission(user.id, action, resource, scope);
   }
 }

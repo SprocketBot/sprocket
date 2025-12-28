@@ -1,4 +1,5 @@
-import { BaseEntity, UserEntity } from '../internal';
+import { BaseEntity } from '../base.entity';
+import { UserEntity } from '../user/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 export enum MetricType {

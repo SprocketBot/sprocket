@@ -14,7 +14,7 @@ services:
       - "--entrypoints.websecure.http.tls=true"
       - "--providers.file.filename=/traefik/dyn.yaml"
     ports:
-      - 8080:80
+      - 80:80
       # If using TLS, uncomment
       # - 443:443
 
@@ -125,9 +125,11 @@ services:
 
   grafana:
     image: grafana/grafana:latest
-    profiles: [monitoring]
+    # profiles: [monitoring]
     volumes:
       - ./config/grafana/datasources.yaml:/etc/grafana/provisioning/datasources/ds.yaml:ro
+    ports:
+      - "3002:3000"
     environment:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
@@ -141,7 +143,7 @@ services:
 
   tempo:
     image: grafana/tempo
-    profiles: [monitoring]
+    # profiles: [monitoring]
     command: ["-config.file=/etc/tempo.yaml"]
 
     volumes:
@@ -175,6 +177,32 @@ services:
       traefik.http.routers.jaeger.rule: Host(`${JAEGER_URL:-jaeger.localhost}`)
       traefik.http.routers.jaeger.entrypoints: web,websecure
       traefik.http.services.jaeger.loadbalancer.server.port: 16686
+
+  prometheus:
+    image: prom/prometheus:latest
+    # profiles: [monitoring]
+    volumes:
+      - ./config/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    labels:
+      traefik.enable: true
+      traefik.http.routers.prometheus.rule: Host(`${PROMETHEUS_URL:-prometheus.localhost}`)
+      traefik.http.routers.prometheus.entrypoints: web,websecure
+      traefik.http.services.prometheus.loadbalancer.server.port: 9090
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    # profiles: [monitoring]
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./config/otel-collector/config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+      - "8889:8889" # Prometheus exporter
 
 networks:
   default:

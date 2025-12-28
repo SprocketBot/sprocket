@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core'; // Added
+import { ApiTokenThrottlerGuard } from './auth/api_token/api_token.throttler'; // Added
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -15,6 +17,9 @@ import { ObservabilityModule } from './observability/observability.module';
 import { SubmissionsModule } from './submissions/submissions.module';
 import { EventQueueModule } from './events/event-queue.module';
 import { EloModule } from './elo/elo.module';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ApiTokenUsageInterceptor } from './auth/api_token/api_token_usage.interceptor';
 
 @Module({
   imports: [
@@ -32,8 +37,22 @@ import { EloModule } from './elo/elo.module';
     SubmissionsModule,
     EventQueueModule,
     EloModule,
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 100,
+    }]),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ApiTokenThrottlerGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ApiTokenUsageInterceptor,
+    },
+  ],
 })
 export class AppModule { }

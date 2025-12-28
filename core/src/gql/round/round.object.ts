@@ -8,7 +8,7 @@ import { TeamStatObject } from '../team_stat/team_stat.object';
 @ObjectType('Round')
 export class RoundObject extends BaseObject {
     @Field(() => MatchObject)
-    match: MatchObject;
+    match: any;
 
     @Field(() => Int)
     roundNumber: number;
@@ -20,8 +20,8 @@ export class RoundObject extends BaseObject {
     metadata: string;
 
     @Field(() => [PlayerStatObject])
-    playerStats: PlayerStatObject[];
+    playerStats: any[];
 
     @Field(() => [TeamStatObject])
-    teamStats: TeamStatObject[];
+    teamStats: any[];
 }

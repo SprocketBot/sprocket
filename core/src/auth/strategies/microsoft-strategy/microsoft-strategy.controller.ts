@@ -26,7 +26,7 @@ export class MicrosoftStrategyController {
     @Request() req: Req,
     @Response() res: Res,
   ): Promise<void> {
-    const sessionUser = this.authenticateService.getUserFromRequest(req);
+    const sessionUser = await this.authenticateService.getUserFromRequest(req);
 
     // We have a special case here
     const microsoftUser = req.user as any;

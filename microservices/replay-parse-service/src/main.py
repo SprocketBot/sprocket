@@ -11,7 +11,28 @@ import files
 import parser
 from analytics import Analytics
 from progress import Progress
+from progress import Progress
+from opentelemetry import metrics
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
 
+# OTel Setup
+resource = Resource(attributes={
+    SERVICE_NAME: "sprocket-replay-parse"
+})
+
+reader = PeriodicExportingMetricReader(
+    OTLPMetricExporter(endpoint="http://otel-collector:4317", insecure=True)
+)
+provider = MeterProvider(resource=resource, metric_readers=[reader])
+metrics.set_meter_provider(provider)
+meter = metrics.get_meter("sprocket-replay-parse")
+
+parse_duration = meter.create_histogram("sprocket_replay_parse_duration", unit="s", description="Duration of replay parsing")
+parse_errors = meter.create_counter("sprocket_replay_parse_errors", unit="1", description="Count of parse errors")
+processed_replays = meter.create_counter("sprocket_replay_processed", unit="1", description="Count of processed replays")
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -39,15 +60,17 @@ def process_replay(task_id: str, payload: Dict[str, Any]):
     logging.info(f"Processing task {task_id}")
     
     progress = Progress(task_id)
-    analytics = Analytics(task_id)
+    progress = Progress(task_id)
+    
+    start_time = time.time()
     
     # Mock publishing progress/analytics since we don't have RMQ anymore
     # In a real scenario, we might want to write these to the DB or another service
     def publish_progress(msg):
         logging.debug(f"Progress: {msg}")
 
-    def publish_analytics(msg):
-        logging.debug(f"Analytics: {msg}")
+    def publish_progress(msg):
+        logging.debug(f"Progress: {msg}")
 
     publish_progress(progress.pending("Task started...", 10))
 
@@ -56,7 +79,7 @@ def process_replay(task_id: str, payload: Dict[str, Any]):
         raise ValueError("replayObjectPath is missing in payload")
 
     replay_hash = replay_object_path.split("/")[-1].split(".")[0]
-    analytics.hash(replay_hash)
+    replay_hash = replay_object_path.split("/")[-1].split(".")[0]
 
     parsed_object_path = f"{PARSED_OBJECT_PREFIX}/{replay_hash}.json"
 
@@ -71,8 +94,11 @@ def process_replay(task_id: str, payload: Dict[str, Any]):
             logging.info(f"Replay already parsed {parsed_object_path}")
 
             publish_progress(progress.complete(already_parsed))
-            publish_analytics(analytics.timer_split_get().cached(True).complete())
-
+            publish_progress(progress.complete(already_parsed))
+            
+            # Record cached metric
+            processed_replays.add(1, {"cached": "true", "parser": config["parser"]})
+            
             return already_parsed
         except S3Error as e:
             if e.code == "NoSuchKey":
@@ -85,8 +111,7 @@ def process_replay(task_id: str, payload: Dict[str, Any]):
     publish_progress(progress.pending("Fetching replay...", 20))
 
     path = files.fget(replay_object_path)
-    analytics.timer_split_get()
-    analytics.replay_size(os.path.getsize(path) * 1000)
+    path = files.fget(replay_object_path)
 
     logging.debug(f"Parsing replay")
     publish_progress(progress.pending("Parsing replay...", 40))
@@ -104,7 +129,7 @@ def process_replay(task_id: str, payload: Dict[str, Any]):
         if os.path.exists(path):
             os.remove(path)
 
-    analytics.timer_split_parse()
+
 
     result = {
         "parser": config["parser"],
@@ -123,7 +148,11 @@ def process_replay(task_id: str, payload: Dict[str, Any]):
         logging.warn(f"Failed uploading parsed JSON to minio {e}")
 
     publish_progress(progress.complete(result))
-    publish_analytics(analytics.timer_split_put().complete())
+    publish_progress(progress.complete(result))
+    
+    duration = time.time() - start_time
+    parse_duration.record(duration, {"parser": config["parser"]})
+    processed_replays.add(1, {"cached": "false", "parser": config["parser"]})
     
     return result
 
@@ -166,6 +195,7 @@ def main():
                     
                 except Exception as e:
                     logging.error(f"Error processing task {task_id}: {e}")
+                    parse_errors.add(1)
                     
                     # Mark as failed and increment retry count
                     cur.execute("""

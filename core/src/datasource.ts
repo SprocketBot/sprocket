@@ -1,3 +1,4 @@
+
 import 'reflect-metadata';
 
 import * as dotenv from 'dotenv';
@@ -32,20 +33,17 @@ const migrationModules = // @ts-expect-error bun supports top-level await
 		.map((f) => import(f));
 
 console.log('Loading migrations...');
-
 // @ts-expect-error bun supports top-level await
 const migrations: MigrationConstructor[] = (await Promise.all(migrationModules))
 	.map<MigrationConstructor[]>((mod) => Object.values(mod))
 	.flat();
-
-console.log('Creating datasource...');
 
 const entitiesDir = path.join(__dirname, 'db');
 
 // looping through all the exports from internal.ts to initialize them before attempting to read from them.
 // this is to prevent circular dependencies issues (ReferenceError: Cannot access '____Entity' before initialization.)
 for (const [key, value] of Object.entries(internal)) {
-	console.log('Initializing ${key}...', key, value);
+	// console.log('Initializing ${key}...', key, value); // Reverted debug log
 }
 const entityModules = // @ts-expect-error bun supports top-level await
 	(await readdir(entitiesDir, { withFileTypes: true, recursive: true }))

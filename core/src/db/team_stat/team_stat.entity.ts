@@ -7,7 +7,7 @@ export class TeamStatEntity extends BaseEntity {
     team?: TeamEntity;
 
     @ManyToOne(() => RoundEntity, round => round.teamStats)
-    round: RoundEntity;
+    round: any;
 
     @Column({ type: 'jsonb', default: {} })
     stats: Record<string, number>;

@@ -11,6 +11,8 @@ import type { DeepPartial } from 'typeorm';
 import { default as cookieParser } from 'cookie-parser';
 import * as cookieParserAlt from 'cookie-parser';
 
+import { ApiTokenService } from '../api_token/api_token.service';
+
 @Injectable()
 export class AuthenticateService {
   private readonly logger = new Logger(AuthenticateService.name);
@@ -19,6 +21,7 @@ export class AuthenticateService {
     private readonly config: SprocketConfigService,
     private readonly userAuthAcctRepo: UserAuthAccountRepository,
     private readonly userRepo: UserRepository,
+    private readonly apiTokenService: ApiTokenService,
   ) {
     this.COOKIE_DOMAIN = `${config.getOrThrow('BASE_URL')}`;
   }
@@ -29,7 +32,27 @@ export class AuthenticateService {
     this.cookieMiddleware(req as any, null, () => {});
   };
 
-  getUserFromRequest(req: ExpressRequest | Request): User | false {
+  async getUserFromRequest(req: ExpressRequest | Request): Promise<User | false> {
+    // Check for API Token
+    const authHeader = req.headers['authorization'];
+    if (authHeader && typeof authHeader === 'string' && authHeader.startsWith('Bearer sk_')) {
+      const token = authHeader.split(' ')[1];
+      const apiToken = await this.apiTokenService.validateToken(token);
+      if (apiToken && apiToken.user) {
+         (req as any).apiToken = apiToken;
+         // Should we parse? apiToken.user is UserEntity. User is from @sprocketbot/lib/types
+         // UserSchema expects specific fields. UserEntity implements Omit<User, 'allowedActions'>.
+         // We might need to ensure plain object or use existing manual mapping if present.
+         // parse(UserSchema, apiToken.user) might work if entity matches schema.
+         // Let's assume UserEntity is compatible enough or use parse.
+         const userObj = {
+           ...apiToken.user,
+           avatarUrl: apiToken.user.avatarUrl ?? undefined,
+         };
+         return parse(UserSchema, userObj);
+      }
+    }
+
     // When GraphQL subscriptions initialize, we are given a native Request
     // not an express Request, meaning that the cookie middleware is not applied
     // to it.
@@ -41,7 +64,8 @@ export class AuthenticateService {
       // Actually an express request
       authCookie = req.cookies[this.AUTH_COOKIE_NAME];
     else {
-      this.logger.warn('Failed to auto-populate cookies onto request');
+      // Only warn if no API token and no cookies? Or consistent behavior.
+      // this.logger.warn('Failed to auto-populate cookies onto request');
       return false;
     }
 
@@ -88,7 +112,7 @@ export class AuthenticateService {
     req: Request | ExpressRequest,
     res: Response,
   ): Promise<null | User> {
-    const user = this.getUserFromRequest(req);
+    const user = await this.getUserFromRequest(req);
     if (!user) return null;
     try {
       const dbUser = await this.userRepo.findOneByOrFail({

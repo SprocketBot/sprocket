@@ -1,5 +1,8 @@
-import { Column, DeepPartial, Entity, JoinColumn, ManyToOne, OneToMany, TableInheritance } from 'typeorm';
-import { BaseEntity, GameEntity, GameModeEntity, RoundEntity } from '../internal';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, TableInheritance, type DeepPartial } from 'typeorm';
+import { BaseEntity } from '../base.entity';
+import { GameEntity } from '../game/game.entity';
+import { GameModeEntity } from '../game_mode/game_mode.entity';
+import { RoundEntity } from '../round/round.entity';
 
 export enum MatchStatus {
     PENDING = 'PENDING',

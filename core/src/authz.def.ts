@@ -1,5 +1,6 @@
 import { AUTHZ_ENFORCER, AuthZModule } from 'nest-authz';
-import * as cookieParser from 'cookie-parser';
+import { default as cookieParser } from 'cookie-parser';
+import * as cookieParserAlt from 'cookie-parser';
 import { User, UserSchema } from '@sprocketbot/lib/types';
 import { JwtService } from '@nestjs/jwt';
 import { parse } from 'valibot';
@@ -22,7 +23,8 @@ export function getBearerToken(req: Request): string | null {
   return null;
 }
 
-const cookieMiddleware = cookieParser();
+const cookieMiddleware =
+  typeof cookieParser === 'function' ? cookieParser() : cookieParserAlt();
 const addCookiesToRequest = (req: Request) => {
   cookieMiddleware(req as any, null, () => { });
 };
@@ -38,6 +40,7 @@ export function getUserFromRequest(req: Request): User | false {
   // We can fake it this way, so that cookies are easier to work with.
   // This probably isn't the best way to do this, but it does work for now
   if (!req) return false;
+  if ((req as any).user) return (req as any).user;
   let authCookie: string;
   if (!('cookies' in req)) addCookiesToRequest(req);
   if ('cookies' in req)

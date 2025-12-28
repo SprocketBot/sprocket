@@ -7,10 +7,14 @@ import { ScrimTimeoutRepository } from '../../db/scrim_timeout/scrim_timeout.rep
 import { PlayerRepository } from '../../db/player/player.repository';
 import { GameRepository } from '../../db/game/game.repository';
 import { ScrimRepository } from '../../db/scrim/scrim.repository';
+import { GameModeRepository } from '../../db/game_mode/game_mode.repository';
+import { SkillGroupRepository } from '../../db/skill_group/skill_group.repository';
+import { GameModeEntity } from '../../db/game_mode/game_mode.entity';
+import { SkillGroupEntity } from '../../db/skill_group/skill_group.entity';
 import { ScrimCrudService } from '../scrim-crud/scrim-crud.service';
 import { QueueService } from './queue.service';
 import { QueueWorker } from './queue.worker';
-import { EventsModule } from '@sprocketbot/lib';
+import { EventsModule, GuidModule } from '@sprocketbot/lib';
 import { ObservabilityModule } from '@sprocketbot/lib';
 
 @Module({
@@ -22,9 +26,14 @@ import { ObservabilityModule } from '@sprocketbot/lib';
             PlayerRepository,
             GameRepository,
             ScrimRepository,
+            GameModeRepository,
+            SkillGroupRepository,
+            GameModeEntity,
+            SkillGroupEntity,
         ]),
         EventsModule,
         ObservabilityModule,
+        GuidModule,
         ScheduleModule.forRoot(),
     ],
     providers: [
