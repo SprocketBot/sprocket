@@ -146,6 +146,8 @@ Build out the Role-Based Access Control system with an administrative UI.
 **Dependencies**: None (can be developed in parallel)
 **Risks**: RBAC complexity can spiral; need clear scope
 
+**Link**: [Feature Spec](./implemented/feature-rbac-system.md)
+
 **Questions for Discussion**:
 
 1. Should we support group-based role assignment, or just individual users?
@@ -157,7 +159,7 @@ Build out the Role-Based Access Control system with an administrative UI.
 
 ### 6. API Token & Impersonation System
 
-**Status**: Planning
+**Status**: ✅ Completed (December 2025)
 **Priority**: P2 (Nice to have for power users)
 
 Create a system for users to generate Personal Access Tokens (PATs) for third-party integrations.
@@ -172,6 +174,8 @@ Create a system for users to generate Personal Access Tokens (PATs) for third-pa
 
 **Dependencies**: RBAC system (tokens should respect user permissions)
 **Risks**: Security implications of long-lived tokens
+
+**Link**: [Feature Spec](./implemented/feature-api-tokens.md)
 
 **Questions for Discussion**:
 
@@ -237,9 +241,9 @@ Build comprehensive UI for managing leagues, franchises, clubs, teams, and roste
 
 **Goal**: Admin and user tooling
 
-- Complete RBAC system with admin UI
+- ✅ Complete RBAC system with admin UI
 - Build league management UI (Phase 1: hierarchy and basic roster management)
-- Implement API token system
+- ✅ Implement API token system
 - Create comprehensive admin interfaces
 
 ### Phase 4: Polish & Optimization

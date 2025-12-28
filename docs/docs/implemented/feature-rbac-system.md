@@ -9,25 +9,25 @@ Build out a comprehensive Role-Based Access Control (RBAC) system with an admini
 ## Current State
 
 - **Architecture**: Unified V2 Monolith (PostgreSQL-ready).
-- **Authorization**: Basic Casbin integration exists.
-- **Policies**: Defined in code/files, no database backing yet.
-- **Management**: No Admin UI; manual policy updates required.
+- **Authorization**: Casbin integration complete with PostgreSQL adapter.
+- **Policies**: Database-backed and managed via Admin UI.
+- **Management**: Full Admin UI implemented.
 
 ## Target State
 
-- Casbin-based RBAC system with PostgreSQL storage
-- Admin UI for:
+- ✅ Casbin-based RBAC system with PostgreSQL storage
+- ✅ Admin UI for:
   - Creating, editing, and deleting roles
   - Assigning permissions to roles
   - Assigning roles to users and groups
   - Viewing and testing policies
-- Database-backed policies (editable via UI)
-- Comprehensive policy examples for all v2 features
-- Audit logging for permission changes
+- ✅ Database-backed policies (editable via UI)
+- ✅ Comprehensive policy examples for all v2 features
+- ✅ Audit logging for permission changes
 
 ## Design Philosophy
 
-Per our [design philosophy](./design-philosophy.md):
+Per our [design philosophy](../design-philosophy.md):
 
 - **Simplicity**: Avoid over-complicating the permission model; start with minimal viable roles
 - **Database-first**: Store policies in PostgreSQL for UI editability
@@ -486,57 +486,57 @@ enum RoleAssignmentStatus {
 
 ### Database Schema
 
-- [ ] Set up Casbin TypeORM adapter (`CasbinRule` table)
-- [ ] Create `RoleDefinition` entity and migration
-- [ ] Create `UserRole` entity and migration
-- [ ] Create `PermissionAuditLog` entity and migration
-- [ ] Seed default roles (Player, Captain, GM, FM, League Ops, Admin)
-- [ ] Seed default policies for each role
+- [x] Set up Casbin TypeORM adapter (`CasbinRule` table)
+- [x] Create `RoleDefinition` entity and migration
+- [x] Create `UserRole` entity and migration
+- [x] Create `PermissionAuditLog` entity and migration
+- [x] Seed default roles (Player, Captain, GM, FM, League Ops, Admin)
+- [x] Seed default policies for each role
 
 ### Backend Services
 
-- [ ] Implement `RbacService` wrapping Casbin enforcer
-- [ ] Implement role management CRUD (create, read, update, delete roles)
-- [ ] Implement permission management (add, remove permissions for roles)
-- [ ] Implement user role assignment (assign, revoke roles)
-- [ ] Implement approval workflow for sensitive roles
-- [ ] Implement audit logging for all permission changes
-- [ ] Implement policy testing endpoint
+- [x] Implement `RbacService` wrapping Casbin enforcer
+- [x] Implement role management CRUD (create, read, update, delete roles)
+- [x] Implement permission management (add, remove permissions for roles)
+- [x] Implement user role assignment (assign, revoke roles)
+- [x] Implement approval workflow for sensitive roles
+- [x] Implement audit logging for all permission changes
+- [x] Implement policy testing endpoint
 
 ### Admin UI
 
-- [ ] Create role management UI (list, create, edit roles)
-- [ ] Create permission assignment UI (view, add, remove permissions)
-- [ ] Create user role assignment UI (search users, assign/revoke roles)
-- [ ] Create approval workflow UI (pending assignments, approve/reject)
-- [ ] Create policy testing UI (simulate permission checks)
-- [ ] Create audit log viewer UI
+- [x] Create role management UI (list, create, edit roles)
+- [x] Create permission assignment UI (view, add, remove permissions)
+- [x] Create user role assignment UI (search users, assign/revoke roles)
+- [x] Create approval workflow UI (pending assignments, approve/reject)
+- [x] Create policy testing UI (simulate permission checks)
+- [x] Create audit log viewer UI
 
 ### Integration
 
-- [ ] Add RBAC guards to all API endpoints
-- [ ] Implement scope resolution logic for dynamic scopes
-- [ ] Add permission checks to roster management endpoints
-- [ ] Add permission checks to schedule management endpoints
-- [ ] Add permission checks to scrim endpoints
-- [ ] Add permission checks to submission endpoints
+- [x] Add RBAC guards to all API endpoints
+- [x] Implement scope resolution logic for dynamic scopes
+- [x] Add permission checks to roster management endpoints
+- [x] Add permission checks to schedule management endpoints
+- [x] Add permission checks to scrim endpoints
+- [x] Add permission checks to submission endpoints
 
 ### Testing
 
-- [ ] Unit tests for Casbin policy enforcement
-- [ ] Unit tests for scope resolution logic
-- [ ] Integration tests for role assignment workflow
-- [ ] Integration tests for approval workflow
-- [ ] E2E tests for admin UI flows
-- [ ] Security tests for privilege escalation
+- [x] Unit tests for Casbin policy enforcement
+- [x] Unit tests for scope resolution logic
+- [x] Integration tests for role assignment workflow
+- [x] Integration tests for approval workflow
+- [x] E2E tests for admin UI flows
+- [x] Security tests for privilege escalation
 
 ### Documentation
 
-- [ ] Document all roles and their permissions
-- [ ] Document scope types and resolution logic
-- [ ] API documentation for RBAC endpoints
-- [ ] Admin guide for managing roles and permissions
-- [ ] Examples of common policy scenarios
+- [x] Document all roles and their permissions
+- [x] Document scope types and resolution logic
+- [x] API documentation for RBAC endpoints
+- [x] Admin guide for managing roles and permissions
+- [x] Examples of common policy scenarios
 
 ---
 
@@ -587,15 +587,17 @@ enum RoleAssignmentStatus {
 
 ## Success Criteria
 
-- [ ] All MVP roles are defined and seeded
-- [ ] Admin UI allows creating and editing roles
-- [ ] Admin UI allows assigning permissions to roles
-- [ ] Admin UI allows assigning roles to users
-- [ ] Approval workflow functions for sensitive roles
-- [ ] All API endpoints are protected by RBAC guards
-- [ ] Permission checks complete in <50ms
-- [ ] Audit logs capture all permission changes
-- [ ] Documentation includes examples for all common scenarios
+## Success Criteria
+
+- [x] All MVP roles are defined and seeded
+- [x] Admin UI allows creating and editing roles
+- [x] Admin UI allows assigning permissions to roles
+- [x] Admin UI allows assigning roles to users
+- [x] Approval workflow functions for sensitive roles
+- [x] All API endpoints are protected by RBAC guards
+- [x] Permission checks complete in <50ms
+- [x] Audit logs capture all permission changes
+- [x] Documentation includes examples for all common scenarios
 
 ---
 
@@ -632,7 +634,7 @@ CREATE INDEX idx_user_role_role ON user_role(role_id);
 
 ## Related Documents
 
-- [Roadmap](./roadmap.md)
-- [RBAC Musings (authz-noodles.md)](./authz-noodles.md)
-- [League Management UI](./feature-league-management.md) (depends on RBAC)
-- [Design Philosophy](./design-philosophy.md)
+- [Roadmap](../roadmap.md)
+- [RBAC Musings (authz-noodles.md)](../authz-noodles.md)
+- [League Management UI](../feature-league-management.md) (depends on RBAC)
+- [Design Philosophy](../design-philosophy.md)

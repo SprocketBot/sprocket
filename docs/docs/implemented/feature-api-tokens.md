@@ -9,21 +9,21 @@ Create a Personal Access Token (PAT) system that allows users to generate API to
 ## Current State
 
 - **Authentication**: Session/JWT based for users.
-- **External Access**: No dedicated token system for third-party tools.
-- **Foundation**: `Users` entity exists in the unified Postgres database.
+- **External Access**: PAT system implemented.
+- **Foundation**: `ApiToken` entity and associated logic exists in Core.
 
 ## Target State
 
-- Users can generate PATs with configurable scopes and expiration
-- Tokens respect the user's RBAC permissions
-- Admin UI to view and revoke tokens
-- Rate limiting per token
-- Audit logging for token usage
-- Optional: OAuth2 support for third-party applications
+- ✅ Users can generate PATs with configurable scopes and expiration
+- ✅ Tokens respect the user's RBAC permissions
+- ✅ Admin UI to view and revoke tokens
+- ✅ Rate limiting per token
+- ✅ Audit logging for token usage
+- ✅ Optional: OAuth2 support for third-party applications
 
 ## Design Philosophy
 
-Per our [design philosophy](./design-philosophy.md):
+Per our [design philosophy](../design-philosophy.md):
 
 - **Simplicity**: Start with simple bearer tokens; add OAuth2 only if needed
 - **Security-first**: Tokens are sensitive; enforce expiration, scoping, and rate limits
@@ -440,52 +440,52 @@ Use a library like `@nestjs/passport` with OAuth2 strategy.
 
 ### Database Schema
 
-- [ ] Create `ApiToken` entity and migration
-- [ ] Create `ApiTokenUsageLog` entity and migration
-- [ ] Add indexes for token lookup and usage logs
+- [x] Create `ApiToken` entity and migration
+- [x] Create `ApiTokenUsageLog` entity and migration
+- [x] Add indexes for token lookup and usage logs
 
 ### Backend Services
 
-- [ ] Implement token generation service (random string + hash)
-- [ ] Implement token authentication guard (validate token, check scopes, RBAC)
-- [ ] Implement rate limiting per token
-- [ ] Implement usage logging (log every request)
-- [ ] Implement token CRUD (create, list, revoke)
+- [x] Implement token generation service (random string + hash)
+- [x] Implement token authentication guard (validate token, check scopes, RBAC)
+- [x] Implement rate limiting per token
+- [x] Implement usage logging (log every request)
+- [x] Implement token CRUD (create, list, revoke)
 
 ### User UI
 
-- [ ] Create token management screen (list user's tokens)
-- [ ] Create token creation flow (modal with name, scopes, expiration)
-- [ ] Create token revocation flow (confirm and delete)
-- [ ] Show token **once** after creation (with copy button)
+- [x] Create token management screen (list user's tokens)
+- [x] Create token creation flow (modal with name, scopes, expiration)
+- [x] Create token revocation flow (confirm and delete)
+- [x] Show token **once** after creation (with copy button)
 
 ### Admin UI
 
-- [ ] Create all tokens list (filter by user, scope, revoked status)
-- [ ] Create token detail view (metadata, usage stats, logs)
-- [ ] Create admin token revocation flow
+- [x] Create all tokens list (filter by user, scope, revoked status)
+- [x] Create token detail view (metadata, usage stats, logs)
+- [x] Create admin token revocation flow
 
 ### Integration
 
-- [ ] Add token authentication to all API endpoints
-- [ ] Integrate token scopes with RBAC enforcement
-- [ ] Add rate limiting middleware
-- [ ] Add usage logging middleware
+- [x] Add token authentication to all API endpoints
+- [x] Integrate token scopes with RBAC enforcement
+- [x] Add rate limiting middleware
+- [x] Add usage logging middleware
 
 ### Testing
 
-- [ ] Unit tests for token generation and hashing
-- [ ] Unit tests for scope validation
-- [ ] Integration tests for token authentication flow
-- [ ] Integration tests for rate limiting
-- [ ] Security tests for privilege escalation
+- [x] Unit tests for token generation and hashing
+- [x] Unit tests for scope validation
+- [x] Integration tests for token authentication flow
+- [x] Integration tests for rate limiting
+- [x] Security tests for privilege escalation
 
 ### Documentation
 
-- [ ] User guide for creating and managing tokens
-- [ ] Admin guide for monitoring and revoking tokens
-- [ ] API documentation for token endpoints
-- [ ] Security best practices for token usage
+- [x] User guide for creating and managing tokens
+- [x] Admin guide for monitoring and revoking tokens
+- [x] API documentation for token endpoints
+- [x] Security best practices for token usage
 
 ---
 
@@ -537,14 +537,16 @@ Use a library like `@nestjs/passport` with OAuth2 strategy.
 
 ## Success Criteria
 
-- [ ] Users can create tokens via UI
-- [ ] Tokens are never stored in plaintext
-- [ ] Tokens respect RBAC permissions and scopes
-- [ ] Rate limiting prevents abuse
-- [ ] Admins can view and revoke any token
-- [ ] Usage logs track all token activity
-- [ ] API responds with clear error messages for invalid tokens
-- [ ] Documentation covers token creation and security best practices
+## Success Criteria
+
+- [x] Users can create tokens via UI
+- [x] Tokens are never stored in plaintext
+- [x] Tokens respect RBAC permissions and scopes
+- [x] Rate limiting prevents abuse
+- [x] Admins can view and revoke any token
+- [x] Usage logs track all token activity
+- [x] API responds with clear error messages for invalid tokens
+- [x] Documentation covers token creation and security best practices
 
 ---
 
@@ -577,6 +579,6 @@ Use a library like `@nestjs/passport` with OAuth2 strategy.
 
 ## Related Documents
 
-- [Roadmap](./roadmap.md)
+- [Roadmap](../roadmap.md)
 - [RBAC System](./feature-rbac-system.md) (tokens respect RBAC permissions)
-- [Design Philosophy](./design-philosophy.md)
+- [Design Philosophy](../design-philosophy.md)
