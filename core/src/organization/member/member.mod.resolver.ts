@@ -59,12 +59,24 @@ export class MemberModResolver {
 export class MemberFixResolver {
   constructor(private readonly memberFixService: MemberFixService) {}
 
-  @Mutation(() => Boolean)
-  async updateMemberAndPlayerIds(
+  @Mutation(() => String) // Changed return type to String
+  async relinkPlatformAccount(
     @Args('sprocketUserId') sprocketUserId: string,
     @Args('platformId') platformId: string
-  ) {
-    await this.memberFixService.updateMemberAndPlayerIds(sprocketUserId, platformId);
-    return true;
+  ): Promise<string> {
+    try {
+      // Execute the service logic
+      await this.memberFixService.UpdateMemberAndPlayerIds(
+        Number(sprocketUserId), 
+        platformId
+      );
+
+      // Return success message
+      return "Successfully relinked and associated platform account.";
+    } catch (e) {
+      // In case of failure, return the stringified error for debugging/feedback
+      // We check if e is an Error object to get the message specifically
+      return JSON.stringify(e instanceof Error ? e.message : e);
+    }
   }
 }
