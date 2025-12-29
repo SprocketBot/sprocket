@@ -164,3 +164,61 @@ export class MemberService {
         });
     }
 }
+
+import { Injectable } from '@nestjs/common';
+import { DataSource } from 'typeorm';
+
+@Injectable()
+export class MemberFixService {
+  constructor(private dataSource: DataSource) {}
+
+  async updateMemberAndPlayerIds(sprocketUserId: string, platformId: string) {
+    return this.dataSource.transaction(async (manager) => {
+      try {
+        // 1. Find the member record from userId
+        const member = await manager.query(
+          `SELECT id FROM sprocket.member WHERE "userId" = $1`,
+          [sprocketUserId]
+        );
+        if (!member.length) throw new Error('Sprocket member not found');
+        const memberId = member[0].id;
+
+        // 2. Get Discord ID from user_authentication_account
+        const uaa = await manager.query(
+          `SELECT "accountId" FROM sprocket.user_authentication_account WHERE "userId" = $1`,
+          [sprocketUserId]
+        );
+        if (!uaa.length) throw new Error('User authentication account not found');
+        const discordId = uaa[0].accountId;
+
+        // 3. Get playerId from mledb.player
+        const player = await manager.query(
+          `SELECT id FROM mledb.player WHERE discord_id = $1`,
+          [discordId]
+        );
+        if (!player.length) throw new Error('Player not found in mledb');
+        const playerId = player[0].id;
+
+        // 4. Update member_platform_account
+        await manager.query(
+          `UPDATE sprocket.member_platform_account
+           SET "memberId" = $1
+           WHERE "platformAccountId" = $2`,
+          [memberId, platformId]
+        );
+
+        // 5. Update player_account
+        await manager.query(
+          `UPDATE mledb.player_account
+           SET player_id = $1
+           WHERE platform_id = $2`,
+          [playerId, platformId]
+        );
+
+        return { success: true, playerId, memberId };
+      } catch (error) {
+        throw error; // transaction rollback automatically
+      }
+    });
+  }
+}
