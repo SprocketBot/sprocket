@@ -57,14 +57,14 @@ export class MemberModResolver {
 
 @Resolver()
 export class MemberFixResolver {
-  constructor(private readonly memberService: MemberService) {}
+  constructor(private readonly memberFixService: MemberFixService) {}
 
   @Mutation(() => Boolean)
   async updateMemberAndPlayerIds(
     @Args('sprocketUserId') sprocketUserId: string,
     @Args('platformId') platformId: string
   ) {
-    await this.memberService.updateMemberAndPlayerIds(sprocketUserId, platformId);
+    await this.memberFixService.updateMemberAndPlayerIds(sprocketUserId, platformId);
     return true;
   }
 }
