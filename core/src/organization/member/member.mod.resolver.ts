@@ -14,7 +14,7 @@ import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MledbPlayerAccountService, MledbPlayerService} from "../../mledb";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {MemberPlatformAccountService} from "../member-platform-account";
-import {MemberService} from "./member.service";
+import {MemberService, MemberFixService} from "./member.service";
 
 @Resolver()
 export class MemberModResolver {

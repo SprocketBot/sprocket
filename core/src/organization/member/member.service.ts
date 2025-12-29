@@ -6,7 +6,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { EventsService, EventTopic } from "@sprocketbot/common";
 import { PubSub } from "apollo-server-express";
 import type { FindManyOptions, FindOneOptions } from "typeorm";
-import { Repository } from "typeorm";
+import { Repository, DataSource } from "typeorm";
 
 import type { Franchise } from "../../database/franchise/franchise/franchise.model";
 import {IrrelevantFields} from '../../database';;;;
@@ -172,6 +172,7 @@ export class MemberService {
 @Injectable()
 export class MemberFixService {
   constructor(
+     private readonly dataSource: DataSource,
      @InjectRepository(Member) private memberRepository: Repository<Member>,
      @InjectRepository(MemberPlatformAccount) private memberPlatformAccountRepository: Repository<MemberPlatformAccount>,
      @InjectRepository(UserAuthenticationAccount) private userAuthRepository: Repository<UserAuthenticationAccount>,
@@ -179,46 +180,65 @@ export class MemberFixService {
      @InjectRepository(MLE_PlayerAccount) private playerAccountRepository: Repository<MLE_PlayerAccount>
 ) {}
 
-  async UpdateMemberAndPlayerIds(sprocketUserId: number, platformId: string) {
-    // 1. Get memberId from Member table where userId = sprocketUserId
-    const member = await this.memberRepository.findOne({ 
-        where: { userId: sprocketUserId } as any 
-    });
-    if (!member) throw new Error(`Member with userId ${sprocketUserId} not found`);
-    const memberId = member.memberId;
+async updateMemberAndPlayerIds(
+  sprocketUserId: number,
+  platformId: string,
+) {
+  return this.dataSource.transaction(async (manager) => {
+    try {
+      // 1. Get memberId from Member table where userId = sprocketUserId
+      const member = await manager.findOne(Member, {
+        where: { userId: sprocketUserId } as any,
+      });
+      if (!member) {
+        throw new Error(`Member with userId ${sprocketUserId} not found`);
+      }
 
-    // 2. Update MemberPlatformAccount where platformAccountId = platformId
-    await this.memberPlatformAccountRepository.update(
+      const memberId = member.memberId;
+
+      // 2. Update MemberPlatformAccount where platformAccountId = platformId
+      await manager.update(
+        MemberPlatformAccount,
         { platformAccountId: platformId },
-        { memberId: memberId }
-    );
+        { memberId },
+      );
 
-    // 3. Get accountId from UserAuthenticationAccount where userId = sprocketUserId
-    const authAccount = await this.userAuthRepository.findOne({ 
-        where: { userId: sprocketUserId } 
-    });
-    if (!authAccount) throw new Error(`Auth account for userId ${sprocketUserId} not found`);
-    const discordId = authAccount.accountId;
+      // 3. Get accountId from UserAuthenticationAccount where userId = sprocketUserId
+      const authAccount = await manager.findOne(UserAuthenticationAccount, {
+        where: { userId: sprocketUserId },
+      });
+      if (!authAccount) {
+        throw new Error(`Auth account for userId ${sprocketUserId} not found`);
+      }
 
-    // 4. Get 'id' from MLE_Player where discord_id = accountId
-    const player = await this.playerRepository.findOne({ 
-        where: { discord_id: discordId } as any 
-    });
-    if (!player) throw new Error(`MLE Player with discord_id ${discordId} not found`);
-    const mlePlayerId = player.id;
+      const discordId = authAccount.accountId;
 
-    // 5. Update MLE_PlayerAccount: set player_id where platform_id = platformId
-    await this.playerAccountRepository.update(
+      // 4. Get 'id' from MLE_Player where discord_id = accountId
+      const player = await manager.findOne(MLE_Player, {
+        where: { discord_id: discordId } as any,
+      });
+      if (!player) {
+        throw new Error(`MLE Player with discord_id ${discordId} not found`);
+      }
+
+      const mlePlayerId = player.id;
+
+      // 5. Update MLE_PlayerAccount: set player_id where platform_id = platformId
+      await manager.update(
+        MLE_PlayerAccount,
         { platform_id: platformId },
-        { player_id: mlePlayerId }
-    );
+        { player_id: mlePlayerId },
+      );
 
-    return {
+      return {
         success: true,
         updatedMemberId: memberId,
-        updatedPlayerId: mlePlayerId
-    };
-    catch (error) {
-        throw error; // transaction rollback automatically
+        updatedPlayerId: mlePlayerId,
+      };
+    } catch (error) {
+      // THROWING causes automatic rollback
+      throw error;
     }
-  }
+  });
+}
+}
