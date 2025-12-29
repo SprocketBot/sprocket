@@ -16,6 +16,9 @@ import { PlayerService } from "../../franchise/player/player.service";
 import { UserService } from "../../identity/user/user.service";
 import { MemberPubSub } from "../constants";
 import { OrganizationService } from "../organization";
+import { UserAuthenticationAccount } from "../../database/identity/user_authentication_account";
+import { MLE_Player, MLE_PlayerAccount } from "../../database/mledb";
+import { MemberPlatformAccount } from "../../database/organization/member_platform_account";
 
 @Injectable()
 export class MemberService {
@@ -165,60 +168,57 @@ export class MemberService {
     }
 }
 
-import { Injectable } from '@nestjs/common';
-import { DataSource } from 'typeorm';
 
 @Injectable()
 export class MemberFixService {
-  constructor(private dataSource: DataSource) {}
+  constructor(
+     @InjectRepository(Member) private memberRepository: Repository<Member>,
+     @InjectRepository(MemberPlatformAccount) private memberPlatformAccountRepository: Repository<MemberPlatformAccount>,
+     @InjectRepository(UserAuthenticationAccount) private userAuthRepository: Repository<UserAuthenticationAccount>,
+     @InjectRepository(MLE_Player) private playerRepository: Repository<MLE_Player>,
+     @InjectRepository(MLE_PlayerAccount) private playerAccountRepository: Repository<MLE_PlayerAccount>
+) {}
 
-  async updateMemberAndPlayerIds(sprocketUserId: string, platformId: string) {
-    return this.dataSource.transaction(async (manager) => {
-      try {
-        // 1. Find the member record from userId
-        const member = await manager.query(
-          `SELECT id FROM sprocket.member WHERE "userId" = $1`,
-          [sprocketUserId]
-        );
-        if (!member.length) throw new Error('Sprocket member not found');
-        const memberId = member[0].id;
-
-        // 2. Get Discord ID from user_authentication_account
-        const uaa = await manager.query(
-          `SELECT "accountId" FROM sprocket.user_authentication_account WHERE "userId" = $1`,
-          [sprocketUserId]
-        );
-        if (!uaa.length) throw new Error('User authentication account not found');
-        const discordId = uaa[0].accountId;
-
-        // 3. Get playerId from mledb.player
-        const player = await manager.query(
-          `SELECT id FROM mledb.player WHERE discord_id = $1`,
-          [discordId]
-        );
-        if (!player.length) throw new Error('Player not found in mledb');
-        const playerId = player[0].id;
-
-        // 4. Update member_platform_account
-        await manager.query(
-          `UPDATE sprocket.member_platform_account
-           SET "memberId" = $1
-           WHERE "platformAccountId" = $2`,
-          [memberId, platformId]
-        );
-
-        // 5. Update player_account
-        await manager.query(
-          `UPDATE mledb.player_account
-           SET player_id = $1
-           WHERE platform_id = $2`,
-          [playerId, platformId]
-        );
-
-        return { success: true, playerId, memberId };
-      } catch (error) {
-        throw error; // transaction rollback automatically
-      }
+  async UpdateMemberAndPlayerIds(sprocketUserId: number, platformId: string) {
+    // 1. Get memberId from Member table where userId = sprocketUserId
+    const member = await this.memberRepository.findOne({ 
+        where: { userId: sprocketUserId } as any 
     });
+    if (!member) throw new Error(`Member with userId ${sprocketUserId} not found`);
+    const memberId = member.memberId;
+
+    // 2. Update MemberPlatformAccount where platformAccountId = platformId
+    await this.memberPlatformAccountRepository.update(
+        { platformAccountId: platformId },
+        { memberId: memberId }
+    );
+
+    // 3. Get accountId from UserAuthenticationAccount where userId = sprocketUserId
+    const authAccount = await this.userAuthRepository.findOne({ 
+        where: { userId: sprocketUserId } 
+    });
+    if (!authAccount) throw new Error(`Auth account for userId ${sprocketUserId} not found`);
+    const discordId = authAccount.accountId;
+
+    // 4. Get 'id' from MLE_Player where discord_id = accountId
+    const player = await this.playerRepository.findOne({ 
+        where: { discord_id: discordId } as any 
+    });
+    if (!player) throw new Error(`MLE Player with discord_id ${discordId} not found`);
+    const mlePlayerId = player.id;
+
+    // 5. Update MLE_PlayerAccount: set player_id where platform_id = platformId
+    await this.playerAccountRepository.update(
+        { platform_id: platformId },
+        { player_id: mlePlayerId }
+    );
+
+    return {
+        success: true,
+        updatedMemberId: memberId,
+        updatedPlayerId: mlePlayerId
+    };
+    catch (error) {
+        throw error; // transaction rollback automatically
+    }
   }
-}
