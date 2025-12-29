@@ -1,7 +1,9 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { MatchEntity } from '../match/match.entity';
+import type { MatchEntity as MatchEntityType } from '../match/match.entity';
 import { UserEntity } from '../user/user.entity';
+import type { UserEntity as UserEntityType } from '../user/user.entity';
 
 export enum SubmissionStatus {
     PENDING = 'PENDING',
@@ -19,10 +21,10 @@ export class MatchSubmissionEntity extends BaseEntity {
     id: string;
 
     @ManyToOne(() => MatchEntity)
-    match: MatchEntity;
+    match: MatchEntityType;
 
     @ManyToOne(() => UserEntity)
-    submittedBy: UserEntity;
+    submittedBy: UserEntityType;
 
     @Column({ type: 'enum', enum: SubmissionStatus })
     status: SubmissionStatus;
@@ -37,7 +39,7 @@ export class MatchSubmissionEntity extends BaseEntity {
     reviewedAt: Date;
 
     @ManyToOne(() => UserEntity, { nullable: true })
-    reviewedBy: UserEntity;
+    reviewedBy: UserEntityType;
 
     @Column({ nullable: true })
     rejectionReason: string;

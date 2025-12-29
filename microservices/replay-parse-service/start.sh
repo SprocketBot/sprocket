@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cd src && python -m celery -A main worker --loglevel=INFO
+cd src && python main.py

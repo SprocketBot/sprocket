@@ -1,5 +1,6 @@
 import { BaseEntity } from '../base.entity';
 import { RoleEntity } from '../role/role.entity';
+import type { RoleEntity as RoleEntityType } from '../role/role.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
 
 @Entity('seat', { schema: 'sprocket' })
@@ -11,5 +12,5 @@ export class SeatEntity extends BaseEntity {
 	description: string;
 
 	@ManyToOne(() => RoleEntity)
-	role: RoleEntity;
+	role: RoleEntityType;
 }

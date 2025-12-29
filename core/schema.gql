@@ -87,7 +87,7 @@ type Scrim {
   skillGroupId: String!
   gameModeId: String!
   maxParticipants: Float!
-  state: String!
+  state: ScrimState!
   pendingTtl: Float
   createdAt: DateTime!
   complete: Boolean!
@@ -95,6 +95,16 @@ type Scrim {
   game: Game!
   skillGroup: SkillGroup!
   gameMode: GameMode!
+}
+
+enum ScrimState {
+  PENDING
+  POPPED
+  IN_PROGRESS
+  RATIFYING
+  COMPLETE
+  LOCKED
+  CANCELLED
 }
 
 type Player {
@@ -618,7 +628,7 @@ type Query {
 input ListScrimsInput {
   gameId: String
   skillGroupid: String
-  state: String
+  state: ScrimState
 }
 
 input FindUserInput {

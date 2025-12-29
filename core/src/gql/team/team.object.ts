@@ -1,9 +1,13 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { BaseObject } from '../base.object';
 import { ClubObject } from '../club/club.object';
+import type { ClubObject as ClubObjectType } from '../club/club.object';
 import { SkillGroupObject } from '../skill_group/skill_group.object';
+import type { SkillGroupObject as SkillGroupObjectType } from '../skill_group/skill_group.object';
 import { TeamRoleObject } from './team-role.object';
+import type { TeamRoleObject as TeamRoleObjectType } from './team-role.object';
 import { RosterSpotObject } from './roster-spot.object';
+import type { RosterSpotObject as RosterSpotObjectType } from './roster-spot.object';
 
 @ObjectType('Team')
 export class TeamObject extends BaseObject {
@@ -20,14 +24,14 @@ export class TeamObject extends BaseObject {
 	isActive: boolean;
 
 	@Field(() => ClubObject)
-	club: ClubObject;
+	club: ClubObjectType;
 
 	@Field(() => SkillGroupObject)
-	skillGroup: SkillGroupObject;
+	skillGroup: SkillGroupObjectType;
 
 	@Field(() => [TeamRoleObject])
-	roles: TeamRoleObject[];
+	roles: TeamRoleObjectType[];
 
 	@Field(() => [RosterSpotObject])
-	rosterSpots: RosterSpotObject[];
+	rosterSpots: RosterSpotObjectType[];
 }

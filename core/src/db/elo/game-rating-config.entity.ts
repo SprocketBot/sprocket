@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { GameEntity } from '../game/game.entity';
+import type { GameEntity as GameEntityType } from '../game/game.entity';
 
 export enum RatingSystem {
     ELO = 'elo',
@@ -31,7 +32,7 @@ export class GameRatingConfigEntity extends BaseEntity {
     @ManyToOne(() => GameEntity)
     @JoinColumn()
     @Index()
-    game: GameEntity;
+    game: GameEntityType;
 
     @Column({ type: 'enum', enum: RatingSystem })
     system: RatingSystem;

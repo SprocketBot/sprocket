@@ -25,11 +25,19 @@ async function bootstrap() {
   if (process.env.SSL?.toLowerCase() === 'true') corsOrigin.protocol = 'https';
   corsOrigin.port = process.env.LISTEN_PORT;
 
+  const allowedOrigins = [corsOrigin.origin];
+  // Allow localhost on default port 80 (Traefik)
+  if (process.env.BASE_URL === 'localhost' && corsOrigin.port !== '80') {
+    allowedOrigins.push('http://localhost');
+  }
+  // Allow dev server
+  allowedOrigins.push('http://localhost:5173');
+
   app.enableCors({
     credentials: true,
-    origin: corsOrigin.origin,
+    origin: allowedOrigins,
   });
-  log.log(`CORS enabled for ${corsOrigin}`);
+  log.log(`CORS enabled for ${allowedOrigins.join(', ')}`);
 
   if (typeof cookieParser === 'function') app.use(cookieParser());
   else app.use(cookieParserAlt());

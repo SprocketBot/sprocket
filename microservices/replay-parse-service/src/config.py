@@ -32,7 +32,8 @@ def get_config_value(env_key, config_dict, config_key, default=None):
 env = os.environ.get("ENV", "development")
 
 # Load base configurations
-config_dir = os.environ.get("CONFIG_DIR", "/app/config")
+# Use path relative to this file so it works in both prod and dev environments
+config_dir = os.environ.get("CONFIG_DIR", str(Path(__file__).parent.parent / "config"))
 with open(f"{config_dir}/default.json", "r") as f:
     defaultConfig = json.loads(f.read())
 

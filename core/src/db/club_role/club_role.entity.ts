@@ -1,7 +1,9 @@
 import { Entity, Column, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { ClubEntity } from '../club/club.entity';
+import type { ClubEntity as ClubEntityType } from '../club/club.entity';
 import { UserEntity } from '../user/user.entity';
+import type { UserEntity as UserEntityType } from '../user/user.entity';
 
 export enum ClubRoleType {
 	GENERAL_MANAGER = 'general_manager',
@@ -11,10 +13,10 @@ export enum ClubRoleType {
 @Entity('club_role', { schema: 'sprocket' })
 export class ClubRoleEntity extends BaseEntity {
 	@ManyToOne(() => ClubEntity, (club) => club.roles)
-	club: ClubEntity;
+	club: ClubEntityType;
 
 	@ManyToOne(() => UserEntity)
-	user: UserEntity;
+	user: UserEntityType;
 
 	@Column({ type: 'enum', enum: ClubRoleType })
 	roleType: ClubRoleType;
@@ -23,7 +25,7 @@ export class ClubRoleEntity extends BaseEntity {
 	assignedAt: Date;
 
 	@ManyToOne(() => UserEntity)
-	assignedBy: UserEntity;
+	assignedBy: UserEntityType;
 
 	@Column({ type: 'boolean', default: false })
 	requiresApproval: boolean;

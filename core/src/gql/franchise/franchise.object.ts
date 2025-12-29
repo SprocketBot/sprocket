@@ -1,7 +1,9 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { BaseObject } from '../base.object';
 import { ClubObject } from '../club/club.object';
+import type { ClubObject as ClubObjectType } from '../club/club.object';
 import { FranchiseRoleObject } from './franchise-role.object';
+import type { FranchiseRoleObject as FranchiseRoleObjectType } from './franchise-role.object';
 
 @ObjectType('Franchise')
 export class FranchiseObject extends BaseObject {
@@ -24,8 +26,8 @@ export class FranchiseObject extends BaseObject {
 	isActive: boolean;
 
 	@Field(() => [ClubObject])
-	clubs: ClubObject[];
+	clubs: ClubObjectType[];
 
 	@Field(() => [FranchiseRoleObject])
-	roles: FranchiseRoleObject[];
+	roles: FranchiseRoleObjectType[];
 }

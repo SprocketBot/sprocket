@@ -7,12 +7,12 @@
 export * from './base.entity';
 export * from './user/user.entity';
 export * from './user/user.seed';
+export * from './game/game.entity';
+export * from './game/game.seed';
 export * from './skill_group/skill_group.entity';
 export * from './skill_group/skill_group.seed';
 export * from './game_mode/game_mode.entity';
 export * from './game_mode/game_mode.seed';
-export * from './game/game.entity';
-export * from './game/game.seed';
 export * from './role/role.entity';
 export * from './role/role.seed';
 export * from './seat/seat.entity';
@@ -106,5 +106,5 @@ export * from './elo/elo-rating-node.entity';
 export * from './elo/match-rating-calculation.entity';
 export * from './elo/game-rating-config.entity';
 
-export * from './api_token/api_token_usage_log.entity';
 export * from './api_token/api_token.entity';
+export * from './api_token/api_token_usage_log.entity';

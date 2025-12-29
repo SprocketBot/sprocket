@@ -1,6 +1,8 @@
 import { BaseEntity } from '../base.entity';
 import { RoundEntity } from '../round/round.entity';
+import type { RoundEntity as RoundEntityType } from '../round/round.entity';
 import { TeamEntity } from '../team/team.entity';
+import type { TeamEntity as TeamEntityType } from '../team/team.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
 
 @Entity('team_stat', { schema: 'sprocket' })

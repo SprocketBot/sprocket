@@ -1,8 +1,11 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, TableInheritance, type DeepPartial } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { GameEntity } from '../game/game.entity';
+import type { GameEntity as GameEntityType } from '../game/game.entity';
 import { GameModeEntity } from '../game_mode/game_mode.entity';
+import type { GameModeEntity as GameModeEntityType } from '../game_mode/game_mode.entity';
 import { RoundEntity } from '../round/round.entity';
+import type { RoundEntity as RoundEntityType } from '../round/round.entity';
 
 export enum MatchStatus {
     PENDING = 'PENDING',
@@ -16,14 +19,14 @@ export enum MatchStatus {
 export class MatchEntity extends BaseEntity {
     @ManyToOne(() => GameEntity)
     @JoinColumn()
-    game: GameEntity;
+    game: GameEntityType;
 
     @ManyToOne(() => GameModeEntity)
     @JoinColumn()
-    gameMode: GameModeEntity;
+    gameMode: GameModeEntityType;
 
     @OneToMany(() => RoundEntity, round => round.match)
-    rounds: RoundEntity[];
+    rounds: RoundEntityType[];
 
     @Column({ type: 'enum', enum: MatchStatus, default: MatchStatus.PENDING })
     status: MatchStatus;

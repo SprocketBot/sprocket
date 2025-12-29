@@ -7,8 +7,11 @@ import {
 } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { GameEntity } from '../game/game.entity';
+import type { GameEntity as GameEntityType } from '../game/game.entity';
 import { MatchEntity } from '../match/match.entity';
+import type { MatchEntity as MatchEntityType } from '../match/match.entity';
 import { PlayerEntity } from '../player/player.entity';
+import type { PlayerEntity as PlayerEntityType } from '../player/player.entity';
 
 export enum RatingNodeType {
     INITIAL = 'initial',
@@ -21,11 +24,11 @@ export enum RatingNodeType {
 export class EloRatingNodeEntity extends BaseEntity {
     @ManyToOne(() => PlayerEntity)
     @JoinColumn()
-    player: PlayerEntity;
+    player: PlayerEntityType;
 
     @ManyToOne(() => GameEntity)
     @JoinColumn()
-    game: GameEntity;
+    game: GameEntityType;
 
     @Column({ type: 'float' })
     rating: number;
@@ -35,7 +38,7 @@ export class EloRatingNodeEntity extends BaseEntity {
 
     @ManyToOne(() => MatchEntity, { nullable: true })
     @JoinColumn()
-    sourceMatch: MatchEntity;
+    sourceMatch: MatchEntityType;
 
     @Column({ type: 'boolean', default: false })
     isCompacted: boolean;

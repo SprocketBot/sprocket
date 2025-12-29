@@ -22,7 +22,7 @@ export enum EventTarget {
     ELO_SERVICE = 'ELO_SERVICE',
 }
 
-@Entity()
+@Entity('event_queue', { schema: 'public' })
 export class EventQueue extends BaseEntity {
     @Column({ type: 'enum', enum: EventType })
     eventType: EventType;

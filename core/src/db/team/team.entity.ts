@@ -1,17 +1,21 @@
 import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { ClubEntity } from '../club/club.entity';
+import type { ClubEntity as ClubEntityType } from '../club/club.entity';
 import { SkillGroupEntity } from '../skill_group/skill_group.entity';
+import type { SkillGroupEntity as SkillGroupEntityType } from '../skill_group/skill_group.entity';
 import { RosterSpotEntity } from '../roster_spot/roster_spot.entity';
+import type { RosterSpotEntity as RosterSpotEntityType } from '../roster_spot/roster_spot.entity';
 import { TeamRoleEntity } from '../team_role/team_role.entity';
+import type { TeamRoleEntity as TeamRoleEntityType } from '../team_role/team_role.entity';
 
 @Entity('team', { schema: 'sprocket' })
 export class TeamEntity extends BaseEntity {
 	@ManyToOne(() => ClubEntity, (c) => c.teams)
-	club: ClubEntity;
+	club: ClubEntityType;
 
 	@ManyToOne(() => SkillGroupEntity)
-	skillGroup: SkillGroupEntity;
+	skillGroup: SkillGroupEntityType;
 
 	@Column()
 	name: string;
@@ -26,8 +30,8 @@ export class TeamEntity extends BaseEntity {
 	isActive: boolean;
 
 	@OneToMany(() => RosterSpotEntity, (rs) => rs.team)
-	rosterSpots: RosterSpotEntity[];
+	rosterSpots: RosterSpotEntityType[];
 
 	@OneToMany(() => TeamRoleEntity, (r) => r.team)
-	roles: TeamRoleEntity[];
+	roles: TeamRoleEntityType[];
 }

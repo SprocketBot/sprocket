@@ -5,13 +5,14 @@ import {
     ManyToOne,
 } from 'typeorm';
 import { BaseEntity } from '../base.entity';
-import { ApiTokenEntity } from './api_token.entity';
+import { ApiTokenEntity } from '../api_token/api_token.entity';
+import type { ApiTokenEntity as ApiTokenEntityType } from '../api_token/api_token.entity';
 
 @Entity('api_token_usage_log', { schema: 'sprocket' })
 export class ApiTokenUsageLogEntity extends BaseEntity {
     @ManyToOne(() => ApiTokenEntity, (token) => token.usageLogs)
     @JoinColumn()
-    token: ApiTokenEntity;
+    token: ApiTokenEntityType;
 
     @Column()
     endpoint: string;

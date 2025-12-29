@@ -7,7 +7,9 @@ import {
 } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { UserEntity } from '../user/user.entity';
+import type { UserEntity as UserEntityType } from '../user/user.entity';
 import { ApiTokenUsageLogEntity } from './api_token_usage_log.entity';
+import type { ApiTokenUsageLogEntity as ApiTokenUsageLogEntityType } from './api_token_usage_log.entity';
 
 @Entity('api_token', { schema: 'sprocket' })
 export class ApiTokenEntity extends BaseEntity {
@@ -40,15 +42,15 @@ export class ApiTokenEntity extends BaseEntity {
 
     @ManyToOne(() => UserEntity)
     @JoinColumn()
-    user: UserEntity;
+    user: UserEntityType;
 
     @ManyToOne(() => UserEntity, { nullable: true })
     @JoinColumn()
-    revokedBy: UserEntity;
+    revokedBy: UserEntityType;
 
     @Column({ type: 'jsonb', nullable: true })
     metadata: Record<string, any>;
     
     @OneToMany(() => ApiTokenUsageLogEntity, (log) => log.token)
-    usageLogs: ApiTokenUsageLogEntity[];
+    usageLogs: ApiTokenUsageLogEntityType[];
 }
