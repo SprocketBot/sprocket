@@ -66,7 +66,7 @@ export class MemberFixResolver {
   ): Promise<string> {
     try {
       // Execute the service logic
-      await this.memberFixService.UpdateMemberAndPlayerIds(
+      await this.memberFixService.updateMemberAndPlayerIds(
         Number(sprocketUserId), 
         platformId
       );

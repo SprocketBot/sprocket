@@ -194,18 +194,18 @@ async updateMemberAndPlayerIds(
         throw new Error(`Member with userId ${sprocketUserId} not found`);
       }
 
-      const memberId = member.memberId;
+      const memberId = member.id;
 
       // 2. Update MemberPlatformAccount where platformAccountId = platformId
       await manager.update(
         MemberPlatformAccount,
         { platformAccountId: platformId },
-        { memberId },
+        { member: { id: memberId } },
       );
 
       // 3. Get accountId from UserAuthenticationAccount where userId = sprocketUserId
       const authAccount = await manager.findOne(UserAuthenticationAccount, {
-        where: { userId: sprocketUserId },
+        where: { user: { id: sprocketUserId } },
       });
       if (!authAccount) {
         throw new Error(`Auth account for userId ${sprocketUserId} not found`);
@@ -227,7 +227,7 @@ async updateMemberAndPlayerIds(
       await manager.update(
         MLE_PlayerAccount,
         { platform_id: platformId },
-        { player_id: mlePlayerId },
+        { player: { id: mlePlayerId } },
       );
 
       return {
