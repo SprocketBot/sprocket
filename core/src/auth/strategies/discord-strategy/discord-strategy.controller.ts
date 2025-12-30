@@ -15,10 +15,9 @@ export class DiscordStrategyController {
   @UseGuards(DiscordStrategyGuard)
   async discordLogin(@Request() req: Req, @Response() res: Res): Promise<void> {
     const redirUrl = `${this.config.getOrThrow('protocol')}://${this.config.getOrThrow('frontend.callback')}`;
+    const token = this.authenticateService.getAccessToken(req.user as any);
 
-    await this.authenticateService.login(res, req.user);
-    res.redirect(redirUrl);
-    res.send();
+    res.redirect(`${redirUrl}?token=${token}`);
     return;
   }
 }

@@ -6,17 +6,18 @@ import { FranchiseEntity } from '../internal';
 @Injectable()
 @Seed()
 export class FranchiseEntitySeed implements Seeder {
-	async seed(em: EntityManager) {
-		await seedFranchise('Express');
+  async seed(em: EntityManager) {
+    await seedFranchise('Express', 'express');
 
-		async function seedFranchise(franchiseName: string) {
-			await em.upsert(
-				FranchiseEntity,
-				{
-					name: franchiseName
-				},
-				{ conflictPaths: ['name'] }
-			);
-		}
-	}
+    async function seedFranchise(franchiseName: string, franchiseSlug: string) {
+      await em.upsert(
+        FranchiseEntity,
+        {
+          name: franchiseName,
+          slug: franchiseSlug,
+        },
+        { conflictPaths: ['name'] },
+      );
+    }
+  }
 }

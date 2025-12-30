@@ -6,12 +6,10 @@ import type { User } from '@sprocketbot/lib/types';
 
 export const load: PageLoad = async (event) => {
 	const { fetch, data } = event;
-	const authValid: false | User = await fetch(
-		`${apiUrl}/auth/check?token=${data?.authToken ?? ''}`,
-		{
-			credentials: 'include'
-		}
-	)
+	const authValid: false | User = await fetch(`${apiUrl}/auth/check`, {
+		headers: data?.authToken ? { Cookie: `sprocket-token=${data.authToken}` } : {},
+		credentials: 'include'
+	})
 		.then((r) => r.json())
 		.catch((e) => console.log(e));
 

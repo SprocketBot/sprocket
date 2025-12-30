@@ -68,7 +68,7 @@ export class DiscordStrategyService extends PassportStrategy<typeof Strategy>(
     } else {
       const user = await this.signIn(existingAccount, profile);
       done(null, user);
-      return profile;
+      return null;
     }
   }
 
@@ -76,16 +76,22 @@ export class DiscordStrategyService extends PassportStrategy<typeof Strategy>(
     existingAccount: UserAuthAccountEntity,
     profile: Profile,
   ) {
-    const user = await existingAccount.user;
+    const ea = existingAccount;
+    const user = {
+      id: ea.userId,
+      username: ea.platformName,
+      avatarUrl: ea.avatarUrl,
+      active: true,
+    };
     const updatedAvatarUrl = `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`;
     if (existingAccount.avatarUrl !== updatedAvatarUrl) {
       // User's avatar has probably changed. Update it
       existingAccount.avatarUrl = updatedAvatarUrl;
       await this.userAuthAcctRepo.save(existingAccount);
     }
-    this.logger.log(`Authenticated ${user.username} with Discord`, {
-      userId: user.id,
-    });
+    this.logger.log(
+      `Authenticated ${JSON.stringify(existingAccount)} with Discord`,
+    );
     return user;
   }
 
@@ -97,7 +103,23 @@ export class DiscordStrategyService extends PassportStrategy<typeof Strategy>(
       platform: AuthPlatform.DISCORD,
     });
 
-    // TODO: We need to try to figure out if we are linking an account or not here.
+    // Check if the user already exists
+    let existingUser = await this.userRepo.findOneBy({
+      username: profile.username,
+    });
+    if (existingUser) {
+      // User already exists. Link the account
+      this.logger.log(
+        `Linked ${JSON.stringify(account)} to existing user ${JSON.stringify(existingUser)}`,
+      );
+      account.userId = existingUser.id;
+      await this.userAuthAcctRepo.save(account);
+      existingUser.avatarUrl = account.avatarUrl;
+      await this.userRepo.save(existingUser);
+      return existingUser;
+    }
+
+    // User doesn't exist. Create a new one
     const user = this.userRepo.create({
       username: profile.username,
       avatarUrl: `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`,
@@ -108,8 +130,7 @@ export class DiscordStrategyService extends PassportStrategy<typeof Strategy>(
     account.user = user;
     await this.userAuthAcctRepo.save(account);
     this.logger.log(
-      `Created disabled account for discord user ${user.username}`,
-      { userId: user.id, discordId: profile.id },
+      `Created disabled account for discord user ${JSON.stringify(user)}`,
     );
     return user;
   }

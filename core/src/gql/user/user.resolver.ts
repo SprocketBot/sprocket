@@ -23,9 +23,10 @@ import { Resource, ResourceAction } from '@sprocketbot/lib/types';
 export class UserResolver {
   private readonly logger = new Logger(UserResolver.name);
 
-  constructor(private readonly userRepo: UserRepository) { }
+  constructor(private readonly userRepo: UserRepository) {}
 
   @Query(() => UserObject)
+  @UseGuards(AuthorizeGuard())
   @UseGuards(AuthZGuard)
   @UsePermissions({
     resource: Resource.User,
@@ -44,6 +45,7 @@ export class UserResolver {
   }
 
   @Query(() => [UserObject])
+  @UseGuards(AuthorizeGuard())
   @UseGuards(AuthZGuard)
   @UsePermissions({
     resource: Resource.User,

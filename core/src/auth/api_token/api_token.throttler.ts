@@ -9,7 +9,7 @@ export class ApiTokenThrottlerGuard extends ThrottlerGuard {
     if (context.getType<string>() === 'graphql') {
       const gqlCtx = GqlExecutionContext.create(context);
       const ctx = gqlCtx.getContext();
-      return { req: ctx.request, res: ctx.response };
+      return { req: ctx.req ?? ctx.request, res: ctx.res ?? ctx.response };
     }
     const http = context.switchToHttp();
     return { req: http.getRequest(), res: http.getResponse() };
@@ -17,15 +17,22 @@ export class ApiTokenThrottlerGuard extends ThrottlerGuard {
 
   protected async getTracker(req: Record<string, any>): Promise<string> {
     const request = req as Request;
-    
+
     // Check for API Token
-    const authHeader = request.headers['authorization'];
-    if (authHeader && typeof authHeader === 'string' && authHeader.startsWith('Bearer sk_')) {
+    const authHeader = request.headers?.['authorization'];
+    if (
+      authHeader &&
+      typeof authHeader === 'string' &&
+      authHeader.startsWith('Bearer sk_')
+    ) {
       return authHeader.split(' ')[1];
     }
 
     // Fallback to IP if no API Token provided
-    return request.ips.length ? request.ips[0] : request.ip;
+    if (Array.isArray(request.ips) && request.ips.length) {
+      return request.ips[0];
+    }
+    return request.ip ?? '127.0.0.1';
   }
 
   protected errorMessage = 'API Rate Limit Exceeded';

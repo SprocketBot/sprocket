@@ -23,7 +23,11 @@ export class AuthenticateService {
     private readonly userRepo: UserRepository,
     private readonly apiTokenService: ApiTokenService,
   ) {
-    this.COOKIE_DOMAIN = `${config.getOrThrow('BASE_URL')}`;
+    const baseUrl = config.getOrThrow<string>('BASE_URL');
+    const url = new URL(
+      baseUrl.includes('://') ? baseUrl : `http://${baseUrl}`,
+    );
+    this.COOKIE_DOMAIN = url.hostname;
   }
 
   private readonly cookieMiddleware =
@@ -32,24 +36,36 @@ export class AuthenticateService {
     this.cookieMiddleware(req as any, null, () => {});
   };
 
-  async getUserFromRequest(req: ExpressRequest | Request): Promise<User | false> {
+  async getUserFromRequest(
+    req: ExpressRequest | Request,
+  ): Promise<User | false> {
     // Check for API Token
     const authHeader = req.headers['authorization'];
-    if (authHeader && typeof authHeader === 'string' && authHeader.startsWith('Bearer sk_')) {
+    if (
+      authHeader &&
+      typeof authHeader === 'string' &&
+      authHeader.startsWith('Bearer ')
+    ) {
       const token = authHeader.split(' ')[1];
-      const apiToken = await this.apiTokenService.validateToken(token);
-      if (apiToken && apiToken.user) {
-         (req as any).apiToken = apiToken;
-         // Should we parse? apiToken.user is UserEntity. User is from @sprocketbot/lib/types
-         // UserSchema expects specific fields. UserEntity implements Omit<User, 'allowedActions'>.
-         // We might need to ensure plain object or use existing manual mapping if present.
-         // parse(UserSchema, apiToken.user) might work if entity matches schema.
-         // Let's assume UserEntity is compatible enough or use parse.
-         const userObj = {
-           ...apiToken.user,
-           avatarUrl: apiToken.user.avatarUrl ?? undefined,
-         };
-         return parse(UserSchema, userObj);
+      // Try as API Token first (sk_)
+      if (token.startsWith('sk_')) {
+        const apiToken = await this.apiTokenService.validateToken(token);
+        if (apiToken && apiToken.user) {
+          (req as any).apiToken = apiToken;
+          const userObj = {
+            ...apiToken.user,
+            avatarUrl: apiToken.user.avatarUrl ?? undefined,
+          };
+          return parse(UserSchema, userObj);
+        }
+      } else {
+        // Try as JWT
+        try {
+          const content = this.jwtService.verify<User>(token);
+          return parse(UserSchema, content);
+        } catch (e) {
+          // Ignore error, fall back to cookies
+        }
       }
     }
 
@@ -98,8 +114,12 @@ export class AuthenticateService {
     });
   }
 
+  getAccessToken(user: User): string {
+    return this.jwtService.sign(parse(UserSchema, user));
+  }
+
   async login(res: Response, user: User): Promise<void> {
-    const token = this.jwtService.sign(parse(UserSchema, user));
+    const token = this.getAccessToken(user);
     res.cookie(this.AUTH_COOKIE_NAME, token, {
       domain: this.COOKIE_DOMAIN,
       httpOnly: true,

@@ -112,7 +112,7 @@ services:
     container_name: sprocket-postgres
     image: postgres:15
     ports:
-      - 5432:5432
+      - 5433:5432
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres

@@ -6,6 +6,7 @@
 	import ScrimList from './ScrimList.svelte';
 
 	export let data: PageData;
+	export let params: any = undefined;
 	$: ({ ScrimPageRoot } = data);
 
 
@@ -33,7 +34,12 @@
 	})
 	</script>
 
-{#if !$ScrimPageRoot.data}
+{#if $ScrimPageRoot.errors}
+	<div class="card p-4 variant-filled-error">
+		<h3 class="h3">Error loading scrims</h3>
+		<pre class="overflow-auto">{JSON.stringify($ScrimPageRoot.errors, null, 2)}</pre>
+	</div>
+{:else if !$ScrimPageRoot.data}
 	Loading...
 {:else if !$ScrimPageRoot.data.whoami.players.length}
 	<section class="card p-4 col-span-full">

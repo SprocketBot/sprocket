@@ -86,10 +86,12 @@ export const houdiniClient = new HoudiniClient({
 		return {
 			credentials: 'include',
 			headers: {
-				...(ctx.session?.token ? {
-					// Pass the token as a cookie (as expected)
-					'Cookie': `sprocket-token=${ctx.session.token}`
-				} : {})
+				...(ctx.session?.token
+					? {
+							// Pass the token as a Bearer token
+							Authorization: `Bearer ${ctx.session.token}`
+						}
+					: {})
 			}
 		};
 	}

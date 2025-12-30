@@ -12,7 +12,7 @@ async function genSdl() {
   await app.init();
 
   const gqlSchemaFactory = app.get(GraphQLSchemaFactory);
-  const domainDir = path.join(__dirname, 'gql');
+  const domainDir = path.join(__dirname);
   const allFiles = await fs.readdir(domainDir, {
     withFileTypes: true,
     recursive: true,
@@ -35,7 +35,7 @@ async function genSdl() {
 
   const schema = await gqlSchemaFactory.create(entityModules.flat());
   fs.writeFile(
-    path.join(__dirname, '..', '..', 'clients', 'web', 'schema.graphql'),
+    path.join(__dirname, '..', '..', 'clients', 'web', 'schema.gql'),
     printSchema(schema),
   );
 }

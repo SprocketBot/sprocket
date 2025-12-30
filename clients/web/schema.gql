@@ -1,101 +1,16 @@
-# ------------------------------------------------------
-# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
-# ------------------------------------------------------
-
-type Role {
+type Seat {
   id: ID!
+  createdAt: DateTime!
+  updateAt: DateTime!
   name: String!
-  displayName: String!
-  description: String
-  hierarchy: Int!
-  isActive: Boolean!
-  isRestricted: Boolean!
-}
-
-type Permission {
-  role: String!
-  resource: String!
-  action: String!
-  scope: String!
-  effect: String!
-}
-
-type UserRoleAssignment {
-  id: ID!
-  userId: Int!
-  roleId: String!
-  role: Role!
-  scope: String
-  assignedAt: DateTime!
-  assignedById: Float
-  expiresAt: DateTime
-  status: String!
+  description: String!
+  role: LegacyRole!
 }
 
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
-
-type PermissionAuditLog {
-  id: ID!
-  actorId: Float
-  action: String!
-  timestamp: DateTime!
-  reason: String
-}
-
-type ApiToken {
-  id: String!
-  name: String!
-  tokenPrefix: String!
-  scopes: [String!]!
-  expiresAt: DateTime
-  createdAt: DateTime!
-  lastUsedAt: DateTime
-  usageCount: Float!
-  isRevoked: Boolean!
-}
-
-type ApiTokenAndSecret {
-  id: String!
-  name: String!
-  tokenPrefix: String!
-  scopes: [String!]!
-  expiresAt: DateTime
-  createdAt: DateTime!
-  lastUsedAt: DateTime
-  usageCount: Float!
-  isRevoked: Boolean!
-
-  """The full secret token. Only validation once upon creation."""
-  secret: String!
-}
-
-type ScrimParticipant {
-  id: String!
-  checkedIn: Boolean
-  name: String!
-}
-
-type Scrim {
-  participants(admin: Boolean = false): [ScrimParticipant!]
-  participantCount: Int!
-  id: String!
-  authorId: String!
-  gameId: String!
-  skillGroupId: String!
-  gameModeId: String!
-  maxParticipants: Float!
-  state: String!
-  pendingTtl: Float
-  createdAt: DateTime!
-  complete: Boolean!
-  author: User!
-  game: Game!
-  skillGroup: SkillGroup!
-  gameMode: GameMode!
-}
 
 type Player {
   id: ID!
@@ -119,22 +34,11 @@ type User {
   accounts: [UserAuthAccount!]!
 }
 
-type Game {
+type LegacyRole {
   id: ID!
   createdAt: DateTime!
   updateAt: DateTime!
   name: String!
-  skillGroups: [SkillGroup!]!
-  gameModes: [GameMode!]!
-}
-
-type SkillGroup {
-  id: ID!
-  createdAt: DateTime!
-  updateAt: DateTime!
-  name: String!
-  code: String!
-  game: Game!
 }
 
 type GameMode {
@@ -144,6 +48,43 @@ type GameMode {
   name: String!
   playerCount: Float!
   teamSize: Float!
+  game: Game!
+}
+
+type Game {
+  id: ID!
+  createdAt: DateTime!
+  updateAt: DateTime!
+  name: String!
+  skillGroups: [SkillGroup!]!
+  gameModes: [GameMode!]!
+}
+
+type Season {
+  id: ID!
+  createdAt: DateTime!
+  updateAt: DateTime!
+  name: String!
+  slug: String!
+  startDate: DateTime!
+  endDate: DateTime
+  status: SeasonStatus!
+  isActive: Boolean!
+  isOffseason: Boolean!
+}
+
+enum SeasonStatus {
+  UPCOMING
+  ACTIVE
+  COMPLETED
+}
+
+type SkillGroup {
+  id: ID!
+  createdAt: DateTime!
+  updateAt: DateTime!
+  name: String!
+  code: String!
   game: Game!
 }
 
@@ -159,30 +100,33 @@ enum AuthPlatform {
   STEAM
 }
 
-type PlayerQueueStatus {
-  playerId: ID!
-  gameId: ID!
-  skillRating: Int!
-  queuedAt: DateTime!
-  position: Int!
+type FranchiseRole {
+  id: ID!
+  createdAt: DateTime!
+  updateAt: DateTime!
+  user: User!
+  roleType: FranchiseRoleType!
+  assignedAt: DateTime!
+  requiresApproval: Boolean!
 }
 
-type QueueStats {
-  totalQueued: Int!
-  averageWaitTime: Int!
-  gameStats: [GameQueueStats!]!
+enum FranchiseRoleType {
+  MANAGER
+  ASSISTANT_MANAGER
 }
 
-type GameQueueStats {
-  gameId: ID!
-  queuedCount: Int!
-}
-
-type MatchmakingResult {
-  scrimId: ID!
-  playerIds: [ID!]!
-  gameId: ID!
-  skillRating: Int!
+type Franchise {
+  id: ID!
+  createdAt: DateTime!
+  updateAt: DateTime!
+  name: String!
+  slug: String!
+  description: String
+  logoUrl: String
+  primaryColor: String
+  isActive: Boolean!
+  clubs: [Club!]!
+  roles: [FranchiseRole!]!
 }
 
 type TeamRole {
@@ -259,33 +203,103 @@ type Club {
   roles: [ClubRole!]!
 }
 
-type FranchiseRole {
+type Role {
   id: ID!
-  createdAt: DateTime!
-  updateAt: DateTime!
-  user: User!
-  roleType: FranchiseRoleType!
-  assignedAt: DateTime!
-  requiresApproval: Boolean!
-}
-
-enum FranchiseRoleType {
-  MANAGER
-  ASSISTANT_MANAGER
-}
-
-type Franchise {
-  id: ID!
-  createdAt: DateTime!
-  updateAt: DateTime!
   name: String!
-  slug: String!
+  displayName: String!
   description: String
-  logoUrl: String
-  primaryColor: String
+  hierarchy: Int!
   isActive: Boolean!
-  clubs: [Club!]!
-  roles: [FranchiseRole!]!
+  isRestricted: Boolean!
+}
+
+type Permission {
+  role: String!
+  resource: String!
+  action: String!
+  scope: String!
+  effect: String!
+}
+
+type UserRoleAssignment {
+  id: ID!
+  userId: Int!
+  roleId: String!
+  role: Role!
+  scope: String
+  assignedAt: DateTime!
+  assignedById: Float
+  expiresAt: DateTime
+  status: String!
+}
+
+type PermissionAuditLog {
+  id: ID!
+  actorId: Float
+  action: String!
+  timestamp: DateTime!
+  reason: String
+}
+
+type PlayerQueueStatus {
+  playerId: ID!
+  gameId: ID!
+  skillRating: Int!
+  queuedAt: DateTime!
+  position: Int!
+}
+
+type QueueStats {
+  totalQueued: Int!
+  averageWaitTime: Int!
+  gameStats: [GameQueueStats!]!
+}
+
+type GameQueueStats {
+  gameId: ID!
+  queuedCount: Int!
+}
+
+type MatchmakingResult {
+  scrimId: ID!
+  playerIds: [ID!]!
+  gameId: ID!
+  skillRating: Int!
+}
+
+type ScrimParticipant {
+  id: String!
+  checkedIn: Boolean
+  name: String!
+}
+
+type Scrim {
+  participants(admin: Boolean = false): [ScrimParticipant!]
+  participantCount: Int!
+  id: String!
+  authorId: String!
+  gameId: String!
+  skillGroupId: String!
+  gameModeId: String!
+  maxParticipants: Float!
+  state: ScrimState!
+  pendingTtl: Float
+  createdAt: DateTime!
+  complete: Boolean!
+  author: User!
+  game: Game!
+  skillGroup: SkillGroup!
+  gameMode: GameMode!
+}
+
+enum ScrimState {
+  PENDING
+  POPPED
+  IN_PROGRESS
+  RATIFYING
+  COMPLETE
+  LOCKED
+  CANCELLED
 }
 
 type PlayerStat {
@@ -554,41 +568,34 @@ type Fixture {
   awayFranchise: Franchise!
 }
 
-type Season {
-  id: ID!
-  createdAt: DateTime!
-  updateAt: DateTime!
+type ApiToken {
+  id: String!
   name: String!
-  slug: String!
-  startDate: DateTime!
-  endDate: DateTime
-  status: SeasonStatus!
-  isActive: Boolean!
-  isOffseason: Boolean!
+  tokenPrefix: String!
+  scopes: [String!]!
+  expiresAt: DateTime
+  createdAt: DateTime!
+  lastUsedAt: DateTime
+  usageCount: Float!
+  isRevoked: Boolean!
 }
 
-enum SeasonStatus {
-  UPCOMING
-  ACTIVE
-  COMPLETED
+type ApiTokenAndSecret {
+  id: String!
+  name: String!
+  tokenPrefix: String!
+  scopes: [String!]!
+  expiresAt: DateTime
+  createdAt: DateTime!
+  lastUsedAt: DateTime
+  usageCount: Float!
+  isRevoked: Boolean!
+
+  """The full secret token. Only validation once upon creation."""
+  secret: String!
 }
 
 type Query {
-  getMyApiTokens: [ApiToken!]!
-  getAvailableScopes: [String!]!
-  roles: [Role!]!
-  role(name: String!): Role
-  rolePermissions(role: String!): [Permission!]!
-  permissionAuditLogs: [PermissionAuditLog!]!
-  pendingScrims(admin: Boolean = false, query: ListScrimsInput): [Scrim!]!
-  allScrims(query: ListScrimsInput): [Scrim!]!
-  currentScrim: Scrim
-  whoami: User!
-  users(query: FindUserInput!): [User!]!
-  games: [Game!]!
-  allSkillGroups: [SkillGroup!]!
-  getQueueStatus: PlayerQueueStatus
-  getQueueStats(gameId: String): QueueStats!
   getMatchById(id: String!): Match
   getMatchSubmissionById(id: String!): MatchSubmission
   getRoundById(id: String!): Round
@@ -605,20 +612,35 @@ type Query {
   getNotificationHistoryById(id: String!): NotificationHistory
   getNotificationTemplateById(id: String!): NotificationTemplate
   getFixtureById(id: String!): Fixture
-  seasons: [Season!]!
-  season(id: String!): Season!
-  franchise(id: String!): Franchise!
-  franchises: [Franchise!]!
   club(id: String!): Club!
   clubs: [Club!]!
+  roles: [Role!]!
+  role(name: String!): Role
+  rolePermissions(role: String!): [Permission!]!
+  permissionAuditLogs: [PermissionAuditLog!]!
+  seasons: [Season!]!
+  season(id: String!): Season!
+  games: [Game!]!
+  franchise(id: String!): Franchise!
+  franchises: [Franchise!]!
+  allSkillGroups: [SkillGroup!]!
+  pendingScrims(admin: Boolean = false, query: ListScrimsInput): [Scrim!]!
+  allScrims(query: ListScrimsInput): [Scrim!]!
+  currentScrim: Scrim
+  whoami: User!
+  users(query: FindUserInput!): [User!]!
   team(id: String!): Team!
   teams: [Team!]!
+  getMyApiTokens: [ApiToken!]!
+  getAvailableScopes: [String!]!
+  getQueueStatus: PlayerQueueStatus
+  getQueueStats(gameId: String): QueueStats!
 }
 
 input ListScrimsInput {
   gameId: String
   skillGroupid: String
-  state: String
+  state: ScrimState
 }
 
 input FindUserInput {
@@ -637,25 +659,38 @@ input FuzzyString {
 }
 
 type Mutation {
-  generateApiToken(name: String!, scopes: [String!]!, expiresAt: DateTime): ApiTokenAndSecret!
-  revokeApiToken(tokenId: String!): Boolean!
+  createPlayer(data: CreatePlayerInput!): Player!
+  updatePlayer(data: UpdatePlayerInput!): Player!
+  deletePlayer(playerId: String!): Player!
   createRole(name: String!, displayName: String!, description: String, hierarchy: Int! = 0): Role!
   addPermissionToRole(role: String!, resource: String!, action: String!, scope: String! = "all"): Boolean!
   removePermissionFromRole(role: String!, resource: String!, action: String!, scope: String! = "all"): Boolean!
   assignRoleToUser(userId: Int!, role: String!, scope: String): UserRoleAssignment!
   revokeRoleFromUser(userId: Int!, role: String!): Boolean!
+  addPlayerToRoster(teamId: String!, playerId: String!): RosterSpot!
   createScrim(payload: CreateScrimInput!): Scrim!
   destroyScrim(payload: DestroyScrimInput!): Scrim!
   joinScrim(scrimId: String!): Scrim!
   leaveScrim: Scrim!
   alterUserActiveStatus(active: Boolean!, userId: String!): User!
-  createPlayer(data: CreatePlayerInput!): Player!
-  updatePlayer(data: UpdatePlayerInput!): Player!
-  deletePlayer(playerId: String!): Player!
+  generateApiToken(name: String!, scopes: [String!]!, expiresAt: DateTime): ApiTokenAndSecret!
+  revokeApiToken(tokenId: String!): Boolean!
   joinQueue(gameId: String!, skillRating: Int!): Boolean!
   leaveQueue: Boolean!
   processMatchmaking: [MatchmakingResult!]!
-  addPlayerToRoster(teamId: String!, playerId: String!): RosterSpot!
+}
+
+input CreatePlayerInput {
+  userId: String!
+  gameId: String!
+  skillGroupId: String!
+  salary: String!
+}
+
+input UpdatePlayerInput {
+  playerId: String!
+  destinationSkillGroupId: String
+  destinationSalary: String
 }
 
 input CreateScrimInput {
@@ -671,19 +706,6 @@ input CreateScrimInputOptions {
 
 input DestroyScrimInput {
   scrimId: String!
-}
-
-input CreatePlayerInput {
-  userId: String!
-  gameId: String!
-  skillGroupId: String!
-  salary: String!
-}
-
-input UpdatePlayerInput {
-  playerId: String!
-  destinationSkillGroupId: String
-  destinationSalary: String
 }
 
 type Subscription {

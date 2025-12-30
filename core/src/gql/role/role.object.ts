@@ -1,8 +1,8 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { BaseObject } from '../base.object';
 
-@ObjectType('Role')
+@ObjectType('LegacyRole')
 export class RoleObject extends BaseObject {
-	@Field()
-	name: string;
+  @Field()
+  name: string;
 }
