@@ -223,10 +223,10 @@ async updateMemberAndPlayerIds(
 
       const mlePlayerId = player.id;
 
-      // 5. Update MLE_PlayerAccount: set player_id where platform_id = platformId
+      // 5. Update MLE_PlayerAccount: set playerId where platformId (in DB) = platformId (from user)
       await manager.update(
         MLE_PlayerAccount,
-        { platform_id: platformId },
+        { platformId: platformId },
         { player: { id: mlePlayerId } }, 
       );
 
