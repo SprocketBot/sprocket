@@ -211,14 +211,14 @@ async updateMemberAndPlayerIds(
         throw new Error(`Auth account for userId ${sprocketUserId} not found`);
       }
 
-      const discordId = authAccount.accountId;
+      const discord_id = authAccount.accountId;
 
       // 4. Get 'id' from MLE_Player where discord_id = accountId
       const player = await manager.findOne(MLE_Player, {
-        where: { discord_id: discordId } as any,
+        where: { discordId: discord_id } as any,
       });
       if (!player) {
-        throw new Error(`MLE Player with discord_id ${discordId} not found`);
+        throw new Error(`MLE Player with discord_id ${discord_id} not found`);
       }
 
       const mlePlayerId = player.id;
@@ -227,7 +227,7 @@ async updateMemberAndPlayerIds(
       await manager.update(
         MLE_PlayerAccount,
         { platform_id: platformId },
-        { player: { id: mlePlayerId } },
+        { player: { id: mlePlayerId } }, 
       );
 
       return {
