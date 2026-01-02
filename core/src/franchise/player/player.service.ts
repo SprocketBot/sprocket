@@ -64,7 +64,6 @@ export class PlayerService {
   private readonly logger = new Logger(PlayerService.name);
 
   constructor(
-
     @InjectRepository(Player) private playerRepository: Repository<Player>,
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(UserProfile)
@@ -92,7 +91,7 @@ export class PlayerService {
     private readonly eloConnectorService: EloConnectorService,
     private readonly platformService: PlatformService,
     private readonly analyticsService: AnalyticsService
-  ) { }
+  ) {}
 
   async getPlayer(query: FindOneOptions<Player>): Promise<Player> {
     this.logger.debug(`getPlayer: ${JSON.stringify(query)}`);
@@ -248,7 +247,8 @@ export class PlayerService {
       return player;
     } catch (error) {
       this.logger.error(
-        `Failed to create player: ${error instanceof Error ? error.message : String(error)
+        `Failed to create player: ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
       throw error;
@@ -567,9 +567,17 @@ export class PlayerService {
 
   async saveSalaries(payload: SalaryPayloadItem[][]): Promise<void> {
     const totalPlayers = payload.flat().length;
-    const playersWithRankouts = payload.flat().filter(p => p.rankout).length;
-    const hardRankouts = payload.flat().filter(p => p.rankout?.degreeOfStiffness === DegreeOfStiffness.HARD).length;
-    const softRankouts = payload.flat().filter(p => p.rankout?.degreeOfStiffness === DegreeOfStiffness.SOFT).length;
+    const playersWithRankouts = payload.flat().filter((p) => p.rankout).length;
+    const hardRankouts = payload
+      .flat()
+      .filter(
+        (p) => p.rankout?.degreeOfStiffness === DegreeOfStiffness.HARD
+      ).length;
+    const softRankouts = payload
+      .flat()
+      .filter(
+        (p) => p.rankout?.degreeOfStiffness === DegreeOfStiffness.SOFT
+      ).length;
 
     this.logger.log(
       `saveSalaries: Processing ${totalPlayers} players (${playersWithRankouts} with rankouts: ${hardRankouts} HARD, ${softRankouts} SOFT)`
@@ -614,28 +622,42 @@ export class PlayerService {
 
             this.logger.debug(
               `Player ${playerDelta.playerId} (${player.member.profile.name}): ` +
-              `Current: salary=${player.salary}, skillGroup=${player.skillGroup.profile.description} (cap=${player.skillGroup.salaryCap}), ` +
-              `New: salary=${playerDelta.newSalary}${playerDelta.rankout ? `, rankout=${playerDelta.rankout.skillGroupChange} (${playerDelta.rankout.degreeOfStiffness}) to salary=${playerDelta.rankout.salary}` : ''}, ` +
-              `Team: ${mlePlayer.teamName}`
+                `Current: salary=${player.salary}, skillGroup=${player.skillGroup.profile.description} (cap=${player.skillGroup.salaryCap}), ` +
+                `New: salary=${playerDelta.newSalary}${
+                  playerDelta.rankout
+                    ? `, rankout=${playerDelta.rankout.skillGroupChange} (${playerDelta.rankout.degreeOfStiffness}) to salary=${playerDelta.rankout.salary}`
+                    : ""
+                }, ` +
+                `Team: ${mlePlayer.teamName}`
             );
 
             if (mlePlayer.teamName === "FP") {
-              this.logger.debug(`Player ${playerDelta.playerId}: Skipping (Free Player)`);
+              this.logger.debug(
+                `Player ${playerDelta.playerId}: Skipping (Free Player)`
+              );
               skippedFP++;
               return;
             }
-            if (!playerDelta.rankout && player.salary === playerDelta.newSalary) {
-              this.logger.debug(`Player ${playerDelta.playerId}: Skipping (No change)`);
+            if (
+              !playerDelta.rankout &&
+              player.salary === playerDelta.newSalary
+            ) {
+              this.logger.debug(
+                `Player ${playerDelta.playerId}: Skipping (No change)`
+              );
               skippedNoChange++;
               return;
             }
 
             // Log potential issues
-            if (!playerDelta.rankout && playerDelta.newSalary > player.skillGroup.salaryCap) {
+            if (
+              !playerDelta.rankout &&
+              playerDelta.newSalary > player.skillGroup.salaryCap
+            ) {
               this.logger.warn(
                 `Player ${playerDelta.playerId} (${player.member.profile.name}): ` +
-                `NEW SALARY ${playerDelta.newSalary} EXCEEDS SKILL GROUP CAP ${player.skillGroup.salaryCap} ` +
-                `for ${player.skillGroup.profile.description} BUT NO RANKOUT PROVIDED!`
+                  `NEW SALARY ${playerDelta.newSalary} EXCEEDS SKILL GROUP CAP ${player.skillGroup.salaryCap} ` +
+                  `for ${player.skillGroup.profile.description} BUT NO RANKOUT PROVIDED!`
               );
               salaryCapViolations++;
             }
@@ -659,8 +681,8 @@ export class PlayerService {
               ) {
                 this.logger.log(
                   `Player ${playerDelta.playerId} (${player.member.profile.name}): ` +
-                  `Processing HARD rankout ${playerDelta.rankout.skillGroupChange} ` +
-                  `from ${player.skillGroup.profile.description} with salary ${playerDelta.rankout.salary}`
+                    `Processing HARD rankout ${playerDelta.rankout.skillGroupChange} ` +
+                    `from ${player.skillGroup.profile.description} with salary ${playerDelta.rankout.salary}`
                 );
                 hardRankoutsProcessed++;
 
@@ -676,7 +698,7 @@ export class PlayerService {
                       ordinal:
                         player.skillGroup.ordinal -
                         (playerDelta.rankout.skillGroupChange ===
-                          SkillGroupDelta.UP
+                        SkillGroupDelta.UP
                           ? 1
                           : -1),
                     },
@@ -689,7 +711,7 @@ export class PlayerService {
 
                 this.logger.log(
                   `Player ${playerDelta.playerId}: Moving to ${skillGroup.profile.description} ` +
-                  `(ordinal ${skillGroup.ordinal}, cap ${skillGroup.salaryCap})`
+                    `(ordinal ${skillGroup.ordinal}, cap ${skillGroup.salaryCap})`
                 );
 
                 await this.updatePlayerStanding(
@@ -751,8 +773,8 @@ export class PlayerService {
               ) {
                 this.logger.log(
                   `Player ${playerDelta.playerId} (${player.member.profile.name}): ` +
-                  `Processing SOFT rankout ${playerDelta.rankout.skillGroupChange} - ` +
-                  `setting salary to ${playerDelta.newSalary}, offering rankout to ${playerDelta.rankout.salary}`
+                    `Processing SOFT rankout ${playerDelta.rankout.skillGroupChange} - ` +
+                    `setting salary to ${playerDelta.newSalary}, offering rankout to ${playerDelta.rankout.salary}`
                 );
                 softRankoutsProcessed++;
 
@@ -773,7 +795,7 @@ export class PlayerService {
                       ordinal:
                         player.skillGroup.ordinal -
                         (playerDelta.rankout.skillGroupChange ===
-                          SkillGroupDelta.UP
+                        SkillGroupDelta.UP
                           ? 1
                           : -1),
                     },
@@ -786,8 +808,8 @@ export class PlayerService {
 
                 this.logger.log(
                   `Player ${playerDelta.playerId}: Offering rankout to ${skillGroup.profile.description} ` +
-                  `(ordinal ${skillGroup.ordinal}, cap ${skillGroup.salaryCap}) at salary ${playerDelta.rankout.salary}. ` +
-                  `Player stays in ${player.skillGroup.profile.description} with salary ${playerDelta.newSalary} until accepted.`
+                    `(ordinal ${skillGroup.ordinal}, cap ${skillGroup.salaryCap}) at salary ${playerDelta.rankout.salary}. ` +
+                    `Player stays in ${player.skillGroup.profile.description} with salary ${playerDelta.newSalary} until accepted.`
                 );
 
                 /* TEMPORARY NOTIFICATION */
@@ -932,8 +954,8 @@ export class PlayerService {
             } else {
               this.logger.log(
                 `Player ${playerDelta.playerId} (${player.member.profile.name}): ` +
-                `No rankout - updating salary from ${player.salary} to ${playerDelta.newSalary} ` +
-                `in ${player.skillGroup.profile.description}`
+                  `No rankout - updating salary from ${player.salary} to ${playerDelta.newSalary} ` +
+                  `in ${player.skillGroup.profile.description}`
               );
               regularUpdates++;
 
@@ -956,7 +978,9 @@ export class PlayerService {
       )
     );
 
-    this.logger.log(`saveSalaries: Completed processing ${totalPlayers} players`);
+    this.logger.log(
+      `saveSalaries: Completed processing ${totalPlayers} players`
+    );
 
     // Emit metrics
     await this.analyticsService.send(AnalyticsEndpoint.Analytics, {
@@ -973,7 +997,9 @@ export class PlayerService {
     });
 
     if (salaryCapViolations > 0) {
-      this.logger.warn(`CRITICAL: ${salaryCapViolations} salary cap violations detected!`);
+      this.logger.warn(
+        `CRITICAL: ${salaryCapViolations} salary cap violations detected!`
+      );
     }
   }
 
@@ -1256,7 +1282,8 @@ export class PlayerService {
       );
     } catch (e) {
       this.logger.error(
-        `Failed to find MLE organization: ${e instanceof Error ? e.message : String(e)
+        `Failed to find MLE organization: ${
+          e instanceof Error ? e.message : String(e)
         }`
       );
       throw e;
@@ -1272,7 +1299,8 @@ export class PlayerService {
       this.logger.log(`Started database transaction`);
     } catch (e) {
       this.logger.error(
-        `Failed to start transaction: ${e instanceof Error ? e.message : String(e)
+        `Failed to start transaction: ${
+          e instanceof Error ? e.message : String(e)
         }`
       );
       throw e;
@@ -1301,7 +1329,8 @@ export class PlayerService {
 
       if (user) {
         this.logger.log(
-          `Found existing user: id=${user.id}, displayName=${user.profile?.displayName || "N/A"
+          `Found existing user: id=${user.id}, displayName=${
+            user.profile?.displayName || "N/A"
           }`
         );
         this.logger.log(`User has ${user.members?.length || 0} members`);
@@ -1443,7 +1472,8 @@ export class PlayerService {
       for (let i = 0; i < ptl.length; i++) {
         const pt = ptl[i];
         this.logger.log(
-          `Processing player tuple ${i + 1}/${ptl.length}: skillGroupId=${pt.gameSkillGroupId
+          `Processing player tuple ${i + 1}/${ptl.length}: skillGroupId=${
+            pt.gameSkillGroupId
           }, salary=${pt.salary}`
         );
 
@@ -1500,9 +1530,10 @@ export class PlayerService {
           playersCreated++;
         } catch (playerError) {
           this.logger.error(
-            `Failed to create player for tuple ${i + 1}: ${playerError instanceof Error
-              ? playerError.message
-              : String(playerError)
+            `Failed to create player for tuple ${i + 1}: ${
+              playerError instanceof Error
+                ? playerError.message
+                : String(playerError)
             }`
           );
           throw playerError;
@@ -1606,12 +1637,14 @@ export class PlayerService {
 
   async changePlayerName(mleid: number, newName: string): Promise<void> {
     this.logger.debug(`changePlayerName: mleid=${mleid}, newName=${newName}`);
+    // Update name in legacy mledb
     const mlePlayer = await this.mle_playerRepository.findOneOrFail({
       where: { mleid },
     });
     mlePlayer.name = newName;
     await this.mle_playerRepository.save(mlePlayer);
 
+    // Update name in Sprocket "user_profile"
     const uaa = await this.userAuthRepository.findOneOrFail({
       where: {
         accountId: mlePlayer.discordId ?? "",
@@ -1627,5 +1660,13 @@ export class PlayerService {
       { user: { id: uaa.user.id } },
       { displayName: newName }
     );
+
+    // Update name in Sprocket "member_profile"
+    const member = await this.memberRepository.findOneOrFail({
+      where: { userId: { id: uaa.user.id } },
+      relations: { profile: true },
+    });
+    member.profile.name = newName;
+    await this.memberProfileRepository.save(member.profile);
   }
 }
