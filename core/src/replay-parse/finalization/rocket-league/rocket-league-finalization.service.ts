@@ -313,7 +313,7 @@ export class RocketLeagueFinalizationService {
         const output = em.create(EligibilityData);
         output.matchParent = matchParent;
         output.player = player;
-        output.points = Math.floor(gameCount * 5 / 3);
+        output.points = 3;
         return output;
     }
 
