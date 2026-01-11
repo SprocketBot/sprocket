@@ -25,6 +25,18 @@ export class ScrimController {
         return this.scrimService.createScrim(data);
     }
 
+    @MessagePattern(MatchmakingEndpoint.CreateLFSScrim)
+    async createLFSScrim(@Payload() payload: unknown): Promise<Scrim> {
+        const data = MatchmakingSchemas.CreateLFSScrim.input.parse(payload);
+        return this.scrimService.createLFSScrim(data);
+    }
+    
+    @MessagePattern(MatchmakingEndpoint.UpdateLFSScrimPlayers)
+    async updateLFSScrimPlayers(@Payload() payload: unknown): Promise<boolean> {
+        const data = MatchmakingSchemas.UpdateLFSScrimPlayers.input.parse(payload);
+        return this.scrimService.updateLFSScrimPlayers(data);
+    }
+
     @MessagePattern(MatchmakingEndpoint.GetAllScrims)
     async getAllScrims(@Payload() payload: unknown): Promise<Scrim[]> {
         const data = MatchmakingSchemas.GetAllScrims.input.parse(payload);

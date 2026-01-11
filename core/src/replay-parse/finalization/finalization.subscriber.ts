@@ -14,7 +14,9 @@ import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
 import {MatchService} from "../../scheduling";
 import {ScrimService} from "../../scrim";
 import {ReplayParseService} from "../replay-parse.service";
-import type {MatchReplaySubmission, ScrimReplaySubmission} from "../types";
+import type {
+    LFSReplaySubmission, MatchReplaySubmission, ScrimReplaySubmission,
+} from "../types";
 import {RocketLeagueFinalizationService} from "./rocket-league/rocket-league-finalization.service";
 
 @Injectable()
@@ -44,6 +46,9 @@ export class FinalizationSubscriber {
                 } else if (submission.type === ReplaySubmissionType.SCRIM) {
                     const scrim = await this.scrimService.getScrimBySubmissionId(payload.submissionId);
                     await this.onScrimComplete(submission as ScrimReplaySubmission, payload.submissionId, scrim!);
+                } else if (submission.type === ReplaySubmissionType.LFS) {
+                    const scrim = await this.scrimService.getScrimBySubmissionId(payload.submissionId);
+                    await this.onLFSComplete(submission as LFSReplaySubmission, payload.submissionId, scrim!);
                 }
             });
         })
@@ -58,6 +63,40 @@ export class FinalizationSubscriber {
             }
 
             const {scrim: savedScrim, legacyScrim} = await this.rocketLeagueFinalizationService.finalizeScrim(submission, scrim).catch(async e => {
+                const issueId = uuidv4();
+                await this.replayParseService.rejectSubmissionBySystem(submission.id, `Failed to save scrim. Please contact support with this issue id: ${issueId}`);
+                this.logger.error(`Issue saving scrim: ${issueId}`, e);
+                throw e;
+            });
+
+            // const result = await this.finalizationService.saveScrimToDatabase(submission, submissionId, scrim);
+            await this.submissionService.send(SubmissionEndpoint.RemoveSubmission, {submissionId});
+            await this.eventsService.publish(EventTopic.ScrimSaved, {
+                ...scrim,
+                databaseIds: {
+                    id: savedScrim.id,
+                    legacyId: legacyScrim.id,
+                },
+            });
+
+            if (!scrim.settings.competitive) return;
+            const eloPayload = await this.matchService.translatePayload(savedScrim.parent.match.id, true);
+            await this.eloConnectorService.createJob(EloEndpoint.CalculateEloForMatch, eloPayload);
+        } catch (_e) {
+            const e = _e as Error;
+            this.logger.warn(e.message, e.stack);
+        }
+    };
+
+    onLFSComplete = async (submission: LFSReplaySubmission, submissionId: string, scrim: Scrim): Promise<void> => {
+        this.logger.debug("Fired onLFSScrimComplete");
+        try {
+            if (!submission.validated) {
+                this.logger.warn("Attempted to finalize scrim that did not have validated submission");
+                return;
+            }
+
+            const {scrim: savedScrim, legacyScrim} = await this.rocketLeagueFinalizationService.finalizeLFS(submission, scrim).catch(async e => {
                 const issueId = uuidv4();
                 await this.replayParseService.rejectSubmissionBySystem(submission.id, `Failed to save scrim. Please contact support with this issue id: ${issueId}`);
                 this.logger.error(`Issue saving scrim: ${issueId}`, e);

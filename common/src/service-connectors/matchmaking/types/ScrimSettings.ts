@@ -8,6 +8,7 @@ export const ScrimSettingsSchema = z.object({
     mode: z.nativeEnum(ScrimMode),
     competitive: z.boolean(),
     observable: z.boolean(),
+    lfs: z.boolean().default(false),
     checkinTimeout: z.number(),
 });
 

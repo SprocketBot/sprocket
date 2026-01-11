@@ -5,6 +5,7 @@ import type {ReplaySubmissionStats} from "./replay-submission-stats";
 export enum ReplaySubmissionType {
     MATCH = "MATCH",
     SCRIM = "SCRIM",
+    LFS = "LFS",
 }
 
 export enum ReplaySubmissionStatus {
@@ -41,4 +42,9 @@ export interface MatchReplaySubmission extends BaseReplaySubmission {
     matchId: number;
 }
 
-export type ReplaySubmission = ScrimReplaySubmission | MatchReplaySubmission;
+export interface LFSReplaySubmission extends BaseReplaySubmission {
+    type: ReplaySubmissionType.LFS;
+    scrimId: string;
+}
+
+export type ReplaySubmission = ScrimReplaySubmission | MatchReplaySubmission | LFSReplaySubmission;

@@ -1,5 +1,6 @@
 import {Injectable} from "@nestjs/common";
 import type {
+    LFSReplaySubmission,
     MatchReplaySubmission,
     ReplaySubmission,
     ScrimReplaySubmission,
@@ -47,6 +48,9 @@ export class SubmissionService extends SprocketEventMarshal {
             case ReplaySubmissionType.SCRIM:
                 await this.sendScrimSubmissionRatifyingNotifications(submission);
                 break;
+            case ReplaySubmissionType.LFS:
+                await this.sendScrimSubmissionRatifyingNotifications(submission);
+                break;
             default:
                 this.logger.error("Submission type has not been implemented");
         }
@@ -68,10 +72,11 @@ export class SubmissionService extends SprocketEventMarshal {
         }
     }
 
-    async sendScrimSubmissionRatifyingNotifications(submission: ScrimReplaySubmission): Promise<void> {
+    async sendScrimSubmissionRatifyingNotifications(submission: ScrimReplaySubmission | LFSReplaySubmission): Promise<void> {
         const scrimResult = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, submission.scrimId);
         if (scrimResult.status === ResponseStatus.ERROR) throw scrimResult.error;
         
+        const isLFS = submission.type === ReplaySubmissionType.LFS;
         const scrim = scrimResult.data;
         if (!scrim) throw new Error("Scrim does not exist");
         
@@ -87,7 +92,7 @@ export class SubmissionService extends SprocketEventMarshal {
                 payload: {
                     embeds: [ {
                         title: "Your scrim is ready for ratification!",
-                        description: `Hey, ${p.name}! The replays uploaded for your ${organizationBrandingResult.data.name} scrim have finished processing and are ready to be ratified. Verify they are correct and ratify them [here](${config.web.url}/scrims).`,
+                        description: `Hey, ${p.name}! The replays uploaded for your ${organizationBrandingResult.data.name} ${isLFS ? "LFS " : ""}scrim have finished processing and are ready to be ratified. Verify they are correct and ratify them [here](${config.web.url}/scrims).`,
                         author: {
                             name: `${organizationBrandingResult.data.name} Scrims`,
                         },

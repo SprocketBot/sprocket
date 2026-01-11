@@ -25,4 +25,9 @@ const MatchSubmission = BaseSubmission.extend({
     matchId: z.number(),
 });
 
-export const SubmissionSchema = z.union([ScrimSubmission, MatchSubmission]);
+const LFSSubmission = BaseSubmission.extend({
+    type: z.literal(ReplaySubmissionType.LFS),
+    scrimId: z.string(),
+});
+
+export const SubmissionSchema = z.union([ScrimSubmission, MatchSubmission, LFSSubmission]);

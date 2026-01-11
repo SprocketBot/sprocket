@@ -33,11 +33,13 @@ import {
 import { GameSkillGroupService } from "../../franchise";
 import { GameModeService } from "../../game";
 import { UserService } from "../../identity";
-import type { MatchReplaySubmission, ScrimReplaySubmission } from "../../replay-parse";
 import { SprocketRatingService } from "../../sprocket-rating/sprocket-rating.service";
 import { MledbMatchService } from "../mledb-match/mledb-match.service";
 import { assignPlayerStats } from "./assign-player-stats";
 import { ballchasingMapLookup } from "./ballchasing-maps";
+import type {
+  LFSReplaySubmission, MatchReplaySubmission, ScrimReplaySubmission,
+} from "../../replay-parse";
 
 @Injectable()
 export class MledbFinalizationService {
@@ -106,7 +108,7 @@ export class MledbFinalizationService {
     return series;
   }
 
-  async saveScrim(submission: ScrimReplaySubmission, submissionId: string, em: EntityManager, scrimObject: Scrim): Promise<MLE_Scrim> {
+  async saveScrim(submission: ScrimReplaySubmission | LFSReplaySubmission, submissionId: string, em: EntityManager, scrimObject: Scrim): Promise<MLE_Scrim> {
     // const mode = scrimObject.settings.teamSize === 2 ? LegacyGameMode.DOUBLES : LegacyGameMode.STANDARD;
     const { mode, group } = await this.getLeagueAndMode(scrimObject);
     const scrim = em.create(MLE_Scrim);
@@ -319,3 +321,4 @@ export class MledbFinalizationService {
     return playerAccount.player;
   }
 }
+

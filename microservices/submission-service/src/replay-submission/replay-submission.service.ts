@@ -6,7 +6,6 @@ import {
     CeleryService,
     EventsService,
     EventTopic,
-    MinioService,
     ProgressStatus,
     REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
     ReplaySubmissionStatus,
@@ -27,7 +26,6 @@ export class ReplaySubmissionService {
 
     constructor(
         private readonly submissionCrudService: ReplaySubmissionCrudService,
-        private readonly minioService: MinioService,
         private readonly celeryService: CeleryService,
         private readonly eventsService: EventsService,
         @Inject(forwardRef(() => ReplayParseSubscriber))
@@ -84,6 +82,7 @@ export class ReplaySubmissionService {
                     taskId: taskId,
                     progressQueue: submissionId,
                     cb: async (_taskId, result, error) => {
+                        this.logger.debug(`Replay Parse Service returned taskId '${_taskId}' with result '${JSON.stringify(result)}' and error '${error}'`);
                         const item = (
                             await this.submissionCrudService.getSubmissionItems(submissionId)
                         ).find(i => i.taskId === _taskId);
@@ -107,6 +106,7 @@ export class ReplaySubmissionService {
                                 value: 100,
                             };
                         } else {
+                            this.logger.debug(`${_taskId} - Replay parsed successfully.`);
                             item.progress = {
                                 status: ProgressStatus.Complete,
                                 taskId: _taskId,
@@ -120,6 +120,7 @@ export class ReplaySubmissionService {
                             item.outputPath = result!.outputPath;
                         }
                         await this.submissionCrudService.upsertItem(submissionId, item);
+                        this.logger.debug(`Submission item updated for taskId '${_taskId}'`);
                         tasks.push({
                             status: item.progress!.status,
                             result: item.progress!.result,
@@ -131,6 +132,7 @@ export class ReplaySubmissionService {
               && tasks.every(t => [ProgressStatus.Complete, ProgressStatus.Error].includes(t.status))
                         ) {
                             // We do be kinda done though.
+                            this.logger.debug(`All tasks complete for submissionId '${submissionId}'`);
                             const submission = await this.submissionCrudService.getSubmission(submissionId);
                             if (!submission) throw new Error("Submission is done, but also does not exist?");
                             await this.completeSubmission(submission, submissionId);
@@ -173,6 +175,7 @@ export class ReplaySubmissionService {
             redisKey: getSubmissionKey(submissionId),
         });
 
+        this.logger.debug(`Validating replay submission ${submissionId}`);
         const valid = await this.replayValidationService.validate(submission);
         if (!valid.valid) {
             await this.submissionCrudService.updateStatus(
@@ -204,6 +207,5 @@ export class ReplaySubmissionService {
             redisKey: getSubmissionKey(submissionId),
             resultPaths: refreshedSubmission.items.map(item => item.outputPath!),
         });
-    // TODO: Expose endpoint to remove submission.
     }
 }

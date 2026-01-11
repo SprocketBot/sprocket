@@ -1,6 +1,7 @@
 export * from "./CancelScrim.schema";
 export * from "./CheckInToScrim.schema";
 export * from "./CompleteScrim.schema";
+export * from "./CreateLFSScrim.schema";
 export * from "./CreateScrim.schema";
 export * from "./GetAllScrims.schema";
 export * from "./GetScrim.schema";
@@ -10,3 +11,4 @@ export * from "./GetScrimMetrics.schema";
 export * from "./JoinScrim.schema";
 export * from "./LeaveScrim.schema";
 export * from "./SetScrimLocked.schema";
+export * from "./UpdateLFSScrimPlayers.schema";

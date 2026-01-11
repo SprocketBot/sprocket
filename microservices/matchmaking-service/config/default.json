@@ -1,6 +1,6 @@
 {
   "transport": {
-    "url": "",
+    "url": "amqp://localhost",
     "matchmaking_queue": "dev-matchmaking",
     "image_generation_queue": "dev-ig",
     "core_queue": "dev-core",
@@ -18,9 +18,8 @@
     "url": "http://localhost:3001"
   },
   "redis": {
-    "port": 0,
-    "host": "",
-    "prefix": "dev"
+    "port": 6379,
+    "host": "localhost",
+    "prefix": "local-"
   }
 }
-  

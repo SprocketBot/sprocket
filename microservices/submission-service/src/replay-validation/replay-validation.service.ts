@@ -2,14 +2,19 @@ import {Injectable, Logger} from "@nestjs/common";
 import type {
     BallchasingResponse,
     GetPlayerSuccessResponse,
+    LFSReplaySubmission,
     MatchReplaySubmission,
     ReplaySubmission,
+    ScrimPlayer,
     ScrimReplaySubmission,
+    UpdateLFSScrimPlayersRequest,
 } from "@sprocketbot/common";
 import {
     config,
     CoreEndpoint,
     CoreService,
+    EventsService,
+    EventTopic,
     MatchmakingEndpoint,
     MatchmakingService,
     MinioService,
@@ -19,6 +24,7 @@ import {
 } from "@sprocketbot/common";
 import {isEqual} from "lodash";
 
+import {getSubmissionKey} from "../utils";
 import type {ValidationError, ValidationResult} from "./types/validation-result";
 import {sortIds} from "./utils";
 
@@ -30,20 +36,208 @@ export class ReplayValidationService {
         private readonly coreService: CoreService,
         private readonly matchmakingService: MatchmakingService,
         private readonly minioService: MinioService,
+        private readonly eventsService: EventsService,
     ) {}
 
     async validate(submission: ReplaySubmission): Promise<ValidationResult> {
         if (submission.type === ReplaySubmissionType.SCRIM) {
             return this.validateScrimSubmission(submission);
+        } else if (submission.type === ReplaySubmissionType.LFS) {
+            return this.validateLFSSubmission(submission);
         }
         return this.validateMatchSubmission(submission);
+    }
+
+    private async validateLFSSubmission(submission: LFSReplaySubmission): Promise<ValidationResult> {
+        this.logger.debug(`Validating LFS submission ${submission.scrimId}`);
+        const scrimResponse = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, submission.scrimId);
+        if (scrimResponse.status === ResponseStatus.ERROR) throw scrimResponse.error;
+        if (!scrimResponse.data) throw new Error("Scrim not found");
+        
+        const scrim = scrimResponse.data;
+        // ========================================
+        // Validate number of games
+        // ========================================
+        if (!scrim.games) {
+            throw new Error(`Unable to validate gameCount for scrim ${scrim.id} because it has no games`);
+        }
+
+        const submissionGameCount = submission.items.length;
+        const scrimGameCount = scrim.games.length;
+
+        if (submissionGameCount !== scrimGameCount) {
+            return {
+                valid: false,
+                errors: [ {
+                    error: `Incorrect number of replays submitted, expected ${scrimGameCount} but found ${submissionGameCount}`,
+                } ],
+            };
+        }
+
+        const gameCount = submissionGameCount;
+
+        const progressErrors = submission.items.reduce<ValidationError[]>((r, v) => {
+            if (v.progress?.error) {
+                this.logger.error(`Error in submission found, scrim=${scrim.id} submissionId=${scrim.submissionId}\n${v.progress.error}`);
+                r.push({
+                    error: `Error encountered while parsing file ${v.originalFilename}`,
+                });
+            }
+            return r;
+        }, []);
+        if (progressErrors.length) {
+            return {
+                valid: false,
+                errors: progressErrors,
+            };
+        }
+
+        // All items should have an outputPath
+        if (!submission.items.every(i => i.outputPath)) {
+            this.logger.error(`Unable to validate submission with missing outputPath, scrim=${scrim.id} submissionId=${scrim.submissionId}`);
+            return {
+                valid: false,
+                errors: [],
+            };
+        }
+
+        // We should have stats for every game
+        const stats = await Promise.all(submission.items.map(async i => this.getStats(i.outputPath!)));
+        if (stats.length !== gameCount) {
+            this.logger.error(`Unable to validate submission missing stats, scrim=${scrim.id} submissionId=${scrim.submissionId}`);
+            return {
+                valid: false,
+                errors: [ {error: "The submission is missing stats. Please contact support."} ],
+            };
+        }
+
+        // Get which gameMode was played
+        const gameResult = await this.coreService.send(CoreEndpoint.GetGameByGameMode, {gameModeId: scrim.gameModeId});
+        if (gameResult.status === ResponseStatus.ERROR) {
+            this.logger.error(`Unable to get game gameMode=${scrim.gameModeId}`);
+            return {
+                valid: false,
+                errors: [ {error: `Failed to find associated game. Please contact support.`} ],
+            };
+        }
+
+        // ========================================
+        // Validate the correct players played
+        // ========================================
+        // Get platformIds from stats
+        // Don't send the same request for multiple players
+        const uniqueBallchasingPlayerIds = Array.from(new Set(stats.flatMap(s => [s.blue, s.orange].flatMap(t => t.players.flatMap(p => ({
+            name: p.name,
+            platform: p.id.platform.toUpperCase(),
+            id: p.id.id,
+        }))))));
+
+        // Look up players by their platformIds
+        const playersResponse = await this.coreService.send(CoreEndpoint.GetPlayersByPlatformIds, uniqueBallchasingPlayerIds.map(bId => ({
+            gameId: gameResult.data.id,
+            platform: bId.platform,
+            platformId: bId.id,
+        })));
+
+        // If we have an error looking up all of the players, submission is invalid
+        if (playersResponse.status === ResponseStatus.ERROR) {
+            this.logger.error(`Unable to validate submission, couldn't find all players by their platformIds`, playersResponse.error);
+            return {
+                valid: false,
+                errors: [ {error: "Failed to find all players by their platform Ids. Please contact support."} ],
+            };
+        }
+
+        // If any of the players were not found, submission is invalid (this
+        // usually happens with unreported accounts)
+        const playerErrors: string[] = [];
+        for (const player of playersResponse.data) {
+            if (!player.success) {
+                playerErrors.push(uniqueBallchasingPlayerIds.find(bcPlayer => bcPlayer.platform === player.request.platform && bcPlayer.id === player.request.platformId)!.name);
+            }
+        }
+        if (playerErrors.length) return {
+            valid: false,
+            errors: [
+                {
+                    error: `One or more players played on an unreported account: ${playerErrors.join(", ")}`,
+                },
+            ],
+        };
+
+        const players = playersResponse.data as GetPlayerSuccessResponse[];
+
+        // Find which players played on which teams
+        // in LFS scrims, these are not set beforehand
+        const uniquePlayers: ScrimPlayer[] = [];
+        const now = new Date();
+        // eslint-disable-next-line no-mixed-operators
+        const thirtyMinutes = new Date(now.getTime() + 1000 * 60 * 30);
+
+        const submissionUserIds: ScrimPlayer[][][] = stats.map(s => [s.blue, s.orange].map(t => t.players.map(sp => {
+            const user = players.find(p => p.request.platform === sp.id.platform.toUpperCase() && p.request.platformId === sp.id.id)!;
+            const scrimPlayer = {
+                id: user.data.userId,
+                name: sp.name,
+                joinedAt: now,
+                leaveAt: thirtyMinutes,
+            };
+            if (!uniquePlayers.find(p => p.id === user.data.userId)) uniquePlayers.push(scrimPlayer);
+            return scrimPlayer;
+        })));
+
+        const requiredUniquePlayers: number = (gameResult.data.mode?.teamCount ?? 0) * (gameResult.data.mode?.teamSize ?? 0);
+        if (uniquePlayers.length !== requiredUniquePlayers) {
+            return {
+                valid: false,
+                errors: [ {
+                    error: `An incorrect number of unique players played in this game. Required: ${requiredUniquePlayers} Found: ${uniquePlayers.length}`,
+                } ],
+            };
+        }
+        const req: UpdateLFSScrimPlayersRequest = {
+            scrimId: submission.scrimId,
+            players: uniquePlayers,
+            games: submissionUserIds,
+        };
+        const scrimUpdateResponse = await this.matchmakingService.send(
+            MatchmakingEndpoint.UpdateLFSScrimPlayers,
+            req,
+        );
+        if (scrimUpdateResponse.status === ResponseStatus.ERROR) throw scrimUpdateResponse.error;
+        if (!scrimUpdateResponse.data) throw new Error("Could not add players to LFS scrim.");
+        await this.eventsService.publish(EventTopic.SubmissionUpdated, {
+            submissionId: submission.id,
+            redisKey: getSubmissionKey(submission.id),
+        });
+
+        // ========================================
+        // Validate players are in the correct skill group if the scrim is competitive
+        // ========================================
+        if (scrim.settings.competitive) for (const player of players) {
+            if (player.data.skillGroupId !== scrim.skillGroupId) {
+                return {
+                    valid: false,
+                    errors: [ {
+                        error: "One of the players isn't in the correct skill group",
+                    } ],
+                };
+            }
+        }
+
+        // ========================================
+        // Submission is valid
+        // ========================================
+        return {
+            valid: true,
+        };
     }
 
     private async validateScrimSubmission(submission: ScrimReplaySubmission): Promise<ValidationResult> {
         const scrimResponse = await this.matchmakingService.send(MatchmakingEndpoint.GetScrim, submission.scrimId);
         if (scrimResponse.status === ResponseStatus.ERROR) throw scrimResponse.error;
         if (!scrimResponse.data) throw new Error("Scrim not found");
-        
+
         const scrim = scrimResponse.data;
 
         // ========================================
@@ -96,9 +290,23 @@ export class ReplayValidationService {
         }
 
         // We should have stats for every game
-        const stats = await Promise.all(submission.items.map(async i => this.getStats(i.outputPath!)));
+        let stats: BallchasingResponse[] = [];
+        try {
+            stats = await Promise.all(submission.items.map(async i => {
+                this.logger.debug(`Getting stats for ${i.outputPath}`);
+                const stat = await this.getStats(i.outputPath!);
+                this.logger.debug(`Got stats for ${i.outputPath}`);
+                return stat;
+            }));
+        } catch (e) {
+            this.logger.error(`Could not get stats from minio, scrim=${scrim.id} submissionId=${scrim.submissionId}. Error: ${e}`);
+            // return {
+            //     valid: false,
+            //     errors: [ {error: "The submission is missing stats. Please contact support."} ],
+            // };
+        }
         if (stats.length !== gameCount) {
-            this.logger.error(`Unable to validate submission missing stats, scrim=${scrim.id} submissionId=${scrim.submissionId}`);
+            this.logger.error(`Unable to validate submission with missing stats, scrim=${scrim.id} submissionId=${scrim.submissionId}`);
             return {
                 valid: false,
                 errors: [ {error: "The submission is missing stats. Please contact support."} ],
@@ -121,7 +329,7 @@ export class ReplayValidationService {
             platform: p.id.platform.toUpperCase(),
             id: p.id.id,
         }))))));
-        
+
         // Look up players by their platformIds
         const playersResponse = await this.coreService.send(CoreEndpoint.GetPlayersByPlatformIds, uniqueBallchasingPlayerIds.map(bId => ({
             gameId: gameResult.data.id,
@@ -135,7 +343,7 @@ export class ReplayValidationService {
                 errors: [ {error: "Failed to find all players by their platform Ids. Please contact support."} ],
             };
         }
-        
+
         const playerErrors: string[] = [];
         for (const player of playersResponse.data) {
             if (!player.success) {
@@ -187,7 +395,7 @@ export class ReplayValidationService {
             }
 
             const scrimGame = sortedScrimPlayerIds[matchupIndex];
-            
+
             for (let t = 0; t < scrim.settings.teamCount; t++) {
                 const scrimTeam = scrimGame[t];
                 const submissionTeam = submissionGame[t];
@@ -272,7 +480,7 @@ export class ReplayValidationService {
             platform: p.id.platform.toUpperCase(),
             id: p.id.id,
         }))))));
-        
+
         // Look up players by their platformIds
         const playersResponse = await this.coreService.send(CoreEndpoint.GetPlayersByPlatformIds, uniqueBallchasingPlayerIds.map(bId => ({
             gameId: gameResult.data.id,
@@ -286,7 +494,7 @@ export class ReplayValidationService {
                 errors: [ {error: "Failed to find all players by their platform Ids. Please contact support."} ],
             };
         }
-        
+
         const playerErrors: string[] = [];
         for (const player of playersResponse.data) {
             if (!player.success) {
@@ -362,6 +570,31 @@ export class ReplayValidationService {
                 });
             }
         }
+
+        // Determine constraints based on gameModeId
+        let minimumUniquePlayers: number;
+        let uniquePlayersLimit: number;
+        let perFilePlayerLimit: number;
+
+        if (match.gameModeId === 13) { // DOUBLES
+            minimumUniquePlayers = 2;
+            uniquePlayersLimit = 3;
+            perFilePlayerLimit = 3;
+        } else if (match.gameModeId === 14) { // STANDARD
+            minimumUniquePlayers = 3;
+            uniquePlayersLimit = 4;
+            perFilePlayerLimit = 4;
+        } else {
+            return {
+                valid: false,
+                errors: [ {error: `Unsupported game mode: ${match.gameModeId}`} ],
+            };
+        }
+
+        // Validate that we have the correct number of players in the submission
+        const validateErrors = this.validateTeams(uniquePlayersLimit, perFilePlayerLimit, minimumUniquePlayers, submission.items);
+        errors.push(...validateErrors);
+
         if (errors.length) {
             return {
                 valid: false, errors: errors,
@@ -372,4 +605,77 @@ export class ReplayValidationService {
             valid: true,
         };
     }
+
+    private validateTeams(
+        uniquePlayersLimit: number,
+        perFilePlayerLimit: number,
+        minimumUniquePlayers: number,
+        items: MatchReplaySubmission["items"],
+    ): ValidationError[] {
+        const errors: ValidationError[] = [];
+        const uniquePlayersPerTeam: Record<string, Set<string>> = {};
+        const substitutionCount: Record<string, number> = {
+            blue: 0,
+            orange: 0,
+        };
+        const maxSubstitutions = 1;
+
+        uniquePlayersPerTeam.blue = new Set();
+        uniquePlayersPerTeam.orange = new Set();
+
+        for (const item of items) {
+            const bluePlayers = item.progress!.result!.data.blue.players.map(p => p.id.id);
+            const orangePlayers = item.progress!.result!.data.orange.players.map(p => p.id.id);
+
+            if (bluePlayers.length > perFilePlayerLimit) {
+                errors.push({
+                    error: `Too many players on blue team in replay ${item.originalFilename}`,
+                });
+            } else if (bluePlayers.length < minimumUniquePlayers) {
+                errors.push({
+                    error: `Not enough players on blue team in replay ${item.originalFilename}`,
+                });
+            }
+            if (orangePlayers.length > perFilePlayerLimit) {
+                errors.push({
+                    error: `Too many players on orange team in replay ${item.originalFilename}`,
+                });
+            } else if (orangePlayers.length < minimumUniquePlayers) {
+                errors.push({
+                    error: `Not enough players on orange team in replay ${item.originalFilename}`,
+                });
+            }
+
+            // Record excessive players (substitutions)
+            if (bluePlayers.length > perFilePlayerLimit - 1) {
+                substitutionCount.blue++;
+            }
+            if (orangePlayers.length > perFilePlayerLimit - 1) {
+                substitutionCount.orange++;
+            }
+            
+            bluePlayers.forEach(p => uniquePlayersPerTeam.blue.add(p));
+            orangePlayers.forEach(p => uniquePlayersPerTeam.orange.add(p));
+        }
+
+        for (const [team, playersSet] of Object.entries(uniquePlayersPerTeam)) {
+            if (playersSet.size > uniquePlayersLimit) {
+                errors.push({
+                    error: `Too many unique players on ${team} team across replays`,
+                });
+            }
+        }
+
+        // Validate substitution constraints
+        for (const [team, count] of Object.entries(substitutionCount)) {
+            if (count > maxSubstitutions) {
+                errors.push({
+                    error: `Illegal substitution, more than one substitution in the same match for team ${team}.`,
+                });
+            }
+        }
+    
+        return errors;
+    }
 }
+
