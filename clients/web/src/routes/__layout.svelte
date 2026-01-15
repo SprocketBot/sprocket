@@ -10,10 +10,10 @@
 	$: {
 	    const isAdmin = $session.user?.orgTeams.some(s => s === 0);
 	    if (isAdmin) {
-	        navigationStore.update((prev) => {
-				if (prev.includes(ADMIN_NAV_ITEM)) return prev;
-				return [...prev, ADMIN_NAV_ITEM];
-			});
+	        navigationStore.update(prev => {
+	            if (prev.includes(ADMIN_NAV_ITEM)) return prev;
+	            return [...prev, ADMIN_NAV_ITEM];
+	        });
 	    }
 	}
 

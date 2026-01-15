@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Submission } from "$lib/api";
+  import type {Submission} from "$lib/api";
 
   import SubmissionProgressView from "./SubmissionProgressView.svelte";
   import RatificationView from "./RatificationView.svelte";

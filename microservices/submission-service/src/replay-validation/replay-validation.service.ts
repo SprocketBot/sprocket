@@ -1,6 +1,7 @@
 import {Injectable, Logger} from "@nestjs/common";
 import type {
     BallchasingResponse,
+    GetPlayerByPlatformIdResponse,
     GetPlayerSuccessResponse,
     LFSReplaySubmission,
     MatchReplaySubmission,
@@ -150,20 +151,8 @@ export class ReplayValidationService {
 
         // If any of the players were not found, submission is invalid (this
         // usually happens with unreported accounts)
-        const playerErrors: string[] = [];
-        for (const player of playersResponse.data) {
-            if (!player.success) {
-                playerErrors.push(uniqueBallchasingPlayerIds.find(bcPlayer => bcPlayer.platform === player.request.platform && bcPlayer.id === player.request.platformId)!.name);
-            }
-        }
-        if (playerErrors.length) return {
-            valid: false,
-            errors: [
-                {
-                    error: `One or more players played on an unreported account: ${playerErrors.join(", ")}`,
-                },
-            ],
-        };
+        const validationError = this.generatePlayerValidationError(playersResponse.data, uniqueBallchasingPlayerIds);
+        if (validationError) return validationError;
 
         const players = playersResponse.data as GetPlayerSuccessResponse[];
 
@@ -344,21 +333,8 @@ export class ReplayValidationService {
             };
         }
 
-        const playerErrors: string[] = [];
-        for (const player of playersResponse.data) {
-            if (!player.success) {
-                playerErrors.push(uniqueBallchasingPlayerIds.find(bcPlayer => bcPlayer.platform === player.request.platform && bcPlayer.id === player.request.platformId)!.name);
-            }
-        }
-
-        if (playerErrors.length) return {
-            valid: false,
-            errors: [
-                {
-                    error: `One or more players played on an unreported account: ${playerErrors.join(", ")}`,
-                },
-            ],
-        };
+        const validationError = this.generatePlayerValidationError(playersResponse.data, uniqueBallchasingPlayerIds);
+        if (validationError) return validationError;
 
         const players = playersResponse.data as GetPlayerSuccessResponse[];
         // Get 3D array of scrim player ids
@@ -443,6 +419,49 @@ export class ReplayValidationService {
         };
     }
 
+    private generatePlayerValidationError(
+        playersResponseData: GetPlayerByPlatformIdResponse[],
+        uniqueBallchasingPlayerIds: Array<{name: string; platform: string; id: string;}>,
+    ): {valid: false; errors: ValidationError[];} | null {
+        const playerErrors: Array<{name: string; platform: string; id: string;}> = [];
+        const verifiedPlayers: Array<{name: string; id: number;}> = [];
+
+        for (const player of playersResponseData) {
+            const reqInput = player.request;
+            const original = uniqueBallchasingPlayerIds.find(bc => bc.platform === reqInput.platform && bc.id === reqInput.platformId);
+            const name = original?.name ?? "Unknown";
+
+            if (!player.success) {
+                if (!playerErrors.some(e => e.platform === reqInput.platform && e.id === reqInput.platformId)) {
+                    playerErrors.push({
+                        name: name,
+                        platform: reqInput.platform,
+                        id: reqInput.platformId,
+                    });
+                }
+            } else if (!verifiedPlayers.some(p => p.id === player.data.userId)) {
+                verifiedPlayers.push({
+                    name: name,
+                    id: player.data.userId,
+                });
+            }
+        }
+
+        if (playerErrors.length) {
+            const names = playerErrors.map(e => e.name).join(", ");
+            const rawData = JSON.stringify({unreported: playerErrors, verified: verifiedPlayers});
+            return {
+                valid: false,
+                errors: [
+                    {
+                        error: `One or more players played on an unreported account: ${names}. RawData: ${rawData}`,
+                    },
+                ],
+            };
+        }
+        return null;
+    }
+
     private async getStats(outputPath: string): Promise<BallchasingResponse> {
         const r = await this.minioService.get(config.minio.bucketNames.replays, outputPath);
         const stats = await readToString(r);
@@ -495,21 +514,8 @@ export class ReplayValidationService {
             };
         }
 
-        const playerErrors: string[] = [];
-        for (const player of playersResponse.data) {
-            if (!player.success) {
-                playerErrors.push(uniqueBallchasingPlayerIds.find(bcPlayer => bcPlayer.platform === player.request.platform && bcPlayer.id === player.request.platformId)!.name);
-            }
-        }
-
-        if (playerErrors.length) return {
-            valid: false,
-            errors: [
-                {
-                    error: `One or more players played on an unreported account: ${playerErrors.join(", ")}`,
-                },
-            ],
-        };
+        const validationError = this.generatePlayerValidationError(playersResponse.data, uniqueBallchasingPlayerIds);
+        if (validationError) return validationError;
 
         const players = playersResponse.data as GetPlayerSuccessResponse[];
 

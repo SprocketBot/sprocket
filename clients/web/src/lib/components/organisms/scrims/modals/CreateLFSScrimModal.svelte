@@ -1,39 +1,39 @@
 <script lang="ts">
-  import { type GamesAndModesValue, createLFSScrimMutation } from "$lib/api";
-  import { gamesAndModes } from "$lib/api/queries/GamesAndModes.store";
-  import { Modal } from "$lib/components";
+  import {type GamesAndModesValue, createLFSScrimMutation} from "$lib/api";
+  import {gamesAndModes} from "$lib/api/queries/GamesAndModes.store";
+  import {Modal} from "$lib/components";
 
   export let visible = false;
 
   let game: GamesAndModesValue["games"][0];
   let mode: GamesAndModesValue["games"][0]["modes"][0];
-  let scrimType: "TEAMS" | "ROUND_ROBIN" = "TEAMS";
+  const scrimType: "TEAMS" | "ROUND_ROBIN" = "TEAMS";
   let leaveAfter: number = 1800;
   let competitive: boolean = true;
-  let createGroup: boolean = false;
+  const createGroup: boolean = false;
   let numRounds: number = 0;
   let buttonEnabled = true;
 
   async function createScrim() {
-    buttonEnabled = false;
-    try {
-      const data = {
-        settings: {
-          mode: scrimType,
-          competitive: competitive,
-          observable: false,
-          lfs: true,
-        },
-        gameModeId: mode.id,
-        createGroup: createGroup,
-        leaveAfter: leaveAfter,
-        numRounds: numRounds,
-      };
-      await createLFSScrimMutation(data);
-      visible = false;
-    } finally {
-      buttonEnabled = true;
-    }
+      buttonEnabled = false;
+      try {
+          const data = {
+              settings: {
+                  mode: scrimType,
+                  competitive: competitive,
+                  observable: false,
+                  lfs: true,
+              },
+              gameModeId: mode.id,
+              createGroup: createGroup,
+              leaveAfter: leaveAfter,
+              numRounds: numRounds,
+          };
+          await createLFSScrimMutation(data);
+          visible = false;
+      } finally {
+          buttonEnabled = true;
+      }
   }
 </script>
 

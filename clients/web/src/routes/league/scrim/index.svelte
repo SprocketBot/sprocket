@@ -1,14 +1,14 @@
 <script lang="ts">
   import {
-    CreateLFSScrimModal,
-    DashboardLayout,
-    DashboardCard,
-    ScrimTable,
-    Spinner,
-    UploadReplaysModal,
+      CreateLFSScrimModal,
+      DashboardLayout,
+      DashboardCard,
+      ScrimTable,
+      Spinner,
+      UploadReplaysModal,
   } from "$lib/components";
-  import { LFSScrimsStore, type CurrentScrim } from "$lib/api";
-  import { goto } from "$app/navigation";
+  import {LFSScrimsStore, type CurrentScrim} from "$lib/api";
+  import {goto} from "$app/navigation";
 
   const store = new LFSScrimsStore();
   let fetching = true;
@@ -18,17 +18,17 @@
   let scrims: CurrentScrim[] | undefined = [];
 
   $: {
-    fetching = $store.fetching;
-    scrims = $store.data?.LFSScrims;
+      fetching = $store.fetching;
+      scrims = $store.data?.LFSScrims;
   }
 
   const openUploadModal = (scrim: CurrentScrim) => {
-    submissionId = scrim.submissionId ?? "";
-    goto(`/league/scrim/${submissionId}`);
+      submissionId = scrim.submissionId ?? "";
+      goto(`/league/scrim/${submissionId}`);
   };
 
   const openCreateScrimModal = () => {
-    creating = true;
+      creating = true;
   };
 </script>
 
@@ -51,7 +51,7 @@
       <ScrimTable
         {scrims}
         lfs={true}
-        joinScrim={(scrim) => openUploadModal(scrim)}
+        joinScrim={scrim => { openUploadModal(scrim) }}
       />
     {:else}
       <div class="h-full w-full flex items-center justify-center">

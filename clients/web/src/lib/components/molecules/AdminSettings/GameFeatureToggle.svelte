@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
+    import {createEventDispatcher} from "svelte";
 
     export let label: string;
     export let value: boolean | undefined;
@@ -10,8 +10,8 @@
     const dispatch = createEventDispatcher();
     
     const onToggle = () => {
-        dispatch('toggle')
-    }
+        dispatch("toggle");
+    };
 </script>
 
 

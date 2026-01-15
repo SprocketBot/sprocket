@@ -5,11 +5,11 @@
     export let scheduleGroup: LeagueScheduleWeek;
     export let isCurrentWeek: boolean = false;
 
-    const title = isCurrentWeek ? `Current Match (${scheduleGroup.description})` : scheduleGroup.description
+    const title = isCurrentWeek ? `Current Match (${scheduleGroup.description})` : scheduleGroup.description;
 </script>
 
 
-<Accordion expanded={isCurrentWeek}> 
+<Accordion expanded={isCurrentWeek,}> 
     <h3 slot="title" class="text-lg font-bold mb-4 divider">
         {title}
     </h3>

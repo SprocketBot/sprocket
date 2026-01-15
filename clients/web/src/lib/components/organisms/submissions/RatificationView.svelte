@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { Submission } from "../../../api";
-  import { RatifySubmissionMutation } from "../../../api";
-  import { GameCard, Progress } from "../../index";
+  import type {Submission} from "../../../api";
+  import {RatifySubmissionMutation} from "../../../api";
+  import {GameCard, Progress} from "../../index";
   import RejectSubmissionModal from "../scrims/modals/RejectSubmissionModal.svelte";
 
   export let submission: Submission;
@@ -10,22 +10,22 @@
   const submissionResults = [false];
 
   let readyToRatify;
-  $: readyToRatify =
-    Array.from(submissionResults).every(Boolean) &&
-    submissionResults.length === submission.stats.games.length;
+  $: readyToRatify
+    = Array.from(submissionResults).every(Boolean)
+    && submissionResults.length === submission.stats.games.length;
   let hasRatified = submission.userHasRatified;
 
   async function ratifyScrim() {
-    if (hasRatified) return;
-    await RatifySubmissionMutation({ submissionId: submission.id });
-    // eslint-disable-next-line require-atomic-updates
-    hasRatified = true;
+      if (hasRatified) return;
+      await RatifySubmissionMutation({submissionId: submission.id});
+      // eslint-disable-next-line require-atomic-updates
+      hasRatified = true;
   }
 
   let rejecting: boolean = false;
 
   const reject = () => {
-    rejecting = true;
+      rejecting = true;
   };
 </script>
 
