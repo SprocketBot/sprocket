@@ -19,7 +19,7 @@
         "maxRetries": 4,
         "backoffFactor": 4
     },
-    "parser": "carball|ballchasing",
+    "parser": "carball|ballchasing|ballchasing-with-carball-shadow",
     "tempDir": "",
     "disableCache": false
 }

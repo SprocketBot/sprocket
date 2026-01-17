@@ -42,6 +42,7 @@ export enum EventTopic {
     SubmissionRejected = "submission.rejected",
 
     SubmissionReset = "submission.reset",
+    SubmissionUpdated = "submission.updated",
 
     // Member
     AllMemberEvents = "member.*",
@@ -96,6 +97,7 @@ export const EventSchemas = {
     [EventTopic.SubmissionRejected]: SubmissionEventSchema,
     [EventTopic.SubmissionReset]: SubmissionEventSchema,
     [EventTopic.SubmissionProgress]: SubmissionEventSchema,
+    [EventTopic.SubmissionUpdated]: SubmissionEventSchema,
     [EventTopic.AllSubmissionEvents]: z.union([
         SubmissionRatificationSchema,
         SubmissionEventSchema,

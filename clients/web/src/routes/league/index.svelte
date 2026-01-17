@@ -19,9 +19,9 @@
 	    schedule = $store.data?.seasons[0];
 	    scheduleGroups = schedule ? schedule?.childGroups.sort((a, b) => Date.parse(a.start) - Date.parse(b.start)) : [];
 
-		const nextWeekIndex = scheduleGroups.findIndex(sg => Date.parse(sg.start) > Date.now());
-		const currentWeekIndex = nextWeekIndex >= 1 ? nextWeekIndex - 1 : -1
-		currentWeek = currentWeekIndex ? scheduleGroups[currentWeekIndex] : undefined
+	    const nextWeekIndex = scheduleGroups.findIndex(sg => Date.parse(sg.start) > Date.now());
+	    const currentWeekIndex = nextWeekIndex >= 1 ? nextWeekIndex - 1 : -1;
+	    currentWeek = currentWeekIndex ? scheduleGroups[currentWeekIndex] : undefined;
 	}
 </script>
 

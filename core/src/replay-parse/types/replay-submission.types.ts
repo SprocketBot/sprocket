@@ -12,7 +12,9 @@ import {ReplaySubmissionStats} from "./submission-stats.types";
 export enum ReplaySubmissionType {
     MATCH = "MATCH",
     SCRIM = "SCRIM",
+    LFS = "LFS",
 }
+
 registerEnumType(ReplaySubmissionType, {name: "ReplaySubmissionType"});
 registerEnumType(ReplaySubmissionStatus, {name: "ReplaySubmissionStatus"});
 
@@ -76,4 +78,10 @@ export class MatchReplaySubmission extends GqlReplaySubmission {
     matchId: Match["id"];
 }
 
-export type ReplaySubmission = MatchReplaySubmission | ScrimReplaySubmission;
+export class LFSReplaySubmission extends GqlReplaySubmission {
+    type: ReplaySubmissionType.LFS = ReplaySubmissionType.LFS;
+
+    scrimId: Scrim["id"];
+}
+
+export type ReplaySubmission = MatchReplaySubmission | ScrimReplaySubmission | LFSReplaySubmission;

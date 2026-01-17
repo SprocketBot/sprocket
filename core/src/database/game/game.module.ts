@@ -15,7 +15,7 @@ export const gameEntities = [
     GameMode,
     Game,
     GameFeature,
-    Feature,
+//    Feature,
 ];
 
 const ormModule = TypeOrmModule.forFeature(gameEntities);

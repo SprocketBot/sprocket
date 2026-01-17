@@ -1,6 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import type {
     BaseReplaySubmission,
+    LFSReplaySubmission,
     ProgressMessage,
     ReplaySubmission,
     ReplaySubmissionItem,
@@ -23,7 +24,7 @@ import {
 } from "@sprocketbot/common";
 
 import {
-    getSubmissionKey, submissionIsMatch, submissionIsScrim,
+    getSubmissionKey, submissionIsLFS, submissionIsMatch, submissionIsScrim,
 } from "../../utils";
 
 @Injectable()
@@ -91,6 +92,20 @@ export class ReplaySubmissionCrudService {
                 scrimId: scrim.id,
             } as ScrimReplaySubmission;
 
+            configMinRatify = await this.getOrgRequiredRatifications(scrim.organizationId);
+            maxRatify = scrim.players.length;
+
+        } else if (submissionIsLFS(submissionId)) {
+            const result = await this.matchmakingService.send(MatchmakingEndpoint.GetScrimBySubmissionId, submissionId);
+            if (result.status === ResponseStatus.ERROR) throw result.error;
+            const scrim = result.data;
+            if (!scrim) throw new Error(`Unable to create submission, could not find a scrim associated with submissionId=${submissionId}`);
+            submission = {
+                ...commonFields,
+                type: ReplaySubmissionType.LFS,
+                scrimId: scrim.id,
+            } as LFSReplaySubmission;
+    
             configMinRatify = await this.getOrgRequiredRatifications(scrim.organizationId);
             maxRatify = scrim.players.length;
 

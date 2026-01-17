@@ -1,20 +1,24 @@
 {
-	"extends": "./.svelte-kit/tsconfig.json",
 	"compilerOptions": {
+		"moduleResolution": "node",
+		"module": "esnext",
+		"target": "esnext",
+		"lib": ["esnext", "DOM", "DOM.Iterable"],
+		"strict": true,
+		"sourceMap": true,
 		"allowJs": true,
 		"checkJs": true,
 		"esModuleInterop": true,
+		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
 		"resolveJsonModule": true,
-		"skipLibCheck": true,
-		"sourceMap": true,
-		"strict": true
+		"isolatedModules": true,
+		"baseUrl": ".",
+		"paths": {
+			"$lib": ["src/lib"],
+			"$lib/*": ["src/lib/*"]
+		}
 	},
-	"typeAcquisition": {
-		"include": ["src/app.d.ts"]
-	},
-	"paths": {
-		"$lib": ["src/lib"],
-		"$lib/*": ["src/lib/*"]
-	}
+	"include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte", "src/app.d.ts"],
+	"exclude": ["node_modules", ".svelte-kit"]
 }

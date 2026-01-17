@@ -9,6 +9,7 @@ export enum MatchmakingEndpoint {
     GetScrimBySubmissionId = "GetScrimBySubmissionId",
     GetAllScrims = "GetAllScrims",
     GetScrimMetrics = "GetScrimMetrics",
+    CreateLFSScrim = "CreateLFSScrim",
     CreateScrim = "CreateScrim",
     JoinScrim = "JoinScrim",
     LeaveScrim = "LeaveScrim",
@@ -16,6 +17,7 @@ export enum MatchmakingEndpoint {
     CompleteScrim = "CompleteScrim",
     CancelScrim = "CancelScrim",
     SetScrimLocked = "SetScrimLocked",
+    UpdateLFSScrimPlayers = "UpdateLFSScrimPlayers",
 }
 
 export const MatchmakingSchemas = {
@@ -38,6 +40,10 @@ export const MatchmakingSchemas = {
     [MatchmakingEndpoint.GetScrimMetrics]: {
         input: Schemas.GetScrimMetrics_Request,
         output: Schemas.GetScrimMetrics_Response,
+    },
+    [MatchmakingEndpoint.CreateLFSScrim]: {
+        input: Schemas.CreateLFSScrim_Request,
+        output: Schemas.CreateLFSScrim_Response,
     },
     [MatchmakingEndpoint.CreateScrim]: {
         input: Schemas.CreateScrim_Request,
@@ -66,6 +72,10 @@ export const MatchmakingSchemas = {
     [MatchmakingEndpoint.SetScrimLocked]: {
         input: Schemas.SetScrimLocked_Request,
         output: Schemas.SetScrimLocked_Response,
+    },
+    [MatchmakingEndpoint.UpdateLFSScrimPlayers]: {
+        input: Schemas.UpdateLFSScrimPlayers_Request,
+        output: Schemas.UpdateLFSScrimPlayers_Response,
     },
 };
 

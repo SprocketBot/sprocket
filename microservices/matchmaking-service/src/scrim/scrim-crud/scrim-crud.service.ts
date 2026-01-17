@@ -2,6 +2,7 @@ import {Injectable, Logger} from "@nestjs/common";
 import type {
     CreateScrimOptions,
     Scrim, ScrimGame, ScrimPlayer,
+    ScrimSettings,
 } from "@sprocketbot/common";
 import {
     config, RedisService, ScrimSchema, ScrimStatus,
@@ -53,6 +54,65 @@ export class ScrimCrudService {
         );
 
         return scrim;
+    }
+
+    async createLFSScrim(
+        authorId: number,
+        organizationId: number,
+        gameModeId: number,
+        skillGroupId: number,
+        settings: ScrimSettings,
+        players: ScrimPlayer[],
+        teams: ScrimPlayer[][],
+        numRounds: number,
+    ): Promise<Scrim> {
+        const at = new Date();
+        const scrim: Scrim = {
+            id: v4(),
+            createdAt: at,
+            updatedAt: at,
+            status: ScrimStatus.PENDING,
+            authorId: authorId,
+            organizationId: organizationId,
+            gameModeId: gameModeId,
+            skillGroupId: skillGroupId,
+            players: [],
+            games: [],
+            settings: settings,
+        };
+
+        players.map(p => scrim.players.push(p));
+        for (let i = 0;i < numRounds;i++) {
+            const now = new Date();
+            const game = {
+                teams: ["orange", "blue"].map(() => ({
+                    players: [
+                        {
+                            id: 1,
+                            name: "Placeholder",
+                            joinedAt: now,
+                            // eslint-disable-next-line no-mixed-operators
+                            leaveAt: new Date(now.getTime() + 30 * 60 * 1000),
+                        },
+                    ],
+                })),
+            };
+            scrim.games?.push(game);
+        }
+
+        await this.redisService.setJson(
+            `${this.prefix}${scrim.id}`,
+            scrim,
+        );
+
+        return scrim;
+    }
+
+    async updateLFSScrim(scrim: Scrim): Promise<void> {
+        await this.redisService.setJson(
+            `${this.prefix}${scrim.id}`,
+            scrim,
+        );
     }
 
     async removeScrim(id: string): Promise<void> {

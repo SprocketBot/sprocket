@@ -5,7 +5,7 @@
     export let scheduleGroup: LeagueScheduleWeek;
     export let isCurrentWeek: boolean = false;
 
-    const title = isCurrentWeek ? `Current Match (${scheduleGroup.description})` : scheduleGroup.description
+    const title = isCurrentWeek ? `Current Match (${scheduleGroup.description})` : scheduleGroup.description;
 </script>
 
 

@@ -2,7 +2,7 @@ import {gql} from "@urql/core";
 import {currentScrim} from "../../queries";
 import {client} from "../../client";
 
-interface CreateScrimResponse {
+interface CreateLFSScrimResponse {
     id: string;
     playerCount: number;
     settings: {
@@ -11,7 +11,7 @@ interface CreateScrimResponse {
     };
 }
 
-interface CreateScrimVariables {
+interface CreateLFSScrimVariables {
     settings: {
         mode: "TEAMS" | "ROUND_ROBIN";
         competitive: boolean;
@@ -28,23 +28,27 @@ const mutationString = gql`
         $gameModeId: Int!
         $settings: ScrimSettingsInput!
         $leaveAfter: Int!
+        $numRounds: Int!
         $createGroup: Boolean
     ) {
-        createScrim(data: {gameModeId: $gameModeId, settings: $settings, createGroup: $createGroup, leaveAfter: $leaveAfter}) {
+        createLFSScrim(data: {gameModeId: $gameModeId, settings: $settings, createGroup: $createGroup, leaveAfter: $leaveAfter, numRounds: $numRounds}) {
             id
             playerCount
             settings {
                 competitive
                 mode
+                lfs
             }
         }
     }
 `;
 
-export const createScrimMutation = async (vars: CreateScrimVariables): Promise<CreateScrimResponse> => {
-    const r = await client.mutation<CreateScrimResponse, CreateScrimVariables>(mutationString, vars).toPromise();
+export const createLFSScrimMutation = async (vars: CreateLFSScrimVariables): Promise<CreateLFSScrimResponse> => {
+    console.log("Trying LFS mutation.");
+    const r = await client.mutation<CreateLFSScrimResponse, CreateLFSScrimVariables>(mutationString, vars).toPromise();
     if (r.data) {
         currentScrim.invalidate();
+        console.log(`Got response: ${JSON.stringify(r.data)}`);
         return r.data;
     }
     throw r.error as Error;

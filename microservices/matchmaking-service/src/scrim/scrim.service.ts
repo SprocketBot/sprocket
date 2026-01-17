@@ -1,16 +1,19 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {RpcException} from "@nestjs/microservices";
 import type {
+    CreateLFSScrimRequest,
     CreateScrimOptions,
     JoinScrimOptions,
     Scrim,
     ScrimPlayer,
+    UpdateLFSScrimPlayersRequest,
 } from "@sprocketbot/common";
 import {
     AnalyticsEndpoint,
     AnalyticsService,
     EventTopic,
     MatchmakingError,
+    ScrimSchema,
     ScrimStatus,
 } from "@sprocketbot/common";
 import {add} from "date-fns";
@@ -76,6 +79,84 @@ export class ScrimService {
         }).catch(err => { this.logger.error(err) });
 
         return scrim;
+    }
+
+    async createLFSScrim({
+        authorId,
+        organizationId,
+        gameModeId,
+        skillGroupId,
+        settings,
+        numRounds,
+        join,
+    }: CreateLFSScrimRequest): Promise<Scrim> {
+        if (await this.scrimCrudService.playerInAnyScrim(join.playerId)) throw new RpcException(MatchmakingError.PlayerAlreadyInScrim);
+        if (join.createGroup && !this.scrimGroupService.modeAllowsGroups(settings.mode)) throw new RpcException(MatchmakingError.ScrimGroupNotSupportedInMode);
+        
+        const players: ScrimPlayer[] = [];
+        const teams: ScrimPlayer[][] = [];
+        teams[0] = [];
+        teams[1] = [];
+
+        const player = {
+            id: join.playerId,
+            name: join.playerName,
+            joinedAt: new Date(),
+            leaveAt: add(new Date(), {seconds: join.leaveAfter}),
+        };
+        players.push(player);
+        if (join.team) teams[join.team].push(player);
+
+        const scrim = await this.scrimCrudService.createLFSScrim(
+            authorId,
+            organizationId,
+            gameModeId,
+            skillGroupId,
+            settings,
+            players,
+            teams,
+            numRounds,
+        );
+
+        // Set the submissionId right away for LFS scrims, there is no Pop event
+        const sId = `lfs-${scrim.id}`;
+        scrim.submissionId = sId;
+        await this.scrimCrudService.setSubmissionId(scrim.id, sId);
+        await this.eventsService.publish(EventTopic.ScrimCreated, scrim, scrim.id);
+        
+        // For the same reason, set the scrim in PENDING status
+        scrim.status = ScrimStatus.IN_PROGRESS;
+        await this.scrimCrudService.updateScrimStatus(scrim.id, scrim.status);
+
+        this.analyticsService.send(AnalyticsEndpoint.Analytics, {
+            name: "scrimCreated",
+            tags: [ ["playerId", `${authorId}`] ],
+            strings: [ ["scrimId", scrim.id] ],
+        }).catch(err => { this.logger.error(err) });
+
+        return scrim;
+    }
+
+    async updateLFSScrimPlayers({
+        scrimId,
+        players,
+        games,
+    }: UpdateLFSScrimPlayersRequest): Promise<boolean> {
+        const rawscrim = await this.scrimCrudService.getScrim(scrimId);
+        if (!rawscrim) return false;
+        const scrim = ScrimSchema.parse(rawscrim);
+        scrim.players = players;
+        for (const g of games) {
+            const game = {
+                teams: g.map(t => ({
+                    players: t.map(p => p),
+                })),
+            };
+            if (scrim.games?.includes(game)) continue;
+            scrim.games?.push(game);
+        }
+        await this.scrimCrudService.updateLFSScrim(scrim);
+        return true;
     }
 
     async joinScrim({
@@ -189,7 +270,7 @@ export class ScrimService {
         const scrim = await this.scrimCrudService.getScrim(scrimId);
         if (!scrim) throw new RpcException(MatchmakingError.ScrimNotFound);
         if (!scrim.submissionId) throw new RpcException(MatchmakingError.ScrimSubmissionNotFound);
-        // TODO: Override this if player / member is an admin
+
         if (playerId && !scrim.players.some(p => p.id === playerId)) throw new RpcException(MatchmakingError.PlayerNotInScrim);
 
         await this.scrimCrudService.removeScrim(scrimId);

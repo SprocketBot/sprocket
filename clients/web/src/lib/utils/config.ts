@@ -24,7 +24,8 @@ export const loadConfig = async (): Promise<Config> => {
             return process.env.CHATWOOT_HMAC_KEY.trim();
         }
         if (fs.existsSync("secret/chatwoot-hmac-key.txt")) {
-            return fs.readFileSync("secret/chatwoot-hmac-key.txt").toString().trim();
+            return fs.readFileSync("secret/chatwoot-hmac-key.txt").toString()
+                .trim();
         }
         throw new Error("CHATWOOT_HMAC_KEY environment variable or secret/chatwoot-hmac-key.txt file required");
     }
@@ -32,9 +33,9 @@ export const loadConfig = async (): Promise<Config> => {
     config = {
         client: {
             gqlUrl: process.env.CLIENT_GQL_URL || _config.get<string>("client.gqlUrl"),
-            secure: (process.env.CLIENT_SECURE === "true") || _config.get<boolean>("client.secure"),
+            secure: process.env.CLIENT_SECURE === "true" || _config.get<boolean>("client.secure"),
             chatwoot: {
-                enabled: (process.env.CLIENT_CHATWOOT_ENABLED === "true") || _config.get<boolean>("client.chatwoot.enabled"),
+                enabled: process.env.CLIENT_CHATWOOT_ENABLED === "true" || _config.get<boolean>("client.chatwoot.enabled"),
                 url: process.env.CLIENT_CHATWOOT_URL || _config.get<string>("client.chatwoot.url"),
                 websiteToken: process.env.CLIENT_CHATWOOT_WEBSITE_TOKEN || _config.get<string>("client.chatwoot.websiteToken"),
             },

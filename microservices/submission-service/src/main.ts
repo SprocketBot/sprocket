@@ -1,8 +1,8 @@
-import { HttpAdapterHost, NestFactory } from "@nestjs/core";
-import { Transport } from "@nestjs/microservices";
-import { AllExceptionsFilter, config } from "@sprocketbot/common";
+import {HttpAdapterHost, NestFactory} from "@nestjs/core";
+import {Transport} from "@nestjs/microservices";
+import {AllExceptionsFilter, config} from "@sprocketbot/common";
 
-import { AppModule } from "./app.module";
+import {AppModule} from "./app.module";
 
 async function bootstrap(): Promise<void> {
     const rmqOptions: any = {
@@ -23,7 +23,7 @@ async function bootstrap(): Promise<void> {
             credentials: {
                 username: rmqUser,
                 password: rmqPass,
-            }
+            },
         };
     }
 
