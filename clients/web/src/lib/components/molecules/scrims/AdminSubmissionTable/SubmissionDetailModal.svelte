@@ -25,6 +25,8 @@
     $: {
         unreportedAccounts = [];
         verifiedPlayers = [];
+        let found = false;
+
         if (submission.items) {
             for (const item of submission.items) {
                 if (item.progress?.error) {
@@ -34,9 +36,24 @@
                             const data = JSON.parse(match[1]);
                             if (data.unreported) unreportedAccounts = data.unreported;
                             if (data.verified) verifiedPlayers = data.verified;
+                            found = true;
                             break;
-                        } catch (e) { console.error(e) }
+                        } catch (e) { console.error(e); }
                     }
+                }
+            }
+        }
+
+        if (!found && submission.rejections) {
+            for (const rejection of submission.rejections) {
+                const match = rejection.reason.match(/RawData: (\{.*\})/);
+                if (match) {
+                    try {
+                        const data = JSON.parse(match[1]);
+                        if (data.unreported) unreportedAccounts = data.unreported;
+                        if (data.verified) verifiedPlayers = data.verified;
+                        break;
+                    } catch (e) { console.error(e); }
                 }
             }
         }
