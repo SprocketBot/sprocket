@@ -1,12 +1,12 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import type { CoreEndpoint, CoreOutput } from "@sprocketbot/common";
-import type { FindOneOptions, FindOptionsWhere } from "typeorm";
-import { Repository } from "typeorm";
+import {Injectable} from "@nestjs/common";
+import {InjectRepository} from "@nestjs/typeorm";
+import type {CoreEndpoint, CoreOutput} from "@sprocketbot/common";
+import type {FindOneOptions, FindOptionsWhere} from "typeorm";
+import {Repository} from "typeorm";
 
-import { GameSkillGroup } from "../../database/franchise/game_skill_group/game_skill_group.model";
-import { GameSkillGroupProfile } from "../../database/franchise/game_skill_group_profile/game_skill_group_profile.model";
-import { League } from "../../database/mledb";
+import {GameSkillGroup} from "../../database/franchise/game_skill_group/game_skill_group.model";
+import {GameSkillGroupProfile} from "../../database/franchise/game_skill_group_profile/game_skill_group_profile.model";
+import {League} from "../../database/mledb";
 
 @Injectable()
 export class GameSkillGroupService {
@@ -30,7 +30,7 @@ export class GameSkillGroupService {
     }
 
     async getGameSkillGroupProfile(skillGroupId: number): Promise<GameSkillGroupProfile> {
-        const skillGroup = await this.gameSkillGroupRepository.findOneOrFail({ where: { id: skillGroupId }, relations: { profile: { photo: true } } });
+        const skillGroup = await this.gameSkillGroupRepository.findOneOrFail({where: {id: skillGroupId}, relations: {profile: {photo: true} } });
         return skillGroup.profile;
     }
 
@@ -57,7 +57,7 @@ export class GameSkillGroupService {
                 break;
         }
         return this.getGameSkillGroup({
-            where: { profile: { code } },
+            where: {profile: {code} },
             relations: ["profile"],
         });
     }

@@ -2,8 +2,8 @@ import {
     OnGlobalQueueCompleted, OnGlobalQueueFailed, Processor,
 } from "@nestjs/bull";
 import {Logger} from "@nestjs/common";
-import {JobId} from "bull";
 import {AnalyticsEndpoint, AnalyticsService} from "@sprocketbot/common";
+import {JobId} from "bull";
 
 import {EloConnectorService} from "./elo-connector.service";
 import {EloBullQueue, EloSchemas} from "./elo-connector.types";
@@ -38,9 +38,7 @@ export class EloConnectorConsumer {
                 const salaryData = data as unknown[][];
                 const totalPlayers = salaryData.flat().length;
                 const playersWithRankouts = salaryData.flat().filter((p: any) => p.rankout).length;
-                this.logger.log(
-                    `Job ${job}: Processed ${totalPlayers} players, ${playersWithRankouts} with rankouts`
-                );
+                this.logger.log(`Job ${job}: Processed ${totalPlayers} players, ${playersWithRankouts} with rankouts`);
             }
 
             await listener.success(data);
@@ -58,7 +56,7 @@ export class EloConnectorConsumer {
         } catch (e) {
             this.logger.error(
                 `Job ${job} failed during result processing for endpoint ${listener.endpoint}`,
-                e instanceof Error ? e.stack : JSON.stringify(e)
+                e instanceof Error ? e.stack : JSON.stringify(e),
             );
 
             if (e instanceof Error) {
@@ -92,7 +90,7 @@ export class EloConnectorConsumer {
 
         this.logger.error(
             `Job ${job} failed for endpoint ${listener.endpoint}: ${e.message}`,
-            e.stack
+            e.stack,
         );
 
         await listener.failure(e);

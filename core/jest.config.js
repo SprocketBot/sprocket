@@ -24,4 +24,7 @@ module.exports = {
       },
     ],
   ],
+  moduleNameMapper: {
+    "^\\$db/(.*)$": "<rootDir>/src/database/$1",
+  },
 };

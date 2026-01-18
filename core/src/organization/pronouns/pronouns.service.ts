@@ -3,8 +3,9 @@ import {InjectRepository} from "@nestjs/typeorm";
 import type {FindOptionsWhere} from "typeorm";
 import {Repository} from "typeorm";
 
-import {IrrelevantFields} from '../../database';;;;
-import {Pronouns} from '$db/organization/pronouns/pronouns.model';
+import {Pronouns} from "$db/organization/pronouns/pronouns.model";
+
+import type {IrrelevantFields} from "../../database";
 import {OrganizationService} from "../organization";
 
 @Injectable()

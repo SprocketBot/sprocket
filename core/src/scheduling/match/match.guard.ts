@@ -1,7 +1,8 @@
 import {Injectable} from "@nestjs/common";
 import type {GraphQLExecutionContext} from "@nestjs/graphql";
 
-import {Match} from '$db/scheduling/match/match.model';
+import {Match} from "$db/scheduling/match/match.model";
+
 import {PlayerGuard, PlayerService} from "../../franchise/player";
 import type {GameAndOrganization} from "../../franchise/player/player.types";
 import type {UserPayload} from "../../identity";

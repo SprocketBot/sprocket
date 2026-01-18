@@ -11,16 +11,17 @@ import {
 } from "@sprocketbot/common";
 import {DataSource, Repository} from "typeorm";
 
-import {GameMode} from '$db/game/game_mode/game_mode.model';
-import {Franchise} from '$db/franchise/franchise/franchise.model';
-import {GameSkillGroup} from '$db/franchise/game_skill_group/game_skill_group.model';
-import {Match} from '$db/scheduling/match/match.model';
-import {MatchParent} from '$db/scheduling/match_parent/match_parent.model';
-import {Player} from '$db/franchise/player/player.model';
-import {Round} from '$db/scheduling/round/round.model';
-import {ScheduleFixture} from '$db/scheduling/schedule_fixture/schedule_fixture.model';
-import {ScheduleGroup} from '$db/scheduling/schedule_group/schedule_group.model';
-import {Team} from '$db/franchise/team/team.model';
+import {Franchise} from "$db/franchise/franchise/franchise.model";
+import {GameSkillGroup} from "$db/franchise/game_skill_group/game_skill_group.model";
+import {Player} from "$db/franchise/player/player.model";
+import {Team} from "$db/franchise/team/team.model";
+import type {GameMode} from "$db/game/game_mode/game_mode.model";
+import {Match} from "$db/scheduling/match/match.model";
+import {MatchParent} from "$db/scheduling/match_parent/match_parent.model";
+import {Round} from "$db/scheduling/round/round.model";
+import {ScheduleFixture} from "$db/scheduling/schedule_fixture/schedule_fixture.model";
+import {ScheduleGroup} from "$db/scheduling/schedule_group/schedule_group.model";
+
 import type {League} from "../../database/mledb";
 import {
     LegacyGameMode, MLE_OrganizationTeam, MLE_Series, MLE_SeriesReplay, MLE_Team,

@@ -1,5 +1,5 @@
-import Papa from 'papaparse';
-import { z } from 'zod';
+import Papa from "papaparse";
+import type {z} from "zod";
 
 // 1. Define the shape of our output
 interface CsvParseResult<T> {
@@ -23,10 +23,10 @@ interface CsvError {
 export function parseAndValidateCsv<T extends z.ZodTypeAny>(
     csvString: string,
     schema: T,
-    options: Papa.ParseConfig = {}
+    options: Papa.ParseConfig = {},
 ): CsvParseResult<z.infer<T>> {
 
-    const validData: z.infer<T>[] = [];
+    const validData: Array<z.infer<T>> = [];
     const errors: CsvError[] = [];
 
     // 1. Parse raw text to untyped objects
@@ -38,7 +38,7 @@ export function parseAndValidateCsv<T extends z.ZodTypeAny>(
     });
 
     // 2. Handle CSV-level structural errors (e.g., malformed delimiters)
-    parseResult.errors.forEach((err) => {
+    parseResult.errors.forEach(err => {
         errors.push({
             row: err.row + 1, // Adjust for 0-index if needed, usually Papa returns 0-index
             message: `CSV Syntax Error: ${err.message}`,
@@ -57,7 +57,7 @@ export function parseAndValidateCsv<T extends z.ZodTypeAny>(
             errors.push({
                 row: rowIndex,
                 message: JSON.stringify(validation),
-                field: '',
+                field: "",
                 value: undefined,
             });
         } else {
@@ -65,5 +65,5 @@ export function parseAndValidateCsv<T extends z.ZodTypeAny>(
         }
     });
 
-    return { data: validData, errors };
+    return {data: validData, errors};
 }

@@ -3,7 +3,8 @@ import {MessagePattern, Payload} from "@nestjs/microservices";
 import type {CoreOutput} from "@sprocketbot/common";
 import {CoreEndpoint, CoreSchemas} from "@sprocketbot/common";
 
-import {GameSkillGroupProfile} from '$db/franchise/game_skill_group_profile/game_skill_group_profile.model';
+import type {GameSkillGroupProfile} from "$db/franchise/game_skill_group_profile/game_skill_group_profile.model";
+
 import {GameSkillGroupService} from "./game-skill-group.service";
 
 @Controller("game-skill-group")

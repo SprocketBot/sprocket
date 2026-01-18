@@ -1,15 +1,16 @@
-import { Field, ObjectType } from "@nestjs/graphql";
+import {Field, ObjectType} from "@nestjs/graphql";
 import {
     Column, Entity, JoinTable, ManyToMany, OneToMany,
 } from "typeorm";
 
-import { BaseModel } from "../../base-model";
-import { GameSkillGroup } from "../../franchise/game_skill_group/game_skill_group.model";
-import {GameFeature} from '$db/game/game_feature/game_feature.model';
-import {GameMode} from '$db/game/game_mode/game_mode.model';
-import {Platform} from '$db/game/platform/platform.model';
+import {GameFeature} from "$db/game/game_feature/game_feature.model";
+import {GameMode} from "$db/game/game_mode/game_mode.model";
+import {Platform} from "$db/game/platform/platform.model";
 
-@Entity({ schema: "sprocket" })
+import {BaseModel} from "../../base-model";
+import {GameSkillGroup} from "../../franchise/game_skill_group/game_skill_group.model";
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class Game extends BaseModel {
     @Column()
@@ -25,7 +26,7 @@ export class Game extends BaseModel {
     skillGroups: GameSkillGroup[];
 
     @ManyToMany(() => Platform)
-    @JoinTable({ name: "game_platform" })
+    @JoinTable({name: "game_platform"})
     @Field(() => [Platform])
     supportedPlatforms: Platform[];
 

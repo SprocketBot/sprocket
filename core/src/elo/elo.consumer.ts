@@ -2,11 +2,12 @@ import {
     InjectQueue, OnQueueFailed, Process, Processor,
 } from "@nestjs/bull";
 import {Logger} from "@nestjs/common";
+import {AnalyticsEndpoint, AnalyticsService} from "@sprocketbot/common";
 import {Job, Queue} from "bull";
 import {previousMonday} from "date-fns";
-import {AnalyticsEndpoint, AnalyticsService} from "@sprocketbot/common";
 
-import {FeatureCode} from '$db/game/feature/feature.enum';
+import {FeatureCode} from "$db/game/feature/feature.enum";
+
 import {PlayerService} from "../franchise";
 import {GameFeatureService, GameService} from "../game";
 import {OrganizationService} from "../organization";
@@ -57,16 +58,14 @@ export class EloConsumer {
         const autoRankoutsEnabled = await this.gameFeatureService.featureIsEnabled(FeatureCode.AUTO_RANKOUTS, rocketLeague.id, mleOrg.id);
         const autoSalariesEnabled = await this.gameFeatureService.featureIsEnabled(FeatureCode.AUTO_SALARIES, rocketLeague.id, mleOrg.id);
 
-        this.logger.log(
-            `Feature flags: autoSalariesEnabled=${autoSalariesEnabled}, autoRankoutsEnabled=${autoRankoutsEnabled}`
-        );
+        this.logger.log(`Feature flags: autoSalariesEnabled=${autoSalariesEnabled}, autoRankoutsEnabled=${autoRankoutsEnabled}`);
 
         if (!autoSalariesEnabled) {
             this.logger.log("Auto salaries disabled, skipping job");
             await this.analyticsService.send(AnalyticsEndpoint.Analytics, {
                 name: "weekly_salaries_job",
-                tags: [["status", "skipped"], ["reason", "feature_disabled"]],
-                booleans: [["auto_salaries_enabled", false]],
+                tags: [ ["status", "skipped"], ["reason", "feature_disabled"] ],
+                booleans: [ ["auto_salaries_enabled", false] ],
             });
             return;
         }
@@ -85,7 +84,7 @@ export class EloConsumer {
 
         await this.analyticsService.send(AnalyticsEndpoint.Analytics, {
             name: "weekly_salaries_job",
-            tags: [["status", "completed"]],
+            tags: [ ["status", "completed"] ],
             booleans: [
                 ["auto_salaries_enabled", true],
                 ["auto_rankouts_enabled", autoRankoutsEnabled],

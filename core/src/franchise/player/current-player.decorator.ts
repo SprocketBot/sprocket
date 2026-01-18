@@ -2,7 +2,7 @@ import type {ExecutionContext} from "@nestjs/common";
 import {createParamDecorator} from "@nestjs/common";
 import {GqlExecutionContext} from "@nestjs/graphql";
 
-import {Player} from '$db/franchise/player/player.model';
+import type {Player} from "$db/franchise/player/player.model";
 
 export const CurrentPlayer = createParamDecorator((data: unknown, context: ExecutionContext) => {
     const ctx = GqlExecutionContext.create(context);

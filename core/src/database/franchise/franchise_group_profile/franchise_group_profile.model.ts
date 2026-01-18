@@ -3,8 +3,9 @@ import {
     Column, Entity, JoinColumn, OneToOne,
 } from "typeorm";
 
+import {FranchiseGroup} from "$db/franchise/franchise_group/franchise_group.model";
+
 import {BaseModel} from "../../base-model";
-import {FranchiseGroup} from '$db/franchise/franchise_group/franchise_group.model';
 
 @Entity({schema: "sprocket"})
 @ObjectType()

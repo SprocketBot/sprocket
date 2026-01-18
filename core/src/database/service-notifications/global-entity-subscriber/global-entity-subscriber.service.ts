@@ -2,12 +2,12 @@
 import {
     Inject, Logger,
 } from "@nestjs/common";
-import { ClientProxy } from "@nestjs/microservices";
-import { InjectConnection } from "@nestjs/typeorm";
+import {ClientProxy} from "@nestjs/microservices";
+import {InjectConnection} from "@nestjs/typeorm";
 import type {
     EntitySubscriberInterface, InsertEvent, RemoveEvent, UpdateEvent,
 } from "typeorm";
-import { Connection, EventSubscriber } from "typeorm";
+import {Connection, EventSubscriber} from "typeorm";
 
 @EventSubscriber()
 export class GlobalEntitySubscriberService implements EntitySubscriberInterface<unknown> {

@@ -1,24 +1,25 @@
 import {
     forwardRef, Inject, Injectable, Logger,
 } from "@nestjs/common";
-import { PassportStrategy } from "@nestjs/passport";
+import {PassportStrategy} from "@nestjs/passport";
 import {
     AnalyticsEndpoint, AnalyticsService, config,
 } from "@sprocketbot/common";
-import type { Profile } from "passport-discord";
-import { Strategy } from "passport-discord";
+import type {Profile} from "passport-discord";
+import {Strategy} from "passport-discord";
 
-import {IrrelevantFields} from '../../../../database';;;;
-import {User} from '$db/identity/user/user.model';
-import {UserAuthenticationAccount} from '$db/identity/user_authentication_account/user_authentication_account.model';
-import {UserProfile} from '$db/identity/user_profile/user_profile.model';
-import {UserAuthenticationAccountType} from '$db/identity/user_authentication_account/user_authentication_account_type.enum';
-import { GameSkillGroupService, PlayerService } from "../../../../franchise";
-import { PlatformService } from "../../../../game";
-import { MledbPlayerAccountService, MledbPlayerService } from "../../../../mledb";
-import { MemberPlatformAccountService, MemberService } from "../../../../organization";
-import { IdentityService } from "../../../identity.service";
-import { UserService } from "../../../user";
+import type {User} from "$db/identity/user/user.model";
+import type {UserAuthenticationAccount} from "$db/identity/user_authentication_account/user_authentication_account.model";
+import {UserAuthenticationAccountType} from "$db/identity/user_authentication_account/user_authentication_account_type.enum";
+import type {UserProfile} from "$db/identity/user_profile/user_profile.model";
+
+import type {IrrelevantFields} from "../../../../database";
+import {GameSkillGroupService, PlayerService} from "../../../../franchise";
+import {PlatformService} from "../../../../game";
+import {MledbPlayerAccountService, MledbPlayerService} from "../../../../mledb";
+import {MemberPlatformAccountService, MemberService} from "../../../../organization";
+import {IdentityService} from "../../../identity.service";
+import {UserService} from "../../../user";
 
 export type Done = (err: string, user: User) => void;
 const MLE_ORGANIZATION_ID = 2;
@@ -70,12 +71,12 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         if (!user && !profile.email) throw new Error("User account could not be found and there is no attached email to the Discord user");
 
         // TODO: Do we want to actually do this? Theoretically, if a user changes their email, that's a "new user" if we go by email. Hence ^
-        if (!user) user = await this.userService.getUser({ where: { email: profile.email } });
+        if (!user) user = await this.userService.getUser({where: {email: profile.email} });
 
         // If no users returned from query, create a new one
         if (!user) {
             const userProfile: Omit<UserProfile, IrrelevantFields | "id" | "user"> = {
-                email: profile.email!,
+                email: profile.email,
                 displayName: profile.username,
             };
 
@@ -109,25 +110,25 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
             await this.userService.addAuthenticationAccounts(user.id, [authAcct]);
         }
 
-        let member = await this.memberService.getMember({ where: { user: { id: user.id } } }).catch(() => null);
+        let member = await this.memberService.getMember({where: {user: {id: user.id} } }).catch(() => null);
 
         if (!member) {
             member = await this.memberService.createMember(
-                { name: mledbPlayer.name },
+                {name: mledbPlayer.name},
                 MLE_ORGANIZATION_ID,
                 user.id,
             );
         }
 
-        const mledbPlayerAccounts = await this.mledbPlayerAccountService.getPlayerAccounts({ where: { player: { id: mledbPlayer.id } } });
+        const mledbPlayerAccounts = await this.mledbPlayerAccountService.getPlayerAccounts({where: {player: {id: mledbPlayer.id} } });
 
         for (const mledbPlayerAccount of mledbPlayerAccounts) {
             if (!mledbPlayerAccount.platformId) continue;
 
             const platformAccount = await this.memberPlatformAccountService.getMemberPlatformAccount({
                 where: {
-                    member: { id: member.id },
-                    platform: { code: mledbPlayerAccount.platform },
+                    member: {id: member.id},
+                    platform: {code: mledbPlayerAccount.platform},
                     platformAccountId: mledbPlayerAccount.platformId,
                 },
                 relations: ["member", "platform"],
@@ -151,7 +152,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
             },
             relations: ["profile"],
         });
-        const player = await this.playerService.getPlayer({ where: { member: { id: member.id } } }).catch(() => null);
+        const player = await this.playerService.getPlayer({where: {member: {id: member.id} } }).catch(() => null);
         if (!player) await this.playerService.createPlayer(member, skillGroup.id, mledbPlayer.salary);
 
         done("", user);

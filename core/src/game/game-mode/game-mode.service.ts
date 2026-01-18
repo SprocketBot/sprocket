@@ -5,7 +5,7 @@ import type {
 } from "typeorm";
 import {Repository} from "typeorm";
 
-import {GameMode} from '$db/game/game_mode/game_mode.model';
+import {GameMode} from "$db/game/game_mode/game_mode.model";
 
 @Injectable()
 export class GameModeService {

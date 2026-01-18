@@ -2,7 +2,8 @@ import {
     Args, Query, Resolver,
 } from "@nestjs/graphql";
 
-import {SprocketConfiguration} from '$db/configuration/sprocket_configuration/sprocket_configuration.model';;
+import {SprocketConfiguration} from "$db/configuration/sprocket_configuration/sprocket_configuration.model";
+
 import {SprocketConfigurationService} from "./sprocket-configuration.service";
 
 @Resolver(() => SprocketConfiguration)

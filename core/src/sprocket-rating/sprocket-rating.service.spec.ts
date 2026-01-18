@@ -1,7 +1,7 @@
-import type { TestingModule } from "@nestjs/testing";
-import { Test } from "@nestjs/testing";
+import type {TestingModule} from "@nestjs/testing";
+import {Test} from "@nestjs/testing";
 
-import { SprocketRatingService } from "./sprocket-rating.service";
+import {SprocketRatingService} from "./sprocket-rating.service";
 
 describe("SprocketRatingService", () => {
     let service: SprocketRatingService;

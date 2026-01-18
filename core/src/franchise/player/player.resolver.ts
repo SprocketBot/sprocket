@@ -12,7 +12,7 @@ import {
     Resolver,
     Root,
 } from "@nestjs/graphql";
-import { InjectRepository } from "@nestjs/typeorm";
+import {InjectRepository} from "@nestjs/typeorm";
 import {
     EventsService,
     EventTopic,
@@ -22,41 +22,42 @@ import {
     NotificationType,
     readToString,
 } from "@sprocketbot/common";
-import type { FileUpload } from "graphql-upload";
-import { GraphQLUpload } from "graphql-upload";
-import { Repository } from "typeorm";
-import { z } from "zod"; import { parseAndValidateCsv } from "../../util/csv-parse";
+import type {FileUpload} from "graphql-upload";
+import {GraphQLUpload} from "graphql-upload";
+import {Repository} from "typeorm";
+import type {z} from "zod";
 
-import type { GameSkillGroup } from "../../database/franchise/game_skill_group/game_skill_group.model";
-import { Player } from "../../database/franchise/player/player.model";
-import { User } from "../../database/identity/user/user.model";
-import { UserAuthenticationAccount } from "../../database/identity/user_authentication_account/user_authentication_account.model";
-import { UserAuthenticationAccountType } from "../../database/identity/user_authentication_account/user_authentication_account_type.enum";
-import { Member } from "../../database/organization/member/member.model";
+import type {GameSkillGroup} from "../../database/franchise/game_skill_group/game_skill_group.model";
+import {Player} from "../../database/franchise/player/player.model";
+import {User} from "../../database/identity/user/user.model";
+import {UserAuthenticationAccount} from "../../database/identity/user_authentication_account/user_authentication_account.model";
+import {UserAuthenticationAccountType} from "../../database/identity/user_authentication_account/user_authentication_account_type.enum";
 import {
     League, LeagueOrdinals, MLE_OrganizationTeam, MLE_Platform, ModePreference, Timezone,
 } from "../../database/mledb";
-import type { ManualSkillGroupChange } from "../../elo/elo-connector";
-import { EloConnectorService, EloEndpoint } from "../../elo/elo-connector";
-import { CreatePlayerTuple } from "../../franchise/player/player.types";
-import { GqlJwtGuard } from "../../identity/auth/gql-auth-guard";
-import { MLEOrganizationTeamGuard } from "../../mledb/mledb-player/mle-organization-team.guard";
-import { OrganizationService } from "../../organization";
-import { PopulateService } from "../../util/populate/populate.service";
-import { FranchiseService } from "../franchise";
-import { GameSkillGroupService } from "../game-skill-group";
-import { PlayerService } from "./player.service";
+import {Member} from "../../database/organization/member/member.model";
+import type {ManualSkillGroupChange} from "../../elo/elo-connector";
+import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
+import {CreatePlayerTuple} from "../../franchise/player/player.types";
+import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
+import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
+import {OrganizationService} from "../../organization";
+import {parseAndValidateCsv} from "../../util/csv-parse";
+import {PopulateService} from "../../util/populate/populate.service";
+import {FranchiseService} from "../franchise";
+import {GameSkillGroupService} from "../game-skill-group";
+import {PlayerService} from "./player.service";
 import {
+    ChangePlayerNameResult,
+    ChangePlayerSkillGroupResult,
     changeSkillGroupSchema,
+    CreatePlayerResult,
+    ForcePlayerToTeamResult,
     IntakeSchema,
     IntakeUserBulkSchema,
-    OperationError,
-    ChangePlayerSkillGroupResult,
     IntakeUserResult,
+    OperationError,
     SwapDiscordAccountsResult,
-    ForcePlayerToTeamResult,
-    ChangePlayerNameResult,
-    CreatePlayerResult
 } from "./player.types";
 
 @InputType()
@@ -127,29 +128,23 @@ export class PlayerResolver {
 
     @Mutation(() => ChangePlayerSkillGroupResult)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
-    async changePlayerSkillGroupBulk(
-        @Args("files", { type: () => [GraphQLUpload] })
-        files: Array<Promise<FileUpload>>
-    ): Promise<typeof ChangePlayerSkillGroupResult> {
+    async changePlayerSkillGroupBulk(@Args("files", {type: () => [GraphQLUpload]})
+        files: Array<Promise<FileUpload>>): Promise<typeof ChangePlayerSkillGroupResult> {
         try {
             this.logger.debug("Starting bulk skill group change");
-            const csvs = await Promise.all(
-                files.map(async f => f.then(
-                    async _f => readToString(
-                        _f.createReadStream()
-                    ))));
+            const csvs = await Promise.all(files.map(async f => f.then(async _f => readToString(_f.createReadStream()))));
 
             this.logger.debug("Parsing and validating CSV files");
             const results = await Promise.all(csvs.map(async csv => {
                 this.logger.debug(`Parsing and validating a CSV file: ${csv.substring(0, 50)}...`);
                 const records = parseAndValidateCsv(
                     csv,
-                    changeSkillGroupSchema
+                    changeSkillGroupSchema,
                 );
                 this.logger.debug(`Processing ${records.data.length} records from CSV`);
                 this.logger.debug(`Found ${records.errors.length} errors in CSV`);
                 for (const error of records.errors) {
-                    this.logger.error(`Error in CSV: Row ${error.row}, Field: ${error.field || 'N/A'}, Value: ${error.value || 'N/A'}, Message: ${error.message}`);
+                    this.logger.error(`Error in CSV: Row ${error.row}, Field: ${error.field || "N/A"}, Value: ${error.value || "N/A"}, Message: ${error.message}`);
                 }
                 this.logger.debug(`Processing ${records.data.length} valid records from CSV`);
                 for (const record of records.data) {
@@ -159,7 +154,7 @@ export class PlayerResolver {
                             record.playerId,
                             record.salary,
                             record.skillGroupId,
-                            false
+                            false,
                         );
                         this.logger.debug(`Successfully processed player ID ${record.playerId}`);
                     } catch (error) {
@@ -168,12 +163,12 @@ export class PlayerResolver {
                 }
             }));
 
-            return new OperationError('Bulk skill group change completed successfully', 200);
+            return new OperationError("Bulk skill group change completed successfully", 200);
         } catch (error) {
             this.logger.error(`Error in bulk skill group change: ${error}`);
             return new OperationError(
-                error instanceof Error ? error.message : 'Failed to process bulk skill group change',
-                500
+                error instanceof Error ? error.message : "Failed to process bulk skill group change",
+                500,
             );
         }
     }
@@ -181,15 +176,15 @@ export class PlayerResolver {
     @Mutation(() => ChangePlayerSkillGroupResult)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async changePlayerSkillGroup(
-        @Args("playerId", { type: () => Int }) playerId: number,
-        @Args("salary", { type: () => Float }) salary: number,
-        @Args("skillGroupId", { type: () => Int }) skillGroupId: number,
-        @Args("silent", { type: () => Boolean, nullable: true }) silent?: boolean,
+        @Args("playerId", {type: () => Int}) playerId: number,
+        @Args("salary", {type: () => Float}) salary: number,
+        @Args("skillGroupId", {type: () => Int}) skillGroupId: number,
+        @Args("silent", {type: () => Boolean, nullable: true}) silent?: boolean,
     ): Promise<typeof ChangePlayerSkillGroupResult> {
         try {
             this.logger.debug(`Changing skill group for player ID ${playerId} to skill group ID ${skillGroupId} with salary ${salary}`);
             const player = await this.playerService.getPlayer({
-                where: { id: playerId },
+                where: {id: playerId},
                 relations: {
                     member: {
                         user: {
@@ -268,7 +263,7 @@ export class PlayerResolver {
                         type: NotificationMessageType.DirectMessage,
                         userId: discordAccount.accountId,
                         payload: {
-                            embeds: [{
+                            embeds: [ {
                                 title: "You Have Ranked Out",
                                 description: `You have been ranked out from ${player.skillGroup.profile.description} to ${skillGroup.profile.description}.`,
                                 author: {
@@ -288,7 +283,7 @@ export class PlayerResolver {
                                     text: orgProfile.name,
                                 },
                                 timestamp: Date.now(),
-                            }],
+                            } ],
                         },
                         brandingOptions: {
                             organizationId: player.member.organization.id,
@@ -308,8 +303,8 @@ export class PlayerResolver {
             }
 
             // Return the updated player on success
-            return this.playerService.getPlayer({
-                where: { id: playerId },
+            return await this.playerService.getPlayer({
+                where: {id: playerId},
                 relations: {
                     member: {
                         user: true,
@@ -326,8 +321,8 @@ export class PlayerResolver {
         } catch (error) {
             this.logger.error(`Error changing player skill group: ${error}`);
             return new OperationError(
-                error instanceof Error ? error.message : 'Failed to change player skill group',
-                500
+                error instanceof Error ? error.message : "Failed to change player skill group",
+                500,
             );
         }
     }
@@ -335,9 +330,9 @@ export class PlayerResolver {
     @Mutation(() => CreatePlayerResult)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async createPlayer(
-        @Args("memberId", { type: () => Int }) memberId: number,
-        @Args("skillGroupId", { type: () => Int }) skillGroupId: number,
-        @Args("salary", { type: () => Float }) salary: number,
+        @Args("memberId", {type: () => Int}) memberId: number,
+        @Args("skillGroupId", {type: () => Int}) skillGroupId: number,
+        @Args("salary", {type: () => Float}) salary: number,
     ): Promise<typeof CreatePlayerResult> {
         try {
             const result = await this.playerService.createPlayer(memberId, skillGroupId, salary);
@@ -345,39 +340,34 @@ export class PlayerResolver {
         } catch (error) {
             this.logger.error(`Error creating player: ${error}`);
             return new OperationError(
-                error instanceof Error ? error.message : 'Failed to create player',
-                500
+                error instanceof Error ? error.message : "Failed to create player",
+                500,
             );
         }
     }
 
     @Mutation(() => [String])
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
-    async intakeUserBulk(@Args("files", { type: () => [GraphQLUpload] }) files: Array<Promise<FileUpload>>): Promise<string[]> {
+    async intakeUserBulk(@Args("files", {type: () => [GraphQLUpload]}) files: Array<Promise<FileUpload>>): Promise<string[]> {
         const csvs = await Promise.all(files
-            .map(
-                async f => f.then(
-                    async _f => readToString(_f.createReadStream())
-                )
-            )
-        );
+            .map(async f => f.then(async _f => readToString(_f.createReadStream()))));
 
         this.logger.debug(`Parsing CSV data: ${csvs.join("\n")}`);
 
-        const users: z.infer<typeof IntakeUserBulkSchema>[] = [];
+        const users: Array<z.infer<typeof IntakeUserBulkSchema>> = [];
         const errors: string[] = [];
 
         for (const csv of csvs) {
             this.logger.debug(`CSV Content: ${csv}`);
             const parsed = parseAndValidateCsv(
                 csv,
-                IntakeUserBulkSchema
+                IntakeUserBulkSchema,
             );
             if (parsed.errors.length > 0) {
                 this.logger.error(`Errors encountered during CSV parsing: ${parsed.errors.length} errors found.`);
                 for (const error of parsed.errors) {
-                    this.logger.error(`Error in CSV: Row ${error.row}, Field: ${error.field || 'N/A'}, Value: ${error.value || 'N/A'}, Message: ${error.message}`);
-                    errors.push(`Row ${error.row}, Field: ${error.field || 'N/A'}, Value: ${error.value || 'N/A'}, Message: ${error.message}`);
+                    this.logger.error(`Error in CSV: Row ${error.row}, Field: ${error.field || "N/A"}, Value: ${error.value || "N/A"}, Message: ${error.message}`);
+                    errors.push(`Row ${error.row}, Field: ${error.field || "N/A"}, Value: ${error.value || "N/A"}, Message: ${error.message}`);
                 }
             }
             users.push(...parsed.data);
@@ -389,18 +379,17 @@ export class PlayerResolver {
                 const result = await this.playerService.intakeUser(
                     user.name,
                     user.discordId,
-                    [{
+                    [ {
                         gameSkillGroupId: user.skillGroupId,
                         salary: user.salary,
-                    }]
+                    } ],
                 );
                 if (typeof result === "string") {
                     errors.push(`Failed to intake user ${user.discordId} ${user.name}: ${result}`);
                 }
             } catch (err: unknown) {
                 this.logger
-                    .error(
-                        `Failed to intake user
+                    .error(`Failed to intake user
                         ${user.discordId} ${user.name}:
                         ${JSON.stringify(err)}`);
                 errors.push(`Failed to intake user ${user.discordId} ${user.name}: ${JSON.stringify(err)}`);
@@ -414,15 +403,15 @@ export class PlayerResolver {
     @Mutation(() => IntakeUserResult)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async intakeUser(
-        @Args("name", { type: () => String }) name: string,
-        @Args("discord_id", { type: () => String }) d_id: string,
-        @Args("playersToLink", { type: () => [CreatePlayerTuple] }) ptl: CreatePlayerTuple[],
+        @Args("name", {type: () => String}) name: string,
+        @Args("discord_id", {type: () => String}) d_id: string,
+        @Args("playersToLink", {type: () => [CreatePlayerTuple]}) ptl: CreatePlayerTuple[],
     ): Promise<typeof IntakeUserResult> {
         try {
             const result = await this.playerService.intakeUser(name, d_id, ptl);
 
             // If the service returns a string, it's an error message
-            if (typeof result === 'string') {
+            if (typeof result === "string") {
                 return new OperationError(result, 400);
             }
 
@@ -432,31 +421,30 @@ export class PlayerResolver {
             }
 
             // Fallback - return success message as OperationError
-            return new OperationError('User intake completed successfully', 200);
+            return new OperationError("User intake completed successfully", 200);
         } catch (error) {
             this.logger.error(`Error in intakeUser: ${error}`);
             return new OperationError(
-                error instanceof Error ? error.message : 'Failed to intake user',
-                500
+                error instanceof Error ? error.message : "Failed to intake user",
+                500,
             );
         }
     }
 
-
     @Mutation(() => SwapDiscordAccountsResult)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async swapDiscordAccounts(
-        @Args("newAcct", { type: () => String }) newAcct: string,
-        @Args("oldAcct", { type: () => String }) oldAcct: string,
+        @Args("newAcct", {type: () => String}) newAcct: string,
+        @Args("oldAcct", {type: () => String}) oldAcct: string,
     ): Promise<typeof SwapDiscordAccountsResult> {
         try {
             await this.playerService.swapDiscordAccounts(newAcct, oldAcct);
-            return new OperationError('Discord accounts swapped successfully', 200);
+            return new OperationError("Discord accounts swapped successfully", 200);
         } catch (error) {
             this.logger.error(`Error swapping Discord accounts: ${error}`);
             return new OperationError(
-                error instanceof Error ? error.message : 'Failed to swap Discord accounts',
-                500
+                error instanceof Error ? error.message : "Failed to swap Discord accounts",
+                500,
             );
         }
     }
@@ -464,17 +452,17 @@ export class PlayerResolver {
     @Mutation(() => ForcePlayerToTeamResult)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async forcePlayerToTeam(
-        @Args("mleid", { type: () => Int }) mleid: number,
-        @Args("newTeam", { type: () => String }) newTeam: string,
+        @Args("mleid", {type: () => Int}) mleid: number,
+        @Args("newTeam", {type: () => String}) newTeam: string,
     ): Promise<typeof ForcePlayerToTeamResult> {
         try {
             await this.playerService.forcePlayerToTeam(mleid, newTeam);
-            return new OperationError('Player forced to team successfully', 200);
+            return new OperationError("Player forced to team successfully", 200);
         } catch (error) {
             this.logger.error(`Error forcing player to team: ${error}`);
             return new OperationError(
-                error instanceof Error ? error.message : 'Failed to force player to team',
-                500
+                error instanceof Error ? error.message : "Failed to force player to team",
+                500,
             );
         }
     }
@@ -482,17 +470,17 @@ export class PlayerResolver {
     @Mutation(() => ChangePlayerNameResult)
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard([MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS]))
     async changePlayerName(
-        @Args("mleid", { type: () => Int }) mleid: number,
-        @Args("newName", { type: () => String }) newName: string,
+        @Args("mleid", {type: () => Int}) mleid: number,
+        @Args("newName", {type: () => String}) newName: string,
     ): Promise<typeof ChangePlayerNameResult> {
         try {
             await this.playerService.changePlayerName(mleid, newName);
-            return new OperationError('Player name changed successfully', 200);
+            return new OperationError("Player name changed successfully", 200);
         } catch (error) {
             this.logger.error(`Error changing player name: ${error}`);
             return new OperationError(
-                error instanceof Error ? error.message : 'Failed to change player name',
-                500
+                error instanceof Error ? error.message : "Failed to change player name",
+                500,
             );
         }
     }

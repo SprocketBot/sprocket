@@ -5,11 +5,12 @@ import type {
 } from "typeorm";
 import {Repository} from "typeorm";
 
-import {IrrelevantFields} from '../../database';;;;
-import {User} from '$db/identity/user/user.model';
-import {UserAuthenticationAccount} from '$db/identity/user_authentication_account/user_authentication_account.model';
-import {UserAuthenticationAccountType} from '$db/identity/user_authentication_account/user_authentication_account_type.enum';
-import {UserProfile} from '$db/identity/user_profile/user_profile.model';
+import {User} from "$db/identity/user/user.model";
+import {UserAuthenticationAccount} from "$db/identity/user_authentication_account/user_authentication_account.model";
+import {UserAuthenticationAccountType} from "$db/identity/user_authentication_account/user_authentication_account_type.enum";
+import {UserProfile} from "$db/identity/user_profile/user_profile.model";
+
+import type {IrrelevantFields} from "../../database";
 
 @Injectable()
 export class UserService {

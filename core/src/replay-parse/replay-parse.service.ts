@@ -35,7 +35,7 @@ export class ReplayParseService {
         private readonly eventsService: EventsService,
         private readonly memberService: MemberService,
         @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
-    ) {}
+    ) { }
 
     async getSubmission(submissionId: string): Promise<ReplaySubmission> {
         const result = await this.submissionService.send(SubmissionEndpoint.GetSubmissionRedisKey, {submissionId});
@@ -67,7 +67,7 @@ export class ReplayParseService {
             submissionId: submissionId,
         });
         if (canSubmitReponse.status === ResponseStatus.ERROR) throw canSubmitReponse.error;
-        if (canSubmitReponse.data.canSubmit === false) throw new GraphQLError(canSubmitReponse.data.reason);
+        if (!canSubmitReponse.data.canSubmit) throw new GraphQLError((canSubmitReponse.data as {reason: string;}).reason);
 
         const filepaths = await Promise.all(streams.map(async s => {
             const buffer = await readToBuffer(s.stream);
@@ -100,7 +100,7 @@ export class ReplayParseService {
             submissionId: submissionId,
         });
         if (canRatifyReponse.status === ResponseStatus.ERROR) throw canRatifyReponse.error;
-        if (canRatifyReponse.data.canRatify === false) throw new GraphQLError(canRatifyReponse.data.reason);
+        if (!canRatifyReponse.data.canRatify) throw new GraphQLError((canRatifyReponse.data as {reason: string;}).reason);
 
         const ratificationResponse = await this.submissionService.send(SubmissionEndpoint.RatifySubmission, {
             submissionId: submissionId,

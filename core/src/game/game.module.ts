@@ -1,6 +1,6 @@
 import {Module} from "@nestjs/common";
 
-import {DatabaseModule} from '../database';;;;
+import {DatabaseModule} from "../database";
 import {GameResolver, GameService} from "./game";
 import {GameController} from "./game/game.controller";
 import {GameFeatureResolver} from "./game_feature";

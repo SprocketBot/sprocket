@@ -3,8 +3,9 @@ import {
     Column, Entity, ManyToOne,
 } from "typeorm";
 
+import {OrganizationConfigurationKey} from "$db/configuration/organization_configuration_key/organization_configuration_key.model";
+
 import {BaseModel} from "../../base-model";
-import {OrganizationConfigurationKey} from '$db/configuration/organization_configuration_key/organization_configuration_key.model';
 
 @Entity({schema: "sprocket"})
 @ObjectType()

@@ -2,7 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 
-import {ScheduleGroupType} from '$db/scheduling/schedule_group_type/schedule_group_type.model';
+import {ScheduleGroupType} from "$db/scheduling/schedule_group_type/schedule_group_type.model";
 
 @Injectable()
 export class ScheduleGroupTypeService {

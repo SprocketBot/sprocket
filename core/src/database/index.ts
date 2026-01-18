@@ -1,4 +1,4 @@
-import type { ModelLifecycleFields } from "./base-model";
+import type {ModelLifecycleFields} from "./base-model";
 
 // export * from "./authorization"; // Commented to avoid circular dependencies - use $db imports instead
 // export * from "./configuration"; // Commented to avoid circular dependencies - use $db imports instead

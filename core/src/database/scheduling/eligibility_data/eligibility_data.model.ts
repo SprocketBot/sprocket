@@ -3,9 +3,10 @@ import {
     Column, Entity, ManyToOne,
 } from "typeorm";
 
+import {MatchParent} from "$db/scheduling/match_parent/match_parent.model";
+
 import {BaseModel} from "../../base-model";
 import {Player} from "../../franchise/player";
-import {MatchParent} from '$db/scheduling/match_parent/match_parent.model';
 
 @Entity({schema: "sprocket"})
 @ObjectType()

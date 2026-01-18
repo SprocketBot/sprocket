@@ -3,10 +3,11 @@ import {
     Column, Entity, JoinColumn, ManyToOne, OneToOne,
 } from "typeorm";
 
+import {Member} from "$db/organization/member/member.model";
+import {Photo} from "$db/organization/photo/photo.model";
+import {Pronouns} from "$db/organization/pronouns/pronouns.model";
+
 import {BaseModel} from "../../base-model";
-import {Member} from '$db/organization/member/member.model';
-import {Photo} from '$db/organization/photo/photo.model';
-import {Pronouns} from '$db/organization/pronouns/pronouns.model';
 
 @Entity({schema: "sprocket"})
 @ObjectType()

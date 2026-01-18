@@ -10,9 +10,10 @@ import {
     CoreEndpoint, CoreSchemas,
 } from "@sprocketbot/common";
 
+import {OrganizationConfigurationKeyCode} from "$db/configuration/organization_configuration_key/organization_configuration_key.enum";
+import type {OrganizationProfile} from "$db/organization/organization_profile/organization_profile.model";
+
 import {OrganizationConfigurationService} from "../../configuration/organization-configuration/organization-configuration.service";
-import {OrganizationProfile} from '$db/organization/organization_profile/organization_profile.model';
-import {OrganizationConfigurationKeyCode} from '$db/configuration/organization_configuration_key/organization_configuration_key.enum';
 import {OrganizationService} from "./organization.service";
 
 @Controller("organization")

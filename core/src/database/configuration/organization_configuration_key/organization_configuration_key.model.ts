@@ -3,8 +3,9 @@ import {
     Column, Entity, OneToMany,
 } from "typeorm";
 
+import {OrganizationConfigurationAllowedValue} from "$db/configuration/organization_configuration_allowed_value/organization_configuration_allowed_value.model";
+
 import {BaseModel} from "../../base-model";
-import {OrganizationConfigurationAllowedValue} from '$db/configuration/organization_configuration_allowed_value/organization_configuration_allowed_value.model';
 import {OrganizationConfigurationKeyCode, OrganizationConfigurationKeyType} from "./organization_configuration_key.enum";
 
 @Entity({schema: "sprocket"})
