@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import {
 		CreateScrimDataStore,
 		type CreateScrimData$result,

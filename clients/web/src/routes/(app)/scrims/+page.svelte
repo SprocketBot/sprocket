@@ -9,10 +9,9 @@
 	export let params: any = undefined;
 	$: ({ ScrimPageRoot } = data);
 
-
 	const pendingScrimsHydration = new PendingScrimHydrationStore();
 	const currentScrimHydration = new CurrentScrimHydrationStore();
-	
+
 	$: if ($pendingScrimsHydration.data) {
 		const scrimCache = cache.get('Scrim', $pendingScrimsHydration.data.live);
 		if (scrimCache && $pendingScrimsHydration.data.live.complete) {
@@ -21,29 +20,30 @@
 			cache.list('ScrimPage_PendingScrims').append(scrimCache);
 		}
 	}
-	
 
 	onMount(() => {
 		currentScrimHydration.listen();
 		pendingScrimsHydration.listen();
 
 		return () => {
-			currentScrimHydration.unlisten()
-			currentScrimHydration.unlisten()
-		}
-	})
-	</script>
+			currentScrimHydration.unlisten();
+			currentScrimHydration.unlisten();
+		};
+	});
+</script>
 
 {#if $ScrimPageRoot.errors}
 	<div class="card p-4 variant-filled-error">
 		<h3 class="h3">Error loading scrims</h3>
-		<pre class="overflow-auto">{JSON.stringify($ScrimPageRoot.errors, null, 2)}</pre>
+		<pre>{JSON.stringify($ScrimPageRoot.errors, null, 2)}</pre>
 	</div>
 {:else if !$ScrimPageRoot.data}
 	Loading...
 {:else if !$ScrimPageRoot.data.whoami.players.length}
 	<section class="card p-4 col-span-full">
-		<p class="text-xl font-bold text-center">You are not registered as a player for any games, and cannot scrim.</p>
+		<p class="text-xl font-bold text-center">
+			You are not registered as a player for any games, and cannot scrim.
+		</p>
 	</section>
 {:else if $ScrimPageRoot.data?.currentScrim && !$ScrimPageRoot.data.currentScrim.complete}
 	<!-- User is currently in a scrim -->

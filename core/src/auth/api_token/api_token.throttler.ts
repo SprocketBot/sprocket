@@ -9,7 +9,10 @@ export class ApiTokenThrottlerGuard extends ThrottlerGuard {
     if (context.getType<string>() === 'graphql') {
       const gqlCtx = GqlExecutionContext.create(context);
       const ctx = gqlCtx.getContext();
-      return { req: ctx.req ?? ctx.request, res: ctx.res ?? ctx.response };
+      const req = ctx.req ?? ctx.request;
+      const res = ctx.res ??
+        ctx.response ?? { header: () => {}, setHeader: () => {} };
+      return { req, res };
     }
     const http = context.switchToHttp();
     return { req: http.getRequest(), res: http.getResponse() };

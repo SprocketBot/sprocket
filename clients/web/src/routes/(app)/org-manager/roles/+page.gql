@@ -1,0 +1,11 @@
+query RolesList {
+	roles {
+		id
+		name
+		displayName
+		description
+		hierarchy
+		isActive
+		isRestricted
+	}
+}

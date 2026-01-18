@@ -18,7 +18,7 @@
 		UserSearch.fetch({ variables: vars });
 	}, 500);
 
-	onMount(() => update({ term }));
+	$: update({ term });
 
 	const toggleActive = graphql(`
 		mutation ToggleActiveUser($userId: String!, $active: Boolean!) {

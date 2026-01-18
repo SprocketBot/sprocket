@@ -33,9 +33,15 @@ describe('RbacService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RbacService,
-        { provide: getRepositoryToken(RoleDefinition), useValue: mockRepository },
+        {
+          provide: getRepositoryToken(RoleDefinition),
+          useValue: mockRepository,
+        },
         { provide: getRepositoryToken(UserRole), useValue: mockRepository },
-        { provide: getRepositoryToken(PermissionAuditLog), useValue: mockRepository },
+        {
+          provide: getRepositoryToken(PermissionAuditLog),
+          useValue: mockRepository,
+        },
         { provide: AUTHZ_ENFORCER, useValue: mockEnforcer },
         { provide: DataSource, useValue: {} },
       ],
@@ -51,8 +57,8 @@ describe('RbacService', () => {
   describe('checkPermission', () => {
     it('should call enforcer.enforce', async () => {
       mockEnforcer.enforce.mockResolvedValue(true);
-      const result = await service.checkPermission(1, 'read', 'profile', 'own');
-      expect(mockEnforcer.enforce).toHaveBeenCalledWith('1', 'profile', 'read', 'own');
+      const result = await service.checkPermission(1, 'read', 'profile');
+      expect(mockEnforcer.enforce).toHaveBeenCalledWith('1', 'profile', 'read');
       expect(result).toBe(true);
     });
   });
@@ -72,29 +78,35 @@ describe('RbacService', () => {
 
   describe('getAllPermissionsForUser', () => {
     it('should return formatted permissions', async () => {
-        const permissions = [
-            ['p', 'resource1', 'action1', 'scope1'],
-            ['p', 'resource2', 'action2', 'scope2'],
-        ];
-        // The mockEnforcer is injected as AUTHZ_ENFORCER. 
-        // Need to ensure getImplicitPermissionsForUser is mocked.
-        // It's not in the initial mock definition above, so I need to add it or cast.
-        mockEnforcer['getImplicitPermissionsForUser'] = vi.fn().mockResolvedValue(permissions);
+      const permissions = [
+        ['p', 'resource1', 'action1'],
+        ['p', 'resource2', 'action2'],
+      ];
+      // The mockEnforcer is injected as AUTHZ_ENFORCER.
+      // Need to ensure getImplicitPermissionsForUser is mocked.
+      // It's not in the initial mock definition above, so I need to add it or cast.
+      mockEnforcer['getImplicitPermissionsForUser'] = vi
+        .fn()
+        .mockResolvedValue(permissions);
 
-        const result = await service.getAllPermissionsForUser(1);
-        expect(mockEnforcer['getImplicitPermissionsForUser']).toHaveBeenCalledWith('1');
-        expect(result).toEqual(['resource1:action1:scope1', 'resource2:action2:scope2']);
+      const result = await service.getAllPermissionsForUser(1);
+      expect(
+        mockEnforcer['getImplicitPermissionsForUser'],
+      ).toHaveBeenCalledWith('1');
+      expect(result).toEqual(['resource1:action1', 'resource2:action2']);
     });
 
     it('should handle duplicates', async () => {
-         const permissions = [
-            ['p', 'resource1', 'action1', 'scope1'],
-            ['p', 'resource1', 'action1', 'scope1'],
-        ];
-        mockEnforcer['getImplicitPermissionsForUser'] = vi.fn().mockResolvedValue(permissions);
-        
-        const result = await service.getAllPermissionsForUser(1);
-        expect(result).toEqual(['resource1:action1:scope1']);
+      const permissions = [
+        ['p', 'resource1', 'action1'],
+        ['p', 'resource1', 'action1'],
+      ];
+      mockEnforcer['getImplicitPermissionsForUser'] = vi
+        .fn()
+        .mockResolvedValue(permissions);
+
+      const result = await service.getAllPermissionsForUser(1);
+      expect(result).toEqual(['resource1:action1']);
     });
   });
 });

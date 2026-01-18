@@ -72,7 +72,7 @@ export class ScrimService {
     private readonly gameRepo: GameRepository,
     private readonly gameModeRepo: GameModeRepository,
     private readonly internalScrimService: InternalScrimService,
-  ) { }
+  ) {}
 
   async getPendingScrims(
     query: ListScrimsPayload,
@@ -85,7 +85,12 @@ export class ScrimService {
       delete query.skillGroupid;
       const dbUser = await this.userRepo.findOne({
         where: { id: user.id },
-        relations: { players: true },
+        relations: {
+          players: {
+            game: true,
+            skillGroup: true,
+          },
+        },
       });
       if (!dbUser) throw new Error('User not found');
       const allScrims: Scrim[] = [];

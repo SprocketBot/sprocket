@@ -62,9 +62,9 @@ services:
       PRIVATE_API_PORT: 3000
     labels:
       traefik.enable: true
-      traefik.http.routers.web.rule: Host(`${BASE_URL:-localhost}`)
-      traefik.http.routers.web.entrypoints: web,websecure
-      traefik.http.services.web.loadbalancer.server.port: 5173
+      traefik.http.routers.web-client.rule: Host(`${BASE_URL:-localhost}`)
+      traefik.http.routers.web-client.entrypoints: web,websecure
+      traefik.http.services.web-client.loadbalancer.server.port: 5173
 
   discord:
     container_name: sprocket-discord
@@ -118,7 +118,6 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
 
-
   ##########
   ##### Monitoring Services
   ##########
@@ -164,11 +163,11 @@ services:
     image: jaegertracing/all-in-one:latest
     profiles: [monitoring]
     ports:
-      - 16686:16686  # Jaeger UI
-      - 14268:14268  # Jaeger collector HTTP
-      - 14250:14250  # Jaeger collector gRPC
-      - 6831:6831/udp  # Jaeger agent compact
-      - 6832:6832/udp  # Jaeger agent binary
+      - 16686:16686 # Jaeger UI
+      - 14268:14268 # Jaeger collector HTTP
+      - 14250:14250 # Jaeger collector gRPC
+      - 6831:6831/udp # Jaeger agent compact
+      - 6832:6832/udp # Jaeger agent binary
     environment:
       - COLLECTOR_OTLP_ENABLED=true
       - SPAN_STORAGE_TYPE=elasticsearch
@@ -186,7 +185,7 @@ services:
     ports:
       - "9090:9090"
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
+      - "--config.file=/etc/prometheus/prometheus.yml"
     labels:
       traefik.enable: true
       traefik.http.routers.prometheus.rule: Host(`${PROMETHEUS_URL:-prometheus.localhost}`)

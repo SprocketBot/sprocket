@@ -9,25 +9,27 @@ import {
 import { FindUserInput, UserObject } from './user.object';
 import { CurrentUser } from '../../auth/current-user/current-user.decorator';
 import type { User } from '@sprocketbot/lib/types';
-import { UseGuards } from '@nestjs/common';
+import { UseGuards, Logger, Inject } from '@nestjs/common';
 import { AuthorizeGuard } from '../../auth/authorize/authorize.guard';
-import { Logger } from '@nestjs/common';
 import { UserRepository } from '../../db/user/user.repository';
 import { PlayerObject } from '../player/player.object';
 import { UserAuthAccountObject } from '../user_auth_account/user_auth_account.object';
 import { FindOptionsWhere } from 'typeorm';
 import { UserEntity } from '../../db/user/user.entity';
-import { AuthPossession, AuthZGuard, UsePermissions } from 'nest-authz';
+import { AuthPossession, UsePermissions, AUTHZ_ENFORCER } from 'nest-authz';
 import { Resource, ResourceAction } from '@sprocketbot/lib/types';
+import { Enforcer } from 'casbin';
 @Resolver(() => UserObject)
 export class UserResolver {
   private readonly logger = new Logger(UserResolver.name);
 
-  constructor(private readonly userRepo: UserRepository) {}
+  constructor(
+    private readonly userRepo: UserRepository,
+    @Inject(AUTHZ_ENFORCER) private readonly enforcer: Enforcer,
+  ) {}
 
   @Query(() => UserObject)
   @UseGuards(AuthorizeGuard())
-  @UseGuards(AuthZGuard)
   @UsePermissions({
     resource: Resource.User,
     action: ResourceAction.Read,
@@ -46,13 +48,18 @@ export class UserResolver {
 
   @Query(() => [UserObject])
   @UseGuards(AuthorizeGuard())
-  @UseGuards(AuthZGuard)
-  @UsePermissions({
-    resource: Resource.User,
-    action: ResourceAction.Read,
-    possession: AuthPossession.OWN,
-  })
-  async users(@Args('query') query: FindUserInput): Promise<UserObject[]> {
+  async users(
+    @Args('query') query: FindUserInput,
+    @CurrentUser() user: User,
+  ): Promise<UserObject[]> {
+    // const hasPermission = await this.enforcer.enforce(
+    //   user.id,
+    //   Resource.User,
+    //   'read:any', // constructed action:possession
+    //   'global', // default scope
+    // );
+    // if (!hasPermission) throw new Error('Forbidden'); // Or ForbiddenException
+
     const filter: FindOptionsWhere<UserEntity> = {};
 
     if ('active' in query) filter.active = query.active;
@@ -83,7 +90,7 @@ export class UserResolver {
           );
       } else if (
         query.username.term ||
-        (!query.username.term && !query.username.allowEmpty)
+        (!query.username.term && query.username.allowEmpty === false)
       ) {
         filter.username = query.username.term;
       }
