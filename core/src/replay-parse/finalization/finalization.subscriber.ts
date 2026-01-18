@@ -45,10 +45,10 @@ export class FinalizationSubscriber {
                     await this.onMatchSubmissionComplete(submission as MatchReplaySubmission, payload.submissionId);
                 } else if (submission.type === ReplaySubmissionType.SCRIM) {
                     const scrim = await this.scrimService.getScrimBySubmissionId(payload.submissionId);
-                    await this.onScrimComplete(submission as ScrimReplaySubmission, payload.submissionId, scrim!);
+                    await this.onScrimComplete(submission as ScrimReplaySubmission, payload.submissionId, scrim);
                 } else if (submission.type === ReplaySubmissionType.LFS) {
                     const scrim = await this.scrimService.getScrimBySubmissionId(payload.submissionId);
-                    await this.onLFSComplete(submission as LFSReplaySubmission, payload.submissionId, scrim!);
+                    await this.onLFSComplete(submission as LFSReplaySubmission, payload.submissionId, scrim);
                 }
             });
         })

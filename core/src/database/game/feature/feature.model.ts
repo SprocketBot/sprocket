@@ -3,8 +3,9 @@ import {
     Column, Entity, JoinTable, ManyToMany, OneToMany,
 } from "typeorm";
 
+import {GameFeature} from "$db/game/game_feature/game_feature.model";
+
 import {BaseModel} from "../../base-model";
-import {GameFeature} from '$db/game/game_feature/game_feature.model';
 import {FeatureCode} from "./feature.enum";
 
 @Entity({schema: "sprocket"})

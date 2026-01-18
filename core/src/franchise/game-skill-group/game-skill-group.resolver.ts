@@ -2,10 +2,11 @@ import {
     ResolveField, Resolver, Root,
 } from "@nestjs/graphql";
 
-import {Game} from '$db/game/game/game.model';
-import {GameSkillGroupProfile} from '$db/franchise/game_skill_group_profile/game_skill_group_profile.model';
-import {Player} from '$db/franchise/player/player.model';
-import {GameSkillGroup} from '$db/franchise/game_skill_group/game_skill_group.model';
+import {GameSkillGroup} from "$db/franchise/game_skill_group/game_skill_group.model";
+import type {GameSkillGroupProfile} from "$db/franchise/game_skill_group_profile/game_skill_group_profile.model";
+import type {Player} from "$db/franchise/player/player.model";
+import type {Game} from "$db/game/game/game.model";
+
 import {PopulateService} from "../../util/populate/populate.service";
 
 @Resolver(() => GameSkillGroup)

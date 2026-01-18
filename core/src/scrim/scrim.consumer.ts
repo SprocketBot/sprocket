@@ -8,10 +8,11 @@ import {add} from "date-fns";
 import type {FindOptionsWhere} from "typeorm";
 import {IsNull, MoreThanOrEqual} from "typeorm";
 
+import {OrganizationConfigurationKeyCode} from "$db/configuration/organization_configuration_key/organization_configuration_key.enum";
+import type {MemberRestriction} from "$db/organization/member_restriction/member_restriction.model";
+import {MemberRestrictionType} from "$db/organization/member_restriction/member_restriction_type.enum";
+
 import {OrganizationConfigurationService} from "../configuration/organization-configuration/organization-configuration.service";
-import {MemberRestriction} from '$db/organization/member_restriction/member_restriction.model';
-import {MemberRestrictionType} from '$db/organization/member_restriction/member_restriction_type.enum';
-import {OrganizationConfigurationKeyCode} from '$db/configuration/organization_configuration_key/organization_configuration_key.enum';
 import {MemberService} from "../organization/member/member.service";
 import {MemberRestrictionService} from "../organization/member-restriction";
 import {ScrimService} from "./scrim.service";

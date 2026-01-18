@@ -2,11 +2,12 @@ import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 
-import {GameSkillGroup} from '$db/franchise/game_skill_group/game_skill_group.model';
-import {Match} from '$db/scheduling/match/match.model';
-import {MatchParent} from '$db/scheduling/match_parent/match_parent.model';
-import {ScheduleGroup} from '$db/scheduling/schedule_group/schedule_group.model';
-import {ScheduleFixture} from '$db/scheduling/schedule_fixture/schedule_fixture.model';
+import type {GameSkillGroup} from "$db/franchise/game_skill_group/game_skill_group.model";
+import type {Match} from "$db/scheduling/match/match.model";
+import type {MatchParent} from "$db/scheduling/match_parent/match_parent.model";
+import {ScheduleFixture} from "$db/scheduling/schedule_fixture/schedule_fixture.model";
+import type {ScheduleGroup} from "$db/scheduling/schedule_group/schedule_group.model";
+
 import type {MLE_Match} from "../../database/mledb";
 import {
     LegacyGameMode, MLE_Fixture, MLE_Series,

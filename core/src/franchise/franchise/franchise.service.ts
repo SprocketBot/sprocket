@@ -6,8 +6,9 @@ import type {CoreEndpoint, CoreOutput} from "@sprocketbot/common";
 import type {FindOneOptions} from "typeorm";
 import {Repository} from "typeorm";
 
-import {FranchiseProfile} from '$db/franchise/franchise_profile/franchise_profile.model';
-import {Franchise} from '$db/franchise/franchise/franchise.model';
+import {Franchise} from "$db/franchise/franchise/franchise.model";
+import {FranchiseProfile} from "$db/franchise/franchise_profile/franchise_profile.model";
+
 import {MledbPlayerService} from "../../mledb";
 import {MemberService} from "../../organization";
 import {PlayerService} from "../player";
@@ -49,14 +50,14 @@ export class FranchiseService {
             },
             relations: {
                 franchise: true,
-            }
+            },
         });
         
         // Have to go back to the DB to get the franchise object with its
         // profile, rather than the profile with the franchise we had above
         return this.getFranchise({
-            where: { id: profile.franchise.id },
-            relations: { profile: true }
+            where: {id: profile.franchise.id},
+            relations: {profile: true},
         });
     }
 

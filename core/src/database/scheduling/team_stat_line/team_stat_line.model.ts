@@ -4,10 +4,11 @@ import {
     Column, Entity, ManyToOne, OneToMany,
 } from "typeorm";
 
+import {PlayerStatLine} from "$db/scheduling/player_stat_line/player_stat_line.model";
+import {Round} from "$db/scheduling/round/round.model";
+
 import {BaseModel} from "../../base-model";
 import {Team} from "../../franchise/team";
-import {PlayerStatLine} from '$db/scheduling/player_stat_line/player_stat_line.model';
-import {Round} from '$db/scheduling/round/round.model';
 
 @Entity({schema: "sprocket"})
 @ObjectType()
