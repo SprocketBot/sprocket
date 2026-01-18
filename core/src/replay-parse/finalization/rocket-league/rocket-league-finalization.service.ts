@@ -1,38 +1,40 @@
-import {Injectable, Logger} from "@nestjs/common";
-import {InjectDataSource} from "@nestjs/typeorm";
+import { Injectable, Logger } from "@nestjs/common";
+import { InjectDataSource } from "@nestjs/typeorm";
 import type {
     BallchasingPlayer, BallchasingResponse, BallchasingTeam, Scrim,
 } from "@sprocketbot/common";
 import {
     BallchasingResponseSchema, Parser, ProgressStatus,
 } from "@sprocketbot/common";
-import type {EntityManager} from "typeorm";
-import {DataSource} from "typeorm";
-import type {QueryDeepPartialEntity} from "typeorm/query-builder/QueryPartialEntity";
+import type { EntityManager } from "typeorm";
+import { DataSource } from "typeorm";
+import type { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 
-import type {Player} from "$db/franchise/player/player.model";
-import type {Team} from "$db/franchise/team/team.model";
-import {GameMode} from "$db/game/game_mode/game_mode.model";
-import {EligibilityData} from "$db/scheduling/eligibility_data/eligibility_data.model";
-import {Match} from "$db/scheduling/match/match.model";
-import {MatchParent} from "$db/scheduling/match_parent/match_parent.model";
-import {PlayerStatLine} from "$db/scheduling/player_stat_line/player_stat_line.model";
-import {Round} from "$db/scheduling/round/round.model";
-import {ScrimMeta} from "$db/scheduling/saved_scrim/scrim.model";
-import {TeamStatLine} from "$db/scheduling/team_stat_line/team_stat_line.model";
+import type { Player } from "$db/franchise/player/player.model";
+import type { Team } from "$db/franchise/team/team.model";
+import { GameMode } from "$db/game/game_mode/game_mode.model";
+import { EligibilityData } from "$db/scheduling/eligibility_data/eligibility_data.model";
+import { Match } from "$db/scheduling/match/match.model";
+import { MatchParent } from "$db/scheduling/match_parent/match_parent.model";
+import { PlayerStatLine } from "$db/scheduling/player_stat_line/player_stat_line.model";
+import { Round } from "$db/scheduling/round/round.model";
+import { ScrimMeta } from "$db/scheduling/saved_scrim/scrim.model";
+import { TeamStatLine } from "$db/scheduling/team_stat_line/team_stat_line.model";
 
-import {PlayerService} from "../../../franchise";
-import {TeamService} from "../../../franchise/team/team.service";
-import {MledbFinalizationService, MledbPlayerService} from "../../../mledb";
-import {MatchService} from "../../../scheduling";
-import {SprocketRatingService} from "../../../sprocket-rating/sprocket-rating.service";
-import type {SprocketRating, SprocketRatingInput} from "../../../sprocket-rating/sprocket-rating.types";
+import { PlayerService } from "../../../franchise";
+import { GameSkillGroupService } from "../../../franchise/game-skill-group/game-skill-group.service";
+import { TeamService } from "../../../franchise/team/team.service";
+import { MledbFinalizationService, MledbPlayerService } from "../../../mledb";
+import { MatchService } from "../../../scheduling";
+import { EligibilityService } from "../../../scheduling/eligibility/eligibility.service";
+import { SprocketRatingService } from "../../../sprocket-rating/sprocket-rating.service";
+import type { SprocketRating, SprocketRatingInput } from "../../../sprocket-rating/sprocket-rating.types";
 import type {
     LFSReplaySubmission, MatchReplaySubmission, ReplaySubmission, ScrimReplaySubmission,
 } from "../../types";
-import {ReplaySubmissionType} from "../../types";
-import {BallchasingConverterService} from "../ballchasing-converter";
-import type {SaveMatchFinalizationReturn, SaveScrimFinalizationReturn} from "../finalization.types";
+import { ReplaySubmissionType } from "../../types";
+import { BallchasingConverterService } from "../ballchasing-converter";
+import type { SaveMatchFinalizationReturn, SaveScrimFinalizationReturn } from "../finalization.types";
 
 @Injectable()
 export class RocketLeagueFinalizationService {
@@ -47,7 +49,9 @@ export class RocketLeagueFinalizationService {
         private readonly teamService: TeamService,
         private readonly ballchasingConverter: BallchasingConverterService,
         private readonly mledbFinalizationService: MledbFinalizationService,
-    @InjectDataSource() private readonly dataSource: DataSource,
+        private readonly eligibilityService: EligibilityService,
+        private readonly gameSkillGroupService: GameSkillGroupService,
+        @InjectDataSource() private readonly dataSource: DataSource,
     ) { }
 
     async finalizeLFS(submission: LFSReplaySubmission, scrim: Scrim): Promise<SaveScrimFinalizationReturn> {
@@ -57,7 +61,7 @@ export class RocketLeagueFinalizationService {
         await qr.startTransaction();
         const em = qr.manager;
         try {
-            const gameMode = await em.findOneByOrFail(GameMode, {id: scrim.gameModeId});
+            const gameMode = await em.findOneByOrFail(GameMode, { id: scrim.gameModeId });
 
             const scrimMeta = em.create(ScrimMeta);
             scrimMeta.isCompetitive = scrim.settings.competitive;
@@ -72,13 +76,28 @@ export class RocketLeagueFinalizationService {
             match.gameMode = gameMode;
 
             await em.insert(Match, match as QueryDeepPartialEntity<Match>);
-            const uniquePlayers = await this.saveMatchDependents(submission, match, true, em);
+            const uniquePlayers = await this.saveMatchDependents(submission, match, false, em);
 
             this.logger.debug(`Update eligibilities for ${JSON.stringify(uniquePlayers)}`);
             if (scrim.settings.competitive) {
-                const eligibilities = uniquePlayers.map(p => this._createEligibility(3, p, match.matchParent, em));
-                this.logger.debug(`Got eligibilities: ${JSON.stringify(eligibilities)}`);
-                await em.insert(EligibilityData, eligibilities as QueryDeepPartialEntity<EligibilityData>);
+                const skillGroup = await this.gameSkillGroupService.getGameSkillGroupById(scrim.skillGroupId, { relations: { profile: true } });
+                const X = (skillGroup.ordinal === 1 || skillGroup.profile.description === "PREMIER") ? 7 : 15;
+
+                const eligibilities = await Promise.all(uniquePlayers.map(async p => {
+                    const currentPoints = await this.eligibilityService.getEligibilityPointsForPlayer(p.id);
+                    const pointsToAward = Math.min(3, Math.max(0, X - currentPoints));
+                    if (pointsToAward > 0) {
+                        return this._createEligibility(pointsToAward, p, match.matchParent, em);
+                    }
+                    return null;
+                }));
+
+                const validEligibilities = eligibilities.filter(e => e !== null) as EligibilityData[];
+
+                this.logger.debug(`Got eligibilities: ${JSON.stringify(validEligibilities)}`);
+                if (validEligibilities.length > 0) {
+                    await em.insert(EligibilityData, validEligibilities as QueryDeepPartialEntity<EligibilityData>);
+                }
             }
 
             this.logger.debug(`Finalizing in MLEDB schema`);
@@ -89,7 +108,7 @@ export class RocketLeagueFinalizationService {
             matchParent.match = match;
             await qr.commitTransaction();
 
-            return {scrim: scrimMeta, legacyScrim: mledbScrim};
+            return { scrim: scrimMeta, legacyScrim: mledbScrim };
         } catch (e) {
             const errorPayload = {
                 submissionId: submission.id,
@@ -114,7 +133,7 @@ export class RocketLeagueFinalizationService {
             // Before saving, check if scrim is competitive or not
             const isCompetitive = scrim.settings.competitive;
 
-            const gameMode = await em.findOneByOrFail(GameMode, {id: scrim.gameModeId});
+            const gameMode = await em.findOneByOrFail(GameMode, { id: scrim.gameModeId });
 
             const scrimMeta = em.create(ScrimMeta);
             scrimMeta.isCompetitive = isCompetitive;
@@ -140,7 +159,7 @@ export class RocketLeagueFinalizationService {
             matchParent.match = match;
             await qr.commitTransaction();
 
-            return {scrim: scrimMeta, legacyScrim: mledbScrim};
+            return { scrim: scrimMeta, legacyScrim: mledbScrim };
         } catch (e) {
             const errorPayload = {
                 submissionId: submission.id,
@@ -162,14 +181,14 @@ export class RocketLeagueFinalizationService {
         await qr.startTransaction();
         const em = qr.manager;
         try {
-            const match = await this.matchService.getMatchById(submission.matchId, {matchParent: {fixture: {homeFranchise: {organization: true} } }, gameMode: true});
+            const match = await this.matchService.getMatchById(submission.matchId, { matchParent: { fixture: { homeFranchise: { organization: true } } }, gameMode: true });
             const organization = match.matchParent.fixture.homeFranchise.organization;
 
             await this.saveMatchDependents(submission, match, false, em);
 
             const mleMatch = await this.mledbFinalizationService.saveMatch(submission, submission.id, em);
             await qr.commitTransaction();
-            return {match: match, legacyMatch: mleMatch};
+            return { match: match, legacyMatch: mleMatch };
         } catch (e) {
             const errorPayload = {
                 submissionId: submission.id,
@@ -190,10 +209,10 @@ export class RocketLeagueFinalizationService {
    */
     async saveMatchDependents(submission: ReplaySubmission, match: Match, eligibility: boolean, em: EntityManager): Promise<Player[]> {
         if (submission.items.some(i => i.progress?.status !== ProgressStatus.Complete)) {
-            throw new Error(`Not all items have been completed. Finalization attempted too soon. ${JSON.stringify({submissionId: submission.id, match: match.id})}`);
+            throw new Error(`Not all items have been completed. Finalization attempted too soon. ${JSON.stringify({ submissionId: submission.id, match: match.id })}`);
         }
 
-        const replays = submission.items.map<{replay: BallchasingResponse; parser: {type: Parser; version: number;}; outputPath: string;}>(i => {
+        const replays = submission.items.map<{ replay: BallchasingResponse; parser: { type: Parser; version: number; }; outputPath: string; }>(i => {
             const r = BallchasingResponseSchema.safeParse(i.progress?.result?.data);
 
             if (!r.success) {
@@ -205,12 +224,12 @@ export class RocketLeagueFinalizationService {
             }
 
             return {
-                replay: r.data, parser: {type: i.progress.result.parser, version: i.progress.result.parserVersion}, outputPath: i.outputPath,
+                replay: r.data, parser: { type: i.progress.result.parser, version: i.progress.result.parserVersion }, outputPath: i.outputPath,
             };
         });
 
         const isMatch = submission.type === ReplaySubmissionType.MATCH;
-        const {home, away} = isMatch ? await this.matchService.getFranchisesForMatch(match.id) : {home: undefined, away: undefined};
+        const { home, away } = isMatch ? await this.matchService.getFranchisesForMatch(match.id) : { home: undefined, away: undefined };
         const [homeTeam, awayTeam] = isMatch
             ? await Promise.all([
                 await this.teamService.getTeam(home.id, match.skillGroupId),
@@ -218,13 +237,17 @@ export class RocketLeagueFinalizationService {
             ])
             : [undefined, undefined];
 
-        const uniquePlayers = new Set<Player>();
+        const uniquePlayers = new Map<number, Player>();
         // TODO: Sprocket Team Role Usage
         const results = await Promise.all(replays.map(async ({
             replay, parser, outputPath,
         }) => {
             // Get players
-            const {blue, orange} = await this._getBallchasingPlayers(replay);
+            const { blue, orange } = await this._getBallchasingPlayers(replay);
+
+            blue.forEach(p => uniquePlayers.set(p.player.id, p.player));
+            orange.forEach(p => uniquePlayers.set(p.player.id, p.player));
+
             /*
        First, identify which team is home.
        It is safe to assume that all players are on the same team here;
@@ -295,17 +318,17 @@ export class RocketLeagueFinalizationService {
         }));
 
         if (eligibility) {
-            const players = results[0].playerStats.map(a => a.player);
+            const players = Array.from(uniquePlayers.values());
             const eligibilities = players.map(p => this._createEligibility(3, p, match.matchParent, em));
             await em.insert(EligibilityData, eligibilities as QueryDeepPartialEntity<EligibilityData>);
         }
 
         match.rounds = results;
 
-        return Array.from(uniquePlayers);
+        return Array.from(uniquePlayers.values());
     }
 
-    _createRound(match: Match, homeWon: boolean, replay: BallchasingResponse, parser: {type: Parser; version: number;}, outputPath: string): Round {
+    _createRound(match: Match, homeWon: boolean, replay: BallchasingResponse, parser: { type: Parser; version: number; }, outputPath: string): Round {
         const round = new Round();
         round.gameMode = match.gameMode;
         round.homeWon = homeWon;
@@ -323,8 +346,8 @@ export class RocketLeagueFinalizationService {
    * Looks up a set of players based on their ballchasing information
    * Noteworthy; this looks up sprocket players!
    */
-    async _getBallchasingPlayers(ballchasing: BallchasingResponse): Promise<{blue: Array<{player: Player; rawPlayer: BallchasingPlayer;}>; orange: Array<{player: Player; rawPlayer: BallchasingPlayer;}>;}> {
-    // TODO: This won't work when we support multiple games; in theory is an array of players for that member.
+    async _getBallchasingPlayers(ballchasing: BallchasingResponse): Promise<{ blue: Array<{ player: Player; rawPlayer: BallchasingPlayer; }>; orange: Array<{ player: Player; rawPlayer: BallchasingPlayer; }>; }> {
+        // TODO: This won't work when we support multiple games; in theory is an array of players for that member.
         const lookupFn = async (p: BallchasingPlayer): Promise<Player> => this.playerService.getPlayer({
             where: {
                 member: {
@@ -336,7 +359,7 @@ export class RocketLeagueFinalizationService {
                     },
                 },
             },
-            relations: {member: {platformAccounts: {platform: true} } },
+            relations: { member: { platformAccounts: { platform: true } } },
         });
 
         const bluePlayerIds = new Array<BallchasingPlayer>();
@@ -354,8 +377,8 @@ export class RocketLeagueFinalizationService {
         });
 
         return {
-            blue: await Promise.all(bluePlayerIds.map(async p => ({player: await lookupFn(p), rawPlayer: p}))),
-            orange: await Promise.all(orangePlayerIds.map(async p => ({player: await lookupFn(p), rawPlayer: p}))),
+            blue: await Promise.all(bluePlayerIds.map(async p => ({ player: await lookupFn(p), rawPlayer: p }))),
+            orange: await Promise.all(orangePlayerIds.map(async p => ({ player: await lookupFn(p), rawPlayer: p }))),
         };
     }
 
@@ -401,11 +424,11 @@ export class RocketLeagueFinalizationService {
     _getSprocketRating(rawPlayer: BallchasingPlayer, opposingTeam: BallchasingTeam, gameMode: GameMode): SprocketRating {
         const sprocketRatingInput: SprocketRatingInput = {
             ...rawPlayer.stats.core,
-            ...opposingTeam.players.reduce<{goals_against: number; shots_against: number;}>((acc, v) => {
+            ...opposingTeam.players.reduce<{ goals_against: number; shots_against: number; }>((acc, v) => {
                 acc.goals_against += v.stats.core.goals;
                 acc.shots_against += v.stats.core.shots;
                 return acc;
-            }, {goals_against: 0, shots_against: 0}),
+            }, { goals_against: 0, shots_against: 0 }),
             team_size: gameMode.teamSize,
         };
         return this.sprocketRatingService.calcSprocketRating(sprocketRatingInput);
