@@ -64,7 +64,6 @@ export class PlayerService {
   private readonly logger = new Logger(PlayerService.name);
 
   constructor(
-
     @InjectRepository(Player) private playerRepository: Repository<Player>,
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(UserProfile)
@@ -91,8 +90,8 @@ export class PlayerService {
     private readonly dataSource: DataSource,
     private readonly eloConnectorService: EloConnectorService,
     private readonly platformService: PlatformService,
-    private readonly analyticsService: AnalyticsService
-  ) { }
+    private readonly analyticsService: AnalyticsService,
+  ) {}
 
   async getPlayer(query: FindOneOptions<Player>): Promise<Player> {
     this.logger.debug(`getPlayer: ${JSON.stringify(query)}`);
@@ -107,10 +106,10 @@ export class PlayerService {
   async getPlayerByOrganizationAndGame(
     userId: number,
     organizationId: number,
-    gameId: number
+    gameId: number,
   ): Promise<Player> {
     this.logger.debug(
-      `getPlayerByOrganizationAndGame: userId=${userId}, orgId=${organizationId}, gameId=${gameId}`
+      `getPlayerByOrganizationAndGame: userId=${userId}, orgId=${organizationId}, gameId=${gameId}`,
     );
     return this.playerRepository.findOneOrFail({
       where: {
@@ -135,10 +134,10 @@ export class PlayerService {
   async getPlayerByOrganizationAndGameMode(
     userId: number,
     organizationId: number,
-    gameModeId: number
+    gameModeId: number,
   ): Promise<Player> {
     this.logger.debug(
-      `getPlayerByOrganizationAndGameMode: userId=${userId}, orgId=${organizationId}, gameModeId=${gameModeId}`
+      `getPlayerByOrganizationAndGameMode: userId=${userId}, orgId=${organizationId}, gameModeId=${gameModeId}`,
     );
     return this.playerRepository.findOneOrFail({
       where: {
@@ -181,12 +180,12 @@ export class PlayerService {
     memberOrId: number | Member,
     skillGroupId: number,
     salary: number,
-    runner?: QueryRunner
+    runner?: QueryRunner,
   ): Promise<Player> {
     const memberIdForLog =
       typeof memberOrId === "number" ? memberOrId : memberOrId?.id || "unknown";
     this.logger.debug(
-      `createPlayer: memberId=${memberIdForLog}, skillGroupId=${skillGroupId}, salary=${salary}`
+      `createPlayer: memberId=${memberIdForLog}, skillGroupId=${skillGroupId}, salary=${salary}`,
     );
 
     try {
@@ -202,17 +201,15 @@ export class PlayerService {
         }
       } else {
         // Extract just the essential data to avoid circular references
-        member = await (runner
-          ? runner.manager
-          : this.memberRepository
+        member = await (
+          runner ? runner.manager : this.memberRepository
         ).findOneOrFail(Member, {
           where: { id: memberOrId.id },
         });
       }
 
-      const skillGroup = await this.skillGroupService.getGameSkillGroupById(
-        skillGroupId
-      );
+      const skillGroup =
+        await this.skillGroupService.getGameSkillGroupById(skillGroupId);
 
       let player: Player;
       // Use transaction entity manager if provided, otherwise use global repository
@@ -235,21 +232,22 @@ export class PlayerService {
       }
 
       this.logger.debug(
-        `player saved: id=${player.id}, memberId=${player.memberId}, skillGroupId=${player.skillGroupId}`
+        `player saved: id=${player.id}, memberId=${player.memberId}, skillGroupId=${player.skillGroupId}`,
       );
 
       await this.checkAndCreateMlePlayer(
         player,
         member.userId,
         skillGroup.id,
-        runner
+        runner,
       );
 
       return player;
     } catch (error) {
       this.logger.error(
-        `Failed to create player: ${error instanceof Error ? error.message : String(error)
-        }`
+        `Failed to create player: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
       );
       throw error;
     }
@@ -259,7 +257,7 @@ export class PlayerService {
     player: Player,
     userId: number,
     skillGroupId: number,
-    runner?: QueryRunner
+    runner?: QueryRunner,
   ): Promise<void> {
     const skillGroup = await this.skillGroupService.getGameSkillGroup({
       where: { id: skillGroupId },
@@ -291,7 +289,7 @@ export class PlayerService {
 
     if (!userAuth) {
       this.logger.warn(
-        `Could not find discord account for user ${userId}, skipping MLE player creation`
+        `Could not find discord account for user ${userId}, skipping MLE player creation`,
       );
       return;
     }
@@ -305,7 +303,7 @@ export class PlayerService {
       "PC",
       Timezone.US_EAST,
       ModePreference.BOTH,
-      runner
+      runner,
     );
   }
 
@@ -317,14 +315,13 @@ export class PlayerService {
     salary: number,
     platform: string,
     timezone: Timezone,
-    modePreference: ModePreference
+    modePreference: ModePreference,
   ): Promise<Player> {
     this.logger.debug(
-      `updatePlayer: mleid=${mleid}, name=${name}, skillGroupId=${skillGroupId}, salary=${salary}`
+      `updatePlayer: mleid=${mleid}, name=${name}, skillGroupId=${skillGroupId}, salary=${salary}`,
     );
-    const skillGroup = await this.skillGroupService.getGameSkillGroupById(
-      skillGroupId
-    );
+    const skillGroup =
+      await this.skillGroupService.getGameSkillGroupById(skillGroupId);
 
     const runner = this.dataSource.createQueryRunner();
     await runner.connect();
@@ -362,7 +359,7 @@ export class PlayerService {
           platform,
           timezone,
           modePreference,
-          runner
+          runner,
         );
 
         await this.eloConnectorService.createJob(EloEndpoint.SGChange, {
@@ -373,7 +370,7 @@ export class PlayerService {
       } else {
         // Throw an error, because this is an update
         throw new Error(
-          `Tried updating player with MLEID: ${mleid}, but that MLEID does not yet exist.`
+          `Tried updating player with MLEID: ${mleid}, but that MLEID does not yet exist.`,
         );
       }
       await runner.commitTransaction();
@@ -396,10 +393,10 @@ export class PlayerService {
     platform: string,
     timezone: Timezone,
     preference: ModePreference,
-    runner?: QueryRunner
+    runner?: QueryRunner,
   ): Promise<MLE_Player> {
     this.logger.debug(
-      `mle_updatePlayer: player=${player.id}, name=${name}, league=${league}, salary=${salary}`
+      `mle_updatePlayer: player=${player.id}, name=${name}, league=${league}, salary=${salary}`,
     );
     const updatedPlayer = this.mle_playerRepository.merge(player, {
       updatedBy: "Sprocket FA Intake",
@@ -432,10 +429,10 @@ export class PlayerService {
     platform: string = "PC",
     timezone: Timezone = Timezone.US_EAST,
     preference: ModePreference = ModePreference.BOTH,
-    runner?: QueryRunner
+    runner?: QueryRunner,
   ): Promise<MLE_Player> {
     this.logger.debug(
-      `mle_createPlayer: sprocketPlayerId=${sprocketPlayerId}, discordId=${discordId}, name=${name}, salary=${salary}`
+      `mle_createPlayer: sprocketPlayerId=${sprocketPlayerId}, discordId=${discordId}, name=${name}, salary=${salary}`,
     );
     let player: MLE_Player = {
       createdBy: "Sprocket FA Intake",
@@ -484,19 +481,18 @@ export class PlayerService {
   async updatePlayerStanding(
     playerId: number,
     salary: number,
-    skillGroupId?: number
+    skillGroupId?: number,
   ): Promise<Player> {
     this.logger.debug(
-      `updatePlayerStanding: playerId=${playerId}, salary=${salary}, skillGroupId=${skillGroupId}`
+      `updatePlayerStanding: playerId=${playerId}, salary=${salary}, skillGroupId=${skillGroupId}`,
     );
     let player = await this.playerRepository.findOneOrFail({
       where: { id: playerId },
     });
 
     if (skillGroupId) {
-      const skillGroup = await this.skillGroupService.getGameSkillGroupById(
-        skillGroupId
-      );
+      const skillGroup =
+        await this.skillGroupService.getGameSkillGroupById(skillGroupId);
 
       player = this.playerRepository.merge(player, { salary, skillGroup });
       await this.playerRepository.save(player);
@@ -515,7 +511,7 @@ export class PlayerService {
     orgName: string,
     oldSkillGroupName: string,
     newSkillGroupName: string,
-    salary: number
+    salary: number,
   ): NotificationInput<NotificationEndpoint.SendNotification> {
     return {
       type: NotificationType.BASIC,
@@ -567,12 +563,20 @@ export class PlayerService {
 
   async saveSalaries(payload: SalaryPayloadItem[][]): Promise<void> {
     const totalPlayers = payload.flat().length;
-    const playersWithRankouts = payload.flat().filter(p => p.rankout).length;
-    const hardRankouts = payload.flat().filter(p => p.rankout?.degreeOfStiffness === DegreeOfStiffness.HARD).length;
-    const softRankouts = payload.flat().filter(p => p.rankout?.degreeOfStiffness === DegreeOfStiffness.SOFT).length;
+    const playersWithRankouts = payload.flat().filter((p) => p.rankout).length;
+    const hardRankouts = payload
+      .flat()
+      .filter(
+        (p) => p.rankout?.degreeOfStiffness === DegreeOfStiffness.HARD,
+      ).length;
+    const softRankouts = payload
+      .flat()
+      .filter(
+        (p) => p.rankout?.degreeOfStiffness === DegreeOfStiffness.SOFT,
+      ).length;
 
     this.logger.log(
-      `saveSalaries: Processing ${totalPlayers} players (${playersWithRankouts} with rankouts: ${hardRankouts} HARD, ${softRankouts} SOFT)`
+      `saveSalaries: Processing ${totalPlayers} players (${playersWithRankouts} with rankouts: ${hardRankouts} HARD, ${softRankouts} SOFT)`,
     );
 
     // Metrics tracking
@@ -614,28 +618,42 @@ export class PlayerService {
 
             this.logger.debug(
               `Player ${playerDelta.playerId} (${player.member.profile.name}): ` +
-              `Current: salary=${player.salary}, skillGroup=${player.skillGroup.profile.description} (cap=${player.skillGroup.salaryCap}), ` +
-              `New: salary=${playerDelta.newSalary}${playerDelta.rankout ? `, rankout=${playerDelta.rankout.skillGroupChange} (${playerDelta.rankout.degreeOfStiffness}) to salary=${playerDelta.rankout.salary}` : ''}, ` +
-              `Team: ${mlePlayer.teamName}`
+                `Current: salary=${player.salary}, skillGroup=${player.skillGroup.profile.description} (cap=${player.skillGroup.salaryCap}), ` +
+                `New: salary=${playerDelta.newSalary}${
+                  playerDelta.rankout
+                    ? `, rankout=${playerDelta.rankout.skillGroupChange} (${playerDelta.rankout.degreeOfStiffness}) to salary=${playerDelta.rankout.salary}`
+                    : ""
+                }, ` +
+                `Team: ${mlePlayer.teamName}`,
             );
 
             if (mlePlayer.teamName === "FP") {
-              this.logger.debug(`Player ${playerDelta.playerId}: Skipping (Free Player)`);
+              this.logger.debug(
+                `Player ${playerDelta.playerId}: Skipping (Free Player)`,
+              );
               skippedFP++;
               return;
             }
-            if (!playerDelta.rankout && player.salary === playerDelta.newSalary) {
-              this.logger.debug(`Player ${playerDelta.playerId}: Skipping (No change)`);
+            if (
+              !playerDelta.rankout &&
+              player.salary === playerDelta.newSalary
+            ) {
+              this.logger.debug(
+                `Player ${playerDelta.playerId}: Skipping (No change)`,
+              );
               skippedNoChange++;
               return;
             }
 
             // Log potential issues
-            if (!playerDelta.rankout && playerDelta.newSalary > player.skillGroup.salaryCap) {
+            if (
+              !playerDelta.rankout &&
+              playerDelta.newSalary > player.skillGroup.salaryCap
+            ) {
               this.logger.warn(
                 `Player ${playerDelta.playerId} (${player.member.profile.name}): ` +
-                `NEW SALARY ${playerDelta.newSalary} EXCEEDS SKILL GROUP CAP ${player.skillGroup.salaryCap} ` +
-                `for ${player.skillGroup.profile.description} BUT NO RANKOUT PROVIDED!`
+                  `NEW SALARY ${playerDelta.newSalary} EXCEEDS SKILL GROUP CAP ${player.skillGroup.salaryCap} ` +
+                  `for ${player.skillGroup.profile.description} BUT NO RANKOUT PROVIDED!`,
               );
               salaryCapViolations++;
             }
@@ -650,7 +668,7 @@ export class PlayerService {
             });
             const orgProfile =
               await this.organizationService.getOrganizationProfileForOrganization(
-                player.member.organization.id
+                player.member.organization.id,
               );
 
             if (playerDelta.rankout) {
@@ -659,8 +677,8 @@ export class PlayerService {
               ) {
                 this.logger.log(
                   `Player ${playerDelta.playerId} (${player.member.profile.name}): ` +
-                  `Processing HARD rankout ${playerDelta.rankout.skillGroupChange} ` +
-                  `from ${player.skillGroup.profile.description} with salary ${playerDelta.rankout.salary}`
+                    `Processing HARD rankout ${playerDelta.rankout.skillGroupChange} ` +
+                    `from ${player.skillGroup.profile.description} with salary ${playerDelta.rankout.salary}`,
                 );
                 hardRankoutsProcessed++;
 
@@ -676,7 +694,7 @@ export class PlayerService {
                       ordinal:
                         player.skillGroup.ordinal -
                         (playerDelta.rankout.skillGroupChange ===
-                          SkillGroupDelta.UP
+                        SkillGroupDelta.UP
                           ? 1
                           : -1),
                     },
@@ -689,13 +707,13 @@ export class PlayerService {
 
                 this.logger.log(
                   `Player ${playerDelta.playerId}: Moving to ${skillGroup.profile.description} ` +
-                  `(ordinal ${skillGroup.ordinal}, cap ${skillGroup.salaryCap})`
+                    `(ordinal ${skillGroup.ordinal}, cap ${skillGroup.salaryCap})`,
                 );
 
                 await this.updatePlayerStanding(
                   playerDelta.playerId,
                   playerDelta.rankout.salary,
-                  skillGroup.id
+                  skillGroup.id,
                 );
 
                 if (
@@ -703,12 +721,12 @@ export class PlayerService {
                 ) {
                   await this.mle_rankUpPlayer(
                     player.id,
-                    playerDelta.rankout.salary
+                    playerDelta.rankout.salary,
                   );
                 } else {
                   await this.mle_rankDownPlayer(
                     player.id,
-                    playerDelta.rankout.salary
+                    playerDelta.rankout.salary,
                   );
                 }
 
@@ -731,7 +749,7 @@ export class PlayerService {
                       salary: playerDelta.rankout.salary,
                       discordEmojiId: skillGroup.profile.discordEmojiId,
                     },
-                  }
+                  },
                 );
 
                 await this.notificationService.send(
@@ -743,22 +761,22 @@ export class PlayerService {
                     orgProfile.name,
                     player.skillGroup.profile.description,
                     skillGroup.profile.description,
-                    playerDelta.rankout.salary
-                  )
+                    playerDelta.rankout.salary,
+                  ),
                 );
               } else if (
                 playerDelta.rankout.degreeOfStiffness === DegreeOfStiffness.SOFT
               ) {
                 this.logger.log(
                   `Player ${playerDelta.playerId} (${player.member.profile.name}): ` +
-                  `Processing SOFT rankout ${playerDelta.rankout.skillGroupChange} - ` +
-                  `setting salary to ${playerDelta.newSalary}, offering rankout to ${playerDelta.rankout.salary}`
+                    `Processing SOFT rankout ${playerDelta.rankout.skillGroupChange} - ` +
+                    `setting salary to ${playerDelta.newSalary}, offering rankout to ${playerDelta.rankout.salary}`,
                 );
                 softRankoutsProcessed++;
 
                 await this.updatePlayerStanding(
                   playerDelta.playerId,
-                  playerDelta.newSalary
+                  playerDelta.newSalary,
                 );
 
                 const skillGroup =
@@ -773,7 +791,7 @@ export class PlayerService {
                       ordinal:
                         player.skillGroup.ordinal -
                         (playerDelta.rankout.skillGroupChange ===
-                          SkillGroupDelta.UP
+                        SkillGroupDelta.UP
                           ? 1
                           : -1),
                     },
@@ -786,8 +804,8 @@ export class PlayerService {
 
                 this.logger.log(
                   `Player ${playerDelta.playerId}: Offering rankout to ${skillGroup.profile.description} ` +
-                  `(ordinal ${skillGroup.ordinal}, cap ${skillGroup.salaryCap}) at salary ${playerDelta.rankout.salary}. ` +
-                  `Player stays in ${player.skillGroup.profile.description} with salary ${playerDelta.newSalary} until accepted.`
+                    `(ordinal ${skillGroup.ordinal}, cap ${skillGroup.salaryCap}) at salary ${playerDelta.rankout.salary}. ` +
+                    `Player stays in ${player.skillGroup.profile.description} with salary ${playerDelta.newSalary} until accepted.`,
                 );
 
                 /* TEMPORARY NOTIFICATION */
@@ -860,20 +878,20 @@ export class PlayerService {
                         },
                       },
                     },
-                  }
+                  },
                 );
               }
             } else {
               this.logger.log(
                 `Player ${playerDelta.playerId} (${player.member.profile.name}): ` +
-                `No rankout - updating salary from ${player.salary} to ${playerDelta.newSalary} ` +
-                `in ${player.skillGroup.profile.description}`
+                  `No rankout - updating salary from ${player.salary} to ${playerDelta.newSalary} ` +
+                  `in ${player.skillGroup.profile.description}`,
               );
               regularUpdates++;
 
               await this.updatePlayerStanding(
                 playerDelta.playerId,
-                playerDelta.newSalary
+                playerDelta.newSalary,
               );
               const newMlePlayer = this.mle_playerRepository.merge(mlePlayer, {
                 salary: playerDelta.newSalary,
@@ -882,15 +900,17 @@ export class PlayerService {
               await this.mle_playerRepository.save(newMlePlayer);
 
               this.logger.debug(
-                `Player ${playerDelta.playerId}: Salary update complete`
+                `Player ${playerDelta.playerId}: Salary update complete`,
               );
             }
-          })
-        )
-      )
+          }),
+        ),
+      ),
     );
 
-    this.logger.log(`saveSalaries: Completed processing ${totalPlayers} players`);
+    this.logger.log(
+      `saveSalaries: Completed processing ${totalPlayers} players`,
+    );
 
     // Emit metrics
     await this.analyticsService.send(AnalyticsEndpoint.Analytics, {
@@ -907,7 +927,9 @@ export class PlayerService {
     });
 
     if (salaryCapViolations > 0) {
-      this.logger.warn(`CRITICAL: ${salaryCapViolations} salary cap violations detected!`);
+      this.logger.warn(
+        `CRITICAL: ${salaryCapViolations} salary cap violations detected!`,
+      );
     }
   }
 
@@ -918,10 +940,10 @@ export class PlayerService {
   async mle_movePlayerToLeague(
     sprocPlayerId: number,
     salary: number,
-    skillGroupId: number
+    skillGroupId: number,
   ): Promise<MLE_Player> {
     this.logger.debug(
-      `mle_movePlayerToLeague: sprocPlayerId=${sprocPlayerId}, salary=${salary}, skillGroupId=${skillGroupId}`
+      `mle_movePlayerToLeague: sprocPlayerId=${sprocPlayerId}, salary=${salary}, skillGroupId=${skillGroupId}`,
     );
     const sprocketPlayer = await this.getPlayer({
       where: { id: sprocPlayerId },
@@ -945,7 +967,7 @@ export class PlayerService {
     }
 
     const discId = sprocketPlayer.member.user.authenticationAccounts.find(
-      (aa) => aa.accountType === UserAuthenticationAccountType.DISCORD
+      (aa) => aa.accountType === UserAuthenticationAccountType.DISCORD,
     );
     if (!discId) throw new Error("No discord Id");
 
@@ -979,10 +1001,10 @@ export class PlayerService {
 
   async mle_rankDownPlayer(
     sprocPlayerId: number,
-    salary: number
+    salary: number,
   ): Promise<MLE_Player> {
     this.logger.debug(
-      `mle_rankDownPlayer: sprocPlayerId=${sprocPlayerId}, salary=${salary}`
+      `mle_rankDownPlayer: sprocPlayerId=${sprocPlayerId}, salary=${salary}`,
     );
     const sprocketPlayer = await this.getPlayer({
       where: { id: sprocPlayerId },
@@ -996,7 +1018,7 @@ export class PlayerService {
       },
     });
     const discId = sprocketPlayer.member.user.authenticationAccounts.find(
-      (aa) => aa.accountType === UserAuthenticationAccountType.DISCORD
+      (aa) => aa.accountType === UserAuthenticationAccountType.DISCORD,
     );
     if (!discId) throw new Error("No discord Id");
 
@@ -1036,10 +1058,10 @@ export class PlayerService {
 
   async mle_rankUpPlayer(
     sprocPlayerId: number,
-    salary: number
+    salary: number,
   ): Promise<MLE_Player> {
     this.logger.debug(
-      `mle_rankUpPlayer: sprocPlayerId=${sprocPlayerId}, salary=${salary}`
+      `mle_rankUpPlayer: sprocPlayerId=${sprocPlayerId}, salary=${salary}`,
     );
     const sproc = await this.getPlayer({
       where: { id: sprocPlayerId },
@@ -1052,7 +1074,7 @@ export class PlayerService {
       },
     });
     const discId = sproc.member.user.authenticationAccounts.find(
-      (aa) => aa.accountType === UserAuthenticationAccountType.DISCORD
+      (aa) => aa.accountType === UserAuthenticationAccountType.DISCORD,
     );
     if (!discId) throw new Error("No discord Id");
 
@@ -1087,10 +1109,10 @@ export class PlayerService {
     gameId: number,
     platformId: number,
     platformAccountId: string,
-    relations?: FindOptionsRelations<Player>
+    relations?: FindOptionsRelations<Player>,
   ): Promise<Player> {
     this.logger.debug(
-      `getPlayerByGameAndPlatform: gameId=${gameId}, platformId=${platformId}, platformAccountId=${platformAccountId}`
+      `getPlayerByGameAndPlatform: gameId=${gameId}, platformId=${platformId}, platformAccountId=${platformAccountId}`,
     );
     return this.playerRepository.findOneOrFail({
       where: {
@@ -1120,7 +1142,7 @@ export class PlayerService {
             },
           },
         },
-        relations
+        relations,
       ),
     });
   }
@@ -1131,16 +1153,16 @@ export class PlayerService {
     gameId: number;
   }): Promise<CoreOutput<CoreEndpoint.GetPlayerByPlatformId>> {
     this.logger.debug(
-      `getPlayerByGameAndPlatformPayload: ${JSON.stringify(data)}`
+      `getPlayerByGameAndPlatformPayload: ${JSON.stringify(data)}`,
     );
     try {
       const platform = await this.platformService.getPlatformByCode(
-        data.platform
+        data.platform,
       );
       const player = await this.getPlayerByGameAndPlatform(
         data.gameId,
         platform.id,
-        data.platformId
+        data.platformId,
       );
       const mlePlayer = await this.getMlePlayerBySprocketPlayer(player.id);
 
@@ -1168,11 +1190,11 @@ export class PlayerService {
   async intakeUser(
     name: string,
     d_id: string,
-    ptl: CreatePlayerTuple[]
+    ptl: CreatePlayerTuple[],
   ): Promise<string | Player | User> {
     this.logger.log(`=== INTAKE USER STARTED ===`);
     this.logger.log(
-      `intakeUser: name="${name}", d_id="${d_id}", ptl_count=${ptl.length}`
+      `intakeUser: name="${name}", d_id="${d_id}", ptl_count=${ptl.length}`,
     );
     this.logger.debug(`intakeUser full ptl data: ${JSON.stringify(ptl)}`);
 
@@ -1186,12 +1208,13 @@ export class PlayerService {
         relations: { profile: true },
       });
       this.logger.log(
-        `Found MLE organization: id=${mleOrg.id}, name=${mleOrg.profile.name}`
+        `Found MLE organization: id=${mleOrg.id}, name=${mleOrg.profile.name}`,
       );
     } catch (e) {
       this.logger.error(
-        `Failed to find MLE organization: ${e instanceof Error ? e.message : String(e)
-        }`
+        `Failed to find MLE organization: ${
+          e instanceof Error ? e.message : String(e)
+        }`,
       );
       throw e;
     }
@@ -1206,8 +1229,9 @@ export class PlayerService {
       this.logger.log(`Started database transaction`);
     } catch (e) {
       this.logger.error(
-        `Failed to start transaction: ${e instanceof Error ? e.message : String(e)
-        }`
+        `Failed to start transaction: ${
+          e instanceof Error ? e.message : String(e)
+        }`,
       );
       throw e;
     }
@@ -1235,13 +1259,14 @@ export class PlayerService {
 
       if (user) {
         this.logger.log(
-          `Found existing user: id=${user.id}, displayName=${user.profile?.displayName || "N/A"
-          }`
+          `Found existing user: id=${user.id}, displayName=${
+            user.profile?.displayName || "N/A"
+          }`,
         );
         this.logger.log(`User has ${user.members?.length || 0} members`);
 
         const existingMember = user.members.find(
-          (m) => m.organization.id === mleOrg.id
+          (m) => m.organization.id === mleOrg.id,
         );
         if (existingMember) {
           this.logger.log(`Found existing MLE member: id=${existingMember.id}`);
@@ -1249,7 +1274,7 @@ export class PlayerService {
           member.user = user;
         } else {
           this.logger.log(
-            `No MLE member found, creating new member for user ${user.id}`
+            `No MLE member found, creating new member for user ${user.id}`,
           );
           member = this.memberRepository.create({});
           member.organization = mleOrg;
@@ -1266,7 +1291,7 @@ export class PlayerService {
         }
       } else {
         this.logger.log(
-          `No existing user found, creating new user for Discord ID: ${d_id}`
+          `No existing user found, creating new user for Discord ID: ${d_id}`,
         );
 
         // Check if a UserAuthenticationAccount with this Discord ID already exists
@@ -1287,28 +1312,28 @@ export class PlayerService {
                 },
               },
             },
-          }
+          },
         );
 
         if (existingAuthAccount) {
           this.logger.warn(
-            `UserAuthenticationAccount already exists for Discord ID: ${d_id}. Using existing user instead of creating new one.`
+            `UserAuthenticationAccount already exists for Discord ID: ${d_id}. Using existing user instead of creating new one.`,
           );
           user = existingAuthAccount.user;
 
           // Check if member exists for this user in MLE org
           const existingMember = user.members?.find(
-            (m) => m.organization.id === mleOrg.id
+            (m) => m.organization.id === mleOrg.id,
           );
           if (existingMember) {
             this.logger.log(
-              `Found existing MLE member: id=${existingMember.id}`
+              `Found existing MLE member: id=${existingMember.id}`,
             );
             member = existingMember;
             member.user = user;
           } else {
             this.logger.log(
-              `No MLE member found, creating new member for user ${user.id}`
+              `No MLE member found, creating new member for user ${user.id}`,
             );
             member = this.memberRepository.create({});
             member.organization = mleOrg;
@@ -1344,7 +1369,7 @@ export class PlayerService {
           });
 
           this.logger.log(
-            `Saving new user, profile, auth account, member, and member profile...`
+            `Saving new user, profile, auth account, member, and member profile...`,
           );
           // Save in correct order to avoid circular dependencies
           await runner.manager.save(user);
@@ -1362,7 +1387,7 @@ export class PlayerService {
           await runner.manager.save(member.profile);
 
           this.logger.log(
-            `Created new user: id=${user.id}, member: id=${member.id}`
+            `Created new user: id=${user.id}, member: id=${member.id}`,
           );
         }
       }
@@ -1370,15 +1395,16 @@ export class PlayerService {
       // For each game this user is going to participate in, create
       // the corresponding player
       this.logger.log(
-        `Processing ${ptl.length} player tuples for member ${member.id}`
+        `Processing ${ptl.length} player tuples for member ${member.id}`,
       );
       let playersCreated = 0;
 
       for (let i = 0; i < ptl.length; i++) {
         const pt = ptl[i];
         this.logger.log(
-          `Processing player tuple ${i + 1}/${ptl.length}: skillGroupId=${pt.gameSkillGroupId
-          }, salary=${pt.salary}`
+          `Processing player tuple ${i + 1}/${ptl.length}: skillGroupId=${
+            pt.gameSkillGroupId
+          }, salary=${pt.salary}`,
         );
 
         try {
@@ -1391,30 +1417,30 @@ export class PlayerService {
 
           if (existingPlayer) {
             this.logger.warn(
-              `Player already exists for member ${member.id} and skillGroup ${pt.gameSkillGroupId}. Skipping creation.`
+              `Player already exists for member ${member.id} and skillGroup ${pt.gameSkillGroupId}. Skipping creation.`,
             );
             continue;
           }
 
           this.logger.log(
-            `Creating new player for skillGroup ${pt.gameSkillGroupId} with salary ${pt.salary}`
+            `Creating new player for skillGroup ${pt.gameSkillGroupId} with salary ${pt.salary}`,
           );
           const player = await this.createPlayer(
             member.id,
             pt.gameSkillGroupId,
             pt.salary,
-            runner
+            runner,
           );
           this.logger.log(
-            `Created player: id=${player.id}, skillGroupId=${pt.gameSkillGroupId}, salary=${pt.salary}`
+            `Created player: id=${player.id}, skillGroupId=${pt.gameSkillGroupId}, salary=${pt.salary}`,
           );
 
           const skillGroup = await this.skillGroupService.getGameSkillGroupById(
             pt.gameSkillGroupId,
-            { relations: { profile: true } }
+            { relations: { profile: true } },
           );
           this.logger.log(
-            `Found skill group: ${skillGroup.profile.description} (ordinal: ${skillGroup.ordinal})`
+            `Found skill group: ${skillGroup.profile.description} (ordinal: ${skillGroup.ordinal})`,
           );
 
           this.logger.log(`Creating ELO job for player ${player.id}`);
@@ -1425,26 +1451,27 @@ export class PlayerService {
               name: name,
               salary: pt.salary,
               skillGroup: skillGroup.ordinal,
-            }
+            },
           );
           this.logger.log(
-            `ELO job created successfully for player ${player.id}`
+            `ELO job created successfully for player ${player.id}`,
           );
 
           playersCreated++;
         } catch (playerError) {
           this.logger.error(
-            `Failed to create player for tuple ${i + 1}: ${playerError instanceof Error
-              ? playerError.message
-              : String(playerError)
-            }`
+            `Failed to create player for tuple ${i + 1}: ${
+              playerError instanceof Error
+                ? playerError.message
+                : String(playerError)
+            }`,
           );
           throw playerError;
         }
       }
 
       this.logger.log(
-        `Committing transaction. Created ${playersCreated} new players.`
+        `Committing transaction. Created ${playersCreated} new players.`,
       );
       await runner.commitTransaction();
       this.logger.log(`Transaction committed successfully`);
@@ -1491,7 +1518,7 @@ export class PlayerService {
     } catch (e) {
       this.logger.error(`=== INTAKE USER FAILED ===`);
       this.logger.error(
-        `Error during intake: ${e instanceof Error ? e.message : String(e)}`
+        `Error during intake: ${e instanceof Error ? e.message : String(e)}`,
       );
       this.logger.error(`Stack trace: ${e instanceof Error ? e.stack : "N/A"}`);
 
@@ -1509,7 +1536,7 @@ export class PlayerService {
 
   async swapDiscordAccounts(newAcct: string, oldAcct: string): Promise<void> {
     this.logger.debug(
-      `swapDiscordAccounts: newAcct=${newAcct}, oldAcct=${oldAcct}`
+      `swapDiscordAccounts: newAcct=${newAcct}, oldAcct=${oldAcct}`,
     );
     // First, do the MLEDB Player table
     const mlePlayer = await this.mle_playerRepository.findOneOrFail({
@@ -1540,12 +1567,14 @@ export class PlayerService {
 
   async changePlayerName(mleid: number, newName: string): Promise<void> {
     this.logger.debug(`changePlayerName: mleid=${mleid}, newName=${newName}`);
+    // Update name in legacy mledb
     const mlePlayer = await this.mle_playerRepository.findOneOrFail({
       where: { mleid },
     });
     mlePlayer.name = newName;
     await this.mle_playerRepository.save(mlePlayer);
 
+    // Update name in Sprocket "user_profile"
     const uaa = await this.userAuthRepository.findOneOrFail({
       where: {
         accountId: mlePlayer.discordId ?? "",
@@ -1559,7 +1588,15 @@ export class PlayerService {
     // Use update() instead of save() to avoid TypeORM metadata issues
     await this.userProfileRepository.update(
       { user: { id: uaa.user.id } },
-      { displayName: newName }
+      { displayName: newName },
     );
+
+    // Update name in Sprocket "member_profile"
+    const member = await this.memberRepository.findOneOrFail({
+      where: { userId: uaa.user.id },
+      relations: { profile: true },
+    });
+    member.profile.name = newName;
+    await this.memberProfileRepository.save(member.profile);
   }
 }
