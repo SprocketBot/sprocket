@@ -1,1 +1,1 @@
-export {FranchiseGroupType} from "./franchise_group_type.model";
+export { FranchiseGroupType } from './franchise_group_type.model';

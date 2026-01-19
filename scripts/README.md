@@ -5,9 +5,11 @@ Utility scripts for local development and database management.
 ## Available Scripts
 
 ### setup-local.sh
+
 Complete local development environment setup script.
 
 **Usage:**
+
 ```bash
 # First time setup with production data
 ./scripts/setup-local.sh --fresh --seed-db
@@ -20,12 +22,14 @@ Complete local development environment setup script.
 ```
 
 **Options:**
+
 - `--fresh`: Tear down existing containers and volumes (clean slate)
 - `--seed-db`: Dump and seed database from production
 - `--skip-build`: Skip Docker image building
 - `--help`: Show help message
 
 **What it does:**
+
 1. Checks prerequisites (docker, docker-compose)
 2. Sets up .env file from .env.local
 3. Optionally dumps production database
@@ -35,9 +39,11 @@ Complete local development environment setup script.
 7. Runs database migrations
 
 ### dump-prod-db.sh
+
 Dumps the production database to a local SQL file.
 
 **Usage:**
+
 ```bash
 # Full dump (schema + data)
 ./scripts/dump-prod-db.sh
@@ -50,6 +56,7 @@ Dumps the production database to a local SQL file.
 ```
 
 **What it does:**
+
 1. Reads production credentials from .env
 2. Dumps database using pg_dump
 3. Saves to `scripts/db-seed/prod_dump_<type>_<timestamp>.sql`
@@ -57,6 +64,7 @@ Dumps the production database to a local SQL file.
 5. Creates init script for postgres container auto-restore
 
 **Output:**
+
 - Dump files in `scripts/db-seed/`
 - Latest symlink for easy access
 - Auto-restore script for postgres container
@@ -77,6 +85,7 @@ scripts/
 ## Workflow Examples
 
 ### Initial Setup
+
 ```bash
 # 1. Dump production DB
 ./scripts/dump-prod-db.sh
@@ -88,6 +97,7 @@ scripts/
 ```
 
 ### Daily Development
+
 ```bash
 # Start services
 docker-compose up -d
@@ -100,6 +110,7 @@ curl http://localhost:3001/graphql
 ```
 
 ### Reset Database
+
 ```bash
 # 1. Get fresh dump
 ./scripts/dump-prod-db.sh
@@ -112,12 +123,14 @@ docker-compose up -d
 ## Troubleshooting
 
 ### Script won't run
+
 ```bash
 # Make sure it's executable
 chmod +x ./scripts/*.sh
 ```
 
 ### Can't connect to production DB
+
 ```bash
 # Make sure .env has production credentials
 cat .env | grep POSTGRES_HOST
@@ -126,6 +139,7 @@ cat .env | grep POSTGRES_HOST
 ```
 
 ### Dump is too large
+
 ```bash
 # Dump schema only
 ./scripts/dump-prod-db.sh --schema-only

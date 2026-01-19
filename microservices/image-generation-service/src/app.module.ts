@@ -1,10 +1,10 @@
-import {Module} from "@nestjs/common";
+import { Module } from '@nestjs/common';
 
-import {ImageGenerationModule} from "./image-generation/image-generation.module";
+import { ImageGenerationModule } from './image-generation/image-generation.module';
 
 @Module({
-    imports: [ImageGenerationModule],
-    providers: [],
-    controllers: [],
+  imports: [ImageGenerationModule],
+  providers: [],
+  controllers: [],
 })
 export class AppModule {}

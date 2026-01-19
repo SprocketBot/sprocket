@@ -1,2 +1,2 @@
-export * from "./clickOutsideAction";
-export * from "./oauthPopupAction";
+export * from './clickOutsideAction';
+export * from './oauthPopupAction';

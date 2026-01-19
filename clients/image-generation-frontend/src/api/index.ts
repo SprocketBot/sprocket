@@ -1,1 +1,1 @@
-export * from "./templates.api";
+export * from './templates.api';

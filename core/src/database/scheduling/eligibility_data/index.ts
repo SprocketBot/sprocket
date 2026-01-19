@@ -1,1 +1,1 @@
-export {EligibilityData} from "./eligibility_data.model";
+export { EligibilityData } from './eligibility_data.model';

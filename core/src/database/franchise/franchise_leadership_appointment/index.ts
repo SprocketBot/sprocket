@@ -1,1 +1,1 @@
-export {FranchiseLeadershipAppointment} from "./franchise_leadership_appointment.model";
+export { FranchiseLeadershipAppointment } from './franchise_leadership_appointment.model';

@@ -1,88 +1,86 @@
-import {
-    Field, Int, ObjectType, registerEnumType,
-} from "@nestjs/graphql";
-import type {Scrim} from "@sprocketbot/common";
-import {ReplaySubmissionStatus} from "@sprocketbot/common";
+import { Field, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
+import type { Scrim } from '@sprocketbot/common';
+import { ReplaySubmissionStatus } from '@sprocketbot/common';
 
-import type {Match} from "$db/scheduling/match/match.model";
+import type { Match } from '$db/scheduling/match/match.model';
 
-import {ReplaySubmissionItem} from "./submission-item.types";
-import {SubmissionRejection} from "./submission-rejection.types";
-import {ReplaySubmissionStats} from "./submission-stats.types";
+import { ReplaySubmissionItem } from './submission-item.types';
+import { SubmissionRejection } from './submission-rejection.types';
+import { ReplaySubmissionStats } from './submission-stats.types';
 
 export enum ReplaySubmissionType {
-    MATCH = "MATCH",
-    SCRIM = "SCRIM",
-    LFS = "LFS",
+  MATCH = 'MATCH',
+  SCRIM = 'SCRIM',
+  LFS = 'LFS',
 }
 
-registerEnumType(ReplaySubmissionType, {name: "ReplaySubmissionType"});
-registerEnumType(ReplaySubmissionStatus, {name: "ReplaySubmissionStatus"});
+registerEnumType(ReplaySubmissionType, { name: 'ReplaySubmissionType' });
+registerEnumType(ReplaySubmissionStatus, { name: 'ReplaySubmissionStatus' });
 
-@ObjectType("ReplaySubmission")
+@ObjectType('ReplaySubmission')
 export class GqlReplaySubmission {
-    @Field()
-    id: string;
+  @Field()
+  id: string;
 
-    @Field(() => Int)
-    creatorId: number;
+  @Field(() => Int)
+  creatorId: number;
 
-    @Field(() => [String])
-    taskIds: string[];
+  @Field(() => [String])
+  taskIds: string[];
 
-    @Field(() => ReplaySubmissionStatus)
-    status: ReplaySubmissionStatus;
+  @Field(() => ReplaySubmissionStatus)
+  status: ReplaySubmissionStatus;
 
-    @Field(() => [ReplaySubmissionItem])
-    items: ReplaySubmissionItem[];
+  @Field(() => [ReplaySubmissionItem])
+  items: ReplaySubmissionItem[];
 
-    @Field(() => Boolean)
-    validated: boolean;
+  @Field(() => Boolean)
+  validated: boolean;
 
-    @Field(() => ReplaySubmissionStats, {nullable: true})
-    stats?: ReplaySubmissionStats;
+  @Field(() => ReplaySubmissionStats, { nullable: true })
+  stats?: ReplaySubmissionStats;
 
-    @Field(() => Number)
-    ratifications: number;
+  @Field(() => Number)
+  ratifications: number;
 
-    @Field(() => Number)
-    requiredRatifications: number;
+  @Field(() => Number)
+  requiredRatifications: number;
 
-    @Field(() => Boolean)
-    userHasRatified: boolean;
+  @Field(() => Boolean)
+  userHasRatified: boolean;
 
-    @Field(() => [SubmissionRejection], {nullable: true})
-    rejections?: SubmissionRejection[];
+  @Field(() => [SubmissionRejection], { nullable: true })
+  rejections?: SubmissionRejection[];
 
-    @Field(() => ReplaySubmissionType)
-    type: ReplaySubmissionType;
+  @Field(() => ReplaySubmissionType)
+  type: ReplaySubmissionType;
 
-    @Field(() => String, {nullable: true})
-    scrimId?: Scrim["id"];
+  @Field(() => String, { nullable: true })
+  scrimId?: Scrim['id'];
 
-    @Field(() => String, {nullable: true})
-    matchId?: Match["id"];
+  @Field(() => String, { nullable: true })
+  matchId?: Match['id'];
 
-    @Field(() => [Number])
-    ratifiers: number[];
+  @Field(() => [Number])
+  ratifiers: number[];
 }
 
 export class ScrimReplaySubmission extends GqlReplaySubmission {
-    type: ReplaySubmissionType.SCRIM = ReplaySubmissionType.SCRIM;
+  type: ReplaySubmissionType.SCRIM = ReplaySubmissionType.SCRIM;
 
-    scrimId: Scrim["id"];
+  scrimId: Scrim['id'];
 }
 
 export class MatchReplaySubmission extends GqlReplaySubmission {
-    type: ReplaySubmissionType.MATCH = ReplaySubmissionType.MATCH;
+  type: ReplaySubmissionType.MATCH = ReplaySubmissionType.MATCH;
 
-    matchId: Match["id"];
+  matchId: Match['id'];
 }
 
 export class LFSReplaySubmission extends GqlReplaySubmission {
-    type: ReplaySubmissionType.LFS = ReplaySubmissionType.LFS;
+  type: ReplaySubmissionType.LFS = ReplaySubmissionType.LFS;
 
-    scrimId: Scrim["id"];
+  scrimId: Scrim['id'];
 }
 
 export type ReplaySubmission = MatchReplaySubmission | ScrimReplaySubmission | LFSReplaySubmission;

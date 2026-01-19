@@ -1,4 +1,4 @@
-name: "Autobuild Docker Containers"
+name: 'Autobuild Docker Containers'
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   build_core_image:
-    name: "Build base docker image"
+    name: 'Build base docker image'
     runs-on: ubuntu-latest
     steps:
       - name: Extract branch name
@@ -42,23 +42,23 @@ jobs:
           platforms: linux/amd64
 
   build_microservices:
-    name: "Build Node Services"
+    name: 'Build Node Services'
     runs-on: ubuntu-latest
     needs:
       - build_core_image
     strategy:
       matrix:
         directory:
-          - [ discord-bot, ./clients/discord-bot ]
-          - [ web, ./clients/web ]
-          - [ core, ./core ]
-          - [ image-generation-service, ./microservices/image-generation-service ]
-          - [ matchmaking-service, ./microservices/matchmaking-service ]
-          - [ replay-parse-service, ./microservices/replay-parse-service ]
-          - [ server-analytics-service, ./microservices/server-analytics-service ]
-          - [ notification-service, ./microservices/notification-service ]
-          - [ submission-service, ./microservices/submission-service ]
-          - [ image-generation-frontend, ./clients/image-generation-frontend]
+          - [discord-bot, ./clients/discord-bot]
+          - [web, ./clients/web]
+          - [core, ./core]
+          - [image-generation-service, ./microservices/image-generation-service]
+          - [matchmaking-service, ./microservices/matchmaking-service]
+          - [replay-parse-service, ./microservices/replay-parse-service]
+          - [server-analytics-service, ./microservices/server-analytics-service]
+          - [notification-service, ./microservices/notification-service]
+          - [submission-service, ./microservices/submission-service]
+          - [image-generation-frontend, ./clients/image-generation-frontend]
 
     steps:
       - name: Extract branch name
@@ -92,7 +92,7 @@ jobs:
           discord_webhook: ${{ secrets.discord_webhook }}
 
   deploy_via_pulumi:
-    name: "Deploy via Pulumi"
+    name: 'Deploy via Pulumi'
     if: github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     needs:

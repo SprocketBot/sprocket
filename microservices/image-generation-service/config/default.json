@@ -1,17 +1,17 @@
 {
   "transport": {
     "url": "",
-    "image_generation_queue" : ""
+    "image_generation_queue": ""
   },
   "logger": {
     "levels": true
   },
   "minio": {
     "endPoint": "",
-    "port" : 80,
+    "port": 80,
     "bucketNames": {
       "replays": "",
-      "image_generation" : ""
+      "image_generation": ""
     }
   }
 }

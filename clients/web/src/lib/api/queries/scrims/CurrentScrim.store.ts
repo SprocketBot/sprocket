@@ -1,202 +1,209 @@
-import type {OperationResult} from "@urql/core";
-import {gql} from "@urql/core";
-import {LiveQueryStore} from "../../core/LiveQueryStore";
-import {toasts} from "../../../components";
-import {screamingSnakeToHuman} from "../../../utils";
+import type { OperationResult } from '@urql/core';
+import { gql } from '@urql/core';
+import { LiveQueryStore } from '../../core/LiveQueryStore';
+import { toasts } from '../../../components';
+import { screamingSnakeToHuman } from '../../../utils';
 
 export interface CurrentScrim {
-    id: string;
-    playerCount: number;
-    maxPlayers: number;
-    status: string;
-    createdAt: Date;
-    skillGroup: {
-        profile: {
-            description: string;
-        };
+  id: string;
+  playerCount: number;
+  maxPlayers: number;
+  status: string;
+  createdAt: Date;
+  skillGroup: {
+    profile: {
+      description: string;
     };
-    currentGroup?: {
-        code: string;
-        players: string[];
+  };
+  currentGroup?: {
+    code: string;
+    players: string[];
+  };
+  gameMode: {
+    description: string;
+    game: {
+      title: string;
     };
-    gameMode: {
-        description: string;
-        game: {
-            title: string;
-        };
-    };
-    settings: {
-        competitive: boolean;
-        mode: string;
-        lfs: boolean;
-    };
-    players: Array<{
+  };
+  settings: {
+    competitive: boolean;
+    mode: string;
+    lfs: boolean;
+  };
+  players: Array<{
+    id: number;
+    name: string;
+    checkedIn: boolean;
+  }>;
+  playersAdmin: Array<{
+    id: number;
+    name: string;
+  }>;
+  lobby: {
+    name: string;
+    password: string;
+  };
+
+  games: Array<{
+    teams: Array<{
+      players: Array<{
         id: number;
         name: string;
-        checkedIn: boolean;
+      }>;
     }>;
-    playersAdmin: Array<{
-        id: number;
-        name: string;
-    }>;
-    lobby: {
-        name: string;
-        password: string;
-    };
+  }>;
 
-    games: Array<{
-        teams: Array<{
-            players: Array<{
-                id: number;
-                name: string;
-            }>;
-        }>;
-    }>;
-
-    submissionId?: string;
+  submissionId?: string;
 }
 
 export interface CurrentScrimStoreValue {
-    currentScrim: CurrentScrim;
+  currentScrim: CurrentScrim;
 }
 
 export interface CurrentScrimSubscriptionValue {
-    currentScrim: {
-        scrim: CurrentScrim;
-    };
+  currentScrim: {
+    scrim: CurrentScrim;
+  };
 }
 
+export interface CurrentScrimStoreVariables {}
 
-export interface CurrentScrimStoreVariables {
-}
+export interface CurrentScrimStoreSubscriptionVariables {}
 
-export interface CurrentScrimStoreSubscriptionVariables {
-}
-
-class CurrentScrimStore extends LiveQueryStore<CurrentScrimStoreValue, CurrentScrimStoreVariables, CurrentScrimSubscriptionValue, CurrentScrimStoreSubscriptionVariables> {
-    protected queryString = gql<CurrentScrimStoreValue, CurrentScrimStoreVariables>`
+class CurrentScrimStore extends LiveQueryStore<
+  CurrentScrimStoreValue,
+  CurrentScrimStoreVariables,
+  CurrentScrimSubscriptionValue,
+  CurrentScrimStoreSubscriptionVariables
+> {
+  protected queryString = gql<CurrentScrimStoreValue, CurrentScrimStoreVariables>`
     query {
-        currentScrim: getCurrentScrim {
-            id
-            submissionId
-            playerCount
-            maxPlayers
-            status
-            createdAt
-            skillGroup {
-                profile {
-                    description
-                }
-            }
-            currentGroup {
-                code
-                players
-            }
-            gameMode {
-                description
-                game {
-                    title
-                }
-            }
-            settings {
-                competitive
-                mode
-            }
+      currentScrim: getCurrentScrim {
+        id
+        submissionId
+        playerCount
+        maxPlayers
+        status
+        createdAt
+        skillGroup {
+          profile {
+            description
+          }
+        }
+        currentGroup {
+          code
+          players
+        }
+        gameMode {
+          description
+          game {
+            title
+          }
+        }
+        settings {
+          competitive
+          mode
+        }
+        players {
+          id
+          name
+          checkedIn
+        }
+        lobby {
+          name
+          password
+        }
+        games {
+          teams {
             players {
-                id
-                name
-                checkedIn
+              id
+              name
             }
-            lobby {
-                name
-                password
-            }
-            games {
-                teams {
-                    players {
-                        id
-                        name
-                    }
-                }
-            }
-            
+          }
         }
-    }`;
+      }
+    }
+  `;
 
-    protected subscriptionString = gql<CurrentScrimSubscriptionValue, CurrentScrimStoreSubscriptionVariables>`
+  protected subscriptionString = gql<
+    CurrentScrimSubscriptionValue,
+    CurrentScrimStoreSubscriptionVariables
+  >`
     subscription {
-        currentScrim: followCurrentScrim {
-            scrim {
-                id
-                playerCount
-                maxPlayers
-                status
-                createdAt
-                skillGroup {
-                    profile {
-                        description
-                        }
-                }
-                currentGroup { 
-                    code
-                    players
-                }
-                gameMode {
-                    description
-                    game {
-                        title
-                    }
-                }
-                settings {
-                    competitive
-                    mode
-                }
-                players {
-                    id 
-                    name
-                    checkedIn
-                }
-                lobby {
-                    name
-                    password
-                }
-                games {
-                    teams {
-                        players {
-                            id
-                            name
-                        }
-                    }
-                }
-                submissionId
+      currentScrim: followCurrentScrim {
+        scrim {
+          id
+          playerCount
+          maxPlayers
+          status
+          createdAt
+          skillGroup {
+            profile {
+              description
             }
+          }
+          currentGroup {
+            code
+            players
+          }
+          gameMode {
+            description
+            game {
+              title
+            }
+          }
+          settings {
+            competitive
+            mode
+          }
+          players {
+            id
+            name
+            checkedIn
+          }
+          lobby {
+            name
+            password
+          }
+          games {
+            teams {
+              players {
+                id
+                name
+              }
+            }
+          }
+          submissionId
         }
+      }
     }
-    `;
+  `;
 
-    protected _subVars: CurrentScrimStoreSubscriptionVariables = {};
+  protected _subVars: CurrentScrimStoreSubscriptionVariables = {};
 
-    constructor() {
-        super();
-        this.vars = {};
-        this.subscriptionVariables = {};
+  constructor() {
+    super();
+    this.vars = {};
+    this.subscriptionVariables = {};
+  }
+
+  protected handleGqlMessage = (
+    message: OperationResult<CurrentScrimSubscriptionValue, CurrentScrimStoreSubscriptionVariables>,
+  ) => {
+    if (message?.data?.currentScrim) {
+      const { scrim } = message?.data?.currentScrim ?? {};
+      if (scrim?.status === 'CANCELLED' || scrim?.status === 'COMPLETE') {
+        this.currentValue.data = undefined;
+        toasts.pushToast({
+          status: 'info',
+          content: `Scrim ${screamingSnakeToHuman(scrim.status)}`,
+        });
+      } else if (!this.currentValue.data) this.currentValue.data = { currentScrim: scrim };
+      else this.currentValue.data.currentScrim = scrim;
+
+      this.pub();
     }
-
-    protected handleGqlMessage = (message: OperationResult<CurrentScrimSubscriptionValue, CurrentScrimStoreSubscriptionVariables>) => {
-        if (message?.data?.currentScrim) {
-            const {scrim} = message?.data?.currentScrim ?? {};
-            if (scrim?.status === "CANCELLED" || scrim?.status === "COMPLETE") {
-                this.currentValue.data = undefined;
-                toasts.pushToast({
-                    status: "info",
-                    content: `Scrim ${screamingSnakeToHuman(scrim.status)}`,
-                });
-            } else if (!this.currentValue.data) this.currentValue.data = {currentScrim: scrim};
-            else this.currentValue.data.currentScrim = scrim;
-
-            this.pub();
-        }
-    };
+  };
 }
 
 export const currentScrim = new CurrentScrimStore();

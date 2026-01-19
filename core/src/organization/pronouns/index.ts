@@ -1,1 +1,1 @@
-export * from "./pronouns.service";
+export * from './pronouns.service';

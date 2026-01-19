@@ -1,1 +1,1 @@
-export {default as FixtureCard} from "./FixtureCard.svelte";
+export { default as FixtureCard } from './FixtureCard.svelte';

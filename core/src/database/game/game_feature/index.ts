@@ -1,1 +1,1 @@
-export {GameFeature} from "./game_feature.model";
+export { GameFeature } from './game_feature.model';

@@ -1,1 +1,1 @@
-export {ImageTemplate} from "./image_template.model";
+export { ImageTemplate } from './image_template.model';

@@ -14,16 +14,19 @@ Bulk intakes users from CSV files. This mutation parses uploaded CSV files, vali
 Requires `MLEDB_ADMIN` or `LEAGUE_OPERATIONS` role.
 
 **Arguments:**
-*   `files`: `[Upload!]!` - An array of CSV files to process.
+
+- `files`: `[Upload!]!` - An array of CSV files to process.
 
 **CSV Format:**
 The CSV files must contain the following headers:
-*   `name`: The user's display name.
-*   `discordId`: The user's Discord ID.
-*   `skillGroupId`: The ID of the skill group (league) the user is joining.
-*   `salary`: The user's salary.
+
+- `name`: The user's display name.
+- `discordId`: The user's Discord ID.
+- `skillGroupId`: The ID of the skill group (league) the user is joining.
+- `salary`: The user's salary.
 
 **Example CSV:**
+
 ```csv
 name,discordId,skillGroupId,salary
 UserOne,123456789012345678,1,10.5
@@ -32,6 +35,7 @@ UserTwo,876543210987654321,2,15.0
 ```
 
 **GraphQL Example:**
+
 ```graphql
 mutation IntakeUserBulk($files: [Upload!]!) {
   intakeUserBulk(files: $files)
@@ -39,12 +43,14 @@ mutation IntakeUserBulk($files: [Upload!]!) {
 ```
 
 **Returns:**
-*   `[String!]!`: An array of error messages encountered during processing. If the array is empty, all records were processed successfully.
+
+- `[String!]!`: An array of error messages encountered during processing. If the array is empty, all records were processed successfully.
 
 **Errors:**
-*   **CSV Syntax Error:** If the CSV file is malformed.
-*   **Validation Error:** If a row in the CSV does not match the expected schema (e.g., invalid data types, missing fields).
-*   **Service Error:** If an error occurs during the user creation process (e.g., database error).
+
+- **CSV Syntax Error:** If the CSV file is malformed.
+- **Validation Error:** If a row in the CSV does not match the expected schema (e.g., invalid data types, missing fields).
+- **Service Error:** If an error occurs during the user creation process (e.g., database error).
 
 ---
 
@@ -58,16 +64,19 @@ If the user already exists (identified by Discord ID), it will add the new playe
 Requires `MLEDB_ADMIN` or `LEAGUE_OPERATIONS` role.
 
 **Arguments:**
-*   `name`: `String!` - The user's display name.
-*   `discord_id`: `String!` - The user's Discord ID.
-*   `playersToLink`: `[CreatePlayerTuple!]!` - An array of objects specifying the game skill group and salary for each player record to create.
+
+- `name`: `String!` - The user's display name.
+- `discord_id`: `String!` - The user's Discord ID.
+- `playersToLink`: `[CreatePlayerTuple!]!` - An array of objects specifying the game skill group and salary for each player record to create.
 
 **Input Types:**
-*   `CreatePlayerTuple`:
-    *   `gameSkillGroupId`: `Int!` - The ID of the skill group.
-    *   `salary`: `Float!` - The salary for this specific skill group.
+
+- `CreatePlayerTuple`:
+  - `gameSkillGroupId`: `Int!` - The ID of the skill group.
+  - `salary`: `Float!` - The salary for this specific skill group.
 
 **GraphQL Example:**
+
 ```graphql
 mutation IntakeUser($name: String!, $discordId: String!, $playersToLink: [CreatePlayerTuple!]!) {
   intakeUser(name: $name, discord_id: $discordId, playersToLink: $playersToLink) {
@@ -80,6 +89,7 @@ mutation IntakeUser($name: String!, $discordId: String!, $playersToLink: [Create
 ```
 
 **Variables Example:**
+
 ```json
 {
   "name": "NewUser",
@@ -98,7 +108,8 @@ mutation IntakeUser($name: String!, $discordId: String!, $playersToLink: [Create
 ```
 
 **Returns:**
-*   `User | String`: The created (or found) `User` object on success, or an error message string on failure.
+
+- `User | String`: The created (or found) `User` object on success, or an error message string on failure.
 
 ---
 
@@ -111,9 +122,11 @@ Bulk changes player skill groups using CSV files.
 Requires `MLEDB_ADMIN` or `LEAGUE_OPERATIONS` role.
 
 **Arguments:**
-*   `files`: `[Upload!]!` - An array of CSV files containing player skill group change data.
+
+- `files`: `[Upload!]!` - An array of CSV files containing player skill group change data.
 
 **GraphQL Example:**
+
 ```graphql
 mutation ChangePlayerSkillGroupBulk($files: [Upload!]!) {
   changePlayerSkillGroupBulk(files: $files)
@@ -121,7 +134,8 @@ mutation ChangePlayerSkillGroupBulk($files: [Upload!]!) {
 ```
 
 **Returns:**
-*   `String!`: A string containing the results of the operation (e.g., success messages, error logs).
+
+- `String!`: A string containing the results of the operation (e.g., success messages, error logs).
 
 ---
 
@@ -134,12 +148,14 @@ Changes a single player's skill group.
 Requires `MLEDB_ADMIN` or `LEAGUE_OPERATIONS` role.
 
 **Arguments:**
-*   `playerId`: `Int!` - The ID of the player.
-*   `salary`: `Float!` - The new salary for the player.
-*   `skillGroupId`: `Int!` - The ID of the new skill group.
-*   `silent`: `Boolean` (Optional) - If true, suppresses notifications.
+
+- `playerId`: `Int!` - The ID of the player.
+- `salary`: `Float!` - The new salary for the player.
+- `skillGroupId`: `Int!` - The ID of the new skill group.
+- `silent`: `Boolean` (Optional) - If true, suppresses notifications.
 
 **GraphQL Example:**
+
 ```graphql
 mutation ChangePlayerSkillGroup($playerId: Int!, $salary: Float!, $skillGroupId: Int!) {
   changePlayerSkillGroup(playerId: $playerId, salary: $salary, skillGroupId: $skillGroupId)
@@ -147,7 +163,8 @@ mutation ChangePlayerSkillGroup($playerId: Int!, $salary: Float!, $skillGroupId:
 ```
 
 **Returns:**
-*   `String!`: "SUCCESS" on success.
+
+- `String!`: "SUCCESS" on success.
 
 ---
 
@@ -160,11 +177,13 @@ Creates a new player record for an existing member.
 Requires `MLEDB_ADMIN` or `LEAGUE_OPERATIONS` role.
 
 **Arguments:**
-*   `memberId`: `Int!` - The ID of the member.
-*   `skillGroupId`: `Int!` - The ID of the skill group.
-*   `salary`: `Float!` - The player's salary.
+
+- `memberId`: `Int!` - The ID of the member.
+- `skillGroupId`: `Int!` - The ID of the skill group.
+- `salary`: `Float!` - The player's salary.
 
 **GraphQL Example:**
+
 ```graphql
 mutation CreatePlayer($memberId: Int!, $skillGroupId: Int!, $salary: Float!) {
   createPlayer(memberId: $memberId, skillGroupId: $skillGroupId, salary: $salary) {
@@ -179,7 +198,8 @@ mutation CreatePlayer($memberId: Int!, $skillGroupId: Int!, $salary: Float!) {
 ```
 
 **Returns:**
-*   `Player!`: The created `Player` object.
+
+- `Player!`: The created `Player` object.
 
 ---
 
@@ -192,10 +212,12 @@ Swaps a user's Discord account ID.
 Requires `MLEDB_ADMIN` or `LEAGUE_OPERATIONS` role.
 
 **Arguments:**
-*   `newAcct`: `String!` - The new Discord account ID.
-*   `oldAcct`: `String!` - The old Discord account ID.
+
+- `newAcct`: `String!` - The new Discord account ID.
+- `oldAcct`: `String!` - The old Discord account ID.
 
 **GraphQL Example:**
+
 ```graphql
 mutation SwapDiscordAccounts($newAcct: String!, $oldAcct: String!) {
   swapDiscordAccounts(newAcct: $newAcct, oldAcct: $oldAcct)
@@ -203,7 +225,8 @@ mutation SwapDiscordAccounts($newAcct: String!, $oldAcct: String!) {
 ```
 
 **Returns:**
-*   `String!`: "Success." on success.
+
+- `String!`: "Success." on success.
 
 ---
 
@@ -216,10 +239,12 @@ Forces a player to a specific team (MLEDB specific).
 Requires `MLEDB_ADMIN` or `LEAGUE_OPERATIONS` role.
 
 **Arguments:**
-*   `mleid`: `Int!` - The MLE ID of the player.
-*   `newTeam`: `String!` - The name of the new team.
+
+- `mleid`: `Int!` - The MLE ID of the player.
+- `newTeam`: `String!` - The name of the new team.
 
 **GraphQL Example:**
+
 ```graphql
 mutation ForcePlayerToTeam($mleid: Int!, $newTeam: String!) {
   forcePlayerToTeam(mleid: $mleid, newTeam: $newTeam)
@@ -227,7 +252,8 @@ mutation ForcePlayerToTeam($mleid: Int!, $newTeam: String!) {
 ```
 
 **Returns:**
-*   `String!`: "Success." on success.
+
+- `String!`: "Success." on success.
 
 ---
 
@@ -240,10 +266,12 @@ Changes a player's name.
 Requires `MLEDB_ADMIN` or `LEAGUE_OPERATIONS` role.
 
 **Arguments:**
-*   `mleid`: `Int!` - The MLE ID of the player.
-*   `newName`: `String!` - The new name.
+
+- `mleid`: `Int!` - The MLE ID of the player.
+- `newName`: `String!` - The new name.
 
 **GraphQL Example:**
+
 ```graphql
 mutation ChangePlayerName($mleid: Int!, $newName: String!) {
   changePlayerName(mleid: $mleid, newName: $newName)
@@ -251,7 +279,8 @@ mutation ChangePlayerName($mleid: Int!, $newName: String!) {
 ```
 
 **Returns:**
-*   `String!`: "Success." on success.
+
+- `String!`: "Success." on success.
 
 ## Queries
 
@@ -261,6 +290,7 @@ mutation ChangePlayerName($mleid: Int!, $newName: String!) {
 Resolves the `skillGroup` field for a `Player`.
 
 **GraphQL Example:**
+
 ```graphql
 query GetPlayerSkillGroup($playerId: Int!) {
   getPlayer(id: $playerId) {
@@ -275,7 +305,8 @@ query GetPlayerSkillGroup($playerId: Int!) {
 ```
 
 **Returns:**
-*   `GameSkillGroup!`: The skill group associated with the player.
+
+- `GameSkillGroup!`: The skill group associated with the player.
 
 ---
 
@@ -285,6 +316,7 @@ query GetPlayerSkillGroup($playerId: Int!) {
 Resolves the `franchiseName` field for a `Player`.
 
 **GraphQL Example:**
+
 ```graphql
 query GetPlayerFranchiseName($playerId: Int!) {
   getPlayer(id: $playerId) {
@@ -294,7 +326,8 @@ query GetPlayerFranchiseName($playerId: Int!) {
 ```
 
 **Returns:**
-*   `String!`: The name of the franchise the player belongs to.
+
+- `String!`: The name of the franchise the player belongs to.
 
 ---
 
@@ -304,6 +337,7 @@ query GetPlayerFranchiseName($playerId: Int!) {
 Resolves the `franchisePositions` field for a `Player`.
 
 **GraphQL Example:**
+
 ```graphql
 query GetPlayerFranchisePositions($playerId: Int!) {
   getPlayer(id: $playerId) {
@@ -313,7 +347,8 @@ query GetPlayerFranchisePositions($playerId: Int!) {
 ```
 
 **Returns:**
-*   `[String!]!`: An array of staff positions the player holds in their franchise.
+
+- `[String!]!`: An array of staff positions the player holds in their franchise.
 
 ---
 
@@ -323,6 +358,7 @@ query GetPlayerFranchisePositions($playerId: Int!) {
 Resolves the `member` field for a `Player`.
 
 **GraphQL Example:**
+
 ```graphql
 query GetPlayerMember($playerId: Int!) {
   getPlayer(id: $playerId) {
@@ -337,4 +373,5 @@ query GetPlayerMember($playerId: Int!) {
 ```
 
 **Returns:**
-*   `Member!`: The member associated with the player.
+
+- `Member!`: The member associated with the player.

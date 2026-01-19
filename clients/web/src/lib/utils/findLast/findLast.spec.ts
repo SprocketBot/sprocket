@@ -1,43 +1,43 @@
-import {findLast} from "./findLast";
+import { findLast } from './findLast';
 
-describe("findLast", () => {
-    it("should return undefined if array is undefined", () => {
-        const arr = undefined;
-        
-        const expected = undefined;
-        const actual = findLast(arr, () => true);
+describe('findLast', () => {
+  it('should return undefined if array is undefined', () => {
+    const arr = undefined;
 
-        expect(actual).toEqual(expected);
-    });
+    const expected = undefined;
+    const actual = findLast(arr, () => true);
 
-    it("should return undefined if array is empty", () => {
-        const arr = [];
-        
-        const expected = undefined;
-        const actual = findLast(arr, () => true);
+    expect(actual).toEqual(expected);
+  });
 
-        expect(actual).toEqual(expected);
-    });
+  it('should return undefined if array is empty', () => {
+    const arr = [];
 
-    it("should return the last element that matches predicate", () => {
-        const arr = [1, 2];
-        const predicate = (v: number) => v > 0;
+    const expected = undefined;
+    const actual = findLast(arr, () => true);
 
-        const expected = 2;
-        const actual = findLast(arr, predicate);
+    expect(actual).toEqual(expected);
+  });
 
-        expect(actual).toEqual(expected);
-    });
+  it('should return the last element that matches predicate', () => {
+    const arr = [1, 2];
+    const predicate = (v: number) => v > 0;
 
-    it("should pass value, index, and full array to predicate", () => {
-        const arr = [-7, 3, 7, 0, -4, 1, 3];
+    const expected = 2;
+    const actual = findLast(arr, predicate);
 
-        const predicate = (v: number, i: number, a: number[]) => {
-            expect(a).toEqual(arr);
-            expect(v).toEqual(arr[i]);
-            return false;
-        };
+    expect(actual).toEqual(expected);
+  });
 
-        findLast(arr, predicate);
-    });
+  it('should pass value, index, and full array to predicate', () => {
+    const arr = [-7, 3, 7, 0, -4, 1, 3];
+
+    const predicate = (v: number, i: number, a: number[]) => {
+      expect(a).toEqual(arr);
+      expect(v).toEqual(arr[i]);
+      return false;
+    };
+
+    findLast(arr, predicate);
+  });
 });

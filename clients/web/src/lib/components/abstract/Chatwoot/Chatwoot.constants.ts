@@ -1,6 +1,6 @@
-import type {ChatwootSettings} from "./Chatwoot.types";
+import type { ChatwootSettings } from './Chatwoot.types';
 
 export const chatwootSettings: Partial<ChatwootSettings> = {
-    showPopoutButton: true,
-    darkMode: "auto",
+  showPopoutButton: true,
+  darkMode: 'auto',
 };

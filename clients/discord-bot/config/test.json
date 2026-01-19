@@ -1,8 +1,8 @@
 {
-    "bot": {
-        "prefix": "awsdfasfasfasdfasdf"
-    },
-    "logger": {
-        "levels": false
-    }
+  "bot": {
+    "prefix": "awsdfasfasfasdfasdf"
+  },
+  "logger": {
+    "levels": false
+  }
 }

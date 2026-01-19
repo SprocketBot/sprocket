@@ -14,23 +14,15 @@
     "baseUrl": "./",
     "incremental": true,
     "moduleResolution": "node",
-    "lib": [
-      "es2020",
-      "esnext.asynciterable"
-    ],
+    "lib": ["es2020", "esnext.asynciterable"],
     "strictNullChecks": false,
     "strictFunctionTypes": false,
     "strict": true,
     "strictPropertyInitialization": false,
     "esModuleInterop": true,
     "paths": {
-      "$db/*": [
-        "src/database/*"
-      ]
+      "$db/*": ["src/database/*"]
     }
   },
-  "include": [
-    "src/**/*",
-    "src/*"
-  ]
+  "include": ["src/**/*", "src/*"]
 }

@@ -1,50 +1,50 @@
-import type {ReplaySubmissionItem} from "./replay-submission-item";
-import type {ReplaySubmissionRejection} from "./replay-submission-rejection";
-import type {ReplaySubmissionStats} from "./replay-submission-stats";
+import type { ReplaySubmissionItem } from './replay-submission-item';
+import type { ReplaySubmissionRejection } from './replay-submission-rejection';
+import type { ReplaySubmissionStats } from './replay-submission-stats';
 
 export enum ReplaySubmissionType {
-    MATCH = "MATCH",
-    SCRIM = "SCRIM",
-    LFS = "LFS",
+  MATCH = 'MATCH',
+  SCRIM = 'SCRIM',
+  LFS = 'LFS',
 }
 
 export enum ReplaySubmissionStatus {
-    PROCESSING = "PROCESSING",
-    RATIFYING = "RATIFYING",
-    VALIDATING = "VALIDATING",
-    RATIFIED = "RATIFIED",
-    REJECTED = "REJECTED",
+  PROCESSING = 'PROCESSING',
+  RATIFYING = 'RATIFYING',
+  VALIDATING = 'VALIDATING',
+  RATIFIED = 'RATIFIED',
+  REJECTED = 'REJECTED',
 }
 
 export interface BaseReplaySubmission {
-    id: string;
-    creatorId: number;
+  id: string;
+  creatorId: number;
 
-    status: ReplaySubmissionStatus;
+  status: ReplaySubmissionStatus;
 
-    taskIds: string[];
-    items: ReplaySubmissionItem[];
+  taskIds: string[];
+  items: ReplaySubmissionItem[];
 
-    validated: boolean;
-    stats?: ReplaySubmissionStats;
-    ratifiers: number[];
-    requiredRatifications: number;
-    rejections: ReplaySubmissionRejection[];
+  validated: boolean;
+  stats?: ReplaySubmissionStats;
+  ratifiers: number[];
+  requiredRatifications: number;
+  rejections: ReplaySubmissionRejection[];
 }
 
 export interface ScrimReplaySubmission extends BaseReplaySubmission {
-    type: ReplaySubmissionType.SCRIM;
-    scrimId: string;
+  type: ReplaySubmissionType.SCRIM;
+  scrimId: string;
 }
 
 export interface MatchReplaySubmission extends BaseReplaySubmission {
-    type: ReplaySubmissionType.MATCH;
-    matchId: number;
+  type: ReplaySubmissionType.MATCH;
+  matchId: number;
 }
 
 export interface LFSReplaySubmission extends BaseReplaySubmission {
-    type: ReplaySubmissionType.LFS;
-    scrimId: string;
+  type: ReplaySubmissionType.LFS;
+  scrimId: string;
 }
 
 export type ReplaySubmission = ScrimReplaySubmission | MatchReplaySubmission | LFSReplaySubmission;

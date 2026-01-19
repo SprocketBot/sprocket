@@ -1,1 +1,1 @@
-export * from "./scrim";
+export * from './scrim';

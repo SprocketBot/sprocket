@@ -1,1 +1,1 @@
-export * from "./verbiage.service";
+export * from './verbiage.service';

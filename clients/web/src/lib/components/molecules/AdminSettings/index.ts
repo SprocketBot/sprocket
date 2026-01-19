@@ -1,1 +1,1 @@
-export {default as AdminSettings} from "./AdminSettings.svelte";
+export { default as AdminSettings } from './AdminSettings.svelte';

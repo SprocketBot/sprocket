@@ -13,6 +13,7 @@ The issue occurred in the `intakeUser` function in `core/src/franchise/player/pl
 3. Saved them using the transaction runner
 
 **The Problem:**
+
 - When saving `user.authenticationAccounts` array (line 1045), TypeORM could cascade save the `user` reference on each auth account
 - This could then cascade save the `authenticationAccounts` array again
 - Additionally, if two requests tried to create accounts with the same Discord ID concurrently, the unique constraint would be violated
@@ -27,6 +28,7 @@ The issue occurred in the `intakeUser` function in `core/src/franchise/player/pl
 2. **Reuse Existing User**: If the auth account exists, we reuse the existing user instead of creating a duplicate.
 
 3. **Fixed Save Order**: Changed the order of entity saves to avoid circular dependencies:
+
    - Save `User` first
    - Then save `UserProfile` with user reference
    - Then save `UserAuthenticationAccount` with user reference
@@ -37,6 +39,7 @@ The issue occurred in the `intakeUser` function in `core/src/franchise/player/pl
 ### Key Code Changes
 
 **Before:**
+
 ```typescript
 const authAcc = this.userAuthRepository.create({...});
 authAcc.user = user;
@@ -46,6 +49,7 @@ await runner.manager.save(user.authenticationAccounts); // Could cause recursion
 ```
 
 **After:**
+
 ```typescript
 // Check if auth account already exists
 const existingAuthAccount = await runner.manager.findOne(UserAuthenticationAccount, {...});
@@ -69,6 +73,7 @@ if (existingAuthAccount) {
 ### Test Files Created
 
 1. **Test CSV**: `scripts/test-data/test-users.csv`
+
    - Contains duplicate Discord IDs to test the fix
    - Format: `discordId,name,skillGroupId,salary`
 

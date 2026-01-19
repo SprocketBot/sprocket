@@ -1,2 +1,2 @@
-export * from "./parse-replay.schema";
-export * from "./stats";
+export * from './parse-replay.schema';
+export * from './stats';

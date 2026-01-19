@@ -5,11 +5,13 @@ This document provides queries to analyze the dark launch of the carball parser 
 ## Analytics Data Structure
 
 ### Primary Parser (Ballchasing)
+
 - **Metric Name**: `parseReplay`
 - **Tags**: `taskId`, `hash`, `success`, `cached`, `parser`
 - **Fields**: `getMs`, `parseMs`, `putMs`, `totalMs`, `replayKb`
 
 ### Shadow Parser (Carball)
+
 - **Metric Name**: `parseReplay_shadowCarball`
 - **Tags**: `hash`, `success`, `parser`, `mode`, `error`
 - **Fields**: `parseMs`
@@ -19,6 +21,7 @@ This document provides queries to analyze the dark launch of the carball parser 
 ## InfluxDB Queries (InfluxQL)
 
 ### 1. Shadow Parser Success Rate
+
 ```influxql
 SELECT
   COUNT(*) as total_parses,
@@ -29,6 +32,7 @@ WHERE time > now() - 24h
 ```
 
 ### 2. Performance Comparison (Parse Time)
+
 ```influxql
 SELECT
   MEAN(parseMs) as avg_parse_time_ms
@@ -38,6 +42,7 @@ GROUP BY time(1h)
 ```
 
 Compare with primary parser:
+
 ```influxql
 SELECT
   MEAN(parseMs) as ballchasing_avg_ms
@@ -47,6 +52,7 @@ GROUP BY time(1h)
 ```
 
 ### 3. Most Common Errors
+
 ```influxql
 SELECT
   error,
@@ -59,6 +65,7 @@ LIMIT 10
 ```
 
 ### 4. Failed Replay Analysis
+
 ```influxql
 SELECT
   hash,
@@ -70,6 +77,7 @@ ORDER BY time DESC
 ```
 
 ### 5. Success Rate Over Time (1-hour windows)
+
 ```influxql
 SELECT
   (SUM(success) / COUNT(*)) * 100 as success_rate_percent
@@ -79,6 +87,7 @@ GROUP BY time(1h)
 ```
 
 ### 6. Performance Percentiles
+
 ```influxql
 SELECT
   PERCENTILE(parseMs, 50) as p50_ms,
@@ -89,6 +98,7 @@ WHERE time > now() - 24h AND success = 'true'
 ```
 
 ### 7. Compare Success Rates (Primary vs Shadow)
+
 ```influxql
 SELECT
   MEAN(success) * 100 as primary_success_rate
@@ -104,6 +114,7 @@ WHERE time > now() - 24h
 ```
 
 ### 8. Replays That Failed Only in Shadow
+
 ```influxql
 SELECT
   s.hash,
@@ -123,6 +134,7 @@ LIMIT 20
 ## Prometheus Queries (PromQL)
 
 ### 1. Shadow Parser Success Rate (Last 24h)
+
 ```promql
 (
   sum(increase(parseReplay_shadowCarball_success_total{success="true"}[24h]))
@@ -132,6 +144,7 @@ LIMIT 20
 ```
 
 ### 2. Average Parse Time Over Time
+
 ```promql
 rate(parseReplay_shadowCarball_parseMs_sum[5m])
 /
@@ -139,6 +152,7 @@ rate(parseReplay_shadowCarball_parseMs_count[5m])
 ```
 
 ### 3. Parse Time Comparison (Primary vs Shadow)
+
 ```promql
 # Shadow parser average parse time
 avg(parseReplay_shadowCarball_parseMs{success="true"})
@@ -148,6 +162,7 @@ avg(parseReplay_parseMs{parser="ballchasing-with-carball-shadow"})
 ```
 
 ### 4. Success Rate Trend (5-minute windows)
+
 ```promql
 rate(parseReplay_shadowCarball_success_total{success="true"}[5m])
 /
@@ -155,6 +170,7 @@ rate(parseReplay_shadowCarball_total[5m])
 ```
 
 ### 5. Error Rate
+
 ```promql
 (
   sum(increase(parseReplay_shadowCarball_success_total{success="false"}[1h]))
@@ -164,6 +180,7 @@ rate(parseReplay_shadowCarball_total[5m])
 ```
 
 ### 6. Parse Time Percentiles
+
 ```promql
 # 95th percentile
 histogram_quantile(0.95,
@@ -177,6 +194,7 @@ histogram_quantile(0.99,
 ```
 
 ### 7. Parse Count by Success Status
+
 ```promql
 sum(increase(parseReplay_shadowCarball_total[24h])) by (success)
 ```
@@ -188,16 +206,19 @@ sum(increase(parseReplay_shadowCarball_total[24h])) by (success)
 ### Key Metrics to Monitor
 
 1. **Success Rate Dashboard**
+
    - Shadow parser success rate (current + 7-day trend)
    - Primary parser success rate (for comparison)
    - Error count by type
 
 2. **Performance Dashboard**
+
    - Average parse time: Primary vs Shadow
    - P50, P95, P99 parse times
    - Performance delta (carball - ballchasing)
 
 3. **Error Analysis Dashboard**
+
    - Top 10 error messages
    - Failed replay hashes (for debugging)
    - Error rate trend over time
@@ -220,7 +241,7 @@ sum(increase(parseReplay_shadowCarball_total[24h])) by (success)
     ) < 0.90
   for: 15m
   annotations:
-    summary: "Carball shadow parser success rate below 90%"
+    summary: 'Carball shadow parser success rate below 90%'
 
 # Alert if shadow parser is significantly slower than primary
 - alert: CarballShadowSlowPerformance
@@ -230,7 +251,7 @@ sum(increase(parseReplay_shadowCarball_total[24h])) by (success)
     avg(parseReplay_parseMs{parser="ballchasing-with-carball-shadow"}) * 2
   for: 30m
   annotations:
-    summary: "Carball shadow parser is 2x slower than primary"
+    summary: 'Carball shadow parser is 2x slower than primary'
 
 # Alert if shadow parser error rate is high
 - alert: CarballShadowHighErrorRate
@@ -242,7 +263,7 @@ sum(increase(parseReplay_shadowCarball_total[24h])) by (success)
     ) > 0.20
   for: 15m
   annotations:
-    summary: "Carball shadow parser error rate above 20%"
+    summary: 'Carball shadow parser error rate above 20%'
 ```
 
 ---
@@ -252,22 +273,26 @@ sum(increase(parseReplay_shadowCarball_total[24h])) by (success)
 In addition to metrics, you can search your application logs for detailed information:
 
 ### Search for Shadow Parser Failures
+
 ```
 "Carball shadow parsing failed" AND "replay_path"
 ```
 
 ### Search for Comparison Metrics
+
 ```
 "Parser comparison metrics"
 ```
 
 This will show the detailed JSON comparison output including:
+
 - Parse durations for both parsers
 - Success status
 - Data structure differences
 - Performance deltas
 
 ### Search for Analytics Publishing
+
 ```
 "parseReplay_shadowCarball" AND "Published shadow parser analytics"
 ```
@@ -279,22 +304,27 @@ This will show the detailed JSON comparison output including:
 After collecting data for **1-2 weeks**, evaluate these criteria to decide whether to promote carball to primary:
 
 ### Success Rate
+
 - ✅ **Target**: Shadow parser success rate ≥ 95%
 - ✅ **Target**: Success rate parity within 2% of primary parser
 
 ### Performance
+
 - ✅ **Target**: Average parse time ≤ primary parser (faster)
 - ✅ **Target**: P95 parse time ≤ primary parser + 20%
 
 ### Reliability
+
 - ✅ **Target**: No crashes or memory leaks
 - ✅ **Target**: Error types are well-understood and documented
 
 ### Data Quality
+
 - ✅ **Target**: Output structure is compatible with downstream consumers
 - ✅ **Target**: No critical data missing from carball output
 
 If all criteria are met, you can:
+
 1. Switch production config to `"parser": "carball"`
 2. Keep ballchasing API key as fallback for edge cases
 3. Monitor closely for first 48 hours after promotion

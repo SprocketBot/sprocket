@@ -1,1 +1,1 @@
-export {Team} from "./team.model";
+export { Team } from './team.model';

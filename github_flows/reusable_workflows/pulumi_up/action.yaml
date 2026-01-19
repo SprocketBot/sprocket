@@ -3,47 +3,47 @@ description: Connects to the VPN, and uses Pulumi to update the sprocket platfor
 
 inputs:
   pulumi_cloud_url:
-    description: "Pulumi backend url (i.e. S3)"
+    description: 'Pulumi backend url (i.e. S3)'
     required: true
 
   pulumi_stack_name:
-    description: "Which Pulumi Stack to deploy; it is assumed that this will match the branch name"
+    description: 'Which Pulumi Stack to deploy; it is assumed that this will match the branch name'
     required: true
 
   pulumi_config_passphrase:
-    description: "Passphrase used to encrypt pulumi secrets"
+    description: 'Passphrase used to encrypt pulumi secrets'
     required: true
 
   pulumi_aws_access_key:
-    description: "AWS Access Key for Pulumi Backend"
+    description: 'AWS Access Key for Pulumi Backend'
     required: true
 
   pulumi_aws_secret_key:
-    description: "AWS Secret Key for Pulumi Backend"
+    description: 'AWS Secret Key for Pulumi Backend'
     required: true
 
   ssh_user:
-    description: "SSH User for Remote Docker Socket"
+    description: 'SSH User for Remote Docker Socket'
     required: true
 
   ssh_key:
-    description: "Private SSH Key for Remote Docker Socket"
+    description: 'Private SSH Key for Remote Docker Socket'
     required: true
 
   manager_node_hostname:
-    description: "Tailwind machine name of manager node, used to auto-detect ip address"
+    description: 'Tailwind machine name of manager node, used to auto-detect ip address'
     required: true
 
   tailscale_ephemeral_authkey:
-    description: "Used to temporarily connect to the tailscale cluster"
+    description: 'Used to temporarily connect to the tailscale cluster'
     required: true
 
   infra_deploy_key:
-    description: "Used to clone the infrastructure repository"
+    description: 'Used to clone the infrastructure repository'
     required: true
 
 runs:
-  using: "composite"
+  using: 'composite'
 
   steps:
     - name: Check out the infrastructure repository
@@ -79,10 +79,10 @@ runs:
     - name: Pulumi Up
       uses: pulumi/actions@v3
       env:
-          PULUMI_CONFIG_PASSPHRASE: ${{ inputs.pulumi_config_passphrase }}
-          AWS_ACCESS_KEY_ID: ${{ inputs.pulumi_aws_access_key }}
-          AWS_SECRET_ACCESS_KEY: ${{ inputs.pulumi_aws_secret_key }}
-          AWS_REGION: nyc3
+        PULUMI_CONFIG_PASSPHRASE: ${{ inputs.pulumi_config_passphrase }}
+        AWS_ACCESS_KEY_ID: ${{ inputs.pulumi_aws_access_key }}
+        AWS_SECRET_ACCESS_KEY: ${{ inputs.pulumi_aws_secret_key }}
+        AWS_REGION: nyc3
       with:
         command: up
         stack-name: ${{ inputs.pulumi_stack_name }}

@@ -16,4 +16,4 @@
 // export * from "./roster_role_use_limits";
 // export * from "./roster_slot";
 // export * from "./team";
-export * from "./franchise.module";
+export * from './franchise.module';

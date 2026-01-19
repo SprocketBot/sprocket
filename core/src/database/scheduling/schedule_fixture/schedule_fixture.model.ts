@@ -1,42 +1,37 @@
-import {
-    Field, ObjectType,
-} from "@nestjs/graphql";
-import {
-    Column,
-    Entity, ManyToOne, OneToMany,
-} from "typeorm";
+import { Field, ObjectType } from '@nestjs/graphql';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 
-import {MatchParent} from "$db/scheduling/match_parent/match_parent.model";
+import { MatchParent } from '$db/scheduling/match_parent/match_parent.model';
 
-import {BaseModel} from "../../base-model";
-import {Franchise} from "../../franchise/franchise/franchise.model";
-import {Match} from "../match/match.model";
-import {ScheduleGroup} from "../schedule_group/schedule_group.model";
+import { BaseModel } from '../../base-model';
+import { Franchise } from '../../franchise/franchise/franchise.model';
+import { Match } from '../match/match.model';
+import { ScheduleGroup } from '../schedule_group/schedule_group.model';
 
-@Entity({schema: "sprocket"})
+@Entity({ schema: 'sprocket' })
 @ObjectType()
 export class ScheduleFixture extends BaseModel {
-    @ManyToOne(() => ScheduleGroup)
-    @Field(() => ScheduleGroup)
-    scheduleGroup: ScheduleGroup;
+  @ManyToOne(() => ScheduleGroup)
+  @Field(() => ScheduleGroup)
+  scheduleGroup: ScheduleGroup;
 
-    @ManyToOne(() => Franchise)
-    @Field(() => Franchise)
-    homeFranchise: Franchise;
+  @ManyToOne(() => Franchise)
+  @Field(() => Franchise)
+  homeFranchise: Franchise;
 
-    @ManyToOne(() => Franchise)
-    @Field(() => Franchise)
-    awayFranchise: Franchise;
+  @ManyToOne(() => Franchise)
+  @Field(() => Franchise)
+  awayFranchise: Franchise;
 
-    @OneToMany(() => MatchParent, mp => mp.fixture)
-    matchParents: MatchParent[];
+  @OneToMany(() => MatchParent, mp => mp.fixture)
+  matchParents: MatchParent[];
 
-    @Field(() => [Match])
-    matches: Match[];
+  @Field(() => [Match])
+  matches: Match[];
 
-    @Column()
-    awayFranchiseId: number;
+  @Column()
+  awayFranchiseId: number;
 
-    @Column()
-    homeFranchiseId: number;
+  @Column()
+  homeFranchiseId: number;
 }

@@ -1,1 +1,1 @@
-export {DraftPick} from "./draft_pick.model";
+export { DraftPick } from './draft_pick.model';

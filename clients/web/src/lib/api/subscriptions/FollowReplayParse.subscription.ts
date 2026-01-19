@@ -1,41 +1,50 @@
-import type {ProgressMessage} from "$lib/utils/types/progress.types";
-import type {OperationResult} from "@urql/core";
-import {gql} from "@urql/core";
-import {SubscriptionStore} from "../core/SubscriptionStore";
+import type { ProgressMessage } from '$lib/utils/types/progress.types';
+import type { OperationResult } from '@urql/core';
+import { gql } from '@urql/core';
+import { SubscriptionStore } from '../core/SubscriptionStore';
 
 // TODO type parsed replay
 export interface FollowReplayParseProgressMessage {
-    followReplayParse: ProgressMessage<unknown>;
+  followReplayParse: ProgressMessage<unknown>;
 }
 
 export interface FollowReplayParseProgressVariables {
-    submissionId: string;
+  submissionId: string;
 }
 
-export class FollowReplayParseStore extends SubscriptionStore<FollowReplayParseProgressMessage, FollowReplayParseProgressVariables, true> {
-    protected subscriptionString = gql<FollowReplayParseProgressMessage, FollowReplayParseProgressVariables>`
-        subscription($submissionId: String!) {
-            followReplayParse(submissionId: $submissionId) {
-                taskId
-                status
-                progress {
-                    value
-                    message
-                }
-                result {
-                    data
-                }
-                error
-            }
+export class FollowReplayParseStore extends SubscriptionStore<
+  FollowReplayParseProgressMessage,
+  FollowReplayParseProgressVariables,
+  true
+> {
+  protected subscriptionString = gql<
+    FollowReplayParseProgressMessage,
+    FollowReplayParseProgressVariables
+  >`
+    subscription ($submissionId: String!) {
+      followReplayParse(submissionId: $submissionId) {
+        taskId
+        status
+        progress {
+          value
+          message
         }
-    `;
-
-    constructor(_vars?: FollowReplayParseProgressVariables) {
-        super();
-        this._vars = _vars;
+        result {
+          data
+        }
+        error
+      }
     }
+  `;
 
-    protected handleGqlMessage = (message: OperationResult<FollowReplayParseProgressMessage, FollowReplayParseProgressVariables>): void => {
-        this.pub([...this.currentValue ?? [], message]);
-    };
+  constructor(_vars?: FollowReplayParseProgressVariables) {
+    super();
+    this._vars = _vars;
+  }
+
+  protected handleGqlMessage = (
+    message: OperationResult<FollowReplayParseProgressMessage, FollowReplayParseProgressVariables>,
+  ): void => {
+    this.pub([...(this.currentValue ?? []), message]);
+  };
 }

@@ -1,1 +1,1 @@
-export {RosterSlot} from "./roster_slot.model";
+export { RosterSlot } from './roster_slot.model';

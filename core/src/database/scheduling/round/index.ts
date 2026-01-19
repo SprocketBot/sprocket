@@ -1,1 +1,1 @@
-export {Round} from "./round.model";
+export { Round } from './round.model';

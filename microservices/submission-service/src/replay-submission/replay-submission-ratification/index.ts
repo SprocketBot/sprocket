@@ -1,2 +1,2 @@
-export * from "./replay-submission-ratification.controller";
-export * from "./replay-submission-ratification.service";
+export * from './replay-submission-ratification.controller';
+export * from './replay-submission-ratification.service';

@@ -1,78 +1,78 @@
 {
-    "transport": {
-        "url": "amqp://localhost",
-        "events_application_key": "sprocket-core",
-        "core_queue": "dev-core",
-        "bot_queue": "dev-bot",
-        "analytics_queue": "dev-analytics",
-        "events_queue": "dev-events",
-        "matchmaking_queue": "dev-matchmaking",
-        "image_generation_queue": "dev-ig",
-        "celery-queue": "dev-celery",
-        "submission_queue": "dev-submissions",
-        "notification_queue": "dev-notification"
+  "transport": {
+    "url": "amqp://localhost",
+    "events_application_key": "sprocket-core",
+    "core_queue": "dev-core",
+    "bot_queue": "dev-bot",
+    "analytics_queue": "dev-analytics",
+    "events_queue": "dev-events",
+    "matchmaking_queue": "dev-matchmaking",
+    "image_generation_queue": "dev-ig",
+    "celery-queue": "dev-celery",
+    "submission_queue": "dev-submissions",
+    "notification_queue": "dev-notification"
+  },
+  "logger": {
+    "levels": true
+  },
+  "db": {
+    "host": "localhost",
+    "port": "5432",
+    "username": "postgres",
+    "database": "sprocket_dev",
+    "enable_logs": false
+  },
+  "minio": {
+    "endPoint": "",
+    "port": 80,
+    "bucketNames": {
+      "replays": "",
+      "image_generation": ""
+    }
+  },
+  "celery": {
+    "broker": "",
+    "backend": "",
+    "queue": ""
+  },
+  "web": {
+    "url": "localhost:3000",
+    "api_root": "localhost:3001/graphql"
+  },
+  "gql": {
+    "playground": false
+  },
+  "auth": {
+    "google": {
+      "callbackUrl": ""
     },
-    "logger": {
-        "levels": true
+    "microsoft": {
+      "callbackUrl": ""
     },
-    "db": {
-        "host": "localhost",
-        "port": "5432",
-        "username": "postgres",
-        "database": "sprocket_dev",
-        "enable_logs": false
+    "xbox": {
+      "callbackUrl": ""
     },
-    "minio": {
-        "endPoint": "",
-        "port": 80,
-        "bucketNames": {
-            "replays": "",
-            "image_generation": ""
-        }
+    "discord": {
+      "callbackUrl": "http://localhost:3001/login"
     },
-    "celery": {
-        "broker": "",
-        "backend": "",
-        "queue": ""
+    "epic": {
+      "callbackUrl": ""
     },
-    "web": {
-        "url": "localhost:3000",
-        "api_root": "localhost:3001/graphql"
+    "steam": {
+      "callbackUrl": "",
+      "realm": ""
     },
-    "gql": {
-        "playground": false
-    },
-    "auth": {
-        "google": {
-            "callbackUrl": ""
-        },
-        "microsoft": {
-            "callbackUrl": ""
-        },
-        "xbox": {
-            "callbackUrl": ""
-        },
-        "discord": {
-            "callbackUrl": "http://localhost:3001/login"
-        },
-        "epic": {
-            "callbackUrl": ""
-        },
-        "steam": {
-            "callbackUrl": "",
-            "realm": ""
-        },
-        "jwt_expiry": "",
-        "access_expiry": "6h",
-        "refresh_expiry": "7d",
-        "frontend_callback": ""
-    },
-    "redis": {
-        "port": 6379,
-        "host": "localhost",
-        "prefix": "local-",
-        "secure": false
-    },
-    "defaultOrganizationId": 2,
-    "defaultAuthToken": ""
+    "jwt_expiry": "",
+    "access_expiry": "6h",
+    "refresh_expiry": "7d",
+    "frontend_callback": ""
+  },
+  "redis": {
+    "port": 6379,
+    "host": "localhost",
+    "prefix": "local-",
+    "secure": false
+  },
+  "defaultOrganizationId": 2,
+  "defaultAuthToken": ""
 }

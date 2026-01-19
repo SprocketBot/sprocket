@@ -1,2 +1,2 @@
-export * from "./game_feature.resolver";
-export * from "./game_feature.service";
+export * from './game_feature.resolver';
+export * from './game_feature.service';

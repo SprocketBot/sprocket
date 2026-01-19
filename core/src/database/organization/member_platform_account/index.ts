@@ -1,1 +1,1 @@
-export {MemberPlatformAccount} from "./member_platform_account.model";
+export { MemberPlatformAccount } from './member_platform_account.model';

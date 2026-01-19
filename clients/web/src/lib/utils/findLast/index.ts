@@ -1,1 +1,1 @@
-export * from "./findLast";
+export * from './findLast';

@@ -1,254 +1,314 @@
-import { Injectable, Logger } from "@nestjs/common";
-import { InjectDataSource } from "@nestjs/typeorm";
+import { Injectable, Logger } from '@nestjs/common';
+import { InjectDataSource } from '@nestjs/typeorm';
 import type {
-    BallchasingPlayer, BallchasingResponse, BallchasingTeam, Scrim,
-} from "@sprocketbot/common";
-import {
-    BallchasingResponseSchema, Parser, ProgressStatus,
-} from "@sprocketbot/common";
-import type { EntityManager } from "typeorm";
-import { DataSource } from "typeorm";
-import type { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
+  BallchasingPlayer,
+  BallchasingResponse,
+  BallchasingTeam,
+  Scrim,
+} from '@sprocketbot/common';
+import { BallchasingResponseSchema, Parser, ProgressStatus } from '@sprocketbot/common';
+import type { EntityManager } from 'typeorm';
+import { DataSource } from 'typeorm';
+import type { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
-import type { Player } from "$db/franchise/player/player.model";
-import type { Team } from "$db/franchise/team/team.model";
-import { GameMode } from "$db/game/game_mode/game_mode.model";
-import { EligibilityData } from "$db/scheduling/eligibility_data/eligibility_data.model";
-import { Match } from "$db/scheduling/match/match.model";
-import { MatchParent } from "$db/scheduling/match_parent/match_parent.model";
-import { PlayerStatLine } from "$db/scheduling/player_stat_line/player_stat_line.model";
-import { Round } from "$db/scheduling/round/round.model";
-import { ScrimMeta } from "$db/scheduling/saved_scrim/scrim.model";
-import { TeamStatLine } from "$db/scheduling/team_stat_line/team_stat_line.model";
+import type { Player } from '$db/franchise/player/player.model';
+import type { Team } from '$db/franchise/team/team.model';
+import { GameMode } from '$db/game/game_mode/game_mode.model';
+import { EligibilityData } from '$db/scheduling/eligibility_data/eligibility_data.model';
+import { Match } from '$db/scheduling/match/match.model';
+import { MatchParent } from '$db/scheduling/match_parent/match_parent.model';
+import { PlayerStatLine } from '$db/scheduling/player_stat_line/player_stat_line.model';
+import { Round } from '$db/scheduling/round/round.model';
+import { ScrimMeta } from '$db/scheduling/saved_scrim/scrim.model';
+import { TeamStatLine } from '$db/scheduling/team_stat_line/team_stat_line.model';
 
-import { PlayerService } from "../../../franchise";
-import { GameSkillGroupService } from "../../../franchise/game-skill-group/game-skill-group.service";
-import { TeamService } from "../../../franchise/team/team.service";
-import { MledbFinalizationService, MledbPlayerService } from "../../../mledb";
-import { MatchService } from "../../../scheduling";
-import { EligibilityService } from "../../../scheduling/eligibility/eligibility.service";
-import { SprocketRatingService } from "../../../sprocket-rating/sprocket-rating.service";
-import type { SprocketRating, SprocketRatingInput } from "../../../sprocket-rating/sprocket-rating.types";
+import { PlayerService } from '../../../franchise';
+import { GameSkillGroupService } from '../../../franchise/game-skill-group/game-skill-group.service';
+import { TeamService } from '../../../franchise/team/team.service';
+import { MledbFinalizationService, MledbPlayerService } from '../../../mledb';
+import { MatchService } from '../../../scheduling';
+import { EligibilityService } from '../../../scheduling/eligibility/eligibility.service';
+import { SprocketRatingService } from '../../../sprocket-rating/sprocket-rating.service';
 import type {
-    LFSReplaySubmission, MatchReplaySubmission, ReplaySubmission, ScrimReplaySubmission,
-} from "../../types";
-import { ReplaySubmissionType } from "../../types";
-import { BallchasingConverterService } from "../ballchasing-converter";
-import type { SaveMatchFinalizationReturn, SaveScrimFinalizationReturn } from "../finalization.types";
+  SprocketRating,
+  SprocketRatingInput,
+} from '../../../sprocket-rating/sprocket-rating.types';
+import type {
+  LFSReplaySubmission,
+  MatchReplaySubmission,
+  ReplaySubmission,
+  ScrimReplaySubmission,
+} from '../../types';
+import { ReplaySubmissionType } from '../../types';
+import { BallchasingConverterService } from '../ballchasing-converter';
+import type {
+  SaveMatchFinalizationReturn,
+  SaveScrimFinalizationReturn,
+} from '../finalization.types';
 
 @Injectable()
 export class RocketLeagueFinalizationService {
+  private readonly logger = new Logger(RocketLeagueFinalizationService.name);
 
-    private readonly logger = new Logger(RocketLeagueFinalizationService.name);
+  constructor(
+    private readonly playerService: PlayerService,
+    private readonly matchService: MatchService,
+    private readonly sprocketRatingService: SprocketRatingService,
+    private readonly mledbPlayerService: MledbPlayerService,
+    private readonly teamService: TeamService,
+    private readonly ballchasingConverter: BallchasingConverterService,
+    private readonly mledbFinalizationService: MledbFinalizationService,
+    private readonly eligibilityService: EligibilityService,
+    private readonly gameSkillGroupService: GameSkillGroupService,
+    @InjectDataSource() private readonly dataSource: DataSource,
+  ) {}
 
-    constructor(
-        private readonly playerService: PlayerService,
-        private readonly matchService: MatchService,
-        private readonly sprocketRatingService: SprocketRatingService,
-        private readonly mledbPlayerService: MledbPlayerService,
-        private readonly teamService: TeamService,
-        private readonly ballchasingConverter: BallchasingConverterService,
-        private readonly mledbFinalizationService: MledbFinalizationService,
-        private readonly eligibilityService: EligibilityService,
-        private readonly gameSkillGroupService: GameSkillGroupService,
-        @InjectDataSource() private readonly dataSource: DataSource,
-    ) { }
+  async finalizeLFS(
+    submission: LFSReplaySubmission,
+    scrim: Scrim,
+  ): Promise<SaveScrimFinalizationReturn> {
+    const qr = this.dataSource.createQueryRunner();
 
-    async finalizeLFS(submission: LFSReplaySubmission, scrim: Scrim): Promise<SaveScrimFinalizationReturn> {
-        const qr = this.dataSource.createQueryRunner();
+    await qr.connect();
+    await qr.startTransaction();
+    const em = qr.manager;
+    try {
+      const gameMode = await em.findOneByOrFail(GameMode, { id: scrim.gameModeId });
 
-        await qr.connect();
-        await qr.startTransaction();
-        const em = qr.manager;
-        try {
-            const gameMode = await em.findOneByOrFail(GameMode, { id: scrim.gameModeId });
+      const scrimMeta = em.create(ScrimMeta);
+      scrimMeta.isCompetitive = scrim.settings.competitive;
+      const matchParent = em.create(MatchParent);
+      const match = em.create(Match);
+      await em.insert(ScrimMeta, scrimMeta as QueryDeepPartialEntity<ScrimMeta>);
+      matchParent.scrimMeta = scrimMeta;
 
-            const scrimMeta = em.create(ScrimMeta);
-            scrimMeta.isCompetitive = scrim.settings.competitive;
-            const matchParent = em.create(MatchParent);
-            const match = em.create(Match);
-            await em.insert(ScrimMeta, scrimMeta as QueryDeepPartialEntity<ScrimMeta>);
-            matchParent.scrimMeta = scrimMeta;
+      await em.insert(MatchParent, matchParent as QueryDeepPartialEntity<MatchParent>);
+      match.matchParent = matchParent;
+      match.skillGroupId = scrim.skillGroupId;
+      match.gameMode = gameMode;
 
-            await em.insert(MatchParent, matchParent as QueryDeepPartialEntity<MatchParent>);
-            match.matchParent = matchParent;
-            match.skillGroupId = scrim.skillGroupId;
-            match.gameMode = gameMode;
+      await em.insert(Match, match as QueryDeepPartialEntity<Match>);
+      const uniquePlayers = await this.saveMatchDependents(submission, match, false, em);
 
-            await em.insert(Match, match as QueryDeepPartialEntity<Match>);
-            const uniquePlayers = await this.saveMatchDependents(submission, match, false, em);
+      this.logger.debug(`Update eligibilities for ${JSON.stringify(uniquePlayers)}`);
+      if (scrim.settings.competitive) {
+        const skillGroup = await this.gameSkillGroupService.getGameSkillGroupById(
+          scrim.skillGroupId,
+          { relations: { profile: true } },
+        );
+        const X = skillGroup.ordinal === 1 || skillGroup.profile.description === 'PREMIER' ? 7 : 15;
 
-            this.logger.debug(`Update eligibilities for ${JSON.stringify(uniquePlayers)}`);
-            if (scrim.settings.competitive) {
-                const skillGroup = await this.gameSkillGroupService.getGameSkillGroupById(scrim.skillGroupId, { relations: { profile: true } });
-                const X = (skillGroup.ordinal === 1 || skillGroup.profile.description === "PREMIER") ? 7 : 15;
-
-                const eligibilities = await Promise.all(uniquePlayers.map(async p => {
-                    const currentPoints = await this.eligibilityService.getEligibilityPointsForPlayer(p.id);
-                    const pointsToAward = Math.min(3, Math.max(0, X - currentPoints));
-                    if (pointsToAward > 0) {
-                        return this._createEligibility(pointsToAward, p, match.matchParent, em);
-                    }
-                    return null;
-                }));
-
-                const validEligibilities = eligibilities.filter(e => e !== null) as EligibilityData[];
-
-                this.logger.debug(`Got eligibilities: ${JSON.stringify(validEligibilities)}`);
-                if (validEligibilities.length > 0) {
-                    await em.insert(EligibilityData, validEligibilities as QueryDeepPartialEntity<EligibilityData>);
-                }
+        const eligibilities = await Promise.all(
+          uniquePlayers.map(async p => {
+            const currentPoints = await this.eligibilityService.getEligibilityPointsForPlayer(p.id);
+            const pointsToAward = Math.min(3, Math.max(0, X - currentPoints));
+            if (pointsToAward > 0) {
+              return this._createEligibility(pointsToAward, p, match.matchParent, em);
             }
+            return null;
+          }),
+        );
 
-            this.logger.debug(`Finalizing in MLEDB schema`);
-            const mledbScrim = await this.mledbFinalizationService.saveScrim(submission, submission.id, em, scrim);
+        const validEligibilities = eligibilities.filter(e => e !== null) as EligibilityData[];
 
-            // Fix up these relationships
-            scrimMeta.parent = matchParent;
-            matchParent.match = match;
-            await qr.commitTransaction();
-
-            return { scrim: scrimMeta, legacyScrim: mledbScrim };
-        } catch (e) {
-            const errorPayload = {
-                submissionId: submission.id,
-                scrim: scrim.id,
-            };
-
-            this.logger.error(`Failed to save LFS scrim! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`);
-            await qr.rollbackTransaction();
-            throw e;
-        } finally {
-            await qr.release();
+        this.logger.debug(`Got eligibilities: ${JSON.stringify(validEligibilities)}`);
+        if (validEligibilities.length > 0) {
+          await em.insert(
+            EligibilityData,
+            validEligibilities as QueryDeepPartialEntity<EligibilityData>,
+          );
         }
+      }
+
+      this.logger.debug(`Finalizing in MLEDB schema`);
+      const mledbScrim = await this.mledbFinalizationService.saveScrim(
+        submission,
+        submission.id,
+        em,
+        scrim,
+      );
+
+      // Fix up these relationships
+      scrimMeta.parent = matchParent;
+      matchParent.match = match;
+      await qr.commitTransaction();
+
+      return { scrim: scrimMeta, legacyScrim: mledbScrim };
+    } catch (e) {
+      const errorPayload = {
+        submissionId: submission.id,
+        scrim: scrim.id,
+      };
+
+      this.logger.error(
+        `Failed to save LFS scrim! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`,
+      );
+      await qr.rollbackTransaction();
+      throw e;
+    } finally {
+      await qr.release();
     }
+  }
 
-    async finalizeScrim(submission: ScrimReplaySubmission, scrim: Scrim): Promise<SaveScrimFinalizationReturn> {
-        const qr = this.dataSource.createQueryRunner();
+  async finalizeScrim(
+    submission: ScrimReplaySubmission,
+    scrim: Scrim,
+  ): Promise<SaveScrimFinalizationReturn> {
+    const qr = this.dataSource.createQueryRunner();
 
-        await qr.connect();
-        await qr.startTransaction();
-        const em = qr.manager;
-        try {
-            // Before saving, check if scrim is competitive or not
-            const isCompetitive = scrim.settings.competitive;
+    await qr.connect();
+    await qr.startTransaction();
+    const em = qr.manager;
+    try {
+      // Before saving, check if scrim is competitive or not
+      const isCompetitive = scrim.settings.competitive;
 
-            const gameMode = await em.findOneByOrFail(GameMode, { id: scrim.gameModeId });
+      const gameMode = await em.findOneByOrFail(GameMode, { id: scrim.gameModeId });
 
-            const scrimMeta = em.create(ScrimMeta);
-            scrimMeta.isCompetitive = isCompetitive;
+      const scrimMeta = em.create(ScrimMeta);
+      scrimMeta.isCompetitive = isCompetitive;
 
-            const matchParent = em.create(MatchParent);
-            const match = em.create(Match);
-            await em.insert(ScrimMeta, scrimMeta as QueryDeepPartialEntity<ScrimMeta>);
-            matchParent.scrimMeta = scrimMeta;
+      const matchParent = em.create(MatchParent);
+      const match = em.create(Match);
+      await em.insert(ScrimMeta, scrimMeta as QueryDeepPartialEntity<ScrimMeta>);
+      matchParent.scrimMeta = scrimMeta;
 
-            await em.insert(MatchParent, matchParent as QueryDeepPartialEntity<MatchParent>);
-            match.matchParent = matchParent;
-            match.skillGroupId = scrim.skillGroupId;
-            match.gameMode = gameMode;
+      await em.insert(MatchParent, matchParent as QueryDeepPartialEntity<MatchParent>);
+      match.matchParent = matchParent;
+      match.skillGroupId = scrim.skillGroupId;
+      match.gameMode = gameMode;
 
-            // If it's competitive, calculate and save eligibility. Otherwise, don't.
-            await em.insert(Match, match as QueryDeepPartialEntity<Match>);
-            await this.saveMatchDependents(submission, match, isCompetitive, em);
+      // If it's competitive, calculate and save eligibility. Otherwise, don't.
+      await em.insert(Match, match as QueryDeepPartialEntity<Match>);
+      await this.saveMatchDependents(submission, match, isCompetitive, em);
 
-            const mledbScrim = await this.mledbFinalizationService.saveScrim(submission, submission.id, em, scrim);
+      const mledbScrim = await this.mledbFinalizationService.saveScrim(
+        submission,
+        submission.id,
+        em,
+        scrim,
+      );
 
-            // Fix up these relationships
-            scrimMeta.parent = matchParent;
-            matchParent.match = match;
-            await qr.commitTransaction();
+      // Fix up these relationships
+      scrimMeta.parent = matchParent;
+      matchParent.match = match;
+      await qr.commitTransaction();
 
-            return { scrim: scrimMeta, legacyScrim: mledbScrim };
-        } catch (e) {
-            const errorPayload = {
-                submissionId: submission.id,
-                scrim: scrim.id,
-            };
+      return { scrim: scrimMeta, legacyScrim: mledbScrim };
+    } catch (e) {
+      const errorPayload = {
+        submissionId: submission.id,
+        scrim: scrim.id,
+      };
 
-            this.logger.error(`Failed to save scrim! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`);
-            await qr.rollbackTransaction();
-            throw e;
-        } finally {
-            await qr.release();
-        }
+      this.logger.error(
+        `Failed to save scrim! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`,
+      );
+      await qr.rollbackTransaction();
+      throw e;
+    } finally {
+      await qr.release();
     }
+  }
 
-    async finalizeMatch(submission: MatchReplaySubmission): Promise<SaveMatchFinalizationReturn> {
-        const qr = this.dataSource.createQueryRunner();
+  async finalizeMatch(submission: MatchReplaySubmission): Promise<SaveMatchFinalizationReturn> {
+    const qr = this.dataSource.createQueryRunner();
 
-        await qr.connect();
-        await qr.startTransaction();
-        const em = qr.manager;
-        try {
-            const match = await this.matchService.getMatchById(submission.matchId, { matchParent: { fixture: { homeFranchise: { organization: true } } }, gameMode: true });
-            const organization = match.matchParent.fixture.homeFranchise.organization;
+    await qr.connect();
+    await qr.startTransaction();
+    const em = qr.manager;
+    try {
+      const match = await this.matchService.getMatchById(submission.matchId, {
+        matchParent: { fixture: { homeFranchise: { organization: true } } },
+        gameMode: true,
+      });
+      const organization = match.matchParent.fixture.homeFranchise.organization;
 
-            await this.saveMatchDependents(submission, match, false, em);
+      await this.saveMatchDependents(submission, match, false, em);
 
-            const mleMatch = await this.mledbFinalizationService.saveMatch(submission, submission.id, em);
-            await qr.commitTransaction();
-            return { match: match, legacyMatch: mleMatch };
-        } catch (e) {
-            const errorPayload = {
-                submissionId: submission.id,
-                matchId: submission.matchId,
-            };
+      const mleMatch = await this.mledbFinalizationService.saveMatch(submission, submission.id, em);
+      await qr.commitTransaction();
+      return { match: match, legacyMatch: mleMatch };
+    } catch (e) {
+      const errorPayload = {
+        submissionId: submission.id,
+        matchId: submission.matchId,
+      };
 
-            this.logger.error(`Failed to save match! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`);
-            await qr.rollbackTransaction();
-            throw e;
-        } finally {
-            await qr.release();
-        }
-
+      this.logger.error(
+        `Failed to save match! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`,
+      );
+      await qr.rollbackTransaction();
+      throw e;
+    } finally {
+      await qr.release();
     }
+  }
 
-    /**
+  /**
    * Saves objects that depend on the Match (i.e. Rounds, Player Stats, Team Stats)
    */
-    async saveMatchDependents(submission: ReplaySubmission, match: Match, eligibility: boolean, em: EntityManager): Promise<Player[]> {
-        if (submission.items.some(i => i.progress?.status !== ProgressStatus.Complete)) {
-            throw new Error(`Not all items have been completed. Finalization attempted too soon. ${JSON.stringify({ submissionId: submission.id, match: match.id })}`);
-        }
+  async saveMatchDependents(
+    submission: ReplaySubmission,
+    match: Match,
+    eligibility: boolean,
+    em: EntityManager,
+  ): Promise<Player[]> {
+    if (submission.items.some(i => i.progress?.status !== ProgressStatus.Complete)) {
+      throw new Error(
+        `Not all items have been completed. Finalization attempted too soon. ${JSON.stringify({
+          submissionId: submission.id,
+          match: match.id,
+        })}`,
+      );
+    }
 
-        const replays = submission.items.map<{ replay: BallchasingResponse; parser: { type: Parser; version: number; }; outputPath: string; }>(i => {
-            const r = BallchasingResponseSchema.safeParse(i.progress?.result?.data);
+    const replays = submission.items.map<{
+      replay: BallchasingResponse;
+      parser: { type: Parser; version: number };
+      outputPath: string;
+    }>(i => {
+      const r = BallchasingResponseSchema.safeParse(i.progress?.result?.data);
 
-            if (!r.success) {
-                throw new Error(`${i.originalFilename} does not contain expected values. ${r}`);
-            }
+      if (!r.success) {
+        throw new Error(`${i.originalFilename} does not contain expected values. ${r}`);
+      }
 
-            if (i.progress?.result?.parser !== Parser.BALLCHASING) {
-                throw new Error(`Saving matches with a non-ballchasing parser is not supported. found ${i.progress?.result?.parser}`);
-            }
+      if (i.progress?.result?.parser !== Parser.BALLCHASING) {
+        throw new Error(
+          `Saving matches with a non-ballchasing parser is not supported. found ${i.progress?.result?.parser}`,
+        );
+      }
 
-            return {
-                replay: r.data, parser: { type: i.progress.result.parser, version: i.progress.result.parserVersion }, outputPath: i.outputPath,
-            };
-        });
+      return {
+        replay: r.data,
+        parser: { type: i.progress.result.parser, version: i.progress.result.parserVersion },
+        outputPath: i.outputPath,
+      };
+    });
 
-        const isMatch = submission.type === ReplaySubmissionType.MATCH;
-        const { home, away } = isMatch ? await this.matchService.getFranchisesForMatch(match.id) : { home: undefined, away: undefined };
-        const [homeTeam, awayTeam] = isMatch
-            ? await Promise.all([
-                await this.teamService.getTeam(home.id, match.skillGroupId),
-                await this.teamService.getTeam(away.id, match.skillGroupId),
-            ])
-            : [undefined, undefined];
+    const isMatch = submission.type === ReplaySubmissionType.MATCH;
+    const { home, away } = isMatch
+      ? await this.matchService.getFranchisesForMatch(match.id)
+      : { home: undefined, away: undefined };
+    const [homeTeam, awayTeam] = isMatch
+      ? await Promise.all([
+          await this.teamService.getTeam(home.id, match.skillGroupId),
+          await this.teamService.getTeam(away.id, match.skillGroupId),
+        ])
+      : [undefined, undefined];
 
-        const uniquePlayers = new Map<number, Player>();
-        // TODO: Sprocket Team Role Usage
-        const results = await Promise.all(replays.map(async ({
-            replay, parser, outputPath,
-        }) => {
-            // Get players
-            const { blue, orange } = await this._getBallchasingPlayers(replay);
+    const uniquePlayers = new Map<number, Player>();
+    // TODO: Sprocket Team Role Usage
+    const results = await Promise.all(
+      replays.map(async ({ replay, parser, outputPath }) => {
+        // Get players
+        const { blue, orange } = await this._getBallchasingPlayers(replay);
 
-            blue.forEach(p => uniquePlayers.set(p.player.id, p.player));
-            orange.forEach(p => uniquePlayers.set(p.player.id, p.player));
+        blue.forEach(p => uniquePlayers.set(p.player.id, p.player));
+        orange.forEach(p => uniquePlayers.set(p.player.id, p.player));
 
-            /*
+        /*
        First, identify which team is home.
        It is safe to assume that all players are on the same team here;
        This is because the validation service has passed these over.
@@ -257,181 +317,261 @@ export class RocketLeagueFinalizationService {
        TODO: R2 Update this
       */
 
-            let awayColor: "blue" | "orange",
-                blueTeam: Team | undefined,
-                blueTeamName: string,
-                homeColor: "blue" | "orange",
-                orangeTeam: Team | undefined,
-                orangeTeamName: string;
-            if (isMatch) {
-                const blueCaptain = blue[0].player;
-                const orangeCaptain = orange[0].player;
-                const [blueMle, orangeMle] = await Promise.all([
-                    this.mledbPlayerService.getMlePlayerBySprocketUser(blueCaptain.member.userId),
-                    this.mledbPlayerService.getMlePlayerBySprocketUser(orangeCaptain.member.userId),
-                ]);
-                /*
-         * Now we have the team names; so we'll need to look up the fixture.
-         */
-                blueTeamName = blueMle.teamName;
-                orangeTeamName = orangeMle.teamName;
-                /*
-         * Identify which team is home; and which is away
-         */
-                homeColor = blueTeamName === home.profile.title ? "blue" : "orange";
-                awayColor = blueTeamName === home.profile.title ? "orange" : "blue";
-                blueTeam = homeColor === "blue" ? homeTeam : awayTeam;
-                orangeTeam = homeColor === "orange" ? homeTeam : awayTeam;
-
-            } else {
-                // It's a scrim!
-                homeColor = "blue";
-                awayColor = "orange";
-                blueTeamName = "Blue Team";
-                orangeTeamName = "Orange Team";
-            }
-            const homeWon = replay[homeColor].stats.core.goals > replay[awayColor].stats.core.goals;
-            /*
-       * Create the round
-       */
-            const round = this._createRound(match, homeWon, replay, parser, outputPath);
-
-            /*
-       * Create player and team stat lines
-       */
-            const blueTeamStats = await this._createTeamStatLine(replay.blue, round, blueTeamName, em, blueTeam);
-            const bluePlayers = await Promise.all(blue.map(async bp => this._createPlayerStatLine(bp.rawPlayer, bp.player, replay.orange, blueTeamStats, match.gameMode, homeColor === "blue", round, em)));
-            const orangeTeamStats = await this._createTeamStatLine(replay.orange, round, orangeTeamName, em, orangeTeam);
-            const orangePlayers = await Promise.all(orange.map(async op => this._createPlayerStatLine(op.rawPlayer, op.player, replay.orange, orangeTeamStats, match.gameMode, homeColor === "orange", round, em)));
-
-            // We save the round first; because it does not have the join columns
-            await em.insert(Round, round as QueryDeepPartialEntity<Round>);
-            await em.insert(TeamStatLine, blueTeamStats as QueryDeepPartialEntity<TeamStatLine>);
-            await em.insert(TeamStatLine, orangeTeamStats as QueryDeepPartialEntity<TeamStatLine>);
-            await em.insert(PlayerStatLine, bluePlayers as QueryDeepPartialEntity<PlayerStatLine>);
-            await em.insert(PlayerStatLine, orangePlayers as QueryDeepPartialEntity<PlayerStatLine>);
-
-            round.teamStats = [blueTeamStats, orangeTeamStats];
-            round.playerStats = [...bluePlayers, ...orangePlayers];
-
-            return round;
-        }));
-
-        if (eligibility) {
-            const players = Array.from(uniquePlayers.values());
-            const eligibilities = players.map(p => this._createEligibility(3, p, match.matchParent, em));
-            await em.insert(EligibilityData, eligibilities as QueryDeepPartialEntity<EligibilityData>);
+        let awayColor: 'blue' | 'orange',
+          blueTeam: Team | undefined,
+          blueTeamName: string,
+          homeColor: 'blue' | 'orange',
+          orangeTeam: Team | undefined,
+          orangeTeamName: string;
+        if (isMatch) {
+          const blueCaptain = blue[0].player;
+          const orangeCaptain = orange[0].player;
+          const [blueMle, orangeMle] = await Promise.all([
+            this.mledbPlayerService.getMlePlayerBySprocketUser(blueCaptain.member.userId),
+            this.mledbPlayerService.getMlePlayerBySprocketUser(orangeCaptain.member.userId),
+          ]);
+          /*
+           * Now we have the team names; so we'll need to look up the fixture.
+           */
+          blueTeamName = blueMle.teamName;
+          orangeTeamName = orangeMle.teamName;
+          /*
+           * Identify which team is home; and which is away
+           */
+          homeColor = blueTeamName === home.profile.title ? 'blue' : 'orange';
+          awayColor = blueTeamName === home.profile.title ? 'orange' : 'blue';
+          blueTeam = homeColor === 'blue' ? homeTeam : awayTeam;
+          orangeTeam = homeColor === 'orange' ? homeTeam : awayTeam;
+        } else {
+          // It's a scrim!
+          homeColor = 'blue';
+          awayColor = 'orange';
+          blueTeamName = 'Blue Team';
+          orangeTeamName = 'Orange Team';
         }
+        const homeWon = replay[homeColor].stats.core.goals > replay[awayColor].stats.core.goals;
+        /*
+         * Create the round
+         */
+        const round = this._createRound(match, homeWon, replay, parser, outputPath);
 
-        match.rounds = results;
+        /*
+         * Create player and team stat lines
+         */
+        const blueTeamStats = await this._createTeamStatLine(
+          replay.blue,
+          round,
+          blueTeamName,
+          em,
+          blueTeam,
+        );
+        const bluePlayers = await Promise.all(
+          blue.map(async bp =>
+            this._createPlayerStatLine(
+              bp.rawPlayer,
+              bp.player,
+              replay.orange,
+              blueTeamStats,
+              match.gameMode,
+              homeColor === 'blue',
+              round,
+              em,
+            ),
+          ),
+        );
+        const orangeTeamStats = await this._createTeamStatLine(
+          replay.orange,
+          round,
+          orangeTeamName,
+          em,
+          orangeTeam,
+        );
+        const orangePlayers = await Promise.all(
+          orange.map(async op =>
+            this._createPlayerStatLine(
+              op.rawPlayer,
+              op.player,
+              replay.orange,
+              orangeTeamStats,
+              match.gameMode,
+              homeColor === 'orange',
+              round,
+              em,
+            ),
+          ),
+        );
 
-        return Array.from(uniquePlayers.values());
-    }
+        // We save the round first; because it does not have the join columns
+        await em.insert(Round, round as QueryDeepPartialEntity<Round>);
+        await em.insert(TeamStatLine, blueTeamStats as QueryDeepPartialEntity<TeamStatLine>);
+        await em.insert(TeamStatLine, orangeTeamStats as QueryDeepPartialEntity<TeamStatLine>);
+        await em.insert(PlayerStatLine, bluePlayers as QueryDeepPartialEntity<PlayerStatLine>);
+        await em.insert(PlayerStatLine, orangePlayers as QueryDeepPartialEntity<PlayerStatLine>);
 
-    _createRound(match: Match, homeWon: boolean, replay: BallchasingResponse, parser: { type: Parser; version: number; }, outputPath: string): Round {
-        const round = new Round();
-        round.gameMode = match.gameMode;
-        round.homeWon = homeWon;
-        round.isDummy = false;
-        round.roundStats = this.ballchasingConverter.createRound(replay);
-        round.match = match;
-        round.parser = parser.type;
-        round.parserVersion = parser.version;
-        round.outputPath = outputPath;
+        round.teamStats = [blueTeamStats, orangeTeamStats];
+        round.playerStats = [...bluePlayers, ...orangePlayers];
 
         return round;
+      }),
+    );
+
+    if (eligibility) {
+      const players = Array.from(uniquePlayers.values());
+      const eligibilities = players.map(p => this._createEligibility(3, p, match.matchParent, em));
+      await em.insert(EligibilityData, eligibilities as QueryDeepPartialEntity<EligibilityData>);
     }
 
-    /**
+    match.rounds = results;
+
+    return Array.from(uniquePlayers.values());
+  }
+
+  _createRound(
+    match: Match,
+    homeWon: boolean,
+    replay: BallchasingResponse,
+    parser: { type: Parser; version: number },
+    outputPath: string,
+  ): Round {
+    const round = new Round();
+    round.gameMode = match.gameMode;
+    round.homeWon = homeWon;
+    round.isDummy = false;
+    round.roundStats = this.ballchasingConverter.createRound(replay);
+    round.match = match;
+    round.parser = parser.type;
+    round.parserVersion = parser.version;
+    round.outputPath = outputPath;
+
+    return round;
+  }
+
+  /**
    * Looks up a set of players based on their ballchasing information
    * Noteworthy; this looks up sprocket players!
    */
-    async _getBallchasingPlayers(ballchasing: BallchasingResponse): Promise<{ blue: Array<{ player: Player; rawPlayer: BallchasingPlayer; }>; orange: Array<{ player: Player; rawPlayer: BallchasingPlayer; }>; }> {
-        // TODO: This won't work when we support multiple games; in theory is an array of players for that member.
-        const lookupFn = async (p: BallchasingPlayer): Promise<Player> => this.playerService.getPlayer({
-            where: {
-                member: {
-                    platformAccounts: {
-                        platformAccountId: p.id.id,
-                        platform: {
-                            code: p.id.platform.toUpperCase(),
-                        },
-                    },
-                },
+  async _getBallchasingPlayers(
+    ballchasing: BallchasingResponse,
+  ): Promise<{
+    blue: Array<{ player: Player; rawPlayer: BallchasingPlayer }>;
+    orange: Array<{ player: Player; rawPlayer: BallchasingPlayer }>;
+  }> {
+    // TODO: This won't work when we support multiple games; in theory is an array of players for that member.
+    const lookupFn = async (p: BallchasingPlayer): Promise<Player> =>
+      this.playerService.getPlayer({
+        where: {
+          member: {
+            platformAccounts: {
+              platformAccountId: p.id.id,
+              platform: {
+                code: p.id.platform.toUpperCase(),
+              },
             },
-            relations: { member: { platformAccounts: { platform: true } } },
-        });
+          },
+        },
+        relations: { member: { platformAccounts: { platform: true } } },
+      });
 
-        const bluePlayerIds = new Array<BallchasingPlayer>();
-        const orangePlayerIds = new Array<BallchasingPlayer>();
+    const bluePlayerIds = new Array<BallchasingPlayer>();
+    const orangePlayerIds = new Array<BallchasingPlayer>();
 
-        ballchasing.blue.players.forEach(player => {
-            if (!bluePlayerIds.some(p => p.id.id === player.id.id)) {
-                bluePlayerIds.push(player);
-            }
-        });
-        ballchasing.orange.players.forEach(player => {
-            if (!orangePlayerIds.some(p => p.id.id === player.id.id)) {
-                orangePlayerIds.push(player);
-            }
-        });
+    ballchasing.blue.players.forEach(player => {
+      if (!bluePlayerIds.some(p => p.id.id === player.id.id)) {
+        bluePlayerIds.push(player);
+      }
+    });
+    ballchasing.orange.players.forEach(player => {
+      if (!orangePlayerIds.some(p => p.id.id === player.id.id)) {
+        orangePlayerIds.push(player);
+      }
+    });
 
-        return {
-            blue: await Promise.all(bluePlayerIds.map(async p => ({ player: await lookupFn(p), rawPlayer: p }))),
-            orange: await Promise.all(orangePlayerIds.map(async p => ({ player: await lookupFn(p), rawPlayer: p }))),
-        };
-    }
+    return {
+      blue: await Promise.all(
+        bluePlayerIds.map(async p => ({ player: await lookupFn(p), rawPlayer: p })),
+      ),
+      orange: await Promise.all(
+        orangePlayerIds.map(async p => ({ player: await lookupFn(p), rawPlayer: p })),
+      ),
+    };
+  }
 
-    async _createTeamStatLine(rawTeam: BallchasingTeam, round: Round, teamName: string, em: EntityManager, team?: Team): Promise<TeamStatLine> {
-        const output = em.create(TeamStatLine);
-        output.stats = {
-            name: rawTeam.name,
-            color: rawTeam.color,
-            stats: rawTeam.stats,
-        };
-        output.team = team;
-        output.round = round;
-        output.teamName = teamName;
-        return output;
-    }
+  async _createTeamStatLine(
+    rawTeam: BallchasingTeam,
+    round: Round,
+    teamName: string,
+    em: EntityManager,
+    team?: Team,
+  ): Promise<TeamStatLine> {
+    const output = em.create(TeamStatLine);
+    output.stats = {
+      name: rawTeam.name,
+      color: rawTeam.color,
+      stats: rawTeam.stats,
+    };
+    output.team = team;
+    output.round = round;
+    output.teamName = teamName;
+    return output;
+  }
 
-    _createEligibility(points: number, player: Player, matchParent: MatchParent, em: EntityManager): EligibilityData {
-        const output = em.create(EligibilityData);
-        output.matchParent = matchParent;
-        output.player = player;
-        output.points = points;
-        return output;
-    }
+  _createEligibility(
+    points: number,
+    player: Player,
+    matchParent: MatchParent,
+    em: EntityManager,
+  ): EligibilityData {
+    const output = em.create(EligibilityData);
+    output.matchParent = matchParent;
+    output.player = player;
+    output.points = points;
+    return output;
+  }
 
-    // TODO: Testing
-    async _createPlayerStatLine(rawPlayer: BallchasingPlayer, player: Player, opposingTeam: BallchasingTeam, teamStats: TeamStatLine, gameMode: GameMode, isHome: boolean, round: Round, em: EntityManager): Promise<PlayerStatLine> {
-        const output = em.create(PlayerStatLine);
+  // TODO: Testing
+  async _createPlayerStatLine(
+    rawPlayer: BallchasingPlayer,
+    player: Player,
+    opposingTeam: BallchasingTeam,
+    teamStats: TeamStatLine,
+    gameMode: GameMode,
+    isHome: boolean,
+    round: Round,
+    em: EntityManager,
+  ): Promise<PlayerStatLine> {
+    const output = em.create(PlayerStatLine);
 
-        const sprocketRating = this._getSprocketRating(rawPlayer, opposingTeam, gameMode);
+    const sprocketRating = this._getSprocketRating(rawPlayer, opposingTeam, gameMode);
 
-        output.teamStats = teamStats;
-        output.player = player;
-        output.stats = {
-            otherStats: rawPlayer,
-            ...sprocketRating,
-        };
-        output.isHome = isHome;
-        output.round = round;
-        return output;
-    }
+    output.teamStats = teamStats;
+    output.player = player;
+    output.stats = {
+      otherStats: rawPlayer,
+      ...sprocketRating,
+    };
+    output.isHome = isHome;
+    output.round = round;
+    return output;
+  }
 
-    // TODO: Testing
-    _getSprocketRating(rawPlayer: BallchasingPlayer, opposingTeam: BallchasingTeam, gameMode: GameMode): SprocketRating {
-        const sprocketRatingInput: SprocketRatingInput = {
-            ...rawPlayer.stats.core,
-            ...opposingTeam.players.reduce<{ goals_against: number; shots_against: number; }>((acc, v) => {
-                acc.goals_against += v.stats.core.goals;
-                acc.shots_against += v.stats.core.shots;
-                return acc;
-            }, { goals_against: 0, shots_against: 0 }),
-            team_size: gameMode.teamSize,
-        };
-        return this.sprocketRatingService.calcSprocketRating(sprocketRatingInput);
-    }
+  // TODO: Testing
+  _getSprocketRating(
+    rawPlayer: BallchasingPlayer,
+    opposingTeam: BallchasingTeam,
+    gameMode: GameMode,
+  ): SprocketRating {
+    const sprocketRatingInput: SprocketRatingInput = {
+      ...rawPlayer.stats.core,
+      ...opposingTeam.players.reduce<{ goals_against: number; shots_against: number }>(
+        (acc, v) => {
+          acc.goals_against += v.stats.core.goals;
+          acc.shots_against += v.stats.core.shots;
+          return acc;
+        },
+        { goals_against: 0, shots_against: 0 },
+      ),
+      team_size: gameMode.teamSize,
+    };
+    return this.sprocketRatingService.calcSprocketRating(sprocketRatingInput);
+  }
 }
-
