@@ -27,7 +27,7 @@ export class RbacService {
     @InjectRepository(PermissionAuditLog)
     private readonly auditLogRepo: Repository<PermissionAuditLog>,
     private readonly dataSource: DataSource,
-  ) {}
+  ) { }
 
   /**
    * Check if a user has permission to perform an action on a resource.
@@ -212,7 +212,6 @@ export class RbacService {
       await this.logAudit(actorId, AuditAction.GRANT_ROLE, {
         userId,
         role: roleName,
-        scope,
         status,
       });
     }

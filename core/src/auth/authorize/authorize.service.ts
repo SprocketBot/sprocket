@@ -11,7 +11,7 @@ export class AuthorizeService {
     @Inject(AUTHZ_ENFORCER)
     private readonly enforcer: Enforcer,
     private readonly userRepo: UserRepository,
-  ) {}
+  ) { }
 
   async getAllRoles() {
     return this.enforcer.getAllRoles();
@@ -30,9 +30,67 @@ export class AuthorizeService {
     return true;
   }
 
-  async check(user: Pick<User, 'id'>): Promise<boolean> {
-    this.logger.log(`Checking for ${user.id}`);
-    return false;
+  async check(user: Pick<User, 'id'>, action: string, resource: string): Promise<boolean> {
+    this.logger.log(`Checking authorization for user ${user.id} - action: ${action}, resource: ${resource}`);
+
+    try {
+      // Convert user ID to number for RBAC service
+      const userId = parseInt(user.id, 10);
+      if (isNaN(userId)) {
+        this.logger.error(`Invalid user ID format: ${user.id}`);
+        return false;
+      }
+
+      // Use the RBAC service to check permission
+      return await this.checkPermission(userId, action, resource);
+    } catch (error) {
+      this.logger.error(`Authorization check failed for user ${user.id}: ${error.message}`, error.stack);
+      return false;
+    }
+  }
+
+  /**
+   * Check if a user has permission to perform an action on a resource.
+   * This is a wrapper around the RBAC service for consistency.
+   */
+  async checkPermission(userId: number, action: string, resource: string): Promise<boolean> {
+    // For now, we'll implement a basic check. This can be enhanced later
+    // to support more complex authorization scenarios.
+
+    // Get all permissions for the user
+    const permissions = await this.getAllPermissionsForUser(userId);
+
+    // Check if the user has the specific permission
+    const requiredPermission = `${resource}:${action}`;
+    const hasPermission = permissions.includes(requiredPermission);
+
+    this.logger.log(`User ${userId} permission check: ${requiredPermission} = ${hasPermission}`);
+    return hasPermission;
+  }
+
+  /**
+   * Get all permissions for a user by checking their roles.
+   */
+  async getAllPermissionsForUser(userId: number): Promise<string[]> {
+    try {
+      // Get implicit permissions from Casbin
+      const permissions = await this.enforcer.getImplicitPermissionsForUser(String(userId));
+      const scopes = new Set<string>();
+
+      for (const p of permissions) {
+        if (p.length >= 3) {
+          const resource = p[1];
+          const action = p[2];
+          scopes.add(`${resource}:${action}`);
+        }
+      }
+
+      this.logger.log(`User ${userId} has permissions: ${Array.from(scopes).join(', ')}`);
+      return Array.from(scopes);
+    } catch (error) {
+      this.logger.error(`Failed to get permissions for user ${userId}: ${error.message}`, error.stack);
+      return [];
+    }
   }
 }
 

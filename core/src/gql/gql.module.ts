@@ -25,8 +25,12 @@ import opentelemetry from '@opentelemetry/api';
 import { GraphQLResolveInfo } from 'graphql';
 import { ScrimService } from './scrim/scrim.service';
 import { FranchiseResolver } from './franchise/franchise.resolver';
+import { FranchiseRoleResolver } from './franchise/franchise-role.resolver';
 import { ClubResolver } from './club/club.resolver';
+import { ClubRoleResolver } from './club/club-role.resolver';
 import { TeamResolver } from './team/team.resolver';
+import { TeamRoleResolver } from './team/team-role.resolver';
+import { BulkResolver } from './bulk/bulk.resolver';
 import { CoreEntitiesResolver } from './core_entities.resolver';
 import {
   MatchSubmissionEntity,
@@ -51,6 +55,8 @@ import { SeasonResolver } from './season/season.resolver';
 import { SeasonService } from './season/season.service';
 import { RosterResolver } from './roster/roster.resolver';
 import { RosterService } from './roster/roster.service';
+import { BulkModule } from '../bulk/bulk.module';
+import { AuditModule } from '../audit/audit.module';
 
 @Module({
   imports: [
@@ -115,6 +121,8 @@ import { RosterService } from './roster/roster.service';
     MatchmakingConnectorModule,
     QueueModule,
     EventsModule,
+    BulkModule,
+    AuditModule,
     TypeOrmModule.forFeature([
       MatchSubmissionEntity,
       RoundEntity,
@@ -157,8 +165,12 @@ import { RosterService } from './roster/roster.service';
     RosterResolver,
     RosterService,
     FranchiseResolver,
+    FranchiseRoleResolver,
     ClubResolver,
+    ClubRoleResolver,
     TeamResolver,
+    TeamRoleResolver,
+    BulkResolver,
   ],
 })
 export class GqlModule { }

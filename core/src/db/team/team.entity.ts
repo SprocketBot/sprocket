@@ -29,7 +29,7 @@ export class TeamEntity extends BaseEntity {
 	@Column({ type: 'boolean', default: true })
 	isActive: boolean;
 
-	@OneToMany(() => RosterSpotEntity, (rs) => rs.team)
+	@OneToMany(() => RosterSpotEntity, (rs) => rs.team, { onDelete: 'RESTRICT' })
 	rosterSpots: RosterSpotEntityType[];
 
 	@OneToMany(() => TeamRoleEntity, (r) => r.team)

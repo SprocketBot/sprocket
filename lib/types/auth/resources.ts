@@ -1,4 +1,5 @@
 export enum Resource {
+  Club = 'club',
   Franchise = 'franchise',
   Game = 'game',
   GameMode = 'game_mode',
@@ -9,11 +10,26 @@ export enum Resource {
   Round = 'round',
   ScheduleGroup = 'schedule_group',
   ScheduleGroupType = 'schedule_group_type',
+  Season = 'season',
   SkillGroup = 'skill_group',
   Team = 'team',
   TeamStat = 'team_stat',
   User = 'user',
   UserAuthAccount = 'user_auth_account',
+  FranchiseRole = 'franchise_role',
+  ClubRole = 'club_role',
+  TeamRole = 'team_role',
+  MatchSubmission = 'match_submission',
+  ScrimQueue = 'scrim_queue',
+  ScrimTimeout = 'scrim_timeout',
+  EventQueue = 'event_queue',
+  Metrics = 'metrics',
+  Logs = 'logs',
+  UserNotificationPreference = 'user_notification_preference',
+  NotificationHistory = 'notification_history',
+  NotificationTemplate = 'notification_template',
+  Fixture = 'fixture',
+  Scrim = 'scrim',
 }
 
 export enum ResourceAction {

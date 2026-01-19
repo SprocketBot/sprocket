@@ -17,6 +17,8 @@ import { ObservabilityModule } from './observability/observability.module';
 import { SubmissionsModule } from './submissions/submissions.module';
 import { EventQueueModule } from './events/event-queue.module';
 import { EloModule } from './elo/elo.module';
+import { BulkModule } from './bulk/bulk.module';
+import { AuditModule } from './audit/audit.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ApiTokenUsageInterceptor } from './auth/api_token/api_token_usage.interceptor';
@@ -37,6 +39,8 @@ import { ApiTokenUsageInterceptor } from './auth/api_token/api_token_usage.inter
     SubmissionsModule,
     EventQueueModule,
     EloModule,
+    BulkModule,
+    AuditModule,
     ThrottlerModule.forRoot([{
       ttl: 60000,
       limit: 100,

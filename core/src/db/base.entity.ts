@@ -1,6 +1,7 @@
 import {
 	BaseEntity as TypeormBaseEntity,
 	CreateDateColumn,
+	DeleteDateColumn,
 	PrimaryGeneratedColumn,
 	UpdateDateColumn
 } from 'typeorm';
@@ -14,4 +15,7 @@ export abstract class BaseEntity extends TypeormBaseEntity {
 
 	@UpdateDateColumn()
 	updateAt: Date;
+
+	@DeleteDateColumn()
+	deletedAt?: Date;
 }

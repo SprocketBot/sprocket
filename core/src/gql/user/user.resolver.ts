@@ -26,10 +26,10 @@ export class UserResolver {
   constructor(
     private readonly userRepo: UserRepository,
     @Inject(AUTHZ_ENFORCER) private readonly enforcer: Enforcer,
-  ) {}
+  ) { }
 
   @Query(() => UserObject)
-  @UseGuards(AuthorizeGuard())
+  @UseGuards(AuthorizeGuard({ action: ResourceAction.Read }))
   @UsePermissions({
     resource: Resource.User,
     action: ResourceAction.Read,
@@ -47,7 +47,12 @@ export class UserResolver {
   }
 
   @Query(() => [UserObject])
-  @UseGuards(AuthorizeGuard())
+  @UseGuards(AuthorizeGuard({ action: ResourceAction.Read }))
+  @UsePermissions({
+    resource: Resource.User,
+    action: ResourceAction.Read,
+    possession: AuthPossession.ANY,
+  })
   async users(
     @Args('query') query: FindUserInput,
     @CurrentUser() user: User,
@@ -109,7 +114,12 @@ export class UserResolver {
   }
 
   @Mutation(() => UserObject)
-  @UseGuards(AuthorizeGuard()) // TODO: authz
+  @UseGuards(AuthorizeGuard({ action: ResourceAction.Update }))
+  @UsePermissions({
+    resource: Resource.User,
+    action: ResourceAction.Update,
+    possession: AuthPossession.ANY,
+  })
   async alterUserActiveStatus(
     @Args('active') active: boolean,
     @Args('userId') userId: string,

@@ -18,6 +18,7 @@ import { ScrimService as InternalScrimService } from '../../matchmaking/scrim/sc
 import { CurrentUser } from 'src/auth/current-user/current-user.decorator';
 import { Inject, UseGuards } from '@nestjs/common';
 import { AuthorizeGuard } from 'src/auth/authorize/authorize.guard';
+import { AuthPossession, UsePermissions } from 'nest-authz';
 import {
   CreateScrimInput,
   DestroyScrimInput,
@@ -36,6 +37,7 @@ import { ScrimState } from '../../matchmaking/constants';
 import { GameModeObject } from '../game_mode/game_mode.object';
 import { GameModeRepository } from '../../db/game_mode/game_mode.repository';
 import { ScrimService } from './scrim.service';
+import { Resource, ResourceAction } from '@sprocketbot/lib/types';
 
 @Resolver(() => ScrimParticipantObject)
 export class ScrimParticipantResolver {
@@ -51,6 +53,7 @@ export class ScrimParticipantResolver {
 }
 
 @Resolver(() => ScrimObject)
+@UseGuards(AuthorizeGuard({ action: ResourceAction.Read }))
 export class ScrimResolver {
   constructor(
     private readonly scrimService: ScrimService,
@@ -70,7 +73,6 @@ export class ScrimResolver {
     filter: ScrimService.filterCurrentScrim,
     resolve: ScrimService.resolveScrim(true),
   })
-  @UseGuards(AuthorizeGuard())
   async currentScrimLive() {
     return this.pubsub.asyncIterator(MatchmakingEvents.ScrimUpdated);
   }
@@ -80,7 +82,6 @@ export class ScrimResolver {
     resolve: ScrimService.resolveScrim(false),
     filter: ScrimService.filterPendingScrims,
   })
-  @UseGuards(AuthorizeGuard())
   async availableScrimsLive() {
     return this.pubsub.asyncIterator(MatchmakingEvents.ScrimUpdated);
   }
@@ -88,13 +89,16 @@ export class ScrimResolver {
     name: 'allScrims',
     resolve: ScrimService.resolveScrim(false),
   })
-  @UseGuards(AuthorizeGuard())
   async allScrimsLive() {
     return this.pubsub.asyncIterator(MatchmakingEvents.ScrimUpdated);
   }
 
   @Query(() => [ScrimObject])
-  @UseGuards(AuthorizeGuard())
+  @UsePermissions({
+    resource: Resource.Scrim,
+    action: ResourceAction.Read,
+    possession: AuthPossession.ANY,
+  })
   async pendingScrims(
     @CurrentUser() user: User,
     @Args('admin', { nullable: true, defaultValue: false }) admin: boolean,
@@ -104,19 +108,32 @@ export class ScrimResolver {
   }
 
   @Query(() => [ScrimObject])
-  @UseGuards(AuthorizeGuard())
+  @UsePermissions({
+    resource: Resource.Scrim,
+    action: ResourceAction.Read,
+    possession: AuthPossession.ANY,
+  })
   async allScrims(@Args('query', { nullable: true }) query?: ListScrimsInput) {
     return await this.scrimService.listScrims(query ?? {});
   }
 
   @Query(() => ScrimObject, { nullable: true })
-  @UseGuards(AuthorizeGuard())
+  @UsePermissions({
+    resource: Resource.Scrim,
+    action: ResourceAction.Read,
+    possession: AuthPossession.OWN,
+  })
   async currentScrim(@CurrentUser() authUser: User) {
     return await this.scrimService.getScrimForUser(authUser);
   }
 
   @Mutation(() => ScrimObject)
-  @UseGuards(AuthorizeGuard())
+  @UseGuards(AuthorizeGuard({ action: ResourceAction.Create }))
+  @UsePermissions({
+    resource: Resource.Scrim,
+    action: ResourceAction.Create,
+    possession: AuthPossession.ANY,
+  })
   async createScrim(
     @CurrentUser() user: User,
     @Args('payload', { type: () => CreateScrimInput })
@@ -125,7 +142,12 @@ export class ScrimResolver {
     return await this.scrimService.createScrim(user, payload);
   }
   @Mutation(() => ScrimObject)
-  @UseGuards(AuthorizeGuard())
+  @UseGuards(AuthorizeGuard({ action: ResourceAction.Delete }))
+  @UsePermissions({
+    resource: Resource.Scrim,
+    action: ResourceAction.Delete,
+    possession: AuthPossession.ANY,
+  })
   async destroyScrim(
     @CurrentUser() user: User,
     @Args('payload', { type: () => DestroyScrimInput })
@@ -135,7 +157,12 @@ export class ScrimResolver {
   }
 
   @Mutation(() => ScrimObject)
-  @UseGuards(AuthorizeGuard())
+  @UseGuards(AuthorizeGuard({ action: ResourceAction.Update }))
+  @UsePermissions({
+    resource: Resource.Scrim,
+    action: ResourceAction.Update,
+    possession: AuthPossession.ANY,
+  })
   async joinScrim(
     @CurrentUser() user: User,
     @Args('scrimId', { type: () => String }) scrimId: string,
@@ -144,7 +171,12 @@ export class ScrimResolver {
   }
 
   @Mutation(() => ScrimObject)
-  @UseGuards(AuthorizeGuard())
+  @UseGuards(AuthorizeGuard({ action: ResourceAction.Update }))
+  @UsePermissions({
+    resource: Resource.Scrim,
+    action: ResourceAction.Update,
+    possession: AuthPossession.ANY,
+  })
   async leaveScrim(@CurrentUser() user: User): Promise<Scrim> {
     return await this.internalScrimService.leaveScrim(user.id);
   }

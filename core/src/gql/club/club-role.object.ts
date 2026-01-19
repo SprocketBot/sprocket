@@ -1,4 +1,5 @@
-import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Field, ObjectType, registerEnumType, InputType } from '@nestjs/graphql';
+import { IsEnum, IsUUID } from 'class-validator';
 import { BaseObject } from '../base.object';
 import { UserObject } from '../user/user.object';
 import { ClubRoleType } from '../../db/club_role/club_role.entity';
@@ -20,4 +21,19 @@ export class ClubRoleObject extends BaseObject {
 
 	@Field(() => Boolean)
 	requiresApproval: boolean;
+}
+
+@InputType()
+export class AssignClubRoleInput {
+	@Field(() => String)
+	@IsUUID()
+	userId: string;
+
+	@Field(() => String)
+	@IsUUID()
+	clubId: string;
+
+	@Field(() => ClubRoleType)
+	@IsEnum(ClubRoleType)
+	roleType: ClubRoleType;
 }

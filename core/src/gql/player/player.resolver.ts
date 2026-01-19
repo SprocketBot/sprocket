@@ -6,13 +6,20 @@ import { GameObject } from '../game/game.object';
 import { SkillGroupObject } from '../skill_group/skill_group.object';
 import { UseGuards } from '@nestjs/common';
 import { AuthorizeGuard } from '../../auth/authorize/authorize.guard';
+import { Resource, ResourceAction } from '@sprocketbot/lib/types';
+import { AuthPossession, UsePermissions } from 'nest-authz';
 
 @Resolver(() => PlayerObject)
 export class PlayerResolver {
-	constructor(private readonly playerRepo: PlayerRepository) {}
+	constructor(private readonly playerRepo: PlayerRepository) { }
 
 	@Mutation(() => PlayerObject)
-	@UseGuards(AuthorizeGuard()) // todo: authz
+	@UseGuards(AuthorizeGuard({ action: ResourceAction.Create }))
+	@UsePermissions({
+		resource: Resource.Player,
+		action: ResourceAction.Create,
+		possession: AuthPossession.ANY,
+	})
 	async createPlayer(@Args('data') data: CreatePlayerInput) {
 		let player = this.playerRepo.create({
 			game: { id: data.gameId },
@@ -26,7 +33,12 @@ export class PlayerResolver {
 	}
 
 	@Mutation(() => PlayerObject)
-	@UseGuards(AuthorizeGuard()) // todo: authz
+	@UseGuards(AuthorizeGuard({ action: ResourceAction.Update }))
+	@UsePermissions({
+		resource: Resource.Player,
+		action: ResourceAction.Update,
+		possession: AuthPossession.ANY,
+	})
 	async updatePlayer(@Args('data') data: UpdatePlayerInput) {
 		const player = await this.playerRepo.findOneByOrFail({
 			id: data.playerId
@@ -46,7 +58,12 @@ export class PlayerResolver {
 	}
 
 	@Mutation(() => PlayerObject)
-	@UseGuards(AuthorizeGuard()) // todo: authz
+	@UseGuards(AuthorizeGuard({ action: ResourceAction.Delete }))
+	@UsePermissions({
+		resource: Resource.Player,
+		action: ResourceAction.Delete,
+		possession: AuthPossession.ANY,
+	})
 	async deletePlayer(@Args('playerId') playerId: string) {
 		const player = await this.playerRepo.findOneByOrFail({
 			id: playerId

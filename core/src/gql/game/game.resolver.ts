@@ -4,15 +4,16 @@ import { GameObject } from './game.object';
 import { GameRepository } from '../../db/game/game.repository';
 import { UseGuards } from '@nestjs/common';
 import { GameModeObject } from '../game_mode/game_mode.object';
-import { AuthPossession, AuthZGuard, UsePermissions } from 'nest-authz';
+import { AuthPossession, UsePermissions } from 'nest-authz';
 import { Resource, ResourceAction } from '@sprocketbot/lib/types';
+import { AuthorizeGuard } from '../../auth/authorize/authorize.guard';
 
 @Resolver(() => GameObject)
 export class GameResolver {
-  constructor(private readonly gameRepo: GameRepository) {}
+  constructor(private readonly gameRepo: GameRepository) { }
 
   @Query(() => [GameObject])
-  @UseGuards(AuthZGuard)
+  @UseGuards(AuthorizeGuard({ action: ResourceAction.Read }))
   @UsePermissions({
     resource: Resource.Game,
     action: ResourceAction.Read,

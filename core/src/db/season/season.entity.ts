@@ -12,6 +12,9 @@ export class SeasonEntity extends BaseEntity {
 	@Column()
 	name: string;
 
+	@Column({ unique: true })
+	slug: string;
+
 	@Column({ type: 'int' })
 	number: number;
 
@@ -23,6 +26,9 @@ export class SeasonEntity extends BaseEntity {
 
 	@Column({ type: 'enum', enum: SeasonStatus, default: SeasonStatus.UPCOMING })
 	status: SeasonStatus;
+
+	@Column({ type: 'boolean', default: true })
+	isActive: boolean;
 
 	@Column({ type: 'boolean', default: false })
 	isOffseason: boolean;

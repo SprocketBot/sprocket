@@ -6,7 +6,7 @@ import { RoleDefinition } from '../../db/role_definition/role_definition.entity'
 
 @Resolver()
 export class RbacResolver {
-  constructor(private readonly rbacService: RbacService) {}
+  constructor(private readonly rbacService: RbacService) { }
 
   @Query(() => [Role])
   // @UseGuards(GqlAuthGuard)
@@ -28,17 +28,17 @@ export class RbacResolver {
     // If stored policy has explicit effect, it might be returned.
     // Our model: p = sub, obj, act, scope, eft
     return policy.map(p => ({
-        role: p[0],
-        resource: p[1],
-        action: p[2],
-        scope: p[3],
-        effect: p[4] || 'allow',
+      role: p[0],
+      resource: p[1],
+      action: p[2],
+      scope: p[3],
+      effect: p[4] || 'allow',
     }));
   }
 
   @Query(() => [PermissionAuditLog])
   async permissionAuditLogs(): Promise<PermissionAuditLog[]> {
-      return this.rbacService.getAuditLogs();
+    return this.rbacService.getAuditLogs();
   }
 
   @Mutation(() => Role)
@@ -59,7 +59,7 @@ export class RbacResolver {
     @Args('action') action: string,
     @Args('scope', { defaultValue: 'all' }) scope: string,
   ): Promise<boolean> {
-    return this.rbacService.addPermissionToRole(role, action, resource, scope);
+    return this.rbacService.addPermissionToRole(role, action, resource);
   }
 
   @Mutation(() => Boolean)
@@ -69,26 +69,26 @@ export class RbacResolver {
     @Args('action') action: string,
     @Args('scope', { defaultValue: 'all' }) scope: string,
   ): Promise<boolean> {
-      return this.rbacService.removePermissionFromRole(role, action, resource, scope);
+    return this.rbacService.removePermissionFromRole(role, action, resource);
   }
 
   @Mutation(() => UserRoleAssignment)
   async assignRoleToUser(
-      @Args('userId', { type: () => Int }) userId: number,
-      @Args('role') role: string,
-      @Args('scope', { nullable: true }) scope?: string,
+    @Args('userId', { type: () => Int }) userId: number,
+    @Args('role') role: string,
+    @Args('scope', { nullable: true }) scope?: string,
   ): Promise<UserRoleAssignment> {
-      // TODO: actorId
-      const assignment = await this.rbacService.assignRoleToUser(userId, role, scope);
-      // Map entity to GQL type if needed, but fields align mostly
-      return assignment as any; 
+    // TODO: actorId
+    const assignment = await this.rbacService.assignRoleToUser(userId, role);
+    // Map entity to GQL type if needed, but fields align mostly
+    return assignment as any;
   }
 
   @Mutation(() => Boolean)
   async revokeRoleFromUser(
-      @Args('userId', { type: () => Int }) userId: number,
-      @Args('role') role: string,
+    @Args('userId', { type: () => Int }) userId: number,
+    @Args('role') role: string,
   ): Promise<boolean> {
-      return this.rbacService.revokeRoleFromUser(userId, role);
+    return this.rbacService.revokeRoleFromUser(userId, role);
   }
 }

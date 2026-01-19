@@ -1,7 +1,8 @@
 import { Resolvable, AuthEffect, AuthAction } from '@sprocketbot/lib/types';
+import { ResourceAction } from '@sprocketbot/lib/types';
 
 export type AuthorizationSpec = {
-  action: AuthAction;
+  action: AuthAction | ResourceAction;
 };
 export type AuthorizationInput = Resolvable<AuthorizationSpec, [], void>;
 

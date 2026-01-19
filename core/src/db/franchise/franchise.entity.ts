@@ -25,7 +25,7 @@ export class FranchiseEntity extends BaseEntity {
 	@Column({ type: 'boolean', default: true })
 	isActive: boolean;
 
-	@OneToMany(() => ClubEntity, (c) => c.franchise)
+	@OneToMany(() => ClubEntity, (c) => c.franchise, { onDelete: 'RESTRICT' })
 	clubs: ClubEntityType[];
 
 	@OneToMany(() => FranchiseRoleEntity, (r) => r.franchise)

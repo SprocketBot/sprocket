@@ -5,9 +5,10 @@ import { UserObject } from '../user/user.object';
 import { AuthorizeGuard } from '../../auth/authorize/authorize.guard';
 import { ScrimService } from '../../matchmaking/scrim/scrim.service';
 import { QueueService } from '../../matchmaking/queue/queue.service';
+import { ResourceAction } from '@sprocketbot/lib/types';
 
 @Resolver()
-@UseGuards(AuthorizeGuard())
+@UseGuards(AuthorizeGuard({ action: ResourceAction.Read }))
 export class QueueResolver {
     constructor(
         private readonly scrimService: ScrimService,
@@ -15,7 +16,7 @@ export class QueueResolver {
     ) { }
 
     @Mutation(() => Boolean)
-    @UseGuards(AuthorizeGuard())
+    @UseGuards(AuthorizeGuard({ action: ResourceAction.Update }))
     async joinQueue(
         @CurrentUser() user: UserObject,
         @Args('gameId') gameId: string,
@@ -30,7 +31,7 @@ export class QueueResolver {
     }
 
     @Mutation(() => Boolean)
-    @UseGuards(AuthorizeGuard())
+    @UseGuards(AuthorizeGuard({ action: ResourceAction.Update }))
     async leaveQueue(
         @CurrentUser() user: UserObject,
     ): Promise<boolean> {
@@ -42,7 +43,7 @@ export class QueueResolver {
     }
 
     @Query(() => PlayerQueueStatus, { nullable: true })
-    @UseGuards(AuthorizeGuard())
+    @UseGuards(AuthorizeGuard({ action: ResourceAction.Read }))
     async getQueueStatus(
         @CurrentUser() user: UserObject,
     ): Promise<PlayerQueueStatus | null> {
@@ -63,6 +64,7 @@ export class QueueResolver {
     }
 
     @Query(() => QueueStats)
+    @UseGuards(AuthorizeGuard({ action: ResourceAction.Read }))
     async getQueueStats(
         @Args('gameId', { type: () => String, nullable: true }) gameId?: string,
     ): Promise<QueueStats> {
@@ -82,7 +84,7 @@ export class QueueResolver {
     }
 
     @Mutation(() => [MatchmakingResult])
-    @UseGuards(AuthorizeGuard())
+    @UseGuards(AuthorizeGuard({ action: ResourceAction.Create }))
     async processMatchmaking(): Promise<MatchmakingResult[]> {
         try {
             const results = await this.queueService.processMatchmaking();
