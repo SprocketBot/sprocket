@@ -33,7 +33,7 @@ export class ReplayParseModResolver {
     private readonly redisService: RedisService,
     private readonly scrimService: ScrimService,
     @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
-  ) {}
+  ) { }
 
   @Query(() => GqlReplaySubmission, { nullable: true })
   async getSubmission(
@@ -119,14 +119,18 @@ export class ReplayParseModResolver {
   }
 
   @Mutation(() => ValidationResultUnion)
-  async validateSubmission(@Args('submissionId') submissionId: string): Promise<ValidationResult> {
+  async validateSubmission(
+    @CurrentUser() user: UserPayload,
+    @Args('submissionId') submissionId: string,
+  ): Promise<ValidationResult> {
     const response = await this.submissionService.send(SubmissionEndpoint.ValidateSubmission, {
       submissionId,
+      playerId: user.userId,
     });
     if (response.status === ResponseStatus.ERROR) {
       throw response.error;
     }
-    return response.data;
+    return response.data as ValidationResult;
   }
 
   @Subscription(() => GqlReplaySubmission, {

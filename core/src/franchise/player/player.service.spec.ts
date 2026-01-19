@@ -2,7 +2,7 @@ import { JwtService } from '@nestjs/jwt';
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { EventsService, NotificationService } from '@sprocketbot/common';
+import { AnalyticsService, EventsService, NotificationService } from '@sprocketbot/common';
 import type { QueryRunner, Repository } from 'typeorm';
 import { DataSource } from 'typeorm';
 
@@ -48,6 +48,7 @@ describe('PlayerService', () => {
   let dataSource: DataSource;
   let platformService: PlatformService;
   let eloConnectorService: EloConnectorService;
+  let analyticsService: AnalyticsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -68,19 +69,23 @@ describe('PlayerService', () => {
           provide: getRepositoryToken(User),
           useValue: {
             findOneOrFail: jest.fn(),
+            create: jest.fn().mockImplementation(() => ({})),
+            save: jest.fn(),
           },
         },
         {
           provide: getRepositoryToken(UserProfile),
           useValue: {
             findOneOrFail: jest.fn(),
+            create: jest.fn().mockImplementation(() => ({})),
+            save: jest.fn(),
           },
         },
         {
           provide: getRepositoryToken(Member),
           useValue: {
             findOneOrFail: jest.fn(),
-            create: jest.fn(),
+            create: jest.fn().mockImplementation(() => ({})),
             save: jest.fn(),
           },
         },
@@ -88,21 +93,25 @@ describe('PlayerService', () => {
           provide: getRepositoryToken(MemberProfile),
           useValue: {
             findOneOrFail: jest.fn(),
+            create: jest.fn().mockImplementation(() => ({})),
+            save: jest.fn(),
+            merge: jest.fn(),
           },
         },
         {
           provide: getRepositoryToken(Organization),
           useValue: {
             findOneOrFail: jest.fn(),
-            create: jest.fn(),
+            create: jest.fn().mockImplementation(() => ({})),
             save: jest.fn(),
           },
         },
         {
           provide: getRepositoryToken(UserAuthenticationAccount),
           useValue: {
+            findOne: jest.fn(),
             findOneOrFail: jest.fn(),
-            create: jest.fn(),
+            create: jest.fn().mockImplementation(() => ({})),
             save: jest.fn(),
           },
         },
@@ -125,9 +134,15 @@ describe('PlayerService', () => {
         {
           provide: getRepositoryToken(MLE_Player),
           useValue: {
+            findOne: jest.fn(),
             findOneOrFail: jest.fn(),
             create: jest.fn(),
             save: jest.fn(),
+            merge: jest.fn(),
+            createQueryBuilder: jest.fn().mockReturnValue({
+              select: jest.fn().mockReturnThis(),
+              getRawOne: jest.fn().mockResolvedValue({ max: 0 }),
+            }),
           },
         },
         {
@@ -201,6 +216,12 @@ describe('PlayerService', () => {
             createJob: jest.fn(),
           },
         },
+        {
+          provide: AnalyticsService,
+          useValue: {
+            send: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -231,6 +252,7 @@ describe('PlayerService', () => {
     dataSource = module.get<DataSource>(DataSource);
     platformService = module.get<PlatformService>(PlatformService);
     eloConnectorService = module.get<EloConnectorService>(EloConnectorService);
+    analyticsService = module.get<AnalyticsService>(AnalyticsService);
   });
 
   it('should be defined', () => {
@@ -346,8 +368,8 @@ describe('PlayerService', () => {
       const skillGroupId = 1;
       const salary = 50000;
 
-      const mockMember = { id: memberId } as Member;
-      const mockSkillGroup = { id: skillGroupId } as any;
+      const mockMember = { id: memberId, userId: 1 } as Member;
+      const mockSkillGroup = { id: skillGroupId, game: { id: 7 } } as any;
 
       const expectedPlayer = {
         id: 1,
@@ -358,6 +380,8 @@ describe('PlayerService', () => {
 
       (memberService.getMemberById as jest.Mock).mockResolvedValue(mockMember);
       (skillGroupService.getGameSkillGroupById as jest.Mock).mockResolvedValue(mockSkillGroup);
+      (skillGroupService.getGameSkillGroup as jest.Mock).mockResolvedValue(mockSkillGroup);
+      (memberRepository.findOneOrFail as jest.Mock).mockResolvedValue(mockMember);
 
       (playerRepository.create as jest.Mock).mockReturnValue(expectedPlayer);
       (playerRepository.save as jest.Mock).mockResolvedValue(expectedPlayer);
@@ -376,10 +400,10 @@ describe('PlayerService', () => {
     });
 
     it('should handle member object input', async () => {
-      const member = { id: 1 } as Member;
+      const member = { id: 1, userId: 1 } as Member;
       const skillGroupId = 1;
       const salary = 50000;
-      const mockSkillGroup = { id: skillGroupId } as any;
+      const mockSkillGroup = { id: skillGroupId, game: { id: 7 } } as any;
 
       const expectedPlayer = {
         id: 1,
@@ -389,6 +413,8 @@ describe('PlayerService', () => {
       } as Player;
 
       (skillGroupService.getGameSkillGroupById as jest.Mock).mockResolvedValue(mockSkillGroup);
+      (skillGroupService.getGameSkillGroup as jest.Mock).mockResolvedValue(mockSkillGroup);
+      (memberRepository.findOneOrFail as jest.Mock).mockResolvedValue(member);
 
       (playerRepository.create as jest.Mock).mockReturnValue(expectedPlayer);
       (playerRepository.save as jest.Mock).mockResolvedValue(expectedPlayer);
@@ -434,11 +460,15 @@ describe('PlayerService', () => {
       const mockUser = null;
       const mockMember = { id: 1 } as Member;
       const mockPlayer = { id: 1 } as Player;
+      const mockOrg = { id: 1, profile: { name: 'Minor League Esports' } } as Organization;
+      const mockSkillGroup = { id: 1, ordinal: 1, profile: { description: 'Test' } } as any;
 
       const mockQueryRunner = {
         manager: {
           findOne: jest.fn().mockResolvedValue(mockUser),
+          findOneOrFail: jest.fn().mockResolvedValue(mockOrg),
           save: jest.fn(),
+          create: jest.fn().mockImplementation((entity, data) => data),
         },
         connect: jest.fn(),
         startTransaction: jest.fn(),
@@ -448,6 +478,8 @@ describe('PlayerService', () => {
       } as unknown as QueryRunner;
 
       (dataSource.createQueryRunner as jest.Mock).mockReturnValue(mockQueryRunner);
+      (organizationRepository.findOneOrFail as jest.Mock).mockResolvedValue(mockOrg);
+      (skillGroupService.getGameSkillGroupById as jest.Mock).mockResolvedValue(mockSkillGroup);
       (service.createPlayer as jest.Mock) = jest.fn().mockResolvedValue(mockPlayer);
 
       const result = await service.intakeUser(name, d_id, ptl);
@@ -479,20 +511,27 @@ describe('PlayerService', () => {
       } as unknown as User;
 
       const mockMember = { id: 1 } as Member;
+      const mockOrg = { id: 1, profile: { name: 'Minor League Esports' } } as Organization;
 
       const mockQueryRunner = {
         manager: {
           findOne: jest.fn().mockResolvedValue(mockUser),
+          findOneOrFail: jest.fn().mockResolvedValue(mockOrg),
           save: jest.fn(),
         },
+        connect: jest.fn(),
+        startTransaction: jest.fn(),
+        commitTransaction: jest.fn(),
+        rollbackTransaction: jest.fn(),
+        release: jest.fn(),
       } as unknown as QueryRunner;
 
       const mockPlayer = { id: 1 } as Player;
 
       (dataSource.createQueryRunner as jest.Mock).mockReturnValue(mockQueryRunner);
+      (organizationRepository.findOneOrFail as jest.Mock).mockResolvedValue(mockOrg);
       (service.createPlayer as jest.Mock) = jest.fn().mockResolvedValue(mockPlayer);
 
-      (dataSource.createQueryRunner as jest.Mock).mockReturnValue(mockQueryRunner);
       (memberRepository.create as jest.Mock).mockReturnValue(mockMember);
       (memberProfileRepository.create as jest.Mock).mockReturnValue({ name } as MemberProfile);
 
@@ -511,19 +550,25 @@ describe('PlayerService', () => {
         },
       ];
 
+      const mockOrg = { id: 1, profile: { name: 'Minor League Esports' } } as Organization;
       const mockQueryRunner = {
         manager: {
           findOne: jest.fn().mockResolvedValue(null),
+          findOneOrFail: jest.fn().mockResolvedValue(mockOrg),
           save: jest.fn(),
         },
+        connect: jest.fn(),
+        startTransaction: jest.fn(),
+        commitTransaction: jest.fn(),
+        rollbackTransaction: jest.fn(),
+        release: jest.fn(),
       } as unknown as QueryRunner;
 
       (dataSource.createQueryRunner as jest.Mock).mockReturnValue(mockQueryRunner);
+      (organizationRepository.findOneOrFail as jest.Mock).mockResolvedValue(mockOrg);
       (service.createPlayer as jest.Mock) = jest
         .fn()
         .mockRejectedValue(new Error('Creation failed'));
-
-      (dataSource.createQueryRunner as jest.Mock).mockReturnValue(mockQueryRunner);
 
       const result = await service.intakeUser(name, d_id, ptl);
 
@@ -543,8 +588,7 @@ describe('PlayerService', () => {
 
       (playerRepository.findOneOrFail as jest.Mock).mockResolvedValue(mockPlayer);
       (skillGroupService.getGameSkillGroupById as jest.Mock).mockResolvedValue(mockSkillGroup);
-
-      (playerRepository.findOneOrFail as jest.Mock).mockResolvedValue(mockPlayer);
+      (playerRepository.merge as jest.Mock).mockReturnValue(mockPlayer);
 
       const result = await service.updatePlayerStanding(playerId, salary, skillGroupId);
 
@@ -563,6 +607,7 @@ describe('PlayerService', () => {
       const mockPlayer = { id: playerId } as Player;
 
       (playerRepository.findOneOrFail as jest.Mock).mockResolvedValue(mockPlayer);
+      (playerRepository.merge as jest.Mock).mockReturnValue(mockPlayer);
 
       const result = await service.updatePlayerStanding(playerId, salary);
 
@@ -577,8 +622,24 @@ describe('PlayerService', () => {
       const salary = 60000;
       const skillGroupId = 2;
 
-      const mockPlayer = { id: sprocPlayerId } as Player;
+      const mockPlayer = {
+        id: sprocPlayerId,
+        skillGroup: { id: 1, ordinal: 1 },
+        member: {
+          user: {
+            authenticationAccounts: [
+              { accountType: UserAuthenticationAccountType.DISCORD, accountId: '123' },
+            ],
+          },
+        },
+      } as any;
+      const mockSkillGroup = { id: skillGroupId, ordinal: 2 } as any;
+      const mockMlePlayer = { id: 1, discordId: '123', league: 'FOUNDATION' } as any;
+
       (playerRepository.findOneOrFail as jest.Mock).mockResolvedValue(mockPlayer);
+      (skillGroupService.getGameSkillGroupById as jest.Mock).mockResolvedValue(mockSkillGroup);
+      (mlePlayerRepository.findOneOrFail as jest.Mock).mockResolvedValue(mockMlePlayer);
+      (mlePlayerRepository.merge as jest.Mock).mockReturnValue(mockMlePlayer);
 
       const result = await service.mle_movePlayerToLeague(sprocPlayerId, salary, skillGroupId);
 

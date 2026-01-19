@@ -6,7 +6,8 @@ import type { Member } from '$db/organization/member/member.model';
 import type { MLE_Player } from '../../database/mledb';
 import { MLE_OrganizationTeam, MLE_Platform } from '../../database/mledb';
 import { PlatformService } from '../../game';
-import { CurrentUser, UserPayload } from '../../identity/auth';
+import { CurrentUser } from '../../identity/auth/current-user.decorator';
+import { UserPayload } from '../../identity/auth/oauth';
 import { GqlJwtGuard } from '../../identity/auth/gql-auth-guard';
 import { MledbPlayerAccountService, MledbPlayerService } from '../../mledb';
 import { MLEOrganizationTeamGuard } from '../../mledb/mledb-player/mle-organization-team.guard';
@@ -24,7 +25,7 @@ export class MemberModResolver {
     @Inject(forwardRef(() => MledbPlayerAccountService))
     private readonly mledbPlayerAccountService: MledbPlayerAccountService,
     private readonly memberFixService: MemberFixService,
-  ) {}
+  ) { }
 
   @Mutation(() => String)
   @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))

@@ -9,7 +9,10 @@
     "analytics_queue": "dev-analytics",
     "matchmaking_queue": "dev-matchmaking",
     "image_generation_queue": "dev-image-generation",
-    "notification_queue": "dev-notification"
+    "notification_queue": "dev-notification",
+    "events_queue": "dev-events",
+    "celery-queue": "dev-celery",
+    "submission_queue": "dev-submissions"
   },
   "gql": {
     "url": "http://localhost:3001/graphql"

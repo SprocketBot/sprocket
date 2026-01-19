@@ -1,1 +1,15 @@
+node_modules
+**/node_modules
+dist
+**/dist
+.sveltekit
+**/build
+.git
+.gitignore
+.dockerignore
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
 scripts/db-seed

@@ -46,25 +46,25 @@ const command2OverloadSpec: CommandSpec = {
 
 class TestMarshal extends Marshal {
   @Command(command1Spec)
-  async MyCommandHandler(): Promise<void> {}
+  async MyCommandHandler(): Promise<void> { }
 
   @CommandNotFound()
-  async MyFirstCommandNotFoundHook(): Promise<void> {}
+  async MyFirstCommandNotFoundHook(): Promise<void> { }
 
   @CommandNotFound()
-  async MySecondCommandNotFoundHook(): Promise<void> {}
+  async MySecondCommandNotFoundHook(): Promise<void> { }
 }
 
 class NoCommandNotFoundMarshal extends Marshal {
   @Command(command2Spec)
-  async MyCommandHandler(): Promise<void> {}
+  async MyCommandHandler(): Promise<void> { }
 }
 class CommandOverloadMarshal extends Marshal {
   @Command(command2Spec)
-  async BaseCommand(): Promise<void> {}
+  async BaseCommand(): Promise<void> { }
 
   @Command(command2OverloadSpec)
-  async BaseCommandWithArgument(): Promise<void> {}
+  async BaseCommandWithArgument(): Promise<void> { }
 }
 const botPrefix = config.bot.prefix;
 
@@ -73,6 +73,11 @@ jest.mock('@sprocketbot/common', () => ({
   CoreService: jest.fn(),
   AnalyticsModule: jest.fn(),
   AnalyticsService: jest.fn(),
+  config: {
+    bot: {
+      prefix: '.',
+    },
+  },
 }));
 
 describe('Marshal', () => {
@@ -87,6 +92,12 @@ describe('Marshal', () => {
           CoreService,
           AnalyticsService,
           EmbedService,
+          {
+            provide: 'DISCORD_CLIENT',
+            useValue: {
+              on: jest.fn(),
+            },
+          },
         ],
       }).compile();
       marshal = moduleRef.get(TestMarshal);
@@ -161,6 +172,12 @@ describe('Marshal', () => {
           CoreService,
           AnalyticsService,
           EmbedService,
+          {
+            provide: 'DISCORD_CLIENT',
+            useValue: {
+              on: jest.fn(),
+            },
+          },
         ],
       }).compile();
 
@@ -183,6 +200,12 @@ describe('Marshal', () => {
           CoreService,
           AnalyticsService,
           EmbedService,
+          {
+            provide: 'DISCORD_CLIENT',
+            useValue: {
+              on: jest.fn(),
+            },
+          },
         ],
       }).compile();
 

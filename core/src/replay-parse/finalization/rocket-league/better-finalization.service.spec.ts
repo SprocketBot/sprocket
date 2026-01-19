@@ -6,10 +6,20 @@ import { ProgressStatus } from '@sprocketbot/common';
 import type { EntityManager } from 'typeorm';
 
 import type { Match } from '../../../database/scheduling/match/match.model';
-import { PlayerService } from '../../../franchise';
+import { RocketLeagueFinalizationService } from './rocket-league-finalization.service';
+import { PlayerService } from '../../../franchise/player/player.service';
+import { MatchService } from '../../../scheduling/match/match.service';
+import { SprocketRatingService } from '../../../sprocket-rating/sprocket-rating.service';
+import { MledbPlayerService } from '../../../mledb/mledb-player/mledb-player.service';
+import { TeamService } from '../../../franchise/team/team.service';
+import { BallchasingConverterService } from '../ballchasing-converter/ballchasing-converter.service';
+import { MledbFinalizationService } from '../../../mledb/mledb-scrim/mledb-finalization.service';
+import { EligibilityService } from '../../../scheduling/eligibility/eligibility.service';
+import { GameSkillGroupService } from '../../../franchise/game-skill-group/game-skill-group.service';
+import { DataSource } from 'typeorm';
+import { getDataSourceToken } from '@nestjs/typeorm';
 import type { MatchReplaySubmission } from '../../types';
 import { MATCH_SUBMISSION_FIXTURE_RATIFYING } from './fixtures/MatchSubmission.fixture';
-import { RocketLeagueFinalizationService } from './rocket-league-finalization.service';
 
 describe('BetterFinalizationService', () => {
   let service: RocketLeagueFinalizationService;
@@ -22,7 +32,63 @@ describe('BetterFinalizationService', () => {
         {
           provide: PlayerService,
           useValue: {
-            getPlayer: jest.fn,
+            getPlayer: jest.fn(),
+          },
+        },
+        {
+          provide: MatchService,
+          useValue: {
+            getMatchById: jest.fn(),
+            getFranchisesForMatch: jest.fn(),
+          },
+        },
+        {
+          provide: SprocketRatingService,
+          useValue: {
+            calcSprocketRating: jest.fn(),
+          },
+        },
+        {
+          provide: MledbPlayerService,
+          useValue: {
+            getMlePlayerBySprocketUser: jest.fn(),
+          },
+        },
+        {
+          provide: TeamService,
+          useValue: {
+            getTeam: jest.fn(),
+          },
+        },
+        {
+          provide: BallchasingConverterService,
+          useValue: {
+            createRound: jest.fn(),
+          },
+        },
+        {
+          provide: MledbFinalizationService,
+          useValue: {
+            saveScrim: jest.fn(),
+            saveMatch: jest.fn(),
+          },
+        },
+        {
+          provide: EligibilityService,
+          useValue: {
+            getEligibilityPointsForPlayer: jest.fn(),
+          },
+        },
+        {
+          provide: GameSkillGroupService,
+          useValue: {
+            getGameSkillGroupById: jest.fn(),
+          },
+        },
+        {
+          provide: getDataSourceToken(),
+          useValue: {
+            createQueryRunner: jest.fn(),
           },
         },
       ],
@@ -58,7 +124,6 @@ describe('BetterFinalizationService', () => {
         service
           .saveMatchDependents(
             mockedValue,
-            -1,
             { id: 0 } as unknown as Match,
             false,
             {} as unknown as EntityManager,
@@ -82,7 +147,6 @@ describe('BetterFinalizationService', () => {
         service
           .saveMatchDependents(
             mockedValue,
-            -1,
             undefined as unknown as Match,
             false,
             {} as unknown as EntityManager,
