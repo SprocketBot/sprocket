@@ -1,1 +1,1 @@
-export {ScheduledEvent} from "./scheduled_event.model";
+export { ScheduledEvent } from './scheduled_event.model';

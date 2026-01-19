@@ -1,4 +1,4 @@
-import type {Readable} from "stream";
+import type { Readable } from 'stream';
 
 /**
  * Reads a Stream into a Buffer. Note that this will consume the data from the stream, and it will not be
@@ -7,12 +7,18 @@ import type {Readable} from "stream";
  * @returns A buffer containing the data from the stream.
  */
 export const readToBuffer = async (stream: Readable): Promise<Buffer> => {
-    const chunks: Buffer[] = [];
-    return new Promise<Buffer>((resolve, reject) => {
-        stream.on("data", chunk => { chunks.push(Buffer.from(chunk as ArrayBuffer)) });
-        stream.on("error", err => { reject(err) });
-        stream.on("end", () => { resolve(Buffer.concat(chunks)) });
+  const chunks: Buffer[] = [];
+  return new Promise<Buffer>((resolve, reject) => {
+    stream.on('data', chunk => {
+      chunks.push(Buffer.from(chunk as ArrayBuffer));
     });
+    stream.on('error', err => {
+      reject(err);
+    });
+    stream.on('end', () => {
+      resolve(Buffer.concat(chunks));
+    });
+  });
 };
 
 /**
@@ -22,6 +28,6 @@ export const readToBuffer = async (stream: Readable): Promise<Buffer> => {
  * @returns A string containing the data from the stream.
  */
 export const readToString = async (stream: Readable): Promise<string> => {
-    const buffer = await readToBuffer(stream);
-    return buffer.toString();
+  const buffer = await readToBuffer(stream);
+  return buffer.toString();
 };

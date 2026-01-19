@@ -1,87 +1,117 @@
-import {Controller} from "@nestjs/common";
-import {MessagePattern, Payload} from "@nestjs/microservices";
+import { Controller } from '@nestjs/common';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import type {
-    GetGuildsByOrganizationIdResponse,
-    GetOrganizationByDiscordGuildResponse,
-    GetOrganizationDiscordGuildsByGuildResponse,
-    GetTransactionsDiscordWebhookResponse,
-} from "@sprocketbot/common";
-import {
-    CoreEndpoint, CoreSchemas,
-} from "@sprocketbot/common";
+  GetGuildsByOrganizationIdResponse,
+  GetOrganizationByDiscordGuildResponse,
+  GetOrganizationDiscordGuildsByGuildResponse,
+  GetTransactionsDiscordWebhookResponse,
+} from '@sprocketbot/common';
+import { CoreEndpoint, CoreSchemas } from '@sprocketbot/common';
 
-import {OrganizationConfigurationKeyCode} from "$db/configuration/organization_configuration_key/organization_configuration_key.enum";
-import type {OrganizationProfile} from "$db/organization/organization_profile/organization_profile.model";
+import { OrganizationConfigurationKeyCode } from '$db/configuration/organization_configuration_key/organization_configuration_key.enum';
+import type { OrganizationProfile } from '$db/organization/organization_profile/organization_profile.model';
 
-import {OrganizationConfigurationService} from "../../configuration/organization-configuration/organization-configuration.service";
-import {OrganizationService} from "./organization.service";
+import { OrganizationConfigurationService } from '../../configuration/organization-configuration/organization-configuration.service';
+import { OrganizationService } from './organization.service';
 
-@Controller("organization")
+@Controller('organization')
 export class OrganizationController {
-    constructor(
-        private readonly organizationService: OrganizationService,
-        private readonly organizationConfigurationService: OrganizationConfigurationService,
-    ) {}
+  constructor(
+    private readonly organizationService: OrganizationService,
+    private readonly organizationConfigurationService: OrganizationConfigurationService,
+  ) {}
 
-    @MessagePattern(CoreEndpoint.GetOrganizationProfile)
-    async getOrganizationProfile(@Payload() payload: unknown): Promise<OrganizationProfile> {
-        const data = CoreSchemas.GetOrganizationProfile.input.parse(payload);
-        return this.organizationService.getOrganizationProfileForOrganization(data.id);
-    }
+  @MessagePattern(CoreEndpoint.GetOrganizationProfile)
+  async getOrganizationProfile(@Payload() payload: unknown): Promise<OrganizationProfile> {
+    const data = CoreSchemas.GetOrganizationProfile.input.parse(payload);
+    return this.organizationService.getOrganizationProfileForOrganization(data.id);
+  }
 
-    @MessagePattern(CoreEndpoint.GetOrganizationDiscordGuildsByGuild)
-    async getOrganizationDiscordGuildsByGuild(@Payload() payload: unknown): Promise<GetOrganizationDiscordGuildsByGuildResponse> {
-        const data = CoreSchemas.GetOrganizationDiscordGuildsByGuild.input.parse(payload);
-        const valueContainingGuildId = await this.organizationConfigurationService.findOrganizationConfigurationValue(data.guildId, {relations: ["organization"] });
+  @MessagePattern(CoreEndpoint.GetOrganizationDiscordGuildsByGuild)
+  async getOrganizationDiscordGuildsByGuild(
+    @Payload() payload: unknown,
+  ): Promise<GetOrganizationDiscordGuildsByGuildResponse> {
+    const data = CoreSchemas.GetOrganizationDiscordGuildsByGuild.input.parse(payload);
+    const valueContainingGuildId =
+      await this.organizationConfigurationService.findOrganizationConfigurationValue(data.guildId, {
+        relations: ['organization'],
+      });
 
-        const primaryGuild = await this.organizationConfigurationService.getOrganizationConfigurationValue<string>(valueContainingGuildId.organization.id, OrganizationConfigurationKeyCode.PRIMARY_DISCORD_GUILD_SNOWFLAKE);
-        const alternateGuilds = await this.organizationConfigurationService.getOrganizationConfigurationValue<string[]>(valueContainingGuildId.organization.id, OrganizationConfigurationKeyCode.ALTERNATE_DISCORD_GUILD_SNOWFLAKES);
+    const primaryGuild =
+      await this.organizationConfigurationService.getOrganizationConfigurationValue<string>(
+        valueContainingGuildId.organization.id,
+        OrganizationConfigurationKeyCode.PRIMARY_DISCORD_GUILD_SNOWFLAKE,
+      );
+    const alternateGuilds =
+      await this.organizationConfigurationService.getOrganizationConfigurationValue<string[]>(
+        valueContainingGuildId.organization.id,
+        OrganizationConfigurationKeyCode.ALTERNATE_DISCORD_GUILD_SNOWFLAKES,
+      );
 
-        return {
-            primary: primaryGuild,
-            alternate: alternateGuilds,
-        };
-    }
+    return {
+      primary: primaryGuild,
+      alternate: alternateGuilds,
+    };
+  }
 
-    @MessagePattern(CoreEndpoint.GetOrganizationByDiscordGuild)
-    async getOrganizationByDiscordGuild(@Payload() payload: unknown): Promise<GetOrganizationByDiscordGuildResponse> {
-        const data = CoreSchemas.GetOrganizationDiscordGuildsByGuild.input.parse(payload);
-        const valueContainingGuildId = await this.organizationConfigurationService.findOrganizationConfigurationValue(data.guildId, {relations: ["organization"] });
+  @MessagePattern(CoreEndpoint.GetOrganizationByDiscordGuild)
+  async getOrganizationByDiscordGuild(
+    @Payload() payload: unknown,
+  ): Promise<GetOrganizationByDiscordGuildResponse> {
+    const data = CoreSchemas.GetOrganizationDiscordGuildsByGuild.input.parse(payload);
+    const valueContainingGuildId =
+      await this.organizationConfigurationService.findOrganizationConfigurationValue(data.guildId, {
+        relations: ['organization'],
+      });
 
-        return {
-            id: valueContainingGuildId.organization.id,
-        };
-    }
+    return {
+      id: valueContainingGuildId.organization.id,
+    };
+  }
 
-    @MessagePattern(CoreEndpoint.GetGuildsByOrganizationId)
-    async getGuildsByOrganizationId(@Payload() payload: unknown): Promise<GetGuildsByOrganizationIdResponse> {
-        const data = CoreSchemas.GetGuildsByOrganizationId.input.parse(payload);
-        
-        // Get primary if it exists
-        let primary: string | null = null;
-        try {
-            primary = await this.organizationConfigurationService.getOrganizationConfigurationValue<string>(data.organizationId, OrganizationConfigurationKeyCode.PRIMARY_DISCORD_GUILD_SNOWFLAKE);
-        // eslint-disable-next-line no-empty
-        } catch {}
-        
-        // Get alternates if they exist
-        let alternates: string[] = [];
-        try {
-            alternates = await this.organizationConfigurationService.getOrganizationConfigurationValue<string[]>(data.organizationId, OrganizationConfigurationKeyCode.ALTERNATE_DISCORD_GUILD_SNOWFLAKES);
-        // eslint-disable-next-line no-empty
-        } catch {}
+  @MessagePattern(CoreEndpoint.GetGuildsByOrganizationId)
+  async getGuildsByOrganizationId(
+    @Payload() payload: unknown,
+  ): Promise<GetGuildsByOrganizationIdResponse> {
+    const data = CoreSchemas.GetGuildsByOrganizationId.input.parse(payload);
 
-        return {primary, alternates};
-    }
+    // Get primary if it exists
+    let primary: string | null = null;
+    try {
+      primary =
+        await this.organizationConfigurationService.getOrganizationConfigurationValue<string>(
+          data.organizationId,
+          OrganizationConfigurationKeyCode.PRIMARY_DISCORD_GUILD_SNOWFLAKE,
+        );
+      // eslint-disable-next-line no-empty
+    } catch {}
 
-    @MessagePattern(CoreEndpoint.GetTransactionsDiscordWebhook)
-    async getTransactionsWebhook(@Payload() payload: unknown): Promise<GetTransactionsDiscordWebhookResponse> {
-        const data = CoreSchemas.GetTransactionsDiscordWebhook.input.parse(payload);
+    // Get alternates if they exist
+    let alternates: string[] = [];
+    try {
+      alternates = await this.organizationConfigurationService.getOrganizationConfigurationValue<
+        string[]
+      >(data.organizationId, OrganizationConfigurationKeyCode.ALTERNATE_DISCORD_GUILD_SNOWFLAKES);
+      // eslint-disable-next-line no-empty
+    } catch {}
 
-        const webhook: string = await this.organizationConfigurationService.getOrganizationConfigurationValue<string>(data.organizationId, OrganizationConfigurationKeyCode.TRANSACTIONS_DISCORD_WEBHOOK_URL);
+    return { primary, alternates };
+  }
 
-        return {
-            transactionsWebhook: webhook,
-        };
-    }
+  @MessagePattern(CoreEndpoint.GetTransactionsDiscordWebhook)
+  async getTransactionsWebhook(
+    @Payload() payload: unknown,
+  ): Promise<GetTransactionsDiscordWebhookResponse> {
+    const data = CoreSchemas.GetTransactionsDiscordWebhook.input.parse(payload);
+
+    const webhook: string =
+      await this.organizationConfigurationService.getOrganizationConfigurationValue<string>(
+        data.organizationId,
+        OrganizationConfigurationKeyCode.TRANSACTIONS_DISCORD_WEBHOOK_URL,
+      );
+
+    return {
+      transactionsWebhook: webhook,
+    };
+  }
 }

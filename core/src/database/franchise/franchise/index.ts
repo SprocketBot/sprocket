@@ -1,1 +1,1 @@
-export * from "./franchise.model";
+export * from './franchise.model';

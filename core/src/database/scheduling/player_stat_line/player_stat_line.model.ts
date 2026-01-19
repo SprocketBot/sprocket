@@ -1,37 +1,35 @@
-import {Field, ObjectType} from "@nestjs/graphql";
-import GraphQLJSON from "graphql-type-json";
-import {
-    Column, Entity, ManyToOne,
-} from "typeorm";
+import { Field, ObjectType } from '@nestjs/graphql';
+import GraphQLJSON from 'graphql-type-json';
+import { Column, Entity, ManyToOne } from 'typeorm';
 
-import {Player} from "$db/franchise/player/player.model";
+import { Player } from '$db/franchise/player/player.model';
 
-import {BaseModel} from "../../base-model";
-import {Round} from "../round/round.model";
-import {TeamStatLine} from "../team_stat_line/team_stat_line.model";
+import { BaseModel } from '../../base-model';
+import { Round } from '../round/round.model';
+import { TeamStatLine } from '../team_stat_line/team_stat_line.model';
 
-@Entity({schema: "sprocket"})
+@Entity({ schema: 'sprocket' })
 @ObjectType()
 export class PlayerStatLine extends BaseModel {
-    @Column({
-        type: "jsonb",
-    })
-    @Field(() => GraphQLJSON)
-    stats: unknown;
+  @Column({
+    type: 'jsonb',
+  })
+  @Field(() => GraphQLJSON)
+  stats: unknown;
 
-    @ManyToOne(() => Round)
-    @Field(() => Round)
-    round: Round;
+  @ManyToOne(() => Round)
+  @Field(() => Round)
+  round: Round;
 
-    @Column()
-    @Field(() => Boolean)
-    isHome: boolean;
+  @Column()
+  @Field(() => Boolean)
+  isHome: boolean;
 
-    @ManyToOne(() => TeamStatLine)
-    @Field(() => TeamStatLine)
-    teamStats: TeamStatLine;
+  @ManyToOne(() => TeamStatLine)
+  @Field(() => TeamStatLine)
+  teamStats: TeamStatLine;
 
-    @ManyToOne(() => Player)
-    @Field(() => Player)
-    player: Player;
+  @ManyToOne(() => Player)
+  @Field(() => Player)
+  player: Player;
 }

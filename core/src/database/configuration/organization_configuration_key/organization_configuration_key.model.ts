@@ -1,32 +1,33 @@
-import {Field, ObjectType} from "@nestjs/graphql";
+import { Field, ObjectType } from '@nestjs/graphql';
+import { Column, Entity, OneToMany } from 'typeorm';
+
+import { OrganizationConfigurationAllowedValue } from '$db/configuration/organization_configuration_allowed_value/organization_configuration_allowed_value.model';
+
+import { BaseModel } from '../../base-model';
 import {
-    Column, Entity, OneToMany,
-} from "typeorm";
+  OrganizationConfigurationKeyCode,
+  OrganizationConfigurationKeyType,
+} from './organization_configuration_key.enum';
 
-import {OrganizationConfigurationAllowedValue} from "$db/configuration/organization_configuration_allowed_value/organization_configuration_allowed_value.model";
-
-import {BaseModel} from "../../base-model";
-import {OrganizationConfigurationKeyCode, OrganizationConfigurationKeyType} from "./organization_configuration_key.enum";
-
-@Entity({schema: "sprocket"})
+@Entity({ schema: 'sprocket' })
 @ObjectType()
 export class OrganizationConfigurationKey extends BaseModel {
-    @Column({type: "enum", enum: OrganizationConfigurationKeyCode})
-    @Field(() => OrganizationConfigurationKeyCode)
-    code: OrganizationConfigurationKeyCode;
+  @Column({ type: 'enum', enum: OrganizationConfigurationKeyCode })
+  @Field(() => OrganizationConfigurationKeyCode)
+  code: OrganizationConfigurationKeyCode;
 
-    @Column()
-    @Field(() => String)
-    default: string;
+  @Column()
+  @Field(() => String)
+  default: string;
 
-    @OneToMany(() => OrganizationConfigurationAllowedValue, ocav => ocav.key)
-    @Field(() => [OrganizationConfigurationAllowedValue])
-    allowedValues: OrganizationConfigurationAllowedValue[];
+  @OneToMany(() => OrganizationConfigurationAllowedValue, ocav => ocav.key)
+  @Field(() => [OrganizationConfigurationAllowedValue])
+  allowedValues: OrganizationConfigurationAllowedValue[];
 
-    @Column({
-        type: "enum",
-        enum: OrganizationConfigurationKeyType,
-    })
-    @Field(() => OrganizationConfigurationKeyType)
-    type: OrganizationConfigurationKeyType;
+  @Column({
+    type: 'enum',
+    enum: OrganizationConfigurationKeyType,
+  })
+  @Field(() => OrganizationConfigurationKeyType)
+  type: OrganizationConfigurationKeyType;
 }

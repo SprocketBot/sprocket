@@ -1,23 +1,23 @@
-import {Field, ObjectType} from "@nestjs/graphql/dist/decorators";
-import {Entity, ManyToOne} from "typeorm";
+import { Field, ObjectType } from '@nestjs/graphql/dist/decorators';
+import { Entity, ManyToOne } from 'typeorm';
 
-import {FranchiseLeadershipSeat} from "../../authorization/franchise_leadership_seat";
-import {BaseModel} from "../../base-model";
-import {Member} from "../../organization/member";
-import {Franchise} from "../franchise/franchise.model";
+import { FranchiseLeadershipSeat } from '../../authorization/franchise_leadership_seat';
+import { BaseModel } from '../../base-model';
+import { Member } from '../../organization/member';
+import { Franchise } from '../franchise/franchise.model';
 
-@Entity({schema: "sprocket"})
+@Entity({ schema: 'sprocket' })
 @ObjectType()
 export class FranchiseLeadershipAppointment extends BaseModel {
-    @ManyToOne(() => Franchise)
-    @Field(() => Franchise)
-    franchise: Franchise;
+  @ManyToOne(() => Franchise)
+  @Field(() => Franchise)
+  franchise: Franchise;
 
-    @ManyToOne(() => Member)
-    @Field(() => Member)
-    member: Member;
+  @ManyToOne(() => Member)
+  @Field(() => Member)
+  member: Member;
 
-    @ManyToOne(() => FranchiseLeadershipSeat)
-    @Field(() => FranchiseLeadershipSeat)
-    seat: FranchiseLeadershipSeat;
+  @ManyToOne(() => FranchiseLeadershipSeat)
+  @Field(() => FranchiseLeadershipSeat)
+  seat: FranchiseLeadershipSeat;
 }

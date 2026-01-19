@@ -1,6 +1,6 @@
-import {z} from "zod";
+import { z } from 'zod';
 
-import {MemberSchema} from "../types";
+import { MemberSchema } from '../types';
 
 export const GetMember_Request = z.number();
 

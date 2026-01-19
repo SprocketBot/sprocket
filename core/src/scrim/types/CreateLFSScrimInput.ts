@@ -1,23 +1,21 @@
-import {
-    Field, InputType, Int,
-} from "@nestjs/graphql";
+import { Field, InputType, Int } from '@nestjs/graphql';
 
-import {ScrimSettingsInput} from "./ScrimSettings";
+import { ScrimSettingsInput } from './ScrimSettings';
 
 @InputType()
 export class CreateLFSScrimInput {
-    @Field(() => Int)
-    gameModeId: number;
+  @Field(() => Int)
+  gameModeId: number;
 
-    @Field()
-    settings: ScrimSettingsInput;
+  @Field()
+  settings: ScrimSettingsInput;
 
-    @Field({nullable: true})
-    createGroup: boolean;
+  @Field({ nullable: true })
+  createGroup: boolean;
 
-    @Field(() => Int)
-    leaveAfter: number;
+  @Field(() => Int)
+  leaveAfter: number;
 
-    @Field(() => Int)
-    numRounds: number;
+  @Field(() => Int)
+  numRounds: number;
 }

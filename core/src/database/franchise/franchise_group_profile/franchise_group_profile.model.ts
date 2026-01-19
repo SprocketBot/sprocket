@@ -1,21 +1,19 @@
-import {Field, ObjectType} from "@nestjs/graphql";
-import {
-    Column, Entity, JoinColumn, OneToOne,
-} from "typeorm";
+import { Field, ObjectType } from '@nestjs/graphql';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 
-import {FranchiseGroup} from "$db/franchise/franchise_group/franchise_group.model";
+import { FranchiseGroup } from '$db/franchise/franchise_group/franchise_group.model';
 
-import {BaseModel} from "../../base-model";
+import { BaseModel } from '../../base-model';
 
-@Entity({schema: "sprocket"})
+@Entity({ schema: 'sprocket' })
 @ObjectType()
 export class FranchiseGroupProfile extends BaseModel {
-    @Column()
-    @Field(() => String)
-    name: string;
+  @Column()
+  @Field(() => String)
+  name: string;
 
-    @OneToOne(() => FranchiseGroup)
-    @JoinColumn()
-    @Field(() => FranchiseGroup)
-    group: FranchiseGroup;
+  @OneToOne(() => FranchiseGroup)
+  @JoinColumn()
+  @Field(() => FranchiseGroup)
+  group: FranchiseGroup;
 }

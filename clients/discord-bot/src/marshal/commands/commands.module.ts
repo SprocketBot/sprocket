@@ -1,9 +1,9 @@
-import {Module} from "@nestjs/common";
+import { Module } from '@nestjs/common';
 
-import {CommandManagerService} from "./command-manager.service";
+import { CommandManagerService } from './command-manager.service';
 
 @Module({
-    providers: [CommandManagerService],
-    exports: [CommandManagerService],
+  providers: [CommandManagerService],
+  exports: [CommandManagerService],
 })
 export class CommandsModule {}

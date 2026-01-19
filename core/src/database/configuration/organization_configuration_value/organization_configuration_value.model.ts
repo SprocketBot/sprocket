@@ -1,25 +1,23 @@
-import {Field, ObjectType} from "@nestjs/graphql";
-import {
-    Column, Entity, ManyToOne,
-} from "typeorm";
+import { Field, ObjectType } from '@nestjs/graphql';
+import { Column, Entity, ManyToOne } from 'typeorm';
 
-import {OrganizationConfigurationKey} from "$db/configuration/organization_configuration_key/organization_configuration_key.model";
+import { OrganizationConfigurationKey } from '$db/configuration/organization_configuration_key/organization_configuration_key.model';
 
-import {BaseModel} from "../../base-model";
-import {Organization} from "../../organization/organization/organization.model";
+import { BaseModel } from '../../base-model';
+import { Organization } from '../../organization/organization/organization.model';
 
-@Entity({schema: "sprocket"})
+@Entity({ schema: 'sprocket' })
 @ObjectType()
 export class OrganizationConfigurationValue extends BaseModel {
-    @Column()
-    @Field(() => String)
-    value: string;
+  @Column()
+  @Field(() => String)
+  value: string;
 
-    @ManyToOne(() => Organization)
-    @Field(() => Organization)
-    organization: Organization;
+  @ManyToOne(() => Organization)
+  @Field(() => Organization)
+  organization: Organization;
 
-    @ManyToOne(() => OrganizationConfigurationKey)
-    @Field(() => OrganizationConfigurationKey)
-    key: OrganizationConfigurationKey;
+  @ManyToOne(() => OrganizationConfigurationKey)
+  @Field(() => OrganizationConfigurationKey)
+  key: OrganizationConfigurationKey;
 }

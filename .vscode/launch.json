@@ -1,124 +1,124 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "web",
-            "type": "node",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "runtimeExecutable": "npm",
-            "runtimeArgs": ["run-script", "dev", "--workspace", "clients/web"],
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "image-generation-frontend",
-            "type": "node",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "runtimeExecutable": "npm",
-            "runtimeArgs": ["run-script", "dev", "--workspace", "clients/image-generation-frontend"],
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "discord-bot",
-            "type": "node",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "runtimeExecutable": "npm",
-            "runtimeArgs": ["run-script", "dev", "--workspace", "clients/discord-bot"],
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "common",
-            "type": "node",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "runtimeExecutable": "npm",
-            "runtimeArgs": ["run-script", "build:watch", "--workspace", "common"],
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "core",
-            "type": "node",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "runtimeExecutable": "npm",
-            "runtimeArgs": ["run-script", "dev", "--workspace", "core"],
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "image-generation-service",
-            "type": "node",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "runtimeExecutable": "npm",
-            "runtimeArgs": ["run-script", "dev", "--workspace", "microservices/image-generation-service"],
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "matchmaking-service",
-            "type": "node",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "runtimeExecutable": "npm",
-            "runtimeArgs": ["run-script", "dev", "--workspace", "microservices/matchmaking-service"],
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "notification-service",
-            "type": "node",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "runtimeExecutable": "npm",
-            "runtimeArgs": ["run-script", "dev", "--workspace", "microservices/notification-service"],
-            "console": "integratedTerminal"
-        },
-        // {
-        //     "name": "replay-parse-service",
-        //     "type": "python",
-        //     "request": "launch",
-        //     "cwd": "${workspaceFolder}/microservices/replay-parse-service",
-        //     "console": "integratedTerminal",
-        //     "module": "src",
-        //     "args": ["celery", "-A", "main", "worker", "--loglevel=INFO"],
-        // },
-        {
-            "name": "server-analytics-service",
-            "type": "node",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "runtimeExecutable": "npm",
-            "runtimeArgs": ["run-script", "dev", "--workspace", "microservices/server-analytics-service"],
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "submission-service",
-            "type": "node",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "runtimeExecutable": "npm",
-            "runtimeArgs": ["run-script", "dev", "--workspace", "microservices/submission-service"],
-            "console": "integratedTerminal"
-        },
-    ],
-    "compounds": [
-        {
-            "name": "All",
-            "configurations": [
-                "web",
-                "discord-bot",
-                "common",
-                "core",
-                "image-generation-service",
-                "matchmaking-service",
-                "notification-service",
-                // "replay-parse-service",
-                "server-analytics-service",
-                "submission-service",
-            ]
-        }
-    ]
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "web",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run-script", "dev", "--workspace", "clients/web"],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "image-generation-frontend",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run-script", "dev", "--workspace", "clients/image-generation-frontend"],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "discord-bot",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run-script", "dev", "--workspace", "clients/discord-bot"],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "common",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run-script", "build:watch", "--workspace", "common"],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "core",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run-script", "dev", "--workspace", "core"],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "image-generation-service",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run-script", "dev", "--workspace", "microservices/image-generation-service"],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "matchmaking-service",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run-script", "dev", "--workspace", "microservices/matchmaking-service"],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "notification-service",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run-script", "dev", "--workspace", "microservices/notification-service"],
+      "console": "integratedTerminal"
+    },
+    // {
+    //     "name": "replay-parse-service",
+    //     "type": "python",
+    //     "request": "launch",
+    //     "cwd": "${workspaceFolder}/microservices/replay-parse-service",
+    //     "console": "integratedTerminal",
+    //     "module": "src",
+    //     "args": ["celery", "-A", "main", "worker", "--loglevel=INFO"],
+    // },
+    {
+      "name": "server-analytics-service",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run-script", "dev", "--workspace", "microservices/server-analytics-service"],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "submission-service",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run-script", "dev", "--workspace", "microservices/submission-service"],
+      "console": "integratedTerminal"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "All",
+      "configurations": [
+        "web",
+        "discord-bot",
+        "common",
+        "core",
+        "image-generation-service",
+        "matchmaking-service",
+        "notification-service",
+        // "replay-parse-service",
+        "server-analytics-service",
+        "submission-service"
+      ]
+    }
+  ]
 }

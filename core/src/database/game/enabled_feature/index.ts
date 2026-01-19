@@ -1,1 +1,1 @@
-export {EnabledFeature} from "./enabled_feature.model";
+export { EnabledFeature } from './enabled_feature.model';

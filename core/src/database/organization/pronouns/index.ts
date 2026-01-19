@@ -1,1 +1,1 @@
-export * from "./pronouns.model";
+export * from './pronouns.model';

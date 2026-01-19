@@ -1,1 +1,1 @@
-export {OrganizationProfile} from "./organization_profile.model";
+export { OrganizationProfile } from './organization_profile.model';

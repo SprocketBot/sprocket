@@ -1,1 +1,1 @@
-export {VerbiageCode} from "./verbiage_code.model";
+export { VerbiageCode } from './verbiage_code.model';

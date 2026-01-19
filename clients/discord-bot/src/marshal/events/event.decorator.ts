@@ -1,13 +1,19 @@
-import {MarshalMetadataKey} from "../types";
-import type {EventMeta, EventSpec} from "./events.types";
+import { MarshalMetadataKey } from '../types';
+import type { EventMeta, EventSpec } from './events.types';
 
-export const Event = (eventSpec: EventSpec): MethodDecorator => <T>(target: Object, key: string | symbol, descriptor: TypedPropertyDescriptor<T>): TypedPropertyDescriptor<T> => {
-    if (!descriptor.value) throw new Error("Descriptor is undefined??");
+export const Event =
+  (eventSpec: EventSpec): MethodDecorator =>
+  <T>(
+    target: Object,
+    key: string | symbol,
+    descriptor: TypedPropertyDescriptor<T>,
+  ): TypedPropertyDescriptor<T> => {
+    if (!descriptor.value) throw new Error('Descriptor is undefined??');
 
     // <Metadata>
     const eventMeta: EventMeta = {
-        spec: eventSpec,
-        functionName: key.toString(),
+      spec: eventSpec,
+      functionName: key.toString(),
     };
     // Check for existing metadata attached to the class
     let unsafeMetadata: unknown = Reflect.getMetadata(MarshalMetadataKey.Event, target);
@@ -19,4 +25,4 @@ export const Event = (eventSpec: EventSpec): MethodDecorator => <T>(target: Obje
     Reflect.defineMetadata(MarshalMetadataKey.Event, classEventMetadatas, target);
     // </ Metadata>
     return descriptor;
-};
+  };

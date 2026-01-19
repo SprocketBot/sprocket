@@ -1,29 +1,34 @@
-import {gql} from "@urql/core";
-import {client} from "../client";
+import { gql } from '@urql/core';
+import { client } from '../client';
 
 interface GetMemberByUserIdResponse {
-    id: number;
+  id: number;
 }
 
 interface GetMemberByUserIdVariables {
-    id: number;
-    orgId: number;
+  id: number;
+  orgId: number;
 }
 
 const queryString = gql`
-    query (
-        $orgId: Int!
-        $id: Int!
-    ){
-        getMemberByUserId(organizationId:$orgId, userId: $id) {
-          id
-        }
-    }`;
-
-export const getMemberByUserIdQuery = async (vars: GetMemberByUserIdVariables): Promise<GetMemberByUserIdResponse> => {
-    const r = await client.query<{getMemberByUserId: GetMemberByUserIdResponse;}, GetMemberByUserIdVariables>(queryString, vars).toPromise();
-    if (r.data) {
-        return r.data.getMemberByUserId;
+  query ($orgId: Int!, $id: Int!) {
+    getMemberByUserId(organizationId: $orgId, userId: $id) {
+      id
     }
-    throw r.error as Error;
+  }
+`;
+
+export const getMemberByUserIdQuery = async (
+  vars: GetMemberByUserIdVariables,
+): Promise<GetMemberByUserIdResponse> => {
+  const r = await client
+    .query<{ getMemberByUserId: GetMemberByUserIdResponse }, GetMemberByUserIdVariables>(
+      queryString,
+      vars,
+    )
+    .toPromise();
+  if (r.data) {
+    return r.data.getMemberByUserId;
+  }
+  throw r.error as Error;
 };

@@ -13,45 +13,51 @@ export type Primitive = string | Function | number | boolean | Symbol | undefine
  * A union type containing the required properties in a given type T.
  */
 type RequiredKeys<T> = {
-    [K in keyof T]-?: undefined extends T[K] ? never : K
+  [K in keyof T]-?: undefined extends T[K] ? never : K;
 }[keyof T];
 
 /**
  * A union type containing the optional properties (marked with a ?) in a given type T.
  */
 type OptionalKeys<T> = {
-    [K in keyof T]-?: undefined extends T[K] ? K : never
+  [K in keyof T]-?: undefined extends T[K] ? K : never;
 }[keyof T];
 
 /**
  * A type where a union type of required keys (KeysToOmit) are omitted from a type T. If a key in KeysToOmit is optional in type T, it will not be omitted.
  */
-type DeepOmitRequired<T, KeysToOmit> = T extends Primitive ? T : {
-    [P in Exclude<RequiredKeys<T>, KeysToOmit>]:
-    T[P] extends infer TP ?
-        TP extends Primitive ? TP :
-            TP extends any[] ? DeepOmitArray<TP, KeysToOmit> :
-                DeepOmit<TP, KeysToOmit>
-        : never
-};
+type DeepOmitRequired<T, KeysToOmit> = T extends Primitive
+  ? T
+  : {
+      [P in Exclude<RequiredKeys<T>, KeysToOmit>]: T[P] extends infer TP
+        ? TP extends Primitive
+          ? TP
+          : TP extends any[]
+          ? DeepOmitArray<TP, KeysToOmit>
+          : DeepOmit<TP, KeysToOmit>
+        : never;
+    };
 
 /**
  * A type where a union type of optional keys (KeysToOmit) are omitted from a type T. If a key in KeysToOmit is required in type T, it will not be omitted.
  */
-type DeepOmitOptional<T, KeysToOmit> = T extends Primitive ? T : {
-    [P in Exclude<OptionalKeys<T>, KeysToOmit>]?:
-    T[P] extends infer TP ?
-        TP extends Primitive ? TP :
-            TP extends any[] ? DeepOmitArray<TP, KeysToOmit> :
-                DeepOmit<TP, KeysToOmit>
-        : never
-};
+type DeepOmitOptional<T, KeysToOmit> = T extends Primitive
+  ? T
+  : {
+      [P in Exclude<OptionalKeys<T>, KeysToOmit>]?: T[P] extends infer TP
+        ? TP extends Primitive
+          ? TP
+          : TP extends any[]
+          ? DeepOmitArray<TP, KeysToOmit>
+          : DeepOmit<TP, KeysToOmit>
+        : never;
+    };
 
 /**
  * Recursively re-types each array element with DeepOmit.
  */
 type DeepOmitArray<T extends any[], K> = {
-    [P in keyof T]: DeepOmit<T[P], K>
+  [P in keyof T]: DeepOmit<T[P], K>;
 };
 
 /**
@@ -82,9 +88,11 @@ type DeepOmitArray<T extends any[], K> = {
  * //              }
  * //          }
  */
-export type DeepOmit<T, KeysToOmit> = Prettify<DeepOmitRequired<T, KeysToOmit> & DeepOmitOptional<T, KeysToOmit>>;
+export type DeepOmit<T, KeysToOmit> = Prettify<
+  DeepOmitRequired<T, KeysToOmit> & DeepOmitOptional<T, KeysToOmit>
+>;
 
 /**
  * Forces the compiler to recursively enumerate the types of an object to allow for simpler debugging.
  */
-export type Prettify<T> = T extends infer U ? { [K in keyof U]: Prettify<U[K]>} : never;
+export type Prettify<T> = T extends infer U ? { [K in keyof U]: Prettify<U[K]> } : never;

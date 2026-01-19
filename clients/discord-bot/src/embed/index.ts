@@ -1,2 +1,2 @@
-export * from "./embed.module";
-export * from "./embed.service";
+export * from './embed.module';
+export * from './embed.service';

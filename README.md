@@ -14,7 +14,6 @@
 Sprocket is a platform primarily used to manage and automate organized Esports leagues, one such example being [Minor League Esports](https://mlesports.gg).
 The platform uses a Microservice pattern, and this repository contains everything needed to quickly start a new microservice.
 
-
 ## Building / Running this Repository
 
 ### Installing Dependencies:
@@ -25,12 +24,14 @@ npm i
 ```
 
 ### Building Projects
+
 ```bash
 # In the root directory
 npm run build --workspaces --if-present
 ```
 
 ### Running Projects
+
 ```bash
 # In the project directory
 npm run dev
@@ -39,7 +40,9 @@ npm run dev
 ```
 
 ## Building Docker images
+
 ### Build the base image
+
 ```shell
 docker build . -f dockerfiles/node.Dockerfile -t sprocket-base-image --build-arg COMMIT_SHA=$(git log -1 --format=%H)
 
@@ -49,7 +52,9 @@ docker image ls | grep sprocket
 ```
 
 ### Build microservice image
+
 For example, building `clients/web`:
+
 ```shell
 docker build . -f clients/web/Dockerfile -t sprocket-web --build-arg BASE_IMAGE=sprocket-base-image
 
@@ -60,6 +65,7 @@ docker image ls | grep sprocket
 ```
 
 ## Inspecting `COMMIT_SHA` of Image / Container
+
 ```shell
 docker inspect --format='{{range .Config.Env}}{{println .}}{{end}}' <image/container name or id> | grep COMMIT_SHA
 ```

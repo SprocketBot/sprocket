@@ -1,1 +1,1 @@
-export {default as DashboardCard} from "./DashboardCard.svelte";
+export { default as DashboardCard } from './DashboardCard.svelte';

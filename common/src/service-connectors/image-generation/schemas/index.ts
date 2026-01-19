@@ -1,1 +1,1 @@
-export * from "./GenerateImage.schema";
+export * from './GenerateImage.schema';

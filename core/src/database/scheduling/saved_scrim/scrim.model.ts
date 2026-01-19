@@ -1,19 +1,17 @@
-import {Field, ObjectType} from "@nestjs/graphql";
-import {
-    Column, Entity, OneToOne,
-} from "typeorm";
+import { Field, ObjectType } from '@nestjs/graphql';
+import { Column, Entity, OneToOne } from 'typeorm';
 
-import {BaseModel} from "../../base-model";
-import {MatchParent} from "../match_parent/match_parent.model";
+import { BaseModel } from '../../base-model';
+import { MatchParent } from '../match_parent/match_parent.model';
 
-@Entity({schema: "sprocket"})
+@Entity({ schema: 'sprocket' })
 @ObjectType()
 export class ScrimMeta extends BaseModel {
-    @OneToOne(() => MatchParent, mp => mp.scrimMeta)
-    @Field(() => MatchParent)
+  @OneToOne(() => MatchParent, mp => mp.scrimMeta)
+  @Field(() => MatchParent)
   parent: MatchParent;
 
-    @Column({default: true})
-    @Field(() => Boolean)
+  @Column({ default: true })
+  @Field(() => Boolean)
   isCompetitive: boolean;
 }

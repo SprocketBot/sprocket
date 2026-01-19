@@ -1,24 +1,24 @@
 module.exports = {
-  preset: "ts-jest",
-  testEnvironment: "node",
+  preset: 'ts-jest',
+  testEnvironment: 'node',
   verbose: true,
   silent: false,
   coverageReporters: [
-    "text",
+    'text',
     [
-      "lcov",
+      'lcov',
       {
-        file: "../reports/coverage.xml",
+        file: '../reports/coverage.xml',
       },
     ],
   ],
   reporters: [
-    "default",
+    'default',
     [
-      "jest-junit",
+      'jest-junit',
       {
-        outputDirectory: "./reports",
-        outputName: "report.xml",
+        outputDirectory: './reports',
+        outputName: 'report.xml',
         includeConsoleOutput: true,
         usePathForSuiteName: true,
       },

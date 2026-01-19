@@ -1,15 +1,13 @@
-import {
-    Column, Entity, PrimaryGeneratedColumn,
-} from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity({schema: "mledb_bridge"})
+@Entity({ schema: 'mledb_bridge' })
 export class PlayerToUser {
-    @PrimaryGeneratedColumn()
-    id: number;
-    
-    @Column({type: "int"})
-    playerId: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column({type: "int"})
-    userId: number;
+  @Column({ type: 'int' })
+  playerId: number;
+
+  @Column({ type: 'int' })
+  userId: number;
 }

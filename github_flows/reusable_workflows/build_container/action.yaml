@@ -1,28 +1,28 @@
 name: Build Sprocket Container
-description: "Builds and pushes a Sprocket Container to docker hub"
-  
+description: 'Builds and pushes a Sprocket Container to docker hub'
+
 inputs:
   build_directory:
-    description: "Path in the monorepo to use as root"
+    description: 'Path in the monorepo to use as root'
     required: true
   docker_image:
-    description: "Name of the image to build"
+    description: 'Name of the image to build'
     required: true
   docker_tag:
-    description: "Tag for the image to build (usually branch name)"
+    description: 'Tag for the image to build (usually branch name)'
     required: true
   docker_username:
-    description: "Username for hub.docker.com"
+    description: 'Username for hub.docker.com'
     required: true
   docker_access_token:
-    description: "Access token for hub.docker.com"
+    description: 'Access token for hub.docker.com'
     required: true
   discord_webhook:
-    description: "Webhook URL to send status updates"
+    description: 'Webhook URL to send status updates'
     required: false
 
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
@@ -47,10 +47,9 @@ runs:
         push: true
         tags: ${{inputs.docker_username}}/${{ inputs.docker_image }}:${{ inputs.docker_tag }}
         platforms: linux/amd64
-    
+
     - uses: sarisia/actions-status-discord@v1
       if: startsWith( inputs.discord_webhook, 'https' )
       with:
         webhook: ${{ inputs.discord_webhook }}
         title: Built `${{ inputs.docker_image }}:${{ inputs.docker_tag }}`
-        

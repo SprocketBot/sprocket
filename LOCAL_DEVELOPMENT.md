@@ -18,6 +18,7 @@ This guide helps you set up and use the local development environment to speed u
 ## Your New Workflow
 
 ### Option A: Standard (2-3 minute feedback loop)
+
 ```bash
 # 1. Make code changes
 vim core/src/whatever.ts
@@ -32,23 +33,25 @@ curl -X POST http://localhost:3001/graphql \
 ```
 
 ### Option B: Hot Reload (30 second feedback loop) - COMING SOON
+
 See the "Hot Reload Setup" section below.
 
 ## Services & Endpoints
 
-| Service | URL | Credentials |
-|---------|-----|-------------|
-| Core API / GraphQL | http://localhost:3001/graphql | - |
-| Web Client | http://localhost:8080 | - |
-| Image Gen UI | http://localhost:8081 | - |
-| RabbitMQ Admin | http://localhost:15672 | admin / localrabbitpass |
-| MinIO Console | http://localhost:9001 | admin / localminiopass |
-| PostgreSQL | localhost:5432 | sprocketbot / localdevpassword |
-| Redis | localhost:6379 | localredispass |
+| Service            | URL                           | Credentials                    |
+| ------------------ | ----------------------------- | ------------------------------ |
+| Core API / GraphQL | http://localhost:3001/graphql | -                              |
+| Web Client         | http://localhost:8080         | -                              |
+| Image Gen UI       | http://localhost:8081         | -                              |
+| RabbitMQ Admin     | http://localhost:15672        | admin / localrabbitpass        |
+| MinIO Console      | http://localhost:9001         | admin / localminiopass         |
+| PostgreSQL         | localhost:5432                | sprocketbot / localdevpassword |
+| Redis              | localhost:6379                | localredispass                 |
 
 ## Common Tasks
 
 ### View Logs
+
 ```bash
 # All services
 docker-compose logs -f
@@ -61,6 +64,7 @@ docker-compose logs --tail=100 core
 ```
 
 ### Restart a Service
+
 ```bash
 # Without rebuilding
 docker-compose restart core
@@ -72,6 +76,7 @@ docker-compose up --build -d core
 ### Database Operations
 
 #### Access PostgreSQL
+
 ```bash
 # Via docker
 docker-compose exec postgres psql -U sprocketbot
@@ -82,11 +87,13 @@ psql -h localhost -p 5432 -U sprocketbot -d sprocketbot
 ```
 
 #### Run Migrations
+
 ```bash
 docker-compose exec core npm run migration:run
 ```
 
 #### Reset Database
+
 ```bash
 # Warning: This deletes all data!
 docker-compose down -v
@@ -97,6 +104,7 @@ docker-compose exec core npm run migration:run
 ```
 
 #### Seed with Production Data
+
 ```bash
 # Dump from production
 ./scripts/dump-prod-db.sh
@@ -109,9 +117,11 @@ docker-compose up -d
 ### Testing Your Changes
 
 #### GraphQL Playground
+
 Open http://localhost:3001/graphql in your browser for an interactive query interface.
 
 #### cURL Examples
+
 ```bash
 # Simple query
 curl http://localhost:3001/graphql \
@@ -130,6 +140,7 @@ curl http://localhost:3001/graphql \
 ## Troubleshooting
 
 ### Services Won't Start
+
 ```bash
 # Check service status
 docker-compose ps
@@ -143,6 +154,7 @@ docker-compose down -v
 ```
 
 ### Database Connection Errors
+
 ```bash
 # Ensure postgres is healthy
 docker-compose ps postgres
@@ -156,6 +168,7 @@ cat .env | grep POSTGRES_HOST
 ```
 
 ### Out of Disk Space
+
 ```bash
 # Remove old images and volumes
 docker system prune -a --volumes
@@ -165,6 +178,7 @@ docker system prune -a --volumes
 ```
 
 ### Port Already in Use
+
 ```bash
 # Find what's using the port (e.g., 3001)
 lsof -i :3001
@@ -182,11 +196,12 @@ core:
   volumes:
     - ./core:/app/core
     - ./common:/app/common
-    - /app/node_modules  # Prevent overwriting
+    - /app/node_modules # Prevent overwriting
   command: npm run dev --workspace=core
 ```
 
 Then:
+
 ```bash
 # Add a dev script to core/package.json if not present
 "dev": "ts-node-dev --respawn --transpile-only src/main.ts"
@@ -224,16 +239,19 @@ cp .env.prod .env
 ## Database Seeding
 
 ### Full Dump (Schema + Data)
+
 ```bash
 ./scripts/dump-prod-db.sh
 ```
 
 ### Schema Only
+
 ```bash
 ./scripts/dump-prod-db.sh --schema-only
 ```
 
 ### Data Only
+
 ```bash
 ./scripts/dump-prod-db.sh --data-only
 ```
@@ -243,6 +261,7 @@ Dumps are saved to `scripts/db-seed/` and automatically loaded when postgres sta
 ## Performance Tips
 
 1. **Selective Service Startup**: Don't start services you don't need
+
    ```bash
    # Just infrastructure + core
    docker-compose up -d postgres redis rabbitmq minio core
@@ -264,6 +283,7 @@ Dumps are saved to `scripts/db-seed/` and automatically loaded when postgres sta
 ## Next Steps
 
 Once you're comfortable with the local setup, consider:
+
 - Setting up hot reload for your most-edited services
 - Creating test scripts for common GraphQL operations
 - Setting up a local debugger (VS Code can attach to docker containers)

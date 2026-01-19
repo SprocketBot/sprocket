@@ -1,1 +1,1 @@
-export * from "./scrim-metrics.resolver";
+export * from './scrim-metrics.resolver';

@@ -1,18 +1,16 @@
-import {
-    Field, ObjectType, registerEnumType,
-} from "@nestjs/graphql";
-import type {Progress as IProgress} from "@sprocketbot/common";
-import {ProgressStatus} from "@sprocketbot/common";
+import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
+import type { Progress as IProgress } from '@sprocketbot/common';
+import { ProgressStatus } from '@sprocketbot/common';
 
 registerEnumType(ProgressStatus, {
-    name: "ProgressStatus",
+  name: 'ProgressStatus',
 });
 
 @ObjectType()
 export class GqlProgress implements IProgress {
-    @Field()
-    value: number;
+  @Field()
+  value: number;
 
-    @Field()
-    message: string;
+  @Field()
+  message: string;
 }

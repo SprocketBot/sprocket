@@ -1,101 +1,97 @@
-import {
-    Field, Int, ObjectType,
-} from "@nestjs/graphql";
-import type {Scrim as IScrim} from "@sprocketbot/common";
-import {
-    EventTopic, ScrimStatus,
-} from "@sprocketbot/common";
+import { Field, Int, ObjectType } from '@nestjs/graphql';
+import type { Scrim as IScrim } from '@sprocketbot/common';
+import { EventTopic, ScrimStatus } from '@sprocketbot/common';
 
-import {GameSkillGroup} from "$db/franchise/game_skill_group/game_skill_group.model";
-import {GameMode} from "$db/game/game_mode/game_mode.model";
+import { GameSkillGroup } from '$db/franchise/game_skill_group/game_skill_group.model';
+import { GameMode } from '$db/game/game_mode/game_mode.model';
 
-import {ScrimGame} from "./ScrimGame";
-import {ScrimLobby} from "./ScrimLobby";
-import {ScrimPlayer} from "./ScrimPlayer";
-import {ScrimSettings} from "./ScrimSettings";
+import { ScrimGame } from './ScrimGame';
+import { ScrimLobby } from './ScrimLobby';
+import { ScrimPlayer } from './ScrimPlayer';
+import { ScrimSettings } from './ScrimSettings';
 
 @ObjectType()
 export class ScrimGameMode {
-    @Field(() => Int)
-    id: number;
+  @Field(() => Int)
+  id: number;
 
-    @Field(() => String)
-    description: string;
+  @Field(() => String)
+  description: string;
 }
 
 @ObjectType()
 export class ScrimGroup {
-    @Field(() => String)
-    code: string;
+  @Field(() => String)
+  code: string;
 
-    @Field(() => [String])
-    players: string[];
+  @Field(() => [String])
+  players: string[];
 }
 
 @ObjectType()
 export class Scrim implements IScrim {
-    @Field(() => String)
-    id: string;
+  @Field(() => String)
+  id: string;
 
-    @Field(() => Date)
-    createdAt: Date;
+  @Field(() => Date)
+  createdAt: Date;
 
-    @Field(() => Date)
-    updatedAt: Date;
+  @Field(() => Date)
+  updatedAt: Date;
 
-    @Field(() => ScrimStatus)
-    status: ScrimStatus;
+  @Field(() => ScrimStatus)
+  status: ScrimStatus;
 
-    @Field(() => Int)
-    authorId: number;
-    
-    @Field(() => Int)
-    organizationId: number;
+  @Field(() => Int)
+  authorId: number;
 
-    @Field(() => Int)
-    gameModeId: number;
+  @Field(() => Int)
+  organizationId: number;
 
-    @Field(() => GameMode)
-    gameMode: GameMode;
+  @Field(() => Int)
+  gameModeId: number;
 
-    @Field(() => Int)
-    skillGroupId: number;
+  @Field(() => GameMode)
+  gameMode: GameMode;
 
-    @Field(() => GameSkillGroup)
-    skillGroup: GameSkillGroup;
+  @Field(() => Int)
+  skillGroupId: number;
 
-    @Field(() => String, {nullable: true})
-    submissionId?: string;
+  @Field(() => GameSkillGroup)
+  skillGroup: GameSkillGroup;
 
-    @Field(() => [ScrimPlayer], {nullable: true})
-    players: ScrimPlayer[];
+  @Field(() => String, { nullable: true })
+  submissionId?: string;
 
-    @Field(() => [ScrimGame], {nullable: true})
-    games?: ScrimGame[];
+  @Field(() => [ScrimPlayer], { nullable: true })
+  players: ScrimPlayer[];
 
-    @Field(() => ScrimLobby, {nullable: true})
-    lobby?: ScrimLobby;
+  @Field(() => [ScrimGame], { nullable: true })
+  games?: ScrimGame[];
 
-    @Field(() => ScrimSettings)
-    settings: ScrimSettings;
+  @Field(() => ScrimLobby, { nullable: true })
+  lobby?: ScrimLobby;
 
-    // Helpers
+  @Field(() => ScrimSettings)
+  settings: ScrimSettings;
 
-    @Field(() => ScrimGroup, {nullable: true})
-    currentGroup?: ScrimGroup;
+  // Helpers
 
-    @Field(() => Int)
-    playerCount: number;
+  @Field(() => ScrimGroup, { nullable: true })
+  currentGroup?: ScrimGroup;
 
-    @Field(() => Int)
-    maxPlayers: number;
+  @Field(() => Int)
+  playerCount: number;
+
+  @Field(() => Int)
+  maxPlayers: number;
 }
 
 @ObjectType()
 export class ScrimEvent {
-    @Field(() => Scrim)
-    scrim: Scrim;
+  @Field(() => Scrim)
+  scrim: Scrim;
 
-    @Field(() => String)
-    event: EventTopic;
+  @Field(() => String)
+  event: EventTopic;
 }

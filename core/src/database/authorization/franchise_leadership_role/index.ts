@@ -1,1 +1,1 @@
-export {FranchiseLeadershipRole} from "./franchise_leadership_role.model";
+export { FranchiseLeadershipRole } from './franchise_leadership_role.model';

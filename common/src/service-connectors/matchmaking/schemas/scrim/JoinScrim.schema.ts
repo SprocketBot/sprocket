@@ -1,9 +1,9 @@
-import {z} from "zod";
+import { z } from 'zod';
 
-import {ScrimJoinOptionsSchema} from "../../types";
+import { ScrimJoinOptionsSchema } from '../../types';
 
 export const JoinScrim_Request = ScrimJoinOptionsSchema.extend({
-    scrimId: z.string().uuid(),
+  scrimId: z.string().uuid(),
 });
 
 export type JoinScrimOptions = z.infer<typeof JoinScrim_Request>;

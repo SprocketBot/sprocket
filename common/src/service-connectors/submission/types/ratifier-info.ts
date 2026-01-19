@@ -1,6 +1,6 @@
 export interface RatifierInfo {
-    playerId: number;
-    franchiseId: number;
-    franchiseName: string;
-    ratifiedAt: string;
+  playerId: number;
+  franchiseId: number;
+  franchiseName: string;
+  ratifiedAt: string;
 }

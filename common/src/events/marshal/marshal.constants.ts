@@ -1,1 +1,1 @@
-export const EventMarshalMetadataKey = "marshal:eventMetas";
+export const EventMarshalMetadataKey = 'marshal:eventMetas';

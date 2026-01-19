@@ -1,2 +1,2 @@
-export * from "./event.decorator";
-export * from "./events.types";
+export * from './event.decorator';
+export * from './events.types';

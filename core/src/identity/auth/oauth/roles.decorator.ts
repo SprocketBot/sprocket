@@ -1,4 +1,4 @@
-import {SetMetadata} from "@nestjs/common";
+import { SetMetadata } from '@nestjs/common';
 
 /* eslint-disable */
-export const Roles = (...roles: string[]) => SetMetadata("roles", roles);
+export const Roles = (...roles: string[]) => SetMetadata('roles', roles);

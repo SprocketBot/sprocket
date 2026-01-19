@@ -1,1 +1,1 @@
-export * from "./mledb-player.service";
+export * from './mledb-player.service';

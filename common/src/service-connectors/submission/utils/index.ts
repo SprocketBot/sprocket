@@ -1,1 +1,1 @@
-export * from "./backward-compatibility";
+export * from './backward-compatibility';

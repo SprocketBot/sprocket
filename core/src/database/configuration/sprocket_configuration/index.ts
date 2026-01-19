@@ -1,1 +1,1 @@
-export {SprocketConfiguration} from "./sprocket_configuration.model";
+export { SprocketConfiguration } from './sprocket_configuration.model';

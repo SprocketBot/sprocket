@@ -1,1 +1,1 @@
-export * from "./member_profile.model";
+export * from './member_profile.model';

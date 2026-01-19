@@ -1,1 +1,1 @@
-export {Platform} from "./platform.model";
+export { Platform } from './platform.model';
