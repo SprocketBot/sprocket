@@ -15,7 +15,8 @@
     "build": "npm run build --workspaces --if-available",
     "build:common": "npm run build --workspace=common",
     "clean": "npm run clean --workspaces --if-available",
-    "lint": "npm run lint --workspaces --if-available"
+    "lint": "npm run lint --workspaces --if-available",
+    "format": "prettier --write ."
   },
   "workspaces": [
     "common",
@@ -39,7 +40,8 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "eslint-plugin-svelte3": "^3.4.1",
-    "husky": "^7.0.4"
+    "husky": "^7.0.4",
+    "prettier": "^2.6.2"
   },
   "lint-staged": {
     "*.ts": "eslint --fix",
