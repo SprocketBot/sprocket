@@ -4,10 +4,10 @@ import {
 } from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
 import {lastValueFrom, timeout} from "rxjs";
+import {v4 as uuidv4} from "uuid";
 
 import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
-import {v4 as uuidv4} from "uuid";
 import type {
     AnalyticsEndpoint, AnalyticsInput, AnalyticsResponse,
 } from "./analytics.types";
@@ -17,9 +17,7 @@ import {AnalyticsSchemas} from "./analytics.types";
 export class AnalyticsService {
     private logger = new Logger(AnalyticsService.name);
 
-    constructor(
-        @Inject(CommonClient.Analytics) private microServiceClient: ClientProxy,
-    ) {}
+    constructor(@Inject(CommonClient.Analytics) private microServiceClient: ClientProxy) {}
 
     async send<E extends AnalyticsEndpoint>(endpoint: E, data: AnalyticsInput<E>, options?: MicroserviceRequestOptions): Promise<AnalyticsResponse<E>> {
         const rid = uuidv4();

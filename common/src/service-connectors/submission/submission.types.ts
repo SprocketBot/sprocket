@@ -16,6 +16,12 @@ export enum SubmissionEndpoint {
     GetSubmissionRedisKey = "GetSubmissionRedisKey",
     GetSubmissionRejections = "GetSubmissionRejections",
     ValidateSubmission = "ValidateSubmission",
+    // Enhanced endpoints for cross-franchise validation
+    EnhancedRatifySubmission = "EnhancedRatifySubmission",
+    EnhancedCanRatifySubmission = "EnhancedCanRatifySubmission",
+    EnhancedRejectSubmission = "EnhancedRejectSubmission",
+    EnhancedResetSubmission = "EnhancedResetSubmission",
+    EnhancedValidateSubmission = "EnhancedValidateSubmission",
 }
 
 export const SubmissionSchemas = {
@@ -64,8 +70,29 @@ export const SubmissionSchemas = {
         output: Schemas.GetSubmissionRejections_Response,
     },
     [SubmissionEndpoint.ValidateSubmission]: {
-        input: Schemas.ValidateSubmission_Request,
-        output: Schemas.ValidateSubmission_Response,
+        input: Schemas.EnhancedValidateSubmission_Request,
+        output: Schemas.EnhancedValidateSubmission_Response,
+    },
+    // Enhanced endpoints for cross-franchise validation
+    [SubmissionEndpoint.EnhancedRatifySubmission]: {
+        input: Schemas.EnhancedRatifySubmission_Request,
+        output: Schemas.EnhancedRatifySubmission_Response,
+    },
+    [SubmissionEndpoint.EnhancedCanRatifySubmission]: {
+        input: Schemas.EnhancedCanRatifySubmission_Request,
+        output: Schemas.EnhancedCanRatifySubmission_Response,
+    },
+    [SubmissionEndpoint.EnhancedRejectSubmission]: {
+        input: Schemas.EnhancedRejectSubmission_Request,
+        output: Schemas.EnhancedRejectSubmission_Response,
+    },
+    [SubmissionEndpoint.EnhancedResetSubmission]: {
+        input: Schemas.EnhancedResetSubmission_Request,
+        output: Schemas.EnhancedResetSubmission_Response,
+    },
+    [SubmissionEndpoint.EnhancedValidateSubmission]: {
+        input: Schemas.EnhancedValidateSubmission_Request,
+        output: Schemas.EnhancedValidateSubmission_Response,
     },
 };
 

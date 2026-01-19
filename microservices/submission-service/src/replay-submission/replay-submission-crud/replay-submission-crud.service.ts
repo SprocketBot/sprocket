@@ -1,4 +1,4 @@
-import {Injectable} from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import type {
     BaseReplaySubmission,
     LFSReplaySubmission,
@@ -22,6 +22,11 @@ import {
     ResponseStatus,
     SCRIM_REQ_RATIFICATION_MAJORITY,
 } from "@sprocketbot/common";
+import type {
+    EnhancedReplaySubmission,
+    FranchiseInfo,
+    RatifierInfo,
+} from "@sprocketbot/common";
 
 import {
     getSubmissionKey, submissionIsLFS, submissionIsMatch, submissionIsScrim,
@@ -33,7 +38,7 @@ export class ReplaySubmissionCrudService {
         private readonly redisService: RedisService,
         private readonly matchmakingService: MatchmakingService,
         private readonly coreService: CoreService,
-    ) {}
+    ) { }
 
     async getAllSubmissions(): Promise<ReplaySubmission[]> {
         // Use wildcard for submissionId to list all matching keys
@@ -64,7 +69,7 @@ export class ReplaySubmissionCrudService {
         const existingSubmission = await this.redisService.getJsonIfExists<ReplaySubmission>(key);
         if (existingSubmission && !existingSubmission.items.length) return existingSubmission;
 
-        const commonFields: BaseReplaySubmission = {
+        const commonFields = {
             id: submissionId,
             creatorId: playerId,
             status: ReplaySubmissionStatus.PROCESSING,
@@ -76,7 +81,7 @@ export class ReplaySubmissionCrudService {
             stats: undefined,
             requiredRatifications: 2, // TODO Make this configurable.
         };
-        let submission: ReplaySubmission;
+        let submission: any;
         let configMinRatify: number;        // From the Organization config.
         let minRatify: number;              // The actual minimum number of ratifiers.
         let maxRatify: number;              // Total number of players.
@@ -90,7 +95,11 @@ export class ReplaySubmissionCrudService {
                 ...commonFields,
                 type: ReplaySubmissionType.SCRIM,
                 scrimId: scrim.id,
-            } as ScrimReplaySubmission;
+                franchiseValidation: {
+                    requiredFranchises: 1,
+                    currentFranchiseCount: 0,
+                },
+            };
 
             configMinRatify = await this.getOrgRequiredRatifications(scrim.organizationId);
             maxRatify = scrim.players.length;
@@ -104,13 +113,17 @@ export class ReplaySubmissionCrudService {
                 ...commonFields,
                 type: ReplaySubmissionType.LFS,
                 scrimId: scrim.id,
-            } as LFSReplaySubmission;
-    
+                franchiseValidation: {
+                    requiredFranchises: 1,
+                    currentFranchiseCount: 0,
+                },
+            };
+
             configMinRatify = await this.getOrgRequiredRatifications(scrim.organizationId);
             maxRatify = scrim.players.length;
 
         } else if (submissionIsMatch(submissionId)) {
-            const result = await this.coreService.send(CoreEndpoint.GetMatchBySubmissionId, {submissionId});
+            const result = await this.coreService.send(CoreEndpoint.GetMatchBySubmissionId, { submissionId });
             if (result.status === ResponseStatus.ERROR) throw result.error;
             const match = result.data;
             if (typeof match === "undefined") throw new Error(`Unable to create submission, could not find a match associated with submissionId=${submissionId}`);
@@ -118,6 +131,10 @@ export class ReplaySubmissionCrudService {
                 ...commonFields,
                 type: ReplaySubmissionType.MATCH,
                 matchId: match.id,
+                franchiseValidation: {
+                    requiredFranchises: 2,
+                    currentFranchiseCount: 0,
+                },
             };
 
             // TODO: Match type does not currently have player/team info or organization ID.
@@ -152,9 +169,9 @@ export class ReplaySubmissionCrudService {
         return this.redisService.getJson<ReplaySubmissionRejection[]>(key, "rejections");
     }
 
-    async getSubmissionRatifiers(submissionId: string): Promise<number[]> {
+    async getSubmissionRatifiers(submissionId: string): Promise<number[] | RatifierInfo[]> {
         const key = getSubmissionKey(submissionId);
-        return this.redisService.getJson<number[]>(key, "ratifiers");
+        return this.redisService.getJson<number[] | RatifierInfo[]>(key, "ratifiers");
     }
 
     async removeSubmission(submissionId: string): Promise<void> {
@@ -206,12 +223,52 @@ export class ReplaySubmissionCrudService {
     }
 
     async addRatifier(submissionId: string, playerId: number): Promise<void> {
-        const ratifiers = await this.getSubmissionRatifiers(submissionId);
+        const submission = await this.getSubmission(submissionId);
+        if (!submission) throw new Error("Submission not found");
 
-        // Players cannot ratify a scrim twice
-        if (ratifiers.includes(playerId)) return;
+        const ratifiers = submission.ratifiers;
 
-        await this.redisService.appendToJsonArray(getSubmissionKey(submissionId), "ratifiers", playerId);
+        // Check if player has already ratified
+        const playerIds = this.getPlayerIdsFromRatifiers(ratifiers);
+        if (playerIds.includes(playerId)) return;
+
+        if (this.isEnhanced(submission)) {
+            // Fetch franchise info for the player
+            const franchiseResult = await this.coreService.send(CoreEndpoint.GetPlayerFranchises, { memberId: playerId });
+            let franchise: FranchiseInfo | undefined;
+            if (franchiseResult.status === ResponseStatus.SUCCESS && franchiseResult.data.length > 0) {
+                franchise = {
+                    id: franchiseResult.data[0].id,
+                    name: franchiseResult.data[0].name,
+                };
+            }
+
+            const ratifierInfo: RatifierInfo = {
+                playerId,
+                franchiseId: franchise?.id ?? 0,
+                franchiseName: franchise?.name ?? "Unknown",
+                ratifiedAt: new Date().toISOString(),
+            };
+
+            await this.redisService.appendToJsonArray(getSubmissionKey(submissionId), "ratifiers", ratifierInfo);
+
+            // Update currentFranchiseCount
+            const updatedRatifiers = [...ratifiers as any[], ratifierInfo];
+            const uniqueFranchiseCount = new Set(updatedRatifiers.map(r => r.franchiseId)).size;
+            await this.redisService.setJsonField(getSubmissionKey(submissionId), "franchiseValidation.currentFranchiseCount", uniqueFranchiseCount);
+        } else {
+            await this.redisService.appendToJsonArray(getSubmissionKey(submissionId), "ratifiers", playerId);
+        }
+    }
+
+    private getPlayerIdsFromRatifiers(ratifiers: number[] | RatifierInfo[]): number[] {
+        if (ratifiers.length === 0) return [];
+        if (typeof ratifiers[0] === "number") return ratifiers as number[];
+        return (ratifiers as RatifierInfo[]).map(r => r.playerId);
+    }
+
+    private isEnhanced(submission: any): submission is EnhancedReplaySubmission {
+        return "franchiseValidation" in submission;
     }
 
     async clearRatifiers(submissionId: string): Promise<void> {
@@ -237,7 +294,7 @@ export class ReplaySubmissionCrudService {
         const rejectedItems = fullItems.map(item => {
             // Remove progress from copied objects
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const {progress, ...rejectedItem} = item;
+            const { progress, ...rejectedItem } = item;
             return rejectedItem;
         });
 

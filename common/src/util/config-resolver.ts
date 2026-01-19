@@ -1,6 +1,6 @@
-import {existsSync, readFileSync} from "fs";
-import {config as dotenvConfig} from "dotenv";
 import _config from "config";
+import {config as dotenvConfig} from "dotenv";
+import {existsSync, readFileSync} from "fs";
 
 // Load .env file if it exists (dotenv doesn't error if file doesn't exist)
 dotenvConfig();
@@ -27,7 +27,8 @@ export class ConfigResolver {
 
         // 2. Check file-based secret (current approach)
         if (existsSync(filePath)) {
-            return readFileSync(filePath).toString().trim();
+            return readFileSync(filePath).toString()
+                .trim();
         }
 
         // 3. Fall back to config library if provided
@@ -35,7 +36,7 @@ export class ConfigResolver {
             return _config.get<string>(configKey);
         }
 
-        throw new Error(`Secret not found: ${envKey} (env var), ${filePath} (file), ${configKey || 'no config key'} (config)`);
+        throw new Error(`Secret not found: ${envKey} (env var), ${filePath} (file), ${configKey || "no config key"} (config)`);
     }
 
     /**
@@ -50,10 +51,10 @@ export class ConfigResolver {
             const envValue = process.env[envKey]!;
             
             // Type conversion based on expected type
-            if (typeof defaultValue === 'boolean') {
-                return (envValue.toLowerCase() === 'true') as unknown as T;
+            if (typeof defaultValue === "boolean") {
+                return (envValue.toLowerCase() === "true") as unknown as T;
             }
-            if (typeof defaultValue === 'number') {
+            if (typeof defaultValue === "number") {
                 return Number(envValue) as unknown as T;
             }
             return envValue as unknown as T;
