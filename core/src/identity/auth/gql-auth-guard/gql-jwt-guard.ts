@@ -23,7 +23,7 @@ export class GqlJwtGuard extends AuthGuard("jwt") {
                 req.user = {
                     id: 1,
                     username: "test-user",
-                    orgTeams: ["MLEDB_ADMIN", "LEAGUE_OPERATIONS"]
+                    orgTeams: ["MLEDB_ADMIN", "LEAGUE_OPERATIONS"],
                 };
                 return true;
             }

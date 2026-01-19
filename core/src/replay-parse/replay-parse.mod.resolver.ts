@@ -76,10 +76,10 @@ export class ReplayParseModResolver {
             await this.finalizationSub.onMatchSubmissionComplete(submission, submissionId);
         } else if (submission.type === ReplaySubmissionType.LFS) {
             const scrim = await this.scrimService.getScrimBySubmissionId(submission.id);
-            await this.finalizationSub.onLFSComplete(submission, submission.id, scrim!);
+            await this.finalizationSub.onLFSComplete(submission, submission.id, scrim);
         } else {
             const scrim = await this.scrimService.getScrimBySubmissionId(submission.id);
-            await this.finalizationSub.onScrimComplete(submission, submission.id, scrim!);
+            await this.finalizationSub.onScrimComplete(submission, submission.id, scrim);
         }
 
         return true;

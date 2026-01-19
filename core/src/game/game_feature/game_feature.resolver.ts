@@ -4,8 +4,9 @@ import {
 } from "@nestjs/graphql";
 import {GraphQLError} from "graphql";
 
-import {EnabledFeature} from '$db/game/enabled_feature/enabled_feature.model';
-import {FeatureCode} from '$db/game/feature/feature.enum';
+import {EnabledFeature} from "$db/game/enabled_feature/enabled_feature.model";
+import {FeatureCode} from "$db/game/feature/feature.enum";
+
 import {MLE_OrganizationTeam} from "../../database/mledb";
 import {CurrentUser} from "../../identity/auth/current-user.decorator";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard/gql-jwt-guard";

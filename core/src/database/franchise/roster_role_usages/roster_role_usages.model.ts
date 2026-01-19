@@ -1,11 +1,12 @@
 import {Field, ObjectType} from "@nestjs/graphql";
 import {Entity, ManyToOne} from "typeorm";
 
+import {Player} from "$db/franchise/player/player.model";
+import {RosterRole} from "$db/franchise/roster_role/roster_role.model";
+import {Team} from "$db/franchise/team/team.model";
+
 import {BaseModel} from "../../base-model";
 import {Match} from "../../scheduling/match/match.model";
-import {Player} from '$db/franchise/player/player.model';
-import {RosterRole} from '$db/franchise/roster_role/roster_role.model';
-import {Team} from '$db/franchise/team/team.model';
 
 @Entity({schema: "sprocket"})
 @ObjectType()

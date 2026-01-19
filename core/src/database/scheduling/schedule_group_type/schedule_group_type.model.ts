@@ -1,13 +1,13 @@
-import { Field, ObjectType } from "@nestjs/graphql";
+import {Field, ObjectType} from "@nestjs/graphql";
 import {
     Column, Entity, ManyToOne, OneToMany,
 } from "typeorm";
 
-import { BaseModel } from "../../base-model";
-import { Organization } from "../../organization/organization/organization.model";
-import { ScheduleGroup } from "../schedule_group/schedule_group.model";
+import {BaseModel} from "../../base-model";
+import {Organization} from "../../organization/organization/organization.model";
+import {ScheduleGroup} from "../schedule_group/schedule_group.model";
 
-@Entity({ schema: "sprocket" })
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class ScheduleGroupType extends BaseModel {
     @ManyToOne(() => Organization)

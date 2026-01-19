@@ -5,11 +5,12 @@ import {
 import {JwtService} from "@nestjs/jwt";
 import {config} from "@sprocketbot/common";
 
-import {UserAuthenticationAccount} from '$db/identity/user_authentication_account/user_authentication_account.model';
-import {UserProfile} from '$db/identity/user_profile/user_profile.model';
-import {Member} from '$db/organization/member/member.model';
-import {User} from '$db/identity/user/user.model';
-import {UserAuthenticationAccountType} from '$db/identity/user_authentication_account/user_authentication_account_type.enum';
+import {User} from "$db/identity/user/user.model";
+import type {UserAuthenticationAccount} from "$db/identity/user_authentication_account/user_authentication_account.model";
+import {UserAuthenticationAccountType} from "$db/identity/user_authentication_account/user_authentication_account_type.enum";
+import type {UserProfile} from "$db/identity/user_profile/user_profile.model";
+import {Member} from "$db/organization/member/member.model";
+
 import {MLE_OrganizationTeam} from "../../database/mledb";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {PopulateService} from "../../util/populate/populate.service";
@@ -56,14 +57,14 @@ export class UserResolver {
     @ResolveField()
     async authenticationAccounts(@Root() user: Partial<User>): Promise<UserAuthenticationAccount[]> {
         if (!Array.isArray(user.authenticationAccounts)) {
-            return this.identityService.getAuthAccountsForUser(user.id!);
+            return this.identityService.getAuthAccountsForUser(user.id);
         }
         return user.authenticationAccounts;
     }
 
     @ResolveField()
     async profile(@Root() user: Partial<User>): Promise<UserProfile> {
-        return user.profile ?? await this.userService.getUserProfileForUser(user.id!);
+        return user.profile ?? await this.userService.getUserProfileForUser(user.id);
     }
 
     @ResolveField()

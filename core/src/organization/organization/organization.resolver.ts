@@ -3,8 +3,9 @@ import {
     Args, Int, Mutation, Query, ResolveField, Resolver, Root,
 } from "@nestjs/graphql";
 
-import {Organization} from '$db/organization/organization/organization.model';
-import {OrganizationProfile} from '$db/organization/organization_profile/organization_profile.model';
+import {Organization} from "$db/organization/organization/organization.model";
+import {OrganizationProfile} from "$db/organization/organization_profile/organization_profile.model";
+
 import {MLE_OrganizationTeam} from "../../database/mledb";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
@@ -31,6 +32,6 @@ export class OrganizationResolver {
 
     @ResolveField()
     async profile(@Root() organization: Partial<Organization>): Promise<OrganizationProfile> {
-        return organization.profile ?? await this.organizationService.getOrganizationProfileForOrganization(organization.id!);
+        return organization.profile ?? await this.organizationService.getOrganizationProfileForOrganization(organization.id);
     }
 }

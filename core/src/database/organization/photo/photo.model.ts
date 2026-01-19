@@ -3,8 +3,9 @@ import {
     Column, Entity, JoinColumn, OneToOne,
 } from "typeorm";
 
+import {Approval} from "$db/organization/approval/approval.model";
+
 import {BaseModel} from "../../base-model";
-import {Approval} from '$db/organization/approval/approval.model';
 
 @Entity({schema: "sprocket"})
 @ObjectType()

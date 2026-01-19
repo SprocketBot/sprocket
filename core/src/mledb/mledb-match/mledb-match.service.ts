@@ -4,14 +4,15 @@ import type {CoreEndpoint, CoreOutput} from "@sprocketbot/common";
 import type {FindOperator, FindOptionsRelations} from "typeorm";
 import {Raw, Repository} from "typeorm";
 
-import {Franchise} from '$db/franchise/franchise/franchise.model';
-import {GameMode} from '$db/game/game_mode/game_mode.model';
-import {GameSkillGroup} from '$db/franchise/game_skill_group/game_skill_group.model';
-import {Match} from '$db/scheduling/match/match.model';
-import {MatchParent} from '$db/scheduling/match_parent/match_parent.model';
-import {ScheduleFixture} from '$db/scheduling/schedule_fixture/schedule_fixture.model';
-import {ScheduleGroup} from '$db/scheduling/schedule_group/schedule_group.model';
-import {ScheduleGroupType} from '$db/scheduling/schedule_group_type/schedule_group_type.model';
+import {Franchise} from "$db/franchise/franchise/franchise.model";
+import {GameSkillGroup} from "$db/franchise/game_skill_group/game_skill_group.model";
+import {GameMode} from "$db/game/game_mode/game_mode.model";
+import {Match} from "$db/scheduling/match/match.model";
+import {MatchParent} from "$db/scheduling/match_parent/match_parent.model";
+import {ScheduleFixture} from "$db/scheduling/schedule_fixture/schedule_fixture.model";
+import {ScheduleGroup} from "$db/scheduling/schedule_group/schedule_group.model";
+import {ScheduleGroupType} from "$db/scheduling/schedule_group_type/schedule_group_type.model";
+
 import type {
     League,
 } from "../../database/mledb";
@@ -156,7 +157,7 @@ export class MledbMatchService {
 
             ...mledbHomeCaptain.map(c => c.player.discordId),
             ...mledbAwayCaptain.map(c => c.player.discordId),
-        ].filter(s => s !== null && s !== undefined) as string[];
+        ].filter(s => s !== null && s !== undefined);
 
         const stakeholdersSet = new Set(stakeholders);
 
@@ -287,7 +288,7 @@ export class MledbMatchService {
                 if (!replay.isDummy) {
                     // Set winningColor depending on previous/new winningTeam
                     newWinningColor = winningTeam?.name === replay.winningTeamName
-                        ? replay.winningColor as (string | undefined)
+                        ? replay.winningColor
                         : null;
                 } else {
                     // Set winningColor to null
@@ -295,20 +296,20 @@ export class MledbMatchService {
                 }
             } else if (!replay.isDummy) {
                 // Set winningTeam based on goals scored
-                const winningTeamName = replay.teamCoreStats.find(tcs => (tcs.goals && tcs.goalsAgainst ? tcs.goals > tcs.goalsAgainst : false))?.teamName as (string | undefined);
+                const winningTeamName = replay.teamCoreStats.find(tcs => (tcs.goals && tcs.goalsAgainst ? tcs.goals > tcs.goalsAgainst : false))?.teamName;
 
                 if (!winningTeam) throw new Error(`Could not find winning team when un-NCPing replay with id=${replay.id}`);
                 newWinningTeam = winningTeamName;
 
                 // Set winningColor depending on previous/new winningTeam
                 newWinningColor = winningTeam.name === replay.winningTeamName
-                    ? replay.winningColor as (string | undefined)
+                    ? replay.winningColor
                     : null;
             }
 
             replay.ncp = isNcp;
-            replay.winningTeamName = newWinningTeam as (string | null);
-            replay.winningColor = newWinningColor as (string | null);
+            replay.winningTeamName = newWinningTeam;
+            replay.winningColor = newWinningColor;
             this.logger.debug(`Trying to save series replay ${JSON.stringify(replay)}`);
             await this.seriesReplayRepo.save(replay);
 

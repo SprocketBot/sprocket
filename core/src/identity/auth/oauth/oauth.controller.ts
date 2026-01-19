@@ -4,9 +4,10 @@ import {
 import {config} from "@sprocketbot/common";
 import {Request as Req, Response as Res} from "express";
 
-import {User} from '$db/identity/user/user.model';
-import {UserAuthenticationAccount} from '$db/identity/user_authentication_account/user_authentication_account.model';
-import {UserAuthenticationAccountType} from '$db/identity/user_authentication_account/user_authentication_account_type.enum';
+import type {User} from "$db/identity/user/user.model";
+import type {UserAuthenticationAccount} from "$db/identity/user_authentication_account/user_authentication_account.model";
+import {UserAuthenticationAccountType} from "$db/identity/user_authentication_account/user_authentication_account_type.enum";
+
 import {MledbPlayerService} from "../../../mledb";
 import {UserService} from "../../user";
 import {

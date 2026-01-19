@@ -1,5 +1,6 @@
-import { Test } from "@nestjs/testing";
-import { PlayerService } from "./player.service";
+import {Test} from "@nestjs/testing";
+
+import {PlayerService} from "./player.service";
 
 // Simple smoke test to verify the service can be instantiated
 describe("PlayerService - Isolated Smoke Test", () => {
