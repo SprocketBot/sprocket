@@ -31,7 +31,6 @@
     "@types/jsdom": "^16.2.13",
     "@types/knex": "^0.16.1",
     "@types/minio": "^7.0.10",
-    "@types/sharp": "^0.28.4",
     "amqp-connection-manager": "^3.7.0",
     "amqplib": "^0.8.0",
     "axios": "^0.21.2",
@@ -44,7 +43,7 @@
     "pg": "^8.7.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.1.0",
-    "sharp": "^0.30.5",
+    "sharp": "^0.33.0",
     "ts-jest": "29.0.1",
     "zod": "^3.2.0"
   },

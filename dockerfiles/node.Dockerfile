@@ -6,7 +6,7 @@ ENV COMMIT_SHA=$COMMIT_SHA
 RUN echo "Set env COMMIT_SHA=${COMMIT_SHA}"
 
 # Install build dependencies for native modules
-RUN apk add --no-cache python3 make g++ vips-dev
+RUN apk add --no-cache python3 make g++
 
 WORKDIR /app
 
