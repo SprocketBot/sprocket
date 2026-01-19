@@ -7,7 +7,8 @@ import {
     CoreEndpoint, CoreSchemas,
 } from "@sprocketbot/common";
 
-import {FranchiseProfile} from '$db/franchise/franchise_profile/franchise_profile.model';
+import type {FranchiseProfile} from "$db/franchise/franchise_profile/franchise_profile.model";
+
 import {FranchiseService} from "./franchise.service";
 
 @Controller("franchise")

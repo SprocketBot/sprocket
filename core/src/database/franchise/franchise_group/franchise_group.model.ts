@@ -3,9 +3,10 @@ import {
     Entity, ManyToOne, OneToMany, OneToOne,
 } from "typeorm";
 
+import {FranchiseGroupProfile} from "$db/franchise/franchise_group_profile/franchise_group_profile.model";
+import {FranchiseGroupType} from "$db/franchise/franchise_group_type/franchise_group_type.model";
+
 import {BaseModel} from "../../base-model";
-import {FranchiseGroupProfile} from '$db/franchise/franchise_group_profile/franchise_group_profile.model';
-import {FranchiseGroupType} from '$db/franchise/franchise_group_type/franchise_group_type.model';
 
 @Entity({schema: "sprocket"})
 @ObjectType()

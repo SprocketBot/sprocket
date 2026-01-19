@@ -56,7 +56,7 @@ export function MLEOrganizationTeamGuard(organizationTeams: OrganizationTeamGuar
             if (organizationTeams instanceof Function) {
                 return organizationTeams(user.orgTeams);
             } else if (Array.isArray(organizationTeams)) {
-                return organizationTeams.some(orgTeam => user.orgTeams!.some(userOrgTeam => userOrgTeam === orgTeam));
+                return organizationTeams.some(orgTeam => user.orgTeams.some(userOrgTeam => userOrgTeam === orgTeam));
             }
 
             return user.orgTeams.some(orgTeam => orgTeam === organizationTeams);

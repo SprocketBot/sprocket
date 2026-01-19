@@ -3,9 +3,10 @@ import {
     Column, Entity, JoinColumn, ManyToOne, Unique,
 } from "typeorm";
 
+import {Member} from "$db/organization/member/member.model";
+
 import {BaseModel} from "../../base-model";
 import {Platform} from "../../game/platform";
-import {Member} from '$db/organization/member/member.model';
 
 @Entity({schema: "sprocket"})
 @ObjectType()

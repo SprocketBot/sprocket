@@ -1,18 +1,19 @@
-import { Field, ObjectType } from "@nestjs/graphql";
+import {Field, ObjectType} from "@nestjs/graphql";
 import {
     Column,
     Entity, JoinColumn, ManyToOne, OneToMany, OneToOne,
 } from "typeorm";
 
-import { BaseModel } from "../../base-model";
-import { Player } from "../../franchise/player/player.model";
-import { User } from "../../identity/user/user.model";
-import {MemberPlatformAccount} from '$db/organization/member_platform_account/member_platform_account.model';
-import { MemberProfile } from "../member_profile/member_profile.model";
-import {MemberRestriction} from '$db/organization/member_restriction/member_restriction.model';
-import { Organization } from "../organization/organization.model";
+import {MemberPlatformAccount} from "$db/organization/member_platform_account/member_platform_account.model";
+import {MemberRestriction} from "$db/organization/member_restriction/member_restriction.model";
 
-@Entity({ schema: "sprocket" })
+import {BaseModel} from "../../base-model";
+import {Player} from "../../franchise/player/player.model";
+import {User} from "../../identity/user/user.model";
+import {MemberProfile} from "../member_profile/member_profile.model";
+import {Organization} from "../organization/organization.model";
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class Member extends BaseModel {
     @OneToMany(() => MemberPlatformAccount, mpa => mpa.member)

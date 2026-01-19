@@ -4,8 +4,9 @@ import {
     Column, Entity, ManyToOne,
 } from "typeorm";
 
+import {Player} from "$db/franchise/player/player.model";
+
 import {BaseModel} from "../../base-model";
-import {Player} from '$db/franchise/player/player.model';
 import {Round} from "../round/round.model";
 import {TeamStatLine} from "../team_stat_line/team_stat_line.model";
 

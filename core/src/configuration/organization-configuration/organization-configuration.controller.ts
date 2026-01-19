@@ -2,7 +2,8 @@ import {Controller} from "@nestjs/common";
 import {MessagePattern, Payload} from "@nestjs/microservices";
 import {CoreEndpoint, CoreSchemas} from "@sprocketbot/common";
 
-import {OrganizationConfigurationKeyTypes} from '$db/configuration/organization_configuration_key/organization_configuration_key.enum';;
+import type {OrganizationConfigurationKeyTypes} from "$db/configuration/organization_configuration_key/organization_configuration_key.enum";
+
 import {OrganizationConfigurationService} from "./organization-configuration.service";
 
 @Controller("organization-configuration")

@@ -4,9 +4,10 @@ import {
 } from "@nestjs/graphql";
 import {PubSub} from "apollo-server-express";
 
-import {Member} from '$db/organization/member/member.model';
-import {MemberRestriction} from '$db/organization/member_restriction/member_restriction.model';
-import {MemberRestrictionType} from '$db/organization/member_restriction/member_restriction_type.enum';
+import type {Member} from "$db/organization/member/member.model";
+import {MemberRestriction} from "$db/organization/member_restriction/member_restriction.model";
+import {MemberRestrictionType} from "$db/organization/member_restriction/member_restriction_type.enum";
+
 import {MLE_OrganizationTeam} from "../../database/mledb";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
@@ -55,7 +56,7 @@ export class MemberRestrictionResolver {
 
     @ResolveField()
     async member(@Root() memberRestriction: Partial<MemberRestriction>): Promise<Member> {
-        return memberRestriction.member ?? await this.memberService.getMemberById(memberRestriction.memberId!);
+        return memberRestriction.member ?? await this.memberService.getMemberById(memberRestriction.memberId);
     }
 
     @Subscription(() => MemberRestrictionEvent)

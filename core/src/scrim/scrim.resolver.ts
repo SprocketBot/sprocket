@@ -5,8 +5,9 @@ import {
 } from "@nestjs/graphql";
 import {ScrimStatus} from "@sprocketbot/common";
 
-import {GameMode} from '$db/game/game_mode/game_mode.model';
-import {GameSkillGroup} from '$db/franchise/game_skill_group/game_skill_group.model';
+import {GameSkillGroup} from "$db/franchise/game_skill_group/game_skill_group.model";
+import {GameMode} from "$db/game/game_mode/game_mode.model";
+
 import {MLE_OrganizationTeam} from "../database/mledb";
 import {GameSkillGroupService} from "../franchise";
 import {GameModeService} from "../game";
@@ -29,12 +30,12 @@ export class ScrimResolver {
 
     @ResolveField(() => GameMode)
     async gameMode(@Root() scrim: Partial<Scrim>): Promise<GameMode> {
-        return scrim.gameMode ?? this.gameModeService.getGameModeById(scrim.gameModeId!);
+        return scrim.gameMode ?? this.gameModeService.getGameModeById(scrim.gameModeId);
     }
 
     @ResolveField(() => GameSkillGroup)
     async skillGroup(@Root() scrim: Partial<Scrim>): Promise<GameSkillGroup> {
-        return scrim.skillGroup ?? this.gameSkillGroupService.getGameSkillGroupById(scrim.skillGroupId!);
+        return scrim.skillGroup ?? this.gameSkillGroupService.getGameSkillGroupById(scrim.skillGroupId);
     }
 
     @ResolveField(() => [ScrimPlayer], {nullable: true})

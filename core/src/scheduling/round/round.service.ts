@@ -2,9 +2,9 @@ import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 
-import {Invalidation} from '$db/scheduling/invalidation/invalidation.model';
-import {Match} from '$db/scheduling/match/match.model';
-import {Round} from '$db/scheduling/round/round.model';
+import {Invalidation} from "$db/scheduling/invalidation/invalidation.model";
+import {Match} from "$db/scheduling/match/match.model";
+import {Round} from "$db/scheduling/round/round.model";
 
 @Injectable()
 export class RoundService {

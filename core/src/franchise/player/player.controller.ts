@@ -21,8 +21,9 @@ import {
 } from "@sprocketbot/common";
 import {Repository} from "typeorm";
 
-import {UserAuthenticationAccount} from '$db/identity/user_authentication_account/user_authentication_account.model';
-import {UserAuthenticationAccountType} from '$db/identity/user_authentication_account/user_authentication_account_type.enum';
+import {UserAuthenticationAccount} from "$db/identity/user_authentication_account/user_authentication_account.model";
+import {UserAuthenticationAccountType} from "$db/identity/user_authentication_account/user_authentication_account_type.enum";
+
 import type {ManualSkillGroupChange} from "../../elo/elo-connector";
 import {EloConnectorService, EloEndpoint} from "../../elo/elo-connector";
 import {GameService, PlatformService} from "../../game";

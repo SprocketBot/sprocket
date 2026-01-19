@@ -1,11 +1,11 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import type { FindManyOptions, FindOneOptions } from "typeorm";
-import { Repository } from "typeorm";
+import {Injectable} from "@nestjs/common";
+import {InjectRepository} from "@nestjs/typeorm";
+import type {FindManyOptions, FindOneOptions} from "typeorm";
+import {Repository} from "typeorm";
 
-import {IrrelevantFields} from '../../database';;;;
-import { Organization } from "../../database/organization/organization/organization.model";
-import { OrganizationProfile } from "../../database/organization/organization_profile/organization_profile.model";
+import type {IrrelevantFields} from "../../database";
+import {Organization} from "../../database/organization/organization/organization.model";
+import {OrganizationProfile} from "../../database/organization/organization_profile/organization_profile.model";
 
 @Injectable()
 export class OrganizationService {
@@ -21,7 +21,7 @@ export class OrganizationService {
      */
     async createOrganization(organizationProfile: Omit<OrganizationProfile, IrrelevantFields | "id" | "organization">): Promise<Organization> {
         const profile = this.organizationProfileRepository.create(organizationProfile);
-        const organization = this.organizationRepository.create({ profile });
+        const organization = this.organizationRepository.create({profile});
 
         await this.organizationProfileRepository.save(organization.profile);
         await this.organizationRepository.save(organization);
@@ -34,7 +34,7 @@ export class OrganizationService {
      * @retusn The organization with the given id, if found.
      */
     async getOrganizationById(id: number): Promise<Organization> {
-        return this.organizationRepository.findOneOrFail({ where: { id } });
+        return this.organizationRepository.findOneOrFail({where: {id} });
     }
 
     /**
@@ -64,9 +64,9 @@ export class OrganizationService {
      * @returns The updated OrganizationProfile.
      */
     async updateOrganizationProfile(organizationId: number, data: Omit<Partial<OrganizationProfile>, "organization">): Promise<OrganizationProfile> {
-        let { profile } = await this.organizationRepository.findOneOrFail({
-            relations: { profile: true },
-            where: { id: organizationId },
+        let {profile} = await this.organizationRepository.findOneOrFail({
+            relations: {profile: true},
+            where: {id: organizationId},
         });
         profile = this.organizationProfileRepository.merge(profile, data);
         await this.organizationProfileRepository.save(profile);
@@ -80,16 +80,16 @@ export class OrganizationService {
      */
     async deleteOrganization(id: number): Promise<Organization> {
         const toDelete = await this.organizationRepository.findOneOrFail({
-            where: { id },
-            relations: { profile: true },
+            where: {id},
+            relations: {profile: true},
         });
-        await this.organizationRepository.delete({ id });
-        await this.organizationProfileRepository.delete({ id: toDelete.profile.id });
+        await this.organizationRepository.delete({id});
+        await this.organizationProfileRepository.delete({id: toDelete.profile.id});
         return toDelete;
     }
 
     async getOrganizationProfileForOrganization(organizationId: number): Promise<OrganizationProfile> {
-        const org = await this.organizationRepository.findOneOrFail({ where: { id: organizationId }, relations: { profile: true } });
+        const org = await this.organizationRepository.findOneOrFail({where: {id: organizationId}, relations: {profile: true} });
         return org.profile;
     }
 }

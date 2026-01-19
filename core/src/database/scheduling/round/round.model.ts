@@ -5,12 +5,13 @@ import {
     Column, Entity, ManyToOne, OneToMany,
 } from "typeorm";
 
+import {GameMode} from "$db/game/game_mode/game_mode.model";
+import {PlayerStatLine} from "$db/scheduling/player_stat_line/player_stat_line.model";
+import {TeamStatLine} from "$db/scheduling/team_stat_line/team_stat_line.model";
+
 import {BaseModel} from "../../base-model";
-import {GameMode} from '$db/game/game_mode/game_mode.model';
 import {Invalidation} from "../invalidation/invalidation.model";
 import {Match} from "../match/match.model";
-import {PlayerStatLine} from '$db/scheduling/player_stat_line/player_stat_line.model';
-import {TeamStatLine} from '$db/scheduling/team_stat_line/team_stat_line.model';
 
 @Entity({schema: "sprocket"})
 @ObjectType()
