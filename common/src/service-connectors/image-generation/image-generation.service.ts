@@ -4,10 +4,10 @@ import {
 } from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
 import {lastValueFrom, timeout} from "rxjs";
+import {v4 as uuidv4} from "uuid";
 
 import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
-import {v4 as uuidv4} from "uuid";
 import type {
     ImageGenerationEndpoint, ImageGenerationInput, ImageGenerationResponse,
 } from "./image-generation.types";
@@ -17,10 +17,7 @@ import {ImageGenerationSchemas} from "./image-generation.types";
 export class ImageGenerationService {
     private logger = new Logger(ImageGenerationService.name);
 
-    constructor(
-        @Inject(CommonClient.ImageGeneration) private microserviceClient: ClientProxy,
-        
-    ) {
+    constructor(@Inject(CommonClient.ImageGeneration) private microserviceClient: ClientProxy) {
     }
 
     async send<E extends ImageGenerationEndpoint>(endpoint: E, data: ImageGenerationInput<E>, options?: MicroserviceRequestOptions): Promise<ImageGenerationResponse<E>> {

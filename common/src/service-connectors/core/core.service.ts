@@ -4,10 +4,10 @@ import {
 } from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
 import {lastValueFrom, timeout} from "rxjs";
+import {v4 as uuidv4} from "uuid";
 
 import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
-import {v4 as uuidv4} from "uuid";
 import type {
     CoreEndpoint, CoreInput, CoreResponse,
 } from "./core.types";
@@ -17,10 +17,7 @@ import {CoreSchemas} from "./core.types";
 export class CoreService {
     private logger = new Logger(CoreService.name);
 
-    constructor(
-        @Inject(CommonClient.Core) private microserviceClient: ClientProxy,
-        
-    ) {}
+    constructor(@Inject(CommonClient.Core) private microserviceClient: ClientProxy) {}
 
     async send<E extends CoreEndpoint>(endpoint: E, data: CoreInput<E>, options?: MicroserviceRequestOptions): Promise<CoreResponse<E>> {
         const rid = uuidv4();

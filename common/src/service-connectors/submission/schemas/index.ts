@@ -1,4 +1,5 @@
 export * from "./CanSubmitReplays.schema";
+export * from "./EnhancedSubmission.schema";
 export * from "./GetAllSubmissions.schema";
 export * from "./GetSubmissionIfExists.schema";
 export * from "./GetSubmissionRedisKey.schema";

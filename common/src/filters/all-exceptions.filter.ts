@@ -1,12 +1,11 @@
+import type {ArgumentsHost,    ExceptionFilter} from "@nestjs/common";
 import {
-    ExceptionFilter,
     Catch,
-    ArgumentsHost,
     HttpException,
     HttpStatus,
     Logger,
-} from '@nestjs/common';
-import { HttpAdapterHost } from '@nestjs/core';
+} from "@nestjs/common";
+import {HttpAdapterHost} from "@nestjs/core";
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -15,15 +14,15 @@ export class AllExceptionsFilter implements ExceptionFilter {
     constructor(private readonly httpAdapterHost: HttpAdapterHost) { }
 
     catch(exception: unknown, host: ArgumentsHost): void {
-        const { httpAdapter } = this.httpAdapterHost;
+        const {httpAdapter} = this.httpAdapterHost;
 
         // Check if this is an HTTP context or RPC/microservices context
-        const isHttp = host.getType() === 'http' && httpAdapter;
+        const isHttp = host.getType() === "http" && httpAdapter;
 
         if (!isHttp) {
             // For RPC/microservices contexts, just log the error
-            const httpStatus =
-                exception instanceof HttpException
+            const httpStatus
+                = exception instanceof HttpException
                     ? exception.getStatus()
                     : HttpStatus.INTERNAL_SERVER_ERROR;
 
@@ -32,7 +31,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
             if (httpStatus >= 500) {
                 this.logger.error(
                     `System Error: ${httpStatus} for ${contextInfo}`,
-                    (exception as Error).stack
+                    (exception as Error).stack,
                 );
             } else {
                 this.logger.verbose(`Client Error: ${httpStatus} for ${contextInfo}`);
@@ -44,14 +43,14 @@ export class AllExceptionsFilter implements ExceptionFilter {
         const request = ctx.getRequest();
 
         // 1. Determine the Status Code
-        const httpStatus =
-            exception instanceof HttpException
+        const httpStatus
+            = exception instanceof HttpException
                 ? exception.getStatus()
                 : HttpStatus.INTERNAL_SERVER_ERROR;
 
         // 2. Extract Context (Who and What)
         // Note: 'request.user' might be undefined for 401s if the AuthGuard failed early
-        const user = request.user ? `User: ${request.user.id || request.user.email}` : 'User: Guest';
+        const user = request.user ? `User: ${request.user.id || request.user.email}` : "User: Guest";
         const contextInfo = `[${request.method}] ${request.url} - ${user}`;
 
         // 3. Conditional Logging
@@ -62,7 +61,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
             // ERROR LEVEL: Full noise and stack trace needed here.
             this.logger.error(
                 `System Error: ${httpStatus} for ${contextInfo}`,
-                (exception as Error).stack
+                (exception as Error).stack,
             );
         } else {
             // OPTIONAL: Log other 4xx errors (like 400 Bad Request) as verbose/debug
@@ -74,7 +73,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
             statusCode: httpStatus,
             timestamp: new Date().toISOString(),
             path: httpAdapter.getRequestUrl(ctx.getRequest()),
-            message: (exception instanceof HttpException) ? exception.message : 'Internal server error',
+            message: exception instanceof HttpException ? exception.message : "Internal server error",
         };
 
         httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
