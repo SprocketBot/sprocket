@@ -136,3 +136,8 @@ secret/*
 # Local development database dumps
 scripts/db-seed/*.sql
 scripts/db-seed/*.sh
+
+# Editor and tool specific configuration files
+.vscode/
+.claude/
+.gemini/
