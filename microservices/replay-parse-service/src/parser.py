@@ -66,37 +66,37 @@ def _parse_dual_with_shadow(path: str, on_progress: Callable[[str], None] = None
     ballchasing_error = None
 
     try:
+        # Parse with carball (shadow) - errors are caught and logged
+        carball_start = time.time()
+        carball_result = None
+        carball_error = None
+        try:
+            # Create a silent progress callback for shadow parsing
+            shadow_progress = lambda msg: logging.debug(f"Carball shadow: {msg}")
+            carball_result = _parse_carball(path, shadow_progress)
+            carball_duration = time.time() - carball_start
+            logging.info(f"Carball shadow parsing completed in {carball_duration:.2f}s")
+        except Exception as e:
+            carball_duration = time.time() - carball_start
+            carball_error = str(e)
+            logging.warning(f"Carball shadow parsing failed in {carball_duration:.2f}s: {carball_error}")
+            logging.warning(f"Carball shadow failure does not affect primary result")
+
         ballchasing_result = _parse_ballchasing(path, on_progress)
         ballchasing_duration = time.time() - ballchasing_start
         logging.info(f"Ballchasing parsing completed in {ballchasing_duration:.2f}s")
+
+        if carball_result:
+            # Log comparison metrics
+            _log_parser_comparison(path, ballchasing_result, carball_result,
+                                   ballchasing_duration, carball_duration)
+        
     except Exception as e:
         ballchasing_duration = time.time() - ballchasing_start
         ballchasing_error = str(e)
         logging.error(f"Ballchasing parsing failed in {ballchasing_duration:.2f}s: {ballchasing_error}")
         # Re-raise since ballchasing is the primary parser
         raise
-
-    # Parse with carball (shadow) - errors are caught and logged
-    carball_start = time.time()
-    carball_result = None
-    carball_error = None
-
-    try:
-        # Create a silent progress callback for shadow parsing
-        shadow_progress = lambda msg: logging.debug(f"Carball shadow: {msg}")
-        carball_result = _parse_carball(path, shadow_progress)
-        carball_duration = time.time() - carball_start
-        logging.info(f"Carball shadow parsing completed in {carball_duration:.2f}s")
-
-        # Log comparison metrics
-        _log_parser_comparison(path, ballchasing_result, carball_result,
-                               ballchasing_duration, carball_duration)
-
-    except Exception as e:
-        carball_duration = time.time() - carball_start
-        carball_error = str(e)
-        logging.warning(f"Carball shadow parsing failed in {carball_duration:.2f}s: {carball_error}")
-        logging.warning(f"Carball shadow failure does not affect primary result")
 
     # Log and publish metrics for monitoring
     metrics = {
