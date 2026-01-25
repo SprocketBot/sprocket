@@ -23,5 +23,6 @@ click==8.1.8
 six==1.16.0
 
 # Rocket League replay parsing - SprocketBot maintained forks
-git+https://github.com/SprocketBot/boxcars-py.git
-git+https://github.com/SprocketBot/carball.git
+#git+https://github.com/SprocketBot/boxcars-py.git
+#git+https://github.com/SprocketBot/carball.git
+sprocket-carball
