@@ -27,7 +27,9 @@ type OperationError {
 
 - `files`: `[Upload!]!` - An array of CSV files to process.
 
-**CSV Format:** Headers: `name`, `discordId`, `skillGroupId`, `salary`.
+**CSV Format:** Headers: `name`, `discordId`,`playersToLink`
+
+- Example row: `"Nigel Thornbrake", "104751301690204160", [{"gameSkillGroupId":7,"salary":10.5}, {"gameSkillGroupId":3,"salary":14.0}]`
 
 **GraphQL Example:**
 
