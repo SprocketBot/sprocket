@@ -1,0 +1,35 @@
+{
+  "celery": {
+    "broker": "",
+    "backend": "",
+    "queue": "prod-celery"
+  },
+  "transport": {
+    "url": "",
+    "events_application_key": "sprocket-core",
+    "core_queue": "prod-core",
+    "bot_queue": "prod-bot",
+    "analytics_queue": "prod-analytics",
+    "events_queue": "prod-events",
+    "matchmaking_queue": "prod-matchmaking",
+    "image_generation_queue": "prod-ig",
+    "celery-queue": "prod-celery",
+    "submission_queue": "prod-submissions",
+    "notification_queue": "prod-notification"
+  },
+  "minio": {
+    "port": 80,
+    "hostname": "",
+    "bucket": "",
+    "parsed_object_prefix": "prod",
+    "accessKey": "",
+    "secure": true
+  },
+  "ballchasing": {
+    "maxRetries": 4,
+    "backoffFactor": 4
+  },
+  "parser": "carball",
+  "tempDir": "/tmp",
+  "disableCache": false
+}

@@ -136,3 +136,4 @@ tmp/
 secret/
 config/*
 !config/default.json
+!config/production.json
