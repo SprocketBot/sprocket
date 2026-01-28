@@ -147,6 +147,39 @@ export class ReplaySubmissionService {
     return tasks.map(t => t.taskId);
   }
 
+  async mockCompletion(submissionId: string, results: unknown[]): Promise<boolean> {
+    const submission = await this.submissionCrudService.getSubmission(submissionId);
+    if (!submission) throw new Error(`Submission ${submissionId} not found`);
+
+    if (submission.items.length !== results.length) {
+      throw new Error(
+        `Mock completion mismatch: submission has ${submission.items.length} items, but ${results.length} results were provided.`,
+      );
+    }
+
+    for (let i = 0; i < submission.items.length; i++) {
+      const item = submission.items[i];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = results[i] as any;
+
+      item.progress = {
+        status: ProgressStatus.Complete,
+        taskId: item.taskId,
+        result: result,
+        progress: {
+          message: 'Complete!',
+          value: 100,
+        },
+        error: null,
+      };
+      item.outputPath = result.outputPath ?? 'mock-output-path';
+      await this.submissionCrudService.upsertItem(submissionId, item);
+    }
+
+    await this.completeSubmission(submission, submissionId);
+    return true;
+  }
+
   async completeSubmission(submission: ReplaySubmission, submissionId: string): Promise<void> {
     if (
       !submission.items.every(item =>

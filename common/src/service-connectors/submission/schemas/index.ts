@@ -4,6 +4,7 @@ export * from './GetAllSubmissions.schema';
 export * from './GetSubmissionIfExists.schema';
 export * from './GetSubmissionRedisKey.schema';
 export * from './GetSubmissionRejections.schema';
+export * from './MockCompletion.schema';
 export * from './ratification';
 export * from './RemoveSubmission.schema';
 export * from './Submission.schema';

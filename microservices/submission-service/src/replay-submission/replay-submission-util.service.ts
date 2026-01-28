@@ -34,6 +34,7 @@ export class ReplaySubmissionUtilService {
     submissionId: string,
     memberId: number,
     userId: number,
+    override?: boolean,
   ): Promise<ICanSubmitReplays_Response> {
     const submission = await this.submissionCrudService.getSubmission(submissionId);
 
@@ -56,7 +57,11 @@ export class ReplaySubmissionUtilService {
           canSubmit: false,
           reason: `Could not find a associated scrim`,
         };
-      if (submissionIsScrim(submissionId) && !scrim.players.some(p => p.id === userId)) {
+      if (
+        submissionIsScrim(submissionId) &&
+        !scrim.players.some(p => p.id === userId) &&
+        !override
+      ) {
         // TODO: Check player's organization teams (i.e. Support override)
         return {
           canSubmit: false,

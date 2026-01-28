@@ -21,6 +21,7 @@ export class ReplayUploadController {
       data.submissionId,
       data.memberId,
       data.userId,
+      data.override,
     );
   }
 
@@ -41,6 +42,15 @@ export class ReplayUploadController {
       data.filepaths,
       data.submissionId,
       data.creatorId,
+    );
+  }
+
+  @MessagePattern(SubmissionEndpoint.MockCompletion)
+  async mockCompletion(@Payload() payload: unknown): Promise<boolean> {
+    const data = SubmissionSchemas.MockCompletion.input.parse(payload);
+    return this.replaySubmissionService.mockCompletion(
+      data.submissionId,
+      data.results,
     );
   }
 

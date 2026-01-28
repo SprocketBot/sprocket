@@ -7,6 +7,7 @@ export enum SubmissionEndpoint {
   GetSubmissionIfExists = 'GetSubmissionIfExists',
   GetAllSubmissions = 'GetAllSubmissions',
   SubmitReplays = 'SubmitReplays',
+  MockCompletion = 'MockCompletion',
   CanSubmitReplays = 'CanSubmitReplays',
   RatifySubmission = 'RatifySubmission',
   CanRatifySubmission = 'CanRatifySubmission',
@@ -36,6 +37,10 @@ export const SubmissionSchemas = {
   [SubmissionEndpoint.SubmitReplays]: {
     input: Schemas.SubmitReplays_Request,
     output: Schemas.SubmitReplays_Response,
+  },
+  [SubmissionEndpoint.MockCompletion]: {
+    input: Schemas.MockCompletion_Request,
+    output: Schemas.MockCompletion_Response,
   },
   [SubmissionEndpoint.CanSubmitReplays]: {
     input: Schemas.CanSubmitReplays_Request,

@@ -44,6 +44,8 @@ async function bootstrap(): Promise<void> {
   const port = 3001;
   await app.startAllMicroservices();
   await app.listen(port);
+  // eslint-disable-next-line no-console
+  console.log(`GraphQL Playground available at http://localhost:${port}/graphql`);
 }
 
 // eslint-disable-next-line no-console

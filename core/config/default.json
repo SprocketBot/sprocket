@@ -40,7 +40,7 @@
     "api_root": "localhost:3001/graphql"
   },
   "gql": {
-    "playground": false
+    "playground": true
   },
   "auth": {
     "google": {

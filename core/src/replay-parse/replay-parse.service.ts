@@ -17,6 +17,8 @@ import { GraphQLError } from 'graphql';
 import type { Readable } from 'stream';
 
 import { MemberService } from '../organization';
+import { MLE_OrganizationTeam } from '../database/mledb';
+import { MledbPlayerService } from '../mledb';
 import { REPLAY_EXT, ReplayParsePubSub } from './replay-parse.constants';
 import type { ReplaySubmission } from './types';
 
@@ -32,6 +34,7 @@ export class ReplayParseService {
     private readonly redisService: RedisService,
     private readonly eventsService: EventsService,
     private readonly memberService: MemberService,
+    private readonly mledbPlayerService: MledbPlayerService,
     @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
   ) {}
 
@@ -73,12 +76,31 @@ export class ReplayParseService {
       userId,
       organizationId,
     );
+
+    const mlePlayer = await this.mledbPlayerService
+      .getMlePlayerBySprocketUser(userId)
+      .catch(() => null);
+    let override = false;
+    if (mlePlayer) {
+      const orgs = await this.mledbPlayerService.getPlayerOrgs(mlePlayer);
+      if (
+        orgs.some(
+          o =>
+            o.orgTeam === MLE_OrganizationTeam.MLEDB_ADMIN ||
+            o.orgTeam === MLE_OrganizationTeam.LEAGUE_OPERATIONS,
+        )
+      ) {
+        override = true;
+      }
+    }
+
     const canSubmitReponse = await this.submissionService.send(
       SubmissionEndpoint.CanSubmitReplays,
       {
         memberId: member.id,
         userId: userId,
         submissionId: submissionId,
+        override: override,
       },
     );
     if (canSubmitReponse.status === ResponseStatus.ERROR) throw canSubmitReponse.error;
@@ -110,6 +132,15 @@ export class ReplayParseService {
     if (submissionResponse.status === ResponseStatus.ERROR) throw submissionResponse.error;
     // Return taskIds, directly correspond to the files that were uploaded
     return submissionResponse.data;
+  }
+
+  async mockCompletion(submissionId: string, results: unknown[]): Promise<boolean> {
+    const response = await this.submissionService.send(SubmissionEndpoint.MockCompletion, {
+      submissionId,
+      results,
+    });
+    if (response.status === ResponseStatus.ERROR) throw response.error;
+    return response.data;
   }
 
   async ratifySubmission(

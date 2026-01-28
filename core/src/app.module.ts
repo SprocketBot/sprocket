@@ -43,6 +43,7 @@ import { UtilModule } from './util/util.module';
           : undefined,
       }),
       playground: config.gql.playground,
+      introspection: config.gql.playground,
       fieldResolverEnhancers: ['guards'],
       context: ({ connection, req, payload }) => {
         if (connection) {

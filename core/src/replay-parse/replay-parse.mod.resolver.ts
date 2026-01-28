@@ -9,6 +9,7 @@ import {
 import { PubSub } from 'apollo-server-express';
 import type { FileUpload } from 'graphql-upload';
 import { GraphQLUpload } from 'graphql-upload';
+import GraphQLJSON from 'graphql-type-json';
 
 import { MLE_OrganizationTeam } from '../database/mledb';
 import { CurrentUser, UserPayload } from '../identity';
@@ -62,6 +63,15 @@ export class ReplayParseModResolver {
       user.userId,
       user.currentOrganizationId ?? 2,
     );
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+  async mockCompletion(
+    @Args('submissionId') submissionId: string,
+    @Args('results', { type: () => [GraphQLJSON] }) results: unknown[],
+  ): Promise<boolean> {
+    return this.rpService.mockCompletion(submissionId, results);
   }
 
   @Mutation(() => Boolean)
