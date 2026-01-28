@@ -34,6 +34,9 @@ if PARSER not in VALID_PARSERS:
 
 
 def parse(path: str, on_progress: Callable[[str], None] = None):
+    # For now, only parse with carball ever
+    logging.info("Parsing with carball parser.")
+    return _parse_carball(path, on_progress)
     if PARSER == "carball":
         return _parse_carball(path, on_progress)
     if PARSER == "ballchasing":
