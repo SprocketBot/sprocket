@@ -83,4 +83,8 @@ import type {RemovableFile} from "../../../atoms/FileInput.svelte";
     .actions {
         @apply flex flex-row justify-around;
     }
+
+    :global(#upload-replays-modal) {
+        z-index: 1000;
+    }
 </style>
