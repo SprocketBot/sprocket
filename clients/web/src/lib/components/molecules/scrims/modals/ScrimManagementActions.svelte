@@ -6,8 +6,11 @@
       unlockScrimMutation,
   } from "$lib/api";
   import {UploadReplaysModal} from "$lib/components";
+  import {createEventDispatcher} from "svelte";
 
   export let targetScrim: CurrentScrim;
+  
+  const dispatch = createEventDispatcher();
 
   let visible = false;
   async function cancelScrim() {
@@ -38,6 +41,7 @@
   }
 
   let uploading = false;
+  $: dispatch("uploading", uploading);
 
   function uploadReplays() {
       console.log('Upload Replays button clicked');
