@@ -40,6 +40,9 @@
   let uploading = false;
 
   function uploadReplays() {
+      console.log('Upload Replays button clicked');
+      console.log('Current targetScrim:', targetScrim);
+      console.log('Setting uploading to true');
       uploading = true;
   }
 </script>

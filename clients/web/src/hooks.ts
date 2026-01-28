@@ -12,7 +12,7 @@ interface refreshPayload {
 const doAuthRefresh = async (
   refreshUrl: string,
   currentCookies: string,
-): Promise<refreshPayload> => {
+): Promise<refreshPayload | null> => {
   let newCookiesString = '';
   // If  refresh it
   // Get the refresh token out of user's cookies
@@ -32,13 +32,8 @@ const doAuthRefresh = async (
 
     if (!res.ok) {
         const text = await res.text();
-        console.error(`Auth refresh failed: ${res.status} ${res.statusText} - ${text}`);
-        return {
-            cookies: [''],
-            cookiesString: '',
-            accessToken: '',
-            refreshToken: '',
-        };
+        console.error(`Auth refresh failed for ${refreshUrl}: ${res.status} ${res.statusText} - ${text}`);
+        return null;
     }
 
     try {
@@ -94,21 +89,11 @@ const doAuthRefresh = async (
     };
     } catch (e) {
         console.error("Failed to parse refresh token response:", e);
-        return {
-            cookies: [''],
-            cookiesString: '',
-            accessToken: '',
-            refreshToken: '',
-        };
+        return null;
     }
   }
 
-  return {
-    cookies: [''],
-    cookiesString: '',
-    accessToken: '',
-    refreshToken: '',
-  };
+  return null;
 };
 
 export const handle: Handle = async ({ event, resolve }) => {
@@ -128,7 +113,7 @@ export const handle: Handle = async ({ event, resolve }) => {
         if (rawToken) {
           // Get the meat out of the JWT (the middle third, separated
           // by ".")
-          const token = JSON.parse(atob(rawToken.split('.')[1]));
+          const token = JSON.parse(Buffer.from(rawToken.split('.')[1], 'base64').toString());
 
           // Check if JWT has expired
           const now = new Date();
@@ -146,11 +131,13 @@ export const handle: Handle = async ({ event, resolve }) => {
               `http://${config.client.gqlUrl}/refresh`,
               currentCookies,
             );
-            event.request.headers.set('cookie', result.cookiesString);
-            newCookies = result.cookies;
-            // Refresh the session as well
-            event.locals.user = JSON.parse(atob(result.accessToken.split('.')[1]));
-            event.locals.token = result.accessToken;
+            if (result) {
+                event.request.headers.set('cookie', result.cookiesString);
+                newCookies = result.cookies;
+                // Refresh the session as well
+                event.locals.user = JSON.parse(Buffer.from(result.accessToken.split('.')[1], 'base64').toString());
+                event.locals.token = result.accessToken;
+            }
           }
         } else {
           // No access token exists in cookies, see if we can
@@ -159,11 +146,13 @@ export const handle: Handle = async ({ event, resolve }) => {
             `http://${config.client.gqlUrl}/refresh`,
             currentCookies,
           );
-          event.request.headers.set('cookie', result.cookiesString);
-          newCookies = result.cookies;
-          // Refresh the session as well
-          event.locals.user = JSON.parse(atob(result.accessToken.split('.')[1]));
-          event.locals.token = result.accessToken;
+          if (result) {
+            event.request.headers.set('cookie', result.cookiesString);
+            newCookies = result.cookies;
+            // Refresh the session as well
+            event.locals.user = JSON.parse(Buffer.from(result.accessToken.split('.')[1], 'base64').toString());
+            event.locals.token = result.accessToken;
+          }
         }
       }
     } catch (e) {
