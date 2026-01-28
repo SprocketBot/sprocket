@@ -30,13 +30,25 @@ const doAuthRefresh = async (
       },
     });
 
-    // Pull the new tokens out of the response
-    const tokens = await res.json();
-    const access_token = tokens.access_token;
-    const new_refresh_token = tokens.refresh_token;
+    if (!res.ok) {
+        const text = await res.text();
+        console.error(`Auth refresh failed: ${res.status} ${res.statusText} - ${text}`);
+        return {
+            cookies: [''],
+            cookiesString: '',
+            accessToken: '',
+            refreshToken: '',
+        };
+    }
 
-    // Store these new tokens back in the user's cookies
-    const newCookies = currentCookies.split('; ');
+    try {
+        // Pull the new tokens out of the response
+        const tokens = await res.json();
+        const access_token = tokens.access_token;
+        const new_refresh_token = tokens.refresh_token;
+
+        // Store these new tokens back in the user's cookies
+        const newCookies = currentCookies.split('; ');
 
     // Access token cookie
     let newCookies1: string[];
@@ -80,6 +92,15 @@ const doAuthRefresh = async (
       accessToken: access_token,
       refreshToken: new_refresh_token,
     };
+    } catch (e) {
+        console.error("Failed to parse refresh token response:", e);
+        return {
+            cookies: [''],
+            cookiesString: '',
+            accessToken: '',
+            refreshToken: '',
+        };
+    }
   }
 
   return {

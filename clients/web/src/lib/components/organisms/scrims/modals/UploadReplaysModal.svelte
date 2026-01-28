@@ -26,12 +26,20 @@ import type {RemovableFile} from "../../../atoms/FileInput.svelte";
             visible = false;
         } catch (_e) {
             const e = _e as CombinedError;
-            e.graphQLErrors.forEach(gqlError => {
-                toasts.pushToast({
-                    status: "info",
-                    content: gqlError.message,
+            console.error("Upload failed:", e);
+            if (e.graphQLErrors && e.graphQLErrors.length > 0) {
+                e.graphQLErrors.forEach(gqlError => {
+                    toasts.pushToast({
+                        status: "info",
+                        content: gqlError.message,
+                    });
                 });
-            });
+            } else {
+                 toasts.pushToast({
+                    status: "error",
+                    content: "Failed to upload replays. Check console for details.",
+                });
+            }
             submitting = false;
         }
     }

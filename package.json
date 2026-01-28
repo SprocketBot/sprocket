@@ -47,5 +47,11 @@
     "*.ts": "eslint --fix",
     "*.svelte": "eslint --fix",
     "*.js": "eslint --fix"
+  },
+  "dependencies": {
+    "@types/node-fetch": "^2.6.13",
+    "formdata-node": "^6.0.3",
+    "graphql-request": "^7.4.0",
+    "node-fetch": "^2.7.0"
   }
 }
