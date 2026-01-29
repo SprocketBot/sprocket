@@ -6,7 +6,7 @@ import fetch from 'node-fetch';
 import { AppModule } from './app.module';
 
 // eslint-disable-next-line no-undef, @typescript-eslint/no-unsafe-assignment
-global.fetch = fetch;
+global.fetch = fetch as any;
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.createMicroservice(AppModule, {
