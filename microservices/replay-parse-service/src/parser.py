@@ -1,7 +1,7 @@
 import logging
 from time import sleep
 from typing import Callable
-import carball
+import parser as carball
 import ballchasing
 from requests import Response
 
