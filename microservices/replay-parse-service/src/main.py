@@ -152,7 +152,7 @@ class ParseReplay(BaseTask):
         self.analytics.timer_split_parse()
 
         result = {
-            "parser": config["parser"],
+            "parser": 'carball',
             "parserVersion": PARSER_VERSION,
             "outputPath": parsed_object_path,
             "data": parsed_data,
