@@ -21,7 +21,7 @@ import { SchedulingModule } from '../scheduling';
 import { ScrimModule } from '../scrim';
 import { SprocketRatingModule } from '../sprocket-rating/sprocket-rating.module';
 import { UtilModule } from '../util/util.module';
-import { BallchasingConverterService, FinalizationSubscriber } from './finalization';
+import { BallchasingConverterService, CarballConverterService, FinalizationSubscriber } from './finalization';
 import { RocketLeagueFinalizationService } from './finalization/rocket-league/rocket-league-finalization.service';
 import { ReplayParsePubSub } from './replay-parse.constants';
 import { ReplayParseModResolver } from './replay-parse.mod.resolver';
@@ -59,6 +59,7 @@ import { ReplayParseService } from './replay-parse.service';
     ReplaySubmissionResolver,
     SubmissionRejectionResolver,
     BallchasingConverterService,
+    CarballConverterService,
     FinalizationSubscriber,
     RocketLeagueFinalizationService,
   ],

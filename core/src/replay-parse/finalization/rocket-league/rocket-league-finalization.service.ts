@@ -5,8 +5,9 @@ import type {
   BallchasingResponse,
   BallchasingTeam,
   Scrim,
+  CarballResponse,
 } from '@sprocketbot/common';
-import { BallchasingResponseSchema, Parser, ProgressStatus } from '@sprocketbot/common';
+import { BallchasingResponseSchema, CarballResponseSchema, Parser, ProgressStatus } from '@sprocketbot/common';
 import type { EntityManager } from 'typeorm';
 import { DataSource } from 'typeorm';
 import type { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
@@ -41,6 +42,7 @@ import type {
 } from '../../types';
 import { ReplaySubmissionType } from '../../types';
 import { BallchasingConverterService } from '../ballchasing-converter';
+import { CarballConverterService } from '../carball-converter';
 import type {
   SaveMatchFinalizationReturn,
   SaveScrimFinalizationReturn,
@@ -57,6 +59,7 @@ export class RocketLeagueFinalizationService {
     private readonly mledbPlayerService: MledbPlayerService,
     private readonly teamService: TeamService,
     private readonly ballchasingConverter: BallchasingConverterService,
+    private readonly carballConverter: CarballConverterService,
     private readonly mledbFinalizationService: MledbFinalizationService,
     private readonly eligibilityService: EligibilityService,
     private readonly gameSkillGroupService: GameSkillGroupService,
@@ -264,24 +267,40 @@ export class RocketLeagueFinalizationService {
     }
 
     const replays = submission.items.map<{
-      replay: BallchasingResponse;
+      replay: BallchasingResponse | CarballResponse;
       parser: { type: Parser; version: number };
       outputPath: string;
     }>(i => {
-      const r = BallchasingResponseSchema.safeParse(i.progress?.result?.data);
+      const parserType = i.progress?.result?.parser;
 
-      if (!r.success) {
-        throw new Error(`${i.originalFilename} does not contain expected values. ${r}`);
-      }
-
-      if (i.progress?.result?.parser !== Parser.BALLCHASING) {
+      // Validate against the appropriate schema based on parser type
+      let parsedData: BallchasingResponse | CarballResponse;
+      if (parserType === Parser.CARBALL) {
+        const parseResult = CarballResponseSchema.safeParse(i.progress?.result?.data);
+        if (!parseResult.success) {
+          const errorDetails = 'error' in parseResult ? JSON.stringify(parseResult.error.issues) : 'Unknown validation error';
+          throw new Error(
+            `${i.originalFilename} does not contain expected carball values. ${errorDetails}`,
+          );
+        }
+        parsedData = parseResult.data;
+      } else if (parserType === Parser.BALLCHASING) {
+        const parseResult = BallchasingResponseSchema.safeParse(i.progress?.result?.data);
+        if (!parseResult.success) {
+          const errorDetails = 'error' in parseResult ? JSON.stringify(parseResult.error.issues) : 'Unknown validation error';
+          throw new Error(
+            `${i.originalFilename} does not contain expected ballchasing values. ${errorDetails}`,
+          );
+        }
+        parsedData = parseResult.data;
+      } else {
         throw new Error(
-          `Saving matches with a non-ballchasing parser is not supported. found ${i.progress?.result?.parser}`,
+          `Unknown parser type: ${parserType}. Expected ${Parser.CARBALL} or ${Parser.BALLCHASING}`,
         );
       }
 
       return {
-        replay: r.data,
+        replay: parsedData,
         parser: { type: i.progress.result.parser, version: i.progress.result.parserVersion },
         outputPath: i.outputPath,
       };

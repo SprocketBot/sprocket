@@ -35,7 +35,7 @@ if PARSER not in VALID_PARSERS:
 
 def parse(path: str, on_progress: Callable[[str], None] = None):
     # For now, only parse with carball ever
-    logging.info("Parsing with carball parser.")
+    print("Parsing with carball parser.")
     return _parse_carball(path, on_progress)
     if PARSER == "carball":
         return _parse_carball(path, on_progress)
@@ -61,7 +61,7 @@ def _parse_dual_with_shadow(path: str, on_progress: Callable[[str], None] = None
     import time
     import json
 
-    logging.info(f"Parsing {path} in dual mode: ballchasing (primary) + carball (shadow)")
+    print(f"Parsing {path} in dual mode: ballchasing (primary) + carball (shadow)")
 
     # Parse with ballchasing (primary)
     ballchasing_start = time.time()
@@ -75,10 +75,10 @@ def _parse_dual_with_shadow(path: str, on_progress: Callable[[str], None] = None
         carball_error = None
         try:
             # Create a silent progress callback for shadow parsing
-            shadow_progress = lambda msg: logging.debug(f"Carball shadow: {msg}")
+            shadow_progress = lambda msg: print(f"Carball shadow: {msg}")
             carball_result = _parse_carball(path, shadow_progress)
             carball_duration = time.time() - carball_start
-            logging.info(f"Carball shadow parsing completed in {carball_duration:.2f}s")
+            print(f"Carball shadow parsing completed in {carball_duration:.2f}s")
         except Exception as e:
             carball_duration = time.time() - carball_start
             carball_error = str(e)
@@ -87,7 +87,7 @@ def _parse_dual_with_shadow(path: str, on_progress: Callable[[str], None] = None
 
         ballchasing_result = _parse_ballchasing(path, on_progress)
         ballchasing_duration = time.time() - ballchasing_start
-        logging.info(f"Ballchasing parsing completed in {ballchasing_duration:.2f}s")
+        print(f"Ballchasing parsing completed in {ballchasing_duration:.2f}s")
 
         if carball_result:
             # Log comparison metrics
@@ -114,7 +114,7 @@ def _parse_dual_with_shadow(path: str, on_progress: Callable[[str], None] = None
         "replay_path": path,
         "performance_diff_ms": int((carball_duration - ballchasing_duration) * 1000) if carball_result else None
     }
-    logging.info(f"Parser comparison metrics: {json.dumps(metrics)}")
+    print(f"Parser comparison metrics: {json.dumps(metrics)}")
 
     # Publish shadow parser analytics in the same format as main analytics
     _publish_shadow_analytics(path, carball_result is not None, carball_error,
@@ -173,7 +173,7 @@ def _publish_shadow_analytics(path: str, success: bool, error: str, duration_ms:
                 analytics_message,
                 routing_key=config["transport"]["analytics_queue"]
             )
-            logging.debug(f"Published shadow parser analytics: {analytics_message}")
+            print(f"Published shadow parser analytics: {analytics_message}")
 
     except Exception as e:
         logging.warning(f"Failed to publish shadow parser analytics: {str(e)}")
@@ -214,7 +214,7 @@ def _log_parser_comparison(path: str, ballchasing_data: dict, carball_data: dict
             "carball_only": list(cb_keys - bc_keys)[:10]
         }
 
-        logging.info(f"Parser comparison: {json.dumps(comparison)}")
+        print(f"Parser comparison: {json.dumps(comparison)}")
 
     except Exception as e:
         logging.warning(f"Failed to compare parser results: {str(e)}")
@@ -240,7 +240,7 @@ def _parse_carball(path: str, on_progress: Callable[[str], None] = None) -> dict
     Raises:
         Exception: If replay decompilation or analysis fails
     """
-    logging.info(f"Parsing {path} with carball")
+    print(f"Parsing {path} with carball")
 
     from carball.analysis.analysis_manager import AnalysisManager
     from carball.json_parser.game import Game
@@ -265,7 +265,7 @@ def _parse_carball(path: str, on_progress: Callable[[str], None] = None) -> dict
         analysis_manager.create_analysis()
 
         output = analysis_manager.get_json_data()
-        logging.info(f'Carball output: {json.dumps(output)}')
+        print(f'Carball output: {json.dumps(output)}')
         return output
     except Exception as e:
         logging.error(f"Carball parsing failed for {path}: {str(e)}")
@@ -349,7 +349,7 @@ def _parse_ballchasing(path: str, on_progress: Callable[[str], None] = None) -> 
     Returns:
         dict: A dictionary containing all of the stats returned by Ballchasing
     """
-    logging.info(f"Parsing {path} with Ballchasing")
+    print(f"Parsing {path} with Ballchasing")
 
     with open(path, "rb") as replay_file:
         ballchasing_id: str = None
@@ -360,7 +360,7 @@ def _parse_ballchasing(path: str, on_progress: Callable[[str], None] = None) -> 
 
             # On retries, send an intermediate progress update
             if i > 0:
-                logging.info(f"Uploading replay {path} for parsing ({i + 1}/{MAX_RETRIES})...")
+                print(f"Uploading replay {path} for parsing ({i + 1}/{MAX_RETRIES})...")
                 on_progress(f"Uploading replay to Ballchasing ({i + 1}/{MAX_RETRIES})...")
 
             try:
@@ -371,7 +371,7 @@ def _parse_ballchasing(path: str, on_progress: Callable[[str], None] = None) -> 
 
                 if _parse_is_duplicate_replay(*e.args):
                     ballchasing_id = err_body["id"]
-                    logging.debug(f"Replay already parsed {ballchasing_id}")
+                    print(f"Replay already parsed {ballchasing_id}")
                     break
 
                 elif i == MAX_RETRIES - 1:
@@ -392,7 +392,7 @@ def _parse_ballchasing(path: str, on_progress: Callable[[str], None] = None) -> 
 
             # On retries, send an intermediate progress update
             if i > 0:
-                logging.debug(f"Getting replay {ballchasing_id} from Ballchasing ({i + 1}/{MAX_RETRIES})...")
+                print(f"Getting replay {ballchasing_id} from Ballchasing ({i + 1}/{MAX_RETRIES})...")
                 on_progress(f"Getting stats from Ballchasing ({i + 1}/{MAX_RETRIES})...")
 
             try:
@@ -402,7 +402,7 @@ def _parse_ballchasing(path: str, on_progress: Callable[[str], None] = None) -> 
                     raise Exception(f"Unable to parse replay {ballchasing_id} after {MAX_RETRIES} retries, total delay of {sum(DELAYS)}")
 
                 if _is_rate_limit(*e.args):
-                    logging.debug(f"Rate limited, retrying in {DELAYS[i+1]} seconds")
+                    print(f"Rate limited, retrying in {DELAYS[i+1]} seconds")
                     continue
                 else:
                     logging.error(f"Getting replay {ballchasing_id} from Ballchasing failed, retrying in {DELAYS[i+1]} seconds", err_body)
@@ -411,7 +411,7 @@ def _parse_ballchasing(path: str, on_progress: Callable[[str], None] = None) -> 
             if _get_is_ok_replay(body):
                 return body
             elif _get_is_pending_replay(body):
-                logging.debug(f"Replay {ballchasing_id} still pending, retrying in {DELAYS[i+1]} seconds")
+                print(f"Replay {ballchasing_id} still pending, retrying in {DELAYS[i+1]} seconds")
                 continue
             elif _get_is_failed_replay(body):
                 raise Exception(f"Got replay that failed parsing from ballchasing {ballchasing_id}")
