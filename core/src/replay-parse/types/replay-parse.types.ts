@@ -1,7 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import type { ProgressMessage, Task, TaskResult } from '@sprocketbot/common';
 import {
   BallchasingResponse,
+  CarballResponse,
   Parser,
   Progress as IProgress,
   ProgressStatus,
@@ -11,7 +11,7 @@ import GraphQLJSON from 'graphql-type-json';
 import { GqlProgress } from '../../util/types/celery-progress';
 
 @ObjectType()
-export class ParseReplayResult implements TaskResult<Task.ParseReplay> {
+export class ParseReplayResult {
   @Field(() => Parser)
   parser: Parser;
 
@@ -22,11 +22,11 @@ export class ParseReplayResult implements TaskResult<Task.ParseReplay> {
   outputPath: string;
 
   @Field(() => GraphQLJSON)
-  data: BallchasingResponse;
+  data: BallchasingResponse | CarballResponse;
 }
 
 @ObjectType()
-export class ReplayParseProgress implements ProgressMessage<Task.ParseReplay> {
+export class ReplayParseProgress {
   @Field(() => String)
   taskId: string;
 
@@ -50,7 +50,7 @@ export type ParseReplaysTasks = Record<
   string,
   {
     status: ProgressStatus;
-    result: TaskResult<Task.ParseReplay> | null;
+    result: ParseReplayResult | null;
     error: Error | null;
   }
 >;

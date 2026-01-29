@@ -194,7 +194,8 @@ export class MledbFinalizationService {
     const mleSeriesReplays = await Promise.all(
       submission.items.map(async item => {
         // Get the ballchasing data that is available
-        const data: BallchasingResponse = item.progress.result.data;
+        // Note: Data should already be in ballchasing format (converted if it was carball)
+        const data: BallchasingResponse = item.progress.result.data as BallchasingResponse;
         // Create and prep the series entity
         const replay = em.create(MLE_SeriesReplay);
         replay.series = series;

@@ -267,32 +267,47 @@ export class RocketLeagueFinalizationService {
     }
 
     const replays = submission.items.map<{
-      replay: BallchasingResponse | CarballResponse;
+      replay: BallchasingResponse;
       parser: { type: Parser; version: number };
       outputPath: string;
     }>(i => {
       const parserType = i.progress?.result?.parser;
 
       // Validate against the appropriate schema based on parser type
-      let parsedData: BallchasingResponse | CarballResponse;
+      let ballchasingData: BallchasingResponse;
+
       if (parserType === Parser.CARBALL) {
+        // Validate carball data
         const parseResult = CarballResponseSchema.safeParse(i.progress?.result?.data);
         if (!parseResult.success) {
-          const errorDetails = 'error' in parseResult ? JSON.stringify(parseResult.error.issues) : 'Unknown validation error';
+          const errorDetails =
+            'error' in parseResult
+              ? JSON.stringify(parseResult.error.issues)
+              : 'Unknown validation error';
           throw new Error(
             `${i.originalFilename} does not contain expected carball values. ${errorDetails}`,
           );
         }
-        parsedData = parseResult.data;
+
+        // Convert carball format to ballchasing format
+        this.logger.log(`Converting carball data to ballchasing format for ${i.originalFilename}`);
+        ballchasingData = this.carballConverter.convertToBallchasingFormat(
+          parseResult.data,
+          i.outputPath,
+        );
       } else if (parserType === Parser.BALLCHASING) {
+        // Validate ballchasing data
         const parseResult = BallchasingResponseSchema.safeParse(i.progress?.result?.data);
         if (!parseResult.success) {
-          const errorDetails = 'error' in parseResult ? JSON.stringify(parseResult.error.issues) : 'Unknown validation error';
+          const errorDetails =
+            'error' in parseResult
+              ? JSON.stringify(parseResult.error.issues)
+              : 'Unknown validation error';
           throw new Error(
             `${i.originalFilename} does not contain expected ballchasing values. ${errorDetails}`,
           );
         }
-        parsedData = parseResult.data;
+        ballchasingData = parseResult.data;
       } else {
         throw new Error(
           `Unknown parser type: ${parserType}. Expected ${Parser.CARBALL} or ${Parser.BALLCHASING}`,
@@ -300,7 +315,7 @@ export class RocketLeagueFinalizationService {
       }
 
       return {
-        replay: parsedData,
+        replay: ballchasingData,
         parser: { type: i.progress.result.parser, version: i.progress.result.parserVersion },
         outputPath: i.outputPath,
       };
