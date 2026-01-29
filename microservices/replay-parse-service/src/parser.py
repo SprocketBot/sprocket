@@ -1,7 +1,7 @@
 import logging
 from time import sleep
 from typing import Callable
-import parser as carball
+import carball
 import ballchasing
 from requests import Response
 
@@ -242,9 +242,9 @@ def _parse_carball(path: str, on_progress: Callable[[str], None] = None) -> dict
     """
     logging.info(f"Parsing {path} with carball")
 
-    from parser.analysis.analysis_manager import AnalysisManager
-    from parser.json_parser.game import Game
-    import parser as carball
+    from carball.analysis.analysis_manager import AnalysisManager
+    from carball.json_parser.game import Game
+    import carball
 
     try:
         # Step 1: Decompile the replay file to JSON
