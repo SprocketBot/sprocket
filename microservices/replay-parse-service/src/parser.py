@@ -264,8 +264,9 @@ def _parse_carball(path: str, on_progress: Callable[[str], None] = None) -> dict
         analysis_manager = AnalysisManager(game)
         analysis_manager.create_analysis()
 
-        return analysis_manager.get_json_data()
-
+        output = analysis_manager.get_json_data()
+        logging.info(f'Carball output: {json.dumps(output)}')
+        return output
     except Exception as e:
         logging.error(f"Carball parsing failed for {path}: {str(e)}")
         raise Exception(f"Failed to parse replay with carball: {str(e)}")
