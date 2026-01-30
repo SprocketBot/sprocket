@@ -6,11 +6,13 @@ import type {
   LFSReplaySubmission,
   MatchReplaySubmission,
   ReplaySubmission,
+  ReplaySubmissionItem,
   ScrimPlayer,
   ScrimReplaySubmission,
   UpdateLFSScrimPlayersRequest,
 } from '@sprocketbot/common';
 import {
+  CarballConverterService,
   config,
   CoreEndpoint,
   CoreService,
@@ -19,6 +21,7 @@ import {
   MatchmakingEndpoint,
   MatchmakingService,
   MinioService,
+  Parser,
   readToString,
   ReplaySubmissionType,
   ResponseStatus,
@@ -32,6 +35,7 @@ import { sortIds } from './utils';
 @Injectable()
 export class ReplayValidationService {
   private readonly logger: Logger = new Logger(ReplayValidationService.name);
+  private readonly carballConverter = new CarballConverterService();
 
   constructor(
     private readonly coreService: CoreService,
@@ -39,6 +43,28 @@ export class ReplayValidationService {
     private readonly minioService: MinioService,
     private readonly eventsService: EventsService,
   ) {}
+
+  /**
+   * Normalizes replay data to BallchasingResponse format
+   * Converts carball data if needed, or passes through ballchasing data
+   */
+  private normalizeReplayData(item: ReplaySubmissionItem): BallchasingResponse {
+    const result = item.progress?.result;
+    if (!result) {
+      throw new Error('Replay item has no result');
+    }
+
+    // If it's carball data, convert it to ballchasing format
+    if (result.parser === 'carball') {
+      return this.carballConverter.convertToBallchasingFormat(
+        result.data,
+        item.outputPath ?? item.originalFilename,
+      );
+    }
+
+    // Otherwise, it's already ballchasing format
+    return result.data as BallchasingResponse;
+  }
 
   async validate(submission: ReplaySubmission): Promise<ValidationResult> {
     if (submission.type === ReplaySubmissionType.SCRIM) {
@@ -607,15 +633,16 @@ export class ReplayValidationService {
 
     const uniqueBallchasingPlayerIds = Array.from(
       new Set(
-        submission.items.flatMap(s =>
-          [s.progress!.result!.data.blue, s.progress!.result!.data.orange].flatMap(t =>
+        submission.items.flatMap(s => {
+          const data = this.normalizeReplayData(s);
+          return [data.blue, data.orange].flatMap(t =>
             t.players.flatMap(p => ({
               name: p.name,
               platform: p.id.platform.toUpperCase(),
               id: p.id.id,
             })),
-          ),
-        ),
+          );
+        }),
       ),
     );
 
@@ -650,8 +677,9 @@ export class ReplayValidationService {
     const players = playersResponse.data as GetPlayerSuccessResponse[];
 
     for (const item of submission.items) {
-      const blueBcPlayers = item.progress!.result!.data.blue.players;
-      const orangeBcPlayers = item.progress!.result!.data.orange.players;
+      const data = this.normalizeReplayData(item);
+      const blueBcPlayers = data.blue.players;
+      const orangeBcPlayers = data.orange.players;
 
       try {
         const bluePlayers = blueBcPlayers.map(
@@ -785,8 +813,9 @@ export class ReplayValidationService {
     uniquePlayersPerTeam.orange = new Set();
 
     for (const item of items) {
-      const bluePlayers = item.progress!.result!.data.blue.players.map(p => p.id.id);
-      const orangePlayers = item.progress!.result!.data.orange.players.map(p => p.id.id);
+      const data = this.normalizeReplayData(item);
+      const bluePlayers = data.blue.players.map(p => p.id.id);
+      const orangePlayers = data.orange.players.map(p => p.id.id);
 
       if (bluePlayers.length > perFilePlayerLimit) {
         errors.push({

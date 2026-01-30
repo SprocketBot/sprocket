@@ -1,4 +1,3 @@
-import { Injectable, Logger } from '@nestjs/common';
 import type {
   BallchasingPlayer,
   BallchasingResponse,
@@ -6,12 +5,10 @@ import type {
   CarballResponse,
   CarballPlayer,
   CarballTeam,
-} from '@sprocketbot/common';
+} from '../celery/types/schemas/stats';
 import { randomUUID } from 'crypto';
 
-@Injectable()
 export class CarballConverterService {
-  private readonly logger = new Logger(CarballConverterService.name);
 
   /**
    * Converts CarballResponse to BallchasingResponse format
@@ -21,7 +18,6 @@ export class CarballConverterService {
     carball: CarballResponse,
     outputPath: string,
   ): BallchasingResponse {
-    this.logger.debug('Converting carball response to ballchasing format');
 
     // Extract metadata (supports both camelCase and snake_case)
     const metadata = carball.gameMetadata ?? carball.game_metadata ?? {};

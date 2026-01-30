@@ -41,8 +41,8 @@ import type {
   ScrimReplaySubmission,
 } from '../../types';
 import { ReplaySubmissionType } from '../../types';
+import { CarballConverterService } from '@sprocketbot/common';
 import { BallchasingConverterService } from '../ballchasing-converter';
-import { CarballConverterService } from '../carball-converter';
 import type {
   SaveMatchFinalizationReturn,
   SaveScrimFinalizationReturn,
