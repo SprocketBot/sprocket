@@ -39,12 +39,18 @@ export const CarballPlayerSchema = z.object({
   saves: z.coerce.number().optional(),
   shots: z.coerce.number().optional(),
   camera_settings: z.unknown().optional(),
+  cameraSettings: z.unknown().optional(), // Support camelCase
   loadout: z.unknown().optional(),
   is_orange: z.coerce.number().optional(),
+  isOrange: z.coerce.number().optional(), // Support camelCase
   stats: CarballPlayerStatsSchema.optional(),
   party_leader: PlayerIdSchema.optional(),
   is_bot: z.coerce.boolean().optional(),
+  isBot: z.coerce.boolean().optional(), // Support camelCase
   time_in_game: z.coerce.number().optional(),
+  timeInGame: z.coerce.number().optional(), // Support camelCase
   first_frame_in_game: z.coerce.number().optional(),
+  firstFrameInGame: z.coerce.number().optional(), // Support camelCase
+  platform: z.string().optional(), // Carball includes platform at player level
 }).passthrough();
 export type CarballPlayer = z.infer<typeof CarballPlayerSchema>;

@@ -29,15 +29,17 @@ export class CarballConverterService {
 
     console.log(`[CarballConverter] Total players: ${players.length}`);
     console.log(`[CarballConverter] Total teams: ${teams.length}`);
-    if (players.length > 0) {
-      console.log(`[CarballConverter] First player: ${JSON.stringify(players[0])}`);
-      console.log(`[CarballConverter] Player is_orange values: ${players.map(p => p.is_orange).join(', ')}`);
-    }
 
     // Identify blue and orange teams based on player color
-    // In carball, players have an is_orange field (0 for blue, 1 for orange)
-    const bluePlayers = players.filter(p => p.is_orange === 0);
-    const orangePlayers = players.filter(p => p.is_orange === 1);
+    // Carball returns isOrange (camelCase), not is_orange (snake_case)
+    const bluePlayers = players.filter(p => {
+      const isOrange = (p as any).isOrange ?? p.is_orange ?? 0;
+      return isOrange === 0;
+    });
+    const orangePlayers = players.filter(p => {
+      const isOrange = (p as any).isOrange ?? p.is_orange ?? 1;
+      return isOrange === 1;
+    });
 
     console.log(`[CarballConverter] Blue players: ${bluePlayers.length}, Orange players: ${orangePlayers.length}`);
 
