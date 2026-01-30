@@ -113,7 +113,14 @@ export class CeleryService {
   }
 
   parseResult<T extends Task>(task: T, result: unknown): TaskResult<T> {
-    return TaskSchemas[task].result.parse(result);
+    this.logger.debug(`Parsing result for task ${task}: ${JSON.stringify(result)}`);
+    try {
+      return TaskSchemas[task].result.parse(result);
+    } catch (error) {
+      this.logger.error(`Failed to parse result for task ${task}:`, error);
+      this.logger.error(`Result structure: ${JSON.stringify(result, null, 2)}`);
+      throw error;
+    }
   }
 
   /**
