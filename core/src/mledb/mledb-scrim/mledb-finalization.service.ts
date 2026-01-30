@@ -142,9 +142,7 @@ export class MledbFinalizationService {
     const author = await this.mlePlayerRepository.findOneOrFail({ where: { id: -1 } });
 
     scrim.mode = series.mode;
-    scrim.type = scrimObject.settings.competitive
-      ? scrimObject.settings.mode.toUpperCase()
-      : 'CASUAL';
+    scrim.type = scrimObject.settings.competitive ? 'QUEUED' : 'CASUAL';
     scrim.baseScrimPoints = 3;
     scrim.author = author;
     scrim.host = author;
