@@ -3,17 +3,17 @@ import { z } from 'zod';
 import { CarballPlayerSchema } from './carball-player.schema';
 import { CarballTeamSchema } from './carball-team.schema';
 
-// Game metadata schema - using z.unknown() for complex nested objects
+// Game metadata schema - using z.unknown() for flexible typing since Carball output can vary
 export const CarballGameMetadataSchema = z.object({
-  id: z.string().optional(),
-  map: z.string().optional(),
-  time: z.string().optional(),
-  frames: z.number().optional(),
-  length: z.number().optional(),
-  server_name: z.string().optional(),
-  match_type: z.string().optional(),
-  team_size: z.number().optional(),
-  playlist: z.number().optional(),
+  id: z.unknown().optional(),
+  map: z.unknown().optional(),
+  time: z.unknown().optional(),
+  frames: z.unknown().optional(),
+  length: z.unknown().optional(),
+  server_name: z.unknown().optional(),
+  match_type: z.unknown().optional(),
+  team_size: z.unknown().optional(),
+  playlist: z.unknown().optional(),
 }).passthrough(); // Allow additional fields we haven't explicitly defined
 
 export type CarballGameMetadata = z.infer<typeof CarballGameMetadataSchema>;
@@ -21,7 +21,7 @@ export type CarballGameMetadata = z.infer<typeof CarballGameMetadataSchema>;
 // Game stats schema
 export const CarballGameStatsSchema = z.object({
   hits: z.unknown().optional(),
-  neutral_possession_time: z.number().optional(),
+  neutral_possession_time: z.unknown().optional(),
   kickoffs: z.unknown().optional(),
   goals: z.unknown().optional(),
 }).passthrough(); // Allow additional fields
@@ -44,7 +44,7 @@ export const CarballResponseSchema = z.object({
   gameStats: CarballGameStatsSchema.optional(),
   game_stats: CarballGameStatsSchema.optional(), // Support both camelCase and snake_case
   parties: z.array(CarballPartySchema).optional(),
-  version: z.number().optional(),
+  version: z.unknown().optional(),
   mutators: z.unknown().optional(),
 }).passthrough(); // Allow any additional fields carball might include
 

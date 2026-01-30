@@ -16,8 +16,8 @@ export type CarballTeamStats = z.infer<typeof CarballTeamStatsSchema>;
 export const CarballTeamSchema = z.object({
   players: z.array(CarballPlayerSchema).optional(),
   stats: CarballTeamStatsSchema.optional(),
-  color: z.number().optional(),
-  score: z.number().optional(),
+  color: z.coerce.number().optional(),
+  score: z.coerce.number().optional(),
   name: z.string().optional(),
 }).passthrough();
 export type CarballTeam = z.infer<typeof CarballTeamSchema>;
