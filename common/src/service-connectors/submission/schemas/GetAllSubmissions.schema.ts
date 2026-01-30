@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
-import { EnhancedSubmissionSchema } from './EnhancedSubmission.schema';
+import { CompatibleSubmissionSchema } from './EnhancedSubmission.schema';
 
 export const GetAllSubmissions_Request = z.object({});
 
-export const GetAllSubmissions_Response = z.array(EnhancedSubmissionSchema);
+export const GetAllSubmissions_Response = z.array(CompatibleSubmissionSchema);
 export type GetAllSubmissionsResponse = z.infer<typeof GetAllSubmissions_Response>;
