@@ -7,6 +7,12 @@ import type {
   ReplaySubmission,
   Scrim,
 } from '@sprocketbot/common';
+import {
+  BallchasingResponseSchema,
+  CarballConverterService,
+  CarballResponseSchema,
+  Parser,
+} from '@sprocketbot/common';
 import type { EntityManager } from 'typeorm';
 import { Repository } from 'typeorm';
 
@@ -56,6 +62,7 @@ export class MledbFinalizationService {
     private readonly userService: UserService,
     private readonly sprocketRatingService: SprocketRatingService,
     private readonly mleMatchService: MledbMatchService,
+    private readonly carballConverter: CarballConverterService,
   ) {}
 
   async getLeagueAndMode(scrim: Scrim): Promise<{ mode: GameMode; group: GameSkillGroup }> {
@@ -191,9 +198,46 @@ export class MledbFinalizationService {
 
     const mleSeriesReplays = await Promise.all(
       submission.items.map(async item => {
-        // Get the ballchasing data that is available
-        // Note: Data should already be in ballchasing format (converted if it was carball)
-        const data: BallchasingResponse = item.progress.result.data as BallchasingResponse;
+        // Convert parser data to ballchasing format if needed
+        const parserType = item.progress?.result?.parser;
+        let data: BallchasingResponse;
+
+        if (parserType === Parser.CARBALL) {
+          // Validate carball data
+          const parseResult = CarballResponseSchema.safeParse(item.progress?.result?.data);
+          if (!parseResult.success) {
+            const errorDetails =
+              'error' in parseResult
+                ? JSON.stringify(parseResult.error.issues)
+                : 'Unknown validation error';
+            throw new Error(
+              `${item.originalFilename} does not contain expected carball values. ${errorDetails}`,
+            );
+          }
+
+          // Convert carball format to ballchasing format
+          data = this.carballConverter.convertToBallchasingFormat(
+            parseResult.data,
+            item.outputPath,
+          );
+        } else if (parserType === Parser.BALLCHASING) {
+          // Validate ballchasing data
+          const parseResult = BallchasingResponseSchema.safeParse(item.progress?.result?.data);
+          if (!parseResult.success) {
+            const errorDetails =
+              'error' in parseResult
+                ? JSON.stringify(parseResult.error.issues)
+                : 'Unknown validation error';
+            throw new Error(
+              `${item.originalFilename} does not contain expected ballchasing values. ${errorDetails}`,
+            );
+          }
+          data = parseResult.data;
+        } else {
+          throw new Error(
+            `Unknown parser type: ${parserType}. Expected ${Parser.CARBALL} or ${Parser.BALLCHASING}`,
+          );
+        }
         // Create and prep the series entity
         const replay = em.create(MLE_SeriesReplay);
         replay.series = series;
