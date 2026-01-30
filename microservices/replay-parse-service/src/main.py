@@ -17,7 +17,7 @@ from kombu import Producer, Connection
 # Celery pipeline for starting jobs (broker) and returning results (backend)
 app = celery.Celery(config_source=celeryconfig)
 
-PARSER_VERSION = "2"
+PARSER_VERSION = "3"
 
 ANALYTICS_QUEUE = config["transport"]["analytics_queue"]
 PARSED_OBJECT_PREFIX = f"{config['minio']['parsed_object_prefix']}/v{PARSER_VERSION}"
@@ -96,6 +96,8 @@ class ParseReplay(BaseTask):
 
         parsed_object_path = f"{PARSED_OBJECT_PREFIX}/{replay_hash}.json"
 
+        print(f"PARSER_VERSION={PARSER_VERSION}, PARSED_OBJECT_PREFIX={PARSED_OBJECT_PREFIX}")
+        print(f"parsed_object_path={parsed_object_path}")
         logging.info(f"Parsing replay {replay_object_path} with progress queue {self.progress_queue}")
 
         # Check if the replay has already been parsed and stats are in minio
@@ -105,6 +107,10 @@ class ParseReplay(BaseTask):
 
                 already_parsed = files.get(parsed_object_path)
                 logging.info(f"Replay already parsed {parsed_object_path}")
+                print(f"Cached result keys: {already_parsed.keys() if isinstance(already_parsed, dict) else 'not a dict'}")
+                if isinstance(already_parsed, dict):
+                    print(f"Cached result.parser = {already_parsed.get('parser', 'MISSING')}")
+                    print(f"Cached result.data exists = {already_parsed.get('data') is not None}")
 
                 self.publish_progress(
                     self.progress.complete(already_parsed)
@@ -157,6 +163,14 @@ class ParseReplay(BaseTask):
             "outputPath": parsed_object_path,
             "data": parsed_data,
         }
+
+        print(f"Created result with keys: {result.keys()}")
+        print(f"result['parser'] = {result['parser']}")
+        print(f"result['parserVersion'] = {result['parserVersion']}")
+        print(f"result['data'] type = {type(result['data'])}")
+        print(f"result['data'] is dict = {isinstance(result['data'], dict)}")
+        if isinstance(result['data'], dict):
+            print(f"result['data'] keys (first 10): {list(result['data'].keys())[:10]}")
 
         logging.info(f"Parsing complete")
         self.publish_progress(

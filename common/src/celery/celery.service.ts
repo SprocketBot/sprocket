@@ -141,7 +141,18 @@ export class CeleryService {
                 if (!v) return;
                 const message = JSON.parse(v.content.toString()) as ProgressMessage<T>;
                 if (message.result) {
-                  message.result = this.parseResult(task, message.result);
+                  try {
+                    this.logger.debug(`About to parse result in progress message. Result keys: ${Object.keys(message.result).join(', ')}`);
+                    if (typeof message.result === 'object' && message.result !== null) {
+                      this.logger.debug(`Result.parser = ${(message.result as any).parser}`);
+                      this.logger.debug(`Result.data exists = ${(message.result as any).data !== undefined}`);
+                    }
+                    message.result = this.parseResult(task, message.result);
+                  } catch (error) {
+                    this.logger.error(`Failed to parse result in progress message for task ${task}:`);
+                    this.logger.error(`Raw result: ${JSON.stringify(message.result, null, 2)}`);
+                    throw error;
+                  }
                 }
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { result, ...messageWithoutResult } = message;
