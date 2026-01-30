@@ -32,7 +32,7 @@ export type CarballGameStats = z.infer<typeof CarballGameStatsSchema>;
 export const CarballPartySchema = z.object({
   leader: z.unknown().optional(),
   members: z.array(z.unknown()).optional(),
-});
+}).passthrough();
 export type CarballParty = z.infer<typeof CarballPartySchema>;
 
 // Main Carball Response schema matching the protobuf Game structure

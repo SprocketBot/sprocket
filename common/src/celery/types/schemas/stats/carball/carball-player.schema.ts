@@ -4,7 +4,7 @@ import { z } from 'zod';
 export const PlayerIdSchema = z.object({
   id: z.string().optional(),
   platform: z.string().optional(),
-});
+}).passthrough();
 export type PlayerId = z.infer<typeof PlayerIdSchema>;
 
 // For now, we use z.unknown() for complex nested stats objects
@@ -26,7 +26,7 @@ export const CarballPlayerStatsSchema = z.object({
   kickoff_stats: z.unknown().optional(),
   dropshot_stats: z.unknown().optional(),
   demo_stats: z.unknown().optional(),
-});
+}).passthrough();
 export type CarballPlayerStats = z.infer<typeof CarballPlayerStatsSchema>;
 
 export const CarballPlayerSchema = z.object({
@@ -46,5 +46,5 @@ export const CarballPlayerSchema = z.object({
   is_bot: z.boolean().optional(),
   time_in_game: z.number().optional(),
   first_frame_in_game: z.number().optional(),
-});
+}).passthrough();
 export type CarballPlayer = z.infer<typeof CarballPlayerSchema>;
