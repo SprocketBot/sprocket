@@ -113,12 +113,10 @@ export class CeleryService {
   }
 
   parseResult<T extends Task>(task: T, result: unknown): TaskResult<T> {
-    this.logger.debug(`Parsing result for task ${task}: ${JSON.stringify(result)}`);
     try {
       return TaskSchemas[task].result.parse(result);
     } catch (error) {
       this.logger.error(`Failed to parse result for task ${task}:`, error);
-      this.logger.error(`Result structure: ${JSON.stringify(result, null, 2)}`);
       throw error;
     }
   }
@@ -142,15 +140,9 @@ export class CeleryService {
                 const message = JSON.parse(v.content.toString()) as ProgressMessage<T>;
                 if (message.result) {
                   try {
-                    this.logger.debug(`About to parse result in progress message. Result keys: ${Object.keys(message.result).join(', ')}`);
-                    if (typeof message.result === 'object' && message.result !== null) {
-                      this.logger.debug(`Result.parser = ${(message.result as any).parser}`);
-                      this.logger.debug(`Result.data exists = ${(message.result as any).data !== undefined}`);
-                    }
                     message.result = this.parseResult(task, message.result);
                   } catch (error) {
-                    this.logger.error(`Failed to parse result in progress message for task ${task}:`);
-                    this.logger.error(`Raw result: ${JSON.stringify(message.result, null, 2)}`);
+                    this.logger.error(`Failed to parse result in progress message for task ${task}:`, error);
                     throw error;
                   }
                 }
