@@ -50,6 +50,8 @@ import { ballchasingMapLookup } from './ballchasing-maps';
 
 @Injectable()
 export class MledbFinalizationService {
+  private readonly carballConverter = new CarballConverterService();
+
   constructor(
     @InjectRepository(MLE_SeriesReplay)
     private readonly mleSeriesReplayRepository: Repository<MLE_SeriesReplay>,
@@ -62,7 +64,6 @@ export class MledbFinalizationService {
     private readonly userService: UserService,
     private readonly sprocketRatingService: SprocketRatingService,
     private readonly mleMatchService: MledbMatchService,
-    private readonly carballConverter: CarballConverterService,
   ) {}
 
   async getLeagueAndMode(scrim: Scrim): Promise<{ mode: GameMode; group: GameSkillGroup }> {
