@@ -286,20 +286,31 @@ export class MledbFinalizationService {
           core.shots_against = p.stats.core.shots_against;
           core.mvp = p.stats.core.mvp;
           core.score = p.stats.core.score;
+
+          // Helper to ensure valid numbers, preventing NaN propagation
+          const safeNum = (val: number): number => (isNaN(val) || !isFinite(val) ? 0 : val);
+
+          // Calculate MVPR with NaN protection
           // eslint-disable-next-line @typescript-eslint/no-extra-parens
-          core.mvpr = core.goals + core.assists * 0.75 + core.saves * 0.6 + core.shots / 3;
+          core.mvpr =
+            safeNum(core.goals) +
+            safeNum(core.assists) * 0.75 +
+            safeNum(core.saves) * 0.6 +
+            safeNum(core.shots) / 3;
+
+          // Calculate sprocket rating with NaN protection
           const { opi, dpi, gpi } = this.sprocketRatingService.calcSprocketRating({
-            assists: core.assists,
-            goals: core.goals,
-            goals_against: core.goals_against,
-            saves: core.saves,
-            shots: core.shots,
-            shots_against: core.shots_against,
+            assists: safeNum(core.assists),
+            goals: safeNum(core.goals),
+            goals_against: safeNum(core.goals_against),
+            saves: safeNum(core.saves),
+            shots: safeNum(core.shots),
+            shots_against: safeNum(core.shots_against),
             team_size: series.mode === 'DOUBLES' ? 2 : 3,
           });
-          core.opi = opi;
-          core.dpi = dpi;
-          core.gpi = gpi;
+          core.opi = safeNum(opi);
+          core.dpi = safeNum(dpi);
+          core.gpi = safeNum(gpi);
 
           stats.replay = replay;
 
@@ -314,9 +325,16 @@ export class MledbFinalizationService {
           playerStats.push(populated);
 
           usage.league = player.league;
-          usage.role = player.role!;
+          // Validate role is present before assignment to non-nullable field
+          if (!player.role) {
+            throw new Error(
+              `Player ${player.id} has no role assigned for series ${series.id}`,
+            );
+          }
+          usage.role = player.role;
           usage.series = series;
-          usage.teamName = player.teamName;
+          // Fallback to 'FA' (Free Agent) if teamName is null
+          usage.teamName = player.teamName ?? 'FA';
           roleUsages.push(usage);
         };
 

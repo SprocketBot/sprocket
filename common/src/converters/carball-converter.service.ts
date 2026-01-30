@@ -152,11 +152,12 @@ export class CarballConverterService {
     return {
       core: {
         mvp: false,
-        goals: player.goals ?? 0,
-        saves: player.saves ?? 0,
-        score: player.score ?? 0,
-        shots: player.shots ?? 0,
-        assists: player.assists ?? 0,
+        // Round all core stats to integers for database compatibility
+        goals: Math.round(player.goals ?? 0),
+        saves: Math.round(player.saves ?? 0),
+        score: Math.round(player.score ?? 0),
+        shots: Math.round(player.shots ?? 0),
+        assists: Math.round(player.assists ?? 0),
         goals_against: 0,
         shots_against: 0,
         shooting_percentage: 0,
