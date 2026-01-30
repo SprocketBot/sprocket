@@ -15,13 +15,13 @@ export enum Parser {
 // Discriminated union based on parser type
 export const ParseReplay_Response = z.discriminatedUnion('parser', [
   z.object({
-    parser: z.literal(Parser.BALLCHASING),
+    parser: z.literal('ballchasing'),
     parserVersion: z.union([z.string().transform(v => parseFloat(v)), z.number()]),
     outputPath: z.string(),
     data: BallchasingResponseSchema,
   }),
   z.object({
-    parser: z.literal(Parser.CARBALL),
+    parser: z.literal('carball'),
     parserVersion: z.union([z.string().transform(v => parseFloat(v)), z.number()]),
     outputPath: z.string(),
     data: CarballResponseSchema,

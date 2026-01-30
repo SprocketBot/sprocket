@@ -316,7 +316,10 @@ export class RocketLeagueFinalizationService {
 
       return {
         replay: ballchasingData,
-        parser: { type: i.progress.result.parser, version: i.progress.result.parserVersion },
+        parser: {
+          type: i.progress.result.parser as Parser,
+          version: i.progress.result.parserVersion,
+        },
         outputPath: i.outputPath,
       };
     });
