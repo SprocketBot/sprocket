@@ -3,27 +3,27 @@ import { z } from 'zod';
 import { CarballPlayerSchema } from './carball-player.schema';
 import { CarballTeamSchema } from './carball-team.schema';
 
-// Game metadata schema - using z.unknown() for flexible typing since Carball output can vary
+// Game metadata schema - using proper types to match BallchasingResponse expectations
 export const CarballGameMetadataSchema = z.object({
-  id: z.unknown().optional(),
-  map: z.unknown().optional(),
-  time: z.unknown().optional(),
-  frames: z.unknown().optional(),
-  length: z.unknown().optional(),
-  server_name: z.unknown().optional(),
-  match_type: z.unknown().optional(),
-  team_size: z.unknown().optional(),
-  playlist: z.unknown().optional(),
+  id: z.string().optional(),
+  map: z.string().optional(),
+  time: z.string().optional(),
+  frames: z.number().optional(),
+  length: z.number().optional(),
+  server_name: z.string().optional(),
+  match_type: z.string().optional(),
+  team_size: z.number().optional(),
+  playlist: z.number().optional(),
 }).passthrough(); // Allow additional fields we haven't explicitly defined
 
 export type CarballGameMetadata = z.infer<typeof CarballGameMetadataSchema>;
 
 // Game stats schema
 export const CarballGameStatsSchema = z.object({
-  hits: z.unknown().optional(),
-  neutral_possession_time: z.unknown().optional(),
-  kickoffs: z.unknown().optional(),
-  goals: z.unknown().optional(),
+  hits: z.array(z.unknown()).optional(),
+  neutral_possession_time: z.number().optional(),
+  kickoffs: z.array(z.unknown()).optional(),
+  goals: z.array(z.unknown()).optional(),
 }).passthrough(); // Allow additional fields
 
 export type CarballGameStats = z.infer<typeof CarballGameStatsSchema>;
@@ -44,7 +44,7 @@ export const CarballResponseSchema = z.object({
   gameStats: CarballGameStatsSchema.optional(),
   game_stats: CarballGameStatsSchema.optional(), // Support both camelCase and snake_case
   parties: z.array(CarballPartySchema).optional(),
-  version: z.unknown().optional(),
+  version: z.number().optional(),
   mutators: z.unknown().optional(),
 }).passthrough(); // Allow any additional fields carball might include
 

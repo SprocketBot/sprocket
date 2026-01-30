@@ -245,9 +245,9 @@ export class MledbFinalizationService {
         replay.map = ballchasingMapLookup.get(data.map_code) ?? RocketLeagueMap.UNKNOWN;
         replay.matchGuid = data.match_guid;
         replay.ballchasingId = data.id;
-        replay.duration = data.duration;
+        replay.duration = Math.round(data.duration);
         replay.overtime = data.overtime;
-        replay.overtimeSeconds = data.overtime_seconds ?? 0;
+        replay.overtimeSeconds = Math.round(data.overtime_seconds ?? 0);
         replay.played = new Date(data.date);
         replay.playerStats = [];
         replay.playerStatsCores = [];

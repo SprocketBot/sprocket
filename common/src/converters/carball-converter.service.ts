@@ -60,16 +60,16 @@ export class CarballConverterService {
       id: replayId,
       link: `file://${outputPath}`,
       status: 'ok' as const,
-      title: (metadata as any).id ?? 'Carball Parsed Replay',
-      date: (metadata as any).time ?? new Date().toISOString(),
+      title: metadata.id ?? 'Carball Parsed Replay',
+      date: metadata.time ?? new Date().toISOString(),
       date_has_timezone: false,
       created: new Date().toISOString(),
       visibility: 'private',
 
       // Rocket League metadata
-      rocket_league_id: (metadata as any).id ?? replayId,
+      rocket_league_id: metadata.id ?? replayId,
       season: 0, // Unknown from carball
-      match_guid: (metadata as any).id ?? replayId,
+      match_guid: metadata.id ?? replayId,
 
       // Uploader - stub data
       recorder: undefined,
@@ -81,21 +81,21 @@ export class CarballConverterService {
       },
 
       // Match info
-      match_type: (metadata as any).match_type ?? (metadata as any).playlist?.toString() ?? 'unknown',
-      playlist_id: (metadata as any).playlist?.toString() ?? 'unknown',
-      playlist_name: this.getPlaylistName((metadata as any).playlist),
+      match_type: metadata.match_type ?? metadata.playlist?.toString() ?? 'unknown',
+      playlist_id: metadata.playlist?.toString() ?? 'unknown',
+      playlist_name: this.getPlaylistName(metadata.playlist),
 
       // Map info
-      map_code: (metadata as any).map ?? 'unknown',
-      map_name: (metadata as any).map ?? 'UNKNOWN',
+      map_code: metadata.map ?? 'unknown',
+      map_name: metadata.map ?? 'UNKNOWN',
 
-      // Duration
-      duration: (metadata as any).length ?? 0,
+      // Duration (rounded to integer for database compatibility)
+      duration: Math.round(metadata.length ?? 0),
       overtime: false, // TODO: Detect from carball data
       overtime_seconds: undefined,
 
       // Teams
-      team_size: (metadata as any).team_size ?? Math.max(bluePlayers.length, orangePlayers.length),
+      team_size: metadata.team_size ?? Math.max(bluePlayers.length, orangePlayers.length),
       blue: this.convertTeam(blueTeam, bluePlayers, 'blue'),
       orange: this.convertTeam(orangeTeam, orangePlayers, 'orange'),
     };
