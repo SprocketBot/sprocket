@@ -406,17 +406,21 @@ export class ReplayValidationService {
     // Don't send the same request for multiple players
     const uniqueBallchasingPlayerIds = Array.from(
       new Set(
-        stats.flatMap(s =>
-          [s.blue, s.orange].flatMap(t =>
+        stats.flatMap((s, idx) => {
+          this.logger.debug(`Game ${idx} - Blue team: ${JSON.stringify(s.blue.players.map(p => ({ name: p.name, platform: p.id.platform, id: p.id.id })))}`);
+          this.logger.debug(`Game ${idx} - Orange team: ${JSON.stringify(s.orange.players.map(p => ({ name: p.name, platform: p.id.platform, id: p.id.id })))}`);
+          return [s.blue, s.orange].flatMap(t =>
             t.players.flatMap(p => ({
               name: p.name,
               platform: p.id.platform.toUpperCase(),
               id: p.id.id,
             })),
-          ),
-        ),
+          );
+        }),
       ),
     );
+
+    this.logger.debug(`Unique ballchasing player IDs: ${JSON.stringify(uniqueBallchasingPlayerIds)}`);
 
     // Look up players by their platformIds
     const playersResponse = await this.coreService.send(
@@ -450,21 +454,40 @@ export class ReplayValidationService {
     // Get 3D array of scrim player ids
     const scrimPlayerIds = scrim.games.map(g => g.teams.map(t => t.players.map(p => p.id)));
 
+    this.logger.debug(`Scrim player IDs: ${JSON.stringify(scrimPlayerIds)}`);
+
     // Get 3D array of submission player ids
-    const submissionUserIds = stats.map(s =>
-      [s.blue, s.orange].map(t =>
-        t.players.map(({ id }) => {
+    const submissionUserIds = stats.map((s, gameIdx) => {
+      const gameUserIds = [s.blue, s.orange].map((t, teamIdx) => {
+        const teamUserIds = t.players.map(({ id }) => {
+          this.logger.debug(
+            `Game ${gameIdx}, Team ${teamIdx}: Looking for platform=${id.platform.toUpperCase()}, platformId=${id.id}`,
+          );
           const user = players.find(
             p => p.request.platform === id.platform.toUpperCase() && p.request.platformId === id.id,
-          )!;
-          return user.data.userId;
-        }),
-      ),
-    );
+          );
+          if (!user) {
+            this.logger.error(
+              `Could not find user for platform=${id.platform.toUpperCase()}, platformId=${id.id}`,
+            );
+            this.logger.error(`Available players: ${JSON.stringify(players.map(p => ({ platform: p.request.platform, id: p.request.platformId })))}`);
+          }
+          return user!.data.userId;
+        });
+        this.logger.debug(`Game ${gameIdx}, Team ${teamIdx} user IDs: ${JSON.stringify(teamUserIds)}`);
+        return teamUserIds;
+      });
+      return gameUserIds;
+    });
+
+    this.logger.debug(`Submission user IDs: ${JSON.stringify(submissionUserIds)}`);
 
     // Sort IDs so that they are in the same order ready to compare
     const sortedScrimPlayerIds = sortIds(scrimPlayerIds);
     const sortedSubmissionUserIds = sortIds(submissionUserIds);
+
+    this.logger.debug(`Sorted scrim player IDs: ${JSON.stringify(sortedScrimPlayerIds)}`);
+    this.logger.debug(`Sorted submission user IDs: ${JSON.stringify(sortedSubmissionUserIds)}`);
 
     const expectedMatchups = Array.from(sortedScrimPlayerIds);
 
