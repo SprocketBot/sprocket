@@ -248,7 +248,10 @@ export class MledbFinalizationService {
         replay.duration = Math.round(data.duration);
         replay.overtime = data.overtime;
         replay.overtimeSeconds = Math.round(data.overtime_seconds ?? 0);
-        replay.played = new Date(data.date);
+
+        // Safely parse the date, falling back to current time if invalid
+        const parsedDate = new Date(data.date);
+        replay.played = isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
         replay.playerStats = [];
         replay.playerStatsCores = [];
         replay.winningColor =

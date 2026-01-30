@@ -23,6 +23,13 @@ export class CarballConverterService {
     const metadata = carball.gameMetadata ?? carball.game_metadata ?? {};
     const gameStats = carball.gameStats ?? carball.game_stats ?? {};
 
+    // Helper to validate and return a valid ISO date string
+    const getValidDate = (dateValue: string | undefined): string => {
+      if (!dateValue) return new Date().toISOString();
+      const testDate = new Date(dateValue);
+      return isNaN(testDate.getTime()) ? new Date().toISOString() : dateValue;
+    };
+
     // Separate teams into blue and orange
     const teams = carball.teams ?? [];
     const players = carball.players ?? [];
@@ -61,7 +68,7 @@ export class CarballConverterService {
       link: `file://${outputPath}`,
       status: 'ok' as const,
       title: metadata.id ?? 'Carball Parsed Replay',
-      date: metadata.time ?? new Date().toISOString(),
+      date: getValidDate(metadata.time),
       date_has_timezone: false,
       created: new Date().toISOString(),
       visibility: 'private',
