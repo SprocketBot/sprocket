@@ -16,30 +16,32 @@ import ManuallyExpireRestrictionModal from "../../organisms/scrims/modals/Manual
     };
 </script>
 
-<table class="table table-compact table-zebra text-center w-full" >
-    <thead>
-    <tr>
-        <th>Player Name</th>
-        <th>Restriction ID</th>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody>
-        {#if restrictedPlayersData}
-            {#each restrictedPlayersData as restrictionEvent (restrictionEvent.id)}
-                <tr>
-                    <td>{restrictionEvent.member.profile.name}</td>
-                    <td>{restrictionEvent.id}</td>
-                    <td>
-                        <button class="btn btn-outline lg:btn-sm" on:click={() => { openExpireRestrictionModal(restrictionEvent) } }>
-                            Unban
-                        </button>
-                    </td>
-                </tr>
-            {/each}
-        {/if}
-    </tbody>
-</table>
+<div class="overflow-x-auto">
+    <table class="table table-compact table-zebra text-center w-full" >
+        <thead>
+        <tr>
+            <th>Player Name</th>
+            <th>Restriction ID</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+            {#if restrictedPlayersData}
+                {#each restrictedPlayersData as restrictionEvent (restrictionEvent.id)}
+                    <tr>
+                        <td>{restrictionEvent.member.profile.name}</td>
+                        <td>{restrictionEvent.id}</td>
+                        <td>
+                            <button class="btn btn-outline lg:btn-sm" on:click={() => { openExpireRestrictionModal(restrictionEvent) } }>
+                                Unban
+                            </button>
+                        </td>
+                    </tr>
+                {/each}
+            {/if}
+        </tbody>
+    </table>
+</div>
 
 {#if expireRestrictionModalVisible}
     <ManuallyExpireRestrictionModal

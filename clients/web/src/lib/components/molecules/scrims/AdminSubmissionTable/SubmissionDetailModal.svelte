@@ -104,25 +104,25 @@
 <Modal title="Submission Detail" bind:visible id="submission-detail-modal">
     <div slot="body">
         {#if unreportedAccounts.length > 0}
-            <div class="alert alert-warning shadow-lg mb-4">
+            <div class="alert bg-warning text-warning-content shadow-lg mb-4">
                 <div class="w-full">
-                    <h3 class="font-bold">Unreported Accounts Detected</h3>
-                    <div class="text-sm w-full">
-                        <table class="table table-compact w-full">
+                    <h3 class="font-bold text-base-100">Unreported Accounts Detected</h3>
+                    <div class="text-sm w-full overflow-x-auto">
+                        <table class="table table-compact w-full bg-base-100 text-base-content rounded-lg">
                             <thead>
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Platform</th>
-                                    <th>ID</th>
-                                    <th>Action</th>
+                                    <th class="bg-base-200">Name</th>
+                                    <th class="bg-base-200">Platform</th>
+                                    <th class="bg-base-200">ID</th>
+                                    <th class="bg-base-200">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {#each unreportedAccounts as acc}
-                                    <tr>
-                                        <td>{acc.name}</td>
+                                    <tr class="hover">
+                                        <td class="break-words max-w-xs">{acc.name}</td>
                                         <td>{acc.platform}</td>
-                                        <td>{acc.id}</td>
+                                        <td class="break-all max-w-xs">{acc.id}</td>
                                         <td>
                                             <button class="btn btn-xs btn-primary" on:click={() => { startLink(acc) }}>Link</button>
                                         </td>
@@ -181,7 +181,15 @@
             {/if}
         {/if}
 
-        <pre>{JSON.stringify(submission, null, 2)}</pre>
+        <div class="collapse collapse-arrow border border-base-300 bg-base-100 rounded-box">
+            <input type="checkbox" />
+            <div class="collapse-title text-xl font-medium">
+                Raw Submission Data
+            </div>
+            <div class="collapse-content">
+                <pre class="overflow-x-auto text-xs bg-base-200 p-4 rounded">{JSON.stringify(submission, null, 2)}</pre>
+            </div>
+        </div>
     </div>
 
     <div class="w-full flex flex-col justify-center" slot="actions">

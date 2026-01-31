@@ -37,7 +37,7 @@
 
             <h2 class="px-4 md:px-8">{title ?? ""}</h2>
 
-            <div class="flex-shrink overflow-y-auto px-4 md:px-8">
+            <div class="flex-shrink overflow-y-auto overflow-x-auto px-4 md:px-8">
                 <slot name="body"/>
 
                 {#if $$slots.actions}

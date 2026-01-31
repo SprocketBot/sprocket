@@ -26,24 +26,26 @@
 {/if}
 
 {#if submissions}
-    <table class="table table-compact table-zebra text-center w-full">
-        <thead>
-            <tr>
-                <th>Submission ID</th>
-                <th>Scrim/Match</th>
-                <th>Scrim/Match ID</th>
-                <th>Creator</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {#if submissions}
-                {#each submissions as submission (submission.creatorId)}
-                    <Row submission={submission} on:click={() => { onRowClick(submission) }} />
-                {/each}
-            {/if}
-        </tbody>
-    </table>
+    <div class="overflow-x-auto">
+        <table class="table table-compact table-zebra text-center w-full">
+            <thead>
+                <tr>
+                    <th>Submission ID</th>
+                    <th>Scrim/Match</th>
+                    <th>Scrim/Match ID</th>
+                    <th>Creator</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {#if submissions}
+                    {#each submissions as submission (submission.creatorId)}
+                        <Row submission={submission} on:click={() => { onRowClick(submission) }} />
+                    {/each}
+                {/if}
+            </tbody>
+        </table>
+    </div>
 {/if}
 
 {#if selectedSubmission}

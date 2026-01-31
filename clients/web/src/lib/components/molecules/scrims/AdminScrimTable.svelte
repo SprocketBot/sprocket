@@ -32,54 +32,56 @@
 </script>
 
 
-<table class="table table-compact table-zebra text-center w-full">
-  <thead>
-    <tr>
-      <th>Scrim ID</th>
-      <th>Game</th>
-      <th>Skill Group</th>
-      <th>Mode</th>
-      <th>Status</th>
-      <th>Players</th>
-      <th />
-    </tr>
-  </thead>
-  <tbody>
-    {#if activeScrimsData?.length}
-      {#each activeScrimsData as scrim (scrim.id)}
-        <tr>
-          <td>{scrim.id}</td>
-          <td>{scrim.gameMode?.game?.title ?? ""}</td>
-          <td>{scrim.skillGroup?.profile?.description}</td>
-          <td>{scrim.settings?.competitive ? "Competitive" : "Casual"} {screamingSnakeToHuman(scrim.settings?.mode)} {scrim.gameMode?.description}</td>
-          <td>{scrim.status}</td>
-          {#if scrim.players?.length || scrim.playersAdmin?.length}
+<div class="overflow-x-auto">
+  <table class="table table-compact table-zebra text-center w-full">
+    <thead>
+      <tr>
+        <th>Scrim ID</th>
+        <th>Game</th>
+        <th>Skill Group</th>
+        <th>Mode</th>
+        <th>Status</th>
+        <th>Players</th>
+        <th />
+      </tr>
+    </thead>
+    <tbody>
+      {#if activeScrimsData?.length}
+        {#each activeScrimsData as scrim (scrim.id)}
+          <tr>
+            <td>{scrim.id}</td>
+            <td>{scrim.gameMode?.game?.title ?? ""}</td>
+            <td>{scrim.skillGroup?.profile?.description}</td>
+            <td class="max-w-xs break-words">{scrim.settings?.competitive ? "Competitive" : "Casual"} {screamingSnakeToHuman(scrim.settings?.mode)} {scrim.gameMode?.description}</td>
+            <td>{scrim.status}</td>
+            {#if scrim.players?.length || scrim.playersAdmin?.length}
+              <td>
+                <div class="flex flex-col gap-1">
+                  {#each scrim.players ?? scrim.playersAdmin as player (player.id)}
+                    <button
+                      class="p-2 bg-base-300/20 rounded-lg"
+                      on:click={() => { selectPlayerInTable(`${player.id}`) }}>
+                      {player.name}
+                    </button>
+                  {/each}
+                </div>
+              </td>
+            {:else}
+              <td>Players unavailable</td>
+            {/if}
             <td>
-              <div class="flex flex-col gap-1">
-                {#each scrim.players ?? scrim.playersAdmin as player (player.id)}
-                  <button
-                    class="p-2 bg-base-300/20 rounded-lg"
-                    on:click={() => { selectPlayerInTable(`${player.id}`) }}>
-                    {player.name}
-                  </button>
-                {/each}
-              </div>
+              <button
+                on:click={() => { openScrimManagementModal(scrim.id) }}
+                class="btn btn-outline float-right lg:btn-sm">
+                Manage
+              </button>
             </td>
-          {:else}
-            <td>Players unavailable</td>
-          {/if}
-          <td>
-            <button
-              on:click={() => { openScrimManagementModal(scrim.id) }}
-              class="btn btn-outline float-right lg:btn-sm">
-              Manage
-            </button>
-          </td>
-        </tr>
-      {/each}
-    {/if}
-  </tbody>
-</table>
+          </tr>
+        {/each}
+      {/if}
+    </tbody>
+  </table>
+</div>
 {#if scrimManagementModalVisible}
   <ScrimManagementModal
     bind:visible={scrimManagementModalVisible}

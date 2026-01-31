@@ -14,33 +14,35 @@
     };
 </script>
 
-<table class="table table-compact table-zebra text-center w-full" >
-    <thead>
-        <tr>
-            <th>Player Name</th>
-            <th>Player ID</th>
-            <td/>
-        </tr>
-    </thead>
-    <tbody>
-    {#if activePlayersData}
-        {#each activePlayersData as player (player.id)}
+<div class="overflow-x-auto">
+    <table class="table table-compact table-zebra text-center w-full" >
+        <thead>
             <tr>
-                <td>{player.name}</td>
-                <td>{player.id}</td>
-                <td>
-                    <button class="btn btn-outline float-right lg:btn-sm"
-                            on:click={() =>  { openPlayerManagementModal(player) } }>
-                            <span class="h-3.5 w-4">
-                                <FaHammer/>
-                            </span>
-                    </button>
-                </td>
+                <th>Player Name</th>
+                <th>Player ID</th>
+                <td/>
             </tr>
-        {/each}
-    {/if}
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+        {#if activePlayersData}
+            {#each activePlayersData as player (player.id)}
+                <tr>
+                    <td>{player.name}</td>
+                    <td>{player.id}</td>
+                    <td>
+                        <button class="btn btn-outline float-right lg:btn-sm"
+                                on:click={() =>  { openPlayerManagementModal(player) } }>
+                                <span class="h-3.5 w-4">
+                                    <FaHammer/>
+                                </span>
+                        </button>
+                    </td>
+                </tr>
+            {/each}
+        {/if}
+        </tbody>
+    </table>
+</div>
 
 {#if playerManagementModalVisible}
     <PlayerManagementModal
