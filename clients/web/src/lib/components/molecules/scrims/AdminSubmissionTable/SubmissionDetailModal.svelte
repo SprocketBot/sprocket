@@ -98,6 +98,25 @@
         visible = false;
         activeSubmissionsStore.invalidate();
     };
+
+    // Generate TRN URL based on platform and ID
+    const getTrnUrl = (platform: string, platformId: string): string => {
+        const normalizedPlatform = platform.toUpperCase();
+        switch (normalizedPlatform) {
+            case "STEAM":
+                return `https://rocketleague.tracker.network/rocket-league/profile/steam/${platformId}/overview`;
+            case "EPIC":
+                return `https://rocketleague.tracker.network/rocket-league/profile/epic/${platformId}/overview`;
+            case "PS4":
+            case "PSN":
+                return `https://rocketleague.tracker.network/rocket-league/profile/psn/${platformId}/overview`;
+            case "XBOX":
+            case "XBL":
+                return `https://rocketleague.tracker.network/rocket-league/profile/xbl/${platformId}/overview`;
+            default:
+                return "";
+        }
+    };
 </script>
 
 
@@ -114,6 +133,7 @@
                                     <th class="bg-base-200">Name</th>
                                     <th class="bg-base-200">Platform</th>
                                     <th class="bg-base-200">ID</th>
+                                    <th class="bg-base-200">TRN Link</th>
                                     <th class="bg-base-200">Action</th>
                                 </tr>
                             </thead>
@@ -123,6 +143,13 @@
                                         <td class="break-words max-w-xs">{acc.name}</td>
                                         <td>{acc.platform}</td>
                                         <td class="break-all max-w-xs">{acc.id}</td>
+                                        <td>
+                                            {#if getTrnUrl(acc.platform, acc.id)}
+                                                <a href={getTrnUrl(acc.platform, acc.id)} target="_blank" rel="noopener noreferrer" class="link link-primary text-xs">View Profile</a>
+                                            {:else}
+                                                <span class="text-xs text-base-300">N/A</span>
+                                            {/if}
+                                        </td>
                                         <td>
                                             <button class="btn btn-xs btn-primary" on:click={() => { startLink(acc) }}>Link</button>
                                         </td>
@@ -137,6 +164,16 @@
             {#if linkingAccount}
                 <div class="card bg-base-200 p-4 mb-4">
                     <h4 class="font-bold mb-2">Link {linkingAccount.name} ({linkingAccount.platform})</h4>
+                    {#if getTrnUrl(linkingAccount.platform, linkingAccount.id)}
+                        <div class="alert alert-info shadow-sm mb-3">
+                            <div class="flex flex-col w-full">
+                                <span class="text-xs font-semibold">TRN Profile:</span>
+                                <a href={getTrnUrl(linkingAccount.platform, linkingAccount.id)} target="_blank" rel="noopener noreferrer" class="link link-primary text-sm break-all">
+                                    {getTrnUrl(linkingAccount.platform, linkingAccount.id)}
+                                </a>
+                            </div>
+                        </div>
+                    {/if}
                     <div class="flex flex-col gap-2">
                         <div class="form-control w-full max-w-xs">
                             <label class="label"><span class="label-text">Sprocket User ID</span></label>
@@ -164,14 +201,14 @@
                     <div class="collapse-title text-xl font-medium">
                         Verified Players (Reference)
                     </div>
-                    <div class="collapse-content"> 
+                    <div class="collapse-content">
                         <table class="table table-compact w-full">
-                            <thead><tr><th>Name</th><th>User ID</th></tr></thead>
+                            <thead><tr><th>Name</th><th>Sprocket User ID</th></tr></thead>
                             <tbody>
                                 {#each verifiedPlayers as p}
                                     <tr>
                                         <td>{p.name}</td>
-                                        <td class="cursor-pointer hover:text-primary" on:click={() => { linkUserId = p.id }} title="Click to use ID">{p.id}</td>
+                                        <td class="cursor-pointer hover:text-primary" on:click={() => { linkUserId = p.id }} title="Click to auto-fill User ID">{p.id}</td>
                                     </tr>
                                 {/each}
                             </tbody>
