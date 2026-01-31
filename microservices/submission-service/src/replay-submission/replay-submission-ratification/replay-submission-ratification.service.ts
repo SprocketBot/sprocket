@@ -65,13 +65,24 @@ export class ReplaySubmissionRatificationService {
             }
         }
 
-        await this.crudService.addRatifier(submissionId, playerId);
+        try {
+            await this.crudService.addRatifier(submissionId, playerId);
+        } catch (error) {
+            this.logger.error(`Failed to add ratifier: ${error}`);
+            throw error;
+        }
 
-        // Re-fetch submission to get updated ratifiers array from Redis
+        // Re-fetch to get the actual current count from Redis
         const updatedSubmission = await this.crudService.getSubmission(submissionId);
-        if (!updatedSubmission) throw new Error("Submission not found after adding ratifier");
+        if (!updatedSubmission) {
+            this.logger.error(`Submission ${submissionId} not found after adding ratifier`);
+            throw new Error("Submission not found after adding ratifier");
+        }
 
-        if (updatedSubmission.ratifiers.length >= updatedSubmission.requiredRatifications) {
+        const currentRatificationCount = updatedSubmission.ratifiers.length;
+        this.logger.log(`Ratification count for ${submissionId}: ${currentRatificationCount}/${submission.requiredRatifications}`);
+
+        if (currentRatificationCount >= submission.requiredRatifications) {
             await this.crudService.updateStatus(submissionId, ReplaySubmissionStatus.RATIFIED);
 
             await this.eventService.publish(EventTopic.SubmissionRatified, {
@@ -81,8 +92,8 @@ export class ReplaySubmissionRatificationService {
             return true;
         }
         await this.eventService.publish(EventTopic.SubmissionRatificationAdded, {
-            currentRatifications: updatedSubmission.ratifiers.length,
-            requiredRatifications: updatedSubmission.requiredRatifications,
+            currentRatifications: currentRatificationCount,
+            requiredRatifications: submission.requiredRatifications,
             submissionId: submissionId,
             redisKey: getSubmissionKey(submissionId),
         });
