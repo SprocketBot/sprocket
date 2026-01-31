@@ -76,7 +76,12 @@ ActiveSubmissionsStoreVariables
             }
           }
         }
-        ratifiers
+        ratifiers {
+          playerId
+          franchiseId
+          franchiseName
+          ratifiedAt
+        }
         requiredRatifications
         rejections {
           playerId

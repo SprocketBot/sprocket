@@ -1,3 +1,10 @@
+export interface RatifierInfo {
+    playerId: number;
+    franchiseId: number;
+    franchiseName: string;
+    ratifiedAt: string;
+}
+
 export interface SubmissionRejection {
     playerId: string;
     playerName: string;
@@ -20,6 +27,7 @@ export interface Submission {
     creatorId: number;
     ratifications: number;
     requiredRatifications: number;
+    ratifiers: RatifierInfo[];
     userHasRatified: boolean;
     type: "MATCH" | "SCRIM";
     scrimId?: string;
