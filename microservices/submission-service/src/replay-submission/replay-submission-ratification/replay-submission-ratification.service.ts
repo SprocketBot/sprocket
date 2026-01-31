@@ -66,9 +66,12 @@ export class ReplaySubmissionRatificationService {
         }
 
         await this.crudService.addRatifier(submissionId, playerId);
-        submission.ratifiers.push(playerId);
 
-        if (submission.ratifiers.length >= submission.requiredRatifications) {
+        // Re-fetch submission to get updated ratifiers array from Redis
+        const updatedSubmission = await this.crudService.getSubmission(submissionId);
+        if (!updatedSubmission) throw new Error("Submission not found after adding ratifier");
+
+        if (updatedSubmission.ratifiers.length >= updatedSubmission.requiredRatifications) {
             await this.crudService.updateStatus(submissionId, ReplaySubmissionStatus.RATIFIED);
 
             await this.eventService.publish(EventTopic.SubmissionRatified, {
@@ -78,8 +81,8 @@ export class ReplaySubmissionRatificationService {
             return true;
         }
         await this.eventService.publish(EventTopic.SubmissionRatificationAdded, {
-            currentRatifications: submission.ratifiers.length + 1,
-            requiredRatifications: submission.requiredRatifications,
+            currentRatifications: updatedSubmission.ratifiers.length,
+            requiredRatifications: updatedSubmission.requiredRatifications,
             submissionId: submissionId,
             redisKey: getSubmissionKey(submissionId),
         });
