@@ -127,12 +127,13 @@ export class CarballConverterService {
   }
 
   private convertPlayer(player: CarballPlayer): BallchasingPlayer {
-    const playerId = player.id ?? { id: '0', platform: 'steam' };
+    const playerId = player.id ?? { id: '0', platform: undefined };
+    const platform = (playerId as any).platform ?? (player as any).platform ?? 'steam';
 
     return {
       id: {
         id: (playerId as any).id ?? '0',
-        platform: this.mapPlatform((playerId as any).platform),
+        platform: this.mapPlatform(platform),
       },
       name: player.name ?? 'Unknown',
       camera: this.extractCameraSettings(player.camera_settings),
