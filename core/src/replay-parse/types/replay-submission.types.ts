@@ -17,6 +17,21 @@ export enum ReplaySubmissionType {
 registerEnumType(ReplaySubmissionType, { name: 'ReplaySubmissionType' });
 registerEnumType(ReplaySubmissionStatus, { name: 'ReplaySubmissionStatus' });
 
+@ObjectType('RatifierInfo')
+export class GqlRatifierInfo {
+  @Field(() => Int)
+  playerId: number;
+
+  @Field(() => Int)
+  franchiseId: number;
+
+  @Field()
+  franchiseName: string;
+
+  @Field()
+  ratifiedAt: string;
+}
+
 @ObjectType('ReplaySubmission')
 export class GqlReplaySubmission {
   @Field()
@@ -61,8 +76,8 @@ export class GqlReplaySubmission {
   @Field(() => String, { nullable: true })
   matchId?: Match['id'];
 
-  @Field(() => [Number])
-  ratifiers: number[];
+  @Field(() => [GqlRatifierInfo])
+  ratifiers: GqlRatifierInfo[] | number[];
 }
 
 export class ScrimReplaySubmission extends GqlReplaySubmission {

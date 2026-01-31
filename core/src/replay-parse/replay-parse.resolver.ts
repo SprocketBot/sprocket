@@ -2,10 +2,28 @@ import { ResolveField, Resolver, Root } from '@nestjs/graphql';
 import { REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID } from '@sprocketbot/common';
 
 import { CurrentUser, UserPayload, UserService } from '../identity';
-import { GqlReplaySubmission, ReplaySubmission, SubmissionRejection } from './types';
+import { GqlRatifierInfo, GqlReplaySubmission, ReplaySubmission, SubmissionRejection } from './types';
 
 @Resolver(() => GqlReplaySubmission)
 export class ReplaySubmissionResolver {
+  @ResolveField(() => [GqlRatifierInfo])
+  ratifiers(@Root() submission: ReplaySubmission): GqlRatifierInfo[] {
+    // Transform ratifiers to GraphQL format, handling both old number[] and new RatifierInfo[] formats
+    return submission.ratifiers.map((r: number | GqlRatifierInfo) => {
+      if (typeof r === 'number') {
+        // Legacy format: just a player ID
+        return {
+          playerId: r,
+          franchiseId: 0,
+          franchiseName: 'Unknown',
+          ratifiedAt: new Date().toISOString(),
+        };
+      }
+      // New format: already a RatifierInfo object
+      return r as GqlRatifierInfo;
+    });
+  }
+
   @ResolveField(() => Number)
   ratifications(@Root() submission: ReplaySubmission): number {
     return submission.ratifiers.length;
@@ -13,7 +31,11 @@ export class ReplaySubmissionResolver {
 
   @ResolveField(() => Boolean)
   userHasRatified(@CurrentUser() cu: UserPayload, @Root() submission: ReplaySubmission): boolean {
-    return submission.ratifiers.some(r => r.toString() === cu.userId.toString());
+    // Handle both old number[] format and new RatifierInfo[] format for backward compatibility
+    return submission.ratifiers.some((r: number | GqlRatifierInfo) => {
+      const ratifierId = typeof r === 'number' ? r : r.playerId;
+      return ratifierId.toString() === cu.userId.toString();
+    });
   }
 }
 
