@@ -5,7 +5,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 
 import type {Franchise} from "$db/franchise/franchise/franchise.model";
-import type {Match} from "$db/scheduling/match/match.model";
+import {Match} from "$db/scheduling/match/match.model";
 import {ScheduleFixture} from "$db/scheduling/schedule_fixture/schedule_fixture.model";
 import type {ScheduleGroup} from "$db/scheduling/schedule_group/schedule_group.model";
 
@@ -17,6 +17,8 @@ export class ScheduleFixtureResolver {
         private readonly populate: PopulateService,
     @InjectRepository(ScheduleFixture)
     private readonly scheduleFixtureRepo: Repository<ScheduleFixture>,
+    @InjectRepository(Match)
+    private readonly matchRepo: Repository<Match>,
     ) {}
 
     @Query(() => ScheduleFixture)
@@ -47,13 +49,18 @@ export class ScheduleFixtureResolver {
     @ResolveField()
     async matches(@Root() root: ScheduleFixture): Promise<Match[]> {
         if (root.matches) return root.matches;
-        const t = await this.scheduleFixtureRepo.findOneOrFail({
-            where: {
-                id: root.id,
-            },
-            relations: ["matchParents", "matchParents.match"],
-        });
-        const matches = t.matchParents.flatMap(mp => mp.match);
+
+        console.log(`[ScheduleFixture.matches] Loading matches for fixture ${root.id}`);
+
+        // Use QueryBuilder to explicitly join through matchParent
+        const matches = await this.matchRepo
+            .createQueryBuilder("match")
+            .innerJoin("match.matchParent", "matchParent")
+            .where("matchParent.fixtureId = :fixtureId", {fixtureId: root.id})
+            .getMany();
+
+        console.log(`[ScheduleFixture.matches] Found ${matches.length} matches via QueryBuilder`);
+
         return matches;
     }
 }
