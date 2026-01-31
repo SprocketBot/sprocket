@@ -39,9 +39,7 @@ import {CurrentPlayer} from "../../franchise/player";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MledbMatchService} from "../../mledb/mledb-match/mledb-match.service";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
-import {OrGuard} from "../../util/or.guard";
 import {PopulateService} from "../../util/populate/populate.service";
-import {MatchFranchiseStaffGuard} from "./match-franchise-staff.guard";
 import {MatchPlayerGuard} from "./match.guard";
 import {MatchService} from "./match.service";
 
@@ -443,14 +441,7 @@ export class MatchResolver {
     }
 
     @ResolveField()
-    @UseGuards(
-        GqlJwtGuard,
-        OrGuard(
-            MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN),
-            MatchFranchiseStaffGuard,
-            MatchPlayerGuard,
-        ),
-    )
+    @UseGuards(GqlJwtGuard, MatchPlayerGuard)
     async canSubmit(@CurrentPlayer() player: Player, @Root() root: Match): Promise<boolean> {
         if (root.canSubmit) return root.canSubmit;
         if (!root.submissionId) return false;
@@ -465,14 +456,7 @@ export class MatchResolver {
     }
 
     @ResolveField()
-    @UseGuards(
-        GqlJwtGuard,
-        OrGuard(
-            MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN),
-            MatchFranchiseStaffGuard,
-            MatchPlayerGuard,
-        ),
-    )
+    @UseGuards(GqlJwtGuard, MatchPlayerGuard)
     async canRatify(@CurrentPlayer() player: Player, @Root() root: Match): Promise<boolean> {
         if (root.canRatify) return root.canRatify;
         if (!root.submissionId) return false;

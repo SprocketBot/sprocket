@@ -9,7 +9,6 @@ import {UtilModule} from "../util/util.module";
 import {EligibilityService} from "./eligibility";
 import {MatchService} from "./match";
 import {MatchController} from "./match/match.controller";
-import {MatchFranchiseStaffGuard} from "./match/match-franchise-staff.guard";
 import {MatchPlayerGuard} from "./match/match.guard";
 import {MatchResolver} from "./match/match.resolver";
 import {MatchParentResolver} from "./match-parent/match-parent.resolver";
@@ -43,7 +42,6 @@ import {ScheduleGroupTypeService} from "./schedule-group/schedule-group-type.ser
         MatchResolver,
         MatchParentResolver,
         MatchPlayerGuard,
-        MatchFranchiseStaffGuard,
         EligibilityService,
     ],
     exports: [MatchService, RoundService, EligibilityService],
