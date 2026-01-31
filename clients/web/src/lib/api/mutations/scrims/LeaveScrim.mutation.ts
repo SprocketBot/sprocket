@@ -1,11 +1,11 @@
-import { gql } from '@urql/core';
-import { currentScrim } from '../../queries';
-import { client } from '../../client';
+import {gql} from "@urql/core";
+import {currentScrim} from "../../queries";
+import {client} from "../../client";
 
 type LeaveScrimResponse = boolean;
 
 interface LeaveScrimVars {
-  scrimId: string;
+    scrimId: string;
 }
 const mutationString = gql`
   mutation {
@@ -14,12 +14,12 @@ const mutationString = gql`
 `;
 
 export const leaveScrimMutation = async (vars: LeaveScrimVars): Promise<LeaveScrimResponse> => {
-  const r = await client
-    .mutation<LeaveScrimResponse, LeaveScrimVars>(mutationString, vars)
-    .toPromise();
-  if (r.data) {
-    currentScrim.invalidate();
-    return r.data;
-  }
-  throw r.error as Error;
+    const r = await client
+        .mutation<LeaveScrimResponse, LeaveScrimVars>(mutationString, vars)
+        .toPromise();
+    if (r.data) {
+        currentScrim.invalidate();
+        return r.data;
+    }
+    throw r.error as Error;
 };

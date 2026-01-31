@@ -7,14 +7,14 @@
  * findLast immediately returns that element. Otherwise, findLastIndex returns undefined.
  */
 export function findLast<T>(
-  arr: T[] | undefined,
-  predicate: (value?: T, index?: number, arr?: T[]) => boolean,
+    arr: T[] | undefined,
+    predicate: (value?: T, index?: number, arr?: T[]) => boolean,
 ): T | undefined {
-  if (arr === undefined) return undefined;
+    if (arr === undefined) return undefined;
 
-  let l = arr.length;
-  while (l--) {
-    if (predicate(arr[l], l, arr)) return arr[l];
-  }
-  return undefined;
+    let l = arr.length;
+    while (l--) {
+        if (predicate(arr[l], l, arr)) return arr[l];
+    }
+    return undefined;
 }

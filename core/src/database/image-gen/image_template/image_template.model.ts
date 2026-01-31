@@ -1,30 +1,30 @@
-import { Field, ObjectType } from '@nestjs/graphql';
-import GraphQLJSON from 'graphql-type-json';
-import { Column, Entity } from 'typeorm';
+import {Field, ObjectType} from "@nestjs/graphql";
+import GraphQLJSON from "graphql-type-json";
+import {Column, Entity} from "typeorm";
 
-import { BaseModel } from '../../base-model';
-import { ImageTemplateQuery } from './image_template_query';
+import {BaseModel} from "../../base-model";
+import {ImageTemplateQuery} from "./image_template_query";
 
-@Entity({ schema: 'sprocket' })
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class ImageTemplate extends BaseModel {
-  @Column({ type: 'jsonb' })
-  @Field(() => GraphQLJSON)
+    @Column({type: "jsonb"})
+    @Field(() => GraphQLJSON)
   templateStructure: unknown;
 
-  @Column()
-  @Field()
+    @Column()
+    @Field()
   reportCode: string;
 
-  @Column()
-  @Field()
+    @Column()
+    @Field()
   displayName: string;
 
-  @Column()
-  @Field()
+    @Column()
+    @Field()
   description: string;
 
-  @Column({ type: 'jsonb' })
-  @Field(() => ImageTemplateQuery)
+    @Column({type: "jsonb"})
+    @Field(() => ImageTemplateQuery)
   query: ImageTemplateQuery;
 }

@@ -1,1 +1,1 @@
-export { Action } from './action.model';
+export {Action} from "./action.model";

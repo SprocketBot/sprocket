@@ -1,2 +1,2 @@
-export * from './game-mode.resolver';
-export * from './game-mode.service';
+export * from "./game-mode.resolver";
+export * from "./game-mode.service";

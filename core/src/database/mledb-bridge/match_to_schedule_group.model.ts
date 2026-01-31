@@ -1,13 +1,15 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+    Column, Entity, PrimaryGeneratedColumn,
+} from "typeorm";
 
-@Entity({ schema: 'mledb_bridge' })
+@Entity({schema: "mledb_bridge"})
 export class MatchToScheduleGroup {
-  @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'int' })
+    @Column({type: "int"})
   matchId: number;
 
-  @Column({ type: 'int' })
+    @Column({type: "int"})
   weekScheduleGroupId: number;
 }

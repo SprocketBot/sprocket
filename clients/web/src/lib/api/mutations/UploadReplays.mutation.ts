@@ -1,14 +1,14 @@
-import { gql } from '@urql/core';
-import { client } from '../client';
-import type { FileUpload } from 'graphql-upload';
+import {gql} from "@urql/core";
+import {client} from "../client";
+import type {FileUpload} from "graphql-upload";
 
 export interface UploadReplaysResponse {
-  parseReplays: string[];
+    parseReplays: string[];
 }
 
 export interface UploadReplaysVariables {
-  files: FileUpload[];
-  submissionId: string;
+    files: FileUpload[];
+    submissionId: string;
 }
 
 const mutationString = gql`
@@ -17,12 +17,10 @@ const mutationString = gql`
   }
 `;
 
-export const uploadReplaysMutation = async (
-  vars: UploadReplaysVariables,
-): Promise<UploadReplaysResponse> => {
-  const r = await client
-    .mutation<UploadReplaysResponse, UploadReplaysVariables>(mutationString, vars)
-    .toPromise();
-  if (r.data) return r.data;
-  throw r.error as Error;
+export const uploadReplaysMutation = async (vars: UploadReplaysVariables): Promise<UploadReplaysResponse> => {
+    const r = await client
+        .mutation<UploadReplaysResponse, UploadReplaysVariables>(mutationString, vars)
+        .toPromise();
+    if (r.data) return r.data;
+    throw r.error as Error;
 };

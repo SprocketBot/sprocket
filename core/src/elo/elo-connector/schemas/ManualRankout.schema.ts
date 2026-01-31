@@ -1,11 +1,11 @@
-import { z } from 'zod';
+import {z} from "zod";
 
-import { SkillGroup } from './AddPlayers.schema';
+import {SkillGroup} from "./AddPlayers.schema";
 
 export const ManualSkillGroupChangeSchema = z.object({
-  id: z.number(),
-  skillGroup: z.nativeEnum(SkillGroup),
-  salary: z.number(),
+    id: z.number(),
+    skillGroup: z.nativeEnum(SkillGroup),
+    salary: z.number(),
 });
 
 export type ManualSkillGroupChange = z.infer<typeof ManualSkillGroupChangeSchema>;

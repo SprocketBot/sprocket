@@ -1,47 +1,47 @@
-import type { OperationResult } from '@urql/core';
-import { gql } from '@urql/core';
-import { LiveQueryStore } from '../../core/LiveQueryStore';
+import type {OperationResult} from "@urql/core";
+import {gql} from "@urql/core";
+import {LiveQueryStore} from "../../core/LiveQueryStore";
 
 export interface PendingScrim {
-  id: string;
-  playerCount: number;
-  maxPlayers: number;
-  status: 'PENDING' | 'EMPTY' | 'POPPED';
-  createdAt: Date;
-  gameMode: {
-    description: string;
-    game: {
-      title: string;
+    id: string;
+    playerCount: number;
+    maxPlayers: number;
+    status: "PENDING" | "EMPTY" | "POPPED";
+    createdAt: Date;
+    gameMode: {
+        description: string;
+        game: {
+            title: string;
+        };
     };
-  };
-  settings: {
-    competitive: boolean;
-    mode: 'TEAMS' | 'ROUND_ROBIN';
-    lfs: boolean;
-  };
-  skillGroup: {
-    profile: {
-      description: string;
+    settings: {
+        competitive: boolean;
+        mode: "TEAMS" | "ROUND_ROBIN";
+        lfs: boolean;
     };
-  };
+    skillGroup: {
+        profile: {
+            description: string;
+        };
+    };
 }
 
 interface PendingScrimsData {
-  pendingScrims: PendingScrim[];
+    pendingScrims: PendingScrim[];
 }
 
 interface PendingScrimsVars {}
 
 interface FollowScrimsData {
-  pendingScrim: PendingScrim;
+    pendingScrim: PendingScrim;
 }
 
 class PendingScrimsStore extends LiveQueryStore<
-  PendingScrimsData,
-  PendingScrimsVars,
-  FollowScrimsData
+PendingScrimsData,
+PendingScrimsVars,
+FollowScrimsData
 > {
-  protected queryString = gql<PendingScrimsData, PendingScrimsVars>`
+    protected queryString = gql<PendingScrimsData, PendingScrimsVars>`
     query {
       pendingScrims: getAvailableScrims(status: PENDING) {
         id
@@ -68,7 +68,7 @@ class PendingScrimsStore extends LiveQueryStore<
     }
   `;
 
-  protected subscriptionString = gql<FollowScrimsData, {}>`
+    protected subscriptionString = gql<FollowScrimsData, {}>`
     subscription {
       pendingScrim: followPendingScrims {
         id
@@ -95,44 +95,44 @@ class PendingScrimsStore extends LiveQueryStore<
     }
   `;
 
-  protected _subVars = [];
+    protected _subVars = [];
 
-  constructor() {
-    super();
-    // No variables needed
-    this._vars = {};
-    this.subscriptionVariables = {};
-  }
+    constructor() {
+        super();
+        // No variables needed
+        this._vars = {};
+        this.subscriptionVariables = {};
+    }
 
-  protected handleGqlMessage = (message: OperationResult<FollowScrimsData>) => {
-    if (!message.data) {
-      console.warn(`Recieved erroneous message from followPendingScrims: ${message.error}`);
-      return;
-    }
-    if (!this.currentValue.data) {
-      console.warn(`Recieved subscription before query completed!`);
-      return;
-    }
-    const scrim = message.data.pendingScrim;
-    let existingScrims = [...this.currentValue.data.pendingScrims];
-    switch (scrim.status) {
-      case 'PENDING': {
-        const existingScrim = existingScrims.findIndex(s => s.id === scrim.id);
-        if (existingScrim >= 0) {
-          existingScrims[existingScrim] = scrim;
-        } else {
-          existingScrims.push(scrim);
+    protected handleGqlMessage = (message: OperationResult<FollowScrimsData>) => {
+        if (!message.data) {
+            console.warn(`Recieved erroneous message from followPendingScrims: ${message.error}`);
+            return;
         }
-        break;
-      }
-      default:
-        existingScrims = existingScrims.filter(s => s.id !== scrim.id);
-        break;
-    }
+        if (!this.currentValue.data) {
+            console.warn(`Recieved subscription before query completed!`);
+            return;
+        }
+        const scrim = message.data.pendingScrim;
+        let existingScrims = [...this.currentValue.data.pendingScrims];
+        switch (scrim.status) {
+            case "PENDING": {
+                const existingScrim = existingScrims.findIndex(s => s.id === scrim.id);
+                if (existingScrim >= 0) {
+                    existingScrims[existingScrim] = scrim;
+                } else {
+                    existingScrims.push(scrim);
+                }
+                break;
+            }
+            default:
+                existingScrims = existingScrims.filter(s => s.id !== scrim.id);
+                break;
+        }
 
-    this.currentValue.data.pendingScrims = existingScrims;
-    this.pub();
-  };
+        this.currentValue.data.pendingScrims = existingScrims;
+        this.pub();
+    };
 }
 
 export const pendingScrims = new PendingScrimsStore();

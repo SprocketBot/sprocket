@@ -1,10 +1,10 @@
-import { gql } from '@urql/core';
-import { client } from '../client';
+import {gql} from "@urql/core";
+import {client} from "../client";
 
 type SetScrimsDisabledResponse = boolean;
 
 interface SetScrimsDisabledVariables {
-  disabled: boolean;
+    disabled: boolean;
 }
 
 const setScrimsDisabledMutationString = gql`
@@ -13,17 +13,15 @@ const setScrimsDisabledMutationString = gql`
   }
 `;
 
-export const setScrimsDisabledMutation = async (
-  vars: SetScrimsDisabledVariables,
-): Promise<SetScrimsDisabledResponse> => {
-  const r = await client
-    .mutation<{ setScrimsDisabled: SetScrimsDisabledResponse }, SetScrimsDisabledVariables>(
-      setScrimsDisabledMutationString,
-      vars,
+export const setScrimsDisabledMutation = async (vars: SetScrimsDisabledVariables): Promise<SetScrimsDisabledResponse> => {
+    const r = await client
+        .mutation<{setScrimsDisabled: SetScrimsDisabledResponse;}, SetScrimsDisabledVariables>(
+        setScrimsDisabledMutationString,
+        vars,
     )
-    .toPromise();
-  if (r.data) {
-    return r.data.setScrimsDisabled;
-  }
-  throw r.error as Error;
+        .toPromise();
+    if (r.data) {
+        return r.data.setScrimsDisabled;
+    }
+    throw r.error as Error;
 };

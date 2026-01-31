@@ -1,1 +1,1 @@
-export * from './member-platform-account.service';
+export * from "./member-platform-account.service";

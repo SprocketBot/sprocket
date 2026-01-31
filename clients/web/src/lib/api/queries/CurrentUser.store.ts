@@ -1,30 +1,30 @@
-import { gql } from '@urql/core';
-import { QueryStore } from '../core/QueryStore';
+import {gql} from "@urql/core";
+import {QueryStore} from "../core/QueryStore";
 
 export interface CurrentUserResult {
-  me: {
-    id: number;
-    members: Array<{
-      id: number;
-      players: {
-        skillGroup: {
-          game: {
-            title: string;
-          };
-        };
-        franchisePositions: string[];
-        franchiseName: string;
-      };
-    }>;
-  };
+    me: {
+        id: number;
+        members: Array<{
+            id: number;
+            players: {
+                skillGroup: {
+                    game: {
+                        title: string;
+                    };
+                };
+                franchisePositions: string[];
+                franchiseName: string;
+            };
+        }>;
+    };
 }
 
 export interface CurrentUserVars {
-  orgId?: number;
+    orgId?: number;
 }
 
 export class CurrentUserStore extends QueryStore<CurrentUserResult, CurrentUserVars> {
-  protected queryString = gql<CurrentUserResult, CurrentUserVars>`
+    protected queryString = gql<CurrentUserResult, CurrentUserVars>`
     query ($orgId: Float) {
       me {
         id
@@ -47,10 +47,10 @@ export class CurrentUserStore extends QueryStore<CurrentUserResult, CurrentUserV
     }
   `;
 
-  constructor() {
-    super();
-    this._vars = {};
-  }
+    constructor() {
+        super();
+        this._vars = {};
+    }
 }
 
 export const currentUser = new CurrentUserStore();

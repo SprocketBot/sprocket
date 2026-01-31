@@ -1,42 +1,44 @@
-import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
-import type { ScrimSettings as IScrimSettings } from '@sprocketbot/common';
-import { ScrimMode } from '@sprocketbot/common';
+import {
+    Field, InputType, Int, ObjectType,
+} from "@nestjs/graphql";
+import type {ScrimSettings as IScrimSettings} from "@sprocketbot/common";
+import {ScrimMode} from "@sprocketbot/common";
 
 @ObjectType()
 export class ScrimSettings implements IScrimSettings {
-  @Field(() => Int)
+    @Field(() => Int)
   teamSize: number;
 
-  @Field(() => Int)
+    @Field(() => Int)
   teamCount: number;
 
-  @Field(() => ScrimMode)
+    @Field(() => ScrimMode)
   mode: ScrimMode;
 
-  @Field(() => Boolean)
+    @Field(() => Boolean)
   competitive: boolean;
 
-  @Field(() => Boolean)
+    @Field(() => Boolean)
   observable: boolean;
 
-  @Field(() => Boolean)
+    @Field(() => Boolean)
   lfs: boolean;
 
-  @Field(() => Int)
+    @Field(() => Int)
   checkinTimeout: number;
 }
 
 @InputType()
 export class ScrimSettingsInput {
-  @Field(() => ScrimMode)
+    @Field(() => ScrimMode)
   mode: ScrimMode;
 
-  @Field(() => Boolean)
+    @Field(() => Boolean)
   competitive: boolean;
 
-  @Field(() => Boolean)
+    @Field(() => Boolean)
   observable: boolean;
 
-  @Field(() => Boolean)
+    @Field(() => Boolean)
   lfs: boolean;
 }

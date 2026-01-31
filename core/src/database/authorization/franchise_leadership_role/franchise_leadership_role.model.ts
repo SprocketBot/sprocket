@@ -1,22 +1,24 @@
-import { Field, ObjectType } from '@nestjs/graphql';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import {Field, ObjectType} from "@nestjs/graphql";
+import {
+    Column, Entity, JoinColumn, ManyToOne,
+} from "typeorm";
 
-import { BaseModel } from '../../base-model';
-import { PermissionBearer } from '../permission_bearer';
+import {BaseModel} from "../../base-model";
+import {PermissionBearer} from "../permission_bearer";
 
-@Entity({ schema: 'sprocket' })
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class FranchiseLeadershipRole extends BaseModel {
-  @Column()
-  @Field(() => String)
+    @Column()
+    @Field(() => String)
   name: string;
 
-  @Column()
-  @Field(() => Number)
+    @Column()
+    @Field(() => Number)
   ordinal: number;
 
-  @ManyToOne(() => PermissionBearer)
-  @JoinColumn()
-  @Field(() => PermissionBearer)
+    @ManyToOne(() => PermissionBearer)
+    @JoinColumn()
+    @Field(() => PermissionBearer)
   bearer: PermissionBearer;
 }

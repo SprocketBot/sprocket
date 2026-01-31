@@ -1,1 +1,1 @@
-export * from './analytics.schemas';
+export * from "./analytics.schemas";

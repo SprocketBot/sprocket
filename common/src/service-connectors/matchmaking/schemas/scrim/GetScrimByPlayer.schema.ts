@@ -1,6 +1,6 @@
-import { z } from 'zod';
+import {z} from "zod";
 
-import { ScrimSchema } from '../../types';
+import {ScrimSchema} from "../../types";
 
 export const GetScrimByPlayer_Request = z.number().min(0);
 

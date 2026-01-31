@@ -1,56 +1,58 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import {Field, ObjectType} from "@nestjs/graphql";
+import type {
+    BallchasingResponse,
+    CarballResponse,
+} from "@sprocketbot/common";
 import {
-  BallchasingResponse,
-  CarballResponse,
-  Parser,
-  Progress as IProgress,
-  ProgressStatus,
-} from '@sprocketbot/common';
-import GraphQLJSON from 'graphql-type-json';
+    Parser,
+    Progress as IProgress,
+    ProgressStatus,
+} from "@sprocketbot/common";
+import GraphQLJSON from "graphql-type-json";
 
-import { GqlProgress } from '../../util/types/celery-progress';
+import {GqlProgress} from "../../util/types/celery-progress";
 
 @ObjectType()
 export class ParseReplayResult {
-  @Field(() => Parser)
+    @Field(() => Parser)
   parser: Parser;
 
-  @Field()
+    @Field()
   parserVersion: number;
 
-  @Field()
+    @Field()
   outputPath: string;
 
-  @Field(() => GraphQLJSON)
+    @Field(() => GraphQLJSON)
   data: BallchasingResponse | CarballResponse;
 }
 
 @ObjectType()
 export class ReplayParseProgress {
-  @Field(() => String)
+    @Field(() => String)
   taskId: string;
 
-  @Field(() => ProgressStatus)
+    @Field(() => ProgressStatus)
   status: ProgressStatus;
 
-  @Field(() => GqlProgress)
+    @Field(() => GqlProgress)
   progress: IProgress;
 
-  @Field(() => ParseReplayResult, { nullable: true })
+    @Field(() => ParseReplayResult, {nullable: true})
   result: ParseReplayResult | null;
 
-  @Field(() => String)
+    @Field(() => String)
   filename: string;
 
-  @Field(() => String, { nullable: true })
+    @Field(() => String, {nullable: true})
   error: string | null;
 }
 
 export type ParseReplaysTasks = Record<
-  string,
-  {
+string,
+{
     status: ProgressStatus;
     result: ParseReplayResult | null;
     error: Error | null;
-  }
+}
 >;

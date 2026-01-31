@@ -1,27 +1,27 @@
-import type { OperationResult } from '@urql/core';
-import { gql } from '@urql/core';
-import { LiveQueryStore } from '../../core/LiveQueryStore';
-import type { CurrentScrim } from './CurrentScrim.store';
+import type {OperationResult} from "@urql/core";
+import {gql} from "@urql/core";
+import {LiveQueryStore} from "../../core/LiveQueryStore";
+import type {CurrentScrim} from "./CurrentScrim.store";
 
 interface LFSScrimsData {
-  LFSScrims: CurrentScrim[];
+    LFSScrims: CurrentScrim[];
 }
 
 interface LFSScrimsVars {}
 
 interface LFSScrimsSubscriptionValue {
-  LFSScrim: CurrentScrim;
+    LFSScrim: CurrentScrim;
 }
 
 interface LFSScrimsSubscriptionVars {}
 
 export class LFSScrimsStore extends LiveQueryStore<
-  LFSScrimsData,
-  LFSScrimsVars,
-  LFSScrimsSubscriptionValue,
-  LFSScrimsSubscriptionVars
+LFSScrimsData,
+LFSScrimsVars,
+LFSScrimsSubscriptionValue,
+LFSScrimsSubscriptionVars
 > {
-  protected queryString = gql<LFSScrimsData, LFSScrimsVars>`
+    protected queryString = gql<LFSScrimsData, LFSScrimsVars>`
     query {
       LFSScrims: getLFSScrims {
         id
@@ -70,7 +70,7 @@ export class LFSScrimsStore extends LiveQueryStore<
     }
   `;
 
-  protected subscriptionString = gql<LFSScrimsSubscriptionValue, LFSScrimsSubscriptionVars>`
+    protected subscriptionString = gql<LFSScrimsSubscriptionValue, LFSScrimsSubscriptionVars>`
     subscription {
       LFSScrim: followLFSScrims {
         id
@@ -97,36 +97,34 @@ export class LFSScrimsStore extends LiveQueryStore<
     }
   `;
 
-  protected _subVars: LFSScrimsSubscriptionVars = {};
+    protected _subVars: LFSScrimsSubscriptionVars = {};
 
-  constructor() {
-    super();
-    // No variables needed
-    this._vars = {};
-    this.subscriptionVariables = {};
-  }
-
-  protected handleGqlMessage = (
-    message: OperationResult<LFSScrimsSubscriptionValue, LFSScrimsSubscriptionVars>,
-  ) => {
-    if (!message.data) {
-      console.warn(`Recieved erroneous message from followLFSScrims: ${message.error}`);
-      return;
-    }
-    if (!this.currentValue.data) {
-      console.warn(`Recieved subscription before query completed!`);
-      return;
-    }
-    const scrim = message.data.LFSScrim;
-    const existingScrims = [...this.currentValue.data.LFSScrims];
-    const existingScrim = existingScrims.findIndex(s => s.id === scrim.id);
-    if (existingScrim >= 0) {
-      existingScrims[existingScrim] = scrim;
-    } else {
-      existingScrims.push(scrim);
+    constructor() {
+        super();
+        // No variables needed
+        this._vars = {};
+        this.subscriptionVariables = {};
     }
 
-    this.currentValue.data.LFSScrims = existingScrims;
-    this.pub();
-  };
+    protected handleGqlMessage = (message: OperationResult<LFSScrimsSubscriptionValue, LFSScrimsSubscriptionVars>) => {
+        if (!message.data) {
+            console.warn(`Recieved erroneous message from followLFSScrims: ${message.error}`);
+            return;
+        }
+        if (!this.currentValue.data) {
+            console.warn(`Recieved subscription before query completed!`);
+            return;
+        }
+        const scrim = message.data.LFSScrim;
+        const existingScrims = [...this.currentValue.data.LFSScrims];
+        const existingScrim = existingScrims.findIndex(s => s.id === scrim.id);
+        if (existingScrim >= 0) {
+            existingScrims[existingScrim] = scrim;
+        } else {
+            existingScrims.push(scrim);
+        }
+
+        this.currentValue.data.LFSScrims = existingScrims;
+        this.pub();
+    };
 }

@@ -1,4 +1,4 @@
 export enum ScrimMode {
-  TEAMS = 'TEAMS',
-  ROUND_ROBIN = 'ROUND_ROBIN',
+    TEAMS = "TEAMS",
+    ROUND_ROBIN = "ROUND_ROBIN",
 }

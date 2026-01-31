@@ -1,23 +1,25 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
-import type { ScrimPlayer as IScrimPlayer } from '@sprocketbot/common';
+import {
+    Field, Int, ObjectType,
+} from "@nestjs/graphql";
+import type {ScrimPlayer as IScrimPlayer} from "@sprocketbot/common";
 
 @ObjectType()
 export class ScrimPlayer implements IScrimPlayer {
-  @Field(() => Int)
+    @Field(() => Int)
   id: number;
 
-  @Field(() => String)
+    @Field(() => String)
   name: string;
 
-  @Field(() => Date)
+    @Field(() => Date)
   joinedAt: Date;
 
-  @Field(() => Date)
+    @Field(() => Date)
   leaveAt: Date;
 
-  @Field(() => String, { nullable: true })
+    @Field(() => String, {nullable: true})
   group?: string;
 
-  @Field(() => Boolean, { nullable: true })
+    @Field(() => Boolean, {nullable: true})
   checkedIn?: boolean;
 }

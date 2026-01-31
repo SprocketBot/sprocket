@@ -1,36 +1,38 @@
-import { Args, Query, ResolveField, Resolver, Root } from '@nestjs/graphql';
+import {
+    Args, Query, ResolveField, Resolver, Root,
+} from "@nestjs/graphql";
 
-import { Game } from '$db/game/game/game.model';
-import type { GameMode } from '$db/game/game_mode/game_mode.model';
+import {Game} from "$db/game/game/game.model";
+import type {GameMode} from "$db/game/game_mode/game_mode.model";
 
-import { GameModeService } from '../game-mode';
-import { GameService } from './game.service';
+import {GameModeService} from "../game-mode";
+import {GameService} from "./game.service";
 
 @Resolver(() => Game)
 export class GameResolver {
-  constructor(
-    private readonly gameService: GameService,
-    private readonly gameModeService: GameModeService,
-  ) {}
+    constructor(
+        private readonly gameService: GameService,
+        private readonly gameModeService: GameModeService,
+    ) {}
 
-  @Query(() => Game)
-  async getGame(@Args('title') title: string): Promise<Game> {
-    return this.gameService.getGameByTitle(title);
-  }
+    @Query(() => Game)
+    async getGame(@Args("title") title: string): Promise<Game> {
+        return this.gameService.getGameByTitle(title);
+    }
 
-  @Query(() => [Game])
-  async getGames(): Promise<Game[]> {
-    return this.gameService.getGames({});
-  }
+    @Query(() => [Game])
+    async getGames(): Promise<Game[]> {
+        return this.gameService.getGames({});
+    }
 
-  @ResolveField()
-  async modes(@Root() root: Game): Promise<GameMode[]> {
-    return this.gameModeService.getGameModes({
-      where: {
-        game: {
-          id: root.id,
-        },
-      },
-    });
-  }
+    @ResolveField()
+    async modes(@Root() root: Game): Promise<GameMode[]> {
+        return this.gameModeService.getGameModes({
+            where: {
+                game: {
+                    id: root.id,
+                },
+            },
+        });
+    }
 }

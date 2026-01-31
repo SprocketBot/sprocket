@@ -1,46 +1,45 @@
-import { Injectable } from '@nestjs/common';
-import type { GraphQLExecutionContext } from '@nestjs/graphql';
-import type { Scrim } from '@sprocketbot/common';
-import { GraphQLError } from 'graphql';
+import {Injectable} from "@nestjs/common";
+import type {GraphQLExecutionContext} from "@nestjs/graphql";
+import type {Scrim} from "@sprocketbot/common";
+import {GraphQLError} from "graphql";
 
-import { PlayerGuard, PlayerService } from '../franchise';
-import type { GameAndOrganization } from '../franchise/player/player.types';
-import { GameModeService } from '../game';
-import type { UserPayload } from '../identity';
-import { ScrimService } from './scrim.service';
-import type { CreateScrimInput } from './types';
+import {PlayerGuard, PlayerService} from "../franchise";
+import type {GameAndOrganization} from "../franchise/player/player.types";
+import {GameModeService} from "../game";
+import type {UserPayload} from "../identity";
+import {ScrimService} from "./scrim.service";
+import type {CreateScrimInput} from "./types";
 
 /**
  * Used on the createScrim mutation. Checks if the user attached to the request is a player of the organization the scrim is being created for.
  */
 @Injectable()
 export class CreateScrimPlayerGuard extends PlayerGuard {
-  constructor(
-    private readonly gameModeService: GameModeService,
-    readonly playerService: PlayerService,
-  ) {
-    super();
-  }
+    constructor(
+        private readonly gameModeService: GameModeService,
+        readonly playerService: PlayerService,
+    ) {
+        super();
+    }
 
-  async getGameAndOrganization(
-    ctx: GraphQLExecutionContext,
-    userPayload: UserPayload,
-  ): Promise<GameAndOrganization> {
-    if (!userPayload.currentOrganizationId)
-      throw new Error('User is not connected to an organization');
-    const {
-      data: { gameModeId },
-    } = ctx.getArgs<{ data: CreateScrimInput }>();
+    async getGameAndOrganization(
+        ctx: GraphQLExecutionContext,
+        userPayload: UserPayload,
+    ): Promise<GameAndOrganization> {
+        if (!userPayload.currentOrganizationId) throw new Error("User is not connected to an organization");
+        const {
+            data: {gameModeId},
+        } = ctx.getArgs<{data: CreateScrimInput;}>();
 
-    const gameMode = await this.gameModeService.getGameModeById(gameModeId, {
-      relations: ['game'],
-    });
+        const gameMode = await this.gameModeService.getGameModeById(gameModeId, {
+            relations: ["game"],
+        });
 
-    return {
-      gameId: gameMode.game.id,
-      organizationId: userPayload.currentOrganizationId,
-    };
-  }
+        return {
+            gameId: gameMode.game.id,
+            organizationId: userPayload.currentOrganizationId,
+        };
+    }
 }
 
 /**
@@ -48,26 +47,26 @@ export class CreateScrimPlayerGuard extends PlayerGuard {
  */
 @Injectable()
 export class JoinScrimPlayerGuard extends PlayerGuard {
-  constructor(
-    private readonly scrimService: ScrimService,
-    private readonly gameModeService: GameModeService,
-    readonly playerService: PlayerService,
-  ) {
-    super();
-  }
+    constructor(
+        private readonly scrimService: ScrimService,
+        private readonly gameModeService: GameModeService,
+        readonly playerService: PlayerService,
+    ) {
+        super();
+    }
 
-  async getGameAndOrganization(ctx: GraphQLExecutionContext): Promise<GameAndOrganization> {
-    const { scrimId } = ctx.getArgs<{ scrimId: string }>();
-    const scrim = await this.scrimService.getScrimById(scrimId).catch(() => null);
-    if (!scrim) throw new GraphQLError('Scrim does not exist');
+    async getGameAndOrganization(ctx: GraphQLExecutionContext): Promise<GameAndOrganization> {
+        const {scrimId} = ctx.getArgs<{scrimId: string;}>();
+        const scrim = await this.scrimService.getScrimById(scrimId).catch(() => null);
+        if (!scrim) throw new GraphQLError("Scrim does not exist");
 
-    const gameMode = await this.gameModeService.getGameModeById(scrim.gameModeId);
+        const gameMode = await this.gameModeService.getGameModeById(scrim.gameModeId);
 
-    return {
-      gameId: gameMode.gameId,
-      organizationId: scrim.organizationId,
-    };
-  }
+        return {
+            gameId: gameMode.gameId,
+            organizationId: scrim.organizationId,
+        };
+    }
 }
 
 /**
@@ -75,29 +74,27 @@ export class JoinScrimPlayerGuard extends PlayerGuard {
  */
 @Injectable()
 export class ScrimResolverPlayerGuard extends PlayerGuard {
-  constructor(
-    private readonly gameModeService: GameModeService,
-    readonly playerService: PlayerService,
-  ) {
-    super();
-  }
+    constructor(
+        private readonly gameModeService: GameModeService,
+        readonly playerService: PlayerService,
+    ) {
+        super();
+    }
 
-  async getGameAndOrganization(
-    ctx: GraphQLExecutionContext,
-    userPayload: UserPayload,
-  ): Promise<GameAndOrganization> {
-    if (!userPayload.currentOrganizationId)
-      throw new Error('User is not connected to an organization');
+    async getGameAndOrganization(
+        ctx: GraphQLExecutionContext,
+        userPayload: UserPayload,
+    ): Promise<GameAndOrganization> {
+        if (!userPayload.currentOrganizationId) throw new Error("User is not connected to an organization");
 
-    const scrim = ctx.getRoot<Scrim>();
-    const gameMode = await this.gameModeService.getGameModeById(scrim.gameModeId);
+        const scrim = ctx.getRoot<Scrim>();
+        const gameMode = await this.gameModeService.getGameModeById(scrim.gameModeId);
 
-    if (!scrim.players.some(p => p.id === userPayload.userId))
-      throw new Error('Player is not in the scrim');
+        if (!scrim.players.some(p => p.id === userPayload.userId)) throw new Error("Player is not in the scrim");
 
-    return {
-      gameId: gameMode.gameId,
-      organizationId: scrim.organizationId,
-    };
-  }
+        return {
+            gameId: gameMode.gameId,
+            organizationId: scrim.organizationId,
+        };
+    }
 }

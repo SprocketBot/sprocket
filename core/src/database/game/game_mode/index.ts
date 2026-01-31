@@ -1,1 +1,1 @@
-export { GameMode } from './game_mode.model';
+export {GameMode} from "./game_mode.model";

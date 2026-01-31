@@ -1,13 +1,15 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+    Column, Entity, PrimaryGeneratedColumn,
+} from "typeorm";
 
-@Entity({ schema: 'mledb_bridge' })
+@Entity({schema: "mledb_bridge"})
 export class LeagueToSkillGroup {
-  @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+    @Column()
   league: string;
 
-  @Column({ type: 'int' })
+    @Column({type: "int"})
   skillGroupId: number;
 }

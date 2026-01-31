@@ -1,13 +1,13 @@
-import { gql } from '@urql/core';
-import { client } from '../client';
+import {gql} from "@urql/core";
+import {client} from "../client";
 
 interface GetMemberByUserIdResponse {
-  id: number;
+    id: number;
 }
 
 interface GetMemberByUserIdVariables {
-  id: number;
-  orgId: number;
+    id: number;
+    orgId: number;
 }
 
 const queryString = gql`
@@ -18,17 +18,15 @@ const queryString = gql`
   }
 `;
 
-export const getMemberByUserIdQuery = async (
-  vars: GetMemberByUserIdVariables,
-): Promise<GetMemberByUserIdResponse> => {
-  const r = await client
-    .query<{ getMemberByUserId: GetMemberByUserIdResponse }, GetMemberByUserIdVariables>(
-      queryString,
-      vars,
+export const getMemberByUserIdQuery = async (vars: GetMemberByUserIdVariables): Promise<GetMemberByUserIdResponse> => {
+    const r = await client
+        .query<{getMemberByUserId: GetMemberByUserIdResponse;}, GetMemberByUserIdVariables>(
+        queryString,
+        vars,
     )
-    .toPromise();
-  if (r.data) {
-    return r.data.getMemberByUserId;
-  }
-  throw r.error as Error;
+        .toPromise();
+    if (r.data) {
+        return r.data.getMemberByUserId;
+    }
+    throw r.error as Error;
 };

@@ -1,26 +1,28 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
-import type { ScrimMetrics as IScrimMetrics } from '@sprocketbot/common';
+import {
+    Field, Int, ObjectType,
+} from "@nestjs/graphql";
+import type {ScrimMetrics as IScrimMetrics} from "@sprocketbot/common";
 
 @ObjectType()
 export class ScrimMetrics implements IScrimMetrics {
-  @Field(() => Int)
+    @Field(() => Int)
   pendingScrims: number;
 
-  @Field(() => Int)
+    @Field(() => Int)
   playersQueued: number;
 
-  @Field(() => Int)
+    @Field(() => Int)
   playersScrimming: number;
 
-  @Field(() => Int)
+    @Field(() => Int)
   totalPlayers: number;
 
-  @Field(() => Int)
+    @Field(() => Int)
   totalScrims: number;
 
-  @Field(() => Int)
+    @Field(() => Int)
   completedScrims?: number;
 
-  @Field(() => Int)
+    @Field(() => Int)
   previousCompletedScrims?: number;
 }

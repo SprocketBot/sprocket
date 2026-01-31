@@ -1,1 +1,1 @@
-export { default as FranchiseVsCard } from './FranchiseVsCard.svelte';
+export {default as FranchiseVsCard} from "./FranchiseVsCard.svelte";

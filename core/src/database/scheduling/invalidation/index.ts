@@ -1,1 +1,1 @@
-export { Invalidation } from './invalidation.model';
+export {Invalidation} from "./invalidation.model";

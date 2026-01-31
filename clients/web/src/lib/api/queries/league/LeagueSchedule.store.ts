@@ -1,15 +1,15 @@
-import { gql } from '@urql/core';
-import { QueryStore } from '../../core/QueryStore';
-import type { LeagueScheduleSeason } from './LeagueSchedule.types';
+import {gql} from "@urql/core";
+import {QueryStore} from "../../core/QueryStore";
+import type {LeagueScheduleSeason} from "./LeagueSchedule.types";
 
 export interface LeagueScheduleVars {}
 
 export interface LeagueScheduleValue {
-  seasons: LeagueScheduleSeason[];
+    seasons: LeagueScheduleSeason[];
 }
 
 export class LeagueScheduleStore extends QueryStore<LeagueScheduleValue, LeagueScheduleVars> {
-  protected queryString = gql<LeagueScheduleValue, LeagueScheduleVars>`
+    protected queryString = gql<LeagueScheduleValue, LeagueScheduleVars>`
     fragment FranchiseProfileFields on FranchiseProfile {
       title
       primaryColor
@@ -52,8 +52,8 @@ export class LeagueScheduleStore extends QueryStore<LeagueScheduleValue, LeagueS
     }
   `;
 
-  constructor() {
-    super();
-    this.vars = {};
-  }
+    constructor() {
+        super();
+        this.vars = {};
+    }
 }

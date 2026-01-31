@@ -1,1 +1,1 @@
-export { OrganizationStaffTeam } from './organization_staff_team.model';
+export {OrganizationStaffTeam} from "./organization_staff_team.model";

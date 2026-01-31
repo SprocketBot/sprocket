@@ -1,20 +1,20 @@
 export enum ProgressStatus {
-  Pending = 'Pending',
-  Complete = 'Complete',
-  Error = 'Error',
+    Pending = "Pending",
+    Complete = "Complete",
+    Error = "Error",
 }
 
 export interface Progress {
-  value: number;
-  message: string;
+    value: number;
+    message: string;
 }
 
 export interface ProgressMessage<TaskResult> {
-  taskId: string;
+    taskId: string;
 
-  status: ProgressStatus;
-  progress: Progress;
+    status: ProgressStatus;
+    progress: Progress;
 
-  result: TaskResult | null;
-  error: string | null;
+    result: TaskResult | null;
+    error: string | null;
 }

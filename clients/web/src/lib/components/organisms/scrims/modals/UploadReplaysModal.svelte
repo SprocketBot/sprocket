@@ -11,8 +11,8 @@ import type {RemovableFile} from "../../../atoms/FileInput.svelte";
     export let visible: boolean = true;
     export let submissionId: string;
 
-    $: console.log('UploadReplaysModal: visible changed to:', visible);
-    $: console.log('UploadReplaysModal: submissionId changed to:', submissionId);
+    $: console.log("UploadReplaysModal: visible changed to:", visible);
+    $: console.log("UploadReplaysModal: submissionId changed to:", submissionId);
 
     let files: RemovableFile[] = [];
     let submitting: boolean = false;
@@ -38,7 +38,7 @@ import type {RemovableFile} from "../../../atoms/FileInput.svelte";
                     });
                 });
             } else {
-                 toasts.pushToast({
+                toasts.pushToast({
                     status: "error",
                     content: "Failed to upload replays. Check console for details.",
                 });

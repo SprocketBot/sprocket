@@ -1,9 +1,9 @@
-import type { ProgressMessage, Task } from '../../../celery';
+import type {ProgressMessage, Task} from "../../../celery";
 
 export interface ReplaySubmissionItem {
-  taskId: string;
-  originalFilename: string;
-  inputPath: string;
-  outputPath?: string;
-  progress?: ProgressMessage<Task.ParseReplay>;
+    taskId: string;
+    originalFilename: string;
+    inputPath: string;
+    outputPath?: string;
+    progress?: ProgressMessage<Task.ParseReplay>;
 }

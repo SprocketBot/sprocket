@@ -1,1 +1,1 @@
-export { default as LeagueScheduleGroup } from './LeagueScheduleGroup.svelte';
+export {default as LeagueScheduleGroup} from "./LeagueScheduleGroup.svelte";

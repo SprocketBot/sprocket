@@ -1,1 +1,1 @@
-export * from './user-authentication-account.resolver';
+export * from "./user-authentication-account.resolver";

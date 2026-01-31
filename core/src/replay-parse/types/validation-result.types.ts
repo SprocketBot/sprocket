@@ -1,78 +1,80 @@
-import { createUnionType, Field, ObjectType } from '@nestjs/graphql';
+import {
+    createUnionType, Field, ObjectType,
+} from "@nestjs/graphql";
 
 @ObjectType()
 export class FranchiseInfo {
-  @Field(() => Number)
+    @Field(() => Number)
   id: number;
 
-  @Field(() => String)
+    @Field(() => String)
   name: string;
 }
 
 @ObjectType()
 export class FranchiseValidationResult {
-  @Field(() => Boolean)
+    @Field(() => Boolean)
   eligible: boolean;
 
-  @Field(() => FranchiseInfo, { nullable: true })
+    @Field(() => FranchiseInfo, {nullable: true})
   eligibleFranchise?: FranchiseInfo;
 
-  @Field(() => [FranchiseInfo])
+    @Field(() => [FranchiseInfo])
   existingFranchises: FranchiseInfo[];
 
-  @Field(() => Number)
+    @Field(() => Number)
   requiredFranchises: number;
 
-  @Field(() => Number)
+    @Field(() => Number)
   currentFranchiseCount: number;
 
-  @Field(() => Boolean)
+    @Field(() => Boolean)
   canRatify: boolean;
 
-  @Field(() => String, { nullable: true })
+    @Field(() => String, {nullable: true})
   reason?: string;
 }
 
 @ObjectType()
 export class ValidationSuccess {
-  @Field(() => Boolean)
+    @Field(() => Boolean)
   valid: true;
 
-  @Field(() => FranchiseValidationResult, { nullable: true })
+    @Field(() => FranchiseValidationResult, {nullable: true})
   franchiseValidation?: FranchiseValidationResult;
 }
 
 @ObjectType()
 export class ValidationError {
-  @Field(() => String)
+    @Field(() => String)
   error: string;
 
-  @Field(() => Number, { nullable: true })
+    @Field(() => Number, {nullable: true})
   gameIndex?: number;
 
-  @Field(() => Number, { nullable: true })
+    @Field(() => Number, {nullable: true})
   teamIndex?: number;
 
-  @Field(() => Number, { nullable: true })
+    @Field(() => Number, {nullable: true})
   playerIndex?: number;
 }
 
 @ObjectType()
 export class ValidationFailure {
-  @Field(() => Boolean)
+    @Field(() => Boolean)
   valid: false;
 
-  @Field(() => [ValidationError])
+    @Field(() => [ValidationError])
   errors: ValidationError[];
 
-  @Field(() => FranchiseValidationResult, { nullable: true })
+    @Field(() => FranchiseValidationResult, {nullable: true})
   franchiseValidation?: FranchiseValidationResult;
 }
 
 export type ValidationResult = ValidationSuccess | ValidationFailure;
 
 export const ValidationResultUnion = createUnionType({
-  name: 'ValidationResult',
-  types: () => [ValidationSuccess, ValidationFailure],
-  resolveType: value => (value.valid ? ValidationSuccess : ValidationFailure),
+    name: "ValidationResult",
+    types: () => [ValidationSuccess, ValidationFailure],
+    resolveType: value => (value.valid ? ValidationSuccess : ValidationFailure),
 });

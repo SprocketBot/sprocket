@@ -1,19 +1,19 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import {Field, ObjectType} from "@nestjs/graphql";
 
-import { OrganizationConfigurationAllowedValue } from '$db/configuration/organization_configuration_allowed_value/organization_configuration_allowed_value.model';
-import { Organization } from '$db/organization/organization/organization.model';
+import {OrganizationConfigurationAllowedValue} from "$db/configuration/organization_configuration_allowed_value/organization_configuration_allowed_value.model";
+import {Organization} from "$db/organization/organization/organization.model";
 
 @ObjectType()
 export class OrganizationConfiguration {
-  @Field(() => Organization)
+    @Field(() => Organization)
   organization: Organization;
 
-  @Field(() => String)
+    @Field(() => String)
   key: string;
 
-  @Field(() => [OrganizationConfigurationAllowedValue])
+    @Field(() => [OrganizationConfigurationAllowedValue])
   allowedValues: OrganizationConfigurationAllowedValue[];
 
-  @Field(() => String)
+    @Field(() => String)
   value: string;
 }

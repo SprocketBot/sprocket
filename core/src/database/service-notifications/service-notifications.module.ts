@@ -1,8 +1,8 @@
-import { Module } from '@nestjs/common';
+import {Module} from "@nestjs/common";
 
-import { GlobalEntitySubscriberService } from './global-entity-subscriber/global-entity-subscriber.service';
+import {GlobalEntitySubscriberService} from "./global-entity-subscriber/global-entity-subscriber.service";
 
 @Module({
-  providers: [GlobalEntitySubscriberService],
+    providers: [GlobalEntitySubscriberService],
 })
 export class ServiceNotificationsModule {}

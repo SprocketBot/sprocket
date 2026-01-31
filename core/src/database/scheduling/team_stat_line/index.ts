@@ -1,1 +1,1 @@
-export { TeamStatLine } from './team_stat_line.model';
+export {TeamStatLine} from "./team_stat_line.model";

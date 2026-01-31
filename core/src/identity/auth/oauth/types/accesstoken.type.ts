@@ -1,5 +1,5 @@
 export class AccessToken {
-  access_token: string;
+    access_token: string;
 
-  refresh_token: string;
+    refresh_token: string;
 }

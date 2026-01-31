@@ -1,25 +1,25 @@
-import { gql } from '@urql/core';
-import { QueryStore } from '../../core/QueryStore';
+import {gql} from "@urql/core";
+import {QueryStore} from "../../core/QueryStore";
 
 export interface SubmissionStatsData {
-  games: Array<{
-    teams: Array<{
-      won: boolean;
-      score: number;
-      players: Array<{
-        name: string;
-        goals: number;
-      }>;
+    games: Array<{
+        teams: Array<{
+            won: boolean;
+            score: number;
+            players: Array<{
+                name: string;
+                goals: number;
+            }>;
+        }>;
     }>;
-  }>;
 }
 
 interface SubmissionStatsVars {
-  submissionId: string;
+    submissionId: string;
 }
 
 export class SubmissionStatsStore extends QueryStore<SubmissionStatsData, SubmissionStatsVars> {
-  protected queryString = gql`
+    protected queryString = gql`
     query ($submissionId: String!) {
       stats: getSubmissionStats(submissionId: $submissionId) {
         games {
@@ -36,8 +36,8 @@ export class SubmissionStatsStore extends QueryStore<SubmissionStatsData, Submis
     }
   `;
 
-  constructor(submissionId: string) {
-    super();
-    this._vars = { submissionId };
-  }
+    constructor(submissionId: string) {
+        super();
+        this._vars = {submissionId};
+    }
 }

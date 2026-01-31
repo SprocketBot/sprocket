@@ -1,1 +1,1 @@
-export { OrganizationMottos } from './organization_mottos.model';
+export {OrganizationMottos} from "./organization_mottos.model";

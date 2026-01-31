@@ -1,10 +1,10 @@
-import { z } from 'zod';
+import {z} from "zod";
 
-import { OrganizationSchema } from '../types';
+import {OrganizationSchema} from "../types";
 
 export const GetUsersLastScrim_Request = z.object({
-  userId: z.number(),
-  organizationId: z.number(),
+    userId: z.number(),
+    organizationId: z.number(),
 });
 
 export const GetUsersLastScrim_Response = OrganizationSchema;

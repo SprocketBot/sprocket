@@ -1,11 +1,11 @@
-import { z } from 'zod';
+import {z} from "zod";
 
 export const GetTransactionsDiscordWebhook_Request = z.object({
-  organizationId: z.number(),
+    organizationId: z.number(),
 });
 
 export const GetTransactionsDiscordWebhook_Response = z.object({
-  transactionsWebhook: z.string().nullable(),
+    transactionsWebhook: z.string().nullable(),
 });
 
 export type GetTransactionsDiscordWebhookRequest = z.infer<

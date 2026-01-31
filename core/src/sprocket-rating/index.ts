@@ -1,1 +1,1 @@
-export * from './sprocket-rating.module';
+export * from "./sprocket-rating.module";

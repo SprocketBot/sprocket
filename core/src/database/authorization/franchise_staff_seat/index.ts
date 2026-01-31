@@ -1,1 +1,1 @@
-export { FranchiseStaffSeat } from './franchise_staff_seat.model';
+export {FranchiseStaffSeat} from "./franchise_staff_seat.model";

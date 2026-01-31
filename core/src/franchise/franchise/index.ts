@@ -1,2 +1,2 @@
-export * from './franchise.controller';
-export * from './franchise.service';
+export * from "./franchise.controller";
+export * from "./franchise.service";

@@ -1,1 +1,1 @@
-export { ScrimMeta } from './scrim.model';
+export {ScrimMeta} from "./scrim.model";

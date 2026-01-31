@@ -1,1 +1,1 @@
-export { FranchiseGroupProfile } from './franchise_group_profile.model';
+export {FranchiseGroupProfile} from "./franchise_group_profile.model";

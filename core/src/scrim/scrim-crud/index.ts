@@ -1,1 +1,1 @@
-export * from './scrim-crud.service';
+export * from "./scrim-crud.service";

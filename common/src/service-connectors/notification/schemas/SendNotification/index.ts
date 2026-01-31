@@ -1,2 +1,2 @@
-export * from './BaseNotification.schema';
-export * from './RankdownNotification.schema';
+export * from "./BaseNotification.schema";
+export * from "./RankdownNotification.schema";

@@ -1,34 +1,36 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import {
+    Field, Int, ObjectType,
+} from "@nestjs/graphql";
 
 @ObjectType()
 export class ReplaySubmissionPlayer {
-  @Field(() => String)
+    @Field(() => String)
   name: string;
 
-  @Field(() => Int)
+    @Field(() => Int)
   goals: number;
 }
 
 @ObjectType()
 export class ReplaySubmissionTeam {
-  @Field(() => [ReplaySubmissionPlayer])
+    @Field(() => [ReplaySubmissionPlayer])
   players: ReplaySubmissionPlayer[];
 
-  @Field(() => Boolean)
+    @Field(() => Boolean)
   won: boolean;
 
-  @Field(() => Int)
+    @Field(() => Int)
   score: number;
 }
 
 @ObjectType()
 export class ReplaySubmissionGame {
-  @Field(() => [ReplaySubmissionTeam])
+    @Field(() => [ReplaySubmissionTeam])
   teams: ReplaySubmissionTeam[];
 }
 
 @ObjectType()
 export class ReplaySubmissionStats {
-  @Field(() => [ReplaySubmissionGame])
+    @Field(() => [ReplaySubmissionGame])
   games: ReplaySubmissionGame[];
 }

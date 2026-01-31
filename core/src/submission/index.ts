@@ -1,2 +1,2 @@
-export * from './submission.module';
-export * from './submission-management';
+export * from "./submission.module";
+export * from "./submission-management";

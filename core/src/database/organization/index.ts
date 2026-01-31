@@ -10,4 +10,4 @@
 // export * from "./organization_profile";
 // export * from "./photo";
 // export * from "./pronouns";
-export * from './organization.module';
+export * from "./organization.module";

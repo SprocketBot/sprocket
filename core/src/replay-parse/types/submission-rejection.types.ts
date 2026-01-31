@@ -1,25 +1,25 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import {Field, ObjectType} from "@nestjs/graphql";
 
-import type { ReplaySubmissionItem } from './submission-item.types';
+import type {ReplaySubmissionItem} from "./submission-item.types";
 
-export type RejectedItem = Omit<ReplaySubmissionItem, 'progress'>;
+export type RejectedItem = Omit<ReplaySubmissionItem, "progress">;
 
 @ObjectType()
 export class SubmissionRejection {
-  @Field()
+    @Field()
   playerId: number;
 
-  @Field()
+    @Field()
   playerName: string;
 
-  @Field()
+    @Field()
   reason: string;
 
-  @Field()
+    @Field()
   stale: boolean;
 
-  @Field()
+    @Field()
   rejectedAt: string;
 
-  rejectedItems?: RejectedItem[];
+    rejectedItems?: RejectedItem[];
 }

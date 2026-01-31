@@ -1,1 +1,1 @@
-export * from './schedule_group.model';
+export * from "./schedule_group.model";

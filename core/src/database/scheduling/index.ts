@@ -11,4 +11,4 @@
 // export * from "./schedule_group_type";
 // export * from "./scheduled_event/scheduled_event.model";
 // export * from "./team_stat_line/team_stat_line.model";
-export * from './scheduling.module';
+export * from "./scheduling.module";

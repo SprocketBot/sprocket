@@ -1,27 +1,29 @@
-import { Field, ObjectType } from '@nestjs/graphql';
-import { Entity, ManyToOne, OneToMany, OneToOne } from 'typeorm';
+import {Field, ObjectType} from "@nestjs/graphql";
+import {
+    Entity, ManyToOne, OneToMany, OneToOne,
+} from "typeorm";
 
-import { FranchiseGroupProfile } from '$db/franchise/franchise_group_profile/franchise_group_profile.model';
-import { FranchiseGroupType } from '$db/franchise/franchise_group_type/franchise_group_type.model';
+import {FranchiseGroupProfile} from "$db/franchise/franchise_group_profile/franchise_group_profile.model";
+import {FranchiseGroupType} from "$db/franchise/franchise_group_type/franchise_group_type.model";
 
-import { BaseModel } from '../../base-model';
+import {BaseModel} from "../../base-model";
 
-@Entity({ schema: 'sprocket' })
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class FranchiseGroup extends BaseModel {
-  @ManyToOne(() => FranchiseGroup, { nullable: true })
-  @Field(() => FranchiseGroup, { nullable: true })
+    @ManyToOne(() => FranchiseGroup, {nullable: true})
+    @Field(() => FranchiseGroup, {nullable: true})
   parentGroup?: FranchiseGroup;
 
-  @OneToMany(() => FranchiseGroup, fg => fg.parentGroup)
-  @Field(() => [FranchiseGroup])
+    @OneToMany(() => FranchiseGroup, fg => fg.parentGroup)
+    @Field(() => [FranchiseGroup])
   childGroups: FranchiseGroup[];
 
-  @ManyToOne(() => FranchiseGroupType)
-  @Field(() => FranchiseGroupType)
+    @ManyToOne(() => FranchiseGroupType)
+    @Field(() => FranchiseGroupType)
   type: FranchiseGroupType;
 
-  @OneToOne(() => FranchiseGroupProfile, fp => fp.group)
-  @Field(() => FranchiseGroupProfile)
+    @OneToOne(() => FranchiseGroupProfile, fp => fp.group)
+    @Field(() => FranchiseGroupProfile)
   profile: FranchiseGroupProfile;
 }

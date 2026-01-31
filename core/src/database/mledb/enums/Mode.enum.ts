@@ -1,5 +1,5 @@
 export enum LegacyGameMode {
-  SOLO = 'SOLO',
-  DOUBLES = 'DOUBLES',
-  STANDARD = 'STANDARD',
+    SOLO = "SOLO",
+    DOUBLES = "DOUBLES",
+    STANDARD = "STANDARD",
 }

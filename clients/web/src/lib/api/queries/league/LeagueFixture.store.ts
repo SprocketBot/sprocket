@@ -1,47 +1,47 @@
-import { gql } from '@urql/core';
-import { QueryStore } from '../../core/QueryStore';
+import {gql} from "@urql/core";
+import {QueryStore} from "../../core/QueryStore";
 
 export interface FixtureFranchise {
-  profile: {
-    title: string;
-    primaryColor: string;
-    secondaryColor: string;
-    photo: { url: string };
-  };
+    profile: {
+        title: string;
+        primaryColor: string;
+        secondaryColor: string;
+        photo: {url: string;};
+    };
 }
 
 export interface Fixture {
-  id: number;
-  homeFranchise: FixtureFranchise;
-  awayFranchise: FixtureFranchise;
-
-  scheduleGroup: { description: string };
-  matches: Array<{
     id: number;
-    skillGroup: {
-      ordinal: number;
-      profile: {
-        description: string;
-      };
-    };
-    submissionId: string;
-    gameMode: { description: string };
-    submissionStatus: 'submitting' | 'ratifying' | 'completed';
-    canSubmit: boolean;
-    canRatify: boolean;
-  }>;
+    homeFranchise: FixtureFranchise;
+    awayFranchise: FixtureFranchise;
+
+    scheduleGroup: {description: string;};
+    matches: Array<{
+        id: number;
+        skillGroup: {
+            ordinal: number;
+            profile: {
+                description: string;
+            };
+        };
+        submissionId: string;
+        gameMode: {description: string;};
+        submissionStatus: "submitting" | "ratifying" | "completed";
+        canSubmit: boolean;
+        canRatify: boolean;
+    }>;
 }
 
 export interface LeagueFixtureValue {
-  fixture: Fixture;
+    fixture: Fixture;
 }
 
 export interface LeagueFixtureVars {
-  id: number;
+    id: number;
 }
 
 export class LeagueFixtureStore extends QueryStore<LeagueFixtureValue, LeagueFixtureVars> {
-  protected queryString = gql<LeagueFixtureValue, LeagueFixtureVars>`
+    protected queryString = gql<LeagueFixtureValue, LeagueFixtureVars>`
     fragment FranchiseFields on Franchise {
       profile {
         title
@@ -87,8 +87,8 @@ export class LeagueFixtureStore extends QueryStore<LeagueFixtureValue, LeagueFix
     }
   `;
 
-  constructor(id: number) {
-    super();
-    this.vars = { id };
-  }
+    constructor(id: number) {
+        super();
+        this.vars = {id};
+    }
 }

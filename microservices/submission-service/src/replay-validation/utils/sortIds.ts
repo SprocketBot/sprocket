@@ -18,12 +18,12 @@ const increasingOrder = (a: number, b: number): -1 | 0 | 1 => (a < b ? -1 : 1);
  *  ]
  */
 export const sortIds = (games: number[][][]): number[][][] => {
-  const _games: number[][][] = [...games];
-  for (const game of _games) {
-    for (const team of game) {
-      team.sort(increasingOrder);
+    const _games: number[][][] = [...games];
+    for (const game of _games) {
+        for (const team of game) {
+            team.sort(increasingOrder);
+        }
+        game.sort((a, b) => increasingOrder(a[0], b[0]));
     }
-    game.sort((a, b) => increasingOrder(a[0], b[0]));
-  }
-  return _games;
+    return _games;
 };

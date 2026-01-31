@@ -1,1 +1,1 @@
-export { Approval } from './approval.model';
+export {Approval} from "./approval.model";

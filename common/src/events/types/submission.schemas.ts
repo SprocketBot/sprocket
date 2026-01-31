@@ -1,3 +1,3 @@
-import { z } from 'zod';
+import {z} from "zod";
 
-export const SubmissionEventSchema = z.object({ submissionId: z.string(), redisKey: z.string() });
+export const SubmissionEventSchema = z.object({submissionId: z.string(), redisKey: z.string()});

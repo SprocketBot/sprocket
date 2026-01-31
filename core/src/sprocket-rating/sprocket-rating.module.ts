@@ -1,9 +1,9 @@
-import { Module } from '@nestjs/common';
+import {Module} from "@nestjs/common";
 
-import { SprocketRatingService } from './sprocket-rating.service';
+import {SprocketRatingService} from "./sprocket-rating.service";
 
 @Module({
-  providers: [SprocketRatingService],
-  exports: [SprocketRatingService],
+    providers: [SprocketRatingService],
+    exports: [SprocketRatingService],
 })
 export class SprocketRatingModule {}

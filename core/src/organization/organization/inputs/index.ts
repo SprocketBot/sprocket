@@ -1,1 +1,1 @@
-export * from './organization_profile.input';
+export * from "./organization_profile.input";

@@ -1,26 +1,26 @@
-import { gql } from '@urql/core';
-import { currentScrim } from '../../queries';
-import { client } from '../../client';
+import {gql} from "@urql/core";
+import {currentScrim} from "../../queries";
+import {client} from "../../client";
 
 interface CreateLFSScrimResponse {
-  id: string;
-  playerCount: number;
-  settings: {
-    competitive: boolean;
-    mode: 'TEAMS' | 'ROUND_ROBIN';
-  };
+    id: string;
+    playerCount: number;
+    settings: {
+        competitive: boolean;
+        mode: "TEAMS" | "ROUND_ROBIN";
+    };
 }
 
 interface CreateLFSScrimVariables {
-  settings: {
-    mode: 'TEAMS' | 'ROUND_ROBIN';
-    competitive: boolean;
-    observable: boolean;
-    lfs: boolean;
-  };
-  gameModeId: number;
-  createGroup: boolean;
-  leaveAfter: number;
+    settings: {
+        mode: "TEAMS" | "ROUND_ROBIN";
+        competitive: boolean;
+        observable: boolean;
+        lfs: boolean;
+    };
+    gameModeId: number;
+    createGroup: boolean;
+    leaveAfter: number;
 }
 
 const mutationString = gql`
@@ -51,17 +51,15 @@ const mutationString = gql`
   }
 `;
 
-export const createLFSScrimMutation = async (
-  vars: CreateLFSScrimVariables,
-): Promise<CreateLFSScrimResponse> => {
-  console.log('Trying LFS mutation.');
-  const r = await client
-    .mutation<CreateLFSScrimResponse, CreateLFSScrimVariables>(mutationString, vars)
-    .toPromise();
-  if (r.data) {
-    currentScrim.invalidate();
-    console.log(`Got response: ${JSON.stringify(r.data)}`);
-    return r.data;
-  }
-  throw r.error as Error;
+export const createLFSScrimMutation = async (vars: CreateLFSScrimVariables): Promise<CreateLFSScrimResponse> => {
+    console.log("Trying LFS mutation.");
+    const r = await client
+        .mutation<CreateLFSScrimResponse, CreateLFSScrimVariables>(mutationString, vars)
+        .toPromise();
+    if (r.data) {
+        currentScrim.invalidate();
+        console.log(`Got response: ${JSON.stringify(r.data)}`);
+        return r.data;
+    }
+    throw r.error as Error;
 };

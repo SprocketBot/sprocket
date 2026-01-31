@@ -1,8 +1,8 @@
-import { ObjectType } from '@nestjs/graphql';
-import { Entity } from 'typeorm';
+import {ObjectType} from "@nestjs/graphql";
+import {Entity} from "typeorm";
 
-import { BaseModel } from '../../base-model';
+import {BaseModel} from "../../base-model";
 
-@Entity({ schema: 'sprocket' })
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class PermissionBearer extends BaseModel {}

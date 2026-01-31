@@ -1,16 +1,16 @@
-import { gql } from '@urql/core';
-import { client } from '../client';
+import {gql} from "@urql/core";
+import {client} from "../client";
 
 export interface ReportMemberPlatformAccountVariables {
-  userId: number;
-  organizationId: number;
-  tracker: string;
-  platform: string;
-  platformId: string;
+    userId: number;
+    organizationId: number;
+    tracker: string;
+    platform: string;
+    platformId: string;
 }
 
 export interface ReportMemberPlatformAccountResponse {
-  reportMemberPlatformAccount: string;
+    reportMemberPlatformAccount: string;
 }
 
 const mutationString = gql`
@@ -31,17 +31,15 @@ const mutationString = gql`
   }
 `;
 
-export const reportMemberPlatformAccountMutation = async (
-  vars: ReportMemberPlatformAccountVariables,
-): Promise<ReportMemberPlatformAccountResponse> => {
-  const r = await client
-    .mutation<ReportMemberPlatformAccountResponse, ReportMemberPlatformAccountVariables>(
-      mutationString,
-      vars,
+export const reportMemberPlatformAccountMutation = async (vars: ReportMemberPlatformAccountVariables): Promise<ReportMemberPlatformAccountResponse> => {
+    const r = await client
+        .mutation<ReportMemberPlatformAccountResponse, ReportMemberPlatformAccountVariables>(
+        mutationString,
+        vars,
     )
-    .toPromise();
-  if (r.data) {
-    return r.data;
-  }
-  throw r.error as Error;
+        .toPromise();
+    if (r.data) {
+        return r.data;
+    }
+    throw r.error as Error;
 };

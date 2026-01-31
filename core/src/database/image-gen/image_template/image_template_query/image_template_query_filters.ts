@@ -1,16 +1,16 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import {Field, ObjectType} from "@nestjs/graphql";
 
 @ObjectType()
 export class ImageTemplateQueryFilters {
-  @Field()
+    @Field()
   name: string;
 
-  @Field()
+    @Field()
   description: string;
 
-  @Field()
+    @Field()
   code: string;
 
-  @Field()
+    @Field()
   query: string;
 }

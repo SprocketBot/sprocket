@@ -1,1 +1,1 @@
-export { Permission } from './permissions.model';
+export {Permission} from "./permissions.model";

@@ -1,13 +1,13 @@
-import type { MLE_OrganizationTeam } from '../../../../database/mledb';
+import type {MLE_OrganizationTeam} from "../../../../database/mledb";
 
 export class AuthPayload {
-  sub: string;
+    sub: string;
 
-  username: string;
+    username: string;
 
-  userId: number;
+    userId: number;
 
-  currentOrganizationId?: number;
+    currentOrganizationId?: number;
 
-  orgTeams?: MLE_OrganizationTeam[];
+    orgTeams?: MLE_OrganizationTeam[];
 }

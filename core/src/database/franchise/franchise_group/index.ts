@@ -1,1 +1,1 @@
-export { FranchiseGroup } from './franchise_group.model';
+export {FranchiseGroup} from "./franchise_group.model";

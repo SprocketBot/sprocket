@@ -1,11 +1,11 @@
-import type { MLE_OrganizationTeam } from '../../../../database/mledb';
+import type {MLE_OrganizationTeam} from "../../../../database/mledb";
 
 export class UserPayload {
-  userId: number;
+    userId: number;
 
-  username: string;
+    username: string;
 
-  currentOrganizationId?: number;
+    currentOrganizationId?: number;
 
-  orgTeams?: MLE_OrganizationTeam[];
+    orgTeams?: MLE_OrganizationTeam[];
 }

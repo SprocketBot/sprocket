@@ -1,24 +1,22 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import {Injectable} from "@nestjs/common";
+import {InjectRepository} from "@nestjs/typeorm";
+import {Repository} from "typeorm";
 
-import { ScheduleGroupType } from '$db/scheduling/schedule_group_type/schedule_group_type.model';
+import {ScheduleGroupType} from "$db/scheduling/schedule_group_type/schedule_group_type.model";
 
 @Injectable()
 export class ScheduleGroupTypeService {
-  constructor(
-    @InjectRepository(ScheduleGroupType)
-    private readonly scheduleGroupTypeRepo: Repository<ScheduleGroupType>,
-  ) {}
+    constructor(@InjectRepository(ScheduleGroupType)
+    private readonly scheduleGroupTypeRepo: Repository<ScheduleGroupType>) {}
 
-  async getScheduleGroupTypesForOrg(orgId: number): Promise<ScheduleGroupType[]> {
-    return this.scheduleGroupTypeRepo.find({
-      where: {
-        organization: {
-          id: orgId,
-        },
-      },
-      relations: ['organization'],
-    });
-  }
+    async getScheduleGroupTypesForOrg(orgId: number): Promise<ScheduleGroupType[]> {
+        return this.scheduleGroupTypeRepo.find({
+            where: {
+                organization: {
+                    id: orgId,
+                },
+            },
+            relations: ["organization"],
+        });
+    }
 }

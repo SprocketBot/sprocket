@@ -1,1 +1,1 @@
-export * from './submission-management.resolver';
+export * from "./submission-management.resolver";

@@ -1,6 +1,6 @@
-import { z } from 'zod';
+import {z} from "zod";
 
-import { CompatibleSubmissionSchema } from './EnhancedSubmission.schema';
+import {CompatibleSubmissionSchema} from "./EnhancedSubmission.schema";
 
 export const GetAllSubmissions_Request = z.object({});
 

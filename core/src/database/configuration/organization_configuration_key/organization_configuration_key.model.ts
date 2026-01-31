@@ -1,33 +1,35 @@
-import { Field, ObjectType } from '@nestjs/graphql';
-import { Column, Entity, OneToMany } from 'typeorm';
-
-import { OrganizationConfigurationAllowedValue } from '$db/configuration/organization_configuration_allowed_value/organization_configuration_allowed_value.model';
-
-import { BaseModel } from '../../base-model';
+import {Field, ObjectType} from "@nestjs/graphql";
 import {
-  OrganizationConfigurationKeyCode,
-  OrganizationConfigurationKeyType,
-} from './organization_configuration_key.enum';
+    Column, Entity, OneToMany,
+} from "typeorm";
 
-@Entity({ schema: 'sprocket' })
+import {OrganizationConfigurationAllowedValue} from "$db/configuration/organization_configuration_allowed_value/organization_configuration_allowed_value.model";
+
+import {BaseModel} from "../../base-model";
+import {
+    OrganizationConfigurationKeyCode,
+    OrganizationConfigurationKeyType,
+} from "./organization_configuration_key.enum";
+
+@Entity({schema: "sprocket"})
 @ObjectType()
 export class OrganizationConfigurationKey extends BaseModel {
-  @Column({ type: 'enum', enum: OrganizationConfigurationKeyCode })
-  @Field(() => OrganizationConfigurationKeyCode)
+    @Column({type: "enum", enum: OrganizationConfigurationKeyCode})
+    @Field(() => OrganizationConfigurationKeyCode)
   code: OrganizationConfigurationKeyCode;
 
-  @Column()
-  @Field(() => String)
+    @Column()
+    @Field(() => String)
   default: string;
 
-  @OneToMany(() => OrganizationConfigurationAllowedValue, ocav => ocav.key)
-  @Field(() => [OrganizationConfigurationAllowedValue])
+    @OneToMany(() => OrganizationConfigurationAllowedValue, ocav => ocav.key)
+    @Field(() => [OrganizationConfigurationAllowedValue])
   allowedValues: OrganizationConfigurationAllowedValue[];
 
-  @Column({
-    type: 'enum',
-    enum: OrganizationConfigurationKeyType,
-  })
-  @Field(() => OrganizationConfigurationKeyType)
+    @Column({
+        type: "enum",
+        enum: OrganizationConfigurationKeyType,
+    })
+    @Field(() => OrganizationConfigurationKeyType)
   type: OrganizationConfigurationKeyType;
 }

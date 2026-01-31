@@ -1,10 +1,10 @@
-import { gql } from '@urql/core';
-import { client } from '../client';
+import {gql} from "@urql/core";
+import {client} from "../client";
 
 type SetScrimLockedResponse = boolean;
 
 interface SetScrimLockedVariables {
-  scrimId: string;
+    scrimId: string;
 }
 
 const lockScrimMutationString = gql`
@@ -19,32 +19,28 @@ const unlockScrimMutationString = gql`
   }
 `;
 
-export const lockScrimMutation = async (
-  vars: SetScrimLockedVariables,
-): Promise<SetScrimLockedResponse> => {
-  const r = await client
-    .mutation<{ lockScrim: SetScrimLockedResponse }, SetScrimLockedVariables>(
-      lockScrimMutationString,
-      vars,
+export const lockScrimMutation = async (vars: SetScrimLockedVariables): Promise<SetScrimLockedResponse> => {
+    const r = await client
+        .mutation<{lockScrim: SetScrimLockedResponse;}, SetScrimLockedVariables>(
+        lockScrimMutationString,
+        vars,
     )
-    .toPromise();
-  if (r.data) {
-    return r.data.lockScrim;
-  }
-  throw r.error as Error;
+        .toPromise();
+    if (r.data) {
+        return r.data.lockScrim;
+    }
+    throw r.error as Error;
 };
 
-export const unlockScrimMutation = async (
-  vars: SetScrimLockedVariables,
-): Promise<SetScrimLockedResponse> => {
-  const r = await client
-    .mutation<{ unlockScrim: SetScrimLockedResponse }, SetScrimLockedVariables>(
-      unlockScrimMutationString,
-      vars,
+export const unlockScrimMutation = async (vars: SetScrimLockedVariables): Promise<SetScrimLockedResponse> => {
+    const r = await client
+        .mutation<{unlockScrim: SetScrimLockedResponse;}, SetScrimLockedVariables>(
+        unlockScrimMutationString,
+        vars,
     )
-    .toPromise();
-  if (r.data) {
-    return r.data.unlockScrim;
-  }
-  throw r.error as Error;
+        .toPromise();
+    if (r.data) {
+        return r.data.unlockScrim;
+    }
+    throw r.error as Error;
 };

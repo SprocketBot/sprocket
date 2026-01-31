@@ -1,42 +1,42 @@
-import { Inject, UseGuards } from '@nestjs/common';
-import { Args, Int, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
-import type { Scrim as IScrim } from '@sprocketbot/common';
-import { PubSub } from 'apollo-server-express';
+import {Inject, UseGuards} from "@nestjs/common";
+import {
+    Args, Int, Mutation, Query, Resolver, Subscription,
+} from "@nestjs/graphql";
+import type {Scrim as IScrim} from "@sprocketbot/common";
+import {PubSub} from "apollo-server-express";
 
-import { MLE_OrganizationTeam } from '../../database/mledb/enums';
-import { GqlJwtGuard } from '../../identity/auth/gql-auth-guard';
-import { MLEOrganizationTeamGuard } from '../../mledb/mledb-player/mle-organization-team.guard';
-import { ScrimPubSub } from '../constants';
-import { ScrimService } from '../scrim.service';
-import { Scrim, ScrimEvent } from '../types';
+import {MLE_OrganizationTeam} from "../../database/mledb/enums";
+import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
+import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
+import {ScrimPubSub} from "../constants";
+import {ScrimService} from "../scrim.service";
+import {Scrim, ScrimEvent} from "../types";
 
 @Resolver()
 export class ScrimManagementResolver {
-  constructor(
-    private readonly scrimService: ScrimService,
+    constructor(
+        private readonly scrimService: ScrimService,
     @Inject(ScrimPubSub) private readonly pubSub: PubSub,
-  ) {}
+    ) {}
 
-  @Query(() => [Scrim])
-  async getActiveScrims(
-    @Args('skillGroupId', {
-      type: () => Int,
-      nullable: true,
+    @Query(() => [Scrim])
+    async getActiveScrims(@Args("skillGroupId", {
+        type: () => Int,
+        nullable: true,
     })
-    skillGroupId: number,
-  ): Promise<IScrim[]> {
-    return this.scrimService.getAllScrims(skillGroupId);
-  }
+    skillGroupId: number): Promise<IScrim[]> {
+        return this.scrimService.getAllScrims(skillGroupId);
+    }
 
-  @Mutation(() => Scrim)
-  @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
-  async cancelScrim(@Args('scrimId', { type: () => String }) scrimId: string): Promise<IScrim> {
-    return this.scrimService.cancelScrim(scrimId);
-  }
+    @Mutation(() => Scrim)
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    async cancelScrim(@Args("scrimId", {type: () => String}) scrimId: string): Promise<IScrim> {
+        return this.scrimService.cancelScrim(scrimId);
+    }
 
-  @Subscription(() => ScrimEvent)
-  async followActiveScrims(): Promise<AsyncIterator<ScrimEvent>> {
-    await this.scrimService.enableSubscription();
-    return this.pubSub.asyncIterator(this.scrimService.allActiveScrimsSubTopic);
-  }
+    @Subscription(() => ScrimEvent)
+    async followActiveScrims(): Promise<AsyncIterator<ScrimEvent>> {
+        await this.scrimService.enableSubscription();
+        return this.pubSub.asyncIterator(this.scrimService.allActiveScrimsSubTopic);
+    }
 }

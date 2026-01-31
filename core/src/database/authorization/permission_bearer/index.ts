@@ -1,1 +1,1 @@
-export { PermissionBearer } from './permission_bearer.model';
+export {PermissionBearer} from "./permission_bearer.model";
