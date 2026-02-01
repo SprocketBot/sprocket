@@ -71,6 +71,9 @@ export class FranchiseService {
         const team = await this.mledbPlayerService.getPlayerFranchise(playerId);
         const isCaptain = await this.mledbPlayerService.playerIsCaptain(playerId);
 
+        // Get the actual Sprocket franchise using the team name
+        const franchise = await this.getFranchiseByName(team.name);
+
         const staffPositions: Array<{id: number; name: string;}> = [];
 
         if (team.franchiseManagerId === playerId) {
@@ -91,7 +94,7 @@ export class FranchiseService {
 
         return [
             {
-                id: 0,
+                id: franchise.id,
                 name: team.name,
                 staffPositions: staffPositions,
             },
