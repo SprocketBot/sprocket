@@ -256,18 +256,20 @@ export class ReplaySubmissionCrudService {
             const franchiseResult = await this.coreService.send(CoreEndpoint.GetPlayerFranchises, {
                 memberId: playerId,
             });
-            let franchise: FranchiseInfo | undefined;
-            if (franchiseResult.status === ResponseStatus.SUCCESS && franchiseResult.data.length > 0) {
-                franchise = {
-                    id: franchiseResult.data[0].id,
-                    name: franchiseResult.data[0].name,
-                };
+
+            if (franchiseResult.status !== ResponseStatus.SUCCESS || !franchiseResult.data || franchiseResult.data.length === 0) {
+                throw new Error(`Unable to fetch franchise information for player ${playerId}. Ratification requires valid franchise data.`);
             }
+
+            const franchise: FranchiseInfo = {
+                id: franchiseResult.data[0].id,
+                name: franchiseResult.data[0].name,
+            };
 
             const ratifierInfo: RatifierInfo = {
                 playerId,
-                franchiseId: franchise?.id ?? 0,
-                franchiseName: franchise?.name ?? "Unknown",
+                franchiseId: franchise.id,
+                franchiseName: franchise.name,
                 ratifiedAt: new Date().toISOString(),
             };
 
