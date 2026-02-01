@@ -71,8 +71,17 @@ export class FranchiseService {
         const team = await this.mledbPlayerService.getPlayerFranchise(playerId);
         const isCaptain = await this.mledbPlayerService.playerIsCaptain(playerId);
 
-        // Get the actual Sprocket franchise using the team name
-        const franchise = await this.getFranchiseByName(team.name);
+        // Try to get the actual Sprocket franchise using the team name
+        let franchiseId: number;
+        try {
+            const franchise = await this.getFranchiseByName(team.name);
+            franchiseId = franchise.id;
+        } catch (error) {
+            // Log the error but don't fail - return empty array instead
+            // This can happen if the MLE team name doesn't match a Sprocket franchise
+            console.error(`Failed to find franchise for team "${team.name}" (player ${playerId}, member ${memberId}):`, error instanceof Error ? error.message : error);
+            return [];
+        }
 
         const staffPositions: Array<{id: number; name: string;}> = [];
 
@@ -94,7 +103,7 @@ export class FranchiseService {
 
         return [
             {
-                id: franchise.id,
+                id: franchiseId,
                 name: team.name,
                 staffPositions: staffPositions,
             },
