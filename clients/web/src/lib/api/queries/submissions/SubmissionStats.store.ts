@@ -4,11 +4,12 @@ import {QueryStore} from "../../core/QueryStore";
 export interface SubmissionStatsData {
     games: Array<{
         teams: Array<{
-            won: boolean;
-            score: number;
+            result?: "WIN" | "LOSS" | "DRAW" | "UNKNOWN";
+            score?: number;
+            stats?: Record<string, number>;
             players: Array<{
                 name: string;
-                goals: number;
+                stats?: Record<string, number>;
             }>;
         }>;
     }>;
@@ -24,11 +25,12 @@ export class SubmissionStatsStore extends QueryStore<SubmissionStatsData, Submis
       stats: getSubmissionStats(submissionId: $submissionId) {
         games {
           teams {
-            won
+            result
             score
+            stats
             players {
               name
-              goals
+              stats
             }
           }
         }

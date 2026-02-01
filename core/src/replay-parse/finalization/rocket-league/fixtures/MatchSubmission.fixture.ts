@@ -3310,30 +3310,32 @@ export const MATCH_SUBMISSION_FIXTURE_RATIFYING = {
             {
                 teams: [
                     {
-                        won: false,
+                        result: "LOSS",
                         score: 1,
+                        stats: {goals: 1},
                         players: [
                             {
                                 name: "Ca7.",
-                                goals: 1,
+                                stats: {goals: 1},
                             },
                             {
                                 name: "troubl.e.",
-                                goals: 0,
+                                stats: {goals: 0},
                             },
                         ],
                     },
                     {
-                        won: true,
+                        result: "WIN",
                         score: 5,
+                        stats: {goals: 5},
                         players: [
                             {
                                 name: "Zer0",
-                                goals: 3,
+                                stats: {goals: 3},
                             },
                             {
                                 name: "LooneyTunes",
-                                goals: 2,
+                                stats: {goals: 2},
                             },
                         ],
                     },
@@ -3342,30 +3344,32 @@ export const MATCH_SUBMISSION_FIXTURE_RATIFYING = {
             {
                 teams: [
                     {
-                        won: false,
+                        result: "LOSS",
                         score: 2,
+                        stats: {goals: 2},
                         players: [
                             {
                                 name: "troubl.e.",
-                                goals: 1,
+                                stats: {goals: 1},
                             },
                             {
                                 name: "Ca7.",
-                                goals: 1,
+                                stats: {goals: 1},
                             },
                         ],
                     },
                     {
-                        won: true,
+                        result: "WIN",
                         score: 7,
+                        stats: {goals: 7},
                         players: [
                             {
                                 name: "Zer0",
-                                goals: 4,
+                                stats: {goals: 4},
                             },
                             {
                                 name: "LooneyTunes",
-                                goals: 3,
+                                stats: {goals: 3},
                             },
                         ],
                     },
@@ -3374,30 +3378,32 @@ export const MATCH_SUBMISSION_FIXTURE_RATIFYING = {
             {
                 teams: [
                     {
-                        won: false,
+                        result: "LOSS",
                         score: 2,
+                        stats: {goals: 2},
                         players: [
                             {
                                 name: "troubl.e.",
-                                goals: 2,
+                                stats: {goals: 2},
                             },
                             {
                                 name: "Ca7.",
-                                goals: 0,
+                                stats: {goals: 0},
                             },
                         ],
                     },
                     {
-                        won: true,
+                        result: "WIN",
                         score: 4,
+                        stats: {goals: 4},
                         players: [
                             {
                                 name: "Zer0",
-                                goals: 4,
+                                stats: {goals: 4},
                             },
                             {
                                 name: "LooneyTunes",
-                                goals: 0,
+                                stats: {goals: 0},
                             },
                         ],
                     },
@@ -3406,30 +3412,32 @@ export const MATCH_SUBMISSION_FIXTURE_RATIFYING = {
             {
                 teams: [
                     {
-                        won: false,
+                        result: "LOSS",
                         score: 2,
+                        stats: {goals: 2},
                         players: [
                             {
                                 name: "troubl.e.",
-                                goals: 2,
+                                stats: {goals: 2},
                             },
                             {
                                 name: "Ca7.",
-                                goals: 0,
+                                stats: {goals: 0},
                             },
                         ],
                     },
                     {
-                        won: true,
+                        result: "WIN",
                         score: 3,
+                        stats: {goals: 3},
                         players: [
                             {
                                 name: "Zer0",
-                                goals: 2,
+                                stats: {goals: 2},
                             },
                             {
                                 name: "LooneyTunes",
-                                goals: 1,
+                                stats: {goals: 1},
                             },
                         ],
                     },
@@ -3438,30 +3446,32 @@ export const MATCH_SUBMISSION_FIXTURE_RATIFYING = {
             {
                 teams: [
                     {
-                        won: false,
+                        result: "LOSS",
                         score: 1,
+                        stats: {goals: 1},
                         players: [
                             {
                                 name: "Ca7.",
-                                goals: 1,
+                                stats: {goals: 1},
                             },
                             {
                                 name: "troubl.e.",
-                                goals: 0,
+                                stats: {goals: 0},
                             },
                         ],
                     },
                     {
-                        won: true,
+                        result: "WIN",
                         score: 4,
+                        stats: {goals: 4},
                         players: [
                             {
                                 name: "Zer0",
-                                goals: 3,
+                                stats: {goals: 3},
                             },
                             {
                                 name: "LooneyTunes",
-                                goals: 1,
+                                stats: {goals: 1},
                             },
                         ],
                     },

@@ -19,22 +19,29 @@ export class StatsConverterService {
             switch (parser) {
                 case Parser.BALLCHASING: {
                     // teams = [blue, orange]
-                    const blueWon = data.blue.stats.core.goals > data.orange.stats.core.goals;
+                    const blueGoals = data.blue.stats.core.goals;
+                    const orangeGoals = data.orange.stats.core.goals;
+                    const blueWon = blueGoals > orangeGoals;
+                    const orangeWon = orangeGoals > blueGoals;
+                    const blueResult = blueWon ? "WIN" : orangeWon ? "LOSS" : "DRAW";
+                    const orangeResult = orangeWon ? "WIN" : blueWon ? "LOSS" : "DRAW";
                     const teams = [
                         {
-                            won: blueWon,
-                            score: data.blue.stats.core.goals,
+                            result: blueResult,
+                            score: blueGoals,
+                            stats: {goals: blueGoals},
                             players: data.blue.players.map(p => ({
                                 name: p.name,
-                                goals: p.stats.core.goals,
+                                stats: {goals: p.stats.core.goals},
                             })),
                         },
                         {
-                            won: !blueWon,
-                            score: data.orange.stats.core.goals,
+                            result: orangeResult,
+                            score: orangeGoals,
+                            stats: {goals: orangeGoals},
                             players: data.orange.players.map(p => ({
                                 name: p.name,
-                                goals: p.stats.core.goals,
+                                stats: {goals: p.stats.core.goals},
                             })),
                         },
                     ];
@@ -49,22 +56,29 @@ export class StatsConverterService {
                     );
 
                     // teams = [blue, orange]
-                    const blueWon = ballchasingData.blue.stats.core.goals > ballchasingData.orange.stats.core.goals;
+                    const blueGoals = ballchasingData.blue.stats.core.goals;
+                    const orangeGoals = ballchasingData.orange.stats.core.goals;
+                    const blueWon = blueGoals > orangeGoals;
+                    const orangeWon = orangeGoals > blueGoals;
+                    const blueResult = blueWon ? "WIN" : orangeWon ? "LOSS" : "DRAW";
+                    const orangeResult = orangeWon ? "WIN" : blueWon ? "LOSS" : "DRAW";
                     const teams = [
                         {
-                            won: blueWon,
-                            score: ballchasingData.blue.stats.core.goals,
+                            result: blueResult,
+                            score: blueGoals,
+                            stats: {goals: blueGoals},
                             players: ballchasingData.blue.players.map(p => ({
                                 name: p.name,
-                                goals: p.stats.core.goals,
+                                stats: {goals: p.stats.core.goals},
                             })),
                         },
                         {
-                            won: !blueWon,
-                            score: ballchasingData.orange.stats.core.goals,
+                            result: orangeResult,
+                            score: orangeGoals,
+                            stats: {goals: orangeGoals},
                             players: ballchasingData.orange.players.map(p => ({
                                 name: p.name,
-                                goals: p.stats.core.goals,
+                                stats: {goals: p.stats.core.goals},
                             })),
                         },
                     ];

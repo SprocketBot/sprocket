@@ -43,11 +43,12 @@ export interface Submission {
     stats: {
         games: Array<{
             teams: Array<{
-                won: boolean;
-                score: number;
+                result?: "WIN" | "LOSS" | "DRAW" | "UNKNOWN";
+                score?: number;
+                stats?: Record<string, number>;
                 players: Array<{
                     name: string;
-                    goals: number;
+                    stats?: Record<string, number>;
                 }>;
             }>;
         }>;

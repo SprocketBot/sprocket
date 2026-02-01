@@ -1,14 +1,15 @@
 import {
     Field, Int, ObjectType,
 } from "@nestjs/graphql";
+import GraphQLJSON from "graphql-type-json";
 
 @ObjectType()
 export class ReplaySubmissionPlayer {
     @Field(() => String)
   name: string;
 
-    @Field(() => Int)
-  goals: number;
+    @Field(() => GraphQLJSON, {nullable: true})
+  stats?: Record<string, number>;
 }
 
 @ObjectType()
@@ -16,11 +17,14 @@ export class ReplaySubmissionTeam {
     @Field(() => [ReplaySubmissionPlayer])
   players: ReplaySubmissionPlayer[];
 
-    @Field(() => Boolean)
-  won: boolean;
+    @Field(() => String, {nullable: true})
+  result?: string;
 
-    @Field(() => Int)
-  score: number;
+    @Field(() => Int, {nullable: true})
+  score?: number;
+
+    @Field(() => GraphQLJSON, {nullable: true})
+  stats?: Record<string, number>;
 }
 
 @ObjectType()

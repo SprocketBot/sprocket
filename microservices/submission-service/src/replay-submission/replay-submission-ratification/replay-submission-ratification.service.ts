@@ -49,7 +49,7 @@ export class ReplaySubmissionRatificationService {
         });
     }
 
-    async ratifyScrim(playerId: number, submissionId: string): Promise<Boolean> {
+    async ratifyScrim(userId: number, submissionId: string): Promise<Boolean> {
         const submission = await this.crudService.getSubmission(submissionId);
         if (!submission) throw new Error("Submission not found");
         if (submission.status !== ReplaySubmissionStatus.RATIFYING) throw new Error("Submission is not ready for ratifications");
@@ -66,7 +66,7 @@ export class ReplaySubmissionRatificationService {
         }
 
         try {
-            await this.crudService.addRatifier(submissionId, playerId);
+            await this.crudService.addRatifier(submissionId, userId);
         } catch (error) {
             this.logger.error(`Failed to add ratifier: ${error}`);
             throw error;

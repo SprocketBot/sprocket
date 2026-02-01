@@ -21,6 +21,6 @@ export class FranchiseController {
     async getPlayerFranchises(@Payload() payload: unknown): Promise<CoreOutput<CoreEndpoint.GetPlayerFranchises>> {
         const data = CoreSchemas.GetPlayerFranchises.input.parse(payload);
 
-        return this.franchiseService.getPlayerFranchisesByMemberId(data.memberId);
+        return this.franchiseService.getPlayerFranchisesByMemberId(data.userId);
     }
 }

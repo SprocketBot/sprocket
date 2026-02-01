@@ -241,7 +241,7 @@ export class ReplaySubmissionCrudService {
         await this.redisService.setJsonField(key, "stats", stats);
     }
 
-    async addRatifier(submissionId: string, playerId: number): Promise<void> {
+    async addRatifier(submissionId: string, userId: number): Promise<void> {
         const submission = await this.getSubmission(submissionId);
         if (!submission) throw new Error("Submission not found");
 
@@ -256,7 +256,7 @@ export class ReplaySubmissionCrudService {
         if (this.isEnhanced(submission) && submission.type === ReplaySubmissionType.MATCH) {
             // Fetch franchise info for the player
             const franchiseResult = await this.coreService.send(CoreEndpoint.GetPlayerFranchises, {
-                memberId: playerId,
+                userId: userId,
             });
 
             if (franchiseResult.status !== ResponseStatus.SUCCESS || !franchiseResult.data || franchiseResult.data.length === 0) {

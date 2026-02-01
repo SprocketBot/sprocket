@@ -57,11 +57,12 @@ SubmissionStoreSubscriptionVariables
         stats {
           games {
             teams {
-              won
+              result
               score
+              stats
               players {
                 name
-                goals
+                stats
               }
             }
           }
@@ -107,11 +108,12 @@ SubmissionStoreSubscriptionVariables
         stats {
           games {
             teams {
-              won
+              result
               score
+              stats
               players {
                 name
-                goals
+                stats
               }
             }
           }

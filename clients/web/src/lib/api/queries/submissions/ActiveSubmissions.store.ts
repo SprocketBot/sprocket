@@ -67,11 +67,12 @@ ActiveSubmissionsStoreVariables
         stats {
           games {
             teams {
-              won
+              result
               score
+              stats
               players {
                 name
-                goals
+                stats
               }
             }
           }

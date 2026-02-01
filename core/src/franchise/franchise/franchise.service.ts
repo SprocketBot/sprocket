@@ -61,9 +61,7 @@ export class FranchiseService {
         });
     }
 
-    async getPlayerFranchisesByMemberId(memberId: number): Promise<CoreOutput<CoreEndpoint.GetPlayerFranchises>> {
-        const member = await this.sprocketMemberService.getMemberById(memberId);
-        const {userId} = member;
+    async getPlayerFranchisesByMemberId(userId: number): Promise<CoreOutput<CoreEndpoint.GetPlayerFranchises>> {
         const mlePlayer = await this.mledbPlayerService.getMlePlayerBySprocketUser(userId);
 
         const playerId = mlePlayer.id;

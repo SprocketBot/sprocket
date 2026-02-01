@@ -19,6 +19,11 @@
     let targetScrim: CurrentScrim | undefined;
     $: targetScrim = activeScrimsData?.find(s => s.id === targetId);
 
+    // Close modal when scrim is no longer available (e.g., after cancellation)
+    $: if (scrimManagementModalVisible && targetId && !targetScrim) {
+        scrimManagementModalVisible = false;
+    }
+
     let selectedPlayer: string | undefined;
 
     const selectPlayerInTable = (playerId: string) => {
@@ -82,7 +87,7 @@
     </tbody>
   </table>
 </div>
-{#if scrimManagementModalVisible}
+{#if scrimManagementModalVisible && targetScrim}
   <ScrimManagementModal
     bind:visible={scrimManagementModalVisible}
     bind:targetScrim
