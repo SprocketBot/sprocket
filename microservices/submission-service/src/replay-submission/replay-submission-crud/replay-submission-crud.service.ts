@@ -251,7 +251,9 @@ export class ReplaySubmissionCrudService {
         const playerIds = this.getPlayerIdsFromRatifiers(ratifiers);
         if (playerIds.includes(playerId)) return;
 
-        if (this.isEnhanced(submission)) {
+        // Only use enhanced franchise validation for MATCH submissions
+        // Scrims and LFS only need to verify the player participated (handled by caller)
+        if (this.isEnhanced(submission) && submission.type === ReplaySubmissionType.MATCH) {
             // Fetch franchise info for the player
             const franchiseResult = await this.coreService.send(CoreEndpoint.GetPlayerFranchises, {
                 memberId: playerId,
