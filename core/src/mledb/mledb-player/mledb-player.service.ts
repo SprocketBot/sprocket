@@ -94,6 +94,22 @@ export class MledbPlayerService {
         return ttc.length > 0;
     }
 
+    /**
+     * Get all teams where the player holds a staff position (FM, GM, AGM)
+     * Used for non-playing staff members (team FP/FA) to determine franchise access
+     */
+    async getTeamsWherePlayerIsStaff(playerId: number): Promise<MLE_Team[]> {
+        const teams = await this.teamRepo.find({
+            where: [
+                {franchiseManagerId: playerId},
+                {generalManagerId: playerId},
+                {doublesAssistantGeneralManagerId: playerId},
+                {standardAssistantGeneralManagerId: playerId},
+            ],
+        });
+        return teams;
+    }
+
     async getSprocketUserByPlatformInformation(
         platform: MLE_Platform,
         platformId: string,

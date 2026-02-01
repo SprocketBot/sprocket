@@ -69,6 +69,52 @@ export class FranchiseService {
         const playerId = mlePlayer.id;
 
         const team = await this.mledbPlayerService.getPlayerFranchise(playerId);
+
+        // Check if this is a non-playing staff member (FP = Free Agent Pool, FA = Free Agent)
+        if (team.name === "FP" || team.name === "FA") {
+            // Get all teams where this player holds a staff position
+            const staffTeams = await this.mledbPlayerService.getTeamsWherePlayerIsStaff(playerId);
+
+            if (staffTeams.length === 0) {
+                console.error(`Player ${playerId} (member ${memberId}) has team "${team.name}" but no staff assignments found`);
+                return [];
+            }
+
+            // Map each staff team to a franchise response
+            const franchises: CoreOutput<CoreEndpoint.GetPlayerFranchises> = [];
+            for (const staffTeam of staffTeams) {
+                try {
+                    const franchise = await this.getFranchiseByName(staffTeam.name);
+
+                    const staffPositions: Array<{id: number; name: string;}> = [];
+                    if (staffTeam.franchiseManagerId === playerId) {
+                        staffPositions.push({id: 0, name: "FM"});
+                    }
+                    if (staffTeam.generalManagerId === playerId) {
+                        staffPositions.push({id: 0, name: "GM"});
+                    }
+                    if (
+                        staffTeam.doublesAssistantGeneralManagerId === playerId
+                        || staffTeam.standardAssistantGeneralManagerId === playerId
+                    ) {
+                        staffPositions.push({id: 0, name: "AGM"});
+                    }
+
+                    franchises.push({
+                        id: franchise.id,
+                        name: staffTeam.name,
+                        staffPositions: staffPositions,
+                    });
+                } catch (error) {
+                    console.error(`Failed to find franchise for staff team "${staffTeam.name}" (player ${playerId}, member ${memberId}):`, error instanceof Error ? error.message : error);
+                    // Continue to next team instead of failing completely
+                }
+            }
+
+            return franchises;
+        }
+
+        // Regular player - return their playing franchise
         const isCaptain = await this.mledbPlayerService.playerIsCaptain(playerId);
 
         // Try to get the actual Sprocket franchise using the team name
