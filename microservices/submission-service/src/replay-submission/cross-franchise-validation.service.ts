@@ -29,7 +29,14 @@ export class CrossFranchiseValidationService {
         submission: EnhancedReplaySubmission,
         playerId: number,
     ): Promise<CrossFranchiseValidationError | null> {
-    // 1. Get player's franchise information
+        // For SCRIM and LFS, skip franchise validation entirely
+        // Only verify that the player participated (handled by the caller)
+        if (submission.type !== ReplaySubmissionType.MATCH) {
+            return null;
+        }
+
+        // MATCH submissions require franchise validation
+        // 1. Get player's franchise information
         const playerFranchises = await this.getPlayerFranchises(playerId);
 
         if (playerFranchises.length === 0) {
@@ -44,14 +51,8 @@ export class CrossFranchiseValidationService {
             };
         }
 
-        // 2. Apply validation logic based on submission type
-        if (submission.type === ReplaySubmissionType.MATCH) {
-            return this.validateMatchRatification(submission, playerId, playerFranchises);
-        }
-
-        // For SCRIM and LFS, we currently allow any ratification as long as they are in the scrim
-        // (which is handled by the caller), but we could add more logic here if needed.
-        return null;
+        // 2. Apply match-specific validation logic
+        return this.validateMatchRatification(submission, playerId, playerFranchises);
     }
 
     /**
