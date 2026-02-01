@@ -261,10 +261,36 @@ export class ReplaySubmissionCrudService {
                 throw new Error(`Unable to fetch franchise information for player ${playerId}. Ratification requires valid franchise data.`);
             }
 
-            const franchise: FranchiseInfo = {
-                id: franchiseResult.data[0].id,
-                name: franchiseResult.data[0].name,
-            };
+            const playerFranchises = franchiseResult.data;
+
+            // For MATCH submissions, match the player's franchise to one involved in the match
+            // This prevents issues where staff with multiple franchises (e.g., "FP" + real franchise)
+            // would use the wrong franchise and block other staff from ratifying
+            let franchise: FranchiseInfo;
+            if (submission.franchiseValidation?.homeFranchiseId || submission.franchiseValidation?.awayFranchiseId) {
+                const matchFranchiseIds = [
+                    submission.franchiseValidation.homeFranchiseId,
+                    submission.franchiseValidation.awayFranchiseId,
+                ].filter((id): id is number => id !== undefined);
+
+                // Find which of the player's franchises is involved in this match
+                const matchingFranchise = playerFranchises.find(pf => matchFranchiseIds.includes(pf.id));
+
+                if (!matchingFranchise) {
+                    throw new Error(`Player ${playerId} is not affiliated with any franchise involved in this match (match franchises: ${matchFranchiseIds.join(", ")}, player franchises: ${playerFranchises.map(f => f.id).join(", ")})`);
+                }
+
+                franchise = {
+                    id: matchingFranchise.id,
+                    name: matchingFranchise.name,
+                };
+            } else {
+                // Non-match submissions or missing franchise validation - use first franchise
+                franchise = {
+                    id: playerFranchises[0].id,
+                    name: playerFranchises[0].name,
+                };
+            }
 
             // Validate franchiseId - 0 is invalid and indicates a data issue
             if (franchise.id === 0) {
