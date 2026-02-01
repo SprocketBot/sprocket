@@ -109,7 +109,7 @@ export class SubmissionMigrationService {
 
     private async getFranchiseInfo(playerId: number): Promise<FranchiseInfo | undefined> {
         const result = await this.coreService.send(CoreEndpoint.GetPlayerFranchises, {
-            memberId: playerId,
+            userId: playerId,
         });
         if (result.status === ResponseStatus.SUCCESS && result.data.length > 0) {
             return {
