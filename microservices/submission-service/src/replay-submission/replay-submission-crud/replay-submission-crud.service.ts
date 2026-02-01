@@ -266,6 +266,11 @@ export class ReplaySubmissionCrudService {
                 name: franchiseResult.data[0].name,
             };
 
+            // Validate franchiseId - 0 is invalid and indicates a data issue
+            if (franchise.id === 0) {
+                throw new Error(`Invalid franchise ID (0) returned for player ${playerId} in franchise "${franchise.name}". This indicates a core service data issue.`);
+            }
+
             const ratifierInfo: RatifierInfo = {
                 playerId,
                 franchiseId: franchise.id,
