@@ -27,7 +27,7 @@ export class StatsConverterService {
                     const orangeResult = orangeWon ? "WIN" : blueWon ? "LOSS" : "DRAW";
                     const teams = [
                         {
-                            result: blueResult,
+                            won: blueResult,
                             score: blueGoals,
                             stats: {goals: blueGoals},
                             players: data.blue.players.map(p => ({
@@ -36,7 +36,7 @@ export class StatsConverterService {
                             })),
                         },
                         {
-                            result: orangeResult,
+                            won: orangeResult,
                             score: orangeGoals,
                             stats: {goals: orangeGoals},
                             players: data.orange.players.map(p => ({
@@ -64,7 +64,7 @@ export class StatsConverterService {
                     const orangeResult = orangeWon ? "WIN" : blueWon ? "LOSS" : "DRAW";
                     const teams = [
                         {
-                            result: blueResult,
+                            won: blueResult,
                             score: blueGoals,
                             stats: {goals: blueGoals},
                             players: ballchasingData.blue.players.map(p => ({
@@ -73,7 +73,7 @@ export class StatsConverterService {
                             })),
                         },
                         {
-                            result: orangeResult,
+                            won: orangeResult,
                             score: orangeGoals,
                             stats: {goals: orangeGoals},
                             players: ballchasingData.orange.players.map(p => ({

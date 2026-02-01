@@ -107,7 +107,7 @@ export class CrossFranchiseValidationService {
     private async getPlayerFranchises(playerId: number): Promise<FranchiseInfo[]> {
         try {
             const result = await this.coreService.send(CoreEndpoint.GetPlayerFranchises, {
-                memberId: playerId,
+                userId: playerId,
             });
             if (result.status === ResponseStatus.SUCCESS) {
                 return result.data.map(f => ({

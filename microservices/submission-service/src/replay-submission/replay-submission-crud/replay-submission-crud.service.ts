@@ -249,7 +249,7 @@ export class ReplaySubmissionCrudService {
 
         // Check if player has already ratified
         const playerIds = this.getPlayerIdsFromRatifiers(ratifiers);
-        if (playerIds.includes(playerId)) return;
+        if (playerIds.includes(userId)) return;
 
         // Only use enhanced franchise validation for MATCH submissions
         // Scrims and LFS only need to verify the player participated (handled by caller)
@@ -260,7 +260,7 @@ export class ReplaySubmissionCrudService {
             });
 
             if (franchiseResult.status !== ResponseStatus.SUCCESS || !franchiseResult.data || franchiseResult.data.length === 0) {
-                throw new Error(`Unable to fetch franchise information for player ${playerId}. Ratification requires valid franchise data.`);
+                throw new Error(`Unable to fetch franchise information for player ${userId}. Ratification requires valid franchise data.`);
             }
 
             const playerFranchises = franchiseResult.data;
@@ -279,7 +279,7 @@ export class ReplaySubmissionCrudService {
                 const matchingFranchise = playerFranchises.find(pf => matchFranchiseIds.includes(pf.id));
 
                 if (!matchingFranchise) {
-                    throw new Error(`Player ${playerId} is not affiliated with any franchise involved in this match (match franchises: ${matchFranchiseIds.join(", ")}, player franchises: ${playerFranchises.map(f => f.id).join(", ")})`);
+                    throw new Error(`Player ${userId} is not affiliated with any franchise involved in this match (match franchises: ${matchFranchiseIds.join(", ")}, player franchises: ${playerFranchises.map(f => f.id).join(", ")})`);
                 }
 
                 franchise = {
@@ -296,11 +296,11 @@ export class ReplaySubmissionCrudService {
 
             // Validate franchiseId - 0 is invalid and indicates a data issue
             if (franchise.id === 0) {
-                throw new Error(`Invalid franchise ID (0) returned for player ${playerId} in franchise "${franchise.name}". This indicates a core service data issue.`);
+                throw new Error(`Invalid franchise ID (0) returned for player ${userId} in franchise "${franchise.name}". This indicates a core service data issue.`);
             }
 
             const ratifierInfo: RatifierInfo = {
-                playerId,
+                playerId: userId,
                 franchiseId: franchise.id,
                 franchiseName: franchise.name,
                 ratifiedAt: new Date().toISOString(),
@@ -324,7 +324,7 @@ export class ReplaySubmissionCrudService {
             await this.redisService.appendToJsonArray(
                 getSubmissionKey(submissionId),
                 "ratifiers",
-                playerId,
+                userId,
             );
         }
     }

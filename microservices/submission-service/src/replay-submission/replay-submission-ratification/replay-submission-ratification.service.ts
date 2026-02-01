@@ -58,7 +58,7 @@ export class ReplaySubmissionRatificationService {
         if (this.isEnhanced(submission)) {
             const validationError = await this.validationService.validateRatification(
                 submission as unknown as EnhancedReplaySubmission,
-                playerId,
+                userId,
             );
             if (validationError) {
                 throw new Error(validationError.message);
