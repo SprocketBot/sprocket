@@ -70,7 +70,7 @@ export class FranchiseService {
 
         // Check if this is a non-playing staff member (FP = Free Agent Pool, FA = Free Agent)
         if (team.name === "FP" || team.name === "FA") {
-            return this.getFranchisesFromStaffAssignments(playerId, memberId);
+            return this.getFranchisesFromStaffAssignments(playerId, userId);
         }
 
         // Regular player - try to get their playing franchise
@@ -107,8 +107,8 @@ export class FranchiseService {
             ];
         } catch (error) {
             // FALLBACK: If we can't find their franchise by team name, check staff assignments
-            console.error(`Failed to find franchise for team "${team.name}" (player ${playerId}, member ${memberId}). Checking staff assignments as fallback:`, error instanceof Error ? error.message : error);
-            return this.getFranchisesFromStaffAssignments(playerId, memberId);
+            console.error(`Failed to find franchise for team "${team.name}" (player ${playerId}, member ${userId}). Checking staff assignments as fallback:`, error instanceof Error ? error.message : error);
+            return this.getFranchisesFromStaffAssignments(playerId, userId);
         }
     }
 
