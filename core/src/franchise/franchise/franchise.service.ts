@@ -68,8 +68,8 @@ export class FranchiseService {
 
         const team = await this.mledbPlayerService.getPlayerFranchise(playerId);
 
-        // Check if this is a non-playing staff member (FP = Free Agent Pool, FA = Free Agent)
-        if (team.name === "FP" || team.name === "FA") {
+        // Check if this is a non-playing staff member (FP = Former Player, FA = Free Agent)
+        if (team.name === "FP" || team.name === "FA" || team.name === "Pend") {
             return this.getFranchisesFromStaffAssignments(playerId, userId);
         }
 
