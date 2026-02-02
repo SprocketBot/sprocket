@@ -61,9 +61,10 @@
                         <div class="bg-base-100/30 px-4 py-1 h-8 leading-6 rounded-lg w-full flex justify-between min-w-0">
                             <span class:text-left={showResult} class="flex-1 text-ellipsis min-w-0 overflow-hidden whitespace-nowrap">{player.name}</span>
                             {#if showResult}
-                                {#if getPrimaryStat(player.stats)}
+                                {@const stat = getPrimaryStat(player.stats)}
+                                {#if stat}
                                     <span class="font-bold text-ellipsis text-right">
-                                        {getPrimaryStat(player.stats)!.value} {getPrimaryStat(player.stats)!.label}
+                                        {stat.value} {stat.label}
                                     </span>
                                 {/if}
                             {/if}
