@@ -23,8 +23,8 @@ export class StatsConverterService {
                     const orangeGoals = data.orange.stats.core.goals;
                     const blueWon = blueGoals > orangeGoals;
                     const orangeWon = orangeGoals > blueGoals;
-                    const blueResult = blueWon ? "WIN" : orangeWon ? "LOSS" : "DRAW";
-                    const orangeResult = orangeWon ? "WIN" : blueWon ? "LOSS" : "DRAW";
+                    const blueResult: "WIN" | "LOSS" | "DRAW" = blueWon ? "WIN" : orangeWon ? "LOSS" : "DRAW";
+                    const orangeResult: "WIN" | "LOSS" | "DRAW" = orangeWon ? "WIN" : blueWon ? "LOSS" : "DRAW";
                     const teams = [
                         {
                             result: blueResult,
@@ -60,8 +60,8 @@ export class StatsConverterService {
                     const orangeGoals = ballchasingData.orange.stats.core.goals;
                     const blueWon = blueGoals > orangeGoals;
                     const orangeWon = orangeGoals > blueGoals;
-                    const blueResult = blueWon ? "WIN" : orangeWon ? "LOSS" : "DRAW";
-                    const orangeResult = orangeWon ? "WIN" : blueWon ? "LOSS" : "DRAW";
+                    const blueResult: "WIN" | "LOSS" | "DRAW" = blueWon ? "WIN" : orangeWon ? "LOSS" : "DRAW";
+                    const orangeResult: "WIN" | "LOSS" | "DRAW" = orangeWon ? "WIN" : blueWon ? "LOSS" : "DRAW";
                     const teams = [
                         {
                             result: blueResult,
