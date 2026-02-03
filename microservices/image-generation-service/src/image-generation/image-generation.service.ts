@@ -7,7 +7,7 @@ import {
     existsSync, mkdirSync, writeFileSync,
 } from "fs";
 import {JSDOM} from "jsdom";
-import * as sharp from "sharp";
+import sharp from "sharp";
 
 import {SvgTransformationService} from "./svg-transformation/svg-transformation.service";
 

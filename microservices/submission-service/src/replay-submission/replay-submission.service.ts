@@ -196,7 +196,7 @@ export class ReplaySubmissionService {
             await this.ratificationService.rejectSubmission(
                 REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
                 submissionId,
-                valid.errors.map(e => e.error),
+                (valid as {valid: false; errors: Array<{error: string}>}).errors.map(e => e.error),
             );
             return;
         }

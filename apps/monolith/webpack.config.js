@@ -1,5 +1,5 @@
 module.exports = function (options, webpack) {
-    return {
+    const config = {
         ...options,
         externals: [
             // Externalize optional microservice transport dependencies
@@ -24,6 +24,10 @@ module.exports = function (options, webpack) {
             'subscriptions-transport-ws',
             'pg-native',
             'discord-api-types',
+            '@apollo/federation',
+            '@apollo/federation/dist/directives',
+            '@nestjs/websockets/socket-module',
+            'ts-morph',
         ],
         module: {
             ...options.module,
@@ -35,5 +39,19 @@ module.exports = function (options, webpack) {
                 },
             ],
         },
+        ignoreWarnings: [
+            {
+                module: /node_modules\/@nestjs/,
+            },
+        ],
     };
+
+    // Suppress optional dependency errors
+    config.stats = {
+        ...config.stats,
+        errorDetails: false,
+        warnings: false,
+    };
+
+    return config;
 };
