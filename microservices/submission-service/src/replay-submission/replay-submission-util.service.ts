@@ -89,7 +89,7 @@ export class ReplaySubmissionUtilService {
             const {homeFranchise, awayFranchise} = match;
 
             const franchiseResult = await this.coreService.send(CoreEndpoint.GetPlayerFranchises, {
-                userId: memberId,
+                userId: userId,
             });
             if (franchiseResult.status === ResponseStatus.ERROR) throw franchiseResult.error;
             const franchises = franchiseResult.data;
