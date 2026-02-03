@@ -1,33 +1,50 @@
 module.exports = function (options, webpack) {
     const config = {
         ...options,
+        target: 'node',
+        node: {
+            __dirname: false,
+            __filename: false,
+        },
         externals: [
-            // Externalize optional microservice transport dependencies
-            '@grpc/grpc-js',
-            '@grpc/proto-loader',
-            'kafkajs',
-            'mqtt',
-            'nats',
-            'ioredis',
-            // Externalize native modules and optional dependencies
-            'canvas',
-            'sharp',
-            'class-transformer/storage',
-            'apollo-server-fastify',
-            'fastify',
-            'point-of-view',
-            'apollo-server-cache-memcached',
-            'chokidar',
-            'graphql-tools',
-            '@apollo/gateway',
-            'graphql-redis-subscriptions',
-            'subscriptions-transport-ws',
-            'pg-native',
-            'discord-api-types',
-            '@apollo/federation',
-            '@apollo/federation/dist/directives',
-            '@nestjs/websockets/socket-module',
-            'ts-morph',
+            // Function to handle externals properly
+            function ({ request }, callback) {
+                const externals = [
+                    '@grpc/grpc-js',
+                    '@grpc/proto-loader',
+                    'kafkajs',
+                    'mqtt',
+                    'nats',
+                    'ioredis',
+                    'canvas',
+                    'sharp',
+                    'class-transformer/storage',
+                    'apollo-server-fastify',
+                    'fastify',
+                    'point-of-view',
+                    'apollo-server-cache-memcached',
+                    'chokidar',
+                    'graphql-tools',
+                    '@apollo/gateway',
+                    '@apollo/federation',
+                    'graphql-redis-subscriptions',
+                    'subscriptions-transport-ws',
+                    'pg-native',
+                    'discord-api-types',
+                    'ts-morph',
+                    'erlpack',
+                    'zlib-sync',
+                    'utf-8-validate',
+                    'bufferutil',
+                ];
+
+                // Check if request matches any external
+                if (externals.some(ext => request === ext || request.startsWith(ext + '/'))) {
+                    return callback(null, 'commonjs ' + request);
+                }
+
+                callback();
+            },
         ],
         module: {
             ...options.module,

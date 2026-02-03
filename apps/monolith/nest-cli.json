@@ -2,8 +2,7 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
   "compilerOptions": {
-    "webpack": true,
-    "tsConfigPath": "tsconfig.json",
-    "webpackConfigPath": "webpack.config.js"
+    "webpack": false,
+    "tsConfigPath": "tsconfig.json"
   }
 }

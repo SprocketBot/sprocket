@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "description": "Consolidated monolith application - all 7 NestJS services in a single process",
   "scripts": {
-    "start": "nest start",
+    "start": "node dist/apps/monolith/src/main",
     "build": "nest build",
     "clean": "rimraf dist",
     "dev": "nest start --watch",
     "debug": "nest start --watch --debug",
-    "start:prod": "node dist/main"
+    "start:prod": "node dist/apps/monolith/src/main"
   },
   "dependencies": {
     "@nestjs/bull": "^0.6.3",

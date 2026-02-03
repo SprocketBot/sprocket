@@ -10,7 +10,7 @@
     "sourceMap": true,
     "noImplicitAny": false,
     "skipLibCheck": true,
-    "outDir": "../../dist/apps/monolith",
+    "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
     "moduleResolution": "node",

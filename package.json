@@ -53,6 +53,8 @@
     "*.js": "eslint --fix"
   },
   "dependencies": {
+    "@nestjs/platform-socket.io": "^8.4.7",
+    "@nestjs/websockets": "^8.4.7",
     "@types/node-fetch": "^2.6.13",
     "formdata-node": "^6.0.3",
     "graphql-request": "^7.4.0",
