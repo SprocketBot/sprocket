@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": false,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "es2020",
+    "sourceMap": true,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "outDir": "../../dist/apps/monolith",
+    "baseUrl": "./",
+    "incremental": true,
+    "moduleResolution": "node",
+    "lib": ["es2020", "esnext.asynciterable"],
+    "strictNullChecks": false,
+    "strictFunctionTypes": false,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "esModuleInterop": true,
+    "paths": {
+      "$db/*": ["../../core/src/database/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
+}
