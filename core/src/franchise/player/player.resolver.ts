@@ -107,7 +107,7 @@ export class PlayerResolver {
         if (!player.member) player.member = await this.popService.populateOneOrFail(Player, player, "member");
         if (!player.member.user) player.member.user = await this.popService.populateOneOrFail(Member, player.member, "user");
 
-        const franchiseResult = await this.franchiseService.getPlayerFranchisesByMemberId(player.member.id);
+        const franchiseResult = await this.franchiseService.getPlayerFranchisesByUserId(player.member.user.id);
         // Because we are using MLEDB right now; assume that we only have one
         return franchiseResult[0].name;
     }
@@ -119,8 +119,9 @@ export class PlayerResolver {
         if (!player.member) {
             player.member = await this.popService.populateOneOrFail(Player, player, "member");
         }
-
-        const franchiseResult = await this.franchiseService.getPlayerFranchisesByMemberId(player.member.id);
+        if (!player.member.user) player.member.user = await this.popService.populateOneOrFail(Member, player.member, "user");
+        
+        const franchiseResult = await this.franchiseService.getPlayerFranchisesByUserId(player.member.user.id);
         // Because we are using MLEDB right now; assume that we only have one
         return franchiseResult[0].staffPositions.map(sp => sp.name);
     }
