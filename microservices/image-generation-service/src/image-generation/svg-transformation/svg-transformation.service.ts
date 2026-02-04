@@ -1,7 +1,7 @@
 import {Injectable, Logger} from "@nestjs/common";
 import type {DataLeaf, TemplateStructure} from "@sprocketbot/common";
 import axios from "axios";
-import * as sharp from "sharp";
+import sharp from "sharp";
 
 import type {
     Dimension,
@@ -114,7 +114,7 @@ export class SvgTransformationService {
         } else if (target.nodeName === "rect") {
             // Create new image element
             const newImage = target.ownerDocument.createElement("image");
-            for (const attr of target.attributes) {
+            for (const attr of Array.from(target.attributes)) {
                 newImage.setAttribute(attr.name, attr.value);
             }
             newImage.setAttribute("xlink:href", image);

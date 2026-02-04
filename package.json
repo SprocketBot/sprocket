@@ -14,6 +14,9 @@
     "postinstall": "npm run build:common",
     "build": "npm run build --workspaces --if-available",
     "build:common": "npm run build --workspace=common",
+    "build:monolith": "npm run build --workspace=apps/monolith",
+    "start:monolith": "npm run start --workspace=apps/monolith",
+    "dev:monolith": "npm run dev --workspace=apps/monolith",
     "clean": "npm run clean --workspaces --if-available",
     "lint": "npm run lint --workspaces --if-available",
     "format": "prettier --write ."
@@ -21,6 +24,7 @@
   "workspaces": [
     "common",
     "core",
+    "apps/monolith",
     "clients/web",
     "clients/discord-bot",
     "clients/image-generation-frontend",
@@ -49,6 +53,8 @@
     "*.js": "eslint --fix"
   },
   "dependencies": {
+    "@nestjs/platform-socket.io": "^8.4.7",
+    "@nestjs/websockets": "^8.4.7",
     "@types/node-fetch": "^2.6.13",
     "formdata-node": "^6.0.3",
     "graphql-request": "^7.4.0",

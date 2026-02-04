@@ -1,7 +1,16 @@
 import {
-    Field, Int, ObjectType,
+    Field, Int, ObjectType, registerEnumType,
 } from "@nestjs/graphql";
 import GraphQLJSON from "graphql-type-json";
+
+export enum ReplaySubmissionTeamResult {
+    WIN = "WIN",
+    LOSS = "LOSS",
+    DRAW = "DRAW",
+    UNKNOWN = "UNKNOWN",
+}
+
+registerEnumType(ReplaySubmissionTeamResult, {name: "ReplaySubmissionTeamResult"});
 
 @ObjectType()
 export class ReplaySubmissionPlayer {
@@ -17,8 +26,8 @@ export class ReplaySubmissionTeam {
     @Field(() => [ReplaySubmissionPlayer])
   players: ReplaySubmissionPlayer[];
 
-    @Field(() => String, {nullable: true})
-  result?: string;
+    @Field(() => ReplaySubmissionTeamResult, {nullable: true})
+  result?: ReplaySubmissionTeamResult;
 
     @Field(() => Int, {nullable: true})
   score?: number;
