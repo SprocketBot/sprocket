@@ -26,7 +26,7 @@ const expireRestriction = async () => {
 };
 </script>
 
-<Modal title="Expire Queue Ban Restriction" bind:visible id="expire-restriction-modal">
+<Modal title="Expire Queue Ban Restriction" bind:visible id="expire-restriction-modal" size="lg">
     <section slot="body">
         <div class="form-control w-full">
             <label class="label">

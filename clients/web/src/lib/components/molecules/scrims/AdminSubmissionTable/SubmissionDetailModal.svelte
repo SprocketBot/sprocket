@@ -164,7 +164,7 @@
 </script>
 
 
-<Modal title="Submission Detail" bind:visible id="submission-detail-modal">
+<Modal title="Submission Detail" bind:visible id="submission-detail-modal" size="xl">
     <div slot="body">
         {#if mismatchDetails}
             <div class="alert bg-warning text-warning-content shadow-lg mb-4">
