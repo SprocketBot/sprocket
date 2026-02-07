@@ -67,6 +67,8 @@
     const startLink = (acc: UnreportedAccount) => {
         linkingAccount = acc;
         linkUserId = undefined;
+        const trnUrl = getTrnUrl(acc.platform, acc.id);
+        linkTracker = trnUrl || "TRN";
     };
 
     const cancelLink = () => {

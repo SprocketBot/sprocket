@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {FindManyOptions, FindOneOptions} from "typeorm";
-import {Repository} from "typeorm";
+import {EntityManager, Repository} from "typeorm";
 
 import type {Member} from "$db/organization/member/member.model";
 import {MemberPlatformAccount} from "$db/organization/member_platform_account/member_platform_account.model";
@@ -32,15 +32,17 @@ export class MemberPlatformAccountService {
         member: Member,
         platformId: number,
         platformAccountId: string,
+        manager?: EntityManager,
     ): Promise<MemberPlatformAccount> {
-        const platform = await this.platformService.getPlatformById(platformId);
-        const memberPlatformAccount = this.memberPlatformAccountRepository.create({
+        const platform = await this.platformService.getPlatformById(platformId, manager);
+        const repo = manager ? manager.getRepository(MemberPlatformAccount) : this.memberPlatformAccountRepository;
+        const memberPlatformAccount = repo.create({
             member,
             platform,
             platformAccountId,
         });
 
-        await this.memberPlatformAccountRepository.save(memberPlatformAccount);
+        await repo.save(memberPlatformAccount);
 
         return memberPlatformAccount;
     }
