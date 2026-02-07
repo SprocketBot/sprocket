@@ -13,6 +13,7 @@ import {
     GenerateReportCardType,
     MatchmakingEndpoint,
     MatchmakingService,
+    ReportCardAssetType,
     ResponseStatus,
     Scrim,
     ScrimMode,
@@ -226,6 +227,23 @@ export class ScrimService extends SprocketEventMarshal {
         if (reportCardResult.status !== ResponseStatus.SUCCESS) {
             this.logger.warn("Failed to generate report card");
             throw reportCardResult.error;
+        }
+
+        const reportCardAssetResult = await this.coreService.send(
+            CoreEndpoint.UpsertReportCardAsset,
+            {
+                type: ReportCardAssetType.SCRIM,
+                organizationId: scrim.organizationId,
+                sprocketId: scrim.databaseIds.id,
+                legacyId: scrim.databaseIds.legacyId,
+                scrimUuid: scrim.id,
+                minioKey: `${reportCardResult.data}.png`,
+                userIds: scrim.players.map(player => player.id),
+                franchiseIds: [],
+            },
+        );
+        if (reportCardAssetResult.status !== ResponseStatus.SUCCESS) {
+            this.logger.warn("Failed to persist report card asset");
         }
 
         const discordUserIds = await Promise.all(scrim.players.map(async player => {
