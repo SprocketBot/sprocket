@@ -32,6 +32,7 @@ export enum CoreEndpoint {
     GetGameModeById = "GetGameModeById",
     GetGameByGameMode = "GetGameByGameMode",
     GetNicknameByDiscordUser = "GetNicknameByDiscordUser",
+    UpsertReportCardAsset = "UpsertReportCardAsset",
 }
 
 export const CoreSchemas = {
@@ -146,6 +147,10 @@ export const CoreSchemas = {
     [CoreEndpoint.GetNicknameByDiscordUser]: {
         input: Schemas.GetNicknameByDiscordUser_Request,
         output: Schemas.GetNicknameByDiscordUser_Response,
+    },
+    [CoreEndpoint.UpsertReportCardAsset]: {
+        input: Schemas.UpsertReportCardAsset_Request,
+        output: Schemas.UpsertReportCardAsset_Response,
     },
 };
 

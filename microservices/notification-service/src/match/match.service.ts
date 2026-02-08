@@ -9,6 +9,7 @@ import {
     EventTopic,
     GenerateReportCardType,
     MatchDatabaseIds,
+    ReportCardAssetType,
     ResponseStatus,
     SprocketEvent,
     SprocketEventMarshal,
@@ -57,6 +58,26 @@ export class MatchService extends SprocketEventMarshal {
         if (reportCardResult.status !== ResponseStatus.SUCCESS) {
             this.logger.warn("Failed to generate report card");
             throw reportCardResult.error;
+        }
+
+        const franchiseIds = [
+            matchResult.data.homeFranchise?.id,
+            matchResult.data.awayFranchise?.id,
+        ].filter((id): id is number => typeof id === "number");
+        const reportCardAssetResult = await this.coreService.send(
+            CoreEndpoint.UpsertReportCardAsset,
+            {
+                type: ReportCardAssetType.MATCH,
+                organizationId: matchReportCardWebhooksResult.data.organizationId,
+                sprocketId: databaseIds.id,
+                legacyId: databaseIds.legacyId,
+                minioKey: `${reportCardResult.data}.png`,
+                userIds: [],
+                franchiseIds,
+            },
+        );
+        if (reportCardAssetResult.status !== ResponseStatus.SUCCESS) {
+            this.logger.warn("Failed to persist report card asset");
         }
 
         if (matchReportCardWebhooksResult.data.skillGroupWebhook) await this.botService.send(BotEndpoint.SendWebhookMessage, {

@@ -17,6 +17,7 @@ import {ImageGenerationModule} from "./image-generation";
 import {MledbInterfaceModule} from "./mledb";
 import {NotificationModule} from "./notification/notification.module";
 import {OrganizationModule} from "./organization";
+import {ReportCardModule} from "./report-card/report-card.module";
 import {ReplayParseModule} from "./replay-parse";
 import {SchedulingModule} from "./scheduling";
 import {ScrimModule} from "./scrim";
@@ -92,6 +93,7 @@ import {UtilModule} from "./util/util.module";
         EloModule,
         SubmissionModule,
         NotificationModule,
+        ReportCardModule,
     ],
 })
 export class AppModule implements NestModule {
