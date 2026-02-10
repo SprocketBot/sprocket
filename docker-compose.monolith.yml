@@ -1,0 +1,136 @@
+services:
+  # Infrastructure Services
+  rabbitmq:
+    image: rabbitmq:3.10-management-alpine
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    volumes:
+      - minio_data:/data
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', '${REDIS_PASSWORD}', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  postgres:
+    image: postgres:14-alpine
+    ports:
+      - '5434:5432'
+    environment:
+      - POSTGRES_USER=${POSTGRES_USERNAME:-sprocketbot}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-localdevpassword}
+      - POSTGRES_DB=${POSTGRES_DATABASE:-sprocketbot}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/db-seed:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USERNAME:-sprocketbot}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Monolith - Consolidates all 7 NestJS services into a single process
+  monolith:
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+      args:
+        SERVICE_PATH: apps/monolith
+    ports:
+      - '3001:3001'  # HTTP Server + GraphQL
+    env_file: .env
+    volumes:
+      - ./apps/monolith:/app/apps/monolith
+      - ./core:/app/core
+      - ./clients:/app/clients
+      - ./microservices:/app/microservices
+      - ./common:/app/common
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    command: npm run dev:monolith
+    environment:
+      - NODE_ENV=development
+
+  # Python Replay Parse Service (not part of monolith)
+  replay-parse-service:
+    build:
+      context: microservices/replay-parse-service
+      dockerfile: Dockerfile
+    env_file: .env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Frontend Services (optional - uncomment to run)
+  # web:
+  #   build:
+  #     context: .
+  #     dockerfile: dev.Dockerfile
+  #     args:
+  #       SERVICE_PATH: clients/web
+  #   ports:
+  #     - '8080:3000'
+  #   env_file: .env
+  #   depends_on:
+  #     monolith:
+  #       condition: service_started
+
+  # image-generation-frontend:
+  #   build:
+  #     context: .
+  #     dockerfile: dev.Dockerfile
+  #     args:
+  #       SERVICE_PATH: clients/image-generation-frontend
+  #   ports:
+  #     - '8081:3000'
+  #   env_file: .env
+  #   depends_on:
+  #     monolith:
+  #       condition: service_started
+
+volumes:
+  minio_data:
+  postgres_data:
