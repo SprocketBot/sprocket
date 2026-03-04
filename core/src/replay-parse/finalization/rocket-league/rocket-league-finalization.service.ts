@@ -568,7 +568,12 @@ export class RocketLeagueFinalizationService {
         gameMode: GameMode,
     ): SprocketRating {
         const sprocketRatingInput: SprocketRatingInput = {
-            ...rawPlayer.stats.core,
+            goals: rawPlayer.stats.core.goals,
+            assists: rawPlayer.stats.core.assists,
+            shots: rawPlayer.stats.core.shots,
+            saves: rawPlayer.stats.core.saves,
+            goals_against: rawPlayer.stats.core.goals_against,
+            shots_against: rawPlayer.stats.core.shots_against,
             team_size: gameMode.teamSize,
         };
         return this.sprocketRatingService.calcSprocketRating(sprocketRatingInput);
