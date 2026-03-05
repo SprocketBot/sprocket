@@ -549,7 +549,7 @@ export class RocketLeagueFinalizationService {
     ): Promise<PlayerStatLine> {
         const output = em.create(PlayerStatLine);
 
-        const sprocketRating = this._getSprocketRating(rawPlayer, opposingTeam, gameMode);
+        const sprocketRating = this._getSprocketRating(rawPlayer, gameMode);
 
         output.teamStats = teamStats;
         output.player = player;
@@ -565,19 +565,15 @@ export class RocketLeagueFinalizationService {
     // TODO: Testing
     _getSprocketRating(
         rawPlayer: BallchasingPlayer,
-        opposingTeam: BallchasingTeam,
         gameMode: GameMode,
     ): SprocketRating {
         const sprocketRatingInput: SprocketRatingInput = {
-            ...rawPlayer.stats.core,
-            ...opposingTeam.players.reduce<{goals_against: number; shots_against: number;}>(
-                (acc, v) => {
-                    acc.goals_against += v.stats.core.goals;
-                    acc.shots_against += v.stats.core.shots;
-                    return acc;
-                },
-                {goals_against: 0, shots_against: 0},
-            ),
+            goals: rawPlayer.stats.core.goals,
+            assists: rawPlayer.stats.core.assists,
+            shots: rawPlayer.stats.core.shots,
+            saves: rawPlayer.stats.core.saves,
+            goals_against: rawPlayer.stats.core.goals_against,
+            shots_against: rawPlayer.stats.core.shots_against,
             team_size: gameMode.teamSize,
         };
         return this.sprocketRatingService.calcSprocketRating(sprocketRatingInput);
