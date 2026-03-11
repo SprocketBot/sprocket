@@ -10,18 +10,28 @@ const safeNumber = () => z.preprocess(val => {
     return isNaN(num) ? undefined : num;
 }, z.number().optional());
 
+const safeString = () => z.preprocess(val => {
+    if (val === null || val === undefined || val === "") return undefined;
+    return typeof val === "number" || typeof val === "bigint" ? String(val) : val;
+}, z.string().optional());
+
 // Game metadata schema - using proper types to match BallchasingResponse expectations
 // Numeric fields safely convert strings to numbers, handling invalid values as undefined
 export const CarballGameMetadataSchema = z.object({
     id: z.string().optional(),
+    name: z.string().optional(),
     map: z.string().optional(),
-    time: z.string().optional(),
+    time: safeString(),
     frames: safeNumber(),
     length: safeNumber(),
+    match_guid: z.string().optional(),
     server_name: z.string().optional(),
+    game_server_id: z.string().optional(),
     match_type: z.string().optional(),
     team_size: safeNumber(),
     playlist: safeNumber(),
+    unknown_playlist: safeNumber(),
+    is_invalid_analysis: z.coerce.boolean().optional(),
 }).passthrough(); // Allow additional fields we haven't explicitly defined
 
 export type CarballGameMetadata = z.infer<typeof CarballGameMetadataSchema>;

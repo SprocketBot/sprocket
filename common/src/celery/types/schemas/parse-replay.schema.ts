@@ -16,12 +16,14 @@ export enum Parser {
 export const ParseReplay_Response = z.discriminatedUnion("parser", [
     z.object({
         parser: z.literal("ballchasing"),
+        analysisMode: z.enum(["summary-only", "full-analysis"]).optional(),
         parserVersion: z.union([z.string().transform(v => parseFloat(v)), z.number()]),
         outputPath: z.string(),
         data: BallchasingResponseSchema,
     }),
     z.object({
         parser: z.literal("carball"),
+        analysisMode: z.enum(["summary-only", "full-analysis"]).optional(),
         parserVersion: z.union([z.string().transform(v => parseFloat(v)), z.number()]),
         outputPath: z.string(),
         data: CarballResponseSchema,

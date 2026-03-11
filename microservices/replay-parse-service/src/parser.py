@@ -35,11 +35,11 @@ if PARSER not in VALID_PARSERS:
 
 
 def parse(path: str, on_progress: Callable[[str], None] = None):
-    # For now, only parse with carball ever
-    print("Parsing with carball parser.")
-    return _parse_carball(path, on_progress)
+    # Default to the metadata-only parser contract to avoid depending on network frames.
+    print("Parsing with carball summary-only parser.")
+    return _parse_carball_summary(path, on_progress)
     if PARSER == "carball":
-        return _parse_carball(path, on_progress)
+        return _parse_carball_summary(path, on_progress)
     if PARSER == "ballchasing":
         return _parse_ballchasing(path, on_progress)
     if PARSER == "ballchasing-with-carball-shadow":
@@ -77,7 +77,7 @@ def _parse_dual_with_shadow(path: str, on_progress: Callable[[str], None] = None
         try:
             # Create a silent progress callback for shadow parsing
             shadow_progress = lambda msg: print(f"Carball shadow: {msg}")
-            carball_result = _parse_carball(path, shadow_progress)
+            carball_result = _parse_carball_summary(path, shadow_progress)
             carball_duration = time.time() - carball_start
             print(f"Carball shadow parsing completed in {carball_duration:.2f}s")
         except Exception as e:
@@ -227,7 +227,58 @@ def _log_parser_comparison(path: str, ballchasing_data: dict, carball_data: dict
 #
 ###############################
 
-def _parse_carball(path: str, on_progress: Callable[[str], None] = None) -> dict:
+def _coerce_to_jsonable(value):
+    if isinstance(value, dict):
+        return value
+
+    if hasattr(value, "DESCRIPTOR"):
+        from google.protobuf.json_format import MessageToDict
+
+        return MessageToDict(
+            value,
+            preserving_proto_field_name=True,
+        )
+
+    if hasattr(value, "to_dict"):
+        return value.to_dict()
+
+    try:
+        json.dumps(value)
+        return value
+    except TypeError:
+        return json.loads(json.dumps(value, default=lambda obj: getattr(obj, "__dict__", str(obj))))
+
+
+def _parse_carball_summary(path: str, on_progress: Callable[[str], None] = None) -> dict:
+    """
+    Parses replay metadata using carball's summary-only API.
+
+    This path intentionally avoids full frame analysis so replay format drift in
+    network frames does not break metadata consumers.
+    """
+    print(f"Parsing {path} with carball summary-only path")
+
+    summarize_replay_file = getattr(carball, "summarize_replay_file", None)
+    if summarize_replay_file is None:
+        raise Exception(
+            "Installed sprocket-rl-parser does not expose carball.summarize_replay_file(...). "
+            "Upgrade the parser package to a version with the summary-only API."
+        )
+
+    try:
+        if on_progress:
+            on_progress("Summarizing replay header...")
+
+        summary = summarize_replay_file(path)
+        output = _coerce_to_jsonable(summary)
+        print(f"Carball summary keys: {list(output.keys()) if isinstance(output, dict) else type(output)}")
+        return output
+    except Exception as e:
+        logging.error(f"Carball summary parsing failed for {path}: {str(e)}")
+        raise Exception(f"Failed to summarize replay with carball: {str(e)}")
+
+
+def _parse_carball_full_analysis(path: str, on_progress: Callable[[str], None] = None) -> dict:
     """
     Parses a Rocket League replay located at a given local path using carball
 
@@ -270,7 +321,13 @@ def _parse_carball(path: str, on_progress: Callable[[str], None] = None) -> dict
         return output
     except Exception as e:
         logging.error(f"Carball parsing failed for {path}: {str(e)}")
-        raise Exception(f"Failed to parse replay with carball: {str(e)}")
+        error_message = str(e)
+        if "network_frames" in error_message:
+            error_message = (
+                f"{error_message}. Full analysis requires parsed network frames. "
+                "Use carball.summarize_replay_file(...) for metadata-only flows."
+            )
+        raise Exception(f"Failed to parse replay with carball: {error_message}")
 
 
 

@@ -30,8 +30,9 @@ def main():
         print(f"Keys in result: {list(result.keys())}")
         
         # Print some basic stats to verify
-        if 'gameMetadata' in result:
-            print(f"Game Metadata: {result['gameMetadata']}")
+        metadata = result.get("gameMetadata") or result.get("game_metadata")
+        if metadata:
+            print(f"Game Metadata: {metadata}")
             
     except Exception as e:
         print(f"Error parsing replay: {e}")
