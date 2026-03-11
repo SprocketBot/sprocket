@@ -311,8 +311,7 @@ export class CarballConverterService {
 
     private getPlayerLookupKey(playerId: unknown): string {
         const id = (playerId as any)?.id;
-        const platform = (playerId as any)?.platform ?? (playerId as any)?.system_id ?? "unknown";
-        return id ? `${String(platform).toLowerCase()}:${String(id)}` : "";
+        return id ? String(id) : "";
     }
 
     private getTeamColor(team: CarballTeam): "blue" | "orange" | null {
