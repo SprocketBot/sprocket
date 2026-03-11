@@ -258,16 +258,64 @@ def _normalize_player_platform(platform):
     return str(platform)
 
 
-def _normalize_player_online_id(online_id):
-    if isinstance(online_id, dict):
-        return str(
-            online_id.get("online_id")
-            or online_id.get("value")
-            or next(iter(online_id.values()), "0")
+def _get_nested_dict_value(data, *keys):
+    current = data
+    for key in keys:
+        if not isinstance(current, dict):
+            return None
+        current = current.get(key)
+    return current
+
+
+def _normalize_platform_account_id(value):
+    if isinstance(value, dict):
+        normalized = (
+            value.get("online_id")
+            or value.get("value")
+            or _get_nested_dict_value(value, "fields", "Data")
+            or next(iter(value.values()), None)
         )
-    if online_id is None:
-        return "0"
-    return str(online_id)
+        return _normalize_platform_account_id(normalized)
+
+    if value is None:
+        return None
+
+    normalized = str(value).strip()
+    if normalized == "" or normalized == "0":
+        return None
+    return normalized
+
+
+def _extract_player_platform_account_id(raw_player, platform):
+    player_id_fields = _get_nested_dict_value(raw_player, "PlayerID", "fields") or {}
+    platform_lower = (platform or "").lower()
+
+    candidates = []
+    if "epic" in platform_lower:
+        candidates.extend([
+            player_id_fields.get("EpicAccountId"),
+            raw_player.get("OnlineID"),
+            player_id_fields.get("Uid"),
+        ])
+    elif "ps" in platform_lower:
+        candidates.extend([
+            _get_nested_dict_value(player_id_fields, "NpId", "fields", "Handle", "fields", "Data"),
+            raw_player.get("OnlineID"),
+            player_id_fields.get("Uid"),
+        ])
+    else:
+        candidates.extend([
+            raw_player.get("OnlineID"),
+            player_id_fields.get("Uid"),
+            player_id_fields.get("EpicAccountId"),
+        ])
+
+    for candidate in candidates:
+        normalized = _normalize_platform_account_id(candidate)
+        if normalized is not None:
+            return normalized
+
+    return "0"
 
 
 def _normalize_header_date(date_value):
@@ -293,7 +341,7 @@ def _normalize_header_only_replay(raw_header: dict) -> dict:
     for raw_player in raw_players:
         player_name = raw_player.get("Name")
         platform = _normalize_player_platform(raw_player.get("Platform"))
-        online_id = _normalize_player_online_id(raw_player.get("OnlineID"))
+        online_id = _extract_player_platform_account_id(raw_player, platform)
         is_orange = 1 if raw_player.get("Team") else 0
 
         player = {
