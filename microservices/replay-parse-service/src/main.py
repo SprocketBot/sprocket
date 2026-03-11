@@ -17,7 +17,7 @@ from kombu import Producer, Connection
 # Celery pipeline for starting jobs (broker) and returning results (backend)
 app = celery.Celery(config_source=celeryconfig)
 
-PARSER_VERSION = "3"
+PARSER_VERSION = "4"
 
 ANALYTICS_QUEUE = config["transport"]["analytics_queue"]
 PARSED_OBJECT_PREFIX = f"{config['minio']['parsed_object_prefix']}/v{PARSER_VERSION}"
@@ -153,6 +153,7 @@ class ParseReplay(BaseTask):
 
         result = {
             "parser": 'carball',
+            "analysisMode": "summary-only",
             "parserVersion": PARSER_VERSION,
             "outputPath": parsed_object_path,
             "data": parsed_data,
