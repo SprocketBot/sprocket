@@ -129,3 +129,52 @@ Example:
 ```bash
 bash ./scripts/harness/run-tier0.sh env/main-prod.env
 ```
+
+## Tier 1 Scripts
+
+These scripts are Node-based because Tier 1 needs authenticated GraphQL and multipart upload handling.
+
+### `run-league-read-smoke.js`
+
+Read-only League verification.
+
+Requirements:
+
+- `HARNESS_API_URL`
+- one of:
+  - `HARNESS_BEARER_TOKEN`
+  - `HARNESS_ADMIN_BEARER_TOKEN` plus `HARNESS_LOGIN_AS_USER_ID`
+
+Example:
+
+```bash
+node ./scripts/harness/run-league-read-smoke.js
+```
+
+### `run-scrim-lifecycle-smoke.js`
+
+Mutating scrim verification using two actors.
+
+Requirements:
+
+- `HARNESS_API_URL`
+- `HARNESS_MUTATION_CONFIRM=YES`
+- `HARNESS_GAME_MODE_ID`
+- primary auth via bearer token or admin minting
+- secondary auth via direct token or `HARNESS_SECONDARY_USER_ID`
+
+### `run-replay-submission-smoke.js`
+
+Mutating replay upload verification.
+
+Requirements:
+
+- `HARNESS_API_URL`
+- `HARNESS_MUTATION_CONFIRM=YES`
+- `HARNESS_REPLAY_FILE_PATHS`
+- primary auth via bearer token or admin minting
+- submission via `HARNESS_SUBMISSION_ID` or the current scrim's `submissionId`
+
+Optional:
+
+- `HARNESS_USE_MOCK_COMPLETION=true` with `HARNESS_ADMIN_BEARER_TOKEN`

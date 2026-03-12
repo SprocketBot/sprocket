@@ -328,6 +328,17 @@ The shared smoke baseline is established when:
 3. the same checks can run against hosted `v1.5`,
 4. all branch-specific differences are documented rather than implied.
 
+## Current Implementation Status
+
+As of March 12, 2026:
+
+1. Tier 0 is implemented and has been run successfully against hosted `main`.
+2. Tier 1 automation entrypoints now exist for:
+   - League Read
+   - Scrim Lifecycle
+   - Replay Submission
+3. Tier 1 has not yet been fully executed against hosted `main` in this workspace because the production-safe actor tokens, impersonation IDs, and replay fixtures were not supplied.
+
 ## Open Decisions
 
 The following still need explicit answers before automation wiring begins:
