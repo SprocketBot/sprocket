@@ -42,6 +42,8 @@ It should be updated as planning, implementation, and validation progress happen
    - Decision note evaluating whether to combine `sprocket` and `sprocket-infra` into a single monorepo.
 16. [`reports/tier1-harness-status.md`](./tier1-harness-status.md)
    - Status note for the Tier 1 harness implementation, auth model, and remaining production-execution blockers.
+17. [`reports/harness-auth-strategy.md`](./harness-auth-strategy.md)
+   - Recommendation for replacing human admin bearer-token dependence with refresh-token bridge auth and then machine-auth.
 
 ## Current Understanding
 
@@ -131,6 +133,9 @@ For Sprocket specifically, the highest-value initial target is not full autonomy
 26. Tier 1 implementation update on March 12, 2026:
    - League Read, Scrim Lifecycle, and Replay Submission harness scripts now exist under `scripts/harness/`;
    - hosted execution still requires operator-provided tokens, impersonation user IDs, and replay fixtures.
+27. Harness-auth recommendation added on March 12, 2026:
+   - human admin access tokens should be treated as a bootstrap only;
+   - the recommended path is refresh-token support first, then a dedicated harness identity, then machine-auth exchange.
 
 ## Agreed Direction
 
@@ -170,6 +175,7 @@ For the broader platform/release problem, the current direction is:
 17. First real `v1.5` beta profile using the new infra stack template
 18. Decide whether to execute the monorepo migration now or after the next Tier 1 harness milestone
 19. Execute the new Tier 1 scripts against hosted `main` with trusted test actors
+20. Add refresh-token support to the Tier 1 harness auth helper
 
 ## Update Rule
 
