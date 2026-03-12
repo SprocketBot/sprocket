@@ -10,6 +10,10 @@ They are intended to work against:
 
 All scripts are environment-variable driven so they can run against real hosted lanes without baking in local-only assumptions.
 
+Committed profiles currently live under:
+
+- `scripts/harness/env/`
+
 ## Artifact Convention
 
 By default, each run writes artifacts under:
@@ -114,4 +118,14 @@ Example:
 HARNESS_ENV_NAME=main-prod \
 HARNESS_RUN_ID=20260312T120000Z \
 bash ./scripts/harness/collect-artifacts.sh ./tmp/web.log ./tmp/api.log
+```
+
+### `run-tier0.sh`
+
+Runs the three Tier 0 checks with a shared `HARNESS_RUN_ID`.
+
+Example:
+
+```bash
+bash ./scripts/harness/run-tier0.sh env/main-prod.env
 ```

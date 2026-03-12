@@ -36,6 +36,8 @@ It should be updated as planning, implementation, and validation progress happen
    - Verification-first checklist for bringing up `v1.5` as a real beta environment.
 13. [`reports/v15-infra-mapping.md`](./v15-infra-mapping.md)
    - Concrete mapping of the `v1.5` monolith branch onto the current `sprocket-infra` production model.
+14. [`reports/main-prod-tier0-baseline.md`](./main-prod-tier0-baseline.md)
+   - Real hosted Tier 0 baseline for `main`, including the committed production harness profile and observed live behavior.
 
 ## Current Understanding
 
@@ -110,6 +112,15 @@ For Sprocket specifically, the highest-value initial target is not full autonomy
 21. `v1.5` infra mapping update on March 12, 2026:
    - the safest initial beta topology is `monolith` + `replay-parse-service` + `elo-service` + `web`;
    - queue isolation should come from a separate Pulumi stack and Redis isolation from a separate `subdomain` value.
+22. Hosted baseline validation update on March 12, 2026:
+   - the committed `main-prod` Tier 0 profile now runs successfully against the real hosted production endpoints;
+   - baseline artifacts are being written under `artifacts/release-validation/main-prod/...`.
+23. Infra implementation update on March 12, 2026:
+   - `sprocket-infra` now has a starter monolith beta path behind `platform:monolith-mode`;
+   - the current production topology remains the default unless a beta stack opts in.
+24. Infra validation caveat on March 12, 2026:
+   - a no-emit TypeScript run in `sprocket-infra/platform` surfaced broad pre-existing dependency and typing issues unrelated to this patch;
+   - one touched-file implicit-any issue in `Platform.ts` was fixed, but the repo does not currently offer a clean local typecheck signal.
 
 ## Agreed Direction
 
@@ -145,6 +156,8 @@ For the broader platform/release problem, the current direction is:
 13. `v1.5` infra diff against `sprocket-infra`
 14. Hosted `main` environment variable bundle for running Tier 0 against the real system
 15. First `sprocket-infra` beta service definition for `monolith`
+16. Hosted Tier 1 League Play automation for `main`
+17. First real `v1.5` beta profile using the new infra stack template
 
 ## Update Rule
 
