@@ -148,6 +148,12 @@ For Sprocket specifically, the highest-value initial target is not full autonomy
 31. Refresh handler fix added on March 12, 2026:
    - `core/src/identity/auth/oauth/oauth.controller.ts` now reads the Passport-populated `req.user` value for the refresh flow;
    - this fixes the app code, but hosted `main` still needs a deployment before refresh-token-based Tier 1 runs can succeed there.
+32. Hosted Tier 1 execution update on March 12, 2026:
+   - League Read now passes against hosted `main` using the operator env file and primary actor `3001`;
+   - the observed passing fixture was `10167` (`Wolves vs Shadow`, `Match 1`).
+33. Hosted Tier 1 blocker update on March 12, 2026:
+   - Scrim Lifecycle currently fails before creation because `HARNESS_SECONDARY_USER_ID=-1` and `loginAsUser` cannot resolve that user;
+   - Replay Submission currently fails at input validation because neither `HARNESS_SUBMISSION_ID` nor `HARNESS_REPLAY_FILE_PATHS` are set.
 
 ## Agreed Direction
 
@@ -187,9 +193,11 @@ For the broader platform/release problem, the current direction is:
 17. First real `v1.5` beta profile using the new infra stack template
 18. Decide whether to execute the monorepo migration now or after the next Tier 1 harness milestone
 19. Execute the new Tier 1 scripts against hosted `main` with trusted test actors
-20. Deploy the `/refresh` handler fix to the hosted environment or use direct bearer-token auth as a temporary bypass
-21. Execute the refresh-token-enabled Tier 1 harness against hosted `main`
-22. Add a dedicated harness operator identity so runs stop depending on personal credentials
+20. Replace `HARNESS_SECONDARY_USER_ID=-1` with a valid internal test actor and rerun Scrim Lifecycle
+21. Add replay fixtures plus `HARNESS_SUBMISSION_ID` or establish a current scrim submission target, then rerun Replay Submission
+22. Deploy the `/refresh` handler fix to the hosted environment or use direct bearer-token auth as a temporary bypass
+23. Execute the refresh-token-enabled Tier 1 harness against hosted `main`
+24. Add a dedicated harness operator identity so runs stop depending on personal credentials
 
 ## Update Rule
 
