@@ -40,6 +40,8 @@ It should be updated as planning, implementation, and validation progress happen
    - Real hosted Tier 0 baseline for `main`, including the committed production harness profile and observed live behavior.
 15. [`reports/monorepo-evaluation.md`](./monorepo-evaluation.md)
    - Decision note evaluating whether to combine `sprocket` and `sprocket-infra` into a single monorepo.
+16. [`reports/tier1-harness-status.md`](./tier1-harness-status.md)
+   - Status note for the Tier 1 harness implementation, auth model, and remaining production-execution blockers.
 
 ## Current Understanding
 
@@ -126,6 +128,9 @@ For Sprocket specifically, the highest-value initial target is not full autonomy
 25. Repo-structure recommendation added on March 12, 2026:
    - combining app and infra into a single deployment monorepo is likely a net positive;
    - the recommended shape is one git repo with preserved app/infra boundaries, not one flattened package workspace.
+26. Tier 1 implementation update on March 12, 2026:
+   - League Read, Scrim Lifecycle, and Replay Submission harness scripts now exist under `scripts/harness/`;
+   - hosted execution still requires operator-provided tokens, impersonation user IDs, and replay fixtures.
 
 ## Agreed Direction
 
@@ -164,6 +169,7 @@ For the broader platform/release problem, the current direction is:
 16. Hosted Tier 1 League Play automation for `main`
 17. First real `v1.5` beta profile using the new infra stack template
 18. Decide whether to execute the monorepo migration now or after the next Tier 1 harness milestone
+19. Execute the new Tier 1 scripts against hosted `main` with trusted test actors
 
 ## Update Rule
 
