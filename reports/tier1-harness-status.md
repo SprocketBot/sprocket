@@ -98,6 +98,7 @@ As of March 12, 2026:
 - Tier 1 scripts are implemented
 - refresh-token auth support is implemented for admin, primary, and secondary actors
 - the updated Tier 1 scripts were syntax-checked locally
+- hosted `main` currently returns `500 Internal Server Error` on `/refresh` because the backend handler reads `req.body.user` instead of `req.user`
 - Tier 1 has not yet been fully executed against hosted `main` in this workspace because production-grade actor tokens and replay files were not supplied
 
 ## Remaining Execution Blockers
@@ -109,6 +110,7 @@ To actually run Tier 1 against hosted `main`, the harness still needs:
 3. one known-safe game mode for scrim validation
 4. real replay file paths for submission validation
 5. operator judgment on when production mutations are acceptable
+6. the `/refresh` handler fix deployed to the hosted environment if refresh-token auth is used
 
 ## Recommendation
 
