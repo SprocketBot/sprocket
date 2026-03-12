@@ -66,7 +66,7 @@ export class OauthController {
     @UseGuards(JwtRefreshGuard)
     @Get("refresh")
     async refreshTokens(@Request() req: Req): Promise<AccessToken> {
-        const ourUser = req.body.user as UserPayload;
+        const ourUser = (req as Req & {user: UserPayload;}).user;
         this.logger.verbose(`Refreshing tokens for user ${JSON.stringify(ourUser)}`);
         const userProfile = await this.userService.getUserProfileForUser(ourUser.userId);
         const authAccounts: UserAuthenticationAccount[]

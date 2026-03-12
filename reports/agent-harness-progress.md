@@ -142,6 +142,12 @@ For Sprocket specifically, the highest-value initial target is not full autonomy
 29. Harness-auth validation update on March 12, 2026:
    - `node --check` passed for the updated Tier 1 helper and all three Tier 1 scripts;
    - a no-credential League Read run now fails immediately with the new consolidated auth guidance instead of ambiguous downstream errors.
+30. Hosted refresh-path diagnosis on March 12, 2026:
+   - the Tier 1 harness correctly calls `GET /refresh` with the refresh token in the bearer header;
+   - hosted `main` responds with `500 Internal Server Error` because the backend refresh controller reads `req.body.user` instead of `req.user`.
+31. Refresh handler fix added on March 12, 2026:
+   - `core/src/identity/auth/oauth/oauth.controller.ts` now reads the Passport-populated `req.user` value for the refresh flow;
+   - this fixes the app code, but hosted `main` still needs a deployment before refresh-token-based Tier 1 runs can succeed there.
 
 ## Agreed Direction
 
@@ -181,8 +187,9 @@ For the broader platform/release problem, the current direction is:
 17. First real `v1.5` beta profile using the new infra stack template
 18. Decide whether to execute the monorepo migration now or after the next Tier 1 harness milestone
 19. Execute the new Tier 1 scripts against hosted `main` with trusted test actors
-20. Execute the refresh-token-enabled Tier 1 harness against hosted `main`
-21. Add a dedicated harness operator identity so runs stop depending on personal credentials
+20. Deploy the `/refresh` handler fix to the hosted environment or use direct bearer-token auth as a temporary bypass
+21. Execute the refresh-token-enabled Tier 1 harness against hosted `main`
+22. Add a dedicated harness operator identity so runs stop depending on personal credentials
 
 ## Update Rule
 
