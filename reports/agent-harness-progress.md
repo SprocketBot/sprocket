@@ -136,6 +136,12 @@ For Sprocket specifically, the highest-value initial target is not full autonomy
 27. Harness-auth recommendation added on March 12, 2026:
    - human admin access tokens should be treated as a bootstrap only;
    - the recommended path is refresh-token support first, then a dedicated harness identity, then machine-auth exchange.
+28. Harness-auth implementation update on March 12, 2026:
+   - Tier 1 token resolution now supports `HARNESS_ADMIN_REFRESH_TOKEN`, `HARNESS_REFRESH_TOKEN`, and `HARNESS_SECONDARY_REFRESH_TOKEN`;
+   - the harness derives `/refresh` from `HARNESS_API_URL` by default and allows override via `HARNESS_REFRESH_URL`.
+29. Harness-auth validation update on March 12, 2026:
+   - `node --check` passed for the updated Tier 1 helper and all three Tier 1 scripts;
+   - a no-credential League Read run now fails immediately with the new consolidated auth guidance instead of ambiguous downstream errors.
 
 ## Agreed Direction
 
@@ -175,7 +181,8 @@ For the broader platform/release problem, the current direction is:
 17. First real `v1.5` beta profile using the new infra stack template
 18. Decide whether to execute the monorepo migration now or after the next Tier 1 harness milestone
 19. Execute the new Tier 1 scripts against hosted `main` with trusted test actors
-20. Add refresh-token support to the Tier 1 harness auth helper
+20. Execute the refresh-token-enabled Tier 1 harness against hosted `main`
+21. Add a dedicated harness operator identity so runs stop depending on personal credentials
 
 ## Update Rule
 

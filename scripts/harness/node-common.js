@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const fetch = require("node-fetch");
 const {GraphQLClient} = require("graphql-request");
 
 function repoRoot() {
@@ -127,6 +128,18 @@ function gqlClient(apiUrl, token) {
     });
 }
 
+function deriveRefreshUrl(apiUrl) {
+    if (process.env.HARNESS_REFRESH_URL) {
+        return process.env.HARNESS_REFRESH_URL;
+    }
+
+    if (apiUrl.endsWith("/graphql")) {
+        return `${apiUrl.slice(0, -"/graphql".length)}/refresh`;
+    }
+
+    return `${apiUrl.replace(/\/$/, "")}/refresh`;
+}
+
 async function gqlRequest({apiUrl, token, query, variables, stepDirectory, label}) {
     const client = gqlClient(apiUrl, token);
     const requestPath = path.join(stepDirectory, `${label}.request.json`);
@@ -174,15 +187,96 @@ async function mintTokenForUser({apiUrl, adminToken, userId, organizationId, ste
     return response.loginAsUser;
 }
 
+async function refreshAccessToken({apiUrl, refreshToken, stepDirectory, label}) {
+    const refreshUrl = deriveRefreshUrl(apiUrl);
+    const requestPath = path.join(stepDirectory, `${label}.request.json`);
+    const responsePath = path.join(stepDirectory, `${label}.response.json`);
+
+    writeJson(requestPath, {
+        refreshUrl,
+        authMode: "refresh-token",
+    });
+
+    const response = await fetch(refreshUrl, {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${refreshToken}`,
+        },
+    });
+
+    const rawBody = await response.text();
+    let body;
+    try {
+        body = JSON.parse(rawBody);
+    } catch (error) {
+        writeJson(responsePath, {
+            ok: false,
+            status: response.status,
+            statusText: response.statusText,
+            bodyText: rawBody,
+        });
+        throw new Error(`Refresh token exchange returned non-JSON response: ${response.status} ${response.statusText}`);
+    }
+
+    writeJson(responsePath, {
+        ok: response.ok,
+        status: response.status,
+        statusText: response.statusText,
+        hasAccessToken: Boolean(body && body.access_token),
+        hasRefreshToken: Boolean(body && body.refresh_token),
+    });
+
+    if (!response.ok) {
+        throw new Error(`Refresh token exchange failed: ${response.status} ${response.statusText}`);
+    }
+
+    if (!body || !body.access_token) {
+        throw new Error("Refresh token exchange succeeded without returning access_token");
+    }
+
+    return body.access_token;
+}
+
+async function resolveAdminToken({apiUrl, stepDirectory, label}) {
+    if (process.env.HARNESS_ADMIN_BEARER_TOKEN) {
+        return process.env.HARNESS_ADMIN_BEARER_TOKEN;
+    }
+
+    if (process.env.HARNESS_ADMIN_REFRESH_TOKEN) {
+        return refreshAccessToken({
+            apiUrl,
+            refreshToken: process.env.HARNESS_ADMIN_REFRESH_TOKEN,
+            stepDirectory,
+            label,
+        });
+    }
+
+    return null;
+}
+
 async function resolvePrimaryToken({apiUrl, stepDirectory}) {
     if (process.env.HARNESS_BEARER_TOKEN) {
         return process.env.HARNESS_BEARER_TOKEN;
     }
 
-    if (process.env.HARNESS_ADMIN_BEARER_TOKEN && process.env.HARNESS_LOGIN_AS_USER_ID) {
+    if (process.env.HARNESS_REFRESH_TOKEN) {
+        return refreshAccessToken({
+            apiUrl,
+            refreshToken: process.env.HARNESS_REFRESH_TOKEN,
+            stepDirectory,
+            label: "refresh-primary-token",
+        });
+    }
+
+    const adminToken = await resolveAdminToken({
+        apiUrl,
+        stepDirectory,
+        label: "refresh-admin-token",
+    });
+    if (adminToken && process.env.HARNESS_LOGIN_AS_USER_ID) {
         return mintTokenForUser({
             apiUrl,
-            adminToken: process.env.HARNESS_ADMIN_BEARER_TOKEN,
+            adminToken,
             userId: optionalInt("HARNESS_LOGIN_AS_USER_ID"),
             organizationId: optionalInt("HARNESS_ORGANIZATION_ID"),
             stepDirectory,
@@ -190,7 +284,9 @@ async function resolvePrimaryToken({apiUrl, stepDirectory}) {
         });
     }
 
-    throw new Error("Provide HARNESS_BEARER_TOKEN or HARNESS_ADMIN_BEARER_TOKEN + HARNESS_LOGIN_AS_USER_ID");
+    throw new Error(
+        "Provide HARNESS_BEARER_TOKEN, HARNESS_REFRESH_TOKEN, or admin auth (HARNESS_ADMIN_BEARER_TOKEN or HARNESS_ADMIN_REFRESH_TOKEN) plus HARNESS_LOGIN_AS_USER_ID",
+    );
 }
 
 async function resolveSecondaryToken({apiUrl, stepDirectory}) {
@@ -198,10 +294,24 @@ async function resolveSecondaryToken({apiUrl, stepDirectory}) {
         return process.env.HARNESS_SECONDARY_BEARER_TOKEN;
     }
 
-    if (process.env.HARNESS_ADMIN_BEARER_TOKEN && process.env.HARNESS_SECONDARY_USER_ID) {
+    if (process.env.HARNESS_SECONDARY_REFRESH_TOKEN) {
+        return refreshAccessToken({
+            apiUrl,
+            refreshToken: process.env.HARNESS_SECONDARY_REFRESH_TOKEN,
+            stepDirectory,
+            label: "refresh-secondary-token",
+        });
+    }
+
+    const adminToken = await resolveAdminToken({
+        apiUrl,
+        stepDirectory,
+        label: "refresh-admin-token",
+    });
+    if (adminToken && process.env.HARNESS_SECONDARY_USER_ID) {
         return mintTokenForUser({
             apiUrl,
-            adminToken: process.env.HARNESS_ADMIN_BEARER_TOKEN,
+            adminToken,
             userId: optionalInt("HARNESS_SECONDARY_USER_ID"),
             organizationId: optionalInt("HARNESS_ORGANIZATION_ID"),
             stepDirectory,
@@ -232,6 +342,7 @@ module.exports = {
     poll,
     requireEnv,
     requireMutationConfirmation,
+    resolveAdminToken,
     resolvePrimaryToken,
     resolveSecondaryToken,
     runBaseDir,

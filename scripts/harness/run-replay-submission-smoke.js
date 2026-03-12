@@ -12,6 +12,7 @@ const {
     poll,
     requireEnv,
     requireMutationConfirmation,
+    resolveAdminToken,
     resolvePrimaryToken,
     stepDir,
     writeJson,
@@ -200,9 +201,13 @@ async function main() {
 
     let mockCompletionUsed = false;
     if (optionalBool("HARNESS_USE_MOCK_COMPLETION", false)) {
-        const adminToken = process.env.HARNESS_ADMIN_BEARER_TOKEN;
+        const adminToken = await resolveAdminToken({
+            apiUrl,
+            stepDirectory,
+            label: "refresh-admin-token",
+        });
         if (!adminToken) {
-            throw new Error("HARNESS_USE_MOCK_COMPLETION requires HARNESS_ADMIN_BEARER_TOKEN");
+            throw new Error("HARNESS_USE_MOCK_COMPLETION requires HARNESS_ADMIN_BEARER_TOKEN or HARNESS_ADMIN_REFRESH_TOKEN");
         }
 
         await gqlRequest({

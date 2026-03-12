@@ -129,3 +129,23 @@ The next auth-related harness change should be:
 - add refresh-token support to the Tier 1 scripts and token helper
 
 That gives us the biggest usability gain with the smallest code change.
+
+## Implementation Status
+
+Implemented on March 12, 2026:
+
+- Tier 1 harness now accepts `HARNESS_ADMIN_REFRESH_TOKEN`
+- direct actor refresh-token auth is also supported via `HARNESS_REFRESH_TOKEN`
+- secondary actor refresh-token auth is supported via `HARNESS_SECONDARY_REFRESH_TOKEN`
+- refresh requests default to `HARNESS_API_URL` with `/graphql` replaced by `/refresh`
+- operators may override that with `HARNESS_REFRESH_URL`
+
+What this solves:
+
+- an operator can keep one refresh token locally and let the harness mint short-lived access tokens per run
+- impersonation-based flows no longer require manual access-token refresh every few hours
+
+What this does not solve:
+
+- the harness still depends on a human-managed secret unless we introduce a dedicated harness identity
+- CI-safe machine auth still requires a separate internal auth-exchange design
