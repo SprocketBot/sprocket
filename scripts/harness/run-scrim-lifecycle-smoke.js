@@ -134,11 +134,27 @@ async function main() {
     const secondaryBefore = await fetchCurrentScrim(apiUrl, secondaryToken, stepDirectory, "secondary-current-before");
 
     if (!allowExisting && primaryBefore.currentScrim) {
-        throw new Error(`Primary actor ${primaryMe.me.profile.displayName} is already in scrim ${primaryBefore.currentScrim.id}`);
+        const scrim = primaryBefore.currentScrim;
+        if (scrim.status === "PENDING" && Number(scrim.playerCount) < Number(scrim.maxPlayers)) {
+            throw new Error(
+                `Primary actor ${primaryMe.me.profile.displayName} is already in pending scrim ${scrim.id} ` +
+                `with ${scrim.playerCount}/${scrim.maxPlayers} players. The current harness only provisions two actors, ` +
+                "so this game mode requires additional players or manual cleanup before rerun.",
+            );
+        }
+        throw new Error(`Primary actor ${primaryMe.me.profile.displayName} is already in scrim ${scrim.id}`);
     }
 
     if (!allowExisting && secondaryBefore.currentScrim) {
-        throw new Error(`Secondary actor ${secondaryMe.me.profile.displayName} is already in scrim ${secondaryBefore.currentScrim.id}`);
+        const scrim = secondaryBefore.currentScrim;
+        if (scrim.status === "PENDING" && Number(scrim.playerCount) < Number(scrim.maxPlayers)) {
+            throw new Error(
+                `Secondary actor ${secondaryMe.me.profile.displayName} is already in pending scrim ${scrim.id} ` +
+                `with ${scrim.playerCount}/${scrim.maxPlayers} players. The current harness only provisions two actors, ` +
+                "so this game mode requires additional players or manual cleanup before rerun.",
+            );
+        }
+        throw new Error(`Secondary actor ${secondaryMe.me.profile.displayName} is already in scrim ${scrim.id}`);
     }
 
     const createResponse = await gqlRequest({
@@ -161,23 +177,47 @@ async function main() {
     });
 
     const scrimId = createResponse.createScrim.id;
+    const joinVariables = {
+        scrimId,
+        leaveAfter,
+        createGroup,
+    };
+    if (group) {
+        joinVariables.group = group;
+    }
 
     await gqlRequest({
         apiUrl,
         token: secondaryToken,
         query: JOIN_SCRIM_MUTATION,
-        variables: {
-            scrimId,
-            leaveAfter,
-            createGroup,
-            group,
-        },
+        variables: joinVariables,
         stepDirectory,
         label: "join-scrim",
     });
 
+    const attempts = optionalInt("HARNESS_SCRIM_POLL_ATTEMPTS", 10);
+    const intervalMs = optionalInt("HARNESS_SCRIM_POLL_INTERVAL_MS", 2000);
+    const joinedPrimaryScrim = await poll(async attempt => {
+        const response = await fetchCurrentScrim(apiUrl, primaryToken, stepDirectory, `primary-current-post-join-${attempt + 1}`);
+        const scrim = response.currentScrim;
+        if (!scrim) throw new Error("Primary actor has no current scrim after join");
+
+        if (scrim.status === "PENDING" && Number(scrim.playerCount) < Number(scrim.maxPlayers)) {
+            throw new Error(
+                `Scrim ${scrim.id} is still pending with ${scrim.playerCount}/${scrim.maxPlayers} players. ` +
+                "The current harness only provisions two actors, so this game mode requires additional players to reach POPPED.",
+            );
+        }
+
+        if (["POPPED", "IN_PROGRESS"].includes(scrim.status)) {
+            return scrim;
+        }
+
+        throw new Error(`Scrim has not reached a check-in state yet; current status=${scrim.status}`);
+    }, {attempts, intervalMs});
+
     const requireCheckIn = optionalBool("HARNESS_REQUIRE_CHECKIN", true);
-    if (requireCheckIn) {
+    if (requireCheckIn && joinedPrimaryScrim.status === "POPPED") {
         await gqlRequest({
             apiUrl,
             token: primaryToken,
@@ -194,9 +234,6 @@ async function main() {
             label: "secondary-checkin",
         });
     }
-
-    const attempts = optionalInt("HARNESS_SCRIM_POLL_ATTEMPTS", 10);
-    const intervalMs = optionalInt("HARNESS_SCRIM_POLL_INTERVAL_MS", 2000);
 
     const finalPrimaryScrim = await poll(async attempt => {
         const response = await fetchCurrentScrim(apiUrl, primaryToken, stepDirectory, `primary-current-after-${attempt + 1}`);

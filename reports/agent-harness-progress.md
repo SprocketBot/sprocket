@@ -154,6 +154,15 @@ For Sprocket specifically, the highest-value initial target is not full autonomy
 33. Hosted Tier 1 blocker update on March 12, 2026:
    - Scrim Lifecycle currently fails before creation because `HARNESS_SECONDARY_USER_ID=-1` and `loginAsUser` cannot resolve that user;
    - Replay Submission currently fails at input validation because neither `HARNESS_SUBMISSION_ID` nor `HARNESS_REPLAY_FILE_PATHS` are set.
+34. Hosted Tier 1 progression update on March 12, 2026:
+   - after correcting the secondary actor and replay paths, Scrim Lifecycle progressed through actor auth and scrim join on hosted `main`;
+   - the harness was updated to omit `group` when unset and to wait for `POPPED` before sending `checkInToScrim`.
+35. Hosted Tier 1 environment mismatch update on March 12, 2026:
+   - the live API exposes Rocket League mode `13` (`Doubles`, `2x2`) and mode `14` (`Standard`, `3x3`) only;
+   - with just two harness actors, created Rocket League scrims remain `PENDING` with `2/4` players and never produce a `submissionId`.
+36. Hosted replay-path blocker update on March 12, 2026:
+   - replay fixtures are now configured in the operator env;
+   - Replay Submission remains blocked until the harness is given a real `HARNESS_SUBMISSION_ID` or a scrim flow that can reach a populated submission target.
 
 ## Agreed Direction
 
@@ -193,8 +202,8 @@ For the broader platform/release problem, the current direction is:
 17. First real `v1.5` beta profile using the new infra stack template
 18. Decide whether to execute the monorepo migration now or after the next Tier 1 harness milestone
 19. Execute the new Tier 1 scripts against hosted `main` with trusted test actors
-20. Replace `HARNESS_SECONDARY_USER_ID=-1` with a valid internal test actor and rerun Scrim Lifecycle
-21. Add replay fixtures plus `HARNESS_SUBMISSION_ID` or establish a current scrim submission target, then rerun Replay Submission
+20. Decide whether to extend the scrim harness to support 4 Rocket League actors or to switch Tier 1 scrim validation to a different environment/target
+21. Provide a real `HARNESS_SUBMISSION_ID` or enable a scrim path that can reach a populated submission target, then rerun Replay Submission
 22. Deploy the `/refresh` handler fix to the hosted environment or use direct bearer-token auth as a temporary bypass
 23. Execute the refresh-token-enabled Tier 1 harness against hosted `main`
 24. Add a dedicated harness operator identity so runs stop depending on personal credentials
