@@ -18,6 +18,7 @@
     "harness:check:api": "bash ./scripts/harness/check-api.sh",
     "harness:check:dependencies": "bash ./scripts/harness/check-dependencies.sh",
     "harness:collect": "bash ./scripts/harness/collect-artifacts.sh",
+    "harness:tier0:main-prod": "bash ./scripts/harness/run-tier0.sh env/main-prod.env",
     "clean": "npm run clean --workspaces --if-available",
     "lint": "npm run lint --workspaces --if-available",
     "format": "prettier --write ."

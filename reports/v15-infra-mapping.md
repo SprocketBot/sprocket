@@ -134,6 +134,21 @@ That means the beta lane should use:
 - a new Pulumi stack name for queue isolation
 - a new `subdomain` value for Redis and public identity isolation
 
+## Starter Infra Implementation Status
+
+A starter implementation now exists in `sprocket-infra` that keeps the current production topology as the default and enables the beta topology via config:
+
+- `/Users/jacbaile/Workspace/MLE/Infrastructure/sprocket-infra/platform/src/Platform.ts`
+- `/Users/jacbaile/Workspace/MLE/Infrastructure/sprocket-infra/platform/src/config/services/monolith.json`
+- `/Users/jacbaile/Workspace/MLE/Infrastructure/sprocket-infra/platform/Pulumi.v15-beta.template.yaml`
+
+The intended beta knobs are:
+
+- `platform:monolith-mode: "true"`
+- `platform:monolith-image-repository: monolith`
+- `platform:deploy-image-generation-frontend: "false"`
+- `platform:subdomain: v15`
+
 ## Monolith Config Strategy
 
 The monolith appears able to run on the shared config surface used by the absorbed services:
