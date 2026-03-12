@@ -38,6 +38,8 @@ It should be updated as planning, implementation, and validation progress happen
    - Concrete mapping of the `v1.5` monolith branch onto the current `sprocket-infra` production model.
 14. [`reports/main-prod-tier0-baseline.md`](./main-prod-tier0-baseline.md)
    - Real hosted Tier 0 baseline for `main`, including the committed production harness profile and observed live behavior.
+15. [`reports/monorepo-evaluation.md`](./monorepo-evaluation.md)
+   - Decision note evaluating whether to combine `sprocket` and `sprocket-infra` into a single monorepo.
 
 ## Current Understanding
 
@@ -121,6 +123,9 @@ For Sprocket specifically, the highest-value initial target is not full autonomy
 24. Infra validation caveat on March 12, 2026:
    - a no-emit TypeScript run in `sprocket-infra/platform` surfaced broad pre-existing dependency and typing issues unrelated to this patch;
    - one touched-file implicit-any issue in `Platform.ts` was fixed, but the repo does not currently offer a clean local typecheck signal.
+25. Repo-structure recommendation added on March 12, 2026:
+   - combining app and infra into a single deployment monorepo is likely a net positive;
+   - the recommended shape is one git repo with preserved app/infra boundaries, not one flattened package workspace.
 
 ## Agreed Direction
 
@@ -158,6 +163,7 @@ For the broader platform/release problem, the current direction is:
 15. First `sprocket-infra` beta service definition for `monolith`
 16. Hosted Tier 1 League Play automation for `main`
 17. First real `v1.5` beta profile using the new infra stack template
+18. Decide whether to execute the monorepo migration now or after the next Tier 1 harness milestone
 
 ## Update Rule
 
