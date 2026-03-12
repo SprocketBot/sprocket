@@ -99,18 +99,21 @@ As of March 12, 2026:
 - refresh-token auth support is implemented for admin, primary, and secondary actors
 - the updated Tier 1 scripts were syntax-checked locally
 - hosted `main` currently returns `500 Internal Server Error` on `/refresh` because the backend handler reads `req.body.user` instead of `req.user`
-- Tier 1 has not yet been fully executed against hosted `main` in this workspace because production-grade actor tokens and replay files were not supplied
+- hosted League Read now passes against `main` using direct bearer-token auth and impersonation for primary actor `3001`
+- hosted Scrim Lifecycle is currently blocked because `HARNESS_SECONDARY_USER_ID` is set to `-1`, which causes `loginAsUser` to fail on a non-existent user
+- hosted Replay Submission is currently blocked because neither `HARNESS_SUBMISSION_ID` nor `HARNESS_REPLAY_FILE_PATHS` are set in the local env
 
 ## Remaining Execution Blockers
 
 To actually run Tier 1 against hosted `main`, the harness still needs:
 
 1. one admin refresh token, one admin bearer token, or direct actor auth
-2. one or two known user IDs for impersonation if admin minting is used
+2. one valid secondary user ID for impersonation if scrim lifecycle is run through admin minting
 3. one known-safe game mode for scrim validation
 4. real replay file paths for submission validation
-5. operator judgment on when production mutations are acceptable
-6. the `/refresh` handler fix deployed to the hosted environment if refresh-token auth is used
+5. either a known submission ID or a current scrim with a populated `submissionId`
+6. operator judgment on when production mutations are acceptable
+7. the `/refresh` handler fix deployed to the hosted environment if refresh-token auth is used
 
 ## Recommendation
 
