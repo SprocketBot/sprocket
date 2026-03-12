@@ -24,16 +24,17 @@ Committed production template:
 
 ## Auth Model
 
-Hosted Tier 1 is built around bearer-token auth.
+Hosted Tier 1 now supports both direct bearer-token auth and refresh-token-based access-token minting.
 
 Preferred operator flow:
 
-1. provide `HARNESS_ADMIN_BEARER_TOKEN`
+1. provide `HARNESS_ADMIN_REFRESH_TOKEN`
 2. provide `HARNESS_LOGIN_AS_USER_ID`
 3. optionally provide `HARNESS_SECONDARY_USER_ID`
-4. let the harness mint short-lived user tokens via `loginAsUser`
+4. let the harness exchange the refresh token at `/refresh`
+5. let the harness mint short-lived user tokens via `loginAsUser`
 
-This is preferable to storing personal long-lived bearer tokens in local env files.
+This is preferable to storing personal short-lived bearer tokens in local env files.
 
 ## Coverage Shape
 
@@ -74,19 +75,36 @@ Current coverage:
 - poll for post-upload submission state
 - optionally trigger admin-only `mockCompletion`
 
+Supported auth inputs:
+
+- `HARNESS_BEARER_TOKEN`
+- `HARNESS_REFRESH_TOKEN`
+- `HARNESS_ADMIN_BEARER_TOKEN`
+- `HARNESS_ADMIN_REFRESH_TOKEN`
+- `HARNESS_SECONDARY_BEARER_TOKEN`
+- `HARNESS_SECONDARY_REFRESH_TOKEN`
+
+Optional endpoint override:
+
+- `HARNESS_REFRESH_URL`
+
+By default the harness derives the refresh URL from `HARNESS_API_URL` by replacing `/graphql` with `/refresh`.
+
 ## What Is Validated Today
 
 As of March 12, 2026:
 
 - Tier 0 is implemented and successfully run against hosted `main`
 - Tier 1 scripts are implemented
+- refresh-token auth support is implemented for admin, primary, and secondary actors
+- the updated Tier 1 scripts were syntax-checked locally
 - Tier 1 has not yet been fully executed against hosted `main` in this workspace because production-grade actor tokens and replay files were not supplied
 
 ## Remaining Execution Blockers
 
 To actually run Tier 1 against hosted `main`, the harness still needs:
 
-1. one admin bearer token or one direct actor bearer token
+1. one admin refresh token, one admin bearer token, or direct actor auth
 2. one or two known user IDs for impersonation if admin minting is used
 3. one known-safe game mode for scrim validation
 4. real replay file paths for submission validation

@@ -143,7 +143,13 @@ Requirements:
 - `HARNESS_API_URL`
 - one of:
   - `HARNESS_BEARER_TOKEN`
+  - `HARNESS_REFRESH_TOKEN`
   - `HARNESS_ADMIN_BEARER_TOKEN` plus `HARNESS_LOGIN_AS_USER_ID`
+  - `HARNESS_ADMIN_REFRESH_TOKEN` plus `HARNESS_LOGIN_AS_USER_ID`
+
+Optional:
+
+- `HARNESS_REFRESH_URL`
 
 Example:
 
@@ -160,8 +166,12 @@ Requirements:
 - `HARNESS_API_URL`
 - `HARNESS_MUTATION_CONFIRM=YES`
 - `HARNESS_GAME_MODE_ID`
-- primary auth via bearer token or admin minting
-- secondary auth via direct token or `HARNESS_SECONDARY_USER_ID`
+- primary auth via bearer token, refresh token, or admin minting
+- secondary auth via direct token, refresh token, or `HARNESS_SECONDARY_USER_ID`
+
+Optional:
+
+- `HARNESS_REFRESH_URL`
 
 ### `run-replay-submission-smoke.js`
 
@@ -177,4 +187,5 @@ Requirements:
 
 Optional:
 
-- `HARNESS_USE_MOCK_COMPLETION=true` with `HARNESS_ADMIN_BEARER_TOKEN`
+- `HARNESS_REFRESH_URL`
+- `HARNESS_USE_MOCK_COMPLETION=true` with `HARNESS_ADMIN_BEARER_TOKEN` or `HARNESS_ADMIN_REFRESH_TOKEN`
