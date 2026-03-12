@@ -35,12 +35,22 @@ if PARSER not in VALID_PARSERS:
     raise Exception(f"Unknown parser {PARSER}. Please specify one of: {', '.join(VALID_PARSERS)}")
 
 
-def parse(path: str, on_progress: Callable[[str], None] = None):
-    # Default to the metadata-only parser contract to avoid depending on network frames.
-    print("Parsing with carball summary-only parser.")
-    return _parse_carball_summary(path, on_progress)
+def get_result_metadata() -> dict:
     if PARSER == "carball":
-        return _parse_carball_summary(path, on_progress)
+        return {
+            "parser": "carball",
+            "analysisMode": "full-analysis",
+        }
+
+    return {
+        "parser": "ballchasing",
+        "analysisMode": "full-analysis",
+    }
+
+
+def parse(path: str, on_progress: Callable[[str], None] = None):
+    if PARSER == "carball":
+        return _parse_carball_full_analysis(path, on_progress)
     if PARSER == "ballchasing":
         return _parse_ballchasing(path, on_progress)
     if PARSER == "ballchasing-with-carball-shadow":
