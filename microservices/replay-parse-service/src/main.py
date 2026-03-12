@@ -151,9 +151,9 @@ class ParseReplay(BaseTask):
 
         self.analytics.timer_split_parse()
 
+        parser_metadata = parser.get_result_metadata()
         result = {
-            "parser": 'carball',
-            "analysisMode": "summary-only",
+            **parser_metadata,
             "parserVersion": PARSER_VERSION,
             "outputPath": parsed_object_path,
             "data": parsed_data,
