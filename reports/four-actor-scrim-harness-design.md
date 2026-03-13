@@ -6,7 +6,7 @@ Updated: March 13, 2026
 
 Define the implementation shape for extending the current two-actor scrim harness to support Rocket League Doubles on hosted environments.
 
-This is a design note, not a completed implementation.
+The actor-list contract described here is now implemented in the scrim runner, though it has not yet been fully validated against hosted `main` with the provisioned four-user set.
 
 ## Why This Is Needed
 

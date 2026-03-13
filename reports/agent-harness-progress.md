@@ -176,6 +176,15 @@ For Sprocket specifically, the highest-value initial target is not full autonomy
 39. Four-actor provisioning update on March 13, 2026:
    - the first dedicated Rocket League test users are now provisioned with user IDs `6404`, `6405`, `6406`, and `6407`;
    - the remaining blocker for hosted scrim validation is now harness implementation, not actor availability.
+40. Four-actor implementation update on March 13, 2026:
+   - `run-scrim-lifecycle-smoke.js` now accepts `HARNESS_SCRIM_ACTOR_USER_IDS` and `HARNESS_SCRIM_ACTOR_BEARER_TOKENS` for ordered actor-array execution;
+   - the legacy primary/secondary env contract remains available as a fallback for non-Rocket-League cases.
+41. Hosted four-actor validation update on March 13, 2026:
+   - the refactored scrim harness passed on hosted `main` using actor IDs `6404`, `6405`, `6406`, and `6407`;
+   - the observed scrim reached `IN_PROGRESS` with `4/4` players checked in and produced submission `scrim-b489a2bd-def8-456c-94fb-b425a359bebb`.
+42. Hosted replay-upload diagnosis update on March 13, 2026:
+   - the replay harness upload path was corrected to use native `fetch`/`FormData`/`Blob`, fixing the earlier multipart request formatting issue;
+   - the current hosted replay blocker is now a server-side `parseReplays` timeout rather than a harness request-shape bug.
 
 ## Agreed Direction
 

@@ -159,19 +159,28 @@ node ./scripts/harness/run-league-read-smoke.js
 
 ### `run-scrim-lifecycle-smoke.js`
 
-Mutating scrim verification using two actors.
+Mutating scrim verification using an ordered actor set.
 
 Requirements:
 
 - `HARNESS_API_URL`
 - `HARNESS_MUTATION_CONFIRM=YES`
 - `HARNESS_GAME_MODE_ID`
-- primary auth via bearer token, refresh token, or admin minting
-- secondary auth via direct token, refresh token, or `HARNESS_SECONDARY_USER_ID`
+- either:
+  - `HARNESS_SCRIM_ACTOR_USER_IDS` plus admin auth for impersonation
+  - `HARNESS_SCRIM_ACTOR_BEARER_TOKENS`
+  - or the legacy primary/secondary auth env vars
 
 Optional:
 
 - `HARNESS_REFRESH_URL`
+- `HARNESS_SCRIM_GROUP_ASSIGNMENTS`
+- `HARNESS_SCRIM_EXPECTED_MAX_PLAYERS`
+
+Notes:
+
+- Rocket League Doubles on hosted `main` currently requires `4` actors.
+- The legacy two-actor primary/secondary env shape is still supported as a fallback.
 
 ### `run-replay-submission-smoke.js`
 

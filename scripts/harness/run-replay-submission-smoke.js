@@ -2,8 +2,6 @@
 
 const fs = require("fs");
 const path = require("path");
-const fetch = require("node-fetch");
-const {FormData, File} = require("formdata-node");
 
 const {
     gqlRequest,
@@ -18,6 +16,14 @@ const {
     writeJson,
     writeSummary,
 } = require("./node-common");
+
+const fetchImpl = globalThis.fetch;
+const FormDataImpl = globalThis.FormData;
+const BlobImpl = globalThis.Blob;
+
+if (!fetchImpl || !FormDataImpl || !BlobImpl) {
+    throw new Error("Replay submission harness requires Node.js globals: fetch, FormData, and Blob");
+}
 
 const CURRENT_SCRIM_QUERY = `
   query {
@@ -87,7 +93,7 @@ function buildMockResults(filePaths) {
 }
 
 async function uploadReplays({apiUrl, token, submissionId, filePaths, stepDirectory}) {
-    const formData = new FormData();
+    const formData = new FormDataImpl();
     const operations = {
         query: `
           mutation ParseReplays($files: [Upload!]!, $submissionId: String!) {
@@ -110,11 +116,11 @@ async function uploadReplays({apiUrl, token, submissionId, filePaths, stepDirect
 
     filePaths.forEach((filePath, index) => {
         const fileBuffer = fs.readFileSync(filePath);
-        const file = new File([fileBuffer], path.basename(filePath));
-        formData.append(String(index), file);
+        const file = new BlobImpl([fileBuffer], {type: "application/octet-stream"});
+        formData.append(String(index), file, path.basename(filePath));
     });
 
-    const response = await fetch(apiUrl, {
+    const response = await fetchImpl(apiUrl, {
         method: "POST",
         headers: {
             Authorization: `Bearer ${token}`,
@@ -122,8 +128,30 @@ async function uploadReplays({apiUrl, token, submissionId, filePaths, stepDirect
         body: formData,
     });
 
-    const json = await response.json();
-    writeJson(path.join(stepDirectory, "upload.response.json"), json);
+    const rawBody = await response.text();
+    let json;
+    try {
+        json = JSON.parse(rawBody);
+    } catch (error) {
+        writeJson(path.join(stepDirectory, "upload.response.json"), {
+            ok: false,
+            status: response.status,
+            statusText: response.statusText,
+            bodyText: rawBody,
+        });
+        throw new Error(`Replay upload returned non-JSON response: ${response.status} ${response.statusText}`);
+    }
+
+    writeJson(path.join(stepDirectory, "upload.response.json"), {
+        ok: response.ok,
+        status: response.status,
+        statusText: response.statusText,
+        body: json,
+    });
+
+    if (!response.ok) {
+        throw new Error(`Replay upload failed: ${response.status} ${response.statusText}`);
+    }
 
     if (json.errors) {
         throw new Error(`Replay upload failed: ${JSON.stringify(json.errors)}`);

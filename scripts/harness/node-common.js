@@ -96,6 +96,24 @@ function optionalBool(name, fallback) {
     return ["1", "true", "yes", "y"].includes(value.toLowerCase());
 }
 
+function optionalCsv(name) {
+    const value = process.env[name];
+    if (!value) return [];
+    return value.split(",").map(part => part.trim()).filter(Boolean);
+}
+
+function optionalIntList(name) {
+    const values = optionalCsv(name);
+    if (values.length === 0) return [];
+    return values.map((value, index) => {
+        const parsed = Number.parseInt(value, 10);
+        if (Number.isNaN(parsed)) {
+            throw new Error(`Environment variable ${name} contains a non-integer at position ${index + 1}`);
+        }
+        return parsed;
+    });
+}
+
 function requireMutationConfirmation() {
     const value = process.env.HARNESS_MUTATION_CONFIRM;
     if (value !== "YES") {
@@ -322,6 +340,74 @@ async function resolveSecondaryToken({apiUrl, stepDirectory}) {
     return null;
 }
 
+async function resolveScrimActors({apiUrl, stepDirectory}) {
+    const actorUserIds = optionalIntList("HARNESS_SCRIM_ACTOR_USER_IDS");
+    if (actorUserIds.length > 0) {
+        const actorBearerTokens = optionalCsv("HARNESS_SCRIM_ACTOR_BEARER_TOKENS");
+        if (actorBearerTokens.length > 0 && actorBearerTokens.length !== actorUserIds.length) {
+            throw new Error("HARNESS_SCRIM_ACTOR_BEARER_TOKENS must match HARNESS_SCRIM_ACTOR_USER_IDS in count");
+        }
+
+        if (actorBearerTokens.length > 0) {
+            return actorUserIds.map((userId, index) => ({
+                label: `actor-${index + 1}`,
+                token: actorBearerTokens[index],
+                userId,
+            }));
+        }
+
+        const adminToken = await resolveAdminToken({
+            apiUrl,
+            stepDirectory,
+            label: "refresh-admin-token",
+        });
+        if (!adminToken) {
+            throw new Error(
+                "Provide HARNESS_SCRIM_ACTOR_BEARER_TOKENS or admin auth (HARNESS_ADMIN_BEARER_TOKEN or HARNESS_ADMIN_REFRESH_TOKEN) for HARNESS_SCRIM_ACTOR_USER_IDS",
+            );
+        }
+
+        const organizationId = optionalInt("HARNESS_ORGANIZATION_ID");
+        const actors = [];
+        for (let index = 0; index < actorUserIds.length; index += 1) {
+            const userId = actorUserIds[index];
+            const token = await mintTokenForUser({
+                apiUrl,
+                adminToken,
+                userId,
+                organizationId,
+                stepDirectory,
+                label: `mint-actor-${index + 1}-token`,
+            });
+            actors.push({
+                label: `actor-${index + 1}`,
+                token,
+                userId,
+            });
+        }
+        return actors;
+    }
+
+    const primaryToken = await resolvePrimaryToken({apiUrl, stepDirectory});
+    const secondaryToken = await resolveSecondaryToken({apiUrl, stepDirectory});
+    if (!secondaryToken) {
+        throw new Error("Scrim lifecycle smoke requires HARNESS_SECONDARY_BEARER_TOKEN or HARNESS_SECONDARY_USER_ID");
+    }
+
+    return [
+        {
+            label: "actor-1",
+            token: primaryToken,
+            userId: optionalInt("HARNESS_LOGIN_AS_USER_ID", null),
+        },
+        {
+            label: "actor-2",
+            token: secondaryToken,
+            userId: optionalInt("HARNESS_SECONDARY_USER_ID", null),
+        },
+    ];
+}
+
 function summaryPath(stepDirectory) {
     return path.join(stepDirectory, "summary.json");
 }
@@ -337,13 +423,16 @@ module.exports = {
     envName,
     gqlRequest,
     optionalBool,
+    optionalCsv,
     optionalInt,
+    optionalIntList,
     requireInt,
     poll,
     requireEnv,
     requireMutationConfirmation,
     resolveAdminToken,
     resolvePrimaryToken,
+    resolveScrimActors,
     resolveSecondaryToken,
     runBaseDir,
     sleep,
