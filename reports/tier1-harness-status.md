@@ -104,6 +104,7 @@ As of March 12, 2026:
 - hosted Replay Submission now gets through auth, submission targeting, and multipart upload formatting, but the live `parseReplays` mutation currently times out server-side
 - four dedicated Rocket League test users now exist for the planned four-actor scrim path: `6404`, `6405`, `6406`, `6407`
 - the scrim harness now accepts `HARNESS_SCRIM_ACTOR_USER_IDS` / `HARNESS_SCRIM_ACTOR_BEARER_TOKENS` for ordered multi-actor runs while preserving the legacy two-actor fallback
+- the current `parseReplays` timeout root cause has been identified in code: async replay submission waits on Celery completion instead of returning task IDs immediately
 
 ## Remaining Execution Blockers
 
@@ -111,7 +112,7 @@ To actually run Tier 1 against hosted `main`, the harness still needs:
 
 1. one admin refresh token, one admin bearer token, or direct actor auth
 2. one valid secondary user ID for impersonation if scrim lifecycle is run through admin minting
-3. diagnose or relax the live `parseReplays` timeout for hosted replay-submission validation
+3. deploy the async replay-submission fix so hosted `parseReplays` returns task IDs immediately instead of timing out
 4. real replay file paths for submission validation
 5. operator judgment on when production mutations are acceptable
 6. the `/refresh` handler fix deployed to the hosted environment if refresh-token auth is used

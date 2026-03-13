@@ -185,6 +185,12 @@ For Sprocket specifically, the highest-value initial target is not full autonomy
 42. Hosted replay-upload diagnosis update on March 13, 2026:
    - the replay harness upload path was corrected to use native `fetch`/`FormData`/`Blob`, fixing the earlier multipart request formatting issue;
    - the current hosted replay blocker is now a server-side `parseReplays` timeout rather than a harness request-shape bug.
+43. Replay-timeout root-cause update on March 13, 2026:
+   - `CeleryService.run()` was incorrectly awaiting `asyncResult.get()` even on the asynchronous path, which caused replay submission to block on parse completion;
+   - `ReplaySubmissionService.beginSubmission()` was also returning task IDs from completion state rather than from task creation, compounding the timeout behavior.
+44. Replay-timeout fix update on March 13, 2026:
+   - the async Celery path now returns immediately and invokes completion callbacks in the background;
+   - replay submission now returns created task IDs directly, and targeted `tsc --noEmit` checks passed for `common` and `microservices/submission-service`.
 
 ## Agreed Direction
 
