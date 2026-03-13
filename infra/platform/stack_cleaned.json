@@ -1,0 +1,4430 @@
+{
+  "version": 3,
+  "deployment": {
+    "manifest": {
+      "time": "2026-01-17T21:37:45.935022409Z",
+      "magic": "887a8edb9fda410e7284d562e21176efd284574cb7f8d94bf88178f5f526fe3c",
+      "version": "v3.215.0"
+    },
+    "secrets_providers": {
+      "type": "service",
+      "state": {
+        "url": "https://api.pulumi.com",
+        "owner": "gankoji",
+        "project": "platform",
+        "stack": "prod"
+      }
+    },
+    "resources": [
+      {
+        "urn": "urn:pulumi:prod::platform::pulumi:pulumi:Stack::platform-prod",
+        "custom": false,
+        "type": "pulumi:pulumi:Stack",
+        "created": "2025-10-31T20:06:50.058175981Z",
+        "modified": "2025-10-31T20:06:50.058175981Z",
+        "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#37,19",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#37,19"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#603,38"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Application:Microservice:Elo::prod-elo-service",
+        "custom": false,
+        "type": "SprocketBot:Application:Microservice:Elo",
+        "parent": "urn:pulumi:prod::platform::pulumi:pulumi:Stack::platform-prod",
+        "created": "2026-01-01T21:58:42.530045048Z",
+        "modified": "2026-01-01T21:58:42.530045048Z",
+        "sourcePosition": "project:///src/Platform.ts#349,18",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/Platform.ts#349,18"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Application:Microservice::prod-submission-service",
+        "custom": false,
+        "type": "SprocketBot:Application:Microservice",
+        "parent": "urn:pulumi:prod::platform::pulumi:pulumi:Stack::platform-prod",
+        "created": "2025-10-31T20:06:58.636785109Z",
+        "modified": "2025-10-31T20:06:58.636785109Z",
+        "sourcePosition": "project:///src/Platform.ts#367,26",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/Platform.ts#367,26"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform::prod",
+        "custom": false,
+        "type": "SprocketBot:Platform",
+        "parent": "urn:pulumi:prod::platform::pulumi:pulumi:Stack::platform-prod",
+        "created": "2025-10-31T20:06:57.641090364Z",
+        "modified": "2025-10-31T20:06:57.641090364Z",
+        "sourcePosition": "project:///src/index.ts#18,25",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Application:Microservice::prod-sprocket-image-generation-frontend",
+        "custom": false,
+        "type": "SprocketBot:Application:Microservice",
+        "parent": "urn:pulumi:prod::platform::pulumi:pulumi:Stack::platform-prod",
+        "created": "2025-10-31T20:06:57.995732009Z",
+        "modified": "2025-10-31T20:06:57.995732009Z",
+        "sourcePosition": "project:///src/Platform.ts#232,23",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/Platform.ts#232,23"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::pulumi:providers:random::default_4_18_3",
+        "custom": true,
+        "id": "462eb701-1c2e-4c0d-9e85-03b8c845ece6",
+        "type": "pulumi:providers:random",
+        "inputs": {
+          "__internal": {},
+          "version": "4.18.3"
+        },
+        "outputs": {
+          "version": "4.18.3"
+        },
+        "created": "2025-10-31T20:06:57.886995442Z",
+        "modified": "2025-10-31T20:06:57.886995442Z"
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Services:Redis::prod-datastores-redis",
+        "custom": false,
+        "type": "SprocketBot:Services:Redis",
+        "parent": "urn:pulumi:prod::platform::pulumi:pulumi:Stack::platform-prod",
+        "created": "2025-12-03T05:41:37.475782203Z",
+        "modified": "2025-12-03T05:41:37.475782203Z",
+        "sourcePosition": "project:///src/PlatformDatastore.ts#31,22",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/PlatformDatastore.ts#31,22"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#91,26"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Application:Microservice:Elo$SprocketBot:Application:Microservice::prod-elo-service-sprocketservice",
+        "custom": false,
+        "type": "SprocketBot:Application:Microservice",
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Application:Microservice:Elo::prod-elo-service",
+        "created": "2026-01-01T21:58:44.34168032Z",
+        "modified": "2026-01-01T21:58:44.34168032Z",
+        "sourcePosition": "project:///src/microservices/EloService.ts#29,20",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/microservices/EloService.ts#29,20"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#349,18"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Application:Microservice:Elo$SprocketBot:Services:DGraph::prod-elo-service-dgraph",
+        "custom": false,
+        "type": "SprocketBot:Services:DGraph",
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Application:Microservice:Elo::prod-elo-service",
+        "created": "2026-01-17T21:34:39.32925049Z",
+        "modified": "2026-01-17T21:34:39.32925049Z",
+        "sourcePosition": "project:///src/microservices/EloService.ts#17,19",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/microservices/EloService.ts#17,19"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#349,18"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::pulumi:providers:docker::authenticated-docker",
+        "custom": true,
+        "id": "e20b5276-444f-4bff-8669-9f290ee67f2d",
+        "type": "pulumi:providers:docker",
+        "inputs": {
+          "__internal": {},
+          "registryAuth": {
+            "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+            "ciphertext": "AAABANEsqAdgDUZOrrICt2ApGCOdgfH2kKNZOZbSAMjRBicGm/Zgn3ksSgsDpvEVeUtoZrn23sfpOZDYV2+w1SCZwU3rHmz3yhYE2v76gAlFKTMX3kTRJz4ETfESBfpPiIQftn4xuROfTHC63UXLiSka6Kdi01jah/+eUewsH3U4RBa7hlZ4asZIKQo/M4KEPpAnmef1UAJwNlkxtyH/RR9SZ6Q9"
+          },
+          "version": "4.11.0"
+        },
+        "outputs": {
+          "registryAuth": {
+            "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+            "ciphertext": "AAABAAyBoNV+VPN+ECPNwKkoV+5i/tJo1McgcMQf33F6boCOCHzDqd2mPfGBM4Mv6NOQKe1Q94hbKP5hutjKXO1nM0FI2grrQF85FSWgN3B7Zcz60kISpSptT7IINTjHx+zfGUgZouS/kW9VurSm9N43txNAenwrL0TpBDUjHH5CS28GdmuPq0gA0qdxErGF2KcleP6FoY0Rc/TJK+3PS6P1f+Cd"
+          },
+          "version": "4.11.0"
+        },
+        "parent": "urn:pulumi:prod::platform::pulumi:pulumi:Stack::platform-prod",
+        "propertyDependencies": {
+          "registryAuth": []
+        },
+        "created": "2025-10-31T20:07:01.121822701Z",
+        "modified": "2026-01-17T21:34:39.035353315Z",
+        "sourcePosition": "project:///../global/node_modules/@pulumi/provider.ts#78,9",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///../global/node_modules/@pulumi/provider.ts#78,9"
+          },
+          {
+            "sourcePosition": "project:///../global/providers/DockerProvider.ts#6,31"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///src/microservices/SprocketService.ts#5,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///src/Platform.ts#6,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///src/index.ts#8,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::random:index/randomUuid:RandomUuid::prod-key",
+        "custom": true,
+        "id": "0f256942-2683-05b2-8293-011180ea5e26",
+        "type": "random:index/randomUuid:RandomUuid",
+        "outputs": {
+          "__pulumi_raw_state_delta": {
+            "obj": {
+              "ps": {
+                "keepers": {
+                  "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+                  "ciphertext": "AAABAG5Coqn3J4RNxz6JofEoVUdB+akB5CgTxjKhaOn+qwsZIC0nDgX9H4gVoySwN+56BaXETbs="
+                }
+              }
+            }
+          },
+          "id": "0f256942-2683-05b2-8293-011180ea5e26",
+          "result": "0f256942-2683-05b2-8293-011180ea5e26"
+        },
+        "parent": "urn:pulumi:prod::platform::pulumi:pulumi:Stack::platform-prod",
+        "provider": "urn:pulumi:prod::platform::pulumi:providers:random::default_4_18_3::462eb701-1c2e-4c0d-9e85-03b8c845ece6",
+        "created": "2025-10-31T20:07:06.797847965Z",
+        "modified": "2025-10-31T20:07:06.797847965Z",
+        "sourcePosition": "project:///src/Platform.ts#76,20",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/Platform.ts#76,20"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::pulumi:providers:pulumi::default",
+        "custom": true,
+        "id": "d6d3190e-ad89-4d95-b88d-362c910b122f",
+        "type": "pulumi:providers:pulumi",
+        "created": "2025-10-31T20:07:06.596275543Z",
+        "modified": "2025-10-31T20:07:06.596275543Z"
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Platform:S3::prod-s3",
+        "custom": false,
+        "type": "SprocketBot:Platform:S3",
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform::prod",
+        "created": "2025-10-31T20:07:03.852416779Z",
+        "modified": "2025-10-31T20:07:03.852416779Z",
+        "sourcePosition": "project:///src/Platform.ts#83,30",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/Platform.ts#83,30"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::random:index/randomPassword:RandomPassword::prod-secrets-jwt-secret-randomizer",
+        "custom": true,
+        "id": "none",
+        "type": "random:index/randomPassword:RandomPassword",
+        "inputs": {
+          "length": 128
+        },
+        "outputs": {
+          "__meta": "{\"schema_version\":\"3\"}",
+          "__pulumi_raw_state_delta": {
+            "obj": {
+              "ps": {
+                "keepers": {
+                  "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+                  "ciphertext": "AAABAMEZMT0T+CHlYAvH4Yjj0XrVHPPjNgVh0N3nT3eESGEwE0aSRzCFCKA9OMTReQ/r7HUrZBc="
+                },
+                "overrideSpecial": {
+                  "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+                  "ciphertext": "AAABAFcXJAYbdF/IZ5Tq5iQtW92sCOUbmUzPg+jof79DOyp2DiE0uqCTImiaz0D+jmVuopRzeuY="
+                }
+              }
+            }
+          },
+          "bcryptHash": {
+            "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+            "ciphertext": "AAABAE16Wueq/Hqg786dFOwpBTq77OctEXYkkhwcKfu8ZLz9UYIntOgrciY2kduonjg/6ope2pg5bHvM0DK3PJz4oaMvQWQuozDDZNQnTdk8euf0rLETDcJFG1Ln7w=="
+          },
+          "id": "none",
+          "length": 128,
+          "lower": true,
+          "minLower": 0,
+          "minNumeric": 0,
+          "minSpecial": 0,
+          "minUpper": 0,
+          "number": true,
+          "numeric": true,
+          "result": {
+            "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+            "ciphertext": "AAABANDa9fvQUuRApJ/RZ8gWnIq0B22sIJTzR0AXiEvcPsy4xrEx1MHIV4eXJdOOUYU4LZNEFZ+RJ2wYRZphw+CDZpKF7B4fyRirhEewfr7vCSc+UgEZrm8Vk6MVeYIpYaBtYOuinH1NXk7Vu7kd+NfWymzQjNqLCpV0QfbODfZS10a2lcCOsJLkbWZMWaUdhqmRHiuesKDN+iErgxiTKwp7x63lGXw72F7S3RqkqkLOSGDmDPw="
+          },
+          "special": true,
+          "upper": true
+        },
+        "parent": "urn:pulumi:prod::platform::pulumi:pulumi:Stack::platform-prod",
+        "provider": "urn:pulumi:prod::platform::pulumi:providers:random::default_4_18_3::462eb701-1c2e-4c0d-9e85-03b8c845ece6",
+        "propertyDependencies": {
+          "length": []
+        },
+        "additionalSecretOutputs": [
+          "bcryptHash",
+          "result"
+        ],
+        "created": "2025-10-31T20:07:06.789325787Z",
+        "modified": "2025-10-31T20:07:06.789325787Z",
+        "sourcePosition": "project:///src/PlatformSecrets.ts#79,19",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/PlatformSecrets.ts#79,19"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#103,24"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Platform:Database::prod-database",
+        "custom": false,
+        "type": "SprocketBot:Platform:Database",
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform::prod",
+        "created": "2025-10-31T20:07:06.390146192Z",
+        "modified": "2025-10-31T20:07:06.390146192Z",
+        "sourcePosition": "project:///src/Platform.ts#98,25",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/Platform.ts#98,25"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Platform:Datastores::prod-datastores",
+        "custom": false,
+        "type": "SprocketBot:Platform:Datastores",
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform::prod",
+        "created": "2025-10-31T20:07:03.225712155Z",
+        "modified": "2025-10-31T20:07:03.225712155Z",
+        "sourcePosition": "project:///src/Platform.ts#91,26",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/Platform.ts#91,26"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Platform:Secrets::prod-secrets",
+        "custom": false,
+        "type": "SprocketBot:Platform:Secrets",
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform::prod",
+        "created": "2025-10-31T20:07:05.032533997Z",
+        "modified": "2025-10-31T20:07:05.032533997Z",
+        "sourcePosition": "project:///src/Platform.ts#103,24",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/Platform.ts#103,24"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Application:Microservice::prod-discord-bot",
+        "custom": false,
+        "type": "SprocketBot:Application:Microservice",
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform::prod",
+        "created": "2025-10-31T20:07:04.789999133Z",
+        "modified": "2025-10-31T20:07:04.789999133Z",
+        "sourcePosition": "project:///src/Platform.ts#262,25",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/Platform.ts#262,25"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Application:Microservice::prod-sprocket-web",
+        "custom": false,
+        "type": "SprocketBot:Application:Microservice",
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform::prod",
+        "created": "2025-10-31T20:07:05.241228703Z",
+        "modified": "2025-10-31T20:07:05.241228703Z",
+        "sourcePosition": "project:///src/Platform.ts#208,18",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/Platform.ts#208,18"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Application:Microservice::prod-matchmaking-service",
+        "custom": false,
+        "type": "SprocketBot:Application:Microservice",
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform::prod",
+        "created": "2025-12-16T00:52:49.418102309Z",
+        "modified": "2025-12-16T00:52:49.418102309Z",
+        "sourcePosition": "project:///src/Platform.ts#324,26",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/Platform.ts#324,26"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Application:Microservice::prod-notification-service",
+        "custom": false,
+        "type": "SprocketBot:Application:Microservice",
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform::prod",
+        "created": "2025-10-31T20:07:05.890698935Z",
+        "modified": "2025-10-31T20:07:05.890698935Z",
+        "sourcePosition": "project:///src/Platform.ts#286,28",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/Platform.ts#286,28"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Application:Microservice::prod-replay-parse-service",
+        "custom": false,
+        "type": "SprocketBot:Application:Microservice",
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform::prod",
+        "created": "2025-10-31T20:07:02.956736466Z",
+        "modified": "2025-10-31T20:07:02.956736466Z",
+        "sourcePosition": "project:///src/Platform.ts#333,26",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/Platform.ts#333,26"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Application:Microservice::prod-server-analytics-service",
+        "custom": false,
+        "type": "SprocketBot:Application:Microservice",
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform::prod",
+        "created": "2025-10-31T20:07:06.487029052Z",
+        "modified": "2025-10-31T20:07:06.487029052Z",
+        "sourcePosition": "project:///src/Platform.ts#312,24",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/Platform.ts#312,24"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:LegacyPlatform::prod-legacy",
+        "custom": false,
+        "type": "SprocketBot:LegacyPlatform",
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform::prod",
+        "created": "2025-10-31T20:07:03.439036557Z",
+        "modified": "2025-10-31T20:07:03.439036557Z",
+        "sourcePosition": "project:///src/Platform.ts#390,9",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/Platform.ts#390,9"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Services:Redis$SprocketBot:Components:ServiceCredentials::prod-datastores-redis-root-credentials",
+        "custom": false,
+        "type": "SprocketBot:Components:ServiceCredentials",
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Services:Redis::prod-datastores-redis",
+        "created": "2026-01-17T21:34:39.596164752Z",
+        "modified": "2026-01-17T21:34:39.596164752Z",
+        "sourcePosition": "project:///../global/services/redis/Redis.ts#31,28",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///../global/services/redis/Redis.ts#31,28"
+          },
+          {
+            "sourcePosition": "project:///src/PlatformDatastore.ts#31,22"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#91,26"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Application:Microservice::prod-image-generation-service",
+        "custom": false,
+        "type": "SprocketBot:Application:Microservice",
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform::prod",
+        "created": "2025-10-31T20:07:05.676065894Z",
+        "modified": "2025-10-31T20:07:05.676065894Z",
+        "sourcePosition": "project:///src/Platform.ts#295,23",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/Platform.ts#295,23"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Application:Microservice::prod-sprocket-core",
+        "custom": false,
+        "type": "SprocketBot:Application:Microservice",
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform::prod",
+        "created": "2025-11-04T20:35:10.568384864Z",
+        "modified": "2025-11-04T20:35:10.568384864Z",
+        "sourcePosition": "project:///src/Platform.ts#145,21",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/Platform.ts#145,21"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::pulumi:providers:docker::default_4_11_0",
+        "custom": true,
+        "id": "9ce209d0-ae27-40bd-9a77-c5b44140627c",
+        "type": "pulumi:providers:docker",
+        "inputs": {
+          "__internal": {},
+          "version": "4.11.0"
+        },
+        "outputs": {
+          "version": "4.11.0"
+        },
+        "created": "2026-01-17T21:34:39.833374501Z",
+        "modified": "2026-01-17T21:34:39.833374501Z"
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Application:Microservice:Elo$SprocketBot:Services:DGraph$SprocketBot:Components:ServiceCredentials::prod-elo-service-dgraph-root-credentials",
+        "custom": false,
+        "type": "SprocketBot:Components:ServiceCredentials",
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Application:Microservice:Elo$SprocketBot:Services:DGraph::prod-elo-service-dgraph",
+        "created": "2026-01-17T21:34:41.977884786Z",
+        "modified": "2026-01-17T21:34:41.977884786Z",
+        "sourcePosition": "project:///../global/services/dgraph/DGraph.ts#33,28",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///../global/services/dgraph/DGraph.ts#33,28"
+          },
+          {
+            "sourcePosition": "project:///src/microservices/EloService.ts#17,19"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#349,18"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$docker:index/network:Network::prod-net",
+        "custom": true,
+        "id": "iw3o6umynsa5koqcvk05wu3l0",
+        "type": "docker:index/network:Network",
+        "inputs": {
+          "__defaults": [
+            "ipamDriver",
+            "name"
+          ],
+          "driver": "overlay",
+          "ipamDriver": "default",
+          "name": "prod-net-b21817d"
+        },
+        "outputs": {
+          "__meta": "{\"schema_version\":\"1\"}",
+          "attachable": false,
+          "driver": "overlay",
+          "id": "iw3o6umynsa5koqcvk05wu3l0",
+          "ingress": false,
+          "internal": false,
+          "ipamConfigs": [
+            {
+              "auxAddress": {},
+              "gateway": "10.0.14.1",
+              "ipRange": "",
+              "subnet": "10.0.14.0/24"
+            }
+          ],
+          "ipamDriver": "default",
+          "ipv6": false,
+          "labels": [],
+          "name": "prod-net-b21817d",
+          "options": {
+            "com.docker.network.driver.overlay.vxlanid_list": "4113"
+          },
+          "scope": "swarm"
+        },
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform::prod",
+        "provider": "urn:pulumi:prod::platform::pulumi:providers:docker::default_4_11_0::9ce209d0-ae27-40bd-9a77-c5b44140627c",
+        "propertyDependencies": {
+          "driver": []
+        },
+        "created": "2025-10-31T20:07:15.970474314Z",
+        "modified": "2025-10-31T20:07:15.970474314Z",
+        "sourcePosition": "project:///src/Platform.ts#80,24",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/Platform.ts#80,24"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Application:Microservice:Elo$SprocketBot:Services:DGraph$docker:index/network:Network::prod-elo-service-dgraph-net",
+        "custom": true,
+        "id": "k6jpbzok01v2792la8ergyrkk",
+        "type": "docker:index/network:Network",
+        "inputs": {
+          "__defaults": [
+            "ipamDriver",
+            "name"
+          ],
+          "driver": "overlay",
+          "ipamDriver": "default",
+          "name": "prod-elo-service-dgraph-net-4e8feb4"
+        },
+        "outputs": {
+          "__meta": "{\"schema_version\":\"1\"}",
+          "__pulumi_raw_state_delta": {
+            "obj": {
+              "ps": {
+                "ipamConfigs": {
+                  "arr": {
+                    "el": {
+                      "0": {
+                        "obj": {
+                          "ps": {
+                            "auxAddress": {
+                              "map": {}
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "labels": {
+                  "arr": {}
+                },
+                "options": {
+                  "map": {}
+                }
+              },
+              "renamed": {
+                "ipamConfigs": "ipam_config"
+              }
+            }
+          },
+          "attachable": false,
+          "checkDuplicate": null,
+          "driver": "overlay",
+          "id": "k6jpbzok01v2792la8ergyrkk",
+          "ingress": false,
+          "internal": false,
+          "ipamConfigs": [
+            {
+              "auxAddress": {},
+              "gateway": "10.0.2.1",
+              "ipRange": "",
+              "subnet": "10.0.2.0/24"
+            }
+          ],
+          "ipamDriver": "default",
+          "ipamOptions": null,
+          "ipv6": false,
+          "labels": [],
+          "name": "prod-elo-service-dgraph-net-4e8feb4",
+          "options": {
+            "com.docker.network.driver.overlay.vxlanid_list": "4105"
+          },
+          "scope": "swarm"
+        },
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Application:Microservice:Elo$SprocketBot:Services:DGraph::prod-elo-service-dgraph",
+        "provider": "urn:pulumi:prod::platform::pulumi:providers:docker::default_4_11_0::9ce209d0-ae27-40bd-9a77-c5b44140627c",
+        "propertyDependencies": {
+          "driver": []
+        },
+        "created": "2026-01-17T21:34:55.312395439Z",
+        "modified": "2026-01-17T21:34:55.312395439Z",
+        "sourcePosition": "project:///../global/services/dgraph/DGraph.ts#37,26",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///../global/services/dgraph/DGraph.ts#37,26"
+          },
+          {
+            "sourcePosition": "project:///src/microservices/EloService.ts#17,19"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#349,18"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Platform:Datastores$SprocketBot:Services:RabbitMq::prod-datastores-rmq",
+        "custom": false,
+        "type": "SprocketBot:Services:RabbitMq",
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Platform:Datastores::prod-datastores",
+        "created": "2025-12-16T01:08:30.910994953Z",
+        "modified": "2025-12-16T01:08:30.910994953Z",
+        "sourcePosition": "project:///src/PlatformDatastore.ts#24,25",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/PlatformDatastore.ts#24,25"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#91,26"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:LegacyPlatform$SprocketBot:Services:Redis::prod-legacy-redis",
+        "custom": false,
+        "type": "SprocketBot:Services:Redis",
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:LegacyPlatform::prod-legacy",
+        "created": "2025-12-16T01:08:31.151867458Z",
+        "modified": "2025-12-16T01:08:31.151867458Z",
+        "sourcePosition": "project:///src/legacy/LegacyPlatform.ts#45,18",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/legacy/LegacyPlatform.ts#45,18"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#390,9"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::pulumi:providers:random::default_4_18_4",
+        "custom": true,
+        "id": "c99aa7e1-4a6d-4a67-a80e-ce4dff62f201",
+        "type": "pulumi:providers:random",
+        "inputs": {
+          "__internal": {},
+          "version": "4.18.4"
+        },
+        "outputs": {
+          "version": "4.18.4"
+        },
+        "created": "2025-10-31T20:07:13.68630655Z",
+        "modified": "2025-10-31T20:07:13.68630655Z"
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Application:Microservice:Elo$SprocketBot:Services:DGraph$SprocketBot:Components:ServiceCredentials$random:index/randomPassword:RandomPassword::prod-elo-service-dgraph-root-credentials-password",
+        "custom": true,
+        "id": "none",
+        "type": "random:index/randomPassword:RandomPassword",
+        "inputs": {
+          "length": 64,
+          "lower": true,
+          "number": true,
+          "special": false,
+          "upper": true
+        },
+        "outputs": {
+          "__meta": "{\"schema_version\":\"3\"}",
+          "__pulumi_raw_state_delta": {
+            "obj": {
+              "ps": {
+                "keepers": {
+                  "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+                  "ciphertext": "AAABAJh8jWszBlFbBXtntu3Cw5g8YC32ZJTz+8FmWtd7dgHtfVltOgAoSdrwD5sTopWGd8tlktk="
+                },
+                "overrideSpecial": {
+                  "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+                  "ciphertext": "AAABAH0ePWr7uUQtxwcJq9FivdkttWopDetHVO4y71ONfqqM9zjV2cjzmNpO7/Et+x0p6QW0Yl8="
+                }
+              }
+            }
+          },
+          "bcryptHash": {
+            "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+            "ciphertext": "AAABAEY0/waONWenUb6LHXSCLNXa5DsNG4cojqvZoETC9XXsXubMrLJDktl1ct0PwAVne9ARulLImafsqdOQLmGJbPuUmJf3nShqbREKxZP/1L+yJdIyZUIFuYx1pQ=="
+          },
+          "id": "none",
+          "length": 64,
+          "lower": true,
+          "minLower": 0,
+          "minNumeric": 0,
+          "minSpecial": 0,
+          "minUpper": 0,
+          "number": true,
+          "numeric": true,
+          "result": {
+            "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+            "ciphertext": "AAABABQs2hbJU2ytxJx5cb5Gh1iK2dvQzTZcEj1gpknM7/9yKtX7kgmBoCkct9poh5xLG76BUIPGV6KtO5wWAwQgfc699uYMQzyOPypc3I5nhsl+LmwDTf3jQr1gqfeSCo0="
+          },
+          "special": false,
+          "upper": true
+        },
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Application:Microservice:Elo$SprocketBot:Services:DGraph$SprocketBot:Components:ServiceCredentials::prod-elo-service-dgraph-root-credentials",
+        "provider": "urn:pulumi:prod::platform::pulumi:providers:random::default_4_18_4::c99aa7e1-4a6d-4a67-a80e-ce4dff62f201",
+        "propertyDependencies": {
+          "length": [],
+          "lower": [],
+          "number": [],
+          "special": [],
+          "upper": []
+        },
+        "additionalSecretOutputs": [
+          "bcryptHash",
+          "result"
+        ],
+        "created": "2026-01-17T21:35:02.196627856Z",
+        "modified": "2026-01-17T21:35:02.196627856Z",
+        "sourcePosition": "project:///../global/helpers/ServiceCredentials.ts#26,33",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///../global/helpers/ServiceCredentials.ts#26,33"
+          },
+          {
+            "sourcePosition": "project:///../global/services/dgraph/DGraph.ts#33,28"
+          },
+          {
+            "sourcePosition": "project:///src/microservices/EloService.ts#17,19"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#349,18"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Services:Redis$SprocketBot:Components:ServiceCredentials$random:index/randomPassword:RandomPassword::prod-datastores-redis-root-credentials-password",
+        "custom": true,
+        "id": "none",
+        "type": "random:index/randomPassword:RandomPassword",
+        "inputs": {
+          "length": 64,
+          "lower": true,
+          "number": true,
+          "special": false,
+          "upper": true
+        },
+        "outputs": {
+          "__meta": "{\"schema_version\":\"3\"}",
+          "__pulumi_raw_state_delta": {
+            "obj": {
+              "ps": {
+                "keepers": {
+                  "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+                  "ciphertext": "AAABAN6lgnPkRO3UHo90u/U9yJOKISwNWnkkBMTQuYvMKmoAX5sCQhOORX3zvwld35ZUfHcf8NQ="
+                },
+                "overrideSpecial": {
+                  "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+                  "ciphertext": "AAABAMRUGnqyrvXuT2WS0jQwR6Eut0hgp/SrZ2sy3JwGTlKPSaE3Kt8Nhn+8v2u57lHANOaKupM="
+                }
+              }
+            }
+          },
+          "bcryptHash": {
+            "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+            "ciphertext": "AAABAJJtPqI5xaZYZzCku06xxogoSi4EgXTbPKi213npD8LMXtgt1mtb3VaNiCKmLWRqF4haL3B31fsAnsu8HOQEjTsSdmR3huHeiqYTtdap5EfMTuCp/x9ZsIWkCA=="
+          },
+          "id": "none",
+          "length": 64,
+          "lower": true,
+          "minLower": 0,
+          "minNumeric": 0,
+          "minSpecial": 0,
+          "minUpper": 0,
+          "number": true,
+          "numeric": true,
+          "result": {
+            "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+            "ciphertext": "AAABADVcmbGFTQEh/yVcRFf9yun+jwKArtKTs4j5Rb2UeKwM0RVMUV4anvhxjiPxVWc8ImJxlxyfSr6F//wnDz+ZOLGj5huDOTsxIukrrxJjfRFALmoguqQcjAxM0V5FGwQ="
+          },
+          "special": false,
+          "upper": true
+        },
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Services:Redis$SprocketBot:Components:ServiceCredentials::prod-datastores-redis-root-credentials",
+        "provider": "urn:pulumi:prod::platform::pulumi:providers:random::default_4_18_4::c99aa7e1-4a6d-4a67-a80e-ce4dff62f201",
+        "propertyDependencies": {
+          "length": [],
+          "lower": [],
+          "number": [],
+          "special": [],
+          "upper": []
+        },
+        "additionalSecretOutputs": [
+          "bcryptHash",
+          "result"
+        ],
+        "created": "2026-01-17T21:34:59.503450425Z",
+        "modified": "2026-01-17T21:34:59.503450425Z",
+        "sourcePosition": "project:///../global/helpers/ServiceCredentials.ts#26,33",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///../global/helpers/ServiceCredentials.ts#26,33"
+          },
+          {
+            "sourcePosition": "project:///../global/services/redis/Redis.ts#31,28"
+          },
+          {
+            "sourcePosition": "project:///src/PlatformDatastore.ts#31,22"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#91,26"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:LegacyPlatform$docker:index/network:Network::prod-legacy-net",
+        "custom": true,
+        "id": "w37e2f0jtydhvh0kifdsxgw11",
+        "type": "docker:index/network:Network",
+        "inputs": {
+          "__defaults": [
+            "ipamDriver",
+            "name"
+          ],
+          "driver": "overlay",
+          "ipamDriver": "default",
+          "name": "prod-legacy-net-a3e8f89"
+        },
+        "outputs": {
+          "__meta": "{\"schema_version\":\"1\"}",
+          "attachable": false,
+          "driver": "overlay",
+          "id": "w37e2f0jtydhvh0kifdsxgw11",
+          "ingress": false,
+          "internal": false,
+          "ipamConfigs": [
+            {
+              "auxAddress": {},
+              "gateway": "10.0.1.1",
+              "ipRange": "",
+              "subnet": "10.0.1.0/24"
+            }
+          ],
+          "ipamDriver": "default",
+          "ipv6": false,
+          "labels": [],
+          "name": "prod-legacy-net-a3e8f89",
+          "options": {
+            "com.docker.network.driver.overlay.vxlanid_list": "4097"
+          },
+          "scope": "swarm"
+        },
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:LegacyPlatform::prod-legacy",
+        "provider": "urn:pulumi:prod::platform::pulumi:providers:docker::default_4_11_0::9ce209d0-ae27-40bd-9a77-c5b44140627c",
+        "propertyDependencies": {
+          "driver": []
+        },
+        "created": "2025-12-16T01:08:33.658816872Z",
+        "modified": "2025-12-16T01:08:33.658816872Z",
+        "sourcePosition": "project:///src/legacy/LegacyPlatform.ts#41,20",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/legacy/LegacyPlatform.ts#41,20"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#390,9"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:LegacyPlatform$SprocketBot:Services:Redis$SprocketBot:Components:ServiceCredentials::prod-legacy-redis-root-credentials",
+        "custom": false,
+        "type": "SprocketBot:Components:ServiceCredentials",
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:LegacyPlatform$SprocketBot:Services:Redis::prod-legacy-redis",
+        "created": "2026-01-17T21:34:54.584601436Z",
+        "modified": "2026-01-17T21:34:54.584601436Z",
+        "sourcePosition": "project:///../global/services/redis/Redis.ts#31,28",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///../global/services/redis/Redis.ts#31,28"
+          },
+          {
+            "sourcePosition": "project:///src/legacy/LegacyPlatform.ts#45,18"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#390,9"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::pulumi:pulumi:StackReference::gankoji/layer_1/layer_1",
+        "custom": true,
+        "id": "gankoji/layer_1/layer_1",
+        "type": "pulumi:pulumi:StackReference",
+        "inputs": {
+          "name": "gankoji/layer_1/layer_1"
+        },
+        "outputs": {
+          "name": "gankoji/layer_1/layer_1",
+          "outputs": {
+            "IngressNetwork": "r309jhogiyt33v0vlr3q51kia"
+          },
+          "secretOutputNames": []
+        },
+        "parent": "urn:pulumi:prod::platform::pulumi:pulumi:Stack::platform-prod",
+        "external": true,
+        "provider": "urn:pulumi:prod::platform::pulumi:providers:pulumi::default::d6d3190e-ad89-4d95-b88d-362c910b122f",
+        "modified": "2026-01-17T21:34:39.542201463Z",
+        "sourcePosition": "project:///../global/refs/types.ts#12,27",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///../global/refs/types.ts#12,27"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#30,32"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:LegacyPlatform$SprocketBot:Services:Redis$SprocketBot:Components:ServiceCredentials$random:index/randomPassword:RandomPassword::prod-legacy-redis-root-credentials-password",
+        "custom": true,
+        "id": "none",
+        "type": "random:index/randomPassword:RandomPassword",
+        "inputs": {
+          "length": 64,
+          "lower": true,
+          "number": true,
+          "special": false,
+          "upper": true
+        },
+        "outputs": {
+          "__meta": "{\"schema_version\":\"3\"}",
+          "__pulumi_raw_state_delta": {
+            "obj": {
+              "ps": {
+                "keepers": {
+                  "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+                  "ciphertext": "AAABAC0sFBQ1EdZNPC1HHr1sUC2Q9pIYzDTHA+fivEo4UxUexgyi8nf969TDpEAMn6P7CFaW/Sw="
+                },
+                "overrideSpecial": {
+                  "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+                  "ciphertext": "AAABAMGIph+9GqA+JDkq1YSztfvDCL45PgndRkzUTHc6apFkLf19sSKfwhoPR0L9JxiXrTybhf0="
+                }
+              }
+            }
+          },
+          "bcryptHash": {
+            "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+            "ciphertext": "AAABAD9lOxhlSBs/ZTa+Tu4XSYc0/W6f0Vu/Z0yxZu7j+WNeoEH6Yb+o9fU1uq/tPAf8i0AxB6p31+SoMM6/Z3/zNlGB8jPNsZ6GU7iSwRpTTJ/im+w9VRZC6rVeSQ=="
+          },
+          "id": "none",
+          "length": 64,
+          "lower": true,
+          "minLower": 0,
+          "minNumeric": 0,
+          "minSpecial": 0,
+          "minUpper": 0,
+          "number": true,
+          "numeric": true,
+          "result": {
+            "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+            "ciphertext": "AAABAOOoB45KPNlAuYBlR/g8p+THjkTdUnd+HMBLhSxIZtotPVm6OLjsm3c/wLzVKn9atx6jt6PJFLgqT6jFu0SSyM+GxVQ+pQWZGCsVdNbpYHFGFvq5gyzEYdlzEZRKpGM="
+          },
+          "special": false,
+          "upper": true
+        },
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:LegacyPlatform$SprocketBot:Services:Redis$SprocketBot:Components:ServiceCredentials::prod-legacy-redis-root-credentials",
+        "provider": "urn:pulumi:prod::platform::pulumi:providers:random::default_4_18_4::c99aa7e1-4a6d-4a67-a80e-ce4dff62f201",
+        "propertyDependencies": {
+          "length": [],
+          "lower": [],
+          "number": [],
+          "special": [],
+          "upper": []
+        },
+        "additionalSecretOutputs": [
+          "bcryptHash",
+          "result"
+        ],
+        "created": "2026-01-17T21:35:03.753054417Z",
+        "modified": "2026-01-17T21:35:03.753054417Z",
+        "sourcePosition": "project:///../global/helpers/ServiceCredentials.ts#26,33",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///../global/helpers/ServiceCredentials.ts#26,33"
+          },
+          {
+            "sourcePosition": "project:///../global/services/redis/Redis.ts#31,28"
+          },
+          {
+            "sourcePosition": "project:///src/legacy/LegacyPlatform.ts#45,18"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#390,9"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::pulumi:pulumi:StackReference::gankoji/layer_2/layer_2",
+        "custom": true,
+        "id": "gankoji/layer_2/layer_2",
+        "type": "pulumi:pulumi:StackReference",
+        "inputs": {
+          "name": "gankoji/layer_2/layer_2"
+        },
+        "outputs": {
+          "name": "gankoji/layer_2/layer_2",
+          "outputs": {
+            "InfluxDbToken": {
+              "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+              "ciphertext": "AAABABZwVd9nDwluj0W0bDw6BUng1Arm2en3m8WiH7P/pvP2nM2mWgkAk5Yty6VQtnx4IzzTvx8QXE1TfgSHZ5y/npQyXfeFZFSi+3ajsorIFiNhNh2aOpk2FJw1wm9O04Q="
+            },
+            "MinioAccessKey": {
+              "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+              "ciphertext": "AAABAEKJbSKSs0ViCKy/tP6hc5bY1RDGPDS4wLqs9D3BPtJzYlT/fy+QY43qX5D52lZRWEmh"
+            },
+            "MinioHostname": "nyc3.digitaloceanspaces.com",
+            "MinioSecretKey": {
+              "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+              "ciphertext": "AAABAJeE8zvYJSNA9SBrv22119Kspu+T+v9wSfJacys3thbgV0Sdw3bMwGnKB1oMSW8T3HlhaNKdDrxAMsb/krUW1n9zsU3nnMcHXEY="
+            },
+            "MinioUrl": "nyc3.digitaloceanspaces.com",
+            "MonitoringNetworkId": "ma1yc3ogh2bhrfviw05di49om",
+            "PostgresHostname": "sprocketbot-postgres-d5033d2-do-user-24528890-0.j.db.ondigitalocean.com",
+            "PostgresNetworkId": "12345",
+            "PostgresPort": 25060,
+            "PostgresUrl": "sprocketbot-postgres-d5033d2-do-user-24528890-0.j.db.ondigitalocean.com"
+          },
+          "secretOutputNames": [
+            "InfluxDbToken",
+            "MinioAccessKey",
+            "MinioSecretKey"
+          ]
+        },
+        "parent": "urn:pulumi:prod::platform::pulumi:pulumi:Stack::platform-prod",
+        "external": true,
+        "provider": "urn:pulumi:prod::platform::pulumi:providers:pulumi::default::d6d3190e-ad89-4d95-b88d-362c910b122f",
+        "modified": "2026-01-17T21:34:40.084737013Z",
+        "sourcePosition": "project:///../global/refs/types.ts#12,27",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///../global/refs/types.ts#12,27"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#11,26"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::pulumi:providers:aws::SprocketS3Provider",
+        "custom": true,
+        "id": "11ed5183-027f-47fb-9240-466731eccf26",
+        "type": "pulumi:providers:aws",
+        "inputs": {
+          "__internal": {},
+          "accessKey": {
+            "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+            "ciphertext": "AAABABer+nnlyB7Q0PB4xCf4SgVcOIQ5Ij+nDc+bOEOxzCoH+kZANfJr259XiTRLhn6JDBBQ"
+          },
+          "endpoints": "[{\"s3\":\"https://nyc3.digitaloceanspaces.com\"}]",
+          "region": "us-east-1",
+          "s3UsePathStyle": "false",
+          "secretKey": {
+            "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+            "ciphertext": "AAABAFTcToMYmDtySUgyPaRvORjE+h8DCiTtFCbJdp+/BMDpha6HC3y60S4zlZsRhoW7/ekv0hbinYck8h5HinEISClBSRjHQBiVQWo="
+          },
+          "skipCredentialsValidation": "true",
+          "skipMetadataApiCheck": "true",
+          "skipRegionValidation": "true",
+          "skipRequestingAccountId": "true",
+          "version": "7.10.0"
+        },
+        "outputs": {
+          "accessKey": {
+            "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+            "ciphertext": "AAABACeKp8PhqPl9rp4JSO3LEUpsmJ2BTmMJ4LYf2YsQZHBKSTYaL90KqGjrTFONTyjfg+r2"
+          },
+          "endpoints": "[{\"s3\":\"https://nyc3.digitaloceanspaces.com\"}]",
+          "region": "us-east-1",
+          "s3UsePathStyle": "false",
+          "secretKey": {
+            "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+            "ciphertext": "AAABAEjz7GkSJ9s5F5CPjisvY75NUCVZJARd21kgO/iMkzAnZ3aw/qwtE0HSU4u0eA9LlwxI1Df4kjj3NgS/yJlbrG67nqIhFgRoN9g="
+          },
+          "skipCredentialsValidation": "true",
+          "skipMetadataApiCheck": "true",
+          "skipRegionValidation": "true",
+          "skipRequestingAccountId": "true",
+          "version": "7.10.0"
+        },
+        "parent": "urn:pulumi:prod::platform::pulumi:pulumi:Stack::platform-prod",
+        "dependencies": [
+          "urn:pulumi:prod::platform::pulumi:pulumi:StackReference::gankoji/layer_2/layer_2"
+        ],
+        "propertyDependencies": {
+          "accessKey": [
+            "urn:pulumi:prod::platform::pulumi:pulumi:StackReference::gankoji/layer_2/layer_2"
+          ],
+          "endpoints": [
+            "urn:pulumi:prod::platform::pulumi:pulumi:StackReference::gankoji/layer_2/layer_2"
+          ],
+          "region": [],
+          "s3UsePathStyle": [],
+          "secretKey": [
+            "urn:pulumi:prod::platform::pulumi:pulumi:StackReference::gankoji/layer_2/layer_2"
+          ],
+          "skipCredentialsValidation": [],
+          "skipMetadataApiCheck": [],
+          "skipRegionValidation": [],
+          "skipRequestingAccountId": []
+        },
+        "additionalSecretOutputs": [
+          "accessKey",
+          "secretKey",
+          "token"
+        ],
+        "created": "2025-10-31T20:07:32.767123045Z",
+        "modified": "2025-10-31T20:07:32.767123045Z",
+        "sourcePosition": "project:///../global/node_modules/@pulumi/provider.ts#142,9",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///../global/node_modules/@pulumi/provider.ts#142,9"
+          },
+          {
+            "sourcePosition": "project:///../global/providers/SprocketS3Provider.ts#14,9"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#10,20"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Platform:S3$aws:s3/bucket:Bucket::prod-s3-ig-bucket",
+        "custom": true,
+        "id": "sprocket-image-gen-main-1",
+        "type": "aws:s3/bucket:Bucket",
+        "inputs": {
+          "__defaults": [
+            "forceDestroy"
+          ],
+          "bucket": "sprocket-image-gen-main-1",
+          "forceDestroy": false,
+          "region": "us-east-1",
+          "tagsAll": {}
+        },
+        "outputs": {
+          "__meta": "{\"e2bfb730-ecaa-11e6-8f88-34363bc7c4c0\":{\"create\":1200000000000,\"delete\":3600000000000,\"read\":1200000000000,\"update\":1200000000000}}",
+          "__pulumi_raw_state_delta": {
+            "obj": {
+              "ps": {
+                "corsRules": {
+                  "arr": {}
+                },
+                "grants": {
+                  "arr": {
+                    "el": {
+                      "0": {
+                        "obj": {
+                          "ps": {
+                            "permissions": {
+                              "arr": {}
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "lifecycleRules": {
+                  "arr": {}
+                },
+                "logging": {
+                  "plu": {
+                    "i": {}
+                  }
+                },
+                "objectLockConfiguration": {
+                  "plu": {
+                    "i": {}
+                  }
+                },
+                "replicationConfiguration": {
+                  "plu": {
+                    "i": {}
+                  }
+                },
+                "serverSideEncryptionConfiguration": {
+                  "plu": {
+                    "i": {}
+                  }
+                },
+                "tags": {
+                  "map": {}
+                },
+                "tagsAll": {
+                  "map": {}
+                },
+                "versioning": {
+                  "plu": {
+                    "i": {
+                      "obj": {}
+                    }
+                  }
+                },
+                "website": {
+                  "plu": {
+                    "i": {}
+                  }
+                }
+              },
+              "renamed": {
+                "corsRules": "cors_rule",
+                "grants": "grant",
+                "lifecycleRules": "lifecycle_rule"
+              }
+            }
+          },
+          "accelerationStatus": "",
+          "acl": "private",
+          "arn": "arn:aws:s3:::sprocket-image-gen-main-1",
+          "bucket": "sprocket-image-gen-main-1",
+          "bucketDomainName": "sprocket-image-gen-main-1.s3.amazonaws.com",
+          "bucketPrefix": "",
+          "bucketRegion": "",
+          "bucketRegionalDomainName": "sprocket-image-gen-main-1.s3.amazonaws.com",
+          "corsRules": [],
+          "forceDestroy": false,
+          "grants": [
+            {
+              "id": "24528890",
+              "permissions": [
+                "FULL_CONTROL"
+              ],
+              "type": "CanonicalUser",
+              "uri": ""
+            }
+          ],
+          "hostedZoneId": null,
+          "id": "sprocket-image-gen-main-1",
+          "lifecycleRules": [],
+          "logging": null,
+          "objectLockConfiguration": null,
+          "objectLockEnabled": false,
+          "policy": "",
+          "region": "us-east-1",
+          "replicationConfiguration": null,
+          "requestPayer": "",
+          "serverSideEncryptionConfiguration": null,
+          "tags": {},
+          "tagsAll": {},
+          "versioning": {
+            "enabled": false,
+            "mfaDelete": false
+          },
+          "website": null,
+          "websiteDomain": null,
+          "websiteEndpoint": null
+        },
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Platform:S3::prod-s3",
+        "provider": "urn:pulumi:prod::platform::pulumi:providers:aws::SprocketS3Provider::11ed5183-027f-47fb-9240-466731eccf26",
+        "propertyDependencies": {
+          "bucket": []
+        },
+        "created": "2025-11-03T21:56:13.878329338Z",
+        "modified": "2025-11-04T20:27:29.214104056Z",
+        "sourcePosition": "project:///src/PlatformS3.ts#34,31",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/PlatformS3.ts#34,31"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#83,30"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Platform:S3$aws:s3/bucket:Bucket::prod-s3-bucket",
+        "custom": true,
+        "id": "sprocket-main-1",
+        "type": "aws:s3/bucket:Bucket",
+        "inputs": {
+          "__defaults": [
+            "forceDestroy"
+          ],
+          "bucket": "sprocket-main-1",
+          "forceDestroy": false,
+          "region": "us-east-1",
+          "tagsAll": {}
+        },
+        "outputs": {
+          "__meta": "{\"e2bfb730-ecaa-11e6-8f88-34363bc7c4c0\":{\"create\":1200000000000,\"delete\":3600000000000,\"read\":1200000000000,\"update\":1200000000000}}",
+          "__pulumi_raw_state_delta": {
+            "obj": {
+              "ps": {
+                "corsRules": {
+                  "arr": {}
+                },
+                "grants": {
+                  "arr": {
+                    "el": {
+                      "0": {
+                        "obj": {
+                          "ps": {
+                            "permissions": {
+                              "arr": {}
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "lifecycleRules": {
+                  "arr": {}
+                },
+                "logging": {
+                  "plu": {
+                    "i": {}
+                  }
+                },
+                "objectLockConfiguration": {
+                  "plu": {
+                    "i": {}
+                  }
+                },
+                "replicationConfiguration": {
+                  "plu": {
+                    "i": {}
+                  }
+                },
+                "serverSideEncryptionConfiguration": {
+                  "plu": {
+                    "i": {}
+                  }
+                },
+                "tags": {
+                  "map": {}
+                },
+                "tagsAll": {
+                  "map": {}
+                },
+                "versioning": {
+                  "plu": {
+                    "i": {
+                      "obj": {}
+                    }
+                  }
+                },
+                "website": {
+                  "plu": {
+                    "i": {}
+                  }
+                }
+              },
+              "renamed": {
+                "corsRules": "cors_rule",
+                "grants": "grant",
+                "lifecycleRules": "lifecycle_rule"
+              }
+            }
+          },
+          "accelerationStatus": "",
+          "acl": "private",
+          "arn": "arn:aws:s3:::sprocket-main-1",
+          "bucket": "sprocket-main-1",
+          "bucketDomainName": "sprocket-main-1.s3.amazonaws.com",
+          "bucketPrefix": "",
+          "bucketRegion": "",
+          "bucketRegionalDomainName": "sprocket-main-1.s3.amazonaws.com",
+          "corsRules": [],
+          "forceDestroy": false,
+          "grants": [
+            {
+              "id": "24528890",
+              "permissions": [
+                "FULL_CONTROL"
+              ],
+              "type": "CanonicalUser",
+              "uri": ""
+            }
+          ],
+          "hostedZoneId": null,
+          "id": "sprocket-main-1",
+          "lifecycleRules": [],
+          "logging": null,
+          "objectLockConfiguration": null,
+          "objectLockEnabled": false,
+          "policy": "",
+          "region": "us-east-1",
+          "replicationConfiguration": null,
+          "requestPayer": "",
+          "serverSideEncryptionConfiguration": null,
+          "tags": {},
+          "tagsAll": {},
+          "versioning": {
+            "enabled": false,
+            "mfaDelete": false
+          },
+          "website": null,
+          "websiteDomain": null,
+          "websiteEndpoint": null
+        },
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Platform:S3::prod-s3",
+        "provider": "urn:pulumi:prod::platform::pulumi:providers:aws::SprocketS3Provider::11ed5183-027f-47fb-9240-466731eccf26",
+        "propertyDependencies": {
+          "bucket": []
+        },
+        "created": "2025-12-16T01:08:55.086731149Z",
+        "modified": "2026-01-01T22:12:12.955818864Z",
+        "sourcePosition": "project:///src/PlatformS3.ts#25,23",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/PlatformS3.ts#25,23"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#83,30"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Platform:S3$aws:s3/bucket:Bucket::prod-s3-replay-bucket",
+        "custom": true,
+        "id": "sprocket-replays-main-1",
+        "type": "aws:s3/bucket:Bucket",
+        "inputs": {
+          "__defaults": [
+            "forceDestroy"
+          ],
+          "bucket": "sprocket-replays-main-1",
+          "forceDestroy": false,
+          "region": "us-east-1",
+          "tagsAll": {}
+        },
+        "outputs": {
+          "__meta": "{\"e2bfb730-ecaa-11e6-8f88-34363bc7c4c0\":{\"create\":1200000000000,\"delete\":3600000000000,\"read\":1200000000000,\"update\":1200000000000}}",
+          "__pulumi_raw_state_delta": {
+            "obj": {
+              "ps": {
+                "corsRules": {
+                  "arr": {}
+                },
+                "grants": {
+                  "arr": {
+                    "el": {
+                      "0": {
+                        "obj": {
+                          "ps": {
+                            "permissions": {
+                              "arr": {}
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "lifecycleRules": {
+                  "arr": {}
+                },
+                "logging": {
+                  "plu": {
+                    "i": {}
+                  }
+                },
+                "objectLockConfiguration": {
+                  "plu": {
+                    "i": {}
+                  }
+                },
+                "replicationConfiguration": {
+                  "plu": {
+                    "i": {}
+                  }
+                },
+                "serverSideEncryptionConfiguration": {
+                  "plu": {
+                    "i": {}
+                  }
+                },
+                "tags": {
+                  "map": {}
+                },
+                "tagsAll": {
+                  "map": {}
+                },
+                "versioning": {
+                  "plu": {
+                    "i": {
+                      "obj": {}
+                    }
+                  }
+                },
+                "website": {
+                  "plu": {
+                    "i": {}
+                  }
+                }
+              },
+              "renamed": {
+                "corsRules": "cors_rule",
+                "grants": "grant",
+                "lifecycleRules": "lifecycle_rule"
+              }
+            }
+          },
+          "accelerationStatus": "",
+          "acl": "private",
+          "arn": "arn:aws:s3:::sprocket-replays-main-1",
+          "bucket": "sprocket-replays-main-1",
+          "bucketDomainName": "sprocket-replays-main-1.s3.amazonaws.com",
+          "bucketPrefix": "",
+          "bucketRegion": "",
+          "bucketRegionalDomainName": "sprocket-replays-main-1.s3.amazonaws.com",
+          "corsRules": [],
+          "forceDestroy": false,
+          "grants": [
+            {
+              "id": "24528890",
+              "permissions": [
+                "FULL_CONTROL"
+              ],
+              "type": "CanonicalUser",
+              "uri": ""
+            }
+          ],
+          "hostedZoneId": null,
+          "id": "sprocket-replays-main-1",
+          "lifecycleRules": [],
+          "logging": null,
+          "objectLockConfiguration": null,
+          "objectLockEnabled": false,
+          "policy": "",
+          "region": "us-east-1",
+          "replicationConfiguration": null,
+          "requestPayer": "",
+          "serverSideEncryptionConfiguration": null,
+          "tags": {},
+          "tagsAll": {},
+          "versioning": {
+            "enabled": false,
+            "mfaDelete": false
+          },
+          "website": null,
+          "websiteDomain": null,
+          "websiteEndpoint": null
+        },
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Platform:S3::prod-s3",
+        "provider": "urn:pulumi:prod::platform::pulumi:providers:aws::SprocketS3Provider::11ed5183-027f-47fb-9240-466731eccf26",
+        "propertyDependencies": {
+          "bucket": []
+        },
+        "created": "2025-11-03T19:07:31.912014872Z",
+        "modified": "2025-11-04T20:27:29.387785655Z",
+        "sourcePosition": "project:///src/PlatformS3.ts#43,29",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/PlatformS3.ts#43,29"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#83,30"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Platform:S3$aws:s3/bucketAcl:BucketAcl::prod-s3-ig-bucket-acl",
+        "custom": true,
+        "id": "sprocket-image-gen-main-1,private",
+        "type": "aws:s3/bucketAcl:BucketAcl",
+        "inputs": {
+          "__defaults": [],
+          "acl": "private",
+          "bucket": "sprocket-image-gen-main-1",
+          "region": "us-east-1"
+        },
+        "outputs": {
+          "__pulumi_raw_state_delta": {
+            "obj": {
+              "ps": {
+                "accessControlPolicy": {
+                  "plu": {
+                    "i": {
+                      "obj": {
+                        "ps": {
+                          "grants": {
+                            "arr": {
+                              "el": {
+                                "0": {
+                                  "obj": {
+                                    "ps": {
+                                      "grantee": {
+                                        "plu": {
+                                          "i": {
+                                            "obj": {}
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "owner": {
+                            "plu": {
+                              "i": {
+                                "obj": {}
+                              }
+                            }
+                          }
+                        },
+                        "renamed": {
+                          "grants": "grant"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "accessControlPolicy": {
+            "grants": [
+              {
+                "grantee": {
+                  "displayName": "24528890",
+                  "emailAddress": "",
+                  "id": "24528890",
+                  "type": "CanonicalUser",
+                  "uri": ""
+                },
+                "permission": "FULL_CONTROL"
+              }
+            ],
+            "owner": {
+              "displayName": "24528890",
+              "id": "24528890"
+            }
+          },
+          "acl": "private",
+          "bucket": "sprocket-image-gen-main-1",
+          "expectedBucketOwner": "",
+          "id": "sprocket-image-gen-main-1,private",
+          "region": "us-east-1"
+        },
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Platform:S3::prod-s3",
+        "dependencies": [
+          "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Platform:S3$aws:s3/bucket:Bucket::prod-s3-ig-bucket"
+        ],
+        "provider": "urn:pulumi:prod::platform::pulumi:providers:aws::SprocketS3Provider::11ed5183-027f-47fb-9240-466731eccf26",
+        "propertyDependencies": {
+          "acl": [],
+          "bucket": [
+            "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Platform:S3$aws:s3/bucket:Bucket::prod-s3-ig-bucket"
+          ]
+        },
+        "created": "2026-01-10T19:31:42.516434782Z",
+        "modified": "2026-01-10T19:31:42.516434782Z",
+        "sourcePosition": "project:///src/PlatformS3.ts#38,9",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/PlatformS3.ts#38,9"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#83,30"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Platform:S3$aws:s3/bucketAcl:BucketAcl::prod-s3-replay-bucket-acl",
+        "custom": true,
+        "id": "sprocket-replays-main-1,private",
+        "type": "aws:s3/bucketAcl:BucketAcl",
+        "inputs": {
+          "__defaults": [],
+          "acl": "private",
+          "bucket": "sprocket-replays-main-1",
+          "region": "us-east-1"
+        },
+        "outputs": {
+          "__pulumi_raw_state_delta": {
+            "obj": {
+              "ps": {
+                "accessControlPolicy": {
+                  "plu": {
+                    "i": {
+                      "obj": {
+                        "ps": {
+                          "grants": {
+                            "arr": {
+                              "el": {
+                                "0": {
+                                  "obj": {
+                                    "ps": {
+                                      "grantee": {
+                                        "plu": {
+                                          "i": {
+                                            "obj": {}
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "owner": {
+                            "plu": {
+                              "i": {
+                                "obj": {}
+                              }
+                            }
+                          }
+                        },
+                        "renamed": {
+                          "grants": "grant"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "accessControlPolicy": {
+            "grants": [
+              {
+                "grantee": {
+                  "displayName": "24528890",
+                  "emailAddress": "",
+                  "id": "24528890",
+                  "type": "CanonicalUser",
+                  "uri": ""
+                },
+                "permission": "FULL_CONTROL"
+              }
+            ],
+            "owner": {
+              "displayName": "24528890",
+              "id": "24528890"
+            }
+          },
+          "acl": "private",
+          "bucket": "sprocket-replays-main-1",
+          "expectedBucketOwner": "",
+          "id": "sprocket-replays-main-1,private",
+          "region": "us-east-1"
+        },
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Platform:S3::prod-s3",
+        "dependencies": [
+          "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Platform:S3$aws:s3/bucket:Bucket::prod-s3-replay-bucket"
+        ],
+        "provider": "urn:pulumi:prod::platform::pulumi:providers:aws::SprocketS3Provider::11ed5183-027f-47fb-9240-466731eccf26",
+        "propertyDependencies": {
+          "acl": [],
+          "bucket": [
+            "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Platform:S3$aws:s3/bucket:Bucket::prod-s3-replay-bucket"
+          ]
+        },
+        "created": "2026-01-10T19:31:42.455779413Z",
+        "modified": "2026-01-10T19:31:42.455779413Z",
+        "sourcePosition": "project:///src/PlatformS3.ts#47,9",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/PlatformS3.ts#47,9"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#83,30"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Platform:S3$aws:s3/bucketAcl:BucketAcl::prod-s3-bucket-acl",
+        "custom": true,
+        "id": "sprocket-main-1,private",
+        "type": "aws:s3/bucketAcl:BucketAcl",
+        "inputs": {
+          "__defaults": [],
+          "acl": "private",
+          "bucket": "sprocket-main-1",
+          "region": "us-east-1"
+        },
+        "outputs": {
+          "__pulumi_raw_state_delta": {
+            "obj": {
+              "ps": {
+                "accessControlPolicy": {
+                  "plu": {
+                    "i": {
+                      "obj": {
+                        "ps": {
+                          "grants": {
+                            "arr": {
+                              "el": {
+                                "0": {
+                                  "obj": {
+                                    "ps": {
+                                      "grantee": {
+                                        "plu": {
+                                          "i": {
+                                            "obj": {}
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "owner": {
+                            "plu": {
+                              "i": {
+                                "obj": {}
+                              }
+                            }
+                          }
+                        },
+                        "renamed": {
+                          "grants": "grant"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "accessControlPolicy": {
+            "grants": [
+              {
+                "grantee": {
+                  "displayName": "24528890",
+                  "emailAddress": "",
+                  "id": "24528890",
+                  "type": "CanonicalUser",
+                  "uri": ""
+                },
+                "permission": "FULL_CONTROL"
+              }
+            ],
+            "owner": {
+              "displayName": "24528890",
+              "id": "24528890"
+            }
+          },
+          "acl": "private",
+          "bucket": "sprocket-main-1",
+          "expectedBucketOwner": "",
+          "id": "sprocket-main-1,private",
+          "region": "us-east-1"
+        },
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Platform:S3::prod-s3",
+        "dependencies": [
+          "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Platform:S3$aws:s3/bucket:Bucket::prod-s3-bucket"
+        ],
+        "provider": "urn:pulumi:prod::platform::pulumi:providers:aws::SprocketS3Provider::11ed5183-027f-47fb-9240-466731eccf26",
+        "propertyDependencies": {
+          "acl": [],
+          "bucket": [
+            "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Platform:S3$aws:s3/bucket:Bucket::prod-s3-bucket"
+          ]
+        },
+        "created": "2026-01-10T19:31:43.066383331Z",
+        "modified": "2026-01-10T19:31:43.066383331Z",
+        "sourcePosition": "project:///src/PlatformS3.ts#29,9",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/PlatformS3.ts#29,9"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#83,30"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#18,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform:VaultSync::prod-vault-sync",
+        "custom": false,
+        "type": "SprocketBot:Platform:VaultSync",
+        "parent": "urn:pulumi:prod::platform::pulumi:pulumi:Stack::platform-prod",
+        "created": "2025-10-31T20:06:58.227796023Z",
+        "modified": "2025-10-31T20:06:58.227796023Z",
+        "sourcePosition": "project:///src/Platform.ts#396,26",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/Platform.ts#396,26"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#28,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Application:Microservice:Elo$SprocketBot:Services:Neo4j::prod-elo-service-dgraph",
+        "custom": false,
+        "type": "SprocketBot:Services:Neo4j",
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Application:Microservice:Elo::prod-elo-service",
+        "created": "2026-01-01T21:58:43.286076257Z",
+        "modified": "2026-01-01T21:58:43.286076257Z",
+        "sourcePosition": "project:///src/microservices/EloService.ts#18,19",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///src/microservices/EloService.ts#18,19"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#356,18"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#28,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::pulumi:providers:docker::default_3_6_1",
+        "custom": true,
+        "id": "e8ad5c3f-fe1d-4290-8397-03e1129aab37",
+        "type": "pulumi:providers:docker",
+        "inputs": {
+          "__internal": {},
+          "version": "3.6.1"
+        },
+        "outputs": {
+          "version": "3.6.1"
+        },
+        "created": "2025-10-31T20:07:09.709983226Z",
+        "modified": "2025-10-31T20:07:09.709983226Z"
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Application:Microservice:Elo$SprocketBot:Services:Neo4j$docker:index/network:Network::prod-elo-service-dgraph-net",
+        "custom": true,
+        "id": "llzuvl1hlaleecp44yt2e1to8",
+        "type": "docker:index/network:Network",
+        "inputs": {
+          "__defaults": [
+            "ipamDriver",
+            "name"
+          ],
+          "driver": "overlay",
+          "ipamDriver": "default",
+          "name": "prod-elo-service-dgraph-net-fcd34a0"
+        },
+        "outputs": {
+          "__meta": "{\"schema_version\":\"1\"}",
+          "attachable": false,
+          "driver": "overlay",
+          "id": "llzuvl1hlaleecp44yt2e1to8",
+          "ingress": false,
+          "internal": false,
+          "ipamConfigs": [
+            {
+              "auxAddress": {},
+              "gateway": "10.0.3.1",
+              "ipRange": "",
+              "subnet": "10.0.3.0/24"
+            }
+          ],
+          "ipamDriver": "default",
+          "ipv6": false,
+          "labels": [],
+          "name": "prod-elo-service-dgraph-net-fcd34a0",
+          "options": {
+            "com.docker.network.driver.overlay.vxlanid_list": "4099"
+          },
+          "scope": "swarm"
+        },
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Application:Microservice:Elo$SprocketBot:Services:Neo4j::prod-elo-service-dgraph",
+        "provider": "urn:pulumi:prod::platform::pulumi:providers:docker::default_3_6_1::e8ad5c3f-fe1d-4290-8397-03e1129aab37",
+        "propertyDependencies": {
+          "driver": []
+        },
+        "created": "2026-01-01T21:58:47.913646274Z",
+        "modified": "2026-01-01T21:58:47.913646274Z",
+        "sourcePosition": "project:///../global/services/dgraph/DGraph.ts#46,26",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///../global/services/dgraph/DGraph.ts#46,26"
+          },
+          {
+            "sourcePosition": "project:///src/microservices/EloService.ts#18,19"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#356,18"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#28,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Services:Redis$SprocketBot:Components:VaultBackedPassword$random:index/randomPassword:RandomPassword::prod-datastores-redis-root-credentials-password",
+        "custom": true,
+        "id": "none",
+        "type": "random:index/randomPassword:RandomPassword",
+        "inputs": {
+          "length": 64,
+          "lower": true,
+          "number": true,
+          "special": false,
+          "upper": true
+        },
+        "outputs": {
+          "__meta": "{\"schema_version\":\"3\"}",
+          "__pulumi_raw_state_delta": {
+            "obj": {
+              "ps": {
+                "keepers": {
+                  "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+                  "ciphertext": "AAABAFRHjqqaXzvmS6/cuRimbNnfytSEkqVGNJ1LuD3hEJmTvG2qUrP7aIyk70FYn55e83QWuVw="
+                },
+                "overrideSpecial": {
+                  "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+                  "ciphertext": "AAABABFBJM4GVOKNSjaBS8ixvMDIX6funa4WJnvsz5jFZLnBogmG1c5+SChfLadAsxmd0zhA3Ls="
+                }
+              }
+            }
+          },
+          "bcryptHash": {
+            "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+            "ciphertext": "AAABACTcv9eA3POUWkmCaqdlPWI4EiT/0dElGOQKDtG5dYv37AtHtcN0U1xG1jgTbeZfGdhMZ4fvL10h4qs+coGURNtpyusv4+f48USsqowh9SJKQwY1vstERC0H0w=="
+          },
+          "id": "none",
+          "length": 64,
+          "lower": true,
+          "minLower": 0,
+          "minNumeric": 0,
+          "minSpecial": 0,
+          "minUpper": 0,
+          "number": true,
+          "numeric": true,
+          "result": {
+            "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+            "ciphertext": "AAABALan7t2s+aA3amadmfz7gSdRyJJoDkRoOOPIRgQKgN3K10cRX6k3KwALc9CRC7uap19RAGBP/4PsfNEngKAY1OYUKp7aWPt/O9bglu4FWurbSDmxIceMXJA9f/IRIl0="
+          },
+          "special": false,
+          "upper": true
+        },
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Services:Redis$SprocketBot:Components:VaultBackedPassword::prod-datastores-redis-root-credentials",
+        "provider": "urn:pulumi:prod::platform::pulumi:providers:random::default_4_18_4::c99aa7e1-4a6d-4a67-a80e-ce4dff62f201",
+        "propertyDependencies": {
+          "length": [],
+          "lower": [],
+          "number": [],
+          "special": [],
+          "upper": []
+        },
+        "additionalSecretOutputs": [
+          "bcryptHash",
+          "result"
+        ],
+        "created": "2025-12-16T01:08:33.862114688Z",
+        "modified": "2025-12-16T01:08:33.862114688Z",
+        "sourcePosition": "project:///../global/helpers/vault/VaultCredentials.ts#37,33",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///../global/helpers/vault/VaultCredentials.ts#37,33"
+          },
+          {
+            "sourcePosition": "project:///../global/services/redis/Redis.ts#33,28"
+          },
+          {
+            "sourcePosition": "project:///src/PlatformDatastore.ts#33,22"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#96,26"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#28,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Application:Microservice:Elo$SprocketBot:Services:Neo4j$SprocketBot:Components:VaultBackedPassword$random:index/randomPassword:RandomPassword::prod-elo-service-dgraph-root-credentials-password",
+        "custom": true,
+        "id": "none",
+        "type": "random:index/randomPassword:RandomPassword",
+        "inputs": {
+          "length": 64,
+          "lower": true,
+          "number": true,
+          "special": false,
+          "upper": true
+        },
+        "outputs": {
+          "__meta": "{\"schema_version\":\"3\"}",
+          "__pulumi_raw_state_delta": {
+            "obj": {
+              "ps": {
+                "keepers": {
+                  "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+                  "ciphertext": "AAABAFN+E3g3qU2xD/YGyOuS8tug/2DKJhEEtrrqew4bMTwOwU01nWtGxMXR5wN9YYh3y6gO26s="
+                },
+                "overrideSpecial": {
+                  "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+                  "ciphertext": "AAABAM3Ma2DH31boFd/9ZKZSNJTzFgAcU50BqeTK0y2S43bB0OHB34oLQPHVvhMVEmymt3qHPIw="
+                }
+              }
+            }
+          },
+          "bcryptHash": {
+            "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+            "ciphertext": "AAABALdKMMPg0MIdoxIi0oSWjq6vhWY2CRNzzZPWYYr+pdx5BHtlC3/d+KO2vMgvl76g3Xqwf1BgIwe6fsHTMV4eYPJkKlaGNCr6CjrlxSoQoDJyZWy2FFS7yLH42A=="
+          },
+          "id": "none",
+          "length": 64,
+          "lower": true,
+          "minLower": 0,
+          "minNumeric": 0,
+          "minSpecial": 0,
+          "minUpper": 0,
+          "number": true,
+          "numeric": true,
+          "result": {
+            "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+            "ciphertext": "AAABAEZowBPbzkX8gZbP5FMMomskcuG4yAGC2lvQYKqx8I++WwSwVIoTkGiN0m9ATwH5b35CJYP0iYLQptronCC1hyd48NYBrqXclLGBLZyej6AYLFTdSY4uFW8TJE2YEUw="
+          },
+          "special": false,
+          "upper": true
+        },
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Application:Microservice:Elo$SprocketBot:Services:Neo4j$SprocketBot:Components:VaultBackedPassword::prod-elo-service-dgraph-root-credentials",
+        "provider": "urn:pulumi:prod::platform::pulumi:providers:random::default_4_18_4::c99aa7e1-4a6d-4a67-a80e-ce4dff62f201",
+        "propertyDependencies": {
+          "length": [],
+          "lower": [],
+          "number": [],
+          "special": [],
+          "upper": []
+        },
+        "additionalSecretOutputs": [
+          "bcryptHash",
+          "result"
+        ],
+        "created": "2026-01-01T21:58:47.27643167Z",
+        "modified": "2026-01-01T21:58:47.27643167Z",
+        "sourcePosition": "project:///../global/helpers/vault/VaultCredentials.ts#37,33",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///../global/helpers/vault/VaultCredentials.ts#37,33"
+          },
+          {
+            "sourcePosition": "project:///../global/services/dgraph/DGraph.ts#38,28"
+          },
+          {
+            "sourcePosition": "project:///src/microservices/EloService.ts#18,19"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#356,18"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#28,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      },
+      {
+        "urn": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:LegacyPlatform$SprocketBot:Services:Redis$SprocketBot:Components:VaultBackedPassword$random:index/randomPassword:RandomPassword::prod-legacy-redis-root-credentials-password",
+        "custom": true,
+        "id": "none",
+        "type": "random:index/randomPassword:RandomPassword",
+        "inputs": {
+          "length": 64,
+          "lower": true,
+          "number": true,
+          "special": false,
+          "upper": true
+        },
+        "outputs": {
+          "__meta": "{\"schema_version\":\"3\"}",
+          "__pulumi_raw_state_delta": {
+            "obj": {
+              "ps": {
+                "keepers": {
+                  "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+                  "ciphertext": "AAABALF7EpQRiAZ39bpA3UHQlpz2RADEysJFjN0KK/EAGwtruT+7sXMC6I/4aZiJ7/SUmEc7Fok="
+                },
+                "overrideSpecial": {
+                  "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+                  "ciphertext": "AAABAMBADCo+PR6KA6yt3EKUFyOvHC3ai+za3eVdmMGm4M2YQe6nyWSBh+WPNR2069VGMX2EDVk="
+                }
+              }
+            }
+          },
+          "bcryptHash": {
+            "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+            "ciphertext": "AAABAGtKfIbKlVbyejGwsKbwWRmi+MiZRP3B4mAJcAA3g10asp1ZPWroc5MPJOyetkNR0EXuYWt4kjhotNoZgeoLKIKtlHMb64FDEOPSHLMPhfuzPpI5rxG0RfcdNQ=="
+          },
+          "id": "none",
+          "length": 64,
+          "lower": true,
+          "minLower": 0,
+          "minNumeric": 0,
+          "minSpecial": 0,
+          "minUpper": 0,
+          "number": true,
+          "numeric": true,
+          "result": {
+            "4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270",
+            "ciphertext": "AAABAF/fWGf6V42MkvHXarKlmSQTy8+QQigSErI1kXt99Mi4HYQRlksGWWwwBpIraMkeutgPLWWFBF8Na24YhdzAMJwKrMcoTP7H4wPau/lSny9p0ZCNQ8+waXWQNNQRzdQ="
+          },
+          "special": false,
+          "upper": true
+        },
+        "parent": "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:LegacyPlatform$SprocketBot:Services:Redis$SprocketBot:Components:VaultBackedPassword::prod-legacy-redis-root-credentials",
+        "provider": "urn:pulumi:prod::platform::pulumi:providers:random::default_4_18_4::c99aa7e1-4a6d-4a67-a80e-ce4dff62f201",
+        "propertyDependencies": {
+          "length": [],
+          "lower": [],
+          "number": [],
+          "special": [],
+          "upper": []
+        },
+        "additionalSecretOutputs": [
+          "bcryptHash",
+          "result"
+        ],
+        "created": "2025-12-16T01:08:36.818017973Z",
+        "modified": "2025-12-16T01:08:36.818017973Z",
+        "sourcePosition": "project:///../global/helpers/vault/VaultCredentials.ts#37,33",
+        "stackTrace": [
+          {
+            "sourcePosition": "project:///../global/helpers/vault/VaultCredentials.ts#37,33"
+          },
+          {
+            "sourcePosition": "project:///../global/services/redis/Redis.ts#33,28"
+          },
+          {
+            "sourcePosition": "project:///src/legacy/LegacyPlatform.ts#48,18"
+          },
+          {
+            "sourcePosition": "project:///src/Platform.ts#429,9"
+          },
+          {
+            "sourcePosition": "project:///src/index.ts#28,25"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///index.ts#1,1"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3009,23"
+          },
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/pulumi/vendor/ts-node@7.0.1/index.js#3011,12"
+          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/cmd/run/run.ts#543,33"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/runtime/stack.ts#78,28"
+          },
+          {
+            "sourcePosition": "project:///node_modules/@pulumi/resource.ts#1463,22"
+          }
+        ]
+      }
+    ],
+    "metadata": {}
+  }
+}

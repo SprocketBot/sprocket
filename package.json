@@ -14,6 +14,7 @@
     "postinstall": "npm run build:common",
     "build": "npm run build --workspaces --if-available",
     "build:common": "npm run build --workspace=common",
+    "infra:install": "npm install --workspaces --include-workspace-root=false --workspace=infra/global --workspace=infra/layer_1 --workspace=infra/layer_2 --workspace=infra/platform",
     "harness:check:web": "bash ./scripts/harness/check-web.sh",
     "harness:check:api": "bash ./scripts/harness/check-api.sh",
     "harness:check:dependencies": "bash ./scripts/harness/check-dependencies.sh",
@@ -29,6 +30,10 @@
   "workspaces": [
     "common",
     "core",
+    "infra/global",
+    "infra/layer_1",
+    "infra/layer_2",
+    "infra/platform",
     "clients/web",
     "clients/discord-bot",
     "clients/image-generation-frontend",

@@ -1,0 +1,15 @@
+{
+  "client": {
+    "gqlUrl": "{{ api.url }}",
+    "secure": true,
+    "chatwoot": {
+      "enabled": true,
+      "url": "https://chatwoot.sprocket.mlesports.gg",
+      "websiteToken": "{{ chatwoot.websiteToken }}"
+    }
+  },
+
+  "server": {},
+
+  "stack": "{{ stack }}"
+}

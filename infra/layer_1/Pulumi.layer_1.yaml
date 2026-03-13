@@ -1,0 +1,17 @@
+config:
+  layer_1:docker-username: asaxplayinghorse
+  layer_1:vault-s3-secret-key:
+    secure: AAABAK291q/FzpUzT0jbzskiTB4kloS0aTfMPFLy4fvA10LEiz8QLOQe6PZZLFWKouADD5bmyK/JUvCKtQ3Ihly04X2kQ3KASDdd
+  layer_1:vault-s3-endpoint: https://nyc3.digitaloceanspaces.com
+  layer_1:vault-s3-bucket: vault-secrets
+  layer_1:docker-access-token:
+    secure: AAABAHfVf1fdiN7h3ChhT5J48IrgBjKmwYZBireTBwrnsYYhajGHaXPf8AvAIy/EqQzlgovprARuekMt6brW8dIzjek=
+  layer_1:discord-fa-client-secret:
+    secure: AAABAIBXpXCshdiCGlUA76pbhCph5KYMf1D7wwdr2mQa8Mv6cq2NkgUdm6gl8APZWOusPLMWG0YDpiNu5sSTCQ==
+  layer_1:vault-s3-access-key: DO801Q8P44QRYP9HEQVL
+  layer_1:hostname: sprocket.mlesports.gg
+  layer_1:postgres-host: sprocketbot-postgres-d5033d2-do-user-24528890-0.j.db.ondigitalocean.com
+  layer_1:postgres-port: "25060"
+  layer_1:postgres-username: sprocketbot
+  layer_1:postgres-password:
+    secure: AAABAL41YhPoBiZK9ScjZ35d6syDMd8jervoSTQRh1pbx8MY4dEmTrSOeSMCInb0CYtJBGGLXHo=

@@ -1,0 +1,11 @@
+{
+  "transport": {{{transport}}},
+  "redis": {
+    "port": {{redis.port}},
+    "host": "{{ redis.host }}",
+    "prefix": "{{ redis.prefix }}"
+  },
+  "logger": {
+    "levels": {{{logger.levels}}}
+  }
+}

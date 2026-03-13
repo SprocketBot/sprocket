@@ -1,0 +1,12 @@
+encryptionsalt: v1:5Nt6zhoC008=:v1:05l1kTvw0zNo8NLs:KYBP60vxHD6ZI2PfsFVpbRhhn3a6fg==
+config:
+  platform:alpha-restrictions: "true"
+  platform:discord-bot-token:
+    secure: v1:qn3lg7bO8hu8KPBj:QvhaMonFqGZEDC00JksDgqwQ6rpi4ZqadPDTbSFBh90ixpm82exz2Ij8iMMPiTCXraxAtEhgHzOEQkRxRRcKLPT1RIaBnOsGZQ0O
+  platform:docker-access-token:
+    secure: v1:tmRmBUB/1RNiyLVR:vTexaAV98OKtJ9ZHqz4c10oefKO2BjN0Z/1pg0Jc+Qzbju6RBsVlIZaWQCdsfmU/4zdK4w==
+  platform:docker-username: actualsovietshark
+  platform:image-tag: dev
+  platform:legacy-bot-token:
+    secure: v1:50PybyrQe0tmzGt1:Hmyo9lZPZWQAKTTYTp+64CefaLxeH3OHTmVscFzJpMNts5WDSyYnGxpDooThk4ORaAjL9ts7sxOCUfkLdSzlJM3CML/gje8L36VhfmzPDVGjse2ygkg=
+  platform:subdomain: dev

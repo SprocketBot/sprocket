@@ -1,0 +1,64 @@
+{
+  "bot": {
+    "prefix": "{{ bot.prefix }}"
+  },
+  "transport": {{{transport}}},
+  "gql": {
+    "playground": false,
+    "url": "http://localhost:3001/graphql"
+  },
+  "logger": {
+    "levels": {{{logger.levels}}}
+  },
+  "minio": {
+    "endPoint": "{{s3.endpoint}}",
+    "port": {{ s3.port }},
+    "useSSL": {{ s3.ssl }},
+    "bucketNames": {
+      "replays": "{{s3.buckets.replayParse}}",
+      "image_generation": "{{s3.buckets.imageGeneration}}"
+    }
+  },
+  "redis": {
+    "port": {{redis.port}},
+    "host": "{{ redis.host }}",
+    "prefix": "{{ redis.prefix }}",
+    "secure": false
+  },
+  "db": {
+    "host": "{{database.host}}",
+    "port": {{database.port}},
+    "username": "{{database.username}}",
+    "database": "{{database.database}}",
+    "enable_logs": false
+  },
+  "web": {
+    "url": "https://{{frontend.url}}",
+    "api_root": "https://{{api.url}}"
+  },
+  "auth": {
+    "discord": {
+      "callbackUrl": "https://{{ api.url }}/login"
+    },
+    "google": {
+      "callbackUrl": "https://{{ api.url }}/authentication/google/login"
+    },
+    "epic": {
+      "callbackUrl": "https://{{ api.url }}/authentication/epic/login"
+    },
+    "steam": {
+      "callbackUrl": "https://{{ api.url }}/authentication/steam/login",
+      "realm": "https://{{ api.url }}"
+    },
+    "jwt_expiry": 12000,
+    "access_expiry": "6h",
+    "refresh_expiry": "7d",
+    "frontend_callback": "https://{{ frontend.url }}/auth/callback"
+  },
+  "influx": {
+    "address": "{{influx.host}}",
+    "org": "{{influx.org}}",
+    "bucket": "{{influx.bucket}}"
+  },
+  "defaultOrganizationId": 2
+}
