@@ -46,6 +46,8 @@ It should be updated as planning, implementation, and validation progress happen
    - Recommendation for replacing human admin bearer-token dependence with refresh-token bridge auth and then machine-auth.
 18. [`reports/scrim-harness-strategy.md`](./scrim-harness-strategy.md)
    - Recommendation to use dedicated synthetic Sprocket test users for scrim automation while avoiding synthetic replay-file generation.
+19. [`reports/four-actor-scrim-harness-design.md`](./four-actor-scrim-harness-design.md)
+   - Concrete env contract and execution design for extending the Rocket League scrim harness from two actors to four.
 
 ## Current Understanding
 
@@ -168,6 +170,9 @@ For Sprocket specifically, the highest-value initial target is not full autonomy
 37. Scrim-harness strategy update on March 13, 2026:
    - the recommended steady state is dedicated synthetic Sprocket test users for Rocket League scrim automation, not recently active real players;
    - replay validation should use `mockCompletion` first and a curated golden replay corpus later rather than synthetic `.replay` generation.
+38. Four-actor design update on March 13, 2026:
+   - the recommended implementation contract is a scrim-specific actor list via `HARNESS_SCRIM_ACTOR_USER_IDS`, not fixed tertiary/quaternary variables;
+   - Rocket League scrim promotion gating should move to that four-actor design before replay submission is coupled back to scrim-created `submissionId`s.
 
 ## Agreed Direction
 
