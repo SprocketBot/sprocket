@@ -1,0 +1,80 @@
+provider: "discord"
+
+oauth:
+  clientId: "846086564479631372"
+  callbackUrl: https://fa.sprocket.mlesports.gg/login
+
+cookieDomain: "sprocket.mlesports.gg"
+
+rules:
+  - key: "SprocketAdmin"
+    type: "roles"
+    guildId: "856290331279884288"
+    roleIds:
+      # Maintainer
+      - "856290331292991490"
+      # Administrator
+      - "856290331292991489"
+  - key: "SprocketStaff"
+    type: "roles"
+    guildId: "856290331279884288"
+    roleIds:
+      # Maintainer
+      - "856290331292991490"
+      # Administrator
+      - "856290331292991489"
+      # Moderator
+      - "856290331292991488"
+      # Contributor
+      - "856291576014569502"
+      # Support
+      - "856290331279884297"
+      # Data Team
+      - "923396697600704532"
+      # Design
+      - "895054913212665898"
+  - key: "SprocketDeveloper"
+    type: "roles"
+    guildId: "856290331279884288"
+    roleIds:
+      # Maintainer
+      - "856290331292991490"
+      # Administrator
+      - "856290331292991489"
+      # Contributor
+      - "856291576014569502"
+  - key: "AlphaTesters"
+    type: "roles"
+    guildId: "856290331279884288"
+    roleIds:
+      # Maintainer
+      - "856290331292991490"
+      # Administrator
+      - "856290331292991489"
+      # Moderator
+      - "856290331292991488"
+      # Contributor
+      - "856291576014569502"
+      # Support
+      - "856290331279884297"
+      # Data Team
+      - "923396697600704532"
+      # Design
+      - "895054913212665898"
+      # Alpha Tester
+      - "957813905005117470"
+  - key: "EloTeam"
+    type: "roles"
+    guildId: "856290331279884288"
+    roleIds:
+      # Maintainer
+      - "856290331292991490"
+      # Administrator
+      - "856290331292991489"
+      # Elo Team
+      - "930203170636976178"
+
+defaultRule:
+  key: "DefaultRule"
+  type: "guild"
+  guildId: "856290331279884288"

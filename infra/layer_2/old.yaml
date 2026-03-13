@@ -1,0 +1,6 @@
+encryptionsalt: v1:GxNyqtfVwuM=:v1:nrLj9XcU9Yi/G0iX:3kt8tc1Y6GWcR1B4Ph4cMJDVdB4CXQ==
+config:
+  layer_2:root-vault-token:
+    secure: v1:ny4jPnkePVo1S530:WhotcUNAjsBUgAnPMmVc8U3L25Bu7F57bDOwygGXG2L7a2MK78NZ2ZYp1YQ=
+  layer_2:smtp-password:
+    secure: v1:ZOxihxOu6B0J3yM7:bXmCplpjB+/nqJryKzWCundhtnabLfgLdDPHW/d45QDSC7ggNZcnmRe+IzRlvZDOaxaqTtxKQQ6NdUcuWGEcPfZlgLJ1pBGFmAl2bGBlHd4y3OgnkA==

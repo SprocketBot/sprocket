@@ -14,6 +14,18 @@
 Sprocket is a platform primarily used to manage and automate organized Esports leagues, one such example being [Minor League Esports](https://mlesports.gg).
 The platform uses a Microservice pattern, and this repository contains everything needed to quickly start a new microservice.
 
+## Repository Layout
+
+Application code lives under `clients/`, `microservices/`, `common/`, and `core/`.
+Infrastructure code now lives under `infra/`, which contains the Pulumi projects migrated from the former `sprocket-infra` repository:
+
+- `infra/global`
+- `infra/layer_1`
+- `infra/layer_2`
+- `infra/platform`
+
+The committed `Pulumi.*.yaml` files moved with the code so stack configuration remains in version control. Pulumi backend state is still remote and must be accessed with the same backend login used before the migration.
+
 ## Building / Running this Repository
 
 ### Installing Dependencies:

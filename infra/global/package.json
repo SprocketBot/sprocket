@@ -1,0 +1,26 @@
+{
+  "name": "global",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@influxdata/influxdb-client": "^1.25.0",
+    "@influxdata/influxdb-client-apis": "^1.25.0",
+    "@pulumi/aws": "^7.8.0",
+    "@pulumi/docker": "^4.11.0",
+    "@pulumi/minio": "^0.4.0",
+    "@pulumi/postgresql": "^3.3.0",
+    "@pulumi/random": "^4.4.2",
+    "@types/axios": "^0.14.0",
+    "@types/yaml": "^1.9.7",
+    "axios": "^0.27.1",
+    "remove": "^0.1.5",
+    "yaml": "^2.0.1"
+  }
+}

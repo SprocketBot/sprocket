@@ -1,0 +1,11 @@
+{
+  "transport": {{{transport}}},
+  "logger": {
+    "levels": {{{logger.levels}}}
+  },
+  "influx": {
+    "address": "{{influx.host}}",
+    "org": "{{influx.org}}",
+    "bucket": "{{influx.bucket}}"
+  }
+}

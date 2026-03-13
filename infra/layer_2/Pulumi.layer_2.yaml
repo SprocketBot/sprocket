@@ -1,0 +1,15 @@
+config:
+  layer_2:root-vault-token:
+    secure: AAABAI27T803iexTd7nu6RKQABL2Xdd2Q9/HZ5sB2EOfsIRu20IxCJs=
+  layer_2:smtp-password:
+    secure: AAABAGRDwx3baZt88iZ4k0j66hGlbwmQ/hgwT0BSU5lMmmBdiOMwQv2L/nPstrU94FDYxxI=
+  layer_2:postgres-username: doadmin
+  layer_2:postgres-port: "25060"
+  layer_2:postgres-password:
+    secure: AAABAOqMubPaQWa4jojMAUYrjyHVCSf7koY9GZKUYL19/MuzfD0FTf6ZX0o1+PKGx+vMpjVmOvA=
+  layer_2:postgres-host: sprocketbot-postgres-d5033d2-do-user-24528890-0.j.db.ondigitalocean.com
+  layer_2:s3-secret-key:
+    secure: AAABAE7N6kehSUy4xuYiPtm/kAkQwayBeH37odw+qygvWZoi/hGigja/B8544dvBdwsf36KnEGZtoGtp2cOFJGNg5b25aa196/Cn
+  layer_2:s3-access-key: DO004ZHPV38R8C9Q46XG
+  layer_2:s3-endpoint: nyc3.digitaloceanspaces.com
+  layer_2:hostname: sprocket.mlesports.gg

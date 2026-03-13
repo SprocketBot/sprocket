@@ -1,0 +1,15 @@
+encryptionsalt: v1:H1/2m/XDOcM=:v1:S5Qzpp3eQ/+M6qH8:rZHtJ/wwu0S86shzUUf3ixctJg3Z0A==
+config:
+  platform:discord-bot-token:
+    secure: v1:ROWm4B/+BKpRW5O0:x2TEBgAXk6OVuLUxZymu6pg2OwED7pPdsTQq3hOiBPd12osVOD3NuToS9CJi2+P/Gbe5ijJ7Z2x5SNKSvZO67yxbdwi9AMtSaYxA7NZtceNDQujh2Qeo6g==
+  platform:docker-access-token:
+    secure: v1:vgs40pq1JtHQ2rU2:8ql1WVQw5+QUYOeOwPsOL+Lt13ab2oFJ4uL5QSoFQVHoawIhsqhdz/GWunTO83eEsAEMWg==
+  platform:docker-username: actualsovietshark
+  platform:hostname: app.sprocket.gg
+  platform:image-tag: main
+  platform:legacy-bot-token-emilia:
+    secure: v1:ckC2DtkQWnGHZxtz:8FEmjOaUBHQC5z7qargKpojdvRtIDqXVRiqDKwA8HRg4k66KrvAZ2cuP1EH5M6UJuagWHCDyuQIMrKis57r0lLbGy+C+XxN3VRvr
+  platform:legacy-bot-token-emilio:
+    secure: v1:R2hcZxmBH2T7SnGg:+L3four4Ihtlo/TlNMlEwuEmGHm2VZulbK6/8nescSkWu90zQLLFKbJUIH6VdIZ2TSiDTiJ+Qcw8jMXtIXrgqHHkBi9VO7ZHGt0L
+  platform:split-legacy: "true"
+  platform:subdomain: main

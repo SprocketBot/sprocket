@@ -1,0 +1,5 @@
+name: platform
+runtime: nodejs
+description: A minimal TypeScript Pulumi program
+backend:
+  url: s3://sprocket/pulumi?endpoint=https://us-southeast-1.linodeobjects.com

@@ -1,0 +1,17 @@
+{
+  "minio": {
+    "endpoint": "{{s3.endpoint}}",
+    "port": {{s3.port}},
+    "bucket": "{{s3.buckets.imageGeneration}}",
+    "ssl": {{ s3.ssl }}
+  },
+  "knex":{
+    "host": "{{database.host}}",
+    "port": {{database.port}},
+    "user": "{{database.username}}",
+    "database": "{{database.database}}",
+    "enable_logs": true,
+    "ssl":{ "rejectUnauthorized": false }
+  },
+  "transport": {{{transport}}}
+}

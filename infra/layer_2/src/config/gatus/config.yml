@@ -1,0 +1,106 @@
+x-http-common: &http-common
+  interval: 1m
+  conditions:
+    - "[STATUS] == 200"
+  alerts:
+    - type: discord
+
+x-icmp-common: &icmp-common
+  interval: 1m
+  conditions:
+    - "[CONNECTED] == true"
+  alerts:
+    - type: discord
+
+
+###
+
+
+ui:
+  title: Sprocket Internal Status
+  header: Sprocket Internal Status
+  description: Monitor the status of Sprocket internal services
+  logo: "https://app.sprocket.gg/img/logo-only.svg"
+
+endpoints:
+  - name: Sprocket Production App
+    group: Web Services
+    url: "https://app.sprocket.gg"
+    <<: *http-common
+
+  - name: Sprocket Staging App
+    group: Web Services
+    url: "https://staging.app.sprocket.gg"
+    <<: *http-common
+
+  # TODO how to get past forwardauth?
+  # - name: Sprocket Dev App
+  #   group: Web Services
+  #   url: "https://dev.spr.ocket.cloud"
+
+  - name: sprocket.gg DNS
+    group: DNS
+    url: "1.1.1.1"
+    interval: 10m
+    dns:
+      query-type: "A"
+      query-name: "sprocket.gg"
+    conditions:
+      - "[DNS_RCODE] == NOERROR"
+      - "[BODY] == 178.128.133.209"
+
+    
+  - name: ocket.cloud DNS
+    group: DNS
+    url: "1.1.1.1"
+    interval: 10m
+    dns:
+      query-type: "A"
+      query-name: "ocket.cloud"
+    conditions:
+      - "[DNS_RCODE] == NOERROR"
+      - "[BODY] == 178.128.133.209"
+
+  - name: sprocket-do-0
+    group: Nodes
+    url: "icmp://100.79.221.61"
+    <<: *icmp-common
+
+  - name: sprocket-do-1
+    group: Nodes
+    url: "icmp://100.118.64.64"
+    <<: *icmp-common
+
+  - name: sprocket-hyper-w-0
+    group: Nodes
+    url: "icmp://100.99.125.106"
+    <<: *icmp-common
+
+  - name: sprocket-shuckle-m-0
+    group: Nodes
+    url: "icmp://100.98.161.63"
+    <<: *icmp-common
+
+  - name: sprocket-zach-w-0
+    group: Nodes
+    url: "icmp://100.98.116.14"
+    <<: *icmp-common
+
+  - name: sprocket-zach-w-1
+    group: Nodes
+    url: "icmp://100.126.144.3"
+    <<: *icmp-common
+
+storage:
+  type: sqlite
+  path: /data/data.db
+
+alerting:
+  discord:
+    # TODO should this be dynamically populated?
+    # TODO this doesn't ping a role :(
+    webhook-url: https://discord.com/api/webhooks/940711205637595146/bYPdx--ec91wYz5RKGZ0F17vk_N2UGVoXAuDTTfD2p-k5e42QmFPWTS5keJPLXmrYcLY
+    default-alert:
+      send-on-resolved: true
+      failure-threshold: 3
+      success-threshold: 5

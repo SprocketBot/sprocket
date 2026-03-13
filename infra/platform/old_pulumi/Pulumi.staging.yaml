@@ -1,0 +1,12 @@
+encryptionsalt: v1:DZdhNfWs/y0=:v1:EPo5qNcP8ZNco3Za:jA/AAIg0wvCYvU2zw5G7BziU33b1Aw==
+config:
+  platform:discord-bot-token:
+    secure: v1:+7tmxTaEjKQCxCMm:xl9WDDy6bLSxr1/pVC6KHcy/ZXE5r050VfpugbE3Ir5A8rOxEoEzI2TslnzWVSGl9J4a2cX1YAcrkcbE2WhhRq0brFDtYovHOg6S
+  platform:docker-access-token:
+    secure: v1:R74j5D3k+CNL3yd/:+tq95quvfSU4hCCuJQwgy2ysZqevGqFSfvb08fvBBEY1fmfuio1QJ6vlvt69ceCifgSdcg==
+  platform:docker-username: actualsovietshark
+  platform:hostname: app.sprocket.gg
+  platform:image-tag: staging
+  platform:legacy-bot-token:
+    secure: v1:xQ9UzYFSV68ZwTZZ:iOXk3G0S8yYcdIp26rlWYCfcGgZSGA5Ffs29rqTXDiQv88LPCzs+GwhpSnkR0cm6vnCtttFBEMhUSNFt3hVTRvPwOiIt+ORBOKlJUorWCji0ZNeBB9E=
+  platform:subdomain: staging

@@ -1,0 +1,22 @@
+{
+  "celery": {
+    "broker": "{{ celery.broker }}",
+    "backend": "{{ celery.backend }}",
+    "queue": "{{ celery.queue }}"
+  },
+  "transport": {{{transport}}},
+  "minio": {
+    "hostname": "{{ s3.endpoint }}",
+    "bucket": "{{s3.buckets.replayParse}}",
+    "parsed_object_prefix": "dev",
+    "accessKey": "{{ s3.accessKey }}",
+    "secretKey": "/app/secret/minio-secret.txt",
+    "secure": true
+  },
+  "ballchasing": {
+    "maxRetries": 7,
+    "backoffFactor": 4
+  },
+  "tempDir": "/tmp",
+  "parser": "ballchasing"
+}

@@ -1,0 +1,21 @@
+{
+  "db": {
+    "host": "{{database.host}}",
+    "port": {{database.port}},
+    "username": "{{database.username}}",
+    "database": "{{database.database}}"
+  },
+  "transport": {{{transport}}},
+  "logger": {
+    "levels": {{{logger.levels}}}
+  },
+  "minio": {
+    "endPoint": "{{s3.endpoint}}",
+    "port": {{ s3.port }},
+    "useSSL": {{ s3.ssl }},
+    "bucketNames": {
+      "replays": "{{s3.bucket}}",
+      "image_generation": "{{s3.buckets.imageGeneration}}"
+    }
+  }
+}

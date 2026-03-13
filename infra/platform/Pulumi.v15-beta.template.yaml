@@ -1,0 +1,14 @@
+config:
+  # Copy the secret-bearing values from platform/Pulumi.prod.yaml or another trusted stack.
+  # This template only pins the v1.5-specific knobs and the non-secret environment identity.
+
+  platform:image-tag: personal-gankoji-unbork-cloud-spend
+  platform:hostname: sprocket.mlesports.gg
+  platform:subdomain: v15
+  platform:monolith-mode: "true"
+  platform:monolith-image-repository: monolith
+  platform:deploy-image-generation-frontend: "false"
+
+  # Recommended for beta only if operator access via IP/Tailscale is still needed.
+  # platform:server-ip: <optional-server-ip>
+  # platform:tailscale-ip: <optional-tailscale-ip>

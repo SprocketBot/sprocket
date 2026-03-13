@@ -1,0 +1,20 @@
+{
+  "transport": {{{transport}}},
+  "logger": {
+    "levels": {{{logger.levels}}}
+  },
+  "minio": {
+    "endPoint": "{{s3.endpoint}}",
+    "port": {{ s3.port }},
+    "useSSL": {{ s3.ssl }},
+    "bucketNames": {
+      "replays": "{{s3.buckets.replayParse}}",
+      "image_generation": "{{s3.buckets.imageGeneration}}"
+    }
+  },
+  "redis": {
+    "port": {{redis.port}},
+    "host": "{{ redis.host }}",
+    "prefix": "{{ redis.prefix }}"
+  }
+}

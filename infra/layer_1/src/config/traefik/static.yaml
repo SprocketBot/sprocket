@@ -1,0 +1,43 @@
+entryPoints:
+  web:
+    address: ':80'
+
+  websecure:
+    address: ':443'
+
+  redis:
+    address: ':6379'
+
+api:
+  dashboard: true
+  insecure: true
+
+certificatesResolvers:
+#  lets-encrypt-dns:
+#    acme:
+#      email: actualsovietshark@gmail.com
+#      storage: /data/le.json
+#      dnsChallenge:
+#        provider: digitalocean
+#        delayBeforeCheck: 0
+  lets-encrypt-tls:
+    acme:
+      email: nigel@mlesports.gg
+      storage: /data/le-tls.json
+      tlsChallenge: {}
+
+providers:
+  docker:
+    watch: true
+    exposedByDefault: false
+    swarmMode: true
+    network: traefik-ingress
+    endpoint: "tcp://socket-proxy:2375"
+
+# TODO: Uncomment this
+#metrics:
+#  influxDB:
+#    address: telegraf:8081
+#    protocol: http
+log:
+  level: info
