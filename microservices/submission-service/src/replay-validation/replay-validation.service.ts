@@ -32,6 +32,34 @@ import {getSubmissionKey} from "../utils";
 import type {ValidationError, ValidationResult} from "./types/validation-result";
 import {sortIds} from "./utils";
 
+interface ReplayAccountPlayer {
+    name: string;
+    platform: string;
+    id: string;
+    userId: number | null;
+}
+
+interface ExpectedPlayer {
+    userId: number;
+    name: string;
+}
+
+interface TeamPlayers<TPlayer> {
+    teamIndex: number;
+    players: TPlayer[];
+}
+
+interface MismatchRawData {
+    mismatch: {
+        gameIndex: number;
+        expectedParticipants: ExpectedPlayer[];
+        expectedTeams: Array<TeamPlayers<ExpectedPlayer>>;
+        foundTeams: Array<TeamPlayers<ReplayAccountPlayer>>;
+        unexpectedRecognizedPlayers: ExpectedPlayer[];
+        missingExpectedPlayers: ExpectedPlayer[];
+    };
+}
+
 @Injectable()
 export class ReplayValidationService {
     private readonly logger: Logger = new Logger(ReplayValidationService.name);
@@ -459,11 +487,26 @@ export class ReplayValidationService {
                 matchupIndex = expectedMatchups.findIndex(expectedMatchup => isEqual(submissionGame, expectedMatchup));
                 expectedMatchups.splice(matchupIndex, 1);
             } else {
+                const mismatchData = this.buildScrimMismatchRawData(
+                    g,
+                    stats[g],
+                    expectedMatchups,
+                    submissionGame,
+                    players,
+                    scrim.players,
+                );
+                this.logger.warn(`Mismatched player detected for scrim=${scrim.id} gameIndex=${g}. ${JSON.stringify(mismatchData)}`);
+                const unexpectedNames = mismatchData.mismatch.unexpectedRecognizedPlayers.map(p => p.name).join(", ");
+                const missingNames = mismatchData.mismatch.missingExpectedPlayers.map(p => p.name).join(", ");
+                const summary = [
+                    unexpectedNames ? `Unexpected recognized players: ${unexpectedNames}.` : "",
+                    missingNames ? `Missing expected players: ${missingNames}.` : "",
+                ].filter(Boolean).join(" ");
                 return {
                     valid: false,
                     errors: [
                         {
-                            error: "Mismatched player",
+                            error: `Mismatched player in game ${g + 1}.${summary ? ` ${summary}` : ""} RawData: ${JSON.stringify(mismatchData)}`,
                             gameIndex: g,
                         },
                     ],
@@ -568,6 +611,88 @@ export class ReplayValidationService {
             };
         }
         return null;
+    }
+
+    private buildScrimMismatchRawData(
+        gameIndex: number,
+        replay: BallchasingResponse,
+        expectedMatchups: number[][][],
+        submissionGame: number[][],
+        players: GetPlayerSuccessResponse[],
+        scrimPlayers: ScrimPlayer[],
+    ): MismatchRawData {
+        const playerNameById = new Map(scrimPlayers.map(p => [p.id, p.name]));
+        const replayAccountToUserId = new Map(players.map(p => [
+            this.getPlatformLookupKey(p.request.platform, p.request.platformId),
+            p.data.userId,
+        ]));
+
+        const scoreMatchup = (candidate: number[][]): number => {
+            const candidateSet = new Set(candidate.flat());
+            return submissionGame.flat().filter(id => candidateSet.has(id)).length;
+        };
+
+        const expectedTeams = [...expectedMatchups]
+            .sort((a, b) => scoreMatchup(b) - scoreMatchup(a))[0] ?? [];
+
+        const expectedTeamRows: Array<TeamPlayers<ExpectedPlayer>> = expectedTeams.map((team, teamIndex) => ({
+            teamIndex: teamIndex,
+            players: team.map(userId => ({
+                userId: userId,
+                name: playerNameById.get(userId) ?? `User ${userId}`,
+            })),
+        }));
+
+        const foundTeamRows: Array<TeamPlayers<ReplayAccountPlayer>> = [
+            {
+                teamIndex: 0,
+                players: replay.blue.players.map(player => ({
+                    name: player.name,
+                    platform: player.id.platform.toUpperCase(),
+                    id: player.id.id,
+                    userId: replayAccountToUserId.get(this.getPlatformLookupKey(player.id.platform, player.id.id)) ?? null,
+                })),
+            },
+            {
+                teamIndex: 1,
+                players: replay.orange.players.map(player => ({
+                    name: player.name,
+                    platform: player.id.platform.toUpperCase(),
+                    id: player.id.id,
+                    userId: replayAccountToUserId.get(this.getPlatformLookupKey(player.id.platform, player.id.id)) ?? null,
+                })),
+            },
+        ];
+
+        const foundRecognizedIds = foundTeamRows.flatMap(t => t.players.map(p => p.userId).filter(Boolean)) as number[];
+        const expectedIds = expectedTeams.flat();
+        const unexpectedRecognizedPlayers = foundRecognizedIds
+            .filter(id => !expectedIds.includes(id))
+            .map(userId => ({
+                userId: userId,
+                name: playerNameById.get(userId) ?? `User ${userId}`,
+            }));
+        const missingExpectedPlayers = expectedIds
+            .filter(id => !foundRecognizedIds.includes(id))
+            .map(userId => ({
+                userId: userId,
+                name: playerNameById.get(userId) ?? `User ${userId}`,
+            }));
+
+        return {
+            mismatch: {
+                gameIndex: gameIndex,
+                expectedParticipants: scrimPlayers.map(p => ({userId: p.id, name: p.name})),
+                expectedTeams: expectedTeamRows,
+                foundTeams: foundTeamRows,
+                unexpectedRecognizedPlayers: unexpectedRecognizedPlayers,
+                missingExpectedPlayers: missingExpectedPlayers,
+            },
+        };
+    }
+
+    private getPlatformLookupKey(platform: string, platformId: string): string {
+        return `${platform.toUpperCase()}:${platformId}`;
     }
 
     private async getStats(outputPath: string): Promise<BallchasingResponse> {

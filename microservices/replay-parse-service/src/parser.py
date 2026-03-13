@@ -1,5 +1,6 @@
 import logging
 import json
+from datetime import datetime
 from time import sleep
 from typing import Callable
 import carball
@@ -34,12 +35,22 @@ if PARSER not in VALID_PARSERS:
     raise Exception(f"Unknown parser {PARSER}. Please specify one of: {', '.join(VALID_PARSERS)}")
 
 
-def parse(path: str, on_progress: Callable[[str], None] = None):
-    # For now, only parse with carball ever
-    print("Parsing with carball parser.")
-    return _parse_carball(path, on_progress)
+def get_result_metadata() -> dict:
     if PARSER == "carball":
-        return _parse_carball(path, on_progress)
+        return {
+            "parser": "carball",
+            "analysisMode": "full-analysis",
+        }
+
+    return {
+        "parser": "ballchasing",
+        "analysisMode": "full-analysis",
+    }
+
+
+def parse(path: str, on_progress: Callable[[str], None] = None):
+    if PARSER == "carball":
+        return _parse_carball_full_analysis(path, on_progress)
     if PARSER == "ballchasing":
         return _parse_ballchasing(path, on_progress)
     if PARSER == "ballchasing-with-carball-shadow":
@@ -77,7 +88,7 @@ def _parse_dual_with_shadow(path: str, on_progress: Callable[[str], None] = None
         try:
             # Create a silent progress callback for shadow parsing
             shadow_progress = lambda msg: print(f"Carball shadow: {msg}")
-            carball_result = _parse_carball(path, shadow_progress)
+            carball_result = _parse_carball_summary(path, shadow_progress)
             carball_duration = time.time() - carball_start
             print(f"Carball shadow parsing completed in {carball_duration:.2f}s")
         except Exception as e:
@@ -227,7 +238,219 @@ def _log_parser_comparison(path: str, ballchasing_data: dict, carball_data: dict
 #
 ###############################
 
-def _parse_carball(path: str, on_progress: Callable[[str], None] = None) -> dict:
+def _coerce_to_jsonable(value):
+    if isinstance(value, dict):
+        return value
+
+    if hasattr(value, "DESCRIPTOR"):
+        from google.protobuf.json_format import MessageToDict
+
+        return MessageToDict(
+            value,
+            preserving_proto_field_name=True,
+        )
+
+    if hasattr(value, "to_dict"):
+        return value.to_dict()
+
+    try:
+        json.dumps(value)
+        return value
+    except TypeError:
+        return json.loads(json.dumps(value, default=lambda obj: getattr(obj, "__dict__", str(obj))))
+
+
+def _normalize_player_platform(platform):
+    if isinstance(platform, dict):
+        platform = platform.get("value") or platform.get("Value")
+    if platform is None:
+        return None
+    return str(platform)
+
+
+def _get_nested_dict_value(data, *keys):
+    current = data
+    for key in keys:
+        if not isinstance(current, dict):
+            return None
+        current = current.get(key)
+    return current
+
+
+def _normalize_platform_account_id(value):
+    if isinstance(value, dict):
+        normalized = (
+            value.get("online_id")
+            or value.get("value")
+            or _get_nested_dict_value(value, "fields", "Data")
+            or next(iter(value.values()), None)
+        )
+        return _normalize_platform_account_id(normalized)
+
+    if value is None:
+        return None
+
+    normalized = str(value).strip()
+    if normalized == "" or normalized == "0":
+        return None
+    return normalized
+
+
+def _extract_player_platform_account_id(raw_player, platform):
+    player_id_fields = _get_nested_dict_value(raw_player, "PlayerID", "fields") or {}
+    platform_lower = (platform or "").lower()
+
+    candidates = []
+    if "epic" in platform_lower:
+        candidates.extend([
+            player_id_fields.get("EpicAccountId"),
+            raw_player.get("OnlineID"),
+            player_id_fields.get("Uid"),
+        ])
+    elif "ps" in platform_lower:
+        candidates.extend([
+            _get_nested_dict_value(player_id_fields, "NpId", "fields", "Handle", "fields", "Data"),
+            raw_player.get("OnlineID"),
+            player_id_fields.get("Uid"),
+        ])
+    else:
+        candidates.extend([
+            raw_player.get("OnlineID"),
+            player_id_fields.get("Uid"),
+            player_id_fields.get("EpicAccountId"),
+        ])
+
+    for candidate in candidates:
+        normalized = _normalize_platform_account_id(candidate)
+        if normalized is not None:
+            return normalized
+
+    return "0"
+
+
+def _normalize_header_date(date_value):
+    if date_value is None:
+        return None
+
+    for date_format in ['%Y-%m-%d %H-%M-%S', '%Y-%m-%d:%H-%M']:
+        try:
+            return datetime.strptime(date_value, date_format).isoformat()
+        except (TypeError, ValueError):
+            continue
+    return str(date_value)
+
+
+def _normalize_header_only_replay(raw_header: dict) -> dict:
+    properties = raw_header.get("properties", {})
+    raw_players = properties.get("PlayerStats", [])
+    raw_goals = properties.get("Goals", [])
+
+    players = []
+    players_by_name = {}
+
+    for raw_player in raw_players:
+        player_name = raw_player.get("Name")
+        platform = _normalize_player_platform(raw_player.get("Platform"))
+        online_id = _extract_player_platform_account_id(raw_player, platform)
+        is_orange = 1 if raw_player.get("Team") else 0
+
+        player = {
+            "id": {
+                "id": online_id,
+                "platform": platform,
+            },
+            "name": player_name,
+            "score": raw_player.get("Score"),
+            "goals": raw_player.get("Goals"),
+            "assists": raw_player.get("Assists"),
+            "saves": raw_player.get("Saves"),
+            "shots": raw_player.get("Shots"),
+            "is_orange": is_orange,
+            "is_bot": raw_player.get("bBot"),
+            "platform": platform,
+        }
+        players.append(player)
+        if player_name is not None:
+            players_by_name[player_name] = player
+
+    goals = []
+    for raw_goal in raw_goals:
+        scoring_player = players_by_name.get(raw_goal.get("PlayerName"))
+        player_id = {
+            "id": scoring_player["id"]["id"] if scoring_player else None,
+            "platform": scoring_player["id"]["platform"] if scoring_player else None,
+        }
+        goals.append({
+            "frame_number": raw_goal.get("frame"),
+            "player_name": raw_goal.get("PlayerName"),
+            "player_id": player_id,
+        })
+
+    blue_players = [player for player in players if player.get("is_orange") == 0]
+    orange_players = [player for player in players if player.get("is_orange") == 1]
+
+    normalized = {
+        "game_metadata": {
+            "id": properties.get("Id"),
+            "name": properties.get("ReplayName"),
+            "map": properties.get("MapName"),
+            "time": _normalize_header_date(properties.get("Date")),
+            "frames": properties.get("NumFrames") or properties.get("Frames"),
+            "length": properties.get("TotalSecondsPlayed"),
+            "match_type": properties.get("MatchType"),
+            "team_size": properties.get("TeamSize"),
+            "match_guid": properties.get("MatchGUID") or properties.get("MatchGuid") or properties.get("Id"),
+            "goals": goals,
+        },
+        "players": players,
+        "teams": [
+            {
+                "is_orange": False,
+                "score": sum((player.get("goals") or 0) for player in blue_players),
+                "player_ids": [player["id"] for player in blue_players],
+            },
+            {
+                "is_orange": True,
+                "score": sum((player.get("goals") or 0) for player in orange_players),
+                "player_ids": [player["id"] for player in orange_players],
+            },
+        ],
+    }
+
+    return normalized
+
+
+def _parse_carball_summary(path: str, on_progress: Callable[[str], None] = None) -> dict:
+    """
+    Parses replay metadata using carball's header-only API.
+
+    This path intentionally avoids full frame analysis so replay format drift in
+    network frames does not break metadata consumers, while preserving the raw
+    header-level player identity fields needed by validation.
+    """
+    print(f"Parsing {path} with carball header-only path")
+
+    decompile_replay_header_only = getattr(carball, "decompile_replay_header_only", None)
+    if decompile_replay_header_only is None:
+        raise Exception(
+            "Installed sprocket-rl-parser does not expose carball.decompile_replay_header_only(...). "
+            "Upgrade the parser package to a version with the header-only API."
+        )
+
+    try:
+        if on_progress:
+            on_progress("Reading replay header...")
+
+        raw_header = _coerce_to_jsonable(decompile_replay_header_only(path))
+        output = _normalize_header_only_replay(raw_header)
+        print(f"Carball header summary keys: {list(output.keys()) if isinstance(output, dict) else type(output)}")
+        return output
+    except Exception as e:
+        logging.error(f"Carball header-only parsing failed for {path}: {str(e)}")
+        raise Exception(f"Failed to parse replay header with carball: {str(e)}")
+
+
+def _parse_carball_full_analysis(path: str, on_progress: Callable[[str], None] = None) -> dict:
     """
     Parses a Rocket League replay located at a given local path using carball
 
@@ -270,7 +493,13 @@ def _parse_carball(path: str, on_progress: Callable[[str], None] = None) -> dict
         return output
     except Exception as e:
         logging.error(f"Carball parsing failed for {path}: {str(e)}")
-        raise Exception(f"Failed to parse replay with carball: {str(e)}")
+        error_message = str(e)
+        if "network_frames" in error_message:
+            error_message = (
+                f"{error_message}. Full analysis requires parsed network frames. "
+                "Use carball.summarize_replay_file(...) for metadata-only flows."
+            )
+        raise Exception(f"Failed to parse replay with carball: {error_message}")
 
 
 

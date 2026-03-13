@@ -34,7 +34,7 @@
     }
 </script>
 
-<Modal title="Player Ban Tool" bind:visible id="ban-player-modal">
+<Modal title="Player Ban Tool" bind:visible id="ban-player-modal" size="lg">
     <form on:submit|preventDefault={createBan} slot="body">
         <h4 class='text-lg font-bold'>Selected Player: {player.name}</h4>
 

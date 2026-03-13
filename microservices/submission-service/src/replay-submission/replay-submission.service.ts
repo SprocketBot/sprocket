@@ -45,11 +45,10 @@ export class ReplaySubmissionService {
         creatorId: number,
     ): Promise<string[]> {
         await this.submissionCrudService.getOrCreateSubmission(submissionId, creatorId);
-        const tasks: ReplayParseTask[] = [];
         // Subscribe before doing anything to ensure that we don't drop events
         this.replayParseSubscriber.subscribe(submissionId);
         await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.PROCESSING);
-        const celeryPromises = filePaths.map(async fp => {
+        const taskIds = await Promise.all(filePaths.map(async fp => {
             const taskId = v4();
 
             await this.submissionCrudService.upsertItem(submissionId, {
@@ -110,12 +109,13 @@ export class ReplaySubmissionService {
                         }
                         await this.submissionCrudService.upsertItem(submissionId, item);
                         this.logger.debug(`Submission item updated for taskId '${_taskId}'`);
-                        tasks.push({
-                            status: item.progress!.status,
-                            result: item.progress!.result,
-                            error: null,
-                            taskId: item.taskId,
-                        });
+                        const items = await this.submissionCrudService.getSubmissionItems(submissionId);
+                        const tasks: ReplayParseTask[] = items.map(currentItem => ({
+                            status: currentItem.progress!.status,
+                            result: currentItem.progress!.result,
+                            error: currentItem.progress!.error ? new Error(currentItem.progress!.error) : null,
+                            taskId: currentItem.taskId,
+                        }));
                         if (
                             tasks.length === filePaths.length
               && tasks.every(t => [ProgressStatus.Complete, ProgressStatus.Error].includes(t.status))
@@ -129,14 +129,13 @@ export class ReplaySubmissionService {
                     },
                 },
             );
-        });
-
-        await Promise.all(celeryPromises);
+            return taskId;
+        }));
         await this.eventsService.publish(EventTopic.SubmissionStarted, {
             submissionId: submissionId,
             redisKey: getSubmissionKey(submissionId),
         });
-        return tasks.map(t => t.taskId);
+        return taskIds;
     }
 
     async mockCompletion(submissionId: string, results: unknown[]): Promise<boolean> {

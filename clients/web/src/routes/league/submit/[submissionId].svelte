@@ -24,6 +24,44 @@
   $: match = $matchStore.data?.getMatchBySubmissionId;
 
   let uploadVisible = false;
+
+  interface ExpectedPlayer {
+      userId: number;
+      name: string;
+  }
+  interface ReplayAccountPlayer {
+      name: string;
+      platform: string;
+      id: string;
+      userId: number | null;
+  }
+  interface TeamPlayers<TPlayer> {
+      teamIndex: number;
+      players: TPlayer[];
+  }
+  interface MismatchDetails {
+      gameIndex: number;
+      expectedTeams: Array<TeamPlayers<ExpectedPlayer>>;
+      foundTeams: Array<TeamPlayers<ReplayAccountPlayer>>;
+      unexpectedRecognizedPlayers: ExpectedPlayer[];
+      missingExpectedPlayers: ExpectedPlayer[];
+  }
+  interface RawDataPayload {
+      mismatch?: MismatchDetails;
+  }
+
+  const parseRawData = (reason: string): RawDataPayload | null => {
+      const matchRaw = reason.match(/RawData: (\{.*\})/);
+      if (!matchRaw) return null;
+      try {
+          return JSON.parse(matchRaw[1]) as RawDataPayload;
+      } catch (_e) {
+          return null;
+      }
+  };
+
+  const cleanReason = (reason: string): string => reason.replace(/\s*RawData:\s*\{.*\}\s*$/, "")
+      .trim();
 </script>
 
 <DashboardLayout>
@@ -48,7 +86,67 @@
 						<ul class="mb-8">
 							{#key $submissionStore.data?.submission}
 								{#each $submissionStore.data?.submission.rejections.filter(r => !r.stale) as rejection}
-									<li>{rejection.playerName} has rejected replays because "{rejection.reason}"</li>
+                  {@const rawData = parseRawData(rejection.reason)}
+									<li class="mb-4">
+                    <p>{rejection.playerName} has rejected replays because "{cleanReason(rejection.reason)}"</p>
+                    {#if rawData?.mismatch}
+                      <div class="mt-2 p-3 rounded border border-warning text-sm space-y-2">
+                        <p class="font-semibold">Mismatch details for game {Number(rawData.mismatch.gameIndex) + 1}</p>
+                        {#if rawData.mismatch.unexpectedRecognizedPlayers.length > 0}
+                          <p><span class="font-semibold">Unexpected:</span> {rawData.mismatch.unexpectedRecognizedPlayers.map(p => `${p.name} (${p.userId})`).join(", ")}</p>
+                        {/if}
+                        {#if rawData.mismatch.missingExpectedPlayers.length > 0}
+                          <p><span class="font-semibold">Missing:</span> {rawData.mismatch.missingExpectedPlayers.map(p => `${p.name} (${p.userId})`).join(", ")}</p>
+                        {/if}
+
+                        <div class="overflow-x-auto">
+                          <table class="table table-compact w-full">
+                            <thead>
+                              <tr>
+                                <th>Expected Team</th>
+                                <th>Expected Players</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {#each rawData.mismatch.expectedTeams as team}
+                                <tr>
+                                  <td>Team {Number(team.teamIndex) + 1}</td>
+                                  <td>{team.players.map(p => `${p.name} (${p.userId})`).join(", ")}</td>
+                                </tr>
+                              {/each}
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                          <table class="table table-compact w-full">
+                            <thead>
+                              <tr>
+                                <th>Found Team</th>
+                                <th>Account</th>
+                                <th>Platform</th>
+                                <th>Account ID</th>
+                                <th>User</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {#each rawData.mismatch.foundTeams as team}
+                                {#each team.players as player}
+                                  <tr>
+                                    <td>Team {Number(team.teamIndex) + 1}</td>
+                                    <td>{player.name}</td>
+                                    <td>{player.platform}</td>
+                                    <td class="break-all">{player.id}</td>
+                                    <td>{player.userId ?? "Unknown"}</td>
+                                  </tr>
+                                {/each}
+                              {/each}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    {/if}
+                  </li>
 								{/each}
 							{/key}
 						</ul>

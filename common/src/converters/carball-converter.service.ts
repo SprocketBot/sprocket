@@ -19,55 +19,18 @@ export class CarballConverterService {
         carball: CarballResponse,
         outputPath: string,
     ): BallchasingResponse {
-
-        // Extract metadata (supports both camelCase and snake_case)
         const metadata = carball.gameMetadata ?? carball.game_metadata ?? {};
-        const gameStats = carball.gameStats ?? carball.game_stats ?? {};
-
-        // Helper to validate and return a valid ISO date string
-        const getValidDate = (dateValue: string | undefined): string => {
-            if (!dateValue) return new Date().toISOString();
-            const testDate = new Date(dateValue);
-            return isNaN(testDate.getTime()) ? new Date().toISOString() : dateValue;
-        };
-
-        // Separate teams into blue and orange
         const teams = carball.teams ?? [];
         const players = carball.players ?? [];
-
-        console.log(`[CarballConverter] Total players: ${players.length}`);
-        console.log(`[CarballConverter] Total teams: ${teams.length}`);
-
-        // Identify blue and orange teams based on player color
-        // Carball returns isOrange (camelCase), not is_orange (snake_case)
-        const bluePlayers = players.filter(p => {
-            const isOrange = (p as any).isOrange ?? p.is_orange ?? 0;
-            return isOrange === 0;
-        });
-        const orangePlayers = players.filter(p => {
-            const isOrange = (p as any).isOrange ?? p.is_orange ?? 1;
-            return isOrange === 1;
-        });
-
-        console.log(`[CarballConverter] Blue players: ${bluePlayers.length}, Orange players: ${orangePlayers.length}`);
-
-        // Find team objects if they exist
-        const blueTeam = teams.find(t => t.color === 0) ?? {players: bluePlayers};
-        const orangeTeam = teams.find(t => t.color === 1) ?? {players: orangePlayers};
-
-        // Calculate team scores from player data
-        const blueScore = bluePlayers.reduce((sum, p) => sum + (p.score ?? 0), 0);
-        const orangeScore = orangePlayers.reduce((sum, p) => sum + (p.score ?? 0), 0);
-
-        // Calculate team totals for goals and shots (needed for goals_against/shots_against)
-        const blueTotals = {
-            goals: bluePlayers.reduce((sum, p) => sum + (p.goals ?? 0), 0),
-            shots: bluePlayers.reduce((sum, p) => sum + (p.shots ?? 0), 0),
-        };
-        const orangeTotals = {
-            goals: orangePlayers.reduce((sum, p) => sum + (p.goals ?? 0), 0),
-            shots: orangePlayers.reduce((sum, p) => sum + (p.shots ?? 0), 0),
-        };
+        const goalCounts = this.buildGoalCountLookup(metadata);
+        const {blue: bluePlayers, orange: orangePlayers} = this.groupPlayersByTeam(players, teams);
+        const blueTeam = this.findTeamByColor(teams, "blue") ?? {players: bluePlayers};
+        const orangeTeam = this.findTeamByColor(teams, "orange") ?? {players: orangePlayers};
+        const metadataScore = (metadata as any).score ?? {};
+        const blueGoals = this.getTeamGoals(bluePlayers, blueTeam, goalCounts, metadataScore, "blue");
+        const orangeGoals = this.getTeamGoals(orangePlayers, orangeTeam, goalCounts, metadataScore, "orange");
+        const blueTotals = this.getTeamTotals(bluePlayers, blueGoals);
+        const orangeTotals = this.getTeamTotals(orangePlayers, orangeGoals);
 
         // Generate stub ID from output path or random UUID
         const replayId = outputPath.split("/").pop()
@@ -79,8 +42,8 @@ export class CarballConverterService {
             id: replayId,
             link: `file://${outputPath}`,
             status: "ok" as const,
-            title: metadata.id ?? "Carball Parsed Replay",
-            date: getValidDate(metadata.time),
+            title: metadata.name ?? metadata.id ?? "Carball Parsed Replay",
+            date: this.getValidDate(metadata.time),
             date_has_timezone: false,
             created: new Date().toISOString(),
             visibility: "private",
@@ -88,7 +51,7 @@ export class CarballConverterService {
             // Rocket League metadata
             rocket_league_id: metadata.id ?? replayId,
             season: 0, // Unknown from carball
-            match_guid: metadata.id ?? replayId,
+            match_guid: (metadata as any).match_guid ?? metadata.id ?? replayId,
 
             // Uploader - stub data
             recorder: undefined,
@@ -100,8 +63,8 @@ export class CarballConverterService {
             },
 
             // Match info
-            match_type: metadata.match_type ?? metadata.playlist?.toString() ?? "unknown",
-            playlist_id: metadata.playlist?.toString() ?? "unknown",
+            match_type: this.getMatchType(metadata.playlist, metadata.match_type),
+            playlist_id: this.getPlaylistId(metadata.playlist),
             playlist_name: this.getPlaylistName(metadata.playlist),
 
             // Map info
@@ -115,8 +78,8 @@ export class CarballConverterService {
 
             // Teams
             team_size: metadata.team_size ?? Math.max(bluePlayers.length, orangePlayers.length),
-            blue: this.convertTeam(blueTeam, bluePlayers, "blue", orangeTotals),
-            orange: this.convertTeam(orangeTeam, orangePlayers, "orange", blueTotals),
+            blue: this.convertTeam(blueTeam, bluePlayers, "blue", orangeTotals, goalCounts),
+            orange: this.convertTeam(orangeTeam, orangePlayers, "orange", blueTotals, goalCounts),
         };
 
         return ballchasingResponse;
@@ -127,24 +90,31 @@ export class CarballConverterService {
         players: CarballPlayer[],
         color: "blue" | "orange",
         opposingTeamTotals: {goals: number; shots: number;},
+        goalCounts: Map<string, number>,
     ): BallchasingTeam {
-    // Aggregate team stats from player stats
-        const teamStats = this.aggregateTeamStats(players);
+        const teamStats = this.aggregateTeamStats(players, opposingTeamTotals, goalCounts);
 
         return {
             name: (team as any).name,
             color,
             stats: teamStats,
-            players: players.map(p => this.convertPlayer(p, opposingTeamTotals)),
+            players: players.map(p => this.convertPlayer(
+                p,
+                opposingTeamTotals,
+                goalCounts.get(this.getPlayerLookupKey(p.id)) ?? 0,
+            )),
         };
     }
 
     private convertPlayer(
         player: CarballPlayer,
         opposingTeamTotals: {goals: number; shots: number;},
+        derivedGoals: number,
     ): BallchasingPlayer {
         const playerId = player.id ?? {id: "0", platform: undefined};
         const platform = (playerId as any).platform ?? (player as any).platform ?? "steam";
+        const startTime = player.first_frame_in_game ?? player.firstFrameInGame ?? 0;
+        const timeInGame = player.time_in_game ?? player.timeInGame ?? 0;
 
         return {
             id: {
@@ -152,35 +122,37 @@ export class CarballConverterService {
                 platform: this.mapPlatform(platform),
             },
             name: player.name ?? "Unknown",
-            camera: this.extractCameraSettings(player.camera_settings),
+            camera: this.extractCameraSettings(player.camera_settings ?? player.cameraSettings),
             car_id: -1,
             car_name: "UNKNOWN",
-            start_time: player.first_frame_in_game ?? 0,
-            end_time: (player.first_frame_in_game ?? 0) + (player.time_in_game ?? 0),
+            start_time: startTime,
+            end_time: startTime + timeInGame,
             steering_sensitivity: 1.0,
-            stats: this.convertPlayerStats(player, opposingTeamTotals),
+            stats: this.convertPlayerStats(player, opposingTeamTotals, derivedGoals),
         };
     }
 
     private convertPlayerStats(
         player: CarballPlayer,
         opposingTeamTotals: {goals: number; shots: number;},
+        derivedGoals: number,
     ): any {
-    // Extract stats from carball player stats object
         const stats = player.stats as any ?? {};
+        const goals = player.goals ?? derivedGoals;
+        const shots = player.shots ?? 0;
 
         return {
             core: {
                 mvp: false,
                 // Round all core stats to integers for database compatibility
-                goals: Math.round(player.goals ?? 0),
+                goals: Math.round(goals),
                 saves: Math.round(player.saves ?? 0),
                 score: Math.round(player.score ?? 0),
-                shots: Math.round(player.shots ?? 0),
+                shots: Math.round(shots),
                 assists: Math.round(player.assists ?? 0),
                 goals_against: Math.round(opposingTeamTotals.goals),
                 shots_against: Math.round(opposingTeamTotals.shots),
-                shooting_percentage: 0,
+                shooting_percentage: shots > 0 ? goals / shots * 100 : 0,
             },
             demo: {
                 taken: stats.demo_stats?.taken ?? 0,
@@ -192,9 +164,14 @@ export class CarballConverterService {
         };
     }
 
-    private aggregateTeamStats(players: CarballPlayer[]): any {
-    // Aggregate player stats to team level
-        const totalGoals = players.reduce((sum, p) => sum + (p.goals ?? 0), 0);
+    private aggregateTeamStats(
+        players: CarballPlayer[],
+        opposingTeamTotals: {goals: number; shots: number;},
+        goalCounts: Map<string, number>,
+    ): any {
+        const totalGoals = players.reduce((sum, p) => (
+            sum + (p.goals ?? goalCounts.get(this.getPlayerLookupKey(p.id)) ?? 0)
+        ), 0);
         const totalSaves = players.reduce((sum, p) => sum + (p.saves ?? 0), 0);
         const totalScore = players.reduce((sum, p) => sum + (p.score ?? 0), 0);
         const totalShots = players.reduce((sum, p) => sum + (p.shots ?? 0), 0);
@@ -211,14 +188,171 @@ export class CarballConverterService {
                 score: totalScore,
                 shots: totalShots,
                 assists: totalAssists,
-                goals_against: 0,
-                shots_against: 0,
+                goals_against: opposingTeamTotals.goals,
+                shots_against: opposingTeamTotals.shots,
                 shooting_percentage: totalShots > 0 ? totalGoals / totalShots * 100 : 0,
             },
             boost: this.getDefaultBoostStats(),
             movement: this.getDefaultMovementStats(),
             positioning: this.getDefaultPositioningStats(),
         };
+    }
+
+    private getValidDate(dateValue: unknown): string {
+        if (dateValue === null || dateValue === undefined || dateValue === "") {
+            return new Date().toISOString();
+        }
+
+        if (typeof dateValue === "number" || /^\d+$/.test(String(dateValue))) {
+            const rawValue = Number(dateValue);
+            const timestamp = rawValue > 1_000_000_000_000 ? rawValue : rawValue * 1000;
+            const parsed = new Date(timestamp);
+            return isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString();
+        }
+
+        const parsed = new Date(String(dateValue));
+        return isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString();
+    }
+
+    private buildGoalCountLookup(metadata: Record<string, unknown>): Map<string, number> {
+        const goalCounts = new Map<string, number>();
+        const goals = ((metadata as any).goals ?? []) as Array<Record<string, unknown>>;
+
+        for (const goal of goals) {
+            const playerId = (goal.player_id ?? goal.playerId) as Record<string, unknown> | undefined;
+            const key = this.getPlayerLookupKey(playerId);
+            if (!key) continue;
+            goalCounts.set(key, (goalCounts.get(key) ?? 0) + 1);
+        }
+
+        return goalCounts;
+    }
+
+    private groupPlayersByTeam(
+        players: CarballPlayer[],
+        teams: CarballTeam[],
+    ): {blue: CarballPlayer[]; orange: CarballPlayer[];} {
+        const playerByKey = new Map(players.map(player => [this.getPlayerLookupKey(player.id), player]));
+        const grouped = {
+            blue: [] as CarballPlayer[],
+            orange: [] as CarballPlayer[],
+        };
+
+        for (const player of players) {
+            const isOrange = this.toBooleanish((player as any).isOrange ?? player.is_orange);
+            if (isOrange === true) grouped.orange.push(player);
+            else if (isOrange === false) grouped.blue.push(player);
+        }
+
+        for (const team of teams) {
+            const color = this.getTeamColor(team);
+            if (!color) continue;
+
+            const target = color === "orange" ? grouped.orange : grouped.blue;
+            const playerIds = (((team as any).player_ids ?? (team as any).playerIds) ?? []) as Array<Record<string, unknown>>;
+            for (const playerId of playerIds) {
+                const key = this.getPlayerLookupKey(playerId);
+                if (!key) continue;
+                const player = playerByKey.get(key);
+                if (player && !target.some(existing => this.getPlayerLookupKey(existing.id) === key)) {
+                    target.push(player);
+                }
+            }
+        }
+
+        for (const player of players) {
+            const key = this.getPlayerLookupKey(player.id);
+            if (
+                !grouped.blue.some(existing => this.getPlayerLookupKey(existing.id) === key)
+                && !grouped.orange.some(existing => this.getPlayerLookupKey(existing.id) === key)
+            ) {
+                grouped.blue.push(player);
+            }
+        }
+
+        return grouped;
+    }
+
+    private findTeamByColor(teams: CarballTeam[], color: "blue" | "orange"): CarballTeam | undefined {
+        return teams.find(team => this.getTeamColor(team) === color);
+    }
+
+    private getTeamGoals(
+        players: CarballPlayer[],
+        team: CarballTeam | {players: CarballPlayer[];},
+        goalCounts: Map<string, number>,
+        metadataScore: Record<string, unknown>,
+        color: "blue" | "orange",
+    ): number {
+        const scoreField = color === "blue" ? "team_0_score" : "team_1_score";
+        const metadataScoreValue = this.toNumber(
+            (metadataScore as any)[scoreField]
+            ?? (metadataScore as any)[scoreField.replace(/_/g, "")]
+            ?? (metadataScore as any)[color === "blue" ? "team0Score" : "team1Score"],
+        );
+        const teamScore = this.toNumber((team as any).score);
+
+        return teamScore
+            ?? metadataScoreValue
+            ?? players.reduce((sum, player) => (
+                sum + (player.goals ?? goalCounts.get(this.getPlayerLookupKey(player.id)) ?? 0)
+            ), 0);
+    }
+
+    private getTeamTotals(
+        players: CarballPlayer[],
+        teamGoals: number,
+    ): {goals: number; shots: number;} {
+        return {
+            goals: teamGoals,
+            shots: players.reduce((sum, player) => sum + (player.shots ?? 0), 0),
+        };
+    }
+
+    private getPlayerLookupKey(playerId: unknown): string {
+        const id = (playerId as any)?.id;
+        return id ? String(id) : "";
+    }
+
+    private getTeamColor(team: CarballTeam): "blue" | "orange" | null {
+        const explicitColor = (team as any).color;
+        if (explicitColor === 0 || explicitColor === "0" || explicitColor === "blue") return "blue";
+        if (explicitColor === 1 || explicitColor === "1" || explicitColor === "orange") return "orange";
+
+        const isOrange = this.toBooleanish((team as any).is_orange ?? (team as any).isOrange);
+        if (isOrange === true) return "orange";
+        if (isOrange === false) return "blue";
+
+        return null;
+    }
+
+    private toBooleanish(value: unknown): boolean | null {
+        if (value === null || value === undefined) return null;
+        if (typeof value === "boolean") return value;
+        if (typeof value === "number") return value !== 0;
+        if (typeof value === "string") {
+            const normalized = value.toLowerCase();
+            if (normalized === "true" || normalized === "1") return true;
+            if (normalized === "false" || normalized === "0") return false;
+        }
+        return null;
+    }
+
+    private toNumber(value: unknown): number | undefined {
+        if (value === null || value === undefined || value === "") return undefined;
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : undefined;
+    }
+
+    private getPlaylistId(playlist: number | undefined): string {
+        if (playlist === 6) return "private";
+        return playlist?.toString() ?? "unknown";
+    }
+
+    private getMatchType(playlist: number | undefined, matchType: string | undefined): string {
+        if (matchType) return matchType;
+        if (playlist === 6) return "Private";
+        return "unknown";
     }
 
     private extractCameraSettings(cameraSettings: unknown): any {
@@ -396,7 +530,7 @@ export class CarballConverterService {
             2: "Doubles",
             3: "Standard",
             4: "Chaos",
-            6: "Rocket Labs",
+            6: "Private",
             10: "Ranked Duel",
             11: "Ranked Doubles",
             13: "Ranked Standard",

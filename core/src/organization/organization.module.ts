@@ -1,5 +1,5 @@
 import {forwardRef, Module} from "@nestjs/common";
-import {EventsModule} from "@sprocketbot/common";
+import {AnalyticsModule, EventsModule} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 
 import {ConfigurationModule} from "../configuration";
@@ -31,6 +31,7 @@ import {PronounsService} from "./pronouns/pronouns.service";
         DatabaseModule,
         GameModule,
         forwardRef(() => IdentityModule),
+        AnalyticsModule,
         EventsModule,
         forwardRef(() => ConfigurationModule),
         forwardRef(() => FranchiseModule),

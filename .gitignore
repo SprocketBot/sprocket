@@ -136,6 +136,7 @@ secret/*
 # Local development database dumps
 scripts/db-seed/*.sql
 scripts/db-seed/*.sh
+artifacts/
 
 # Editor and tool specific configuration files
 .vscode/

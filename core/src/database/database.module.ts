@@ -12,6 +12,7 @@ import {ImageGenModule} from "./image-gen/image-gen.module";
 import {MledbModule} from "./mledb/mledb.module";
 import {MledbBridgeModule} from "./mledb-bridge/mledb_bridge.module";
 import {OrganizationModule} from "./organization/organization.module";
+import {ReportCardDbModule} from "./report-card/report-card.module";
 import {SchedulingModule} from "./scheduling/scheduling.module";
 import {WebhookModule} from "./webhook/webhook.module";
 
@@ -27,6 +28,7 @@ const modules = [
     MledbModule,
     ImageGenModule,
     MledbBridgeModule,
+    ReportCardDbModule,
     WebhookModule,
     TypeOrmModule.forRoot({
         type: "postgres",

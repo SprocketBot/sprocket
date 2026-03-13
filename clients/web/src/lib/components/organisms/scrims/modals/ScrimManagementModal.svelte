@@ -21,7 +21,7 @@
   let canClickOutside = true;
 </script>
 
-<Modal title="Manage Scrim" id="manage-scrim-modal" bind:visible {canClickOutside}>
+<Modal title="Manage Scrim" id="manage-scrim-modal" bind:visible {canClickOutside} size="xl">
   <section slot="body">
     {#if targetScrim?.playerCount > 0}
       <Collapse title="Players">
@@ -29,7 +29,12 @@
       </Collapse>
     {/if}
     <Collapse title="Actions" open >
-      <ScrimManagementActions bind:targetScrim on:uploading={e => canClickOutside = !e.detail} />
+      <ScrimManagementActions
+        bind:targetScrim
+        on:uploading={e => {
+            canClickOutside = !e.detail;
+        }}
+      />
     </Collapse>
   </section>
 </Modal>

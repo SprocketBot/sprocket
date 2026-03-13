@@ -1,0 +1,1690 @@
+[
+  {
+    "file": "clients/web/src/lib/components/__debug__/DebugPlayerStoreForm.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/__debug__/StoreChild.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/abstract/Authentication/AuthGuard.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [
+      "default",
+      "unauthenticated"
+    ],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/abstract/Authentication/OrgGuard.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [
+      "default",
+      "unauthorized"
+    ],
+    "exportedProps": [
+      {
+        "name": "expectedOrg",
+        "type": null,
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [
+      {
+        "name": "extractJwt",
+        "type": null,
+        "kind": "const",
+        "context": "instance"
+      }
+    ],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/abstract/Authentication/TeamGuard.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [
+      "default",
+      "unauthorized"
+    ],
+    "exportedProps": [
+      {
+        "name": "expectedTeam",
+        "type": null,
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [
+      {
+        "name": "extractJwt",
+        "type": null,
+        "kind": "const",
+        "context": "instance"
+      }
+    ],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/abstract/Chatwoot/Chatwoot.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/abstract/Portal.svelte",
+    "context": "components",
+    "scripts": 2,
+    "slots": [
+      "default"
+    ],
+    "exportedProps": [
+      {
+        "name": "target",
+        "type": null,
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [
+      {
+        "name": "portal",
+        "params": "el, target = \"body\"",
+        "context": "module"
+      }
+    ],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/atoms/Accordion.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [
+      "default",
+      "title"
+    ],
+    "exportedProps": [
+      {
+        "name": "title",
+        "type": "string | undefined",
+        "context": "instance"
+      },
+      {
+        "name": "expanded",
+        "type": "boolean",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/atoms/Avatar.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "src",
+        "type": "string",
+        "context": "instance"
+      },
+      {
+        "name": "alt",
+        "type": "string",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [
+      {
+        "local": "_class",
+        "exported": "class",
+        "context": "instance"
+      }
+    ],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/atoms/Card.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [
+      "default",
+      "figure",
+      "title"
+    ],
+    "exportedProps": [
+      {
+        "name": "compact",
+        "type": "boolean | undefined",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [
+      {
+        "local": "_class",
+        "exported": "class",
+        "context": "instance"
+      }
+    ],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/atoms/Collapse.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [
+      "default"
+    ],
+    "exportedProps": [
+      {
+        "name": "title",
+        "type": "string",
+        "context": "instance"
+      },
+      {
+        "name": "open",
+        "type": "boolean",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/atoms/DashboardNumberCard.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "description",
+        "type": "string",
+        "context": "instance"
+      },
+      {
+        "name": "title",
+        "type": "string",
+        "context": "instance"
+      },
+      {
+        "name": "value",
+        "type": "number",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/atoms/Dropdown.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [
+      "handle"
+    ],
+    "exportedProps": [
+      {
+        "name": "items",
+        "type": "Array<{",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [
+      {
+        "local": "_class",
+        "exported": "class",
+        "context": "instance"
+      }
+    ],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/atoms/FileInput.svelte",
+    "context": "components",
+    "scripts": 2,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "label",
+        "type": "string",
+        "context": "instance"
+      },
+      {
+        "name": "files",
+        "type": "RemovableFile[]",
+        "context": "instance"
+      },
+      {
+        "name": "disabled",
+        "type": "boolean | undefined",
+        "context": "instance"
+      },
+      {
+        "name": "unique",
+        "type": null,
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [
+      {
+        "name": "filesToFileList",
+        "type": null,
+        "kind": "const",
+        "context": "module"
+      }
+    ],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/atoms/icons/Gear.svelte",
+    "context": "components",
+    "scripts": 0,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/atoms/icons/VsIcon.svelte",
+    "context": "components",
+    "scripts": 0,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/atoms/Modal.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [
+      "actions",
+      "body"
+    ],
+    "exportedProps": [
+      {
+        "name": "title",
+        "type": "string",
+        "context": "instance"
+      },
+      {
+        "name": "visible",
+        "type": "boolean",
+        "context": "instance"
+      },
+      {
+        "name": "canClickOutside",
+        "type": "boolean",
+        "context": "instance"
+      },
+      {
+        "name": "id",
+        "type": "string",
+        "context": "instance"
+      },
+      {
+        "name": "size",
+        "type": "\"sm\" | \"md\" | \"lg\" | \"xl\" | \"full\"",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/atoms/Progress.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "value",
+        "type": "number",
+        "context": "instance"
+      },
+      {
+        "name": "max",
+        "type": "number",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/atoms/Spinner.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [
+      {
+        "local": "_class",
+        "exported": "class",
+        "context": "instance"
+      }
+    ],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/atoms/StackBanner.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/layouts/CenteredCardLayout.svelte",
+    "context": "components",
+    "scripts": 0,
+    "slots": [
+      "default"
+    ],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/layouts/DashboardLayout.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [
+      "default",
+      "sidebar"
+    ],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/league/atoms/FranchiseVsCard.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "profile",
+        "type": "LeagueScheduleFranchise",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/league/molecules/FixtureCard.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "fixture",
+        "type": "LeagueScheduleFixture",
+        "context": "instance"
+      },
+      {
+        "name": "hidebutton",
+        "type": "boolean",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/molecules/AdminSettings/AdminSettings.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/molecules/AdminSettings/GameFeatureToggle.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "label",
+        "type": "string",
+        "context": "instance"
+      },
+      {
+        "name": "value",
+        "type": "boolean | undefined",
+        "context": "instance"
+      },
+      {
+        "name": "loading",
+        "type": "boolean | undefined",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": [
+      "toggle"
+    ]
+  },
+  {
+    "file": "clients/web/src/lib/components/molecules/auth/DiscordOAuthButton.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/molecules/dashboard/DashboardCard.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [
+      "default"
+    ],
+    "exportedProps": [
+      {
+        "name": "title",
+        "type": "string",
+        "context": "instance"
+      },
+      {
+        "name": "quietTitle",
+        "type": "boolean",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [
+      {
+        "local": "_class",
+        "exported": "class",
+        "context": "instance"
+      }
+    ],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/molecules/FileBlock.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "filename",
+        "type": "string",
+        "context": "instance"
+      },
+      {
+        "name": "canRemove",
+        "type": "boolean",
+        "context": "instance"
+      },
+      {
+        "name": "loading",
+        "type": "boolean",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/molecules/LeagueScheduleGroup/LeagueScheduleGroup.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "scheduleGroup",
+        "type": "LeagueScheduleWeek",
+        "context": "instance"
+      },
+      {
+        "name": "isCurrentWeek",
+        "type": "boolean",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/molecules/Navigation.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/molecules/scrims/AdminBanTable.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/molecules/scrims/AdminPlayerTable.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/molecules/scrims/AdminScrimTable.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/molecules/scrims/AdminSubmissionTable/AdminSubmissionTable.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/molecules/scrims/AdminSubmissionTable/Row.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "submission",
+        "type": "Submission",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": [
+      "click"
+    ]
+  },
+  {
+    "file": "clients/web/src/lib/components/molecules/scrims/AdminSubmissionTable/SubmissionDetailModal.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "submission",
+        "type": "Submission",
+        "context": "instance"
+      },
+      {
+        "name": "visible",
+        "type": null,
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/molecules/scrims/fixtures/GameCard.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "title",
+        "type": "string",
+        "context": "instance"
+      },
+      {
+        "name": "game",
+        "type": "CurrentScrim[\"games\"][number] | SubmissionStatsData[\"games\"][number]",
+        "context": "instance"
+      },
+      {
+        "name": "showCheckbox",
+        "type": "boolean",
+        "context": "instance"
+      },
+      {
+        "name": "checkboxValue",
+        "type": "boolean",
+        "context": "instance"
+      },
+      {
+        "name": "showResult",
+        "type": "boolean",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/molecules/scrims/fixtures/RoundRobinFixture.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "scrim",
+        "type": "CurrentScrim",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/molecules/scrims/fixtures/TeamsFixture.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "scrim",
+        "type": "CurrentScrim",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/molecules/scrims/modals/ScrimManagementActions.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "targetScrim",
+        "type": "CurrentScrim",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": [
+      "uploading"
+    ]
+  },
+  {
+    "file": "clients/web/src/lib/components/molecules/scrims/modals/ScrimManagementPlayerTable.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "targetScrim",
+        "type": "CurrentScrim",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/molecules/scrims/ReplayUpload.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "filename",
+        "type": "string",
+        "context": "instance"
+      },
+      {
+        "name": "progressStore",
+        "type": "Readable<ProgressMessage<unknown>>",
+        "context": "instance"
+      },
+      {
+        "name": "canRemove",
+        "type": "boolean",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/molecules/scrims/ScrimCard.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "scrim",
+        "type": "PendingScrim",
+        "context": "instance"
+      },
+      {
+        "name": "joinScrim",
+        "type": "(scrim: PendingScrim)",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/molecules/scrims/ScrimFullIndicator.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/molecules/scrims/ScrimTable.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "lfs",
+        "type": "boolean",
+        "context": "instance"
+      },
+      {
+        "name": "scrims",
+        "type": "PendingScrim[] | CurrentScrim[]",
+        "context": "instance"
+      },
+      {
+        "name": "joinScrim",
+        "type": "(scrim: PendingScrim)",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/molecules/toasts/ToastContainer.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "showTestButton",
+        "type": null,
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/molecules/user-menu/UserMenu.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/organisms/scrims/AvailableScrimsView.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/organisms/scrims/DisabledView.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/organisms/scrims/LFSScrimsView.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/organisms/scrims/modals/CreateLFSScrimModal.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "visible",
+        "type": null,
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/organisms/scrims/modals/CreateScrimModal.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "visible",
+        "type": null,
+        "context": "instance"
+      },
+      {
+        "name": "lfs",
+        "type": null,
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/organisms/scrims/modals/JoinScrimModal.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "visible",
+        "type": null,
+        "context": "instance"
+      },
+      {
+        "name": "scrim",
+        "type": "PendingScrim",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/organisms/scrims/modals/ManuallyExpireRestrictionModal.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "visible",
+        "type": "boolean",
+        "context": "instance"
+      },
+      {
+        "name": "restriction",
+        "type": "MemberRestriction",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/organisms/scrims/modals/PlayerManagementModal.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "visible",
+        "type": null,
+        "context": "instance"
+      },
+      {
+        "name": "player",
+        "type": "Player",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/organisms/scrims/modals/RejectSubmissionModal.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "visible",
+        "type": "boolean",
+        "context": "instance"
+      },
+      {
+        "name": "submissionId",
+        "type": "string",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/organisms/scrims/modals/ScrimManagementModal.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "visible",
+        "type": null,
+        "context": "instance"
+      },
+      {
+        "name": "targetScrim",
+        "type": "CurrentScrim",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/organisms/scrims/modals/SubmitReplaysModal.svelte",
+    "context": "components",
+    "scripts": 2,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "visible",
+        "type": "boolean",
+        "context": "instance"
+      },
+      {
+        "name": "submissionId",
+        "type": "string | undefined",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/organisms/scrims/modals/UploadReplaysModal.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "visible",
+        "type": "boolean",
+        "context": "instance"
+      },
+      {
+        "name": "submissionId",
+        "type": "string",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/organisms/scrims/QueuedSubViews/InProgressView.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "scrim",
+        "type": "CurrentScrim",
+        "context": "instance"
+      },
+      {
+        "name": "submission",
+        "type": "Submission | undefined",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/organisms/scrims/QueuedSubViews/LockedView.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "scrim",
+        "type": "CurrentScrim",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/organisms/scrims/QueuedSubViews/PendingView.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "scrim",
+        "type": "CurrentScrim",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/organisms/scrims/QueuedSubViews/PoppedView.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "scrim",
+        "type": "CurrentScrim",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/organisms/scrims/QueuedView.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/organisms/submissions/RatificationView.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "submission",
+        "type": "Submission",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/organisms/submissions/SubmissionProgressView.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "submission",
+        "type": "Submission",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/lib/components/organisms/submissions/SubmissionView.svelte",
+    "context": "components",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "submission",
+        "type": "Submission",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/routes/__error.svelte",
+    "context": "routes",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/routes/__layout.svelte",
+    "context": "routes",
+    "scripts": 1,
+    "slots": [
+      "default"
+    ],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/routes/admin/__layout.svelte",
+    "context": "routes",
+    "scripts": 1,
+    "slots": [
+      "default"
+    ],
+    "exportedProps": [],
+    "exportedValues": [
+      {
+        "name": "load",
+        "type": "Load",
+        "kind": "const",
+        "context": "module"
+      }
+    ],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/routes/admin/index.svelte",
+    "context": "routes",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [
+      {
+        "name": "load",
+        "type": "Load",
+        "kind": "const",
+        "context": "module"
+      }
+    ],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/routes/auth/callback.svelte",
+    "context": "routes",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/routes/auth/login.svelte",
+    "context": "routes",
+    "scripts": 2,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [
+      {
+        "name": "load",
+        "type": "Load",
+        "kind": "const",
+        "context": "module"
+      }
+    ],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/routes/auth/logout.svelte",
+    "context": "routes",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/routes/index.svelte",
+    "context": "routes",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [
+      {
+        "name": "load",
+        "type": "Load",
+        "kind": "const",
+        "context": "module"
+      }
+    ],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/routes/league/__layout.svelte",
+    "context": "routes",
+    "scripts": 1,
+    "slots": [
+      "default"
+    ],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [
+      {
+        "name": "load",
+        "params": "{session}: LoadInput",
+        "context": "module"
+      }
+    ],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/routes/league/[fixtureId].svelte",
+    "context": "routes",
+    "scripts": 2,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "fixtureStore",
+        "type": "LeagueFixtureStore",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [
+      {
+        "name": "load",
+        "type": null,
+        "kind": "const",
+        "context": "module"
+      }
+    ],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/routes/league/index.svelte",
+    "context": "routes",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/routes/league/scrim/_layout.svelte",
+    "context": "routes",
+    "scripts": 1,
+    "slots": [
+      "default"
+    ],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [
+      {
+        "name": "load",
+        "params": "{session}: LoadInput",
+        "context": "module"
+      }
+    ],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/routes/league/scrim/[submissionId].svelte",
+    "context": "routes",
+    "scripts": 2,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "submissionId",
+        "type": "string",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [
+      {
+        "name": "load",
+        "type": null,
+        "kind": "const",
+        "context": "module"
+      }
+    ],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/routes/league/scrim/index.svelte",
+    "context": "routes",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/routes/league/submit/[submissionId].svelte",
+    "context": "routes",
+    "scripts": 2,
+    "slots": [],
+    "exportedProps": [
+      {
+        "name": "submissionId",
+        "type": "string",
+        "context": "instance"
+      }
+    ],
+    "exportedValues": [
+      {
+        "name": "load",
+        "type": null,
+        "kind": "const",
+        "context": "module"
+      }
+    ],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/routes/scrims/__layout.svelte",
+    "context": "routes",
+    "scripts": 1,
+    "slots": [
+      "default"
+    ],
+    "exportedProps": [],
+    "exportedValues": [
+      {
+        "name": "load",
+        "type": "Load",
+        "kind": "const",
+        "context": "module"
+      }
+    ],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/routes/scrims/index.svelte",
+    "context": "routes",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  },
+  {
+    "file": "clients/web/src/routes/test.svelte",
+    "context": "routes",
+    "scripts": 1,
+    "slots": [],
+    "exportedProps": [],
+    "exportedValues": [],
+    "exportedFunctions": [],
+    "exportedClasses": [],
+    "aliases": [],
+    "dispatchEvents": []
+  }
+]

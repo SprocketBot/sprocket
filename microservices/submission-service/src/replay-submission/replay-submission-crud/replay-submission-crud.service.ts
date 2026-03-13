@@ -269,7 +269,7 @@ export class ReplaySubmissionCrudService {
             // This prevents issues where staff with multiple franchises (e.g., "FP" + real franchise)
             // would use the wrong franchise and block other staff from ratifying
             let franchise: FranchiseInfo;
-            if (submission.franchiseValidation?.homeFranchiseId || submission.franchiseValidation?.awayFranchiseId) {
+            if (submission.franchiseValidation.homeFranchiseId || submission.franchiseValidation.awayFranchiseId) {
                 const matchFranchiseIds = [
                     submission.franchiseValidation.homeFranchiseId,
                     submission.franchiseValidation.awayFranchiseId,
