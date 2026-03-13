@@ -100,8 +100,11 @@ As of March 12, 2026:
 - the updated Tier 1 scripts were syntax-checked locally
 - hosted `main` currently returns `500 Internal Server Error` on `/refresh` because the backend handler reads `req.body.user` instead of `req.user`
 - hosted League Read now passes against `main` using direct bearer-token auth and impersonation for primary actor `3001`
-- hosted Scrim Lifecycle now gets past auth and join, but is blocked by live mode shape: Rocket League mode `13` (`Doubles`) requires `4` players and the current harness only provisions `2`
-- hosted Replay Submission now has replay fixtures configured, but is still blocked because there is no `HARNESS_SUBMISSION_ID` and the current pending scrim has no `submissionId`
+- hosted Scrim Lifecycle now passes against `main` with four dedicated Rocket League test users (`6404`, `6405`, `6406`, `6407`) and reaches `IN_PROGRESS` with a real `submissionId`
+- hosted Replay Submission now gets through auth, submission targeting, and multipart upload formatting, but the live `parseReplays` mutation currently times out server-side
+- four dedicated Rocket League test users now exist for the planned four-actor scrim path: `6404`, `6405`, `6406`, `6407`
+- the scrim harness now accepts `HARNESS_SCRIM_ACTOR_USER_IDS` / `HARNESS_SCRIM_ACTOR_BEARER_TOKENS` for ordered multi-actor runs while preserving the legacy two-actor fallback
+- the current `parseReplays` timeout root cause has been identified in code: async replay submission waits on Celery completion instead of returning task IDs immediately
 
 ## Remaining Execution Blockers
 
@@ -109,11 +112,10 @@ To actually run Tier 1 against hosted `main`, the harness still needs:
 
 1. one admin refresh token, one admin bearer token, or direct actor auth
 2. one valid secondary user ID for impersonation if scrim lifecycle is run through admin minting
-3. either additional test actors for Rocket League scrim automation or a different Tier 1 scrim target whose mode can pop with two actors
+3. deploy the async replay-submission fix so hosted `parseReplays` returns task IDs immediately instead of timing out
 4. real replay file paths for submission validation
-5. either a known submission ID or a current scrim with a populated `submissionId`
-6. operator judgment on when production mutations are acceptable
-7. the `/refresh` handler fix deployed to the hosted environment if refresh-token auth is used
+5. operator judgment on when production mutations are acceptable
+6. the `/refresh` handler fix deployed to the hosted environment if refresh-token auth is used
 
 ## Recommendation
 

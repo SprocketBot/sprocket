@@ -258,6 +258,15 @@ Prove a scrim can be created, progress, complete, and remain queryable.
 
 ### Branch Notes
 
+For Rocket League on hosted `main`, the live mode inventory now implies a multi-actor harness:
+
+- Doubles requires `4` actors
+- Standard requires `6` actors
+
+The current two-actor scrim harness is therefore insufficient for a full Rocket League promotion gate. See:
+
+- `/Users/jacbaile/Workspace/MLE/RocketLeague/sprocket/reports/four-actor-scrim-harness-design.md`
+
 This is the most likely flow to expose divergence between the multi-service and monolith topologies.
 
 ## Tier 2: Side-Effect Checks
