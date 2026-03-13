@@ -162,3 +162,16 @@ The cleanest implementation path is:
 2. Keep current two-actor support as a fallback.
 3. Move hosted Rocket League scrim validation to the four-actor path.
 4. Only after that, wire replay submission to consume the captured `submissionId`.
+
+## Provisioned Actor Set
+
+As of March 13, 2026, the first dedicated hosted Rocket League test users are available:
+
+- `6404`
+- `6405`
+- `6406`
+- `6407`
+
+These should become the first `HARNESS_SCRIM_ACTOR_USER_IDS` set for the Doubles path:
+
+- `6404,6405,6406,6407`

@@ -102,6 +102,7 @@ As of March 12, 2026:
 - hosted League Read now passes against `main` using direct bearer-token auth and impersonation for primary actor `3001`
 - hosted Scrim Lifecycle now gets past auth and join, but is blocked by live mode shape: Rocket League mode `13` (`Doubles`) requires `4` players and the current harness only provisions `2`
 - hosted Replay Submission now has replay fixtures configured, but is still blocked because there is no `HARNESS_SUBMISSION_ID` and the current pending scrim has no `submissionId`
+- four dedicated Rocket League test users now exist for the planned four-actor scrim path: `6404`, `6405`, `6406`, `6407`
 
 ## Remaining Execution Blockers
 
@@ -109,7 +110,7 @@ To actually run Tier 1 against hosted `main`, the harness still needs:
 
 1. one admin refresh token, one admin bearer token, or direct actor auth
 2. one valid secondary user ID for impersonation if scrim lifecycle is run through admin minting
-3. either additional test actors for Rocket League scrim automation or a different Tier 1 scrim target whose mode can pop with two actors
+3. the scrim harness refactored from two-actor logic to the planned four-actor Rocket League Doubles contract
 4. real replay file paths for submission validation
 5. either a known submission ID or a current scrim with a populated `submissionId`
 6. operator judgment on when production mutations are acceptable

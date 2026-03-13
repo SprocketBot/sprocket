@@ -173,6 +173,9 @@ For Sprocket specifically, the highest-value initial target is not full autonomy
 38. Four-actor design update on March 13, 2026:
    - the recommended implementation contract is a scrim-specific actor list via `HARNESS_SCRIM_ACTOR_USER_IDS`, not fixed tertiary/quaternary variables;
    - Rocket League scrim promotion gating should move to that four-actor design before replay submission is coupled back to scrim-created `submissionId`s.
+39. Four-actor provisioning update on March 13, 2026:
+   - the first dedicated Rocket League test users are now provisioned with user IDs `6404`, `6405`, `6406`, and `6407`;
+   - the remaining blocker for hosted scrim validation is now harness implementation, not actor availability.
 
 ## Agreed Direction
 
