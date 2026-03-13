@@ -44,6 +44,8 @@ It should be updated as planning, implementation, and validation progress happen
    - Status note for the Tier 1 harness implementation, auth model, and remaining production-execution blockers.
 17. [`reports/harness-auth-strategy.md`](./harness-auth-strategy.md)
    - Recommendation for replacing human admin bearer-token dependence with refresh-token bridge auth and then machine-auth.
+18. [`reports/scrim-harness-strategy.md`](./scrim-harness-strategy.md)
+   - Recommendation to use dedicated synthetic Sprocket test users for scrim automation while avoiding synthetic replay-file generation.
 
 ## Current Understanding
 
@@ -163,6 +165,9 @@ For Sprocket specifically, the highest-value initial target is not full autonomy
 36. Hosted replay-path blocker update on March 12, 2026:
    - replay fixtures are now configured in the operator env;
    - Replay Submission remains blocked until the harness is given a real `HARNESS_SUBMISSION_ID` or a scrim flow that can reach a populated submission target.
+37. Scrim-harness strategy update on March 13, 2026:
+   - the recommended steady state is dedicated synthetic Sprocket test users for Rocket League scrim automation, not recently active real players;
+   - replay validation should use `mockCompletion` first and a curated golden replay corpus later rather than synthetic `.replay` generation.
 
 ## Agreed Direction
 
