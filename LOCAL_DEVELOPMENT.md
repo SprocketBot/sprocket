@@ -4,6 +4,23 @@ This guide helps you set up and use the local development environment to speed u
 
 ## Quick Start
 
+Preferred root command surface:
+
+```bash
+# Start the local stack using the canonical root wrapper
+npm run dev:up
+
+# Inspect status / logs
+npm run dev:status
+npm run dev:logs -- core
+
+# Run the local smoke profile directly or via the lane-aware verify wrapper
+npm run dev:smoke
+npm run verify:tier0 -- local-dev
+```
+
+Bootstrap-oriented setup script remains available when you need a fuller reset or seeded environment:
+
 ```bash
 # First time setup with production data
 ./scripts/setup-local.sh --fresh --seed-db

@@ -191,6 +191,12 @@ For Sprocket specifically, the highest-value initial target is not full autonomy
 44. Replay-timeout fix update on March 13, 2026:
    - the async Celery path now returns immediately and invokes completion callbacks in the background;
    - replay submission now returns created task IDs directly, and targeted `tsc --noEmit` checks passed for `common` and `microservices/submission-service`.
+45. Repo-surface update on March 13, 2026:
+   - root `AGENTS.md`, `reports/agent-ops-index.md`, and `scripts/harness/service-manifest.json` now define the canonical agent entry surface;
+   - root `dev:*` and `verify:*` scripts now provide a stable command layer over local runtime and hosted verification workflows.
+46. Lane-contract update on March 13, 2026:
+   - machine-readable lane contracts now exist under `environments/` for `local-dev`, `main-prod`, and planned `v15-beta`;
+   - `scripts/harness/verify-lane.sh` now resolves lane-aware Tier 0 / Tier 1 / verify-all workflows using those contracts and surfaces missing-profile or not-yet-operational lane status explicitly.
 
 ## Agreed Direction
 

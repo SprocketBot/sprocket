@@ -14,6 +14,21 @@ Committed profiles currently live under:
 
 - `scripts/harness/env/`
 
+Machine-readable lane contracts now live under:
+
+- `environments/local-dev.json`
+- `environments/main-prod.json`
+- `environments/v15-beta.json`
+
+The machine-readable service and environment catalog lives at:
+
+- `scripts/harness/service-manifest.json`
+
+For repo-level agent guidance and current operational priorities, see:
+
+- `AGENTS.md`
+- `reports/agent-ops-index.md`
+
 ## Artifact Convention
 
 By default, each run writes artifacts under:
@@ -124,11 +139,36 @@ bash ./scripts/harness/collect-artifacts.sh ./tmp/web.log ./tmp/api.log
 
 Runs the three Tier 0 checks with a shared `HARNESS_RUN_ID`.
 
+This is exposed through lane-aware wrappers such as:
+
+- `npm run verify:tier0 -- local-dev`
+- `npm run verify:tier0 -- main-prod`
+
 Example:
 
 ```bash
 bash ./scripts/harness/run-tier0.sh env/main-prod.env
 ```
+
+### Local runtime wrappers
+
+These wrappers are the preferred root entrypoints for agent-friendly local operations:
+
+- `dev-up.sh`
+- `dev-down.sh`
+- `dev-reset.sh`
+- `dev-status.sh`
+- `dev-logs.sh`
+- `dev-smoke.sh`
+
+They are exposed at the repo root via:
+
+- `npm run dev:up`
+- `npm run dev:down`
+- `npm run dev:reset`
+- `npm run dev:status`
+- `npm run dev:logs -- <service>`
+- `npm run dev:smoke`
 
 ## Tier 1 Scripts
 
@@ -198,3 +238,20 @@ Optional:
 
 - `HARNESS_REFRESH_URL`
 - `HARNESS_USE_MOCK_COMPLETION=true` with `HARNESS_ADMIN_BEARER_TOKEN` or `HARNESS_ADMIN_REFRESH_TOKEN`
+
+### `run-tier1.sh`
+
+Profile-driven Tier 1 wrapper for one or all hosted scenarios.
+
+This is exposed at the repo root as:
+
+- `npm run verify:tier1 -- main-prod /absolute/path/to/tier1.env league`
+- `npm run verify:tier1 -- main-prod /absolute/path/to/tier1.env all`
+- `npm run verify:all -- main-prod /absolute/path/to/tier1.env`
+
+Example:
+
+```bash
+bash ./scripts/harness/run-tier1.sh /absolute/path/to/tier1.env league
+bash ./scripts/harness/run-tier1.sh /absolute/path/to/tier1.env all
+```

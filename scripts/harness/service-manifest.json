@@ -1,0 +1,286 @@
+{
+  "version": 1,
+  "updated": "2026-03-13",
+  "purpose": "Machine-readable operating metadata for Sprocket services, local runtime, and hosted verification lanes.",
+  "sources": [
+    "LOCAL_DEVELOPMENT.md",
+    "docker-compose.yml",
+    "scripts/setup-local.sh",
+    "scripts/harness/README.md",
+    "reports/release-environment-contracts.md",
+    "infra/platform/src/config/services/*.json"
+  ],
+  "local_runtime": {
+    "bootstrap_command": "npm run dev:up",
+    "compose_file": "docker-compose.yml",
+    "notes": [
+      "Use .env.local -> .env via scripts/setup-local.sh for standard local boot.",
+      "The root dev:* command surface is now the preferred local entrypoint.",
+      "docker-compose remains the underlying local truth surface."
+    ]
+  },
+  "services": [
+    {
+      "name": "core",
+      "kind": "application",
+      "workspace_path": "core",
+      "local_runtime": {
+        "compose_service": "core",
+        "start_hint": "docker-compose up -d core",
+        "health_endpoint": "http://localhost:3001/graphql",
+        "ports": [3001]
+      },
+      "depends_on": ["rabbitmq", "minio", "redis", "postgres"],
+      "proof_commands": [
+        "curl http://localhost:3001/graphql -H 'Content-Type: application/json' -d '{\"query\":\"{__typename}\"}'"
+      ],
+      "risk_class": "medium"
+    },
+    {
+      "name": "web",
+      "kind": "application",
+      "workspace_path": "clients/web",
+      "local_runtime": {
+        "compose_service": "web",
+        "start_hint": "docker-compose up -d web",
+        "health_endpoint": "http://localhost:8080",
+        "ports": [8080]
+      },
+      "depends_on": ["core"],
+      "proof_commands": [
+        "npm run harness:check:web",
+        "npm run verify:tier0 -- local-dev"
+      ],
+      "risk_class": "medium"
+    },
+    {
+      "name": "submission-service",
+      "kind": "microservice",
+      "workspace_path": "microservices/submission-service",
+      "local_runtime": {
+        "compose_service": null,
+        "start_hint": "not currently defined in docker-compose.yml"
+      },
+      "depends_on": ["rabbitmq", "minio", "redis", "postgres", "core"],
+      "proof_commands": [
+        "npm run verify:tier1 -- main-prod /absolute/path/to/profile.env submission"
+      ],
+      "risk_class": "high"
+    },
+    {
+      "name": "matchmaking-service",
+      "kind": "microservice",
+      "workspace_path": "microservices/matchmaking-service",
+      "local_runtime": {
+        "compose_service": "matchmaking-service",
+        "start_hint": "docker-compose up -d matchmaking-service"
+      },
+      "depends_on": ["core"],
+      "proof_commands": [
+        "npm run verify:tier1 -- main-prod /absolute/path/to/profile.env scrim"
+      ],
+      "risk_class": "high"
+    },
+    {
+      "name": "discord-bot",
+      "kind": "application",
+      "workspace_path": "clients/discord-bot",
+      "local_runtime": {
+        "compose_service": "discord-bot",
+        "start_hint": "docker-compose up -d discord-bot"
+      },
+      "depends_on": ["core"],
+      "proof_commands": [],
+      "risk_class": "high",
+      "agent_notes": [
+        "Treat real guild/user-facing behavior as review-required."
+      ]
+    },
+    {
+      "name": "image-generation-frontend",
+      "kind": "application",
+      "workspace_path": "clients/image-generation-frontend",
+      "local_runtime": {
+        "compose_service": "image-generation-frontend",
+        "start_hint": "docker-compose up -d image-generation-frontend",
+        "health_endpoint": "http://localhost:8081",
+        "ports": [8081]
+      },
+      "depends_on": ["core"],
+      "proof_commands": [],
+      "risk_class": "medium"
+    },
+    {
+      "name": "image-generation-service",
+      "kind": "microservice",
+      "workspace_path": "microservices/image-generation-service",
+      "local_runtime": {
+        "compose_service": "image-generation-service",
+        "start_hint": "docker-compose up -d image-generation-service"
+      },
+      "depends_on": ["rabbitmq", "minio"],
+      "proof_commands": [],
+      "risk_class": "medium"
+    },
+    {
+      "name": "notification-service",
+      "kind": "microservice",
+      "workspace_path": "microservices/notification-service",
+      "local_runtime": {
+        "compose_service": "notification-service",
+        "start_hint": "docker-compose up -d notification-service"
+      },
+      "depends_on": ["rabbitmq", "redis", "minio"],
+      "proof_commands": [],
+      "risk_class": "high"
+    },
+    {
+      "name": "server-analytics-service",
+      "kind": "microservice",
+      "workspace_path": "microservices/server-analytics-service",
+      "local_runtime": {
+        "compose_service": "server-analytics-service",
+        "start_hint": "docker-compose up -d server-analytics-service"
+      },
+      "depends_on": ["rabbitmq"],
+      "proof_commands": [],
+      "risk_class": "medium"
+    },
+    {
+      "name": "replay-parse-service",
+      "kind": "microservice",
+      "workspace_path": "microservices/replay-parse-service",
+      "local_runtime": {
+        "compose_service": "replay-parse-service",
+        "start_hint": "docker-compose up -d replay-parse-service"
+      },
+      "depends_on": ["rabbitmq", "minio", "redis"],
+      "proof_commands": [
+        "npm run verify:tier1 -- main-prod /absolute/path/to/profile.env submission"
+      ],
+      "risk_class": "high"
+    },
+    {
+      "name": "postgres",
+      "kind": "infrastructure",
+      "workspace_path": null,
+      "local_runtime": {
+        "compose_service": "postgres",
+        "health_endpoint": "pg_isready",
+        "ports": [5434]
+      },
+      "depends_on": [],
+      "proof_commands": [
+        "docker-compose ps postgres"
+      ],
+      "risk_class": "low"
+    },
+    {
+      "name": "redis",
+      "kind": "infrastructure",
+      "workspace_path": null,
+      "local_runtime": {
+        "compose_service": "redis",
+        "health_endpoint": "redis-cli ping",
+        "ports": [6379]
+      },
+      "depends_on": [],
+      "proof_commands": [
+        "docker-compose ps redis"
+      ],
+      "risk_class": "low"
+    },
+    {
+      "name": "rabbitmq",
+      "kind": "infrastructure",
+      "workspace_path": null,
+      "local_runtime": {
+        "compose_service": "rabbitmq",
+        "health_endpoint": "rabbitmq-diagnostics ping",
+        "ports": [5672, 15672]
+      },
+      "depends_on": [],
+      "proof_commands": [
+        "docker-compose ps rabbitmq"
+      ],
+      "risk_class": "low"
+    },
+    {
+      "name": "minio",
+      "kind": "infrastructure",
+      "workspace_path": null,
+      "local_runtime": {
+        "compose_service": "minio",
+        "health_endpoint": "http://localhost:9000/minio/health/live",
+        "ports": [9000, 9001]
+      },
+      "depends_on": [],
+      "proof_commands": [
+        "docker-compose ps minio"
+      ],
+      "risk_class": "low"
+    }
+  ],
+  "verification": {
+    "artifact_root_pattern": "artifacts/release-validation/<environment>/<run-id>/",
+    "command_surface": {
+      "tier0": "npm run verify:tier0 -- <lane> [profile.env]",
+      "tier1": "npm run verify:tier1 -- <lane> [profile.env] [league|scrim|submission|all]",
+      "all": "npm run verify:all -- <lane> [profile.env]"
+    },
+    "tier0_checks": [
+      {
+        "name": "web",
+        "command": "npm run harness:check:web"
+      },
+      {
+        "name": "api",
+        "command": "npm run harness:check:api"
+      },
+      {
+        "name": "dependencies",
+        "command": "npm run harness:check:dependencies"
+      }
+    ],
+    "tier1_scenarios": [
+      {
+        "name": "league-read",
+        "command": "npm run verify:tier1 -- main-prod /absolute/path/to/profile.env league"
+      },
+      {
+        "name": "scrim-lifecycle",
+        "command": "npm run verify:tier1 -- main-prod /absolute/path/to/profile.env scrim"
+      },
+      {
+        "name": "replay-submission",
+        "command": "npm run verify:tier1 -- main-prod /absolute/path/to/profile.env submission"
+      }
+    ]
+  },
+  "environments": [
+    {
+      "name": "local-dev",
+      "contract_path": "environments/local-dev.json",
+      "notes": [
+        "Canonical local smoke/debug lane.",
+        "Tier 1 is not yet standardized for this lane."
+      ]
+    },
+    {
+      "name": "main-prod",
+      "contract_path": "environments/main-prod.json",
+      "notes": [
+        "Production truth lane.",
+        "Tier 1 requires operator-provided secrets or explicit profile override."
+      ]
+    },
+    {
+      "name": "v15-beta",
+      "contract_path": "environments/v15-beta.json",
+      "notes": [
+        "Planned isolated beta lane.",
+        "Contract exists now even though the lane is not yet operational."
+      ]
+    }
+  ]
+}
