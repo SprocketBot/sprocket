@@ -40,13 +40,14 @@ Serve normal customer traffic and remain the only production source of truth unt
 
 - Branch: `main`
 - Worktree: `/Users/jacbaile/Workspace/MLE/RocketLeague/sprocket-main`
-- Infra repo: `/Users/jacbaile/Workspace/MLE/Infrastructure/sprocket-infra`
+- Infra root: `/Users/jacbaile/Workspace/MLE/RocketLeague/sprocket/infra`
+- Machine-readable lane contract: `environments/main-prod.json`
 
 ### Observed Hosting Model
 
-Backed by Pulumi + Docker Swarm in `sprocket-infra`.
+Backed by Pulumi + Docker Swarm in `infra/` inside this monorepo.
 
-Observed platform topology from `/Users/jacbaile/Workspace/MLE/Infrastructure/sprocket-infra/platform/src/Platform.ts`:
+Observed platform topology from `/Users/jacbaile/Workspace/MLE/RocketLeague/sprocket/infra/platform/src/Platform.ts`:
 
 - `web`
 - `core`
@@ -109,6 +110,7 @@ Provide a real hosted environment for the monolith-based `v1.5` branch and accep
 
 - Branch: `personal/gankoji/unbork-cloud-spend`
 - Worktree: `/Users/jacbaile/Workspace/MLE/RocketLeague/sprocket-v15`
+- Machine-readable lane contract: `environments/v15-beta.json`
 - Runtime shape observed from:
   - `/Users/jacbaile/Workspace/MLE/RocketLeague/sprocket-v15/docker-compose.monolith.yml`
   - `/Users/jacbaile/Workspace/MLE/RocketLeague/sprocket-v15/package.json`

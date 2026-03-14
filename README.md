@@ -26,6 +26,33 @@ Infrastructure code now lives under `infra/`, which contains the Pulumi projects
 
 The committed `Pulumi.*.yaml` files moved with the code so stack configuration remains in version control. Pulumi backend state is still remote and must be accessed with the same backend login used before the migration.
 
+## Agent Entry Point
+
+For autonomous or agent-assisted work, start with:
+
+- [`AGENTS.md`](./AGENTS.md)
+- [`reports/agent-ops-index.md`](./reports/agent-ops-index.md)
+- [`scripts/harness/service-manifest.json`](./scripts/harness/service-manifest.json)
+
+These files define the current repo operating surface, canonical commands, and machine-readable service/lane metadata.
+
+## Canonical Command Surface
+
+For routine repo operation, prefer the root command layer:
+
+```bash
+npm run dev:up
+npm run dev:status
+npm run dev:logs -- core
+npm run dev:smoke
+npm run verify:tier0 -- local-dev
+npm run verify:tier0 -- main-prod
+npm run verify:tier1 -- main-prod /absolute/path/to/tier1.env league
+npm run verify:all -- main-prod /absolute/path/to/tier1.env
+```
+
+These commands wrap the current docker-compose and harness workflows in a more stable agent-friendly surface.
+
 ## Building / Running this Repository
 
 ### Installing Dependencies:

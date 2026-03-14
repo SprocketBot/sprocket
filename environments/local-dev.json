@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "name": "local-dev",
+  "display_name": "Local Development",
+  "kind": "local",
+  "status": "active",
+  "repo_root": ".",
+  "source_of_truth": {
+    "branch": "current checkout",
+    "worktree_hint": "/Users/jacbaile/Workspace/MLE/RocketLeague/sprocket"
+  },
+  "runtime": {
+    "compose_file": "docker-compose.yml",
+    "bootstrap_command": "npm run dev:up",
+    "status_command": "npm run dev:status",
+    "logs_command": "npm run dev:logs -- <service>",
+    "smoke_command": "npm run dev:smoke"
+  },
+  "topology": [
+    "web",
+    "core",
+    "discord-bot",
+    "image-generation-frontend",
+    "image-generation-service",
+    "matchmaking-service",
+    "notification-service",
+    "server-analytics-service",
+    "replay-parse-service",
+    "rabbitmq",
+    "redis",
+    "postgres",
+    "minio"
+  ],
+  "verification": {
+    "tier0": {
+      "supported": true,
+      "default_profile": "scripts/harness/env/local.env",
+      "command": "npm run verify:tier0 -- local-dev"
+    },
+    "tier1": {
+      "supported": false,
+      "reason": "No committed local Tier 1 profile is defined yet.",
+      "profile_override_required": true,
+      "command": "npm run verify:tier1 -- local-dev /absolute/path/to/profile.env <scenario>"
+    },
+    "all": {
+      "supported": false,
+      "reason": "Tier 1 is not yet standardized for local-dev."
+    }
+  },
+  "artifact_root": "artifacts/release-validation/local-dev/<run-id>/",
+  "notes": [
+    "This lane is the preferred local smoke/debug surface.",
+    "Use scripts/setup-local.sh when you need full bootstrap or seeding beyond the root wrappers."
+  ]
+}
