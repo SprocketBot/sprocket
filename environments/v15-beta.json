@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "name": "v15-beta",
+  "display_name": "v1.5 Beta",
+  "kind": "hosted",
+  "status": "provisioning",
+  "repo_root": "/root/workspace/sprocket-v15",
+  "source_of_truth": {
+    "branch": "personal/gankoji/unbork-cloud-spend",
+    "worktree_hint": "/root/workspace/sprocket-v15",
+    "runtime_shape": "docker-compose.monolith.yml"
+  },
+  "entrypoints": {
+    "web": "https://v15.sprocket.mlesports.gg",
+    "api_graphql": "https://api.v15.sprocket.mlesports.gg/graphql"
+  },
+  "topology": [
+    "monolith",
+    "replay-parse-service",
+    "elo-service",
+    "web"
+  ],
+  "verification": {
+    "tier0": {
+      "supported": true,
+      "reason": "v15-beta hosted profile exists at scripts/harness/env/v15-beta.env",
+      "profile_template": "scripts/harness/env/v15-beta.env",
+      "default_profile": "scripts/harness/env/v15-beta.env",
+      "command": "npm run verify:tier0 -- v15-beta"
+    },
+    "tier1": {
+      "supported": false,
+      "reason": "Tier 1 requires authentication - needs operator credentials.",
+      "profile_template": null,
+      "command": "npm run verify:tier1 -- v15-beta /absolute/path/to/profile.env <scenario>"
+    },
+    "all": {
+      "supported": false,
+      "reason": "The lane is planned but not yet operational."
+    }
+  },
+  "isolation_requirements": [
+    "separate subdomain",
+    "separate Pulumi stack or equivalent environment label",
+    "separate queue namespace",
+    "separate Redis prefix",
+    "separate database or schema target",
+    "separate object-storage bucket or prefix policy",
+    "separate log queries and dashboards",
+    "separate smoke-artifact directory"
+  ],
+  "notes": [
+    "This lane must not share mutable production state paths during early rollout.",
+    "Use this contract as the machine-readable placeholder until the beta lane is actually provisioned."
+  ]
+}
