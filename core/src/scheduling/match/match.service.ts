@@ -377,9 +377,7 @@ export class MatchService {
             },
             relations: {
                 teamStats: true,
-                match: {
-                    id: true,
-                },
+                match: true,
             },
         }));
         const replays = await Promise.all(replayPromises);
