@@ -238,3 +238,15 @@ The safest additive path is:
 4. Delay live service migration until the new outputs and config shape are stable.
 
 That is the slice implemented on branch `codex/pulumi-stack-refactor-start`.
+
+## Newly Confirmed Blocker
+
+While testing the first real shared-service migration candidate (`Traefik`), importing `infra/global` from the new `infra-shared` project exposed a packaging boundary problem:
+
+- `infra/global` works today as a local helper package inside the legacy `infra/*` stack layout
+- as a dependency of a new standalone project, it pulls in the entire legacy surface
+- that surface is not currently clean as a reusable package boundary for cross-project type-checking
+
+Practical implication:
+
+- the next migration step should start by extracting a narrow reusable module for shared Docker components, or by copying the required Traefik/Redis helpers into a new refactor-local package, instead of directly depending on the full legacy `global` package from `infra-shared`
