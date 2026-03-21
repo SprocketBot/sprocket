@@ -1,0 +1,3 @@
+name: infra-services
+runtime: nodejs
+description: Parameterized Sprocket application services deployment

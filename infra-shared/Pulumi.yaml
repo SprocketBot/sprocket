@@ -1,0 +1,3 @@
+name: infra-shared
+runtime: nodejs
+description: Shared Sprocket infrastructure for host foundation and shared Docker substrate
