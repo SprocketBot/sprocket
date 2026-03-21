@@ -56,6 +56,27 @@ def get_db_connection():
         dbname=DB_NAME
     )
 
+def update_submission_item(cur, item_id: str, status: str, output_path: str = None, error: str = None):
+    cur.execute(
+        """
+        UPDATE sprocket.replay_submission_item
+        SET status = %s,
+            "outputPath" = COALESCE(%s, "outputPath"),
+            "progressValue" = %s,
+            "progressMessage" = %s,
+            error = %s
+        WHERE id = %s
+        """,
+        (
+            status,
+            output_path,
+            100 if status in ("COMPLETE", "ERROR") else 0,
+            "Complete" if status == "COMPLETE" else ("Error" if status == "ERROR" else "Processing"),
+            error,
+            item_id,
+        ),
+    )
+
 def process_replay(task_id: str, payload: Dict[str, Any]):
     logging.info(f"Processing task {task_id}")
     
@@ -75,6 +96,7 @@ def process_replay(task_id: str, payload: Dict[str, Any]):
     publish_progress(progress.pending("Task started...", 10))
 
     replay_object_path: Union[str, None] = payload.get("replayObjectPath")
+    item_id: Union[str, None] = payload.get("itemId")
     if not replay_object_path:
         raise ValueError("replayObjectPath is missing in payload")
 
@@ -182,7 +204,10 @@ def main():
                 logging.info(f"Picked up task {task_id}")
                 
                 try:
-                    process_replay(str(task_id), payload)
+                    if "itemId" in payload and payload["itemId"]:
+                        update_submission_item(cur, payload["itemId"], "PROCESSING")
+
+                    result = process_replay(str(task_id), payload)
                     
                     # Mark as processed
                     cur.execute("""
@@ -190,6 +215,13 @@ def main():
                         SET status = 'PROCESSED', "processedAt" = NOW()
                         WHERE id = %s
                     """, (task_id,))
+                    if "itemId" in payload and payload["itemId"]:
+                        update_submission_item(
+                            cur,
+                            payload["itemId"],
+                            "COMPLETE",
+                            result.get("outputPath") if isinstance(result, dict) else None,
+                        )
                     conn.commit()
                     logging.info(f"Task {task_id} processed successfully")
                     
@@ -203,6 +235,8 @@ def main():
                         SET status = 'FAILED', "retryCount" = "retryCount" + 1
                         WHERE id = %s
                     """, (task_id,))
+                    if "itemId" in payload and payload["itemId"]:
+                        update_submission_item(cur, payload["itemId"], "ERROR", None, str(e))
                     conn.commit()
             else:
                 # No tasks found, sleep for a bit

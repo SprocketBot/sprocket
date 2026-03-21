@@ -57,11 +57,13 @@ import { RosterResolver } from './roster/roster.resolver';
 import { RosterService } from './roster/roster.service';
 import { BulkModule } from '../bulk/bulk.module';
 import { AuditModule } from '../audit/audit.module';
+import { SubmissionResolver } from './submission/submission.resolver';
 
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
+      uploads: false,
       installSubscriptionHandlers: true,
       subscriptions: {
         'graphql-ws': false,
@@ -171,6 +173,7 @@ import { AuditModule } from '../audit/audit.module';
     TeamResolver,
     TeamRoleResolver,
     BulkResolver,
+    SubmissionResolver,
   ],
 })
 export class GqlModule { }

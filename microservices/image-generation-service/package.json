@@ -11,7 +11,8 @@
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "lint": "eslint src --fix",
-    "start:proto": "ts-node src/prototype.ts"
+    "start:proto": "ts-node src/prototype.ts",
+    "compile:figma": "node scripts/compile-figma-template.js"
   },
   "repository": {
     "type": "git",

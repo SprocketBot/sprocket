@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, type MiddlewareConsumer, type NestModule } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core'; // Added
 import { ApiTokenThrottlerGuard } from './auth/api_token/api_token.throttler'; // Added
 import { AppController } from './app.controller';
@@ -22,6 +22,7 @@ import { AuditModule } from './audit/audit.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ApiTokenUsageInterceptor } from './auth/api_token/api_token_usage.interceptor';
+import { graphqlUploadExpress } from 'graphql-upload';
 
 @Module({
   imports: [
@@ -59,4 +60,8 @@ import { ApiTokenUsageInterceptor } from './auth/api_token/api_token_usage.inter
     },
   ],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(graphqlUploadExpress()).forRoutes('graphql');
+  }
+}
