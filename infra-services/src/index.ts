@@ -19,6 +19,9 @@ interface ServicesStackConfig {
     domainName: string;
     sharedStack: string;
     defaultImageTag?: string;
+    ingressNetworkName?: string;
+    platformNetworkName?: string;
+    monitoringNetworkName?: string;
     services?: Record<string, ServiceDeploymentConfig>;
 }
 
@@ -61,8 +64,9 @@ const normalizedServices = Object.fromEntries(
 export const Environment = stackConfig.environment;
 export const DomainName = stackConfig.domainName;
 export const SharedStackName = stackConfig.sharedStack;
-export const SharedIngressNetworkName = shared.getOutput("SharedIngressNetworkName");
-export const SharedPlatformNetworkName = shared.getOutput("SharedPlatformNetworkName");
-export const SharedMonitoringNetworkName = shared.getOutput("SharedMonitoringNetworkName");
+export const SharedIngressNetworkName = stackConfig.ingressNetworkName ?? shared.getOutput("SharedIngressNetworkName");
+export const SharedPlatformNetworkName = stackConfig.platformNetworkName ?? shared.getOutput("SharedPlatformNetworkName");
+export const SharedMonitoringNetworkName = stackConfig.monitoringNetworkName ?? shared.getOutput("SharedMonitoringNetworkName");
 export const FoundationNodes = shared.getOutput("FoundationNodes");
+export const SharedServicePlan = shared.getOutput("SharedServicePlan");
 export const ServiceDeploymentPlan = normalizedServices;

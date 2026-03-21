@@ -32,6 +32,28 @@ interface SharedStackConfig {
         platform?: string;
         monitoring?: string;
     };
+    sharedServices?: {
+        traefik?: {
+            enabled?: boolean;
+            serviceName?: string;
+            proxyServiceName?: string;
+            forwardAuthServiceName?: string;
+        };
+        logging?: {
+            enabled?: boolean;
+            lokiServiceName?: string;
+            grafanaServiceName?: string;
+            promtailMode?: "daemon" | "disabled";
+        };
+        monitoring?: {
+            enabled?: boolean;
+            gatusServiceName?: string;
+        };
+        redis?: {
+            enabled?: boolean;
+            serviceName?: string;
+        };
+    };
     sharedSecretNames?: string[];
 }
 
@@ -58,6 +80,29 @@ const sharedDockerNetworks = {
     ingress: stackConfig.sharedDockerNetworks?.ingress ?? "traefik",
     platform: stackConfig.sharedDockerNetworks?.platform ?? "platform",
     monitoring: stackConfig.sharedDockerNetworks?.monitoring ?? "monitoring",
+};
+
+const sharedServices = {
+    traefik: {
+        enabled: stackConfig.sharedServices?.traefik?.enabled ?? true,
+        serviceName: stackConfig.sharedServices?.traefik?.serviceName ?? "traefik",
+        proxyServiceName: stackConfig.sharedServices?.traefik?.proxyServiceName ?? "socket-proxy",
+        forwardAuthServiceName: stackConfig.sharedServices?.traefik?.forwardAuthServiceName ?? "discord-forward-auth",
+    },
+    logging: {
+        enabled: stackConfig.sharedServices?.logging?.enabled ?? true,
+        lokiServiceName: stackConfig.sharedServices?.logging?.lokiServiceName ?? "loki",
+        grafanaServiceName: stackConfig.sharedServices?.logging?.grafanaServiceName ?? "grafana",
+        promtailMode: stackConfig.sharedServices?.logging?.promtailMode ?? "daemon",
+    },
+    monitoring: {
+        enabled: stackConfig.sharedServices?.monitoring?.enabled ?? true,
+        gatusServiceName: stackConfig.sharedServices?.monitoring?.gatusServiceName ?? "gatus-internal",
+    },
+    redis: {
+        enabled: stackConfig.sharedServices?.redis?.enabled ?? true,
+        serviceName: stackConfig.sharedServices?.redis?.serviceName ?? "layer2redis",
+    },
 };
 
 const sharedSecretNames = stackConfig.sharedSecretNames ?? [];
@@ -87,6 +132,7 @@ export const FoundationNodes = Object.fromEntries(
 );
 
 export const SharedDockerNetworks = sharedDockerNetworks;
+export const SharedServicePlan = sharedServices;
 export const SharedSecretNames = sharedSecretNames;
 export const SharedIngressNetworkName = sharedDockerNetworks.ingress;
 export const SharedPlatformNetworkName = sharedDockerNetworks.platform;

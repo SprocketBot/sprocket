@@ -1,0 +1,62 @@
+config:
+  infra-services:stack:
+    environment: dev-staging
+    domainName: dev.sprocket.mlesports.gg
+    sharedStack: <pulumi-org>/infra-shared/shared-infra
+    defaultImageTag: dev-latest
+    services:
+      core:
+        enabled: true
+        image:
+          repository: core
+        replicas: 1
+      web:
+        enabled: true
+        image:
+          repository: web
+        replicas: 1
+      discord-bot:
+        enabled: true
+        image:
+          repository: discord-bot
+        replicas: 1
+      image-generation-frontend:
+        enabled: true
+        image:
+          repository: image-generation-frontend
+        replicas: 1
+      image-generation-service:
+        enabled: true
+        image:
+          repository: image-generation-service
+        replicas: 1
+      matchmaking-service:
+        enabled: true
+        image:
+          repository: matchmaking-service
+        replicas: 1
+      notification-service:
+        enabled: true
+        image:
+          repository: notification-service
+        replicas: 1
+      replay-parse-service:
+        enabled: true
+        image:
+          repository: replay-parse-service
+        replicas: 1
+      server-analytics-service:
+        enabled: true
+        image:
+          repository: server-analytics-service
+        replicas: 1
+      submission-service:
+        enabled: true
+        image:
+          repository: submission-service
+        replicas: 1
+      elo-service:
+        enabled: true
+        image:
+          repository: elo-service
+        replicas: 1

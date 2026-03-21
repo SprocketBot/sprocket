@@ -1,0 +1,82 @@
+config:
+  infra-shared:stack:
+    environments:
+      dev-staging:
+        region: nyc3
+        size: s-2vcpu-4gb
+        image: ubuntu-24-04-x64
+        dnsZone: mlesports.gg
+        hostnameLabel: dev.sprocket
+        dnsPrefixes:
+          - ""
+          - api
+          - vault
+          - traefik
+        adminCidrs:
+          - 203.0.113.10/32
+        sshPublicKey: "ssh-ed25519 AAAA... replace-me"
+        createReservedIp: false
+        enableMonitoring: true
+        enableIpv6: true
+        tags:
+          - sprocket
+          - dev-staging
+          - node
+        deployUser: deploy
+      prod:
+        region: nyc3
+        size: s-4vcpu-8gb
+        image: ubuntu-24-04-x64
+        dnsZone: mlesports.gg
+        hostnameLabel: sprocket
+        dnsPrefixes:
+          - ""
+          - api
+          - vault
+          - traefik
+        adminCidrs:
+          - 203.0.113.10/32
+        sshPublicKey: "ssh-ed25519 AAAA... replace-me"
+        createReservedIp: true
+        enableMonitoring: true
+        enableIpv6: true
+        tags:
+          - sprocket
+          - prod
+          - node
+        deployUser: deploy
+    sharedDockerNetworks:
+      ingress: traefik
+      platform: platform
+      monitoring: monitoring
+    sharedServices:
+      traefik:
+        enabled: true
+        serviceName: traefik
+        proxyServiceName: socket-proxy
+        forwardAuthServiceName: discord-forward-auth
+      logging:
+        enabled: true
+        lokiServiceName: loki
+        grafanaServiceName: grafana
+        promtailMode: daemon
+      monitoring:
+        enabled: true
+        gatusServiceName: gatus-internal
+      redis:
+        enabled: true
+        serviceName: layer2redis
+    sharedSecretNames:
+      - docker-access-token
+      - discord-fa-client-secret
+      - redis-password
+
+  # Optional per-environment additions:
+  # infra-shared:stack:
+  #   environments:
+  #     dev-staging:
+  #       swarmCidrs:
+  #         - 10.0.0.0/8
+  #       vpcUuid: <optional-digitalocean-vpc-uuid>
+  #       ghcrUsername: <ghcr-username>
+  #       ghcrToken: <ghcr-token>
