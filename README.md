@@ -53,6 +53,18 @@ npm run verify:all -- main-prod /absolute/path/to/tier1.env
 
 These commands wrap the current docker-compose and harness workflows in a more stable agent-friendly surface.
 
+For infrastructure deploy work, use the off-node command surface:
+
+```bash
+nvm use
+npm run infra:install
+npm run infra:backend:verify -- platform prod
+npm run infra:preview -- platform prod
+npm run infra:up -- platform prod --yes
+```
+
+The deployment runner contract is documented in [`scripts/infra/README.md`](./scripts/infra/README.md) and [`infra/README.md`](./infra/README.md).
+
 ## Building / Running this Repository
 
 ### Installing Dependencies:
