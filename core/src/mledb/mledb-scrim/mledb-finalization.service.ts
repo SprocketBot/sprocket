@@ -6,6 +6,7 @@ import type {
     BallchasingPlayer,
     BallchasingResponse,
     BallchasingTeam,
+    CarballResponse,
     ReplaySubmission,
     Scrim,
 } from "@sprocketbot/common";
@@ -382,9 +383,6 @@ export class MledbFinalizationService {
 
         if (parserType === Parser.CARBALL) {
             const parseResult = CarballResponseSchema.safeParse(item.progress?.result?.data);
-            const carballData = parseResult.success
-                ? parseResult.data
-                : this.coerceMalformedCarballPayload(item.progress?.result?.data);
 
             if (!parseResult.success) {
                 this.logger.warn(
@@ -399,10 +397,21 @@ export class MledbFinalizationService {
                         })),
                     })}`,
                 );
+
+                const converted = this.carballConverter.convertToBallchasingFormat(
+                    this.coerceMalformedCarballPayload(item.progress?.result?.data),
+                    item.outputPath,
+                );
+
+                return {
+                    ...converted,
+                    match_guid: this.getLegacyReplayMatchGuid(converted.match_guid, submissionId, item, replayIndex),
+                    duration: this.getLegacyReplayDuration(converted.duration),
+                };
             }
 
             const converted = this.carballConverter.convertToBallchasingFormat(
-                carballData,
+                parseResult.data,
                 item.outputPath,
             );
 
