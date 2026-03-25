@@ -120,7 +120,7 @@ export class PlayerResolver {
             player.member = await this.popService.populateOneOrFail(Player, player, "member");
         }
         if (!player.member.user) player.member.user = await this.popService.populateOneOrFail(Member, player.member, "user");
-        
+
         const franchiseResult = await this.franchiseService.getPlayerFranchisesByUserId(player.member.user.id);
         // Because we are using MLEDB right now; assume that we only have one
         return franchiseResult[0].staffPositions.map(sp => sp.name);
