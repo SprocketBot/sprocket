@@ -1,5 +1,5 @@
 import {
-    forwardRef, Inject, Injectable,
+    forwardRef, Inject, Injectable, Logger,
 } from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {
@@ -52,6 +52,7 @@ import {ballchasingMapLookup} from "./ballchasing-maps";
 
 @Injectable()
 export class MledbFinalizationService {
+    private readonly logger = new Logger(MledbFinalizationService.name);
     private readonly carballConverter = new CarballConverterService();
 
     constructor(
@@ -199,41 +200,12 @@ export class MledbFinalizationService {
         const teamStats: MLE_TeamCoreStats[] = [];
         const roleUsages: MLE_TeamRoleUsage[] = [];
 
-        const mleSeriesReplays = await Promise.all(submission.items.map(async item => {
-            // Convert parser data to ballchasing format if needed
-            const parserType = item.progress?.result?.parser;
-            let data: BallchasingResponse;
-
-            if (parserType === Parser.CARBALL) {
-                // Validate carball data
-                const parseResult = CarballResponseSchema.safeParse(item.progress?.result?.data);
-                if (!parseResult.success) {
-                    const errorDetails
-              = "error" in parseResult
-                  ? JSON.stringify(parseResult.error.issues)
-                  : "Unknown validation error";
-                    throw new Error(`${item.originalFilename} does not contain expected carball values. ${errorDetails}`);
-                }
-
-                // Convert carball format to ballchasing format
-                data = this.carballConverter.convertToBallchasingFormat(
-                    parseResult.data,
-                    item.outputPath,
-                );
-            } else if (parserType === Parser.BALLCHASING) {
-                // Validate ballchasing data
-                const parseResult = BallchasingResponseSchema.safeParse(item.progress?.result?.data);
-                if (!parseResult.success) {
-                    const errorDetails
-              = "error" in parseResult
-                  ? JSON.stringify(parseResult.error.issues)
-                  : "Unknown validation error";
-                    throw new Error(`${item.originalFilename} does not contain expected ballchasing values. ${errorDetails}`);
-                }
-                data = parseResult.data;
-            } else {
-                throw new Error(`Unknown parser type: ${parserType}. Expected ${Parser.CARBALL} or ${Parser.BALLCHASING}`);
-            }
+        const mleSeriesReplays = await Promise.all(submission.items.map(async (item, replayIndex) => {
+            const data = this.normalizeReplayForLegacySave(
+                item,
+                submissionId,
+                replayIndex,
+            );
             // Create and prep the series entity
             const replay = em.create(MLE_SeriesReplay);
             replay.series = series;
@@ -385,12 +357,138 @@ export class MledbFinalizationService {
         });
         series.seriesReplays = mleSeriesReplays;
         await em.insert(MLE_SeriesReplay, mleSeriesReplays);
-        await em.insert(MLE_PlayerStatsCore, coreStats);
-        await em.insert(MLE_PlayerStats, playerStats);
-        await em.insert(MLE_TeamCoreStats, teamStats);
-        await em.insert(MLE_TeamRoleUsage, roleUsages);
+        if (coreStats.length > 0) {
+            await em.insert(MLE_PlayerStatsCore, coreStats);
+        }
+        if (playerStats.length > 0) {
+            await em.insert(MLE_PlayerStats, playerStats);
+        }
+        if (teamStats.length > 0) {
+            await em.insert(MLE_TeamCoreStats, teamStats);
+        }
+        if (roleUsages.length > 0) {
+            await em.insert(MLE_TeamRoleUsage, roleUsages);
+        }
 
         return series.id;
+    }
+
+    private normalizeReplayForLegacySave(
+        item: ReplaySubmission["items"][number],
+        submissionId: string,
+        replayIndex: number,
+    ): BallchasingResponse {
+        const parserType = item.progress?.result?.parser;
+
+        if (parserType === Parser.CARBALL) {
+            const parseResult = CarballResponseSchema.safeParse(item.progress?.result?.data);
+            const carballData = parseResult.success
+                ? parseResult.data
+                : this.coerceMalformedCarballPayload(item.progress?.result?.data);
+
+            if (!parseResult.success) {
+                this.logger.warn(
+                    `Degrading malformed carball payload for legacy finalization | ${JSON.stringify({
+                        submissionId,
+                        originalFilename: item.originalFilename,
+                        outputPath: item.outputPath,
+                        replayIndex,
+                        issues: parseResult.error.issues.map(issue => ({
+                            path: issue.path.join("."),
+                            message: issue.message,
+                        })),
+                    })}`,
+                );
+            }
+
+            const converted = this.carballConverter.convertToBallchasingFormat(
+                carballData,
+                item.outputPath,
+            );
+
+            return {
+                ...converted,
+                match_guid: this.getLegacyReplayMatchGuid(converted.match_guid, submissionId, item, replayIndex),
+                duration: this.getLegacyReplayDuration(converted.duration),
+            };
+        }
+
+        if (parserType === Parser.BALLCHASING) {
+            const parseResult = BallchasingResponseSchema.safeParse(item.progress?.result?.data);
+            if (!parseResult.success) {
+                const errorDetails
+                = "error" in parseResult
+                    ? JSON.stringify(parseResult.error.issues)
+                    : "Unknown validation error";
+                throw new Error(`${item.originalFilename} does not contain expected ballchasing values. ${errorDetails}`);
+            }
+
+            return {
+                ...parseResult.data,
+                match_guid: this.getLegacyReplayMatchGuid(parseResult.data.match_guid, submissionId, item, replayIndex),
+                duration: this.getLegacyReplayDuration(parseResult.data.duration),
+            };
+        }
+
+        throw new Error(`Unknown parser type: ${parserType}. Expected ${Parser.CARBALL} or ${Parser.BALLCHASING}`);
+    }
+
+    private coerceMalformedCarballPayload(raw: unknown): CarballResponse {
+        const payload = typeof raw === "object" && raw !== null
+            ? raw as Record<string, unknown>
+            : {};
+
+        const gameMetadata = this.asRecord(payload.gameMetadata) ?? this.asRecord(payload.game_metadata) ?? {};
+        const players = Array.isArray(payload.players) ? payload.players : [];
+        const teams = Array.isArray(payload.teams) ? payload.teams : [];
+        const gameStats = this.asRecord(payload.gameStats) ?? this.asRecord(payload.game_stats);
+
+        return {
+            ...payload,
+            gameMetadata,
+            game_metadata: gameMetadata,
+            players: players as CarballResponse["players"],
+            teams: teams as CarballResponse["teams"],
+            gameStats: gameStats as CarballResponse["gameStats"],
+            game_stats: gameStats as CarballResponse["game_stats"],
+        };
+    }
+
+    private asRecord(value: unknown): Record<string, unknown> | undefined {
+        return typeof value === "object" && value !== null && !Array.isArray(value)
+            ? value as Record<string, unknown>
+            : undefined;
+    }
+
+    private getLegacyReplayMatchGuid(
+        matchGuid: string | null | undefined,
+        submissionId: string,
+        item: ReplaySubmission["items"][number],
+        replayIndex: number,
+    ): string {
+        const normalizedGuid = matchGuid?.trim();
+        if (normalizedGuid) return normalizedGuid;
+
+        const fallbackGuid = [submissionId, replayIndex, item.outputPath ?? item.originalFilename ?? "missing-output-path"]
+            .join(":")
+            .slice(0, 255);
+
+        this.logger.warn(
+            `Using fallback legacy replay match guid | ${JSON.stringify({
+                submissionId,
+                originalFilename: item.originalFilename,
+                outputPath: item.outputPath,
+                replayIndex,
+                fallbackGuid,
+            })}`,
+        );
+
+        return fallbackGuid;
+    }
+
+    private getLegacyReplayDuration(duration: number | null | undefined): number {
+        if (typeof duration !== "number" || Number.isNaN(duration) || !Number.isFinite(duration)) return 0;
+        return Math.round(duration);
     }
 
     async getScrimIdByBallchasingId(ballchasingId: string): Promise<number> {
