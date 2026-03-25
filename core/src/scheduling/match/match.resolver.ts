@@ -56,7 +56,6 @@ export class MatchResolver {
     @InjectRepository(Match) private readonly matchRepo: Repository<Match>,
     @InjectRepository(Round) private readonly roundRepo: Repository<Round>,
     @InjectRepository(Team) private readonly teamRepo: Repository<Team>,
-    @InjectRepository(ScheduleFixture) private readonly fixtureRepo: Repository<ScheduleFixture>,
     @InjectRepository(MLE_Team) private readonly mleTeamRepo: Repository<MLE_Team>,
     @InjectRepository(MLE_Series) private readonly mleSeriesRepo: Repository<MLE_Series>,
     @InjectRepository(MLE_SeriesReplay)
@@ -72,7 +71,13 @@ export class MatchResolver {
     }
 
     @Mutation(() => String)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    @UseGuards(
+        GqlJwtGuard,
+        MLEOrganizationTeamGuard([
+            MLE_OrganizationTeam.MLEDB_ADMIN,
+            MLE_OrganizationTeam.LEAGUE_OPERATIONS
+        ]),
+    )
     async postReportCard(@Args("matchId") matchId: number): Promise<string> {
         const match = await this.matchService.getMatchById(matchId);
 
@@ -141,7 +146,7 @@ export class MatchResolver {
     }
 
     @Mutation(() => String)
-    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN, MLE_OrganizationTeam.LEAGUE_OPERATIONS))
     async reprocessMatches(@Args("startDate") startDate: Date): Promise<string> {
         this.logger.verbose(`Starting to reprocess matches after ${startDate}.`);
         await this.matchService.resubmitAllMatchesAfter(startDate);
