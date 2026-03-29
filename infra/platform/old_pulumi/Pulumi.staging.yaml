@@ -7,6 +7,7 @@ config:
   platform:docker-username: actualsovietshark
   platform:hostname: app.sprocket.gg
   platform:image-namespace: sprocketbot
+  platform:legacy-image-namespace: asaxplayinghorse
   platform:image-tag: staging
   platform:legacy-bot-token:
     secure: v1:xQ9UzYFSV68ZwTZZ:iOXk3G0S8yYcdIp26rlWYCfcGgZSGA5Ffs29rqTXDiQv88LPCzs+GwhpSnkR0cm6vnCtttFBEMhUSNFt3hVTRvPwOiIt+ORBOKlJUorWCji0ZNeBB9E=
