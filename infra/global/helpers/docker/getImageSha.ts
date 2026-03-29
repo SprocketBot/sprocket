@@ -12,13 +12,29 @@ export function getImageSha(namespace: string, repository: string, tag: string):
     return pulumi.all([config.require("docker-username"), config.requireSecret("docker-access-token")]).apply(
         async ([username, pat]) => {
             const imageRef = `ghcr.io/${namespace}/${repository}:${tag}`
-            const manifestResponse = await axios.get(`https://ghcr.io/v2/${namespace}/${repository}/manifests/${tag}`, {
+            const tokenResponse = await axios.get("https://ghcr.io/token", {
                 auth: {
                     username,
                     password: pat
                 },
+                params: {
+                    scope: `repository:${namespace}/${repository}:pull`,
+                    service: "ghcr.io"
+                }
+            }).catch(e => {
+                console.log(`Failed to authenticate for ${namespace}/${repository}:${tag}`)
+                throw e
+            })
+
+            const token = tokenResponse.data?.token
+            if (!token || typeof token !== "string") {
+                throw new Error(`Registry token not found for ${imageRef}`)
+            }
+
+            const manifestResponse = await axios.get(`https://ghcr.io/v2/${namespace}/${repository}/manifests/${tag}`, {
                 headers: {
-                    Accept: "application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json"
+                    Authorization: `Bearer ${token}`,
+                    Accept: "application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json"
                 }
             }).catch(e => {
                 console.log(`Failed to look up ${namespace}/${repository}:${tag}`)
