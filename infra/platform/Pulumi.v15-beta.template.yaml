@@ -3,6 +3,7 @@ config:
   # This template only pins the v1.5-specific knobs and the non-secret environment identity.
 
   platform:image-tag: personal-gankoji-unbork-cloud-spend
+  platform:image-namespace: sprocketbot
   platform:hostname: sprocket.mlesports.gg
   platform:subdomain: v15
   platform:monolith-mode: "true"

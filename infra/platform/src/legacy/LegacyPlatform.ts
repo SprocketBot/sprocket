@@ -8,6 +8,7 @@ import type { RedisConnection } from '../PlatformDatastore';
 import { PlatformS3 } from '../PlatformS3';
 
 const config = new pulumi.Config();
+const imageNamespace = config.require('image-namespace');
 
 export interface LegacyPlatformArgs {
   database: PlatformDatabase,
@@ -49,11 +50,11 @@ export class LegacyPlatform extends pulumi.ComponentResource {
       auth: {
         username: config.require('docker-username'),
         password: config.requireSecret('docker-access-token'),
-        serverAddress: 'https://docker.io'
+        serverAddress: 'https://ghcr.io'
       },
       taskSpec: {
         containerSpec: {
-          image: getImageSha('asaxplayinghorse', 'worker', 'master'),
+          image: getImageSha(imageNamespace, 'worker', 'master'),
           env: {
             NODE_ENV: 'production',
             NODE_TLS_REJECT_UNAUTHORIZED: '0',
@@ -114,11 +115,11 @@ export class LegacyPlatform extends pulumi.ComponentResource {
       auth: {
         username: config.require('docker-username'),
         password: config.requireSecret('docker-access-token'),
-        serverAddress: 'https://docker.io'
+        serverAddress: 'https://ghcr.io'
       },
       taskSpec: {
         containerSpec: {
-          image: getImageSha('asaxplayinghorse', 'bot', 'master'),
+          image: getImageSha(imageNamespace, 'bot', 'master'),
           env: {
             NODE_ENV: 'production',
             NODE_TLS_REJECT_UNAUTHORIZED: '0',
@@ -165,11 +166,11 @@ export class LegacyPlatform extends pulumi.ComponentResource {
       auth: {
         username: config.require('docker-username'),
         password: config.requireSecret('docker-access-token'),
-        serverAddress: 'https://docker.io'
+        serverAddress: 'https://ghcr.io'
       },
       taskSpec: {
         containerSpec: {
-          image: getImageSha('asaxplayinghorse', 'bot', 'master'),
+          image: getImageSha(imageNamespace, 'bot', 'master'),
           env: {
             NODE_ENV: 'production',
             NODE_TLS_REJECT_UNAUTHORIZED: '0',
@@ -220,11 +221,11 @@ export class LegacyPlatform extends pulumi.ComponentResource {
       auth: {
         username: config.require('docker-username'),
         password: config.requireSecret('docker-access-token'),
-        serverAddress: 'https://docker.io'
+        serverAddress: 'https://ghcr.io'
       },
       taskSpec: {
         containerSpec: {
-          image: getImageSha('asaxplayinghorse', 'bot', 'master'),
+          image: getImageSha(imageNamespace, 'bot', 'master'),
           env: {
             NODE_ENV: 'production',
             NODE_TLS_REJECT_UNAUTHORIZED: '0',

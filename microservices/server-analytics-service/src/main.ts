@@ -1,17 +1,19 @@
 /* eslint-disable no-console */
-import {HttpAdapterHost, NestFactory} from "@nestjs/core";
+import {NestFactory} from "@nestjs/core";
 import {Transport} from "@nestjs/microservices";
-import {AllExceptionsFilter, config} from "@sprocketbot/common";
+import {config} from "@sprocketbot/common";
 
 import {AppModule} from "./app.module";
 
 const url = config.transport.url;
 const queue = config.transport.analytics_queue;
+const HEALTH_PORT = 3013;
 
 async function bootstrap(): Promise<void> {
-    const app = await NestFactory.createMicroservice(AppModule, {
+    const app = await NestFactory.create(AppModule, {logger: config.logger.levels});
+
+    app.connectMicroservice({
         transport: Transport.RMQ,
-        logger: config.logger.levels,
         options: {
             urls: [url],
             queue: queue,
@@ -20,10 +22,9 @@ async function bootstrap(): Promise<void> {
             },
         },
     });
-    const httpAdapter = app.get(HttpAdapterHost);
-    app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
 
-    await app.listen();
+    await app.startAllMicroservices();
+    await app.listen(HEALTH_PORT);
 }
 
 bootstrap()
