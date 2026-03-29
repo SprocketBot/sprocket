@@ -2,7 +2,7 @@ config:
   platform:docker-username: asaxplayinghorse
   platform:docker-access-token:
     secure: AAABAMOdsN2rA9tzU+BrK4iGPbzcO+kHZQ/7B7WkD7K4Eb+YoCtUiFomsfyvs1nT5cDwXHUPaGyaC0PkSh13MftRN2Y=
-  platform:image-namespace: asaxplayinghorse
+  platform:image-namespace: sprocketbot
   platform:postgres-username: doadmin
   platform:postgres-port: "25060"
   platform:postgres-host: sprocketbot-postgres-d5033d2-do-user-24528890-0.j.db.ondigitalocean.com

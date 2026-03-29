@@ -35,12 +35,12 @@ runs:
       uses: docker/build-push-action@v2
       with:
         build-args: |
-          BASE_IMAGE=ghcr.io/${{ github.repository_owner }}/monorepo-core:${{ inputs.docker_tag }}
+          BASE_IMAGE=ghcr.io/sprocketbot/monorepo-core:${{ inputs.docker_tag }}
         context: ${{ inputs.build_directory }}
         file: ${{ inputs.build_directory }}/Dockerfile
         target: app_image
         push: true
-        tags: ghcr.io/${{ github.repository_owner }}/${{ inputs.docker_image }}:${{ inputs.docker_tag }}
+        tags: ghcr.io/sprocketbot/${{ inputs.docker_image }}:${{ inputs.docker_tag }}
         platforms: linux/amd64
 
     - uses: sarisia/actions-status-discord@v1
