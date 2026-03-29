@@ -1,0 +1,24 @@
+config:
+  foundation:environment: prod
+  foundation:region: nyc3
+  foundation:size: s-4vcpu-8gb
+  foundation:image: ubuntu-24-04-x64
+  foundation:dns-zone: mlesports.gg
+  foundation:hostname-label: sprocket
+  foundation:dns-prefixes: '["", "api", "vault", "traefik"]'
+  foundation:admin-cidrs: '["203.0.113.10/32"]'
+  foundation:ssh-public-key: "ssh-ed25519 AAAA... replace-me"
+  foundation:create-reserved-ip: "true"
+  foundation:enable-monitoring: "true"
+  foundation:enable-ipv6: "true"
+  foundation:tags: '["sprocket", "prod", "node"]'
+  foundation:deploy-user: deploy
+
+  # Optional cluster growth / network controls
+  # foundation:swarm-cidrs: '["10.0.0.0/8"]'
+  # foundation:vpc-uuid: <optional-digitalocean-vpc-uuid>
+
+  # Optional GHCR bootstrap credentials
+  # foundation:ghcr-username: <ghcr-username>
+  # foundation:ghcr-token:
+  #   secure: <pulumi-secret>
