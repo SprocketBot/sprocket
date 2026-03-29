@@ -1,0 +1,3 @@
+name: foundation
+runtime: nodejs
+description: Sprocket foundation infrastructure for DigitalOcean nodes and bootstrap

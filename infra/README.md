@@ -3,6 +3,7 @@
 This directory contains the Pulumi infrastructure code migrated from the former `sprocket-infra` repository.
 
 - `global/`: shared Pulumi helpers, service definitions, and cross-stack references
+- `foundation/`: cloud infrastructure substrate such as DigitalOcean nodes, firewalls, reserved IPs, DNS, and bootstrap cloud-init
 - `layer_1/`: core infrastructure such as Traefik and Vault
 - `layer_2/`: data services, monitoring, and Vault-backed application dependencies
 - `platform/`: application and platform service deployment
@@ -51,9 +52,10 @@ These commands export state under `infra/backups/` and record:
 
 Bootstrap and normal deployments should continue to run in dependency order:
 
-1. `infra/layer_1`
-2. `infra/layer_2`
-3. `infra/platform`
+1. `infra/foundation`
+2. `infra/layer_1`
+3. `infra/layer_2`
+4. `infra/platform`
 
 `infra/global` is a shared local package consumed by the stack projects above.
 

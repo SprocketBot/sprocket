@@ -12,7 +12,7 @@
   "license": "MIT",
   "scripts": {
     "postinstall": "npm run build:common",
-    "build": "npm run build --workspaces --if-available",
+    "build": "npm run build --workspaces --if-present",
     "build:common": "npm run build --workspace=common",
     "infra:install": "npm install --workspaces --include-workspace-root=false --workspace=infra/global --workspace=infra/layer_1 --workspace=infra/layer_2 --workspace=infra/platform",
     "infra:backend:verify": "bash ./scripts/infra/verify-backend.sh",

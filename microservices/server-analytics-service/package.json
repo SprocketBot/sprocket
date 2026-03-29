@@ -24,6 +24,7 @@
     "@nestjs/common": "^8.2.3",
     "@nestjs/core": "^8.2.3",
     "@nestjs/microservices": "^8.2.3",
+    "@nestjs/platform-express": "^8.2.3",
     "@sprocketbot/common": "^0.2.13",
     "@types/lodash": "^4.14.170",
     "amqp-connection-manager": "^3.7.0",

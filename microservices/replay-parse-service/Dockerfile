@@ -20,4 +20,6 @@ ENV PATH="/root/.cargo/bin:$PATH"
 # Install Python dependencies (boxcars-py will be compiled from source using Rust)
 RUN python3 -m pip install --no-cache-dir -r requirements.txt
 
+HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -sf http://localhost:3015/healthz || exit 1
 ENTRYPOINT ["./start.sh"]

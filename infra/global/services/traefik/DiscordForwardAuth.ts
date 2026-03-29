@@ -5,6 +5,7 @@ import {ConfigFile} from "../../helpers/docker/ConfigFile";
 import {TraefikLabels} from "../../helpers/docker/TraefikLabels";
 import {HOSTNAME} from "../../constants";
 const config = new pulumi.Config()
+const imageNamespace = config.require("image-namespace")
 
 export interface DiscordForwardAuthArgs {
     networkId: docker.Network["id"]
@@ -26,11 +27,11 @@ export class DiscordForwardAuth extends pulumi.ComponentResource {
             auth: {
                 username: config.require("docker-username"),
                 password: config.requireSecret("docker-access-token"),
-                serverAddress: "https://docker.io"
+                serverAddress: "https://ghcr.io"
             },
             taskSpec: {
                 containerSpec: {
-                    image: getImageSha("asaxplayinghorse", "discord-forward-auth", "latest"),
+                    image: getImageSha(imageNamespace, "discord-forward-auth", "latest"),
                     env: {
                         CONFIG_FILE: "/app/config.yaml",
                         CLIENT_SECRET: config.requireSecret("discord-fa-client-secret")
