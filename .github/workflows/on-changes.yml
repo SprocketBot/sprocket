@@ -78,11 +78,15 @@ jobs:
           list-files: json
           filters: |
             baseDockerfileHasChanges: ./dockerfiles/node.Dockerfile
+            buildConfigHasChanges:
+              - ./.github/workflows/on-changes.yml
+              - ./.github/reusable_workflows/build_container/**
+              - ./infra/platform/**
             projectHasChanges: ${{ matrix.directory[1] }}/**
             sprocketCommonHasChanges: ./common/**
 
       - name: Build project
-        if: steps.changes.outputs.baseDockerfileHasChanges == 'true' || steps.changes.outputs.projectHasChanges == 'true' || steps.changes.outputs.sprocketCommonHasChanges == 'true'
+        if: github.event_name == 'workflow_dispatch' || steps.changes.outputs.baseDockerfileHasChanges == 'true' || steps.changes.outputs.buildConfigHasChanges == 'true' || steps.changes.outputs.projectHasChanges == 'true' || steps.changes.outputs.sprocketCommonHasChanges == 'true'
         uses: ./.github/reusable_workflows/build_container
         with:
           build_directory: ${{ matrix.directory[1] }}

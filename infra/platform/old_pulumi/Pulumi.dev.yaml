@@ -6,7 +6,7 @@ config:
   platform:docker-access-token:
     secure: v1:tmRmBUB/1RNiyLVR:vTexaAV98OKtJ9ZHqz4c10oefKO2BjN0Z/1pg0Jc+Qzbju6RBsVlIZaWQCdsfmU/4zdK4w==
   platform:docker-username: actualsovietshark
-  platform:image-namespace: asaxplayinghorse
+  platform:image-namespace: sprocketbot
   platform:image-tag: dev
   platform:legacy-bot-token:
     secure: v1:50PybyrQe0tmzGt1:Hmyo9lZPZWQAKTTYTp+64CefaLxeH3OHTmVscFzJpMNts5WDSyYnGxpDooThk4ORaAjL9ts7sxOCUfkLdSzlJM3CML/gje8L36VhfmzPDVGjse2ygkg=
