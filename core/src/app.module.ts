@@ -7,6 +7,7 @@ import {RedisCache} from "apollo-server-cache-redis";
 import {graphqlUploadExpress} from "graphql-upload";
 
 import {ConfigurationModule} from "./configuration";
+import {HealthModule} from "./health/health.module";
 import {DatabaseModule} from "./database";
 import {EloModule} from "./elo";
 import {FranchiseModule} from "./franchise";
@@ -76,6 +77,7 @@ import {UtilModule} from "./util/util.module";
             },
             prefix: `${config.redis.prefix}:bull`,
         }),
+        HealthModule,
         OrganizationModule,
         IdentityModule,
         DatabaseModule,

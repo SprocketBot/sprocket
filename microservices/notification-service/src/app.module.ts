@@ -1,5 +1,7 @@
 import {Module} from "@nestjs/common";
 
+import {HealthController} from "./health.controller";
+
 import {MatchModule} from "./match/match.module";
 import {MemberModule} from "./member/member.module";
 import {NotificationModule} from "./notification/notification.module";
@@ -16,5 +18,6 @@ import {SubmissionModule} from "./submission/submission.module";
         NotificationModule,
         PlayerModule,
     ],
+    controllers: [HealthController],
 })
 export class AppModule {}

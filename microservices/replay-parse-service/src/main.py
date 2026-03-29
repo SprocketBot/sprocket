@@ -2,6 +2,7 @@ from typing import Union
 import os
 
 import celery
+import healthz
 import logging
 from minio import S3Error
 
@@ -16,6 +17,8 @@ from kombu import Producer, Connection
 
 # Celery pipeline for starting jobs (broker) and returning results (backend)
 app = celery.Celery(config_source=celeryconfig)
+
+healthz.start()
 
 PARSER_VERSION = "4"
 
