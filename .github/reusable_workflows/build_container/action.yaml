@@ -14,32 +14,37 @@ inputs:
   discord_webhook:
     description: 'Webhook URL to send status updates'
     required: false
+  push_image:
+    description: 'Whether to push the built image to GHCR'
+    required: false
+    default: 'true'
 
 runs:
   using: 'composite'
   steps:
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
+      uses: docker/setup-buildx-action@v4
 
     - name: Log in to GHCR
-      uses: docker/login-action@v3
+      if: inputs.push_image == 'true'
+      uses: docker/login-action@v4
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ github.token }}
 
     - name: Check out the repo
-      uses: actions/checkout@v2
+      uses: actions/checkout@v6
 
     - name: Build And Push Image
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v7
       with:
         build-args: |
           BASE_IMAGE=ghcr.io/sprocketbot/monorepo-core:${{ inputs.docker_tag }}
         context: ${{ inputs.build_directory }}
         file: ${{ inputs.build_directory }}/Dockerfile
         target: app_image
-        push: true
+        push: ${{ inputs.push_image == 'true' }}
         tags: ghcr.io/sprocketbot/${{ inputs.docker_image }}:${{ inputs.docker_tag }}
         platforms: linux/amd64
 

@@ -2,6 +2,13 @@ name: 'Autobuild Docker Containers'
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths-ignore:
+      - 'infra/**'
+      - 'scripts/infra/**'
+      - '.github/reusable_workflows/pulumi_up/**'
+      - '.github/workflows/infra-pulumi.yml'
+      - '.nvmrc'
   push:
     branches:
       - main
@@ -15,31 +22,32 @@ jobs:
     steps:
       - name: Extract branch name
         shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        run: echo "branch=${GITHUB_REF#refs/heads/}" >> "$GITHUB_OUTPUT"
         id: extract_branch
 
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v4
 
       - name: Build and export
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v7
         with:
           build-args: |
             COMMIT_SHA=${{ github.sha }}
           context: .
           file: ./dockerfiles/node.Dockerfile
           tags: ghcr.io/sprocketbot/monorepo-core:${{ steps.extract_branch.outputs.branch }}
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64
 
   build_microservices:
@@ -64,17 +72,17 @@ jobs:
     steps:
       - name: Extract branch name
         shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        run: echo "branch=${GITHUB_REF#refs/heads/}" >> "$GITHUB_OUTPUT"
         id: extract_branch
 
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: Check if there are changes in this project
-        uses: dorny/paths-filter@v2
+        uses: dorny/paths-filter@v4
         id: changes
         with:
-          base: ${{ github.ref }}
+          base: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref }}
           list-files: json
           filters: |
             baseDockerfileHasChanges: ./dockerfiles/node.Dockerfile
@@ -93,3 +101,4 @@ jobs:
           docker_image: ${{ matrix.directory[0] }}
           docker_tag: ${{steps.extract_branch.outputs.branch}}
           discord_webhook: ${{ secrets.discord_webhook }}
+          push_image: ${{ github.event_name != 'pull_request' }}
