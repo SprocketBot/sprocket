@@ -53,7 +53,7 @@ jobs:
             stack_name: prod
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run Pulumi preview
         uses: ./.github/reusable_workflows/pulumi_up
@@ -78,7 +78,7 @@ jobs:
     environment: ${{ github.event.inputs.command == 'up' && 'production' || 'preview' }}
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run Pulumi command
         uses: ./.github/reusable_workflows/pulumi_up
