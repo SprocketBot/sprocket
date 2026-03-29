@@ -22,7 +22,12 @@ jobs:
     steps:
       - name: Extract branch name
         shell: bash
-        run: echo "branch=${GITHUB_REF#refs/heads/}" >> "$GITHUB_OUTPUT"
+        run: |
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+            echo "branch=pr-${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "branch=${GITHUB_REF#refs/heads/}" >> "$GITHUB_OUTPUT"
+          fi
         id: extract_branch
 
       - name: Check out the repo
@@ -72,7 +77,12 @@ jobs:
     steps:
       - name: Extract branch name
         shell: bash
-        run: echo "branch=${GITHUB_REF#refs/heads/}" >> "$GITHUB_OUTPUT"
+        run: |
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+            echo "branch=pr-${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "branch=${GITHUB_REF#refs/heads/}" >> "$GITHUB_OUTPUT"
+          fi
         id: extract_branch
 
       - name: Check out the repo
