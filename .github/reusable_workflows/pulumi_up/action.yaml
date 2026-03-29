@@ -48,7 +48,7 @@ runs:
   using: composite
   steps:
     - name: Set up Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: ${{ inputs.node-version }}
         cache: npm
@@ -61,17 +61,37 @@ runs:
 
     - name: Connect Tailscale
       if: inputs.tailscale-authkey != ''
-      uses: tailscale/github-action@v3
+      uses: tailscale/github-action@v4
       with:
         authkey: ${{ inputs.tailscale-authkey }}
 
     - name: Configure remote Docker host
-      uses: khaledez/configure-docker-host@v2
-      with:
-        host: ${{ inputs.manager-node-host }}
-        port: 22
-        user: ${{ inputs.ssh-user }}
-        ssh-private-key: ${{ inputs.ssh-key }}
+      shell: bash
+      run: |
+        ssh_dir="${HOME}/.ssh"
+        key_file="${RUNNER_TEMP}/docker-host-${{ inputs.manager-node-host }}-${{ inputs.ssh-user }}.pem"
+
+        mkdir -p "${ssh_dir}"
+        chmod 700 "${ssh_dir}"
+        printf '%s\n' '${{ inputs.ssh-key }}' > "${key_file}"
+        chmod 600 "${key_file}"
+
+        {
+          echo "Host ${{ inputs.manager-node-host }}"
+          echo "  HostName ${{ inputs.manager-node-host }}"
+          echo "  User ${{ inputs.ssh-user }}"
+          echo "  Port 22"
+          echo "  IdentityFile ${key_file}"
+          echo "  StrictHostKeyChecking no"
+          echo "  IdentitiesOnly yes"
+          echo "  ControlMaster auto"
+          echo "  ControlPath ~/.ssh/socket-%r@%h:%p"
+          echo "  ControlPersist yes"
+        } >> "${ssh_dir}/config"
+        chmod 600 "${ssh_dir}/config"
+
+        echo "DOCKER_HOST=ssh://${{ inputs.ssh-user }}@${{ inputs.manager-node-host }}:22" >> "${GITHUB_ENV}"
+        echo "DOCKER_SSH_KEY_FILE=${key_file}" >> "${GITHUB_ENV}"
 
     - name: Install infra dependencies
       shell: bash
@@ -88,3 +108,8 @@ runs:
         fi
 
         npm run ci:infra:run -- "${{ inputs.stack-project }}" "${{ inputs.stack-name }}" "${{ inputs.command }}" "${extra_args[@]}"
+
+    - name: Clean up remote Docker SSH key
+      if: always()
+      shell: bash
+      run: rm -f "${DOCKER_SSH_KEY_FILE}"
