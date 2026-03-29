@@ -8,7 +8,7 @@ import type { RedisConnection } from '../PlatformDatastore';
 import { PlatformS3 } from '../PlatformS3';
 
 const config = new pulumi.Config();
-const imageNamespace = config.require('image-namespace');
+const legacyImageNamespace = config.get('legacy-image-namespace') ?? 'asaxplayinghorse';
 
 export interface LegacyPlatformArgs {
   database: PlatformDatabase,
@@ -54,7 +54,7 @@ export class LegacyPlatform extends pulumi.ComponentResource {
       },
       taskSpec: {
         containerSpec: {
-          image: getImageSha(imageNamespace, 'worker', 'master'),
+          image: getImageSha(legacyImageNamespace, 'worker', 'master'),
           env: {
             NODE_ENV: 'production',
             NODE_TLS_REJECT_UNAUTHORIZED: '0',
@@ -119,7 +119,7 @@ export class LegacyPlatform extends pulumi.ComponentResource {
       },
       taskSpec: {
         containerSpec: {
-          image: getImageSha(imageNamespace, 'bot', 'master'),
+          image: getImageSha(legacyImageNamespace, 'bot', 'master'),
           env: {
             NODE_ENV: 'production',
             NODE_TLS_REJECT_UNAUTHORIZED: '0',
@@ -170,7 +170,7 @@ export class LegacyPlatform extends pulumi.ComponentResource {
       },
       taskSpec: {
         containerSpec: {
-          image: getImageSha(imageNamespace, 'bot', 'master'),
+          image: getImageSha(legacyImageNamespace, 'bot', 'master'),
           env: {
             NODE_ENV: 'production',
             NODE_TLS_REJECT_UNAUTHORIZED: '0',
@@ -225,7 +225,7 @@ export class LegacyPlatform extends pulumi.ComponentResource {
       },
       taskSpec: {
         containerSpec: {
-          image: getImageSha(imageNamespace, 'bot', 'master'),
+          image: getImageSha(legacyImageNamespace, 'bot', 'master'),
           env: {
             NODE_ENV: 'production',
             NODE_TLS_REJECT_UNAUTHORIZED: '0',

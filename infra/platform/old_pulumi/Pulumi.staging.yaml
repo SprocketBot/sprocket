@@ -6,6 +6,7 @@ config:
     secure: v1:R74j5D3k+CNL3yd/:+tq95quvfSU4hCCuJQwgy2ysZqevGqFSfvb08fvBBEY1fmfuio1QJ6vlvt69ceCifgSdcg==
   platform:docker-username: actualsovietshark
   platform:hostname: app.sprocket.gg
+  platform:legacy-image-namespace: asaxplayinghorse
   platform:image-namespace: sprocketbot
   platform:image-tag: staging
   platform:legacy-bot-token:
