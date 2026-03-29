@@ -38,7 +38,7 @@ jobs:
             COMMIT_SHA=${{ github.sha }}
           context: .
           file: ./dockerfiles/node.Dockerfile
-          tags: ghcr.io/${{ github.repository_owner }}/monorepo-core:${{ steps.extract_branch.outputs.branch }}
+          tags: ghcr.io/sprocketbot/monorepo-core:${{ steps.extract_branch.outputs.branch }}
           push: true
           platforms: linux/amd64
 
