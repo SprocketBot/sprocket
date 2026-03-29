@@ -1,0 +1,9 @@
+node_modules
+dist
+build
+.sveltekit
+.env
+.env.*
+*.log
+.DS_Store
+secret

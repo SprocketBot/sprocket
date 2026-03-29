@@ -4,6 +4,11 @@ __pycache__/
 .venv
 venv/
 ENV/
+node_modules
+dist
+build
 .env
 .env.*
+*.log
+.DS_Store
 *.replay

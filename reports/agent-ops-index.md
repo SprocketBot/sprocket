@@ -1,6 +1,6 @@
 # Agent Ops Index
 
-Updated: March 13, 2026
+Updated: March 18, 2026
 
 ## Purpose
 
@@ -71,10 +71,12 @@ Use these for:
 
 ### 5. Infrastructure shape
 - `infra/README.md`
+- `infra/foundation/src/index.ts`
 - `infra/platform/src/config/services/*.json`
 - `infra/platform/src/Platform.ts`
 
 Use these for:
+- current cloud/foundation topology
 - current infra topology
 - service config templates
 - monolith/beta deployment mapping
