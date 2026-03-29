@@ -12,7 +12,7 @@
   "license": "MIT",
   "scripts": {
     "postinstall": "npm run build:common",
-    "build": "npm run build --workspaces --if-available",
+    "build": "npm run build --workspaces --if-present",
     "build:common": "npm run build --workspace=common",
     "infra:install": "npm install --workspaces --include-workspace-root=false --workspace=infra/global --workspace=infra/layer_1 --workspace=infra/layer_2 --workspace=infra/platform",
     "dev:up": "bash ./scripts/harness/dev-up.sh",
@@ -39,8 +39,8 @@
     "harness:tier1:league": "npm run verify:tier1:league",
     "harness:tier1:scrim": "npm run verify:tier1:scrim",
     "harness:tier1:submission": "npm run verify:tier1:submission",
-    "clean": "npm run clean --workspaces --if-available",
-    "lint": "npm run lint --workspaces --if-available",
+    "clean": "npm run clean --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
     "format": "prettier --write ."
   },
   "workspaces": [
