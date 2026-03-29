@@ -50,7 +50,7 @@ export class LegacyPlatform extends pulumi.ComponentResource {
       auth: {
         username: config.require('docker-username'),
         password: config.requireSecret('docker-access-token'),
-        serverAddress: 'https://docker.io'
+        serverAddress: 'https://ghcr.io'
       },
       taskSpec: {
         containerSpec: {
@@ -115,7 +115,7 @@ export class LegacyPlatform extends pulumi.ComponentResource {
       auth: {
         username: config.require('docker-username'),
         password: config.requireSecret('docker-access-token'),
-        serverAddress: 'https://docker.io'
+        serverAddress: 'https://ghcr.io'
       },
       taskSpec: {
         containerSpec: {
@@ -166,7 +166,7 @@ export class LegacyPlatform extends pulumi.ComponentResource {
       auth: {
         username: config.require('docker-username'),
         password: config.requireSecret('docker-access-token'),
-        serverAddress: 'https://docker.io'
+        serverAddress: 'https://ghcr.io'
       },
       taskSpec: {
         containerSpec: {
@@ -221,7 +221,7 @@ export class LegacyPlatform extends pulumi.ComponentResource {
       auth: {
         username: config.require('docker-username'),
         password: config.requireSecret('docker-access-token'),
-        serverAddress: 'https://docker.io'
+        serverAddress: 'https://ghcr.io'
       },
       taskSpec: {
         containerSpec: {

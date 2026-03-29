@@ -4,6 +4,7 @@ config:
 
   platform:image-tag: personal-gankoji-unbork-cloud-spend
   platform:legacy-image-namespace: asaxplayinghorse
+  platform:image-namespace: sprocketbot
   platform:hostname: sprocket.mlesports.gg
   platform:subdomain: v15
   platform:monolith-mode: "true"

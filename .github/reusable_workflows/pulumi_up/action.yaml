@@ -1,107 +1,115 @@
-name: Deploy Sprocket
-description: Connects to the VPN, and uses Pulumi to update the sprocket platform.
+name: Deploy Sprocket Infra
+description: Runs Pulumi against a remote Docker manager over SSH using the same contract as laptop deploys.
 
 inputs:
-  pulumi_cloud_url:
-    description: 'Pulumi backend url (i.e. S3)'
+  command:
+    description: 'Pulumi command to run: preview, up, or refresh'
     required: true
 
-  pulumi_stack_name:
-    description: 'Which Pulumi Stack to deploy; it is assumed that this will match the branch name'
+  stack-project:
+    description: 'Pulumi project directory under infra/: layer_1, layer_2, or platform'
     required: true
 
-  pulumi_config_passphrase:
-    description: 'Passphrase used to encrypt pulumi secrets'
+  stack-name:
+    description: 'Pulumi stack name'
     required: true
 
-  pulumi_aws_access_key:
-    description: 'AWS Access Key for Pulumi Backend'
+  manager-node-host:
+    description: 'Tailscale-reachable SSH host or IP for the Docker manager'
     required: true
 
-  pulumi_aws_secret_key:
-    description: 'AWS Secret Key for Pulumi Backend'
+  ssh-user:
+    description: 'SSH user for remote Docker access'
     required: true
 
-  ssh_user:
-    description: 'SSH User for Remote Docker Socket'
+  ssh-key:
+    description: 'Private SSH key for remote Docker access'
     required: true
 
-  ssh_key:
-    description: 'Private SSH Key for Remote Docker Socket'
-    required: true
+  tailscale-authkey:
+    description: 'Optional Tailscale auth key'
+    required: false
 
-  manager_node_hostname:
-    description: 'Tailwind machine name of manager node, used to auto-detect ip address'
-    required: true
+  pulumi-backend-url:
+    description: 'Pulumi backend URL. Example: s3://bucket/pulumi?endpoint=https://endpoint'
+    required: false
 
-  tailscale_ephemeral_authkey:
-    description: 'Used to temporarily connect to the tailscale cluster'
-    required: true
+  node-version:
+    description: 'Node.js version used for infra commands'
+    required: false
+    default: '16'
 
-  infra_deploy_key:
-    description: 'Used to clone the infrastructure repository'
-    required: true
+  install-command:
+    description: 'Command used to install infra dependencies'
+    required: false
+    default: 'npm run infra:install'
 
 runs:
-  using: 'composite'
-
+  using: composite
   steps:
-    - name: Check out the infrastructure repository
-      uses: actions/checkout@v2
+    - name: Set up Node.js
+      uses: actions/setup-node@v6
       with:
-        path: infrastructure
-        repository: SprocketBot/sprocket-infra
-        ref: ${{ inputs.pulumi_stack_name }}
-        ssh-key: ${{ inputs.infra_deploy_key }}
+        node-version: ${{ inputs.node-version }}
+        cache: npm
 
-    - name: Tailscale
-      uses: tailscale/github-action@main
-      with:
-        authkey: ${{ inputs.tailscale_ephemeral_authkey }}
-
-    - name: Extract Manager Node ip
-      id: manager_node_ip
-      run: echo "::set-output name=ip::$(sudo tailscale status | grep ${{ inputs.manager_node_hostname }} | awk '{print $1}')"
+    - name: Install Pulumi CLI
       shell: bash
+      run: |
+        curl -fsSL https://get.pulumi.com | sh
+        echo "${HOME}/.pulumi/bin" >> "${GITHUB_PATH}"
 
-    # - name: Create .ssh directory
-    #   run: mkdir -p ~/.ssh
-    #   shell: bash
-
-    # - name: Write ssh key to ~/.ssh/pulumi_key
-    #   run: echo "${{ inputs.ssh_key }}" > ~/.ssh/pulumi_key
-    #   shell: bash
-
-    # - name: Use SSH key for manager node ip
-    #   run: echo "IdentityFile ~/.ssh/pulumi_key" >> ~/.ssh/config
-    #   shell: bash
-
-    # - name: Install the hostkey for manager node ip
-    #   run: ssh-keyscan ${{ steps.manager_node_ip.outputs.ip }} >> ~/.ssh/known_hosts
-    #   shell: bash
-
-    - name: Connect to remote docker socket
-      uses: khaledez/configure-docker-host@v2
+    - name: Connect Tailscale
+      if: inputs.tailscale-authkey != ''
+      uses: tailscale/github-action@v4
       with:
-        host: ${{ steps.manager_node_ip.outputs.ip }}
-        port: 22
-        user: ${{ inputs.ssh_user }}
-        ssh-private-key: ${{ inputs.ssh_key }}
+        authkey: ${{ inputs.tailscale-authkey }}
 
-    - name: Install Infra Dependencies
-      run: cd /home/runner/work/sprocket/sprocket/infrastructure/platform && npm install && cd ../global && npm install
+    - name: Configure remote Docker host
       shell: bash
+      run: |
+        ssh_dir="${HOME}/.ssh"
+        key_file="${RUNNER_TEMP}/docker-host-${{ inputs.manager-node-host }}-${{ inputs.ssh-user }}.pem"
 
-    - name: Pulumi Up
-      uses: pulumi/actions@v3
+        mkdir -p "${ssh_dir}"
+        chmod 700 "${ssh_dir}"
+        printf '%s\n' '${{ inputs.ssh-key }}' > "${key_file}"
+        chmod 600 "${key_file}"
+
+        {
+          echo "Host ${{ inputs.manager-node-host }}"
+          echo "  HostName ${{ inputs.manager-node-host }}"
+          echo "  User ${{ inputs.ssh-user }}"
+          echo "  Port 22"
+          echo "  IdentityFile ${key_file}"
+          echo "  StrictHostKeyChecking no"
+          echo "  IdentitiesOnly yes"
+          echo "  ControlMaster auto"
+          echo "  ControlPath ~/.ssh/socket-%r@%h:%p"
+          echo "  ControlPersist yes"
+        } >> "${ssh_dir}/config"
+        chmod 600 "${ssh_dir}/config"
+
+        echo "DOCKER_HOST=ssh://${{ inputs.ssh-user }}@${{ inputs.manager-node-host }}:22" >> "${GITHUB_ENV}"
+        echo "DOCKER_SSH_KEY_FILE=${key_file}" >> "${GITHUB_ENV}"
+
+    - name: Install infra dependencies
+      shell: bash
+      run: ${{ inputs.install-command }}
+
+    - name: Run Pulumi
+      shell: bash
       env:
-        PULUMI_CONFIG_PASSPHRASE: ${{ inputs.pulumi_config_passphrase }}
-        AWS_ACCESS_KEY_ID: ${{ inputs.pulumi_aws_access_key }}
-        AWS_SECRET_ACCESS_KEY: ${{ inputs.pulumi_aws_secret_key }}
-        AWS_REGION: nyc3
-        DOCKER_HOST: ssh://${{ inputs.ssh_user }}@${{ steps.manager_node_ip.outputs.ip }}
-      with:
-        command: up
-        stack-name: ${{ inputs.pulumi_stack_name }}
-        work-dir: ./infrastructure/platform
-        cloud-url: ${{ inputs.pulumi_cloud_url }}
+        PULUMI_BACKEND_URL: ${{ inputs.pulumi-backend-url }}
+      run: |
+        extra_args=()
+        if [ "${{ inputs.command }}" = "up" ]; then
+          extra_args+=(--yes)
+        fi
+
+        npm run ci:infra:run -- "${{ inputs.stack-project }}" "${{ inputs.stack-name }}" "${{ inputs.command }}" "${extra_args[@]}"
+
+    - name: Clean up remote Docker SSH key
+      if: always()
+      shell: bash
+      run: rm -f "${DOCKER_SSH_KEY_FILE}"

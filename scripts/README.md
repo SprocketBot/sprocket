@@ -1,8 +1,23 @@
 # Scripts Directory
 
-Utility scripts for local development and database management.
+Utility scripts for local development, database management, and infrastructure deployment.
 
 ## Available Scripts
+
+### infra/
+
+Off-node Pulumi deployment helpers.
+
+**Usage:**
+
+```bash
+npm run infra:install
+npm run infra:backend:verify -- platform prod
+npm run infra:preview -- platform prod
+npm run infra:up -- platform prod --yes
+```
+
+See [`scripts/infra/README.md`](./infra/README.md) for the environment contract.
 
 ### setup-local.sh
 

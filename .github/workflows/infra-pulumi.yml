@@ -1,0 +1,98 @@
+name: Infra Pulumi
+
+on:
+  pull_request:
+    paths:
+      - 'infra/**'
+      - 'scripts/infra/**'
+      - '.github/reusable_workflows/pulumi_up/**'
+      - '.github/workflows/infra-pulumi.yml'
+      - 'package.json'
+      - '.nvmrc'
+  workflow_dispatch:
+    inputs:
+      stack_project:
+        description: 'Pulumi project under infra/'
+        required: true
+        type: choice
+        options:
+          - layer_1
+          - layer_2
+          - platform
+      stack_name:
+        description: 'Pulumi stack name'
+        required: true
+        type: string
+      command:
+        description: 'Pulumi command'
+        required: true
+        default: preview
+        type: choice
+        options:
+          - preview
+          - up
+          - refresh
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  preview:
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - stack_project: layer_1
+            stack_name: layer_1
+          - stack_project: layer_2
+            stack_name: layer_2
+          - stack_project: platform
+            stack_name: prod
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v6
+
+      - name: Run Pulumi preview
+        uses: ./.github/reusable_workflows/pulumi_up
+        env:
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: nyc3
+        with:
+          command: preview
+          stack-project: ${{ matrix.stack_project }}
+          stack-name: ${{ matrix.stack_name }}
+          manager-node-host: ${{ secrets.PULUMI_MANAGER_NODE_HOST }}
+          ssh-user: ${{ secrets.PULUMI_SSH_USER }}
+          ssh-key: ${{ secrets.PULUMI_SSH_KEY }}
+          tailscale-authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          pulumi-backend-url: ${{ secrets.PULUMI_BACKEND_URL }}
+
+  deploy:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.command == 'up' && 'production' || 'preview' }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v6
+
+      - name: Run Pulumi command
+        uses: ./.github/reusable_workflows/pulumi_up
+        env:
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: nyc3
+        with:
+          command: ${{ github.event.inputs.command }}
+          stack-project: ${{ github.event.inputs.stack_project }}
+          stack-name: ${{ github.event.inputs.stack_name }}
+          manager-node-host: ${{ secrets.PULUMI_MANAGER_NODE_HOST }}
+          ssh-user: ${{ secrets.PULUMI_SSH_USER }}
+          ssh-key: ${{ secrets.PULUMI_SSH_KEY }}
+          tailscale-authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          pulumi-backend-url: ${{ secrets.PULUMI_BACKEND_URL }}

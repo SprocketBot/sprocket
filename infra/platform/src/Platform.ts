@@ -16,6 +16,7 @@ import { EloService } from "./microservices/EloService";
 import { LegacyPlatform } from './legacy/LegacyPlatform';
 
 const config = new pulumi.Config()
+const imageNamespace = config.require("image-namespace")
 
 export interface PlatformArgs {
     postgresHostname: string | pulumi.Output<string>
@@ -158,7 +159,7 @@ export class Platform extends pulumi.ComponentResource {
             this.monolith = new SprocketService(`${name}-sprocket-monolith`, {
                 ...this.buildDefaultConfiguration("monolith", args.configRoot),
                 image: {
-                    namespace: "asaxplayinghorse",
+                    namespace: imageNamespace,
                     repository: config.get("monolith-image-repository") ?? "monolith",
                     tag: config.require("image-tag")
                 },
@@ -504,7 +505,7 @@ export class Platform extends pulumi.ComponentResource {
     }
 
     buildDefaultConfiguration = (name: string, configRoot: string): SprocketServiceArgs => ({
-        image: { namespace: "asaxplayinghorse", repository: name, tag: config.require("image-tag") },
+        image: { namespace: imageNamespace, repository: name, tag: config.require("image-tag") },
         platformNetworkId: this.network.id,
         networks: [
             this.ingressNetworkId
