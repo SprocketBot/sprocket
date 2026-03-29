@@ -1,4 +1,4 @@
-import {randomUUID} from "crypto";
+import {createHash} from "crypto";
 
 import type {
     BallchasingPlayer,
@@ -32,9 +32,8 @@ export class CarballConverterService {
         const blueTotals = this.getTeamTotals(bluePlayers, blueGoals);
         const orangeTotals = this.getTeamTotals(orangePlayers, orangeGoals);
 
-        // Generate stub ID from output path or random UUID
-        const replayId = outputPath.split("/").pop()
-            ?.replace(".replay", "") ?? randomUUID();
+        // Use the full output path so fallback identifiers stay deterministic and low-collision.
+        const replayId = this.buildReplayId(outputPath);
 
         // Convert to ballchasing format
         const ballchasingResponse: BallchasingResponse = {
@@ -49,9 +48,11 @@ export class CarballConverterService {
             visibility: "private",
 
             // Rocket League metadata
-            rocket_league_id: metadata.id ?? replayId,
+            rocket_league_id: this.getOptionalString(metadata.id) ?? replayId,
             season: 0, // Unknown from carball
-            match_guid: (metadata as any).match_guid ?? metadata.id ?? replayId,
+            match_guid: this.getOptionalString((metadata as any).match_guid)
+                ?? this.getOptionalString(metadata.id)
+                ?? replayId,
 
             // Uploader - stub data
             recorder: undefined,
@@ -83,6 +84,17 @@ export class CarballConverterService {
         };
 
         return ballchasingResponse;
+    }
+
+    private buildReplayId(outputPath: string): string {
+        if (!outputPath) return createHash("sha256").update("missing-output-path").digest("hex");
+        return createHash("sha256").update(outputPath).digest("hex");
+    }
+
+    private getOptionalString(value: unknown): string | undefined {
+        if (typeof value !== "string") return undefined;
+        const trimmed = value.trim();
+        return trimmed.length > 0 ? trimmed : undefined;
     }
 
     private convertTeam(
