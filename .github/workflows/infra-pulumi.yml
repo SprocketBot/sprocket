@@ -2,8 +2,13 @@ name: Infra Pulumi
 
 on:
   pull_request:
+    # Exclude infra/foundation: it uses DigitalOcean only and runs in infra-foundation-preview.yml
+    # (no DOCKER_HOST / SSH — see issue #665).
     paths:
-      - 'infra/**'
+      - 'infra/global/**'
+      - 'infra/layer_1/**'
+      - 'infra/layer_2/**'
+      - 'infra/platform/**'
       - 'scripts/infra/**'
       - '.github/reusable_workflows/pulumi_up/**'
       - '.github/workflows/infra-pulumi.yml'
