@@ -42,7 +42,7 @@ inputs:
   install-command:
     description: 'Command used to install infra dependencies'
     required: false
-    default: 'npm run infra:install'
+    default: 'pulumi install'
 
 runs:
   using: composite
