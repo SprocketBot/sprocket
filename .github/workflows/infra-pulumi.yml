@@ -1,19 +1,11 @@
 name: Infra Pulumi
 
+# Path filtering is done in the `filter` job (dorny/paths-filter), not under `pull_request.paths`.
+# Workflow-level path filters apply to the whole workflow file and have caused manual runs
+# (workflow_dispatch) to no-op when the user expected deploy to run.
+
 on:
   pull_request:
-    # Exclude infra/foundation: it uses DigitalOcean only and runs in infra-foundation-preview.yml
-    # (no DOCKER_HOST / SSH — see issue #665).
-    paths:
-      - 'infra/global/**'
-      - 'infra/layer_1/**'
-      - 'infra/layer_2/**'
-      - 'infra/platform/**'
-      - 'scripts/infra/**'
-      - '.github/reusable_workflows/pulumi_up/**'
-      - '.github/workflows/infra-pulumi.yml'
-      - 'package.json'
-      - '.nvmrc'
   workflow_dispatch:
     inputs:
       stack_project:
@@ -43,8 +35,42 @@ permissions:
   pull-requests: write
 
 jobs:
+  filter:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    outputs:
+      infra: ${{ steps.paths.outputs.infra }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Detect infra-related changes
+        uses: dorny/paths-filter@v4
+        id: paths
+        with:
+          base: ${{ github.event.pull_request.base.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          filters: |
+            infra:
+              - 'infra/global/**'
+              - 'infra/layer_1/**'
+              - 'infra/layer_2/**'
+              - 'infra/platform/**'
+              - 'scripts/infra/**'
+              - '.github/reusable_workflows/pulumi_up/**'
+              - '.github/workflows/infra-pulumi.yml'
+              - 'package.json'
+              - '.nvmrc'
+
   preview:
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    needs: filter
+    if: >-
+      always() &&
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      needs.filter.outputs.infra == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
