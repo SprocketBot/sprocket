@@ -38,7 +38,6 @@ COMMAND="$3"
 shift 3
 
 require_command pulumi
-require_command npm
 
 ensure_backend_login
 ensure_remote_docker_host

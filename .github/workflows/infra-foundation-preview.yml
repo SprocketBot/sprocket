@@ -109,7 +109,7 @@ jobs:
       - name: Install foundation dependencies
         shell: bash
         working-directory: infra/foundation
-        run: npm ci
+        run: pulumi install
 
       - name: Pulumi preview
         shell: bash
