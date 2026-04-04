@@ -35,9 +35,14 @@ inputs:
     required: false
 
   node-version:
-    description: 'Node.js version used for infra commands'
+    description: 'Node.js major used for infra commands (align with infra/README.md Tool versions)'
     required: false
-    default: '16'
+    default: '20'
+
+  pulumi-version:
+    description: 'Pulumi CLI version (semver without v prefix; align with infra/README.md Tool versions)'
+    required: false
+    default: '3.229.0'
 
   install-command:
     description: 'Command used to install infra dependencies'
@@ -56,7 +61,7 @@ runs:
     - name: Install Pulumi CLI
       shell: bash
       run: |
-        curl -fsSL https://get.pulumi.com | sh
+        curl -fsSL https://get.pulumi.com | sh -s -- --version "${{ inputs.pulumi-version }}"
         echo "${HOME}/.pulumi/bin" >> "${GITHUB_PATH}"
 
     - name: Connect Tailscale
