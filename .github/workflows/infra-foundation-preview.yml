@@ -12,14 +12,15 @@
 # Node: uses 20.x here because @pulumi/pulumi in this package requires Node >=20 (root .nvmrc is 16 for other jobs).
 #
 # This job does NOT use DOCKER_HOST, SSH to Swarm, or Tailscale — foundation talks only to the DigitalOcean API.
+#
+# Path filtering is done in the `filter` job, not under `pull_request.paths`, so workflow_dispatch runs are not tied
+# to whether the current branch touched infra/foundation.
 
 name: Infra foundation preview
 
 on:
   pull_request:
-    paths:
-      - 'infra/foundation/**'
-      - '.github/workflows/infra-foundation-preview.yml'
+  workflow_dispatch:
 
 concurrency:
   group: foundation-preview-${{ github.ref }}
@@ -29,8 +30,40 @@ permissions:
   contents: read
 
 jobs:
+  filter:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    outputs:
+      foundation: ${{ steps.paths.outputs.foundation }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Detect foundation-related changes
+        uses: dorny/paths-filter@v4
+        id: paths
+        with:
+          base: ${{ github.event.pull_request.base.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          filters: |
+            foundation:
+              - 'infra/foundation/**'
+              - '.github/workflows/infra-foundation-preview.yml'
+
   preview:
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    needs: filter
+    if: >-
+      always() &&
+      (
+        github.event_name == 'workflow_dispatch' ||
+        (
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          needs.filter.outputs.foundation == 'true'
+        )
+      )
     runs-on: ubuntu-latest
     env:
       DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
