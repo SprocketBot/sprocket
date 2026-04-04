@@ -16,6 +16,7 @@
 name: Infra foundation preview
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - 'infra/foundation/**'

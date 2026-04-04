@@ -1,6 +1,7 @@
 name: Infra Pulumi
 
 on:
+  workflow_dispatch:
   pull_request:
     # Exclude infra/foundation: it uses DigitalOcean only and runs in infra-foundation-preview.yml
     # (no DOCKER_HOST / SSH — see issue #665).
