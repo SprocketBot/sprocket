@@ -1,5 +1,8 @@
 {
   "name": "foundation",
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
     "@pulumi/digitalocean": "^4.61.0",
     "@pulumi/pulumi": "^3.0.0"

@@ -9,7 +9,7 @@
 # Repository variable (Settings → Secrets and variables → Actions → Variables), optional:
 #   PULUMI_FOUNDATION_STACK — Pulumi stack name for dev/pre-prod foundation (defaults to dev-staging if unset).
 #
-# Node: uses 20.x here because @pulumi/pulumi in this package requires Node >=20 (root .nvmrc is 16 for other jobs).
+# Node: 20.x is the repo-standard infra toolchain (see infra/README.md "Tool versions"; root .nvmrc stays 16 for legacy app builds).
 #
 # This job does NOT use DOCKER_HOST, SSH to Swarm, or Tailscale — foundation talks only to the DigitalOcean API.
 
@@ -46,7 +46,6 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          # @pulumi/pulumi in infra/foundation declares engines.node >=20; root .nvmrc is still 16 for legacy app builds.
           node-version: '20'
           cache: npm
           cache-dependency-path: infra/foundation/package-lock.json
@@ -54,7 +53,8 @@ jobs:
       - name: Install Pulumi CLI
         shell: bash
         run: |
-          curl -fsSL https://get.pulumi.com | sh
+          # Keep version aligned with .github/reusable_workflows/pulumi_up/action.yaml and infra/README.md
+          curl -fsSL https://get.pulumi.com | sh -s -- --version 3.229.0
           echo "${HOME}/.pulumi/bin" >> "${GITHUB_PATH}"
 
       - name: Log in to Pulumi backend

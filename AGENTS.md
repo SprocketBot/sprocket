@@ -36,6 +36,8 @@ If you are making changes, optimize for both goals when possible.
 
 Infra has been migrated into this monorepo from the former standalone `sprocket-infra` repo. Prefer paths under `infra/` over older docs that still reference the external location.
 
+Pinned **Node** and **Pulumi CLI** versions for infra (local + CI) live in [`infra/README.md`](infra/README.md) under **Tool versions**.
+
 ---
 
 ## Canonical Starting Points
