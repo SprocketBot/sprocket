@@ -37,12 +37,7 @@ inputs:
   node-version:
     description: 'Node.js version used for infra commands'
     required: false
-    default: '16'
-
-  install-command:
-    description: 'Command used to install infra dependencies'
-    required: false
-    default: 'pulumi install'
+    default: '20'
 
 runs:
   using: composite
@@ -52,6 +47,10 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
         cache: npm
+        cache-dependency-path: |
+          infra/layer_1/package-lock.json
+          infra/layer_2/package-lock.json
+          infra/platform/package-lock.json
 
     - name: Install Pulumi CLI
       shell: bash
@@ -95,7 +94,7 @@ runs:
 
     - name: Install infra dependencies
       shell: bash
-      run: ${{ inputs.install-command }}
+      run: bash ./scripts/infra/pulumi-install-all.sh
 
     - name: Run Pulumi
       shell: bash
@@ -107,7 +106,7 @@ runs:
           extra_args+=(--yes)
         fi
 
-        npm run ci:infra:run -- "${{ inputs.stack-project }}" "${{ inputs.stack-name }}" "${{ inputs.command }}" "${extra_args[@]}"
+        bash ./scripts/infra/run-pulumi.sh "${{ inputs.stack-project }}" "${{ inputs.stack-name }}" "${{ inputs.command }}" "${extra_args[@]}"
 
     - name: Clean up remote Docker SSH key
       if: always()
