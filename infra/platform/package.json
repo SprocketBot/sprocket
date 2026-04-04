@@ -1,5 +1,8 @@
 {
     "name": "platform",
+    "engines": {
+        "node": ">=20"
+    },
     "devDependencies": {
         "@types/node": "^14"
     },
