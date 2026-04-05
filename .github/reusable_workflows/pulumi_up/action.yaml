@@ -39,6 +39,11 @@ inputs:
     required: false
     default: '20'
 
+  pulumi-version:
+    description: 'Pulumi CLI version (pin to infra/README.md Tool versions)'
+    required: false
+    default: '3.229.0'
+
 runs:
   using: composite
   steps:

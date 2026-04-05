@@ -3,6 +3,22 @@ name: Infra Pulumi
 # Path filtering is done in the `filter` job (dorny/paths-filter), not under `pull_request.paths`.
 # Workflow-level path filters apply to the whole workflow file and have caused manual runs
 # (workflow_dispatch) to no-op when the user expected deploy to run.
+#
+# Pull-request previews use a dynamic matrix (see `filter` job output `preview_matrix`).
+# Path rules (issue #669):
+# - `infra/global/**` or shared bootstrap paths → preview all Swarm projects (layer_1, layer_2, platform).
+# - `infra/layer_1/**` only (no global/shared) → preview layer_1 + platform (platform consumes lower-layer exports).
+# - `infra/layer_2/**` only → preview layer_2 + platform.
+# - `infra/platform/**` only → preview platform only.
+# - Mixing layer_1 + layer_2 changes previews both layers plus platform.
+#
+# Secrets required for preview (same as deploy): PULUMI_CONFIG_PASSPHRASE, AWS_ACCESS_KEY_ID,
+# AWS_SECRET_ACCESS_KEY, PULUMI_MANAGER_NODE_HOST, PULUMI_SSH_USER, PULUMI_SSH_KEY,
+# TAILSCALE_AUTHKEY (optional in composite), PULUMI_BACKEND_URL.
+#
+# Stack names: PR previews still target the prod stack names until dev/staging stacks exist.
+# TODO(#669): When dev/staging Pulumi stacks exist, add a matrix axis or workflow_dispatch input
+# so PRs can preview non-prod without defaulting to prod.
 
 on:
   pull_request:
@@ -40,6 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       infra: ${{ steps.paths.outputs.infra }}
+      preview_matrix: ${{ steps.preview_matrix.outputs.json }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v6
@@ -63,6 +80,76 @@ jobs:
               - '.github/workflows/infra-pulumi.yml'
               - 'package.json'
               - '.nvmrc'
+            global:
+              - 'infra/global/**'
+            layer_1:
+              - 'infra/layer_1/**'
+            layer_2:
+              - 'infra/layer_2/**'
+            platform:
+              - 'infra/platform/**'
+            shared:
+              - 'scripts/infra/**'
+              - '.github/reusable_workflows/pulumi_up/**'
+              - '.github/workflows/infra-pulumi.yml'
+              - 'package.json'
+              - '.nvmrc'
+
+      - name: Compute preview matrix from path rules
+        id: preview_matrix
+        env:
+          GLOBAL: ${{ steps.paths.outputs.global }}
+          SHARED: ${{ steps.paths.outputs.shared }}
+          LAYER_1: ${{ steps.paths.outputs.layer_1 }}
+          LAYER_2: ${{ steps.paths.outputs.layer_2 }}
+          PLATFORM: ${{ steps.paths.outputs.platform }}
+        run: |
+          python3 <<'PY'
+          import json
+          import os
+
+          def truth(name: str) -> bool:
+              return os.environ.get(name, "false") == "true"
+
+          global_ = truth("GLOBAL")
+          shared = truth("SHARED")
+          layer_1 = truth("LAYER_1")
+          layer_2 = truth("LAYER_2")
+          platform = truth("PLATFORM")
+
+          # Platform stack name for PR previews; align with workflow_dispatch / historical behavior.
+          platform_stack = "prod"
+
+          rows: list[dict[str, str]] = []
+          if global_ or shared:
+              rows = [
+                  {"stack_project": "layer_1", "stack_name": "layer_1"},
+                  {"stack_project": "layer_2", "stack_name": "layer_2"},
+                  {"stack_project": "platform", "stack_name": platform_stack},
+              ]
+          else:
+              if layer_1:
+                  rows.append({"stack_project": "layer_1", "stack_name": "layer_1"})
+              if layer_2:
+                  rows.append({"stack_project": "layer_2", "stack_name": "layer_2"})
+              if layer_1 or layer_2:
+                  rows.append({"stack_project": "platform", "stack_name": platform_stack})
+              elif platform:
+                  rows.append({"stack_project": "platform", "stack_name": platform_stack})
+
+          # Avoid an empty matrix (GitHub rejects it) if filters ever disagree with `infra`.
+          if not rows:
+              rows = [
+                  {"stack_project": "layer_1", "stack_name": "layer_1"},
+                  {"stack_project": "layer_2", "stack_name": "layer_2"},
+                  {"stack_project": "platform", "stack_name": platform_stack},
+              ]
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              fh.write("json<<EOF\n")
+              fh.write(json.dumps(rows))
+              fh.write("\nEOF\n")
+          PY
 
   preview:
     needs: filter
@@ -75,13 +162,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - stack_project: layer_1
-            stack_name: layer_1
-          - stack_project: layer_2
-            stack_name: layer_2
-          - stack_project: platform
-            stack_name: prod
+        include: ${{ fromJSON(needs.filter.outputs.preview_matrix) }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v6
