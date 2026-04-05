@@ -1,4 +1,6 @@
 config:
+  # GHCR org for discord-forward-auth (must match images published under ghcr.io/<namespace>/...)
+  layer_1:image-namespace: sprocketbot
   layer_1:docker-username: asaxplayinghorse
   layer_1:vault-s3-secret-key:
     secure: AAABAK291q/FzpUzT0jbzskiTB4kloS0aTfMPFLy4fvA10LEiz8QLOQe6PZZLFWKouADD5bmyK/JUvCKtQ3Ihly04X2kQ3KASDdd

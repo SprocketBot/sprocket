@@ -16,6 +16,10 @@ name: Infra Pulumi
 # AWS_SECRET_ACCESS_KEY, PULUMI_MANAGER_NODE_HOST, PULUMI_SSH_USER, PULUMI_SSH_KEY,
 # TAILSCALE_AUTHKEY (optional in composite), PULUMI_BACKEND_URL.
 #
+# GHCR is not a separate Actions secret: previews use Pulumi stack config on each project
+# (docker-username, docker-access-token, and image-namespace where GHCR images are resolved).
+# PULUMI_CONFIG_PASSPHRASE decrypts stack secrets in committed Pulumi.*.yaml files.
+#
 # Stack names: PR previews still target the prod stack names until dev/staging stacks exist.
 # TODO(#669): When dev/staging Pulumi stacks exist, add a matrix axis or workflow_dispatch input
 # so PRs can preview non-prod without defaulting to prod.
