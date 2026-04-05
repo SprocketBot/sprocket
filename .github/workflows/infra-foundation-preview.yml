@@ -16,7 +16,7 @@
 # Path filtering is done in the `filter` job, not under `pull_request.paths`, so workflow_dispatch runs are not tied
 # to whether the current branch touched infra/foundation.
 
-name: Infra foundation preview
+name: 'Infra foundation preview'
 
 on:
   workflow_dispatch:
