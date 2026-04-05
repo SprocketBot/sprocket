@@ -1,0 +1,26 @@
+# Template for the hosted **dev** platform stack (lane `main-dev`, GitHub #672).
+#
+# 1. Copy to stack config used by your backend, e.g. `pulumi stack init dev` then merge, or maintain `Pulumi.dev.yaml` locally.
+# 2. Fill **all** secret values from a trusted source (never commit real secrets). Compare `platform/Pulumi.prod.yaml` for key names.
+# 3. Set `platform:hostname` to the dev web apex so Traefik rules match harness URLs (e.g. dev.sprocket.mlesports.gg → api at api.dev.sprocket.mlesports.gg).
+# 4. Use an image tag policy aligned with #670 (e.g. `dev` or `sha-<git>` once CI publishes).
+#
+# Stack naming: use a dedicated Pulumi stack name (e.g. `dev`) on the pre-prod Swarm manager so Swarm service names and deploy prefix stay unique vs prod/staging.
+
+config:
+  platform:subdomain: dev
+  platform:hostname: dev.sprocket.mlesports.gg
+  platform:image-namespace: sprocketbot
+  platform:legacy-image-namespace: asaxplayinghorse
+  platform:image-tag: dev
+
+  # Required by platform code — replace with Pulumi secrets or stack-specific values:
+  # platform:docker-username: <ghcr-or-registry-user>
+  # platform:docker-access-token:
+  #   secure: <pulumi-secret>
+  # platform:postgres-username: <user>
+  # platform:postgres-password:
+  #   secure: <pulumi-secret>
+  # platform:discord-bot-token:
+  #   secure: <pulumi-secret>
+  # ... (see Pulumi.prod.yaml and PlatformSecrets / LegacyPlatform for full set)
