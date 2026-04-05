@@ -1,7 +1,7 @@
 config:
-  platform:docker-username: asaxplayinghorse
+  platform:docker-username: gankoji
   platform:docker-access-token:
-    secure: AAABAMOdsN2rA9tzU+BrK4iGPbzcO+kHZQ/7B7WkD7K4Eb+YoCtUiFomsfyvs1nT5cDwXHUPaGyaC0PkSh13MftRN2Y=
+    secure: AAABAILMbg4fOJnbcR7Lxb0g1uAyhXGcO/EcmMXf5ikLKt4MokqAplXSziE2FEAiu8LOuYRi8t+TwvAYNsuscxRDtkzFrBID
   platform:legacy-image-namespace: asaxplayinghorse
   platform:image-namespace: sprocketbot
   platform:postgres-username: doadmin
