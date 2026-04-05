@@ -102,6 +102,16 @@ npm run infra:up -- platform prod --yes
 
 `infra:up` runs a preview first unless `PULUMI_SKIP_PREVIEW=1` is set.
 
+## Lane ↔ Pulumi stack map (hosted)
+
+| Lane (harness) | Environment contract | Platform stack (typical) | Notes |
+|----------------|----------------------|---------------------------|--------|
+| `main-prod` | `environments/main-prod.json` | `platform` / `prod` | Production Swarm + DO managed DB. |
+| `main-dev` | `environments/main-dev.json` | `platform` / `dev` | Pre-prod Swarm; **isolated** subdomain, DB target, Redis prefix, RabbitMQ vhost, and Swarm labels vs prod/staging. Template: `platform/Pulumi.dev.template.yaml`. Cross-ref: GitHub #672. |
+| `v15-beta` | `environments/v15-beta.json` | `platform` / stack per operator | Template: `platform/Pulumi.v15-beta.template.yaml`. |
+
+`layer_1` and `layer_2` stack names are usually `layer_1` and `layer_2` on the same manager unless a separate substrate is provisioned; confirm with `pulumi stack ls` per project before apply.
+
 ## GitHub Actions
 
 The reusable GitHub Actions entrypoint for the same contract lives at:
