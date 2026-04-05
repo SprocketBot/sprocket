@@ -1,0 +1,48 @@
+# Machine-readable map: logical environment → Pulumi projects, stack names, deploy order.
+# Consumed by future CI/CD workflows (see infra/ci/README.md). No secrets.
+# Source of truth for prod Swarm preview matrix today: .github/workflows/infra-pulumi.yml
+# Issue: https://github.com/SprocketBot/sprocket/issues/667
+
+version: 1
+
+environments:
+  dev:
+    description: "Shared pre-prod Swarm — dev isolation (planned; not in CI matrix yet)"
+    deploy_order:
+      # TODO(667): Confirm with ops — stacks may not exist yet; do not automate against these until verified.
+      - project: layer_1
+        stack: dev
+      - project: layer_2
+        stack: dev
+      - project: platform
+        stack: dev
+
+  staging:
+    description: "Same droplet as dev in current plan; different stack isolation (planned)"
+    deploy_order:
+      # TODO(667): Confirm with ops. Note: infra/platform/old_pulumi/ had historical dev/staging/main stacks;
+      # active Swarm platform stack in CI today is prod (see prod environment below).
+      - project: layer_1
+        stack: staging
+      - project: layer_2
+        stack: staging
+      - project: platform
+        stack: staging
+
+  prod:
+    description: "Production Swarm — matches infra-pulumi.yml PR preview matrix"
+    deploy_order:
+      # layer_* stack names match project folder names; platform uses stack prod.
+      - { project: layer_1, stack: layer_1 }
+      - { project: layer_2, stack: layer_2 }
+      - { project: platform, stack: prod }
+
+foundation:
+  note: "Provisioned separately (droplet/bootstrap); not part of Swarm deploy_order above"
+  stacks:
+    dev_staging_node:
+      project: foundation
+      stack: dev-staging
+    prod_node:
+      project: foundation
+      stack: prod
