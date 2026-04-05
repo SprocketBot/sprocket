@@ -10,6 +10,7 @@ config:
     secure: AAABAIBXpXCshdiCGlUA76pbhCph5KYMf1D7wwdr2mQa8Mv6cq2NkgUdm6gl8APZWOusPLMWG0YDpiNu5sSTCQ==
   layer_1:vault-s3-access-key: DO801Q8P44QRYP9HEQVL
   layer_1:hostname: sprocket.mlesports.gg
+  layer_1:image-namespace: sprocketbot
   layer_1:postgres-host: sprocketbot-postgres-d5033d2-do-user-24528890-0.j.db.ondigitalocean.com
   layer_1:postgres-port: "25060"
   layer_1:postgres-username: sprocketbot
