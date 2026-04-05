@@ -1,3 +1,8 @@
+# Container images are pushed with a branch tag (e.g. main, pr-123) plus an immutable
+# ghcr.io/.../name:sha-<git-sha> tag. Deployments should pin sha-* (or digest), not only
+# moving branch tags — see infra/README.md. Wiring Pulumi to consume sha-* is tracked
+# separately (e.g. #672 / #673).
+
 name: 'Autobuild Docker Containers'
 
 on:
@@ -55,9 +60,12 @@ jobs:
           REGISTRY="ghcr.io/sprocketbot/monorepo-core"
           BRANCH="${{ steps.extract_branch.outputs.branch }}"
           TAGS="${REGISTRY}:${BRANCH}"
-          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            TAGS="${TAGS}"$'\n'"${REGISTRY}:sha-${{ github.sha }}"
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+            IMMUTABLE_SHA="${{ github.event.pull_request.head.sha }}"
+          else
+            IMMUTABLE_SHA="${{ github.sha }}"
           fi
+          TAGS="${TAGS}"$'\n'"${REGISTRY}:sha-${IMMUTABLE_SHA}"
           {
             echo 'tags<<EOF'
             echo "${TAGS}"
@@ -167,7 +175,8 @@ jobs:
           docker_tag: ${{steps.extract_branch.outputs.branch}}
           discord_webhook: ${{ secrets.discord_webhook }}
           push_image: ${{ github.event_name != 'pull_request' }}
-          immutable_sha: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.sha || '' }}
+          # Empty on pull_request (images are not pushed); push + workflow_dispatch use commit SHA.
+          immutable_sha: ${{ github.event_name != 'pull_request' && github.sha || '' }}
 
       # Per-service BOM fragment (main pushes only, same conditions as build). merge-bom assembles the full manifest.
       - name: Write BOM fragment (service)

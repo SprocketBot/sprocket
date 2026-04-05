@@ -104,6 +104,10 @@ npm run infra:up -- platform prod --yes
 
 ## GitHub Actions
 
+### Container image tags (CI)
+
+Autobuild (`.github/workflows/on-changes.yml`) pushes each image with a **branch-style** tag (`main`, `staging`, `dev`, or `pr-<n>`) and an **immutable** tag `sha-<full-git-sha>` (PR builds that push use the pull-request **head** SHA, not the merge ref). Prefer pinning deploys to `sha-*` or digest; moving tags are convenience aliases only. Adopting those refs in Pulumi stack config is tracked separately (e.g. issues #672 / #673).
+
 The reusable GitHub Actions entrypoint for the same contract lives at:
 
 - `.github/reusable_workflows/pulumi_up/action.yaml`
