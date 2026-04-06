@@ -153,6 +153,21 @@ This directory contains comprehensive documentation summarizing the Sprocket inf
 
 ---
 
+### 6. ROLLBACK_PRODUCTION.md
+**Purpose**: Operator runbook for production **application** rollback using **immutable** image tags and Pulumi (`infra/platform` `prod` stack)
+
+**Contains**:
+- When to roll back vs fix forward; **DNS/Traefik (`layer_1`) vs images (`platform`)**
+- Pre-rollback checks (especially DB migration risk)
+- Finding last good SHA/tag (Actions, GHCR, BOM [#671](https://github.com/SprocketBot/sprocket/issues/671), `pulumi stack export`)
+- `pulumi config set image-tag …` and Git-based alternatives
+- **GitHub Actions** `workflow_dispatch` path vs **break-glass** laptop `infra:preview` / `infra:up`
+- Post-incident steps and tabletop exercise guidance
+
+**Use this for**: On-call rollback during a bad deploy; linked from the root [`README.md`](../../README.md), [`infra/README.md`](../README.md), and [`OPERATIONS_RUNBOOK.md`](./OPERATIONS_RUNBOOK.md) TOC
+
+---
+
 ## 🎯 How to Use This Documentation Package
 
 ### For Writing Full Documentation

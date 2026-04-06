@@ -1,14 +1,27 @@
 name: Infra Pulumi
 
+# Path filtering is done in the `filter` job (dorny/paths-filter), not under `pull_request.paths`.
+# Workflow-level path filters apply to the whole workflow file and have caused manual runs
+# (workflow_dispatch) to no-op when the user expected deploy to run.
+#
+# Pull-request previews use a dynamic matrix (see `filter` job output `preview_matrix`).
+# Path rules (issue #669):
+# - `infra/global/**` or shared bootstrap paths → preview all Swarm projects (layer_1, layer_2, platform).
+# - `infra/layer_1/**` only (no global/shared) → preview layer_1 + platform (platform consumes lower-layer exports).
+# - `infra/layer_2/**` only → preview layer_2 + platform.
+# - `infra/platform/**` only → preview platform only.
+# - Mixing layer_1 + layer_2 changes previews both layers plus platform.
+#
+# Secrets required for preview (same as deploy): PULUMI_CONFIG_PASSPHRASE, AWS_ACCESS_KEY_ID,
+# AWS_SECRET_ACCESS_KEY, PULUMI_MANAGER_NODE_HOST, PULUMI_SSH_USER, PULUMI_SSH_KEY,
+# TAILSCALE_AUTHKEY (optional in composite), PULUMI_BACKEND_URL.
+#
+# Stack names: PR previews still target the prod stack names until dev/staging stacks exist.
+# TODO(#669): When dev/staging Pulumi stacks exist, add a matrix axis or workflow_dispatch input
+# so PRs can preview non-prod without defaulting to prod.
+
 on:
   pull_request:
-    paths:
-      - 'infra/**'
-      - 'scripts/infra/**'
-      - '.github/reusable_workflows/pulumi_up/**'
-      - '.github/workflows/infra-pulumi.yml'
-      - 'package.json'
-      - '.nvmrc'
   workflow_dispatch:
     inputs:
       stack_project:
@@ -37,20 +50,123 @@ permissions:
   contents: read
   pull-requests: write
 
+# Before production `pulumi up` on the platform/prod stack, Tier 1 harness runs against
+# hosted staging (lane `main-staging`). Configure GitHub environment `staging` with secret
+# `HARNESS_MAIN_STAGING_TIER1_ENV` (full multiline .env). See scripts/harness/README.md.
+
 jobs:
+  filter:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    outputs:
+      infra: ${{ steps.paths.outputs.infra }}
+      preview_matrix: ${{ steps.preview_matrix.outputs.json }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Detect infra-related changes
+        uses: dorny/paths-filter@v4
+        id: paths
+        with:
+          base: ${{ github.event.pull_request.base.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          filters: |
+            infra:
+              - 'infra/global/**'
+              - 'infra/layer_1/**'
+              - 'infra/layer_2/**'
+              - 'infra/platform/**'
+              - 'scripts/infra/**'
+              - '.github/reusable_workflows/pulumi_up/**'
+              - '.github/workflows/infra-pulumi.yml'
+              - 'package.json'
+              - '.nvmrc'
+            global:
+              - 'infra/global/**'
+            layer_1:
+              - 'infra/layer_1/**'
+            layer_2:
+              - 'infra/layer_2/**'
+            platform:
+              - 'infra/platform/**'
+            shared:
+              - 'scripts/infra/**'
+              - '.github/reusable_workflows/pulumi_up/**'
+              - '.github/workflows/infra-pulumi.yml'
+              - 'package.json'
+              - '.nvmrc'
+
+      - name: Compute preview matrix from path rules
+        id: preview_matrix
+        env:
+          GLOBAL: ${{ steps.paths.outputs.global }}
+          SHARED: ${{ steps.paths.outputs.shared }}
+          LAYER_1: ${{ steps.paths.outputs.layer_1 }}
+          LAYER_2: ${{ steps.paths.outputs.layer_2 }}
+          PLATFORM: ${{ steps.paths.outputs.platform }}
+        run: |
+          python3 <<'PY'
+          import json
+          import os
+
+          def truth(name: str) -> bool:
+              return os.environ.get(name, "false") == "true"
+
+          global_ = truth("GLOBAL")
+          shared = truth("SHARED")
+          layer_1 = truth("LAYER_1")
+          layer_2 = truth("LAYER_2")
+          platform = truth("PLATFORM")
+
+          # Platform stack name for PR previews; align with workflow_dispatch / historical behavior.
+          platform_stack = "prod"
+
+          rows: list[dict[str, str]] = []
+          if global_ or shared:
+              rows = [
+                  {"stack_project": "layer_1", "stack_name": "layer_1"},
+                  {"stack_project": "layer_2", "stack_name": "layer_2"},
+                  {"stack_project": "platform", "stack_name": platform_stack},
+              ]
+          else:
+              if layer_1:
+                  rows.append({"stack_project": "layer_1", "stack_name": "layer_1"})
+              if layer_2:
+                  rows.append({"stack_project": "layer_2", "stack_name": "layer_2"})
+              if layer_1 or layer_2:
+                  rows.append({"stack_project": "platform", "stack_name": platform_stack})
+              elif platform:
+                  rows.append({"stack_project": "platform", "stack_name": platform_stack})
+
+          # Avoid an empty matrix (GitHub rejects it) if filters ever disagree with `infra`.
+          if not rows:
+              rows = [
+                  {"stack_project": "layer_1", "stack_name": "layer_1"},
+                  {"stack_project": "layer_2", "stack_name": "layer_2"},
+                  {"stack_project": "platform", "stack_name": platform_stack},
+              ]
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              fh.write("json<<EOF\n")
+              fh.write(json.dumps(rows))
+              fh.write("\nEOF\n")
+          PY
+
   preview:
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    needs: filter
+    if: >-
+      always() &&
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      needs.filter.outputs.infra == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - stack_project: layer_1
-            stack_name: layer_1
-          - stack_project: layer_2
-            stack_name: layer_2
-          - stack_project: platform
-            stack_name: prod
+        include: ${{ fromJSON(needs.filter.outputs.preview_matrix) }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v6
@@ -58,7 +174,7 @@ jobs:
       - name: Run Pulumi preview
         uses: ./.github/reusable_workflows/pulumi_up
         env:
-          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: nyc3
@@ -72,8 +188,58 @@ jobs:
           tailscale-authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
           pulumi-backend-url: ${{ secrets.PULUMI_BACKEND_URL }}
 
+  integration-staging:
+    if: |
+      github.event_name == 'workflow_dispatch' &&
+      github.event.inputs.command == 'up' &&
+      github.event.inputs.stack_project == 'platform' &&
+      github.event.inputs.stack_name == 'prod'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: staging
+    env:
+      HARNESS_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}-gha-main-staging-tier1
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Write Tier 1 profile from secret
+        env:
+          HARNESS_MAIN_STAGING_TIER1_ENV: ${{ secrets.HARNESS_MAIN_STAGING_TIER1_ENV }}
+        run: |
+          if [ -z "${HARNESS_MAIN_STAGING_TIER1_ENV}" ]; then
+            echo "::error::Secret HARNESS_MAIN_STAGING_TIER1_ENV is empty. Add the staging Tier 1 multiline env file to the GitHub Actions staging environment."
+            exit 1
+          fi
+          printf '%s\n' "${HARNESS_MAIN_STAGING_TIER1_ENV}" > "${RUNNER_TEMP}/tier1.env"
+
+      - name: Run Tier 1 harness (staging)
+        run: bash scripts/harness/verify-lane.sh tier1 main-staging "${RUNNER_TEMP}/tier1.env" all
+
+      - name: Upload harness artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: harness-main-staging-tier1-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/release-validation/
+          if-no-files-found: warn
+
   deploy:
-    if: github.event_name == 'workflow_dispatch'
+    needs:
+      - integration-staging
+    if: |
+      always() &&
+      github.event_name == 'workflow_dispatch' &&
+      (needs.integration-staging.result == 'success' || needs.integration-staging.result == 'skipped')
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.command == 'up' && 'production' || 'preview' }}
     steps:
@@ -83,6 +249,7 @@ jobs:
       - name: Run Pulumi command
         uses: ./.github/reusable_workflows/pulumi_up
         env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

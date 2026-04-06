@@ -1,5 +1,8 @@
 {
     "name": "layer_2",
+    "engines": {
+        "node": ">=20"
+    },
     "devDependencies": {
         "@types/node": "^14"
     },

@@ -1,3 +1,10 @@
+## Tool versions
+
+| Tool | Version | Notes |
+|------|---------|--------|
+| **Node.js** | **20.x** | Use for all Pulumi runs (`npm run infra:install`, GitHub Actions, local preview/up). Matches `@pulumi/pulumi` expectations. The repo root [`.nvmrc`](../.nvmrc) remains **16** for legacy application builds; switch with `nvm install 20 && nvm use 20` (or `fnm use 20`) before infra work. You may see an `npm` `EBADENGINE` warning from transitive packages (for example `minio`); it is benign for our usage. |
+| **Pulumi CLI** | **3.229.0** | Pin CI installs to this version; locally run `pulumi version` after [install](https://www.pulumi.com/docs/install/) and upgrade to match if needed. CI uses `curl -fsSL https://get.pulumi.com \| sh -s -- --version 3.229.0`. |
+
 ## Infrastructure Monorepo Layout
 
 This directory contains the Pulumi infrastructure code migrated from the former `sprocket-infra` repository.
@@ -79,7 +86,8 @@ export PULUMI_REMOTE_DOCKER_HOST=sprocket-prod
 From a clean shell session:
 
 ```bash
-nvm use
+nvm install 20
+nvm use 20
 npm run infra:install
 
 export PULUMI_BACKEND_URL='s3://[your bucket]/pulumi?endpoint=[your endpoint]'
@@ -94,7 +102,32 @@ npm run infra:up -- platform prod --yes
 
 `infra:up` runs a preview first unless `PULUMI_SKIP_PREVIEW=1` is set.
 
+## Hosted stack → Traefik hostnames
+
+Canonical mapping (Pulumi platform stack names, subdomains, and public hostnames) lives in `infra/stack-map.yaml`.
+
+| Pulumi `platform` stack | Config `platform:subdomain` | Example Traefik hosts |
+| --- | --- | --- |
+| `prod` | `main` | `sprocket.mlesports.gg`, `api.sprocket.mlesports.gg`, `rabbitMq.sprocket.mlesports.gg` |
+| `dev` | `dev` | `dev.sprocket.mlesports.gg`, `api.dev.sprocket.mlesports.gg`, … |
+| `staging` | `staging` | `staging.sprocket.mlesports.gg`, `api.staging.sprocket.mlesports.gg`, … |
+
+Hostnames are derived in `infra/platform` from `platform:hostname` and `platform:subdomain` (`global/helpers/buildHost.ts` and `Platform.ts`). Staging uses `Pulumi.staging.yaml` on the same Swarm as dev with a different stack name so Swarm services do not collide.
+## Lane ↔ Pulumi stack map (hosted)
+
+| Lane (harness) | Environment contract | Platform stack (typical) | Notes |
+|----------------|----------------------|---------------------------|--------|
+| `main-prod` | `environments/main-prod.json` | `platform` / `prod` | Production Swarm + DO managed DB. |
+| `main-dev` | `environments/main-dev.json` | `platform` / `dev` | Pre-prod Swarm; **isolated** subdomain, DB target, Redis prefix, RabbitMQ vhost, and Swarm labels vs prod/staging. Template: `platform/Pulumi.dev.template.yaml`. Cross-ref: GitHub #672. |
+| `v15-beta` | `environments/v15-beta.json` | `platform` / stack per operator | Template: `platform/Pulumi.v15-beta.template.yaml`. |
+
+`layer_1` and `layer_2` stack names are usually `layer_1` and `layer_2` on the same manager unless a separate substrate is provisioned; confirm with `pulumi stack ls` per project before apply.
+
 ## GitHub Actions
+
+### Container image tags (CI)
+
+Autobuild (`.github/workflows/on-changes.yml`) pushes each image with a **branch-style** tag (`main`, `staging`, `dev`, or `pr-<n>`) and an **immutable** tag `sha-<full-git-sha>` (PR builds that push use the pull-request **head** SHA, not the merge ref). Prefer pinning deploys to `sha-*` or digest; moving tags are convenience aliases only. Adopting those refs in Pulumi stack config is tracked separately (e.g. issues #672 / #673).
 
 The reusable GitHub Actions entrypoint for the same contract lives at:
 
@@ -108,3 +141,5 @@ Use it with:
 - `manager-node-host`: the Tailscale-reachable SSH host for Docker
 
 Production applies should be routed through a protected GitHub Environment.
+
+Prod rollback (pin immutable image tags, Actions or break-glass laptop): [`docs-output/ROLLBACK_PRODUCTION.md`](./docs-output/ROLLBACK_PRODUCTION.md).
