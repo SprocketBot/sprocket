@@ -1,26 +1,68 @@
 # Template for the hosted **dev** platform stack (lane `main-dev`, GitHub #672).
 #
-# 1. Copy to stack config used by your backend, e.g. `pulumi stack init dev` then merge, or maintain `Pulumi.dev.yaml` locally.
-# 2. Fill **all** secret values from a trusted source (never commit real secrets). Compare `platform/Pulumi.prod.yaml` for key names.
-# 3. Set `platform:hostname` to the dev web apex so Traefik rules match harness URLs (e.g. dev.sprocket.mlesports.gg → api at api.dev.sprocket.mlesports.gg).
-# 4. Use an image tag policy aligned with #670 (e.g. `dev` or `sha-<git>` once CI publishes).
+# Usage:
+# 1. `cd infra/platform && pulumi stack init dev` (or your chosen stack name; README maps lane `main-dev` → stack `dev`).
+# 2. Merge this file into `Pulumi.dev.yaml` or copy values with `pulumi config set`.
+# 3. Set every **secret** via `pulumi config set --secret <key> <value>` — never commit real secrets.
+# 4. Point `platform:hostname` at the dev web apex so Traefik rules match harness URLs
+#    (e.g. dev.sprocket.mlesports.gg → API at api.dev.sprocket.mlesports.gg per `buildHost`).
+# 5. Image tags: prefer immutable `sha-<full-git-sha>` once CI publishes them (#670); `dev` is a moving alias only.
 #
-# Stack naming: use a dedicated Pulumi stack name (e.g. `dev`) on the pre-prod Swarm manager so Swarm service names and deploy prefix stay unique vs prod/staging.
+# Isolation: dedicated Pulumi stack on the pre-prod Swarm, unique subdomain, DB, Redis prefix, RabbitMQ vhost,
+# and Swarm service names vs prod/staging (see `reports/release-environment-contracts.md`).
 
 config:
+  # --- Non-secret stack identity (adjust to match your dev substrate) ---
   platform:subdomain: dev
   platform:hostname: dev.sprocket.mlesports.gg
   platform:image-namespace: sprocketbot
   platform:legacy-image-namespace: asaxplayinghorse
   platform:image-tag: dev
 
-  # Required by platform code — replace with Pulumi secrets or stack-specific values:
+  # Postgres endpoint for the **dev** database cluster (not prod).
+  # platform:postgres-username: <dev-db-user>
+  # platform:postgres-port: '25060'
+  # platform:postgres-host: <dev-db-hostname>
+
+  # Optional Traefik / placement hints on the dev manager (same pattern as prod).
+  # platform:server-ip: <swarm-manager-private-ip>
+  # platform:tailscale-ip: <manager-tailscale-ip>
+
+  # --- Registry (required for image pull; use secrets for the token) ---
   # platform:docker-username: <ghcr-or-registry-user>
   # platform:docker-access-token:
   #   secure: <pulumi-secret>
-  # platform:postgres-username: <user>
+
+  # --- Application secrets (mirror `Pulumi.prod.yaml` key names; all via Pulumi secrets) ---
   # platform:postgres-password:
   #   secure: <pulumi-secret>
   # platform:discord-bot-token:
   #   secure: <pulumi-secret>
-  # ... (see Pulumi.prod.yaml and PlatformSecrets / LegacyPlatform for full set)
+  # platform:legacy-bot-token:
+  #   secure: <pulumi-secret>
+  # platform:legacy-bot-token-emilio:
+  #   secure: <pulumi-secret>
+  # platform:legacy-bot-token-emilia:
+  #   secure: <pulumi-secret>
+  # platform:postgres-password-legacy:
+  #   secure: <pulumi-secret>
+  # platform:platform/discord-bot-token:
+  #   secure: <pulumi-secret>
+  # platform:google-client-id:
+  #   secure: <pulumi-secret>
+  # platform:google-client-secret:
+  #   secure: <pulumi-secret>
+  # platform:discord-client-id:
+  #   secure: <pulumi-secret>
+  # platform:discord-client-secret:
+  #   secure: <pulumi-secret>
+  # platform:epic-client-id:
+  #   secure: <pulumi-secret>
+  # platform:epic-client-secret:
+  #   secure: <pulumi-secret>
+  # platform:steam-api-key:
+  #   secure: <pulumi-secret>
+  # platform:chatwoot-hmac-key:
+  #   secure: <pulumi-secret>
+  # platform:ballchasing-token:
+  #   secure: <pulumi-secret>
