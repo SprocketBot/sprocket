@@ -1,11 +1,21 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {InjectRepository} from "@nestjs/typeorm";
-import {In, Repository} from "typeorm";
+import {InjectDataSource, InjectRepository} from "@nestjs/typeorm";
+import {
+    DataSource, In, Repository,
+} from "typeorm";
+
+import {FranchiseProfile} from "$db/franchise/franchise_profile/franchise_profile.model";
+import {RosterRole} from "$db/franchise/roster_role/roster_role.model";
+import {RosterRoleUsage} from "$db/franchise/roster_role_usages/roster_role_usages.model";
+import {RosterSlot} from "$db/franchise/roster_slot/roster_slot.model";
+import {Team} from "$db/franchise/team/team.model";
+import {Match} from "$db/scheduling/match/match.model";
 
 import {League} from "../../database/mledb";
 import {MLE_Series} from "../../database/mledb/Series.model";
 import {Role} from "../../database/mledb/enums/Role.enum";
 import {MLE_TeamRoleUsage} from "../../database/mledb/TeamRoleUsage.model";
+import {SeriesToMatchParent} from "../../database/mledb-bridge/series_to_match_parent.model";
 
 import type {NcpTeamRoleUsageRowInput} from "./ncp-team-role-usage.types";
 
@@ -29,6 +39,16 @@ const SLOT_LETTER_TO_ROLE: Record<string, Role> = {
     F: Role.PlayerF,
     G: Role.PlayerG,
     H: Role.PlayerH,
+};
+
+/** Skill group `ordinal` for each MLE league string (matches `MLERL_SkillGrouptoLeagueString` ordinals). */
+const LEAGUE_TO_SKILL_GROUP_ORDINAL: Record<League, number> = {
+    [League.PREMIER]: 1,
+    [League.MASTER]: 2,
+    [League.CHAMPION]: 3,
+    [League.ACADEMY]: 4,
+    [League.FOUNDATION]: 5,
+    [League.UNKNOWN]: -1,
 };
 
 export function normalizeLeagueAbbrev(abbrev: string): League {
@@ -73,11 +93,28 @@ export class MledbNcpTeamRoleUsageService {
         private readonly teamRoleUsageRepo: Repository<MLE_TeamRoleUsage>,
         @InjectRepository(MLE_Series)
         private readonly seriesRepo: Repository<MLE_Series>,
+        @InjectRepository(SeriesToMatchParent)
+        private readonly seriesToMatchParentRepo: Repository<SeriesToMatchParent>,
+        @InjectRepository(Match)
+        private readonly matchRepo: Repository<Match>,
+        @InjectRepository(FranchiseProfile)
+        private readonly franchiseProfileRepo: Repository<FranchiseProfile>,
+        @InjectRepository(Team)
+        private readonly teamRepo: Repository<Team>,
+        @InjectRepository(RosterRole)
+        private readonly rosterRoleRepo: Repository<RosterRole>,
+        @InjectRepository(RosterSlot)
+        private readonly rosterSlotRepo: Repository<RosterSlot>,
+        @InjectRepository(RosterRoleUsage)
+        private readonly rosterRoleUsageRepo: Repository<RosterRoleUsage>,
+        @InjectDataSource()
+        private readonly dataSource: DataSource,
     ) {}
 
     /**
-     * Inserts `mledb.team_role_usage` rows from NCP-style inputs.
-     * Each slot becomes {@link NCP_TEAM_ROLE_USAGE_ROW_REPEAT} identical rows.
+     * Inserts `mledb.team_role_usage` rows from NCP-style inputs (each slot repeated
+     * {@link NCP_TEAM_ROLE_USAGE_ROW_REPEAT} times), and one `sprocket.roster_role_usage`
+     * row per slot when franchise, team, roster role, and roster slot assignment resolve.
      */
     async importRows(rows: NcpTeamRoleUsageRowInput[], actor: string): Promise<number> {
         if (rows.length === 0) return 0;
@@ -93,7 +130,34 @@ export class MledbNcpTeamRoleUsageService {
         }
         const seriesById = new Map(seriesList.map(s => [s.id, s]));
 
-        const toSave: MLE_TeamRoleUsage[] = [];
+        const bridgeRows = await this.seriesToMatchParentRepo.find({
+            where: {seriesId: In(seriesIds)},
+        });
+        const bridgeBySeriesId = new Map(bridgeRows.map(b => [b.seriesId, b]));
+        for (const id of seriesIds) {
+            if (!bridgeBySeriesId.has(id)) {
+                throw new BadRequestException(
+                    `No mledb_bridge.series_to_match_parent row for series id ${id}`,
+                );
+            }
+        }
+
+        const matchParentIds = [...new Set(bridgeRows.map(b => b.matchParentId))];
+        const matches = await this.matchRepo.find({
+            where: {matchParent: {id: In(matchParentIds)}},
+            relations: {skillGroup: true, matchParent: true},
+        });
+        const matchByParentId = new Map(matches.map(m => [m.matchParent.id, m]));
+        for (const mpId of matchParentIds) {
+            if (!matchByParentId.has(mpId)) {
+                throw new BadRequestException(
+                    `No sprocket.match for match_parent id ${mpId} (from series bridge)`,
+                );
+            }
+        }
+
+        const mledbToSave: MLE_TeamRoleUsage[] = [];
+        const sprocketToSave: RosterRoleUsage[] = [];
 
         for (const row of rows) {
             const series = seriesById.get(row.seriesId)!;
@@ -103,10 +167,37 @@ export class MledbNcpTeamRoleUsageService {
                 throw new BadRequestException(`Empty team name for series ${row.seriesId}`);
             }
 
+            const seriesLeague = series.league.trim().toUpperCase();
+            if (seriesLeague !== league) {
+                throw new BadRequestException(
+                    `Series ${row.seriesId} league is "${series.league}" but row has ${league} (${row.leagueAbbrev})`,
+                );
+            }
+
             const letters = normalizeSlotLetters(row.slotsUsed);
             if (letters.length === 0) {
                 throw new BadRequestException(
                     `No non-empty slots for series ${row.seriesId}, team "${teamName}"`,
+                );
+            }
+
+            const bridge = bridgeBySeriesId.get(row.seriesId)!;
+            const match = matchByParentId.get(bridge.matchParentId)!;
+            const skillOrdinal = LEAGUE_TO_SKILL_GROUP_ORDINAL[league];
+            if (skillOrdinal < 0) {
+                throw new BadRequestException(`League ${league} cannot be mapped to a skill group`);
+            }
+
+            const franchise = await this.resolveFranchiseByTeamName(teamName);
+            const team = await this.resolveTeamForFranchiseAndMatchLeague(
+                franchise.id,
+                skillOrdinal,
+                match.skillGroup.organizationId,
+            );
+            if (team.skillGroup.id !== match.skillGroupId) {
+                throw new BadRequestException(
+                    `Resolved team id ${team.id} skill group ${team.skillGroup.id} does not match `
+                    + `match ${match.id} skill group ${match.skillGroupId} for series ${row.seriesId}, team "${teamName}"`,
                 );
             }
 
@@ -121,12 +212,111 @@ export class MledbNcpTeamRoleUsageService {
                         createdBy: actor,
                         updatedBy: actor,
                     });
-                    toSave.push(usage);
+                    mledbToSave.push(usage);
                 }
+
+                const rosterRole = await this.rosterRoleRepo.findOne({
+                    where: {
+                        code: role,
+                        skillGroup: {id: match.skillGroupId},
+                        organization: {id: match.skillGroup.organizationId},
+                    },
+                });
+                if (!rosterRole) {
+                    throw new BadRequestException(
+                        `No roster_role for code ${role}, skillGroupId ${match.skillGroupId}, `
+                        + `organizationId ${match.skillGroup.organizationId} (series ${row.seriesId}, "${teamName}")`,
+                    );
+                }
+
+                const rosterSlot = await this.rosterSlotRepo.findOne({
+                    where: {
+                        team: {id: team.id},
+                        role: {id: rosterRole.id},
+                    },
+                    relations: {player: true},
+                });
+                if (!rosterSlot?.player) {
+                    throw new BadRequestException(
+                        `No roster_slot (with player) for team id ${team.id}, roster role ${rosterRole.code} — `
+                        + `series ${row.seriesId}, "${teamName}", slot ${letter}`,
+                    );
+                }
+
+                sprocketToSave.push(
+                    this.rosterRoleUsageRepo.create({
+                        match,
+                        team,
+                        rosterRole,
+                        player: rosterSlot.player,
+                    }),
+                );
             }
         }
 
-        await this.teamRoleUsageRepo.save(toSave);
-        return toSave.length;
+        await this.dataSource.transaction(async em => {
+            await em.save(MLE_TeamRoleUsage, mledbToSave);
+            for (const usage of sprocketToSave) {
+                const dup = await em.findOne(RosterRoleUsage, {
+                    where: {
+                        match: {id: usage.match.id},
+                        team: {id: usage.team.id},
+                        rosterRole: {id: usage.rosterRole.id},
+                        player: {id: usage.player.id},
+                    },
+                });
+                if (!dup) {
+                    await em.save(RosterRoleUsage, usage);
+                }
+            }
+        });
+
+        return mledbToSave.length;
+    }
+
+    private async resolveFranchiseByTeamName(teamName: string): Promise<{id: number}> {
+        const pattern = teamName.trim();
+        const profiles = await this.franchiseProfileRepo
+            .createQueryBuilder("fp")
+            .innerJoinAndSelect("fp.franchise", "franchise")
+            .where("LOWER(fp.title) = LOWER(:pattern)", {pattern})
+            .orWhere("LOWER(fp.code) = LOWER(:pattern)", {pattern})
+            .getMany();
+        const franchiseIds = [...new Set(profiles.map(p => p.franchise.id))];
+        if (franchiseIds.length === 0) {
+            throw new BadRequestException(
+                `No franchise found with profile title or code matching "${pattern}" (case-insensitive)`,
+            );
+        }
+        if (franchiseIds.length > 1) {
+            throw new BadRequestException(
+                `Team name "${pattern}" matches multiple franchises (ids: ${franchiseIds.join(", ")})`,
+            );
+        }
+        return {id: franchiseIds[0]};
+    }
+
+    private async resolveTeamForFranchiseAndMatchLeague(
+        franchiseId: number,
+        skillGroupOrdinal: number,
+        organizationId: number,
+    ): Promise<Team> {
+        const team = await this.teamRepo.findOne({
+            where: {
+                franchise: {id: franchiseId},
+                skillGroup: {
+                    ordinal: skillGroupOrdinal,
+                    organizationId,
+                },
+            },
+            relations: {skillGroup: true, franchise: true},
+        });
+        if (!team) {
+            throw new BadRequestException(
+                `No sprocket.team for franchise id ${franchiseId}, skill group ordinal ${skillGroupOrdinal}, `
+                + `organization id ${organizationId}`,
+            );
+        }
+        return team;
     }
 }

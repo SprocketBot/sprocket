@@ -16,9 +16,10 @@ export class MledbNcpTeamRoleUsageResolver {
 
     @Mutation(() => Int, {
         description:
-      "Bulk import NCP-style team role usage into mledb.team_role_usage (MLEDB admin). "
-      + "League abbreviations FL/AL/CL/ML/PL map to FOUNDATION/ACADEMY/CHAMPION/MASTER/PREMIER. "
-      + "Slot letters A–H map to PLAYERA–PLAYERH. Each slot is stored as three identical rows.",
+      "Bulk import NCP-style team role usage (MLEDB admin). Writes mledb.team_role_usage "
+      + "(three identical rows per slot for legacy accounting) and sprocket.roster_role_usage "
+      + "(one row per slot when franchise, team, roster role, and roster slot resolve). "
+      + "League abbreviations FL/AL/CL/ML/PL map to MLE leagues; slot letters A–H map to PLAYERA–PLAYERH.",
     })
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async importMledbNcpTeamRoleUsage(
