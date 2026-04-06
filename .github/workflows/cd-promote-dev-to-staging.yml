@@ -21,6 +21,9 @@ on:
 permissions:
   contents: read
 
+# Post-deploy synthetic canary (#677): after staging Pulumi applies, verify public web + GraphQL.
+# Configure repo or environment variables CANARY_STAGING_BASE_URL (optional) and CANARY_STAGING_API_URL (required).
+
 jobs:
   promote:
     name: Promote to staging
@@ -110,3 +113,12 @@ jobs:
           ssh-key: ${{ secrets.PULUMI_SSH_KEY }}
           tailscale-authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
           pulumi-backend-url: ${{ secrets.PULUMI_BACKEND_URL }}
+
+  canary_after_staging:
+    name: Post-deploy synthetic canary (staging)
+    needs: promote
+    uses: ./.github/workflows/canary-staging.yml
+    with:
+      checkout_ref: ${{ inputs.git_sha }}
+      staging_base_url: ${{ vars.CANARY_STAGING_BASE_URL != '' && vars.CANARY_STAGING_BASE_URL || 'https://staging.app.sprocket.gg' }}
+      staging_api_url: ${{ vars.CANARY_STAGING_API_URL }}

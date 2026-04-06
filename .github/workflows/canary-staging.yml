@@ -1,0 +1,139 @@
+# Synthetic canary gate for staging (or any lane via URLs). See infra/ci/README.md (#677).
+name: Canary staging synthetics
+
+on:
+  workflow_dispatch:
+    inputs:
+      staging_base_url:
+        description: 'Web origin (STAGING_BASE_URL). Empty = repo variable CANARY_STAGING_BASE_URL or public staging default.'
+        required: false
+        type: string
+        default: ''
+      staging_api_url:
+        description: 'GraphQL endpoint URL. Empty = repo variable CANARY_STAGING_API_URL (required if unset).'
+        required: false
+        type: string
+        default: ''
+      duration_sec:
+        description: 'Total observation window (seconds). Keep under GHA job budget (e.g. 600–1800).'
+        required: false
+        default: '600'
+        type: string
+      interval_sec:
+        description: 'Seconds between probe rounds.'
+        required: false
+        default: '60'
+        type: string
+      canary_once:
+        description: 'If true, run a single probe round (for PR checks / quick validation).'
+        required: false
+        default: 'false'
+        type: boolean
+  workflow_call:
+    inputs:
+      checkout_ref:
+        description: 'Git ref to checkout (commit SHA or branch); empty uses the caller run SHA.'
+        required: false
+        type: string
+        default: ''
+      staging_base_url:
+        description: 'Web origin'
+        required: true
+        type: string
+      staging_api_url:
+        description: 'GraphQL URL'
+        required: true
+        type: string
+      duration_sec:
+        required: false
+        type: string
+        default: '600'
+      interval_sec:
+        required: false
+        type: string
+        default: '60'
+      canary_once:
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  canary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event_name == 'workflow_call' && inputs.checkout_ref != '' && inputs.checkout_ref || github.sha }}
+
+      - name: Resolve canary targets
+        id: targets
+        shell: bash
+        env:
+          INPUT_BASE: ${{ github.event.inputs.staging_base_url }}
+          INPUT_API: ${{ github.event.inputs.staging_api_url }}
+          VAR_BASE: ${{ vars.CANARY_STAGING_BASE_URL }}
+          VAR_API: ${{ vars.CANARY_STAGING_API_URL }}
+          CALL_BASE: ${{ inputs.staging_base_url }}
+          CALL_API: ${{ inputs.staging_api_url }}
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "workflow_call" ]]; then
+            echo "base_url=${CALL_BASE}" >> "$GITHUB_OUTPUT"
+            echo "api_url=${CALL_API}" >> "$GITHUB_OUTPUT"
+          else
+            base="${INPUT_BASE:-}"
+            api="${INPUT_API:-}"
+            if [[ -z "${base}" ]]; then
+              base="${VAR_BASE:-https://staging.app.sprocket.gg}"
+            fi
+            if [[ -z "${api}" ]]; then
+              api="${VAR_API:-}"
+            fi
+            if [[ -z "${api}" ]]; then
+              echo 'Set staging_api_url for this run or configure repo variable CANARY_STAGING_API_URL.' >&2
+              exit 1
+            fi
+            echo "base_url=${base}" >> "$GITHUB_OUTPUT"
+            echo "api_url=${api}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run synthetic canary
+        id: run_canary
+        shell: bash
+        env:
+          STAGING_BASE_URL: ${{ steps.targets.outputs.base_url }}
+          STAGING_API_URL: ${{ steps.targets.outputs.api_url }}
+          CANARY_ARTIFACT_DIR: artifacts/canary-run
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_call" ]]; then
+            export CANARY_DURATION_SEC="${{ inputs.duration_sec }}"
+            export CANARY_INTERVAL_SEC="${{ inputs.interval_sec }}"
+            if [[ "${{ inputs.canary_once }}" == "true" ]]; then
+              export CANARY_ONCE=true
+            else
+              export CANARY_ONCE=false
+            fi
+          else
+            export CANARY_DURATION_SEC="${{ github.event.inputs.duration_sec }}"
+            export CANARY_INTERVAL_SEC="${{ github.event.inputs.interval_sec }}"
+            if [[ "${{ github.event.inputs.canary_once }}" == "true" ]]; then
+              export CANARY_ONCE=true
+            else
+              export CANARY_ONCE=false
+            fi
+          fi
+          ./scripts/ci/canary-staging.sh
+
+      - name: Upload canary log artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: canary-staging-${{ github.run_id }}
+          path: artifacts/canary-run/
+          if-no-files-found: warn
