@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "name": "main-dev",
+  "display_name": "Main → Dev (pre-prod Swarm)",
+  "kind": "hosted",
+  "status": "active",
+  "repo_root": ".",
+  "source_of_truth": {
+    "branch": "main",
+    "worktree_hint": "paired with CD deploy to dev (#673)",
+    "infra_root": "/Users/jacbaile/Workspace/MLE/RocketLeague/sprocket/infra"
+  },
+  "entrypoints": {
+    "web": "https://dev.app.sprocket.gg",
+    "api_graphql": "https://api.dev.app.sprocket.gg/graphql"
+  },
+  "topology": [
+    "web",
+    "core",
+    "discord-bot",
+    "image-generation-frontend",
+    "image-generation-service",
+    "matchmaking-service",
+    "notification-service",
+    "server-analytics-service",
+    "submission-service",
+    "replay-parse-service"
+  ],
+  "verification": {
+    "tier0": {
+      "supported": true,
+      "default_profile": "scripts/harness/env/main-dev.env",
+      "command": "npm run verify:tier0 -- main-dev"
+    },
+    "tier1": {
+      "supported": false,
+      "reason": "Tier 1 is not in scope for the main-dev lane yet.",
+      "profile_override_required": true,
+      "command": "npm run verify:tier1 -- main-dev /absolute/path/to/profile.env <scenario>"
+    },
+    "all": {
+      "supported": false,
+      "reason": "Tier 1 is not yet enabled for main-dev."
+    }
+  },
+  "artifact_root": "artifacts/release-validation/main-dev/<run-id>/",
+  "safety": {
+    "mutable_side_effects_require_operator_judgment": true,
+    "notes": [
+      "Hosted dev shares the pre-prod Swarm; treat mutations as non-production but still bounded.",
+      "GitHub Actions Tier 0 uses the development environment secret HARNESS_MAIN_DEV_ENV (multiline key=value file, same shape as scripts/harness/env/main-dev.env) written to a temp path and passed as the third argument to verify-lane.sh so CI can override URLs/markers without committing secrets. Operators still use the committed template for local runs."
+    ]
+  }
+}
