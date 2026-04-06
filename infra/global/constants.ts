@@ -1,8 +1,6 @@
 import * as pulumi from "@pulumi/pulumi"
 const config = new pulumi.Config()
 
-
-
 export const HOSTNAME = config.get("hostname") ?? "sprocket.mlesports.gg";
 
 export const UTIL_HOSTNAME = config.get("util-hostname") ?? "sprocket.mlesports.gg";

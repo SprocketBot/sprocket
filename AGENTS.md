@@ -36,6 +36,8 @@ If you are making changes, optimize for both goals when possible.
 
 Infra has been migrated into this monorepo from the former standalone `sprocket-infra` repo. Prefer paths under `infra/` over older docs that still reference the external location.
 
+Pinned **Node** and **Pulumi CLI** versions for infra (local + CI) live in [`infra/README.md`](infra/README.md) under **Tool versions**.
+
 ---
 
 ## Canonical Starting Points
@@ -192,3 +194,70 @@ These are real repo gaps, not user mistakes:
    - and the recommended next action.
 
 If you improve the repo’s operating surface for future agents, that is valuable work here.
+---
+
+## Cursor Cloud specific instructions
+
+### Runtime requirements
+
+- **Node.js 18** (matches `dockerfiles/node.Dockerfile` base image). The `.nvmrc` says 16, but the actual Dockerfiles and dependency versions target Node 18. Use `nvm use 18`.
+- **npm** is the package manager (uses npm workspaces; lockfile is `package-lock.json`). Use `--legacy-peer-deps` for install.
+- **Docker** is required for infrastructure services (postgres, redis, rabbitmq, minio).
+
+### Starting infrastructure
+
+```bash
+cp .env.local .env
+# Adjust hostnames from Docker service names to localhost for native dev:
+# POSTGRES_HOST=localhost, POSTGRES_PORT=5434, REDIS_HOST=localhost, MINIO_ENDPOINT=localhost, etc.
+sudo docker compose up -d postgres redis rabbitmq minio
+```
+
+Note: Postgres maps to host port **5434** (not 5432). Set `POSTGRES_PORT=5434` and `DB_PORT=5434` in `.env` for native dev.
+
+### Running application services natively
+
+Build common first (runs automatically via `postinstall`):
+```bash
+npm run build:common
+```
+
+Build and start core:
+```bash
+npm run build --workspace=core
+cd core && node dist/main.js
+```
+
+Start web dev server:
+```bash
+npm run dev --workspace=clients/web
+```
+
+### Known codebase issues (pre-existing, not environment bugs)
+
+- **`dev.Dockerfile` was missing**: docker-compose.yml references `dev.Dockerfile` in the root for all Node services. A basic version was created in this setup branch.
+- **Database migrations partially fail**: Migration `Automigration1658967501286` references an unqualified `round` table from the MLEDB legacy bridge. Without a production DB seed, only the first migration (schema creation) succeeds. The core API starts and serves GraphQL without full migrations.
+- **Pre-existing lint errors**: `npm run lint` across workspaces surfaces ~300+ pre-existing errors (unused vars, missing return types, etc.). These are not caused by the environment.
+- **Pre-existing TS build error**: `core/src/mledb/mledb-scrim/mledb-finalization.service.ts:389` has a TS2339 error. Use `nest build` (which succeeds despite this) rather than `migration:run` (which re-triggers a strict build).
+- **Web client Svelte errors**: The web dev server starts but some pages return 500 due to Svelte preprocessing TypeScript errors in components like `GameCard.svelte`.
+
+### Key endpoints when running natively
+
+| Service | URL |
+|---------|-----|
+| Core API / GraphQL | http://localhost:3001/graphql |
+| Core Health | http://localhost:3001/healthz |
+| Web Client | http://localhost:3000 |
+| RabbitMQ Admin | http://localhost:15672 (admin/localrabbitpass) |
+| MinIO Console | http://localhost:9001 (admin/localminiopass) |
+| PostgreSQL | localhost:5434 (sprocketbot/localdevpassword) |
+
+### Testing
+
+- **Unit tests**: `npm run test --workspace=core` — 21 tests pass, 4 suites report failures (0 actual test assertions fail; these are import/setup issues in test files).
+- **Lint**: `npm run lint` runs ESLint across all workspaces. Pre-existing errors exist.
+- **Smoke test**: `curl http://localhost:3001/graphql -H 'Content-Type: application/json' -d '{"query": "{ __typename }"}'` should return `{"data":{"__typename":"Query"}}`.
+
+### Docker Compose note
+
+For `docker compose` commands, use `sudo docker compose` since Docker runs as root in the Cloud Agent VM. The harness scripts (`npm run dev:up`, etc.) auto-detect `docker compose` vs `docker-compose`.

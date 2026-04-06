@@ -1,3 +1,8 @@
+# Container images are pushed with a branch tag (e.g. main, pr-123) plus an immutable
+# ghcr.io/.../name:sha-<git-sha> tag. Deployments should pin sha-* (or digest), not only
+# moving branch tags — see infra/README.md. Wiring Pulumi to consume sha-* is tracked
+# separately (e.g. #672 / #673).
+
 name: 'Autobuild Docker Containers'
 
 on:
@@ -48,16 +53,68 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
+      - name: Compute core image tags
+        id: core_tags
+        shell: bash
+        run: |
+          REGISTRY="ghcr.io/sprocketbot/monorepo-core"
+          BRANCH="${{ steps.extract_branch.outputs.branch }}"
+          TAGS="${REGISTRY}:${BRANCH}"
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+            IMMUTABLE_SHA="${{ github.event.pull_request.head.sha }}"
+          else
+            IMMUTABLE_SHA="${{ github.sha }}"
+          fi
+          TAGS="${TAGS}"$'\n'"${REGISTRY}:sha-${IMMUTABLE_SHA}"
+          {
+            echo 'tags<<EOF'
+            echo "${TAGS}"
+            echo 'EOF'
+          } >> "${GITHUB_OUTPUT}"
+
       - name: Build and export
+        id: docker_core
         uses: docker/build-push-action@v7
         with:
           build-args: |
             COMMIT_SHA=${{ github.sha }}
           context: .
           file: ./dockerfiles/node.Dockerfile
-          tags: ghcr.io/sprocketbot/monorepo-core:${{ steps.extract_branch.outputs.branch }}
+          tags: ${{ steps.core_tags.outputs.tags }}
           push: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
           platforms: linux/amd64
+
+      # Bill of materials fragment (main only). Promotion workflows will merge these in merge-bom.
+      - name: Write BOM fragment (monorepo-core)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        shell: bash
+        run: |
+          mkdir -p bom
+          DIGEST="${{ steps.docker_core.outputs.digest }}"
+          if [ -n "${DIGEST}" ]; then
+            jq -n \
+              --arg name monorepo-core \
+              --arg branch "${{ steps.extract_branch.outputs.branch }}" \
+              --arg sha "${{ github.sha }}" \
+              --arg digest "${DIGEST}" \
+              '{name: $name, tags: [$branch, ("sha-" + $sha)], digest: $digest}' \
+              > bom/monorepo-core.json
+          else
+            jq -n \
+              --arg name monorepo-core \
+              --arg branch "${{ steps.extract_branch.outputs.branch }}" \
+              --arg sha "${{ github.sha }}" \
+              '{name: $name, tags: [$branch, ("sha-" + $sha)], digest: null}' \
+              > bom/monorepo-core.json
+          fi
+
+      - name: Upload BOM fragment (monorepo-core)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bom-fragment-monorepo-core
+          path: bom/monorepo-core.json
+          retention-days: 14
 
   build_microservices:
     name: 'Build Node Services'
@@ -109,6 +166,7 @@ jobs:
             sprocketCommonHasChanges: ./common/**
 
       - name: Build project
+        id: build_project
         if: github.event_name == 'workflow_dispatch' || steps.changes.outputs.baseDockerfileHasChanges == 'true' || steps.changes.outputs.buildConfigHasChanges == 'true' || steps.changes.outputs.projectHasChanges == 'true' || steps.changes.outputs.sprocketCommonHasChanges == 'true'
         uses: ./.github/reusable_workflows/build_container
         with:
@@ -117,3 +175,78 @@ jobs:
           docker_tag: ${{steps.extract_branch.outputs.branch}}
           discord_webhook: ${{ secrets.discord_webhook }}
           push_image: ${{ github.event_name != 'pull_request' }}
+          # Empty on pull_request (images are not pushed); push + workflow_dispatch use commit SHA.
+          immutable_sha: ${{ github.event_name != 'pull_request' && github.sha || '' }}
+
+      # Per-service BOM fragment (main pushes only, same conditions as build). merge-bom assembles the full manifest.
+      - name: Write BOM fragment (service)
+        if: >
+          github.event_name == 'push' && github.ref == 'refs/heads/main' &&
+          (steps.changes.outputs.baseDockerfileHasChanges == 'true' || steps.changes.outputs.buildConfigHasChanges == 'true' ||
+          steps.changes.outputs.projectHasChanges == 'true' || steps.changes.outputs.sprocketCommonHasChanges == 'true')
+        shell: bash
+        env:
+          SERVICE_NAME: ${{ matrix.directory[0] }}
+          BRANCH: ${{ steps.extract_branch.outputs.branch }}
+          GIT_SHA: ${{ github.sha }}
+          DIGEST: ${{ steps.build_project.outputs.digest }}
+        run: |
+          mkdir -p bom
+          OUT="bom/${SERVICE_NAME}.json"
+          if [ -n "${DIGEST}" ]; then
+            jq -n \
+              --arg name "${SERVICE_NAME}" \
+              --arg branch "${BRANCH}" \
+              --arg sha "${GIT_SHA}" \
+              --arg digest "${DIGEST}" \
+              '{name: $name, tags: [$branch, ("sha-" + $sha)], digest: $digest}' \
+              > "${OUT}"
+          else
+            jq -n \
+              --arg name "${SERVICE_NAME}" \
+              --arg branch "${BRANCH}" \
+              --arg sha "${GIT_SHA}" \
+              '{name: $name, tags: [$branch, ("sha-" + $sha)], digest: null}' \
+              > "${OUT}"
+          fi
+
+      - name: Upload BOM fragment (service)
+        if: >
+          github.event_name == 'push' && github.ref == 'refs/heads/main' &&
+          (steps.changes.outputs.baseDockerfileHasChanges == 'true' || steps.changes.outputs.buildConfigHasChanges == 'true' ||
+          steps.changes.outputs.projectHasChanges == 'true' || steps.changes.outputs.sprocketCommonHasChanges == 'true')
+        uses: actions/upload-artifact@v4
+        with:
+          name: bom-fragment-${{ matrix.directory[0] }}
+          path: bom/${{ matrix.directory[0] }}.json
+          retention-days: 14
+
+  merge_bom:
+    name: Merge container BOM (main)
+    # Single artifact for promotion: commit SHA + per-image tags (including sha-*). Runs only when all builds succeed.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs:
+      - build_core_image
+      - build_microservices
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v6
+
+      - name: Download BOM fragments
+        uses: actions/download-artifact@v4
+        with:
+          path: bom-artifacts
+          pattern: bom-fragment-*
+          merge-multiple: true
+
+      - name: Merge fragments to artifacts/bom/main-<sha>.json
+        shell: bash
+        run: ./scripts/ci/merge-bom-artifacts.sh bom-artifacts "artifacts/bom/main-${GITHUB_SHA}.json"
+
+      - name: Upload BOM (bom-main)
+        uses: actions/upload-artifact@v4
+        with:
+          name: bom-main
+          path: artifacts/bom/main-${{ github.sha }}.json
+          retention-days: 90
