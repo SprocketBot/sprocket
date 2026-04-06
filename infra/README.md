@@ -130,3 +130,5 @@ Use it with:
 - `manager-node-host`: the Tailscale-reachable SSH host for Docker
 
 Production applies should be routed through a protected GitHub Environment.
+
+Prod rollback (pin immutable image tags, Actions or break-glass laptop): [`docs-output/ROLLBACK_PRODUCTION.md`](./docs-output/ROLLBACK_PRODUCTION.md).
