@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "name": "main-staging",
+  "display_name": "Main Staging",
+  "kind": "hosted",
+  "status": "active",
+  "repo_root": ".",
+  "source_of_truth": {
+    "branch": "main",
+    "worktree_hint": "/Users/jacbaile/Workspace/MLE/RocketLeague/sprocket-main",
+    "infra_root": "/Users/jacbaile/Workspace/MLE/RocketLeague/sprocket/infra"
+  },
+  "entrypoints": {
+    "web": "https://staging.app.sprocket.gg",
+    "api_graphql": "https://api.staging.app.sprocket.gg/graphql"
+  },
+  "topology": [
+    "web",
+    "core",
+    "discord-bot",
+    "image-generation-frontend",
+    "image-generation-service",
+    "matchmaking-service",
+    "notification-service",
+    "server-analytics-service",
+    "submission-service",
+    "replay-parse-service"
+  ],
+  "verification": {
+    "tier0": {
+      "supported": false,
+      "reason": "No committed smoke profile for this lane yet; use Tier 1 with an explicit profile or add scripts/harness/env/main-staging.env.",
+      "command": "npm run verify:tier0 -- main-staging"
+    },
+    "tier1": {
+      "supported": true,
+      "default_profile": "",
+      "profile_template": "scripts/harness/env/main-staging-tier1.template.env",
+      "profile_override_required_when_missing": true,
+      "supported_scenarios": ["league", "scrim", "submission", "all"],
+      "command": "npm run verify:tier1 -- main-staging /absolute/path/to/profile.env <scenario>"
+    },
+    "all": {
+      "supported": false,
+      "reason": "Tier 0 is not enabled for this lane; run Tier 1 only (npm run verify:tier1 -- main-staging ...).",
+      "command": "npm run verify:all -- main-staging /absolute/path/to/profile.env"
+    }
+  },
+  "artifact_root": "artifacts/release-validation/main-staging/<run-id>/",
+  "safety": {
+    "mutable_side_effects_require_operator_judgment": true,
+    "notes": [
+      "Staging-only credentials and OAuth clients must be used; do not point a prod Tier 1 profile at staging if it mutates production.",
+      "Tier 1 exercises read and mutating flows; confirm org IDs, replay fixtures, and impersonation targets are safe for staging.",
+      "Confirm live DNS/TLS for staging; HARNESS_API_URL in the profile must match the reachable GraphQL endpoint."
+    ]
+  }
+}
