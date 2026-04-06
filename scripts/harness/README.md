@@ -17,10 +17,13 @@ Committed profiles currently live under:
 Machine-readable lane contracts now live under:
 
 - `environments/local-dev.json`
+- `environments/main-dev.json`
 - `environments/main-prod.json`
 - `environments/main-staging.json`
 - `environments/main-dev.json`
 - `environments/v15-beta.json`
+
+**CI (GitHub Actions) for `main-dev`:** create a multiline repository or environment secret named `HARNESS_MAIN_DEV_ENV` on the GitHub **development** environment. Use the same `KEY=value` lines as `scripts/harness/env/main-dev.env` (URLs, markers, status allowlists). The post-deploy workflow writes that secret to a temp file and runs `npm run verify:tier0 -- main-dev <path>` so values are never committed and are not echoed in logs (avoid `set -x` around the write). See `.github/workflows/verify-main-dev-tier0.yml`.
 
 The machine-readable service and environment catalog lives at:
 
@@ -144,6 +147,7 @@ Runs the three Tier 0 checks with a shared `HARNESS_RUN_ID`.
 This is exposed through lane-aware wrappers such as:
 
 - `npm run verify:tier0 -- local-dev`
+- `npm run verify:tier0 -- main-dev`
 - `npm run verify:tier0 -- main-prod`
 
 Example:
