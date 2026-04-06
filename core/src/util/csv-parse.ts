@@ -2,12 +2,12 @@ import Papa from "papaparse";
 import type {z} from "zod";
 
 // 1. Define the shape of our output
-interface CsvParseResult<T> {
+export interface CsvParseResult<T> {
     data: T[];
     errors: CsvError[];
 }
 
-interface CsvError {
+export interface CsvError {
     row: number; // 1-based row index (Excel style)
     message: string; // The error message
     field?: string; // Which column failed (if known)
