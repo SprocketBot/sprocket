@@ -18,6 +18,7 @@ Machine-readable lane contracts now live under:
 
 - `environments/local-dev.json`
 - `environments/main-prod.json`
+- `environments/main-dev.json`
 - `environments/v15-beta.json`
 
 The machine-readable service and environment catalog lives at:
