@@ -18,6 +18,7 @@ Machine-readable lane contracts now live under:
 
 - `environments/local-dev.json`
 - `environments/main-prod.json`
+- `environments/main-staging.json`
 - `environments/main-dev.json`
 - `environments/v15-beta.json`
 
@@ -256,3 +257,14 @@ Example:
 bash ./scripts/harness/run-tier1.sh /absolute/path/to/tier1.env league
 bash ./scripts/harness/run-tier1.sh /absolute/path/to/tier1.env all
 ```
+
+## CI gate: production Pulumi `up` (staging Tier 1)
+
+The workflow `.github/workflows/infra-pulumi.yml` runs **Tier 1 against hosted staging** before `pulumi up` is allowed on stack **`platform` / `prod`**.
+
+- **Blocking:** `league`, `scrim`, and `submission` scenarios run sequentially via `verify-lane.sh tier1 … all` (same as `run-tier1.sh` with scenario `all`). Any failure fails the workflow; the deploy job does not run.
+- **Manual / advisory:** Tier 1 against **production** (`main-prod`), Tier 0/2 checks, load tests, and any extra scenarios you add locally remain outside this gate unless wired separately.
+- **Secret:** Create a GitHub Actions **environment** secret on environment **`staging`**: `HARNESS_MAIN_STAGING_TIER1_ENV` — paste the full multiline `.env` (same shape as `scripts/harness/env/main-staging-tier1.template.env`). Use **staging-only** credentials; do not reuse a prod profile if it could mutate prod.
+- **Artifacts:** On failure, the job uploads `artifacts/release-validation/` (harness outputs) as a workflow artifact.
+
+If the combined `all` run exceeds ~45 minutes, split into separate workflow jobs per scenario (`league`, `scrim`, `submission`) only after confirming parallel runs do not conflict on shared staging test data (mutating flows may need to stay sequential).
