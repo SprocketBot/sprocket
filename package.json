@@ -27,6 +27,7 @@
     "dev:smoke": "bash ./scripts/harness/dev-smoke.sh",
     "verify:tier0": "bash ./scripts/harness/verify-lane.sh tier0",
     "verify:tier0:main-prod": "npm run verify:tier0 -- main-prod",
+    "verify:tier0:main-staging": "npm run verify:tier0 -- main-staging",
     "verify:tier0:local-dev": "npm run verify:tier0 -- local-dev",
     "verify:tier1": "bash ./scripts/harness/verify-lane.sh tier1",
     "verify:tier1:main-prod": "npm run verify:tier1 -- main-prod",

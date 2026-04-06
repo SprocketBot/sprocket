@@ -18,7 +18,6 @@ interface PlatformDatastoresArgs {
     redisHostname: pulumi.Output<string>
     redisPassword: pulumi.Output<string>
 
-    environmentSubdomain: string
     configRoot: string
 }
 
@@ -33,7 +32,8 @@ export class PlatformDatastore extends pulumi.ComponentResource {
             configFilepath: `${args.configRoot}/rabbitmq.conf`,
             ingressNetworkId: args.ingressNetworkId,
             platformNetworkId: args.platformNetworkId,
-            url: buildHost("rabbitMq", args.environmentSubdomain, HOSTNAME)
+            // HOSTNAME already carries the env segment (e.g. dev.sprocket…); do not also pass subdomain or Traefik doubles it.
+            url: buildHost("rabbitMq", HOSTNAME)
         }, { parent: this })
 
         this.redis = {

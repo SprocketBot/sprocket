@@ -1,0 +1,13 @@
+# Pulumi stack name: staging (see infra/stack-map.yaml).
+# Secret keys are not committed; copy from the dev platform stack or set via `pulumi config set --secret`.
+# Deploy against the pre-prod Swarm (same node as dev) with DOCKER_HOST=ssh://… so Swarm service names stay isolated by stack.
+config:
+  platform:docker-username: asaxplayinghorse
+  platform:legacy-image-namespace: asaxplayinghorse
+  platform:image-namespace: sprocketbot
+  platform:postgres-username: doadmin
+  platform:postgres-port: "25060"
+  platform:postgres-host: sprocketbot-postgres-d5033d2-do-user-24528890-0.j.db.ondigitalocean.com
+  platform:subdomain: staging
+  platform:hostname: staging.sprocket.mlesports.gg
+  platform:image-tag: main

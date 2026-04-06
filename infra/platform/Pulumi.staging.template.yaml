@@ -1,0 +1,27 @@
+# Operator template for a fully configured `staging` stack (copy secret values from dev after review, or use `pulumi config set --secret`).
+# Do not commit completed files with secrets. The checked-in baseline is `Pulumi.staging.yaml`.
+#
+# Isolation checklist (issue #675):
+# - Postgres DB name: sprocket_staging (from platform:subdomain)
+# - Redis: key prefix `staging` in generated service config
+# - RabbitMQ: broker per stack; Traefik SNI rabbitMq.staging.sprocket.mlesports.gg
+# - Spaces: sprocket-staging-1, sprocket-image-gen-staging-1, sprocket-replays-staging-1
+#
+# Required secret keys (match platform/Pulumi.prod.yaml names): docker-access-token, postgres-password,
+# discord-bot-token, legacy-bot-token, postgres-password-legacy, google-client-id, google-client-secret,
+# discord-client-id, discord-client-secret, epic-client-id, epic-client-secret, steam-api-key,
+# chatwoot-hmac-key, ballchasing-token
+#
+config:
+  platform:docker-username: asaxplayinghorse
+  platform:legacy-image-namespace: asaxplayinghorse
+  platform:image-namespace: sprocketbot
+  platform:postgres-username: doadmin
+  platform:postgres-port: "25060"
+  platform:postgres-host: sprocketbot-postgres-d5033d2-do-user-24528890-0.j.db.ondigitalocean.com
+  platform:subdomain: staging
+  platform:hostname: staging.sprocket.mlesports.gg
+  platform:image-tag: main
+  # Optional:
+  # platform:server-ip: "x.x.x.x"
+  # platform:tailscale-ip: "100.x.x.x"
