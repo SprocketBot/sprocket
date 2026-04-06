@@ -18,6 +18,7 @@
 8. [Maintenance Procedures](#maintenance-procedures)
 9. [Common Tasks](#common-tasks)
 10. [Emergency Contacts](#emergency-contacts)
+11. [Production rollback (immutable image tags)](./ROLLBACK_PRODUCTION.md)
 
 ---
 
@@ -363,6 +364,8 @@ docker service update \
 ```
 
 ### Rolling Back a Service
+
+For **production application images**, prefer pinning **immutable** GHCR tags on the `platform` / `prod` stack and re-running Pulumi — see **[ROLLBACK_PRODUCTION.md](./ROLLBACK_PRODUCTION.md)**. Swarm-only rollback below does not replace that process.
 
 ```bash
 # Roll back to previous image

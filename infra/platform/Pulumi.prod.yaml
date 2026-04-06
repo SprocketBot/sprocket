@@ -1,15 +1,15 @@
 config:
-  platform:docker-username: asaxplayinghorse
+  platform:docker-username: gankoji
   platform:docker-access-token:
-    secure: AAABAMOdsN2rA9tzU+BrK4iGPbzcO+kHZQ/7B7WkD7K4Eb+YoCtUiFomsfyvs1nT5cDwXHUPaGyaC0PkSh13MftRN2Y=
-  platform:legacy-image-namespace: asaxplayinghorse
+    secure: AAABAILMbg4fOJnbcR7Lxb0g1uAyhXGcO/EcmMXf5ikLKt4MokqAplXSziE2FEAiu8LOuYRi8t+TwvAYNsuscxRDtkzFrBID
+  platform:legacy-image-namespace: minor-league-esports
   platform:image-namespace: sprocketbot
   platform:postgres-username: doadmin
-  platform:postgres-port: "25060"
+  platform:postgres-port: '25060'
   platform:postgres-host: sprocketbot-postgres-d5033d2-do-user-24528890-0.j.db.ondigitalocean.com
   platform:postgres-password:
     secure: AAABAFd/724jFgDhT2eXVgllFZbcVkMa7KYABASJp4JUWvKA9AFF6aCWRAMK3I/KPed/cEkGlFA=
-  platform:subdomain: "main"
+  platform:subdomain: 'main'
   platform:discord-bot-token:
     secure: AAABAH1Lr9RviW7TevfCtFUV8debaBZybIE/i75siqFBO9d34WHH5fuzl/LZbBGuIYFqm490lKfuWmSOUCGl5fwHuB2EssJ0J6TbA5LHje0fb/MRMEEyhzewZdO6uYyUHKREZy945UM=
   platform:image-tag: main

@@ -1,0 +1,112 @@
+name: CD Promote Dev to Staging
+
+# Promotes an immutable image set from a known-good dev deployment (git SHA) to Pulumi
+# **staging** stacks only. Does not reference prod stacks or the production environment.
+on:
+  workflow_dispatch:
+    inputs:
+      git_sha:
+        description: 'Full 40-character git commit SHA deployed to dev'
+        required: true
+        type: string
+      image_tag:
+        description: 'Optional explicit GHCR tag (skips BOM and sha-XXXXXXX derivation)'
+        required: false
+        type: string
+      bom_file:
+        description: 'Optional repo-relative path to BOM JSON (see scripts/ci/promote-images.sh)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  promote:
+    name: Promote to staging
+    runs-on: ubuntu-latest
+    environment: staging
+    env:
+      AWS_REGION: nyc3
+    steps:
+      - name: Check out at promoted SHA
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.git_sha }}
+
+      - name: Install Pulumi CLI
+        shell: bash
+        run: |
+          curl -fsSL https://get.pulumi.com | sh
+          echo "${HOME}/.pulumi/bin" >> "${GITHUB_PATH}"
+
+      - name: Set platform image tag from SHA / BOM
+        shell: bash
+        env:
+          PULUMI_BACKEND_URL: ${{ secrets.PULUMI_BACKEND_URL }}
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          PROMOTE_GIT_SHA: ${{ inputs.git_sha }}
+          PROMOTE_BOM_FILE: ${{ inputs.bom_file }}
+          PROMOTE_IMAGE_TAG: ${{ inputs.image_tag }}
+        run: |
+          set -euo pipefail
+          args=(./scripts/ci/promote-images.sh pulumi-set-platform-tag)
+          if [[ -n "${PROMOTE_BOM_FILE}" ]]; then
+            args+=(--bom-file "${PROMOTE_BOM_FILE}")
+          fi
+          if [[ -n "${PROMOTE_IMAGE_TAG}" ]]; then
+            args+=(--image-tag "${PROMOTE_IMAGE_TAG}")
+          fi
+          args+=("${PROMOTE_GIT_SHA}" "staging")
+          "${args[@]}"
+
+      - name: Pulumi up layer_1 (staging)
+        uses: ./.github/reusable_workflows/pulumi_up
+        env:
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: nyc3
+        with:
+          command: up
+          stack-project: layer_1
+          stack-name: staging
+          manager-node-host: ${{ secrets.PULUMI_MANAGER_NODE_HOST }}
+          ssh-user: ${{ secrets.PULUMI_SSH_USER }}
+          ssh-key: ${{ secrets.PULUMI_SSH_KEY }}
+          tailscale-authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          pulumi-backend-url: ${{ secrets.PULUMI_BACKEND_URL }}
+
+      - name: Pulumi up layer_2 (staging)
+        uses: ./.github/reusable_workflows/pulumi_up
+        env:
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: nyc3
+        with:
+          command: up
+          stack-project: layer_2
+          stack-name: staging
+          manager-node-host: ${{ secrets.PULUMI_MANAGER_NODE_HOST }}
+          ssh-user: ${{ secrets.PULUMI_SSH_USER }}
+          ssh-key: ${{ secrets.PULUMI_SSH_KEY }}
+          tailscale-authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          pulumi-backend-url: ${{ secrets.PULUMI_BACKEND_URL }}
+
+      - name: Pulumi up platform (staging)
+        uses: ./.github/reusable_workflows/pulumi_up
+        env:
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: nyc3
+        with:
+          command: up
+          stack-project: platform
+          stack-name: staging
+          manager-node-host: ${{ secrets.PULUMI_MANAGER_NODE_HOST }}
+          ssh-user: ${{ secrets.PULUMI_SSH_USER }}
+          ssh-key: ${{ secrets.PULUMI_SSH_KEY }}
+          tailscale-authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          pulumi-backend-url: ${{ secrets.PULUMI_BACKEND_URL }}

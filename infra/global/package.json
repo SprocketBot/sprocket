@@ -8,6 +8,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
     "@influxdata/influxdb-client": "^1.25.0",
     "@influxdata/influxdb-client-apis": "^1.25.0",

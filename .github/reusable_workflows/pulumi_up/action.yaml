@@ -35,14 +35,14 @@ inputs:
     required: false
 
   node-version:
-    description: 'Node.js version used for infra commands'
+    description: 'Node.js major used for infra commands (align with infra/README.md Tool versions)'
     required: false
-    default: '16'
+    default: '20'
 
-  install-command:
-    description: 'Command used to install infra dependencies'
+  pulumi-version:
+    description: 'Pulumi CLI version (pin to infra/README.md Tool versions)'
     required: false
-    default: 'npm run infra:install'
+    default: '3.229.0'
 
 runs:
   using: composite
@@ -52,11 +52,15 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
         cache: npm
+        cache-dependency-path: |
+          infra/layer_1/package-lock.json
+          infra/layer_2/package-lock.json
+          infra/platform/package-lock.json
 
     - name: Install Pulumi CLI
       shell: bash
       run: |
-        curl -fsSL https://get.pulumi.com | sh
+        curl -fsSL https://get.pulumi.com | sh -s -- --version "${{ inputs.pulumi-version }}"
         echo "${HOME}/.pulumi/bin" >> "${GITHUB_PATH}"
 
     - name: Connect Tailscale
@@ -95,7 +99,7 @@ runs:
 
     - name: Install infra dependencies
       shell: bash
-      run: ${{ inputs.install-command }}
+      run: bash ./scripts/infra/pulumi-install-all.sh
 
     - name: Run Pulumi
       shell: bash
@@ -107,7 +111,7 @@ runs:
           extra_args+=(--yes)
         fi
 
-        npm run ci:infra:run -- "${{ inputs.stack-project }}" "${{ inputs.stack-name }}" "${{ inputs.command }}" "${extra_args[@]}"
+        bash ./scripts/infra/run-pulumi.sh "${{ inputs.stack-project }}" "${{ inputs.stack-name }}" "${{ inputs.command }}" "${extra_args[@]}"
 
     - name: Clean up remote Docker SSH key
       if: always()
