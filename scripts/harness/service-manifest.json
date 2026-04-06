@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-03-13",
+  "updated": "2026-04-05",
   "purpose": "Machine-readable operating metadata for Sprocket services, local runtime, and hosted verification lanes.",
   "sources": [
     "LOCAL_DEVELOPMENT.md",
@@ -8,6 +8,7 @@
     "scripts/setup-local.sh",
     "scripts/harness/README.md",
     "reports/release-environment-contracts.md",
+    "environments/main-dev.json",
     "infra/platform/src/config/services/*.json"
   ],
   "local_runtime": {
@@ -272,6 +273,22 @@
       "notes": [
         "Production truth lane.",
         "Tier 1 requires operator-provided secrets or explicit profile override."
+      ]
+    },
+    {
+      "name": "main-staging",
+      "contract_path": "environments/main-staging.json",
+      "notes": [
+        "Pre-prod Swarm lane; isolated Pulumi/Swarm stack and data-plane namespaces from dev and prod.",
+        "Tier 0 uses scripts/harness/env/main-staging.env; Tier 1 is not standardized yet."
+        ]
+    },
+    {
+      "name": "main-dev",
+      "contract_path": "environments/main-dev.json",
+      "notes": [
+        "Hosted dev on pre-prod Swarm; Tier 0 profile is scripts/harness/env/main-dev.env.",
+        "Tier 1 is not yet supported in the contract; use maintainer profiles when ready."
       ]
     },
     {

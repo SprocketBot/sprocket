@@ -1,3 +1,76 @@
+# CI / CD notes (infra)
+
+## Promote dev → staging (immutable image set)
+
+Run workflow [.github/workflows/cd-promote-dev-to-staging.yml](../../.github/workflows/cd-promote-dev-to-staging.yml) from the Actions tab with the **40-character git SHA** that is green on dev.
+
+The job checks out that commit, sets `platform:image-tag` on the **staging** stack (optional BOM path or explicit tag; else default `sha-<short>`), then `pulumi preview` + `pulumi up` via the existing composite for **layer_1**, **layer_2**, and **platform** stacks named `staging` only—not prod.
+
+Create GitHub environment **staging** with SSH, Tailscale, Pulumi backend, and AWS secrets (same class as other pre-prod deploys).
+
+If `up` fails partway, completed stacks may already have changed; Pulumi does not auto-roll back—re-run with a good SHA or fix forward.
+
+---
+
+## Staging synthetic canary (#677)
+
+**Purpose:** Data-driven gate between **dev** and **staging** (or verification **after** a staging deploy) using only synthetic HTTP checks—no Grafana auth in CI.
+
+**Policy in `cd-promote-dev-to-staging`:** After all staging `pulumi up` steps succeed, a follow-up job runs [.github/workflows/canary-staging.yml](../../.github/workflows/canary-staging.yml) against **staging** URLs from repository **variables** `CANARY_STAGING_BASE_URL` (optional; defaults to `https://staging.app.sprocket.gg` in the caller) and **`CANARY_STAGING_API_URL` (required)** — set at least the GraphQL URL on the repo or inherit via the **staging** environment. This matches `infra/docs-output/CICD_STRATEGY.md` § Post-Deploy Verification.
+
+**Alternative:** Run the same reusable workflow **before** `pulumi up` with **dev** URLs to prove dev is stable first; adjust variables or add a separate caller job.
+
+If staging (or dev) is not reachable from GitHub-hosted runners, use a runner with network access (for example Tailscale or self-hosted), as with other internal deploy workflows—do not disable TLS verification to work around reachability.
+
+### Script
+
+- Path: `scripts/ci/canary-staging.sh`
+- Behavior: Every `CANARY_INTERVAL_SEC` for `CANARY_DURATION_SEC`, `GET` the web origin (with redirects) and `POST` a minimal GraphQL query to `STAGING_API_URL`. Records latencies for successful probes and fails if failure budgets or p95 latency thresholds are exceeded.
+
+### Environment variables
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `STAGING_BASE_URL` | yes | — | Web origin (no trailing path required; script hits `/`). |
+| `STAGING_API_URL` | yes | — | Full GraphQL HTTP endpoint URL. |
+| `CANARY_DURATION_SEC` | no | `600` | Total observation window (~10 minutes). |
+| `CANARY_INTERVAL_SEC` | no | `60` | Sleep between probe rounds. |
+| `CANARY_ONCE` | no | `false` | If `true`, run exactly one probe round (for quick validation). |
+| `CANARY_REQUEST_TIMEOUT_SEC` | no | `25` | Per-request curl timeout. |
+| `CANARY_WEB_ALLOWED_STATUSES` | no | `200,204,302` | Comma-separated acceptable HTTP statuses for the web probe. |
+| `CANARY_WEB_MAX_FAILURES` | no | `2` | Fail when web probe failures exceed this count (cumulative). |
+| `CANARY_GRAPHQL_MAX_FAILURES` | no | `2` | Fail when GraphQL probe failures exceed this count. |
+| `CANARY_P95_LATENCY_MS_WEB` | no | `8000` | Fail if p95 of **successful** web latencies exceeds this (milliseconds). |
+| `CANARY_P95_LATENCY_MS_API` | no | `8000` | Fail if p95 of **successful** GraphQL latencies exceeds this. |
+| `CANARY_GRAPHQL_BODY` | no | minimal `__typename` query | JSON POST body; override only if your schema requires a different probe. |
+| `CANARY_AUTH_HEADER` | no | unset | Optional `Authorization: ...` header; **never** print or log its value. |
+| `CANARY_ARTIFACT_DIR` | no | `artifacts/canary-run` | Log and timing files for CI artifacts. |
+
+### GitHub Actions
+
+- Workflow: `.github/workflows/canary-staging.yml`
+- **`workflow_dispatch`:** Manual “canary only” run. Optional repo variables: `CANARY_STAGING_BASE_URL`, `CANARY_STAGING_API_URL`. If the API variable is unset, provide **GraphQL URL** in the dispatch form.
+- **`workflow_call`:** Reuse from a promotion pipeline; pass `staging_base_url`, `staging_api_url`, and optional duration/interval/`canary_once`.
+- **Job timeout:** 45 minutes (well under the 6-hour GitHub job limit and typical free-tier usage).
+- **Artifacts:** `artifacts/canary-run/` (log, per-probe timings, summary) uploaded on success or failure.
+
+### Example: caller-only sketch (custom placement)
+
+```yaml
+jobs:
+  canary-before-staging:
+    uses: ./.github/workflows/canary-staging.yml
+    with:
+      staging_base_url: https://dev.example.com
+      staging_api_url: https://api.dev.example.com/graphql
+      duration_sec: '600'
+      interval_sec: '60'
+```
+
+### Tuning
+
+- Start with **10 minutes** / **60 s** interval (~10 rounds). Adjust `CANARY_*_MAX_FAILURES` for flake tolerance (e.g. allow 2 bad rounds).
+- Tighten `CANARY_P95_LATENCY_MS_*` once you have measured baselines on staging.
 # Infra CI metadata
 
 ## `stack-map.yaml`

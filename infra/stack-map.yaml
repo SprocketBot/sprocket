@@ -1,0 +1,42 @@
+# Pulumi / Swarm mapping for hosted environments (issues #667, #675).
+# Swarm stack name follows the Pulumi platform stack name (e.g. docker stack deploy staging → services prefixed staging_*).
+
+version: 1
+
+shared:
+  layer_1_stack: layer_1
+  layer_2_stack: layer_2
+  stack_reference_org: gankoji
+
+prod:
+  pulumi_platform_stack: prod
+  platform_subdomain: main
+  traefik_hostnames:
+    web: sprocket.mlesports.gg
+    api: api.sprocket.mlesports.gg
+    image_generation: image-generation.sprocket.mlesports.gg
+    rabbitmq_amqp: rabbitMq.sprocket.mlesports.gg
+    rabbitmq_management: management.rabbitMq.sprocket.mlesports.gg
+
+dev:
+  pulumi_platform_stack: dev
+  platform_subdomain: dev
+  traefik_hostnames:
+    web: dev.sprocket.mlesports.gg
+    api: api.dev.sprocket.mlesports.gg
+    image_generation: image-generation.dev.sprocket.mlesports.gg
+    rabbitmq_amqp: rabbitMq.dev.sprocket.mlesports.gg
+    rabbitmq_management: management.rabbitMq.dev.sprocket.mlesports.gg
+
+staging:
+  pulumi_platform_stack: staging
+  platform_subdomain: staging
+  notes:
+    - Deploy on the same pre-prod Swarm as dev; use a distinct Pulumi stack name so service names do not collide.
+    - Align DNS in the provider with platform:hostname (staging.sprocket.mlesports.gg below); adjust if your zone uses stg.* instead.
+  traefik_hostnames:
+    web: staging.sprocket.mlesports.gg
+    api: api.staging.sprocket.mlesports.gg
+    image_generation: image-generation.staging.sprocket.mlesports.gg
+    rabbitmq_amqp: rabbitMq.staging.sprocket.mlesports.gg
+    rabbitmq_management: management.rabbitMq.staging.sprocket.mlesports.gg
