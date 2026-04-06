@@ -52,7 +52,7 @@ export class StatsConverterService {
                     // Convert carball data to ballchasing format first
                     const ballchasingData = this.carballConverter.convertToBallchasingFormat(
                         data,
-                        `carball-stats-${Math.random()}`,
+                        raw.outputPath,
                     );
 
                     // teams = [blue, orange]

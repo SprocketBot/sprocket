@@ -13,3 +13,7 @@ config:
   layer_2:s3-access-key: DO004ZHPV38R8C9Q46XG
   layer_2:s3-endpoint: nyc3.digitaloceanspaces.com
   layer_2:hostname: sprocket.mlesports.gg
+  layer_2:image-namespace: sprocketbot
+  layer_2:docker-username: gankoji
+  layer_2:docker-access-token:
+    secure: AAABABfAaakvabX/yd04ZDXAiECzNiL/YG2cpWiJ3P84Mkg8G9Pi3hhG1vUyWB0gSstdXzJKOa+FXXcogZIMVB1Mmoe+mc+g

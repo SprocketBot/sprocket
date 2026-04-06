@@ -18,6 +18,18 @@ inputs:
     description: 'Whether to push the built image to GHCR'
     required: false
     default: 'true'
+  immutable_sha:
+    description: 'When set (full git SHA), also push ghcr.io/.../image:sha-<SHA> for immutable promotion references.'
+    required: false
+    default: ''
+
+outputs:
+  digest:
+    description: 'Image digest (sha256:...) after push; empty when push is disabled.'
+    value: ${{ steps.docker_build.outputs.digest }}
+  image_name:
+    description: 'Short image/service name (docker_image input).'
+    value: ${{ inputs.docker_image }}
 
 runs:
   using: 'composite'
@@ -36,7 +48,26 @@ runs:
     - name: Check out the repo
       uses: actions/checkout@v6
 
+    - name: Compute image tags
+      id: image_tags
+      shell: bash
+      run: |
+        REGISTRY="ghcr.io/sprocketbot"
+        IMG="${{ inputs.docker_image }}"
+        TAG="${{ inputs.docker_tag }}"
+        TAGS="${REGISTRY}/${IMG}:${TAG}"
+        IMMUTABLE="${{ inputs.immutable_sha }}"
+        if [ -n "${IMMUTABLE}" ]; then
+          TAGS="${TAGS}"$'\n'"${REGISTRY}/${IMG}:sha-${IMMUTABLE}"
+        fi
+        {
+          echo 'tags<<EOF'
+          echo "${TAGS}"
+          echo 'EOF'
+        } >> "${GITHUB_OUTPUT}"
+
     - name: Build And Push Image
+      id: docker_build
       uses: docker/build-push-action@v7
       with:
         build-args: |
@@ -45,7 +76,7 @@ runs:
         file: ${{ inputs.build_directory }}/Dockerfile
         target: app_image
         push: ${{ inputs.push_image == 'true' }}
-        tags: ghcr.io/sprocketbot/${{ inputs.docker_image }}:${{ inputs.docker_tag }}
+        tags: ${{ steps.image_tags.outputs.tags }}
         platforms: linux/amd64
 
     - uses: sarisia/actions-status-discord@v1
