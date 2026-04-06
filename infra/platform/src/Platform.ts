@@ -95,7 +95,6 @@ export class Platform extends pulumi.ComponentResource {
         }, { parent: this })
 
         this.datastore = new PlatformDatastore(`${name}-datastores`, {
-            environmentSubdomain: this.environmentSubdomain,
             ingressNetworkId: args.ingressNetworkId,
             platformNetworkId: this.network.id,
             redisHostname: args.redisHostname,
@@ -492,8 +491,8 @@ export class Platform extends pulumi.ComponentResource {
                 })
         };
 
-        // Don't include a staging version
-        if (pulumi.getStack() === 'staging' || monolithMode) return;
+        // Monolith deployments omit the legacy worker/bot stack.
+        if (monolithMode) return;
         new LegacyPlatform(`${name}-legacy`, {
             database: this.database,
             minio: this.objectStorage,

@@ -1,18 +1,20 @@
 {
   "version": 1,
   "name": "main-staging",
-  "display_name": "Main Staging",
+  "display_name": "Main Staging (pre-prod Swarm)",
   "kind": "hosted",
   "status": "active",
   "repo_root": ".",
   "source_of_truth": {
     "branch": "main",
-    "worktree_hint": "/Users/jacbaile/Workspace/MLE/RocketLeague/sprocket-main",
-    "infra_root": "/Users/jacbaile/Workspace/MLE/RocketLeague/sprocket/infra"
+    "worktree_hint": "/Users/jacbaile/Workspace/MLE/RocketLeague/sprocket",
+    "infra_root": "/Users/jacbaile/Workspace/MLE/RocketLeague/sprocket/infra",
+    "pulumi_platform_stack": "staging",
+    "stack_map": "infra/stack-map.yaml"
   },
   "entrypoints": {
-    "web": "https://staging.app.sprocket.gg",
-    "api_graphql": "https://api.staging.app.sprocket.gg/graphql"
+    "web": "https://staging.sprocket.mlesports.gg",
+    "api_graphql": "https://api.staging.sprocket.mlesports.gg/graphql"
   },
   "topology": [
     "web",
@@ -28,31 +30,34 @@
   ],
   "verification": {
     "tier0": {
-      "supported": false,
-      "reason": "No committed smoke profile for this lane yet; use Tier 1 with an explicit profile or add scripts/harness/env/main-staging.env.",
+      "supported": true,
+      "default_profile": "scripts/harness/env/main-staging.env",
       "command": "npm run verify:tier0 -- main-staging"
     },
     "tier1": {
-      "supported": true,
-      "default_profile": "",
-      "profile_template": "scripts/harness/env/main-staging-tier1.template.env",
-      "profile_override_required_when_missing": true,
-      "supported_scenarios": ["league", "scrim", "submission", "all"],
+      "supported": false,
+      "reason": "Tier 1 profile and scenarios for main-staging are not standardized in-repo yet.",
+      "profile_override_required": true,
       "command": "npm run verify:tier1 -- main-staging /absolute/path/to/profile.env <scenario>"
     },
     "all": {
       "supported": false,
-      "reason": "Tier 0 is not enabled for this lane; run Tier 1 only (npm run verify:tier1 -- main-staging ...).",
-      "command": "npm run verify:all -- main-staging /absolute/path/to/profile.env"
+      "reason": "Tier 1 is not yet enabled for main-staging."
     }
   },
   "artifact_root": "artifacts/release-validation/main-staging/<run-id>/",
+  "isolation_requirements": [
+    "Pulumi platform stack name distinct from dev (e.g. staging vs dev)",
+    "Postgres database sprocket_staging (not sprocket_dev or sprocket_main)",
+    "Redis key prefix staging via application config",
+    "Dedicated RabbitMQ Swarm service per stack (Traefik hostname rabbitMq.staging.sprocket.mlesports.gg)",
+    "Separate Spaces buckets sprocket-staging-1, sprocket-image-gen-staging-1, sprocket-replays-staging-1"
+  ],
   "safety": {
     "mutable_side_effects_require_operator_judgment": true,
     "notes": [
-      "Staging-only credentials and OAuth clients must be used; do not point a prod Tier 1 profile at staging if it mutates production.",
-      "Tier 1 exercises read and mutating flows; confirm org IDs, replay fixtures, and impersonation targets are safe for staging.",
-      "Confirm live DNS/TLS for staging; HARNESS_API_URL in the profile must match the reachable GraphQL endpoint."
+      "Staging is release-candidate shaped; do not point it at production databases or queues.",
+      "Confirm DNS matches infra/stack-map.yaml before expecting Tier 0 HTTPS checks to pass."
     ]
   }
 }

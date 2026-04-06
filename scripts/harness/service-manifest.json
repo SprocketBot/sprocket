@@ -276,6 +276,14 @@
       ]
     },
     {
+      "name": "main-staging",
+      "contract_path": "environments/main-staging.json",
+      "notes": [
+        "Pre-prod Swarm lane; isolated Pulumi/Swarm stack and data-plane namespaces from dev and prod.",
+        "Tier 0 uses scripts/harness/env/main-staging.env; Tier 1 is not standardized yet."
+        ]
+    },
+    {
       "name": "main-dev",
       "contract_path": "environments/main-dev.json",
       "notes": [

@@ -102,6 +102,17 @@ npm run infra:up -- platform prod --yes
 
 `infra:up` runs a preview first unless `PULUMI_SKIP_PREVIEW=1` is set.
 
+## Hosted stack → Traefik hostnames
+
+Canonical mapping (Pulumi platform stack names, subdomains, and public hostnames) lives in `infra/stack-map.yaml`.
+
+| Pulumi `platform` stack | Config `platform:subdomain` | Example Traefik hosts |
+| --- | --- | --- |
+| `prod` | `main` | `sprocket.mlesports.gg`, `api.sprocket.mlesports.gg`, `rabbitMq.sprocket.mlesports.gg` |
+| `dev` | `dev` | `dev.sprocket.mlesports.gg`, `api.dev.sprocket.mlesports.gg`, … |
+| `staging` | `staging` | `staging.sprocket.mlesports.gg`, `api.staging.sprocket.mlesports.gg`, … |
+
+Hostnames are derived in `infra/platform` from `platform:hostname` and `platform:subdomain` (`global/helpers/buildHost.ts` and `Platform.ts`). Staging uses `Pulumi.staging.yaml` on the same Swarm as dev with a different stack name so Swarm services do not collide.
 ## Lane ↔ Pulumi stack map (hosted)
 
 | Lane (harness) | Environment contract | Platform stack (typical) | Notes |
