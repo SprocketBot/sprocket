@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "name": "main-dev",
+  "display_name": "Main → Dev (pre-prod Swarm)",
+  "kind": "hosted",
+  "status": "planned",
+  "repo_root": ".",
+  "source_of_truth": {
+    "branch": "main",
+    "worktree_hint": "Use the same monorepo checkout as main; lane id is main-dev.",
+    "infra_root": "infra",
+    "notes": [
+      "Hosted dev shares the pre-prod Swarm substrate (see foundation dev-staging) but must use an isolated platform stack: unique Pulumi stack name, subdomain, DB, Redis prefix, RabbitMQ vhost, and Swarm service labels.",
+      "Traefik hostnames follow platform config: set platform:hostname to the dev web apex (e.g. dev.sprocket.mlesports.gg) so buildHost yields web and api.dev.* URLs."
+    ]
+  },
+  "entrypoints": {
+    "web": "https://dev.sprocket.mlesports.gg",
+    "api_graphql": "https://api.dev.sprocket.mlesports.gg/graphql"
+  },
+  "topology": [
+    "web",
+    "core",
+    "discord-bot",
+    "image-generation-frontend",
+    "image-generation-service",
+    "matchmaking-service",
+    "notification-service",
+    "server-analytics-service",
+    "submission-service",
+    "replay-parse-service"
+  ],
+  "verification": {
+    "tier0": {
+      "supported": true,
+      "default_profile": "scripts/harness/env/main-dev.env",
+      "command": "npm run verify:tier0 -- main-dev"
+    },
+    "tier1": {
+      "supported": false,
+      "reason": "Tier 1 for main-dev is not committed yet; use a maintainer-supplied profile when ready.",
+      "profile_override_required": true,
+      "command": "npm run verify:tier1 -- main-dev /absolute/path/to/profile.env <scenario>"
+    },
+    "all": {
+      "supported": false,
+      "reason": "Depends on Tier 1 support for this lane."
+    }
+  },
+  "artifact_root": "artifacts/release-validation/main-dev/<run-id>/",
+  "safety": {
+    "mutable_side_effects_require_operator_judgment": true,
+    "notes": [
+      "Dev is not production, but still avoid destructive or spammy operations without agreement.",
+      "Replace placeholder entrypoint URLs in scripts/harness/env/main-dev.env if DNS differs from foundation dev.sprocket.mlesports.gg."
+    ]
+  }
+}

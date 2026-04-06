@@ -40,6 +40,7 @@ Use this for:
 - `scripts/harness/service-manifest.json`
 - `environments/local-dev.json`
 - `environments/main-prod.json`
+- `environments/main-dev.json`
 - `environments/v15-beta.json`
 
 Use these for:

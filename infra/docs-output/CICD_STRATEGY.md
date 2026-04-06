@@ -318,6 +318,8 @@ To make this stable:
 
 You should also standardize per-stack commands so CI does not guess.
 
+Stack names and order are defined in `infra/ci/stack-map.yaml`.
+
 For example:
 
 - `infra/layer_1`

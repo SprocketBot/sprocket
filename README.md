@@ -24,7 +24,7 @@ Infrastructure code now lives under `infra/`, which contains the Pulumi projects
 - `infra/layer_2`
 - `infra/platform`
 
-The committed `Pulumi.*.yaml` files moved with the code so stack configuration remains in version control. Pulumi backend state is still remote and must be accessed with the same backend login used before the migration.
+The committed `Pulumi.*.yaml` files moved with the code so stack configuration remains in version control. Pulumi backend state is still remote and must be accessed with the same backend login (these projects use Pulumi Cloud as the backend).
 
 ## Agent Entry Point
 
@@ -64,6 +64,8 @@ npm run infra:up -- platform prod --yes
 ```
 
 The deployment runner contract is documented in [`scripts/infra/README.md`](./scripts/infra/README.md) and [`infra/README.md`](./infra/README.md).
+
+Prod rollback (immutable image tags, Pulumi): [`infra/docs-output/ROLLBACK_PRODUCTION.md`](./infra/docs-output/ROLLBACK_PRODUCTION.md).
 
 ## Building / Running this Repository
 
