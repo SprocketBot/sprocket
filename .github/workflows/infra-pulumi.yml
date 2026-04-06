@@ -37,6 +37,10 @@ permissions:
   contents: read
   pull-requests: write
 
+# Before production `pulumi up` on the platform/prod stack, Tier 1 harness runs against
+# hosted staging (lane `main-staging`). Configure GitHub environment `staging` with secret
+# `HARNESS_MAIN_STAGING_TIER1_ENV` (full multiline .env). See scripts/harness/README.md.
+
 jobs:
   preview:
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
@@ -72,8 +76,58 @@ jobs:
           tailscale-authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
           pulumi-backend-url: ${{ secrets.PULUMI_BACKEND_URL }}
 
+  integration-staging:
+    if: |
+      github.event_name == 'workflow_dispatch' &&
+      github.event.inputs.command == 'up' &&
+      github.event.inputs.stack_project == 'platform' &&
+      github.event.inputs.stack_name == 'prod'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: staging
+    env:
+      HARNESS_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}-gha-main-staging-tier1
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Write Tier 1 profile from secret
+        env:
+          HARNESS_MAIN_STAGING_TIER1_ENV: ${{ secrets.HARNESS_MAIN_STAGING_TIER1_ENV }}
+        run: |
+          if [ -z "${HARNESS_MAIN_STAGING_TIER1_ENV}" ]; then
+            echo "::error::Secret HARNESS_MAIN_STAGING_TIER1_ENV is empty. Add the staging Tier 1 multiline env file to the GitHub Actions staging environment."
+            exit 1
+          fi
+          printf '%s\n' "${HARNESS_MAIN_STAGING_TIER1_ENV}" > "${RUNNER_TEMP}/tier1.env"
+
+      - name: Run Tier 1 harness (staging)
+        run: bash scripts/harness/verify-lane.sh tier1 main-staging "${RUNNER_TEMP}/tier1.env" all
+
+      - name: Upload harness artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: harness-main-staging-tier1-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/release-validation/
+          if-no-files-found: warn
+
   deploy:
-    if: github.event_name == 'workflow_dispatch'
+    needs:
+      - integration-staging
+    if: |
+      always() &&
+      github.event_name == 'workflow_dispatch' &&
+      (needs.integration-staging.result == 'success' || needs.integration-staging.result == 'skipped')
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.command == 'up' && 'production' || 'preview' }}
     steps:
