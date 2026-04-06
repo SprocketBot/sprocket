@@ -65,6 +65,8 @@ npm run infra:up -- platform prod --yes
 
 The deployment runner contract is documented in [`scripts/infra/README.md`](./scripts/infra/README.md) and [`infra/README.md`](./infra/README.md).
 
+Prod rollback (immutable image tags, Pulumi): [`infra/docs-output/ROLLBACK_PRODUCTION.md`](./infra/docs-output/ROLLBACK_PRODUCTION.md).
+
 ## Building / Running this Repository
 
 ### Installing Dependencies:
