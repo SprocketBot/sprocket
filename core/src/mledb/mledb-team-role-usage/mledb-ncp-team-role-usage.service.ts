@@ -15,7 +15,7 @@ import { Role } from '../../database/mledb/enums/Role.enum';
 import { MLE_TeamRoleUsage } from '../../database/mledb/TeamRoleUsage.model';
 import { SeriesToMatchParent } from '../../database/mledb-bridge/series_to_match_parent.model';
 
-import type { NcpTeamRoleUsageRowInput } from './ncp-team-role-usage.types';
+import type { NcpTeamRoleInput } from './ncp-team-role-usage.types';
 
 /** Each logical slot row is persisted this many times for downstream accounting. */
 export const NCP_TEAM_ROLE_USAGE_ROW_REPEAT = 3;
@@ -112,7 +112,7 @@ export class MledbNcpTeamRoleUsageService {
    * {@link NCP_TEAM_ROLE_USAGE_ROW_REPEAT} times), and one `sprocket.roster_role_usage`
    * row per slot when franchise, team, roster role, and roster slot assignment resolve.
    */
-  async importRow(row: NcpTeamRoleUsageRowInput, actor: string): Promise<number> {
+  async importRow(row: NcpTeamRoleInput, actor: string): Promise<number> {
     const seriesId = row.seriesId;
     const series = await this.seriesRepo.findOneOrFail({
       where: { id: seriesId },

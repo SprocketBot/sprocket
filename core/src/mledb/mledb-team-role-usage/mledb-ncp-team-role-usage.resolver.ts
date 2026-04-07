@@ -17,6 +17,7 @@ import {
   ncpTeamRoleUsageInputSchema,
   NcpTeamRoleInput,
   NcpRoleUsageResult,
+  schemaToInput,
 } from './ncp-team-role-usage.types';
 
 @Resolver()
@@ -74,7 +75,8 @@ export class MledbNcpTeamRoleUsageResolver {
       this.logger.debug(`Processing ${records.data.length} valid records from CSV`);
       for (const record of records.data) {
         try {
-          await this.ncpTeamRoleUsage(ncpTeamRoleUsageInputSchema.parse(record), user);
+          const row = schemaToInput(record);
+          await this.ncpTeamRoleUsage(row, user);
         } catch (error) {
           this.logger.error(`Error inputting NCP for series ${record.seriesId}.`, error);
         }
