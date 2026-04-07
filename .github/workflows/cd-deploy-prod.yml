@@ -67,7 +67,7 @@ jobs:
       - name: Pulumi preview — layer_1 / layer_1
         uses: ./.github/reusable_workflows/pulumi_up
         env:
-          PROD_PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
         with:
           command: preview
           stack-project: layer_1
@@ -80,7 +80,7 @@ jobs:
       - name: Pulumi preview — layer_2 / layer_2
         uses: ./.github/reusable_workflows/pulumi_up
         env:
-          PROD_PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
         with:
           command: preview
           stack-project: layer_2
@@ -93,7 +93,7 @@ jobs:
       - name: Pulumi preview — platform / prod
         uses: ./.github/reusable_workflows/pulumi_up
         env:
-          PROD_PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
         with:
           command: preview
           stack-project: platform
@@ -106,7 +106,7 @@ jobs:
       - name: Pulumi up — layer_1 / layer_1
         uses: ./.github/reusable_workflows/pulumi_up
         env:
-          PROD_PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
         with:
           command: up
           stack-project: layer_1
@@ -119,7 +119,7 @@ jobs:
       - name: Pulumi up — layer_2 / layer_2
         uses: ./.github/reusable_workflows/pulumi_up
         env:
-          PROD_PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
         with:
           command: up
           stack-project: layer_2
@@ -132,7 +132,7 @@ jobs:
       - name: Pulumi up — platform / prod
         uses: ./.github/reusable_workflows/pulumi_up
         env:
-          PROD_PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
         with:
           command: up
           stack-project: platform
