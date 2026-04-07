@@ -1,18 +1,50 @@
-import {Field, InputType, Int} from "@nestjs/graphql";
+import { createUnionType, Field, InputType, Int } from '@nestjs/graphql';
+import { OperationError } from 'src/franchise/player/player.types';
+import { z } from 'zod';
 
 @InputType()
-export class NcpTeamRoleUsageRowInput {
-    @Field(() => Int)
-    seriesId: number;
+export class NcpTeamRoleInput {
+  @Field(() => Int)
+  seriesId: number;
 
-    @Field()
-    teamName: string;
+  @Field()
+  teamName: string;
 
-    /** League as CSV abbreviation: FL, AL, CL, ML, PL */
-    @Field()
-    leagueAbbrev: string;
+  /** League as CSV abbreviation: FL, AL, CL, ML, PL */
+  @Field()
+  leagueAbbrev: string;
 
-    /** Slot letters from the sheet, e.g. A, B, C (mapped to PLAYERA, PLAYERB, …) */
-    @Field(() => [String])
-    slotsUsed: string[];
+  /** Slot letters from the sheet, e.g. A, B, C (mapped to PLAYERA, PLAYERB, …) */
+  @Field(() => [String])
+  slotsUsed: string[];
 }
+
+export const ncpTeamRoleUsageInputSchema = z.object({
+  seriesId: z.number(),
+  teamName: z.string(),
+  leagueAbbrev: z.string(),
+  slotsUsed: z.array(z.string()),
+});
+
+export type ncpTeamRoleUsageInput = z.infer<typeof ncpTeamRoleUsageInputSchema>;
+
+export function schemaToInput(s: ncpTeamRoleUsageInput): NcpTeamRoleInput {
+  const out: NcpTeamRoleInput = {
+    seriesId: s.seriesId,
+    teamName: s.teamName,
+    leagueAbbrev: s.leagueAbbrev,
+    slotsUsed: s.slotsUsed,
+  };
+
+  return out;
+}
+
+// Union Types for Mutation Results
+export const NcpRoleUsageResult = createUnionType({
+  name: 'NcpRoleUsageResult',
+  types: () => [Number, OperationError],
+  resolveType: value => {
+    if (value instanceof OperationError) return OperationError;
+    return Number;
+  },
+});
