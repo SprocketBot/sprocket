@@ -9,10 +9,7 @@
 #   PROD_SSH_USER             — SSH user for that host
 #   PROD_SSH_KEY              — Private key for PROD_SSH_USER (prod droplet only)
 #   PROD_TAILSCALE_AUTHKEY    — Optional; Tailscale auth key that reaches prod only
-#   PROD_PULUMI_BACKEND_URL   — Pulumi state backend URL for prod (e.g. S3)
-#   PROD_PULUMI_CONFIG_PASSPHRASE
-#   PROD_AWS_ACCESS_KEY_ID    — If Pulumi/AWS operations need prod-scoped keys
-#   PROD_AWS_SECRET_ACCESS_KEY
+#   PROD_PULUMI_ACCESS_TOKEN  - Needed for login to Pulumi state provider (default pulumi cloud)
 #
 # Enable **required reviewers** on the `production` environment so `pulumi up` cannot
 # run until approved. Note: GitHub waits for that approval before the job starts, so
@@ -70,10 +67,7 @@ jobs:
       - name: Pulumi preview — layer_1 / layer_1
         uses: ./.github/reusable_workflows/pulumi_up
         env:
-          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PROD_PULUMI_CONFIG_PASSPHRASE }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: nyc3
+          PROD_PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
         with:
           command: preview
           stack-project: layer_1
@@ -82,15 +76,11 @@ jobs:
           ssh-user: ${{ secrets.PROD_SSH_USER }}
           ssh-key: ${{ secrets.PROD_SSH_KEY }}
           tailscale-authkey: ${{ secrets.PROD_TAILSCALE_AUTHKEY }}
-          pulumi-backend-url: ${{ secrets.PROD_PULUMI_BACKEND_URL }}
 
       - name: Pulumi preview — layer_2 / layer_2
         uses: ./.github/reusable_workflows/pulumi_up
         env:
-          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PROD_PULUMI_CONFIG_PASSPHRASE }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: nyc3
+          PROD_PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
         with:
           command: preview
           stack-project: layer_2
@@ -99,15 +89,11 @@ jobs:
           ssh-user: ${{ secrets.PROD_SSH_USER }}
           ssh-key: ${{ secrets.PROD_SSH_KEY }}
           tailscale-authkey: ${{ secrets.PROD_TAILSCALE_AUTHKEY }}
-          pulumi-backend-url: ${{ secrets.PROD_PULUMI_BACKEND_URL }}
 
       - name: Pulumi preview — platform / prod
         uses: ./.github/reusable_workflows/pulumi_up
         env:
-          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PROD_PULUMI_CONFIG_PASSPHRASE }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: nyc3
+          PROD_PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
         with:
           command: preview
           stack-project: platform
@@ -116,15 +102,11 @@ jobs:
           ssh-user: ${{ secrets.PROD_SSH_USER }}
           ssh-key: ${{ secrets.PROD_SSH_KEY }}
           tailscale-authkey: ${{ secrets.PROD_TAILSCALE_AUTHKEY }}
-          pulumi-backend-url: ${{ secrets.PROD_PULUMI_BACKEND_URL }}
 
       - name: Pulumi up — layer_1 / layer_1
         uses: ./.github/reusable_workflows/pulumi_up
         env:
-          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PROD_PULUMI_CONFIG_PASSPHRASE }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: nyc3
+          PROD_PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
         with:
           command: up
           stack-project: layer_1
@@ -133,15 +115,11 @@ jobs:
           ssh-user: ${{ secrets.PROD_SSH_USER }}
           ssh-key: ${{ secrets.PROD_SSH_KEY }}
           tailscale-authkey: ${{ secrets.PROD_TAILSCALE_AUTHKEY }}
-          pulumi-backend-url: ${{ secrets.PROD_PULUMI_BACKEND_URL }}
 
       - name: Pulumi up — layer_2 / layer_2
         uses: ./.github/reusable_workflows/pulumi_up
         env:
-          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PROD_PULUMI_CONFIG_PASSPHRASE }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: nyc3
+          PROD_PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
         with:
           command: up
           stack-project: layer_2
@@ -150,15 +128,11 @@ jobs:
           ssh-user: ${{ secrets.PROD_SSH_USER }}
           ssh-key: ${{ secrets.PROD_SSH_KEY }}
           tailscale-authkey: ${{ secrets.PROD_TAILSCALE_AUTHKEY }}
-          pulumi-backend-url: ${{ secrets.PROD_PULUMI_BACKEND_URL }}
 
       - name: Pulumi up — platform / prod
         uses: ./.github/reusable_workflows/pulumi_up
         env:
-          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PROD_PULUMI_CONFIG_PASSPHRASE }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: nyc3
+          PROD_PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
         with:
           command: up
           stack-project: platform
@@ -167,4 +141,3 @@ jobs:
           ssh-user: ${{ secrets.PROD_SSH_USER }}
           ssh-key: ${{ secrets.PROD_SSH_KEY }}
           tailscale-authkey: ${{ secrets.PROD_TAILSCALE_AUTHKEY }}
-          pulumi-backend-url: ${{ secrets.PROD_PULUMI_BACKEND_URL }}
