@@ -106,12 +106,9 @@ runs:
       env:
         PULUMI_BACKEND_URL: ${{ inputs.pulumi-backend-url }}
       run: |
-        extra_args=()
         if [ "${{ inputs.command }}" = "up" ]; then
-          extra_args+=(--yes)
+          bash ./scripts/infra/run-pulumi.sh ${{ inputs.stack-project }} ${{ inputs.stack-name }} up --yes
         fi
-
-        bash ./scripts/infra/run-pulumi.sh "${{ inputs.stack-project }}" "${{ inputs.stack-name }}" "${{ inputs.command }}" "${extra_args[@]}"
 
     - name: Clean up remote Docker SSH key
       if: always()
