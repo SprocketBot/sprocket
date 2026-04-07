@@ -112,6 +112,7 @@ runs:
           pulumi up --yes --stack ${{ inputs.stack-name }}
         else
           pulumi ${{ inputs.command }} --stack ${{ inputs.stack-name }}
+        fi
 
     - name: Clean up remote Docker SSH key
       if: always()
