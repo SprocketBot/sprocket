@@ -78,7 +78,7 @@ export class MledbNcpTeamRoleUsageResolver {
           const row = schemaToInput(record);
           await this.ncpTeamRoleUsage(row, user);
         } catch (error) {
-          this.logger.error(`Error inputting NCP for series ${record.seriesId}.`, error);
+          this.logger.error(`Error inputting NCP for series ${record.matchId}.`, error);
         }
       }
 
