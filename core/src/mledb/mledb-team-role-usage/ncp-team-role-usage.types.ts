@@ -5,7 +5,7 @@ import { z } from 'zod';
 @InputType()
 export class NcpTeamRoleInput {
   @Field(() => Int)
-  seriesId: number;
+  matchId: number;
 
   @Field()
   teamName: string;
@@ -20,7 +20,7 @@ export class NcpTeamRoleInput {
 }
 
 export const ncpTeamRoleUsageInputSchema = z.object({
-  seriesId: z.number(),
+  matchId: z.number(),
   teamName: z.string(),
   leagueAbbrev: z.string(),
   slotsUsed: z.array(z.string()),
@@ -30,7 +30,7 @@ export type ncpTeamRoleUsageInput = z.infer<typeof ncpTeamRoleUsageInputSchema>;
 
 export function schemaToInput(s: ncpTeamRoleUsageInput): NcpTeamRoleInput {
   const out: NcpTeamRoleInput = {
-    seriesId: s.seriesId,
+    matchId: s.matchId,
     teamName: s.teamName,
     leagueAbbrev: s.leagueAbbrev,
     slotsUsed: s.slotsUsed,

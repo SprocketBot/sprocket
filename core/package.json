@@ -8,6 +8,7 @@
     "clean": "rimraf dist",
     "dev": "nest start --watch",
     "debug": "nest start --watch --debug",
+    "backfill:mledb-bridge": "ts-node ./src/scripts/backfill-mledb-bridge.ts",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "lint": "eslint src --fix",

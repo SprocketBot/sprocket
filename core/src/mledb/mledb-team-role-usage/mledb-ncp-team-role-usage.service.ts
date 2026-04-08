@@ -113,19 +113,17 @@ export class MledbNcpTeamRoleUsageService {
    * row per slot when franchise, team, roster role, and roster slot assignment resolve.
    */
   async importRow(row: NcpTeamRoleInput, actor: string): Promise<number> {
-    const seriesId = row.seriesId;
-    const series = await this.seriesRepo.findOneOrFail({
-      where: { id: seriesId },
+    const match = await this.matchRepo.findOneOrFail({
+      where: { id: row.matchId },
+      relations: { skillGroup: true, matchParent: true },
     });
 
     const bridgeRow = await this.seriesToMatchParentRepo.findOneOrFail({
-      where: { seriesId: seriesId },
+      where: { matchParentId: match.matchParent.id },
     });
 
-    const matchParentId = bridgeRow.matchParentId;
-    const match = await this.matchRepo.findOneOrFail({
-      where: { matchParent: { id: matchParentId } },
-      relations: { skillGroup: true, matchParent: true },
+    const series = await this.seriesRepo.findOneOrFail({
+      where: { id: bridgeRow.seriesId },
     });
 
     const mledbToSave: MLE_TeamRoleUsage[] = [];
@@ -134,20 +132,20 @@ export class MledbNcpTeamRoleUsageService {
     const league = normalizeLeagueAbbrev(row.leagueAbbrev);
     const teamName = row.teamName.trim();
     if (!teamName) {
-      throw new BadRequestException(`Empty team name for series ${row.seriesId}`);
+      throw new BadRequestException(`Empty team name for series ${row.matchId}`);
     }
 
     const seriesLeague = series.league.trim().toUpperCase();
     if (seriesLeague !== league) {
       throw new BadRequestException(
-        `Series ${row.seriesId} league is "${series.league}" but row has ${league} (${row.leagueAbbrev})`,
+        `Series ${row.matchId} league is "${series.league}" but row has ${league} (${row.leagueAbbrev})`,
       );
     }
 
     const letters = normalizeSlotLetters(row.slotsUsed);
     if (letters.length === 0) {
       throw new BadRequestException(
-        `No non-empty slots for series ${row.seriesId}, team "${teamName}"`,
+        `No non-empty slots for series ${row.matchId}, team "${teamName}"`,
       );
     }
 
@@ -165,7 +163,7 @@ export class MledbNcpTeamRoleUsageService {
     if (team.skillGroup.id !== match.skillGroupId) {
       throw new BadRequestException(
         `Resolved team id ${team.id} skill group ${team.skillGroup.id} does not match ` +
-          `match ${match.id} skill group ${match.skillGroupId} for series ${row.seriesId}, team "${teamName}"`,
+          `match ${match.id} skill group ${match.skillGroupId} for series ${row.matchId}, team "${teamName}"`,
       );
     }
 
@@ -193,7 +191,7 @@ export class MledbNcpTeamRoleUsageService {
       if (!rosterRole) {
         throw new BadRequestException(
           `No roster_role for code ${role}, skillGroupId ${match.skillGroupId}, ` +
-            `organizationId ${match.skillGroup.organizationId} (series ${row.seriesId}, "${teamName}")`,
+            `organizationId ${match.skillGroup.organizationId} (series ${row.matchId}, "${teamName}")`,
         );
       }
 
@@ -207,7 +205,7 @@ export class MledbNcpTeamRoleUsageService {
       if (!rosterSlot?.player) {
         throw new BadRequestException(
           `No roster_slot (with player) for team id ${team.id}, roster role ${rosterRole.code} — ` +
-            `series ${row.seriesId}, "${teamName}", slot ${letter}`,
+            `series ${row.matchId}, "${teamName}", slot ${letter}`,
         );
       }
 
