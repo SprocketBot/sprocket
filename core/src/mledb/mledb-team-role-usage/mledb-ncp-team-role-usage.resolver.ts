@@ -62,11 +62,8 @@ export class MledbNcpTeamRoleUsageResolver {
       this.logger.debug('Starting bulk NCP role usage import.');
       const csv = await readToString((await file).createReadStream());
 
-      this.logger.debug('Parsing and validating CSV files');
-      this.logger.debug(`Parsing and validating a CSV file: ${csv.substring(0, 50)}...`);
+      const actor = user?.username?.trim() || `userId:${user.userId}`;
       const records = parseAndValidateCsv(csv, ncpTeamRoleUsageInputSchema);
-      this.logger.debug(`Processing ${records.data.length} records from CSV`);
-      this.logger.debug(`Found ${records.errors.length} errors in CSV`);
       for (const error of records.errors) {
         this.logger.error(
           `Error in CSV: Row ${error.row}, Field: ${error.field || 'N/A'}, Value: ${
@@ -74,17 +71,17 @@ export class MledbNcpTeamRoleUsageResolver {
           }, Message: ${error.message}`,
         );
       }
-      this.logger.debug(`Processing ${records.data.length} valid records from CSV`);
+      let sumRecords = 0;
       for (const record of records.data) {
         try {
           const row = schemaToInput(record);
-          await this.ncpTeamRoleUsage(row, user);
+          sumRecords += await this.ncpTeamRoleUsageService.importRow(row, actor);
         } catch (error) {
           this.logger.error(`Error inputting NCP for series ${record.matchId}.`, error);
         }
       }
 
-      return new OperationError('Bulk NCP role usage intake completed successfully', 200);
+      return sumRecords;
     } catch (error) {
       this.logger.error(`Error in bulk skill group change: ${error}`);
       return new OperationError(
