@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, Repository } from 'typeorm';
 
@@ -84,6 +84,8 @@ function normalizeSlotLetters(slots: string[]): string[] {
 
 @Injectable()
 export class MledbNcpTeamRoleUsageService {
+  private readonly logger = new Logger(MledbNcpTeamRoleUsageService.name);
+
   constructor(
     @InjectRepository(MLE_TeamRoleUsage)
     private readonly teamRoleUsageRepo: Repository<MLE_TeamRoleUsage>,
@@ -109,8 +111,9 @@ export class MledbNcpTeamRoleUsageService {
 
   /**
    * Inserts `mledb.team_role_usage` rows from NCP-style inputs (each slot repeated
-   * {@link NCP_TEAM_ROLE_USAGE_ROW_REPEAT} times), and one `sprocket.roster_role_usage`
-   * row per slot when franchise, team, roster role, and roster slot assignment resolve.
+   * {@link NCP_TEAM_ROLE_USAGE_ROW_REPEAT} times). Best-effort: also inserts
+   * `sprocket.roster_role_usage` per slot when roster role and slot-with-player resolve;
+   * Sprocket failures are logged and do not fail the mutation or roll back MLEDB.
    */
   async importRow(row: NcpTeamRoleInput, actor: string): Promise<number> {
     const match = await this.matchRepo.findOneOrFail({
@@ -189,10 +192,12 @@ export class MledbNcpTeamRoleUsageService {
         },
       });
       if (!rosterRole) {
-        throw new BadRequestException(
-          `No roster_role for code ${role}, skillGroupId ${match.skillGroupId}, ` +
-            `organizationId ${match.skillGroup.organizationId} (series ${row.matchId}, "${teamName}")`,
+        this.logger.warn(
+          `Skipping sprocket.roster_role_usage: no roster_role for code ${role}, skillGroupId ` +
+            `${match.skillGroupId}, organizationId ${match.skillGroup.organizationId} ` +
+            `(match ${row.matchId}, team "${teamName}")`,
         );
+        continue;
       }
 
       const rosterSlot = await this.rosterSlotRepo.findOne({
@@ -203,10 +208,11 @@ export class MledbNcpTeamRoleUsageService {
         relations: { player: true },
       });
       if (!rosterSlot?.player) {
-        throw new BadRequestException(
-          `No roster_slot (with player) for team id ${team.id}, roster role ${rosterRole.code} — ` +
-            `series ${row.matchId}, "${teamName}", slot ${letter}`,
+        this.logger.warn(
+          `Skipping sprocket.roster_role_usage: no roster_slot with player for team id ${team.id}, ` +
+            `roster role ${rosterRole.code} (match ${row.matchId}, team "${teamName}", slot ${letter})`,
         );
+        continue;
       }
 
       sprocketToSave.push(
@@ -233,21 +239,31 @@ export class MledbNcpTeamRoleUsageService {
           await em.save(MLE_TeamRoleUsage, usage);
         }
       }
-      await em.save(MLE_TeamRoleUsage, mledbToSave);
-      for (const usage of sprocketToSave) {
-        const dup = await em.findOne(RosterRoleUsage, {
-          where: {
-            match: { id: usage.match.id },
-            team: { id: usage.team.id },
-            rosterRole: { id: usage.rosterRole.id },
-            player: { id: usage.player.id },
-          },
-        });
-        if (!dup) {
-          await em.save(RosterRoleUsage, usage);
-        }
-      }
     });
+
+    for (const usage of sprocketToSave) {
+      try {
+        await this.dataSource.transaction(async em => {
+          const dup = await em.findOne(RosterRoleUsage, {
+            where: {
+              match: { id: usage.match.id },
+              team: { id: usage.team.id },
+              rosterRole: { id: usage.rosterRole.id },
+              player: { id: usage.player.id },
+            },
+          });
+          if (!dup) {
+            await em.save(RosterRoleUsage, usage);
+          }
+        });
+      } catch (err) {
+        this.logger.warn(
+          `Failed to save sprocket.roster_role_usage for match ${usage.match.id}, team ${usage.team.id}, ` +
+            `rosterRole ${usage.rosterRole.id}, player ${usage.player.id}: ` +
+            `${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
 
     return mledbToSave.length;
   }
