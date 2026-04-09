@@ -28,9 +28,9 @@ export class MledbNcpTeamRoleUsageResolver {
 
   @Mutation(() => Int, {
     description:
-      'Input team role usage (MLEDB admin or LO). Writes mledb.team_role_usage ' +
-      '(three identical rows per slot for legacy accounting) and sprocket.roster_role_usage ' +
-      '(one row per slot when franchise, team, roster role, and roster slot resolve). ' +
+      'Input team role usage (MLEDB admin or LO). Always writes mledb.team_role_usage ' +
+      '(three identical rows per slot for legacy accounting). Best-effort sprocket.roster_role_usage ' +
+      '(one row per resolved slot); Sprocket write issues are logged and do not fail the mutation. ' +
       'League abbreviations FL/AL/CL/ML/PL map to MLE leagues; slot letters A–H map to PLAYERA–PLAYERH.',
   })
   @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
@@ -43,7 +43,9 @@ export class MledbNcpTeamRoleUsageResolver {
   }
 
   @Mutation(() => Int, {
-    description: 'Bulk input of team role usage (MLEDB admin or LO). Writes mledb.team_role_usage',
+    description:
+      'Bulk input of team role usage (MLEDB admin or LO). Writes mledb.team_role_usage; ' +
+      'Sprocket roster_role_usage is best-effort per row (see ncpTeamRoleUsage).',
   })
   @UseGuards(
     GqlJwtGuard,
