@@ -1,6 +1,13 @@
-import { createUnionType, Field, InputType, Int } from '@nestjs/graphql';
+import { createUnionType, Field, InputType, Int, ObjectType } from '@nestjs/graphql';
 import { OperationError } from 'src/franchise/player/player.types';
 import { z } from 'zod';
+
+/** Total `mledb.team_role_usage` rows inserted for the CSV (per slot × repeat factor). */
+@ObjectType()
+export class NcpRoleUsageBulkSuccess {
+  @Field(() => Int)
+  insertedMledbRowCount: number;
+}
 
 @InputType()
 export class NcpTeamRoleInput {
@@ -39,12 +46,11 @@ export function schemaToInput(s: ncpTeamRoleUsageInput): NcpTeamRoleInput {
   return out;
 }
 
-// Union Types for Mutation Results
-export const NcpRoleUsageResult = createUnionType({
-  name: 'NcpRoleUsageResult',
-  types: () => [Number, OperationError],
+export const NcpRoleUsageBulkResult = createUnionType({
+  name: 'NcpRoleUsageBulkResult',
+  types: () => [NcpRoleUsageBulkSuccess, OperationError],
   resolveType: value => {
     if (value instanceof OperationError) return OperationError;
-    return Number;
+    return NcpRoleUsageBulkSuccess;
   },
 });
