@@ -1,4 +1,4 @@
-import { Logger, UseGuards } from '@nestjs/common';
+import { BadRequestException, Logger, UseGuards } from '@nestjs/common';
 import { Args, Int, Mutation, Resolver } from '@nestjs/graphql';
 import { GraphQLUpload } from 'graphql-upload';
 import { parseAndValidateCsv } from '../../util/csv-parse';
@@ -13,10 +13,10 @@ import { MLEOrganizationTeamGuard } from '../mledb-player/mle-organization-team.
 import { OperationError } from 'src/franchise/player/player.types';
 import { MledbNcpTeamRoleUsageService } from './mledb-ncp-team-role-usage.service';
 import {
-  ncpTeamRoleUsageInput,
+  NcpRoleUsageBulkResult,
+  NcpRoleUsageBulkSuccess,
   ncpTeamRoleUsageInputSchema,
   NcpTeamRoleInput,
-  NcpRoleUsageResult,
   schemaToInput,
 } from './ncp-team-role-usage.types';
 
@@ -37,12 +37,12 @@ export class MledbNcpTeamRoleUsageResolver {
   async ncpTeamRoleUsage(
     @Args('row', { type: () => NcpTeamRoleInput }) row: NcpTeamRoleInput,
     @CurrentUser() user: UserPayload,
-  ): Promise<typeof NcpRoleUsageResult> {
+  ): Promise<number> {
     const actor = user?.username?.trim() || `userId:${user.userId}`;
     return this.ncpTeamRoleUsageService.importRow(row, actor);
   }
 
-  @Mutation(() => Int, {
+  @Mutation(() => NcpRoleUsageBulkResult, {
     description:
       'Bulk input of team role usage (MLEDB admin or LO). Writes mledb.team_role_usage; ' +
       'Sprocket roster_role_usage is best-effort per row (see ncpTeamRoleUsage).',
@@ -57,10 +57,10 @@ export class MledbNcpTeamRoleUsageResolver {
   async ncpTeamRoleUsageBulk(
     @Args('file', { type: () => GraphQLUpload }) file: Promise<FileUpload>,
     @CurrentUser() user: UserPayload,
-  ): Promise<typeof NcpRoleUsageResult> {
+  ): Promise<typeof NcpRoleUsageBulkResult> {
     try {
       this.logger.debug('Starting bulk NCP role usage import.');
-      const csv = await readToString((await file).createReadStream());
+      const csv = await this.readUploadToString(file);
 
       const actor = user?.username?.trim() || `userId:${user.userId}`;
       const records = parseAndValidateCsv(csv, ncpTeamRoleUsageInputSchema);
@@ -81,13 +81,35 @@ export class MledbNcpTeamRoleUsageResolver {
         }
       }
 
-      return sumRecords;
+      const success = new NcpRoleUsageBulkSuccess();
+      success.insertedMledbRowCount = sumRecords;
+      return success;
     } catch (error) {
-      this.logger.error(`Error in bulk skill group change: ${error}`);
+      this.logger.error(`Error in bulk NCP role usage: ${error}`);
       return new OperationError(
-        error instanceof Error ? error.message : 'Failed to process bulk skill group change',
+        error instanceof Error ? error.message : 'Failed to process bulk NCP role usage',
         500,
       );
     }
+  }
+
+  /** Resolves graphql-upload payloads: `Promise<FileUpload>`, bare `FileUpload`, or `{ promise }` wrapper. */
+  private async readUploadToString(
+    file: Promise<FileUpload> | FileUpload,
+  ): Promise<string> {
+    const resolved = await Promise.resolve(file);
+    const asFile = resolved as FileUpload & { promise?: Promise<FileUpload> };
+    const upload: FileUpload | undefined =
+      typeof asFile.createReadStream === 'function'
+        ? asFile
+        : asFile.promise
+          ? await asFile.promise
+          : undefined;
+    if (!upload || typeof upload.createReadStream !== 'function') {
+      throw new BadRequestException(
+        'Invalid file upload: missing createReadStream (check multipart map variable names)',
+      );
+    }
+    return readToString(upload.createReadStream());
   }
 }
