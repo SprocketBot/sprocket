@@ -57,40 +57,29 @@ export class MledbNcpTeamRoleUsageResolver {
   async ncpTeamRoleUsageBulk(
     @CurrentUser() user: UserPayload,
     @Args('file', { type: () => GraphQLUpload }) file: Promise<FileUpload>,
-  ): Promise<typeof NcpRoleUsageBulkResult> {
-    try {
-      this.logger.debug('Starting bulk NCP role usage import.');
-      const csv = await this.readGqlUploadToUtf8(file);
+  ): Promise<number> {
+    this.logger.debug('Starting bulk NCP role usage import.');
+    const csv = await this.readGqlUploadToUtf8(file);
 
-      const actor = user?.username?.trim() || `userId:${user.userId}`;
-      const records = parseAndValidateCsv(csv, ncpTeamRoleUsageCsvRowSchema);
-      for (const error of records.errors) {
-        this.logger.error(
-          `Error in CSV: Row ${error.row}, Field: ${error.field || 'N/A'}, Value: ${
-            error.value || 'N/A'
-          }, Message: ${error.message}`,
-        );
-      }
-      let sumRecords = 0;
-      for (const record of records.data) {
-        try {
-          const row = schemaToInput(record);
-          sumRecords += await this.ncpTeamRoleUsageService.importRow(row, actor);
-        } catch (error) {
-          this.logger.error(`Error inputting NCP for series ${record.matchId}.`, error);
-        }
-      }
-
-      const success = new NcpRoleUsageBulkSuccess();
-      success.insertedMledbRowCount = sumRecords;
-      return success;
-    } catch (error) {
-      this.logger.error(`Error in bulk NCP role usage: ${error}`);
-      return new OperationError(
-        error instanceof Error ? error.message : 'Failed to process bulk NCP role usage',
-        500,
+    const actor = user?.username?.trim() || `userId:${user.userId}`;
+    const records = parseAndValidateCsv(csv, ncpTeamRoleUsageCsvRowSchema);
+    for (const error of records.errors) {
+      this.logger.error(
+        `Error in CSV: Row ${error.row}, Field: ${error.field || 'N/A'}, Value: ${
+          error.value || 'N/A'
+        }, Message: ${error.message}`,
       );
     }
+    let sumRecords = 0;
+    for (const record of records.data) {
+      try {
+        const row = schemaToInput(record);
+        sumRecords += await this.ncpTeamRoleUsageService.importRow(row, actor);
+      } catch (error) {
+        this.logger.error(`Error inputting NCP for series ${record.matchId}.`, error);
+      }
+    }
+    return sumRecords;
   }
 
   /**
@@ -98,9 +87,7 @@ export class MledbNcpTeamRoleUsageResolver {
    * promise, resolve graphql-upload’s `{ promise }` wrapper when needed, read bytes via
    * `stream/consumers` (avoids a manual `new Promise` stream shim).
    */
-  private async readGqlUploadToUtf8(
-    file: Promise<FileUpload> | FileUpload,
-  ): Promise<string> {
+  private async readGqlUploadToUtf8(file: Promise<FileUpload> | FileUpload): Promise<string> {
     const buf = await Promise.resolve(file).then(async f => {
       const upload = await this.resolveGraphqlFileUpload(f);
       return streamToBuffer(upload.createReadStream());
