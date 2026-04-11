@@ -12,10 +12,10 @@ import { GqlJwtGuard } from '../../identity/auth/gql-auth-guard';
 import { MLEOrganizationTeamGuard } from '../mledb-player/mle-organization-team.guard';
 import { OperationError } from 'src/franchise/player/player.types';
 import { MledbNcpTeamRoleUsageService } from './mledb-ncp-team-role-usage.service';
+import { ncpTeamRoleUsageCsvRowSchema } from './ncp-team-role-usage.csv-parse';
 import {
   NcpRoleUsageBulkResult,
   NcpRoleUsageBulkSuccess,
-  ncpTeamRoleUsageInputSchema,
   NcpTeamRoleInput,
   schemaToInput,
 } from './ncp-team-role-usage.types';
@@ -63,7 +63,7 @@ export class MledbNcpTeamRoleUsageResolver {
       const csv = await this.readUploadToString(file);
 
       const actor = user?.username?.trim() || `userId:${user.userId}`;
-      const records = parseAndValidateCsv(csv, ncpTeamRoleUsageInputSchema);
+      const records = parseAndValidateCsv(csv, ncpTeamRoleUsageCsvRowSchema);
       for (const error of records.errors) {
         this.logger.error(
           `Error in CSV: Row ${error.row}, Field: ${error.field || 'N/A'}, Value: ${
