@@ -1,9 +1,9 @@
 import { BadRequestException, Logger, UseGuards } from '@nestjs/common';
 import { Args, Int, Mutation, Resolver } from '@nestjs/graphql';
 import { GraphQLUpload } from 'graphql-upload';
+import { buffer as streamToBuffer } from 'stream/consumers';
 import { parseAndValidateCsv } from '../../util/csv-parse';
 import type { FileUpload } from 'graphql-upload';
-import { readToString } from '@sprocketbot/common';
 
 import { MLE_OrganizationTeam } from '../../database/mledb';
 import { CurrentUser } from '../../identity/auth/current-user.decorator';
@@ -55,12 +55,12 @@ export class MledbNcpTeamRoleUsageResolver {
     ]),
   )
   async ncpTeamRoleUsageBulk(
-    @Args('file', { type: () => GraphQLUpload }) file: Promise<FileUpload>,
     @CurrentUser() user: UserPayload,
+    @Args('file', { type: () => GraphQLUpload }) file: Promise<FileUpload>,
   ): Promise<typeof NcpRoleUsageBulkResult> {
     try {
       this.logger.debug('Starting bulk NCP role usage import.');
-      const csv = await this.readUploadToString(file);
+      const csv = await this.readGqlUploadToUtf8(file);
 
       const actor = user?.username?.trim() || `userId:${user.userId}`;
       const records = parseAndValidateCsv(csv, ncpTeamRoleUsageCsvRowSchema);
@@ -93,23 +93,31 @@ export class MledbNcpTeamRoleUsageResolver {
     }
   }
 
-  /** Resolves graphql-upload payloads: `Promise<FileUpload>`, bare `FileUpload`, or `{ promise }` wrapper. */
-  private async readUploadToString(
+  /**
+   * Same pattern as `parseReplays` / `changePlayerSkillGroupBulk`: use `.then` on the upload
+   * promise, resolve graphql-upload’s `{ promise }` wrapper when needed, read bytes via
+   * `stream/consumers` (avoids a manual `new Promise` stream shim).
+   */
+  private async readGqlUploadToUtf8(
     file: Promise<FileUpload> | FileUpload,
   ): Promise<string> {
-    const resolved = await Promise.resolve(file);
-    const asFile = resolved as FileUpload & { promise?: Promise<FileUpload> };
-    const upload: FileUpload | undefined =
-      typeof asFile.createReadStream === 'function'
-        ? asFile
-        : asFile.promise
-          ? await asFile.promise
-          : undefined;
-    if (!upload || typeof upload.createReadStream !== 'function') {
-      throw new BadRequestException(
-        'Invalid file upload: missing createReadStream (check multipart map variable names)',
-      );
+    const buf = await Promise.resolve(file).then(async f => {
+      const upload = await this.resolveGraphqlFileUpload(f);
+      return streamToBuffer(upload.createReadStream());
+    });
+    return buf.toString('utf8');
+  }
+
+  private async resolveGraphqlFileUpload(f: unknown): Promise<FileUpload> {
+    if (f != null && typeof (f as FileUpload).createReadStream === 'function') {
+      return f as FileUpload;
     }
-    return readToString(upload.createReadStream());
+    const wrapped = f as { promise?: Promise<FileUpload> };
+    if (wrapped?.promise) {
+      return wrapped.promise;
+    }
+    throw new BadRequestException(
+      'Invalid file upload: missing createReadStream (check multipart map variable names)',
+    );
   }
 }
