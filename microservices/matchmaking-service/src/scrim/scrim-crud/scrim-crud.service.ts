@@ -213,6 +213,15 @@ export class ScrimCrudService {
         await this.updateScrimUpdatedAt(scrimId);
     }
 
+    async setGroupInviteOpensAt(scrimId: string, opensAt: Date): Promise<void> {
+        await this.redisService.setJsonField(
+            `${this.prefix}${scrimId}`,
+            "$.groupInviteOpensAt",
+            opensAt,
+        );
+        await this.updateScrimUpdatedAt(scrimId);
+    }
+
     async setTimeoutJobId(scrimId: string, jobId: JobId): Promise<void> {
         await this.redisService.setJsonField(`${this.prefix}${scrimId}`, "$.jobId", jobId);
         await this.updateScrimUpdatedAt(scrimId);
