@@ -22,7 +22,12 @@ export class ImageGenerationService {
         process.env.FONTCONFIG_PATH = "./fonts";
     }
 
-    async processSvg(inputFileKey: string, outputFileKey: string, data: Template): Promise<string> {
+    async processSvg(
+        inputFileKey: string,
+        outputFileKey: string,
+        data: Template,
+        publicRead = false,
+    ): Promise<string> {
         this.logger.log(`Beginning Generation of ${inputFileKey}`);
         // eslint-disable-next-line
     //const data = templateStructureSchema.parse(rawData); //moved to controller
@@ -87,12 +92,24 @@ export class ImageGenerationService {
             config.minio.bucketNames.image_generation,
             `${outputFileKey}.svg`,
             newSvgBuffer,
+            {
+                metadata: {
+                    "Content-Type": "image/svg+xml",
+                },
+                publicRead,
+            },
         );
         await this.minioService.put(
             config.minio.bucketNames.image_generation,
             `${outputFileKey}.png`,
             await sharp(newSvgBuffer).png()
                 .toBuffer(),
+            {
+                metadata: {
+                    "Content-Type": "image/png",
+                },
+                publicRead,
+            },
         );
 
         /*

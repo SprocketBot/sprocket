@@ -34,6 +34,7 @@ export class ImageGenerationService {
         const result = await this.igService.send(ImageGenerationEndpoint.GenerateImage, {
             inputFile: `scrim_report_cards/scrimReportCards2/template.svg`,
             outputFile: `scrim_report_cards/scrimReportCards2/outputs/${scrimId}_1`,
+            publicRead: true,
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             template: data[0].data,
         });
@@ -67,6 +68,7 @@ export class ImageGenerationService {
         const result = await this.igService.send(ImageGenerationEndpoint.GenerateImage, {
             inputFile: `series_report_cards/${reportCard}/template.svg`,
             outputFile: `series_report_cards/${reportCard}/outputs/${seriesId}_1`,
+            publicRead: true,
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             template: data[0].data,
         });

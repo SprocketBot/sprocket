@@ -16,7 +16,12 @@ export class ImageGenerationController {
     async generateImage(@Payload() payload: unknown): Promise<string> {
         const data = ImageGenerationSchemas.GenerateImage.input.parse(payload);
         this.logger.debug("Input data successfully parsed");
-        return this.imageGenerationService.processSvg(data.inputFile, data.outputFile, data.template);
+        return this.imageGenerationService.processSvg(
+            data.inputFile,
+            data.outputFile,
+            data.template,
+            data.publicRead,
+        );
     }
 
     // This is currently still needed for the frontend because of context
@@ -27,7 +32,12 @@ export class ImageGenerationController {
         // Const data = CreateImageSchema.parse(rawData);
         const data = ImageGenerationSchemas.GenerateImage.input.parse(rawData);
         try {
-            await this.imageGenerationService.processSvg(data.inputFile, data.outputFile, data.template);
+            await this.imageGenerationService.processSvg(
+                data.inputFile,
+                data.outputFile,
+                data.template,
+                data.publicRead,
+            );
             return true;
         } catch (err) {
             this.logger.error(err);
