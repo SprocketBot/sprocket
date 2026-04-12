@@ -20,6 +20,11 @@
         </tr>
     
         <tr>
+            <th>Skill Group</th>
+            <td>{scrim.skillGroup?.profile?.description ?? ""}</td>
+        </tr>
+
+        <tr>
             <th>Game Mode</th>
             <td>{scrim.gameMode.description}</td>
         </tr>
