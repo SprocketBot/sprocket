@@ -1,4 +1,5 @@
 # Production Pulumi deploy (layer_1 → layer_2 → platform prod stacks).
+# Refactored: reusable stack-map driven deploy (#682).
 #
 # GitHub Environment `production` must hold **prod-only** credentials. Do not reuse
 # repository or pre-prod environment secret *names* for prod paths (avoids foot-guns
@@ -44,100 +45,11 @@ permissions:
 
 jobs:
   pulumi-prod:
-    name: Pulumi preview and up (production stacks)
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - name: Validate confirm input
-        shell: bash
-        env:
-          CONFIRM: ${{ github.event.inputs.confirm }}
-          REPO: ${{ github.repository }}
-        run: |
-          if [ -n "${CONFIRM}" ] && [ "${CONFIRM}" != "${REPO}" ] && [ "${CONFIRM}" != "DEPLOY_PROD" ]; then
-            echo "::error::When set, confirm must equal ${REPO} or DEPLOY_PROD (got: ${CONFIRM})"
-            exit 1
-          fi
-
-      - name: Check out the repo at requested SHA
-        uses: actions/checkout@v6
-        with:
-          ref: ${{ github.event.inputs.git_sha }}
-
-      - name: Pulumi preview — layer_1 / layer_1
-        uses: ./.github/reusable_workflows/pulumi_up
-        env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
-        with:
-          command: preview
-          stack-project: layer_1
-          stack-name: layer_1
-          manager-node-host: ${{ secrets.PROD_MANAGER_HOST }}
-          ssh-user: ${{ secrets.PROD_SSH_USER }}
-          ssh-key: ${{ secrets.PROD_SSH_KEY }}
-          tailscale-authkey: ${{ secrets.PROD_TAILSCALE_AUTHKEY }}
-
-      - name: Pulumi preview — layer_2 / layer_2
-        uses: ./.github/reusable_workflows/pulumi_up
-        env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
-        with:
-          command: preview
-          stack-project: layer_2
-          stack-name: layer_2
-          manager-node-host: ${{ secrets.PROD_MANAGER_HOST }}
-          ssh-user: ${{ secrets.PROD_SSH_USER }}
-          ssh-key: ${{ secrets.PROD_SSH_KEY }}
-          tailscale-authkey: ${{ secrets.PROD_TAILSCALE_AUTHKEY }}
-
-      - name: Pulumi preview — platform / prod
-        uses: ./.github/reusable_workflows/pulumi_up
-        env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
-        with:
-          command: preview
-          stack-project: platform
-          stack-name: prod
-          manager-node-host: ${{ secrets.PROD_MANAGER_HOST }}
-          ssh-user: ${{ secrets.PROD_SSH_USER }}
-          ssh-key: ${{ secrets.PROD_SSH_KEY }}
-          tailscale-authkey: ${{ secrets.PROD_TAILSCALE_AUTHKEY }}
-
-      - name: Pulumi up — layer_1 / layer_1
-        uses: ./.github/reusable_workflows/pulumi_up
-        env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
-        with:
-          command: up
-          stack-project: layer_1
-          stack-name: layer_1
-          manager-node-host: ${{ secrets.PROD_MANAGER_HOST }}
-          ssh-user: ${{ secrets.PROD_SSH_USER }}
-          ssh-key: ${{ secrets.PROD_SSH_KEY }}
-          tailscale-authkey: ${{ secrets.PROD_TAILSCALE_AUTHKEY }}
-
-      - name: Pulumi up — layer_2 / layer_2
-        uses: ./.github/reusable_workflows/pulumi_up
-        env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
-        with:
-          command: up
-          stack-project: layer_2
-          stack-name: layer_2
-          manager-node-host: ${{ secrets.PROD_MANAGER_HOST }}
-          ssh-user: ${{ secrets.PROD_SSH_USER }}
-          ssh-key: ${{ secrets.PROD_SSH_KEY }}
-          tailscale-authkey: ${{ secrets.PROD_TAILSCALE_AUTHKEY }}
-
-      - name: Pulumi up — platform / prod
-        uses: ./.github/reusable_workflows/pulumi_up
-        env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
-        with:
-          command: up
-          stack-project: platform
-          stack-name: prod
-          manager-node-host: ${{ secrets.PROD_MANAGER_HOST }}
-          ssh-user: ${{ secrets.PROD_SSH_USER }}
-          ssh-key: ${{ secrets.PROD_SSH_KEY }}
-          tailscale-authkey: ${{ secrets.PROD_TAILSCALE_AUTHKEY }}
+    uses: ./.github/workflows/_reusable-pulumi-deploy.yml
+    with:
+      lane: main
+      target: prod
+      git_sha: ${{ github.event.inputs.git_sha }}
+      deploy_profile: prod_cd
+      prod_confirm: ${{ github.event.inputs.confirm }}
+    secrets: inherit

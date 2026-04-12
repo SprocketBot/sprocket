@@ -1,0 +1,300 @@
+# Reusable Pulumi sequences driven by infra/ci/stack-map.yaml (#682).
+#
+# Callers set deploy_profile + target + git SHA. Stack order and per-step commands are emitted by
+# scripts/ci/read-stack-map.mjs (parses stack-map.yaml; no secrets).
+#
+# Secrets: pass `secrets: inherit` from the caller. Credential *names* differ for production
+# (PROD_*) vs dev/staging/preview (shared pre-prod names). New lanes: add a caller workflow that
+# maps lane-specific environment secrets explicitly — GitHub Actions cannot index secrets dynamically.
+
+on:
+  workflow_call:
+    inputs:
+      lane:
+        description: 'Logical lane (e.g. main, v15); for documentation and future env JSON routing'
+        required: false
+        type: string
+        default: main
+      target:
+        description: 'Stack-map key: dev | staging | prod (used by preview_all plan)'
+        required: false
+        type: string
+        default: dev
+      git_sha:
+        description: 'Commit SHA to check out'
+        required: true
+        type: string
+      deploy_profile:
+        description: 'dev_cd | staging_up | prod_cd | preview_all'
+        required: true
+        type: string
+      bom_download_run_id:
+        description: 'If set, download artifact bom-main from this run (dev CD after Autobuild)'
+        required: false
+        type: string
+        default: ''
+      dev_platform_stack:
+        description: 'Platform stack name for dev_cd (must not be prod). Required when deploy_profile is dev_cd.'
+        required: false
+        type: string
+        default: ''
+      promote_bom_file:
+        description: 'For staging_up: optional repo-relative BOM path (see scripts/ci/promote-images.sh)'
+        required: false
+        type: string
+        default: ''
+      promote_image_tag:
+        description: 'For staging_up: optional explicit image tag (skips BOM / sha derivation)'
+        required: false
+        type: string
+        default: ''
+      staging_include_promote_step:
+        description: 'If true (staging_up only), run promote-images.sh before Pulumi ups'
+        required: false
+        type: boolean
+        default: false
+      prod_confirm:
+        description: 'Typo guard for prod_cd: empty ok; else must equal repo full name or DEPLOY_PROD'
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  dev_prepare:
+    name: Dev — BOM + platform image tag
+    if: inputs.deploy_profile == 'dev_cd'
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - name: Check out
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.git_sha }}
+
+      - name: Download merged BOM (optional)
+        if: inputs.bom_download_run_id != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: bom-main
+          path: bom-download
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.bom_download_run_id }}
+
+      - name: Set up Node.js (Pulumi CLI for platform config)
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Install Pulumi CLI
+        shell: bash
+        run: |
+          curl -fsSL https://get.pulumi.com | sh -s -- --version "3.229.0"
+          echo "${HOME}/.pulumi/bin" >> "${GITHUB_PATH}"
+
+      - name: Set dev platform image tag (sha-* from BOM when present)
+        shell: bash
+        env:
+          PULUMI_BACKEND_URL: ${{ secrets.PULUMI_BACKEND_URL }}
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          DEPLOY_SHA: ${{ inputs.git_sha }}
+          PULUMI_DEV_PLATFORM_STACK: ${{ inputs.dev_platform_stack }}
+        run: |
+          set -euo pipefail
+          if [ -z "${PULUMI_DEV_PLATFORM_STACK}" ]; then
+            echo "::error::dev_platform_stack is required for deploy_profile dev_cd"
+            exit 1
+          fi
+          if [ "${PULUMI_DEV_PLATFORM_STACK}" = "prod" ]; then
+            echo "::error::Refusing to set image tag on platform stack named prod."
+            exit 1
+          fi
+          if [ -n "${PULUMI_BACKEND_URL:-}" ]; then
+            pulumi login "${PULUMI_BACKEND_URL}"
+          fi
+          BOM_PATH=""
+          if [ -d bom-download ]; then
+            BOM_PATH="$(find bom-download -type f -name 'main-*.json' | head -1 || true)"
+          fi
+          bash ./scripts/ci/pulumi-set-dev-image-tag.sh "${DEPLOY_SHA}" "${BOM_PATH}"
+
+  matrix_prepare:
+    name: Build deploy matrix from stack-map
+    runs-on: ubuntu-latest
+    outputs:
+      matrix_json: ${{ steps.map.outputs.matrix_json }}
+    steps:
+      - name: Validate prod confirm (typo guard)
+        if: inputs.deploy_profile == 'prod_cd'
+        shell: bash
+        env:
+          CONFIRM: ${{ inputs.prod_confirm }}
+          REPO: ${{ github.repository }}
+        run: |
+          if [ -n "${CONFIRM}" ] && [ "${CONFIRM}" != "${REPO}" ] && [ "${CONFIRM}" != "DEPLOY_PROD" ]; then
+            echo "::error::When set, confirm must equal ${REPO} or DEPLOY_PROD (got: ${CONFIRM})"
+            exit 1
+          fi
+
+      - name: Check out
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.git_sha }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install npm dependencies (yaml parser for read-stack-map)
+        run: npm ci
+
+      - name: Emit matrix JSON
+        id: map
+        shell: bash
+        env:
+          PROFILE: ${{ inputs.deploy_profile }}
+          TARGET: ${{ inputs.target }}
+          PLAT: ${{ inputs.dev_platform_stack }}
+          STAGING_PROMOTE: ${{ inputs.staging_include_promote_step }}
+        run: |
+          set -euo pipefail
+          case "${PROFILE}" in
+            dev_cd)
+              if [ -z "${PLAT}" ]; then
+                echo "::error::dev_platform_stack required for dev_cd"
+                exit 1
+              fi
+              node scripts/ci/read-stack-map.mjs emit --plan dev_cd_full --platform-stack "${PLAT}"
+              ;;
+            staging_up)
+              if [ "${STAGING_PROMOTE}" = "true" ]; then
+                node scripts/ci/read-stack-map.mjs emit --plan staging_up --prepend-staging-promote
+              else
+                node scripts/ci/read-stack-map.mjs emit --plan staging_up
+              fi
+              ;;
+            prod_cd)
+              node scripts/ci/read-stack-map.mjs emit --plan prod_cd
+              ;;
+            preview_all)
+              case "${TARGET}" in
+                dev|staging|prod) ;;
+                *)
+                  echo "::error::target must be dev, staging, or prod for preview_all (got: ${TARGET})"
+                  exit 1
+                  ;;
+              esac
+              node scripts/ci/read-stack-map.mjs emit --plan dev_preview_all --target "${TARGET}"
+              ;;
+            *)
+              echo "::error::Unknown deploy_profile: ${PROFILE}"
+              exit 1
+              ;;
+          esac
+
+  deploy:
+    name: Pulumi ${{ matrix.command }} — ${{ matrix.stack_project }} / ${{ matrix.stack_name }}
+    needs:
+      - matrix_prepare
+      - dev_prepare
+    if: |
+      always() &&
+      needs.matrix_prepare.result == 'success' &&
+      (
+        inputs.deploy_profile != 'dev_cd' ||
+        needs.dev_prepare.result == 'success'
+      )
+    runs-on: ubuntu-latest
+    environment: >-
+      ${{
+        inputs.deploy_profile == 'prod_cd' && 'production' ||
+        inputs.deploy_profile == 'staging_up' && 'staging' ||
+        inputs.deploy_profile == 'preview_all' && 'preview' ||
+        'development'
+      }}
+    strategy:
+      fail-fast: true
+      max-parallel: 1
+      matrix:
+        include: ${{ fromJSON(needs.matrix_prepare.outputs.matrix_json) }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.git_sha }}
+
+      - name: Staging — set platform image tag (promote)
+        if: inputs.deploy_profile == 'staging_up' && matrix.command == 'staging_promote'
+        shell: bash
+        env:
+          PULUMI_BACKEND_URL: ${{ secrets.PULUMI_BACKEND_URL }}
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          PROMOTE_GIT_SHA: ${{ inputs.git_sha }}
+          PROMOTE_BOM_FILE: ${{ inputs.promote_bom_file }}
+          PROMOTE_IMAGE_TAG: ${{ inputs.promote_image_tag }}
+        run: |
+          set -euo pipefail
+          curl -fsSL https://get.pulumi.com | sh -s -- --version "3.229.0"
+          echo "${HOME}/.pulumi/bin" >> "${GITHUB_PATH}"
+          args=(./scripts/ci/promote-images.sh pulumi-set-platform-tag)
+          if [[ -n "${PROMOTE_BOM_FILE}" ]]; then
+            args+=(--bom-file "${PROMOTE_BOM_FILE}")
+          fi
+          if [[ -n "${PROMOTE_IMAGE_TAG}" ]]; then
+            args+=(--image-tag "${PROMOTE_IMAGE_TAG}")
+          fi
+          args+=("${PROMOTE_GIT_SHA}" "staging")
+          "${args[@]}"
+
+      - name: Pulumi (dev / preview — with Pulumi Cloud token)
+        if: (inputs.deploy_profile == 'dev_cd' || inputs.deploy_profile == 'preview_all') && matrix.command != 'staging_promote'
+        uses: ./.github/reusable_workflows/pulumi_up
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: nyc3
+        with:
+          command: ${{ matrix.command }}
+          stack-project: ${{ matrix.stack_project }}
+          stack-name: ${{ matrix.stack_name }}
+          manager-node-host: ${{ secrets.PULUMI_MANAGER_NODE_HOST }}
+          ssh-user: ${{ secrets.PULUMI_SSH_USER }}
+          ssh-key: ${{ secrets.PULUMI_SSH_KEY }}
+          tailscale-authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          pulumi-backend-url: ${{ secrets.PULUMI_BACKEND_URL }}
+
+      - name: Pulumi (staging promote — no Pulumi Cloud token)
+        if: inputs.deploy_profile == 'staging_up' && matrix.command != 'staging_promote'
+        uses: ./.github/reusable_workflows/pulumi_up
+        env:
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: nyc3
+        with:
+          command: ${{ matrix.command }}
+          stack-project: ${{ matrix.stack_project }}
+          stack-name: ${{ matrix.stack_name }}
+          manager-node-host: ${{ secrets.PULUMI_MANAGER_NODE_HOST }}
+          ssh-user: ${{ secrets.PULUMI_SSH_USER }}
+          ssh-key: ${{ secrets.PULUMI_SSH_KEY }}
+          tailscale-authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          pulumi-backend-url: ${{ secrets.PULUMI_BACKEND_URL }}
+
+      - name: Pulumi (production credentials)
+        if: inputs.deploy_profile == 'prod_cd'
+        uses: ./.github/reusable_workflows/pulumi_up
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
+        with:
+          command: ${{ matrix.command }}
+          stack-project: ${{ matrix.stack_project }}
+          stack-name: ${{ matrix.stack_name }}
+          manager-node-host: ${{ secrets.PROD_MANAGER_HOST }}
+          ssh-user: ${{ secrets.PROD_SSH_USER }}
+          ssh-key: ${{ secrets.PROD_SSH_KEY }}
+          tailscale-authkey: ${{ secrets.PROD_TAILSCALE_AUTHKEY }}
