@@ -13,6 +13,7 @@ import {
     AnalyticsService,
     EventTopic,
     MatchmakingError,
+    ScrimMode,
     ScrimSchema,
     ScrimStatus,
 } from "@sprocketbot/common";
@@ -22,6 +23,9 @@ import {EventProxyService} from "./event-proxy/event-proxy.service";
 import {ScrimCrudService} from "./scrim-crud/scrim-crud.service";
 import {ScrimGroupService} from "./scrim-group/scrim-group.service";
 import {ScrimLogicService} from "./scrim-logic/scrim-logic.service";
+
+/** Minutes before ungrouped players can join a team scrim after the first group is created (issue #655). */
+const TEAM_SCRIM_GROUP_INVITE_DELAY_MINUTES = 2;
 
 @Injectable()
 export class ScrimService {
@@ -68,6 +72,9 @@ export class ScrimService {
             scrim.players[0].group = group;
 
             await this.scrimCrudService.updatePlayer(scrim.id, Object.assign(player, {group}));
+            const opensAt = add(new Date(), {minutes: TEAM_SCRIM_GROUP_INVITE_DELAY_MINUTES});
+            scrim.groupInviteOpensAt = opensAt;
+            await this.scrimCrudService.setGroupInviteOpensAt(scrim.id, opensAt);
         }
 
         await this.eventsService.publish(EventTopic.ScrimCreated, scrim, scrim.id);
@@ -181,6 +188,18 @@ export class ScrimService {
         if (scrim.status !== ScrimStatus.PENDING) throw new RpcException(MatchmakingError.ScrimAlreadyInProgress);
         if (await this.scrimCrudService.playerInAnyScrim(playerId)) throw new RpcException(MatchmakingError.PlayerAlreadyInScrim);
 
+        const joiningWithGroup = Boolean(joinGroup) || Boolean(createGroup);
+        if (
+            !joiningWithGroup
+            && scrim.settings.mode === ScrimMode.TEAMS
+            && scrim.groupInviteOpensAt
+            && new Date() < scrim.groupInviteOpensAt
+        ) {
+            throw new RpcException(MatchmakingError.ScrimGroupInviteWindowActive);
+        }
+
+        const hadNoGroups = Object.keys(this.scrimGroupService.getScrimGroups(scrim)).length === 0;
+
         const player: ScrimPlayer = {
             id: playerId,
             name: playerName,
@@ -190,6 +209,11 @@ export class ScrimService {
         };
 
         await this.scrimCrudService.addPlayerToScrim(scrimId, player);
+        if (hadNoGroups && player.group) {
+            const opensAt = add(new Date(), {minutes: TEAM_SCRIM_GROUP_INVITE_DELAY_MINUTES});
+            scrim.groupInviteOpensAt = opensAt;
+            await this.scrimCrudService.setGroupInviteOpensAt(scrimId, opensAt);
+        }
         scrim.players.push(player);
 
         this.analyticsService

@@ -46,6 +46,7 @@ describe("ScrimService", () => {
     let crudRemoveScrim: jest.SpyInstance;
     let crudUpdateScrimStatus: jest.SpyInstance;
     let crudUpdateScrimUnlockedStatus: jest.SpyInstance;
+    let crudSetGroupInviteOpensAt: jest.SpyInstance;
 
     let logicPopScrim: jest.SpyInstance;
     let logicDeleteScrim: jest.SpyInstance;
@@ -85,6 +86,7 @@ describe("ScrimService", () => {
         crudRemoveScrim = jest.spyOn(scrimCrudService, "removeScrim");
         crudUpdateScrimStatus = jest.spyOn(scrimCrudService, "updateScrimStatus");
         crudUpdateScrimUnlockedStatus = jest.spyOn(scrimCrudService, "updateScrimUnlockedStatus");
+        crudSetGroupInviteOpensAt = jest.spyOn(scrimCrudService, "setGroupInviteOpensAt").mockResolvedValue(undefined);
 
         logicPopScrim = jest.spyOn(scrimLogicService, "popScrim");
         logicDeleteScrim = jest.spyOn(scrimLogicService, "deleteScrim");
@@ -206,9 +208,14 @@ describe("ScrimService", () => {
             const expected: Scrim = {
                 ...scrim,
                 players: [mockPlayerFactories.hyper(someDate, "tekssxisbad")],
+                groupInviteOpensAt: expect.any(Date) as Date,
             };
 
             expect(actual).toEqual(expected);
+            expect(crudSetGroupInviteOpensAt).toHaveBeenCalledWith(
+                scrim.id,
+                expect.any(Date) as Date,
+            );
             expect(crudCreateScrim).toHaveBeenCalledWith({
                 authorId: expected.authorId,
                 organizationId: expected.organizationId,
@@ -480,6 +487,125 @@ describe("ScrimService", () => {
                 joinedAt: expect.any(Date) as Date,
                 leaveAt: expect.any(Date) as Date,
                 group: "tekssxisbad",
+            });
+        });
+
+        describe("Team scrim group invite window (issue #655)", () => {
+            it("Should throw when an ungrouped player joins during the invite window", async () => {
+                const joinScrimData: JoinScrimOptions = {
+                    scrimId: "hello world!",
+                    playerId: 4,
+                    playerName: "Nigel Thornbrake",
+                    leaveAfter: 1000,
+                };
+                const scrim: Scrim = {
+                    id: "hello world!",
+                    createdAt: someDate,
+                    updatedAt: someDate,
+                    status: ScrimStatus.PENDING,
+                    ...getMockScrimIds(),
+                    players: [mockPlayerFactories.hyper(someDate, "abc12")],
+                    games: undefined,
+                    settings: getMockScrimSettings(3, 2, ScrimMode.TEAMS, true, false, 1000),
+                    groupInviteOpensAt: new Date(Date.now() + 60_000),
+                };
+
+                crudGetScrim.mockResolvedValueOnce(scrim);
+                crudPlayerInAnyScrim.mockResolvedValueOnce(false);
+
+                const func = async (): Promise<Scrim> => service.joinScrim(joinScrimData);
+                await expect(func).rejects.toThrow(MatchmakingError.ScrimGroupInviteWindowActive);
+            });
+
+            it("Should allow joining with a group code during the invite window", async () => {
+                const joinScrimData: JoinScrimOptions = {
+                    scrimId: "hello world!",
+                    playerId: 2,
+                    playerName: "tekssx",
+                    leaveAfter: 1000,
+                    joinGroup: "abc12",
+                };
+                const scrim: Scrim = {
+                    id: "hello world!",
+                    createdAt: someDate,
+                    updatedAt: someDate,
+                    status: ScrimStatus.PENDING,
+                    ...getMockScrimIds(),
+                    players: [mockPlayerFactories.hyper(someDate, "abc12")],
+                    games: undefined,
+                    settings: getMockScrimSettings(3, 2, ScrimMode.TEAMS, true, false, 1000),
+                    groupInviteOpensAt: new Date(Date.now() + 60_000),
+                };
+
+                crudGetScrim.mockResolvedValueOnce(scrim);
+                crudPlayerInAnyScrim.mockResolvedValueOnce(false);
+                crudAddPlayerToScrim.mockResolvedValueOnce({});
+
+                const actual = await service.joinScrim(joinScrimData);
+                expect(actual.players).toHaveLength(2);
+                expect(actual.players[1]?.group).toBe("abc12");
+            });
+
+            it("Should allow ungrouped joins after the invite window", async () => {
+                const joinScrimData: JoinScrimOptions = {
+                    scrimId: "hello world!",
+                    playerId: 4,
+                    playerName: "Nigel Thornbrake",
+                    leaveAfter: 1000,
+                };
+                const scrim: Scrim = {
+                    id: "hello world!",
+                    createdAt: someDate,
+                    updatedAt: someDate,
+                    status: ScrimStatus.PENDING,
+                    ...getMockScrimIds(),
+                    players: [mockPlayerFactories.hyper(someDate, "abc12")],
+                    games: undefined,
+                    settings: getMockScrimSettings(3, 2, ScrimMode.TEAMS, true, false, 1000),
+                    groupInviteOpensAt: new Date(Date.now() - 1000),
+                };
+
+                crudGetScrim.mockResolvedValueOnce(scrim);
+                crudPlayerInAnyScrim.mockResolvedValueOnce(false);
+                crudAddPlayerToScrim.mockResolvedValueOnce({});
+
+                const actual = await service.joinScrim(joinScrimData);
+                expect(actual.players).toHaveLength(2);
+                expect(actual.players[1]?.group).toBeUndefined();
+            });
+
+            it("Should start the invite window when the first group is created by joining", async () => {
+                const before = Date.now();
+                const joinScrimData: JoinScrimOptions = {
+                    scrimId: "hello world!",
+                    playerId: 2,
+                    playerName: "tekssx",
+                    leaveAfter: 1000,
+                    createGroup: true,
+                };
+                const scrim: Scrim = {
+                    id: "hello world!",
+                    createdAt: someDate,
+                    updatedAt: someDate,
+                    status: ScrimStatus.PENDING,
+                    ...getMockScrimIds(),
+                    players: [mockPlayerFactories.hyper(someDate)],
+                    games: undefined,
+                    settings: getMockScrimSettings(3, 2, ScrimMode.TEAMS, true, false, 1000),
+                };
+
+                crudGetScrim.mockResolvedValueOnce(scrim);
+                crudPlayerInAnyScrim.mockResolvedValueOnce(false);
+                crudAddPlayerToScrim.mockResolvedValueOnce({});
+                groupsResolveGroupKey.mockImplementationOnce(() => "newgrp");
+
+                await service.joinScrim(joinScrimData);
+
+                expect(crudSetGroupInviteOpensAt).toHaveBeenCalledTimes(1);
+                const [id, opensAt] = crudSetGroupInviteOpensAt.mock.calls[0] as [string, Date];
+                expect(id).toBe("hello world!");
+                expect(opensAt.getTime()).toBeGreaterThanOrEqual(before + 119_000);
+                expect(opensAt.getTime()).toBeLessThanOrEqual(Date.now() + 121_000);
             });
         });
 
