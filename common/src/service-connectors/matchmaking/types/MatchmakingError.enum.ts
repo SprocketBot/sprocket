@@ -10,4 +10,6 @@ export enum MatchmakingError {
     MaxGroupsCreated = "MaxGroupsCreated",
     GroupNotFound = "GroupNotFound",
     GroupFull = "GroupFull",
+    /** Ungrouped joins blocked briefly after the first team group is created (team scrims). */
+    ScrimGroupInviteWindowActive = "ScrimGroupInviteWindowActive",
 }

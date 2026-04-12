@@ -65,6 +65,9 @@ export class Scrim implements IScrim {
     @Field(() => String, {nullable: true})
   submissionId?: string;
 
+    @Field(() => Date, {nullable: true})
+  groupInviteOpensAt?: Date;
+
     @Field(() => [ScrimPlayer], {nullable: true})
   players: ScrimPlayer[];
 
