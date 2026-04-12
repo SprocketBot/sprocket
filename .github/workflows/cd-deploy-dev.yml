@@ -14,7 +14,8 @@
 #   PULUMI_SSH_KEY
 #   TAILSCALE_AUTHKEY          (optional; omit if the runner can reach the manager without Tailscale)
 #
-# Stack map (dev): layer_1 / layer_1 → layer_2 / layer_2 → platform / dev
+# Stack map (dev): for each stack, run `pulumi preview` then `pulumi up` in order:
+#   layer_1 / layer_1 → layer_2 / layer_2 → set platform:image-tag → platform / <devStack>
 # Optional repo variable: PULUMI_DEV_PLATFORM_STACK (default dev) — must not be `prod`.
 #
 # Triggers:
@@ -96,6 +97,24 @@ jobs:
           repository: ${{ github.repository }}
           run-id: ${{ github.event.workflow_run.id }}
 
+      - name: Pulumi preview layer_1 (dev)
+        uses: ./.github/reusable_workflows/pulumi_up
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: nyc3
+        with:
+          command: preview
+          stack-project: layer_1
+          stack-name: layer_1
+          manager-node-host: ${{ secrets.PULUMI_MANAGER_NODE_HOST }}
+          ssh-user: ${{ secrets.PULUMI_SSH_USER }}
+          ssh-key: ${{ secrets.PULUMI_SSH_KEY }}
+          tailscale-authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          pulumi-backend-url: ${{ secrets.PULUMI_BACKEND_URL }}
+
       - name: Pulumi up layer_1 (dev)
         uses: ./.github/reusable_workflows/pulumi_up
         env:
@@ -108,6 +127,24 @@ jobs:
           command: up
           stack-project: layer_1
           stack-name: layer_1
+          manager-node-host: ${{ secrets.PULUMI_MANAGER_NODE_HOST }}
+          ssh-user: ${{ secrets.PULUMI_SSH_USER }}
+          ssh-key: ${{ secrets.PULUMI_SSH_KEY }}
+          tailscale-authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          pulumi-backend-url: ${{ secrets.PULUMI_BACKEND_URL }}
+
+      - name: Pulumi preview layer_2 (dev)
+        uses: ./.github/reusable_workflows/pulumi_up
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: nyc3
+        with:
+          command: preview
+          stack-project: layer_2
+          stack-name: layer_2
           manager-node-host: ${{ secrets.PULUMI_MANAGER_NODE_HOST }}
           ssh-user: ${{ secrets.PULUMI_SSH_USER }}
           ssh-key: ${{ secrets.PULUMI_SSH_KEY }}
@@ -160,6 +197,24 @@ jobs:
             BOM_PATH="$(find bom-download -type f -name 'main-*.json' | head -1 || true)"
           fi
           bash ./scripts/ci/pulumi-set-dev-image-tag.sh "${DEPLOY_SHA}" "${BOM_PATH}"
+
+      - name: Pulumi preview platform (dev)
+        uses: ./.github/reusable_workflows/pulumi_up
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: nyc3
+        with:
+          command: preview
+          stack-project: platform
+          stack-name: ${{ steps.meta.outputs.platform_stack }}
+          manager-node-host: ${{ secrets.PULUMI_MANAGER_NODE_HOST }}
+          ssh-user: ${{ secrets.PULUMI_SSH_USER }}
+          ssh-key: ${{ secrets.PULUMI_SSH_KEY }}
+          tailscale-authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          pulumi-backend-url: ${{ secrets.PULUMI_BACKEND_URL }}
 
       - name: Pulumi up platform (dev)
         uses: ./.github/reusable_workflows/pulumi_up
