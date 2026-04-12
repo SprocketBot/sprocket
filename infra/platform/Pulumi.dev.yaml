@@ -1,0 +1,46 @@
+config:
+  platform:docker-username: gankoji
+  platform:docker-access-token:
+    secure: AAABAILMbg4fOJnbcR7Lxb0g1uAyhXGcO/EcmMXf5ikLKt4MokqAplXSziE2FEAiu8LOuYRi8t+TwvAYNsuscxRDtkzFrBID
+  platform:legacy-image-namespace: minor-league-esports
+  platform:image-namespace: sprocketbot
+  platform:postgres-username: doadmin
+  platform:postgres-port: '25060'
+  platform:postgres-host: sprocketbot-postgres-d5033d2-do-user-24528890-0.j.db.ondigitalocean.com
+  platform:postgres-password:
+    secure: AAABAFd/724jFgDhT2eXVgllFZbcVkMa7KYABASJp4JUWvKA9AFF6aCWRAMK3I/KPed/cEkGlFA=
+  platform:subdomain: 'dev'
+  platform:discord-bot-token:
+    secure: AAABAH1Lr9RviW7TevfCtFUV8debaBZybIE/i75siqFBO9d34WHH5fuzl/LZbBGuIYFqm490lKfuWmSOUCGl5fwHuB2EssJ0J6TbA5LHje0fb/MRMEEyhzewZdO6uYyUHKREZy945UM=
+  platform:image-tag: main
+  platform:legacy-bot-token:
+    secure: AAABAMchClz7punUxGAJP7lzVSTcprfuSAzdZUIFUCqEWdi7KK0xXC0kfBvZsElD1+RIyn1wPW/ITelVTTRF5OGZZ5YzQgzhglWnQ/9eMG7T4HgzFG4Q5KBnvC4lw5pfDs3msi02uHM=
+  platform:hostname: dev.sprocket.mlesports.gg
+  platform:server-ip: 192.168.4.39
+  platform:tailscale-ip: 100.110.185.84
+  platform:platform/discord-bot-token:
+    secure: AAABAL4AAGwkTCZdeRn8Fs6CQhrWeaV2JOWfRlxmC3TwF8URsbRy6d9ZTGl1R+ZecCiAzwYg1LOgGaiCAsQv9VxuCC/NHNCiVvpnX//ZuSTg++TZ+WCSYNa8UEWPODahjek/IEphMR0=
+  platform:legacy-bot-token-emilio:
+    secure: AAABAOoEM1RL3IXgmpysN8BTjMsg2uJC2rbu7KE8zcltamIj1X1nmcr7+UCaNkqsZ4ovQU+gNuS8f9wLgOVi5s4KFD2R3kR3VWJKIB/By3xhuYgniHT2pyhISJ8lcPdHuVx8znSw
+  platform:legacy-bot-token-emilia:
+    secure: AAABALMAPgvoFvUaDbFQukMswT7MbB/p9WTiokU08tIW1uEEcBfS9XR6NdM89gFeXUK5EZxskTNQGJdc/GggfppCkuU9XahIz51n0bTBm/1jp0Mh+SWp5l6DdtUnkZJG8jUdeKRd
+  platform:postgres-password-legacy:
+    secure: AAABAO1bJU4/tNUmnrWi1U45vpuF0xnZeNfp6sfRy05qIzahlb4BhVo/gSSwo6I/eKz5nX17SiY=
+  platform:google-client-id:
+    secure: AAABAIqOBH2QBl5N3OLwhN12OV8CYVL7YFlKRhQPkAvf/6kVFkLWCMSEaPUNNLULvaSg1IC2bvdWIhb1Q0uSj26n+hk7GiSnu9MMotCRdaNP0XOaZIU3dEu/jbRpyrtY/9JAZD7IIqg=
+  platform:google-client-secret:
+    secure: AAABABFQhLwO5x+Vx94Bb2lRGG0gnJm0SptVAvzUz6h6t0fEjUcbYLK1n3u7WmCtksLxXHLEN0MnLH9+/Bwln8VbFQ==
+  platform:discord-client-id:
+    secure: AAABABrnFbqfaR2J7oZ5ElTLH8DNZPXRHZbmAOS1yip9HE2oGeX6RF2z/bhhSQ5r8atD
+  platform:discord-client-secret:
+    secure: AAABAAakh4b6+q6D5HSZfQO8ww6j0qB+avbkyeSjXtPloe83ee+YjIg7Ov1SFfmeNhXlVWchdJTXxzP9Zi6kXg==
+  platform:epic-client-id:
+    secure: AAABAM2G2EKpUFc7KDz6X5CfWHw/ROdJr94igNFpuDg9FsZF6J5/FP0+DIXur3j1dJ6bOHGA81VqwUuieDEYNLRO/blUfD1qwVLS
+  platform:epic-client-secret:
+    secure: AAABAK80OrXQbjLREMhd3Wqxx5+C9U7vmz3dhtUUYfk3WsArx+HoLxBHuRAH2txMHfz02nXCZ1vIimSKctZULu1VKvwzTKv54JVA
+  platform:steam-api-key:
+    secure: AAABAJCUdZfmI4PL8JUK+c7Sr1TVKXHeU7VU7hfjCyjLR4+ilEqt
+  platform:chatwoot-hmac-key:
+    secure: AAABAJ4n6UM4nXqBZf0qVCT5dW8qHGcrkRdKKD50qD4OZly3KNQMll9C/N9p+eOfQJGhZMLQ2YY=
+  platform:ballchasing-token:
+    secure: AAABACy991gu0bWFl5MNxrbfIqG7wJbnetYPCBFZR4ciVpVmytv5rZELSCz3VEtOiBrUrjLvhOjRIpNY5x64n0yw75BrUIeE
