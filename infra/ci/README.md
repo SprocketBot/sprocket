@@ -78,13 +78,43 @@ jobs:
 Single machine-readable contract for **which Pulumi stacks apply to which logical environment** (`dev`, `staging`, `prod`) and in **what order** Swarm-facing layers should run (`layer_1` → `layer_2` → `platform`).
 
 - **Prod** entries match [`.github/workflows/infra-pulumi.yml`](../../.github/workflows/infra-pulumi.yml) PR preview matrix today.
-- **Dev / staging** list candidate stack names (`dev`, `staging`) with TODO comments until ops confirms they exist ([issue #667](https://github.com/SprocketBot/sprocket/issues/667)).
+- **Dev** entries match [`.github/workflows/cd-deploy-dev.yml`](../../.github/workflows/cd-deploy-dev.yml) (layer stacks use project names; platform stack defaults to `dev` in the map and can be overridden by `PULUMI_DEV_PLATFORM_STACK` in CD).
+- **Staging** entries match [`.github/workflows/cd-promote-dev-to-staging.yml`](../../.github/workflows/cd-promote-dev-to-staging.yml) (`staging` stack per project).
 - **Foundation** (`infra/foundation`) is listed separately; it is not part of the Swarm `deploy_order`.
 
 ### Who updates this
 
-Maintainers who add or rename Pulumi stacks. After `pulumi stack ls` in each project, update this file and keep CI matrices in sync (or teach workflows to read this file).
+Maintainers who add or rename Pulumi stacks. After `pulumi stack ls` in each project, update this file; CD workflows read deploy order from here via [`scripts/ci/read-stack-map.mjs`](../../scripts/ci/read-stack-map.mjs) ([issue #682](https://github.com/SprocketBot/sprocket/issues/682)).
+
+### Parameterized deploy workflows (#682)
+
+| Wrapper (thin caller) | Reusable core | GitHub `environment` (jobs inside reusable workflow) |
+|----------------------|---------------|--------------------------------------------------------|
+| [`.github/workflows/cd-deploy-dev.yml`](../../.github/workflows/cd-deploy-dev.yml) | [`.github/workflows/_reusable-pulumi-deploy.yml`](../../.github/workflows/_reusable-pulumi-deploy.yml) | `development` (`dev_prepare` + deploy steps) |
+| [`.github/workflows/cd-promote-dev-to-staging.yml`](../../.github/workflows/cd-promote-dev-to-staging.yml) | same (`staging_include_promote_step: true` runs `promote-images.sh` then Pulumi ups) | `staging` |
+| [`.github/workflows/cd-deploy-prod.yml`](../../.github/workflows/cd-deploy-prod.yml) | same | `production` |
+| [`.github/workflows/ci-stack-map-pulumi-preview.yml`](../../.github/workflows/ci-stack-map-pulumi-preview.yml) | same | `preview` |
+
+**Reusable workflow inputs (for junior devs):**
+
+| Input | Meaning |
+|-------|--------|
+| `lane` | Reserved for future lane routing (e.g. `main`, `v15`); defaults to `main`. |
+| `target` | Which `environments.<name>` block in `stack-map.yaml` to use for **`preview_all`** only (`dev`, `staging`, or `prod`). |
+| `git_sha` | Exact commit to check out for every job. |
+| `deploy_profile` | `dev_cd` (BOM download + image tag + layer/platform Pulumi), `staging_up` (Pulumi `up` only, staging order), `prod_cd` (all previews then all ups, prod order), `preview_all` (preview every stack in `target`). |
+| `bom_download_run_id` | For `dev_cd` after Autobuild: GitHub run id to download `bom-main` from; empty for manual deploys. |
+| `dev_platform_stack` | Platform stack name for `dev_cd` (must not be `prod`). |
+| `staging_include_promote_step` | For `staging_up` only: when `true`, first matrix row runs `scripts/ci/promote-images.sh` against stack `staging`, then Pulumi `up` rows from the stack map. |
+| `promote_bom_file` / `promote_image_tag` | Optional inputs for that promote step (same semantics as the workflow dispatch form on promote). |
+| `prod_confirm` | For `prod_cd` only: same typo guard as the old `confirm` workflow input (empty, or repo full name, or `DEPLOY_PROD`). |
+
+**Secrets:** Callers use `secrets: inherit`. The reusable workflow uses **pre-prod** secret names (`PULUMI_*`, `AWS_*`, …) for `dev_cd`, `staging_up`, and `preview_all`, and **prod** names (`PROD_*`, `PROD_PULUMI_ACCESS_TOKEN`) for `prod_cd`. A new lane needs its own wrapper workflow (or duplicate job) that runs under the right GitHub Environment and maps lane-specific secret names explicitly—Actions cannot build `secrets` keys from variables.
+
+**Caller `environment`:** Wrapper jobs do **not** set `environment` (avoids duplicate approval gates). Jobs inside `_reusable-pulumi-deploy.yml` set `environment` per profile (`development`, `staging`, `production`, `preview`) so scoped secrets apply to Pulumi and promote steps only.
+
+**Local check:** `node scripts/ci/read-stack-map.mjs emit --plan prod_cd` prints `matrix_json` (also written to `GITHUB_OUTPUT` when that variable is set in Actions).
 
 ### Future consumption
 
-GitHub Actions or `scripts/infra` can parse this YAML with `yq`, a tiny Node script, or similar—out of scope for the initial file landing; see milestone notes in issue #667.
+Older note: parsing was optional at file landing (#667). CD now consumes this file via `read-stack-map.mjs`; PR checks that touch `infra/ci/**` run [`.github/workflows/ci-stack-map-pulumi-preview.yml`](../../.github/workflows/ci-stack-map-pulumi-preview.yml) to exercise the same path with `preview_all` / `target: dev`.

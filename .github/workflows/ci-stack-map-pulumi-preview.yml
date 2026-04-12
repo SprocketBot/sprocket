@@ -1,0 +1,25 @@
+# Integration check for stack-map driven Pulumi (#682): preview dev stacks from stack-map on PRs
+# that touch CI stack metadata or the reusable deploy workflow.
+name: CI Stack map Pulumi preview
+
+on:
+  pull_request:
+    paths:
+      - 'infra/ci/**'
+      - '.github/workflows/_reusable-pulumi-deploy.yml'
+      - '.github/workflows/ci-stack-map-pulumi-preview.yml'
+      - 'scripts/ci/read-stack-map.mjs'
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    uses: ./.github/workflows/_reusable-pulumi-deploy.yml
+    with:
+      lane: main
+      target: dev
+      git_sha: ${{ github.event.pull_request.head.sha }}
+      deploy_profile: preview_all
+    secrets: inherit

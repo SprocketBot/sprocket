@@ -7,13 +7,12 @@ version: 1
 
 environments:
   dev:
-    description: "Shared pre-prod Swarm — dev isolation (planned; not in CI matrix yet)"
+    description: "Pre-prod Swarm on the main dev manager — matches .github/workflows/cd-deploy-dev.yml"
     deploy_order:
-      # TODO(667): Confirm with ops — stacks may not exist yet; do not automate against these until verified.
-      - project: layer_1
-        stack: dev
-      - project: layer_2
-        stack: dev
+      # layer_* stack names match project folder names (same as prod). Platform stack defaults to dev;
+      # CD can override via workflow input / PULUMI_DEV_PLATFORM_STACK (must not be prod).
+      - { project: layer_1, stack: layer_1 }
+      - { project: layer_2, stack: layer_2 }
       - project: platform
         stack: dev
 
