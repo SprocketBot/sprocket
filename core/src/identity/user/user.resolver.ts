@@ -19,6 +19,7 @@ import {UserPayload} from "../auth";
 import {CurrentUser} from "../auth/current-user.decorator";
 import {GqlJwtGuard} from "../auth/gql-auth-guard";
 import {IdentityService} from "../identity.service";
+import {OrgTeamPermissionResolutionService} from "../user-org-team-permission/org-team-permission-resolution.service";
 import {UserService} from "./user.service";
 
 @Resolver(() => User)
@@ -30,6 +31,7 @@ export class UserResolver {
         private readonly userService: UserService,
         private readonly popService: PopulateService,
         private readonly jwtService: JwtService,
+        private readonly orgTeamPermissionResolution: OrgTeamPermissionResolutionService,
     ) {}
 
     @Query(() => User)
@@ -98,12 +100,13 @@ export class UserResolver {
     @Args("organizationId", {type: () => Int, nullable: true}) organizationId?: number,
     ): Promise<string> {
         const user = await this.userService.getUserById(userId, {relations: {profile: true} });
+        const orgTeams = await this.orgTeamPermissionResolution.resolveOrgTeamsForUser(user.id);
         const payload: AuthPayload = {
             sub: `${user.id}`,
             username: user.profile.displayName,
             userId: user.id,
             currentOrganizationId: organizationId ?? config.defaultOrganizationId,
-            orgTeams: [],
+            orgTeams,
         };
 
         this.logger.log(`${authedUser.username} (${authedUser.userId}) generated an authentication token for ${user.profile.displayName} (${user.id})`);

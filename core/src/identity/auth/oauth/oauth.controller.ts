@@ -1,9 +1,7 @@
 import {
     Controller,
     ForbiddenException,
-    forwardRef,
     Get,
-    Inject,
     Logger,
     Request,
     Response,
@@ -16,7 +14,7 @@ import type {User} from "$db/identity/user/user.model";
 import type {UserAuthenticationAccount} from "$db/identity/user_authentication_account/user_authentication_account.model";
 import {UserAuthenticationAccountType} from "$db/identity/user_authentication_account/user_authentication_account_type.enum";
 
-import {MledbPlayerService} from "../../../mledb";
+import {OrgTeamPermissionResolutionService} from "../../user-org-team-permission/org-team-permission-resolution.service";
 import {UserService} from "../../user";
 import {DiscordAuthGuard} from "./guards";
 import {JwtRefreshGuard} from "./guards/jwt-refresh.guard";
@@ -32,8 +30,7 @@ export class OauthController {
     constructor(
         private authService: OauthService,
         private userService: UserService,
-    @Inject(forwardRef(() => MledbPlayerService))
-    private mledbUserService: MledbPlayerService,
+        private orgTeamPermissionResolution: OrgTeamPermissionResolutionService,
     ) {}
 
     @Get("login")
@@ -46,9 +43,7 @@ export class OauthController {
       = await this.userService.getUserAuthenticationAccountsForUser(ourUser.id);
         const discordAccount = authAccounts.find(obj => obj.accountType === UserAuthenticationAccountType.DISCORD);
         if (discordAccount) {
-            const player = await this.mledbUserService.getPlayerByDiscordId(discordAccount.accountId);
-            const player_to_orgs = await this.mledbUserService.getPlayerOrgs(player);
-            const orgs = player_to_orgs.map(pto => pto.orgTeam);
+            const orgs = await this.orgTeamPermissionResolution.resolveOrgTeamsForUser(ourUser.id);
             const payload: AuthPayload = {
                 sub: discordAccount.accountId,
                 username: userProfile.displayName,
@@ -73,9 +68,7 @@ export class OauthController {
       = await this.userService.getUserAuthenticationAccountsForUser(ourUser.userId);
         const discordAccount = authAccounts.find(obj => obj.accountType === UserAuthenticationAccountType.DISCORD);
         if (discordAccount) {
-            const player = await this.mledbUserService.getPlayerByDiscordId(discordAccount.accountId);
-            const player_to_orgs = await this.mledbUserService.getPlayerOrgs(player);
-            const orgs = player_to_orgs.map(pto => pto.orgTeam);
+            const orgs = await this.orgTeamPermissionResolution.resolveOrgTeamsForUser(ourUser.userId);
             const payload: AuthPayload = {
                 sub: discordAccount.accountId,
                 username: userProfile.displayName,

@@ -21,6 +21,7 @@ import {SprocketRatingModule} from "../sprocket-rating";
 import {UtilModule} from "../util/util.module";
 import {MledbMatchController} from "./mledb-match/mledb-match.controller";
 import {MledbMatchService} from "./mledb-match/mledb-match.service";
+import {FormerPlayerScrimGuard} from "./mledb-player/mledb-player.guard";
 import {MledbPlayerService} from "./mledb-player";
 import {MledbPlayerController} from "./mledb-player/mledb-player.controller";
 import {MledbPlayerAccountService} from "./mledb-player-account";
@@ -57,12 +58,14 @@ import {MledbNcpTeamRoleUsageResolver, MledbNcpTeamRoleUsageService} from "./mle
         MledbMatchService,
         MledbNcpTeamRoleUsageService,
         MledbNcpTeamRoleUsageResolver,
+        FormerPlayerScrimGuard,
     ],
     exports: [
         MledbMatchService,
         MledbPlayerService,
         MledbPlayerAccountService,
         MledbFinalizationService,
+        FormerPlayerScrimGuard,
     ],
     controllers: [MledbMatchController, MledbPlayerController],
 })
