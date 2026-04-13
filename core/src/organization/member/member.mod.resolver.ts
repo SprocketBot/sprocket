@@ -65,7 +65,7 @@ export class MemberModResolver {
                     manager,
                 );
 
-                // as well as the user's MLE_Player in the MLEDB schema
+                // Temporary legacy mirror for mledb.player_account (cutover); Sprocket row above is authoritative.
                 const mle_player: MLE_Player = await this.mledbPlayerService.getMlePlayerBySprocketUser(userId);
                 await this.mledbPlayerAccountService.createOrUpdatePlayerAccount(
                     cu.userId,

@@ -19,6 +19,10 @@ export class CreatePlayerTuple {
 
     @Field(() => Float)
   salary: number;
+
+    /** Steam platform IDs for Rocket League; optional. Written to Sprocket and mirrored to mledb.player_account during cutover. */
+    @Field(() => [String], {nullable: true})
+  accountSteamIds?: string[];
 }
 
 export const IntakeSchema = z

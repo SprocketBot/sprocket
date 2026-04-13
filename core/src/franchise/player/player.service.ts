@@ -30,10 +30,12 @@ import {UserAuthenticationAccount} from "../../database/identity/user_authentica
 import {UserAuthenticationAccountType} from "../../database/identity/user_authentication_account/user_authentication_account_type.enum";
 import {UserProfile} from "../../database/identity/user_profile/user_profile.model";
 import {
-    League, LeagueOrdinals, ModePreference, Role, Timezone,
+    League, LeagueOrdinals, ModePreference, MLE_Platform, Role, Timezone,
 } from "../../database/mledb";
 import {MLE_Player} from "../../database/mledb/Player.model";
 import {PlayerToPlayer} from "../../database/mledb-bridge/player_to_player.model";
+import {GameSkillGroup} from "../../database/franchise/game_skill_group/game_skill_group.model";
+import {Platform} from "../../database/game/platform/platform.model";
 import {Member} from "../../database/organization/member/member.model";
 import {MemberProfile} from "../../database/organization/member_profile/member_profile.model";
 import {Organization} from "../../database/organization/organization/organization.model";
@@ -45,6 +47,8 @@ import {
     SkillGroupDelta,
 } from "../../elo/elo-connector";
 import {PlatformService} from "../../game";
+import {MledbPlayerAccountService} from "../../mledb";
+import {MemberPlatformAccountService} from "../../organization/member-platform-account";
 import {OrganizationService} from "../../organization";
 import {MemberService} from "../../organization/member/member.service";
 import {GameSkillGroupService} from "../game-skill-group";
@@ -83,6 +87,10 @@ export class PlayerService {
     private readonly eloConnectorService: EloConnectorService,
     private readonly platformService: PlatformService,
     private readonly analyticsService: AnalyticsService,
+    @Inject(forwardRef(() => MemberPlatformAccountService))
+    private readonly memberPlatformAccountService: MemberPlatformAccountService,
+    @Inject(forwardRef(() => MledbPlayerAccountService))
+    private readonly mledbPlayerAccountService: MledbPlayerAccountService,
     ) {}
 
     async getPlayer(query: FindOneOptions<Player>): Promise<Player> {
@@ -275,6 +283,64 @@ export class PlayerService {
             ModePreference.BOTH,
             runner,
         );
+    }
+
+    /**
+     * Persist Rocket League Steam IDs on the Sprocket member; mirror to mledb.player_account when an MLE_Player bridge exists (cutover).
+     */
+    private async linkRocketLeagueSteamIdsForPlayer(
+        member: Member,
+        player: Player,
+        steamIds: string[] | undefined,
+        runner: QueryRunner,
+        updatedByUserId: number,
+    ): Promise<void> {
+        const uniq = [...new Set((steamIds ?? []).map(id => id.trim()).filter(id => id.length > 0))];
+        if (uniq.length === 0) return;
+
+        const skillGroup = await this.skillGroupService.getGameSkillGroup({
+            where: {id: player.skillGroupId},
+            relations: {game: true},
+        });
+        if (skillGroup.game.id !== 7) {
+            this.logger.warn(
+                `Steam account IDs supplied for non-Rocket-League skill group ${skillGroup.id}; skipping platform link`,
+            );
+            return;
+        }
+
+        let steamPlatform: Platform;
+        try {
+            steamPlatform = await this.platformService.getPlatformByCode(MLE_Platform.STEAM, runner.manager);
+        } catch {
+            steamPlatform = await this.platformService.createPlatform(MLE_Platform.STEAM);
+        }
+
+        const bridge = await runner.manager.findOne(PlayerToPlayer, {
+            where: {sprocketPlayerId: player.id},
+        });
+        const mlePlayer = bridge
+            ? await runner.manager.findOne(MLE_Player, {where: {id: bridge.mledPlayerId} })
+            : null;
+
+        for (const steamId of uniq) {
+            await this.memberPlatformAccountService.upsertMemberPlatformAccount(
+                member,
+                steamPlatform.id,
+                steamId,
+                runner.manager,
+            );
+            if (mlePlayer) {
+                await this.mledbPlayerAccountService.createOrUpdatePlayerAccount(
+                    updatedByUserId,
+                    MLE_Platform.STEAM,
+                    steamId,
+                    steamId,
+                    mlePlayer,
+                    runner.manager,
+                );
+            }
+        }
     }
 
     /* !! Using repositories due to circular dependency issues. Will fix after extended repositories are added, probably. !! */
@@ -1239,6 +1305,14 @@ export class PlayerService {
                     this.logger.log(`Creating new player for skillGroup ${pt.gameSkillGroupId} with salary ${pt.salary}`);
                     const player = await this.createPlayer(member.id, pt.gameSkillGroupId, pt.salary, runner);
                     this.logger.log(`Created player: id=${player.id}, skillGroupId=${pt.gameSkillGroupId}, salary=${pt.salary}`);
+
+                    await this.linkRocketLeagueSteamIdsForPlayer(
+                        member,
+                        player,
+                        pt.accountSteamIds,
+                        runner,
+                        member.userId,
+                    );
 
                     const skillGroup = await this.skillGroupService.getGameSkillGroupById(
                         pt.gameSkillGroupId,

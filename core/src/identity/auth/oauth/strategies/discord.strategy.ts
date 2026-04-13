@@ -59,11 +59,6 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         profile: Profile,
         done: Done,
     ): Promise<User | undefined> {
-        const mledbPlayer = await this.mledbPlayerService
-            .getPlayerByDiscordId(profile.id)
-            .catch(() => null);
-        if (!mledbPlayer) throw new Error("User is not associated with MLE");
-
         const userByDiscordId = await this.identityService
             .getUserByAuthAccount(UserAuthenticationAccountType.DISCORD, profile.id)
             .catch(() => undefined);
@@ -74,6 +69,12 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
 
         // TODO: Do we want to actually do this? Theoretically, if a user changes their email, that's a "new user" if we go by email. Hence ^
         if (!user) user = await this.userService.getUser({where: {email: profile.email} });
+
+        // New-account import still keys off legacy MLEDB until full cutover; returning users authenticate via Sprocket alone.
+        let mledbPlayer = await this.mledbPlayerService
+            .getPlayerByDiscordId(profile.id)
+            .catch(() => null);
+        if (!user && !mledbPlayer) throw new Error("User is not associated with MLE");
 
         // If no users returned from query, create a new one
         if (!user) {
@@ -113,42 +114,38 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
             await this.userService.addAuthenticationAccounts(user.id, [authAcct]);
         }
 
+        if (!mledbPlayer) {
+            mledbPlayer = await this.mledbPlayerService
+                .getPlayerByDiscordId(profile.id)
+                .catch(() => null);
+        }
+
         let member = await this.memberService
             .getMember({where: {user: {id: user.id} } })
             .catch(() => null);
 
         if (!member) {
+            const displayName = mledbPlayer?.name ?? profile.username;
             member = await this.memberService.createMember(
-                {name: mledbPlayer.name},
+                {name: displayName},
                 MLE_ORGANIZATION_ID,
                 user.id,
             );
         }
 
-        const mledbPlayerAccounts = await this.mledbPlayerAccountService.getPlayerAccounts({
-            where: {player: {id: mledbPlayer.id} },
-        });
+        if (mledbPlayer) {
+            const mledbPlayerAccounts = await this.mledbPlayerAccountService.getPlayerAccounts({
+                where: {player: {id: mledbPlayer.id} },
+            });
 
-        for (const mledbPlayerAccount of mledbPlayerAccounts) {
-            if (!mledbPlayerAccount.platformId) continue;
+            for (const mledbPlayerAccount of mledbPlayerAccounts) {
+                if (!mledbPlayerAccount.platformId) continue;
 
-            const platformAccount = await this.memberPlatformAccountService
-                .getMemberPlatformAccount({
-                    where: {
-                        member: {id: member.id},
-                        platform: {code: mledbPlayerAccount.platform},
-                        platformAccountId: mledbPlayerAccount.platformId,
-                    },
-                    relations: ["member", "platform"],
-                })
-                .catch(() => null);
-
-            if (!platformAccount) {
                 const platform = await this.platformService
                     .getPlatformByCode(mledbPlayerAccount.platform)
                     .catch(async () => this.platformService.createPlatform(mledbPlayerAccount.platform));
 
-                await this.memberPlatformAccountService.createMemberPlatformAccount(
+                await this.memberPlatformAccountService.upsertMemberPlatformAccount(
                     member,
                     platform.id,
                     mledbPlayerAccount.platformId,
@@ -156,20 +153,22 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
             }
         }
 
-        if (!["PREMIER", "MASTER", "CHAMPION", "ACADEMY", "FOUNDATION"].includes(mledbPlayer.league)) throw new Error("Player does not belong to a league");
+        if (mledbPlayer) {
+            if (!["PREMIER", "MASTER", "CHAMPION", "ACADEMY", "FOUNDATION"].includes(mledbPlayer.league)) throw new Error("Player does not belong to a league");
 
-        const skillGroup = await this.skillGroupService.getGameSkillGroup({
-            where: {
-                profile: {
-                    code: `${mledbPlayer.league[0]}L`,
+            const skillGroup = await this.skillGroupService.getGameSkillGroup({
+                where: {
+                    profile: {
+                        code: `${mledbPlayer.league[0]}L`,
+                    },
                 },
-            },
-            relations: ["profile"],
-        });
-        const player = await this.playerService
-            .getPlayer({where: {member: {id: member.id} } })
-            .catch(() => null);
-        if (!player) await this.playerService.createPlayer(member, skillGroup.id, mledbPlayer.salary);
+                relations: ["profile"],
+            });
+            const player = await this.playerService
+                .getPlayer({where: {member: {id: member.id} } })
+                .catch(() => null);
+            if (!player) await this.playerService.createPlayer(member, skillGroup.id, mledbPlayer.salary);
+        }
 
         done("", user);
         return user;
