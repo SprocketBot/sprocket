@@ -12,6 +12,7 @@ import {FranchiseProfile} from "$db/franchise/franchise_profile/franchise_profil
 import {MledbPlayerService} from "../../mledb";
 import {MemberService} from "../../organization";
 import {PlayerService} from "../player";
+import {RosterAuthorityService} from "../roster-authority.service";
 
 @Injectable()
 export class FranchiseService {
@@ -23,6 +24,7 @@ export class FranchiseService {
     private readonly sprocketMemberService: MemberService,
     @InjectRepository(FranchiseProfile)
     private readonly franchiseProfileRepository: Repository<FranchiseProfile>,
+    private readonly rosterAuthorityService: RosterAuthorityService,
     ) {}
 
     async getFranchiseProfile(franchiseId: number): Promise<FranchiseProfile> {
@@ -62,6 +64,11 @@ export class FranchiseService {
     }
 
     async getPlayerFranchisesByUserId(userId: number): Promise<CoreOutput<CoreEndpoint.GetPlayerFranchises>> {
+        const fromSprocket = await this.rosterAuthorityService.getPlayerFranchisesFromSprocket(userId);
+        if (fromSprocket.length > 0) {
+            return fromSprocket;
+        }
+
         const mlePlayer = await this.mledbPlayerService.getMlePlayerBySprocketUser(userId);
 
         const playerId = mlePlayer.id;
