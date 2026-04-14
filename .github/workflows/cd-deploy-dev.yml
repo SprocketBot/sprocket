@@ -91,8 +91,6 @@ jobs:
   deploy-dev:
     needs: meta
     uses: ./.github/workflows/_reusable-pulumi-deploy.yml
-    env:
-      PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
     with:
       lane: main
       target: dev
