@@ -1,4 +1,5 @@
 import * as pulumi from "@pulumi/pulumi"
+import { EnsureSharedClusterDatabase } from "global/helpers/datastore/SharedClusterPostgres";
 
 const config = new pulumi.Config()
 
@@ -14,6 +15,7 @@ export class PlatformDatabase extends pulumi.ComponentResource {
         username: string
         password: pulumi.Output<string>
     }
+    private readonly databaseResource: EnsureSharedClusterDatabase
 
     constructor(name: string, args: PlatformDatabaseArgs, opts?: pulumi.ComponentResourceOptions) {
         super("SprocketBot:Platform:Database", name, {}, opts)
@@ -28,5 +30,10 @@ export class PlatformDatabase extends pulumi.ComponentResource {
             username: config.require("postgres-username"),
             password: config.requireSecret("postgres-password")
         }
+
+        this.databaseResource = new EnsureSharedClusterDatabase(`${name}-shared-cluster-db`, {
+            databaseName: this.database.name,
+            ownerRole: this.credentials.username,
+        }, { parent: this })
     }
 }

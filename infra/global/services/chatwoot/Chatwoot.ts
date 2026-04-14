@@ -5,6 +5,7 @@ import * as minio from "@pulumi/minio"
 import * as docker from "@pulumi/docker"
 import { CHATWOOT_SUBDOMAIN, HOSTNAME } from "../../constants";
 import { PostgresUser } from "../../helpers/datastore/PostgresUser";
+import { EnsureSharedClusterDatabase, laneScopedPostgresName, usesLegacySharedClusterNames } from "../../helpers/datastore/SharedClusterPostgres";
 import { TraefikLabels } from "../../helpers/docker/TraefikLabels";
 import { SprocketMinioProvider } from "../../providers/SprocketMinioProvider";
 import defaultLogDriver from "../../helpers/docker/DefaultLogDriver";
@@ -45,7 +46,7 @@ export class Chatwoot extends pulumi.ComponentResource {
     readonly s3PolicyAttachment: minio.IamUserPolicyAttachment
 
     readonly postgresUser: PostgresUser
-    readonly postgresDb: postgres.Database
+    readonly postgresDb: EnsureSharedClusterDatabase | postgres.Database
 
     readonly url: string
     private readonly secretKeyBase: random.RandomPassword
@@ -65,10 +66,19 @@ export class Chatwoot extends pulumi.ComponentResource {
             providers: args.providers
         }, { parent: this })
 
-        this.postgresDb = new postgres.Database(`${name}-db`, {
-            name: name,
-            owner: this.postgresUser.username
-        }, { parent: this, provider: args.providers.postgres })
+        const databaseName = laneScopedPostgresName(name);
+
+        if (usesLegacySharedClusterNames()) {
+            this.postgresDb = new postgres.Database(`${name}-db`, {
+                name: databaseName,
+                owner: this.postgresUser.username
+            }, { parent: this, provider: args.providers.postgres, dependsOn: [this.postgresUser] })
+        } else {
+            this.postgresDb = new EnsureSharedClusterDatabase(`${name}-db`, {
+                databaseName,
+                ownerRole: this.postgresUser.username
+            }, { parent: this, dependsOn: [this.postgresUser] })
+        }
 
         this.bucket = new minio.S3Bucket(`${name}-s3-bucket`, {
             bucket: name
@@ -103,7 +113,7 @@ export class Chatwoot extends pulumi.ComponentResource {
                 REDIS_URL: pulumi.output(args.redis.host).apply(h => `redis://${h}`),
                 REDIS_PASSWORD: args.redis.password,
                 POSTGRES_HOST: args.postgres.host,
-                POSTGRES_DATABASE: this.postgresDb.name,
+                POSTGRES_DATABASE: databaseName,
                 POSTGRES_USERNAME: config.require('postgres-username'),
                 POSTGRES_PASSWORD: config.requireSecret('postgres-password'),
                 RAILS_MAX_THREADS: "5",

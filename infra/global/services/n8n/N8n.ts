@@ -3,6 +3,7 @@ import * as docker from '@pulumi/docker';
 import * as postgres from '@pulumi/postgresql';
 import * as random from '@pulumi/random';
 import { PostgresUser } from '../../helpers/datastore/PostgresUser';
+import { EnsureSharedClusterDatabase, laneScopedPostgresName, usesLegacySharedClusterNames } from '../../helpers/datastore/SharedClusterPostgres';
 import defaultLogDriver from '../../helpers/docker/DefaultLogDriver';
 import { TraefikLabels } from '../../helpers/docker/TraefikLabels';
 import { buildHost } from '../../helpers/buildHost';
@@ -20,7 +21,7 @@ export interface N8nArgs {
 }
 
 export class N8n extends pulumi.ComponentResource {
-  readonly database: postgres.Database;
+  readonly database: EnsureSharedClusterDatabase | postgres.Database;
   readonly dbUser: PostgresUser;
 
   readonly network: docker.Network;
@@ -36,10 +37,19 @@ export class N8n extends pulumi.ComponentResource {
       username: `${name}-user`
     }, { parent: this });
 
-    this.database = new postgres.Database(`${name}-db`, {
-      name: `${name}-db`,
-      owner: this.dbUser.username
-    }, { parent: this, provider: args.providers.postgres });
+    const databaseName = laneScopedPostgresName(`${name}-db`);
+
+    if (usesLegacySharedClusterNames()) {
+      this.database = new postgres.Database(`${name}-db`, {
+        name: databaseName,
+        owner: this.dbUser.username
+      }, { parent: this, provider: args.providers.postgres, dependsOn: [this.dbUser] });
+    } else {
+      this.database = new EnsureSharedClusterDatabase(`${name}-db`, {
+        databaseName,
+        ownerRole: this.dbUser.username
+      }, { parent: this, dependsOn: [this.dbUser] });
+    }
 
     this.encryptionKey = new random.RandomPassword(`${name}-encryption-key`, {
       length: 128
@@ -56,7 +66,7 @@ export class N8n extends pulumi.ComponentResource {
           image: 'n8nio/n8n',
           env: {
             DB_TYPE: 'postgresdb',
-            DB_POSTGRESDB_DATABASE: this.database.name,
+            DB_POSTGRESDB_DATABASE: databaseName,
             DB_POSTGRESDB_HOST: args.postgresHostname,
             DB_POSTGRESDB_PORT: config.require('postgres-port'),
             DB_POSTGRESDB_USER: config.require('postgres-username'),

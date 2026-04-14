@@ -6,6 +6,7 @@ import { HOSTNAME } from "../../constants";
 import { TraefikLabels } from "../../helpers/docker/TraefikLabels"
 import DefaultLogDriver from "../../helpers/docker/DefaultLogDriver"
 import { PostgresUser } from "../../helpers/datastore/PostgresUser"
+import { EnsureSharedClusterDatabase, laneScopedPostgresName, usesLegacySharedClusterNames } from "../../helpers/datastore/SharedClusterPostgres"
 import { ConfigFile } from "../../helpers/docker/ConfigFile"
 
 const config = new pulumi.Config();
@@ -24,7 +25,7 @@ export class Grafana extends pulumi.ComponentResource {
     private readonly dbUser: PostgresUser
     private readonly datasourcesConfig: ConfigFile
 
-    private readonly db: postgres.Database
+    private readonly db: EnsureSharedClusterDatabase | postgres.Database
     private readonly service: docker.Service
 
     constructor(name: string, args: GrafanaArgs, opts?: pulumi.ComponentResourceOptions) {
@@ -36,10 +37,20 @@ export class Grafana extends pulumi.ComponentResource {
             importId: "Grafana"
         }, { parent: this })
 
-        this.db = new postgres.Database(`${name}-db`, {
-            name: name,
-            owner: this.dbUser.username
-        }, { parent: this, provider: args.providers.postgres, dependsOn: [this.dbUser], import: name })
+        const databaseName = laneScopedPostgresName(name);
+        const dbName = pulumi.output(databaseName);
+
+        if (usesLegacySharedClusterNames()) {
+            this.db = new postgres.Database(`${name}-db`, {
+                name: databaseName,
+                owner: this.dbUser.username
+            }, { parent: this, provider: args.providers.postgres, dependsOn: [this.dbUser], import: databaseName })
+        } else {
+            this.db = new EnsureSharedClusterDatabase(`${name}-db`, {
+                databaseName,
+                ownerRole: this.dbUser.username,
+            }, { parent: this, dependsOn: [this.dbUser] })
+        }
 
         this.datasourcesConfig = new ConfigFile(`${name}-datasources`, {
             filepath: `${__dirname}/config/datasources.yaml`
@@ -63,7 +74,7 @@ export class Grafana extends pulumi.ComponentResource {
                         GF_SERVER_ROOT_URL: `https://grafana.${HOSTNAME}`,
                         GF_DATABASE_TYPE: "postgres",
                         GF_DATABASE_HOST: `${config.require('postgres-host')}:${config.require('postgres-port')}`,
-                        GF_DATABASE_NAME: this.db.name,
+                        GF_DATABASE_NAME: dbName,
                         GF_DATABASE_USER: config.require('postgres-username'),
                         GF_DATABASE_PASSWORD: config.requireSecret('postgres-password'),
                         GF_DATABASE_SSL_MODE: "require",

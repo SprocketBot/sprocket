@@ -22,7 +22,11 @@
     "@types/axios": "^0.14.0",
     "@types/yaml": "^1.9.7",
     "axios": "^0.27.1",
+    "pg": "^8.20.0",
     "remove": "^0.1.5",
     "yaml": "^2.0.1"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.20.0"
   }
 }

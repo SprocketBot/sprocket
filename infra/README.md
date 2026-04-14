@@ -123,6 +123,8 @@ Hostnames are derived in `infra/platform` from `platform:hostname` and `platform
 
 `layer_1` and `layer_2` stack names are environment-specific when a lane has its own substrate (for example `dev` on the dedicated `dev-staging` node) and remain `layer_1` / `layer_2` on the production manager; confirm with `pulumi stack ls` per project before apply.
 
+When multiple lanes share the same DigitalOcean Postgres cluster, non-prod stacks scope service roles and service databases by stack name (for example `grafana-dev` and `replicated-telegraf-telegraf-dev`) so reruns do not collide with prod. The bootstrap connection DB defaults to `sprocket_main` and can be overridden per stack with `postgres-management-database`.
+
 ## GitHub Actions
 
 ### Container image tags (CI)
