@@ -44,3 +44,5 @@ config:
     secure: AAABAJ4n6UM4nXqBZf0qVCT5dW8qHGcrkRdKKD50qD4OZly3KNQMll9C/N9p+eOfQJGhZMLQ2YY=
   platform:ballchasing-token:
     secure: AAABACy991gu0bWFl5MNxrbfIqG7wJbnetYPCBFZR4ciVpVmytv5rZELSCz3VEtOiBrUrjLvhOjRIpNY5x64n0yw75BrUIeE
+  # Issue #726: allow legacy mledb.player_to_org fallback until Sprocket rows are backfilled; set false after rollout.
+  platform:org-team-permission-dual-read: "true"
