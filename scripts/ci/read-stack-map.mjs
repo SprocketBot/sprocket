@@ -391,6 +391,9 @@ if (plan === 'prod_cd') {
   order = scopeDeployOrder(loadOrder('dev'), gitSha);
   for (const s of order) {
     const stackName = s.project === 'platform' ? platformStackArg : s.stack;
+    if (s.project === 'platform') {
+      planRows.push({ stack_project: s.project, stack_name: stackName, command: 'refresh' });
+    }
     planRows.push({ stack_project: s.project, stack_name: stackName, command: 'preview' });
     planRows.push({ stack_project: s.project, stack_name: stackName, command: 'up' });
   }

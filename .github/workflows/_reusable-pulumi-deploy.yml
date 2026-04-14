@@ -571,7 +571,7 @@ jobs:
               refresh)
                 (
                   cd "./infra/${project}"
-                  pulumi refresh --stack "${stack}"
+                  pulumi refresh --yes --non-interactive --stack "${stack}"
                 )
                 ;;
               *)
