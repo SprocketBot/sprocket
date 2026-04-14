@@ -1,46 +1,47 @@
 config:
   platform:docker-username: gankoji
   platform:docker-access-token:
-    secure: AAABAILMbg4fOJnbcR7Lxb0g1uAyhXGcO/EcmMXf5ikLKt4MokqAplXSziE2FEAiu8LOuYRi8t+TwvAYNsuscxRDtkzFrBID
+    secure: AAABADsSgmlJO+PMw4GHrWn2si7h9/n2WylpoUpz7pG8Xmj7uyR5UaSplRoH06Mcpy62TcCjluGTIFUTc1EAdV5gTLCXaqfl
   platform:legacy-image-namespace: minor-league-esports
   platform:image-namespace: sprocketbot
   platform:postgres-username: doadmin
   platform:postgres-port: '25060'
   platform:postgres-host: sprocketbot-postgres-d5033d2-do-user-24528890-0.j.db.ondigitalocean.com
   platform:postgres-password:
-    secure: AAABAFd/724jFgDhT2eXVgllFZbcVkMa7KYABASJp4JUWvKA9AFF6aCWRAMK3I/KPed/cEkGlFA=
+    secure: AAABAB7FqFVxkQpGFRis9FDt3+48XS2B9W4QabSxCEvmH7ZrTxl5UlXtuYiHkTkzFw6rYT6hQCU=
   platform:subdomain: 'dev'
   platform:discord-bot-token:
-    secure: AAABAH1Lr9RviW7TevfCtFUV8debaBZybIE/i75siqFBO9d34WHH5fuzl/LZbBGuIYFqm490lKfuWmSOUCGl5fwHuB2EssJ0J6TbA5LHje0fb/MRMEEyhzewZdO6uYyUHKREZy945UM=
+    secure: AAABAA98IbvbeLBDClDyPNetnN5QQyqMfODPRJOPmFgjpC7r8km/WJl+K2I0MCQB+6kUvLw/Dp8en9r9iEnN2MsCRzvLzr8GACT06bHcNLxk2WwJYcQymjoFEPNZe0tt32e/EYCtB28=
   platform:image-tag: main
   platform:legacy-bot-token:
-    secure: AAABAMchClz7punUxGAJP7lzVSTcprfuSAzdZUIFUCqEWdi7KK0xXC0kfBvZsElD1+RIyn1wPW/ITelVTTRF5OGZZ5YzQgzhglWnQ/9eMG7T4HgzFG4Q5KBnvC4lw5pfDs3msi02uHM=
+    secure: AAABAAsyhLCoBRrSMGFoGJsEBAVniNvq8nvCsXyhuAQYKn7UurI0QuCDx7Mi8RulDV2frbTOjrIQnfXi+aZIYm9ih2rwcHN2bbuPwzVlkjBIqjWGGEaFNY+9t1TAdy5kFYQ6LVLbVWI=
   platform:hostname: dev.sprocket.mlesports.gg
   platform:server-ip: 192.168.4.39
   platform:tailscale-ip: 100.110.185.84
   platform:platform/discord-bot-token:
-    secure: AAABAL4AAGwkTCZdeRn8Fs6CQhrWeaV2JOWfRlxmC3TwF8URsbRy6d9ZTGl1R+ZecCiAzwYg1LOgGaiCAsQv9VxuCC/NHNCiVvpnX//ZuSTg++TZ+WCSYNa8UEWPODahjek/IEphMR0=
+    secure: AAABALrtRhPCVbfSozWY5Pleryi2+C5syhIxWwDOOf75pWzETFdWdAsDY4dUSn1ym7kU4ALtrW+CRfunEDiPj8UFYU2lpM8Q+0bf1v5oEGYLYnXP1c8qqY2fIGi9lN7r1rYB7YwiH4U=
   platform:legacy-bot-token-emilio:
-    secure: AAABAOoEM1RL3IXgmpysN8BTjMsg2uJC2rbu7KE8zcltamIj1X1nmcr7+UCaNkqsZ4ovQU+gNuS8f9wLgOVi5s4KFD2R3kR3VWJKIB/By3xhuYgniHT2pyhISJ8lcPdHuVx8znSw
+    secure: AAABAOrV5e78LSqXujG2bA8sVDVjrckrFTWAJ0BpGdweuF8r81f5NtpKWtlZbun5a25WeQWmxHpgKoysqHAQkUMsQU3rGgvmXs0KDirvB0rFZO70usEpYdULigOUhlrNPlCg21f/
   platform:legacy-bot-token-emilia:
-    secure: AAABALMAPgvoFvUaDbFQukMswT7MbB/p9WTiokU08tIW1uEEcBfS9XR6NdM89gFeXUK5EZxskTNQGJdc/GggfppCkuU9XahIz51n0bTBm/1jp0Mh+SWp5l6DdtUnkZJG8jUdeKRd
+    secure: AAABAEYwlW0pfkmTLCsFZ/uEP77azAMuevwzzGOlzfx2UucwAJg3cxM3xQORNWpXxlLS7KklrkCG/NKuAReH/48e4/hI9kC6LuZArD6MCSD2JDpgGayKE1nqInyU+bX6+hFz7xpC
   platform:postgres-password-legacy:
-    secure: AAABAO1bJU4/tNUmnrWi1U45vpuF0xnZeNfp6sfRy05qIzahlb4BhVo/gSSwo6I/eKz5nX17SiY=
+    secure: AAABALtQ73EGc7NDSYJP+B0YYA3r123+u0vdGBJ3vy1fJqn7lGh9Qh+7oQdWrUy3+8P8lHfjltE=
   platform:google-client-id:
-    secure: AAABAIqOBH2QBl5N3OLwhN12OV8CYVL7YFlKRhQPkAvf/6kVFkLWCMSEaPUNNLULvaSg1IC2bvdWIhb1Q0uSj26n+hk7GiSnu9MMotCRdaNP0XOaZIU3dEu/jbRpyrtY/9JAZD7IIqg=
+    secure: AAABAAN31wgRDuJElkkTCE3EqAmKTHdslZuyHsKnt/dr8vsoYoxuCGsAFMc5ECBMxPiDMqLN+pSX+loUME4aB79CQ29SZw1maPlPeDi6GhNgN3G4cZm2rheTyfw3FrrgdGr7s6tlnnI=
   platform:google-client-secret:
-    secure: AAABABFQhLwO5x+Vx94Bb2lRGG0gnJm0SptVAvzUz6h6t0fEjUcbYLK1n3u7WmCtksLxXHLEN0MnLH9+/Bwln8VbFQ==
+    secure: AAABANwanQDIY2WWt2lSqdLwlb9hLK/ZiWgE3Ff/9GkagR3bnXgh0HlImXBBsAa9G6OfphJku+IyHhx8YX+b4x545w==
   platform:discord-client-id:
-    secure: AAABABrnFbqfaR2J7oZ5ElTLH8DNZPXRHZbmAOS1yip9HE2oGeX6RF2z/bhhSQ5r8atD
+    secure: AAABAD2COy52GyatGtnbJSwyLSqE6c8UI8IEWENfVJbrkpaoG2ek43AwLn3p5TWoXsf4
   platform:discord-client-secret:
-    secure: AAABAAakh4b6+q6D5HSZfQO8ww6j0qB+avbkyeSjXtPloe83ee+YjIg7Ov1SFfmeNhXlVWchdJTXxzP9Zi6kXg==
+    secure: AAABAEqBSPGbOwJNHShrs1aldHZeeJXxhaw0XifEJqvCaxXkJ/4ObmDBnp1nuUJ/QzCLENBzXWB5ot8lAJ9WOw==
   platform:epic-client-id:
-    secure: AAABAM2G2EKpUFc7KDz6X5CfWHw/ROdJr94igNFpuDg9FsZF6J5/FP0+DIXur3j1dJ6bOHGA81VqwUuieDEYNLRO/blUfD1qwVLS
+    secure: AAABABOWib0al8wZaFEQ7fggptLkQfOxL3EbMmz++UOAx5fe76EJUoZbi4zUIbbialhvW8Md7vCi3sMacRj/g77G9TjrWc+Bqgl9
   platform:epic-client-secret:
-    secure: AAABAK80OrXQbjLREMhd3Wqxx5+C9U7vmz3dhtUUYfk3WsArx+HoLxBHuRAH2txMHfz02nXCZ1vIimSKctZULu1VKvwzTKv54JVA
+    secure: AAABADk+WiwfnoN4eo2o+gD1xgUh4FWPTkZ7sc7S7GRnQUQhZjbuiSyqbQOCZIqrkQ0Xw+kyqluY7Ew4MkSicoaH0Khhu/wkYOkv
   platform:steam-api-key:
-    secure: AAABAJCUdZfmI4PL8JUK+c7Sr1TVKXHeU7VU7hfjCyjLR4+ilEqt
+    secure: AAABAOG2G6sVIPP++Ma8IlJONm7ZUp4mO/LgrWT6qifuUOH5eDg6
   platform:chatwoot-hmac-key:
-    secure: AAABAJ4n6UM4nXqBZf0qVCT5dW8qHGcrkRdKKD50qD4OZly3KNQMll9C/N9p+eOfQJGhZMLQ2YY=
+    secure: AAABANifT2h2abAL3btzKQ1eEmY+Kax1L+/LoHXVr+0obE/IoylzHQZEaH6t71rzyF05R1MYQSc=
   platform:ballchasing-token:
-    secure: AAABACy991gu0bWFl5MNxrbfIqG7wJbnetYPCBFZR4ciVpVmytv5rZELSCz3VEtOiBrUrjLvhOjRIpNY5x64n0yw75BrUIeE
+    secure: AAABAOo3Zd0/27GWYhYn8SVPPKn4lvbjQjOOu2bJK7a722ikS2oyEOHxThPSdjhJNVps8kwYYVgUk+TUC8vc2ggS0/XLJ4r2
+  platform:org-team-permission-dual-read: "true"
