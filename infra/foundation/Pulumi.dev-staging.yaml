@@ -7,8 +7,7 @@ config:
   foundation:hostname-label: dev.sprocket
   foundation:dns-prefixes: '["", "api", "vault", "traefik"]'
   foundation:admin-cidrs: '["203.0.113.10/32"]'
-  foundation:ssh-public-key:
-    secure: AAABAD+RxTZ8EYhZ+5dvJ7DhsPbYD7uYs74n10w5IiFpVPvW/YRJ+Etnp+LSPyZHfXd1hdVEo7g46qhVB9AZ0sRCOLVByMW718cLZF13ymjFRvuyNBCV/OqX4h1RdQpCGeiBp/ygKXjhthwP80EHGAgl+90JC4pIyVzU1LzhBsX4LNlFyaHKy6fCA9Up2Hv6Uw==
+  foundation:ssh-public-key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILGNHQoEUKZ6KLKQ7wo7p3LrBCE5XdjKxBPjtDeMH2W jacbaile@Jacobs-MacBook-Pro.local"
   foundation:create-reserved-ip: "false"
   foundation:enable-monitoring: "true"
   foundation:enable-ipv6: "true"
