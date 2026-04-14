@@ -481,6 +481,13 @@ jobs:
           echo "DOCKER_HOST=ssh://${PULUMI_SSH_USER}@${PULUMI_MANAGER_NODE_HOST}:22" >> "${GITHUB_ENV}"
           echo "DOCKER_SSH_KEY_FILE=${key_file}" >> "${GITHUB_ENV}"
 
+      - name: Verify remote Docker host access
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh -o BatchMode=yes -o ConnectTimeout=10 "${PULUMI_MANAGER_NODE_HOST}" \
+            'docker info --format "{{.ServerVersion}}" >/dev/null'
+
       - name: Log in to Pulumi backend
         if: env.PULUMI_BACKEND_URL != ''
         shell: bash
