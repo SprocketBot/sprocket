@@ -1,7 +1,7 @@
 {
   "version": 1,
   "name": "main-dev",
-  "display_name": "Main → Dev (pre-prod Swarm)",
+  "display_name": "Main -> Dev (dedicated dev Swarm)",
   "kind": "hosted",
   "status": "active",
   "repo_root": ".",
@@ -11,8 +11,8 @@
     "infra_root": "/Users/jacbaile/Workspace/MLE/RocketLeague/sprocket/infra"
   },
   "entrypoints": {
-    "web": "https://dev.app.sprocket.gg",
-    "api_graphql": "https://api.dev.app.sprocket.gg/graphql"
+    "web": "https://dev.sprocket.mlesports.gg",
+    "api_graphql": "https://api.dev.sprocket.mlesports.gg/graphql"
   },
   "topology": [
     "web",
@@ -47,7 +47,7 @@
   "safety": {
     "mutable_side_effects_require_operator_judgment": true,
     "notes": [
-      "Hosted dev shares the pre-prod Swarm; treat mutations as non-production but still bounded.",
+      "Hosted dev runs on the dedicated foundation/dev-staging manager; treat mutations as non-production but still bounded.",
       "GitHub Actions Tier 0 uses the development environment secret HARNESS_MAIN_DEV_ENV (multiline key=value file, same shape as scripts/harness/env/main-dev.env) written to a temp path and passed as the third argument to verify-lane.sh so CI can override URLs/markers without committing secrets. Operators still use the committed template for local runs."
     ]
   }

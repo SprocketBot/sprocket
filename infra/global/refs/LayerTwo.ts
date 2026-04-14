@@ -25,4 +25,4 @@ export enum LayerTwoExports {
     N8nNetwork = "N8nNetworkId"
 }
 
-export default new SprocketStackDefinition("layer_2", `${__dirname}/../../layer_2`);
+export default new SprocketStackDefinition("layer_2", `${__dirname}/../../layer_2`, "layer_2-stack");

@@ -18,6 +18,8 @@ config:
   platform:image-namespace: sprocketbot
   platform:legacy-image-namespace: asaxplayinghorse
   platform:image-tag: dev
+  # platform:layer_1-stack: dev
+  # platform:layer_2-stack: dev
 
   # Postgres endpoint for the **dev** database cluster (not prod).
   # platform:postgres-username: <dev-db-user>

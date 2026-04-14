@@ -4,4 +4,4 @@ export enum LayerOneExports {
     IngressNetwork = "IngressNetwork",
 }
 
-export default new SprocketStackDefinition("layer_1", `${__dirname}/../../layer_1`);
+export default new SprocketStackDefinition("layer_1", `${__dirname}/../../layer_1`, "layer_1-stack");

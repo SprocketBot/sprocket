@@ -97,7 +97,7 @@ Maintainers who add or rename Pulumi stacks. After `pulumi stack ls` in each pro
 
 **Execution model:** `_reusable-pulumi-deploy.yml` now computes a scope-aware plan from `git_sha`, then runs the selected stack sequence in a **single runner**. App-only commits usually touch `platform` only; lower-layer infra changes pull in the affected layer plus `platform`; shared infra / workflow changes keep the full order. When an explicit `preview` row exists immediately before an `up` row for the same stack, the apply uses `--skip-preview` to avoid paying for the same preview twice.
 
-For `dev_cd`, the reusable workflow also runs a **foundation prerequisite** against `infra/foundation` / `dev-staging` before the Swarm stacks. That foundation apply is gated so it only runs when the foundation stack has never been applied yet or when the target commit touches foundation-related inputs; otherwise the job records a skip and continues to the normal dev stack sequence.
+For `dev_cd`, the reusable workflow also runs a **foundation prerequisite** against `infra/foundation` / `dev-staging` before the Swarm stacks. Dev then applies the dedicated `layer_1/dev`, `layer_2/dev`, and `platform/dev` stacks against the dev manager host instead of sharing the production layer stacks. The foundation apply is gated so it only runs when the foundation stack has never been applied yet or when the target commit touches foundation-related inputs; otherwise the job records a skip and continues to the normal dev stack sequence.
 
 **Reusable workflow inputs (for junior devs):**
 

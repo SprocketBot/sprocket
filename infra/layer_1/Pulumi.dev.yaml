@@ -1,0 +1,18 @@
+config:
+  layer_1:discord-fa-client-secret:
+    secure: AAABAPlXRAG7Fju5B2ZlThOfDiA/Q2d6utE2LbmRO7GRrgQs6zt3galkykj9eTgC6a1dp2/WInIw9PN/+06jyg==
+  layer_1:docker-access-token:
+    secure: AAABAKJiFFU994YKGc2MXodmncCWXoDtKdbEcxCcVkxBouN43YXKDoRYO9FjmCqg8XHLTuxXbHDtRWtBlMB9XrtrFkhC2Pbp
+  layer_1:docker-username: gankoji
+  layer_1:hostname: dev.sprocket.mlesports.gg
+  layer_1:image-namespace: sprocketbot
+  layer_1:postgres-host: sprocketbot-postgres-d5033d2-do-user-24528890-0.j.db.ondigitalocean.com
+  layer_1:postgres-password:
+    secure: AAABAGL/iz/zELYpO9YXB3et6YlOiPpP7RDbJ3iW5LgHQcmbC9d69OTidghR0wtwFv/csG3MXgg=
+  layer_1:postgres-port: "25060"
+  layer_1:postgres-username: sprocketbot
+  layer_1:vault-s3-access-key: DO801Q8P44QRYP9HEQVL
+  layer_1:vault-s3-bucket: vault-secrets
+  layer_1:vault-s3-endpoint: https://nyc3.digitaloceanspaces.com
+  layer_1:vault-s3-secret-key:
+    secure: AAABAKLovp2AYHUSmiVzKyos7mPFK9rRoVR/izXq3pTU1CsHZIav75tUBePuwiAX/nB42u0/YWf4IGwuzfPmVlLQKkrFcjoXPSim

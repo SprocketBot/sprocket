@@ -45,3 +45,5 @@ config:
   platform:ballchasing-token:
     secure: AAABAOo3Zd0/27GWYhYn8SVPPKn4lvbjQjOOu2bJK7a722ikS2oyEOHxThPSdjhJNVps8kwYYVgUk+TUC8vc2ggS0/XLJ4r2
   platform:org-team-permission-dual-read: "true"
+  platform:layer_1-stack: dev
+  platform:layer_2-stack: dev

@@ -1,0 +1,20 @@
+config:
+  layer_2:docker-access-token:
+    secure: AAABAF9TFDLGgwbqwEPc3azts0liRLSc8pToLr0PYwYLkqGQIwHVZ/1/p0hHLk3sGrbNZ1PYtDtwh29+LoI2PAePxdil9wrQ
+  layer_2:docker-username: gankoji
+  layer_2:hostname: dev.sprocket.mlesports.gg
+  layer_2:image-namespace: sprocketbot
+  layer_2:postgres-host: sprocketbot-postgres-d5033d2-do-user-24528890-0.j.db.ondigitalocean.com
+  layer_2:postgres-password:
+    secure: AAABABAZ/oN/74YPhYlCC/4xd/9oLLTrV6LXJx68skEY1Zat30A/6zjahiHAmiuck7hPmkAcHv0=
+  layer_2:postgres-port: "25060"
+  layer_2:postgres-username: doadmin
+  layer_2:root-vault-token:
+    secure: AAABAPHRxFJegysezP56OpCZ9gbYfvpemsXN0t8bZFPQ2BHBgk81/Og=
+  layer_2:s3-access-key: DO004ZHPV38R8C9Q46XG
+  layer_2:s3-endpoint: nyc3.digitaloceanspaces.com
+  layer_2:s3-secret-key:
+    secure: AAABAIeQCGx2unCboHD/foN8TOap8B7IlHk2/NE2rN0USfZxlRd6nWrn9vJoFMjwckqA198ubn/DhxmFJF3Uy/eTn7uWV5KuE3A/
+  layer_2:smtp-password:
+    secure: AAABAFjL2/m0iFUvA0S18ecmawH9yJC4vNXBQUzjnCWdc1mBAuejpijWloZyh01Aerd6hm4=
+  layer_2:layer_1-stack: dev
