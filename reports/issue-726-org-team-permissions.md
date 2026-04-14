@@ -13,7 +13,9 @@ Admin GraphQL (MLEDB admin guard): `userOrgTeamPermissions`, `setUserOrgTeamPerm
 
 ## Temporary dual-read from MLEDB
 
-If a user has **no** rows in `user_org_team_permission`, and the environment variable **`ORG_TEAM_PERMISSION_DUAL_READ=true`**, resolution falls back to legacy `mledb.player_to_org` for that user.
+When **`ORG_TEAM_PERMISSION_DUAL_READ=true`**, every resolution loads **both** Sprocket (`user_org_team_permission`) and legacy MLEDB (`player_to_org` via the linked player) and **compares** the two sets. Mismatches are logged (`warn` when both sides have data but differ, or Sprocket has rows while MLEDB is empty; `verbose` when Sprocket is empty but MLEDB has rows—common until backfill).
+
+**Effective permissions:** if Sprocket has any rows for the user, those are returned; otherwise, under dual-read only, MLEDB’s set is returned so unbackfilled users still authorize.
 
 **Prod rollout (Pulumi):** the `platform` stack sets `ORG_TEAM_PERMISSION_DUAL_READ` on the core (and monolith) Docker service from Pulumi config key **`org-team-permission-dual-read`**. The committed `infra/platform/Pulumi.prod.yaml` sets it to **`true`** until backfill is done; flip it to **`false`** and `pulumi up` after validation.
 

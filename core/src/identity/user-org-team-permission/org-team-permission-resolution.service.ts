@@ -9,9 +9,10 @@ import {UserOrgTeamPermissionService} from "./user-org-team-permission.service";
  *
  * **Source of truth:** `sprocket.user_org_team_permission` (see {@link UserOrgTeamPermissionService}).
  *
- * **Temporary compatibility:** When `ORG_TEAM_PERMISSION_DUAL_READ=true`, if a user has no Sprocket
- * rows, org teams are derived from legacy `mledb.player_to_org` via {@link MledbPlayerService}.
- * Remove that env var and delete the fallback branch once all users are migrated off MLEDB.
+ * **Temporary dual-read:** When `ORG_TEAM_PERMISSION_DUAL_READ=true`, always loads legacy
+ * `mledb.player_to_org` as well, compares the two sets, and logs on mismatch. Effective permissions
+ * still prefer Sprocket when it has rows; otherwise MLEDB is used only under dual-read (unbackfilled
+ * users). Remove the env var and this branch once migration is validated.
  */
 @Injectable()
 export class OrgTeamPermissionResolutionService {
@@ -19,29 +20,59 @@ export class OrgTeamPermissionResolutionService {
 
     constructor(
         private readonly userOrgTeamPermissionService: UserOrgTeamPermissionService,
-    @Inject(forwardRef(() => MledbPlayerService))
-    private readonly mledbPlayerService: MledbPlayerService,
+        @Inject(forwardRef(() => MledbPlayerService))
+        private readonly mledbPlayerService: MledbPlayerService,
     ) {}
+
+    private orgTeamSetsEqual(a: MLE_OrganizationTeam[], b: MLE_OrganizationTeam[]): boolean {
+        if (a.length !== b.length) return false;
+        const sb = new Set(b);
+        return a.every(x => sb.has(x));
+    }
+
+    private formatOrgTeamSet(teams: MLE_OrganizationTeam[]): string {
+        return [...new Set(teams)].sort((x, y) => x - y).join(",");
+    }
 
     async resolveOrgTeamsForUser(userId: number): Promise<MLE_OrganizationTeam[]> {
         const fromSprocket = await this.userOrgTeamPermissionService.listOrgTeamsForUser(userId);
+        const dualRead = process.env.ORG_TEAM_PERMISSION_DUAL_READ === "true";
+
+        let fromMledb: MLE_OrganizationTeam[] = [];
+        if (dualRead) {
+            try {
+                const player = await this.mledbPlayerService.getMlePlayerBySprocketUser(userId);
+                const legacy = await this.mledbPlayerService.getPlayerOrgs(player);
+                fromMledb = [...new Set(legacy.map(row => row.orgTeam))];
+            } catch (err) {
+                this.logger.verbose(
+                    `Dual-read MLEDB load failed for userId=${userId}: ${(err as Error).message}`,
+                );
+            }
+        }
+
+        if (dualRead && (fromSprocket.length > 0 || fromMledb.length > 0)) {
+            if (!this.orgTeamSetsEqual(fromSprocket, fromMledb)) {
+                const detail
+                    = `userId=${userId} sprocket=[${this.formatOrgTeamSet(fromSprocket)}] mledb=[${this.formatOrgTeamSet(fromMledb)}]`;
+                if (fromSprocket.length > 0 && fromMledb.length > 0) {
+                    this.logger.warn(`Org-team dual-read mismatch (both non-empty): ${detail}`);
+                } else if (fromSprocket.length === 0 && fromMledb.length > 0) {
+                    this.logger.verbose(
+                        `Org-team dual-read: no Sprocket rows, MLEDB has org teams (expected until backfill): ${detail}`,
+                    );
+                } else {
+                    this.logger.warn(`Org-team dual-read mismatch (Sprocket non-empty, MLEDB empty): ${detail}`);
+                }
+            }
+        }
+
         if (fromSprocket.length > 0) {
             return fromSprocket;
         }
-
-        if (process.env.ORG_TEAM_PERMISSION_DUAL_READ !== "true") {
-            return [];
+        if (dualRead && fromMledb.length > 0) {
+            return fromMledb;
         }
-
-        try {
-            const player = await this.mledbPlayerService.getMlePlayerBySprocketUser(userId);
-            const legacy = await this.mledbPlayerService.getPlayerOrgs(player);
-            return [...new Set(legacy.map(row => row.orgTeam))];
-        } catch (err) {
-            this.logger.verbose(
-                `Dual-read org-team fallback skipped for user ${userId}: ${(err as Error).message}`,
-            );
-            return [];
-        }
+        return [];
     }
 }
