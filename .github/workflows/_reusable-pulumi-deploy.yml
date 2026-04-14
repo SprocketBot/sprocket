@@ -38,6 +38,11 @@ on:
         required: false
         type: string
         default: ''
+      dev_foundation_stack:
+        description: 'Foundation stack name checked before dev_cd applies (defaults to dev-staging in the caller).'
+        required: false
+        type: string
+        default: ''
       promote_bom_file:
         description: 'For staging_up: optional repo-relative BOM path (see scripts/ci/promote-images.sh)'
         required: false
@@ -122,6 +127,132 @@ jobs:
           fi
           bash ./scripts/ci/pulumi-set-dev-image-tag.sh "${DEPLOY_SHA}" "${BOM_PATH}"
 
+  foundation_prepare:
+    name: Dev — foundation prerequisite
+    if: inputs.deploy_profile == 'dev_cd'
+    runs-on: ubuntu-latest
+    environment: development
+    env:
+      DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
+      PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+      PULUMI_BACKEND_URL: ${{ secrets.PULUMI_BACKEND_URL }}
+      PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+      PULUMI_FOUNDATION_STACK: ${{ inputs.dev_foundation_stack }}
+      DEPLOY_SHA: ${{ inputs.git_sha }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.git_sha }}
+          fetch-depth: 2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: infra/foundation/package-lock.json
+
+      - name: Restore foundation Pulumi plugin cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.pulumi/plugins
+          key: pulumi-plugins-${{ runner.os }}-foundation-3.229.0-${{ hashFiles('infra/foundation/package-lock.json') }}
+
+      - name: Install Pulumi CLI
+        shell: bash
+        run: |
+          curl -fsSL https://get.pulumi.com | sh -s -- --version "3.229.0"
+          echo "${HOME}/.pulumi/bin" >> "${GITHUB_PATH}"
+
+      - name: Log in to Pulumi backend
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${PULUMI_BACKEND_URL:-}" ]; then
+            pulumi login "${PULUMI_BACKEND_URL}"
+          else
+            pulumi login
+          fi
+
+      - name: Decide whether foundation apply is required
+        id: foundation_gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          STACK="${PULUMI_FOUNDATION_STACK:-dev-staging}"
+          history_len="$(pulumi stack history --stack "${STACK}" --json | python3 -c 'import json,sys; print(len(json.load(sys.stdin)))')"
+
+          run_foundation=0
+          reason="stack already has history and commit does not touch foundation inputs"
+          if [ "${history_len}" = "0" ]; then
+            run_foundation=1
+            reason="stack has never been applied"
+          else
+            changed_paths="$(git diff-tree --no-commit-id --name-only -r --root "${DEPLOY_SHA}")"
+            if CHANGED_PATHS="${changed_paths}" python3 - <<'PY'
+          import os
+          import sys
+
+          changed = [line.strip() for line in os.environ["CHANGED_PATHS"].splitlines() if line.strip()]
+          prefixes = (
+              "infra/foundation/",
+              "scripts/infra/",
+          )
+          exact = {
+              ".github/workflows/_reusable-pulumi-deploy.yml",
+              ".github/workflows/cd-deploy-dev.yml",
+              ".github/workflows/infra-foundation-preview.yml",
+              "package.json",
+              ".nvmrc",
+          }
+
+          sys.exit(0 if any(path in exact or any(path.startswith(prefix) for prefix in prefixes) for path in changed) else 1)
+          PY
+            then
+              run_foundation=1
+              reason="commit touches foundation-related inputs"
+            fi
+          fi
+
+          echo "run_foundation=${run_foundation}" >> "${GITHUB_OUTPUT}"
+          echo "reason=${reason}" >> "${GITHUB_OUTPUT}"
+          echo "Foundation gate: ${reason}"
+
+      - name: Validate foundation stack config
+        if: steps.foundation_gate.outputs.run_foundation == '1'
+        shell: bash
+        working-directory: infra/foundation
+        run: |
+          set -euo pipefail
+          STACK="${PULUMI_FOUNDATION_STACK:-dev-staging}"
+          ssh_public_key="$(pulumi config get --stack "${STACK}" foundation:ssh-public-key 2>/dev/null || true)"
+          ssh_key_fingerprints="$(pulumi config get --stack "${STACK}" foundation:ssh-key-fingerprints 2>/dev/null || true)"
+
+          if { [ -z "${ssh_public_key}" ] || [[ "${ssh_public_key}" == *"replace-me"* ]]; } && [ -z "${ssh_key_fingerprints}" ]; then
+            echo "::error::Foundation stack ${STACK} is not ready for apply. Set foundation:ssh-public-key to a real public key or configure foundation:ssh-key-fingerprints first."
+            exit 1
+          fi
+
+      - name: Install foundation dependencies
+        if: steps.foundation_gate.outputs.run_foundation == '1'
+        shell: bash
+        run: bash ./scripts/infra/pulumi-install-all.sh --project foundation
+
+      - name: Apply foundation stack
+        if: steps.foundation_gate.outputs.run_foundation == '1'
+        shell: bash
+        working-directory: infra/foundation
+        run: |
+          set -euo pipefail
+          pulumi up --yes --skip-preview --non-interactive --stack "${PULUMI_FOUNDATION_STACK:-dev-staging}"
+
+      - name: Skip foundation apply
+        if: steps.foundation_gate.outputs.run_foundation != '1'
+        shell: bash
+        run: |
+          echo "Skipping foundation apply: ${{ steps.foundation_gate.outputs.reason }}"
+
   matrix_prepare:
     name: Build deploy plan from stack-map
     runs-on: ubuntu-latest
@@ -202,12 +333,16 @@ jobs:
     needs:
       - matrix_prepare
       - dev_prepare
+      - foundation_prepare
     if: |
       always() &&
       needs.matrix_prepare.result == 'success' &&
       (
         inputs.deploy_profile != 'dev_cd' ||
-        needs.dev_prepare.result == 'success'
+        (
+          needs.dev_prepare.result == 'success' &&
+          needs.foundation_prepare.result == 'success'
+        )
       )
     runs-on: ubuntu-latest
     environment: >-

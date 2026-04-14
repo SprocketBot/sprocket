@@ -7,18 +7,19 @@ config:
   foundation:hostname-label: dev.sprocket
   foundation:dns-prefixes: '["", "api", "vault", "traefik"]'
   foundation:admin-cidrs: '["203.0.113.10/32"]'
-  foundation:ssh-public-key: "ssh-ed25519 AAAA... replace-me"
+  foundation:ssh-public-key:
+    secure: AAABAD+RxTZ8EYhZ+5dvJ7DhsPbYD7uYs74n10w5IiFpVPvW/YRJ+Etnp+LSPyZHfXd1hdVEo7g46qhVB9AZ0sRCOLVByMW718cLZF13ymjFRvuyNBCV/OqX4h1RdQpCGeiBp/ygKXjhthwP80EHGAgl+90JC4pIyVzU1LzhBsX4LNlFyaHKy6fCA9Up2Hv6Uw==
   foundation:create-reserved-ip: "false"
   foundation:enable-monitoring: "true"
   foundation:enable-ipv6: "true"
   foundation:tags: '["sprocket", "dev-staging", "node"]'
   foundation:deploy-user: deploy
 
-  # Optional cluster growth / network controls
-  # foundation:swarm-cidrs: '["10.0.0.0/8"]'
-  # foundation:vpc-uuid: <optional-digitalocean-vpc-uuid>
+# Optional cluster growth / network controls
+# foundation:swarm-cidrs: '["10.0.0.0/8"]'
+# foundation:vpc-uuid: <optional-digitalocean-vpc-uuid>
 
-  # Optional GHCR bootstrap credentials
-  # foundation:ghcr-username: <ghcr-username>
-  # foundation:ghcr-token:
-  #   secure: <pulumi-secret>
+# Optional GHCR bootstrap credentials
+# foundation:ghcr-username: <ghcr-username>
+# foundation:ghcr-token:
+#   secure: <pulumi-secret>

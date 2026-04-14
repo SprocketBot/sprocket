@@ -85,6 +85,12 @@ jobs:
           cache: npm
           cache-dependency-path: infra/foundation/package-lock.json
 
+      - name: Restore foundation Pulumi plugin cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.pulumi/plugins
+          key: pulumi-plugins-${{ runner.os }}-foundation-3.229.0-${{ hashFiles('infra/foundation/package-lock.json') }}
+
       - name: Install Pulumi CLI
         shell: bash
         run: |
@@ -110,8 +116,7 @@ jobs:
 
       - name: Install foundation dependencies
         shell: bash
-        working-directory: infra/foundation
-        run: pulumi install
+        run: bash ./scripts/infra/pulumi-install-all.sh --project foundation
 
       - name: Pulumi preview
         shell: bash
