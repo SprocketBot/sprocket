@@ -35,9 +35,9 @@ inputs:
     required: false
 
   node-version:
-    description: 'Node.js major used for infra commands (align with infra/README.md Tool versions)'
+    description: 'Node.js major used for the workflow runtime while running infra commands'
     required: false
-    default: '20'
+    default: '24'
 
   pulumi-version:
     description: 'Pulumi CLI version (pin to infra/README.md Tool versions)'

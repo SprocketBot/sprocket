@@ -59,6 +59,9 @@ on:
         type: string
         default: ''
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 jobs:
   dev_prepare:
     name: Dev — BOM + platform image tag
@@ -84,7 +87,7 @@ jobs:
       - name: Set up Node.js (Pulumi CLI for platform config)
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install Pulumi CLI
         shell: bash
@@ -283,7 +286,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '24'
           cache: npm
           cache-dependency-path: |
             infra/layer_1/package-lock.json
