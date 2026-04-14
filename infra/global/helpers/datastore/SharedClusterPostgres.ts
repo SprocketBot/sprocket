@@ -109,15 +109,16 @@ async function ensureDatabase(inputs: SharedClusterDatabaseInputs): Promise<void
     await withClient(inputs, async (client) => {
         const existingDatabase = await client.query("select 1 from pg_database where datname = $1", [inputs.databaseName]);
 
-        if (existingDatabase.rowCount && existingDatabase.rowCount > 0) {
+        if (!existingDatabase.rowCount || existingDatabase.rowCount === 0) {
             await client.query(
-                `ALTER DATABASE ${quoteIdentifier(inputs.databaseName)} OWNER TO ${quoteIdentifier(inputs.ownerRole)}`,
+                `CREATE DATABASE ${quoteIdentifier(inputs.databaseName)}`,
             );
-            return;
         }
 
+        // Managed Postgres roles cannot reliably take ownership transfers from the admin login,
+        // so keep the database owned by the bootstrap user and grant the lane-scoped role access.
         await client.query(
-            `CREATE DATABASE ${quoteIdentifier(inputs.databaseName)} OWNER ${quoteIdentifier(inputs.ownerRole)}`,
+            `GRANT ALL PRIVILEGES ON DATABASE ${quoteIdentifier(inputs.databaseName)} TO ${quoteIdentifier(inputs.ownerRole)}`,
         );
     });
 }
