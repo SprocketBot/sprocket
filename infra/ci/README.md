@@ -95,6 +95,8 @@ Maintainers who add or rename Pulumi stacks. After `pulumi stack ls` in each pro
 | [`.github/workflows/cd-deploy-prod.yml`](../../.github/workflows/cd-deploy-prod.yml) | same | `production` |
 | [`.github/workflows/ci-stack-map-pulumi-preview.yml`](../../.github/workflows/ci-stack-map-pulumi-preview.yml) | same | `preview` |
 
+**Execution model:** `_reusable-pulumi-deploy.yml` now computes a scope-aware plan from `git_sha`, then runs the selected stack sequence in a **single runner**. App-only commits usually touch `platform` only; lower-layer infra changes pull in the affected layer plus `platform`; shared infra / workflow changes keep the full order. When an explicit `preview` row exists immediately before an `up` row for the same stack, the apply uses `--skip-preview` to avoid paying for the same preview twice.
+
 **Reusable workflow inputs (for junior devs):**
 
 | Input | Meaning |
@@ -102,10 +104,10 @@ Maintainers who add or rename Pulumi stacks. After `pulumi stack ls` in each pro
 | `lane` | Reserved for future lane routing (e.g. `main`, `v15`); defaults to `main`. |
 | `target` | Which `environments.<name>` block in `stack-map.yaml` to use for **`preview_all`** only (`dev`, `staging`, or `prod`). |
 | `git_sha` | Exact commit to check out for every job. |
-| `deploy_profile` | `dev_cd` (BOM download + image tag + layer/platform Pulumi), `staging_up` (Pulumi `up` only, staging order), `prod_cd` (all previews then all ups, prod order), `preview_all` (preview every stack in `target`). |
+| `deploy_profile` | `dev_cd` (BOM download + image tag + scoped dev preview/apply sequence), `staging_up` (optional image promote then scoped staging `up` sequence), `prod_cd` (scoped prod previews followed by prod applies), `preview_all` (preview every stack in `target`). |
 | `bom_download_run_id` | For `dev_cd` after Autobuild: GitHub run id to download `bom-main` from; empty for manual deploys. |
 | `dev_platform_stack` | Platform stack name for `dev_cd` (must not be `prod`). |
-| `staging_include_promote_step` | For `staging_up` only: when `true`, first matrix row runs `scripts/ci/promote-images.sh` against stack `staging`, then Pulumi `up` rows from the stack map. |
+| `staging_include_promote_step` | For `staging_up` only: when `true`, the plan runs `scripts/ci/promote-images.sh` against stack `staging` before the scoped Pulumi applies. |
 | `promote_bom_file` / `promote_image_tag` | Optional inputs for that promote step (same semantics as the workflow dispatch form on promote). |
 | `prod_confirm` | For `prod_cd` only: same typo guard as the old `confirm` workflow input (empty, or repo full name, or `DEPLOY_PROD`). |
 
@@ -113,7 +115,7 @@ Maintainers who add or rename Pulumi stacks. After `pulumi stack ls` in each pro
 
 **Caller `environment`:** Wrapper jobs do **not** set `environment` (avoids duplicate approval gates). Jobs inside `_reusable-pulumi-deploy.yml` set `environment` per profile (`development`, `staging`, `production`, `preview`) so scoped secrets apply to Pulumi and promote steps only.
 
-**Local check:** `node scripts/ci/read-stack-map.mjs emit --plan prod_cd` prints `matrix_json` (also written to `GITHUB_OUTPUT` when that variable is set in Actions).
+**Local check:** `node scripts/ci/read-stack-map.mjs emit --plan prod_cd` prints `plan_json` / `projects_json` (also written to `GITHUB_OUTPUT` when that variable is set in Actions). Add `--git-sha <sha>` to see the scoped sequence for a real commit.
 
 ### Future consumption
 

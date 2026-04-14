@@ -57,6 +57,12 @@ runs:
           infra/layer_2/package-lock.json
           infra/platform/package-lock.json
 
+    - name: Restore Pulumi plugin cache
+      uses: actions/cache@v4
+      with:
+        path: ~/.pulumi/plugins
+        key: pulumi-plugins-${{ runner.os }}-${{ inputs.pulumi-version }}-${{ hashFiles('infra/layer_1/package-lock.json', 'infra/layer_2/package-lock.json', 'infra/platform/package-lock.json') }}
+
     - name: Install Pulumi CLI
       shell: bash
       run: |
@@ -99,7 +105,7 @@ runs:
 
     - name: Install infra dependencies
       shell: bash
-      run: bash ./scripts/infra/pulumi-install-all.sh
+      run: bash ./scripts/infra/pulumi-install-all.sh --project "${{ inputs.stack-project }}"
 
     - name: Run Pulumi
       shell: bash
