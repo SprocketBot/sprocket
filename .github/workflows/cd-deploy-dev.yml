@@ -10,7 +10,8 @@
 #   PULUMI_BACKEND_URL
 #   AWS_ACCESS_KEY_ID
 #   AWS_SECRET_ACCESS_KEY
-#   PULUMI_MANAGER_NODE_HOST   (pre-prod Swarm manager; Tailscale/SSH reachable)
+#   PULUMI_DEV_MANAGER_NODE_HOST (preferred; dev-only Swarm manager created by foundation/dev-staging)
+#   PULUMI_MANAGER_NODE_HOST     (legacy fallback if the dedicated dev host secret is unset)
 #   PULUMI_SSH_USER
 #   PULUMI_SSH_KEY
 #   TAILSCALE_AUTHKEY          (optional; omit if the runner can reach the manager without Tailscale)

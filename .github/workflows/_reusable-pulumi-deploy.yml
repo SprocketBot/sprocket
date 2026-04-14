@@ -370,6 +370,7 @@ jobs:
           PREPROD_PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
           PREPROD_AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           PREPROD_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          DEV_MANAGER_HOST: ${{ secrets.PULUMI_DEV_MANAGER_NODE_HOST }}
           PREPROD_MANAGER_HOST: ${{ secrets.PULUMI_MANAGER_NODE_HOST }}
           PREPROD_SSH_USER: ${{ secrets.PULUMI_SSH_USER }}
           PREPROD_SSH_KEY: ${{ secrets.PULUMI_SSH_KEY }}
@@ -396,9 +397,14 @@ jobs:
               printf 'AWS_REGION<<__EOF__\n%s\n__EOF__\n' ""
             } >> "${GITHUB_ENV}"
           else
+            manager_host="${PREPROD_MANAGER_HOST}"
+            if [ "${DEPLOY_PROFILE}" = "dev_cd" ] && [ -n "${DEV_MANAGER_HOST:-}" ]; then
+              manager_host="${DEV_MANAGER_HOST}"
+            fi
+
             {
               printf 'PULUMI_ACCESS_TOKEN<<__EOF__\n%s\n__EOF__\n' "${PREPROD_PULUMI_ACCESS_TOKEN}"
-              printf 'PULUMI_MANAGER_NODE_HOST<<__EOF__\n%s\n__EOF__\n' "${PREPROD_MANAGER_HOST}"
+              printf 'PULUMI_MANAGER_NODE_HOST<<__EOF__\n%s\n__EOF__\n' "${manager_host}"
               printf 'PULUMI_SSH_USER<<__EOF__\n%s\n__EOF__\n' "${PREPROD_SSH_USER}"
               printf 'PULUMI_SSH_KEY<<__EOF__\n%s\n__EOF__\n' "${PREPROD_SSH_KEY}"
               printf 'TAILSCALE_AUTHKEY<<__EOF__\n%s\n__EOF__\n' "${PREPROD_TAILSCALE_AUTHKEY}"

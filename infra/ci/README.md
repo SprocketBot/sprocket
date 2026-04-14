@@ -114,7 +114,7 @@ For `dev_cd`, the reusable workflow also runs a **foundation prerequisite** agai
 | `promote_bom_file` / `promote_image_tag` | Optional inputs for that promote step (same semantics as the workflow dispatch form on promote). |
 | `prod_confirm` | For `prod_cd` only: same typo guard as the old `confirm` workflow input (empty, or repo full name, or `DEPLOY_PROD`). |
 
-**Secrets:** Callers use `secrets: inherit`. The reusable workflow uses **pre-prod** secret names (`PULUMI_*`, `AWS_*`, …) for `dev_cd`, `staging_up`, and `preview_all`, and **prod** names (`PROD_*`, `PROD_PULUMI_ACCESS_TOKEN`) for `prod_cd`. A new lane needs its own wrapper workflow (or duplicate job) that runs under the right GitHub Environment and maps lane-specific secret names explicitly—Actions cannot build `secrets` keys from variables.
+**Secrets:** Callers use `secrets: inherit`. The reusable workflow uses **pre-prod** secret names (`PULUMI_*`, `AWS_*`, …) for `dev_cd`, `staging_up`, and `preview_all`, and **prod** names (`PROD_*`, `PROD_PULUMI_ACCESS_TOKEN`) for `prod_cd`. `dev_cd` now prefers `PULUMI_DEV_MANAGER_NODE_HOST` when present and falls back to `PULUMI_MANAGER_NODE_HOST`; staging / preview keep using `PULUMI_MANAGER_NODE_HOST`. A new lane needs its own wrapper workflow (or duplicate job) that runs under the right GitHub Environment and maps lane-specific secret names explicitly—Actions cannot build `secrets` keys from variables.
 
 **Caller `environment`:** Wrapper jobs do **not** set `environment` (avoids duplicate approval gates). Jobs inside `_reusable-pulumi-deploy.yml` set `environment` per profile (`development`, `staging`, `production`, `preview`) so scoped secrets apply to Pulumi and promote steps only.
 
