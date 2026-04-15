@@ -5,7 +5,6 @@ import * as postgres from "@pulumi/postgresql";
 import { HOSTNAME } from "../../constants";
 import { TraefikLabels } from "../../helpers/docker/TraefikLabels"
 import DefaultLogDriver from "../../helpers/docker/DefaultLogDriver"
-import { PostgresUser } from "../../helpers/datastore/PostgresUser"
 import { EnsureSharedClusterDatabase, laneScopedPostgresName, usesLegacySharedClusterNames } from "../../helpers/datastore/SharedClusterPostgres"
 import { ConfigFile } from "../../helpers/docker/ConfigFile"
 
@@ -22,7 +21,6 @@ export interface GrafanaArgs {
 }
 
 export class Grafana extends pulumi.ComponentResource {
-    private readonly dbUser: PostgresUser
     private readonly datasourcesConfig: ConfigFile
 
     private readonly db: EnsureSharedClusterDatabase | postgres.Database
@@ -31,25 +29,20 @@ export class Grafana extends pulumi.ComponentResource {
     constructor(name: string, args: GrafanaArgs, opts?: pulumi.ComponentResourceOptions) {
         super("SprocketBot:Services:Grafana", name, {}, opts)
 
-        this.dbUser = new PostgresUser(`${name}-db-user`, {
-            username: "Grafana",
-            providers: args.providers,
-            importId: "Grafana"
-        }, { parent: this })
-
         const databaseName = laneScopedPostgresName(name);
         const dbName = pulumi.output(databaseName);
+        const databaseOwner = config.require("postgres-username");
 
         if (usesLegacySharedClusterNames()) {
             this.db = new postgres.Database(`${name}-db`, {
                 name: databaseName,
-                owner: this.dbUser.username
-            }, { parent: this, provider: args.providers.postgres, dependsOn: [this.dbUser], import: databaseName })
+                owner: databaseOwner
+            }, { parent: this, provider: args.providers.postgres, import: databaseName })
         } else {
             this.db = new EnsureSharedClusterDatabase(`${name}-db`, {
                 databaseName,
-                ownerRole: this.dbUser.username,
-            }, { parent: this, dependsOn: [this.dbUser] })
+                ownerRole: databaseOwner,
+            }, { parent: this })
         }
 
         this.datasourcesConfig = new ConfigFile(`${name}-datasources`, {
