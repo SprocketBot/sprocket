@@ -11,8 +11,8 @@ import {UserOrgTeamPermissionService} from "./user-org-team-permission.service";
  *
  * **Temporary dual-read:** When `ORG_TEAM_PERMISSION_DUAL_READ=true`, always loads legacy
  * `mledb.player_to_org` as well, compares the two sets, and logs on mismatch. Effective permissions
- * still prefer Sprocket when it has rows; otherwise MLEDB is used only under dual-read (unbackfilled
- * users). Remove the env var and this branch once migration is validated.
+ * are the union of Sprocket and MLEDB during the migration window so partially backfilled users do
+ * not lose legacy access. Remove the env var and this branch once migration is validated.
  */
 @Injectable()
 export class OrgTeamPermissionResolutionService {
@@ -32,6 +32,10 @@ export class OrgTeamPermissionResolutionService {
 
     private formatOrgTeamSet(teams: MLE_OrganizationTeam[]): string {
         return [...new Set(teams)].sort((x, y) => x - y).join(",");
+    }
+
+    private combineOrgTeams(...teamSets: MLE_OrganizationTeam[][]): MLE_OrganizationTeam[] {
+        return [...new Set(teamSets.flat())];
     }
 
     async resolveOrgTeamsForUser(userId: number): Promise<MLE_OrganizationTeam[]> {
@@ -67,12 +71,9 @@ export class OrgTeamPermissionResolutionService {
             }
         }
 
-        if (fromSprocket.length > 0) {
-            return fromSprocket;
+        if (dualRead) {
+            return this.combineOrgTeams(fromSprocket, fromMledb);
         }
-        if (dualRead && fromMledb.length > 0) {
-            return fromMledb;
-        }
-        return [];
+        return fromSprocket;
     }
 }
