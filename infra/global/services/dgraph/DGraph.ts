@@ -6,6 +6,8 @@ import {TraefikLabels} from "../../helpers/docker/TraefikLabels";
 import {HOSTNAME} from "../../constants";
 import {buildHost} from "../../helpers/buildHost";
 
+const config = new pulumi.Config();
+
 export interface DGraphArgs {
     platformNetworkId?: docker.Network["id"]
     ingressNetworkId: docker.Network["id"]
@@ -29,6 +31,7 @@ export class DGraph extends pulumi.ComponentResource {
         super("SprocketBot:Services:DGraph", name, {}, opts)
         
         this.url = buildHost("dgraph", args.environment, HOSTNAME)
+        const adminWhitelist = config.get("dgraph-admin-whitelist") || "127.0.0.1,10.0.0.0/8";
 
         this.credentials = new ServiceCredentials(`${name}-root-credentials`, {
             username: "dgraph",
@@ -110,6 +113,7 @@ export class DGraph extends pulumi.ComponentResource {
                         "alpha",
                         `--my=${name}-alpha:${this.alphaPort}`,
                         `--zero=${name}-zero:5080`,
+                        `--security whitelist=${adminWhitelist}`,
                     ],
                 },
                 logDriver: DefaultLogDriver(`${name}-alpha`, true),
