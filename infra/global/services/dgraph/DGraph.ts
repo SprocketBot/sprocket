@@ -113,7 +113,7 @@ export class DGraph extends pulumi.ComponentResource {
                         "alpha",
                         `--my=${name}-alpha:${this.alphaPort}`,
                         `--zero=${name}-zero:5080`,
-                        `--security whitelist=${adminWhitelist}`,
+                        `--whitelist=${adminWhitelist}`,
                     ],
                 },
                 logDriver: DefaultLogDriver(`${name}-alpha`, true),
