@@ -125,6 +125,8 @@ Hostnames are derived in `infra/platform` from `platform:hostname` and `platform
 
 When multiple lanes share the same DigitalOcean Postgres cluster, non-prod stacks scope service roles and service databases by stack name (for example `grafana-dev` and `replicated-telegraf-telegraf-dev`) so reruns do not collide with prod. The bootstrap connection DB defaults to `sprocket_main` and can be overridden per stack with `postgres-management-database`.
 
+For shared infrastructure credentials that must survive stack recreation, prefer explicit Pulumi config secrets over generated passwords. In particular, `infra/layer_2` supports `layer_2:redis-password`; set it with `pulumi config set --secret redis-password ...` before applying if you need the shared Redis password to remain stable across refresh/import/rebuild events.
+
 ## GitHub Actions
 
 ### Container image tags (CI)

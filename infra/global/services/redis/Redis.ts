@@ -13,6 +13,7 @@ export interface RedisArgs {
     platformNetworkId?: docker.Network["id"]
     ingressNetworkId?: docker.Network["id"]
 
+    password?: pulumi.Input<string>
     url?: string;
 }
 
@@ -30,6 +31,7 @@ export class Redis extends pulumi.ComponentResource {
         this.url = args.url
         this.credentials = new ServiceCredentials(`${name}-root-credentials`, {
             username: "",
+            password: args.password,
         }, { parent: this })
 
 

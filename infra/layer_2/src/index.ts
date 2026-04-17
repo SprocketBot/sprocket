@@ -36,6 +36,7 @@ export const sharedRedis = new Redis("layer2redis", {
   configFilepath: `${__dirname}/config/redis/redis.conf`,
   ingressNetworkId: ingressNetworkId,
   platformNetworkId: chatwootNetwork.id,
+  password: config.getSecret("redis-password") ?? undefined,
   url: redisPublicHostname,
 });
 
