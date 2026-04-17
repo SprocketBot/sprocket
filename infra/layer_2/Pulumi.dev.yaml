@@ -18,3 +18,5 @@ config:
   layer_2:smtp-password:
     secure: AAABAFjL2/m0iFUvA0S18ecmawH9yJC4vNXBQUzjnCWdc1mBAuejpijWloZyh01Aerd6hm4=
   layer_2:layer_1-stack: dev
+  layer_2:redis-password:
+    secure: AAABAEj5lxEN8jaXexb3iUOs6ms7j2fR+m1B3EKExSRjWekxZBj7j5xEvBil
