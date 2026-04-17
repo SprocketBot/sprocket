@@ -37,7 +37,7 @@ export class Grafana extends pulumi.ComponentResource {
             this.db = new postgres.Database(`${name}-db`, {
                 name: databaseName,
                 owner: databaseOwner
-            }, { parent: this, provider: args.providers.postgres, import: databaseName })
+            }, { parent: this, provider: args.providers.postgres })
         } else {
             this.db = new EnsureSharedClusterDatabase(`${name}-db`, {
                 databaseName,
