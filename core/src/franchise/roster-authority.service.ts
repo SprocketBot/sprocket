@@ -1,6 +1,6 @@
 import {Injectable, Logger} from "@nestjs/common";
-import {InjectRepository} from "@nestjs/typeorm";
-import {Repository} from "typeorm";
+import {InjectDataSource, InjectRepository} from "@nestjs/typeorm";
+import {DataSource, Repository} from "typeorm";
 
 import {FranchiseLeadershipAppointment} from "$db/franchise/franchise_leadership_appointment/franchise_leadership_appointment.model";
 import {FranchiseStaffAppointment} from "$db/franchise/franchise_staff_appointment/franchise_staff_appointment.model";
@@ -82,6 +82,8 @@ export class RosterAuthorityService {
     private readonly franchiseLeadershipRoleRepository: Repository<FranchiseLeadershipRole>,
     @InjectRepository(FranchiseLeadershipSeat)
     private readonly franchiseLeadershipSeatRepository: Repository<FranchiseLeadershipSeat>,
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
     ) {}
 
     /**
@@ -237,8 +239,6 @@ export class RosterAuthorityService {
     }
 
     private async syncStaffAndCaptainFromMle(memberId: number, mlePlayer: MLE_Player): Promise<void> {
-        await this.clearFranchiseStaffForMember(memberId);
-
         const staffTeams = await this.mleTeamRepository.find({
             where: [
                 {franchiseManagerId: mlePlayer.id},
@@ -270,6 +270,9 @@ export class RosterAuthorityService {
             })
             : [];
 
+        const newLeadership: FranchiseLeadershipAppointment[] = [];
+        const newStaff: FranchiseStaffAppointment[] = [];
+
         for (const mleTeam of staffTeams) {
             const bridge = await this.teamToFranchiseRepository.findOne({where: {team: mleTeam.name} });
             if (!bridge) {
@@ -281,7 +284,7 @@ export class RosterAuthorityService {
             if (fmRole && mleTeam.franchiseManagerId === mlePlayer.id) {
                 const seat = await this.franchiseLeadershipSeatRepository.findOne({where: {role: {id: fmRole.id} } });
                 if (seat) {
-                    await this.franchiseLeadershipAppointmentRepository.save(
+                    newLeadership.push(
                         this.franchiseLeadershipAppointmentRepository.create({
                             franchise: {id: franchiseId} as never,
                             member: {id: memberId} as never,
@@ -293,7 +296,7 @@ export class RosterAuthorityService {
             if (gmStaffRole && mleTeam.generalManagerId === mlePlayer.id) {
                 const seat = await this.franchiseStaffSeatRepository.findOne({where: {role: {id: gmStaffRole.id} } });
                 if (seat) {
-                    await this.franchiseStaffAppointmentRepository.save(
+                    newStaff.push(
                         this.franchiseStaffAppointmentRepository.create({
                             franchise: {id: franchiseId} as never,
                             member: {id: memberId} as never,
@@ -304,7 +307,7 @@ export class RosterAuthorityService {
             }
             if (agmStaffRole && agmSeats.length > 0) {
                 if (mleTeam.doublesAssistantGeneralManagerId === mlePlayer.id) {
-                    await this.franchiseStaffAppointmentRepository.save(
+                    newStaff.push(
                         this.franchiseStaffAppointmentRepository.create({
                             franchise: {id: franchiseId} as never,
                             member: {id: memberId} as never,
@@ -314,7 +317,7 @@ export class RosterAuthorityService {
                 }
                 if (mleTeam.standardAssistantGeneralManagerId === mlePlayer.id) {
                     const seat = agmSeats.length > 1 ? agmSeats[1] : agmSeats[0];
-                    await this.franchiseStaffAppointmentRepository.save(
+                    newStaff.push(
                         this.franchiseStaffAppointmentRepository.create({
                             franchise: {id: franchiseId} as never,
                             member: {id: memberId} as never,
@@ -326,7 +329,7 @@ export class RosterAuthorityService {
             if (prStaffRole && mleTeam.prSupportId === mlePlayer.id) {
                 const seat = await this.franchiseStaffSeatRepository.findOne({where: {role: {id: prStaffRole.id} } });
                 if (seat) {
-                    await this.franchiseStaffAppointmentRepository.save(
+                    newStaff.push(
                         this.franchiseStaffAppointmentRepository.create({
                             franchise: {id: franchiseId} as never,
                             member: {id: memberId} as never,
@@ -343,7 +346,7 @@ export class RosterAuthorityService {
             if (!bridge || !captainStaffRole) continue;
             const seat = await this.franchiseStaffSeatRepository.findOne({where: {role: {id: captainStaffRole.id} } });
             if (!seat) continue;
-            await this.franchiseStaffAppointmentRepository.save(
+            newStaff.push(
                 this.franchiseStaffAppointmentRepository.create({
                     franchise: {id: bridge.franchiseId} as never,
                     member: {id: memberId} as never,
@@ -351,34 +354,40 @@ export class RosterAuthorityService {
                 }),
             );
         }
-    }
 
-    private async clearFranchiseStaffForMember(memberId: number): Promise<void> {
-        await this.franchiseStaffAppointmentRepository
-            .createQueryBuilder()
-            .delete()
-            .from(FranchiseStaffAppointment)
-            .where('"memberId" = :memberId', {memberId})
-            .andWhere(
-                `"seatId" IN (SELECT id FROM sprocket.franchise_staff_seat WHERE "roleId" IN `
-                + `(SELECT id FROM sprocket.franchise_staff_role WHERE "gameId" = :gid))`,
-                {gid: ROCKET_LEAGUE_GAME_ID},
-            )
-            .execute();
-
-        const fmRole = await this.franchiseLeadershipRoleRepository.findOne({where: {name: LEADERSHIP_ROLE_FM} });
-        if (fmRole) {
-            await this.franchiseLeadershipAppointmentRepository
+        await this.dataSource.transaction(async em => {
+            await em
                 .createQueryBuilder()
                 .delete()
-                .from(FranchiseLeadershipAppointment)
+                .from(FranchiseStaffAppointment)
                 .where('"memberId" = :memberId', {memberId})
                 .andWhere(
-                    `"seatId" IN (SELECT id FROM sprocket.franchise_leadership_seat WHERE "roleId" = :roleId)`,
-                    {roleId: fmRole.id},
+                    `"seatId" IN (SELECT id FROM sprocket.franchise_staff_seat WHERE "roleId" IN `
+                    + `(SELECT id FROM sprocket.franchise_staff_role WHERE "gameId" = :gid))`,
+                    {gid: ROCKET_LEAGUE_GAME_ID},
                 )
                 .execute();
-        }
+
+            if (fmRole) {
+                await em
+                    .createQueryBuilder()
+                    .delete()
+                    .from(FranchiseLeadershipAppointment)
+                    .where('"memberId" = :memberId', {memberId})
+                    .andWhere(
+                        `"seatId" IN (SELECT id FROM sprocket.franchise_leadership_seat WHERE "roleId" = :roleId)`,
+                        {roleId: fmRole.id},
+                    )
+                    .execute();
+            }
+
+            for (const row of newLeadership) {
+                await em.save(FranchiseLeadershipAppointment, row);
+            }
+            for (const row of newStaff) {
+                await em.save(FranchiseStaffAppointment, row);
+            }
+        });
     }
 
     /**

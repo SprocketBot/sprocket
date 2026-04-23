@@ -8,7 +8,9 @@ For **Rocket League** (`game.id === 7`), franchise-facing reads should use **Spr
 - **Franchise staff / captain / FM:** `sprocket.franchise_staff_appointment`, `sprocket.franchise_leadership_appointment`, keyed by `member` and franchise, populated from MLE `team` staff columns and `mledb.team_to_captain`.
 - **League suspension (lookup):** `mledb.player.suspended` remains the legacy field; `RosterAuthorityService.getLeagueSuspendedFromMle` exposes it for callers that need it until a first-class Sprocket column exists.
 
-`FranchiseService.getPlayerFranchisesByUserId` uses `getPlayerFranchisesFromSprocket` when any Sprocket data exists; otherwise it falls back to the previous MLE-only path (backfill / cold start).
+`FranchiseService.getPlayerFranchisesByUserId` **dual-reads**: it loads Sprocket and MLE (when an MLE player exists), then **merges by franchise id** so partial Sprocket projection cannot hide legacy-only franchises or staff roles. If there is no MLE row, Sprocket-only is returned.
+
+Staff appointment replacement from MLE runs in a **single DB transaction** (delete RL staff/FM appointments for the member, then insert the computed replacement set) so a failure cannot leave the member with appointments wiped.
 
 ## Temporary legacy mirror
 
