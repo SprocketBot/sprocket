@@ -48,7 +48,9 @@ export class MemberPlatformAccountService {
     }
 
     /**
-     * Idempotent link: same member + platform + platform account id is a no-op.
+     * Idempotent link for the same member. The table is unique on `(platform, platformAccountId)` globally,
+     * so if the platform id is already tied to another member we throw a controlled error instead of a DB
+     * unique violation.
      */
     async upsertMemberPlatformAccount(
         member: Member,
@@ -57,16 +59,21 @@ export class MemberPlatformAccountService {
         manager?: EntityManager,
     ): Promise<MemberPlatformAccount> {
         const repo = manager ? manager.getRepository(MemberPlatformAccount) : this.memberPlatformAccountRepository;
-        const existing = await repo.findOne({
+        const globalExisting = await repo.findOne({
             where: {
-                member: {id: member.id},
                 platform: {id: platformId},
                 platformAccountId,
             },
             relations: {member: true, platform: true},
         });
-        if (existing) {
-            return existing;
+        if (globalExisting) {
+            if (globalExisting.member.id === member.id) {
+                return globalExisting;
+            }
+            throw new Error(
+                `Platform account ${platformAccountId} is already linked to member ${globalExisting.member.id}; `
+                + `cannot attach to member ${member.id}`,
+            );
         }
         return this.createMemberPlatformAccount(member, platformId, platformAccountId, manager);
     }
