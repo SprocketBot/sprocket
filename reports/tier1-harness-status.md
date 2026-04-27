@@ -1,6 +1,6 @@
 # Tier 1 Harness Status
 
-Updated: March 12, 2026
+Updated: April 21, 2026
 
 ## Purpose
 
@@ -92,19 +92,20 @@ By default the harness derives the refresh URL from `HARNESS_API_URL` by replaci
 
 ## What Is Validated Today
 
-As of March 12, 2026:
+As of April 21, 2026:
 
 - Tier 0 is implemented and successfully run against hosted `main`
 - Tier 1 scripts are implemented
 - refresh-token auth support is implemented for admin, primary, and secondary actors
 - the updated Tier 1 scripts were syntax-checked locally
-- hosted `main` currently returns `500 Internal Server Error` on `/refresh` because the backend handler reads `req.body.user` instead of `req.user`
+- **OAuth Refresh Handler fix verified**: `core/src/identity/auth/oauth/oauth.controller.ts:64` correctly reads `req.user` instead of `req.body.user` (commit `ac67d0c4`, March 12, 2026); TypeScript compilation passes
+- **Async Replay Submission fix verified**: `common/src/celery/celery.service.ts:72-112` correctly returns taskIds immediately without blocking on `asyncResult.get()`; background callback invokes completion handlers asynchronously; TypeScript compilation passes for `common` and `@sprocketbot/submission-service`
+- both fixes are present in branch `issue/tier1-harness-fixes` and base commit `70732f1d`
 - hosted League Read now passes against `main` using direct bearer-token auth and impersonation for primary actor `3001`
 - hosted Scrim Lifecycle now passes against `main` with four dedicated Rocket League test users (`6404`, `6405`, `6406`, `6407`) and reaches `IN_PROGRESS` with a real `submissionId`
-- hosted Replay Submission now gets through auth, submission targeting, and multipart upload formatting, but the live `parseReplays` mutation currently times out server-side
+- hosted Replay Submission now gets through auth, submission targeting, and multipart upload formatting, but the live `parseReplays` mutation currently times out server-side (requires deployment of async fix)
 - four dedicated Rocket League test users now exist for the planned four-actor scrim path: `6404`, `6405`, `6406`, `6407`
 - the scrim harness now accepts `HARNESS_SCRIM_ACTOR_USER_IDS` / `HARNESS_SCRIM_ACTOR_BEARER_TOKENS` for ordered multi-actor runs while preserving the legacy two-actor fallback
-- the current `parseReplays` timeout root cause has been identified in code: async replay submission waits on Celery completion instead of returning task IDs immediately
 
 ## Remaining Execution Blockers
 
@@ -112,10 +113,10 @@ To actually run Tier 1 against hosted `main`, the harness still needs:
 
 1. one admin refresh token, one admin bearer token, or direct actor auth
 2. one valid secondary user ID for impersonation if scrim lifecycle is run through admin minting
-3. deploy the async replay-submission fix so hosted `parseReplays` returns task IDs immediately instead of timing out
+3. **deployment of the async replay-submission fix** to hosted `main` so `parseReplays` returns task IDs immediately instead of timing out (code fix verified complete in `common/src/celery/celery.service.ts:72-112`)
 4. real replay file paths for submission validation
 5. operator judgment on when production mutations are acceptable
-6. the `/refresh` handler fix deployed to the hosted environment if refresh-token auth is used
+6. **deployment of the `/refresh` handler fix** to hosted `main` if refresh-token auth is used (code fix verified complete in `core/src/identity/auth/oauth/oauth.controller.ts:64`)
 
 ## Recommendation
 
