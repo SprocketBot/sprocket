@@ -4,7 +4,7 @@ import type {GraphQLExecutionContext} from "@nestjs/graphql";
 import {GqlExecutionContext} from "@nestjs/graphql";
 import {GraphQLError} from "graphql";
 
-import type {UserPayload} from "../../identity";
+import type {UserPayload} from "../../identity/auth";
 import type {PlayerService} from "./player.service";
 import type {GameAndOrganization} from "./player.types";
 

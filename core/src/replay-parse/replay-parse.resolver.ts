@@ -4,8 +4,9 @@ import {
 import {REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID} from "@sprocketbot/common";
 
 import {
-    CurrentUser, UserPayload, UserService,
-} from "../identity";
+    CurrentUser, UserPayload,
+} from "../identity/auth";
+import {UserService} from "../identity";
 import {
     GqlRatifierInfo, GqlReplaySubmission, ReplaySubmission, SubmissionRejection,
 } from "./types";

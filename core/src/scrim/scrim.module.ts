@@ -11,7 +11,7 @@ import {SchedulingModule} from "../database/scheduling/scheduling.module";
 import {EloConnectorModule} from "../elo/elo-connector";
 import {FranchiseModule} from "../franchise";
 import {GameModule} from "../game";
-import {AuthModule} from "../identity";
+import {AuthModule} from "../identity/auth/";
 import {IdentityModule} from "../identity";
 import {MledbInterfaceModule} from "../mledb";
 import {OrganizationModule} from "../organization";

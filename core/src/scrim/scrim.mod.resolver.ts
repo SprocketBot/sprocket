@@ -19,8 +19,7 @@ import {
     CurrentPlayer, GameSkillGroupService, PlayerService,
 } from "../franchise";
 import {GameModeService} from "../game";
-import {CurrentUser} from "../identity";
-import {UserPayload} from "../identity/auth/";
+import {CurrentUser, UserPayload} from "../identity/auth/";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard/gql-jwt-guard";
 import {MledbPlayerService} from "../mledb";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";

@@ -16,7 +16,7 @@ import {Member} from "../../database/organization/member/member.model";
 import {MemberPlatformAccount} from "../../database/organization/member_platform_account";
 import {MemberProfile} from "../../database/organization/member_profile/member_profile.model";
 import {UserService} from "../../identity/user/user.service";
-import {MledbPlayerAccountService} from "../../mledb";
+import {MledbPlayerAccountService} from "../../mledb/mledb-player-account";
 import {MemberPubSub} from "../constants";
 import {OrganizationService} from "../organization";
 

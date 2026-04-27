@@ -5,7 +5,7 @@ import {Match} from "$db/scheduling/match/match.model";
 
 import {PlayerGuard, PlayerService} from "../../franchise/player";
 import type {GameAndOrganization} from "../../franchise/player/player.types";
-import type {UserPayload} from "../../identity";
+import type {UserPayload} from "../../identity/auth";
 import {PopulateService} from "../../util/populate/populate.service";
 
 @Injectable()

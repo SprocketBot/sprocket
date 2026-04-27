@@ -4,7 +4,7 @@ import {GqlExecutionContext} from "@nestjs/graphql";
 import {GraphQLError} from "graphql";
 
 import {MLE_OrganizationTeam} from "../../database/mledb";
-import type {UserPayload} from "../../identity";
+import type {UserPayload} from "../../identity/auth";
 import {OrgTeamPermissionResolutionService} from "../../identity/user-org-team-permission/org-team-permission-resolution.service";
 import {MledbPlayerService} from "./mledb-player.service";
 
