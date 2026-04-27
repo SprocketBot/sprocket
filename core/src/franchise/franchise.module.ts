@@ -9,6 +9,7 @@ import {EloConnectorModule} from "../elo/elo-connector";
 import {GameModule} from "../game";
 import {MledbInterfaceModule} from "../mledb";
 import {OrganizationModule} from "../organization/organization.module";
+import {SchedulingModule} from "../scheduling/scheduling.module";
 import {UtilModule} from "../util/util.module";
 import {FranchiseController} from "./franchise/franchise.controller";
 import {FranchiseResolver} from "./franchise/franchise.resolver";
@@ -33,6 +34,7 @@ import {TeamService} from "./team/team.service";
         GameModule,
         forwardRef(() => OrganizationModule),
         forwardRef(() => MledbInterfaceModule),
+        forwardRef(() => SchedulingModule),
         EloConnectorModule,
         AnalyticsModule,
         JwtModule.register({
