@@ -11,6 +11,7 @@ describe("MledbFinalizationService", () => {
         {} as any,
         {} as any,
         {} as any,
+        {} as any,
     );
 
     it("degrades malformed carball payloads instead of throwing during legacy finalization", () => {
