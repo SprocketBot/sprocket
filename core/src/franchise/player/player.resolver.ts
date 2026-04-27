@@ -85,7 +85,6 @@ export class PlayerResolver {
     private readonly playerService: PlayerService,
     private readonly franchiseService: FranchiseService,
     private readonly skillGroupService: GameSkillGroupService,
-    @Inject(forwardRef(() => EligibilityService))
     private readonly eligibilityService: EligibilityService,
     private readonly eventsService: EventsService,
     private readonly notificationService: NotificationService,
