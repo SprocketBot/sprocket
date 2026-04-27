@@ -44,22 +44,6 @@ export class MledbPlayerService {
     private readonly memberPlatformAccountService: MemberPlatformAccountService,
     ) {}
 
-    private findMemberPlatformAccountByPlatformKey(
-        platform: MLE_Platform,
-        platformAccountId: string,
-    ): Promise<MemberPlatformAccount | null> {
-        return this.memberPlatformAccountRepository.findOne({
-            where: {
-                platformAccountId,
-                platform: {code: platform},
-            },
-            relations: {
-                member: {user: true},
-                platform: true,
-            },
-        });
-    }
-
     /**
      * Resolve the Sprocket user id for a platform account. Prefer sprocket.member_platform_account
      * (source of truth); fall back to mledb.player_account + Discord crosswalk during cutover.
@@ -68,7 +52,16 @@ export class MledbPlayerService {
         platform: MLE_Platform,
         platformId: string,
     ): Promise<number> {
-        const mpa = await this.findMemberPlatformAccountByPlatformKey(platform, platformId);
+        const mpa = await this.memberPlatformAccountRepository.findOne({
+            where: {
+                platformAccountId: platformId,
+                platform: {code: platform},
+            },
+            relations: {
+                member: {user: true},
+                platform: true,
+            },
+        });
         if (mpa?.member?.user?.id) {
             return mpa.member.user.id;
         }
@@ -136,20 +129,19 @@ export class MledbPlayerService {
     }
 
     async getPlayerByPlatformId(platform: MLE_Platform, platformId: string): Promise<MLE_Player> {
-        const mpa = await this.findMemberPlatformAccountByPlatformKey(platform, platformId);
-        if (mpa?.member?.user?.id) {
-            // Sprocket owns this link: do not fall back to legacy if MLE bridge or Discord mapping is wrong.
-            return this.getMlePlayerBySprocketUser(mpa.member.user.id);
+        try {
+            const userId = await this.resolveSprocketUserIdForPlatformAccount(platform, platformId);
+            return await this.getMlePlayerBySprocketUser(userId);
+        } catch {
+            const playerAccount = await this.playerAccountRepository.findOne({
+                where: {platform, platformId},
+                relations: {player: true},
+            });
+            if (!playerAccount?.player) {
+                throw new Error(`No player found for platform account (${platform} | ${platformId})`);
+            }
+            return playerAccount.player;
         }
-
-        const playerAccount = await this.playerAccountRepository.findOne({
-            where: {platform, platformId},
-            relations: {player: true},
-        });
-        if (!playerAccount?.player) {
-            throw new Error(`No player found for platform account (${platform} | ${platformId})`);
-        }
-        return playerAccount.player;
     }
 
     async getMlePlayerBySprocketUser(userId: number): Promise<MLE_Player> {
