@@ -33,5 +33,12 @@ bash "${SCRIPT_DIR}/check-web.sh"
 bash "${SCRIPT_DIR}/check-api.sh"
 bash "${SCRIPT_DIR}/check-dependencies.sh"
 
+if [[ "${HARNESS_CHECK_CORE_START:-false}" == "true" ]]; then
+  bash "${SCRIPT_DIR}/check-core-start.sh"
+else
+  printf "Skipping core startup check. Set HARNESS_CHECK_CORE_START=true to enable it.\n"
+fi
+
 RUN_DIR="$(harness_artifact_root)/$(harness_env_name)/$(harness_run_id)"
 printf "Tier 0 complete. Artifacts: %s\n" "${RUN_DIR}"
+

@@ -40,6 +40,7 @@
     "harness:check:web": "bash ./scripts/harness/check-web.sh",
     "harness:check:api": "bash ./scripts/harness/check-api.sh",
     "harness:check:dependencies": "bash ./scripts/harness/check-dependencies.sh",
+    "harness:check:core-start": "bash ./scripts/harness/check-core-start.sh",
     "harness:collect": "bash ./scripts/harness/collect-artifacts.sh",
     "harness:tier0:main-prod": "npm run verify:tier0:main-prod",
     "harness:tier0:main-dev": "npm run verify:tier0:main-dev",

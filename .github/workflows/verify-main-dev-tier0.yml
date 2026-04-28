@@ -49,6 +49,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Prepare optional core startup check
+        env:
+          HARNESS_MAIN_DEV_ENV: ${{ secrets.HARNESS_MAIN_DEV_ENV }}
+        run: |
+          set +x
+          if printf '%s\n' "${HARNESS_MAIN_DEV_ENV}" | grep -q '^HARNESS_CHECK_CORE_START=true$'; then
+            docker compose build core
+            docker compose up -d rabbitmq minio redis postgres
+          else
+            echo "Core startup check is not enabled for this Tier 0 profile."
+          fi
+
       - name: Run Tier 0 harness (main-dev)
         env:
           HARNESS_MAIN_DEV_ENV: ${{ secrets.HARNESS_MAIN_DEV_ENV }}
