@@ -8,6 +8,7 @@ import {Repository} from "typeorm";
 import type {Player} from "$db/franchise/player/player.model";
 import type {User} from "$db/identity/user/user.model";
 import {UserAuthenticationAccountType} from "$db/identity/user_authentication_account/user_authentication_account_type.enum";
+import {MemberPlatformAccount} from "$db/organization/member_platform_account/member_platform_account.model";
 
 import type {MLE_Platform} from "../../database/mledb";
 import {
@@ -17,8 +18,9 @@ import {
     MLE_Team,
     MLE_TeamToCaptain,
 } from "../../database/mledb";
-import {GameService} from "../../game";
+import {GameService, PlatformService} from "../../game";
 import {UserService} from "../../identity";
+import {MemberPlatformAccountService} from "../../organization/member-platform-account";
 
 @Injectable()
 export class MledbPlayerService {
@@ -33,9 +35,85 @@ export class MledbPlayerService {
     @InjectRepository(MLE_Team) private readonly teamRepo: Repository<MLE_Team>,
     @InjectRepository(MLE_TeamToCaptain)
     private readonly teamToCaptainRepo: Repository<MLE_TeamToCaptain>,
+    @InjectRepository(MemberPlatformAccount)
+    private readonly memberPlatformAccountRepository: Repository<MemberPlatformAccount>,
     @Inject(forwardRef(() => UserService)) private readonly userService: UserService,
     @Inject(forwardRef(() => GameService)) private readonly gameService: GameService,
+    @Inject(forwardRef(() => PlatformService)) private readonly platformService: PlatformService,
+    @Inject(forwardRef(() => MemberPlatformAccountService))
+    private readonly memberPlatformAccountService: MemberPlatformAccountService,
     ) {}
+
+    /**
+     * Resolve the Sprocket user id for a platform account. Prefer sprocket.member_platform_account
+     * (source of truth); fall back to mledb.player_account + Discord crosswalk during cutover.
+     */
+    private async resolveSprocketUserIdForPlatformAccount(
+        platform: MLE_Platform,
+        platformId: string,
+    ): Promise<number> {
+        const mpa = await this.memberPlatformAccountRepository.findOne({
+            where: {
+                platformAccountId: platformId,
+                platform: {code: platform},
+            },
+            relations: {
+                member: {user: true},
+                platform: true,
+            },
+        });
+        if (mpa?.member?.user?.id) {
+            return mpa.member.user.id;
+        }
+
+        const playerAccount = await this.playerAccountRepository.findOne({
+            where: {platform, platformId},
+            relations: {player: true},
+        });
+        if (!playerAccount?.player?.discordId) {
+            throw new Error(`No Sprocket or legacy MLEDB link for platform account (${platform} | ${platformId})`);
+        }
+
+        const user = await this.userService.getUser({
+            where: {
+                user: {
+                    authenticationAccounts: {
+                        accountId: playerAccount.player.discordId,
+                        accountType: UserAuthenticationAccountType.DISCORD,
+                    },
+                },
+            },
+            relations: {user: true},
+        });
+        if (!user) {
+            throw new Error(`No sprocket user found (${platform} | ${platformId})`);
+        }
+
+        const mleMember = await this.userService.getUserById(user.id, {
+            relations: {members: {organization: true} },
+        });
+        const defaultOrgMember = mleMember.members?.find(
+            m => m.organizationId === config.defaultOrganizationId,
+        );
+        if (defaultOrgMember) {
+            try {
+                const plat = await this.platformService.getPlatformByCode(platform);
+                await this.memberPlatformAccountService.upsertMemberPlatformAccount(
+                    defaultOrgMember,
+                    plat.id,
+                    platformId,
+                );
+            } catch (e) {
+                this.logger.warn(
+                    `Backfill member_platform_account failed (${platform}|${platformId}): ${
+                        e instanceof Error ? e.message : String(e)
+                    }`,
+                );
+            }
+        }
+
+        return user.id;
+    }
 
     async getPlayerByDiscordId(id: string): Promise<MLE_Player> {
         const players = await this.playerRepository.find({where: {discordId: id} });
@@ -51,11 +129,19 @@ export class MledbPlayerService {
     }
 
     async getPlayerByPlatformId(platform: MLE_Platform, platformId: string): Promise<MLE_Player> {
-        const playerAccount = await this.playerAccountRepository.findOneOrFail({
-            where: {platform, platformId},
-            relations: {player: true},
-        });
-        return playerAccount.player;
+        try {
+            const userId = await this.resolveSprocketUserIdForPlatformAccount(platform, platformId);
+            return await this.getMlePlayerBySprocketUser(userId);
+        } catch {
+            const playerAccount = await this.playerAccountRepository.findOne({
+                where: {platform, platformId},
+                relations: {player: true},
+            });
+            if (!playerAccount?.player) {
+                throw new Error(`No player found for platform account (${platform} | ${platformId})`);
+            }
+            return playerAccount.player;
+        }
     }
 
     async getMlePlayerBySprocketUser(userId: number): Promise<MLE_Player> {
@@ -114,85 +200,38 @@ export class MledbPlayerService {
         platform: MLE_Platform,
         platformId: string,
     ): Promise<User> {
-        const playerAccount = await this.playerAccountRepository.findOneOrFail({
-            where: {platform, platformId},
-            relations: {player: true},
-        });
-        const {discordId} = playerAccount.player;
-
-        if (!discordId) {
-            throw new Error(`No discord account found for player ${playerAccount.player.name}`);
-        }
-
-        const user = await this.userService.getUser({
-            where: {
-                user: {
-                    authenticationAccounts: {
-                        accountId: discordId,
-                        accountType: UserAuthenticationAccountType.DISCORD,
-                    },
-                },
-            },
+        const userId = await this.resolveSprocketUserIdForPlatformAccount(platform, platformId);
+        return this.userService.getUserById(userId, {
             relations: {
-                user: {
-                    authenticationAccounts: true,
-                    members: {
-                        players: {
-                            skillGroup: {
-                                game: true,
-                            },
+                authenticationAccounts: true,
+                members: {
+                    players: {
+                        skillGroup: {
+                            game: true,
                         },
                     },
                 },
             },
         });
-        if (!user) {
-            throw new Error(`No sprocket user found (${platform} | ${platformId})`);
-        }
-
-        return user;
     }
 
     async getSprocketPlayerByPlatformInformation(
         platform: MLE_Platform,
         platformId: string,
     ): Promise<Player> {
-        const playerAccount = await this.playerAccountRepository.findOneOrFail({
-            where: {platform, platformId},
-            relations: {player: true},
-        });
-        const {discordId} = playerAccount.player;
-
-        if (!discordId) {
-            throw new Error(`No discord account found for player ${playerAccount.player.name}`);
-        }
-
-        const user = await this.userService.getUser({
-            where: {
-                user: {
-                    authenticationAccounts: {
-                        accountId: discordId,
-                        accountType: UserAuthenticationAccountType.DISCORD,
-                    },
-                },
-            },
+        const userId = await this.resolveSprocketUserIdForPlatformAccount(platform, platformId);
+        const user = await this.userService.getUserById(userId, {
             relations: {
-                user: {
-                    authenticationAccounts: true,
-                    members: {
-                        players: {
-                            skillGroup: {
-                                game: true,
-                            },
+                authenticationAccounts: true,
+                members: {
+                    players: {
+                        skillGroup: {
+                            game: true,
                         },
                     },
                 },
             },
         });
-
-        if (!user) {
-            throw new Error(`No sprocket user found (${platform} | ${platformId})`);
-        }
 
         const member = user.members.find(m => m.organizationId === config.defaultOrganizationId);
         if (!member) {

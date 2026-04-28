@@ -6,7 +6,7 @@ import {GraphQLError} from "graphql";
 import {PlayerGuard, PlayerService} from "../franchise";
 import type {GameAndOrganization} from "../franchise/player/player.types";
 import {GameModeService} from "../game";
-import type {UserPayload} from "../identity";
+import type {UserPayload} from "../identity/auth";
 import {ScrimService} from "./scrim.service";
 import type {CreateScrimInput} from "./types";
 

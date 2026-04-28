@@ -15,7 +15,7 @@ import {Match} from "../database/scheduling/match/match.model";
 import {FranchiseModule} from "../franchise";
 import {GameModule} from "../game";
 import {IdentityModule} from "../identity";
-import {OrganizationModule} from "../organization";
+import {OrganizationModule} from "../organization/organization.module";
 import {SchedulingModule} from "../scheduling/scheduling.module";
 import {SprocketRatingModule} from "../sprocket-rating";
 import {UtilModule} from "../util/util.module";

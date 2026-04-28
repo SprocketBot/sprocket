@@ -46,4 +46,28 @@ export class MemberPlatformAccountService {
 
         return memberPlatformAccount;
     }
+
+    /**
+     * Idempotent link: same member + platform + platform account id is a no-op.
+     */
+    async upsertMemberPlatformAccount(
+        member: Member,
+        platformId: number,
+        platformAccountId: string,
+        manager?: EntityManager,
+    ): Promise<MemberPlatformAccount> {
+        const repo = manager ? manager.getRepository(MemberPlatformAccount) : this.memberPlatformAccountRepository;
+        const existing = await repo.findOne({
+            where: {
+                member: {id: member.id},
+                platform: {id: platformId},
+                platformAccountId,
+            },
+            relations: {member: true, platform: true},
+        });
+        if (existing) {
+            return existing;
+        }
+        return this.createMemberPlatformAccount(member, platformId, platformAccountId, manager);
+    }
 }

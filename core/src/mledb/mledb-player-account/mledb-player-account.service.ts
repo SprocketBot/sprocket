@@ -6,6 +6,12 @@ import {EntityManager, Repository} from "typeorm";
 import type {MLE_Platform, MLE_Player} from "../../database/mledb";
 import {MLE_PlayerAccount} from "../../database/mledb";
 
+/**
+ * Legacy mirror of `sprocket.member_platform_account` into `mledb.player_account` for cutover.
+ * Fields written: platform, platform_id, tracker (often same as platform_id for Steam), updated_by, player_id.
+ * Removal plan: stop calling `createOrUpdatePlayerAccount` from write paths; then drop this service and
+ * `mledb.player_account` writes once reporting and imports read only from Sprocket.
+ */
 @Injectable()
 export class MledbPlayerAccountService {
     constructor(@InjectRepository(MLE_PlayerAccount)

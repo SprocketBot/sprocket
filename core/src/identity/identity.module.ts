@@ -1,6 +1,7 @@
 import {forwardRef, Module} from "@nestjs/common";
 import {JwtModule} from "@nestjs/jwt";
-import {config} from "@sprocketbot/common";
+import {PassportModule} from "@nestjs/passport";
+import {AnalyticsModule, config} from "@sprocketbot/common";
 import {TypeOrmModule} from "@nestjs/typeorm";
 
 import {UserOrgTeamPermission} from "$db/identity/user_org_team_permission/user_org_team_permission.model";
@@ -8,6 +9,7 @@ import {UserOrgTeamPermission} from "$db/identity/user_org_team_permission/user_
 import {DatabaseModule} from "../database";
 import {MledbInterfaceModule} from "../mledb";
 import {UtilModule} from "../util/util.module";
+import {AuthModule} from "./auth";
 import {IdentityController} from "./identity.controller";
 import {IdentityService} from "./identity.service";
 import {OrgTeamPermissionResolutionService} from "./user-org-team-permission/org-team-permission-resolution.service";
@@ -28,6 +30,7 @@ import {UserAuthenticationAccountResolver} from "./user-authentication-account";
             secret: config.auth.jwt_secret,
             signOptions: {expiresIn: config.auth.jwt_expiry},
         }),
+        AuthModule,
     ],
     providers: [
         IdentityService,

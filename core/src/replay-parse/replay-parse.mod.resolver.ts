@@ -14,7 +14,7 @@ import type {FileUpload} from "graphql-upload";
 import {GraphQLUpload} from "graphql-upload";
 
 import {MLE_OrganizationTeam} from "../database/mledb";
-import {CurrentUser, UserPayload} from "../identity";
+import {CurrentUser, UserPayload} from "../identity/auth/";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
 import {ScrimService} from "../scrim";

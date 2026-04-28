@@ -8,14 +8,15 @@ import type {FindManyOptions, FindOneOptions} from "typeorm";
 import {DataSource, Repository} from "typeorm";
 
 import type {IrrelevantFields} from "../../database";
+import {Player} from "../../database/franchise/player/player.model";
 import type {Franchise} from "../../database/franchise/franchise/franchise.model";
 import {UserAuthenticationAccount} from "../../database/identity/user_authentication_account";
-import {MLE_Player, MLE_PlayerAccount} from "../../database/mledb";
+import {MLE_Platform, MLE_Player, MLE_PlayerAccount} from "../../database/mledb";
 import {Member} from "../../database/organization/member/member.model";
 import {MemberPlatformAccount} from "../../database/organization/member_platform_account";
 import {MemberProfile} from "../../database/organization/member_profile/member_profile.model";
-import {PlayerService} from "../../franchise/player/player.service";
 import {UserService} from "../../identity/user/user.service";
+import {MledbPlayerAccountService} from "../../mledb/mledb-player-account";
 import {MemberPubSub} from "../constants";
 import {OrganizationService} from "../organization";
 
@@ -28,11 +29,10 @@ export class MemberService {
     constructor(
     @InjectRepository(Member) private memberRepository: Repository<Member>,
     @InjectRepository(MemberProfile) private memberProfileRepository: Repository<MemberProfile>,
+    @InjectRepository(Player) private playerRepository: Repository<Player>,
     private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
     private readonly eventsService: EventsService,
-    @Inject(forwardRef(() => PlayerService))
-    private readonly playerService: PlayerService,
     @Inject(MemberPubSub) private readonly pubsub: PubSub,
     ) {}
 
@@ -109,7 +109,7 @@ export class MemberService {
         organizationId: number,
         gameId: number,
     ): Promise<Franchise | undefined> {
-        const player = await this.playerService.getPlayer({
+        const player = await this.playerRepository.findOneOrFail({
             where: {
                 member: {
                     id: memberId,
@@ -192,6 +192,8 @@ export class MemberFixService {
     @InjectRepository(MLE_Player) private playerRepository: Repository<MLE_Player>,
     @InjectRepository(MLE_PlayerAccount)
     private playerAccountRepository: Repository<MLE_PlayerAccount>,
+    @Inject(forwardRef(() => MledbPlayerAccountService))
+    private readonly mledbPlayerAccountService: MledbPlayerAccountService,
     ) {}
 
     async updateMemberAndPlayerIds(sprocketUserId: number, platformId: string) {
@@ -240,6 +242,24 @@ export class MemberFixService {
                     {platformId: platformId},
                     {player: {id: mlePlayerId} },
                 );
+
+                const mpa = await manager.findOne(MemberPlatformAccount, {
+                    where: {
+                        platformAccountId: platformId,
+                        member: {id: memberId},
+                    },
+                    relations: {platform: true},
+                });
+                if (mpa?.platform?.code && MLE_Platform[mpa.platform.code as keyof typeof MLE_Platform]) {
+                    await this.mledbPlayerAccountService.createOrUpdatePlayerAccount(
+                        sprocketUserId,
+                        MLE_Platform[mpa.platform.code as keyof typeof MLE_Platform],
+                        platformId,
+                        platformId,
+                        player,
+                        manager,
+                    );
+                }
 
                 return {
                     success: true,

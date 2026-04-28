@@ -10,7 +10,7 @@ import {GameMode} from "$db/game/game_mode/game_mode.model";
 import {MLE_OrganizationTeam} from "../database/mledb";
 import {GameSkillGroupService} from "../franchise";
 import {GameModeService} from "../game";
-import {CurrentUser, UserPayload} from "../identity";
+import {CurrentUser, UserPayload} from "../identity/auth/";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
 import {OrGuard} from "../util/or.guard";

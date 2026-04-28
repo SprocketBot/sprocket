@@ -25,6 +25,25 @@
     let currentUserFranchises: string[] | undefined;
     $: currentUserFranchises = $currentUser.data?.me?.members?.flatMap(m => m.players.flatMap(p => p.franchiseName as string) as string[]);
 
+    let scrimPoints: number | null | undefined;
+    $: scrimPoints = $currentUser.data?.me?.members?.[0]?.players?.[0]?.scrimPoints;
+
+    let eligibilityEndDate: string | null | undefined;
+    $: eligibilityEndDate = $currentUser.data?.me?.members?.[0]?.players?.[0]?.eligibilityEndDate;
+
+    $: eligibilityStatus = (() => {
+        if (scrimPoints === undefined) return { label: "Loading...", color: "text-gray-400" };
+        if (scrimPoints !== null && scrimPoints >= 30) {
+            if (eligibilityEndDate) {
+                const date = new Date(eligibilityEndDate);
+                const formatted = date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+                return { label: `Eligible until ${formatted}`, color: "text-green-400" };
+            }
+            return { label: "Eligible", color: "text-green-400" };
+        }
+        return { label: `${scrimPoints ?? 0}/30 points`, color: "text-yellow-400" };
+    })();
+
     function calculateActivityChange() {
         const prev = metrics.previousCompletedScrims ?? 0;
         const cur = metrics?.completedScrims ?? 0;
@@ -71,5 +90,14 @@
     <DashboardNumberCard title="Active Players"
                          value={metrics?.totalPlayers ?? 0}
     />
+    <DashboardCard class="col-span-6 xl:col-span-3">
+        <h3 class="text-lg font-semibold text-sprocket mb-2">Scrim Eligibility</h3>
+        <div class="flex flex-col gap-1">
+            <span class="text-3xl font-bold {eligibilityStatus.color}">{eligibilityStatus.label}</span>
+            {#if scrimPoints !== undefined && scrimPoints !== null}
+                <span class="text-sm text-gray-400">{scrimPoints} points in last 30 days</span>
+            {/if}
+        </div>
+    </DashboardCard>
 
 </DashboardLayout>

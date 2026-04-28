@@ -23,7 +23,9 @@ import {Organization} from "../../database/organization/organization/organizatio
 import {EloConnectorService} from "../../elo/elo-connector";
 import {PlatformService} from "../../game";
 import {OrganizationService} from "../../organization";
+import {MemberPlatformAccountService} from "../../organization/member-platform-account";
 import {MemberService} from "../../organization/member/member.service";
+import {MledbPlayerAccountService} from "../../mledb";
 import {GameSkillGroupService} from "../game-skill-group";
 import {PlayerService} from "./player.service";
 import {OperationError} from "./player.types";
@@ -222,6 +224,18 @@ describe("PlayerService", () => {
                     provide: AnalyticsService,
                     useValue: {
                         send: jest.fn(),
+                    },
+                },
+                {
+                    provide: MemberPlatformAccountService,
+                    useValue: {
+                        upsertMemberPlatformAccount: jest.fn(),
+                    },
+                },
+                {
+                    provide: MledbPlayerAccountService,
+                    useValue: {
+                        createOrUpdatePlayerAccount: jest.fn(),
                     },
                 },
             ],
