@@ -12,6 +12,7 @@ import {FranchiseProfile} from "$db/franchise/franchise_profile/franchise_profil
 import {MledbPlayerService} from "../../mledb";
 import {MemberService} from "../../organization";
 import {PlayerService} from "../player";
+import {RosterAuthorityService} from "../roster-authority.service";
 
 @Injectable()
 export class FranchiseService {
@@ -23,6 +24,7 @@ export class FranchiseService {
     private readonly sprocketMemberService: MemberService,
     @InjectRepository(FranchiseProfile)
     private readonly franchiseProfileRepository: Repository<FranchiseProfile>,
+    private readonly rosterAuthorityService: RosterAuthorityService,
     ) {}
 
     async getFranchiseProfile(franchiseId: number): Promise<FranchiseProfile> {
@@ -62,6 +64,26 @@ export class FranchiseService {
     }
 
     async getPlayerFranchisesByUserId(userId: number): Promise<CoreOutput<CoreEndpoint.GetPlayerFranchises>> {
+        const fromSprocket = await this.rosterAuthorityService.getPlayerFranchisesFromSprocket(userId);
+
+        let fromMle: CoreOutput<CoreEndpoint.GetPlayerFranchises> = [];
+        try {
+            fromMle = await this.getPlayerFranchisesFromMle(userId);
+        } catch {
+            // No linked MLE player (or other read failure): Sprocket-only is fine.
+        }
+
+        if (fromMle.length === 0) {
+            return fromSprocket;
+        }
+
+        return this.mergePlayerFranchiseRows(fromSprocket, fromMle);
+    }
+
+    /**
+     * Legacy MLE read path (dual-read with Sprocket until projection/backfill is complete everywhere).
+     */
+    private async getPlayerFranchisesFromMle(userId: number): Promise<CoreOutput<CoreEndpoint.GetPlayerFranchises>> {
         const mlePlayer = await this.mledbPlayerService.getMlePlayerBySprocketUser(userId);
 
         const playerId = mlePlayer.id;
@@ -110,6 +132,46 @@ export class FranchiseService {
             console.error(`Failed to find franchise for team "${team.name}" (player ${playerId}, member ${userId}). Checking staff assignments as fallback:`, error instanceof Error ? error.message : error);
             return this.getFranchisesFromStaffAssignments(playerId, userId);
         }
+    }
+
+    private mergePlayerFranchiseRows(
+        sprocket: CoreOutput<CoreEndpoint.GetPlayerFranchises>,
+        mle: CoreOutput<CoreEndpoint.GetPlayerFranchises>,
+    ): CoreOutput<CoreEndpoint.GetPlayerFranchises> {
+        type Acc = {id: number; name: string; staffByCode: Map<string, {id: number; name: string;}>;};
+        const byFranchiseId = new Map<number, Acc>();
+
+        const mergeRow = (row: {id: number; name: string; staffPositions: Array<{id: number; name: string;}>;}) => {
+            let acc = byFranchiseId.get(row.id);
+            if (!acc) {
+                acc = {
+                    id: row.id,
+                    name: row.name,
+                    staffByCode: new Map(),
+                };
+                byFranchiseId.set(row.id, acc);
+            } else if (!acc.name && row.name) {
+                acc.name = row.name;
+            }
+            for (const sp of row.staffPositions) {
+                if (!acc.staffByCode.has(sp.name)) {
+                    acc.staffByCode.set(sp.name, sp);
+                }
+            }
+        };
+
+        for (const row of sprocket) {
+            mergeRow(row);
+        }
+        for (const row of mle) {
+            mergeRow(row);
+        }
+
+        return [...byFranchiseId.values()].map(acc => ({
+            id: acc.id,
+            name: acc.name,
+            staffPositions: [...acc.staffByCode.values()],
+        }));
     }
 
     /**

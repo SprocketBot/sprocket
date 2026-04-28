@@ -52,6 +52,7 @@ import {MemberPlatformAccountService} from "../../organization/member-platform-a
 import {OrganizationService} from "../../organization";
 import {MemberService} from "../../organization/member/member.service";
 import {GameSkillGroupService} from "../game-skill-group";
+import {RosterAuthorityService} from "../roster-authority.service";
 import type {RankdownJwtPayload} from "./player.types";
 import type {CreatePlayerTuple} from "./player.types";
 
@@ -87,11 +88,22 @@ export class PlayerService {
     private readonly eloConnectorService: EloConnectorService,
     private readonly platformService: PlatformService,
     private readonly analyticsService: AnalyticsService,
+    private readonly rosterAuthorityService: RosterAuthorityService,
     @Inject(forwardRef(() => MemberPlatformAccountService))
     private readonly memberPlatformAccountService: MemberPlatformAccountService,
     @Inject(forwardRef(() => MledbPlayerAccountService))
     private readonly mledbPlayerAccountService: MledbPlayerAccountService,
     ) {}
+
+    private async syncRosterAuthorityAfterMleSave(mlePlayerId: number): Promise<void> {
+        try {
+            await this.rosterAuthorityService.syncFromMlePlayerId(mlePlayerId);
+        } catch (err) {
+            this.logger.warn(
+                `Roster authority sync failed for MLE player ${mlePlayerId}: ${err instanceof Error ? err.message : String(err)}`,
+            );
+        }
+    }
 
     async getPlayer(query: FindOneOptions<Player>): Promise<Player> {
         this.logger.debug(`getPlayer: ${JSON.stringify(query)}`);
@@ -405,6 +417,11 @@ export class PlayerService {
                 throw new Error(`Tried updating player with MLEID: ${mleid}, but that MLEID does not yet exist.`);
             }
             await runner.commitTransaction();
+
+            const mleAfter = await this.mle_playerRepository.findOne({where: {mleid} });
+            if (mleAfter) {
+                await this.syncRosterAuthorityAfterMleSave(mleAfter.id);
+            }
         } catch (e) {
             await runner.rollbackTransaction();
             this.logger.error(e);
@@ -441,9 +458,10 @@ export class PlayerService {
         });
 
         if (runner) {
-            await runner.manager.save(player);
+            await runner.manager.save(MLE_Player, updatedPlayer);
         } else {
-            await this.mle_playerRepository.save(player);
+            await this.mle_playerRepository.save(updatedPlayer);
+            await this.syncRosterAuthorityAfterMleSave(updatedPlayer.id);
         }
 
         return updatedPlayer;
@@ -500,6 +518,7 @@ export class PlayerService {
             await runner.manager.save(ptpBridge);
         } else {
             await this.ptpRepo.save(ptpBridge);
+            await this.syncRosterAuthorityAfterMleSave(player.id);
         }
 
         return player;
@@ -854,6 +873,7 @@ export class PlayerService {
                 });
 
                 await this.mle_playerRepository.save(newMlePlayer);
+                await this.syncRosterAuthorityAfterMleSave(newMlePlayer.id);
 
                 this.logger.debug(`Player ${playerDelta.playerId}: Salary update complete`);
             }
@@ -908,6 +928,7 @@ export class PlayerService {
             const mlePlayer = await this.getMlePlayerBySprocketPlayer(sprocPlayerId);
             mlePlayer.salary = salary;
             await this.mle_playerRepository.save(mlePlayer);
+            await this.syncRosterAuthorityAfterMleSave(mlePlayer.id);
             return mlePlayer;
         }
 
@@ -938,6 +959,7 @@ export class PlayerService {
         }
 
         await this.mle_playerRepository.save(player);
+        await this.syncRosterAuthorityAfterMleSave(player.id);
 
         return player;
     }
@@ -973,6 +995,7 @@ export class PlayerService {
         });
 
         await this.mle_playerRepository.save(player);
+        await this.syncRosterAuthorityAfterMleSave(player.id);
 
         // Move player to Waiver Wire
         // TODO fix later when we abstract away from MLE
@@ -1020,6 +1043,7 @@ export class PlayerService {
         });
 
         await this.mle_playerRepository.save(player);
+        await this.syncRosterAuthorityAfterMleSave(player.id);
         return player;
     }
 
@@ -1342,6 +1366,19 @@ export class PlayerService {
             await runner.commitTransaction();
             this.logger.log(`Transaction committed successfully`);
 
+            const rlPlayers = await this.playerRepository.find({
+                where: {
+                    member: {user: {id: user.id} },
+                    skillGroup: {game: {id: 7} },
+                },
+            });
+            for (const pl of rlPlayers) {
+                const bridge = await this.ptpRepo.findOne({where: {sprocketPlayerId: pl.id} });
+                if (bridge) {
+                    await this.syncRosterAuthorityAfterMleSave(bridge.mledPlayerId);
+                }
+            }
+
             const result = `Successfully created/updated user with ID ${user.id}.`;
             this.logger.log(`=== INTAKE USER COMPLETED ===`);
             this.logger.log(`Result: ${result}`);
@@ -1406,6 +1443,7 @@ export class PlayerService {
         });
         mlePlayer.discordId = newAcct;
         await this.mle_playerRepository.save(mlePlayer);
+        await this.syncRosterAuthorityAfterMleSave(mlePlayer.id);
 
         // Then, follow up with Sprocket.
         const uaa = await this.userAuthRepository.findOneOrFail({
@@ -1425,6 +1463,7 @@ export class PlayerService {
         });
         mlePlayer.teamName = newTeam;
         await this.mle_playerRepository.save(mlePlayer);
+        await this.syncRosterAuthorityAfterMleSave(mlePlayer.id);
     }
 
     async changePlayerName(mleid: number, newName: string): Promise<void> {
