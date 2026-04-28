@@ -9,7 +9,7 @@
 # Repository variable (Settings → Secrets and variables → Actions → Variables), optional:
 #   PULUMI_FOUNDATION_STACK — Pulumi stack name for dev/pre-prod foundation (defaults to dev-staging if unset).
 #
-# Node: 20.x is the repo-standard infra toolchain (see infra/README.md "Tool versions"; root .nvmrc stays 16 for legacy app builds).
+# Workflow runtime uses Node 24 on GitHub-hosted runners; the local infra toolchain remains documented in `infra/README.md`.
 #
 # This job does NOT use DOCKER_HOST, SSH to Swarm, or Tailscale — foundation talks only to the DigitalOcean API.
 #
@@ -28,6 +28,9 @@ concurrency:
 
 permissions:
   contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
   filter:
@@ -78,9 +81,15 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '24'
           cache: npm
           cache-dependency-path: infra/foundation/package-lock.json
+
+      - name: Restore foundation Pulumi plugin cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.pulumi/plugins
+          key: pulumi-plugins-${{ runner.os }}-foundation-3.229.0-${{ hashFiles('infra/foundation/package-lock.json') }}
 
       - name: Install Pulumi CLI
         shell: bash
@@ -107,8 +116,7 @@ jobs:
 
       - name: Install foundation dependencies
         shell: bash
-        working-directory: infra/foundation
-        run: pulumi install
+        run: bash ./scripts/infra/pulumi-install-all.sh --project foundation
 
       - name: Pulumi preview
         shell: bash

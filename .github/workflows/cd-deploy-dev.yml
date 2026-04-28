@@ -10,13 +10,17 @@
 #   PULUMI_BACKEND_URL
 #   AWS_ACCESS_KEY_ID
 #   AWS_SECRET_ACCESS_KEY
-#   PULUMI_MANAGER_NODE_HOST   (pre-prod Swarm manager; Tailscale/SSH reachable)
+#   PULUMI_DEV_MANAGER_NODE_HOST (preferred; dev-only Swarm manager created by foundation/dev-staging)
+#   PULUMI_MANAGER_NODE_HOST     (legacy fallback if the dedicated dev host secret is unset)
+#   PULUMI_DEV_SSH_USER          (preferred; lets dev CD use a different SSH login such as `root`)
 #   PULUMI_SSH_USER
 #   PULUMI_SSH_KEY
 #   TAILSCALE_AUTHKEY          (optional; omit if the runner can reach the manager without Tailscale)
 #
 # Stack order: infra/ci/stack-map.yaml → environments.dev.deploy_order (see infra/ci/README.md).
-# Optional repo variable: PULUMI_DEV_PLATFORM_STACK (default dev) — must not be `prod`.
+# Optional repo variables:
+#   PULUMI_DEV_PLATFORM_STACK (default dev) — must not be `prod`.
+#   PULUMI_FOUNDATION_STACK   (default dev-staging) — foundation stack checked before Swarm deploy.
 #
 # Triggers:
 #   - After "Autobuild Docker Containers" succeeds on a push to `main` (via workflow_run).
@@ -59,9 +63,10 @@ jobs:
     outputs:
       sha: ${{ steps.resolve.outputs.sha }}
       platform_stack: ${{ steps.resolve.outputs.platform_stack }}
+      foundation_stack: ${{ steps.resolve.outputs.foundation_stack }}
       bom_run_id: ${{ steps.resolve.outputs.bom_run_id }}
     steps:
-      - name: Resolve deploy SHA, platform stack, BOM run id
+      - name: Resolve deploy SHA, stack names, BOM run id
         id: resolve
         shell: bash
         run: |
@@ -82,11 +87,14 @@ jobs:
             exit 1
           fi
           echo "platform_stack=${STACK}" >> "${GITHUB_OUTPUT}"
+          FOUNDATION_STACK="${PULUMI_FOUNDATION_STACK:-dev-staging}"
+          echo "foundation_stack=${FOUNDATION_STACK}" >> "${GITHUB_OUTPUT}"
         env:
           GIT_SHA_INPUT: ${{ github.event.inputs.git_sha }}
           WORKFLOW_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
           PULUMI_DEV_PLATFORM_STACK: ${{ vars.PULUMI_DEV_PLATFORM_STACK }}
+          PULUMI_FOUNDATION_STACK: ${{ vars.PULUMI_FOUNDATION_STACK }}
 
   deploy-dev:
     needs: meta
@@ -97,5 +105,6 @@ jobs:
       git_sha: ${{ needs.meta.outputs.sha }}
       deploy_profile: dev_cd
       bom_download_run_id: ${{ needs.meta.outputs.bom_run_id }}
+      dev_foundation_stack: ${{ needs.meta.outputs.foundation_stack }}
       dev_platform_stack: ${{ needs.meta.outputs.platform_stack }}
     secrets: inherit

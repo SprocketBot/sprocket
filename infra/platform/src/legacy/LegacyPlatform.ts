@@ -9,6 +9,14 @@ import { PlatformS3 } from '../PlatformS3';
 
 const config = new pulumi.Config();
 const legacyImageNamespace = config.get('legacy-image-namespace') ?? 'asaxplayinghorse';
+const legacyPostgresConfigs = pulumi.getStack() === 'prod' ? [{
+  configId: 'lrssxjdhzv953xw6cwb2zn9wf',
+  configName: 'postgres-ca-cert-v1',
+  fileName: '/run/configs/postgres-ca.crt',
+  fileGid: '0',
+  fileUid: '0',
+  fileMode: 0o444
+}] : undefined;
 
 export interface LegacyPlatformArgs {
   database: PlatformDatabase,
@@ -79,14 +87,7 @@ export class LegacyPlatform extends pulumi.ComponentResource {
             file_token_secret: args.minio.s3AccessKey.secret,
             SPROCKET: 'yes'
           },
-          configs: [{
-            configId: 'lrssxjdhzv953xw6cwb2zn9wf',
-            configName: 'postgres-ca-cert-v1',
-            fileName: '/run/configs/postgres-ca.crt',
-            fileGid: '0',
-            fileUid: '0',
-            fileMode: 0o444
-          }]
+          configs: legacyPostgresConfigs
         },
         logDriver: defaultLogDriver(`${name}-worker`, false),
         networksAdvanceds: [
@@ -145,14 +146,7 @@ export class LegacyPlatform extends pulumi.ComponentResource {
             file_token_secret: args.minio.s3AccessKey.secret,
             SPROCKET: 'yes'
           },
-          configs: [{
-            configId: 'lrssxjdhzv953xw6cwb2zn9wf',
-            configName: 'postgres-ca-cert-v1',
-            fileName: '/run/configs/postgres-ca.crt',
-            fileGid: '0',
-            fileUid: '0',
-            fileMode: 0o444
-          }]
+          configs: legacyPostgresConfigs
         },
         networksAdvanceds: [
           { name: this.network.id },
@@ -196,14 +190,7 @@ export class LegacyPlatform extends pulumi.ComponentResource {
             file_token_secret: args.minio.s3AccessKey.secret,
             SPROCKET: 'yes'
           },
-          configs: [{
-            configId: 'lrssxjdhzv953xw6cwb2zn9wf',
-            configName: 'postgres-ca-cert-v1',
-            fileName: '/run/configs/postgres-ca.crt',
-            fileGid: '0',
-            fileUid: '0',
-            fileMode: 0o444
-          }]
+          configs: legacyPostgresConfigs
         },
         networksAdvanceds: [
           { name: this.network.id },
@@ -251,14 +238,7 @@ export class LegacyPlatform extends pulumi.ComponentResource {
             file_token_secret: args.minio.s3AccessKey.secret,
             SPROCKET: 'yes'
           },
-          configs: [{
-            configId: 'lrssxjdhzv953xw6cwb2zn9wf',
-            configName: 'postgres-ca-cert-v1',
-            fileName: '/run/configs/postgres-ca.crt',
-            fileGid: '0',
-            fileUid: '0',
-            fileMode: 0o444
-          }]
+          configs: legacyPostgresConfigs
         },
         networksAdvanceds: [
           { name: this.network.id },

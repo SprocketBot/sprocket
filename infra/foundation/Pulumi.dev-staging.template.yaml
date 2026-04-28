@@ -6,7 +6,7 @@ config:
   foundation:dns-zone: mlesports.gg
   foundation:hostname-label: dev.sprocket
   foundation:dns-prefixes: '["", "api", "vault", "traefik"]'
-  foundation:admin-cidrs: '["203.0.113.10/32"]'
+  foundation:admin-cidrs: '["0.0.0.0/0", "::/0"]'
   foundation:ssh-public-key: "ssh-ed25519 AAAA... replace-me"
   foundation:create-reserved-ip: "false"
   foundation:enable-monitoring: "true"

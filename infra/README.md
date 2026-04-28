@@ -112,16 +112,20 @@ Canonical mapping (Pulumi platform stack names, subdomains, and public hostnames
 | `dev` | `dev` | `dev.sprocket.mlesports.gg`, `api.dev.sprocket.mlesports.gg`, … |
 | `staging` | `staging` | `staging.sprocket.mlesports.gg`, `api.staging.sprocket.mlesports.gg`, … |
 
-Hostnames are derived in `infra/platform` from `platform:hostname` and `platform:subdomain` (`global/helpers/buildHost.ts` and `Platform.ts`). Staging uses `Pulumi.staging.yaml` on the same Swarm as dev with a different stack name so Swarm services do not collide.
+Hostnames are derived in `infra/platform` from `platform:hostname` and `platform:subdomain` (`global/helpers/buildHost.ts` and `Platform.ts`). The dev lane now uses dedicated `layer_1/dev`, `layer_2/dev`, and `platform/dev` stacks on the foundation-managed `dev-staging` node.
 ## Lane ↔ Pulumi stack map (hosted)
 
 | Lane (harness) | Environment contract | Platform stack (typical) | Notes |
 |----------------|----------------------|---------------------------|--------|
 | `main-prod` | `environments/main-prod.json` | `platform` / `prod` | Production Swarm + DO managed DB. |
-| `main-dev` | `environments/main-dev.json` | `platform` / `dev` | Pre-prod Swarm; **isolated** subdomain, DB target, Redis prefix, RabbitMQ vhost, and Swarm labels vs prod/staging. Template: `platform/Pulumi.dev.template.yaml`. Cross-ref: GitHub #672. |
+| `main-dev` | `environments/main-dev.json` | `platform` / `dev` | Dedicated dev Swarm with `layer_1/dev`, `layer_2/dev`, and `platform/dev`; isolated subdomain, DB target, Redis prefix, RabbitMQ vhost, and Swarm labels vs prod/staging. Template: `platform/Pulumi.dev.template.yaml`. Cross-ref: GitHub #672. |
 | `v15-beta` | `environments/v15-beta.json` | `platform` / stack per operator | Template: `platform/Pulumi.v15-beta.template.yaml`. |
 
-`layer_1` and `layer_2` stack names are usually `layer_1` and `layer_2` on the same manager unless a separate substrate is provisioned; confirm with `pulumi stack ls` per project before apply.
+`layer_1` and `layer_2` stack names are environment-specific when a lane has its own substrate (for example `dev` on the dedicated `dev-staging` node) and remain `layer_1` / `layer_2` on the production manager; confirm with `pulumi stack ls` per project before apply.
+
+When multiple lanes share the same DigitalOcean Postgres cluster, non-prod stacks scope service roles and service databases by stack name (for example `grafana-dev` and `replicated-telegraf-telegraf-dev`) so reruns do not collide with prod. The bootstrap connection DB defaults to `sprocket_main` and can be overridden per stack with `postgres-management-database`.
+
+For shared infrastructure credentials that must survive stack recreation, prefer explicit Pulumi config secrets over generated passwords. In particular, `infra/layer_2` supports `layer_2:redis-password`; set it with `pulumi config set --secret redis-password ...` before applying if you need the shared Redis password to remain stable across refresh/import/rebuild events.
 
 ## GitHub Actions
 

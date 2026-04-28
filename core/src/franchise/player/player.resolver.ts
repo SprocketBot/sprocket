@@ -10,6 +10,7 @@ import {
   Resolver,
   Root,
 } from '@nestjs/graphql';
+import { GraphQLISODateTime } from '@nestjs/graphql';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   EventsService,
@@ -49,6 +50,7 @@ import { parseAndValidateCsv } from '../../util/csv-parse';
 import { PopulateService } from '../../util/populate/populate.service';
 import { FranchiseService } from '../franchise';
 import { GameSkillGroupService } from '../game-skill-group';
+import { EligibilityService } from '../../scheduling/eligibility/eligibility.service';
 import { PlayerService } from './player.service';
 import {
   ChangePlayerNameResult,
@@ -83,6 +85,7 @@ export class PlayerResolver {
     private readonly playerService: PlayerService,
     private readonly franchiseService: FranchiseService,
     private readonly skillGroupService: GameSkillGroupService,
+    private readonly eligibilityService: EligibilityService,
     private readonly eventsService: EventsService,
     private readonly notificationService: NotificationService,
     private readonly eloConnectorService: EloConnectorService,
@@ -135,6 +138,26 @@ export class PlayerResolver {
     if (player.member) return player.member;
 
     return this.popService.populateOneOrFail(Player, player, 'member');
+  }
+
+  @ResolveField(() => Int, { nullable: true })
+  async scrimPoints(@Root() player: Player): Promise<number | null> {
+    try {
+      return this.eligibilityService.getEligibilityPointsForPlayer(player.id);
+    } catch (error) {
+      this.logger.warn(`Failed to get scrim points for player ${player.id}: ${error}`);
+      return null;
+    }
+  }
+
+  @ResolveField(() => GraphQLISODateTime, { nullable: true })
+  async eligibilityEndDate(@Root() player: Player): Promise<Date | null> {
+    try {
+      return this.eligibilityService.getEligibilityEndDate(player.id);
+    } catch (error) {
+      this.logger.warn(`Failed to get eligibility end date for player ${player.id}: ${error}`);
+      return null;
+    }
   }
 
   @Mutation(() => ChangePlayerSkillGroupResult)

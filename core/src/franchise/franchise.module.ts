@@ -26,6 +26,7 @@ import {PlayerToPlayer} from "../database/mledb-bridge/player_to_player.model";
 import {TeamToFranchise} from "../database/mledb-bridge/team_to_franchise.model";
 import {MledbInterfaceModule} from "../mledb";
 import {OrganizationModule} from "../organization/organization.module";
+import {SchedulingModule} from "../scheduling/scheduling.module";
 import {UtilModule} from "../util/util.module";
 import {FranchiseController} from "./franchise/franchise.controller";
 import {FranchiseResolver} from "./franchise/franchise.resolver";
@@ -71,6 +72,7 @@ const rosterAuthorityOrm = TypeOrmModule.forFeature([
         GameModule,
         forwardRef(() => OrganizationModule),
         forwardRef(() => MledbInterfaceModule),
+        forwardRef(() => SchedulingModule),
         EloConnectorModule,
         AnalyticsModule,
         JwtModule.register({

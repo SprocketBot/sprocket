@@ -50,6 +50,9 @@ permissions:
   contents: read
   pull-requests: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 # Before production `pulumi up` on the platform/prod stack, Tier 1 harness runs against
 # hosted staging (lane `main-staging`). Configure GitHub environment `staging` with secret
 # `HARNESS_MAIN_STAGING_TIER1_ENV` (full multiline .env). See scripts/harness/README.md.

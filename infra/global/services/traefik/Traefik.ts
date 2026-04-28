@@ -12,7 +12,7 @@ import { DiscordForwardAuth } from "./DiscordForwardAuth";
 
 export interface TraefikArgs {
     staticConfigurationPath: string
-    faConfigurationPath: string
+    faConfigurationPath?: string
 }
 
 export class Traefik extends pulumi.ComponentResource {
@@ -24,7 +24,7 @@ export class Traefik extends pulumi.ComponentResource {
     private readonly service: docker.Service;
     private readonly socketProxy: SocketProxy;
 
-    readonly forwardAuth: DiscordForwardAuth
+    readonly forwardAuth?: DiscordForwardAuth
 
     readonly networkId: docker.Network["id"]
 
@@ -119,10 +119,12 @@ export class Traefik extends pulumi.ComponentResource {
             parent: this
         })
 
-        this.forwardAuth = new DiscordForwardAuth(`${name}-fa`, {
-            networkId: this.networkId,
-            configFilePath: args.faConfigurationPath
-        }, { parent: this })
+        if (args.faConfigurationPath) {
+            this.forwardAuth = new DiscordForwardAuth(`${name}-fa`, {
+                networkId: this.networkId,
+                configFilePath: args.faConfigurationPath
+            }, { parent: this })
+        }
 
         this.registerOutputs({
             networkId: this.networkId

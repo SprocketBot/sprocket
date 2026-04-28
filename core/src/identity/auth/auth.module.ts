@@ -20,7 +20,7 @@ import {
 
 @Module({
     imports: [
-        IdentityModule,
+        forwardRef(() => IdentityModule),
         PassportModule,
         JwtModule.register({
             secret: config.auth.jwt_secret,

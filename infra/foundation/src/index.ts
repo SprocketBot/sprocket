@@ -45,9 +45,7 @@ const allSshFingerprints: pulumi.Input<string>[] = [
     ...(sshKey ? [sshKey.fingerprint] : []),
 ];
 
-for (const tagName of dropletTags) {
-    new digitalocean.Tag(tagName, { name: tagName });
-}
+const tagResources = dropletTags.map(tagName => new digitalocean.Tag(tagName, { name: tagName }));
 
 const cloudInit = renderCloudInit({
     deployUser,
@@ -132,6 +130,9 @@ const firewall = new digitalocean.Firewall(`${environment}-firewall`, {
             destinationAddresses: ["0.0.0.0/0", "::/0"],
         },
     ],
+}, {
+    // DigitalOcean requires tags to exist before a tag-scoped firewall can be created.
+    dependsOn: [droplet, ...tagResources],
 });
 
 export const DropletId = droplet.id;

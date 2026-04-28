@@ -66,6 +66,7 @@
     "microservices/matchmaking-service",
     "microservices/server-analytics-service",
     "microservices/notification-service",
+    "microservices/replay-parse-service",
     "microservices/submission-service"
   ],
   "devDependencies": {

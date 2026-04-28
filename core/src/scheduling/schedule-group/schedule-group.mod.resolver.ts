@@ -11,7 +11,7 @@ import {ScheduleGroup} from "$db/scheduling/schedule_group/schedule_group.model"
 import {ScheduleGroupType} from "$db/scheduling/schedule_group_type/schedule_group_type.model";
 
 import {MLE_OrganizationTeam} from "../../database/mledb";
-import {CurrentUser, UserPayload} from "../../identity";
+import {CurrentUser, UserPayload} from "../../identity/auth";
 import {GqlJwtGuard} from "../../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 import {ScheduleGroupService} from "./schedule-group.service";

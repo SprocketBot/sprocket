@@ -1,5 +1,6 @@
 import * as pulumi from "@pulumi/pulumi"
 import * as postgres from "@pulumi/postgresql";
+import { getPostgresManagementDatabaseName } from "../helpers/datastore/SharedClusterPostgres";
 
 export interface SprocketPostgresProviderArgs extends Omit<postgres.ProviderArgs, "username" | "password" | "host" | "sslmode" | "port"> {
 }
@@ -18,6 +19,7 @@ export class SprocketPostgresProvider extends postgres.Provider {
         const password = config.require('postgres-password');
         const host = config.require('postgres-host');
         const port = config.requireNumber('postgres-port');
+        const database = getPostgresManagementDatabaseName(config);
 
         super("SprocketPostgresProvider", {
             ...args,
@@ -26,7 +28,7 @@ export class SprocketPostgresProvider extends postgres.Provider {
             host: host,
             sslmode: 'require',
             port: port,
-            database: 'sprocket_main',
+            database: database,
             superuser: false
         }, opts);
 

@@ -18,6 +18,10 @@ import { LegacyPlatform } from './legacy/LegacyPlatform';
 const config = new pulumi.Config()
 const imageNamespace = config.require("image-namespace")
 
+/** When true, core reads legacy mledb.player_to_org only if the user has no Sprocket org-team rows (see issue #726). */
+const orgTeamPermissionDualRead = config.getBoolean("org-team-permission-dual-read") ?? false
+const orgTeamPermissionDualReadEnv = orgTeamPermissionDualRead ? "true" : "false"
+
 export interface PlatformArgs {
     postgresHostname: string | pulumi.Output<string>
     postgresPort: number | pulumi.Output<number>
@@ -170,6 +174,7 @@ export class Platform extends pulumi.ComponentResource {
                 env: {
                     NODE_ENV: "production",
                     ENV: "production",
+                    ORG_TEAM_PERMISSION_DUAL_READ: orgTeamPermissionDualReadEnv,
                 },
                 secrets: [{
                     secretId: this.secrets.jwtSecret.id,
@@ -241,6 +246,7 @@ export class Platform extends pulumi.ComponentResource {
                     CACHE_HOST: this.datastore.redis.hostname,
                     CACHE_PORT: "6379",
                     LOGGER_LEVELS: '["error","warn","log","debug"]',
+                    ORG_TEAM_PERMISSION_DUAL_READ: orgTeamPermissionDualReadEnv,
                 },
                 secrets: [{
                     secretId: this.secrets.jwtSecret.id,
