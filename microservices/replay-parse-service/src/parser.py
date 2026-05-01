@@ -1,263 +1,22 @@
-import logging
-import json
-from datetime import datetime
-from time import sleep
-from typing import Callable
 import carball
-import ballchasing
-from requests import Response
+import json
+import logging
 
-from config import config
-
-BALLCHASING_TOKEN_FILE = open("../secret/ballchasing-token", "r")
-BALLCHASING_TOKEN = BALLCHASING_TOKEN_FILE.read()
-if len(BALLCHASING_TOKEN.strip()) == 0:
-    print("Missing required secret: 'secret/ballchasing-token'`")
-    exit(1)
-BALLCHASING_TOKEN_FILE.close()
-
-# We are handling rate limits, so the library doesn't need to
-BALLCHASING_API = None
-
-def get_ballchasing_api():
-    global BALLCHASING_API
-    if BALLCHASING_API is None:
-        BALLCHASING_API = ballchasing.Api(BALLCHASING_TOKEN, sleep_time_on_rate_limit=0, print_on_rate_limit=False)
-    return BALLCHASING_API
-
-PARSER = config["parser"]
-MAX_RETRIES = config["ballchasing"]["maxRetries"]
-BACKOFF_FACTOR = config["ballchasing"]["backoffFactor"]
-DELAYS = [0, *(BACKOFF_FACTOR**(r + 1) for r in range(MAX_RETRIES))]
-
-VALID_PARSERS = ["carball", "ballchasing", "ballchasing-with-carball-shadow"]
-if PARSER not in VALID_PARSERS:
-    raise Exception(f"Unknown parser {PARSER}. Please specify one of: {', '.join(VALID_PARSERS)}")
+from carball.analysis.analysis_manager import AnalysisManager
+from carball.json_parser.game import Game
+from datetime import datetime
+from typing import Callable
 
 
 def get_result_metadata() -> dict:
-    if PARSER == "carball":
-        return {
-            "parser": "carball",
-            "analysisMode": "full-analysis",
-        }
-
     return {
-        "parser": "ballchasing",
+        "parser": "carball",
         "analysisMode": "full-analysis",
     }
 
 
 def parse(path: str, on_progress: Callable[[str], None] = None):
-    if PARSER == "carball":
-        return _parse_carball_full_analysis(path, on_progress)
-    if PARSER == "ballchasing":
-        return _parse_ballchasing(path, on_progress)
-    if PARSER == "ballchasing-with-carball-shadow":
-        return _parse_dual_with_shadow(path, on_progress)
-    raise Exception(f"Parser {PARSER} not supported")
-
-
-def _parse_dual_with_shadow(path: str, on_progress: Callable[[str], None] = None) -> dict:
-    """
-    Dark launch mode: Parse with ballchasing (primary) and carball (shadow).
-    Always returns ballchasing results, but logs carball results and metrics for comparison.
-
-    Args:
-        path (str): The local path of the replay file to parse
-        on_progress (Callable[[str], None], optional): Callback for progress updates
-
-    Returns:
-        dict: A dictionary containing stats from ballchasing (primary parser)
-    """
-    import time
-    import json
-
-    print(f"Parsing {path} in dual mode: ballchasing (primary) + carball (shadow)")
-
-    # Parse with ballchasing (primary)
-    ballchasing_start = time.time()
-    ballchasing_result = None
-    ballchasing_error = None
-
-    try:
-        # Parse with carball (shadow) - errors are caught and logged
-        carball_start = time.time()
-        carball_result = None
-        carball_error = None
-        try:
-            # Create a silent progress callback for shadow parsing
-            shadow_progress = lambda msg: print(f"Carball shadow: {msg}")
-            carball_result = _parse_carball_summary(path, shadow_progress)
-            carball_duration = time.time() - carball_start
-            print(f"Carball shadow parsing completed in {carball_duration:.2f}s")
-        except Exception as e:
-            carball_duration = time.time() - carball_start
-            carball_error = str(e)
-            logging.warning(f"Carball shadow parsing failed in {carball_duration:.2f}s: {carball_error}")
-            logging.warning(f"Carball shadow failure does not affect primary result")
-
-        ballchasing_result = _parse_ballchasing(path, on_progress)
-        ballchasing_duration = time.time() - ballchasing_start
-        print(f"Ballchasing parsing completed in {ballchasing_duration:.2f}s")
-
-        if carball_result:
-            # Log comparison metrics
-            _log_parser_comparison(path, ballchasing_result, carball_result,
-                                   ballchasing_duration, carball_duration)
-        
-    except Exception as e:
-        ballchasing_duration = time.time() - ballchasing_start
-        ballchasing_error = str(e)
-        logging.error(f"Ballchasing parsing failed in {ballchasing_duration:.2f}s: {ballchasing_error}")
-        # Re-raise since ballchasing is the primary parser
-        raise
-
-    # Log and publish metrics for monitoring
-    metrics = {
-        "parser_mode": "dual-shadow",
-        "primary": "ballchasing",
-        "shadow": "carball",
-        "ballchasing_duration_ms": int(ballchasing_duration * 1000),
-        "carball_duration_ms": int(carball_duration * 1000) if carball_result else None,
-        "ballchasing_success": ballchasing_result is not None,
-        "carball_success": carball_result is not None,
-        "carball_error": carball_error,
-        "replay_path": path,
-        "performance_diff_ms": int((carball_duration - ballchasing_duration) * 1000) if carball_result else None
-    }
-    print(f"Parser comparison metrics: {json.dumps(metrics)}")
-
-    # Publish shadow parser analytics in the same format as main analytics
-    _publish_shadow_analytics(path, carball_result is not None, carball_error,
-                              int(carball_duration * 1000) if carball_result or carball_error else None)
-
-    # Always return the primary (ballchasing) result
-    return ballchasing_result
-
-
-def _publish_shadow_analytics(path: str, success: bool, error: str, duration_ms: int):
-    """
-    Publish shadow parser metrics to analytics queue for monitoring.
-
-    Args:
-        path (str): Replay file path
-        success (bool): Whether carball parsing succeeded
-        error (str): Error message if parsing failed
-        duration_ms (int): Parse duration in milliseconds
-    """
-    try:
-        from kombu import Producer, Connection
-        from config import config
-        import celeryconfig
-
-        # Extract replay hash from path
-        replay_hash = path.split("/")[-1].split(".")[0] if "/" in path else "unknown"
-
-        analytics_message = json.dumps({
-            "pattern": "analytics",
-            "data": {
-                "name": "parseReplay_shadowCarball",
-                "tags": [
-                    ["hash", replay_hash],
-                    ["success", "true" if success else "false"],
-                    ["parser", "carball"],
-                    ["mode", "shadow"],
-                    ["error", error if error else None]
-                ],
-                "booleans": [
-                    ["success", success]
-                ],
-                "ints": [
-                    ["parseMs", duration_ms]
-                ] if duration_ms else []
-            }
-        })
-
-        # Publish to analytics queue
-        ssl_opts = {
-            "server_hostname": celeryconfig._SERVER_HOSTNAME
-        } if celeryconfig.SECURE else None
-
-        with Connection(config["transport"]["url"], ssl=ssl_opts) as conn:
-            producer = Producer(conn)
-            producer.publish(
-                analytics_message,
-                routing_key=config["transport"]["analytics_queue"]
-            )
-            print(f"Published shadow parser analytics: {analytics_message}")
-
-    except Exception as e:
-        logging.warning(f"Failed to publish shadow parser analytics: {str(e)}")
-
-
-def _log_parser_comparison(path: str, ballchasing_data: dict, carball_data: dict,
-                           ballchasing_duration: float, carball_duration: float):
-    """
-    Compare results from both parsers and log discrepancies for analysis.
-
-    Args:
-        path (str): Replay file path
-        ballchasing_data (dict): Results from ballchasing parser
-        carball_data (dict): Results from carball parser
-        ballchasing_duration (float): Parse time for ballchasing
-        carball_duration (float): Parse time for carball
-    """
-    try:
-        # Basic structure comparison
-        comparison = {
-            "replay": path,
-            "performance": {
-                "ballchasing_duration": ballchasing_duration,
-                "carball_duration": carball_duration,
-                "carball_speedup": f"{((ballchasing_duration - carball_duration) / ballchasing_duration * 100):.1f}%"
-            }
-        }
-
-        # Compare high-level structure
-        bc_keys = set(ballchasing_data.keys()) if ballchasing_data else set()
-        cb_keys = set(carball_data.keys()) if carball_data else set()
-
-        comparison["structure"] = {
-            "ballchasing_keys": len(bc_keys),
-            "carball_keys": len(cb_keys),
-            "common_keys": len(bc_keys & cb_keys),
-            "ballchasing_only": list(bc_keys - cb_keys)[:10],  # Limit to first 10
-            "carball_only": list(cb_keys - bc_keys)[:10]
-        }
-
-        print(f"Parser comparison: {json.dumps(comparison)}")
-
-    except Exception as e:
-        logging.warning(f"Failed to compare parser results: {str(e)}")
-
-
-###############################
-#
-# Carball
-#
-###############################
-
-def _coerce_to_jsonable(value):
-    if isinstance(value, dict):
-        return value
-
-    if hasattr(value, "DESCRIPTOR"):
-        from google.protobuf.json_format import MessageToDict
-
-        return MessageToDict(
-            value,
-            preserving_proto_field_name=True,
-        )
-
-    if hasattr(value, "to_dict"):
-        return value.to_dict()
-
-    try:
-        json.dumps(value)
-        return value
-    except TypeError:
-        return json.loads(json.dumps(value, default=lambda obj: getattr(obj, "__dict__", str(obj))))
+    return _parse_carball_full_analysis(path, on_progress)
 
 
 def _normalize_player_platform(platform):
@@ -302,23 +61,31 @@ def _extract_player_platform_account_id(raw_player, platform):
 
     candidates = []
     if "epic" in platform_lower:
-        candidates.extend([
-            player_id_fields.get("EpicAccountId"),
-            raw_player.get("OnlineID"),
-            player_id_fields.get("Uid"),
-        ])
+        candidates.extend(
+            [
+                player_id_fields.get("EpicAccountId"),
+                raw_player.get("OnlineID"),
+                player_id_fields.get("Uid"),
+            ]
+        )
     elif "ps" in platform_lower:
-        candidates.extend([
-            _get_nested_dict_value(player_id_fields, "NpId", "fields", "Handle", "fields", "Data"),
-            raw_player.get("OnlineID"),
-            player_id_fields.get("Uid"),
-        ])
+        candidates.extend(
+            [
+                _get_nested_dict_value(
+                    player_id_fields, "NpId", "fields", "Handle", "fields", "Data"
+                ),
+                raw_player.get("OnlineID"),
+                player_id_fields.get("Uid"),
+            ]
+        )
     else:
-        candidates.extend([
-            raw_player.get("OnlineID"),
-            player_id_fields.get("Uid"),
-            player_id_fields.get("EpicAccountId"),
-        ])
+        candidates.extend(
+            [
+                raw_player.get("OnlineID"),
+                player_id_fields.get("Uid"),
+                player_id_fields.get("EpicAccountId"),
+            ]
+        )
 
     for candidate in candidates:
         normalized = _normalize_platform_account_id(candidate)
@@ -332,7 +99,7 @@ def _normalize_header_date(date_value):
     if date_value is None:
         return None
 
-    for date_format in ['%Y-%m-%d %H-%M-%S', '%Y-%m-%d:%H-%M']:
+    for date_format in ["%Y-%m-%d %H-%M-%S", "%Y-%m-%d:%H-%M"]:
         try:
             return datetime.strptime(date_value, date_format).isoformat()
         except (TypeError, ValueError):
@@ -340,117 +107,9 @@ def _normalize_header_date(date_value):
     return str(date_value)
 
 
-def _normalize_header_only_replay(raw_header: dict) -> dict:
-    properties = raw_header.get("properties", {})
-    raw_players = properties.get("PlayerStats", [])
-    raw_goals = properties.get("Goals", [])
-
-    players = []
-    players_by_name = {}
-
-    for raw_player in raw_players:
-        player_name = raw_player.get("Name")
-        platform = _normalize_player_platform(raw_player.get("Platform"))
-        online_id = _extract_player_platform_account_id(raw_player, platform)
-        is_orange = 1 if raw_player.get("Team") else 0
-
-        player = {
-            "id": {
-                "id": online_id,
-                "platform": platform,
-            },
-            "name": player_name,
-            "score": raw_player.get("Score"),
-            "goals": raw_player.get("Goals"),
-            "assists": raw_player.get("Assists"),
-            "saves": raw_player.get("Saves"),
-            "shots": raw_player.get("Shots"),
-            "is_orange": is_orange,
-            "is_bot": raw_player.get("bBot"),
-            "platform": platform,
-        }
-        players.append(player)
-        if player_name is not None:
-            players_by_name[player_name] = player
-
-    goals = []
-    for raw_goal in raw_goals:
-        scoring_player = players_by_name.get(raw_goal.get("PlayerName"))
-        player_id = {
-            "id": scoring_player["id"]["id"] if scoring_player else None,
-            "platform": scoring_player["id"]["platform"] if scoring_player else None,
-        }
-        goals.append({
-            "frame_number": raw_goal.get("frame"),
-            "player_name": raw_goal.get("PlayerName"),
-            "player_id": player_id,
-        })
-
-    blue_players = [player for player in players if player.get("is_orange") == 0]
-    orange_players = [player for player in players if player.get("is_orange") == 1]
-
-    normalized = {
-        "game_metadata": {
-            "id": properties.get("Id"),
-            "name": properties.get("ReplayName"),
-            "map": properties.get("MapName"),
-            "time": _normalize_header_date(properties.get("Date")),
-            "frames": properties.get("NumFrames") or properties.get("Frames"),
-            "length": properties.get("TotalSecondsPlayed"),
-            "match_type": properties.get("MatchType"),
-            "team_size": properties.get("TeamSize"),
-            "match_guid": properties.get("MatchGUID") or properties.get("MatchGuid") or properties.get("Id"),
-            "goals": goals,
-        },
-        "players": players,
-        "teams": [
-            {
-                "is_orange": False,
-                "score": sum((player.get("goals") or 0) for player in blue_players),
-                "player_ids": [player["id"] for player in blue_players],
-            },
-            {
-                "is_orange": True,
-                "score": sum((player.get("goals") or 0) for player in orange_players),
-                "player_ids": [player["id"] for player in orange_players],
-            },
-        ],
-    }
-
-    return normalized
-
-
-def _parse_carball_summary(path: str, on_progress: Callable[[str], None] = None) -> dict:
-    """
-    Parses replay metadata using carball's header-only API.
-
-    This path intentionally avoids full frame analysis so replay format drift in
-    network frames does not break metadata consumers, while preserving the raw
-    header-level player identity fields needed by validation.
-    """
-    print(f"Parsing {path} with carball header-only path")
-
-    decompile_replay_header_only = getattr(carball, "decompile_replay_header_only", None)
-    if decompile_replay_header_only is None:
-        raise Exception(
-            "Installed sprocket-rl-parser does not expose carball.decompile_replay_header_only(...). "
-            "Upgrade the parser package to a version with the header-only API."
-        )
-
-    try:
-        if on_progress:
-            on_progress("Reading replay header...")
-
-        raw_header = _coerce_to_jsonable(decompile_replay_header_only(path))
-        output = _normalize_header_only_replay(raw_header)
-        print(f"Carball header summary keys: {list(output.keys()) if isinstance(output, dict) else type(output)}")
-        return output
-    except Exception as e:
-        logging.error(f"Carball header-only parsing failed for {path}: {str(e)}")
-        raise Exception(f"Failed to parse replay header with carball: {str(e)}")
-
-
-def _parse_carball_full_analysis(path: str, on_progress: Callable[[str], None] = None) -> dict:
+def _parse_carball_full_analysis(
+    path: str, on_progress: Callable[[str], None] = None
+) -> dict:
     """
     Parses a Rocket League replay located at a given local path using carball
 
@@ -465,10 +124,6 @@ def _parse_carball_full_analysis(path: str, on_progress: Callable[[str], None] =
         Exception: If replay decompilation or analysis fails
     """
     print(f"Parsing {path} with carball")
-
-    from carball.analysis.analysis_manager import AnalysisManager
-    from carball.json_parser.game import Game
-    import carball
 
     try:
         # Step 1: Decompile the replay file to JSON
@@ -489,7 +144,7 @@ def _parse_carball_full_analysis(path: str, on_progress: Callable[[str], None] =
         analysis_manager.create_analysis()
 
         output = analysis_manager.get_json_data()
-        print(f'Carball output: {json.dumps(output)}')
+        print(f"Carball output: {json.dumps(output)}")
         return output
     except Exception as e:
         logging.error(f"Carball parsing failed for {path}: {str(e)}")
@@ -500,150 +155,3 @@ def _parse_carball_full_analysis(path: str, on_progress: Callable[[str], None] =
                 "Use carball.summarize_replay_file(...) for metadata-only flows."
             )
         raise Exception(f"Failed to parse replay with carball: {error_message}")
-
-
-
-###############################
-#
-# Ballchasing
-#
-###############################
-
-def _is_rate_limit(response: Response, body: dict) -> bool:
-    """
-    https://ballchasing.com/doc/api#header-rate-limiting
-    """
-    return response.status_code == 429
-
-
-def _parse_is_duplicate_replay(response: Response, body: dict) -> bool:
-    """
-    https://ballchasing.com/doc/api#upload-upload-post
-    
-    Response `409`
-    """
-    return response.status_code == 409 and body.get("error") == "duplicate replay"
-
-
-def _parse_is_failed_replay(response: Response, body: dict) -> bool:
-    """
-    https://ballchasing.com/doc/api#upload-upload-post
-    
-    Response `400`
-    """
-    return response.status_code == 400
-
-
-def _get_is_failed_replay(body: dict) -> bool:
-    """
-    https://ballchasing.com/doc/api#replays-replay-get
-    
-    Request `get a failed replay, e.g. could not be parsed`
-
-    Response `200`
-    """
-    return body.get("status") == "failed"
-
-
-def _get_is_pending_replay(body: dict) -> bool:
-    """
-    https://ballchasing.com/doc/api#replays-replay-get
-    
-    Request `get a pending replay, e.g. not processed yet`
-
-    Response `200`
-    """
-    return body.get("status") == "pending"
-
-
-def _get_is_ok_replay(body: dict) -> bool:
-    """
-    https://ballchasing.com/doc/api#replays-replay-get
-    
-    Request `get a successfully converted replay`
-
-    Response `200`
-    """
-    return body.get("status") == "ok"
-
-
-# TODO handle rate-limiting
-def _parse_ballchasing(path: str, on_progress: Callable[[str], None] = None) -> dict:
-    """
-    Sends a Rocket League replay located at a given local path to Ballchasing
-    and returns ballchasing stats
-
-    Args:
-        path (str): The local path of the replay file to parse
-
-    Returns:
-        dict: A dictionary containing all of the stats returned by Ballchasing
-    """
-    print(f"Parsing {path} with Ballchasing")
-
-    with open(path, "rb") as replay_file:
-        ballchasing_id: str = None
-
-        # Upload replay (not rate limited)
-        for i, delay in enumerate(DELAYS):
-            sleep(delay) # first delay is 0 seconds
-
-            # On retries, send an intermediate progress update
-            if i > 0:
-                print(f"Uploading replay {path} for parsing ({i + 1}/{MAX_RETRIES})...")
-                on_progress(f"Uploading replay to Ballchasing ({i + 1}/{MAX_RETRIES})...")
-
-            try:
-                ballchasing_id = get_ballchasing_api().upload_replay(replay_file)["id"]
-                break
-            except Exception as e:
-                err_body = e.args[1]
-
-                if _parse_is_duplicate_replay(*e.args):
-                    ballchasing_id = err_body["id"]
-                    print(f"Replay already parsed {ballchasing_id}")
-                    break
-
-                elif i == MAX_RETRIES - 1:
-                    raise Exception(f"Unable to upload replay {ballchasing_id} after {MAX_RETRIES} retries, total delay of {sum(DELAYS)}")
-                
-                elif _parse_is_failed_replay(*e.args):
-                    logging.error(f"Parsing {path} with Ballchasing failed due to bad replay", err_body)
-                    raise e
-                else:
-                    logging.error(f"Parsing {path} with Ballchasing failed, retrying in {DELAYS[i+1]} seconds", err_body)
-                    continue
-
-        # Get parsed stats, retrying while replay is pending or while we are rate-limited
-        body: dict = None
-
-        for i, delay in enumerate(DELAYS):
-            sleep(delay) # first delay is 0 seconds
-
-            # On retries, send an intermediate progress update
-            if i > 0:
-                print(f"Getting replay {ballchasing_id} from Ballchasing ({i + 1}/{MAX_RETRIES})...")
-                on_progress(f"Getting stats from Ballchasing ({i + 1}/{MAX_RETRIES})...")
-
-            try:
-                body = get_ballchasing_api().get_replay(ballchasing_id)
-            except Exception as e:
-                if i == MAX_RETRIES - 1:
-                    raise Exception(f"Unable to parse replay {ballchasing_id} after {MAX_RETRIES} retries, total delay of {sum(DELAYS)}")
-
-                if _is_rate_limit(*e.args):
-                    print(f"Rate limited, retrying in {DELAYS[i+1]} seconds")
-                    continue
-                else:
-                    logging.error(f"Getting replay {ballchasing_id} from Ballchasing failed, retrying in {DELAYS[i+1]} seconds", err_body)
-                    continue
-            
-            if _get_is_ok_replay(body):
-                return body
-            elif _get_is_pending_replay(body):
-                print(f"Replay {ballchasing_id} still pending, retrying in {DELAYS[i+1]} seconds")
-                continue
-            elif _get_is_failed_replay(body):
-                raise Exception(f"Got replay that failed parsing from ballchasing {ballchasing_id}")
-
-        return body
