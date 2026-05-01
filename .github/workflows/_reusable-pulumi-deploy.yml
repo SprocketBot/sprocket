@@ -25,7 +25,7 @@ on:
         required: true
         type: string
       deploy_profile:
-        description: 'dev_cd | staging_up | prod_cd | preview_all'
+        description: 'dev_cd | dev_down | staging_up | prod_cd | preview_all'
         required: true
         type: string
       bom_download_run_id:
@@ -34,7 +34,7 @@ on:
         type: string
         default: ''
       dev_platform_stack:
-        description: 'Platform stack name for dev_cd (must not be prod). Required when deploy_profile is dev_cd.'
+        description: 'Platform stack name for dev_cd/dev_down (must not be prod). Required when deploy_profile is dev_cd or dev_down.'
         required: false
         type: string
         default: ''
@@ -303,6 +303,23 @@ jobs:
               fi
               node scripts/ci/read-stack-map.mjs emit --plan dev_cd_full --platform-stack "${PLAT}" --git-sha "${GIT_SHA}"
               ;;
+            dev_down)
+              PLAT_TRIMMED="$(printf '%s' "${PLAT}" | xargs)"
+              PLAT_LOWER="$(printf '%s' "${PLAT_TRIMMED}" | tr '[:upper:]' '[:lower:]')"
+              if [ -z "${PLAT_TRIMMED}" ]; then
+                echo "::error::dev_platform_stack required for dev_down"
+                exit 1
+              fi
+              if [ "${PLAT_LOWER}" = "prod" ]; then
+                echo "::error::Refusing to destroy platform stack named prod."
+                exit 1
+              fi
+              if [ "${PLAT_TRIMMED}" != "dev" ]; then
+                echo "::error::Refusing to destroy non-dev platform stack '${PLAT_TRIMMED}'."
+                exit 1
+              fi
+              node scripts/ci/read-stack-map.mjs emit --plan dev_down_full --platform-stack "${PLAT_TRIMMED}"
+              ;;
             staging_up)
               if [ "${STAGING_PROMOTE}" = "true" ]; then
                 node scripts/ci/read-stack-map.mjs emit --plan staging_up --prepend-staging-promote --git-sha "${GIT_SHA}"
@@ -400,10 +417,10 @@ jobs:
           else
             manager_host="${PREPROD_MANAGER_HOST}"
             ssh_user="${PREPROD_SSH_USER}"
-            if [ "${DEPLOY_PROFILE}" = "dev_cd" ] && [ -n "${DEV_MANAGER_HOST:-}" ]; then
+            if [[ "${DEPLOY_PROFILE}" == "dev_cd" || "${DEPLOY_PROFILE}" == "dev_down" ]] && [ -n "${DEV_MANAGER_HOST:-}" ]; then
               manager_host="${DEV_MANAGER_HOST}"
             fi
-            if [ "${DEPLOY_PROFILE}" = "dev_cd" ] && [ -n "${DEV_SSH_USER:-}" ]; then
+            if [[ "${DEPLOY_PROFILE}" == "dev_cd" || "${DEPLOY_PROFILE}" == "dev_down" ]] && [ -n "${DEV_SSH_USER:-}" ]; then
               ssh_user="${DEV_SSH_USER}"
             fi
 
@@ -566,6 +583,12 @@ jobs:
                 (
                   cd "./infra/${project}"
                   pulumi "${up_args[@]}"
+                )
+                ;;
+              down)
+                (
+                  cd "./infra/${project}"
+                  pulumi down --yes --non-interactive --stack "${stack}"
                 )
                 ;;
               refresh)

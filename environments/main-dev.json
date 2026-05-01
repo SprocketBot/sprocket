@@ -53,7 +53,7 @@
     "mutable_side_effects_require_operator_judgment": true,
     "notes": [
       "Hosted dev runs on the dedicated foundation/dev-staging manager; treat mutations as non-production but still bounded.",
-      "GitHub Actions Tier 0 uses the development environment secret HARNESS_MAIN_DEV_ENV (multiline key=value file, same shape as scripts/harness/env/main-dev.env) written to a temp path and passed as the third argument to verify-lane.sh so CI can override URLs/markers without committing secrets. Operators still use the committed template for local runs."
+      "GitHub Actions Tier 0 can use the optional development environment secret HARNESS_MAIN_DEV_ENV (multiline key=value file, same shape as scripts/harness/env/main-dev.env) written to a temp path and passed as the third argument to verify-lane.sh so CI can override URLs/markers without committing secrets; when the secret is absent, CI and operators use the committed default profile at scripts/harness/env/main-dev.env."
     ]
   }
 }

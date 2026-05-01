@@ -13,6 +13,7 @@
  *   dev_layers_interleaved  — preview+up per stack for non-platform entries in dev
  *   dev_platform_interleaved — preview+up for platform row(s) in dev deploy_order
  *   dev_cd_full             — dev CD: layer preview/up pairs then platform preview/up (platform stack from --platform-stack)
+ *   dev_down_full           — dev destroy: reverse dev deploy_order, down only (platform stack from --platform-stack)
  *   dev_preview_all         — preview only, full dev deploy_order (PR stack-map integration test)
  *
  * When --git-sha is provided for deploy-style plans, the emitted order is scoped to the changed
@@ -36,6 +37,7 @@ const SHARED_PATH_PREFIXES = [
 
 const SHARED_PATHS = new Set([
   '.github/workflows/_reusable-pulumi-deploy.yml',
+  '.github/workflows/cd-destroy-dev.yml',
   '.github/workflows/cd-deploy-dev.yml',
   '.github/workflows/cd-deploy-prod.yml',
   '.github/workflows/cd-promote-dev-to-staging.yml',
@@ -313,6 +315,23 @@ function writeJsonOutput(key, value) {
   writeOut(`${key}<<${token}\n${json}\n${token}`);
 }
 
+function assertSafeDevDownPlatformStack(stackName) {
+  const normalized = stackName.trim();
+  if (!normalized) {
+    console.error('read-stack-map: dev_down_full requires --platform-stack');
+    process.exit(1);
+  }
+  if (normalized.toLowerCase() === 'prod') {
+    console.error('read-stack-map: refusing dev_down_full for platform stack named prod');
+    process.exit(1);
+  }
+  if (normalized !== 'dev') {
+    console.error(`read-stack-map: refusing dev_down_full for non-dev platform stack: ${normalized}`);
+    process.exit(1);
+  }
+  return normalized;
+}
+
 function emitPlan(rows) {
   const projects = [...new Set(rows.map((row) => row.stack_project).filter((name) => !name.startsWith('_')))];
   writeJsonOutput('plan_json', rows);
@@ -334,7 +353,7 @@ const {
 
 if (!plan) {
   console.error(
-    'usage: node scripts/ci/read-stack-map.mjs emit --plan <prod_cd|staging_up|dev_layers_interleaved|dev_platform_interleaved|dev_cd_full|dev_preview_all> [--target dev|staging|prod] [--platform-stack NAME] [--prepend-staging-promote] [--git-sha SHA]',
+    'usage: node scripts/ci/read-stack-map.mjs emit --plan <prod_cd|staging_up|dev_layers_interleaved|dev_platform_interleaved|dev_cd_full|dev_down_full|dev_preview_all> [--target dev|staging|prod] [--platform-stack NAME] [--prepend-staging-promote] [--git-sha SHA]',
   );
   process.exit(1);
 }
@@ -396,6 +415,17 @@ if (plan === 'prod_cd') {
     }
     planRows.push({ stack_project: s.project, stack_name: stackName, command: 'preview' });
     planRows.push({ stack_project: s.project, stack_name: stackName, command: 'up' });
+  }
+} else if (plan === 'dev_down_full') {
+  if (!platformStackArg) {
+    console.error('read-stack-map: dev_down_full requires --platform-stack');
+    process.exit(1);
+  }
+  const safePlatformStack = assertSafeDevDownPlatformStack(platformStackArg);
+  order = [...loadOrder('dev')].reverse();
+  for (const s of order) {
+    const stackName = s.project === 'platform' ? safePlatformStack : s.stack;
+    planRows.push({ stack_project: s.project, stack_name: stackName, command: 'down' });
   }
 } else if (plan === 'dev_preview_all') {
   const t = targetArg || 'dev';

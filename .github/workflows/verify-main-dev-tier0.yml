@@ -49,12 +49,23 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Prepare optional core startup check
+      - name: Resolve Tier 0 profile (main-dev)
         env:
           HARNESS_MAIN_DEV_ENV: ${{ secrets.HARNESS_MAIN_DEV_ENV }}
         run: |
           set +x
-          if printf '%s\n' "${HARNESS_MAIN_DEV_ENV}" | grep -q '^HARNESS_CHECK_CORE_START=true$'; then
+          if [ -n "${HARNESS_MAIN_DEV_ENV}" ]; then
+            profile_path="${RUNNER_TEMP}/main-dev.env"
+            printf '%s\n' "${HARNESS_MAIN_DEV_ENV}" > "${profile_path}"
+          else
+            profile_path="scripts/harness/env/main-dev.env"
+          fi
+          printf 'HARNESS_MAIN_DEV_PROFILE=%s\n' "${profile_path}" >> "${GITHUB_ENV}"
+
+      - name: Prepare optional core startup check
+        run: |
+          set +x
+          if grep -q '^HARNESS_CHECK_CORE_START=true$' "${HARNESS_MAIN_DEV_PROFILE}"; then
             docker compose build core
             docker compose up -d rabbitmq minio redis postgres
           else
@@ -62,16 +73,9 @@ jobs:
           fi
 
       - name: Run Tier 0 harness (main-dev)
-        env:
-          HARNESS_MAIN_DEV_ENV: ${{ secrets.HARNESS_MAIN_DEV_ENV }}
         run: |
           set +x
-          if [ -z "${HARNESS_MAIN_DEV_ENV}" ]; then
-            echo "::error::HARNESS_MAIN_DEV_ENV is not set in the GitHub development environment"
-            exit 1
-          fi
-          printf '%s\n' "${HARNESS_MAIN_DEV_ENV}" > "${RUNNER_TEMP}/main-dev.env"
-          npm run verify:tier0 -- main-dev "${RUNNER_TEMP}/main-dev.env"
+          npm run verify:tier0 -- main-dev "${HARNESS_MAIN_DEV_PROFILE}"
 
       - name: Upload harness artifacts
         if: always()

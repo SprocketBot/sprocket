@@ -1,0 +1,69 @@
+# Manual protected destroy for **dev** Pulumi Swarm stacks only.
+# Runs through the reusable Pulumi deploy workflow under the `development` environment.
+# The confirmation and stack-name guard intentionally refuse production stack names.
+
+name: CD Destroy Dev
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Required typo guard: must be DESTROY_DEV'
+        required: true
+        type: string
+      platform_stack:
+        description: 'Dev platform stack to destroy (defaults to dev; prod is refused)'
+        required: false
+        type: string
+        default: dev
+
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    name: Validate dev destroy inputs
+    runs-on: ubuntu-latest
+    environment: development
+    outputs:
+      platform_stack: ${{ steps.validate.outputs.platform_stack }}
+    steps:
+      - name: Validate confirmation and stack
+        id: validate
+        shell: bash
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+          PLATFORM_STACK: ${{ inputs.platform_stack }}
+        run: |
+          set -euo pipefail
+          if [ "${CONFIRM}" != "DESTROY_DEV" ]; then
+            echo "::error::confirm must be DESTROY_DEV"
+            exit 1
+          fi
+          STACK="$(printf '%s' "${PLATFORM_STACK:-dev}" | xargs)"
+          STACK_LOWER="$(printf '%s' "${STACK}" | tr '[:upper:]' '[:lower:]')"
+          if [ "${STACK_LOWER}" = "prod" ]; then
+            echo "::error::Refusing to destroy platform stack named prod."
+            exit 1
+          fi
+          if [ "${STACK}" != "dev" ]; then
+            echo "::error::Refusing to destroy non-dev platform stack '${STACK}'."
+            exit 1
+          fi
+          echo "platform_stack=${STACK}" >> "${GITHUB_OUTPUT}"
+
+  destroy-dev:
+    name: Destroy dev Pulumi stacks
+    needs: guard
+    uses: ./.github/workflows/_reusable-pulumi-deploy.yml
+    with:
+      lane: main
+      target: dev
+      git_sha: ${{ github.sha }}
+      deploy_profile: dev_down
+      dev_platform_stack: ${{ needs.guard.outputs.platform_stack }}
+    secrets: inherit
