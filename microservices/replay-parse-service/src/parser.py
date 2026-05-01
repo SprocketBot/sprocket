@@ -509,6 +509,27 @@ def _parse_carball_full_analysis(path: str, on_progress: Callable[[str], None] =
 #
 ###############################
 
+def _extract_response_and_body(exc: Exception):
+    """
+    Extract (response, body) from an exception raised by the ballchasing
+    library. The library calls Response.raise_for_status(), which produces
+    a requests.HTTPError whose .response attribute is the original Response.
+
+    Returns (None, {}) if the exception has no attached response so callers
+    can re-raise unrecognized exceptions instead of misinterpreting them.
+    """
+    response = getattr(exc, "response", None)
+    if response is None:
+        return None, {}
+    try:
+        body = response.json()
+    except (ValueError, AttributeError):
+        body = {}
+    if not isinstance(body, dict):
+        body = {}
+    return response, body
+
+
 def _is_rate_limit(response: Response, body: dict) -> bool:
     """
     https://ballchasing.com/doc/api#header-rate-limiting
@@ -597,17 +618,19 @@ def _parse_ballchasing(path: str, on_progress: Callable[[str], None] = None) -> 
                 ballchasing_id = get_ballchasing_api().upload_replay(replay_file)["id"]
                 break
             except Exception as e:
-                err_body = e.args[1]
+                response, err_body = _extract_response_and_body(e)
+                if response is None:
+                    raise
 
-                if _parse_is_duplicate_replay(*e.args):
+                if _parse_is_duplicate_replay(response, err_body):
                     ballchasing_id = err_body["id"]
                     print(f"Replay already parsed {ballchasing_id}")
                     break
 
                 elif i == MAX_RETRIES - 1:
                     raise Exception(f"Unable to upload replay {ballchasing_id} after {MAX_RETRIES} retries, total delay of {sum(DELAYS)}")
-                
-                elif _parse_is_failed_replay(*e.args):
+
+                elif _parse_is_failed_replay(response, err_body):
                     logging.error(f"Parsing {path} with Ballchasing failed due to bad replay", err_body)
                     raise e
                 else:
@@ -628,10 +651,14 @@ def _parse_ballchasing(path: str, on_progress: Callable[[str], None] = None) -> 
             try:
                 body = get_ballchasing_api().get_replay(ballchasing_id)
             except Exception as e:
+                response, err_body = _extract_response_and_body(e)
+                if response is None:
+                    raise
+
                 if i == MAX_RETRIES - 1:
                     raise Exception(f"Unable to parse replay {ballchasing_id} after {MAX_RETRIES} retries, total delay of {sum(DELAYS)}")
 
-                if _is_rate_limit(*e.args):
+                if _is_rate_limit(response, err_body):
                     print(f"Rate limited, retrying in {DELAYS[i+1]} seconds")
                     continue
                 else:
