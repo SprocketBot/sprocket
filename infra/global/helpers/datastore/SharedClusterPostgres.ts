@@ -90,17 +90,17 @@ async function withClient<T>(connection: SharedClusterConnection, callback: (cli
 async function ensureRole(inputs: SharedClusterRoleInputs): Promise<void> {
     await withClient(inputs, async (client) => {
         const existingRole = await client.query("select 1 from pg_roles where rolname = $1", [inputs.roleName]);
-        const replicationClause = inputs.replication ? "REPLICATION" : "NOREPLICATION";
+        const replicationClause = inputs.replication ? " REPLICATION" : "";
 
         if (existingRole.rowCount && existingRole.rowCount > 0) {
             await client.query(
-                `ALTER ROLE ${quoteIdentifier(inputs.roleName)} WITH LOGIN ${replicationClause} PASSWORD ${quoteLiteral(inputs.rolePassword)}`,
+                `ALTER ROLE ${quoteIdentifier(inputs.roleName)} WITH LOGIN${replicationClause} PASSWORD ${quoteLiteral(inputs.rolePassword)}`,
             );
             return;
         }
 
         await client.query(
-            `CREATE ROLE ${quoteIdentifier(inputs.roleName)} WITH LOGIN ${replicationClause} PASSWORD ${quoteLiteral(inputs.rolePassword)}`,
+            `CREATE ROLE ${quoteIdentifier(inputs.roleName)} WITH LOGIN${replicationClause} PASSWORD ${quoteLiteral(inputs.rolePassword)}`,
         );
     });
 }
