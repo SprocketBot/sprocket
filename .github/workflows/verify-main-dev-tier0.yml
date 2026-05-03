@@ -73,6 +73,9 @@ jobs:
           fi
 
       - name: Run Tier 0 harness (main-dev)
+        env:
+          HARNESS_MAIN_DEV_ENV: ${{ secrets.HARNESS_MAIN_DEV_ENV }}
+          HARNESS_WEB_URL: ${{ secrets.HARNESS_WEB_URL }}
         run: |
           set +x
           npm run verify:tier0 -- main-dev "${HARNESS_MAIN_DEV_PROFILE}"
