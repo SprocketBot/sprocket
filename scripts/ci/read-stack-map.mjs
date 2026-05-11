@@ -407,7 +407,10 @@ if (plan === 'prod_cd') {
     console.error('read-stack-map: dev_cd_full requires --platform-stack');
     process.exit(1);
   }
-  order = scopeDeployOrder(loadOrder('dev'), gitSha);
+  // Dev deploys must always recreate the full dependency chain. After a
+  // dev_down_full run, scoped app-only deploys would otherwise skip layer_1
+  // and layer_2, leaving platform stack references without required outputs.
+  order = loadOrder('dev');
   for (const s of order) {
     const stackName = s.project === 'platform' ? platformStackArg : s.stack;
     if (s.project === 'platform') {
