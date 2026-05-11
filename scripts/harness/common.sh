@@ -91,6 +91,16 @@ harness_require_env() {
   fi
 }
 
+harness_normalize_url() {
+  local url="$1"
+
+  if [[ "${url}" == *"://"* ]]; then
+    printf "%s" "${url}"
+  else
+    printf "https://%s" "${url}"
+  fi
+}
+
 harness_status_allowed() {
   local allowed_csv="$1"
   local actual_status="$2"

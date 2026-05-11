@@ -54,11 +54,11 @@ jobs:
           HARNESS_MAIN_DEV_ENV: ${{ secrets.HARNESS_MAIN_DEV_ENV }}
         run: |
           set +x
+          default_profile="scripts/harness/env/main-dev.env"
+          profile_path="${RUNNER_TEMP}/main-dev.env"
+          cp "${default_profile}" "${profile_path}"
           if [ -n "${HARNESS_MAIN_DEV_ENV}" ]; then
-            profile_path="${RUNNER_TEMP}/main-dev.env"
-            printf '%s\n' "${HARNESS_MAIN_DEV_ENV}" > "${profile_path}"
-          else
-            profile_path="scripts/harness/env/main-dev.env"
+            printf '\n%s\n' "${HARNESS_MAIN_DEV_ENV}" >> "${profile_path}"
           fi
           printf 'HARNESS_MAIN_DEV_PROFILE=%s\n' "${profile_path}" >> "${GITHUB_ENV}"
 

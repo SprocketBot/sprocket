@@ -23,6 +23,7 @@ if [[ -n "${HARNESS_DEPENDENCY_URLS:-}" ]]; then
     NAME="${ENTRY%%=*}"
     URL="${ENTRY#*=}"
     [[ "${NAME}" == "${URL}" ]] && continue
+    URL="$(harness_normalize_url "${URL}")"
 
     SAFE_NAME="${NAME//[^A-Za-z0-9._-]/_}"
     HEADERS_FILE="${STEP_DIR}/${SAFE_NAME}-headers.txt"

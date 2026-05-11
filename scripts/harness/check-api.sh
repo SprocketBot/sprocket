@@ -15,6 +15,7 @@ API_METHOD="${HARNESS_API_METHOD:-GET}"
 EXPECTED_MARKER="${HARNESS_EXPECTED_API_MARKER:-}"
 CONTENT_TYPE="${HARNESS_CONTENT_TYPE:-application/json}"
 AUTH_HEADER="${HARNESS_AUTH_HEADER:-}"
+API_URL="$(harness_normalize_url "${HARNESS_API_URL}")"
 
 HEADERS_FILE="${STEP_DIR}/headers.txt"
 BODY_FILE="${STEP_DIR}/body.txt"
@@ -38,7 +39,7 @@ elif [[ -n "${HARNESS_API_BODY:-}" ]]; then
   CURL_ARGS+=(-H "Content-Type: ${CONTENT_TYPE}" --data "${HARNESS_API_BODY}")
 fi
 
-CURL_ARGS+=("${HARNESS_API_URL}")
+CURL_ARGS+=("${API_URL}")
 API_META="$(curl "${CURL_ARGS[@]}")"
 IFS='|' read -r API_STATUS API_TIME API_EFFECTIVE_URL <<< "${API_META}"
 
@@ -46,7 +47,7 @@ if ! harness_status_allowed "${EXPECTED_STATUSES}" "${API_STATUS}"; then
   harness_write_summary "${STEP_DIR}/summary.txt" \
     "status=fail" \
     "reason=unexpected_status" \
-    "url=${HARNESS_API_URL}" \
+    "url=${API_URL}" \
     "method=${API_METHOD}" \
     "status_code=${API_STATUS}" \
     "expected_statuses=${EXPECTED_STATUSES}"
@@ -58,7 +59,7 @@ if [[ -n "${EXPECTED_MARKER}" ]] && ! grep -Fq "${EXPECTED_MARKER}" "${BODY_FILE
   harness_write_summary "${STEP_DIR}/summary.txt" \
     "status=fail" \
     "reason=missing_marker" \
-    "url=${HARNESS_API_URL}" \
+    "url=${API_URL}" \
     "method=${API_METHOD}" \
     "status_code=${API_STATUS}" \
     "expected_marker=${EXPECTED_MARKER}"
@@ -68,11 +69,11 @@ fi
 
 harness_write_summary "${STEP_DIR}/summary.txt" \
   "status=pass" \
-  "url=${HARNESS_API_URL}" \
+  "url=${API_URL}" \
   "method=${API_METHOD}" \
   "status_code=${API_STATUS}" \
   "effective_url=${API_EFFECTIVE_URL}" \
   "time_seconds=${API_TIME}" \
   "marker_checked=${EXPECTED_MARKER:-none}"
 
-printf "check-api passed for %s (%s %s)\n" "${HARNESS_API_URL}" "${API_METHOD}" "${API_STATUS}"
+printf "check-api passed for %s (%s %s)\n" "${API_URL}" "${API_METHOD}" "${API_STATUS}"
