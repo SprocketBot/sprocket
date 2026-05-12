@@ -23,7 +23,7 @@ Machine-readable lane contracts now live under:
 - `environments/main-dev.json`
 - `environments/v15-beta.json`
 
-**CI (GitHub Actions) for `main-dev`:** create a multiline repository or environment secret named `HARNESS_MAIN_DEV_ENV` on the GitHub **development** environment. Use the same `KEY=value` lines as `scripts/harness/env/main-dev.env` (URLs, markers, status allowlists). The post-deploy workflow writes that secret to a temp file and runs `npm run verify:tier0 -- main-dev <path>` so values are never committed and are not echoed in logs (avoid `set -x` around the write). See `.github/workflows/verify-main-dev-tier0.yml`.
+**CI (GitHub Actions) for `main-dev`:** create a multiline repository or environment secret named `HARNESS_MAIN_DEV_ENV` on the GitHub **development** environment. Use the same hosted-check `KEY=value` lines as `scripts/harness/env/main-dev.env` (URLs, markers, status allowlists). The post-deploy workflow allowlists those hosted-check keys, writes them to a temp file, and runs `npm run verify:tier0 -- main-dev <path>` so values are never committed and are not echoed in logs (avoid `set -x` around the write). Local runtime startup flags such as `HARNESS_CHECK_CORE_START` are intentionally not consumed by this hosted workflow. See `.github/workflows/verify-main-dev-tier0.yml`.
 
 The machine-readable service and environment catalog lives at:
 

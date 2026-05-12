@@ -58,7 +58,10 @@ jobs:
           profile_path="${RUNNER_TEMP}/main-dev.env"
           cp "${default_profile}" "${profile_path}"
           if [ -n "${HARNESS_MAIN_DEV_ENV}" ]; then
-            printf '\n%s\n' "${HARNESS_MAIN_DEV_ENV}" >> "${profile_path}"
+            printf '\n# Hosted Tier 0 overrides from HARNESS_MAIN_DEV_ENV.\n' >> "${profile_path}"
+            printf '%s\n' "${HARNESS_MAIN_DEV_ENV}" | awk '
+              /^(HARNESS_ENV_NAME|HARNESS_WEB_URL|HARNESS_API_URL|HARNESS_EXPECTED_WEB_STATUSES|HARNESS_EXPECTED_WEB_MARKER|HARNESS_EXPECTED_API_STATUSES|HARNESS_DEPENDENCY_URLS|HARNESS_EXPECTED_DEPENDENCY_STATUSES)=/ { print }
+            ' >> "${profile_path}"
           fi
           printf 'HARNESS_MAIN_DEV_PROFILE=%s\n' "${profile_path}" >> "${GITHUB_ENV}"
 
