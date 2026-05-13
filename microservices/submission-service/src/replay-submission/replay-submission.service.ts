@@ -14,7 +14,6 @@ import {
 import {v4} from "uuid";
 
 import {ReplayValidationService} from "../replay-validation/replay-validation.service";
-import {getSubmissionKey} from "../utils";
 import {ReplayParseSubscriber} from "./parse-subscriber/replay-parse.subscriber";
 import {ReplaySubmissionCrudService} from "./replay-submission-crud/replay-submission-crud.service";
 import {ReplaySubmissionRatificationService} from "./replay-submission-ratification";
@@ -133,7 +132,6 @@ export class ReplaySubmissionService {
         }));
         await this.eventsService.publish(EventTopic.SubmissionStarted, {
             submissionId: submissionId,
-            redisKey: getSubmissionKey(submissionId),
         });
         return taskIds;
     }
@@ -185,7 +183,6 @@ export class ReplaySubmissionService {
 
         await this.eventsService.publish(EventTopic.SubmissionValidating, {
             submissionId: submissionId,
-            redisKey: getSubmissionKey(submissionId),
         });
 
         this.logger.debug(`Validating replay submission ${submissionId}`);
@@ -207,11 +204,10 @@ export class ReplaySubmissionService {
         await this.submissionCrudService.setStats(submissionId, submission.stats);
 
         const refreshedSubmission = await this.submissionCrudService.getSubmission(submissionId);
-        if (!refreshedSubmission) throw new Error("Unexpected state found when refreshing submission state with redis.");
+        if (!refreshedSubmission) throw new Error("Unexpected state found when refreshing submission state.");
 
         await this.eventsService.publish(EventTopic.SubmissionRatifying, {
             submissionId: submissionId,
-            redisKey: getSubmissionKey(submissionId),
             resultPaths: refreshedSubmission.items.map(item => item.outputPath!),
         });
     }

@@ -1,39 +1,15 @@
 import {NestFactory} from "@nestjs/core";
-import {Transport} from "@nestjs/microservices";
-import {config} from "@sprocketbot/common";
+import {config, PostgresServer} from "@sprocketbot/common";
 
 import {AppModule} from "./app.module";
 
 const HEALTH_PORT = 3012;
 
 async function bootstrap(): Promise<void> {
-    const rmqOptions: any = {
-        urls: [config.transport.url],
-        queue: config.transport.submission_queue,
-        queueOptions: {
-            durable: true,
-        },
-        heartbeat: 120,
-    };
-
-    // Add authentication if environment variables are provided
-    const rmqUser = process.env.RABBITMQ_DEFAULT_USER;
-    const rmqPass = process.env.RABBITMQ_DEFAULT_PASS;
-
-    if (rmqUser && rmqPass) {
-        rmqOptions.options = {
-            credentials: {
-                username: rmqUser,
-                password: rmqPass,
-            },
-        };
-    }
-
     const app = await NestFactory.create(AppModule, {logger: config.logger.levels});
 
     app.connectMicroservice({
-        transport: Transport.RMQ,
-        options: rmqOptions,
+        strategy: new PostgresServer({queue: config.transport.submission_queue}),
     });
 
     await app.startAllMicroservices();

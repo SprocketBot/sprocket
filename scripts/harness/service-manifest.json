@@ -31,7 +31,7 @@
         "health_endpoint": "http://localhost:3001/graphql",
         "ports": [3001]
       },
-      "depends_on": ["rabbitmq", "minio", "redis", "postgres"],
+      "depends_on": ["minio", "redis", "postgres"],
       "proof_commands": [
         "curl http://localhost:3001/graphql -H 'Content-Type: application/json' -d '{\"query\":\"{__typename}\"}'"
       ],
@@ -62,7 +62,7 @@
         "compose_service": null,
         "start_hint": "not currently defined in docker-compose.yml"
       },
-      "depends_on": ["rabbitmq", "minio", "redis", "postgres", "core"],
+      "depends_on": ["minio", "redis", "postgres", "core"],
       "proof_commands": [
         "npm run verify:tier1 -- main-prod /absolute/path/to/profile.env submission"
       ],
@@ -119,7 +119,7 @@
         "compose_service": "image-generation-service",
         "start_hint": "docker-compose up -d image-generation-service"
       },
-      "depends_on": ["rabbitmq", "minio"],
+      "depends_on": ["minio", "postgres"],
       "proof_commands": [],
       "risk_class": "medium"
     },
@@ -131,7 +131,7 @@
         "compose_service": "notification-service",
         "start_hint": "docker-compose up -d notification-service"
       },
-      "depends_on": ["rabbitmq", "redis", "minio"],
+      "depends_on": ["redis", "minio", "postgres"],
       "proof_commands": [],
       "risk_class": "high"
     },
@@ -143,7 +143,7 @@
         "compose_service": "server-analytics-service",
         "start_hint": "docker-compose up -d server-analytics-service"
       },
-      "depends_on": ["rabbitmq"],
+      "depends_on": ["postgres"],
       "proof_commands": [],
       "risk_class": "medium"
     },
@@ -155,7 +155,7 @@
         "compose_service": "replay-parse-service",
         "start_hint": "docker-compose up -d replay-parse-service"
       },
-      "depends_on": ["rabbitmq", "minio", "redis"],
+      "depends_on": ["minio", "redis", "postgres"],
       "proof_commands": [
         "npm run verify:tier1 -- main-prod /absolute/path/to/profile.env submission"
       ],
@@ -188,21 +188,6 @@
       "depends_on": [],
       "proof_commands": [
         "docker-compose ps redis"
-      ],
-      "risk_class": "low"
-    },
-    {
-      "name": "rabbitmq",
-      "kind": "infrastructure",
-      "workspace_path": null,
-      "local_runtime": {
-        "compose_service": "rabbitmq",
-        "health_endpoint": "rabbitmq-diagnostics ping",
-        "ports": [5672, 15672]
-      },
-      "depends_on": [],
-      "proof_commands": [
-        "docker-compose ps rabbitmq"
       ],
       "risk_class": "low"
     },

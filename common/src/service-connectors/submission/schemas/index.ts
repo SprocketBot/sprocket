@@ -2,7 +2,6 @@ export * from "./CanSubmitReplays.schema";
 export * from "./EnhancedSubmission.schema";
 export * from "./GetAllSubmissions.schema";
 export * from "./GetSubmissionIfExists.schema";
-export * from "./GetSubmissionRedisKey.schema";
 export * from "./GetSubmissionRejections.schema";
 export * from "./MockCompletion.schema";
 export * from "./ratification";

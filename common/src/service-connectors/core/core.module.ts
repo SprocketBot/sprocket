@@ -1,7 +1,8 @@
 import {Module} from "@nestjs/common";
-import {ClientsModule, Transport} from "@nestjs/microservices";
+import {ClientsModule} from "@nestjs/microservices";
 
 import {CommonClient} from "../../global.types";
+import {PostgresClientProxy} from "../../postgres-transport";
 import {config} from "../../util";
 import {CoreService} from "./core.service";
 
@@ -12,16 +13,9 @@ import {CoreService} from "./core.service";
         ClientsModule.register([
             {
                 name: CommonClient.Core,
-                transport: Transport.RMQ,
+                customClass: PostgresClientProxy,
                 options: {
-                    urls: [config.transport.url] as string[],
                     queue: config.transport.core_queue,
-                    queueOptions: {
-                        durable: true,
-                    },
-                    socketOptions: {
-                        heartbeat: 120,
-                    },
                 },
             },
         ]),

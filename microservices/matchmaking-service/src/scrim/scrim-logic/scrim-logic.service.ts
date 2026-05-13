@@ -1,10 +1,8 @@
-import {InjectQueue} from "@nestjs/bull";
 import {Injectable, Logger} from "@nestjs/common";
 import type {Scrim} from "@sprocketbot/common";
 import {
     AnalyticsEndpoint, AnalyticsService, EventTopic, ScrimStatus,
 } from "@sprocketbot/common";
-import {Queue} from "bull";
 import {v4 as uuid} from "uuid";
 
 import {EventProxyService} from "../event-proxy/event-proxy.service";
@@ -20,20 +18,14 @@ export class ScrimLogicService {
         private readonly eventsService: EventProxyService,
         private readonly gameOrderService: GameOrderService,
         protected readonly analyticsService: AnalyticsService,
-        @InjectQueue("scrim") private scrimQueue: Queue,
     ) {}
 
     async popScrim(scrim: Scrim): Promise<void> {
         scrim.status = ScrimStatus.POPPED;
         scrim.submissionId = `scrim-${uuid()}`;
 
-        const job = await this.scrimQueue.add("timeoutQueue", scrim.id, {
-            delay: scrim.settings.checkinTimeout,
-        });
-
         await this.scrimCrudService.updateScrimStatus(scrim.id, scrim.status);
         await this.scrimCrudService.setSubmissionId(scrim.id, scrim.submissionId);
-        await this.scrimCrudService.setTimeoutJobId(scrim.id, job.id);
 
         const updatedScrim = await this.scrimCrudService.getScrim(scrim.id);
         if (!updatedScrim) throw new Error("Scrim is somehow missing!");
@@ -55,11 +47,6 @@ export class ScrimLogicService {
         await this.scrimCrudService.setScrimGames(scrim.id, scrim.games);
         await this.scrimCrudService.updateScrimStatus(scrim.id, ScrimStatus.IN_PROGRESS);
         await this.scrimCrudService.generateLobby(scrim.id);
-
-        if (scrim.timeoutJobId) {
-            const job = await this.scrimQueue.getJob(scrim.timeoutJobId);
-            await job?.remove();
-        }
 
         const updatedScrim = await this.scrimCrudService.getScrim(scrim.id);
         if (!updatedScrim) throw new Error("Scrim is somehow missing!");

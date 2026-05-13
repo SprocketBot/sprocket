@@ -1,6 +1,6 @@
 {
   "transport": {
-    "url": "amqp://localhost",
+    "url": "",
     "matchmaking_queue": "dev-matchmaking",
     "image_generation_queue": "dev-ig",
     "core_queue": "dev-core",
@@ -17,9 +17,11 @@
   "gql": {
     "url": "http://localhost:3001"
   },
-  "redis": {
-    "port": 6379,
+  "db": {
     "host": "localhost",
-    "prefix": "local-"
+    "port": 5434,
+    "username": "sprocketbot",
+    "database": "sprocket_dev",
+    "enable_logs": false
   }
 }

@@ -12,9 +12,11 @@
       "image_generation": "{{s3.buckets.imageGeneration}}"
     }
   },
-  "redis": {
-    "port": {{redis.port}},
-    "host": "{{ redis.host }}",
-    "prefix": "{{ redis.prefix }}"
+  "db": {
+    "host": "{{database.host}}",
+    "port": {{database.port}},
+    "username": "{{database.username}}",
+    "database": "{{database.database}}",
+    "enable_logs": false
   }
 }

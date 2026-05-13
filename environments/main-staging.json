@@ -50,7 +50,6 @@
     "Pulumi platform stack name distinct from dev (e.g. staging vs dev)",
     "Postgres database sprocket_staging (not sprocket_dev or sprocket_main)",
     "Redis key prefix staging via application config",
-    "Dedicated RabbitMQ Swarm service per stack (Traefik hostname rabbitMq.staging.sprocket.mlesports.gg)",
     "Separate Spaces buckets sprocket-staging-1, sprocket-image-gen-staging-1, sprocket-replays-staging-1"
   ],
   "safety": {

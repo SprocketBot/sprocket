@@ -1,8 +1,5 @@
-# Core dependencies for Celery and message processing
-celery==5.5.3
-kombu==5.5.4
-amqp==5.3.1
-billiard==4.2.2
+# Core dependencies for Postgres-backed task processing
+psycopg2-binary==2.9.9
 
 # Ballchasing API integration
 python-ballchasing

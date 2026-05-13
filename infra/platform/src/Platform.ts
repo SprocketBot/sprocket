@@ -431,9 +431,9 @@ export class Platform extends pulumi.ComponentResource {
                 : new SprocketService(`${name}-matchmaking-service`, {
                     ...this.buildDefaultConfiguration("matchmaking-service", args.configRoot),
                     secrets: [{
-                        secretId: this.secrets.redisPassword.id,
-                        secretName: this.secrets.redisPassword.name,
-                        fileName: "/app/secret/redis-password.txt"
+                        secretId: this.secrets.postgresPassword.id,
+                        secretName: this.secrets.postgresPassword.name,
+                        fileName: "/app/secret/db-password.txt"
                     }]
                 }, { parent: this }),
 
@@ -490,9 +490,9 @@ export class Platform extends pulumi.ComponentResource {
                         secretName: this.secrets.s3AccessKey.name,
                         fileName: "/app/secret/minio-access.txt"
                     }, {
-                        secretId: this.secrets.redisPassword.id,
-                        secretName: this.secrets.redisPassword.name,
-                        fileName: "/app/secret/redis-password.txt"
+                        secretId: this.secrets.postgresPassword.id,
+                        secretName: this.secrets.postgresPassword.name,
+                        fileName: "/app/secret/db-password.txt"
                     }]
                 })
         };
@@ -517,8 +517,8 @@ export class Platform extends pulumi.ComponentResource {
         ],
         configFile: { sourceFilePath: `${configRoot}/services/${name}.json` },
         configValues: {
-            transport: pulumi.all([this.datastore.rabbitmq.hostname, this.key.result]).apply(([rmqHost, key]) => JSON.stringify({
-                url: `amqp://${rmqHost}:5672?heartbeat=60`,
+            transport: this.key.result.apply(key => JSON.stringify({
+                url: "",
                 matchmaking_queue: `${pulumi.getStack()}-matchmaking`,
                 core_queue: `${pulumi.getStack()}-core`,
                 bot_queue: `${pulumi.getStack()}-bot`,
@@ -545,9 +545,6 @@ export class Platform extends pulumi.ComponentResource {
                 host: this.datastore.redis.hostname,
                 prefix: this.environmentSubdomain,
             },
-            rmq: {
-                host: this.datastore.rabbitmq.hostname
-            },
             influx: {
                 host: "http://influx:8086",
                 org: "sprocket",
@@ -565,7 +562,7 @@ export class Platform extends pulumi.ComponentResource {
                 }
             },
             celery: {
-                broker: this.datastore.rabbitmq?.hostname.apply((h: string) => `amqp://${h}?heartbeat=60`) ?? "",
+                broker: "",
                 backend: pulumi
                     .all([this.datastore.redis?.hostname, this.datastore.redis?.credentials.password])
                     .apply(([h, p]: [string, string]) => `redis://:${p}@${h}`) ?? "",

@@ -14,9 +14,11 @@
   "logger": {
     "levels": true
   },
-  "redis": {
-    "port": 0,
-    "host": "",
-    "prefix": "dev"
+  "db": {
+    "host": "localhost",
+    "port": 5434,
+    "username": "sprocketbot",
+    "database": "sprocket_dev",
+    "enable_logs": false
   }
 }

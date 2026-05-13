@@ -4,6 +4,8 @@ export * from "./events";
 export * from "./filters";
 export * from "./global.types";
 export * from "./minio";
+export * from "./postgres";
+export * from "./postgres-transport";
 export * from "./redis";
 export * from "./service-connectors";
 export * from "./util";
