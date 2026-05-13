@@ -169,6 +169,19 @@ export class ScrimPostgresRepository {
             : scrims;
     }
 
+    /**
+     * Find scrims that need clock checking - those in PENDING or POPPED status.
+     * Uses the status index for efficient queries.
+     */
+    async findForClockCheck(): Promise<Scrim[]> {
+        const result = await this.postgres.query<ScrimRow>(
+            `SELECT * FROM sprocket.scrim_queue 
+             WHERE status IN ('pending', 'popped') 
+             ORDER BY updated_at ASC`,
+        );
+        return Promise.all(result.rows.map(row => this.hydrate(row)));
+    }
+
     async findByPlayer(playerId: number): Promise<Scrim | null> {
         const result = await this.postgres.query<ScrimRow>(
             `

@@ -14,6 +14,10 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
 
     private stopped = false;
 
+    // Configurable via env vars (defaults: 5 min timeout, 1 min cleanup interval)
+    private readonly staleMessageTimeoutMs = parseInt(process.env.RPC_STALE_MESSAGE_TIMEOUT_MS || "300000", 10);
+    private readonly staleMessageCleanupIntervalMs = parseInt(process.env.RPC_CLEANUP_INTERVAL_MS || "60000", 10);
+
     constructor(options: PostgresTransportOptions) {
         super();
         this.transport = new (class extends PostgresTransportBase {
@@ -28,6 +32,8 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
             await this.transport.ensureSchema();
             callback();
             this.poll().catch(error => this.logger.error(error));
+            // Start stale message cleanup background job
+            this.cleanupStaleMessages().catch(error => this.logger.error(error));
         } catch (error) {
             callback(error);
         }
@@ -46,6 +52,33 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
                 continue;
             }
             await this.handleRow(row);
+        }
+    }
+
+    /**
+     * Background job to clean up stale processing messages.
+     * Resets messages that have been locked for longer than staleMessageTimeoutMs back to pending.
+     */
+    private async cleanupStaleMessages(): Promise<void> {
+        while (!this.stopped) {
+            try {
+                const result = await this.transport.pool.query(
+                    `
+                        UPDATE sprocket.platform_rpc_queue
+                        SET status = 'pending', locked_at = NULL, updated_at = now()
+                        WHERE status = 'processing'
+                        AND locked_at < now() - interval '1 second' * $1
+                        RETURNING id
+                    `,
+                    [Math.ceil(this.staleMessageTimeoutMs / 1000)],
+                );
+                if (result.rowCount > 0) {
+                    this.logger.warn(`Reset ${result.rowCount} stale processing messages to pending`);
+                }
+            } catch (error) {
+                this.logger.error('Error cleaning up stale messages', error);
+            }
+            await new Promise(resolve => setTimeout(resolve, this.staleMessageCleanupIntervalMs));
         }
     }
 

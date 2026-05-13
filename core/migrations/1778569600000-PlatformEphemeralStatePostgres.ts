@@ -36,6 +36,8 @@ export class PlatformEphemeralStatePostgres1778569600000 implements MigrationInt
         await queryRunner.query("CREATE INDEX \"IDX_scrim_queue_status\" ON \"sprocket\".\"scrim_queue\" (\"status\")");
         await queryRunner.query("CREATE INDEX \"IDX_scrim_queue_submission_id\" ON \"sprocket\".\"scrim_queue\" (\"submission_id\")");
         await queryRunner.query("CREATE INDEX \"IDX_scrim_queue_skill_group_id\" ON \"sprocket\".\"scrim_queue\" (\"skill_group_id\")");
+        // Index for scrim clock efficient query - find pending/popped scrims that may need cleanup
+        await queryRunner.query("CREATE INDEX \"IDX_scrim_queue_status_updated\" ON \"sprocket\".\"scrim_queue\" (\"status\", \"updated_at\")");
 
         await queryRunner.query(`
             CREATE TABLE "sprocket"."scrim_queue_player" (
@@ -175,6 +177,7 @@ export class PlatformEphemeralStatePostgres1778569600000 implements MigrationInt
             )
         `);
         await queryRunner.query("CREATE INDEX \"IDX_platform_rpc_queue_pending\" ON \"sprocket\".\"platform_rpc_queue\" (\"queue\", \"status\", \"created_at\")");
+        await queryRunner.query("CREATE INDEX \"IDX_platform_rpc_queue_locked_at\" ON \"sprocket\".\"platform_rpc_queue\" (\"status\", \"locked_at\") WHERE \"status\" = 'processing'");
 
         await queryRunner.query(`
             CREATE TABLE "sprocket"."platform_event" (
@@ -186,6 +189,7 @@ export class PlatformEphemeralStatePostgres1778569600000 implements MigrationInt
             )
         `);
         await queryRunner.query("CREATE INDEX \"IDX_platform_event_topic\" ON \"sprocket\".\"platform_event\" (\"topic\", \"id\")");
+        await queryRunner.query("CREATE INDEX \"IDX_platform_event_created_at\" ON \"sprocket\".\"platform_event\" (\"created_at\")");
 
         await queryRunner.query(`
             CREATE TABLE "sprocket"."platform_task_queue" (

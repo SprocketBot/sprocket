@@ -75,6 +75,12 @@ export abstract class PostgresTransportBase {
             CREATE INDEX IF NOT EXISTS "IDX_platform_rpc_queue_pending"
             ON sprocket.platform_rpc_queue (queue, status, created_at)
         `);
+        // Index for stale message cleanup - find processing messages with expired locks
+        await this.pool.query(`
+            CREATE INDEX IF NOT EXISTS "IDX_platform_rpc_queue_locked_at"
+            ON sprocket.platform_rpc_queue (status, locked_at)
+            WHERE status = 'processing'
+        `);
         await this.pool.query(`
             CREATE TABLE IF NOT EXISTS sprocket.platform_event (
                 id BIGSERIAL NOT NULL,
