@@ -72,6 +72,10 @@ export class ScrimCrudService {
         return this.repository.findAll(skillGroupId);
     }
 
+    async getScrimsForClockCheck(): Promise<Scrim[]> {
+        return this.repository.findForClockCheck();
+    }
+
     async getScrimByPlayer(id: number): Promise<Scrim | null> {
         return this.repository.findByPlayer(id);
     }

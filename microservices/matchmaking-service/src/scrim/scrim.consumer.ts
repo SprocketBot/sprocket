@@ -5,7 +5,8 @@ import {compareAsc} from "date-fns";
 import {ScrimService} from "./scrim.service";
 import {ScrimCrudService} from "./scrim-crud/scrim-crud.service";
 
-const SCRIM_CLOCK_INTERVAL_MS = 2 * 60 * 1000;
+// Configurable via SCRIM_CLOCK_INTERVAL_MS env var (default: 2 minutes)
+const SCRIM_CLOCK_INTERVAL_MS = parseInt(process.env.SCRIM_CLOCK_INTERVAL_MS || "120000", 10);
 
 export class ScrimConsumer implements OnApplicationBootstrap, OnModuleDestroy {
     private readonly logger = new Logger(ScrimConsumer.name);
@@ -15,7 +16,8 @@ export class ScrimConsumer implements OnApplicationBootstrap, OnModuleDestroy {
     constructor(private readonly scrimService: ScrimService, private readonly scrimCrudService: ScrimCrudService) {}
 
     async scrimClock(): Promise<void> {
-        const scrims = await this.scrimCrudService.getAllScrims();
+        // Use efficient query that only loads pending/popped scrims instead of all scrims
+        const scrims = await this.scrimCrudService.getScrimsForClockCheck();
 
         for (const scrim of scrims.filter(s => s.status === ScrimStatus.PENDING)) {
             for (const player of scrim.players) {

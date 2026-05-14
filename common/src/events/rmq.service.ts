@@ -103,5 +103,31 @@ export class RmqService {
             CREATE INDEX IF NOT EXISTS "IDX_platform_event_topic"
             ON sprocket.platform_event (topic, id)
         `);
+        // Index for event cleanup queries
+        await this.postgres.query(`
+            CREATE INDEX IF NOT EXISTS "IDX_platform_event_created_at"
+            ON sprocket.platform_event (created_at)
+        `);
+    }
+
+    /**
+     * Clean up old events older than the specified number of days.
+     * Should be called periodically (e.g., daily) to prevent unbounded table growth.
+     * @param daysToKeep Number of days to keep events (default: 7)
+     * @returns Number of deleted events
+     */
+    async cleanupOldEvents(daysToKeep: number = 7): Promise<number> {
+        const result = await this.postgres.query(
+            `
+                DELETE FROM sprocket.platform_event
+                WHERE created_at < now() - interval '1 day' * $1
+                RETURNING id
+            `,
+            [daysToKeep],
+        );
+        if (result.rowCount > 0) {
+            this.logger.log(`Cleaned up ${result.rowCount} old events older than ${daysToKeep} days`);
+        }
+        return result.rowCount ?? 0;
     }
 }
