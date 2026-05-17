@@ -1,0 +1,42 @@
+# Combined Dockerfile for core + matchmaking-service
+# Runs both services in the same container as separate processes
+
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+COPY common common
+COPY core core
+COPY microservices microservices
+
+RUN npm ci --legacy-peer-deps --include=optional
+RUN npm run build --workspace=common
+RUN npm run build --workspace=core
+RUN npm run build --workspace=microservices/matchmaking-service
+
+FROM node:18-alpine
+
+RUN apk add --no-cache tini
+
+WORKDIR /app
+
+# Copy node_modules (excluding devDependencies) and built artifacts
+COPY --from=builder /app/node_modules node_modules
+COPY --from=builder /app/common common
+COPY --from=builder /app/core core
+COPY --from=builder /app/microservices microservices
+COPY package.json package-lock.json ./
+
+# Health check checks both services
+HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=3 \
+  CMD node -e "\
+    const http = require('http');\
+    const check = (port) => new Promise((resolve) => {\
+      http.get('http://localhost:' + port + '/healthz', (r) => resolve(r.statusCode === 200)).on('error', () => resolve(false));\
+    });\
+    Promise.all([check(3001), check(3010)]).then(([a, b]) => process.exit(a && b ? 0 : 1));"
+
+# Use tini to properly reap child processes
+ENTRYPOINT ["tini", "--", "node"]
+CMD ["sh", "-c", "node core/dist/main.js & node microservices/matchmaking-service/dist/main.js & wait"]

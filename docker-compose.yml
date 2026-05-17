@@ -47,11 +47,10 @@ services:
   core:
     build:
       context: .
-      dockerfile: dev.Dockerfile
-      args:
-        SERVICE_PATH: core
+      dockerfile: Dockerfile.combined
     ports:
       - '3001:3001'
+      - '3010:3010'
     env_file: .env
     volumes:
       - ./core:/app/core
@@ -76,17 +75,6 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
-
-  matchmaking-service:
-    build:
-      context: .
-      dockerfile: dev.Dockerfile
-      args:
-        SERVICE_PATH: microservices/matchmaking-service
-    env_file: .env
-    depends_on:
-      core:
-        condition: service_started
 
   notification-service:
     build:
