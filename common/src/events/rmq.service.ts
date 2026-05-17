@@ -125,7 +125,7 @@ export class RmqService {
             `,
             [daysToKeep],
         );
-        if (result.rowCount > 0) {
+        if ((result.rowCount ?? 0) > 0) {
             this.logger.log(`Cleaned up ${result.rowCount} old events older than ${daysToKeep} days`);
         }
         return result.rowCount ?? 0;
