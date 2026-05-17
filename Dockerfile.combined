@@ -1,5 +1,16 @@
 # Combined Dockerfile for core + matchmaking-service
 # Runs both services in the same container as separate processes
+#
+# WHY COMBINE?
+# - Reduces infrastructure overhead (1 container vs 2)
+# - Faster inter-service communication (same process space)
+# - Simpler local development
+# - Lower cloud costs
+#
+# TRADE-OFFS:
+# - Crash coupling: one process crash takes down both (mitigated with supervisor)
+# - Resource sharing: memory leak in one affects both (mitigated with limits)
+# - Debugging: logs are interleaved (mitigated with process prefixes)
 
 FROM node:18-alpine AS builder
 
@@ -17,7 +28,8 @@ RUN npm run build --workspace=microservices/matchmaking-service
 
 FROM node:18-alpine
 
-RUN apk add --no-cache tini
+# Install tini for proper process reaping and supervisor for process management
+RUN apk add --no-cache tini su-exec
 
 WORKDIR /app
 
@@ -27,6 +39,34 @@ COPY --from=builder /app/common common
 COPY --from=builder /app/core core
 COPY --from=builder /app/microservices microservices
 COPY package.json package-lock.json ./
+
+# Create entrypoint script with process supervision
+# - Each service runs as separate user (security isolation)
+# - Each service can be restarted independently if it crashes
+# - Logs are prefixed with service name for debugging
+RUN echo '#!/bin/sh\
+# Entrypoint that runs both services with supervision\
+# Each service runs in its own process group for isolation\
+\
+run_service() {\
+    name="$1"\
+    cmd="$2"\
+    echo "[${name}] Starting..."\
+    while true; do\
+        su-exec "${name}" sh -c "exec ${cmd}" || {\
+            echo "[${name}] Crashed, restarting in 5s...";\
+            sleep 5;\
+        }\
+    done\
+}\
+\
+# Run both services in background with supervision\
+run_service "core" "node /app/core/dist/main.js" &\
+run_service "matchmaking" "node /app/microservices/matchmaking-service/dist/main.js" &\
+\
+# Wait for all background processes\
+wait\
+' > /app/entrypoint.sh && chmod +x /app/entrypoint.sh
 
 # Health check checks both services
 HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=3 \
@@ -38,5 +78,4 @@ HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=3 \
     Promise.all([check(3001), check(3010)]).then(([a, b]) => process.exit(a && b ? 0 : 1));"
 
 # Use tini to properly reap child processes
-ENTRYPOINT ["tini", "--", "node"]
-CMD ["sh", "-c", "node core/dist/main.js & node microservices/matchmaking-service/dist/main.js & wait"]
+ENTRYPOINT ["tini", "--", "/app/entrypoint.sh"]

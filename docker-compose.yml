@@ -55,6 +55,13 @@ services:
     volumes:
       - ./core:/app/core
       - ./common:/app/common
+    # Resource limits to mitigate blast radius of memory leaks
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M
     depends_on:
       minio:
         condition: service_healthy
