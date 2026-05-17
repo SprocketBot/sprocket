@@ -295,7 +295,10 @@ export class Platform extends pulumi.ComponentResource {
                 }],
                 networks: [
                     args.ingressNetworkId
-                ]
+                ],
+                // Memory limit: 2GB for combined core + matchmaking-service
+                // This mitigates blast radius if one service has a memory leak
+                memoryLimit: 2 * 1024 * 1024 * 1024,
             }, { parent: this })
         }
 

@@ -106,6 +106,9 @@ export type SprocketServiceArgs = {
     labels?: LabelSpec[],
     instanceCount?: number
     commands?: string[]
+    // Resource limits for the container (in bytes)
+    memoryLimit?: number
+    cpuLimit?: number
 }
 
 export class SprocketService extends pulumi.ComponentResource {
@@ -175,6 +178,11 @@ export class SprocketService extends pulumi.ComponentResource {
                 },
                 placement: {
                     maxReplicas: args.instanceCount ?? 2,
+                },
+                // Resource limits to prevent one service from consuming all available resources
+                resources: {
+                    memoryLimits: args.memoryLimit ? [{ memory: args.memoryLimit }] : undefined,
+                    cpuLimits: args.cpuLimit ? [{ cpu: args.cpuLimit }] : undefined,
                 },
                 logDriver: defaultLogDriver(name, false),
                 networksAdvanceds: [
