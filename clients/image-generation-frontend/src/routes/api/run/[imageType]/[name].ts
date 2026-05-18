@@ -1,4 +1,4 @@
-import { rmqRequest } from '$src/utils/rabbitmq';
+import { postgresRpcRequest } from '$src/utils/postgres-rpc';
 import { ReportTemplateDAO } from '$src/utils/server/database/ReportTemplate.dao';
 import type { EndpointOutput, Request } from '@sveltejs/kit';
 
@@ -40,7 +40,7 @@ export async function POST({ body, params }: Request): Promise<EndpointOutput> {
   const results = await ReportTemplateDAO.runReport(params.id, data.filterValues);
 
   try {
-    const res: any = await rmqRequest('media-gen.img.create', {
+    const res: any = await postgresRpcRequest('media-gen.img.create', {
       inputFile: data.inputFile,
       outputFile: data.outputFile,
       filterValues: results,

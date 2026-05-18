@@ -1,7 +1,6 @@
 import {ValidationPipe} from "@nestjs/common";
 import {HttpAdapterHost, NestFactory} from "@nestjs/core";
-import {Transport} from "@nestjs/microservices";
-import {AllExceptionsFilter, config} from "@sprocketbot/common";
+import {AllExceptionsFilter, config, PostgresServer} from "@sprocketbot/common";
 import {ht} from "date-fns/locale";
 import {writeFile} from "fs/promises";
 import {SpelunkerModule} from "nestjs-spelunker";
@@ -25,15 +24,7 @@ async function bootstrap(): Promise<void> {
     });
 
     app.connectMicroservice({
-        transport: Transport.RMQ,
-        options: {
-            urls: [config.transport.url],
-            queue: config.transport.core_queue,
-            queueOptions: {
-                durable: true,
-            },
-            heartbeat: 120,
-        },
+        strategy: new PostgresServer({queue: config.transport.core_queue}),
     });
     app.enableCors();
     app.useGlobalPipes(new ValidationPipe());

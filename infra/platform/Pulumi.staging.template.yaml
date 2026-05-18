@@ -4,7 +4,6 @@
 # Isolation checklist (issue #675):
 # - Postgres DB name: sprocket_staging (from platform:subdomain)
 # - Redis: key prefix `staging` in generated service config
-# - RabbitMQ: broker per stack; Traefik SNI rabbitMq.staging.sprocket.mlesports.gg
 # - Spaces: sprocket-staging-1, sprocket-image-gen-staging-1, sprocket-replays-staging-1
 #
 # Required secret keys (match platform/Pulumi.prod.yaml names): docker-access-token, postgres-password,

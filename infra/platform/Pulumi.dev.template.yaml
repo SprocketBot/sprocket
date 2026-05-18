@@ -8,7 +8,7 @@
 #    (e.g. dev.sprocket.mlesports.gg → API at api.dev.sprocket.mlesports.gg per `buildHost`).
 # 5. Image tags: prefer immutable `sha-<full-git-sha>` once CI publishes them (#670); `dev` is a moving alias only.
 #
-# Isolation: dedicated Pulumi stack on the pre-prod Swarm, unique subdomain, DB, Redis prefix, RabbitMQ vhost,
+# Isolation: dedicated Pulumi stack on the pre-prod Swarm, unique subdomain, DB, Redis prefix,
 # and Swarm service names vs prod/staging (see `reports/release-environment-contracts.md`).
 
 config:

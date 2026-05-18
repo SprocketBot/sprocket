@@ -15,8 +15,6 @@ prod:
     web: sprocket.mlesports.gg
     api: api.sprocket.mlesports.gg
     image_generation: image-generation.sprocket.mlesports.gg
-    rabbitmq_amqp: rabbitMq.sprocket.mlesports.gg
-    rabbitmq_management: management.rabbitMq.sprocket.mlesports.gg
 
 dev:
   pulumi_platform_stack: dev
@@ -25,8 +23,6 @@ dev:
     web: dev.sprocket.mlesports.gg
     api: api.dev.sprocket.mlesports.gg
     image_generation: image-generation.dev.sprocket.mlesports.gg
-    rabbitmq_amqp: rabbitMq.dev.sprocket.mlesports.gg
-    rabbitmq_management: management.rabbitMq.dev.sprocket.mlesports.gg
 
 staging:
   pulumi_platform_stack: staging
@@ -38,5 +34,3 @@ staging:
     web: staging.sprocket.mlesports.gg
     api: api.staging.sprocket.mlesports.gg
     image_generation: image-generation.staging.sprocket.mlesports.gg
-    rabbitmq_amqp: rabbitMq.staging.sprocket.mlesports.gg
-    rabbitmq_management: management.rabbitMq.staging.sprocket.mlesports.gg

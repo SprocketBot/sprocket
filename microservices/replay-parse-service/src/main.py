@@ -1,9 +1,13 @@
 from typing import Union
-import os
-
-import celery
-import healthz
+import json
 import logging
+import os
+import time
+import uuid
+
+import healthz
+import psycopg2
+import psycopg2.extras
 from minio import S3Error
 
 from config import config
@@ -11,12 +15,6 @@ import files
 import parser
 from analytics import Analytics
 from progress import Progress
-import celeryconfig
-from kombu import Producer, Connection
-
-
-# Celery pipeline for starting jobs (broker) and returning results (backend)
-app = celery.Celery(config_source=celeryconfig)
 
 healthz.start()
 
@@ -25,74 +23,68 @@ PARSER_VERSION = "4"
 ANALYTICS_QUEUE = config["transport"]["analytics_queue"]
 PARSED_OBJECT_PREFIX = f"{config['minio']['parsed_object_prefix']}/v{PARSER_VERSION}"
 DISABLE_CACHE = config["disableCache"]
+POLL_SECONDS = float(os.environ.get("TASK_POLL_SECONDS", "0.5"))
 
-class BaseTask(celery.Task):
-    name: str
 
-    progress_queue: Union[str, None]
-    progress: Progress
+def connect_db():
+    return psycopg2.connect(
+        host=config["db"]["host"],
+        port=config["db"]["port"],
+        user=config["db"]["username"],
+        password=config["db"]["password"],
+        dbname=config["db"]["database"],
+    )
 
-    analytics: Analytics
 
-    __producer: Producer
+class ParseReplay:
+    name = "parseReplay"
 
-    def connect(self):
-        logging.debug("Creating RMQ connection")
-        ssl_opts = {
-            "server_hostname": celeryconfig._SERVER_HOSTNAME
-        } if celeryconfig.SECURE else None
-
-        self.__producer = Producer(Connection(config["transport"]["url"], ssl=ssl_opts))
+    def __init__(self, task_id: str, progress_queue: Union[str, None], db):
+        self.task_id = task_id
+        self.progress_queue = progress_queue
+        self.progress = Progress(task_id)
+        self.analytics = Analytics(task_id)
+        self.db = db
 
     def publish_progress(self, msg: str):
         if not self.progress_queue:
             return
-        if self.__producer == None or not self.__producer.connection.connected:
-            self.connect()
-
-        self.__producer.publish(msg, routing_key=self.progress_queue)
+        with self.db.cursor() as cur:
+            cur.execute(
+                """
+                    INSERT INTO sprocket.platform_task_progress (task_id, progress_queue, message)
+                    VALUES (%s, %s, %s)
+                """,
+                (self.task_id, self.progress_queue, psycopg2.extras.Json(json.loads(msg))),
+            )
+        self.db.commit()
 
     def publish_analytics(self, msg: str):
-        if self.__producer == None or not self.__producer.connection.connected:
-            self.connect()
-
-        self.__producer.publish(msg, ANALYTICS_QUEUE)
-
-    def before_start(self, task_id: str, args, kwargs: dict):
-        self.progress_queue = kwargs.get("progressQueue")
-        self.connect()
-        self.progress = Progress(task_id)
-        self.analytics = Analytics(task_id)
-
-    def on_failure(self, exc: Exception, task_id: str, args, kwargs, einfo):
-        logging.error(f"Task failed, task_id={task_id} args={args} kwargs={kwargs} exc={exc} einfo={einfo}")
-
-        self.publish_progress(
-            self.progress.error(str(exc))
-        )
-        self.publish_analytics(
-            self.analytics.fail()
-        )
-
-
-class ParseReplay(BaseTask):
-    name = "parseReplay"
+        analytics_message = json.loads(msg)
+        with self.db.cursor() as cur:
+            cur.execute(
+                """
+                    INSERT INTO sprocket.platform_rpc_queue (id, queue, pattern, payload)
+                    VALUES (%s, %s, %s, %s)
+                """,
+                (
+                    str(uuid.uuid4()),
+                    ANALYTICS_QUEUE,
+                    analytics_message["pattern"],
+                    psycopg2.extras.Json(analytics_message["data"]),
+                ),
+            )
+        self.db.commit()
 
     def run(self, **kwargs: dict) -> dict:
-        """Parses a replay. Sends progress updates to a RMQ queue.
-
-        Keyword arguments:
-            progress_queue (str, optional): The queue to send progress messages to.
-            replayObjectPath (str): The object in the replays bucket to parse.
-
-        Returns:
-            dict: A dictionary containing the parsed replay.
-        """
+        """Parses a replay and writes progress updates to Postgres."""
         self.publish_progress(
             self.progress.pending("Task started...", 10)
         )
 
         replay_object_path: Union[str, None] = kwargs.get("replayObjectPath")
+        if replay_object_path is None:
+            raise ValueError("Missing replayObjectPath")
 
         replay_hash = replay_object_path.split("/")[-1].split(".")[0]
         self.analytics.hash(replay_hash)
@@ -101,7 +93,6 @@ class ParseReplay(BaseTask):
 
         logging.info(f"Parsing replay {replay_object_path} with progress queue {self.progress_queue}")
 
-        # Check if the replay has already been parsed and stats are in minio
         if DISABLE_CACHE is False:
             try:
                 logging.debug("Checking for results in minio")
@@ -133,7 +124,7 @@ class ParseReplay(BaseTask):
         self.analytics.timer_split_get()
         self.analytics.replay_size(os.path.getsize(path) * 1000)
 
-        logging.debug(f"Parsing replay")
+        logging.debug("Parsing replay")
         self.publish_progress(
             self.progress.pending("Parsing replay...", 40)
         )
@@ -141,7 +132,7 @@ class ParseReplay(BaseTask):
         try:
             parsed_data = parser.parse(
                 path,
-                lambda msg : self.publish_progress(self.progress.pending(msg))
+                lambda msg: self.publish_progress(self.progress.pending(msg))
             )
             self.publish_progress(
                 self.progress.pending("Cleaning up...", 90)
@@ -149,7 +140,7 @@ class ParseReplay(BaseTask):
         except Exception as e:
             raise e
         finally:
-            logging.debug(f"Deleting local data")
+            logging.debug("Deleting local data")
             os.remove(path)
 
         self.analytics.timer_split_parse()
@@ -162,16 +153,16 @@ class ParseReplay(BaseTask):
             "data": parsed_data,
         }
 
-        logging.info(f"Parsing complete")
+        logging.info("Parsing complete")
         self.publish_progress(
             self.progress.complete(result)
         )
 
         try:
-            logging.debug(f"Uploading to minio")
+            logging.debug("Uploading to minio")
             files.put(parsed_object_path, result)
         except Exception as e:
-            logging.warn(f"Failed uploading parsed JSON to minio {e}")
+            logging.warning(f"Failed uploading parsed JSON to minio {e}")
 
         self.publish_progress(
             self.progress.complete(result)
@@ -181,4 +172,138 @@ class ParseReplay(BaseTask):
         )
         return result
 
-app.register_task(ParseReplay())
+
+def ensure_schema(db):
+    with db.cursor() as cur:
+        cur.execute("CREATE SCHEMA IF NOT EXISTS sprocket")
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS sprocket.platform_task_queue (
+                id text NOT NULL,
+                task text NOT NULL,
+                args jsonb NOT NULL,
+                progress_queue text,
+                status text NOT NULL DEFAULT 'pending',
+                result jsonb,
+                error jsonb,
+                created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+                locked_at TIMESTAMPTZ,
+                CONSTRAINT "PK_platform_task_queue" PRIMARY KEY (id)
+            )
+        """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS sprocket.platform_task_progress (
+                id BIGSERIAL NOT NULL,
+                task_id text NOT NULL,
+                progress_queue text NOT NULL,
+                message jsonb NOT NULL,
+                created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+                CONSTRAINT "PK_platform_task_progress" PRIMARY KEY (id)
+            )
+        """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS sprocket.platform_rpc_queue (
+                id uuid NOT NULL,
+                queue text NOT NULL,
+                pattern text NOT NULL,
+                payload jsonb NOT NULL,
+                response jsonb,
+                error jsonb,
+                status text NOT NULL DEFAULT 'pending',
+                created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+                locked_at TIMESTAMPTZ,
+                CONSTRAINT "PK_platform_rpc_queue" PRIMARY KEY (id)
+            )
+        """)
+    db.commit()
+
+
+def reserve_task(db):
+    with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute("BEGIN")
+        cur.execute(
+            """
+                SELECT id, task, args, progress_queue
+                FROM sprocket.platform_task_queue
+                WHERE status = 'pending'
+                ORDER BY created_at ASC
+                FOR UPDATE SKIP LOCKED
+                LIMIT 1
+            """
+        )
+        row = cur.fetchone()
+        if not row:
+            db.commit()
+            return None
+        cur.execute(
+            """
+                UPDATE sprocket.platform_task_queue
+                SET status = 'processing', locked_at = now(), updated_at = now()
+                WHERE id = %s
+            """,
+            (row["id"],),
+        )
+        db.commit()
+        return row
+
+
+def complete_task(db, task_id: str, result: dict):
+    with db.cursor() as cur:
+        cur.execute(
+            """
+                UPDATE sprocket.platform_task_queue
+                SET status = 'completed', result = %s, updated_at = now()
+                WHERE id = %s
+            """,
+            (psycopg2.extras.Json(result), task_id),
+        )
+    db.commit()
+
+
+def fail_task(db, task_id: str, error: Exception):
+    with db.cursor() as cur:
+        cur.execute(
+            """
+                UPDATE sprocket.platform_task_queue
+                SET status = 'failed', error = %s, updated_at = now()
+                WHERE id = %s
+            """,
+            (psycopg2.extras.Json({"message": str(error)}), task_id),
+        )
+    db.commit()
+
+
+def run_task(db, row):
+    if row["task"] != ParseReplay.name:
+        raise ValueError(f"Unsupported task {row['task']}")
+    task = ParseReplay(row["id"], row["progress_queue"], db)
+    return task.run(**row["args"])
+
+
+def main():
+    logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO"))
+    db = connect_db()
+    ensure_schema(db)
+    logging.info("Replay parse worker polling Postgres task queue")
+
+    while True:
+        row = reserve_task(db)
+        if not row:
+            time.sleep(POLL_SECONDS)
+            continue
+        try:
+            result = run_task(db, row)
+            complete_task(db, row["id"], result)
+        except Exception as error:
+            logging.exception(f"Task failed task_id={row['id']}")
+            try:
+                ParseReplay(row["id"], row["progress_queue"], db).publish_progress(
+                    Progress(row["id"]).error(str(error))
+                )
+            finally:
+                fail_task(db, row["id"], error)
+
+
+if __name__ == "__main__":
+    main()

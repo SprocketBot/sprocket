@@ -19,38 +19,29 @@ import {
     MatchmakingEndpoint,
     MatchmakingService,
     OrganizationConfigurationKeyCode,
-    RedisService,
     ReplaySubmissionStatus,
     ReplaySubmissionType,
     ResponseStatus,
     SCRIM_REQ_RATIFICATION_MAJORITY,
 } from "@sprocketbot/common";
 
-import {
-    getSubmissionKey,
-    submissionIsLFS,
-    submissionIsMatch,
-    submissionIsScrim,
-} from "../../utils";
+import {submissionIsLFS, submissionIsMatch, submissionIsScrim} from "../../utils";
+import {ReplaySubmissionPostgresRepository} from "../persistence/replay-submission-postgres.repository";
 
 @Injectable()
 export class ReplaySubmissionCrudService {
     constructor(
-        private readonly redisService: RedisService,
+        private readonly repository: ReplaySubmissionPostgresRepository,
         private readonly matchmakingService: MatchmakingService,
         private readonly coreService: CoreService,
     ) {}
 
     async getAllSubmissions(): Promise<ReplaySubmission[]> {
-    // Use wildcard for submissionId to list all matching keys
-        const submissionKeys = await this.redisService.getKeys(getSubmissionKey("*"));
-        const submissions = await Promise.all(submissionKeys.map<Promise<ReplaySubmission>>(async key => this.redisService.getJson<ReplaySubmission>(key)));
-        return submissions;
+        return this.repository.findAll() as Promise<ReplaySubmission[]>;
     }
 
     async getSubmission(submissionId: string): Promise<ReplaySubmission | undefined> {
-        const key = getSubmissionKey(submissionId);
-        return this.redisService.getJson<ReplaySubmission | undefined>(key);
+        return this.repository.findById(submissionId) as Promise<ReplaySubmission | undefined>;
     }
 
     async getOrgRequiredRatifications(organizationId: number): Promise<number> {
@@ -66,9 +57,8 @@ export class ReplaySubmissionCrudService {
     }
 
     async getOrCreateSubmission(submissionId: string, playerId: number): Promise<ReplaySubmission> {
-        const key = getSubmissionKey(submissionId);
-        const existingSubmission = await this.redisService.getJsonIfExists<ReplaySubmission>(key);
-        if (existingSubmission && !existingSubmission.items.length) return existingSubmission;
+        const existingSubmission = await this.repository.findById(submissionId);
+        if (existingSubmission && !existingSubmission.items.length) return existingSubmission as ReplaySubmission;
 
         const commonFields = {
             id: submissionId,
@@ -161,62 +151,48 @@ export class ReplaySubmissionCrudService {
         }
         submission.requiredRatifications = minRatify;
 
-        await this.redisService.setJson(key, submission);
+        await this.repository.saveSubmission(submission);
         return submission;
     }
 
     async getSubmissionItems(submissionId: string): Promise<ReplaySubmissionItem[]> {
-        const key = getSubmissionKey(submissionId);
-        return this.redisService.getJson<ReplaySubmissionItem[]>(key, "items");
+        return this.repository.getItems(submissionId);
     }
 
     async getSubmissionRejections(submissionId: string): Promise<ReplaySubmissionRejection[]> {
-        const key = getSubmissionKey(submissionId);
-        return this.redisService.getJson<ReplaySubmissionRejection[]>(key, "rejections");
+        return this.repository.getRejections(submissionId);
     }
 
     async getSubmissionRatifiers(submissionId: string): Promise<number[] | RatifierInfo[]> {
-        const key = getSubmissionKey(submissionId);
-        return this.redisService.getJson<number[] | RatifierInfo[]>(key, "ratifiers");
+        return this.repository.getRatifiers(submissionId);
     }
 
     async removeSubmission(submissionId: string): Promise<void> {
-        const key = getSubmissionKey(submissionId);
-        return this.redisService.delete(key);
+        return this.repository.delete(submissionId);
     }
 
     async removeItems(submissionId: string): Promise<void> {
-        await this.redisService.setJsonField(getSubmissionKey(submissionId), "items", []);
+        await this.repository.replaceItems(submissionId, []);
     }
 
     async updateStatus(
         submissionId: string,
         submissionStatus: ReplaySubmissionStatus,
     ): Promise<void> {
-        await this.redisService.setJsonField(
-            getSubmissionKey(submissionId),
-            "status",
-            submissionStatus,
-        );
+        await this.repository.updateStatus(submissionId, submissionStatus);
     }
 
     async upsertItem(submissionId: string, item: ReplaySubmissionItem): Promise<void> {
-        const key = getSubmissionKey(submissionId);
-
-        const existingItems = await this.redisService.getJson<ReplaySubmissionItem[] | undefined>(
-            key,
-            ".items",
-        );
+        const existingItems = await this.repository.getItems(submissionId);
         if (existingItems?.some(ei => ei.taskId === item.taskId)) {
             // The task is already in the array
             const t = {
                 ...existingItems.find(ei => ei.taskId === item.taskId)!,
                 ...item,
             };
-            const i = existingItems.findIndex(ei => ei.taskId === item.taskId);
-            await this.redisService.setJsonField(key, `items[${i}]`, t);
+            await this.repository.upsertItem(submissionId, t);
         } else {
-            await this.redisService.appendToJsonArray(key, "items", item);
+            await this.repository.upsertItem(submissionId, item);
         }
     }
 
@@ -232,13 +208,11 @@ export class ReplaySubmissionCrudService {
     }
 
     async setValidatedTrue(submissionId: string): Promise<void> {
-        const key = getSubmissionKey(submissionId);
-        await this.redisService.setJsonField(key, "validated", true);
+        await this.repository.setValidated(submissionId, true);
     }
 
     async setStats(submissionId: string, stats: ReplaySubmissionStats): Promise<void> {
-        const key = getSubmissionKey(submissionId);
-        await this.redisService.setJsonField(key, "stats", stats);
+        await this.repository.setStats(submissionId, stats);
     }
 
     async addRatifier(submissionId: string, userId: number): Promise<void> {
@@ -306,26 +280,9 @@ export class ReplaySubmissionCrudService {
                 ratifiedAt: new Date().toISOString(),
             };
 
-            await this.redisService.appendToJsonArray(
-                getSubmissionKey(submissionId),
-                "ratifiers",
-                ratifierInfo,
-            );
-
-            // Update currentFranchiseCount
-            const updatedRatifiers = [...(ratifiers as any[]), ratifierInfo];
-            const uniqueFranchiseCount = new Set(updatedRatifiers.map(r => r.franchiseId)).size;
-            await this.redisService.setJsonField(
-                getSubmissionKey(submissionId),
-                "franchiseValidation.currentFranchiseCount",
-                uniqueFranchiseCount,
-            );
+            await this.repository.addEnhancedRatifier(submissionId, ratifierInfo);
         } else {
-            await this.redisService.appendToJsonArray(
-                getSubmissionKey(submissionId),
-                "ratifiers",
-                userId,
-            );
+            await this.repository.addNumericRatifier(submissionId, userId);
         }
     }
 
@@ -340,25 +297,14 @@ export class ReplaySubmissionCrudService {
     }
 
     async clearRatifiers(submissionId: string): Promise<void> {
-        const key = getSubmissionKey(submissionId);
-        await this.redisService.setJsonField(key, "ratifiers", []);
+        await this.repository.clearRatifiers(submissionId);
     }
 
     async expireRejections(submissionId: string): Promise<void> {
-        const key = getSubmissionKey(submissionId);
-        // We need to make sure this array exists, otherwise multipathing breaks
-        const len = (await this.redisService.redis.send_command(
-            "JSON.ARRLEN",
-            key,
-            "rejections",
-        )) as number;
-        if (len) {
-            await this.redisService.setJsonField(key, `rejections..stale`, true);
-        }
+        await this.repository.expireRejections(submissionId);
     }
 
     async addRejection(submissionId: string, playerId: number, reason: string): Promise<void> {
-        const key = getSubmissionKey(submissionId);
         const rejectedAt = new Date().toISOString();
 
         const fullItems = await this.getSubmissionItems(submissionId);
@@ -379,6 +325,6 @@ export class ReplaySubmissionCrudService {
         };
 
         await this.clearRatifiers(submissionId);
-        await this.redisService.appendToJsonArray(key, "rejections", rejection);
+        await this.repository.addRejection(submissionId, rejection);
     }
 }

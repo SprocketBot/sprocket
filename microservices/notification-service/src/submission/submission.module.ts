@@ -4,13 +4,13 @@ import {
     CoreModule,
     EventsModule,
     MatchmakingModule,
-    RedisModule,
+    SubmissionModule as CommonSubmissionModule,
 } from "@sprocketbot/common";
 
 import {SubmissionService} from "./submission.service";
 
 @Module({
-    imports: [EventsModule, BotModule, CoreModule, RedisModule, MatchmakingModule],
+    imports: [EventsModule, BotModule, CoreModule, CommonSubmissionModule, MatchmakingModule],
     providers: [SubmissionService],
 })
 export class SubmissionModule {}

@@ -7,21 +7,13 @@ import type {
 } from "@sprocketbot/common";
 import {SubmissionEndpoint, SubmissionSchemas} from "@sprocketbot/common";
 
-import {SubmissionMigrationService} from "../submission-migration.service";
 import {ReplaySubmissionCrudService} from "./replay-submission-crud.service";
 
 @Controller()
 export class ReplaySubmissionCrudController {
     constructor(
         private readonly crudService: ReplaySubmissionCrudService,
-        private readonly migrationService: SubmissionMigrationService,
     ) {}
-
-    @MessagePattern("submission.migrate")
-    async migrateSubmissions(): Promise<{success: boolean;}> {
-        await this.migrationService.migrateSubmissions();
-        return {success: true};
-    }
 
     @MessagePattern(SubmissionEndpoint.GetSubmissionIfExists)
     async getSubmissionIfExists(@Payload() payload: unknown): Promise<GetSubmissionIfExistsResponse> {

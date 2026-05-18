@@ -142,7 +142,7 @@ echo -e "${GREEN}[6/7] Starting services...${NC}"
 echo -e "${YELLOW}  Starting infrastructure services first...${NC}"
 
 # Start infrastructure services
-docker-compose up -d postgres redis rabbitmq minio
+docker-compose up -d postgres redis minio
 
 echo -e "${YELLOW}  Waiting for services to be healthy...${NC}"
 sleep 10
@@ -183,7 +183,6 @@ echo "  - Core API:        http://localhost:3001"
 echo "  - GraphQL:         http://localhost:3001/graphql"
 echo "  - Web Client:      http://localhost:8080"
 echo "  - Image Gen UI:    http://localhost:8081"
-echo "  - RabbitMQ Admin:  http://localhost:15672 (admin/localrabbitpass)"
 echo "  - MinIO Console:   http://localhost:9001 (admin/localminiopass)"
 echo ""
 echo -e "${GREEN}Useful commands:${NC}"

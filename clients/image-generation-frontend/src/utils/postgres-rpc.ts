@@ -1,0 +1,44 @@
+import pg from 'pg';
+import { v4 } from 'uuid';
+import config from '../config';
+
+const { Pool } = pg;
+
+const pool = new Pool({
+  ...config.knex,
+  ssl: false,
+});
+
+export async function postgresRpcRequest(
+  pattern: string,
+  data: Record<string, unknown> = {},
+): Promise<unknown> {
+  const id = v4();
+  await pool.query('CREATE SCHEMA IF NOT EXISTS sprocket');
+  await pool.query(
+    `
+      INSERT INTO sprocket.platform_rpc_queue (id, queue, pattern, payload)
+      VALUES ($1, $2, $3, $4)
+    `,
+    [id, config.transport.queue, pattern, data],
+  );
+
+  const deadline = Date.now() + 30000;
+  while (Date.now() < deadline) {
+    const result = await pool.query(
+      'SELECT status, response, error FROM sprocket.platform_rpc_queue WHERE id = $1',
+      [id],
+    );
+    const row = result.rows[0];
+    if (row?.status === 'completed') {
+      await pool.query('DELETE FROM sprocket.platform_rpc_queue WHERE id = $1', [id]);
+      return row.response;
+    }
+    if (row?.status === 'failed') {
+      throw new Error(row.error?.message ?? 'Request failed');
+    }
+    await new Promise(resolve => setTimeout(resolve, 250));
+  }
+
+  throw new Error('Request timed out.');
+}

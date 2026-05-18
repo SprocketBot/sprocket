@@ -1,6 +1,5 @@
 import {NestFactory} from "@nestjs/core";
-import {Transport} from "@nestjs/microservices";
-import {config} from "@sprocketbot/common";
+import {config, PostgresServer} from "@sprocketbot/common";
 
 import {AppModule} from "./app.module";
 
@@ -10,11 +9,7 @@ async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule, {logger: config.logger.levels});
 
     app.connectMicroservice({
-        transport: Transport.RMQ,
-        options: {
-            urls: [config.transport.url],
-            queue: config.transport.image_generation_queue,
-        },
+        strategy: new PostgresServer({queue: config.transport.image_generation_queue}),
     });
 
     await app.startAllMicroservices();

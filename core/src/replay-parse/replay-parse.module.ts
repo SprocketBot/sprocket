@@ -5,7 +5,6 @@ import {
     EventsModule,
     MatchmakingModule,
     MinioModule,
-    RedisModule,
     SubmissionModule,
 } from "@sprocketbot/common";
 import {CarballConverterService} from "@sprocketbot/common";
@@ -34,7 +33,6 @@ import {ReplayParseService} from "./replay-parse.service";
         SubmissionModule,
         CeleryModule,
         MinioModule,
-        RedisModule,
         MatchmakingModule,
         ScrimModule,
         EventsModule,

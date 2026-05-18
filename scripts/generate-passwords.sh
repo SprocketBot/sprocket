@@ -39,8 +39,6 @@ GRAFANA_ADMIN_PASSWORD=$(generate_password)
 
 # Generate passwords for layer 3 services
 PLATFORM_REDIS_PASSWORD=$(generate_password)
-RABBITMQ_USER="admin"
-RABBITMQ_PASSWORD=$(generate_password)
 
 # Generate auth secrets
 JWT_SECRET="sprocket-jwt-secret-$(date +%s)"
@@ -70,8 +68,6 @@ GRAFANA_ADMIN_PASSWORD='${GRAFANA_ADMIN_PASSWORD}'
 
 # Layer 3 Platform Services
 PLATFORM_REDIS_PASSWORD='${PLATFORM_REDIS_PASSWORD}'
-RABBITMQ_USER='${RABBITMQ_USER}'
-RABBITMQ_PASSWORD='${RABBITMQ_PASSWORD}'
 
 # Transport Queues
 TRANSPORT_CORE_QUEUE='core'

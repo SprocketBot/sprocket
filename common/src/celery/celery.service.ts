@@ -1,10 +1,8 @@
 import {Injectable, Logger} from "@nestjs/common";
-import type {Channel} from "amqplib";
-import {connect} from "amqplib";
-import {createClient} from "celery-node";
 import {Observable} from "rxjs";
+import {v4 as uuidv4} from "uuid";
 
-import {config} from "../util/config";
+import {PostgresService} from "../postgres";
 import type {
     ProgressMessage, RunOpts, Task, TaskArgs, TaskResult,
 } from "./types";
@@ -16,28 +14,10 @@ import {
 export class CeleryService {
     private readonly logger = new Logger(CeleryService.name);
 
-    private readonly celeryClient = createClient(
-        config.celery.broker,
-        config.celery.backend,
-        config.celery.queue,
-    );
-
-    private progressChannel: Channel;
+    constructor(private readonly postgres: PostgresService) {}
 
     async onApplicationBootstrap(): Promise<void> {
-        if (config.redis.secure) {
-            this.celeryClient.conf.CELERY_BACKEND_OPTIONS = {
-                tls: {
-                    servername: config.redis.host,
-                },
-            };
-        }
-
-        this.logger.log(`Connecting to RabbitMQ @ ${config.celery.broker}`);
-        const connection = await connect(config.celery.broker, {heartbeat: 120});
-
-        this.progressChannel = await connection.createChannel();
-        this.logger.log("Connected to RabbitMQ");
+        await this.ensureSchema();
     }
 
     /**
@@ -50,16 +30,10 @@ export class CeleryService {
         const name = taskNames[task];
         if (!name) throw new Error(`Unsupported Celery task ${task}`);
 
-        const t = this.celeryClient.createTask(name);
-        const asyncResult = t.applyAsync([], args);
-        this.logger.debug(`Running celery task synchronously name=${name} taskId=${asyncResult.taskId}`);
+        const taskId = await this.run(task, args);
+        this.logger.debug(`Running postgres task synchronously name=${name} taskId=${taskId}`);
 
-        const r = (await asyncResult.get()) as TaskResult<T>;
-        const result = this.parseResult(task, r);
-        this.logger.debug(`Celery task completed synchronously name=${name} taskId=${asyncResult.taskId}`);
-        // this.logger.verbose(`Celery task completed synchronously name=${name} taskId=${asyncResult.taskId} result=${JSON.stringify(result)}`);
-
-        return result;
+        return this.waitForResult(task, taskId);
     }
 
     /**
@@ -73,36 +47,37 @@ export class CeleryService {
         const name = taskNames[task];
         if (!name) throw new Error(`Unsupported Celery task ${task}`);
 
-        const asyncResult = this.celeryClient.sendTask(
-            name,
-            [],
-            {
-                ...args,
-                progressQueue: opts?.progressQueue,
-            },
-            opts?.taskId,
+        await this.ensureSchema();
+        const taskId = opts?.taskId ?? uuidv4();
+        await this.postgres.query(
+            `
+                INSERT INTO sprocket.platform_task_queue (
+                    id,
+                    task,
+                    args,
+                    progress_queue
+                )
+                VALUES ($1, $2, $3, $4)
+                ON CONFLICT (id) DO NOTHING
+            `,
+            [
+                taskId,
+                name,
+                {...args, progressQueue: opts?.progressQueue},
+                opts?.progressQueue ?? null,
+            ],
         );
-        const taskId = asyncResult.taskId;
 
-        this.logger.debug(`Running celery task asynchronously name=${name} taskId=${taskId}`);
+        this.logger.debug(`Queued postgres task name=${name} taskId=${taskId}`);
 
         if (opts?.cb) {
-            asyncResult.get()
-                .then((r: unknown) => {
-                    const result = this.parseResult(task, r);
-                    const p = opts.cb!(taskId, result, null);
-                    if (p instanceof Promise) {
-                        p.catch(err => {
-                            this.logger.error(`Celery task callback failed name=${name} taskId=${taskId}`, err);
-                        });
-                    }
-                    this.logger.debug(`Celery task completed asynchronously name=${name} taskId=${taskId}`);
-                })
+            this.waitForResult(task, taskId)
+                .then(result => opts.cb!(taskId, result, null))
                 .catch(error => {
                     const p = opts.cb!(taskId, null, error as Error);
                     if (p instanceof Promise) {
                         p.catch(err => {
-                            this.logger.error(`Celery task callback failed name=${name} taskId=${taskId}`, err);
+                            this.logger.error(`Postgres task callback failed name=${name} taskId=${taskId}`, err);
                         });
                     }
                 });
@@ -126,58 +101,93 @@ export class CeleryService {
    * @returns An observable that yields messages from the queue.
    */
     subscribe<T extends Task>(task: T, queue: string): Observable<ProgressMessage<T>> {
-        const observable = new Observable<ProgressMessage<T>>(sub => {
-            // Create queue if doesn't exist
-            this.progressChannel
-                .assertQueue(queue)
-                .then(() => {
-                    this.progressChannel
-                        .consume(
-                            queue,
-                            v => {
-                                if (!v) return;
-                                const message = JSON.parse(v.content.toString()) as ProgressMessage<T>;
-                                if (message.result) {
-                                    try {
-                                        message.result = this.parseResult(task, message.result);
-                                    } catch (error) {
-                                        this.logger.error(`Failed to parse result in progress message for task ${task}:`, error);
-                                        throw error;
-                                    }
-                                }
-                                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                                const {result, ...messageWithoutResult} = message;
-                                this.logger.debug(`Progress queue=${queue} message=${JSON.stringify(messageWithoutResult)}`);
-                                sub.next(message);
-
-                                // How to complete subscription/delete queue here, without knowing if other tasks are complete?
-                                // if (msg.status === ProgressStatus.Complete) {
-                                //     this.progressChannel.deleteQueue(queue)
-                                //         .then(() => { sub.complete() })
-                                //         .catch(this.logger.error.bind(this.logger));
-                                // }
-                            },
-                            {noAck: true},
-                        )
-                        .catch(e => {
-                            this.progressChannel
-                                .deleteQueue(queue)
-                                .then(() => {
-                                    sub.complete();
-                                })
-                                .catch(this.logger.error.bind(this.logger));
-                            this.logger.error(e);
-                        });
-                })
-                .catch(err => {
-                    this.logger.error(`Unable to assert queue ${queue}, cannot subscribe. ${err}`);
-                });
+        return new Observable<ProgressMessage<T>>(sub => {
+            let lastSeenId = 0;
+            const timer = setInterval(() => {
+                this.postgres.query<{id: string; message: ProgressMessage<T>;}>(
+                    `
+                        SELECT id::text, message
+                        FROM sprocket.platform_task_progress
+                        WHERE progress_queue = $1 AND id > $2
+                        ORDER BY id ASC
+                    `,
+                    [queue, lastSeenId],
+                )
+                    .then(result => {
+                        for (const row of result.rows) {
+                            lastSeenId = Number(row.id);
+                            const message = row.message;
+                            if (message.result) {
+                                message.result = this.parseResult(task, message.result);
+                            }
+                            const {result: _result, ...messageWithoutResult} = message;
+                            this.logger.debug(`Progress queue=${queue} message=${JSON.stringify(messageWithoutResult)}`);
+                            sub.next(message);
+                        }
+                    })
+                    .catch(sub.error.bind(sub));
+            }, 250);
+            timer.unref?.();
+            return (): void => clearInterval(timer);
         });
-
-        return observable;
     }
 
     buildResultKey(taskId: string): string {
         return `${CELERY_TASK_REDIS_RESULT_PREFIX}-${taskId}`;
+    }
+
+    private async waitForResult<T extends Task>(task: T, taskId: string): Promise<TaskResult<T>> {
+        while (true) {
+            const result = await this.postgres.query<{
+                status: string;
+                result: unknown;
+                error: {message?: string;} | null;
+            }>(
+                "SELECT status, result, error FROM sprocket.platform_task_queue WHERE id = $1",
+                [taskId],
+            );
+            const row = result.rows[0];
+            if (!row) throw new Error(`Task ${taskId} not found`);
+            if (row.status === "completed") return this.parseResult(task, row.result);
+            if (row.status === "failed") throw new Error(row.error?.message ?? `Task ${taskId} failed`);
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+    }
+
+    private async ensureSchema(): Promise<void> {
+        await this.postgres.query("CREATE SCHEMA IF NOT EXISTS sprocket");
+        await this.postgres.query(`
+            CREATE TABLE IF NOT EXISTS sprocket.platform_task_queue (
+                id text NOT NULL,
+                task text NOT NULL,
+                args jsonb NOT NULL,
+                progress_queue text,
+                status text NOT NULL DEFAULT 'pending',
+                result jsonb,
+                error jsonb,
+                created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+                locked_at TIMESTAMPTZ,
+                CONSTRAINT "PK_platform_task_queue" PRIMARY KEY (id)
+            )
+        `);
+        await this.postgres.query(`
+            CREATE INDEX IF NOT EXISTS "IDX_platform_task_queue_pending"
+            ON sprocket.platform_task_queue (status, created_at)
+        `);
+        await this.postgres.query(`
+            CREATE TABLE IF NOT EXISTS sprocket.platform_task_progress (
+                id BIGSERIAL NOT NULL,
+                task_id text NOT NULL,
+                progress_queue text NOT NULL,
+                message jsonb NOT NULL,
+                created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+                CONSTRAINT "PK_platform_task_progress" PRIMARY KEY (id)
+            )
+        `);
+        await this.postgres.query(`
+            CREATE INDEX IF NOT EXISTS "IDX_platform_task_progress_queue"
+            ON sprocket.platform_task_progress (progress_queue, id)
+        `);
     }
 }

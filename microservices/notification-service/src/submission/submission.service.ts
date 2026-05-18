@@ -18,11 +18,12 @@ import {
     EventTopic,
     MatchmakingEndpoint,
     MatchmakingService,
-    RedisService,
     ReplaySubmissionType,
     ResponseStatus,
     SprocketEvent,
     SprocketEventMarshal,
+    SubmissionEndpoint,
+    SubmissionService as SubmissionConnectorService,
 } from "@sprocketbot/common";
 
 @Injectable()
@@ -31,7 +32,7 @@ export class SubmissionService extends SprocketEventMarshal {
         readonly eventsService: EventsService,
         private readonly botService: BotService,
         private readonly coreService: CoreService,
-        private readonly redisService: RedisService,
+        private readonly submissionConnectorService: SubmissionConnectorService,
         private readonly matchmakingService: MatchmakingService,
     ) {
         super(eventsService);
@@ -39,7 +40,7 @@ export class SubmissionService extends SprocketEventMarshal {
 
     @SprocketEvent(EventTopic.SubmissionRatifying)
     async sendSubmissionRatifyingNotifications(payload: EventPayload<EventTopic.SubmissionRatifying>): Promise<void> {
-        const submission = await this.redisService.getJson<ReplaySubmission>(payload.redisKey);
+        const submission = await this.getSubmission(payload.submissionId);
 
         switch (submission.type) {
             case ReplaySubmissionType.MATCH:
@@ -61,7 +62,7 @@ export class SubmissionService extends SprocketEventMarshal {
 
     @SprocketEvent(EventTopic.SubmissionRejected)
     async sendSubmissionRejectedNotifications(payload: EventPayload<EventTopic.SubmissionRejected>): Promise<void> {
-        const submission = await this.redisService.getJson<ReplaySubmission>(payload.redisKey);
+        const submission = await this.getSubmission(payload.submissionId);
 
         switch (submission.type) {
             case ReplaySubmissionType.MATCH:
@@ -76,6 +77,16 @@ export class SubmissionService extends SprocketEventMarshal {
             default:
                 this.logger.error("Submission type has not been implemented");
         }
+    }
+
+    private async getSubmission(submissionId: string): Promise<ReplaySubmission> {
+        const result = await this.submissionConnectorService.send(
+            SubmissionEndpoint.GetSubmissionIfExists,
+            submissionId,
+        );
+        if (result.status === ResponseStatus.ERROR) throw result.error;
+        if (!result.data.submission) throw new Error(`Submission ${submissionId} does not exist`);
+        return result.data.submission as ReplaySubmission;
     }
 
     async sendScrimSubmissionRatifyingNotifications(submission: ScrimReplaySubmission | LFSReplaySubmission): Promise<void> {

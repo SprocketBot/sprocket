@@ -5,7 +5,6 @@ import {
     CoreService,
     MatchmakingEndpoint,
     MatchmakingService,
-    RedisService,
     ResponseStatus,
     ScrimStatus,
 } from "@sprocketbot/common";
@@ -21,7 +20,6 @@ export class ReplaySubmissionUtilService {
 
     constructor(
         private readonly submissionCrudService: ReplaySubmissionCrudService,
-        private readonly redisService: RedisService,
         private readonly matchmakingService: MatchmakingService,
         private readonly coreService: CoreService,
     ) {}

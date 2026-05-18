@@ -9,7 +9,7 @@ import {
     ResponseStatus,
 } from "@sprocketbot/common";
 
-import {getSubmissionKey, submissionIsScrim} from "../../utils";
+import {submissionIsScrim} from "../../utils";
 import {CrossFranchiseValidationService} from "../cross-franchise-validation.service";
 import {ReplaySubmissionCrudService} from "../replay-submission-crud/replay-submission-crud.service";
 
@@ -45,7 +45,6 @@ export class ReplaySubmissionRatificationService {
         // Let everybody know that we've deleted the submission
         await this.eventService.publish(EventTopic.SubmissionReset, {
             submissionId: submissionId,
-            redisKey: getSubmissionKey(submissionId),
         });
     }
 
@@ -72,7 +71,7 @@ export class ReplaySubmissionRatificationService {
             throw error;
         }
 
-        // Re-fetch to get the actual current count from Redis
+        // Re-fetch to get the actual current count from Postgres
         const updatedSubmission = await this.crudService.getSubmission(submissionId);
         if (!updatedSubmission) {
             this.logger.error(`Submission ${submissionId} not found after adding ratifier`);
@@ -87,7 +86,6 @@ export class ReplaySubmissionRatificationService {
 
             await this.eventService.publish(EventTopic.SubmissionRatified, {
                 submissionId: submissionId,
-                redisKey: getSubmissionKey(submissionId),
             });
             return true;
         }
@@ -95,7 +93,6 @@ export class ReplaySubmissionRatificationService {
             currentRatifications: currentRatificationCount,
             requiredRatifications: submission.requiredRatifications,
             submissionId: submissionId,
-            redisKey: getSubmissionKey(submissionId),
         });
         return false;
     }
@@ -121,13 +118,11 @@ export class ReplaySubmissionRatificationService {
         await this.crudService.updateStatus(submissionId, ReplaySubmissionStatus.REJECTED);
         await this.eventService.publish(EventTopic.SubmissionRejectionAdded, {
             submissionId: submissionId,
-            redisKey: getSubmissionKey(submissionId),
         });
 
         // TODO: support for different thresholds
         await this.eventService.publish(EventTopic.SubmissionRejected, {
             submissionId: submissionId,
-            redisKey: getSubmissionKey(submissionId),
         });
         return false;
     }

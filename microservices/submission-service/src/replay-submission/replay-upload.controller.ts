@@ -1,11 +1,8 @@
 import {Controller} from "@nestjs/common";
 import {MessagePattern, Payload} from "@nestjs/microservices";
 import type {CanRatifySubmissionResponse, ICanSubmitReplays_Response} from "@sprocketbot/common";
-import {
-    SubmissionEndpoint, SubmissionOutput, SubmissionSchemas,
-} from "@sprocketbot/common";
+import {SubmissionEndpoint, SubmissionSchemas} from "@sprocketbot/common";
 
-import {getSubmissionKey} from "../utils";
 import {ReplaySubmissionService} from "./replay-submission.service";
 import {ReplaySubmissionUtilService} from "./replay-submission-util.service";
 
@@ -54,13 +51,5 @@ export class ReplayUploadController {
             data.submissionId,
             data.results,
         );
-    }
-
-    @MessagePattern(SubmissionEndpoint.GetSubmissionRedisKey)
-    getSubmissionRedisKey(@Payload() payload: unknown): SubmissionOutput<SubmissionEndpoint.GetSubmissionRedisKey> {
-        const data = SubmissionSchemas.GetSubmissionRedisKey.input.parse(payload);
-        return {
-            redisKey: getSubmissionKey(data.submissionId),
-        };
     }
 }

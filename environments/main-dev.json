@@ -34,7 +34,7 @@
       "optional_runtime_startup_check": {
         "enabled_by": "HARNESS_CHECK_CORE_START=true",
         "default_command": "docker compose run --rm --no-deps core sh -lc \"cd core && npm run dev\"",
-        "notes": "Requires runtime env/secrets for core dependencies before it is enabled in CI. Use Docker service hostnames such as postgres, redis, rabbitmq, and minio when running inside the core container."
+        "notes": "Requires runtime env/secrets for core dependencies before it is enabled in CI. Use Docker service hostnames such as postgres, redis, and minio when running inside the core container."
       }
     },
     "tier1": {
