@@ -14,6 +14,7 @@ import {
 import {v4} from "uuid";
 
 import {ReplayValidationService} from "../replay-validation/replay-validation.service";
+import type {ValidationFailure} from "../replay-validation/types/validation-result";
 import {getSubmissionKey} from "../utils";
 import {ReplayParseSubscriber} from "./parse-subscriber/replay-parse.subscriber";
 import {ReplaySubmissionCrudService} from "./replay-submission-crud/replay-submission-crud.service";
@@ -195,7 +196,7 @@ export class ReplaySubmissionService {
             await this.ratificationService.rejectSubmission(
                 REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
                 submissionId,
-                valid.errors.map(e => e.error),
+                (valid as ValidationFailure).errors.map(e => e.error),
             );
             return;
         }

@@ -128,6 +128,7 @@ jobs:
     strategy:
       matrix:
         directory:
+          - [monolith, ./apps/monolith]
           - [discord-bot, ./clients/discord-bot]
           - [web, ./clients/web]
           - [core, ./core]
@@ -165,12 +166,28 @@ jobs:
               - ./.github/workflows/on-changes.yml
               - ./.github/reusable_workflows/build_container/**
               - ./infra/platform/**
+              - ./package.json
+              - ./package-lock.json
             projectHasChanges: ${{ matrix.directory[1] }}/**
+            monolithSourcesHaveChanges:
+              - ./core/**
+              - ./clients/discord-bot/**
+              - ./microservices/image-generation-service/**
+              - ./microservices/matchmaking-service/**
+              - ./microservices/notification-service/**
+              - ./microservices/server-analytics-service/**
+              - ./microservices/submission-service/**
             sprocketCommonHasChanges: ./common/**
 
       - name: Build project
         id: build_project
-        if: github.event_name == 'workflow_dispatch' || steps.changes.outputs.baseDockerfileHasChanges == 'true' || steps.changes.outputs.buildConfigHasChanges == 'true' || steps.changes.outputs.projectHasChanges == 'true' || steps.changes.outputs.sprocketCommonHasChanges == 'true'
+        if: >
+          github.event_name == 'workflow_dispatch' ||
+          steps.changes.outputs.baseDockerfileHasChanges == 'true' ||
+          steps.changes.outputs.buildConfigHasChanges == 'true' ||
+          steps.changes.outputs.projectHasChanges == 'true' ||
+          steps.changes.outputs.sprocketCommonHasChanges == 'true' ||
+          (matrix.directory[0] == 'monolith' && steps.changes.outputs.monolithSourcesHaveChanges == 'true')
         uses: ./.github/reusable_workflows/build_container
         with:
           build_directory: ${{ matrix.directory[1] }}
@@ -186,7 +203,8 @@ jobs:
         if: >
           github.event_name == 'push' && github.ref == 'refs/heads/main' &&
           (steps.changes.outputs.baseDockerfileHasChanges == 'true' || steps.changes.outputs.buildConfigHasChanges == 'true' ||
-          steps.changes.outputs.projectHasChanges == 'true' || steps.changes.outputs.sprocketCommonHasChanges == 'true')
+          steps.changes.outputs.projectHasChanges == 'true' || steps.changes.outputs.sprocketCommonHasChanges == 'true' ||
+          (matrix.directory[0] == 'monolith' && steps.changes.outputs.monolithSourcesHaveChanges == 'true'))
         shell: bash
         env:
           SERVICE_NAME: ${{ matrix.directory[0] }}
@@ -217,7 +235,8 @@ jobs:
         if: >
           github.event_name == 'push' && github.ref == 'refs/heads/main' &&
           (steps.changes.outputs.baseDockerfileHasChanges == 'true' || steps.changes.outputs.buildConfigHasChanges == 'true' ||
-          steps.changes.outputs.projectHasChanges == 'true' || steps.changes.outputs.sprocketCommonHasChanges == 'true')
+          steps.changes.outputs.projectHasChanges == 'true' || steps.changes.outputs.sprocketCommonHasChanges == 'true' ||
+          (matrix.directory[0] == 'monolith' && steps.changes.outputs.monolithSourcesHaveChanges == 'true'))
         uses: actions/upload-artifact@v4
         with:
           name: bom-fragment-${{ matrix.directory[0] }}

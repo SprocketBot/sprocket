@@ -12,7 +12,6 @@ import {DiscordService} from "./discord.service";
         {
             provide: "DISCORD_CLIENT",
             useFactory: async (): Promise<Client> => {
-                const bot_token = (await readFile("./secret/bot-token.txt")).toString().trim();
                 const bot_client = new Client({
                     intents: [
                         GatewayIntentBits.Guilds,
@@ -21,6 +20,9 @@ import {DiscordService} from "./discord.service";
                         GatewayIntentBits.GuildMembers,
                     ],
                 });
+                if (process.env.DISABLE_DISCORD_LOGIN === "true") return bot_client;
+                const bot_token = process.env.DISCORD_BOT_TOKEN?.trim()
+                    ?? (await readFile("./secret/bot-token.txt")).toString().trim();
                 await bot_client.login(bot_token);
                 return bot_client;
             },

@@ -13,6 +13,7 @@ COPY common common
 COPY core core
 COPY clients clients
 COPY microservices microservices
+COPY apps apps
 
 RUN npm i --legacy-peer-deps --include=optional
 RUN npm run build --workspace=common

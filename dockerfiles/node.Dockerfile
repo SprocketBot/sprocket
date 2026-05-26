@@ -1,4 +1,4 @@
-FROM node:18-alpine as base
+FROM node:18-alpine AS base
 
 # Set current commit SHA in env
 ARG COMMIT_SHA
@@ -11,6 +11,7 @@ RUN apk add --no-cache python3 make g++
 WORKDIR /app
 
 COPY package.json package-lock.json ./
+COPY apps apps
 COPY clients clients
 COPY common common
 COPY core core
@@ -19,4 +20,3 @@ COPY microservices microservices
 RUN npm i -g @nestjs/cli && npm i --legacy-peer-deps --include=optional
 
 RUN npm run build --workspace=common
-

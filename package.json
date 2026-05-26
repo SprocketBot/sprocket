@@ -14,6 +14,9 @@
     "postinstall": "npm run build:common",
     "build": "npm run build --workspaces --if-present",
     "build:common": "npm run build --workspace=common",
+    "build:monolith": "npm run build --workspace=apps/monolith",
+    "start:monolith": "npm run start --workspace=apps/monolith",
+    "dev:monolith": "npm run dev --workspace=apps/monolith",
     "infra:install": "bash ./scripts/infra/pulumi-install-all.sh --with-foundation",
     "infra:backend:verify": "bash ./scripts/infra/verify-backend.sh",
     "infra:preview": "bash ./scripts/infra/preview.sh",
@@ -56,6 +59,7 @@
   "workspaces": [
     "common",
     "core",
+    "apps/monolith",
     "infra/global",
     "infra/layer_1",
     "infra/layer_2",
