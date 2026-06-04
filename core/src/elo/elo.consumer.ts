@@ -102,6 +102,10 @@ export class EloConsumer implements OnApplicationBootstrap, OnModuleDestroy {
     }
 
     async onApplicationBootstrap(): Promise<void> {
+        if (!this.postgres) {
+            this.logger.error("PostgresService not injected - this is a configuration error. Check that PostgresModule is imported.");
+            return;
+        }
         await this.ensureSchedulerSchema();
         await this.runSalariesIfDue();
         this.interval = setInterval(() => {
