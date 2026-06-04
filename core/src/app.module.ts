@@ -1,7 +1,6 @@
-import type {MiddlewareConsumer, NestModule} from "@nestjs/common";
-import {Module} from "@nestjs/common";
+import {Module, MiddlewareConsumer, NestModule} from "@nestjs/common";
 import {GraphQLModule} from "@nestjs/graphql";
-import {config} from "@sprocketbot/common";
+import {config, PostgresModule} from "@sprocketbot/common";
 import {RedisCache} from "apollo-server-cache-redis";
 import {graphqlUploadExpress} from "graphql-upload";
 
@@ -65,6 +64,7 @@ import {UtilModule} from "./util/util.module";
         OrganizationModule,
         IdentityModule,
         DatabaseModule,
+        PostgresModule,
         ConfigurationModule,
         GameModule,
         ReplayParseModule,
