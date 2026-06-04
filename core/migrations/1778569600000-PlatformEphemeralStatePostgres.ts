@@ -1,12 +1,12 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class PlatformEphemeralStatePostgres1778569600000 implements MigrationInterface {
-    name = "PlatformEphemeralStatePostgres1778569600000";
+  name = 'PlatformEphemeralStatePostgres1778569600000';
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query("CREATE SCHEMA IF NOT EXISTS \"sprocket\"");
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query('CREATE SCHEMA IF NOT EXISTS "sprocket"');
 
-        await queryRunner.query(`
+    await queryRunner.query(`
             CREATE TABLE "sprocket"."scrim_queue" (
                 "id" uuid NOT NULL,
                 "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
@@ -39,7 +39,7 @@ export class PlatformEphemeralStatePostgres1778569600000 implements MigrationInt
         // Index for scrim clock efficient query - find pending/popped scrims that may need cleanup
         await queryRunner.query("CREATE INDEX \"IDX_scrim_queue_status_updated\" ON \"sprocket\".\"scrim_queue\" (\"status\", \"updated_at\")");
 
-        await queryRunner.query(`
+    await queryRunner.query(`
             CREATE TABLE "sprocket"."scrim_queue_player" (
                 "scrim_id" uuid NOT NULL,
                 "player_id" integer NOT NULL,
@@ -53,9 +53,11 @@ export class PlatformEphemeralStatePostgres1778569600000 implements MigrationInt
                 CONSTRAINT "FK_scrim_queue_player_scrim" FOREIGN KEY ("scrim_id") REFERENCES "sprocket"."scrim_queue"("id") ON DELETE CASCADE
             )
         `);
-        await queryRunner.query("CREATE INDEX \"IDX_scrim_queue_player_player_id\" ON \"sprocket\".\"scrim_queue_player\" (\"player_id\")");
+    await queryRunner.query(
+      'CREATE INDEX "IDX_scrim_queue_player_player_id" ON "sprocket"."scrim_queue_player" ("player_id")',
+    );
 
-        await queryRunner.query(`
+    await queryRunner.query(`
             CREATE TABLE "sprocket"."scrim_queue_game" (
                 "id" SERIAL NOT NULL,
                 "scrim_id" uuid NOT NULL,
@@ -66,7 +68,7 @@ export class PlatformEphemeralStatePostgres1778569600000 implements MigrationInt
             )
         `);
 
-        await queryRunner.query(`
+    await queryRunner.query(`
             CREATE TABLE "sprocket"."scrim_queue_game_player" (
                 "game_id" integer NOT NULL,
                 "team_index" integer NOT NULL,
@@ -82,7 +84,7 @@ export class PlatformEphemeralStatePostgres1778569600000 implements MigrationInt
             )
         `);
 
-        await queryRunner.query(`
+    await queryRunner.query(`
             CREATE TABLE "sprocket"."replay_submission" (
                 "id" text NOT NULL,
                 "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
@@ -103,11 +105,17 @@ export class PlatformEphemeralStatePostgres1778569600000 implements MigrationInt
                 CONSTRAINT "PK_replay_submission" PRIMARY KEY ("id")
             )
         `);
-        await queryRunner.query("CREATE INDEX \"IDX_replay_submission_status\" ON \"sprocket\".\"replay_submission\" (\"status\")");
-        await queryRunner.query("CREATE INDEX \"IDX_replay_submission_scrim_id\" ON \"sprocket\".\"replay_submission\" (\"scrim_id\")");
-        await queryRunner.query("CREATE INDEX \"IDX_replay_submission_match_id\" ON \"sprocket\".\"replay_submission\" (\"match_id\")");
+    await queryRunner.query(
+      'CREATE INDEX "IDX_replay_submission_status" ON "sprocket"."replay_submission" ("status")',
+    );
+    await queryRunner.query(
+      'CREATE INDEX "IDX_replay_submission_scrim_id" ON "sprocket"."replay_submission" ("scrim_id")',
+    );
+    await queryRunner.query(
+      'CREATE INDEX "IDX_replay_submission_match_id" ON "sprocket"."replay_submission" ("match_id")',
+    );
 
-        await queryRunner.query(`
+    await queryRunner.query(`
             CREATE TABLE "sprocket"."replay_submission_item" (
                 "submission_id" text NOT NULL,
                 "task_id" text NOT NULL,
@@ -121,7 +129,7 @@ export class PlatformEphemeralStatePostgres1778569600000 implements MigrationInt
             )
         `);
 
-        await queryRunner.query(`
+    await queryRunner.query(`
             CREATE TABLE "sprocket"."replay_submission_ratifier" (
                 "id" SERIAL NOT NULL,
                 "submission_id" text NOT NULL,
@@ -135,7 +143,7 @@ export class PlatformEphemeralStatePostgres1778569600000 implements MigrationInt
             )
         `);
 
-        await queryRunner.query(`
+    await queryRunner.query(`
             CREATE TABLE "sprocket"."replay_submission_rejection" (
                 "id" SERIAL NOT NULL,
                 "submission_id" text NOT NULL,
@@ -148,7 +156,7 @@ export class PlatformEphemeralStatePostgres1778569600000 implements MigrationInt
             )
         `);
 
-        await queryRunner.query(`
+    await queryRunner.query(`
             CREATE TABLE "sprocket"."replay_submission_rejection_item" (
                 "rejection_id" integer NOT NULL,
                 "position" integer NOT NULL,
@@ -161,7 +169,7 @@ export class PlatformEphemeralStatePostgres1778569600000 implements MigrationInt
             )
         `);
 
-        await queryRunner.query(`
+    await queryRunner.query(`
             CREATE TABLE "sprocket"."platform_rpc_queue" (
                 "id" uuid NOT NULL,
                 "queue" text NOT NULL,
@@ -179,7 +187,7 @@ export class PlatformEphemeralStatePostgres1778569600000 implements MigrationInt
         await queryRunner.query("CREATE INDEX \"IDX_platform_rpc_queue_pending\" ON \"sprocket\".\"platform_rpc_queue\" (\"queue\", \"status\", \"created_at\")");
         await queryRunner.query("CREATE INDEX \"IDX_platform_rpc_queue_locked_at\" ON \"sprocket\".\"platform_rpc_queue\" (\"status\", \"locked_at\") WHERE \"status\" = 'processing'");
 
-        await queryRunner.query(`
+    await queryRunner.query(`
             CREATE TABLE "sprocket"."platform_event" (
                 "id" BIGSERIAL NOT NULL,
                 "topic" text NOT NULL,
@@ -191,7 +199,7 @@ export class PlatformEphemeralStatePostgres1778569600000 implements MigrationInt
         await queryRunner.query("CREATE INDEX \"IDX_platform_event_topic\" ON \"sprocket\".\"platform_event\" (\"topic\", \"id\")");
         await queryRunner.query("CREATE INDEX \"IDX_platform_event_created_at\" ON \"sprocket\".\"platform_event\" (\"created_at\")");
 
-        await queryRunner.query(`
+    await queryRunner.query(`
             CREATE TABLE "sprocket"."platform_task_queue" (
                 "id" text NOT NULL,
                 "task" text NOT NULL,
@@ -206,9 +214,11 @@ export class PlatformEphemeralStatePostgres1778569600000 implements MigrationInt
                 CONSTRAINT "PK_platform_task_queue" PRIMARY KEY ("id")
             )
         `);
-        await queryRunner.query("CREATE INDEX \"IDX_platform_task_queue_pending\" ON \"sprocket\".\"platform_task_queue\" (\"status\", \"created_at\")");
+    await queryRunner.query(
+      'CREATE INDEX "IDX_platform_task_queue_pending" ON "sprocket"."platform_task_queue" ("status", "created_at")',
+    );
 
-        await queryRunner.query(`
+    await queryRunner.query(`
             CREATE TABLE "sprocket"."platform_task_progress" (
                 "id" BIGSERIAL NOT NULL,
                 "task_id" text NOT NULL,
@@ -218,9 +228,11 @@ export class PlatformEphemeralStatePostgres1778569600000 implements MigrationInt
                 CONSTRAINT "PK_platform_task_progress" PRIMARY KEY ("id")
             )
         `);
-        await queryRunner.query("CREATE INDEX \"IDX_platform_task_progress_queue\" ON \"sprocket\".\"platform_task_progress\" (\"progress_queue\", \"id\")");
+    await queryRunner.query(
+      'CREATE INDEX "IDX_platform_task_progress_queue" ON "sprocket"."platform_task_progress" ("progress_queue", "id")',
+    );
 
-        await queryRunner.query(`
+    await queryRunner.query(`
             CREATE TABLE "sprocket"."elo_job_queue" (
                 "id" text NOT NULL,
                 "endpoint" text NOT NULL,
@@ -234,44 +246,46 @@ export class PlatformEphemeralStatePostgres1778569600000 implements MigrationInt
                 CONSTRAINT "PK_elo_job_queue" PRIMARY KEY ("id")
             )
         `);
-        await queryRunner.query("CREATE INDEX \"IDX_elo_job_queue_pending\" ON \"sprocket\".\"elo_job_queue\" (\"status\", \"created_at\")");
+    await queryRunner.query(
+      'CREATE INDEX "IDX_elo_job_queue_pending" ON "sprocket"."elo_job_queue" ("status", "created_at")',
+    );
 
-        await queryRunner.query(`
+    await queryRunner.query(`
             CREATE TABLE "sprocket"."platform_scheduled_job" (
                 "name" text NOT NULL,
                 "last_run_at" TIMESTAMP WITH TIME ZONE NOT NULL,
                 CONSTRAINT "PK_platform_scheduled_job" PRIMARY KEY ("name")
             )
         `);
-    }
+  }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query("DROP TABLE \"sprocket\".\"platform_scheduled_job\"");
-        await queryRunner.query("DROP INDEX \"sprocket\".\"IDX_elo_job_queue_pending\"");
-        await queryRunner.query("DROP TABLE \"sprocket\".\"elo_job_queue\"");
-        await queryRunner.query("DROP INDEX \"sprocket\".\"IDX_platform_task_progress_queue\"");
-        await queryRunner.query("DROP TABLE \"sprocket\".\"platform_task_progress\"");
-        await queryRunner.query("DROP INDEX \"sprocket\".\"IDX_platform_task_queue_pending\"");
-        await queryRunner.query("DROP TABLE \"sprocket\".\"platform_task_queue\"");
-        await queryRunner.query("DROP INDEX \"sprocket\".\"IDX_platform_event_topic\"");
-        await queryRunner.query("DROP TABLE \"sprocket\".\"platform_event\"");
-        await queryRunner.query("DROP INDEX \"sprocket\".\"IDX_platform_rpc_queue_pending\"");
-        await queryRunner.query("DROP TABLE \"sprocket\".\"platform_rpc_queue\"");
-        await queryRunner.query("DROP TABLE \"sprocket\".\"replay_submission_rejection_item\"");
-        await queryRunner.query("DROP TABLE \"sprocket\".\"replay_submission_rejection\"");
-        await queryRunner.query("DROP TABLE \"sprocket\".\"replay_submission_ratifier\"");
-        await queryRunner.query("DROP TABLE \"sprocket\".\"replay_submission_item\"");
-        await queryRunner.query("DROP INDEX \"sprocket\".\"IDX_replay_submission_match_id\"");
-        await queryRunner.query("DROP INDEX \"sprocket\".\"IDX_replay_submission_scrim_id\"");
-        await queryRunner.query("DROP INDEX \"sprocket\".\"IDX_replay_submission_status\"");
-        await queryRunner.query("DROP TABLE \"sprocket\".\"replay_submission\"");
-        await queryRunner.query("DROP TABLE \"sprocket\".\"scrim_queue_game_player\"");
-        await queryRunner.query("DROP TABLE \"sprocket\".\"scrim_queue_game\"");
-        await queryRunner.query("DROP INDEX \"sprocket\".\"IDX_scrim_queue_player_player_id\"");
-        await queryRunner.query("DROP TABLE \"sprocket\".\"scrim_queue_player\"");
-        await queryRunner.query("DROP INDEX \"sprocket\".\"IDX_scrim_queue_skill_group_id\"");
-        await queryRunner.query("DROP INDEX \"sprocket\".\"IDX_scrim_queue_submission_id\"");
-        await queryRunner.query("DROP INDEX \"sprocket\".\"IDX_scrim_queue_status\"");
-        await queryRunner.query("DROP TABLE \"sprocket\".\"scrim_queue\"");
-    }
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query('DROP TABLE "sprocket"."platform_scheduled_job"');
+    await queryRunner.query('DROP INDEX "sprocket"."IDX_elo_job_queue_pending"');
+    await queryRunner.query('DROP TABLE "sprocket"."elo_job_queue"');
+    await queryRunner.query('DROP INDEX "sprocket"."IDX_platform_task_progress_queue"');
+    await queryRunner.query('DROP TABLE "sprocket"."platform_task_progress"');
+    await queryRunner.query('DROP INDEX "sprocket"."IDX_platform_task_queue_pending"');
+    await queryRunner.query('DROP TABLE "sprocket"."platform_task_queue"');
+    await queryRunner.query('DROP INDEX "sprocket"."IDX_platform_event_topic"');
+    await queryRunner.query('DROP TABLE "sprocket"."platform_event"');
+    await queryRunner.query('DROP INDEX "sprocket"."IDX_platform_rpc_queue_pending"');
+    await queryRunner.query('DROP TABLE "sprocket"."platform_rpc_queue"');
+    await queryRunner.query('DROP TABLE "sprocket"."replay_submission_rejection_item"');
+    await queryRunner.query('DROP TABLE "sprocket"."replay_submission_rejection"');
+    await queryRunner.query('DROP TABLE "sprocket"."replay_submission_ratifier"');
+    await queryRunner.query('DROP TABLE "sprocket"."replay_submission_item"');
+    await queryRunner.query('DROP INDEX "sprocket"."IDX_replay_submission_match_id"');
+    await queryRunner.query('DROP INDEX "sprocket"."IDX_replay_submission_scrim_id"');
+    await queryRunner.query('DROP INDEX "sprocket"."IDX_replay_submission_status"');
+    await queryRunner.query('DROP TABLE "sprocket"."replay_submission"');
+    await queryRunner.query('DROP TABLE "sprocket"."scrim_queue_game_player"');
+    await queryRunner.query('DROP TABLE "sprocket"."scrim_queue_game"');
+    await queryRunner.query('DROP INDEX "sprocket"."IDX_scrim_queue_player_player_id"');
+    await queryRunner.query('DROP TABLE "sprocket"."scrim_queue_player"');
+    await queryRunner.query('DROP INDEX "sprocket"."IDX_scrim_queue_skill_group_id"');
+    await queryRunner.query('DROP INDEX "sprocket"."IDX_scrim_queue_submission_id"');
+    await queryRunner.query('DROP INDEX "sprocket"."IDX_scrim_queue_status"');
+    await queryRunner.query('DROP TABLE "sprocket"."scrim_queue"');
+  }
 }

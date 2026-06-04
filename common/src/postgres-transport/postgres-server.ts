@@ -72,7 +72,7 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
                     `,
                     [Math.ceil(this.staleMessageTimeoutMs / 1000)],
                 );
-                if (result.rowCount > 0) {
+                if ((result.rowCount ?? 0) > 0) {
                     this.logger.warn(`Reset ${result.rowCount} stale processing messages to pending`);
                 }
             } catch (error) {
