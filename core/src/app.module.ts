@@ -37,9 +37,9 @@ import {UtilModule} from "./util/util.module";
                 db: 13,
                 tls: config.cache.secure
                     ? {
-                            host: config.cache.host,
-                            servername: config.cache.host,
-                        }
+                          host: config.cache.host,
+                          servername: config.cache.host,
+                      }
                     : undefined,
             }),
             playground: config.gql.playground,
@@ -60,11 +60,11 @@ import {UtilModule} from "./util/util.module";
             // https://stackoverflow.com/questions/63991157/how-do-i-upload-multiple-files-with-nestjs-graphql
             uploads: false,
         }),
+        PostgresModule,
         HealthModule,
         OrganizationModule,
         IdentityModule,
         DatabaseModule,
-        PostgresModule,
         ConfigurationModule,
         GameModule,
         ReplayParseModule,

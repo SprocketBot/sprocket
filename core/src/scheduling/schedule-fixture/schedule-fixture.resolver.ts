@@ -23,7 +23,20 @@ export class ScheduleFixtureResolver {
 
     @Query(() => ScheduleFixture)
     async getFixture(@Args("id") id: number): Promise<ScheduleFixture> {
-        return this.scheduleFixtureRepo.findOneOrFail({where: {id} });
+        return this.scheduleFixtureRepo.findOneOrFail({
+            where: {id},
+            relations: [
+                "homeFranchise",
+                "homeFranchise.profile",
+                "awayFranchise",
+                "awayFranchise.profile",
+                "matchParents",
+                "matchParents.matches",
+                "matchParents.matches.skillGroup",
+                "matchParents.matches.skillGroup.profile",
+                "matchParents.matches.gameMode",
+            ],
+        });
     }
 
     @ResolveField()

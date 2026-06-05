@@ -39,6 +39,7 @@ interface ScrimRow {
 }
 
 interface ScrimPlayerRow {
+    scrim_id?: string;
     player_id: number;
     name: string;
     joined_at: Date;
@@ -48,10 +49,12 @@ interface ScrimPlayerRow {
 }
 
 interface ScrimGameRow {
+    scrim_id?: string;
     id: number;
 }
 
 interface ScrimGamePlayerRow {
+    game_scrim_id?: string;
     game_id: number;
     team_index: number;
     player_id: number;
@@ -160,13 +163,55 @@ export class ScrimPostgresRepository {
     }
 
     async findAll(skillGroupId?: number): Promise<Scrim[]> {
-        const result = await this.postgres.query<ScrimRow>(
-            "SELECT * FROM sprocket.scrim_queue ORDER BY created_at ASC",
-        );
-        const scrims = await Promise.all(result.rows.map(row => this.hydrate(row)));
-        return skillGroupId
-            ? scrims.filter(s => s.skillGroupId === skillGroupId || !s.settings.competitive)
-            : scrims;
+        // Filter at DB level using indexes - only load active scrims
+        // This dramatically reduces data transfer and eliminates N+1 queries
+        // Use the existing status and skill_group_id indexes
+        let query = `SELECT * FROM sprocket.scrim_queue 
+             WHERE status IN ('pending', 'popped', 'in_progress', 'ready')`;
+        const params: unknown[] = [];
+        
+        // Filter by skill_group_id at DB level to use index
+        if (skillGroupId !== undefined) {
+            query += ` AND (skill_group_id = $1 OR settings_competitive = false)`;
+            params.push(skillGroupId);
+        }
+        
+        query += ` ORDER BY created_at ASC`;
+        
+        const result = await this.postgres.query<ScrimRow>(query, params);
+        
+        if (result.rows.length === 0) return [];
+        
+        // Batch load all players and games in just 2 queries instead of 2N+1
+        const scrimIds = result.rows.map(row => row.id);
+        const [allPlayers, allGames] = await Promise.all([
+            this.loadPlayersBatch(scrimIds),
+            this.loadGamesBatch(scrimIds),
+        ]);
+        
+        // Map players and games to their respective scrims
+        const playersByScrim = new Map<string, ScrimPlayer[]>();
+        const gamesByScrim = new Map<string, ScrimGame[]>();
+        
+        for (const player of allPlayers) {
+            const list = playersByScrim.get(player.scrimId) || [];
+            list.push(player.player);
+            playersByScrim.set(player.scrimId, list);
+        }
+        
+        for (const game of allGames) {
+            const list = gamesByScrim.get(game.scrimId) || [];
+            list.push(game.game);
+            gamesByScrim.set(game.scrimId, list);
+        }
+        
+        // Build scrim objects using preloaded data
+        return result.rows.map(row => {
+            const players = playersByScrim.get(row.id) || [];
+            const games = gamesByScrim.get(row.id) || [];
+            
+            return this.buildScrim(row, players, games);
+        });
     }
 
     /**
@@ -179,7 +224,37 @@ export class ScrimPostgresRepository {
              WHERE status IN ('pending', 'popped') 
              ORDER BY updated_at ASC`,
         );
-        return Promise.all(result.rows.map(row => this.hydrate(row)));
+        
+        if (result.rows.length === 0) return [];
+        
+        // Batch load all players and games in just 2 queries
+        const scrimIds = result.rows.map(row => row.id);
+        const [allPlayers, allGames] = await Promise.all([
+            this.loadPlayersBatch(scrimIds),
+            this.loadGamesBatch(scrimIds),
+        ]);
+        
+        // Map players and games to their respective scrims
+        const playersByScrim = new Map<string, ScrimPlayer[]>();
+        const gamesByScrim = new Map<string, ScrimGame[]>();
+        
+        for (const player of allPlayers) {
+            const list = playersByScrim.get(player.scrimId) || [];
+            list.push(player.player);
+            playersByScrim.set(player.scrimId, list);
+        }
+        
+        for (const game of allGames) {
+            const list = gamesByScrim.get(game.scrimId) || [];
+            list.push(game.game);
+            gamesByScrim.set(game.scrimId, list);
+        }
+        
+        return result.rows.map(row => {
+            const players = playersByScrim.get(row.id) || [];
+            const games = gamesByScrim.get(row.id) || [];
+            return this.buildScrim(row, players, games);
+        });
     }
 
     async findByPlayer(playerId: number): Promise<Scrim | null> {
@@ -573,6 +648,134 @@ export class ScrimPostgresRepository {
             leaveAt: row.leave_at,
             group: row.group_key ?? undefined,
             checkedIn: row.checked_in ?? undefined,
+        };
+    }
+
+    /**
+     * Batch load players for multiple scrims in a single query.
+     * Reduces N+1 queries to just 1 query.
+     */
+    private async loadPlayersBatch(scrimIds: string[]): Promise<{scrimId: string; player: ScrimPlayer}[]> {
+        if (scrimIds.length === 0) return [];
+        
+        const result = await this.postgres.query<ScrimPlayerRow & {scrim_id: string}>(
+            `
+                SELECT scrim_id, player_id, name, joined_at, leave_at, group_key, checked_in
+                FROM sprocket.scrim_queue_player
+                WHERE scrim_id = ANY($1::uuid[])
+                ORDER BY scrim_id, position ASC
+            `,
+            [scrimIds],
+        );
+        
+        return result.rows.map(row => ({
+            scrimId: row.scrim_id,
+            player: this.mapPlayer(row),
+        }));
+    }
+
+    /**
+     * Batch load games for multiple scrims in a single query.
+     * Reduces N+1 queries to just 2 queries (games + players).
+     */
+    private async loadGamesBatch(scrimIds: string[]): Promise<{scrimId: string; game: ScrimGame}[]> {
+        if (scrimIds.length === 0) return [];
+        
+        const gameResult = await this.postgres.query<ScrimGameRow & {scrim_id: string}>(
+            `
+                SELECT scrim_id, id
+                FROM sprocket.scrim_queue_game
+                WHERE scrim_id = ANY($1::uuid[])
+                ORDER BY scrim_id, position ASC
+            `,
+            [scrimIds],
+        );
+        
+        if (gameResult.rows.length === 0) return [];
+        
+        const gameIds = gameResult.rows.map(row => row.id);
+        
+        const playerResult = await this.postgres.query<ScrimGamePlayerRow & {game_scrim_id: string}>(
+            `
+                SELECT g.scrim_id as game_scrim_id, g.game_id, g.team_index, g.player_id, g.name, g.joined_at, g.leave_at, g.group_key, g.checked_in
+                FROM sprocket.scrim_queue_game_player g
+                WHERE g.game_id = ANY($1::int[])
+                ORDER BY g.game_id ASC, g.team_index ASC, g.position ASC
+            `,
+            [gameIds],
+        );
+        
+        // Group players by game_id for efficient lookup
+        const playersByGame = new Map<number, ScrimGamePlayerRow[]>();
+        for (const row of playerResult.rows) {
+            const list = playersByGame.get(row.game_id) || [];
+            list.push(row);
+            playersByGame.set(row.game_id, list);
+        }
+        
+        // Build games with their players
+        const gamesByScrim = new Map<string, ScrimGame[]>();
+        
+        for (const gameRow of gameResult.rows) {
+            const players = playersByGame.get(gameRow.id) || [];
+            const teamCount = Math.max(0, ...players.map(row => row.team_index)) + 1;
+            
+            const game: ScrimGame = {
+                teams: Array.from({length: teamCount}).map((_, teamIndex) => ({
+                    players: players
+                        .filter(row => row.team_index === teamIndex)
+                        .map(row => this.mapPlayer(row)),
+                })),
+            };
+            
+            const list = gamesByScrim.get(gameRow.scrim_id) || [];
+            list.push(game);
+            gamesByScrim.set(gameRow.scrim_id, list);
+        }
+        
+        // Flatten to array format
+        const result: {scrimId: string; game: ScrimGame}[] = [];
+        for (const [scrimId, games] of gamesByScrim) {
+            for (const game of games) {
+                result.push({scrimId, game});
+            }
+        }
+        
+        return result;
+    }
+
+    /**
+     * Build a Scrim object from a row with preloaded players and games.
+     */
+    private buildScrim(row: ScrimRow, players: ScrimPlayer[], games: ScrimGame[]): Scrim {
+        return {
+            id: row.id,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at,
+            status: row.status,
+            unlockedStatus: row.unlocked_status ?? undefined,
+            authorId: row.author_id,
+            organizationId: row.organization_id,
+            gameModeId: row.game_mode_id,
+            skillGroupId: row.skill_group_id,
+            submissionId: row.submission_id ?? undefined,
+            timeoutJobId: row.timeout_job_id ? Number(row.timeout_job_id) : undefined,
+            groupInviteOpensAt: row.group_invite_opens_at ?? undefined,
+            poppedAt: row.popped_at ?? undefined,
+            players,
+            games,
+            lobby: row.lobby_name && row.lobby_password
+                ? {name: row.lobby_name, password: row.lobby_password}
+                : undefined,
+            settings: {
+                teamSize: row.settings_team_size,
+                teamCount: row.settings_team_count,
+                mode: row.settings_mode,
+                competitive: row.settings_competitive,
+                observable: row.settings_observable,
+                lfs: row.settings_lfs,
+                checkinTimeout: row.settings_checkin_timeout,
+            },
         };
     }
 
