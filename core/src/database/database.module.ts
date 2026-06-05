@@ -1,6 +1,6 @@
 import {Module} from "@nestjs/common";
 import {TypeOrmModule} from "@nestjs/typeorm";
-import {config} from "@sprocketbot/common";
+import {config, PostgresModule} from "@sprocketbot/common";
 
 import {AuthorizationModule} from "./authorization/authorization.module";
 import {ConfigurationModule} from "./configuration/configuration.module";
@@ -50,7 +50,7 @@ const modules = [
 ];
 
 @Module({
-    imports: modules,
-    exports: modules,
+    imports: [...modules, PostgresModule],
+    exports: [...modules, PostgresModule],
 })
 export class DatabaseModule {}
