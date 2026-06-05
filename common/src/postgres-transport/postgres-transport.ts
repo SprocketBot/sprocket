@@ -31,6 +31,7 @@ export function createTransportPool(): Pool {
         ssl: config.db.host === "postgres" || config.db.host === "localhost"
             ? false
             : {rejectUnauthorized: false},
+        max: config.db.pool_size,
     });
 }
 
