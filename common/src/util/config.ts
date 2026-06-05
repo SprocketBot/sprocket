@@ -107,7 +107,7 @@ export const config = {
             return ConfigResolver.getBooleanConfig("POSTGRES_ENABLE_LOGS", "db.enable_logs");
         },
         get pool_size(): number {
-            return ConfigResolver.getNumberConfig("POSTGRES_POOL_SIZE", "db.pool_size") ?? 1;
+            return ConfigResolver.getNumberConfig("POSTGRES_POOL_SIZE", "db.pool_size", 1);
         },
     },
     gql: {
