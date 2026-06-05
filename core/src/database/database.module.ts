@@ -41,11 +41,14 @@ const modules = [
         logging: config.db.enable_logs,
         // Only enable SSL if not in local development (postgres host != "postgres" or "localhost")
         ssl:
-      config.db.host === "postgres" || config.db.host === "localhost"
-          ? false
-          : {
-                  rejectUnauthorized: false,
-              },
+            config.db.host === "postgres" || config.db.host === "localhost"
+                ? false
+                : {
+                      rejectUnauthorized: false,
+                  },
+        extra: {
+            max: config.db.pool_size,
+        },
     }),
 ];
 
