@@ -70,10 +70,18 @@ export class ReplaySubmissionPostgresRepository {
     constructor(private readonly postgres: PostgresService) {}
 
     async findAll(): Promise<CompatibleSubmission[]> {
-        const result = await this.postgres.query<SubmissionRow>(
-            "SELECT * FROM sprocket.replay_submission ORDER BY created_at ASC",
-        );
-        return Promise.all(result.rows.map(row => this.hydrate(row)));
+        try {
+            const result = await this.postgres.query<SubmissionRow>(
+                "SELECT * FROM sprocket.replay_submission ORDER BY created_at ASC",
+            );
+            console.log(`[Repo] findAll: rows length = ${result.rows.length}`);
+            const hydrated = await Promise.all(result.rows.map(row => this.hydrate(row)));
+            console.log(`[Repo] findAll: hydrated length = ${hydrated.length}`);
+            return hydrated;
+        } catch (error) {
+            console.error(`[Repo] findAll error:`, error);
+            throw error;
+        }
     }
 
     async findById(submissionId: string): Promise<CompatibleSubmission | undefined> {

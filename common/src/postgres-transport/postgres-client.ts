@@ -80,6 +80,7 @@ export class PostgresClientProxy extends ClientProxy {
                 return;
             }
             if (row.status === "completed") {
+                console.log(`[PostgresClient] Received response for ${id}:`, JSON.stringify(row.response).substring(0, 200));
                 callback({response: row.response, isDisposed: true});
                 await this.transport.pool.query(
                     "DELETE FROM sprocket.platform_rpc_queue WHERE id = $1",
