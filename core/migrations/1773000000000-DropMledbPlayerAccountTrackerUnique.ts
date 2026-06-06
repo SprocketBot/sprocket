@@ -8,15 +8,17 @@ import {MigrationInterface, QueryRunner} from "typeorm";
 export class DropMledbPlayerAccountTrackerUnique1773000000000 implements MigrationInterface {
     name = "DropMledbPlayerAccountTrackerUnique1773000000000";
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
+public async up(queryRunner: QueryRunner): Promise<void> {
+        // Drop the unique constraint (which will also drop the underlying index)
         await queryRunner.query(
-            'DROP INDEX IF EXISTS "mledb"."player_account_tracker_unique"',
+            'ALTER TABLE "mledb"."player_account" DROP CONSTRAINT IF EXISTS "player_account_tracker_unique"',
         );
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
+        // Recreate the unique constraint
         await queryRunner.query(
-            'CREATE UNIQUE INDEX "player_account_tracker_unique" ON "mledb"."player_account" ("tracker")',
+            'ALTER TABLE "mledb"."player_account" ADD CONSTRAINT "player_account_tracker_unique" UNIQUE ("tracker")',
         );
     }
 }
