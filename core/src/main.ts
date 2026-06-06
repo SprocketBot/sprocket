@@ -35,7 +35,12 @@ async function bootstrap(): Promise<void> {
             heartbeat: 120,
         },
     });
-    app.enableCors();
+    app.enableCors({
+        origin: true,
+        credentials: true,
+        allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    });
     app.useGlobalPipes(new ValidationPipe());
 
     const httpAdapter = app.get(HttpAdapterHost);
