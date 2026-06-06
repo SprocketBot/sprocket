@@ -167,7 +167,7 @@ export class ScrimPostgresRepository {
         // This dramatically reduces data transfer and eliminates N+1 queries
         // Use the existing status and skill_group_id indexes
         let query = `SELECT * FROM sprocket.scrim_queue 
-             WHERE status IN ('pending', 'popped', 'in_progress', 'ready')`;
+             WHERE status IN ('PENDING', 'POPPED', 'IN_PROGRESS')`;
         const params: unknown[] = [];
         
         // Filter by skill_group_id at DB level to use index
@@ -221,7 +221,7 @@ export class ScrimPostgresRepository {
     async findForClockCheck(): Promise<Scrim[]> {
         const result = await this.postgres.query<ScrimRow>(
             `SELECT * FROM sprocket.scrim_queue 
-             WHERE status IN ('pending', 'popped') 
+             WHERE status IN ('PENDING', 'POPPED') 
              ORDER BY updated_at ASC`,
         );
         
