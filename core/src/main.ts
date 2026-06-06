@@ -26,7 +26,12 @@ async function bootstrap(): Promise<void> {
     app.connectMicroservice({
         strategy: new PostgresServer({queue: config.transport.core_queue}),
     });
-    app.enableCors();
+    app.enableCors({
+        origin: true,
+        credentials: true,
+        allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    });
     app.useGlobalPipes(new ValidationPipe());
 
     const httpAdapter = app.get(HttpAdapterHost);
