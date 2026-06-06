@@ -38,11 +38,25 @@ export class SubmissionService {
 
             const response = (await lastValueFrom(rx)) as unknown;
 
-            const output = outputSchema.parse(response);
-            this.logger.verbose(`| < (${rid}) - | \`${endpoint}\` (${JSON.stringify(output)})`);
+            // Debug: log the raw response type to help diagnose issues
+            this.logger.debug(`Raw response for ${endpoint}: ${JSON.stringify(response).substring(0, 200)}`);
+
+            // Handle case where response might be wrapped or incorrect
+            let output: unknown;
+            if (Array.isArray(response)) {
+                output = response;
+            } else if (response && typeof response === 'object' && 'data' in response) {
+                // Handle { data: [...] } wrapper
+                output = (response as {data: unknown}).data;
+            } else {
+                throw new Error(`Unexpected response type: ${typeof response}`);
+            }
+
+            const parsed = outputSchema.parse(output);
+            this.logger.verbose(`| < (${rid}) - | \`${endpoint}\` (${JSON.stringify(parsed).substring(0, 100)}...)`);
             return {
                 status: ResponseStatus.SUCCESS,
-                data: output,
+                data: parsed,
             };
         } catch (e) {
             this.logger.warn(`| < (${rid}) - | \`${endpoint}\` failed ${(e as Error).message}`);
