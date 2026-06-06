@@ -121,9 +121,9 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
         }
 
         try {
-            const response$ = this.transformToObservable(
-                await handler(packet.data, new BaseRpcContext([row])),
-            );
+            const handlerResult = await handler(packet.data, new BaseRpcContext([row]));
+            console.log(`[PostgresServer] Handler result for ${row.pattern}:`, JSON.stringify(handlerResult).substring(0, 200));
+            const response$ = this.transformToObservable(handlerResult);
             const respond = async (packet: WritePacket): Promise<void> => {
                 if (packet.err) {
                     await this.fail(row.id, packet.err);
@@ -140,6 +140,8 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
     }
 
     private async complete(id: string, response: unknown): Promise<void> {
+        // Debug: log what we're about to store
+        console.log(`[PostgresServer] Storing response for ${id}:`, JSON.stringify(response).substring(0, 200));
         await this.transport.pool.query(
             `
                 UPDATE sprocket.platform_rpc_queue
