@@ -2,9 +2,9 @@
 	import "../app.postcss";
 	import {initializeClient} from "$lib/api/client";
 	import {session} from "$app/stores";
-	import {
-	    AuthGuard, Chatwoot, StackBanner, ToastContainer,
-	} from "$lib/components";
+import {
+    AuthGuard, StackBanner, ToastContainer,
+} from "$lib/components";
 	import {navigationStore, ADMIN_NAV_ITEM} from "$lib/stores";
 
 	$: {
@@ -32,5 +32,4 @@
 <ToastContainer showTestButton={false} />
 
 <AuthGuard>
-	<Chatwoot />
 </AuthGuard>
