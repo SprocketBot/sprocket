@@ -55,10 +55,10 @@ export class MatchmakingService {
             }
 
             const parsed = outputSchema.parse(output);
-            this.logger.verbose(`| < (${rid}) - | \`${endpoint}\` (${JSON.stringify(output)})`);
+            this.logger.verbose(`| < (${rid}) - | \`${endpoint}\` (${JSON.stringify(parsed)})`);
             return {
                 status: ResponseStatus.SUCCESS,
-                data: output,
+                data: parsed,
             };
         } catch (e) {
             this.logger.warn(`| < (${rid}) - | \`${endpoint}\` failed ${(e as Error).message}`);
