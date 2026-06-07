@@ -40,11 +40,25 @@ export class MatchmakingService {
 
             const response = (await lastValueFrom(rx)) as unknown;
 
-            const output = outputSchema.parse(response);
-            this.logger.verbose(`| < (${rid}) - | \`${endpoint}\` (${JSON.stringify(output)})`);
+            // Handle case where response might be {} or null when array/object expected
+            let output: unknown;
+            if (Array.isArray(response)) {
+                output = response;
+            } else if (response && typeof response === 'object' && Object.keys(response).length === 0) {
+                // Handle empty object {} - treat as empty array or null
+                this.logger.debug(`Received empty object {}, treating as empty array for ${endpoint}`);
+                output = [];
+            } else if (response === null || response === undefined) {
+                output = null;
+            } else {
+                output = response;
+            }
+
+            const parsed = outputSchema.parse(output);
+            this.logger.verbose(`| < (${rid}) - | \`${endpoint}\` (${JSON.stringify(parsed)})`);
             return {
                 status: ResponseStatus.SUCCESS,
-                data: output,
+                data: parsed,
             };
         } catch (e) {
             this.logger.warn(`| < (${rid}) - | \`${endpoint}\` failed ${(e as Error).message}`);
