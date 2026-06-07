@@ -1,4 +1,4 @@
-import {Logger, OnApplicationBootstrap, OnModuleDestroy} from "@nestjs/common";
+import {Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy} from "@nestjs/common";
 import {ScrimStatus} from "@sprocketbot/common";
 import {compareAsc} from "date-fns";
 
@@ -8,6 +8,7 @@ import {ScrimCrudService} from "./scrim-crud/scrim-crud.service";
 // Configurable via SCRIM_CLOCK_INTERVAL_MS env var (default: 2 minutes)
 const SCRIM_CLOCK_INTERVAL_MS = parseInt(process.env.SCRIM_CLOCK_INTERVAL_MS || "120000", 10);
 
+@Injectable()
 export class ScrimConsumer implements OnApplicationBootstrap, OnModuleDestroy {
     private readonly logger = new Logger(ScrimConsumer.name);
 
