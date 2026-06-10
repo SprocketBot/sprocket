@@ -137,18 +137,44 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
         } catch (error) {
             await this.fail(row.id, error);
         }
-    }
+}
 
     private async complete(id: string, response: unknown): Promise<void> {
         // Debug: log what we're about to store
         console.log(`[PostgresServer] Storing response for ${id}:`, JSON.stringify(response).substring(0, 200));
+        
+        // Explicitly handle JSON serialization to prevent double-encoding issues
+        // If response is already a string, parse it first to ensure it's valid JSON, then stringify again
+        // This handles edge cases where response might be a pre-serialized JSON string
+        let jsonValue: unknown = response;
+        if (typeof response === 'string') {
+            try {
+                // Try to parse as JSON - if it succeeds, use the parsed value
+                // This handles the case where response is a stringified JSON string
+                jsonValue = JSON.parse(response);
+            } catch {
+                // If parsing fails, treat it as a plain string value
+                jsonValue = response;
+            }
+        }
+        
+        // Validate JSON before storing - this catches malformed objects that would
+        // fail when PostgreSQL tries to parse them as JSON (e.g., extra braces)
+        try {
+            jsonValue = JSON.parse(JSON.stringify(jsonValue));
+        } catch (error) {
+            this.logger.error(`Failed to serialize response for ${id}: ${response}`, error);
+            await this.fail(id, new Error(`Response serialization failed: ${error}`));
+            return;
+        }
+        
         await this.transport.pool.query(
             `
                 UPDATE sprocket.platform_rpc_queue
                 SET status = 'completed', response = $2, updated_at = now()
                 WHERE id = $1
             `,
-            [id, response ?? null],
+            [id, jsonValue ?? null],
         );
     }
 
