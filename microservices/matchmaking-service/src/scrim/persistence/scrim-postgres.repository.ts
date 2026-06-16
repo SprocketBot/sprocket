@@ -697,10 +697,20 @@ export class ScrimPostgresRepository {
         
         const playerResult = await this.postgres.query<ScrimGamePlayerRow & {game_scrim_id: string}>(
             `
-                SELECT g.scrim_id as game_scrim_id, g.game_id, g.team_index, g.player_id, g.name, g.joined_at, g.leave_at, g.group_key, g.checked_in
-                FROM sprocket.scrim_queue_game_player g
-                WHERE g.game_id = ANY($1::int[])
-                ORDER BY g.game_id ASC, g.team_index ASC, g.position ASC
+                SELECT
+                    qg.scrim_id as game_scrim_id,
+                    gp.game_id,
+                    gp.team_index,
+                    gp.player_id,
+                    gp.name,
+                    gp.joined_at,
+                    gp.leave_at,
+                    gp.group_key,
+                    gp.checked_in
+                FROM sprocket.scrim_queue_game_player gp
+                INNER JOIN sprocket.scrim_queue_game qg ON qg.id = gp.game_id
+                WHERE gp.game_id = ANY($1::int[])
+                ORDER BY gp.game_id ASC, gp.team_index ASC, gp.position ASC
             `,
             [gameIds],
         );
@@ -718,7 +728,7 @@ export class ScrimPostgresRepository {
         
         for (const gameRow of gameResult.rows) {
             const players = playersByGame.get(gameRow.id) || [];
-            const teamCount = Math.max(0, ...players.map(row => row.team_index)) + 1;
+            const teamCount = Math.max(-1, ...players.map(row => row.team_index)) + 1;
             
             const game: ScrimGame = {
                 teams: Array.from({length: teamCount}).map((_, teamIndex) => ({
