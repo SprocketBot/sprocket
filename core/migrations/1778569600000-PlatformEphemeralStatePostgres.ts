@@ -4,6 +4,25 @@ export class PlatformEphemeralStatePostgres1778569600000 implements MigrationInt
   name = 'PlatformEphemeralStatePostgres1778569600000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
+    const d = await queryRunner.query(`
+  SELECT
+    pg_backend_pid() AS backend_pid,
+    txid_current_if_assigned() AS txid,
+    current_database() AS db,
+    current_user AS db_user,
+    current_schema() AS current_schema,
+    inet_client_addr() AS client_addr,
+    application_name
+  FROM pg_stat_activity
+  WHERE pid = pg_backend_pid()
+`);
+
+    console.log('[migration debug]', {
+      nodePid: process.pid,
+      migration: 'PlatformEphemeralStatePostgres1778569600000',
+      at: 'before platform_event',
+      d,
+    });
     await queryRunner.query('CREATE SCHEMA IF NOT EXISTS "sprocket"');
 
     await queryRunner.query(`
@@ -33,11 +52,19 @@ export class PlatformEphemeralStatePostgres1778569600000 implements MigrationInt
                 CONSTRAINT "PK_scrim_queue" PRIMARY KEY ("id")
             )
         `);
-        await queryRunner.query("CREATE INDEX \"IDX_scrim_queue_status\" ON \"sprocket\".\"scrim_queue\" (\"status\")");
-        await queryRunner.query("CREATE INDEX \"IDX_scrim_queue_submission_id\" ON \"sprocket\".\"scrim_queue\" (\"submission_id\")");
-        await queryRunner.query("CREATE INDEX \"IDX_scrim_queue_skill_group_id\" ON \"sprocket\".\"scrim_queue\" (\"skill_group_id\")");
-        // Index for scrim clock efficient query - find pending/popped scrims that may need cleanup
-        await queryRunner.query("CREATE INDEX \"IDX_scrim_queue_status_updated\" ON \"sprocket\".\"scrim_queue\" (\"status\", \"updated_at\")");
+    await queryRunner.query(
+      'CREATE INDEX "IDX_scrim_queue_status" ON "sprocket"."scrim_queue" ("status")',
+    );
+    await queryRunner.query(
+      'CREATE INDEX "IDX_scrim_queue_submission_id" ON "sprocket"."scrim_queue" ("submission_id")',
+    );
+    await queryRunner.query(
+      'CREATE INDEX "IDX_scrim_queue_skill_group_id" ON "sprocket"."scrim_queue" ("skill_group_id")',
+    );
+    // Index for scrim clock efficient query - find pending/popped scrims that may need cleanup
+    await queryRunner.query(
+      'CREATE INDEX "IDX_scrim_queue_status_updated" ON "sprocket"."scrim_queue" ("status", "updated_at")',
+    );
 
     await queryRunner.query(`
             CREATE TABLE "sprocket"."scrim_queue_player" (
@@ -169,6 +196,20 @@ export class PlatformEphemeralStatePostgres1778569600000 implements MigrationInt
             )
         `);
 
+    const existingRpcQueue = await queryRunner.query(`
+  SELECT
+    c.oid::regclass AS regclass_name,
+    n.nspname AS schema_name,
+    c.relname AS relation_name,
+    c.relkind,
+    pg_get_userbyid(c.relowner) AS owner
+  FROM pg_class c
+  JOIN pg_namespace n ON n.oid = c.relnamespace
+  WHERE n.nspname = 'sprocket'
+    AND c.relname = 'platform_rpc_queue'
+`);
+
+    console.log('platform_rpc_queue before create:', existingRpcQueue);
     await queryRunner.query(`
             CREATE TABLE "sprocket"."platform_rpc_queue" (
                 "id" uuid NOT NULL,
@@ -184,9 +225,32 @@ export class PlatformEphemeralStatePostgres1778569600000 implements MigrationInt
                 CONSTRAINT "PK_platform_rpc_queue" PRIMARY KEY ("id")
             )
         `);
-        await queryRunner.query("CREATE INDEX \"IDX_platform_rpc_queue_pending\" ON \"sprocket\".\"platform_rpc_queue\" (\"queue\", \"status\", \"created_at\")");
-        await queryRunner.query("CREATE INDEX \"IDX_platform_rpc_queue_locked_at\" ON \"sprocket\".\"platform_rpc_queue\" (\"status\", \"locked_at\") WHERE \"status\" = 'processing'");
+    await queryRunner.query(
+      'CREATE INDEX "IDX_platform_rpc_queue_pending" ON "sprocket"."platform_rpc_queue" ("queue", "status", "created_at")',
+    );
+    await queryRunner.query(
+      'CREATE INDEX "IDX_platform_rpc_queue_locked_at" ON "sprocket"."platform_rpc_queue" ("status", "locked_at") WHERE "status" = \'processing\'',
+    );
 
+    const debug = await queryRunner.query(`
+  SELECT
+    pg_backend_pid() AS backend_pid,
+    txid_current_if_assigned() AS txid,
+    current_database() AS db,
+    current_user AS db_user,
+    current_schema() AS current_schema,
+    inet_client_addr() AS client_addr,
+    application_name
+  FROM pg_stat_activity
+  WHERE pid = pg_backend_pid()
+`);
+
+    console.log('[migration debug]', {
+      nodePid: process.pid,
+      migration: 'PlatformEphemeralStatePostgres1778569600000',
+      at: 'before platform_event',
+      debug,
+    });
     await queryRunner.query(`
             CREATE TABLE "sprocket"."platform_event" (
                 "id" BIGSERIAL NOT NULL,
@@ -196,8 +260,12 @@ export class PlatformEphemeralStatePostgres1778569600000 implements MigrationInt
                 CONSTRAINT "PK_platform_event" PRIMARY KEY ("id")
             )
         `);
-        await queryRunner.query("CREATE INDEX \"IDX_platform_event_topic\" ON \"sprocket\".\"platform_event\" (\"topic\", \"id\")");
-        await queryRunner.query("CREATE INDEX \"IDX_platform_event_created_at\" ON \"sprocket\".\"platform_event\" (\"created_at\")");
+    await queryRunner.query(
+      'CREATE INDEX "IDX_platform_event_topic" ON "sprocket"."platform_event" ("topic", "id")',
+    );
+    await queryRunner.query(
+      'CREATE INDEX "IDX_platform_event_created_at" ON "sprocket"."platform_event" ("created_at")',
+    );
 
     await queryRunner.query(`
             CREATE TABLE "sprocket"."platform_task_queue" (
