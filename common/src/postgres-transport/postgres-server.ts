@@ -123,17 +123,10 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
         try {
             const handlerResult = await handler(packet.data, new BaseRpcContext([row]));
             console.log(`[PostgresServer] Handler result for ${row.pattern}:`, JSON.stringify(handlerResult).substring(0, 200));
-            const response$ = this.transformToObservable(handlerResult);
-            const respond = async (packet: WritePacket): Promise<void> => {
-                if (packet.err) {
-                    await this.fail(row.id, packet.err);
-                    return;
-                }
-                if (packet.isDisposed) {
-                    await this.complete(row.id, packet.response);
-                }
-            };
-            response$ && this.send(response$, respond);
+            
+            // Instead of using transformToObservable (which can produce malformed JSON),
+            // we handle the result directly with safe serialization
+            await this.complete(row.id, handlerResult);
         } catch (error) {
             await this.fail(row.id, error);
         }
