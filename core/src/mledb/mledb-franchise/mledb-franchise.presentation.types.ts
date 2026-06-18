@@ -1,4 +1,4 @@
-import {Field, Int, ObjectType} from "@nestjs/graphql";
+import {Field, Float, Int, ObjectType} from "@nestjs/graphql";
 
 @ObjectType()
 export class MlePresentationFranchiseStaff {
@@ -41,7 +41,7 @@ export class MlePresentationFranchiseRosterPlayer {
     @Field(() => String, {nullable: true})
     league?: string;
 
-    @Field(() => Int)
+    @Field(() => Float)
     salary!: number;
 }
 
