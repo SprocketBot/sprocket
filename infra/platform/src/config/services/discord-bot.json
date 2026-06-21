@@ -3,6 +3,13 @@
     "prefix": "{{ bot.prefix }}"
   },
   "transport": {{{transport}}},
+  "db": {
+    "host": "{{database.host}}",
+    "port": {{database.port}},
+    "username": "{{database.username}}",
+    "database": "{{database.database}}",
+    "enable_logs": false
+  },
   "minio": {
     "endPoint": "{{s3.endpoint}}",
     "port": {{ s3.port }},
