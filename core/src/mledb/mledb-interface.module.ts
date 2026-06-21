@@ -9,6 +9,7 @@ import {RosterRoleUsage} from "../database/franchise/roster_role_usages/roster_r
 import {RosterSlot} from "../database/franchise/roster_slot/roster_slot.model";
 import {Team} from "../database/franchise/team/team.model";
 import {MLE_Series} from "../database/mledb/Series.model";
+import {MLE_Player, MLE_Team, MLE_TeamToCaptain} from "../database/mledb";
 import {MLE_TeamRoleUsage} from "../database/mledb/TeamRoleUsage.model";
 import {SeriesToMatchParent} from "../database/mledb-bridge/series_to_match_parent.model";
 import {Match} from "../database/scheduling/match/match.model";
@@ -26,6 +27,11 @@ import {MledbPlayerController} from "./mledb-player/mledb-player.controller";
 import {FormerPlayerScrimGuard} from "./mledb-player/mledb-player.guard";
 import {MledbPlayerPresentationResolver} from "./mledb-player/mledb-player.presentation.resolver";
 import {MledbPlayerAccountService} from "./mledb-player-account";
+import {
+    MledbFranchisePresentationResolver,
+    MledbFranchisePresentationService,
+} from "./mledb-franchise";
+import {MledbFaPresentationResolver, MledbFaPresentationService} from "./mledb-fa";
 import {MledbFinalizationService} from "./mledb-scrim";
 import {MledbNcpTeamRoleUsageResolver, MledbNcpTeamRoleUsageService} from "./mledb-team-role-usage";
 
@@ -33,6 +39,9 @@ import {MledbNcpTeamRoleUsageResolver, MledbNcpTeamRoleUsageService} from "./mle
     imports: [
         TypeOrmModule.forFeature([
             MLE_TeamRoleUsage,
+            MLE_Team,
+            MLE_TeamToCaptain,
+            MLE_Player,
             MLE_Series,
             SeriesToMatchParent,
             Match,
@@ -56,6 +65,10 @@ import {MledbNcpTeamRoleUsageResolver, MledbNcpTeamRoleUsageService} from "./mle
         MledbPlayerService,
         MledbPlayerPresentationResolver,
         MledbPlayerAccountService,
+        MledbFranchisePresentationService,
+        MledbFranchisePresentationResolver,
+        MledbFaPresentationService,
+        MledbFaPresentationResolver,
         MledbFinalizationService,
         MledbMatchService,
         MledbNcpTeamRoleUsageService,
