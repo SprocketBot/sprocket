@@ -132,32 +132,59 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
         }
 }
 
+    /**
+     * Safely serialize a response for storage in the RPC queue.
+     * This method is robust against various edge cases:
+     * - Pre-serialized JSON strings
+     * - Objects with toJSON() methods
+     * - Circular references (throws error)
+     * - Invalid JSON-producing values
+     * 
+     * @throws Error if serialization fails
+     */
+    private serializeResponse(response: unknown): unknown {
+        // Handle null/undefined explicitly
+        if (response === null || response === undefined) {
+            return response;
+        }
+
+        // If it's already a string, validate it's valid JSON or store as-is
+        if (typeof response === 'string') {
+            try {
+                // Try to parse and re-serialize to ensure it's valid JSON
+                return JSON.parse(response);
+            } catch {
+                // If it's not valid JSON, wrap it in an object to make it valid JSON
+                // This prevents storing raw invalid strings that would fail in PostgreSQL
+                this.logger.warn(`Response is a non-JSON string, wrapping in object: ${response.substring(0, 100)}`);
+                return { value: response };
+            }
+        }
+
+        // If it has a toJSON method, use it (e.g., Date objects, custom classes)
+        if (typeof response === 'object' && response !== null && 'toJSON' in response) {
+            return (response as { toJSON: () => unknown }).toJSON();
+        }
+
+        // Validate by round-tripping through JSON
+        // This catches malformed objects with extra braces, circular refs, etc.
+        const serialized = JSON.stringify(response);
+        
+        // This will throw on circular references or other serialization issues
+        return JSON.parse(serialized);
+    }
+
     private async complete(id: string, response: unknown): Promise<void> {
         // Debug: log what we're about to store
         console.log(`[PostgresServer] Storing response for ${id}:`, JSON.stringify(response).substring(0, 200));
         
-        // Explicitly handle JSON serialization to prevent double-encoding issues
-        // If response is already a string, parse it first to ensure it's valid JSON, then stringify again
-        // This handles edge cases where response might be a pre-serialized JSON string
-        let jsonValue: unknown = response;
-        if (typeof response === 'string') {
-            try {
-                // Try to parse as JSON - if it succeeds, use the parsed value
-                // This handles the case where response is a stringified JSON string
-                jsonValue = JSON.parse(response);
-            } catch {
-                // If parsing fails, treat it as a plain string value
-                jsonValue = response;
-            }
-        }
-        
-        // Validate JSON before storing - this catches malformed objects that would
-        // fail when PostgreSQL tries to parse them as JSON (e.g., extra braces)
+        let jsonValue: unknown;
         try {
-            jsonValue = JSON.parse(JSON.stringify(jsonValue));
+            jsonValue = this.serializeResponse(response);
         } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
             this.logger.error(`Failed to serialize response for ${id}: ${response}`, error);
-            await this.fail(id, new Error(`Response serialization failed: ${error}`));
+            await this.fail(id, new Error(`Response serialization failed: ${errorMessage}`));
             return;
         }
         
