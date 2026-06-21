@@ -36,11 +36,11 @@ function serializeResponse(response: unknown): unknown {
     return JSON.parse(serialized);
 }
 
-// Test runner
+// Test runner - renamed to avoid conflict with Jest globals
 let passed = 0;
 let failed = 0;
 
-function test(name: string, fn: () => void) {
+function runTest(name: string, fn: () => void) {
     try {
         fn();
         console.log(`✓ ${name}`);
@@ -52,7 +52,8 @@ function test(name: string, fn: () => void) {
     }
 }
 
-function expect(actual: unknown) {
+// Renamed to avoid conflict with Jest globals - also added toBeNull
+function expectValue(actual: unknown) {
     return {
         toBe(expected: unknown) {
             if (JSON.stringify(actual) !== JSON.stringify(expected)) {
@@ -66,6 +67,11 @@ function expect(actual: unknown) {
         },
         toThrow() {
             throw new Error('Function was expected to throw but did not');
+        },
+        toBeNull() {
+            if (actual !== null) {
+                throw new Error(`Expected null but got ${JSON.stringify(actual)}`);
+            }
         }
     };
 }
@@ -73,54 +79,54 @@ function expect(actual: unknown) {
 // Tests
 console.log('\n=== JSON Serialization Tests ===\n');
 
-test('should handle null', () => {
-    expect(serializeResponse(null)).toBe(null);
+runTest('should handle null', () => {
+    expectValue(serializeResponse(null)).toBe(null);
 });
 
-test('should handle undefined', () => {
-    expect(serializeResponse(undefined)).toBe(undefined);
+runTest('should handle undefined', () => {
+    expectValue(serializeResponse(undefined)).toBe(undefined);
 });
 
-test('should handle valid JSON string', () => {
+runTest('should handle valid JSON string', () => {
     const input = '{"name": "test", "value": 123}';
-    expect(serializeResponse(input)).toEqual({name: 'test', value: 123});
+    expectValue(serializeResponse(input)).toEqual({name: 'test', value: 123});
 });
 
-test('should handle plain string and wrap it', () => {
+runTest('should handle plain string and wrap it', () => {
     const input = 'plain text without json';
-    expect(serializeResponse(input)).toEqual({value: 'plain text without json'});
+    expectValue(serializeResponse(input)).toEqual({value: 'plain text without json'});
 });
 
-test('should handle empty string and wrap it', () => {
+runTest('should handle empty string and wrap it', () => {
     const input = '';
-    expect(serializeResponse(input)).toEqual({value: ''});
+    expectValue(serializeResponse(input)).toEqual({value: ''});
 });
 
-test('should handle simple object', () => {
+runTest('should handle simple object', () => {
     const input = {name: 'test', count: 42};
-    expect(serializeResponse(input)).toEqual({name: 'test', count: 42});
+    expectValue(serializeResponse(input)).toEqual({name: 'test', count: 42});
 });
 
-test('should handle array', () => {
+runTest('should handle array', () => {
     const input = [1, 2, 3, 'four'];
-    expect(serializeResponse(input)).toEqual([1, 2, 3, 'four']);
+    expectValue(serializeResponse(input)).toEqual([1, 2, 3, 'four']);
 });
 
-test('should handle Date objects via toJSON', () => {
+runTest('should handle Date objects via toJSON', () => {
     const date = new Date('2026-06-21T04:00:00Z');
-    expect(serializeResponse(date)).toBe('2026-06-21T04:00:00.000Z');
+    expectValue(serializeResponse(date)).toBe('2026-06-21T04:00:00.000Z');
 });
 
-test('should handle objects with custom toJSON', () => {
+runTest('should handle objects with custom toJSON', () => {
     const obj = {
         toJSON() {
             return {custom: 'serialized'};
         }
     };
-    expect(serializeResponse(obj)).toEqual({custom: 'serialized'});
+    expectValue(serializeResponse(obj)).toEqual({custom: 'serialized'});
 });
 
-test('should handle nested objects', () => {
+runTest('should handle nested objects', () => {
     const input = {
         user: {
             profile: {
@@ -128,17 +134,17 @@ test('should handle nested objects', () => {
             }
         }
     };
-    expect(serializeResponse(input)).toEqual(input);
+    expectValue(serializeResponse(input)).toEqual(input);
 });
 
-test('should handle boolean and number primitives', () => {
-    expect(serializeResponse(true)).toBe(true);
-    expect(serializeResponse(false)).toBe(false);
-    expect(serializeResponse(42)).toBe(42);
-    expect(serializeResponse(3.14)).toBe(3.14);
+runTest('should handle boolean and number primitives', () => {
+    expectValue(serializeResponse(true)).toBe(true);
+    expectValue(serializeResponse(false)).toBe(false);
+    expectValue(serializeResponse(42)).toBe(42);
+    expectValue(serializeResponse(3.14)).toBe(3.14);
 });
 
-test('should throw on circular reference', () => {
+runTest('should throw on circular reference', () => {
     const obj: Record<string, unknown> = {name: 'test'};
     obj.self = obj;
     
@@ -153,31 +159,31 @@ test('should throw on circular reference', () => {
     }
 });
 
-test('should handle object with extra braces (the original bug)', () => {
+runTest('should handle object with extra braces (the original bug)', () => {
     const input = {status: 'IN_PROGRESS', count: 1};
-    expect(serializeResponse(input)).toEqual(input);
+    expectValue(serializeResponse(input)).toEqual(input);
 });
 
-test('should handle special JSON values', () => {
-    expect(serializeResponse(NaN)).toBeNull();
-    expect(serializeResponse(Infinity)).toBeNull();
-    expect(serializeResponse(-Infinity)).toBeNull();
+runTest('should handle special JSON values', () => {
+    expectValue(serializeResponse(NaN)).toBeNull();
+    expectValue(serializeResponse(Infinity)).toBeNull();
+    expectValue(serializeResponse(-Infinity)).toBeNull();
 });
 
-test('should handle empty object', () => {
-    expect(serializeResponse({})).toEqual({});
+runTest('should handle empty object', () => {
+    expectValue(serializeResponse({})).toEqual({});
 });
 
-test('should handle empty array', () => {
-    expect(serializeResponse([])).toEqual([]);
+runTest('should handle empty array', () => {
+    expectValue(serializeResponse([])).toEqual([]);
 });
 
-test('should handle object with null value', () => {
+runTest('should handle object with null value', () => {
     const input = {key: null};
-    expect(serializeResponse(input)).toEqual({key: null});
+    expectValue(serializeResponse(input)).toEqual({key: null});
 });
 
-test('should handle complex nested arrays and objects', () => {
+runTest('should handle complex nested arrays and objects', () => {
     const input = {
         scrims: [
             {id: '1', status: 'IN_PROGRESS'},
@@ -188,23 +194,23 @@ test('should handle complex nested arrays and objects', () => {
             page: 1
         }
     };
-    expect(serializeResponse(input)).toEqual(input);
+    expectValue(serializeResponse(input)).toEqual(input);
 });
 
-test('should handle Unicode characters', () => {
+runTest('should handle Unicode characters', () => {
     const input = {name: '日本語', emoji: '🎮'};
-    expect(serializeResponse(input)).toEqual(input);
+    expectValue(serializeResponse(input)).toEqual(input);
 });
 
-test('should handle string that looks like JSON array', () => {
+runTest('should handle string that looks like JSON array', () => {
     const input = '[1, 2, 3]';
-    expect(serializeResponse(input)).toEqual([1, 2, 3]);
+    expectValue(serializeResponse(input)).toEqual([1, 2, 3]);
 });
 
-test('should handle string that looks like JSON primitive', () => {
-    expect(serializeResponse('42')).toBe(42);
-    expect(serializeResponse('true')).toBe(true);
-    expect(serializeResponse('null')).toBeNull();
+runTest('should handle string that looks like JSON primitive', () => {
+    expectValue(serializeResponse('42')).toBe(42);
+    expectValue(serializeResponse('true')).toBe(true);
+    expectValue(serializeResponse('null')).toBeNull();
 });
 
 // Summary
