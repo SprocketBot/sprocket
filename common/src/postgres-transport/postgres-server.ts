@@ -6,6 +6,7 @@ import {
     PostgresTransportBase,
     PostgresTransportOptions,
     RpcQueueRow,
+    toJsonbParam,
     withTransaction,
 } from "./postgres-transport";
 
@@ -194,7 +195,7 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
                 SET status = 'completed', response = $2, updated_at = now()
                 WHERE id = $1
             `,
-            [id, jsonValue ?? null],
+            [id, jsonValue],
         );
     }
 
@@ -205,7 +206,7 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
                 SET status = 'failed', error = $2, updated_at = now()
                 WHERE id = $1
             `,
-            [id, this.serializeError(error)],
+            [id, toJsonbParam(this.serializeError(error))],
         );
     }
 

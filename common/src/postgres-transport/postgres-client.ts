@@ -6,6 +6,7 @@ import {
     PostgresTransportBase,
     PostgresTransportOptions,
     RpcQueueRow,
+    toJsonbParam,
 } from "./postgres-transport";
 
 export class PostgresClientProxy extends ClientProxy {
@@ -60,7 +61,7 @@ export class PostgresClientProxy extends ClientProxy {
                 INSERT INTO sprocket.platform_rpc_queue (id, queue, pattern, payload)
                 VALUES ($1, $2, $3, $4)
             `,
-            [id, this.transport.queue, pattern, packet.data],
+            [id, this.transport.queue, pattern, toJsonbParam(packet.data)],
         );
     }
 
@@ -93,6 +94,10 @@ export class PostgresClientProxy extends ClientProxy {
                     err: this.deserializeError(row.error),
                     isDisposed: true,
                 });
+                await this.transport.pool.query(
+                    "DELETE FROM sprocket.platform_rpc_queue WHERE id = $1",
+                    [id],
+                );
                 return;
             }
             await new Promise(resolve => setTimeout(resolve, this.transport.pollIntervalMs));
