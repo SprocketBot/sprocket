@@ -1,221 +1,79 @@
 /**
- * JSON Serialization Tests
- * 
+ * JSONB parameter serialization smoke tests.
+ *
  * Run with: npx ts-node common/src/postgres-transport/postgres-server.serialization.spec.ts
- * Or compile and run: tsc common/src/postgres-transport/postgres-server.serialization.spec.ts && node common/src/postgres-transport/postgres-server.serialization.spec.js
  */
 
-// Replicate the serializeResponse method for testing
-function serializeResponse(response: unknown): unknown {
-    // Handle null/undefined explicitly
-    if (response === null || response === undefined) {
-        return response;
-    }
+import {toJsonbParam} from "./postgres-transport";
 
-    // If it's already a string, validate it's valid JSON or store as-is
-    if (typeof response === 'string') {
-        try {
-            // Try to parse and re-serialize to ensure it's valid JSON
-            return JSON.parse(response);
-        } catch {
-            // If it's not valid JSON, wrap it in an object to make it valid JSON
-            return { value: response };
-        }
-    }
-
-    // If it has a toJSON method, use it (e.g., Date objects, custom classes)
-    if (typeof response === 'object' && response !== null && 'toJSON' in response) {
-        return (response as { toJSON: () => unknown }).toJSON();
-    }
-
-    // Validate by round-tripping through JSON
-    // This catches malformed objects with extra braces, circular refs, etc.
-    const serialized = JSON.stringify(response);
-    
-    // This will throw on circular references or other serialization issues
-    return JSON.parse(serialized);
-}
-
-// Test runner - renamed to avoid conflict with Jest globals
 let passed = 0;
 let failed = 0;
 
-function runTest(name: string, fn: () => void) {
+function runTest(name: string, fn: () => void): void {
     try {
         fn();
-        console.log(`✓ ${name}`);
+        console.log(`PASS ${name}`);
         passed++;
     } catch (error) {
-        console.error(`✗ ${name}`);
+        console.error(`FAIL ${name}`);
         console.error(`  ${error}`);
         failed++;
     }
 }
 
-// Renamed to avoid conflict with Jest globals - also added toBeNull
-function expectValue(actual: unknown) {
+function expectJsonParam(value: unknown): {
+    toBe(expected: unknown): void;
+} {
     return {
-        toBe(expected: unknown) {
+        toBe(expected: unknown): void {
+            const actual = value === null ? null : JSON.parse(String(value));
             if (JSON.stringify(actual) !== JSON.stringify(expected)) {
                 throw new Error(`Expected ${JSON.stringify(expected)} but got ${JSON.stringify(actual)}`);
             }
         },
-        toEqual(expected: unknown) {
-            if (JSON.stringify(actual) !== JSON.stringify(expected)) {
-                throw new Error(`Expected ${JSON.stringify(expected)} but got ${JSON.stringify(actual)}`);
-            }
-        },
-        toThrow() {
-            throw new Error('Function was expected to throw but did not');
-        },
-        toBeNull() {
-            if (actual !== null) {
-                throw new Error(`Expected null but got ${JSON.stringify(actual)}`);
-            }
-        }
     };
 }
 
-// Tests
-console.log('\n=== JSON Serialization Tests ===\n');
+console.log("\n=== JSONB Parameter Serialization Tests ===\n");
 
-runTest('should handle null', () => {
-    expectValue(serializeResponse(null)).toBe(null);
+runTest("serializes top-level arrays as JSON text", () => {
+    const param = toJsonbParam([{id: "scrim-1"}, {id: "scrim-2"}]);
+    if (param !== "[{\"id\":\"scrim-1\"},{\"id\":\"scrim-2\"}]") {
+        throw new Error(`Expected JSON array text but got ${JSON.stringify(param)}`);
+    }
+    expectJsonParam(param).toBe([{id: "scrim-1"}, {id: "scrim-2"}]);
 });
 
-runTest('should handle undefined', () => {
-    expectValue(serializeResponse(undefined)).toBe(undefined);
+runTest("serializes objects as JSON text", () => {
+    expectJsonParam(toJsonbParam({name: "test", value: 123})).toBe({name: "test", value: 123});
 });
 
-runTest('should handle valid JSON string', () => {
-    const input = '{"name": "test", "value": 123}';
-    expectValue(serializeResponse(input)).toEqual({name: 'test', value: 123});
+runTest("preserves valid JSON strings as their parsed JSON value", () => {
+    expectJsonParam(toJsonbParam("[1,2,3]")).toBe([1, 2, 3]);
 });
 
-runTest('should handle plain string and wrap it', () => {
-    const input = 'plain text without json';
-    expectValue(serializeResponse(input)).toEqual({value: 'plain text without json'});
+runTest("stores plain strings as JSON strings", () => {
+    expectJsonParam(toJsonbParam("plain text")).toBe("plain text");
 });
 
-runTest('should handle empty string and wrap it', () => {
-    const input = '';
-    expectValue(serializeResponse(input)).toEqual({value: ''});
+runTest("stores null and undefined as SQL null", () => {
+    if (toJsonbParam(null) !== null) throw new Error("Expected null to become SQL null");
+    if (toJsonbParam(undefined) !== null) throw new Error("Expected undefined to become SQL null");
 });
 
-runTest('should handle simple object', () => {
-    const input = {name: 'test', count: 42};
-    expectValue(serializeResponse(input)).toEqual({name: 'test', count: 42});
-});
-
-runTest('should handle array', () => {
-    const input = [1, 2, 3, 'four'];
-    expectValue(serializeResponse(input)).toEqual([1, 2, 3, 'four']);
-});
-
-runTest('should handle Date objects via toJSON', () => {
-    const date = new Date('2026-06-21T04:00:00Z');
-    expectValue(serializeResponse(date)).toBe('2026-06-21T04:00:00.000Z');
-});
-
-runTest('should handle objects with custom toJSON', () => {
-    const obj = {
-        toJSON() {
-            return {custom: 'serialized'};
-        }
-    };
-    expectValue(serializeResponse(obj)).toEqual({custom: 'serialized'});
-});
-
-runTest('should handle nested objects', () => {
-    const input = {
-        user: {
-            profile: {
-                name: 'John'
-            }
-        }
-    };
-    expectValue(serializeResponse(input)).toEqual(input);
-});
-
-runTest('should handle boolean and number primitives', () => {
-    expectValue(serializeResponse(true)).toBe(true);
-    expectValue(serializeResponse(false)).toBe(false);
-    expectValue(serializeResponse(42)).toBe(42);
-    expectValue(serializeResponse(3.14)).toBe(3.14);
-});
-
-runTest('should throw on circular reference', () => {
-    const obj: Record<string, unknown> = {name: 'test'};
+runTest("throws on circular references", () => {
+    const obj: Record<string, unknown> = {name: "test"};
     obj.self = obj;
-    
+
     let threw = false;
     try {
-        serializeResponse(obj);
+        toJsonbParam(obj);
     } catch {
         threw = true;
     }
-    if (!threw) {
-        throw new Error('Expected to throw on circular reference');
-    }
+    if (!threw) throw new Error("Expected to throw on circular reference");
 });
 
-runTest('should handle object with extra braces (the original bug)', () => {
-    const input = {status: 'IN_PROGRESS', count: 1};
-    expectValue(serializeResponse(input)).toEqual(input);
-});
-
-runTest('should handle special JSON values', () => {
-    expectValue(serializeResponse(NaN)).toBeNull();
-    expectValue(serializeResponse(Infinity)).toBeNull();
-    expectValue(serializeResponse(-Infinity)).toBeNull();
-});
-
-runTest('should handle empty object', () => {
-    expectValue(serializeResponse({})).toEqual({});
-});
-
-runTest('should handle empty array', () => {
-    expectValue(serializeResponse([])).toEqual([]);
-});
-
-runTest('should handle object with null value', () => {
-    const input = {key: null};
-    expectValue(serializeResponse(input)).toEqual({key: null});
-});
-
-runTest('should handle complex nested arrays and objects', () => {
-    const input = {
-        scrims: [
-            {id: '1', status: 'IN_PROGRESS'},
-            {id: '2', status: 'COMPLETED'}
-        ],
-        metadata: {
-            total: 2,
-            page: 1
-        }
-    };
-    expectValue(serializeResponse(input)).toEqual(input);
-});
-
-runTest('should handle Unicode characters', () => {
-    const input = {name: '日本語', emoji: '🎮'};
-    expectValue(serializeResponse(input)).toEqual(input);
-});
-
-runTest('should handle string that looks like JSON array', () => {
-    const input = '[1, 2, 3]';
-    expectValue(serializeResponse(input)).toEqual([1, 2, 3]);
-});
-
-runTest('should handle string that looks like JSON primitive', () => {
-    expectValue(serializeResponse('42')).toBe(42);
-    expectValue(serializeResponse('true')).toBe(true);
-    expectValue(serializeResponse('null')).toBeNull();
-});
-
-// Summary
 console.log(`\n=== Results: ${passed} passed, ${failed} failed ===\n`);
 
-if (failed > 0) {
-    process.exit(1);
-}
+if (failed > 0) process.exit(1);
