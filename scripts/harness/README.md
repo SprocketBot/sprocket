@@ -87,6 +87,8 @@ Optional:
 - `HARNESS_AUTH_HEADER`
 - `HARNESS_EXPECTED_API_STATUSES` default `200,400,401,403,405`
 - `HARNESS_EXPECTED_API_MARKER`
+- `HARNESS_CHECK_CORS_PREFLIGHT` default `false`; when `true`, sends an `Origin` header on the API check and verifies both response CORS headers and an `OPTIONS` preflight
+- `HARNESS_CORS_ORIGIN`; defaults to `HARNESS_WEB_URL` when unset
 
 Example:
 
@@ -94,6 +96,8 @@ Example:
 HARNESS_ENV_NAME=main-prod \
 HARNESS_API_URL=https://api.sprocket.example.com/graphql \
 HARNESS_EXPECTED_API_STATUSES=200,400,401,403,405 \
+HARNESS_CHECK_CORS_PREFLIGHT=true \
+HARNESS_CORS_ORIGIN=https://sprocket.example.com \
 bash ./scripts/harness/check-api.sh
 ```
 
