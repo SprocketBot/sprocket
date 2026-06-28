@@ -4,3 +4,4 @@ export * from "./constants";
 export * from "./extractJwt";
 export * from "./types";
 export * from "./config";
+export * from "./apiUrl";

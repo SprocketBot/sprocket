@@ -6,6 +6,7 @@ import {writeFile} from "fs/promises";
 import {SpelunkerModule} from "nestjs-spelunker";
 
 import {AppModule} from "./app.module";
+import {corsOptions, corsPreflightMiddleware} from "./cors";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function writeDepGraph(app: Awaited<ReturnType<typeof NestFactory.create>>): Promise<void> {
@@ -23,15 +24,11 @@ async function bootstrap(): Promise<void> {
         logger: config.logger.levels,
     });
 
+    app.use(corsPreflightMiddleware);
     app.connectMicroservice({
         strategy: new PostgresServer({queue: config.transport.core_queue}),
     });
-    app.enableCors({
-        origin: true,
-        credentials: true,
-        allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    });
+    app.enableCors(corsOptions);
     app.useGlobalPipes(new ValidationPipe());
 
     const httpAdapter = app.get(HttpAdapterHost);
