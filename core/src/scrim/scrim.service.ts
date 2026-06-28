@@ -9,6 +9,7 @@ import type {
     CreateLFSScrimRequest,
     CreateScrimOptions,
     JoinScrimOptions,
+    MatchmakingInput,
     Scrim as IScrim,
     ScrimMetrics as IScrimMetrics,
 } from "@sprocketbot/common";
@@ -27,6 +28,7 @@ import {PlayerStatLine} from "$db/scheduling/player_stat_line/player_stat_line.m
 
 import {GameSkillGroupService} from "../franchise";
 import {FranchiseService} from "../franchise/franchise";
+import {GameModeService} from "../game";
 import {MledbFinalizationService} from "../mledb";
 import {MemberService} from "../organization";
 import {ScrimPubSub} from "./constants";
@@ -42,6 +44,7 @@ export class ScrimService {
         private readonly matchmakingService: MatchmakingService,
         private readonly eventsService: EventsService,
         private readonly gameSkillGroupService: GameSkillGroupService,
+        private readonly gameModeService: GameModeService,
         private readonly memberService: MemberService,
         private readonly franchiseService: FranchiseService,
         private readonly mleScrimService: MledbFinalizationService,
@@ -66,12 +69,10 @@ export class ScrimService {
         return "scrims.lfs";
     }
 
-    async getAllScrims(skillGroupId?: number): Promise<IScrim[]> {
-        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetAllScrims, {
-            skillGroupId,
-        });
+    async getAllScrims(filters: MatchmakingInput<MatchmakingEndpoint.GetAllScrims> = {}): Promise<IScrim[]> {
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetAllScrims, filters);
 
-        if (result.status === ResponseStatus.SUCCESS) return result.data;
+        if (result.status === ResponseStatus.SUCCESS) return this.hydrateScrimMetadata(result.data);
         throw result.error;
     }
 
@@ -293,5 +294,28 @@ export class ScrimService {
                 }
             });
         });
+    }
+
+    private async hydrateScrimMetadata(scrims: IScrim[]): Promise<IScrim[]> {
+        const gameModeIds = Array.from(new Set(scrims.map(scrim => scrim.gameModeId)));
+        const skillGroupIds = Array.from(new Set(scrims.map(scrim => scrim.skillGroupId)));
+
+        const [gameModes, skillGroups] = await Promise.all([
+            Promise.all(gameModeIds.map(id => this.gameModeService.getGameModeById(id, {
+                relations: ["game"],
+            }))),
+            Promise.all(skillGroupIds.map(id => this.gameSkillGroupService.getGameSkillGroupById(id, {
+                relations: ["profile"],
+            }))),
+        ]);
+
+        const gameModesById = new Map(gameModes.map(gameMode => [gameMode.id, gameMode]));
+        const skillGroupsById = new Map(skillGroups.map(skillGroup => [skillGroup.id, skillGroup]));
+
+        return scrims.map(scrim => ({
+            ...scrim,
+            gameMode: gameModesById.get(scrim.gameModeId),
+            skillGroup: skillGroupsById.get(scrim.skillGroupId),
+        }));
     }
 }

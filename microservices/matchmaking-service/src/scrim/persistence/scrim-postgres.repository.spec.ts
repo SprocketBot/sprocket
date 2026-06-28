@@ -224,6 +224,25 @@ describe("ScrimPostgresRepository", () => {
         expect(query.mock.calls[3][0]).not.toContain("SELECT g.scrim_id");
     });
 
+    it("pushes scrim list filters into the Postgres query", async () => {
+        const query = jest.fn().mockResolvedValue({rows: []});
+        const repo = new ScrimPostgresRepository({query} as any);
+
+        await repo.findAll({
+            organizationId: 2,
+            status: ScrimStatus.PENDING,
+            skillGroupIds: [4, 5],
+            lfs: false,
+        });
+
+        expect(query).toHaveBeenCalledTimes(1);
+        expect(query.mock.calls[0][0]).toContain("status = $1");
+        expect(query.mock.calls[0][0]).toContain("organization_id = $2");
+        expect(query.mock.calls[0][0]).toContain("settings_lfs = $3");
+        expect(query.mock.calls[0][0]).toContain("(settings_competitive = false OR skill_group_id = ANY($4::int[]))");
+        expect(query.mock.calls[0][1]).toEqual([ScrimStatus.PENDING, 2, false, [4, 5]]);
+    });
+
     it("updates status in the scrim table and stamps popped time for popped scrims", async () => {
         const query = jest.fn().mockResolvedValue({rows: []});
         const repo = new ScrimPostgresRepository({query} as any);
