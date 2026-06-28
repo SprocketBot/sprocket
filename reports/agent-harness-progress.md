@@ -197,6 +197,10 @@ For Sprocket specifically, the highest-value initial target is not full autonomy
 46. Lane-contract update on March 13, 2026:
    - machine-readable lane contracts now exist under `environments/` for `local-dev`, `main-prod`, and planned `v15-beta`;
    - `scripts/harness/verify-lane.sh` now resolves lane-aware Tier 0 / Tier 1 / verify-all workflows using those contracts and surfaces missing-profile or not-yet-operational lane status explicitly.
+47. CORS diagnosis and harness update on June 28, 2026:
+   - hosted `main-prod` GraphQL responses were observed returning `access-control-allow-origin: *` with credentials enabled, which browsers reject for credential-capable frontend requests;
+   - `core` now centralizes CORS handling, disables Apollo's wildcard GraphQL CORS layer, reflects allowed Sprocket origins explicitly, and answers `OPTIONS` before GraphQL routing;
+   - `scripts/harness/check-api.sh` now has a CORS mode that checks both the main API response and browser-style preflight, and the hosted main/dev/staging Tier 0 profiles enable it.
 
 ## Agreed Direction
 
