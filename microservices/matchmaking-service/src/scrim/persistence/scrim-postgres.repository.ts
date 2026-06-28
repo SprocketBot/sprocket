@@ -1,6 +1,8 @@
 import {Injectable} from "@nestjs/common";
 import type {
     CreateScrimOptions,
+    MatchmakingEndpoint,
+    MatchmakingInput,
     Scrim,
     ScrimGame,
     ScrimPlayer,
@@ -162,20 +164,45 @@ export class ScrimPostgresRepository {
         return this.hydrate(result.rows[0]);
     }
 
-    async findAll(skillGroupId?: number): Promise<Scrim[]> {
+    async findAll(filters: MatchmakingInput<MatchmakingEndpoint.GetAllScrims> = {}): Promise<Scrim[]> {
         // Filter at DB level using indexes - only load active scrims
         // This dramatically reduces data transfer and eliminates N+1 queries
         // Use the existing status and skill_group_id indexes
-        let query = `SELECT * FROM sprocket.scrim_queue 
-             WHERE status IN ('PENDING', 'POPPED', 'IN_PROGRESS')`;
+        let query = "SELECT * FROM sprocket.scrim_queue WHERE ";
         const params: unknown[] = [];
-        
-        // Filter by skill_group_id at DB level to use index
-        if (skillGroupId !== undefined) {
-            query += ` AND (skill_group_id = $1 OR settings_competitive = false)`;
-            params.push(skillGroupId);
+        const predicates: string[] = [];
+
+        if (filters.status) {
+            params.push(filters.status);
+            predicates.push(`status = $${params.length}`);
+        } else {
+            predicates.push("status IN ('PENDING', 'POPPED', 'IN_PROGRESS')");
         }
-        
+
+        if (filters.organizationId !== undefined) {
+            params.push(filters.organizationId);
+            predicates.push(`organization_id = $${params.length}`);
+        }
+
+        if (filters.lfs !== undefined) {
+            params.push(filters.lfs);
+            predicates.push(`settings_lfs = $${params.length}`);
+        }
+
+        const skillGroupIds = Array.from(new Set([
+            ...(filters.skillGroupId !== undefined ? [filters.skillGroupId] : []),
+            ...(filters.skillGroupIds ?? []),
+        ]));
+        if (filters.skillGroupId !== undefined || filters.skillGroupIds !== undefined) {
+            if (skillGroupIds.length > 0) {
+                params.push(skillGroupIds);
+                predicates.push(`(settings_competitive = false OR skill_group_id = ANY($${params.length}::int[]))`);
+            } else {
+                predicates.push("settings_competitive = false");
+            }
+        }
+
+        query += predicates.join(" AND ");
         query += ` ORDER BY created_at ASC`;
         
         const result = await this.postgres.query<ScrimRow>(query, params);

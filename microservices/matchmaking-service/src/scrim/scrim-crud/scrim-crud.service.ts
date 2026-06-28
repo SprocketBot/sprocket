@@ -1,6 +1,8 @@
 import {Injectable} from "@nestjs/common";
 import type {
     CreateScrimOptions,
+    MatchmakingEndpoint,
+    MatchmakingInput,
     Scrim,
     ScrimGame,
     ScrimPlayer,
@@ -68,8 +70,8 @@ export class ScrimCrudService {
         return this.repository.findById(id);
     }
 
-    async getAllScrims(skillGroupId?: number): Promise<Scrim[]> {
-        return this.repository.findAll(skillGroupId);
+    async getAllScrims(filters: MatchmakingInput<MatchmakingEndpoint.GetAllScrims> = {}): Promise<Scrim[]> {
+        return this.repository.findAll(filters);
     }
 
     async getScrimsForClockCheck(): Promise<Scrim[]> {

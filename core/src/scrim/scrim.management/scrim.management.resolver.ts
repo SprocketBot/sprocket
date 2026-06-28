@@ -25,7 +25,7 @@ export class ScrimManagementResolver {
         nullable: true,
     })
     skillGroupId: number): Promise<IScrim[]> {
-        return this.scrimService.getAllScrims(skillGroupId);
+        return this.scrimService.getAllScrims({skillGroupId});
     }
 
     @Mutation(() => Scrim)
