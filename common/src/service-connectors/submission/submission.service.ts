@@ -9,7 +9,7 @@ import {v4 as uuidv4} from "uuid";
 import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
 import type {
-    SubmissionEndpoint, SubmissionInput, SubmissionResponse,
+    SubmissionEndpoint, SubmissionInput, SubmissionOutput, SubmissionResponse,
 } from "./submission.types";
 import {SubmissionSchemas} from "./submission.types";
 
@@ -38,27 +38,22 @@ export class SubmissionService {
 
             const response = (await lastValueFrom(rx)) as unknown;
 
-            // Debug: log the raw response type to help diagnose issues
-            this.logger.debug(`Raw response for ${endpoint}: ${JSON.stringify(response).substring(0, 200)}`);
+            const initialParse = outputSchema.safeParse(response);
+            let parsed: SubmissionOutput<E>;
 
-            // Handle case where response might be wrapped or incorrect
-            let output: unknown;
-            if (Array.isArray(response)) {
-                output = response;
-            } else if (response && typeof response === 'object' && 'data' in response) {
-                // Handle { data: [...] } wrapper
-                output = (response as {data: unknown}).data;
-            } else if (response && typeof response === 'object' && Object.keys(response).length === 0) {
-                // Handle empty object {} - treat as empty array
+            if (initialParse.success) {
+                parsed = initialParse.data as SubmissionOutput<E>;
+            } else if (response && typeof response === "object" && "data" in response) {
+                parsed = outputSchema.parse((response as {data: unknown}).data) as SubmissionOutput<E>;
+            } else if (!initialParse.success && response && typeof response === "object" && Object.keys(response).length === 0) {
                 this.logger.debug(`Received empty object {}, treating as empty array for ${endpoint}`);
-                output = [];
-            } else if (response === null || response === undefined) {
-                output = [];
+                parsed = outputSchema.parse([]) as SubmissionOutput<E>;
+            } else if (!initialParse.success && (response === null || response === undefined)) {
+                parsed = outputSchema.parse([]) as SubmissionOutput<E>;
             } else {
-                throw new Error(`Unexpected response type: ${typeof response}`);
+                throw initialParse.error;
             }
 
-            const parsed = outputSchema.parse(output);
             this.logger.verbose(`| < (${rid}) - | \`${endpoint}\` (${JSON.stringify(parsed).substring(0, 100)}...)`);
             return {
                 status: ResponseStatus.SUCCESS,
