@@ -143,3 +143,6 @@ artifacts/
 .vscode/
 .claude/
 .gemini/
+
+env.fish
+.agent-shell
