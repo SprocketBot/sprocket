@@ -6,6 +6,7 @@ import {
     PostgresTransportBase,
     PostgresTransportOptions,
     RpcQueueRow,
+    toJsonbParam,
     withTransaction,
 } from "./postgres-transport";
 
@@ -132,55 +133,13 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
         }
 }
 
-    /**
-     * Safely serialize a response for storage in the RPC queue.
-     * This method is robust against various edge cases:
-     * - Pre-serialized JSON strings
-     * - Objects with toJSON() methods
-     * - Circular references (throws error)
-     * - Invalid JSON-producing values
-     * 
-     * @throws Error if serialization fails
-     */
-    private serializeResponse(response: unknown): unknown {
-        // Handle null/undefined explicitly
-        if (response === null || response === undefined) {
-            return response;
-        }
-
-        // If it's already a string, validate it's valid JSON or store as-is
-        if (typeof response === 'string') {
-            try {
-                // Try to parse and re-serialize to ensure it's valid JSON
-                return JSON.parse(response);
-            } catch {
-                // If it's not valid JSON, wrap it in an object to make it valid JSON
-                // This prevents storing raw invalid strings that would fail in PostgreSQL
-                this.logger.warn(`Response is a non-JSON string, wrapping in object: ${response.substring(0, 100)}`);
-                return { value: response };
-            }
-        }
-
-        // If it has a toJSON method, use it (e.g., Date objects, custom classes)
-        if (typeof response === 'object' && response !== null && 'toJSON' in response) {
-            return (response as { toJSON: () => unknown }).toJSON();
-        }
-
-        // Validate by round-tripping through JSON
-        // This catches malformed objects with extra braces, circular refs, etc.
-        const serialized = JSON.stringify(response);
-        
-        // This will throw on circular references or other serialization issues
-        return JSON.parse(serialized);
-    }
-
     private async complete(id: string, response: unknown): Promise<void> {
         // Debug: log what we're about to store
         console.log(`[PostgresServer] Storing response for ${id}:`, JSON.stringify(response).substring(0, 200));
         
-        let jsonValue: unknown;
+        let jsonValue: string | null;
         try {
-            jsonValue = this.serializeResponse(response);
+            jsonValue = toJsonbParam(response);
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             this.logger.error(`Failed to serialize response for ${id}: ${response}`, error);
@@ -194,7 +153,7 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
                 SET status = 'completed', response = $2, updated_at = now()
                 WHERE id = $1
             `,
-            [id, jsonValue ?? null],
+            [id, jsonValue],
         );
     }
 
@@ -205,7 +164,7 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
                 SET status = 'failed', error = $2, updated_at = now()
                 WHERE id = $1
             `,
-            [id, this.serializeError(error)],
+            [id, toJsonbParam(this.serializeError(error))],
         );
     }
 
