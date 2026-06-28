@@ -35,6 +35,21 @@ export function createTransportPool(): Pool {
     });
 }
 
+export function toJsonbParam(value: unknown): string | null {
+    if (value === null || value === undefined) return null;
+
+    let jsonValue: unknown = value;
+    if (typeof value === "string") {
+        try {
+            jsonValue = JSON.parse(value);
+        } catch {
+            jsonValue = value;
+        }
+    }
+
+    return JSON.stringify(JSON.parse(JSON.stringify(jsonValue)));
+}
+
 export abstract class PostgresTransportBase {
     protected readonly logger: Logger;
 

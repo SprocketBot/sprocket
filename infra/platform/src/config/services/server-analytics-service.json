@@ -1,5 +1,12 @@
 {
   "transport": {{{transport}}},
+  "db": {
+    "host": "{{database.host}}",
+    "port": {{database.port}},
+    "username": "{{database.username}}",
+    "database": "{{database.database}}",
+    "enable_logs": false
+  },
   "logger": {
     "levels": {{{logger.levels}}}
   },

@@ -5,6 +5,12 @@
     "queue": "{{ celery.queue }}"
   },
   "transport": {{{transport}}},
+  "db": {
+    "host": "{{database.host}}",
+    "port": {{database.port}},
+    "username": "{{database.username}}",
+    "database": "{{database.database}}"
+  },
   "minio": {
     "hostname": "{{ s3.endpoint }}",
     "bucket": "{{s3.buckets.replayParse}}",

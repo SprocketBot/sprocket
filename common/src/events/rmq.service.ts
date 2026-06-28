@@ -2,6 +2,7 @@ import {Injectable, Logger} from "@nestjs/common";
 import {Observable} from "rxjs";
 
 import {PostgresService} from "../postgres";
+import {toJsonbParam} from "../postgres-transport";
 
 interface PostgresEventMessage {
     fields: {
@@ -36,7 +37,7 @@ export class RmqService {
         await this.ensureSchema();
         await this.postgres.query(
             "INSERT INTO sprocket.platform_event (topic, payload) VALUES ($1, $2)",
-            [topic, JSON.parse(data.toString())],
+            [topic, toJsonbParam(JSON.parse(data.toString()))],
         );
         return true;
     }
