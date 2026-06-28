@@ -41,6 +41,28 @@ npm run test --workspace=microservices/matchmaking-service -- scrim-postgres.rep
 
 The focused repository spec now asserts that filtered scrim list reads are pushed into the generated Postgres query.
 
+## Local Timing Check
+
+After opening the PR, a localhost Docker Postgres timing check was run against a throwaway `sprocket_bench_codex` database on port `5434`.
+
+Seed shape:
+
+- 50,000 active `sprocket.scrim_queue` rows
+- 200,000 `sprocket.scrim_queue_player` rows
+- 200 organizations
+- filtered read target: organization `42`, status `PENDING`, skill groups `[2, 4, 6]`
+
+Repository-shaped timings included the primary scrim query plus the batched player and game child-row queries.
+
+| Read shape | Rows returned | Player rows loaded | Median time |
+| --- | ---: | ---: | ---: |
+| old broad active-scrims read | 50,000 | 200,000 | 539.03 ms |
+| new filtered read | 83 | 332 | 2.59 ms |
+
+Observed median speedup for this seeded dataset: `208x`.
+
+This is not a full GraphQL/browser timing because it does not include auth guards, current-user loading, GraphQL serialization, or frontend rendering. It does validate the main Postgres read-shape improvement locally.
+
 ## Next Check
 
 After deploy, capture actual hosted timings for:
