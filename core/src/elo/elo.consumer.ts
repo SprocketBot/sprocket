@@ -1,4 +1,4 @@
-import {Logger, OnApplicationBootstrap, OnModuleDestroy} from "@nestjs/common";
+import {Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy} from "@nestjs/common";
 import {AnalyticsEndpoint, AnalyticsService, PostgresService} from "@sprocketbot/common";
 
 import {FeatureCode} from "$db/game/feature/feature.enum";
@@ -13,6 +13,7 @@ export const WEEKLY_SALARIES_JOB_NAME = "weeklySalaries";
 // Configurable via WEEKLY_SALARIES_INTERVAL_MS env var (default: 1 hour)
 const WEEKLY_SALARIES_INTERVAL_MS = parseInt(process.env.WEEKLY_SALARIES_INTERVAL_MS || "3600000", 10);
 
+@Injectable()
 export class EloConsumer implements OnApplicationBootstrap, OnModuleDestroy {
     private readonly logger = new Logger(EloConsumer.name);
 
