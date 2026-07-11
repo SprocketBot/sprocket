@@ -1,6 +1,7 @@
 import type {GetSession, Handle} from "@sveltejs/kit";
-import {apiUrl, constants, loadConfig} from "$lib/utils";
-import {add} from "date-fns";
+import {
+    apiUrl, constants, loadConfig,
+} from "$lib/utils";
 
 interface refreshPayload {
     cookies: string[];
@@ -9,17 +10,33 @@ interface refreshPayload {
     refreshToken: string;
 }
 
+const ONE_WEEK_COOKIE = "Path=/;SameSite=Lax;Max-Age=604800";
+
+const parseCookieHeader = (currentCookies: string): Map<string, string> => {
+    const cookies = new Map<string, string>();
+    currentCookies.split("; ").forEach(cookie => {
+        const separator = cookie.indexOf("=");
+        if (separator === -1) return;
+        cookies.set(cookie.slice(0, separator), cookie.slice(separator + 1));
+    });
+    return cookies;
+};
+
+const serializeCookieHeader = (cookies: Map<string, string>): string => Array
+    .from(cookies.entries())
+    .map(([name, value]) => `${name}=${value}`)
+    .join("; ");
+
+const buildSetCookie = (name: string, value: string): string => `${name}=${value};${ONE_WEEK_COOKIE}`;
+
 const doAuthRefresh = async (
     refreshUrl: string,
     currentCookies: string,
 ): Promise<refreshPayload | null> => {
-    let newCookiesString = "";
+    const cookies = parseCookieHeader(currentCookies);
     // If  refresh it
     // Get the refresh token out of user's cookies
-    const refreshToken = currentCookies
-        .split("; ")
-        .find(c => c.split("=")[0] === constants.refresh_token_cookie_key)
-        ?.split("=")[1];
+    const refreshToken = cookies.get(constants.refresh_token_cookie_key);
     if (refreshToken) {
     // Send that refresh token to the backend, asking
     // for a new JWT
@@ -42,46 +59,15 @@ const doAuthRefresh = async (
             const access_token = tokens.access_token;
             const new_refresh_token = tokens.refresh_token;
 
-            // Store these new tokens back in the user's cookies
-            const newCookies = currentCookies.split("; ");
-
-            // Access token cookie
-            let newCookies1: string[];
-            if (newCookies.some(c => c.split("=")[0] === constants.auth_cookie_key)) {
-                // Cookie still exists, just update it
-                newCookies1 = newCookies.map(c => {
-                    if (c.split("=")[0] === constants.auth_cookie_key) {
-                        return `${constants.auth_cookie_key}=${access_token};expires=${add(new Date(), {
-                            weeks: 1,
-                        }).toUTCString()}`;
-                    }
-                    return c;
-                });
-            } else {
-                // Access token cookie doesn't exist, add it.
-                newCookies1 = newCookies;
-                newCookies1.push(`${constants.auth_cookie_key}=${access_token};expires=${add(new Date(), {
-                    weeks: 1,
-                }).toUTCString()}`);
-            }
-
-            // Refresh token cookie
-            const newCookies2 = newCookies1.map(c => {
-                if (c.split("=")[0] === constants.refresh_token_cookie_key) {
-                    return `${constants.refresh_token_cookie_key}=${new_refresh_token};expires=${add(
-                        new Date(),
-                        {weeks: 1},
-                    ).toUTCString()}`;
-                }
-                return c;
-            });
-
-            // Roll our cookies back up into one string
-            newCookiesString = newCookies2.join("; ");
+            cookies.set(constants.auth_cookie_key, access_token);
+            cookies.set(constants.refresh_token_cookie_key, new_refresh_token);
 
             return {
-                cookies: newCookies2,
-                cookiesString: newCookiesString,
+                cookies: [
+                    buildSetCookie(constants.auth_cookie_key, access_token),
+                    buildSetCookie(constants.refresh_token_cookie_key, new_refresh_token),
+                ],
+                cookiesString: serializeCookieHeader(cookies),
                 accessToken: access_token,
                 refreshToken: new_refresh_token,
             };
