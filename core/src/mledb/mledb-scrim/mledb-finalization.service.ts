@@ -54,6 +54,7 @@ import {ballchasingMapLookup} from "./ballchasing-maps";
 @Injectable()
 export class MledbFinalizationService {
     private readonly logger = new Logger(MledbFinalizationService.name);
+
     private readonly carballConverter = new CarballConverterService();
 
     constructor(
@@ -387,18 +388,16 @@ export class MledbFinalizationService {
             if (parseResult.success === false) {
                 const {error: parseError} = parseResult;
 
-                this.logger.warn(
-                    `Degrading malformed carball payload for legacy finalization | ${JSON.stringify({
-                        submissionId,
-                        originalFilename: item.originalFilename,
-                        outputPath: item.outputPath,
-                        replayIndex,
-                        issues: parseError.issues.map(issue => ({
-                            path: issue.path.join("."),
-                            message: issue.message,
-                        })),
-                    })}`,
-                );
+                this.logger.warn(`Degrading malformed carball payload for legacy finalization | ${JSON.stringify({
+                    submissionId,
+                    originalFilename: item.originalFilename,
+                    outputPath: item.outputPath,
+                    replayIndex,
+                    issues: parseError.issues.map(issue => ({
+                        path: issue.path.join("."),
+                        message: issue.message,
+                    })),
+                })}`);
 
                 const converted = this.carballConverter.convertToBallchasingFormat(
                     this.coerceMalformedCarballPayload(item.progress?.result?.data),
@@ -484,15 +483,13 @@ export class MledbFinalizationService {
             .join(":")
             .slice(0, 255);
 
-        this.logger.warn(
-            `Using fallback legacy replay match guid | ${JSON.stringify({
-                submissionId,
-                originalFilename: item.originalFilename,
-                outputPath: item.outputPath,
-                replayIndex,
-                fallbackGuid,
-            })}`,
-        );
+        this.logger.warn(`Using fallback legacy replay match guid | ${JSON.stringify({
+            submissionId,
+            originalFilename: item.originalFilename,
+            outputPath: item.outputPath,
+            replayIndex,
+            fallbackGuid,
+        })}`);
 
         return fallbackGuid;
     }

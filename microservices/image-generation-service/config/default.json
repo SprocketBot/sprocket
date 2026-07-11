@@ -1,7 +1,8 @@
 {
   "transport": {
     "url": "",
-    "image_generation_queue": ""
+    "image_generation_queue": "",
+    "submission_queue": ""
   },
   "logger": {
     "levels": true

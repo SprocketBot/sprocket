@@ -3,10 +3,12 @@ import type {TestingModule} from "@nestjs/testing";
 import {Test} from "@nestjs/testing";
 import {getDataSourceToken} from "@nestjs/typeorm";
 import type {BallchasingResponse} from "@sprocketbot/common";
+import type {BallchasingPlayer} from "@sprocketbot/common";
 import {CarballConverterService, ProgressStatus} from "@sprocketbot/common";
 import type {EntityManager} from "typeorm";
 import {DataSource} from "typeorm";
 
+import type {GameMode} from "../../../database/game/game_mode/game_mode.model";
 import type {Match} from "../../../database/scheduling/match/match.model";
 import {GameSkillGroupService} from "../../../franchise/game-skill-group/game-skill-group.service";
 import {PlayerService} from "../../../franchise/player/player.service";
@@ -17,12 +19,10 @@ import {EligibilityService} from "../../../scheduling/eligibility/eligibility.se
 import {MatchService} from "../../../scheduling/match/match.service";
 import {SprocketRatingService} from "../../../sprocket-rating/sprocket-rating.service";
 import type {MatchReplaySubmission} from "../../types";
+import {ReplaySubmissionType} from "../../types";
 import {BallchasingConverterService} from "../ballchasing-converter/ballchasing-converter.service";
 import {MATCH_SUBMISSION_FIXTURE_RATIFYING} from "./fixtures/MatchSubmission.fixture";
 import {RocketLeagueFinalizationService} from "./rocket-league-finalization.service";
-import {GameMode} from "../../../database/game/game_mode/game_mode.model";
-import type {BallchasingPlayer} from "@sprocketbot/common";
-import {ReplaySubmissionType} from "../../types";
 
 const SUMMARY_ONLY_CARBALL_REPLAY = {
     game_metadata: {
@@ -45,10 +45,18 @@ const SUMMARY_ONLY_CARBALL_REPLAY = {
         ],
     },
     players: [
-        {id: {id: "blue-1", platform: "steam"}, name: "Blue One", is_orange: 0},
-        {id: {id: "blue-2", platform: "steam"}, name: "Blue Two", is_orange: 0},
-        {id: {id: "orange-1", platform: "epic"}, name: "Orange One", is_orange: 1},
-        {id: {id: "orange-2", platform: "epic"}, name: "Orange Two", is_orange: 1},
+        {
+            id: {id: "blue-1", platform: "steam"}, name: "Blue One", is_orange: 0,
+        },
+        {
+            id: {id: "blue-2", platform: "steam"}, name: "Blue Two", is_orange: 0,
+        },
+        {
+            id: {id: "orange-1", platform: "epic"}, name: "Orange One", is_orange: 1,
+        },
+        {
+            id: {id: "orange-2", platform: "epic"}, name: "Orange Two", is_orange: 1,
+        },
     ],
     teams: [
         {
@@ -93,7 +101,7 @@ describe("BetterFinalizationService", () => {
                     },
                 },
                 
-                    SprocketRatingService,
+                SprocketRatingService,
                 {
                     provide: MledbPlayerService,
                     useValue: {
@@ -165,7 +173,6 @@ describe("BetterFinalizationService", () => {
             expect(playerService.getPlayer).toBeCalledTimes(4);
         });
     });
-
 
     describe("_getSprocketRating", () => {
         it("Should return correct sprocket rating using rawPlayer.stats.core values directly", () => {
@@ -278,7 +285,7 @@ describe("BetterFinalizationService", () => {
 
             expect(players).toHaveLength(4);
             expect(ballchasingConverter.createRound).toHaveBeenCalledTimes(1);
-            expect((em.insert as jest.Mock).mock.calls).toHaveLength(4);
+            expect((em.insert as jest.Mock).mock.calls).toHaveLength(5);
         });
     });
 });

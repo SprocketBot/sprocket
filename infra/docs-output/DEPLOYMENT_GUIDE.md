@@ -219,9 +219,9 @@ Before starting, ensure you have access to:
 Install the following on your deployment machine:
 
 ```bash
-# Node.js 16.x (required for Pulumi operations)
-nvm install 16
-nvm use 16
+# Node.js 20.x (required for Pulumi operations)
+nvm install 20
+nvm use 20
 
 # Pulumi CLI
 curl -fsSL https://get.pulumi.com | sh
@@ -240,7 +240,7 @@ brew install jq  # macOS
 curl -Ls https://cli.doppler.com/install.sh | sh
 
 # Verify installations
-node --version   # Should be v16.x.x
+node --version   # Should be v20.x.x
 pulumi version
 vault version
 jq --version

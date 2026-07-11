@@ -9,8 +9,8 @@
 <nav>
     <ul class="menu">
         {#each $navigationStore as item}
-            <li class:active={item.target === currentRoute} on:click={async () => goto(item.target)}>
-                <a>{item.label}</a>
+            <li class:active={item.target === currentRoute}>
+                <a href={item.target} on:click|preventDefault={async () => goto(item.target)}>{item.label}</a>
             </li>
         {/each}
     </ul>

@@ -24,7 +24,9 @@ module.exports = {
       },
     ],
   ],
+  setupFiles: ['<rootDir>/test/jest.setup.js'],
   moduleNameMapper: {
     '^\\$db/(.*)$': '<rootDir>/src/database/$1',
+    '^src/(.*)$': '<rootDir>/src/$1',
   },
 };
