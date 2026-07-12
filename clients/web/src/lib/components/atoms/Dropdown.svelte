@@ -10,7 +10,7 @@
 
 <div class="dropdown {_class}">
 	<slot name="handle">
-		<label tabindex="0" class="btn m-1">Click</label>
+		<button type="button" class="btn m-1">Click</button>
 	</slot>
 
 	<ul tabindex="0" class="dropdown-content menu p-1 md:p-2 mt-2 shadow bg-base-100 rounded-box">

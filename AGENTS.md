@@ -200,7 +200,7 @@ If you improve the repo’s operating surface for future agents, that is valuabl
 
 ### Runtime requirements
 
-- **Node.js 18** (matches `dockerfiles/node.Dockerfile` base image). The `.nvmrc` says 16, but the actual Dockerfiles and dependency versions target Node 18. Use `nvm use 18`.
+- **Node.js 26** (matches `dockerfiles/node.Dockerfile` and `dev.Dockerfile` base images). Use `nvm use 26`.
 - **npm** is the package manager (uses npm workspaces; lockfile is `package-lock.json`). Use `--legacy-peer-deps` for install.
 - **Docker** is required for infrastructure services (postgres, redis, rabbitmq, minio).
 

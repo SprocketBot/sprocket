@@ -9,7 +9,17 @@ import type {
     CarballTeam,
 } from "../celery/types/schemas/stats";
 
-type TeamTotals = {goals: number; shots: number;};
+interface TeamTotals {
+    goals: number;
+    shots: number;
+}
+
+interface CarballTeamInput {
+    name?: string;
+    players?: CarballPlayer[];
+    score?: number;
+    stats?: CarballTeam["stats"];
+}
 
 export class CarballConverterService {
 
@@ -49,9 +59,9 @@ export class CarballConverterService {
             recorder: undefined,
             uploader: {
                 name: "Carball Parser",
-                avatar: "",
+                avatar: "https://ballchasing.com/favicon.ico",
                 steam_id: "0",
-                profile_url: "",
+                profile_url: "https://ballchasing.com",
             },
             match_type: this.getMatchType(playlist, matchType),
             playlist_id: this.getPlaylistId(playlist),
@@ -69,8 +79,17 @@ export class CarballConverterService {
     }
 
     private buildReplayId(outputPath: string): string {
-        if (!outputPath) return createHash("sha256").update("missing-output-path").digest("hex");
-        return createHash("sha256").update(outputPath).digest("hex");
+        const hash = createHash("sha256")
+            .update(outputPath || "missing-output-path")
+            .digest("hex");
+        const variant = ["8", "9", "a", "b"][parseInt(hash[16], 16) % 4];
+        return [
+            hash.slice(0, 8),
+            hash.slice(8, 12),
+            `4${hash.slice(13, 16)}`,
+            `${variant}${hash.slice(17, 20)}`,
+            hash.slice(20, 32),
+        ].join("-");
     }
 
     private asRecord(value: unknown): Record<string, unknown> {
@@ -105,7 +124,7 @@ export class CarballConverterService {
     }
 
     private convertTeam(
-        team: CarballTeam | {players: CarballPlayer[];},
+        team: CarballTeamInput,
         players: CarballPlayer[],
         color: "blue" | "orange",
         opposingTeamTotals: TeamTotals,
@@ -118,8 +137,8 @@ export class CarballConverterService {
         ));
 
         return {
-            name: this.getOptionalString((team as any).name),
-            color,
+            name: this.getOptionalString(team.name),
+            color: color,
             stats: this.aggregateTeamStats(team, players, convertedPlayers, opposingTeamTotals, goalCounts),
             players: convertedPlayers,
         };
@@ -202,18 +221,19 @@ export class CarballConverterService {
     }
 
     private aggregateTeamStats(
-        team: CarballTeam | {players: CarballPlayer[];},
+        team: CarballTeamInput,
         rawPlayers: CarballPlayer[],
         players: BallchasingPlayer[],
         opposingTeamTotals: TeamTotals,
         goalCounts: Map<string, number>,
     ): BallchasingTeam["stats"] {
-        const teamStats = this.asRecord((team as any).stats);
+        const teamStats = this.asRecord(team.stats);
         const teamPossession = this.toNumber(this.getField(teamStats, ["possession", "possession_time"], ["possession", "possessionTime"]));
         const playerStats = players.map(player => player.stats);
-        const totalGoals = rawPlayers.reduce((sum, player) => (
-            sum + (this.toNumber(this.getField(player, "goals")) ?? goalCounts.get(this.getPlayerLookupKey(player.id)) ?? 0)
-        ), 0);
+        const totalGoals = rawPlayers.reduce(
+            (sum, player) => sum + (this.toNumber(this.getField(player, "goals")) ?? goalCounts.get(this.getPlayerLookupKey(player.id)) ?? 0)
+            , 0,
+        );
         const totalSaves = playerStats.reduce((sum, stats) => sum + stats.core.saves, 0);
         const totalScore = playerStats.reduce((sum, stats) => sum + stats.core.score, 0);
         const totalShots = playerStats.reduce((sum, stats) => sum + stats.core.shots, 0);
@@ -286,7 +306,7 @@ export class CarballConverterService {
             return new Date().toISOString();
         }
 
-        if (typeof dateValue === "number" || /^\d+$/.test(String(dateValue))) {
+        if (typeof dateValue === "number" || (/^\d+$/).test(String(dateValue))) {
             const rawValue = Number(dateValue);
             const timestamp = rawValue > 1_000_000_000_000 ? rawValue : rawValue * 1000;
             const parsed = new Date(timestamp);
@@ -302,7 +322,7 @@ export class CarballConverterService {
         const goals = (this.getField(metadata, "goals") as Array<Record<string, unknown>> | undefined) ?? [];
 
         for (const goal of goals) {
-            const playerId = (this.getField(goal, "player_id", "playerId") as Record<string, unknown> | undefined);
+            const playerId = this.getField(goal, "player_id", "playerId") as Record<string, unknown> | undefined;
             const key = this.getPlayerLookupKey(playerId);
             if (!key) continue;
             goalCounts.set(key, (goalCounts.get(key) ?? 0) + 1);
@@ -362,23 +382,23 @@ export class CarballConverterService {
 
     private getTeamGoals(
         players: CarballPlayer[],
-        team: CarballTeam | {players: CarballPlayer[];},
+        team: CarballTeamInput,
         goalCounts: Map<string, number>,
         metadataScore: Record<string, unknown>,
         color: "blue" | "orange",
     ): number {
-        const metadataScoreValue = this.toNumber(
-            color === "blue"
-                ? this.getField(metadataScore, "team_0_score", "team0Score")
-                : this.getField(metadataScore, "team_1_score", "team1Score"),
-        );
+        const scoreField = color === "blue"
+            ? this.getField(metadataScore, "team_0_score", "team0Score")
+            : this.getField(metadataScore, "team_1_score", "team1Score");
+        const metadataScoreValue = this.toNumber(scoreField);
         const teamScore = this.toNumber(this.getField(team, "score"));
 
         return teamScore
             ?? metadataScoreValue
-            ?? players.reduce((sum, player) => (
-                sum + (this.toNumber(this.getField(player, "goals")) ?? goalCounts.get(this.getPlayerLookupKey(player.id)) ?? 0)
-            ), 0);
+            ?? players.reduce(
+                (sum, player) => sum + (this.toNumber(this.getField(player, "goals")) ?? goalCounts.get(this.getPlayerLookupKey(player.id)) ?? 0)
+                , 0,
+            );
     }
 
     private getTeamTotals(
@@ -387,12 +407,13 @@ export class CarballConverterService {
     ): TeamTotals {
         return {
             goals: teamGoals,
-            shots: players.reduce((sum, player) => (
-                sum
+            shots: players.reduce(
+                (sum, player) => sum
                 + (this.toNumber(this.getField(player, "shots"))
                 ?? this.toNumber(this.getField(player.stats, ["hit_counts", "total_shots"], ["hitCounts", "totalShots"]))
                 ?? 0)
-            ), 0),
+                , 0,
+            ),
         };
     }
 
@@ -449,7 +470,9 @@ export class CarballConverterService {
     private normalizePlaylist(playlist: unknown): string {
         const numeric = this.toNumber(playlist);
         if (numeric !== undefined) return String(numeric);
-        return String(playlist ?? "").trim().toUpperCase();
+        return String(playlist ?? "")
+            .trim()
+            .toUpperCase();
     }
 
     private getPlaylistId(playlist: unknown): string {
@@ -524,11 +547,10 @@ export class CarballConverterService {
             ?? this.toNumber(this.getField(averagesData, "averageSpeed", "average_speed"))
             ?? 0;
         const avgSpeed = rawAvgSpeed > 3000 ? rawAvgSpeed / 10 : rawAvgSpeed;
+        const inferredTotalDistance = (this.toNumber(this.getField(distanceData, "ball_hit_forward", "ballHitForward")) ?? 0)
+            + (this.toNumber(this.getField(distanceData, "ball_hit_backward", "ballHitBackward")) ?? 0);
         const totalDistance = this.toNumber(this.getField(distanceData, "total_distance", "totalDistance"))
-            ?? (
-                (this.toNumber(this.getField(distanceData, "ball_hit_forward", "ballHitForward")) ?? 0)
-                + (this.toNumber(this.getField(distanceData, "ball_hit_backward", "ballHitBackward")) ?? 0)
-            );
+            ?? inferredTotalDistance;
 
         return {
             avg_speed: avgSpeed,
@@ -597,7 +619,7 @@ export class CarballConverterService {
 
     private getPlaylistName(playlist: unknown): string {
         const normalized = this.normalizePlaylist(playlist);
-        const playlistMap: Record<string, string> = {
+        const playlistMap: Partial<Record<string, string>> = {
             "1": "Duel",
             "2": "Doubles",
             "3": "Standard",
@@ -610,14 +632,14 @@ export class CarballConverterService {
             "28": "Rumble",
             "29": "Dropshot",
             "30": "Snow Day",
-            CUSTOM_LOBBY: "Private",
-            PRIVATE: "Private",
-            RANKED_DUEL: "Ranked Duel",
-            RANKED_DOUBLES: "Ranked Doubles",
-            RANKED_STANDARD: "Ranked Standard",
-            DOUBLES: "Doubles",
-            DUEL: "Duel",
-            STANDARD: "Standard",
+            "CUSTOM_LOBBY": "Private",
+            "PRIVATE": "Private",
+            "RANKED_DUEL": "Ranked Duel",
+            "RANKED_DOUBLES": "Ranked Doubles",
+            "RANKED_STANDARD": "Ranked Standard",
+            "DOUBLES": "Doubles",
+            "DUEL": "Duel",
+            "STANDARD": "Standard",
         };
 
         return playlistMap[normalized] ?? "Unknown";

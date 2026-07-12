@@ -6,6 +6,12 @@ This guide helps you set up and use the local development environment to speed u
 
 Preferred root command surface:
 
+Use Node.js 26 for local development:
+
+```bash
+nvm use 26
+```
+
 ```bash
 # Start the local stack using the canonical root wrapper
 npm run dev:up

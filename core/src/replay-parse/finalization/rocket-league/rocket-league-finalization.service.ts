@@ -297,7 +297,7 @@ export class RocketLeagueFinalizationService {
                 }
                 ballchasingData = parseResult.data;
             } else {
-                throw new Error(`Unknown parser type: ${parserType}. Expected ${Parser.CARBALL} or ${Parser.BALLCHASING}`);
+                throw new Error(`${i.originalFilename} has unknown parser type: ${parserType}. Expected ${Parser.CARBALL} or ${Parser.BALLCHASING}`);
             }
 
             return {

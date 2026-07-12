@@ -1,4 +1,12 @@
-import {CarballConverterService, Parser} from "@sprocketbot/common";
+import type {
+    CarballResponse,
+    ParsedReplay,
+} from "@sprocketbot/common";
+import {
+    BallchasingResponseSchema,
+    CarballConverterService,
+    Parser,
+} from "@sprocketbot/common";
 
 import {StatsConverterService} from "./stats-converter.service";
 
@@ -23,10 +31,18 @@ const SUMMARY_ONLY_CARBALL_REPLAY = {
         ],
     },
     players: [
-        {id: {id: "blue-1", platform: "steam"}, name: "Blue One", is_orange: 0},
-        {id: {id: "blue-2", platform: "steam"}, name: "Blue Two", is_orange: 0},
-        {id: {id: "orange-1", platform: "epic"}, name: "Orange One", is_orange: 1},
-        {id: {id: "orange-2", platform: "epic"}, name: "Orange Two", is_orange: 1},
+        {
+            id: {id: "blue-1", platform: "steam"}, name: "Blue One", is_orange: 0,
+        },
+        {
+            id: {id: "blue-2", platform: "steam"}, name: "Blue Two", is_orange: 0,
+        },
+        {
+            id: {id: "orange-1", platform: "epic"}, name: "Orange One", is_orange: 1,
+        },
+        {
+            id: {id: "orange-2", platform: "epic"}, name: "Orange Two", is_orange: 1,
+        },
     ],
     teams: [
         {
@@ -46,7 +62,7 @@ const SUMMARY_ONLY_CARBALL_REPLAY = {
             ],
         },
     ],
-};
+} as unknown as CarballResponse;
 
 const FULL_ANALYSIS_CARBALL_REPLAY = {
     gameMetadata: {
@@ -196,21 +212,23 @@ const FULL_ANALYSIS_CARBALL_REPLAY = {
             ],
         },
     ],
-};
+} as unknown as CarballResponse;
 
 describe("StatsConverterService", () => {
     it("converts summary-only carball payloads without frame-derived stats", () => {
         const service = new StatsConverterService();
 
-        const result = service.convertStats([
+        const rawStats: ParsedReplay[] = [
             {
                 parser: Parser.CARBALL,
                 analysisMode: "summary-only",
                 parserVersion: 4,
                 outputPath: "dev/v4/summary-only.json",
                 data: SUMMARY_ONLY_CARBALL_REPLAY,
-            } as any,
-        ]);
+            },
+        ];
+
+        const result = service.convertStats(rawStats);
 
         expect(result.games).toHaveLength(1);
         expect(result.games[0].teams[0].score).toBe(2);
@@ -229,7 +247,7 @@ describe("StatsConverterService", () => {
         const converter = new CarballConverterService();
 
         const result = converter.convertToBallchasingFormat(
-            FULL_ANALYSIS_CARBALL_REPLAY as any,
+            FULL_ANALYSIS_CARBALL_REPLAY,
             "dev/v4/full-analysis.json",
         );
 
@@ -247,5 +265,17 @@ describe("StatsConverterService", () => {
         expect(result.blue.players[0].stats.movement.total_distance).toBe(1650);
         expect(result.blue.players[0].stats.positioning.time_behind_ball).toBe(160);
         expect(result.blue.players[0].stats.positioning.time_most_back).toBe(120);
+    });
+
+    it("converts carball payloads into values accepted by the ballchasing replay schema", () => {
+        const converter = new CarballConverterService();
+
+        const result = converter.convertToBallchasingFormat(
+            FULL_ANALYSIS_CARBALL_REPLAY,
+            "dev/v4/full-analysis.json",
+        );
+
+        const parsed = BallchasingResponseSchema.safeParse(result);
+        expect(parsed.success).toBe(true);
     });
 });

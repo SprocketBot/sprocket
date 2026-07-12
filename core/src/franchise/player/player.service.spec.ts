@@ -22,11 +22,12 @@ import {MemberProfile} from "../../database/organization/member_profile/member_p
 import {Organization} from "../../database/organization/organization/organization.model";
 import {EloConnectorService} from "../../elo/elo-connector";
 import {PlatformService} from "../../game";
-import {OrganizationService} from "../../organization";
-import {MemberPlatformAccountService} from "../../organization/member-platform-account";
-import {MemberService} from "../../organization/member/member.service";
 import {MledbPlayerAccountService} from "../../mledb";
+import {OrganizationService} from "../../organization";
+import {MemberService} from "../../organization/member/member.service";
+import {MemberPlatformAccountService} from "../../organization/member-platform-account";
 import {GameSkillGroupService} from "../game-skill-group";
+import {RosterAuthorityService} from "../roster-authority.service";
 import {PlayerService} from "./player.service";
 import {OperationError} from "./player.types";
 
@@ -224,6 +225,12 @@ describe("PlayerService", () => {
                     provide: AnalyticsService,
                     useValue: {
                         send: jest.fn(),
+                    },
+                },
+                {
+                    provide: RosterAuthorityService,
+                    useValue: {
+                        syncFromMlePlayerId: jest.fn(),
                     },
                 },
                 {

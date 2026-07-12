@@ -221,7 +221,7 @@ sprocket-infra/
 3. **Service Discovery**: Traefik takes 30-60 seconds to discover new services
 4. **Doppler Dependency**: Cannot deploy without Doppler secrets access
 5. **Database Connection**: All services need managed PostgreSQL credentials
-6. **Node Version**: Requires Node.js 16 for some Pulumi operations
+6. **Node Version**: Requires Node.js 20 for some Pulumi operations
 
 ## What's Working
 

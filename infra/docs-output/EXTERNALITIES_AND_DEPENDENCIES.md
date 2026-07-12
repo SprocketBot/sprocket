@@ -425,14 +425,14 @@ docker-access-token: [secure]
 ### Required on Deployment Machine
 
 #### 1. Node.js
-**Version**: 16.x (required for some Pulumi operations)
+**Version**: 20.x (required for some Pulumi operations)
 ```bash
 # Check version
 node --version
 
 # Install with nvm
-nvm install 16
-nvm use 16
+nvm install 20
+nvm use 20
 ```
 
 #### 2. Pulumi CLI
@@ -525,7 +525,7 @@ Before attempting deployment, verify you have:
 - [ ] Production node accessible via SSH
 
 **Local Tools**:
-- [ ] Node.js 16.x installed
+- [ ] Node.js 20.x installed
 - [ ] Pulumi CLI installed and authenticated
 - [ ] Docker installed (with Swarm initialized)
 - [ ] Vault CLI installed

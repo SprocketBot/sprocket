@@ -2,7 +2,7 @@
 
 | Tool | Version | Notes |
 |------|---------|--------|
-| **Node.js** | **20.x** | Use for all Pulumi runs (`npm run infra:install`, GitHub Actions, local preview/up). Matches `@pulumi/pulumi` expectations. The repo root [`.nvmrc`](../.nvmrc) remains **16** for legacy application builds; switch with `nvm install 20 && nvm use 20` (or `fnm use 20`) before infra work. You may see an `npm` `EBADENGINE` warning from transitive packages (for example `minio`); it is benign for our usage. |
+| **Node.js** | **20.x** | Use for all Pulumi runs (`npm run infra:install`, GitHub Actions, local preview/up). Matches `@pulumi/pulumi` expectations. The repo root [`.nvmrc`](../.nvmrc) now tracks **26** for application builds; keep `nvm install 20 && nvm use 20` (or `fnm use 20`) before infra work. You may see an `npm` `EBADENGINE` warning from transitive packages (for example `minio`); it is benign for our usage. |
 | **Pulumi CLI** | **3.229.0** | Pin CI installs to this version; locally run `pulumi version` after [install](https://www.pulumi.com/docs/install/) and upgrade to match if needed. CI uses `curl -fsSL https://get.pulumi.com \| sh -s -- --version 3.229.0`. |
 
 ## Infrastructure Monorepo Layout

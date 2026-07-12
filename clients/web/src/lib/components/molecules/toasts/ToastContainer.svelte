@@ -6,8 +6,9 @@
     import {toasts} from "./ToastStore";
     export let showTestButton = false;
 
-    function removeToast(t: Toast, node: HTMLLIElement) {
-        if (node.parentElement.firstChild === node) {
+    function removeToast(t: Toast, node: HTMLElement) {
+        const item = node.closest("li");
+        if (item?.parentElement?.firstElementChild === item) {
             toasts.remove(t.id);
         }
     }
@@ -17,11 +18,13 @@
     <section>
         <ul>
             {#each $toasts as toast (toast.id)}
-                <li class="toast" in:fade out:fly={{y: -5, duration: 200}} on:click={e => { removeToast(toast, e.currentTarget) }}>
-                    <span class="w-4 h-4">
-                        <FaInfoCircle/>
-                    </span>
-                    {toast.content}
+                <li in:fade out:fly={{y: -5, duration: 200}}>
+                    <button type="button" class="toast" on:click={e => { removeToast(toast, e.currentTarget) }}>
+                        <span class="w-4 h-4">
+                            <FaInfoCircle/>
+                        </span>
+                        {toast.content}
+                    </button>
                 </li>
             {/each}
         </ul>
@@ -53,7 +56,7 @@
 
     .toast {
         /*@apply relative bg-accent px-4 py-4 rounded text-gray-50 break-all;*/
-        @apply relative cursor-pointer alert alert-info;
+        @apply relative cursor-pointer alert alert-info w-full text-left;
     }
 
     .close {

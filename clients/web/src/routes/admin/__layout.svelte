@@ -5,6 +5,9 @@
         if (!session.user) {
             return {redirect: "/auth/login", status: 302};
         }
+        if (!session.user.orgTeams.some(s => s === 0)) {
+            return {redirect: "/scrims", status: 302};
+        }
         return {};
     };
 </script>

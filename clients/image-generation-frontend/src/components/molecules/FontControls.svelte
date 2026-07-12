@@ -93,7 +93,7 @@
     @apply hidden;
   }
   .fileinput {
-    @apply px-2 py-1 bg-primary-500 hover:bg-primary-600 hover:cursor-pointer text-sproc_dark_gray-500;
+    @apply px-2 py-1 bg-primary-500 hover:bg-primary-600 cursor-pointer text-sproc_dark_gray-500;
   }
   p {
     @apply text-xl text-primary-500 py-3
