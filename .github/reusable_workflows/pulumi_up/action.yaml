@@ -116,6 +116,8 @@ runs:
 
         if [ "${{ inputs.command }}" = "up" ]; then
           pulumi up --yes --stack ${{ inputs.stack-name }}
+        elif [ "${{ inputs.command }}" = "refresh" ]; then
+          pulumi refresh --yes --stack ${{ inputs.stack-name }}
         else
           pulumi ${{ inputs.command }} --stack ${{ inputs.stack-name }}
         fi
