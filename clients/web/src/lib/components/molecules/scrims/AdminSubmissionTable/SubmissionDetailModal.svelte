@@ -286,16 +286,16 @@
                     {/if}
                     <div class="flex flex-col gap-2">
                         <div class="form-control w-full max-w-xs">
-                            <label class="label"><span class="label-text">Sprocket User ID</span></label>
-                            <input type="number" bind:value={linkUserId} class="input input-bordered w-full max-w-xs" placeholder="e.g. 101" />
+                            <label class="label" for="link-sprocket-user-id"><span class="label-text">Sprocket User ID</span></label>
+                            <input id="link-sprocket-user-id" type="number" bind:value={linkUserId} class="input input-bordered w-full max-w-xs" placeholder="e.g. 101" />
                         </div>
                         <div class="form-control w-full max-w-xs">
-                            <label class="label"><span class="label-text">Organization ID</span></label>
-                            <input type="number" bind:value={linkOrgId} class="input input-bordered w-full max-w-xs" />
+                            <label class="label" for="link-organization-id"><span class="label-text">Organization ID</span></label>
+                            <input id="link-organization-id" type="number" bind:value={linkOrgId} class="input input-bordered w-full max-w-xs" />
                         </div>
                         <div class="form-control w-full max-w-xs">
-                            <label class="label"><span class="label-text">Tracker</span></label>
-                            <input type="text" bind:value={linkTracker} class="input input-bordered w-full max-w-xs" />
+                            <label class="label" for="link-tracker"><span class="label-text">Tracker</span></label>
+                            <input id="link-tracker" type="text" bind:value={linkTracker} class="input input-bordered w-full max-w-xs" />
                         </div>
                         <div class="flex gap-2 mt-4">
                             <button class="btn btn-sm btn-success" on:click={submitLink}>Submit</button>
@@ -318,7 +318,16 @@
                                 {#each verifiedPlayers as p}
                                     <tr>
                                         <td>{p.name}</td>
-                                        <td class="cursor-pointer hover:text-primary" on:click={() => { linkUserId = p.id }} title="Click to auto-fill User ID">{p.id}</td>
+                                        <td>
+                                            <button
+                                                type="button"
+                                                class="cursor-pointer hover:text-primary"
+                                                on:click={() => { linkUserId = p.id }}
+                                                title="Click to auto-fill User ID"
+                                            >
+                                                {p.id}
+                                            </button>
+                                        </td>
                                     </tr>
                                 {/each}
                             </tbody>

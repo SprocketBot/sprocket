@@ -44,9 +44,9 @@
             class={`modal-box max-w-none max-h-[92vh] flex flex-col px-0 ${sizeClass}`}
             use:clickOutside={{callback: handleClickOutside}}
         >
-            <div class="close" on:click={close}>
+            <button type="button" class="close" on:click={close} aria-label="Close modal">
                 <IoMdClose/>
-            </div>
+            </button>
 
             <h2 class="px-4 md:px-8">{title ?? ""}</h2>
 

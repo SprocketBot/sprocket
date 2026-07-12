@@ -13,13 +13,13 @@
 
 
 <div class="accordion">
-    <div class="title" on:click={toggleExpanded}>
+    <button type="button" class="title" on:click={toggleExpanded} aria-expanded={expanded}>
         {#if title}
             {title}
         {:else}
             <slot name="title" />
         {/if}
-    </div>
+    </button>
     {#if expanded}
         <div transition:slide>
             <slot {close} />
@@ -34,6 +34,6 @@
     }
 
     .title {
-        @apply w-full cursor-pointer;
+        @apply w-full cursor-pointer text-left;
     }
 </style>

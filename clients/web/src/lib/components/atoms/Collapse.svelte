@@ -7,12 +7,17 @@
 	export let open: boolean = false;
 </script>
 <div class="bg-base-300/20 px-4 py-4 rounded-lg space-y-4">
-	<div class='flex justify-between items-center cursor-pointer select-none' on:click={() => { open = !open }}>
+	<button
+		type="button"
+		class='flex justify-between items-center cursor-pointer select-none w-full text-left'
+		on:click={() => { open = !open }}
+		aria-expanded={open}
+	>
 		<span class='text-xl font-bold'>{title}</span>
 		<span class='h-6'>
 		{#if open} <FaChevronDown /> {:else} <FaChevronUp /> {/if}
 	</span>
-	</div>
+	</button>
 	{#if open}
 		<div transition:slide>
 			<slot />
