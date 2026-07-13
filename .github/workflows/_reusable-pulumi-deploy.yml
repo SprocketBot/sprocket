@@ -254,6 +254,51 @@ jobs:
         run: |
           echo "Skipping foundation apply: ${{ steps.foundation_gate.outputs.reason }}"
 
+  prod_prepare:
+    name: Prod — BOM + image tag resolution
+    if: inputs.deploy_profile == 'prod_cd' && inputs.bom_download_run_id != ''
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Check out
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.git_sha }}
+
+      - name: Download merged BOM
+        uses: actions/download-artifact@v4
+        with:
+          name: bom-main
+          path: bom-download
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.bom_download_run_id }}
+
+      - name: Set up Node.js (Pulumi CLI for platform config)
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Install Pulumi CLI
+        shell: bash
+        run: |
+          curl -fsSL https://get.pulumi.com | sh -s -- --version "3.229.0"
+          echo "${HOME}/.pulumi/bin" >> "${GITHUB_PATH}"
+
+      - name: Set prod platform image tag (sha-* from BOM)
+        shell: bash
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PROD_PULUMI_ACCESS_TOKEN }}
+          PULUMI_BACKEND_URL: ${{ secrets.PULUMI_BACKEND_URL }}
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          DEPLOY_SHA: ${{ inputs.git_sha }}
+        run: |
+          set -euo pipefail
+          if [ -d bom-download ]; then
+            BOM_PATH="$(find bom-download -type f -name 'main-*.json' | head -1 || true)"
+          fi
+          bash ./scripts/ci/pulumi-set-dev-image-tag.sh "${DEPLOY_SHA}" "${BOM_PATH}"
+
   matrix_prepare:
     name: Build deploy plan from stack-map
     runs-on: ubuntu-latest
@@ -352,6 +397,7 @@ jobs:
       - matrix_prepare
       - dev_prepare
       - foundation_prepare
+      - prod_prepare
     if: |
       always() &&
       needs.matrix_prepare.result == 'success' &&
@@ -361,6 +407,10 @@ jobs:
           needs.dev_prepare.result == 'success' &&
           needs.foundation_prepare.result == 'success'
         )
+      ) &&
+      (
+        inputs.deploy_profile != 'prod_cd' ||
+        needs.prod_prepare.result == 'success'
       )
     runs-on: ubuntu-latest
     environment: >-
