@@ -35,6 +35,11 @@ on:
         required: false
         type: string
         default: ''
+      bom_download_run_id:
+        description: 'Build run ID to download BOM from (for image tag resolution)'
+        required: false
+        type: string
+        default: ''
 
 concurrency:
   group: prod-deploy
@@ -52,4 +57,5 @@ jobs:
       git_sha: ${{ github.event.inputs.git_sha }}
       deploy_profile: prod_cd
       prod_confirm: ${{ github.event.inputs.confirm }}
+      bom_download_run_id: ${{ github.event.inputs.bom_download_run_id }}
     secrets: inherit
