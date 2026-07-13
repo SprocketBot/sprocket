@@ -1,0 +1,34 @@
+# Fix missing Docker service in Pulumi state
+name: Fix Pulumi State
+
+on:
+  workflow_dispatch:
+
+jobs:
+  fix-state:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Install Pulumi CLI
+        run: |
+          curl -fsSL https://get.pulumi.com | sh -s -- --version "3.229.0"
+          echo "${HOME}/.pulumi/bin" >> "${GITHUB_PATH}"
+
+      - name: Delete missing resource from state
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          PULUMI_BACKEND_URL: ${{ secrets.PULUMI_BACKEND_URL }}
+          DOCKER_HOST: ssh://${{ secrets.PULUMI_SSH_USER }}@${{ secrets.PULUMI_MANAGER_NODE_HOST }}:22
+        run: |
+          cd ./infra/platform
+          pulumi state delete "urn:pulumi:prod::platform::SprocketBot:Platform$SprocketBot:Application:Microservice$docker:index/service:Service::prod-sprocket-core-service" --stack prod --yes

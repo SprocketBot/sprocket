@@ -1,0 +1,26 @@
+# Temporary workflow to deploy with state refresh fix
+name: CD Deploy Production (with refresh)
+
+on:
+  workflow_dispatch:
+    inputs:
+      git_sha:
+        description: 'Full commit SHA to deploy'
+        required: true
+        type: string
+      confirm:
+        description: 'Typo guard'
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  pulumi-prod:
+    uses: ./.github/workflows/_reusable-pulumi-deploy.yml
+    with:
+      lane: main
+      target: prod
+      git_sha: ${{ github.event.inputs.git_sha }}
+      deploy_profile: prod_cd
+      prod_confirm: ${{ github.event.inputs.confirm }}
+    secrets: inherit
