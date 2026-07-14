@@ -92,6 +92,10 @@
     "@types/node-fetch": "^2.6.13",
     "formdata-node": "^6.0.3",
     "graphql-request": "^7.4.0",
-    "node-fetch": "^2.7.0"
+    "node-fetch": "^2.7.0",
+    "passport-jwt": "^4.0.1"
+  },
+  "overrides": {
+    "buffer-equal-constant-time": "npm:labenamata-buffer-equal-constant-time@1.0.2"
   }
 }
