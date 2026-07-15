@@ -33,6 +33,9 @@ def connect_db():
         user=config["db"]["username"],
         password=config["db"]["password"],
         dbname=config["db"]["database"],
+        application_name=os.environ.get("POSTGRES_APPLICATION_NAME")
+        or os.environ.get("SPROCKET_SERVICE_NAME")
+        or "replay-parse-service",
     )
 
 

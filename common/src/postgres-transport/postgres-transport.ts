@@ -3,9 +3,8 @@ import {ClientProxy} from "@nestjs/microservices";
 import type {ReadPacket, WritePacket} from "@nestjs/microservices";
 import {Server} from "@nestjs/microservices/server/server";
 import type {Pool, PoolClient, QueryResultRow} from "pg";
-import {Pool as PgPool} from "pg";
 
-import {config} from "../util";
+import {buildPostgresPoolConfig, getSharedPostgresPool} from "../postgres";
 
 export interface PostgresTransportOptions {
     queue: string;
@@ -22,18 +21,10 @@ export interface RpcQueueRow extends QueryResultRow {
 }
 
 export function createTransportPool(): Pool {
-    return new PgPool({
-        host: config.db.host,
-        port: config.db.port,
-        user: config.db.username,
-        password: config.db.password,
-        database: config.db.database,
-        ssl: config.db.host === "postgres" || config.db.host === "localhost"
-            ? false
-            : {rejectUnauthorized: false},
-        max: config.db.pool_size,
-    });
+    return getSharedPostgresPool();
 }
+
+export const createTransportPoolConfig = buildPostgresPoolConfig;
 
 export function toJsonbParam(value: unknown): string | null {
     if (value === null || value === undefined) return null;
@@ -57,8 +48,6 @@ export abstract class PostgresTransportBase {
 
     readonly pollIntervalMs: number;
 
-    private _pool?: Pool;
-
     protected constructor(name: string, options: PostgresTransportOptions) {
         this.logger = new Logger(name);
         this.queue = options.queue;
@@ -66,8 +55,7 @@ export abstract class PostgresTransportBase {
     }
 
     get pool(): Pool {
-        if (!this._pool) this._pool = createTransportPool();
-        return this._pool;
+        return createTransportPool();
     }
 
     async ensureSchema(): Promise<void> {

@@ -109,6 +109,23 @@ export const config = {
         get pool_size(): number {
             return ConfigResolver.getNumberConfig("POSTGRES_POOL_SIZE", "db.pool_size", 1);
         },
+        get pool_idle_timeout_ms(): number {
+            return ConfigResolver.getNumberConfig("POSTGRES_POOL_IDLE_TIMEOUT_MS", "db.pool_idle_timeout_ms", 10000);
+        },
+        get pool_connection_timeout_ms(): number {
+            return ConfigResolver.getNumberConfig(
+                "POSTGRES_POOL_CONNECTION_TIMEOUT_MS",
+                "db.pool_connection_timeout_ms",
+                5000,
+            );
+        },
+        get application_name(): string {
+            return ConfigResolver.getConfig(
+                "POSTGRES_APPLICATION_NAME",
+                "db.application_name",
+                process.env.SPROCKET_SERVICE_NAME || process.env.SERVICE_NAME || "",
+            );
+        },
     },
     gql: {
         get url(): string {

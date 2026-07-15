@@ -168,6 +168,7 @@ export class SprocketService extends pulumi.ComponentResource {
                     ],
                     env: {
                         NODE_ENV: "production",
+                        SPROCKET_SERVICE_NAME: name,
                         ...environment,
                         ...(args.env ?? {})
                     },

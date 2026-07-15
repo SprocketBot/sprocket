@@ -2,6 +2,7 @@ import type {CustomTransportStrategy, ReadPacket, WritePacket} from "@nestjs/mic
 import {Server} from "@nestjs/microservices/server/server";
 import {BaseRpcContext} from "@nestjs/microservices/ctx-host/base-rpc.context";
 
+import {closeSharedPostgresPool} from "../postgres";
 import {
     PostgresTransportBase,
     PostgresTransportOptions,
@@ -42,7 +43,7 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
 
     async close(): Promise<void> {
         this.stopped = true;
-        await this.transport.pool.end();
+        await closeSharedPostgresPool();
     }
 
     private async poll(): Promise<void> {
