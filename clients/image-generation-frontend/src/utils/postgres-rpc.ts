@@ -4,9 +4,20 @@ import config from '../config';
 
 const { Pool } = pg;
 
+const postgresPoolSize = Number(process.env.POSTGRES_POOL_SIZE ?? config.knex.pool_size ?? 1);
+const applicationName = String(
+  process.env.POSTGRES_APPLICATION_NAME
+    ?? process.env.SPROCKET_SERVICE_NAME
+    ?? 'image-generation-frontend',
+).replace(/[^a-zA-Z0-9_.:-]/g, '_').slice(0, 63);
+
 const pool = new Pool({
   ...config.knex,
   ssl: false,
+  max: postgresPoolSize,
+  idleTimeoutMillis: Number(process.env.POSTGRES_POOL_IDLE_TIMEOUT_MS ?? 10000),
+  connectionTimeoutMillis: Number(process.env.POSTGRES_POOL_CONNECTION_TIMEOUT_MS ?? 5000),
+  application_name: `${applicationName}.rpc`.slice(0, 63),
 });
 
 export async function postgresRpcRequest(

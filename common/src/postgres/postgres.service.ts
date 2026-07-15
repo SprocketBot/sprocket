@@ -1,26 +1,12 @@
 import {Injectable, OnModuleDestroy} from "@nestjs/common";
-import {config} from "../util";
-import {Pool, PoolClient, QueryResult, QueryResultRow} from "pg";
+import type {Pool, PoolClient, QueryResult, QueryResultRow} from "pg";
+
+import {closeSharedPostgresPool, getSharedPostgresPool} from "./pool";
 
 @Injectable()
 export class PostgresService implements OnModuleDestroy {
-    private _pool?: Pool;
-
     private get pool(): Pool {
-        if (!this._pool) {
-            this._pool = new Pool({
-                host: config.db.host,
-                port: config.db.port,
-                user: config.db.username,
-                password: config.db.password,
-                database: config.db.database,
-                ssl: config.db.host === "postgres" || config.db.host === "localhost"
-                    ? false
-                    : {rejectUnauthorized: false},
-                max: config.db.pool_size,
-            });
-        }
-        return this._pool;
+        return getSharedPostgresPool();
     }
 
     query<T extends QueryResultRow = QueryResultRow>(
@@ -46,6 +32,6 @@ export class PostgresService implements OnModuleDestroy {
     }
 
     async onModuleDestroy(): Promise<void> {
-        await this._pool?.end();
+        await closeSharedPostgresPool();
     }
 }
