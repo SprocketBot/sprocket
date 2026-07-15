@@ -9,10 +9,11 @@ import type {
     ScrimSettings,
 } from "@sprocketbot/common";
 import {PostgresService, ScrimStatus} from "@sprocketbot/common";
+import type {QueryResult, QueryResultRow} from "pg";
 import {v4} from "uuid";
 
 type DbClient = {
-    query<T = any>(text: string, values?: unknown[]): Promise<{rows: T[]}>;
+    query<T extends QueryResultRow = QueryResultRow>(text: string, values?: unknown[]): Promise<QueryResult<T>>;
 };
 
 interface ScrimRow {

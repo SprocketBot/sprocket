@@ -11,9 +11,10 @@ import type {
     Task,
 } from "@sprocketbot/common";
 import {PostgresService, ReplaySubmissionType} from "@sprocketbot/common";
+import type {QueryResult, QueryResultRow} from "pg";
 
 type DbClient = {
-    query<T = any>(text: string, values?: unknown[]): Promise<{rows: T[]}>;
+    query<T extends QueryResultRow = QueryResultRow>(text: string, values?: unknown[]): Promise<QueryResult<T>>;
 };
 type CompatibleSubmission = ReplaySubmission | EnhancedReplaySubmission;
 
