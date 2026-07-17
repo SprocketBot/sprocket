@@ -3,6 +3,7 @@ import {
     ForbiddenException,
     Get,
     Logger,
+    UnauthorizedException,
     Request,
     Response,
     UseGuards,
@@ -79,9 +80,6 @@ export class OauthController {
             const tokens = await this.authService.refreshTokens(payload, "");
             return tokens;
         }
-        return {
-            access_token: "",
-            refresh_token: "",
-        };
+        throw new UnauthorizedException("Refresh token is not bound to a Discord authentication account");
     }
 }

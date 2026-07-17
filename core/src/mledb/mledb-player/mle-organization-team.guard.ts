@@ -45,9 +45,13 @@ export function MLEOrganizationTeamGuard(organizationTeams: OrganizationTeamGuar
             const ctx = GqlExecutionContext.create(context);
             const req = ctx.getContext().req;
 
-            // Allow bypassing org team check in test mode for local development
-            // IMPORTANT: This should ONLY be enabled in local development, never in production
-            if (process.env.ENABLE_TEST_MODE === "true" && req.headers["x-test-mode"] === "true") {
+            // Allow bypassing org-team checks only in automated Jest-style test mode.
+            // IMPORTANT: This must never bypass authorization in a deployed runtime.
+            if (
+                process.env.ENABLE_TEST_MODE === "true"
+                && process.env.NODE_ENV === "test"
+                && req.headers["x-test-mode"] === "true"
+            ) {
                 // Test mode user already has all org teams injected by GqlJwtGuard
                 return true;
             }
