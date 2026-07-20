@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "es2020",
+    "sourceMap": true,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "outDir": "./dist",
+    "baseUrl": "../../",
+    "incremental": true,
+    "moduleResolution": "node",
+    "types": ["node"],
+    "typeRoots": ["../../core/node_modules/@types"],
+    "lib": ["es2020", "dom", "esnext.asynciterable"],
+    "strictNullChecks": false,
+    "strictFunctionTypes": false,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "esModuleInterop": true,
+    "paths": {
+      "$db/*": ["core/src/database/*"],
+      "src/*": ["core/src/*"]
+    }
+  },
+  "include": [
+    "src/**/*",
+    "../../core/src/**/*",
+    "../../clients/discord-bot/src/**/*",
+    "../../microservices/matchmaking-service/src/**/*",
+    "../../microservices/notification-service/src/**/*",
+    "../../microservices/submission-service/src/**/*",
+    "../../microservices/image-generation-service/src/**/*",
+    "../../microservices/server-analytics-service/src/**/*"
+  ]
+}

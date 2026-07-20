@@ -14,6 +14,8 @@
     "postinstall": "patch-package && npm run build:common",
     "build": "npm run build --workspaces --if-present",
     "build:common": "npm run build --workspace=common",
+    "build:monolith": "npm run build --workspace=apps/monolith",
+    "dev:monolith": "docker compose -f docker-compose.monolith.yml up --build monolith",
     "infra:install": "bash ./scripts/infra/pulumi-install-all.sh --with-foundation",
     "infra:backend:verify": "bash ./scripts/infra/verify-backend.sh",
     "infra:preview": "bash ./scripts/infra/preview.sh",
@@ -55,6 +57,7 @@
   },
   "workspaces": [
     "common",
+    "apps/monolith",
     "core",
     "infra/global",
     "infra/layer_1",

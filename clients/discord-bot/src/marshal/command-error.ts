@@ -14,8 +14,7 @@ export class CommandError extends Error {
     constructor(private type: CommandErrorType, private cause?: string, private resolution?: string) {
         super(cause);
 
-        let uuid = randomUUID();
-        uuid = uuid.slice(uuid.length - 5, uuid.length);
+        const uuid = randomUUID().slice(-5);
 
         let ms = new Date().getUTCMilliseconds()
             .toString();

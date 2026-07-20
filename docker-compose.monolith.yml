@@ -1,0 +1,105 @@
+services:
+  minio:
+    image: minio/minio:latest
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    volumes:
+      - minio_data:/data
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', '${REDIS_PASSWORD}', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  postgres:
+    image: postgres:14-alpine
+    ports:
+      - '5434:5432'
+    environment:
+      - POSTGRES_USER=${POSTGRES_USERNAME:-sprocketbot}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-localdevpassword}
+      - POSTGRES_DB=${POSTGRES_DATABASE:-sprocketbot}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/db-seed:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USERNAME:-sprocketbot}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  monolith:
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+      args:
+        SERVICE_PATH: apps/monolith
+    ports:
+      - '3001:3001'
+    env_file: .env
+    volumes:
+      - ./apps:/app/apps
+      - ./clients/discord-bot:/app/clients/discord-bot
+      - ./common:/app/common
+      - ./core:/app/core
+      - ./microservices/image-generation-service:/app/microservices/image-generation-service
+      - ./microservices/matchmaking-service:/app/microservices/matchmaking-service
+      - ./microservices/notification-service:/app/microservices/notification-service
+      - ./microservices/server-analytics-service:/app/microservices/server-analytics-service
+      - ./microservices/submission-service:/app/microservices/submission-service
+    environment:
+      - SPROCKET_SERVICE_NAME=monolith
+      - NODE_CONFIG_DIR=/app/core/config
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - REDIS_HOST=redis
+      - CACHE_HOST=redis
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - INFLUX_ADDRESS=http://localhost:8086
+      - INFLUX_ORG=sprocket
+      - INFLUX_BUCKET=local
+      - INFLUX_TOKEN=local-development-token
+      - FONTCONFIG_PATH=/app/fonts
+    depends_on:
+      minio:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  replay-parse-service:
+    build:
+      context: microservices/replay-parse-service
+      dockerfile: Dockerfile
+    env_file: .env
+    depends_on:
+      minio:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+volumes:
+  minio_data:
+  postgres_data:

@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.spec.ts",
+    "**/*.spec.helpers.ts",
+    "**/test/**",
+    "../../core/src/**/*.spec.ts",
+    "../../core/src/util/MockRepository.ts",
+    "../../clients/discord-bot/src/**/*.spec.ts",
+    "../../microservices/matchmaking-service/src/**/*.spec.ts",
+    "../../microservices/notification-service/src/**/*.spec.ts",
+    "../../microservices/submission-service/src/**/*.spec.ts",
+    "../../microservices/image-generation-service/src/**/*.spec.ts",
+    "../../microservices/server-analytics-service/src/**/*.spec.ts"
+  ]
+}

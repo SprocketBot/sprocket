@@ -44,6 +44,9 @@ export const config = {
         get prefix(): string {
             return ConfigResolver.getConfig("BOT_PREFIX", "bot.prefix");
         },
+        get token(): string {
+            return ConfigResolver.getSecret("DISCORD_BOT_TOKEN", "./secret/bot-token.txt");
+        },
     },
     cache: {
         get port(): number {
@@ -133,6 +136,20 @@ export const config = {
         },
         get playground(): boolean {
             return ConfigResolver.getBooleanConfig("GQL_PLAYGROUND", "gql.playground");
+        },
+    },
+    influx: {
+        get address(): string {
+            return ConfigResolver.getConfig("INFLUX_ADDRESS", "influx.address", "");
+        },
+        get org(): string {
+            return ConfigResolver.getConfig("INFLUX_ORG", "influx.org", "sprocket");
+        },
+        get bucket(): string {
+            return ConfigResolver.getConfig("INFLUX_BUCKET", "influx.bucket", "sprocket");
+        },
+        get token(): string {
+            return ConfigResolver.getSecret("INFLUX_TOKEN", "./secret/influx-token");
         },
     },
     logger: {

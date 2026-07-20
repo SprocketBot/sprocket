@@ -90,7 +90,7 @@ export class MledbNcpTeamRoleUsageResolver {
   private async readGqlUploadToUtf8(file: Promise<FileUpload> | FileUpload): Promise<string> {
     const buf = await Promise.resolve(file).then(async f => {
       const upload = await this.resolveGraphqlFileUpload(f);
-      return streamToBuffer(upload.createReadStream());
+      return streamToBuffer(upload.createReadStream() as unknown as NodeJS.ReadableStream);
     });
     return buf.toString('utf8');
   }
