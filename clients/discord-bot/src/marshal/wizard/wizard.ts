@@ -108,7 +108,7 @@ export class Wizard {
 
             const handler = WizardStepHandler(collector, this.initiator, step.opts, step.func);
 
-            // @ts-expect-error I literally just need this to let me commit
+            // @ts-ignore Discord collector overloads do not preserve this runtime handler shape.
             collector.on("collect", (...args: unknown[]) => {
                 try {
                     const result = handler(...args);
@@ -124,7 +124,7 @@ export class Wizard {
                     this.reject(e);
                 }
             });
-            // @ts-expect-error I literally just need this to let me commit
+            // @ts-ignore Discord collector overloads do not preserve this runtime handler shape.
             collector.on("end", this.next.bind(this));
         }
         return this.promise;

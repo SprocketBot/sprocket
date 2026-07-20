@@ -11,6 +11,7 @@ RUN apk add --no-cache python3 make g++
 WORKDIR /app
 
 COPY package.json package-lock.json ./
+COPY apps apps
 COPY clients clients
 COPY common common
 COPY core core

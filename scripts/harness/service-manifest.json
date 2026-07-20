@@ -22,6 +22,38 @@
   },
   "services": [
     {
+      "name": "monolith",
+      "kind": "application",
+      "workspace_path": "apps/monolith",
+      "local_runtime": {
+        "compose_service": "monolith",
+        "start_hint": "docker compose -f docker-compose.monolith.yml up --build monolith",
+        "health_endpoint": "http://localhost:3001/healthz",
+        "ports": [3001]
+      },
+      "replaces": [
+        "core",
+        "discord-bot",
+        "matchmaking-service",
+        "notification-service",
+        "submission-service",
+        "image-generation-service",
+        "server-analytics-service"
+      ],
+      "keeps_separate": ["replay-parse-service", "web", "image-generation-frontend"],
+      "depends_on": ["minio", "redis", "postgres"],
+      "proof_commands": [
+        "npm run build --workspace=apps/monolith",
+        "curl http://localhost:3001/healthz",
+        "curl http://localhost:3001/graphql -H 'Content-Type: application/json' -d '{\"query\":\"{__typename}\"}'"
+      ],
+      "risk_class": "high",
+      "agent_notes": [
+        "Uses the current Postgres RPC transport; do not wire RabbitMQ consumers unless the transport changes.",
+        "Runs the seven backend Node/Nest workloads in one process while keeping replay parsing and Svelte frontends separate."
+      ]
+    },
+    {
       "name": "core",
       "kind": "application",
       "workspace_path": "core",

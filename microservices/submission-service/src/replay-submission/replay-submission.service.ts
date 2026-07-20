@@ -187,7 +187,7 @@ export class ReplaySubmissionService {
 
         this.logger.debug(`Validating replay submission ${submissionId}`);
         const valid = await this.replayValidationService.validate(submission);
-        if (!valid.valid) {
+        if (valid.valid === false) {
             await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.REJECTED);
             await this.ratificationService.rejectSubmission(
                 REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
