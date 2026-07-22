@@ -15,7 +15,7 @@ import {DeveloperCommandsMarshal} from "./developer-commands.marshal";
 @Module({
     imports: [DiscordModule, CommandsModule, EmbedModule, CoreModule, EventsModule],
     providers: [
-    // TODO scope by role before re-adding
+    // NOTE scope by role before re-adding
     // DebugCommandsMarshal,
     // SprocketStatusMarshal,
     // MiscCommandsMarshal,

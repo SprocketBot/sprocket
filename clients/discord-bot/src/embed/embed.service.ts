@@ -30,7 +30,7 @@ export class EmbedService {
         let organizationId = 1;
 
         if (_organizationId !== undefined) {
-            // TODO check if this organization has branding enabled
+            // NOTE check if this organization has branding enabled
             const brandingEnabled = true;
 
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -71,7 +71,7 @@ export class EmbedService {
         let orgId = 2;
 
         if (organizationId !== undefined) {
-            // TODO check if this organization has branding enabled
+            // NOTE check if this organization has branding enabled
             const brandingEnabled = true;
 
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -85,7 +85,7 @@ export class EmbedService {
         });
         if (response.status === ResponseStatus.ERROR) throw response.error;
         const profile = response.data;
-        // TODO what should our overall embed system look like, and what should the defaults be?
+        // NOTE what should our overall embed system look like, and what should the defaults be?
         const defaults: Partial<MessageEmbedOptions> = {
             footer: {
                 text: "Footer",

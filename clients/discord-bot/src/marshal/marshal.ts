@@ -99,7 +99,7 @@ export abstract class Marshal {
         });
     }
 
-    private getBoundFunction<TFunction extends (...args: any[]) => unknown>(functionName: string): TFunction {
+    private getBoundFunction<TFunction extends (...args: unknown[]) => unknown>(functionName: string): TFunction {
         const handler = Reflect.get(this, functionName) as unknown;
         if (typeof handler !== "function") {
             throw new Error(`Marshal handler ${functionName} is not a function`);
