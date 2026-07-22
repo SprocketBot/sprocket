@@ -5,14 +5,13 @@ import {
     config,
     PostgresServer,
 } from "@sprocketbot/common";
+import type {Request, Response} from "express";
 import fetch from "node-fetch";
-import {Request, Response} from "express";
 
 import {corsOptions, corsPreflightMiddleware} from "../../../core/src/cors";
 import {MonolithModule} from "./monolith.module";
 
-// eslint-disable-next-line no-undef, @typescript-eslint/no-unsafe-assignment
-global.fetch = fetch as any;
+global.fetch = fetch as unknown as typeof global.fetch;
 
 const CONSUMERS = [
     {name: "core", queue: config.transport.core_queue},

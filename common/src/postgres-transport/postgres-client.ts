@@ -1,29 +1,32 @@
 import {Logger} from "@nestjs/common";
-import {ClientProxy} from "@nestjs/microservices";
 import type {ReadPacket, WritePacket} from "@nestjs/microservices";
+import {ClientProxy} from "@nestjs/microservices";
 import {randomUUID} from "crypto";
 
 import {closeSharedPostgresPool} from "../postgres";
-import {
-    PostgresTransportBase,
+import type {
     PostgresTransportOptions,
     RpcQueueRow,
+} from "./postgres-transport";
+import {
+    PostgresTransportBase,
     toJsonbParam,
 } from "./postgres-transport";
 
 export class PostgresClientProxy extends ClientProxy {
     private readonly logger = new Logger(PostgresClientProxy.name);
+
     private readonly transport: PostgresTransportBase;
 
     private connected = false;
 
     constructor(options: PostgresTransportOptions) {
         super();
-        this.transport = new (class extends PostgresTransportBase {
+        this.transport = new class extends PostgresTransportBase {
             constructor() {
                 super(PostgresClientProxy.name, options);
             }
-        })();
+        }();
     }
 
     async connect(): Promise<void> {
@@ -80,8 +83,8 @@ export class PostgresClientProxy extends ClientProxy {
                 "SELECT status, response, error FROM sprocket.platform_rpc_queue WHERE id = $1",
                 [id],
             );
-            const row = result.rows[0];
-            if (!row) {
+            const row = result.rows.at(0);
+            if (row === undefined) {
                 callback({err: new Error(`Postgres RPC request ${id} disappeared`), isDisposed: true});
                 return;
             }
@@ -105,7 +108,9 @@ export class PostgresClientProxy extends ClientProxy {
                 );
                 return;
             }
-            await new Promise(resolve => setTimeout(resolve, this.transport.pollIntervalMs));
+            await new Promise<void>(resolve => {
+                setTimeout(resolve, this.transport.pollIntervalMs);
+            });
         }
     }
 

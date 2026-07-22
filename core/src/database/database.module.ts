@@ -50,8 +50,8 @@ const modules = [
             max: config.db.pool_size,
             idleTimeoutMillis: config.db.pool_idle_timeout_ms,
             connectionTimeoutMillis: config.db.pool_connection_timeout_ms,
-            maxLifetimeSeconds: config.db.pool_max_lifetime_seconds,
-            idle_in_transaction_session_timeout: config.db.idle_in_transaction_timeout_ms,
+            maxLifetimeSeconds: Number(config.db.pool_max_lifetime_seconds),
+            idle_in_transaction_session_timeout: Number(config.db.idle_in_transaction_timeout_ms),
             application_name: `${config.db.application_name || "sprocket-core"}.typeorm`
                 .replace(/[^a-zA-Z0-9_.:-]/g, "_")
                 .slice(0, 63),
