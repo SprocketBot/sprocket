@@ -2,7 +2,6 @@ import {ClientProxy} from "@nestjs/microservices";
 import type {ReadPacket, WritePacket} from "@nestjs/microservices";
 import {randomUUID} from "crypto";
 
-import {closeSharedPostgresPool} from "../postgres";
 import {
     PostgresTransportBase,
     PostgresTransportOptions,
@@ -31,7 +30,6 @@ export class PostgresClientProxy extends ClientProxy {
     }
 
     async close(): Promise<void> {
-        await closeSharedPostgresPool();
         this.connected = false;
     }
 

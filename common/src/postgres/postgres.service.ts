@@ -1,10 +1,11 @@
-import {Injectable, OnModuleDestroy} from "@nestjs/common";
+import {Injectable} from "@nestjs/common";
+import type {OnApplicationShutdown} from "@nestjs/common";
 import type {Pool, PoolClient, QueryResult, QueryResultRow} from "pg";
 
 import {closeSharedPostgresPool, getSharedPostgresPool} from "./pool";
 
 @Injectable()
-export class PostgresService implements OnModuleDestroy {
+export class PostgresService implements OnApplicationShutdown {
     private get pool(): Pool {
         return getSharedPostgresPool();
     }
@@ -31,7 +32,7 @@ export class PostgresService implements OnModuleDestroy {
         }
     }
 
-    async onModuleDestroy(): Promise<void> {
+    async onApplicationShutdown(): Promise<void> {
         await closeSharedPostgresPool();
     }
 }

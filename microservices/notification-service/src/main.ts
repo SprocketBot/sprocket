@@ -7,6 +7,7 @@ const HEALTH_PORT = 3011;
 
 async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule, {logger: config.logger.levels});
+    app.enableShutdownHooks();
 
     app.connectMicroservice({
         strategy: new PostgresServer({queue: config.transport.notification_queue}),

@@ -1,5 +1,5 @@
 import {Module} from "@nestjs/common";
-import {CoreModule} from "@sprocketbot/common";
+import {CoreModule, PostgresModule} from "@sprocketbot/common";
 
 import {CommandsModule} from "./commands/commands.module";
 import {DiscordModule} from "./discord/discord.module";
@@ -14,6 +14,7 @@ import {SprocketEventsModule} from "./sprocket-events/sprocket-events.module";
 @Module({
     imports: [
         GlobalModule,
+        PostgresModule,
         CoreModule,
         MarshalModule,
         DiscordModule,

@@ -13,6 +13,9 @@ export const knexClient = KnexClient({
   connection: {
     ...config.knex,
     ssl: false,
+    idle_in_transaction_session_timeout: Number(
+      process.env.POSTGRES_IDLE_IN_TRANSACTION_TIMEOUT_MS ?? 60000,
+    ),
     application_name: `${applicationName}.knex`.slice(0, 63),
   },
   asyncStackTraces: true,
@@ -20,5 +23,6 @@ export const knexClient = KnexClient({
   pool: {
     min: 0,
     max: postgresPoolSize,
+    idleTimeoutMillis: Number(process.env.POSTGRES_POOL_IDLE_TIMEOUT_MS ?? 10000),
   },
 });

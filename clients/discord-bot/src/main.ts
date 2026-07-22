@@ -12,6 +12,7 @@ async function bootstrap(): Promise<void> {
         logger: config.logger.levels,
         strategy: new PostgresServer({queue: config.transport.bot_queue}),
     });
+    app.enableShutdownHooks();
 
     const httpAdapter = app.get(HttpAdapterHost);
     app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));

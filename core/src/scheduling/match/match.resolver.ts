@@ -1,6 +1,6 @@
 import { Logger, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, ResolveField, Resolver, Root } from '@nestjs/graphql';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import {
   EventsService,
   EventTopic,
@@ -10,7 +10,7 @@ import {
   SubmissionEndpoint,
   SubmissionService,
 } from '@sprocketbot/common';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 import { Franchise } from '$db/franchise/franchise/franchise.model';
 import { GameSkillGroup } from '$db/franchise/game_skill_group/game_skill_group.model';
@@ -60,7 +60,6 @@ export class MatchResolver {
     private readonly seriesReplayRepo: Repository<MLE_SeriesReplay>,
     @InjectRepository(SeriesToMatchParent)
     private readonly seriesToMatchParentRepo: Repository<SeriesToMatchParent>,
-    @InjectDataSource() private readonly dataSource: DataSource,
   ) {}
 
   @Query(() => Match)
@@ -172,11 +171,9 @@ export class MatchResolver {
     @Args('winningTeamId', { nullable: true }) winningTeamId?: number,
     @Args('numReplays', { nullable: true }) numReplays?: number,
   ): Promise<string> {
-    // Perform NCPs in a single transaction
-    const qr = this.dataSource.createQueryRunner();
-    await qr.connect();
-    await qr.startTransaction();
-
+    // These service/repository calls are not bound to a QueryRunner. Holding
+    // one here would reserve the only TypeORM connection without enclosing
+    // the work in its transaction.
     try {
       this.logger.verbose(
         `Marking series ${matchId} as NCP:${isNcp}. Winning team ID: ${winningTeamId}, with ${numReplays} replays.`,
@@ -217,15 +214,11 @@ export class MatchResolver {
         team.franchise.profile.title,
       );
 
-      await qr.commitTransaction();
       this.logger.verbose(`Successfully marked series ${matchId} NCP:${isNcp}`);
       return 'NCP marked successfully';
     } catch (e) {
       this.logger.error(`Failed to mark series ${matchId} NCP. Got error ${e}`);
-      await qr.rollbackTransaction();
       throw e;
-    } finally {
-      await qr.release();
     }
   }
 
@@ -242,11 +235,6 @@ export class MatchResolver {
     @Args('isNcp') isNcp: boolean,
     @Args('winningTeamId', { nullable: true }) winningTeamId: number,
   ): Promise<string> {
-    // Perform NCPs in a single transaction
-    const qr = this.dataSource.createQueryRunner();
-    await qr.connect();
-    await qr.startTransaction();
-
     try {
       this.logger.verbose(
         `Marking replays ${roundIds} as NCP:${isNcp}. Winning team ID: ${winningTeamId}`,
@@ -302,15 +290,11 @@ export class MatchResolver {
       // Save round NCPs to MLEDB schema
       await this.mledbMatchService.markReplaysNcp(mleReplayIds, isNcp, winningMLETeam);
 
-      await qr.commitTransaction();
       this.logger.verbose(`Successfully marked replays ${roundIds} NCP:${isNcp}`);
       return 'NCP marked successfully';
     } catch (e) {
       this.logger.error(`Failed to mark replays ${roundIds} NCP. Got error ${e}`);
-      await qr.rollbackTransaction();
       throw e;
-    } finally {
-      await qr.release();
     }
   }
 

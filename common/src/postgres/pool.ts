@@ -31,6 +31,8 @@ export function buildPostgresPoolConfig(role: string): PoolConfig {
         max: config.db.pool_size,
         idleTimeoutMillis: config.db.pool_idle_timeout_ms,
         connectionTimeoutMillis: config.db.pool_connection_timeout_ms,
+        maxLifetimeSeconds: config.db.pool_max_lifetime_seconds,
+        idle_in_transaction_session_timeout: config.db.idle_in_transaction_timeout_ms,
         application_name: applicationName(role),
     };
 }

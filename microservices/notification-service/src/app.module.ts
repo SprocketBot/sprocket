@@ -1,4 +1,5 @@
 import {Module} from "@nestjs/common";
+import {PostgresModule} from "@sprocketbot/common";
 
 import {HealthController} from "./health.controller";
 
@@ -17,6 +18,7 @@ import {SubmissionModule} from "./submission/submission.module";
         MatchModule,
         NotificationModule,
         PlayerModule,
+        PostgresModule,
     ],
     controllers: [HealthController],
 })

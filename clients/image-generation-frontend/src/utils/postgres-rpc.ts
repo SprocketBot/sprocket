@@ -17,6 +17,10 @@ const pool = new Pool({
   max: postgresPoolSize,
   idleTimeoutMillis: Number(process.env.POSTGRES_POOL_IDLE_TIMEOUT_MS ?? 10000),
   connectionTimeoutMillis: Number(process.env.POSTGRES_POOL_CONNECTION_TIMEOUT_MS ?? 5000),
+  maxLifetimeSeconds: Number(process.env.POSTGRES_POOL_MAX_LIFETIME_SECONDS ?? 300),
+  idle_in_transaction_session_timeout: Number(
+    process.env.POSTGRES_IDLE_IN_TRANSACTION_TIMEOUT_MS ?? 60000,
+  ),
   application_name: `${applicationName}.rpc`.slice(0, 63),
 });
 

@@ -24,6 +24,7 @@ async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule, {
         logger: config.logger.levels,
     });
+    app.enableShutdownHooks();
 
     app.getHttpAdapter().getInstance().get("/healthz", (_req: Request, res: Response) => {
         res.status(200).json({status: "ok"});
