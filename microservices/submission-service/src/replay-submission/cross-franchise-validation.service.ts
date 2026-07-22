@@ -3,7 +3,6 @@ import type {
     CrossFranchiseValidationError,
     EnhancedReplaySubmission,
     FranchiseInfo,
-    RatifierInfo,
 } from "@sprocketbot/common";
 import {
     CoreEndpoint,

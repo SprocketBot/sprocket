@@ -21,7 +21,6 @@ import {
     MatchmakingEndpoint,
     MatchmakingService,
     MinioService,
-    Parser,
     readToString,
     ReplaySubmissionType,
     ResponseStatus,

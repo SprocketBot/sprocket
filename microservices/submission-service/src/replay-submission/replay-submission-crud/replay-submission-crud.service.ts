@@ -1,13 +1,10 @@
 import {Injectable} from "@nestjs/common";
 import type {
-    BaseReplaySubmission,
-    LFSReplaySubmission,
     ProgressMessage,
     ReplaySubmission,
     ReplaySubmissionItem,
     ReplaySubmissionRejection,
     ReplaySubmissionStats,
-    ScrimReplaySubmission,
     Task,
 } from "@sprocketbot/common";
 import type {
@@ -72,7 +69,7 @@ export class ReplaySubmissionCrudService {
             ratifiers: [],
             rejections: [],
             stats: undefined,
-            requiredRatifications: 2, // TODO Make this configurable.
+            requiredRatifications: 2, // NOTE Make this configurable.
         };
         let submission: any;
         let configMinRatify: number; // From the Organization config.
@@ -136,7 +133,7 @@ export class ReplaySubmissionCrudService {
                 },
             };
 
-            // TODO: Match type does not currently have player/team info or organization ID.
+            // NOTE: Match type does not currently have player/team info or organization ID.
             //       This is currently being hardcoded to 2 to avoid changing existing behavior.
             configMinRatify = 2;
             maxRatify = configMinRatify;

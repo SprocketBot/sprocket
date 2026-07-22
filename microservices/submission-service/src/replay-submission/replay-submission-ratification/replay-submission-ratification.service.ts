@@ -120,7 +120,7 @@ export class ReplaySubmissionRatificationService {
             submissionId: submissionId,
         });
 
-        // TODO: support for different thresholds
+        // NOTE: support for different thresholds
         await this.eventService.publish(EventTopic.SubmissionRejected, {
             submissionId: submissionId,
         });

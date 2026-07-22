@@ -1,4 +1,4 @@
-import {Injectable} from "@nestjs/common";
+import {Injectable, Logger} from "@nestjs/common";
 import type {
     EnhancedReplaySubmission,
     FranchiseValidationContext,
@@ -68,17 +68,19 @@ interface RejectionItemRow {
 
 @Injectable()
 export class ReplaySubmissionPostgresRepository {
+    private readonly logger = new Logger(ReplaySubmissionPostgresRepository.name);
+
     constructor(private readonly postgres: PostgresService) {}
 
     async findAll(): Promise<CompatibleSubmission[]> {
         try {
             const result = await this.postgres.query<SubmissionRow>("SELECT * FROM sprocket.replay_submission ORDER BY created_at ASC");
-            console.log(`[Repo] findAll: rows length = ${result.rows.length}`);
+            this.logger.debug(`findAll: rows length = ${result.rows.length}`);
             const hydrated = await Promise.all(result.rows.map(async row => this.hydrate(row)));
-            console.log(`[Repo] findAll: hydrated length = ${hydrated.length}`);
+            this.logger.debug(`findAll: hydrated length = ${hydrated.length}`);
             return hydrated;
         } catch (error) {
-            console.error(`[Repo] findAll error:`, error);
+            this.logger.error("findAll error", error);
             throw error;
         }
     }
@@ -340,13 +342,13 @@ export class ReplaySubmissionPostgresRepository {
             id: row.id,
             creatorId: row.creator_id,
             status: row.status,
-            taskIds: row.task_ids ?? [],
-            items,
+            taskIds: row.task_ids,
+            items: items,
             validated: row.validated,
             stats: row.stats,
             ratifiers: this.mapRatifiers(ratifierRows),
             requiredRatifications: row.required_ratifications,
-            rejections,
+            rejections: rejections,
         };
         const franchiseValidation = this.mapFranchiseValidation(row);
         const typedBase = franchiseValidation ? {...base, franchiseValidation} : base;
@@ -437,7 +439,7 @@ export class ReplaySubmissionPostgresRepository {
     }
 
     private mapRatifiers(rows: RatifierRow[]): number[] | RatifierInfo[] {
-        if (!rows.some(row => row.franchise_id !== null && row.franchise_id !== undefined)) {
+        if (!rows.some(row => row.franchise_id !== undefined)) {
             return rows.map(row => row.player_id);
         }
         return rows.map(row => ({
@@ -518,7 +520,7 @@ export class ReplaySubmissionPostgresRepository {
     }
 
     private mapFranchiseValidation(row: SubmissionRow): FranchiseValidationContext | undefined {
-        if (row.required_franchises === null || row.required_franchises === undefined) return undefined;
+        if (row.required_franchises === undefined) return undefined;
         return {
             homeFranchiseId: row.home_franchise_id ?? undefined,
             awayFranchiseId: row.away_franchise_id ?? undefined,
