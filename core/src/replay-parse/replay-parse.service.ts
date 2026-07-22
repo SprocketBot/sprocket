@@ -77,9 +77,7 @@ export class ReplayParseService {
         );
 
         const orgTeams = await this.orgTeamPermissionResolution.resolveOrgTeamsForUser(userId);
-        const override = orgTeams.some(
-            t => t === MLE_OrganizationTeam.MLEDB_ADMIN || t === MLE_OrganizationTeam.LEAGUE_OPERATIONS,
-        );
+        const override = orgTeams.some(t => t === MLE_OrganizationTeam.MLEDB_ADMIN || t === MLE_OrganizationTeam.LEAGUE_OPERATIONS);
 
         const canSubmitReponse = await this.submissionService.send(
             SubmissionEndpoint.CanSubmitReplays,

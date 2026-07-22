@@ -1,8 +1,8 @@
+import type {MledbWriteClassification} from "./mledb-write-classification";
 import {
     getMledbWriteClassification,
     getMledbWritesBlockedFromGating,
     MLEDB_WRITE_CLASSIFICATIONS,
-    MledbWriteClassification,
     MledbWriteReplacementReadiness,
 } from "./mledb-write-classification";
 
@@ -71,10 +71,10 @@ export function evaluateMledbWriteReadiness(
     const requiredEvidenceKinds = classification.replacementFirst
         ? REQUIRED_REPLACEMENT_FIRST_EVIDENCE_KINDS
         : [];
-    const presentEvidenceKinds = new Set(evidence.map((item) => item.kind));
+    const presentEvidenceKinds = new Set(evidence.map(item => item.kind));
     const missingVerification = requiredEvidenceKinds
-        .filter((kind) => !presentEvidenceKinds.has(kind))
-        .map((kind) => `Missing ${kind} evidence for ${classification.key}`);
+        .filter(kind => !presentEvidenceKinds.has(kind))
+        .map(kind => `Missing ${kind} evidence for ${classification.key}`);
 
     return {
         classification,
@@ -97,25 +97,23 @@ export function evaluateMledbWriteReadinessByKey(
     return evaluateMledbWriteReadiness(classification, evidence);
 }
 
-export function summarizeMledbWriteReadiness(
-    records: readonly MledbWriteReadinessRecord[] = [],
-): MledbWriteReadinessSummary {
-    const evidenceByKey = new Map(records.map((record) => [record.key, record.evidence]));
-    const results = MLEDB_WRITE_CLASSIFICATIONS.map((classification) => evaluateMledbWriteReadiness(
+export function summarizeMledbWriteReadiness(records: readonly MledbWriteReadinessRecord[] = []): MledbWriteReadinessSummary {
+    const evidenceByKey = new Map(records.map(record => [record.key, record.evidence]));
+    const results = MLEDB_WRITE_CLASSIFICATIONS.map(classification => evaluateMledbWriteReadiness(
         classification,
         evidenceByKey.get(classification.key) ?? [],
     ));
-    const blockedFromGating = getMledbWritesBlockedFromGating().map((classification) => classification.key);
+    const blockedFromGating = getMledbWritesBlockedFromGating().map(classification => classification.key);
 
     return {
         totalClassifications: MLEDB_WRITE_CLASSIFICATIONS.length,
         blockedFromGating,
         readyToGate: results
-            .filter((result) => result.readyToGate)
-            .map((result) => result.classification.key),
+            .filter(result => result.readyToGate)
+            .map(result => result.classification.key),
         notReadyToGate: results
-            .filter((result) => !result.readyToGate)
-            .map((result) => result.classification.key),
+            .filter(result => !result.readyToGate)
+            .map(result => result.classification.key),
         results,
     };
 }

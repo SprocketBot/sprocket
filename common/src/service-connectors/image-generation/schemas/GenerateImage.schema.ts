@@ -37,7 +37,8 @@ export const GenerateImage_Request = z.object({
     inputFile: z.string(),
     outputFile: z.string(),
     template: templateStructureSchema,
-    publicRead: z.boolean().optional().default(false),
+    publicRead: z.boolean().optional()
+        .default(false),
 });
 
 export const GenerateImage_Response = z.string();

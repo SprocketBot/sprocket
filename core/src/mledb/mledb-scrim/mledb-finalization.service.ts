@@ -385,7 +385,7 @@ export class MledbFinalizationService {
         if (parserType === Parser.CARBALL) {
             const parseResult = CarballResponseSchema.safeParse(item.progress?.result?.data);
 
-            if (parseResult.success === false) {
+            if (!parseResult.success) {
                 const {error: parseError} = parseResult;
 
                 this.logger.warn(`Degrading malformed carball payload for legacy finalization | ${JSON.stringify({

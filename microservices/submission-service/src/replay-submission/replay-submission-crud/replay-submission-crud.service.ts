@@ -25,7 +25,9 @@ import {
     SCRIM_REQ_RATIFICATION_MAJORITY,
 } from "@sprocketbot/common";
 
-import {submissionIsLFS, submissionIsMatch, submissionIsScrim} from "../../utils";
+import {
+    submissionIsLFS, submissionIsMatch, submissionIsScrim,
+} from "../../utils";
 import {ReplaySubmissionPostgresRepository} from "../persistence/replay-submission-postgres.repository";
 
 @Injectable()
@@ -184,7 +186,7 @@ export class ReplaySubmissionCrudService {
 
     async upsertItem(submissionId: string, item: ReplaySubmissionItem): Promise<void> {
         const existingItems = await this.repository.getItems(submissionId);
-        if (existingItems?.some(ei => ei.taskId === item.taskId)) {
+        if (existingItems.some(ei => ei.taskId === item.taskId)) {
             // The task is already in the array
             const t = {
                 ...existingItems.find(ei => ei.taskId === item.taskId)!,

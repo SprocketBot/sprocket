@@ -301,10 +301,10 @@ export class ScrimService {
         const skillGroupIds = Array.from(new Set(scrims.map(scrim => scrim.skillGroupId)));
 
         const [gameModes, skillGroups] = await Promise.all([
-            Promise.all(gameModeIds.map(id => this.gameModeService.getGameModeById(id, {
+            Promise.all(gameModeIds.map(async id => this.gameModeService.getGameModeById(id, {
                 relations: ["game"],
             }))),
-            Promise.all(skillGroupIds.map(id => this.gameSkillGroupService.getGameSkillGroupById(id, {
+            Promise.all(skillGroupIds.map(async id => this.gameSkillGroupService.getGameSkillGroupById(id, {
                 relations: ["profile"],
             }))),
         ]);

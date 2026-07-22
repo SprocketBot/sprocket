@@ -1,11 +1,13 @@
-import {Args, Int, Query, Resolver} from "@nestjs/graphql";
+import {
+    Args, Int, Query, Resolver,
+} from "@nestjs/graphql";
 
 import type {MLE_Player} from "../../database/mledb";
-import {MledbPlayerService} from "./mledb-player.service";
 import {
     MlePresentationPlayerDetail,
     MlePresentationPlayerSearchResult,
 } from "./mledb-player.presentation.types";
+import {MledbPlayerService} from "./mledb-player.service";
 
 @Resolver()
 export class MledbPlayerPresentationResolver {
@@ -21,15 +23,15 @@ export class MledbPlayerPresentationResolver {
     }
 
     @Query(() => MlePresentationPlayerDetail, {nullable: true})
-    async mlePresentationPlayerDetail(
-        @Args("playerId", {type: () => Int}) playerId: number,
-    ): Promise<MlePresentationPlayerDetail | null> {
+    async mlePresentationPlayerDetail(@Args("playerId", {type: () => Int}) playerId: number): Promise<MlePresentationPlayerDetail | null> {
         const detail = await this.mledbPlayerService.getPresentationPlayerDetail(playerId);
         if (!detail) {
             return null;
         }
 
-        const {player, orgTeams, platformAccounts} = detail;
+        const {
+            player, orgTeams, platformAccounts,
+        } = detail;
         return {
             ...this.toSearchResult(player),
             role: player.role ?? undefined,

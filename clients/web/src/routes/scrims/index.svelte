@@ -23,7 +23,7 @@
     $: scrimsAreDisabled = $scrimsDisabled.data?.getScrimsDisabled;
 
     let currentUserFranchises: string[] | undefined;
-    $: currentUserFranchises = $currentUser.data?.me?.members?.flatMap(m => m.players.flatMap(p => p.franchiseName as string) as string[]);
+    $: currentUserFranchises = $currentUser.data?.me?.members?.flatMap(m => m.players.flatMap(p => p.franchiseName));
 
     let scrimPoints: number | null | undefined;
     $: scrimPoints = $currentUser.data?.me?.members?.[0]?.players?.[0]?.scrimPoints;
@@ -32,16 +32,18 @@
     $: eligibilityEndDate = $currentUser.data?.me?.members?.[0]?.players?.[0]?.eligibilityEndDate;
 
     $: eligibilityStatus = (() => {
-        if (scrimPoints === undefined) return { label: "Loading...", color: "text-gray-400" };
+        if (scrimPoints === undefined) return {label: "Loading...", color: "text-gray-400"};
         if (scrimPoints !== null && scrimPoints >= 30) {
             if (eligibilityEndDate) {
                 const date = new Date(eligibilityEndDate);
-                const formatted = date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
-                return { label: `Eligible until ${formatted}`, color: "text-green-400" };
+                const formatted = date.toLocaleDateString(undefined, {
+                    month: "short", day: "numeric", year: "numeric",
+                });
+                return {label: `Eligible until ${formatted}`, color: "text-green-400"};
             }
-            return { label: "Eligible", color: "text-green-400" };
+            return {label: "Eligible", color: "text-green-400"};
         }
-        return { label: `${scrimPoints ?? 0}/30 points`, color: "text-yellow-400" };
+        return {label: `${scrimPoints ?? 0}/30 points`, color: "text-yellow-400"};
     })();
 
     function calculateActivityChange() {

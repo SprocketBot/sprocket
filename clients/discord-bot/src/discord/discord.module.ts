@@ -1,4 +1,6 @@
-import {forwardRef, Logger, Module} from "@nestjs/common";
+import {
+    forwardRef, Logger, Module,
+} from "@nestjs/common";
 import {config} from "@sprocketbot/common";
 import {Client} from "discord.js";
 import {GatewayIntentBits} from "discord-api-types";

@@ -11,9 +11,7 @@ import {ReplaySubmissionCrudService} from "./replay-submission-crud.service";
 
 @Controller()
 export class ReplaySubmissionCrudController {
-    constructor(
-        private readonly crudService: ReplaySubmissionCrudService,
-    ) {}
+    constructor(private readonly crudService: ReplaySubmissionCrudService) {}
 
     @MessagePattern(SubmissionEndpoint.GetSubmissionIfExists)
     async getSubmissionIfExists(@Payload() payload: unknown): Promise<GetSubmissionIfExistsResponse> {

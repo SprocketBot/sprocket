@@ -10,24 +10,24 @@ describe("ReplaySubmissionPostgresRepository", () => {
     it("hydrates a submission from typed Postgres relations", async () => {
         const query = jest.fn()
             .mockResolvedValueOnce({
-                rows: [{
+                rows: [ {
                     id: "match-1",
                     creator_id: 10,
                     status: ReplaySubmissionStatus.RATIFYING,
                     type: ReplaySubmissionType.MATCH,
                     task_ids: [],
                     validated: true,
-                    stats: {games: []},
+                    stats: {games: [] },
                     required_ratifications: 2,
                     match_id: 99,
                     home_franchise_id: 1,
                     away_franchise_id: 2,
                     required_franchises: 2,
                     current_franchise_count: 1,
-                }],
+                } ],
             })
             .mockResolvedValueOnce({
-                rows: [{
+                rows: [ {
                     task_id: "task-1",
                     original_filename: "one.replay",
                     input_path: "replays/in",
@@ -39,33 +39,33 @@ describe("ReplaySubmissionPostgresRepository", () => {
                         result: {outputPath: "replays/out"},
                         error: null,
                     },
-                }],
+                } ],
             })
             .mockResolvedValueOnce({
-                rows: [{
+                rows: [ {
                     player_id: 10,
                     franchise_id: 1,
                     franchise_name: "Home",
                     ratified_at: new Date("2026-01-01T00:00:00.000Z"),
-                }],
+                } ],
             })
             .mockResolvedValueOnce({
-                rows: [{
+                rows: [ {
                     id: 5,
                     player_id: 11,
                     reason: "bad file",
                     rejected_at: new Date("2026-01-02T00:00:00.000Z"),
                     stale: false,
-                }],
+                } ],
             })
             .mockResolvedValueOnce({
-                rows: [{
+                rows: [ {
                     rejection_id: 5,
                     task_id: "task-1",
                     original_filename: "one.replay",
                     input_path: "replays/in",
                     output_path: "replays/out",
-                }],
+                } ],
             });
         const repo = new ReplaySubmissionPostgresRepository({query} as any);
 
@@ -82,38 +82,38 @@ describe("ReplaySubmissionPostgresRepository", () => {
                 requiredFranchises: 2,
                 currentFranchiseCount: 1,
             },
-            ratifiers: [{
+            ratifiers: [ {
                 playerId: 10,
                 franchiseId: 1,
                 franchiseName: "Home",
                 ratifiedAt: "2026-01-01T00:00:00.000Z",
-            }],
-            items: [{
+            } ],
+            items: [ {
                 taskId: "task-1",
                 originalFilename: "one.replay",
                 inputPath: "replays/in",
                 outputPath: "replays/out",
-            }],
-            rejections: [{
+            } ],
+            rejections: [ {
                 playerId: 11,
                 reason: "bad file",
                 rejectedAt: "2026-01-02T00:00:00.000Z",
                 stale: false,
-                rejectedItems: [{
+                rejectedItems: [ {
                     taskId: "task-1",
                     originalFilename: "one.replay",
                     inputPath: "replays/in",
                     outputPath: "replays/out",
-                }],
-            }],
+                } ],
+            } ],
         });
     });
 
     it("stores a rejection and its rejected items in one transaction", async () => {
         const client = {
             query: jest.fn()
-                .mockResolvedValueOnce({rows: [{id: 7}]})
-                .mockResolvedValue({rows: []}),
+                .mockResolvedValueOnce({rows: [ {id: 7} ] })
+                .mockResolvedValue({rows: [] }),
         };
         const transaction = jest.fn(async cb => cb(client));
         const repo = new ReplaySubmissionPostgresRepository({transaction} as any);
@@ -123,12 +123,12 @@ describe("ReplaySubmissionPostgresRepository", () => {
             reason: "wrong replay",
             rejectedAt: "2026-01-02T00:00:00.000Z",
             stale: false,
-            rejectedItems: [{
+            rejectedItems: [ {
                 taskId: "task-1",
                 originalFilename: "one.replay",
                 inputPath: "replays/in",
                 outputPath: "replays/out",
-            }],
+            } ],
         });
 
         expect(transaction).toHaveBeenCalledTimes(1);
@@ -149,9 +149,9 @@ describe("ReplaySubmissionPostgresRepository", () => {
     it("upserts replay items without storing a whole submission blob", async () => {
         const client = {
             query: jest.fn()
-                .mockResolvedValueOnce({rows: []})
-                .mockResolvedValueOnce({rows: [{position: 0}]})
-                .mockResolvedValue({rows: []}),
+                .mockResolvedValueOnce({rows: [] })
+                .mockResolvedValueOnce({rows: [ {position: 0} ] })
+                .mockResolvedValue({rows: [] }),
         };
         const transaction = jest.fn(async cb => cb(client));
         const repo = new ReplaySubmissionPostgresRepository({transaction} as any);

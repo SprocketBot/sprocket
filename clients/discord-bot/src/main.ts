@@ -1,5 +1,7 @@
 import {HttpAdapterHost, NestFactory} from "@nestjs/core";
-import {AllExceptionsFilter, config, PostgresServer} from "@sprocketbot/common";
+import {
+    AllExceptionsFilter, config, PostgresServer,
+} from "@sprocketbot/common";
 import fetch from "node-fetch";
 
 import {AppModule} from "./app.module";

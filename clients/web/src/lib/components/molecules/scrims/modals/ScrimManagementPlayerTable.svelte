@@ -16,8 +16,8 @@
 	let targetPlayer: {id: number; name: string; checkedIn?: boolean;} | undefined;
 
 	const openPlayerManagementModal = (player: {id: number; name: string; checkedIn?: boolean;}) => {
-		playerManagementModalVisible = true;
-		targetPlayer = player;
+	    playerManagementModalVisible = true;
+	    targetPlayer = player;
 	};
 </script>
 {#if targetScrim}

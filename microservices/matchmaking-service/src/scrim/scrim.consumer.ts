@@ -1,4 +1,5 @@
-import {Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy} from "@nestjs/common";
+import type {OnApplicationBootstrap, OnModuleDestroy} from "@nestjs/common";
+import {Injectable, Logger} from "@nestjs/common";
 import {ScrimStatus} from "@sprocketbot/common";
 import {compareAsc} from "date-fns";
 
@@ -42,9 +43,9 @@ export class ScrimConsumer implements OnApplicationBootstrap, OnModuleDestroy {
 
     onApplicationBootstrap(): void {
         this.interval = setInterval(() => {
-            this.scrimClock().catch(error => this.logger.error(error));
+            this.scrimClock().catch(error => { this.logger.error(error) });
         }, SCRIM_CLOCK_INTERVAL_MS);
-        this.interval.unref?.();
+        this.interval.unref();
     }
 
     onModuleDestroy(): void {

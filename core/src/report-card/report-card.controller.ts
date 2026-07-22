@@ -1,9 +1,9 @@
 import {Controller} from "@nestjs/common";
 import {MessagePattern, Payload} from "@nestjs/microservices";
 import {
+    type CoreOutput,
     CoreEndpoint,
     CoreSchemas,
-    type CoreOutput,
 } from "@sprocketbot/common";
 
 import {ReportCardService} from "./report-card.service";

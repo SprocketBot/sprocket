@@ -8,10 +8,12 @@ import type {FindManyOptions, FindOneOptions} from "typeorm";
 import {DataSource, Repository} from "typeorm";
 
 import type {IrrelevantFields} from "../../database";
-import {Player} from "../../database/franchise/player/player.model";
 import type {Franchise} from "../../database/franchise/franchise/franchise.model";
+import {Player} from "../../database/franchise/player/player.model";
 import {UserAuthenticationAccount} from "../../database/identity/user_authentication_account";
-import {MLE_Platform, MLE_Player, MLE_PlayerAccount} from "../../database/mledb";
+import {
+    MLE_Platform, MLE_Player, MLE_PlayerAccount,
+} from "../../database/mledb";
 import {Member} from "../../database/organization/member/member.model";
 import {MemberPlatformAccount} from "../../database/organization/member_platform_account";
 import {MemberProfile} from "../../database/organization/member_profile/member_profile.model";

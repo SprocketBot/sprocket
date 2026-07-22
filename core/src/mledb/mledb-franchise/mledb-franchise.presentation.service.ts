@@ -1,7 +1,10 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import {Repository, ILike} from "typeorm";
-import {MLE_Player, MLE_Team, MLE_TeamBranding, MLE_TeamToCaptain} from "../../database/mledb";
+import {ILike, Repository} from "typeorm";
+
+import {
+    MLE_Player, MLE_Team, MLE_TeamBranding, MLE_TeamToCaptain,
+} from "../../database/mledb";
 
 interface FranchiseStaff {
     id: number;
@@ -205,14 +208,14 @@ export class MledbFranchisePresentationService {
             conference,
             branding: team.branding
                 ? {
-                      logo: team.branding.logoImgLink ?? undefined,
-                      primaryColor: team.branding.primaryColor ?? undefined,
-                      secondaryColor: team.branding.secondaryColor ?? undefined,
-                  }
+                        logo: team.branding.logoImgLink ?? undefined,
+                        primaryColor: team.branding.primaryColor ?? undefined,
+                        secondaryColor: team.branding.secondaryColor ?? undefined,
+                    }
                 : undefined,
-            franchiseManager: staff.find((s) => s.role === "Franchise Manager"),
-            generalManagers: staff.filter((s) => s.role === "General Manager"),
-            assistantGeneralManagers: staff.filter((s) => s.role.includes("Assistant GM")),
+            franchiseManager: staff.find(s => s.role === "Franchise Manager"),
+            generalManagers: staff.filter(s => s.role === "General Manager"),
+            assistantGeneralManagers: staff.filter(s => s.role.includes("Assistant GM")),
             captains,
             roster,
             totalSalaryCap,
@@ -226,7 +229,7 @@ export class MledbFranchisePresentationService {
             where: {teamName},
         });
 
-        return players.map((p) => ({
+        return players.map(p => ({
             id: p.id,
             mleid: p.mleid,
             name: p.name,

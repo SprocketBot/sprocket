@@ -44,7 +44,7 @@ export class MatchmakingService {
             let output: unknown;
             if (Array.isArray(response)) {
                 output = response;
-            } else if (response && typeof response === 'object' && Object.keys(response).length === 0) {
+            } else if (response && typeof response === "object" && Object.keys(response).length === 0) {
                 // Handle empty object {} - treat as empty array or null
                 this.logger.debug(`Received empty object {}, treating as empty array for ${endpoint}`);
                 output = [];

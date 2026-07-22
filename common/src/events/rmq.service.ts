@@ -50,9 +50,7 @@ export class RmqService {
    */
     async sub(topic: string, instanceExclusive: boolean): Promise<Observable<PostgresEventMessage>> {
         await this.ensureSchema();
-        const startResult = await this.postgres.query<{id: string}>(
-            "SELECT COALESCE(MAX(id), 0)::text AS id FROM sprocket.platform_event",
-        );
+        const startResult = await this.postgres.query<{id: string;}>("SELECT COALESCE(MAX(id), 0)::text AS id FROM sprocket.platform_event");
         let lastSeenId = BigInt(startResult.rows[0]?.id ?? "0");
         this.logger.debug(`Creating Postgres events subscription topic=${topic} exclusive=${instanceExclusive}`);
 
@@ -70,9 +68,9 @@ export class RmqService {
                     })
                     .catch(subscriber.error.bind(subscriber));
             }, 250);
-            timer.unref?.();
+            timer.unref();
 
-            return (): void => clearInterval(timer);
+            return (): void => { clearInterval(timer) };
         });
     }
 

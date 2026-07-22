@@ -1,4 +1,6 @@
-import {Args, Int, Query, Resolver} from "@nestjs/graphql";
+import {
+    Args, Int, Query, Resolver,
+} from "@nestjs/graphql";
 
 import {MledbFaPresentationService} from "./mledb-fa.presentation.service";
 import {MlePresentationFaList, MlePresentationFreeAgent} from "./mledb-fa.presentation.types";
@@ -15,7 +17,7 @@ export class MledbFaPresentationResolver {
         const result = await this.faService.getFreeAgents(league, limit ?? 50);
         return {
             league: result.league,
-            players: result.players.map((p) => ({
+            players: result.players.map(p => ({
                 id: p.id,
                 mleid: p.mleid,
                 name: p.name,
@@ -38,7 +40,7 @@ export class MledbFaPresentationResolver {
         const result = await this.faService.getRestrictedFreeAgents(league, limit ?? 50);
         return {
             league: result.league,
-            players: result.players.map((p) => ({
+            players: result.players.map(p => ({
                 id: p.id,
                 mleid: p.mleid,
                 name: p.name,
@@ -61,7 +63,7 @@ export class MledbFaPresentationResolver {
         const result = await this.faService.getWaiverClaims(league, limit ?? 50);
         return {
             league: result.league,
-            players: result.players.map((p) => ({
+            players: result.players.map(p => ({
                 id: p.id,
                 mleid: p.mleid,
                 name: p.name,

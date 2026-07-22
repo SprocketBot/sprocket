@@ -44,8 +44,8 @@ const modules = [
             config.db.host === "postgres" || config.db.host === "localhost"
                 ? false
                 : {
-                      rejectUnauthorized: false,
-                  },
+                        rejectUnauthorized: false,
+                    },
         extra: {
             max: config.db.pool_size,
             idleTimeoutMillis: config.db.pool_idle_timeout_ms,

@@ -44,7 +44,7 @@ export class SubmissionService {
             if (initialParse.success) {
                 parsed = initialParse.data as SubmissionOutput<E>;
             } else if (response && typeof response === "object" && "data" in response) {
-                parsed = outputSchema.parse((response as {data: unknown}).data) as SubmissionOutput<E>;
+                parsed = outputSchema.parse((response as {data: unknown;}).data) as SubmissionOutput<E>;
             } else if (!initialParse.success && response && typeof response === "object" && Object.keys(response).length === 0) {
                 this.logger.debug(`Received empty object {}, treating as empty array for ${endpoint}`);
                 parsed = outputSchema.parse([]) as SubmissionOutput<E>;

@@ -3,10 +3,10 @@ import {
 } from "@nestjs/graphql";
 import {REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID} from "@sprocketbot/common";
 
+import {UserService} from "../identity";
 import {
     CurrentUser, UserPayload,
 } from "../identity/auth";
-import {UserService} from "../identity";
 import {
     GqlRatifierInfo, GqlReplaySubmission, ReplaySubmission, SubmissionRejection,
 } from "./types";

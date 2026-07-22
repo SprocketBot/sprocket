@@ -24,18 +24,18 @@ import type {
 } from "typeorm";
 import {DataSource, Repository} from "typeorm";
 
+import {GameSkillGroup} from "../../database/franchise/game_skill_group/game_skill_group.model";
 import {Player} from "../../database/franchise/player/player.model";
+import type {Platform} from "../../database/game/platform/platform.model";
 import {User} from "../../database/identity/user/user.model";
 import {UserAuthenticationAccount} from "../../database/identity/user_authentication_account/user_authentication_account.model";
 import {UserAuthenticationAccountType} from "../../database/identity/user_authentication_account/user_authentication_account_type.enum";
 import {UserProfile} from "../../database/identity/user_profile/user_profile.model";
 import {
-    League, LeagueOrdinals, ModePreference, MLE_Platform, Role, Timezone,
+    League, LeagueOrdinals, MLE_Platform, ModePreference, Role, Timezone,
 } from "../../database/mledb";
 import {MLE_Player} from "../../database/mledb/Player.model";
 import {PlayerToPlayer} from "../../database/mledb-bridge/player_to_player.model";
-import {GameSkillGroup} from "../../database/franchise/game_skill_group/game_skill_group.model";
-import {Platform} from "../../database/game/platform/platform.model";
 import {Member} from "../../database/organization/member/member.model";
 import {MemberProfile} from "../../database/organization/member_profile/member_profile.model";
 import {Organization} from "../../database/organization/organization/organization.model";
@@ -48,9 +48,9 @@ import {
 } from "../../elo/elo-connector";
 import {PlatformService} from "../../game";
 import {MledbPlayerAccountService} from "../../mledb";
-import {MemberPlatformAccountService} from "../../organization/member-platform-account";
 import {OrganizationService} from "../../organization";
 import {MemberService} from "../../organization/member/member.service";
+import {MemberPlatformAccountService} from "../../organization/member-platform-account";
 import {GameSkillGroupService} from "../game-skill-group";
 import {RosterAuthorityService} from "../roster-authority.service";
 import type {RankdownJwtPayload} from "./player.types";
@@ -99,9 +99,7 @@ export class PlayerService {
         try {
             await this.rosterAuthorityService.syncFromMlePlayerId(mlePlayerId);
         } catch (err) {
-            this.logger.warn(
-                `Roster authority sync failed for MLE player ${mlePlayerId}: ${err instanceof Error ? err.message : String(err)}`,
-            );
+            this.logger.warn(`Roster authority sync failed for MLE player ${mlePlayerId}: ${err instanceof Error ? err.message : String(err)}`);
         }
     }
 
@@ -315,9 +313,7 @@ export class PlayerService {
             relations: {game: true},
         });
         if (skillGroup.game.id !== 7) {
-            this.logger.warn(
-                `Steam account IDs supplied for non-Rocket-League skill group ${skillGroup.id}; skipping platform link`,
-            );
+            this.logger.warn(`Steam account IDs supplied for non-Rocket-League skill group ${skillGroup.id}; skipping platform link`);
             return;
         }
 

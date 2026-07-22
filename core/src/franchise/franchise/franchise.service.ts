@@ -138,7 +138,7 @@ export class FranchiseService {
         sprocket: CoreOutput<CoreEndpoint.GetPlayerFranchises>,
         mle: CoreOutput<CoreEndpoint.GetPlayerFranchises>,
     ): CoreOutput<CoreEndpoint.GetPlayerFranchises> {
-        type Acc = {id: number; name: string; staffByCode: Map<string, {id: number; name: string;}>;};
+        interface Acc {id: number; name: string; staffByCode: Map<string, {id: number; name: string;}>;}
         const byFranchiseId = new Map<number, Acc>();
 
         const mergeRow = (row: {id: number; name: string; staffPositions: Array<{id: number; name: string;}>;}) => {

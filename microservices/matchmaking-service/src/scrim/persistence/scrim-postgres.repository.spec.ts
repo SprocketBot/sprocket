@@ -6,7 +6,7 @@ describe("ScrimPostgresRepository", () => {
     it("hydrates a scrim from typed Postgres relations", async () => {
         const query = jest.fn()
             .mockResolvedValueOnce({
-                rows: [{
+                rows: [ {
                     id: "00000000-0000-4000-8000-000000000001",
                     created_at: new Date("2026-01-01T00:00:00.000Z"),
                     updated_at: new Date("2026-01-01T00:01:00.000Z"),
@@ -29,21 +29,21 @@ describe("ScrimPostgresRepository", () => {
                     settings_observable: false,
                     settings_lfs: false,
                     settings_checkin_timeout: 120000,
-                }],
+                } ],
             })
             .mockResolvedValueOnce({
-                rows: [{
+                rows: [ {
                     player_id: 10,
                     name: "Player",
                     joined_at: new Date("2026-01-01T00:00:00.000Z"),
                     leave_at: new Date("2026-01-01T00:05:00.000Z"),
                     group_key: "A",
                     checked_in: true,
-                }],
+                } ],
             })
-            .mockResolvedValueOnce({rows: [{id: 99}]})
+            .mockResolvedValueOnce({rows: [ {id: 99} ] })
             .mockResolvedValueOnce({
-                rows: [{
+                rows: [ {
                     game_id: 99,
                     team_index: 0,
                     player_id: 10,
@@ -52,7 +52,7 @@ describe("ScrimPostgresRepository", () => {
                     leave_at: new Date("2026-01-01T00:05:00.000Z"),
                     group_key: "A",
                     checked_in: true,
-                }],
+                } ],
             });
         const repo = new ScrimPostgresRepository({query} as any);
 
@@ -76,27 +76,27 @@ describe("ScrimPostgresRepository", () => {
                 lfs: false,
                 checkinTimeout: 120000,
             },
-            players: [{
+            players: [ {
                 id: 10,
                 name: "Player",
                 group: "A",
                 checkedIn: true,
-            }],
-            games: [{
-                teams: [{
-                    players: [{
+            } ],
+            games: [ {
+                teams: [ {
+                    players: [ {
                         id: 10,
                         name: "Player",
                         group: "A",
                         checkedIn: true,
-                    }],
-                }],
-            }],
+                    } ],
+                } ],
+            } ],
         });
     });
 
     it("persists a created scrim through normalized scrim and player rows", async () => {
-        const client = {query: jest.fn().mockResolvedValue({rows: []})};
+        const client = {query: jest.fn().mockResolvedValue({rows: [] })};
         const transaction = jest.fn(async cb => cb(client));
         const repo = new ScrimPostgresRepository({transaction} as any);
 
@@ -146,7 +146,7 @@ describe("ScrimPostgresRepository", () => {
     it("hydrates all scrims with batched game rows", async () => {
         const query = jest.fn()
             .mockResolvedValueOnce({
-                rows: [{
+                rows: [ {
                     id: "00000000-0000-4000-8000-000000000001",
                     created_at: new Date("2026-01-01T00:00:00.000Z"),
                     updated_at: new Date("2026-01-01T00:01:00.000Z"),
@@ -169,10 +169,10 @@ describe("ScrimPostgresRepository", () => {
                     settings_observable: false,
                     settings_lfs: false,
                     settings_checkin_timeout: 120000,
-                }],
+                } ],
             })
             .mockResolvedValueOnce({
-                rows: [{
+                rows: [ {
                     scrim_id: "00000000-0000-4000-8000-000000000001",
                     player_id: 10,
                     name: "Player",
@@ -180,16 +180,16 @@ describe("ScrimPostgresRepository", () => {
                     leave_at: new Date("2026-01-01T00:05:00.000Z"),
                     group_key: "A",
                     checked_in: true,
-                }],
+                } ],
             })
             .mockResolvedValueOnce({
-                rows: [{
+                rows: [ {
                     scrim_id: "00000000-0000-4000-8000-000000000001",
                     id: 99,
-                }],
+                } ],
             })
             .mockResolvedValueOnce({
-                rows: [{
+                rows: [ {
                     game_scrim_id: "00000000-0000-4000-8000-000000000001",
                     game_id: 99,
                     team_index: 0,
@@ -199,33 +199,31 @@ describe("ScrimPostgresRepository", () => {
                     leave_at: new Date("2026-01-01T00:05:00.000Z"),
                     group_key: "A",
                     checked_in: true,
-                }],
+                } ],
             });
         const repo = new ScrimPostgresRepository({query} as any);
 
         const scrims = await repo.findAll();
 
-        expect(scrims).toMatchObject([{
+        expect(scrims).toMatchObject([ {
             id: "00000000-0000-4000-8000-000000000001",
-            games: [{
-                teams: [{
-                    players: [{
+            games: [ {
+                teams: [ {
+                    players: [ {
                         id: 10,
                         name: "Player",
                         group: "A",
                         checkedIn: true,
-                    }],
-                }],
-            }],
-        }]);
-        expect(query.mock.calls[3][0]).toContain(
-            "INNER JOIN sprocket.scrim_queue_game qg ON qg.id = gp.game_id",
-        );
+                    } ],
+                } ],
+            } ],
+        } ]);
+        expect(query.mock.calls[3][0]).toContain("INNER JOIN sprocket.scrim_queue_game qg ON qg.id = gp.game_id");
         expect(query.mock.calls[3][0]).not.toContain("SELECT g.scrim_id");
     });
 
     it("pushes scrim list filters into the Postgres query", async () => {
-        const query = jest.fn().mockResolvedValue({rows: []});
+        const query = jest.fn().mockResolvedValue({rows: [] });
         const repo = new ScrimPostgresRepository({query} as any);
 
         await repo.findAll({
@@ -240,11 +238,11 @@ describe("ScrimPostgresRepository", () => {
         expect(query.mock.calls[0][0]).toContain("organization_id = $2");
         expect(query.mock.calls[0][0]).toContain("settings_lfs = $3");
         expect(query.mock.calls[0][0]).toContain("(settings_competitive = false OR skill_group_id = ANY($4::int[]))");
-        expect(query.mock.calls[0][1]).toEqual([ScrimStatus.PENDING, 2, false, [4, 5]]);
+        expect(query.mock.calls[0][1]).toEqual([ScrimStatus.PENDING, 2, false, [4, 5] ]);
     });
 
     it("updates status in the scrim table and stamps popped time for popped scrims", async () => {
-        const query = jest.fn().mockResolvedValue({rows: []});
+        const query = jest.fn().mockResolvedValue({rows: [] });
         const repo = new ScrimPostgresRepository({query} as any);
 
         await repo.updateStatus("00000000-0000-4000-8000-000000000001", ScrimStatus.POPPED);

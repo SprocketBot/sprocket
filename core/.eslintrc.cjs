@@ -737,8 +737,10 @@ module.exports = {
       'error' /* (   ) Require that all enum members be literal values to prevent unintended enum member name shadow issues */,
     '@typescript-eslint/prefer-namespace-keyword':
       'error' /* (rf ) Require the use of the namespace keyword instead of the module keyword to declare custom TypeScript modules */,
-    '@typescript-eslint/prefer-nullish-coalescing':
-      'error' /* (  t) Enforce the usage of the nullish coalescing operator instead of logical chaining */,
+    // This project intentionally disables strictNullChecks; the rule emits a
+    // file-level error without that compiler option and cannot provide useful
+    // diagnostics in this workspace.
+    '@typescript-eslint/prefer-nullish-coalescing': 'off',
     '@typescript-eslint/prefer-optional-chain':
       'error' /* (   ) Prefer using concise optional chain expressions instead of chained logical ands */,
     '@typescript-eslint/prefer-readonly':

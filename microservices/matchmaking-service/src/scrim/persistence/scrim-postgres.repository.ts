@@ -12,9 +12,9 @@ import {PostgresService, ScrimStatus} from "@sprocketbot/common";
 import type {QueryResult, QueryResultRow} from "pg";
 import {v4} from "uuid";
 
-type DbClient = {
+interface DbClient {
     query<T extends QueryResultRow = QueryResultRow>(text: string, values?: unknown[]): Promise<QueryResult<T>>;
-};
+}
 
 interface ScrimRow {
     id: string;
@@ -191,8 +191,8 @@ export class ScrimPostgresRepository {
         }
 
         const skillGroupIds = Array.from(new Set([
-            ...(filters.skillGroupId !== undefined ? [filters.skillGroupId] : []),
-            ...(filters.skillGroupIds ?? []),
+            ...filters.skillGroupId !== undefined ? [filters.skillGroupId] : [],
+            ...filters.skillGroupIds ?? [],
         ]));
         if (filters.skillGroupId !== undefined || filters.skillGroupIds !== undefined) {
             if (skillGroupIds.length > 0) {
@@ -247,11 +247,9 @@ export class ScrimPostgresRepository {
      * Uses the status index for efficient queries.
      */
     async findForClockCheck(): Promise<Scrim[]> {
-        const result = await this.postgres.query<ScrimRow>(
-            `SELECT * FROM sprocket.scrim_queue 
+        const result = await this.postgres.query<ScrimRow>(`SELECT * FROM sprocket.scrim_queue
              WHERE status IN ('PENDING', 'POPPED') 
-             ORDER BY updated_at ASC`,
-        );
+             ORDER BY updated_at ASC`);
         
         if (result.rows.length === 0) return [];
         
@@ -311,7 +309,7 @@ export class ScrimPostgresRepository {
     }
 
     async playerInAnyScrim(playerId: number): Promise<boolean> {
-        const result = await this.postgres.query<{exists: boolean}>(
+        const result = await this.postgres.query<{exists: boolean;}>(
             `
                 SELECT EXISTS (
                     SELECT 1
@@ -326,7 +324,7 @@ export class ScrimPostgresRepository {
 
     async addPlayer(scrimId: string, player: ScrimPlayer): Promise<void> {
         await this.postgres.transaction(async client => {
-            const result = await client.query<{position: number}>(
+            const result = await client.query<{position: number;}>(
                 `
                     SELECT COALESCE(MAX(position) + 1, 0) AS position
                     FROM sprocket.scrim_queue_player
@@ -351,7 +349,7 @@ export class ScrimPostgresRepository {
 
     async updatePlayer(scrimId: string, player: ScrimPlayer): Promise<void> {
         await this.postgres.transaction(async client => {
-            const result = await client.query<{position: number}>(
+            const result = await client.query<{position: number;}>(
                 `
                     SELECT position
                     FROM sprocket.scrim_queue_player
@@ -533,7 +531,7 @@ export class ScrimPostgresRepository {
 
     private async replacePlayers(client: DbClient, scrimId: string, players: ScrimPlayer[]): Promise<void> {
         await client.query("DELETE FROM sprocket.scrim_queue_player WHERE scrim_id = $1", [scrimId]);
-        await Promise.all(players.map((player, index) => this.upsertPlayer(client, scrimId, player, index)));
+        await Promise.all(players.map(async (player, index) => this.upsertPlayer(client, scrimId, player, index)));
     }
 
     private async upsertPlayer(
@@ -579,7 +577,7 @@ export class ScrimPostgresRepository {
     private async replaceGames(client: DbClient, scrimId: string, games: ScrimGame[]): Promise<void> {
         await client.query("DELETE FROM sprocket.scrim_queue_game WHERE scrim_id = $1", [scrimId]);
         for (const [gameIndex, game] of games.entries()) {
-            const gameResult = await client.query<{id: number}>(
+            const gameResult = await client.query<{id: number;}>(
                 `
                     INSERT INTO sprocket.scrim_queue_game (scrim_id, position)
                     VALUES ($1, $2)
@@ -589,7 +587,7 @@ export class ScrimPostgresRepository {
             );
             const gameId = gameResult.rows[0].id;
             for (const [teamIndex, team] of game.teams.entries()) {
-                await Promise.all(team.players.map((player, playerIndex) => client.query(
+                await Promise.all(team.players.map(async (player, playerIndex) => client.query(
                     `
                         INSERT INTO sprocket.scrim_queue_game_player (
                             game_id,
@@ -683,10 +681,10 @@ export class ScrimPostgresRepository {
      * Batch load players for multiple scrims in a single query.
      * Reduces N+1 queries to just 1 query.
      */
-    private async loadPlayersBatch(scrimIds: string[]): Promise<{scrimId: string; player: ScrimPlayer}[]> {
+    private async loadPlayersBatch(scrimIds: string[]): Promise<Array<{scrimId: string; player: ScrimPlayer;}>> {
         if (scrimIds.length === 0) return [];
         
-        const result = await this.postgres.query<ScrimPlayerRow & {scrim_id: string}>(
+        const result = await this.postgres.query<ScrimPlayerRow & {scrim_id: string;}>(
             `
                 SELECT scrim_id, player_id, name, joined_at, leave_at, group_key, checked_in
                 FROM sprocket.scrim_queue_player
@@ -706,10 +704,10 @@ export class ScrimPostgresRepository {
      * Batch load games for multiple scrims in a single query.
      * Reduces N+1 queries to just 2 queries (games + players).
      */
-    private async loadGamesBatch(scrimIds: string[]): Promise<{scrimId: string; game: ScrimGame}[]> {
+    private async loadGamesBatch(scrimIds: string[]): Promise<Array<{scrimId: string; game: ScrimGame;}>> {
         if (scrimIds.length === 0) return [];
         
-        const gameResult = await this.postgres.query<ScrimGameRow & {scrim_id: string}>(
+        const gameResult = await this.postgres.query<ScrimGameRow & {scrim_id: string;}>(
             `
                 SELECT scrim_id, id
                 FROM sprocket.scrim_queue_game
@@ -723,7 +721,7 @@ export class ScrimPostgresRepository {
         
         const gameIds = gameResult.rows.map(row => row.id);
         
-        const playerResult = await this.postgres.query<ScrimGamePlayerRow & {game_scrim_id: string}>(
+        const playerResult = await this.postgres.query<ScrimGamePlayerRow & {game_scrim_id: string;}>(
             `
                 SELECT
                     qg.scrim_id as game_scrim_id,
@@ -772,7 +770,7 @@ export class ScrimPostgresRepository {
         }
         
         // Flatten to array format
-        const result: {scrimId: string; game: ScrimGame}[] = [];
+        const result: Array<{scrimId: string; game: ScrimGame;}> = [];
         for (const [scrimId, games] of gamesByScrim) {
             for (const game of games) {
                 result.push({scrimId, game});

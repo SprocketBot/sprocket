@@ -39,9 +39,9 @@ function parseArgs(argv: string[]) {
     const onlyRaw = getValue("--only");
     const only = onlyRaw
         ? (onlyRaw
-              .split(",")
-              .map(s => s.trim())
-              .filter(Boolean) as BridgeTable[])
+                .split(",")
+                .map(s => s.trim())
+                .filter(Boolean) as BridgeTable[])
         : undefined;
 
     const help = args.has("--help") || args.has("-h");
@@ -59,13 +59,11 @@ function validateOnlyTables(only?: BridgeTable[]) {
     if (!only) return;
     const invalid = only.filter(t => !ALL_TABLES.includes(t));
     if (invalid.length) {
-        throw new Error(
-            `Unknown --only table(s): ${invalid.join(", ")}. Valid: ${ALL_TABLES.join(", ")}`,
-        );
+        throw new Error(`Unknown --only table(s): ${invalid.join(", ")}. Valid: ${ALL_TABLES.join(", ")}`);
     }
 }
 
-async function countInserted(runner: {query: (q: string) => Promise<unknown>}, insertSql: string) {
+async function countInserted(runner: {query: (q: string) => Promise<unknown>;}, insertSql: string) {
     const sql = `
 WITH inserted AS (
   ${insertSql}
@@ -154,7 +152,7 @@ async function main() {
                 logging: false,
                 // TypeORM forwards `ssl` to the pg driver, but some setups behave more reliably
                 // when also passing it through `extra.ssl`.
-                ...(sslOption ? {ssl: sslOption, extra: {ssl: sslOption}} : {}),
+                ...(sslOption ? {ssl: sslOption, extra: {ssl: sslOption} } : {}),
             };
         }
 
@@ -172,11 +170,11 @@ async function main() {
                 ...(sslOption
                     ? {ssl: sslOption}
                     : {
-                          ssl:
+                            ssl:
                 host === "postgres" || host === "localhost"
                     ? false
                     : {rejectUnauthorized: false},
-                      }),
+                        }),
             };
         }
 
@@ -196,13 +194,13 @@ async function main() {
             ...(sslOption
                 ? {ssl: sslOption}
                 : {
-                      ssl:
+                        ssl:
             config.db.host === "postgres" || config.db.host === "localhost"
                 ? false
                 : {
                         rejectUnauthorized: false,
                     },
-                  }),
+                    }),
         };
     };
 
@@ -447,9 +445,7 @@ WHERE mp.league IN ('FOUNDATION', 'ACADEMY', 'CHAMPION', 'MASTER', 'PREMIER')
             }
 
             // eslint-disable-next-line no-console
-            console.log(
-                `  inserted: ${insertedByTable[table] ?? 0}`,
-            );
+            console.log(`  inserted: ${insertedByTable[table] ?? 0}`);
         }
 
         if (dryRun) {

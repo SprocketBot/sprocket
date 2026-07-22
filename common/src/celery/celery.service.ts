@@ -72,7 +72,7 @@ export class CeleryService {
 
         if (opts?.cb) {
             this.waitForResult(task, taskId)
-                .then(result => opts.cb!(taskId, result, null))
+                .then(async result => opts.cb!(taskId, result, null))
                 .catch(error => {
                     const p = opts.cb!(taskId, null, error as Error);
                     if (p instanceof Promise) {
@@ -127,8 +127,8 @@ export class CeleryService {
                     })
                     .catch(sub.error.bind(sub));
             }, 250);
-            timer.unref?.();
-            return (): void => clearInterval(timer);
+            timer.unref();
+            return (): void => { clearInterval(timer) };
         });
     }
 

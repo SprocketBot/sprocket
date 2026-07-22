@@ -3,9 +3,7 @@ import {UnauthorizedException} from "@nestjs/common";
 import {MLE_OrganizationTeam} from "../../../database/mledb";
 import type {AuthPayload, UserPayload} from "./types";
 
-const validOrganizationTeams = new Set(
-    Object.values(MLE_OrganizationTeam).filter((value): value is number => typeof value === "number"),
-);
+const validOrganizationTeams = new Set(Object.values(MLE_OrganizationTeam).filter((value): value is number => typeof value === "number"));
 
 const isPositiveSafeInteger = (value: unknown): value is number => (
     typeof value === "number"

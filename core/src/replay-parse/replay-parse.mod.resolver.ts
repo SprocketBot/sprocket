@@ -2,15 +2,15 @@ import {Inject, UseGuards} from "@nestjs/common";
 import {
     Args, Mutation, Query, Resolver, Subscription,
 } from "@nestjs/graphql";
-import {PubSub} from "apollo-server-express";
-import GraphQLJSON from "graphql-type-json";
-import type {FileUpload} from "graphql-upload";
-import {GraphQLUpload} from "graphql-upload";
 import {
     ResponseStatus,
     SubmissionEndpoint,
     SubmissionService,
 } from "@sprocketbot/common";
+import {PubSub} from "apollo-server-express";
+import GraphQLJSON from "graphql-type-json";
+import type {FileUpload} from "graphql-upload";
+import {GraphQLUpload} from "graphql-upload";
 
 import {MLE_OrganizationTeam} from "../database/mledb";
 import {CurrentUser, UserPayload} from "../identity/auth/";

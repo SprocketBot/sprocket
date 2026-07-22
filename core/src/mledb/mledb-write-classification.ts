@@ -111,15 +111,15 @@ export const MLEDB_WRITE_CLASSIFICATIONS: readonly MledbWriteClassification[] = 
 ];
 
 export function getMledbWriteClassification(key: string): MledbWriteClassification | undefined {
-    return MLEDB_WRITE_CLASSIFICATIONS.find((classification) => classification.key === key);
+    return MLEDB_WRITE_CLASSIFICATIONS.find(classification => classification.key === key);
 }
 
 export function getMledbWriteClassificationsByCategory(category: MledbWriteRetirementCategory): readonly MledbWriteClassification[] {
-    return MLEDB_WRITE_CLASSIFICATIONS.filter((classification) => classification.category === category);
+    return MLEDB_WRITE_CLASSIFICATIONS.filter(classification => classification.category === category);
 }
 
 export function getMledbWritesBlockedFromGating(): readonly MledbWriteClassification[] {
-    return MLEDB_WRITE_CLASSIFICATIONS.filter((classification) => (
+    return MLEDB_WRITE_CLASSIFICATIONS.filter(classification => (
         classification.replacementFirst
         && classification.readiness === MledbWriteReplacementReadiness.ReplacementNeededBeforeGating
     ));

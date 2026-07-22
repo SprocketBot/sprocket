@@ -14,12 +14,9 @@ interface refreshPayload {
 
 const ONE_WEEK_COOKIE = "Path=/;SameSite=Lax;Max-Age=604800";
 
-const isPositiveSafeInteger = (value: unknown): value is number => (
-    typeof value === "number"
+const isPositiveSafeInteger = (value: unknown): value is number => typeof value === "number"
     && Number.isSafeInteger(value)
-    && value > 0
-);
-
+    && value > 0;
 const isValidSessionUser = (value: unknown): value is SessionJwtPayload => {
     if (!value || typeof value !== "object") return false;
 

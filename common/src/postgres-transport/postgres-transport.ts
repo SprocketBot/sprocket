@@ -1,8 +1,10 @@
 import {Logger} from "@nestjs/common";
-import {ClientProxy} from "@nestjs/microservices";
 import type {ReadPacket, WritePacket} from "@nestjs/microservices";
-import {Server} from "@nestjs/microservices/server/server";
-import type {Pool, PoolClient, QueryResultRow} from "pg";
+import type {ClientProxy} from "@nestjs/microservices";
+import type {Server} from "@nestjs/microservices/server/server";
+import type {
+    Pool, PoolClient, QueryResultRow,
+} from "pg";
 
 import {buildPostgresPoolConfig, getSharedPostgresPool} from "../postgres";
 

@@ -1,23 +1,24 @@
-import {Module, MiddlewareConsumer, NestModule} from "@nestjs/common";
+import type {MiddlewareConsumer, NestModule} from "@nestjs/common";
+import {Module} from "@nestjs/common";
 import {GraphQLModule} from "@nestjs/graphql";
 import {config, PostgresModule} from "@sprocketbot/common";
 import {RedisCache} from "apollo-server-cache-redis";
 import {graphqlUploadExpress} from "graphql-upload";
 
 import {ConfigurationModule} from "./configuration";
-import {HealthModule} from "./health/health.module";
 import {DatabaseModule} from "./database";
 import {EloModule} from "./elo";
 import {FranchiseModule} from "./franchise";
 import {GameModule} from "./game";
+import {HealthModule} from "./health/health.module";
 import {IdentityModule} from "./identity";
 import {AuthModule} from "./identity/auth";
 import {ImageGenerationModule} from "./image-generation";
 import {MledbInterfaceModule} from "./mledb";
 import {NotificationModule} from "./notification/notification.module";
 import {OrganizationModule} from "./organization";
-import {ReportCardModule} from "./report-card/report-card.module";
 import {ReplayParseModule} from "./replay-parse";
+import {ReportCardModule} from "./report-card/report-card.module";
 import {SchedulingModule} from "./scheduling";
 import {ScrimModule} from "./scrim";
 import {SprocketRatingModule} from "./sprocket-rating";
@@ -37,9 +38,9 @@ import {UtilModule} from "./util/util.module";
                 db: 13,
                 tls: config.cache.secure
                     ? {
-                          host: config.cache.host,
-                          servername: config.cache.host,
-                      }
+                            host: config.cache.host,
+                            servername: config.cache.host,
+                        }
                     : undefined,
             }),
             playground: config.gql.playground,

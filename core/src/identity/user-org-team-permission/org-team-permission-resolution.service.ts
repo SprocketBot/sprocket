@@ -1,4 +1,6 @@
-import {forwardRef, Inject, Injectable, Logger} from "@nestjs/common";
+import {
+    forwardRef, Inject, Injectable, Logger,
+} from "@nestjs/common";
 
 import type {MLE_OrganizationTeam} from "../../database/mledb";
 import {MledbPlayerService} from "../../mledb/mledb-player/mledb-player.service";
@@ -49,9 +51,7 @@ export class OrgTeamPermissionResolutionService {
                 const legacy = await this.mledbPlayerService.getPlayerOrgs(player);
                 fromMledb = [...new Set(legacy.map(row => row.orgTeam))];
             } catch (err) {
-                this.logger.verbose(
-                    `Dual-read MLEDB load failed for userId=${userId}: ${(err as Error).message}`,
-                );
+                this.logger.verbose(`Dual-read MLEDB load failed for userId=${userId}: ${(err as Error).message}`);
             }
         }
 
@@ -62,9 +62,7 @@ export class OrgTeamPermissionResolutionService {
                 if (fromSprocket.length > 0 && fromMledb.length > 0) {
                     this.logger.warn(`Org-team dual-read mismatch (both non-empty): ${detail}`);
                 } else if (fromSprocket.length === 0 && fromMledb.length > 0) {
-                    this.logger.verbose(
-                        `Org-team dual-read: no Sprocket rows, MLEDB has org teams (expected until backfill): ${detail}`,
-                    );
+                    this.logger.verbose(`Org-team dual-read: no Sprocket rows, MLEDB has org teams (expected until backfill): ${detail}`);
                 } else {
                     this.logger.warn(`Org-team dual-read mismatch (Sprocket non-empty, MLEDB empty): ${detail}`);
                 }

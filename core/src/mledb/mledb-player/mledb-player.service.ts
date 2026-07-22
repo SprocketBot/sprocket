@@ -92,9 +92,7 @@ export class MledbPlayerService {
         const mleMember = await this.userService.getUserById(user.id, {
             relations: {members: {organization: true} },
         });
-        const defaultOrgMember = mleMember.members?.find(
-            m => m.organizationId === config.defaultOrganizationId,
-        );
+        const defaultOrgMember = mleMember.members?.find(m => m.organizationId === config.defaultOrganizationId);
         if (defaultOrgMember) {
             try {
                 const plat = await this.platformService.getPlatformByCode(platform);
@@ -104,11 +102,9 @@ export class MledbPlayerService {
                     platformId,
                 );
             } catch (e) {
-                this.logger.warn(
-                    `Backfill member_platform_account failed (${platform}|${platformId}): ${
-                        e instanceof Error ? e.message : String(e)
-                    }`,
-                );
+                this.logger.warn(`Backfill member_platform_account failed (${platform}|${platformId}): ${
+                    e instanceof Error ? e.message : String(e)
+                }`);
             }
         }
 
