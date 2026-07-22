@@ -369,12 +369,12 @@ export class PlayerService {
         const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
 
         const runner = this.dataSource.createQueryRunner();
-        await runner.connect();
-        await runner.startTransaction();
 
         let player: Player;
 
         try {
+            await runner.connect();
+            await runner.startTransaction();
             const mlePlayer = await this.mle_playerRepository.findOne({
                 where: {mleid},
             });
@@ -423,11 +423,11 @@ export class PlayerService {
                 await this.syncRosterAuthorityAfterMleSave(mleAfter.id);
             }
         } catch (e) {
-            await runner.rollbackTransaction();
+            if (runner.isTransactionActive) await runner.rollbackTransaction();
             this.logger.error(e);
             throw e;
         } finally {
-            await runner.release();
+            if (!runner.isReleased) await runner.release();
         }
 
         return player;
@@ -1168,6 +1168,8 @@ export class PlayerService {
             this.logger.log(`Started database transaction`);
         } catch (e) {
             this.logger.error(`Failed to start transaction: ${e instanceof Error ? e.message : String(e)}`);
+            if (runner.isTransactionActive) await runner.rollbackTransaction();
+            if (!runner.isReleased) await runner.release();
             throw e;
         }
 
@@ -1424,13 +1426,13 @@ export class PlayerService {
             this.logger.error(`Stack trace: ${e instanceof Error ? e.stack : "N/A"}`);
 
             this.logger.log(`Rolling back transaction...`);
-            await runner.rollbackTransaction();
+            if (runner.isTransactionActive) await runner.rollbackTransaction();
             this.logger.log(`Transaction rolled back`);
 
             return e instanceof Error ? e.message : String(e);
         } finally {
             this.logger.log(`Releasing query runner...`);
-            await runner.release();
+            if (!runner.isReleased) await runner.release();
             this.logger.log(`Query runner released`);
         }
     }

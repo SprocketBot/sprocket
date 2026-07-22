@@ -73,11 +73,10 @@ export class RocketLeagueFinalizationService {
         scrim: Scrim,
     ): Promise<SaveScrimFinalizationReturn> {
         const qr = this.dataSource.createQueryRunner();
-
-        await qr.connect();
-        await qr.startTransaction();
-        const em = qr.manager;
         try {
+            await qr.connect();
+            await qr.startTransaction();
+            const em = qr.manager;
             const gameMode = await em.findOneByOrFail(GameMode, {id: scrim.gameModeId});
 
             const scrimMeta = em.create(ScrimMeta);
@@ -144,10 +143,10 @@ export class RocketLeagueFinalizationService {
             };
 
             this.logger.error(`Failed to save LFS scrim! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`);
-            await qr.rollbackTransaction();
+            if (qr.isTransactionActive) await qr.rollbackTransaction();
             throw e;
         } finally {
-            await qr.release();
+            if (!qr.isReleased) await qr.release();
         }
     }
 
@@ -156,11 +155,10 @@ export class RocketLeagueFinalizationService {
         scrim: Scrim,
     ): Promise<SaveScrimFinalizationReturn> {
         const qr = this.dataSource.createQueryRunner();
-
-        await qr.connect();
-        await qr.startTransaction();
-        const em = qr.manager;
         try {
+            await qr.connect();
+            await qr.startTransaction();
+            const em = qr.manager;
             // Before saving, check if scrim is competitive or not
             const isCompetitive = scrim.settings.competitive;
 
@@ -203,20 +201,19 @@ export class RocketLeagueFinalizationService {
             };
 
             this.logger.error(`Failed to save scrim! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`);
-            await qr.rollbackTransaction();
+            if (qr.isTransactionActive) await qr.rollbackTransaction();
             throw e;
         } finally {
-            await qr.release();
+            if (!qr.isReleased) await qr.release();
         }
     }
 
     async finalizeMatch(submission: MatchReplaySubmission): Promise<SaveMatchFinalizationReturn> {
         const qr = this.dataSource.createQueryRunner();
-
-        await qr.connect();
-        await qr.startTransaction();
-        const em = qr.manager;
         try {
+            await qr.connect();
+            await qr.startTransaction();
+            const em = qr.manager;
             const match = await this.matchService.getMatchById(submission.matchId, {
                 matchParent: {fixture: {homeFranchise: {organization: true} } },
                 gameMode: true,
@@ -235,10 +232,10 @@ export class RocketLeagueFinalizationService {
             };
 
             this.logger.error(`Failed to save match! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`);
-            await qr.rollbackTransaction();
+            if (qr.isTransactionActive) await qr.rollbackTransaction();
             throw e;
         } finally {
-            await qr.release();
+            if (!qr.isReleased) await qr.release();
         }
     }
 

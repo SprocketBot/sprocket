@@ -2,7 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import type {FindOptionsWhere} from "typeorm";
 import {
-    DataSource, Raw, Repository,
+    Raw, Repository,
 } from "typeorm";
 
 import {GameSkillGroup} from "$db/franchise/game_skill_group/game_skill_group.model";
@@ -32,7 +32,6 @@ export class ScheduleGroupService {
     private readonly m2sgRepo: Repository<MatchToScheduleGroup>,
     private readonly scheduleFixtureService: ScheduleFixtureService,
     @InjectRepository(GameSkillGroup) private gameSkillGroupRepository: Repository<GameSkillGroup>,
-    private readonly dataSource: DataSource,
     ) {}
 
     async getScheduleGroups(
@@ -64,7 +63,7 @@ export class ScheduleGroupService {
         return this.scheduleGroupRepo.find({
             where: conditions,
             relations: [
-                "type", 
+                "type",
                 "game",
                 "childGroups",
                 "childGroups.fixtures",
@@ -80,17 +79,15 @@ export class ScheduleGroupService {
         season_number: number,
         parsedFixtures: RawFixture,
     ): Promise<ScheduleGroup[]> {
-    // Some bookkeeping structures
+        // This workflow spans injected repositories and services. An unbound
+        // QueryRunner here only reserves a connection; it does not make those
+        // repository calls transactional and can deadlock a one-connection pool.
+        // Some bookkeeping structures
         const sgs: ScheduleGroup[] = [];
         const sgMap: Map<string, ScheduleGroup> = new Map();
         const mmMap: Map<string, MLE_Match> = new Map();
         const sfMap: Map<string, ScheduleFixture[]> = new Map();
         const mfMap: Map<string, MLE_Fixture[]> = new Map();
-
-        // First, we do this all as one transaction
-        const runner = this.dataSource.createQueryRunner();
-        await runner.connect();
-        await runner.startTransaction();
 
         // Create the season schedule group
         const season_description = `Season ${season_number}`;
@@ -218,9 +215,6 @@ export class ScheduleGroupService {
             scheduleGroupId: season.id,
             seasonNumber: season_number,
         });
-
-        // We're done touching the DB at this point, so we can commit the transaction.
-        await runner.commitTransaction();
 
         // Finally, build just a list of the schedule groups we've created to
         // send back

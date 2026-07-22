@@ -28,36 +28,46 @@ async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(MonolithModule, {
         logger: config.logger.levels,
     });
+    app.enableShutdownHooks();
 
-    app.getHttpAdapter().getInstance().get("/healthz", (_req: Request, res: Response) => {
-        res.status(200).json({
-            status: "ok",
-            runtime: "monolith",
-            services: CONSUMERS.map(({name}) => name),
+    try {
+        app.getHttpAdapter().getInstance().get("/healthz", (_req: Request, res: Response) => {
+            res.status(200).json({
+                status: "ok",
+                runtime: "monolith",
+                services: CONSUMERS.map(({name}) => name),
+            });
         });
-    });
 
-    app.use(corsPreflightMiddleware);
-    app.enableCors(corsOptions);
-    app.useGlobalPipes(new ValidationPipe());
+        app.use(corsPreflightMiddleware);
+        app.enableCors(corsOptions);
+        app.useGlobalPipes(new ValidationPipe());
 
-    const httpAdapter = app.get(HttpAdapterHost);
-    app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
+        const httpAdapter = app.get(HttpAdapterHost);
+        app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
 
-    for (const {name, queue} of CONSUMERS) {
-        app.connectMicroservice({
-            strategy: new PostgresServer({queue}),
-        });
+        for (const {name, queue} of CONSUMERS) {
+            app.connectMicroservice({
+                strategy: new PostgresServer({queue}),
+            });
+            // eslint-disable-next-line no-console
+            console.log(`Connected ${name} Postgres RPC consumer on queue '${queue}'`);
+        }
+
+        const port = 3001;
+        await app.startAllMicroservices();
+        await app.listen(port);
         // eslint-disable-next-line no-console
-        console.log(`Connected ${name} Postgres RPC consumer on queue '${queue}'`);
+        console.log(`Sprocket monolith listening at http://localhost:${port}`);
+    } catch (error) {
+        await app.close();
+        throw error;
     }
-
-    const port = 3001;
-    await app.startAllMicroservices();
-    await app.listen(port);
-    // eslint-disable-next-line no-console
-    console.log(`Sprocket monolith listening at http://localhost:${port}`);
 }
 
-// eslint-disable-next-line no-console
-bootstrap().catch(console.error);
+bootstrap().catch(error => {
+    // eslint-disable-next-line no-console
+    console.error(error);
+    // eslint-disable-next-line no-undef
+    process.exit(1);
+});

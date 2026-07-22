@@ -122,6 +122,20 @@ export const config = {
                 5000,
             );
         },
+        get pool_max_lifetime_seconds(): number {
+            return ConfigResolver.getNumberConfig(
+                "POSTGRES_POOL_MAX_LIFETIME_SECONDS",
+                "db.pool_max_lifetime_seconds",
+                300,
+            );
+        },
+        get idle_in_transaction_timeout_ms(): number {
+            return ConfigResolver.getNumberConfig(
+                "POSTGRES_IDLE_IN_TRANSACTION_TIMEOUT_MS",
+                "db.idle_in_transaction_timeout_ms",
+                60000,
+            );
+        },
         get application_name(): string {
             return ConfigResolver.getConfig(
                 "POSTGRES_APPLICATION_NAME",
