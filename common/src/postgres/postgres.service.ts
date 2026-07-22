@@ -1,6 +1,8 @@
-import {Injectable} from "@nestjs/common";
 import type {OnApplicationShutdown} from "@nestjs/common";
-import type {Pool, PoolClient, QueryResult, QueryResultRow} from "pg";
+import {Injectable} from "@nestjs/common";
+import type {
+    Pool, PoolClient, QueryResult, QueryResultRow,
+} from "pg";
 
 import {closeSharedPostgresPool, getSharedPostgresPool} from "./pool";
 
@@ -10,7 +12,7 @@ export class PostgresService implements OnApplicationShutdown {
         return getSharedPostgresPool();
     }
 
-    query<T extends QueryResultRow = QueryResultRow>(
+    async query<T extends QueryResultRow = QueryResultRow>(
         text: string,
         values: unknown[] = [],
     ): Promise<QueryResult<T>> {
