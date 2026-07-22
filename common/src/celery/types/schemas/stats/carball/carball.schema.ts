@@ -4,13 +4,13 @@ import {CarballPlayerSchema} from "./carball-player.schema";
 import {CarballTeamSchema} from "./carball-team.schema";
 
 // Helper to safely convert to number, returning undefined for invalid values
-const safeNumber = () => z.preprocess(val => {
+const safeNumber = (): z.ZodType<number | undefined> => z.preprocess(val => {
     if (val === null || val === undefined || val === "") return undefined;
     const num = Number(val);
     return isNaN(num) ? undefined : num;
 }, z.number().optional());
 
-const safeString = () => z.preprocess(val => {
+const safeString = (): z.ZodType<string | undefined> => z.preprocess(val => {
     if (val === null || val === undefined || val === "") return undefined;
     return typeof val === "number" || typeof val === "bigint" ? String(val) : val;
 }, z.string().optional());

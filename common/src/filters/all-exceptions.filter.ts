@@ -37,7 +37,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
         }
 
         const ctx = host.switchToHttp();
-        const request = ctx.getRequest();
+        const request = ctx.getRequest<{
+            method: string;
+            url: string;
+            user?: {id?: string; email?: string;};
+        }>();
 
         // 1. Determine the Status Code
         const httpStatus
@@ -45,7 +49,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
         // 2. Extract Context (Who and What)
         // Note: 'request.user' might be undefined for 401s if the AuthGuard failed early
-        const user = request.user ? `User: ${request.user.id || request.user.email}` : "User: Guest";
+        const user = request.user ? `User: ${request.user.id ?? request.user.email}` : "User: Guest";
         const contextInfo = `[${request.method}] ${request.url} - ${user}`;
 
         // 3. Conditional Logging
@@ -64,7 +68,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
         }
 
         // 4. Construct the response body
-        const responseBody = {
+        const responseBody: Record<string, unknown> = {
             statusCode: httpStatus,
             timestamp: new Date().toISOString(),
             path: httpAdapter.getRequestUrl(ctx.getRequest()),

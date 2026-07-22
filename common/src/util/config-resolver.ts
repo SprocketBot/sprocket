@@ -12,6 +12,7 @@ dotenvConfig();
  * 3. File-based secrets (./secret/*.txt)
  * 4. Config library (config package)
  */
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class ConfigResolver {
     /**
    * Get a secret value (sensitive data) from multiple sources
@@ -37,7 +38,7 @@ export class ConfigResolver {
         }
 
         throw new Error(`Secret not found: ${envKey} (env var), ${filePath} (file), ${
-            configKey || "no config key"
+            configKey ?? "no config key"
         } (config)`);
     }
 

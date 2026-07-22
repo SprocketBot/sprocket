@@ -51,12 +51,14 @@ export const config = {
     cache: {
         get port(): number {
             return (
+                // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
                 ConfigResolver.getNumberConfig("CACHE_PORT", "cache.port")
         || ConfigResolver.getNumberConfig("REDIS_PORT", "redis.port")
             );
         },
         get host(): string {
             return (
+                // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
                 ConfigResolver.getConfig("CACHE_HOST", "cache.host")
         || ConfigResolver.getConfig("REDIS_HOST", "redis.host")
             );
@@ -71,6 +73,7 @@ export const config = {
         },
         get secure(): boolean {
             return (
+                // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
                 ConfigResolver.getBooleanConfig("CACHE_SECURE", "cache.secure")
         || ConfigResolver.getBooleanConfig("REDIS_SECURE", "redis.secure")
             );
@@ -140,7 +143,7 @@ export const config = {
             return ConfigResolver.getConfig(
                 "POSTGRES_APPLICATION_NAME",
                 "db.application_name",
-                process.env.SPROCKET_SERVICE_NAME || process.env.SERVICE_NAME || "",
+                process.env.SPROCKET_SERVICE_NAME ?? process.env.SERVICE_NAME ?? "",
             );
         },
     },
@@ -167,13 +170,13 @@ export const config = {
         },
     },
     logger: {
-        get levels() {
-            const levelsStr = ConfigResolver.getConfig("LOGGER_LEVELS", "logger.levels");
+        get levels(): string[] {
+            const levelsStr = ConfigResolver.getConfig<string | string[]>("LOGGER_LEVELS", "logger.levels");
             // If it's already an array (from config file), return it
             if (Array.isArray(levelsStr)) return levelsStr;
             // If it's a JSON string, parse it
             if (typeof levelsStr === "string" && levelsStr.startsWith("[")) {
-                return JSON.parse(levelsStr);
+                return JSON.parse(levelsStr) as string[];
             }
             // Legacy support: if it's "debug", return full array
             return levelsStr === "debug" ? ["error", "warn", "log", "debug"] : ["error", "warn", "log"];

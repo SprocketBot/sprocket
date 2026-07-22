@@ -2,6 +2,7 @@ import type {CustomTransportStrategy, ReadPacket, WritePacket} from "@nestjs/mic
 import {Server} from "@nestjs/microservices/server/server";
 import {BaseRpcContext} from "@nestjs/microservices/ctx-host/base-rpc.context";
 
+import {closeSharedPostgresPool} from "../postgres";
 import {
     PostgresTransportBase,
     PostgresTransportOptions,
@@ -16,8 +17,8 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
     private stopped = false;
 
     // Configurable via env vars (defaults: 5 min timeout, 1 min cleanup interval)
-    private readonly staleMessageTimeoutMs = parseInt(process.env.RPC_STALE_MESSAGE_TIMEOUT_MS || "300000", 10);
-    private readonly staleMessageCleanupIntervalMs = parseInt(process.env.RPC_CLEANUP_INTERVAL_MS || "60000", 10);
+    private readonly staleMessageTimeoutMs = Number(process.env.RPC_STALE_MESSAGE_TIMEOUT_MS ?? "300000");
+    private readonly staleMessageCleanupIntervalMs = Number(process.env.RPC_CLEANUP_INTERVAL_MS ?? "60000");
 
     constructor(options: PostgresTransportOptions) {
         super();
@@ -42,13 +43,16 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
 
     async close(): Promise<void> {
         this.stopped = true;
+        await closeSharedPostgresPool();
     }
 
     private async poll(): Promise<void> {
         while (!this.stopped) {
             const row = await this.reserveNext();
             if (!row) {
-                await new Promise(resolve => setTimeout(resolve, this.transport.pollIntervalMs));
+                await new Promise<void>(resolve => {
+                    setTimeout(resolve, this.transport.pollIntervalMs);
+                });
                 continue;
             }
             await this.handleRow(row);
@@ -78,7 +82,9 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
             } catch (error) {
                 this.logger.error('Error cleaning up stale messages', error);
             }
-            await new Promise(resolve => setTimeout(resolve, this.staleMessageCleanupIntervalMs));
+            await new Promise<void>(resolve => {
+                setTimeout(resolve, this.staleMessageCleanupIntervalMs);
+            });
         }
     }
 

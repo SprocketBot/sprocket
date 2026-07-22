@@ -1,6 +1,7 @@
 import {Logger} from "@nestjs/common";
-import type {ReadPacket, WritePacket} from "@nestjs/microservices";
-import type {ClientProxy} from "@nestjs/microservices";
+import type {
+    ClientProxy, ReadPacket, WritePacket,
+} from "@nestjs/microservices";
 import type {Server} from "@nestjs/microservices/server/server";
 import type {
     Pool, PoolClient, QueryResultRow,
@@ -44,11 +45,11 @@ export function toJsonbParam(value: unknown): string | null {
 }
 
 export abstract class PostgresTransportBase {
-    protected readonly logger: Logger;
-
     readonly queue: string;
 
     readonly pollIntervalMs: number;
+
+    protected readonly logger: Logger;
 
     protected constructor(name: string, options: PostgresTransportOptions) {
         this.logger = new Logger(name);

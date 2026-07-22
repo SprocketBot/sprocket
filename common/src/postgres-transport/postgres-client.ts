@@ -2,6 +2,7 @@ import {ClientProxy} from "@nestjs/microservices";
 import type {ReadPacket, WritePacket} from "@nestjs/microservices";
 import {randomUUID} from "crypto";
 
+import {closeSharedPostgresPool} from "../postgres";
 import {
     PostgresTransportBase,
     PostgresTransportOptions,
@@ -30,6 +31,7 @@ export class PostgresClientProxy extends ClientProxy {
     }
 
     async close(): Promise<void> {
+        await closeSharedPostgresPool();
         this.connected = false;
     }
 
@@ -38,8 +40,10 @@ export class PostgresClientProxy extends ClientProxy {
         let stopped = false;
 
         this.insertRequest(id, packet)
-            .then(() => this.waitForResponse(id, callback, () => stopped))
-            .catch(err => callback({err, isDisposed: true}));
+            .then(async () => this.waitForResponse(id, callback, () => stopped))
+            .catch((err: unknown) => {
+                callback({err: err instanceof Error ? err : new Error(String(err)), isDisposed: true});
+            });
 
         return () => {
             stopped = true;
@@ -54,7 +58,7 @@ export class PostgresClientProxy extends ClientProxy {
 
     private async insertRequest(id: string, packet: ReadPacket): Promise<void> {
         await this.connect();
-        const pattern = this.normalizePattern(packet.pattern);
+        const pattern = this.normalizePattern(packet.pattern as string);
         await this.transport.pool.query(
             `
                 INSERT INTO sprocket.platform_rpc_queue (id, queue, pattern, payload)

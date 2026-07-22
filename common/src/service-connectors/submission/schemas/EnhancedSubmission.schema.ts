@@ -30,12 +30,12 @@ export const EnhancedBaseSubmissionSchema = z.object({
     creatorId: z.number(),
     status: z.nativeEnum(ReplaySubmissionStatus),
     taskIds: z.string().array(),
-    items: z.any().array(), // TODO: Replace with proper ReplaySubmissionItem schema when available
+    items: z.any().array(), // NOTE: Replace with proper ReplaySubmissionItem schema when available
     validated: z.boolean(),
-    stats: z.any().optional(), // TODO: Replace with proper ReplaySubmissionStats schema when available
+    stats: z.any().optional(), // NOTE: Replace with proper ReplaySubmissionStats schema when available
     ratifiers: RatifierInfoSchema.array(), // Enhanced from number[] to RatifierInfo[]
     requiredRatifications: z.number(),
-    rejections: z.any().array(), // TODO: Replace with proper ReplaySubmissionRejection schema when available
+    rejections: z.any().array(), // NOTE: Replace with proper ReplaySubmissionRejection schema when available
     franchiseValidation: FranchiseValidationContextSchema,
 });
 

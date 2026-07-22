@@ -115,6 +115,7 @@ export class RmqService {
      * @param daysToKeep Number of days to keep events (default: 7)
      * @returns Number of deleted events
      */
+    // eslint-disable-next-line @typescript-eslint/member-ordering
     async cleanupOldEvents(daysToKeep: number = 7): Promise<number> {
         const result = await this.postgres.query(
             `
