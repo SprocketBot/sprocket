@@ -1,3 +1,4 @@
+import type {PostgresService} from "@sprocketbot/common";
 import {ScrimMode, ScrimStatus} from "@sprocketbot/common";
 
 import {ScrimPostgresRepository} from "./scrim-postgres.repository";
@@ -54,7 +55,7 @@ describe("ScrimPostgresRepository", () => {
                     checked_in: true,
                 } ],
             });
-        const repo = new ScrimPostgresRepository({query} as any);
+        const repo = new ScrimPostgresRepository({query} as unknown as PostgresService);
 
         const scrim = await repo.findBySubmissionId("scrim-submission");
 
@@ -97,8 +98,8 @@ describe("ScrimPostgresRepository", () => {
 
     it("persists a created scrim through normalized scrim and player rows", async () => {
         const client = {query: jest.fn().mockResolvedValue({rows: [] })};
-        const transaction = jest.fn(async cb => cb(client));
-        const repo = new ScrimPostgresRepository({transaction} as any);
+        const transaction = jest.fn(async (cb: (value: typeof client) => Promise<unknown>) => cb(client));
+        const repo = new ScrimPostgresRepository({transaction} as unknown as PostgresService);
 
         const scrim = await repo.createScrim({
             authorId: 1,
@@ -201,7 +202,7 @@ describe("ScrimPostgresRepository", () => {
                     checked_in: true,
                 } ],
             });
-        const repo = new ScrimPostgresRepository({query} as any);
+        const repo = new ScrimPostgresRepository({query} as unknown as PostgresService);
 
         const scrims = await repo.findAll();
 
@@ -224,7 +225,7 @@ describe("ScrimPostgresRepository", () => {
 
     it("pushes scrim list filters into the Postgres query", async () => {
         const query = jest.fn().mockResolvedValue({rows: [] });
-        const repo = new ScrimPostgresRepository({query} as any);
+        const repo = new ScrimPostgresRepository({query} as unknown as PostgresService);
 
         await repo.findAll({
             organizationId: 2,
@@ -243,7 +244,7 @@ describe("ScrimPostgresRepository", () => {
 
     it("updates status in the scrim table and stamps popped time for popped scrims", async () => {
         const query = jest.fn().mockResolvedValue({rows: [] });
-        const repo = new ScrimPostgresRepository({query} as any);
+        const repo = new ScrimPostgresRepository({query} as unknown as PostgresService);
 
         await repo.updateStatus("00000000-0000-4000-8000-000000000001", ScrimStatus.POPPED);
 

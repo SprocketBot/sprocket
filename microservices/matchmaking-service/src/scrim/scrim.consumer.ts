@@ -7,13 +7,14 @@ import {ScrimService} from "./scrim.service";
 import {ScrimCrudService} from "./scrim-crud/scrim-crud.service";
 
 // Configurable via SCRIM_CLOCK_INTERVAL_MS env var (default: 2 minutes)
-const SCRIM_CLOCK_INTERVAL_MS = parseInt(process.env.SCRIM_CLOCK_INTERVAL_MS || "120000", 10);
+// eslint-disable-next-line no-undef
+const SCRIM_CLOCK_INTERVAL_MS = Number(process.env.SCRIM_CLOCK_INTERVAL_MS ?? "120000");
 
 @Injectable()
 export class ScrimConsumer implements OnApplicationBootstrap, OnModuleDestroy {
     private readonly logger = new Logger(ScrimConsumer.name);
 
-    private interval?: NodeJS.Timeout;
+    private interval?: ReturnType<typeof setInterval>;
 
     constructor(private readonly scrimService: ScrimService, private readonly scrimCrudService: ScrimCrudService) {}
 

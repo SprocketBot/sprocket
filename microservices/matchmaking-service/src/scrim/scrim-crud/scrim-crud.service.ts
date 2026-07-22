@@ -7,8 +7,8 @@ import type {
     ScrimGame,
     ScrimPlayer,
     ScrimSettings,
+    ScrimStatus,
 } from "@sprocketbot/common";
-import type {ScrimStatus} from "@sprocketbot/common";
 
 import {ScrimPostgresRepository} from "../persistence/scrim-postgres.repository";
 import {words} from "./words";

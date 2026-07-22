@@ -88,13 +88,13 @@ export class ScrimPostgresRepository {
             createdAt: at,
             updatedAt: at,
             status: ScrimStatus.PENDING,
-            authorId,
-            organizationId,
-            gameModeId,
-            skillGroupId,
+            authorId: authorId,
+            organizationId: organizationId,
+            gameModeId: gameModeId,
+            skillGroupId: skillGroupId,
             players: player ? [player] : [],
             games: [],
-            settings,
+            settings: settings,
         };
         await this.saveScrim(scrim);
         return scrim;
@@ -115,17 +115,18 @@ export class ScrimPostgresRepository {
             createdAt: at,
             updatedAt: at,
             status: ScrimStatus.PENDING,
-            authorId,
-            organizationId,
-            gameModeId,
-            skillGroupId,
+            authorId: authorId,
+            organizationId: organizationId,
+            gameModeId: gameModeId,
+            skillGroupId: skillGroupId,
             players: [...players],
             games: [],
-            settings,
+            settings: settings,
         };
 
         for (let i = 0;i < numRounds;i++) {
             const now = new Date();
+            const placeholderDurationMs = 30 * 60 * 1000;
             scrim.games?.push({
                 teams: ["orange", "blue"].map(() => ({
                     players: [
@@ -133,7 +134,7 @@ export class ScrimPostgresRepository {
                             id: 1,
                             name: "Placeholder",
                             joinedAt: now,
-                            leaveAt: new Date(now.getTime() + 30 * 60 * 1000),
+                            leaveAt: new Date(now.getTime() + placeholderDurationMs),
                         },
                     ],
                 })),
@@ -222,21 +223,21 @@ export class ScrimPostgresRepository {
         const gamesByScrim = new Map<string, ScrimGame[]>();
         
         for (const player of allPlayers) {
-            const list = playersByScrim.get(player.scrimId) || [];
+            const list = playersByScrim.get(player.scrimId) ?? [];
             list.push(player.player);
             playersByScrim.set(player.scrimId, list);
         }
         
         for (const game of allGames) {
-            const list = gamesByScrim.get(game.scrimId) || [];
+            const list = gamesByScrim.get(game.scrimId) ?? [];
             list.push(game.game);
             gamesByScrim.set(game.scrimId, list);
         }
         
         // Build scrim objects using preloaded data
         return result.rows.map(row => {
-            const players = playersByScrim.get(row.id) || [];
-            const games = gamesByScrim.get(row.id) || [];
+            const players = playersByScrim.get(row.id) ?? [];
+            const games = gamesByScrim.get(row.id) ?? [];
             
             return this.buildScrim(row, players, games);
         });
@@ -265,20 +266,20 @@ export class ScrimPostgresRepository {
         const gamesByScrim = new Map<string, ScrimGame[]>();
         
         for (const player of allPlayers) {
-            const list = playersByScrim.get(player.scrimId) || [];
+            const list = playersByScrim.get(player.scrimId) ?? [];
             list.push(player.player);
             playersByScrim.set(player.scrimId, list);
         }
         
         for (const game of allGames) {
-            const list = gamesByScrim.get(game.scrimId) || [];
+            const list = gamesByScrim.get(game.scrimId) ?? [];
             list.push(game.game);
             gamesByScrim.set(game.scrimId, list);
         }
         
         return result.rows.map(row => {
-            const players = playersByScrim.get(row.id) || [];
-            const games = gamesByScrim.get(row.id) || [];
+            const players = playersByScrim.get(row.id) ?? [];
+            const games = gamesByScrim.get(row.id) ?? [];
             return this.buildScrim(row, players, games);
         });
     }
@@ -435,8 +436,8 @@ export class ScrimPostgresRepository {
             timeoutJobId: row.timeout_job_id ? Number(row.timeout_job_id) : undefined,
             groupInviteOpensAt: row.group_invite_opens_at ?? undefined,
             poppedAt: row.popped_at ?? undefined,
-            players,
-            games,
+            players: players,
+            games: games,
             lobby: row.lobby_name && row.lobby_password
                 ? {name: row.lobby_name, password: row.lobby_password}
                 : undefined,
@@ -744,7 +745,7 @@ export class ScrimPostgresRepository {
         // Group players by game_id for efficient lookup
         const playersByGame = new Map<number, ScrimGamePlayerRow[]>();
         for (const row of playerResult.rows) {
-            const list = playersByGame.get(row.game_id) || [];
+            const list = playersByGame.get(row.game_id) ?? [];
             list.push(row);
             playersByGame.set(row.game_id, list);
         }
@@ -753,7 +754,7 @@ export class ScrimPostgresRepository {
         const gamesByScrim = new Map<string, ScrimGame[]>();
         
         for (const gameRow of gameResult.rows) {
-            const players = playersByGame.get(gameRow.id) || [];
+            const players = playersByGame.get(gameRow.id) ?? [];
             const teamCount = Math.max(-1, ...players.map(row => row.team_index)) + 1;
             
             const game: ScrimGame = {
@@ -764,7 +765,7 @@ export class ScrimPostgresRepository {
                 })),
             };
             
-            const list = gamesByScrim.get(gameRow.scrim_id) || [];
+            const list = gamesByScrim.get(gameRow.scrim_id) ?? [];
             list.push(game);
             gamesByScrim.set(gameRow.scrim_id, list);
         }
@@ -798,8 +799,8 @@ export class ScrimPostgresRepository {
             timeoutJobId: row.timeout_job_id ? Number(row.timeout_job_id) : undefined,
             groupInviteOpensAt: row.group_invite_opens_at ?? undefined,
             poppedAt: row.popped_at ?? undefined,
-            players,
-            games,
+            players: players,
+            games: games,
             lobby: row.lobby_name && row.lobby_password
                 ? {name: row.lobby_name, password: row.lobby_password}
                 : undefined,
