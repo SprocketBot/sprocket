@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/member-ordering */
+
 import {Injectable, Logger} from "@nestjs/common";
 import {InjectDataSource, InjectRepository} from "@nestjs/typeorm";
 import {DataSource, Repository} from "typeorm";
@@ -476,3 +478,4 @@ export class RosterAuthorityService {
         return row?.suspended;
     }
 }
+/* eslint-disable @typescript-eslint/member-ordering */

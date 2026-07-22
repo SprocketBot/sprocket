@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument */
+
 import {UseGuards} from "@nestjs/common";
 import {Mutation, Resolver} from "@nestjs/graphql";
 import {InjectDataSource} from "@nestjs/typeorm";
@@ -8,7 +10,6 @@ import {GqlJwtGuard} from "../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
 import {EloConsumer} from "./elo.consumer";
 import {EloService} from "./elo.service";
-import type {NewPlayerBySalary} from "./elo-connector";
 import {EloConnectorService, EloEndpoint} from "./elo-connector";
 
 @Resolver()

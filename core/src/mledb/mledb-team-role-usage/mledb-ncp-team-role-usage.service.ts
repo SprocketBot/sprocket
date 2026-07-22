@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common";
 import {InjectDataSource, InjectRepository} from "@nestjs/typeorm";
 import {
-    DataSource, In, Repository,
+    DataSource, Repository,
 } from "typeorm";
 
 import {FranchiseProfile} from "$db/franchise/franchise_profile/franchise_profile.model";

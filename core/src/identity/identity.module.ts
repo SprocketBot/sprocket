@@ -1,8 +1,7 @@
 import {forwardRef, Module} from "@nestjs/common";
 import {JwtModule} from "@nestjs/jwt";
-import {PassportModule} from "@nestjs/passport";
 import {TypeOrmModule} from "@nestjs/typeorm";
-import {AnalyticsModule, config} from "@sprocketbot/common";
+import {config} from "@sprocketbot/common";
 
 import {UserOrgTeamPermission} from "$db/identity/user_org_team_permission/user_org_team_permission.model";
 

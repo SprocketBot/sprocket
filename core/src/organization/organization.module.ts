@@ -11,9 +11,8 @@ import {MledbInterfaceModule} from "../mledb";
 import {UtilModule} from "../util/util.module";
 import {MemberPubSub} from "./constants";
 import {
-    MemberController, MemberResolver, MemberService,
+    MemberController, MemberFixService, MemberResolver, MemberService,
 } from "./member";
-import {MemberFixService} from "./member";
 import {MemberModResolver} from "./member/member.mod.resolver";
 import {MemberPlatformAccountService} from "./member-platform-account";
 import {

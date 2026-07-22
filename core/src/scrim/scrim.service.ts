@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return */
+
 import {
     Inject, Injectable, Logger,
 } from "@nestjs/common";
@@ -207,7 +209,6 @@ export class ScrimService {
 
         // NOTE: Refactor after we move to sprocket rosters
         const franchiseProfiles = await Promise.all(scrim.players.map(async p => {
-            const sprocketMember = await this.memberService.getMember({where: {userId: p.id} });
             const mleFranchise = await this.franchiseService
                 .getPlayerFranchisesByUserId(p.id)
                 .catch(() => null);

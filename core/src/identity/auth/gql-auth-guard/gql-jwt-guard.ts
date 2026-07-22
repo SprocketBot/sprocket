@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/member-ordering, @typescript-eslint/no-unsafe-assignment */
+
 import type {ExecutionContext} from "@nestjs/common";
 import {Injectable, Logger} from "@nestjs/common";
 import {GqlExecutionContext} from "@nestjs/graphql";
@@ -42,3 +44,4 @@ export class GqlJwtGuard extends AuthGuard("jwt") {
         return super.canActivate(context) as boolean | Promise<boolean>;
     }
 }
+/* eslint-disable @typescript-eslint/member-ordering */

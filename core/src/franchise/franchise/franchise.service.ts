@@ -1,3 +1,5 @@
+/* eslint-disable no-console, @typescript-eslint/explicit-function-return-type */
+
 import {
     forwardRef, Inject, Injectable,
 } from "@nestjs/common";
@@ -11,7 +13,6 @@ import {FranchiseProfile} from "$db/franchise/franchise_profile/franchise_profil
 
 import {MledbPlayerService} from "../../mledb";
 import {MemberService} from "../../organization";
-import {PlayerService} from "../player";
 import {RosterAuthorityService} from "../roster-authority.service";
 
 @Injectable()

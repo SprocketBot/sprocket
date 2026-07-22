@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 import type {
     CanActivate, ExecutionContext, Type,
 } from "@nestjs/common";

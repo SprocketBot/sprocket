@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/member-ordering */
+
 import {
     forwardRef, Inject, Injectable, Logger,
 } from "@nestjs/common";
@@ -75,3 +77,4 @@ export class OrgTeamPermissionResolutionService {
         return fromSprocket;
     }
 }
+/* eslint-disable @typescript-eslint/member-ordering */

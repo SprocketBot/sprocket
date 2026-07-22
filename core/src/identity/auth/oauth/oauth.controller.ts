@@ -20,8 +20,7 @@ import {OrgTeamPermissionResolutionService} from "../../user-org-team-permission
 import {DiscordAuthGuard} from "./guards";
 import {JwtRefreshGuard} from "./guards/jwt-refresh.guard";
 import {OauthService} from "./oauth.service";
-import type {AccessToken} from "./types";
-import type {UserPayload} from "./types";
+import type {AccessToken, UserPayload} from "./types";
 import type {AuthPayload} from "./types/payload.type";
 
 @Controller()

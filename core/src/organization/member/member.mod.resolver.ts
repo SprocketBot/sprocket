@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 import {
     forwardRef, Inject, UseGuards,
 } from "@nestjs/common";

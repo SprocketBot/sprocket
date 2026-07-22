@@ -48,15 +48,15 @@ export class SprocketRatingService {
 
         if (goals + assists + shots + saves + goals_against + shots_against > 0) {
             const opi_raw
-        = OPI_goal_w * (goals / G_2s)
-        + OPI_assist_w * (assists / A_2s)
-        + OPI_shot_w * (shots / Sh_2s);
+        = (OPI_goal_w * (goals / G_2s))
+        + (OPI_assist_w * (assists / A_2s))
+        + (OPI_shot_w * (shots / Sh_2s));
             const opi = 100.0 / (1 + Math.exp(OPI_beta * ((opi_raw - xOPI_2s) / yOPI_2s)));
 
             const dpi_raw
-        = DPI_goal_w * (2.0 - goals_against / 2.0 / G_2s)
-        + DPI_saves_w * (saves / Sv_2s)
-        + DPI_shot_w * (2.0 - shots_against / 2.0 / Sh_2s);
+        = (DPI_goal_w * (2.0 - (goals_against / 2.0 / G_2s)))
+        + (DPI_saves_w * (saves / Sv_2s))
+        + (DPI_shot_w * (2.0 - (shots_against / 2.0 / Sh_2s)));
             const dpi = 100.0 / (1 + Math.exp(DPI_beta * ((dpi_raw - xDPI_2s) / yDPI_2s)));
 
             const gpi = (opi + dpi) / 2.0;
@@ -103,15 +103,15 @@ export class SprocketRatingService {
 
         if (goals + assists + shots + saves + goals_against + shots_against > 0) {
             const opi_raw
-        = OPI_goal_w * (goals / G_3s)
-        + OPI_assist_w * (assists / A_3s)
-        + OPI_shot_w * (shots / Sh_3s);
+        = (OPI_goal_w * (goals / G_3s))
+        + (OPI_assist_w * (assists / A_3s))
+        + (OPI_shot_w * (shots / Sh_3s));
             const opi = 100.0 / (1 + Math.exp(OPI_beta * ((opi_raw - xOPI_3s) / yOPI_3s)));
 
             const dpi_raw
-        = DPI_goal_w * (2.0 - goals_against / 3.0 / G_3s)
-        + DPI_saves_w * (saves / Sv_3s)
-        + DPI_shot_w * (2.0 - shots_against / 3.0 / Sh_3s);
+        = (DPI_goal_w * (2.0 - (goals_against / 3.0 / G_3s)))
+        + (DPI_saves_w * (saves / Sv_3s))
+        + (DPI_shot_w * (2.0 - (shots_against / 3.0 / Sh_3s)));
             const dpi = 100.0 / (1 + Math.exp(DPI_beta * ((dpi_raw - xDPI_3s) / yDPI_3s)));
 
             const gpi = (opi + dpi) / 2.0;

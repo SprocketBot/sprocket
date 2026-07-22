@@ -356,7 +356,7 @@ export class MatchService {
         winningTeamInput?: Team,
         invalidation?: Invalidation,
     ): Promise<string> {
-        this.logger.verbose(`Begin markReplaysNcp: replayIds=${replayIds}, isNcp=${isNcp}, winningTeam=${winningTeamInput}`);
+        this.logger.verbose(`Begin markReplaysNcp: replayIds=${replayIds}, isNcp=${isNcp}, winningTeam=${winningTeamInput ? JSON.stringify(winningTeamInput) : "none"}`);
 
         // Find the winning team and it's franchise profile, since that's where
         // team names are in Sprocket.
@@ -520,9 +520,9 @@ export class MatchService {
     calculateMVPR(p: BallchasingPlayer): number {
         return (
             p.stats.core.goals
-      + p.stats.core.assists * 0.75
-      + p.stats.core.saves * 0.6
-      + p.stats.core.shots / 3
+      + (p.stats.core.assists * 0.75)
+      + (p.stats.core.saves * 0.6)
+      + (p.stats.core.shots / 3)
         );
     }
 

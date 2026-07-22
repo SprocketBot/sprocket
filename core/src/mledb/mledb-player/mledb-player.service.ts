@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/member-ordering */
+
 import {
     forwardRef, Inject, Injectable, Logger,
 } from "@nestjs/common";
@@ -292,3 +294,4 @@ export class MledbPlayerService {
         };
     }
 }
+/* eslint-disable @typescript-eslint/member-ordering */

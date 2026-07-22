@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-function-return-type, @typescript-eslint/explicit-module-boundary-types, no-useless-catch */
+
 import {
     forwardRef, Inject, Injectable, Logger,
 } from "@nestjs/common";

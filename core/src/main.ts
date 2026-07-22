@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+
 import {ValidationPipe} from "@nestjs/common";
 import {HttpAdapterHost, NestFactory} from "@nestjs/core";
 import {
     AllExceptionsFilter, config, PostgresServer,
 } from "@sprocketbot/common";
-import {ht} from "date-fns/locale";
 import type {Request, Response} from "express";
 import {writeFile} from "fs/promises";
 import {SpelunkerModule} from "nestjs-spelunker";

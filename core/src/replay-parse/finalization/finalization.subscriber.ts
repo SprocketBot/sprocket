@@ -1,5 +1,5 @@
 import {Injectable, Logger} from "@nestjs/common";
-import type {ReplaySubmission, Scrim} from "@sprocketbot/common";
+import type {Scrim} from "@sprocketbot/common";
 import {
     EventsService,
     EventTopic,

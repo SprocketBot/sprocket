@@ -3,7 +3,7 @@ import {
 } from "@nestjs/graphql";
 
 import {MledbFaPresentationService} from "./mledb-fa.presentation.service";
-import {MlePresentationFaList, MlePresentationFreeAgent} from "./mledb-fa.presentation.types";
+import {MlePresentationFaList} from "./mledb-fa.presentation.types";
 
 @Resolver()
 export class MledbFaPresentationResolver {

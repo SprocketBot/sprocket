@@ -1,16 +1,17 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call */
+
 import {Injectable, Logger} from "@nestjs/common";
 import {InjectDataSource} from "@nestjs/typeorm";
 import type {
     BallchasingPlayer,
     BallchasingResponse,
     BallchasingTeam,
-    CarballResponse,
     Scrim,
 } from "@sprocketbot/common";
 import {
-    BallchasingResponseSchema, CarballResponseSchema, Parser, ProgressStatus,
+    BallchasingResponseSchema,     CarballConverterService,
+    CarballResponseSchema, Parser, ProgressStatus,
 } from "@sprocketbot/common";
-import {CarballConverterService} from "@sprocketbot/common";
 import type {EntityManager} from "typeorm";
 import {DataSource} from "typeorm";
 import type {QueryDeepPartialEntity} from "typeorm/query-builder/QueryPartialEntity";
@@ -215,11 +216,9 @@ export class RocketLeagueFinalizationService {
             await qr.startTransaction();
             const em = qr.manager;
             const match = await this.matchService.getMatchById(submission.matchId, {
-                matchParent: {fixture: {homeFranchise: {organization: true} } },
+                matchParent: {fixture: {homeFranchise: true} },
                 gameMode: true,
             });
-            const organization = match.matchParent.fixture.homeFranchise.organization;
-
             await this.saveMatchDependents(submission, match, false, em);
 
             const mleMatch = await this.mledbFinalizationService.saveMatch(submission, submission.id, em);

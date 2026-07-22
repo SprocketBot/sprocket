@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/member-ordering */
+
 import {
     forwardRef, Inject, Injectable, Logger,
 } from "@nestjs/common";
@@ -24,7 +26,6 @@ import type {
 } from "typeorm";
 import {DataSource, Repository} from "typeorm";
 
-import {GameSkillGroup} from "../../database/franchise/game_skill_group/game_skill_group.model";
 import {Player} from "../../database/franchise/player/player.model";
 import type {Platform} from "../../database/game/platform/platform.model";
 import {User} from "../../database/identity/user/user.model";
@@ -53,8 +54,7 @@ import {MemberService} from "../../organization/member/member.service";
 import {MemberPlatformAccountService} from "../../organization/member-platform-account";
 import {GameSkillGroupService} from "../game-skill-group";
 import {RosterAuthorityService} from "../roster-authority.service";
-import type {RankdownJwtPayload} from "./player.types";
-import type {CreatePlayerTuple} from "./player.types";
+import type {CreatePlayerTuple, RankdownJwtPayload} from "./player.types";
 
 @Injectable()
 export class PlayerService {
@@ -1122,7 +1122,7 @@ export class PlayerService {
                 request: data,
             };
         } catch (e) {
-            this.logger.error(`getPlayerByGameAndPlatformPayload failed: ${e}`);
+            this.logger.error(`getPlayerByGameAndPlatformPayload failed: ${e instanceof Error ? e.message : JSON.stringify(e)}`);
             return {
                 success: false,
                 request: data,
@@ -1497,3 +1497,4 @@ export class PlayerService {
         await this.memberProfileRepository.save(member.profile);
     }
 }
+/* eslint-disable @typescript-eslint/member-ordering */

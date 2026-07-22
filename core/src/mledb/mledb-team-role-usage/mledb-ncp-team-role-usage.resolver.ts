@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/member-ordering, @typescript-eslint/no-misused-promises */
+
 import {
     BadRequestException, Logger, UseGuards,
 } from "@nestjs/common";
@@ -6,7 +8,6 @@ import {
 } from "@nestjs/graphql";
 import type {FileUpload} from "graphql-upload";
 import {GraphQLUpload} from "graphql-upload";
-import {OperationError} from "src/franchise/player/player.types";
 import {buffer as streamToBuffer} from "stream/consumers";
 
 import {MLE_OrganizationTeam} from "../../database/mledb";
@@ -19,7 +20,6 @@ import {MledbNcpTeamRoleUsageService} from "./mledb-ncp-team-role-usage.service"
 import {ncpTeamRoleUsageCsvRowSchema} from "./ncp-team-role-usage.csv-parse";
 import {
     NcpRoleUsageBulkResult,
-    NcpRoleUsageBulkSuccess,
     NcpTeamRoleInput,
     schemaToInput,
 } from "./ncp-team-role-usage.types";
@@ -69,7 +69,7 @@ export class MledbNcpTeamRoleUsageResolver {
         const records = parseAndValidateCsv(csv, ncpTeamRoleUsageCsvRowSchema);
         for (const error of records.errors) {
             this.logger.error(`Error in CSV: Row ${error.row}, Field: ${error.field || "N/A"}, Value: ${
-                error.value || "N/A"
+                JSON.stringify(error.value) ?? "N/A"
             }, Message: ${error.message}`);
         }
         let sumRecords = 0;
@@ -92,13 +92,13 @@ export class MledbNcpTeamRoleUsageResolver {
     private async readGqlUploadToUtf8(file: Promise<FileUpload> | FileUpload): Promise<string> {
         const buf = await Promise.resolve(file).then(async f => {
             const upload = await this.resolveGraphqlFileUpload(f);
-            return streamToBuffer(upload.createReadStream() as unknown as NodeJS.ReadableStream);
+            return streamToBuffer(upload.createReadStream() as Parameters<typeof streamToBuffer>[0]);
         });
         return buf.toString("utf8");
     }
 
     private async resolveGraphqlFileUpload(f: unknown): Promise<FileUpload> {
-        if (f != null && typeof (f as FileUpload).createReadStream === "function") {
+        if (f !== null && f !== undefined && typeof (f as FileUpload).createReadStream === "function") {
             return f as FileUpload;
         }
         const wrapped = f as {promise?: Promise<FileUpload>;};
@@ -108,3 +108,4 @@ export class MledbNcpTeamRoleUsageResolver {
         throw new BadRequestException("Invalid file upload: missing createReadStream (check multipart map variable names)");
     }
 }
+/* eslint-disable @typescript-eslint/member-ordering */

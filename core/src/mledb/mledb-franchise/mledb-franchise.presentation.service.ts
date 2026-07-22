@@ -3,7 +3,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {ILike, Repository} from "typeorm";
 
 import {
-    MLE_Player, MLE_Team, MLE_TeamBranding, MLE_TeamToCaptain,
+    MLE_Player, MLE_Team, MLE_TeamToCaptain,
 } from "../../database/mledb";
 
 interface FranchiseStaff {

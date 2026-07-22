@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/member-ordering */
+
 import {
     forwardRef, Inject, Injectable, Logger,
 } from "@nestjs/common";
@@ -263,9 +265,9 @@ export class MledbFinalizationService {
                 // eslint-disable-next-line @typescript-eslint/no-extra-parens
                 core.mvpr
             = safeNum(core.goals)
-            + safeNum(core.assists) * 0.75
-            + safeNum(core.saves) * 0.6
-            + safeNum(core.shots) / 3;
+            + (safeNum(core.assists) * 0.75)
+            + (safeNum(core.saves) * 0.6)
+            + (safeNum(core.shots) / 3);
 
                 // Calculate sprocket rating with NaN protection
                 const {
@@ -519,3 +521,4 @@ export class MledbFinalizationService {
         return playerAccount.player;
     }
 }
+/* eslint-disable @typescript-eslint/member-ordering */

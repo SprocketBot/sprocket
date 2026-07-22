@@ -1,8 +1,9 @@
 import {
     createUnionType, Field, InputType, Int, ObjectType,
 } from "@nestjs/graphql";
-import {OperationError} from "src/franchise/player/player.types";
 import {z} from "zod";
+
+import {OperationError} from "../../franchise/player/player.types";
 
 /** Total `mledb.team_role_usage` rows inserted for the CSV (per slot × repeat factor). */
 @ObjectType()

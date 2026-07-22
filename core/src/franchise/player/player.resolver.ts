@@ -5,6 +5,7 @@ import {
     Args,
     Field,
     Float,
+    GraphQLISODateTime,
     InputType,
     Int,
     Mutation,
@@ -12,7 +13,6 @@ import {
     Resolver,
     Root,
 } from "@nestjs/graphql";
-import {GraphQLISODateTime} from "@nestjs/graphql";
 import {InjectRepository} from "@nestjs/typeorm";
 import {
     EventsService,
@@ -30,16 +30,11 @@ import type {z} from "zod";
 
 import type {GameSkillGroup} from "../../database/franchise/game_skill_group/game_skill_group.model";
 import {Player} from "../../database/franchise/player/player.model";
-import {User} from "../../database/identity/user/user.model";
 import {UserAuthenticationAccount} from "../../database/identity/user_authentication_account/user_authentication_account.model";
 import {UserAuthenticationAccountType} from "../../database/identity/user_authentication_account/user_authentication_account_type.enum";
 import {
-    League,
-    LeagueOrdinals,
     MLE_OrganizationTeam,
     MLE_Platform,
-    ModePreference,
-    Timezone,
 } from "../../database/mledb";
 import {Member} from "../../database/organization/member/member.model";
 import type {ManualSkillGroupChange} from "../../elo/elo-connector";
@@ -140,7 +135,7 @@ export class PlayerResolver {
         try {
             return await this.eligibilityService.getEligibilityPointsForPlayer(player.id);
         } catch (error) {
-            this.logger.warn(`Failed to get scrim points for player ${player.id}: ${error}`);
+            this.logger.warn(`Failed to get scrim points for player ${player.id}: ${error instanceof Error ? error.message : JSON.stringify(error)}`);
             return null;
         }
     }
@@ -150,7 +145,7 @@ export class PlayerResolver {
         try {
             return await this.eligibilityService.getEligibilityEndDate(player.id);
         } catch (error) {
-            this.logger.warn(`Failed to get eligibility end date for player ${player.id}: ${error}`);
+            this.logger.warn(`Failed to get eligibility end date for player ${player.id}: ${error instanceof Error ? error.message : JSON.stringify(error)}`);
             return null;
         }
     }
@@ -170,14 +165,14 @@ export class PlayerResolver {
             const csvs = await Promise.all(files.map(async f => f.then(async _f => readToString(_f.createReadStream()))));
 
             this.logger.debug("Parsing and validating CSV files");
-            const results = await Promise.all(csvs.map(async csv => {
+            await Promise.all(csvs.map(async csv => {
                 this.logger.debug(`Parsing and validating a CSV file: ${csv.substring(0, 50)}...`);
                 const records = parseAndValidateCsv(csv, changeSkillGroupSchema);
                 this.logger.debug(`Processing ${records.data.length} records from CSV`);
                 this.logger.debug(`Found ${records.errors.length} errors in CSV`);
                 for (const error of records.errors) {
                     this.logger.error(`Error in CSV: Row ${error.row}, Field: ${error.field || "N/A"}, Value: ${
-                        error.value || "N/A"
+                        JSON.stringify(error.value) ?? "N/A"
                     }, Message: ${error.message}`);
                 }
                 this.logger.debug(`Processing ${records.data.length} valid records from CSV`);
@@ -192,14 +187,14 @@ export class PlayerResolver {
                         );
                         this.logger.debug(`Successfully processed player ID ${record.playerId}`);
                     } catch (error) {
-                        this.logger.error(`Error processing player ID ${record.playerId}:`, error);
+                        this.logger.error(`Error processing player ID ${record.playerId}:`, error instanceof Error ? error.message : JSON.stringify(error));
                     }
                 }
             }));
 
             return new OperationError("Bulk skill group change completed successfully", 200);
         } catch (error) {
-            this.logger.error(`Error in bulk skill group change: ${error}`);
+            this.logger.error(`Error in bulk skill group change: ${error instanceof Error ? error.message : JSON.stringify(error)}`);
             return new OperationError(
                 error instanceof Error ? error.message : "Failed to process bulk skill group change",
                 500,
@@ -361,7 +356,7 @@ export class PlayerResolver {
                 },
             });
         } catch (error) {
-            this.logger.error(`Error changing player skill group: ${error}`);
+            this.logger.error(`Error changing player skill group: ${error instanceof Error ? error.message : JSON.stringify(error)}`);
             return new OperationError(
                 error instanceof Error ? error.message : "Failed to change player skill group",
                 500,
@@ -386,7 +381,7 @@ export class PlayerResolver {
             const result = await this.playerService.createPlayer(memberId, skillGroupId, salary);
             return result;
         } catch (error) {
-            this.logger.error(`Error creating player: ${error}`);
+            this.logger.error(`Error creating player: ${error instanceof Error ? error.message : JSON.stringify(error)}`);
             return new OperationError(
                 error instanceof Error ? error.message : "Failed to create player",
                 500,
@@ -417,10 +412,10 @@ export class PlayerResolver {
                 this.logger.error(`Errors encountered during CSV parsing: ${parsed.errors.length} errors found.`);
                 for (const error of parsed.errors) {
                     this.logger.error(`Error in CSV: Row ${error.row}, Field: ${error.field || "N/A"}, Value: ${
-                        error.value || "N/A"
+                        JSON.stringify(error.value) ?? "N/A"
                     }, Message: ${error.message}`);
                     errors.push(`Row ${error.row}, Field: ${error.field || "N/A"}, Value: ${
-                        error.value || "N/A"
+                        JSON.stringify(error.value) ?? "N/A"
                     }, Message: ${error.message}`);
                 }
             }
@@ -480,7 +475,7 @@ export class PlayerResolver {
             // Fallback - return success message as OperationError
             return new OperationError("User intake completed successfully", 200);
         } catch (error) {
-            this.logger.error(`Error in intakeUser: ${error}`);
+            this.logger.error(`Error in intakeUser: ${error instanceof Error ? error.message : JSON.stringify(error)}`);
             return new OperationError(
                 error instanceof Error ? error.message : "Failed to intake user",
                 500,
@@ -504,7 +499,7 @@ export class PlayerResolver {
             await this.playerService.swapDiscordAccounts(newAcct, oldAcct);
             return new OperationError("Discord accounts swapped successfully", 200);
         } catch (error) {
-            this.logger.error(`Error swapping Discord accounts: ${error}`);
+            this.logger.error(`Error swapping Discord accounts: ${error instanceof Error ? error.message : JSON.stringify(error)}`);
             return new OperationError(
                 error instanceof Error ? error.message : "Failed to swap Discord accounts",
                 500,
@@ -528,7 +523,7 @@ export class PlayerResolver {
             await this.playerService.forcePlayerToTeam(mleid, newTeam);
             return new OperationError("Player forced to team successfully", 200);
         } catch (error) {
-            this.logger.error(`Error forcing player to team: ${error}`);
+            this.logger.error(`Error forcing player to team: ${error instanceof Error ? error.message : JSON.stringify(error)}`);
             return new OperationError(
                 error instanceof Error ? error.message : "Failed to force player to team",
                 500,
@@ -552,7 +547,7 @@ export class PlayerResolver {
             await this.playerService.changePlayerName(mleid, newName);
             return new OperationError("Player name changed successfully", 200);
         } catch (error) {
-            this.logger.error(`Error changing player name: ${error}`);
+            this.logger.error(`Error changing player name: ${error instanceof Error ? error.message : JSON.stringify(error)}`);
             return new OperationError(
                 error instanceof Error ? error.message : "Failed to change player name",
                 500,
