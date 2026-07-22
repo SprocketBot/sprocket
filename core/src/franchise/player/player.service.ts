@@ -994,7 +994,7 @@ export class PlayerService {
         await this.syncRosterAuthorityAfterMleSave(player.id);
 
         // Move player to Waiver Wire
-        // TODO fix later when we abstract away from MLE
+        // NOTE fix later when we abstract away from MLE
         await this.eventsService.publish(EventTopic.PlayerTeamChanged, {
             organizationId: sprocketPlayer.member.organizationId,
             discordId: discId.accountId,

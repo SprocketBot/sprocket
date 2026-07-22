@@ -54,7 +54,7 @@ export class SubmissionRejectionResolver {
     async playerName(@Root() rejection: SubmissionRejection): Promise<string> {
         if (rejection.playerName) return rejection.playerName;
         if (rejection.playerId === REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID) return "Sprocket";
-        // TODO: Is it possible to map to an organization from here?
+        // NOTE: Is it possible to map to an organization from here?
 
         const user = await this.userService.getUserById(parseInt(rejection.playerId.toString()));
         return user.profile.displayName;

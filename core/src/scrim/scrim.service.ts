@@ -205,7 +205,7 @@ export class ScrimService {
             },
         });
 
-        // TODO: Refactor after we move to sprocket rosters
+        // NOTE: Refactor after we move to sprocket rosters
         const franchiseProfiles = await Promise.all(scrim.players.map(async p => {
             const sprocketMember = await this.memberService.getMember({where: {userId: p.id} });
             const mleFranchise = await this.franchiseService

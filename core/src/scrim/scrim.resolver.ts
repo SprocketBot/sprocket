@@ -50,7 +50,7 @@ export class ScrimResolver {
     }
 
     @ResolveField(() => ScrimLobby, {nullable: true})
-    // TODO: Guard for checking if person can observe
+    // NOTE: Guard for checking if person can observe
     @UseGuards(OrGuard(ScrimResolverPlayerGuard))
     lobby(@Root() scrim: Scrim): ScrimLobby | undefined {
         return scrim.lobby;

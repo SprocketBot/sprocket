@@ -7,7 +7,7 @@ export class SprocketRatingService {
     private logger = new Logger(SprocketRatingService.name);
 
     calcSprocketRating(core: SprocketRatingInput): SprocketRating {
-    // TODO: Make this non-nullable
+    // NOTE: Make this non-nullable
         const team_size = core.team_size;
 
         if (team_size === 2) {

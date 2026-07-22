@@ -25,7 +25,7 @@ export class Match extends BaseModel {
     @Field(() => Invalidation, {nullable: true})
   invalidation?: Invalidation;
 
-    // TODO: Nullable, so that we can save cross-group matches?
+    // NOTE: Nullable, so that we can save cross-group matches?
     @ManyToOne(() => GameSkillGroup)
     @JoinColumn()
     @Field(() => GameSkillGroup)

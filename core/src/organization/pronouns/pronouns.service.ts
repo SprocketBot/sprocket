@@ -39,7 +39,7 @@ export class PronounsService {
         return pronouns;
     }
 
-    // TODO type this
+    // NOTE type this
     async getPronouns(
         query: FindOptionsWhere<Pronouns>,
         organizationId: number,

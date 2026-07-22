@@ -130,7 +130,7 @@ export class MatchResolver {
       week.start,
       season.start,
       gameMode.teamSize === 2 ? LegacyGameMode.DOUBLES : LegacyGameMode.STANDARD,
-      // TODO: This is an awful hack
+      // NOTE: This is an awful hack
       match.skillGroup.profile.description.split(' ')[0].toUpperCase() as League,
     );
 

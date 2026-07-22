@@ -117,7 +117,7 @@ export class OrganizationConfigurationService {
         code: OrganizationConfigurationKeyCode,
         value: string,
     ): Promise<OrganizationConfigurationValue> {
-    // TODO: Use Organization Service
+    // NOTE: Use Organization Service
         const organization = await this.organizationRepository.findOneOrFail({
             where: {id: organizationId},
         });

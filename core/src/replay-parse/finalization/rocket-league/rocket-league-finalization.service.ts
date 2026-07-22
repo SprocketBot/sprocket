@@ -319,7 +319,7 @@ export class RocketLeagueFinalizationService {
             : [undefined, undefined];
 
         const uniquePlayers = new Map<number, Player>();
-        // TODO: Sprocket Team Role Usage
+        // NOTE: Sprocket Team Role Usage
         const results = await Promise.all(replays.map(async ({
             replay, parser, outputPath,
         }) => {
@@ -335,7 +335,7 @@ export class RocketLeagueFinalizationService {
        This is because the validation service has passed these over.
 
        We are using MLE Teams right now because Sprocket Roster can't be trusted.
-       TODO: R2 Update this
+       NOTE: R2 Update this
       */
 
             let awayColor: "blue" | "orange",
@@ -466,7 +466,7 @@ export class RocketLeagueFinalizationService {
         blue: Array<{player: Player; rawPlayer: BallchasingPlayer;}>;
         orange: Array<{player: Player; rawPlayer: BallchasingPlayer;}>;
     }> {
-    // TODO: This won't work when we support multiple games; in theory is an array of players for that member.
+    // NOTE: This won't work when we support multiple games; in theory is an array of players for that member.
         const lookupFn = async (p: BallchasingPlayer): Promise<Player> => this.playerService.getPlayer({
             where: {
                 member: {
@@ -533,7 +533,7 @@ export class RocketLeagueFinalizationService {
         return output;
     }
 
-    // TODO: Testing
+    // NOTE: Testing
     async _createPlayerStatLine(
         rawPlayer: BallchasingPlayer,
         player: Player,
@@ -559,7 +559,7 @@ export class RocketLeagueFinalizationService {
         return output;
     }
 
-    // TODO: Testing
+    // NOTE: Testing
     _getSprocketRating(
         rawPlayer: BallchasingPlayer,
         gameMode: GameMode,
