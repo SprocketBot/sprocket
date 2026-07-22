@@ -1,7 +1,7 @@
 import {z} from "zod";
 
 // Helper to safely convert to number, returning undefined for invalid values
-const safeNumber = (): z.ZodType<number | undefined> => z.preprocess(val => {
+const safeNumber = (): z.ZodType<number | undefined, z.ZodTypeDef, unknown> => z.preprocess(val => {
     if (val === null || val === undefined || val === "") return undefined;
     const num = Number(val);
     return isNaN(num) ? undefined : num;

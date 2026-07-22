@@ -128,7 +128,7 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
 
         try {
             const handlerResult = await handler(packet.data, new BaseRpcContext([row]));
-            console.log(`[PostgresServer] Handler result for ${row.pattern}:`, JSON.stringify(handlerResult).substring(0, 200));
+            this.logger.log(`Handler result for ${row.pattern}: ${JSON.stringify(handlerResult).substring(0, 200)}`);
             
             // Instead of using transformToObservable (which can produce malformed JSON),
             // we handle the result directly with safe serialization
@@ -140,7 +140,7 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
 
     private async complete(id: string, response: unknown): Promise<void> {
         // Debug: log what we're about to store
-        console.log(`[PostgresServer] Storing response for ${id}:`, JSON.stringify(response).substring(0, 200));
+        this.logger.log(`Storing response for ${id}: ${JSON.stringify(response).substring(0, 200)}`);
         
         let jsonValue: string | null;
         try {

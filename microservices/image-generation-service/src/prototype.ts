@@ -33,7 +33,7 @@ async function getElDimension(el: Element): Promise<Dimension> {
     };
 }
 
-// TODO: Figure out a way to embed the options into the svg document (or id, I guess)
+// NOTE: Figure out a way to embed the options into the svg document (or id, I guess)
 async function applyTextTransformation(
     el: Element,
     value: string,
@@ -46,7 +46,7 @@ async function applyTextTransformation(
         target = children[0];
     }
     if (options.center) {
-    // TODO: Account for editors that use transformations (i.e. Illustrator)
+    // NOTE: Account for editors that use transformations (i.e. Illustrator)
         const originalLeft = Number(target.getAttribute("x") ?? 0);
         const originalBottom = Number(target.getAttribute("y") ?? 0);
         const {height: originalHeight, width: originalWidth} = await getElDimension(el);
@@ -133,8 +133,8 @@ async function applyImageTransformation(el: Element, value: string): Promise<voi
     }
 
     /*
-     * TODO: Memoize
-     * TODO: Ensure that string generic typing is correct here
+     * NOTE: Memoize
+     * NOTE: Ensure that string generic typing is correct here
      */
     const response = await axios.get<string>(value, {
         responseType: "arraybuffer",
@@ -144,14 +144,14 @@ async function applyImageTransformation(el: Element, value: string): Promise<voi
         logger.warn("Found invalid image format for image transformation! Skipping...");
     }
     /*
-     * TODO: Transform image to retain centering and height
-     * TODO: Maintain Height or Maintain Width as an option
+     * NOTE: Transform image to retain centering and height
+     * NOTE: Maintain Height or Maintain Width as an option
      */
     const image = `data:image/png;base64,${Buffer.from(response.data, "binary").toString("base64")}`;
     if (target.nodeName === "image") {
         target.setAttribute("xlink:href", image);
     }
-    // TODO: Deal with figma output ( fill=url(#pattern) )
+    // NOTE: Deal with figma output ( fill=url(#pattern) )
 }
 
 function extractOperation(key: string, data: InputDatum): Operation | false {

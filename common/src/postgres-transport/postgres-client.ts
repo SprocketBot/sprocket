@@ -1,3 +1,4 @@
+import {Logger} from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
 import type {ReadPacket, WritePacket} from "@nestjs/microservices";
 import {randomUUID} from "crypto";
@@ -11,6 +12,7 @@ import {
 } from "./postgres-transport";
 
 export class PostgresClientProxy extends ClientProxy {
+    private readonly logger = new Logger(PostgresClientProxy.name);
     private readonly transport: PostgresTransportBase;
 
     private connected = false;
@@ -84,7 +86,7 @@ export class PostgresClientProxy extends ClientProxy {
                 return;
             }
             if (row.status === "completed") {
-                console.log(`[PostgresClient] Received response for ${id}:`, JSON.stringify(row.response).substring(0, 200));
+                this.logger.debug(`Received response for ${id}: ${JSON.stringify(row.response).substring(0, 200)}`);
                 callback({response: row.response, isDisposed: true});
                 await this.transport.pool.query(
                     "DELETE FROM sprocket.platform_rpc_queue WHERE id = $1",
