@@ -106,7 +106,7 @@ LFSScrimsSubscriptionVars
         this.subscriptionVariables = {};
     }
 
-    protected handleGqlMessage = (message: OperationResult<LFSScrimsSubscriptionValue, LFSScrimsSubscriptionVars>) => {
+    protected handleGqlMessage = (message: OperationResult<LFSScrimsSubscriptionValue, LFSScrimsSubscriptionVars>): void => {
         if (!message.data) {
             console.warn(`Recieved erroneous message from followLFSScrims: ${message.error}`);
             return;

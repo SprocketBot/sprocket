@@ -24,7 +24,7 @@
 
   const openUploadModal = (scrim: CurrentScrim) => {
       submissionId = scrim.submissionId ?? "";
-      goto(`/league/scrim/${submissionId}`);
+      goto(`/league/scrim/${submissionId}`).catch(() => undefined);
   };
 
   const openCreateScrimModal = () => {

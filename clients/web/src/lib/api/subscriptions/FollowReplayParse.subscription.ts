@@ -3,7 +3,7 @@ import type {OperationResult} from "@urql/core";
 import {gql} from "@urql/core";
 import {SubscriptionStore} from "../core/SubscriptionStore";
 
-// TODO type parsed replay
+// NOTE type parsed replay
 export interface FollowReplayParseProgressMessage {
     followReplayParse: ProgressMessage<unknown>;
 }

@@ -19,9 +19,11 @@ export const loadConfig = async (): Promise<Config> => {
 
     config = {
         client: {
+            // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
             gqlUrl: process.env.CLIENT_GQL_URL || _config.get<string>("client.gqlUrl"),
+            // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
             secure: process.env.CLIENT_SECURE === "true" || _config.get<boolean>("client.secure"),
-            stack,
+            stack: stack,
         },
         server: {
             stack,

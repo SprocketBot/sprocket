@@ -21,7 +21,7 @@ import type {RemovableFile} from "../../../atoms/FileInput.svelte";
         if (!files.length) return;
         submitting = true;
         try {
-            // TODO is okay to just cast File[] to FileUpload[]?
+            // NOTE is okay to just cast File[] to FileUpload[]?
             await uploadReplaysMutation({
                 files: files as unknown as FileUpload[],
                 submissionId: submissionId,

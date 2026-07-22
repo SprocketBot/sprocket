@@ -13,47 +13,14 @@
         const keys = ["goals", "score", "points", "kills", "assists", "saves", "shots"];
         for (const key of keys) {
             const value = stats[key];
-            if (typeof value === "number") return {label: key, value};
+            if (typeof value === "number") return {label: key, value: value};
         }
         return null;
     };
 
-    const getTeamScore = (team: SubmissionStatsData["games"][number]["teams"][number]) => team.score
-        ?? team.stats?.score
-        ?? team.stats?.goals
-        ?? team.stats?.points
-        ?? team.stats?.kills;
-    const hasTeamResults = (teams: SubmissionStatsData["games"][number]["teams"]) => teams.some(team => typeof team.result !== "undefined" || typeof getTeamScore(team) === "number");<script lang="ts">
-    import type {CurrentScrim, SubmissionStatsData} from "$lib/api";
+    const getTeamScore = (team: SubmissionStatsData["games"][number]["teams"][number]) => team.score ?? team.stats?.score ?? team.stats?.goals ?? team.stats?.points ?? team.stats?.kills;
 
-    export let title: string;
-    export let game: CurrentScrim["games"][number] | SubmissionStatsData["games"][number];
-
-    export let showCheckbox: boolean;
-    export let checkboxValue: boolean;
-    export let showResult: boolean = false;
-
-    const getPrimaryStat = (stats?: Record<string, number>) => {
-        if (!stats) return null;
-        const keys = ["goals", "score", "points", "kills", "assists", "saves", "shots"];
-        for (const key of keys) {
-            const value = stats[key];
-            if (typeof value === "number") return {label: key, value};
-        }
-        return null;
-    };
-
-    const getTeamScore = (team: SubmissionStatsData["games"][number]["teams"][number]) =>
-        team.score
-        ?? team.stats?.score
-        ?? team.stats?.goals
-        ?? team.stats?.points
-        ?? team.stats?.kills
-    ;
-
-    const hasTeamResults = (teams: SubmissionStatsData["games"][number]["teams"]) =>
-        teams.some(team => typeof team.result !== "undefined" || typeof getTeamScore(team) === "number")
-    ;
+    const hasTeamResults = (teams: SubmissionStatsData["games"][number]["teams"]) => teams.some(team => typeof team.result !== "undefined" || typeof getTeamScore(team) === "number");
 </script>
 
 <div class="bg-base-100/20 p-4 rounded-lg flex flex-col gap-4 md:gap-2 relative">

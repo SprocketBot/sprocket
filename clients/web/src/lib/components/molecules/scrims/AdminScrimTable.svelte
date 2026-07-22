@@ -6,8 +6,8 @@
     } from "$lib/api";
 
     /*
-            TODO: Create/Implement Search
-            TODO: Figure out Visibility status pattern from CreateScrimModal and Scrim Table
+            NOTE: Create/Implement Search
+            NOTE: Figure out Visibility status pattern from CreateScrimModal and Scrim Table
         */
 
     let scrimManagementModalVisible = false;
