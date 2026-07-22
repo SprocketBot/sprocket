@@ -5,6 +5,7 @@ import type {
     GetPlayerSuccessResponse,
     LFSReplaySubmission,
     MatchReplaySubmission,
+    ParsedReplay,
     ReplaySubmission,
     ReplaySubmissionItem,
     ScrimPlayer,
@@ -93,6 +94,7 @@ export class ReplayValidationService {
         return result.data as BallchasingResponse;
     }
 
+    // eslint-disable-next-line @typescript-eslint/member-ordering
     async validate(submission: ReplaySubmission): Promise<ValidationResult> {
         if (submission.type === ReplaySubmissionType.SCRIM) {
             return this.validateScrimSubmission(submission);
@@ -695,22 +697,12 @@ export class ReplayValidationService {
     private async getStats(outputPath: string): Promise<BallchasingResponse> {
         const r = await this.minioService.get(config.minio.bucketNames.replays, outputPath);
         const stats = await readToString(r);
-        const parsed = JSON.parse(stats);
+        const parsed = JSON.parse(stats) as ParsedReplay;
 
         // Handle new schema structure with parser discriminator
-        if (parsed.parser) {
-            // If it's carball data, convert it to ballchasing format
-            if (parsed.parser === "carball") {
-                return this.carballConverter.convertToBallchasingFormat(
-                    parsed.data,
-                    outputPath,
-                );
-            }
-            // Otherwise, it's already ballchasing format
-            return parsed.data as BallchasingResponse;
+        if (parsed.parser === "carball") {
+            return this.carballConverter.convertToBallchasingFormat(parsed.data, outputPath);
         }
-
-        // Fallback for old cached results without parser field
         return parsed.data as BallchasingResponse;
     }
 

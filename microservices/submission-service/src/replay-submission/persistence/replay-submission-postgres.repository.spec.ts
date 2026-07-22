@@ -1,3 +1,6 @@
+import type {
+    PostgresService, ProgressMessage, Task,
+} from "@sprocketbot/common";
 import {
     ProgressStatus,
     ReplaySubmissionStatus,
@@ -67,7 +70,7 @@ describe("ReplaySubmissionPostgresRepository", () => {
                     output_path: "replays/out",
                 } ],
             });
-        const repo = new ReplaySubmissionPostgresRepository({query} as any);
+        const repo = new ReplaySubmissionPostgresRepository({query} as unknown as PostgresService);
 
         const submission = await repo.findById("match-1");
 
@@ -115,8 +118,8 @@ describe("ReplaySubmissionPostgresRepository", () => {
                 .mockResolvedValueOnce({rows: [ {id: 7} ] })
                 .mockResolvedValue({rows: [] }),
         };
-        const transaction = jest.fn(async cb => cb(client));
-        const repo = new ReplaySubmissionPostgresRepository({transaction} as any);
+        const transaction = jest.fn(async (cb: (value: typeof client) => Promise<unknown>) => cb(client));
+        const repo = new ReplaySubmissionPostgresRepository({transaction} as unknown as PostgresService);
 
         await repo.addRejection("match-1", {
             playerId: 12,
@@ -153,8 +156,8 @@ describe("ReplaySubmissionPostgresRepository", () => {
                 .mockResolvedValueOnce({rows: [ {position: 0} ] })
                 .mockResolvedValue({rows: [] }),
         };
-        const transaction = jest.fn(async cb => cb(client));
-        const repo = new ReplaySubmissionPostgresRepository({transaction} as any);
+        const transaction = jest.fn(async (cb: (value: typeof client) => Promise<unknown>) => cb(client));
+        const repo = new ReplaySubmissionPostgresRepository({transaction} as unknown as PostgresService);
 
         await repo.upsertItem("match-1", {
             taskId: "task-1",
@@ -166,7 +169,7 @@ describe("ReplaySubmissionPostgresRepository", () => {
                 progress: {value: 0, message: "queued"},
                 result: null,
                 error: null,
-            } as any,
+            } as unknown as ProgressMessage<Task.ParseReplay>,
         });
 
         expect(client.query).toHaveBeenCalledWith(

@@ -1,14 +1,15 @@
 import {Injectable} from "@nestjs/common";
 import type {
+    CompatibleReplaySubmission,
+    EnhancedReplaySubmission,
+    FranchiseInfo,
     ProgressMessage,
+    RatifierInfo,
     ReplaySubmission,
     ReplaySubmissionItem,
     ReplaySubmissionRejection,
     ReplaySubmissionStats,
     Task,
-} from "@sprocketbot/common";
-import type {
-    EnhancedReplaySubmission, FranchiseInfo, RatifierInfo,
 } from "@sprocketbot/common";
 import {
     CoreEndpoint,
@@ -71,7 +72,7 @@ export class ReplaySubmissionCrudService {
             stats: undefined,
             requiredRatifications: 2, // NOTE Make this configurable.
         };
-        let submission: any;
+        let submission: EnhancedReplaySubmission;
         let configMinRatify: number; // From the Organization config.
         let minRatify: number; // The actual minimum number of ratifiers.
         let maxRatify: number; // Total number of players.
@@ -143,7 +144,7 @@ export class ReplaySubmissionCrudService {
 
         if (configMinRatify === SCRIM_REQ_RATIFICATION_MAJORITY) {
             // The submission is configured to require a majority of ratifiers.
-            minRatify = maxRatify / 2 + 1;
+            minRatify = Math.floor(maxRatify / 2) + 1;
         } else {
             // Simply take the configured amount, capped to the number of players.
             minRatify = Math.min(configMinRatify, maxRatify);
@@ -232,7 +233,7 @@ export class ReplaySubmissionCrudService {
                 userId: userId,
             });
 
-            if (franchiseResult.status !== ResponseStatus.SUCCESS || !franchiseResult.data || franchiseResult.data.length === 0) {
+            if (franchiseResult.status !== ResponseStatus.SUCCESS || franchiseResult.data.length === 0) {
                 throw new Error(`Unable to fetch franchise information for player ${userId}. Ratification requires valid franchise data.`);
             }
 
@@ -291,18 +292,21 @@ export class ReplaySubmissionCrudService {
         return (ratifiers as RatifierInfo[]).map(r => r.playerId);
     }
 
-    private isEnhanced(submission: any): submission is EnhancedReplaySubmission {
+    private isEnhanced(submission: CompatibleReplaySubmission): submission is EnhancedReplaySubmission {
         return "franchiseValidation" in submission;
     }
 
+    // eslint-disable-next-line @typescript-eslint/member-ordering
     async clearRatifiers(submissionId: string): Promise<void> {
         await this.repository.clearRatifiers(submissionId);
     }
 
+    // eslint-disable-next-line @typescript-eslint/member-ordering
     async expireRejections(submissionId: string): Promise<void> {
         await this.repository.expireRejections(submissionId);
     }
 
+    // eslint-disable-next-line @typescript-eslint/member-ordering
     async addRejection(submissionId: string, playerId: number, reason: string): Promise<void> {
         const rejectedAt = new Date().toISOString();
 

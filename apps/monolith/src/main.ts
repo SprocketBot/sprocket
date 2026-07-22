@@ -31,7 +31,10 @@ async function bootstrap(): Promise<void> {
     app.enableShutdownHooks();
 
     try {
-        app.getHttpAdapter().getInstance().get("/healthz", (_req: Request, res: Response) => {
+        const expressApp = app.getHttpAdapter().getInstance() as unknown as {
+            get(path: string, handler: (_req: Request, res: Response) => void): void;
+        };
+        expressApp.get("/healthz", (_req: Request, res: Response) => {
             res.status(200).json({
                 status: "ok",
                 runtime: "monolith",
