@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-require-imports, @typescript-eslint/consistent-type-imports */
+
 import "reflect-metadata";
 
 import {DataSource} from "typeorm";
@@ -477,4 +479,3 @@ main().catch(e => {
     console.error(e);
     process.exit(1);
 });
-

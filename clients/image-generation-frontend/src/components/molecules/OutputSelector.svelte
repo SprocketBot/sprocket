@@ -21,6 +21,7 @@
 </script>
 
 <div class = "container">
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div class="icon" on:click={async () => downloadOutput()}>
     {#if extention === "svg"}
       <FaFileCode/>

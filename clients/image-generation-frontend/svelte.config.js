@@ -1,6 +1,5 @@
 import preprocess from 'svelte-preprocess';
 import nodeAdapter from '@sveltejs/adapter-node';
-import { resolve } from 'path';
 
 const onwarn = (warning, handler) => {
   if (warning.code === 'css-unused-selector') return;
