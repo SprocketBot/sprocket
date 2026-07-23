@@ -15,6 +15,7 @@ import {MLE_Series} from "../database/mledb/Series.model";
 import {MLE_TeamRoleUsage} from "../database/mledb/TeamRoleUsage.model";
 import {SeriesToMatchParent} from "../database/mledb-bridge/series_to_match_parent.model";
 import {Match} from "../database/scheduling/match/match.model";
+import {TestReplayIdentity} from "../database/scheduling/test_replay_identity/test_replay_identity.model";
 import {FranchiseModule} from "../franchise";
 import {GameModule} from "../game";
 import {IdentityModule} from "../identity";
@@ -36,6 +37,7 @@ import {MledbPlayerPresentationResolver} from "./mledb-player/mledb-player.prese
 import {MledbPlayerAccountService} from "./mledb-player-account";
 import {MledbFinalizationService} from "./mledb-scrim";
 import {MledbNcpTeamRoleUsageResolver, MledbNcpTeamRoleUsageService} from "./mledb-team-role-usage";
+import {TestScrimIdentityService} from "../replay-parse/test-scrim-identity.service";
 
 @Module({
     imports: [
@@ -52,6 +54,7 @@ import {MledbNcpTeamRoleUsageResolver, MledbNcpTeamRoleUsageService} from "./mle
             RosterRole,
             RosterSlot,
             RosterRoleUsage,
+            TestReplayIdentity,
         ]),
         DatabaseModule,
         GameModule,
@@ -76,6 +79,7 @@ import {MledbNcpTeamRoleUsageResolver, MledbNcpTeamRoleUsageService} from "./mle
         MledbNcpTeamRoleUsageService,
         MledbNcpTeamRoleUsageResolver,
         FormerPlayerScrimGuard,
+        TestScrimIdentityService,
     ],
     exports: [
         MledbMatchService,
@@ -83,6 +87,7 @@ import {MledbNcpTeamRoleUsageResolver, MledbNcpTeamRoleUsageService} from "./mle
         MledbPlayerAccountService,
         MledbFinalizationService,
         FormerPlayerScrimGuard,
+        TestScrimIdentityService,
     ],
     controllers: [MledbMatchController, MledbPlayerController],
 })

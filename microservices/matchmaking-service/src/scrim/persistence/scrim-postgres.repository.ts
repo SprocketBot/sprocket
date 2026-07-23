@@ -27,6 +27,7 @@ interface ScrimRow {
     game_mode_id: number;
     skill_group_id: number;
     submission_id?: string;
+    test_run_id?: string;
     timeout_job_id?: string;
     group_invite_opens_at?: Date;
     popped_at?: Date;
@@ -141,6 +142,27 @@ export class ScrimPostgresRepository {
             });
         }
 
+        await this.saveScrim(scrim);
+        return scrim;
+    }
+
+    async createTestScrim(options: Omit<CreateScrimOptions, "join"> & {testRunId: string;}): Promise<Scrim> {
+        const at = new Date();
+        const scrim: Scrim = {
+            id: v4(),
+            createdAt: at,
+            updatedAt: at,
+            status: ScrimStatus.IN_PROGRESS,
+            authorId: options.authorId,
+            organizationId: options.organizationId,
+            gameModeId: options.gameModeId,
+            skillGroupId: options.skillGroupId,
+            testRunId: options.testRunId,
+            submissionId: `scrim-test-${v4()}`,
+            players: [],
+            games: [],
+            settings: options.settings,
+        };
         await this.saveScrim(scrim);
         return scrim;
     }
@@ -433,6 +455,7 @@ export class ScrimPostgresRepository {
             gameModeId: row.game_mode_id,
             skillGroupId: row.skill_group_id,
             submissionId: row.submission_id ?? undefined,
+            testRunId: row.test_run_id ?? undefined,
             timeoutJobId: row.timeout_job_id ? Number(row.timeout_job_id) : undefined,
             groupInviteOpensAt: row.group_invite_opens_at ?? undefined,
             poppedAt: row.popped_at ?? undefined,
@@ -467,6 +490,7 @@ export class ScrimPostgresRepository {
                     game_mode_id,
                     skill_group_id,
                     submission_id,
+                    test_run_id,
                     timeout_job_id,
                     group_invite_opens_at,
                     popped_at,
@@ -480,7 +504,7 @@ export class ScrimPostgresRepository {
                     settings_lfs,
                     settings_checkin_timeout
                 )
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
                 ON CONFLICT (id) DO UPDATE SET
                     updated_at = EXCLUDED.updated_at,
                     status = EXCLUDED.status,
@@ -490,6 +514,7 @@ export class ScrimPostgresRepository {
                     game_mode_id = EXCLUDED.game_mode_id,
                     skill_group_id = EXCLUDED.skill_group_id,
                     submission_id = EXCLUDED.submission_id,
+                    test_run_id = EXCLUDED.test_run_id,
                     timeout_job_id = EXCLUDED.timeout_job_id,
                     group_invite_opens_at = EXCLUDED.group_invite_opens_at,
                     popped_at = EXCLUDED.popped_at,
@@ -514,6 +539,7 @@ export class ScrimPostgresRepository {
                 scrim.gameModeId,
                 scrim.skillGroupId,
                 scrim.submissionId ?? null,
+                scrim.testRunId ?? null,
                 scrim.timeoutJobId ? `${scrim.timeoutJobId}` : null,
                 scrim.groupInviteOpensAt ?? null,
                 scrim.poppedAt ?? null,
@@ -796,6 +822,7 @@ export class ScrimPostgresRepository {
             gameModeId: row.game_mode_id,
             skillGroupId: row.skill_group_id,
             submissionId: row.submission_id ?? undefined,
+            testRunId: row.test_run_id ?? undefined,
             timeoutJobId: row.timeout_job_id ? Number(row.timeout_job_id) : undefined,
             groupInviteOpensAt: row.group_invite_opens_at ?? undefined,
             poppedAt: row.popped_at ?? undefined,

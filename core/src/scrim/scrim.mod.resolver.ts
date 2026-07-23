@@ -32,7 +32,7 @@ import {CreateScrimPlayerGuard, JoinScrimPlayerGuard} from "./scrim.guard";
 import {ScrimService} from "./scrim.service";
 import {ScrimToggleService} from "./scrim-toggle";
 import {
-    CreateLFSScrimInput, CreateScrimInput, Scrim, ScrimEvent,
+    CreateLFSScrimInput, CreateScrimInput, CreateTestScrimInput, Scrim, ScrimEvent,
 } from "./types";
 import {ScrimMetrics} from "./types/ScrimMetrics";
 
@@ -89,10 +89,11 @@ export class ScrimModuleResolver {
     ): Promise<Scrim[]> {
         if (!user.currentOrganizationId) throw new GraphQLError("Player is not connected to an organization");
 
-        return this.scrimService.getAllScrims({
+        const scrims = await this.scrimService.getAllScrims({
             organizationId: user.currentOrganizationId,
             status,
-        }) as Promise<Scrim[]>;
+        });
+        return scrims.filter(scrim => !scrim.testRunId) as Scrim[];
     }
 
     @Query(() => [Scrim])
@@ -192,6 +193,21 @@ export class ScrimModuleResolver {
                 createGroup: data.createGroup,
             },
         }) as Promise<Scrim>;
+    }
+
+    @Mutation(() => Scrim)
+    @UseGuards(MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
+    async createTestScrim(
+    @CurrentUser() user: UserPayload,
+    @Args("data") data: CreateTestScrimInput,
+    ): Promise<Scrim> {
+        if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organization");
+        return this.scrimService.createTestScrim(
+            user.userId,
+            user.currentOrganizationId,
+            data.gameModeId,
+            data.skillGroupId,
+        ) as Promise<Scrim>;
     }
 
     @Mutation(() => Scrim)

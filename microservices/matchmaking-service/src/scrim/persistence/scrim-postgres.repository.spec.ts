@@ -4,6 +4,42 @@ import {ScrimMode, ScrimStatus} from "@sprocketbot/common";
 import {ScrimPostgresRepository} from "./scrim-postgres.repository";
 
 describe("ScrimPostgresRepository", () => {
+    it("creates an isolated in-progress test scrim with no public roster", async () => {
+        const client = {query: jest.fn().mockResolvedValue({rows: []})};
+        const transaction = jest.fn(async (cb: (value: typeof client) => Promise<unknown>) => cb(client));
+        const repo = new ScrimPostgresRepository({transaction} as unknown as PostgresService);
+        const testRunId = "00000000-0000-4000-8000-000000000002";
+
+        const scrim = await repo.createTestScrim({
+            authorId: 1,
+            organizationId: 2,
+            gameModeId: 3,
+            skillGroupId: 4,
+            testRunId,
+            settings: {
+                teamSize: 3,
+                teamCount: 2,
+                mode: ScrimMode.TEAMS,
+                competitive: false,
+                observable: false,
+                lfs: false,
+                checkinTimeout: 0,
+            },
+        });
+
+        expect(scrim).toMatchObject({
+            status: ScrimStatus.IN_PROGRESS,
+            testRunId,
+            submissionId: expect.stringMatching(/^scrim-test-/),
+            players: [],
+            games: [],
+        });
+        expect(client.query).toHaveBeenCalledWith(
+            expect.stringContaining("test_run_id"),
+            expect.arrayContaining([testRunId]),
+        );
+    });
+
     it("hydrates a scrim from typed Postgres relations", async () => {
         const query = jest.fn()
             .mockResolvedValueOnce({

@@ -20,6 +20,7 @@ export const ScrimSchema = z.object({
     gameModeId: z.number(),
     skillGroupId: z.number(),
     submissionId: z.string().optional(),
+    testRunId: z.string().uuid().optional(),
     timeoutJobId: z.number().optional(),
     /** When set, ungrouped players cannot join a team scrim until this instant (teammates may still join via group code). */
     groupInviteOpensAt: DateSchema.optional(),

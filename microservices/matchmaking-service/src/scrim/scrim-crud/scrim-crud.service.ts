@@ -58,7 +58,15 @@ export class ScrimCrudService {
         );
     }
 
+    async createTestScrim(options: Omit<CreateScrimOptions, "join"> & {testRunId: string;}): Promise<Scrim> {
+        return this.repository.createTestScrim(options);
+    }
+
     async updateLFSScrim(scrim: Scrim): Promise<void> {
+        await this.repository.saveScrim(scrim);
+    }
+
+    async updateTestScrim(scrim: Scrim): Promise<void> {
         await this.repository.saveScrim(scrim);
     }
 

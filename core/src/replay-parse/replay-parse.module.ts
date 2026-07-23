@@ -27,6 +27,7 @@ import {ReplayParsePubSub} from "./replay-parse.constants";
 import {ReplayParseModResolver} from "./replay-parse.mod.resolver";
 import {ReplaySubmissionResolver, SubmissionRejectionResolver} from "./replay-parse.resolver";
 import {ReplayParseService} from "./replay-parse.service";
+import {TestScrimIdentityController} from "./test-scrim-identity.controller";
 
 @Module({
     imports: [
@@ -62,5 +63,6 @@ import {ReplayParseService} from "./replay-parse.service";
         FinalizationSubscriber,
         RocketLeagueFinalizationService,
     ],
+    controllers: [TestScrimIdentityController],
 })
 export class ReplayParseModule {}
