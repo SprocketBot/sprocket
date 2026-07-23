@@ -23,6 +23,7 @@
     export let files: RemovableFile[] = [];
     export let disabled: boolean | undefined = undefined;
     export let unique = true;
+    export let multiple = true;
 
     const onRemove = (file: File): void => {
         files = files.filter(f => f.name !== file.name);
@@ -50,7 +51,7 @@
 
 
 <!-- Hide the input so we can style the label -->
-<input class="sr-only" id="file-input" type="file" multiple files={filesToFileList(files)} on:change={onChange} disabled={disabled} />
+<input class="sr-only" id="file-input" type="file" multiple={multiple} files={filesToFileList(files)} on:change={onChange} disabled={disabled} />
 
 <label for="file-input" class:disabled>
     <span><FaUpload /></span>

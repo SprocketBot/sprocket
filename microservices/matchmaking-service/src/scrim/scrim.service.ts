@@ -7,6 +7,7 @@ import type {
     Scrim,
     ScrimPlayer,
     UpdateLFSScrimPlayersRequest,
+    UpdateTestScrimPlayersRequest,
 } from "@sprocketbot/common";
 import {
     AnalyticsEndpoint,
@@ -152,6 +153,12 @@ export class ScrimService {
         return scrim;
     }
 
+    async createTestScrim(options: CreateScrimOptions & {testRunId: string;}): Promise<Scrim> {
+        const scrim = await this.scrimCrudService.createTestScrim(options);
+        await this.eventsService.publish(EventTopic.ScrimCreated, scrim, scrim.id);
+        return scrim;
+    }
+
     async updateLFSScrimPlayers({
         scrimId,
         players,
@@ -171,6 +178,18 @@ export class ScrimService {
             scrim.games?.push(game);
         }
         await this.scrimCrudService.updateLFSScrim(scrim);
+        return true;
+    }
+
+    async updateTestScrimPlayers({
+        scrimId, testRunId, players, games,
+    }: UpdateTestScrimPlayersRequest): Promise<boolean> {
+        const rawScrim = await this.scrimCrudService.getScrim(scrimId);
+        if (!rawScrim || rawScrim.testRunId !== testRunId) return false;
+        rawScrim.players = players;
+        rawScrim.games = games;
+        await this.scrimCrudService.updateTestScrim(rawScrim);
+        await this.publishScrimUpdate(scrimId);
         return true;
     }
 

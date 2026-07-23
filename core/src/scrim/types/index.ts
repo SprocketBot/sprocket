@@ -3,6 +3,7 @@ import {ScrimMode, ScrimStatus} from "@sprocketbot/common";
 
 export * from "./CreateLFSScrimInput";
 export * from "./CreateScrimInput";
+export * from "./CreateTestScrimInput";
 export * from "./Scrim";
 export * from "./ScrimGame";
 export * from "./ScrimLobby";

@@ -8,9 +8,12 @@ import {
     CeleryService,
     EventsService,
     EventTopic,
+    MatchmakingEndpoint,
+    MatchmakingService,
     ProgressStatus,
     REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
     ReplaySubmissionStatus,
+    ResponseStatus,
     Task,
 } from "@sprocketbot/common";
 import {v4} from "uuid";
@@ -34,6 +37,7 @@ export class ReplaySubmissionService {
         private readonly replayValidationService: ReplayValidationService,
         private readonly ratificationService: ReplaySubmissionRatificationService,
         private readonly statsConverterService: StatsConverterService,
+        private readonly matchmakingService: MatchmakingService,
     ) {}
 
     /**
@@ -211,5 +215,18 @@ export class ReplaySubmissionService {
             submissionId: submissionId,
             resultPaths: refreshedSubmission.items.map(item => item.outputPath!),
         });
+
+        if (submission.type === "SCRIM") {
+            const scrimResponse = await this.matchmakingService.send(
+                MatchmakingEndpoint.GetScrimBySubmissionId,
+                submissionId,
+            );
+            if (scrimResponse.status === ResponseStatus.SUCCESS && scrimResponse.data?.testRunId) {
+                await this.ratificationService.ratifyScrim(
+                    REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
+                    submissionId,
+                );
+            }
+        }
     }
 }

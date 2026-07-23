@@ -21,10 +21,12 @@ import {
     MatchmakingEndpoint,
     MatchmakingService,
     ResponseStatus,
+    ScrimMode,
     ScrimStatus,
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 import {Repository} from "typeorm";
+import {v4 as uuid} from "uuid";
 
 import {PlayerStatLine} from "$db/scheduling/player_stat_line/player_stat_line.model";
 
@@ -118,6 +120,33 @@ export class ScrimService {
     async createScrim(data: CreateScrimOptions): Promise<IScrim> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.CreateScrim, data);
 
+        if (result.status === ResponseStatus.SUCCESS) return result.data;
+        throw result.error;
+    }
+
+    async createTestScrim(
+        authorId: number,
+        organizationId: number,
+        gameModeId: number,
+        skillGroupId: number,
+    ): Promise<IScrim> {
+        const gameMode = await this.gameModeService.getGameModeById(gameModeId);
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.CreateTestScrim, {
+            authorId,
+            organizationId,
+            gameModeId,
+            skillGroupId,
+            testRunId: uuid(),
+            settings: {
+                teamSize: gameMode.teamSize,
+                teamCount: gameMode.teamCount,
+                mode: ScrimMode.TEAMS,
+                competitive: false,
+                observable: false,
+                lfs: false,
+                checkinTimeout: 0,
+            },
+        });
         if (result.status === ResponseStatus.SUCCESS) return result.data;
         throw result.error;
     }

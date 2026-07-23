@@ -308,7 +308,69 @@ export class ReplayValidationService {
         if (scrimResponse.status === ResponseStatus.ERROR) throw scrimResponse.error;
         if (!scrimResponse.data) throw new Error("Scrim not found");
 
-        const scrim = scrimResponse.data;
+        let scrim = scrimResponse.data;
+
+        if (scrim.testRunId) {
+            if (submission.items.length !== 1) {
+                return {valid: false, errors: [ {error: "Test scrims accept exactly one replay file."} ] };
+            }
+            const parsed = await this.getStats(submission.items[0].outputPath!);
+            const replayPlayers = [parsed.blue, parsed.orange].flatMap(team => team.players.map(player => {
+                const platform = player.id.platform.toUpperCase();
+                const platformAccountId = player.id.id;
+                const {name} = player;
+                return {
+                    platform,
+                    platformAccountId,
+                    name,
+                };
+            }));
+            const provisioned = await this.coreService.send(CoreEndpoint.ProvisionTestReplayPlayers, {
+                testRunId: scrim.testRunId,
+                organizationId: scrim.organizationId,
+                skillGroupId: scrim.skillGroupId,
+                players: replayPlayers,
+            });
+            if (provisioned.status === ResponseStatus.ERROR) throw provisioned.error;
+            const byAccount = new Map(provisioned.data.map(player => [`${player.platform.toUpperCase()}:${player.platformAccountId}`, player]));
+            const now = new Date();
+            const leaveAt = new Date(now.getTime() + (30 * 60 * 1000));
+            const players = provisioned.data.map(player => {
+                const id = player.userId;
+                const {name} = player;
+                const joinedAt = now;
+                const checkedIn = true;
+                return {
+                    id,
+                    name,
+                    joinedAt,
+                    leaveAt,
+                    checkedIn,
+                };
+            });
+            const game = {
+                teams: [parsed.blue, parsed.orange].map(team => ({
+                    players: team.players.map(player => {
+                        const mapped = byAccount.get(`${player.id.platform.toUpperCase()}:${player.id.id}`);
+                        if (!mapped) throw new Error(`Missing provisioned test identity for ${player.id.platform}:${player.id.id}`);
+                        return players.find(candidate => candidate.id === mapped.userId)!;
+                    }),
+                })),
+            };
+            const games = [game];
+            const testScrim = {
+                ...scrim,
+                players,
+                games,
+            };
+            scrim = testScrim;
+            const scrimId = testScrim.id;
+            const testRunId = testScrim.testRunId!;
+            const updated = await this.matchmakingService.send(MatchmakingEndpoint.UpdateTestScrimPlayers, {
+                scrimId, testRunId, players, games,
+            });
+            if (updated.status === ResponseStatus.ERROR || !updated.data) throw updated.status === ResponseStatus.ERROR ? updated.error : new Error("Unable to update test scrim roster");
+        }
 
         // ========================================
         // Validate number of games

@@ -10,6 +10,7 @@ import type {RemovableFile} from "../../../atoms/FileInput.svelte";
 
     export let visible: boolean = true;
     export let submissionId: string;
+    export let single = false;
 
     $: console.log("UploadReplaysModal: visible changed to:", visible);
     $: console.log("UploadReplaysModal: submissionId changed to:", submissionId);
@@ -63,7 +64,7 @@ import type {RemovableFile} from "../../../atoms/FileInput.svelte";
             {/each}
         {/if}
         <div class="actions">
-            <FileInput label="Upload" bind:files />
+            <FileInput label="Upload" bind:files multiple={!single} />
 
             {#if files?.length}
                 <button on:click={handleSubmit} class="btn btn-primary">

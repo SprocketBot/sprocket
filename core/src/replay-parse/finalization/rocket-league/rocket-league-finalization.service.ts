@@ -38,6 +38,7 @@ import type {
     SprocketRating,
     SprocketRatingInput,
 } from "../../../sprocket-rating/sprocket-rating.types";
+import {TestScrimIdentityService} from "../../test-scrim-identity.service";
 import type {
     LFSReplaySubmission,
     MatchReplaySubmission,
@@ -67,6 +68,7 @@ export class RocketLeagueFinalizationService {
         private readonly eligibilityService: EligibilityService,
         private readonly gameSkillGroupService: GameSkillGroupService,
     @InjectDataSource() private readonly dataSource: DataSource,
+        private readonly testScrimIdentityService: TestScrimIdentityService,
     ) {}
 
     async finalizeLFS(
@@ -180,7 +182,7 @@ export class RocketLeagueFinalizationService {
 
             // If it's competitive, calculate and save eligibility. Otherwise, don't.
             await em.insert(Match, match as QueryDeepPartialEntity<Match>);
-            await this.saveMatchDependents(submission, match, isCompetitive, em);
+            await this.saveMatchDependents(submission, match, isCompetitive, em, scrim.testRunId);
 
             const mledbScrim = await this.mledbFinalizationService.saveScrim(
                 submission,
@@ -246,6 +248,7 @@ export class RocketLeagueFinalizationService {
         match: Match,
         eligibility: boolean,
         em: EntityManager,
+        testRunId?: string,
     ): Promise<Player[]> {
         if (submission.items.some(i => i.progress?.status !== ProgressStatus.Complete)) {
             throw new Error(`Not all items have been completed. Finalization attempted too soon. ${JSON.stringify({
@@ -323,7 +326,7 @@ export class RocketLeagueFinalizationService {
             replay, parser, outputPath,
         }) => {
             // Get players
-            const {blue, orange} = await this._getBallchasingPlayers(replay);
+            const {blue, orange} = await this._getBallchasingPlayers(replay, testRunId);
 
             blue.forEach(p => uniquePlayers.set(p.player.id, p.player));
             orange.forEach(p => uniquePlayers.set(p.player.id, p.player));
@@ -461,7 +464,7 @@ export class RocketLeagueFinalizationService {
    * Looks up a set of players based on their ballchasing information
    * Noteworthy; this looks up sprocket players!
    */
-    async _getBallchasingPlayers(ballchasing: BallchasingResponse): Promise<{
+    async _getBallchasingPlayers(ballchasing: BallchasingResponse, testRunId?: string): Promise<{
         blue: Array<{player: Player; rawPlayer: BallchasingPlayer;}>;
         orange: Array<{player: Player; rawPlayer: BallchasingPlayer;}>;
     }> {
@@ -470,7 +473,9 @@ export class RocketLeagueFinalizationService {
             where: {
                 member: {
                     platformAccounts: {
-                        platformAccountId: p.id.id,
+                        platformAccountId: testRunId
+                            ? await this.testScrimIdentityService.mapPlatformAccount(testRunId, p.id.platform, p.id.id) ?? p.id.id
+                            : p.id.id,
                         platform: {
                             code: p.id.platform.toUpperCase(),
                         },

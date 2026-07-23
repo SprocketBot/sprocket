@@ -48,6 +48,7 @@ import type {
     MatchReplaySubmission,
     ScrimReplaySubmission,
 } from "../../replay-parse";
+import {TestScrimIdentityService} from "../../replay-parse/test-scrim-identity.service";
 import {SprocketRatingService} from "../../sprocket-rating/sprocket-rating.service";
 import {MledbMatchService} from "../mledb-match/mledb-match.service";
 import {assignPlayerStats} from "./assign-player-stats";
@@ -71,6 +72,7 @@ export class MledbFinalizationService {
     private readonly userService: UserService,
     private readonly sprocketRatingService: SprocketRatingService,
     private readonly mleMatchService: MledbMatchService,
+    private readonly testScrimIdentityService: TestScrimIdentityService,
     ) {}
 
     async getLeagueAndMode(scrim: Scrim): Promise<{mode: GameMode; group: GameSkillGroup;}> {
@@ -167,7 +169,7 @@ export class MledbFinalizationService {
         await em.insert(MLE_Scrim, scrim);
         await em.insert(MLE_Series, series);
 
-        await this.saveSeries(submission as ReplaySubmission, submissionId, em, series);
+        await this.saveSeries(submission as ReplaySubmission, submissionId, em, series, scrimObject.testRunId);
 
         if (scrimObject.settings.competitive) {
             const playerEligibilities = await Promise.all(scrimObject.players.map(async p => {
@@ -197,6 +199,7 @@ export class MledbFinalizationService {
         submissionId: string,
         em: EntityManager,
         series: MLE_Series,
+        testRunId?: string,
     ): Promise<number> {
     // First; initialize all the arrays to save at the end.
         const coreStats: MLE_PlayerStatsCore[] = [];
@@ -238,7 +241,9 @@ export class MledbFinalizationService {
 
                 const playerAccount = await this.mlePlayerAccountRepository.findOneOrFail({
                     where: {
-                        platformId: p.id.id,
+                        platformId: testRunId
+                            ? await this.testScrimIdentityService.mapPlatformAccount(testRunId, p.id.platform, p.id.id) ?? p.id.id
+                            : p.id.id,
                         platform: p.id.platform.toUpperCase() as MLE_Platform,
                     },
                     relations: {
