@@ -1,3 +1,5 @@
+import type {LogLevel} from "@nestjs/common";
+
 import {ConfigResolver} from "./config-resolver";
 
 export const config = {
@@ -170,13 +172,13 @@ export const config = {
         },
     },
     logger: {
-        get levels(): string[] {
+        get levels(): LogLevel[] {
             const levelsStr = ConfigResolver.getConfig<string | string[]>("LOGGER_LEVELS", "logger.levels");
             // If it's already an array (from config file), return it
-            if (Array.isArray(levelsStr)) return levelsStr;
+            if (Array.isArray(levelsStr)) return levelsStr as LogLevel[];
             // If it's a JSON string, parse it
             if (typeof levelsStr === "string" && levelsStr.startsWith("[")) {
-                return JSON.parse(levelsStr) as string[];
+                return JSON.parse(levelsStr) as LogLevel[];
             }
             // Legacy support: if it's "debug", return full array
             return levelsStr === "debug" ? ["error", "warn", "log", "debug"] : ["error", "warn", "log"];

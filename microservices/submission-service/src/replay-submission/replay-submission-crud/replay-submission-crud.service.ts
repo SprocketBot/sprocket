@@ -152,7 +152,7 @@ export class ReplaySubmissionCrudService {
         submission.requiredRatifications = minRatify;
 
         await this.repository.saveSubmission(submission);
-        return submission;
+        return submission as unknown as ReplaySubmission;
     }
 
     async getSubmissionItems(submissionId: string): Promise<ReplaySubmissionItem[]> {

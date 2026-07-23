@@ -11,7 +11,7 @@ import type {EventFunction} from ".";
 import {
     CommandMetaSchema, EventMetaSchema, MarshalMetadataKey,
 } from ".";
-import type {CommandFunction} from "./commands";
+import type {CommandFunction, HookFunction} from "./commands";
 import {CommandNotFoundMetaSchema} from "./commands";
 import {CommandManagerService} from "./commands/command-manager.service";
 
@@ -69,7 +69,7 @@ export abstract class Marshal {
             // Do things
             cms.registerNotFoundCommand({
                 ...meta,
-                function: this.getBoundFunction(meta.functionName),
+                function: this.getBoundFunction<HookFunction>(meta.functionName),
             });
         });
     }
@@ -99,11 +99,11 @@ export abstract class Marshal {
         });
     }
 
-    private getBoundFunction<TFunction extends (...args: unknown[]) => unknown>(functionName: string): TFunction {
+    private getBoundFunction<TFunction>(functionName: string): TFunction {
         const handler = Reflect.get(this, functionName) as unknown;
         if (typeof handler !== "function") {
             throw new Error(`Marshal handler ${functionName} is not a function`);
         }
-        return handler.bind(this) as TFunction;
+        return handler.bind(this) as unknown as TFunction;
     }
 }
