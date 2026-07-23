@@ -7,12 +7,12 @@ const BaseSubmission = z.object({
     creatorId: z.number(),
     status: z.nativeEnum(ReplaySubmissionStatus),
     taskIds: z.string().array(),
-    items: z.any().array(), // TODO ReplaySubmissionItem schema
+    items: z.any().array(), // NOTE ReplaySubmissionItem schema
     validated: z.boolean(),
-    stats: z.any().optional(), // TODO ReplaySubmissionStatus schema
+    stats: z.any().optional(), // NOTE ReplaySubmissionStatus schema
     ratifiers: z.number().array(),
     requiredRatifications: z.number(),
-    rejections: z.any().array(), // TODO ReplaySubmissionRejection schema
+    rejections: z.any().array(), // NOTE ReplaySubmissionRejection schema
 });
 
 const ScrimSubmission = BaseSubmission.extend({

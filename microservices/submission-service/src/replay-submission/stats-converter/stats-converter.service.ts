@@ -7,7 +7,7 @@ export class StatsConverterService {
     private readonly carballConverter = new CarballConverterService();
 
     convertStats(rawStats: ParsedReplay[]): ReplaySubmissionStats {
-    // TODO in the future, we will be able to translate the ballchasing player to a Sprocket member
+    // NOTE in the future, we will be able to translate the ballchasing player to a Sprocket member
     // in the validation step. Since we don't have that, for now we will just use the names from
     // the replays directly
         const out: ReplaySubmissionStats = {

@@ -89,6 +89,7 @@ export class SubmissionService extends SprocketEventMarshal {
         return result.data.submission as ReplaySubmission;
     }
 
+    // eslint-disable-next-line @typescript-eslint/member-ordering
     async sendScrimSubmissionRatifyingNotifications(submission: ScrimReplaySubmission | LFSReplaySubmission): Promise<void> {
         const scrimResult = await this.matchmakingService.send(
             MatchmakingEndpoint.GetScrim,
@@ -163,6 +164,7 @@ export class SubmissionService extends SprocketEventMarshal {
         }));
     }
 
+    // eslint-disable-next-line @typescript-eslint/member-ordering
     async sendMatchSubmissionRatifyingNotifications(submission: MatchReplaySubmission): Promise<void> {
         const matchResult = await this.coreService.send(CoreEndpoint.GetMatchById, {
             matchId: submission.matchId,
@@ -248,6 +250,7 @@ export class SubmissionService extends SprocketEventMarshal {
         }));
     }
 
+    // eslint-disable-next-line @typescript-eslint/member-ordering
     async sendScrimSubmissionRejectedNotifications(submission: ScrimReplaySubmission): Promise<void> {
         const scrimResult = await this.matchmakingService.send(
             MatchmakingEndpoint.GetScrim,
@@ -316,6 +319,7 @@ export class SubmissionService extends SprocketEventMarshal {
         }));
     }
 
+    // eslint-disable-next-line @typescript-eslint/member-ordering
     async sendMatchSubmissionRejectedNotifications(submission: MatchReplaySubmission & {id: string;}): Promise<void> {
         const matchResult = await this.coreService.send(CoreEndpoint.GetMatchById, {
             matchId: submission.matchId,

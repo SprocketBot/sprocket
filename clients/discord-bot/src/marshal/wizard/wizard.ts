@@ -107,9 +107,11 @@ export class Wizard {
             }
 
             const handler = WizardStepHandler(collector, this.initiator, step.opts, step.func);
+            const eventCollector = collector as unknown as {
+                on(event: "collect" | "end", listener: (...args: unknown[]) => void): ValidWizardCollector;
+            };
 
-            // @ts-ignore Discord collector overloads do not preserve this runtime handler shape.
-            collector.on("collect", (...args: unknown[]) => {
+            eventCollector.on("collect", (...args: unknown[]) => {
                 try {
                     const result = handler(...args);
                     if (result instanceof Promise) {
@@ -124,8 +126,9 @@ export class Wizard {
                     this.reject(e);
                 }
             });
-            // @ts-ignore Discord collector overloads do not preserve this runtime handler shape.
-            collector.on("end", this.next.bind(this));
+            eventCollector.on("end", (...args: unknown[]) => {
+                this.next(args[0] as Map<string, Message>, args[1] as string);
+            });
         }
         return this.promise;
     }

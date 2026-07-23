@@ -1,11 +1,14 @@
-import type {CustomTransportStrategy, ReadPacket, WritePacket} from "@nestjs/microservices";
-import {Server} from "@nestjs/microservices/server/server";
+import type {CustomTransportStrategy, ReadPacket} from "@nestjs/microservices";
 import {BaseRpcContext} from "@nestjs/microservices/ctx-host/base-rpc.context";
+import {Server} from "@nestjs/microservices/server/server";
 
-import {
-    PostgresTransportBase,
+import {closeSharedPostgresPool} from "../postgres";
+import type {
     PostgresTransportOptions,
     RpcQueueRow,
+} from "./postgres-transport";
+import {
+    PostgresTransportBase,
     toJsonbParam,
     withTransaction,
 } from "./postgres-transport";
@@ -16,25 +19,30 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
     private stopped = false;
 
     // Configurable via env vars (defaults: 5 min timeout, 1 min cleanup interval)
-    private readonly staleMessageTimeoutMs = parseInt(process.env.RPC_STALE_MESSAGE_TIMEOUT_MS || "300000", 10);
-    private readonly staleMessageCleanupIntervalMs = parseInt(process.env.RPC_CLEANUP_INTERVAL_MS || "60000", 10);
+    private readonly staleMessageTimeoutMs = Number(process.env.RPC_STALE_MESSAGE_TIMEOUT_MS ?? "300000");
+
+    private readonly staleMessageCleanupIntervalMs = Number(process.env.RPC_CLEANUP_INTERVAL_MS ?? "60000");
 
     constructor(options: PostgresTransportOptions) {
         super();
-        this.transport = new (class extends PostgresTransportBase {
+        this.transport = new class extends PostgresTransportBase {
             constructor() {
                 super(PostgresServer.name, options);
             }
-        })();
+        }();
     }
 
     async listen(callback: (...optionalParams: unknown[]) => void): Promise<void> {
         try {
             await this.transport.ensureSchema();
             callback();
-            this.poll().catch(error => this.logger.error(error));
+            this.poll().catch(error => {
+                this.logger.error(error);
+            });
             // Start stale message cleanup background job
-            this.cleanupStaleMessages().catch(error => this.logger.error(error));
+            this.cleanupStaleMessages().catch(error => {
+                this.logger.error(error);
+            });
         } catch (error) {
             callback(error);
         }
@@ -42,13 +50,16 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
 
     async close(): Promise<void> {
         this.stopped = true;
+        await closeSharedPostgresPool();
     }
 
     private async poll(): Promise<void> {
         while (!this.stopped) {
             const row = await this.reserveNext();
             if (!row) {
-                await new Promise(resolve => setTimeout(resolve, this.transport.pollIntervalMs));
+                await new Promise<void>(resolve => {
+                    setTimeout(resolve, this.transport.pollIntervalMs);
+                });
                 continue;
             }
             await this.handleRow(row);
@@ -76,9 +87,11 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
                     this.logger.warn(`Reset ${result.rowCount} stale processing messages to pending`);
                 }
             } catch (error) {
-                this.logger.error('Error cleaning up stale messages', error);
+                this.logger.error("Error cleaning up stale messages", error);
             }
-            await new Promise(resolve => setTimeout(resolve, this.staleMessageCleanupIntervalMs));
+            await new Promise<void>(resolve => {
+                setTimeout(resolve, this.staleMessageCleanupIntervalMs);
+            });
         }
     }
 
@@ -95,8 +108,8 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
                 `,
                 [this.transport.queue],
             );
-            const row = result.rows[0];
-            if (!row) return undefined;
+            const row = result.rows.at(0);
+            if (row === undefined) return undefined;
             await client.query(
                 `
                     UPDATE sprocket.platform_rpc_queue
@@ -122,7 +135,7 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
 
         try {
             const handlerResult = await handler(packet.data, new BaseRpcContext([row]));
-            console.log(`[PostgresServer] Handler result for ${row.pattern}:`, JSON.stringify(handlerResult).substring(0, 200));
+            this.logger.log(`Handler result for ${row.pattern}: ${JSON.stringify(handlerResult).substring(0, 200)}`);
             
             // Instead of using transformToObservable (which can produce malformed JSON),
             // we handle the result directly with safe serialization
@@ -130,11 +143,11 @@ export class PostgresServer extends Server implements CustomTransportStrategy {
         } catch (error) {
             await this.fail(row.id, error);
         }
-}
+    }
 
     private async complete(id: string, response: unknown): Promise<void> {
         // Debug: log what we're about to store
-        console.log(`[PostgresServer] Storing response for ${id}:`, JSON.stringify(response).substring(0, 200));
+        this.logger.log(`Storing response for ${id}: ${JSON.stringify(response).substring(0, 200)}`);
         
         let jsonValue: string | null;
         try {

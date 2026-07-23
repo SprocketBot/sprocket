@@ -1,6 +1,10 @@
-import {Field, Int, ObjectType} from "@nestjs/graphql";
+import {
+    Field, Int, ObjectType,
+} from "@nestjs/graphql";
 import {ReportCardAssetType} from "@sprocketbot/common";
-import {Column, Entity, Index} from "typeorm";
+import {
+    Column, Entity, Index,
+} from "typeorm";
 
 import {BaseModel} from "../base-model";
 
@@ -32,11 +36,15 @@ export class ReportCardAsset extends BaseModel {
     @Field(() => String, {nullable: true})
   scrimUuid?: string | null;
 
-    @Column({type: "int", array: true, default: () => "'{}'"})
+    @Column({
+        type: "int", array: true, default: () => "'{}'",
+    })
     @Field(() => [Int])
   userIds: number[];
 
-    @Column({type: "int", array: true, default: () => "'{}'"})
+    @Column({
+        type: "int", array: true, default: () => "'{}'",
+    })
     @Field(() => [Int])
   franchiseIds: number[];
 }

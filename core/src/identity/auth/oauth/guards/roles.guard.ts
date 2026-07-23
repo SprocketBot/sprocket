@@ -45,7 +45,7 @@ export class RolesGuard extends AuthGuard("jwt") {
     /* eslint-enable */
         const request: Req = context.switchToHttp().getRequest();
         const token = this.fromHeaderOrQueryString(request);
-        const jwtPayload: AuthPayload = this.jwtService.decode(token) as AuthPayload;
+        const jwtPayload: AuthPayload = this.jwtService.decode(token);
         if (jwtPayload.sub && (super.canActivate(context) as boolean)) {
             const ourUser = await this.userService.getUserById(jwtPayload.userId);
             return this.matchRoles(roles, ourUser.type);

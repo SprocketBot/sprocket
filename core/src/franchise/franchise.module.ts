@@ -5,6 +5,7 @@ import {
     AnalyticsModule, config, EventsModule, NotificationModule,
 } from "@sprocketbot/common";
 
+import {DatabaseModule} from "../database";
 import {FranchiseLeadershipRole} from "../database/authorization/franchise_leadership_role";
 import {FranchiseLeadershipSeat} from "../database/authorization/franchise_leadership_seat";
 import {FranchiseStaffRole} from "../database/authorization/franchise_staff_role";
@@ -15,15 +16,14 @@ import {Player} from "../database/franchise/player/player.model";
 import {RosterRole} from "../database/franchise/roster_role";
 import {RosterSlot} from "../database/franchise/roster_slot";
 import {Team} from "../database/franchise/team/team.model";
-import {DatabaseModule} from "../database";
-import {EloConnectorModule} from "../elo/elo-connector";
-import {GameModule} from "../game";
 import {MLE_Player} from "../database/mledb/Player.model";
 import {MLE_Team} from "../database/mledb/Team.model";
 import {MLE_TeamToCaptain} from "../database/mledb/TeamToCaptain.model";
 import {LeagueToSkillGroup} from "../database/mledb-bridge/league_to_skill_group.model";
 import {PlayerToPlayer} from "../database/mledb-bridge/player_to_player.model";
 import {TeamToFranchise} from "../database/mledb-bridge/team_to_franchise.model";
+import {EloConnectorModule} from "../elo/elo-connector";
+import {GameModule} from "../game";
 import {MledbInterfaceModule} from "../mledb";
 import {OrganizationModule} from "../organization/organization.module";
 import {SchedulingModule} from "../scheduling/scheduling.module";

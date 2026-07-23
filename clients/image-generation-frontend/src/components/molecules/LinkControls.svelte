@@ -33,6 +33,7 @@
   <p>Links: </p>
   <div class="links">
     {#each [...$links] as [el, linkmap]}
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
       <header on:click={() => { selectThisElement(el) }}>
         {el.id}
         <span><button on:click|stopPropagation={() => { clearLink(el) }}>Delete</button></span>

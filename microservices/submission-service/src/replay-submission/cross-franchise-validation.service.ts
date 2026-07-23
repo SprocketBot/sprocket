@@ -3,7 +3,6 @@ import type {
     CrossFranchiseValidationError,
     EnhancedReplaySubmission,
     FranchiseInfo,
-    RatifierInfo,
 } from "@sprocketbot/common";
 import {
     CoreEndpoint,
@@ -45,7 +44,7 @@ export class CrossFranchiseValidationService {
                 message: "Player does not belong to any franchise.",
                 context: {
                     submissionId: submission.id,
-                    playerId,
+                    playerId: playerId,
                     submissionType: submission.type,
                 },
             };
@@ -73,7 +72,7 @@ export class CrossFranchiseValidationService {
                 message: "Player has already ratified this submission.",
                 context: {
                     submissionId: submission.id,
-                    playerId,
+                    playerId: playerId,
                 },
             };
         }
@@ -90,9 +89,9 @@ export class CrossFranchiseValidationService {
                 message: `Your franchise (${overlappingFranchise.name}) has already ratified this match. A different franchise must provide the second ratification.`,
                 context: {
                     submissionId: submission.id,
-                    playerId,
+                    playerId: playerId,
                     existingFranchises: existingFranchiseIds,
-                    playerFranchises,
+                    playerFranchises: playerFranchises,
                     requiredFranchises: submission.franchiseValidation.requiredFranchises,
                 },
             };

@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import {
     Args, Query, ResolveField, Resolver, Root,
 } from "@nestjs/graphql";

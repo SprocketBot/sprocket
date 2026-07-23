@@ -90,7 +90,7 @@ export class SvgTransformationService {
         }
 
         /*
-         * TODO: Ensure that string generic typing is correct here
+         * NOTE: Ensure that string generic typing is correct here
          */
         let image = this.imageLookup.get(value);
         if (!image) {
@@ -103,8 +103,8 @@ export class SvgTransformationService {
                 return;
             }
             /*
-             * TODO: Transform image to retain centering and height
-             * TODO: Maintain Height or Maintain Width as an option
+             * NOTE: Transform image to retain centering and height
+             * NOTE: Maintain Height or Maintain Width as an option
              */
             image = `data:image/png;base64,${Buffer.from(response.data, "binary").toString("base64")}`;
             this.imageLookup.set(value, image);
@@ -121,8 +121,8 @@ export class SvgTransformationService {
             target.parentNode?.replaceChild(newImage, target);
         }
         /*
-         * TODO: Deal with figma output ( fill=url(#pattern) )
-         * TODO: Image rescaling options
+         * NOTE: Deal with figma output ( fill=url(#pattern) )
+         * NOTE: Image rescaling options
          */
         if (options.rescaleOn === "height") return;
     }
@@ -138,7 +138,7 @@ export class SvgTransformationService {
         if (children.length && children[0].tagName === "tspan") {
             target = children[0];
         }
-        // TODO: Account for editors that use transformations (i.e. Illustrator)
+        // NOTE: Account for editors that use transformations (i.e. Illustrator)
         const originalLeft = Number(target.getAttribute("x") ?? 0);
         const originalBottom = Number(target.getAttribute("y") ?? 0);
         const {height: originalHeight, width: originalWidth} = await this.getElDimension(el);

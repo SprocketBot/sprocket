@@ -2,8 +2,7 @@
 import type {TestingModule} from "@nestjs/testing";
 import {Test} from "@nestjs/testing";
 import {getDataSourceToken} from "@nestjs/typeorm";
-import type {BallchasingResponse} from "@sprocketbot/common";
-import type {BallchasingPlayer} from "@sprocketbot/common";
+import type {BallchasingPlayer, BallchasingResponse} from "@sprocketbot/common";
 import {CarballConverterService, ProgressStatus} from "@sprocketbot/common";
 import type {EntityManager} from "typeorm";
 import {DataSource} from "typeorm";

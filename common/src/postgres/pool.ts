@@ -8,12 +8,13 @@ let sharedPoolEnding: Promise<void> | undefined;
 
 function serviceName(): string {
     return process.env.SPROCKET_SERVICE_NAME
-        || process.env.SERVICE_NAME
-        || process.env.npm_package_name
-        || "sprocket";
+        ?? process.env.SERVICE_NAME
+        ?? process.env.npm_package_name
+        ?? "sprocket";
 }
 
 function applicationName(role: string): string {
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
     const raw = `${config.db.application_name || serviceName()}.${role}`;
     return raw.replace(/[^a-zA-Z0-9_.:-]/g, "_").slice(0, 63);
 }

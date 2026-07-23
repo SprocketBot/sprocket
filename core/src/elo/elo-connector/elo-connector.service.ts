@@ -35,7 +35,7 @@ export class EloConnectorService {
     }
 
     private async waitForJob<E extends EloEndpoint>(endpoint: E, jobId: EloJobId): Promise<EloOutput<E>> {
-        while (true) {
+        for (;;) {
             const result = await this.postgres.query<{
                 status: string;
                 result: unknown;
@@ -52,7 +52,9 @@ export class EloConnectorService {
             if (row.status === "failed") {
                 throw new Error(row.error?.message ?? `Elo job ${jobId} failed`);
             }
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise<void>(resolve => {
+                setTimeout(resolve, 1000);
+            });
         }
     }
 

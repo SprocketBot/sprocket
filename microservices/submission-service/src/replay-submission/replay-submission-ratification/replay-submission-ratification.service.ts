@@ -1,5 +1,5 @@
 import {Injectable, Logger} from "@nestjs/common";
-import type {EnhancedReplaySubmission} from "@sprocketbot/common";
+import type {CompatibleReplaySubmission, EnhancedReplaySubmission} from "@sprocketbot/common";
 import {
     EventsService,
     EventTopic,
@@ -97,7 +97,7 @@ export class ReplaySubmissionRatificationService {
         return false;
     }
 
-    private isEnhanced(submission: any): submission is any {
+    private isEnhanced(submission: CompatibleReplaySubmission): submission is EnhancedReplaySubmission {
         return (
             "franchiseValidation" in submission
       && Array.isArray(submission.ratifiers)
@@ -107,6 +107,7 @@ export class ReplaySubmissionRatificationService {
         );
     }
 
+    // eslint-disable-next-line @typescript-eslint/member-ordering
     async rejectSubmission(
         playerId: number,
         submissionId: string,
@@ -120,7 +121,7 @@ export class ReplaySubmissionRatificationService {
             submissionId: submissionId,
         });
 
-        // TODO: support for different thresholds
+        // NOTE: support for different thresholds
         await this.eventService.publish(EventTopic.SubmissionRejected, {
             submissionId: submissionId,
         });

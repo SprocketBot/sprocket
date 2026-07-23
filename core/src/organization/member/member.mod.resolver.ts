@@ -1,11 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 import {
     forwardRef, Inject, UseGuards,
 } from "@nestjs/common";
 import {
     Args, Int, Mutation, Resolver,
 } from "@nestjs/graphql";
-import {DataSource} from "typeorm";
 import {AnalyticsEndpoint, AnalyticsService} from "@sprocketbot/common";
+import {DataSource} from "typeorm";
 
 import {Member} from "$db/organization/member/member.model";
 

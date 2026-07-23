@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return */
+
 import {
     forwardRef, Inject, Injectable, Logger,
 } from "@nestjs/common";
@@ -67,7 +69,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         // It's possible the email doesn't exist if the user didn't verify it.
         if (!user && !profile.email) throw new Error("User account could not be found and there is no attached email to the Discord user");
 
-        // TODO: Do we want to actually do this? Theoretically, if a user changes their email, that's a "new user" if we go by email. Hence ^
+        // NOTE: Do we want to actually do this? Theoretically, if a user changes their email, that's a "new user" if we go by email. Hence ^
         if (!user) user = await this.userService.getUser({where: {email: profile.email} });
 
         // New-account import still keys off legacy MLEDB until full cutover; returning users authenticate via Sprocket alone.

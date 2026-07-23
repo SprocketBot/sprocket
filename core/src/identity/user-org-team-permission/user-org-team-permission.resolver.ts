@@ -16,9 +16,7 @@ export class UserOrgTeamPermissionResolver {
 
     @Query(() => [MLE_OrganizationTeam])
     @UseGuards(GqlJwtGuard, MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
-    async userOrgTeamPermissions(
-    @Args("userId", {type: () => Int}) userId: number,
-    ): Promise<MLE_OrganizationTeam[]> {
+    async userOrgTeamPermissions(@Args("userId", {type: () => Int}) userId: number): Promise<MLE_OrganizationTeam[]> {
         return this.permissionService.listOrgTeamsForUser(userId);
     }
 

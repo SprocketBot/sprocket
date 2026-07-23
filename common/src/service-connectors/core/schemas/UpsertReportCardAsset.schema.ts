@@ -11,7 +11,8 @@ export const UpsertReportCardAsset_Request = z.object({
     sprocketId: z.number(),
     legacyId: z.number(),
     minioKey: z.string(),
-    scrimUuid: z.string().uuid().optional(),
+    scrimUuid: z.string().uuid()
+        .optional(),
     userIds: z.array(z.number()).default([]),
     franchiseIds: z.array(z.number()).default([]),
 });

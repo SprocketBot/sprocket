@@ -1,3 +1,5 @@
+/* eslint-disable no-console, @typescript-eslint/explicit-function-return-type */
+
 import {
     forwardRef, Inject, Injectable,
 } from "@nestjs/common";
@@ -11,7 +13,6 @@ import {FranchiseProfile} from "$db/franchise/franchise_profile/franchise_profil
 
 import {MledbPlayerService} from "../../mledb";
 import {MemberService} from "../../organization";
-import {PlayerService} from "../player";
 import {RosterAuthorityService} from "../roster-authority.service";
 
 @Injectable()
@@ -138,7 +139,7 @@ export class FranchiseService {
         sprocket: CoreOutput<CoreEndpoint.GetPlayerFranchises>,
         mle: CoreOutput<CoreEndpoint.GetPlayerFranchises>,
     ): CoreOutput<CoreEndpoint.GetPlayerFranchises> {
-        type Acc = {id: number; name: string; staffByCode: Map<string, {id: number; name: string;}>;};
+        interface Acc {id: number; name: string; staffByCode: Map<string, {id: number; name: string;}>;}
         const byFranchiseId = new Map<number, Acc>();
 
         const mergeRow = (row: {id: number; name: string; staffPositions: Array<{id: number; name: string;}>;}) => {

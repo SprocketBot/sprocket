@@ -9,7 +9,7 @@
     "dev": "nest start --watch",
     "start": "node dist/apps/monolith/src/main.js",
     "start:prod": "node dist/apps/monolith/src/main.js",
-    "lint": "eslint src --fix"
+    "lint": "eslint --ext .ts src --fix"
   },
   "dependencies": {
     "@influxdata/influxdb-client": "^1.14.0",

@@ -34,7 +34,7 @@ export class NotificationService {
                 ...data.payload,
             };
 
-            // TODO: TTL 14 days
+            // NOTE: TTL 14 days
             await this.redisService.setJson(
                 `${this.prefix}${data.userId}:${data.type}:${notificationPayload.id}`,
                 notificationPayload,

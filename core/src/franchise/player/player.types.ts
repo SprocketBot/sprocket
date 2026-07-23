@@ -131,19 +131,19 @@ export const IntakeUserResult = createUnionType({
 export const SwapDiscordAccountsResult = createUnionType({
     name: "SwapDiscordAccountsResult",
     types: () => [OperationError],
-    resolveType: value => OperationError,
+    resolveType: () => OperationError,
 });
 
 export const ForcePlayerToTeamResult = createUnionType({
     name: "ForcePlayerToTeamResult",
     types: () => [OperationError],
-    resolveType: value => OperationError,
+    resolveType: () => OperationError,
 });
 
 export const ChangePlayerNameResult = createUnionType({
     name: "ChangePlayerNameResult",
     types: () => [OperationError],
-    resolveType: value => OperationError,
+    resolveType: () => OperationError,
 });
 
 export const CreatePlayerResult = createUnionType({

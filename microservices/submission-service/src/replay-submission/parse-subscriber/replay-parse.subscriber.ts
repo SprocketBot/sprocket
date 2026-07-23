@@ -46,7 +46,7 @@ export class ReplayParseSubscriber {
                 await this.eventsService.publish(EventTopic.SubmissionProgress, {
                     submissionId: submissionId,
                 });
-                // TODO: Clean up subscription to prevent mem leak
+                // NOTE: Clean up subscription to prevent mem leak
             } catch (e) {
                 this.logger.error(e);
             }

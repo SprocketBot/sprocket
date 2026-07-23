@@ -1,26 +1,32 @@
-import {ClientProxy} from "@nestjs/microservices";
+import {Logger} from "@nestjs/common";
 import type {ReadPacket, WritePacket} from "@nestjs/microservices";
+import {ClientProxy} from "@nestjs/microservices";
 import {randomUUID} from "crypto";
 
-import {
-    PostgresTransportBase,
+import {closeSharedPostgresPool} from "../postgres";
+import type {
     PostgresTransportOptions,
     RpcQueueRow,
+} from "./postgres-transport";
+import {
+    PostgresTransportBase,
     toJsonbParam,
 } from "./postgres-transport";
 
 export class PostgresClientProxy extends ClientProxy {
+    private readonly logger = new Logger(PostgresClientProxy.name);
+
     private readonly transport: PostgresTransportBase;
 
     private connected = false;
 
     constructor(options: PostgresTransportOptions) {
         super();
-        this.transport = new (class extends PostgresTransportBase {
+        this.transport = new class extends PostgresTransportBase {
             constructor() {
                 super(PostgresClientProxy.name, options);
             }
-        })();
+        }();
     }
 
     async connect(): Promise<void> {
@@ -30,6 +36,7 @@ export class PostgresClientProxy extends ClientProxy {
     }
 
     async close(): Promise<void> {
+        await closeSharedPostgresPool();
         this.connected = false;
     }
 
@@ -38,8 +45,10 @@ export class PostgresClientProxy extends ClientProxy {
         let stopped = false;
 
         this.insertRequest(id, packet)
-            .then(() => this.waitForResponse(id, callback, () => stopped))
-            .catch(err => callback({err, isDisposed: true}));
+            .then(async () => this.waitForResponse(id, callback, () => stopped))
+            .catch((err: unknown) => {
+                callback({err: err instanceof Error ? err : new Error(String(err)), isDisposed: true});
+            });
 
         return () => {
             stopped = true;
@@ -54,7 +63,7 @@ export class PostgresClientProxy extends ClientProxy {
 
     private async insertRequest(id: string, packet: ReadPacket): Promise<void> {
         await this.connect();
-        const pattern = this.normalizePattern(packet.pattern);
+        const pattern = this.normalizePattern(packet.pattern as string);
         await this.transport.pool.query(
             `
                 INSERT INTO sprocket.platform_rpc_queue (id, queue, pattern, payload)
@@ -74,13 +83,13 @@ export class PostgresClientProxy extends ClientProxy {
                 "SELECT status, response, error FROM sprocket.platform_rpc_queue WHERE id = $1",
                 [id],
             );
-            const row = result.rows[0];
-            if (!row) {
+            const row = result.rows.at(0);
+            if (row === undefined) {
                 callback({err: new Error(`Postgres RPC request ${id} disappeared`), isDisposed: true});
                 return;
             }
             if (row.status === "completed") {
-                console.log(`[PostgresClient] Received response for ${id}:`, JSON.stringify(row.response).substring(0, 200));
+                this.logger.debug(`Received response for ${id}: ${JSON.stringify(row.response).substring(0, 200)}`);
                 callback({response: row.response, isDisposed: true});
                 await this.transport.pool.query(
                     "DELETE FROM sprocket.platform_rpc_queue WHERE id = $1",
@@ -99,7 +108,9 @@ export class PostgresClientProxy extends ClientProxy {
                 );
                 return;
             }
-            await new Promise(resolve => setTimeout(resolve, this.transport.pollIntervalMs));
+            await new Promise<void>(resolve => {
+                setTimeout(resolve, this.transport.pollIntervalMs);
+            });
         }
     }
 

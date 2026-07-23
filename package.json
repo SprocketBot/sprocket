@@ -52,7 +52,7 @@
     "ci:infra:run": "bash ./scripts/infra/run-pulumi.sh",
     "ci:infra:verify-backend": "bash ./scripts/infra/verify-backend.sh",
     "clean": "npm run clean --workspaces --if-available",
-    "lint": "npm run lint --workspaces --if-available",
+    "lint": "npm run lint --workspaces --if-present",
     "format": "prettier --write ."
   },
   "workspaces": [

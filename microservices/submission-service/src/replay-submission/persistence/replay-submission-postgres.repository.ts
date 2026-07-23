@@ -1,4 +1,4 @@
-import {Injectable} from "@nestjs/common";
+import {Injectable, Logger} from "@nestjs/common";
 import type {
     EnhancedReplaySubmission,
     FranchiseValidationContext,
@@ -13,9 +13,9 @@ import type {
 import {PostgresService, ReplaySubmissionType} from "@sprocketbot/common";
 import type {QueryResult, QueryResultRow} from "pg";
 
-type DbClient = {
+interface DbClient {
     query<T extends QueryResultRow = QueryResultRow>(text: string, values?: unknown[]): Promise<QueryResult<T>>;
-};
+}
 type CompatibleSubmission = ReplaySubmission | EnhancedReplaySubmission;
 
 interface SubmissionRow {
@@ -68,19 +68,19 @@ interface RejectionItemRow {
 
 @Injectable()
 export class ReplaySubmissionPostgresRepository {
+    private readonly logger = new Logger(ReplaySubmissionPostgresRepository.name);
+
     constructor(private readonly postgres: PostgresService) {}
 
     async findAll(): Promise<CompatibleSubmission[]> {
         try {
-            const result = await this.postgres.query<SubmissionRow>(
-                "SELECT * FROM sprocket.replay_submission ORDER BY created_at ASC",
-            );
-            console.log(`[Repo] findAll: rows length = ${result.rows.length}`);
-            const hydrated = await Promise.all(result.rows.map(row => this.hydrate(row)));
-            console.log(`[Repo] findAll: hydrated length = ${hydrated.length}`);
+            const result = await this.postgres.query<SubmissionRow>("SELECT * FROM sprocket.replay_submission ORDER BY created_at ASC");
+            this.logger.debug(`findAll: rows length = ${result.rows.length}`);
+            const hydrated = await Promise.all(result.rows.map(async row => this.hydrate(row)));
+            this.logger.debug(`findAll: hydrated length = ${hydrated.length}`);
             return hydrated;
         } catch (error) {
-            console.error(`[Repo] findAll error:`, error);
+            this.logger.error("findAll error", error);
             throw error;
         }
     }
@@ -159,7 +159,7 @@ export class ReplaySubmissionPostgresRepository {
     async replaceItems(submissionId: string, items: ReplaySubmissionItem[]): Promise<void> {
         await this.postgres.transaction(async client => {
             await client.query("DELETE FROM sprocket.replay_submission_item WHERE submission_id = $1", [submissionId]);
-            await Promise.all(items.map((item, index) => this.upsertItemWithClient(client, submissionId, item, index)));
+            await Promise.all(items.map(async (item, index) => this.upsertItemWithClient(client, submissionId, item, index)));
             await this.touch(client, submissionId);
         });
     }
@@ -248,7 +248,7 @@ export class ReplaySubmissionPostgresRepository {
                     ratifier.ratifiedAt,
                 ],
             );
-            const countResult = await client.query<{count: string}>(
+            const countResult = await client.query<{count: string;}>(
                 `
                     SELECT COUNT(DISTINCT franchise_id)::text AS count
                     FROM sprocket.replay_submission_ratifier
@@ -286,7 +286,7 @@ export class ReplaySubmissionPostgresRepository {
 
     async addRejection(submissionId: string, rejection: ReplaySubmissionRejection): Promise<void> {
         await this.postgres.transaction(async client => {
-            const result = await client.query<{id: number}>(
+            const result = await client.query<{id: number;}>(
                 `
                     INSERT INTO sprocket.replay_submission_rejection (
                         submission_id,
@@ -307,7 +307,7 @@ export class ReplaySubmissionPostgresRepository {
                 ],
             );
             const rejectionId = result.rows[0].id;
-            await Promise.all(rejection.rejectedItems.map((item, index) => client.query(
+            await Promise.all(rejection.rejectedItems.map(async (item, index) => client.query(
                 `
                     INSERT INTO sprocket.replay_submission_rejection_item (
                         rejection_id,
@@ -342,13 +342,13 @@ export class ReplaySubmissionPostgresRepository {
             id: row.id,
             creatorId: row.creator_id,
             status: row.status,
-            taskIds: row.task_ids ?? [],
-            items,
+            taskIds: row.task_ids,
+            items: items,
             validated: row.validated,
             stats: row.stats,
             ratifiers: this.mapRatifiers(ratifierRows),
             requiredRatifications: row.required_ratifications,
-            rejections,
+            rejections: rejections,
         };
         const franchiseValidation = this.mapFranchiseValidation(row);
         const typedBase = franchiseValidation ? {...base, franchiseValidation} : base;
@@ -439,7 +439,7 @@ export class ReplaySubmissionPostgresRepository {
     }
 
     private mapRatifiers(rows: RatifierRow[]): number[] | RatifierInfo[] {
-        if (!rows.some(row => row.franchise_id !== null && row.franchise_id !== undefined)) {
+        if (!rows.some(row => row.franchise_id !== undefined)) {
             return rows.map(row => row.player_id);
         }
         return rows.map(row => ({
@@ -451,7 +451,7 @@ export class ReplaySubmissionPostgresRepository {
     }
 
     private async getItemPosition(client: DbClient, submissionId: string, taskId: string): Promise<number> {
-        const result = await client.query<{position: number}>(
+        const result = await client.query<{position: number;}>(
             `
                 SELECT position
                 FROM sprocket.replay_submission_item
@@ -461,7 +461,7 @@ export class ReplaySubmissionPostgresRepository {
         );
         if (result.rows[0]) return result.rows[0].position;
 
-        const maxResult = await client.query<{position: number}>(
+        const maxResult = await client.query<{position: number;}>(
             `
                 SELECT COALESCE(MAX(position) + 1, 0) AS position
                 FROM sprocket.replay_submission_item
@@ -520,7 +520,7 @@ export class ReplaySubmissionPostgresRepository {
     }
 
     private mapFranchiseValidation(row: SubmissionRow): FranchiseValidationContext | undefined {
-        if (row.required_franchises === null || row.required_franchises === undefined) return undefined;
+        if (row.required_franchises === undefined) return undefined;
         return {
             homeFranchiseId: row.home_franchise_id ?? undefined,
             awayFranchiseId: row.away_franchise_id ?? undefined,

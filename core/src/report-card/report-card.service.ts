@@ -7,10 +7,8 @@ import {ReportCardAsset} from "../database/report-card/report_card_asset.model";
 
 @Injectable()
 export class ReportCardService {
-    constructor(
-        @InjectRepository(ReportCardAsset)
-        private readonly reportCardRepo: Repository<ReportCardAsset>,
-    ) {}
+    constructor(@InjectRepository(ReportCardAsset)
+        private readonly reportCardRepo: Repository<ReportCardAsset>) {}
 
     async upsertAsset(input: UpsertReportCardAssetRequest): Promise<boolean> {
         const userIds = Array.from(new Set(input.userIds ?? []));

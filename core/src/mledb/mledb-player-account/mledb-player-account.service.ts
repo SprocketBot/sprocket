@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import type {FindManyOptions} from "typeorm";
-import {EntityManager, Repository} from "typeorm";
+import type {EntityManager, FindManyOptions} from "typeorm";
+import {Repository} from "typeorm";
 
 import type {MLE_Platform, MLE_Player} from "../../database/mledb";
 import {MLE_PlayerAccount} from "../../database/mledb";

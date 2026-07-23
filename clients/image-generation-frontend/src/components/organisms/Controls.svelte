@@ -10,8 +10,11 @@
 
 <section class="controls">
   <header>
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
     <h3 on:click={() => { $workstate = WorkState.Linking }} class={$workstate === WorkState.Linking ? "selected" : ""}>Assign Values</h3>
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
     <h3 on:click={() => { $workstate = WorkState.Fonts }} class={$workstate === WorkState.Fonts ? "selected" : ""}>Upload Font Files</h3>
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
     <h3 on:click={() => { $workstate = WorkState.Saving }} class={$workstate === WorkState.Saving ? "selected" : ""}>Save Image</h3>
   </header>
   <section class="container">

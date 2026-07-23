@@ -1,6 +1,8 @@
 import type {CorsOptions} from "@nestjs/common/interfaces/external/cors-options.interface";
 import {config} from "@sprocketbot/common";
-import type {NextFunction, Request, Response} from "express";
+import type {
+    NextFunction, Request, Response,
+} from "express";
 
 const CORS_METHODS = ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"];
 const CORS_ALLOWED_HEADERS = [
@@ -74,7 +76,9 @@ const appendVaryOrigin = (res: Response): void => {
     }
 
     const values = Array.isArray(existing) ? existing.join(",") : String(existing);
-    if (!values.toLowerCase().split(",").map(v => v.trim()).includes("origin")) {
+    if (!values.toLowerCase().split(",")
+        .map(v => v.trim())
+        .includes("origin")) {
         res.setHeader("Vary", `${values}, Origin`);
     }
 };

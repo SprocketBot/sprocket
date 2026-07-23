@@ -1,17 +1,19 @@
+/* eslint-disable @typescript-eslint/member-ordering */
+
 import {Injectable, Logger} from "@nestjs/common";
 import {InjectDataSource, InjectRepository} from "@nestjs/typeorm";
 import {DataSource, Repository} from "typeorm";
 
+import {FranchiseLeadershipRole} from "$db/authorization/franchise_leadership_role/franchise_leadership_role.model";
+import {FranchiseLeadershipSeat} from "$db/authorization/franchise_leadership_seat/franchise_leadership_seat.model";
+import {FranchiseStaffRole} from "$db/authorization/franchise_staff_role/franchise_staff_role.model";
+import {FranchiseStaffSeat} from "$db/authorization/franchise_staff_seat/franchise_staff_seat.model";
 import {FranchiseLeadershipAppointment} from "$db/franchise/franchise_leadership_appointment/franchise_leadership_appointment.model";
 import {FranchiseStaffAppointment} from "$db/franchise/franchise_staff_appointment/franchise_staff_appointment.model";
 import {Player} from "$db/franchise/player/player.model";
 import {RosterRole} from "$db/franchise/roster_role/roster_role.model";
 import {RosterSlot} from "$db/franchise/roster_slot/roster_slot.model";
 import {Team} from "$db/franchise/team/team.model";
-import {FranchiseLeadershipRole} from "$db/authorization/franchise_leadership_role/franchise_leadership_role.model";
-import {FranchiseLeadershipSeat} from "$db/authorization/franchise_leadership_seat/franchise_leadership_seat.model";
-import {FranchiseStaffRole} from "$db/authorization/franchise_staff_role/franchise_staff_role.model";
-import {FranchiseStaffSeat} from "$db/authorization/franchise_staff_seat/franchise_staff_seat.model";
 import {UserAuthenticationAccount} from "$db/identity/user_authentication_account/user_authentication_account.model";
 import {UserAuthenticationAccountType} from "$db/identity/user_authentication_account/user_authentication_account_type.enum";
 
@@ -39,11 +41,11 @@ const STAFF_ROLE_CAPTAIN = "Captain";
 const STAFF_ROLE_PR = "PR Support";
 const LEADERSHIP_ROLE_FM = "Franchise Manager";
 
-export type PlayerFranchiseRow = {
+export interface PlayerFranchiseRow {
     id: number;
     name: string;
     staffPositions: Array<{id: number; name: string;}>;
-};
+}
 
 @Injectable()
 export class RosterAuthorityService {
@@ -139,18 +141,14 @@ export class RosterAuthorityService {
 
         const tf = await this.teamToFranchiseRepository.findOne({where: {team: teamName} });
         if (!tf) {
-            this.logger.warn(
-                `syncRosterSlotFromMle: no team_to_franchise for MLE team "${teamName}"; clearing roster slot for player ${sprocketPlayer.id}`,
-            );
+            this.logger.warn(`syncRosterSlotFromMle: no team_to_franchise for MLE team "${teamName}"; clearing roster slot for player ${sprocketPlayer.id}`);
             await this.clearPlayerRosterSlot(sprocketPlayer.id);
             return;
         }
 
         const leagueRow = await this.leagueToSkillGroupRepository.findOne({where: {league: mlePlayer.league} });
         if (!leagueRow) {
-            this.logger.warn(
-                `syncRosterSlotFromMle: no league_to_skill_group for league ${mlePlayer.league}; skipping slot for player ${sprocketPlayer.id}`,
-            );
+            this.logger.warn(`syncRosterSlotFromMle: no league_to_skill_group for league ${mlePlayer.league}; skipping slot for player ${sprocketPlayer.id}`);
             return;
         }
 
@@ -162,9 +160,7 @@ export class RosterAuthorityService {
             },
         });
         if (!franchiseTeam) {
-            this.logger.warn(
-                `syncRosterSlotFromMle: no sprocket.team for franchise ${tf.franchiseId}, skillGroup ${leagueRow.skillGroupId}, org ${orgId}`,
-            );
+            this.logger.warn(`syncRosterSlotFromMle: no sprocket.team for franchise ${tf.franchiseId}, skillGroup ${leagueRow.skillGroupId}, org ${orgId}`);
             return;
         }
 
@@ -182,9 +178,7 @@ export class RosterAuthorityService {
             },
         });
         if (!rosterRole) {
-            this.logger.warn(
-                `syncRosterSlotFromMle: no roster_role code=${roleCode} skillGroup=${leagueRow.skillGroupId} org=${orgId}`,
-            );
+            this.logger.warn(`syncRosterSlotFromMle: no roster_role code=${roleCode} skillGroup=${leagueRow.skillGroupId} org=${orgId}`);
             return;
         }
 
@@ -196,16 +190,12 @@ export class RosterAuthorityService {
             relations: {player: true},
         });
         if (!targetSlot) {
-            this.logger.warn(
-                `syncRosterSlotFromMle: no roster_slot for team ${franchiseTeam.id} role ${rosterRole.code}`,
-            );
+            this.logger.warn(`syncRosterSlotFromMle: no roster_slot for team ${franchiseTeam.id} role ${rosterRole.code}`);
             return;
         }
 
         if (targetSlot.player && targetSlot.player.id !== sprocketPlayer.id) {
-            this.logger.warn(
-                `syncRosterSlotFromMle: slot team ${franchiseTeam.id} role ${rosterRole.code} already held by player ${targetSlot.player.id}`,
-            );
+            this.logger.warn(`syncRosterSlotFromMle: slot team ${franchiseTeam.id} role ${rosterRole.code} already held by player ${targetSlot.player.id}`);
             return;
         }
 
@@ -284,58 +274,48 @@ export class RosterAuthorityService {
             if (fmRole && mleTeam.franchiseManagerId === mlePlayer.id) {
                 const seat = await this.franchiseLeadershipSeatRepository.findOne({where: {role: {id: fmRole.id} } });
                 if (seat) {
-                    newLeadership.push(
-                        this.franchiseLeadershipAppointmentRepository.create({
-                            franchise: {id: franchiseId} as never,
-                            member: {id: memberId} as never,
-                            seat,
-                        }),
-                    );
+                    newLeadership.push(this.franchiseLeadershipAppointmentRepository.create({
+                        franchise: {id: franchiseId} as never,
+                        member: {id: memberId} as never,
+                        seat,
+                    }));
                 }
             }
             if (gmStaffRole && mleTeam.generalManagerId === mlePlayer.id) {
                 const seat = await this.franchiseStaffSeatRepository.findOne({where: {role: {id: gmStaffRole.id} } });
                 if (seat) {
-                    newStaff.push(
-                        this.franchiseStaffAppointmentRepository.create({
-                            franchise: {id: franchiseId} as never,
-                            member: {id: memberId} as never,
-                            seat,
-                        }),
-                    );
+                    newStaff.push(this.franchiseStaffAppointmentRepository.create({
+                        franchise: {id: franchiseId} as never,
+                        member: {id: memberId} as never,
+                        seat,
+                    }));
                 }
             }
             if (agmStaffRole && agmSeats.length > 0) {
                 if (mleTeam.doublesAssistantGeneralManagerId === mlePlayer.id) {
-                    newStaff.push(
-                        this.franchiseStaffAppointmentRepository.create({
-                            franchise: {id: franchiseId} as never,
-                            member: {id: memberId} as never,
-                            seat: agmSeats[0],
-                        }),
-                    );
+                    newStaff.push(this.franchiseStaffAppointmentRepository.create({
+                        franchise: {id: franchiseId} as never,
+                        member: {id: memberId} as never,
+                        seat: agmSeats[0],
+                    }));
                 }
                 if (mleTeam.standardAssistantGeneralManagerId === mlePlayer.id) {
                     const seat = agmSeats.length > 1 ? agmSeats[1] : agmSeats[0];
-                    newStaff.push(
-                        this.franchiseStaffAppointmentRepository.create({
-                            franchise: {id: franchiseId} as never,
-                            member: {id: memberId} as never,
-                            seat,
-                        }),
-                    );
+                    newStaff.push(this.franchiseStaffAppointmentRepository.create({
+                        franchise: {id: franchiseId} as never,
+                        member: {id: memberId} as never,
+                        seat,
+                    }));
                 }
             }
             if (prStaffRole && mleTeam.prSupportId === mlePlayer.id) {
                 const seat = await this.franchiseStaffSeatRepository.findOne({where: {role: {id: prStaffRole.id} } });
                 if (seat) {
-                    newStaff.push(
-                        this.franchiseStaffAppointmentRepository.create({
-                            franchise: {id: franchiseId} as never,
-                            member: {id: memberId} as never,
-                            seat,
-                        }),
-                    );
+                    newStaff.push(this.franchiseStaffAppointmentRepository.create({
+                        franchise: {id: franchiseId} as never,
+                        member: {id: memberId} as never,
+                        seat,
+                    }));
                 }
             }
         }
@@ -346,13 +326,11 @@ export class RosterAuthorityService {
             if (!bridge || !captainStaffRole) continue;
             const seat = await this.franchiseStaffSeatRepository.findOne({where: {role: {id: captainStaffRole.id} } });
             if (!seat) continue;
-            newStaff.push(
-                this.franchiseStaffAppointmentRepository.create({
-                    franchise: {id: bridge.franchiseId} as never,
-                    member: {id: memberId} as never,
-                    seat,
-                }),
-            );
+            newStaff.push(this.franchiseStaffAppointmentRepository.create({
+                franchise: {id: bridge.franchiseId} as never,
+                member: {id: memberId} as never,
+                seat,
+            }));
         }
 
         await this.dataSource.transaction(async em => {
@@ -360,7 +338,7 @@ export class RosterAuthorityService {
                 .createQueryBuilder()
                 .delete()
                 .from(FranchiseStaffAppointment)
-                .where('"memberId" = :memberId', {memberId})
+                .where("\"memberId\" = :memberId", {memberId})
                 .andWhere(
                     `"seatId" IN (SELECT id FROM sprocket.franchise_staff_seat WHERE "roleId" IN `
                     + `(SELECT id FROM sprocket.franchise_staff_role WHERE "gameId" = :gid))`,
@@ -373,7 +351,7 @@ export class RosterAuthorityService {
                     .createQueryBuilder()
                     .delete()
                     .from(FranchiseLeadershipAppointment)
-                    .where('"memberId" = :memberId', {memberId})
+                    .where("\"memberId\" = :memberId", {memberId})
                     .andWhere(
                         `"seatId" IN (SELECT id FROM sprocket.franchise_leadership_seat WHERE "roleId" = :roleId)`,
                         {roleId: fmRole.id},
@@ -432,13 +410,15 @@ export class RosterAuthorityService {
             },
         });
 
-        type Entry = {id: number; name: string; staffPositions: Map<string, {id: number; name: string;}>;};
+        interface Entry {id: number; name: string; staffPositions: Map<string, {id: number; name: string;}>;}
         const byFranchise = new Map<number, Entry>();
 
         const ensure = (franchiseId: number, title: string): Entry => {
             let e = byFranchise.get(franchiseId);
             if (!e) {
-                e = {id: franchiseId, name: title, staffPositions: new Map()};
+                e = {
+                    id: franchiseId, name: title, staffPositions: new Map(),
+                };
                 byFranchise.set(franchiseId, e);
             }
             return e;
@@ -495,6 +475,7 @@ export class RosterAuthorityService {
             .select("p.suspended", "suspended")
             .getRawOne<{suspended: boolean;}>();
 
-        return row?.suspended === true;
+        return row?.suspended;
     }
 }
+/* eslint-disable @typescript-eslint/member-ordering */

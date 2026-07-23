@@ -1,13 +1,13 @@
 import {Module} from "@nestjs/common";
 import {
     AnalyticsModule,
+    CarballConverterService,
     CeleryModule,
     EventsModule,
     MatchmakingModule,
     MinioModule,
     SubmissionModule,
 } from "@sprocketbot/common";
-import {CarballConverterService} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 
 import {DatabaseModule} from "../database";

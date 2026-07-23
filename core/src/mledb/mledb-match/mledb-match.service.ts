@@ -288,7 +288,7 @@ export class MledbMatchService {
         isNcp: boolean,
         winningTeam?: MLE_Team,
     ): Promise<string> {
-        this.logger.debug(`Begin markReplaysNcp: replayIds=${replayIds}, isNcp=${isNcp}, winningTeam=${winningTeam}`);
+        this.logger.debug(`Begin markReplaysNcp: replayIds=${replayIds}, isNcp=${isNcp}, winningTeam=${winningTeam ? JSON.stringify(winningTeam) : "none"}`);
 
         // Winning team must be specified if NCPing replays
         if (isNcp && !winningTeam) return "Can't mark an NCP without a winning team";

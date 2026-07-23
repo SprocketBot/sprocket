@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/member-ordering */
+
 import {
     forwardRef, Inject, Injectable, Logger,
 } from "@nestjs/common";
@@ -263,9 +265,9 @@ export class MledbFinalizationService {
                 // eslint-disable-next-line @typescript-eslint/no-extra-parens
                 core.mvpr
             = safeNum(core.goals)
-            + safeNum(core.assists) * 0.75
-            + safeNum(core.saves) * 0.6
-            + safeNum(core.shots) / 3;
+            + (safeNum(core.assists) * 0.75)
+            + (safeNum(core.saves) * 0.6)
+            + (safeNum(core.shots) / 3);
 
                 // Calculate sprocket rating with NaN protection
                 const {
@@ -385,7 +387,7 @@ export class MledbFinalizationService {
         if (parserType === Parser.CARBALL) {
             const parseResult = CarballResponseSchema.safeParse(item.progress?.result?.data);
 
-            if (parseResult.success === false) {
+            if (!parseResult.success) {
                 const {error: parseError} = parseResult;
 
                 this.logger.warn(`Degrading malformed carball payload for legacy finalization | ${JSON.stringify({
@@ -519,3 +521,4 @@ export class MledbFinalizationService {
         return playerAccount.player;
     }
 }
+/* eslint-disable @typescript-eslint/member-ordering */

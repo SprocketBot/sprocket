@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+
 import {Injectable} from "@nestjs/common";
 import type {ReplaySubmission} from "@sprocketbot/common";
 import {

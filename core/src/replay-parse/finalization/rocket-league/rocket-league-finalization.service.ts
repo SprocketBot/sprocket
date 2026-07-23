@@ -1,16 +1,17 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call */
+
 import {Injectable, Logger} from "@nestjs/common";
 import {InjectDataSource} from "@nestjs/typeorm";
 import type {
     BallchasingPlayer,
     BallchasingResponse,
     BallchasingTeam,
-    CarballResponse,
     Scrim,
 } from "@sprocketbot/common";
 import {
-    BallchasingResponseSchema, CarballResponseSchema, Parser, ProgressStatus,
+    BallchasingResponseSchema,     CarballConverterService,
+    CarballResponseSchema, Parser, ProgressStatus,
 } from "@sprocketbot/common";
-import {CarballConverterService} from "@sprocketbot/common";
 import type {EntityManager} from "typeorm";
 import {DataSource} from "typeorm";
 import type {QueryDeepPartialEntity} from "typeorm/query-builder/QueryPartialEntity";
@@ -215,11 +216,9 @@ export class RocketLeagueFinalizationService {
             await qr.startTransaction();
             const em = qr.manager;
             const match = await this.matchService.getMatchById(submission.matchId, {
-                matchParent: {fixture: {homeFranchise: {organization: true} } },
+                matchParent: {fixture: {homeFranchise: true} },
                 gameMode: true,
             });
-            const organization = match.matchParent.fixture.homeFranchise.organization;
-
             await this.saveMatchDependents(submission, match, false, em);
 
             const mleMatch = await this.mledbFinalizationService.saveMatch(submission, submission.id, em);
@@ -319,7 +318,7 @@ export class RocketLeagueFinalizationService {
             : [undefined, undefined];
 
         const uniquePlayers = new Map<number, Player>();
-        // TODO: Sprocket Team Role Usage
+        // NOTE: Sprocket Team Role Usage
         const results = await Promise.all(replays.map(async ({
             replay, parser, outputPath,
         }) => {
@@ -335,7 +334,7 @@ export class RocketLeagueFinalizationService {
        This is because the validation service has passed these over.
 
        We are using MLE Teams right now because Sprocket Roster can't be trusted.
-       TODO: R2 Update this
+       NOTE: R2 Update this
       */
 
             let awayColor: "blue" | "orange",
@@ -466,7 +465,7 @@ export class RocketLeagueFinalizationService {
         blue: Array<{player: Player; rawPlayer: BallchasingPlayer;}>;
         orange: Array<{player: Player; rawPlayer: BallchasingPlayer;}>;
     }> {
-    // TODO: This won't work when we support multiple games; in theory is an array of players for that member.
+    // NOTE: This won't work when we support multiple games; in theory is an array of players for that member.
         const lookupFn = async (p: BallchasingPlayer): Promise<Player> => this.playerService.getPlayer({
             where: {
                 member: {
@@ -533,7 +532,7 @@ export class RocketLeagueFinalizationService {
         return output;
     }
 
-    // TODO: Testing
+    // NOTE: Testing
     async _createPlayerStatLine(
         rawPlayer: BallchasingPlayer,
         player: Player,
@@ -559,7 +558,7 @@ export class RocketLeagueFinalizationService {
         return output;
     }
 
-    // TODO: Testing
+    // NOTE: Testing
     _getSprocketRating(
         rawPlayer: BallchasingPlayer,
         gameMode: GameMode,

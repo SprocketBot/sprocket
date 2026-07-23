@@ -1,8 +1,7 @@
 import {forwardRef, Module} from "@nestjs/common";
 import {JwtModule} from "@nestjs/jwt";
-import {PassportModule} from "@nestjs/passport";
-import {AnalyticsModule, config} from "@sprocketbot/common";
 import {TypeOrmModule} from "@nestjs/typeorm";
+import {config} from "@sprocketbot/common";
 
 import {UserOrgTeamPermission} from "$db/identity/user_org_team_permission/user_org_team_permission.model";
 
@@ -12,13 +11,13 @@ import {UtilModule} from "../util/util.module";
 import {AuthModule} from "./auth";
 import {IdentityController} from "./identity.controller";
 import {IdentityService} from "./identity.service";
-import {OrgTeamPermissionResolutionService} from "./user-org-team-permission/org-team-permission-resolution.service";
-import {UserOrgTeamPermissionService} from "./user-org-team-permission/user-org-team-permission.service";
-import {UserOrgTeamPermissionResolver} from "./user-org-team-permission/user-org-team-permission.resolver";
 import {
     UserController, UserResolver, UserService,
 } from "./user";
 import {UserAuthenticationAccountResolver} from "./user-authentication-account";
+import {OrgTeamPermissionResolutionService} from "./user-org-team-permission/org-team-permission-resolution.service";
+import {UserOrgTeamPermissionResolver} from "./user-org-team-permission/user-org-team-permission.resolver";
+import {UserOrgTeamPermissionService} from "./user-org-team-permission/user-org-team-permission.service";
 
 @Module({
     imports: [

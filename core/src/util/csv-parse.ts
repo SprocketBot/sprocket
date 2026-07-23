@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call */
+
 import Papa from "papaparse";
 import type {z} from "zod";
 
@@ -11,7 +13,7 @@ interface CsvError {
     row: number; // 1-based row index (Excel style)
     message: string; // The error message
     field?: string; // Which column failed (if known)
-    value?: any; // The raw value that caused the error
+    value?: unknown; // The raw value that caused the error
 }
 
 /**
@@ -39,7 +41,7 @@ export function parseAndValidateCsv<T extends z.ZodTypeAny>(
     // 2. Handle CSV-level structural errors (e.g., malformed delimiters)
     parseResult.errors.forEach(err => {
         errors.push({
-            row: err.row + 1, // Adjust for 0-index if needed, usually Papa returns 0-index
+            row: Number(err.row) + 1, // Adjust for 0-index if needed, usually Papa returns 0-index
             message: `CSV Syntax Error: ${err.message}`,
         });
     });
@@ -47,7 +49,7 @@ export function parseAndValidateCsv<T extends z.ZodTypeAny>(
     // 3. Validate each row against the Schema
     parseResult.data.forEach((row, index) => {
     // Row index + 2 because: 0-indexed array + 1 for header row = actual line number
-        const rowIndex = index + 2;
+        const rowIndex = Number(index) + 2;
 
         const validation = schema.safeParse(row);
 

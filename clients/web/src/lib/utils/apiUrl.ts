@@ -1,5 +1,6 @@
 import type {Config} from "./types";
 
+// eslint-disable-next-line no-confusing-arrow
 const withLeadingSlash = (path: string): string => path.startsWith("/") ? path : `/${path}`;
 
 export const apiUrl = (

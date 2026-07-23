@@ -38,8 +38,8 @@ export const SubmissionSchemas = {
         output: Schemas.SubmitReplays_Response,
     },
     [SubmissionEndpoint.MockCompletion]: {
-        input: Schemas.MockCompletion_Request,
-        output: Schemas.MockCompletion_Response,
+        input: Schemas.MockCompletion_Request_Schema,
+        output: Schemas.MockCompletion_Response_Schema,
     },
     [SubmissionEndpoint.CanSubmitReplays]: {
         input: Schemas.CanSubmitReplays_Request,

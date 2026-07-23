@@ -1,4 +1,6 @@
-import {Args, Int, Query, Resolver} from "@nestjs/graphql";
+import {
+    Args, Int, Query, Resolver,
+} from "@nestjs/graphql";
 
 import {MledbFranchisePresentationService} from "./mledb-franchise.presentation.service";
 import {
@@ -16,7 +18,7 @@ export class MledbFranchisePresentationResolver {
         @Args("limit", {type: () => Int, nullable: true}) limit?: number,
     ): Promise<MlePresentationFranchiseSummary[]> {
         const franchises = await this.franchiseService.searchFranchises(query, limit ?? 10);
-        return franchises.map((f) => ({
+        return franchises.map(f => ({
             name: f.name,
             callsign: f.callsign,
             division: f.division,
@@ -26,11 +28,9 @@ export class MledbFranchisePresentationResolver {
     }
 
     @Query(() => [MlePresentationFranchiseSummary])
-    async mlePresentationAllFranchises(
-        @Args("limit", {type: () => Int, nullable: true}) limit?: number,
-    ): Promise<MlePresentationFranchiseSummary[]> {
+    async mlePresentationAllFranchises(@Args("limit", {type: () => Int, nullable: true}) limit?: number): Promise<MlePresentationFranchiseSummary[]> {
         const franchises = await this.franchiseService.getAllFranchises(limit ?? 50);
-        return franchises.map((f) => ({
+        return franchises.map(f => ({
             name: f.name,
             callsign: f.callsign,
             division: f.division,
@@ -40,9 +40,7 @@ export class MledbFranchisePresentationResolver {
     }
 
     @Query(() => MlePresentationFranchiseDetail, {nullable: true})
-    async mlePresentationFranchiseDetail(
-        @Args("name", {type: () => String}) name: string,
-    ): Promise<MlePresentationFranchiseDetail | null> {
+    async mlePresentationFranchiseDetail(@Args("name", {type: () => String}) name: string): Promise<MlePresentationFranchiseDetail | null> {
         const detail = await this.franchiseService.getFranchiseDetail(name);
         if (!detail) {
             return null;
@@ -55,34 +53,34 @@ export class MledbFranchisePresentationResolver {
             conference: detail.conference,
             branding: detail.branding
                 ? {
-                      logo: detail.branding.logo,
-                      primaryColor: detail.branding.primaryColor,
-                      secondaryColor: detail.branding.secondaryColor,
-                  }
+                        logo: detail.branding.logo,
+                        primaryColor: detail.branding.primaryColor,
+                        secondaryColor: detail.branding.secondaryColor,
+                    }
                 : undefined,
             franchiseManager: detail.franchiseManager
                 ? {
-                      id: detail.franchiseManager.id,
-                      name: detail.franchiseManager.name,
-                      role: detail.franchiseManager.role,
-                  }
+                        id: detail.franchiseManager.id,
+                        name: detail.franchiseManager.name,
+                        role: detail.franchiseManager.role,
+                    }
                 : undefined,
-            generalManagers: detail.generalManagers.map((gm) => ({
+            generalManagers: detail.generalManagers.map(gm => ({
                 id: gm.id,
                 name: gm.name,
                 role: gm.role,
             })),
-            assistantGeneralManagers: detail.assistantGeneralManagers.map((agm) => ({
+            assistantGeneralManagers: detail.assistantGeneralManagers.map(agm => ({
                 id: agm.id,
                 name: agm.name,
                 role: agm.role,
             })),
-            captains: detail.captains.map((c) => ({
+            captains: detail.captains.map(c => ({
                 id: c.id,
                 name: c.name,
                 role: c.role,
             })),
-            roster: detail.roster.map((p) => ({
+            roster: detail.roster.map(p => ({
                 id: p.id,
                 mleid: p.mleid,
                 name: p.name,

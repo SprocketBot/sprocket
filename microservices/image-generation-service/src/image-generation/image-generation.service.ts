@@ -96,7 +96,7 @@ export class ImageGenerationService {
                 metadata: {
                     "Content-Type": "image/svg+xml",
                 },
-                publicRead,
+                publicRead: publicRead,
             },
         );
         await this.minioService.put(
@@ -108,7 +108,7 @@ export class ImageGenerationService {
                 metadata: {
                     "Content-Type": "image/png",
                 },
-                publicRead,
+                publicRead: publicRead,
             },
         );
 

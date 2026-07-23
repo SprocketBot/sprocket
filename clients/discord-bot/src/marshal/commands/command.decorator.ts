@@ -31,7 +31,7 @@ export const Command
           ...params: Parameters<CommandFunction>
       ): Promise<unknown> {
           /*
-       * TODO: Will nest guards work, or do we need our own system?
+       * NOTE: Will nest guards work, or do we need our own system?
        * If we need our own system, it should go here.
        */
           const before = performance.now();

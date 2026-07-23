@@ -5,7 +5,7 @@ function expectJsonParam(value: unknown): {
 } {
     return {
         toBe(expected: unknown): void {
-            const actual = value === null ? null : JSON.parse(String(value));
+            const actual = value === null ? null : JSON.parse(String(value)) as unknown;
             expect(actual).toEqual(expected);
         },
     };

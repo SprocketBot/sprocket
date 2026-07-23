@@ -16,7 +16,7 @@ export class HelpMarshal extends Marshal {
     async help(m: Message): Promise<void> {
         const commandSpecs = this.cms.commands.sort(helpUtil.specByNameAndArgs);
 
-        // TODO get organization from author on context?
+        // NOTE get organization from author on context?
         const embed = await this.embedService.embed({
             title: "Help",
             fields: commandSpecs.map(helpUtil.specToField),
@@ -47,7 +47,7 @@ export class HelpMarshal extends Marshal {
 
         const fields = helpUtil.specsToFields(commandSpecs);
 
-        // TODO get organization from author on context?
+        // NOTE get organization from author on context?
         const embed = await this.embedService.embed({
             title: `Command Help: \`${config.bot.prefix}${commandName}\``,
             fields: fields,

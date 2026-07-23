@@ -73,7 +73,7 @@ export class MatchService extends SprocketEventMarshal {
                 legacyId: databaseIds.legacyId,
                 minioKey: `${reportCardResult.data}.png`,
                 userIds: [],
-                franchiseIds,
+                franchiseIds: franchiseIds,
             },
         );
         if (reportCardAssetResult.status !== ResponseStatus.SUCCESS) {

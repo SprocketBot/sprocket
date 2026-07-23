@@ -159,8 +159,8 @@ export class CommandManagerService {
         return args;
     }
 
-    // TODO refactor this into another service?
-    // TODO increase test coverage
+    // NOTE refactor this into another service?
+    // NOTE increase test coverage
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private parseArgs(inputArgs: string[], args: CommandArg[]): Record<string, any> {
         if (inputArgs.length !== args.length) {
@@ -185,10 +185,10 @@ export class CommandManagerService {
                     if (!m) {
                         throw new Error(`Unable to parse mention argument \`${input}\``);
                     }
-                    // const member = // TODO find org Member by mention ID
+                    // const member = // NOTE find org Member by mention ID
                     parsed[arg.name] = {
                         discordId: m[1],
-                        name: "TODO find org Member by mention ID",
+                        name: "NOTE find org Member by mention ID",
                     };
                     break;
                 }

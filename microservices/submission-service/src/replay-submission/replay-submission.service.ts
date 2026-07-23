@@ -1,7 +1,9 @@
 import {
     forwardRef, Inject, Injectable, Logger,
 } from "@nestjs/common";
-import type {ReplayParseTask, ReplaySubmission} from "@sprocketbot/common";
+import type {
+    ParsedReplay, ReplayParseTask, ReplaySubmission,
+} from "@sprocketbot/common";
 import {
     CeleryService,
     EventsService,
@@ -146,8 +148,7 @@ export class ReplaySubmissionService {
 
         for (let i = 0; i < submission.items.length; i++) {
             const item = submission.items[i];
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const result = results[i] as any;
+            const result = results[i] as ParsedReplay;
 
             item.progress = {
                 status: ProgressStatus.Complete,
@@ -159,7 +160,7 @@ export class ReplaySubmissionService {
                 },
                 error: null,
             };
-            item.outputPath = result.outputPath ?? "mock-output-path";
+            item.outputPath = result.outputPath;
             await this.submissionCrudService.upsertItem(submissionId, item);
         }
 
@@ -187,7 +188,7 @@ export class ReplaySubmissionService {
 
         this.logger.debug(`Validating replay submission ${submissionId}`);
         const valid = await this.replayValidationService.validate(submission);
-        if (valid.valid === false) {
+        if (!valid.valid) {
             await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.REJECTED);
             await this.ratificationService.rejectSubmission(
                 REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,

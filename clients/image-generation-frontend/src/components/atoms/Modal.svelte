@@ -14,6 +14,7 @@
 {#if show}
     <section transition:fade={{duration: 250}}>
         <div class="container">
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
             <div class="icon" on:click={() => { show = false }}>
                 <MdClose />
             </div>

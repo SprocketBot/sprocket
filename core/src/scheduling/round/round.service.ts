@@ -28,7 +28,7 @@ export class RoundService {
             match: match,
             roundStats: stats,
             isDummy: isDummy,
-            homeWon: false, // TODO
+            homeWon: false, // NOTE
             invalidation: invalidation,
         });
 

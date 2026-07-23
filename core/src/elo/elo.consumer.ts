@@ -1,5 +1,8 @@
-import {Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy} from "@nestjs/common";
-import {AnalyticsEndpoint, AnalyticsService, PostgresService} from "@sprocketbot/common";
+import type {OnApplicationBootstrap, OnModuleDestroy} from "@nestjs/common";
+import {Injectable, Logger} from "@nestjs/common";
+import {
+    AnalyticsEndpoint, AnalyticsService, PostgresService,
+} from "@sprocketbot/common";
 
 import {FeatureCode} from "$db/game/feature/feature.enum";
 
@@ -11,22 +14,22 @@ import {EloConnectorService, EloEndpoint} from "./elo-connector";
 export const WEEKLY_SALARIES_JOB_NAME = "weeklySalaries";
 
 // Configurable via WEEKLY_SALARIES_INTERVAL_MS env var (default: 1 hour)
-const WEEKLY_SALARIES_INTERVAL_MS = parseInt(process.env.WEEKLY_SALARIES_INTERVAL_MS || "3600000", 10);
+const WEEKLY_SALARIES_INTERVAL_MS = Number.parseInt(process.env.WEEKLY_SALARIES_INTERVAL_MS || "3600000");
 
 @Injectable()
 export class EloConsumer implements OnApplicationBootstrap, OnModuleDestroy {
     private readonly logger = new Logger(EloConsumer.name);
 
-    private interval?: NodeJS.Timeout;
+    private interval?: ReturnType<typeof setInterval>;
 
     constructor(
-    private readonly playerService: PlayerService,
-    private readonly gameService: GameService,
-    private readonly gameFeatureService: GameFeatureService,
-    private readonly organizationService: OrganizationService,
-    private readonly eloConnectorService: EloConnectorService,
-    private readonly analyticsService: AnalyticsService,
-    private readonly postgres: PostgresService,
+        private readonly playerService: PlayerService,
+        private readonly gameService: GameService,
+        private readonly gameFeatureService: GameFeatureService,
+        private readonly organizationService: OrganizationService,
+        private readonly eloConnectorService: EloConnectorService,
+        private readonly analyticsService: AnalyticsService,
+        private readonly postgres: PostgresService,
     ) {}
 
     async runSalaries(): Promise<void> {
@@ -110,7 +113,7 @@ export class EloConsumer implements OnApplicationBootstrap, OnModuleDestroy {
         await this.ensureSchedulerSchema();
         await this.runSalariesIfDue();
         this.interval = setInterval(() => {
-            this.runSalariesIfDue().catch(error => this.logger.error(error));
+            this.runSalariesIfDue().catch(error => { this.logger.error(error) });
         }, WEEKLY_SALARIES_INTERVAL_MS);
         this.interval.unref?.();
     }
@@ -125,7 +128,7 @@ export class EloConsumer implements OnApplicationBootstrap, OnModuleDestroy {
         if (eastern.getDay() !== 1 || eastern.getHours() < 12) return;
 
         const runKey = `${WEEKLY_SALARIES_JOB_NAME}:${eastern.toISOString().slice(0, 10)}`;
-        const result = await this.postgres.query<{inserted: string}>(
+        const result = await this.postgres.query<{inserted: string;}>(
             `
                 INSERT INTO sprocket.platform_scheduled_job (name, last_run_at)
                 VALUES ($1, now())

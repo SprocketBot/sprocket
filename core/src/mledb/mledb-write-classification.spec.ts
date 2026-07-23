@@ -12,13 +12,13 @@ describe("MLEDB write classification", () => {
     it("records a non-empty classification ledger with unique keys", () => {
         expect(MLEDB_WRITE_CLASSIFICATIONS.length).toBeGreaterThan(0);
 
-        const keys = MLEDB_WRITE_CLASSIFICATIONS.map((classification) => classification.key);
+        const keys = MLEDB_WRITE_CLASSIFICATIONS.map(classification => classification.key);
         expect(new Set(keys).size).toBe(keys.length);
     });
 
     it("marks operational MLEDB mirrors as replacement-first before gating", () => {
         const blockedWrites = getMledbWritesBlockedFromGating();
-        const blockedKeys = blockedWrites.map((classification) => classification.key);
+        const blockedKeys = blockedWrites.map(classification => classification.key);
 
         expect(blockedKeys).toEqual(expect.arrayContaining([
             "franchise.player.createPlayer.mledbBridge",
@@ -44,17 +44,17 @@ describe("MLEDB write classification", () => {
     });
 
     it("throws when a replacement-first write is gated before its replacement is ready", () => {
-        expect(() => assertMledbWriteCanBeGated("mledb.ncpTeamRoleUsage.writeMledbFirst"))
+        expect(() => { assertMledbWriteCanBeGated("mledb.ncpTeamRoleUsage.writeMledbFirst") })
             .toThrow("MLEDB write cannot be gated before replacement is ready: mledb.ncpTeamRoleUsage.writeMledbFirst");
     });
 
     it("does not throw for non-runtime bootstrap writes", () => {
-        expect(() => assertMledbWriteCanBeGated("mledb.backfillBridge")).not.toThrow();
+        expect(() => { assertMledbWriteCanBeGated("mledb.backfillBridge") }).not.toThrow();
     });
 
     it("throws for unknown write classifications", () => {
         expect(getMledbWriteClassification("missing.write.path")).toBeUndefined();
-        expect(() => assertMledbWriteCanBeGated("missing.write.path"))
+        expect(() => { assertMledbWriteCanBeGated("missing.write.path") })
             .toThrow("Unknown MLEDB write classification: missing.write.path");
     });
 });

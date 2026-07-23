@@ -1,56 +1,59 @@
-import { createUnionType, Field, InputType, Int, ObjectType } from '@nestjs/graphql';
-import { OperationError } from 'src/franchise/player/player.types';
-import { z } from 'zod';
+import {
+    createUnionType, Field, InputType, Int, ObjectType,
+} from "@nestjs/graphql";
+import {z} from "zod";
+
+import {OperationError} from "../../franchise/player/player.types";
 
 /** Total `mledb.team_role_usage` rows inserted for the CSV (per slot × repeat factor). */
 @ObjectType()
 export class NcpRoleUsageBulkSuccess {
-  @Field(() => Int)
+    @Field(() => Int)
   insertedMledbRowCount: number;
 }
 
 @InputType()
 export class NcpTeamRoleInput {
-  @Field(() => Int)
+    @Field(() => Int)
   matchId: number;
 
-  @Field()
+    @Field()
   teamName: string;
 
-  /** League as CSV abbreviation: FL, AL, CL, ML, PL */
-  @Field()
+    /** League as CSV abbreviation: FL, AL, CL, ML, PL */
+    @Field()
   leagueAbbrev: string;
 
-  /** Slot letters from the sheet, e.g. A, B, C (mapped to PLAYERA, PLAYERB, …) */
-  @Field(() => [String])
+    /** Slot letters from the sheet, e.g. A, B, C (mapped to PLAYERA, PLAYERB, …) */
+    @Field(() => [String])
   slotsUsed: string[];
 }
 
 export const ncpTeamRoleUsageInputSchema = z.object({
-  matchId: z.number(),
-  teamName: z.string(),
-  leagueAbbrev: z.string(),
-  slotsUsed: z.array(z.string()),
+    matchId: z.number(),
+    teamName: z.string(),
+    leagueAbbrev: z.string(),
+    slotsUsed: z.array(z.string()),
 });
 
 export type ncpTeamRoleUsageInput = z.infer<typeof ncpTeamRoleUsageInputSchema>;
 
 export function schemaToInput(s: ncpTeamRoleUsageInput): NcpTeamRoleInput {
-  const out: NcpTeamRoleInput = {
-    matchId: s.matchId,
-    teamName: s.teamName,
-    leagueAbbrev: s.leagueAbbrev,
-    slotsUsed: s.slotsUsed,
-  };
+    const out: NcpTeamRoleInput = {
+        matchId: s.matchId,
+        teamName: s.teamName,
+        leagueAbbrev: s.leagueAbbrev,
+        slotsUsed: s.slotsUsed,
+    };
 
-  return out;
+    return out;
 }
 
 export const NcpRoleUsageBulkResult = createUnionType({
-  name: 'NcpRoleUsageBulkResult',
-  types: () => [NcpRoleUsageBulkSuccess, OperationError],
-  resolveType: value => {
-    if (value instanceof OperationError) return OperationError;
-    return NcpRoleUsageBulkSuccess;
-  },
+    name: "NcpRoleUsageBulkResult",
+    types: () => [NcpRoleUsageBulkSuccess, OperationError],
+    resolveType: value => {
+        if (value instanceof OperationError) return OperationError;
+        return NcpRoleUsageBulkSuccess;
+    },
 });

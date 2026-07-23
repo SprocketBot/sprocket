@@ -2,7 +2,6 @@ import {Module} from "@nestjs/common";
 import {PostgresModule} from "@sprocketbot/common";
 
 import {HealthController} from "./health.controller";
-
 import {MatchModule} from "./match/match.module";
 import {MemberModule} from "./member/member.module";
 import {NotificationModule} from "./notification/notification.module";

@@ -3,14 +3,13 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {In, Repository} from "typeorm";
 
 import {UserOrgTeamPermission} from "$db/identity/user_org_team_permission/user_org_team_permission.model";
-import {MLE_OrganizationTeam} from "../../database/mledb";
+
+import type {MLE_OrganizationTeam} from "../../database/mledb";
 
 @Injectable()
 export class UserOrgTeamPermissionService {
-    constructor(
-    @InjectRepository(UserOrgTeamPermission)
-    private readonly repo: Repository<UserOrgTeamPermission>,
-    ) {}
+    constructor(@InjectRepository(UserOrgTeamPermission)
+    private readonly repo: Repository<UserOrgTeamPermission>) {}
 
     async listOrgTeamsForUser(userId: number): Promise<MLE_OrganizationTeam[]> {
         const rows = await this.repo.find({where: {userId} });
@@ -30,7 +29,7 @@ export class UserOrgTeamPermissionService {
     }
 
     async addForUser(userId: number, orgTeam: MLE_OrganizationTeam): Promise<void> {
-        await this.repo.upsert({userId, orgTeam}, {conflictPaths: ["userId", "orgTeam"]});
+        await this.repo.upsert({userId, orgTeam}, {conflictPaths: ["userId", "orgTeam"] });
     }
 
     async removeForUser(userId: number, orgTeam: MLE_OrganizationTeam): Promise<void> {

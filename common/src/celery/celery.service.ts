@@ -72,7 +72,7 @@ export class CeleryService {
 
         if (opts?.cb) {
             this.waitForResult(task, taskId)
-                .then(result => opts.cb!(taskId, result, null))
+                .then(async result => opts.cb!(taskId, result, null))
                 .catch(error => {
                     const p = opts.cb!(taskId, null, error as Error);
                     if (p instanceof Promise) {
@@ -120,15 +120,15 @@ export class CeleryService {
                             if (message.result) {
                                 message.result = this.parseResult(task, message.result);
                             }
-                            const {result: _result, ...messageWithoutResult} = message;
+                            const messageWithoutResult = {...message, result: undefined};
                             this.logger.debug(`Progress queue=${queue} message=${JSON.stringify(messageWithoutResult)}`);
                             sub.next(message);
                         }
                     })
                     .catch(sub.error.bind(sub));
             }, 250);
-            timer.unref?.();
-            return (): void => clearInterval(timer);
+            timer.unref();
+            return (): void => { clearInterval(timer) };
         });
     }
 
@@ -137,7 +137,9 @@ export class CeleryService {
     }
 
     private async waitForResult<T extends Task>(task: T, taskId: string): Promise<TaskResult<T>> {
-        while (true) {
+        let attempt = 0;
+        while (attempt < Number.MAX_SAFE_INTEGER) {
+            attempt += 1;
             const result = await this.postgres.query<{
                 status: string;
                 result: unknown;
@@ -146,12 +148,15 @@ export class CeleryService {
                 "SELECT status, result, error FROM sprocket.platform_task_queue WHERE id = $1",
                 [taskId],
             );
-            const row = result.rows[0];
-            if (!row) throw new Error(`Task ${taskId} not found`);
+            const row = result.rows.at(0);
+            if (row === undefined) throw new Error(`Task ${taskId} not found`);
             if (row.status === "completed") return this.parseResult(task, row.result);
             if (row.status === "failed") throw new Error(row.error?.message ?? `Task ${taskId} failed`);
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise<void>(resolve => {
+                setTimeout(resolve, 500);
+            });
         }
+        throw new Error(`Task ${taskId} did not complete`);
     }
 
     private async ensureSchema(): Promise<void> {

@@ -1,6 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
+
 import {MLE_Player} from "../../database/mledb";
 
 interface FreeAgent {
@@ -27,10 +28,8 @@ interface FaListResult {
  */
 @Injectable()
 export class MledbFaPresentationService {
-    constructor(
-        @InjectRepository(MLE_Player)
-        private readonly playerRepo: Repository<MLE_Player>,
-    ) {}
+    constructor(@InjectRepository(MLE_Player)
+        private readonly playerRepo: Repository<MLE_Player>) {}
 
     /**
      * Get free agents (players where teamName = 'FA')
@@ -51,7 +50,7 @@ export class MledbFaPresentationService {
 
         const players = await query.getMany();
 
-        const mappedPlayers: FreeAgent[] = players.map((p) => ({
+        const mappedPlayers: FreeAgent[] = players.map(p => ({
             id: p.id,
             mleid: p.mleid,
             name: p.name,
@@ -92,7 +91,7 @@ export class MledbFaPresentationService {
 
         const players = await query.getMany();
 
-        const mappedPlayers: FreeAgent[] = players.map((p) => ({
+        const mappedPlayers: FreeAgent[] = players.map(p => ({
             id: p.id,
             mleid: p.mleid,
             name: p.name,
@@ -133,7 +132,7 @@ export class MledbFaPresentationService {
 
         const players = await query.getMany();
 
-        const mappedPlayers: FreeAgent[] = players.map((p) => ({
+        const mappedPlayers: FreeAgent[] = players.map(p => ({
             id: p.id,
             mleid: p.mleid,
             name: p.name,

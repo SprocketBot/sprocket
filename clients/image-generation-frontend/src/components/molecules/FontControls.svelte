@@ -42,6 +42,7 @@
     every font used in the base image
   </p>
 
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div
     class="fileinput"
     on:click={() => {

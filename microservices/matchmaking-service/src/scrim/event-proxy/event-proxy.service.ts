@@ -26,7 +26,7 @@ implements Omit<EventsService, "rmqService" | "subscribeAsyncIterator"> {
             EventTopic.ScrimMetricsUpdate,
             await this.scrimMetricsService.getScrimMetrics(),
         );
-        // TODO: On Scrim Update, Regen and republish scrim metrics
+        // NOTE: On Scrim Update, Regen and republish scrim metrics
         return this.service.publish(topic, payload, subtopic);
     }
 

@@ -3,10 +3,10 @@ import {
 } from "@nestjs/graphql";
 import {REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID} from "@sprocketbot/common";
 
+import {UserService} from "../identity";
 import {
     CurrentUser, UserPayload,
 } from "../identity/auth";
-import {UserService} from "../identity";
 import {
     GqlRatifierInfo, GqlReplaySubmission, ReplaySubmission, SubmissionRejection,
 } from "./types";
@@ -54,7 +54,7 @@ export class SubmissionRejectionResolver {
     async playerName(@Root() rejection: SubmissionRejection): Promise<string> {
         if (rejection.playerName) return rejection.playerName;
         if (rejection.playerId === REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID) return "Sprocket";
-        // TODO: Is it possible to map to an organization from here?
+        // NOTE: Is it possible to map to an organization from here?
 
         const user = await this.userService.getUserById(parseInt(rejection.playerId.toString()));
         return user.profile.displayName;

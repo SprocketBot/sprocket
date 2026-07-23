@@ -16,7 +16,7 @@
         // toast
         // remove ban
         try {
-            // TODO: ensure we are getting the correct orgId
+            // NOTE: ensure we are getting the correct orgId
             const memberRequest = await getMemberByUserIdQuery({id: player.id, orgId: player.orgId});
             const memberId = memberRequest.id ?? 0;
             const duration = expirationDuration * 1000 * 60 * 60; // n hours in ms

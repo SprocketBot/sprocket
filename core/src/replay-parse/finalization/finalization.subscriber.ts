@@ -1,5 +1,5 @@
 import {Injectable, Logger} from "@nestjs/common";
-import type {ReplaySubmission, Scrim} from "@sprocketbot/common";
+import type {Scrim} from "@sprocketbot/common";
 import {
     EventsService,
     EventTopic,
@@ -43,20 +43,20 @@ export class FinalizationSubscriber {
 
                     if (submission.type === ReplaySubmissionType.MATCH) {
                         await this.onMatchSubmissionComplete(
-                            submission as MatchReplaySubmission,
+                            submission,
                             payload.submissionId,
                         );
                     } else if (submission.type === ReplaySubmissionType.SCRIM) {
                         const scrim = await this.scrimService.getScrimBySubmissionId(payload.submissionId);
                         await this.onScrimComplete(
-                            submission as ScrimReplaySubmission,
+                            submission,
                             payload.submissionId,
                             scrim,
                         );
                     } else if (submission.type === ReplaySubmissionType.LFS) {
                         const scrim = await this.scrimService.getScrimBySubmissionId(payload.submissionId);
                         await this.onLFSComplete(
-                            submission as LFSReplaySubmission,
+                            submission,
                             payload.submissionId,
                             scrim,
                         );
